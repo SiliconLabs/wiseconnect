@@ -1,0 +1,16 @@
+id: rsilib_clock_update
+label: CLOCK UPDATE
+package: platform
+description: >
+  Clock Update Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/clock_update.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "clock_update.h"
+provides:
+  - name: rsilib_clock_update

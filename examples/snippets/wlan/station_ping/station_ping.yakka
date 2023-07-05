@@ -1,0 +1,24 @@
+name: Station Ping
+
+sources:
+  - main.c
+  - app.c
+
+clang-format: true
+
+flags:
+  c:
+    global:
+      - -Werror
+
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - wifi
+    - network_manager
+    - freertos
+    - clang-format

@@ -1,0 +1,50 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_si91x_dma
+label: SI91x - SL_DMA
+description: |
+  demostrate UDMA functionality.
+category: example|peripheral
+package: platform
+quality: production
+readme:
+- {path: readme.md}
+source:
+- {path: app.c}
+- {path: main.c}
+- {path: dma_example.c}
+- {path: dma_example.h}
+- {path: app.h}
+sdk: {id: gecko_sdk, version: 4.1.0}
+toolchain_settings: []
+component:
+  - id: cmsis_common
+  - id: component_catalog
+  - id: sl_system
+  - id: siwx917_soc
+    from: wiseconnect3_sdk
+  - id: si91x_support
+    from: wiseconnect3_sdk
+  - id: sl_dma
+    from: wiseconnect3_sdk
+  - id: sl_siwx917_platform
+    from: wiseconnect3_sdk
+  - id: sl_siwx917_systemcall
+    from: wiseconnect3_sdk
+other_file:
+- {path: resources/readme/image503a.png}
+- {path: resources/readme/image503b.png}
+- {path: resources/readme/image503c.png}
+define:
+- {name: RSI_M4_INTERFACE}
+- {name: SL_SI91X_DMA}
+- {name: SYSCALLS_WRITE}
+- {name: __STATIC_INLINE, value: "static inline"}
+provides:
+- {name: si91x_soc}
+ui_hints:
+  highlight:
+  - {path: readme.md, focus: true}
+sdk_extension:
+- {id: wiseconnect3_sdk, version: 3.0.9}
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

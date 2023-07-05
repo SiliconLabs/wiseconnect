@@ -1,0 +1,16 @@
+id: rsilib_aux_reference_volt_config
+label: AUX REFERENCE VOLT
+package: platform
+description: >
+  Auxillary Reference Voltage Configuration API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/aux_reference_volt_config.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "aux_reference_volt_config.h"
+provides:
+  - name: rsilib_aux_reference_volt_config

@@ -1,0 +1,17 @@
+id: romdriver_udma
+label: ROM DRIVER UDMA
+package: platform
+description: >
+  Rom Driver UDMA
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/rom_driver"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_rom_udma.h"
+provides:
+  - name: romdriver_udma
+requires:
+  - name: romdriver_romtable
+  - name: rsilib_udma

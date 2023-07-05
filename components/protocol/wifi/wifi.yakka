@@ -1,0 +1,88 @@
+name: SL Wi-Fi
+
+includes:
+  global:
+    - inc
+
+sources:
+  - src/sl_wifi_callback_framework.c
+
+defines:
+  global:
+    - SL_WIFI_COMPONENT_INCLUDED
+
+requires:
+  components:
+    - platform_common
+    - si91x_support
+
+supports:
+  components:
+    si91x:
+      sources:
+        - si91x/sl_wifi.c
+
+clang-format: true
+
+suds:
+  sl-wifi-introduction:
+    version: "3.0.0"
+    contentType: markdown
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    title: "Overview"
+    description: "Description"
+    sourceDir: ./docs
+    items:
+      - Overview: index.md
+
+  wiseconnect-api-reference-guide-wi-fi:
+    version: "3.0.0"
+    contentType: doxygen
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    title: "Wi-Fi"
+    items:
+      - index
+      - sl-wifi
+
+
+doxygen:
+  project_name: "SL Wi-Fi"
+  inputs:
+    - inc
+    - docs/doxygen_template.h
+    - docs/doxygen_indexfile.md
+  image_path: docs/images
+  
+api:
+  public:
+    - inc/sl_wifi.h
+    - inc/sl_wifi_types.h
+    - inc/sl_wifi_constants.h
+    - inc/sl_wifi_extras.h
+    - inc/sl_wifi_callback_framework.h
+    
+slc:
+  label: 'Wi-Fi Core'
+  description: 'Implementation of the SL Wi-Fi API'
+  category: 'Wi-Fi'
+  template_contribution:
+    - name: RAM_EXECUTION
+      value: true
+      condition:
+      - brd4325a
+    - name: RAM_EXECUTION
+      value: true
+      condition:
+      - brd4325c
+    - name: RAM_EXECUTION
+      value: true
+      condition:
+      - brd4325g
+    - name: RAM_EXECUTION
+      value: true
+      condition:
+      - brd4338a

@@ -1,0 +1,21 @@
+id: sl_gspi
+label: SL GSPI
+package: platform
+description: >
+   SL GSPI Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_gspi_config.h
+  - path: config/sl_si91x_gspi_common_config.h
+source:
+  - path: "src/sl_si91x_gspi.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_gspi.h"
+provides:
+  - name: sl_gspi
+requires:
+  - name: udma_linker_config

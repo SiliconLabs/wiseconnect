@@ -1,0 +1,16 @@
+id: rsilib_efuse
+label: EFUSE
+package: platform
+description: >
+  Electronic Fuse Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_efuse.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_efuse.h"
+provides:
+  - name: rsilib_efuse

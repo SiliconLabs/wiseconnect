@@ -1,0 +1,15 @@
+name: Si91x with LwIP external stack
+
+
+slc:
+  label: 'Hosted LwIP Network Stack'
+  description: 'Use LwIP network stack on the host'
+  category: 'Devices|Si91x|Networking'
+  requires:
+    - name: lwip_port_freertos
+    - name: lwip_api
+    - name: lwip_netif_ethernet
+  conflicts:
+    - name: si91x_internal_stack
+  provides:
+    - name: si91x_networking_model

@@ -1,0 +1,16 @@
+id: rsilib_timers
+label: TIMERS API
+package: platform
+description: >
+  Timers Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_timers.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_timers.h"
+provides:
+  - name: rsilib_timers

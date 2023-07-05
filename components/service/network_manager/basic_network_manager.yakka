@@ -1,0 +1,10 @@
+name: SL Net basic network manager
+
+sources:
+  - src/sl_net_basic_credentials.c
+  - src/sl_net_basic_profiles.c
+  
+slc:
+  label: 'Basic Data Manager'
+  description: 'Basic network data manager'
+  category: 'Networking|Data Management'

@@ -1,0 +1,32 @@
+name: SL Wi-Fi Client BLE Power Save Example
+
+sources:
+  - main.c
+  - app.c
+  - ble_app.c
+  - wifi_app.c
+  
+includes:
+  files:
+    - app.h
+    - ble_config.h
+  global:
+    - .
+    
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - si91x
+    - wifi
+    - network_manager
+    - freertos
+    - clang-format
+    - ble
+    - sl_tls
+    - bsd_socket
+
+clang-format: true

@@ -1,0 +1,21 @@
+id: cmsis_mci
+label: CMSIS MCI
+package: platform
+description: >
+  MCI Driver API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers"
+source:
+  - path: "cmsis_driver/MCI.c"
+include:
+  - path: "cmsis_driver"
+    file_list:
+    - path: "MCI.h"
+  - path: "cmsis_driver/CMSIS/Driver/Include"
+    file_list:
+    - path: "Driver_MCI.h"
+provides:
+  - name: cmsis_mci
+requires:
+  - name: cmsis_driver_common

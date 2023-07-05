@@ -1,0 +1,23 @@
+id: sl_dma
+label: SL DMA
+package: platform
+description: >
+  Analog to Digital Converter Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_dma_inst_config.h
+requires:
+  - name: udma_linker_config
+source:
+  - path: "src/sl_si91x_dma.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_dma.h"
+provides:
+  - name: sl_dma
+template_contribution:
+  - name: udma_enable
+    value: true

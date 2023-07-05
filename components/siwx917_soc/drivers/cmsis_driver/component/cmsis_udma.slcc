@@ -1,0 +1,20 @@
+id: cmsis_udma
+label: CMSIS UDMA
+package: platform
+description: >
+  UDMA Driver API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers"
+source:
+  - path: "cmsis_driver/UDMA.c"
+include:
+  - path: "cmsis_driver"
+    file_list:
+    - path: "UDMA.h"
+provides:
+  - name: cmsis_udma
+requires:
+  - name: rsilib_udma_wrapper
+  - name: rsilib_udma
+  - name: cmsis_driver_common

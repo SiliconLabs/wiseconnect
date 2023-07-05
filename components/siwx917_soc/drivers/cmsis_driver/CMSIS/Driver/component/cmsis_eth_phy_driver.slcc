@@ -1,0 +1,14 @@
+id: cmsis_eth_phy_driver
+label: CMSIS ETH PHY DRIVER
+package: platform
+description: >
+  CMSIS ETH PHY Driver include path
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/cmsis_driver/CMSIS/Driver"
+include:
+  - path: "Include"
+    file_list:
+    - path: "Driver_ETH_PHY.h"
+provides:
+  - name: cmsis_eth_phy_driver

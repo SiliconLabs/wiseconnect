@@ -1,0 +1,18 @@
+id: sl_calendar
+label: SL CALENDAR
+package: platform
+description: >
+  Calendar Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+component_root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: "config/sl_si91x_calendar_config.h"
+source:
+  - path: "src/sl_si91x_calendar.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_calendar.h"
+provides:
+  - name: sl_calendar

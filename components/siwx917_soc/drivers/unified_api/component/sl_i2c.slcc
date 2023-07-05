@@ -1,0 +1,16 @@
+id: sl_i2c
+label: SL I2C
+package: platform
+description: >
+   SL I2C Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+component_root_path: "components/siwx917_soc/drivers/unified_api"
+source:
+  - path: "src/sl_si91x_peripheral_i2c.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_peripheral_i2c.h"
+provides:
+  - name: sl_i2c

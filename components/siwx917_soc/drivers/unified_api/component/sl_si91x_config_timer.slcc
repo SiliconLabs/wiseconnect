@@ -1,0 +1,18 @@
+id: sl_si91x_config_timer
+label: SL CONFIG TIMER
+package: platform
+description: >
+   SL CT Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_config_timer_config.h
+source:
+  - path: "src/sl_si91x_config_timer.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_config_timer.h"
+provides:
+  - name: sl_si91x_config_timer

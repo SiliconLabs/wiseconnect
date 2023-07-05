@@ -1,0 +1,21 @@
+name: HTTP client application
+
+sources:
+  - main.c
+  - app.c
+
+clang-format: true
+
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - wifi
+    - network_manager
+    - sl_tls
+    - freertos
+    - http_client
+    - clang-format

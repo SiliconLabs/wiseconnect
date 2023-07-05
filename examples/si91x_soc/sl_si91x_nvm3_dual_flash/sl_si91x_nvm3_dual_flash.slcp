@@ -1,0 +1,54 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_si91x_nvm3_dual_flash
+label: sl_si91x_nvm3_dual_flash
+description: |
+  Demonstrates NVM3 write, read and erase functions.
+category: example|peripheral
+package: platform
+quality: production
+readme:
+  - path: readme.md
+source:
+  - path: main.c
+  - path: app.c
+  - path: nvm3_app.c
+include:
+  - path:
+    file_list:
+    - path: app.h
+    - path: nvm3_app.h
+sdk: {id: gecko_sdk, version: 4.1.0}
+toolchain_settings: []
+requires:
+  - name: rsilib_clock_update
+  - name: romdriver_egpio
+  - name: rsilib_userconfig
+  - name: sl_si91x_dual_flash_nvm3
+  - name: sl_siwx917_platform
+  - name: sl_siwx917_systemcall
+  - name: si917_memory_default_config
+  - name: si91x_support
+configuration:
+  - name: NVM3_DEFAULT_MAX_OBJECT_SIZE
+    value: 204
+other_file:
+  - path: resources/readme/image508a.png
+  - path: resources/readme/image508b.png
+  - path: resources/readme/image508c.png
+  - path: resources/readme/image508d.PNG
+provides:
+  - name: si91x_soc
+define:
+  - name: SYSCALLS_WRITE
+template_contribution:
+  - name: NVM3_DUAL_FLASH
+    value: 1
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.0.9
+post_build:
+  path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

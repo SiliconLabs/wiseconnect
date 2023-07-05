@@ -1,0 +1,23 @@
+name: Lwip TCP Client
+
+sources:
+  - main.c
+  - app.c
+
+clang-format: true
+
+
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - si91x_lwip_stack
+    - wifi
+    - network_manager
+    - freertos
+    - clang-format
+    - resources
+    - lwip

@@ -1,0 +1,27 @@
+name: WiFi-6 MIMO Example
+
+sources:
+  - main.c 
+  - app.c
+
+clang-format: true
+
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - wifi
+    - network_manager
+    - freertos
+    - clang-format
+
+flags:
+  c:
+    global:
+      - -Werror
+  ld:
+    global:
+      - -u _printf_float

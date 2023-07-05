@@ -1,0 +1,44 @@
+id: si91x_support
+package: wiseconnect3_sdk
+description: >
+  Si91x Support Library
+label: Si91x Support Library
+category: Wi-Fi
+quality: production
+component_root_path: ./components/si91x_support
+provides:
+- name: si91x_support
+source:
+- path: src/sl_utility.c
+include:
+- path: inc
+- path: brd4180a
+  condition: [brd4180a]
+- path: efr32mg21
+  condition: [brd4180a]
+- path: brd4180b
+  condition: [brd4180b]
+- path: efr32mg21
+  condition: [brd4180b]
+- path: brd4325a
+  condition: [brd4325a]
+- path: brd4325b
+  condition: [brd4325b]
+- path: brd4325c
+  condition: [brd4325c]
+- path: brd4325g
+  condition: [brd4325g]
+- path: brd4338a
+  condition: [brd4338a]
+- path: efm32gg11b
+  condition: [efm32gg11b]
+- path: efr32mg21
+  condition: [efr32mg21]
+- path: siwx917_soc
+  condition: [siwx917_soc]
+define:
+- name: SL_COMPONENT_CATALOG_PRESENT
+- name: EFR32MG21A020F1024IM32
+  condition: [brd4180a]
+- name: EFR32MG21A020F1024IM32
+  condition: [brd4180b]

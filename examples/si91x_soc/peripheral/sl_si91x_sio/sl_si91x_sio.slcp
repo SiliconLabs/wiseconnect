@@ -1,0 +1,48 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_si91x_sio
+label: SI91x - SL SIO
+description: |
+  This example project configures SIO as SPI peripheral and do loopback test
+category: example|peripheral
+package: platform
+quality: production
+readme:
+- {path: readme.md}
+source:
+- {path: main.c}
+- {path: app.c}
+- {path: app.h}
+- {path: sio_example.c}
+- {path: sio_example.h}
+sdk: {id: gecko_sdk, version: 4.1.0}
+toolchain_settings: []
+component:
+- {from: wiseconnect3_sdk, id: sl_siwx917_platform}
+- {from: wiseconnect3_sdk, id: rsilib_sio}
+- {from: wiseconnect3_sdk, id: si91x_support}
+- {id: cmsis_common}
+- {from: wiseconnect3_sdk, id: sl_siwx917_systemcall}
+- {from: wiseconnect3_sdk, id: sl_sio_peripheral}
+- {id: component_catalog}
+- {id: sl_system}
+- {from: wiseconnect3_sdk, id: siwx917_soc}
+- {from: wiseconnect3_sdk, id: brd4325a}
+other_file:
+- {path: resources/readme/image509a.png}
+- {path: resources/readme/image509b.png}
+- {path: resources/readme/image509c.png}
+- {path: resources/uc_screen/sio_spi_uc.png}
+- {path: resources/uc_screen/sio_uart_uc.png}
+- {path: resources/uc_screen/sio_i2c_uc.png}
+define:
+- {name: RSI_M4_INTERFACE}
+- {name: SYSCALLS_WRITE}
+provides:
+- {name: si91x_soc}
+ui_hints:
+  highlight:
+  - {path: readme.md, focus: true}
+sdk_extension:
+- {id: wiseconnect3_sdk, version: 3.0.9}
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

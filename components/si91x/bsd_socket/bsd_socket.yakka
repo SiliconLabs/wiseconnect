@@ -1,0 +1,55 @@
+name: BSD Socket API
+
+includes:
+  files:
+    - inc/socket.h
+    - inc/errno.h
+    - inc/netinet_in.h 
+    - inc/netinet6_in6.h
+    - inc/uio.h
+    - inc/select.h
+
+  global:
+    - inc
+
+console:
+  include_headers:
+    - 'socket.h'
+    - 'netinet_in.h'
+  enums:
+    bsd_socket_family:
+      AF_INET: 2
+      AF_INET6: 24
+
+    bsd_socket_type:
+      SOCK_STREAM: 1
+      SOCK_DGRAM : 2
+    
+    bsd_socket_protocol:
+      IPPROTO_TCP : 6
+      IPPROTO_UDP : 17
+      
+    socket_domain:
+      af_inet: 2
+      af_inet6: 0
+    socket_type:
+      stream: 'SOCK_STREAM'
+      dgram: 'SOCK_DGRAM'
+      raw: 'SOCK_RAW'
+    socket_protocol:
+      ip_proto: 'IPPROTO_IP'
+      ip_icmp: 'IPPROTO_ICMP'
+      ip_tcp: 'IPPROTO_TCP'
+      ip_udp: 'IPPROTO_UDP'
+      ip_udp_lite: 'IPPROTO_UDPLITE'
+      ip_raw: 'IPPROTO_RAW' 
+
+api:
+  public:
+    - inc/socket.h
+    - inc/errno.h
+
+slc:
+  label: 'BSD Sockets'
+  description: 'BSD Sockets'
+  category: 'Networking|Sockets'

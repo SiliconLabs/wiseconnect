@@ -1,0 +1,14 @@
+id: cmsis_usb_driver
+label: CMSIS USB DRIVER
+package: platform
+description: >
+  CMSIS USB Driver include path
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/cmsis_driver/CMSIS/Driver"
+include:
+  - path: "Include"
+    file_list:
+    - path: "Driver_USB.h"
+provides:
+  - name: cmsis_usb_driver

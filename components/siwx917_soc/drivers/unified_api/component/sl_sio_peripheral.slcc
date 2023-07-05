@@ -1,0 +1,18 @@
+id: sl_sio_peripheral
+label: SL SIO
+package: platform
+description: >
+  SL SIO Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_sio_config.h
+source:
+  - path: "src/sl_si91x_sio.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_sio.h"  
+provides:
+  - name: sl_sio_peripheral

@@ -1,0 +1,26 @@
+name: Common resources
+
+includes:
+  global:
+    - certificates
+    - defaults
+    - other
+
+clang-format: true
+
+slc:
+  id: wifi_resources
+  label: 'Wi-Fi resources'
+  description: 'Wi-Fi SDK default values and certificates'
+  category: 'Resources'
+  config_file:
+  - path: 'defaults/sl_net_default_values.h'
+    file_id: sl_net_default_values
+  - path: 'lwip_defaults/lwipopts.h'
+    file_id: lwipopts
+    condition:
+      - si91x_lwip_stack
+  - path: 'defaults/aws_iot_config.h'
+    file_id: aws_iot_config
+    condition:
+      - aws_sdk

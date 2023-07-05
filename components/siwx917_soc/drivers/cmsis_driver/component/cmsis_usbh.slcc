@@ -1,0 +1,18 @@
+id: cmsis_usbh
+label: CMSIS USBH
+package: platform
+description: >
+  USBH Driver API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers"
+source:
+  - path: "cmsis_driver/USBH.c"
+include:
+  - path: "cmsis_driver/CMSIS/Driver/Include"
+    file_list:
+    - path: "Driver_USBH.h"
+provides:
+  - name: cmsis_usbh
+requires:
+  - name: cmsis_driver_common

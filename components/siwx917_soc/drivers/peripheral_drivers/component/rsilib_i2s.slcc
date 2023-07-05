@@ -1,0 +1,16 @@
+id: rsilib_i2s
+label: I2S
+package: platform
+description: >
+  Inter-IC Sound Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_i2s.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_i2s.h"
+provides:
+  - name: rsilib_i2s

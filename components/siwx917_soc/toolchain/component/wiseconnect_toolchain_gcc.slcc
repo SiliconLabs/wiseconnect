@@ -1,0 +1,34 @@
+id: wiseconnect_toolchain_gcc
+label: GCC Toolchain
+package: platform
+description: Toolchain support for GCC
+category: Devices|Si91x|Toolchain
+quality: alpha
+root_path: components/siwx917_soc/toolchain
+provides:
+  - name: wiseconnect_toolchain_gcc
+template_file:
+  - path: linkerfile_SoC.ld.jinja
+    unless:
+      - wiseconnect_toolchain_gcc_override
+requires:
+  - name: wiseconnect_toolchain_variant
+  - name: wiseconnect_toolchain_variant_arm
+library:
+  - system: gcc
+    unless:
+      - wiseconnect_toolchain_gcc_override
+  - system: c
+    unless:
+      - wiseconnect_toolchain_gcc_override
+  - system: m
+    unless:
+      - wiseconnect_toolchain_gcc_override
+  - system: nosys
+    unless:
+      - wiseconnect_toolchain_gcc_override
+toolchain_settings:
+  - option: linkerfile
+    value: autogen/linkerfile_SoC.ld
+    unless:
+      - wiseconnect_toolchain_gcc_override

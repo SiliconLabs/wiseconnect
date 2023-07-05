@@ -1,0 +1,23 @@
+id: sl_usart_iostream
+label: SL IOSTREAM USART
+package: platform
+description: >
+  SL IOSTREAM USART Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+define:
+   - name: IOSTREAM_USART
+     value: 1
+config_file:
+  - path: config/sl_si91x_usart_common_config.h
+source:
+  - path: "src/sl_si91x_usart.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_usart.h"  
+provides:
+  - name: sl_usart_iostream
+requires:
+  - name: udma_linker_config

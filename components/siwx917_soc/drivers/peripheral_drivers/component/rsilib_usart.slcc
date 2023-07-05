@@ -1,0 +1,16 @@
+id: rsilib_usart
+label: USART
+package: platform
+description: >
+  Universal Synchronous and Asynchronous Receiver-Transmitter Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_usart.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_usart.h"
+provides:
+  - name: rsilib_usart

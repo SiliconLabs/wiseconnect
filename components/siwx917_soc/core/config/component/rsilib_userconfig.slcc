@@ -1,0 +1,14 @@
+id: rsilib_userconfig
+label: RSI USER CONFIG
+package: platform
+description: >
+  User Configuration defines are available in this file
+category: Platform|si91x|core
+quality: alpha
+component_root_path: "components/siwx917_soc/core"
+include:
+  - path: "config"
+    file_list:
+    - path: "rsi_ccp_user_config.h"
+provides:
+  - name: rsilib_userconfig

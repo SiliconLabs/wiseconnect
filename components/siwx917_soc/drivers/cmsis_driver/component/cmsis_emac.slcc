@@ -1,0 +1,21 @@
+id: cmsis_emac
+label: CMSIS EMAC
+package: platform
+description: >
+  EMAC Driver API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers"
+source:
+  - path: "cmsis_driver/EMAC.c"
+include:
+  - path: "cmsis_driver"
+    file_list:
+    - path: "EMAC.h"
+  - path: "cmsis_driver/CMSIS/Driver/Include"
+    file_list:
+    - path: "Driver_ETH_MAC.h"
+provides:
+  - name: cmsis_emac
+requires:
+  - name: cmsis_driver_common

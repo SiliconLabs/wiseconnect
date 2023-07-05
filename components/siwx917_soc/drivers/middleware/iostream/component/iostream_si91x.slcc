@@ -1,0 +1,28 @@
+id: iostream_si91x
+label: IOSTREAM
+package: platform
+description: >
+  IOSTREAM Peripheral Interface API's
+category: Platform|si91x|core
+quality: production
+root_path: components/siwx917_soc/drivers/middleware/iostream
+include:
+  - path: inc
+    file_list:
+      - path: sl_iostream_usart_si91x.h
+      - path: sl_iostream_uart_si91x.h
+source:
+  - path: src/sl_iostream_usart_si91x.c
+template_file:
+  - path: init/sl_iostream_init_si91x_usart.c.jinja
+  - path: init/sl_iostream_init_si91x_usart.h.jinja
+define:
+  - name: EXT_IRQ_COUNT
+    value: "75"
+  - name: SRAM_BASE
+    value: "0x0C000000UL"
+  - name: SRAM_SIZE
+    value: "0x00040000UL"
+  - name: _SI91X_DEVICE
+provides:
+  - name: iostream_si91x

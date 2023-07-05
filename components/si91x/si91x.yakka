@@ -1,0 +1,289 @@
+name: Si91x Driver
+
+includes:
+  global:
+    - inc
+    - memory
+
+defines:
+  global:
+    - CHIP_917
+
+sources:
+  - src/sl_si91x_driver.c
+  - src/sl_rsi_utility.c
+  - src/sl_si91x_callback_framework.c
+  - threading/sli_si91x_multithreaded.c
+  
+requires:
+  components:
+    - platform_common
+
+flags:
+  c:
+    global:
+      - -Wall
+      - -Werror
+
+provides:
+  features:
+    - wifi
+
+supports:
+  components:
+    network_manager:
+      sources:
+        - sl_net/src/sl_net_si91x.c
+        - sl_net/src/sl_net_rsi_utility.c
+        - sl_net/src/sl_net_si91x_integration_handler.c
+      includes:
+        global:
+          - sl_net/inc
+    brd4180a:
+      sources:
+        - platforms/efx32/efx32_ncp_host.c
+        - platforms/efx32/efx32_ncp_host_spi.c
+        - spi_interface/sl_si91x_spi_driver.c
+      requires:
+        components:
+          - gpiointerrupt
+          - dmadrv
+    brd4180b:
+      sources:
+        - platforms/efx32/efx32_ncp_host.c
+        - platforms/efx32/efx32_ncp_host_spi.c
+        - spi_interface/sl_si91x_spi_driver.c
+      requires:
+        components:
+          - gpiointerrupt
+          - dmadrv
+    brd4325a:
+      sources:
+        - platforms/siwx917_soc/siwx917_soc_ncp_host.c         
+    brd4325b:
+      sources:
+        - platforms/siwx917_soc/siwx917_soc_ncp_host.c
+    brd4325c:
+      sources:
+        - platforms/siwx917_soc/siwx917_soc_ncp_host.c
+    brd4325g:
+      sources:
+        - platforms/siwx917_soc/siwx917_soc_ncp_host.c
+    brd4338a:
+      sources:
+        - platforms/siwx917_soc/siwx917_soc_ncp_host.c
+
+  features:
+    si91x_internal_stack:
+      requires:
+        components:
+          - si91x_internal_stack
+        
+choices:
+  wifi_buffer_management:
+    description: 'Buffer management scheme'
+    components:
+      - si91x_basic_buffers
+    default:
+      component: si91x_basic_buffers
+  wifi_bus:
+    description: 'Wi-Fi device bus interface'
+    features:
+      - wifi_spi_bus
+      - wifi_internal_bus
+  network_stack:
+    description: 'To choose either internal or external network stack'
+    features:
+      - si91x_stack_less
+      - si91x_internal_stack
+      - si91x_lwip_stack
+    default:
+      feature: si91x_internal_stack
+
+doxygen:
+  project_name: "Si91x"
+  inputs:
+    - inc
+    - sl_net/inc/sl_net_si91x.h
+    - sl_net/protocols/icmp/sl_net_ping.h
+    - docs/doxygen_template.h
+    - docs/doxygen_indexfile.md
+    - docs/doxygen_examples.md
+
+suds:
+  wiseconnect-api-reference-guide-si91x-driver:
+    version: "3.0.0"
+    contentType: doxygen
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    title: "Si91x Driver"
+    description: "Si91x Driver"
+    items:
+      - index
+      - sl-si91-x
+
+clang-format: true
+
+slc:
+  label: 'Si91x Driver'
+  description: 'Si91x Driver'
+  category: 'Devices|Si91x'
+  requires:
+    - name: 'gpiointerrupt'
+      condition: [device_has_devinfo]
+    - name: 'si91x_networking_model'
+  recommends:
+    - id: 'si91x_internal_stack'
+
+console:
+  include_headers:
+    - 'sl_wifi_constants.h'
+    - 'sl_ip_types.h'
+    - 'sl_wifi_device.h'
+  enums:
+    wifi_interface:
+      client: 'SL_WIFI_CLIENT_2_4GHZ_INTERFACE'
+      ap: 'SL_WIFI_AP_2_4GHZ_INTERFACE'
+      client_5g: 'SL_WIFI_CLIENT_5GHZ_INTERFACE'
+      ap_5g: 'SL_WIFI_AP_5GHZ_INTERFACE'
+    wifi_init_mode:
+      client: 0
+      ap: 1
+      apsta: 2
+      eap: 3
+      ble_coex: 4
+      client_ipv6: 5
+      transmit_test: 6
+    operating_band:
+      2.4g: 0
+      5g: 1
+      dual: 2
+    flags:
+      connect: 0
+      bind_and_listen: 1
+    continuous_flag:
+      one_time: 0
+      continuous: 1
+    ap_client_deauth:
+      deauth_client: 'SL_WIFI_DEAUTH'
+      deauth_client_unspecified: 'SL_WIFI_DEAUTH_UNSPECIFIED'
+    wifi_security:
+      open: 'SL_WIFI_OPEN'
+      wpa: 'SL_WIFI_WPA'
+      wpa2: 'SL_WIFI_WPA2'
+      wep: 'SL_WIFI_WEP'
+      wpa_enterprise: 'SL_WIFI_WPA_ENTERPRISE'
+      wpa2_enterprise: 'SL_WIFI_WPA2_ENTERPRISE'
+      wpa_wpa2_mixed: 'SL_WIFI_WPA_WPA2_MIXED'
+      wpa3: 'SL_WIFI_WPA3'
+      wpa3_transition: 'SL_WIFI_WPA3_TRANSITION'
+    wifi_encryption:
+      open: 'SL_WIFI_NO_ENCRYPTION'
+      wep: 'SL_WIFI_WEP_ENCRYPTION'
+      tkip: 'SL_WIFI_TKIP_ENCRYPTION'
+      ccmp: 'SL_WIFI_CCMP_ENCRYPTION'
+      tls: 'SL_WIFI_EAP_TLS_ENCRYPTION'
+      ttls: 'SL_WIFI_EAP_TTLS_ENCRYPTION'
+      fast: 'SL_WIFI_EAP_FAST_ENCRYPTION'
+      peap: 'SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION'
+    wifi_band:
+      auto: 'SL_WIFI_AUTO_BAND'
+      900m: 'SL_WIFI_BAND_900MHZ'
+      2.4g: 'SL_WIFI_BAND_2_4GHZ'
+      5g: 'SL_WIFI_BAND_5GHZ'
+      6g: 'SL_WIFI_BAND_6GHZ'
+      60g: 'SL_WIFI_BAND_60GHZ'
+    wifi_bandwidth:
+      10m: 'SL_WIFI_BANDWIDTH_10MHz'
+      20m: 'SL_WIFI_BANDWIDTH_20MHz'
+      40m: 'SL_WIFI_BANDWIDTH_40MHz'
+      80m: 'SL_WIFI_BANDWIDTH_80MHz'
+      160m: 'SL_WIFI_BANDWIDTH_160MHz'    
+    performance_mode:
+      high_performance: 'HIGH_PERFORMANCE'
+      power_save: 'ASSOCIATED_POWER_SAVE'
+      power_save_low_latency: 'ASSOCIATED_POWER_SAVE_LOW_LATENCY'
+      standby_power_save: 'STANDBY_POWER_SAVE'
+      standby_power_save_with_ram_retention: 'STANDBY_POWER_SAVE_WITH_RAM_RETENTION'
+    enable_bg_scan:
+      bg_scan: 1
+    ipv4_or_ipv6:
+      ipv4: 1
+      ipv6: 2
+    set_option_id:
+      fionbio : 1
+      recvtimeout : 2
+      sendtimeout : 3
+      keepalivetimeout : 4
+    get_option_id:
+      recvtimeout : 2
+      sendtimeout : 3
+      keepalivetimeout : 4
+      sockettype : 5
+    option_name:
+      SO_RCVTIMEO : 0x1006
+      SO_KEEPALIVE : 0x0008
+      SO_CERT_INDEX : 0x1026
+      SO_MAX_RETRANSMISSION_TIMEOUT_VALUE:  0x3012
+      TCP_ULP : 0x001F
+    rate_protocol:
+      auto : 'SL_WIFI_RATE_PROTOCOL_AUTO'
+      802.11b : 'SL_WIFI_RATE_PROTOCOL_B_ONLY'
+      802.11g : 'SL_WIFI_RATE_PROTOCOL_G_ONLY'
+      802.11n : 'SL_WIFI_RATE_PROTOCOL_N_ONLY'
+      802.11ax : 'SL_WIFI_RATE_PROTOCOL_AX_ONLY'
+    data_rate:
+      auto : 'SL_WIFI_AUTO_RATE'
+      1Mbps : 'SL_WIFI_RATE_11B_1'
+      2Mbps : 'SL_WIFI_RATE_11B_2'
+      5.5Mbps : 'SL_WIFI_RATE_11B_5_5'
+      11Mbps : 'SL_WIFI_RATE_11B_11'
+      6Mbps : 'SL_WIFI_RATE_11G_6'
+      9Mbps : 'SL_WIFI_RATE_11G_9'
+      12Mbps : 'SL_WIFI_RATE_11G_12'
+      18Mbps : 'SL_WIFI_RATE_11G_18'
+      24Mbps : 'SL_WIFI_RATE_11G_24'
+      36Mbps : 'SL_WIFI_RATE_11G_36'
+      48Mbps : 'SL_WIFI_RATE_11G_48'
+      54Mbps : 'SL_WIFI_RATE_11G_54'
+      7.2Mbps : 'SL_WIFI_RATE_11N_MCS0'
+      14.4Mbps : 'SL_WIFI_RATE_11N_MCS1'
+      21.7Mbps : 'SL_WIFI_RATE_11N_MCS2'
+      28.9Mbps : 'SL_WIFI_RATE_11N_MCS3'
+      43.3Mbps : 'SL_WIFI_RATE_11N_MCS4'
+      57.8Mbps : 'SL_WIFI_RATE_11N_MCS5'
+      65Mbps : 'SL_WIFI_RATE_11N_MCS6'
+      72.2Mbps : 'SL_WIFI_RATE_11N_MCS7'
+      8.6Mbps : 'SL_WIFI_RATE_11AX_MCS0'
+      17.2Mbps : 'SL_WIFI_RATE_11AX_MCS1'
+      25.8Mbps : 'SL_WIFI_RATE_11AX_MCS2'
+      34.4Mbps : 'SL_WIFI_RATE_11AX_MCS3'
+      51.6Mbps : 'SL_WIFI_RATE_11AX_MCS4'
+      68.8Mbps : 'SL_WIFI_RATE_11AX_MCS5'
+      77.4Mbps : 'SL_WIFI_RATE_11AX_MCS6'
+      86Mbps : 'SL_WIFI_RATE_11AX_MCS7'
+    net_interface:
+      client: 'SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE'
+      ap: 'SL_NET_DEFAULT_WIFI_AP_INTERFACE'
+      ethernet: 'SL_NET_DEFAULT_ETHERNET_INTERFACE'
+      thread: 'SL_NET_DEFAULT_THREAD_INTERFACE'
+      bluetooth: 'SL_NET_DEFAULT_BLUETOOTH_INTERFACE'
+      zwave: 'SL_NET_DEFAULT_ZWAVE_INTERFACE'
+    wifi_ap_flag:
+      hidden_ssid: 'SL_WIFI_HIDDEN_SSID' 
+    wps_mode:
+      pin: SL_WIFI_WPS_PIN_MODE
+      push_button: SL_WIFI_WPS_PUSH_BUTTON_MODE
+    sl_net_dns_resolution_ip_type_t:
+      ipv4 : SL_NET_DNS_TYPE_IPV4
+      ipv6: SL_NET_DNS_TYPE_IPV6
+    sl_ip_address_type_t:
+      sl_ipv4            : SL_IPV4
+      sl_ipv6            : SL_IPV6
+      sl_ipv6_link_local : SL_IPV6_LINK_LOCAL
+      sl_ipv6_site_local : SL_IPV6_SITE_LOCAL
+      sl_ipv6_global     : SL_IPV6_GLOBAL
+    sl_ip_management_t:
+      static  : SL_IP_MANAGEMENT_STATIC_IP
+      dhcp    : SL_IP_MANAGEMENT_DHCP

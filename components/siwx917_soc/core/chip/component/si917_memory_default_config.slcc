@@ -1,0 +1,31 @@
+id: si917_memory_default_config
+label: RAM_LEVEL_NWP_ADV_MCU_BASIC
+package: wiseconnect
+description: EXT_FEAT_512K_M4SS_192K
+category: Platform|si91x|core
+quality: alpha
+requires:
+  - name: si917_mem_config_1
+    condition: 
+      - brd4325a
+  - name: si917_mem_config_1
+    condition: 
+      - brd4325b
+  - name: si917_mem_config_1
+    condition: 
+      - brd4325c
+  - name: si917_mem_config_1
+    condition: 
+      - brd4325e
+  - name: si917_mem_config_1
+    condition: 
+      - brd4325f
+  - name: si917_mem_config_1
+    condition: 
+      - brd4325g
+provides:
+  - name: si917_memory_default_config
+  - name: si917_mem_config
+conflicts:
+  - name: si917_mem_config_2
+  - name: si917_mem_config_3

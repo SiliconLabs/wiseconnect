@@ -1,0 +1,35 @@
+name: SL BLE Secure Connection Example
+
+sources:
+  - app.c
+  - main.c
+  
+includes:
+  files:
+    - app.h
+    - ble_config.h
+  global:
+    - .
+    
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - si91x_support
+    - sl_device
+    - si91x
+    - wifi
+    - network_manager
+    - freertos
+    - clang-format
+    - ble
+
+clang-format: true
+
+flags:
+  c:
+    global:
+      - -Werror

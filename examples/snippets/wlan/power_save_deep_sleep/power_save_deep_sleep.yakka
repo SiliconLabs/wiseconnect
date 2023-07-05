@@ -1,0 +1,19 @@
+name: power save deep sleep
+
+sources:
+  - main.c
+  - app.c
+
+clang-format: true
+
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - wifi
+    - network_manager
+    - freertos
+    - clang-format

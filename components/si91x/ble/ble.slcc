@@ -1,0 +1,22 @@
+id: ble
+package: wiseconnect3_sdk
+description: >
+  
+category: 
+quality: production
+component_root_path: ./components/si91x/ble
+provides:
+- name: ble
+source:
+- path: src/rsi_ble_gap_apis.c
+- path: src/rsi_ble_gatt_apis.c
+- path: src/rsi_bt_common_apis.c
+- path: src/rsi_bt_ble.c
+- path: src/rsi_common_apis.c
+- path: src/rsi_utils.c
+- path: src/sl_si91x_ble.c
+include:
+- path: inc
+define:
+- name: BLE_ENABLE
+- name: RSI_LITTLE_ENDIAN

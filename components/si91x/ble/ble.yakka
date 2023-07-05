@@ -1,0 +1,53 @@
+name: BLE Core
+
+includes:
+  global:
+    - inc
+    
+defines:
+  global:
+    - BLE_ENABLE
+    - RSI_LITTLE_ENDIAN
+
+sources:
+  - src/rsi_ble_gap_apis.c
+  - src/rsi_ble_gatt_apis.c
+  - src/rsi_bt_common_apis.c
+  - src/rsi_bt_ble.c
+  - src/rsi_common_apis.c
+  - src/rsi_utils.c
+  - src/sl_si91x_ble.c
+
+clang-format: true
+
+doxygen:
+  project_name: "RSI BLE"
+  inputs:
+    - inc
+    - docs/doxygen_template.h
+    - docs/doxygen_indexfile.md
+  image_path: docs/images
+
+suds:
+  rsi-ble-introduction:
+    version: "3.0.0"
+    contentType: markdown
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    title: "Overview"
+    description: "Description"
+    sourceDir: ./docs
+    items:
+      - Overview: index.md
+
+  wiseconnect-api-reference-guide-ble:
+    version: "3.0.0"
+    contentType: doxygen
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    title: "BLE"
+    items:
+      - index
+      - bluetooth

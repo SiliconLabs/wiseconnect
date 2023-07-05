@@ -1,0 +1,32 @@
+id: aws_sdk
+package: wiseconnect3_sdk
+description: >
+  
+category: 
+quality: production
+component_root_path: ./third_party/aws_sdk
+provides:
+- name: aws_sdk
+source:
+- path: src/aws_iot_jobs_interface.c
+- path: src/aws_iot_jobs_json.c
+- path: src/aws_iot_jobs_topics.c
+- path: src/aws_iot_jobs_types.c
+- path: src/aws_iot_json_utils.c
+- path: src/aws_iot_mqtt_client_common_internal.c
+- path: src/aws_iot_mqtt_client_connect.c
+- path: src/aws_iot_mqtt_client_publish.c
+- path: src/aws_iot_mqtt_client_subscribe.c
+- path: src/aws_iot_mqtt_client_unsubscribe.c
+- path: src/aws_iot_mqtt_client_yield.c
+- path: src/aws_iot_mqtt_client.c
+- path: src/aws_iot_shadow_actions.c
+- path: src/aws_iot_shadow_json.c
+- path: src/aws_iot_shadow_records.c
+- path: src/aws_iot_shadow.c
+- path: src/jsmn.c
+- path: platform/silabs/src/network_sl_api_wrapper.c
+- path: platform/silabs/src/timer.c
+include:
+- path: include
+- path: platform/silabs/inc

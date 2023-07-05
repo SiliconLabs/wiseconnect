@@ -1,0 +1,20 @@
+id: wiseconnect_toolchain_variant_arm
+label: Toolchain for ARM
+package: platform
+description: Toolchain support for ARM devices
+category: Platform|si91x|Toolchain
+quality: production
+tag:
+  - toolchain:variant:arm
+provides:
+  - name: wiseconnect_toolchain_variant
+  - name: wiseconnect_toolchain_variant_arm
+toolchain_settings:
+  - option: split_sections
+    value: enabled
+  - option: device_type
+    value: embedded
+  - option: nano_c_libs
+    value: enabled
+  - option: gcc_linker_option
+    value: "-u _printf_float"

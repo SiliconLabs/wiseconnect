@@ -1,0 +1,17 @@
+id: romdriver_timer
+label: ROM DRIVER TIMER
+package: platform
+description: >
+  Rom Driver Timer
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/rom_driver"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_rom_timer.h"
+provides:
+  - name: romdriver_timer
+requires:
+  - name: romdriver_romtable
+  - name: rsilib_timers

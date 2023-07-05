@@ -1,0 +1,21 @@
+id: sl_usart
+label: SL USART
+package: platform
+description: >
+  SL USART Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_usart_config.h
+  - path: config/sl_si91x_usart_common_config.h
+source:
+  - path: "src/sl_si91x_usart.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_usart.h"  
+provides:
+  - name: sl_usart
+requires:
+  - name: udma_linker_config

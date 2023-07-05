@@ -1,0 +1,145 @@
+id: si917_mem_config_1
+label: si917_memory_default_config
+package: platform
+description: Default memory configuration EXT_FEAT_512K_M4SS_192K
+category: Platform|si91x|core
+quality: internal
+requires:
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4325a
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4325b
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4325c
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4325e
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4325f
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4325g
+provides:
+  - name: si917_mem_config_1
+template_contribution:
+  - name: device_opn
+    value: si917-sb00
+    condition:
+    - brd4325a
+  - name: device_opn
+    value: si917-sb00
+    condition:
+    - brd4325b
+  - name: device_opn
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4325c
+  - name: device_opn
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4325g
+  - name: device_opn
+    value: SiWG917M111MGTBA (Dual Flash)
+    condition:
+    - brd4325e
+  - name: device_opn
+    value: SiWG917M141XGTBA
+    condition:
+    - brd4325f
+  - name: device_arch
+    value: armv7em
+  - name: device_cpu
+    value: cortexm4
+  - name: device_family
+    value: SI917
+    condition:
+    - brd4325a
+  - name: device_family
+    value: si917_dual_flash
+    condition:
+    - brd4325b
+  - name: device_family
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4325c
+  - name: device_family
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4325g
+  - name: device_family
+    value: SiWG917M111MGTBA_dual_flash
+    condition:
+    - brd4325e
+  - name: device_family
+    value: siwg917M141xgtba_ext_flash_int_psram
+    condition:
+    - brd4325f
+  - name: device_flash_addr
+    value: 136388608
+    condition:
+    - brd4325a
+  - name: device_flash_addr
+    value: 134291456
+    condition: 
+    - brd4325b
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4325c
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4325g
+  - name: device_flash_addr
+    value: 134291456
+    condition: 
+    - brd4325e
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4325f
+  - name: device_flash_size
+    value: 524288
+    condition:
+    - brd4325a
+  - name: device_flash_size
+    value: 4194304
+    condition:
+    - brd4325b
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4325c
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4325g
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4325e
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4325f
+  - name: device_flash_page_size
+    value: 256
+  - name: device_ram_addr
+    value: 1024
+  - name: device_ram_size
+    value: 196608
+  - name: device_fpu
+    value: true
+  - name: device_mpu
+    value: true
+  - name: default_stack_size
+    value: 3072
+  - name: default_heap_size
+    value: 7168
+define:
+  - name: MEM_CONFIG_917
+    value: '1'

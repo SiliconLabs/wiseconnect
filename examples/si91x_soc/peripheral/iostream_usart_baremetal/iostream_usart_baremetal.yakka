@@ -1,0 +1,19 @@
+name: iostream_usart_baremetal
+
+sources:
+  - app.c
+  - main.c
+  - app_iostream_usart.c
+
+defines:
+  global:
+    - RSI_M4_INTERFACE
+    - ROM_BYPASS
+    - IOSTREAM_SI91X_USART
+    - SI917_RADIO_BOARD
+    - USART_CONFIG
+
+requires:
+  components:
+    - sl_iostream
+    - sl_system

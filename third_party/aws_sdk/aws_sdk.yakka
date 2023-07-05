@@ -1,0 +1,33 @@
+name: AWS SDK
+
+clang-format: false
+
+includes:
+  global:
+    - include
+    - platform/silabs/inc
+
+sources:
+  - src/aws_iot_jobs_interface.c 
+  - src/aws_iot_jobs_json.c
+  - src/aws_iot_jobs_topics.c
+  - src/aws_iot_jobs_types.c
+  - src/aws_iot_json_utils.c
+  - src/aws_iot_mqtt_client_common_internal.c
+  - src/aws_iot_mqtt_client_connect.c
+  - src/aws_iot_mqtt_client_publish.c   
+  - src/aws_iot_mqtt_client_subscribe.c   
+  - src/aws_iot_mqtt_client_unsubscribe.c 
+  - src/aws_iot_mqtt_client_yield.c
+  - src/aws_iot_mqtt_client.c   
+  - src/aws_iot_shadow_actions.c
+  - src/aws_iot_shadow_json.c    
+  - src/aws_iot_shadow_records.c                                 
+  - src/aws_iot_shadow.c
+  - src/jsmn.c
+  - platform/silabs/src/network_sl_api_wrapper.c
+  - platform/silabs/src/timer.c
+
+requires:
+  features:  
+    - sockets

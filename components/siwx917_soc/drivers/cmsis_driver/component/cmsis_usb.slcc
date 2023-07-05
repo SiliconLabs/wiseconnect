@@ -1,0 +1,21 @@
+id: cmsis_usb
+label: CMSIS USB
+package: platform
+description: >
+  Universal Serial Bus Driver API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers"
+source:
+  - path: "cmsis_driver/USB.c"
+include:
+  - path: "cmsis_driver"
+    file_list:
+    - path: "USB.h"
+  - path: "cmsis_driver/CMSIS/Driver/Include"
+    file_list:
+    - path: "Driver_USB.h"
+provides:
+  - name: cmsis_usb
+requires:
+  - name: cmsis_driver_common

@@ -1,0 +1,17 @@
+id: romdriver_power_save
+label: ROM DRIVER POWER SAVE
+package: platform
+description: >
+  Rom Driver Power Save
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/rom_driver"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_rom_power_save.h"
+provides:
+  - name: romdriver_power_save
+requires:
+  - name: romdriver_romtable
+  - name: systemlevel_power_save

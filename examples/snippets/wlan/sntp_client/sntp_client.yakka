@@ -1,0 +1,32 @@
+name: Embedded SNTP client
+
+includes:
+  global:
+    - .
+
+sources:
+  - main.c
+  - app.c
+
+clang-format: true
+
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - wifi
+    - network_manager
+    - sl_tls
+    - sntp
+    - freertos
+    - clang-format
+    - resources
+
+flags:
+  c:
+    global:
+      - -Wall
+      - -Werror

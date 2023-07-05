@@ -1,0 +1,28 @@
+name: AWS Device Shadow
+
+sources:
+  - main.c 
+  - app.c 
+
+clang-format: true
+
+defines:
+  global:
+    - SYSCALLS_WRITE
+    - RSI_DEBUG_PRINTS
+
+requires:
+  components:
+    - wifi
+    - network_manager
+    - sl_tls
+    - freertos
+    - aws_sdk
+    - clang-format
+
+flags:
+  c:
+    global:
+      - -Wall 
+      - -Werror
+      - -u _printf_float

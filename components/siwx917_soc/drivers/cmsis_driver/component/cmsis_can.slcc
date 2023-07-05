@@ -1,0 +1,21 @@
+id: cmsis_can
+label: CMSIS CAN
+package: platform
+description: >
+  Controller Area Network Driver API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers"
+source:
+  - path: "cmsis_driver/CAN.c"
+include:
+  - path: "cmsis_driver"
+    file_list:
+    - path: "CAN.h"
+  - path: "cmsis_driver/CMSIS/Driver/Include"
+    file_list:
+    - path: "Driver_CAN.h"
+provides:
+  - name: cmsis_can
+requires:
+  - name: cmsis_driver_common

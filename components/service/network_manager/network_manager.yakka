@@ -1,0 +1,95 @@
+name: SL Networking
+
+sources:
+  - src/sl_net_basic_certificate_store.c
+  - src/sl_net.c
+
+includes:
+  global:
+    - inc
+
+requires:
+  components:
+    - resources
+
+provides:
+  features:
+    - net
+
+defines:
+  global:
+    - SL_NET_COMPONENT_INCLUDED
+
+console:
+  include_headers:
+    - 'sl_net_constants.h'
+  enums:
+    sl_net_dns_resolution_ip_type_t:
+      ipv4: 'SL_NET_DNS_TYPE_IPV4'
+      ipv6: 'SL_NET_DNS_TYPE_IPV6'
+    
+supports:
+  features:
+    ethernet:
+      sources:
+        - src/sl_net_ethernet.c
+  components:
+    si91x_lwip_stack:
+      includes:
+        files:
+          - inc/sl_net_for_lwip.h
+      sources:
+        - src/sl_net_for_lwip.c
+     # requires:
+      #  components:
+        #  - nvm3
+    
+choices:
+  network_management:
+    description: 'Pick a network management backend'
+    components:
+      - 'basic_network_manager'
+      - 'nvm3_network_manager'
+    default:
+       component: 'basic_network_manager'
+
+
+suds:
+  sl-net-introduction:
+    version: "3.0.0"
+    contentType: markdown
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    title: "Overview"
+    description: "Description"
+    sourceDir: ./docs
+    items:
+      - Overview: index.md 
+
+  wiseconnect-api-reference-guide-nwk-mgmt:
+    version: "3.0.0"
+    contentType: doxygen
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    title: "Network Management"
+    items:
+      - index
+      - sl-net
+
+doxygen:
+  project_name: "SL Net API"
+  inputs:
+    - inc
+    - docs/doxygen_template.h
+    - docs/doxygen_indexfile.md
+  image_path: docs/images
+
+clang-format: true
+
+slc:
+  label: 'Network Manager'
+  description: 'Network management API'
+  category: 'Networking|Core'
+

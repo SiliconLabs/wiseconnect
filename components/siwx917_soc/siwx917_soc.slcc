@@ -1,0 +1,175 @@
+id: siwx917_soc
+package: wiseconnect3_sdk
+description: >
+  SoC support for Si91x
+label: Si91x SoC
+category: Devices|Si91x
+quality: production
+component_root_path: ./components/siwx917_soc
+provides:
+- name: siwx917_soc
+- name: cortexm4
+- name: armv7em
+- name: device_arm
+source:
+- path: drivers/systemlevel/src/rsi_pll.c
+- path: drivers/systemlevel/src/rsi_ulpss_clk.c
+- path: drivers/systemlevel/src/rsi_ipmu.c
+- path: drivers/systemlevel/src/rsi_power_save.c
+- path: drivers/systemlevel/src/rsi_temp_sensor.c
+- path: drivers/ipmu/ipmu_apis.c
+- path: drivers/cmsis_driver/USART.c
+- path: drivers/cmsis_driver/UDMA.c
+- path: drivers/ipmu/rsi_system_config_9117.c
+- path: drivers/peripheral_drivers/src/clock_update.c
+- path: drivers/peripheral_drivers/src/rsi_usart.c
+- path: drivers/peripheral_drivers/src/rsi_udma_wrapper.c
+- path: drivers/peripheral_drivers/src/rsi_egpio.c
+- path: drivers/peripheral_drivers/src/rsi_udma.c
+- path: drivers/unified_api/src/sl_si91x_usart.c
+- path: boards/brd4325x/src/rsi_board.c
+- path: rsi_hal_mcu_m4_ram.c
+- path: core/chip/src/startup_si91x.c
+  condition: [sl_siwx917_platform]
+  unless: ["siwx917_soc_custom_startup"]
+- path: core/chip/src/system_si91x.c
+  condition: [sl_siwx917_platform]
+- path: core/chip/src/rsi_deepsleep_soc.c
+  condition: [sl_siwx917_platform]
+- path: sl_platform.c
+  condition: [wifi]
+- path: sl_platform_wireless.c
+  condition: [wifi]
+- path: sl_si91x_bus.c
+  condition: [wifi]
+- path: sli_siwx917_soc.c
+  condition: [wifi]
+- path: rsi_hal_mcu_m4_rom.c
+  condition: [wifi]
+- path: sl_si91x_timer.c
+  condition: [wifi]
+- path: core/chip/src/startup_si91x.c
+  condition: [wifi]
+  unless: ["siwx917_soc_custom_startup"]
+- path: core/chip/src/system_si91x.c
+  condition: [wifi]
+- path: core/chip/src/rsi_deepsleep_soc.c
+  condition: [wifi]
+- path: boards/brd4325x/src/syscalls.c
+  condition: [wifi]
+include:
+- path: inc
+- path: drivers/cmsis_driver
+- path: drivers/cmsis_driver/config
+- path: drivers/cmsis_driver/CMSIS/Driver/Include
+- path: drivers/systemlevel/inc
+- path: drivers/peripheral_drivers/inc
+- path: drivers/rom_driver/inc
+- path: drivers/unified_api/inc
+- path: drivers/unified_api/config
+- path: boards/brd4325x/inc
+- path: wifi_inc
+  condition: [wifi]
+define:
+- name: RSI_M4_INTERFACE
+- name: ENABLE_IPMU_APIS
+- name: SI917
+- name: DEBUG_UART
+- name: FLASH_BASED_EXECUTION_ENABLE
+- name: TA_DEEP_SLEEP_COMMON_FLASH
+- name: CHIP_917
+- name: COMMON_FLASH_EN
+  condition: [brd4325a]
+- name: COMMON_FLASH_EN
+  condition: [brd4325g]
+- name: COMMON_FLASH_EN
+  condition: [brd4338a]
+- name: RSI_WITH_OS
+  condition: [freertos]
+- name: EXECUTION_FROM_RAM
+  condition: [ram_execution]
+- name: SL_PLATFORM_EXAMPLES_ENABLE
+  condition: [sl_siwx917_platform]
+- name: SI91X_DEVICE
+  condition: [sl_siwx917_platform]
+- name: ROM_BYPASS
+  condition: [wifi]
+requires:
+- name: wiseconnect_toolchain_gcc
+- condition: ["wifi"]
+  name: si91x_core
+- name: component_catalog
+- condition: ["wifi"]
+  name: sl_siwx917_platform
+
+template_contribution:
+- name: device_opn
+  value: si917-sb00
+- name: device_arch
+  value: armv7em
+- name: device_cpu
+  value: cortexm4
+- name: device_family
+  value: SI917
+- condition: ["brd4325a"]
+  name: device_flash_addr
+  value: 136388608
+- condition: ["brd4325g"]
+  name: device_flash_addr
+  value: 136060928
+- condition: ["brd4338a"]
+  name: device_flash_addr
+  value: 136060928
+- condition: ["brd4325b"]
+  name: device_flash_addr
+  value: 134291456
+- condition: ["brd4325c"]
+  name: device_flash_addr
+  value: 136060928
+- condition: ["sl_si91x_nvm3"]
+  name: nvm3_enable
+  value: true
+- name: device_flash_size
+  value: 450560
+- name: device_flash_page_size
+  value: 256
+- name: device_ram_addr
+  value: 1024
+- condition: ["brd4325a"]
+  name: device_ram_size
+  value: 194560
+- condition: ["brd4325b"]
+  name: device_ram_size
+  value: 194560
+- condition: ["brd4325c"]
+  name: device_ram_size
+  value: 194560
+- condition: ["brd4325g"]
+  name: device_ram_size
+  value: 196608
+- condition: ["brd4338a"]
+  name: device_ram_size
+  value: 196608
+- name: device_fpu
+  value: true
+- name: device_mpu
+  value: true
+- name: default_stack_size
+  value: 3072
+- name: default_heap_size
+  value: 71688
+- condition: ["wifi"]
+  name: event_handler
+  priority: -9998
+  value: {"event":"platform_init","handler":"sli_si91x_platform_init","include":"sli_siwx917_soc.h"}
+
+toolchain_settings:
+- option: device_opn
+  value: si917-sb00
+- option: architecture
+  value: armv7e-m
+- option: cpu
+  value: cortex-m4
+- option: fpu
+  value: fpv4-sp
+

@@ -1,0 +1,18 @@
+id: rsilib_cmsiscore
+label: CMSIS CORE
+package: platform
+description: >
+  CMSIS core include paths
+category: Platform|si91x|core
+quality: alpha
+component_root_path: "components/siwx917_soc/core/cmsis/component"
+include:
+  - path: "cmsis"
+    file_list:
+    - path: "cmsis_version.h"
+    - path: "core_cm4.h"
+    - path: "core_cm4_simd.h"
+    - path: "core_cmFunc.h"
+    - path: "core_cmInstr.h"
+provides:
+  - name: rsilib_cmsiscore

@@ -1,0 +1,13 @@
+id: si91x_core
+package: wiseconnect3_sdk
+description: >
+  
+category: 
+quality: production
+component_root_path: ./components/si91x
+provides:
+- name: si91x_core
+include:
+- path: inc
+define:
+- name: CHIP_917

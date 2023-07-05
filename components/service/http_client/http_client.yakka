@@ -1,0 +1,35 @@
+name: SL HTTP client
+
+includes:
+  global:
+    - inc
+
+api:
+  public:
+    - service/http_client/inc
+
+sources:
+  - si91x/sl_http_client.c
+
+defines:
+  global:
+    - HTTP_CLIENT_FEATURE
+
+clang-format: true
+
+suds:
+  wiseconnect-api-reference-guide-http:
+    version: "3.0.0"
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    contentType: doxygen
+    title: "HTTP"
+    description: "HTTP"
+
+doxygen:
+  project_name: "SL HTTP"
+  inputs:
+    - inc
+    - docs/doxygen_template.h 
+    - docs/doxygen_indexfile.md 

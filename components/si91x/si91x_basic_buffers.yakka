@@ -1,0 +1,9 @@
+name: Si91x basic buffering system
+
+sources:
+  - memory/malloc_buffers.c
+  
+slc:
+  label: 'Basic buffers'
+  description: 'Si91x malloc based buffer system'
+  category: 'Devices|Si91x|Memory'

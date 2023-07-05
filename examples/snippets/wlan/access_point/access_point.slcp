@@ -1,0 +1,77 @@
+project_name: wifi_access_point
+package: wifi
+quality: alpha
+label: wifi_access_point
+category: Example|Wi-Fi
+description: >
+  Start a Wi-Fi Access Point with WPA2 security
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: gecko_sdk, version: 4.1.3}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.0.9}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SYSCALLS_WRITE
+  - name: RSI_DEBUG_PRINTS
+requires:
+- name: sl_system
+- name: network_manager
+- name: basic_network_manager
+- name: si91x_support
+- name: wifi
+- name: si91x
+- name: si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: si91x_internal_stack
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/access_point_output.png
+  - path: resources/readme/ap_example.png
+  - path: resources/readme/ap_example_soc.png
+  - path: resources/readme/ap_ncp.png
+  - path: resources/readme/ap_soc.png
+  - path: resources/readme/build_accesspoint.png
+  - path: resources/readme/create_project.png
+  - path: resources/readme/efr32.png
+  - path: resources/readme/port_selection.png
+  - path: resources/readme/port_selection_soc.png
+  - path: resources/readme/program_device.png
+  - path: resources/readme/serial_port.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/soc_board_detection.png
+  - path: resources/readme/usb_to_uart_1.png
+  - path: resources/readme/usb_to_uart_2.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

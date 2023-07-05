@@ -1,0 +1,49 @@
+id: sl_si91x_dual_flash_nvm3
+label: SL_SI91x_DUAL_FLASH_NVM3
+package: platform
+description: >
+  NVM3 component for Si91x
+category: Platform|si91x|Middleware
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/middleware/nvm3"
+define:
+  - name: EXT_IRQ_COUNT
+    value: "75"
+  - name: SRAM_BASE
+    value: "0x0C000000UL"
+  - name: SRAM_SIZE
+    value: "0x00040000UL"
+  - name: RSI_M4_INTERFACE
+  - name: FLASH_PAGE_SIZE
+  - name: __STATIC_INLINE
+    value: "static inline"
+  - name: RSI_SAMPLE_HAL
+    value: 1
+  - name: SL_NVM3_PRESENT
+    value: 1
+source:
+  - path: "src/sl_si91x_dual_flash_intf.c"
+  - path: "src/sl_si91x_nvm3_hal_flash.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "nvm3_default_config.h"
+    - path: "sl_si91x_flash_intf.h"
+    - path: "sl_si91x_dual_flash_intf.h"
+requires:
+  - name: siwx917_soc
+  - name: romdriver_qspi
+  - name: romdriver_gpdma
+  - name: sl_system
+  - name: nvm3_lib
+  - name: nvm3_default
+  - name: emlib_core
+  - name: sl_assert
+  - name: sl_common
+  - name: status
+  - name: cmsis_common
+template_contribution:
+  - name: nvm3_enable
+    value: true
+provides:
+  - name: sl_si91x_dual_flash_nvm3

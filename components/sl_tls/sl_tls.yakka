@@ -1,0 +1,66 @@
+name: SL TLS
+
+sources:
+  - src/sl_tls.c
+
+includes:
+  global:
+    - inc
+
+requires:
+  components:
+    - resources
+
+provides:
+  features:
+    - tls
+
+defines:
+  global:
+    - SL_TLS_COMPONENT_INCLUDED
+
+supports:
+  components:
+    brd4325a:
+      defines:
+        global:
+          - EXECUTION_FROM_RAM
+    brd4325c:
+      defines:
+        global:
+          - EXECUTION_FROM_RAM
+    brd4325g:
+      defines:
+        global:
+          - EXECUTION_FROM_RAM
+    brd4338a:
+      defines:
+        global:
+          - EXECUTION_FROM_RAM
+
+clang-format: true
+
+suds:
+  wiseconnect-api-reference-guide-tls:
+    version: "3.0.0"
+    authors:
+      - aji.gerdiman@silabs.com
+      - nik.vonhuben@silabs.com
+    contentType: doxygen
+    title: "TLS"
+    description: "SL TLS API"
+    items:
+      - index
+      - sl-tls
+    
+doxygen:
+  project_name: "TLS"
+  inputs:
+    - inc
+    - docs/doxygen_template.h
+    - docs/doxygen_indexfile.md
+
+slc:
+  label: 'SL TLS'
+  description: 'TLS Store Management API'
+  category: 'Networking|Core'

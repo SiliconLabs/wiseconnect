@@ -1,0 +1,12 @@
+#pragma once
+
+extern void sl_platform_init();
+extern void sl_driver_init();
+extern void sl_service_init();
+extern void sl_stack_init();
+extern void sl_internal_app_init();
+extern void sl_platform_process_action(void);
+extern void sl_service_process_action(void);
+extern void sl_stack_process_action(void);
+extern void sl_internal_app_process_action(void);
+extern void sl_kernel_start(void);

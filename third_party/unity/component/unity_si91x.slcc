@@ -1,0 +1,20 @@
+id: "unity_si91x"
+package: "platform"
+description: "Unity test framework"
+category: "Test|Framework"
+quality: "test"
+component_root_path: 'third_party/unity'
+provides:
+  - name: "unity_si91x"
+include:
+  - path: 'src'
+    file_list:
+      - path: unity.h
+      - path: unity_conf.h
+      - path: unity_internals.h
+      - path: unity_usart.h
+      - path: unity_sl_system_app.h
+source:
+  - path: 'src/unity.c'
+  - path: 'src/unity_conf.c'
+  - path: 'src/unity_usart.c'

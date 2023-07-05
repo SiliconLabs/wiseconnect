@@ -1,0 +1,42 @@
+id: sleeptimer_sysrtc
+label: SYSRTC
+package: platform
+description: >
+  SYSRTC Peripheral Interface API's
+category: Platform|si91x|core
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/middleware/sleeptimer"
+source:
+  - path: src/sl_sleeptimer_hal_si91x_sysrtc.c
+include:
+  - path: inc
+    file_list:
+      - path: sli_sleeptimer_hal.h
+define:
+  - name: __STATIC_INLINE
+    value: "static inline"
+  - name: __WEAK
+    value: " "
+  - name: SI91X_SYSRTC_COUNT
+    value: "1"
+  - name: EXT_IRQ_COUNT
+    value: "75"
+  - name: SRAM_BASE
+    value: "0x0C000000UL"
+  - name: SRAM_SIZE
+    value: "0x00040000UL"
+  - name: SI91X_SYSRTC_PRESENT
+    value: 1
+  - name: SI91X_PLATFORM
+    value: 1
+  - name: CHIP_917B0
+    value: 1
+requires:
+  - name: cmsis_common
+  - name: siwx917_soc
+  - name: sleeptimer
+  - name: rsilib_sysrtc
+provides:
+  - name: sleeptimer_sysrtc
+  - name: device_has_si91x_sysrtc
+  - name: device_si91x_platform

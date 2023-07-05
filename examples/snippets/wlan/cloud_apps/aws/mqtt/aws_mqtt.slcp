@@ -1,0 +1,95 @@
+project_name: wifi_aws_mqtt
+package: wifi
+quality: alpha
+label: Wi-Fi - AWS IoT MQTT CLIENT
+category: Example|Wi-Fi
+description: >
+  Create an AWS IoT 'thing' that interacts with AWS IoT using MQTT publish/subscribe
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: gecko_sdk, version: 4.1.3}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.0.9}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SYSCALLS_WRITE
+  - name: RSI_DEBUG_PRINTS
+requires:
+- name: sl_system
+- name: aws_sdk
+- name: sl_tls
+- name: network_manager
+- name: basic_network_manager
+- name: si91x_support
+- name: wifi
+- name: si91x
+- name: si91x_internal_stack
+- name: si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/aws_choosing_policy.png
+  - path: resources/readme/aws_create_policy.png
+  - path: resources/readme/aws_create_thing_attach_policy.png
+  - path: resources/readme/aws_create_thing_policy_create.png
+  - path: resources/readme/aws_create_thing_step1.png
+  - path: resources/readme/aws_create_thing_step2.png
+  - path: resources/readme/aws_create_thing_step3.png
+  - path: resources/readme/aws_create_thing_step4.png
+  - path: resources/readme/aws_create_thing_step5.png
+  - path: resources/readme/aws_iot_mqtt_host_url_1.png
+  - path: resources/readme/aws_iot_mqtt_host_url_2.png
+  - path: resources/readme/aws_mqtt_example.png
+  - path: resources/readme/aws_mqtt_example_soc.png
+  - path: resources/readme/aws_thing_certificates_download.png
+  - path: resources/readme/build_aws_mqtt1.png
+  - path: resources/readme/create_project_soc.png
+  - path: resources/readme/debugmodencp120.png
+  - path: resources/readme/debugmodesoc117.png
+  - path: resources/readme/image431a.png
+  - path: resources/readme/image451.png
+  - path: resources/readme/efr32.png
+  - path: resources/readme/port_selection.png
+  - path: resources/readme/port_selection_soc.png
+  - path: resources/readme/setup_ncp.png
+  - path: resources/readme/setup_soc.png
+  - path: resources/readme/serial_port.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/soc_board_detection.png
+  - path: resources/readme/usb_to_uart_1.png
+  - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/debug_prints_with_data_transfer_soc.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+

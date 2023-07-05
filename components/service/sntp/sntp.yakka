@@ -1,0 +1,14 @@
+name: SL SNTP client
+
+includes:
+  global:
+    - inc
+
+api:
+  public:
+    - service/sntp/inc
+
+defines:
+  global:
+    - SNTP_CLIENT_FEATURE
+clang-format: true

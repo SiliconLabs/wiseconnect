@@ -1,0 +1,18 @@
+id: sl_gpio
+label: SL GPIO
+package: platform
+description: >
+  gpio Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+component_root_path: "components/siwx917_soc/drivers/unified_api"
+source:
+  - path: "src/sl_si91x_peripheral_gpio.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_peripheral_gpio.h"
+    - path: "sl_si91x_gpio.h"
+    - path: "sl_si91x_gpio_brd4325a.h"
+provides:
+  - name: sl_gpio

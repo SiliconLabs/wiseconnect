@@ -1,0 +1,21 @@
+id: udma_linker_config
+label: UDMA LINKER
+package: wiseconnect3_sdk
+description: >
+  UDMA LINKER 
+category: Platform|si91x|Core
+quality: alpha
+component_root_path: "components/siwx917_soc/core/chip"
+provides:
+  - name: udma_linker_config
+template_contribution:
+  - name: udma_enable
+    value: 1
+  - name: udma0
+    value: 0x00030000
+  - name: udma0_size
+    value: 0x00000400
+  - name: udma1
+    value: 0x24060000
+  - name: udma1_size
+    value: 0x00000400

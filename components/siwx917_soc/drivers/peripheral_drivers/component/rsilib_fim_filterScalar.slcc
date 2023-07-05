@@ -1,0 +1,16 @@
+id: rsilib_fim_filterScalar
+label: FIM FILTER SCALAR
+package: platform
+description: >
+  Filter Interpolation Matrix Multiplication Filter Scalar Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_fim_filterScalar.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_fim_filterScalar.h"
+provides:
+  - name: rsilib_fim_filterScalar

@@ -1,0 +1,10 @@
+name: SL Net NVM3 network manager
+
+sources:
+  - src/sl_net_nvm_credentials.c
+  - src/sl_net_nvm_profiles.c
+  
+slc:
+  label: 'NVM3 Data Manager'
+  description: 'NVM3 network data manager'
+  category: 'Networking|Data Management'

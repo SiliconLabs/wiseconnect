@@ -1,0 +1,48 @@
+id: wiseconnect3_sdk
+label: WiSeConnect 3 SDK
+description: >
+  WiSeConnect 3 extension for the Gecko SDK
+version: "3.0.9"
+sdk:
+  id: gecko_sdk
+  version: "4.2.2"
+component_path:
+  - path: resources
+  - path: components/si91x
+  - path: components/si91x/ble
+  - path: components/si91x/bsd_socket
+  - path: components/service/network_manager
+  - path: components/service/http_client
+  - path: components/service/mqtt
+  - path: components/service/sntp
+  - path: components/protocol/wifi
+  - path: components/si91x_support
+  - path: components/si91x_support/brd4325a
+  - path: components/si91x_support/brd4325b
+  - path: components/si91x_support/brd4325c
+  - path: components/si91x_support/brd4325g
+  - path: components/si91x_support/brd4338a
+  - path: components/siwx917_soc
+  - path: components/sapi
+  - path: components/siwx917_soc/toolchain/component
+  - path: components/siwx917_soc/drivers/cmsis_driver/CMSIS/Driver/component
+  - path: components/siwx917_soc/drivers/cmsis_driver/component
+  - path: components/siwx917_soc/drivers/cmsis_driver/config/component
+  - path: components/siwx917_soc/drivers/peripheral_drivers/component
+  - path: components/siwx917_soc/drivers/middleware/sleeptimer/component
+  - path: components/siwx917_soc/drivers/middleware/nvm3/component
+  - path: components/siwx917_soc/drivers/middleware/iostream/component
+  - path: components/siwx917_soc/drivers/rom_driver/component
+  - path: components/siwx917_soc/drivers/systemlevel/component
+  - path: components/siwx917_soc/drivers/unified_api/
+  - path: components/siwx917_soc/drivers/unified_api/component
+  - path: components/siwx917_soc/core/chip/component
+  - path: components/siwx917_soc/core/cmsis/component
+  - path: components/siwx917_soc/core/config/component
+  - path: components/siwx917_soc/sapi/component
+  - path: components/siwx917_soc/hal/component
+  - path: components/sl_tls
+  - path: third_party/aws_sdk
+  - path: third_party/unity/component
+  - path: utilities
+
