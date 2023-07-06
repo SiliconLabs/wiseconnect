@@ -1,6 +1,0 @@
-name: ICMP
-
-sources:
-  - sl_net_ping.c
-
-clang-fomat: true

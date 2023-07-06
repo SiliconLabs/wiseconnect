@@ -1,6 +1,0 @@
-name: Custom Device
-
-      
-make:
-  files:
-    - sl_device.mk
