@@ -4,6 +4,12 @@ The Silicon Labs WiSeConnect™ software development kit (SDK) offers an applica
 
 The WiSeConnect 3 (versions 3.0.0 and later) SDK is the next-generation API for Silicon Labs customers that replaces WiSeConnect 2 (versions earlier than 3.0.0) with modular design and organization of features into configurable components.
 
+- [Release Notes](#release-notes)
+- [Licensing](#licensing)
+- [Documentation](#documentation)
+  - [Software Reference](#software-reference)
+  - [Hardware Reference](#hardware-reference)
+
 ## Release Notes
 
 See [here](docs/release-notes/index.md) for the latest release notes.
@@ -16,19 +22,15 @@ WiSeConnect 3 SDK is covered by one of several different licenses. The default l
 
 The online WiSeConnect 3 SDK documentation is available [here](https://docs.silabs.com/wiseconnect/3.0.9).
   - See the [Getting Started Guide](https://docs.silabs.com/wiseconnect/3.0.9/wiseconnect-getting-started/getting-started-with-soc-mode) to run your first example.
-  - See the [Examples](https://docs.silabs.com/wiseconnect/3.0.9/) section to explore all the available examples.
-  - See our [Migration Guide]() for information on porting your WiSeConnect 2 application to WiSeConnect 3.
-
-To explore all of our available documentation, see the sections below:
-  - [Software Reference](#software-reference)
-  - [Hardware Reference](#hardware-reference)
+  - See the [Examples](https://docs.silabs.com/wiseconnect/3.0.9/wiseconnect-examples) section to explore all the available examples.
+  - See our [Migration Guide](https://docs.silabs.com/wiseconnect/3.0.9/wiseconnect-developers-guide-migr-overview) for information on porting your WiSeConnect 2 application to WiSeConnect 3.
 
 ### Software Reference
 
   - [Getting Started with SoC Mode](https://docs.silabs.com/wiseconnect/3.0.9/wiseconnect-getting-started/getting-started-with-soc-mode)
-  - [Examples](https://docs.silabs.com/wiseconnect/3.0.9/)
-  - [Migration Guide](https://docs.silabs.com/wiseconnect/3.0.9/)
-  - **API Reference Guide**:
+  - [Examples](https://docs.silabs.com/wiseconnect/3.0.9/wiseconnect-examples)
+  - [Migration Guide](https://docs.silabs.com/wiseconnect/3.0.9/wiseconnect-developers-guide-migr-overview)
+  - **API Reference Guide** - this is temporarily available in this repo and will be published online in the next release. To access this guide:
     - Clone this repo to your local folders.
       ```
 	  git clone https://github.com/siliconlabs/wiseconnect
@@ -38,7 +40,7 @@ To explore all of our available documentation, see the sections below:
 
 ### Hardware Reference
 
-To access these documents, please contact Silicon Labs support by creating a **Salesforce** ticket:
+To access these documents, please contact Silicon Labs support by creating a **Salesforce** ticket.
 
   - **SiWx91x Datasheet**
   - **SiWx91x Hardware Reference Manual**
