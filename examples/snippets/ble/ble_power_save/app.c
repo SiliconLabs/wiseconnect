@@ -209,120 +209,6 @@ const osThreadAttr_t thread_attributes = {
 //   ! PROCEDURES
 /*=======================================================================*/
 /*==============================================*/
-#if 0
-#ifdef RSI_M4_INTERFACE
-/**
- * @fn         rsi_ble_only_Trigger_M4_Sleep
- * @brief      Keeps the M4 In the Sleep 
- * @param[in]  none
- * @return    none.
- * @section description
- * This function is used to trigger sleep in the M4 and in the case of the retention submitting the buffer valid
- * to the TA for the rx packets.
- */
-void rsi_ble_only_Trigger_M4_Sleep(void)
-{
-  /* Configure Wakeup-Source */
-  RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
-
-  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
-
-#ifndef FLASH_BASED_EXECUTION_ENABLE
-  /* LDOSOC Default Mode needs to be disabled */
-  sl_si91x_disable_default_ldo_mode();
-
-  /* bypass_ldorf_ctrl needs to be enabled */
-  sl_si91x_enable_bypass_ldo_rf();
-
-  sl_si91x_disable_flash_ldo();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep */
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                           DISABLE_LF_MODE,
-                           0,
-                           (uint32_t)RSI_PS_RestoreCpuContext,
-                           0,
-                           RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
-
-#else
-
-#ifdef COMMON_FLASH_EN
-  M4SS_P2P_INTR_SET_REG &= ~BIT(3);
-#endif
-  /* Configure RAM Usage and Retention Size */
-  //  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-  RSI_PS_SetRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN | ULPSS_RAM_RETENTION_MODE_EN | M4ULP_RAM_RETENTION_MODE_EN
-                         | M4SS_RAM_RETENTION_MODE_EN);
-
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                           DISABLE_LF_MODE,
-                           WKP_RAM_USAGE_LOCATION,
-                           (uint32_t)RSI_PS_RestoreCpuContext,
-                           IVT_OFFSET_ADDR,
-                           RSI_WAKEUP_FROM_FLASH_MODE);
-
-#endif
-#ifdef DEBUG_UART
-  fpuInit();
-  DEBUGINIT();
-#endif
-}
-#endif
-#ifdef RSI_M4_INTERFACE
-void M4_sleep_wakeup()
-{
-  /* Configure Wakeup-Source */
-  RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
-
-  /* Enable NVIC */
-  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
-
-#ifndef FLASH_BASED_EXECUTION_ENABLE
-  /* LDOSOC Default Mode needs to be disabled */
-  sl_si91x_disable_default_ldo_mode();
-
-  /* bypass_ldorf_ctrl needs to be enabled */
-  sl_si91x_enable_bypass_ldo_rf();
-
-  /* Disable FlashLDO */
-  sl_si91x_disable_flash_ldo();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_128KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep */
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                           DISABLE_LF_MODE,
-                           0,
-                           (uint32_t)RSI_PS_RestoreCpuContext,
-                           0,
-                           RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
-#else
-
-  /* Configure RAM Usage and Retention Size */
-  //sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  RSI_PS_SetRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN | ULPSS_RAM_RETENTION_MODE_EN | M4ULP_RAM_RETENTION_MODE_EN
-                         | M4SS_RAM_RETENTION_MODE_EN);
-#ifdef COMMON_FLASH_EN
-  M4SS_P2P_INTR_SET_REG &= ~BIT(3);
-#endif
-
-  /* Trigger M4 Sleep*/
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                           DISABLE_LF_MODE,
-                           WKP_RAM_USAGE_LOCATION,
-                           (uint32_t)RSI_PS_RestoreCpuContext,
-                           IVT_OFFSET_ADDR,
-                           RSI_WAKEUP_FROM_FLASH_MODE);
-
-#endif
-}
-#endif
-#endif
 
 /**
  * @fn         rsi_ble_app_init_events
@@ -579,16 +465,6 @@ void ble_app_task(void *argument)
     LOG_PRINT("\r\n Wi-Fi Initialization Success\n");
   }
 
-#if 0
-#ifdef RSI_M4_INTERFACE
-
-  RSI_PS_FlashLdoEnable();
-  /* MCU Hardware Configuration for Low-Power Applications */
-  RSI_WISEMCU_HardwareSetup();
-
-#endif
-#endif
-
 #ifdef FW_LOGGING_ENABLE
   //! Set log levels for firmware components
   sl_set_fw_component_log_levels(&fw_component_log_level);
@@ -712,15 +588,6 @@ void ble_app_task(void *argument)
       if (ble_main_task_sem) {
         osSemaphoreAcquire(ble_main_task_sem, 0);
       }
-#if 0
-#ifdef RSI_M4_INTERFACE
-      //! if events are not received loop will be continued.
-      if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (!rsi_driver_cb->scheduler_cb.event_map)) {
-        P2P_STATUS_REG &= ~M4_wakeup_TA;
-        rsi_ble_only_Trigger_M4_Sleep();
-      }
-#endif
-#endif
       continue;
     }
 

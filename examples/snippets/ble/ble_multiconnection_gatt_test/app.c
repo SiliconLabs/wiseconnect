@@ -362,14 +362,6 @@ void rsi_common_app_task(void)
   int8_t status       = RSI_SUCCESS;
   powersave_cmd_given = false;
 
-#if 0
-#ifdef RSI_M4_INTERFACE
-  RSI_WISEMCU_HardwareSetup();
-  LOG_PRINT("\r\n RSI_WISEMCU_HardwareSetup success \n");
-
-#endif
-#endif
-
   status = sl_wifi_init(&config, default_wifi_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Wi-Fi Initialization Failed, Error Code : 0x%X\r\n", status);

@@ -60,7 +60,7 @@
 #define HTTPV6 BIT(0)
 
 //! Set HTTPS_SUPPORT to use HTTPS feature
-#define HTTPS_SUPPORT BIT(1)
+#define HTTPS_SUPPORT BIT(0)
 
 //! Set HTTP_POST_DATA to use HTTP POST LARGE DATA feature
 #define HTTP_POST_DATA BIT(5)
@@ -77,7 +77,6 @@
 #define DNS_TIMEOUT         20000
 #define MAX_DNS_RETRY_COUNT 5
 #define OTAF_TIMEOUT        600000
-char *hostname;
 #ifdef AWS_ENABLE
 //! for example select required flag bits,  Eg:(HTTPS_SUPPORT | HTTPV6 | HTTP_USER_DEFINED_CONTENT_TYPE)
 #define FLAGS HTTPS_SUPPORT
@@ -120,6 +119,7 @@ char *hostname = "rs9116updates.blob.core.windows.net";
 #define HTTP_URL               "SiWG917-A.2.9.0.0.2.rps"
 //! set HTTP hostname
 #define HTTP_HOSTNAME          "192.168.0.158"
+char *hostname = HTTP_HOSTNAME;
 //! set HTTP extended header
 //! if NULL , driver fills default extended header
 #define HTTP_EXTENDED_HEADER   NULL
@@ -153,7 +153,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT
-                                              | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_OTAF
+                                              | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
                    .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
@@ -311,7 +311,6 @@ sl_status_t http_otaf_app()
 
 #else
   strcpy(server_ip, HTTP_SERVER_IP_ADDRESS);
-  strcpy(hostname, HTTP_HOSTNAME);
   printf("\r\nLocal Apache Server IP Address: %s\r\n", HTTP_HOSTNAME);
   printf("\r\nFirmware download in progress from Local Apache Server.\r\n");
 #endif

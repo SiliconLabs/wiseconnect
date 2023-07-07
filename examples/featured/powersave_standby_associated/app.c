@@ -249,6 +249,9 @@ void M4_sleep_wakeup(void)
                          RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
 
 #else
+  /* Configure RAM Usage and Retention Size */
+  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
+
   /* Trigger M4 Sleep*/
   sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
                          DISABLE_LF_MODE,
