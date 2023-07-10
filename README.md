@@ -36,11 +36,12 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
 	  git clone https://github.com/siliconlabs/wiseconnect
 	  ```
     - Open the following file path within the cloned repo on your browser: `docs/index.html`
-  - [App Notes](docs/app-notes)
+  - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
+  - [App Notes](docs/software-reference/app-notes)
 
 ### Hardware Reference
 
-To access these documents, please [contact Silicon Labs Sales](https://www.silabs.com/about-us/contact-sales).
+To access these documents, click [here](https://www.silabs.com/about-us/contact-sales) to contact the Silicon Labs Sales team.
 
-  - **SiWx91x Datasheet**
-  - **SiWx91x Hardware Reference Manual**
+  - **SiWx917 Datasheet**
+  - **SiWx917 Hardware Reference Manual**
