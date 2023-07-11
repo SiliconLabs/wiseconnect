@@ -51,6 +51,7 @@
 #define MAXIMUM_SECOND       (59u)  // Maximum second in a minute
 #define MAXIMUM_MILLISECONDS (999u) // Maximum milliseconds in second
 #define MAXIMUM_CENTURY      (4u)   // Maximum supported century
+#define MAXIMUM_YEAR         (99u)  // Maximum year in a century
 
 #define MAXIMUM_EPOCH_DAY    (19u) // Maximum day in epoch time
 #define MAXIMUM_EPOCH_HOUR   (3u)  // Maximum hour in epoch time
@@ -855,7 +856,7 @@ static bool is_valid_date(sl_calendar_datetime_config_t *date)
     }
     // If the year, month, day, hour, minute, second, millisecond is greater than the maximum
     // then it returns false, else true
-    if ((date->Century > MAXIMUM_CENTURY) || (date->Year > TIME_UNIX_YEAR_MAX) || (date->Month > December)
+    if ((date->Century > MAXIMUM_CENTURY) || (date->Year > MAXIMUM_YEAR) || (date->Month > December)
         || (date->Day == MINIMUM_DAY || date->Day > maximum_days) || (date->Hour > MAXIMUM_HOUR)
         || (date->Minute > MAXIMUM_MINUTE) || (date->Second > MAXIMUM_SECOND)
         || (date->MilliSeconds > MAXIMUM_MILLISECONDS)) {

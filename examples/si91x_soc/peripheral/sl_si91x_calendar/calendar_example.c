@@ -258,7 +258,8 @@ static void calendar_print_datetime(sl_calendar_datetime_config_t data)
 {
   DEBUGOUT("\n***Calendar time****\n");
   DEBUGOUT("Time Format: hour:%d, min:%d, sec:%d, msec:%d\n", data.Hour, data.Minute, data.Second, data.MilliSeconds);
-  DEBUGOUT("Date Format: DD/MM/YYYY: %d/%d/%d\n", data.Day, data.Month, (data.Year + (data.Century) * 1000));
+  DEBUGOUT("Date Format: DD/MM/YY: %.2d/%.2d/%.2d ", data.Day, data.Month, data.Year);
+  DEBUGOUT(" Century: %d", data.Century);
 }
 
 /*******************************************************************************
