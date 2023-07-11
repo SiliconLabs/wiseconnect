@@ -17,6 +17,8 @@ source:
 - path: drivers/systemlevel/src/rsi_ipmu.c
 - path: drivers/systemlevel/src/rsi_power_save.c
 - path: drivers/systemlevel/src/rsi_temp_sensor.c
+- path: drivers/systemlevel/src/rsi_rtc.c
+- path: drivers/systemlevel/src/rsi_time_period.c
 - path: drivers/ipmu/ipmu_apis.c
 - path: drivers/cmsis_driver/USART.c
 - path: drivers/cmsis_driver/UDMA.c
