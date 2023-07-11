@@ -34,7 +34,6 @@
 // <<< Use Configuration Wizard in Context Menu >>>
 
 /***************************** CT CONFIG SELECTION ****************************/
-// <h>CT configurations
 
 // <q SET_TIMER_CONFIG> Enable Timer-Config
 // <i> Default: 1
@@ -49,7 +48,8 @@
 #define SET_OCU_CONFIG 1
 
 /******************************************************************************/
-/***************************** CT Configuration *******************************/
+/******************************* CT Configuration **************************/
+// <h> CT Configuration
 // <e> SET_TIMER_CONFIG
 
 // <o SL_CT_MODE_32BIT_ENABLE_MACRO> CT Mode
@@ -112,6 +112,8 @@
 // <i> Default: 0
 #define SL_COUNTER1_BUFFER_ENABLE_MACRO 0
 
+// </e>
+// </h>
 /******************************************************************************/
 /***************************** OCU Configuration ******************************/
 // <h> OCU Configuration
@@ -119,7 +121,7 @@
 
 // <q SL_COUNTER0_OCU_OUTPUT_ENABLE_MACRO> Counter0 : Enable OCU Output
 // <i> Default: 1
-#define SL_COUNTER0_OCU_OUTPUT_ENABLE_MACRO 1
+#define SL_COUNTER0_OCU_OUTPUT_ENABLE_MACRO 0
 
 // <q SL_COUNTER0_OCU_DMA_ENABLE_MACRO> Counter0 : Enable OCU DMA
 // <i> Default: 0
