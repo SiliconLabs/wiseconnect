@@ -44,6 +44,10 @@
 #include "sl_string.h"
 #include "sl_net_si91x.h"
 
+#ifdef RSI_M4_INTERFACE
+#include "rsi_power_save.h"
+#include "rsi_wisemcu_hardware_setup.h"
+#endif
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -58,6 +62,15 @@
 #define DATA              "hello from tcp client"
 #define TWT_SCAN_TIMEOUT  10000
 #define SEND_TCP_DATA     0
+
+#ifdef RSI_M4_INTERFACE
+#ifdef COMMON_FLASH_EN
+#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>        */
+#else
+#define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset>        */
+#endif
+#define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up  */
+#endif
 
 static const sl_wifi_device_configuration_t sl_wifi_twt_client_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -76,7 +89,8 @@ static const sl_wifi_device_configuration_t sl_wifi_twt_client_configuration = {
                    .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
-                      | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS |
+                      | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_A0_ULP_GPIO_4_5_0 |
 #ifndef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -137,6 +151,7 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
                                         sl_si91x_twt_response_t *result,
                                         uint32_t result_length,
                                         void *arg);
+void M4_sleep_wakeup(void);
 
 /******************************************************
   *               Function Definitions
@@ -172,6 +187,10 @@ void application_start()
     return;
   }
   printf("\r\nTWT Config Done\r\n");
+
+#ifdef RSI_M4_INTERFACE
+  M4_sleep_wakeup();
+#endif
 }
 
 sl_status_t set_twt(void)
@@ -221,6 +240,7 @@ sl_status_t set_twt(void)
     status = twt_results_complete ? callback_status : SL_STATUS_TIMEOUT;
   }
   VERIFY_STATUS_AND_RETURN(status);
+  printf("\nTWT Setup Successful\n");
   twt_results_complete = false;
 
   //! Enable Broadcast data filter
@@ -328,3 +348,43 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
   twt_results_complete = true;
   return SL_STATUS_OK;
 }
+
+#ifdef RSI_M4_INTERFACE
+
+void M4_sleep_wakeup(void)
+{
+  printf("\r\nM4 in sleep\r\n");
+#ifndef FLASH_BASED_EXECUTION_ENABLE
+  /* LDOSOC Default Mode needs to be disabled */
+  sl_si91x_disable_default_ldo_mode();
+
+  /* bypass_ldorf_ctrl needs to be enabled */
+  sl_si91x_enable_bypass_ldo_rf();
+
+  sl_si91x_disable_flash_ldo();
+
+  /* Configure RAM Usage and Retention Size */
+  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
+
+  /* Trigger M4 Sleep */
+  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
+                         DISABLE_LF_MODE,
+                         0,
+                         (uint32_t)RSI_PS_RestoreCpuContext,
+                         0,
+                         RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
+
+#else
+  /* Configure RAM Usage and Retention Size */
+  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
+
+  /* Trigger M4 Sleep*/
+  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
+                         DISABLE_LF_MODE,
+                         WKP_RAM_USAGE_LOCATION,
+                         (uint32_t)RSI_PS_RestoreCpuContext,
+                         IVT_OFFSET_ADDR,
+                         RSI_WAKEUP_FROM_FLASH_MODE);
+#endif
+}
+#endif

@@ -25,3 +25,8 @@ template_contribution:
       event: platform_init
       include: rsi_board.h
       handler: RSI_Board_Init
+  - name: event_handler
+    value:
+      event: service_init
+      include: rsi_board.h
+      handler:  DEBUGINIT
