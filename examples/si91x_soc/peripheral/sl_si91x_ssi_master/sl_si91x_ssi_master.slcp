@@ -41,6 +41,8 @@ other_file:
 - {path: resources/readme/image510e.png}
 provides:
 - {name: si91x_soc}
+readme:
+  - path: readme.md
 sdk_extension:
 - {id: wiseconnect3_sdk, version: 3.0.9}
 post_build:

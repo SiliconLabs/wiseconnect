@@ -87,7 +87,7 @@ index 56b9bbb21913..972fd40d9f55 100644
    - name: atomic
    - name: configuration_over_swo
 diff --git a/platform/service/component/iostream_usart.slcc b/platform/service/component/iostream_usart.slcc
-index 7b880d786028..47de4ee09709 100644
+index 7b880d786028..e6a6ab5f249c 100644
 --- a/platform/service/component/iostream_usart.slcc
 +++ b/platform/service/component/iostream_usart.slcc
 @@ -19,6 +19,9 @@ config_file:
@@ -111,30 +111,36 @@ index 7b880d786028..47de4ee09709 100644
  template_contribution:
    - name: iostream_usart_instances
      value: "{{instance}}"
-@@ -36,10 +41,23 @@ template_contribution:
+@@ -36,15 +41,29 @@ template_contribution:
        event: iostream_instance_init
        include: sl_iostream_init_usart_instances.h
        handler: sl_iostream_usart_init_instances
-+      condition: [device]
++    condition: [device]
 +  - name: event_handler
 +    value:
 +      event: iostream_instance_init
 +      include: sl_iostream_init_si91x_usart.h
 +      handler: sl_iostream_usart_init_instances
-+      condition: [siwx917_soc]
++    condition: [siwx917_soc]
    - name: iostream_instance_info
      value:
        include: sl_iostream_init_usart_instances.h
        handler: "sl_iostream_instance_{{instance}}_info"
-+      condition: [device]
++    condition: [device]
 +  - name: iostream_instance_info
 +    value:
 +      include: sl_iostream_init_si91x_usart.h
 +      handler: "sl_iostream_instance_{{instance}}_info"
-+      condition: [siwx917_soc]
++    condition: [siwx917_soc]
    - name: power_manager_handler
      value:
        event: sleep_on_isr_exit
+       include: sl_iostream_init_usart_instances.h
+       handler: "sl_iostream_usart_{{instance}}_sleep_on_isr_exit"
++    condition: [device]
+ documentation:
+   docset: gecko-platform
+   document: service/api/group-iostream-usart
 diff --git a/platform/service/component/iostream_usart_core.slcc b/platform/service/component/iostream_usart_core.slcc
 index f684d05a6dd7..76c2e1a6f710 100644
 --- a/platform/service/component/iostream_usart_core.slcc
@@ -292,18 +298,21 @@ index 3b65be0181ec..fbb9e1f5d314 100644
  
  /// @brief Struct representing an I/O Stream instance.
 diff --git a/platform/service/iostream/inc/sli_iostream_uart.h b/platform/service/iostream/inc/sli_iostream_uart.h
-index cf4dea92d0cd..0083f6518500 100644
+index cf4dea92d0cd..e3bbd97b09b8 100644
 --- a/platform/service/iostream/inc/sli_iostream_uart.h
 +++ b/platform/service/iostream/inc/sli_iostream_uart.h
-@@ -43,6 +43,11 @@ extern "C" {
+@@ -43,7 +43,11 @@ extern "C" {
  
  #include "sl_status.h"
  #include "sl_iostream.h"
 +#if defined(_SI91X_DEVICE)
 +#include "sl_iostream_uart_si91x.h"
 +#else
-+#include "sl_iostream_uart.h"
-+#endif
  #include "sl_iostream_uart.h"
++#endif
  
  #define SLI_IOSTREAM_UART_FLAG_CTS             0x01
+ #define SLI_IOSTREAM_UART_FLAG_RTS             0x02
+-- 
+2.34.0.windows.1
+

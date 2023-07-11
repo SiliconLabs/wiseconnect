@@ -59,7 +59,6 @@
   - Read - Rest the contents of an existing file
   - Delete - Deletes the contents of an existing file
 
-This application can save 10 files. Additionally, the number of writes and deletes are saved in the counter objects in the `nvm3_app.c` file.
 Refer to ![Figure: Introduction](resources/readme/image508d.png)
 
 ## Resources

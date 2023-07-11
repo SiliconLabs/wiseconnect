@@ -2,7 +2,10 @@
 
 ## Introduction 
 - This example application demonstrates the use of Third Generation Non-Volatile Memory (NVM3) data storage in Si91x common flash.
-
+- This example writes initializes NVM3 and does following operations
+	1. Store 4 keys in flash using NVM3 write
+	2. Display 4 keys stored.
+	3. Delete 4 keys.
 
 ## Setting Up 
  - To use this application following Hardware, Software and the Project Setup is required
@@ -30,7 +33,7 @@
 
 ## Loading Application on Simplicity Studio
 - With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos 
-in simplicity studio and click on to NVM3 Bare Metal Example application as shown below
+in simplicity studio and click on tosl_si91x_nvm3_common_flash Example application as shown below
 	
 ![Figure:](resources/readme/image508b.png)
 
@@ -43,13 +46,7 @@ in simplicity studio and click on to NVM3 Bare Metal Example application as show
 - To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
 ## Executing the Application
-- Users can give the following commands:
-
-   * Write - Writes into an existing or new file
-   * Read - Rest the contents of an existing file
-   * Delete - Deletes the contents of an existing file
-   
-This application can save 10 files. Additionally, the number of writes and deletes are saved in the counter objects in the `nvm3_app.c` file.
+- Users will observe following prints on console
 Refer to ![Figure: Introduction](resources/readme/image508d.png)
 
 ## Resources
