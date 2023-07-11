@@ -6,12 +6,12 @@ This SDK package supports SoC Mode
 - Silicon Labs' SiWx917 includes an ultra-low power Wi-Fi 6 plus Bluetooth Low Energy (BLE) 5.1 wireless subsystem and an integrated micro-controller application subsystem.
 - Support for Phase 1 platform DX peripherals is added.
   > Note: To run the application please install the GSDK patch following below instructions:
-  >
-  > - Open your terminal application
+  > - Install GSDK version 4.3.0.
+  > - Open your terminal application.
   > - Go to your GSDK path and enter the following command.
-      git apply "extension/wiseconnect3/utilities/gsdk_service_patch/gsdk_service.patch"
+      git apply --ignore-whitespace --ignore-space-change "extension/wiseconnect3/utilities/gsdk_service_patch/gsdk_service.patch"
 
-> - Note: The git apply command needs to be run to apply a GSDK patch not available with the current WiSeConnect 3 release. This patch will be automatically included in the next release.
+> Note: The git apply command needs to be run to apply a GSDK patch not available with the current WiSeConnect 3 release.
 > - Now you should be able to build and run Dx sample applications.
 
 > Note: Release supports only Simplicity Studio 5.5 & above versions
@@ -36,7 +36,7 @@ This SDK package supports SoC Mode
 
 | Item                      | Details                                                        |
 | ------------------------- | -------------------------------------------------------------- |
-| Release date              | July 7th, 2023                                                 |
+| Release date              | July 10th, 2023                                                 |
 | API Version               | 3.0.9(Build 1)                                                 |
 | Firmware Version          | 2.9.0.0.8                                                      |
 | Package Name              | WiSeConnect3_SDK_3.0.9                                         |
@@ -48,7 +48,6 @@ This SDK package supports SoC Mode
 This release consists of Wireless Library - The Library runs on internal Cortex M4 in SoC Mode and supports 45 sample examples.
 
 ## Features and Bug Fixes
-
 - Added B0(V1.2) chipset support for platform examples.
 - Addressed Matter issues
 - SL DEINIT issue Resolved
@@ -57,6 +56,8 @@ This release consists of Wireless Library - The Library runs on internal Cortex 
 ## Known Issues
 
 - The current chipset support for all the DX peripherals is A0 and B0(V1.2). B0(V2.0) support shall be provided in subsequent releases.
+- I2C High Speed mode is not working as expected.
+- SSI bitrate above 10 Msps is not working as expected.
 - Powersave Deepsleep issue with Common Flash B0 Board.
 - DUT is getting hanged while continuously publishing data in embedded mqtt application during power save mode
 - BLE notification and Continuous BG scan are not working as expected
@@ -89,6 +90,8 @@ This release consists of Wireless Library - The Library runs on internal Cortex 
 - Maximum of 3 SSL connections are supported in WiFi alone mode.
 - TWT is not verified in Coex mode.
 - BGscan is not verified with TWT Feature.
+- SIO currently supports SPI and UART.
+- Peripherals currently uses UDMA CMSIS driver.
 
 #### Not supported
 
