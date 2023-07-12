@@ -74,6 +74,7 @@
 #define SL_STATUS_WIFI_SECURE_LINK_DECRYPT_ERROR           ((sl_status_t)0x0B57) ///< Error while decryption over secure link.
 #define SL_STATUS_WIFI_SECURE_LINK_KEY_RENEGOTIATION_ERROR ((sl_status_t)0x0B59) ///< Error while renegotiation of key over secure link.
 #define SL_STATUS_WIFI_INVALID_OPERMODE                    ((sl_status_t)0x0B60) ///< Invalid opermode provided.
+#define SL_STATUS_WIFI_INVALID_ENCRYPTION_METHOD           ((sl_status_t)0x0B61) ///< Invalid security encryption method provided.
 
 // Si91X Wi-Fi Firmware errors
 #define SL_STATUS_SI91X_SCAN_ISSUED_IN_ASSOCIATED_STATE                         ((sl_status_t)0x10002) ///< Scan command issued while device is already associated with an access point.
@@ -81,7 +82,7 @@
 #define SL_STATUS_SI91X_INVALID_PSK_IN_WEP_SECURITY                             ((sl_status_t)0x10004) ///< Wrong PSK is issued while the device client tries to join an access point with WEP security enabled.
 #define SL_STATUS_SI91X_INVALID_BAND                                            ((sl_status_t)0x10005) ///< Invalid band.
 #define SL_STATUS_SI91X_UNASSOCIATED                                            ((sl_status_t)0x10006) ///< Association not done or in unassociated state.
-#define SL_STATUS_SI91X_DEAUTHENTICATION                                        ((sl_status_t)0x10008) ///< De-authentication received from AP.
+#define SL_STATUS_SI91X_DEAUTHENTICATION_RECEIVED_FROM_AP                       ((sl_status_t)0x10008) ///< De-authentication received from AP.
 #define SL_STATUS_SI91X_ASSOCIATION_FAILED                                      ((sl_status_t)0x10009) ///< Failed to associate to access point during "Join".
 #define SL_STATUS_SI91X_INVALID_CHANNEL                                         ((sl_status_t)0x1000A) ///< Invalid channel.
 #define SL_STATUS_SI91X_JOIN_AUTHENTICATION_FAILED                              ((sl_status_t)0x1000E) ///< Authentication failure during "Join". Unable to find AP during join which was found during scan.

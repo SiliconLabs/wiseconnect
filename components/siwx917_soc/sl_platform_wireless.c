@@ -136,8 +136,10 @@ void sl_si91x_hardware_setup(void)
   RSI_PS_XtalGoodTimeDurationConfig(XTAL_GOOD_TIME);
   /*Enable first boot up*/
   RSI_PS_EnableFirstBootUp(1);
+#ifdef COMMON_FLASH_EN
   /* Skip XTAL wait time because RC_32MHZ Clock is used for Processor on Wake-up*/
   RSI_PS_SkipXtalWaitTime(1);
+#endif
 }
 
 /**

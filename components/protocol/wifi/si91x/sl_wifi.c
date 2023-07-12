@@ -342,7 +342,7 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
     } else if (SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION == ap->encryption) {
       strcpy((char *)eap_req.eap_method, SL_EAP_PEAP_METHOD);
     } else {
-      return SL_STATUS_NOT_SUPPORTED;
+      return SL_STATUS_WIFI_INVALID_ENCRYPTION_METHOD;
     }
 
     strcpy((char *)eap_req.inner_method, SL_EAP_INNER_METHOD);
@@ -377,6 +377,8 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
                                           NULL,
                                           NULL);
     VERIFY_STATUS_AND_RETURN(status);
+  } else {
+	  return SL_STATUS_WIFI_UNKNOWN_SECURITY_TYPE;
   }
 
   memset(&join_request, 0, sizeof(join_request));
