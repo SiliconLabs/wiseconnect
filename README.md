@@ -41,7 +41,7 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
 
 ### Hardware Reference
 
-To access these documents, click [here](https://www.silabs.com/about-us/contact-sales) to contact the Silicon Labs Sales team.
+To access these documents, contact the Silicon Labs Sales team by clicking [here](https://www.silabs.com/about-us/contact-sales).
 
   - **SiWx917 Datasheet**
   - **SiWx917 Hardware Reference Manual**
