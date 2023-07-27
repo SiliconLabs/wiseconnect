@@ -3,21 +3,21 @@
 This SDK package supports SoC Mode only.
 
 - In SoC Mode: Customer Applications can run on Cortex M4 and Wireless stacks, Networking stacks run on the Wireless subsystem.
-- Silicon Labs SiWx917 includes an ultra-low power Wi-Fi 6 plus Bluetooth Low Energy (BLE) 5.1 wireless subsystem and an integrated micro-controller application subsystem.
+- Silicon Labs SiWx917 includes an ultra-low power Wi-Fi 6 plus Bluetooth Low Energy (BLE) 5.4 wireless subsystem and an integrated micro-controller application subsystem.
 
-> Note: The release supports only Simplicity Studio 5.5 & above versions.
+> Note: The release supports only Simplicity Studio 5.7 & above versions.
 
 ## Highlights
 
 - **Operating Modes**: Wi-Fi STA, Wi-Fi AP, Concurrent (AP + STA), Wi-Fi STA+BLE (CoEx)
-- **Wireless Protocols**: IEEE 802.11b, 802.11g, 802.11n, 802.11ax, BLE 5.1
+- **Wireless Protocols**: IEEE 802.11b, 802.11g, 802.11n, 802.11ax, BLE 5.4
 - **MCU Peripherals**: ADC Static Mode, Analog Comparator, Bod, CTS, DAC FIFO, DAC Static, OPAMP, GPIO, I2C, I2S, PWM, RTC, QEI, SPI, UART, USART, UDMA, WDT
   - ULP (Ultra Low Power) Peripherals: ulp_gpio, ulp_i2c, ulp_i2s, ulp_ir_decoder, ulp_spi, ulp_timer, ulp_uart, ulp_udma
   - UART and I2C Deep Sleep Wakeup Without RAM Retention
 - **Multiple Ultra Low Power Modes**: Wi-Fi 6 TWT (Target Wake Time) - for improved network efficiency and device battery life
 - **Wi-Fi**: 2.4GHz Wi-Fi Support - WPA2/WPA3 Personal, Wi-Fi 6 OFDMA/MU-MIMO Support that enhances network capacity and latency
 - **Cloud**: Amazon Cloud Connectivity Support
-- **BLE**: BLE 5.1, BLE dual role (Central and Peripheral Support)
+- **BLE**: BLE 5.4, BLE dual role (Central and Peripheral Support)
 - **Integrated Stacks and Profiles**: Wi-Fi Stack, BLE Stack and Profiles, TCP/IP stack with TLS 1.3, HTTP/HTTPS, DHCP, MQTT Client, SNTP Client, DNS Client
 - **IDE**: Simplicity Studio with Windows 10 (64-bit), Linux, MacOS
 - **TA/M4 Firmware Update Tool**: Simplicity Commander
@@ -28,11 +28,12 @@ This SDK package supports SoC Mode only.
 | Item                      | Details                                                        |
 | ------------------------- | -------------------------------------------------------------- |
 | Release date              | July 27th, 2023                                                |
-| API Version               | 3.0.10(Build 1)                                                |
+| SDK Version               | 3.0.10(Build 1)                                                |
 | Firmware Version          | 2.9.0.0.15                                                     |
 | Package Name              | WiSeConnect3_SDK_3.0.10                                        |
 | Supported RTOS            | FreeRTOS                                                       |
 | Operating Modes Supported | Wi-Fi STA, Wi-Fi AP, Concurrent(AP + STA), Wi-Fi STA+BLE(CoEx) |
+| Build Quality             | pre-beta                                                       |
 
 ## Updating to this Release
 
@@ -46,12 +47,15 @@ This release includes the Wireless Library, which operates on the internal Corte
 ## Known Issues
 
 - I2C High-Speed mode is not working as expected.
-- SSI bitrate above 10 Msps is not working as expected.
+- SSI bitrate above 10 Mbps is not working as expected.
 - DUT is getting hanged while continuously publishing data in the embedded MQTT application during power save mode.
 - BLE notification and Continuous BG scan are not working as expected.
-- On BRD4325B A02 boards, BLE radio's range is 4-5m.
+- BLE radio's range of 4-5m for BRD4325B A02 boards, .
 - Intermittent Bus thread hang issue with LWIP external stack.
 - The "Browser File Viewer" plugin has issues. It can't render the last image included in the markdown files and has observed issues accessing some hyperlinks.
+- Known issues in ble per and wlan rf features
+- Data rates are not effecting on the dut with 11b, 11g, 11n modes.
+- BLE connection is not happening when power save is enabled in BLE-Central application
 
 ### SOC
 
@@ -94,7 +98,7 @@ This release includes the Wireless Library, which operates on the internal Corte
 - SNI (HTTPS, TLS/SSL).
 - Keep Alive configurability.
 - Console application for customers.
-- Multi-threading support for relevant APIs.
+- Multi-threaded APIs.
 - 917-specific features (debugging utilities).
 - APIs for Crypto Hardware (ECDH, DH, SHA, AES), Calibration software & stats.
 - SoC Support (Hosted mode): support for switching between internal & external stack in SS.
@@ -137,7 +141,7 @@ This SDK package supports SoC Mode only.
 >
 > - Now you should be able to build and run Dx sample applications.
 
-> Note: The release supports only Simplicity Studio 5.5 & above versions.
+> Note: The release supports only Simplicity Studio 5.7 & above versions.
 
 ## SoC Highlights
 
