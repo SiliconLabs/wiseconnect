@@ -11,3 +11,4 @@ provides:
 source:
 - path: src/sl_net_basic_credentials.c
 - path: src/sl_net_basic_profiles.c
+include:

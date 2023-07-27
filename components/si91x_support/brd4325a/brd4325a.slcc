@@ -12,9 +12,7 @@ provides:
 - name: hardware_board_rb
 - name: rom_bypass
 - name: si91x_platform
-include:
-- path: .
-- path: config
+- name: device_needs_ram_execution
 define:
 - name: SI917_RADIO_BOARD
 - {"name":"CHIP_917","value":1}
@@ -31,4 +29,13 @@ requires:
 tag:
 - board:pn:BRD4325
 - board:variant:A
+
+include:
+- path: .
+  file_list:
+    - path: sl_board_configuration.h
+    - path: sl_board_control.h
+- path: config
+  file_list:
+    - path: FreeRTOSConfig.h
 

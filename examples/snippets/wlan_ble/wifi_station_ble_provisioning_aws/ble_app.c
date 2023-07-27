@@ -544,7 +544,7 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
       } break;
 
       // Sending SSID
-      case '2': //else if(rsi_ble_write->att_value[0] == '2')  //The length of the ssid and pasword is not more than 17 character
+      case '2': //else if(rsi_ble_write->att_value[0] == '2')
       {
         memset(coex_ssid, 0, sizeof(coex_ssid));
         strcpy((char *)coex_ssid, (const char *)&rsi_ble_write->att_value[3]);
@@ -726,6 +726,14 @@ void rsi_ble_configurator_task(void *argument)
 
         // clear the served event
         rsi_ble_app_clear_event(RSI_BLE_ENH_CONN_EVENT);
+
+        //MTU exchange
+        status = rsi_ble_mtu_exchange_event(conn_event_to_app.dev_addr, BLE_MTU_SIZE);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\n rsi_ble_mtu_exchange_event command failed : %lx", status);
+        } else {
+          LOG_PRINT("\n rsi_ble_mtu_exchange_event command success \n");
+        }
       } break;
 
       case RSI_BLE_DISCONN_EVENT: {

@@ -136,7 +136,25 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 The application can be configured to suit your requirements and development environment. 
 
-### 4.1 Configure the application
+### 4.1.1 In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+
+- **STA instance related parameters**
+
+- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
+
+  ```c
+  #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
+  ```
+
+- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+
+  ```c 
+  #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+  ```
+
+- Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
+
+### 4.1.2 Configure the application
 
 - `SERVER_PORT` is the remote UDP server port number on the PC running Iperf.
 - `SERVER_IP_ADDRESS` is the remote UDP server IP address on the PC running Iperf. 

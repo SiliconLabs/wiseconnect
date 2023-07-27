@@ -15,14 +15,14 @@
 typedef sl_status_t (*sl_wifi_callback_function_t)(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
 
 /// Wi-Fi scan result callback type.
-/// Incase of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored
+/// In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored
 typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
                                                sl_wifi_scan_result_t *data,
                                                uint32_t data_length,
                                                void *arg);
 
 /// Wi-Fi stats callback type.
-/// Incase of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored
+/// In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored
 /// @note structure of data to be expected
 /// @note SL_WIFI_STATS_EVENT -> Coming soon
 /// @note: SL_WIFI_STATS_AYSNC_EVENT -> sl_si91x_async_stats_response_t
@@ -32,11 +32,11 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
 typedef sl_status_t (*sl_wifi_stats_callback_t)(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
 
 /// Wi-Fi join callback type.
-/// Incase of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored
+/// In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored
 typedef sl_status_t (*sl_wifi_join_callback_t)(sl_wifi_event_t event, char *data, uint32_t data_length, void *arg);
 
 /// TWT Response callback type.
-/// Incase of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored
+/// In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored
 typedef sl_status_t (*sl_wifi_twt_config_callback_t)(sl_wifi_event_t event,
                                                      sl_si91x_twt_response_t *data,
                                                      uint32_t data_length,
@@ -44,7 +44,7 @@ typedef sl_status_t (*sl_wifi_twt_config_callback_t)(sl_wifi_event_t event,
 
 /***************************************************************************/ /**
  * @brief
- *   Registers a function and optional argument for a selected callback
+ *   Register a function and optional argument for a selected callback
  * @param[in] event
  *   ID of the event. See \ref sl_wifi_event_t
  * @param[in] function
@@ -65,7 +65,7 @@ extern sl_status_t default_wifi_event_handler(sl_wifi_event_t event, sl_wifi_buf
 
 /***************************************************************************/ /**
  * @brief
- *   Registers a function and optional argument for scan results callback
+ *   Register a function and optional argument for scan results callback
  * @param[in] function
  *   Function pointer to callback
  * @param[in] optional_arg
@@ -82,7 +82,7 @@ static inline sl_status_t sl_wifi_set_scan_callback(sl_wifi_scan_callback_t func
 
 /***************************************************************************/ /**
  * @brief
- *   Registers a function and optional argument for join status callback
+ *   Register a function and optional argument for join status callback
  * @param[in] function
  *   Function pointer to callback
  * @param[in] optional_arg
@@ -99,7 +99,7 @@ static inline sl_status_t sl_wifi_set_join_callback(sl_wifi_join_callback_t func
 
 /***************************************************************************/ /**
  * @brief
- *   Registers a function and optional argument for TWT response callback
+ *   Register a function and optional argument for TWT response callback
  * @param[in] function
  *   Function pointer to callback
  * @param[in] optional_arg
@@ -116,7 +116,7 @@ static inline sl_status_t sl_wifi_set_twt_config_callback(sl_wifi_twt_config_cal
 
 /***************************************************************************/ /**
  * @brief
- *   Registers a function and optional argument for statistic report callback
+ *   Register a function and optional argument for statistic report callback
  * @param[in] function
  *   Function pointer to callback
  * @param[in] optional_arg

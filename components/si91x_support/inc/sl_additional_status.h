@@ -68,7 +68,7 @@
 #define SL_STATUS_WIFI_SDIO_RETRIES_EXCEEDED               ((sl_status_t)0x0B4F) ///< SDIO transfer failed too many times.
 #define SL_STATUS_WIFI_NULL_PTR_ARG                        ((sl_status_t)0x0B50) ///< Null Pointer argument passed to function.
 #define SL_STATUS_WIFI_THREAD_FINISH_FAIL                  ((sl_status_t)0x0B51) ///< Error deleting a thread.
-#define SL_STATUS_WIFI_WAIT_ABORTED                        ((sl_status_t)0x0B52) ///< Semaphore/mutex wait has been aborted.
+#define SL_STATUS_WIFI_WAIT_ABORTED                        ((sl_status_t)0x0B52) ///< Semaphore/Mutex wait has been aborted.
 #define SL_STATUS_WIFI_QUEUE_MESSAGE_UNALIGNED             ((sl_status_t)0x0B53) ///< Unaligned message in the queue.
 #define SL_STATUS_WIFI_MUTEX_ERROR                         ((sl_status_t)0x0B54) ///< Error while Mutex operation.
 #define SL_STATUS_WIFI_SECURE_LINK_DECRYPT_ERROR           ((sl_status_t)0x0B57) ///< Error while decryption over secure link.
@@ -143,7 +143,7 @@
 #define SL_STATUS_SI91X_SSID_MISMATCH                                           ((sl_status_t)0x1004B) ///< Scanned SSID and SSID given in join are not matching.
 #define SL_STATUS_SI91X_CLIENT_MAX_SUPPORTED_EXCEEDED                           ((sl_status_t)0x1004C) ///< Given number of clients exceeded max number of stations supported.
 #define SL_STATUS_SI91X_HT_CAPABILITIES_NOT_SUPPORTED                           ((sl_status_t)0x1004D) ///< Given HT capabilities are not supported.
-#define SL_STATUS_SI91X_UART_FLOW_NOT_SUPPORTED                                 ((sl_status_t)0x1004E) ///< Uart Flow control not supported.
+#define SL_STATUS_SI91X_UART_FLOW_NOT_SUPPORTED                                 ((sl_status_t)0x1004E) ///< UART Flow control not supported.
 #define SL_STATUS_SI91X_ZB_BT_BLE_PKT_RECEIVED                                  ((sl_status_t)0x1004F) ///< ZB/BT/BLE packet received and protocol is not enabled.
 #define SL_STATUS_SI91X_MGMT_PKT_DROPPED                                        ((sl_status_t)0x10050) ///< MGMT pkt dropped.
 #define SL_STATUS_SI91X_INVALID_RF_CURRENT_MODE                                 ((sl_status_t)0x10051) ///< Invalid RF current mode.
@@ -168,7 +168,7 @@
 #define SL_STATUS_SI91X_INVALID_CONFIG_TYPE                                     ((sl_status_t)0x10064) ///< RTS THRESHOLD Config type is invalid.
 #define SL_STATUS_SI91X_ERROR_WITH_MQTT_COMMAND                                 ((sl_status_t)0x10065) ///< Error with MQTT command.
 #define SL_STATUS_SI91X_HIGHER_LISTEN_INTERVAL                                  ((sl_status_t)0x10066) ///< listen interval in power save is greater than that of join.
-#define SL_STATUS_SI91X_WLAN_RADIO_DEREGISTERED                                 ((sl_status_t)0x10067) ///< Wlan radio deregistered.
+#define SL_STATUS_SI91X_WLAN_RADIO_DEREGISTERED                                 ((sl_status_t)0x10067) ///< WLAN radio deregistered.
 #define SL_STATUS_SI91X_SAE_FAILURE_DUE_TO_MULTIPLE_CONFIRM_FRAMES_FROM_AP      ((sl_status_t)0x10069) ///< SAE failure due to multiple confirm frames from AP.
 #define SL_STATUS_SI91X_EC_GROUP_STATION_UNSUPPORTED_BY_AP                      ((sl_status_t)0x1006A) ///< AP does not support the EC-group set by station.
 #define SL_STATUS_SI91X_DUPLICATE_ENTRY_EXISTS_IN_DNS_SERVER_TABLE              ((sl_status_t)0x100AF) ///< Duplicate entry exists in DNS server table.

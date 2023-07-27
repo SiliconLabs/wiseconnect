@@ -39,30 +39,10 @@ extern "C" {
 #include "rsi_ccp_common.h"
 
 /***************************************************************************/ /**
- * @addtogroup I2C
+ * @addtogroup I2C I2C
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{
- * @brief There are four I2C Master/Slave controllers - two in the MCU HP peripherals (I2C1, I2C2), 
- * one in the NWP/security subsystem and one in the MCU ULP subsystem (ULP_I2C). 
- * The I2C interface  allows the processor to serve as a master or slave on the I2C bus.
  * 
- * ##Overview
- * - I2C standard compliant bus interface with open-drain pins
- * - Configurable as Master or Slave
- * - Four speed modes: Standard Mode (100 kbps), Fast Mode (400 kbps), 
- * Fast Mode Plus (1Mbps) and High-Speed Mode (3.4 Mbps)
- * - 7 or 10-bit addressing 
- * - 7 or 10-bit combined format transfers
- * - Support for Clock synchronization and Bus Clear
- * - Programmable SDA Hold time
- * - Integrated transmit and receive buffers with support for DMA
- * - Bulk transmit mode in I2C Slave mode
- * - Interrupt based operation (polled mode also available)
- * 
- * ##Initialization
- * - Initialize the I2C peripheral using \ref sl_si91x_i2c_init.
- * - Enable the I2C peripheral using \ref sl_si91x_i2c_enable.
- * - Configure the interrupts using \ref sl_si91x_i2c_set_interrupts.
- * - Enable the interrupts using \ref sl_si91x_i2c_enable_interrupts.
  ******************************************************************************/
 // -----------------------------------------------------------------------------
 // Macros
@@ -88,13 +68,13 @@ extern "C" {
 #define SL_I2C_EVENT_RECEIVE_UNDER (1UL << 0) ///< If processor attempts to read receive buffer when buffer is empty
 #define SL_I2C_EVENT_RECEIVE_OVER \
   (1UL << 1) ///< If receive buffer is full and another byte is received (extra bytes are lost)
-#define SL_I2C_EVENT_RECEIVE_FULL   (1UL << 2) ///< When receive buffer is full upto the RX_TL threshold level
+#define SL_I2C_EVENT_RECEIVE_FULL   (1UL << 2) ///< When receive buffer is full up to the RX_TL threshold level
 #define SL_I2C_EVENT_TRANSMIT_OVER  (1UL << 3) ///< If transmit buffer is full and user attempts to transmit another byte
 #define SL_I2C_EVENT_TRANSMIT_EMPTY (1UL << 4) ///< When transmit buffer is filled over the TX_TL threshold level
 #define SL_I2C_EVENT_READ_REQ       (1UL << 5) ///< SCL is on hold in follower mode when another leader attempts to read data
 #define SL_I2C_EVENT_TRANSMIT_ABORT \
   (1UL << 6) ///< Transmit is aborted, to validate the reason, read IC_TX_ABRT_SOURCE register
-#define SL_I2C_EVENT_RECEIVE_DONE (1UL << 7) ///< In follower mode if leader doesnot acknowledge, happes on last byte
+#define SL_I2C_EVENT_RECEIVE_DONE (1UL << 7) ///< In follower mode if leader does not acknowledge, happens on last byte
 #define SL_I2C_EVENT_ACTIVITY_ON_BUS \
   (1UL << 8) ///< Ongoing or previous activity was there on bus, to clear read IC_CLR_INTR / IC_CLR_ACTIVITY register
 #define SL_I2C_EVENT_STOP_DETECT (1UL << 9) ///< Stop condition is detected on the bus (leader and follower both mode)
@@ -111,17 +91,17 @@ extern "C" {
 #define SL_I2C_ABORT_10B_ADDRESS1_NOACK (1UL << 1) ///< First 10-bit address byte sent was not acknowledged by follower
 #define SL_I2C_ABORT_10B_ADDRESS2_NOACK (1UL << 2) ///< Second 10-bit address byte sent was not acknowledged by follower
 #define SL_I2C_ABORT_TX_DATA_NOACK \
-  (1UL << 3) ///< Received acknowledgement for address bu didnot receive acknowledgement for data
+  (1UL << 3) ///< Received acknowledgement for address bu did not receive acknowledgement for data
 #define SL_I2C_ABORT_GENERAL_CALL_NOACK    (1UL << 4) ///< No follower acknowledged General call
 #define SL_I2C_ABORT_GENERAL_CALL_READ     (1UL << 5) ///< Leader send general call but program was to read it from bus
 #define SL_I2C_ABORT_HIGH_SPEED_ACK        (1UL << 6) ///< High speed leader call was acknowledged by follower
 #define SL_I2C_ABORT_START_BYTE_ACK        (1UL << 7) ///< Start byte was acknowledged by follower
-#define SL_I2C_ABORT_HIGH_SPEED_NO_RESTART (1UL << 8) ///< Restart is disabled and data tranfer is in high speed mode
+#define SL_I2C_ABORT_HIGH_SPEED_NO_RESTART (1UL << 8) ///< Restart is disabled and data transfer is in high speed mode
 #define SL_I2C_ABORT_START_BYTE_NO_RESTART (1UL << 9) ///< Restart is disabled and user tries to send start byte
 #define SL_I2C_ABORT_10B_READ_NO_RESTART \
   (1UL << 10) ///< Restart is disabled and 10-bit address read command is received
 #define SL_I2C_ABORT_MASTER_DISABLED            (1UL << 11) ///< Leader mode is disabled and leader mode operation is preformed
-#define SL_I2C_ABORT_MASTER_ARBITRATION_LOST    (1UL << 12) ///< Leader has lost arbritration
+#define SL_I2C_ABORT_MASTER_ARBITRATION_LOST    (1UL << 12) ///< Leader has lost arbitration
 #define SL_I2C_ABORT_SLAVE_FLUSH_TX_FIFO        (1UL << 13) ///< Follower flushes old TX FIFO to respond new read command
 #define SL_I2C_ABORT_SLAVE_ARBITRATION_LOST     (1UL << 14) ///< Follower lost the bus
 #define SL_I2C_ABORT_SLAVE_READ_INTX            (1UL << 15) ///< Follower requests for data and user writes 1 in CMD register
@@ -132,21 +112,22 @@ extern "C" {
 #define SL_I2C_ABORT_WRITE                      (1UL << 20) ///< Leader sends device ID transfer and TX FIFO has write command
 
 // I2C status registers flags
-#define SL_I2C_ACTIVITY_STATUS                  (1U << 0) ///< 'OR' of Leader and Follower activity
-#define SL_I2C_TRANSFER_FIFO_NOT_FULL_STATUS    (1U << 1) ///< Transmit FIFO is not full
-#define SL_I2C_TRANSFER_FIFO_EMPTY_STATUS       (1U << 2) ///< Transmt FIFO is completely empty
-#define SL_I2C_RECEIVE_FIFO_NOT_EMPTY_STATUS    (1U << 3) ///< Receive FIFO is not empty
-#define SL_I2C_RECEIVE_FIFO_FULL_STATUS         (1U << 4) ///< Receive FIFO is completely full
-#define SL_I2C_MASTER_ACTIVITY_STATUS           (1U << 5) ///< Leader is not in idle state
-#define SL_I2C_SLAVE_ACTIVITY_STATUS            (1U << 6) ///< Follower is not in idle state
-#define SL_I2C_MASTER_HOLD_TX_FIFO_EMPTY_STATUS (1U << 7) ///< Leader holds SCL as previous command didnot had STOP bit
+#define SL_I2C_ACTIVITY_STATUS               (1U << 0) ///< 'OR' of Leader and Follower activity
+#define SL_I2C_TRANSFER_FIFO_NOT_FULL_STATUS (1U << 1) ///< Transmit FIFO is not full
+#define SL_I2C_TRANSFER_FIFO_EMPTY_STATUS    (1U << 2) ///< Transmit FIFO is completely empty
+#define SL_I2C_RECEIVE_FIFO_NOT_EMPTY_STATUS (1U << 3) ///< Receive FIFO is not empty
+#define SL_I2C_RECEIVE_FIFO_FULL_STATUS      (1U << 4) ///< Receive FIFO is completely full
+#define SL_I2C_MASTER_ACTIVITY_STATUS        (1U << 5) ///< Leader is not in idle state
+#define SL_I2C_SLAVE_ACTIVITY_STATUS         (1U << 6) ///< Follower is not in idle state
+#define SL_I2C_MASTER_HOLD_TX_FIFO_EMPTY_STATUS \
+  (1U << 7) ///< Leader holds SCL as previous command did not have a STOP bit
 #define SL_I2C_MASTER_HOLD_RX_FIFO_FULL_STATUS \
   (1U << 8) ///< Leader holds SCL as RX FIFO is full and additional byte is received
 #define SL_I2C_SLAVE_HOLD_TX_FIFO_EMPTY_STATUS \
   (1U << 9) ///< Follower holds SCL to request read data when TX FIFO is empty
 #define SL_I2C_SLAVE_HOLD_RX_FIFO_FULL_STATUS \
   (1U << 10) ///< Follower holds SCL as RX FIFO is full and additional byte is received
-#define SL_I2C_SDA_STUCK_NOT_RECOVERED_STATUS (1U << 11) ///< SDA is stuck at low and havenot recovered
+#define SL_I2C_SDA_STUCK_NOT_RECOVERED_STATUS (1U << 11) ///< SDA is stuck at low and has not recovered
 
 // -----------------------------------------------------------------------------
 // Data Types
@@ -191,7 +172,7 @@ typedef struct {
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**
- * To initialize the I2C i.e., set the parameters to the respective registers.
+ * Initialize the I2C i.e., set the parameters to the respective registers.
  * It needs to be called at the beginning of the code.
  * It sets the frequency as per the input given in freq_scl and chlr.
  * It accepts the following members for initialization parameters:
@@ -209,7 +190,7 @@ typedef struct {
 void sl_si91x_i2c_init(I2C_TypeDef *i2c, const sl_i2c_init_params_t *p_config);
 
 /***************************************************************************/ /**
- * To reset the I2C peripheral.
+ * Reset the I2C peripheral.
  * It resets the initialization parameters to zero
  * and clears all the interrupts.
  * It resets the target and slave addresses.
@@ -221,7 +202,7 @@ void sl_si91x_i2c_init(I2C_TypeDef *i2c, const sl_i2c_init_params_t *p_config);
 void sl_si91x_i2c_reset(I2C_TypeDef *i2c);
 
 /***************************************************************************/ /**
- * To transmit one byte on SDA line. 
+ * Transmit one byte on SDA line.
  * Threshold needs to be set before calling this API \ref sl_si91x_i2c_set_tx_threshold.
  * Direction needs to be selected before calling this API \ref sl_si91x_i2c_control_direction.
  * @pre \ref sl_si91x_i2c_init(); \n
@@ -237,7 +218,7 @@ void sl_si91x_i2c_reset(I2C_TypeDef *i2c);
 void sl_si91x_i2c_tx(I2C_TypeDef *i2c, uint8_t data);
 
 /***************************************************************************/ /**
- * To receive one byte on SDA line. 
+ * Receive one byte on SDA line.
  * Threshold needs to be set before calling this API \ref sl_si91x_i2c_set_rx_threshold.
  * Direction needs to be selected before calling this API \ref sl_si91x_i2c_control_direction.
  * @pre \ref sl_si91x_i2c_init(); \n
@@ -252,8 +233,8 @@ void sl_si91x_i2c_tx(I2C_TypeDef *i2c, uint8_t data);
 uint8_t sl_si91x_i2c_rx(I2C_TypeDef *i2c);
 
 /***************************************************************************/ /**
- * To configure the frequency of the I2C transmission
- * This API is called inside sl_si91x_i2c_init, but can be called seperately to 
+ * Configure the frequency of the I2C transmission.
+ * This API is called inside sl_si91x_i2c_init, but can be called separately to
  * change the frequency.
  * According the input of freq_scl frequency is calculated and filled in the
  * register appropriately as the speed selected in chlr.
@@ -272,7 +253,7 @@ uint8_t sl_si91x_i2c_rx(I2C_TypeDef *i2c);
 void sl_si91x_i2c_set_frequency(I2C_TypeDef *i2c, uint32_t ref_freq, uint32_t freq_scl, sl_i2c_clock_hlr_t clhr);
 
 /***************************************************************************/ /**
- * To fetch the frequency of I2C peripheral clock.
+ * Fetch the frequency of I2C peripheral clock.
  * It returns uint32_t value of the SystemCoreClock frequency.
  * 
  * @param[in] i2c (I2C_TypeDef) Pointer to the I2C instance base address.
@@ -282,7 +263,7 @@ void sl_si91x_i2c_set_frequency(I2C_TypeDef *i2c, uint32_t ref_freq, uint32_t fr
 uint32_t sl_si91x_i2c_get_frequency(I2C_TypeDef *i2c);
 
 /***************************************************************************/ /**
- * To get the release, sqa and dev version of I2C
+ * Get the release, sqa and dev version of I2C.
  * 
  * @param[in] none
  * @return (sl_i2c_version_t) type structure
@@ -291,7 +272,7 @@ uint32_t sl_si91x_i2c_get_frequency(I2C_TypeDef *i2c);
 sl_i2c_version_t sl_si91x_i2c_get_version(void);
 
 /***************************************************************************/ /**
- * To enable the I2C interface.
+ * Enable the I2C interface.
  * It sets the register bit which enabled the I2C interface.
  * @pre \ref sl_si91x_i2c_init();
  * 
@@ -308,7 +289,7 @@ __STATIC_INLINE void sl_si91x_i2c_enable(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To disable the I2C interface.
+ * Disable the I2C interface.
  * It clears the register bit which enabled the I2C interface.
  * @pre \ref sl_si91x_i2c_enable();
  * 
@@ -325,7 +306,7 @@ __STATIC_INLINE void sl_si91x_i2c_disable(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To hold the SCL line low and stalls the leader until new command is available
+ * Hold the SCL line low and stalls the leader until new command is available
  * in TX FIFO.
  * STOP condition is not issued after completion of transfer irrespective of
  * TX FIFO status.
@@ -344,7 +325,7 @@ __STATIC_INLINE void sl_si91x_i2c_start_cmd(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To issue the STOP after completion of transfer irrespective of TX FIFO status.
+ * Issue the STOP after completion of transfer irrespective of TX FIFO status.
  * If TX FIFO has data, leader sends start byte and starts the transmission.
  * @pre \ref sl_si91x_i2c_enable(); \n
  *      \ref sl_si91x_i2c_start_cmd();
@@ -362,7 +343,7 @@ __STATIC_INLINE void sl_si91x_i2c_stop_cmd(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To get the I2C IC status.
+ * Get the I2C IC status.
  * The bits of status are set according to the events.
  * The macros are written in this file that can be directly used to mask the
  * value of this register.
@@ -381,7 +362,7 @@ __STATIC_INLINE uint32_t sl_si91x_i2c_get_status(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To disable the I2C interrupts.
+ * Disable the I2C interrupts.
  * It is mandatory to disable interrupts before configuring the I2C parameters.
  * @pre \ref sl_si91x_i2c_enable_interrupts
  * 
@@ -408,7 +389,7 @@ __STATIC_INLINE void sl_si91x_i2c_disable_interrupts(I2C_TypeDef *i2c, uint32_t 
 }
 
 /***************************************************************************/ /**
- * To enable the I2C interrupts.
+ * Enable the I2C interrupts.
  * 
  * @param[in] i2c (I2C_TypeDef) Pointer to the I2C instance base address.
  * 
@@ -433,7 +414,7 @@ __STATIC_INLINE void sl_si91x_i2c_enable_interrupts(I2C_TypeDef *i2c, uint32_t f
 }
 
 /***************************************************************************/ /**
- * To set the interrupts i.e. unmask according to the flags passed in the parameter.
+ * Set the interrupts i.e., unmask according to the flags passed in the parameter.
  * @pre \ref sl_si91x_i2c_disable_interrupts();
  * 
  * @param[in] i2c (I2C_TypeDef) Pointer to the I2C instance base address.
@@ -450,7 +431,7 @@ __STATIC_INLINE void sl_si91x_i2c_set_interrupts(I2C_TypeDef *i2c, uint32_t flag
 }
 
 /***************************************************************************/ /**
- * To clear the interrupts i.e. mask according to the flags passed in the parameter.
+ * Clear the interrupts i.e., mask according to the flags passed in the parameter.
  * @pre \ref sl_si91x_i2c_disable_interrupts(); \n
  *      \ref sl_si91x_i2c_set_interrupts();
  * 
@@ -468,7 +449,7 @@ __STATIC_INLINE void sl_si91x_i2c_clear_interrupts(I2C_TypeDef *i2c, uint32_t fl
 }
 
 /***************************************************************************/ /**
- * To get the pending interrupts.
+ * Get the pending interrupts.
  * It returns the uint32_t type interrupt status register.
  * The macros are written in this file that can be directly used to mask the
  * value of this register.
@@ -487,7 +468,7 @@ __STATIC_INLINE uint32_t sl_si91x_i2c_get_pending_interrupts(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To get the enabled interrupts.
+ * Get the enabled interrupts.
  * It returns the uint32_t type interrupt mask register.
  * The macros are written in this file that can be directly used to mask the
  * value of this register.
@@ -506,7 +487,7 @@ __STATIC_INLINE uint32_t sl_si91x_i2c_get_enabled_interrupts(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To get the enabled and pending interrupts.
+ * Get the enabled and pending interrupts.
  * It returns the uint32_t type value which is bitwise end of enabled interrupts
  * and pending interrupts.
  * The macros are written in this file that can be directly used to mask the
@@ -531,7 +512,7 @@ __STATIC_INLINE uint32_t sl_si91x_i2c_get_enabled_pending_interrupts(I2C_TypeDef
 }
 
 /***************************************************************************/ /**
- * To wait till the process is completed.
+ * Wait till the process is completed.
  * Mask takes the interrupt flags and waits until it is triggered.
  * Interrupt is cleared once it is triggered.
  * 
@@ -552,7 +533,7 @@ __STATIC_INLINE void sl_si91x_i2c_wait_ready(I2C_TypeDef *i2c, uint32_t mask)
 }
 
 /***************************************************************************/ /**
- * To wait till the synchronizatin is completed.
+ * Wait till the synchronization is completed.
  * It checks whether the I2C interface is enabled and the bus is free i.e.,
  * no activity is pending on the bus.
  * 
@@ -570,7 +551,7 @@ __STATIC_INLINE void sl_si91x_i2c_wait_sync(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To set the follower address when I2C is in leader mode.
+ * Set the follower address when I2C is in leader mode.
  * It validates the is_10bit_addr parameter and sets the 10 bit address register.
  * It updates the register of follower address with the value passed in the parameter.
  * This API is called in sl_si91x_i2c_init function \ref sl_si91x_i2c_init
@@ -599,7 +580,7 @@ __STATIC_INLINE void sl_si91x_i2c_set_follower_address(I2C_TypeDef *i2c, uint16_
 }
 
 /***************************************************************************/ /**
- * To fetch the current follower address.
+ * Fetch the current follower address.
  * It returns uint8_t value as the current follower address.
  * @pre \ref sl_si91x_i2c_set_follower_address();
  * 
@@ -616,7 +597,7 @@ __STATIC_INLINE uint16_t sl_si91x_i2c_get_follower_address(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To update the address of leader when it is in follower mode.
+ * Update the address of leader when it is in follower mode.
  * It updates the register of follower address with the value passed in the parameter.
  * This API is called in sl_si91x_i2c_init function \ref sl_si91x_i2c_init
  * It can also be called separately from to update the address.
@@ -635,7 +616,7 @@ __STATIC_INLINE void sl_si91x_i2c_set_follower_mask_address(I2C_TypeDef *i2c, ui
 }
 
 /***************************************************************************/ /**
- * To fetch the masked follower address i.e. leader address when it is in follower mode.
+ * Fetch the masked follower address i.e. leader address when it is in follower mode.
  * It returns uint8_t value as the current masked follower address.
  * @pre \ref sl_si91x_i2c_set_follower_mask_address();
  * 
@@ -652,7 +633,7 @@ __STATIC_INLINE uint16_t sl_si91x_i2c_get_follower_mask_address(I2C_TypeDef *i2c
 }
 
 /***************************************************************************/ /**
- * It generates NACK only when it is in follower-receiver mode.
+ * Generate NACK only when it is in follower-receiver mode.
  * It generates NACK after a byte is received and the transfer will be aborted.
  * @pre \ref sl_si91x_i2c_enable();
  *      \ref sl_si91x_i2c_inti();
@@ -669,11 +650,11 @@ __STATIC_INLINE void sl_si91x_i2c_send_nack(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To abort the transfer.
- * It disables the interrupts, I2c interface and waits till the abort is 
+ * Abort the transfer.
+ * It disables the interrupts, I2C interface and waits till the abort is
  * completed.
  * Abort issues the stop condition and flushes the TX FIFO and sets the
- * SL_I2C_EVENT_TRANSMIT_ABORT interrupt after the opertation is completed.
+ * SL_I2C_EVENT_TRANSMIT_ABORT interrupt after the operation is completed.
  * For abort it is necessary to keep to I2C instance in enable mode.
  * @pre \ref sl_si91x_i2c_enable();
  * 
@@ -696,8 +677,8 @@ __STATIC_INLINE void sl_si91x_i2c_abort_transfer(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To clear the I2C bus.
- * It disables the I2C interface, loads the scl and sda timeout values
+ * Clear the I2C bus.
+ * It disables the I2C interface, loads the SCL and SDA timeout values
  * and again enabled the I2C interface.
  * @pre \ref sl_si91x_i2c_enable();
  * 
@@ -720,7 +701,7 @@ __STATIC_INLINE void sl_si91x_i2c_clear_bus(I2C_TypeDef *i2c)
 }
 
 /***************************************************************************/ /**
- * To update the RX threshold values.
+ * Update the RX threshold values.
  * @pre \ref sl_si91x_i2c_disable();
  * 
  * @param[in] i2c (I2C_TypeDef) Pointer to the I2C instance base address.
@@ -737,7 +718,7 @@ __STATIC_INLINE void sl_si91x_i2c_set_rx_threshold(I2C_TypeDef *i2c, uint8_t thr
 }
 
 /***************************************************************************/ /**
- * To update the TX threshold values.
+ * Update the TX threshold values.
  * @pre \ref sl_si91x_i2c_disable();
  * 
  * @param[in] i2c (I2C_TypeDef) Pointer to the I2C instance base address.
@@ -754,7 +735,7 @@ __STATIC_INLINE void sl_si91x_i2c_set_tx_threshold(I2C_TypeDef *i2c, uint8_t thr
 }
 
 /***************************************************************************/ /**
- * To contro the direction of the I2C interface.
+ * Control the direction of the I2C interface.
  * It updates the register with the read mask / write mask value
  * \ref sl_i2c_direction_t
  * @pre \ref sl_si91x_i2c_enable();
@@ -775,7 +756,7 @@ __STATIC_INLINE void sl_si91x_i2c_control_direction(I2C_TypeDef *i2c, sl_i2c_dir
 }
 
 /***************************************************************************/ /**
- * It configures the SDA hold time.
+ * Configure the SDA hold time.
  * According to the direction @ref sl_i2c_direction_t, it updates the registers
  * with the time value which is passed as the function parameter.
  * It holds the SDA in the units of clock period.

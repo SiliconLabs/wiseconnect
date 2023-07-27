@@ -166,7 +166,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL),
                    .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_A0_ULP_GPIO_4_5_0
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL
                       | SL_SI91X_EXT_FEAT_LOW_POWER_MODE |
 #ifdef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_BASIC_MCU_ADV
@@ -239,14 +239,14 @@ static void application_start(void *argument)
   printf("\r\nm4_ta_secure_handshake Success\r\n");
 #endif
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE);
+  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nError while connecting to Access point: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nConnected to Access point \r\n");
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE, &profile);
+  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to get client profile: 0x%lx\r\n", status);
     return;

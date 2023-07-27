@@ -49,6 +49,6 @@ ui_hints:
     focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.0.9
+    version: 3.0.10
 post_build:
   path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

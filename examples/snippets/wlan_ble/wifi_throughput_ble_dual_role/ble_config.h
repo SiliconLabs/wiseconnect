@@ -41,7 +41,7 @@
 /***********************************************************************************************************************************************/
 #define RSI_BLE_APP_GATT_TEST (void *)"SI_COEX_MAX_DEMO" //! local device name
 #define RSI_BLE_MAX_NBR_PERIPHERALS \
-  0 //! Note: While measuring BLE throughput, ensure only single Central connection is configured
+  1 //! Note: While measuring BLE throughput, ensure only single Central connection is configured
 #define RSI_BLE_MAX_NBR_CENTRALS 1
 #define TOTAL_CONNECTIONS        RSI_BLE_MAX_NBR_PERIPHERALS + RSI_BLE_MAX_NBR_CENTRALS
 #define CONN_BY_ADDR             1

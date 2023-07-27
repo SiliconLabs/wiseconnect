@@ -21,7 +21,6 @@
 #include "rsi_board.h"
 
 #define IO_MAXLINE 20U //maximun read length
-#undef errno
 extern int errno;
 typedef int (*PUTCHAR_FUNC)(int a);
 register char *stack_ptr __asm("sp");

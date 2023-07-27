@@ -13,7 +13,20 @@ source:
 - path: src/sl_net.c
 - path: src/sl_net_for_lwip.c
   condition: [si91x_lwip_stack]
-include:
-- path: inc
 define:
 - name: SL_NET_COMPONENT_INCLUDED
+include:
+- path: inc
+  file_list:
+    - path: sl_net_constants.h
+    - path: sl_net_dns.h
+    - path: sl_net_ip_types.h
+    - path: sl_net_types.h
+    - path: sl_net_wifi_types.h
+    - path: sl_net.h
+- path: inc
+  file_list:
+    - path: sl_net_for_lwip.h
+  condition:
+    - si91x_lwip_stack
+

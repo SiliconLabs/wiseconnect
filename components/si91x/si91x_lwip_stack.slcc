@@ -9,6 +9,7 @@ component_root_path: ./components/si91x
 provides:
 - name: si91x_lwip_stack
 - name: si91x_networking_model
+include:
 requires:
 - name: lwip_port_freertos
 - name: lwip_api

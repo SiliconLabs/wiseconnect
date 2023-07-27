@@ -39,48 +39,10 @@ extern "C" {
 #include "SPI.h"
 
 /***************************************************************************/ /**
- * @addtogroup SSI
+ * @addtogroup SSI Synchronous Serial Interface
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{
- * @brief There are three Synchronous Serial Interface (SSI) - one in the 
- * MCU HP peripherals (Master) and one in the MCU ULP subsystem (ULP Master) and 
- * one is MCU HP peripheral (Slave). 
- * The SSI masters are programmable controllers that can be configured to support 
- * different full-duplex master synchronous serial interface protocols.
  * 
- * @details 
- * ## Features
- * - Master
- *  - Support for Motorola SPI, TI SSP and National Semiconductors Microwire protocols.
- *  - The SSI_MST in MCU HP peripherals provides an option to connect upto four slaves 
- * and supports Single, Dual and Quad modes.
- *  - The ULP_SSI_MST in the MCU ULP peripherals supports Single-bit mode and can be 
- * connected to only one slave.
- *  - Programmable receive sampling delay.
- *  - Programmable FIFO thresholds with maximum FIFO depth of 16 and support for DMA.
- *  - Supports generation of interrupt for different events.
- *  - Programmable division factor for generating SSI clock out.
- * 
- * - Slave
- *  - Acts as a Serial slave.
- *  - DMA handshake present.
- *  - Independent masking of interrupts - Master collision, transmit FIFO overflow, 
- * transmit FIFO empty, receive FIFO full, receive FIFO underflow, and receive FIFO overflow 
- * interrupts can all be masked independently.
- *  - Works with Motorola SPI, Texas Instruments SSP and National Semiconductors Microwire.
- *  - Data Item size (4 to 16 bits) – Item size of each data transfer under the control of the programmer.
- *  - Supported FIFO depth is 16(Independent TX and RX FIFOs are present).
- *  - Combined interrupt line for all interrupts.
- *  - Generates active high interrupts.
- *  - APB clock(pclk) and SSI Slave serial clock are identical.
- * 
- * ## Initialization
- * - Configure the clock using \ref sl_si91x_ssi_configure_clock.
- * - Initialize the peripheral using \ref sl_si91x_ssi_init.
- * - Set the power mode using \ref sl_si91x_ssi_configure_power_mode.
- * - Set the SSI configuration using \ref sl_si91x_ssi_set_configuration.
- * - Register the callback using \ref sl_si91x_ssi_register_event_callback.
- * - Set the slave number using \ref sl_si91x_ssi_set_slave_number.
- * - Now user can use the send, receive and transfer API for communication.
  ******************************************************************************/
 
 // -----------------------------------------------------------------------------
@@ -88,9 +50,9 @@ extern "C" {
 
 // Data Types
 typedef ARM_POWER_STATE sl_ssi_power_state_t;        ///< renaming arm power state structure
-typedef ARM_SPI_STATUS sl_ssi_status_t;              ///< renaming arm spi status
-typedef ARM_DRIVER_SPI sl_ssi_driver_t;              ///< Renaming ssi driver structure
-typedef const void *sl_ssi_handle_t;                 ///< SSI Handle to be passed into api's
+typedef ARM_SPI_STATUS sl_ssi_status_t;              ///< renaming arm SPI status
+typedef ARM_DRIVER_SPI sl_ssi_driver_t;              ///< Renaming SSI driver structure
+typedef const void *sl_ssi_handle_t;                 ///< SSI Handle to be passed into APIs
 typedef ARM_SPI_SignalEvent_t sl_ssi_signal_event_t; ///< Callback typedef for SSI
 
 typedef struct {
@@ -158,7 +120,7 @@ typedef enum {
 
 // SSI control config data structure with
 // fields for various parameters
-/// @brief typedef for ssi control config struct
+/// @brief typedef for SSI control config struct
 typedef struct {
   uint8_t bit_width;    ///< bit width either 8 or 16 bit
   uint32_t device_mode; ///< mode such as Master or Slave mode
@@ -173,12 +135,12 @@ typedef struct {
 /// @brief typedef for SSI clock config struct
 typedef struct {
   uint16_t division_factor;            ///< Clock Division Factor
-  uint16_t intf_pll_500_control_value; ///< intf pll control value
-  uint32_t intf_pll_clock;             ///< intf pll clock frequency
-  uint32_t intf_pll_reference_clock;   ///< intf pll reference clock frequency
-  uint32_t soc_pll_clock;              ///< SoC pll Clock frequency
-  uint32_t soc_pll_reference_clock;    ///< SoC pll reference clock frequency
-  uint8_t soc_pll_mm_count_value;      ///< SoC pll count value
+  uint16_t intf_pll_500_control_value; ///< intf PLL control value
+  uint32_t intf_pll_clock;             ///< intf PLL clock frequency
+  uint32_t intf_pll_reference_clock;   ///< intf PLL reference clock frequency
+  uint32_t soc_pll_clock;              ///< SoC PLL Clock frequency
+  uint32_t soc_pll_reference_clock;    ///< SoC PLL reference clock frequency
+  uint8_t soc_pll_mm_count_value;      ///< SoC PLL count value
 } sl_ssi_clock_config_t;
 
 /// @brief Enumeration for SSI Slave numbers.
@@ -190,7 +152,7 @@ typedef enum {
 } sl_ssi_slave_number_t;
 
 /***************************************************************************/ /**
- * To configure ssi clock
+ * Configure the SSI clock.
  *
  * @param[in] pointer to clock config structure
  * @return    status 0 if successful, else error code.
@@ -200,7 +162,7 @@ typedef enum {
 sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config);
 
 /***************************************************************************/ /**
- * To initialize ssi master
+ * Initialize the SSI master.
  *
  * @param[in] instance (Master/Slave/ULP Master), ssi_handle
  * @return    status 0 if successful, else error code.
@@ -210,7 +172,7 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config);
 sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_handle);
 
 /*******************************************************************************
- * To uninitialize ssi master
+ * Uninitialize the SSI primary.
  *
  * @param[in] SSI Handle
  * @return    status 0 if successful, else error code.
@@ -220,7 +182,7 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
 sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle);
 
 /***************************************************************************/ /**
- * Control SPI interface power
+ * Control the SPI interface power.
  *
  * @param[in] ssi handle, power state power off or full state.
  * @return    status 0 if successful, else error code.
@@ -230,7 +192,7 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle);
 sl_status_t sl_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state);
 
 /***************************************************************************/ /**
- * Control SPI interface
+ * Control the SPI interface.
  *
  * @param[in]  ssi handle, pointer to control config structure.
  * @return    status 0 if successful, else error code.
@@ -240,7 +202,7 @@ sl_status_t sl_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi
 sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle, sl_ssi_control_config_t *control_configuration);
 
 /***************************************************************************/ /**
- * To start receiving data from SPI interface
+ * Start receiving data from the SPI interface.
  *
  * @param[in] ssi handle, pointer to Rx data buffer, length of data
  * @return    status 0 if successful, else error code.
@@ -250,7 +212,7 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle, sl_ssi_co
 sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
- * To start sending data from SPI interface
+ * Start sending data from SPI interface.
  *
  * @param[in] ssi handle, pointer to Tx data buffer, length of data
  * @return    status 0 if successful, else error code.
@@ -260,7 +222,7 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
 sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
- * To Start sending/receiving bi-directional full duplex data to/from SPI slave
+ * Start sending/receiving bi-directional full duplex data to/from SPI secondary.
  *
  * @param[in] ssi handle, pointer to Tx buffer, pointer to Rx buffer and data
  *            length
@@ -274,7 +236,7 @@ sl_status_t sl_si91x_ssi_transfer_data(sl_ssi_handle_t ssi_handle,
                                        uint32_t data_length);
 
 /***************************************************************************/ /**
- * Get SSI status
+ * Get the SSI status.
  *
  * @param[in] ssi handle
  * @return    busy, data lost or mode fault returns as a bit field.
@@ -283,7 +245,7 @@ sl_status_t sl_si91x_ssi_transfer_data(sl_ssi_handle_t ssi_handle,
 sl_ssi_status_t sl_si91x_ssi_get_status(sl_ssi_handle_t ssi_handle);
 
 /***************************************************************************/ /**
-* To get driver version
+* Get the driver version.
 *
 * @param[in] None
 * @return    driver version.
@@ -292,7 +254,7 @@ sl_ssi_status_t sl_si91x_ssi_get_status(sl_ssi_handle_t ssi_handle);
 sl_ssi_version_t sl_si91x_ssi_get_version(void);
 
 /***************************************************************************/ /**
-* To get SPI slave status
+* Get the SPI secondary status.
 *
 * @param[in] ssi_handle
 * @return    busy, data lost or mode fault
@@ -300,7 +262,7 @@ sl_ssi_version_t sl_si91x_ssi_get_version(void);
 sl_ssi_status_t sl_si91x_ssi_get_status(sl_ssi_handle_t ssi_handle);
 
 /***************************************************************************/ /**
- * Get Rx transferred data count with connected device.
+ * Get RX transferred data count with connected device.
  *
  * @param[in] ssi handle
  * @return   transferred data count
@@ -308,7 +270,7 @@ sl_ssi_status_t sl_si91x_ssi_get_status(sl_ssi_handle_t ssi_handle);
 uint32_t sl_si91x_ssi_get_rx_data_count(sl_ssi_handle_t ssi_handle);
 
 /***************************************************************************/ /**
- * Get Tx transferred data count with connected device.
+ * Get TX transferred data count with connected device.
  *
  * @param[in] ssi handle
  * @return   transferred data count
@@ -316,7 +278,7 @@ uint32_t sl_si91x_ssi_get_rx_data_count(sl_ssi_handle_t ssi_handle);
 uint32_t sl_si91x_ssi_get_tx_data_count(sl_ssi_handle_t ssi_handle);
 
 /***************************************************************************/ /**
- * To register the user event callback
+ * Register the user event callback.
  * It registers the callback, i.e., stores the callback function address
  * and pass to the variable that is called in Interrupt Handler.
  * If another callback is registered without unregistering previous callback then, it
@@ -330,18 +292,18 @@ uint32_t sl_si91x_ssi_get_tx_data_count(sl_ssi_handle_t ssi_handle);
 sl_status_t sl_si91x_ssi_register_event_callback(sl_ssi_handle_t ssi_handle, sl_ssi_signal_event_t callback_event);
 
 /***************************************************************************/ /**
- * To unregister the user event callback
- * It unregisters the callback, i.e., clear the callback function address
- * and pass NULL value to the variable
+ * Unregister the user event callback.
+ * It unregisters the callback, i.e., clears the callback function address
+ * and passes a NULL value to the variable.
  *
  *  @param[in] None
  ******************************************************************************/
 void sl_si91x_gspi_unregister_event_callback(void);
 
 /***************************************************************************/ /**
- * To set the slave number in multi-slave operation.
- * For single slave also, this API needs to be called before tranferring the 
- * data
+ * Set the secondary number in multi-secondary operation.
+ * For single secondary also, this API needs to be called before transferring the
+ * data.
  * 
  * @param[in] number Slave number
  * @return none

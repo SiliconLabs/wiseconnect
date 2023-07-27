@@ -127,7 +127,7 @@ You can use either of the below USB to UART converters for application prints.
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-#### 4.1.1 In the Project explorer pane, expand the **resources\defaults** folder and open the **sl_net_default_values.h** file. Configure the following parameters based on your requirements
+#### 4.1.1 In the Project explorer pane, open the **app.c** file. Configure the following parameters based on your requirements
 
 - **STA instance related parameters**
 
@@ -157,7 +157,7 @@ The application can be configured to suit user requirements and development envi
 
   ```c
   #define WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
-  ```
+    ```
 
 > Note: 
 >

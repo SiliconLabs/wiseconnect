@@ -12,21 +12,14 @@ source:
 - path: src/sl_wifi_callback_framework.c
 - path: si91x/sl_wifi.c
   condition: [si91x]
-include:
-- path: inc
 define:
 - name: SL_WIFI_COMPONENT_INCLUDED
-template_contribution:
-- condition: ["brd4325a"]
-  name: RAM_EXECUTION
-  value: true
-- condition: ["brd4325c"]
-  name: RAM_EXECUTION
-  value: true
-- condition: ["brd4325g"]
-  name: RAM_EXECUTION
-  value: true
-- condition: ["brd4338a"]
-  name: RAM_EXECUTION
-  value: true
+include:
+- path: inc
+  file_list:
+    - path: sl_wifi_callback_framework.h
+    - path: sl_wifi_constants.h
+    - path: sl_wifi_host_interface.h
+    - path: sl_wifi_types.h
+    - path: sl_wifi.h
 

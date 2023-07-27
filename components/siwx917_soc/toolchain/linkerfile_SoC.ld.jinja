@@ -122,7 +122,7 @@ SECTIONS
 		{%- if RAM_EXECUTION %}
 		{%- if not ULP_PLATFORM %}
      	KEEP(*(.reset_handler))
-		*(EXCLUDE_FILE(*sl_wifi.o *sl_slist.o *sl_tls.o *sl_si91x_bus.o *sl_uart.o *sli_siwx917_soc.o *sl_si91x_timer.o *USART.o *UDMA.o *rsi_usart.o *rsi_udma_wrapper.o *rsi_udma.o *rsi_hal_mcu_m4_rom.o *rsi_hal_mcu_m4_ram.o *rsi_deepsleep_commonflash.o *sl_si91x_net_internal_stack.o *sl_si91x_driver.o *sl_rsi_utility.o *sl_si91x_callback_framework.o *sli_si91x_multithreaded.o *siwx917_soc_ncp_host.o *sl_net_si91x.o *sl_net_rsi_utility.o *sl_net_si91x_integration_handler.o *malloc_buffers.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *port.o *heap_*.o *lib_a-memset.o *lib_a-memcpy-stub.o *lib_a-malloc.o *lib_a-nano-mallocr.o *lib_a-nano-freer.o) .text*)
+		*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *port.o *heap_*.o) .text*)
 		{%- endif %}
 		{%- endif %}
 		{% if not RAM_EXECUTION %}	    
@@ -217,31 +217,10 @@ SECTIONS
 		{% endif %}
 		{%- if RAM_EXECUTION %}
 		{%- if not ULP_PLATFORM %}
-		*sl_tls.o(.text*)
-		*sl_uart.o(.text*)
-		*sli_siwx917_soc.o(.text*)
-		*sl_si91x_timer.o(.text*)
-		*USART.o(.text*)
-		*UDMA.o(.text*)
-		*rsi_usart.o(.text*)
-		*rsi_udma_wrapper.o(.text*)
-		*rsi_udma.o(.text*)
-		*rsi_hal_mcu_m4_rom.o(.text*)
 		*rsi_hal_mcu_m4_ram.o(.text*)
-		*rsi_deepsleep_commonflash.o(.text*)
-		*sl_si91x_net_internal_stack.o(.text*)
 		*sl_si91x_driver.o(.text*)
 		*sl_si91x_bus.o(.text*)
-		*sl_rsi_utility.o(.text*)
-		*sl_si91x_callback_framework.o(.text*)
 		*sli_si91x_multithreaded.o(.text*)
-		*siwx917_soc_ncp_host.o(.text*)
-		*sl_net_si91x.o(.text*)
-		*sl_net_rsi_utility.o(.text*)
-		*sl_net_si91x_integration_handler.o(.text*)
-		*malloc_buffers.o(.text*)
-		*sl_slist.o(.text*)
-		*sl_wifi.o(.text*)
 		*croutine.o(.text*)
 		*event_groups.o(.text*)
 		*list.o(.text*)
@@ -253,11 +232,6 @@ SECTIONS
 		*freertos_umm_malloc_host.o(.text*)
 		*port.o(.text*)
 		*heap_*.o(.text*)
-		*lib_a-memset.o(.text*)
-		*lib_a-memcpy-stub.o(.text*)
-		*lib_a-malloc.o(.text*) 
-		*lib_a-nano-mallocr.o(.text*) 
-		*lib_a-nano-freer.o(.text*) 
 		{%- endif %}
 		{%- endif %}
 

@@ -11,6 +11,7 @@ provides:
 - name: cortexm4
 - name: armv7em
 - name: device_arm
+- name: device_has_mpu
 source:
 - path: drivers/systemlevel/src/rsi_pll.c
 - path: drivers/systemlevel/src/rsi_ulpss_clk.c
@@ -58,19 +59,6 @@ source:
 - path: core/chip/src/rsi_deepsleep_soc.c
   condition: [wifi]
 - path: boards/brd4325x/src/syscalls.c
-  condition: [wifi]
-include:
-- path: inc
-- path: drivers/cmsis_driver
-- path: drivers/cmsis_driver/config
-- path: drivers/cmsis_driver/CMSIS/Driver/Include
-- path: drivers/systemlevel/inc
-- path: drivers/peripheral_drivers/inc
-- path: drivers/rom_driver/inc
-- path: drivers/unified_api/inc
-- path: drivers/unified_api/config
-- path: boards/brd4325x/inc
-- path: wifi_inc
   condition: [wifi]
 define:
 - name: RSI_M4_INTERFACE
@@ -174,4 +162,199 @@ toolchain_settings:
   value: cortex-m4
 - option: fpu
   value: fpv4-sp
+
+include:
+- path: inc
+  file_list:
+    - path: base_types.h
+    - path: data_types.h
+    - path: em_device.h
+    - path: RS1xxxx.h
+    - path: RS1xxxx_9117.h
+    - path: rs9116.h
+    - path: rsi_api.h
+    - path: rsi_board.h
+    - path: rsi_ccp_common.h
+    - path: rsi_ccp_user_config.h
+    - path: rsi_chip.h
+    - path: rsi_error.h
+    - path: rsi_m4.h
+    - path: rsi_ps_config.h
+    - path: rsi_ps_ram_func.h
+    - path: rsi_reg_spi.h
+    - path: rsi_system_config.h
+    - path: si91x_device.h
+    - path: sl_device.h
+    - path: sl_uart.h
+    - path: sli_siwx917_soc.h
+    - path: sli_siwx917_timer.h
+    - path: system_si91x.h
+- path: drivers/cmsis_driver
+  file_list:
+    - path: CAN.h
+    - path: EMAC.h
+    - path: GSPI.h
+    - path: I2C.h
+    - path: MCI.h
+    - path: PHY_LAN8742A.h
+    - path: SAI.h
+    - path: SPI.h
+    - path: UDMA.h
+    - path: USART.h
+    - path: USB.h
+- path: drivers/cmsis_driver/config
+  file_list:
+    - path: RTE_Components.h
+    - path: RTE_Device.h
+    - path: RTE_Device_917.h
+- path: drivers/cmsis_driver/CMSIS/Driver/Include
+  file_list:
+    - path: Driver_CAN.h
+    - path: Driver_Common.h
+    - path: Driver_ETH.h
+    - path: Driver_ETH_MAC.h
+    - path: Driver_ETH_PHY.h
+    - path: Driver_Flash.h
+    - path: Driver_I2C.h
+    - path: Driver_MCI.h
+    - path: Driver_NAND.h
+    - path: Driver_SAI.h
+    - path: Driver_SPI.h
+    - path: Driver_USART.h
+    - path: Driver_USB.h
+    - path: Driver_USBD.h
+    - path: Driver_USBH.h
+- path: drivers/systemlevel/inc
+  file_list:
+    - path: rsi_bod.h
+    - path: rsi_ds_timer.h
+    - path: rsi_ipmu.h
+    - path: rsi_pll.h
+    - path: rsi_pmu.h
+    - path: rsi_power_save.h
+    - path: rsi_processor_sensor.h
+    - path: rsi_reg_spi.h
+    - path: rsi_retention.h
+    - path: rsi_rtc.h
+    - path: rsi_temp_sensor.h
+    - path: rsi_time_period.h
+    - path: rsi_ulpss_clk.h
+    - path: rsi_wwdt.h
+- path: drivers/peripheral_drivers/inc
+  file_list:
+    - path: aux_reference_volt_config.h
+    - path: clock_update.h
+    - path: rsi_adc.h
+    - path: rsi_cci.h
+    - path: rsi_comparator.h
+    - path: rsi_crc.h
+    - path: rsi_ct.h
+    - path: rsi_cts.h
+    - path: rsi_dac.h
+    - path: rsi_efuse.h
+    - path: rsi_egpio.h
+    - path: rsi_enhanced_fim.h
+    - path: rsi_fim.h
+    - path: rsi_gpdma.h
+    - path: rsi_gspi.h
+    - path: rsi_i2c.h
+    - path: rsi_i2s.h
+    - path: rsi_ir.h
+    - path: rsi_opamp.h
+    - path: rsi_psram.h
+    - path: rsi_psram_config.h
+    - path: rsi_pwm.h
+    - path: rsi_qei.h
+    - path: rsi_qspi.h
+    - path: rsi_qspi_proto.h
+    - path: rsi_rng.h
+    - path: rsi_rpdma.h
+    - path: rsi_sdioh.h
+    - path: rsi_sdmem.h
+    - path: rsi_sio.h
+    - path: rsi_smih.h
+    - path: rsi_spi.h
+    - path: rsi_sspi.h
+    - path: rsi_sysrtc.h
+    - path: rsi_sysrtc_headers.h
+    - path: rsi_timers.h
+    - path: rsi_udma.h
+    - path: rsi_udma_wrapper.h
+    - path: rsi_usart.h
+    - path: rsi_vad.h
+    - path: rsi_wurx.h
+    - path: sl_917_mvp.h
+    - path: sl_assert.h
+    - path: sl_common.h
+    - path: sl_mvp.h
+    - path: sl_mvp_config.h
+    - path: sl_mvp_math.h
+    - path: sl_mvp_ml_add.h
+    - path: sl_mvp_power.h
+    - path: sl_mvp_types.h
+    - path: sl_mvp_util.h
+    - path: sl_status.h
+- path: drivers/rom_driver/inc
+  file_list:
+    - path: rsi_packing.h
+    - path: rsi_rom_clks.h
+    - path: rsi_rom_crc.h
+    - path: rsi_rom_ct.h
+    - path: rsi_rom_efuse.h
+    - path: rsi_rom_egpio.h
+    - path: rsi_rom_fim.h
+    - path: rsi_rom_gpdma.h
+    - path: rsi_rom_power_save.h
+    - path: rsi_rom_pwm.h
+    - path: rsi_rom_qspi.h
+    - path: rsi_rom_rng.h
+    - path: rsi_rom_table_RS1xxxx.h
+    - path: rsi_rom_table_si91x.h
+    - path: rsi_rom_timer.h
+    - path: rsi_rom_udma.h
+    - path: rsi_rom_udma_wrapper.h
+    - path: rsi_rom_ulpss_clk.h
+- path: drivers/unified_api/inc
+  file_list:
+    - path: sl_si91x_calendar.h
+    - path: sl_si91x_config_timer.h
+    - path: sl_si91x_dma.h
+    - path: sl_si91x_documentation.h
+    - path: sl_si91x_gpio.h
+    - path: sl_si91x_gpio_brd4325a.h
+    - path: sl_si91x_gspi.h
+    - path: sl_si91x_peripheral_gpio.h
+    - path: sl_si91x_peripheral_i2c.h
+    - path: sl_si91x_sio.h
+    - path: sl_si91x_ssi.h
+    - path: sl_si91x_ulp_timer.h
+    - path: sl_si91x_usart.h
+    - path: sl_si91x_watchdog_timer.h
+- path: drivers/unified_api/config
+  file_list:
+    - path: sl_si91x_calendar_config.h
+    - path: sl_si91x_config_timer_config.h
+    - path: sl_si91x_dma_inst_config.h
+    - path: sl_si91x_gspi_common_config.h
+    - path: sl_si91x_gspi_config.h
+    - path: sl_si91x_sio_config.h
+    - path: sl_si91x_ssi_common_config.h
+    - path: sl_si91x_ssi_config.h
+    - path: sl_si91x_ulp_timer_inst_config.h
+    - path: sl_si91x_usart_common_config.h
+    - path: sl_si91x_usart_config.h
+    - path: sl_si91x_watchdog_timer_config.h
+- path: wifi_inc
+  file_list:
+    - path: rsi_common.h
+    - path: rsi_data_types.h
+    - path: rsi_driver.h
+    - path: rsi_os.h
+    - path: rsi_pkt_mgmt.h
+    - path: rsi_user.h
+    - path: rsi_wisemcu_hardware_setup.h
+    - path: rsi_wlan_common_config.h
+    - path: rsi_wlan_defines.h
+  condition:
+    - wifi
 

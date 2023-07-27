@@ -1,8 +1,9 @@
 id: ble
 package: wiseconnect3_sdk
 description: >
-  
-category: 
+  BLE API Implementation
+label: BLE Core
+category: BLE
 quality: production
 component_root_path: ./components/si91x/ble
 provides:
@@ -15,8 +16,22 @@ source:
 - path: src/rsi_common_apis.c
 - path: src/rsi_utils.c
 - path: src/sl_si91x_ble.c
-include:
-- path: inc
 define:
 - name: BLE_ENABLE
 - name: RSI_LITTLE_ENDIAN
+include:
+- path: inc
+  file_list:
+    - path: rsi_ble_apis.h
+    - path: rsi_ble_common_config.h
+    - path: rsi_ble.h
+    - path: rsi_bt_common_apis.h
+    - path: rsi_bt_common_config.h
+    - path: rsi_bt_common.h
+    - path: rsi_common_apis.h
+    - path: rsi_common.h
+    - path: rsi_timer.h
+    - path: rsi_user.h
+    - path: rsi_utils.h
+    - path: sl_si91x_ble.h
+

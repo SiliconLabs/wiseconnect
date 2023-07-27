@@ -11,11 +11,25 @@ include:
     file_list:
       - path: sl_iostream_usart_si91x.h
       - path: sl_iostream_uart_si91x.h
+      - path: sli_iostream_uart_si91x.h
 source:
   - path: src/sl_iostream_usart_si91x.c
+config_file:
+  - path: "config/si91x/sl_iostream_usart_vcom_config.h"
+    file_id: iostream_usart_config
 template_file:
-  - path: init/sl_iostream_init_si91x_usart.c.jinja
-  - path: init/sl_iostream_init_si91x_usart.h.jinja
+  - path: init/sl_iostream_init_si91x_uart.c.jinja
+  - path: init/sl_iostream_init_si91x_uart.h.jinja
+template_contribution:
+  - name: event_handler
+    value:
+      event: iostream_instance_init
+      include: sl_iostream_init_si91x_uart.h
+      handler: sl_iostream_uart_si91x_init_instances
+  - name: iostream_instance_info
+    value:
+      include: sl_iostream_init_si91x_uart.h
+      handler: "sl_iostream_instance_vcom_info"
 define:
   - name: EXT_IRQ_COUNT
     value: "75"

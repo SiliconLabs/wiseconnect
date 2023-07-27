@@ -29,9 +29,8 @@ component:
   from: wiseconnect3_sdk
 - {id: stdio}
 - {id: iostream_retarget_stdio}
-- {from: wiseconnect3_sdk, id: siwx917_soc}
 - instance: [vcom]
-  id: iostream_usart
+  id: iostream_uart_si91x
 - {from: wiseconnect3_sdk, id: sl_usart_iostream}
 - {from: wiseconnect3_sdk, id: iostream_si91x}
 - {from: wiseconnect3_sdk, id: cmsis_usart}
@@ -57,7 +56,7 @@ ui_hints:
   highlight:
   - {path: readme.md, focus: true}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.9}
+- {id: wiseconnect3_sdk, version: 3.0.10}
 template_contribution:
   - name: udma_enable
     value: true

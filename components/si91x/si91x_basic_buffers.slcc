@@ -10,3 +10,4 @@ provides:
 - name: si91x_basic_buffers
 source:
 - path: memory/malloc_buffers.c
+include:

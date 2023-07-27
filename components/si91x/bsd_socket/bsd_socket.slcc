@@ -10,3 +10,13 @@ provides:
 - name: bsd_socket
 include:
 - path: inc
+  file_list:
+    - path: errno.h
+    - path: netdb.h
+    - path: netinet_in.h
+    - path: netinet6_in6.h
+    - path: select.h
+    - path: sl_bsd_utility.h
+    - path: socket.h
+    - path: uio.h
+

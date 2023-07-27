@@ -39,40 +39,20 @@ extern "C" {
 #include "GSPI.h"
 
 /***************************************************************************/ /**
- * @addtogroup GSPI
+ * @addtogroup GSPI Generic SPI
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{
- * @brief GSPI provides an I/O interface to a wide variety of SPI compatible peripheral 
- * devices. SPI is a synchronous four-wire interface consisting of two data pins(MOSI, MISO), 
- * a device select pin (CSN) and a gated clock pin(SCLK). With the two data pins, it 
- * allows for full-duplex operation to other SPI compatible devices.
  * 
- * @details 
- * ## Features
- * - It supports mode0[CPOL0_CPHA0] and mode3[CPOL1_CPHA1] (motorola)
- * - It has programmable clock to meet required baudrate
- * - It supports both full-duplex and half-duplex communication
- * - It supports byte-wise swapping of read and write data
- * - Programmable FIFO thresholds with maximum FIFO depth of 16 and support for DMA
- * - Support upto 32K bytes of read data from a SPI device in a single read operation.
- * 
- * ## Initialization
- * - Configure the clock using \ref sl_si91x_gspi_configure_clock.
- * - Initialize the peripheral using \ref sl_si91x_gspi_init.
- * - Set the power mode using \ref sl_si91x_gspi_configure_power_mode.
- * - Set the SSI configuration using \ref sl_si91x_gspi_set_configuration.
- * - Register the callback using \ref sl_si91x_gspi_register_event_callback.
- * - Set the slave number using \ref sl_si91x_gspi_set_slave_number.
- * - Now user can use the send, receive and transfer API for communication.
  ******************************************************************************/
 // -----------------------------------------------------------------------------
 // Data Types
 
 typedef ARM_SPI_SignalEvent_t sl_gspi_signal_event_t; ///< Renamed signal event structure
 typedef ARM_SPI_STATUS sl_gspi_status_t;              ///< Renamed status structure
-typedef ARM_DRIVER_SPI sl_gspi_driver_t;              ///< Renamed gspi driver structure
-typedef const void *sl_gspi_handle_t;                 ///< Created gspi handle type
+typedef ARM_DRIVER_SPI sl_gspi_driver_t;              ///< Renamed GSPI driver structure
+typedef const void *sl_gspi_handle_t;                 ///< Created GSPI handle type
 
-/// @brief Enumeration for differet GSPI callback events
+/// @brief Enumeration for different GSPI callback events
 typedef enum {
   SL_GSPI_TRANSFER_COMPLETE = ARM_SPI_EVENT_TRANSFER_COMPLETE, ///< Transfer complete event
   SL_GSPI_DATA_LOST         = ARM_SPI_EVENT_DATA_LOST,         ///< Data lost event
@@ -108,7 +88,7 @@ typedef enum {
   SL_GSPI_SLAVE_SELECT_MODE_LAST,                         ///< Last member of enum for validation
 } slave_select_mode_typedef_t;
 
-/// @brief Enumeration for GSPI Master instance, enum for one memeber, future provision is provided.
+/// @brief Enumeration for GSPI Master instance, enum for one member, future provision is provided.
 typedef enum {
   SL_GSPI_MASTER,             ///< GSPI Master Instance
   SL_GSPI_INSTANCE_LAST_ENUM, ///< Last member of enum for validation
@@ -122,7 +102,7 @@ typedef enum {
   GSPI_SLAVE_LAST_ENUM, ///< Last member of enum for validation
 } sl_gspi_slave_number_t;
 
-/// @brief Structure to hold the parametes for the configuration of GSPI peripheral
+/// @brief Structure to hold the parameters for the configuration of GSPI peripheral
 typedef struct {
   boolean_t swap_read;        ///< true to enable and false to disable swap read
   boolean_t swap_write;       ///< true to enable and false to disable swap write
@@ -134,12 +114,12 @@ typedef struct {
 
 /// @brief Structure to hold the clock configuration parameters
 typedef struct {
-  uint8_t soc_pll_mm_count_value;      ///< Soc pll count value
-  uint16_t intf_pll_500_control_value; ///< Int pll control value
-  uint32_t intf_pll_clock;             ///< Intf pll clock frequency
-  uint32_t intf_pll_reference_clock;   ///< Intf pll reference clock frequency
-  uint32_t soc_pll_clock;              ///< Soc pll clock frequency
-  uint32_t soc_pll_reference_clock;    ///< Soc pll reference clock frequency
+  uint8_t soc_pll_mm_count_value;      ///< SoC PLL count value
+  uint16_t intf_pll_500_control_value; ///< Int PLL control value
+  uint32_t intf_pll_clock;             ///< Intf PLL clock frequency
+  uint32_t intf_pll_reference_clock;   ///< Intf PLL reference clock frequency
+  uint32_t soc_pll_clock;              ///< SoC PLL clock frequency
+  uint32_t soc_pll_reference_clock;    ///< SoC PLL reference clock frequency
   uint16_t division_factor;            ///< Clock Division Factor
 } sl_gspi_clock_config_t;
 
@@ -153,7 +133,7 @@ typedef struct {
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**
- * To set the clock for GSPI peripheral, Configures the Pll clock and
+ * Set the clock for the GSPI peripheral, Configures the PLL clock and
  * SOC clock with the value set by user in the clock configuration structure.
  * 
  * @param clock_configuration Pointer to the clock configuration structure
@@ -167,8 +147,8 @@ typedef struct {
 sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configuration);
 
 /***************************************************************************/ /**
- * To initialize the GSPI, if the dma is enabled, then it initializes the 
- * DMA also.
+ * Initialize the GSPI. If the DMA is enabled, it also initializes the
+ * DMA.
  * Pass the address of the pointer for storing the GSPI master handle,
  * which can be used in future for other function calls.
  * 
@@ -184,8 +164,8 @@ sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configur
 sl_status_t sl_si91x_gspi_init(sl_gspi_instance_t instance, sl_gspi_handle_t *gspi_handle);
 
 /***************************************************************************/ /**
- * To uninitialize the GSPI, if the dma is enabled, then it un-initializes the 
- * DMA also.
+ * Uninitialize the GSPI. If the DMA is enabled, it also uninitializes the
+ * DMA.
  * 
  * @pre \ref sl_si91x_gspi_init \n
  * 
@@ -197,7 +177,7 @@ sl_status_t sl_si91x_gspi_init(sl_gspi_instance_t instance, sl_gspi_handle_t *gs
 sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
 
 /***************************************************************************/ /**
- * To change the power mode of GSPI, the supported modes are 
+ * Change the power mode of GSPI, the supported modes are
  *  - POWER_OFF
  *  - FULL_POWER
  * 
@@ -216,7 +196,7 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
 sl_status_t sl_si91x_gspi_configure_power_mode(sl_gspi_handle_t gspi_handle, sl_gspi_power_state_t state);
 
 /*******************************************************************************
- * To control and configure the GSPI
+ * Control and configure the GSPI.
  *   - swap_read (enable/disable)
  *   - swap_write (enable/disable)
  *   - bit_width (8_bit/16_bit)
@@ -245,7 +225,7 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
                                             sl_gspi_control_config_t *control_configuration);
 
 /***************************************************************************/ /**
- * Receives the data from the slave device
+ * Receive data from the slave device.
  * 
  * @pre \ref sl_si91x_gspi_configure_clock \n
  *      \ref sl_si91x_gspi_init \n
@@ -266,7 +246,7 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
 sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
- * Sends the data to the slave device
+ * Send data to the slave device.
  * 
  * @pre \ref sl_si91x_gspi_configure_clock \n
  *      \ref sl_si91x_gspi_init \n
@@ -287,7 +267,7 @@ sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data,
 sl_status_t sl_si91x_gspi_send_data(sl_gspi_handle_t gspi_handle, const void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
- * Sends and recieves the data to the slave device simultaneously
+ * Send and receive data to the slave device simultaneously.
  * 
  * @pre \ref sl_si91x_gspi_configure_clock \n
  *      \ref sl_si91x_gspi_init \n
@@ -312,7 +292,7 @@ sl_status_t sl_si91x_gspi_transfer_data(sl_gspi_handle_t gspi_handle,
                                         uint32_t data_length);
 
 /***************************************************************************/ /**
- * To set master state i.e., activate/de-activate the master
+ * Set main state i.e., activate/de-activate the main.
  * 
  * @pre \ref sl_si91x_gspi_configure_clock \n
  *      \ref sl_si91x_gspi_init \n
@@ -329,7 +309,7 @@ sl_status_t sl_si91x_gspi_transfer_data(sl_gspi_handle_t gspi_handle,
 sl_status_t sl_si91x_gspi_set_master_state(sl_gspi_handle_t gspi_handle, boolean_t value);
 
 /***************************************************************************/ /**
- * To register the user callback function
+ * Register the user callback function.
  * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt
@@ -341,7 +321,7 @@ sl_status_t sl_si91x_gspi_set_master_state(sl_gspi_handle_t gspi_handle, boolean
 sl_status_t sl_si91x_gspi_register_event_callback(sl_gspi_handle_t gspi_handle, sl_gspi_signal_event_t callback_event);
 
 /***************************************************************************/ /**
- * To un-register the user callback function
+ * Un-register the user callback function.
  * 
  * @pre \ref sl_si91x_gspi_register_event_callback \n
  * 
@@ -351,7 +331,7 @@ sl_status_t sl_si91x_gspi_register_event_callback(sl_gspi_handle_t gspi_handle, 
 void sl_si91x_gspi_unregister_event_callback(void);
 
 /***************************************************************************/ /**
- * To get the release, sqa and dev version of GSPI
+ * Get the release, sqa and dev version of GSPI.
  * 
  * @param[in] none
  * @return (sl_gspi_version_t) type structure
@@ -360,7 +340,7 @@ void sl_si91x_gspi_unregister_event_callback(void);
 sl_gspi_version_t sl_si91x_gspi_get_version(void);
 
 /***************************************************************************/ /**
- * To get the transfer status GSPI
+ * Get the transfer status GSPI.
  * 
  * @pre \ref sl_si91x_gspi_configure_clock \n
  *      \ref sl_si91x_gspi_init \n
@@ -368,12 +348,12 @@ sl_gspi_version_t sl_si91x_gspi_get_version(void);
  *      \ref sl_si91x_gspi_set_configuration \n
  * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle
- * @return sl_gspi_status_t type struture 
+ * @return sl_gspi_status_t type structure
  ******************************************************************************/
 sl_gspi_status_t sl_si91x_gspi_get_status(sl_gspi_handle_t gspi_handle);
 
 /***************************************************************************/ /**
- * To get the data receive count of GSPI
+ * Get data receive count of the GSPI.
  * 
  * @pre \ref sl_si91x_gspi_configure_clock \n
  *      \ref sl_si91x_gspi_init \n
@@ -381,12 +361,12 @@ sl_gspi_status_t sl_si91x_gspi_get_status(sl_gspi_handle_t gspi_handle);
  *      \ref sl_si91x_gspi_set_configuration \n
  * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle
- * @return uint32_t value of the rx data count
+ * @return uint32_t value of the RX data count
  ******************************************************************************/
 uint32_t sl_si91x_gspi_get_rx_data_count(sl_gspi_handle_t gspi_handle);
 
 /***************************************************************************/ /**
- * To get the transmit data count of GSPI
+ * Get the transmit data count of GSPI.
  * 
  * @pre \ref sl_si91x_gspi_configure_clock \n
  *      \ref sl_si91x_gspi_init \n
@@ -399,7 +379,7 @@ uint32_t sl_si91x_gspi_get_rx_data_count(sl_gspi_handle_t gspi_handle);
 uint32_t sl_si91x_gspi_get_tx_data_count(void);
 
 /***************************************************************************/ /**
- * To fetch the clock division factor 
+ * Fetch the clock division factor.
  * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle
  * @return factor(int32_t) The value of clock division factor
@@ -407,7 +387,7 @@ uint32_t sl_si91x_gspi_get_tx_data_count(void);
 int32_t sl_si91x_gspi_get_clock_division_factor(sl_gspi_handle_t gspi_handle);
 
 /***************************************************************************/ /**
- * To fetch the frame length i.e., bit width
+ * Fetch the frame length i.e., bit width.
  * 
  * @param[in] none
  * @return frame_length (uint32_t) The value of frame length
@@ -415,8 +395,8 @@ int32_t sl_si91x_gspi_get_clock_division_factor(sl_gspi_handle_t gspi_handle);
 uint32_t sl_si91x_gspi_get_frame_length(void);
 
 /***************************************************************************/ /**
- * To set the slave number in multi-slave operation.
- * For single slave also, this API needs to be called before tranferring the 
+ * Set the slave number in multi-slave operation.
+ * For single slave also, this API needs to be called before transferring the
  * data
  * 
  * @param[in] number Slave number

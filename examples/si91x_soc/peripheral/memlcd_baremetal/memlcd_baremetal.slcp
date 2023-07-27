@@ -1,0 +1,60 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: MEMLCD_Baremetal
+label: SI91x - MEMLCD Baremetal
+description: |
+  Demonstrates memlcd can be used.
+category: example|peripheral
+package: platform
+quality: alpha
+sdk: {id: gecko_sdk, version: 4.3.0}
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.0.10
+source:
+  - path: app.c
+  - path: main.c
+  - path: memlcd_app.c
+include:
+  - path:
+    file_list:
+    - path: app.h
+    - path: memlcd_app.h
+toolchain_settings: []
+component:
+- id: cmsis_common
+- id: sl_system
+- id: component_catalog
+- id: siwx917_soc
+  from: wiseconnect3_sdk
+- id: si91x_support
+  from: wiseconnect3_sdk
+- id: sleeptimer_sysrtc
+  from: wiseconnect3_sdk
+- id: sleeptimer
+- id: sl_siwx917_platform
+  from: wiseconnect3_sdk
+- id: sl_siwx917_systemcall
+  from: wiseconnect3_sdk
+- id: memlcd_917
+  from: wiseconnect3_sdk
+- id: cmsis_spi
+  from: wiseconnect3_sdk
+- id: sl_ulp_timer
+  from: wiseconnect3_sdk
+- id: dmd_memlcd
+- id: glib
+define:
+  - name: RSI_M4_INTERFACE
+  - name: SYSCALLS_WRITE
+  - name: SPI_MULTI_SLAVE
+  - name: ROM_BYPASS  
+provides:
+  - name: si91x_soc
+readme:
+  - path: readme.md
+ui_hints:
+  highlight: 
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

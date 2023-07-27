@@ -33,13 +33,13 @@
 #include "sl_net_types.h"
 
 /** 
- * \addtogroup NET_INTERFACE_FUNCTIONS Interface API
+ * \addtogroup NET_INTERFACE_FUNCTIONS Network Interface
  * \ingroup SL_NET_FUNCTIONS
  * @{ */
 
 /***************************************************************************/ /**
  * @brief
- *   Initializes a network interface. This API should be called before calling any sl_net API.
+ *   Initialize a network interface. This API should be called before calling any sl_net API.
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
  * @param[in] configuration
@@ -58,7 +58,7 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   De-initializes a network interface.
+ *   De-initialize a network interface.
  * @pre 
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
@@ -74,7 +74,7 @@ sl_status_t sl_net_deinit(sl_net_interface_t interface, void *context);
 
 /***************************************************************************/ /**
  * @brief
- *   Brings a network interface up.
+ *   Bring a network interface up.
  * @pre 
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
@@ -88,7 +88,7 @@ sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_
 
 /***************************************************************************/ /**
  * @brief
- *   Brings a network interface down.
+ *   Bring a network interface down.
  * @pre 
  *   @ref sl_net_up should be called before this API.
  * @param[in] interface
@@ -101,13 +101,13 @@ sl_status_t sl_net_down(sl_net_interface_t interface);
 /** @} */
 
 /** 
- * \addtogroup NET_PROFILE_FUNCTIONS Profile API
+ * \addtogroup NET_PROFILE_FUNCTIONS Network Profiles
  * \ingroup SL_NET_FUNCTIONS
  * @{ */
 
 /***************************************************************************/ /**
  * @brief
- *   Stores a network profile for a given interface.
+ *   Store a network profile for a given interface.
  * @pre
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
@@ -123,7 +123,7 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface, sl_net_profile_id_t
 
 /***************************************************************************/ /**
  * @brief
- *   Retrieves a stored network profile for a given interface.
+ *   Retrieve a stored network profile for a given interface.
  * @pre
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
@@ -139,7 +139,7 @@ sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t
 
 /***************************************************************************/ /**
  * @brief
- *   Deletes a stored network profile for a given interface.
+ *   Delete a stored network profile for a given interface.
  * @pre
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
@@ -154,13 +154,13 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
 /** @} */
 
 /** 
- * \addtogroup NET_CREDENTIAL_FUNCTIONS Credential API
+ * \addtogroup NET_CREDENTIAL_FUNCTIONS Network Credentials
  * \ingroup SL_NET_FUNCTIONS
  * @{ */
 
 /***************************************************************************/ /**
  * @brief
- *   Sets a network credential.
+ *   Set a network credential.
  * @pre
  *   @ref sl_net_init should be called before this API.
  * @param[in] id
@@ -181,7 +181,7 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
 
 /***************************************************************************/ /**
  * @brief
- *   Retrieves a stored network credential.
+ *   Retrieve a stored network credential.
  * @pre
  *   @ref sl_net_init should be called before this API.
  * @param[in] id
@@ -203,7 +203,7 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
 
 /***************************************************************************/ /**
  * @brief
- *   Deletes a stored network credential.
+ *   Delete a stored network credential.
  * @pre
  *   @ref sl_net_init should be called before this API.
  * @param[in] id
@@ -249,7 +249,7 @@ sl_status_t sl_net_verify_certificate();
 
 /***************************************************************************/ /**
  * @brief
- *   Converts a ipv4 address in string of from a.b.c.d to a binary uint32_t value
+ *   Convert an IPv4 address in string of from a.b.c.d to a binary uint32_t value
  * @param[in] addr
  *   IPV4 address in the form of string @ref sl_ipv4_address_t
  * @param[out] value
@@ -260,7 +260,7 @@ sl_status_t sl_net_verify_certificate();
 sl_status_t sl_net_inet_addr(const char *addr, uint32_t *value);
 
 /** 
- * \addtogroup NET_MULTICAST_FUNCTIONS Multicast API
+ * \addtogroup NET_MULTICAST_FUNCTIONS Multicast
  * \ingroup SL_NET_FUNCTIONS
  * @{ */
 

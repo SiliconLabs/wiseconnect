@@ -109,7 +109,25 @@ The application can be configured to suit your requirements and development envi
 
 ### 4.1 Configure the application
 
-- The application uses the configurations as provided in the **sl_wifi_client_configuration** and user can choose to configure these parameters as needed.
+The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+
+#### 4.1.1 In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+
+- **STA instance related parameters**
+
+- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
+
+  ```c
+  #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
+  ```
+
+- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+
+  ```c 
+  #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+  ```
+
+- Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
 ### 4.2 Build the application
 

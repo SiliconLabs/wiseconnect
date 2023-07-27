@@ -34,13 +34,13 @@
 
 #define TCP_SOCKET_COUNT 5
 
-/** \addtogroup SI91X_NETWORK_FUNCTIONS Network APIs
+/** \addtogroup SI91X_NETWORK_FUNCTIONS Network Configuration
  * \ingroup SL_SI91X_API
  * @{ */
 
 /***************************************************************************/ /**
  * @brief
- *   Function to initialize SI91X Sockets
+ *   Initialize Si91x sockets.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -48,7 +48,7 @@ sl_status_t sl_si91x_socket_init(void);
 
 /***************************************************************************/ /**
  * @brief
- *   Function to De-initialize SI91X Sockets
+ *   De-initialize Si91x sockets.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/

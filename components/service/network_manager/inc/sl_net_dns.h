@@ -5,12 +5,12 @@
 #include "sl_net_constants.h"
 
 /** 
- * \addtogroup NET_INTERFACE_FUNCTIONS Interface API
+ * \addtogroup NET_INTERFACE_FUNCTIONS Network Interface
  * \ingroup SL_NET_FUNCTIONS
  * @{ */
 
 /**
- * An API to resolve given host name to IP address.
+ * Resolve given host name to IP address.
  * @param host_name 			Host name which needs to be resolved.
  * @param timeout 				If value is greater than zero, caller would be blocked till timeout milliseconds to get the response.
  * 								If the values is equal's to zero, response would sent asynchronously using callbacks.

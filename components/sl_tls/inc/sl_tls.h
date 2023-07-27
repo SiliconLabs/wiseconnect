@@ -92,7 +92,7 @@ typedef struct {
 /** @} */
 
 /** 
- * @addtogroup GLOBAL_TLS_STORE_API SL TLS Global store API
+ * @addtogroup GLOBAL_TLS_STORE_API Global Store
  * @ingroup SL_TLS_FUNCTIONS
  * @{ 
  */
@@ -101,7 +101,7 @@ typedef struct {
 
 /***************************************************************************/ /**
  * @brief
- *   Initializes Global TLS store configuration.
+ *   Initialize the Global TLS store configuration.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] void
@@ -113,7 +113,7 @@ sl_status_t sl_tls_store_init(void);
 
 /***************************************************************************/ /**
  * @brief
- *   Set Global TLS store configuration.
+ *   Set the Global TLS store configuration.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] configuration
@@ -125,7 +125,7 @@ sl_status_t sl_tls_set_global_ca_store(const sl_tls_store_configuration_t config
 
 /***************************************************************************/ /**
  * @brief
- *   Get Global TLS store configuration.
+ *   Get the Global TLS store configuration.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] configuration
@@ -137,7 +137,7 @@ sl_status_t sl_tls_get_global_ca_store(sl_tls_store_configuration_t *configurati
 
 /***************************************************************************/ /**
  * @brief
- *   Clears Global TLS store configuration.
+ *   Clear the Global TLS store configuration.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] void
@@ -150,7 +150,7 @@ sl_status_t sl_tls_clear_global_ca_store(void);
 /** @} */
 
 /** 
- * @addtogroup INTERFACE_PROTOCOL_TLS_STORE_API Interface/Protocol specific TLS store API
+ * @addtogroup INTERFACE_PROTOCOL_TLS_STORE_API Interface and Protocol Store
  * @ingroup SL_TLS_FUNCTIONS
  * @{ 
  */
@@ -159,7 +159,7 @@ sl_status_t sl_tls_clear_global_ca_store(void);
 
 /***************************************************************************/ /**
  * @brief
- *   Set TLS store configuration specific to Interface/Protocol.
+ *   Set the TLS store configuration specific to Interface/Protocol.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -177,7 +177,7 @@ sl_status_t sl_tls_set_ca_store(sl_net_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Get TLS store configuration specific to Interface/Protocol.
+ *   Get the TLS store configuration specific to Interface/Protocol.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -195,7 +195,7 @@ sl_status_t sl_tls_get_ca_store(sl_net_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Clear TLS store configuration specific to Interface/Protocol.
+ *   Clear the TLS store configuration specific to Interface/Protocol.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface

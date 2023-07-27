@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.2.2}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.9}
+- {id: wiseconnect3_sdk, version: 3.0.10}
 source:
   - path: app.c
   - path: main.c

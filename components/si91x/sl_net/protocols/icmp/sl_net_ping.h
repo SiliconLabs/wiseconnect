@@ -32,13 +32,13 @@
 #include "sl_status.h"
 #include "sl_net_types.h"
 
-/** \addtogroup SI91X_NETWORK_FUNCTIONS Network APIs
- * \ingroup SL_SI91X_API
+/** \addtogroup SL_PING_FUNCTIONS Functions
+ * \ingroup SL_PING_APIS
  * @{ */
 
 /***************************************************************************/ /**
  * @brief
- *   Sends an ICMP ping request.
+ *   Send an ICMP ping request.
  * @pre
  *   @ref sl_net_init should be called before this API.
  * @param[in] ip_address

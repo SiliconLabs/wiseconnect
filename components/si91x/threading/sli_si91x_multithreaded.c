@@ -763,12 +763,16 @@ static sl_status_t bus_write_frame(sl_si91x_queue_type_t queue_type,
     // TBD : Power save Request expecting small delay while switching between Any power save mode to HIGH_PERFORMANCE and vise-versa. Maybe a small delay is required for configuring the power save parameter in the firmware.
     osDelay(3);
   }
-  SL_DEBUG_LOG("<>>>> Tx -> queueId : %u, frameId : 0x%x, length : %u\n", packet->desc[1], trace->frame_type, length);
 
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n BUS_WRITE_ERROR \r\n");
     __asm__("bkpt");
   }
+
+  SL_DEBUG_LOG("<>>>> Tx -> queueId : %u, frameId : 0x%x, length : %u\n",
+               trace->firmware_queue_id,
+               trace->frame_type,
+               length);
 
   if (current_performance_profile != HIGH_PERFORMANCE) {
     sl_si91x_host_clear_sleep_indicator();

@@ -165,7 +165,7 @@ sl_status_t sl_iostream_usart_init(sl_iostream_uart_t *iostream_uart,
   // 3. GPIO Configuration
   // 4.Enable the usart
   // Initialize the USART and enable the clock
-  status = sl_si91x_usart_init(USART_0, &usart_handle);
+  status = sl_si91x_usart_init(init->usart_module, &usart_handle);
   if (status != SL_STATUS_OK) {
     return status;
   }

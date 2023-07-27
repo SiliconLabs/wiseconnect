@@ -1,0 +1,12 @@
+id: cli_network_commands
+package: wiseconnect3_sdk
+description: >
+  
+category: 
+quality: production
+component_root_path: ./examples/snippets/cli_demo
+provides:
+- name: cli_network_commands
+source:
+- path: network_commands.c
+include:

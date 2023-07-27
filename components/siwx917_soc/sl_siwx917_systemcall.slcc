@@ -10,3 +10,5 @@ source:
   - path: boards/brd4325x/src/syscalls.c
 provides:
 - name: sl_siwx917_systemcall
+ui_hints:
+  visibility: never

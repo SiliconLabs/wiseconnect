@@ -10,15 +10,10 @@ provides:
 - name: sl_tls
 source:
 - path: src/sl_tls.c
-include:
-- path: inc
 define:
 - name: SL_TLS_COMPONENT_INCLUDED
-- name: EXECUTION_FROM_RAM
-  condition: [brd4325a]
-- name: EXECUTION_FROM_RAM
-  condition: [brd4325c]
-- name: EXECUTION_FROM_RAM
-  condition: [brd4325g]
-- name: EXECUTION_FROM_RAM
-  condition: [brd4338a]
+include:
+- path: inc
+  file_list:
+    - path: sl_tls.h
+

@@ -38,19 +38,10 @@ extern "C" {
 ///
 #include "RS1xxxx_9117.h"
 /***************************************************************************/ /**
- * @addtogroup GPIO
+ * @addtogroup GPIO General-Purpose Input-Output
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{
  * 
- * ##Base Address Details
- *
- * GPIO has 3 instances HP,ULP,UULP. HP and ULP have same functionality
- * but different base address. These addresses are specific to a board.
- * Check base addresses of instances and registers of a specific board
- * before starting GPIO peripheral.
- *   - This board has base addresses as below,
- *   - GPIO HP instance base address : 0x46130000UL
- *   - GPIO ULP instance base address : 0x2404C000UL
- *   - GPIO UULP instance base address : 0x24048600UL
  ******************************************************************************/
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************

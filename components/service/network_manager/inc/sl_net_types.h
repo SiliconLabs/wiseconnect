@@ -47,11 +47,11 @@ typedef void sl_net_profile_t;
 
 /// Ping Response structure
 typedef struct {
-  uint16_t ip_version; ///< ip version
+  uint16_t ip_version; ///< IP version
   uint16_t ping_size;  ///< ping size
   union {
-    uint8_t ipv4_address[4];  ///< ipv4 address
-    uint8_t ipv6_address[16]; ///< ipv6 address
+    uint8_t ipv4_address[4];  ///< IPv4 address
+    uint8_t ipv6_address[16]; ///< IPv6 address
   } ping_address;             ///< Pinged IP Address
 } sl_si91x_ping_response_t;
 

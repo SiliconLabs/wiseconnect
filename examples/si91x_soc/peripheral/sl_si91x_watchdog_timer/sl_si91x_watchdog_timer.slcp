@@ -9,7 +9,7 @@ quality: production
 sdk: {id: gecko_sdk, version: 4.2.1}
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.0.9
+    version: 3.0.10
 source:
 - {path: main.c}
 - {path: app.c}

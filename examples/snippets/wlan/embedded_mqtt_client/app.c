@@ -94,32 +94,21 @@ static const sl_wifi_device_configuration_t sl_wifi_mqtt_client_configuration = 
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .boot_config = { .oper_mode                  = SL_SI91X_CLIENT_MODE,
-                   .coex_mode                  = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map            = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
-                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+  .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
+                   .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT |
-#ifdef CHIP_917B0
+                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                      | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
-                                                  SL_SI91X_EXT_FEAT_672K_M4SS_0K
+                      RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
-                                                  SL_SI91X_EXT_FEAT_480K_M4SS_192K
-#endif // RSI_M4_INTERFACE
-#elif CHIP_917
-#ifndef RSI_M4_INTERFACE
-                                                  SL_SI91X_EXT_FEAT_704K_M4SS_0K
-#else
-                                                  SL_SI91X_EXT_FEAT_512K_M4SS_192K
-#endif // RSI_M4_INTERFACE
-                                                  | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
-
-#else
-                                                  SL_SI91X_EXT_FEAT_384K_MODE
-                                                  | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
-#endif // CHIP_917
-                                                  ),
+                      RAM_LEVEL_NWP_ADV_MCU_BASIC
+#endif
+                      ),
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_EXT_TCP_IP_WINDOW_SCALING | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(10)
@@ -200,7 +189,7 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi client interface up Success\r\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE);
+  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
@@ -339,7 +328,6 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
 sl_status_t mqtt_example()
 {
   sl_status_t status;
-  sl_ipv4_address_t address                      = { 0 };
   sl_tls_store_configuration_t tls_configuration = { 0 };
 
   if (ENCRYPT_CONNECTION) {
@@ -398,8 +386,13 @@ sl_status_t mqtt_example()
   }
   printf("Init mqtt client Success \r\n");
 
-  convert_string_to_sl_ipv4_address(MQTT_BROKER_IP, &address);
-  mqtt_broker_configuration.ip.ip.v4.value = address.value;
+  status = sl_net_inet_addr(MQTT_BROKER_IP, &mqtt_broker_configuration.ip.ip.v4.value);
+  if (status != SL_STATUS_OK) {
+    printf("Failed to convert IP address \r\n");
+
+    mqtt_client_cleanup();
+    return status;
+  }
 
   status =
     sl_mqtt_client_connect(&client, &mqtt_broker_configuration, &last_will_message, &mqtt_client_configuration, 0);

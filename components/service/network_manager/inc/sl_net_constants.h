@@ -39,24 +39,6 @@
 /// Interface Type Selection
 #define SL_NET_INTERFACE_TYPE(x) (x & NETWORK_INTERFACE_TYPE_MASK)
 
-/// WiFi Client Interface
-#define SL_NET_WIFI_CLIENT_INTERFACE(x) (SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE + x)
-
-/// WiFi AP Interface
-#define SL_NET_WIFI_AP_INTERFACE(x) (SL_NET_DEFAULT_WIFI_AP_INTERFACE + x)
-
-/// Ethernet Interface
-#define SL_NET_ETHERNET_INTERFACE(x) (SL_NET_DEFAULT_ETHERNET_INTERFACE + x)
-
-/// Thread Interface
-#define SL_NET_THREAD_INTERFACE(x) (SL_NET_DEFAULT_THREAD_INTERFACE + x)
-
-/// Bluetooth Interface
-#define SL_NET_BLUETOOTH_INTERFACE(x) (SL_NET_DEFAULT_BLUETOOTH_INTERFACE + x)
-
-/// Zwave Interface
-#define SL_NET_ZWAVE_INTERFACE(x) (SL_NET_DEFAULT_ZWAVE_INTERFACE + x)
-
 /** \addtogroup SL_NET_CONSTANTS Constants
  * @{ */
 
@@ -151,11 +133,11 @@ typedef enum {
   SL_NET_PROFILE_ID_9  = 9,  ///< Profile Id 9
   SL_NET_PROFILE_ID_10 = 10, ///< Profile Id 10
 
-  SL_NET_DEFAULT_WIFI_CLIENT_PROFILE = SL_NET_PROFILE_ID_0, ///< WiFi Client Default Profile
-  SL_NET_DEFAULT_WIFI_AP_PROFILE     = SL_NET_PROFILE_ID_0, ///< WiFi Access Point Default Profile
-  SL_NET_DEFAULT_ETHERNET_PROFILE    = SL_NET_PROFILE_ID_0, ///< Ethernet Default Profile
-  SL_NET_DEFAULT_THREAD_PROFILE      = SL_NET_PROFILE_ID_0, ///< Thread Default Profile
-  SL_NET_DEFAULT_ZWAVE_PROFILE       = SL_NET_PROFILE_ID_0, ///< Zwave Default Profile
+  SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID = SL_NET_PROFILE_ID_0, ///< WiFi Client Default Profile
+  SL_NET_DEFAULT_WIFI_AP_PROFILE_ID     = SL_NET_PROFILE_ID_0, ///< WiFi Access Point Default Profile
+  SL_NET_DEFAULT_ETHERNET_PROFILE_ID    = SL_NET_PROFILE_ID_0, ///< Ethernet Default Profile
+  SL_NET_DEFAULT_THREAD_PROFILE_ID      = SL_NET_PROFILE_ID_0, ///< Thread Default Profile
+  SL_NET_DEFAULT_ZWAVE_PROFILE_ID       = SL_NET_PROFILE_ID_0, ///< Zwave Default Profile
 } sl_net_profile_id_t;
 
 /// Enumeration of network credential types.

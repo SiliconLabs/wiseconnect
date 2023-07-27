@@ -158,7 +158,8 @@ void application(void *argument)
 {
   UNUSED_PARAMETER(argument);
 
-  int32_t status = RSI_SUCCESS;
+  int32_t status                   = RSI_SUCCESS;
+  sl_wifi_version_string_t version = { 0 };
 
   wlan_thread_sem = osSemaphoreNew(1, 0, NULL);
   ble_thread_sem  = osSemaphoreNew(1, 0, NULL);
@@ -169,7 +170,15 @@ void application(void *argument)
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
-  printf("\r\n Wi-Fi initialization is successful\n");
+  LOG_PRINT("\r\n Wi-Fi initialization is successful\n");
+
+  //! Firmware version Prints
+  status = sl_wifi_get_firmware_version(&version);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
+  } else {
+    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+  }
 
   const osThreadAttr_t ble_thread_attributes = {
     .name       = "ble_thread",

@@ -61,7 +61,7 @@ extern "C" {
 /*==============================================*/
 /**
  * @fn          int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr)
- * @brief       Set the device BD address. This is blocking API.
+ * @brief       Set the device BD address. This is a blocking API.
  * @pre         needs to be called immediately after device initialization.
  * @param[in]   dev_addr - public address of the device to be set \n
  * @return      0 		 - Success \n
@@ -74,24 +74,24 @@ int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr);
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_ber_enable_or_disable(rsi_bt_ber_cmd_t *ber_cmd)
- * @brief      Enable and disable BER. This is blocking API.
+ * @brief      Enable and disable BER. This is a blocking API.
  * @param[in]  ber_cmd - pointer address which contains the command structure. Please refer rsi_bt_ber_cmd_s structure for more info \n
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_ber_enable_or_disable(rsi_bt_ber_cmd_t *ber_cmd);
 
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_set_local_name(uint8_t *local_name)
- * @brief      Set the given name to local device. This is blocking API.
+ * @brief      Set the given name to local device. This is a blocking API.
  * @pre        Device should be initialized before calling this API.
  * @param[in]  local_name - Name to be set to the local device.
  * @note       For BLE alone Opermode : When the name of the local device is set to a value with length more than 16 bytes then error is returned with an error code 0x4E66.
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  *
  */
 int32_t rsi_bt_set_local_name(uint8_t *local_name);
@@ -110,7 +110,7 @@ int32_t rsi_bt_set_local_name(uint8_t *local_name);
  *             0x4F02		-	Invalid region. \n
  *             0x4F03		-	Invalid gain table offset request type \n
  *             0x4F04           -       Invalid node id. \n
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  *
  */
 int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
@@ -121,116 +121,116 @@ int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_name)
- * @brief      Get the local device name. This is blocking API.
+ * @brief      Get the local device name. This is a blocking API.
  * @pre        Device should be initialized before calling this API.
  * @param[out] bt_resp_get_local_name - This parameter is the response buffer to hold the response of this API. Please refer rsi_bt_resp_get_local_name_s structure for more info.
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_name);
 
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_get_rssi(uint8_t *dev_addr, int8_t *resp)
- * @brief      Get the RSSI of the remote device. This is blocking API.
+ * @brief      Get the RSSI of the remote device. This is a blocking API.
  * @pre        \ref rsi_bt_connect() API need to be called before this API.
  * @param[in]  dev_addr -  Remote device address.
- * @param[out] resp - Parameter to hold the response of this API, rssi is filled in this resp parameter.
+ * @param[out] resp - Parameter to hold the response of this API, RSSI is filled in this resp parameter.
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_get_rssi(uint8_t *dev_addr, int8_t *resp);
 
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_get_local_device_address(uint8_t *resp)
- * @brief      Get the local device address. This is blocking API.
+ * @brief      Get the local device address. This is a blocking API.
  * @pre        Device should be initialized before calling this API.
  * @param[out] resp - Parameter to hold the response of this API, local bd_addr is filled in this resp parameter.
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_get_local_device_address(uint8_t *resp);
 
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_get_bt_stack_version(rsi_bt_resp_get_bt_stack_version_t *bt_resp_get_bt_stack_version)
- * @brief      Get the BT stack version. This is blocking API.
+ * @brief      Get the BT stack version. This is a blocking API.
  * @param[out] bt_resp_get_bt_stack_version -  Response buffer to hold the response of this API. Please refer rsi_bt_resp_get_bt_stack_version_s structure for more info
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_get_bt_stack_version(rsi_bt_resp_get_bt_stack_version_t *bt_resp_get_bt_stack_version);
 
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_init(void)
- * @brief      Initialize the BT device. This is blocking API.
+ * @brief      Initialize the BT device. This is a blocking API.
  * @pre        Device should be initialized before calling this API.  \n
  *             If the device is in powersave, get back the device to ACTIVE MODE by using \ref rsi_bt_power_save_profile()
  * @param      None
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_init(void);
 
 /*==============================================*/
 /**
  * @fn         int32_t 	rsi_bt_deinit(void)
- * @brief      Deinitialize the BT device. This is blocking API.
+ * @brief      Deinitialize the BT device. This is a blocking API.
  * @pre        \ref Device should be initialized before this API. \n
  * @param      None
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_deinit(void);
 
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_set_antenna(uint8_t antenna_value)
- * @brief      Select either internal / external antenna on the chip. This is blocking API.
+ * @brief      Select either internal / external antenna on the chip. This is a blocking API.
  * @pre        Device should be initialized before calling this API.
  * @param[in]  antenna_value - Parameter is used to select either internal or external antenna. Possible values: \n
  *                             0x00 RSI_SEL_INTERNAL_ANTENNA \n
  *                             0x01 RSI_SEL_EXTERNAL_ANTENNA
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_set_antenna(uint8_t antenna_value);
 
 /*==============================================*/
 /**
  * @fn         int32_t rsi_bt_set_antenna_tx_power_level(uint8_t protocol_mode, int8_t tx_power)
- * @brief      Enable/Disable the mentioned features. This is blocking API.
+ * @brief      Enable/Disable the mentioned features. This is a blocking API.
  * @pre        Device should be initialized before calling this API
  * @param[in]  protocol_mode - protocol mode \n
  *             1 - BT classic \n
  *			   2 - BT Low Energy
  * @param[in] tx-power - power value \n
  *             Antenna transmit power level \n
- *             Default Value for BLE Tx Power Index is 31, The range for the BLE Tx Power Index is 1 to 75 (0, 32 indexes are invalid) \n
- *             Default tx power index for BT classic is 14 \n
+ *             Default Value for BLE TX Power Index is 31, The range for the BLE TX Power Index is 1 to 75 (0, 32 indexes are invalid) \n
+ *             Default TX power index for BT classic is 14 \n
  *                      1 - 31     0DBM Mode.  \n
  *                     33 - 63     10DBM Mode. \n
  *                     64 - 75     HP Mode.    \n
  * @note       The default value will vary based on country region and board \n
  * @return     0		-	Success \n
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_bt_set_antenna_tx_power_level(uint8_t protocol_mode, int8_t tx_power);
 
 /*==============================================*/
 /**
  * @fn          int32_t rsi_bt_power_save_profile(uint8_t psp_mode, uint8_t psp_type)
- * @brief       Select the power save profile mode for BT / BLE. This is blocking API.
+ * @brief       Select the power save profile mode for BT / BLE. This is a blocking API.
  * @pre         Device should be initialized before calling this API
  * @param[in]   psp_mode Following psp_mode is defined. \n
  *              0 - RSI_ACTIVE. In this mode module is active and power save is disabled. \n
@@ -250,9 +250,9 @@ int32_t rsi_bt_set_antenna_tx_power_level(uint8_t protocol_mode, int8_t tx_power
  *              Non-Zero Value	-	Failure \n
  * @note        If the user wants to enable power save in CoEx mode (WLAN + BT LE) mode - It is mandatory to enable WLAN power save along with BT LE power save. \n
  * @note        The device will enter into power save if and only if both protocol (WLAN, BLE) power save modes are enabled. \n
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  * @note        psp_type is only valid in psp_mode 2. \n
- *              BT/BLE doesnot support in RSI_SLEEP_MODE_1. \n
+ *              BT/BLE does not support in RSI_SLEEP_MODE_1. \n
  *              BT/BLE supports only RSI_MAX_PSP mode. Remaining modes are not supported.
  *
  */

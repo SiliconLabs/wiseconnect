@@ -2,7 +2,7 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Gecko SDK
-version: "3.0.9"
+version: "3.0.10"
 sdk:
   id: gecko_sdk
   version: "4.2.2"
@@ -26,6 +26,7 @@ component_path:
   - path: components/sapi
   - path: components/siwx917_soc/toolchain/component
   - path: components/siwx917_soc/drivers/cmsis_driver/CMSIS/Driver/component
+  - path: components/siwx917_soc/drivers/hardware_drivers/memlcd/component
   - path: components/siwx917_soc/drivers/cmsis_driver/component
   - path: components/siwx917_soc/drivers/cmsis_driver/config/component
   - path: components/siwx917_soc/drivers/peripheral_drivers/component
@@ -45,4 +46,7 @@ component_path:
   - path: third_party/aws_sdk
   - path: third_party/unity/component
   - path: utilities
+  - path: components/console
+  - path: components/console/variables
+  - path: components/console_auto_gen
 

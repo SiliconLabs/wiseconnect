@@ -49,13 +49,13 @@ typedef struct sl_si91x_power_configuration sl_si91x_power_configuration_t;
 
 extern sl_si91x_performance_profile_t performance_profile;
 
-/** \addtogroup SI91X_DRIVER_FUNCTIONS Core API
+/** \addtogroup SI91X_DRIVER_FUNCTIONS Core
  * \ingroup SL_SI91X_API
  * @{ */
 
 /***************************************************************************/ /**
  * @brief
- *   Function to initialize the driver
+ *   Initialize the driver.
  * @param[in] config
  *   Pointer to device configuration.
  * @param[in] event_handler
@@ -77,7 +77,7 @@ sl_status_t sl_si91x_driver_deinit(void);
 
 /***************************************************************************/ /**
  * @brief
- *   Registers a function and optional argument for scan results callback.
+ *   Register a function and optional argument for scan results callback.
  * @param[in] command
  *   Command type to be sent to TA firmware.
  * @param[in] queue_type
@@ -139,7 +139,7 @@ sl_status_t sl_si91x_driver_send_socket_data(sl_si91x_socket_send_request_t *req
 
 /***************************************************************************/ /**
  * @brief
- *   Send a bluetooth command.
+ *   Send a Bluetooth command.
  * @param[in] command
  *   Command type to be sent.
  * @param[in] queue_type
@@ -178,7 +178,7 @@ sl_status_t sl_si91x_wifi_set_certificate_index(uint8_t certificate_type,
 
 /***************************************************************************/ /**
  * @brief
- *   Send a raw command frame
+ *   Send a raw command frame.
  * @param[in] command
  *   Command type to be sent.
  * @param[in] data
@@ -199,9 +199,9 @@ sl_status_t sl_si91x_driver_raw_send_command(uint8_t command,
 
 /***************************************************************************/ /**
  * @brief
- *   Registers a callback function for a specific event.
+ *   Register a callback function for a specific event.
  * @param[in] event
- *   Event to register a callabck for.
+ *   Event to register a callback for.
  * @param[in] function
  *   Function pointer to callback.
  * @pre 
@@ -213,7 +213,7 @@ sl_status_t sl_si91x_register_callback(sl_net_event_t event, sl_net_event_handle
 
 /***************************************************************************/ /**
  * @brief
- *   Function for default event handler for all events.
+ *   Default event handler for all events.
  * @param[in] event
  *   Asynchronous event received.
  * @param[in] buffer
@@ -227,7 +227,7 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
 
 /***************************************************************************/ /**
  * @brief
- *   Registers a callback function to receive socket events.
+ *   Register a callback function to receive socket events.
  * @param[in] socket_event
  *   Received asynchronous socket event.
  * @param[in] function
@@ -241,7 +241,7 @@ sl_status_t sl_si91x_register_socket_callback(uint32_t socket_event, sl_net_even
 
 /***************************************************************************/ /**
  * @brief
- *   Function for default event handler for socket events.
+ *   Default event handler for socket events.
  * @param[in] socket_event
  *   Received asynchronous socket event.
  * @param[in] optional_arg
@@ -255,7 +255,7 @@ sl_status_t sl_si91x_socket_event_handler(uint32_t socket_event, sl_wifi_buffer_
 
 /** @} */
 
-/** \addtogroup SI91X_RADIO_FUNCTIONS Radio API
+/** \addtogroup SI91X_RADIO_FUNCTIONS Radio
  * \ingroup SL_SI91X_API
  * @{ */
 
@@ -325,7 +325,7 @@ sl_status_t sl_si91x_set_power_mode(sl_si91x_power_mode_t mode, const sl_si91x_p
 
 /** @} */
 
-/** \addtogroup SI91X_FIRMWARE_UPDATE_FUNCTIONS Firmware Update API
+/** \addtogroup SI91X_FIRMWARE_UPDATE_FUNCTIONS Firmware Update
  * \ingroup SL_SI91X_API
  * @{ */
 
@@ -397,12 +397,12 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
 /** @} */
 
 /***************************************************************************/ /**
- * @brief      to write content on TA flash from M4. This is a blocking API.
+ * @brief      Write content on TA flash from M4. This is a blocking API.
  * @param[in]  write_address                 - address at which data will be written on TA flash memory from M4 image end address to M4 region end address
  * @param[in]  write_data                    - Input data
  * @param[in]  write_data_length             - total length, should be multiples of 4K in case of sector erase
  * @param[in]  flash_sector_erase_enable     - Enable or Disable sector erase \n
- *                                             1 - Erases mulitples of 4Kbytes of data from M4 Image end address to M4 region end address. \n
+ *                                             1 - Erases multiples of 4 KB of data from M4 Image end address to M4 region end address. \n
  *                                             0 - Disable, allows to write data onto flash \n
  * @return       sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -477,7 +477,7 @@ sl_status_t sl_si91x_transmit_test_start(uint16_t power,
                                          uint16_t channel);
 /***************************************************************************/ /**
  * @brief
- *   Stops the transmit test. This is a blocking API.
+ *   Stop the transmit test. This is a blocking API.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] void

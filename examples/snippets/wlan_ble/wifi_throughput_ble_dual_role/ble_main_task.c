@@ -74,7 +74,6 @@ volatile uint16_t rsi_ble_att2_val_hndl;
 volatile uint16_t rsi_ble_att3_val_hndl;
 #if (RSI_BLE_MAX_NBR_PERIPHERALS > 0)
 static uint8_t remote_dev_addr[RSI_REM_DEV_ADDR_LEN] = { 0 };
-static uint8_t peripheral_conn_id                    = 0xff;
 #if (CONNECT_OPTION == CONN_BY_NAME)
 static uint8_t remote_name[RSI_REM_DEV_NAME_LEN];
 #endif

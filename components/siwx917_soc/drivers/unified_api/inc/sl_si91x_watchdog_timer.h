@@ -41,38 +41,10 @@ extern "C" {
 #include "rsi_wwdt.h"
 
 /***************************************************************************/ /**
- * @addtogroup WATCHDOG-TIMER
+ * @addtogroup WATCHDOG-TIMER Watchdog Timer
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{
- * @brief 
- * WatchDog-timer is used generate an interrupt on timeout and a system-reset
- * in case of system failure which can be caused by an external event like ESD
- * pulse or due to a software failure. Also the Interrupt can be used as a
- * wake-up source for processor from SLEEP/STANDBY to ACTIVE states.
  *
- * @details
- * ## Overview
- * - WatchDog Timer will generate interrupts and can restarts(kicked) by system every interrupt.
- * - There are two modes defined for the WatchDog Timer.
- *   - Open Mode: This is a mode during which WatchDog-timer restart is allowed from CPU.
- *   - Closed Mode: This is a mode during which WatchDog-timer restart is not allowed from CPU.
- * - The Processor needs to restart the Timer upon on timeout interrupt, if the timer
- *   is not intended to hit the system-reset threshold. The timer will be in closed mode
- *   as defined above till the interrupt timer is reached. Once the interrupt timer is
- *   reached, it will be in open mode till the reset is generated.Also upon interrupt
- *   generation, the timer restarts for the Reset Duration.
- * 
- * ## Initialization
- * - Initialize the peripheral through \ref sl_si91x_watchdog_init_timer
- * - It will un-masks timer interrupt
- * - Sets rtc-clock time-period
- * - Power-ups the peripheral & enables WDT to run during sleep state.
- * 
- * ## Configuration 
- * - Configure clock through \ref sl_si91x_watchdog_configure_clock.
- * - Set its timeout interrupt time, system-reset time, window time (if requires)
- *   through \ref sl_si91x_watchdog_set_configuration.
- * - Register timer callback through \ref sl_si91x_watchdog_register_timeout_callback.
- * - Start the timer through \ref sl_si91x_watchdog_start_timer
  ******************************************************************************/
 
 // -----------------------------------------------------------------------------
@@ -133,14 +105,14 @@ typedef enum {
   TIME_DELAY_LAST, ///< for time delay  value validation
 } time_delays_t;
 
-/// @brief Structure to hold the parameters of watchdog-timer clock-source configurations
+/// @brief Structure to hold the parameters of watchdog timer clock-source configurations
 typedef struct {
   uint8_t low_freq_fsm_clock_src;  ///< low frequency FSM clock source, \ref #low_freq_fsm_clock_t
   uint8_t high_freq_fsm_clock_src; ///< high frequency FSM clock source, \ref #high_freq_fsm_clock_t
   uint8_t bg_pmu_clock_source;     ///< bg_pmu clock source, \ref #bg_pmu_clock_t
 } watchdog_timer_clock_config_t;
 
-/// @brief Structure to hold the parameters of watchdog-timer configurations
+/// @brief Structure to hold the parameters of watchdog timer configurations
 typedef struct {
   uint8_t
     interrupt_time; ///< timer timeout interrupt duration, number of clock pulses = 2^(system_reset_time), \ref #time_delays_t
@@ -161,8 +133,8 @@ typedef struct {
 // Prototypes
 
 /***************************************************************************/ /**
- * Initializes Watchdog-Timer (Power-up WDT and enables it to run during sleep mode)
- * Also un-masks its interrupt & sets RTC clock time-period
+ * Initialize the Watchdog timer (Power-up WDT and enables it to run during sleep mode).
+ * Also un-masks its interrupt & sets RTC clock time-period.
  *
  * @param[in]   none
  * @return      none
@@ -170,7 +142,7 @@ typedef struct {
 void sl_si91x_watchdog_init_timer(void);
 
 /*******************************************************************************
- * Configures timer clock sources
+ * Configure timer clock sources.
  *
  * @pre \ref sl_si91x_watchdog_init_timer \n
  * 
@@ -184,9 +156,9 @@ void sl_si91x_watchdog_init_timer(void);
 sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *timer_clk_config_ptr);
 
 /*******************************************************************************
- * Configures clock sources & timer parameters like interrupt time(WDT restart time),
- * system reset time & window time (another time stamp for WDT restart, if required)
- * Also un-masks its interrupt & sets RTC clock time-period
+ * Configure clock sources & timer parameters like interrupt time(WDT restart time),
+ * system reset time & window time (another time stamp for WDT restart, if required).
+ * Also un-masks its interrupt & sets RTC clock time-period.
  * 
  * @pre \ref sl_si91x_watchdog_init_timer \n 
  *      \ref sl_si91x_watchdog_configure_clock \n
@@ -203,7 +175,7 @@ sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *tim
 sl_status_t sl_si91x_watchdog_set_configuration(watchdog_timer_config_t *timer_config_ptr);
 
 /***************************************************************************/ /**
- * Registers watchdog-timer timeout callback and enables NVIC
+ * Register Watchdog timer timeout callback and enables NVIC.
  * 
  * @param[in]  on_timeout_callback (function pointer) Callback function pointer
  *             to be called when timer timeout interrupt occurred.
@@ -216,7 +188,7 @@ sl_status_t sl_si91x_watchdog_set_configuration(watchdog_timer_config_t *timer_c
 sl_status_t sl_si91x_watchdog_register_timeout_callback(watchdog_timer_callback_t on_timeout_callback);
 
 /***************************************************************************/ /**
- * Sets watchdog-timer interrupt time(upper time-stamp for WDT restart) duration
+ * Set Watchdog timer interrupt time(upper time-stamp for WDT restart) duration.
  *
  * @pre \ref sl_si91x_watchdog_init_timer \n
  *      \ref sl_si91x_watchdog_configure_clock \n
@@ -227,12 +199,12 @@ sl_status_t sl_si91x_watchdog_register_timeout_callback(watchdog_timer_callback_
  * @return    status 0 if successful, else error code
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - 'interrupt_time' parameter has invalid value. \n
  *         \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - 'interrupt_time' value is less than window time or greater than system reset time \n
- *         \ref SL_STATUS_OK (0x0000) - Successfully set watchdog-timer timeout time value
+ *         \ref SL_STATUS_OK (0x0000) - Successfully set watchdog timer timeout time value
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_set_interrupt_time(time_delays_t interrupt_time);
 
 /***************************************************************************/ /**
- * Reads watchdog-timer interrupt time set value (in terms of power of two)
+ * Read Watchdog timer interrupt time set value (in terms of power of two)
  *
  * @pre sl_si91x_watchdog_set_interrupt_time \n
  * 
@@ -242,7 +214,7 @@ sl_status_t sl_si91x_watchdog_set_interrupt_time(time_delays_t interrupt_time);
 uint8_t sl_si91x_watchdog_get_interrupt_time(void);
 
 /***************************************************************************/ /**
- * Sets watchdog-timer system-reset time duration
+ * Set Watchdog timer system-reset time duration.
  *
  * @pre \ref sl_si91x_watchdog_init_timer \n
  *      \ref sl_si91x_watchdog_configure_clock \n
@@ -252,12 +224,12 @@ uint8_t sl_si91x_watchdog_get_interrupt_time(void);
  * @return    status 0 if successful, else error code
  *          \ref SL_STATUS_INVALID_PARAMETER (0x0021) - 'system_reset_time' parameter has invalid value. \n
  *          \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - 'system_reset_time' value is less than window time or interrupt time \n
- *          \ref SL_STATUS_OK (0x0000) - Successfully set watchdog-timer system-reset time value
+ *          \ref SL_STATUS_OK (0x0000) - Successfully set watchdog timer system-reset time value
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_set_system_reset_time(time_delays_t system_reset_time);
 
 /***************************************************************************/ /**
- * Reads watchdog-timer system-reset time set value (in terms of power of two)
+ * Read Watchdog timer system-reset time set value (in terms of power of two).
  *
  * @pre \ref sl_si91x_watchdog_set_system_reset_time \n
  * 
@@ -267,7 +239,7 @@ sl_status_t sl_si91x_watchdog_set_system_reset_time(time_delays_t system_reset_t
 uint8_t sl_si91x_watchdog_get_system_reset_time(void);
 
 /***************************************************************************/ /**
- * Sets watchdog-timer window time value (lower time-stamp for WDT restart)
+ * Set Watchdog timer window time value (lower time-stamp for WDT restart).
  *
  * @pre \ref sl_si91x_watchdog_init_timer \n
  *      \ref sl_si91x_watchdog_configure_clock \n
@@ -279,12 +251,12 @@ uint8_t sl_si91x_watchdog_get_system_reset_time(void);
  * @return    status 0 if successful, else error code
  *          \ref SL_STATUS_INVALID_PARAMETER (0x0021) - 'window_time' parameter has invalid value. \n
  *          \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - 'window_time' value is greater than interrupt time or system reset time \n
- *          \ref SL_STATUS_OK (0x0000) - Successfully set watchdog-timer window time value
+ *          \ref SL_STATUS_OK (0x0000) - Successfully set watchdog timer window time value
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_set_window_time(time_delays_t window_time);
 
 /***************************************************************************/ /**
- * Reads watchdog-timer window time set value (in terms of power of two)
+ * Read Watchdog timer window time set value (in terms of power of two).
  *
  * @pre \ref sl_si91x_watchdog_set_window_time \n
  * 
@@ -294,15 +266,15 @@ sl_status_t sl_si91x_watchdog_set_window_time(time_delays_t window_time);
 uint8_t sl_si91x_watchdog_get_window_time(void);
 
 /***************************************************************************/ /**
- * Reads watchdog-timer system-reset status
+ * Read Watchdog timer system-reset status.
  * 
  * @param[in]  none
- * @return     returns true if watchdog-timer resets system, else returns false
+ * @return     returns true if watchdog timer resets system, else returns false
 *******************************************************************************/
 boolean_t sl_si91x_watchdog_get_timer_system_reset_status(void);
 
 /***************************************************************************/ /**
- * De-initializes watchdog-timer, masks its interrupt, de-powers and disables timer
+ * De-initialize Watchdog timer, mask its interrupt, de-power and disable timer.
  *
  * @pre \ref sl_si91x_watchdog_init_timer \n
  *      \ref sl_si91x_watchdog_unregister_timeout_callback \n
@@ -313,7 +285,7 @@ boolean_t sl_si91x_watchdog_get_timer_system_reset_status(void);
 void sl_si91x_watchdog_deinit_timer(void);
 
 /***************************************************************************/ /**
- * Unregisters watchdog-timer timeout callback
+ * Unregister Watchdog timer timeout callback.
  *
  * @pre \ref sl_si91x_watchdog_register_timeout_callback \n
  * 
@@ -323,7 +295,7 @@ void sl_si91x_watchdog_deinit_timer(void);
 void sl_si91x_watchdog_unregister_timeout_callback(void);
 
 /***************************************************************************/ /**
- * To get the release version of Watchdog-timer
+ * Get the release version of Watchdog timer.
  *
  * @param[in] none
  * @return (sl_watchdog_version_t) type structure
@@ -332,7 +304,7 @@ void sl_si91x_watchdog_unregister_timeout_callback(void);
 sl_watchdog_timer_version_t sl_si91x_watchdog_get_version();
 
 /***************************************************************************/ /**
- * Starts and enables Watchdog-Timer
+ * Start and enable the Watchdog timer.
  * 
  * @pre \ref sl_si91x_watchdog_init_timer \n
  *      \ref sl_si91x_watchdog_configure_clock \n
@@ -342,9 +314,9 @@ sl_watchdog_timer_version_t sl_si91x_watchdog_get_version();
  * @return      none
 *******************************************************************************/
 /*******************************************************************************
-* @brief: Starts & enables the Watchdog-timer
+* @brief: Start & enable the Watchdog timer.
 * @details:
-* It enables the timer and sets the restart bit of watchdog-timer, by updating
+* It enables the timer and sets the restart bit of watchdog timer, by updating
 *  'WWD_TIMER_ENABLE' register bits as:
 *
 * It updates 'wwd_timer_en'(23:16) bits of timer enable register by 0XAA, to enable
@@ -359,7 +331,7 @@ __STATIC_INLINE void sl_si91x_watchdog_start_timer(void)
 }
 
 /***************************************************************************/ /**
- * Stops Watchdog-Timer by disabling it
+ * Stop Watchdog timer by disabling it.
  *
  * @pre \ref sl_si91x_watchdog_start_timer \n
  * 
@@ -367,7 +339,7 @@ __STATIC_INLINE void sl_si91x_watchdog_start_timer(void)
  * @return      none
 *******************************************************************************/
 /*******************************************************************************
-* @brief: Disables the Watchdog-timer to stop it
+* @brief: Disable the Watchdog timer to stop it.
 *
 * @details:
 * It disables the timer by updating 'WWD_TIMER_ENABLE' register bits.
@@ -381,7 +353,7 @@ __STATIC_INLINE void sl_si91x_watchdog_stop_timer(void)
 }
 
 /***************************************************************************/ /**
- * Restarts(kicks) an already running Watchdog-Timer
+ * Restart (kick) an already running Watchdog timer.
  * 
  * @pre \ref sl_si91x_watchdog_init_timer \n
  *      \ref sl_si91x_watchdog_configure_clock \n
@@ -391,7 +363,7 @@ __STATIC_INLINE void sl_si91x_watchdog_stop_timer(void)
  * @return      none
 *******************************************************************************/
 /*******************************************************************************
-* @brief: Restarts or kicks watchdog-timer
+* @brief: Restart or kick Watchdog timer.
 *
 * @details:
 * It sets the restart bit of timer, when it is already enabled.
@@ -407,7 +379,7 @@ __STATIC_INLINE void sl_si91x_watchdog_restart_timer(void)
 }
 
 /***************************************************************************/ /**
- * Enables watchdog-timer to reset system on processor lockup
+ * Enable the Watchdog timer to reset system on processor lockup.
  * 
  * @pre \ref sl_si91x_watchdog_init_timer \n
  * 
@@ -415,7 +387,7 @@ __STATIC_INLINE void sl_si91x_watchdog_restart_timer(void)
  * @return      none
 *******************************************************************************/
 /*******************************************************************************
-* @brief: Enables watchdog-timer to reset system on processor lockup
+* @brief: Enables watchdog timer to reset system on processor lockup
 *
 * @details:
 * It enables WDT to generate system-reset when processor got stuck or reached
@@ -428,7 +400,7 @@ __STATIC_INLINE void sl_si91x_watchdog_enable_system_reset_on_processor_lockup(v
 }
 
 /***************************************************************************/ /**
- * Disables watchdog-timer to reset system on processor lockup
+ * Disable the Watchdog timer to reset system on processor lockup.
  *  
  * @pre \ref sl_si91x_watchdog_init_timer \n
  *      \ref sl_si91x_watchdog_enable_system_reset_on_processor_lockup \n
@@ -437,7 +409,7 @@ __STATIC_INLINE void sl_si91x_watchdog_enable_system_reset_on_processor_lockup(v
  * @return      none
 *******************************************************************************/
 /*******************************************************************************
-* @brief: Disables watchdog-timer to reset system on processor lockup
+* @brief: Disable Watchdog timer to reset system on processor lockup.
 *
 * @details:
 * It disables WDT to generate system-reset when processor got stuck or reached

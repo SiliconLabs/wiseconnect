@@ -61,8 +61,8 @@
 #else
 #define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset>        */
 #endif
-#define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up  */
 
+#define WKP_RAM_USAGE_LOCATION     0x24061000 /*<!Bootloader RAM usage location upon wake up  */
 #define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
 #endif
 
@@ -106,10 +106,10 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
 static void application_start(void *argument);
 sl_status_t send_data(void);
 void M4_sleep_wakeup(void);
+
 /******************************************************
  *               Static Inline Functions
  ******************************************************/
-
 static inline void print_errno(void)
 {
   printf("\r\nerrno: %d\r\n", errno);
@@ -153,7 +153,7 @@ static void application_start(void *argument)
     return;
   }
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE);
+  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;

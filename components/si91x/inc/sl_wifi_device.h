@@ -217,15 +217,15 @@
 /// @note it's mandatory to set region before scanning DFS channel.
 #define SL_SI91X_CUSTOM_FEAT_DFS_CHANNEL_SUPPORT BIT(8)
 
-/// If this bit is set it enables the LED blinking feature
-/// after module initialisation.LED (GPIO_16) is used for
-/// this feature and blinks when any TX Packet on air happens
-/// and when we get a unicast packets addressing to our MAC
+/// If this bit is set, it enables the LED blinking feature
+/// after module initialization. LED (GPIO_16) is used for
+/// this feature and blinks when a TX packet is sent
+/// or when we get a unicast packet addressed to our MAC.
 #define SL_SI91X_CUSTOM_FEAT_LED_FEATURE BIT(9)
 
-/// If this bit is enabled,module indicates the host
+/// If this bit is enabled, module indicates the host
 /// the wlan connection status asynchronously
-/// This bit is valid in case of Wifi client mode
+/// This bit is valid in case of Wi-Fi client mode
 #define SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS BIT(10)
 
 /// Wake on wireless indication in UART mode
@@ -452,7 +452,21 @@
 #ifdef CHIP_917
 /// @brief To Configure Frontend with selection BIT[30:29]
 /// @note VC1, VC2 and VC3 are control voltage pins of RF Switch
-
+#ifdef CHIP_917B0
+/** @brief For 917B0
+ * 
+ * | Front end switch_sel(Bit[30:29]) | ANT_SEL_0(VC3) | ANT_SEL_1(VC2) | ANT_SEL_2(VC3) | Comments                         |
+ * |:---------------------------------|:---------------|:---------------|:---------------|:---------------------------------|
+ * | 0                                | GPIO 46        | GPIO 47        | GPIO 48        | Legacy boards                    |
+ * | 1                                | ULP4           | ULP5           | ULP0           | For B0 Radio boards 1.2 or above |
+ * | 2                                | Virtual Switch |                |                | For future use                   |
+ * | 3                                | Reserved       |                |                |                                  |
+ */
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_B0_GPIO_46_47_48  0
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_B0_ULP_GPIO_4_5_0 BIT(29)
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL                BIT(29)
+#define SL_SI91X_EXT_FEAT_FRONT_END_VIRTUAL_SWITCH                BIT(30)
+#else
 /** 
  * @brief For 917A0
  * 
@@ -465,20 +479,9 @@
  */
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_A0_GPIO_46_47_48  0
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_A0_ULP_GPIO_4_5_0 BIT(30)
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL                BIT(30)
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_A0_ULP_GPIO_4_5_7 (BIT(30) | BIT(29))
-
-/** @brief For 917B0
- * 
- * | Front end switch_sel(Bit[30:29]) | ANT_SEL_0(VC3) | ANT_SEL_1(VC2) | ANT_SEL_2(VC3) | Comments                         |
- * |:---------------------------------|:---------------|:---------------|:---------------|:---------------------------------|
- * | 0                                | GPIO 46        | GPIO 47        | GPIO 48        | Legacy boards                    |
- * | 1                                | ULP4           | ULP5           | ULP0           | For B0 Radio boards 1.2 or above |
- * | 2                                | Virtual Switch |                |                | For future use                   |
- * | 3                                | Reserved       |                |                |                                  |
- */
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_B0_GPIO_46_47_48  0
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_B0_ULP_GPIO_4_5_0 BIT(29)
-#define SL_SI91X_EXT_FEAT_FRONT_END_VIRTUAL_SWITCH                BIT(30)
+#endif
 #else
 /// @note Bit 29 - 30 is reserved
 #endif
@@ -509,7 +512,7 @@
 /// Enable DNS client bypass
 #define SL_SI91X_EXT_TCP_IP_DNS_CLIENT_BYPASS BIT(7)
 /// Enable TCP window scaling feature
-/// @note If this feature is not enabled, then the maximum possible rx window size is 64 KB. If user wants to use more than 64KB window size, tcp_rx_window_size_cap in socket configuration is used to increase the window size.
+/// @note If this feature is not enabled, then the maximum possible RX window size is 64 KB. If user wants to use more than 64KB window size, tcp_rx_window_size_cap in socket configuration is used to increase the window size.
 #define SL_SI91X_EXT_TCP_IP_WINDOW_SCALING BIT(8)
 /// Enables both TCP/IP bypass mode & embedded modes
 /// @note Enabling this feature allows to use both bypass and non bypass modes simultaneously.
@@ -525,7 +528,7 @@
 
 /// To enable socket wait close
 /// @note If it is set socket will not be closed until close() is called from host. It is recommended to enable this bit when using TCP sockets.
-/// @note This is always set internally for si91x chips
+/// @note This is always set internally for Si91x chips
 #define SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE BIT(16)
 /// Enable Embedded/internal MQTT
 /// @note If user wants to use AT command for MQTT, enable this bit in the Opermode Command
@@ -635,10 +638,10 @@
 #define SL_SI91X_BLE_MAX_NBR_ATT_SERV(max_num_of_att_serv) (max_num_of_att_serv << 8)
 /// BLE number of peripherals
 /// @note Maximum No of BLE peripherals = 8, refer NOTE given below for more info
-/// @note Bits 12 - 15 are used to set MAX_NBR_SLAVES
-#define SL_SI91X_BLE_MAX_NBR_PERIPHERALS(max_num_of_slaves) (max_num_of_slaves << 12)
+/// @note Bits 12 - 15 are used to set MAX_NBR_PERIPHERALS
+#define SL_SI91X_BLE_MAX_NBR_PERIPHERALS(max_num_of_peripherals) (max_num_of_peripherals << 12)
 /// BLE Tx power index
-/// @note Give 31 as BLE Tx power index (eg: 31<<16) This variable is used to select the BLE tx power index value. The following are the possible values. Default Value for BLE Tx Power Index is 31 Range for the BLE Tx Power Index is 1 to 75 (0, 32 index is invalid) 1 - 31 BLE -0DBM Mode 33 - 63 BLE- 10DBM Mode 64- 75 BLE - HP Mode.
+/// @note Give 31 as BLE TX power index (e.g.,: 31<<16) This variable is used to select the BLE TX power index value. The following are the possible values. Default Value for BLE Tx Power Index is 31 Range for the BLE Tx Power Index is 1 to 75 (0, 32 index is invalid) 1 - 31 BLE -0DBM Mode 33 - 63 BLE- 10DBM Mode 64- 75 BLE - HP Mode.
 /// @note Bits 16 - 23 are used to set PWR_INX
 #define SL_SI91X_BLE_PWR_INX(power_index) (power_index << 16)
 
@@ -650,15 +653,15 @@
 /// @note This feature is not supported in the current release
 #define SL_SI91X_BLE_PWR_SAVE_OPTIONS(duty_cycle) (duty_cycle << 24)
 
-/// Number of Masters
-/// @note Maximum number of BLE Masters = 2. refer to the note below for more info.
+/// Number of Centrals
+/// @note Maximum number of BLE Centrals = 2. refer to the note below for more info.
 /// @note Bits 27 - 28 are used to set BLE_PWR_INX
-#define SL_SI91X_BLE_MAX_NBR_CENTRALS(max_num_of_masters) (max_num_of_masters << 27)
+#define SL_SI91X_BLE_MAX_NBR_CENTRALS(max_num_of_centrals) (max_num_of_centrals << 27)
 /// GATT SYNC BIT
 /// @note Default Disabled Expectation of GATT Async Bit Enable: Response structure will be filled in the Event and Event will come later. Not in sync with response for query command.
 #define SL_SI91X_BLE_GATT_ASYNC_ENABLE BIT(29)
 
-/// 0 for 9113 compatible; 1 for enabling 9116 ble compatible features.
+/// 0 for 9113 compatible; 1 for enabling 9116 BLE-compatible features.
 #define SL_SI91X_916_BLE_COMPATIBLE_FEAT_ENABLE BIT(30)
 
 /// Extention valid to use Extended custom feature bitmap
@@ -681,7 +684,7 @@
 #define SL_SI91X_BLE_NUM_REC_BYTES(num_rec_bytes) (num_rec_bytes << 5)
 
 /// GATT INIT
-/// @note 0 - GATT Init in Firmware i.e both the GAP service and GATT service will be maintained by Firmware 1 - Gatt Init in Host i.e GAP service and GATT service should be created by the APP/Host/User and the ATT transactions like read, write, notify and indicate shall be handled by the APP/Host/User. Default Gatt Init in Firmware
+/// @note 0 - GATT Init in Firmware i.e both the GAP service and GATT service will be maintained by Firmware 1 - GATT Init in Host i.e GAP service and GATT service should be created by the APP/Host/User and the ATT transactions like read, write, notify and indicate shall be handled by the APP/Host/User. Default Gatt Init in Firmware
 #define SL_SI91X_BLE_GATT_INIT BIT(13)
 /// Indication response from APP
 /// @note As per ATT protocol for every indication received from the server should be acknowledged (indication response) by the Client. If this bit is disabled then firmware will send the acknowledgment(indication response) and if the bit is enabled then APP/Host/User needs to send the acknowledgment(indication response).
@@ -723,7 +726,7 @@
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_4 BIT(5)
 
 /// External PMU Selection
-/// @note These bits are used to select external PMU good time.1 to 15 means 100usec to 1500usec (in 100usec granularity)
+/// @note These bits are used to select external PMU good time.1 to 15 means 100 usec to 1500 usec (in 100 usec granularity)
 
 /// 100us External PMU Good time
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_100us BIT(6)
@@ -765,10 +768,10 @@
 
 /// @note Bit 12 -13 are reserved
 /// TLS version
-/// Enterprise secrity TLS version 1.0
+/// Enterprise security TLS version 1.0
 #define SL_SI91X_FEAT_EAP_TLS_V1P0 BIT(14)
 
-/// Enterprise secrity TLS version 1.2
+/// Enterprise security TLS version 1.2
 #define SL_SI91X_FEAT_EAP_TLS_V1P2 BIT(15)
 
 /// @note Bit 16 is reserved
@@ -789,7 +792,7 @@
 /// To choose PTA-3WIRE
 /// @note Configurability options for config selection among 1,2 & 3
 /// @note Bit 22 - 23 are used to set NUM_CONN_EVENTS
-/// @note 0 kept reserved for future. 3wire used at dut as ULP_GPIO_0(Grant pin driven by dut), ULP_GPIO_1(Request i/p pin for dut) and ULP_GPIO_6(Priority i/p pin for dut)
+/// @note 0 kept reserved for future. 3wire used at DUT as ULP_GPIO_0(Grant pin driven by DUT), ULP_GPIO_1(Request i/p pin for dut) and ULP_GPIO_6(Priority i/p pin for dut)
 /**
  * | Mode(KB) | BIT[23] | BIT[22] |
  * |:---------|:--------|:--------|
@@ -801,7 +804,7 @@
 #define SL_SI91X_PTA_3WIRE_CONFIG_SEL(config_sel) (config_sel << 22)
 
 /// XTAL goodtime configurations
-/// @note These bits are used to select XTAL good time. These changes are available from Release 2.3.0 onwards. Release prior to 2.3.0 these config_feature_bitmap[31:17] are reserved. Its only applicable for customers using chip not the device. Contact Support for more details Default value is 1000 us.
+/// @note These bits are used to select XTAL good time. These changes are available from Release 2.3.0 onward. Release prior to 2.3.0 these config_feature_bitmap[31:17] are reserved. Its only applicable for customers using chip not the device. Contact Support for more details Default value is 1000 us.
 
 /// 1000us XTAL Good Time
 #define SL_SI91X_XTAL_GOODTIME_1000us 0
@@ -860,7 +863,7 @@ typedef enum {
 #define SL_SI91X_BURN_FREQ_OFFSET BIT(1)
 ///< Software XO CTUNE is valid
 #define SL_SI91X_SW_XO_CTUNE_VALID BIT(2)
-///< Burn Bit to disbale XO Fast into the device
+///< Burn Bit to disable XO Fast into the device
 #define SL_SI91X_BURN_XO_FAST_DISABLE BIT(3)
 /** @} */
 

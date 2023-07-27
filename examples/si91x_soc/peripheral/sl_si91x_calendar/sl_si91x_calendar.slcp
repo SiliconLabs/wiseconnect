@@ -52,6 +52,6 @@ ui_hints:
   highlight:
   - {path: readme.md, focus: true}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.9}
+- {id: wiseconnect3_sdk, version: 3.0.10}
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

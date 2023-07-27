@@ -139,7 +139,9 @@ The serial port is now connected.
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-#### 4.1.1 In the Project explorer pane, expand the **resources\defaults** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+- The application uses the default configurations as provided in the **default_wifi_ap_profile** in **sl_net_default_valus.h** and user can choose to configure these parameters as needed.
+
+- In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
 - **STA instance related parameters**
 
@@ -415,7 +417,7 @@ NCP mode (with Apache)
   - Under Downloads, Download the latest version of WAMP server for 32bit or 64bit machine.
   - Install Wamp-Apache server with all the default settings.
   - Make sure the Wamp-Apache server is present in C:\ directory
-- Configure a HTTP server
+  - Configure a HTTP server
   - Navigate to C:\wamp64\bin\apache\apache2.4.46\conf
   - Open httpd.conf file with an editor.
   - Change the below lines into system IP address

@@ -1,0 +1,22 @@
+#include "console.h"
+#include "console_argument_types.h"
+{% set __commands = aggregate("/console/commands") %}
+{% set __mapping = {"uint8": "UINT", "uint16": "UINT", "uint32": "UINT", "int": "INT", "int8": "INT", "int16": "INT", "int32": "INT", "string": "STRING", "mac": "MAC_ADDRESS", "ip": "IP_ADDRESS", "hex": "HEX", "*": "REMAINING_COMMAND_LINE"}  %}
+{% for name, command in __commands %}
+extern sl_status_t {{command.handler}}( console_args_t* arguments );
+static const char* _{{name}}_arg_help[] = {
+{%- for arg in command.arguments %}  {% if isObject(arg) and existsIn(arg, "help") %}"{{arg.help}}",{%else%}0,{%endif%}
+{%endfor%}
+};
+static const console_descriptive_command_t _{{name}}_command = { "{% if existsIn(command, "description") %}{{command.description}}{% else if existsIn(command, "help") %}{{command.help}}{%endif%}",_{{name}}_arg_help, {{command.handler}}, { {%- for arg in command.arguments -%}
+{% if isObject(arg) %}{% if existsIn(arg, "type") %}{% if existsIn(arg, "option") %}CONSOLE_OPTIONAL_ARG('{{arg.option}}', {%endif%}{% if existsIn(__mapping, arg.type) %}CONSOLE_ARG_{{at(__mapping,arg.type)}} {% else %}CONSOLE_ENUM_ARG({{arg.type}}) {% endif %}{% if existsIn(arg, "option") %}){%endif -%}
+{%- else -%}{% for key,value in arg%}CONSOLE_OPTIONAL_ARG('{{key}}', {% if existsIn(__mapping, value) %}CONSOLE_ARG_{{at(__mapping,value)}} {% else %}CONSOLE_ENUM_ARG({{value}}) {%endif%}){%endfor -%}{% endif -%}
+{%- else -%}{% if existsIn(__mapping, arg) %}CONSOLE_ARG_{{at(__mapping,arg)}}{% else %}CONSOLE_ENUM_ARG({{arg}}){%endif%}{%- endif%}, {% endfor -%} CONSOLE_ARG_END } };
+{%endfor%}
+
+const console_database_t console_command_database =
+{
+    CONSOLE_DATABASE_ENTRIES(
+{% for name, command in __commands %}    	{ "{{name}}",    &_{{name}}_command },
+{%- endfor %}    )
+};

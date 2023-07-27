@@ -96,17 +96,15 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL),
                    .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#ifndef CHIP_917
-#ifdef RSI_M4_INTERFACE
-                                                  | SL_SI91X_EXT_FEAT_256K_MODE
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) |
+#ifndef RSI_M4_INTERFACE
+                                                  RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
-                                                  | SL_SI91X_EXT_FEAT_384K_MODE
-#endif // RSI_M4_INTERFACE
+                                                  RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
 #endif
                                                   ),
                    .bt_feature_bit_map         = 0,
-                   .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
+                   .ext_tcp_ip_feature_bit_map = 0,
                    .ble_feature_bit_map        = 0,
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = 0 }
@@ -145,14 +143,14 @@ static void application_start(void *argument)
   printf("m4_ta_secure_handshake Success\r\n");
 #endif
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE);
+  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nError while connecting to Access point: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nConnected to Access point \r\n");
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE, &profile);
+  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
     printf("Failed to get client profile: 0x%lx\r\n", status);
     return;

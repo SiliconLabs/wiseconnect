@@ -72,6 +72,8 @@
 /* Number of BLE GATT RECORD SIZE IN (n*16 BYTES), eg:(0x40*16)=1024 bytes */
 #define RSI_BLE_NUM_REC_BYTES 0x40
 
+#define BLE_MTU_SIZE 232
+
 /*=======================================================================*/
 //! Advertising command parameters
 /*=======================================================================*/

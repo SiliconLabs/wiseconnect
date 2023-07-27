@@ -42,34 +42,10 @@ extern "C" {
 #include "rsi_pll.h"
 
 /***************************************************************************/ /**
- * @addtogroup ULP-TIMER
+ * @addtogroup ULP-TIMER Ultra Low-Power Timer
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{ 
- * @brief ULP Timer is used in counting clocks, micro seconds, milli seconds, seconds
- * and minutes with both ref clock and system (SoC) clock.
  * 
- * @details
- * ## Features
- * - The ULP Timer module supports 4 timers
- * - Each can be used to generate various timing events for the software. 
- * - Each of the timers can be independently programmed to work in periodic or
- *   one-shot mode.
- * - Each can be configured either as a microsecond timer or as a counter.
- * - Each can be configured as up or down counter
- * 
- * ## Initialization
- * - Initialize peripheral through \ref sl_si91x_ulp_timer_init
- * - It will configure the clock through \ref sl_si91x_ulp_timer_configure_clock.
- * - Select clock type as static or dynamic.
- * - Select clk sources from RO, RC, Xtal and SOC clk sources.
- * - By-default the clock type is static using 32MHZ RC Clock.
- * 
- * ## Configuration
- * - To Configure the timer through \ref sl_si91x_ulp_timer_set_configuration
- * - It will configure timer instance, mode, type and match value.
- * - By-default the timer instance is Timer-0, mode is periodic, type is one
- *   micro-second.
- * - Register timer callback through \ref sl_si91x_ulp_timer_register_timeout_callback
- * - Start the timer through \ref sl_si91x_ulp_timer_start
  ******************************************************************************/
 
 // Macros
@@ -94,14 +70,14 @@ typedef enum {
   ULP_TIMER_LAST, ///< Last member of enum for validation
 } ulp_timer_instance_t;
 
-/// @brief Enumeration to represent ulp-timer modes
+/// @brief Enumeration to represent ULP-timer modes
 typedef enum {
   ULP_TIMER_MODE_ONESHOT,  ///< ULP Timer one-shot mode
   ULP_TIMER_MODE_PERIODIC, ///< ULP Timer periodic mode
   ULP_TIMER_MODE_LAST,     ///< Last member of enum for validation
 } ulp_timer_mode_t;
 
-/// @brief Enumeration to represent ulp-timer types
+/// @brief Enumeration to represent ULP-timer types
 typedef enum {
   ULP_TIMER_TYP_DEFAULT, ///< ULP Timer normal down counter type
   ULP_TIMER_TYP_1US,     ///< ULP Timer one microsecond type
@@ -112,12 +88,12 @@ typedef enum {
 /// @brief Enumeration to represent values of clock sources to select as Timer clock
 typedef enum {
   ULP_TIMER_REF_CLK_SRC,        ///< ref clock input source
-  ULP_TIMER_32KHZ_RO_CLK_SRC,   ///< 32khz ro clock input source
-  ULP_TIMER_32KHZ_RC_CLK_SRC,   ///< 32khz rc clock input source
-  ULP_TIMER_32KHZ_XTAL_CLK_SRC, ///< 32khz xtal clock input source
-  ULP_TIMER_32MHZ_RC_CLK_SRC,   ///< 32mhz rc clock input source
-  ULP_TIMER_20MHZ_RO_CLK_SRC,   ///< 20mhz ro clock input source
-  ULP_TIMER_ULP_SOC_CLK_SRC,    ///< soc clock input source
+  ULP_TIMER_32KHZ_RO_CLK_SRC,   ///< 32 kHz ro clock input source
+  ULP_TIMER_32KHZ_RC_CLK_SRC,   ///< 32 kHz rc clock input source
+  ULP_TIMER_32KHZ_XTAL_CLK_SRC, ///< 32 kHz xtal clock input source
+  ULP_TIMER_32MHZ_RC_CLK_SRC,   ///< 32 MHz rc clock input source
+  ULP_TIMER_20MHZ_RO_CLK_SRC,   ///< 20 MHz  ro clock input source
+  ULP_TIMER_ULP_SOC_CLK_SRC,    ///< SoC clock input source
   ULP_TIMER_ULP_CLK_SRC_LAST,   ///< Last member of enum for validation
 } ulp_timer_clk_input_source_t;
 
@@ -150,7 +126,7 @@ typedef struct {
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**
- * To configure ulp timer input clock source
+ * Configure the ULP-Timer input clock source.
  *
  * @param[in] timer_clk_ptr Pointer to timer_clk configuration structure
  * @return    status 0 if successful, else error code.
@@ -162,7 +138,7 @@ typedef struct {
 sl_status_t sl_si91x_ulp_timer_configure_clock(ulp_timer_clk_src_config_t *timer_clk_ptr);
 
 /***************************************************************************/ /**
- * To configure ULP-Timer parameters such as timer number, mode, type, match-value & direction.
+ * Configure ULP-Timer parameters such as timer number, mode, type, match-value & direction.
  * Also configures integral and fractional values of clock cycles per microseconds or
  * per 256 microseconds, as per timer-type value.
  *
@@ -181,7 +157,7 @@ sl_status_t sl_si91x_ulp_timer_configure_clock(ulp_timer_clk_src_config_t *timer
 sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_config_ptr);
 
 /***************************************************************************/ /**
- * To start ULP-Timer
+ * Start the ULP-Timer.
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_set_configuration \n
@@ -195,7 +171,7 @@ sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_confi
 sl_status_t sl_si91x_ulp_timer_start(ulp_timer_instance_t timer_num);
 
 /***************************************************************************/ /**
- * To stop ULP-Timer
+ * Stop the ULP-Timer.
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_set_configuration \n
@@ -209,7 +185,7 @@ sl_status_t sl_si91x_ulp_timer_start(ulp_timer_instance_t timer_num);
 sl_status_t sl_si91x_ulp_timer_stop(ulp_timer_instance_t timer_num);
 
 /***************************************************************************/ /**
- * To restart an already running ULP-Timer, means it will first stop the timer and then start it again
+ * Restart an already running ULP-Timer, means it will first stop the timer and then start it again.
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_set_configuration \n
@@ -223,7 +199,7 @@ sl_status_t sl_si91x_ulp_timer_stop(ulp_timer_instance_t timer_num);
 sl_status_t sl_si91x_ulp_timer_restart(ulp_timer_instance_t timer_num);
 
 /***************************************************************************/ /**
- * To set ULP-Timer type
+ * Set the ULP-Timer type.
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_stop \n
@@ -239,7 +215,7 @@ sl_status_t sl_si91x_ulp_timer_restart(ulp_timer_instance_t timer_num);
 sl_status_t sl_si91x_ulp_timer_set_type(ulp_timer_instance_t timer_num, ulp_timer_type_t timer_type);
 
 /***************************************************************************/ /**
- * Sets the ulp-timer direction as up-counting or down-counting
+ * Set the ULP-Timer direction as up-counting or down-counting
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_stop \n
@@ -255,7 +231,7 @@ sl_status_t sl_si91x_ulp_timer_set_type(ulp_timer_instance_t timer_num, ulp_time
 sl_status_t sl_si91x_ulp_timer_set_direction(ulp_timer_instance_t timer_num, ulp_timer_direction_t timer_direction);
 
 /***************************************************************************/ /**
- * To set ULP-Timer Mode
+ * Set ULP-Timer Mode.
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_stop \n
@@ -271,7 +247,7 @@ sl_status_t sl_si91x_ulp_timer_set_direction(ulp_timer_instance_t timer_num, ulp
 sl_status_t sl_si91x_ulp_timer_set_mode(ulp_timer_instance_t timer_num, ulp_timer_mode_t timer_mode);
 
 /***************************************************************************/ /**
- * To set ULP-Timer match value
+ * Set ULP-Timer match value.
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_stop \n
@@ -288,7 +264,7 @@ sl_status_t sl_si91x_ulp_timer_set_mode(ulp_timer_instance_t timer_num, ulp_time
 sl_status_t sl_si91x_ulp_timer_set_count(ulp_timer_instance_t timer_num, uint32_t timer_match_value);
 
 /***************************************************************************/ /**
- * To read the ULP-Timer count
+ * Read the ULP-Timer count.
  * 
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_start \n
@@ -304,7 +280,7 @@ sl_status_t sl_si91x_ulp_timer_set_count(ulp_timer_instance_t timer_num, uint32_
 sl_status_t sl_si91x_ulp_timer_get_count(ulp_timer_instance_t timer_num, uint32_t *count_value);
 
 /***************************************************************************/ /**
- * To read the ULP-Timer type
+ * Read the ULP-Timer type.
  * 
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n 
  *      \ref sl_si91x_ulp_timer_set_type \n
@@ -319,7 +295,7 @@ sl_status_t sl_si91x_ulp_timer_get_count(ulp_timer_instance_t timer_num, uint32_
 sl_status_t sl_si91x_ulp_timer_get_type(ulp_timer_instance_t timer_num, uint32_t *timer_type);
 
 /***************************************************************************/ /**
- * To read the ULP-Timer mode
+ * Read the ULP-Timer mode.
  * 
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_set_mode \n
@@ -334,7 +310,7 @@ sl_status_t sl_si91x_ulp_timer_get_type(ulp_timer_instance_t timer_num, uint32_t
 sl_status_t sl_si91x_ulp_timer_get_mode(ulp_timer_instance_t timer_num, uint32_t *timer_mode);
 
 /***************************************************************************/ /**
- * To read the ULP-Timer direction (up-counter or down-counter)
+ * Read the ULP-Timer direction (up-counter or down-counter).
  * 
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
  *      \ref sl_si91x_ulp_timer_set_direction \n
@@ -349,7 +325,7 @@ sl_status_t sl_si91x_ulp_timer_get_mode(ulp_timer_instance_t timer_num, uint32_t
 sl_status_t sl_si91x_ulp_timer_get_direction(ulp_timer_instance_t timer_num, uint32_t *timer_direction);
 
 /***************************************************************************/ /**
- * To register callback of timer timeout interrupt and enabling it
+ * Register callback of timer timeout interrupt and enabling it.
  * 
  * @param[in]  timer_num enum for ULP-timer Number, \ref #ulp_timer_instance_t for possible values.
  * @param[in]  on_timeout_callback (function pointer) Callback function pointer
@@ -366,7 +342,7 @@ sl_status_t sl_si91x_ulp_timer_register_timeout_callback(ulp_timer_instance_t ti
                                                          ulp_timer_callback_t on_timeout_callback);
 
 /***************************************************************************/ /**
- * To unregister callback of timer timeout interrupt and disabling it
+ * Unregister callback of timer timeout interrupt and disabling it.
  * 
  * @pre \ref sl_si91x_ulp_timer_register_timeout_callback \n
  * 
@@ -379,7 +355,7 @@ sl_status_t sl_si91x_ulp_timer_register_timeout_callback(ulp_timer_instance_t ti
 sl_status_t sl_si91x_ulp_timer_unregister_timeout_callback(ulp_timer_instance_t timer_num);
 
 /***************************************************************************/ /**
- * Configures the Ulpss soc clock from M4 SOC clock, to enable the SOC clock source
+ * Configure the Ulpss SoC clock from M4 SOC clock, to enable the SOC clock source.
  *             
  * @param[in]   div_factor value to divide the clock, ensure that it should be odd number
  *               if div_factor_type is 1 & vice versa
@@ -392,7 +368,7 @@ sl_status_t sl_si91x_ulp_timer_unregister_timeout_callback(ulp_timer_instance_t 
 sl_status_t sl_si91x_ulp_timer_configure_soc_clock(boolean_t div_factor_type, uint16_t div_factor);
 
 /***************************************************************************/ /**
- * To configure the xtal clock, when clock source is external xtal clock 
+ * Configure the XTAL clock, when clock source is external XTAL clock.
  *
  * @param[in]   xtal_pin : Pin number of NPSS_GPIO. Possible values are 0,1,2,3,4
  * @return      status 0 if successful, else error code
@@ -401,7 +377,7 @@ sl_status_t sl_si91x_ulp_timer_configure_soc_clock(boolean_t div_factor_type, ui
 sl_status_t sl_si91x_ulp_timer_configure_xtal_clock(uint8_t xtal_pin);
 
 /***************************************************************************/ /**
- * Initializes ulp timer clock, by configuring clock source
+ * Initialize ULP-Timer clock, by configuring clock source.
  * 
  * @param[in] timer_clk_ptr Pointer to timer_clk configuration structure
  * @return    status 0 if successful, else error code.
@@ -413,7 +389,7 @@ sl_status_t sl_si91x_ulp_timer_configure_xtal_clock(uint8_t xtal_pin);
 sl_status_t sl_si91x_ulp_timer_init(ulp_timer_clk_src_config_t *timer_clk_ptr);
 
 /***************************************************************************/ /**
- * De-Initializes ulp timer clock, by disabling peripheral clock 
+ * De-Initializes ULP-Timer clock, by disabling peripheral clock.
  * 
  * @pre \ref sl_si91x_ulp_timer_init \n
  *      \ref sl_si91x_ulp_timer_unregister_timeout_callback \n
@@ -425,7 +401,7 @@ void sl_si91x_ulp_timer_deinit(void);
 
 /***************************************************************************/ /**
  * @brief
- * Get the ULP_TIMER version
+ * Get the ULP_TIMER version.
  *
  * @details
  * This function is used to know the ULP_TIMER version

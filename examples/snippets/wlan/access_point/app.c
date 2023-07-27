@@ -75,8 +75,8 @@ static void application_start(void *argument)
     printf("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
     return;
   }
-  printf("\r\nWi-Fi AP interface up Success");
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE);
+  printf("\r\nWi-Fi AP interface init Success");
+  status = sl_net_up(SL_NET_DEFAULT_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
     return;

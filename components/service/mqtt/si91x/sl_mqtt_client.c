@@ -613,9 +613,9 @@ sl_status_t si91x_mqtt_event_handler(sl_status_t status,
       }
 
       // Free subscription if the unsubscription API call is successful.
-      sl_mqtt_client_topic_subscription_info_t *subscription_to_freed =
-        (sl_mqtt_client_topic_subscription_info_t *)sl_slist_pop((sl_slist_node_t **)&sdk_context->sdk_data);
-      free(subscription_to_freed);
+      sl_slist_remove((sl_slist_node_t **)&sdk_context->client->subscription_list_head,
+                      (sl_slist_node_t *)sdk_context->sdk_data);
+      free(sdk_context->sdk_data);
       break;
     }
 
@@ -651,6 +651,8 @@ sl_status_t si91x_mqtt_event_handler(sl_status_t status,
       if (status == SL_STATUS_OK) {
         remove_and_free_all_subscriptions(sdk_context->client);
       }
+
+      break;
     }
 
     default:

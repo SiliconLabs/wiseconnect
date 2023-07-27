@@ -386,8 +386,9 @@ int8_t rsi_fill_user_config()
  */
 void rsi_common_app_task(void)
 {
-  int8_t status     = RSI_SUCCESS;
-  ble_app_thread_id = NULL;
+  int8_t status                    = RSI_SUCCESS;
+  ble_app_thread_id                = NULL;
+  sl_wifi_version_string_t version = { 0 };
 
   //! WiSeConnect initialization
   status = sl_wifi_init(&config, default_wifi_event_handler);
@@ -396,6 +397,14 @@ void rsi_common_app_task(void)
     return;
   }
   LOG_PRINT("\r\nWi-Fi initialization is successful\n");
+
+  //! Firmware version Prints
+  status = sl_wifi_get_firmware_version(&version);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
+  } else {
+    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+  }
 
 #if ENABLE_POWER_SAVE
   powersave_cmd_given = false;

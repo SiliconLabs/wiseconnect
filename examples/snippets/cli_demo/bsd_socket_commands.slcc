@@ -1,0 +1,12 @@
+id: bsd_socket_commands
+package: wiseconnect3_sdk
+description: >
+  
+category: 
+quality: production
+component_root_path: ./examples/snippets/cli_demo
+provides:
+- name: bsd_socket_commands
+source:
+- path: bsd_socket_commands.c
+include:

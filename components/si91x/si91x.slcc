@@ -41,20 +41,42 @@ source:
   condition: [network_manager]
 - path: sl_net/src/sl_net_si91x_integration_handler.c
   condition: [network_manager]
-include:
-- path: inc
-- path: memory
-- path: sl_net/inc
-  condition: [network_manager]
 define:
 - name: CHIP_917
 requires:
 - condition: ["device_has_devinfo"]
   name: gpiointerrupt
 - name: si91x_networking_model
+- name: bit
 
 recommends:
 - condition: ["device_has_devinfo"]
   name: gpiointerrupt
 - name: si91x_networking_model
+- name: bit
+
+include:
+- path: inc
+  file_list:
+    - path: sl_rsi_utility.h
+    - path: sl_si91x_bsd_socket_types.h
+    - path: sl_si91x_constants.h
+    - path: sl_si91x_core_utilities.h
+    - path: sl_si91x_driver.h
+    - path: sl_si91x_host_interface.h
+    - path: sl_si91x_iot_socket.h
+    - path: sl_si91x_protocol_types.h
+    - path: sl_si91x_socket_types.h
+    - path: sl_si91x_socket.h
+    - path: sl_si91x_spi_constants.h
+    - path: sl_si91x_status.h
+    - path: sl_si91x_types.h
+    - path: sl_wifi_device.h
+- path: sl_net/inc
+  file_list:
+    - path: sl_net_rsi_utility.h
+    - path: sl_net_si91x_integration_handler.h
+    - path: sl_net_si91x.h
+  condition:
+    - network_manager
 

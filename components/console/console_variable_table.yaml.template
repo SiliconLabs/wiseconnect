@@ -1,0 +1,16 @@
+{% set counter=0 -%}{% set insert1=0 -%}{% set insert2=0 -%}{%set cli_length=0 -%}
+{% set __variables=aggregate("/console/variables") %}{% if isObject(__variables) %}
+first_group_length: {{length(__variables)}}
+table:
+{% for name1, node1 in __variables %}  - {index: {{counter}}, name: '{{name1}}', type: {%if existsIn(node1,"type")%}{{node1.type}}, id: {{node1.id}}, handler: {{node1.handler}}{%else%}group, length: {{length(node1)}}{%endif%} }{% set counter=counter+1 %}
+{%endfor%}{% set insert1=0 -%}
+{% for name1, node1 in __variables %}{% if not existsIn(node1,"type") %}{%set parent1=counter - insert1 - length(__variables) + loop.index -%}
+{#- DEBUG: Level 1: {{name1}} : {{counter}} - {{insert1}} + {{loop.index}} - {{length(__variables)}} -#}
+{% for name2, node2 in node1 %}{% set node2.index = counter %}{%set node2.name = name2 %}{% set node2.parent = parent1 %}  - {{node2}}
+{%endfor%}{% set insert2=0 -%}
+{% for name2, node2 in node1 %}{% if not existsIn(node2,"type") %}{%set parent2=counter - insert2 - length(node1) + loop.index -%}
+{#- DEBUG: Level 2: {{name2}} : {{counter}} - {{insert2}} + {{loop.index}} - {{length(node1)}} -#}
+{% for name3, node3 in node2 %}  - {index: {{counter}}, name: '{{name3}}', type: {%if existsIn(node3,"type")%}{{node3.type}}, id: {{node3.id}}, handler: {{node3.handler}}{%else%}group, length: {{length(node3)}}{%endif%}, parent: {{parent2}}, data: {{node2}} }{% set counter=counter+1 %}{% set insert2=insert2+1%}
+{%endfor%}{% set insert1=insert1+insert2 -%}
+{%endif%}{%endfor%}{%endif%}{%endfor%}
+{%endif%}

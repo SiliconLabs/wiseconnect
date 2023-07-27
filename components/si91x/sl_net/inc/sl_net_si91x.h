@@ -31,7 +31,7 @@
 
 #include "sl_net_ip_types.h"
 
-/** \addtogroup SI91X_NETWORK_FUNCTIONS Network APIs
+/** \addtogroup SI91X_NETWORK_FUNCTIONS Network Configuration
  * \ingroup SL_SI91X_API
  * @{ */
 

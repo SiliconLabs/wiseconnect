@@ -10,7 +10,7 @@
 
 /***************************************************************************/ /**
  * @brief               
- *   This API initializes the mqtt_client and registers the event_handler. 
+ *   Initialize the mqtt_client and registers the event_handler.
  * @param[in] client    
  *   Valid pointer to the client structure. This shall not be null.
  * @param[in] event_handler 
@@ -22,7 +22,7 @@ sl_status_t sl_mqtt_client_init(sl_mqtt_client_t *client, sl_mqtt_client_event_h
 
 /***************************************************************************/ /**
  * @brief 
- *   Deinitializes the MQTT client.
+ *   Deinitialize the MQTT client.
  * @pre 
  *   @ref sl_mqtt_client_init should be called before this API.
  * @param[in] client 
@@ -34,7 +34,7 @@ sl_status_t sl_mqtt_client_deinit(sl_mqtt_client_t *client);
 
 /***************************************************************************/ /**
  * @brief                    
- *   API to connect the client to MQTT broker.
+ *   Connect the client to MQTT broker.
  * @pre 
  *   @ref sl_mqtt_client_init should be called before this API.
  * @param[in] client			
@@ -63,7 +63,7 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
 
 /***************************************************************************/ /**
  * @brief                   
- *   An API to disconnect the client from MQTT broker.
+ *   Disconnect the client from MQTT broker.
  * @pre 
  *   @ref sl_mqtt_client_connect should be called before this API.
  * @param[in] client			
@@ -77,7 +77,7 @@ sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout
 
 /***************************************************************************/ /**
  * @brief 
- *   An API to publish a message.
+ *   Publish a message.
  * @pre 
  *   @ref sl_mqtt_client_connect should be called before this API.
  * @param[in] client	
@@ -98,7 +98,7 @@ sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
 
 /***************************************************************************/ /**
  * @brief
- *   An API using which client can subscribe to a topic.
+ *   Indicate which client can subscribe to a topic.
  * @pre 
  *   @ref sl_mqtt_client_connect should be called before this API.
  * @param[in] client			
@@ -128,7 +128,7 @@ sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
 
 /***************************************************************************/ /**
  * @brief    
- *   An API using which client can unsubscribe a topic.
+ *   Indicate which client can unsubscribe a topic.
  * @pre 
  *   @ref sl_mqtt_client_subscribe should be called before this API.
  * @param[in] client			

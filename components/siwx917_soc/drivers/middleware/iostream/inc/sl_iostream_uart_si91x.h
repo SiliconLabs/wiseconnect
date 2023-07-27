@@ -69,6 +69,9 @@ extern "C" {
 #define uartFlowControlNone     0
 #define uartFlowControlSoftware 0xFFFF
 
+// Iostream Instance in Si91x ,7 because using same sl_iostream.h
+#define SL_IOSTREAM_TYPE_91X_UART 7
+
 /// @brief I/O Stream UART stream object
 typedef struct {
   sl_iostream_t stream;                           ///< stream

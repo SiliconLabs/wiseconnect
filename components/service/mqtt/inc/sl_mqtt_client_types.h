@@ -130,7 +130,7 @@ typedef void (*sl_mqtt_client_event_handler)(void *client,
 
 /**
  * @brief
- *    Handler for MQTT client RX ressage.
+ *    Handler for MQTT client RX message.
  * @param[out] client	
  *    Client which has received message.
  * @param[out] message	

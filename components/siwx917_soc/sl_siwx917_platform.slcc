@@ -30,3 +30,5 @@ template_contribution:
       event: service_init
       include: rsi_board.h
       handler:  DEBUGINIT
+ui_hints:
+  visibility: never

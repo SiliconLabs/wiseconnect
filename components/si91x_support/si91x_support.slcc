@@ -10,35 +10,83 @@ provides:
 - name: si91x_support
 source:
 - path: src/sl_utility.c
-include:
-- path: inc
-- path: brd4180a
-  condition: [brd4180a]
-- path: efr32mg21
-  condition: [brd4180a]
-- path: brd4180b
-  condition: [brd4180b]
-- path: efr32mg21
-  condition: [brd4180b]
-- path: brd4325a
-  condition: [brd4325a]
-- path: brd4325b
-  condition: [brd4325b]
-- path: brd4325c
-  condition: [brd4325c]
-- path: brd4325g
-  condition: [brd4325g]
-- path: brd4338a
-  condition: [brd4338a]
-- path: efm32gg11b
-  condition: [efm32gg11b]
-- path: efr32mg21
-  condition: [efr32mg21]
-- path: siwx917_soc
-  condition: [siwx917_soc]
 define:
 - name: SL_COMPONENT_CATALOG_PRESENT
 - name: EFR32MG21A020F1024IM32
   condition: [brd4180a]
 - name: EFR32MG21A020F1024IM32
   condition: [brd4180b]
+include:
+- path: inc
+  file_list:
+    - path: sl_additional_status.h
+    - path: sl_cmsis_utility.h
+    - path: sl_constants.h
+    - path: sl_ieee802_types.h
+    - path: sl_ip_types.h
+    - path: sl_utility.h
+- path: brd4180a
+  file_list:
+    - path: sl_board_configuration.h
+  condition:
+    - brd4180a
+- path: efr32mg21
+  file_list:
+    - path: sl_device_registers.h
+    - path: sl_device.h
+  condition:
+    - brd4180a
+- path: brd4180b
+  file_list:
+    - path: sl_board_configuration.h
+  condition:
+    - brd4180b
+- path: efr32mg21
+  file_list:
+    - path: sl_device_registers.h
+    - path: sl_device.h
+  condition:
+    - brd4180b
+- path: efr32mg21
+  file_list:
+    - path: sl_device_registers.h
+    - path: sl_device.h
+  condition:
+    - efr32mg21
+- path: efm32gg11b
+  file_list:
+    - path: sl_device_registers.h
+    - path: sl_device.h
+  condition:
+    - efm32gg11b
+- path: brd4325a
+  file_list:
+    - path: sl_board_configuration.h
+    - path: sl_board_control.h
+  condition:
+    - brd4325a
+- path: brd4325b
+  file_list:
+    - path: sl_board_configuration.h
+    - path: sl_board_control.h
+  condition:
+    - brd4325b
+- path: brd4325c
+  file_list:
+    - path: sl_board_configuration.h
+    - path: sl_board_control.h
+  condition:
+    - brd4325c
+- path: brd4325g
+  file_list:
+    - path: sl_board_configuration.h
+    - path: sl_board_control.h
+  condition:
+    - brd4325g
+- path: brd4338a
+  file_list:
+    - path: sl_board_configuration.h
+    - path: sl_board_control.h
+  condition:
+    - brd4338a
+

@@ -104,15 +104,13 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                                               | SL_SI91X_TCP_IP_FEAT_SSL),
                    .custom_feature_bit_map =
                      (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
-                   .ext_custom_feature_bit_map = (RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#ifndef CHIP_917
-#ifdef RSI_M4_INTERFACE
-                                                  | SL_SI91X_EXT_FEAT_256K_MODE
+                   .ext_custom_feature_bit_map = (
+#ifndef RSI_M4_INTERFACE
+                     RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
-                                                  | SL_SI91X_EXT_FEAT_384K_MODE
-#endif // RSI_M4_INTERFACE
+                     RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
 #endif
-                                                  ),
+                     ),
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_EXT_TCP_IP_WINDOW_DIV | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
@@ -176,7 +174,7 @@ static void application_start(void *argument)
   }
   printf("\r\nWiFi init success\r\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE);
+  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi interface up: 0x%lx\r\n", status);
     return;
@@ -188,7 +186,7 @@ static void application_start(void *argument)
   SysTick_Config(SystemCoreClock / (1000));
 #endif
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE, &profile);
+  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
     printf("Failed to get client profile: 0x%lx\r\n", status);
     return;

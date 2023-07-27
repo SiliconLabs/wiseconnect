@@ -1,0 +1,15 @@
+id: cli_wifi_commands
+package: wiseconnect3_sdk
+description: >
+  
+category: 
+quality: production
+component_root_path: ./examples/snippets/cli_demo
+provides:
+- name: cli_wifi_commands
+source:
+- path: wifi_commands.c
+include:
+define:
+- name: HIGH_EFFICIENCY_PARAMS_SUPPORT
+- name: TWT_SUPPORT

@@ -177,7 +177,7 @@ typedef struct {
     sl_wifi_psk_credential_t psk; ///< WiFi Personal credentials
     sl_wifi_pmk_credential_t pmk; ///< WiFi PMK credentials
     sl_wifi_wep_credential_t wep; ///< WEP keys
-    sl_wifi_eap_credential_t eap; ///< Enterprise client crdentials
+    sl_wifi_eap_credential_t eap; ///< Enterprise client credentials
   };                              ///< WiFi Credential structure
 } sl_wifi_credential_t;
 
@@ -190,7 +190,7 @@ typedef struct {
   uint16_t wake_int_mantissa;      ///< Wake interval mantissa. Range : 0 - 65535.
   uint16_t wake_int_mantissa_tol;  ///< Wake interval mantissa tolerance. Range : 0 - 65535.
   uint8_t implicit_twt;            ///< Implicit TWT : 0 or 1.
-  uint8_t un_announced_twt;        ///< Un-announced TWT : 0 or 1.
+  uint8_t un_announced_twt;        ///< Unannounced TWT : 0 or 1.
   uint8_t triggered_twt;           ///< Triggered TWT : 0 or 1.
   uint8_t negotiation_type;        ///< Negotiation type : 0 - Individual TWT; 1 - Broadcast TWT.
   uint8_t twt_channel;             ///< TWT channel. Range : 0 - 7.

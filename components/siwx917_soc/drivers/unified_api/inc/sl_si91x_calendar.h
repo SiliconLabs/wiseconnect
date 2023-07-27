@@ -39,18 +39,9 @@ extern "C" {
 #include "rsi_power_save.h"
 #include "rsi_rtc.h"
 /***************************************************************************/ /**
- * @addtogroup CALENDAR
+ * @addtogroup CALENDAR Calendar
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{
- * @brief Calendar RTC can be used to set or get the current RTC time and date. 
- *        It also provides milisecond and second trigger.
- *        Alarm is available which can be configured using desired date and time. 
- *        It also has time conversion i.e. between NTP and Unix format.
- * @details 
- * ## Initialization
- * - Configure the clock using \ref sl_si91x_calendar_set_configuration.
- * - Initialize the calendar using \ref sl_si91x_calendar_init.
- * - Set the calendar date and time using \ref sl_si91x_calendar_set_date_time.
- * - Now it is ready to run and user can use all the functionalities. 
  ******************************************************************************/
 // -----------------------------------------------------------------------------
 //Macros for IRQ Handlers
@@ -63,13 +54,13 @@ extern "C" {
 // Data Types
 #define TIME_CONVERSION_ENUM(name) \
   typedef uint8_t name;            \
-  enum name##_enum ///< Time Convertion format enum declaration
+  enum name##_enum ///< Time Conversion format enum declaration
 #define RC_CLOCK_CALIBRATION_ENUM(name) \
   typedef uint8_t name;                 \
-  enum name##_enum ///< Time Convertion format enum declaration
+  enum name##_enum ///< Time Conversion format enum declaration
 #define RO_CLOCK_CALIBRATION_ENUM(name) \
   typedef uint8_t name;                 \
-  enum name##_enum ///< Time Convertion format enum declaration
+  enum name##_enum ///< Time Conversion format enum declaration
 
 typedef AON_CLK_T sl_calendar_clock_t;                   ///< Renaming clock type enum
 typedef RTC_TIME_CONFIG_T sl_calendar_datetime_config_t; ///< Renaming datetime structure
@@ -85,13 +76,13 @@ typedef void (*calendar_callback_t)(void);
 typedef struct {
   boolean_t rc_enable_calibration;          ///< true to enable and false to disable rc calibration
   boolean_t rc_enable_periodic_calibration; ///< true to enable and false to disable rc periodic calibration
-  uint8_t rc_trigger_time;                  ///< rc trigger time, 5sec, 10sec, 15sec, 30sec, 1min, 2min
+  uint8_t rc_trigger_time;                  ///< rc trigger time, 5 sec, 10 sec, 15 sec, 30 sec, 1 min, 2 min
   boolean_t ro_enable_calibration;          ///< true to enable and false to disable ro calibration
   boolean_t ro_enable_periodic_calibration; ///< true to enable and false to disable periodic calibration
-  uint8_t ro_trigger_time;                  ///< ro trigger time, 1sec, 2sec, 4sec, 8sec
+  uint8_t ro_trigger_time;                  ///< ro trigger time, 1 sec, 2 sec, 4 sec, 8 sec
 } clock_calibration_config_t;
 
-/// @brief Enumeration to represent time convertion format
+/// @brief Enumeration to represent time conversion format
 TIME_CONVERSION_ENUM(time_conversion_enum){
   TIME_FORMAT_UNIX, ///< Number of seconds since January 1, 1970, 00:00. Type is signed, so represented on 31 bit.
   TIME_FORMAT_NTP,  ///< Number of seconds since January 1, 1900, 00:00. Type is unsigned, so represented on 32 bit.
@@ -128,7 +119,7 @@ typedef struct {
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**
- * Configuration and initialization of Calendar i.e. RTC clock
+ * Configuration and initialization of Calendar i.e., RTC clock.
  * 
  * @param[in] clock_type (sl_calendar_clock_t) Enum for RTC Clock Type (RO, RC or XTAL)
  * @return status 0 if successful, else errorcode. 
@@ -139,38 +130,38 @@ typedef struct {
 sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type);
 
 /***************************************************************************/ /**
- * To set the date and time of the Calendar RTC
+ * Set the date and time of the Calendar RTC.
  * @pre \ref sl_si91x_calendar_set_configuration \n
  *      \ref sl_si91x_calendar_init \n
  * 
  * @param[in] config (sl_calendar_datetime_config_t) Pointer to the Date Configuration Structure 
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_OK (0x0000) - Success
  ******************************************************************************/
 sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *config);
 
 /***************************************************************************/ /**
- * To get the date and time of an existing Calendar RTC
+ * Get the date and time of an existing Calendar RTC.
  * @pre \ref sl_si91x_calendar_set_configuration \n
  *      \ref sl_si91x_calendar_init \n
  *      \ref sl_si91x_calendar_set_date_time \n
  * 
  * @param[in] config (sl_calendar_datetime_config_t) Pointer to the Date Configuration Structure 
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_OK (0x0000) - Success
  ******************************************************************************/
 sl_status_t sl_si91x_calendar_get_date_time(sl_calendar_datetime_config_t *config);
 
 /***************************************************************************/ /**
- * To calibrate the RC Clock
+ * Calibrate the RC Clock.
  * 
  * @pre \ref sl_si91x_calendar_calibration_init \n
  * 
  * @param[in] clock_calibration_config  (clock_calibration_config_t) 
  *            pointer to the clock calibration structure
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer \n
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_OK (0x0000) - Success
@@ -178,13 +169,13 @@ sl_status_t sl_si91x_calendar_get_date_time(sl_calendar_datetime_config_t *confi
 sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *clock_calibration_config);
 
 /***************************************************************************/ /**
- * To calibrate the RO Clock
+ * Calibrate the RO Clock.
  * 
  * @pre \ref sl_si91x_calendar_calibration_init \n
  * 
  * @param[in] clock_calibration_config (clock_calibration_config_t) 
  *            pointer to the clock calibration structure
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer \n
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_OK (0x0000) - Success
@@ -192,11 +183,11 @@ sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *cloc
 sl_status_t sl_si91x_calendar_roclk_calibration(clock_calibration_config_t *clock_calibration_config);
 
 /***************************************************************************/ /**
- * To register the callback of the msec trigger and enable it
+ * Register the callback of the msec trigger and enable it.
  * 
  * @param[in] msec_callback_ (function pointer) Callback function pointer to be called when msec 
  *                           interrupt is triggered
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer \n
  *         \ref SL_STATUS_OK (0x0000) - Success \n
  *         \ref SL_STATUS_BUSY (0x0004) - The callback is already registered, 
@@ -205,11 +196,11 @@ sl_status_t sl_si91x_calendar_roclk_calibration(clock_calibration_config_t *cloc
 sl_status_t sl_si91x_calendar_register_msec_trigger_callback(calendar_callback_t callback);
 
 /***************************************************************************/ /**
- * To register the callback of the sec trigger and enable it
+ * Register the callback of the sec trigger and enable it.
  * 
  * @param[in] sec_callback_ (function pointer) Callback function pointer to be called when sec 
  *                          interrupt is triggered
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer \n
  *         \ref SL_STATUS_OK (0x0000) - Success \n
  *         \ref SL_STATUS_BUSY (0x0004) - The callback is already registered, 
@@ -218,11 +209,11 @@ sl_status_t sl_si91x_calendar_register_msec_trigger_callback(calendar_callback_t
 sl_status_t sl_si91x_calendar_register_sec_trigger_callback(calendar_callback_t callback);
 
 /***************************************************************************/ /**
- * To register the callback of the alarm trigger and enable it
+ * Register the callback of the alarm trigger and enable it.
  * 
  * @param[in] alarm_callback_ (function pointer) Callback function pointer to be called when alarm 
  *                            interrupt is triggered
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer \n
  *         \ref SL_STATUS_OK (0x0000) - Success \n
  *         \ref SL_STATUS_BUSY (0x0004) - The callback is already registered, 
@@ -231,70 +222,70 @@ sl_status_t sl_si91x_calendar_register_sec_trigger_callback(calendar_callback_t 
 sl_status_t sl_si91x_calendar_register_alarm_trigger_callback(calendar_callback_t callback);
 
 /***************************************************************************/ /**
- * To unregister the callback of the msec trigger and disable it
+ * Unregister the callback of the msec trigger and disable it.
  * 
  * @pre \ref sl_si91x_calendar_register_msec_trigger_callback \n
  * 
  * @param none
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_OK (0x0000) - Success \n
  *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
  ******************************************************************************/
 sl_status_t sl_si91x_calendar_unregister_msec_trigger_callback(void);
 
 /***************************************************************************/ /**
- * To unregister the callback of the sec trigger and disable it
+ * Unregister the callback of the sec trigger and disable it.
  * 
  * @pre \ref sl_si91x_calendar_register_sec_trigger_callback \n 
  * 
  * @param none
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_OK (0x0000) - Success \n
  *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
  ******************************************************************************/
 sl_status_t sl_si91x_calendar_unregister_sec_trigger_callback(void);
 
 /***************************************************************************/ /**
- * To unregister the callback of the alarm trigger and disable it
+ * Unregister the callback of the alarm trigger and disable it.
  * 
  * @pre sl_si91x_calendar_register_alarm_trigger_callback \n
  * 
  * @param none
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_OK (0x0000) - Success \n
  *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
  ******************************************************************************/
 sl_status_t sl_si91x_calendar_unregister_alarm_trigger_callback(void);
 
 /***************************************************************************/ /**
- * To set the date and time of new alarm in RTC
+ * Set the date and time of new alarm in RTC.
  * 
  * @pre \ref sl_si91x_calendar_set_configuration \n
  *      \ref sl_si91x_calendar_init \n
  * 
  * @param[in] alarm Pointer to the Date Configuration Structure 
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_OK (0x0000) - Success
  ******************************************************************************/
 sl_status_t sl_si91x_calendar_set_alarm(sl_calendar_datetime_config_t *alarm);
 
 /***************************************************************************/ /**
- * To get the date and time of an existing alarm in RTC
+ * Get the date and time of an existing alarm in RTC.
  * 
  * @pre \ref sl_si91x_calendar_set_configuration \n
  *      \ref sl_si91x_calendar_init \n
  *      \ref sl_si91x_calendar_set_alarm \n
  * 
  * @param[in] alarm Pointer to the Date Configuration Structure 
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_OK (0x0000) - Success
  ******************************************************************************/
 sl_status_t sl_si91x_calendar_get_alarm(sl_calendar_datetime_config_t *alarm);
 
 /***************************************************************************/ /**
- * Function to build the structure for date-time configuration
+ * Build the structure for date-time configuration.
  * 
  * @param[in] date Pointer to the Date Configuration Structure
  * @param[in] Century (uint8_t) Century (0-4)
@@ -306,7 +297,7 @@ sl_status_t sl_si91x_calendar_get_alarm(sl_calendar_datetime_config_t *alarm);
  * @param[in] Minute Minutes (uint8_t) (0-59)
  * @param[in] Second Seconds (uint8_t) (0-59)
  * @param[in] Milliseconds Milliseconds (uint16_t) (0-999)
- * @return status 0 if successful, else errorcode
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
  *         \ref SL_STATUS_OK (0x0000) - Success
@@ -323,11 +314,11 @@ sl_status_t sl_si91x_calendar_build_datetime_struct(sl_calendar_datetime_config_
                                                     uint16_t Milliseconds);
 
 /***************************************************************************/ /**
- * To convert unix timestamp to ntp timestamp
+ * Convert Unix timestamp to NTP timestamp.
  * 
- * @param[in] time (uint32_t) unix timestamp
- * @param[in] ntp_time (uint32_t) variable to store ntp timestamp
- * @return status 0 if successful, else errorcode
+ * @param[in] time (uint32_t) Unix timestamp
+ * @param[in] ntp_time (uint32_t) variable to store NTP timestamp
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer \n
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_OK (0x0000) - Success
@@ -335,11 +326,11 @@ sl_status_t sl_si91x_calendar_build_datetime_struct(sl_calendar_datetime_config_
 sl_status_t sl_si91x_calendar_convert_unix_time_to_ntp_time(uint32_t time, uint32_t *ntp_time);
 
 /***************************************************************************/ /**
- * To convert NTP timestamp to Unix timestamp
+ * Convert NTP timestamp to Unix timestamp.
  * 
- * @param[in] ntp_time (uint32_t) ntp timestamp
- * @param[in] time (uint32_t) variable to store unix timestamp
- * @return status 0 if successful, else errorcode
+ * @param[in] ntp_time (uint32_t) NTP timestamp
+ * @param[in] time (uint32_t) variable to store Unix timestamp
+ * @return status 0 if successful, else error code
  *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer \n
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_OK (0x0000) - Success
@@ -347,7 +338,7 @@ sl_status_t sl_si91x_calendar_convert_unix_time_to_ntp_time(uint32_t time, uint3
 sl_status_t sl_si91x_calendar_convert_ntp_time_to_unix_time(uint32_t ntp_time, uint32_t *time);
 
 /***************************************************************************/ /**
- * Returns the state of msec trigger of RTC (enabled or disabled)
+ * Return the state of msec trigger of RTC (enabled or disabled).
  * 
  * @pre \ref sl_si91x_calendar_register_msec_trigger_callback \n
  * 
@@ -357,7 +348,7 @@ sl_status_t sl_si91x_calendar_convert_ntp_time_to_unix_time(uint32_t ntp_time, u
 boolean_t sl_si91x_calendar_is_msec_trigger_enabled(void);
 
 /***************************************************************************/ /**
- * Returns the state of sec trigger of RTC (enabled or disabled)
+ * Return the state of sec trigger of RTC (enabled or disabled).
  * 
  * @pre \ref sl_si91x_calendar_register_sec_trigger_callback \n 
  * 
@@ -367,7 +358,7 @@ boolean_t sl_si91x_calendar_is_msec_trigger_enabled(void);
 boolean_t sl_si91x_calendar_is_sec_trigger_enabled(void);
 
 /***************************************************************************/ /**
- * Returns the state of alarm trigger of RTC (enabled or disabled)
+ * Return the state of alarm trigger of RTC (enabled or disabled).
  * 
  * @pre sl_si91x_calendar_register_alarm_trigger_callback \n
  * 
@@ -377,7 +368,7 @@ boolean_t sl_si91x_calendar_is_sec_trigger_enabled(void);
 boolean_t sl_si91x_calendar_is_alarm_trigger_enabled(void);
 
 /***************************************************************************/ /**
- * To start the Calendar RTC
+ * Start the Calendar RTC.
  * 
  * @pre \ref sl_si91x_calendar_set_configuration \n
  *      \ref sl_si91x_calendar_init \n
@@ -391,7 +382,7 @@ __STATIC_INLINE void sl_si91x_calendar_rtc_start(void)
 }
 
 /***************************************************************************/ /**
- * To stop the Calendar RTC
+ * Stop the Calendar RTC.
  * 
  * @pre \ref sl_si91x_calendar_set_configuration \n
  *      \ref sl_si91x_calendar_init \n
@@ -406,7 +397,7 @@ __STATIC_INLINE void sl_si91x_calendar_rtc_stop(void)
 }
 
 /***************************************************************************/ /**
- * To intialize the calibration for Calendar clocks
+ * Initialize the calibration for Calendar clocks.
  * 
  * @param none
  * @return none
@@ -417,7 +408,7 @@ __STATIC_INLINE void sl_si91x_calendar_calibration_init(void)
 }
 
 /***************************************************************************/ /**
- * To clear the msec trigger
+ * Clear the msec trigger.
  * 
  * @param none
  * @return none
@@ -428,7 +419,7 @@ __STATIC_INLINE void sl_si91x_calendar_clear_msec_trigger(void)
 }
 
 /***************************************************************************/ /**
- * To clear the sec trigger
+ * Clear the sec trigger.
  * 
  * @param none
  * @return none
@@ -439,7 +430,7 @@ __STATIC_INLINE void sl_si91x_calendar_clear_sec_trigger(void)
 }
 
 /***************************************************************************/ /**
- * To clear the alarm trigger
+ * Clear the alarm trigger.
  * 
  * @param none
  * @return none
@@ -450,7 +441,7 @@ __STATIC_INLINE void sl_si91x_calendar_clear_alarm_trigger(void)
 }
 
 /***************************************************************************/ /**
- * To de-init calendar operation
+ * De-initialize calendar operation.
  *
  * @pre \ref sl_si91x_calendar_set_configuration
  * 
@@ -463,7 +454,7 @@ __STATIC_INLINE void sl_si91x_calendar_init(void)
 }
 
 /***************************************************************************/ /**
- * To de-init calendar operation
+ * De-initialize calendar operation.
  *
  * @pre \ref sl_si91x_calendar_init
  * 
@@ -477,10 +468,10 @@ __STATIC_INLINE void sl_si91x_calendar_deinit(void)
 
 /***************************************************************************/ /**
  * @brief
- * Get the CALENDAR version
+ * Get the calendar version.
  *
  * @details
- * This function is used to know the CALENDAR version
+ * This function is used to know the calendar version.
  *
  * @param[in] none
  * @return \ref sl_calendar_version_t type version

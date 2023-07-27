@@ -34,9 +34,9 @@ typedef struct {
   sl_ip_address_type_t type; ///< IP Address Type
   char *host_name;           ///< Host name visible on network
   union {
-    sl_net_ipv4_setting_t v4; ///< IPv4 setting to be used in case of static IP address assignement
-    sl_net_ipv6_setting_t v6; ///< IPv6 setting to be used in case of static IP address assignement
-  } ip;                       ///< IP setting to be used for static IP address assignement
+    sl_net_ipv4_setting_t v4; ///< IPv4 setting to be used in case of static IP address assignment
+    sl_net_ipv6_setting_t v6; ///< IPv6 setting to be used in case of static IP address assignment
+  } ip;                       ///< IP setting to be used for static IP address assignment
 } sl_net_ip_configuration_t;
 
 /// Wi-Fi specific IPv4 address settings

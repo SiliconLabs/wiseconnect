@@ -1,0 +1,26 @@
+{% set type_map={ "nvm": "NVM_STRUCTURE", "ram_struct": "RAM_STRUCTURE", "group": "GROUP" } -%}
+{% set __mapping = {"uint8": "UINT", "uint16": "UINT", "uint32": "UINT", "int": "INT", "int8": "INT", "int16": "INT", "int32": "INT", "string": "STRING", "mac": "MAC_ADDRESS", "ip": "IP_ADDRESS", "hex": "HEX"} -%}
+#include "console_types.h"
+#include "console_constants.h"
+#include "nvm_ids.h"
+
+{% for node in table %}{%if existsIn(node, "handler")%}
+extern sl_status_t {{node.handler}}(console_variable_action_t action, const console_variable_node_t* node, const char* value);{%endif%}{%if node.type == "ram_struct" %}
+extern void*  {{node.instance}};
+extern const structure_descriptor_entry_t {{node.id}}[];{# = {
+{% for var in node.variables %}  SL_CONSOLE_STRUCTURE_ENTRY("{{var.name}}", {{var.entry}}, {{node.struct}}, CONSOLE_VARIABLE_{{at(struct_var_map, var.type)}}),
+{%endfor%}
+} #}{%endif%}{%endfor%}
+
+const unsigned int first_group_end={{first_group_length}}-1;
+const console_variable_node_t nodes[] = {
+{%- for node in table %}
+  [{{node.index}}] = 
+{%- if node.type=="nvm" -%}  SL_CONSOLE_VARIABLE_NVM_STRUCTURE("{{node.name}}", {{node.id}}, {{node.handler}}),
+{%- else if node.type=="ram_struct" -%}  SL_CONSOLE_VARIABLE_RAM_STRUCTURE("{{node.name}}", {{node.id}}, {{node.size}}, &{{node.instance}}),
+{%- else if node.type=="group" -%}{% set first_child=0 %}{% set last_child=0 -%}
+  {%- for n in table %}{% if existsIn(n, "parent") and n.parent==node.index %}{% if first_child==0 %}{% set first_child = n.index %}{% endif %}{% if n.index > last_child %}{%set last_child = n.index %}{%endif %}{% endif %}{% endfor -%}
+  SL_CONSOLE_VARIABLE_GROUP("{{node.name}}", {{first_child}}, {{last_child}}),
+{%- endif -%}
+{%- endfor -%}
+};

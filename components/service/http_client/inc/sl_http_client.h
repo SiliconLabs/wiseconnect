@@ -82,7 +82,7 @@ typedef enum {
   SL_HTTP_CLIENT_GET_RESPONSE_EVENT = 0, ///< HTTP Client GET response Event
   SL_HTTP_CLIENT_POST_RESPONSE_EVENT,    ///< HTTP Client POST response Event
   SL_HTTP_CLIENT_PUT_RESPONSE_EVENT,     ///< HTTP Client PUT response Event
-  SL_HTTP_CLIENT_MAX_EVENT               ///< HTTP Client Maximum nuber of events
+  SL_HTTP_CLIENT_MAX_EVENT               ///< HTTP Client Maximum number of events
 } sl_http_client_event_t;
 
 /** @} */
@@ -160,7 +160,7 @@ typedef struct {
   uint16_t timeout_ms;       ///< HTTP request timeout period (feature coming soon).
   uint16_t retry_count;      ///< HTTP request maximum retry count after timeout (feature coming soon).
   uint16_t retry_period_ms;  ///< Retry period after max retry count reach (feature coming soon).
-  bool tcp_connection_reuse; ///< Flag to use same tcp socket for connection (feature coming soon).
+  bool tcp_connection_reuse; ///< Flag to use same TCP socket for connection (feature coming soon).
   void *context;             ///< User defined context.
   sl_http_client_event_handler event_handler; ///< Callback method.
 } sl_http_client_request_t;
@@ -189,7 +189,7 @@ typedef struct {
 
 /***************************************************************************/ /**
  * @brief
- *   Initializes an HTTP client.
+ *   Initialize an HTTP client.
  * @param[in] configuration
  *   HTTP client configurations
  * @param[out] client
@@ -201,7 +201,7 @@ sl_status_t sl_http_client_init(const sl_http_client_configuration_t *configurat
 
 /***************************************************************************/ /**
  * @brief
- *   Denitializes an HTTP client and releases resources used by HTTP client.
+ *   Denitialize an HTTP client and release resources used by HTTP client.
  * @pre 
  *   @ref sl_http_client_init should be called before this API.
  * @param[in] client
@@ -216,7 +216,7 @@ sl_status_t sl_http_client_deinit(sl_http_client_t *client);
 
 /***************************************************************************/ /**
  * @brief
- *   Initializes a callback function for the requested HTTP method.
+ *   Initialize a callback function for the requested HTTP method.
  * @pre 
  *   @ref sl_http_client_init should be called before this API.
  * @param[in] request
@@ -235,7 +235,7 @@ sl_status_t sl_http_client_request_init(sl_http_client_request_t *request,
 
 /***************************************************************************/ /**
  * @brief
- *   Adds extended header with key and value in client request.
+ *   Add extended header with key and value in client request.
  * @pre 
  *   @ref sl_http_client_init should be called before this API.
  * @param[in] request
@@ -253,7 +253,7 @@ sl_status_t sl_http_client_add_header(sl_http_client_request_t *request, const c
 
 /***************************************************************************/ /**
  * @brief
- *   Deletes a specified header field from the extended header of an HTTP client request.
+ *   Delete a specified header field from the extended header of an HTTP client request.
  * @pre 
  *   @ref sl_http_client_add_header should be called before this API.
  * @param[in] request
@@ -267,7 +267,7 @@ sl_status_t sl_http_client_delete_header(sl_http_client_request_t *request, cons
 
 /***************************************************************************/ /**
  * @brief
- *   Deletes all the headers from the extended header of an HTTP client request.
+ *   Delete all the headers from the extended header of an HTTP client request.
  * @pre 
  *   @ref sl_http_client_add_header should be called before this API.
  * @param[in] request
@@ -281,7 +281,7 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
 
 /***************************************************************************/ /**
  * @brief
- *   Sends an HTTP get/post/head/put/delete method based on the selected sl_http_client_method_type_t.
+ *   Send an HTTP get/post/head/put/delete method based on the selected sl_http_client_method_type_t.
  * @pre
  *   @ref sl_http_client_request_init should be called before this API.
  * @param[in] client
@@ -299,7 +299,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
 
 /***************************************************************************/ /**
  * @brief
- *   Sends an HTTP post and put chunked data.
+ *   Send an HTTP post and put chunked data.
  * @pre
  *   @ref sl_http_client_send_request should be called before this API.
  * @param[in] client

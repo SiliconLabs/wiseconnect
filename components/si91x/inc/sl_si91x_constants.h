@@ -152,7 +152,7 @@ typedef struct {
 typedef enum {
   SI91X_AP_KEEP_ALIVE_DISABLE = 0,
 
-  // AP performs keep alive functionality based on the rx packets received from its stations. If no packet is received from the station with in time out, AP discards it.
+  // AP performs keep alive functionality based on the RX packets received from its stations. If no packet is received from the station with in time out, AP discards it.
   SI91X_AP_DEAUTH_BASED_KEEP_ALIVE = 1,
 
   // AP performs keep alive functionality by sending NULL DATA packet to the station. If no ACK is received from the station after specific no of retries, AP discards the station.

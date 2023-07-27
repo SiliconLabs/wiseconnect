@@ -377,8 +377,10 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
                                           NULL,
                                           NULL);
     VERIFY_STATUS_AND_RETURN(status);
-  } else {
-	  return SL_STATUS_WIFI_UNKNOWN_SECURITY_TYPE;
+  } else if (SL_WIFI_WEP == ap->security) {
+    return SL_STATUS_NOT_SUPPORTED;
+  } else if (SL_WIFI_OPEN != ap->security) {
+    return SL_STATUS_WIFI_UNKNOWN_SECURITY_TYPE;
   }
 
   memset(&join_request, 0, sizeof(join_request));

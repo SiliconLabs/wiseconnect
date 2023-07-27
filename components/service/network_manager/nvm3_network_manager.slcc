@@ -11,3 +11,4 @@ provides:
 source:
 - path: src/sl_net_nvm_credentials.c
 - path: src/sl_net_nvm_profiles.c
+include:

@@ -39,42 +39,10 @@ extern "C" {
 #include "rsi_ct.h"
 
 /***************************************************************************/ /**
- * @addtogroup CONFIG-TIMER
+ * @addtogroup CONFIG-TIMER Config Timer
+ * @ingroup SI91X_PERIPHERAL_APIS
  * @{ 
- * @brief
- * Configurable timers are used for counting clocks and events, capturing events
- * on the GPIOs in input mode and outputting modulated signals. They can be programmed
- * to work in Pulse Width Modulation (PWM) mode in which a pulse width modulated wave
- * is driven on the outputs according to the programmed ON time and OFF times.
- * Configurable Timers are present in MCU HP peripherals.
  * 
- * @details
- * ## Features
- * - Each config counter(CT) sub-module of configuration timer(CT) can be configured to contain One 32 (or) two 16 bit timers.
- * - There is a programming feature to select Clocks, events or external clock as a tick.
- * - The input clock can be the reference clock or System clock.
- * - Supports wide range of features like starting the counter, stopping the counter, continuing the counter from the stopped value, halt, increment the counter and capturing the events.
- * - It can output PWM signals with any cycle/pulse length.
- * - It can capture timing of input signal changes and pulse width in synchronous with PWM signal.
- * - It can start the ADC at any time, in synchronous with PWM signal output.
- * - Supports APB interface for programming.
- * 
- * ## Initialization
- * - Initialize peripheral through use\ref sl_si91x_config_timer_init
- * - This will configure timer clock also
- * 
- * ## Timer Configuration
- * - To configure the timer use \ref sl_si91x_config_timer_set_configuration
- * - To Register timer callback through \ref sl_si91x_config_timer_register_callback
- * - To Start the timer \ref sl_si91x_config_timer_start_on_software_trigger
- * 
- * ## OCU Configuration
- * - To configure OCU parameters use \ref sl_si91x_config_timer_set_ocu_configuration
- * - To configure ocu threshold values \ref sl_si91x_config_timer_set_ocu_control
- * 
- * ## WFG Configuration
- * - To configure  WFG parameters use \ref sl_si91x_config_timer_set_wfg_configuration
- * - To cofigure WFG compare values use \ref sl_si91x_config_timer_set_wfg_compare_values
  ******************************************************************************/
 
 /*******************************************************************************
@@ -325,7 +293,7 @@ typedef struct {
 // Prototypes
 
 /***************************************************************************/ /**
-* Initializes config-timer output GPIO pins and configures clock as 16 MHZ
+* Initialize config-timer output GPIO pins and configures clock as 16 MHz.
 *
 * @param[in]   none
 * @return      none
@@ -333,7 +301,7 @@ typedef struct {
 void sl_si91x_config_timer_init(void);
 
 /***************************************************************************/ /**
- * To set Config-timer mode as 32-bit or 16-bit counters
+ * Set Config-timer mode as 32-bit or 16-bit counters.
  *
  * @pre \ref sl_si91x_config_timer_init();
  *
@@ -346,9 +314,9 @@ void sl_si91x_config_timer_init(void);
 sl_status_t sl_si91x_config_timer_set_mode(sl_config_timer_mode_t mode);
 
 /***************************************************************************/ /**
- * To set Config-timer configurations such as 32-bit or 16-bit mode, periodic mode,
+ * Set Config-timer configurations such as 32-bit or 16-bit mode, periodic mode,
  * software trigger enable, soft reset enable, buffer enable, sync trigger enable and
- * direction
+ * direction.
  *
  * @pre \ref sl_si91x_config_timer_init();
  *
@@ -362,8 +330,8 @@ sl_status_t sl_si91x_config_timer_set_mode(sl_config_timer_mode_t mode);
 sl_status_t sl_si91x_config_timer_set_configuration(sl_config_timer_config_t *timer_config_ptr);
 
 /***************************************************************************/ /**
-* Resets config-timer parameters such as sets 16-bit mode, sets up-counter direction
-* and disables periodic mode, soft reset, buffer, sync & software trigger of counters
+* Reset config-timer parameters such as sets 16-bit mode, sets up-counter direction
+* and disables periodic mode, soft reset, buffer, sync & software trigger of counters.
 *
 * @param[in]   none
 * @return      none
@@ -371,8 +339,8 @@ sl_status_t sl_si91x_config_timer_set_configuration(sl_config_timer_config_t *ti
 void sl_si91x_config_timer_reset_configuration(void);
 
 /***************************************************************************/ /**
- * To set Config-timer OCU configurations such as enables outputs in OCU mode, OCU-DMA mode,
- * channel sync with OCU outputs, 8-bit mode for OCU outputs for both counters
+ * Set Config-timer OCU configurations such as enables outputs in OCU mode, OCU-DMA mode,
+ * channel sync with OCU outputs, 8-bit mode for OCU outputs for both counters.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref sl_si91x_config_timer_set_configuration();\n
@@ -386,8 +354,8 @@ void sl_si91x_config_timer_reset_configuration(void);
 sl_status_t sl_si91x_config_timer_set_ocu_configuration(sl_config_timer_ocu_config_t *ocu_config_ptr);
 
 /***************************************************************************/ /**
-* Resets config-timer ocu parameters such as sets 16-bit mode, sets up-counter direction
-* and disables DMA mode, channel sync and 8-bit mode for OCU outputs
+* Reset config-timer OCU parameters such as sets 16-bit mode, sets up-counter direction
+* and disables DMA mode, channel sync and 8-bit mode for OCU outputs.
 *
 * @param[in]   none
 * @return      none
@@ -395,9 +363,9 @@ sl_status_t sl_si91x_config_timer_set_ocu_configuration(sl_config_timer_ocu_conf
 void sl_si91x_config_timer_reset_ocu_configuration(void);
 
 /***************************************************************************/ /**
- * To set Config-timer OCU mode first and next threshold values for counter-0 &
+ * Set Config-timer OCU mode first and next threshold values for counter-0 &
  * counter-1 outputs , register PWM callback, Enable DMA support
- * for counters
+ * for counters.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref sl_si91x_config_timer_set_ocu_configuration();
@@ -411,8 +379,8 @@ void sl_si91x_config_timer_reset_ocu_configuration(void);
 sl_status_t sl_si91x_config_timer_set_ocu_control(sl_config_timer_ocu_control_t *ocu_params);
 
 /***************************************************************************/ /**
- * To set Config-timer WFG mode configurations such as select toggle high, low and
- * peak for counter-0 & counter-1 outputs
+ * Set Config-timer WFG mode configurations such as select toggle high, low and
+ * peak for counter-0 & counter-1 outputs.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *
@@ -425,7 +393,7 @@ sl_status_t sl_si91x_config_timer_set_ocu_control(sl_config_timer_ocu_control_t 
 sl_status_t sl_si91x_config_timer_set_wfg_configuration(sl_config_timer_wfg_config_t *wfg_config_ptr);
 
 /***************************************************************************/ /**
- * To set Config-timer initial count as per timer mode
+ * Set Config-timer initial count as per timer mode.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration();\n
@@ -443,7 +411,7 @@ sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
                                                     uint32_t counter1_initial_value);
 
 /***************************************************************************/ /**
- * To set Config-timer match-count as per timer mode and counter-number
+ * Set Config-timer match-count as per timer mode and counter-number.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration();\n
@@ -462,7 +430,7 @@ sl_status_t sl_si91x_config_timer_set_match_count(sl_config_timer_mode_t mode,
                                                   uint32_t match_value);
 
 /***************************************************************************/ /**
- * To get Config-timer current count as per timer mode and counter-number
+ * Get Config-timer current count as per timer mode and counter-number.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration();\n
@@ -482,7 +450,7 @@ sl_status_t sl_si91x_config_timer_get_count(sl_config_timer_mode_t mode,
                                             uint32_t *count_value);
 
 /***************************************************************************/ /**
- * To soft reset Config-timer counter
+ * Soft reset Config-timer counter.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration();\n
@@ -496,7 +464,7 @@ sl_status_t sl_si91x_config_timer_get_count(sl_config_timer_mode_t mode,
 sl_status_t sl_si91x_config_timer_reset_counter(sl_counter_number_t counter_number);
 
 /***************************************************************************/ /**
- * To start config-timer counter by software trigger
+ * Start config-timer counter by software trigger.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration(),keep software trigger disable here\n
@@ -510,8 +478,8 @@ sl_status_t sl_si91x_config_timer_reset_counter(sl_counter_number_t counter_numb
 sl_status_t sl_si91x_config_timer_start_on_software_trigger(sl_counter_number_t counter_number);
 
 /***************************************************************************/ /**
- * To select external input event for triggering selected timer-action such as
- * start, stop, continue, halt, increment, capture, interrupt and output
+ * Select external input event for triggering selected timer-action such as
+ * start, stop, continue, halt, increment, capture, interrupt and output.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref sl_si91x_config_timer_set_configuration(), keep software trigger disable here\n
@@ -533,9 +501,9 @@ sl_status_t sl_si91x_config_timer_select_action_event(sl_config_timer_action_t a
                                                       sl_config_timer_event_t select_event_counter1);
 
 /***************************************************************************/ /**
- * To configure external input-event's AND-event and OR-event for triggering
+ * Configure external input-event's AND-event and OR-event for triggering
  * selected timer-action such as start, stop, continue, halt, increment, capture,
- * interrupt and output
+ * interrupt and output.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref sl_si91x_config_timer_set_configuration(), keep software trigger disable here
@@ -556,8 +524,8 @@ sl_status_t sl_si91x_config_timer_select_action_event(sl_config_timer_action_t a
 sl_status_t sl_si91x_config_timer_configure_action_event(sl_config_action_event_t *event_config_handle);
 
 /***************************************************************************/ /**
- * To register callback of timer interrupt and enabling respective interrupts as
- * per selected interrupt flag
+ * Register callback of timer interrupt and enabling respective interrupts as
+ * per selected interrupt flag.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref sl_si91x_config_timer_set_configuration(), keep software trigger disable here
@@ -580,8 +548,8 @@ sl_status_t sl_si91x_config_timer_register_callback(sl_config_timer_callback_t o
                                                     sl_config_timer_interrupt_flags_t *interrupt_flags);
 
 /*******************************************************************************
-* Unregisters timer interrupt callback and disables interrupts as per
-* selected interrupt flag
+* Unregister timer interrupt callback and disables interrupts as per
+* selected interrupt flag.
 *
 * @pre \ref sl_si91x_config_timer_register_callback(), first register particular interrupt flag
 *
@@ -594,7 +562,7 @@ sl_status_t sl_si91x_config_timer_register_callback(sl_config_timer_callback_t o
 sl_status_t sl_si91x_config_timer_unregister_callback(sl_config_timer_interrupt_flags_t *interrupt_flags);
 
 /***************************************************************************/ /**
- * To resume halt operation of Config-timer counter
+ * Resume halt operation of Config-timer counter.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration();\n
@@ -608,7 +576,7 @@ sl_status_t sl_si91x_config_timer_unregister_callback(sl_config_timer_interrupt_
 sl_status_t sl_si91x_config_timer_resume_halt_event(sl_counter_number_t counter_number);
 
 /***************************************************************************/ /**
- * To get Config-timer counter count value on occurrence of capture event occurrence
+ * Get Config-timer counter count value on occurrence of capture event occurrence.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration();\n
@@ -626,7 +594,7 @@ sl_status_t sl_si91x_config_timer_resume_halt_event(sl_counter_number_t counter_
 sl_status_t sl_si91x_config_timer_read_capture(sl_counter_number_t counter_number, uint16_t *capture_value);
 
 /***************************************************************************/ /**
- * To sync counter output with other channels, as per sync_counter_value
+ * Sync counter output with other channels, as per sync_counter_value.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration();\n
@@ -641,7 +609,7 @@ sl_status_t sl_si91x_config_timer_read_capture(sl_counter_number_t counter_numbe
 sl_status_t sl_si91x_config_timer_set_counter_sync(sl_counter_number_t counter_number, uint8_t sync_counter_value);
 
 /***************************************************************************/ /**
- * To sync counter output with other channels
+ * Sync counter output with other channels.
  *
  * @pre \ref sl_si91x_config_timer_init();\n
  *      \ref l_si91x_config_timer_set_configuration();\n
@@ -660,7 +628,7 @@ sl_status_t sl_si91x_config_timer_set_wfg_compare_values(sl_counter_number_t cou
                                                          sl_config_timer_ocu_params_t *ocu_params);
 
 /***************************************************************************/ /**
-* De-initializes config-timer by disabling its clock
+* De-initialize config-timer by disabling its clock.
 *
 * @param[in]   none
 * @return      none
@@ -668,7 +636,7 @@ sl_status_t sl_si91x_config_timer_set_wfg_compare_values(sl_counter_number_t cou
 void sl_si91x_config_timer_deinit(void);
 
 /***************************************************************************/ /**
- * To get the release version of Config-timer
+ * Get the release version of the Config-timer.
  *
  * @param[in] none
  * @return (sl_config_version_t) type structure

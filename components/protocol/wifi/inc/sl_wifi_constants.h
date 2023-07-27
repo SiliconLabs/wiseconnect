@@ -37,10 +37,10 @@
 /// Max Length of password in enterprise security.
 #define SL_EAP_PASSWORD_LENGTH 128
 
-/// Select Internal Antenna for WiFi.
+/// Select Internal Antenna for Wi-Fi.
 #define SL_WIFI_SELECT_INTERNAL_ANTENNA 0
 
-/// Select External Antenna for WiFi.
+/// Select External Antenna for Wi-Fi.
 #define SL_WIFI_SELECT_EXTERNAL_ANTENNA 1
 
 /// Default Wi-Fi interface macro
@@ -49,54 +49,54 @@
 /// Max Wi-Fi roaming trigger interval
 #define SL_WIFI_NEVER_ROAM 0x7FFFFFFF
 
-/// Low Transmit Power Threshold for WiFi.
+/// Low Transmit Power Threshold for Wi-Fi.
 #define SI91X_LOW_TRANSMIT_POWER_THRESHOLD 6
 
-/// Medium Transmit Power Threshold for WiFi.
+/// Medium Transmit Power Threshold for Wi-Fi.
 #define SI91X_MEDIUM_TRANSMIT_POWER_THRESHOLD 4
 
 /// Wi-Fi security
 typedef enum {
-  SL_WIFI_OPEN            = 0, ///< WiFi Open security type
-  SL_WIFI_WPA             = 1, ///< WiFi WPA security type
-  SL_WIFI_WPA2            = 2, ///< WiFi WPA2 security type
-  SL_WIFI_WEP             = 3, ///< WiFi WEP security type
-  SL_WIFI_WPA_ENTERPRISE  = 4, ///< WiFi WPA Enterprise security type
-  SL_WIFI_WPA2_ENTERPRISE = 5, ///< WiFi WPA2 Enterprise security type
-  SL_WIFI_WPA_WPA2_MIXED  = 6, ///< WiFi WPA/WPA2 Mixed security type
-  SL_WIFI_WPA3            = 7, ///< WiFi WPA3 security type
-  SL_WIFI_WPA3_TRANSITION = 8, ///< WiFi WPA3 Transition security type
+  SL_WIFI_OPEN            = 0, ///< Wi-Fi Open security type
+  SL_WIFI_WPA             = 1, ///< Wi-Fi WPA security type
+  SL_WIFI_WPA2            = 2, ///< Wi-Fi WPA2 security type
+  SL_WIFI_WEP             = 3, ///< Wi-Fi WEP security type
+  SL_WIFI_WPA_ENTERPRISE  = 4, ///< Wi-Fi WPA Enterprise security type
+  SL_WIFI_WPA2_ENTERPRISE = 5, ///< Wi-Fi WPA2 Enterprise security type
+  SL_WIFI_WPA_WPA2_MIXED  = 6, ///< Wi-Fi WPA/WPA2 Mixed security type
+  SL_WIFI_WPA3            = 7, ///< Wi-Fi WPA3 security type
+  SL_WIFI_WPA3_TRANSITION = 8, ///< Wi-Fi WPA3 Transition security type
 
   SL_WIFI_SECURITY_UNKNOWN = 0xFFFF, ///< WiFi Unknown Security type
 } sl_wifi_security_t;
 
 /// Wi-Fi encryption method
 typedef enum {
-  SL_WIFI_NO_ENCRYPTION,            ///< WiFI with No Encryption
-  SL_WIFI_WEP_ENCRYPTION,           ///< WiFI with WEP Encryption
-  SL_WIFI_TKIP_ENCRYPTION,          ///< WiFI with TKIP Encryption
-  SL_WIFI_CCMP_ENCRYPTION,          ///< WiFI with CCMP Encryption
-  SL_WIFI_EAP_TLS_ENCRYPTION,       ///< WiFI with Enterprise TLS Encryption
-  SL_WIFI_EAP_TTLS_ENCRYPTION,      ///< WiFI with Enterprise TTLS Encryption
-  SL_WIFI_EAP_FAST_ENCRYPTION,      ///< WiFI with Enterprise FAST Encryption
-  SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, ///< WiFI with Enterprise PEAP Encryption
+  SL_WIFI_NO_ENCRYPTION,            ///< Wi-Fi with No Encryption
+  SL_WIFI_WEP_ENCRYPTION,           ///< Wi-Fi with WEP Encryption
+  SL_WIFI_TKIP_ENCRYPTION,          ///< Wi-Fi with TKIP Encryption
+  SL_WIFI_CCMP_ENCRYPTION,          ///< Wi-Fi with CCMP Encryption
+  SL_WIFI_EAP_TLS_ENCRYPTION,       ///< Wi-Fi with Enterprise TLS Encryption
+  SL_WIFI_EAP_TTLS_ENCRYPTION,      ///< Wi-Fi with Enterprise TTLS Encryption
+  SL_WIFI_EAP_FAST_ENCRYPTION,      ///< Wi-Fi with Enterprise FAST Encryption
+  SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, ///< Wi-Fi with Enterprise PEAP Encryption
 } sl_wifi_encryption_t;
 
 /// Wi-Fi Credential
 typedef enum {
-  SL_WIFI_CRED_PSK = 0, ///< WiFi Personal Credential
-  SL_WIFI_CRED_PMK,     ///< WiFi Pairwise master key
-  SL_WIFI_CRED_WEP,     ///< WiFi WEP Credential
-  SL_WIFI_CRED_EAP      ///< WiFi Enterprise client Credential
+  SL_WIFI_CRED_PSK = 0, ///< Wi-Fi Personal Credential
+  SL_WIFI_CRED_PMK,     ///< Wi-Fi Pairwise master key
+  SL_WIFI_CRED_WEP,     ///< Wi-Fi WEP Credential
+  SL_WIFI_CRED_EAP      ///< Wi-Fi Enterprise client Credential
 } sl_wifi_credential_type_t;
 
 /// Wi-Fi antenna selections
 typedef enum {
-  SL_WIFI_ANTENNA_1,        ///< WiFi Radio Antenna 1
-  SL_WIFI_ANTENNA_2,        ///< WiFi Radio Antenna 2
-  SL_WIFI_ANTENNA_AUTO,     ///< WiFi Radio Antenna Auto Selection
-  SL_WIFI_ANTENNA_EXTERNAL, ///< WiFi Radio External Antenna
-  SL_WIFI_ANTENNA_INTERNAL, ///< WiFi Radio Internal Antenna
+  SL_WIFI_ANTENNA_1,        ///< Wi-Fi Radio Antenna 1
+  SL_WIFI_ANTENNA_2,        ///< Wi-Fi Radio Antenna 2
+  SL_WIFI_ANTENNA_AUTO,     ///< Wi-Fi Radio Antenna Auto Selection
+  SL_WIFI_ANTENNA_EXTERNAL, ///< Wi-Fi Radio External Antenna
+  SL_WIFI_ANTENNA_INTERNAL, ///< Wi-Fi Radio Internal Antenna
 } sl_wifi_antenna_t;
 
 /// Wi-Fi interface index enumeration
@@ -139,16 +139,16 @@ typedef enum {
 
 /// W-Fi regulatory region
 typedef enum {
-  SL_WIFI_REGION_AUSTRALIA,      ///< WiFi Region Australia
-  SL_WIFI_REGION_FRANCE,         ///< WiFi Region France
-  SL_WIFI_REGION_EUROPEAN_UNION, ///< WiFi Region European Union
-  SL_WIFI_REGION_JAPAN,          ///< WiFi Region Japan
-  SL_WIFI_REGION_UNITED_STATES,  ///< WiFi Region United States
+  SL_WIFI_REGION_AUSTRALIA,      ///< Wi-Fi Region Australia
+  SL_WIFI_REGION_FRANCE,         ///< Wi-Fi Region France
+  SL_WIFI_REGION_EUROPEAN_UNION, ///< Wi-Fi Region European Union
+  SL_WIFI_REGION_JAPAN,          ///< Wi-Fi Region Japan
+  SL_WIFI_REGION_UNITED_STATES,  ///< Wi-Fi Region United States
 } sl_wifi_regulatory_region_t;
 
 /**
  * @brief Wi-Fi rate protocols
- * @note Recommended value for default behaviour is SL_WIFI_RATE_PROTOCOL_AUTO
+ * @note Recommended value for default behavior is SL_WIFI_RATE_PROTOCOL_AUTO
  */
 typedef enum {
   SL_WIFI_RATE_PROTOCOL_B_ONLY,  ///< 802.11b rates only (rates go here)
@@ -177,7 +177,7 @@ typedef enum {
   SL_WIFI_RATE_11B_2,                         ///< Wi-Fi 2 Mbps transfer rate
   SL_WIFI_RATE_11B_5_5,                       ///< Wi-Fi 5.5 Mbps transfer rate
   SL_WIFI_RATE_11B_11,                        ///< Wi-Fi 11 Mbps transfer rate
-  SL_WIFI_RATE_11B_MAX = SL_WIFI_RATE_11B_11, ///< Wi-Fi 11B Maximium transfer rate
+  SL_WIFI_RATE_11B_MAX = SL_WIFI_RATE_11B_11, ///< Wi-Fi 11B Maximum transfer rate
 
   SL_WIFI_RATE_11G_6,                         ///< Wi-Fi 6 Mbps transfer rate
   SL_WIFI_RATE_11G_MIN = SL_WIFI_RATE_11G_6,  ///< Wi-Fi 11G Minimum transfer rate
@@ -217,36 +217,36 @@ typedef enum {
 
 /// Wi-Fi BSS type
 typedef enum {
-  SL_WIFI_BSS_TYPE_INFRASTRUCTURE = 0,   ///< WiFi BSS Type Infrastructure
-  SL_WIFI_BSS_TYPE_ADHOC          = 1,   ///< WiFi BSS Type ADHOC
-  SL_WIFI_BSS_TYPE_ANY            = 2,   ///< WiFi BSS Type ANY
-  SL_WIFI_BSS_TYPE_UNKNOWN        = 0xFF ///< WiFi BSS Type Unknown
+  SL_WIFI_BSS_TYPE_INFRASTRUCTURE = 0,   ///< Wi-Fi BSS Type Infrastructure
+  SL_WIFI_BSS_TYPE_ADHOC          = 1,   ///< Wi-Fi BSS Type ADHOC
+  SL_WIFI_BSS_TYPE_ANY            = 2,   ///< Wi-Fi BSS Type ANY
+  SL_WIFI_BSS_TYPE_UNKNOWN        = 0xFF ///< Wi-Fi BSS Type Unknown
 } sl_wifi_bss_type_t;
 
 /// Wi-Fi radio band
 typedef enum {
-  SL_WIFI_AUTO_BAND   = 0, ///< WiFi Band Auto
-  SL_WIFI_BAND_900MHZ = 1, ///< WiFi Band 900Mhz
-  SL_WIFI_BAND_2_4GHZ = 2, ///< WiFi Band 2.4Ghz
-  SL_WIFI_BAND_5GHZ   = 3, ///< WiFi Band 5Ghz
-  SL_WIFI_BAND_6GHZ   = 4, ///< WiFi Band 6Ghz
-  SL_WIFI_BAND_60GHZ  = 5, ///< WiFi Band 60Ghz
+  SL_WIFI_AUTO_BAND   = 0, ///< Wi-Fi Band Auto
+  SL_WIFI_BAND_900MHZ = 1, ///< Wi-Fi Band 900Mhz
+  SL_WIFI_BAND_2_4GHZ = 2, ///< Wi-Fi Band 2.4Ghz
+  SL_WIFI_BAND_5GHZ   = 3, ///< Wi-Fi Band 5Ghz
+  SL_WIFI_BAND_6GHZ   = 4, ///< Wi-Fi Band 6Ghz
+  SL_WIFI_BAND_60GHZ  = 5, ///< Wi-Fi Band 60Ghz
 } sl_wifi_band_t;
 
 typedef enum {
-  SL_WIFI_AUTO_BANDWIDTH   = 0, ///< WiFi Bandwidth Auto
-  SL_WIFI_BANDWIDTH_10MHz  = 0, ///< WiFi Bandwidth 10Mhz
-  SL_WIFI_BANDWIDTH_20MHz  = 1, ///< WiFi Bandwidth 20Mhz
-  SL_WIFI_BANDWIDTH_40MHz  = 2, ///< WiFi Bandwidth 40Mhz
-  SL_WIFI_BANDWIDTH_80MHz  = 3, ///< WiFi Bandwidth 80Mhz
-  SL_WIFI_BANDWIDTH_160MHz = 4, ///< WiFi Bandwidth 160Mhz
+  SL_WIFI_AUTO_BANDWIDTH   = 0, ///< Wi-Fi Bandwidth Auto
+  SL_WIFI_BANDWIDTH_10MHz  = 0, ///< Wi-Fi Bandwidth 10Mhz
+  SL_WIFI_BANDWIDTH_20MHz  = 1, ///< Wi-Fi Bandwidth 20Mhz
+  SL_WIFI_BANDWIDTH_40MHz  = 2, ///< Wi-Fi Bandwidth 40Mhz
+  SL_WIFI_BANDWIDTH_80MHz  = 3, ///< Wi-Fi Bandwidth 80Mhz
+  SL_WIFI_BANDWIDTH_160MHz = 4, ///< Wi-Fi Bandwidth 160Mhz
 } sl_wifi_bandwidth_t;
 
 /// Option flags for client interfaces
 typedef enum {
-  SL_WIFI_NO_JOIN_OPTION   = 0,        ///< WiFi Client Join with no flags
-  SL_WIFI_JOIN_WITH_NO_CSA = (1 << 0), ///< WiFi Client Join with no CSA
-  SL_WIFI_JOIN_WITH_SCAN   = (1 << 1)  ///< WiFi Client Join with Scan
+  SL_WIFI_NO_JOIN_OPTION   = 0,        ///< Wi-Fi Client Join with no flags
+  SL_WIFI_JOIN_WITH_NO_CSA = (1 << 0), ///< Wi-Fi Client Join with no CSA
+  SL_WIFI_JOIN_WITH_SCAN   = (1 << 1)  ///< Wi-Fi Client Join with Scan
 } sl_wifi_client_flag_t;
 
 /// Option flags for AP interfaces

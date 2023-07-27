@@ -413,6 +413,7 @@ void sl_wifi_app_task(void)
       case SL_WIFI_JOIN_STATE: {
         sl_wifi_credential_t cred  = { 0 };
         sl_wifi_credential_id_t id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
+        memset(&access_point, 0, sizeof(sl_wifi_client_configuration_t));
 
         sl_wifi_app_clear_event(SL_WIFI_JOIN_STATE);
 

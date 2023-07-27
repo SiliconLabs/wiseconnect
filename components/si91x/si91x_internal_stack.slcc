@@ -19,20 +19,48 @@ source:
   condition: [http_client]
 - path: services/sntp/src/sl_sntp.c
   condition: [sntp]
-include:
-- path: sl_net/inc
-- path: sl_net/protocols/icmp
-- path: sl_net/protocols/firmware_upgrade
-- path: bsd_socket/inc
-- path: iot_socket
-- path: inc/http_client/inc
-  condition: [http_client]
-- path: inc/mqtt/inc
-  condition: [mqtt]
-- path: inc/sntp
-  condition: [sntp]
 define:
 - name: SI91X_NETWORK_OFFLOAD_ENABLED
 conflicts:
 - name: si91x_lwip_stack
+
+include:
+- path: sl_net/protocols/icmp
+  file_list:
+    - path: sl_net_ping.h
+- path: sl_net/protocols/firmware_upgrade
+  file_list:
+    - path: firmware_upgradation.h
+- path: bsd_socket/inc
+  file_list:
+    - path: errno.h
+    - path: netdb.h
+    - path: netinet_in.h
+    - path: netinet6_in6.h
+    - path: select.h
+    - path: sl_bsd_utility.h
+    - path: socket.h
+    - path: uio.h
+- path: iot_socket
+  file_list:
+    - path: iot_socket_types.h
+    - path: iot_socket.h
+- path: inc/http_client/inc
+  file_list:
+    - path: sl_si91x_http_client_callback_framework.h
+  condition:
+    - http_client
+- path: inc/mqtt/inc
+  file_list:
+    - path: si91x_mqtt_client_callback_framework.h
+    - path: si91x_mqtt_client_types.h
+    - path: si91x_mqtt_client_utility.h
+  condition:
+    - mqtt
+- path: inc/sntp
+  file_list:
+    - path: si91x_sntp_client_callback_framework.h
+    - path: si91x_sntp_client_types.h
+  condition:
+    - sntp
 

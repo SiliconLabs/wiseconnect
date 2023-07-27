@@ -41,13 +41,13 @@ extern const sl_wifi_scan_configuration_t default_wifi_scan_configuration;
 /// Default Wi-Fi AP configuration
 extern const sl_wifi_ap_configuration_t default_wifi_ap_configuration;
 
-/** \addtogroup WIFI_COMMON_API Common API
+/** \addtogroup WIFI_COMMON_API Common
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 
 /***************************************************************************/ /**
  * @brief
- *   Initializes the Wi-Fi device.
+ *   Initialize the Wi-Fi device.
  * @param[in] configuration
  *   @ref sl_wifi_device_configuration_t object that contains Wi-Fi device configuration.
  * @param[in] event_handler
@@ -61,7 +61,7 @@ sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration, sl
 
 /***************************************************************************/ /**
  * @brief
- *   De-initializes the Wi-Fi device.
+ *   De-initialize the Wi-Fi device.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @return
@@ -71,7 +71,7 @@ sl_status_t sl_wifi_deinit(void);
 
 /***************************************************************************/ /**
  * @brief
- *   Checks if Wi-Fi interface is up.
+ *   Check if Wi-Fi interface is up.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -84,7 +84,7 @@ bool sl_wifi_is_interface_up(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Returns the firmware version running on the Wi-Fi device.
+ *   Return the firmware version running on the Wi-Fi device.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] version
@@ -96,13 +96,13 @@ sl_status_t sl_wifi_get_firmware_version(sl_wifi_version_string_t *version);
 
 /***************************************************************************/ /**
  * @brief
- *   Returns Wi-Fi operational statistics.
+ *   Return Wi-Fi operational statistics.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[out] statistics
- *   @ref sl_wifi_statistics_t object that contains wifi statistics.
+ *   @ref sl_wifi_statistics_t object that contains Wi-Fi statistics.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -110,7 +110,7 @@ sl_status_t sl_wifi_get_statistics(sl_wifi_interface_t interface, sl_wifi_statis
 
 /***************************************************************************/ /**
  * @brief
- *   Sets the default interface.
+ *   Set the default interface.
  *   Used by API when @ref SL_WIFI_DEFAULT_INTERFACE is provided.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -119,7 +119,7 @@ void sl_wifi_set_default_interface(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Gets the default interface.
+ *   Get the default interface.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @return
@@ -129,7 +129,7 @@ sl_wifi_interface_t sl_wifi_get_default_interface(void);
 
 /***************************************************************************/ /**
  * @brief
- *   Gets the Wi-Fi interface MAC address.
+ *   Get the Wi-Fi interface MAC address.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -143,7 +143,7 @@ sl_status_t sl_wifi_get_mac_address(sl_wifi_interface_t interface, sl_mac_addres
 
 /***************************************************************************/ /**
  * @brief
- *   Sets the Wi-Fi interface MAC address.
+ *   Set the Wi-Fi interface MAC address.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] mac 
@@ -158,7 +158,7 @@ sl_status_t sl_wifi_set_mac_address(sl_wifi_interface_t interface, const sl_mac_
 
 /** @} */
 
-/** \addtogroup WIFI_RADIO_API Radio API
+/** \addtogroup WIFI_RADIO_API Radio
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 
@@ -166,7 +166,7 @@ sl_status_t sl_wifi_set_mac_address(sl_wifi_interface_t interface, const sl_mac_
 
 /***************************************************************************/ /**
  * @brief
- *   Gets the maximum Wi-Fi transmit power.
+ *   Get the maximum Wi-Fi transmit power.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -182,7 +182,7 @@ sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, uint8_t *max
 
 /***************************************************************************/ /**
  * @brief
- *   Sets the maximum Wi-Fi transmit power.
+ *   Set the maximum Wi-Fi transmit power.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] max_tx_power
@@ -197,7 +197,7 @@ sl_status_t sl_wifi_set_max_tx_power(sl_wifi_interface_t interface, uint8_t max_
 
 /***************************************************************************/ /**
  * @brief
- *   Sets the Wi-Fi antenna for an interface.
+ *   Set the Wi-Fi antenna for an interface.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -211,7 +211,7 @@ sl_status_t sl_wifi_set_antenna(sl_wifi_interface_t interface, sl_wifi_antenna_t
 
 /***************************************************************************/ /**
  * @brief
- *   Gets the Wi-Fi antenna for an interface.
+ *   Get the Wi-Fi antenna for an interface.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -225,7 +225,7 @@ sl_status_t sl_wifi_get_antenna(sl_wifi_interface_t interface, sl_wifi_antenna_t
 
 /***************************************************************************/ /**
  * @brief
- *   Gets the current channel for the given Wi-Fi interface.
+ *   Get the current channel for the given Wi-Fi interface.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -239,7 +239,7 @@ sl_status_t sl_wifi_get_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
 
 /***************************************************************************/ /**
  * @brief
- *   Sets the channel for the given Wi-Fi Access Point interface.
+ *   Set the channel for the given Wi-Fi Access Point interface.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -253,7 +253,7 @@ sl_status_t sl_wifi_set_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
 
 /***************************************************************************/ /**
  * @brief
- *   Sets the Wi-Fi transmit rate for the given 802.11 protocol on the specified Wi-Fi interface.
+ *   Set the Wi-Fi transmit rate for the given 802.11 protocol on the specified Wi-Fi interface.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -271,7 +271,7 @@ sl_status_t sl_wifi_set_transmit_rate(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Gets the Wi-Fi transmit rate for the given 802.11 protocol on the specified Wi-Fi interface.
+ *   Get the Wi-Fi transmit rate for the given 802.11 protocol on the specified Wi-Fi interface.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -289,7 +289,7 @@ sl_status_t sl_wifi_get_transmit_rate(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Sets the Wi-Fi client interface listen interval.
+ *   Set the Wi-Fi client interface listen interval.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -305,7 +305,7 @@ sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
 
 /***************************************************************************/ /**
  * @brief
- *   Gets the Wi-Fi client listen interval.
+ *   Get the Wi-Fi client listen interval.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -354,14 +354,14 @@ sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *
 
 /** @} */
 
-/** \addtogroup WIFI_SCANNING_API Scanning API
+/** \addtogroup WIFI_SCANNING_API Scanning
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 
 // Scanning functions
 /***************************************************************************/ /**
  * @brief
- *   Starts scanning for Wi-Fi networks.
+ *   Start scanning for Wi-Fi networks.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -381,7 +381,7 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Stops Wi-Fi scan.
+ *   Stop Wi-Fi scan.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -395,7 +395,7 @@ sl_status_t sl_wifi_stop_scan(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Sets advanced scan configuration.
+ *   Set advanced scan configuration.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] configuration
@@ -407,7 +407,7 @@ sl_status_t sl_wifi_set_advanced_scan_configuration(const sl_wifi_advanced_scan_
 
 /***************************************************************************/ /**
  * @brief
- *   Gets advanced scan configuration.
+ *   Get advanced scan configuration.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] configuration
@@ -419,7 +419,7 @@ sl_status_t sl_wifi_get_advanced_scan_configuration(sl_wifi_advanced_scan_config
 
 /***************************************************************************/ /**
  * @brief
- *   Waits for current scan to complete and stores the results in the provided array.
+ *   Wait for current scan to complete and stores the results in the provided array.
  * @pre
  *   This function also returns when the scan result array is full.
  * @pre
@@ -437,14 +437,14 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
 
 /** @} */
 
-/** \addtogroup WIFI_CLIENT_API Client API
+/** \addtogroup WIFI_CLIENT_API Client
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 // Wi-Fi Client functions
 
 /***************************************************************************/ /**
  * @brief
- *   Connects to the given Wi-Fi AP.
+ *   Connect to the given Wi-Fi AP.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -465,7 +465,7 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Disconnects the Wi-Fi client interface.
+ *   Disconnect the Wi-Fi client interface.
  * @pre 
  *   @ref sl_wifi_connect should be called before this API.
  * @param[in] interface
@@ -477,7 +477,7 @@ sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Gets current Wi-Fi client's signal strength (RSSI).
+ *   Get current Wi-Fi client's signal strength (RSSI).
  * @pre 
  *   @ref sl_wifi_connect should be called before this API.
  * @param[in] interface
@@ -491,7 +491,7 @@ sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *
 
 /***************************************************************************/ /**
  * @brief
- *   Sets the Wi-Fi roaming configuration.
+ *   Set the Wi-Fi roaming configuration.
  * @pre
  *   @ref sl_wifi_set_advanced_scan_configuration should be called before this API.
  * @param[in] interface
@@ -510,7 +510,7 @@ sl_status_t sl_wifi_set_roam_configuration(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Gets the Wi-Fi roaming configuration.
+ *   Get the Wi-Fi roaming configuration.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[out] roam_configuration
@@ -593,7 +593,7 @@ sl_status_t sl_wifi_set_advanced_client_configuration(sl_wifi_interface_t interf
 
 /** @} */
 
-/** \addtogroup WIFI_AP_API Access Point API
+/** \addtogroup WIFI_AP_API Access Point
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 // Access point functions
@@ -674,7 +674,7 @@ sl_status_t sl_wifi_get_advanced_ap_configuration(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Stops Wi-Fi access point.
+ *   Stop Wi-Fi access point.
  * @pre 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
@@ -708,7 +708,7 @@ sl_status_t sl_wifi_disconnect_ap_client(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Returns the Wi-Fi client information of all clients connected to the AP.
+ *   Return the Wi-Fi client information of all clients connected to the AP.
  * @pre 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
@@ -724,7 +724,7 @@ sl_status_t sl_wifi_get_ap_client_info(sl_wifi_interface_t interface, sl_wifi_cl
 
 /***************************************************************************/ /**
  * @brief
- *   Returns a list of Wi-Fi clients connected to the Wi-Fi access point.
+ *   Return a list of Wi-Fi clients connected to the Wi-Fi access point.
  * @pre 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
@@ -744,7 +744,7 @@ sl_status_t sl_wifi_get_ap_client_list(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Provides the number of Wi-Fi clients connected to the Wi-Fi access point
+ *   Provide the number of Wi-Fi clients connected to the Wi-Fi access point
  * @pre 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
@@ -760,14 +760,14 @@ sl_status_t sl_wifi_get_ap_client_count(sl_wifi_interface_t interface, uint32_t 
 
 /** @} */
 
-/** \addtogroup WIFI_POWER_API Performance Management API
+/** \addtogroup WIFI_POWER_API Performance Management
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 // Power management functions
 
 /***************************************************************************/ /**
  * @brief
- *   Sets Wi-Fi performance profile.
+ *   Set Wi-Fi performance profile.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] profile
@@ -781,7 +781,7 @@ sl_status_t sl_wifi_set_performance_profile(const sl_wifi_performance_profile_t 
 
 /***************************************************************************/ /**
  * @brief
- *   Gets Wi-Fi performance profile.
+ *   Get Wi-Fi performance profile.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] profile
@@ -793,14 +793,14 @@ sl_status_t sl_wifi_get_performance_profile(sl_wifi_performance_profile_t *profi
 
 /** @} */
 
-/** \addtogroup WIFI_MONITOR_API Monitor Mode API
+/** \addtogroup WIFI_MONITOR_API Monitor Mode
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 // "Monitor Mode" functions
 
 /***************************************************************************/ /**
  * @brief
- *   Enables monitor (promiscuous) mode on the Wi-Fi device.
+ *   Enable monitor (promiscuous) mode on the Wi-Fi device.
  *   In this mode, all types of Wi-Fi frames will be forwarded to the host.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -813,7 +813,7 @@ sl_status_t sl_wifi_enable_monitor_mode(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Disables monitor mode on the Wi-Fi interface
+ *   Disable monitor mode on the Wi-Fi interface
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @return
@@ -825,14 +825,14 @@ sl_status_t sl_wifi_disable_monitor_mode(sl_wifi_interface_t interface);
 
 /** @} */
 
-/** \addtogroup WIFI_P2P_API Wi-Fi Direct API
+/** \addtogroup WIFI_P2P_API Wi-Fi Direct
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 // P2P functions
 
 /***************************************************************************/ /**
  * @brief
- *   Starts wi-fi direct discovery.
+ *   Start Wi-Fi direct discovery.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] configuration
@@ -850,7 +850,7 @@ sl_status_t sl_wifi_start_p2p_discovery(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Starts wi-fi direct connection.
+ *   Start Wi-Fi direct connection.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] configuration
@@ -864,14 +864,14 @@ sl_status_t sl_wifi_p2p_connect(sl_wifi_interface_t interface, const sl_wifi_p2p
 
 /** @} */
 
-/** \addtogroup WIFI_WPS_API WPS API
+/** \addtogroup WIFI_WPS_API Wi-Fi Protected Setup
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 // WPS functions
 
 /***************************************************************************/ /**
  * @brief
- *   Generates Wi-Fi Protected Setup (WPS) pin.
+ *   Generate Wi-Fi Protected Setup (WPS) pin.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] response
@@ -883,7 +883,7 @@ sl_status_t sl_wifi_generate_wps_pin(sl_wifi_wps_pin_t *response);
 
 /***************************************************************************/ /**
  * @brief
- *   Starts Wi-Fi Protected Setup (WPS).
+ *   Start Wi-Fi Protected Setup (WPS).
  * @pre 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
@@ -903,7 +903,7 @@ sl_status_t sl_wifi_start_wps(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Stops current running Wi-Fi Protected Setup (WPS).
+ *   Stop current running Wi-Fi Protected Setup (WPS).
  * @pre 
  *   @ref sl_wifi_start_wps should be called before this API.
  * @param[in] interface
@@ -917,7 +917,7 @@ sl_status_t sl_wifi_stop_wps(sl_wifi_interface_t interface);
 
 /** @} */
 
-/** \addtogroup WIFI_DEBUG_API Debug API
+/** \addtogroup WIFI_DEBUG_API Debugging
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
 
@@ -925,7 +925,7 @@ sl_status_t sl_wifi_stop_wps(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Starts collecting statistical data.
+ *   Start collecting statistical data.
  * @pre 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
@@ -939,7 +939,7 @@ sl_status_t sl_wifi_start_statistic_report(sl_wifi_interface_t interface, sl_wif
 
 /***************************************************************************/ /**
  * @brief
- *   Stops collecting statistical data.
+ *   Stop collecting statistical data.
  * @pre 
  *   @ref sl_wifi_start_statistic_report should be called before this API.
  * @param[in] interface
@@ -967,7 +967,7 @@ sl_status_t sl_wifi_send_raw_data_frame(sl_wifi_interface_t interface, const voi
 
 /***************************************************************************/ /**
  * @brief
- *   Configures TWT parameters. Enables or disables a TWT session. This is blocking API.
+ *   Configure TWT parameters. Enables or disables a TWT session. This is blocking API.
  * @pre 
  *   @ref sl_wifi_connect should be called before this API.
  * @param[in] twt_req
@@ -979,7 +979,7 @@ sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req);
 
 /***************************************************************************/ /**
  * @brief
- *   Configures TWT parameters. Enables or disables a TWT session. This is blocking API.
+ *   Configure TWT parameters. Enables or disables a TWT session. This is blocking API.
  * @pre 
  *   @ref sl_wifi_enable_target_wake_time should be called before this API.
  * @param[in] twt_req
@@ -1048,7 +1048,7 @@ sl_status_t sl_wifi_get_pairwise_master_key(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Returns the status of the Wi-Fi device
+ *   Return the status of the Wi-Fi device
  * @param[out] wifi_status
  *   @ref sl_wifi_status_t object that will contain the Wi-Fi status.
  * @return

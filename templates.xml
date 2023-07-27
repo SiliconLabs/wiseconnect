@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="ASCII"?>
 <model:MDescriptors xmlns:model="http://www.silabs.com/ss/Studio.ecore">
+<descriptors name="ble_battery_service" label="BLE - Battery Service" description="This application demonstrates how to configure Battery Service GATT server with Battery service with notification characteristic UUID.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/ble/battery_service/battery_service.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4325a brd4325b brd4325c brd4325g brd4338a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="alpha"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/ble/battery_service/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
 <descriptors name="ble_central" label="BLE - Central" description="Start a BLE device in central mode.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -240,6 +255,66 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_white_list/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
+<descriptors name="blood_pressure" label="BLE - Blood Pressure" description="This application demonstrates how to configure Blood Pressure Service GATT server with Blood Pressure service with notification characteristic UUID.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/ble/blood_pressure/blood_pressure.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4325a brd4325b brd4325c brd4325g brd4338a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="alpha"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/ble/blood_pressure/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="cli_demo" label="Cli Demo" description="Demonstrates to run all commands indivisullay">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/cli_demo/cli_demo.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="alpha"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/cli_demo/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="glucose" label="BLE - Glucose" description="This application demonstrates how to configure GATT server in BLE peripheral mode and GATT client in BLE central mode.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/ble/glucose/glucose.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4325a brd4325b brd4325c brd4325g brd4338a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="alpha"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/ble/glucose/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="health_thermometer" label="BLE - Health Thermometer" description="This application demonstrates how to configure health thermometer as GATT server in BLE peripheral mode.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/ble/health_thermometer/health_thermometer.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4325a brd4325b brd4325c brd4325g brd4338a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="alpha"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/ble/health_thermometer/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
 <descriptors name="iostream_usart_baremetal" label="SI91x - iostream usart baremetal" description="Demonstrates how to use the USART peripheral on the SI91x SoC device.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -253,6 +328,21 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/iostream_usart_baremetal/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="memlcd_baremetal" label="SI91x - MEMLCD Baremetal" description="Demonstrates how to to use MEMLCD.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/memlcd_baremetal/memlcd_baremetal.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4338a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="alpha"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/memlcd_baremetal/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="sl_si91x_calendar" label="SI91x - SL_CALENDAR" description="Demonstrates the how to configure and use the Calendar peripheral in SiLabs MCU chip.">

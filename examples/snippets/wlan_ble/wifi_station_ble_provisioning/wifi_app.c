@@ -289,6 +289,7 @@ void sl_wifi_app_task()
       case SL_WIFI_JOIN_STATE: {
         sl_wifi_credential_t cred  = { 0 };
         sl_wifi_credential_id_t id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
+        memset(&access_point, 0, sizeof(sl_wifi_client_configuration_t));
 
         cred.type = SL_WIFI_CRED_PSK;
         memcpy(cred.psk.value, pwd, strlen((char *)pwd));
@@ -303,7 +304,7 @@ void sl_wifi_app_task()
           access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
           access_point.credential_id = id;
 
-          LOG_PRINT("SSID %s\n", access_point.ssid.value);
+          LOG_PRINT("SSID=%s\n", access_point.ssid.value);
           status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
         }
         if (status != RSI_SUCCESS) {

@@ -8,9 +8,12 @@ quality: production
 component_root_path: ./components/si91x_support/brd4325g
 provides:
 - name: brd4325g
-include:
-- path: .
-- path: config
+- name: hardware_board
+- name: hardware_board_rb
+- name: rom_bypass
+- name: si91x_platform
+- name: multi_slave
+- name: device_needs_ram_execution
 define:
 - name: CHIP_917B0
 - name: SI917_RADIO_BOARD
@@ -29,4 +32,13 @@ requires:
 tag:
 - board:pn:BRD4325
 - board:variant:G
+
+include:
+- path: .
+  file_list:
+    - path: sl_board_configuration.h
+    - path: sl_board_control.h
+- path: config
+  file_list:
+    - path: FreeRTOSConfig.h
 

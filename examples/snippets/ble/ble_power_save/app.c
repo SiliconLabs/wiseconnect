@@ -421,7 +421,7 @@ int32_t rsi_initiate_power_save(void)
   //! initiating power save in wlan mode
   status = sl_wifi_set_performance_profile(&wifi_profile);
   if (status != SL_STATUS_OK) {
-    LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%d\r\n", status);
+    LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return status;
   }
 
@@ -448,7 +448,7 @@ void ble_app_task(void *argument)
   int32_t temp_event_map  = 0;
   int32_t temp_event_map1 = 0;
 
-#if ((BLE_ROLE == SLAVE_MODE) || (BLE_ROLE == DUAL_MODE))
+#if ((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_MODE))
   uint8_t adv[31] = { 2, 1, 6 };
 #endif
 
@@ -534,7 +534,7 @@ void ble_app_task(void *argument)
 
   ble_slave_conn_sem = osSemaphoreNew(1, 0, NULL);
 
-#if ((BLE_ROLE == SLAVE_MODE) || (BLE_ROLE == DUAL_MODE))
+#if ((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_MODE))
   //! prepare advertise data //local/device name
   adv[3] = strlen(RSI_BLE_LOCAL_NAME) + 1;
   adv[4] = 9;
@@ -553,7 +553,7 @@ void ble_app_task(void *argument)
   SET_BIT1(rsi_ble_states_bitmap, RSI_ADV_STATE);
 #endif
 
-#if ((BLE_ROLE == MASTER_MODE1) || (BLE_ROLE == DUAL_MODE))
+#if ((BLE_ROLE == CENTRAL_ROLE) || (BLE_ROLE == DUAL_MODE))
   //! start scanning
   LOG_PRINT("\n Start scanning \n");
   status = rsi_ble_start_scanning();

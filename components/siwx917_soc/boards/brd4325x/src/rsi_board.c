@@ -394,7 +394,7 @@ uint8_t Board_UARTGetChar(void)
 #if defined(M4_UART1_INSTANCE) && (M4_UART1_INSTANCE == 1)
     RSI_M4SSUsart0Handler();
 #endif
-#if defined(M4_UART1_INSTANCE) && (M4_UART1_INSTANCE == 1)
+#if defined(M4_UART2_INSTANCE) && (M4_UART2_INSTANCE == 1)
     RSI_M4SSUart1Handler();
 #endif
 #if defined(ULP_UART_INSTANCE) && (ULP_UART_INSTANCE == 1)

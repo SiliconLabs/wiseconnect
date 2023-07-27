@@ -424,7 +424,7 @@ typedef struct rsi_ble_req_whitelist_using_payload_s {
 
 #define BLE_PROTOCOL  0x01
 #define PROP_PROTOCOL 0x02
-// Set BLE PROTOCOL and PROP_PROTOCOL bandedge tx power cmd_ix=0x012A
+// Set BLE PROTOCOL and PROP_PROTOCOL bandedge TX power cmd_ix=0x012A
 typedef struct rsi_ble_set_prop_protocol_ble_bandedge_tx_power_s {
   uint8_t protocol;
   int8_t tx_power;
@@ -506,7 +506,7 @@ typedef struct rsi_data_packet_s {
 
 //White list structure
 typedef struct rsi_ble_white_list_s {
-  //This bit is used to add or delet the address form/to whit list
+  //This bit is used to add or delete the address form/to allow list
   uint8_t addordeltowhitlist;
   //Address of the device
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
@@ -661,7 +661,7 @@ typedef struct rsi_ble_req_read_phy_s {
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
 } rsi_ble_req_read_phy_t;
 
-//LE set phy command reasponse structure, cmd_ix - 0x00B1
+//LE set phy command response structure, cmd_ix - 0x00B1
 typedef struct rsi_ble_set_phy_s {
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
   uint8_t all_phy;
@@ -671,7 +671,7 @@ typedef struct rsi_ble_set_phy_s {
   uint16_t phy_options;
 } rsi_ble_set_phy_t;
 
-//LE set data length command reasponse structure, cmd_ix - 0x00B2
+//LE set data length command response structure, cmd_ix - 0x00B2
 typedef struct rsi_ble_setdatalength_s {
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
   uint16_t txoctets;
@@ -993,7 +993,7 @@ typedef struct rsi_ble_gatt_read_response_s {
   uint8_t data[RSI_DEV_ATT_LEN];
 } rsi_ble_gatt_read_response_t;
 
-// Att write/ execute write respomse cmd = 0x010A
+// Att write/ execute write response cmd = 0x010A
 typedef struct rsi_ble_gatt_write_response_s {
   //uint8[6], remote device address.
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
@@ -1095,7 +1095,7 @@ typedef struct ae_adv_params_s {
   /** uint8_t, Advertising Handle,  Used to identify an Advertising set , Range : 0x00 to 0xEF */
   uint8_t adv_handle;
   /**
-  *  uint16_t, Advertising Event Properties, inidicates the properties of Advertising Event
+  *  uint16_t, Advertising Event Properties, indicates the properties of Advertising Event
  *    ---------------------------------------------------------------------------------------------------------
  *   |       Bit Number    |                    Parameter Description                                          |
  *   ----------------------|-----------------------------------------------------------------------------------
@@ -1211,7 +1211,7 @@ typedef struct rsi_ble_ae_adv_enabel_s {
   */
   uint8_t enable;
   /**
-     uint8_t Num_of_Sets , Inidcates on how many Advertising sets to be disabled or enabled for Advertising
+     uint8_t Num_of_Sets , Indicates the number of Advertising sets to be disabled or enabled for Advertising
               0x00         - Disable all advertising sets
               0x01 to 0x3F - Number of advertising sets to enable or disable
   */
@@ -1351,7 +1351,7 @@ typedef struct rsi_ble_ae_set_scan_enable_s {
 typedef struct rsi_ble_ae_set_periodic_adv_create_sync_s {
 
   uint8_t fil_policy;
-  /** uint8_t, Advertising SID subfield in the ADI field used to identify the Periodic Advertising .
+  /** uint8_t, Advertising SID subfield in the ADI field used to identify the Periodic Advertising.
  *  Range : 0x00 to 0x0F, All other bits - Reserved for future use
 */
   uint8_t adv_sid;
@@ -1444,7 +1444,7 @@ typedef struct rsi_ble_initiation_params_s {
 // AE extended create connect
 typedef struct rsi_ble_ae_extended_create_connect_s {
   /** uint8_t, Initiator Filter Policy,It is used to determine whether the Filter Accept List is used
-   *        Value                                      Parameter Descripton
+   *        Value                                      Parameter Description
    *        0x00             Filter Accept List is not used to determine which advertiser to connect to Peer_Address_Type and Peer_Address shall be used.
    *        0x01             Filter Accept List is used to determine which advertiser to connect to Peer_Address_Type and Peer_Address shall be ignored.
    *   All other values      Reserved for future use
@@ -1463,7 +1463,7 @@ typedef struct rsi_ble_ae_extended_create_connect_s {
    * All other values                               Reserved for future use
   */
   uint8_t own_addr_type;
-  /** uint8_t, Remote Address Type or Peer Address Type, this paramater indicates the type of address used in the
+  /** uint8_t, Remote Address Type or Peer Address Type, this parameter indicates the type of address used in the
   connectable advertisement sent by the peer
   *   Value                                          Parameter Description
   *   0x00                           Public Device Address or Public Identity Address
@@ -1475,7 +1475,7 @@ typedef struct rsi_ble_ae_extended_create_connect_s {
   Random (static) Device Address, Non-Resolvable Private Address, or Resolvable Private Address depending on the Peer_Address_Type parameter */
   uint8_t remote_addr[RSI_DEV_ADDR_LEN];
   /** uint8_t, Initiating PHYs, this parameter indicates the PHY(s) on which the advertising packets should be received on the
-   primary advertising physical channel and the PHYs for which connection parameters have been specifiedn
+   primary advertising physical channel and the PHYs for which connection parameters have been specified
    *
    *         Bit number                         Parameter Description
    *            0                   Scan connectable advertisements on the LE 1M PHY. Connection parameters for the LE 1M PHY are provided.

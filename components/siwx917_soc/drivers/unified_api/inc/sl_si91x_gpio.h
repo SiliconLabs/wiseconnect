@@ -203,13 +203,13 @@ typedef enum {
 /// @brief Structure to hold the versions of peripheral API
 typedef struct {
   uint8_t release; ///< Release version number
-  uint8_t major;   ///< sqa version number
-  uint8_t minor;   ///< dev version number
+  uint8_t major;   ///< SQA version number
+  uint8_t minor;   ///< Development version number
 } sl_si91x_gpio_version_t;
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**
- * @brief   This API is used to set the direction for a GPIO pin.
+ * @brief   Set the direction for a GPIO pin.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -230,7 +230,7 @@ typedef struct {
 void sl_si91x_gpio_set_pin_direction(uint8_t port, uint8_t pin, sl_si91x_gpio_direction_t direction);
 
 /***************************************************************************/ /**
- * @brief       This API is used to get the direction GPIO
+ * @brief       Get the direction GPIO.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection, for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -252,7 +252,7 @@ void sl_si91x_gpio_set_pin_direction(uint8_t port, uint8_t pin, sl_si91x_gpio_di
 uint8_t sl_si91x_gpio_get_pin_direction(uint8_t port, uint8_t pin);
 
 /***************************************************************************/ /**
- * @brief      This API is used to enable the receiver bit in the PAD configuration register
+ * @brief      Enable the receiver bit in the PAD configuration register.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @param[in]  gpio_padnum - GPIO number to be use.
@@ -261,7 +261,7 @@ uint8_t sl_si91x_gpio_get_pin_direction(uint8_t port, uint8_t pin);
 void sl_si91x_gpio_enable_pad_receiver(uint8_t gpio_padnum);
 
 /***************************************************************************/ /**
- * @brief      This API is used to disable the receiver bit in the PAD configuration register
+ * @brief      Disable the receiver bit in the PAD configuration register.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @param[in]  gpio_padnum - GPIO number to be use.
@@ -270,7 +270,7 @@ void sl_si91x_gpio_enable_pad_receiver(uint8_t gpio_padnum);
 void sl_si91x_gpio_disable_pad_receiver(uint8_t gpio_padnum);
 
 /***************************************************************************/ /**
- * @brief   This API is used to select the pad(0 to 21)
+ * @brief   Select the pad(0 to 21).
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]   gpio_padnum - PAD number to be use
  * @return      None
@@ -278,7 +278,7 @@ void sl_si91x_gpio_disable_pad_receiver(uint8_t gpio_padnum);
 void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum);
 
 /***************************************************************************/ /**
- * @brief     This API is used to select drive strength of a GPIO pin
+ * @brief     Select drive strength of a GPIO pin.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection() \n
  *        \ref sl_si91x_gpio_enable_pad_receiver() \n
@@ -295,7 +295,7 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum);
 void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
- * @brief    This API is used to select the Driver disabled state control
+ * @brief    Select the Driver disabled state control.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection() \n
  *        \ref sl_si91x_gpio_enable_pad_receiver() \n
@@ -313,7 +313,7 @@ void sl_si91x_gpio_select_pad_driver_disable_state(uint8_t gpio_padnum,
                                                    sl_si91x_gpio_driver_disable_state_t disable_state);
 
 /***************************************************************************/ /**
- * @brief This API is used to select AND/OR of the group interrupt. If multiple interrupts
+ * @brief Select AND/OR of the group interrupt. If multiple interrupts
  *    on same port (or) different are to be generated, then use this API.
  *   Example: Consider port 0: pin 2,3 and port 3: pin 1,2 for interrupt generation.
  *      Choose OR, any of the selected pin is fine for group interrupt generation
@@ -344,7 +344,7 @@ void sl_si91x_gpio_select_group_interrupt_and_or(uint8_t port,
                                                  sl_si91x_gpio_and_or_t and_or);
 
 /***************************************************************************/ /**
- * @brief        This API is used to clear the group interrupt status
+ * @brief        Clear the group interrupt status.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection() \n
  *        \ref sl_si91x_gpio_enable_pad_receiver() \n
@@ -358,7 +358,7 @@ void sl_si91x_gpio_select_group_interrupt_and_or(uint8_t port,
 void sl_si91x_gpio_clear_group_interrupt(sl_si91x_group_interrupt_t group_interrupt);
 
 /***************************************************************************/ /**
- * @brief     This API is to used to get the group interrupt status
+ * @brief     Get the group interrupt status.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -381,7 +381,7 @@ void sl_si91x_gpio_clear_group_interrupt(sl_si91x_group_interrupt_t group_interr
 uint32_t sl_si91x_gpio_get_group_interrupt_status(uint8_t port, sl_si91x_group_interrupt_t group_interrupt);
 
 /***************************************************************************/ /**
- * @brief     This API to used to configure the group interrupt wakeup interrupt
+ * @brief     Configure the group interrupt wake up the interrupt.
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
  *                  ULP instance - PORT 4
@@ -398,7 +398,7 @@ void sl_si91x_gpio_select_group_interrupt_wakeup(uint8_t port,
                                                  sl_si91x_gpio_wakeup_t flags);
 
 /***************************************************************************/ /**
- * @brief      This API is used to configure the MCU HP group interrupts
+ * @brief      Configure the MCU HP group interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection() \n
  *        \ref sl_si91x_gpio_enable_pad_receiver() \n
@@ -414,7 +414,7 @@ void sl_si91x_gpio_select_group_interrupt_wakeup(uint8_t port,
 void sl_si91x_gpio_configure_group_interrupt(sl_si91x_gpio_group_interrupt_config_t *configuration);
 
 /***************************************************************************/ /**
- * @brief      This API is used to get the polarity of group interrupt
+ * @brief      Get the polarity of group interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -443,7 +443,7 @@ uint8_t sl_si91x_gpio_get_group_interrupt_polarity(sl_si91x_group_interrupt_t gr
                                                    uint8_t pin);
 
 /***************************************************************************/ /**
- * @brief      This API is used to configure the polarity of group interrupt
+ * @brief      Configure the polarity of group interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -475,7 +475,7 @@ void sl_si91x_gpio_set_group_interrupt_polarity(sl_si91x_group_interrupt_t group
                                                 sl_si91x_gpio_polarity_t polarity);
 
 /***************************************************************************/ /**
- * @brief      This API is used to get the level/edge event of group interrupt
+ * @brief      Get the level/edge event of group interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -498,7 +498,7 @@ void sl_si91x_gpio_set_group_interrupt_polarity(sl_si91x_group_interrupt_t group
 uint8_t sl_si91x_gpio_get_group_interrupt_level_edge(uint8_t port, sl_si91x_group_interrupt_t group_interrupt);
 
 /***************************************************************************/ /**
- * @brief      This API is used to set the level/edge event of group interrupt
+ * @brief      Set the level/edge event of group interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n 
@@ -525,7 +525,7 @@ void sl_si91x_gpio_set_group_interrupt_level_edge(uint8_t port,
                                                   sl_si91x_gpio_level_edge_t level_edge);
 
 /***************************************************************************/ /**
- * @brief      This API is used to unmask the group interrupts
+ * @brief      Unmask the group interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -546,7 +546,7 @@ void sl_si91x_gpio_set_group_interrupt_level_edge(uint8_t port,
 void sl_si91x_gpio_unmask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t group_interrupt);
 
 /***************************************************************************/ /**
- * @brief      This API is used to mask the group interrupts
+ * @brief      Mask the group interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -564,7 +564,7 @@ void sl_si91x_gpio_unmask_group_interrupt(uint8_t port, sl_si91x_group_interrupt
 void sl_si91x_gpio_mask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t group_interrupt);
 
 /***************************************************************************/ /**
- * @brief        This API is used to disable HP/ULP GPIO clock
+ * @brief        Disable HP/ULP GPIO clock.
  * @param[in]    clock  - Selects M4 clock or ULP clock of type
  *                    \ref  sl_si91x_gpio_select_clock_t
  *                         0, for M4 GPIO CLK\n
@@ -574,7 +574,7 @@ void sl_si91x_gpio_mask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t
 void sl_si91x_gpio_disable_clock(sl_si91x_gpio_select_clock_t clock);
 
 /***************************************************************************/ /**
- * @brief    This API is used to enable HP/ULP GPIO clock
+ * @brief    Enable HP/ULP GPIO clock.
  * @param[in]    clock  - Selects M4 clock or ULP clock of type
  *                    \ref  sl_si91x_gpio_select_clock_t
  *                         0, for M4 GPIO CLK\n
@@ -584,7 +584,7 @@ void sl_si91x_gpio_disable_clock(sl_si91x_gpio_select_clock_t clock);
 void sl_si91x_gpio_enable_clock(sl_si91x_gpio_select_clock_t clock);
 
 /***************************************************************************/ /**
- * @brief      This API is used to enable the group interrupt
+ * @brief      Enable the group interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -609,7 +609,7 @@ void sl_si91x_gpio_enable_clock(sl_si91x_gpio_select_clock_t clock);
 void sl_si91x_gpio_enable_group_interrupt(sl_si91x_group_interrupt_t group_interrupt, uint8_t port, uint8_t pin);
 
 /***************************************************************************/ /**
- * @brief      This API is used to disable the group interrupts
+ * @brief      Disable the group interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  *        \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -635,7 +635,7 @@ void sl_si91x_gpio_enable_group_interrupt(sl_si91x_group_interrupt_t group_inter
 void sl_si91x_gpio_disable_group_interrupt(sl_si91x_group_interrupt_t group_interrupt, uint8_t port, uint8_t pin);
 
 /***************************************************************************/ /**
- * @brief      This API is used to select Slew Rate
+ * @brief      Select the slew rate.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
  * @param[in]  gpio_padnum - GPIO number to be use
@@ -647,7 +647,7 @@ void sl_si91x_gpio_disable_group_interrupt(sl_si91x_group_interrupt_t group_inte
 void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_padnum, sl_si91x_gpio_slew_rate_t slew_rate);
 
 /***************************************************************************/ /**
- * @brief        this API is used to select Drive strength
+ * @brief        Select the drive strength.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
  * @param[in]    gpio_padnum -  GPIO number to be use
@@ -662,7 +662,7 @@ void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_padnum, sl_si91x_gpio_s
 void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
- * @brief        This API is used to select the Driver disabled state control
+ * @brief        Select the driver-disabled state control.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
  * @param[in]    gpio_padnum    -  GPIO number to be use
@@ -678,7 +678,7 @@ void sl_si91x_gpio_select_ulp_pad_driver_disable_state(uint8_t gpio_padnum,
                                                        sl_si91x_gpio_driver_disable_state_t disable_state);
 
 /***************************************************************************/ /**
- * @brief     This API is used to disable the receiver bit for ULP
+ * @brief     Disable the receiver bit for ULP.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]    gpio_padnum  - GPIO number to be used
  * @return       None
@@ -686,7 +686,7 @@ void sl_si91x_gpio_select_ulp_pad_driver_disable_state(uint8_t gpio_padnum,
 void sl_si91x_gpio_disable_ulp_pad_receiver(uint32_t gpio_padnum);
 
 /***************************************************************************/ /**
- * @brief        This API is used to enable the receiver bit for ULP
+ * @brief        Enable the receiver bit for ULP.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]    gpio_padnum  - GPIO number to be used
  * @return       None
@@ -694,7 +694,7 @@ void sl_si91x_gpio_disable_ulp_pad_receiver(uint32_t gpio_padnum);
 void sl_si91x_gpio_enable_ulp_pad_receiver(uint8_t gpio_padnum);
 
 /***************************************************************************/ /**
- * @brief      This API is used to configure the MCU ULP GPIO pin interrupt.
+ * @brief      Configure the MCU ULP GPIO pin interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
  *        \ref sl_gpio_set_pin_mode() \n
@@ -710,7 +710,7 @@ void sl_si91x_gpio_configure_ulp_pin_interrupt(uint8_t interrupt_no,
                                                sl_si91x_gpio_pin_ulp_t pin);
 
 /***************************************************************************/ /**
- * @brief     This API is used to set the NPSS GPIO pin MUX(mode)
+ * @brief     Set the NPSS GPIO pin MUX(mode).
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  * @param[in]  pin  -  NPSS GPIO pin number(0...4) of type
@@ -721,7 +721,7 @@ void sl_si91x_gpio_configure_ulp_pin_interrupt(uint8_t interrupt_no,
 void sl_si91x_gpio_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uulp_npss_mode_t mode);
 
 /***************************************************************************/ /**
- * @brief     This API is used to enable/disable NPSS GPIO receiver
+ * @brief     Enable/disable NPSS GPIO receiver.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]  pin    - is NPSS GPIO pin number (0...4)
  * @param[in]  receiver - is enable/disable NPSS GPIO receiver of type
@@ -733,7 +733,7 @@ void sl_si91x_gpio_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uulp_npss_mode_t 
 void sl_si91x_gpio_select_uulp_npss_receiver(uint8_t pin, sl_si91x_gpio_receiver_t receiver);
 
 /***************************************************************************/ /**
- * @brief     This API is used to set the direction of the NPSS GPIO
+ * @brief     Set the direction of the NPSS GPIO.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
@@ -747,7 +747,7 @@ void sl_si91x_gpio_select_uulp_npss_receiver(uint8_t pin, sl_si91x_gpio_receiver
 void sl_si91x_gpio_set_uulp_npss_direction(uint8_t pin, sl_si91x_gpio_direction_t direction);
 
 /***************************************************************************/ /**
- * @brief      This API is used to Get the direction of the NPSS GPIO
+ * @brief      Get the direction of the NPSS GPIO.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
@@ -760,7 +760,7 @@ void sl_si91x_gpio_set_uulp_npss_direction(uint8_t pin, sl_si91x_gpio_direction_
 uint8_t sl_si91x_gpio_get_uulp_npss_direction(uint8_t pin);
 
 /***************************************************************************/ /**
- * @brief      This API is used to control the NPSS GPIO pin value
+ * @brief      Control the NPSS GPIO pin value.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
@@ -775,7 +775,7 @@ uint8_t sl_si91x_gpio_get_uulp_npss_direction(uint8_t pin);
 void sl_si91x_gpio_set_uulp_npss_pin_value(uint8_t pin, sl_si91x_gpio_pin_value_t pin_value);
 
 /***************************************************************************/ /**
- * @brief     This API is used to Get the NPSS GPIO pin value
+ * @brief     Get the NPSS GPIO pin value.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
@@ -789,7 +789,7 @@ void sl_si91x_gpio_set_uulp_npss_pin_value(uint8_t pin, sl_si91x_gpio_pin_value_
 uint8_t sl_si91x_gpio_get_uulp_npss_pin(uint8_t pin);
 
 /***************************************************************************/ /**
- * @brief     This API is used to select NPSS GPIO polarity
+ * @brief     Select the NPSS GPIO polarity.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in] pin   - is NPSS GPIO pin number (0...4)
  * @param[in] polarity - GPIO polarity
@@ -801,7 +801,7 @@ uint8_t sl_si91x_gpio_get_uulp_npss_pin(uint8_t pin);
 void sl_si91x_gpio_select_uulp_npss_polarity(uint8_t pin, sl_si91x_gpio_polarity_t polarity);
 
 /***************************************************************************/ /**
- * @brief       This API is used to set the UULP NPSS GPIO to wakeup interrupt
+ * @brief       Set the UULP NPSS GPIO to wake up interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts
  * @return      none
@@ -809,7 +809,7 @@ void sl_si91x_gpio_select_uulp_npss_polarity(uint8_t pin, sl_si91x_gpio_polarity
 void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
 
 /***************************************************************************/ /**
- * @brief       This API is used to clear the UULP NPSS GPIO to wakeup interrupt
+ * @brief       Clear the UULP NPSS GPIO to wake up interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts
  * @return      none
@@ -817,7 +817,7 @@ void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
 void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
 
 /***************************************************************************/ /**
- * @brief       This API is used to mask the NPSS GPIO interrupt
+ * @brief       Mask the NPSS GPIO interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
@@ -829,7 +829,7 @@ void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
 void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
 
 /***************************************************************************/ /**
- * @brief       This API is used to unmask the NPSS GPIO interrupt
+ * @brief       Unmask the NPSS GPIO interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
@@ -841,7 +841,7 @@ void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
 void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
 
 /***************************************************************************/ /**
- * @brief    This API is used to clear NPSS GPIO interrupt
+ * @brief    Clear the NPSS GPIO interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
@@ -854,7 +854,7 @@ void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
 void sl_si91x_gpio_clear_uulp_interrupt(uint8_t npssgpio_interrupt);
 
 /***************************************************************************/ /**
- * @brief     This API is used to get the NPSS GPIO interrupt status
+ * @brief     Get the NPSS GPIO interrupt status.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
@@ -869,7 +869,7 @@ void sl_si91x_gpio_clear_uulp_interrupt(uint8_t npssgpio_interrupt);
 uint8_t sl_si91x_gpio_get_uulp_interrupt_status(void);
 
 /***************************************************************************/ /**
- * @brief     This API is used to clear one or more pending ULP GPIO interrupts.
+ * @brief     Clear one or more pending ULP GPIO interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
  *        \ref sl_gpio_set_pin_mode() \n
@@ -881,7 +881,7 @@ uint8_t sl_si91x_gpio_get_uulp_interrupt_status(void);
 void sl_si91x_gpio_clear_ulp_interrupt(uint32_t flags);
 
 /***************************************************************************/ /**
- * @brief     This API is used to clear the ULP group interrupt
+ * @brief     Clear the ULP group interrupt.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
  *        \ref sl_gpio_set_pin_mode() \n
@@ -895,7 +895,7 @@ void sl_si91x_gpio_clear_ulp_interrupt(uint32_t flags);
 void sl_si91x_gpio_clear_ulp_group_interrupt(sl_si91x_group_interrupt_t group_interrupt);
 
 /***************************************************************************/ /**
-* @brief     This API is used to configure the ULP GPIO pin interrupt.
+* @brief     Configure the ULP GPIO pin interrupt.
 * @pre   \ref sl_si91x_gpio_enable_clock() \n
 *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
 *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
@@ -909,7 +909,7 @@ void sl_si91x_gpio_clear_ulp_group_interrupt(sl_si91x_group_interrupt_t group_in
 void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_t flags, uint8_t npssgpio_interrupt);
 
 /***************************************************************************/ /**
- * @brief      This API is used to configure the ULP GPIO group interrupts
+ * @brief      Configure ULP GPIO group interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
  *        \ref sl_gpio_set_pin_mode() \n
@@ -921,7 +921,7 @@ void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_
 void sl_si91x_gpio_configure_ulp_group_interrupt(sl_si91x_gpio_group_interrupt_config_t *configuration);
 
 /***************************************************************************/ /**
- * @brief   This API is used to verify assumptions and print message if the assumption is false.
+ * @brief   Verify assumptions and print message if the assumption is false.
  * @param[in]  file - File name
  * @param[in]  line - Line number
  * @return     None
@@ -929,7 +929,7 @@ void sl_si91x_gpio_configure_ulp_group_interrupt(sl_si91x_gpio_group_interrupt_c
 void sl_assert_failed(uint8_t *file, uint32_t line);
 
 /***************************************************************************/ /**
- * This API is used to toggle the UULP pin.
+ * Toggle the UULP pin.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
@@ -940,7 +940,7 @@ void sl_assert_failed(uint8_t *file, uint32_t line);
 void sl_si91x_gpio_toggle_uulp_npss_pin(uint8_t pin);
 
 /***************************************************************************/ /**
- * @brief        This API is used to indicate UULP GPIO PAD configuration
+ * @brief        Indicate UULP GPIO PAD configuration.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @param[in]    PAD configuration pointer to \ref uulp_pad_config_t structure
  * @return       None
@@ -948,7 +948,7 @@ void sl_si91x_gpio_toggle_uulp_npss_pin(uint8_t pin);
 void sl_si91x_gpio_set_uulp_pad_configuration(uulp_pad_config_t *pad_config);
 
 /***************************************************************************/ /**
- * @brief    To get the release, sqa and dev version of gpio peripheral
+ * @brief    Get the release, SQA, and development version numbers of the GPIO peripheral.
  * @param[in]    None
  * @return       returns structure of type \ref sl_si91x_gpio_version_t
 *******************************************************************************/

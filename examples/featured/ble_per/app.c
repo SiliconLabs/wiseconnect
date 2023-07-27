@@ -222,6 +222,7 @@ void ble_per(void *unused)
 {
   UNUSED_PARAMETER(unused);
   sl_status_t status;
+  sl_wifi_version_string_t version = { 0 };
 
   //! Wi-Fi initialization
   status = sl_wifi_init(&config, default_wifi_event_handler);
@@ -230,6 +231,14 @@ void ble_per(void *unused)
     return;
   }
   LOG_PRINT("\r\nWi-Fi Initialization Success\n");
+
+  //! Firmware version Prints
+  status = sl_wifi_get_firmware_version(&version);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
+  } else {
+    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+  }
 
   //! get the local device address(MAC address).
   status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
