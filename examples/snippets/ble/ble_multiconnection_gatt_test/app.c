@@ -97,9 +97,9 @@ static const sl_wifi_device_configuration_t config = {
 #endif
                      | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
 #if (defined A2DP_POWER_SAVE_ENABLE)
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                     | SL_SI91X_EXT_FEAT_XTAL_CLK
 #endif
-                       ),
+                     ),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
@@ -154,7 +154,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = 3072,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -186,7 +186,7 @@ int32_t rsi_initiate_power_save(void)
 {
   int32_t status = RSI_SUCCESS;
 
-  LOG_PRINT("\r\n Keep module in to power save \r\n");
+  LOG_PRINT("\r\n Keep module into power save \r\n");
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
   if (status != RSI_SUCCESS) {
@@ -197,7 +197,7 @@ int32_t rsi_initiate_power_save(void)
   //! initiating power save in wlan mode
   status = sl_wifi_set_performance_profile(&wifi_profile);
   if (status != SL_STATUS_OK) {
-    LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%d\r\n", status);
+    LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return status;
   }
 

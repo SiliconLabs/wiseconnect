@@ -1,32 +1,32 @@
 /***************************************************************************/ /**
- * @file sl_si91x_sio.c
- * @brief SIO API implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
- *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- ******************************************************************************/
+* @file sl_si91x_sio.c
+* @brief SIO API implementation
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* SPDX-License-Identifier: Zlib
+*
+* The licensor of this software is Silicon Laboratories Inc.
+*
+* This software is provided 'as-is', without any express or implied
+* warranty. In no event will the authors be held liable for any damages
+* arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute it
+* freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented; you must not
+*    claim that you wrote the original software. If you use this software
+*    in a product, an acknowledgment in the product documentation would be
+*    appreciated but is not required.
+* 2. Altered source versions must be plainly marked as such, and must not be
+*    misrepresented as being the original software.
+* 3. This notice may not be removed or altered from any source distribution.
+*
+******************************************************************************/
 #include "sl_si91x_sio.h"
 #include "sl_si91x_sio_config.h"
 /*******************************************************************************
@@ -47,7 +47,7 @@
        in the universal configuration (UC). if the application requires the    \
        configuration to be changed in run-time, undefined this macro and       \
        change the peripheral configuration through the \ref                    \
-       sl_si91x_gspi_set_configuration API. */
+       sl_si91x_sio_spi_init API. */
 
 /*******************************************************************************
  ***************************  Global  VARIABLES ********************************
@@ -59,6 +59,7 @@
 sl_sio_i2s_callback_t i2s_user_callback;
 sl_sio_spi_callback_t spi_user_callback;
 sl_sio_uart_callback_t uart_user_callback;
+stc_sio_uart_config_t UartInitstc = { 0 };
 
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
@@ -218,6 +219,9 @@ void sl_si91x_sio_spi_unregister_event_callback(void)
  ******************************************************************************/
 sl_status_t sl_si91x_sio_spi_transfer(sl_sio_spi_xfer_config_t *xfer_config)
 {
+#ifdef SIO_UC
+  xfer_config->u8BitLen = pstcSpiConfigUc.u8BitLen;
+#endif
   sl_status_t status;
   error_t error_status;
   do {
@@ -310,6 +314,7 @@ sl_status_t sl_si91x_sio_uart_init(sl_sio_uart_config_t *configuration)
 {
 #ifdef SIO_UC
   configuration = &UartInitstcUc;
+  UartInitstc   = UartInitstcUc;
 #endif
   sl_status_t status;
   error_t error_status;
@@ -320,7 +325,7 @@ sl_status_t sl_si91x_sio_uart_init(sl_sio_uart_config_t *configuration)
       break;
     }
     // Initialize the SIO-UART
-    error_status = RSI_SIO_Uart_Initialization(SIO, configuration);
+    error_status = RSI_SIO_UartInit(SIO, configuration);
     status       = convert_rsi_to_sl_error_code(error_status);
   } while (false);
   return status;

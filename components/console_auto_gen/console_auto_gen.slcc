@@ -14,3 +14,8 @@ source:
 - path: src/sl_string.c
 include:
 - path: inc
+requires:
+- name: socket_utility
+- condition: ["si91x_internal_stack"]
+  name: iot_sockets
+

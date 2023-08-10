@@ -37,11 +37,7 @@ sl_status_t sl_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
 #define BT_SEM     0x1
 #define BT_CMD_SEM 0x2
 
-#ifndef NCP_HOST_DATA_TX_EVENT
-#define NCP_HOST_DATA_TX_EVENT (1 << 1) // Notify there is something to transmit
-#endif
 #include "sl_si91x_host_interface.h"
-void sl_si91x_host_set_event(uint32_t event_mask);
 
 /** @addtogroup DRIVER14
 * @{

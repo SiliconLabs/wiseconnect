@@ -24,7 +24,7 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define BUFFER_SIZE             4096      // Length of data to be sent through SPI
+#define BUFFER_SIZE             1024      // Length of data to be sent through SPI
 #define DIVISION_FACTOR         0         // Division Factor
 #define INTF_PLL_CLK            180000000 // PLL Clock frequency
 #define INTF_PLL_REF_CLK        40000000  // PLL Ref Clock frequency
@@ -34,6 +34,7 @@
 #define SOC_PLL_MM_COUNT_LIMIT  0xA4      // SOC PLL count limit
 #define SSI_BIT_WIDTH           8         // SSI bit width
 #define SSI_BAUDRATE            10000000  // SSI baudrate
+#define MAX_BIT_WIDTH           32        // Maximum Bit width
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -50,8 +51,7 @@ static uint8_t data_in[BUFFER_SIZE]      = { '\0' };
 static sl_ssi_handle_t ssi_driver_handle = NULL;
 boolean_t transfer_complete              = false;
 boolean_t begin_transmission             = true;
-extern sl_status_t sl_si91x_ssi_register_event_callback(sl_ssi_handle_t ssi_handle,
-                                                        sl_ssi_signal_event_t callback_event);
+static uint16_t division_factor          = 1;
 
 /// @brief Enumeration for different transmission scenarios
 typedef enum {
@@ -134,6 +134,13 @@ void ssi_slave_example_init(void)
       break;
     }
     DEBUGOUT("SSI register event callback Success \n");
+    // Fetching and printing the current clock division factor
+    DEBUGOUT("Current Clock division factor is %lu \n", sl_si91x_ssi_get_clock_division_factor(ssi_driver_handle));
+    // Fetching and printing the current frame length
+    DEBUGOUT("Current Frame Length is %lu \n", sl_si91x_ssi_get_frame_length(ssi_driver_handle));
+    if (sl_si91x_ssi_get_frame_length(ssi_driver_handle) > SSI_BIT_WIDTH) {
+      division_factor = sizeof(data_out[0]);
+    }
     // As per the macros enabled in the header file, it will configure the current mode.
     if (SL_USE_TRANSFER) {
       current_mode = SL_TRANSFER_DATA;
@@ -160,7 +167,7 @@ void ssi_slave_example_process_action(void)
     case SL_TRANSFER_DATA:
       if (begin_transmission == true) {
         // Validation for executing the API only once
-        status = sl_si91x_ssi_transfer_data(ssi_driver_handle, data_out, data_in, sizeof(data_out));
+        status = sl_si91x_ssi_transfer_data(ssi_driver_handle, data_out, data_in, sizeof(data_out) / division_factor);
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_ssi_transfer_data: Error Code : %lu \n", status);
@@ -224,7 +231,7 @@ void ssi_slave_example_process_action(void)
     case SL_SEND_DATA:
       if (begin_transmission) {
         // Validation for executing the API only once
-        status = sl_si91x_ssi_send_data(ssi_driver_handle, data_out, sizeof(data_out));
+        status = sl_si91x_ssi_send_data(ssi_driver_handle, data_out, sizeof(data_out) / division_factor);
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_ssi_send_data: Error Code : %lu \n", status);
@@ -255,8 +262,18 @@ void ssi_slave_example_process_action(void)
 *******************************************************************************/
 static void compare_loopback_data(void)
 {
+  // If the data width is not standard (8-bit) then the data should be masked.
+  // The extra bits of the integer should be always zero.
+  // For example, if bit width is 7, then from 8-15 all bits should be zero in a 16 bit integer.
+  // So mask has value according to the data width and it is applied to the data.
   int data_index;
+  uint8_t frame_length = 0;
+  uint16_t mask        = ~0;
+  frame_length         = sl_si91x_ssi_get_frame_length(ssi_driver_handle);
+  mask                 = mask >> (MAX_BIT_WIDTH - frame_length);
   for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
+    data_in[data_index] &= mask;
+    data_out[data_index] &= mask;
     if (data_out[data_index] != data_in[data_index]) {
       break;
     }

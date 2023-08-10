@@ -38,7 +38,7 @@
 stc_sio_cb_t gstcSioCb;
 
 volatile uint32_t u32Fclk = 0;
-
+uint8_t bit_length;
 /*==============================================*/
 /**
  * @fn           static void RSI_SIO_ClockEnable(void)
@@ -217,8 +217,7 @@ void IRQ037_Handler(void) // with interrupt
             (u32Data << (32 - gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen));
         } else {
           // LSB First
-          pstcSio->SIO_BUFFER_REG[gstcSioCb.spi_sio.u8SpiMosiCh] =
-            (u32Data >> (32 - gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen));
+          pstcSio->SIO_BUFFER_REG[gstcSioCb.spi_sio.u8SpiMosiCh] = (u32Data);
         }
         gstcSioCb.spi_sio.pstscSpiXfer->txDoneCount++;
 
@@ -239,12 +238,31 @@ void IRQ037_Handler(void) // with interrupt
           // Fill the buffer
           u32Data = pstcSio->SIO_BUFFER_REG[gstcSioCb.spi_sio.u8SpiMisoCh];
 
-          if (gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen == 8) {
-            ((uint8_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] = u32Data;
-          } else if (gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen == 16) {
-            ((uint16_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] = u32Data;
+          if ((pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[gstcSioCb.spi_sio.u8SpiMisoCh].REVERSE_LOAD == 1)
+              && ((pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[gstcSioCb.spi_sio.u8SpiMosiCh].REVERSE_LOAD == 1))) {
+            // MSB First
+            if (gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen == 16) {
+              ((uint16_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] =
+                u32Data;
+            } else if (gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen == 8) {
+              ((uint8_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] =
+                u32Data;
+            } else {
+              ((uint32_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] =
+                u32Data;
+            }
           } else {
-            ((uint32_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] = u32Data;
+            // LSB First
+            if (gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen == 16) {
+              ((uint16_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] =
+                (u32Data >> (32 - gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen));
+            } else if (gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen == 8) {
+              ((uint8_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] =
+                (u32Data >> (32 - gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen));
+            } else {
+              ((uint32_t *)gstcSioCb.spi_sio.pstscSpiXfer->rxBuff)[gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount] =
+                (u32Data >> (32 - gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen));
+            }
           }
           // Check the buffer lengths
 
@@ -449,7 +467,7 @@ error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiCo
   u32RelaodVal = (u32RelaodVal / 2) - 1;
 
   // Bit order configuration
-  if (pstcSpiConfig->u8BitOrder == 1) {
+  if ((pstcSpiConfig->u8BitOrder == 1) && (pstcSpiConfig->u8BitLen == 16)) {
     // MSB First
     pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMisoCh].REVERSE_LOAD = 1;
     pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMosiCh].REVERSE_LOAD = 1;
@@ -458,7 +476,7 @@ error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiCo
     pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMisoCh].REVERSE_LOAD = 0;
     pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMosiCh].REVERSE_LOAD = 0;
   }
-
+  bit_length = pstcSpiConfig->u8BitLen;
   // Update clock reload for the channels
   pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMisoCh].RELOAD_VALUE = (u32RelaodVal);
   pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMosiCh].RELOAD_VALUE = (u32RelaodVal);
@@ -555,7 +573,7 @@ error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstc
     pstcSio->SIO_BUFFER_REG[gstcSioCb.spi_sio.u8SpiMosiCh] = (u32Data << (32 - pstcSpiXfer->u8BitLen));
   } else {
     // LSB First
-    pstcSio->SIO_BUFFER_REG[gstcSioCb.spi_sio.u8SpiMosiCh] = (u32Data >> (32 - pstcSpiXfer->u8BitLen));
+    pstcSio->SIO_BUFFER_REG[gstcSioCb.spi_sio.u8SpiMosiCh] = (u32Data);
   }
 
   // Enable and pause the shift counters
@@ -1992,141 +2010,6 @@ void RSI_SIO_Edge_Select(volatile SIO_Type *pstcSio, en_sio_channels_t channel, 
   } else {
     pstcSio->SIO_CONFIG_REG_b[channel].EDGE_SEL = ENABLE;
   }
-}
-
-/*==============================================*/
-/**
- * @fn           error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio,
- * stc_sio_spi_cfg_t *pstcSpiConfig)
- * @brief        This API is used to configure the SPI in SIO.
- * @param[in]    pstcSio       : pointer to the register instance of SIO module
- * @param[in]    pstcSpiConfig : pointer to SIO spi configuration structure
- * @return       return RSI_OK on success
- *               failure return error code.
- */
-error_t RSI_SIO_Spi_Initialization(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiConfig)
-{
-  uint32_t u32RelaodVal = 0;
-
-  // Parameter check for valid parameters
-  if ((NULL == pstcSio) || (NULL == pstcSpiConfig)) {
-    return (INVALID_PARAMETERS);
-  }
-
-  // Update the global SIO channel CB
-  gstcSioCb.spi_sio.u8SpiCCh    = pstcSpiConfig->u8SpiCsCh;
-  gstcSioCb.spi_sio.u8SpiMisoCh = pstcSpiConfig->u8SpiMisoCh;
-  gstcSioCb.spi_sio.u8SpiMosiCh = pstcSpiConfig->u8SpiMosiCh;
-  gstcSioCb.spi_sio.u8SpiClkCh  = pstcSpiConfig->u8SpiClkCh;
-  gstcSioCb.spi_sio.u8SpiValid  = ONE;
-
-  // chip select channel mux configuration
-  pstcSio->SIO_OUT_MUX_REG[pstcSpiConfig->u8SpiCsCh] = ZERO;
-  // chip select channel OUTPUT enable
-  pstcSio->SIO_GPIO_OEN_REG &= (~BIT(pstcSpiConfig->u8SpiCsCh));
-  pstcSio->SIO_GPIO_OUT_REG |= (ONE << pstcSpiConfig->u8SpiCsCh);
-
-  // SPI clock channel configuration
-  pstcSio->SIO_OUT_MUX_REG[pstcSpiConfig->u8SpiClkCh] = (((ONE & SEVEN) << THREE));
-  // Enable clock mode with inverted clock
-  if (pstcSpiConfig->u8Mode == SioSpiMode0) {
-    // SPI MODE 0
-    // Configure SPI clock LOW to HIGH , on idle clock line will be in low state
-    pstcSio->SIO_CONFIG_REG[pstcSpiConfig->u8SpiClkCh] |= BIT(NINE) | BIT(FOURTEEN);
-  } else {
-    // SPI MODE 3
-    // Configure SPI clock HIGH to LOW , on idle clock line will be in high
-    // state
-    pstcSio->SIO_CONFIG_REG[pstcSpiConfig->u8SpiClkCh] |= BIT(FOURTEEN);
-  }
-  // clock channel OUTPUT enable
-  pstcSio->SIO_GPIO_OEN_REG &= (~BIT(pstcSpiConfig->u8SpiClkCh));
-  pstcSio->SIO_GPIO_OUT_REG |= (ONE << pstcSpiConfig->u8SpiClkCh);
-  // SPI MOSI MUX configuration
-  pstcSio->SIO_OUT_MUX_REG[pstcSpiConfig->u8SpiMosiCh] = ((FOUR & SEVEN) << THREE);
-  // MOSI Output enable
-  pstcSio->SIO_GPIO_OEN_REG &= (~BIT(pstcSpiConfig->u8SpiMosiCh));
-  // High the line default
-  pstcSio->SIO_GPIO_OUT_REG |= (ONE << pstcSpiConfig->u8SpiMosiCh);
-  // MISO channel configuration as input
-  pstcSio->SIO_INPUT_MUX_REG[pstcSpiConfig->u8SpiMisoCh] = (ZERO << ZERO);
-  // Enable Swap interrupts for MOSI and MISO channels
-  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= (BIT(pstcSpiConfig->u8SpiMisoCh) | BIT(pstcSpiConfig->u8SpiMosiCh));
-  // unmask interrupts
-  pstcSio->SIO_SWAP_INTR_MASK_CLEAR_REG |= (BIT(pstcSpiConfig->u8SpiMisoCh) | BIT(pstcSpiConfig->u8SpiMosiCh));
-  // SPI interface clock frequency configuration
-  // Derive the reload value
-  u32RelaodVal = (SystemCoreClock / pstcSpiConfig->u32SpiClockFrq);
-  u32RelaodVal = (u32RelaodVal / TWO) - ONE;
-  // Bit order configuration
-  if (pstcSpiConfig->u8BitOrder == ONE) {
-    // MSB First
-    pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMisoCh].REVERSE_LOAD = ONE;
-  } else {
-    // LSB First
-    pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMisoCh].REVERSE_LOAD = ZERO;
-  }
-  // Update clock reload for the channels
-  pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiMosiCh].RELOAD_VALUE = (u32RelaodVal);
-  pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcSpiConfig->u8SpiClkCh].RELOAD_VALUE  = (u32RelaodVal);
-  // Configure data position counters
-  pstcSio->SIO_DATA_POS_COUNT_REG_b[pstcSpiConfig->u8SpiMisoCh].RELOAD_VALUE = (pstcSpiConfig->u8BitLen - ONE);
-  pstcSio->SIO_DATA_POS_COUNT_REG_b[pstcSpiConfig->u8SpiClkCh].RELOAD_VALUE  = (pstcSpiConfig->u8BitLen - ONE);
-
-  return RSI_OK;
-}
-
-/*==============================================*/
-/**
- * @fn           uint8_t RSI_SIO_UartInit(SIO_Type *pstcSio,
- * stc_sio_uart_config_t *pstcConfig)
- * @brief        This API is used to Initialization of uart in sio
- * @param[in]    pstcSio    :pointer to the register instance of SIO module
- * @param[in]    pstcConfig :pointer to the uart configuration in SIO module
- * @return       return RSI_OK if successful execute
- */
-uint8_t RSI_SIO_Uart_Initialization(SIO_Type *pstcSio, stc_sio_uart_config_t *pstcConfig)
-{
-  uint32_t u32RelaodVal = 0, u32Divider = 0;
-
-  //  Update the global structure
-  gstcSioCb.uart_sio.u8UartTxCh  = pstcConfig->u8SioUartTxChannel;
-  gstcSioCb.uart_sio.u8UartRxCh  = pstcConfig->u8SioUartRxChannel;
-  gstcSioCb.uart_sio.pstcSioUart = (stc_sio_uart_config_t *)pstcConfig;
-  gstcSioCb.uart_sio.u8UartValid = ONE;
-
-  // Parity enable check
-  if (pstcConfig->u8Parity) {
-    gstcSioCb.uart_sio.u8ParityEn = ONE;
-  } else {
-    gstcSioCb.uart_sio.u8ParityEn = ZERO;
-  }
-
-  // Get the desired baud rate
-  u32Divider   = (pstcConfig->u32BaudRate);
-  u32RelaodVal = (SystemCoreClock / u32Divider);
-  u32RelaodVal = (u32RelaodVal / TWO) - ONE;
-
-  pstcSio->SIO_BUFFER_REG[pstcConfig->u8SioUartTxChannel]  = DATA;
-  pstcSio->SIO_OUT_MUX_REG[pstcConfig->u8SioUartTxChannel] = ((FOUR & SEVEN) << THREE);
-  // Select is as output pin
-  pstcSio->SIO_GPIO_OEN_REG &= (~BIT(pstcConfig->u8SioUartTxChannel));
-  // Reset value should be 1
-  pstcSio->SIO_GPIO_OUT_REG |= (ONE << pstcConfig->u8SioUartTxChannel);
-  // UART RX
-  pstcSio->SIO_INPUT_MUX_REG[pstcConfig->u8SioUartRxChannel] = (ZERO << ZERO);
-  // Enable the GPIO interrupt
-  pstcSio->SIO_GPIO_INTR_EN_SET_REG |= (ONE << pstcConfig->u8SioUartRxChannel);
-  // Mask the interrupt
-  pstcSio->SIO_GPIO_INTR_MASK_CLEAR_REG |= (ONE << pstcConfig->u8SioUartRxChannel);
-  // SWAP Interrupt enable
-  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= BIT(pstcConfig->u8SioUartRxChannel);
-  //  Clear the SWAP Interrupt
-  pstcSio->SIO_SWAP_INTR_MASK_CLEAR_REG |= BIT(pstcConfig->u8SioUartRxChannel);
-  // Set TX Baud
-  pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[pstcConfig->u8SioUartTxChannel].RELOAD_VALUE = u32RelaodVal;
-
-  return RSI_OK;
 }
 
 /*==============================================*/

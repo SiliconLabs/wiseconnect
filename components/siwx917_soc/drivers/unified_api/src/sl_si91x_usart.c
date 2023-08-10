@@ -515,6 +515,7 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
    */
 #ifdef USART_UC
   control_configuration = &usart_configuration;
+  baud_rate             = usart_configuration.baudrate;
 #endif
   do {
     // Check USART handle and control_configuration parameter, if NULL return from here

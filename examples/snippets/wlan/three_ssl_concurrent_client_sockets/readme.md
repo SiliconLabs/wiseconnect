@@ -1,4 +1,4 @@
-# Three SSL Client Sockets 
+# Three SSL Client Sockets
 
 ## 1 Purpose/Scope
 
@@ -6,23 +6,23 @@ This application demonstrates how SiWx91x will connect to three different SSL se
 
 ## 2 Prerequisites/Setup Requirements
 
-### 2.1 Hardware Requirements 
+### 2.1 Hardware Requirements
 
 - Windows PC
 - AWS server information like domain name running in the cloud which supports SSL connection.
 - Wireless Access Point
 - TCP server over SSL running in Windows PC (This application uses OpenSSL to create TCP server over SSL)
 - SiWx91x Wi-Fi Evaluation Kit
-- **SoC Mode**: 
-  - Silicon Labs [(BRD4325A,BRD4325B, BRD4325G)](https://www.silabs.com/)
+- **SoC Mode**:
+  - Silicon Labs [(BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A)](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/)
+  - Silicon Labs [BRD4180B](https://www.silabs.com/)
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 ### 2.2 Software Requirements
 
-- Simplicity Studio IDE 
+- Simplicity Studio IDE
 
   - Download the latest [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
@@ -122,7 +122,7 @@ Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to
 ## 4 Application Build Environment
 
 The application can be configured to suit user requirements and development environment.
-Read through the following sections and make any changes needed. 
+Read through the following sections and make any changes needed.
 
 ### 4.1 Configure the application  
 
@@ -149,7 +149,6 @@ The application can be configured to suit user requirements and development envi
 2. Configure the following parameters in **app.c** to test three_ssl_client_sockets app as per requirements  
 
 ```c
-   
    #define SERVER_PORT1   <remote port>       // Remote server port
    #define SERVER_PORT2   <remote port>       // Remote server port cloud.
    #define SERVER_PORT3   <remote port>       //  remote peer/ which is running on cloud.   
@@ -160,7 +159,7 @@ If certificates are not there in flash, then ssl handshake will fail.
   
 AWS_DOMAIN_NAME refers to domain name of the AWS server
 
-```c   
+```c
    #define AWS_DOMAIN_NAME   "a25jwtlmds8eip-ats.iot.us-east-2.amazonaws.com"
 ```
 
@@ -172,7 +171,7 @@ Follow the below steps for the successful execution of the application.
 
   **![Build as](resources/readme/build_project.png)**
 
-- NCP mode: 
+- NCP mode:
 
 ### 4.3 Run and Test the application
 
@@ -182,17 +181,17 @@ After making any custom configuration changes required, build, download and run 
 
 **Note!**
  > All the certificates are given in the SDK. Path: `<SDK>/resources/certificates`
- 
+
 - In Windows PC (Remote PC) which is connected to AP, run the Openssl server by giving the following command
 
 ```sh
     > Openssl.exe s_server -accept<SERVER_PORT> -cert <server_certificate_file_path> -key <server_key_file_path> -tls<tls_version>
 
    Example: openssl.exe s_server -accept 5001 -cert server-cert.pem -key server-key.pem -tls1
-   ```
+```
 
 ![Run the Openssl server](resources/readme/ssl_server.png)
- 
+
 - Make sure the SSL server is running in the cloud (check with the domain name)
 
 - After the program gets executed, SiWx91x would be connected to Access point having the configuration same that of in the application and get IP.

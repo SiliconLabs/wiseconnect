@@ -1,4 +1,14 @@
 /***************************************************************************/ /**
+ * @addtogroup MEMLCD Memory LCD
+ * @ingroup SI91X_PERIPHERAL_APIS
+ * @{
+ * @brief The memory liquid crystal display (LCD) driver provides the ability to render characters or monochrome pictures onto the display of the LCD peripheral on the SiWx91x™ device.
+ * - Refer to https://docs.silabs.com/gecko-platform/3.1/hardware-driver/api/group-memlcd for more information.
+ ******************************************************************************/
+
+/** @} (end addtogroup MEMLCD) */
+
+/***************************************************************************/ /**
  * @addtogroup SLEEPTIMER Sleep Timer
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
@@ -18,6 +28,16 @@
  ******************************************************************************/
 
 /** @} (end addtogroup IOSTREAM) */
+
+/***************************************************************************/ /**
+* @addtogroup NVM3 Non-volatile Memory
+* @ingroup SI91X_PERIPHERAL_APIS
+* @{
+* @brief The non-volatile memory (NVM3) driver provides a means to store key-value pairs in flash memory.
+* - Refer to https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3 for more information.
+******************************************************************************/
+
+/** @} (end addtogroup NVM3) */
 
 /***************************************************************************/ /**
  * @addtogroup DISABLE_UC_CONFIG Disable UC Config

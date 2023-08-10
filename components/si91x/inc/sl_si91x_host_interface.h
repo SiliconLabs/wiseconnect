@@ -37,6 +37,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define NCP_HOST_DATA_TX_EVENT           (1 << 1) // Notify there is something to transmit
+#define NCP_HOST_BUS_RX_EVENT            (1 << 2) // Triggered by IRQ to indicate something to read
+#define NCP_HOST_COMMON_RESPONSE_EVENT   (1 << 3) // Indicates RX response received for COMMON command type
+#define NCP_HOST_WLAN_RESPONSE_EVENT     (1 << 4) // Indicates synchronous RX response received for WLAN command type
+#define NCP_HOST_WLAN_NOTIFICATION_EVENT (1 << 5) // Indicates asynchronous RX response received for WLAN command type
+#define NCP_HOST_NETWORK_RESPONSE_EVENT  (1 << 6) // Indicates synchronous RX response received for NETWORK command type
+#define NCP_HOST_NETWORK_NOTIFICATION_EVENT \
+  (1 << 7)                                      // Indicates asynchronous RX response received for NETWORK command type
+#define NCP_HOST_SOCKET_RESPONSE_EVENT (1 << 8) // Indicates RX response received for SOCKET command type
+#define NCP_HOST_SOCKET_NOTIFICATION_EVENT \
+  (1 << 9)                                   // Indicates asynchronous RX response received for SOCKET command type
+#define NCP_HOST_BT_RESPONSE_EVENT (1 << 10) // Indicates RX response received for BLE command type
+
 typedef enum { NCP_SWITCH_ON, NCP_SWITCH_OFF } si91x_host_switch_t;
 
 typedef struct {
@@ -49,6 +62,7 @@ typedef uint32_t sl_si91x_host_timestamp_t;
 
 typedef void (*sl_si91x_host_atomic_action_function_t)(void *user_data);
 typedef bool (*sl_si91x_compare_function_t)(sl_wifi_buffer_t *node, void *user_data);
+typedef void (*sl_si91x_node_free_function_t)(sl_wifi_buffer_t *node);
 
 void sl_si91x_host_hold_in_reset(void);
 void sl_si91x_host_release_from_reset(void);
@@ -62,19 +76,14 @@ sl_si91x_host_timestamp_t sl_si91x_host_elapsed_time(uint32_t starting_timestamp
 
 // Event API
 void sl_si91x_host_set_event(uint32_t event_mask);
+void sl_si91x_host_set_bus_event(uint32_t event_mask);
+void sl_si91x_host_set_async_event(uint32_t event_mask);
 uint32_t si91x_host_wait_for_event(uint32_t event_mask, uint32_t timeout);
+uint32_t si91x_host_wait_for_bus_event(uint32_t event_mask, uint32_t timeout);
+uint32_t si91x_host_wait_for_async_event(uint32_t event_mask, uint32_t timeout);
 uint32_t si91x_host_clear_events(uint32_t event_mask);
-
-#define NCP_HOST_DATA_TX_EVENT           (1 << 1) // Notify there is something to transmit
-#define NCP_HOST_BUS_RX_EVENT            (1 << 2) // Triggered by IRQ to indicate something to read
-#define NCP_HOST_COMMON_RESPONSE_EVENT   (1 << 3) // Indicates RX response received for COMMON command type
-#define NCP_HOST_WLAN_RESPONSE_EVENT     (1 << 4) // Indicates synchronous RX response received for WLAN command type
-#define NCP_HOST_WLAN_NOTIFICATION_EVENT (1 << 5) // Indicates asynchronous RX response received for WLAN command type
-#define NCP_HOST_NETWORK_RESPONSE_EVENT  (1 << 6) // Indicates synchronous RX response received for NETWORK command type
-#define NCP_HOST_NETWORK_NOTIFICATION_EVENT \
-  (1 << 7)                                      // Indicates asynchronous RX response received for NETWORK command type
-#define NCP_HOST_SOCKET_RESPONSE_EVENT (1 << 8) // Indicates RX response received for SOCKET command type
-#define NCP_HOST_BT_RESPONSE_EVENT     (1 << 9) // Indicates RX response received for BLE command type
+uint32_t si91x_host_clear_bus_events(uint32_t event_mask);
+uint32_t si91x_host_clear_async_events(uint32_t event_mask);
 
 // ---------------
 sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
@@ -97,6 +106,11 @@ sl_status_t sl_si91x_host_remove_node_from_queue(sl_si91x_queue_type_t queue,
                                                  sl_wifi_buffer_t **buffer,
                                                  void *user_data,
                                                  sl_si91x_compare_function_t compare_function);
+/* Function used to flush the pending TX packets from the specified queue */
+sl_status_t sl_si91x_host_flush_nodes_from_queue(sl_si91x_queue_type_t queue,
+                                                 void *user_data,
+                                                 sl_si91x_compare_function_t compare_function,
+                                                 sl_si91x_node_free_function_t node_free_function);
 uint32_t sl_si91x_host_queue_status(sl_si91x_queue_type_t queue);
 
 sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, uint16_t buffer_length);

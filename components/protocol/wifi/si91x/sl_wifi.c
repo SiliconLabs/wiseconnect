@@ -34,9 +34,11 @@
 #include "sl_si91x_status.h"
 #include "sl_si91x_types.h"
 #include "sl_si91x_protocol_types.h"
-#include "sl_si91x_socket.h"
 #include "sl_si91x_driver.h"
 #include "sl_rsi_utility.h"
+#if defined(SI91X_SOCKET_FEATURE)
+#include "sl_si91x_socket_utility.h"
+#endif
 #include <stdint.h>
 #include <string.h>
 
@@ -117,7 +119,6 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
     join_request->ssid_len      = client_configuration->ssid.length;
     join_request->security_type = client_configuration->security;
     join_request->power_level   = convert_dbm_to_si91x_power_level(get_max_tx_power());
-    join_request->data_rate     = SL_WIFI_AUTO_RATE;
     convert_uint32_to_bytestream(SI91X_LISTEN_INTERVAL, join_request->listen_interval);
     join_request->join_feature_bitmap = SI91X_JOIN_FEAT_BIT_MAP;
 
@@ -1393,7 +1394,7 @@ sl_status_t sl_wifi_stop_scan(sl_wifi_interface_t interface)
     return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
 
-  // JIRA: https://jira.silabs.com/browse/WIFISDK-211. Once stop_scan() support for foreground scan is available, "bg_enabled" should be removed.
+  // Once stop_scan() support for foreground scan is available, "bg_enabled" should be removed.
   if (bg_enabled == true) {
     scan_request.bgscan_enable = SI91X_BG_SCAN_DISABLE;
     status                     = sl_si91x_driver_send_command(RSI_WLAN_REQ_BG_SCAN,

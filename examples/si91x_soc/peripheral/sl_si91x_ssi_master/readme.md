@@ -34,7 +34,7 @@
 - After initialization \ref sl_si91x_ssi_configure_power_mode is called to set the power mode \ref sl_ssi_power_state_t.
 - All the necessary parameters are configured using \ref sl_si91x_ssi_set_configuration API, it expects a structure with required parameters \ref sl_ssi_control_config_t.
 - After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_ssi_register_event_callback.
-- The State machine code is implemented for transfer, send and receive data, the current mode is determined by ssi_mode_enum_t which is declared in ssi_master_example.c file or ssi_slave_example.c file.
+- The State machine code is implemented for transfer, send and receive data, the current mode is determined by ssi_mode_enum_t which is declared in ssi_master_example.c file.
 - According to the macro which is enabled, the example code executes the transfer of data:
 
 - If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
@@ -123,7 +123,7 @@
 
 | GPIO pin                | Description             |
 | ----------------------- | ----------------------- |
-| GPIO_25 [EXP_HEADER-15] | RTE_SSI_MASTER_CLK_PIN  |
+| GPIO_25 [EXP_HEADER-15] | RTE_SSI_MASTER_SCK_PIN  |
 | GPIO_28 [EXP_HEADER-8]  | RTE_SSI_MASTER_CS0_PIN  |
 | GPIO_26 [EXP_HEADER-16] | RTE_SSI_MASTER_MOSI_PIN |
 | GPIO_27 [EXP_HEADER-10] | RTE_SSI_MASTER_MISO_PIN |
@@ -131,14 +131,14 @@
 ![Figure: Pin Configuration for SSI1](resources/readme/image510d.png)
 ![Figure: Pin Configuration for SSI2](resources/readme/image510e.png)
 
-**Note!** Make sure pin configuration in RTE_Device_9117.h file.(path: /$project/wiseconnect_1.0.0/platforms/si91x/drivers/cmsis_driver/config/RTE_Device_9117.h)
+**Note!** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h)
 
 ## Executing the Application
 
 1. Compile and run the application.
 2. Connect GPIO_26 to GPIO_27 for loopback connection.
-3. Update the following macros from ssi_master_example.h or ssi_slave_example.h depending on whether you are running the example
-   Code in master Mode or slave mode.
+3. Update the following macros from ssi_master_example.h file.
+   Code should be in master mode.
 
 - #define SL_USE_TRANSFER ENABLE
 - #define SL_USE_RECEIVE DISABLE

@@ -21,9 +21,9 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 - Windows PC
 - Wi-Fi Access point with a connection to the internet
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
@@ -89,7 +89,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-  **![Create AWS MQTT project](resources/readme/create_project_soc.png)**
+  **![Create AWS MQTT project](resources/readme/create_project_ncp.png)**
 
 ### 3.2 Set up for application prints
 
@@ -176,6 +176,8 @@ The application can be configured to suit your requirements and development envi
   ![debug_mode_soc](resources/readme/debugmodesoc117.png)
 
 ### 4.4 Application Output
+
+- SoC mode & NCP mode:
 
 ![Application prints](resources/readme/debug_prints_with_data_transfer_soc.png)
 

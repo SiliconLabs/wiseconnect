@@ -11,9 +11,9 @@ Ping is used diagnostically to ensure that a host computer the user is trying to
 - A Windows PC.
 - A Wi-Fi Access Point.
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A,BRD4325B,BRD4325G](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
@@ -40,7 +40,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 **NOTE**:
 
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface. 
+- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
 ## 3 Project Environment
 

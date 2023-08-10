@@ -601,9 +601,5 @@ typedef enum {
 } rsi_wlan_cmd_response_t;
 
 typedef enum { SET_REGION_CODE_FROM_BEACONS, SET_REGION_CODE_FROM_USER } si91x_set_region_code_command_t;
-typedef enum {
-  SL_SI91X_SOCKET_REMOTE_TERMINATED_EVENT,
-  SL_SI91X_DNS_RESOLVE_EVENT,
-  SL_SI91X_PING_RESPONSE_EVENT,
-  SL_SI91X_EVENT_COUNT
-} sl_si91x_event_t;
+
+typedef enum { SL_SI91X_SOCKET_REMOTE_TERMINATED_EVENT, SL_SI91X_SOCKET_EVENT_COUNT } sl_si91x_socket_event_t;

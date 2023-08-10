@@ -75,6 +75,11 @@
 {%- set app_flash_size = app_flash_end - app_flash_start %}
 {%- set app_ram_size = app_ram_end - app_ram_start %}
 
+{%- if udma_enable %}
+  {%- set udma_buffer = udma_buffer | sum %}
+  {%- set app_ram_size = app_ram_size - udma_buffer %}
+  {%- set udma0_start_addr = app_ram_size %}
+{%- endif %}
 {%- if psram_present %}	
 	{%- set app_psram_size = psram_size %}
 {%- endif %}
@@ -122,7 +127,7 @@ SECTIONS
 		{%- if RAM_EXECUTION %}
 		{%- if not ULP_PLATFORM %}
      	KEEP(*(.reset_handler))
-		*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *port.o *heap_*.o) .text*)
+		*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *port.o *heap_*.o) .text*)
 		{%- endif %}
 		{%- endif %}
 		{% if not RAM_EXECUTION %}	    
@@ -221,6 +226,7 @@ SECTIONS
 		*sl_si91x_driver.o(.text*)
 		*sl_si91x_bus.o(.text*)
 		*sli_si91x_multithreaded.o(.text*)
+		*rsi_deepsleep_soc.o(.text*)
 		*croutine.o(.text*)
 		*event_groups.o(.text*)
 		*list.o(.text*)

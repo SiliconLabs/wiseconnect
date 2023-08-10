@@ -101,9 +101,9 @@ typedef void (*sl_dma_error)(uint32_t channel, void *data);
 
 /// @brief Enumeration holds transfer types of DMA
 typedef enum {
-  SL_DMA_MEMORY_TO_MEMORY,     ///< Memory to Memory transfer type
-  SL_DMA_MEMORY_TO_PERIPHERAL, ///< Memory to Peripheral transfer type
-  SL_PERIPHERAL_TO_MEMORY      ///< Peripheral to Memory transfer type
+  SL_DMA_MEMORY_TO_MEMORY,     ///< Memory to memory transfer
+  SL_DMA_MEMORY_TO_PERIPHERAL, ///< Memory to peripheral transfer
+  SL_PERIPHERAL_TO_MEMORY      ///< Peripheral to memory transfer
 } sl_dma_transfer_type_t;
 
 /// @brief Enumeration holds transfer modes of DMA

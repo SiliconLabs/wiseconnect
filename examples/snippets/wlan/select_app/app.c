@@ -83,7 +83,7 @@ void app_init(const void *unused)
 static void application_start(void *argument)
 {
   // Initialize the network interface
-  sl_status_t status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, NULL, NULL, NULL);
+  sl_status_t status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, NULL, NULL, NULL);
 
   sl_ip_address_t ip_address           = { 0 };
   sl_net_wifi_client_profile_t profile = { 0 };
@@ -95,13 +95,13 @@ static void application_start(void *argument)
   printf("\r\nWi-Fi client interface up success\r\n");
 
   // Bring up network interface
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
   }
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
     printf("Failed to get client profile: 0x%lx\r\n", status);
     return;

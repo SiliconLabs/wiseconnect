@@ -86,9 +86,13 @@ typedef enum {
   SI91X_WLAN_EVENT_QUEUE = 10, ///< SI91X Wireless LAN Asynchronous response queue
   // All SI91X Network Async Events use this queue
   SI91X_NETWORK_EVENT_QUEUE = 11, ///< SI91X Network Asynchronous response queue
+
+  SI91X_SOCKET_EVENT_QUEUE = 12, ///< SI91X Asynchronous Sockets events queue
+
   // ALL SOC rx packets use this queue
-  CCP_M4_TA_RX_QUEUE = 12, ///< SI91X M4 Receive queue
-  SI91X_QUEUE_MAX          ///< SI91X Maximum queue type
+  CCP_M4_TA_RX_QUEUE = 13, ///< SI91X M4 Receive queue
+
+  SI91X_QUEUE_MAX ///< SI91X Maximum queue type
 } sl_si91x_queue_type_t;
 
 /// Si91x band mode

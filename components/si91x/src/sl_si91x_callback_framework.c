@@ -30,8 +30,7 @@
 #include "sl_net_rsi_utility.h"
 #include "sl_si91x_core_utilities.h"
 #include "sl_si91x_driver.h"
-
-#define SOCKET_CALLBACK_COUNT 1
+#include "sl_si91x_constants.h"
 
 /**
  * Callback entry structure for sl_net_service events
@@ -41,8 +40,7 @@ typedef struct {
   void *user_data;
 } sl_si91x_callback_entry_t;
 
-static sl_si91x_callback_entry_t sl_si91x_callbacks[SL_NET_EVENT_COUNT]  = { 0 };
-static sl_si91x_callback_entry_t socket_callbacks[SOCKET_CALLBACK_COUNT] = { 0 };
+static sl_si91x_callback_entry_t sl_si91x_callbacks[SL_NET_EVENT_COUNT] = { 0 };
 
 sl_status_t sl_si91x_register_callback(sl_net_event_t event, sl_net_event_handler_t function)
 {
@@ -56,33 +54,12 @@ sl_status_t sl_si91x_register_callback(sl_net_event_t event, sl_net_event_handle
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_register_socket_callback(uint32_t socket_event, sl_net_event_handler_t function)
-{
-  if (socket_event != RSI_WLAN_RSP_REMOTE_TERMINATE) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  socket_callbacks[0].function = function;
-  return SL_STATUS_OK;
-}
-
-sl_status_t sl_si91x_socket_event_handler(uint32_t socket_event, sl_wifi_buffer_t *buffer)
-{
-  if (socket_event != RSI_WLAN_RSP_REMOTE_TERMINATE) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  sl_status_t status        = convert_firmware_status(get_si91x_frame_status(packet));
-  if (socket_callbacks[0].function != NULL) {
-    socket_callbacks[0].function(socket_event, status, &packet->data, packet->length);
-  }
-  return SL_STATUS_OK;
-}
-
 sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buffer)
 {
   sl_si91x_callback_entry_t *callback_entry = &sl_si91x_callbacks[event];
   sl_si91x_packet_t *packet                 = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   sl_status_t status                        = convert_firmware_status(get_si91x_frame_status(packet));
+  sl_ip_address_t ip                        = { 0 };
   void *data;
 
   if (callback_entry == NULL || callback_entry->function == NULL) {
@@ -91,7 +68,6 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
 
   switch (event) {
     case SL_NET_DNS_RESOLVE_EVENT: {
-      sl_ip_address_t ip;
       data = &ip;
 
       convert_si91x_dns_response(&ip, (sl_si91x_dns_response_t *)packet->data);

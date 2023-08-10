@@ -118,7 +118,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   // Load profile and connect here
   sl_net_wifi_client_profile_t profile;
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, profile_id, &profile);
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
   VERIFY_STATUS_AND_RETURN(status);
 
   status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 5000);

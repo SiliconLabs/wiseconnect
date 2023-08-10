@@ -94,21 +94,20 @@ static const sl_wifi_device_configuration_t sl_wifi_mqtt_client_configuration = 
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
-                   .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
-                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+  .boot_config = { .oper_mode                  = SL_SI91X_CLIENT_MODE,
+                   .coex_mode                  = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map            = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
-                      | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
+                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK
+                                                  | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_ALL_MCU_ZERO
+                                                  RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
-                      RAM_LEVEL_NWP_ADV_MCU_BASIC
+                                                  RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
-                      ),
+                                                  ),
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_EXT_TCP_IP_WINDOW_SCALING | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(10)
@@ -182,14 +181,14 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &sl_wifi_mqtt_client_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_mqtt_client_configuration, NULL, NULL);
   if (status != SL_STATUS_OK && status != SL_STATUS_ALREADY_INITIALIZED) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nWi-Fi client interface up Success\r\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;

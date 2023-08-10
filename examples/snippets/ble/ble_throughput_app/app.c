@@ -82,8 +82,8 @@
 #define BT_HCI_COMMAND_DISALLOWED 0x4E0C
 
 //! global parameters list
-static uint32_t ble_app_event_map;
-static uint32_t ble_app_event_mask;
+static volatile uint32_t ble_app_event_map;
+static volatile uint32_t ble_app_event_mask;
 static uint8_t str_remote_address[18];
 static uint8_t remote_dev_address[6];
 
@@ -109,7 +109,9 @@ static uint8_t remote_dev_str_addr[18] = { 0 };
 static uint8_t remote_dev_bd_addr[6]   = { 0 };
 static uint8_t device_found            = 0;
 static uint8_t conn_params_updated     = 0;
+#if SMP_ENABLE
 static uint8_t smp_passkey[BLE_PASSKEY_SIZE];
+#endif
 
 osSemaphoreId_t ble_main_task_sem;
 
@@ -143,9 +145,9 @@ static const sl_wifi_device_configuration_t config = {
 #endif
                      | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
 #if (defined A2DP_POWER_SAVE_ENABLE)
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                     | SL_SI91X_EXT_FEAT_XTAL_CLK
 #endif
-                       ),
+                     ),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
@@ -200,7 +202,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = 3072,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -234,9 +236,8 @@ static void rsi_ble_app_init_events()
 static void rsi_ble_app_set_event(uint32_t event_num)
 {
   ble_app_event_map |= BIT(event_num);
-  if (ble_main_task_sem) {
-    osSemaphoreRelease(ble_main_task_sem);
-  }
+  osSemaphoreRelease(ble_main_task_sem);
+
   return;
 }
 
@@ -775,7 +776,6 @@ static void rsi_ble_more_data_req_event(rsi_ble_event_le_dev_buf_ind_t *rsi_ble_
 {
   UNUSED_PARAMETER(rsi_ble_more_data_evt);
 
-  //LOG_PRINT("\n Received more data event \n");
   //! set conn specific event
   rsi_ble_app_set_event(RSI_BLE_MORE_DATA_REQ_EVENT);
 
@@ -805,8 +805,6 @@ void rsi_ble_on_adv_report_event(rsi_ble_event_adv_report_t *adv_report)
 
 #if (CONNECT_OPTION == CONN_BY_NAME)
   if ((device_found == 0) && ((strcmp((const char *)remote_name, RSI_REMOTE_DEVICE_NAME)) == 0)) {
-    //memcpy(remote_name_conn, remote_name, 31);
-    //memcpy(remote_dev_addr_conn, remote_dev_str_addr, 18);
     device_found = 1;
 
     rsi_ble_app_set_event(RSI_BLE_ADV_REPORT_EVENT);
@@ -814,8 +812,6 @@ void rsi_ble_on_adv_report_event(rsi_ble_event_adv_report_t *adv_report)
   }
 #elif (CONNECT_OPTION == CONN_BY_ADDR)
   if ((!strcmp(RSI_BLE_REMOTE_DEV_ADDR, (char *)remote_dev_str_addr))) {
-    //memcpy(conn_dev_addr, remote_dev_str_addr, sizeof(remote_dev_str_addr));
-    //memcpy(remote_dev_addr_conn, remote_dev_str_addr, 18);
     device_found = 1;
     rsi_ble_app_set_event(RSI_BLE_ADV_REPORT_EVENT);
   }
@@ -848,6 +844,7 @@ void ble_throughput_test_app(void *argument)
     45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 72,
     74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 00, 01
   };
+  sl_wifi_version_string_t version = { 0 };
 
   //! Wi-Fi initialization
   status = sl_wifi_init(&config, default_wifi_event_handler);
@@ -856,6 +853,14 @@ void ble_throughput_test_app(void *argument)
     return;
   }
   LOG_PRINT("\r\nWireless Initialization Success\r\n");
+
+  //! Firmware version Prints
+  status = sl_wifi_get_firmware_version(&version);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
+  } else {
+    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+  }
 
   //! registering the GAP callback functions
   rsi_ble_gap_register_callbacks(rsi_ble_on_adv_report_event,
@@ -911,6 +916,10 @@ void ble_throughput_test_app(void *argument)
                                  NULL);
 #endif
   ble_main_task_sem = osSemaphoreNew(1, 0, NULL);
+  if (ble_main_task_sem == NULL) {
+    LOG_PRINT("Failed to create ble_main_task_sem\r\n");
+    return;
+  }
 
   //!  initializing the application events map
   rsi_ble_app_init_events();
@@ -930,12 +939,12 @@ void ble_throughput_test_app(void *argument)
 
 #if (CONNECTION_ROLE == PERIPHERAL_ROLE)
 
-  //! start addvertising
+  //! start advertising
   status = rsi_ble_start_advertising();
   if (status != RSI_SUCCESS) {
-    LOG_PRINT("\n start advertising cmd failed with error code = %lx \n", status);
+    LOG_PRINT("\nstart advertising cmd failed with error code = %lx \n", status);
   } else {
-    LOG_PRINT("\n Started Advertising \n");
+    LOG_PRINT("\nStarted advertising, local name : %s\n", (char *)RSI_BLE_DEVICE_NAME);
   }
 
 #elif (CONNECTION_ROLE == CENTERAL_ROLE)
@@ -944,7 +953,7 @@ void ble_throughput_test_app(void *argument)
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\n start scanning cmd failed with error code = %lx \n", status);
   } else {
-    LOG_PRINT("\n Started scanning \n");
+    LOG_PRINT("\nStarted scanning \n");
   }
 #endif
 
@@ -955,9 +964,7 @@ void ble_throughput_test_app(void *argument)
     event_id = rsi_ble_app_get_event();
 
     if (event_id == -1) {
-      if (ble_main_task_sem) {
-        osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
-      }
+      osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
       continue;
     }
 
@@ -970,14 +977,14 @@ void ble_throughput_test_app(void *argument)
         LOG_PRINT("\n Device found. Stop scanning \n");
         status = rsi_ble_stop_scanning();
         if (status != RSI_SUCCESS) {
-          LOG_PRINT("\n Scan stop cmd failed = %x\n", status);
+          LOG_PRINT("\n Scan stop cmd failed = %lx\n", status);
         }
         LOG_PRINT("\n Connect command \n");
         status = rsi_ble_connect(remote_addr_type, (int8_t *)remote_dev_bd_addr);
         if (status != RSI_SUCCESS) {
-          LOG_PRINT("\n BLE connect cmd failed = %x\n", status);
+          LOG_PRINT("\n BLE connect cmd failed = %lx\n", status);
         }
-        //memset(remote_name_conn, 0, sizeof(remote_name_conn));
+
         //! clear the advertise report event.
         rsi_ble_app_clear_event(RSI_BLE_ADV_REPORT_EVENT);
       } break;

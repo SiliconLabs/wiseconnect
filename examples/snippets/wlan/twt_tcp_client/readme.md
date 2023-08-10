@@ -13,15 +13,15 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 - Windows PC
 - Wi-Fi Access Point with 11ax and TWT responder mode support.
 - PC2 (Remote PC) with TCP server application (iperf)
-- **SoC Mode**: 
-  - Silicon Labs [BRD4325A,BRD4325B, BRD4325G](https://www.silabs.com/)
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/)
+  - Silicon Labs [BRD4180B](https://www.silabs.com/)
   - Host MCU Eval Kit. This example has been tested with Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit) 
 
 ### 2.2 Software Requirements
 
-- Simplicity Studio IDE 
+- Simplicity Studio IDE
 
   - Download the latest [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
@@ -30,7 +30,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 
 ### 2.3 Setup Diagram
 
-#### SoC Mode 
+#### SoC Mode
 
 ![Figure: Setup Diagram for SoC mode TWT TCP Client Example](resources/readme/setup_soc.png)
   
@@ -59,7 +59,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 - Ensure the latest Gecko SDK along with the WiSeConnect3 extension is added to Simplicity Studio.
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
 
-- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** 
+- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology**
 
     ![project_selection](resources/readme/tcp_twt_example_soc.png)
 
@@ -107,7 +107,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+ - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
       **![UART - SoC](resources/readme/port_selection_soc.png)**
 
@@ -123,7 +123,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 ## 4 Application Build Environment
 
-The application can be configured to suit your requirements and development environment. 
+The application can be configured to suit your requirements and development environment.
 
 ### 4.1 Configure the application
 
@@ -186,11 +186,11 @@ The application can be configured to suit your requirements and development envi
     - **wake_int_mantissa_tol**: This is tolerance allowed for wake_int_mantissa in case of suggest TWT. Received TWT wake interval mantissa from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-65535.
     - **implicit_twt**: If enabled (1), the TWT requesting STA calculates the Next TWT by adding a fixed value to the current TWT value. Explicit TWT is currently not allowed.
     - **un_announced_twt**: If enabled (1), TWT requesting STA does not announce its wake up to AP through PS-POLLs or UAPSD Trigger frames.
-    - **triggered_twt**: If enabled(1), atleast one trigger frame is included in the TWT Service Period(TSP).
+    - **triggered_twt**: If enabled(1), at least one trigger frame is included in the TWT Service Period(TSP).
     - **twt_channel**: Currently this configuration is not supported. Allowed values are 0-7.
     - **twt_protection**:  If enabled (1), TSP is protected. This is negotiable with AP. Currently not supported. Only zero is allowed.
     - **restrict_tx_outside_tsp**: If enabled (1), any Tx outside the TSP is restricted. Else, TX can happen outside the TSP also.
-    - **twt_retry_limit**: This is the maximum number of retries allowed, if the TWT response frame is not recieved for the sent TWT request frame. Allowed values are 0 - 15.
+    - **twt_retry_limit**: This is the maximum number of retries allowed, if the TWT response frame is not received for the sent TWT request frame. Allowed values are 0 - 15.
     - **twt_retry_interval**: The interval, in seconds, between two twt request retries. Allowed values are 5 - 255.
     - **req_type**: This is the TWT request type.
     >
@@ -236,7 +236,7 @@ The application can be configured to suit your requirements and development envi
 
     **![Build as](resources/readme/build_twt_tcp_client.png)**
 
-- NCP mode: 
+- NCP mode:
 
     **![Build as](resources/readme/build_project_ncp.png)**
 
@@ -248,14 +248,14 @@ The application can be configured to suit your requirements and development envi
 
 - Start a TCP server using the below command in command prompt.
 
-> `C:\ iperf.exe –s -p <SERVER_PORT> -i 1` 
+> `C:\ iperf.exe –s -p <SERVER_PORT> -i 1`
 
   ![Figure: command prompt on the remote PC](resources/readme/outputs_1.png)
 
 > If the IPerf server does not start and gives an error in the form of "Access Denied", the user can resolve this error by running the command prompt as an administrator.
 
 - When the twt application runs, SiWx91x scans and connect to the Wi-Fi access point and obtains an IP address. After a successful connection, the device connects to the tcp server socket and then sends the enable twt request API call. If TWT session setup is successful, the following notification will be printed with TWT Response parameters from the AP.
- 
+
   ![Figure: TWT Setup Success Response](resources/readme/image218.png)
 
 ### 4.4 Application Output
@@ -298,11 +298,11 @@ The application can be configured to suit your requirements and development envi
 
   ![Figure: Energy Profiler Step 6](resources/readme/energy_profiler_step_6.png)
 
-- From Quick Access, choose Start Energy Capture option 
+- From Quick Access, choose Start Energy Capture option
 
   ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_7.png)
 
-**NOTE** : The target part and board name have to be reverted to default to flash application binary. 
+**NOTE** : The target part and board name have to be reverted to default to flash application binary.
 
   ![Figure: Energy Profiler Step 8](resources/readme/energy_profiler_step_8.png)
 
@@ -310,4 +310,4 @@ The application can be configured to suit your requirements and development envi
 
   ![Figure: Energy Profiler Output](resources/readme/outputs_2.png)
 
-**NOTE**: The average current consumption may vary based on the environment, the above image is for reference 
+**NOTE**: The average current consumption may vary based on the environment, the above image is for reference

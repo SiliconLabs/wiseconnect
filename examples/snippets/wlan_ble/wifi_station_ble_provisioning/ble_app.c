@@ -614,7 +614,6 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
 void rsi_ble_configurator_init(void)
 {
   uint8_t adv[31] = { 2, 1, 6 };
-  uint32_t status = 0;
 
   //  initializing the application events map
   rsi_ble_app_init_events();
@@ -730,7 +729,7 @@ void rsi_ble_configurator_task(void *argument)
         //MTU exchange
         status = rsi_ble_mtu_exchange_event(conn_event_to_app.dev_addr, BLE_MTU_SIZE);
         if (status != RSI_SUCCESS) {
-          LOG_PRINT("\n rsi_ble_mtu_exchange_event command failed : %x", status);
+          LOG_PRINT("\n rsi_ble_mtu_exchange_event command failed : %lx", status);
         } else {
           LOG_PRINT("\n rsi_ble_mtu_exchange_event command success \n");
         }

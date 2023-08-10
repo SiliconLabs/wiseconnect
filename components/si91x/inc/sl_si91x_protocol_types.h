@@ -1085,6 +1085,15 @@ typedef struct {
     uint8_t ipv6_address[16];
   } ip_address[SI91X_DNS_RESPONSE_MAX_ENTRIES];
 } sl_si91x_dns_response_t;
+// Structure for TCP ACK indication
+typedef struct {
+  // Socket ID
+  uint8_t socket_id;
+
+  // Length
+  uint8_t length[2];
+
+} sl_si91x_rsp_tcp_ack_t;
 
 // Config command request structure
 typedef struct {

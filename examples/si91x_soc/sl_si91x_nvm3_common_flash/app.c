@@ -82,7 +82,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
                    .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -126,7 +126,7 @@ void application_start(const void *unused)
   uint8_t write_data1[12] = { "Silicon labs" };
   uint8_t write_data2[4]  = { "NVM3" };
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;

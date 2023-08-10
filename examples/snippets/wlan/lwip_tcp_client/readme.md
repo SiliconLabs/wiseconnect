@@ -10,10 +10,11 @@ This application demonstrates how to transfer the TCP data using LWIP stack by c
 
 - A Windows PC.
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A,BRD4325B, BRD4325G](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
+
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
-  - Host MCU Eval Kit. This example has been tested with:
+  - Silicon Labs [BRD4180B](https://www.silabs.com/)
+    - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 ### 2.2 Software Requirements
@@ -59,11 +60,27 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - Filter for Wi-Fi examples from the Gecko SDK added. For this, check the _Wi-Fi_ checkbox under **Wireless Technology**
 
-  **![Access Point project](resources/readme/lwip_example_soc.png)**
+  **![LWIP project](resources/readme/select_project_soc.png)**
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-  **![Create Access Point project](resources/readme/create_project.png)**
+  **![Create LWIP project](resources/readme/create-project_soc.png)**
+
+#### 3.1.2 NCP mode
+
+- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
+
+  **![EFR32 Board detection](resources/readme/efr32.png)**
+
+- Ensure the latest Gecko SDK along with the WiSeConnect3 extension is added to Simplicity Studio.
+
+- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - NCP LWIP TCP CLIENT application
+
+  **![LWIP project](resources/readme/select_project_ncp.png)**
+
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+
+  **![Create LWIP project](resources/readme/create_project_ncp.png)**
 
 ### 3.2 Set up for application prints
 
@@ -133,7 +150,11 @@ The application can be configured to suit user requirements and development envi
 
 - SoC mode: Build as LWIP TCP Example
 
-**![Build as](resources/readme/build_lwipexample.png)**
+   **![Build as](resources/readme/build_project_soc.png)**
+
+- NCP mode: 
+
+   **![Build as](resources/readme/build_project_ncp.png)**   
 
 ### 4.3 Run and Test the application
 
@@ -141,10 +162,14 @@ The application can be configured to suit user requirements and development envi
 
   - SoC
 
-    **![debug_mode_NCP](resources/readme/program_device.png)**
+    **![debug_mode_SOC](resources/readme/debug_as_soc.png)**
+
+  - NCP
+
+    **![debug_mode_NCP](resources/readme/debug_as_ncp.png)**
 
 ### 4.4 Application Output
 
-- After the application gets execueted successfully, The device will connect to the remote and transfer the 1000 tcp packets.
+- After the application gets executed successfully, The device will connect to the remote and transfer the 1000 tcp packets.
 
   **![LWIP_point_Output](resources/readme/lwip_output.png)**

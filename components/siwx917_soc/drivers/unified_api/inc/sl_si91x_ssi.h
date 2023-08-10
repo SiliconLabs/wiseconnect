@@ -301,6 +301,22 @@ sl_status_t sl_si91x_ssi_register_event_callback(sl_ssi_handle_t ssi_handle, sl_
 void sl_si91x_gspi_unregister_event_callback(void);
 
 /***************************************************************************/ /**
+ * Get the clock division factor.
+ *
+ * @param[in] ssi_handle Pointer to the SSI driver handle
+ * @return factor(int32_t) Clock division factor
+ ******************************************************************************/
+uint32_t sl_si91x_ssi_get_clock_division_factor(sl_ssi_handle_t ssi_handle);
+
+/***************************************************************************/ /**
+ * Get the frame length (bit width).
+ *
+ * @param[in] ssi_handle Pointer to the SSI driver handle
+ * @return frame_length (uint32_t) Frame length
+ ******************************************************************************/
+uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle);
+
+/***************************************************************************/ /**
  * Set the secondary number in multi-secondary operation.
  * For single secondary also, this API needs to be called before transferring the
  * data.

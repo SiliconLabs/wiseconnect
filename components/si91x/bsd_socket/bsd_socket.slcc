@@ -8,15 +8,9 @@ quality: production
 component_root_path: ./components/si91x/bsd_socket
 provides:
 - name: bsd_socket
+source:
+- path: sl_si91x_bsd_socket.c
 include:
-- path: inc
-  file_list:
-    - path: errno.h
-    - path: netdb.h
-    - path: netinet_in.h
-    - path: netinet6_in6.h
-    - path: select.h
-    - path: sl_bsd_utility.h
-    - path: socket.h
-    - path: uio.h
+requires:
+- name: socket_utility
 

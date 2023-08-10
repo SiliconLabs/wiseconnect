@@ -48,7 +48,7 @@ extern "C" {
 
 // <q SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE> ULP Master DMA
 // <i> Default: 0
-#define SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE 1
+#define SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE 0
 
 // </h>
 // <<< end of configuration section >>>

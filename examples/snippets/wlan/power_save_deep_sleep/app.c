@@ -61,11 +61,22 @@ const osThreadAttr_t thread_attributes = {
 
 #ifdef RSI_M4_INTERFACE
 #ifdef COMMON_FLASH_EN
-#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>        */
+#ifdef CHIP_917B0
+#define IVT_OFFSET_ADDR 0x81C2000 /*<!Application IVT location VTOR offset>          B0 common flash Board*/
 #else
-#define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset>        */
+#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>          A0 Common flash Board*/
 #endif
-#define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up  */
+#else
+#define IVT_OFFSET_ADDR \
+  0x8012000 /*<!Application IVT location VTOR offset>          Dual Flash  (both A0 and B0) Board*/
+#endif
+#ifdef CHIP_917B0
+#define WKP_RAM_USAGE_LOCATION \
+  0x24061EFC /*<!Bootloader RAM usage location upon wake up  */ // B0 Boards (common flash & Dual flash)
+#else
+#define WKP_RAM_USAGE_LOCATION \
+  0x24061000 /*<!Bootloader RAM usage location upon wake up  */ // A0 Boards (common flash & Dual flash)
+#endif
 
 #define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
 #endif
@@ -83,15 +94,14 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                                        ),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
 #ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_BASIC_MCU_ADV
+                                                  | RAM_LEVEL_NWP_BASIC_MCU_ADV
 #else
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
+                                                  | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
 #endif
-                      ),
+                                                  ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
                    .ble_feature_bit_map        = 0,
@@ -113,7 +123,7 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;

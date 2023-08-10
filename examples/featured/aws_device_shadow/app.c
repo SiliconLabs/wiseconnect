@@ -91,23 +91,38 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
-                   .tcp_ip_feature_bit_map =
-                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) |
-#ifndef RSI_M4_INTERFACE
-                                                  RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                                                  RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
+                   .coex_mode       = SL_SI91X_WLAN_MODE,
+                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK
+#if ENABLE_POWER_SAVE
+                                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #endif
-                                                  ),
+                                       ),
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+                                              | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_RSA_KEY_WITH_4096_SUPPORT | SL_SI91X_EXT_FEAT_SSL_CERT_WITH_4096_KEY_SUPPORT
+                      | SL_SI91X_EXT_FEAT_XTAL_CLK |
+#if ENABLE_POWER_SAVE
+                      SL_SI91X_EXT_FEAT_LOW_POWER_MODE |
+#endif
+#ifndef RSI_M4_INTERFACE
+                      RAM_LEVEL_NWP_ALL_MCU_ZERO
+#else
+                      RAM_LEVEL_NWP_ADV_MCU_BASIC
+#endif
+                      ),
                    .bt_feature_bit_map         = 0,
-                   .ext_tcp_ip_feature_bit_map = 0,
+                   .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    .ble_feature_bit_map        = 0,
                    .ble_ext_feature_bit_map    = 0,
-                   .config_feature_bit_map     = 0 }
+                   .config_feature_bit_map     = (
+#if ENABLE_POWER_SAVE
+                     SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
+#else
+                     0
+#endif
+                     ) }
 };
 
 char json_document_buffer[JSON_DOC_BUFFER_LENGTH];
@@ -126,7 +141,7 @@ static void application_start(void *argument)
   sl_net_wifi_client_profile_t profile = { 0 };
   sl_ip_address_t ip_address           = { 0 };
 
-  sl_status_t status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &client_init_configuration, NULL, NULL);
+  sl_status_t status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &client_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nUnexpected error while doing init: 0x%lx\r\n", status);
     return;
@@ -140,36 +155,26 @@ static void application_start(void *argument)
     printf("Failed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
     return;
   }
-  printf("m4_ta_secure_handshake Success\r\n");
+  printf("\r\nm4_ta_secure_handshake Success\r\n");
 #endif
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nError while connecting to Access point: 0x%lx\r\n", status);
     return;
   }
-  printf("\r\nConnected to Access point \r\n");
+  printf("\r\nConnected to Access point\r\n");
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
-    printf("Failed to get client profile: 0x%lx\r\n", status);
+    printf("\r\nFailed to get client profile: 0x%lx\r\n", status);
     return;
   }
-  printf("\r\n Success to get client profile\r\n");
+  printf("\r\nClient profile fetched successfully\r\n");
 
   ip_address.type = SL_IPV4;
   memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
   print_sl_ip_address(&ip_address);
-
-#if ENABLE_POWER_SAVE
-  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE };
-  status                                            = sl_wifi_set_performance_profile(&performance_profile);
-  if (status != SL_STATUS_OK) {
-    printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
-    return;
-  }
-  printf("\r\nAssociated Power Save Enabled\n");
-#endif
 
   status = load_certificates_in_flash();
   if (status != SL_STATUS_OK) {
@@ -178,12 +183,23 @@ static void application_start(void *argument)
   }
   printf("\r\nCertificate loading success\r\n");
 
+#if ENABLE_POWER_SAVE
+  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE };
+
+  status = sl_wifi_set_performance_profile(&performance_profile);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
+    return;
+  }
+  printf("\r\nAssociated Power Save Enabled\n");
+#endif
+
   status = start_aws_device_shadow();
   if (status != SL_STATUS_OK) {
     printf("\r\nUnexpected error occurred in AWS Device shadow: 0x%lx\r\n", status);
     return;
   }
-  printf("\r\n AWS Device shadow Success\r\n");
+  printf("\r\nAWS Device shadow Success\r\n");
 }
 
 sl_status_t load_certificates_in_flash()
@@ -191,11 +207,13 @@ sl_status_t load_certificates_in_flash()
   sl_status_t status                             = SL_STATUS_FAIL;
   sl_tls_store_configuration_t tls_configuration = { 0 };
 
-  //! Clearing SSL CA certificate loaded in to FLASH if any
+  //! Clearing certificates loaded in to FLASH if any
   status = sl_tls_clear_global_ca_store();
   if (status != SL_STATUS_OK) {
+    printf("\r\nFailed to clear the certificates in FLASH, Error Code : 0x%lX\r\n", status);
     return status;
   }
+  printf("\r\nCleared the certificates in FLASH\r\n");
 
   tls_configuration.cacert             = (uint8_t *)aws_starfield_ca;
   tls_configuration.cacert_length      = (sizeof(aws_starfield_ca));
@@ -214,20 +232,20 @@ sl_status_t load_certificates_in_flash()
     printf("\r\nLoading SSL certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
     return status;
   }
-  printf("\r\n Loading SSL certificate in to FLASH Success\r\n");
+  printf("\r\nLoading SSL certificate in to FLASH Success\r\n");
 
   return SL_STATUS_OK;
 }
 
 sl_status_t start_aws_device_shadow()
 {
-  IoT_Error_t rc                                     = FAILURE;
-  AWS_IoT_Client mqtt_client                         = { 0 };
-  ShadowInitParameters_t shadow_init_parameters      = ShadowInitParametersDefault;
-  ShadowConnectParameters_t shadow_connect_paramters = ShadowConnectParametersDefault;
-  bool window_open_state                             = false;
-  jsonStruct_t window_actuator                       = { 0 };
-  float temperature                                  = 0.0;
+  IoT_Error_t rc                                      = FAILURE;
+  AWS_IoT_Client mqtt_client                          = { 0 };
+  ShadowInitParameters_t shadow_init_parameters       = ShadowInitParametersDefault;
+  ShadowConnectParameters_t shadow_connect_parameters = ShadowConnectParametersDefault;
+  bool window_open_state                              = false;
+  jsonStruct_t window_actuator                        = { 0 };
+  float temperature                                   = 0.0;
 
   jsonStruct_t temperature_handler    = { 0 };
   size_t size_of_json_document_buffer = sizeof(json_document_buffer) / sizeof(json_document_buffer[0]);
@@ -244,11 +262,11 @@ sl_status_t start_aws_device_shadow()
   }
   printf("\r\nShadow Initialization Success\r\n");
 
-  shadow_connect_paramters.pMyThingName    = AWS_IOT_MY_THING_NAME;
-  shadow_connect_paramters.pMqttClientId   = AWS_IOT_MQTT_CLIENT_ID;
-  shadow_connect_paramters.mqttClientIdLen = strlen(AWS_IOT_MQTT_CLIENT_ID);
+  shadow_connect_parameters.pMyThingName    = AWS_IOT_MY_THING_NAME;
+  shadow_connect_parameters.pMqttClientId   = AWS_IOT_MQTT_CLIENT_ID;
+  shadow_connect_parameters.mqttClientIdLen = strlen(AWS_IOT_MQTT_CLIENT_ID);
 
-  rc = aws_iot_shadow_connect(&mqtt_client, &shadow_connect_paramters);
+  rc = aws_iot_shadow_connect(&mqtt_client, &shadow_connect_parameters);
   if (rc < 0) {
     printf("\r\nShadow Connection failed with aws error: %d\r\n", rc);
     return rc;
@@ -284,7 +302,7 @@ sl_status_t start_aws_device_shadow()
     simulate_room_temperature(&temperature, &window_open_state);
     rc = aws_iot_shadow_init_json_document(json_document_buffer, size_of_json_document_buffer);
     if (rc != SUCCESS) {
-      printf("\r\n Failed to initialize JSON buffer with error:0x%x\r\n", rc);
+      printf("\r\nFailed to initialize JSON buffer with error:0x%x\r\n", rc);
       continue;
     }
 
@@ -294,14 +312,14 @@ sl_status_t start_aws_device_shadow()
                                      &temperature_handler,
                                      &window_actuator);
     if (rc != SUCCESS) {
-      printf("\r\n Failed to add reported value in JSON buffer with error:0x%x\r\n", rc);
+      printf("\r\nFailed to add reported value in JSON buffer with error:0x%x\r\n", rc);
       continue;
     }
     printf("\r\nAdding reported value in JSON buffer success\r\n");
 
     rc = aws_iot_finalize_json_document(json_document_buffer, size_of_json_document_buffer);
     if (rc != SUCCESS) {
-      printf("\r\n Failed to finalize JSON buffer with error:0x%x\r\n", rc);
+      printf("\r\nFailed to finalize JSON buffer with error:0x%x\r\n", rc);
       continue;
     }
     printf("\r\nJSON finalization buffer Success\r\n");
@@ -316,7 +334,7 @@ sl_status_t start_aws_device_shadow()
                                40,
                                true);
     if (rc != SUCCESS) {
-      printf("\r\n Failed to update JSON buffer with error:0x%x\r\n", rc);
+      printf("\r\nFailed to update JSON buffer with error:0x%x\r\n", rc);
       continue;
     }
   }

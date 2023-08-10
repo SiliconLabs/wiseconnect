@@ -65,6 +65,14 @@
 #define RSI_BLE_DEV_3_ADDR "00:1A:7D:DA:73:13"
 #endif
 
+#ifdef RSI_M4_INTERFACE
+#define RSI_BLE_MAX_NBR_ATT_REC 20
+#define RSI_BLE_NUM_CONN_EVENTS 4
+#else
+#define RSI_BLE_MAX_NBR_ATT_REC 80
+#define RSI_BLE_NUM_CONN_EVENTS 30
+#endif
+
 /***********************************************************************************************************************************************/
 //! BLE connection specific configurations
 /***********************************************************************************************************************************************/

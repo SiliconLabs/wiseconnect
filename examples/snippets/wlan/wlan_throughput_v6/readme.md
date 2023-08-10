@@ -11,10 +11,10 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 
 - Windows PC
 - Wireless Access Point
-- **SoC Mode**: 
-  - Silicon Labs [BRD4325A, BRD4325B](https://www.silabs.com/)
-- **NCP Mode**: 
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/); **AND**
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
+- **NCP Mode**:
+  - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
@@ -52,14 +52,14 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 #### 3.1.1 SoC mode
 
-- Connect your board. The Si917 compatible SoC board is **BRD4325A,BRD4325B**.
+- Connect your board. The Si917 compatible SoC boards are **BRD4325A, BRD4325B, BRD4325C, BRD4325G**.
 - Studio should detect your board. Your board will be shown here.
 
   **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
 #### 3.1.2 NCP mode
 
-- Connect your board. The supported NCP boards are: **BRD4180A,BRD4280B**
+- Connect your board. The supported NCP boards are: **BRD4180B**
 - The EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
   **![EFR32 Board detection](resources/readme/efr32.png)**
@@ -93,7 +93,7 @@ You can use either of the below USB to UART converters for application prints.
 **Tera term set up - for NCP and SoC modes**
 
 1. Open the Tera Term tool. 
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
      **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
@@ -106,7 +106,7 @@ You can use either of the below USB to UART converters for application prints.
     **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
     **![serial_port](resources/readme/serial_port.png)**
-    
+
 ## 4 Application Build Environment
 
 ### 4.1 Configure the Application
@@ -125,7 +125,7 @@ The application can be configured to suit user requirements and development envi
 
 - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
-  ```c 
+  ```c
   #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
   ```
 
@@ -173,17 +173,17 @@ Once the build was successful, right click on project and click on Debug As->Sil
 
 ### 4.3 Testing Throughput steps at remote system
 
-There are two 'ends' involved when measuring throughput, data is sent between the client end and the server end. By default, the Iperf protocol sends data from the client to the server to measure throughput. Depending on the configuration selected, the SiWx91x may be the client or the server. In general, it is advisable to start the server before the client since the client will immediately begin to try to connect to the server to send data. 
+There are two 'ends' involved when measuring throughput, data is sent between the client end and the server end. By default, the Iperf protocol sends data from the client to the server to measure throughput. Depending on the configuration selected, the SiWx91x may be the client or the server. In general, it is advisable to start the server before the client since the client will immediately begin to try to connect to the server to send data.
 
-The following sections describe how to run the SiWx91x throughput application together with examples for various Iperf configurations that run on the PC.   
+The following sections describe how to run the SiWx91x throughput application together with examples for various Iperf configurations that run on the PC.
 
 ### UDP Tx Throughput
 
 To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC.
-The Iperf command to start the UDP server on the PC is: 
+The Iperf command to start the UDP server on the PC is:
 
 > `C:\> iperf.exe -s -u -V -p <SERVER_PORT> -i 1`
-> 
+>
 > For example ...
 >
 > `C:\> iperf.exe -s -u -V -p 5001 -i 1`
@@ -191,18 +191,18 @@ The Iperf command to start the UDP server on the PC is:
 ### UDP Rx Throughput
 
 To measure UDP Rx throughput, configure the SiWx91x as a UDP server and start a UDP client on the remote PC.
-The Iperf command to start the UDP client is: 
- 
+The Iperf command to start the UDP client is:
+
 > `C:\> iperf.exe -c <Module_IP> -V -u  -p <Module_Port> -i 1 -b <Bandwidth> -t <time interval in seconds> -l <UDP buffer length>`
 >
 > For example ...
 >
-> `C:\> iperf.exe -c 2001:db8:0:1::121 -V -u -p 5001 -i 1 -b 50M -t 30 -l 1450` 
+> `C:\> iperf.exe -c 2001:db8:0:1::121 -V -u -p 5001 -i 1 -b 50M -t 30 -l 1450`
 
 ### TCP Tx Throughput
 
 To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC.
-The Iperf command to start the TCP server is: 
+The Iperf command to start the TCP server is:
   
 > `C:\> iperf.exe -s -V -p <SERVER_PORT> -i 1`
 >
@@ -213,7 +213,7 @@ The Iperf command to start the TCP server is:
 ### TCP Rx Throughput
 
 To measure TCP Rx throughput, configure the SiWx91x as TCP server and start a TCP client on the remote PC.
-The Iperf command to start the TCP client is: 
+The Iperf command to start the TCP client is:
 
 > `C:\> iperf.exe -c <Module_IP> -V -p <module_PORT> -i 1 -t <time interval in sec>`
 >
@@ -229,7 +229,7 @@ To measure TLS Tx throughput, configure the SiWx91x as a TLS client and start a 
 - Open a command prompt and cd to the folder `/resources/certificates/`, then run the following command:
   - `C:\> python SSL_Server_throughput_v6.py`
 
-> **Note:** 
+> **Note:**
 **The SSL_Server_throughput_v6.py script works only with Python version 2.**
 
 ## TLS Rx Throughput

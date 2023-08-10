@@ -116,7 +116,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                                               | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -153,7 +153,7 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi Client interface: 0x%lx\r\n", status);
     return;
@@ -168,7 +168,7 @@ static void application_start(void *argument)
   }
 #endif
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
@@ -195,17 +195,13 @@ sl_status_t clear_and_load_certificates_in_flash(void)
     return status;
   }
 
-  status = sl_tls_clear_ca_store(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE,
-                                 SL_NET_APPLICATION_PROTOCOL_SSL_SOCKET,
-                                 SL_CERT_INDEX_1);
+  status = sl_tls_clear_ca_store(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_APPLICATION_PROTOCOL_SSL_SOCKET, SL_CERT_INDEX_1);
   if (status != SL_STATUS_OK) {
     printf("\r\nErasing %d index certificate Failed, Error Code : 0x%lX\r\n", SL_CERT_INDEX_1, status);
     return status;
   }
 
-  status = sl_tls_clear_ca_store(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE,
-                                 SL_NET_APPLICATION_PROTOCOL_SSL_SOCKET,
-                                 SL_CERT_INDEX_2);
+  status = sl_tls_clear_ca_store(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_APPLICATION_PROTOCOL_SSL_SOCKET, SL_CERT_INDEX_2);
   if (status != SL_STATUS_OK) {
     printf("\r\nErasing %d index certificate Failed, Error Code : 0x%lX\r\n", SL_CERT_INDEX_2, status);
     return status;
@@ -227,9 +223,7 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 
   tls_configuration.cert_identifier = SL_CERT_INDEX_1;
 
-  status = sl_tls_set_ca_store(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE,
-                               SL_NET_APPLICATION_PROTOCOL_SSL_SOCKET,
-                               tls_configuration);
+  status = sl_tls_set_ca_store(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_APPLICATION_PROTOCOL_SSL_SOCKET, tls_configuration);
   if (status != SL_STATUS_OK) {
     printf("\r\nLoading SSL CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
     return status;
@@ -248,9 +242,7 @@ sl_status_t clear_and_load_certificates_in_flash(void)
   tls_configuration.clientkey_type     = SL_TLS_SSL_CLIENT_PRIVATE_KEY;
   tls_configuration.use_secure_element = false;
 
-  status = sl_tls_set_ca_store(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE,
-                               SL_NET_APPLICATION_PROTOCOL_SSL_SOCKET,
-                               tls_configuration);
+  status = sl_tls_set_ca_store(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_APPLICATION_PROTOCOL_SSL_SOCKET, tls_configuration);
   if (status != SL_STATUS_OK) {
     printf("\r\nLoading SSL CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
     return status;
@@ -274,7 +266,7 @@ sl_status_t create_three_ssl_client_sockets(void)
   struct sockaddr_in server_addr[MAX_SOCKET];
 
   //! Converting and storing given IP address into SL IPV4
-  convert_string_to_sl_ipv4_address(SERVER_ADDR, &server_address);
+  sl_net_inet_addr(SERVER_ADDR, (uint32_t *)&server_address);
 
   do {
     //! Getting IP address of the AWS server using DNS request

@@ -2,14 +2,12 @@
 
 ## 1. Purpose / Scope
 
-This example demonstrates the ability of Si91x EVK connecting and transferring the data simultaneously in BLE/WiFi wireless interfaces. 
+This example demonstrates the ability of Si91x EVK connecting and transferring the data simultaneously in BLE/WiFi wireless interfaces.
 
-In the Coex mode (WiFi+BLE), the module will connect to AP and then download the fixed file from PC acting as Server and supports BLE connection/data transfers simultaneously. 
+In the Coex mode (WiFi+BLE), the module will connect to AP and then download the fixed file from PC acting as Server and supports BLE connection/data transfers simultaneously.
 
 The Application can be configured for the individual protocol execution as well the combination of protocols execution ( WiFi+BLE). Two BLE connections (Master and Slave) are supported.
 
->
-   
 ## 2. Prerequisites / Setup Requirements
 
 Before running the application, the user will need the following things to setup.
@@ -18,11 +16,11 @@ Before running the application, the user will need the following things to setup
 
 - Windows PC with Host interface(UART/ SPI) in case of WiSeConnect.
  **SoC Mode**:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)    
+    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 - Wireless Access Point
 - Smart phone/tablet with BLE Application (Ex: )
 - Windows PC2 (Remote PC) with HTTP/HTTPS server running.
@@ -58,7 +56,7 @@ SiWx917_WiSeConnect_SDK.X.X
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* and *Wi-Fi* checkbox under **Wireless Technology** and select *Wi-Fi Client HTTPS BLE Dual Role* application.
 
-   ![projct_selection](resources/readme/create_project1.png)
+   ![project_selection](resources/readme/create_project1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -104,7 +102,7 @@ SiWx917_WiSeConnect_SDK.X.X
 
 1. Open the Tera Term tool.
 
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
@@ -151,8 +149,8 @@ To select number of BLE connections, configure below macros.
 ```c
 #define RSI_BLE_MAX_NBR_CENTRALS                      1
 ```
-   
-> Note: 
+
+> Note:
 > Maximum no. of  RSI_BLE_MAX_NBR_CENTRALS can be configured to '1' and RSI_BLE_MAX_NBR_PERIPHERALS to '1'.
 
 **4.3** Select **BLE** configurations in `ble_config.h` file
@@ -172,7 +170,7 @@ To identify remote device with BD Address/device name.
 #define RSI_REMOTE_DEVICE_NAME2                      "slave2"
 #define RSI_REMOTE_DEVICE_NAME3                      "slave3"
 ```
-   
+
 If CONNECT_OPTION is set to CONN_BY_ADDR, configure the below macros.
 
 Configure the address type of remote device as either Public Address or Random Address
@@ -188,8 +186,8 @@ Add the BD Address of remote BLE device to connect
 #define RSI_BLE_DEV_2_ADDR                           "7E:E6:5E:30:77:6F"
 #define RSI_BLE_DEV_3_ADDR                           "70:1A:69:32:7C:8E
 ```
-   
-Configure below macros to select the profile characteristics uuid for data transfer. 
+
+Configure below macros to select the profile characteristics uuid for data transfer.
 
 ```c
 #define RSI_BLE_CLIENT_WRITE_SERVICE_UUID_M1             0x180D //! Heart Rate service uuid
@@ -201,8 +199,8 @@ Configure below macros to select the profile characteristics uuid for data trans
 #define RSI_BLE_CLIENT_NOTIFICATIONS_SERVICE_UUID_M1     0x180D //! Heart Rate service uuid
 #define RSI_BLE_CLIENT_NOTIFICATIONS_CHAR_UUID_M1        0x2A37 //! Heart Rate measurement 
 ```
-   
-Configure below macros to select each connection configurations 
+
+Configure below macros to select each connection configurations
 
    `Master1 configurations: (where XX=C1)`
 
@@ -219,7 +217,7 @@ Set below macro to add remote device to whitelist
 ```
 
 Set below macro to discover remote profiles.
- 
+
 ```c
 #define PROFILE_QUERY_XX            1  //By default, this macro is set to '1'
 ```
@@ -297,11 +295,11 @@ Below configuration is for connection interval of 45ms, latency 0 and timeout as
 #define CONN_LATENCY_XX             0
 #define CONN_SUPERVISION_TIMEOUT_XX  400 
 ```
-   
-> Note: 
-> Follow the above instructions to configure for remaining connections (slave1(XX = P1), slave2 (XX =P2), slave3(XX=P3) and master2(XX=C2)) 
 
-**4.4** Select WLAN configurations in `wifi_app_config.h` file 
+> Note:
+> Follow the above instructions to configure for remaining connections (slave1(XX = P1), slave2 (XX =P2), slave3(XX=P3) and master2(XX=C2))
+
+**4.4** Select WLAN configurations in `wifi_app_config.h` file
 
 Enter the AP Connectivity essential configs as the value to SSID, SECURITY_TYPE and PSK
 
@@ -359,36 +357,36 @@ Configure below macros to make Use of Local HTTPS server to download the files.
 1. Compile the project and flash the binary.
 
 2. Before running below commands, make sure the file configured in 'DOWNLOAD_FILENAME' is present under below path
-   
+
    [File path: `/<SDK>/resources/scripts/`]
 
 3. To download the files from local http server, navigate to below folder and run below command.
 
-   [File path: `/<SDK>/resources/scripts/`] 
+   [File path: `/<SDK>/resources/scripts/`]
 
    python simple_http_server.py 80
 
 4. To download the files from local https server, copy ssl certificates 'server-cert.pem' , 'server-key.pem' from below 'source path' and paste in to 'destination path'.
 
-   [source path: `/<SDK>/resources/certificates/`] 
+   [source path: `/<SDK>/resources/certificates/`]
 
-   [destination path: `/<SDK>/resources/scripts/`] 
+   [destination path: `/<SDK>/resources/scripts/`]
 
      Open command prompt, navigate to above destination path and run below command.
-   
+
    openssl s_server -accept 443 -cert server-cert.pem -key server-key.pem -tls1_2 -WWW
 
-5. After the program gets executed, module scans for the configured Accesspoint, connects to it and acquires the ip address
+5. After the program gets executed, module scans for the configured Access point, connects to it and acquires the ip address
 
 6. After acquiring ip address, initiates connection to remote server.(ex: simple_http_server.py running in same network where Module is also connected)
 
 7. If connection is successful,
 
-- Si917 EVK starts advertising and scanning BLE
+   - Si917 EVK starts advertising and scanning BLE
 
-- Advertises BLE and simultaneoulsy downloads http packets sent from remote server
+   - Advertises BLE and simultaneously downloads http packets sent from remote server
 
-8. If connection is not successful, step 5 is repeated untill connection is success
+8. If connection is not successful, step 5 is repeated until connection is success
 
 9. While downloading is happening, user can initiate  BLE connections (both peripheral and central).
 
@@ -406,5 +404,5 @@ Configure below macros to make Use of Local HTTPS server to download the files.
 
 16. If BLE connection is successful, Si91x EVK enables the Gatt notifications of remote device for RSI_BLE_CLIENT_NOTIFICATIONS_CHAR_UUID_M1 (Heart Rate measurement) and receives notifications/connection interval.
 
-> Note: 
-> Steps 9 to 12 can be repeated for 2 peripheral connection and steps 13 to 15 can be repeated for 3 central connections based on the RSI_BLE_MAX_NBR_CENTRALS and RSI_BLE_MAX_NBR_PERIPHERALS. Verify that all connections are stable and simultaneous data transfer is happening from all the radios of RS9116W EVK. 
+> Note:
+> Steps 9 to 12 can be repeated for 2 peripheral connection and steps 13 to 15 can be repeated for 3 central connections based on the RSI_BLE_MAX_NBR_CENTRALS and RSI_BLE_MAX_NBR_PERIPHERALS. Verify that all connections are stable and simultaneous data transfer is happening from all the radios of RS9116W EVK.

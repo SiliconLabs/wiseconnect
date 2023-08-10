@@ -44,7 +44,7 @@ static bool tcp_auto_close_enabled;
 // This value will be used in connect request/ AP configurations to set the TX power of the module
 static uint8_t wifi_max_tx_power;
 
-static sl_wifi_rate_t saved_wifi_data_rate;
+static sl_wifi_rate_t saved_wifi_data_rate = SL_WIFI_AUTO_RATE;
 
 static sl_wifi_ap_configuration_t ap_configuration;
 

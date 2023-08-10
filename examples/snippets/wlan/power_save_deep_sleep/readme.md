@@ -10,16 +10,16 @@ This application demonstrates how to enable power save deep sleep profile with S
 
 - Windows PC
 - Wireless Access Point
-- **SoC Mode**: 
-  - Silicon Labs [BRD4325A,BRD4325B, BRD4325G](https://www.silabs.com/)
-- **NCP Mode**: 
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/); **AND**
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
+- **NCP Mode**:
+  - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 ### 2.2 Software Requirements
 
-- Simplicity Studio IDE 
+- Simplicity Studio IDE
   - Download the [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio).
   - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE.
 
@@ -53,7 +53,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 #### 3.1.1 SoC mode
 
-- Connect your board. The Si917 compatible SoC board is **BRD4325A,BRD4325B**.
+- Connect your board. The Si917 compatible SoC boards are **BRD4325A, BRD4325B, BRD4325C, BRD4325G**.
 - Studio should detect your board. Your board will be shown here.
 
   **![Soc Board detection](resources/readme/soc_board_detection.png)**
@@ -62,13 +62,13 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
   **![Power save deep sleep project](resources/readme/powersave_deepsleep_example_soc.png)**
 
-- Give the desired name to your project and cick on **Finish**.
+- Give the desired name to your project and click on **Finish**.
 
   **![Finish creating project](resources/readme/create_project_soc.png)**
 
 #### 3.1.2 NCP mode
 
-- Connect your board. The supported NCP boards are: **BRD4180A,BRD4280B**
+- Connect your board. The supported NCP boards are: **BRD4180B**
 - The EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
   **![EFR32 Board detection](resources/readme/efr32.png)**
@@ -77,7 +77,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
   **![Power save deep sleep project](resources/readme/powersave_deepsleep_example.png)**
 
-- Give the desired name to your project and cick on **Finish**
+- Give the desired name to your project and click on **Finish**
 
    **![Finish creating project](resources/readme/create_project.png)**
 
@@ -85,7 +85,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 Before setting up Tera Term, do the following for SoC mode.
 
-**SoC mode**: 
+**SoC mode**:
 You can use either of the below USB to UART converters for application prints.
 
 1. Set up using USB to UART converter board.
@@ -104,8 +104,8 @@ You can use either of the below USB to UART converters for application prints.
 
 **Tera term set up - for NCP and SoC modes**
 
-1. Open the Tera Term tool. 
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+1. Open the Tera Term tool.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
      **![](resources/readme/port_selection_soc.png)**
 
@@ -119,7 +119,7 @@ You can use either of the below USB to UART converters for application prints.
 
     **![](resources/readme/serial_port.png)**
 
-The serial port is now connected. 
+The serial port is now connected.
 
 ## 4 Application Build Environment
 
@@ -139,7 +139,7 @@ The application can be configured to suit user requirements and development envi
 
 - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
-  ```c 
+  ```c
   #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
   ```
 

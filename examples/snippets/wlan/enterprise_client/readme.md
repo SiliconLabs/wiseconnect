@@ -10,13 +10,15 @@ Before running the application, the user will need the following things to setup
 
 ### 2.1 Hardware Requirements
 
-- **SoC Mode**: [Silicon Labs EFR32xG21 Starter Kit with Wireless Gecko](https://www.silabs.com/) (SLSWSTK6006A Base board: BRD4001A, Radio board: BRD4325A,BRD4325B, BRD4325G)
+Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 
-- **NCP Mode**: 
+  - For Soc Mode, Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
+
+- **NCP Mode**:
   - [SiWx91x Wi-Fi Expansion Board](https://www.silabs.com/)
   - A Host MCU. This example application has been tested with the following host MCUs.
 
-  - [Silicon Labs EFR32xG21 Starter Kit with Wireless Gecko](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit) (SLSWSTK6006A Base board: BRD4001A, Radio board: BRD4180a or BRD4180b)
+  - [Silicon Labs EFR32xG21 Starter Kit with Wireless Gecko](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit) (SLSWSTK6006A Base board: BRD4001A, Radio board: BRD4180B)
 
 - A Wireless Access point with WPA2-Enterprise configuration
 
@@ -32,9 +34,9 @@ Before running the application, the user will need the following things to setup
 
 - [Silicon Labs Gecko SDK](https://github.com/SiliconLabs/gecko_sdk)
 
-- [Si91x COMBO SDK](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/) 
+- [Si91x COMBO SDK](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/)
 
-- [FreeRADIUS Server](https://freeradius.org/) 
+- [FreeRADIUS Server](https://freeradius.org/)
 
 **NOTE:**
 
@@ -94,7 +96,7 @@ Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Si
 
    **![Examples and Demos](resources/readme/examples_demos.png)**
 
-2. Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** and *Gecko SDK Suite* checkbox under **Provider**. 
+2. Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** and *Gecko SDK Suite* checkbox under **Provider**.
 
 3. Under **Device Type**, for SoC based example, check the *SoC* checkbox and for NCP based example, check the *NCP* checkbox.
 
@@ -276,7 +278,7 @@ You can use either of the below USB to UART converters for application prints.
 
    **![Application prints](resources/readme/application_prints_ncp.png)**
 
-## Appendix 
+## Appendix
 
 ### Configure Access Point in WAP2-EAP
 
@@ -301,7 +303,7 @@ The configuration explained below is for Windows OS, similar process may be foll
 
    **Note**: This example application has been tested with tested with FreeRADIUS-server-2.2.3-x86.
 
-- Once installed, go to the **C: → FreeRADIUS → etc → raddb** folder. Open the **clients.conf** file and add the following lines at the end of the file. 
+- Once installed, go to the **C: → FreeRADIUS → etc → raddb** folder. Open the **clients.conf** file and add the following lines at the end of the file.
 
    ```c
    client 192.168.50.1/24 {
@@ -331,7 +333,7 @@ The configuration explained below is for Windows OS, similar process may be foll
 
   - Copy the **wifi-user.pem** file from **<WiSeConnect3> → resources → certificates** folder to **C: → FreeRADIUS → etc → raddb → certs** folder.
 
-  - Click on the windows key and just search for Start RADIUS Server and click on it. 
+  - Click on the windows key and just search for Start RADIUS Server and click on it.
 
   - Then Radius server has started successfully you will see a print at the end which says, **Ready to process requests**.
 

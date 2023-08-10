@@ -851,15 +851,54 @@ ARM_DRIVER_SPI Driver_SSI_ULP_MASTER = { SPI_GetVersion,
                                          SSI_ULP_MASTER_GetStatus };
 #endif
 
+// To get the clock division factor
+uint32_t SSI_GetClockDivisionFactor(uint8_t ssi_instance)
+{
+  uint32_t division_factor = 0;
+  do {
+    if (ssi_instance == SPI_MASTER_MODE) {
+      division_factor = SSI0->BAUDR_b.SCKDV;
+      break;
+    }
+    if (ssi_instance == SPI_SLAVE_MODE) {
+      division_factor = SSISlave->BAUDR_b.SCKDV;
+      break;
+    }
+    if (ssi_instance == SPI_ULP_MASTER_MODE) {
+      division_factor = SSI2->BAUDR_b.SCKDV;
+      break;
+    }
+  } while (false);
+  return division_factor;
+}
+
+// To get the frame length
+uint32_t SSI_GetFrameLength(uint8_t ssi_instance)
+{
+  uint32_t frame_length = 0;
+  do {
+    if (ssi_instance == SPI_MASTER_MODE) {
+      frame_length = SSI0->CTRLR0_b.DFS_32;
+      break;
+    }
+    if (ssi_instance == SPI_SLAVE_MODE) {
+      frame_length = SSISlave->CTRLR0_b.DFS;
+      break;
+    }
+    if (ssi_instance == SPI_ULP_MASTER_MODE) {
+      frame_length = SSI2->CTRLR0_b.DFS_32;
+      break;
+    }
+  } while (false);
+  return frame_length;
+}
+
 #ifndef WORK_IN_PROGRESS
 // Get SSI Init state
 uint8_t SSI_GetInitState(uint8_t ssi_instance)
 {
   uint8_t init_state = false;
   do {
-    //      if (ssi_instance >= SL_SSI_INSTANCE_LAST_ENUM) {
-    //          break;
-    //      }
     if (ssi_instance == SPI_MASTER_MODE) {
       init_state = (SSI_MASTER_Resources.info->state & SPI_INITIALIZED);
       break;
@@ -881,9 +920,6 @@ uint32_t SSI_GetTxCount(uint8_t ssi_instance)
 {
   uint32_t count = 0;
   do {
-    //        if (ssi_instance >= SL_SSI_INSTANCE_LAST_ENUM) {
-    //            break;
-    //        }
     if (ssi_instance == SPI_MASTER_MODE) {
       if (!(SSI_MASTER_Resources.info->state & SPI_CONFIGURED)) {
         count = 0U;

@@ -32,11 +32,6 @@
 #include "rsi_ble_common_config.h"
 #include "rsi_bt_common_apis.h"
 
-#ifdef FW_LOGGING_ENABLE
-//! Firmware logging includes
-#include "sl_fw_logging.h"
-#endif
-
 //! Common include file
 #include "rsi_common_apis.h"
 #include <string.h>
@@ -106,19 +101,19 @@
 
 #define GATT_READ_ZERO_OFFSET 0x00
 
-#ifdef FW_LOGGING_ENABLE
 /*=======================================================================*/
-//!    Firmware logging configurations
+//!    Powersave configurations
 /*=======================================================================*/
-//! Firmware logging task defines
-#define RSI_FW_TASK_STACK_SIZE (512 * 2)
-#define RSI_FW_TASK_PRIORITY   2
-//! Firmware logging variables
-extern rsi_semaphore_handle_t fw_log_app_sem;
-rsi_task_handle_t fw_log_task_handle = NULL;
-//! Firmware logging prototypes
-void sl_fw_log_callback(uint8_t *log_message, uint16_t log_message_length);
-void sl_fw_log_task(void);
+#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
+
+#if ENABLE_POWER_SAVE
+//! Power Save Profile Mode
+#define PSP_MODE RSI_SLEEP_MODE_2
+//! Power Save Profile type
+#define PSP_TYPE RSI_MAX_PSP
+
+sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000, { 0 } };
+
 #endif
 
 #define MITM_REQ 0x01
@@ -217,6 +212,9 @@ typedef struct rsi_ble_hid_info_s {
   rsi_ble_att_list_t att_rec_list[BLE_ATT_REC_LIST_SIZE];
 } rsi_ble_hid_info_t;
 
+static rsi_ble_hid_info_t hid_info_g;
+
+#if (GATT_ROLE == SERVER)
 static const uint8_t hid_report_map[] = {
   0x05,
   0x01, // USAGE_PAGE (Generic Desktop)
@@ -293,6 +291,7 @@ static const uint8_t hid_report_map[] = {
 
   /*==============================================*/
 };
+#endif
 
 osSemaphoreId_t ble_main_task_sem;
 
@@ -326,9 +325,9 @@ static const sl_wifi_device_configuration_t config = {
 #endif
                      | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
 #if (defined A2DP_POWER_SAVE_ENABLE)
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                     | SL_SI91X_EXT_FEAT_XTAL_CLK
 #endif
-                       ),
+                     ),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
@@ -383,7 +382,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = 3072,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -414,16 +413,13 @@ static void rsi_ble_app_init_events()
  */
 void rsi_ble_app_set_event(uint32_t event_num)
 {
-
   if (event_num < 32) {
     ble_app_event_map |= BIT(event_num);
   } else {
     ble_app_event_map1 |= BIT((event_num - 32));
   }
 
-  if (ble_main_task_sem) {
-    osSemaphoreRelease(ble_main_task_sem);
-  }
+  osSemaphoreRelease(ble_main_task_sem);
 
   return;
 }
@@ -439,7 +435,6 @@ void rsi_ble_app_set_event(uint32_t event_num)
  */
 static void rsi_ble_app_clear_event(uint32_t event_num)
 {
-
   if (event_num < 32) {
     ble_app_event_map &= ~BIT(event_num);
   } else {
@@ -783,6 +778,7 @@ static void rsi_ble_on_mtu_event(rsi_ble_event_mtu_t *rsi_ble_mtu)
   rsi_ble_app_set_event(RSI_BLE_EVENT_MTU);
 }
 
+#if (GATT_ROLE == SERVER)
 /*==============================================*/
 /**
  * @fn         rsi_gatt_add_att_to_list
@@ -1305,6 +1301,7 @@ static void rsi_ble_hid_srv_gatt_wr_cb(void)
     rsi_ble_conn_params_update(temp_le_ltk_req.dev_addr, 36, 36, 0, 300);
   }
 }
+#endif
 
 void rsi_ble_on_sc_passkey(rsi_bt_event_sc_passkey_t *sc_passkey)
 {
@@ -1345,6 +1342,8 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
      0x02, 0x01, 0x05, 0x03, 0x19, 0xC0, 0x03, /* Appearance */
      0x03, 0x03, 0x12, 0x18                    /*0x0F, 0x18, 0x0A, 0x18,  Service UUIDs */
   };
+  sl_wifi_version_string_t fw_version = { 0 };
+
   /* Name */
   adv_data[11] = strlen(RSI_BLE_APP_HIDS) + 1;
   adv_data[12] = 0x09;
@@ -1352,16 +1351,10 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
 
   adv_data_len = strlen(RSI_BLE_APP_HIDS) + 13;
 #elif (GATT_ROLE == CLIENT)
-  static uint8_t char_srv_index = 0;
   uuid_t service_uuid;
   profile_descriptors_t ble_servs = { 0 };
   rsi_ble_resp_char_services_t char_servs = { 0 };
   rsi_ble_resp_att_descs_t att_desc = { 0 };
-#endif
-
-#ifdef FW_LOGGING_ENABLE
-  //Fw log component level
-  sl_fw_log_level_t fw_component_log_level;
 #endif
 
   status = sl_wifi_init(&config, default_wifi_event_handler);
@@ -1372,29 +1365,12 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
     LOG_PRINT(" Wi-Fi Initialization Success\n");
   }
 
-#ifdef FW_LOGGING_ENABLE
-  //! Set log levels for firmware components
-  sl_set_fw_component_log_levels(&fw_component_log_level);
-
-  //! Configure firmware logging
-  status = sl_fw_log_configure(FW_LOG_ENABLE,
-                               FW_TSF_GRANULARITY_US,
-                               &fw_component_log_level,
-                               FW_LOG_BUFFER_SIZE,
-                               sl_fw_log_callback);
-  if (status != RSI_SUCCESS) {
-    LOG_PRINT("\r\n Firmware Logging Init Failed\r\n");
+  status = sl_wifi_get_firmware_version(&fw_version);
+  if (status == SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version response: %s\r\n", fw_version.version);
+  } else {
+    LOG_PRINT("\r\nFailed to get Firmware version \r\n");
   }
-  //! Create firmware logging semaphore
-  rsi_semaphore_create(&fw_log_app_sem, 0);
-  //! Create firmware logging task
-  rsi_task_create((rsi_task_function_t)sl_fw_log_task,
-                  (uint8_t *)"fw_log_task",
-                  RSI_FW_TASK_STACK_SIZE,
-                  NULL,
-                  RSI_FW_TASK_PRIORITY,
-                  &fw_log_task_handle);
-#endif
 
 #if (GATT_ROLE == SERVER)
   //! adding ble hid service
@@ -1452,6 +1428,10 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
                                  NULL);
   //! create ble main task if ble protocol is selected
   ble_main_task_sem = osSemaphoreNew(1, 0, NULL);
+  if (ble_main_task_sem == NULL) {
+    LOG_PRINT("Failed to create ble_main_task_sem semaphore\n");
+    return;
+  }
 
   //!  initializing the application events map
   rsi_ble_app_init_events();
@@ -1502,15 +1482,32 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   LOG_PRINT("\n Start scanning ...\n");
 #endif
 
+#if ENABLE_POWER_SAVE
+  LOG_PRINT("\r\n keep module in to power save \r\n");
+  //! initiating power save in BLE mode
+  status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+    return;
+  }
+
+  //! initiating power save in wlan mode
+  status = sl_wifi_set_performance_profile(&wifi_profile);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
+    return;
+  }
+
+  LOG_PRINT("\r\n Module is in power save \r\n");
+#endif
+
   //! waiting for events from controller.
   while (1) {
     //! Application main loop
     //! checking for events list
     event_id = rsi_ble_app_get_event();
     if (event_id == -1) {
-      if (ble_main_task_sem) {
-        osSemaphoreAcquire(ble_main_task_sem, 0);
-      }
+      osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
       continue;
     }
     switch (event_id) {
@@ -1523,7 +1520,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
         rsi_ble_app_clear_event(RSI_APP_EVENT_ADV_REPORT);
         status = rsi_ble_connect(remote_addr_type, (int8_t *)remote_dev_bd_addr);
         if (status != RSI_SUCCESS) {
-          LOG_PRINT("\n connect status: 0x%X\r\n", status);
+          LOG_PRINT("\n connect status: 0x%lX\r\n", status);
         }
 
       } break;
@@ -1550,6 +1547,25 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
           rsi_ble_app_clear_event(RSI_BLE_GATT_SEND_DATA);
         }
         LOG_PRINT("\r\n Module got disconnected\r\n");
+#if ENABLE_POWER_SAVE
+        LOG_PRINT("\r\n keep module in to power save \r\n");
+        //! initiating power save in BLE mode
+        status = rsi_bt_power_save_profile(RSI_ACTIVE, PSP_TYPE);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+          return;
+        }
+
+        //! initiating Active mode in WLAN mode
+        wifi_profile.profile = HIGH_PERFORMANCE;
+        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
+          return;
+        }
+
+        LOG_PRINT("\r\n Module is in power save \r\n");
+#endif
         app_state = 0;
         app_state |= BIT(ADVERTISE);
         //! set device in advertising mode.
@@ -1571,6 +1587,25 @@ scan:
           goto scan;
         }
         LOG_PRINT("\n Start scanning\n");
+#endif
+#if ENABLE_POWER_SAVE
+        LOG_PRINT("\r\n keep module in to power save \r\n");
+        //! initiating power save in BLE mode
+        status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+          return;
+        }
+
+        //! initiating power save in wlan mode
+        wifi_profile.profile = ASSOCIATED_POWER_SAVE;
+        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
+          return;
+        }
+
+        LOG_PRINT("\r\n Module is in power save \r\n");
 #endif
       } break;
 
@@ -1810,8 +1845,6 @@ scan:
       } break;
 
       case RSI_BLE_EVENT_GATT_CHAR_DESC_RESP: {
-        uint8_t temp_prop       = 0;
-        uint8_t char_desc_index = 0;
 
         //! clear the served event
         rsi_ble_app_clear_event(RSI_BLE_EVENT_GATT_CHAR_DESC_RESP);
@@ -1868,9 +1901,6 @@ scan:
         //! clear the served event
         if (app_state & BIT(CONNECTED)) {
           if (app_state & BIT(REPORT_IN_NOTIFY_ENABLE)) {
-#ifdef __linux__
-            usleep(3000000);
-#endif
 #if RSI_M4_INTERFACE
             osDelay(3000);
 #endif
@@ -1906,5 +1936,5 @@ void app_init(const void *unused)
 {
   UNUSED_PARAMETER(unused);
 
-  osThreadNew((osThreadFunc_t)ble_hids_gatt_application, NULL, &thread_attributes);
+  osThreadNew((osThreadFunc_t)ble_hids_gatt_application, &hid_info_g, &thread_attributes);
 }

@@ -38,12 +38,7 @@
 /*=======================================================================*/
 //   ! MACROS
 /*=======================================================================*/
-#ifdef RSI_M4_INTERFACE
-#define IVT_OFFSET_ADDR        0x8212000  /*<! Application IVT location !>*/
-#define WKP_RAM_USAGE_LOCATION 0x24061000 /*<! Bootloader RAM usage location !>*/
 
-#define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-#endif
 /*=======================================================================*/
 //   ! GLOBAL VARIABLES
 /*=======================================================================*/
@@ -273,19 +268,8 @@ void rsi_ble_task_on_conn(void *parameters)
     event_id = rsi_ble_get_event_based_on_conn(l_conn_id);
     if (event_id == -1) {
 
-#ifdef RSI_M4_INTERFACE
-#if ENABLE_POWER_SAVE
-      //! if events are not received loop will be continued.
-      if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (!rsi_driver_cb->scheduler_cb.event_map)) {
-        P2P_STATUS_REG &= ~M4_wakeup_TA;
-        rsi_ble_only_Trigger_M4_Sleep();
-      }
-#endif
-
-#else
       //! wait on connection specific semaphore
-      osSemaphoreAcquire(ble_conn_sem[l_conn_id], 0);
-#endif
+      osSemaphoreAcquire(ble_conn_sem[l_conn_id], osWaitForever);
       continue;
     }
 

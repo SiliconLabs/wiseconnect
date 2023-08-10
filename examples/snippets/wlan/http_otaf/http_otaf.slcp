@@ -10,9 +10,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.1.3}
+sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.10}
+- {id: wiseconnect3_sdk, version: 3.0.12}
 source:
   - path: app.c
   - path: main.c
@@ -23,6 +23,7 @@ include:
 define:
   - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
+  - name: M4_OTAF_DF
   - name: EXECUTION_FROM_RAM
     condition: [device_needs_ram_execution]
 requires:
@@ -38,6 +39,9 @@ requires:
 - name: wifi_resources
 - name: freertos
 - name: slist
+- name: systemlevel_wwdt
+- name: sl_watchdog_timer
+- name: systemlevel_time_period
 - name: iostream_retarget_stdio
   condition: [device_has_devinfo]
 - name: iostream_recommended_stream

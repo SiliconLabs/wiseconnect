@@ -1,12 +1,12 @@
 ﻿# Properties file for Simplicity Studio metadata
 id=uc.extension.wiseconnect3_sdk
 
-version=3.0.10
+version=3.0.12
 
 label=WiSeConnect 3
 description=WiSeConnect 3 SDK
 
-prop.subLabel=Wi-Fi\\ SDK
+prop.subLabel=Wi-Fi\\ SDK\\ 3.0.12
 
 prop.file.templatesFile=templates.xml
 

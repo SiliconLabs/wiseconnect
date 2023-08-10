@@ -14,13 +14,13 @@ Before running the application, the user will need the following things to setup
 
 - Windows PC.
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
-  - **SoC Mode**: 
-    - Silicon Labs [(BRD4180A, BRD4325B, BRD4325G)](https://www.silabs.com/)
+  - **SoC Mode**:
+    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
   - **NCP Mode**:
-    - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/); **AND**
+    - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
     - Host MCU Eval Kit. This example has been tested with:
       - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
-        
+
 - Wireless Access point
 - Android Phone or iPhone with **EFR Connect** App, which is available in Play Store and App Store.
 - Windows PC with windows Silicon labs connect application.
@@ -34,20 +34,25 @@ Before running the application, the user will need the following things to setup
   - For Silicon Labs EFx32, use the latest version of [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
   - Download and install the Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
-### **SoC Mode** 
+### **SoC Mode**
 
 - WLAN Station BLE Provisioning with Android EFR Connect App
-  ![](resources/readme/image279wsbpa.png)
+
+   ![](resources/readme/image279wsbpa.png)
   
 - WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
-  ![](resources/readme/bleprovisioningsetup.png)
+
+   ![](resources/readme/bleprovisioningsetup.png)
   
-### **NCP Mode** 
+### **NCP Mode**
 
 - WLAN Station BLE Provisioning with Android EFR Connect App
-  ![](resources/readme/image279wsbpancp.png)
+
+   ![](resources/readme/image279wsbpancp.png)
+
 - WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
-  ![](resources/readme/bleprovisioningncp.png)
+
+   ![](resources/readme/bleprovisioningncp.png)
 
 ### 3. Application Build Environment
 
@@ -60,23 +65,23 @@ Before running the application, the user will need the following things to setup
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
    ![Soc Board detection](resources/readme/socboarddetection111.png)
-   
+
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
 
-- Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *Wi-Fi Coex - Wi-Fi Client BLE Provisioning with AWS* application. 
+- Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *Wi-Fi Coex - Wi-Fi Client BLE Provisioning with AWS* application.
 
    ![](resources/readme/create_project1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-  ![](resources/readme/create_project2.png)
+   ![](resources/readme/create_project2.png)
 
 #### 3.1.2 NCP mode
 
 1. Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-   
+
    ![](resources/readme/efr32.png)
 
 - Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
@@ -111,18 +116,18 @@ Before running the application, the user will need the following things to setup
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-   ![UART - SoC](resources/readme/port_selection_soc.png)
-      
- - For NCP mode, choose the J-Link port and click on **OK**.
-    
-   ![J-link - NCP](resources/readme/port_selection.png)
-      
+      ![UART - SoC](resources/readme/port_selection_soc.png)
+
+   - For NCP mode, choose the J-Link port and click on **OK**.
+
+      ![J-link - NCP](resources/readme/port_selection.png)
+
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
    ![Serial port](resources/readme/serial_port_setup.png)
- 
+
    ![Baud rate](resources/readme/serial_port.png)
 
 ### 4. Application Configuration Parameters
@@ -139,7 +144,7 @@ The application can be configured to suit your requirements and development envi
 #define MQTT_TOPIC2           "$aws/things/SmartLockWebAppv01/shadow/update/delta/temperature_reading"
 ```
 
-   **NOTE:** If you would like to change the topic names, then you can modify only the last keyword of the topic, which are `device_status` and `temperature_reading`. 
+   **NOTE:** If you would like to change the topic names, then you can modify only the last keyword of the topic, which are `device_status` and `temperature_reading`.
 
 **To configure the IP address**
 
@@ -170,35 +175,35 @@ define RSI_BAND                                  RSI_BAND_2P4GHZ
    `wlan_config.h` file is already set with the desired configuration in respective example folders, user need not change for each example.
 
 **4.2** Open `ble_app.c` file and update/modify following macros
-   
+
    **Configuring the BLE Application**
-   
+
    `RSI_BLE_CHAR_SERV_UUID` refers to the attribute type of the characteristics to be added in a service.
-   
+
 ```c
 #define  RSI_BLE_CHAR_SERV_UUID                         0x2803
 ```
 
    `RSI_BLE_CLIENT_CHAR_UUID` refers to the attribute type of the client characteristics descriptor to be added in a service.
-   
+
 ```c
 #define RSI_BLE_CLIENT_CHAR_UUID                        0x2902
 ```
 
    `RSI_BLE_NEW_SERVICE_UUID` refers to the attribute value of the newly created service.
-   
+
 ```c
 #define  RSI_BLE_NEW_SERVICE_UUID                       0xAABB
 ```
 
    `RSI_BLE_ATTRIBUTE_1_UUID` refers to the attribute type of the first attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
-   
+
 ```c
 #define  RSI_BLE_ATTRIBUTE_1_UUID                        0x1AA1
 ```
   
    `RSI_BLE_ATTRIBUTE_2_UUID` refers to the attribute type of the second attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
-   
+
 ```c
 #define RSI_BLE_ATTRIBUTE_2_UUID                         0x1BB1
 ```
@@ -224,7 +229,7 @@ define RSI_BAND                                  RSI_BAND_2P4GHZ
    The following are the **non-configurable** macros in the application.
 
    RSI_BLE_ATT_PROPERTY_READ is used to set the READ property to an attribute value.
-   
+
 ```c
 #define  RSI_BLE_ATT_PROPERTY_READ                    0x02
 ```
@@ -314,13 +319,13 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
 - Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
-   
+
 #### NCP Mode
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
 
 ### 5.2 Loading the Application Image
@@ -328,12 +333,12 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
 1. Click on Tools and Simplicity Commander as shown below.
 
    ![](resources/readme/load_image1.png)
-   
-2. Load the application image
- - Select the board. 
- - Browse the application image (.hex) and click on Flash button.
 
-   ![](resources/readme/load_image2.png)
+2. Load the application image
+   - Select the board.
+   - Browse the application image (.hex) and click on Flash button.
+
+      ![](resources/readme/load_image2.png)
 
 ### 5.2 Execution of AWS IoT with BLE Provisioning
 
@@ -346,28 +351,29 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
 3. When SiWx91x EVK enters BLE advertising mode, launch the **EFR Connect** App.
 
 4. Click on Demo and select Wifi-Commissioning tile.
-  ![](resources/readme/remote_screen1.png)
 
-4. It will scan for the module, and it appears in the list. For example, â€œSILABS_BLE_Configuratorâ€� on the UI, select this.
+   ![](resources/readme/remote_screen1.png)
+
+5. It will scan for the module, and it appears in the list. For example, â€œSILABS_BLE_Configuratorâ€� on the UI, select this.
   
-5. Now, SiWx91x module will start as a station and scan for the access points (AP) nearby.
-    
-6. Once the list of AP scan results is displayed on the screen, you can select the SSID of the AP to which you want to connect. 
+6. Now, SiWx91x module will start as a station and scan for the access points (AP) nearby.
 
-  ![](resources/readme/remote_screen2.png)
+7. Once the list of AP scan results is displayed on the screen, you can select the SSID of the AP to which you want to connect.
 
-7. Click on the SSID of the AP, enter â€œpasswordâ€� if the AP is in security mode. Click on â€œConnectâ€� to associate with the access point.
+   ![](resources/readme/remote_screen2.png)
 
-  ![](resources/readme/remote_screen3.png)
+8. Click on the SSID of the AP, enter â€œpasswordâ€� if the AP is in security mode. Click on â€œConnectâ€� to associate with the access point.
 
-8. Once Silicon labs module is connected to the access point, you can notice on the GUI as below.
+   ![](resources/readme/remote_screen3.png)
+
+9. Once Silicon labs module is connected to the access point, you can notice on the GUI as below.
 
    ![](resources/readme/remote_screen4.png)
-   
-9. This completes the BLE provisioning using Android application, next step is the MQTT communication.
+
+10. This completes the BLE provisioning using Android application, next step is the MQTT communication.
    Refer *Section 5.2.3*
 
-10. To disconnect from Access Point, click on connected AP and click on YES 
+11. To disconnect from Access Point, click on connected AP and click on YES
 
 ![](resources/readme/remote_screen5.png)
 
@@ -376,7 +382,7 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
 1. Once MQTT connection completed , device subscribed to specific Topic and waits for data from the Cloud.
    if any data received through AWS cloud from subscribed clients, then module publishes temperature sensor reading to MQTT client in case of EFR32.
 
-![](resources/readme/aws_screen.png)
+   ![](resources/readme/aws_screen.png)
 
 2. You can use any MQTT client and connect to the AWS cloud, for subscribe and publishing messages.
 

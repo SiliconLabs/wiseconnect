@@ -2,15 +2,18 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Gecko SDK
-version: "3.0.10"
+version: "3.0.12"
 sdk:
   id: gecko_sdk
-  version: "4.2.2"
+  version: "4.3.1"
 component_path:
   - path: resources
   - path: components/si91x
   - path: components/si91x/ble
   - path: components/si91x/bsd_socket
+  - path: components/si91x/iot_socket
+  - path: components/si91x/socket
+  - path: components/si91x/socket_utility
   - path: components/service/network_manager
   - path: components/service/http_client
   - path: components/service/mqtt

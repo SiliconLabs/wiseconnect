@@ -2,9 +2,16 @@
 
 ## Introduction
 
-- This application contains an example code to demonstrate usage of MEMLCD with 917
+- This example project demonstrates use of the Memory Liquid Crystal Display (LCD) module in a bare metal application, using Silicon Labs Graphics Library (glib).
+
+## Prerequisites
+
+- This MEMLCD bare metal example is compatible only with Si917-BRD4338A due to hardware limitation.
+
+## Output
+
+- Renders "MEMLCD Sample App" and "Hello There!" strings on MEMLCD.
 
 ## Note
 
-- Once the MEMLCD Sample App has been loaded, replace the existing rsi_board.c with the updated one.
-- Define the macro RTE_SSI_ULP_MASTER_MOSI_PIN as 1 in RTE_Device_917.h. 
+- Define the macro RTE_SSI_ULP_MASTER_MOSI_PIN as 1 (instead of 11) in RTE_Device_917.h. 

@@ -81,8 +81,10 @@ static uint8_t central_conn_id                             = 0xff;
 static uint8_t peripheral_conn_id                          = 0xff;
 static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
 
+#if ENABLE_POWER_SAVE
 extern osMutexId_t power_cmd_mutex;
 extern bool powersave_cmd_given;
+#endif
 
 #if (CONNECT_OPTION == CONN_BY_NAME)
 static uint8_t remote_name[RSI_REM_DEV_NAME_LEN];
@@ -1878,9 +1880,9 @@ void rsi_ble_main_app_task()
             //! create task for processing new peripheral connection
             const osThreadAttr_t ble_peripheral_attr = {
               .name       = "ble_peripheral_task",
-              .priority   = osPriorityNormal,
+              .priority   = osPriorityBelowNormal7,
               .stack_mem  = 0,
-              .stack_size = 1024,
+              .stack_size = 2048,
               .cb_mem     = 0,
               .cb_size    = 0,
               .attr_bits  = 0u,
@@ -1925,7 +1927,7 @@ void rsi_ble_main_app_task()
               //! create task for processing new central connection
               const osThreadAttr_t ble_central_attr = {
                 .name       = "ble_central_task",
-                .priority   = osPriorityNormal,
+                .priority   = osPriorityBelowNormal7,
                 .stack_mem  = 0,
                 .stack_size = 2048,
                 .cb_mem     = 0,
@@ -1982,7 +1984,7 @@ void rsi_ble_main_app_task()
               //! create task for processing new central connection
               const osThreadAttr_t ble_central_attr = {
                 .name       = "ble_central_task",
-                .priority   = osPriorityNormal,
+                .priority   = osPriorityBelowNormal7,
                 .stack_mem  = 0,
                 .stack_size = 2048,
                 .cb_mem     = 0,

@@ -35,7 +35,7 @@
 - All the necessary parameters are configured using \ref sl_si91x_ssi_set_configuration API, it expects a structure with required parameters
   \ref sl_ssi_control_config_t.
 - After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_ssi_register_event_callback.
-- The State machine code is implemented for transfer, send and receive data, the current mode is determined by ssi_mode_enum_t which is declared in ssi_master_example.c file or ssi_slave_example.c file.
+- The State machine code is implemented for transfer, send and receive data, the current mode is determined by ssi_mode_enum_t which is declared in ssi_slave_example.c file.
 - According to the macro which is enabled, the example code executes the transfer of data:
 
 - If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
@@ -95,14 +95,14 @@
   - **General Configuration**
   - Mode: SSI mode can be configured, i.e. Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 1: Clock Polarity is zero, Clock Phase is one, Mode 2: Clock Polarity is one and Clock Phase is zero, Mode 3: Clock Polarity is one and Clock Phase is one, Mode-4 (TI SSI) and Mode-5 (Microwire).
   - SSI Baudrate: The speed of transfer can be configured, i.e. bits/second.
-  - Data Width: The size of data packet, it can be configured between 4 to 32.
+  - Data Width: The size of data packet, it can be configured between 4 to 16.
   - CS Control (Master): When device is in slave mode, it can be configured as H/w control or S/w control.
   - CS Control (Slave): When device is in slave mode, it can be configured as H/w control or S/w control.
   - **DMA Configuration**
   - Enable/Disable the DMA configuration.
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
-- Configure the following macros in ssi_master_example.h file and update/modify following macros if required.
+- Configure the following macros in ssi_slave_example.h file and update/modify following macros if required.
 
 ```C
 #define SL_USE_TRANSFER ENABLE    // To use the transfer API
@@ -124,22 +124,22 @@
 
 | GPIO pin                | Description             |
 | ----------------------- | ----------------------- |
-| GPIO_25 [EXP_HEADER-15] | RTE_SSI_MASTER_CLK_PIN  |
-| GPIO_28 [EXP_HEADER-8]  | RTE_SSI_MASTER_CS0_PIN  |
-| GPIO_26 [EXP_HEADER-16] | RTE_SSI_MASTER_MOSI_PIN |
-| GPIO_27 [EXP_HEADER-10] | RTE_SSI_MASTER_MISO_PIN |
+| GPIO_26 [EXP_HEADER-16] | RTE_SSI_SLAVE_SCK_PIN   |
+| GPIO_25 [EXP_HEADER-15] | RTE_SSI_SLAVE_CS_PIN    |
+| GPIO_27 [EXP_HEADER-10] | RTE_SSI_SLAVE_MOSI_PIN  |
+| GPIO_28 [EXP_HEADER-8]  | RTE_SSI_SLAVE_MISO_PIN  |
 
 ![Figure: Pin Configuration for SSI1](resources/readme/image511d.png)
 ![Figure: Pin Configuration for SSI2](resources/readme/image511e.png)
 
-**Note!** Make sure pin configuration in RTE_Device_9117.h file.(path: /$project/wiseconnect_1.0.0/platforms/si91x/drivers/cmsis_driver/config/RTE_Device_9117.h)
+**Note!** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h)
 
 ## Executing the Application
 
 1. Compile and run the application.
-2. Connect GPIO_26 to GPIO_27 for loopback connection.
-3. Update the following macros from ssi_master_example.h or ssi_slave_example.h depending on whether you are running the example
-   Code in master Mode or slave mode.
+2. Connect GPIO_27 to GPIO_28 for loopback connection.
+3. Update the following macros from ssi_slave_example.h file.
+   Code should be in slave mode.
 
 - #define SL_USE_TRANSFER ENABLE
 - #define SL_USE_RECEIVE DISABLE

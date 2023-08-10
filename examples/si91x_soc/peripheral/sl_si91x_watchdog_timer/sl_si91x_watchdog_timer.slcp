@@ -6,10 +6,10 @@ description: |
 category: example|peripheral
 package: platform
 quality: production
-sdk: {id: gecko_sdk, version: 4.2.1}
+sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.0.10
+    version: 3.0.12
 source:
 - {path: main.c}
 - {path: app.c}

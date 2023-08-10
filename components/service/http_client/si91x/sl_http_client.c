@@ -146,8 +146,8 @@ sl_status_t sl_http_client_init(const sl_http_client_configuration_t *client_con
   }
 
   // Check for network interface
-  if ((client_configuration->network_interface != SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE)
-      && (client_configuration->network_interface != SL_NET_DEFAULT_WIFI_AP_INTERFACE)) {
+  if ((client_configuration->network_interface != SL_NET_WIFI_CLIENT_INTERFACE)
+      && (client_configuration->network_interface != SL_NET_WIFI_AP_INTERFACE)) {
     return SL_STATUS_INVALID_MODE;
   }
 

@@ -31,15 +31,14 @@
 #define ALL_PHYS 0x00
 
 #define RSI_BLE_DEV_ADDR_RESOLUTION_ENABLE 0
+#define RSI_BLE_MAX_NBR_PERIPHERALS        1
 
 #ifdef RSI_M4_INTERFACE
-#define RSI_BLE_MAX_NBR_ATT_REC     20
-#define RSI_BLE_MAX_NBR_PERIPHERALS 1
-#define RSI_BLE_NUM_CONN_EVENTS     2
+#define RSI_BLE_MAX_NBR_ATT_REC 20
+#define RSI_BLE_NUM_CONN_EVENTS 4
 #else
-#define RSI_BLE_MAX_NBR_ATT_REC     80
-#define RSI_BLE_MAX_NBR_PERIPHERALS 1
-#define RSI_BLE_NUM_CONN_EVENTS     30
+#define RSI_BLE_MAX_NBR_ATT_REC 80
+#define RSI_BLE_NUM_CONN_EVENTS 30
 #endif
 #define RSI_BLE_MAX_NBR_ATT_SERV 10
 
@@ -187,7 +186,8 @@
 #define CONN_LATENCY      0
 
 //! enabling the security
-#define SMP_ENABLE 1
+#define SMP_ENABLE 0
+
 //! Tx Data length parameters
 #define TX_LEN  0xFB
 #define TX_TIME 0x0148
@@ -205,11 +205,11 @@
 
 #if DLE_ON
 #define DLE_BUFFER_MODE      1
-#define DLE_BUFFER_COUNT     25
+#define DLE_BUFFER_COUNT     2 // Should be less than RSI_BLE_NUM_CONN_EVENTS
 #define RSI_BLE_MAX_DATA_LEN 232
 #else
 #define DLE_BUFFER_MODE      0
-#define DLE_BUFFER_COUNT     2
+#define DLE_BUFFER_COUNT     2 // Should be less than RSI_BLE_NUM_CONN_EVENTS
 #define RSI_BLE_MAX_DATA_LEN 20
 #endif
 
@@ -232,12 +232,13 @@
 
 #ifdef CHIP_917
 //! To set Extended custom feature select bit map
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP \
-  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1) | RAM_LEVEL_NWP_ADV_MCU_BASIC)
+#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                                                         \
+  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | RAM_LEVEL_NWP_ADV_MCU_BASIC \
+   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0)
 #else
 //! To set Extended custom feature select bit map
 #define RSI_EXT_CUSTOM_FEATURE_BIT_MAP \
-  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_384K_MODE)
+  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_384K_MODE)
 #endif
 
 #define RSI_BT_FEATURE_BITMAP     (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)

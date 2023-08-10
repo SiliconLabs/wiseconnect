@@ -12,6 +12,8 @@ provides:
 - name: armv7em
 - name: device_arm
 - name: device_has_mpu
+- condition: ["wifi"]
+  name: rsi_m4_interface
 source:
 - path: drivers/systemlevel/src/rsi_pll.c
 - path: drivers/systemlevel/src/rsi_ulpss_clk.c

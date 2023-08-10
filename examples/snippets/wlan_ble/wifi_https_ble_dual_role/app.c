@@ -82,7 +82,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = 3072,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -93,8 +93,8 @@ const osThreadAttr_t ble_thread_attributes = {
   .cb_mem     = 0,
   .cb_size    = 0,
   .stack_mem  = 0,
-  .stack_size = 1024,
-  .priority   = 0,
+  .stack_size = 2048,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -119,22 +119,20 @@ static const sl_wifi_device_configuration_t config = {
                    .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (
 #ifdef CHIP_917
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1)
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC)
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | RAM_LEVEL_NWP_ADV_MCU_BASIC
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0)
 #else //defaults
 #ifdef RSI_M4_INTERFACE
-                     (SL_SI91X_EXT_FEAT_256K_MODE | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
-                      | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2))
+                     (SL_SI91X_EXT_FEAT_256K_MODE | SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
 #else
-                     (SL_SI91X_EXT_FEAT_384K_MODE | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
-                      | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2))
+                     (SL_SI91X_EXT_FEAT_384K_MODE | SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
 #endif
 #endif
                      | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
 #if (defined A2DP_POWER_SAVE_ENABLE)
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                     | SL_SI91X_EXT_FEAT_XTAL_CLK
 #endif
-                       ),
+                     ),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */

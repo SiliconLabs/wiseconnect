@@ -2,7 +2,7 @@
 
 ## 1 Purpose/Scope
 
-This application demonstrates how to securely connect a Silicon Labs Si91x Wi-Fi device to AWS IoT Core to send and receive data. 
+This application demonstrates how to securely connect a Silicon Labs Si91x Wi-Fi device to AWS IoT Core to send and receive data.
 
 To successfully use this application, developer should be familiar with the operation of [AWS IoT Core](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) and the [AWS IoT Device Shadow Service](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html). If you are new to AWS IoT Core, we recommend running through the [AWS IoT Core Tutorial](https://docs.aws.amazon.com/iot/latest/developerguide/iot-tutorials.html) before proceeding.
 In the following text, 'AWS IoT Core' is referred to as 'AWS' for brevity.
@@ -25,7 +25,7 @@ Additionally, the application subscribes to the shadow update topics:
 AWS IoT Core is a cloud platform which connects devices across AWS cloud services. AWS IoT provides a interface which allows the devices to communicate securely and reliably in bi-directional ways to the AWS touch-points, even when the devices are offline.
 
 The AWS IoT Device SDK allow applications to securely connect to the AWS IoT platform.
- 
+
 ![Figure: Setup Diagram for Device Shadow Example](resources/readme/image431a.png)
 
 ## 2 Prerequisites/Setup Requirements
@@ -35,22 +35,22 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 - Windows PC
 - Wi-Fi Access point with a connection to the internet
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit) 
 
 ### 2.2 Software Requirements
 
-- Simplicity Studio IDE 
+- Simplicity Studio IDE
 
   - Download the latest [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
 
 ### 2.3 Setup Diagram
 
-#### SoC Mode 
+#### SoC Mode
 
 ![Figure: Setup Diagram for Device Shadow Example](resources/readme/setup_soc.png)
   
@@ -62,9 +62,9 @@ Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to
 
 Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
 
-**NOTE**: 
+**NOTE**:
 
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface. 
+- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
 ## 3 Project Environment
 
@@ -80,7 +80,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
 
-- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** 
+- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology**
 
  **![AWS Device Shadow project](resources/readme/projectselection113.png)**
 
@@ -128,7 +128,7 @@ You can use either of the below USB to UART converters for application prints.
 
 1. Open the Tera Term tool.
 
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
      **![UART - SoC](resources/readme/port_selection_soc.png)**
 
@@ -144,11 +144,11 @@ You can use either of the below USB to UART converters for application prints.
 
 ## 4 Application Build Environment
 
-The application can be configured to suit your requirements and development environment. 
+The application can be configured to suit your requirements and development environment.
 
 ### 4.1 Configure the application
 
-- Below parameters in **aws_iot_config.h** can be configured based on the AWS domain name, port, client ID and thing name. 
+- Below parameters in **aws_iot_config.h** can be configured based on the AWS domain name, port, client ID and thing name.
 
 ```c
 #define AWS_IOT_MQTT_HOST     "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com" ///< Customer specific MQTT HOST. The same will be used for Thing Shadow
@@ -161,11 +161,11 @@ The application can be configured to suit your requirements and development envi
 
 ### 4.2 Build the application
 
-- SoC mode: 
+- SoC mode:
 
  ![build_project](resources/readme/build_aws_device_shadow.png)
 
-- NCP mode: 
+- NCP mode:
 
 ### 4.3 Run and Test the application
 
@@ -184,12 +184,12 @@ The application can be configured to suit your requirements and development envi
 - AWS_IOT_MQTT_HOST parameter can be found as follows:
 
  ![AWS_IOT_MQTT_HOST_PAGE_1](resources/readme/aws_iot_mqtt_host_url_1.png)
- 
- ![AWS_IOT_MQTT_HOST_PAGE_2](resources/readme/aws_iot_mqtt_host_url_2.png) 
- 
+
+ ![AWS_IOT_MQTT_HOST_PAGE_2](resources/readme/aws_iot_mqtt_host_url_2.png)
+
 #### 4.5.1 Setting up Security Certificates
 
-- To authenticate and securely connect with AWS, your Wi-Fi device requires a unique x.509 security certificate and private key, as well as a CA certificate which is used to verify the AWS server. Security credentials need to be converted into a C-array rather than [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) provided by AWS; they also need to be added to your project. 
+- To authenticate and securely connect with AWS, your Wi-Fi device requires a unique x.509 security certificate and private key, as well as a CA certificate which is used to verify the AWS server. Security credentials need to be converted into a C-array rather than [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) provided by AWS; they also need to be added to your project.
 
 - The WiSeConnect3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK 'resources' directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/).
 
@@ -218,20 +218,20 @@ For reference, Amazon uses [Starfield Technologies](https://www.starfieldtech.co
 
 > NOTE :
 > For AWS connectivity, StarField Root CA Class 2 certificate has the highest authority being at the top of the signing hierarchy.
-> 
+>
 > The StarField Root CA Class 2 certificate is an expected/required certificate which usually comes pre-installed in the operating systems and plays a key part in certificate chain verification when a device is performing TLS authentication with the IoT endpoint.
-> 
+>
 > On SiWx91x device, we do not maintain the root CA trust repository due to memory constraints, so it is mandatory to load Starfield Root CA Class 2 certificate for successful mutual authentication to the AWS server.
-> 
+>
 > The certificate chain sent by AWS server is as below:
 > id-at-commonName=Amazon,id-at-organizationalUnitName=Server CA 1B,id-at-organizationName=Amazon,id-at-countryName=US
 > id-at-commonName=Amazon Root CA 1,id-at-organizationName=Amazon,id-at-countryName=US
 > id-at-commonName=Starfield Services Root Certificate Authority ,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at-  stateOrProvinceName=Arizona,id-at-countryName=US)
-> 
+>
 > On SiWx91x to authenticate the AWS server, firstly Root CA is validated (validate the Root CA received with the Root CA loaded on the device). Once the Root CA validation is successful, other certificates sent from the AWS server are validated.
 > SiWx91x doesn't authenticate to AWS server if intermediate CA certificates are loaded instead of Starfield Root CA Class 2 certificate and would result in a Handshake error.
 > StarField Root CA Class 2 certificate is at <https://certs.secureserver.net/repository/sf-class2-root.crt>
-> 
+>
 > Reference links :
 > <https://aws.amazon.com/blogs/security/how-to-prepare-for-aws-move-to-its-own-certificate-authority/>
 
@@ -258,10 +258,10 @@ Create a thing in the AWS IoT registry to represent your IoT Device.
 
 - During **Configure device certificate** step, choose **Auto-generate a new certificate (recommended)** option and click next.
 
-  ![Add Device 2](resources/readme/aws_create_thing_step5.png) 
+  ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
 - Choose the **Download** links to download the device certificate, private key, and root CA certificate. Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
-  > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them safely. 
+  > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them safely.
 
  ![Downloading certificates](resources/readme/aws_thing_certificates_download.png)
 
@@ -276,7 +276,7 @@ Create a thing in the AWS IoT registry to represent your IoT Device.
  !["Create policy"](resources/readme/aws_create_thing_attach_policy.png)
 
 - creating a policy - step 2 (filling the fields)
-Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create** 
+Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**
  ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
 
 - choose the created policy and click on **Create thing**
@@ -288,10 +288,10 @@ Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown 
 - Navigate to **AWS IoT console**
 - Choose **Policies** under **Secure**
 
- ![AWS console create policy](resources/readme/image422.png) 
+ ![AWS console create policy](resources/readme/image422.png)
 
 - Click on **Create**
-   
+
  ![Create policy](resources/readme/aws_create_policy.png)
 
 - Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**

@@ -39,10 +39,12 @@ typedef struct {
   uint32_t flag;
 } si91x_packet_queue_t;
 
-osEventFlagsId_t si91x_events   = 0;
-osThreadId_t si91x_thread       = 0;
-osMutexId_t si91x_bus_mutex     = 0;
-osThreadId_t si91x_event_thread = 0;
+osEventFlagsId_t si91x_events       = 0;
+osEventFlagsId_t si91x_bus_events   = 0;
+osEventFlagsId_t si91x_async_events = 0;
+osThreadId_t si91x_thread           = 0;
+osMutexId_t si91x_bus_mutex         = 0;
+osThreadId_t si91x_event_thread     = 0;
 
 static si91x_packet_queue_t cmd_queues[SI91X_QUEUE_MAX];
 
@@ -88,6 +90,14 @@ sl_status_t sl_si91x_host_init(void)
     si91x_events = osEventFlagsNew(NULL);
   }
 
+  if (NULL == si91x_bus_events) {
+    si91x_bus_events = osEventFlagsNew(NULL);
+  }
+
+  if (NULL == si91x_async_events) {
+    si91x_async_events = osEventFlagsNew(NULL);
+  }
+
   if (NULL == si91x_thread) {
     const osThreadAttr_t attr = {
 
@@ -106,7 +116,7 @@ sl_status_t sl_si91x_host_init(void)
   if (NULL == si91x_event_thread) {
     const osThreadAttr_t attr = {
       .name       = "si91x_event",
-      .priority   = osPriorityNormal,
+      .priority   = osPriorityRealtime1,
       .stack_mem  = 0,
       .stack_size = 1536,
       .cb_mem     = 0,
@@ -150,6 +160,16 @@ sl_status_t sl_si91x_host_deinit(void)
     si91x_events = NULL;
   }
 
+  if (NULL != si91x_bus_events) {
+    osEventFlagsDelete(si91x_bus_events);
+    si91x_bus_events = NULL;
+  }
+
+  if (NULL != si91x_async_events) {
+    osEventFlagsDelete(si91x_async_events);
+    si91x_async_events = NULL;
+  }
+
   if (NULL != si91x_bus_mutex) {
     osMutexDelete(si91x_bus_mutex);
     si91x_bus_mutex = NULL;
@@ -180,6 +200,16 @@ void sl_si91x_host_delay_ms(uint32_t delay_milliseconds)
 void sl_si91x_host_set_event(uint32_t event_mask)
 {
   osEventFlagsSet(si91x_events, event_mask);
+}
+
+void sl_si91x_host_set_bus_event(uint32_t event_mask)
+{
+  osEventFlagsSet(si91x_bus_events, event_mask);
+}
+
+void sl_si91x_host_set_async_event(uint32_t event_mask)
+{
+  osEventFlagsSet(si91x_async_events, event_mask);
 }
 
 sl_status_t sl_si91x_host_add_to_queue(sl_si91x_queue_type_t queue, sl_wifi_buffer_t *buffer)
@@ -301,6 +331,63 @@ sl_status_t sl_si91x_host_remove_node_from_queue(sl_si91x_queue_type_t queue,
   return status;
 }
 
+/* This function is used to flush the pending packets from the specified queue */
+sl_status_t sl_si91x_host_flush_nodes_from_queue(sl_si91x_queue_type_t queue,
+                                                 void *user_data,
+                                                 sl_si91x_compare_function_t compare_function,
+                                                 sl_si91x_node_free_function_t node_free_function)
+{
+  sl_status_t status         = SL_STATUS_NOT_FOUND;
+  sl_wifi_buffer_t *packet   = NULL;
+  sl_wifi_buffer_t *data     = NULL;
+  sl_wifi_buffer_t *previous = NULL;
+
+  osMutexAcquire(cmd_queues[queue].mutex, 0xFFFFFFFFUL);
+
+  if (cmd_queues[queue].tail == NULL) {
+    osMutexRelease(cmd_queues[queue].mutex);
+    return SL_STATUS_EMPTY;
+  }
+
+  packet   = cmd_queues[queue].head;
+  previous = NULL;
+
+  while (NULL != packet) {
+    if (true == compare_function((sl_wifi_buffer_t *)packet, user_data)) {
+      data = packet;
+      if (NULL == previous) {
+        cmd_queues[queue].head = (sl_wifi_buffer_t *)packet->node.node;
+        packet                 = cmd_queues[queue].head;
+      } else {
+        previous->node.node = packet->node.node;
+        packet              = (sl_wifi_buffer_t *)packet->node.node;
+      }
+
+      if (cmd_queues[queue].tail == data) {
+        cmd_queues[queue].tail = previous;
+      }
+
+      data->node.node = NULL;
+      status          = SL_STATUS_OK;
+    } else {
+      previous = packet;
+      packet   = (sl_wifi_buffer_t *)packet->node.node;
+    }
+
+    if (data != NULL) {
+      node_free_function(data);
+      data = NULL;
+    }
+  }
+
+  if (NULL == cmd_queues[queue].head) {
+    cmd_queues[queue].tail = NULL;
+  }
+
+  osMutexRelease(cmd_queues[queue].mutex);
+  return status;
+}
+
 uint32_t sl_si91x_host_queue_status(sl_si91x_queue_type_t queue)
 {
   uint32_t status = 0;
@@ -322,9 +409,47 @@ uint32_t si91x_host_wait_for_event(uint32_t event_mask, uint32_t timeout)
   return result;
 }
 
+uint32_t si91x_host_wait_for_bus_event(uint32_t event_mask, uint32_t timeout)
+{
+  uint32_t result = osEventFlagsWait(si91x_bus_events, event_mask, (osFlagsWaitAny | osFlagsNoClear), timeout);
+  osEventFlagsClear(si91x_bus_events, event_mask);
+  if (result == (uint32_t)osErrorTimeout || result == (uint32_t)osErrorResource) {
+    return 0;
+  }
+  return result;
+}
+
+uint32_t si91x_host_wait_for_async_event(uint32_t event_mask, uint32_t timeout)
+{
+  uint32_t result = osEventFlagsWait(si91x_async_events, event_mask, (osFlagsWaitAny | osFlagsNoClear), timeout);
+  osEventFlagsClear(si91x_async_events, event_mask);
+  if (result == (uint32_t)osErrorTimeout || result == (uint32_t)osErrorResource) {
+    return 0;
+  }
+  return result;
+}
+
 uint32_t si91x_host_clear_events(uint32_t event_mask)
 {
   uint32_t result = osEventFlagsClear(si91x_events, event_mask);
+  if (result == (uint32_t)osErrorResource) {
+    return 0;
+  }
+  return result;
+}
+
+uint32_t si91x_host_clear_bus_events(uint32_t event_mask)
+{
+  uint32_t result = osEventFlagsClear(si91x_bus_events, event_mask);
+  if (result == (uint32_t)osErrorResource) {
+    return 0;
+  }
+  return result;
+}
+
+uint32_t si91x_host_clear_async_events(uint32_t event_mask)
+{
+  uint32_t result = osEventFlagsClear(si91x_async_events, event_mask);
   if (result == (uint32_t)osErrorResource) {
     return 0;
   }

@@ -24,6 +24,7 @@ define:
 - {"name":"COMMON_FLASH_EN","value":1}
 - {"name":"DEBUG_UART","value":1}
 - {"name":"SI917_RADIO_BOARD","value":1}
+- {"name":"SI917_RADIO_BOARD_V2","value":1}
 - {"name":"FLASH_BASED_EXECUTION_ENABLE","value":1}
 - {"name":"ENABLE_DEBUG_MODULE","value":1}
 requires:

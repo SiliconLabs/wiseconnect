@@ -23,10 +23,10 @@
 
 #ifdef SI917_RADIO_BOARD
 #define M4_UART1_INSTANCE 0U //!Select m4 uart1 for prints
-#ifndef M4_PS2_STATE
-#define M4_UART2_INSTANCE 1U //!Select m4 uart2 for prints
+#if ((M4_PS2_STATE) || (SI917_RADIO_BOARD_V2))
+#define ULP_UART_INSTANCE 1U //!Select m4 uart2 for prints
 #else
-#define ULP_UART_INSTANCE 1U //!Select ulp uart for prints
+#define M4_UART2_INSTANCE 1U //!Select ulp uart for prints
 #endif
 #else
 #define M4_UART1_INSTANCE 1U //!Select m4 uart1 for prints
@@ -44,7 +44,9 @@ typedef struct {
   uint8_t pin;
 } PORT_PIN_T;
 
-#ifdef SI917_RADIO_BOARD
+#if ((SI917_RADIO_BOARD) && (SI917_RADIO_BOARD_V2))
+static const PORT_PIN_T ledBits[] = { { 0, 2 }, { 0, 10 } };
+#elif SI917_RADIO_BOARD
 static const PORT_PIN_T ledBits[] = { { 0, 10 }, { 0, 8 } };
 #else
 #ifdef REV_1P2_CHIP
@@ -310,7 +312,22 @@ void Board_UARTPutSTR(uint8_t *ptr)
 void RSI_Board_Init(void)
 {
   uint32_t i;
-#ifdef SI917_RADIO_BOARD
+#if ((SI917_RADIO_BOARD) && (SI917_RADIO_BOARD_V2))
+  for (i = 0; i < ledBitsCnt; i++) {
+    if (i == 0) {
+      /*Set the GPIO pin MUX */
+      RSI_EGPIO_SetPinMux(EGPIO1, ledBits[i].port, ledBits[i].pin, 0);
+      /*Set GPIO direction*/
+      RSI_EGPIO_SetDir(EGPIO1, ledBits[i].port, ledBits[i].pin, 0);
+    } else {
+      RSI_EGPIO_PadSelectionEnable(5);
+      /*Set the GPIO pin MUX */
+      RSI_EGPIO_SetPinMux(EGPIO, ledBits[i].port, ledBits[i].pin, 0);
+      /*Set GPIO direction*/
+      RSI_EGPIO_SetDir(EGPIO, ledBits[i].port, ledBits[i].pin, 0);
+    }
+  }
+#elif SI917_RADIO_BOARD
   for (i = 0; i < ledBitsCnt; i++) {
     if (i == 0) {
       RSI_EGPIO_PadSelectionEnable(5);
@@ -347,7 +364,13 @@ void RSI_Board_Init(void)
  */
 void RSI_Board_LED_Set(int x, int y)
 {
-#ifdef SI917_RADIO_BOARD
+#if ((SI917_RADIO_BOARD) && (SI917_RADIO_BOARD_V2))
+  if (x == 0) {
+    RSI_EGPIO_SetPin(EGPIO1, (uint8_t)ledBits[x].port, (uint8_t)ledBits[x].pin, (uint8_t)y);
+  } else if (x == 1) {
+    RSI_EGPIO_SetPin(EGPIO, (uint8_t)ledBits[x].port, (uint8_t)ledBits[x].pin, (uint8_t)y);
+  }
+#elif SI917_RADIO_BOARD
   if (x == 0) {
     RSI_EGPIO_SetPin(EGPIO, (uint8_t)ledBits[x].port, (uint8_t)ledBits[x].pin, (uint8_t)y);
   } else if (x == 1) {
@@ -367,7 +390,13 @@ void RSI_Board_LED_Set(int x, int y)
  */
 void RSI_Board_LED_Toggle(int x)
 {
-#ifdef SI917_RADIO_BOARD
+#if ((SI917_RADIO_BOARD) && (SI917_RADIO_BOARD_V2))
+  if (x == 0) {
+    RSI_EGPIO_TogglePort(EGPIO1, ledBits[x].port, (1 << ledBits[x].pin));
+  } else if (x == 1) {
+    RSI_EGPIO_TogglePort(EGPIO, ledBits[x].port, (1 << ledBits[x].pin));
+  }
+#elif SI917_RADIO_BOARD
   if (x == 0) {
     RSI_EGPIO_TogglePort(EGPIO, ledBits[x].port, (1 << ledBits[x].pin));
   } else if (x == 1) {
@@ -395,6 +424,9 @@ uint8_t Board_UARTGetChar(void)
     RSI_M4SSUsart0Handler();
 #endif
 #if defined(M4_UART2_INSTANCE) && (M4_UART2_INSTANCE == 1)
+    RSI_M4SSUart1Handler();
+#endif
+#if defined(M4_UART1_INSTANCE) && (M4_UART1_INSTANCE == 1)
     RSI_M4SSUart1Handler();
 #endif
 #if defined(ULP_UART_INSTANCE) && (ULP_UART_INSTANCE == 1)

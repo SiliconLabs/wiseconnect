@@ -28,6 +28,9 @@ source:
 - path: src/jsmn.c
 - path: platform/silabs/src/network_sl_api_wrapper.c
 - path: platform/silabs/src/timer.c
+requires:
+- name: bsd_socket
+
 include:
 - path: include
   file_list:

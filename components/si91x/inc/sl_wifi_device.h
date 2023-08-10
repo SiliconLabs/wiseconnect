@@ -374,8 +374,8 @@
 
 #elif defined CHIP_917
 
-#define SL_SI91X_EXT_FEAT_256K_MODE      0
-#define RAM_LEVEL_NWP_BASIC_MCU_ADV      SL_SI91X_EXT_FEAT_256K_MODE
+#define SL_SI91X_EXT_FEAT_384K_M4SS_320K 0
+#define RAM_LEVEL_NWP_BASIC_MCU_ADV      SL_SI91X_EXT_FEAT_384K_M4SS_320K
 
 /// To enable 448K memory for TA
 #define SL_SI91X_EXT_FEAT_448K_M4SS_256K BIT(21)
@@ -417,11 +417,9 @@
 
 #endif // defaults
 
-/// To enable CRYSTAL for T.A
-/// For 9117 EVK set EXT_FEAT_XTAL_CLK_ENABLE to BIT(22)
-/// @note If BIT[23] = 1 and BIT[22] = 0 in ext_custom_feature_bit_map, then user has to use UULP_GPIO_0 for sleep indication to host.
-/// @note Bit 22 - 23 is used to set XTAL_CLK_ENABLE
-/// @note To configure sleep clock source selection, either crystal clock or RC clock
+/// To enable crystal clock for TA
+///
+/// Based on sleep clock source selection, User can choose one of the following
 /**
  * | Selection                                     | BIT[23] | BIT[22] |
  * |:----------------------------------------------|:--------|:--------|
@@ -430,8 +428,19 @@
  * | Use 32KHz bypass clock on UULP_GPIO_3         | 1       | 0       |
  * | Use 32KHz bypass clock on UULP_GPIO_4         | 1       | 1       |
 */
+/// @note For 917 V2 radio boards set SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE to 1, for other variants 2 is recommended
 
 #define SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(xtal_clk_enable) (xtal_clk_enable << 22)
+
+#ifdef CHIP_917
+#if (defined SI917_RADIO_BOARD_V2)
+#define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1)
+#else
+#define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+#endif
+#else // default : 9116
+#define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+#endif
 
 /// To intimate FW not to modify MDNS text record
 #define SL_SI91X_EXT_FEAT_HOMEKIT_WAC_ENABLED BIT(24)
@@ -452,35 +461,35 @@
 #ifdef CHIP_917
 /// @brief To Configure Frontend with selection BIT[30:29]
 /// @note VC1, VC2 and VC3 are control voltage pins of RF Switch
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_GPIO_46_47_48 0
+
 #ifdef CHIP_917B0
 /** @brief For 917B0
  * 
- * | Front end switch_sel(Bit[30:29]) | ANT_SEL_0(VC3) | ANT_SEL_1(VC2) | ANT_SEL_2(VC3) | Comments                         |
- * |:---------------------------------|:---------------|:---------------|:---------------|:---------------------------------|
- * | 0                                | GPIO 46        | GPIO 47        | GPIO 48        | Legacy boards                    |
- * | 1                                | ULP4           | ULP5           | ULP0           | For B0 Radio boards 1.2 or above |
- * | 2                                | Virtual Switch |                |                | For future use                   |
- * | 3                                | Reserved       |                |                |                                  |
+ * | Bit[30] | BIT[29] | ANT_SEL_1(VC3) | ANT_SEL_2(VC2) | ANT_SEL_3(VC1) |                        
+ * |:--------|:--------|:---------------|:---------------|:---------------|
+ * | 0       |   0     | Reserved       | Reserved       | Reserved       |
+ * | 0       |   1     | UILP_GPIO 4    | ULP_GPIO 5     | ULP_GPIO 0     |
+ * | 1       |   0     | Virtual Switch |                |                |
+ * | 1       |   1     | Reserved       | Reserved       | Reserved       |
  */
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_B0_GPIO_46_47_48  0
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_B0_ULP_GPIO_4_5_0 BIT(29)
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL                BIT(29)
-#define SL_SI91X_EXT_FEAT_FRONT_END_VIRTUAL_SWITCH                BIT(30)
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 BIT(29)
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL             BIT(29)
+#define SL_SI91X_EXT_FEAT_FRONT_END_VIRTUAL_SWITCH             BIT(30)
 #else
 /** 
  * @brief For 917A0
  * 
- * | Front end switch_sel(Bit[30:29]) | ANT_SEL_0(VC3) | ANT_SEL_1(VC2) | ANT_SEL_2(VC3) | Comments                         |
- * |:---------------------------------|:---------------|:---------------|:---------------|:---------------------------------|
- * | 0                                | GPIO 46        | GPIO 47        | GPIO 48        | Legacy boards                    |
- * | 1                                | GPIO 46        | GPIO 47        | GPIO 48        | Legacy boards                    |
- * | 2                                | ULP4           | ULP5           | ULP0           | For A0 Radio boards 1.2 or above |
- * | 3                                | ULP4           | ULP5           | ULP7           |                                  |
+ * | Bit[30] | BIT[29] | ANT_SEL_1(VC3) | ANT_SEL_2(VC2) | ANT_SEL_3(VC1) |                        
+ * |:--------|:--------|:---------------|:---------------|:---------------|
+ * | 0       |   0     | GPIO 46        | GPIO 47        | GPIO 48        |
+ * | 0       |   1     | Reserved       | Reserved       | Reserved       |
+ * | 1       |   0     | UILP_GPIO 4    | ULP_GPIO 5     | ULP_GPIO 0     |
+ * | 1       |   1     | UILP_GPIO 4    | ULP_GPIO 5     | ULP_GPIO 7     |
  */
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_A0_GPIO_46_47_48  0
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_A0_ULP_GPIO_4_5_0 BIT(30)
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL                BIT(30)
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_A0_ULP_GPIO_4_5_7 (BIT(30) | BIT(29))
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 BIT(30)
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL             BIT(30)
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_7 (BIT(30) | BIT(29))
 #endif
 #else
 /// @note Bit 29 - 30 is reserved
@@ -842,7 +851,7 @@ typedef enum {
   SL_SI91X_WLAN_BLUETOOTH_MODE = 5,  ///< WLAN and Bluetooth Mode
   SL_SI91X_DUAL_MODE           = 8,  ///< Dual Mode
   SL_SI91X_WLAN_DUAL_MODE      = 9,  ///< Wlan Dual Mode
-  SL_SI91X_BLE_MODE            = 12, ///< Bluetooth Low energy only mode
+  SL_SI91X_BLE_MODE            = 12, ///< Bluetooth Low energy only mode, used when power save mode not needed.
   SL_SI91X_WLAN_BLE_MODE       = 13, ///< WLAN and Bluetooth Low energy Mode
   __FORCE_COEX_ENUM_16BIT      = 0xFFFF
 } sl_si91x_coex_mode_t;
@@ -964,7 +973,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
                       | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -992,7 +1001,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_enterprise_client_co
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -1038,7 +1047,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_configura
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER
                                               | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) |
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK |
 #ifndef RSI_M4_INTERFACE
                                                   RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -1068,20 +1077,18 @@ static const sl_wifi_device_configuration_t sl_wifi_transmit_test_configuration 
 #endif
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
-                   .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
-#ifndef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_ALL_MCU_ZERO
+                   .custom_feature_bit_map     = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
+                   .ext_custom_feature_bit_map = (
+#ifdef RSI_M4_INTERFACE
+                     RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
-                      RAM_LEVEL_NWP_ADV_MCU_BASIC
+                     0
 #endif
-                      ),
-                   .bt_feature_bit_map = SL_SI91X_BT_RF_TYPE,
-                   .ext_tcp_ip_feature_bit_map =
-                     (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
-                   .ble_feature_bit_map     = 0,
-                   .ble_ext_feature_bit_map = 0,
-                   .config_feature_bit_map  = 0 }
+                     ),
+                   .bt_feature_bit_map         = SL_SI91X_BT_RF_TYPE,
+                   .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
+                   .ble_feature_bit_map        = 0,
+                   .ble_ext_feature_bit_map    = 0,
+                   .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
 /** @} */

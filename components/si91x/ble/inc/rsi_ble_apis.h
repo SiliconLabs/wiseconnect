@@ -951,8 +951,8 @@ typedef struct rsi_ble_per_transmit_s {
       @note  The above macros are applicable for both BT and BLE */
   uint8_t rf_type;
   /** Selection of RF Chain (HP/LP) to be used \n
-       0  BT_HP_CHAIN \n
-       1  BT_LP_CHAIN 
+       2  BT_HP_CHAIN \n
+       3  BT_LP_CHAIN
       @note  The above macros are applicable for both BT and BLE */
   uint8_t rf_chain;
   /** Length of the packet to be transmitted*/
@@ -1035,8 +1035,8 @@ typedef struct rsi_ble_per_receive_s {
       @note  The above macros are applicable for both BT and BLE */
   uint8_t rf_type;
   /** Selection of RF Chain (HP/LP) to be used \n
-       0  BT_HP_CHAIN \n
-       1  BT_LP_CHAIN 
+       2  BT_HP_CHAIN \n
+       3  BT_LP_CHAIN
       @note  The above macros are applicable for both BT and BLE */
   uint8_t rf_chain;
   /** This field enables/disables the extended data length \n
@@ -1553,61 +1553,54 @@ int32_t rsi_ble_connect(uint8_t remote_dev_addr_type, int8_t *remote_dev_addr);
  * @fn         int32_t rsi_ble_enhance_connect_with_params(void* ble_enhance_conn_params)
  * @brief      Connect to the remote BLE device with the user configured parameters.
  * @pre        Device should be initialized before calling this API.
- * @param[in]  ble_enhance_conn_params - BLE enhance connection parameter structure: \n
- *             dev_addr_type - Address type of the device to connect \n
- *                             0 - Public Address \n
- *                             1 - Random Address \n \n
- *             dev_addr - Address of the device to connect \n \n
- *             filter_policy - Initiater filter policy is used to determine whether the Filter Accept List is used. \n
- *                             0 - Filter Accept List is not used to determine which advertiser to connect to. \n
- *                             1 - Filter Accept List is used to determine which advertiser to connect to. \n \n
- *             own_addr_type - own address type \n \n
- *             le_scan_interval - LE Scan Interval : N=0xXXXX \n
- *                             It is defined as the time interval from when the Controller started its last LE scan until it begins the subsequent LE scan. \n
- *                             Range: 0x0004 to 0x4000 \n
- *                             Time = N * 0.625 msec \n
- *                             Time Range: 2.5 msec to 10 . 24 seconds \n \n
- *             le_scan_window - LE Scan Window : N=0xXXXX \n
- *                           Amount of time for the duration of the LE scan. LE_Scan_Window must be less than or equal to LE_Scan_Interval \n
- *                           Range: 0x0004 to 0x4000 \n
- *                           Time = N * 0.625 msec \n
- *                           Time Range: 2.5 msec to 10 . 24 seconds \n \n
- *             conn_interval_min - Min Connection Interval : N=0xXXXX \n
- *                                 Minimum value for the connection event interval, which must be greater than or equal to Conn_Interval_Max. \n
- *                                 Range: 0x0006 to 0x0C80 \n
- *                                 Time = N * 1.25 msec \n
- *                                 Time Range: 7.5 msec to 4 seconds. \n
- *                                 0x0000 - 0x0005 and 0x0C81 - 0xFFFF - Reserved for future use \n \n
- *             conn_interval_max - Max Connection Interval : N=0xXXXX \n
- *                                 Maximum value for the connection event interval, which must be greater than or equal to Conn_Interval_Min. \n
- *                                 Range: 0x0006 to 0x0C80 \n
- *                                 Time = N * 1.25 msec \n
- *                                 Time Range: 7.5 msec to 4 seconds. \n
- *                                 0x0000 - 0x0005 and 0x0C81 - 0xFFFF - Reserved for future use \n \n
- *             conn_latency - Connection Latency : N = 0xXXXX \n
- *                            Slave latency for the connection in number of connection events. \n
- *                            Range: 0x0000 to 0x01F4 \n \n
- *             supervision_tout - Supervision Timeout : N = 0xXXXX \n
- *                                Supervision timeout for the LE Link. \n
- *                                Range: 0x000A to 0x0C80 \n
- *                                Time = N * 10 msec \n
- *                                Time Range: 100 msec to 32 seconds \n
- *                                0x0000 - 0x0009 and 0x0C81 - 0xFFFF - Reserved for future use \n \n
- *             min_ce_length - Min Connection Event Length : N=0xXXXX \n
- *                             The minimum length of connection event recommended for this LE connection. \n
- *                             Range: 0x0000 to 0xFFFF \n
- *                             Time = N * 0.625 msec \n \n
- *             max_ce_length - Max Connection Event Length : N=0xXXXX \n
- *                             The maximum length of connection event recommended for this LE connection. \n
- *                             Range: 0x0000 to 0xFFFF \n
- *                             Time = N * 0.625 msec \n \n
+ * @param[in]  ble_enhance_conn_params - BLE enhance connection parameter structure. See notes for the fields in this structure.
  * @return     0 - Success \n
  *             Non-Zero Value - Failure \n
  *             If the return value is less than 0 \n
  *             -4 - Buffer not available to serve the command \n
  *             0x4E0C - Command disallowed \n
  *             0x4046 - Invalid Arguments \n
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       The following fields are included in the ble_enhance_conn_params parameter structure:
+ *               - dev_addr_type - Address type of the device to connect.
+ *                 - 0 - Public Address 
+ *                 - 1 - Random Address  
+ *               - dev_addr - Address of the device to connect.  
+ *               - filter_policy - Policy used to determine whether the filter accept list is used.
+ *                 - 0 - Filter accept list is not used to determine which advertiser to connect to. 
+ *                 - 1 - Filter accept list is used to determine which advertiser to connect to.  
+ *               - own_addr_type - Own address type
+ *               - le_scan_interval - The time interval from when the Controller started its last LE scan until it begins the subsequent LE scan. 
+ *                 - Range: 0x0004 to 0x4000 
+ *                 - Time = le_scan_interval * 0.625 msec
+ *                 - Time Range: 2.5 msec to 10 . 24 seconds  
+ *               - le_scan_window - Amount of time for the duration of the LE scan. This must be less than or equal to le_scan_interval. 
+ *                 - Range: 0x0004 to 0x4000 
+ *                 - Time = le_scan_window * 0.625 msec 
+ *                 - Time Range: 2.5 msec to 10 . 24 seconds  
+ *               - conn_interval_min - Minimum value for the connection event interval. This must be greater than or equal to conn_interval_max. 
+ *                 - Range: 0x0006 to 0x0C80 
+ *                 - Time = conn_interval_min * 1.25 msec 
+ *                 - Time Range: 7.5 msec to 4 seconds. 
+ *                 - 0x0000 - 0x0005 and 0x0C81 - 0xFFFF - Reserved for future use  
+ *               - conn_interval_max - Maximum value for the connection event interval. This must be greater than or equal to conn_interval_min.
+ *                 - Range: 0x0006 to 0x0C80 
+ *                 - Time = conn_interval_max * 1.25 msec 
+ *                 - Time Range: 7.5 msec to 4 seconds. 
+ *                 - 0x0000 - 0x0005 and 0x0C81 - 0xFFFF - Reserved for future use  
+ *               - conn_latency - Peripheral latency for the connection in number of connection events. 
+ *                 - Range: 0x0000 to 0x01F4  
+ *               - supervision_tout - Supervision timeout for the LE Link.
+ *                 - Range: 0x000A to 0x0C80 
+ *                 - Time = N * 10 msec 
+ *                 - Time Range: 100 msec to 32 seconds 
+ *                 - 0x0000 - 0x0009 and 0x0C81 - 0xFFFF - Reserved for future use  
+ *               - min_ce_length - Minimum length of connection event recommended for this LE connection. 
+ *                 - Range: 0x0000 to 0xFFFF 
+ *                 - Time = N * 0.625 msec  
+ *               - max_ce_length - Maximum length of connection event recommended for this LE connection. 
+ *                 - Range: 0x0000 to 0xFFFF 
+ *                 - Time = N * 0.625 msec  
  */
 int32_t rsi_ble_enhance_connect_with_params(void *ble_enhance_conn_params);
 

@@ -23,20 +23,6 @@ void convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer)
   return;
 }
 
-sl_status_t convert_string_to_sl_ipv4_address(char *line, sl_ipv4_address_t *ip)
-{
-  char *lasts = NULL;
-  char *token = strtok_r(line, ".", &lasts);
-
-  for (uint8_t i = 0; i < 4; i++, token = strtok_r(NULL, ".", &lasts)) {
-    if (token == NULL) {
-      return SL_STATUS_COMMAND_IS_INVALID;
-    }
-    ip->bytes[i] = (uint8_t)strtoul(token, 0, 0);
-  }
-  return SL_STATUS_OK;
-}
-
 void print_sl_ip_address(sl_ip_address_t *sl_ip_address)
 {
   if (sl_ip_address == NULL) {

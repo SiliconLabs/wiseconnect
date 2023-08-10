@@ -1,4 +1,4 @@
-## BLE Throughput App
+# BLE Throughput App
 
 ## 1 Purpose / Scope
 
@@ -6,7 +6,7 @@ This application demonstrates how to exchange continuous data to the remote devi
 
 - In this Application, the GATT server configures with Custom service with write, read, and notification characteristic UUIDs.
 - When connected remote device enables the notification on UUID, Silicon Labs device sends the continuous notifications to the connected device.
-- This is data can be captured with Sniffer to measure the throughputs.
+- This is data can be captured with Sniffer to measure the throughput.
 
 **Sequence of Events**
 
@@ -25,25 +25,25 @@ This Application explains to the user how to:
 
 - Windows PC with Host interface(UART/ SPI/ SDIO).
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
-- **SoC Mode**: 
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/); **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
   - Host MCU Eval Kit. This example has been tested with:
   - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 - BLE peripheral device in case of Silicon Labs module as master.
 - BLE central device in case of Silicon Labs module as slave.
-      
+
 ### 2.2 Software Requirements
-    
+
 - Embedded Development Environment
-- Simplicity Studio IDE 
+- Simplicity Studio IDE
   - Download the [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio).
   - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE.
 - Download and install the Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 ### 2.3 Setup Diagram
-   
+
 - **SoC Mode :**
 
    ![Figure: Setup Diagram SoC Mode for BLE Throughput Example](resources/readme/throughputappsoc.png)
@@ -72,7 +72,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - Throughput* application.
 
-   ![projct_selection](resources/readme/create_project1.png)
+   ![project_selection](resources/readme/create_project1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -103,16 +103,16 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 1. Setup using USB to UART converter board.
 
    - Connect Tx (Pin-6) to P27 on WSTK
-   - Connect GND (Pin 8 or 10) to GND on WSTK   
+   - Connect GND (Pin 8 or 10) to GND on WSTK
 
-**![FTDI_prints](resources/readme/usb_to_uart_1.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
 2. Setup using USB to UART converter cable
 
    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
-**![FTDI_prints](resources/readme/usb_to_uart_2.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
 **Tera Term setup - for NCP and SoC modes**
 
@@ -152,11 +152,11 @@ User must update the below parameters
 
 ```c
 #define RSI_BLE_ATTRIBUTE_1_UUID                          0x1AA1
-``` 
+```
 
 - **BLE_THROUGHPUT** refers the name of the Silicon Labs device to appear during scanning by remote devices.
 
-```c    
+```c
 #define RSI_BLE_DEVICE_NAME                               "BLE_THROUGHPUT"
 ```  
 
@@ -170,7 +170,7 @@ User must update the below parameters
 
 - **RSI_BLE_CLIENT_CHAR_UUID** refers to the attribute type of the client characteristics descriptor to be added in a service.
 
-```c 
+```c
 #define RSI_BLE_CLIENT_CHAR_UUID                          0x2902
 ```  
 
@@ -190,11 +190,11 @@ User must update the below parameters
 
 - **RSI_BLE_ATT_PROPERTY_NOTIFY** is used to set the NOTIFY property to an attribute value.
 
-```c   
+```c
 #define RSI_BLE_ATT_PROPERTY_NOTIFY                       0x10
 ```
 
-```c 
+```c
 #define RSI_BLE_PWR_INX                                   30
 #define RSI_BLE_PWR_SAVE_OPTIONS                          0
  

@@ -288,3 +288,11 @@ The VCOM port available on main board (4002A) supports following features,
 **Note:** Debug logs from Wireless core can be fetched via TA UART which is available on EXP header, EXP14 (UART_RX) and EXP12(UART_TX)
 
 **Note:** Above mentioned details are applicable for Radio Board BRD4338A
+
+
+## Front End Switch selection GPIO 
+ Front End Switch GPIO pin selection configured through opermode.
+
+![ Front End Switch selection GPIO](./resources/frontend-switch-selections.png)
+
+**Note:** VC1, VC2 and VC3 are control voltage pins of RF Switch. For more details please refer Reference Schematics.

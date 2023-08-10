@@ -18,17 +18,6 @@
 #ifndef SL_SI91x_FLASH_INTF_H_
 #define SL_SI91x_FLASH_INTF_H_
 
-/***************************************************************************/ /**
-* @addtogroup NVM3
-* @{
-* @brief The NVM3 driver provides a means to write and read data objects (key/value pairs) stored in flash
-
-* ##Overview
-* refer to https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3
-
-* ## Initialization
-* refer to https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3
-   ******************************************************************************/
 // Includes
 #ifdef EXECUTION_FROM_RAM
 #include "sl_si91x_common_flash_intf.h"
@@ -36,5 +25,4 @@
 #include "sl_si91x_dual_flash_intf.h"
 #endif
 
-/** @} (end addtogroup NVM3) */
 #endif /* SL_SI91x_FLASH_INTF_H_*/

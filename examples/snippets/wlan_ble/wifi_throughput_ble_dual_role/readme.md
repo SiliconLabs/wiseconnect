@@ -16,28 +16,28 @@ Before running the application, the user will need the following things to setup
 
 - Windows PC with Host interface (UART / SPI).
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
-  - **SoC Mode**: 
-      - Silicon Labs [(BRD4180A, BRD4325B)](https://www.silabs.com/)
+  - **SoC Mode**:
+      - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
   - **NCP Mode**:
-      - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/); **AND**
+      - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
       - Host MCU Eval Kit. This example has been tested with:
         - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 - Wireless Access Point
 - Smart phone/tablet with BLE Application (Ex: Light Blue / BLE Connect App)
 - Windows PC with iperf and openssl applications.
 
-![Setup Diagram for WLAN Throughput BT SPP BLE Dual Role](resources/readme/image1_soc.png) 
+![Setup Diagram for WLAN Throughput BT SPP BLE Dual Role](resources/readme/image1_soc.png)
 
-![Setup Diagram for WLAN Throughput BT SPP BLE Dual Role](resources/readme/image1_ncp_setup.png) 
+![Setup Diagram for WLAN Throughput BT SPP BLE Dual Role](resources/readme/image1_ncp_setup.png)
 
 ### 2.2 Software Requirements
 
 - WiSeConnect SDK 3
-    
+
 - Embedded Development Environment
 
   - For Silicon Labs EFx32, use the latest version of [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
-   
+
   - Download and install iperf from this link [Iperf Application](https://iperf.fr/iperf-download.php).
 
   - Download and install OpenSSL from this link [OpenSSL](http://ufpr.dl.sourceforge.net/project/gnuwin32/openssl/0.9.8h-1/openssl-0.9.8h-1-bin.zip) to download openssl in remote PC.
@@ -55,10 +55,10 @@ Before running the application, the user will need the following things to setup
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
    ![Soc Board detection](resources/readme/socboarddetection111.png)
-   
+
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
 
-- Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *Wi-Fi Coex - Wi-Fi Throughtput BLE Dule Role* application. 
+- Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *Wi-Fi Coex - Wi-Fi Throughtput BLE Dule Role* application.
 
    ![](resources/readme/create_project1.png)
 
@@ -71,7 +71,7 @@ Before running the application, the user will need the following things to setup
 1. Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-   
+
    ![](resources/readme/efr32.png)
 
 - Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
@@ -81,7 +81,6 @@ Before running the application, the user will need the following things to setup
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
 
   ![creation_final](resources/readme/create_project2.png)
-
 
 ### 3.2 Set up for application prints
 
@@ -103,35 +102,33 @@ Before running the application, the user will need the following things to setup
 
 **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-
 **Tera Term set up - for NCP and SoC modes**
 
 1. Open the Tera Term tool.
 
-	- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    ![UART - SoC](resources/readme/port_selection_soc.png)
-      
-	- For NCP mode, choose the J-Link port and click on **OK**.
-    
+
+   - For NCP mode, choose the J-Link port and click on **OK**.
+
    ![J-link - NCP](resources/readme/port_selection.png)
-      
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
    ![Serial port](resources/readme/serial_port_setup.png)
-	
-   ![Baud rate](resources/readme/serial_port.png) 
+
+   ![Baud rate](resources/readme/serial_port.png)
 
 ## 4. Application Configuration Parameters
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-### 4.1 WLAN Throughputs
+### 4.1 WLAN Throughput
 
 **4.1.1** Open `rsi_common_config.h` file and configure below macros.
 
-This section explains how to configure the application to measure TCP/UDP/SSL unidirectional throughputs in alone or with combination of BT/BLE activities.
+This section explains how to configure the application to measure TCP/UDP/SSL unidirectional throughput in alone or with combination of BT/BLE activities.
 
 Set below macros to 1 to measure **WLAN** alone throughput
 
@@ -139,6 +136,7 @@ Set below macros to 1 to measure **WLAN** alone throughput
 #define RSI_ENABLE_WLAN_TEST    1 //Set this to 0 to disable WLAN
 #define WLAN_THROUGHPUT_TEST    1 //Set this to 0 while measuring BLE throughput
 ```
+
 Set below macros to 1 to measure **WLAN** throughput along with specific **BLE** activity.
 
 ```c
@@ -147,8 +145,8 @@ Set below macros to 1 to measure **WLAN** throughput along with specific **BLE**
 #define RSI_ENABLE_BLE_TEST     1 //Set this to 0 to disable BLE
 ```
 
-> Note: 
->       
+> Note:
+>
 > While measuring WLAN throughput along with BLE activities, ensure 'BLE_THROUGHPUT_TEST' is set to '0'
 
 Set below macros to 1 to measure **WLAN** throughput along with specific **BT** activity.
@@ -158,6 +156,7 @@ Set below macros to 1 to measure **WLAN** throughput along with specific **BT** 
 #define WLAN_THROUGHPUT_TEST    1 //Set this to 0 while measuring BLE throughput
 #define RSI_ENABLE_BT_TEST      1 //Set this to 0 to disable BT
 ```
+
 Set below macros to 1 to measure **WLAN** throughput along with **BT and BLE** activities.
 
 ```c
@@ -167,13 +166,13 @@ Set below macros to 1 to measure **WLAN** throughput along with **BT and BLE** a
 #define RSI_ENABLE_BT_TEST      1 //Set this to 0 to disable BT
 ```
 
-> Note: 
->   
+> Note:
+>
 > While measuring WLAN throughput with BLE activities ensure 'BLE_THROUGHPUT_TEST' is set to '0'
 
 If BLE is enabled, configure specific activity of BLE using below macros.
 
- - **BLE operations**: Set any one of below macros to choose desired BLE activity 
+- **BLE operations**: Set any one of below macros to choose desired BLE activity
 
 ```c
 #define BLE_INIT_DONE                       0           //! make it 1 for BLE init only
@@ -186,14 +185,13 @@ By default, BLE_DATA_TRANSFER_START is set to '1', that means WLAN measurement w
 Valid Configurations are:
 
 - 0  - WLAN alone mode
-- 13 - WLAN + BLE mode 
+- 13 - WLAN + BLE mode
 
-> Note: 
->   
+> Note:
+>
 > By default, opermode is set to WLAN+BLE
 
-
-**4.1.2** Select WLAN configurations in `wifi_app_config.h` file 
+**4.1.2** Select WLAN configurations in `wifi_app_config.h` file
 
 Enter the AP Connectivity essentials configs as the value to SSID, SECURITY_TYPE and PSK
 
@@ -208,31 +206,31 @@ Channel no in which device should scan choose
 ```c
 #define     CHANNEL_NO                 0       //! 0 - scan all channels
 ```
-   
+
 Port number of remote server
 
 ```c
 #define     SERVER_PORT                5001
 ```
-   
+
 While verifying SSL RX throughput, port number of remote server should be configured below
 
 ```c
 #define     SSL_SERVER_PORT         5002
 ```
-   
+
 IP address of remote server
 
 ```c
 #define     SERVER_IP_ADDRESS          "192.168.0.102"
 ```
-   
+
 Port number of module
 
 ```c
 #define     DEVICE_PORT                5001
 ```
-   
+
 To select the ip, configure below macros
 
 ```c
@@ -254,19 +252,19 @@ Choose the throughput type by configuring below macro
    - SSL_TX → SSL transmit
    - SSL_RX → SSL receive
 
-Average time required to measure UDP_TX/TCP_TX throughputs
+Average time required to measure UDP_TX/TCP_TX throughput
 
 ```c
 #define     THROUGHPUT_AVG_TIME        60000    //60sec of throughput numbers average
 ```
-   
+
 Maximum no. of packets required to measure UDP_RX
 
 ```c
 #define     MAX_TX_PKTS                10000
 ```
 
-Configure below macro to choose throughput measurement type . This option is valid while measuring WLAN alone throughputs
+Configure below macro to choose throughput measurement type . This option is valid while measuring WLAN alone throughput
 
 ```c
 #define     CONTINUOUS_THROUGHPUT      0
@@ -276,9 +274,9 @@ If **CONTINUOUS_THROUGHPUT** is set to '1', then application measures throughput
 
 > Note:
 > 1. By default, 'CONTINUOUS_THROUGHPUT' is set to '0' 
-> 2. If CONTINUOUS_THROUGHPUT is set to '1', then ensure that client/server should run with interval atleast greater than THROUGHPUT_AVG_TIME
+> 2. If CONTINUOUS_THROUGHPUT is set to '1', then ensure that client/server should run with interval at least greater than THROUGHPUT_AVG_TIME
 
-**4.1.3** Open `ble_config.h` file 
+**4.1.3** Open `ble_config.h` file
 
 BLE Advertise name
 
@@ -301,11 +299,11 @@ Configure below macros to set connection interval, connection latency and connec
 #define     CONN_SUPERVISION_TIMEOUT_C1 1600   
 ```
 
-### 4.2 BLE throughputs:
+### 4.2 BLE throughput
 
-This section explains user how to configure the application for measuring BLE Tx/Rx throughputs using sniffer in alone or with combination of WLAN/BT.
+This section explains user how to configure the application for measuring BLE Tx/Rx throughput using sniffer in alone or with combination of WLAN/BT.
 
-**4.2.1** Open `rsi_common_config.h` file 
+**4.2.1** Open `rsi_common_config.h` file
 
 Set below macro to 1 to measure **BLE** alone throughput
 
@@ -313,6 +311,7 @@ Set below macro to 1 to measure **BLE** alone throughput
 #define     RSI_ENABLE_BLE_TEST        1 //Set this to 0 to disable BLE
 #define     BLE_THROUGHPUT_TEST        1 //Set this to 0 for normal BLE operation
 ```
+
 Set below macros to 1 to measure **BLE** throughput along with specific **WLAN** activity.
 
 ```c
@@ -321,7 +320,7 @@ Set below macros to 1 to measure **BLE** throughput along with specific **WLAN**
 #define     RSI_ENABLE_WLAN_TEST       1 //Set this to 0 to disable WLAN
 ```
 
-> Note: 
+> Note:
 > While measuring BLE throughput with WLAN activities, ensure 'WLAN_THROUGHPUT_TEST' is set to '0'
 
 Set below macros to 1 to measure **BLE** throughput.
@@ -330,6 +329,7 @@ Set below macros to 1 to measure **BLE** throughput.
 #define     RSI_ENABLE_BLE_TEST        1 //Set this to 0 to disable BLE
 #define     BLE_THROUGHPUT_TEST        1 //Set this to 0 for normal BLE operation
 ```
+
 Set below macros to 1 to measure **BLE** throughput and **WLAN** activities.
 
 ```c
@@ -338,7 +338,7 @@ Set below macros to 1 to measure **BLE** throughput and **WLAN** activities.
 #define     RSI_ENABLE_WLAN_TEST       1 //Set this to 0 to disable WLAN
 ```
 
-> Note: 
+> Note:
 > While measuring BLE throughput with WLAN activities ensure 'WLAN_THROUGHPUT_TEST' is set to '0'.
 
 If WLAN is enabled, configure specific activity of WLAN using below macros.
@@ -350,15 +350,15 @@ If WLAN is enabled, configure specific activity of WLAN using below macros.
 #define     WLAN_CONNECT_ONLY          0           //! make it 1 for WLAN connection only
 #define     WLAN_DATATRANSFER          1           //! make it 1 for WLAN TCP TX
 ```
- 
-**4.2.2** Open `ble_config.h` file 
+
+**4.2.2** Open `ble_config.h` file
 
 BLE Advertise name
 
 ```c
 #define     RSI_BLE_APP_GATT_TEST       (void *)"SI_COEX_MAX_DEMO"
 ```
-   
+
 Configure BLE advertising interval
 
 ```c
@@ -379,7 +379,7 @@ Configure below macros to enable/disable data length extension mode
 ```c
 #define     DLE_ON_C1                   1   // 1- DLE ON, 0- DLE OFF 
 ```
-   
+
 Configure BLE data transfer type
 
 ```c
@@ -391,10 +391,10 @@ Configure BLE data transfer type
 #define     TX_INDICATIONS_TO_C1        0  //! set below macro to Transmit 'gatt indications' to remote device
 ```
 
-> Note: 
-> By default, all BLE configurations are choosen to get high BLE throughput.
+> Note:
+> By default, all BLE configurations are chosen to get high BLE throughput.
 
-**4.2.3** Select WLAN configurations in `wifi_app_config.h` 
+**4.2.3** Select WLAN configurations in `wifi_app_config.h`
 
 Enter the AP Connectivity essentials configs as the value to SSID, SECURITY_TYPE and PSK
 
@@ -409,7 +409,7 @@ Channel no in which device should scan choose
 ```c
 #define     CHANNEL_NO                  0       //! 0 - scan all channels
 ```
-   
+
 Configure throughput type as TCP_TX
 
 ```c
@@ -431,13 +431,13 @@ Configure throughput type as TCP_TX
 - Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
-   
-#### NCP Mode :
+
+#### NCP Mode
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
 
 ### 5.2 Loading the Application Image
@@ -445,16 +445,16 @@ Configure throughput type as TCP_TX
 1. Click on Tools and Simplicity Commander as shown below.
 
    ![](resources/readme/load_image1.png)
-   
+
 2. Load the firmware image
-	- Select the board. 
+	- Select the board.
 	- Browse the application image (.hex) and click on Flash button.
 
    ![](resources/readme/load_image2.png)
 
 ### 5.3 Common Steps
 
-### 5.3.1 WLAN throughputs: UDP/TCP/SSL unidirectional:
+### 5.3.1 WLAN throughputs: UDP/TCP/SSL unidirectional
 
 1. Compile the project and flash the binary onto STM32
 
@@ -505,15 +505,15 @@ Configure throughput type as TCP_TX
   -  To measure **SSL Rx** throughput, configure module in SSL client and follow below steps to run SSL server in windows
 
      - Copy SSL_tx_throughput.py from release/resources/scripts/ to release/resources/certificate
-     
+
      - Change port no. from "5001" to the value configured in "SSL_RX_SERVER_PORT"
-     
+
      - Open command prompt in folder release/resources/certificates/ and run below command
-     
+
   ```sh
            python SSL_tx_throughput.py
    ```
-   
+
 3. After the program gets executed, Module scans for the configured Access point, connects to it.
 
 4. Acquires the ip address and waits for ble activities to complete if configured.
@@ -526,41 +526,40 @@ Configure throughput type as TCP_TX
 
 11. Once above activities are completed, Module transmits/receives packets based on the configuration selected and measures the WLAN throughput
 
-
-> Note: 
+> Note:
 > Verify that all connections are stable and throughput is as expected.
-   
-**Note:** In this release, due to low SPI frequency in EFR, wlan throughputs are less compared to STM. Work is in progress to support the high frequency.
 
-### 5.3.2 BLE throughputs:
+**Note:** In this release, due to low SPI frequency in EFR, wlan throughput are less compared to STM. Work is in progress to support the high frequency.
+
+### 5.3.2 BLE throughput
 
 1. Compile the project and flash the binary onto STM32
 
 2. If WLAN is configured, run the below iperf command (Note: Ensure module is configured as TCP client)
-   
+
    ```sh
      iperf.exe -s -p <SERVER_PORT> -i 1
    ```
-   
+
    ex: iperf.exe -s -p 5001 -i 1
-   
-3. After the program gets executed, Module scans for the configured Accesspoint, connects to it and acquires the ip address
+
+3. After the program gets executed, Module scans for the configured Access point, connects to it and acquires the ip address
 
 4. After acquiring ip address, connects to remote server and starts tcp download
 
-6. After successfull connection, transmit the data using same android app to module.
+5. After successful connection, transmit the data using same android app to module.
 
-7. Module receives the data transmitted by app and retransmits the same to BT SPP manager app.
+6. Module receives the data transmitted by app and retransmits the same to BT SPP manager app.
 
-8. After completion of WLAN, scan for BLE advertise name (RSI_BLE_APP_GATT_TEST) using nRF connect (Android app)/ BLE dongles and initiate ble connection if found.
+7. After completion of WLAN, scan for BLE advertise name (RSI_BLE_APP_GATT_TEST) using nRF connect (Android app)/ BLE dongles and initiate ble connection if found.
 
-9. After successfull connection, enable Gatt notifications of Module on service characteristic RSI_BLE_ATTRIBUTE_1_UUID (0x1AA1) using nRF connect. 
+8. After successful connection, enable Gatt notifications of Module on service characteristic RSI_BLE_ATTRIBUTE_1_UUID (0x1AA1) using nRF connect.
 
-10. If GATT NotificationS are enabled, module continuously transmits notifications per connection interval of size 232 bytes.
+9. If GATT NotificationS are enabled, module continuously transmits notifications per connection interval of size 232 bytes.
 
-11. While transmitting, measure the throughput using BLE sniffer
+10. While transmitting, measure the throughput using BLE sniffer
 
-> Note: 
+> Note:
 > Verify that all connections are stable and throughput is as expected.
 
 ## 5.4 Observing the output prints on serial terminal  

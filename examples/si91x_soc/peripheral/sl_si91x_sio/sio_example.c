@@ -61,14 +61,16 @@ typedef enum {
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
  ******************************************************************************/
-uint8_t data_in[BUFFER_SIZE]     = { 0 }, data_out[BUFFER_SIZE];
+uint8_t data_out[BUFFER_SIZE]    = { 0 }, buffer_in[BUFFER_SIZE];
+uint16_t data_in[BUFFER_SIZE]    = { 0 }, buffer_out[BUFFER_SIZE];
 volatile boolean_t send_complete = false, receive_complete = false;
 static boolean_t begin_transmission = true;
 extern sl_sio_spi_callback_t spi_user_callback;
 extern uint32_t SystemCoreClock;
-uint8_t tx_data[10] = { 0 };
-uint8_t rx_data[10] = { 0 }, count = 0;
-uint8_t buffer_in[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+uint8_t tx_data[BUFFER_SIZE] = { 0 };
+uint8_t rx_data[BUFFER_SIZE] = { 0 };
+extern uint8_t bit_length;
+
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -83,10 +85,10 @@ static void compare_uart_loop_back_data(void);
 sio_uart_mode_enum_t current_mode = SL_SEND_DATA;
 stc_sio_spi_cfg_t pstcSpiConfig   = { 0 };
 stc_sio_spi_xfer_t pstcSpiXfer    = { 0 };
-stc_sio_uart_config_t UartInitstc = { 0 };
-uint8_t tx_buffer[BUFFER_SIZE]    = { 0 };
-uint8_t rx_buffer[BUFFER_SIZE]    = { 0 };
-stc_sio_i2c_config_t i2cConfig    = { 0 };
+extern stc_sio_uart_config_t UartInitstc;
+uint8_t tx_buffer[BUFFER_SIZE] = { 0 };
+uint8_t rx_buffer[BUFFER_SIZE] = { 0 };
+stc_sio_i2c_config_t i2cConfig = { 0 };
 
 /*******************************************************************************
  * SIO Example Initialization function for setting clock frequency, SIO
@@ -105,6 +107,12 @@ void sio_example_init(void)
   do {
     // Initialize SIO SPI instance
     if (SL_SIO_SPI == ONE) {
+      for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
+        buffer_in[i] = (uint8_t)(i + ONE);
+      }
+      for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
+        data_in[i] = (uint8_t)(i + ONE);
+      }
       // Initialize the SIO
       status = sl_si91x_sio_init();
       // Check the status error code
@@ -158,8 +166,8 @@ void sio_example_init(void)
     // Initialize SIO UART instance
     if (SL_SIO_UART == ONE) {
       // Filling the tx_buffer array with integer values
-      for (uint8_t i = 0; i < BUFFER_SIZE; i++) {
-        tx_buffer[i] = i + ONE;
+      for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
+        tx_buffer[i] = (uint8_t)i;
       }
       // SIO UART configuration structure
       UartInitstc.u32BaudRate        = SIO_UART_BAUD_RATE;
@@ -208,13 +216,13 @@ void sio_example_init(void)
         break;
       }
       DEBUGOUT("SIO UART initialization is successful \n");
-      sl_si91x_sio_uart_read(rx_buffer, TEN);
+      sl_si91x_sio_uart_read(rx_buffer, BUFFER_SIZE);
     }
     // Initialize SIO UART instance
     if (SL_SIO_I2C == ONE) {
       // Prepare the I2C Write buffer
-      for (count = 0; count < BUFFER_SIZE; count++) {
-        tx_data[count] = count + ONE;
+      for (uint8_t i = 0; i < BUFFER_SIZE; i++) {
+        tx_data[i] = i + ONE;
       }
       // Initialize the SIO
       status = sl_si91x_sio_init();
@@ -255,15 +263,21 @@ void sio_example_process_action(void)
             current_mode = SL_TRANSMISSION_COMPLETED;
           }
           DEBUGOUT("SIO SPI chip select assert successfully \n");
+          if (bit_length == 8) {
+            pstcSpiXfer.rxBuff = data_out;
+            pstcSpiXfer.txBuff = buffer_in;
+          } else {
+            pstcSpiXfer.rxBuff = buffer_out;
+            pstcSpiXfer.txBuff = data_in;
+          }
           // SPI Transfer configuration
-          pstcSpiXfer.rxBuff   = data_in;
           pstcSpiXfer.rxCount  = BUFFER_SIZE;
           pstcSpiXfer.sselNum  = ZERO;
-          pstcSpiXfer.txBuff   = buffer_in;
           pstcSpiXfer.txCount  = BUFFER_SIZE;
           pstcSpiXfer.u8BitLen = SIO_SPI_BIT_LEN;
           pstcSpiXfer.u8Status = SioSpiIdle;
           pstcSpiXfer.pfnCb    = spi_user_callback;
+
           // SIO-SPI transfer function
           status = sl_si91x_sio_spi_transfer(&pstcSpiXfer);
           if (status != SL_STATUS_OK) {
@@ -284,7 +298,7 @@ void sio_example_process_action(void)
           sl_si91x_sio_spi_cs_deassert(pstcSpiConfig.u8SpiCsCh);
           current_mode = SL_SEND_DATA;
           // After comparing the loopback transfer, it compares the data_out and
-          // data_in.
+          // data_outin.
           compare_loop_back_data();
           begin_transmission = true;
         }
@@ -314,7 +328,7 @@ void sio_example_process_action(void)
       case SL_SEND_DATA:
         if (begin_transmission == true) {
           // Validation for executing the API only once
-          status = sl_si91x_sio_uart_send(tx_buffer, (uint16_t)strlen((const char *)tx_buffer));
+          status = sl_si91x_sio_uart_send(tx_buffer, (sizeof(tx_buffer) / sizeof(tx_buffer[0])));
           if (status != SL_STATUS_OK) {
             // If it fails to execute the API, it will not execute rest of the
             // things
@@ -353,8 +367,8 @@ void sio_example_process_action(void)
     sl_si91x_sio_i2c_read(&i2cConfig, SIO_SLAVE_ADDRESS, rx_data, BUFFER_SIZE);
     sl_si91x_sio_i2c_generate_stop();
 
-    for (count = ZERO; count < BUFFER_SIZE; count++) {
-      DEBUGOUT("rx_data[%d] = %d\n", count, rx_data[count]);
+    for (uint8_t i = 0; i < BUFFER_SIZE; i++) {
+      DEBUGOUT("rx_data[%d] = %d\n", i, rx_data[i]);
     }
     while (1)
       ;
@@ -368,7 +382,7 @@ void sio_example_process_action(void)
 static void compare_uart_loop_back_data(void)
 {
   uint16_t data_index = 0;
-  // Check for data in and data out are same, if same then comparison
+  // Check for tx_buffe and rx_buffer are same, if same then comparison
   // will continue till end of the buffer
   for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
     if (rx_buffer[data_index] != tx_buffer[data_index]) {
@@ -389,11 +403,20 @@ static void compare_uart_loop_back_data(void)
 static void compare_loop_back_data(void)
 {
   uint16_t data_index = 0;
-  // Check for data in and data out are same, if same then comparison
+  // Check for buffer_in and data_out are same, if same then comparison
   // will continue till end of the buffer
-  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
-    if (buffer_in[data_index] != data_in[data_index]) {
-      break;
+  if (bit_length == 8) {
+    for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
+      if (buffer_in[data_index] != data_out[data_index]) {
+        break;
+      }
+    }
+  }
+  if (bit_length == 16) {
+    for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
+      if (data_in[data_index] != buffer_out[data_index]) {
+        break;
+      }
     }
   }
   if (data_index == BUFFER_SIZE) {

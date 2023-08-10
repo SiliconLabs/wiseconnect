@@ -4,7 +4,7 @@
 
 The Application demonstrates how to configure SiWx91x EVK in central/peripheral modes and then connect with multiple peripherals/centrals.
 
-It provides user to configure secure connection with central and peripheral remote devices and support data transfers. 
+It provides user to configure secure connection with central and peripheral remote devices and support data transfers.
 
 This also displays all the remote GATT profiles and service characteristics logs of connected remote device.
 
@@ -16,9 +16,9 @@ Before running the application, the user will need the following things to setup
 
 - Windows PC
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
@@ -36,13 +36,13 @@ Before running the application, the user will need the following things to setup
 
 #### SoC Mode
 
-![](resources/readme/blemultigattsoc.png)  
+![](resources/readme/blemultigattsoc.png)
 
-#### NCP Mode 
+#### NCP Mode
 
 ![](resources/readme/blemultigattncp.png)
 
-**NOTE**: 
+**NOTE**:
 
 - The Host MCU platform (EFR32xG21) and the SiWx91x interact with each other through the SPI interface.
 
@@ -64,7 +64,7 @@ Before running the application, the user will need the following things to setup
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - Multiconnection GATT Test* application.
 
-   ![projct_selection](resources/readme/create_project1.png)
+   ![project_selection](resources/readme/create_project1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -94,7 +94,7 @@ Before running the application, the user will need the following things to setup
 
 1. Setup using USB to UART converter board.
 
-  - Connect Tx (Pin-6) to P27 on WSTK
+    - Connect Tx (Pin-6) to P27 on WSTK
     - Connect GND (Pin 8 or 10) to GND on WSTK
 
    **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
@@ -110,7 +110,7 @@ Before running the application, the user will need the following things to setup
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+ - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
@@ -126,11 +126,11 @@ Before running the application, the user will need the following things to setup
 
 ## 4 Application Build Environment
 
-The application can be configured to suit your requirements and development environment. 
+The application can be configured to suit your requirements and development environment.
 
 ### **4.1 Application configuration**
 
-The application can be configured to suit you requirements and development environment. Go through the following sections and make any changes if needed. 
+The application can be configured to suit you requirements and development environment. Go through the following sections and make any changes if needed.
 
 1. In the Project explorer pane of the IDE, expand the **ble_multiconnection_gatt_test** folder and open the **ble_config.h** file. Configure the following parameters based on your requirements.
 
@@ -208,13 +208,13 @@ The application can be configured to suit you requirements and development envir
  // Configure below macro to select data length extension ON/OFF
  #define DLE_ON_XX 0
 
-   // Configure below macros to select connection paramaters while data transfer
+   // Configure below macros to select connection parameters while data transfer
  #define CONN_INTERVAL_XX            36 //! for conn interval of 45ms
  #define CONN_LATENCY_XX             0
  #define CONN_SUPERVISION_TIMEOUT_XX 400
    ```
 
-- **Specific Remote Central device configuration paramters**
+- **Specific Remote Central device configuration parameters**
 
 **Note:** Where YY refers to P1 (or) P2 (or) P3
 
@@ -250,7 +250,7 @@ The application can be configured to suit you requirements and development envir
  // set below macro to Transmit 'gatt indications' to remote device
  #define TX_INDICATIONS_TO_YY 0
 
- // Configure below macros to select connection paramaters while data transfer
+ // Configure below macros to select connection parameters while data transfer
  #define CONN_INTERVAL_YY            240 // for conn interval of 300ms
  #define CONN_LATENCY_YY             0
  #define CONN_SUPERVISION_TIMEOUT_YY 400
@@ -281,7 +281,7 @@ Configure "ENABLE_POWER_SAVE" parameter to enable power save mode.
 
     #define RSI_EXT_CUSTOM_FEATURE_BIT_MAP (EXT_FEAT_LOW_POWER_MODE | EXT_FEAT_XTAL_CLK_ENABLE | EXT_FEAT_512K_M4SS_192K)
 
-    #define RSI_BT_FEATURE_BITMAP (BT_RF_TYPE | ENABLE_BLE_PROTOCOL) 
+    #define RSI_BT_FEATURE_BITMAP (BT_RF_TYPE | ENABLE_BLE_PROTOCOL)
 
 **Note:** "Opermode command parameters" are already set with desired configuration.
 
@@ -342,7 +342,7 @@ Configure "ENABLE_POWER_SAVE" parameter to enable power save mode.
 
 6. Observe that the connection is established between the desired device and Silicon Labs device.
 
-7. When the connection is established with the remote device, the Silicon Labs device fetch the GATT profiles and characteristics and also prints the same on the serial teriminal.
+7. When the connection is established with the remote device, the Silicon Labs device fetch the GATT profiles and characteristics and also prints the same on the serial terminal.
 
 8. If user configures SMP pairing in the specified macro **SMP_ENABLE_XX**, after successful connection between Silicon Labs device and remote device flow of commands are as below:
 

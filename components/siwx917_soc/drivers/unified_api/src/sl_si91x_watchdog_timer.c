@@ -83,7 +83,7 @@ void sl_si91x_watchdog_init_timer(void)
   RSI_WWDT_IntrUnMask();
   // RTC time Period Programming
   // status = set_rtc_clock_timeperiod(TIME_PERIOD_VALUE);
-  RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, TIME_PERIOD_VALUE);
+  // RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, TIME_PERIOD_VALUE);
   // Initializing watchdog-timer (powering up WDT and enabling it to run during CPU sleep mode)
   RSI_WWDT_Init(MCU_WDT);
 }

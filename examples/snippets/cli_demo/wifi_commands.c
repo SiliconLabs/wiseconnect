@@ -102,7 +102,7 @@ sl_wifi_device_configuration_t si91x_init_configuration = {
                    .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_HTTP_HTTPS_AUTH,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_1P8V_SUPPORT | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
-                      | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)),
+                      | SL_SI91X_EXT_FEAT_XTAL_CLK),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = 0,
                    .ble_feature_bit_map        = 0,

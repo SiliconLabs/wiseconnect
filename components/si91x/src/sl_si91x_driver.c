@@ -49,8 +49,8 @@
 #include "rsi_common_apis.h"
 #endif
 
-#ifdef sockets_FEATURE_REQUIRED
-#include "sl_si91x_socket.h"
+#ifdef SI91X_SOCKET_FEATURE
+#include "sl_si91x_socket_utility.h"
 #endif
 
 #ifndef NULL
@@ -299,6 +299,49 @@ void si91x_default_event_handler(uint32_t event, void *data, void *arg)
   // Handle things
 }
 
+sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t *config)
+{
+  sl_status_t status;
+
+#ifdef HIGH_EFFICIENCY_PARAMS_SUPPORT
+  status = sl_wifi_set_11ax_config(GUARD_INTERVAL);
+  VERIFY_STATUS_AND_RETURN(status);
+#endif
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_BAND,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        &config->band,
+                                        1,
+                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_INIT,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        NULL,
+                                        0,
+                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  status = sl_si91x_set_device_region(config->boot_config.oper_mode, config->band, config->region_code);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  sl_si91x_config_request_t config_request = { .config_type = CONFIG_RTSTHRESHOLD, .value = RSI_RTS_THRESHOLD };
+  status                                   = sl_si91x_driver_send_command(RSI_WLAN_REQ_CONFIG,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        &config_request,
+                                        sizeof(config_request),
+                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  return status;
+}
+
 sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, sl_wifi_event_handler_t event_handler)
 {
   sl_status_t status;
@@ -391,10 +434,6 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   }
 #endif
 
-#ifdef RSI_M4_INTERFACE
-  sl_si91x_hardware_setup();
-#endif
-
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_OPERMODE,
                                         SI91X_COMMON_CMD_QUEUE,
                                         &config->boot_config,
@@ -410,6 +449,11 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
                                                            .enable_ppp      = ENABLE_PPP,
                                                            .afe_type        = AFE_TYPE,
                                                            .feature_enables = FEATURE_ENABLES };
+
+  // For the transmit test mode we need to disable BIT 0, 4, 5. These bitmaps are only required in powersave.
+  feature_frame_request.feature_enables = (config->boot_config.oper_mode == SL_SI91X_TRANSMIT_TEST_MODE)
+                                            ? feature_frame_request.feature_enables & ~(FEATURE_ENABLES)
+                                            : feature_frame_request.feature_enables;
 
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_FEATURE_FRAME,
                                         SI91X_COMMON_CMD_QUEUE,
@@ -429,41 +473,10 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
     sl_wifi_set_mac_address(default_interface, config->mac_address);
   }
 
-#ifdef HIGH_EFFICIENCY_PARAMS_SUPPORT
-  status = sl_wifi_set_11ax_config(GUARD_INTERVAL);
-  VERIFY_STATUS_AND_RETURN(status);
-#endif
-
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_BAND,
-                                        SI91X_WLAN_CMD_QUEUE,
-                                        &config->band,
-                                        1,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
-  VERIFY_STATUS_AND_RETURN(status);
-
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_INIT,
-                                        SI91X_WLAN_CMD_QUEUE,
-                                        NULL,
-                                        0,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
-  VERIFY_STATUS_AND_RETURN(status);
-
-  status = sl_si91x_set_device_region(config->boot_config.oper_mode, config->band, config->region_code);
-  VERIFY_STATUS_AND_RETURN(status);
-
-  sl_si91x_config_request_t config_request = { .config_type = CONFIG_RTSTHRESHOLD, .value = RSI_RTS_THRESHOLD };
-  status                                   = sl_si91x_driver_send_command(RSI_WLAN_REQ_CONFIG,
-                                        SI91X_WLAN_CMD_QUEUE,
-                                        &config_request,
-                                        sizeof(config_request),
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
-  VERIFY_STATUS_AND_RETURN(status);
+  if (config->boot_config.coex_mode != SL_SI91X_BLE_MODE) {
+    status = sl_si91x_driver_init_wifi_radio(config);
+    VERIFY_STATUS_AND_RETURN(status);
+  }
 
   if (config->boot_config.custom_feature_bit_map & SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID) {
     frontend_switch_control = (config->boot_config.ext_custom_feature_bit_map & (BIT(29) | (BIT(30))));
@@ -804,7 +817,7 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
   context.packet  = node;
   context.payload = &(packet_id[queue_type]);
   sl_si91x_host_add_to_queue_with_atomic_action(queue_type, packet, &context, sl_si91x_atomic_packet_id_allocator);
-  sl_si91x_host_set_event(NCP_HOST_DATA_TX_EVENT);
+  sl_si91x_host_set_bus_event(NCP_HOST_DATA_TX_EVENT);
 
   if (wait_period == SL_SI91X_RETURN_IMMEDIATELY) {
     return SL_STATUS_IN_PROGRESS;
@@ -869,7 +882,7 @@ sl_status_t sl_si91x_driver_send_data_packet(sl_si91x_queue_type_t queue_type,
   context.packet  = node;
   context.payload = &(packet_id[queue_type]);
   sl_si91x_host_add_to_queue_with_atomic_action(queue_type, packet, &context, sl_si91x_atomic_packet_id_allocator);
-  sl_si91x_host_set_event(NCP_HOST_DATA_TX_EVENT);
+  sl_si91x_host_set_bus_event(NCP_HOST_DATA_TX_EVENT);
 
   return SL_STATUS_OK;
 }

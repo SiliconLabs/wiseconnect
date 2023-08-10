@@ -13,33 +13,115 @@ Before running the application, set up the following:
 - A Windows PC.
 - WiFi Access point with internet
 - SiWx91x Wi-Fi Evaluation Kit
-  - **SoC Mode**: 
-    - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
-  - **NCP Mode**:
-    - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/); **AND**
-    - Host MCU Eval Kit. This example has been tested with:
-      - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
+- **NCP Mode**:
+  - Silicon Labs [BRD4180B](https://www.silabs.com/)
+  - Host MCU Eval Kit. This example has been tested with:
+    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
-#### SoC Mode 
+### 2.2 Software Requirements
+
+- Simplicity Studio IDE
+  - Download the latest [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
+  - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
+
+### 2.3 Setup Diagram
+
+#### SoC Mode
 
 ![Figure: Setup Diagram SoC Mode for SNTP client Example](resources/readme/sntpclientsoc.png)
+
+Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
   
 #### NCP Mode  
 
 ![Figure: Setup Diagram NCP Mode for SNTP client Example](resources/readme/sntpclientncp.png)
 
-## 3. Application Build Environment
+Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
 
-### 3.1 Project Setup
+**NOTE**:
 
-- **SoC Mode**
-  - **Silicon Labs SiWx91x SoC**. Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) to setup the example to work with SiWx91x SoC and Simplicity Studio.
-- **NCP Mode**
-  - **Silicon Labs EFx32 Host**. Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) to setup the example to work with EFx32 and Simplicity Studio.
+- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
+- The Host MCU platform (EFM32GG11) and the SiWx91x interact with each other through the SDIO interface.
 
-### 3.2 NCP Mode - Host Interface 
+### 3 Project Environment
 
-- By default, the application is configured to use the SPI bus for interfacing between Host platforms(EFR32MG21) and the SiWx91x EVK.
+- Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+
+### 3.1 Creating the project
+
+#### 3.1.1 SoC mode
+
+- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
+
+  **![Soc Board detection](resources/readme/soc_board_detection.png)**
+
+- Ensure the latest Gecko SDK along with the WiSeConnect3 extension is added to Simplicity Studio.
+
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
+
+- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the _Wi-Fi_ checkbox under **Wireless Technology**
+
+  **![ Select project](resources/readme/select_project_soc.png)**
+
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+
+  **![Create project](resources/readme/create_project_soc.png)**
+
+#### 3.1.2 NCP mode
+
+- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
+
+  **![EFR32 Board detection](resources/readme/efr32.png)**
+
+- Ensure the latest Gecko SDK along with the  WiSeConnect3 extension is added to  Simplicity Studio.
+
+- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi -SNTP (NCP) example.
+
+  **![sntp project](resources/readme/select_project-ncp.png)**
+
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+
+   **![Create sntp project](resources/readme/create_project_ncp.png)**
+
+### 3.2 Set up for application prints
+
+#### 3.2.1 SoC mode
+
+  You can use either of the below USB to UART converters for application prints.
+
+1. Set up using USB to UART converter board.
+
+   - Connect Tx (Pin-6) to P27 on WSTK
+   - Connect GND (Pin 8 or 10) to GND on WSTK
+
+   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
+
+2. Set up using USB to UART converter cable.
+
+   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
+   - Connect GND (Pin1) of TTL convertor to GND on WSTK
+
+   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
+
+**Tera Term set up - for NCP and SoC modes**
+
+1. Open the Tera Term tool.
+
+  - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+
+   **![UART - SoC](resources/readme/port_selection_soc.png)**
+
+  - For NCP mode, choose the J-Link port and click on **OK**.
+
+   **![J-link - NCP](resources/readme/port_selection.png)**
+
+2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
+
+ **![Serial port](resources/readme/serial_port_setup.png)**
+
+ **![Baud rate](resources/readme/serial_port.png)**
 
 ## 4. Application Configuration Parameters
 
@@ -47,7 +129,7 @@ The application can be configured to suit your requirements and development envi
 
 **4.1** Configure the following parameters in **sl_net_default_values.h** to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
   
-```                                     
+```c
 #define DEFAULT_WIFI_CLIENT_PROFILE_SSID    "YOUR_AP_SSID"          // Wi-Fi Network Name
 #define DEFAULT_WIFI_CLIENT_CREDENTIAL      "YOUR_AP_PASSPHRASE"    // Wi-Fi Password
 #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE   SL_WIFI_WPA_WPA2_MIXED  // Wi-Fi Security Type
@@ -56,31 +138,31 @@ The application can be configured to suit your requirements and development envi
 
 To select IPv6, FLAGS should be set to 1, by default it supports IPv4
 
-```
+```c
 #define FLAGS                               0
 ```
 
 SERVER_IP_ADDRESS refers remote SNTP Server IP address to connect.
 
-```
+```c
 #define NTP_SERVER_IP                       "162.159.200.123"
 ```
 
 Configure the SNTP method to use the server
 
-```
+```c
 #define SNTP_METHOD                        SL_SNTP_UNICAST_MODE
 ```
 
 SNTP time out value to use
 
-```
+```c
 #define SNTP_TIMEOUT                       50
 ```
 
 **4.2** Configure the following parameters in **rsi_wlan_config.h** to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
-```
+```c
 .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT |
                       SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | 
@@ -89,68 +171,17 @@ SNTP time out value to use
                       SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),                 
 ```
 
-## 5. Testing the Application
+## 4.2 Build the application
 
-Follow the below steps for the successful execution of the application.
+- SoC mode: Build as SNTP Example(SOC)
 
-### 5.1 Loading the SiWx91x Firmware
+  **![Build as](resources/readme/build_project_soc.png)**
 
-Refer [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started) to load the firmware into SiWx91x EVK. The firmware file is located in `<SDK>/firmware/`
+- NCP mode:Build as SNTP Example(NCP)
 
-### 5.2 Creating the Project and builing the Application
-  
-Refer [Getting started with EFX32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/), for setting-up EFR host platforms
+  **![Build as](resources/readme/build_project_ncp.png)**
 
-#### 5.2.1 Project Creation - SoC Mode 
-
-- Connect your board. The Si917 compatible SoC board is **BRD4325A**.
-- Studio should detect your board. Your board will be shown here.
-![soc_board_detection](resources/readme/socboarddetection111.png)
-
-#### 5.2.2 Project Creation - NCP Mode 
-
-- Connect your board. The supported NCP boards are: **BRD4180A,BRD4280B**
-- Studio should detect your board. Your board will be shown here.
-![ncp_board_detection](resources/readme/ncpboarddetection112.png)
-
-#### 5.2.3 Selecting an example application and generate project
-
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select your desired example application
-![projct_selection](resources/readme/projctselection113.png)
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-![creation_final](resources/readme/creationfinal114.png)
-
-#### 5.2.4 Build Project - SoC Mode
-
-- Once the project is created, right click on project and go to properties → C/C++ Build → Settings → Build Steps
-- Add post_build_script_SimplicityStudio.bat file path (SI917_COMBO_SDK.X.X.X.XX\utilities\isp_scripts_common_flash) in build steps settings as shown in below image.
-![postbuild_script](resources/readme/image359.png)
-- Check for M4 projects macros in preprocessor settings(RSI_M4_INTERFACE=1)
-- Click on the build icon (hammer) to build the project
-![building_pjt](resources/readme/buildingpjt115.png)
-- Successful build output will show as below.
-![build_success_soc](resources/readme/buildsuccesssoc116.png)
-
-#### 5.2.5 Build Project - NCP Mode
-
-- Click on the build icon (hammer) to build the project
-![building_pjt](resources/readme/buildingpjt115.png)
-- Successful build output will show as below.
-![build_success_soc](resources/readme/buildsuccesssoc116.png)
-
-## 6. Program the device
-
-Once the build was successfull, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
-
-### SoC Mode
-
-![debug_mode_soc](resources/readme/debugmodesoc117.png)
-
-### NCP Mode 
-
-![debug_mode_NCP](resources/readme/debugmodencp120.png)
-
-### 6.1 Running the SiWx91x Application
+### 4.3 Run and Test the application
 
 - Configure the Access point (internet AP) in OPEN / WPA-PSK / WPA2-PSK mode in order to connect Silicon Labs device in STA mode.
 
@@ -167,24 +198,18 @@ Once the build was successfull, right click on project and click on Debug As->Si
 
 - Analyze the sniffer capture for NTP server response which contains date and time.
 
-## 7. Observing the output prints on serial terminal
+- Once the build was successful, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
 
-### 7.1 SoC Mode
->
-> Connect USB to UART connector Tx and GND pins to WSTK radio board.
+  - SoC
 
-- Connect Tx(Pin-6) to P27 on WSTK
-- Connect GND(Pin 8 or 10) to GND on WSTK
-![FTDI_prints](resources/readme/ftdiprints118.png)
+    **![debug_mode_SOC](resources/readme/debug_as_soc.png)**
 
-> Prints can see as below in any Console terminal
-![ouput_prints](resources/readme/ouputprints119.png)
+  - NCP
 
-### 7.2 NCP Mode
+    **![debug_mode_NCP](resources/readme/debug_as_ncp.png)**
 
-Prints can see as below in any Console terminal
-![ouput_prints](resources/readme/ouputprints119.png)
+### 4.4 Application Output
 
-## 8. Selecting Bare Metal
+- Output for SoC and NCP :
 
-The application has been designed to work with FreeRTOS and Bare Metal configurations. By default, the application project files (Simplicity studio) are configured with FreeRTOS enabled. The following steps demonstrate how to configure Simplicity Studio to test the application in a Bare Metal environment.
+ **![output_prints](resources/readme/output.png)**

@@ -43,8 +43,6 @@
 
 typedef enum { SL_NCP_NORMAL_POWER_MODE, SL_NCP_LOW_POWER_MODE, SL_NCP_ULTRA_LOW_POWER_MODE } sl_si91x_power_mode_t;
 
-typedef void (*sl_si91x_event_handler_t)(sl_si91x_event_t event, sl_status_t status, void *data, void *user_data);
-
 typedef struct sl_si91x_power_configuration sl_si91x_power_configuration_t;
 
 extern sl_si91x_performance_profile_t performance_profile;
@@ -224,35 +222,6 @@ sl_status_t sl_si91x_register_callback(sl_net_event_t event, sl_net_event_handle
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buffer);
-
-/***************************************************************************/ /**
- * @brief
- *   Register a callback function to receive socket events.
- * @param[in] socket_event
- *   Received asynchronous socket event.
- * @param[in] function
- *   Function pointer to callback.
- * @pre 
- *   @ref sl_si91x_driver_init should be called before this API.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_si91x_register_socket_callback(uint32_t socket_event, sl_net_event_handler_t function);
-
-/***************************************************************************/ /**
- * @brief
- *   Default event handler for socket events.
- * @param[in] socket_event
- *   Received asynchronous socket event.
- * @param[in] optional_arg
- *   Optional user provided argument. This will be passed back to callback handler.
- * @pre 
- *   @ref sl_si91x_driver_init should be called before this API.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_si91x_socket_event_handler(uint32_t socket_event, sl_wifi_buffer_t *buffer);
-
 /** @} */
 
 /** \addtogroup SI91X_RADIO_FUNCTIONS Radio

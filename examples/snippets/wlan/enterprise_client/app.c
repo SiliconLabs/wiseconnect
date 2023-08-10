@@ -109,7 +109,7 @@ static void application_start(void *argument)
   sl_tls_store_configuration_t tls_configuration = { 0 };
 
   // Set the custom Wi-Fi client profile
-  sl_net_set_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE,
+  sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE,
                      SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
                      &wifi_client_enterprise_eap_profile);
 
@@ -120,8 +120,7 @@ static void application_start(void *argument)
                         sizeof(sl_wifi_eap_credential_t));
 
   // Initialize the network interface
-  status =
-    sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &sl_wifi_default_enterprise_client_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_default_enterprise_client_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
@@ -143,7 +142,7 @@ static void application_start(void *argument)
   printf("\r\nLoad SSL EAP certificate Success\r\n");
 
   // Bring up network interface
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;

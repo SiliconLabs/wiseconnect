@@ -1,0 +1,30 @@
+id: socket_utility
+package: wiseconnect3_sdk
+description: >
+  Socket Utility
+label: Socket Utility
+category: Networking|Sockets
+quality: production
+component_root_path: ./components/si91x/socket_utility
+provides:
+- name: socket_utility
+source:
+- path: src/sl_si91x_socket_utility.c
+define:
+- name: SI91X_SOCKET_FEATURE
+include:
+- path: inc
+  file_list:
+    - path: errno.h
+    - path: netdb.h
+    - path: netinet_in.h
+    - path: netinet6_in6.h
+    - path: select.h
+    - path: sl_bsd_utility.h
+    - path: sl_si91x_socket_callback_framework.h
+    - path: sl_si91x_socket_constants.h
+    - path: sl_si91x_socket_types.h
+    - path: sl_si91x_socket_utility.h
+    - path: socket.h
+    - path: uio.h
+

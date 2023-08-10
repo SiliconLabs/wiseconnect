@@ -123,7 +123,7 @@ static const sl_wifi_device_configuration_t config = {
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_BLE_MODE,
+                   .coex_mode = SL_SI91X_BLE_MODE,
 #ifdef RSI_M4_INTERFACE
                    .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
 #else
@@ -147,9 +147,9 @@ static const sl_wifi_device_configuration_t config = {
 #endif
                      | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
 #if (defined A2DP_POWER_SAVE_ENABLE)
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                     | SL_SI91X_EXT_FEAT_XTAL_CLK
 #endif
-                       ),
+                     ),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
@@ -204,7 +204,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = 3072,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };

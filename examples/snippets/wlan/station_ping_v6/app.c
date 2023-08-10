@@ -84,7 +84,7 @@ static void application_start(void *argument)
   sl_status_t status;
   sl_net_wifi_client_profile_t profile = { 0 };
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, NULL, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, NULL, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi Client interface: 0x%lX\r\n", status);
     return;
@@ -98,7 +98,7 @@ static void application_start(void *argument)
   ssid.length  = (uint8_t)strnlen(DEFAULT_WIFI_CLIENT_PROFILE_SSID, sizeof(ssid.value));
   memcpy(ssid.value, DEFAULT_WIFI_CLIENT_PROFILE_SSID, ssid.length);
 
-  status = sl_wifi_get_pairwise_master_key(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE,
+  status = sl_wifi_get_pairwise_master_key(SL_NET_WIFI_CLIENT_INTERFACE,
                                            type,
                                            &ssid,
                                            DEFAULT_WIFI_CLIENT_CREDENTIAL,
@@ -120,14 +120,14 @@ static void application_start(void *argument)
   printf("\r\nPMK Credentials are set successfully\r\n");
 #endif
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
     return;
   }
   printf("\r\nWi-Fi client connected\r\n");
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
     printf("Failed to get client profile: 0x%lx\r\n", status);
     return;

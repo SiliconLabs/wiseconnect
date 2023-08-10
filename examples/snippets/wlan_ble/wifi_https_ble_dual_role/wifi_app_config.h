@@ -35,16 +35,16 @@
 /***********************************************************************************************************************************************/
 //! APP CONFIG defines
 /**********************************************************************************************************************************************/
-#define SSID          "WIFISDKroam"  //! Access point SSID to connect
-#define SECURITY_TYPE SL_WIFI_WPA2   //! Security type -  RSI_WPA2 or RSI_OPEN
-#define PSK           "wifisdk@2022" //! Password
+#define SSID          "AndroidAP5655" //! Access point SSID to connect
+#define SECURITY_TYPE SL_WIFI_WPA2    //! Security type -  RSI_WPA2 or RSI_OPEN
+#define PSK           "12345678"      //! Password
 #define CHANNEL_NO    0
 #define DHCP_MODE     1 //! DHCP mode 1- Enable 0- Disable
 
 #define WLAN_SCAN_ONLY       0 //! Enable this for WLAN scanning only case
 #define WLAN_CONNECTION_ONLY 0 //! Enable this for WLAN connection only case
 
-#define SERVER_IP_ADDRESS "192.168.35.31" //! Server IP address
+#define SERVER_IP_ADDRESS "192.168.43.99" //! Server IP address
 #define HTTPS_DOWNLOAD    1               //! Enable this to test HTTPS download and also set RX_DATA to '1'
 #if HTTPS_DOWNLOAD
 #define SSL              1   //! Enable SSL or not

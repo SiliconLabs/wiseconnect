@@ -152,9 +152,9 @@ static const sl_wifi_device_configuration_t config = {
 #endif
                                                   | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE // Enable BT feature
 #if (defined A2DP_POWER_SAVE_ENABLE)
-                                                  | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                                                  | SL_SI91X_EXT_FEAT_XTAL_CLK
 #endif
-                                                    ),
+                                                  ),
 #ifdef RSI_PROCESS_MAX_RX_DATA
                    .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
                                                   | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),

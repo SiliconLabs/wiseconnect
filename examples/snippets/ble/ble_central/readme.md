@@ -10,32 +10,32 @@ Before running the application, the user will need the following things to setup
 
 ### 2.1 Hardware Requirements
 
-- Windows PC 
-- **SoC Mode**: 
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+- Windows PC
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/);
+  - Silicon Labs [BRD4180B](https://www.silabs.com/);
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 - BLE peripheral device
-      
+
 ### 2.2 Software Requirements
-    
-- Simplicity Studio IDE 
+
+- Simplicity Studio IDE
 
   - Use the latest version of [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
-   
+
 - Download and install the Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 ### 2.3 Setup Diagram
-   
-**SoC Mode :** 
+
+**SoC Mode :**
 
 ![Figure: Setup Diagram SoC Mode for BLE PER Example](resources/readme/blecentralsoc1.png)
   
 **NCP Mode :**  
 
-![Figure: Setup Diagram NCP Mode for BLE PER Example](resources/readme/blecentralncp.png) 
+![Figure: Setup Diagram NCP Mode for BLE PER Example](resources/readme/blecentralncp.png)
 
 ## 3 Project Environment
 
@@ -48,12 +48,12 @@ Before running the application, the user will need the following things to setup
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
    ![Soc Board detection](resources/readme/socboarddetection111.png)
-   
+
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - Central* application.
 
-   ![projct_selection](resources/readme/createproject_1.png)
+   ![project_selection](resources/readme/createproject_1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -62,7 +62,7 @@ Before running the application, the user will need the following things to setup
 #### 3.1.2 NCP Mode
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-   
+
    ![EFR32 Board detection](resources/readme/efr32.png)
 
 - Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
@@ -90,19 +90,19 @@ Before running the application, the user will need the following things to setup
 
    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
-    
+
    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
 **Tera Term setup - for NCP and SoC modes**
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
-    
+- For NCP mode, choose the J-Link port and click on **OK**.
+
    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
@@ -117,8 +117,8 @@ The application can be configured to suit your requirements and development envi
 
 ### 4.1 Configure the Application
 
-**4.1.1** Open `app.c` file. 
-User must update the below parameters 
+**4.1.1** Open `app.c` file.
+User must update the below parameters
 
 - `RSI_BLE_DEV_ADDR_TYPE` refers address type of the remote device to connect.
 
@@ -151,13 +151,13 @@ LE_PUBLIC_ADDRESS
 
 - By default, The Application is configured without power save.
 
-```c 
+```c
 #define ENABLE_POWER_SAVE 0
 ```
 
-- If user wants to run the application in power save, modify the below configuration. 
+- If user wants to run the application in power save, modify the below configuration.
 
-```c 
+```c
 #define ENABLE_POWER_SAVE 1 
 ```
 
@@ -182,18 +182,18 @@ LE_PUBLIC_ADDRESS
 #define RSI_FEATURE_BIT_MAP                            SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1
 #define RSI_TCP_IP_BYPASS                              RSI_DISABLE
 #define RSI_TCP_IP_FEATURE_BIT_MAP                     SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
-#define RSI_CUSTOM_FEATURE_BIT_MAP                     SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+#define RSI_CUSTOM_FEATURE_BIT_MAP                     SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
 #define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                 0
 ```
 
-**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example. 
+**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
 
 ### 4.2 Build the Application
 
 - Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
 
    ![build_project](resources/readme/build_example.png)
-   
+
 ### 4.3 Run and Test the Application Using Debug Mode
 
 1. Once the build was successfull, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
@@ -209,16 +209,17 @@ LE_PUBLIC_ADDRESS
 1. Click on Tools and Simplicity Commander as shown below.
 
    ![](resources/readme/load_image1.png)
-   
+
 2. Load the firmware image
- - Select the board. 
- - Browse the application image (.hex) and click on Flash button.
+
+- Select the board.
+- Browse the application image (.hex) and click on Flash button.
 
    ![](resources/readme/load_image2.png)
 
 ### 4.5 Running the SiWx91x Application
-   
-1. Configure the remote BLE device in peripheral mode and put it in advertising mode.For remote mobile ensure that the device is named same as the value mentioned in RSI_REMOTE_DEVICE_NAME macro also see to it that Complete local name record is added to advertising data and Scan response data and connectable is ticked in options. 
+
+1. Configure the remote BLE device in peripheral mode and put it in advertising mode.For remote mobile ensure that the device is named same as the value mentioned in RSI_REMOTE_DEVICE_NAME macro also see to it that Complete local name record is added to advertising data and Scan response data and connectable is ticked in options.
 ![](resources/readme/advertiser.png)
    **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
 2. After the program gets executed, Silicon Labs device tries to connect with the remote device specified in `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` macro.
@@ -227,6 +228,6 @@ LE_PUBLIC_ADDRESS
    **Note:** Examples for BLE peripherals: Bluetooth Dongle, mobile application, TA sensor tag.
 4. Refer the below images for console prints
 
-### 4.5 Applicarion Output
+### 4.5 Application Output
 
   ![Application Prints Soc](resources/readme/output_1.png)  

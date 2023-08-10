@@ -63,8 +63,7 @@ void memlcd_app_init(void)
   /* Draw text on the memory lcd display*/
 
   GLIB_drawStringOnLine(&glibContext, "MEMLCD Sample App", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, " Press BTN0 to clear", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, " Press BTN1 to print", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, "Hello There!", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
 
   DMD_updateDisplay();
 }

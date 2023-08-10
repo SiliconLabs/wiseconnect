@@ -97,11 +97,11 @@ typedef void (*sio_Uart_func_ptr_t)(en_sio_Uart_events_t enUartSio, uint16_t u16
 // SIO-I2S Transfer structure
 typedef struct stc_sio_i2s_xfer {
   void *txBuff;        /* TX buffer pointer; Must be a uint16_t pointer when transfer
-                         size is 16 bits and uint8_t pointer when transfer size
-                   is 8 bits (can be NULL only when *txCount is 0) */
+                  size is 16 bits and uint8_t pointer when transfer size
+            is 8 bits (can be NULL only when *txCount is 0) */
   void *rxBuff;        /* RX buffer pointer; Must be uint16_t pointer when transfer
-                   size is 16 bits or must be uint8_t pointer when transfer is
-                   8-bits (can be NULL only when *txCount is 0) */
+            size is 16 bits or must be uint8_t pointer when transfer is
+            8-bits (can be NULL only when *txCount is 0) */
   int32_t txCount;     // Pointer to an int32_t memory (never initialize to NULL)
                        // that has the Size of the txBuff in items (not bytes), not
                        // modified by driver
@@ -160,11 +160,11 @@ typedef struct stc_sio_spi_cfg {
 typedef struct stc_sio_spi_xfer {
 
   void *txBuff;        /* TX buffer pointer; Must be a uint16_t pointer when transfer
-                       size is 16 bits and uint8_t pointer when transfer size is
-                   8 bits (can be NULL only when *txCount is 0) */
+                 size is 16 bits and uint8_t pointer when transfer size is
+             8 bits (can be NULL only when *txCount is 0) */
   void *rxBuff;        /* RX buffer pointer; Must be uint16_t pointer when transfer
-                   size is 16 bits or must be uint8_t pointer when transfer is
-                   8-bits (can be NULL only when *txCount is 0) */
+             size is 16 bits or must be uint8_t pointer when transfer is
+             8-bits (can be NULL only when *txCount is 0) */
   int32_t txCount;     // Size of the txBuff in items (not bytes), not
                        // modified by driver
   int32_t rxCount;     // Number of items (not bytes) to send in rxBuff buffer
@@ -361,8 +361,6 @@ void RSI_SIO_Mask_Shift_Interrupt(volatile SIO_Type *pstcSio, en_sio_channels_t 
 void RSI_SIO_UnMask_Shift_Interrupt(volatile SIO_Type *pstcSio, en_sio_channels_t channel);
 uint32_t RSI_SIO_Shift_Interrupt_Status(volatile SIO_Type *pstcSio);
 void RSI_SIO_Edge_Select(volatile SIO_Type *pstcSio, en_sio_channels_t channel, edge_select_t edge_sel);
-error_t RSI_SIO_Spi_Initialization(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiConfig);
-uint8_t RSI_SIO_Uart_Initialization(SIO_Type *pstcSio, stc_sio_uart_config_t *pstcConfig);
 uint32_t RSI_SIO_Read_Buffer(volatile SIO_Type *pstcSio, en_sio_channels_t channel);
 void RSI_SIO_Write_Buffer(volatile SIO_Type *pstcSio, en_sio_channels_t channel, uint32_t data);
 

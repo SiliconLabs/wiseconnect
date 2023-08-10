@@ -59,19 +59,19 @@ sl_status_t net_init_command_handler(console_args_t *arguments)
 
   switch (SL_NET_INTERFACE_TYPE(interface)) {
 #ifdef ethernet_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_ETHERNET_INTERFACE:
-      status = sl_net_init(SL_NET_DEFAULT_ETHERNET_INTERFACE, &ethernet_config, &ethernet_context, 0);
+    case SL_NET_ETHERNET_INTERFACE:
+      status = sl_net_init(SL_NET_ETHERNET_INTERFACE, &ethernet_config, &ethernet_context, 0);
       VERIFY_STATUS_AND_RETURN(status);
       break;
 #endif
 
 #ifdef wifi_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE:
+    case SL_NET_WIFI_CLIENT_INTERFACE:
       status = sl_net_init(interface, &sl_wifi_default_client_configuration, &wifi_client_context, NULL);
       VERIFY_STATUS_AND_RETURN(status);
       break;
 
-    case SL_NET_DEFAULT_WIFI_AP_INTERFACE:
+    case SL_NET_WIFI_AP_INTERFACE:
       status = sl_net_init(interface,
                            &sl_wifi_default_ap_configuration,
                            &wifi_ap_context,
@@ -94,12 +94,12 @@ sl_status_t net_deinit_command_handler(console_args_t *arguments)
 
   switch (SL_NET_INTERFACE_TYPE(interface)) {
 #ifdef wifi_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE:
+    case SL_NET_WIFI_CLIENT_INTERFACE:
       status = sl_net_wifi_client_deinit(interface, &wifi_client_context);
       VERIFY_STATUS_AND_RETURN(status);
       break;
 
-    case SL_NET_DEFAULT_WIFI_AP_INTERFACE:
+    case SL_NET_WIFI_AP_INTERFACE:
       status = sl_net_wifi_ap_deinit(interface, &wifi_ap_context);
       VERIFY_STATUS_AND_RETURN(status);
       break;
@@ -119,11 +119,11 @@ sl_status_t net_up_command_handler(console_args_t *arguments)
 
   switch (SL_NET_INTERFACE_TYPE(interface)) {
 #ifdef wifi_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE: {
+    case SL_NET_WIFI_CLIENT_INTERFACE: {
       sl_net_wifi_client_profile_t profile;
 
       // Fetch the profile and print some information about it
-      status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, profile_id, &profile);
+      status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, &profile);
       if (status != SL_STATUS_OK) {
         printf("Failed to load profile with id: %u\r\n", profile_id);
         return status;
@@ -133,11 +133,11 @@ sl_status_t net_up_command_handler(console_args_t *arguments)
       VERIFY_STATUS_AND_RETURN(status);
     } break;
 
-    case SL_NET_DEFAULT_WIFI_AP_INTERFACE: {
+    case SL_NET_WIFI_AP_INTERFACE: {
       sl_net_wifi_ap_profile_t profile;
 
       // Fetch the profile and print some information about it
-      status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_AP_INTERFACE, profile_id, &profile);
+      status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, profile_id, &profile);
       if (status != SL_STATUS_OK) {
         printf("Failed to load profile with id: %u\r\n", profile_id);
         return status;
@@ -161,12 +161,12 @@ sl_status_t net_down_command_handler(console_args_t *arguments)
 
   switch (SL_NET_INTERFACE_TYPE(interface)) {
 #ifdef wifi_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE:
+    case SL_NET_WIFI_CLIENT_INTERFACE:
       status = sl_net_wifi_client_down(interface);
       VERIFY_STATUS_AND_RETURN(status);
       break;
 
-    case SL_NET_DEFAULT_WIFI_AP_INTERFACE:
+    case SL_NET_WIFI_AP_INTERFACE:
       status = sl_net_wifi_ap_down(interface);
       VERIFY_STATUS_AND_RETURN(status);
       break;
@@ -188,13 +188,13 @@ sl_status_t set_nvm_profile_command_handler(console_args_t *arguments)
   sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
 
   if (profile_id == SL_NET_PROFILE_ID_0) {
-    profile_id = (interface == SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE) ? SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID
-                                                                     : SL_NET_DEFAULT_WIFI_AP_PROFILE_ID;
+    profile_id = (interface == SL_NET_WIFI_CLIENT_INTERFACE) ? SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID
+                                                             : SL_NET_DEFAULT_WIFI_AP_PROFILE_ID;
   }
 
   switch (interface) {
 #ifdef wifi_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE: {
+    case SL_NET_WIFI_CLIENT_INTERFACE: {
 #ifdef si91x_internal_stack_FEATURE_REQUIRED
       sl_net_wifi_client_profile_t wifi_client_profile = {
           .config = {
@@ -229,7 +229,7 @@ sl_status_t set_nvm_profile_command_handler(console_args_t *arguments)
 #endif
     } break;
 #ifdef si91x_internal_stack_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_AP_INTERFACE: {
+    case SL_NET_WIFI_AP_INTERFACE: {
       sl_net_wifi_ap_profile_t wifi_ap_profile = {
     		    .config = {
     		        .ssid.value = DEFAULT_WIFI_AP_PROFILE_SSID,
@@ -301,7 +301,7 @@ sl_status_t sl_dns_hostgetbyname_command_handler(console_args_t *arguments)
 }
 
 #ifdef si91x_internal_stack_FEATURE_REQUIRED
-sl_status_t ping_response_callback_handler(sl_si91x_event_t event, sl_status_t status, void *data, void *user_data)
+sl_status_t ping_response_callback_handler(sl_net_event_t event, sl_status_t status, void *data, void *user_data)
 {
   sl_si91x_ping_response_t *response = (sl_si91x_ping_response_t *)data;
   if (status != SL_STATUS_OK) {
@@ -323,7 +323,7 @@ sl_status_t sl_net_ping_command_handler(console_args_t *arguments)
   sl_status_t status         = SL_STATUS_OK;
   sl_ip_address_t ip_address = { .type = SL_IPV4 };
 
-  convert_string_to_sl_ipv4_address((char *)arguments->arg[0], &ip_address.ip.v4);
+  sl_net_inet_addr((char *)arguments->arg[0], (uint32_t *)&ip_address.ip.v4);
   ip_address.type    = (uint16_t)arguments->arg[1];
   uint16_t ping_size = (uint16_t)arguments->arg[2];
 
@@ -398,11 +398,11 @@ sl_status_t net_join_multicast_address_command_handler(console_args_t *arguments
 {
   sl_ip_address_t ip_address = { 0 };
 
-  convert_string_to_sl_ipv4_address((char *)arguments->arg[1], &ip_address.ip.v4);
+  sl_net_inet_addr((char *)arguments->arg[1], (uint32_t *)&ip_address.ip.v4);
   ip_address.type = SL_IPV4;
 #ifdef si91x_internal_stack_FEATURE_REQUIRED
   sl_net_interface_t interface =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
+    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
   return sl_net_join_multicast_address(interface, &ip_address);
 #else
   return SL_STATUS_NOT_SUPPORTED;
@@ -413,11 +413,11 @@ sl_status_t net_leave_multicast_address_command_handler(console_args_t *argument
 {
   sl_ip_address_t ip_address = { 0 };
 
-  convert_string_to_sl_ipv4_address((char *)arguments->arg[1], &ip_address.ip.v4);
+  sl_net_inet_addr((char *)arguments->arg[1], (uint32_t *)&ip_address.ip.v4);
   ip_address.type = SL_IPV4;
 #ifdef si91x_internal_stack_FEATURE_REQUIRED
   sl_net_interface_t interface =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
+    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
   return sl_net_leave_multicast_address(interface, &ip_address);
 #else
   return SL_STATUS_NOT_SUPPORTED;

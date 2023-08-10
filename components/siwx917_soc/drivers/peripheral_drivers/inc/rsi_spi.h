@@ -70,6 +70,10 @@ ARM_SPI_STATUS SPI_GetStatus(const SPI_RESOURCES *spi);
 void SPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi);
 void SPI_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi);
 void SPI_IRQHandler(const SPI_RESOURCES *spi);
+uint32_t SSI_GetClockDivisionFactor(uint8_t ssi_instance);
+uint32_t SSI_GetFrameLength(uint8_t ssi_instance);
+uint8_t SSI_GetInitState(uint8_t ssi_instance);
+uint32_t SSI_GetTxCount(uint8_t ssi_instance);
 
 // Static Inline function to set the spi memory map pll
 static inline void SSI_SetMemoryMapPll(uint16_t value)

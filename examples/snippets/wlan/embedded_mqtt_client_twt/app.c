@@ -108,15 +108,14 @@ static sl_wifi_device_configuration_t sl_wifi_mqtt_client_configuration = {
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
                                               | SL_SI91X_TCP_IP_FEAT_SSL),
                    .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
-                      | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS |
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
+                                                  | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_ADV_MCU_BASIC
+                                                  RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
-                      RAM_LEVEL_NWP_BASIC_MCU_ADV
+                                                  RAM_LEVEL_NWP_BASIC_MCU_ADV
 #endif
-                      ),
+                                                  ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_EMB_MQTT_ENABLE),
                    .ble_feature_bit_map        = 0,
@@ -219,21 +218,21 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &sl_wifi_mqtt_client_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_mqtt_client_configuration, NULL, NULL);
   if (status != SL_STATUS_OK && status != SL_STATUS_ALREADY_INITIALIZED) {
     printf("Failed to start Wi-Fi client interface: 0x%lX\r\n", status);
     return;
   }
   printf("Start Wi-Fi client interface Success \r\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
     return;
   }
   printf("Wi-Fi client connected\r\n");
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
     printf("Failed to get client profile: 0x%lx\r\n", status);
     return;

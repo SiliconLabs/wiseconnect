@@ -154,13 +154,13 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
 /** @} */
 
 /** 
- * \addtogroup NET_CREDENTIAL_FUNCTIONS Network Credentials
+ * \addtogroup NET_CREDENTIAL_FUNCTIONS Network Credential
  * \ingroup SL_NET_FUNCTIONS
  * @{ */
 
 /***************************************************************************/ /**
  * @brief
- *   Set a network credential.
+ *   Set a network credential including client credentials, certificates, and keys.
  * @pre
  *   @ref sl_net_init should be called before this API.
  * @param[in] id

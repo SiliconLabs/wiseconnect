@@ -44,33 +44,33 @@
 
 /// Enumeration of network interfaces.
 typedef enum {
-  SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE = (1 << 3), ///< WiFi Client Default Interface
-  SL_NET_DEFAULT_WIFI_AP_INTERFACE     = (2 << 3), ///< WiFi Access Point Default Interface
-  SL_NET_DEFAULT_ETHERNET_INTERFACE    = (3 << 3), ///< Ethernet Default Interface
-  SL_NET_DEFAULT_THREAD_INTERFACE      = (4 << 3), ///< Thread Default Interface
-  SL_NET_DEFAULT_BLUETOOTH_INTERFACE   = (5 << 3), ///< Bluetooth Default Interface
-  SL_NET_DEFAULT_ZWAVE_INTERFACE       = (6 << 3), ///< Zwave Default Interface
+  SL_NET_WIFI_CLIENT_INTERFACE = (1 << 3), ///< WiFi Client Interface
+  SL_NET_WIFI_AP_INTERFACE     = (2 << 3), ///< WiFi Access Point Interface
+  SL_NET_ETHERNET_INTERFACE    = (3 << 3), ///< Ethernet Interface
+  SL_NET_THREAD_INTERFACE      = (4 << 3), ///< Thread Interface
+  SL_NET_BLUETOOTH_INTERFACE   = (5 << 3), ///< Bluetooth Interface
+  SL_NET_ZWAVE_INTERFACE       = (6 << 3), ///< Z-Wave Interface
 } sl_net_interface_t;
 
 /** @} */
 
-/// WiFi Client Default Interface
-#define SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE (1 << 3)
+/// WiFi Client Interface
+#define SL_NET_WIFI_CLIENT_INTERFACE (1 << 3)
 
-/// WiFi Access Point Default Interface
-#define SL_NET_DEFAULT_WIFI_AP_INTERFACE (2 << 3)
+/// WiFi Access Point Interface
+#define SL_NET_WIFI_AP_INTERFACE (2 << 3)
 
-/// Ethernet Default Interface
-#define SL_NET_DEFAULT_ETHERNET_INTERFACE (3 << 3)
+/// Ethernet Interface
+#define SL_NET_ETHERNET_INTERFACE (3 << 3)
 
-/// Thread Default Interface
-#define SL_NET_DEFAULT_THREAD_INTERFACE (4 << 3)
+/// Thread Interface
+#define SL_NET_THREAD_INTERFACE (4 << 3)
 
-/// Bluetooth Default Interface
-#define SL_NET_DEFAULT_BLUETOOTH_INTERFACE (5 << 3)
+/// Bluetooth Interface
+#define SL_NET_BLUETOOTH_INTERFACE (5 << 3)
 
-/// Zwave Default Interface
-#define SL_NET_DEFAULT_ZWAVE_INTERFACE (6 << 3)
+/// Zwave Interface
+#define SL_NET_ZWAVE_INTERFACE (6 << 3)
 
 /** \addtogroup SL_NET_CONSTANTS Constants
  * @{ */
@@ -116,7 +116,7 @@ typedef enum {
   SL_NET_WIFI_CLIENT_DISCONNECTED_EVENT, ///< Client Disconnected Event
   SL_NET_DNS_RESOLVE_EVENT,              ///< DNS Address resolution Event
   SL_NET_OTA_FW_UPDATE_EVENT,            ///< OTA Firmware Update Event
-  SL_NET_EVENT_COUNT                     ///< Mavimum event count
+  SL_NET_EVENT_COUNT                     ///< Maximum event count
 } sl_net_event_t;
 
 /// SL Network profile ID.

@@ -37,6 +37,7 @@
 #endif
 #include "sl_ip_types.h"
 #include "sl_constants.h"
+#include "sl_net.h"
 #include "netdb.h"
 #include "sl_utility.h"
 #include <string.h>
@@ -96,7 +97,7 @@ sl_status_t wifi_bsd_socket_bind_handler(console_args_t *arguments)
 #else
   const uint16_t port = (uint16_t)arguments->arg[3];
 #endif
-  convert_string_to_sl_ipv4_address((char *)arguments->arg[1], &ip);
+  sl_net_inet_addr((char *)arguments->arg[1], (uint32_t *)&ip);
 
   //Note: Hardcoding with ipv4, Need to rework once si91x got ipv6 support.
   socket_address.sin_family = AF_INET;
@@ -195,7 +196,7 @@ sl_status_t wifi_bsd_socket_send_to_handler(console_args_t *arguments)
   socklen_t ip_length        = (socklen_t)arguments->arg[3];
 
   if (ip_length == SL_IPV4_ADDRESS_LENGTH) {
-    convert_string_to_sl_ipv4_address((char *)arguments->arg[2], &ip);
+    sl_net_inet_addr((char *)arguments->arg[2], (uint32_t *)&ip);
     memcpy(&address.sin_addr.s_addr, &ip.value, SL_IPV4_ADDRESS_LENGTH);
   }
 
@@ -228,7 +229,7 @@ sl_status_t wifi_bsd_socket_connect_handler(console_args_t *arguments)
 #endif
   if (ip_length == SL_IPV4_ADDRESS_LENGTH) {
     address.sin_family = AF_INET;
-    convert_string_to_sl_ipv4_address((char *)arguments->arg[1], &ip);
+    sl_net_inet_addr((char *)arguments->arg[1], (uint32_t *)&ip);
     memcpy(&address.sin_addr.s_addr, &ip.value, SL_IPV4_ADDRESS_LENGTH);
   }
 

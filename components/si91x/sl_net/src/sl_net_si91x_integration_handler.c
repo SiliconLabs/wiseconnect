@@ -32,6 +32,9 @@
 #include "sl_si91x_driver.h"
 #include "sl_net_constants.h"
 #include "sl_net_rsi_utility.h"
+#ifdef SI91X_SOCKET_FEATURE
+#include "sl_si91x_socket_callback_framework.h"
+#endif
 #include "sl_si91x_core_utilities.h"
 
 #ifdef MQTT_CLIENT_FEATURE
@@ -102,8 +105,8 @@ void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x
 #endif
 
 #ifdef MQTT_CLIENT_FEATURE
-  if ((packet->command & RSI_WLAN_REQ_EMB_MQTT_CLIENT) | (packet->command & RSI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT)
-      | (packet->command & RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE)) {
+  if (packet->command == RSI_WLAN_REQ_EMB_MQTT_CLIENT || packet->command == RSI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT
+      || packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE) {
     handle_mqtt_client_asynch_events(data);
 
     return;
@@ -117,10 +120,17 @@ void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x
   }
 #endif
 
-  if (packet->command == RSI_WLAN_RSP_REMOTE_TERMINATE) {
-    sl_si91x_socket_event_handler(packet->command, data->host_packet);
-    return;
+#ifdef SI91X_SOCKET_FEATURE
+  if (packet->command == RSI_WLAN_RSP_CONN_ESTABLISH || packet->command == RSI_WLAN_RSP_REMOTE_TERMINATE
+      || packet->command == RSI_RECEIVE_RAW_DATA || packet->command == RSI_WLAN_RSP_TCP_ACK_INDICATION
+      || packet->command == RSI_WLAN_RSP_SELECT_REQUEST) {
+    sl_si91x_packet_t *raw_rx_packet = packet;
+    uint16_t si91x_event_status      = get_si91x_frame_status(raw_rx_packet);
+
+    sl_status_t event_status = convert_firmware_status(si91x_event_status);
+    si91x_socket_event_handler(event_status, (sl_si91x_socket_context_t *)data->sdk_context, raw_rx_packet);
   }
+#endif
 
   status = convert_si91x_event_to_sl_net_event(&packet->command, &service_event);
   if (status == SL_STATUS_OK) {

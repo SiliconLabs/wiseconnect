@@ -12,28 +12,28 @@ Before running the application, the user will need the following things to setup
 
 - A Windows PC.
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
-  - **SoC Mode**: 
-    - Silicon Labs [BRD4325A](https://www.silabs.com/)
+  - **SoC Mode**:
+    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
   - **NCP Mode**:
-    - Silicon Labs [(BRD4180A, BRD4280B, BRD4325G)](https://www.silabs.com/); 
+    - Silicon Labs [BRD4180B](https://www.silabs.com/);
     - Host MCU Eval Kit. This example has been tested with:
       - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 - Spectrum Analyzer and/or Power Analyzer
 
 ### 2.2 Software Requirements
-   
+
 - Embedded Development Environment
   - For Silicon Labs EFx32, use the latest version of [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
 
 ### 2.3 Setup Diagram
-   
-**SoC Mode :** 
+
+**SoC Mode :**
 ![](resources/readme/imagesocble.png)
   
-**NCP Mode :** 
+**NCP Mode :**
 ![](resources/readme/imagesncpble.png)
-      
+
 ## 3. Project Environment
 
 1. Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
@@ -47,12 +47,12 @@ Before running the application, the user will need the following things to setup
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
    ![Soc Board detection](resources/readme/socboarddetection111.png)
-   
+
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - PER* application.
 
-   ![projct_selection](resources/readme/create_project1.png)
+   ![project_selection](resources/readme/create_project1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -63,7 +63,7 @@ Before running the application, the user will need the following things to setup
 1. Ensure the EFx32 and SiWx91x setup is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-   
+
    ![EFR32 Board detection](resources/readme/efr32.png)
 
 - Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
@@ -98,18 +98,18 @@ Before running the application, the user will need the following things to setup
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+ - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
  - For NCP mode, choose the J-Link port and click on **OK**.
-    
+
    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
   **![Serial port](resources/readme/serial_port_setup.png)**
- 
+
   **![Baud rate](resources/readme/serial_port.png)**
 
 ## 4. Application Build Environment
@@ -120,7 +120,7 @@ The application can be configured to suit your requirements and development envi
 
 **4.1** Open `app.c` file
 
-Update or modify following macros 
+Update or modify following macros
 
 - `RSI_CONFIG_PER_MODE` refers configuration mode BT PER TX or RX
 
@@ -192,7 +192,7 @@ Update or modify following macros
 ```c
      #define PLL_MODE_0 0
   #define PLL_MODE_1 1
-``` 
+```
 
 - `LOOP_BACK_MODE` : enable 1 or disable 0 #define LOOP_BACK_MODE_DISABLE 0
 
@@ -218,7 +218,7 @@ Update or modify following macros
 ```
 
 **Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example. 
-   
+
 ## 5. Test the Application
 
 - Follow the below steps for the successful execution of the application.
@@ -232,7 +232,7 @@ Refer [Getting started with PC](https://docs.silabs.com/rs9116/latest/wiseconnec
 1. Click on Tools and Simplicity Commander as shown below.
 
    ![](resources/readme/load_image1.png)
-   
+
 2. Load the application image
  - Select the board. 
  - Browse the application image (.hex) and click on Flash button.
@@ -248,8 +248,8 @@ Follow the steps below for the successful execution of the application.
 2. Debug the project
 
 3. Free run the project
-   
-4. After the program gets executed, Silicon Labs module starts BLE PER transmit or BLE PER receive. 
+
+4. After the program gets executed, Silicon Labs module starts BLE PER transmit or BLE PER receive.
 
 5. For receiving purpose use BT dongle and keep it in BLE PER RX mode.
 

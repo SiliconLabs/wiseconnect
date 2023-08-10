@@ -17,7 +17,7 @@ include:
     file_list:
     - path: app.h
     - path: nvm3_app.h
-sdk: {id: gecko_sdk, version: 4.1.0}
+sdk: {id: gecko_sdk, version: 4.3.1}
 toolchain_settings: []
 requires:
   - name: rsilib_clock_update
@@ -49,6 +49,6 @@ ui_hints:
     focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.0.10
+    version: 3.0.12
 post_build:
   path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

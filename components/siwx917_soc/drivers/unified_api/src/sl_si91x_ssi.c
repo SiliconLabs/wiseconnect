@@ -48,6 +48,7 @@
 #define MIN_BIT_WIDTH       4        // Minimum Bit width
 #define MAX_SLAVE_BIT_WIDTH 16       // Maximum Slave Bit width
 #define MAX_BIT_WIDTH       32       // Maximum Bit width
+#define DOUBLE              2        // Double the baudrate
 #define SSI_UC \
   1 /*!< SSI_UC is defined by default. when this macro (SSI_UC) is defined, peripheral
                                             configuration is directly taken from the configuration set in the universal configuration (UC).
@@ -101,6 +102,15 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
 {
   int32_t error_status;
   sl_status_t status;
+  uint32_t baud_rate;
+/* SSI_UC is defined by default. when this macro (SSI_UC) is defined, peripheral
+     * configuration is directly taken from the configuration set in the universal configuration (UC).
+     * if the application requires the configuration to be changed in run-time, undefined this macro
+     * and change the peripheral configuration through the sl_si91x_ssi_set_configuration API.
+     */
+#ifdef SSI_UC
+  baud_rate = ssi_configuration.baud_rate;
+#endif
 
   do {
     if (clock_config == NULL) {
@@ -126,6 +136,10 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
     if (status != SL_STATUS_OK) {
       break;
     }
+    /* The frequency of the SSI master bit-rate clock is one-half the frequency of SSI master input clock.
+	   * This allows the shift control logic to capture data on one clock edge of bit-rate clock and propagate data on the opposite edge.
+	   */
+    clock_config->soc_pll_clock = (DOUBLE * baud_rate);
     // RSI API to set SoC pll clock is called and the status is converted to the SL error code.
     RSI_CLK_SocPllLockConfig(MANUAL_LOCK, BYPASS_MANUAL_LOCK, clock_config->soc_pll_mm_count_value);
     error_status = RSI_CLK_SetSocPllFreq(M4CLK, clock_config->soc_pll_clock, clock_config->soc_pll_reference_clock);
@@ -281,12 +295,13 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle, sl_ssi_co
     }
     // bitwise or various parameters such as clock mode, master mode bit width and slave select mode
     // and pass it(input_mode) into control API.
-    input_mode = (control_configuration->clock_mode | control_configuration->device_mode
-                  | ARM_SPI_DATA_BITS(control_configuration->bit_width));
+    input_mode = (control_configuration->clock_mode | ARM_SPI_DATA_BITS(control_configuration->bit_width));
     if (control_configuration->device_mode == SL_SSI_SLAVE_ACTIVE) {
       input_mode |= control_configuration->slave_ssm;
+      input_mode |= control_configuration->device_mode;
     } else {
       input_mode |= control_configuration->master_ssm;
+      input_mode |= SL_SSI_MASTER_ACTIVE;
     }
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Control(input_mode, control_configuration->baud_rate);
     status       = convert_arm_to_sl_error_code(error_status);
@@ -540,6 +555,56 @@ void sl_si91x_gspi_unregister_event_callback(void)
 }
 
 /*******************************************************************************
+ * To fetch the clock division factor
+ * It reads the register which holds the clock division factor
+ * and return the value of in 32 bit unsigned integer.
+ ******************************************************************************/
+uint32_t sl_si91x_ssi_get_clock_division_factor(sl_ssi_handle_t ssi_handle)
+{
+  uint32_t division_factor = 0;
+  do {
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      division_factor = SSI_GetClockDivisionFactor(SPI_MASTER_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      division_factor = SSI_GetClockDivisionFactor(SPI_SLAVE_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      division_factor = SSI_GetClockDivisionFactor(SPI_ULP_MASTER_MODE);
+      break;
+    }
+  } while (false);
+  return division_factor;
+}
+
+/*******************************************************************************
+ * To fetch the frame length i.e., bit width
+ * It reads the register which holds the frame length
+ * and return the value of in 32 bit unsigned integer.
+ ******************************************************************************/
+uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle)
+{
+  uint32_t frame_length = 0;
+  do {
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      frame_length = SSI_GetFrameLength(SPI_MASTER_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      frame_length = SSI_GetFrameLength(SPI_SLAVE_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      frame_length = SSI_GetFrameLength(SPI_ULP_MASTER_MODE);
+      break;
+    }
+  } while (false);
+  return frame_length;
+}
+
+/*******************************************************************************
  * To enable/disable slave select for the connected slave.
  * This function asserts/de-asserts the slave select line for the attached slave.
  *
@@ -715,16 +780,16 @@ static sl_status_t validate_control_parameters(sl_ssi_control_config_t *control_
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    if (control_configuration->bit_width < MIN_BIT_WIDTH) {
+    if ((control_configuration->bit_width < MIN_BIT_WIDTH) || (control_configuration->bit_width > MAX_BIT_WIDTH)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
     if (control_configuration->device_mode == SL_SSI_SLAVE_ACTIVE
-        && (control_configuration->bit_width > MAX_SLAVE_BIT_WIDTH)) {
+        && (control_configuration->bit_width >= MAX_SLAVE_BIT_WIDTH)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    if (control_configuration->bit_width > MAX_BIT_WIDTH) {
+    if (control_configuration->baud_rate > MAX_BAUDRATE) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }

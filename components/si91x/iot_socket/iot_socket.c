@@ -30,7 +30,6 @@
 #include "iot_socket.h"
 #include <stdint.h>
 #include <string.h>
-#include "sl_si91x_socket.h"
 #include "socket.h"
 #include "errno.h"
 #include "iot_socket_types.h"
@@ -477,7 +476,7 @@ int32_t iotSocketGetOpt(int32_t socket, int32_t opt_id, void *opt_val, uint32_t 
 
   switch (opt_id) {
     case IOT_SOCKET_SO_RCVTIMEO: {
-      status = getsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (void *)opt_val, opt_len);
+      status = getsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (void *)opt_val, (socklen_t *)opt_len);
       break;
     }
     case IOT_SOCKET_SO_SNDTIMEO: {
@@ -490,7 +489,7 @@ int32_t iotSocketGetOpt(int32_t socket, int32_t opt_id, void *opt_val, uint32_t 
       break;
     }
     case IOT_SOCKET_SO_TYPE: {
-      status               = getsockopt(socket, SOL_SOCKET, SO_TYPE, (void *)opt_val, opt_len);
+      status               = getsockopt(socket, SOL_SOCKET, SO_TYPE, (void *)opt_val, (socklen_t *)opt_len);
       *(uint32_t *)opt_val = (*(uint32_t *)opt_val == SOCK_STREAM) ? IOT_SOCKET_SOCK_STREAM : IOT_SOCKET_SOCK_DGRAM;
       break;
     }

@@ -29,7 +29,6 @@
  ******************************************************************************/
 #include <string.h>
 #include <stdint.h>
-#include "sl_si91x_socket.h"
 #include "errno.h"
 #include "sl_wifi_callback_framework.h"
 #include "sl_status.h"
@@ -65,11 +64,22 @@
 
 #ifdef RSI_M4_INTERFACE
 #ifdef COMMON_FLASH_EN
-#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>        */
+#ifdef CHIP_917B0
+#define IVT_OFFSET_ADDR 0x81C2000 /*<!Application IVT location VTOR offset>          B0 common flash Board*/
 #else
-#define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset>        */
+#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>          A0 Common flash Board*/
 #endif
-#define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up  */
+#else
+#define IVT_OFFSET_ADDR \
+  0x8012000 /*<!Application IVT location VTOR offset>          Dual Flash  (both A0 and B0) Board*/
+#endif
+#ifdef CHIP_917B0
+#define WKP_RAM_USAGE_LOCATION \
+  0x24061EFC /*<!Bootloader RAM usage location upon wake up  */ // B0 Boards (common flash & Dual flash)
+#else
+#define WKP_RAM_USAGE_LOCATION \
+  0x24061000 /*<!Bootloader RAM usage location upon wake up  */ // A0 Boards (common flash & Dual flash)
+#endif
 #endif
 
 static const sl_wifi_device_configuration_t sl_wifi_twt_client_configuration = {
@@ -88,7 +98,7 @@ static const sl_wifi_device_configuration_t sl_wifi_twt_client_configuration = {
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                       | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL |
 #ifndef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
@@ -166,14 +176,14 @@ void application_start()
 {
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &sl_wifi_twt_client_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_twt_client_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
   }
   printf("Wi-Fi Init Done\r\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, 0);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, 0);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
@@ -202,7 +212,7 @@ sl_status_t set_twt(void)
 
   struct sockaddr_in server_address = { 0 };
 
-  convert_string_to_sl_ipv4_address(SERVER_IP, &ip);
+  sl_net_inet_addr(SERVER_IP, (uint32_t *)&ip);
 
   server_address.sin_family      = AF_INET;
   server_address.sin_port        = SERVER_PORT;

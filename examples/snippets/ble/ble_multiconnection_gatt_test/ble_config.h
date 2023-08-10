@@ -40,18 +40,20 @@
 /***********************************************************************************************************************************************/
 /***********************************************************************************************************************************************/
 //Max 3 (peripheral + central) devices can be configured due to memory constraints in STM32
-#define RSI_BLE_APP_GATT_TEST       (void *)"SL_MC_GATT_DEMO" //! local device name
-#define RSI_BLE_MAX_NBR_PERIPHERALS 1
-#define RSI_BLE_MAX_NBR_CENTRALS    1
+#define RSI_BLE_APP_GATT_TEST (void *)"SL_MC_GATT_DEMO" //! local device name
 
 #ifdef RSI_M4_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 20
 /* Number of BLE notifications */
-#define RSI_BLE_NUM_CONN_EVENTS 4
+#define RSI_BLE_NUM_CONN_EVENTS     4
+#define RSI_BLE_MAX_NBR_PERIPHERALS 1
+#define RSI_BLE_MAX_NBR_CENTRALS    1
 #else
-#define RSI_BLE_MAX_NBR_ATT_REC 80
+#define RSI_BLE_MAX_NBR_ATT_REC     80
 /* Number of BLE notifications */
-#define RSI_BLE_NUM_CONN_EVENTS 20
+#define RSI_BLE_NUM_CONN_EVENTS     20
+#define RSI_BLE_MAX_NBR_PERIPHERALS 1
+#define RSI_BLE_MAX_NBR_CENTRALS    1
 #endif
 #define TOTAL_CONNECTIONS RSI_BLE_MAX_NBR_PERIPHERALS + RSI_BLE_MAX_NBR_CENTRALS
 
@@ -534,8 +536,6 @@ typedef struct rsi_ble_s {
 
 /***********************************************************************************************************************************************/
 
-#define RSI_OPERMODE_WLAN_BLE 13
-
 /*=======================================================================*/
 //!	Power save configurations
 /*=======================================================================*/
@@ -587,10 +587,11 @@ typedef struct rsi_ble_s {
   (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT) //! TCP/IP feature select bitmap for selecting TCP/IP features
 #define RSI_CUSTOM_FEATURE_BIT_MAP SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID //! To set custom feature select bit map
 #ifdef CHIP_917
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP \
-  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1) | RAM_LEVEL_NWP_ADV_MCU_BASIC)
+#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                                                         \
+  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | RAM_LEVEL_NWP_ADV_MCU_BASIC \
+   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0)
 #else
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2))
+#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
 #endif
 #define RSI_EXT_TCPIP_FEATURE_BITMAP 0
 #define RSI_BT_FEATURE_BITMAP        (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
@@ -598,52 +599,6 @@ typedef struct rsi_ble_s {
 #define RSI_CONFIG_FEATURE_BITMAP 0
 
 #define RSI_TCP_IP_BYPASS RSI_DISABLE //! TCP IP BYPASS feature check
-
-//! Rejoin parameters
-/*=======================================================================*/
-
-//! RSI_ENABLE or RSI_DISABLE rejoin params
-#define RSI_REJOIN_PARAMS_SUPPORT RSI_ENABLE
-
-//! Rejoin retry count. If 0 retries infinity times
-#define RSI_REJOIN_MAX_RETRY 10
-
-//! Periodicity of rejoin attempt
-#define RSI_REJOIN_SCAN_INTERVAL 4
-
-//! Beacon missed count
-#define RSI_REJOIN_BEACON_MISSED_COUNT 40
-
-//! RSI_ENABLE or RSI_DISABLE retry for first time join failure
-#define RSI_REJOIN_FIRST_TIME_RETRY RSI_DISABLE
-
-#ifdef FW_LOGGING_ENABLE
-/*=======================================================================*/
-//! Firmware Logging Parameters
-/*=======================================================================*/
-//! Enable or Disable firmware logging (Enable = 1; Disable = 0)
-#define FW_LOG_ENABLE 1
-//! Set TSF Granularity for firmware logging in micro seconds
-#define FW_TSF_GRANULARITY_US 10
-//! Log level for COMMON component in firmware
-#define COMMON_LOG_LEVEL FW_LOG_ERROR
-//! Log level for CM_PM component in firmware
-#define CM_PM_LOG_LEVEL FW_LOG_ERROR
-//! Log level for WLAN_LMAC component in firmware
-#define WLAN_LMAC_LOG_LEVEL FW_LOG_ERROR
-//! Log level for WLAN_UMAC component in firmware
-#define WLAN_UMAC_LOG_LEVEL FW_LOG_ERROR
-//! Log level for WLAN NETWORK STACK component in firmware
-#define WLAN_NETSTACK_LOG_LEVEL FW_LOG_ERROR
-//! Log level for BT BLE CONTROL component in firmware
-#define BT_BLE_CTRL_LOG_LEVEL FW_LOG_ERROR
-//! Log level for BT BLE STACK component in firmware
-#define BT_BLE_STACK_LOG_LEVEL FW_LOG_ERROR
-//! Min Value = 2048 bytes; Max Value = 4096 bytes; Value should be in multiples of 512 bytes
-#define FW_LOG_BUFFER_SIZE 2048
-//! Set queue size for firmware log messages
-#define FW_LOG_QUEUE_SIZE 2
-#endif
 
 #include "rsi_ble_common_config.h"
 

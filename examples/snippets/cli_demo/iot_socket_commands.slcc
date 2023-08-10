@@ -10,3 +10,7 @@ provides:
 source:
 - path: iot_socket_commands.c
 include:
+requires:
+- condition: ["si91x_internal_stack"]
+  name: iot_sockets
+

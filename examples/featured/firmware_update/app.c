@@ -86,7 +86,7 @@ static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuratio
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
                    .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
 #ifndef RSI_M4_INTERFACE
                       | RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -124,14 +124,14 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nWi-Fi Init Success\r\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, 0);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, 0);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
@@ -262,12 +262,12 @@ sl_status_t update_firmware()
         close(client_socket);
         printf("\r\nFirmware update complete\r\n");
         osDelay(5000);
-        status = sl_net_deinit(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, NULL);
+        status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE, NULL);
         printf("\r\nWi-Fi Deinit status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);
 
         osDelay(5000);
-        status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
+        status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
         printf("\r\nWi-Fi Init status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);
 

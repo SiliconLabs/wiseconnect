@@ -16,7 +16,7 @@
 - Generates a shift clock from 14-bit shift counter.
 - Clock used for shift operations can be internal counter clock or external clock coming in.
 - Supports flow control mode in which operations and clock would be paused if data not available.
-Supports loading and reading of shift data in reverse order. This feature is required for peripherals which transmit/receive MSB first.
+- Supports loading and reading of shift data in reverse order. This feature is required for peripherals which transmit/receive MSB first.
 
 ## About Example Code
 
@@ -123,7 +123,7 @@ Supports loading and reading of shift data in reverse order. This feature is req
 
 ![Figure: UC](resources/uc_screen/sl_sio_uc_screen.png)
 
-- Configure the following macros in sio_example.h file and update/modify following macros if required.
+- Configure the following macros in sio_example.h file and update/modify following macros if required. Please take care about gpio pin configurations, if different channels are being selected.
 
 ```C
 // SIO-SPI Configuration parameters
@@ -156,22 +156,22 @@ Tested on WSTK Base board - 40002A and Radio boards - BRD4325A, BRD4325C.
 | --- | --- |
 | GPIO_6 [P14] | SIO_SPI_MASTER_CS0_PIN |
 | GPIO_7 [P37] | SIO_SPI_MASTER_CLK_PIN |
-| GPIO_8 [EXP_HEADER-14] | SIO_SPI_MASTER_MISO_PIN |
-| GPIO_9 [EXP_HEADER-12] | SIO_SPI_MASTER_MOSI_PIN |
+| GPIO_27 [EXP_HEADER-10] | SIO_SPI_MASTER_MISO_PIN |
+| GPIO_28 [EXP_HEADER-8] | SIO_SPI_MASTER_MOSI_PIN |
 
 ## SIO UART Pin Configuration
 
 | GPIO pin  | Description |
 | --- | --- |
-| GPIO_8 [EXP_HEADER-14] | SIO_UART_RX_PIN |
-| GPIO_9 [EXP_HEADER-12] | SIO_UART_TX_PIN |
+| GPIO_27 [EXP_HEADER-10] | SIO_UART_RX_PIN |
+| GPIO_28 [EXP_HEADER-8] | SIO_UART_TX_PIN |
 
 ## SIO I2C Pin Configuration
 
 | GPIO pin | Description |
 | --- | --- |
-| GPIO_8 [EXP_HEADER-14] | SIO_I2C_SDA_PIN |
-| GPIO_9 [EXP_HEADER-12] | SIO_I2C_SCL_PIN |
+| GPIO_27 [EXP_HEADER-10] | SIO_I2C_SDA_PIN |
+| GPIO_28 [EXP_HEADER-8] | SIO_I2C_SCL_PIN |
 
 **Note!** Make sure pin configuration in RTE_Device_9117.h file.(path: /$project/wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_9117.h)
 
@@ -179,7 +179,7 @@ Tested on WSTK Base board - 40002A and Radio boards - BRD4325A, BRD4325C.
 
 1. Compile and run the application.
 2. By default SL_SIO_SPI instance is enabled.
-3. Loopback GPIO-8 and GPIO-9 pins for SIO SPI data transfer.
+3. Loopback GPIO-27 and GPIO-28 pins for SIO SPI data transfer.
 4. When the application runs, it sends and receives data in loopback.
 
 ## Expected Results

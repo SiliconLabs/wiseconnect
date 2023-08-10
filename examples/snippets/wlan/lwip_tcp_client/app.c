@@ -28,7 +28,6 @@
  *
  ******************************************************************************/
 
-#include "sl_si91x_socket.h"
 #include "errno.h"
 #include "sl_wifi_callback_framework.h"
 #include "sl_status.h"
@@ -85,7 +84,7 @@ static const sl_wifi_device_configuration_t sl_wifi_client_configuration = {
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
                    .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -123,14 +122,14 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &sl_wifi_client_configuration, &wifi_client_context, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_client_configuration, &wifi_client_context, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi Client interface: 0x%lx\r\n", status);
     return;
   }
   printf("Wi-Fi Client interface success\r\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
@@ -153,7 +152,7 @@ void send_data_to_tcp_server()
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
 
-  convert_string_to_sl_ipv4_address(SERVER_IP, &ip);
+  sl_net_inet_addr(SERVER_IP, (uint32_t *)&ip);
 
   server_address.sin_family      = AF_INET;
   server_address.sin_port        = htons(SERVER_PORT);

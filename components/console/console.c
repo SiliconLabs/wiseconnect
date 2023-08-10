@@ -4,6 +4,7 @@
 #include "sl_constants.h"
 #include "sl_string.h"
 #include "sl_utility.h"
+#include "sl_net.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>
@@ -168,7 +169,7 @@ start_processing_command_from_new_database:
 
 #ifdef CONSOLE_SUB_COMMAND_SUPPORT // Note: Sub commands not yet supported
     if (type == CONSOLE_ARG_SUB_COMMAND) {
-      command_line = token; // Not sure if this is right
+      command_line = token;        // Not sure if this is right
       db           = (const console_database_t *)((uint32_t)(*output_command)->argument_list[a + 1]
                                         + ((*output_command)->argument_list[a + 2] << 8)
                                         + ((*output_command)->argument_list[a + 3] << 16)
@@ -312,7 +313,7 @@ sl_status_t console_parse_arg(console_argument_type_t type, char *line, uint32_t
     case CONSOLE_ARG_IP_ADDRESS: {
       sl_ipv4_address_t *temp_ip = (sl_ipv4_address_t *)line; // Write the converted value back into the line
       *arg_result                = (uint32_t)temp_ip;
-      return convert_string_to_sl_ipv4_address(line, temp_ip);
+      return sl_net_inet_addr(line, (uint32_t *)temp_ip);
     } break;
 
     case CONSOLE_ARG_HEX: {

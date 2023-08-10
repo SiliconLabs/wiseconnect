@@ -25,6 +25,13 @@ template_contribution:
       event: platform_init
       include: rsi_board.h
       handler: RSI_Board_Init
+    priority: -9990
+  - name: event_handler
+    value:
+      event: platform_init
+      include: rsi_wisemcu_hardware_setup.h
+      handler: sl_si91x_hardware_setup
+    condition: [rsi_m4_interface]
   - name: event_handler
     value:
       event: service_init

@@ -11,11 +11,11 @@ Ping is used diagnostically to ensure that a host computer the user is trying to
 - A Windows PC.
 - A Wi-Fi Access Point.
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A,BRD4325B, BRD4325G](https://www.silabs.com/)
+	- Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
-  - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+    - Silicon Labs [BRD4180B](https://www.silabs.com/)
+	- Host MCU Eval Kit. This example has been tested with:
+		- Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 ### 2.2 Software Requirements
 
@@ -40,7 +40,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 **NOTE**:
 
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface. 
+- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
 ## 3 Project Environment
 
@@ -52,7 +52,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-    **![Soc Board detection](resources/readme/soc_board_detection.png)**
+   **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
 - Ensure the latest Gecko SDK along with the  WiSeConnect3 extension is added to Simplicity Studio.
 
@@ -60,11 +60,11 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology**
 
-    **![Station Ping project](resources/readme/station_ping_example_soc.png)**
+   **![Station Ping project](resources/readme/station_ping_example_soc.png)**
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-    **![Create Station Ping project](resources/readme/create_project.png)**
+   **![Create Station Ping project](resources/readme/create_project.png)**
 
 #### 3.1.2 NCP mode
 
@@ -80,7 +80,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-   **![Create Station Ping project](resources/readme/create_project.png)**
+   **![Create Station Ping project](resources/readme/create_project_ncp.png)**
 
 ### 3.2 Set up for application prints
 
@@ -93,14 +93,14 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
     - Connect Tx (Pin-6) to P27 on WSTK
     - Connect GND (Pin 8 or 10) to GND on WSTK
 
-    **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
 2. Set up using USB to UART converter cable.
 
     - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
     - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
-    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
 **Tera Term set up - for NCP and SoC modes**
 
@@ -108,11 +108,11 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-      **![UART - SoC](resources/readme/port_selection_soc.png)**
+   **![UART - SoC](resources/readme/port_selection_soc.png)**
 
 - For NCP mode, choose the J-Link port and click on **OK**.
   
-      **![J-link - NCP](resources/readme/port_selection.png)**
+   **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 

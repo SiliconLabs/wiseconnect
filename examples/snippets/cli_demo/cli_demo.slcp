@@ -10,9 +10,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.1.3}
+sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.10}
+- {id: wiseconnect3_sdk, version: 3.0.12}
 source:
   - path: demo.c
   - path: main.c
@@ -34,6 +34,13 @@ define:
   - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
   - name: DEBUG_MIDDLEWARE_EN
+  - name: EXECUTION_FROM_RAM
+    condition:
+      - device_needs_ram_execution
+template_contribution:
+- condition: [device_needs_ram_execution]
+  name: RAM_EXECUTION
+  value: true
 requires:
 - name: console
 - name: console_variables

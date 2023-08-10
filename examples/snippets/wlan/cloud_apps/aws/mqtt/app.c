@@ -78,11 +78,22 @@
 
 #ifdef RSI_M4_INTERFACE
 #ifdef COMMON_FLASH_EN
-#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>        */
+#ifdef CHIP_917B0
+#define IVT_OFFSET_ADDR 0x81C2000 /*<!Application IVT location VTOR offset>          B0 common flash Board*/
 #else
-#define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset>        */
+#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>          A0 Common flash Board*/
 #endif
-#define WKP_RAM_USAGE_LOCATION     0x24061000 /*<!Bootloader RAM usage location upon wake up  */
+#else
+#define IVT_OFFSET_ADDR \
+  0x8012000 /*<!Application IVT location VTOR offset>          Dual Flash  (both A0 and B0) Board*/
+#endif
+#ifdef CHIP_917B0
+#define WKP_RAM_USAGE_LOCATION \
+  0x24061EFC /*<!Bootloader RAM usage location upon wake up  */ // B0 Boards (common flash & Dual flash)
+#else
+#define WKP_RAM_USAGE_LOCATION \
+  0x24061000 /*<!Bootloader RAM usage location upon wake up  */ // A0 Boards (common flash & Dual flash)
+#endif
 #define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
 
 #define ALARM_PERIODIC_TIME 10 /*<! periodic alarm configuration in SEC */
@@ -158,27 +169,37 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_MODE,
-                   .feature_bit_map =
-                     (SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
-                   .tcp_ip_feature_bit_map =
-                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL
-                      | SL_SI91X_EXT_FEAT_LOW_POWER_MODE |
-#ifdef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_BASIC_MCU_ADV
-#else
-                      RAM_LEVEL_NWP_ALL_MCU_ZERO
+  .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_MODE,
+                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
+#if ENABLE_POWER_SAVE
+                                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #endif
-                      ),
+                                       ),
+                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+                                              | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map = (
+#if ENABLE_POWER_SAVE
+                     SL_SI91X_EXT_FEAT_LOW_POWER_MODE |
+#endif
+#ifdef RSI_M4_INTERFACE
+                     RAM_LEVEL_NWP_BASIC_MCU_ADV
+#else
+                     RAM_LEVEL_NWP_ALL_MCU_ZERO
+#endif
+                     | SL_SI91X_EXT_FEAT_XTAL_CLK),
                    .bt_feature_bit_map         = 0,
-                   .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
+                   .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    .ble_feature_bit_map        = 0,
                    .ble_ext_feature_bit_map    = 0,
-                   .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+                   .config_feature_bit_map     = (
+#if ENABLE_POWER_SAVE
+                     SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
+#else
+                     0
+#endif
+                     ) }
 };
 
 uint32_t first_time                     = 0;
@@ -222,7 +243,7 @@ static void application_start(void *argument)
   sl_net_wifi_client_profile_t profile = { 0 };
   sl_ip_address_t ip_address           = { 0 };
 
-  sl_status_t status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &client_init_configuration, NULL, NULL);
+  sl_status_t status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &client_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nUnexpected error while doing init: 0x%lx\r\n", status);
     return;
@@ -239,14 +260,14 @@ static void application_start(void *argument)
   printf("\r\nm4_ta_secure_handshake Success\r\n");
 #endif
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nError while connecting to Access point: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nConnected to Access point \r\n");
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to get client profile: 0x%lx\r\n", status);
     return;

@@ -167,14 +167,14 @@ static void application_start(void *argument)
   sl_net_wifi_client_profile_t profile = { 0 };
   sl_ip_address_t ip_address           = { 0 };
 
-  sl_status_t status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &client_init_configuration, NULL, NULL);
+  sl_status_t status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &client_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nError while initialization: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nWiFi init success\r\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi interface up: 0x%lx\r\n", status);
     return;
@@ -186,7 +186,7 @@ static void application_start(void *argument)
   SysTick_Config(SystemCoreClock / (1000));
 #endif
 
-  status = sl_net_get_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
   if (status != SL_STATUS_OK) {
     printf("Failed to get client profile: 0x%lx\r\n", status);
     return;
@@ -249,7 +249,7 @@ void receive_data_from_tcp_client()
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = SERVER_PORT;
-  convert_string_to_sl_ipv4_address(SERVER_IP_ADDRESS, &ip_address);
+  sl_net_inet_addr(SERVER_IP_ADDRESS, (uint32_t *)&ip_address);
   server_address.sin_addr.s_addr = ip_address.value;
 
   if ((bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address))) < 0) {
@@ -375,7 +375,7 @@ void send_data_to_udp_socket()
 
   remote_socket_address.sin_family = AF_INET;
   remote_socket_address.sin_port   = SERVER_PORT;
-  convert_string_to_sl_ipv4_address(SERVER_IP_ADDRESS, &remote_ip_address);
+  sl_net_inet_addr(SERVER_IP_ADDRESS, (uint32_t *)&remote_ip_address);
   remote_socket_address.sin_addr.s_addr = remote_ip_address.value;
 
   printf("\r\nUDP_TX Throughput test start\r\n");

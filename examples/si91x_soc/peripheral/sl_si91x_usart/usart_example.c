@@ -61,6 +61,7 @@ void usart_example_init(void)
   usart_config.usart_module  = USART_0;
   usart_config.config_enable = ENABLE;
   usart_config.synch_mode    = DISABLE;
+  sl_si91x_usart_control_config_t get_config;
 
   do {
     // Initialize the UART
@@ -91,6 +92,8 @@ void usart_example_init(void)
       break;
     }
     DEBUGOUT("USART user event callback registered successfully \n");
+    sl_si91x_usart_get_configurations(USART_0, &get_config);
+    DEBUGOUT("Baud Rate = %d \n", get_config.baudrate);
   } while (false);
 }
 
@@ -119,12 +122,10 @@ void usart_example_process_action(void)
           current_mode = SL_TRANSMISSION_COMPLETED;
           break;
         }
-        DEBUGOUT("USART Send begin successfully \n");
         begin_transmission = false;
       }
 
       send_complete = false;
-      DEBUGOUT("USART send completed successfully \n");
 
       if (USE_RECEIVE) {
         // If receive macro is enabled, current mode is set to receive
@@ -132,6 +133,7 @@ void usart_example_process_action(void)
         begin_transmission = true;
         break;
       }
+      DEBUGOUT("USART send completed successfully \n");
       // Current mode is set to complete
       current_mode = SL_TRANSMISSION_COMPLETED;
       break;
@@ -161,8 +163,9 @@ void usart_example_process_action(void)
           break;
         }
 
-        compare_loop_back_data();
+        DEBUGOUT("USART send completed successfully \n");
         DEBUGOUT("USART receive completed \n");
+        compare_loop_back_data();
         // If send macro is not enabled, current mode is set to completed.
         current_mode = SL_TRANSMISSION_COMPLETED;
       }

@@ -11,28 +11,28 @@ In this application, SiWx91x EVK connects to Access Point as HTTP/HTTPS client a
 
 The server transferred firmware file gets loaded/updated in the SiWx91x module flash memory. After successful firmware update, HTTP/s OTA API returns success response.
 
-## 2 Prerequisites/Setup Requirements 
+## 2 Prerequisites/Setup Requirements
 
 Before running the application, set up the following.
 
-### 2.1 Hardware Requirements 
+### 2.1 Hardware Requirements
 
 - Windows PC
 - Wireless Access point
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
   - **SoC Mode**:
-    - Silicon Labs [BRD4325A,BRD4325B, BRD4325G](https://www.silabs.com/)
+    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
   - **NCP Mode**:
-    - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/); **AND** a Host MCU Eval Kit.
+    - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND** a Host MCU Eval Kit.
 
-### 2.2 Software Requirements 
+### 2.2 Software Requirements
 
-- Simplicity Studio IDE 
+- Simplicity Studio IDE
   - Download the [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio).
   - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE.
-- Install and configure Wamp-Apache HTTP server, refer to Appendix section 6.3 **Configuring and uploading firmware on Apache HTTP**.
-- Install and configure Wamp-Apache HTTPs server, refer to Appendix section 6.4 **Configuring and uploading firmware on Apache HTTPs**.
-- Configure AWS S3 bucket, refer to Appendix setion 6.1 **Configuring AWS S3 Bucket**.
+- Install and configure Wamp-Apache HTTP server, refer to Appendix section 4.3.2 **Configuring and uploading firmware on Apache HTTP**.
+- Install and configure Wamp-Apache HTTPs server, refer to Appendix section 4.3.3 **Configuring and uploading firmware on Apache HTTPs**.
+- Configure AWS S3 bucket, refer to Appendix section 6.1 **Configuring AWS S3 Bucket**.
 - Configure Azure Blob storage, refer to Appendix section 6.2 **Configuring Azure Blob Storage**.
 
 ### 2.3 Set up Diagram
@@ -65,7 +65,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 #### 3.1.1 SoC mode
 
-- Connect your board. The Si917 compatible SoC board is **BRD4325A,BRD4325B**.
+- Connect your board. The Si917 compatible SoC boards are **BRD4325A, BRD4325B, BRD4325C, BRD4325G**.
 - Studio should detect your board. Your board will be shown here.
 
   **![Soc Board detection](resources/readme/soc_board_detection.png)**
@@ -74,18 +74,18 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
   **![HTTP OTAF project](resources/readme/http_otaf_example_soc.png)**
 
-- Give the desired name to your project and cick on **Finish**.
+- Give the desired name to your project and click on **Finish**.
 
   **![Finish creating project](resources/readme/create_project_soc.png)**
 
 #### 3.1.2 NCP mode
 
-- Connect your board. The supported NCP boards are: **BRD4180A,BRD4280B**
+- Connect your board. The supported NCP boards are: **BRD4180B**
 - The EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
   **![EFR32 Board detection](resources/readme/efr32.png)**
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - NCP http_otaf 
+- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - NCP http_otaf
 
   **![HTTP OTAF project](resources/readme/http_otaf_example.png)**
 
@@ -97,7 +97,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 Before setting up Tera Term, do the following for SoC mode.
 
-**SoC mode**: 
+**SoC Mode**:
 You can use either of the below USB to UART converters for application prints.
 
 1. Set up using USB to UART converter board.
@@ -116,8 +116,8 @@ You can use either of the below USB to UART converters for application prints.
 
 **Tera term set up - for NCP and SoC modes**
 
-1. Open the Tera Term tool. 
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+1. Open the Tera Term tool.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
      **![](resources/readme/port_selection_soc.png)**
 
@@ -139,7 +139,7 @@ The serial port is now connected.
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-- The application uses the default configurations as provided in the **default_wifi_ap_profile** in **sl_net_default_valus.h** and user can choose to configure these parameters as needed.
+- The application uses the default configurations as provided in the **default_wifi_ap_profile** in **sl_net_default_values.h** and user can choose to configure these parameters as needed.
 
 - In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
@@ -161,14 +161,27 @@ The application can be configured to suit user requirements and development envi
 
 #### 4.1.2 Below mentioned configurations in **app.c** file can be configured as per requirements
 
+**Select Firmware update type**
+
+- For TA firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE
+
+  ```c
+  //! Type of FW update
+  #define M4_FW_UPDATE 0
+  #define TA_FW_UPDATE 1
+
+  //! Set FW update type
+  #define FW_UPDATE_TYPE TA_FW_UPDATE
+  ```
+
 - Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which firmware files needs to be downloaded, the below mentioned parameters needs to be configured.
 - Configure FLAGS to choose the version and security type to be enabled
 
   Valid configurations are :
 
   ```c
-  #define HTTPV6           BIT(0)         // Enable IPv6 set this bit in FLAGS, Default is IPv4
-  #define HTTPS_SUPPORT    BIT(1)         // Set HTTPS_SUPPORT to use HTTPS feature
+  #define HTTPS_SUPPORT    BIT(0)         // Set HTTPS_SUPPORT to use HTTPS feature
+  #define HTTPV6           BIT(3)         // Enable IPv6 set this bit in FLAGS, Default is IPv4
   #define HTTP_V_1_1       BIT(6)         // Set HTTP_V_1_1 to use HTTP version 1.1
   ```
 
@@ -191,7 +204,7 @@ Else if both AWS and Azure macro is disabled, HTTP/s Apache server can be used t
   #define FLAGS                   0
   #define HTTP_PORT               80
   #define HTTP_SERVER_IP_ADDRESS  "192.168.xxx.xxx"
-  #define HTTP_URL                "Firmware/firmware.rps" //firwmare file name to download
+  #define HTTP_URL                "Firmware/firmware.rps" //firmware file name to download
   #define HTTP_HOSTNAME           "192.168.xxx.xxx"
   #define USERNAME                "admin"
   #define PASSWORD                "admin"
@@ -200,23 +213,23 @@ Else if both AWS and Azure macro is disabled, HTTP/s Apache server can be used t
 **For Apache HTTPS Server**
 
 - Include Root certificate pem file for SSL connection
-- Provide the PC IP where Apache server is running in HTTP_SERVER_IP_ADDRESS 
+- Provide the PC IP where Apache server is running in HTTP_SERVER_IP_ADDRESS
 - Provide the firmware package name uploaded in Apache server in HTTP_URL
-   
+
   ```c
   //Sample configurations
   #include "cacert.pem"
   #define FLAGS                   HTTPS_SUPPORT
   #define HTTP_PORT               443
   #define HTTP_SERVER_IP_ADDRESS  "192.168.xxx.xxx"
-  #define HTTP_URL                "Firmware/firmware.rps" //firwmare file name to download
+  #define HTTP_URL                "Firmware/firmware.rps" //firmware file name to download
   #define HTTP_HOSTNAME           "192.168.xxx.xxx"
   #define USERNAME                "admin"
   #define PASSWORD                "admin"
   ```
 
  **For AWS S3 Bucket** 
- 
+
 - Include Starfield root certificate file for SSL connection
   
 > Note : The certificate authority for Amazon AWS S3 is Starfield, hence we need to include Starfield Root certification for SSL connection to be successful. This certificate is already included in the SDK in linear array format "aws_starfield_ca.pem.h" which can be directly used for SSL connection to AWS S3.
@@ -226,28 +239,28 @@ Else if both AWS and Azure macro is disabled, HTTP/s Apache server can be used t
 > Example: For S3 bucket URL <https://example.s3.ap-south-1.amazonaws.com/firmware.rps>", hostname will be "example.s3.ap-south-1.amazonaws.com"
 
 - Extract the firmware package name from URL `https://<Your-S3-Bucket-name>.s3.<Your-nearest-S3-location>.amazonaws.com/firmware.rps` and provide it in **HTTP_URL**
- 
+
 > Example: For S3 bucket URL "<https://example.s3.ap-south-1.amazonaws.com/firmware.rps>", HTTP_URL will be "firmware.rps"
- 
+
   ```c
   //Sample configurations
   #include "aws_starfield_ca.pem.h"         //CA certificate
   #define FLAGS                              HTTPS_SUPPORT
   #define HTTP_PORT                          443
-  #define HTTP_URL                           "firmware.rps" //firwmare file name to download
+  #define HTTP_URL                           "firmware.rps" //firmware file name to download
   #define USERNAME                           ""
   #define PASSWORD                           ""
   char *hostname                             ="example.s3.ap-south-1.amazonaws.com";
   ```
-   
-  **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" since the S3 bucket URL created has public access provided. Refer Appendix section 6.1 on how to upload Firmware in AWS S3 Bucket. 
+
+  **Note:** The `USERNAME` and `PASSWORD` is provided as empty string "" since the S3 bucket URL created has public access provided. Refer Appendix section 6.1 on how to upload Firmware in AWS S3 Bucket.
 
   ```c
   //Sample configurations
   #include "http_baltimore_ca.pem.h"        //Baltimore Root CA
   #define FLAGS                             HTTPS_SUPPORT
   #define HTTP_PORT                         443
-  #define HTTP_URL                          "rps/firmware.rps" //firwmare file name to download
+  #define HTTP_URL                          "rps/firmware.rps" //firmware file name to download
   #define USERNAME                          ""
   #define PASSWORD                          ""
   char *hostname                            ="example.blob.core.windows.net";
@@ -265,7 +278,7 @@ Else if both AWS and Azure macro is disabled, HTTP/s Apache server can be used t
 
 .ext_tcp_ip_feature_bit_map = EXT_FEAT_HTTP_OTAF_SUPPORT
 ```
-   
+
 - **For Apache HTTPS Server**
 
 ```c
@@ -284,7 +297,7 @@ Else if both AWS and Azure macro is disabled, HTTP/s Apache server can be used t
 .ext_tcp_ip_feature_bit_map = (EXT_FEAT_HTTP_OTAF_SUPPORT | EXT_TCP_IP_SSL_16K_RECORD)
 ```
 
-#### 4.1.4 To Load Certificate 
+#### 4.1.4 To Load Certificate
 
 **sl_wifi_set_certificate()** API expects the certificate in the form of linear array. Convert the pem certificate into linear array form using python script provided in the SDK `<SDK>/resources/scripts/certificate_script.py`.
 
@@ -298,7 +311,7 @@ After the conversion, place the converted file in `<SDK>/resources/certificates/
 
 - For HTTPs Apache server
 
-  ```c 
+  ```c
   // Certificate includes
   #include "cacert.pem"
   
@@ -421,21 +434,21 @@ NCP mode (with Apache)
   - Navigate to C:\wamp64\bin\apache\apache2.4.46\conf
   - Open httpd.conf file with an editor.
   - Change the below lines into system IP address
-   
+
  ```sh
     Listen {System-IP-Address}:80
     ServerName {System-IP-Address}:80
     Eg: Listen 192.168.1.4:80
         ServerName 192.168.1.4:80
  ```
- 
+
 - Save the file and Exit.
 - Open command prompt and run with Administrator Privilege's.
 - Navigate to directory C:\wamp64\bin\apache\apache2.4.46\bin
 - Add Apache as a Windows Service:
-    
+
     `httpd.exe -k install`
-    
+
 - While the install is in progress, you will be prompted to Windows Network Access page as shown below. Make sure you allow both Private and Public network access.
 
    ![Windows Network Access page](resources/readme/image412.png)
@@ -458,7 +471,7 @@ NCP mode (with Apache)
   - Goto the Wamp Root directory, in my case it is C:\wamp64 and navigate to "www" folder C:\wamp64\www.
   - Create a new folder in that directory, in my case I created a folder named "Firmware". [Folder Structure: C:\wamp64\www\Firmware]
   - In the "Firmware" folder create an "index.html" file and write below contents to the file.
-    
+
 ```html
     <!DOCTYPE html>
     <html>
@@ -469,11 +482,11 @@ NCP mode (with Apache)
         </body>
     </html>
 ```
-    
+
 - This code will link your resources to Apache server, so that those files can be downloaded.
 - you can edit href values in the index.html to your firmware file names.
 - Make sure to copy all the firmware files into the present directory, C:\wamp64\www\Firmware. Save the file and Exit.
-   
+
     ```html
     <a href="<your-firmware-file>-1.rps" download>Download_Version_6</a><br><br>
     <a href="<your-firmware-file>-2.rps" download>Download_Version_4</a>
@@ -482,7 +495,7 @@ NCP mode (with Apache)
 * Configure HTTPD.conf file for Wamp-Apache Server
   - Open httpd.conf file in C:\wamp64\bin\apache\apache2.4.46\conf\httpd.conf
   - Search or Find "DocumentRoot" and change it to below configuration. Save the file and Exit
-   
+
    ```sh
     "${INSTALL_DIR}/www/Firmware"
     ```
@@ -492,12 +505,12 @@ NCP mode (with Apache)
   - Check for Apache service and Restart the service
   - In the above configuration, we have created a resource for our server in "Firmware" folder.
   - Our access resource URL looks as shown below
-    
+
 > `http://<your-ip-address>/<Sub-Resource-Directory>/<Resources>`
 >
 > Eg: <http://192.168.1.4/Firmware/firmware.rps>
 > <http://192.168.1.4/Firmware/firmware1.rps>
-    
+
 - Giving the `http://<your-ip-address>/<Sub-Resource-Directory>` in browser should load as shown below. Clicking on any link should download the Firmware files.
 
    ![Webpage in browser](resources/readme/image415.png)
@@ -513,7 +526,7 @@ NCP mode (with Apache)
 
 > **Warning:** Make sure that you are able to Access the WAMP-Apache Server (with its IP Address) is accessible to other systems in the same network, if not follow the Changing PHP Configurations. Else proceed with next steps
 
-- Changing PHP Configuration 
+- Changing PHP Configuration
   - The below steps to be done only when you face an issue of not able to access the WAMP-Server from other machines in the network. Issue shown below :
 
    ![Issue of not able to access the WAMP-Server from other machines](resources/readme/image416.png)
@@ -549,11 +562,11 @@ HTTPs Sever configuration for Apache requires Wamp server, if you have not insta
   - Normally it will be in "C:\Program Files\OpenSSL-Win64\bin\openssl.exe"
 
 - **Generate required certs**
-   > **Note:** If you already have the reqired certs to run the server then, skip the **Generate required certs** step, copy your certs to `C:\wamp64\bin\apache\apache2.4.46\conf` directory and update the `httpd-ssl.conf` file with these certificate paths shown in **HTTPD Configuration** step. 
+   > **Note:** If you already have the required certs to run the server then, skip the **Generate required certs** step, copy your certs to `C:\wamp64\bin\apache\apache2.4.46\conf` directory and update the `httpd-ssl.conf` file with these certificate paths shown in **HTTPD Configuration** step.
 
   - Open Command Prompt in Administrator privilege's.
   - Change directory to your openssl.exe file "cd C:\Program Files\OpenSSL-Win64\bin\"
-  - Execute the below command to generate a private.key file with AES 256 encryption. 
+  - Execute the below command to generate a private.key file with AES 256 encryption.
 
  ```sh
     openssl.exe genrsa -aes256 -out private.key 2048
@@ -561,7 +574,7 @@ HTTPs Sever configuration for Apache requires Wamp server, if you have not insta
     openssl.exe req -new -x509 -nodes -sha1 -key private.key -out certificate.crt -days 36500 -config <your-wamp-apache-openssl.conf-file-path>
     openssl.exe req -new -x509 -nodes -sha1 -key private.key -out certificate.crt -days 36500 -config C:\wamp64\bin\apache\apache2.4.46\conf\openssl.conf
  ```
-    
+
 - Now there will be two files created [Private.key and certificate.crt] in "C:\Program Files\OpenSSL-Win64\bin\" directory, copy them to "C:\wamp64\bin\apache\apache2.4.46\conf"
 
 - **HTTPD Configuration**

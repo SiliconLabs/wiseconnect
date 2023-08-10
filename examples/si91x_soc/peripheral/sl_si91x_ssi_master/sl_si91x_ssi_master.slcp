@@ -12,7 +12,7 @@ source:
 - {path: app.h}
 - {path: ssi_master_example.c}
 - {path: ssi_master_example.h}
-sdk: {id: gecko_sdk, version: 4.2.1}
+sdk: {id: gecko_sdk, version: 4.3.1}
 toolchain_settings: []
 component:
 - id: cmsis_common
@@ -44,6 +44,6 @@ provides:
 readme:
   - path: readme.md
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.10}
+- {id: wiseconnect3_sdk, version: 3.0.12}
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

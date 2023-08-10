@@ -38,9 +38,12 @@
 #include "firmware_upgradation.h"
 #include "sl_net_dns.h"
 
-//include certificates
+// include certificates
 #include "aws_starfield_ca.pem.h"
 #include "cacert.pem.h"
+
+// WDT includes
+#include "sl_si91x_watchdog_timer.h"
 
 /******************************************************
  *                      Macros
@@ -49,6 +52,13 @@
 /******************************************************
  *                    Constants
  ******************************************************/
+//! Type of FW update
+#define M4_FW_UPDATE 0
+#define TA_FW_UPDATE 1
+
+//! Set FW update type
+#define FW_UPDATE_TYPE TA_FW_UPDATE
+
 //! Load certificate to device flash :
 //! Certificate should be loaded once and need not be loaded for every boot up
 #define LOAD_CERTIFICATE 1
@@ -57,7 +67,7 @@
 #define BIT(a) ((uint32_t)1U << a)
 
 //! Enable IPv6 set this bit in FLAGS, Default is IPv4
-#define HTTPV6 BIT(0)
+#define HTTPV6 BIT(3)
 
 //! Set HTTPS_SUPPORT to use HTTPS feature
 #define HTTPS_SUPPORT BIT(0)
@@ -83,7 +93,11 @@
 //! Server port number
 #define HTTP_PORT 443
 //! Server URL
-#define HTTP_URL "firmware_1.4_2.6.0.0.34.rps"
+#if FW_UPDATE_TYPE
+#define HTTP_URL "SiWG917-A.2.9.0.0.16.rps"
+#else
+#define HTTP_URL "wifi_wlan_throughput_isp.bin"
+#endif
 //! Server Hostname
 char *hostname = "otafaws.s3.ap-south-1.amazonaws.com";
 //! set HTTP extended header
@@ -114,20 +128,38 @@ char *hostname = "rs9116updates.blob.core.windows.net";
 //! Server port number
 #define HTTP_PORT              80
 //! HTTP Server IP address.
-#define HTTP_SERVER_IP_ADDRESS "192.168.0.158"
+#define HTTP_SERVER_IP_ADDRESS "192.168.0.100"
 //! HTTP resource name
-#define HTTP_URL               "SiWG917-A.2.9.0.0.2.rps"
+#if FW_UPDATE_TYPE
+#define HTTP_URL "SiWG917-A.2.9.0.0.16.rps"
+#else
+#define HTTP_URL "wifi_access_point_isp.bin"
+#endif
 //! set HTTP hostname
-#define HTTP_HOSTNAME          "192.168.0.158"
+#define HTTP_HOSTNAME        "192.168.0.100"
 char *hostname = HTTP_HOSTNAME;
 //! set HTTP extended header
 //! if NULL , driver fills default extended header
-#define HTTP_EXTENDED_HEADER   NULL
+#define HTTP_EXTENDED_HEADER NULL
 //! set HTTP hostname
-#define USERNAME               "admin"
+#define USERNAME             "admin"
 //! set HTTP hostname
-#define PASSWORD               "admin"
+#define PASSWORD             "admin"
 #endif
+
+// WDT macros
+/*******************************************************************************
+ ***************************  Defines / Macros  ********************************
+ ******************************************************************************/
+#define LED0               0             // for on board LED-0
+#define ZERO_INTERRUPT_CNT 0             // for zero interrupt count
+#define NEW_INTERRUPT_TIME TIME_DELAY_16 // for 2 seconds interrupt time
+#define NEW_SYS_RST_TIME   TIME_DELAY_18 // for 8 seconds system-reset time
+#define NEW_WINDOW_TIME    TIME_DELAY_10 // for 32 milliseconds window time
+
+#define SL_WDT_INTERRUPT_TIME    0 // WDT Interrupt Time
+#define SL_WDT_SYSTEM_RESET_TIME 1 // WDT System Reset Time
+#define SL_WDT_WINDOW_TIME       0 // WDT Window Time
 
 /******************************************************
  *               Variable Definitions
@@ -157,7 +189,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
                    .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
@@ -189,6 +221,93 @@ static sl_status_t clear_and_load_certificates_in_flash(void);
 /******************************************************
  *               Function Definitions
  ******************************************************/
+
+void soft_reset(void)
+{
+  watchdog_timer_example_init();
+}
+
+/*******************************************************************************
+ **********************  Local Function prototypes   ***************************
+ ******************************************************************************/
+void on_timeout_callback(void);
+
+/*******************************************************************************
+ **********************  Local variables   *************************************
+ ******************************************************************************/
+static uint8_t wdt_interrupt_count = ZERO_INTERRUPT_CNT;
+static bool wdt_system_reset_flag  = false;
+
+/*******************************************************************************
+ **************************   GLOBAL FUNCTIONS   *******************************
+ ******************************************************************************/
+void watchdog_timer_example_init(void)
+{
+  sl_status_t status;
+  sl_watchdog_timer_version_t version;
+  watchdog_timer_clock_config_t wdt_clock_config;
+  wdt_clock_config.low_freq_fsm_clock_src  = KHZ_RC_CLK_SEL;
+  wdt_clock_config.high_freq_fsm_clock_src = FSM_32MHZ_RC;
+  wdt_clock_config.bg_pmu_clock_source     = RO_32KHZ_CLOCK;
+  watchdog_timer_config_t wdt_config;
+  wdt_config.interrupt_time    = SL_WDT_INTERRUPT_TIME;
+  wdt_config.system_reset_time = SL_WDT_SYSTEM_RESET_TIME;
+  wdt_config.window_time       = SL_WDT_WINDOW_TIME;
+  uint8_t new_interrupt_time;
+  uint8_t new_sys_rst_time;
+  uint8_t new_window_time;
+  SL_DEBUG_LOG("In Main..!\r\n");
+  // Checking system-reset status if true means system-reset done by watchdog-timer
+  // else it is a power-on system-reset.
+  if (sl_si91x_watchdog_get_timer_system_reset_status()) {
+    // Assigning TRUE to system-reset flag, if reset done by watchdog-timer
+    wdt_system_reset_flag = true;
+    SL_DEBUG_LOG("Watchdog-timer system-reset occurred \r\n");
+  } else {
+    SL_DEBUG_LOG("Power on system-reset occurred..\r\n");
+  }
+  do {
+    //Version information of watchdog-timer
+    version = sl_si91x_watchdog_get_version();
+    SL_DEBUG_LOG("Watchdog-timer version is fetched successfully \n");
+    SL_DEBUG_LOG("API version is %d.%d.%d\n", version.release, version.major, version.minor);
+    // Initializing watchdog-timer
+    sl_si91x_watchdog_init_timer();
+    printf("\r\nSoC soft reset initiated\r\n");
+    SL_DEBUG_LOG("Successfully initialized watchdog-timer \n");
+    // Configuring watchdog-timer
+    status = sl_si91x_watchdog_configure_clock(&wdt_clock_config);
+    if (status != SL_STATUS_OK) {
+      SL_DEBUG_LOG("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
+      break;
+    }
+    SL_DEBUG_LOG("Successfully Configured watchdog-timer with default clock sources\n");
+    // Configuring watchdog-timer
+    status = sl_si91x_watchdog_set_configuration(&wdt_config);
+    if (status != SL_STATUS_OK) {
+      SL_DEBUG_LOG("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
+      break;
+    }
+    SL_DEBUG_LOG("Successfully Configured watchdog-timer with default parameters\n");
+    // Registering timeout callback
+    status = sl_si91x_watchdog_register_timeout_callback(on_timeout_callback);
+    if (status != SL_STATUS_OK) {
+      SL_DEBUG_LOG("sl_si91x_watchdog_timer_register_timeout_callback : Invalid Parameters, Error Code : %lu \n",
+                   status);
+      break;
+    }
+    // Starting watchdog-timer with changed parameters
+    sl_si91x_watchdog_start_timer();
+    SL_DEBUG_LOG("Successfully started watchdog-timer with new parameters \n");
+  } while (false);
+}
+
+void on_timeout_callback(void)
+{
+  SL_DEBUG_LOG("\r\nIn handler\r\n");
+  return;
+}
+
 void app_init(const void *unused)
 {
   UNUSED_PARAMETER(unused);
@@ -200,7 +319,7 @@ void application_start(const void *unused)
   UNUSED_PARAMETER(unused);
   sl_status_t status = SL_STATUS_OK;
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
@@ -217,7 +336,7 @@ void application_start(const void *unused)
   }
 #endif
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
@@ -264,14 +383,16 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 
 sl_status_t http_otaf_app()
 {
-  sl_status_t status               = SL_STATUS_OK;
-  sl_wifi_version_string_t version = { 0 };
-  uint8_t flags                    = FLAGS;
+  sl_status_t status = SL_STATUS_OK;
+  uint8_t flags      = FLAGS;
   char server_ip[16];
 
-  status = sl_wifi_get_firmware_version(&version);
+#if FW_UPDATE_TYPE
+  sl_wifi_version_string_t version = { 0 };
+  status                           = sl_wifi_get_firmware_version(&version);
   VERIFY_STATUS_AND_RETURN(status);
   printf("\r\nFirmware version before update: %s\r\n", version.version);
+#endif
 
   sl_wifi_set_callback(SL_WIFI_HTTP_OTA_FW_UPDATE_EVENTS,
                        (sl_wifi_callback_function_t)&http_fw_update_response_handler,
@@ -351,7 +472,8 @@ sl_status_t http_otaf_app()
   }
   osDelay(5000);
 
-  status = sl_net_deinit(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, NULL);
+#if FW_UPDATE_TYPE
+  status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nError while wifi deinit: 0x%lx \r\n", status);
     return status;
@@ -359,7 +481,7 @@ sl_status_t http_otaf_app()
   printf("\r\nWi-Fi Deinit success\r\n");
   osDelay(5000);
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return status;
@@ -369,6 +491,9 @@ sl_status_t http_otaf_app()
   status = sl_wifi_get_firmware_version(&version);
   VERIFY_STATUS_AND_RETURN(status);
   printf("\r\nFirmware version after update: %s\r\n", version.version);
+#else
+  soft_reset();
+#endif
 
   return status;
 }

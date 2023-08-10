@@ -59,6 +59,8 @@
 #define DHCP_HOST_NAME    NULL
 #define TIMEOUT_MS        5000
 #define WIFI_SCAN_TIMEOUT 10000
+
+#define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 /*=======================================================================*/
 //   ! GLOBAL VARIABLES
 /*=======================================================================*/
@@ -155,7 +157,7 @@ sl_status_t clear_and_load_certificates_in_flash(void)
   //! Erase SSL CA certificate
   sl_status_t status = sl_tls_clear_global_ca_store();
   if (status != SL_STATUS_OK) {
-    printf("\r\nClient certificate erase failed, Error Code : 0x%lX\r\n", status);
+    LOG_PRINT("\r\nClient certificate erase failed, Error Code : 0x%lX\r\n", status);
     return status;
   }
 
@@ -167,10 +169,10 @@ sl_status_t clear_and_load_certificates_in_flash(void)
   //! Loading SSL CA certificate in to FLASH
   status = sl_tls_set_global_ca_store(tls_configuration);
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading SSL CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+    LOG_PRINT("\r\nLoading SSL CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
     return status;
   }
-  printf("\r\nLoading SSL CA certificate in to FLASH Success\r\n");
+  LOG_PRINT("\r\nLoading SSL CA certificate in to FLASH Success\r\n");
 
   return status;
 }
@@ -178,27 +180,27 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 
 static sl_status_t show_scan_results()
 {
-  printf("%lu Scan results:\n", scan_result->scan_count);
+  LOG_PRINT("%lu Scan results:\n", scan_result->scan_count);
 
   if (scan_result->scan_count) {
-    printf("\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
-    printf("%12s %12s %s\n", "BSSID", "CHANNEL", "RSSI");
+    LOG_PRINT("\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
+    LOG_PRINT("%12s %12s %s\n", "BSSID", "CHANNEL", "RSSI");
 
     for (int a = 0; a < (int)scan_result->scan_count; ++a) {
       uint8_t *bssid = (uint8_t *)&scan_result->scan_info[a].bssid;
-      printf("%-24s %4u,  %4u, ",
-             scan_result->scan_info[a].ssid,
-             scan_result->scan_info[a].security_mode,
-             scan_result->scan_info[a].network_type);
-      printf("  %02x:%02x:%02x:%02x:%02x:%02x, %4u,  -%u\n",
-             bssid[0],
-             bssid[1],
-             bssid[2],
-             bssid[3],
-             bssid[4],
-             bssid[5],
-             scan_result->scan_info[a].rf_channel,
-             scan_result->scan_info[a].rssi_val);
+      LOG_PRINT("%-24s %4u,  %4u, ",
+                scan_result->scan_info[a].ssid,
+                scan_result->scan_info[a].security_mode,
+                scan_result->scan_info[a].network_type);
+      LOG_PRINT("  %02x:%02x:%02x:%02x:%02x:%02x, %4u,  -%u\n",
+                bssid[0],
+                bssid[1],
+                bssid[2],
+                bssid[3],
+                bssid[4],
+                bssid[5],
+                scan_result->scan_info[a].rf_channel,
+                scan_result->scan_info[a].rssi_val);
     }
   }
 
@@ -233,24 +235,41 @@ int32_t rsi_app_wlan_socket_create()
   int32_t status                    = RSI_SUCCESS;
   sl_ipv4_address_t ip              = { 0 };
   struct sockaddr_in server_address = { 0 };
+#if HIGH_PERFORMANCE_ENABLE
+  uint8_t high_performance_socket = SL_HIGH_PERFORMANCE_SOCKET;
+#endif
 
   //!Create socket
   client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (client_socket < 0) {
-    printf("\r\nSocket creation failed with BSD error: %d\r\n", errno);
+    LOG_PRINT("\r\nSocket creation failed with BSD error: %d\r\n", errno);
     return client_socket;
   }
-  printf("\r\nSocket create success : %ld\r\n", client_socket);
+  LOG_PRINT("\r\nSocket create success : %ld\r\n", client_socket);
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = SERVER_PORT;
-  convert_string_to_sl_ipv4_address(SERVER_IP_ADDRESS, &ip);
+  sl_net_inet_addr(SERVER_IP_ADDRESS, (uint32_t *)&ip);
   server_address.sin_addr.s_addr = ip.value;
+
 #if HTTPS_DOWNLOAD
   //! Setting SSL socket option
   status = setsockopt(client_socket, SOL_TCP, TCP_ULP, TLS, sizeof(TLS));
   if (status < 0) {
-    printf("\r\nSet socket failed with BSD error: %d\r\n", errno);
+    LOG_PRINT("\r\nSet socket failed with BSD error: %d\r\n", errno);
+    close(client_socket);
+    return status;
+  }
+#endif
+
+#if HIGH_PERFORMANCE_ENABLE
+  status = setsockopt(client_socket,
+                      SOL_SOCKET,
+                      SO_HIGH_PERFORMANCE_SOCKET,
+                      &high_performance_socket,
+                      sizeof(high_performance_socket));
+  if (status < 0) {
+    LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
     return status;
   }
@@ -259,7 +278,7 @@ int32_t rsi_app_wlan_socket_create()
   //! Connect to server socket
   status = connect(client_socket, (struct sockaddr *)&server_address, sizeof(struct sockaddr_in));
   if (status < 0) {
-    printf("\r\nSocket connect failed with BSD error: %d, return value %ld\r\n", errno, status);
+    LOG_PRINT("\r\nSocket connect failed with BSD error: %d, return value %ld\r\n", errno, status);
     close(client_socket);
     return status;
   } else {
@@ -361,7 +380,7 @@ int32_t rsi_wlan_app_task(void)
 
         status = sl_net_set_credential(id, SL_NET_WIFI_PSK, PSK, strlen((char *)PSK));
         if (SL_STATUS_OK == status) {
-          printf("Credentials set, id : %lu\n", id);
+          LOG_PRINT("Credentials set, id : %lu\n", id);
 
           access_point.ssid.length = strlen((char *)SSID);
           memcpy(access_point.ssid.value, SSID, access_point.ssid.length);
@@ -430,23 +449,13 @@ int32_t rsi_wlan_app_task(void)
 #endif
           close(client_socket);
           LOG_PRINT("\r\nClosing the socket\r\n");
-          //  rsi_os_task_delay(50);
 #if !CONTINUOUS_HTTP_DOWNLOAD
           stop_download = 1;
           break;
 #endif
+          osDelay(200);
         }
         num_bytes = 0;
-
-#if HIGH_PERFORMANCE_ENABLE
-        status = rsi_socket_config();
-        if (status < 0) {
-          LOG_PRINT("\r\nhigh-performance socket config failed \r\n");
-          status = rsi_wlan_get_status();
-          break;
-        }
-        //LOG_PRINT("high-performance socket config success \r\n");
-#endif
 
         //! Create socket and connect to server
         rsi_app_wlan_socket_create();
@@ -515,31 +524,27 @@ int32_t rsi_wlan_app_task(void)
       }
       case RSI_WLAN_DATA_RECEIVE_STATE: {
 #if !SOCKET_ASYNC_FEATURE
+        //Receive data on socket
         status = recv(client_socket, recv_buffer2, sizeof(recv_buffer2), 0);
         if (status <= 0) {
           if (status == RSI_RX_BUFFER_CHECK) {
             continue;
-          } else if ((status == 0) || (errno == ENOTCONN)) {
+          } else if (errno == ENOTCONN) {
             if (download_inprogress) {
               data_recvd            = 1;
               download_inprogress   = 0;
               rsi_wlan_app_cb.state = RSI_WLAN_IPCONFIG_DONE_STATE;
               break;
             }
-          } else {
-            LOG_PRINT("\r\n Failed to receive packets, status =%ld error num = %d\r\n", status, errno);
+          } else if (status != 0) {
+            LOG_PRINT("\r\n Failed to receive packets, status =%lu error num = %d\r\n", status, errno);
             break;
           }
+        } else {
+          if (!download_inprogress) {
+            download_inprogress = 1;
+          }
         }
-        if (!download_inprogress) {
-#if HTTPS_DOWNLOAD
-          LOG_PRINT("\r\n HTTPS download IN Progress \r\n");
-#elif !HTTPS_DOWNLOAD
-          LOG_PRINT("\r\n HTTP download IN Progress \r\n");
-#endif
-          download_inprogress = 1;
-        }
-        LOG_PRINT("\r\n %s\r\n", recv_buffer2);
 #endif
       } break;
       case RSI_WLAN_DISCONNECTED_STATE: {

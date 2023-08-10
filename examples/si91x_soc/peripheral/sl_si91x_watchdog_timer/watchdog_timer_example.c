@@ -21,10 +21,11 @@
  *
  * @section Description :
  * First Initializing WDT, configuring clock Sources & parameters, registering callback.
- * Then changing WDT interrupt time, system reset time and window time to new values
  * Then starting WDT & system restarts(kicks) WDT on every timeout interrupt & toggles LED0
- * After ten times restart of WDT system not kicks it so WDT resets the system.
- * Once WDT resets system, stopping WDT, unregistering callback and de-initialized it.
+ * After six times restart of WDT, system not kicks it so WDT resets the system.
+ * Then WDT is again initialized, configured clock Sources & parameters and registered callback
+ * Then changing WDT interrupt time, system reset time and window time to new values and started again.
+ * After six LED toggles, stopping WDT, unregistering callback and de-initialized it.
  ===================================================================================*/
 
 #include "watchdog_timer_example.h"
@@ -34,16 +35,15 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define WDT_RESTART_CNT    10 // Watchdog-timer restart(kick) count value, after which system will not restart it.
-#define LED0               0  // for on board LED-0
-#define ZERO_INTERRUPT_CNT 0  // for zero interrupt count
-#define NEW_INTERRUPT_TIME TIME_DELAY_16 // for 2 seconds interrupt time
-#define NEW_SYS_RST_TIME   TIME_DELAY_18 // for 8 seconds system-reset time
-#define NEW_WINDOW_TIME    TIME_DELAY_10 // for 32 milliseconds window time
-
-#define SL_WDT_INTERRUPT_TIME    15 // WDT Interrupt Time
-#define SL_WDT_SYSTEM_RESET_TIME 17 // WDT System Reset Time
-#define SL_WDT_WINDOW_TIME       0  // WDT Window Time
+#define WDT_RESTART_CNT          5 // Watchdog-timer restart(kick) count value, after which system will not restart it.
+#define LED0                     0 // for on board LED-0
+#define ZERO_INTERRUPT_CNT       0 // for zero interrupt count
+#define NEW_INTERRUPT_TIME       TIME_DELAY_16 // for 2 seconds interrupt time
+#define NEW_SYS_RST_TIME         TIME_DELAY_18 // for 8 seconds system-reset time
+#define NEW_WINDOW_TIME          TIME_DELAY_10 // for 32 milliseconds window time
+#define SL_WDT_INTERRUPT_TIME    15            // WDT Interrupt Time for 1 seconds
+#define SL_WDT_SYSTEM_RESET_TIME 17            // WDT System Reset Time for 4 seconds
+#define SL_WDT_WINDOW_TIME       0             // WDT Window Time for 0.0325 milli-seconds
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -55,6 +55,8 @@ void on_timeout_callback(void);
  ******************************************************************************/
 static uint8_t wdt_interrupt_count = ZERO_INTERRUPT_CNT;
 static bool wdt_system_reset_flag  = false;
+static bool wdt_stop_flag          = false;
+static bool state                  = false;
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -85,36 +87,40 @@ void watchdog_timer_example_init(void)
     DEBUGOUT("Power on system-reset occurred..\r\n");
   }
   do {
+    //Reading Version information of watchdog-timer
+    version = sl_si91x_watchdog_get_version();
+    DEBUGOUT("Watchdog-timer version is fetched successfully \n");
+    DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
+    // Initializing watchdog-timer
+    sl_si91x_watchdog_init_timer();
+    DEBUGOUT("Successfully initialized watchdog-timer \n");
+    // Configuring watchdog-timer
+    status = sl_si91x_watchdog_configure_clock(&wdt_clock_config);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
+      break;
+    }
+    DEBUGOUT("Successfully Configured watchdog-timer with default clock sources\n");
+    // Configuring watchdog-timer
+    status = sl_si91x_watchdog_set_configuration(&wdt_config);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
+      break;
+    }
+    DEBUGOUT("Successfully Configured watchdog-timer with default parameters\n");
+    // Registering timeout callback
+    status = sl_si91x_watchdog_register_timeout_callback(on_timeout_callback);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_watchdog_timer_register_timeout_callback : Invalid Parameters, Error Code : %lu \n", status);
+      break;
+    }
+    DEBUGOUT("Successfully registered watchdog-timer timeout callback\n");
     // Checking WDT system-reset flag
     if (!(wdt_system_reset_flag)) {
-      //Version information of watchdog-timer
-      version = sl_si91x_watchdog_get_version();
-      DEBUGOUT("Watchdog-timer version is fetched successfully \n");
-      DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
-      // Initializing watchdog-timer
-      sl_si91x_watchdog_init_timer();
-      DEBUGOUT("Successfully initialized watchdog-timer \n");
-      // Configuring watchdog-timer
-      status = sl_si91x_watchdog_configure_clock(&wdt_clock_config);
-      if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
-        break;
-      }
-      DEBUGOUT("Successfully Configured watchdog-timer with default clock sources\n");
-      // Configuring watchdog-timer
-      status = sl_si91x_watchdog_set_configuration(&wdt_config);
-      if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
-        break;
-      }
-      DEBUGOUT("Successfully Configured watchdog-timer with default parameters\n");
-      // Registering timeout callback
-      status = sl_si91x_watchdog_register_timeout_callback(on_timeout_callback);
-      if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_watchdog_timer_register_timeout_callback : Invalid Parameters, Error Code : %lu \n", status);
-        break;
-      }
-      DEBUGOUT("Successfully registered watchdog-timer timeout callback\n");
+      // Starting watchdog-timer with changed parameters
+      sl_si91x_watchdog_start_timer();
+      DEBUGOUT("Successfully started watchdog-timer with uc parameters \n");
+    } else {
       // Changing WDT parameters
       // Changing system-reset time to 8s
       status = sl_si91x_watchdog_set_system_reset_time(NEW_SYS_RST_TIME);
@@ -146,19 +152,12 @@ void watchdog_timer_example_init(void)
       // Reading window time value
       new_window_time = sl_si91x_watchdog_get_window_time();
       DEBUGOUT("New window time value : %d \n", new_window_time);
+      DEBUGOUT("Successfully changed watchdog-timer system reset time \n");
+      // making stop flag true
+      wdt_stop_flag = true;
       // Starting watchdog-timer with changed parameters
       sl_si91x_watchdog_start_timer();
-      DEBUGOUT("Successfully started watchdog-timer with new parameters \n");
-    } else {
-      // Stopping the watchdog-timer after watchdog-timer system reset
-      sl_si91x_watchdog_stop_timer();
-      DEBUGOUT("Successfully stopped watchdog-timer after it resets system\n");
-      // Unregistering the timeout_callback
-      sl_si91x_watchdog_unregister_timeout_callback();
-      DEBUGOUT("Successfully unregistered watchdog-timer timeout callback after operation\n");
-      // De-initializing watchdog-timer
-      sl_si91x_watchdog_deinit_timer();
-      DEBUGOUT("Successfully De-initialized watchdog-timer\n");
+      DEBUGOUT("Successfully started watchdog-timer again with new parameters \n");
     }
   } while (false);
 }
@@ -180,13 +179,24 @@ void on_timeout_callback(void)
   // be interrupt latency
   // Incrementing watchdog-timer interrupt count
   wdt_interrupt_count++;
-  // To not re-start(kick) WDT at 11th timeout interrupts so that WDT generates the System-reset
+  // Toggle on-board LED0 on every WDT restart
+  state = !state;
+  RSI_Board_LED_Set(LED0, state);
+  //RSI_Board_LED_Toggle(LED0);
+  // To not re-start(kick) WDT at 6th timeout interrupts so that WDT generates the System-reset
   if (wdt_interrupt_count <= WDT_RESTART_CNT) {
     // System restarting(kicking) watchdog-timer on interrupts
     sl_si91x_watchdog_restart_timer();
     DEBUGOUT("In handler : WDT restarted \r\n");
   }
-  // Toggle on-board LED0 on every WDT restart
-  RSI_Board_LED_Toggle(LED0);
+  if ((wdt_interrupt_count > WDT_RESTART_CNT) && (wdt_stop_flag)) {
+    // Stopping the watchdog-timer after watchdog-timer system reset
+    sl_si91x_watchdog_stop_timer();
+    // Unregistering the timeout_callback
+    sl_si91x_watchdog_unregister_timeout_callback();
+    // De-initializing watchdog-timer
+    sl_si91x_watchdog_deinit_timer();
+    DEBUGOUT("Successfully stopped, unregistered & De-initialized watchdog-timer\n");
+  }
   return;
 }

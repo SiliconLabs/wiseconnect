@@ -158,17 +158,15 @@ static void application_start(void *argument)
   sl_status_t status;
   sl_wifi_channel_t client_channel = { 0 };
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE,
-                       &sl_wifi_default_concurrent_configuration,
-                       NULL,
-                       client_event_handler);
+  status =
+    sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_default_concurrent_configuration, NULL, client_event_handler);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nWi-Fi Client interface init\r\n");
 
-  status = sl_net_set_profile(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_client_profile);
+  status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_client_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to set client profile: 0x%lx\r\n", status);
     return;
@@ -185,15 +183,14 @@ static void application_start(void *argument)
   }
   printf("\nWi-Fi set credential success\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nWi-Fi Client interface up\r\n");
 
-  status =
-    sl_net_init(SL_NET_DEFAULT_WIFI_AP_INTERFACE, &sl_wifi_default_concurrent_configuration, NULL, ap_event_handler);
+  status = sl_net_init(SL_NET_WIFI_AP_INTERFACE, &sl_wifi_default_concurrent_configuration, NULL, ap_event_handler);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
     return;
@@ -208,7 +205,7 @@ static void application_start(void *argument)
   printf("\r\nSuccess to get client channel\r\n");
 
   wifi_ap_profile.config.channel.channel = client_channel.channel;
-  status = sl_net_set_profile(SL_NET_DEFAULT_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_ap_profile);
+  status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_ap_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to set AP profile: 0x%lx\r\n", status);
     return;
@@ -225,7 +222,7 @@ static void application_start(void *argument)
   }
   printf("\nWi-Fi set credential success\n");
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_1);
+  status = sl_net_up(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_1);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
     return;

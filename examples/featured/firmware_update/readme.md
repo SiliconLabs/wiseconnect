@@ -15,12 +15,12 @@ This application demonstrates how to update the SiWx91x firmware via Wi-Fi by do
 - PC or Mac.
 - Linux PC or Cygwin on Windows (to build and run the TCP server source provided)
 - Wi-Fi Access point with a connection to the internet
-- **SoC Mode**: 
-  - Silicon Labs [BRD4325A,BRD4325B, BRD4325G](https://www.silabs.com/)
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit) 
+    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 ### 2.2 Software Requirements
 
@@ -46,9 +46,9 @@ Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to
 
 Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
 
-**NOTE**: 
+**NOTE**:
 
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface. 
+- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
 ## 3 Project Environment
 
@@ -66,9 +66,9 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
 
-- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** 
+- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology**
 
-    ![projct_selection](resources/readme/projctselection113.png)
+    ![project_selection](resources/readme/projctselection113.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -84,7 +84,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - NCP Powersave Standby Associated application
 
-  ![projct_selection](resources/readme/projctselectionncp113.png)
+  ![project_selection](resources/readme/projctselectionncp113.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -109,12 +109,12 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
     **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
- 
+
 **Tera Term set up - for NCP and SoC modes**
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+ - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
       **![UART - SoC](resources/readme/port_selection_soc.png)**
 
@@ -130,7 +130,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 ## 4 Application Build Environment
 
-The application can be configured to suit your requirements and development environment. 
+The application can be configured to suit your requirements and development environment.
 
 ### 4.1.1 In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
 
@@ -161,15 +161,15 @@ The application can be configured to suit your requirements and development envi
 
 - SoC mode: Build as Firmware update Example
 
-    **![Build as](resources/readme/build_firmware_update.png)** 
-        
+    **![Build as](resources/readme/build_firmware_update.png)**
+
 - NCP mode:
 
 ### 4.3 Run and Test the application
 
 ## Build and run the TCP Server
 
-  1. Copy the TCP server application [firmware_update_tcp_server.c](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/examples/featured/firmware_update/firmware_update_tcp_server.c) provided with the application source to a Linux PC connected to the Wi-Fi access point. 
+  1. Copy the TCP server application [firmware_update_tcp_server.c](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/examples/featured/firmware_update/firmware_update_tcp_server.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
   2. Compile the application
 
 > `user@linux:~$ gcc firmware_update_tcp_server.c` -o ota_server.bin

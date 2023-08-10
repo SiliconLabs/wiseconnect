@@ -6,7 +6,6 @@
 #include "sl_constants.h"
 #include "sl_si91x_constants.h"
 #include "sl_si91x_core_utilities.h"
-#include "sl_si91x_bsd_socket_types.h"
 #include "sl_si91x_protocol_types.h"
 #include "errno.h"
 #include "aws_iot_error.h"

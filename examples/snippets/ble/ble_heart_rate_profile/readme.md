@@ -16,19 +16,19 @@ Before running the application, the user will need the following things to setup
 
 - Windows PC with Host interface(UART/ SPI/ SDIO).
   - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
-  - **SoC Mode**: 
-    - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+  - **SoC Mode**:
+    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338AS](https://www.silabs.com/)
   - **NCP Mode**:
-    - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/);
+    - Silicon Labs [BRD4180B](https://www.silabs.com/);
     - Host MCU Eval Kit. This example has been tested with:
-      - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit) 
+      - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 - BLE Smart Phone with GATT client
 
 ### 2.2 Software Requirements
-   
+
 - Embedded Development Environment
   - For Silicon Labs EFx32, use the latest version of [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
-   
+
 - Download and install the Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 ### 2.3 Setup Diagram
@@ -36,8 +36,8 @@ Before running the application, the user will need the following things to setup
 **SoC Mode :**
 
    ![](resources/readme/bleheartratesoc.png)
- 
-**NCP Mode :** 
+
+**NCP Mode :**
 
 ![](resources/readme/bleheartratencp.png)
 
@@ -54,12 +54,12 @@ Before running the application, the user will need the following things to setup
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
    ![Soc Board detection](resources/readme/socboarddetection111.png)
-   
+
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - Heart Rate* application.
 
-   ![projct_selection](resources/readme/create_project1.png)
+   ![project_selection](resources/readme/create_project1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -70,7 +70,7 @@ Before running the application, the user will need the following things to setup
 1. Ensure the EFx32 and SiWx91x setup is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-   
+
    ![EFR32 Board detection](resources/readme/efr32.png)
 
 - Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
@@ -98,25 +98,25 @@ Before running the application, the user will need the following things to setup
 
    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
-    
+
    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
 **Tera Term setup - for NCP and SoC modes**
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+ - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
  - For NCP mode, choose the J-Link port and click on **OK**.
-    
+
    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
   **![Serial port](resources/readme/serial_port_setup.png)**
- 
+
   **![Baud rate](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
@@ -134,7 +134,7 @@ User must update the below parameters
   - If user configures, **SERVER**, Silicon Labs module will act as GATT SERVER, means will add heart rate profile.
 
   - If user configures, **CLIENT**, Silicon Labs module will act as GATT CLIENT, means will connect to remote GATT server and get services and enable notify.
-   
+
 ```c
   #define GATT_ROLE                                     SERVER```
 - `RSI_BLE_DEV_ADDR_TYPE` refers address type of the remote device to connect.
@@ -147,10 +147,10 @@ User must update the below parameters
     - LE_PUBLIC_ADDRESS
 ```c
   #define RSI_BLE_DEV_ADDR_TYPE                         LE_PUBLIC_ADDRESS
-``` 
+```
 
-   **Note:** Depends on the remote device, address type will be changed. 
-   
+   **Note:** Depends on the remote device, address type will be changed.
+
 - `RSI_BLE_DEV_ADDR` refers address of the remote device to connect.
 
 ```c
@@ -161,7 +161,7 @@ User must update the below parameters
 
 ```c
   #define RSI_REMOTE_DEVICE_NAME                        "SILABS_DEV"
-``` 
+```
 
 **Note:**
    Silicon Labs module can connect to remote device by referring either RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME of the remote device.
@@ -178,7 +178,7 @@ User must update the below parameters
 ```
 
 The desired parameters are provided below. User can also modify the parameters as per their needs and requirements
-   
+
 - `RSI_BLE_HEART_RATE_UUID` refers to the attribute value of the newly created service.
 
 ```c
@@ -256,13 +256,13 @@ Open `ble_config.h` file and update/modify following macros,
 - Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
-   
+
 #### Build Project - NCP Mode
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
 
 ### 4.3 Run and Test the application
@@ -274,9 +274,9 @@ Open `ble_config.h` file and update/modify following macros,
 1. Click on Tools and Simplicity Commander as shown below.
 
    ![](resources/readme/load_image1.png)
-   
+
 2. Load the firmware image
- - Select the board. 
+ - Select the board.
  - Browse the application image (.hex) and click on Flash button.
 
    ![](resources/readme/load_image2.png)
@@ -292,19 +292,19 @@ Open `ble_config.h` file and update/modify following macros,
 3. Open a EFR Connect App in the Smartphone and do the scan.
 
 4. In the App, Silicon Labs module device will appear with the name configured in the macro `RSI_BLE_HEART_RATE_PROFILE (Ex: "BLE_HEART_RATE")` or sometimes observed as Silicon Labs device as internal name "**SimpleBLEPeripheral**".
-   
+
 5. Initiate connection from the App.
 
 6. After successful connection, EFR Connect APP displays the supported services of Silicon Labs module.
-   
+
 7. Select the attribute service which is added `RSI_BLE_HEART_RATE_SERVICE_UUID`
 
 8. Enable notify for the characteristic `RSI_BLE_HEART_RATE_MEASUREMENT_UUID`
 
    So that GATT server indicates when value updated in that particular attribute.
-   
+
 9. Whenever the value is updated at server it will be notified to the client which can be read at Heart_Rate_Measurement attribute.
-    
+
 #### Steps to be followed to verify BLE Heart rate profile application as a CLIENT
 
 1. Configure the **GATT_ROLE** macro as **CLIENT**
@@ -316,25 +316,25 @@ Open `ble_config.h` file and update/modify following macros,
    - UUID: 0x180D
 
    **Note:** Refer the [Adding Services](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server the EFR connect mobile APP as advertiser.
-   
+
 4. Add the characteristic services and their coresponding properties as shown below
    | S.No | Name | UUID | Property |
    |------|------|------|----------|
    |1|Heart Rate Measurement | 0x2A37 | Notify|
    |2|Body sensor Location | 0x2A38 | Read|
    |3|Heart Rate Control Point | 0x2A39 | Write|
-   
+
    **Note:** Refer the [Adding Characteristics and Descriptors](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server in the EFR connect mobile APP.
 
 5. Enable the **Heart rate** service.
 
 6. Configure the advertiser.
-   
+
 **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
 
 7. When Silicon Labs device is configured as **CLIENT** specified in the macro **GATT_ROLE**, scans for remote device and tries to connect with the remote device specified in `RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME` macro.
 
-8. Get all GATT profiles of remote device and Search for profile specified in the macro `RSI_BLE_HEART_RATE_SERVICE_UUID`. And get all characteristics of the heartrate service and verify the characteristic `RSI_BLE_HEART_RATE_MEASUREMENT_UUID` which has notify property.
+8. Get all GATT profiles of remote device and Search for profile specified in the macro `RSI_BLE_HEART_RATE_SERVICE_UUID`. And get all characteristics of the heart rate service and verify the characteristic `RSI_BLE_HEART_RATE_MEASUREMENT_UUID` which has notify property.
 
 9. Observe notify property is enabled in the GATT server and indicates to the GATT client whenever the value is updated at server .
 

@@ -140,7 +140,7 @@ sl_status_t sli_receive_from_ta_done_isr(void)
   VERIFY_STATUS_AND_RETURN(status);
 
   //! Set event RX pending event to host
-  sl_si91x_host_set_event(NCP_HOST_BUS_RX_EVENT);
+  sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
 #endif
 
 #ifdef RSI_M4_INTERFACE

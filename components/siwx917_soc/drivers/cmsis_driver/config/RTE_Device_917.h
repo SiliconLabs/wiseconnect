@@ -673,7 +673,11 @@
 /*ULPSS UART PINS*/
 //     <o> UART1_TX <0=>P0_3 <1=>P0_7 <2=>P0_11
 //     <i> TX of ULPSS UART
+#ifdef SI917_RADIO_BOARD_V2
+#define RTE_ULP_UART_TX_PORT_ID 2
+#else
 #define RTE_ULP_UART_TX_PORT_ID 1
+#endif
 #if (RTE_ULP_UART_TX_PORT_ID == 0)
 #define RTE_ULP_UART_TX_PORT 0
 #define RTE_ULP_UART_TX_PIN  3
@@ -692,7 +696,11 @@
 
 //     <o> UART1_RX <0=>P0_2 <1=>P0_6 <2=>P0_9
 //     <i> RX of ULPSS UART
+#ifdef SI917_RADIO_BOARD_V2
+#define RTE_ULP_UART_RX_PORT_ID 2
+#else
 #define RTE_ULP_UART_RX_PORT_ID 1
+#endif
 #if (RTE_ULP_UART_RX_PORT_ID == 0)
 #define RTE_ULP_UART_RX_PORT 0
 #define RTE_ULP_UART_RX_PIN  2

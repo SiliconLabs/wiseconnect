@@ -11,10 +11,10 @@ In this example application, the SiWx91x's STA instance gets connected to a wire
 
 - Windows PC
 - Wireless Access Point
-- **SoC Mode**: 
-  - Silicon Labs [BRD4325A,BRD4325B, BRD4325G](https://www.silabs.com/)
-- **NCP Mode**: 
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/); **AND**
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
+- **NCP Mode**:
+  - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
@@ -26,7 +26,7 @@ In this example application, the SiWx91x's STA instance gets connected to a wire
 
 ### 2.3 Set up Diagram
 
-#### SoC Mode 
+#### SoC Mode
 
 Set up diagram for SoC mode:
 
@@ -42,9 +42,9 @@ Set up diagram for NCP mode:
 
 Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
 
-**NOTE**: 
+**NOTE**:
 
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface. 
+- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
 ## 3 Project Environment
 
@@ -63,12 +63,18 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
    **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
 - Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
-   
+
    **![Examples and Demos](resources/readme/examples_demos.png)**
 
-- Select Wi-Fi - SoC Concurrent Wi-Fi client and SoftAP
+-  Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** and select **Wi-Fi - Concurrent Mode (SOC)** example
 
-   **![Concurrent Mode project](resources/readme/example_soc.png)**
+    **![Concurrent Mode project](resources/readme/example_soc.png)**
+
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish
+
+    **![Concurrent Mode project](resources/readme/create_project_soc.png)**
+
+
 
 #### 3.1.2 NCP mode
 
@@ -76,17 +82,18 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
    **![Soc Board detection](resources/readme/efr32.png)**
 
-- Now choose **Wi-Fi- NCP Concurrent Wi-Fi client and SoftAP** example for NCP mode or choose **Wi-Fi- SoC Concurrent Wi-Fi client and SoftAP** example for SoC mode and click on **Create**.
-   
-   **![Concurrent Mode project](resources/readme/concurrent_example_ncp.png)** 
+- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select **Wi-Fi - Concurrent Mode (NCP)** example.
 
-- Give the desired name to your project and cick on **Finish**.
+   **![Concurrent Mode project](resources/readme/concurrent_example_ncp.png)**
 
-   **![Concurrent Mode project](resources/readme/create_project.png)**
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+
+    **![Create Concurrent Mode project](resources/readme/create_project_ncp.png)**
+
 
 ### 3.3 Set up for application prints
 
-**SoC mode**: 
+**SoC mode**:
 You can use either of the below USB to UART converters for application prints.
 
 1. Set up using USB to UART converter board.
@@ -107,7 +114,7 @@ You can use either of the below USB to UART converters for application prints.
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+ - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
   
     **![UART - SoC](resources/readme/port_selection_soc.png)**
 
@@ -159,7 +166,7 @@ The application can be configured to suit user requirements and development envi
   #define WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
     ```
 
-> Note: 
+> Note:
 >
 > 1. In concurrent mode, STA and AP should be configured on the same channel. The STA instance shall first scan for the specified external AP, wherein the channel number of AP is fetched and passed as an argument during SoftAP creation.
 > 2. Valid values for CHANNEL_NO are 1 to 11 in 2.4GHz band and 36 to 48 & 149 to 165 in 5GHz. In this example, default configured band is 2.4GHz.
@@ -183,13 +190,21 @@ The application can be configured to suit user requirements and development envi
 
    **![Build as ](resources/readme/build_concurrent.png)**
 
-#### - NCP Mode
+#### - NCP Mode : Build as Concurrent_mode Example
+
+   **![Build as ](resources/readme/build_concurrent_ncp.png)**
 
 ### 4.3 Run and Test the application
 
 1. Once the build was successful, right click on project and select **Debug As → Silicon Labs ARM Program** to program the device as shown in below image.
 
+#### - SoC Mode
+
    **![debug_mode_NCP](resources/readme/program_device.png)**
+
+#### - NCP Mode 
+
+   **![debug_mode_NCP](resources/readme/program_device_ncp.png)**
 
 2. As soon as the debug process is completed, the application control branches to the main().
 
@@ -199,12 +214,8 @@ The application can be configured to suit user requirements and development envi
 
 4. After the program gets executed, SiWx91x connects to the access point as a Station. On other hand, SiWx91x advertizes itself as an access point with provided configurations mentioned above.
 
-### 4.4 Application Output 
+### 4.4 Application Output
 
-- SoC mode:
+- SoC mode & NCP mode:
 
    **![Application prints](resources/readme/output_soc.png)**
-
-- NCP mode:
-
-   **![Application prints](resources/readme/application_prints_ncp.png)**

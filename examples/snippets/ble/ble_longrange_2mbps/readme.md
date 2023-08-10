@@ -13,16 +13,16 @@ Before running the application, the user will need the following things to setup
 ### 2.1 Hardware Requirements
 
 - Windows PC
-- **SoC Mode**: 
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+- **SoC Mode**:
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/)
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 ### 2.2 Software Requirements
 
-- Simplicity Studio IDE 
+- Simplicity Studio IDE
   - Download the latest [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
   - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
 
@@ -30,17 +30,17 @@ Before running the application, the user will need the following things to setup
 
 ### 2.3 Setup Diagram
 
-#### SoC Mode 
-   
+#### SoC Mode
+
 ![](resources/readme/blelrsoc.png)
   
-#### NCP Mode 
+#### NCP Mode
 
 ![](resources/readme/blelrncp.png)
 
-**NOTE**: 
+**NOTE**:
 
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface. 
+- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
 ## 3 Project Environment
 
@@ -55,12 +55,12 @@ Before running the application, the user will need the following things to setup
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
    ![Soc Board detection](resources/readme/socboarddetection111.png)
-   
+
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - Long Range* application.
 
-   ![projct_selection](resources/readme/create_project1.png)
+   ![project_selection](resources/readme/create_project1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -71,7 +71,7 @@ Before running the application, the user will need the following things to setup
 1. Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-   
+
    ![EFR32 Board detection](resources/readme/efr32.png)
 
 - Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
@@ -90,7 +90,7 @@ Before running the application, the user will need the following things to setup
 
 1. Setup using USB to UART converter board.
 
-  - Connect Tx (Pin-6) to P27 on WSTK
+    - Connect Tx (Pin-6) to P27 on WSTK
     - Connect GND (Pin 8 or 10) to GND on WSTK
 
    **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
@@ -99,30 +99,30 @@ Before running the application, the user will need the following things to setup
 
     - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
     - Connect GND (Pin1) of TTL convertor to GND on WSTK
-    
+
    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
 **Tera Term setup - for NCP and SoC modes**
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+ - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
  - For NCP mode, choose the J-Link port and click on **OK**.
-    
+
    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
-   
+
    **![Serial port](resources/readme/serial_port_setup.png)**
 
    **![Baud rate](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
 
-The application can be configured to suit your requirements and development environment. 
+The application can be configured to suit your requirements and development environment.
 
 ### 4.1 Configure the application
 
@@ -134,9 +134,9 @@ Read through the following sections and make any changes needed.
 
 - `RSI_DEVICE_DATA_RATE` refers the PHY data rate of the Silicon Labs module to be selected.
 
-- If user configures, **LONG_RANGE**, Silicon Labs module will update PHY data rates to coded PHY data rate. By default it is configured to 500kbps PHY data rate. 
+- If user configures, **LONG_RANGE**, Silicon Labs module will update PHY data rates to coded PHY data rate. By default it is configured to 500kbps PHY data rate.
 
-- If user configures, **TWO_MBPS**, Silicon Labs module will update 2Mbps PHY data rates. 
+- If user configures, **TWO_MBPS**, Silicon Labs module will update 2Mbps PHY data rates.
 
 ```c
     #define RSI_DEVICE_DATA_RATE                LONG_RANGE
@@ -146,14 +146,14 @@ Read through the following sections and make any changes needed.
 
 ```c
   #define RSI_BLE_DEV_ADDR_TYPE                         LE_PUBLIC_ADDRESS
-``` 
+```
 
 - Based on the address of the advertising device, Valid configurations are
 
   - LE_RANDOM_ADDRESS
   - LE_PUBLIC_ADDRESS
 
-   **Note:** Depends on the remote device, address type will be changed. 
+   **Note:** Depends on the remote device, address type will be changed.
 
 - `RSI_BLE_DEV_ADDR` refers address of the remote device to connect.
 
@@ -168,7 +168,7 @@ Read through the following sections and make any changes needed.
 ```
 
    **Note:**
-   Silicon Labs module can connect to remote device by referring either RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME of the remote device. 
+   Silicon Labs module can connect to remote device by referring either RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME of the remote device.
 
 **Power save configuration**
 
@@ -178,14 +178,14 @@ Read through the following sections and make any changes needed.
   #define ENABLE_POWER_SAVE 0
 ```
 
-- If user wants to run the application in power save, modify the below configuration. 
+- If user wants to run the application in power save, modify the below configuration.
 
 ```c  
   #define ENABLE_POWER_SAVE 1
 ```
 
 **4.1.2** The desired parameters are provided below. User can also modify the parameters as per their needs and requirements
-   
+
 **4.1.3** Open `ble_config.h` file and update/modify following macros,
 
 ```c
@@ -204,8 +204,8 @@ Read through the following sections and make any changes needed.
 ```
 
 **Note:**
-   `ble_config.h` files are already set with desired configuration in 
-   respective example folders user need not change for each example. 
+   `ble_config.h` files are already set with desired configuration in
+   respective example folders user need not change for each example.
 
 ### 4.2 Build the Application
 
@@ -216,13 +216,13 @@ Read through the following sections and make any changes needed.
 - Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
-   
+
 #### Build Project - NCP Mode
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
 
 ### 4.3 Run and Test the Application
@@ -234,7 +234,7 @@ Read through the following sections and make any changes needed.
 1. Click on Tools and Simplicity Commander as shown below.
 
    ![](resources/readme/load_image1.png)
-   
+
 2. Load the firmware image
  - Select the board. 
  - Browse the application image (.hex) and click on Flash button.
@@ -247,17 +247,17 @@ Read through the following sections and make any changes needed.
 
    **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
 
-3. After the program gets executed, Silicon Labs device tries to connect with the remote device specified in **RSI\_BLE\_DEV\_ADDR** **or RSI\_REMOTE\_DEVICE\_NAME** macro.
+2. After the program gets executed, Silicon Labs device tries to connect with the remote device specified in **RSI\_BLE\_DEV\_ADDR** **or RSI\_REMOTE\_DEVICE\_NAME** macro.
 
-4. Clicks on "YES AND OPEN" button and Observe that the connection is established between the desired device and Silicon Labs device.
-   
-5. After connection, Silicon Labs device will read PHY rate of the remote device and set PHY rate of the remote device.
+3. Clicks on "YES AND OPEN" button and Observe that the connection is established between the desired device and Silicon Labs device.
 
-6. Observe PHY update complete event after setting PHY rate.
+4. After connection, Silicon Labs device will read PHY rate of the remote device and set PHY rate of the remote device.
 
-7. When Silicon Labs module is configured as **LONG_RANGE** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 500kbps and prints in teraterm looks as shown below.   
+5. Observe PHY update complete event after setting PHY rate.
 
-8. When Silicon Labs module is configured as **TWO_MBPS** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 1mbps and prints in teraterm looks as shown below.   
+6. When Silicon Labs module is configured as **LONG_RANGE** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 500kbps and prints in teraterm looks as shown below.
+
+7. When Silicon Labs module is configured as **TWO_MBPS** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 1mbps and prints in teraterm looks as shown below.
 
 - Once the build was successful, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
 

@@ -273,7 +273,7 @@ void rsi_ble_task_on_conn(void *parameters)
     if (event_id == -1) {
 
       //! wait on connection specific semaphore
-      osSemaphoreAcquire(ble_conn_sem[l_conn_id], 0);
+      osSemaphoreAcquire(ble_conn_sem[l_conn_id], osWaitForever);
       continue;
     }
 

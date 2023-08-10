@@ -11,8 +11,8 @@ typedef struct {
     .port = gpioPort##port_id, .pin = pin_id \
   }
 
-#define SLEEP_CONFIRM_PIN  PIN(B, 0)
-#define WAKE_INDICATOR_PIN PIN(B, 1)
+#define SLEEP_CONFIRM_PIN  PIN(B, 1)
+#define WAKE_INDICATOR_PIN PIN(B, 0)
 #define RESET_PIN          PIN(D, 2)
 #define INTERRUPT_PIN      PIN(D, 3)
 
@@ -24,4 +24,4 @@ typedef struct {
 #define PACKET_PENDING_INT_PRI 3
 
 #define NETWORK_INTERFACE_VALID(x) \
-  (x == SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE) || (x == SL_NET_DEFAULT_WIFI_AP_INTERFACE)
+  (x == SL_NET_WIFI_CLIENT_INTERFACE) || (x == SL_NET_WIFI_AP_INTERFACE)

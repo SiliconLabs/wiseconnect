@@ -98,7 +98,7 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &sl_wifi_transmit_test_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_transmit_test_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
@@ -110,7 +110,7 @@ static void application_start(void *argument)
   sl_wifi_set_stats_callback(wifi_stats_receive_handler, NULL);
 #endif
 
-  status = sl_wifi_set_antenna(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, SL_WIFI_SELECT_INTERNAL_ANTENNA);
+  status = sl_wifi_set_antenna(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, SL_WIFI_ANTENNA_EXTERNAL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start set Antenna: 0x%lx\r\n", status);
     return;

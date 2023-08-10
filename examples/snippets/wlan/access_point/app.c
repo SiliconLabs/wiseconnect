@@ -70,13 +70,13 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_AP_INTERFACE, NULL, NULL, ap_event_handler);
+  status = sl_net_init(SL_NET_WIFI_AP_INTERFACE, NULL, NULL, ap_event_handler);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nWi-Fi AP interface init Success");
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
     return;

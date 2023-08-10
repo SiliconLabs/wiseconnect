@@ -1,4 +1,4 @@
-# iBeacon 
+# iBeacon
 
 ## 1. Purpose / Scope
 
@@ -12,30 +12,30 @@ Before running the application, the user will need the following things to setup
 
 - Windows PC with Host interface(UART/ SPI/ SDIO).
   - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
-  - **SoC Mode**: 
-    - Silicon Labs [BRD4325A, BRD4325B, BRD4325G](https://www.silabs.com/)
+  - **SoC Mode**:
+    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
   - **NCP Mode**:
-    - Silicon Labs [(BRD4180A, BRD4280B)](https://www.silabs.com/);
+    - Silicon Labs [BRD4180B](https://www.silabs.com/);
     - Host MCU Eval Kit. This example has been tested with:
       - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 - Smart phone with ibeacon detector application
 
 ### 2.2 Software Requirements
-    
+
 - **SoC Mode**
   - **Silicon Labs SiWx91x SoC**. Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) to setup the example to work with SiWx91x SoC and Simplicity Studio.
 - **NCP Mode**
   - **Silicon Labs EFx32 Host**. Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) to setup the example to work with EFx32 and Simplicity Studio.
 
-### 2.3 Setup Diagram 
+### 2.3 Setup Diagram
 
-**SoC Mode :** 
-   
+**SoC Mode :**
+
 ![](resources/readme/ibeaconsoc.png)
   
 **NCP Mode :**  
-   
+
 ![](resources/readme/ibeaconncp.png)
 
 ### 2.4 iBeacon details
@@ -72,13 +72,13 @@ Before running the application, the user will need the following things to setup
    **For UUID:**
 
    uint8_t uuid[16] = {0xFB , 0x0B , 0x57 , 0xA2 , 0x82 , 0x28 , 0x44 , 0xCD , 0x91 , 0x3A , 0x94 , 0xA1 , 0x22 , 0xBA , 0x12 , 0x06};
-   
+
 - For Major Number:
   - uint8_t major_num[2] = {0x11, 0x22};
-   
+
 - For Minor Number:
   - uint8_t minor_num[2] = {0x33, 0x44};
-   
+
 - For TX Power:
   - uint8_t tx_power = 0x33;
 
@@ -93,12 +93,12 @@ Before running the application, the user will need the following things to setup
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
    ![Soc Board detection](resources/readme/socboarddetection111.png)
-   
+
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - iBeacon* application.
 
-   ![projct_selection](resources/readme/create_project1.png)
+   ![project_selection](resources/readme/create_project1.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
@@ -109,7 +109,7 @@ Before running the application, the user will need the following things to setup
 1. Ensure the EFx32 and SiWx91x setup is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-   
+
    ![EFR32 Board detection](resources/readme/efr32.png)
 
 - Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
@@ -137,25 +137,25 @@ Before running the application, the user will need the following things to setup
 
     - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
     - Connect GND (Pin1) of TTL convertor to GND on WSTK
-    
+
    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
 **Tera Term setup - for NCP and SoC modes**
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+ - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
  - For NCP mode, choose the J-Link port and click on **OK**.
-    
+
    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
   **![Serial port](resources/readme/serial_port_setup.png)**
- 
+
   **![Baud rate](resources/readme/serial_port.png)**
 
 ## 4. Application Build Environment
@@ -201,7 +201,7 @@ The application can be configured to suit your requirements and development envi
 
 **Note:**
    rsi_ble_config.h files are already set with desired configuration in respective example folders user need not change for each example.
-   
+
 ## 5. Build and Test the Application
 
 - Follow the below steps for the successful execution of the application.
@@ -215,13 +215,13 @@ The application can be configured to suit your requirements and development envi
 - Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
-   
+
 #### NCP Mode
 
    ![build_project](resources/readme/build_example.png)
-   
+
 - Successful build output will show as below.
 
 ### 5.2 Loading the Application Image
@@ -229,7 +229,7 @@ The application can be configured to suit your requirements and development envi
 1. Click on Tools and Simplicity Commander as shown below.
 
    ![](resources/readme/load_image1.png)
-   
+
 2. Load the firmware image
  - Select the board. 
  - Browse the application image (.hex) and click on Flash button.

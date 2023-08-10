@@ -28,14 +28,14 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
 
   switch (interface) {
 #ifdef wifi_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE:
+    case SL_NET_WIFI_CLIENT_INTERFACE:
       status = nvm3_writeData(nvm3_defaultHandle,
                               SL_NET_WIFI_CLIENT_NVM3_KEY + profile_id,
                               (const void *)profile,
                               sizeof(sl_net_wifi_client_profile_t));
       break;
 
-    case SL_NET_DEFAULT_WIFI_AP_INTERFACE:
+    case SL_NET_WIFI_AP_INTERFACE:
       status = nvm3_writeData(nvm3_defaultHandle,
                               SL_NET_WIFI_AP_NVM3_KEY + profile_id,
                               (const void *)profile,
@@ -59,14 +59,14 @@ sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t
 
   switch (interface) {
 #ifdef wifi_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE:
+    case SL_NET_WIFI_CLIENT_INTERFACE:
       status = nvm3_readData(nvm3_defaultHandle,
                              SL_NET_WIFI_CLIENT_NVM3_KEY + profile_id,
                              (void *)profile,
                              sizeof(sl_net_wifi_client_profile_t));
       break;
 
-    case SL_NET_DEFAULT_WIFI_AP_INTERFACE:
+    case SL_NET_WIFI_AP_INTERFACE:
       status = nvm3_readData(nvm3_defaultHandle,
                              SL_NET_WIFI_AP_NVM3_KEY + profile_id,
                              (void *)profile,
@@ -90,11 +90,11 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
 
   switch (interface) {
 #ifdef wifi_FEATURE_REQUIRED
-    case SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE:
+    case SL_NET_WIFI_CLIENT_INTERFACE:
       nvm3_deleteObject(nvm3_defaultHandle, SL_NET_WIFI_CLIENT_NVM3_KEY + profile_id);
       break;
 
-    case SL_NET_DEFAULT_WIFI_AP_INTERFACE:
+    case SL_NET_WIFI_AP_INTERFACE:
       nvm3_deleteObject(nvm3_defaultHandle, SL_NET_WIFI_AP_NVM3_KEY + profile_id);
       break;
 #endif

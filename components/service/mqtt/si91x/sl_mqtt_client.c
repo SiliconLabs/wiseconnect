@@ -255,6 +255,9 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
     // credentails.username_length is being used as offset as we store both user_name, password in same array.
     memcpy(si91x_init_request.password, &credentials->data[credentials->username_length], credentials->password_length);
 
+    si91x_init_request.username_len = credentials->username_length;
+    si91x_init_request.password_len = credentials->password_length;
+
     si91x_connect_request.is_password_present = 1;
     si91x_connect_request.is_username_present = 1;
 

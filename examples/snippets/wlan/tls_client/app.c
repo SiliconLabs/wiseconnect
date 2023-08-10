@@ -85,17 +85,16 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
-                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
+                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
-                   .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2) | SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT |
+                   .custom_feature_bit_map     = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT |
 #ifndef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_ALL_MCU_ZERO
+                                                  RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
-                      RAM_LEVEL_NWP_ADV_MCU_BASIC
+                                                  RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
-                      ),
+                                                  ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
                    .ble_feature_bit_map        = 0,
@@ -123,7 +122,7 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status = SL_STATUS_OK;
 
-  status = sl_net_init(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
@@ -139,7 +138,7 @@ static void application_start(void *argument)
   printf("\r\nLoading certificate Success\r\n");
 #endif
 
-  status = sl_net_up(SL_NET_DEFAULT_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
+  status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
     return;
@@ -192,7 +191,7 @@ sl_status_t send_data_from_tls_socket()
   char *tls_socket1                 = "tls_1_0";
   char *tls_socket2                 = "tls_1_2";
 
-  convert_string_to_sl_ipv4_address(SERVER_IP, &ip);
+  sl_net_inet_addr(SERVER_IP, (uint32_t *)&ip);
 
   server_address.sin_family      = AF_INET;
   server_address.sin_port        = SERVER_PORT1;

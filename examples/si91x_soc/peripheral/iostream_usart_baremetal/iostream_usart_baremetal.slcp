@@ -17,7 +17,7 @@ source:
 - {path: app_iostream_usart.c}
 - {path: app.h}
 - {path: app_iostream_usart.h}
-sdk: {id: gecko_sdk, version: 4.1.0}
+sdk: {id: gecko_sdk, version: 4.3.1}
 toolchain_settings: []
 component:
 - id: cmsis_common
@@ -56,7 +56,7 @@ ui_hints:
   highlight:
   - {path: readme.md, focus: true}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.10}
+- {id: wiseconnect3_sdk, version: 3.0.12}
 template_contribution:
   - name: udma_enable
     value: true
