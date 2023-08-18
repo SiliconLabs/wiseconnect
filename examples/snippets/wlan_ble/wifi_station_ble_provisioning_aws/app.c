@@ -37,18 +37,19 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
+#include "i2c_leader_example.h"
 
 //BLE Specific inclusions
 #include <rsi_ble_apis.h>
 #include "ble_config.h"
 #include "rsi_ble_common_config.h"
-
 #include <rsi_common_apis.h>
 
 #define RSI_APPLICATION_TASK_PRIORITY   1
 #define RSI_BLE_TASK_PRIORITY           2
 #define RSI_APPLICATION_TASK_STACK_SIZE 3072
 #define RSI_BLE_TASK_STACK_SIZE         1000
+#define RSI_I2C_TASK_STACK_SIZE         1000
 
 // APP version
 #define APP_FW_VERSION "0.4"
@@ -58,10 +59,13 @@ extern void sl_wifi_app_task(void);
 extern void rsi_ble_configurator_task(void *argument);
 void rsi_ble_configurator_init(void);
 extern int32_t rsi_wlan_mqtt_certs_init(void);
+int I2C_Transfer(void);
+
 uint8_t magic_word;
 
 osSemaphoreId_t wlan_thread_sem;
 osSemaphoreId_t ble_thread_sem;
+osSemaphoreId_t i2c_sem;
 
 static const sl_wifi_device_configuration_t config = {
   .boot_option = LOAD_NWP_FW,
@@ -71,7 +75,8 @@ static const sl_wifi_device_configuration_t config = {
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_BLE_MODE,
 #ifdef RSI_M4_INTERFACE
-                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
+                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP | SL_SI91X_FEAT_SECURITY_OPEN
+                                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
 #else
                    .feature_bit_map        = RSI_FEATURE_BIT_MAP,
 #endif
@@ -79,34 +84,40 @@ static const sl_wifi_device_configuration_t config = {
                    .tcp_ip_feature_bit_map = RSI_TCP_IP_FEATURE_BIT_MAP,
 #else
                    .tcp_ip_feature_bit_map = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
-                                              | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL),
+                                              | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
+                                              | SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_ICMP),
 #endif
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
-                   .ext_custom_feature_bit_map = (
+                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE
+                      | (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1) | RAM_LEVEL_NWP_ADV_MCU_BASIC
+                         | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE)),
 #ifdef CHIP_917
-                     (RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+//(RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
 #else //defaults
 #ifdef RSI_M4_INTERFACE
-                     (SL_SI91X_EXT_FEAT_256K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                   (SL_SI91X_EXT_FEAT_256K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
 #else
-                     (SL_SI91X_EXT_FEAT_384K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                   (SL_SI91X_EXT_FEAT_384K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
 #endif
 #endif
-                     | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
+//(SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
 #if (defined A2DP_POWER_SAVE_ENABLE)
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK
+                   | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
 #endif
-                     ),
-                   .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
+                       //),
+                       .bt_feature_bit_map =
+                     (RSI_BT_FEATURE_BITMAP
 #if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
+                      | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
 #endif
-                                          ),
+                      ),
 #ifdef RSI_PROCESS_MAX_RX_DATA
                    .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
                                                   | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
 #else
-                   .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
+                   .ext_tcp_ip_feature_bit_map = (SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1) | RSI_EXT_TCPIP_FEATURE_BITMAP
+                                                  | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
 #endif
                    //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
                    .ble_feature_bit_map =
@@ -151,7 +162,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = RSI_APPLICATION_TASK_STACK_SIZE,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -163,7 +174,7 @@ const osThreadAttr_t ble_thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = RSI_BLE_TASK_STACK_SIZE,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -180,16 +191,26 @@ void rsi_wlan_ble_app_init(void *argument)
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
-  LOG_PRINT("\r\n Wi-Fi initialization is successful\n");
+  LOG_PRINT("\r\n Wi-Fi Initialization Success\n");
+
+#ifdef RSI_M4_INTERFACE
+  uint8_t xtal_enable = 1;
+  status              = sl_si91x_m4_ta_secure_handshake(SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nFailed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
+    return;
+  }
+  printf("\r\nm4_ta_secure_handshake Success\r\n");
+#endif
 
   osThreadNew((osThreadFunc_t)rsi_ble_configurator_task, NULL, &ble_thread_attributes);
 
   status = rsi_wlan_mqtt_certs_init();
   if (status != RSI_SUCCESS) {
-    LOG_PRINT("\r\nset certificate issue, Error Code : 0x%lX\r\n", status);
+    LOG_PRINT("\r\nSet Certificate Issue, Error Code : 0x%lX\r\n", status);
     return;
   } else {
-    LOG_PRINT("\r\nset certificate Success\r\n");
+    LOG_PRINT("\r\nSet Certificate Success\r\n");
   }
 
   // BLE initialization

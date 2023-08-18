@@ -35,11 +35,19 @@
 #include "rsi_bt_common.h"
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
+#include "sl_si91x_driver.h"
+#include "app.h"
 
 #ifdef RSI_M4_INTERFACE
 #include "rsi_rtc.h"
 #include "rsi_m4.h"
 #include "rsi_ds_timer.h"
+#include "rsi_wisemcu_hardware_setup.h"
+#include "rsi_rom_ulpss_clk.h"
+#include "rsi_rom_timer.h"
+#include "rsi_rom_power_save.h"
+#include "sl_event_handler.h"
+#include "rsi_ps_config.h"
 #endif
 
 #ifdef FW_LOGGING_ENABLE
@@ -79,8 +87,19 @@ void sl_fw_log_task(void);
 /*=======================================================================*/
 #if ENABLE_POWER_SAVE
 sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000 };
+
+#ifdef RSI_M4_INTERFACE
+#define WIRELESS_WAKEUP_IRQ_PRI 8
+#define portNVIC_SHPR3_REG      (*((volatile uint32_t *)0xe000ed20))
+#define portNVIC_PENDSV_PRI     (((uint32_t)(0x3f << 4)) << 16UL)
+#define portNVIC_SYSTICK_PRI    (((uint32_t)(0x3f << 4)) << 24UL)
+void M4_sleep_wakeup(void);
+void IRQ026_Handler();
+void fpuInit(void);
 #endif
 
+int32_t rsi_initiate_power_save(void);
+#endif
 /*=======================================================================*/
 //   ! GLOBAL VARIABLES
 /*=======================================================================*/
@@ -209,7 +228,83 @@ const osThreadAttr_t thread_attributes = {
 //   ! PROCEDURES
 /*=======================================================================*/
 /*==============================================*/
+void IRQ026_Handler()
+{
+  volatile uint32_t wakeUpSrc = 0;
 
+  /*Get the wake up source */
+  wakeUpSrc = RSI_PS_GetWkpUpStatus();
+
+  /*Clear interrupt */
+  RSI_PS_ClrWkpUpStatus(NPSS_TO_MCU_WIRELESS_INTR);
+  return;
+}
+/**
+ * @fn         M4_sleep_wakeup
+ * @brief      Keeps the M4 In the Sleep
+ * @param[in]  none
+ * @return    none.
+ * @section description
+ * This function is used to trigger sleep in the M4 and in the case of the retention submitting the buffer valid
+ * to the TA for the rx packets.
+ */
+#if (defined RSI_M4_INTERFACE && ENABLE_POWER_SAVE)
+void M4_sleep_wakeup(void)
+{
+  /* Configure Wakeup-Source */
+  RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
+
+  /* sets the priority of an Wireless wakeup interrupt. */
+  NVIC_SetPriority(WIRELESS_WAKEUP_IRQHandler, WIRELESS_WAKEUP_IRQ_PRI);
+
+  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
+
+#ifndef FLASH_BASED_EXECUTION_ENABLE
+  /* LDOSOC Default Mode needs to be disabled */
+  sl_si91x_disable_default_ldo_mode();
+
+  /* bypass_ldorf_ctrl needs to be enabled */
+  sl_si91x_enable_bypass_ldo_rf();
+
+  sl_si91x_disable_flash_ldo();
+
+  /* Configure RAM Usage and Retention Size */
+  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
+
+  /* Trigger M4 Sleep */
+  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
+                         DISABLE_LF_MODE,
+                         0,
+                         (uint32_t)RSI_PS_RestoreCpuContext,
+                         0,
+                         RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
+#else
+
+#ifdef COMMON_FLASH_EN
+  M4SS_P2P_INTR_SET_REG &= ~BIT(3);
+#endif
+  /* Configure RAM Usage and Retention Size */
+  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
+
+  /* Trigger M4 Sleep*/
+  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
+                         DISABLE_LF_MODE,
+                         WKP_RAM_USAGE_LOCATION,
+                         (uint32_t)RSI_PS_RestoreCpuContext,
+                         IVT_OFFSET_ADDR,
+                         RSI_WAKEUP_FROM_FLASH_MODE);
+#endif
+
+  /*  Setup the systick timer */
+  vPortSetupTimerInterrupt();
+
+#ifdef DEBUG_UART
+  fpuInit();
+  /*Initialize UART after wake up*/
+  sl_service_init();
+#endif
+}
+#endif
 /**
  * @fn         rsi_ble_app_init_events
  * @brief      initializes the event parameter.
@@ -585,10 +680,20 @@ void ble_app_task(void *argument)
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
       //! if events are not received loop will be continued.
+#if (defined RSI_M4_INTERFACE && ENABLE_POWER_SAVE)
+      //! if events are not received loop will be continued.
+
+      if (!(P2P_STATUS_REG & TA_wakeup_M4)) {
+        P2P_STATUS_REG &= ~M4_wakeup_TA;
+        LOG_PRINT("\r\n triggering M4 sleep\r\n");
+        M4_sleep_wakeup();
+      }
+#else
       if (ble_main_task_sem) {
         osSemaphoreAcquire(ble_main_task_sem, 0);
       }
       continue;
+#endif
     }
 
     //! if any event is received, it will be served.
@@ -708,9 +813,7 @@ scan:
   }
 }
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
-
   osThreadNew((osThreadFunc_t)ble_app_task, NULL, &thread_attributes);
 }

@@ -1334,6 +1334,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   int32_t event_id, i;
   uint8_t local_dev_addr[BD_ADDR_ARRAY_LEN]           = { 0 };
   uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  sl_wifi_version_string_t fw_version                 = { 0 };
 #if (GATT_ROLE == SERVER)
   uint8_t scan_data_len = 0;
   uint8_t scan_data[32] = { 0 };
@@ -1342,7 +1343,6 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
      0x02, 0x01, 0x05, 0x03, 0x19, 0xC0, 0x03, /* Appearance */
      0x03, 0x03, 0x12, 0x18                    /*0x0F, 0x18, 0x0A, 0x18,  Service UUIDs */
   };
-  sl_wifi_version_string_t fw_version = { 0 };
 
   /* Name */
   adv_data[11] = strlen(RSI_BLE_APP_HIDS) + 1;

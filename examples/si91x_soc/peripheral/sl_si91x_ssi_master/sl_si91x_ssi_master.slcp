@@ -44,6 +44,6 @@ provides:
 readme:
   - path: readme.md
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.12}
+- {id: wiseconnect3_sdk, version: 3.0.13}
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

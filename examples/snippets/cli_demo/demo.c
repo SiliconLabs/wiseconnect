@@ -83,7 +83,7 @@ const osThreadAttr_t thread_attributes = {
 
 void app_init(const void *unused)
 {
-
+  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -185,6 +185,7 @@ sl_status_t thread_command_handler(console_args_t *arguments)
 
 sl_status_t rtt_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   return SL_STATUS_OK;
 }
 

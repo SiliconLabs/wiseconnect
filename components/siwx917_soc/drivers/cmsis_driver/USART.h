@@ -219,7 +219,7 @@ typedef struct _USART_CLOCK {
   uint32_t frac_div_en;
 } USART_CLOCK;
 
-typedef const struct {
+typedef const struct _USART_PIN {
   uint8_t port;    ///< CAN GPIO port
   uint8_t pin;     ///< CAN GPIO pin
   uint8_t mode;    ///< CAN GPIO mode

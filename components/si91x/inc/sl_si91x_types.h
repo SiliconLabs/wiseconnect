@@ -47,8 +47,8 @@
 /// Flag to indicate that all the packet tx has to be suspended until the corresponding command response is received
 #define SI91X_PACKET_GLOBAL_QUEUE_BLOCK (1 << 3)
 
-/// Flag to indicate that firmware has no response to this command
-#define SI91X_PACKET_WITH_NO_RESPONSE (1 << 4)
+/// Flag to indicate that host would receive the response from firmware in asynchronous manner.
+#define SI91X_PACKET_WITH_ASYNC_RESPONSE (1 << 4)
 /** @} */
 
 /** \ingroup SL_SI91X_CONSTANTS
@@ -94,6 +94,8 @@ typedef enum {
 
   SI91X_QUEUE_MAX ///< SI91X Maximum queue type
 } sl_si91x_queue_type_t;
+
+typedef uint32_t sl_si91x_semaphore_handle_t;
 
 /// Si91x band mode
 typedef enum {

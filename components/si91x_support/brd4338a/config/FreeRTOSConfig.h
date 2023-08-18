@@ -40,7 +40,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * the demo) are contained in FreeRTOSIPConfig.h.
 *----------------------------------------------------------*/
 
-#include "RS1xxxx_9117.h"
+#include "si91x_device.h"
 
 extern uint32_t SystemCoreClock;
 /* FIX ME: Uncomment and set to the specifications for your MCU. */
@@ -188,7 +188,7 @@ function. */
 routine that makes calls to interrupt safe FreeRTOS API functions.  DO NOT CALL
 INTERRUPT SAFE FREERTOS API FUNCTIONS FROM ANY INTERRUPT THAT HAS A HIGHER
 PRIORITY THAN THIS! (higher priorities are lower numeric values. */
-#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 16
+#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 5
 
 /* Interrupt priorities used by the kernel port layer itself.  These are generic
 to all Cortex-M ports, and do not rely on any particular library functions. */

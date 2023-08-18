@@ -45,6 +45,10 @@ typedef enum sl_wifi_app_state_e {
   SL_WIFI_MQTT_AUTO_RECONNECT_SET_STATE = 18,
   SL_WIFI_MQTT_SUBSCRIBE_STATE          = 19,
   SL_WIFI_MQTT_PUBLISH_STATE            = 20,
+  SL_IDLE_STATE                         = 23,
+  SL_WLAN_MQTT_DISCONNECT               = 24,
+  SEND_DATA                             = 25,
+  RECEIVE_DATA                          = 26,
   /*
   SL_WIFI_MQTT_INIT_DONE_STATE      = 8,
   SL_WIFI_MQTT_SUBSCRIBE_DONE_STATE = 9,
@@ -52,12 +56,33 @@ typedef enum sl_wifi_app_state_e {
   SL_BLE_GATT_WRITE_EVENT      = 10,
   SL_WIFI_DISCONNECTED_STATE   = 11,
   SL_WIFI_DISCONN_NOTIFY_STATE = 12,
-  SL_WIFI_ERROR_STATE          = 13,
-  SL_WIFI_FLASH_STATE          = 14,
+  SL_WIFI_ERROR_STATE          = 21,
+  SL_WIFI_FLASH_STATE          = 22,
   SL_WIFI_DATA_RECEIVE_STATE   = 15,
   SL_SD_WRITE_STATE            = 16,
-  SL_WIFI_DEMO_COMPLETE_STATE  = 17
+  SL_WIFI_DEMO_COMPLETE_STATE  = 17,
+  RSI_AWS_SELECT_CONNECT_STATE = 13,
+  RSI_SLEEP_STATE              = 14
 } sl_wifi_app_state_t;
+
+/*typedef struct sl_wlan_app_cb_s {
+  //! wlan application state
+  volatile sl_wifi_app_state_t state;
+
+  //! length of buffer to copy
+  uint32_t length;
+
+  //! application buffer
+  uint8_t buffer[RSI_APP_BUF_SIZE];
+
+  //! to check application buffer availability
+  uint8_t buf_in_use;
+
+  //! application events bit map
+  uint32_t event_map;
+
+} sl_wlan_app_cb_t;*/
+//sl_wlan_app_cb_t sl_wlan_app_cb; //! application control block
 
 typedef enum rsi_app_cmd_e {
   SL_DATA                      = 0,

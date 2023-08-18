@@ -4,7 +4,7 @@
 
 This example demonstrates how to configure/connects SiWx91x to get the WiFi connection functionality using BLE provisioning. In this application, SiWx91x starts advertising in BLE mode and Access Point details are fetched using BLE Provisioning.
 
-The SiWx91x module is configured  as a station, which associates to an access point and then communicates with an AWS server using MQTT. Data will be continuously published until the device is disconnected from the access point.  
+The SiWx91x module is configured  as a station, which associates to an access point and then communicates with an AWS server using MQTT. Si917 connected to LM75 Temperature Sensor via I2C interface, collects real time temperature data publishes to the cloud until the device is disconnected from the access point.  
 
 ## 2. Prerequisites / Setup Requirements
 
@@ -22,10 +22,43 @@ Before running the application, the user will need the following things to setup
       - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 - Wireless Access point
-- Android Phone or iPhone with **EFR Connect** App, which is available in Play Store and App Store.
-- Windows PC with windows Silicon labs connect application.
+- Android Phone or iPhone with **EFR Connect** App, which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
+- Windows/Linux/Mac PC with AWS Smart Lock GUI
+- LM75 Temperature Sensor
   
 ![Setup diagram of WLAN Station BLE Provisioning with AWS cloud ](resources/readme/image_aws1.png)
+
+## Base Board Pin Configuration- A0 Board
+
+#### I2C0
+
+| PIN | ULP GPIO PIN               | Description                 |
+| --- | -------------------------- | --------------------------- |
+| SCL | ULP_GPIO_11 [EXP_HEADER-5] | Connect to Follower SCL pin |
+| SDA | ULP_GPIO_10 [EXP_HEADER-3] | Connect to Follower SDA pin |
+
+#### I2C1
+
+| PIN | GPIO PIN                 | Description                 |
+| --- | -------------------------| --------------------------- |
+| SCL | GPIO_50 [EXP_HEADER-P19] | Connect to Follower SCL pin |
+| SDA | GPIO_51 [EXP_HEADER-P20] | Connect to Follower SDA pin |
+
+#### I2C2
+
+| PIN | ULP GPIO PIN               | Description                 |
+| --- | -------------------------- | --------------------------- |
+| SCL | ULP_GPIO_5 [EXP_HEADER-13] | Connect to Follower SCL pin |
+| SDA | ULP_GPIO_4 [EXP_HEADER-11] | Connect to Follower SDA pin |
+
+## Base Board Pin Configuration- B0 Board
+
+#### I2C2
+
+| PIN | ULP GPIO PIN               | Description                 |
+| --- | -------------------------- | --------------------------- |
+| SCL | ULP_GPIO_7 [EXP_HEADER-15] | Connect to Follower SCL pin |
+| SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Follower SDA pin |
 
 ### 2.2 Software Requirements
 
@@ -53,6 +86,8 @@ Before running the application, the user will need the following things to setup
 - WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
 
    ![](resources/readme/bleprovisioningncp.png)
+
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ### 3. Application Build Environment
 
@@ -134,7 +169,17 @@ Before running the application, the user will need the following things to setup
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-**4.1** Open `wlan_app.c` file and update/modify following macros
+**4.1** Open `<wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h>` and set the following parameters
+
+```c
+#define RTE_I2C2_SCL_PORT_ID 2
+```
+
+```c
+#define RTE_I2C2_SDA_PORT_ID 2
+```
+
+**4.2** Open `wlan_app.c` file and update/modify following macros
 
    Modify the MQTT topics and give different names for both topics SiWx91x is subscribed to MQTT_TOPIC1 and publishing to MQTT_TOPIC2. 
    MQTT web application is subscribed to `MQTT_TOPIC2` and publishing on `MQTT_TOPIC1`.
@@ -156,7 +201,7 @@ The application can be configured to suit your requirements and development envi
 #define BUF_SIZE                                 1400
 ```
 
-**4.1.1** Open `wlan_config.h` file and update/modify the following macros
+**4.2.2** Open `wlan_config.h` file and update/modify the following macros
 
 ```c
 #define CONCURRENT_MODE                          RSI_DISABLE
@@ -174,7 +219,7 @@ define RSI_BAND                                  RSI_BAND_2P4GHZ
    **Note:**
    `wlan_config.h` file is already set with the desired configuration in respective example folders, user need not change for each example.
 
-**4.2** Open `ble_app.c` file and update/modify following macros
+**4.3** Open `ble_app.c` file and update/modify following macros
 
    **Configuring the BLE Application**
 
@@ -252,7 +297,7 @@ define RSI_BAND                                  RSI_BAND_2P4GHZ
 #define  BT_GLOBAL_BUFF_LEN                              15000
 ```
 
-**4.3** Open `aws_iot_config.h` file and change the AWS_IOT_MQTT_CLIENT_ID to your choice (Make sure this is unique, if more than one user use has same client id it might get conflict at server side). 
+**4.4** Open `aws_iot_config.h` file and change the AWS_IOT_MQTT_CLIENT_ID to your choice (Make sure this is unique, if more than one user use has same client id it might get conflict at server side). 
 
  ```c
    //AWS Host name 
@@ -267,7 +312,7 @@ define RSI_BAND                                  RSI_BAND_2P4GHZ
    #define AWS_IOT_MY_THING_NAME      "AWS-IoT-C-SDK"    
 ```
 
-**4.4 To Load Certificate**
+**4.5 To Load Certificate**
 
 Place the certificate files in `<SDK>/resources/certificates/` path and include the certificate files in wifi_app.c
 

@@ -266,7 +266,7 @@ static void application_start(void *argument)
       break;
     case TLS_TX:
       send_data_to_tls_server();
-      // intentional fallthrough
+      break;
     default:
       printf("Invalid Throughput test");
   }

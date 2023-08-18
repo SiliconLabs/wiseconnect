@@ -14,22 +14,34 @@ filter:
     value: ["Intermediate"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.12}
+- {id: wiseconnect3_sdk, version: 3.0.13}
 source:
   - path: app.c
   - path: main.c
   - path: ble_app.c
   - path: wifi_app.c
+  - path: i2c_leader_example.c
 include:
   - path: .
     file_list:
       - path: app.h
       - path: ble_config.h
       - path: wifi_config.h
+      - path: i2c_leader_example.h
 define:
   - name: SYSCALLS_WRITE
+  - name: RSI_M4_INTERFACE
   - name: RSI_DEBUG_PRINTS
+  - name: SI91X_SOCKET_FEATURE
+provides:
+- {name: si91x_soc}
 requires:
+- name: sl_siwx917_platform
+- name: cmsis_common
+- name: component_catalog
+- name: siwx917_soc
+- name: si91x_support
+- name: sl_i2c
 - name: sl_system
 - name: aws_sdk
 - name: network_manager
@@ -44,6 +56,7 @@ requires:
 - name: wifi_resources
 - name: freertos
 - name: slist
+- name: socket
 - name: iostream_retarget_stdio
   condition: [device_has_devinfo]
 - name: iostream_recommended_stream

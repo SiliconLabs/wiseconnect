@@ -144,11 +144,11 @@ Before running the application, the user will need the following things to setup
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+- For NCP mode, choose the J-Link port and click on **OK**.
 
    **![J-link - NCP](resources/readme/port_selection.png)**
 
@@ -231,8 +231,9 @@ The application can be configured to suit your requirements and development envi
    ![](resources/readme/load_image1.png)
 
 2. Load the firmware image
- - Select the board. 
- - Browse the application image (.hex) and click on Flash button.
+
+- Select the board. 
+- Browse the application image (.hex) and click on Flash button.
 
    ![](resources/readme/load_image2.png)
 

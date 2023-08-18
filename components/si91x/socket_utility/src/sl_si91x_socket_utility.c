@@ -33,6 +33,8 @@ static sl_si91x_socket_config_t socket_config = {
 
 static si91x_socket_t sockets[NUMBER_OF_SOCKETS];
 
+static select_callback user_select_callback = NULL;
+
 static bool is_configured = false;
 
 /******************************************************
@@ -64,7 +66,6 @@ void handle_accept_response(int client_socket_id, sl_si91x_rsp_ltcp_est_t *accep
 }
 
 int handle_select_response(sl_si91x_socket_select_rsp_t *response,
-                           int nfds,
                            fd_set *readfds,
                            fd_set *writefds,
                            fd_set *exception_fd)
@@ -75,7 +76,7 @@ int handle_select_response(sl_si91x_socket_select_rsp_t *response,
   FD_ZERO(writefds);
   FD_ZERO(exception_fd);
 
-  for (int host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
+  for (int host_socket_index = 0; host_socket_index < NUMBER_OF_SOCKETS; host_socket_index++) {
     int firmware_socket_id = get_si91x_socket(host_socket_index)->id;
 
     if (readfds != NULL) {
@@ -94,6 +95,11 @@ int handle_select_response(sl_si91x_socket_select_rsp_t *response,
   }
 
   return total_fd_set_count;
+}
+
+void set_select_callback(select_callback callback)
+{
+  user_select_callback = callback;
 }
 
 sl_status_t sl_si91x_socket_init(void)
@@ -369,6 +375,55 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
   return SL_STATUS_OK;
 }
 
+int sli_si91x_shutdown(int socket, int how)
+{
+  sl_status_t status                                      = SL_STATUS_OK;
+  sl_si91x_socket_close_request_t socket_close_request    = { 0 };
+  sl_si91x_socket_close_response_t *socket_close_response = NULL;
+  sl_si91x_wait_period_t wait_period                      = SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_WAIT_FOR_EVER);
+  sl_wifi_buffer_t *buffer                                = NULL;
+
+  si91x_socket_t *si91x_socket = get_si91x_socket(socket);
+  int close_request_type       = (si91x_socket->state == LISTEN) ? SHUTDOWN_BY_PORT : how;
+
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
+  if (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED
+      || (si91x_socket->state == DISCONNECTED && is_tcp_auto_close_enabled())) {
+    reset_socket_state(socket);
+
+    return SI91X_NO_ERROR;
+  }
+
+  /*If socket is server socket, SHUTDOWN_BY_PORT is to be used irrespective of 'how' parameter.*/
+  socket_close_request.socket_id   = (close_request_type == SHUTDOWN_BY_ID) ? si91x_socket->id : 0;
+  socket_close_request.port_number = (close_request_type == SHUTDOWN_BY_ID) ? 0 : si91x_socket->local_address.sin6_port;
+
+  status = sl_si91x_socket_driver_send_command(RSI_WLAN_REQ_SOCKET_CLOSE,
+                                               &socket_close_request,
+                                               sizeof(socket_close_request),
+                                               SI91X_SOCKET_CMD_QUEUE,
+                                               SI91X_SOCKET_RESPONSE_QUEUE,
+                                               &buffer,
+                                               (void *)&socket_close_response,
+                                               NULL,
+                                               &wait_period);
+
+  SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
+
+  for (uint8_t index = 0; index < NUMBER_OF_SOCKETS; index++) {
+    si91x_socket_t *socket = get_si91x_socket(index);
+
+    if (close_request_type == SHUTDOWN_BY_ID && socket->id == socket_close_response->socket_id) {
+      reset_socket_state(index);
+    } else if (close_request_type == SHUTDOWN_BY_PORT
+               && socket->local_address.sin6_port == socket_close_response->port_number) {
+      reset_socket_state(index);
+    }
+  }
+
+  return SI91X_NO_ERROR;
+}
+
 sl_status_t si91x_socket_event_handler(sl_status_t status,
                                        sl_si91x_socket_context_t *sdk_context,
                                        sl_si91x_packet_t *rx_packet)
@@ -421,15 +476,11 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
                                       (uint8_t *)(firmware_socket_response + firmware_socket_response->offset),
                                       firmware_socket_response->length);
   } else if (rx_packet->command == RSI_WLAN_RSP_SELECT_REQUEST) {
+    fd_set read_fd, write_fd, exception_fd;
 
-    sl_si91x_select_context *select_context = sdk_context->socket_context;
+    handle_select_response((sl_si91x_socket_select_rsp_t *)rx_packet->data, &read_fd, &write_fd, &exception_fd);
 
-    handle_select_response((sl_si91x_socket_select_rsp_t *)rx_packet->data,
-                           select_context->nfds,
-                           select_context->read_fd,
-                           select_context->write_fd,
-                           select_context->exception_fd);
-    select_context->callback(select_context->read_fd, select_context->write_fd, select_context->exception_fd, status);
+    user_select_callback(&read_fd, &write_fd, &exception_fd, status);
   } else if (rx_packet->command == RSI_WLAN_RSP_TCP_ACK_INDICATION) {
     sl_si91x_rsp_tcp_ack_t *tcp_ack = (sl_si91x_rsp_tcp_ack_t *)rx_packet->data;
 

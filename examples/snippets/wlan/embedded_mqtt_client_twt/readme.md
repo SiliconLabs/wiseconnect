@@ -41,17 +41,15 @@ In this application, SiWx91x is configured as a Wi-Fi station and connects to an
 
 ![Figure: Setup Diagram for SoC mode Power Save Standby Example](resources/readme/setup_soc.png)
   
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-
 #### NCP Mode  
 
 ![Figure: Setup Diagram for NCP mode Power Save Standby Example](resources/readme/setup_ncp.png)
 
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
-
 **NOTE**:
 
 - The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
+
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ### 3.1 Creating the project
 
@@ -111,11 +109,11 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
       **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+- For NCP mode, choose the J-Link port and click on **OK**.
 
       **![J-link - NCP](resources/readme/port_selection.png)**
 
@@ -287,24 +285,24 @@ The application can be configured to suit user requirements and development envi
 
   **Parameters of twt_request are explained below :**
 
-  - **twt_enable**: This parameter tells whether the twt is used for setup or teardown. 1 indicates that it is setup and 0 indicates it is teardown.
-  - **twt_flow_id**: This parameter identifies the type data being sent by the device. The AP will use the flow ID to determine when to wake up the device for communication. Allowed value range is 0 - 7 or 0xFF.
-  - **wake_duration**: This is the nominal minimum wake duration of TWT. This is the time for which DUT will be in wake state for Transmission or reception of data. Allowed values range is  0-255.
-  - **wake_duration_unit**: This parameter defines unit for wake_duration. Allowed values are  0 (256uS) and 1 (1024uS).
-  - **wake_duration_tol**: This is the tolerance allowed for wake duration in case of suggest TWT. Received TWT wake duration from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-255.
-  - **wake_int_exp**: TWT Wake interval exponent. It is exponent to base 2. Allowed values are 0 - 31.
-  - **wake_int_exp_tol**: This is the allowed tolerance for wake_int_exp in case of suggest TWT request. Received TWT wake interval exponent from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0 - 31.
-  - **wake_int_mantissa**: This is the TWT wake interval mantissa. Allowed values are 0-65535.
-  - **wake_int_mantissa_tol**: This is tolerance allowed for wake_int_mantissa in case of suggest TWT. Received TWT wake interval mantissa from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-65535.
-  - **implicit_twt**: If enabled (1), the TWT requesting STA calculates the Next TWT by adding a fixed value to the current TWT value. Explicit TWT is currently not allowed.
-  - **un_announced_twt**: If enabled (1), TWT requesting STA does not announce its wake up to AP through PS-POLLs or UAPSD Trigger frames.
-  - **triggered_twt**: If enabled(1), at least one trigger frame is included in the TWT Service Period(TSP).
-  - **twt_channel**: Currently this configuration is not supported. Allowed values are 0-7.
-  - **twt_protection**:  If enabled (1), TSP is protected. This is negotiable with AP. Currently not supported. Only zero is allowed.
-  - **restrict_tx_outside_tsp**: If enabled (1), any Tx outside the TSP is restricted. Else, TX can happen outside the TSP also.
-  - **twt_retry_limit**: This is the maximum number of retries allowed, if the TWT response frame is not recieved for the sent TWT request frame. Allowed values are 0 - 15.
-  - **twt_retry_interval**: The interval, in seconds, between two twt request retries. Allowed values are 5 - 255.
-  - **req_type**: This is the TWT request type.
+- **twt_enable**: This parameter tells whether the twt is used for setup or teardown. 1 indicates that it is setup and 0 indicates it is teardown.
+- **twt_flow_id**: This parameter identifies the type data being sent by the device. The AP will use the flow ID to determine when to wake up the device for communication. Allowed value range is 0 - 7 or 0xFF.
+- **wake_duration**: This is the nominal minimum wake duration of TWT. This is the time for which DUT will be in wake state for Transmission or reception of data. Allowed values range is  0-255.
+- **wake_duration_unit**: This parameter defines unit for wake_duration. Allowed values are  0 (256uS) and 1 (1024uS).
+- **wake_duration_tol**: This is the tolerance allowed for wake duration in case of suggest TWT. Received TWT wake duration from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-255.
+- **wake_int_exp**: TWT Wake interval exponent. It is exponent to base 2. Allowed values are 0 - 31.
+- **wake_int_exp_tol**: This is the allowed tolerance for wake_int_exp in case of suggest TWT request. Received TWT wake interval exponent from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0 - 31.
+- **wake_int_mantissa**: This is the TWT wake interval mantissa. Allowed values are 0-65535.
+- **wake_int_mantissa_tol**: This is tolerance allowed for wake_int_mantissa in case of suggest TWT. Received TWT wake interval mantissa from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-65535.
+- **implicit_twt**: If enabled (1), the TWT requesting STA calculates the Next TWT by adding a fixed value to the current TWT value. Explicit TWT is currently not allowed.
+- **un_announced_twt**: If enabled (1), TWT requesting STA does not announce its wake up to AP through PS-POLLs or UAPSD Trigger frames.
+- **triggered_twt**: If enabled(1), at least one trigger frame is included in the TWT Service Period(TSP).
+- **twt_channel**: Currently this configuration is not supported. Allowed values are 0-7.
+- **twt_protection**:  If enabled (1), TSP is protected. This is negotiable with AP. Currently not supported. Only zero is allowed.
+- **restrict_tx_outside_tsp**: If enabled (1), any Tx outside the TSP is restricted. Else, TX can happen outside the TSP also.
+- **twt_retry_limit**: This is the maximum number of retries allowed, if the TWT response frame is not recieved for the sent TWT request frame. Allowed values are 0 - 15.
+- **twt_retry_interval**: The interval, in seconds, between two twt request retries. Allowed values are 5 - 255.
+- **req_type**: This is the TWT request type.
     >
     > - 0 - Request TWT
     > - 1 - Suggest TWT

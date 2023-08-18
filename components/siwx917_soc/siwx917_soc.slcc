@@ -90,6 +90,8 @@ requires:
 - name: wiseconnect_toolchain_gcc
 - condition: ["wifi"]
   name: si91x_core
+- condition: ["freertos"]
+  name: si91x_device_init_nvic
 - name: component_catalog
 - condition: ["wifi"]
   name: sl_siwx917_platform
@@ -152,8 +154,12 @@ template_contribution:
   value: 71688
 - condition: ["wifi"]
   name: event_handler
-  priority: -9998
+  priority: -9997
   value: {"event":"platform_init","handler":"sli_si91x_platform_init","include":"sli_siwx917_soc.h"}
+- condition: ["freertos"]
+  name: event_handler
+  priority: -9998
+  value: {"event":"platform_init","handler":"sl_si91x_device_init_nvic","include":"rsi_nvic_priorities_config.h"}
 
 toolchain_settings:
 - option: device_opn

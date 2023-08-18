@@ -28,6 +28,8 @@
 extern "C" {
 #endif
 
+#define UNUSED_PARAMETER(x) (void)(x)
+
 #define RSI_UDMA_DRV_VERSION RSI_DRIVER_VERSION_MAJOR_MINOR(02, 00) // driver version
 #define RSI_UDMA_API_VERSION RSI_DRIVER_VERSION_MAJOR_MINOR(00, 01) // API version
 #define UDMA_CHANNEL_NUM     32

@@ -42,21 +42,21 @@ The application connects to a remote server to send UDP data and also enables th
 
 ![Figure: Setup Diagram for SoC mode Power Save Standby Example](resources/readme/setup_soc.png)
   
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-
 #### NCP Mode  
 
 ![Figure: Setup Diagram for NCP mode Power Save Standby Example](resources/readme/setup_ncp.png)
 
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
+Follow the [Getting Started with Wiseconnect SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 **NOTE**:
 
 - The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
+
 ## 3 Project Environment
 
-- Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 ### 3.1 Creating the project
 
@@ -96,7 +96,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 ### 3.2 Set up for application prints
 
-#### 3.2.1 SoC mode
+#### 3.2.1 Tera Term set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
 
   You can use either of the below USB to UART converters for application prints.
 
@@ -114,15 +114,15 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
     **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera Term set up - for NCP and SoC modes**
+3. Open the Tera Term tool.
 
-1. Open the Tera Term tool.
-
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
       **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+**Tera Term set up - for NCP and SoC modes**
+
+1. Choose the J-Link port and click on **OK**.
     
       **![J-link - NCP](resources/readme/port_selection.png)**
 
@@ -150,6 +150,12 @@ The application can be configured to suit your requirements and development envi
 
   ```c
   #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+  ```
+
+- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type of the Access point. The supported security modes are mentioned in `sl_wifi_security_t`.
+
+  ```c
+  #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE SL_WIFI_WPA_WPA2_MIXED
   ```
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
@@ -206,7 +212,6 @@ The application can be configured to suit your requirements and development envi
 
   ![Application prints](resources/readme/output_soc.png)
 
-
 ### 4.5 Additional Information
 
 - Average current consumption measured in power-meter
@@ -250,3 +255,11 @@ The application can be configured to suit your requirements and development envi
 **NOTE** : The target part and board name have to be reverted to default to flash application binary.
 
   ![Figure: Energy Profiler Step 8](resources/readme/energy_profiler_step_8.png)
+
+### Note
+
+For NCP mode, following defines have to enabled manually in preprocessor setting of example project
+
+- For 917A0 expansion board, enable CHIP_917 = 1
+- For 917B0 1.2 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1
+- For 917B0 2.0 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1, SI917_RADIO_BOARD_V2 = 1 (This is enabled by default for all examples)  

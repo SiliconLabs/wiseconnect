@@ -60,7 +60,7 @@
 #define SERVER_ADDR "192.168.1.108"
 
 //! AWS Domain name
-#define AWS_DOMAIN_NAME "a3vlw509hinh6w-ats.iot.us-east-1.amazonaws.com"
+#define AWS_DOMAIN_NAME "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com"
 
 //! Load certificate to device flash :
 //! Certificate should be loaded once and need not be loaded for every boot up

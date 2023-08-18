@@ -35,6 +35,7 @@
 #include "sl_constants.h"
 #include "sl_sntp.h"
 #include "sl_wifi.h"
+#include "sl_net_dns.h"
 #include "string.h"
 
 /******************************************************
@@ -43,7 +44,7 @@
 
 #define SNTP_METHOD        SL_SNTP_UNICAST_MODE
 #define FLAGS              0
-#define NTP_SERVER_IP      "162.159.200.123"
+#define NTP_SERVER_IP      "0.pool.ntp.org" // Mostly "162.159.200.123"
 #define DATA_BUFFER_LENGTH 30
 #define SNTP_TIMEOUT       50
 #define SNTP_API_TIMEOUT   0
@@ -96,13 +97,16 @@ static const sl_wifi_device_configuration_t sl_wifi_sntp_client_configuration = 
 static uint8_t callback_event = 0;
 static sl_status_t cb_status  = SL_STATUS_FAIL;
 static uint8_t exec_status    = 0;
+static char *event_type[]     = { [SL_SNTP_CLIENT_START]           = "SNTP Client Start",
+                                  [SL_SNTP_CLIENT_GET_TIME_DATE]   = "SNTP Client Get Time and Date",
+                                  [SL_SNTP_CLIENT_GET_SERVER_INFO] = "SNTP Client Get Server Info",
+                                  [SL_SNTP_CLIENT_STOP]            = "SNTP Client Stop" };
 
 /******************************************************
  *               Function Declarations
  ******************************************************/
 sl_status_t embedded_sntp_client(void);
 static void application_start(void *argument);
-void print_char_buffer(char *buffer, uint32_t buffer_length);
 
 /******************************************************
  *               Function Definitions
@@ -118,6 +122,8 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
+
+  printf("SNTP client execution Started \r\n");
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_sntp_client_configuration, NULL, NULL);
   if (status != SL_STATUS_OK && status != SL_STATUS_ALREADY_INITIALIZED) {
@@ -145,13 +151,32 @@ static void application_start(void *argument)
   }
 }
 
-void print_char_buffer(char *buffer, uint32_t buffer_length)
+static void print_char_buffer(char *buffer, uint32_t buffer_length)
 {
-  for (uint32_t index = 0; index < buffer_length; index++) {
-    printf("%c", buffer[index]);
+  uint32_t i = 0;
+
+  for (i = 0; i < buffer_length; i++) {
+    printf("%c", buffer[i]);
   }
 
   printf("\r\n");
+  return;
+}
+
+static void print_server_info(char *buffer, uint32_t buffer_length)
+{
+  uint32_t i = 0;
+
+  for (i = 0; i < buffer_length; i++) {
+    if ((i > 1) && (i < 5)) {
+      printf("%u.", buffer[i]);
+    } else {
+      printf("%u ", buffer[i]);
+    }
+  }
+
+  printf("\r\n");
+  return;
 }
 
 static void sntp_client_event_handler(sl_sntp_client_response_t *response,
@@ -160,7 +185,18 @@ static void sntp_client_event_handler(sl_sntp_client_response_t *response,
 {
   UNUSED_PARAMETER(user_data);
   UNUSED_PARAMETER(user_data_length);
-  printf("Received %u SNTP event with status %ld\n", response->event_type, response->status);
+
+  printf("\nReceived %s SNTP event with status %s\n",
+         event_type[response->event_type],
+         (0 == response->status) ? "Success" : "Failed");
+  if ((SL_SNTP_CLIENT_GET_TIME_DATE == response->event_type) && (0 == response->status)) {
+    printf("Response %u bytes data : ", response->data_length);
+    print_char_buffer((char *)response->data, response->data_length);
+  } else if ((SL_SNTP_CLIENT_GET_SERVER_INFO == response->event_type) && (0 == response->status)) {
+    printf("Response %u bytes data : ", response->data_length);
+    print_server_info((char *)response->data, response->data_length);
+  }
+
   callback_event = response->event_type;
   cb_status      = response->status;
 
@@ -174,13 +210,18 @@ sl_status_t embedded_sntp_client(void)
 {
   uint32_t start = 0;
   sl_status_t status;
-  sl_ipv4_address_t address        = { 0 };
+  sl_ip_address_t address          = { 0 };
   sl_sntp_client_config_t config   = { 0 };
   uint8_t data[DATA_BUFFER_LENGTH] = { 0 };
 
-  sl_net_inet_addr(NTP_SERVER_IP, (uint32_t *)&address);
+  sl_dns_host_get_by_name(NTP_SERVER_IP, 10000, SL_NET_DNS_TYPE_IPV4, &address);
+  printf("Ip Address : %u.%u.%u.%u\n",
+         address.ip.v4.bytes[0],
+         address.ip.v4.bytes[1],
+         address.ip.v4.bytes[2],
+         address.ip.v4.bytes[3]);
 
-  config.server_host_name = address.bytes;
+  config.server_host_name = address.ip.v4.bytes;
   config.sntp_method      = SNTP_METHOD;
   config.sntp_timeout     = SNTP_TIMEOUT;
   config.event_handler    = sntp_client_event_handler;

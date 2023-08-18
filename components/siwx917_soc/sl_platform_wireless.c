@@ -44,7 +44,7 @@ void sl_si91x_hardware_setup(void)
 
   /* Disable Timer clock that was enabled in Bootloader*/
   RSI_ULPSS_TimerClkDisable(ULPCLK);
-#ifndef COMMON_FLASH_EN
+#if !(defined(CHIP_917) || defined(CHIP_917B0))
   /* Disable 40MHz Clocks*/
   RSI_ULPSS_DisableRefClks(MCU_ULP_40MHZ_CLK_EN);
 #endif
@@ -370,7 +370,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 void sl_si91x_configure_ram_retention(uint32_t rams_in_use, uint32_t rams_retention_during_sleep)
 {
   /* Turn off Unused SRAMs*/
-  RSI_PS_M4ssRamBanksPowerDown(rams_in_use);
+  //RSI_PS_M4ssRamBanksPowerDown(rams_in_use);
   /* Turn off Unused SRAM Core/Periphery domains*/
   RSI_PS_M4ssRamBanksPeriPowerDown(rams_in_use);
 

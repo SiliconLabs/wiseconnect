@@ -12,7 +12,7 @@ Before running the application, the user will need the following things to setup
 
 Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 
-  - For Soc Mode, Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
+- For Soc Mode, Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
 
 - **NCP Mode**:
   - [SiWx91x Wi-Fi Expansion Board](https://www.silabs.com/)
@@ -54,13 +54,11 @@ Set up diagram for SoC mode:
 
 **![Figure: Setup Diagram for Enterprise Client soc Example](resources/readme/setup_soc.png)**
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-  
 #### 3.2 NCP Mode
 
 **![Figure: Setup Diagram for Enterprise Client ncp Example](resources/readme/setup_ncp.png)**
 
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) to setup the example to work with EFx32 and Simplicity Studio.
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 **NOTE**:
 

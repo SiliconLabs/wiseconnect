@@ -30,21 +30,19 @@ Ping is used diagnostically to ensure that a host computer the user is trying to
 
 ![Figure: Setup Diagram SoC Mode for Station Ping Example](resources/readme/stationpingsetupsoc.png)
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-
 #### NCP Mode
 
 ![Figure: Setup Diagram NCP Mode for Station Ping Example](resources/readme/stationpingsetupncp.png)
-
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
 
 **NOTE**:
 
 - The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
+
 ## 3 Project Environment
 
-- Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 ### 3.1 Creating the project
 
@@ -146,12 +144,12 @@ The application can be configured to suit user requirements and development envi
 
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-2. Configure the following parameters in **app.c** to test throughput app as per requirements
+2. Configure the following parameters in **app.c** to test station Ping application
 
     - **Remote peer configurations**
 
       ```c
-      #define REMOTE_IP_ADDRESS   "2409:40f0:18:ffa3:890d:1212:170:293e"    // Destination IP v6 address
+      #define REMOTE_IP_ADDRESS   "2409:40f0:18:ffa3:890d:1212:170:293e"    // Remote/Target Ipv6 address to ping
       #define PING_PACKET_SIZE    64                 // Size of ping request packet
       ```
 

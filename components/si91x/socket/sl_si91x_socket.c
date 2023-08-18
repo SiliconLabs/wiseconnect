@@ -7,6 +7,7 @@
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_rsi_utility.h"
+#include "sl_si91x_driver.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -162,6 +163,11 @@ int sl_si91x_accept(int socket, const struct sockaddr *addr, socklen_t addr_len)
   return sli_si91x_accept_async(socket, addr, addr_len, NULL);
 }
 
+int sl_si91x_shutdown(int socket, int how)
+{
+  return sli_si91x_shutdown(socket, how);
+}
+
 int sl_si91x_accept_async(int socket, accept_callback callback)
 {
   return sli_si91x_accept_async(socket, NULL, 0, callback);
@@ -265,6 +271,7 @@ static int sli_si91x_accept_async(int socket, const struct sockaddr *addr, sockl
 
 int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *option_value, socklen_t option_len)
 {
+  UNUSED_PARAMETER(level);
   si91x_socket_t *si91x_socket = get_si91x_socket(sockID);
   sl_si91x_time_value *timeout = NULL;
   uint16_t timeout_val;
@@ -569,55 +576,6 @@ int sl_si91x_recvfrom(int socket,
   return bytes_read;
 }
 
-int sl_si91x_shutdown(int socket, int how)
-{
-  sl_status_t status                                      = SL_STATUS_OK;
-  sl_si91x_socket_close_request_t socket_close_request    = { 0 };
-  sl_si91x_socket_close_response_t *socket_close_response = NULL;
-  sl_si91x_wait_period_t wait_period                      = SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_WAIT_FOR_EVER);
-  sl_wifi_buffer_t *buffer                                = NULL;
-
-  si91x_socket_t *si91x_socket = get_si91x_socket(socket);
-  int close_request_type       = (si91x_socket->state == LISTEN) ? SHUTDOWN_BY_PORT : how;
-
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
-  if (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED
-      || (si91x_socket->state == DISCONNECTED && is_tcp_auto_close_enabled())) {
-    reset_socket_state(socket);
-
-    return SI91X_NO_ERROR;
-  }
-
-  /*If socket is server socket, SHUTDOWN_BY_PORT is to be used irrespective of 'how' parameter.*/
-  socket_close_request.socket_id   = (close_request_type == SHUTDOWN_BY_ID) ? si91x_socket->id : 0;
-  socket_close_request.port_number = (close_request_type == SHUTDOWN_BY_ID) ? 0 : si91x_socket->local_address.sin6_port;
-
-  status = sl_si91x_socket_driver_send_command(RSI_WLAN_REQ_SOCKET_CLOSE,
-                                               &socket_close_request,
-                                               sizeof(socket_close_request),
-                                               SI91X_SOCKET_CMD_QUEUE,
-                                               SI91X_SOCKET_RESPONSE_QUEUE,
-                                               &buffer,
-                                               (void *)&socket_close_response,
-                                               NULL,
-                                               &wait_period);
-
-  SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
-
-  for (uint8_t index = 0; index < NUMBER_OF_SOCKETS; index++) {
-    si91x_socket_t *socket = get_si91x_socket(index);
-
-    if (close_request_type == SHUTDOWN_BY_ID && socket->id == socket_close_response->socket_id) {
-      reset_socket_state(index);
-    } else if (close_request_type == SHUTDOWN_BY_PORT
-               && socket->local_address.sin6_port == socket_close_response->port_number) {
-      reset_socket_state(index);
-    }
-  }
-
-  return SI91X_NO_ERROR;
-}
-
 int sl_si91x_select(int nfds,
                     fd_set *readfds,
                     fd_set *writefds,
@@ -627,18 +585,7 @@ int sl_si91x_select(int nfds,
 {
   sl_status_t status = SL_STATUS_OK;
 
-  int32_t total_fd_set_count        = 0; // Specifies total number of FD's set across all categories.
-  int32_t select_response_wait_time = 0;
-
-  sl_si91x_socket_select_req_t request   = { 0 };
-  sl_si91x_socket_select_rsp_t *response = NULL;
-
-  sl_wifi_buffer_t *buffer         = NULL;
-  sl_si91x_packet_t *packet        = NULL;
-  sl_si91x_wait_period_t wait_time = 0;
-
-  sl_si91x_socket_context_t *context = NULL;
-
+  sl_si91x_socket_select_req_t request = { 0 };
   if ((readfds == NULL) && (writefds == NULL) && (exceptfds == NULL)) {
     SET_ERROR_AND_RETURN(EINVAL);
   }
@@ -648,6 +595,8 @@ int sl_si91x_select(int nfds,
   if ((timeout != NULL) && ((timeout->tv_sec < 0) || (timeout->tv_usec < 0))) {
     SET_ERROR_AND_RETURN(EINVAL);
   }
+
+  set_select_callback(callback);
 
   for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
     if (readfds != NULL) {
@@ -671,53 +620,16 @@ int sl_si91x_select(int nfds,
     }
   }
 
-  if (callback != NULL) {
-    wait_time = SL_SI91X_RETURN_IMMEDIATELY;
-
-    context                                 = malloc(sizeof(sl_si91x_socket_context_t));
-    sl_si91x_select_context *select_context = malloc(sizeof(sl_si91x_select_context));
-
-    context->socket_context = select_context;
-
-    select_context->callback = callback;
-    select_context->nfds     = nfds;
-
-    select_context->read_fd      = readfds;
-    select_context->write_fd     = writefds;
-    select_context->exception_fd = exceptfds;
-
-    request.no_timeout = 1;
-  } else if (timeout != NULL && ((timeout->tv_sec != 0) || (timeout->tv_usec != 0))) {
+  if (timeout != NULL && ((timeout->tv_sec != 0) || (timeout->tv_usec != 0))) {
     request.select_timeout.tv_sec  = timeout->tv_sec;
     request.select_timeout.tv_usec = timeout->tv_usec;
-    select_response_wait_time      = ((request.select_timeout.tv_sec * 1000) + (request.select_timeout.tv_usec / 1000)
-                                 + SI91X_HOST_WAIT_FOR_SELECT_RSP);
-    wait_time                      = SL_SI91X_WAIT_FOR_RESPONSE(select_response_wait_time);
   } else {
-    request.no_timeout        = 1;
-    select_response_wait_time = 0;
-    wait_time                 = (SL_SI91X_WAIT_FOR_EVER | SL_SI91X_WAIT_FOR_RESPONSE_BIT);
+    request.no_timeout = 1;
   }
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SELECT_REQUEST,
-                                        SI91X_SOCKET_CMD_QUEUE,
-                                        &request,
-                                        sizeof(sl_si91x_socket_select_req_t),
-                                        wait_time,
-                                        context,
-                                        &buffer);
-
-  if (status == SL_STATUS_IN_PROGRESS) {
-    return status;
-  }
+  status =
+    sl_si91x_driver_send_asycn_command(RSI_WLAN_REQ_SELECT_REQUEST, SI91X_SOCKET_CMD_QUEUE, &request, sizeof(request));
 
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
-
-  packet   = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  response = (sl_si91x_socket_select_rsp_t *)packet->data;
-
-  total_fd_set_count = handle_select_response(response, nfds, readfds, writefds, exceptfds);
-
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
-  return total_fd_set_count;
+  return SI91X_NO_ERROR;
 }

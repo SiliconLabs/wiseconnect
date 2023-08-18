@@ -32,6 +32,8 @@ Before running the application, the user will need the following things to setup
 
 ![Figure: Setup Diagram NCP Mode for BLE Chat Example](resources/readme/bledlncp.png)
 
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
+
 ### 2.2 Software Requirements
 
 - [WiSeConnect SDK](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/)
@@ -44,7 +46,7 @@ Before running the application, the user will need the following things to setup
 
 ## 3. Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 ### 3.1 Create the Project
 
@@ -106,11 +108,11 @@ Before running the application, the user will need the following things to setup
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**. 
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+- For NCP mode, choose the J-Link port and click on **OK**.
     
    **![J-link - NCP](resources/readme/port_selection.png)**
 
@@ -201,8 +203,9 @@ Refer [Getting started with PC](https://docs.silabs.com/rs9116/latest/wiseconnec
    ![](resources/readme/load_image1.png)
 
 2. Load the application image
- - Select the board. 
- - Browse the application image (.hex) and click on Flash button.
+
+- Select the board. 
+- Browse the application image (.hex) and click on Flash button.
 
    ![](resources/readme/load_image2.png)
 

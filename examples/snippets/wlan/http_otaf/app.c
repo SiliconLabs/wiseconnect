@@ -147,16 +147,7 @@ char *hostname = HTTP_HOSTNAME;
 #define PASSWORD             "admin"
 #endif
 
-// WDT macros
-/*******************************************************************************
- ***************************  Defines / Macros  ********************************
- ******************************************************************************/
-#define LED0               0             // for on board LED-0
-#define ZERO_INTERRUPT_CNT 0             // for zero interrupt count
-#define NEW_INTERRUPT_TIME TIME_DELAY_16 // for 2 seconds interrupt time
-#define NEW_SYS_RST_TIME   TIME_DELAY_18 // for 8 seconds system-reset time
-#define NEW_WINDOW_TIME    TIME_DELAY_10 // for 32 milliseconds window time
-
+// WDT constants
 #define SL_WDT_INTERRUPT_TIME    0 // WDT Interrupt Time
 #define SL_WDT_SYSTEM_RESET_TIME 1 // WDT System Reset Time
 #define SL_WDT_WINDOW_TIME       0 // WDT Window Time
@@ -207,6 +198,8 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
 
 volatile bool response               = false;
 volatile sl_status_t callback_status = SL_STATUS_OK;
+static bool wdt_system_reset_flag    = false;
+
 /******************************************************
  *               Function Declarations
  ******************************************************/
@@ -217,31 +210,15 @@ static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
                                                    uint32_t data_length,
                                                    void *arg);
 static sl_status_t clear_and_load_certificates_in_flash(void);
+void soft_reset(void);
+void on_timeout_callback(void);
+void watchdog_timer_init(void);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
 
-void soft_reset(void)
-{
-  watchdog_timer_example_init();
-}
-
-/*******************************************************************************
- **********************  Local Function prototypes   ***************************
- ******************************************************************************/
-void on_timeout_callback(void);
-
-/*******************************************************************************
- **********************  Local variables   *************************************
- ******************************************************************************/
-static uint8_t wdt_interrupt_count = ZERO_INTERRUPT_CNT;
-static bool wdt_system_reset_flag  = false;
-
-/*******************************************************************************
- **************************   GLOBAL FUNCTIONS   *******************************
- ******************************************************************************/
-void watchdog_timer_example_init(void)
+void watchdog_timer_init(void)
 {
   sl_status_t status;
   sl_watchdog_timer_version_t version;
@@ -253,10 +230,7 @@ void watchdog_timer_example_init(void)
   wdt_config.interrupt_time    = SL_WDT_INTERRUPT_TIME;
   wdt_config.system_reset_time = SL_WDT_SYSTEM_RESET_TIME;
   wdt_config.window_time       = SL_WDT_WINDOW_TIME;
-  uint8_t new_interrupt_time;
-  uint8_t new_sys_rst_time;
-  uint8_t new_window_time;
-  SL_DEBUG_LOG("In Main..!\r\n");
+
   // Checking system-reset status if true means system-reset done by watchdog-timer
   // else it is a power-on system-reset.
   if (sl_si91x_watchdog_get_timer_system_reset_status()) {
@@ -300,6 +274,11 @@ void watchdog_timer_example_init(void)
     sl_si91x_watchdog_start_timer();
     SL_DEBUG_LOG("Successfully started watchdog-timer with new parameters \n");
   } while (false);
+}
+
+void soft_reset(void)
+{
+  watchdog_timer_init();
 }
 
 void on_timeout_callback(void)

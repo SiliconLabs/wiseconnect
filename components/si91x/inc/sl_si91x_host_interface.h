@@ -141,6 +141,10 @@ void sl_si91x_host_clear_sleep_indicator(void);
 uint32_t sl_si91x_host_get_wake_indicator(void);
 void sl_si91x_ulp_wakeup_init(void);
 
+sl_status_t sl_si91x_semaphore_wait(sl_si91x_semaphore_handle_t *semaphore, uint32_t timeout_ms);
+sl_status_t sl_si91x_semaphore_post(sl_si91x_semaphore_handle_t *semaphore);
+sl_status_t sl_si91x_semaphore_create(sl_si91x_semaphore_handle_t *semaphore, uint32_t count);
+
 // Unimplemented functions
 bool sl_si91x_host_is_in_interrupt_context(void);
 void sl_si91x_host_init_queue(sl_si91x_queue_type_t queue);

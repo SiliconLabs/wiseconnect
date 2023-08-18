@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.12}
+- {id: wiseconnect3_sdk, version: 3.0.13}
 source:
   - path: app.c
   - path: main.c
@@ -31,6 +31,7 @@ requires:
 - name: basic_network_manager
 - name: si91x_support
 - name: wifi
+- name: socket
 - name: si91x
 - name: si91x_internal_stack
 - name: si91x_basic_buffers

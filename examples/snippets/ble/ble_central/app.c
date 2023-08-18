@@ -45,11 +45,6 @@
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
 
-#ifdef FW_LOGGING_ENABLE
-//! Firmware logging includes
-#include "sl_fw_logging.h"
-#endif
-
 //! the below array is used to compare the data in the controller for the adv report.
 uint8_t adv_payload_for_compare[31] = { 0x6E, 0xC5, 0xFD, 0x05, 0x54, 0x9E, 0x68, 0xF8, 0xD0, 0x05 };
 
@@ -65,14 +60,6 @@ uint8_t adv_payload_for_compare[31] = { 0x6E, 0xC5, 0xFD, 0x05, 0x54, 0x9E, 0x68
 //! Remote Device Name to connect
 #define RSI_REMOTE_DEVICE_NAME "Galaxy M20"
 
-#ifdef FW_LOGGING_ENABLE
-//! Memory length of driver updated for firmware logging
-#define BT_GLOBAL_BUFF_LEN (15000 + (FW_LOG_QUEUE_SIZE * MAX_FW_LOG_MSG_LEN))
-//! Firmware logging task defines
-#define RSI_FW_TASK_STACK_SIZE (512 * 2)
-#define RSI_FW_TASK_PRIORITY   2
-#endif
-
 /*=======================================================================*/
 //!    Application powersave configurations
 /*=======================================================================*/
@@ -84,18 +71,6 @@ uint8_t adv_payload_for_compare[31] = { 0x6E, 0xC5, 0xFD, 0x05, 0x54, 0x9E, 0x68
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
 sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000 };
-#endif
-
-#ifdef FW_LOGGING_ENABLE
-/*=======================================================================*/
-//!    Firmware logging configurations
-/*=======================================================================*/
-//! Firmware logging variables
-extern osSemaphoreId_t fw_log_app_sem;
-rsi_task_handle_t fw_log_task_handle = NULL;
-//! Firmware logging prototypes
-void sl_fw_log_callback(uint8_t *log_message, uint16_t log_message_length);
-void sl_fw_log_task(void);
 #endif
 
 //! Application supported events list
@@ -132,13 +107,7 @@ static const sl_wifi_device_configuration_t config = {
 #else
                    .feature_bit_map            = RSI_FEATURE_BIT_MAP,
 #endif
-#if RSI_TCP_IP_BYPASS
-                   .tcp_ip_feature_bit_map = RSI_TCP_IP_FEATURE_BIT_MAP
-#else
-                   .tcp_ip_feature_bit_map     = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID)
-#endif
-                                             | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL,
-
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
                    .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
 
 #ifdef CHIP_917
@@ -159,7 +128,7 @@ static const sl_wifi_device_configuration_t config = {
                    .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
                                                   | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
 #else
-                   .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
+                   .ext_tcp_ip_feature_bit_map = (0),
 #endif
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
 #if (RSI_BT_GATT_ON_CLASSIC)
@@ -198,7 +167,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_GATT_INIT
 #endif
                       ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | RSI_CONFIG_FEATURE_BITMAP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) }
 };
 
 const osThreadAttr_t thread_attributes = {
@@ -208,7 +177,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = 3072,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -247,9 +216,7 @@ void rsi_ble_app_set_event(uint32_t event_num)
     ble_app_event_map1 |= BIT((event_num - 32));
   }
 
-  if (ble_main_task_sem) {
-    osSemaphoreRelease(ble_main_task_sem);
-  }
+  osSemaphoreRelease(ble_main_task_sem);
 
   return;
 }
@@ -411,10 +378,6 @@ void ble_central(void *argument)
 #ifdef RSI_BLE_ENABLE_WHITELIST_BASEDON_ADV_PAYLOAD
   uint8_t compare[31];
 #endif
-#ifdef FW_LOGGING_ENABLE
-  //Fw log component level
-  sl_fw_log_level_t fw_component_log_level;
-#endif
 
   status = sl_wifi_init(&config, default_wifi_event_handler);
   if (status != SL_STATUS_OK) {
@@ -423,23 +386,6 @@ void ble_central(void *argument)
   } else {
     LOG_PRINT("\r\n Wi-Fi Initialization Success\n");
   }
-
-#ifdef FW_LOGGING_ENABLE
-  //! Set log levels for firmware components
-  sl_set_fw_component_log_levels(&fw_component_log_level);
-
-  //! Configure firmware logging
-  status = sl_fw_log_configure(FW_LOG_ENABLE,
-                               FW_TSF_GRANULARITY_US,
-                               &fw_component_log_level,
-                               FW_LOG_BUFFER_SIZE,
-                               sl_fw_log_callback);
-  if (status != RSI_SUCCESS) {
-    printf("\r\n Firmware Logging Init Failed\r\n");
-  } else {
-    printf("\r\n Firmware Logging Init Successful\r\n");
-  }
-#endif
 
   //! BLE register GAP callbacks
   rsi_ble_gap_register_callbacks(rsi_ble_simple_central_on_adv_report_event,
@@ -454,6 +400,10 @@ void ble_central(void *argument)
                                  NULL);
 
   ble_main_task_sem = osSemaphoreNew(1, 0, NULL);
+  if (ble_main_task_sem == NULL) {
+    LOG_PRINT("Failed to cread ble_main_task_sem semaphore\r\n");
+    return;
+  }
 
   //! initialize the event map
   rsi_ble_app_init_events();
@@ -508,9 +458,7 @@ void ble_central(void *argument)
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
       //! if events are not received, loop will be continued
-      if (ble_main_task_sem) {
-        osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
-      }
+      osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
       continue;
     }
 

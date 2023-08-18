@@ -36,6 +36,8 @@
 extern "C" {
 #endif
 
+#define UNUSED_PARAMETER(x) (void)(x)
+
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
  * \defgroup RSI_POWER_SAVE RSI:RS1xxxx POWER SAVE 
@@ -176,6 +178,7 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig_bypass(uint32_t stack_address,
                                                       uint32_t vector_offset,
                                                       uint32_t mode)
 {
+  UNUSED_PARAMETER(vector_offset);
   qspi_reg_t *qspi_reg2 = (qspi_reg_t *)M4SS_PSRAM_QSPI_BASE_ADDRESS;
   if (mode == RSI_WAKEUP_WITH_RETENTION) {
     *(uint32 *)RSI_WAKE_FROM_FLASH_JUMP_ADDR = jump_cb_address;

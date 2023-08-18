@@ -12,6 +12,8 @@
 #include "sl_constants.h"
 #include <stdbool.h>
 #include <string.h>
+#include "FreeRTOS.h"
+#include <semphr.h>
 
 #define VERIFY_STATUS(s)   \
   do {                     \
@@ -256,6 +258,56 @@ sl_status_t sl_si91x_host_add_to_queue_with_atomic_action(sl_si91x_queue_type_t 
 
   osMutexRelease(cmd_queues[queue].mutex);
   return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_semaphore_create(sl_si91x_semaphore_handle_t *semaphore, uint32_t count)
+{
+  UNUSED_PARAMETER(count); //This statement is added only to resolve compilation warning, value is unchanged
+  SemaphoreHandle_t *p_semaphore = NULL;
+  p_semaphore                    = (SemaphoreHandle_t *)semaphore;
+
+  if (semaphore == NULL) {
+    return RSI_ERROR_IN_OS_OPERATION;
+  }
+  *p_semaphore = xSemaphoreCreateBinary();
+
+  if (*p_semaphore == NULL) {
+    return RSI_ERROR_IN_OS_OPERATION;
+  }
+  return RSI_ERROR_NONE;
+}
+
+sl_status_t sl_si91x_semaphore_wait(sl_si91x_semaphore_handle_t *semaphore, uint32_t timeout_ms)
+{
+  SemaphoreHandle_t *p_semaphore = NULL;
+  p_semaphore                    = (SemaphoreHandle_t *)semaphore;
+
+  if (semaphore == NULL || *p_semaphore == NULL) //Note : FreeRTOS porting
+  {
+    return RSI_ERROR_INVALID_PARAM;
+  }
+  if (!timeout_ms) {
+    timeout_ms = 0xffffffff;
+  }
+  if (xSemaphoreTake(*p_semaphore, timeout_ms) == 0) {
+    return RSI_ERROR_NONE;
+  }
+  return RSI_ERROR_IN_OS_OPERATION;
+}
+
+sl_status_t sl_si91x_semaphore_post(sl_si91x_semaphore_handle_t *semaphore)
+{
+  SemaphoreHandle_t *p_semaphore = NULL;
+  p_semaphore                    = (SemaphoreHandle_t *)semaphore;
+
+  if (semaphore == NULL || *p_semaphore == NULL) //Note : FreeRTOS porting
+  {
+    return RSI_ERROR_INVALID_PARAM;
+  }
+  if (xSemaphoreGive(*p_semaphore) == 0) {
+    return RSI_ERROR_NONE;
+  }
+  return RSI_ERROR_IN_OS_OPERATION;
 }
 
 /*Note: This function is only used to dequeue the responses from Async response queues*/

@@ -7,7 +7,7 @@ This application demonstrates how to securely connect a Silicon Labs Si91x Wi-Fi
 To successfully use this application, developer should be familiar with the operation of [AWS IoT Core](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) and the [AWS IoT Device Shadow Service](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html). If you are new to AWS IoT Core, we recommend running through the [AWS IoT Core Tutorial](https://docs.aws.amazon.com/iot/latest/developerguide/iot-tutorials.html) before proceeding.
 In the following text, 'AWS IoT Core' is referred to as 'AWS' for brevity.
 
-AWS refer 'Device Shadow' as a persistent, virtual representation of a device that can be accessed even if the physical device is offline. The device state is captured in its 'shadow' and is represented as a JSON document. The physical device can send commands using the MQTT protocol to get, update and delete the state of the shadow as well as receive notifications via MQTT about changes in the state pf the shadow.
+AWS refer 'Device Shadow' as a persistent, virtual representation of a device that can be accessed even if the physical device is offline. The device state is captured in its 'shadow' and is represented as a JSON document. The physical device can send commands using the MQTT protocol to get, update and delete the state of the shadow as well as receive notifications via MQTT about changes in the state of the shadow.
 
 The AWS IoT Device Shadow application publishes temperature and window open/close status on the topic `$aws/things/thingname/shadow/update`.
 The room temperature and the window open/close status is available on the AWS cloud.
@@ -30,16 +30,16 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 
 ## 2 Prerequisites/Setup Requirements
 
-### 2.1 Hardware Requirements  
+### 2.1 Hardware Requirements
 
 - Windows PC
 - Wi-Fi Access point with a connection to the internet
 - **SoC Mode**:
   - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
 - **NCP Mode**:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
+  - Silicon Labs [BRD4180B](https://www.silabs.com/)
   - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit) 
+    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 ### 2.2 Software Requirements
 
@@ -53,14 +53,12 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 #### SoC Mode
 
 ![Figure: Setup Diagram for Device Shadow Example](resources/readme/setup_soc.png)
-  
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
 
-#### NCP Mode  
+#### NCP Mode
 
 ![Figure: Setup Diagram for Device Shadow Example](resources/readme/setup_ncp.png)
 
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 **NOTE**:
 
@@ -68,7 +66,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 ## 3 Project Environment
 
-- Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 ### 3.1 Creating the project
 
@@ -76,33 +74,33 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
- **![Soc Board detection](resources/readme/soc_board_detection.png)**
+  **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
 - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
 
-- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology**
+- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the _Wi-Fi_ checkbox under **Wireless Technology**
 
- **![AWS Device Shadow project](resources/readme/projectselection113.png)**
+  **![AWS Device Shadow project](resources/readme/select_project_soc.png)**
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
- **![Create AWS Device Shadow project](resources/readme/projectcreation114.png)**
+  **![Create AWS Device Shadow project](resources/readme/create_project_soc.png)**
 
 #### 3.1.2 NCP mode
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
-    **![EFR32 Board detection](resources/readme/efr32.png)**
+  **![EFR32 Board detection](resources/readme/efr32.png)**
 
 - Ensure the latest Gecko SDK along with the WiSeConnect3 extension is added to Simplicity Studio.
 
 - Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - NCP AWS Device Shadow application
 
- **![AWS Device Shadow project](resources/readme/projctselectionncp113.png)**
+  **![AWS Device Shadow project](resources/readme/select_project_ncp.png)**
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
- **![Create AWS Device Shadow project](resources/readme/creationfinalncp114.png)**
+  **![Create AWS Device Shadow project](resources/readme/create_project_ncp.png)**
 
 ### 3.2 Set up for application prints
 
@@ -130,23 +128,46 @@ You can use either of the below USB to UART converters for application prints.
 
 - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-     **![UART - SoC](resources/readme/port_selection_soc.png)**
+  **![UART - SoC](resources/readme/port_selection_soc.png)**
 
 - For NCP mode, choose the J-Link port and click on **OK**.
-    
   **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
- **![Serial port](resources/readme/serial_port_setup.png)**
+**![Serial port](resources/readme/serial_port_setup.png)**
 
- **![Baud rate](resources/readme/serial_port.png)**
+**![Baud rate](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
 
 The application can be configured to suit your requirements and development environment.
 
-### 4.1 Configure the application
+### 4.1.1 In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+
+- **STA instance related parameters**
+
+- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
+
+  ```c
+  #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
+  ```
+
+- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+
+  ```c
+  #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+  ```
+  
+- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+
+  ```c
+  #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE SL_WIFI_WPA_WPA2_MIXED 
+  ```
+
+- Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
+
+### 4.1.2 Configure the application
 
 - Below parameters in **aws_iot_config.h** can be configured based on the AWS domain name, port, client ID and thing name.
 
@@ -157,35 +178,41 @@ The application can be configured to suit your requirements and development envi
 #define AWS_IOT_MY_THING_NAME  "silicon_labs_thing" ///< Thing Name of the Shadow this device is associated with
 ```
 
-- By default, the application connects to the remote Access point with **default_wifi_client_profile** configuration provided in **sl_net_default_values.h**
-
 ### 4.2 Build the application
 
 - SoC mode:
 
- ![build_project](resources/readme/build_aws_device_shadow.png)
+![build_project](resources/readme/build_project_soc.png)
 
 - NCP mode:
+
+![build_project](resources/readme/build_project_ncp.png)
 
 ### 4.3 Run and Test the application
 
 - Once the build was successful, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
 
-    ![debug_mode_soc](resources/readme/debug_aws_device_shadow.png)
+- SoC mode:
+
+  ![debug_mode_soc](resources/readme/debug_as_soc.png)
+
+- NCP mode:
+
+  ![debug_mode_soc](resources/readme/debug_as_ncp.png)
 
 ### 4.4 Application Output
 
 - After successful execution, the device updates are written to the AWS cloud and they can be observed in the AWS thing shadow.
 
- ![Application prints](resources/readme/aws_device_shadow_output.png)
+![Application prints](resources/readme/aws_device_shadow_output.png)
 
 ### 4.5 Additional Information
 
 - AWS_IOT_MQTT_HOST parameter can be found as follows:
 
- ![AWS_IOT_MQTT_HOST_PAGE_1](resources/readme/aws_iot_mqtt_host_url_1.png)
+![AWS_IOT_MQTT_HOST_PAGE_1](resources/readme/aws_iot_mqtt_host_url_1.png)
 
- ![AWS_IOT_MQTT_HOST_PAGE_2](resources/readme/aws_iot_mqtt_host_url_2.png)
+![AWS_IOT_MQTT_HOST_PAGE_2](resources/readme/aws_iot_mqtt_host_url_2.png)
 
 #### 4.5.1 Setting up Security Certificates
 
@@ -210,11 +237,13 @@ aws_client_certificate.pem.crt.h
 aws_client_private_key.pem.key.h
 ```
 
-- Before proceeding, copy both of the new files to the WiSeConnect3 directory: `<SDK>/resources/certificates`  
-Go ahead and overwrite any existing files with the same name in that directory, the originals are not needed.
+- Modify the certificate header file names as per the generated file names after running the certificate_to_array.py script in the 'app.c' file.
+
+- Before proceeding, copy both of the new files to the WiSeConnect3 directory: `SimplicityStudio\SDKs\gecko_sdk\extension\wifi-sdk\resources\certificates`  
+  Go ahead and overwrite any existing files with the same name in that directory, the originals are not needed.
 
 - The Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect3 SDK; no additional setup is required.
-For reference, Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect3 SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/aws_starfield_ca.pem.h).
+  For reference, Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect3 SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/aws_starfield_ca.pem.h).
 
 > NOTE :
 > For AWS connectivity, StarField Root CA Class 2 certificate has the highest authority being at the top of the signing hierarchy.
@@ -226,7 +255,7 @@ For reference, Amazon uses [Starfield Technologies](https://www.starfieldtech.co
 > The certificate chain sent by AWS server is as below:
 > id-at-commonName=Amazon,id-at-organizationalUnitName=Server CA 1B,id-at-organizationName=Amazon,id-at-countryName=US
 > id-at-commonName=Amazon Root CA 1,id-at-organizationName=Amazon,id-at-countryName=US
-> id-at-commonName=Starfield Services Root Certificate Authority ,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at-  stateOrProvinceName=Arizona,id-at-countryName=US)
+> id-at-commonName=Starfield Services Root Certificate Authority ,id-at-organizationName=Starfield Technologies, Inc.,id-at-localityName=Scottsdale,id-at- stateOrProvinceName=Arizona,id-at-countryName=US)
 >
 > On SiWx91x to authenticate the AWS server, firstly Root CA is validated (validate the Root CA received with the Root CA loaded on the device). Once the Root CA validation is successful, other certificates sent from the AWS server are validated.
 > SiWx91x doesn't authenticate to AWS server if intermediate CA certificates are loaded instead of Starfield Root CA Class 2 certificate and would result in a Handshake error.
@@ -241,16 +270,16 @@ Create a thing in the AWS IoT registry to represent your IoT Device.
 
 - In the [AWS IoT console](https://console.aws.amazon.com/iot/home), in the navigation pane, under Manage, choose All devices, and then choose Things.
 
- ![AWS console](resources/readme/aws_create_thing_step1.png)
+![AWS console](resources/readme/aws_create_thing_step1.png)
 
 - If a **You don't have any things yet** dialog box is displayed, choose **Register a thing**. Otherwise, choose **Create**.
 - Click on **Create things**.
 
- ![AWS thing](resources/readme/aws_create_thing_step2.png)
+![AWS thing](resources/readme/aws_create_thing_step2.png)
 
 - On the **Create things** page, choose **Create a single thing** and click next.
 
- ![AWS thing creation](resources/readme/aws_create_thing_step3.png)
+![AWS thing creation](resources/readme/aws_create_thing_step3.png)
 
 - On the **Specify thing properties** page, enter a name for your IoT thing (for example, **Test_IoT**), and choose **Unnamed shadow (classic)** in the Device Shadow section, then choose **Next**. You can't change the name of a thing after you create it. To change a thing's name, you must create a new thing, give it the new name, and then delete the old thing.
 
@@ -260,40 +289,48 @@ Create a thing in the AWS IoT registry to represent your IoT Device.
 
   ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
-- Choose the **Download** links to download the device certificate, private key, and root CA certificate. Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
-  > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them safely.
-
- ![Downloading certificates](resources/readme/aws_thing_certificates_download.png)
-
 - To attach an existing policy choose the policy and click on create thing, if policy is not yet created Choose Create policy and fill the fields as mentioned in the following images.
 
-- choosing an existing policy
-  
- !["Attach policy"](resources/readme/aws_choosing_policy.png)
+- Choosing an existing policy
 
-- creating a policy - step 1
-  
- !["Create policy"](resources/readme/aws_create_thing_attach_policy.png)
+!["Attach policy"](resources/readme/aws_choosing_policy.png)
 
-- creating a policy - step 2 (filling the fields)
-Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**
- ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
+- Creating a policy - step 1
 
-- choose the created policy and click on **Create thing**
+!["Create policy"](resources/readme/aws_create_thing_attach_policy.png)
+
+- Creating a policy - step 2 (filling the fields)
+  Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**
+  ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
+
+- Choose the **Download** links to download the device certificate, private key,public key, and root CA certificate. Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
+  > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them safely.
+
+![Downloading certificates](resources/readme/aws_thing_certificates_download.png)
+
+- Choose the created policy and click on **Create thing**
 
 - The created thing should now be visible on the AWS console (Manage > All devices > Things)
 
-#### 4.5.3  Steps to create a policy from AWS console
+#### 4.5.3 Steps to create a policy from AWS console
 
 - Navigate to **AWS IoT console**
 - Choose **Policies** under **Secure**
 
- ![AWS console create policy](resources/readme/image422.png)
+![AWS console create policy](resources/readme/image422.png)
 
 - Click on **Create**
 
- ![Create policy](resources/readme/aws_create_policy.png)
+![Create policy](resources/readme/aws_create_policy.png)
 
 - Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**
 
  ![Register Thing](resources/readme/aws_create_thing_policy_create.png)
+
+### Note
+
+For NCP mode, following defines have to enabled manually in preprocessor setting of example project
+
+- For 917A0 expansion board, enable CHIP_917 = 1
+- For 917B0 1.2 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1
+- For 917B0 2.0 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1, SI917_RADIO_BOARD_V2 = 1 (This is enabled by default for all examples)

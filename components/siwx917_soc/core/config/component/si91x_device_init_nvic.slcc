@@ -1,0 +1,16 @@
+id: si91x_device_init_nvic
+label: NVIC INTERRUPT PRIORITIES CONFIGURATION
+package: platform
+description: >
+  NVIC Interrupt priorities Configuration include paths
+category: components|siwx917_soc|core
+quality: alpha
+component_root_path: "components/siwx917_soc/core"
+include:
+  - path: "config"
+    file_list:
+    - path: "rsi_nvic_priorities_config.h"
+source:
+  - path: "config/src/rsi_nvic_priorities_config.c"
+provides:
+  - name: si91x_device_init_nvic

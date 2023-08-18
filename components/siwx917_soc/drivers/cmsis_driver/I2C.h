@@ -269,7 +269,7 @@ typedef struct {
   uint32_t snum;                  // Number of bytes to transfer
 } I2C_CTRL;
 
-typedef const struct {
+typedef const struct _I2C_PIN {
   uint8_t port;    ///< CAN GPIO port
   uint8_t pin;     ///< CAN GPIO pin
   uint8_t mode;    ///< CAN GPIO mode

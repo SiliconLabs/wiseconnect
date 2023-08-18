@@ -402,6 +402,8 @@ sl_status_t scan_callback_handler(sl_wifi_event_t event,
                                   uint32_t result_length,
                                   void *arg)
 {
+  UNUSED_PARAMETER(result_length);
+  UNUSED_PARAMETER(arg);
   if (CHECK_IF_EVENT_FAILED(event)) {
     callback_status       = *(sl_status_t *)result;
     scan_results_complete = true;
@@ -416,6 +418,8 @@ sl_status_t scan_callback_handler(sl_wifi_event_t event,
 
 sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event, void *reponse, uint32_t result_length, void *arg)
 {
+  UNUSED_PARAMETER(result_length);
+  UNUSED_PARAMETER(arg);
   if (CHECK_IF_EVENT_FAILED(event)) {
     callback_status = *(sl_status_t *)reponse;
     return SL_STATUS_FAIL;
@@ -456,7 +460,7 @@ sl_status_t wifi_scan_command_handler(console_args_t *arguments)
   callback_status                                      = status;
   scan_results_complete                                = false;
 
-  const char *ssid = GET_OPTIONAL_COMMAND_ARG(arguments, 0, NULL, const char *);
+  char *ssid = GET_OPTIONAL_COMMAND_ARG(arguments, 0, NULL, char *);
   sl_wifi_interface_t interface =
     GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_WIFI_CLIENT_2_4GHZ_INTERFACE, sl_wifi_interface_t);
   bool advanced_scan_enabled = GET_OPTIONAL_COMMAND_ARG(arguments, 2, false, const bool);
@@ -464,7 +468,7 @@ sl_status_t wifi_scan_command_handler(console_args_t *arguments)
   bool synchronous           = GET_OPTIONAL_COMMAND_ARG(arguments, 4, false, const bool);
 
   if (ssid != NULL) {
-    optional_ssid_arg.length = (uint8_t)strnlen(ssid, sizeof(optional_ssid_arg.value));
+    optional_ssid_arg.length = (uint8_t)sl_strnlen(ssid, sizeof(optional_ssid_arg.value));
     memcpy(optional_ssid_arg.value, ssid, optional_ssid_arg.length);
   }
 
@@ -518,6 +522,7 @@ sl_status_t wifi_scan_command_handler(console_args_t *arguments)
 
 sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
 {
+  UNUSED_PARAMETER(arg);
   if (CHECK_IF_EVENT_FAILED(event)) {
     printf("F: Join Event received with %lu bytes payload\n", result_length);
     callback_status = *(sl_status_t *)result;
@@ -539,6 +544,7 @@ sl_status_t wifi_set_tx_power_command_handler(console_args_t *arguments)
 
 sl_status_t wifi_get_tx_power_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   uint8_t power_value = 0;
   sl_status_t status  = sl_wifi_get_max_tx_power(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &power_value);
 
@@ -643,6 +649,7 @@ sl_status_t wifi_disconnect_command_handler(console_args_t *arguments)
 
 sl_status_t wifi_get_firmware_version_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_wifi_version_string_t version = { 0 };
 
   sl_status_t status = sl_wifi_get_firmware_version(&version);
@@ -654,6 +661,7 @@ sl_status_t wifi_get_firmware_version_command_handler(console_args_t *arguments)
 
 sl_status_t wifi_get_statistics_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_status_t status              = SL_STATUS_OK;
   sl_wifi_statistics_t wifi_stats = { 0 };
 
@@ -780,6 +788,7 @@ sl_status_t wifi_disconnect_ap_client_command_handler(console_args_t *arguments)
 
 sl_status_t wifi_get_ap_client_info_command_handler(console_args_t *argument)
 {
+  UNUSED_PARAMETER(argument);
   sl_status_t status;
   sl_wifi_client_info_response client_info = { 0 };
 
@@ -809,13 +818,16 @@ sl_status_t wifi_get_ap_client_info_command_handler(console_args_t *argument)
 
 sl_status_t wifi_set_performance_profile_command_handler(console_args_t *argument)
 {
-  sl_wifi_performance_profile_t performance_profile = { performance_profile.profile = GET_COMMAND_ARG(argument, 0) };
+  sl_performance_profile_t profile                  = GET_COMMAND_ARG(argument, 0);
+  sl_wifi_performance_profile_t performance_profile = { 0 };
+  performance_profile.profile                       = profile;
 
   return sl_wifi_set_performance_profile(&performance_profile);
 }
 
 sl_status_t wifi_get_performance_profile_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_status_t status;
   sl_wifi_performance_profile_t performance_profile;
 
@@ -829,6 +841,7 @@ sl_status_t wifi_get_performance_profile_command_handler(console_args_t *argumen
 
 sl_status_t wifi_deinit_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   return sl_wifi_deinit();
 }
 
@@ -974,6 +987,7 @@ sl_status_t wifi_is_interface_up_command_handler(console_args_t *arguments)
 
 sl_status_t wifi_get_default_interface_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_wifi_interface_t interface = sl_wifi_get_default_interface();
 
   if (interface == SL_WIFI_INVALID_INTERFACE) {
@@ -1086,6 +1100,7 @@ sl_status_t wifi_get_ap_client_count_command_handler(console_args_t *arguments)
 
 sl_status_t wifi_generate_wps_pin_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_wifi_wps_pin_t wps_pin;
 
   sl_status_t status = sl_wifi_generate_wps_pin(&wps_pin);
@@ -1133,6 +1148,7 @@ sl_status_t sl_wifi_set_advanced_scan_configuration_command_handler(console_args
 
 sl_status_t sl_wifi_get_advanced_scan_configuration_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_wifi_advanced_scan_configuration_t advanced_scan_configuration = { 0 };
 
   sl_status_t status = sl_wifi_get_advanced_scan_configuration(&advanced_scan_configuration);
@@ -1350,6 +1366,7 @@ sl_status_t sl_wifi_send_raw_data_command_handler(console_args_t *arguments)
 
 sl_status_t sl_wifi_enable_twt(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
   sl_wifi_performance_profile_t performance_profile = { .twt_request = default_twt_setup_configuration };
   sl_status_t status                                = SL_STATUS_OK;
@@ -1369,6 +1386,7 @@ sl_status_t sl_wifi_enable_twt(console_args_t *arguments)
 
 sl_status_t sl_wifi_disable_twt(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
   sl_wifi_performance_profile_t performance_profile = { .twt_request = default_twt_teardown_configuration };
   sl_status_t status                                = SL_STATUS_OK;
@@ -1461,6 +1479,7 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
 
 sl_status_t sl_wifi_filter_broadcast_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_status_t status                     = SL_STATUS_OK;
   uint16_t beacon_drop_threshold         = 5000;
   uint8_t filter_bcast_in_tim            = 1;
@@ -1526,6 +1545,7 @@ sl_status_t sl_wifi_transmit_test_start_command_handler(console_args_t *argument
 
 sl_status_t sl_wifi_transmit_test_stop_command_handler(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   sl_status_t status = SL_STATUS_OK;
   status             = sl_si91x_transmit_test_stop();
   VERIFY_STATUS_AND_RETURN(status);
@@ -1552,14 +1572,14 @@ sl_status_t wifi_get_pairwise_master_key_command_handler(console_args_t *argumen
   sl_status_t status              = SL_STATUS_OK;
   uint8_t pairwise_master_key[32] = { 0 };
   const uint8_t type              = (uint8_t)GET_COMMAND_ARG(arguments, 0);
-  const char *ssid                = (char *)GET_COMMAND_ARG(arguments, 1);
+  char *ssid                      = (char *)GET_COMMAND_ARG(arguments, 1);
   const char *pre_shared_key      = (char *)GET_COMMAND_ARG(arguments, 2);
 
   sl_wifi_ssid_t ssid_arg;
   sl_wifi_interface_t interface =
     GET_OPTIONAL_COMMAND_ARG(arguments, 3, SL_WIFI_CLIENT_2_4GHZ_INTERFACE, sl_wifi_interface_t);
 
-  ssid_arg.length = (uint8_t)strnlen(ssid, sizeof(ssid_arg.value));
+  ssid_arg.length = (uint8_t)sl_strnlen(ssid, sizeof(ssid_arg.value));
   memcpy(ssid_arg.value, ssid, ssid_arg.length);
 
   status = sl_wifi_get_pairwise_master_key(interface, type, &ssid_arg, pre_shared_key, pairwise_master_key);

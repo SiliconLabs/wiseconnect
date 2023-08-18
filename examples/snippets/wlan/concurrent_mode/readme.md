@@ -32,23 +32,21 @@ Set up diagram for SoC mode:
 
 ![Figure: Setup Diagram SoC Mode for Access point Example](resources/readme/concurrentsoc.png)
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-
 #### NCP Mode  
 
 Set up diagram for NCP mode:
 
 ![Figure: Setup Diagram SoC Mode for Access point Example](resources/readme/concurrentncp.png)
 
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
-
 **NOTE**:
 
 - The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
+
 ## 3 Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 2. Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
@@ -66,15 +64,13 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
    **![Examples and Demos](resources/readme/examples_demos.png)**
 
--  Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** and select **Wi-Fi - Concurrent Mode (SOC)** example
+- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** and select **Wi-Fi - Concurrent Mode (SOC)** example
 
     **![Concurrent Mode project](resources/readme/example_soc.png)**
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish
 
     **![Concurrent Mode project](resources/readme/create_project_soc.png)**
-
-
 
 #### 3.1.2 NCP mode
 
@@ -89,7 +85,6 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
     **![Create Concurrent Mode project](resources/readme/create_project_ncp.png)**
-
 
 ### 3.3 Set up for application prints
 
@@ -114,11 +109,11 @@ You can use either of the below USB to UART converters for application prints.
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
   
     **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+- For NCP mode, choose the J-Link port and click on **OK**.
 
       **![J-link - NCP](resources/readme/port_selection.png)**
 
@@ -219,3 +214,11 @@ The application can be configured to suit user requirements and development envi
 - SoC mode & NCP mode:
 
    **![Application prints](resources/readme/output_soc.png)**
+
+### Note
+
+For NCP mode, following defines have to enabled manually in preprocessor setting of example project
+
+- For 917A0 expansion board, enable CHIP_917 = 1
+- For 917B0 1.2 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1
+- For 917B0 2.0 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1, SI917_RADIO_BOARD_V2 = 1 (This is enabled by default for all examples)

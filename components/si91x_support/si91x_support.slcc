@@ -16,6 +16,12 @@ define:
   condition: [brd4180a]
 - name: EFR32MG21A020F1024IM32
   condition: [brd4180b]
+- name: CHIP_917
+  condition: [brd4180b]
+- name: CHIP_917B0
+  condition: [brd4180b]
+- name: SI917_RADIO_BOARD_V2
+  condition: [brd4180b]
 include:
 - path: inc
   file_list:

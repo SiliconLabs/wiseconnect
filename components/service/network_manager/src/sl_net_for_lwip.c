@@ -172,7 +172,7 @@ sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface)
   netif_set_down(&wifi_client_context->netif);
   netif_remove(&wifi_client_context->netif);
 
-  return sl_wifi_disconnect((sl_wifi_interface_t)interface);
+  return sl_wifi_disconnect(SL_WIFI_CLIENT_INTERFACE);
 }
 
 sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interface, sl_wifi_buffer_t *buffer)

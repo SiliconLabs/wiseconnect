@@ -77,11 +77,13 @@ void socket_select();
 
 void app_init(const void *unused)
 {
+  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
 static void application_start(void *argument)
 {
+  UNUSED_PARAMETER(argument);
   // Initialize the network interface
   sl_status_t status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, NULL, NULL, NULL);
 
@@ -125,11 +127,11 @@ void socket_select()
 
   int highest_socket_number = 1;
   int total_set_fds_count   = 0;
+  int socket_return_value   = 0;
 
   uint8_t recv_buffer[RECV_BUFFER_SIZE];
 
   fd_set read_fds;
-  sl_status_t status = SL_STATUS_OK;
 
   struct sockaddr_in server_address        = { 0 };
   socklen_t socket_length                  = sizeof(struct sockaddr_in);
@@ -150,8 +152,8 @@ void socket_select()
   printf("\r\nSocket creation Success\r\n");
 
   // Bind socket
-  status = bind(server_socket, (struct sockaddr *)&server_address, socket_length);
-  if (status < 0) {
+  socket_return_value = bind(server_socket, (struct sockaddr *)&server_address, socket_length);
+  if (socket_return_value < 0) {
     printf("\r\nSocket bind failed with bsd error: %d\r\n", errno);
     close(server_socket);
     return;
@@ -159,8 +161,8 @@ void socket_select()
   printf("\r\n Socket bind success \r\n");
 
   // Socket listen
-  status = listen(server_socket, BACKLOG);
-  if (status < 0) {
+  socket_return_value = listen(server_socket, BACKLOG);
+  if (socket_return_value < 0) {
     printf("\r\nSocket listen failed with bsd error: %d\r\n", errno);
     close(server_socket);
     return;

@@ -29,13 +29,9 @@ The CLI Demo application is a command-line interface (CLI) application designed 
 
 ![Figure: Setup Diagram SoC Mode for cli_demo Example](resources/readme/clidemo_soc.png)
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-
 #### NCP Mode  
 
 ![Figure: Setup Diagram NCP Mode for cli_demo Example](resources/readme/clidemo_ncp.png)
-
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
 
 **NOTE**:
 
@@ -43,7 +39,7 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 ## 3 Project Environment
 
-- Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 ### 3.1 Creating the project
 

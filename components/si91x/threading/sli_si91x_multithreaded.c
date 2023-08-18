@@ -73,6 +73,9 @@ typedef struct {
 } sl_si91x_command_trace_t;
 extern bool bg_enabled;
 extern sl_wifi_event_handler_t si91x_event_handler;
+#ifndef RSI_M4_INTERFACE
+extern sl_si91x_semaphore_handle_t cmd_lock;
+#endif
 
 void sli_submit_rx_buffer(void);
 
@@ -468,6 +471,7 @@ void si91x_bus_thread(void *args)
               //This frame will come, when the M4 is waken in without ram retention. This frame is equivalent to RSI_COMMON_RSP_CARDREADY
               sl_si91x_host_clear_sleep_indicator();
             }
+            // intentional fallthrough
             case RSI_COMMON_RSP_CARDREADY: {
               ++command_trace[SI91X_COMMON_CMD].rx_counter;
 
@@ -836,7 +840,7 @@ static sl_status_t bus_write_frame(sl_si91x_queue_type_t queue_type,
   uint16_t length = packet->length;
   packet->desc[1] |= (node->firmware_queue_id << 4); // This modifies packet->length
 
-  if (SI91X_PACKET_WITH_NO_RESPONSE != (node->flags & SI91X_PACKET_WITH_NO_RESPONSE)) {
+  if (SI91X_PACKET_WITH_ASYNC_RESPONSE != (node->flags & SI91X_PACKET_WITH_ASYNC_RESPONSE)) {
     trace->command_in_flight = true;
   }
 
@@ -878,6 +882,12 @@ static sl_status_t bus_write_frame(sl_si91x_queue_type_t queue_type,
 #ifdef BLE_ENABLE
   if (SI91X_BT_CMD_QUEUE == queue_type) {
     rsi_bt_common_tx_done(packet);
+  }
+#endif
+
+#ifndef RSI_M4_INTERFACE
+  if (RSI_WLAN_DATA_Q == trace->firmware_queue_id) {
+    sl_si91x_semaphore_post(&cmd_lock);
   }
 #endif
 

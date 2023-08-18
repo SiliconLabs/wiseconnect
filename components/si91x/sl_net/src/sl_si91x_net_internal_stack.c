@@ -146,7 +146,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
 sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-  return sl_wifi_disconnect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE);
+  return sl_wifi_disconnect(SL_WIFI_CLIENT_INTERFACE);
 }
 
 // wifi_softap APIs

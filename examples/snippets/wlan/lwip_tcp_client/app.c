@@ -28,7 +28,7 @@
  *
  ******************************************************************************/
 
-#include "errno.h"
+#include "lwip/errno.h"
 #include "sl_wifi_callback_framework.h"
 #include "sl_status.h"
 #include "sl_board_configuration.h"

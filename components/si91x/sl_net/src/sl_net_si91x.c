@@ -30,6 +30,7 @@
 #include "sl_status.h"
 #include "sl_wifi_types.h"
 #include "sl_net.h"
+#include "stddef.h"
 
 sl_status_t sl_net_inet_addr(const char *addr, uint32_t *value)
 {

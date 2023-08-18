@@ -41,17 +41,15 @@ In this application, SiWx91x is configured as a Wi-Fi station and connects to an
 
 ![Figure: Setup Diagram for SoC mode Power Save Standby Example](resources/readme/setup_soc.png)
   
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-
 #### NCP Mode
 
 ![Figure: Setup Diagram for NCP mode Power Save Standby Example](resources/readme/setup_ncp.png)
 
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
-
 **NOTE**:
 
 - The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
+
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ### 3.1 Creating the project
 
@@ -112,11 +110,11 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
       **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+- For NCP mode, choose the J-Link port and click on **OK**.
 
       **![J-link - NCP](resources/readme/port_selection.png)**
 

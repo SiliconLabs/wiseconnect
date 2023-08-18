@@ -79,12 +79,15 @@ bool is_port_available(uint16_t port_number);
 
 sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *backlog);
 
+int sli_si91x_shutdown(int socket, int how);
+
 void handle_accept_response(int client_socket_id, sl_si91x_rsp_ltcp_est_t *accept_response);
 int handle_select_response(sl_si91x_socket_select_rsp_t *response,
-                           int nfds,
                            fd_set *readfds,
                            fd_set *writefds,
                            fd_set *exception_fd);
+
+void set_select_callback(select_callback callback);
 
 /**
  * A utility function to send BSD management commands.

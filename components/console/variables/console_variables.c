@@ -13,6 +13,7 @@
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 #define MIN(a, b)                 ((a < b) ? a : b)
+#define UNUSED_PARAMETER(x) (void)(x)
 
 /******************************************************
  *                    Constants
@@ -291,6 +292,7 @@ sl_status_t console_variable_set(console_args_t *arguments)
 
 sl_status_t console_variable_list(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   static const char spaces[] = "                ";
 #define MAX_LEVEL_DEPTH ((sizeof(spaces) - 1) / 2)
 

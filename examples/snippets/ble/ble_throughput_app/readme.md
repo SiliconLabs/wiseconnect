@@ -48,13 +48,11 @@ This Application explains to the user how to:
 
    ![Figure: Setup Diagram SoC Mode for BLE Throughput Example](resources/readme/throughputappsoc.png)
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to setup the hardware connections and Simplicity Studio IDE.
-
 - **NCP Mode :**
 
    ![Figure: Setup Diagram NCP Mode for BLE Throughput Example](resources/readme/throughputappncp.png)
 
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ## 3. Project Environment
 
@@ -118,11 +116,11 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+- For NCP mode, choose the J-Link port and click on **OK**.
 
    **![J-link - NCP](resources/readme/port_selection.png)**
 

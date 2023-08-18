@@ -47,6 +47,10 @@ int sl_si91x_recvfrom(int socket,
                       struct sockaddr *fromAddr,
                       socklen_t *fromAddrLen);
 
+/**
+ *
+ * @note: In case of socket being a server socket, the "how" parameter would be ignored and socket shall always be closed based on port number.
+ */
 int sl_si91x_shutdown(int socket, int how);
 
 int sl_si91x_select(int nfds,

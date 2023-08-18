@@ -11,11 +11,11 @@ Before running the application, the user will need the following things to setup
 ### 2.1 Hardware Requirements
 
 - A Windows PC.
-- SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
+- SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes](https://www.silabs.com) for details.
   - **SoC Mode**:
     - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
   - **NCP Mode**:
-    - Silicon Labs [BRD4180B](https://www.silabs.com/);
+    - Silicon Labs [BRD4180B](https://www.silabs.com/)
     - Host MCU Eval Kit. This example has been tested with:
       - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
@@ -29,14 +29,18 @@ Before running the application, the user will need the following things to setup
 ### 2.3 Setup Diagram
 
 **SoC Mode :**
-![](resources/readme/imagesocble.png)
+
+![image](resources/readme/imagesocble.png)
   
 **NCP Mode :**
-![](resources/readme/imagesncpble.png)
+
+![image](resources/readme/imagesncpble.png)
+
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ## 3. Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 ### 3.1 Create the Project
 
@@ -52,11 +56,11 @@ Before running the application, the user will need the following things to setup
 
 - Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - PER* application.
 
-   ![project_selection](resources/readme/create_project1.png)
+   ![project_selection](resources/readme/select_project_soc.png)
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-  ![creation_final](resources/readme/create_project2.png)
+  ![creation_final](resources/readme/create_project_soc.png)
 
 #### 3.1.2 NCP Mode
 
@@ -70,9 +74,11 @@ Before running the application, the user will need the following things to setup
 
 - Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *BLE - PER* application.
 
+  ![creation_final](resources/readme/select_project_ncp.png)
+
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
 
-  ![creation_final](resources/readme/create_project2.png)
+  ![creation_final](resources/readme/create_project_ncp.png)
 
 ### 3.2 Setup for Application Prints
 
@@ -98,11 +104,11 @@ Before running the application, the user will need the following things to setup
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+   - For NCP mode, choose the J-Link port and click on **OK**.
 
    **![J-link - NCP](resources/readme/port_selection.png)**
 
@@ -209,7 +215,7 @@ Update or modify following macros
 
 **Opermode command parameters**
 
-```
+```c
   #define RSI_FEATURE_BIT_MAP                            FEAT_SECURITY_OPEN
   #define RSI_TCP_IP_BYPASS                              RSI_DISABLE
   #define RSI_TCP_IP_FEATURE_BIT_MAP                     TCP_IP_FEAT_DHCPV4_CLIENT
@@ -218,6 +224,22 @@ Update or modify following macros
 ```
 
 **Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example. 
+
+### 4.2 Build the Application
+
+- Follow the below steps for the successful execution of the application.
+
+#### Build Project - SoC Mode
+
+- Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
+
+   ![build_project](resources/readme/build_example.png)
+
+- Successful build output will show as below.
+
+#### Build Project - NCP Mode
+
+   ![build_project](resources/readme/build_project_ncp.png)
 
 ## 5. Test the Application
 
@@ -231,13 +253,14 @@ Refer [Getting started with PC](https://docs.silabs.com/rs9116/latest/wiseconnec
 
 1. Click on Tools and Simplicity Commander as shown below.
 
-   ![](resources/readme/load_image1.png)
+   ![load_image](resources/readme/load_image1.png)
 
 2. Load the application image
- - Select the board. 
- - Browse the application image (.hex) and click on Flash button.
 
-   ![](resources/readme/load_image2.png)
+    - Select the board.
+    - Browse the application image (.hex) and click on Flash button.
+
+   ![load_image](resources/readme/load_image2.png)
 
 ### 6. Run the Application
 
@@ -257,8 +280,16 @@ Follow the steps below for the successful execution of the application.
 
 7. After successful program execution of BLE PER Transmit the waveform on the spectrum looks as shown below.  
 
-8. After successful program execution the prints in coolterm looks as shown below.
+8. After successful program execution the prints in Tera Term looks as shown below.
 
-![](resources/readme/output_1.png)
+![output](resources/readme/output_1.png)
 
-![](resources/readme/output_2.png)
+![output](resources/readme/output_2.png)
+
+### Note
+
+For NCP mode, following defines have to enabled manually in preprocessor setting of example project
+
+- For 917A0 expansion board, enable CHIP_917 = 1
+- For 917B0 1.2 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1
+- For 917B0 2.0 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1, SI917_RADIO_BOARD_V2 = 1 (This is enabled by default for all examples)

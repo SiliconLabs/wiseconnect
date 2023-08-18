@@ -191,6 +191,7 @@ error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
                                             uint8_t u8AverageFactor)
 
 {
+  UNUSED_PARAMETER(u32XtalSettle);
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;
   }

@@ -76,7 +76,7 @@ bool rsi_flash_init(void)
  * Note: Do not use this function independently. This function should only be used
  * by NVM3
  ******************************************************************************/
-bool rsi_flash_erase_sector(uint32_t sector_address)
+bool rsi_flash_erase_sector(uint32_t *sector_address)
 {
 
   int status             = 0;
@@ -85,7 +85,7 @@ bool rsi_flash_erase_sector(uint32_t sector_address)
   //TA-M4 interrupt to be enabled. So, enable interrupts before erase operation
   CORE_EXIT_CRITICAL();
   //Obtain actual TA flash access address
-  uint32_t address_ta = sector_address - TA_M4_ADDRESS_OFFSET;
+  uint32_t address_ta = (uint32_t)sector_address - TA_M4_ADDRESS_OFFSET;
   //Erase sector
   status = sl_si91x_command_to_write_common_flash(address_ta, dummy_buff, SECTOR_SIZE, FLASH_ERASE);
   //Disable the interrupts back
@@ -96,14 +96,14 @@ bool rsi_flash_erase_sector(uint32_t sector_address)
 /***************************************************************************/ /**
  * This function writes to destination flash address location
  ******************************************************************************/
-bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length)
+bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 {
 
   int status = 0;
   //NVM3 disables IRQ before calling this function. sl_si91x_command_to_write_common_flash() needs
   //TA-M4 interrupt to be enabled. So, enable interrupts before write operation
   CORE_EXIT_CRITICAL();
-  uint32_t address_ta = address - TA_M4_ADDRESS_OFFSET;
+  uint32_t address_ta = (uint32_t)address - TA_M4_ADDRESS_OFFSET;
   //Write to flash
   status = sl_si91x_command_to_write_common_flash(address_ta, data, length, FLASH_WRITE);
   //Disable the interrupts back
@@ -116,10 +116,10 @@ bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length)
  * Note: Do not use this function independently. This function should only be used
  * by NVM3
  ******************************************************************************/
-bool rsi_flash_read(uint32_t address, unsigned char *data, uint32_t length, uint8_t auto_mode)
+bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode)
 {
 
-  uint32_t address_ta = address - TA_M4_ADDRESS_OFFSET;
+  uint32_t address_ta = (uint32_t)address - TA_M4_ADDRESS_OFFSET;
   //Read data from flash
   memcpy((uint8_t *)data, (uint8_t *)address_ta, length * 4);
   return 1;

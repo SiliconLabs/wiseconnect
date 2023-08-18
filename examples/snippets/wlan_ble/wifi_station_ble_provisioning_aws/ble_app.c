@@ -106,6 +106,14 @@
 // Maximum Acccess points that can be scanned
 #define RSI_AP_SCANNED_MAX 11
 
+//! connection update param
+#define CONN_INTERVAL_MIN         0x320 //0x08
+#define CONN_INTERVAL_MAX         0x320 //0x08
+#define CONN_INTERVAL_DEFAULT_MIN 0xC8
+#define CONN_INTERVAL_DEFAULT_MAX 0xC8
+#define CONN_LATENCY              0
+#define SUPERVISION_TIMEOUT       200
+
 /********************************************************************************************************
  *                                               DATA TYPES
  *********************************************************************************************************
@@ -114,7 +122,7 @@
 // global parameters list
 uint8_t data[20] = { 0 };
 static uint32_t ble_app_event_map;
-static rsi_ble_event_conn_status_t conn_event_to_app;
+rsi_ble_event_conn_status_t conn_event_to_app;
 static rsi_ble_event_disconnect_t disconn_event_to_app;
 static uint8_t rsi_ble_app_data[100];
 static uint8_t rsi_ble_att1_val_hndl;
@@ -175,6 +183,28 @@ static void rsi_ble_add_char_serv_att(void *serv_handler,
   return;
 }
 
+/*============================================================================*/
+/**
+ * @fn         rsi_ble_on_conn_update_complete_event
+ * @brief      invoked when conn update complete event is received
+ * @param[out] rsi_ble_event_conn_update_complete contains the controller
+ * support conn information.
+ * @param[out] resp_status contains the response status (Success or Error code)
+ * @return     none.
+ * @section description
+ * This Callback function indicated the conn update complete event is received
+ */
+void rsi_ble_on_conn_update_complete_event(rsi_ble_event_conn_update_t *rsi_ble_event_conn_update_complete,
+                                           uint16_t resp_status)
+{
+  //  memcpy(remote_dev_address, rsi_ble_event_conn_update_complete->dev_addr, 6);
+  //  memcpy(&rsi_app_conn_update_complete, rsi_ble_event_conn_update_complete,
+  //         sizeof(rsi_ble_event_conn_update_t));
+  //  latest_connection_interval =
+  //      rsi_ble_event_conn_update_complete->conn_interval;
+  //  latest_connection_interval = latest_connection_interval * 1.25;
+  //  rsi_ble_app_set_event(RSI_BLE_CONN_UPDATE_EVENT);
+}
 /*==============================================*/
 /**
  * @fn         rsi_ble_add_char_val_att
@@ -631,7 +661,7 @@ void rsi_ble_configurator_init(void)
                                  NULL,
                                  rsi_ble_on_enhance_conn_status_event,
                                  NULL,
-                                 NULL,
+                                 rsi_ble_on_conn_update_complete_event,
                                  NULL);
 
   // registering the GATT callback functions
@@ -684,6 +714,7 @@ void rsi_ble_configurator_init(void)
 
   // set device in advertising mode.
   rsi_ble_start_advertising();
+  LOG_PRINT("\r\nBLE Advertising Start...\r\n");
 }
 
 /*==============================================*/
@@ -901,6 +932,18 @@ adv:
                                     RSI_BLE_MAX_DATA_LEN,
                                     data); // set the local attribute value.
         LOG_PRINT("AP joined successfully\n\n");
+        rsi_ble_conn_params_update(conn_event_to_app.dev_addr,
+                                   CONN_INTERVAL_MIN,
+                                   CONN_INTERVAL_MAX,
+                                   CONN_LATENCY,
+                                   SUPERVISION_TIMEOUT);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\r\nconn params update cmd failed with status "
+                    "= %lx \r\n",
+                    status);
+        }
+        //   conn_params_updated = 1;
+        //  rsi_ble_app_clear_event(RSI_APP_BLE_GATT_SERVICE_RESP_DESCRIPTOR);
       } break;
       default:
         break;

@@ -2,7 +2,7 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Gecko SDK
-version: "3.0.12"
+version: "3.0.13"
 sdk:
   id: gecko_sdk
   version: "4.3.1"

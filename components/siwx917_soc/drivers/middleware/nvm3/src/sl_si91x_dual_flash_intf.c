@@ -126,7 +126,7 @@ bool rsi_flash_init(void)
 /***************************************************************************/ /**
  * This function erases the flash
  ******************************************************************************/
-bool rsi_flash_erase_sector(uint32_t sector_address)
+bool rsi_flash_erase_sector(uint32_t *sector_address)
 {
   spi_config_t spi_configs_erase;
   uint32_t status = ECODE_QSPI_OK;
@@ -136,7 +136,7 @@ bool rsi_flash_erase_sector(uint32_t sector_address)
   if (sector_address == NULL) {
     status = ECODE_QSPI_ERROR;
   } else {
-    RSI_QSPI_SpiErase((qspi_reg_t *)QSPI_BASE, &spi_configs_erase, SECTOR_ERASE, sector_address, 1, 0);
+    RSI_QSPI_SpiErase((qspi_reg_t *)QSPI_BASE, &spi_configs_erase, SECTOR_ERASE, (uint32_t)sector_address, 1, 0);
   }
 
   /* The erase function does the erase and takes care of any missing
@@ -147,7 +147,7 @@ bool rsi_flash_erase_sector(uint32_t sector_address)
 /***************************************************************************/ /**
  * This function writes to destination flash address location
  ******************************************************************************/
-bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length)
+bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 {
   spi_config_t spi_configs_program;
   uint32_t check_sum = 0;
@@ -161,7 +161,7 @@ bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length)
     RSI_QSPI_SpiWrite((qspi_reg_t *)QSPI_BASE,
                       &spi_configs_program,
                       0x2,
-                      address,
+                      (uint32_t)address,
                       (uint8_t *)&data[0],
                       length,
                       FLASH_PAGE_SIZE,
@@ -179,7 +179,7 @@ bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length)
 /***************************************************************************/ /**
  * Reads data from the address in selected mode
  ******************************************************************************/
-bool rsi_flash_read(uint32_t address, unsigned char *data, uint32_t length, uint8_t auto_mode)
+bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode)
 {
   spi_config_t spi_configs_program;
   uint32_t check_sum = 0;

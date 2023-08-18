@@ -49,6 +49,8 @@ Before running the application, the user will need the following things to setup
 - WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
   ![](resources/readme/bleprovisioningncp.png)
 
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
+
 ### 3. Application Build Environment
 
 ### 3.1 Project Creation
@@ -111,11 +113,11 @@ Before running the application, the user will need the following things to setup
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
    ![UART - SoC](resources/readme/port_selection_soc.png)
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+- For NCP mode, choose the J-Link port and click on **OK**.
     
    ![J-link - NCP](resources/readme/port_selection.png)
 

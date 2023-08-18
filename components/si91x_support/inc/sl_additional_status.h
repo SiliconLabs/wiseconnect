@@ -171,6 +171,8 @@
 #define SL_STATUS_SI91X_WLAN_RADIO_DEREGISTERED                                 ((sl_status_t)0x10067) ///< WLAN radio deregistered.
 #define SL_STATUS_SI91X_SAE_FAILURE_DUE_TO_MULTIPLE_CONFIRM_FRAMES_FROM_AP      ((sl_status_t)0x10069) ///< SAE failure due to multiple confirm frames from AP.
 #define SL_STATUS_SI91X_EC_GROUP_STATION_UNSUPPORTED_BY_AP                      ((sl_status_t)0x1006A) ///< AP does not support the EC-group set by station.
+#define SL_STATUS_SI91X_SECURITY_ASSOCIATION_QUERY_TIMEOUT                      ((sl_status_t)0x10072) ///< Disconnected due to Security Association Query Timeout. 
+#define SL_STATUS_SI91X_EAPOL_TIMEOUT                                           ((sl_status_t)0x10073) ///< EAPOL Timeout.
 #define SL_STATUS_SI91X_DUPLICATE_ENTRY_EXISTS_IN_DNS_SERVER_TABLE              ((sl_status_t)0x100AF) ///< Duplicate entry exists in DNS server table.
 #define SL_STATUS_SI91X_NO_MEM_AVAILABLE                                        ((sl_status_t)0x100B1) ///< Memory error: No memory available.
 #define SL_STATUS_SI91X_INVALID_CHARACTERS_IN_JSON_OBJECT                       ((sl_status_t)0x100B2) ///< Invalid characters in JSON object.

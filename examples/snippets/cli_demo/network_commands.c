@@ -73,8 +73,8 @@ sl_status_t net_init_command_handler(console_args_t *arguments)
 
     case SL_NET_WIFI_AP_INTERFACE:
       status = sl_net_init(interface,
-                           &sl_wifi_default_ap_configuration,
-                           &wifi_ap_context,
+                           (const void *)&sl_wifi_default_ap_configuration,
+                           (void *)&wifi_ap_context,
                            (sl_net_event_handler_t)default_wifi_event_handler);
       VERIFY_STATUS_AND_RETURN(status);
       break;
@@ -239,7 +239,6 @@ sl_status_t set_nvm_profile_command_handler(console_args_t *arguments)
                 .channel.bandwidth = SL_WIFI_AUTO_BANDWIDTH,
                 .security = SL_WIFI_WPA_WPA2_MIXED,
     		        .encryption = SL_WIFI_CCMP_ENCRYPTION,
-    		        .channel = {0},
     		        .rate_protocol = SL_WIFI_RATE_PROTOCOL_AUTO,
     		        .options = 0,
     		        .credential_id = SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
@@ -301,8 +300,10 @@ sl_status_t sl_dns_hostgetbyname_command_handler(console_args_t *arguments)
 }
 
 #ifdef si91x_internal_stack_FEATURE_REQUIRED
-sl_status_t ping_response_callback_handler(sl_net_event_t event, sl_status_t status, void *data, void *user_data)
+sl_status_t ping_response_callback_handler(uint32_t event, sl_status_t status, void *data, uint32_t user_data)
 {
+  UNUSED_PARAMETER(event);
+  UNUSED_PARAMETER(user_data);
   sl_si91x_ping_response_t *response = (sl_si91x_ping_response_t *)data;
   if (status != SL_STATUS_OK) {
     printf("\n Ping request failed! \n");

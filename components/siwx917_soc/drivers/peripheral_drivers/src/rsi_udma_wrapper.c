@@ -218,6 +218,7 @@ int32_t uDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
  */
 int32_t uDMAx_ChannelEnable(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
 {
+  UNUSED_PARAMETER(udma);
   RSI_UDMA_ChannelEnable(udmaHandle, ch);
   return RSI_OK;
 }
@@ -233,6 +234,7 @@ int32_t uDMAx_ChannelEnable(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T 
  */
 int32_t uDMAx_DMAEnable(UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
 {
+  UNUSED_PARAMETER(udma);
   RSI_UDMA_UDMAEnable(udmaHandle);
   return RSI_OK;
 }
@@ -249,6 +251,7 @@ int32_t uDMAx_DMAEnable(UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
  */
 int32_t uDMAx_ChannelDisable(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
 {
+  UNUSED_PARAMETER(udma);
   RSI_UDMA_ChannelDisable(udmaHandle, ch);
   return RSI_OK;
 }
@@ -274,6 +277,8 @@ uint32_t uDMAx_ChannelGetCount(uint8_t ch,
                                UDMA_RESOURCES *udma,
                                RSI_UDMA_HANDLE_T udmaHandle)
 {
+  UNUSED_PARAMETER(ch);
+  UNUSED_PARAMETER(udma);
   return (RSI_UDMA_GetChannelTransferLength(udmaHandle, &config, control));
 }
 

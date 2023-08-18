@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.12}
+- {id: wiseconnect3_sdk, version: 3.0.13}
 source:
   - path: app.c
   - path: main.c
@@ -23,6 +23,13 @@ include:
 define:
   - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
+  - name: EXECUTION_FROM_RAM
+    condition:
+      - device_needs_ram_execution
+template_contribution:
+- condition: [device_needs_ram_execution]
+  name: RAM_EXECUTION
+  value: true
 requires:
 - name: sl_system
 - name: aws_sdk
@@ -37,6 +44,7 @@ requires:
 - name: wifi_resources
 - name: freertos
 - name: slist
+- name: socket
 - name: iostream_retarget_stdio
   condition: [device_has_devinfo]
 - name: iostream_recommended_stream

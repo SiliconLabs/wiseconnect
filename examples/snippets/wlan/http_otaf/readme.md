@@ -43,19 +43,17 @@ Set up diagram for SoC mode:
 
 ![Figure: Setup Diagram SoC Mode for http_otaf Example](resources/readme/setup_soc.png)
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-  
 #### NCP Mode
 
 Set up diagram for NCP mode:
 
 ![Figure: Setup Diagram NCP Mode for http_otaf Example](resources/readme/setup_ncp.png)
 
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ## Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started). The firmware file is located at `<WiSeConnect3>/connectivity_firmware/`.
+1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware). The firmware file is located at `<WiSeConnect3>/connectivity_firmware/`.
 
 2. Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
@@ -424,7 +422,7 @@ NCP mode (with Apache)
 
 ### 4.3.2 Configuring and Uploading Firmware on Apache HTTP
 
-* Download and Install Wamp-Apache Server
+- Download and Install Wamp-Apache Server
   - Open the below link in your system browser.
     Wamp Server - (<https://www.wampserver.com/en/>)
   - Under Downloads, Download the latest version of WAMP server for 32bit or 64bit machine.
@@ -492,7 +490,7 @@ NCP mode (with Apache)
     <a href="<your-firmware-file>-2.rps" download>Download_Version_4</a>
     ```
 
-* Configure HTTPD.conf file for Wamp-Apache Server
+- Configure HTTPD.conf file for Wamp-Apache Server
   - Open httpd.conf file in C:\wamp64\bin\apache\apache2.4.46\conf\httpd.conf
   - Search or Find "DocumentRoot" and change it to below configuration. Save the file and Exit
 
@@ -500,7 +498,7 @@ NCP mode (with Apache)
     "${INSTALL_DIR}/www/Firmware"
     ```
 
-* Restart Apache Service
+- Restart Apache Service
   - Open Windows services, "WIN+R" → "services.msc" → ENTER
   - Check for Apache service and Restart the service
   - In the above configuration, we have created a resource for our server in "Firmware" folder.
@@ -555,6 +553,7 @@ NCP mode (with Apache)
 ### 4.3.3 Configuring and Uploading Firmware on Apache HTTPs
 
 HTTPs Sever configuration for Apache requires Wamp server, if you have not installed it, follow the **"Step 1: Download and Install Wamp-Apache Server"** step and continue with the HTTPS steps in this document.
+
 - **Download and Install OPENSSL for windows**
   - OpenSSL for windows from here (<https://slproweb.com/products/Win32OpenSSL.html>).
   - Do default install for OpenSSL.

@@ -34,10 +34,14 @@ Before running the application, the user will need the following things to setup
 ### 2.3 Setup Diagram
 
 **SoC Mode :**
- ![](resources/readme/blescsoc.png)
+
+![](resources/readme/blescsoc.png)
   
 **NCP Mode :**
- ![](resources/readme/blescncp.png)
+
+![](resources/readme/blescncp.png)
+
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ## 3. Project Environment
 
@@ -101,11 +105,11 @@ Before running the application, the user will need the following things to setup
 
 1. Open the Tera Term tool.
 
- - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
     **![UART - SoC](resources/readme/port_selection_soc.png)**
 
- - For NCP mode, choose the J-Link port and click on **OK**.
+- For NCP mode, choose the J-Link port and click on **OK**.
 
     **![J-link - NCP](resources/readme/port_selection.png)**
 
@@ -199,8 +203,9 @@ If user wants to run the application in power save, modify the below configurati
    ![](resources/readme/load_image1.png)
 
 2. Load the firmware image
- - Select the board.
- - Browse the application image (.hex) and click on Flash button.
+
+- Select the board.
+- Browse the application image (.hex) and click on Flash button.
 
    ![](resources/readme/load_image2.png)
 

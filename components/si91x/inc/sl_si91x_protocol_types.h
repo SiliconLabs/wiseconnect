@@ -162,7 +162,7 @@
 
 // To take listen interval from join command.
 #define SI91X_JOIN_FEAT_BIT_MAP SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID
-#define SI91X_LISTEN_INTERVAL   480
+#define SI91X_LISTEN_INTERVAL   1000
 
 //**************************** Macros for JOIN Method request END ***********************************/
 

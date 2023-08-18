@@ -125,7 +125,7 @@ typedef enum {
 
 /* ===========================  Configuration of the ARM Cortex-M4 Processor and Core Peripherals  =========================== */
 #define __CM4_REV              0x0100U /*!< CM4 Core Revision                                                         */
-#define __NVIC_PRIO_BITS       4       /*!< Number of Bits used for Priority Levels                                   */
+#define __NVIC_PRIO_BITS       6       /*!< Number of Bits used for Priority Levels                                   */
 #define __Vendor_SysTickConfig 0       /*!< Set to 1 if different SysTick Config is used                              */
 #define __MPU_PRESENT          1       /*!< MPU present                                                               */
 #define __FPU_PRESENT          1       /*!< FPU present                                                               */

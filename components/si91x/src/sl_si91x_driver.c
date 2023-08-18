@@ -291,6 +291,19 @@ const sl_si91x_set_region_ap_request_t default_SG_region_5GHZ_configurations = {
   .channel_info[4]               = { .first_channel = 149, .no_of_channels = 4, .max_tx_power = 29 }
 };
 
+// clang-format off
+  static uint8_t firmware_queue_id[SI91X_CMD_MAX]   = { [SI91X_COMMON_CMD]  = RSI_WLAN_MGMT_Q,
+                                                      [SI91X_WLAN_CMD]    = RSI_WLAN_MGMT_Q,
+                                                      [SI91X_NETWORK_CMD] = RSI_WLAN_MGMT_Q,
+                                                      [SI91X_SOCKET_CMD]  = RSI_WLAN_MGMT_Q,
+                                                      [SI91X_BT_CMD]      = RSI_BT_Q };
+  static uint32_t response_event_map[SI91X_CMD_MAX] = { [SI91X_COMMON_CMD]  = NCP_HOST_COMMON_RESPONSE_EVENT,
+                                                        [SI91X_WLAN_CMD]    = NCP_HOST_WLAN_RESPONSE_EVENT,
+                                                        [SI91X_NETWORK_CMD] = NCP_HOST_NETWORK_RESPONSE_EVENT,
+                                                        [SI91X_SOCKET_CMD]  = NCP_HOST_SOCKET_RESPONSE_EVENT,
+                                                        [SI91X_BT_CMD]      = NCP_HOST_BT_RESPONSE_EVENT };
+// clang-format on
+
 void si91x_default_event_handler(uint32_t event, void *data, void *arg)
 {
   UNUSED_PARAMETER(event);
@@ -342,6 +355,9 @@ sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t
   return status;
 }
 
+#ifndef RSI_M4_INTERFACE
+sl_si91x_semaphore_handle_t cmd_lock;
+#endif
 sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, sl_wifi_event_handler_t event_handler)
 {
   sl_status_t status;
@@ -490,6 +506,10 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
 #endif
   device_initialized   = true;
   initialized_opermode = config->boot_config.oper_mode;
+#ifndef RSI_M4_INTERFACE
+  sl_si91x_semaphore_create(&cmd_lock, 0);
+  sl_si91x_semaphore_post(&cmd_lock);
+#endif
 
   if ((config->boot_config.oper_mode == SL_SI91X_CLIENT_MODE)
       || (config->boot_config.oper_mode == SL_SI91X_ENTERPRISE_CLIENT_MODE)
@@ -596,6 +616,9 @@ sl_status_t sl_si91x_driver_send_socket_data(sl_si91x_socket_send_request_t *req
     return SL_STATUS_NULL_POINTER;
   }
 
+#ifndef RSI_M4_INTERFACE
+  sl_si91x_semaphore_wait(&cmd_lock, 0);
+#endif
   status = sl_si91x_host_allocate_buffer(
     &buffer,
     SL_WIFI_TX_FRAME_BUFFER,
@@ -763,18 +786,7 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
   uint16_t data_length              = 0;
   sl_si91x_driver_context_t context = { 0 };
   sl_si91x_wait_period_t wait_time  = 0;
-  // clang-format off
-  static uint8_t firmware_queue_id[SI91X_CMD_MAX]   = { [SI91X_COMMON_CMD]  = RSI_WLAN_MGMT_Q,
-                                                      [SI91X_WLAN_CMD]    = RSI_WLAN_MGMT_Q,
-                                                      [SI91X_NETWORK_CMD] = RSI_WLAN_MGMT_Q,
-                                                      [SI91X_SOCKET_CMD]  = RSI_WLAN_MGMT_Q,
-                                                      [SI91X_BT_CMD]      = RSI_BT_Q };
-  static uint32_t response_event_map[SI91X_CMD_MAX] = { [SI91X_COMMON_CMD]  = NCP_HOST_COMMON_RESPONSE_EVENT,
-                                                        [SI91X_WLAN_CMD]    = NCP_HOST_WLAN_RESPONSE_EVENT,
-                                                        [SI91X_NETWORK_CMD] = NCP_HOST_NETWORK_RESPONSE_EVENT,
-                                                        [SI91X_SOCKET_CMD]  = NCP_HOST_SOCKET_RESPONSE_EVENT,
-                                                        [SI91X_BT_CMD]      = NCP_HOST_BT_RESPONSE_EVENT };
-  // clang-format on
+
   status = sl_si91x_allocate_command_buffer(&packet,
                                             (void **)&node,
                                             sizeof(sl_si91x_queue_packet_t),
@@ -877,12 +889,71 @@ sl_status_t sl_si91x_driver_send_data_packet(sl_si91x_queue_type_t queue_type,
   node->firmware_queue_id = RSI_WLAN_DATA_Q;
   node->command_type      = (sl_si91x_command_type_t)queue_type;
   node->sdk_context       = NULL;
-  node->flags             = SI91X_PACKET_WITH_NO_RESPONSE;
+  node->flags             = SI91X_PACKET_WITH_ASYNC_RESPONSE;
 
   context.packet  = node;
   context.payload = &(packet_id[queue_type]);
   sl_si91x_host_add_to_queue_with_atomic_action(queue_type, packet, &context, sl_si91x_atomic_packet_id_allocator);
   sl_si91x_host_set_bus_event(NCP_HOST_DATA_TX_EVENT);
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
+                                               sl_si91x_queue_type_t queue_type,
+                                               void *data,
+                                               uint32_t data_length)
+{
+
+  sl_si91x_queue_packet_t *node = NULL;
+  sl_status_t return_status;
+  sl_si91x_driver_context_t context = { 0 };
+  sl_wifi_buffer_t *raw_rx_buffer, *buffer;
+  sl_si91x_packet_t *raw_rx_packet;
+  sl_status_t status;
+
+  status = sl_si91x_allocate_command_buffer(&raw_rx_buffer,
+                                            (void **)&raw_rx_packet,
+                                            sizeof(sl_si91x_packet_t) + data_length,
+                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  memset(raw_rx_packet->desc, 0, sizeof(raw_rx_packet->desc));
+  if (data != NULL) {
+    memcpy(raw_rx_packet->data, data, data_length);
+  }
+
+  // Fill frame type
+  raw_rx_packet->length  = data_length & 0xFFF;
+  raw_rx_packet->command = command;
+
+  return_status = sl_si91x_allocate_command_buffer(&buffer,
+                                                   (void **)&node,
+                                                   sizeof(sl_si91x_queue_packet_t),
+                                                   SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+
+  if (return_status != SL_STATUS_OK) {
+    sl_si91x_host_free_buffer(raw_rx_buffer, SL_WIFI_TX_FRAME_BUFFER);
+    return return_status;
+  }
+
+#ifdef RSI_CHIP_MFG_EN
+  // WLAN soc frequency
+  if (command == RSI_BOOTUP_PARAMS) {
+    host_desc[14] = RSI_SOC_FREQ;
+  }
+#endif
+
+  node->host_packet       = raw_rx_buffer;
+  node->firmware_queue_id = firmware_queue_id[queue_type];
+  node->command_type      = (sl_si91x_command_type_t)queue_type;
+  node->sdk_context       = NULL;
+  node->flags             = SI91X_PACKET_WITH_ASYNC_RESPONSE;
+
+  context.packet  = node;
+  context.payload = &(packet_id[queue_type]);
+  sl_si91x_host_add_to_queue_with_atomic_action(queue_type, buffer, &context, sl_si91x_atomic_packet_id_allocator);
+  sl_si91x_host_set_event(NCP_HOST_DATA_TX_EVENT);
 
   return SL_STATUS_OK;
 }
@@ -1446,6 +1517,7 @@ sl_status_t sl_si91x_transmit_test_start(uint16_t power,
                                         SL_SI91X_WAIT_FOR(30100),
                                         NULL,
                                         NULL);
+
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }

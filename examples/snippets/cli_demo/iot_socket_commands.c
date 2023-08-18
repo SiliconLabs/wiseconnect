@@ -33,7 +33,7 @@
  *               Static Function Declarations
  ******************************************************/
 
-static void inline print_ipv6(const sl_ipv6_address_t *ip);
+static inline void print_ipv6(const sl_ipv6_address_t *ip);
 static inline void print_iot_status(const int32_t status);
 
 /******************************************************
@@ -262,7 +262,7 @@ sl_status_t wifi_iot_socket_send_to_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
-static void inline print_ipv6(const sl_ipv6_address_t *ip)
+static inline void print_ipv6(const sl_ipv6_address_t *ip)
 {
   printf("%lx:%lx:%lx:%lx", ip->value[0], ip->value[1], ip->value[2], ip->value[3]);
 }

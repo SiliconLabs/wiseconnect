@@ -196,6 +196,7 @@ void UartIrqHandler(USART_RESOURCES *usart)
 
 void USART_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
 {
+  UNUSED_PARAMETER(dmaCh);
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
       // Update TX buffer info
@@ -211,6 +212,7 @@ void USART_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
 }
 void USART_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
 {
+  UNUSED_PARAMETER(dmaCh);
   uint32_t evt1 = 0U;
   uint32_t val;
   switch (event) {

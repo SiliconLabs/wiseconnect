@@ -20,6 +20,9 @@
  */
 #include "rsi_ccp_common.h"
 #include "rsi_chip.h"
+#include "rsi_board.h"
+
+void fpuInit(void);
 #define NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR_1 (*(volatile uint32_t *)(0x41300000 + 0x4))
 #define NWPAON_MEM_HOST_ACCESS_CTRL_SET_1   (*(volatile uint32_t *)(0x41300000 + 0x0))
 #define M4SS_TASS_CTRL_SET_REG              (*(volatile uint32_t *)(0x24048400 + 0x34))
@@ -478,7 +481,12 @@ error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     ULP_SPI_MEM_MAP(0x141) |= (BIT(11)); // ULP PADS PDO ON
     disable_pads_ctrl = 0;
   }
-
+/*Start of M4 init after wake up  */
+#ifdef DEBUG_UART
+  fpuInit();
+  /*Initialize UART after wake up*/
+  DEBUGINIT();
+#endif
   /*Restore the NVIC registers */
   for (var = 0; var < MAX_NVIC_REGS; ++var) {
     NVIC->ISER[var] = nvic_enable[var];

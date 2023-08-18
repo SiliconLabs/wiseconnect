@@ -33,17 +33,15 @@ This application demonstrates how SiWx91x will connect to three different SSL se
 
 ![Figure: Setup Diagram SoC Mode for three_ssl_client_sockets Example](resources/readme/threesslsocketsoc.png)
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-  
 #### NCP Mode  
 
 ![Figure: Setup Diagram NCP Mode for three_ssl_client_sockets Example](resources/readme/threesslsocketncp.png)
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ### 3 Project Environment
 
-- Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 ### 3.1 Creating the project
 

@@ -46,7 +46,7 @@ bool rsi_flash_init(void);
  *  @param[in]   sector_address     start address of the flash sector
  *  @return      return is zero then successfully erased if non-zero then fail.
  ******************************************************************************/
-bool rsi_flash_erase_sector(uint32_t sector_address);
+bool rsi_flash_erase_sector(uint32_t *sector_address);
 
 /***************************************************************************/ /**
  *  @fn          bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length)
@@ -57,7 +57,7 @@ bool rsi_flash_erase_sector(uint32_t sector_address);
  *  @param[in]   length      The size of the object data in number of bytes
  *  @return      return is zero then successfully data write if non-zero then fail.
  ******************************************************************************/
-bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length);
+bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length);
 
 /***************************************************************************/ /**
  *  @fn          bool rsi_flash_read(uint32_t address, unsigned char *data, uint32_t length,uint8_t auto_mode);
@@ -69,7 +69,7 @@ bool rsi_flash_write(uint32_t address, unsigned char *data, uint32_t length);
  *  @param[out]  data        destination address of NVM3 read to write data
  *  @return      return is zero then successfully data read if non-zero then fail.
  ******************************************************************************/
-bool rsi_flash_read(uint32_t address, unsigned char *data, uint32_t length, uint8_t auto_mode);
+bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode);
 
 /***************************************************************************/ /**
  *  @fn          bool rsi_flash_uninitialize(void)

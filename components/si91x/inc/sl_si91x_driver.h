@@ -105,6 +105,24 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
 
 /***************************************************************************/ /**
  * @brief
+ * Send commands to the TA; whose response needs to be handled asynchronously.
+ * Note: This function doesn't acquire "command_in_flight" boolean
+ * @param[in] command
+ *   Command type to be sent to TA firmware.
+ * @param[in] queue_type
+ *   Queue type to be used to send the command on.
+ * @param[in] data
+ *   Command packet to be sent to the TA firmware.
+ * @param[in] data_length
+ *   Length of the command packet.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
+                                               sl_si91x_queue_type_t queue_type,
+                                               void *data,
+                                               uint32_t data_length);
+/***************************************************************************/ /**
+ * @brief
  *   Wait for a command response.
  * @param[in] command
  *   Command type to wait .

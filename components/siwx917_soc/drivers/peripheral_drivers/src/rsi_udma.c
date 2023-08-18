@@ -347,7 +347,7 @@ uint32_t udma_get_channel_transfer_length(RSI_UDMA_HANDLE_T pHandle,
                                           RSI_UDMA_CHA_CFG_T *pCfg,
                                           RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData)
 {
-
+  UNUSED_PARAMETER(vsUDMAChaConfigData);
   uint32_t channelTableIndex = 0;
   uint32_t transferSize      = 0;
   RSI_UDMA_DESC_T *pUDMAChaCtrlDataStruct;
@@ -450,6 +450,7 @@ error_t udma_interrupt_enable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
  */
 void RSI_UDMA_AckEnable(RSI_UDMA_HANDLE_T pHandle, uint32_t peripheral)
 {
+  UNUSED_PARAMETER(pHandle);
   switch (peripheral) {
     case USART0_ACK:
       PERIPHERAL_UDMA_DMA_SEL |= SET_BIT(0);

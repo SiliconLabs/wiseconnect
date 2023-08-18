@@ -4,7 +4,9 @@
 
 The application demonstrates how to configure SiWx91x as an IoT devices and securely connect to AWS IoT Core to subscribe and publish on a topic by using AWS MQTT library.
 
-In this application, SiWx91x is configured as Wi-Fi station and connects to an Access Point which has internet access. After successful Wi-Fi connection, application connects to AWS Core and subscribes to a topic. The application publishes a message on subscribed topic, waits to receive the data published on subscribed topic from the cloud and keeps the M4 processor in sleep. After the configured alarm time, the device periodically wakes up and publishes a message to the AWS cloud.
+In this application, SiWx91x is configured as Wi-Fi station and connects to an Access Point which has internet access. After successful Wi-Fi connection, application connects to AWS Core and subscribes to a topic (SUBSCRIBE_TO_TOPIC). The application publishes a message on a topic (PUBLISH_ON_TOPIC),and keeps the M4 processor in sleep. The M4 wakes up once it receives the wireless message from cloud.
+
+Additionally, the M4 also wakes up based on alarm and on button (GPIO) press if the respective macro is enabled.
 
 ## Overview of AWS SDK
 
@@ -22,10 +24,6 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 - Wi-Fi Access point with a connection to the internet
 - **SoC Mode**:
   - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
-- **NCP Mode**:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
-  - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
 ### 2.2 Software Requirements
 
@@ -40,21 +38,11 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 
 ![Figure: Setup Diagram SoC Mode for AWS MQTT Subscribe-Publish Example](resources/readme/setup_soc.png)
 
-Follow the [Getting Started with SiWx91x SoC](https://docs.silabs.com/) guide to set up the hardware connections and Simplicity Studio IDE.
-
-#### NCP Mode
-
-![Figure: Setup Diagram NCP Mode for AWS MQTT Subscribe-Publish Example](resources/readme/setup_ncp.png)
-
-Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-getting-started-with-efx32/) guide to setup the hardware connections and Simplicity Studio IDE.
-
-**NOTE**:
-
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
+Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ## 3 Project Environment
 
-- Ensure the SiWx91x loaded with the latest firmware following the [Getting started with a PC](https://docs.silabs.com/rs9116/latest/wiseconnect-getting-started)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
 ### 3.1 Creating the project
 
@@ -74,22 +62,6 @@ Follow the [Getting Started with EFx32](https://docs.silabs.com/rs9116-wiseconne
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
   **![Create AWS MQTT project](resources/readme/create_project_soc.png)**
-
-#### 3.1.2 NCP mode
-
-- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-
-  **![EFR32 Board detection](resources/readme/efr32.png)**
-
-- Ensure the latest Gecko SDK along with the WiSeConnect3 extension is added to Simplicity Studio.
-
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - NCP AWS IoT MQTT application
-
-  **![AWS MQTT project](resources/readme/aws_mqtt_example.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  **![Create AWS MQTT project](resources/readme/create_project_ncp.png)**
 
 ### 3.2 Set up for application prints
 
@@ -111,23 +83,6 @@ You can use either of the below USB to UART converters for application prints.
 
      **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera Term set up - for NCP and SoC modes**
-
-1. Open the Tera Term tool.
-
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
-
-  **![UART - SoC](resources/readme/port_selection_soc.png)**
-
-- For NCP mode, choose the J-Link port and click on **OK**.
-  **![J-link - NCP](resources/readme/port_selection.png)**
-
-2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
-
-**![Serial port](resources/readme/serial_port_setup.png)**
-
-**![Baud rate](resources/readme/serial_port.png)**
-
 ## 4 Application Build Environment
 
 The application can be configured to suit your requirements and development environment.
@@ -142,13 +97,26 @@ The application can be configured to suit your requirements and development envi
 #define MQTT_PUBLISH_QOS1_PAYLOAD "Hi from SiWx917"
 #define MQTT_USERNAME             "username"
 #define MQTT_PASSWORD             "password"
+
+#define ALARM_TIMER_BASED_WAKEUP   1   //!Enable this macro for M4 to wake up based on alarm time period
+#define BUTTON_BASED_WAKEUP        1   //!Enable this macro for M4 to wake up based on button (BTN1) press
+
+#define ALARM_PERIODIC_TIME 30  //! periodic alarm configuration in SEC
 ```
 
-- **SUBSCRIBE_TO_TOPIC** refers to the topic to which the device subscribes and publishes on this **PUBLISH_ON_TOPIC**
+- **SUBSCRIBE_TO_TOPIC** refers to the topic to which the device subscribes.
+- **PUBLISH_ON_TOPIC** refers to the topic to which the device publishes.
 
-- By default, the application connects to the remote Access point with **default_wifi_client_profile** configuration provided in **sl_net_default_values.h**
+### 4.1.2 Below parameters in **sl_net_default_values.h** can be configured
 
-### 4.1.2 Configure below parameters in **aws_iot_config.h** file in **\<project>/resources/defaults/**
+By default, the application connects to the remote Access point with **default_wifi_client_profile** configuration provided in **sl_net_default_values.h**.
+
+```c
+#define DEFAULT_WIFI_CLIENT_PROFILE_SSID "YOUR_AP_SSID"
+#define DEFAULT_WIFI_CLIENT_CREDENTIAL   "YOUR_AP_PASSPHRASE"
+```
+
+### 4.1.3 Configure below parameters in **aws_iot_config.h** file in **\<project>/resources/defaults/**
 
 ```c
 #define AWS_IOT_MQTT_HOST \
@@ -164,20 +132,18 @@ The application can be configured to suit your requirements and development envi
 
   **![Build as](resources/readme/build_aws_mqtt1.png)**
 
-- NCP mode:
-
 ### 4.3 Run and Test the application
 
-- Application will Subscribe to the MQTT_TOPIC and Publishes message "{\"message\": \"toggle\"}" to the same topic.
-- It receives the publish message sent, as it has subscribed to the same topic.
-- Upon receiving the Publish message it processes the message "{\"message\": \"toggle\"}"
+- Application will Subscribe to the 'SUBSCRIBE_TO_TOPIC' and Publishes message to the topic 'PUBLISH_ON_TOPIC' and puts M4 in PS4 sleep state.
+- It receives the wireless message sent from cloud and wakes up M4, as it has subscribed to topic SUBSCRIBE_TO_TOPIC.
+- Additionally, the M4 can wake up based on alarm and button (BTN1) press if the respective macro is enabled.
 - Once the build was successful, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
 
   ![debug_mode_soc](resources/readme/debugmodesoc117.png)
 
 ### 4.4 Application Output
 
-- SoC mode & NCP mode:
+- SoC mode:
 
 ![Application prints](resources/readme/debug_prints_with_data_transfer_soc.png)
 

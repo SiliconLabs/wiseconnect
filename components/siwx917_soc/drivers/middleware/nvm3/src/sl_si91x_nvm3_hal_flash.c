@@ -178,9 +178,9 @@ static void nvm3_halFlashAccess(nvm3_HalNvmAccessCode_t access)
  ******************************************************************************/
 static Ecode_t nvm3_halFlashReadWords(nvm3_HalPtr_t nvmAdr, void *dst, size_t wordCnt)
 {
-  uint32_t *pSrc = (uint32_t *)nvmAdr;
-  uint32_t *pDst = dst;
-  Ecode_t halSta = ECODE_NVM3_OK;
+  uint32_t *pSrc      = (uint32_t *)nvmAdr;
+  unsigned char *pDst = dst;
+  Ecode_t halSta      = ECODE_NVM3_OK;
   /* Calling this function for flash read */
   halSta = rsi_flash_read(pSrc, pDst, wordCnt, 0);
   return halSta;
@@ -203,7 +203,7 @@ static Ecode_t nvm3_halFlashWriteWords(nvm3_HalPtr_t nvmAdr, void const *src, si
     halSta = ECODE_NVM3_ERR_WRITE_FAILED;
   } else {
     /* Calling this function for flash write */
-    if (!(rsi_flash_write(pDst, (char *)pSrc, byteCnt))) {
+    if (!(rsi_flash_write(pDst, (unsigned char *)pSrc, byteCnt))) {
       halSta = ECODE_NVM3_OK;
     }
   }
@@ -211,9 +211,9 @@ static Ecode_t nvm3_halFlashWriteWords(nvm3_HalPtr_t nvmAdr, void const *src, si
   /* Check if the data  written */
 #if CHECK_DATA
 #ifdef DUAL_FLASH_EN
-  uint32_t data = nvmAdr;
+  uint32_t data = (uint32_t)nvmAdr;
 #else
-  uint32_t data = nvmAdr - TA_M4_ADDRESS_OFFSET;
+  uint32_t data = (uint32_t)nvmAdr - TA_M4_ADDRESS_OFFSET;
 #endif
   if (halSta == ECODE_NVM3_OK) {
     if (memcmp((uint32_t *)data, pSrc, byteCnt) != 0) {

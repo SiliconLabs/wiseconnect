@@ -56,7 +56,7 @@ ui_hints:
   highlight:
   - {path: readme.md, focus: true}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.12}
+- {id: wiseconnect3_sdk, version: 3.0.13}
 template_contribution:
   - name: udma_enable
     value: true

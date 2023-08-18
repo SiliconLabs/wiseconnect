@@ -44,6 +44,7 @@
 #include "socket.h"
 #include "sl_net_si91x.h"
 #include "sl_wifi_callback_framework.h"
+#include "sl_si91x_socket.h"
 
 #ifdef RSI_M4_INTERFACE
 #include "rsi_rtc.h"
@@ -64,17 +65,19 @@
 /******************************************************
 *                    Constants
 ******************************************************/
-#define ENABLE_POWER_SAVE         1
+
 #define SUBSCRIBE_TO_TOPIC        "aws_status"   //! Subscribe Topic to receive the message from cloud
 #define PUBLISH_ON_TOPIC          "si91x_status" //! Publish Topic to send the status from application to cloud
-#define MQTT_PUBLISH_QOS1_PAYLOAD "Hi from SiWx917"
+#define MQTT_PUBLISH_QOS0_PAYLOAD "Hi from SiWx917"
 
 #define MQTT_USERNAME "username"
 #define MQTT_PASSWORD "password"
 
-#define BROADCAST_DROP_THRESHOLD        5000
-#define BROADCAST_IN_TIM                1
-#define BROADCAST_TIM_TILL_NEXT_COMMAND 1
+#define ENABLE_POWER_SAVE        1
+#define ALARM_TIMER_BASED_WAKEUP 1
+#define BUTTON_BASED_WAKEUP      1
+
+volatile uint8_t powersave_given;
 
 #ifdef RSI_M4_INTERFACE
 #ifdef COMMON_FLASH_EN
@@ -94,9 +97,10 @@
 #define WKP_RAM_USAGE_LOCATION \
   0x24061000 /*<!Bootloader RAM usage location upon wake up  */ // A0 Boards (common flash & Dual flash)
 #endif
+
 #define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
 
-#define ALARM_PERIODIC_TIME 10 /*<! periodic alarm configuration in SEC */
+#define ALARM_PERIODIC_TIME 30 /*<! periodic alarm configuration in SEC */
 
 #define RTC_ALARM_INTR         BIT(16)
 #define NPSS_GPIO_2            2
@@ -138,6 +142,12 @@ void subscribe_handler(struct _Client *pClient,
                        IoT_Publish_Message_Params *pParams,
                        void *pClientData);
 void disconnect_notify_handler(AWS_IoT_Client *pClient, void *data);
+int sl_si91x_socket_select(int nfds,
+                           fd_set *readfds,
+                           fd_set *writefds,
+                           fd_set *exceptfds,
+                           struct timeval *timeout,
+                           select_callback callback);
 
 #ifdef RSI_M4_INTERFACE
 void sl_service_init(void);
@@ -150,6 +160,49 @@ void m4_sleep_wakeup(void);
 void wakeup_source_config(void);
 #endif
 
+//! Enumeration for states in application
+typedef enum rsi_wlan_app_state_e {
+  RSI_WLAN_INITIAL_STATE                 = 0,
+  RSI_WLAN_SCAN_STATE                    = 1,
+  RSI_WLAN_UNCONNECTED_STATE             = 2,
+  RSI_WLAN_CONNECTED_STATE               = 3,
+  RSI_WLAN_IPCONFIG_DONE_STATE           = 4,
+  RSI_WLAN_DISCONNECT                    = 5,
+  RSI_WLAN_MQTT_INIT_STATE               = 6,
+  RSI_WLAN_MQTT_CONNECT_STATE            = 7,
+  RSI_WLAN_MQTT_AUTO_RECONNECT_SET_STATE = 8,
+  RSI_WLAN_MQTT_SUBSCRIBE_STATE          = 9,
+  RSI_WLAN_MQTT_PUBLISH_STATE            = 10,
+  RSI_WLAN_MQTT_RECEIVE_STATE            = 11,
+  RSI_WLAN_MQTT_DISCONNECT               = 12,
+  RSI_AWS_SELECT_CONNECT_STATE           = 13,
+  RSI_SLEEP_STATE                        = 14,
+  RSI_IDLE_STATE                         = 15
+} rsi_wlan_app_state_t;
+
+#define RSI_APP_BUF_SIZE 1600
+//! wlan application control block
+typedef struct rsi_wlan_app_cb_s {
+  //! wlan application state
+  volatile rsi_wlan_app_state_t state;
+
+  //! length of buffer to copy
+  uint32_t length;
+
+  //! application buffer
+  uint8_t buffer[RSI_APP_BUF_SIZE];
+
+  //! to check application buffer availability
+  uint8_t buf_in_use;
+
+  //! application events bit map
+  uint32_t event_map;
+
+} rsi_wlan_app_cb_t;
+rsi_wlan_app_cb_t rsi_wlan_app_cb; //! application control block
+
+osSemaphoreId_t rsi_mqtt_sem;
+
 /******************************************************
 *               Variable Definitions
 ******************************************************/
@@ -160,51 +213,68 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = 3072,
-  .priority   = osPriorityLow,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
+
+//! No of ltcp socktes
+#define RSI_NUMBER_OF_LTCP_SOCKETS 0
+
+//! Default number of sockets supported,max 10 sockets are supported
+#define RSI_NUMBER_OF_SOCKETS (6 + RSI_NUMBER_OF_LTCP_SOCKETS)
+
+//! Default number of sockets supported,max 10 selects are supported
+#define RSI_NUMBER_OF_SELECTS (RSI_NUMBER_OF_SOCKETS)
 
 static const sl_wifi_device_configuration_t client_init_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                   .coex_mode       = SL_SI91X_WLAN_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
-#if ENABLE_POWER_SAVE
-                                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
-#endif
-                                       ),
-                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
-                                              | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (
-#if ENABLE_POWER_SAVE
-                     SL_SI91X_EXT_FEAT_LOW_POWER_MODE |
-#endif
+  .region_code = US,
+  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
+                   .coex_mode = SL_SI91X_WLAN_MODE,
+                   .feature_bit_map =
 #ifdef RSI_M4_INTERFACE
-                     RAM_LEVEL_NWP_BASIC_MCU_ADV
+                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_SECURITY_OPEN
+                      | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
 #else
-                     RAM_LEVEL_NWP_ALL_MCU_ZERO
+                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION),
 #endif
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK),
-                   .bt_feature_bit_map         = 0,
-                   .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
-                   .ble_feature_bit_map        = 0,
-                   .ble_ext_feature_bit_map    = 0,
-                   .config_feature_bit_map     = (
-#if ENABLE_POWER_SAVE
-                     SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
+                   .tcp_ip_feature_bit_map =
+                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
+#ifdef ipv6_FEATURE_REQUIRED
+                      | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
+#endif
+                      | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                   .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
+#ifdef RSI_M4_INTERFACE
+                      | RAM_LEVEL_NWP_BASIC_MCU_ADV
 #else
-                     0
+                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
-                     ) }
+                      ),
+                   .bt_feature_bit_map = 0,
+                   .ext_tcp_ip_feature_bit_map =
+                     (SL_SI91X_EXT_TCP_IP_WINDOW_SCALING | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1)
+                      | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
+                   .ble_feature_bit_map     = 0,
+                   .ble_ext_feature_bit_map = 0,
+                   .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
 
-uint32_t first_time                     = 0;
-IoT_Publish_Message_Params publish_QOS1 = { 0 };
-volatile uint8_t nvic_enable1[240];
+IoT_Publish_Message_Params publish_QOS0 = { 0 };
+#define WIRELESS_WAKEUP_IRQHandler          NPSS_TO_MCU_WIRELESS_INTR_IRQn
+#define WIRELESS_WAKEUP_IRQHandler_Priority 8
+
+fd_set read_fds;
+volatile uint8_t check_for_recv_data = 0, select_given = 0;
+int32_t status1            = RSI_SUCCESS;
+AWS_IoT_Client mqtt_client = { 0 };
+#define RSI_FD_ISSET(x, y) rsi_fd_isset(x, y)
 
 #ifdef RSI_M4_INTERFACE
 static RTC_TIME_CONFIG_T rtc_configuration, alarm_configuration, rtc_get_time;
@@ -212,6 +282,21 @@ static RTC_TIME_CONFIG_T rtc_configuration, alarm_configuration, rtc_get_time;
 /******************************************************
 *               Function Definitions
 ******************************************************/
+
+void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status1)
+{
+  UNUSED_PARAMETER(fd_except);
+  UNUSED_PARAMETER(fd_write);
+  UNUSED_PARAMETER(status1);
+  // printf("select call back triggered\r\n");
+  //!Check the data pending on this particular socket descriptor
+  if (FD_ISSET(mqtt_client.networkStack.socket_id, fd_read)) {
+    check_for_recv_data = 1;
+    //    printf("data Pending\r\n");
+  }
+  rsi_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
+}
+
 void disconnect_notify_handler(AWS_IoT_Client *pClient, void *data)
 {
   UNUSED_PARAMETER(pClient);
@@ -272,17 +357,11 @@ static void application_start(void *argument)
     printf("\r\nFailed to get client profile: 0x%lx\r\n", status);
     return;
   }
-  printf("\r\nSuccess to get client profile\r\n");
+  printf("\r\n Success to get client profile\r\n");
 
   ip_address.type = SL_IPV4;
   memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
   print_sl_ip_address(&ip_address);
-
-  status = sl_wifi_filter_broadcast(BROADCAST_DROP_THRESHOLD, BROADCAST_IN_TIM, BROADCAST_TIM_TILL_NEXT_COMMAND);
-  if (status != SL_STATUS_OK) {
-    printf("\r\nsl_wifi_filter_broadcast Failed, Error Code : 0x%lX\r\n", status);
-    return;
-  }
 
   status = load_certificates_in_flash();
   if (status != SL_STATUS_OK) {
@@ -290,11 +369,6 @@ static void application_start(void *argument)
     return;
   }
   printf("\r\nCertificate loading success\r\n");
-
-#ifdef RSI_M4_INTERFACE
-  /* Configure the Alarm time*/
-  initialize_m4_alarm();
-#endif
 
   status = start_aws_mqtt();
   if (status != SL_STATUS_OK) {
@@ -336,8 +410,7 @@ sl_status_t load_certificates_in_flash(void)
 
 sl_status_t start_aws_mqtt(void)
 {
-  IoT_Error_t rc             = FAILURE;
-  AWS_IoT_Client mqtt_client = { 0 };
+  IoT_Error_t rc = FAILURE;
 
   IoT_Client_Init_Params mqtt_init_params       = iotClientInitParamsDefault;
   IoT_Client_Connect_Params mqtt_connect_params = iotClientConnectParamsDefault;
@@ -354,7 +427,7 @@ sl_status_t start_aws_mqtt(void)
   mqtt_init_params.disconnectHandler         = disconnect_notify_handler;
   mqtt_init_params.disconnectHandlerData     = NULL;
 
-  mqtt_connect_params.keepAliveIntervalInSec = 600;
+  mqtt_connect_params.keepAliveIntervalInSec = 1200;
   mqtt_connect_params.isCleanSession         = true;
   mqtt_connect_params.MQTTVersion            = MQTT_3_1_1;
   mqtt_connect_params.pClientID              = AWS_IOT_MQTT_CLIENT_ID;
@@ -365,63 +438,229 @@ sl_status_t start_aws_mqtt(void)
   mqtt_connect_params.pPassword              = MQTT_PASSWORD;
   mqtt_connect_params.passwordLen            = strlen(MQTT_PASSWORD);
 
-  // mqtt init
-  rc = aws_iot_mqtt_init(&mqtt_client, &mqtt_init_params);
-  if (rc != SUCCESS) {
-    printf("\r\nMqtt Init failed with error: 0x%x\r\n", rc);
-    return rc;
-  }
-  printf("\r\nMqtt Init success\r\n");
+  rsi_wlan_app_cb.state = RSI_WLAN_MQTT_INIT_STATE;
+#ifdef RSI_M4_INTERFACE
+#if ALARM_TIMER_BASED_WAKEUP
+  initialize_m4_alarm();
+#endif
+#endif
+#ifdef RSI_WITH_OS
+  osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+  while (1) {
+#ifdef RSI_WITH_OS
+    osSemaphoreAcquire(rsi_mqtt_sem, osWaitForever);
+#endif
+    switch (rsi_wlan_app_cb.state) {
 
-  // mqtt connect
-  rc = aws_iot_mqtt_connect(&mqtt_client, &mqtt_connect_params);
-  if (rc != SUCCESS) {
-    printf("\r\nMqtt Connect failed with error: 0x%x\r\n", rc);
-    return rc;
-  }
-  printf("\r\nMqtt Connect success\r\n");
+      case RSI_WLAN_MQTT_INIT_STATE: {
+        rc = aws_iot_mqtt_init(&mqtt_client, &mqtt_init_params);
+        if (SUCCESS != rc) {
+          rsi_wlan_app_cb.state = RSI_WLAN_MQTT_INIT_STATE;
+          printf("\r\nMqtt Init failed with error: 0x%x\r\n", rc);
+        } else {
+          rsi_wlan_app_cb.state = RSI_WLAN_MQTT_CONNECT_STATE;
+        }
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
+      case RSI_WLAN_MQTT_CONNECT_STATE: {
+        printf("AWS IOT MQTT Connecting...\n");
+        rc = aws_iot_mqtt_connect(&mqtt_client, &mqtt_connect_params);
+        if (SUCCESS != rc) {
+          if (rc == NETWORK_ALREADY_CONNECTED_ERROR) {
+            printf("Network is already connected\n");
+            //rsi_wlan_app_cb.state = RSI_WLAN_MQTT_PUBLISH_STATE;
+          } else {
+            printf("\r\nMqtt Subscribe failed with error: 0x%x\r\n", rc);
+            rsi_wlan_app_cb.state = RSI_WLAN_MQTT_DISCONNECT;
+          }
+        } else {
+          rsi_wlan_app_cb.state = RSI_WLAN_MQTT_AUTO_RECONNECT_SET_STATE;
+        }
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
+      case RSI_WLAN_MQTT_AUTO_RECONNECT_SET_STATE: {
+        rc = aws_iot_mqtt_autoreconnect_set_status(&mqtt_client, false);
+        if (SUCCESS != rc) {
+          if (NETWORK_DISCONNECTED_ERROR == rc) {
+            printf("MQTT auto reconnect error\n");
+            rsi_wlan_app_cb.state = RSI_WLAN_MQTT_CONNECT_STATE;
+          } else if (NETWORK_ATTEMPTING_RECONNECT == rc) {
+            // If the client is attempting to reconnect we will skip the rest of the loop.
+            continue;
+          }
+          printf("Unable to set Auto Reconnect to true\n ");
+          rsi_wlan_app_cb.state = RSI_WLAN_MQTT_AUTO_RECONNECT_SET_STATE;
+        } else {
+          rsi_wlan_app_cb.state = RSI_WLAN_MQTT_SUBSCRIBE_STATE;
+        }
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
+      case RSI_WLAN_MQTT_SUBSCRIBE_STATE: {
+        printf("\r\nAWS IOT MQTT Subscribe...\n");
+        rc = aws_iot_mqtt_subscribe(&mqtt_client,
+                                    SUBSCRIBE_TO_TOPIC,
+                                    strlen(SUBSCRIBE_TO_TOPIC),
+                                    QOS1,
+                                    subscribe_handler,
+                                    NULL);
 
-  // mqtt subscribe
-  rc =
-    aws_iot_mqtt_subscribe(&mqtt_client, SUBSCRIBE_TO_TOPIC, strlen(SUBSCRIBE_TO_TOPIC), QOS1, subscribe_handler, NULL);
-  if (rc != SUCCESS) {
-    printf("\r\nMqtt Subscribe failed with error: 0x%x\r\n", rc);
-    return rc;
-  }
-  printf("\r\nMqtt Subscribe success\r\n");
+        if (SUCCESS != rc) {
+          if (NETWORK_DISCONNECTED_ERROR == rc) {
+            printf("\r\nSubscribe error\n");
+            rsi_wlan_app_cb.state = RSI_WLAN_MQTT_CONNECT_STATE;
+          } else if (NETWORK_ATTEMPTING_RECONNECT == rc) {
+            // If the client is attempting to reconnect we will skip the rest of the loop.
+            continue;
+          }
+          rsi_wlan_app_cb.state = RSI_WLAN_MQTT_SUBSCRIBE_STATE;
+        }
+
+        rsi_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
+
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
+
+      case RSI_AWS_SELECT_CONNECT_STATE: {
+        {
+          if (!select_given) {
+            select_given = 1;
+            memset(&read_fds, 0, sizeof(fd_set));
+
+            FD_SET(mqtt_client.networkStack.socket_id, &read_fds);
+            printf("\r\n Socket ID: %d", mqtt_client.networkStack.socket_id);
+
+            status1 =
+              sl_si91x_select(mqtt_client.networkStack.socket_id + 1, &read_fds, NULL, NULL, NULL, async_socket_select);
+
+            printf("Printing the select status\r\n");
+
+            printf("\r\n select status: 0x%lX\r\n", status1);
+          }
+
+          if (check_for_recv_data) {
+            check_for_recv_data = 0;
+            select_given        = 0;
+            status1             = aws_iot_shadow_yield(&mqtt_client, 1);
+            printf("\r\n yield status: 0x%lX\r\n", status1);
+
+            rsi_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
+          } else {
+            rsi_wlan_app_cb.state = RSI_WLAN_MQTT_PUBLISH_STATE;
+          }
+        }
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
+
+      case RSI_WLAN_MQTT_PUBLISH_STATE: {
+
+        printf("\r\nEnter AWS IOT MQTT Publish...\n");
+        printf("\r\nData to be published : %s\r\n", MQTT_PUBLISH_QOS0_PAYLOAD);
+
+        publish_QOS0.qos        = QOS0;
+        publish_QOS0.payload    = MQTT_PUBLISH_QOS0_PAYLOAD;
+        publish_QOS0.isRetained = 0;
+        publish_QOS0.payloadLen = strlen(MQTT_PUBLISH_QOS0_PAYLOAD);
+
+        // mqtt publish with QOS0
+        rc = aws_iot_mqtt_publish(&mqtt_client, PUBLISH_ON_TOPIC, strlen(PUBLISH_ON_TOPIC), &publish_QOS0);
+
+        if (rc != SUCCESS) {
+          printf("\r\nMqtt Publish for QOS0 failed with error: 0x%x\r\n", rc);
+        }
+
+        if (rc == MQTT_REQUEST_TIMEOUT_ERROR) {
+          printf("QOS0 publish ack not received.\n");
+        }
+
+        printf("QOS0 publish success\n");
+        osDelay(50);
 
 #if ENABLE_POWER_SAVE
-  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE, .listen_interval = 500 };
-
-  rc = sl_wifi_set_performance_profile(&performance_profile);
-  if (rc != SL_STATUS_OK) {
-    printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
-  }
-  printf("\r\nAssociated Power Save Enabled\n");
+        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
+                                                              .listen_interval = 1000 };
+        if (!powersave_given) {
+          rc = sl_wifi_set_performance_profile(&performance_profile);
+          if (rc != SL_STATUS_OK) {
+            printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
+          }
+          printf("\r\nAssociated Power Save Enabled\n");
+          powersave_given = 1;
+        }
+        rsi_wlan_app_cb.state = RSI_SLEEP_STATE;
+#else
+        rsi_wlan_app_cb.state = RSI_IDLE_STATE;
 #endif
 
-  while ((NETWORK_ATTEMPTING_RECONNECT == rc) || (NETWORK_RECONNECTED == rc) || (SUCCESS == rc)) {
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
 
-    publish_QOS1.qos        = QOS1;
-    publish_QOS1.payload    = MQTT_PUBLISH_QOS1_PAYLOAD;
-    publish_QOS1.payloadLen = strlen(MQTT_PUBLISH_QOS1_PAYLOAD);
+#if ENABLE_POWER_SAVE
+      case RSI_SLEEP_STATE: {
 
-    // mqtt publish with QOS1
-    rc = aws_iot_mqtt_publish(&mqtt_client, PUBLISH_ON_TOPIC, strlen(PUBLISH_ON_TOPIC), &publish_QOS1);
-    if (rc != SUCCESS) {
-      printf("\r\nMqtt Publish for QOS1 failed with error: 0x%x\r\n", rc);
-      return rc;
-    }
-    printf("\r\nMqtt Publish success\r\n");
+        printf("\r\n Going to power save state \r\n");
 
-    aws_iot_shadow_yield(&mqtt_client, 1000);
-
-    if (first_time) {
+        // configure powersave
 #ifdef RSI_M4_INTERFACE
-      m4_sleep_wakeup();
+        m4_sleep_wakeup();
+        rsi_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
 #endif
+
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
+#endif
+
+      case RSI_WLAN_MQTT_DISCONNECT: {
+        rc = aws_iot_mqtt_disconnect(&mqtt_client);
+        if (SUCCESS != rc) {
+          printf("MQTT disconnection error\n");
+          rsi_wlan_app_cb.state = RSI_WLAN_MQTT_INIT_STATE;
+        }
+        rsi_wlan_app_cb.state = RSI_WLAN_MQTT_INIT_STATE;
+
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
+      case RSI_IDLE_STATE: {
+
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+      } break;
+
+#if 0
+        case RSI_WLAN_DISCONNECT: {
+          rc = rsi_wlan_disconnect();
+          if (SUCCESS != rc) {
+            printf("WLAN disconnection error\n");
+            rsi_wlan_app_cb.state = RSI_WLAN_DISCONNECT;
+          }
+          rsi_delay_ms(DISCONNECTION_TIME);
+          rsi_wlan_app_cb.state = RSI_WLAN_INITIAL_STATE;
+        }
+#ifdef RSI_WITH_OS
+        osSemaphoreRelease(rsi_mqtt_sem);
+#endif
+          break;
+#endif
+      default:
+        break;
     }
-    first_time = 1;
   }
 
   return rc;
@@ -452,16 +691,28 @@ void m4_sleep_wakeup(void)
 
 #else
 
+#if ALARM_TIMER_BASED_WAKEUP
   /* Update the alarm time interval, when to get next interrupt  */
   set_alarm_interrupt_timer(ALARM_PERIODIC_TIME);
 
+#endif
+
+  /* Configure Wakeup-Source */
+  RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
+  NVIC_SetPriority(WIRELESS_WAKEUP_IRQHandler, WIRELESS_WAKEUP_IRQHandler_Priority);
+
+  /* Enable NVIC */
+  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
+
+#if BUTTON_BASED_WAKEUP
   /*Configure the UULP GPIO 2 as wakeup source */
   wakeup_source_config();
+#endif
 
   /* Configure RAM Usage and Retention Size */
   sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
 
-  printf("\r\nM4 sleep\r\n");
+  printf("\r\nM4 Sleep\r\n");
 
   /* Trigger M4 Sleep*/
   sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
@@ -474,18 +725,11 @@ void m4_sleep_wakeup(void)
   /* Enable M4_TA interrupt */
   sli_m4_ta_interrupt_init();
 
-/*Start of M4 init after wake up  */
-#ifdef DEBUG_UART
-  fpuInit();
-  /*Initialize UART after wake up*/
-  sl_service_init();
-#endif
-
-  printf("\r\nM4 Wake up\r\n");
-
+  //  /*Start of M4 init after wake up  */
+  printf("\r\nM4 Wake Up\r\n");
 #endif
 }
-
+#if ALARM_TIMER_BASED_WAKEUP
 void set_alarm_interrupt_timer(uint16_t interval)
 {
   /* Get the RTC time,which is used to update alarm time as per RTC time  */
@@ -599,7 +843,6 @@ void initialize_m4_alarm(void)
   /*Enable NVIC for RTC */
   NVIC_EnableIRQ(NVIC_RTC_ALARM);
 }
-
 /*RTC Alarm interrupt*/
 void RTC_ALARM_IRQHandler(void)
 {
@@ -608,20 +851,24 @@ void RTC_ALARM_IRQHandler(void)
   statusRead = RSI_RTC_GetIntrStatus();
 
   if (statusRead & NPSS_TO_MCU_ALARM_INTR) {
+
     /* TRIGGER SLEEP STATE */
     /*Clear wake up interrupt */
     RSI_RTC_IntrClear(RTC_ALARM_INTR);
   }
   return;
 }
+#endif
 
 void IRQ026_Handler()
 {
+  RSI_PS_GetWkpUpStatus();
   /*Clear interrupt */
   ps_clr_wkp_up_status(NPSS_TO_MCU_WIRELESS_INTR);
   return;
 }
 
+#if BUTTON_BASED_WAKEUP
 /**
  * @brief  Configure the UULP GPIO 2 as wakeup source
  * @param  none
@@ -661,7 +908,9 @@ void wakeup_source_config(void)
  */
 void IRQ021_Handler(void)
 {
+
   /* clear NPSS GPIO interrupt*/
   RSI_NPSSGPIO_ClrIntr(NPSS_GPIO_2_INTR);
 }
+#endif
 #endif
