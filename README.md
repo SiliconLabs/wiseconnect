@@ -21,13 +21,13 @@ WiSeConnect 3 SDK is covered by one of several different licenses. The default l
 ## Documentation
 
 The online WiSeConnect 3 SDK documentation is available [here](https://docs.silabs.com/wiseconnect/latest).
-  - See the [Getting Started Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode) to run your first example.
+  - See the [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started) section to run your first example.
   - See the [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples) section to explore all the available examples.
   - See our [Migration Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-migr-overview) for information on porting your WiSeConnect 2 application to WiSeConnect 3.
 
 ### Software Reference
 
-  - [Getting Started with SoC Mode](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode)
+  - [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started)
   - [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples)
   - [Migration Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-migr-overview)
   - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
