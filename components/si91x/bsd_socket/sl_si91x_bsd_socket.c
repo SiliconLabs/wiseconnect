@@ -482,34 +482,40 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
                                                &event,
                                                &wait_time);
 
-  SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
+  if (status == SL_STATUS_OK) {
 
-  bytes_read = (response->length <= buf_len) ? response->length : buf_len;
-  memcpy(buf, ((uint8_t *)response + response->offset), bytes_read);
+    bytes_read = (response->length <= buf_len) ? response->length : buf_len;
+    memcpy(buf, ((uint8_t *)response + response->offset), bytes_read);
 
-  if (addr != NULL) {
-    if (response->ip_version == SL_IPV4_VERSION && *addr_len >= sizeof(struct sockaddr_in)) {
-      struct sockaddr_in *socket_address = (struct sockaddr_in *)addr;
+    if (addr != NULL) {
+      if (response->ip_version == SL_IPV4_VERSION && *addr_len >= sizeof(struct sockaddr_in)) {
+        struct sockaddr_in *socket_address = (struct sockaddr_in *)addr;
 
-      socket_address->sin_port   = response->dest_port;
-      socket_address->sin_family = AF_INET;
-      memcpy(&socket_address->sin_addr.s_addr, response->dest_ip_addr.ipv4_address, SL_IPV4_ADDRESS_LENGTH);
+        socket_address->sin_port   = response->dest_port;
+        socket_address->sin_family = AF_INET;
+        memcpy(&socket_address->sin_addr.s_addr, response->dest_ip_addr.ipv4_address, SL_IPV4_ADDRESS_LENGTH);
 
-      *addr_len = sizeof(struct sockaddr_in);
-    } else if (response->ip_version == SL_IPV6_VERSION && *addr_len >= sizeof(struct sockaddr_in6)) {
-      struct sockaddr_in6 *ipv6_socket_address = ((struct sockaddr_in6 *)addr);
+        *addr_len = sizeof(struct sockaddr_in);
+      } else if (response->ip_version == SL_IPV6_VERSION && *addr_len >= sizeof(struct sockaddr_in6)) {
+        struct sockaddr_in6 *ipv6_socket_address = ((struct sockaddr_in6 *)addr);
 
-      ipv6_socket_address->sin6_port   = response->dest_port;
-      ipv6_socket_address->sin6_family = AF_INET6;
-      memcpy(&ipv6_socket_address->sin6_addr.__u6_addr.__u6_addr8,
-             response->dest_ip_addr.ipv6_address,
-             SL_IPV6_ADDRESS_LENGTH);
+        ipv6_socket_address->sin6_port   = response->dest_port;
+        ipv6_socket_address->sin6_family = AF_INET6;
+        memcpy(&ipv6_socket_address->sin6_addr.__u6_addr.__u6_addr8,
+               response->dest_ip_addr.ipv6_address,
+               SL_IPV6_ADDRESS_LENGTH);
 
-      *addr_len = sizeof(struct sockaddr_in6);
-    } else {
-      // Not BSD compliant.
-      *addr_len = 0;
+        *addr_len = sizeof(struct sockaddr_in6);
+      } else {
+        // Not BSD compliant.
+        *addr_len = 0;
+      }
     }
+  }
+  else
+  {
+      bytes_read = -1;
+      errno = status;
   }
 
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
@@ -689,7 +695,49 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
 int close(int socket_id)
 {
   errno = 0;
-  return sli_si91x_shutdown(socket_id, SHUTDOWN_BY_ID);
+
+  sl_status_t status                                      = SL_STATUS_OK;
+  sl_si91x_socket_close_request_t socket_close_request    = { 0 };
+  sl_si91x_socket_close_response_t *socket_close_response = NULL;
+  sl_si91x_wait_period_t wait_period                      = SL_SI91X_WAIT_FOR_RESPONSE(35000);
+  sl_wifi_buffer_t *buffer;
+
+  si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
+  if (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED
+      || (si91x_socket->state == DISCONNECTED && is_tcp_auto_close_enabled())) {
+    reset_socket_state(socket_id);
+
+    return SI91X_NO_ERROR;
+  }
+
+  // Socket descriptor based close
+  socket_close_request.socket_id = si91x_socket->id;
+  // Setting request.port with zero to indicate firmware to close socket based on socket ID not using port.
+  socket_close_request.port_number = 0;
+
+  status = sl_si91x_socket_driver_send_command(RSI_WLAN_REQ_SOCKET_CLOSE,
+                                               &socket_close_request,
+                                               sizeof(socket_close_request),
+                                               SI91X_SOCKET_CMD_QUEUE,
+                                               SI91X_SOCKET_RESPONSE_QUEUE,
+                                               &buffer,
+                                               (void *)&socket_close_response,
+                                               NULL,
+                                               &wait_period);
+
+  SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
+
+  if (socket_close_request.socket_id != socket_close_response->socket_id) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    SET_ERROR_AND_RETURN(SI91X_UNDEFINED_ERROR);
+  }
+
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  reset_socket_state(socket_id);
+
+  return SI91X_NO_ERROR;
 }
 
 struct hostent *gethostbyname(const char *name)
@@ -838,7 +886,7 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
   packet   = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   response = (sl_si91x_socket_select_rsp_t *)packet->data;
 
-  total_fd_set_count = handle_select_response(response, readfds, writefds, exceptfds);
+  total_fd_set_count = handle_select_response(response, nfds, readfds, writefds, exceptfds);
 
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   return total_fd_set_count;
