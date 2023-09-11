@@ -526,20 +526,24 @@ int getsockname(int socket_id, struct sockaddr *name, socklen_t *name_len)
 {
   return get_sock_address(socket_id, name, name_len, SI91X_BSD_SOCKET_LOCAL_ADDRESS);
 }
+
 int getpeername(int socket_id, struct sockaddr *name, socklen_t *name_len)
 {
   return get_sock_address(socket_id, name, name_len, SI91X_BSD_SOCKET_PEER_ADDRESS);
 }
+
 int setsockopt(int socket_id, int option_level, int option_name, const void *option_value, socklen_t option_length)
 {
   si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
   sl_si91x_time_value *timeout = NULL;
   uint16_t timeout_val;
+
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
   SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT)
   SET_ERRNO_AND_RETURN_IF_TRUE(
     ((option_level != SOL_SOCKET) && (option_level != SOL_TCP) && (option_level != IPPROTO_IP)),
     EINVAL);
+
   switch (option_name) {
     case SO_RCVTIMEO: {
       // Configure receive timeout
@@ -548,18 +552,21 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
         timeout->tv_usec = 1000;
       }
       timeout_val = (timeout->tv_usec / 1000) + (timeout->tv_sec * 1000);
+
       // Need to add check here if Synchronous bit map is set (after async socket_id implementation)
       memcpy(&si91x_socket->read_timeout,
              &timeout_val,
              GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->read_timeout), option_length));
       break;
     }
+
     case SO_KEEPALIVE: {
       memcpy(&si91x_socket->tcp_keepalive_initial_time,
              (uint16_t *)option_value,
              GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->tcp_keepalive_initial_time), option_length));
       break;
     }
+
     case TCP_ULP: {
       if ((sizeof(TLS_1_2) != option_length) && (sizeof(TLS) != option_length)) {
         SET_ERROR_AND_RETURN(EINVAL);
@@ -580,18 +587,22 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
 #endif
       break;
     }
+
     case SO_CERT_INDEX: {
       SET_ERRNO_AND_RETURN_IF_TRUE(
         ((*(uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(uint8_t *)option_value > SI91X_CERT_INDEX_2)),
         EINVAL);
+
       si91x_socket->certificate_index = *(uint8_t *)option_value;
       break;
     }
+
     case SO_HIGH_PERFORMANCE_SOCKET: {
       SET_ERRNO_AND_RETURN_IF_TRUE(*(uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
       si91x_socket->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
       break;
     }
+
 #ifdef CHIP_917
     case SO_MAX_RETRANSMISSION_TIMEOUT_VALUE: {
       if (IS_POWER_OF_TWO(*(uint8_t *)option_value) && ((*(uint8_t *)option_value) < MAX_RETRANSMISSION_TIME_VALUE)) {
@@ -605,6 +616,7 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
       }
       break;
     }
+
     case IP_TOS: {
       memcpy(&si91x_socket->tos,
              (uint8_t *)option_value,
@@ -616,57 +628,70 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
       SET_ERROR_AND_RETURN(ENOPROTOOPT);
     }
   }
+
   return SI91X_NO_ERROR;
 }
+
 int getsockopt(int socket_id, int option_level, int option_name, void *option_value, socklen_t *option_length)
 {
   si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
   SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT);
   SET_ERRNO_AND_RETURN_IF_TRUE(option_level != SOL_SOCKET || option_length == NULL, EINVAL)
+
   switch (option_name) {
     case SO_RCVTIMEO: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->read_timeout));
       memcpy(option_value, &si91x_socket->read_timeout, *option_length);
       break;
     }
+
     case SO_KEEPALIVE: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->tcp_keepalive_initial_time));
       memcpy(option_value, &si91x_socket->tcp_keepalive_initial_time, *option_length);
       break;
     }
+
     case SO_TYPE: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->type));
       memcpy(option_value, &si91x_socket->type, *option_length);
       break;
     }
+
     case SO_DOMAIN: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->local_address.sin6_family));
       memcpy(option_value, &si91x_socket->local_address.sin6_family, *option_length);
       break;
     }
+
     case SO_PROTOCOL: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->protocol));
       memcpy(option_value, &si91x_socket->protocol, *option_length);
       break;
     }
+
     case SO_ERROR: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(errno));
       memcpy(option_value, &errno, *option_length);
       errno = 0;
       break;
     }
+
     case SO_CERT_INDEX: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->certificate_index));
       memcpy(option_value, &si91x_socket->certificate_index, *option_length);
       break;
     }
+
     default: {
       SET_ERROR_AND_RETURN(ENOPROTOOPT);
     }
   }
+
   return SI91X_NO_ERROR;
 }
+
 int close(int socket_id)
 {
   errno = 0;
@@ -674,34 +699,20 @@ int close(int socket_id)
 }
 
 struct hostent *gethostbyname(const char *name)
-
-    
-          
-            
-    
-
-          
-          Expand Down
-          
-            
-    
-
-          
-          Expand Up
-    
-    @@ -838,7 +886,7 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
-  
 {
   sl_status_t status = SL_STATUS_OK;
+
   if ((name == NULL) || (strlen(name) > SI91X_DNS_REQUEST_MAX_URL_LEN)) {
     herrno = TRY_AGAIN;
     return NULL;
   }
+
 #ifdef ipv6_FEATURE_REQUIRED
   status = sl_dns_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
 #else
   status = sl_dns_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
 #endif
+
   if (status == SL_STATUS_TIMEOUT) {
     herrno = TRY_AGAIN;
     return NULL;
@@ -709,6 +720,7 @@ struct hostent *gethostbyname(const char *name)
     herrno = HOST_NOT_FOUND;
     return NULL;
   }
+
 #ifdef ipv6_FEATURE_REQUIRED
   host_ent.h_length   = (host_ip_address.type == SL_IPV4 ? SL_IPV4_ADDRESS_LENGTH : SL_IPV6_ADDRESS_LENGTH);
   host_ent.h_addrtype = (host_ip_address.type == SL_IPV4 ? AF_INET : AF_INET6);
@@ -716,23 +728,29 @@ struct hostent *gethostbyname(const char *name)
   host_ent.h_length   = SL_IPV4_ADDRESS_LENGTH;
   host_ent.h_addrtype = AF_INET;
 #endif
+
   host_ent.h_name = (char *)name;
   host_ent.h_addr = (char *)&host_ip_address;
+
   herrno = NETDB_SUCCESS;
   return &host_ent;
 }
+
 struct hostent *gethostbyname2(const char *name, int af)
 {
   sl_status_t status = SL_STATUS_OK;
+
   if ((name == NULL) || (strlen(name) > SI91X_DNS_REQUEST_MAX_URL_LEN)) {
     herrno = TRY_AGAIN;
     return NULL;
   }
+
   if (af == AF_INET6) {
     status = sl_dns_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV6, &host_ip_address);
   } else {
     status = sl_dns_host_get_by_name(name, SL_SI91X_WAIT_FOR_DNS_RESOLUTION, SL_NET_DNS_TYPE_IPV4, &host_ip_address);
   }
+
   if (status == SL_STATUS_TIMEOUT) {
     herrno = TRY_AGAIN;
     return NULL;
@@ -740,6 +758,7 @@ struct hostent *gethostbyname2(const char *name, int af)
     herrno = HOST_NOT_FOUND;
     return NULL;
   }
+
   if (af == AF_INET6) {
     host_ent.h_length   = SL_IPV6_ADDRESS_LENGTH;
     host_ent.h_addrtype = AF_INET6;
@@ -747,21 +766,27 @@ struct hostent *gethostbyname2(const char *name, int af)
     host_ent.h_length   = SL_IPV4_ADDRESS_LENGTH;
     host_ent.h_addrtype = AF_INET;
   }
+
   host_ent.h_name = (char *)name;
   host_ent.h_addr = (char *)&host_ip_address;
+
   herrno = NETDB_SUCCESS;
   return &host_ent;
 }
+
 int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout)
 {
   sl_status_t status = SL_STATUS_OK;
+
   int32_t total_fd_set_count        = 0; // Specifies total number of FD's set across all categories.
   int32_t select_response_wait_time = 0;
+
   sl_si91x_socket_select_req_t request   = { 0 };
   sl_si91x_socket_select_rsp_t *response = NULL;
   sl_wifi_buffer_t *buffer               = NULL;
   sl_si91x_packet_t *packet              = NULL;
   sl_si91x_wait_period_t wait_time       = 0;
+
   if ((readfds == NULL) && (writefds == NULL) && (exceptfds == NULL)) {
     SET_ERROR_AND_RETURN(EINVAL);
   }
@@ -771,23 +796,29 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
   if ((timeout != NULL) && ((timeout->tv_sec < 0) || (timeout->tv_usec < 0))) {
     SET_ERROR_AND_RETURN(EINVAL);
   }
+
   for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
     if (readfds != NULL) {
+
       if (FD_ISSET(host_socket_index, readfds)) {
         si91x_socket_t *socket = get_si91x_socket(host_socket_index);
         request.read_fds.fd_array[0] |= (1U << socket->id);
       }
     }
+
     if (writefds != NULL) {
+
       if (FD_ISSET(host_socket_index, writefds)) {
         si91x_socket_t *socket = get_si91x_socket(host_socket_index);
         request.write_fds.fd_array[0] |= (1U << socket->id);
       }
     }
+
     if (request.num_fd <= get_si91x_socket(host_socket_index)->id) {
       request.num_fd = get_si91x_socket(host_socket_index)->id + 1;
     }
   }
+
   if (timeout != NULL && ((timeout->tv_sec != 0) || (timeout->tv_usec != 0))) {
     request.select_timeout.tv_sec  = timeout->tv_sec;
     request.select_timeout.tv_usec = timeout->tv_usec;
@@ -799,6 +830,7 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
     select_response_wait_time = 0;
     wait_time                 = (SL_SI91X_WAIT_FOR_EVER | SL_SI91X_WAIT_FOR_RESPONSE_BIT);
   }
+
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SELECT_REQUEST,
                                         SI91X_SOCKET_CMD_QUEUE,
                                         &request,
@@ -806,7 +838,9 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
                                         wait_time,
                                         NULL,
                                         &buffer);
+
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
+
   packet   = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   response = (sl_si91x_socket_select_rsp_t *)packet->data;
 
