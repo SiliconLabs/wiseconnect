@@ -482,34 +482,40 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
                                                &event,
                                                &wait_time);
 
-  SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
+  if (status == SL_STATUS_OK) {
 
-  bytes_read = (response->length <= buf_len) ? response->length : buf_len;
-  memcpy(buf, ((uint8_t *)response + response->offset), bytes_read);
+    bytes_read = (response->length <= buf_len) ? response->length : buf_len;
+    memcpy(buf, ((uint8_t *)response + response->offset), bytes_read);
 
-  if (addr != NULL) {
-    if (response->ip_version == SL_IPV4_VERSION && *addr_len >= sizeof(struct sockaddr_in)) {
-      struct sockaddr_in *socket_address = (struct sockaddr_in *)addr;
+    if (addr != NULL) {
+      if (response->ip_version == SL_IPV4_VERSION && *addr_len >= sizeof(struct sockaddr_in)) {
+        struct sockaddr_in *socket_address = (struct sockaddr_in *)addr;
 
-      socket_address->sin_port   = response->dest_port;
-      socket_address->sin_family = AF_INET;
-      memcpy(&socket_address->sin_addr.s_addr, response->dest_ip_addr.ipv4_address, SL_IPV4_ADDRESS_LENGTH);
+        socket_address->sin_port   = response->dest_port;
+        socket_address->sin_family = AF_INET;
+        memcpy(&socket_address->sin_addr.s_addr, response->dest_ip_addr.ipv4_address, SL_IPV4_ADDRESS_LENGTH);
 
-      *addr_len = sizeof(struct sockaddr_in);
-    } else if (response->ip_version == SL_IPV6_VERSION && *addr_len >= sizeof(struct sockaddr_in6)) {
-      struct sockaddr_in6 *ipv6_socket_address = ((struct sockaddr_in6 *)addr);
+        *addr_len = sizeof(struct sockaddr_in);
+      } else if (response->ip_version == SL_IPV6_VERSION && *addr_len >= sizeof(struct sockaddr_in6)) {
+        struct sockaddr_in6 *ipv6_socket_address = ((struct sockaddr_in6 *)addr);
 
-      ipv6_socket_address->sin6_port   = response->dest_port;
-      ipv6_socket_address->sin6_family = AF_INET6;
-      memcpy(&ipv6_socket_address->sin6_addr.__u6_addr.__u6_addr8,
-             response->dest_ip_addr.ipv6_address,
-             SL_IPV6_ADDRESS_LENGTH);
+        ipv6_socket_address->sin6_port   = response->dest_port;
+        ipv6_socket_address->sin6_family = AF_INET6;
+        memcpy(&ipv6_socket_address->sin6_addr.__u6_addr.__u6_addr8,
+               response->dest_ip_addr.ipv6_address,
+               SL_IPV6_ADDRESS_LENGTH);
 
-      *addr_len = sizeof(struct sockaddr_in6);
-    } else {
-      // Not BSD compliant.
-      *addr_len = 0;
+        *addr_len = sizeof(struct sockaddr_in6);
+      } else {
+        // Not BSD compliant.
+        *addr_len = 0;
+      }
     }
+  }
+  else
+  {
+      bytes_read = -1;
+      errno = status;
   }
 
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
