@@ -1,0 +1,68 @@
+id: si91x_support
+package: wiseconnect3_sdk
+description: >
+  Si91x Support Library
+label: Si91x Support Library
+category: Wi-Fi
+quality: production
+component_root_path: ./components/si91x_support
+provides:
+- name: si91x_support
+source:
+- path: src/sl_utility.c
+define:
+- name: SL_COMPONENT_CATALOG_PRESENT
+- name: EFR32MG21A020F1024IM32
+  condition: [brd4180a]
+- name: EFR32MG21A020F1024IM32
+  condition: [brd4180b]
+- name: CHIP_917
+  condition: [brd4180b]
+- name: CHIP_917B0
+  condition: [brd4180b]
+- name: SI917_RADIO_BOARD_V2
+  condition: [brd4180b]
+include:
+- path: inc
+  file_list:
+    - path: sl_additional_status.h
+    - path: sl_cmsis_utility.h
+    - path: sl_constants.h
+    - path: sl_ieee802_types.h
+    - path: sl_ip_types.h
+    - path: sl_utility.h
+- path: brd4180a
+  file_list:
+    - path: sl_board_configuration.h
+  condition:
+    - brd4180a
+- path: efr32mg21
+  file_list:
+    - path: sl_device_registers.h
+    - path: sl_device.h
+  condition:
+    - brd4180a
+- path: brd4180b
+  file_list:
+    - path: sl_board_configuration.h
+  condition:
+    - brd4180b
+- path: efr32mg21
+  file_list:
+    - path: sl_device_registers.h
+    - path: sl_device.h
+  condition:
+    - brd4180b
+- path: efr32mg21
+  file_list:
+    - path: sl_device_registers.h
+    - path: sl_device.h
+  condition:
+    - efr32mg21
+- path: efm32gg11b
+  file_list:
+    - path: sl_device_registers.h
+    - path: sl_device.h
+  condition:
+    - efm32gg11b
+

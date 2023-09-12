@@ -1,0 +1,31 @@
+id: psram_core
+label: PSRAM Core
+package: platform
+description: >
+  PSRAM is an additonal random access memory
+
+  This component includes only the PSRAM driver core. To configure 
+  this driver, the PSRAM component should be included in the project.
+category: Platform|si91x|Drivers|PSRAM Driver
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+provides:
+  - name: psram_core
+requires:
+  - name: psram_config
+  - name: rsilib_qspi
+  - name: systemlevel_pll
+  - name: device_has_psram
+  - name: romdriver_clks
+  - name: romdriver_qspi
+source:
+  - path: src/sl_si91x_psram.c
+  - path: src/sl_si91x_psram_handle.c
+include:
+  - path: inc
+    file_list:
+      - path: sl_si91x_psram.h
+      - path: sl_si91x_psram_handle.h
+config_file:
+  - path: config/sl_si91x_psram_pin_config.h
+    file_id: psram_pin_config

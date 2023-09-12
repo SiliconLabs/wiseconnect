@@ -1,0 +1,57 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_si91x_sysrtc
+label: SI91x - SL_SYSRTC
+description: |
+  demostrate Sysrtc functionality.
+category: example|peripheral
+package: platform
+quality: production
+readme:
+- {path: readme.md}
+source:
+- {path: app.h}
+- {path: app.c}
+- {path: main.c}
+- {path: sysrtc_example.c}
+- {path: sysrtc_example.h}
+sdk: {id: gecko_sdk, version: 4.3.1}
+toolchain_settings: []
+component:
+- id: cmsis_common
+- id: sl_system
+- id: component_catalog
+- id: sl_sysrtc
+  from: wiseconnect3_sdk
+- id: systemlevel_time_period
+  from: wiseconnect3_sdk
+- id: romdriver_timer
+  from: wiseconnect3_sdk
+- id: rsilib_sysrtc
+  from: wiseconnect3_sdk
+- id: rsilib_userconfig
+  from: wiseconnect3_sdk
+- id: romdriver_egpio
+  from: wiseconnect3_sdk
+- id: rsilib_clock_update
+  from: wiseconnect3_sdk
+- id: udma_linker_config
+  from: wiseconnect3_sdk
+- id: si917_memory_default_config
+  from: wiseconnect3_sdk
+other_file:
+- {path: resources/readme/image509a.png}
+- {path: resources/readme/image509b.PNG}
+- {path: resources/readme/image509c.png}
+define:
+- {name: COMMON_FLASH_EN}
+- {name: RSI_M4_INTERFACE}
+- {name: SI91X_SYSRTC_COUNT, value: '1'}
+provides:
+- {name: si91x_soc}
+ui_hints:
+  highlight:
+  - {path: readme.md, focus: true}
+sdk_extension:
+- {id: wiseconnect3_sdk, version: 3.1.0}
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

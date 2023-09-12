@@ -1,0 +1,28 @@
+id: tcose
+label: TCOSE
+package: third_party
+description: >
+  QCBOR library 
+category: third_party
+quality: alpha
+component_root_path: "third_party/tcose"
+source:
+  - path: "src/t_cose_parameters.c"
+  - path: "src/t_cose_short_circuit.c"
+  - path: "src/t_cose_sign1_sign.c"
+  - path: "src/t_cose_sign1_verify.c"
+  - path: "src/t_cose_util.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "q_useful_buf.h"
+    - path: "t_cose_common.h"
+    - path: "t_cose_crypto.h"
+    - path: "t_cose_parameters.h"
+    - path: "t_cose_short_circuit.h"
+    - path: "t_cose_sign1_sign.h"
+    - path: "t_cose_sign1_verify.h"
+    - path: "t_cose_standard_constants.h"
+    - path: "t_cose_util.h"
+provides:
+  - name: tcose

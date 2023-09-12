@@ -1,0 +1,19 @@
+id: romdriver_romtable
+label: ROM TABLE
+package: platform
+description: >
+  Rom Table
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/rom_driver"
+source:
+  - name: "src/rsi_rom_table_si91x.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_rom_table_si91x.h"
+    - path: "rsi_rom_table_RS1xxxx.h"
+provides:
+  - name: romdriver_romtable
+requires:
+  - name: rsilib_crc

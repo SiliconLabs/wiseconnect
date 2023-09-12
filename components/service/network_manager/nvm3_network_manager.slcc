@@ -1,0 +1,14 @@
+id: nvm3_network_manager
+package: wiseconnect3_sdk
+description: >
+  NVM3 network data manager
+label: NVM3 Data Manager
+category: Networking|Data Management
+quality: production
+component_root_path: ./components/service/network_manager
+provides:
+- name: nvm3_network_manager
+source:
+- path: src/sl_net_nvm_credentials.c
+- path: src/sl_net_nvm_profiles.c
+include:

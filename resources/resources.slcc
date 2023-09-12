@@ -1,0 +1,37 @@
+id: wifi_resources
+package: wiseconnect3_sdk
+description: >
+  Wi-Fi SDK default values and certificates
+label: Wi-Fi resources
+category: Resources
+quality: production
+component_root_path: ./resources
+provides:
+- name: wifi_resources
+config_file:
+- path: defaults/sl_net_default_values.h
+  file_id: sl_net_default_values
+
+- path: lwip_defaults/lwipopts.h
+  file_id: lwipopts
+  condition: ["si91x_lwip_stack"]
+- path: defaults/aws_iot_config.h
+  file_id: aws_iot_config
+  condition: ["aws_sdk"]
+
+include:
+- path: certificates
+  file_list:
+    - path: aws_client_certificate.pem.crt.h
+    - path: aws_client_private_key.pem.key.h
+    - path: aws_starfield_ca.pem.h
+    - path: cacert.pem.h
+    - path: clientcert.pem.h
+    - path: clientkey.pem.h
+    - path: servercert.pem.h
+    - path: serverkey.pem.h
+    - path: wifiuser.pem.h
+- path: other
+  file_list:
+    - path: index.html.h
+

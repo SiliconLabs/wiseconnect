@@ -1,0 +1,17 @@
+id: sl_si91x_wrap
+package: wiseconnect3_sdk
+description: >
+  Implementation of the WRAP API
+label: WRAP
+category: Crypto|WRAP
+quality: production
+component_root_path: ./components/si91x/crypto/wrap
+provides:
+- name: sl_si91x_wrap
+source:
+- path: src/sl_si91x_wrap.c
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_wrap.h
+

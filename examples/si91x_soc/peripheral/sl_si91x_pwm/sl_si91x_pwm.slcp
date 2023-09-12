@@ -1,0 +1,50 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_si91x_pwm
+label: SI91x - SL_PWM
+description: |
+  This example project configures PWM peripheral
+category: example|peripheral
+package: platform
+quality: production
+readme:
+- {path: readme.md}
+source:
+- {path: main.c}
+- {path: app.c}
+- {path: app.h}
+- {path: pwm_example.c}
+- {path: pwm_example.h}
+sdk: {id: gecko_sdk, version: 4.2.1}
+toolchain_settings: []
+component:
+- {from: wiseconnect3_sdk, id: rsilib_pwm}
+- {from: wiseconnect3_sdk, id: sl_pwm}
+- {id: sl_system}
+- {from: wiseconnect3_sdk, instance: [channel_0], id: pwm_instance}
+- id: rsilib_userconfig
+  from: wiseconnect3_sdk
+- id: romdriver_egpio
+  from: wiseconnect3_sdk
+- id: rsilib_clock_update
+  from: wiseconnect3_sdk
+- id: udma_linker_config
+  from: wiseconnect3_sdk
+- id: si917_memory_default_config
+  from: wiseconnect3_sdk
+other_file:
+- {path: resources/readme/image516a.png}
+- {path: resources/readme/image516b.png}
+- {path: resources/readme/image516c.png}
+- {path: resources/uc_screen/pwm_uc_screen.png}
+define:
+- {name: RSI_M4_INTERFACE}
+provides:
+- {name: si91x_soc}
+ui_hints:
+  highlight:
+  - {path: readme.md, focus: true}
+sdk_extension:
+- {id: wiseconnect3_sdk, version: 3.1.0}
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+

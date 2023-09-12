@@ -1,0 +1,18 @@
+id: sl_si91x_sha
+package: wiseconnect3_sdk
+description: >
+  Implementation of the SHA API
+label: AES
+category: Crypto|SHA
+quality: production
+component_root_path: ./components/si91x/crypto/sha
+provides:
+- name: sl_si91x_sha
+source:
+- path: src/sl_si91x_sha.c
+- path: src/sl_si91x_psa_sha.c
+include:
+- path: inc
+  file_list:
+    - path: sha.h
+

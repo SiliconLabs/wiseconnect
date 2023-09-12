@@ -1,0 +1,20 @@
+id: sl_i2s
+label: SL I2S
+package: platform
+description: >
+   SL I2S Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_i2s_config.h
+source:
+  - path: "src/sl_si91x_i2s.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_i2s.h"
+provides:
+  - name: sl_i2s
+requires:
+  - name: udma_linker_config

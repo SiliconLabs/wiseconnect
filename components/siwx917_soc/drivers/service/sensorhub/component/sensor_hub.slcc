@@ -1,0 +1,16 @@
+id: sensor_hub
+label: SENSOR_HUB
+package: platform
+description: >
+  Sensor Hub stack API's 
+category: Platform|si91x|Middleware
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/service/sensorhub"
+source:
+  - path: "src/sensor_hub.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sensor_hub.h"
+provides:
+  - name: sensor_hub

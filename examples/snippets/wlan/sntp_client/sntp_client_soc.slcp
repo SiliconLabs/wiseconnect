@@ -1,0 +1,85 @@
+project_name: wifi_embedded_sntp_client_soc
+package: wifi
+quality: alpha
+label: Wi-Fi - Embedded SNTP CLIENT
+category: Example|Wi-Fi
+description: >
+  Demonstrates how to build an SNTP client and fetch network time.
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.1.0}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: RSI_DEBUG_PRINTS
+  - name: SNTP_CLIENT_FEATURE
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+requires:
+- name: sl_system
+- name: sntp
+- name: network_manager
+- name: basic_network_manager
+- name: si91x_support
+- name: wifi
+- name: si91x
+- name: sl_tls
+- name: si91x_internal_stack
+- name: si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/build_project_ncp.png
+  - path: resources/readme/build_project_soc.png
+  - path: resources/readme/create_project_ncp.png
+  - path: resources/readme/create_project_soc.png
+  - path: resources/readme/debug_as_ncp.png
+  - path: resources/readme/debug_as_soc.png
+  - path: resources/readme/efr32.png
+  - path: resources/readme/output.png
+  - path: resources/readme/port_selection.png
+  - path: resources/readme/port_selection_soc.png
+  - path: resources/readme/select_project-ncp.png
+  - path: resources/readme/select_project_soc.png
+  - path: resources/readme/serial_port.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/sntpclientncp.png
+  - path: resources/readme/sntpclientsoc.png
+  - path: resources/readme/soc_board_detection.png
+  - path: resources/readme/usb_to_uart_1.png
+  - path: resources/readme/usb_to_uart_2.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+

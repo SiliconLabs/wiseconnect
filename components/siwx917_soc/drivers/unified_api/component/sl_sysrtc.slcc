@@ -1,0 +1,21 @@
+id: sl_sysrtc
+label: SL SYSRTC
+package: platform
+description: >
+   SL SYSRTC Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_sysrtc_config.h
+source:
+  - path: "src/sl_si91x_sysrtc.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_sysrtc.h"
+provides:
+  - name: sl_sysrtc
+requires:
+  - name: udma_linker_config
+  - name: rsilib_sysrtc

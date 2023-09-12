@@ -1,0 +1,41 @@
+{% set __headers = aggregate("/console/include_headers") %}
+{% for file in __headers %}#include "{{file}}"
+{% endfor -%}
+#include "console_types.h"
+#include <stdint.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+{% set __enums = aggregate("/console/enums") %}
+/******************************************************
+ *                     Macros
+ ******************************************************/
+
+#define CONSOLE_TYPE( name )                      CONSOLE_##name##_TYPE
+
+/******************************************************
+ *                   Enumerations
+ ******************************************************/
+typedef enum {
+{% for name, item in __enums %}  CONSOLE_TYPE( {{name}} ),
+{% endfor -%}
+  CONSOLE_TYPE_COUNT // Equals the number of different types
+} console_type_t;
+
+
+/******************************************************
+ *                 Global Variables
+ ******************************************************/
+
+{% for name, item in __enums -%}
+extern const char* {{name}}_type[];
+{%- endfor %}
+
+extern const arg_list_t console_argument_types[];
+extern const value_list_t console_argument_values[];
+
+#ifdef __cplusplus
+} /*extern "C" */
+#endif

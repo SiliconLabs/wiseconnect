@@ -1,0 +1,47 @@
+id: brd4325b
+package: wiseconnect3_sdk
+description: >
+  Board support for BRD4325B.
+label: BRD4325B
+category: Platform|Board|Radio Board
+quality: production
+root_path: components/siwx917_soc/boards/config/brd4325b
+provides:
+- name: brd4325b
+- name: brd4325b
+- name: hardware_board
+- name: hardware_board_rb
+- name: rom_bypass
+- name: si91x_platform
+- name: si91x_a0_chip
+include:
+- path: inc
+- path: config/brd4325b
+- path: config/brd4325b/config
+define:
+- name: SI917_RADIO_BOARD
+- {"name":"CHIP_917","value":1}
+- {"name":"SL_BOARD_NAME","value":"\"BRD4325B\""}
+- {"name":"SL_BOARD_REV","value":"\"A00\""}
+- {"name":"DEBUG_UART","value":1}
+- {"name":"SI917_RADIO_BOARD","value":1}
+- {"name":"FLASH_BASED_EXECUTION_ENABLE","value":1}
+- {"name":"ENABLE_DEBUG_MODULE","value":1}
+- {"name":"IVT_OFFSET_ADDR","value":134291456}
+- {"name":"WKP_RAM_USAGE_LOCATION","value":604377088}
+requires:
+- name: si917_dual_flash
+- condition: ["wifi"]
+  name: siwx917_soc
+- condition: ["wifi"]
+  name: si91x
+
+config_file:
+- path: RTE_Device_917.h
+  file_id: A0_pin_config
+
+
+tag:
+- board:pn:BRD4325
+- board:variant:B
+

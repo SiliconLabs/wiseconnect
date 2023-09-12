@@ -1,0 +1,25 @@
+id: wifi
+package: wiseconnect3_sdk
+description: >
+  Implementation of the SL Wi-Fi API
+label: Wi-Fi Core
+category: Wi-Fi
+quality: production
+component_root_path: ./components/protocol/wifi
+provides:
+- name: wifi
+source:
+- path: src/sl_wifi_callback_framework.c
+- path: si91x/sl_wifi.c
+  condition: [si91x]
+define:
+- name: SL_WIFI_COMPONENT_INCLUDED
+include:
+- path: inc
+  file_list:
+    - path: sl_wifi_callback_framework.h
+    - path: sl_wifi_constants.h
+    - path: sl_wifi_host_interface.h
+    - path: sl_wifi_types.h
+    - path: sl_wifi.h
+

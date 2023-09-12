@@ -1,0 +1,16 @@
+id: rsilib_gspi
+label: GSPI
+package: platform
+description: >
+  Generic Serial Peripheral Interface Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_gspi.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_gspi.h"
+provides:
+  - name: rsilib_gspi

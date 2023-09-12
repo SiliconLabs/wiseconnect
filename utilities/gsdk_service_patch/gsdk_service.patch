@@ -1,0 +1,318 @@
+diff --git a/platform/emdrv/component/nvm3_default.slcc b/platform/emdrv/component/nvm3_default.slcc
+index 015a4e83cce2..8f0d2c22050d 100644
+--- a/platform/emdrv/component/nvm3_default.slcc
++++ b/platform/emdrv/component/nvm3_default.slcc
+@@ -37,6 +37,7 @@ template_contribution:
+       event: platform_init
+       include: nvm3_default.h
+       handler: nvm3_initDefault
++      condition: [device]
+     unless: [trustzone_secure]
+ documentation:
+     docset: gecko-platform
+diff --git a/platform/emdrv/component/nvm3_lib.slcc b/platform/emdrv/component/nvm3_lib.slcc
+index 4e9c51dbd21e..a00c7546cb59 100644
+--- a/platform/emdrv/component/nvm3_lib.slcc
++++ b/platform/emdrv/component/nvm3_lib.slcc
+@@ -18,6 +18,7 @@ category: Services|NVM3
+ quality: "production"
+ source:
+   - path: "platform/emdrv/nvm3/src/nvm3_hal_flash.c"
++    condition: [device]
+     unless: [trustzone_nonsecure]
+   - path: "platform/emdrv/nvm3/src/nvm3_lock.c"
+     unless: [trustzone_nonsecure]
+@@ -77,6 +78,7 @@ provides:
+   - name: "nvm_system"
+ requires:
+   - name: "emlib_msc"
++    condition: [device]
+   - name: "ecode"
+ template_contribution:
+   - name: component_catalog
+diff --git a/platform/service/component/device_init_core.slcc b/platform/service/component/device_init_core.slcc
+index bd0be7a0a59a..b30c17a4018c 100644
+--- a/platform/service/component/device_init_core.slcc
++++ b/platform/service/component/device_init_core.slcc
+@@ -10,6 +10,7 @@ provides:
+   - name: device_init_core
+ requires:
+   - name: emlib_chip
++    condition: [device]
+ template_contribution:
+   - name: event_handler
+     value:
+@@ -17,6 +18,7 @@ template_contribution:
+       include: em_chip.h
+       handler: CHIP_Init
+     priority: -9999
++    condition: [device]
+ documentation:
+   docset: gecko-platform
+   document: service/api/group-device-init
+diff --git a/platform/service/component/iostream.slcc b/platform/service/component/iostream.slcc
+index 9e982e4a4da4..f4a087b056dc 100644
+--- a/platform/service/component/iostream.slcc
++++ b/platform/service/component/iostream.slcc
+@@ -22,6 +22,7 @@ requires:
+     condition:
+       - kernel
+   - name: emlib_common
++    condition: [device]
+   - name: emlib_core
+   - name: sl_assert
+   - name: enum
+diff --git a/platform/service/component/iostream_uart_common.slcc b/platform/service/component/iostream_uart_common.slcc
+index 56b9bbb21913..972fd40d9f55 100644
+--- a/platform/service/component/iostream_uart_common.slcc
++++ b/platform/service/component/iostream_uart_common.slcc
+@@ -13,9 +13,11 @@ include:
+   - path: inc
+     file_list:
+       - path: sl_iostream_uart.h
++        condition: [device]
+       - path: sli_iostream_uart.h
+ source:
+   - path: src/sl_iostream_uart.c
++    condition: [device]
+ template_contribution:
+   - name: component_catalog
+     value: iostream_uart_common
+@@ -26,6 +28,7 @@ requires:
+   - name: iostream
+   - name: sl_string
+   - name: dmadrv
++    condition: [device]
+   - name: status
+   - name: atomic
+   - name: configuration_over_swo
+diff --git a/platform/service/component/iostream_usart.slcc b/platform/service/component/iostream_usart.slcc
+index 7b880d786028..e6a6ab5f249c 100644
+--- a/platform/service/component/iostream_usart.slcc
++++ b/platform/service/component/iostream_usart.slcc
+@@ -19,6 +19,9 @@ config_file:
+   - path: "config/s2/sl_iostream_usart_{{instance}}_config.h"
+     file_id: iostream_usart_config
+     condition: [device_series_2]
++  - path: "config/si91x/sl_iostream_usart_{{instance}}_config.h"
++    file_id: iostream_usart_config
++    condition: [siwx917_soc]
+ provides:
+   - name: iostream_usart
+     allow_multiple: true
+@@ -26,8 +29,10 @@ provides:
+     allow_multiple: true
+ requires:
+   - name: dmadrv
++    condition: [device]
+   - name: iostream_usart_core
+   - name: device_has_usart
++    condition: [device]
+ template_contribution:
+   - name: iostream_usart_instances
+     value: "{{instance}}"
+@@ -36,15 +41,29 @@ template_contribution:
+       event: iostream_instance_init
+       include: sl_iostream_init_usart_instances.h
+       handler: sl_iostream_usart_init_instances
++    condition: [device]
++  - name: event_handler
++    value:
++      event: iostream_instance_init
++      include: sl_iostream_init_si91x_usart.h
++      handler: sl_iostream_usart_init_instances
++    condition: [siwx917_soc]
+   - name: iostream_instance_info
+     value:
+       include: sl_iostream_init_usart_instances.h
+       handler: "sl_iostream_instance_{{instance}}_info"
++    condition: [device]
++  - name: iostream_instance_info
++    value:
++      include: sl_iostream_init_si91x_usart.h
++      handler: "sl_iostream_instance_{{instance}}_info"
++    condition: [siwx917_soc]
+   - name: power_manager_handler
+     value:
+       event: sleep_on_isr_exit
+       include: sl_iostream_init_usart_instances.h
+       handler: "sl_iostream_usart_{{instance}}_sleep_on_isr_exit"
++    condition: [device]
+ documentation:
+   docset: gecko-platform
+   document: service/api/group-iostream-usart
+diff --git a/platform/service/component/iostream_usart_core.slcc b/platform/service/component/iostream_usart_core.slcc
+index f684d05a6dd7..76c2e1a6f710 100644
+--- a/platform/service/component/iostream_usart_core.slcc
++++ b/platform/service/component/iostream_usart_core.slcc
+@@ -15,13 +15,15 @@ include:
+   - path: inc
+     file_list:
+       - path: sl_iostream_usart.h
++        condition: [device]
+ source:
+   - path: src/sl_iostream_usart.c
++    condition: [device]
+ template_file:
+   - path: init/sl_iostream_init_usart_instances.c.jinja
+-    condition: [iostream_usart]
++    condition: [iostream_usart,device]
+   - path: init/sl_iostream_init_usart_instances.h.jinja
+-    condition: [iostream_usart]
++    condition: [iostream_usart,device]
+ template_contribution:
+   - name: component_catalog
+     value: iostream_usart
+@@ -33,7 +35,11 @@ requires:
+   - name: iostream
+   - name: iostream_uart_common
+   - name: status
++    condition: [device]
+   - name: emlib_cmu
++    condition: [device]
+   - name: emlib_gpio
++    condition: [device]
+   - name: emlib_usart
++    condition: [device]
+   - name: atomic
+diff --git a/platform/service/component/sleeptimer.slcc b/platform/service/component/sleeptimer.slcc
+index c4fece69a958..bb0052b7c49f 100644
+--- a/platform/service/component/sleeptimer.slcc
++++ b/platform/service/component/sleeptimer.slcc
+@@ -41,7 +41,9 @@ provides:
+   - name: sleeptimer
+ requires:
+   - name: emlib_cmu
++    condition: [device]
+   - name: emlib_common
++    condition: [device]
+   - name: emlib_core
+   - name: emlib_prs
+     condition: [device_has_sysrtc]
+diff --git a/platform/service/iostream/config/si91x/sl_iostream_usart_inst_config.h b/platform/service/iostream/config/si91x/sl_iostream_usart_inst_config.h
+new file mode 100644
+index 000000000000..67e1efb0d47f
+--- /dev/null
++++ b/platform/service/iostream/config/si91x/sl_iostream_usart_inst_config.h
+@@ -0,0 +1,87 @@
++/***************************************************************************//**
++ * @file
++ * @brief IOSTREAM_USART Config.
++ *******************************************************************************
++ * # License
++ * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
++ *******************************************************************************
++ *
++ * SPDX-License-Identifier: Zlib
++ *
++ * The licensor of this software is Silicon Laboratories Inc.
++ *
++ * This software is provided 'as-is', without any express or implied
++ * warranty. In no event will the authors be held liable for any damages
++ * arising from the use of this software.
++ *
++ * Permission is granted to anyone to use this software for any purpose,
++ * including commercial applications, and to alter it and redistribute it
++ * freely, subject to the following restrictions:
++ *
++ * 1. The origin of this software must not be misrepresented; you must not
++ *    claim that you wrote the original software. If you use this software
++ *    in a product, an acknowledgment in the product documentation would be
++ *    appreciated but is not required.
++ * 2. Altered source versions must be plainly marked as such, and must not be
++ *    misrepresented as being the original software.
++ * 3. This notice may not be removed or altered from any source distribution.
++ *
++ ******************************************************************************/
++
++#ifndef SL_IOSTREAM_USART_INSTANCE_CONFIG_H
++#define SL_IOSTREAM_USART_INSTANCE_CONFIG_H
++
++// <<< Use Configuration Wizard in Context Menu >>>
++
++// <h>USART settings
++
++// <o SL_IOSTREAM_USART_INSTANCE_BAUDRATE> Baud rate <9600-7372800>
++// <i> Default: 115200
++#define SL_IOSTREAM_USART_INSTANCE_BAUDRATE              115200
++
++// <o SL_IOSTREAM_USART_INSTANCE_PARITY> Parity
++// <SL_USART_NO_PARITY=> No Parity
++// <SL_USART_EVEN_PARITY=> Even parity
++// <SL_USART_ODD_PARITY=> Odd parity
++// <i> Default: SL_USART_NO_PARITY
++#define SL_IOSTREAM_USART_INSTANCE_PARITY                SL_USART_NO_PARITY
++
++// <o SL_IOSTREAM_USART_INSTANCE_STOP_BITS> Stop bits
++// <SL_USART_STOP_BITS_0_5=> 0.5 stop bits
++// <SL_USART_STOP_BITS_1=> 1 stop bits
++// <SL_USART_STOP_BITS_1_5=> 1.5 stop bits
++// <SL_USART_STOP_BITS_2=> 2 stop bits
++// <i> Default: SL_USART_STOP_BITS_1
++#define SL_IOSTREAM_USART_INSTANCE_STOP_BITS             SL_USART_STOP_BITS_1
++
++#define SL_IOSTREAM_USART_INSTANCE_MODE             SL_USART_MODE_ASYNCHRONOUS
++
++// <o SL_IOSTREAM_USART_INSTANCE_DATA_BITS> Data Width
++// <SL_USART_DATA_BITS_5=> 5 data bits
++// <SL_USART_DATA_BITS_6=> 6 data bits
++// <SL_USART_DATA_BITS_7=> 7 data bits
++// <SL_USART_DATA_BITS_8=> 8 data bits
++// <SL_USART_DATA_BITS_9=> 9 data bits
++// <i> Default: SL_USART_DATA_BITS_8
++#define SL_IOSTREAM_USART_INSTANCE_DATA_BITS               SL_USART_DATA_BITS_8
++
++// <o SL_IOSTREAM_USART_INSTANCE_FLOW_CONTROL_TYPE> Flow control
++// <SL_USART_FLOW_CONTROL_NONE=> None
++// <SL_USART_FLOW_CONTROL_CTS=> CTS
++// <SL_USART_FLOW_CONTROL_RTS=> RTS
++// <SL_USART_FLOW_CONTROL_RTS_CTS=> CTS/RTS
++// <i> Default: SL_USART_FLOW_CONTROL_NONE
++#define SL_IOSTREAM_USART_INSTANCE_FLOW_CONTROL_TYPE     SL_USART_FLOW_CONTROL_NONE
++
++// <o SL_IOSTREAM_USART_INSTANCE_RX_BUFFER_SIZE> Receive buffer size
++// <i> Default: 32
++#define SL_IOSTREAM_USART_INSTANCE_RX_BUFFER_SIZE    32
++
++// <q SL_IOSTREAM_USART_INSTANCE_CONVERT_BY_DEFAULT_LF_TO_CRLF> Convert \n to \r\n
++// <i> It can be changed at runtime using the C API.
++// <i> Default: 0
++#define SL_IOSTREAM_USART_INSTANCE_CONVERT_BY_DEFAULT_LF_TO_CRLF     0
++// </h>
++
++// <<< end of configuration section >>>
++#endif
+\ No newline at end of file
+diff --git a/platform/service/iostream/inc/sl_iostream.h b/platform/service/iostream/inc/sl_iostream.h
+index 3b65be0181ec..fbb9e1f5d314 100644
+--- a/platform/service/iostream/inc/sl_iostream.h
++++ b/platform/service/iostream/inc/sl_iostream.h
+@@ -122,7 +122,8 @@ SL_ENUM(sl_iostream_type_t){
+   SL_IOSTREAM_TYPE_VUART = 3,            ///< Vuart
+   SL_IOSTREAM_TYPE_DEBUG_OUTPUT = 4,     ///< Backchannel output Instance Type
+   SL_IOSTREAM_TYPE_LOOPBACK = 5,         ///< Loopback Instance
+-  SL_IOSTREAM_TYPE_UNDEFINED = 6,        ///< Undefined Instance Type
++  SL_IOSTREAM_TYPE_91X_UART = 6,         ///< 91x UART Instance
++  SL_IOSTREAM_TYPE_UNDEFINED = 7,        ///< Undefined Instance Type
+ };
+ 
+ /// @brief Struct representing an I/O Stream instance.
+diff --git a/platform/service/iostream/inc/sli_iostream_uart.h b/platform/service/iostream/inc/sli_iostream_uart.h
+index cf4dea92d0cd..e3bbd97b09b8 100644
+--- a/platform/service/iostream/inc/sli_iostream_uart.h
++++ b/platform/service/iostream/inc/sli_iostream_uart.h
+@@ -43,7 +43,11 @@ extern "C" {
+ 
+ #include "sl_status.h"
+ #include "sl_iostream.h"
++#if defined(_SI91X_DEVICE)
++#include "sl_iostream_uart_si91x.h"
++#else
+ #include "sl_iostream_uart.h"
++#endif
+ 
+ #define SLI_IOSTREAM_UART_FLAG_CTS             0x01
+ #define SLI_IOSTREAM_UART_FLAG_RTS             0x02
+-- 
+2.34.0.windows.1
+

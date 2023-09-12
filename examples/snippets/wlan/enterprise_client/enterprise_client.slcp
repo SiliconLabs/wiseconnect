@@ -1,0 +1,109 @@
+project_name: wifi_enterprise_client
+package: wifi
+quality: alpha
+label: wifi_enterprise_client
+category: Example|Wi-Fi
+description: >
+  Start a Wi-Fi Access Point with WPA2 Enterprise security
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.1.0}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: RSI_DEBUG_PRINTS
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+requires:
+- name: sl_system
+- name: network_manager
+- name: basic_network_manager
+- name: si91x_support
+- name: wifi
+- name: si91x
+- name: sl_tls
+- name: si91x_internal_stack
+- name: si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/application_configuration.png
+  - path: resources/readme/application_prints_ncp.png
+  - path: resources/readme/application_prints_soc.png
+  - path: resources/readme/bare_metal.png
+  - path: resources/readme/buildsuccesssoc116.png
+  - path: resources/readme/build_enterpriseclient.png
+  - path: resources/readme/build_project_ncp.png
+  - path: resources/readme/build_project_soc.png
+  - path: resources/readme/certs_path.png
+  - path: resources/readme/configuration_file.png
+  - path: resources/readme/create_project.png
+  - path: resources/readme/creationfinal114.png
+  - path: resources/readme/debugmodencp120.png
+  - path: resources/readme/debugmodesoc117.png
+  - path: resources/readme/eap_credentials.png
+  - path: resources/readme/eap_exchanges.png
+  - path: resources/readme/eap_fragment_size.png
+  - path: resources/readme/eap_type.png
+  - path: resources/readme/efm32.png
+  - path: resources/readme/efr32.png
+  - path: resources/readme/enterprisencp.png
+  - path: resources/readme/enterprisesoc.png
+  - path: resources/readme/enterprise_client_example.png
+  - path: resources/readme/enterprise_client_example_soc.png
+  - path: resources/readme/examples_demos.png
+  - path: resources/readme/ftdiprints118.png
+  - path: resources/readme/image135.png
+  - path: resources/readme/image136.png
+  - path: resources/readme/image137.png
+  - path: resources/readme/image138.png
+  - path: resources/readme/image139.png
+  - path: resources/readme/image140.png
+  - path: resources/readme/image141.png
+  - path: resources/readme/image142.png
+  - path: resources/readme/image143a.png
+  - path: resources/readme/image144.png
+  - path: resources/readme/image145.png
+  - path: resources/readme/image146.png
+  - path: resources/readme/image216b.png
+  - path: resources/readme/image216c.png
+  - path: resources/readme/ncpboarddetection112.png
+  - path: resources/readme/ncp_macros.png
+  - path: resources/readme/ouputprints119.png
+  - path: resources/readme/port_selection.png
+  - path: resources/readme/create_project_soc.png
+  - path: resources/readme/select_project_soc.png     
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

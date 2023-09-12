@@ -1,0 +1,14 @@
+id: cmsis_can_driver
+label: CMSIS CAN DRIVER
+package: platform
+description: >
+  CMSIS CAN Driver include path
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/cmsis_driver/CMSIS/Driver"
+include:
+  - path: "Include"
+    file_list:
+    - path: "Driver_CAN.h"
+provides:
+  - name: cmsis_can_driver

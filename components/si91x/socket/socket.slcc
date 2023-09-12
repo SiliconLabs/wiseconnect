@@ -1,0 +1,20 @@
+id: socket
+package: wiseconnect3_sdk
+description: >
+  Si91x Socket
+label: Si91x Socket
+category: Networking|Sockets
+quality: production
+component_root_path: ./components/si91x/socket
+provides:
+- name: socket
+source:
+- path: sl_si91x_socket.c
+requires:
+- name: socket_utility
+
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_socket.h
+

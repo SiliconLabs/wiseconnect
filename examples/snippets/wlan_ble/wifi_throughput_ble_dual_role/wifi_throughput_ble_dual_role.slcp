@@ -1,0 +1,100 @@
+project_name: wifi_throughput_ble_dual_role
+package: wifi_ble
+quality: alpha
+label: Wi-Fi Throughtput BLE Dual Role
+category: Example|Wi-Fi_BLE
+description: >
+  This example demonstrates throughput measurements of WLAN/BLE in individual or
+  with protocol combinations in the SiWx91x module.
+filter:
+  - name: "Wireless Technology"
+    value: ["WiFi BLE"]
+  - name: "Project Difficulty"
+    value: ["Advanced"]
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.1.0}
+source:
+  - path: app.c
+  - path: main.c
+  - path: ble_device_info.c
+  - path: ble_main_task.c
+  - path: ble_subtasks.c
+  - path: wifi_app.c
+  - path: wifi_throughput.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: app_common_config.h
+      - path: ble_config.h
+      - path: ble_device_info.h
+      - path: wifi_app_config.h
+define:
+  - name: RSI_DEBUG_PRINTS
+  - name: EXECUTION_FROM_RAM
+    condition:
+      - device_needs_ram_execution
+template_contribution:
+- condition: [device_needs_ram_execution]
+  name: RAM_EXECUTION
+  value: true
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+requires:
+- name: sl_system
+- name: network_manager
+- name: basic_network_manager
+- name: si91x_support
+- name: wifi
+- name: si91x
+- name: sl_tls
+- name: ble
+- name: bsd_socket
+- name: si91x_internal_stack
+- name: si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+  - path: readme.md 
+other_file:
+  - path: resources/readme/build_example.png
+  - path: resources/readme/create_project1.png
+  - path: resources/readme/create_project2.png
+  - path: resources/readme/efr32.png
+  - path: resources/readme/image1_ncp_setup.png
+  - path: resources/readme/image1_soc.png
+  - path: resources/readme/load_image1.png
+  - path: resources/readme/load_image2.png
+  - path: resources/readme/output1.png
+  - path: resources/readme/output2.png
+  - path: resources/readme/output3.png
+  - path: resources/readme/port_selection.png
+  - path: resources/readme/port_selection_soc.png
+  - path: resources/readme/serial_port.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/socboarddetection111.png
+  - path: resources/readme/usb_to_uart_1.png
+  - path: resources/readme/usb_to_uart_2.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

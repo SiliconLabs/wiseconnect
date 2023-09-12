@@ -1,0 +1,16 @@
+
+// ----------------------------------------------------
+// Revision History
+// Date     | Tag |  Modified by  |Modification
+// ----------------------------------------------------
+//09/07/2021| 0p9_p1   | Anil A   | Initial version for 9117. Updated IPMU_BG, SCDC, SCDC_LDO trims corresponding to 9117. Modified structures ipmu_common_config, scdc_volt_sel1, bg_sleep_time, bg_trim_efuse, hpldo_volt_trim_efuse, hpldo_volt_trim_bump_efuse, pmu_common_config, pmu_common_config, lp_scdc_extcapmode, rc_16khz_trim_efuse, rc_64khz_trim_efuse and rc_32khz_trim_efuse . Added structures blackout_enable, blackout disable and dblr_input_sel. Efuse updates - removed trim0p5nA2, increased bitwidth of BG_R_VDDULP from 4 to 5.
+
+//13/07/2021| 0p9_p2   |Srinivas C| Added ENABLE_IPMU_APIS define and removed CHIP_9118 define - (as given by Ritesh)
+
+//16/08/2021| 0p9_p3   |phanikiran b | removed the condition on common config i.e "ifndef CHIP_917" condition which was not allowing to write the pmu and ipmu common configs by default
+
+//16/08/2021| 0p9_p4   |Srinivas C | rsi_system_config.c: powergate_top_spi_disable=1 - to keep ulp_analog_top spi always ON - To resolve https://jira.silabs.com/browse/SUTLEJ-2582; ipmu_apis.c: updated the code to pick calibrated scdc_trim and hp_ldo_trim from flash
+
+//13/07/2021| 0p9_p5   |Srinivas C| Added Temperature Sensor API in ipmu_apis.c - taken from 9116 file given by Trinadh
+//18/01/2022| 0p9_p6   |phanikiran b| Buck freq trim =0; buck voltage trim from 10 to 12; d coefficient to 320; dpwm_freq_trim -3 removed from ipmu_apis.c;  
+//24/01/2022|          |phanikiran b| Added pfm mode in BTLP chain and revert back to pwm mode in BTHP chain;

@@ -1,0 +1,27 @@
+id: memlcd_917
+package: platform
+label: Memory LCD with 917's SPI driver
+description: >
+  MEMLCD 917 component
+category: Platform|si91x|core
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/hardware_drivers/memlcd"
+include:
+  - path: inc
+    file_list:
+      - path: sl_memlcd.h
+  - path: inc/memlcd_917
+    file_list:
+      - path: sl_memlcd_spi.h
+source:
+  - path: src/sl_memlcd.c
+  - path: src/memlcd_917/sl_memlcd_spi.c
+  - path: src/sl_memlcd_display.c
+requires:
+  - name: rsilib_egpio
+  - name: rsilib_spi
+  - name: ls013b7dh03
+  - name: status
+provides:
+  - name: memlcd_917
+  - name: memlcd_driver

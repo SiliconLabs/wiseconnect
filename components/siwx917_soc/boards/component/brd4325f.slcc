@@ -1,0 +1,52 @@
+!!omap
+- id: brd4325f
+- label: BRD4325F
+- package: platform
+- description: Board support for BRD4325F.
+- category: Platform|Board|Starter Kit
+- quality: alpha
+- requires:
+  - name: siwg917M141xgtba_ext_flash_int_psram
+  - name: brd4325f_config
+- provides:
+  - name: brd4325f
+  - name: hardware_board
+  - name: hardware_board_rb
+  - name: device_has_psram
+  - name: device_has_stacked_psram
+  - name: si91x_platform
+  - name: multi_slave
+  - name: si91x_b0_chip  
+- recommends:
+  - id: "%extension-wiseconnect3_sdk%psram_aps6404l_sqh"
+- template_contribution:
+  - name: psram_present
+    value: 1
+  - name: device_psram_addr
+    value: 167772160 # 0x0A00_0000
+  - name: device_psram_size
+    value: 8388608 # 8MB
+- define:
+  - name: CHIP_917
+    value: '1'
+  - name: CHIP_917B0
+    value: '1'
+  - name: SL_BOARD_NAME
+    value: '"BRD4325F"'
+  - name: SL_BOARD_REV
+    value: '"A01"'
+  - name: DEBUG_UART
+    value: '1'
+  - name: SI917_RADIO_BOARD
+    value: '1'
+  - name: FLASH_BASED_EXECUTION_ENABLE
+    value: '1'
+  - name: ENABLE_DEBUG_MODULE
+    value: '1'
+  - name: IVT_OFFSET_ADDR
+    value: 0x8012000
+  - name: WKP_RAM_USAGE_LOCATION
+    value: 0x24061EFC
+- tag:
+  - board:pn:BRD4325
+  - board:variant:F

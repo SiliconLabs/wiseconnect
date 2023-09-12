@@ -1,0 +1,48 @@
+project_name: psram_blinky
+label: SI91x - SoC Peripheral PSRAM Blinky
+description: > 
+  This example project demonstrates blinky application executing from PSRAM.
+  The Text segment, Data segment, BSS segment, Stack and Heap are placed in PSRAM.
+category: example|peripheral
+package: platform
+quality: alpha
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.0
+source:
+  - path: main.c
+toolchain_settings: []
+component:
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: rsilib_userconfig
+    from: wiseconnect3_sdk
+  - id: romdriver_egpio
+    from: wiseconnect3_sdk
+  - id: rsilib_clock_update
+    from: wiseconnect3_sdk
+  - id: udma_linker_config
+    from: wiseconnect3_sdk
+  - id: bss_segment_in_psram
+    from: wiseconnect3_sdk
+  - id: data_segment_in_psram
+    from: wiseconnect3_sdk
+  - id: stack_segment_in_psram
+    from: wiseconnect3_sdk
+  - id: heap_segment_in_psram
+    from: wiseconnect3_sdk
+  - id: text_segment_in_psram
+    from: wiseconnect3_sdk
+define:
+  - name: RSI_M4_INTERFACE
+provides:
+  - name: si91x_soc
+readme:
+  - path: readme.md
+ui_hints:
+  highlight: 
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

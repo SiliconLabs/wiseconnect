@@ -1,0 +1,4 @@
+As part of Si91x Dx improvements, NVM3, Sleeptimer and IOSTREAM support is added for Si91x. These respective service components in gsdk needs to to be updated in order to build NVM3, sleeptimer and iostream applications for Si91x. These changes will come along with gsdk 23q2 patch 1 release. Until then to accommodate these changes, a patch file is added in utilities/gsdk_service_patch/ which can be used to apply respective gsdk changes.
+
+procedure to apply patch:
+1. After copying wiseconnect3 release package in gsdk/extension/, Run git apply --ignore-whitespace --ignore-space-change "extension/wiseconnect3/utilities/gsdk_service_patch/gsdk_service.patch" command from gsdk.

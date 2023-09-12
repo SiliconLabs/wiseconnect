@@ -1,0 +1,50 @@
+id: si91x_internal_stack
+package: wiseconnect3_sdk
+description: >
+  Si91x network offload functionality
+label: Network Offload
+category: Devices|Si91x|Networking
+quality: production
+component_root_path: ./components/si91x
+provides:
+- name: si91x_internal_stack
+- name: si91x_networking_model
+source:
+- path: sl_net/src/sl_si91x_net_internal_stack.c
+- path: sl_net/protocols/icmp/sl_net_ping.c
+- path: sl_net/protocols/firmware_upgrade/firmware_upgradation.c
+- path: src/sl_si91x_http_client_callback_framework.c
+  condition: [http_client]
+- path: services/sntp/src/sl_sntp.c
+  condition: [sntp]
+define:
+- name: SI91X_NETWORK_OFFLOAD_ENABLED
+conflicts:
+- name: si91x_lwip_stack
+
+include:
+- path: sl_net/protocols/icmp
+  file_list:
+    - path: sl_net_ping.h
+- path: sl_net/protocols/firmware_upgrade
+  file_list:
+    - path: firmware_upgradation.h
+- path: inc/http_client/inc
+  file_list:
+    - path: sl_si91x_http_client_callback_framework.h
+  condition:
+    - http_client
+- path: inc/mqtt/inc
+  file_list:
+    - path: si91x_mqtt_client_callback_framework.h
+    - path: si91x_mqtt_client_types.h
+    - path: si91x_mqtt_client_utility.h
+  condition:
+    - mqtt
+- path: inc/sntp
+  file_list:
+    - path: si91x_sntp_client_callback_framework.h
+    - path: si91x_sntp_client_types.h
+  condition:
+    - sntp
+

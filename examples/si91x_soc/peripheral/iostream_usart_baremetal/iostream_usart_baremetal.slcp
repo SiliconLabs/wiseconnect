@@ -1,0 +1,61 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: iostream_usart_baremetal
+label: iostream_usart_baremetal
+description: "This example project uses the I/O Stream service running in a bare-metal\
+  \ configuration  to demonstrate the use of UART communication over the virtual COM\
+  \ port (VCOM). The  application will echo back any characters it receives over the\
+  \ serial connection. The  VCOM serial port can be used either over USB or by connecting\
+  \ to port 4902 if the kit  is connected via Ethernet. \n"
+category: example|peripheral
+package: platform
+quality: production
+readme:
+- {path: readme.md}
+source:
+- {path: app.c}
+- {path: main.c}
+- {path: app_iostream_usart.c}
+- {path: app.h}
+- {path: app_iostream_usart.h}
+sdk: {id: gecko_sdk, version: 4.3.1}
+toolchain_settings: []
+component:
+- {id: stdio}
+- {from: wiseconnect3_sdk, id: rsilib_clock_update}
+- {id: sl_system}
+- {id: iostream_retarget_stdio}
+- instance: [vcom]
+  id: iostream_uart_si91x
+- {from: wiseconnect3_sdk, id: sl_usart_iostream}
+- {from: wiseconnect3_sdk, id: iostream_si91x}
+- {from: wiseconnect3_sdk, id: cmsis_usart}
+- {from: wiseconnect3_sdk, id: rsilib_userconfig}
+- {from: wiseconnect3_sdk, id: rsilib_usart}
+- {from: wiseconnect3_sdk, id: romdriver_egpio}
+- {id: brd4002a}
+- {from: wiseconnect3_sdk, id: udma_linker_config}
+- {from: wiseconnect3_sdk, id: cmsis_udma}
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+other_file:
+- {path: resources/readme/vcom.png}
+define:
+- {name: RSI_M4_INTERFACE}
+- {name: ROM_BYPASS}
+- {name: IOSTREAM_SI91X_USART}
+- {name: SI917_RADIO_BOARD}
+- {name: USART_CONFIG}
+configuration:
+  - name: SL_BOARD_ENABLE_VCOM
+    value: '1'
+  - name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
+    value: '1'
+ui_hints:
+  highlight:
+  - {path: readme.md, focus: true}
+sdk_extension:
+- {id: wiseconnect3_sdk, version: 3.1.0}
+template_contribution:
+  - name: udma_enable
+    value: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

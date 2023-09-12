@@ -1,0 +1,17 @@
+id: text_segment_in_psram
+label: Text Segment in PSRAM
+package: platform
+description: >
+  This component puts Text segemnt in PSRAM memory region thereby enabling execution from PSRAM.
+category: Platform|si91x|Drivers|PSRAM Driver|PSRAM Linker Configurations
+quality: production
+provides:
+  - name: text_segment_in_psram
+template_contribution:
+  - name: text_segment_in_psram
+    value: 1
+  - name: psram_linker_config_enabled
+    value: 1
+define:
+  - name: EXECUTION_FROM_PSRAM
+    value: 1

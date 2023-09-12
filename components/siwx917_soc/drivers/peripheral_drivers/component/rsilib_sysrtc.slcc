@@ -1,0 +1,17 @@
+id: rsilib_sysrtc
+label: SYSRTC
+package: platform
+description: >
+  SYSRTC Peripheral Interface API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_sysrtc.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_sysrtc.h"
+    - path: "rsi_sysrtc_headers.h"
+provides:
+  - name: rsilib_sysrtc

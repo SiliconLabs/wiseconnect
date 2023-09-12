@@ -1,0 +1,16 @@
+id: rsilib_smih
+label: SMIH
+package: platform
+description: >
+  SMIH Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_smih.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_smih.h"
+provides:
+  - name: rsilib_smih

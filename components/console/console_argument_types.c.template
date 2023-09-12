@@ -1,0 +1,39 @@
+{% set __headers = aggregate("/console/include_headers") %}
+{% for file in __headers %}#include "{{file}}"
+{% endfor -%}
+#include "console_types.h"
+#include "console_argument_types.h"
+#include <stdint.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+{% set __enums = aggregate("/console/enums") %}
+/******************************************************
+ *                 Global Variables
+ ******************************************************/
+
+{% for name, item in __enums -%}
+const char* {{name}}_type[] = { {%- if isArray(item) -%}
+      {%- for value in item %}"{{value}}", {% endfor -%}
+    {%- else -%}
+      {%- for map_name, map_value in item %} "{{map_name}}", {% endfor -%}
+    {%- endif -%}  NULL };
+{%- endfor %}
+
+const arg_list_t console_argument_types[] =
+{
+{% for name, item in __enums %}    [CONSOLE_TYPE( {{name}} )] = {{name}}_type,
+{% endfor -%}
+};
+
+const value_list_t console_argument_values[] =
+{
+{% for name, item in __enums %}    [CONSOLE_TYPE( {{name}} )] = {%- if isObject(item) -%}(const uint32_t[]){ {%- for map_name, map_value in item %}{{map_value}}{% if not loop.is_last %}, {%endif%}{% endfor -%} }{%else%}NULL{%- endif -%},
+{% endfor -%}
+};
+
+#ifdef __cplusplus
+} /*extern "C" */
+#endif

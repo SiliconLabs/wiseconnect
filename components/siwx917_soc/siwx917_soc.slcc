@@ -1,0 +1,102 @@
+id: siwx917_soc
+package: wiseconnect3_sdk
+description: >
+  SoC support for Si91x
+label: Si91x SoC
+category: Devices|Si91x
+quality: production
+root_path: components/siwx917_soc
+provides:
+- name: siwx917_soc
+- condition: ["wifi"]
+  name: device_has_mpu
+- condition: ["wifi"]
+  name: rsi_m4_interface
+source:
+- path: drivers/systemlevel/src/rsi_pll.c
+- path: drivers/systemlevel/src/rsi_ulpss_clk.c
+- path: drivers/systemlevel/src/rsi_ipmu.c
+- path: drivers/systemlevel/src/rsi_power_save.c
+- path: drivers/systemlevel/src/rsi_temp_sensor.c
+- path: drivers/systemlevel/src/rsi_rtc.c
+- path: drivers/systemlevel/src/rsi_time_period.c
+- path: drivers/cmsis_driver/USART.c
+- path: drivers/cmsis_driver/UDMA.c
+- path: drivers/peripheral_drivers/src/clock_update.c
+- path: drivers/peripheral_drivers/src/rsi_usart.c
+- path: drivers/peripheral_drivers/src/rsi_udma_wrapper.c
+- path: drivers/peripheral_drivers/src/rsi_egpio.c
+- path: drivers/peripheral_drivers/src/rsi_udma.c
+- path: drivers/unified_api/src/sl_si91x_usart.c
+- path: boards/src/rsi_board.c
+- path: platform_connectivity/rsi_hal_mcu_m4_ram.c
+- path: platform_connectivity/sl_platform.c
+- path: platform_connectivity/sl_platform_wireless.c
+- path: platform_connectivity/sl_si91x_bus.c
+- path: platform_connectivity/sli_siwx917_soc.c
+- path: platform_connectivity/rsi_hal_mcu_m4_rom.c
+- path: platform_connectivity/sl_si91x_timer.c
+- path: core/chip/src/system_si91x.c
+- path: core/chip/src/startup_si91x.c
+- path: core/chip/src/rsi_deepsleep_soc.c
+- path: core/chip/src/rsi_system_config.c
+- path: boards/src/syscalls.c
+- path: core/config/src/rsi_nvic_priorities_config.c
+include:
+- path: platform_connectivity/inc
+- path: drivers/cmsis_driver
+- path: drivers/cmsis_driver/config
+- path: drivers/cmsis_driver/CMSIS/Driver/Include
+- path: drivers/systemlevel/inc
+- path: drivers/peripheral_drivers/inc
+- path: drivers/rom_driver/inc
+- path: drivers/unified_api/inc
+- path: drivers/unified_api/config
+- path: boards/inc
+- path: core/config
+- path: core/chip/inc
+- path: platform_connectivity/wifi_inc
+  condition: [wifi]
+define:
+- name: RSI_M4_INTERFACE
+- name: ENABLE_IPMU_APIS
+- name: SI917
+- name: DEBUG_UART
+- name: FLASH_BASED_EXECUTION_ENABLE
+- name: TA_DEEP_SLEEP_COMMON_FLASH
+- name: CHIP_917=1
+- name: CHIP_917B0=1
+- name: RSI_WITH_OS
+  condition: [freertos]
+- name: EXECUTION_FROM_RAM
+  condition: [ram_execution]
+requires:
+- name: wiseconnect_toolchain_gcc
+- condition: ["wifi"]
+  name: si91x_core
+- name: component_catalog
+
+template_contribution:
+- condition: ["wifi"]
+  name: event_handler
+  priority: -9997
+  value: {"event":"platform_init","handler":"sli_si91x_platform_init","include":"sli_siwx917_soc.h"}
+- condition: ["rsi_m4_interface"]
+  name: event_handler
+  priority: -9995
+  value: {"event":"platform_init","handler":"sl_si91x_hardware_setup","include":"rsi_wisemcu_hardware_setup.h"}
+- condition: ["freertos"]
+  name: event_handler
+  priority: -9998
+  value: {"event":"platform_init","handler":"sl_si91x_device_init_nvic","include":"rsi_nvic_priorities_config.h"}
+
+toolchain_settings:
+- option: device_opn
+  value: si917-sb00
+- option: architecture
+  value: armv7e-m
+- option: cpu
+  value: cortex-m4
+- option: fpu
+  value: fpv4-sp
+

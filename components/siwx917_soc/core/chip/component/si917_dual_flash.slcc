@@ -1,0 +1,31 @@
+!!omap
+- id: si917_dual_flash
+- package: platform
+- description: CMSIS-Device part headers for si917 brd4325b Dual Flash
+- category: Platform|si91x|core
+- quality: internal
+- source:
+  - path: components/siwx917_soc/core/chip/src/system_si91x.c
+  - path: components/siwx917_soc/core/chip/src/startup_si91x.c
+    unless: [siwx917_soc_custom_startup]
+- provides:
+  - name: si917_dual_flash
+  - name: device_arm
+  - name: cortexm4
+  - name: armv7em
+- requires:
+  - name: rsilib_board
+  - name: trustzone_unaware
+- tag:
+  - device:opn:si917-sb00 (Dual Flash)
+- toolchain_settings:
+  - option: device_opn
+    value: si917-sb00
+  - option: architecture
+    value: armv7e-m
+  - option: cpu
+    value: cortex-m4
+  - option: fpu
+    value: fpv4-sp
+  - option: gcc_compiler_option
+    value: -w

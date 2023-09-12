@@ -1,0 +1,20 @@
+id: mqtt
+package: wiseconnect3_sdk
+description: >
+  MQTT Client Library
+label: MQTT Client Library
+category: Networking|Protocol
+quality: production
+component_root_path: ./components/service/mqtt
+provides:
+- name: mqtt
+source:
+- path: si91x/sl_mqtt_client.c
+define:
+- name: MQTT_CLIENT_FEATURE
+include:
+- path: inc
+  file_list:
+    - path: sl_mqtt_client.h
+    - path: sl_mqtt_client_types.h
+

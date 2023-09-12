@@ -1,0 +1,18 @@
+id: sl_ulp_timer
+label: SL ULP TIMER
+package: platform
+description: >
+  Analog to Digital Converter Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_ulp_timer_inst_config.h
+source:
+  - path: "src/sl_si91x_ulp_timer.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_ulp_timer.h"
+provides:
+  - name: sl_ulp_timer

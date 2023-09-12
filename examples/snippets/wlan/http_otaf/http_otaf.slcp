@@ -1,0 +1,113 @@
+project_name: wifi_http_otaf
+package: wifi
+quality: alpha
+label: http_otaf
+category: Example|Wi-Fi
+description: >
+  Update Firmware from remote AWS Server 
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.1.0}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: RSI_DEBUG_PRINTS
+  - name: M4_OTAF_DF
+  - name: EXECUTION_FROM_RAM
+    condition: [device_needs_ram_execution]
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+requires:
+- name: sl_system
+- name: network_manager
+- name: basic_network_manager
+- name: si91x_support
+- name: wifi
+- name: si91x
+- name: sl_tls
+- name: si91x_internal_stack
+- name: si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: sl_si91x_soc_soft_reset
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+template_contribution:
+- condition: [device_needs_ram_execution]
+  name: RAM_EXECUTION
+  value: true
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/application_prints_ncp.png
+  - path: resources/readme/application_prints_ncp_apache.png
+  - path: resources/readme/application_prints_soc.png
+  - path: resources/readme/application_prints_soc_apache.png
+  - path: resources/readme/aws_bucket_acl_enable.png
+  - path: resources/readme/aws_bucket_getting_url_1.png
+  - path: resources/readme/aws_bucket_getting_url_2.png
+  - path: resources/readme/aws_bucket_public_access.png
+  - path: resources/readme/build_http_otaf.png
+  - path: resources/readme/create_project.png
+  - path: resources/readme/efr32.png
+  - path: resources/readme/examples_demos.png
+  - path: resources/readme/http_otaf_example.png
+  - path: resources/readme/http_otaf_example_soc.png
+  - path: resources/readme/image388.png
+  - path: resources/readme/image389.png
+  - path: resources/readme/image390.png
+  - path: resources/readme/image391.png
+  - path: resources/readme/image392.png
+  - path: resources/readme/image393.png
+  - path: resources/readme/image394.png
+  - path: resources/readme/image395.png
+  - path: resources/readme/image412.png
+  - path: resources/readme/image413.png
+  - path: resources/readme/image414.png
+  - path: resources/readme/image415.png
+  - path: resources/readme/image416.png
+  - path: resources/readme/image417.png
+  - path: resources/readme/image418.png
+  - path: resources/readme/image419.png
+  - path: resources/readme/port_selection.png 
+  - path: resources/readme/port_selection_soc.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/program_device.png
+  - path: resources/readme/run.png
+  - path: resources/readme/serial_port.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/setup_ncp.png
+  - path: resources/readme/setup_soc.png
+  - path: resources/readme/soc_board_detection.png
+  - path: resources/readme/usb_to_uart_1.png
+  - path: resources/readme/usb_to_uart_2.png 
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

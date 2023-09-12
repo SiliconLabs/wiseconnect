@@ -1,0 +1,43 @@
+!!omap
+- id: brd4339b
+- label: BRD4339B
+- package: platform
+- description: Board support for BRD4339B.
+- category: Platform|Board|Starter Kit
+- quality: alpha
+- requires:
+  - name: siwg917m111mgtba_dual_flash
+  - name: brd4339b_config
+- provides:
+  - name: brd4339b
+  - name: hardware_board
+  - name: hardware_board_rb
+  - name: si91x_platform
+  - name: multi_slave
+  - name: si91x_b0_chip  
+- define:
+  - name: CHIP_917
+    value: '1'
+  - name: CHIP_917B0
+    value: '1'
+  - name: SL_BOARD_NAME
+    value: '"BRD4339B"'
+  - name: SL_BOARD_REV
+    value: '"A02"'
+  - name: DEBUG_UART
+    value: '1'
+  - name: SI917_RADIO_BOARD
+    value: '1'
+  - name: FLASH_BASED_EXECUTION_ENABLE
+    value: '1'
+  - name: ENABLE_DEBUG_MODULE
+    value: '1'
+  - name: SI917_RADIO_BOARD_V2
+    value: '1'
+  - name: IVT_OFFSET_ADDR
+    value: 0x8012000
+  - name: WKP_RAM_USAGE_LOCATION
+    value: 0x24061EFC
+- tag:
+  - board:pn:BRD4339
+  - board:variant:B

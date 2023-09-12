@@ -1,0 +1,50 @@
+id: rsilib_chip
+label: RSI CHIP
+package: platform
+description: >
+  Chip Related API's
+category: Platform|si91x|core
+quality: alpha
+component_root_path: "components/siwx917_soc/core/chip"
+source:
+  - path: "src/rsi_ps_ram_func.c"
+  - path: "src/rsi_system_config.c"  
+  - path: "src/rsi_deepsleep_soc.c"  
+include:
+  - path: "inc"
+    file_list:
+    - path: "base_types.h"
+    - path: "data_types.h"
+    - path: "RS1xxxx.h"
+    - path: "rsi_ccp_common.h"
+    - path: "rsi_chip.h"
+    - path: "rsi_error.h"
+    - path: "rsi_ps_ram_func.h"
+    - path: "rsi_system_config.h"
+    - path: "system_si91x.h"
+    - path: "si91x_device.h"
+    - path: "em_device.h"
+provides:
+  - name: rsilib_chip
+requires:
+  - name: cmsis_udma
+  - name: cmsis_usart
+  - name: cmsis_device_config
+  - name: cmsis_device_config_917
+  - name: systemlevel_pll
+  - name: systemlevel_ipmu
+  - name: systemlevel_temp_sensor
+  - name: systemlevel_time_period
+  - name: systemlevel_ulpss_clk
+  - name: rsilib_cmsiscore
+  - name: systemlevel_power_save
+  - name: systemlevel_rtc
+  - name: systemlevel_wwdt
+  - name: rsilib_timers
+template_contribution:
+  - name: event_handler
+    value:
+      event: platform_init
+      include: rsi_chip.h
+      handler: SystemCoreClockUpdate
+    priority: -9999

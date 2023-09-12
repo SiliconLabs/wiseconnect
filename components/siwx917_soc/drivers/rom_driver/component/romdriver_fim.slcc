@@ -1,0 +1,17 @@
+id: romdriver_fim
+label: ROM DRIVER FIM
+package: platform
+description: >
+  Rom Driver Filter Interpolation Matrix Multiplication
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/rom_driver"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_rom_fim.h"
+provides:
+  - name: romdriver_fim
+requires:
+  - name: romdriver_romtable
+  - name: rsilib_fim

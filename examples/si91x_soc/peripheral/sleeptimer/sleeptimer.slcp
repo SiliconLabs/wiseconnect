@@ -1,0 +1,57 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sleeptimer
+label: SI91x - Sleeptimer
+description: |
+  Demonstrates how one-shot and periodic sleeptimer can be used.
+category: example|peripheral
+package: platform
+quality: alpha
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.0
+source:
+  - path: app.c
+  - path: main.c
+  - path: sleeptimer.c
+include:
+  - path:
+    file_list:
+    - path: app.h
+    - path: sleeptimer.h
+toolchain_settings: []
+component:
+- id: sl_system
+- id: sleeptimer_sysrtc
+  from: wiseconnect3_sdk
+- id: si917_memory_default_config
+  from: wiseconnect3_sdk
+- id: rsilib_userconfig
+  from: wiseconnect3_sdk
+- id: rsilib_sysrtc
+  from: wiseconnect3_sdk
+- id: romdriver_egpio
+  from: wiseconnect3_sdk
+- id: rsilib_clock_update
+  from: wiseconnect3_sdk
+- id: udma_linker_config
+  from: wiseconnect3_sdk
+define:
+  - name: RSI_M4_INTERFACE
+
+provides:
+  - name: si91x_soc
+other_file:
+  - path: resources/readme/image515a.png
+  - path: resources/readme/image515b.png
+  - path: resources/readme/image515c.png
+  - path: resources/readme/image515d.PNG
+  - path: resources/readme/vcom.png
+readme:
+  - path: readme.md
+ui_hints:
+  highlight: 
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

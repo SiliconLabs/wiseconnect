@@ -1,0 +1,21 @@
+id: sl_sdio
+label: sl sdio Secondary Driver
+package: platform
+description: >
+  This component provides files containing SDIO Secondary Driver. 
+category: Platform|si91x|Drivers|SDIO Slave Driver
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_api"
+provides:
+  - name: sl_sdio
+requires:
+  - name: sdio_secondary_drv  
+source:
+  - path: src/sl_si91x_sdio_secondary.c
+include:
+  - path: inc
+    file_list:
+      - path: sl_si91x_sdio_secondary.h
+config_file:
+  - path: config/sl_si91x_sdio_secondary_drv_config.h
+    file_id: sdio_secondary_drv_config

@@ -1,0 +1,84 @@
+id: si91x
+package: wiseconnect3_sdk
+description: >
+  Si91x Driver
+label: Si91x Driver
+category: Devices|Si91x
+quality: production
+component_root_path: ./components/si91x
+provides:
+- name: si91x
+source:
+- path: src/sl_si91x_driver.c
+- path: src/sl_rsi_utility.c
+- path: src/sl_si91x_callback_framework.c
+- path: threading/sli_si91x_multithreaded.c
+- path: platforms/efx32/efx32_ncp_host.c
+  condition: [brd4180a]
+- path: platforms/efx32/efx32_ncp_host_spi.c
+  condition: [brd4180a]
+- path: spi_interface/sl_si91x_spi_driver.c
+  condition: [brd4180a]
+- path: platforms/efx32/efx32_ncp_host.c
+  condition: [brd4180b]
+- path: platforms/efx32/efx32_ncp_host_spi.c
+  condition: [brd4180b]
+- path: spi_interface/sl_si91x_spi_driver.c
+  condition: [brd4180b]
+- path: platforms/siwx917_soc/siwx917_soc_ncp_host.c
+  condition: [brd4325a]
+- path: platforms/siwx917_soc/siwx917_soc_ncp_host.c
+  condition: [brd4325b]
+- path: platforms/siwx917_soc/siwx917_soc_ncp_host.c
+  condition: [brd4325c]
+- path: platforms/siwx917_soc/siwx917_soc_ncp_host.c
+  condition: [brd4325g]
+- path: platforms/siwx917_soc/siwx917_soc_ncp_host.c
+  condition: [brd4338a]
+- path: platforms/siwx917_soc/siwx917_soc_ncp_host.c
+  condition: [brd4340a]
+- path: sl_net/src/sl_net_si91x.c
+  condition: [network_manager]
+- path: sl_net/src/sl_net_rsi_utility.c
+  condition: [network_manager]
+- path: sl_net/src/sl_net_si91x_integration_handler.c
+  condition: [network_manager]
+define:
+- name: CHIP_917
+requires:
+- condition: ["device_has_devinfo"]
+  name: gpiointerrupt
+- name: si91x_networking_model
+- name: bit
+
+recommends:
+- condition: ["device_has_devinfo"]
+  name: gpiointerrupt
+- name: si91x_networking_model
+- name: bit
+
+include:
+- path: inc
+  file_list:
+    - path: sl_rsi_utility.h
+    - path: sl_si91x_bsd_socket_types.h
+    - path: sl_si91x_constants.h
+    - path: sl_si91x_core_utilities.h
+    - path: sl_si91x_driver.h
+    - path: sl_si91x_host_interface.h
+    - path: sl_si91x_iot_socket.h
+    - path: sl_si91x_protocol_types.h
+    - path: sl_si91x_socket_types.h
+    - path: sl_si91x_socket.h
+    - path: sl_si91x_spi_constants.h
+    - path: sl_si91x_status.h
+    - path: sl_si91x_types.h
+    - path: sl_wifi_device.h
+- path: sl_net/inc
+  file_list:
+    - path: sl_net_rsi_utility.h
+    - path: sl_net_si91x_integration_handler.h
+    - path: sl_net_si91x.h
+  condition:
+    - network_manager
+

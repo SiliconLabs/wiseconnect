@@ -1,0 +1,16 @@
+id: rsilib_wurx
+label: WURX
+package: platform
+description: >
+  WURX Peripheral API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/peripheral_drivers"
+source:
+  - path: "src/rsi_wurx.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_wurx.h"
+provides:
+  - name: rsilib_wurx

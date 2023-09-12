@@ -1,0 +1,44 @@
+!!omap
+- id: brd4342a_config
+- label: brd4342a config
+- description: Configuration files for BRD4342A
+- package: platform
+- category: Platform|Board|Starter Kit
+- quality: production
+- ui_hints:
+    visibility: never
+- root_path: "components/siwx917_soc/boards/config"
+- requires:
+  - name: brd4342a
+- provides:
+  - name: brd4342a_config
+- config_file: 
+  - override:
+      component: "%extension-wiseconnect3_sdk%psram_core"
+      file_id: psram_pin_config
+    path: brd4342a/sl_si91x_psram_pin_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: led0
+    path: brd4342a/sl_si91x_pwm_init_led0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: channel_0
+    path: brd4342a/sl_si91x_pwm_init_channel_0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: channel_1
+    path: brd4342a/sl_si91x_pwm_init_channel_1_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: channel_2
+    path: brd4342a/sl_si91x_pwm_init_channel_2_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: channel_3
+    path: brd4342a/sl_si91x_pwm_init_channel_3_config.h

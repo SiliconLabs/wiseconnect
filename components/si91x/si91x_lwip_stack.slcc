@@ -1,0 +1,20 @@
+id: si91x_lwip_stack
+package: wiseconnect3_sdk
+description: >
+  Use LwIP network stack on the host
+label: Hosted LwIP Network Stack
+category: Devices|Si91x|Networking
+quality: production
+component_root_path: ./components/si91x
+provides:
+- name: si91x_lwip_stack
+- name: si91x_networking_model
+include:
+requires:
+- name: lwip_port_freertos
+- name: lwip_api
+- name: lwip_netif_ethernet
+
+conflicts:
+- name: si91x_internal_stack
+

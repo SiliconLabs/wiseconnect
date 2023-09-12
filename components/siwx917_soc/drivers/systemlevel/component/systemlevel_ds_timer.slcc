@@ -1,0 +1,14 @@
+id: systemlevel_ds_timer
+label: DS TIMER
+package: platform
+description: >
+  DS TIMER API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/systemlevel"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_ds_timer.h"
+provides:
+  - name: systemlevel_ds_timer

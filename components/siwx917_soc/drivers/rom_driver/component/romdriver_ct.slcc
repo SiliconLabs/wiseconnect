@@ -1,0 +1,17 @@
+id: romdriver_ct
+label: ROM DRIVER CT
+package: platform
+description: >
+  Rom Driver Configurable Timers
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/rom_driver"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_rom_ct.h"
+provides:
+  - name: romdriver_ct
+requires:
+  - name: romdriver_romtable
+  - name: rsilib_ct

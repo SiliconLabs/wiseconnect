@@ -1,0 +1,17 @@
+id: romdriver_crc
+label: ROM DRIVER CRC
+package: platform
+description: >
+  Rom Driver Cyclic Redundancy Check
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/rom_driver"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_rom_crc.h"
+provides:
+  - name: romdriver_crc
+requires:
+  - name: romdriver_romtable
+  - name: rsilib_crc

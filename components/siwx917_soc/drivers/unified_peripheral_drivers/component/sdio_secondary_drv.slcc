@@ -1,0 +1,19 @@
+id: sdio_secondary_drv
+label: SDIO Secondary Driver
+package: platform
+description: >
+  This component provides files containing SDIO Secondary Driver. 
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers/unified_peripheral_drivers"
+provides:
+  - name: sdio_secondary_drv
+requires:
+  - name: romdriver_gpdma
+  - name: rsilib_gpdma
+source:
+  - path: src/sl_si91x_peripheral_sdio_secondary.c
+include:
+  - path: inc
+    file_list:
+      - path: sl_si91x_peripheral_sdio_secondary.h

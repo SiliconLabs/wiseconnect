@@ -1,0 +1,26 @@
+id: ulp_timers_instance
+label: ULP Timer Instance
+package: platform
+description: >
+  Add a Timer instance to the ULP timer 
+category: Platform|si91x|Drivers
+quality: production
+instantiable:
+  prefix: inst
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_ulp_timer_{{instance}}_config.h
+provides:
+  - name: ulp_timer_instance
+    allow_multiple: true
+template_file:
+  - path: init/sl_si91x_ulp_timer_init.h.jinja
+template_contribution:
+  - name: temp_ulp_timer_instance
+    value: "{{instance}}"
+  - name: component_catalog
+    value: "{{instance}}"
+  - name: component_catalog
+    value: "ulp_timers_instance"
+  - name: component_catalog
+    value: "temp_ulp_timer_{{instance}}"

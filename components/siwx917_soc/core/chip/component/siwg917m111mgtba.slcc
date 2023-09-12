@@ -1,0 +1,30 @@
+!!omap
+- id: siwg917m111mgtba
+- package: platform
+- description: CMSIS-Device part headers for si917 B0 stacked common flash variant.
+- category: Platform|si91x|core
+- quality: internal
+- source:
+  - path: components/siwx917_soc/core/chip/src/system_si91x.c
+  - path: components/siwx917_soc/core/chip/src/startup_si91x.c
+    unless: [siwx917_soc_custom_startup]
+- provides:
+  - name: siwg917m111mgtba
+  - name: device_arm
+  - name: cortexm4
+  - name: armv7em
+- requires:
+  - name: rsilib_board
+- tag:
+  - device:opn:SiWG917M111MGTBA
+- toolchain_settings:
+  - option: device_opn
+    value: SiWG917M111MGTBA
+  - option: architecture
+    value: armv7e-m
+  - option: cpu
+    value: cortex-m4
+  - option: fpu
+    value: fpv4-sp
+  - option: gcc_compiler_option
+    value: -w

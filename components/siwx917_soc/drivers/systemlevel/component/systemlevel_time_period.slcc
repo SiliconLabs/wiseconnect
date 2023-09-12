@@ -1,0 +1,16 @@
+id: systemlevel_time_period
+label: TIME PERIOD
+package: platform
+description: >
+  Time Period API's
+category: Platform|si91x|Drivers
+quality: alpha
+component_root_path: "components/siwx917_soc/drivers/systemlevel"
+source:
+  - path: "src/rsi_time_period.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_time_period.h"
+provides:
+  - name: systemlevel_time_period

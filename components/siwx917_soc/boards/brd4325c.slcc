@@ -1,0 +1,51 @@
+id: brd4325c
+package: wiseconnect3_sdk
+description: >
+  Board support for BRD4325C.
+label: BRD4325C
+category: Platform|Board|Radio Board
+quality: production
+root_path: components/siwx917_soc/boards/config/brd4325c
+provides:
+- name: brd4325c
+- name: brd4325c
+- name: hardware_board
+- name: hardware_board_rb
+- name: si91x_platform
+- name: multi_slave
+- name: device_needs_ram_execution
+- name: si91x_b0_chip
+include:
+- path: inc
+- path: config/brd4325c
+- path: config/brd4325c/config
+define:
+- name: SI917_RADIO_BOARD
+- {"name":"CHIP_917","value":1}
+- {"name":"CHIP_917B0","value":1}
+- {"name":"SL_BOARD_NAME","value":"\"BRD4325C\""}
+- {"name":"SL_BOARD_REV","value":"\"A01\""}
+- {"name":"COMMON_FLASH_EN","value":1}
+- {"name":"DEBUG_UART","value":1}
+- {"name":"SI917_RADIO_BOARD","value":1}
+- {"name":"FLASH_BASED_EXECUTION_ENABLE","value":1}
+- {"name":"ENABLE_DEBUG_MODULE","value":1}
+- {"name":"IVT_OFFSET_ADDR","value":136060928}
+- {"name":"WKP_RAM_USAGE_LOCATION","value":604380924}
+requires:
+- name: siwg917m111mgtba
+- name: brd4325c_config
+- condition: ["wifi"]
+  name: siwx917_soc
+- condition: ["wifi"]
+  name: si91x
+
+config_file:
+- path: RTE_Device_917.h
+  file_id: A0_pin_config
+
+
+tag:
+- board:pn:BRD4325
+- board:variant:C
+

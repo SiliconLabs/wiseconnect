@@ -1,0 +1,46 @@
+!!omap
+- id: brd4340b
+- label: BRD4340B
+- package: platform
+- description: Board support for BRD4340B.
+- category: Platform|Board|Starter Kit
+- quality: alpha
+- requires:
+  - name: siwg917m111mgtba
+  - name: brd4340b_config
+- provides:
+  - name: brd4340b
+  - name: hardware_board
+  - name: hardware_board_rb
+  - name: si91x_platform
+  - name: multi_slave
+  - name: device_needs_ram_execution
+  - name: si91x_b0_chip  
+- define:
+  - name: CHIP_917
+    value: '1'
+  - name: CHIP_917B0
+    value: '1'
+  - name: SL_BOARD_NAME
+    value: '"BRD4340B"'
+  - name: SL_BOARD_REV
+    value: '"A01"'
+  - name: COMMON_FLASH_EN
+    value: '1'
+  - name: DEBUG_UART
+    value: '1'
+  - name: SI917_RADIO_BOARD
+    value: '1'
+  - name: FLASH_BASED_EXECUTION_ENABLE
+    value: '1'
+  - name: ENABLE_DEBUG_MODULE
+    value: '1'
+  - name: SI917_RADIO_BOARD_V2
+    value: '1'
+  - name: IVT_OFFSET_ADDR
+    value: 0x81C2000
+  - name: WKP_RAM_USAGE_LOCATION
+    value: 0x24061EFC
+- tag:
+  - board:pn:BRD4340
+  - board:variant:B

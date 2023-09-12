@@ -1,0 +1,17 @@
+id: sntp
+package: wiseconnect3_sdk
+description: >
+  SNTP Client Library
+label: SNTP Client Library
+category: Networking|Protocol
+quality: production
+component_root_path: ./components/service/sntp
+provides:
+- name: sntp
+define:
+- name: SNTP_CLIENT_FEATURE
+include:
+- path: inc
+  file_list:
+    - path: sl_sntp.h
+

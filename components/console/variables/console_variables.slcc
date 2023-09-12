@@ -1,0 +1,12 @@
+id: console_variables
+package: wiseconnect3_sdk
+description: >
+  
+category: 
+quality: production
+component_root_path: ./components/console/variables
+provides:
+- name: console_variables
+source:
+- path: console_variables.c
+include:

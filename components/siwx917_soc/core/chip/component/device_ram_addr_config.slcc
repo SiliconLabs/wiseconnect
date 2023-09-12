@@ -1,0 +1,11 @@
+id: device_ram_addr_config
+package: platform
+description: RAM Address override component for common flash ram based execution examples.
+category: Platform|si91x|core
+quality: internal
+provides:
+  - name: device_ram_addr_config
+template_contribution:
+  - name: device_ram_addr
+    value: 1024
+    priority: -1

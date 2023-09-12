@@ -1,0 +1,18 @@
+id: sl_adc
+label: SL ADC
+package: platform
+description: >
+  ADC Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+component_root_path: "components/siwx917_soc/drivers/unified_api"
+source:
+  - path: "src/sl_si91x_adc.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_adc.h"
+provides:
+  - name: sl_adc
+requires:
+  - name: rsilib_adc

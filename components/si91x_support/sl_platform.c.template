@@ -1,0 +1,41 @@
+#include "em_chip.h"
+#include "sl_status.h"
+#include "cmsis_os2.h"
+{% if existsIn(components, "nvm3") %}#include "nvm3_default.h"{%endif%}
+{% set __device = aggregate("/silicon_labs/device") %}
+
+extern sl_status_t sl_device_init_nvic(void);
+extern void sl_board_preinit(void);
+extern sl_status_t sl_device_init_hfrco(void);
+extern void sl_hfxo_manager_init_hardware(void);
+extern sl_status_t sl_device_init_hfxo(void);
+extern sl_status_t sl_device_init_lfxo(void);
+extern sl_status_t sl_device_init_clocks(void);
+extern sl_status_t sl_device_init_emu(void);
+extern void sl_board_init(void);
+extern osStatus_t osKernelInitialize (void);
+extern sl_status_t sl_power_manager_init(void);
+
+void sl_platform_init(void)
+{
+  CHIP_Init();
+  sl_device_init_nvic();
+  sl_board_preinit();
+  {% if existsIn(__device, "power") and existsIn(__device.power, "dcdc") %}sl_device_init_dcdc();{%endif%}
+  {% if existsIn(__device.clocks, "hfrco") %}sl_device_init_hfrco();{%endif%}
+  {% if existsIn(__device.clocks, "hfxo_manager" ) %}sl_hfxo_manager_init_hardware();{%endif%}
+  {% if existsIn(__device.clocks, "hfxo" ) %}sl_device_init_hfxo();{%endif%}
+  {% if existsIn(__device.clocks, "lfxo" ) %}sl_device_init_lfxo();{%endif%}
+  sl_device_init_clocks();
+  sl_device_init_emu();
+  sl_board_init();
+  {% if existsIn(components, "nvm3") %}nvm3_initDefault();{%endif%}
+  osKernelInitialize();
+  {% if existsIn(components, "power_manager") %}sl_power_manager_init();{%endif%}
+}
+
+
+void sl_board_default_init(void)
+{
+	
+}

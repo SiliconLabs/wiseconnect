@@ -1,0 +1,19 @@
+id: http_client
+package: wiseconnect3_sdk
+description: >
+  HTTP Client Library
+label: HTTP Client Library
+category: Networking|Protocol
+quality: production
+component_root_path: ./components/service/http_client
+provides:
+- name: http_client
+source:
+- path: si91x/sl_http_client.c
+define:
+- name: HTTP_CLIENT_FEATURE
+include:
+- path: inc
+  file_list:
+    - path: sl_http_client.h
+

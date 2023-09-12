@@ -1,0 +1,520 @@
+/* Common */
+blockquote {
+  background-color: whitesmoke;
+  border-left: 5px solid;
+  padding: 1.25em 1.5em;
+  font-family: 'Inter', monospace;
+  margin-left: 0px;
+}
+
+table {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.jira-link {
+  margin-left: 0.5rem;
+}
+
+/* Local Index Page */
+.doc-object-lists {
+  text-align: left;
+  color: #fff;
+}
+
+.doc-object-lists a {
+  color: #78d6ff;
+}
+
+.doc-object-lists p {
+  margin: 0;
+}
+
+/* Class Member Declarations */
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+}
+
+.column {
+  display: block;
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.attributename {
+  display: block;
+  flex-basis: 0;
+  flex-grow: 1;
+  padding: 0.75rem;
+  font-family: 'Inter', monospace;
+}
+
+.classdescription {
+  font-family: 'Inter', sans-serif;
+  font-size: 10.5pt;
+  color: #959595;
+  margin: -10px 0px 10px 12px;
+}
+
+.has-text-right {
+  text-align: right;
+  color: inherit;
+  width: 10rem;
+  overflow-wrap: break-word;
+}
+
+.enum {
+  display: block;
+  flex-basis: 0;
+  flex-grow: 1;
+  padding-left: 1.75rem;
+  font-family: 'Inter', monospace;
+}
+
+/* Class Member Definitions */
+/* Remove spacing from paragraphs in lists and tables */
+/* TODO: We should probably use classes instead of global elements */
+.classdescription p, li > p, td > p, th > p {
+  margin: 0;
+  padding: 0;
+}
+
+.parameters {
+  margin: 16px 24px;
+}
+
+.paramname {
+  font-family: 'Inter', monospace;
+  padding: 4px 8px;
+  border-style: solid;
+  border-color: #f6f6f6;
+  border-width: 0 0 1px 1px;
+  vertical-align: top;
+}
+
+.fragment {
+  background: #f4f4f4;
+  border-left: 2px solid #959595;
+  counter-reset: line;
+  margin: 16px 0;
+  padding: 16px 16px 16px 0;
+}
+
+.macro {
+  margin: 0;
+  font-family: 'Inter', monospace;
+  font-size: 9pt;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #151515;
+}
+
+.macroshort {
+  margin: 0;
+  font-family: 'Inter', monospace;
+  font-size: 9pt;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #151515;
+}
+
+.macro:before {
+  counter-increment: line;
+  content: counter(line);
+  color: #c8c8c8;
+  padding-right: 8px;
+  margin-right: 16px;
+  width: 32px;
+  display: inline-block;
+  text-align: right;
+  border-right: 1px solid #c8c8c8;
+}
+
+table.invisible-borders, .invisible-borders tr, .invisible-borders td, .invisible-borders th {
+  border: 0;
+}
+
+table.classic-theme tbody tr {
+  background: #fff;
+}
+
+table.classic-theme tbody tr td {
+  border-color: #e4e4e4;
+}
+
+td.shaded {
+  background-color: yellow;
+}
+
+table td img{
+  box-sizing: border-box;
+  margin: 0;
+  display: initial;
+}
+
+.valign-top {
+  vertical-align: top!important;
+}
+
+.valign-bottom {
+  vertical-align: bottom!important;
+}
+
+.valign-middle {
+  vertical-align: middle!important;
+}
+
+.banner-inform {
+  border: 2px solid #013086;
+  background-color: #C3D8FF;
+  color: #013086;
+  margin: 0 1em 1em 1em;
+}
+
+.banners-section {
+  padding-top: 1em;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 94px;
+  background: white;
+  z-index: 10;
+  /* position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  margin-left: 1em;
+  margin-right: 1em;
+  max-width: 1800px; */
+}
+
+.banner-urgent {
+  border: 2px solid #C81D26;
+  margin: 0 1em 1em 1em;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  word-break: break-word;
+}
+
+.banner-icon {
+  height: 100%;
+  max-height: 35px;
+  margin: 0;
+  max-width: 35px;
+}
+
+.banner-message {
+  height: fit-content;
+  margin: auto 0 auto 1rem;
+  display: block;
+}
+
+th.table-cell-vertical > p, td.table-cell-vertical > p {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: inline-block;
+}
+
+.header {
+  display: flex;
+  font-family: Inter,Helvetica,Arial,sans-serif;
+  height: 56px;
+  max-width: 95vw;
+  margin: 0 2.5em;
+  justify-content: space-between;
+}
+
+.header_left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header_logo {
+  display: block;
+  margin-right: 13px;
+}
+
+.header_img {
+  max-width: none;
+  height: 25px;
+}
+
+.header_title {
+  padding: 0 0 0 10px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: #303030;
+  border-left: 2px solid #303030;
+  white-space: nowrap;
+}
+
+.header_tabs {
+  display: flex;
+  align-items: center;
+}
+
+.header_tab {
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: unset;
+  color: black;
+  font-weight: 600;
+  -webkit-font-smoothing: antialiased;
+}
+
+.header_tab:hover {
+  text-decoration: unset;
+
+}
+
+.header_right {
+  display: flex;
+  align-items: center;
+}
+
+.header_right .tab_list {
+  padding-inline-start: 0;
+}
+
+.github_logo {
+  display: unset;
+  margin: 0 0 0 5px;
+  max-width: 10px;
+}
+
+.tab_items {
+  margin-right: calc(8px + 1vw);
+}
+.header_right .tab_list .tab_items button {
+  background-color: white;
+  width: 2em;
+  height: 2em;
+  border: none;
+  margin-top: 2.5em;
+  padding-left: 0.6em
+
+}
+.header_right .tab_list .tab_items button img {
+  filter: invert(50%) sepia(2%) saturate(4%) hue-rotate(29deg) brightness(91%) contrast(87%);
+  width: 12px;
+  min-width: 12px;
+  margin: 0 !important;
+}
+.header_right .tab_list .tab_items a img {
+  filter: invert(55%) sepia(2%) saturate(4%) hue-rotate(29deg) brightness(91%) contrast(87%);
+  width: 12px;
+  min-width: 12px;
+  padding-top: 1px;
+}
+
+.tab_list {
+  display: flex;
+  list-style-type: none;
+}
+
+.github_tab {
+  width: 100px;
+}
+
+.breadcrumbs {
+  height: 36px;
+}
+
+.breadcrumb_list {
+  background-color: #F5F5F5;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  list-style: none;
+  box-shadow: 0px 3px 6px #00000029;
+  margin-block-start: unset;
+  margin-block-end: unset;
+  font-size: 12px;
+}
+
+.breadcrumb_item {
+  margin-right: 8px;
+  color: #777;
+}
+
+.doc_root_link {
+  padding-inline-start: unset;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.doc_root_link > div {
+  display: flex;
+}
+
+.doc_root_link a:hover {
+  text-decoration: none;
+  text-shadow: 0 0 0.65px #777, 0 0 0.65px #777;
+}
+
+.doc_path {
+  padding: 10px 0;
+}
+
+.doc_path_list {
+  display: flex;
+  list-style-type: none;
+  padding-inline-start: 0;
+  color: #777;
+  transition: text-shadow .3s;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.doc_path_list:last-child {
+  color: #303030;
+  font-weight: 600;
+  -webkit-font-smoothing: antialiased;
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+}
+
+.path_item {
+  margin-right: 5px;
+  color: #555555;
+}
+
+span.separator {
+  margin: 0 8px;
+  color: #777;
+}
+
+.doc_top {
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+  background-color: white;
+}
+
+.home_icon a img {
+  width: 15px;
+  filter: invert(50%) sepia(2%) saturate(4%) hue-rotate(29deg) brightness(91%) contrast(87%);
+  transition: filter .3s;
+}
+
+.home_icon a img:hover {
+  filter: invert(20%) sepia(33%) saturate(6%) hue-rotate(56deg) brightness(98%) contrast(89%);
+}
+
+td > *:not(:last-child), th > *:not(:last-child) {
+  margin-bottom: 16px !important;
+}
+
+td > p > em {
+  font-style: italic;
+}
+
+embed {
+  margin: auto;
+  display: block;
+  width: 95%;
+}
+
+@media (min-width: 320px) {
+  embed {
+    width: 100%;
+    height: 400px;
+  }
+}
+
+@media (min-width: 768px) {
+  embed {
+    height: 800px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .header {
+    display: none;
+  }
+
+  .breadcrumbs {
+    margin-top: 56px;
+  }
+
+  .breadcrumb_list {
+    height: fit-content;
+    font-size: 14px;
+    line-height: 1.25em;
+    padding-inline-start: 10px;
+    align-items: flex-start;
+  }
+
+  .home_icon a img {
+    margin: unset;
+    min-width: 15px;
+    padding: 13px 0;
+  }
+
+  .home-separator {
+    padding: 10px 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  embed {
+    height: 850px;
+  }
+
+  .banners-section {
+    padding-top: 2em;
+    top: 110px;
+  }
+
+  .header {
+    height: 77px;
+  }
+}
+
+@media (min-width: 1200px) {
+  embed {
+    height: 1000px;
+  }
+
+  .tab_items {
+    margin-right: calc(8px + 2em);
+  }
+}
+
+@media (min-width: 1400px) {
+  .header_tabs {
+    margin-right: 17%;
+  }
+}
+
+.self-anchor {
+  scroll-margin-top: 300px;
+}
+
+.margin-top-285 {
+  margin-top: 285px;
+}
+
+.margin-top-200 {
+  margin-top: 200px;
+}
+
+.margin-top-155 {
+  margin-top: 155px;
+}
+
+.margin-top-70 {
+  margin-top: 70px;
+}

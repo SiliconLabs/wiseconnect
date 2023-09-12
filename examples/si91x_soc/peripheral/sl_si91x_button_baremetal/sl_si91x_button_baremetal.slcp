@@ -1,0 +1,59 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: sl_si91x_button_baremetal
+label: SI91x - Button Baremetal
+description: |
+  Demonstrates how to use button.
+category: example|peripheral
+package: platform
+quality: alpha
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.0
+source:
+  - path: app.c
+  - path: main.c
+  - path: button_baremetal.c
+include:
+  - path:
+    file_list:
+    - path: app.h
+    - path: button_baremetal.h
+toolchain_settings: []
+component:
+  - id: cmsis_common
+  - id: sl_system
+  - id: component_catalog
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: rsilib_userconfig
+    from: wiseconnect3_sdk
+  - id: romdriver_egpio
+    from: wiseconnect3_sdk
+  - id: rsilib_clock_update
+    from: wiseconnect3_sdk
+  - id: udma_linker_config
+    from: wiseconnect3_sdk
+  - id: sl_si91x_button_917
+    instance: [btn0]
+    from: wiseconnect3_sdk
+  - id: sl_si91x_led_917
+    instance: [led0]
+    from: wiseconnect3_sdk
+other_file:
+- {path: resources/readme/image600a.png}
+- {path: resources/readme/image600b.png}
+- {path: resources/readme/image600c.png}
+define:
+  - name: RSI_M4_INTERFACE
+  - name: SYSCALLS_WRITE
+provides:
+  - name: si91x_soc
+readme:
+  - path: readme.md
+ui_hints:
+  highlight: 
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
