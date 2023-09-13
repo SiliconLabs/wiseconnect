@@ -256,7 +256,7 @@ sl_status_t sl_si91x_adc_configure_reference_voltage(float vref_value, float chi
   sl_status_t status;
   rsi_error_t error_status;
   // Validating reference voltage range.
-  if ((vref_value < MINIMUM_REF_VOLT) || (vref_value > MAXMIMUM_REF_VOLT)) {
+  if ((vref_value < (float)MINIMUM_REF_VOLT) || (vref_value > (float)MAXMIMUM_REF_VOLT)) {
     status = SL_STATUS_INVALID_PARAMETER;
   } else {
     // Set analog reference voltage

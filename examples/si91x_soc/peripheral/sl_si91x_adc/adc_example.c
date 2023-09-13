@@ -140,11 +140,11 @@ void adc_example_process_action(void)
         if (status != SL_STATUS_OK) {
           DEBUGOUT("sl_si91x_adc_read_data: Error Code : %lu \n", status);
         }
-        for (sample_length = 0; sample_length < CHANNEL_SAMPLE_LENGTH; sample_length++) {
+        for (sample_length = 0; sample_length < sl_adc_channel_config.num_of_samples[chnl_num]; sample_length++) {
           if (adc_output[sample_length] & BIT(11)) {
-            adc_output[sample_length] = (adc_output[sample_length] & (ADC_MASK_VALUE));
+            adc_output[sample_length] = (adc_output[chnl_num] & (ADC_MASK_VALUE));
           } else {
-            adc_output[sample_length] = adc_output[sample_length] | BIT(11);
+            adc_output[sample_length] = adc_output[chnl_num] | BIT(11);
           }
 
           vout = (((float)adc_output[sample_length] / (float)ADC_MAX_OP_VALUE) * vref_value);

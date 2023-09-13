@@ -37,11 +37,12 @@ source:
 - path: platform_connectivity/rsi_hal_mcu_m4_rom.c
 - path: platform_connectivity/sl_si91x_timer.c
 - path: core/chip/src/system_si91x.c
-- path: core/chip/src/startup_si91x.c
 - path: core/chip/src/rsi_deepsleep_soc.c
 - path: core/chip/src/rsi_system_config.c
 - path: boards/src/syscalls.c
 - path: core/config/src/rsi_nvic_priorities_config.c
+- path: core/chip/src/startup_si91x.c
+  unless: ["siwx917_soc_custom_startup"]
 include:
 - path: platform_connectivity/inc
 - path: drivers/cmsis_driver
