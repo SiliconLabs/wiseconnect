@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_si91x_socket_constants.h
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #pragma once
 
 #include <stdint.h>
@@ -45,19 +62,21 @@
 
 #define MAX_RETRANSMISSION_TIME_VALUE 32
 
-#define sl_si91x_SO_RCVTIME                          20 /* Enable receive timeout */
-#define sl_si91x_SO_TCP_KEEPALIVE                    26 /* To Configure the tcp keep alive  */
-#define sl_si91x_SO_HIGH_PERFORMANCE_SOCKET          38 /* To Configure the high performance socket */
-#define sl_si91x_SO_CERT_INDEX                       46 /* To enable set certificate index*/
-#define sl_si91x_SO_SSL_ENABLE                       37 /* To enable ssl */
-#define sl_si91x_SO_SSL_V_1_0_ENABLE                 42 /* To enable ssl 1.0 */
-#define sl_si91x_SO_SSL_V_1_1_ENABLE                 43 /* To enable ssl 1.1*/
-#define sl_si91x_SO_SSL_V_1_2_ENABLE                 44 /* To enable ssl 1.2*/
+#define SL_SI91X_SO_RCVTIME                          20 /* Enable receive timeout */
+#define SL_SI91X_SO_TCP_KEEPALIVE                    26 /* To Configure the tcp keep alive  */
+#define SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET          38 /* To Configure the high performance socket */
+#define SL_SI91X_SO_CERT_INDEX                       46 /* To enable set certificate index*/
+#define SL_SI91X_SO_SSL_ENABLE                       37 /* To enable ssl */
+#define SL_SI91X_SO_SSL_V_1_0_ENABLE                 42 /* To enable ssl 1.0 */
+#define SL_SI91X_SO_SSL_V_1_1_ENABLE                 43 /* To enable ssl 1.1*/
+#define SL_SI91X_SO_SSL_V_1_2_ENABLE                 44 /* To enable ssl 1.2*/
 #define sl_si91x_SO_TCP_ACK_INDICATION               45 /* To enable tcp ack indication feature*/
-#define sl_si91x_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 48 /* to configure max retransmission timeout value*/
+#define SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 48 /* to configure max retransmission timeout value*/
 #define sl_si91x_IP_TOS                              48 /* To configure TOS */
-#define sl_si91x_SO_SSL_V_1_3_ENABLE                 49 /* To enable ssl 1.3*/
-#define sl_si91x_SO_MAXRETRY                         24 /* To Enable max tcp retry count */
+#define SL_SI91X_SO_SSL_V_1_3_ENABLE                 49 /* To enable ssl 1.3*/
+#define SL_SI91X_SO_MAXRETRY                         24 /* To Enable max tcp retry count */
+#define SL_SI91X_SO_SOCK_VAP_ID              		     25 /* To Configure the socket VAP iD */
+#define SL_SI91X_SO_TLS_SNI                          47 /* To Configure the TLS SNI extension */
 
 #define SHUTDOWN_BY_ID								 0
 #define SHUTDOWN_BY_PORT							 1

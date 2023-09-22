@@ -30,6 +30,8 @@
 #include "sl_si91x_host_interface.h"
 #include <stdlib.h>
 #include <stddef.h>
+#include "cmsis_os2.h"
+extern osMutexId_t malloc_free_mutex;
 
 sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
                                           sl_wifi_buffer_type_t type,
@@ -38,11 +40,12 @@ sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
 {
   (void)wait_duration_ms;
   (void)type;
+  osMutexAcquire(malloc_free_mutex, 0xFFFFFFFFUL);
   sl_wifi_buffer_t *temp = (sl_wifi_buffer_t *)malloc(buffer_size + sizeof(*temp));
+  osMutexRelease(malloc_free_mutex);
   if (temp == NULL) {
     return SL_STATUS_NOT_AVAILABLE;
   }
-
   temp->length    = buffer_size;
   temp->node.node = NULL;
   *buffer         = temp;
@@ -61,5 +64,7 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
 void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer, sl_wifi_buffer_type_t type)
 {
   (void)type;
+  osMutexAcquire(malloc_free_mutex, 0xFFFFFFFFUL);
   free((void *)buffer);
+  osMutexRelease(malloc_free_mutex);
 }

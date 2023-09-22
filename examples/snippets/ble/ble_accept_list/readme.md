@@ -2,9 +2,9 @@
 
 ## 1. Purpose / Scope
 
-This application is used to add a particular BD-Address to the accept List. The device to connect is saved on the accept list located in the LL block of the controller.
+This application is used to add a particular BD-Address to the White List. The device to connect is saved on the white list located in the LL block of the controller.
 
-This enumerates the remote devices that are allowed to communicate with the local device. The accept List can restrict which device are allowed to connect to other device.
+This enumerates the remote devices that are allowed to communicate with the local device. The White List can restrict which device are allowed to connect to other device.
 
 If it is not, it wont connect. Once the address was saved, the connection with that device is going to be an auto connection establishment procedure.
 
@@ -35,10 +35,13 @@ Before running the application, the user will need the following things to setup
 ### 2.3 Setup Diagram
 
 **SoC Mode :**
-![](resources/readme/acceptlistsoc.png)
+![](resources/readme/bleacceptlistsoc.png)
   
 **NCP Mode :**
-![](resources/readme/acceptlistncp.png)
+![](resources/readme/bleacceptlistncp.png)
+
+**NOTE**: 
+- The Host MCU platform (EFR32xG21) and the SiWx91x interact with each other through the SPI interface. 
 
 ## 3 Project Environment
 
@@ -126,87 +129,59 @@ You can use either of the below USB to UART converters for application prints.
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-**4.1.1** Open `app.c` file,
+**4.1.1** In the Project explorer pane of the IDE, expand the **ble_accept_list** folder and open the **app.c** file. Configure the following parameters based on your requirements.    
+![ble_acceptlist_application_configuration](resources/readme/bleacceptlistapplicationconfiguration.png)
 
-User must update the below parameters
+**4.1.2** **Remote device configuration parameters**
 
-- `RSI_BLE_DEV_ADDR_TYPE` refers address type of the remote device to connect.  
-
-```c
-  #define RSI_BLE_DEV_ADDR_TYPE                          LE_PUBLIC_ADDRESS 
-```
-
-- Based on the address of the advertising device, Valid configurations are
-
-  - LE_RANDOM_ADDRESS
-  - LE_PUBLIC_ADDRESS
-
-   Note:
-     Depends on the remote device, address type will be changed.
-
-- `RSI_BLE_DEV_ADDR` refers address of the remote device to connect.
-
-  #define RSI_BLE_DEV_ADDR                      "00:1A:7D:DA:71:48"
-
-   `RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE`, `RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE` refers address of the remote devices to be acceptlisted
-
-```c
-  #define RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE              LE_PUBLIC_ADDRESS
-  #define RSI_BLE_ACCEPTLIST_DEV_ADDR2_TYPE              LE_PUBLIC_ADDRESS
-```
+  ```c
+  // RSI_BLE_DEV_ADDR_TYPE refers to the address type of the remote device to connect.
+  //! Based on address type of remote device, valid configurations are LE_RANDOM_ADDRESS and LE_PUBLIC_ADDRESS
+ 
+	#define RSI_BLE_DEV_ADDR_TYPE                          LE_PUBLIC_ADDRESS 
   
-`RSI_REMOTE_DEVICE_NAME` refers the name of remote device to which Silicon Labs device has to connect.
+  //RSI_BLE_DEV_ADDR refers to the address of the remote device to connect.
+  
+  #define RSI_BLE_DEV_ADDR                               "00:1A:7D:DA:71:48" 
+  
+  //RSI_REMOTE_DEVICE_NAME refers to the name of remote device to which Silicon Labs device has to connect.
 
-```c
-  #define RSI_REMOTE_DEVICE_NAME                         "SILABS_DEV" 
-```
+	#define RSI_REMOTE_DEVICE_NAME                         "SILABS_DEV"
 
-**Note:** user can configure either RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME of the remote device.
+   //RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE and RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE refers address of the remote devices to be acceptlisted
+	#define RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE              LE_PUBLIC_ADDRESS
+	#define RSI_BLE_ACCEPTLIST_DEV_ADDR2_TYPE              LE_PUBLIC_ADDRESS
 
-**Power save configuration**
+   //Address of the device to add in white list, Update the address in little indian format
+   uint8_t ble_acceptlist_addr1[6] = { 0x48, 0x71, 0xDA, 0x7D, 0x1A, 0x00 };
 
-   By default, The Application is configured without power save.
+   //Address of the device to add in white list,Update the address in little indian format
+   uint8_t ble_acceptlist_addr2[6] = { 0xB9, 0x70, 0x80, 0xA7, 0x23, 0x00 };
 
-```c
-  #define ENABLE_POWER_SAVE 0
-```
+   // To clear whitlist, If this define is enabled specify the bd address of the device which has to remove from acceptlist
+   #define DELETE_ACCEPTLIST 0
+  ```
+  
+  **Note:** you required to configure either the `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` of the remote device.
 
-   If user wants to run the application in power save, modify the below configuration.
+**4.1.3** Open **ble_config.h** file and configure the Opermode command parameters.   
+![ble_acceptlist_configuration](resources/readme/bleacceptlistconfiguration.png)   
 
-```c
-  #define ENABLE_POWER_SAVE 1
-```  
+- **SCAN based Acceptlist Configurations**
 
-The desired parameters are provided below. User can also modify the parameters as per their needs and requirements.
+   ```c
+   //RSI_BLE_SCAN_TYPE refers to the SCAN type either SCAN_TYPE_ACTIVE or SCAN_TYPE_PASSIVE
+   
+   #define RSI_BLE_SCAN_TYPE        SCAN_TYPE_ACTIVE
 
-Following are the event numbers for advertising, connection and Disconnection events,
+   //RSI_BLE_SCAN_FILTER_TYPE refers to the SCAN filter type
+   #define RSI_BLE_SCAN_FILTER_TYPE SCAN_FILTER_TYPE_ONLY_ACCEPT_LIST
+   ```
 
-```c
-  #define RSI_APP_EVENT_ADV_REPORT                       0
-  #define RSI_APP_EVENT_CONNECTED                        1
-  #define RSI_APP_EVENT_DISCONNECTED                     2
-```
+- **Opermode command parameters**
+  This configuration can be found in app.c as `config`	
 
-**4.1.2** Open `ble_config.h` file and update/modify following macros,
-
-```c
-  #define RSI_BLE_PWR_INX                                30
-  #define RSI_BLE_PWR_SAVE_OPTIONS                       0
-  #define RSI_BLE_SCAN_FILTER_TYPE                       SCAN_FILTER_TYPE_ONLY_ACCEPT_LIST
-```
-
-  **Opermode command parameters**
-
-```c
-  #define RSI_FEATURE_BIT_MAP                            FEAT_SECURITY_OPEN
-  #define RSI_TCP_IP_BYPASS                              RSI_DISABLE
-  #define RSI_TCP_IP_FEATURE_BIT_MAP                     TCP_IP_FEAT_DHCPV4_CLIENT
-  #define RSI_CUSTOM_FEATURE_BIT_MAP                     FEAT_CUSTOM_FEAT_EXTENTION_VALID
-  #define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                 EXT_FEAT_384K_MODE
-```
-
-   **Note:**
-   ble_config.h files are already set with desired configuration in respective example folders user need not change for each example.
+   **Note:** `ble_config.h` and `app.c` files are already set with desired configuration in respective example folders you need not change for each example. 
 
 ### 4.2 Build the Application
 
@@ -249,13 +224,14 @@ Refer [Getting started with PC](https://docs.silabs.com/rs9116/latest/wiseconnec
 ### 5.3 Run the Application
 
 1. Configure the remote ble device in peripheral mode and put it in advertising mode.
+![ble_acceptlist_advertiser](resources/readme/bleacceptlistadvertiser.png)       
 
    **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
 
 2. After the program gets executed, it adds the configured remote device addresses to the acceptlist, and Silicon Labs device tries to connect only with the acceptlisted remote device specified in **RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME** macro and ble_acceptlist_addr1 array.
+![ble_accpetlist_device_connected](resources/readme/bleacceptlistdeviceconnected.png)
 
 3. Observe that the connection is established between the desired device and Silicon Labs device.
 
-4. Refer the below images for console prints
-
+## Application Output
 ![](resources/readme/output_1.png)

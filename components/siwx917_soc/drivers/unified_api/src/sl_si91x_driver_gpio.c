@@ -55,12 +55,11 @@
 #define GPIO_MAX_PIN_NUM                        57 // Maximum number of GPIO pins in m4 instance
 
 #define UULP_MASK   0x00 // UULP GPIO pin mask
-#define UULP_INTR_1 0x02 // UULP GPIO pin interrupt 1
-#define UULP_INTR_2 0x04 // UULP GPIO pin interrupt 2
-#define UULP_INTR_3 0x08 // UULP GPIO pin interrupt 3
-#define UULP_INTR_4 0x10 // UULP GPIO pin interrupt 4
-#define UULP_INTR_5 0x20 // UULP GPIO pin interrupt 5
-
+#define UULP_INTR_1 0x01 // UULP GPIO pin interrupt 1
+#define UULP_INTR_2 0x02 // UULP GPIO pin interrupt 2
+#define UULP_INTR_3 0x04 // UULP GPIO pin interrupt 3
+#define UULP_INTR_4 0x08 // UULP GPIO pin interrupt 4
+#define UULP_INTR_5 0x10 // UULP GPIO pin interrupt 5
 /*******************************************************************************
  ***********************  Global function Prototypes ***************************
  ******************************************************************************/
@@ -360,24 +359,24 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_pad_configuration(uulp_pad_config_t *p
  * This API is used for GPIO HP, ULP instances to set pin direction.
  * - If GPIO HP instance is considered, the following actions are performed:
  *   - To set the pin direction in GPIO HP instance, GPIO initialization
- *		needs to be done first.
+ *    needs to be done first.
  *   - The actions to be performed in GPIO initialization are:
  *      - Enable the M4 clock of GPIO HP instance.
  *      - Select PAD selection of the GPIO HP instance.
  *      - Enable PAD receiver for GPIO pin number, whether GPIO pin is
- *			selected as output/input.
+ *      selected as output/input.
  *      - Set pin mode and direction of the GPIO pin.
  *  @note: Select HP GPIO pins for HP instances(6 to 57). Do not
- *	use GPIO pin number(0 to 5) in HP instance as these are used for other
- *	functionality.
+ *  use GPIO pin number(0 to 5) in HP instance as these are used for other
+ *  functionality.
  * - If GPIO ULP instance is considered, the following actions are
- *		performed:
+ *    performed:
  *   - To set the pin direction in GPIO ULP instance, GPIO initialization
- *		needs to be done first.
+ *    needs to be done first.
  *   - The actions to be performed in GPIO initialization are:
  *      - Enable the ULP clock of GPIO ULP instance.
  *      - Enable ULP PAD receiver for GPIO pin number, whether GPIO pin is
- *			selected as output/input.
+ *      selected as output/input.
  *      - Set pin mode and direction of the GPIO pin.
  *  @note: Select ULP GPIO pins for ULP instances(0 to 11).
  *******************************************************************************/
@@ -422,25 +421,25 @@ sl_status_t sl_si91x_gpio_driver_set_pin_direction(uint8_t port, uint8_t pin, sl
  * This API is used for GPIO HP, ULP instances to get pin direction.
  * - If GPIO HP instance is considered, the following actions are performed:
  *   - To get the pin direction in GPIO HP instance, GPIO initialization
- *			needs to be done first.
+ *      needs to be done first.
  *   - The actions to be performed in GPIO initialization are:
  *      - Enable the M4 clock of GPIO HP instance.
  *      - Select PAD selection of the GPIO HP instance.
  *      - Enable PAD receiver for GPIO pin number, whether GPIO pin is
- *			selected as output/input.
+ *      selected as output/input.
  *      - Set pin mode and direction of the GPIO pin.
  *      - Get the pin direction of the GPIO pin.
  *  @note: Select HP GPIO pins for HP instances(6 to 57). Do not
- *		use GPIO pin number(0 to 5) in HP instance as these are used for other
- *		functionality.
+ *    use GPIO pin number(0 to 5) in HP instance as these are used for other
+ *    functionality.
  * - If GPIO ULP instance is considered, the following actions are
- *		performed:
+ *    performed:
  *   - To get the pin direction in GPIO ULP instance, GPIO initialization
- *		needs to be done first.
+ *    needs to be done first.
  *   - The actions to be performed in GPIO initialization are:
  *      - Enable the ULP clock of GPIO ULP instance.
  *      - Enable ULP PAD receiver for GPIO pin number, whether GPIO pin is
- *			selected as output/input.
+ *      selected as output/input.
  *      - Set pin mode and direction of the GPIO pin.
  *      - Get the pin direction of the GPIO pin.
  *  @note: Select ULP GPIO pins for ULP instances(0 to 11).
@@ -481,10 +480,10 @@ uint8_t sl_si91x_gpio_driver_get_pin_direction(uint8_t port, uint8_t pin)
  *   - Enable the M4 clock of GPIO HP instance.
  *   - Select PAD selection of the GPIO HP instance.
  *   - Enable PAD receiver for GPIO pin number, whether GPIO pin is
- *		selected as output/input.
+ *    selected as output/input.
  *  @note: Select HP GPIO pins for HP instances(6 to 57). Do not
- *	use GPIO pin number(0 to 5) in HP instance as these are used for other
- *	functionality.
+ *  use GPIO pin number(0 to 5) in HP instance as these are used for other
+ *  functionality.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_pad_receiver(uint8_t gpio_num)
 {
@@ -503,10 +502,10 @@ sl_status_t sl_si91x_gpio_driver_enable_pad_receiver(uint8_t gpio_num)
  *   - Enable the M4 clock of GPIO HP instance.
  *   - Select PAD selection of the GPIO HP instance.
  *   - Disable PAD receiver for GPIO pin number, whether GPIO pin is
- *		selected as output/input.
+ *    selected as output/input.
  *  @note: Select HP GPIO pins for HP instances(6 to 57). Do not
- *	use GPIO pin number(0 to 5) in HP instance as these are used for other
- *	functionality.
+ *  use GPIO pin number(0 to 5) in HP instance as these are used for other
+ *  functionality.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_disable_pad_receiver(uint8_t gpio_num)
 {
@@ -527,8 +526,8 @@ sl_status_t sl_si91x_gpio_driver_disable_pad_receiver(uint8_t gpio_num)
  *  @note: PAD number(25 to 30) are used for HOST PAD selection.
  *      Do not use PAD number-9 as it is used for other functionality.
  *  @note: Select HP GPIO pins for HP instances(GPIO_6 to GPIO_57). Do not
- *	use GPIO pin number(0 to 5) in HP instance as these are used for other
- *	functionality.
+ *  use GPIO pin number(0 to 5) in HP instance as these are used for other
+ *  functionality.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_pad_selection(uint8_t gpio_padnum)
 {
@@ -548,13 +547,13 @@ sl_status_t sl_si91x_gpio_driver_enable_pad_selection(uint8_t gpio_padnum)
  *   - Enable the M4 clock of GPIO HP instance.
  *   - Select PAD selection of the GPIO HP instance.
  *   - Enable PAD receiver for GPIO pin number, whether GPIO pin is
- *		selected as output/input.
+ *    selected as output/input.
  *   - Set pin mode and direction of the GPIO pin.
  *   - Select the PAD driver strength of type @ref
- *		sl_si91x_gpio_driver_strength_select_t.
+ *    sl_si91x_gpio_driver_strength_select_t.
  *  @note: Select HP GPIO pins for HP instances(6 to 57). Do not
- *	use GPIO pin number(0 to 5) in HP instance as these are used for other
- *	functionality.
+ *  use GPIO pin number(0 to 5) in HP instance as these are used for other
+ *  functionality.
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
                                                             sl_si91x_gpio_driver_strength_select_t strength)
@@ -579,13 +578,13 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
  *   - Enable the M4 clock of GPIO HP instance.
  *   - Select PAD selection of the GPIO HP instance.
  *   - Enable PAD receiver for GPIO pin number, whether GPIO pin is
- *		selected as output/input.
+ *    selected as output/input.
  *   - Set pin mode and direction of the GPIO pin.
  *   - Select the PAD driver disable state of type @ref
- *		sl_si91x_gpio_driver_disable_state_t.
+ *    sl_si91x_gpio_driver_disable_state_t.
  *  @note: Select HP GPIO pins for HP instances(6 to 57). Do not
- *	use GPIO pin number(0 to 5) in HP instance as these are used for other
- *	functionality.
+ *  use GPIO pin number(0 to 5) in HP instance as these are used for other
+ *  functionality.
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_pad_driver_disable_state(uint8_t gpio_num,
                                                                  sl_si91x_gpio_driver_disable_state_t disable_state)
@@ -645,9 +644,9 @@ sl_status_t sl_si91x_gpio_driver_disable_clock(sl_si91x_gpio_select_clock_t cloc
  * @note: We are calling this API, inside the group interrupt
  * configuration API's
  *      @ref sl_si91x_gpio_driver_configure_group_interrupt(), used for HP
- *		instance,
+ *    instance,
  *      @ref sl_si91x_gpio_driver_configure_ulp_group_interrupt(), used for ULP
- *		instance.
+ *    instance.
  * @note: Select HP GPIO pins for HP instances(6 to 57). Do not
  * use GPIO pin number(0 to 5) in HP instance as these are used for other
  * functionality.
@@ -756,9 +755,9 @@ sl_status_t sl_si91x_gpio_driver_mask_group_interrupt(uint8_t port, sl_si91x_gro
  * @note: We are calling this API, inside the group interrupt
  * configuration API's
  *      @ref sl_si91x_gpio_driver_configure_group_interrupt(), used for HP
- *		instance,
+ *    instance,
  *      @ref sl_si91x_gpio_driver_configure_ulp_group_interrupt(), used for ULP
- *  	instance.
+ *    instance.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_unmask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t group_interrupt)
 {
@@ -783,9 +782,9 @@ sl_status_t sl_si91x_gpio_driver_unmask_group_interrupt(uint8_t port, sl_si91x_g
  * @note: We are calling this API, inside the group interrupt
  * configuration API's
  *      @ref sl_si91x_gpio_driver_configure_group_interrupt(), used for HP
- *		instance,
+ *    instance,
  *      @ref sl_si91x_gpio_driver_configure_ulp_group_interrupt(), used for ULP
- *		instance.
+ *    instance.
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_group_interrupt_level_edge(uint8_t port,
                                                                 sl_si91x_group_interrupt_t group_interrupt,
@@ -839,9 +838,9 @@ uint8_t sl_si91x_gpio_driver_get_group_interrupt_level_edge(uint8_t port, sl_si9
  * @note: We are calling this API, inside the group interrupt
  * configuration API's
  *      @ref sl_si91x_gpio_driver_configure_group_interrupt(), used for HP
- *		instance,
+ *    instance,
  *      @ref sl_si91x_gpio_driver_configure_ulp_group_interrupt(), used for ULP
- *		instance.
+ *    instance.
  * @note: Select HP GPIO pins for HP instances(6 to 57). Do not
  * use GPIO pin number(0 to 5) in HP instance as these are used for other
  * functionality.
@@ -940,13 +939,13 @@ uint8_t sl_si91x_gpio_driver_get_group_interrupt_polarity(sl_si91x_group_interru
  *    - If AND event is selected then both GPIO pins, interrupt should be
  *        generated to do specific task.
  *    - If OR event is selected then any one GPIO pin, interrupt
- * 		  generation should be enough to do specific task.
+ *      generation should be enough to do specific task.
  * @note: We are calling this API, inside the group interrupt
  * configuration API's
  *      @ref sl_si91x_gpio_driver_configure_group_interrupt(), used for HP
- *		instance,
+ *    instance,
  *      @ref sl_si91x_gpio_driver_configure_ulp_group_interrupt(), used for ULP
- *		instance.
+ *    instance.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_group_interrupt_and_or(uint8_t port,
                                                                sl_si91x_group_interrupt_t group_interrupt,
@@ -1190,10 +1189,10 @@ sl_status_t sl_si91x_gpio_driver_disable_ulp_pad_receiver(uint8_t gpio_num)
  * - The actions to be performed in ULP GPIO initialization are:
  *   - Enable the ULP clock of GPIO ULP instance.
  *   - Enable ULP PAD receiver for GPIO pin number, whether GPIO pin is
- *		selected as output/input.
+ *    selected as output/input.
  *   - Set pin mode and direction of the GPIO pin.
  *   - Select the PAD driver disable state of type @ref
- * 		sl_si91x_gpio_driver_disable_state_t.
+ *    sl_si91x_gpio_driver_disable_state_t.
  *  @note: Select ULP GPIO pins for ULP instances(0 to 11).
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state(uint8_t gpio_num,
@@ -1218,10 +1217,10 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state(uint8_t gpi
  * - The actions to be performed in ULP GPIO initialization are:
  *   - Enable the ULP clock of GPIO ULP instance.
  *   - Enable ULP PAD receiver for GPIO pin number, whether GPIO pin is
- *		selected as output/input.
+ *    selected as output/input.
  *   - Set pin mode and direction of the GPIO pin.
  *   - Select the PAD driver strength of type @ref
- *		sl_si91x_gpio_driver_strength_select_t.
+ *    sl_si91x_gpio_driver_strength_select_t.
  *  @note: Select ULP GPIO pins for ULP instances(0 to 11).
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num,
@@ -1246,7 +1245,7 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num
  * - The actions to be performed in ULP GPIO initialization are:
  *   - Enable the ULP clock of GPIO ULP instance.
  *   - Enable ULP PAD receiver for GPIO pin number, whether GPIO pin is
- *		selected as output/input.
+ *    selected as output/input.
  *   - Set pin mode and direction of the GPIO pin.
  *   - Select the PAD slew rate of type @ref sl_si91x_gpio_slew_rate_t.
  *  @note: Select ULP GPIO pins for ULP instances(0 to 11).
@@ -1701,19 +1700,19 @@ void GRP_IRQ1_Handler(void)
 void UULP_PIN_IRQ_Handler(void)
 {
   if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_1) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_PIN_INTR_1);
+    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_1);
   }
   if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_2) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_PIN_INTR_2);
+    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_2);
   }
   if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_3) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_PIN_INTR_3);
+    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_3);
   }
   if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_4) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_PIN_INTR_4);
+    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_4);
   }
   if ((sl_si91x_gpio_driver_get_uulp_interrupt_status() & UULP_INTR_5) != UULP_MASK) {
-    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_PIN_INTR_5);
+    sl_si91x_gpio_driver_clear_uulp_interrupt(UULP_INTR_5);
   }
   gpio_callback_function_pointer();
 }

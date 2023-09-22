@@ -56,7 +56,8 @@ psa_status_t sli_si91x_crypto_hash_compute(psa_algorithm_t alg,
 #if defined(PSA_WANT_ALG_SHA_1) || defined(PSA_WANT_ALG_SHA_224) || defined(PSA_WANT_ALG_SHA_256) \
   || defined(PSA_WANT_ALG_SHA_384) || defined(PSA_WANT_ALG_SHA_512)
 
-  if ((input == NULL || input_length > 0) || (hash == NULL) || (hash_length == NULL) || (hash_size > 0)) {
+  if ((input == NULL && input_length > 0) || (input_length == 0) || (hash == NULL && hash_size > 0)
+      || (hash_length == NULL && hash_size > 0)) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
@@ -94,6 +95,11 @@ psa_status_t sli_si91x_crypto_hash_compute(psa_algorithm_t alg,
     default:
       *hash_length = SL_SI91x_SHA_LEN_INVALID;
       return PSA_ERROR_BAD_STATE;
+  }
+
+  status = convert_si91x_error_code_to_psa_status(sl_si91x_sha(sha_algo, input, input_length, hash));
+  if (status != PSA_SUCCESS) {
+    *hash_length = SL_SI91x_SHA_LEN_INVALID;
   }
 
 #endif

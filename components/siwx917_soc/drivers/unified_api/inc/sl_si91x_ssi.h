@@ -183,16 +183,6 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
 sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle);
 
 /***************************************************************************/ /**
- * Control the SPI interface power.
- *
- * @param[in] ssi handle, power state power off or full state.
- * @return    status 0 if successful, else error code.
- *         SL_STATUS_INVALID_PARAMETER (0x0021) - power state is invalid
- *         SL_STATUS_OK (0x0000) - Success, otherwise error code on failure
-*******************************************************************************/
-sl_status_t sl_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state);
-
-/***************************************************************************/ /**
  * Control the SPI interface.
  *
  * @param[in]  ssi handle, pointer to control config structure.

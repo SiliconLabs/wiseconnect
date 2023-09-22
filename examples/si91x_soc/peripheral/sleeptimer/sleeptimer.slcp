@@ -36,6 +36,8 @@ component:
   from: wiseconnect3_sdk
 - id: udma_linker_config
   from: wiseconnect3_sdk
+- id: si91x_debug
+  from: wiseconnect3_sdk
 define:
   - name: RSI_M4_INTERFACE
 

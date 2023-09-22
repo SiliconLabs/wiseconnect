@@ -25,6 +25,9 @@ requires:
   - name: rsilib_userconfig
   - name: sl_si91x_dual_flash_nvm3
   - name: si917_memory_default_config
+component:
+- id: si91x_debug
+  from: wiseconnect3_sdk
 configuration:
   - name: NVM3_DEFAULT_MAX_OBJECT_SIZE
     value: 204

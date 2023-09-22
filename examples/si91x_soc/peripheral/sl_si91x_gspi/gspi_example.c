@@ -118,13 +118,6 @@ void gspi_example_init(void)
     DEBUGOUT("Busy: %d\n", gspi_status.busy);
     DEBUGOUT("Data_Lost: %d\n", gspi_status.data_lost);
     DEBUGOUT("Mode_Fault: %d\n", gspi_status.mode_fault);
-    // Configuration of power mode
-    status = sl_si91x_gspi_configure_power_mode(gspi_driver_handle, SL_GSPI_FULL_POWER);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_gspi_power_control: Error Code : %lu \n", status);
-      break;
-    }
-    DEBUGOUT("GSPI power configuration is successful \n");
     //Configuration of all other parameters that are required by GSPI
     // gspi_configuration structure is from sl_si91x_gspi_init.h file.
     // The user can modify this structure with the configuration of

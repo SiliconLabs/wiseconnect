@@ -190,7 +190,7 @@
 
 //! Tx Data length parameters
 #define TX_LEN  0xFB
-#define TX_TIME 0x0148
+#define TX_TIME 0x4290
 
 //! Phy parameters
 #define TX_PHY_RATE     0x01

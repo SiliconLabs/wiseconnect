@@ -39,7 +39,7 @@
 #define MISC_CFG_SRAM_REDUNDANCY_CTRL *(volatile uint32_t *)(0x46008000 + 0x18)
 #define MISC_CONFIG_MISC_CTRL1        *(volatile uint32_t *)(0x46008000 + 0x44)
 #define SOC_PLL_LIMIT                 120000000  // Limit for soc pll clock.
-#define MAX_SAMPLE_RATE               5000000    // Maximum sampling rate 5 Mbps.
+#define MAX_SAMPLE_RATE               10000000   // Maximum sampling rate 5 Mbps.
 #define MINIMUM_NUMBER_OF_CHANNEL     1          // Minimum number of channel enable
 #define MAXIMUM_NUMBER_OF_CHANNEL     16         // Maximum number of channel enable
 #define MAXIMUM_CHANNEL_ID            16         // Maximum adc dma support channel id.
@@ -56,6 +56,11 @@
 #define MAXIMUM_SAMPLING_LENGTH       1023       // Maximum sampling length
 #define MINIMUM_REF_VOLT              1.8        // Maximum reference voltage
 #define MAXMIMUM_REF_VOLT             3.6        // Maximum reference voltage
+#define INVALID_POS_INPUT_1           9          // Invalid positive input selection 1
+#define INVALID_POS_INPUT_2           19         // Invalid positive input selection 2
+#define INVALID_NEG_INPUT_1           9          // Invalid negative input selection 1
+#define MAXIMUM_POS_INPUT             24         // Maximum value of positive input selection
+#define MAXIMUM_NEG_INPUT             13         // Maximum value of negative input selection
 #define ADC_RELEASE_VERSION           0          // ADC Release version
 #define ADC_SQA_VERSION               0          // ADC SQA version
 #define ADC_DEV_VERSION               1          // ADC Developer version
@@ -192,6 +197,19 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
         status = SL_STATUS_INVALID_COUNT;
         break;
       }
+      // Verify the user given positive input selection
+      if ((adc_channel_config.pos_inp_sel[ch_num] == INVALID_POS_INPUT_1)
+          || (adc_channel_config.pos_inp_sel[ch_num] == INVALID_POS_INPUT_2)
+          || (adc_channel_config.pos_inp_sel[ch_num] > MAXIMUM_POS_INPUT)) {
+        status = SL_STATUS_INVALID_RANGE;
+        break;
+      }
+      // Verify the user given negative input selection
+      if ((adc_channel_config.neg_inp_sel[ch_num] == INVALID_NEG_INPUT_1)
+          || (adc_channel_config.neg_inp_sel[ch_num] > MAXIMUM_NEG_INPUT)) {
+        status = SL_STATUS_INVALID_RANGE;
+        break;
+      }
     }
     if (status != SL_STATUS_OK) {
       break;
@@ -211,7 +229,7 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
 float sl_si91x_adc_get_chip_voltage(void)
 {
   volatile float chip_volt = 0;
-  float max_ip_volt_scdc   = 2.4;
+  float max_ip_volt_scdc   = (float)2.4;
   //Get the input voltage of chip.
   chip_volt = RSI_BOD_SoftTriggerGetBatteryStatus();
   //If input to chip less than 2.4V then switch input voltage supply from SCDC to HPLDO
@@ -230,18 +248,11 @@ float sl_si91x_adc_get_chip_voltage(void)
  * to be called.
  * This function will return "SL_STATUS_OK" on successful execution.
  ******************************************************************************/
-sl_status_t sl_si91x_adc_set_power_mode(sl_adc_power_state_t state)
+sl_status_t sl_si91x_adc_set_power_mode(POWER_STATE state)
 {
-  sl_status_t status;
-  // Validates the power mode, if it is greater than POWER_MODE_LAST, returns error code.
-  if (state >= SL_ADC_POWER_MODE_LAST) {
-    status = SL_STATUS_INVALID_PARAMETER;
-  } else {
-    //set the power mode to ADC.
-    RSI_ADC_PowerControl(state);
-    status = SL_STATUS_OK;
-  }
-  return status;
+  //set the power mode to ADC.
+  RSI_ADC_PowerControl(state);
+  return SL_STATUS_OK;
 }
 
 /*******************************************************************************
@@ -389,8 +400,8 @@ sl_status_t sl_si91x_adc_configure_channel_sampling_rate(sl_adc_internal_config_
     }
     error_status = RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP,
                                                channel_num,
-                                               adc_internal_config.ch_offset_val,
-                                               adc_internal_config.ch_sampling_factor);
+                                               adc_internal_config.ch_offset_val[channel_num],
+                                               adc_internal_config.ch_sampling_factor[channel_num]);
     status       = convert_rsi_to_sl_error_code(error_status);
   } while (false);
   return status;
@@ -423,10 +434,10 @@ sl_status_t sl_si91x_adc_configure_ping_pong_memory_address(sl_adc_internal_conf
     // Configure ADC ping and pong memory address.
     error_status = RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP,
                                                    channel_num,
-                                                   adc_internal_config.ping_addr,
-                                                   adc_internal_config.pong_addr,
-                                                   adc_internal_config.ping_length,
-                                                   adc_internal_config.pong_length,
+                                                   adc_internal_config.ping_addr[channel_num],
+                                                   adc_internal_config.pong_addr[channel_num],
+                                                   adc_internal_config.ping_length[channel_num],
+                                                   adc_internal_config.pong_length[channel_num],
                                                    ADC_PING_ENABLE,
                                                    ADC_PONG_ENABLE);
     status       = convert_rsi_to_sl_error_code(error_status);
@@ -488,10 +499,10 @@ sl_status_t sl_si91x_adc_threshold_configuration(sl_adc_threshold_config_t adc_t
     status = SL_STATUS_INVALID_PARAMETER;
   } else {
     error_status = RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP,
-                                           adc_threshold.threshold1,
-                                           &adc_threshold.threshold1_cond,
-                                           adc_threshold.threshold2,
-                                           &adc_threshold.threshold2_cond,
+                                           (int16_t)adc_threshold.threshold1,
+                                           adc_threshold.threshold1_cond,
+                                           (int16_t)adc_threshold.threshold2,
+                                           adc_threshold.threshold2_cond,
                                            adc_threshold.range);
     status       = convert_rsi_to_sl_error_code(error_status);
   }
@@ -544,10 +555,9 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
                                           uint16_t *adc_value)
 {
   sl_status_t status;
-  rsi_error_t error_status;
-  uint8_t data_process = 1;
-  uint8_t chnl_num     = 0;
-  int16_t read_static_data;
+  uint8_t data_process     = 1;
+  uint8_t chnl_num         = 0;
+  int16_t read_static_data = 0;
   // Validate ADC parameters, if the parameters are incorrect
   // If the status is not equal to SL_STATUS_OK, returns error code.
   status = validate_adc_channel_parameters(&adc_channel_config);
@@ -555,7 +565,7 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
     // Enable the gain and calculation on output samples.
     read_static_data = RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, data_process, adc_channel_config.input_type[0]);
   }
-  *adc_value = read_static_data;
+  *adc_value = (uint16_t)read_static_data;
   sl_si91x_adc_channel_interrupt_clear(adc_config, chnl_num);
   return status;
 }
@@ -567,20 +577,28 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
  * RSI errors are converted to the SL errors via convert_rsi_to_sl_error_code
  * function.
  ******************************************************************************/
-sl_status_t sl_si91x_adc_configure_static_mode(sl_adc_channel_config_t adc_channel_config)
+sl_status_t sl_si91x_adc_configure_static_mode(sl_adc_channel_config_t adc_channel_config, uint8_t channel_num)
 {
   sl_status_t status;
   rsi_error_t error_status;
-  // Validate ADC parameters, if the parameters are incorrect
-  // If the status is not equal to SL_STATUS_OK, returns error code.
-  status = validate_adc_channel_parameters(&adc_channel_config);
-  if (status != SL_STATUS_OK) {
+  do {
+    // Validate channel number.
+    if (channel_num >= MAXIMUM_CHANNEL_ID) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // Validate ADC parameters, if the parameters are incorrect
+    // If the status is not equal to SL_STATUS_OK, returns error code.
+    status = validate_adc_channel_parameters(&adc_channel_config);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
     error_status = RSI_ADC_StaticMode(AUX_ADC_DAC_COMP,
-                                      adc_channel_config.pos_inp_sel,
-                                      adc_channel_config.neg_inp_sel,
-                                      adc_channel_config.input_type);
+                                      adc_channel_config.pos_inp_sel[channel_num],
+                                      adc_channel_config.neg_inp_sel[channel_num],
+                                      adc_channel_config.input_type[channel_num]);
     status       = convert_rsi_to_sl_error_code(error_status);
-  }
+  } while (false);
   return status;
 }
 
@@ -609,9 +627,9 @@ sl_status_t sl_si91x_adc_configure_fifo_mode(sl_adc_channel_config_t adc_channel
     }
     error_status = RSI_ADC_FifoMode(AUX_ADC_DAC_COMP,
                                     channel_num,
-                                    adc_channel_config.pos_inp_sel,
-                                    adc_channel_config.neg_inp_sel,
-                                    adc_channel_config.input_type);
+                                    adc_channel_config.pos_inp_sel[channel_num],
+                                    adc_channel_config.neg_inp_sel[channel_num],
+                                    adc_channel_config.input_type[channel_num]);
     status       = convert_rsi_to_sl_error_code(error_status);
   } while (false);
   return status;
@@ -843,7 +861,6 @@ sl_status_t sl_si91x_adc_get_external_trigger_status(sl_adc_external_config_t ad
 sl_status_t sl_si91x_adc_clear_external_trigger(sl_adc_external_config_t adc_external_trigger)
 {
   sl_status_t status;
-  rsi_error_t error_status;
   // Validate adc_external_trigger parameters.
   status = validate_adc_ext_trigger_parameters(&adc_external_trigger);
   if (status == SL_STATUS_OK) {
@@ -1065,8 +1082,8 @@ static sl_status_t validate_adc_internal_parameters(sl_adc_internal_config_t *ad
       break;
     }
     // Validate ping and pong address maximum value.
-    if ((adc_internal_config->ping_addr >= MAXIMUM_PING_ADDR)
-        || (adc_internal_config->pong_addr >= MAXIMUM_PONG_ADDR)) {
+    if ((adc_internal_config->ping_addr >= (uint32_t *)MAXIMUM_PING_ADDR)
+        || (adc_internal_config->pong_addr >= (uint32_t *)MAXIMUM_PONG_ADDR)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }

@@ -118,7 +118,7 @@ extern "C" {
 #define MAX_TOL_DUR_TIME    1023
 #define MAX_ON_DUR_TIME     511
 
-#define MAX_SINGCH_SAMPLING_RATE 5000000
+#define MAX_SINGCH_SAMPLING_RATE 10000000
 #define ADC_MASK_VALUE           0xF7FF
 #define ADC_FIFO_THR             3
 #define SDIO_HOST_CONTROL_IN_M4  0x41300004

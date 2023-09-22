@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sli_siwx917_soc.h
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #pragma once
 
 #include <stdint.h>
@@ -51,3 +68,5 @@ int16_t rsi_waitfor_boardready(void);
 int16_t rsi_select_option(uint8_t cmd);
 int16_t rsi_bl_select_option(uint8_t cmd);
 int16_t rsi_boot_insn(uint8_t type, uint16_t *data);
+int16_t rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf);
+void sl_si91x_ulp_wakeup_init(void);

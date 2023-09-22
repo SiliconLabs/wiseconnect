@@ -71,13 +71,6 @@ void pwm_example_init(void)
       break;
     }
     DEBUGOUT("PWM set configuration is successful \n");
-    // PWM control base timer
-    status = sl_si91x_pwm_control_base_timer(SL_BASE_TIMER_EACH_CHANNEL);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_pwm_control_base_timer, Error code: %lu", status);
-      break;
-    }
-    DEBUGOUT("PWM control base timer is successful \n");
     // set base time period control
     status = sl_si91x_pwm_control_period(SL_TIME_PERIOD_POSTSCALE_1_1,
                                          SL_TIME_PERIOD_PRESCALE_1,

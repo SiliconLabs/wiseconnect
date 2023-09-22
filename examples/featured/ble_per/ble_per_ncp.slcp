@@ -24,8 +24,6 @@ include:
       - path: ble_config.h
 define:
   - name: RSI_DEBUG_PRINTS
-component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
 requires:
 - name: sl_system
 - name: network_manager
@@ -79,6 +77,8 @@ other_file:
   - path: resources/readme/soc_board_detection.png
   - path: resources/readme/usb_to_uart_1.png
   - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/teraterm_prints.png
+  - path: resources/readme/bleperspectrum.png
 ui_hints:
   highlight:
     - path: readme.md

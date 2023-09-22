@@ -26,6 +26,7 @@ component:
 - {from: wiseconnect3_sdk, id: romdriver_egpio}
 - {from: wiseconnect3_sdk, id: udma_linker_config}
 - {from: wiseconnect3_sdk, id: rsilib_userconfig}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 - id: si917_memory_default_config
   from: wiseconnect3_sdk
 - {id: status}

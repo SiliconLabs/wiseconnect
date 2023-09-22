@@ -126,10 +126,12 @@
 
 ## Pin Configuration of the WPK[BRD4002A]/WSTK[BRD4001A] Base Board
 
-| GPIO pin       | Description             |
-| -------------- | ----------------------- |
-|ULP_GPIO_1 [P16]  |ULP_SSI_MASTER_MOSI_PIN|
-|ULP_GPIO_2 [F10]  |ULP_SSI_MASTER_MISO_PIN|
+| GPIO pin           | Description              |
+| ------------------ | ------------------------ |
+| ULP_GPIO_8  [P15]  |RTE_SSI_ULP_MASTER_SCK_PIN|
+| ULP_GPIO_10 [F17]  |RTE_SSI_ULP_MASTER_CS0_PIN|
+| ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
+| ULP_GPIO_2  [F10]  | ULP_SSI_MASTER_MISO_PIN  |
 
 
 ![Figure: Pin Configuration for SSI1](resources/readme/image510d.png)
@@ -152,6 +154,7 @@
  - This applicatin is executed from RAM.
  - In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
  - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
+ - Enable the ULP_MASTER in UC before running/flashing the code. 
 
 ## Expected Scenario:
  - After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.

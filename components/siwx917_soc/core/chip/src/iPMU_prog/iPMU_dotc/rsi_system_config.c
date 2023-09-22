@@ -1,39 +1,19 @@
-/**
- *  ******* @file       rsi_ipmu_config.c
- *   ******* @version    1.18
- *    ******* @date       04 APR 2018
- *     *******
- *      ******* Copyright(C) Silicon Labs 2016
- *       ******* All rights reserved by Silicon Labs.
- *        *******
- *         ******* @section License
- *          ******* This program should be used on your own responsibility.
- *           ******* Silicon Labs assumes no responsibility for any losses
- *            ******* incurred by customers or third parties arising from the use of this file.
- *             *******
- *              ******* @brief This file contains the programming values for IPMU
- *               **               ***               ***
- *                *                *                *                *                *                *** @section Description
- *                 *                 *                 *                 *                 *                 ***
- *                  *                  *                  *                  *                  *                  ***
- *                   *                   *                   *                   *                   *                   ***/
-
-// Revision History
-// // // // // // // // // Date           |  version number  |  Modification
-// // // // // // // // // 08/01/2017        1.0                Initial version
-// // // // // // // // // 03/19/2018        1.15                Latest
-// // // // // // // // // 04/04/2018        1.17               WuRX LDO Config Updates
-// // // // // // // // // 05/04/2018        1.18               Added pmu_LP_config, pmu_HP_config, pmu_socldo_0p95, pmu_socldo_1p0
-// // // // // // // // // 05/16/2018        1.18               Modified PMU_LP_config, pmu_HP_config
-// // // // // // // // // 05/25/2018        1.18               Merged PMU_LP_COMFIG into PMU_COMMON_CONFIG
-// // // // // // // // // 08/02/2018        1.19               Added features to support RO_32K_00, LP_EXTCAP_DCDC, pmu structures
-// // // // //
-// // // //
-// // //
-// //
-// //
-// //
-//
+/*******************************************************************************
+* @file  rsi_system_config.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
 
 #ifdef CHIP_9118
 #include <data_types.h>

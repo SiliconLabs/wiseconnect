@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
- * @file sl_si91x_gpio_brd4325a.h
+ * @file sl_si91x_gpio_common.h
  * @brief General Purpose IO (GPIO) API implementation
  *******************************************************************************
  * # License
@@ -27,8 +27,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  * ******************************************************************************/
-#ifndef SL_SI91X_GPIO_BRD4325AH
-#define SL_SI91X_GPIO_BRD4325AH
+#ifndef SL_SI91X_GPIO_COMMONH
+#define SL_SI91X_GPIO_COMMONH
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,6 +111,11 @@ extern "C" {
 
 #define UNUSED_VARIABLE(expr) ((void)(expr))
 
+#define GPIO_PA_PIN_MAX_VALIDATE 75 ///< GPIO port A maximum pins to validate
+#define GPIO_PB_PIN_MAX_VALIDATE 59 ///< GPIO port B maximum pins to validate
+#define GPIO_PC_PIN_MAX_VALIDATE 43 ///< GPIO port C maximum pins to validate
+#define GPIO_PD_PIN_MAX_VALIDATE 27 ///< GPIO port D maximum pins to validate
+
 #ifdef SL_DEBUG_ASSERT
 #define SL_GPIO_ASSERT(expr) ((expr) ? (void)0U : sl_assert_failed((uint8_t *)__FILE__, __LINE__))
 #else
@@ -132,11 +137,11 @@ extern "C" {
 #define SL_GPIO_VALIDATE_MODE(mode)                   ((mode) > 15 ? 0 : 1)     ///< Validate GPIO mode
 #define SL_GPIO_VALIDATE_INTR(interrupt)              ((interrupt > 8) ? 0 : 1) ///< Validate GPIO interrupt
 ///< Validate GPIO port and pin
-#define SL_GPIO_NDEBUG_PORT_PIN(port, pin) \
-  (port == 0   ? ((pin > 57) ? 0 : 1)      \
-   : port == 1 ? ((pin > 41) ? 0 : 1)      \
-   : port == 2 ? ((pin > 25) ? 0 : 1)      \
-   : port == 3 ? ((pin > 9) ? 0 : 1)       \
+#define SL_GPIO_NDEBUG_PORT_PIN(port, pin)                  \
+  (port == 0   ? ((pin > GPIO_PA_PIN_MAX_VALIDATE) ? 0 : 1) \
+   : port == 1 ? ((pin > GPIO_PB_PIN_MAX_VALIDATE) ? 0 : 1) \
+   : port == 2 ? ((pin > GPIO_PC_PIN_MAX_VALIDATE) ? 0 : 1) \
+   : port == 3 ? ((pin > GPIO_PD_PIN_MAX_VALIDATE) ? 0 : 1) \
                : 0)
 
 #define SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin) (port == 4 ? ((pin > 11) ? 0 : 1) : 0) ///< Validate ULP port and pin
@@ -166,12 +171,6 @@ extern "C" {
 #define PIN_INTR_5 5 ///< HP GPIO pin interrupt 5
 #define PIN_INTR_6 6 ///< HP GPIO pin interrupt 6
 #define PIN_INTR_7 7 ///< HP GPIO pin interrupt 7
-
-#define UULP_PIN_INTR_1 1 ///< UULP GPIO pin interrupt 1
-#define UULP_PIN_INTR_2 2 ///< UULP GPIO pin interrupt 2
-#define UULP_PIN_INTR_3 3 ///< UULP GPIO pin interrupt 3
-#define UULP_PIN_INTR_4 4 ///< UULP GPIO pin interrupt 4
-#define UULP_PIN_INTR_5 5 ///< UULP GPIO pin interrupt 5
 
 #define ULP_PIN_INT   0 ///< ULP GPIO pin interrupt
 #define ULP_GROUP_INT 0 ///< ULP GPIO group interrupt
@@ -262,9 +261,10 @@ extern "C" {
 #define GPIO_PAD_7 7 ///< GPIO PAD number 7
 #define GPIO_PAD_8 8 ///< GPIO PAD number 8
 
-#define PAD_SELECT   22 ///< GPIO Host PAD number 22
-#define HOST_PAD_MIN 25 ///< GPIO Host PAD number 25
-#define HOST_PAD_MAX 30 ///< GPIO Host PAD number 30
+#define HOST_PAD_SELECT 12 ///< GPIO Host PAD selection
+#define PAD_SELECT      22 ///< GPIO PAD number 22
+#define HOST_PAD_MIN    25 ///< GPIO Host PAD number 25
+#define HOST_PAD_MAX    30 ///< GPIO Host PAD number 30
 
 #define PRIORITY_14 14 ///< GPIO Interrupt priority 14
 #define PRIORITY_15 15 ///< GPIO Interrupt priority 15
@@ -380,5 +380,5 @@ typedef struct {
 }
 #endif
 
-#endif ///< SL_SI91X_GPIO_BRD4325AH
-/**************************************************************************************************/
+#endif ///< SL_SI91X_GPIO_COMMONH
+       /**************************************************************************************************/

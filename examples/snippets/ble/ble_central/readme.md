@@ -31,11 +31,14 @@ Before running the application, the user will need the following things to setup
 
 **SoC Mode :**
 
-![Figure: Setup Diagram SoC Mode for BLE PER Example](resources/readme/blecentralsoc1.png)
+![Figure: Setup Diagram SoC Mode for BLE PER Example](resources/readme/blecentralsoc.png)
   
 **NCP Mode :**  
 
 ![Figure: Setup Diagram NCP Mode for BLE PER Example](resources/readme/blecentralncp.png)
+
+**NOTE**: 
+- The Host MCU platform (EFR32xG21) and the SiWx91x interact with each other through the SPI interface. 
 
 Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
@@ -125,66 +128,42 @@ The application can be configured to suit your requirements and development envi
 
 ### 4.1 Configure the Application
 
-**4.1.1** Open `app.c` file.
-User must update the below parameters
+**4.1.1** In the Project explorer pane of the IDE, expand the **ble_central** folder and open the **app.c** file. 
+![ble_central_application_configuration](resources/readme/blecentralapplicationconfiguration.png)
 
-- `RSI_BLE_DEV_ADDR_TYPE` refers address type of the remote device to connect.
+   - **Remote device configuration parameters**
+   
+   ```c
+      // RSI_BLE_DEV_ADDR_TYPE refers to the address type of the remote device to connect.
+      //! Based on address type of remote device, valid configurations are LE_RANDOM_ADDRESS and LE_PUBLIC_ADDRESS
+      
+      #define RSI_BLE_DEV_ADDR_TYPE                          LE_PUBLIC_ADDRESS 
+      
+      //RSI_BLE_DEV_ADDR refers to the address of the remote device to connect.
+      
+      #define RSI_BLE_DEV_ADDR                               "04:D4:C4:9A:F3:CC" 
+      
+      //RSI_REMOTE_DEVICE_NAME refers to the name of remote device to which Silicon Labs device has to connect.
 
-```c
-#define RSI_BLE_DEV_ADDR_TYPE                          LE_PUBLIC_ADDRESS 
-```
+      #define RSI_REMOTE_DEVICE_NAME                         "SILABS_DEV" 
+   ```
+   
+   **Note:** you're required to configure either the `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` of the remote device.
+   
+   - **Power Save Configuration**
+   Configure "ENABLE_POWER_SAVE" parameter to enable power save mode. 
+        
+      ```c
+         #define ENABLE_POWER_SAVE              1
+      ```
 
-Based on address type of remote device, valid configurations are
+**4.1.2** Open **ble_config.h** file and update required configuration.  
+![ble_central_configurations](resources/readme/blecentralconfigurations.png) 
 
-```c
-LE_RANDOM_ADDRESS
-LE_PUBLIC_ADDRESS
-```
+- **Opermode command parameters**   
+  This configuration can be found in app.c as `config`	
 
-- `RSI_BLE_DEV_ADDR` refers address of the remote device to connect.
-
-```c
-#define RSI_BLE_DEV_ADDR                               "00:1E:7C:25:E9:4D"
-```
-
-- `RSI_REMOTE_DEVICE_NAME` refers the name of remote device to which Silicon Labs device has to connect.
-
-```c
-#define RSI_REMOTE_DEVICE_NAME                         "SILABS_DEV" 
-```
-
-**Note:** user can configure either RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME of the remote device.
-
-**Power save configuration**
-
-- By default, The Application is configured without power save.
-
-```c
-#define ENABLE_POWER_SAVE 0
-```
-
-- If user wants to run the application in power save, modify the below configuration.
-
-```c
-#define ENABLE_POWER_SAVE 1 
-```
-
-- Following are the event numbers for advertising, connection and disconnection events
-
-```c
-#define RSI_APP_EVENT_ADV_REPORT                       0
-#define RSI_APP_EVENT_CONNECTED                        1
-#define RSI_APP_EVENT_DISCONNECTED                     2
-```
-
-**4.1.2** Open `ble_config.h` file and update/modify following macros,
-
-```c
-#define RSI_BLE_PWR_INX                                30
-#define RSI_BLE_PWR_SAVE_OPTIONS                       BLE_DISABLE_DUTY_CYCLING
-```
-
-  **Note:** The configurations are already set with desired configuration in respective example folders you need not change for each example.
+   **Note:** `ble_config.h` and `app.c` files are already set with desired configuration in respective example folders you need not change for each example.
 
 ### 4.2 Build the Application
 
@@ -217,15 +196,16 @@ LE_PUBLIC_ADDRESS
 
 ### 4.5 Running the SiWx91x Application
 
-1. Configure the remote BLE device in peripheral mode and put it in advertising mode.For remote mobile ensure that the device is named same as the value mentioned in RSI_REMOTE_DEVICE_NAME macro also see to it that Complete local name record is added to advertising data and Scan response data and connectable is ticked in options.
-![](resources/readme/advertiser.png)
+1. Configure the remote BLE device in peripheral mode, where add the complete local name record,  Enable the Scan response data, and connectable options to the advertising data. And keep it in the Advertising mode. Ensure that the specified the remote device name in the RSI_REMOTE_DEVICE_NAME macro is proper.    
+![central_adverttiser](resources/readme/centraladvertiser.png) 
    **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
+   
 2. After the program gets executed, Silicon Labs device tries to connect with the remote device specified in `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` macro.
 
-3. Observe that the connection is established between the desired device and SiWx91x.  
+3. Observe that the connection is established between the desired device and SiWx91x.
+![device_connected](resources/readme/deviceconnected.png)  
    **Note:** Examples for BLE peripherals: Bluetooth Dongle, mobile application, TA sensor tag.
-4. Refer the below images for console prints
 
-### 4.5 Application Output
+### 4.6 Application Output
 
   ![Application Prints Soc](resources/readme/output_1.png)  

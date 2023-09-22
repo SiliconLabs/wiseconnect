@@ -49,6 +49,8 @@
 /******************************************************
  *                    Constants
  ******************************************************/
+#define ENABLE_MQTT_SUBSCRIBE_PUBLISH 0
+
 #define MQTT_BROKER_PORT 8886
 
 #define CLIENT_PORT 1
@@ -435,8 +437,9 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
 {
   switch (event) {
     case SL_MQTT_CLIENT_CONNECTED_EVENT: {
+      printf("MQTT client connection success\r\n");
+#if ENABLE_MQTT_SUBSCRIBE_PUBLISH
       sl_status_t status;
-
       status = sl_mqtt_client_subscribe(client,
                                         (uint8_t *)TOPIC_TO_BE_SUBSCRIBED,
                                         strlen(TOPIC_TO_BE_SUBSCRIBED),
@@ -458,15 +461,18 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
         mqtt_client_cleanup();
         return;
       }
-
+#else
+      mqtt_client_cleanup();
+#endif
       break;
     }
-
+#if ENABLE_MQTT_SUBSCRIBE_PUBLISH
     case SL_MQTT_CLIENT_MESSAGE_PUBLISHED_EVENT: {
       sl_mqtt_client_message_t *published_message = (sl_mqtt_client_message_t *)context;
 
       printf("Published message successfully on topic: ");
       print_char_buffer((char *)published_message->topic, published_message->topic_length);
+
       break;
     }
 
@@ -490,9 +496,9 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
         mqtt_client_cleanup();
         return;
       }
-
       break;
     }
+#endif
 
     case SL_MQTT_CLIENT_DISCONNECTED_EVENT: {
       printf("Disconnected from MQTT broker\r\n");

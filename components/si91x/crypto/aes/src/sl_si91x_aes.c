@@ -62,12 +62,11 @@ static sl_status_t aes_pending(sl_si91x_aes_config_t *config, uint16_t chunk_len
   request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
   request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
   request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
-  request->key_info.reserved                         = config->key_config.b0.reserved;
   memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
   memcpy(request->key_info.key_detail.key_spec.key_buffer, config->key_config.b0.key_buffer, SL_SI91X_KEY_BUFFER_SIZE);
 #else
-  memcpy(request->key, config->key_config.a0.key, request->key_length);
   request->key_length = config->key_config.a0.key_length;
+  memcpy(request->key, config->key_config.a0.key, request->key_length);
 #endif
 
   status =
@@ -84,7 +83,7 @@ static sl_status_t aes_pending(sl_si91x_aes_config_t *config, uint16_t chunk_len
   VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  memcpy(output, packet->data, request->total_msg_length);
+  memcpy(output, packet->data, packet->length);
 
   free(request);
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);

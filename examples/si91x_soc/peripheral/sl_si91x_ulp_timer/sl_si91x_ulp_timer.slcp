@@ -21,6 +21,7 @@ component:
 - {from: wiseconnect3_sdk, id: rsilib_clock_update}
 - {from: wiseconnect3_sdk, id: cmsis_device_config_9117}
 - {from: wiseconnect3_sdk, id: romdriver_egpio}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 - id: sl_system
 - instance: [timer0]
   from: wiseconnect3_sdk

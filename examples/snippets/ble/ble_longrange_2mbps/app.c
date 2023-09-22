@@ -45,7 +45,7 @@
 #define RSI_BLE_DEV_ADDR "00:23:A7:80:70:B9"
 
 //! Remote Device Name to connect
-#define RSI_REMOTE_DEVICE_NAME "ASUS6z"
+#define RSI_REMOTE_DEVICE_NAME "SILABS_DEV"
 
 #define RSI_REM_DEV_ADDR_LEN 18
 

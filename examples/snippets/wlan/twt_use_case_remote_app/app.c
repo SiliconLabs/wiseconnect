@@ -232,8 +232,11 @@ sl_status_t create_tcp_server(void)
   }
   printf("\r\nTCP Server Socket ID : %d\r\n", tcp_server_socket);
 
-  socket_return_value =
-    sl_si91x_setsockopt(tcp_server_socket, SOL_SOCKET, sl_si91x_SO_MAXRETRY, &max_tcp_retry, sizeof(max_tcp_retry));
+  socket_return_value = sl_si91x_setsockopt_async(tcp_server_socket,
+                                                  SOL_SOCKET,
+                                                  SL_SI91X_SO_MAXRETRY,
+                                                  &max_tcp_retry,
+                                                  sizeof(max_tcp_retry));
   if (socket_return_value < 0) {
     printf("\r\nTCP Set Socket option failed with BSD error: %d\r\n", errno);
     close(tcp_server_socket);

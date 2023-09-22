@@ -34,7 +34,7 @@
 
 #include "sl_iostream.h"
 #include "sl_iostream_uart_si91x.h"
-#include "sli_iostream_uart.h"
+#include "sli_iostream_uart_si91x.h"
 #include "sl_iostream_usart_si91x.h"
 #include "sl_atomic.h"
 #include <string.h>
@@ -166,12 +166,6 @@ sl_status_t sl_iostream_usart_init(sl_iostream_uart_t *iostream_uart,
   // 4.Enable the usart
   // Initialize the USART and enable the clock
   status = sl_si91x_usart_init(init->usart_module, &usart_handle);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-
-  // Set the usart power mode
-  status = sl_si91x_usart_set_power_mode(usart_handle, SL_POWER_FULL);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -308,8 +302,8 @@ static sl_status_t uart_deinit(void *stream)
   if ((sl_iostream_uart_t *)default_stream == uart) {
     sl_iostream_set_system_default(NULL);
   }
-  // Set the power mode to off
-  status = sl_si91x_usart_set_power_mode(usart_handle, SL_POWER_OFF);
+  // Uninitialize the uart and set the power mode to off
+  status = sl_si91x_usart_deinit(usart_handle);
   if (status != SL_STATUS_OK) {
     return status;
   }

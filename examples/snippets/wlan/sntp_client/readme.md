@@ -136,7 +136,7 @@ You can use either of the below USB to UART converters for application prints.
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-**4.1** Configure the following parameters in **sl_net_default_values.h** to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
+**4.1** In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
   
 ```c
 #define DEFAULT_WIFI_CLIENT_PROFILE_SSID    "YOUR_AP_SSID"          // Wi-Fi Network Name

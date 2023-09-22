@@ -49,6 +49,15 @@ extern "C" {
 /*******************************************************************************
  ***************************  DEFINES / MACROS  ********************************
  ******************************************************************************/
+#define SL_SIO_CH_0 0 ///< SIO-SPI channel 0
+#define SL_SIO_CH_1 1 ///< SIO-SPI channel 1
+#define SL_SIO_CH_2 2 ///< SIO-SPI channel 2
+#define SL_SIO_CH_3 3 ///< SIO-SPI channel 3
+#define SL_SIO_CH_4 4 ///< SIO-SPI channel 4
+#define SL_SIO_CH_5 5 ///< SIO-SPI channel 5
+#define SL_SIO_CH_6 6 ///< SIO-SPI channel 6
+#define SL_SIO_CH_7 7 ///< SIO-SPI channel 7
+
 typedef stc_sio_spi_cfg_t sl_sio_spi_config_t;       ///< SIO-SPI configuration structure
 typedef stc_sio_spi_xfer_t sl_sio_spi_xfer_config_t; ///< SIO-SPI Transfer structure
 typedef stc_sio_i2s_config_t sl_sio_i2s_config_t;    ///< SIO-I2S configuration structure
@@ -121,18 +130,6 @@ typedef enum {
   SL_SIO_UART_STOP_BIT_2 = 2, ///< SIO-UART stop bit 2
 } sl_sio_spi_stop_bit_t;
 
-///@brief SIO-SPI channels
-typedef enum {
-  SL_SIO_CH_0, ///< SIO-SPI channel 0
-  SL_SIO_CH_1, ///< SIO-SPI channel 1
-  SL_SIO_CH_2, ///< SIO-SPI channel 2
-  SL_SIO_CH_3, ///< SIO-SPI channel 3
-  SL_SIO_CH_4, ///< SIO-SPI channel 4
-  SL_SIO_CH_5, ///< SIO-SPI channel 5
-  SL_SIO_CH_6, ///< SIO-SPI channel 6
-  SL_SIO_CH_7, ///< SIO-SPI channel 0
-} sl_sio_channel_t;
-
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
@@ -142,6 +139,50 @@ typedef struct {
   uint8_t major;   ///< major version number
   uint8_t minor;   ///< minor version number
 } sl_sio_version_t;
+
+///@brief Structure to hold port and pin of sio spi
+typedef struct {
+  uint8_t spi_cs_port;   ///< SIO SPI CS port
+  uint8_t spi_cs_pin;    ///< SIO SPI CS pin
+  uint8_t spi_cs_mux;    ///< SIO SPI CS mux
+  uint8_t spi_cs_pad;    ///< SIO SPI CS pad
+  uint8_t spi_clk_port;  ///< SIO SPI CLK port
+  uint8_t spi_clk_pin;   ///< SIO SPI CLK pin
+  uint8_t spi_clk_mux;   ///< SIO SPI CLK mux
+  uint8_t spi_clk_pad;   ///< SIO SPI CLK pad
+  uint8_t spi_mosi_port; ///< SIO SPI MOSI port
+  uint8_t spi_mosi_pin;  ///< SIO SPI MOSI pin
+  uint8_t spi_mosi_mux;  ///< SIO SPI MOSI mux
+  uint8_t spi_mosi_pad;  ///< SIO SPI MOSI pad
+  uint8_t spi_miso_port; ///< SIO SPI MISO port
+  uint8_t spi_miso_pin;  ///< SIO SPI MISO pin
+  uint8_t spi_miso_mux;  ///< SIO SPI MISO mux
+  uint8_t spi_miso_pad;  ///< SIO SPI MISO pad
+} sl_sio_spi_t;
+
+///@brief Structure to hold port and pin of sio uart
+typedef struct {
+  uint8_t uart_tx_port; ///< SIO UART TX port
+  uint8_t uart_tx_pin;  ///< SIO UART TX pin
+  uint8_t uart_tx_mux;  ///< SIO UART TX mux
+  uint8_t uart_tx_pad;  ///< SIO UART TX pad
+  uint8_t uart_rx_port; ///< SIO UART RX port
+  uint8_t uart_rx_pin;  ///< SIO UART RX pin
+  uint8_t uart_rx_mux;  ///< SIO UART RX mux
+  uint8_t uart_rx_pad;  ///< SIO UART RX pad
+} sl_sio_uart_t;
+
+///@brief Structure to hold port and pin of sio i2c
+typedef struct {
+  uint8_t i2c_sda_port; ///< SIO I2C SDA port
+  uint8_t i2c_sda_pin;  ///< SIO I2C SDA pin
+  uint8_t i2c_sda_mux;  ///< SIO I2C SDA mux
+  uint8_t i2c_sda_pad;  ///< SIO I2C SDA pad
+  uint8_t i2c_scl_port; ///< SIO I2C SCL port
+  uint8_t i2c_scl_pin;  ///< SIO I2C SCL pin
+  uint8_t i2c_scl_mux;  ///< SIO I2C SCL mux
+  uint8_t i2c_scl_pad;  ///< SIO I2C SCL pad
+} sl_sio_i2c_t;
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -172,6 +213,36 @@ sl_status_t sl_si91x_sio_init(void);
  *       \ref SL_STATUS _OK (0X000)  - Success, SPI initialization done properly \n
  ******************************************************************************/
 sl_status_t sl_si91x_sio_spi_init(sl_sio_spi_config_t *configuration);
+
+/***************************************************************************/ /**
+ * @brief    This API is used for initialize sio spi pins and clock
+ * @param[in] sio_spi_init : Pointer to structure of type \ref sl_sio_spi_t
+ * @return    returns status 0 if successful,
+ *                 else error code.
+ *                \ref SL_STATUS_OK - Success \n
+ *                \ref SL_STATUS_NULL_POINTER - The parameter is null pointer \n
+ ******************************************************************************/
+sl_status_t sl_si91x_sio_spi_pin_initialization(sl_sio_spi_t *sio_spi_init);
+
+/***************************************************************************/ /**
+ * @brief    This API is used for initialize sio uart pins and clock
+ * @param[in] sio_uart_init : Pointer to structure of type \ref sl_sio_uart_t
+ * @return    returns status 0 if successful,
+ *                 else error code.
+ *                \ref SL_STATUS_OK - Success \n
+ *                \ref SL_STATUS_NULL_POINTER - The parameter is null pointer \n
+ ******************************************************************************/
+sl_status_t sl_si91x_sio_uart_pin_initialization(sl_sio_uart_t *sio_uart_init);
+
+/***************************************************************************/ /**
+ * @brief    This API is used for initialize sio i2c pins and clock
+ * @param[in] sio_i2c_init : Pointer to structure of type \ref sl_sio_i2c_t
+ * @return    returns status 0 if successful,
+ *                 else error code.
+ *                \ref SL_STATUS_OK - Success \n
+ *                \ref SL_STATUS_NULL_POINTER - The parameter is null pointer \n
+ ******************************************************************************/
+sl_status_t sl_si91x_sio_i2c_pin_initialization(sl_sio_i2c_t *sio_i2c_init);
 
 /***************************************************************************/ /**
  * @brief Assert the SIO SPI chip select.

@@ -121,6 +121,7 @@ typedef long off_t;
  */
 #define	SO_CERT_INDEX				0x1026	/* set certificate index for ssl socket */
 #define	SO_HIGH_PERFORMANCE_SOCKET	0x1027	/* enable high performance socket */
+#define SO_TLS_SNI                  0x1028  /* pass SNI extension for ssl socket */
 
 // From Linux include/uapi/linux/tcp.h
 // See https://www.kernel.org/doc/Documentation/networking/tls.txt for more details.

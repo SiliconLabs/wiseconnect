@@ -12,6 +12,7 @@
 - This DMA supports 32 channels. Out of which last 24 are dedicated channels for particular peripherals. First 8 channels can support 32 different peripherals.
 - The number of transfers in a single DMA cycle can be programmed from 1 to 1024
 - The transfer address increment can be greater than the data width
+- UDMA1 only supports 12 channels
 
 ## About Example Code
 
@@ -61,8 +62,8 @@
 ## Configuration and Steps for Execution:
 
 - Open **sl_si91x_dma.slcp** project file select **software component**tab and search for **SL_DMA** in search bar.
-- Select DMA instance 0 or 1
-- Select the DMA channel used for transfer (1 - 32).
+- Select DMA instance 1
+- Select the DMA channel used for transfer (1 - 12).
 - Select DMA transfer size in bytes (0 - 10000).
 - Select transfer API type (simple/generic transfer API).
 

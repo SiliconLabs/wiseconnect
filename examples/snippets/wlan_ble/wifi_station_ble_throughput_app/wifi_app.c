@@ -410,11 +410,11 @@ void receive_data_from_tcp_client(void)
   }
   printf("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = setsockopt(server_socket,
-                                   SOL_SOCKET,
-                                   SO_HIGH_PERFORMANCE_SOCKET,
-                                   &high_performance_socket,
-                                   sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
+                                                         SOL_SOCKET,
+                                                         SO_HIGH_PERFORMANCE_SOCKET,
+                                                         &high_performance_socket,
+                                                         sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -569,11 +569,11 @@ void receive_data_from_ssl_client(void)
     return;
   }
 
-  socket_return_value = setsockopt(client_socket,
-                                   SOL_SOCKET,
-                                   SO_HIGH_PERFORMANCE_SOCKET,
-                                   &high_performance_socket,
-                                   sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
+                                                         SOL_SOCKET,
+                                                         SO_HIGH_PERFORMANCE_SOCKET,
+                                                         &high_performance_socket,
+                                                         sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with BSD error: %d\r\n", errno);
     close(client_socket);

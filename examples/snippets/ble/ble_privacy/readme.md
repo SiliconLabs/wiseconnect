@@ -38,6 +38,9 @@ Before running the application, the user will need the following things to setup
 - **NCP Mode :**  
    ![](resources/readme/bleprivacyncp.png)
 
+**NOTE**: 
+- The Host MCU platform (EFR32xG21) and the SiWx91x interact with each other through the SPI interface. 
+
 Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ## 3 Project Environment
@@ -139,120 +142,70 @@ By default, the application is configured to use the SPI bus for interfacing bet
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-**4.1.1** Open `ble_privacy.c` file
+**4.1.1** In the Project explorer pane of the IDE, expand the **ble_privacy** folder and open the **app.c** file. 
 
-User must update the below parameters
+![](resources/readme/bleprivacyapplicationconfigurations.png)
 
-   `RSI_BLE_DEVICE_NAME` refers the name of the Silicon Labs device to appear during scanning by remote devices.
+   - **BLE SMP Privacy configuration parameters**
+   
+      ```c
+      //RSI_BLE_DEVICE_NAME refers the name of the Silicon Labs device to appear during scanning by remote devices.
+      #define RSI_BLE_DEVICE_NAME                              "SIMPLE_PRIVACY"
 
-```c
-  #define RSI_BLE_DEVICE_NAME                              "SIMPLE_PRIVACY"
-```
+      //RSI_BLE_PRIVACY_MODE refers the type of the privacy mode, Valid configurations are RSI_BLE_DEVICE_PRIVACY_MODE and RSI_BLE_NETWORK_PRIVACY_MODE
+      #define RSI_BLE_PRIVACY_MODE RSI_BLE_DEVICE_PRIVACY_MODE
 
-   RSI_DEVICE_ROLE refers the role of the Silicon Labs device.
+      //RSI_BLE_SMP_IO_CAPABILITY refers the IO capability of Silicon Labs device for SMP
+      #define RSI_BLE_SMP_IO_CAPABILITY                        0x00
 
-```c
-  #define RSI_DEVICE_ROLE                                  PERIPHERAL_ROLE 
-```
+      //RSI_BLE_SMP_PASSKEY is smp passkey key from Silicon Labs device
+      #define RSI_BLE_SMP_PASSKEY                              0
 
-   RSI_BLE_DEV_ADDR_TYPE` refers the address type of the remote device.
+      //RSI_BLE_SET_RESOLVABLE_PRIV_ADDR_TOUT refers resolution timeout , that is the length of time the Controller uses a Resolvable Private Address before a new resolvable private address is generated and starts being used.
+      #define RSI_BLE_SET_RESOLVABLE_PRIV_ADDR_TOUT           120
 
-```c
-  #define RSI_BLE_REMOTE_ADDR_TYPE                         LE_PUBLIC_ADDRESS
-```
+      //Process type refers the operation to be performed on the resolving list. valid configurations for the process type are
+      #define RSI_BLE_ADD_TO_RESOLVE_LIST                      1
+      #define RSI_BLE_REMOVE_FROM_RESOLVE_LIST                 2
+      #define RSI_BLE_CLEAR_RESOLVE_LIST                       3
 
-   `RSI_BLE_DEV_ADDR_1` refers remote device address which has to connect.
+      //RSI_BLE_RESOLVING_LIST_SIZE refers the resolving list size of Silicon Labs device.
+      #define RSI_BLE_RESOLVING_LIST_SIZE                      5
+      ```
+      
+   - **Remote device configuration parameters**
+   
+   ```c
+   // RSI_BLE_REMOTE_ADDR_TYPE refers to the address type of the remote device to connect.
+   //! Based on address type of remote device, valid configurations are LE_RANDOM_ADDRESS and LE_PUBLIC_ADDRESS
+   
+   #define RSI_BLE_REMOTE_ADDR_TYPE                          LE_PUBLIC_ADDRESS 
+   
+   //RSI_BLE_REMOTE_ADDR refers to the address of the remote device to connect.
+   
+   #define RSI_BLE_REMOTE_ADDR                               "00:23:A7:56:77:77" 
+   
+   //RSI_REMOTE_DEVICE_NAME refers to the name of remote device to which Silicon Labs device has to connect.
 
-```c
-  #define RSI_BLE_REMOTE_ADDR                              "00:23:A7:56:77:77"
-```
+   #define RSI_REMOTE_DEVICE_NAME                            "BLE_SIMPLE_PRIVACY" 
+   ```
+   **Note:** you are required to configure either the `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` of the remote device.
 
-   `RSI_REMOTE_DEVICE_NAME` refers the name of the Remote device to which Silicon Labs device initiate connection.
+**4.1.2** Open **ble_config.h** file and configure the Resolution.   
+![](resources/readme/bleprivacyconfigurations.png)
 
-```c
-  #define RSI_REMOTE_DEVICE_NAME                           "BLE_SIMPLE_PRIVACY"
-```
-  
-   `RSI_BLE_SMP_IO_CAPABILITY` refers the IO capability of Silicon Labs device for SMP, `RSI_BLE_SMP_PASSKEY` is smp passkey key from Silicon Labs device
+   - **Resolution Parameter**
+   
+      ```c
+      //RSI_BLE_DEV_ADDR_RESOLUTION_ENABLE refers address resolution is enable or not. It should be 1 to enable privacy feature.
+      #define RSI_BLE_DEV_ADDR_RESOLUTION_ENABLE             1
+      ```
+      
+   - **Opermode command parameters**
+   This configuration can be found in app.c as `config`	
 
-```c
-  #define RSI_BLE_SMP_IO_CAPABILITY                        0x00
-  #define RSI_BLE_SMP_PASSKEY                              0
-```
-
-The desired parameters are provided below. User can also modify the parameters as per their needs and requirements.
-
-   Following are the **non-configurable** macros in the application.
-
-   Following are the event numbers for connection, Disconnection, and enhanced connection events.
-
-```c
-  #define RSI_APP_EVENT_ADV_REPORT                         0x00
-  #define  RSI_BLE_CONN_EVENT                              0x01
-  #define  RSI_BLE_DISCONN_EVENT                           0x02
-  #define  RSI_BLE_SMP_REQ_EVENT                           0x03
-  #define  RSI_BLE_SMP_RESP_EVENT                          0x04
-  #define  RSI_BLE_SMP_PASSKEY_EVENT                       0x05
-  #define  RSI_BLE_SMP_FAILED_EVENT                        0x06
-  #define  RSI_BLE_ENCRYPT_STARTED_EVENT                   0x07
-  #define  RSI_BLE_SMP_PASSKEY_DISPLAY_EVENT               0x08
-  #define  RSI_BLE_SC_PASSKEY_EVENT                        0x09
-  #define  RSI_BLE_LTK_REQ_EVENT                           0x0A
-  #define  RSI_BLE_SECURITY_KEYS_EVENT                     0x0B
-  #define  RSI_BLE_ENHANCE_CONNECTED_EVENT                 0x0C
-```
-
-   `RSI_BLE_SET_RESOLVABLE_PRIV_ADDR_TOUT` refers resolution timeout , that is the length of time the Controller uses a Resolvable Private Address before a new resolvable private address is generated and starts being used.
-
-```c
-  #define RSI_BLE_SET_RESOLVABLE_PRIV_ADDR_TOUT           120
-```
-
-   Process type refers the operation to be performed on the resolving list. valid configurations for the process type are
-
-```c
-  #define RSI_BLE_ADD_TO_RESOLVE_LIST                      1
-  #define RSI_BLE_REMOVE_FROM_RESOLVE_LIST                 2
-  #define RSI_BLE_CLEAR_RESOLVE_LIST                       3
-```
-
-   `RSI_BLE_PRIVACY_MODE` refers the privacy mode of local device
-
-```c
-  #define RSI_BLE_PRIVACY_MODE                             RSI_BLE_DEVICE_PRIVACY_MODE
-```
-
-   `RSI_BLE_RESOLVING_LIST_SIZE` refers the resolving list size of Silicon Labs device.
-
-```c
-  #define RSI_BLE_RESOLVING_LIST_SIZE                      5
-```
-
-**4.1.2** Open `ble_config.h` file and update/modify following macros,
-
-   `RSI_BLE_DEV_ADDR_RESOLUTION_ENABLE` refers address resolution is enable or not. It should be 1 to enable privacy feature.
-
-```c
-  #define RSI_BLE_DEV_ADDR_RESOLUTION_ENABLE               1
-```
-
-   `RSI_BLE_ADV_DIR_ADDR_TYPE` refers the address type of remote device which use while advertising.
-
-```c
-  #define RSI_BLE_ADV_DIR_ADDR_TYPE                        LE_PUBLIC_ADDRESS
-```
-
-   `RSI_BLE_ADV_DIR_ADDR` refers to which device the local device will advertise with private address, it should be one of the device in resolve list.
-
-```c
-  #define RSI_BLE_ADV_DIR_ADDR                             "00:15:83:6A:64:17"
-  #define RSI_BLE_PWR_INX                                  30
-  #define RSI_BLE_PWR_SAVE_OPTIONS                         BLE_DISABLE_DUTY_CYCLING
-```
-
-**Note:**
-   `ble_config.h` files are already set with desired configuration in respective example folders user
-   need not change for each example.
+      
+**Note:** `ble_config.h` and `app.c` files are already set with desired configuration in respective example folders you need not change for each example. 
 
 ### 4.2 Build the application
 
@@ -291,7 +244,12 @@ The desired parameters are provided below. User can also modify the parameters a
 
    ![](resources/readme/load_image2.png)
 
-### 5.3 Steps to be followed to verify BLE Privacy application as a SLAVE
+### 5.3 Application Execution Flow
+Application has the feasibility to configure the PERIPHERAL ROLE (OR) CENTRAL ROLE     
+**Note:**      
+- The provided mobile screenshots are from the 2.5.2 version of the EFR Connect app, it is recommended to use the latest version. 
+
+**5.3.1 Steps to be followed to verify BLE Privacy application as a PERIPHERAL_ROLE**
 
 1. If Silicon Labs device is configured as "PERIPHERAL_ROLE " specified in the macro RSI_DEVICE_ROLE, Silicon Labs device will be in the Advertising state.
 
@@ -301,38 +259,35 @@ The desired parameters are provided below. User can also modify the parameters a
 
 4. In the App, Silicon Labs device device will appear with the name configured in the macro `RSI_BLE_DEVICE_NAME`.
 
-   ![](resources/readme/ble_slave1.png)
+   ![](resources/readme/bleprivacyperipheral1.png)
 
 5. Initiate a connection from the App by clicks on the **Connect** button
 
-6. After a successful connection, the Silicon labs device initiates the **SMP** request.
+6. After a successful connection, the remote device sends the **SMP** request, and the Silicon Labs device will respond with the **SMP** response.   
+![](resources/readme/bleprivacysmpreq1.png)     ![](resources/readme/bleprivacysmpreq2.png)  
 
 7. The remote device receives the **pair** pop-up window, Once the user clicks on the **pair** button the Silicon Labs device receives the passkey.
 
-   ![](resources/readme/ble_slave2.png)
-
 8. Again the remote device receives the **pair** pop-up window, and click on the **pair**  button. Enter the received passkey as shown below.
-
-   ![](resources/readme/ble_slave3.png)
+![](resources/readme/bleprivacysmpreq1.png)     ![](resources/readme/bleprivacysmpreq2.png)     
 
 9. After successful SMP connection security keys will exchange  between the Remote device and Silicon Labs device.
 
 10. Silicon Labs device will add the remote device's IRK's and local IRK's in to resolve list and enable resolution
 
-   ![](resources/readme/ble_slave4.png)
-
 11. Give disconnect from remote device and the Silicon labs device starts advertising
 
-### 5.4 Steps to be followed to verify BLE Privacy application as a MASTER
+**5.3.2 Steps to be followed to verify BLE Privacy application as a CENTRAL_ROLE**
 
 1. If Silicon Labs device is configured as **CENTRAL_ROLE** specified in the macro **RSI_DEVICE_ROLE**, Silicon Labs device will be in Scanning state.
 
 2. Connect any serial console for prints.
 
 3. Advertise the remote device.
+![](resources/readme/bleprivacyadvertiser.png)     
 **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
 
-4. If Silicon Labs device get device with name configured `RSI_REMOTE_DEVICE_NAME` or bd address with address configured in RSI_BLE_REMOTE_ADDR in results ,local device will try to connect with remote device.
+4. If Silicon Labs device receives an advertising report from a device with the name configured as `RSI_REMOTE_DEVICE_NAME` or bd address with address configured in `RSI_BLE_REMOTE_ADDR` in results ,local device will try to connect with remote device.
 
 5. After connection Silicon Labs device which is in central mode will initiate an SMP request.  
 
@@ -348,7 +303,7 @@ The desired parameters are provided below. User can also modify the parameters a
 
 11. Encryption will be enabled on both sides.
 
-5.5 Observe the output prints on serial terminal
+### 5.4 Application output
 
 ![](resources/readme/output_1.png)
 

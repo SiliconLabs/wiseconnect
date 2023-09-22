@@ -42,11 +42,11 @@ extern "C" {
 
 // <o SL_ADC_CHANNEL_2_INPUT_TYPE> Input Type
 //   <SL_ADC_SINGLE_ENDED=>  Single ended
-//   <SL_ADC_DIFFERENTIAL_ENDED=> Differential ended
+//   <SL_ADC_DIFFERENTIAL=> Differential
 // <i> Selection of the ADC input type.
 #define SL_ADC_CHANNEL_2_INPUT_TYPE SL_ADC_SINGLE_ENDED
 
-// <o SL_ADC_CHANNEL_2_SAMPLING_RATE> Sampling Rate <1-5000000>
+// <o SL_ADC_CHANNEL_2_SAMPLING_RATE> Sampling Rate <1-10000000>
 // <i> Default: 100000
 #define SL_ADC_CHANNEL_2_SAMPLING_RATE 100000
 
@@ -54,16 +54,11 @@ extern "C" {
 // <i> Default: 1023
 #define SL_ADC_CHANNEL_2_SAMPLE_LENGTH 1023
 
-// <o SL_ADC_CHANNEL_2_POS_INPUT_CHNL_SEL> POS Input Channel Selection <0-15>
-// <i> Default: 0
-#define SL_ADC_CHANNEL_2_POS_INPUT_CHNL_SEL 5
-
-// <o SL_ADC_CHANNEL_2_NEG_INPUT_CHNL_SEL> NEG Input Channel Selection <0-8>
-// <i> Default: 0
-#define SL_ADC_CHANNEL_2_NEG_INPUT_CHNL_SEL 5
-
 // </h>
 // <<< end of configuration section >>>
+
+#define SL_ADC_CHANNEL_2_POS_INPUT_CHNL_SEL 5
+#define SL_ADC_CHANNEL_2_NEG_INPUT_CHNL_SEL 0
 
 #ifdef __cplusplus
 }

@@ -28,7 +28,7 @@
  *
  ******************************************************************************/
 #include "rsi_wwdt.h"
-
+#define M4_BBFF_STORAGE1 *(volatile uint32 *)0x24048580
 /*
  *
  * @brief  WDT interrupt handler
@@ -61,6 +61,8 @@ void sl_si91x_soc_soft_reset(void)
   NVIC_EnableIRQ(NVIC_WDT);
   /*Start WDT */
   RSI_WWDT_Start(MCU_WDT);
+  /*Upon Reset key size is 16 by default in case of inline  encryption */
+  M4_BBFF_STORAGE1 = 0;
   while (1)
     ;
 }

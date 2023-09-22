@@ -381,7 +381,8 @@ The configuration explained below is for Windows OS, similar process may be foll
 
    [http://xperiencetech.com/download/radius-free-download.asp](http://xperiencetech.com/download/radius-free-download.asp)
 
-   **Note**: This example application has been tested with tested with FreeRADIUS-server-2.2.3-x86.
+   **Note**: This example application has been tested with FreeRADIUS-server-2.2.3-x86.
+   **Note**: The files and their paths mentioned subsequently are for reference with respect to Windows OS only. With different operating systems, the paths to each particular file may differ. For example, in Linux the path for eap.conf file is **FreeRADIUS → etc → raddb → mods-available**.
 
 - Once installed, go to the **C: → FreeRADIUS → etc → raddb** folder. Open the **clients.conf** file and add the following lines at the end of the file.
 

@@ -35,6 +35,8 @@ component:
   from: wiseconnect3_sdk
 - id: rsilib_comparator
   from: wiseconnect3_sdk
+- id: si91x_debug
+  from: wiseconnect3_sdk
 #- id: freertos
 #- id: romdriver_egpio
 #  from: wiseconnect3_sdk

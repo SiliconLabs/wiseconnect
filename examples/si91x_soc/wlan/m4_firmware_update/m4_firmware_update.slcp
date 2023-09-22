@@ -27,6 +27,7 @@ define:
     condition: [device_needs_ram_execution]
 component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_system
 - name: bsd_socket

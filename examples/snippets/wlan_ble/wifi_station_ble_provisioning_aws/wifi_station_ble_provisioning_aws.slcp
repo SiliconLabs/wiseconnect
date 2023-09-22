@@ -36,6 +36,7 @@ provides:
 - {name: si91x_soc}
 component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_siwx917_platform
 - name: cmsis_common

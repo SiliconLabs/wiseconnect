@@ -33,6 +33,7 @@
 #include "sl_tls.h"
 #include "sl_net_dns.h"
 #include "socket.h"
+#include "sl_si91x_socket_support.h"
 #include "errno.h"
 #include "sl_rsi_utility.h"
 #include "errno.h"
@@ -299,8 +300,11 @@ sl_status_t create_three_ssl_client_sockets(void)
 
   //! Set certificate index for ssl socket
   ssl_certificate_index = SL_CERT_INDEX_0;
-  socket_status =
-    setsockopt(client_socket[0], SOL_SOCKET, SO_CERT_INDEX, &ssl_certificate_index, sizeof(ssl_certificate_index));
+  socket_status         = sl_si91x_set_custom_sync_sockopt(client_socket[0],
+                                                   SOL_SOCKET,
+                                                   SO_CERT_INDEX,
+                                                   &ssl_certificate_index,
+                                                   sizeof(ssl_certificate_index));
   if (socket_status < 0) {
     printf("\r\n 1st SSL set certificate index failed with bsd error: %d\r\n", errno);
     close(client_socket[0]);
@@ -317,8 +321,11 @@ sl_status_t create_three_ssl_client_sockets(void)
 
   //! Set certificate index for ssl socket
   ssl_certificate_index = SL_CERT_INDEX_1;
-  socket_status =
-    setsockopt(client_socket[1], SOL_SOCKET, SO_CERT_INDEX, &ssl_certificate_index, sizeof(ssl_certificate_index));
+  socket_status         = sl_si91x_set_custom_sync_sockopt(client_socket[1],
+                                                   SOL_SOCKET,
+                                                   SO_CERT_INDEX,
+                                                   &ssl_certificate_index,
+                                                   sizeof(ssl_certificate_index));
   if (socket_status < 0) {
     printf("\r\n 2nd SSL Set certificate index failed with bsd error: %d\r\n", errno);
     close(client_socket[1]);
@@ -335,8 +342,11 @@ sl_status_t create_three_ssl_client_sockets(void)
 
   //! Set certificate index for ssl socket
   ssl_certificate_index = SL_CERT_INDEX_2;
-  socket_status =
-    setsockopt(client_socket[2], SOL_SOCKET, SO_CERT_INDEX, &ssl_certificate_index, sizeof(ssl_certificate_index));
+  socket_status         = sl_si91x_set_custom_sync_sockopt(client_socket[2],
+                                                   SOL_SOCKET,
+                                                   SO_CERT_INDEX,
+                                                   &ssl_certificate_index,
+                                                   sizeof(ssl_certificate_index));
   if (socket_status < 0) {
     printf("\r\n3rd SSL set certificate index failed with bsd error: %d\r\n", errno);
     close(client_socket[2]);

@@ -28,6 +28,12 @@
 rsi_m4ta_desc_t tx_desc[2];
 rsi_m4ta_desc_t rx_desc[2];
 
+/******************************************************
+ * *               Function Declarations
+ * ******************************************************/
+sl_status_t sli_si91x_submit_rx_pkt(void);
+void sli_si91x_raise_pkt_pending_interrupt_to_ta(void);
+
 /**
  * @fn          sl_status_t sli_si91x_submit_rx_pkt(void)
  * @brief       Submit receiver packets

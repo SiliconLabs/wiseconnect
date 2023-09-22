@@ -164,29 +164,37 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
+  .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
+                   .coex_mode              = SL_SI91X_WLAN_MODE,
+                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map =
-                     (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
+                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
-#ifndef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
+#ifdef RSI_M4_INTERFACE
+                      | RAM_LEVEL_NWP_BASIC_MCU_ADV
 #else
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC
+                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
                       ),
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
-                     (SL_SI91X_EXT_TCP_IP_WINDOW_DIV | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
+                     (SL_SI91X_EXT_TCP_IP_WINDOW_SCALING | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1)
+                      | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
-                   .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+#ifdef RSI_M4_INTERFACE
+                   .config_feature_bit_map = 0
+#else
+#if ENABLE_POWER_SAVE
+                   .config_feature_bit_map = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
+#else
+                   .config_feature_bit_map = 0
+#endif
+#endif
+  }
 };
 
 uint32_t tick_count_s = 1;
@@ -276,18 +284,6 @@ void send_data_to_tcp_server(void)
 #endif
 #endif
 
-#if ENABLE_POWER_SAVE
-  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE, .listen_interval = 1000 };
-  if (!powersave_given) {
-    rc = sl_wifi_set_performance_profile(&performance_profile);
-    if (rc != SL_STATUS_OK) {
-      printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
-    }
-    printf("\r\nAssociated Power Save Enabled\n");
-    powersave_given = 1;
-  }
-#endif
-
   client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (client_socket < 0) {
     printf("\r\nSocket Create failed with bsd error: %d\r\n", errno);
@@ -304,17 +300,43 @@ void send_data_to_tcp_server(void)
   printf("\r\nSocket connected to TCP server\r\n");
 
   printf("\r\nTCP_TX Throughput test start\r\n");
-  start = osKernelGetTickCount();
-  while (total_bytes_sent < BYTES_TO_SEND) {
-    sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
-    now        = osKernelGetTickCount();
-    if (sent_bytes > 0)
-      total_bytes_sent = total_bytes_sent + sent_bytes;
 
-    if ((now - start) > TEST_TIMEOUT) {
-      printf("\r\nTime Out: %ld\r\n", (now - start));
-      break;
+  sl_wifi_performance_profile_t performance_profile = { .profile = HIGH_PERFORMANCE, .listen_interval = 1000 };
+
+  while (1) {
+#if ENABLE_POWER_SAVE
+    performance_profile.profile = HIGH_PERFORMANCE;
+    rc                          = sl_wifi_set_performance_profile(&performance_profile);
+    if (rc != SL_STATUS_OK) {
+      printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
+    } else {
+      printf("\r\nHigh Performance Enabled\n");
     }
+#endif
+
+    start = osKernelGetTickCount();
+    while (total_bytes_sent < BYTES_TO_SEND) {
+      sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
+      now        = osKernelGetTickCount();
+      if (sent_bytes > 0)
+        total_bytes_sent = total_bytes_sent + sent_bytes;
+
+      if ((now - start) > TEST_TIMEOUT) {
+        printf("\r\nData transfer has completed\r\n");
+        break;
+      }
+    }
+
+#if ENABLE_POWER_SAVE
+    performance_profile.profile = ASSOCIATED_POWER_SAVE;
+    rc                          = sl_wifi_set_performance_profile(&performance_profile);
+    if (rc != SL_STATUS_OK) {
+      printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
+    } else {
+      printf("\r\nAssociated Power Save Enabled\n");
+    }
+#endif
+
 #if ENABLE_POWER_SAVE
 #ifdef RSI_M4_INTERFACE
     m4_sleep_wakeup();

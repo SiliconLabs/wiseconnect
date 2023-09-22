@@ -1,0 +1,82 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: si91x_psa_aes
+label: SI91x - SoC PSA AES Cipher
+description: |
+  This example project demonstrates the PSA AES API in SI91x.
+category: example|crypto
+package: platform
+quality: production
+sdk: {id: gecko_sdk, version: 4.3.2}
+source:
+  - path: main.c
+  - path: psa_aes_app.c
+  - path: app.c
+include:
+  - path: .
+    file_list:
+      - path: psa_aes_app.h
+      - path: app.h
+component:
+  - id: sl_system
+  - id: freertos
+  - id: psa_crypto_common
+  - id: psa_crypto_cipher_ecb
+  - id: psa_crypto_source
+  - id: psa_driver
+  - id: sl_si91x_psa_aes
+    from: wiseconnect3_sdk
+  - id: psa_crypto_trng
+  - id: sl_si91x_trng
+    from: wiseconnect3_sdk
+  - id: sl_si91x_psa_crypto
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_manager
+    from: wiseconnect3_sdk
+  - id: si91x_basic_buffers
+    from: wiseconnect3_sdk
+  - id: si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: si91x
+    from: wiseconnect3_sdk
+  - id: si91x_support
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: sl_tls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: rsilib_userconfig
+    from: wiseconnect3_sdk
+  - id: si91x_debug
+    from: wiseconnect3_sdk
+requires:
+  - name: iostream_retarget_stdio
+    condition: [device_has_devinfo]
+  - name: iostream_recommended_stream
+    condition: [device_has_devinfo]
+  - name: iostream_stdlib_config
+    condition: [device_has_devinfo]
+  - name: device_init
+    condition: [device_has_devinfo]
+  - name: emlib_common
+    condition: [device_has_devinfo]
+  - name: emlib_ldma
+    condition: [device_has_devinfo]
+other_file:
+  - path: resources/readme/image508a.png
+  - path: resources/readme/image508c.png
+ui_hints:
+  highlight: 
+    - path: readme.md
+      focus: true
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.0
+toolchain_settings: []
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

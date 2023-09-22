@@ -108,7 +108,7 @@
 
 - To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
-## SIO SPI Pin Configuration
+## PWM Pin Configuration
 
 Tested on WSTK Base board - 40002A and Radio boards - BRD4325C, BRD4338A. Below GPIO pins are for SI917_RADIO_BOARD. These exposed pins like P19 etc., are specific to 2.0(BRD4338A) Radio board. These exposed pins may change on other boards. 
 

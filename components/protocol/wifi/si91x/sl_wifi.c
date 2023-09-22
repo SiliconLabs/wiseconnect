@@ -101,49 +101,44 @@ extern bool bg_enabled;
 extern bool interface_is_up[SL_WIFI_MAX_INTERFACE_INDEX];
 extern sl_wifi_interface_t default_interface;
 static sl_wifi_advanced_scan_configuration_t advanced_scan_configuration     = { 0 };
-static sl_wifi_ap_configuration_t ap_configuration                           = { 0 };
 static sl_wifi_advanced_client_configuration_t advanced_client_configuration = { 0 };
-extern uint8_t ap_join_feature_bitmap;
-extern uint8_t client_join_feature_bitmap;
-
 static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interface,
                                                const void *configuration,
                                                sl_si91x_join_request_t *join_request)
 {
   ARGS_CHECK_NULL_POINTER(configuration);
   ARGS_CHECK_NULL_POINTER(join_request);
+  sl_status_t status = SL_STATUS_OK;
 
   if (module_interface & SL_WIFI_CLIENT_INTERFACE) {
+    // get join feature bitmap
+    status = sl_si91x_get_join_configuration(SL_WIFI_CLIENT_INTERFACE, &(join_request->join_feature_bitmap));
+    VERIFY_STATUS_AND_RETURN(status);
+
     sl_wifi_client_configuration_t *client_configuration = (sl_wifi_client_configuration_t *)configuration;
 
     // narrowing conversion from Enum of uint16 to uint8
     get_saved_sl_wifi_rate(&join_request->data_rate);
     memcpy(join_request->ssid, client_configuration->ssid.value, client_configuration->ssid.length);
 
-    join_request->ssid_len      = client_configuration->ssid.length;
-    join_request->security_type = client_configuration->security;
-    join_request->power_level   = convert_dbm_to_si91x_power_level(get_max_tx_power());
-    convert_uint32_to_bytestream(SI91X_LISTEN_INTERVAL, join_request->listen_interval);
-
-    // check security types
-    if (join_request->security_type == SL_WIFI_WPA3) {
-      join_request->join_feature_bitmap = client_join_feature_bitmap | SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
-    } else if (join_request->security_type == SL_WIFI_WPA3_TRANSITION) {
-      join_request->join_feature_bitmap = client_join_feature_bitmap | SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY;
-    } else {
-      join_request->join_feature_bitmap = client_join_feature_bitmap;
-    }
+    join_request->ssid_len        = client_configuration->ssid.length;
+    join_request->security_type   = client_configuration->security;
+    join_request->power_level     = convert_dbm_to_si91x_power_level(get_max_tx_power());
+    join_request->listen_interval = sl_si91x_get_listen_interval();
   } else if (module_interface & SL_WIFI_AP_INTERFACE) {
+    // get join feature bitmap
+    status = sl_si91x_get_join_configuration(SL_WIFI_AP_INTERFACE, &(join_request->join_feature_bitmap));
+    VERIFY_STATUS_AND_RETURN(status);
+
     sl_wifi_ap_configuration_t *ap_configuration = (sl_wifi_ap_configuration_t *)configuration;
 
     get_saved_sl_wifi_rate(&join_request->data_rate);
     memcpy(join_request->ssid, ap_configuration->ssid.value, ap_configuration->ssid.length);
 
-    join_request->ssid_len            = ap_configuration->ssid.length;
-    join_request->security_type       = ap_configuration->security;
-    join_request->vap_id              = AP_MODE;
-    join_request->join_feature_bitmap = ap_join_feature_bitmap;
-    join_request->power_level         = convert_dbm_to_si91x_power_level(get_max_tx_power());
+    join_request->ssid_len      = ap_configuration->ssid.length;
+    join_request->security_type = ap_configuration->security;
+    join_request->vap_id        = AP_MODE;
+    join_request->power_level   = convert_dbm_to_si91x_power_level(get_max_tx_power());
   } else {
     return SL_STATUS_FAIL;
   }
@@ -152,7 +147,6 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
 }
 sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration, sl_wifi_event_handler_t event_handler)
 {
-  memset(&ap_configuration, 0, sizeof(sl_wifi_ap_configuration_t));
   return sl_si91x_driver_init(configuration, event_handler);
 }
 
@@ -397,6 +391,7 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
   }
 
   memset(&join_request, 0, sizeof(join_request));
+
   status = get_configured_join_request(SL_WIFI_CLIENT_INTERFACE, ap, &join_request);
 
   VERIFY_STATUS_AND_RETURN(status);
@@ -730,7 +725,6 @@ sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_con
   }
 
   save_ap_configuration(configuration);
-  memcpy(&ap_configuration, configuration, sizeof(sl_wifi_ap_configuration_t));
   if (interface == SL_WIFI_AP_2_4GHZ_INTERFACE || interface == SL_WIFI_AP_INTERFACE)
     interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX] = true;
   else if (interface == SL_WIFI_AP_5GHZ_INTERFACE)
@@ -938,7 +932,7 @@ sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface)
 
 #if defined(SI91X_NETWORK_OFFLOAD_ENABLED) && defined(SI91X_SOCKET_FEATURE)
   // Free all allocated sockets
-  status = sl_si91x_socket_deinit();
+  status = sl_si91x_vap_shutdown(CLIENT_MODE);
   VERIFY_STATUS(status);
 #endif
 
@@ -950,6 +944,52 @@ sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface)
                                         NULL,
                                         NULL);
   VERIFY_STATUS_AND_RETURN(status)
+
+  return status;
+}
+
+sl_status_t sl_wifi_stop_ap(sl_wifi_interface_t interface)
+{
+  sl_si91x_disassociation_request_t disconnect_request;
+  sl_status_t status = SL_STATUS_OK;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  if (interface & SL_WIFI_CLIENT_INTERFACE) {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  if (!sl_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+
+  disconnect_request.mode_flag = AP_MODE;
+  status                       = sl_si91x_driver_send_command(RSI_WLAN_REQ_AP_STOP,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        &disconnect_request,
+                                        sizeof(disconnect_request),
+                                        SL_NCP_DEFAULT_COMMAND_WAIT_TIME,
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+#if defined(SI91X_NETWORK_OFFLOAD_ENABLED) && defined(SI91X_SOCKET_FEATURE)
+  uint8_t sl_vap_id = 0;
+
+  if (get_opermode() == SL_SI91X_CONCURRENT_MODE) {
+    sl_vap_id = AP_MODE;
+  }
+  // Free all allocated sockets
+  status = sl_si91x_vap_shutdown(sl_vap_id);
+  VERIFY_STATUS(status);
+#endif
+
+  reset_ap_configuration();
+  if (interface == SL_WIFI_AP_2_4GHZ_INTERFACE || interface == SL_WIFI_AP_INTERFACE)
+    interface_is_up[SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX] = false;
+  else if (interface == SL_WIFI_AP_5GHZ_INTERFACE)
+    interface_is_up[SL_WIFI_AP_5GHZ_INTERFACE_INDEX] = false;
 
   return status;
 }
@@ -1478,15 +1518,14 @@ sl_status_t sl_wifi_get_ap_configuration(sl_wifi_interface_t interface, sl_wifi_
 
   SL_VERIFY_POINTER_OR_RETURN(configuration, SL_STATUS_NULL_POINTER);
 
-  if (interface & SL_WIFI_CLIENT_INTERFACE) {
-    return SL_STATUS_NOT_SUPPORTED;
-  }
-
   if (!sl_wifi_is_interface_up(interface)) {
     return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
 
-  memcpy(configuration, &ap_configuration, sizeof(sl_wifi_ap_configuration_t));
+  sl_wifi_ap_configuration_t saved_ap_configuration = { 0 };
+  get_saved_ap_configuration(&saved_ap_configuration);
+
+  memcpy(configuration, &saved_ap_configuration, sizeof(sl_wifi_ap_configuration_t));
 
   return SL_STATUS_OK;
 }
@@ -1693,16 +1732,34 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval)
 
 sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval)
 {
-  UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(listen_interval);
-  return SL_STATUS_NOT_SUPPORTED;
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  if (!sl_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+
+  sl_si91x_set_listen_interval(listen_interval.listen_interval);
+
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t *listen_interval)
 {
-  UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(listen_interval);
-  return SL_STATUS_NOT_SUPPORTED;
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  if (!sl_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+
+  ARGS_CHECK_NULL_POINTER(listen_interval);
+
+  listen_interval->listen_interval = sl_si91x_get_listen_interval();
+
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wifi_enable_monitor_mode(sl_wifi_interface_t interface)

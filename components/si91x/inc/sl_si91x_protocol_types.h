@@ -44,7 +44,7 @@
 #define RSI_PSK_LEN              64
 #define RSI_MAC_ADDR_LEN         6
 
-// Maximum Acccess points that can be scanned
+// Maximum Access points that can be scanned
 #define RSI_AP_SCANNED_MAX 11
 
 // Maximum number of stations associated when running as an AP
@@ -137,37 +137,38 @@
 
 //**************************** Macros for WPS Method request END ***********************************/
 
-//**************************** Macros for JOIN Method request START *********************************/
-// To enable b/g only mode in station mode
+/** \addtogroup SL_SI91X_CONSTANTS Constants
+ * @{ */
+/** \addtogroup SI91X_JOIN_FEATURE_BIT_MAP si91x_join_feature_bit_map_defines
+ * @{ */
+/*=========================================================================*/
+// Join feature bit map parameters description !//
+/*=========================================================================*/
+/// To enable b/g only mode in station mode
 #define SI91X_JOIN_FEAT_STA_BG_ONLY_MODE_ENABLE (1 << 0)
 
-// To take listen interval from join command.
+/// To take listen interval from join command.
 #define SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID (1 << 1)
 
-// To enable quick join feature
+/// To enable quick join feature
 #define SI91X_JOIN_FEAT_QUICK_JOIN (1 << 2)
 
-//To enable CCXV2 feature
+/// To enable CCXV2 feature
 #define SI91X_JOIN_FEAT_CCXV2_FEATURE (1 << 3)
 
-//To connect to AP based on BSSID together with configured SSID
+/// To connect to AP based on BSSID together with configured SSID
 #define SI91X_JOIN_FEAT_BSSID_BASED (1 << 4)
 
-// MFP Type
-#define SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY     (1 << 5)
+/// MFP Capable only
+#define SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY (1 << 5)
+
+/// MFP Capable required
 #define SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED ((1 << 5) | (1 << 6))
 
-// listen interval from power save command
+/// listen interval from power save command
 #define SI91X_JOIN_FEAT_PS_CMD_LISTEN_INTERVAL_VALID (1 << 7)
-
-// To take listen interval from join command.
-#define SI91X_JOIN_FEAT_BIT_MAP SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID
-
-#ifndef SI91X_LISTEN_INTERVAL
-#define SI91X_LISTEN_INTERVAL 1000
-#endif
-
-//**************************** Macros for JOIN Method request END ***********************************/
+/** @} */
+/** @} */
 
 //**************************** Macros for FEATURE frame Method request START *********************************/
 #define SI91X_FEAT_FRAME_PREAMBLE_DUTY_CYCLE  (1 << 0)
@@ -391,7 +392,7 @@ typedef struct {
   // transmit power level, 0=low (6-9dBm), 1=medium (10-14dBm, 2=high (15-17dBm)
   uint8_t power_level;
 
-  // pre-shared key, 63-byte string , last charecter is NULL
+  // pre-shared key, 63-byte string , last character is NULL
   uint8_t psk[RSI_PSK_LEN];
 
   // ssid of access point to join to, 34-byte string
@@ -407,7 +408,7 @@ typedef struct {
   uint8_t ssid_len;
 
   // listen interval
-  uint8_t listen_interval[4];
+  uint32_t listen_interval;
 
   // vap id, 0 - station mode, 1 - AP mode
   uint8_t vap_id;
@@ -1744,11 +1745,46 @@ typedef struct {
 typedef struct {
   uint16_t algorithm_type;
   uint8_t algorithm_sub_type;
+  uint8_t hmac_sha_flags;
+  uint16_t total_length;
+  uint16_t current_chunk_length;
+#ifdef CHIP_917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+#endif
+  uint8_t hmac_data[1400];
+} sl_si91x_hmac_sha_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint8_t algorithm_sub_type;
   uint8_t sha_flags;
   uint16_t total_msg_length;
   uint16_t current_chunk_length;
   uint8_t msg[1400];
 } sl_si91x_sha_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint8_t ccm_flags;
+  uint8_t nonce_length;
+  uint16_t encrypt_decryption;
+  uint16_t total_msg_length;
+  uint16_t current_chunk_length;
+  uint16_t ad_length;
+  uint32_t tag_length;
+#ifdef CHIP_917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+  uint8_t key[SL_SI91X_KEY_BUFFER_SIZE];
+#endif
+  uint8_t nonce[SL_SI91X_CCM_IV_MAX_SIZE]; // max iv length = 13 bytes
+  uint8_t ad[SL_SI91X_CCM_AD_MAX_SIZE];    // max ad length = 2^32
+  uint8_t tag[SL_SI91X_TAG_SIZE];          // tag size = 16
+  uint8_t msg[SL_SI91X_CCM_MSG_MAX_SIZE];  // max msg size = 1200 bytes
+} sl_si91x_ccm_request_t;
 
 typedef struct {
   uint8_t algorithm_type;

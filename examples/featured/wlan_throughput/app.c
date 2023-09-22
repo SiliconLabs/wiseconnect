@@ -34,6 +34,7 @@
 #include "sl_net.h"
 #include "sl_tls.h"
 #include "socket.h"
+#include "sl_si91x_socket_support.h"
 #include "sl_utility.h"
 #include "errno.h"
 #include <string.h>
@@ -58,7 +59,7 @@
 #define TLS_RX 5
 
 // Throughput measurement type
-#define THROUGHPUT_TYPE TLS_TX
+#define THROUGHPUT_TYPE UDP_TX
 
 // Type of Socket used. Synchronous = 0, Asynchronous = 1
 #define SOCKET_ASYNC_FEATURE 1
@@ -89,10 +90,9 @@
 #define LISTENING_PORT 5005
 #define BACK_LOG       1
 
-#define BYTES_TO_SEND          (1 << 29)              //512MB
-#define BYTES_TO_RECEIVE       (1 << 20)              //1MB
-#define BYTES_TO_RECEIVE_ASYNC 16                     //16MB
-#define TEST_TIMEOUT           (10000 * tick_count_s) //10sec
+#define BYTES_TO_SEND    (1 << 29)              //512MB
+#define BYTES_TO_RECEIVE (1 << 28)              //256MB
+#define TEST_TIMEOUT     (30000 * tick_count_s) //30sec
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 
@@ -156,7 +156,11 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                    .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
 
+#ifdef RSI_M4_INTERFACE
+uint32_t tick_count_s = 10;
+#else
 uint32_t tick_count_s = 1;
+#endif
 
 static sl_si91x_socket_config_t socket_config = {
   1,  // Total sockets
@@ -206,11 +210,14 @@ static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t t
 
 uint8_t has_data_received = 0;
 uint32_t bytes_read       = 0;
+uint32_t start            = 0;
+uint32_t now              = 0;
+
 void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)
 {
   bytes_read += length;
-
-  if (bytes_read > 1024 * 1024 * BYTES_TO_RECEIVE_ASYNC) {
+  now = osKernelGetTickCount();
+  if ((bytes_read > BYTES_TO_RECEIVE) || ((now - start) > TEST_TIMEOUT)) {
     has_data_received = 1;
   }
 }
@@ -248,7 +255,6 @@ static void application_start(void *argument)
   printf("\r\nWi-Fi client connected\r\n");
 
 #ifdef RSI_M4_INTERFACE
-  tick_count_s = 10;
   switch_m4_frequency();
   SysTick_Config(SystemCoreClock / (1000 * tick_count_s));
 #endif
@@ -320,8 +326,6 @@ void send_data_to_tcp_server(void)
   uint32_t total_bytes_sent         = 0;
   int socket_return_value           = 0;
   int sent_bytes                    = 1;
-  uint32_t start                    = 0;
-  uint32_t now                      = 0;
   uint32_t fail                     = 0;
   uint32_t pass                     = 0;
   struct sockaddr_in server_address = { 0 };
@@ -382,9 +386,6 @@ void receive_data_from_tcp_client(void)
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
 
-  uint32_t start = 0;
-  uint32_t now   = 0;
-
   sl_status_t status = sl_si91x_config_socket(socket_config);
   if (status != SL_STATUS_OK) {
     printf("Socket config failed: %ld\r\n", status);
@@ -399,11 +400,11 @@ void receive_data_from_tcp_client(void)
   }
   printf("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = sl_si91x_setsockopt(server_socket,
-                                            SOL_SOCKET,
-                                            sl_si91x_SO_HIGH_PERFORMANCE_SOCKET,
-                                            &high_performance_socket,
-                                            sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt_async(server_socket,
+                                                  SOL_SOCKET,
+                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                                  &high_performance_socket,
+                                                  sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -460,11 +461,11 @@ void receive_data_from_tcp_client(void)
   }
   printf("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = setsockopt(server_socket,
-                                   SOL_SOCKET,
-                                   SO_HIGH_PERFORMANCE_SOCKET,
-                                   &high_performance_socket,
-                                   sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
+                                                         SOL_SOCKET,
+                                                         SO_HIGH_PERFORMANCE_SOCKET,
+                                                         &high_performance_socket,
+                                                         sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -531,8 +532,6 @@ void send_data_to_udp_server(void)
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   int sent_bytes                    = 1;
-  uint32_t start                    = 0;
-  uint32_t now                      = 0;
   uint32_t fail                     = 0;
   uint32_t pass                     = 0;
 
@@ -578,10 +577,7 @@ void receive_data_from_udp_client(void)
 {
   int client_socket = -1;
 
-  int socket_return_value = 0;
-
-  uint32_t start                    = 0;
-  uint32_t now                      = 0;
+  int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
 
@@ -693,11 +689,11 @@ void receive_data_from_tls_server(void)
     return;
   }
 
-  socket_return_value = sl_si91x_setsockopt(client_socket,
-                                            SOL_SOCKET,
-                                            sl_si91x_SO_HIGH_PERFORMANCE_SOCKET,
-                                            &high_performance_socket,
-                                            sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt_async(client_socket,
+                                                  SOL_SOCKET,
+                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                                  &high_performance_socket,
+                                                  sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -717,8 +713,8 @@ void receive_data_from_tls_server(void)
   printf("\r\nSocket connected to TLS server\r\n");
 
   printf("\r\nTLS_RX Throughput test start\r\n");
-  uint32_t start = osKernelGetTickCount();
-  uint32_t now   = start;
+  start = osKernelGetTickCount();
+  now   = start;
 
   while (!has_data_received) {
     osThreadYield();
@@ -747,11 +743,11 @@ void receive_data_from_tls_server(void)
     return;
   }
 
-  socket_return_value = setsockopt(client_socket,
-                                   SOL_SOCKET,
-                                   SO_HIGH_PERFORMANCE_SOCKET,
-                                   &high_performance_socket,
-                                   sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
+                                                         SOL_SOCKET,
+                                                         SO_HIGH_PERFORMANCE_SOCKET,
+                                                         &high_performance_socket,
+                                                         sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -771,8 +767,8 @@ void receive_data_from_tls_server(void)
   printf("\r\nSocket connected to TLS server\r\n");
 
   printf("\r\nTLS_RX Throughput test start\r\n");
-  uint32_t start = osKernelGetTickCount();
-  uint32_t now = start;
+  start = osKernelGetTickCount();
+  now = start;
   int read_bytes = 1;
   while (read_bytes > 0) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
@@ -833,11 +829,11 @@ void send_data_to_tls_server(void)
   printf("\r\nSocket connected to TLS server\r\n");
 
   printf("\r\nTLS_TX Throughput test start\r\n");
-  const uint32_t start = osKernelGetTickCount();
-  uint32_t now         = start;
-  int sent_bytes       = 0;
-  uint32_t fail        = 0;
-  uint32_t pass        = 0;
+  start          = osKernelGetTickCount();
+  now            = start;
+  int sent_bytes = 0;
+  uint32_t fail  = 0;
+  uint32_t pass  = 0;
   while (total_bytes_sent < BYTES_TO_SEND) {
     sent_bytes = send(client_socket, data_buffer, TLS_BUFFER_SIZE, 0);
     now        = osKernelGetTickCount();

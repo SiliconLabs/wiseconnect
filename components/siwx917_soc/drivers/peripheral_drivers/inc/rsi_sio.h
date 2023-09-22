@@ -108,10 +108,12 @@ typedef struct stc_sio_i2s_xfer {
   int32_t rxCount;     // Number of items (not bytes) to send in rxBuff buffer
                        // (Never initialize to NULL), not modified by driver
   uint8_t u8BitLen;    // number of bits to transfer 8 , 16 , 32
-  int32_t txDoneCount; /* Total items (not bytes) transmitted (initialize to 0), 
-                                           modified by driver [In case of underflow txDoneCount will be greater than *txCount] */
-  int32_t
-    rxDoneCount; // Total items (not bytes) received (initialize to 0), modified by driver [In case of over flow rxDoneCount will be greater than *rxCount]
+  int32_t txDoneCount; /* Total items (not bytes) transmitted (initialize to 0),
+                                           modified by driver [In case of underflow
+                          txDoneCount will be greater than *txCount] */
+  int32_t rxDoneCount; // Total items (not bytes) received (initialize to 0),
+                       // modified by driver [In case of over flow rxDoneCount
+                       // will be greater than *rxCount]
   sio_i2s_func_ptr_t pfnCb;
   uint8_t u8Status;
 } stc_sio_i2s_xfer_t;
@@ -119,10 +121,14 @@ typedef struct stc_sio_i2s_xfer {
 // SIO-I2S internal global structure member
 typedef struct stc_sio_i2s {
   // I2S
-  uint8_t u8I2sDataOutCh; // u8I2sDataOutCh is used to hold the user configured I2S channel for internal API usage
-  uint8_t u8I2sDataInCh;  // u8I2sDataInCh is used to hold the user configured I2S channel for internal API usage
-  uint8_t u8I2sClkCh;     // u8I2sClkCh is used to hold the user configured I2S channel for internal API usage
-  uint8_t u8I2sWsCh;      // u8I2sWsCh is used to hold the user configured I2S channel for internal API usage
+  uint8_t u8I2sDataOutCh; // u8I2sDataOutCh is used to hold the user configured
+                          // I2S channel for internal API usage
+  uint8_t u8I2sDataInCh;  // u8I2sDataInCh is used to hold the user configured
+                          // I2S channel for internal API usage
+  uint8_t u8I2sClkCh;     // u8I2sClkCh is used to hold the user configured I2S
+                          // channel for internal API usage
+  uint8_t u8I2sWsCh;      // u8I2sWsCh is used to hold the user configured I2S
+                          // channel for internal API usage
   uint8_t u8I2sValid;
   uint8_t u8I2sWsWidth;
   stc_sio_i2s_xfer_t *pstcI2sXfer;
@@ -131,40 +137,46 @@ typedef struct stc_sio_i2s {
 // SIO-I2C Internal global structure member
 typedef struct stc_sio_i2c {
   // I2c
-  uint8_t u8I2cSdaCh; // u8I2cSdaCh is used to hold the user configured i2c channel for internal API usage
-  uint8_t u8I2cClkCh; // u8I2cClkCh is used to hold the user configured i2c channel for internal API usage
+  uint8_t u8I2cSdaCh; // u8I2cSdaCh is used to hold the user configured i2c
+                      // channel for internal API usage
+  uint8_t u8I2cClkCh; // u8I2cClkCh is used to hold the user configured i2c
+                      // channel for internal API usage
 } stc_sio_i2c_t;
 
 // SIO-SPI configuration structure
 typedef struct stc_sio_spi_cfg {
 
-  uint8_t u8SpiMosiCh;     // u8SpiMosiCh is used to use with SIO
-  uint8_t u8SpiMisoCh;     // u8SpiMisoCh is used to use with SIO
-  uint8_t u8SpiClkCh;      // u8SpiClkCh is used to use with SIO
-  uint8_t u8SpiCsCh;       // u8SpiCCh is used to use with SIO
-  uint32_t u32SpiClockFrq; // u32SpiClockFrq is used to use with SIO
-  uint8_t u8BitOrder;      // u8BitOrder is used to use with SIO
-  uint8_t u8Mode;          // Mode 0 , and mode 1 are supported
+  volatile uint8_t u8SpiMosiCh; // u8SpiMosiCh is used to use with SIO
+  volatile uint8_t u8SpiMisoCh; // u8SpiMisoCh is used to use with SIO
+  uint8_t u8SpiClkCh;           // u8SpiClkCh is used to use with SIO
+  uint8_t u8SpiCsCh;            // u8SpiCCh is used to use with SIO
+  uint32_t u32SpiClockFrq;      // u32SpiClockFrq is used to use with SIO
+  uint8_t u8BitOrder;           // u8BitOrder is used to use with SIO
+  uint8_t u8Mode;               // Mode 0 , and mode 3 are supported
   uint8_t u8BitLen;
 } stc_sio_spi_cfg_t;
 
 // SIO-SPI transfer structure
 typedef struct stc_sio_spi_xfer {
 
-  void *txBuff; /* TX buffer pointer; Must be a uint16_t pointer when transfer
-                       size is 16 bits and uint8_t pointer when transfer size is 8 bits (can be NULL only when *txCount is 0) */
-  void *rxBuff; /* RX buffer pointer; Must be uint16_t pointer when transfer size is 16 bits or
-                       must be uint8_t pointer when transfer is 8-bits (can be NULL only when *txCount is 0) */
-  int32_t
-    txCount; // Pointer to an int32_t memory (never initialize to NULL) that has the Size of the txBuff in items (not bytes), not modified by driver
-  int32_t
-    rxCount; // Number of items (not bytes) to send in rxBuff buffer (Never initialize to NULL), not modified by driver
-  uint8_t sselNum;  // CS number assigned to this transfer
-  uint8_t u8BitLen; // number of bits to transfer 8 , 16 , 32
-  int32_t
-    txDoneCount; // Total items (not bytes) transmitted (initialize to 0), modified by driver [In case of underflow txDoneCount will be greater than *txCount]
-  int32_t
-    rxDoneCount; // Total items (not bytes) received (initialize to 0), modified by driver [In case of over flow rxDoneCount will be greater than *rxCount]
+  void *txBuff;        /* TX buffer pointer; Must be a uint16_t pointer when transfer
+                 size is 16 bits and uint8_t pointer when transfer size is
+             8 bits (can be NULL only when *txCount is 0) */
+  void *rxBuff;        /* RX buffer pointer; Must be uint16_t pointer when transfer
+             size is 16 bits or must be uint8_t pointer when transfer is
+             8-bits (can be NULL only when *txCount is 0) */
+  int32_t txCount;     // Size of the txBuff in items (not bytes), not
+                       // modified by driver
+  int32_t rxCount;     // Number of items (not bytes) to send in rxBuff buffer
+                       // (Never initialize to NULL), not modified by driver
+  uint8_t sselNum;     // CS number assigned to this transfer
+  uint8_t u8BitLen;    // number of bits to transfer 8 , 16 , 32
+  int32_t txDoneCount; // Total items (not bytes) transmitted (initialize to 0),
+                       // modified by driver [In case of underflow txDoneCount
+                       // will be greater than *txCount]
+  int32_t rxDoneCount; // Total items (not bytes) received (initialize to 0),
+                       // modified by driver [In case of over flow rxDoneCount
+                       // will be greater than *rxCount]
   uint8_t u8Status;
   sio_Spi_func_ptr_t pfnCb;
 } stc_sio_spi_xfer_t;
@@ -172,10 +184,14 @@ typedef struct stc_sio_spi_xfer {
 // SIO-SPI Internal global structure member
 typedef struct stc_sio_spi {
   // SPI
-  uint8_t u8SpiMosiCh; // u8SpiMosiCh is used to hold the user configured SPI channel for internal API usage
-  uint8_t u8SpiMisoCh; // u8SpiMisoCh is used to hold the user configured SPI channel for internal API usage
-  uint8_t u8SpiClkCh;  // u8SpiClkCh is used to hold the user configured SPI channel for internal API usage
-  uint8_t u8SpiCCh;    // u8SpiCCh is used to hold the user configured SPI channel for internal API usage
+  uint8_t u8SpiMosiCh; // u8SpiMosiCh is used to hold the user configured SPI
+                       // channel for internal API usage
+  uint8_t u8SpiMisoCh; // u8SpiMisoCh is used to hold the user configured SPI
+                       // channel for internal API usage
+  uint8_t u8SpiClkCh;  // u8SpiClkCh is used to hold the user configured SPI
+                       // channel for internal API usage
+  uint8_t u8SpiCCh;    // u8SpiCCh is used to hold the user configured SPI channel
+                       // for internal API usage
   uint8_t u8SpiValid;
   stc_sio_spi_xfer_t *pstscSpiXfer;
 } stc_sio_spi_t;
@@ -206,8 +222,10 @@ typedef struct stc_sio_uart_config {
 // SIO-UART internal global structure member
 typedef struct stc_sio_uart {
   // UART
-  uint8_t u8UartTxCh; // u8UartTxCh is used to hold the user configured UART channel for internal API usage
-  uint8_t u8UartRxCh; // u8UartRxCh is used to hold the user configured UART channel for internal API usage
+  uint8_t u8UartTxCh; // u8UartTxCh is used to hold the user configured UART
+                      // channel for internal API usage
+  uint8_t u8UartRxCh; // u8UartRxCh is used to hold the user configured UART
+                      // channel for internal API usage
   uint16_t u16UartTxDone;
   uint16_t u16UartRxDone;
   uint16_t u16UartTxCnt;
@@ -345,8 +363,6 @@ uint32_t RSI_SIO_Shift_Interrupt_Status(volatile SIO_Type *pstcSio);
 void RSI_SIO_Edge_Select(volatile SIO_Type *pstcSio, en_sio_channels_t channel, edge_select_t edge_sel);
 uint32_t RSI_SIO_Read_Buffer(volatile SIO_Type *pstcSio, en_sio_channels_t channel);
 void RSI_SIO_Write_Buffer(volatile SIO_Type *pstcSio, en_sio_channels_t channel, uint32_t data);
-rsi_error_t RSI_SIO_InitI2s(volatile SIO_Type *pstcSio, stc_sio_i2s_config_t *pstcI2sConfig);
-rsi_error_t RSI_SIO_I2sTrasnfer(volatile SIO_Type *pstcSio, stc_sio_i2s_xfer_t *pstcI2sXfer);
 
 #ifdef __cplusplus
 }

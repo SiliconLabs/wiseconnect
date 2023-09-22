@@ -27,5 +27,3 @@
     value: cortex-m4
   - option: fpu
     value: fpv4-sp
-  - option: gcc_compiler_option
-    value: -w

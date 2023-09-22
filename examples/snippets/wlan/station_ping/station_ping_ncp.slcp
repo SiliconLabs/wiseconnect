@@ -21,8 +21,6 @@ include:
       - path: app.h
 define:
   - name: RSI_DEBUG_PRINTS
-component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
 requires:
 - name: sl_system
 - name: network_manager

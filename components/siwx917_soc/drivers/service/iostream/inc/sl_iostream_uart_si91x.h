@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#ifndef SL_IOSTREAM_UART_TYPE_H
-#define SL_IOSTREAM_UART_TYPE_H
+#ifndef SL_IOSTREAM_UART_SI91X_H
+#define SL_IOSTREAM_UART_SI91X_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -153,4 +153,4 @@ __STATIC_INLINE void sl_iostream_uart_prepare_for_sleep(sl_iostream_uart_t *iost
 }
 #endif
 
-#endif // SL_IOSTREAM_UART_H
+#endif // SL_IOSTREAM_UART_SI91X_H

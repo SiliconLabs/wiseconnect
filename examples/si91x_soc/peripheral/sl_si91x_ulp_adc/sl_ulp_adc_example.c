@@ -37,7 +37,7 @@
  ******************************************************************************/
 sl_adc_config_t sl_adc_config;
 static uint32_t intr_cnt = 0;
-static float vref_value  = VREF_VALUE;
+static float vref_value  = (float)VREF_VALUE;
 static int16_t adc_output[CHANNEL_SAMPLE_LENGTH];
 static uint32_t ramVector[VECTOR_TABLE_ENTRIES] __attribute__((aligned(256)));
 /*******************************************************************************
@@ -57,7 +57,6 @@ void adc_example_init(void)
 {
   sl_adc_version_t version;
   sl_status_t status;
-  sl_adc_clock_config_t clock_config;
   volatile float battery_status = 0;
 
   //copying the vector table from flash to ram
@@ -126,7 +125,6 @@ void adc_example_process_action(void)
 {
   sl_status_t status;
   uint32_t sample_length;
-  uint16_t adc_value;
   uint8_t chnl_num    = 0;
   volatile float vout = 0;
   if (chnl0_complete_flag) {
@@ -140,7 +138,7 @@ void adc_example_process_action(void)
         }
         for (sample_length = 0; sample_length < sl_adc_channel_config.num_of_samples[chnl_num]; sample_length++) {
           if (adc_output[sample_length] & BIT(11)) {
-            adc_output[sample_length] = (adc_output[chnl_num] & (ADC_MASK_VALUE));
+            adc_output[sample_length] = (int16_t)(adc_output[chnl_num] & (ADC_MASK_VALUE));
           } else {
             adc_output[sample_length] = adc_output[chnl_num] | BIT(11);
           }
@@ -149,7 +147,7 @@ void adc_example_process_action(void)
           if (sl_adc_channel_config.input_type[chnl_num]) {
             vout = vout - (vref_value / 2);
           }
-          DEBUGOUT("ADC Measured input[%d] :%0.2fV \n", sample_length, (float)vout);
+          DEBUGOUT("ADC Measured input[%ld] :%0.2fV \n", sample_length, (double)vout);
         }
       }
       if (intr_cnt > 2) {

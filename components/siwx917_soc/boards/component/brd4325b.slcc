@@ -24,10 +24,8 @@ define:
 - {"name":"CHIP_917","value":1}
 - {"name":"SL_BOARD_NAME","value":"\"BRD4325B\""}
 - {"name":"SL_BOARD_REV","value":"\"A00\""}
-- {"name":"DEBUG_UART","value":1}
 - {"name":"SI917_RADIO_BOARD","value":1}
 - {"name":"FLASH_BASED_EXECUTION_ENABLE","value":1}
-- {"name":"ENABLE_DEBUG_MODULE","value":1}
 - {"name":"IVT_OFFSET_ADDR","value":134291456}
 - {"name":"WKP_RAM_USAGE_LOCATION","value":604377088}
 requires:

@@ -30,6 +30,8 @@ component:
   from: wiseconnect3_sdk
 - id: si917_memory_default_config
   from: wiseconnect3_sdk
+- id: si91x_debug
+  from: wiseconnect3_sdk
 - {id: cmsis_common}
 - {id: sl_system}
 - {from: wiseconnect3_sdk, id: sl_sio_peripheral}

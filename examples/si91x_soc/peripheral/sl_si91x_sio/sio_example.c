@@ -25,14 +25,12 @@
 #include "rsi_chip.h"
 #include "sl_si91x_sio.h"
 #include "string.h"
-
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define BUFFER_SIZE 10 // Data buffer size
-#define ZERO        0
-#define ONE         1
-#define TEN         10
+#define BUFFER_SIZE 10        // Data buffer size
+#define CS_NUMBER   0         // Chip select number
+#define MSB_FIRST   1         // Select MSB first
 #define SYS_CLOCK   180000000 // System clock
 
 // SIO-SPI Configuration parameters
@@ -46,8 +44,6 @@
 #define SIO_I2C_SAMPLE_RATE 100000 // SIO-I2C sample rate
 #define SIO_I2C_OEN         2      // SIO-I2C OEN selection
 #define SIO_SLAVE_ADDRESS   0x50   // SIO-I2C slave address
-#define SIO_TX_DATA         0X00   // SIO-I2C data
-
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -57,7 +53,6 @@ typedef enum {
   SL_SIO_UART = 0, // Initialize SIO UART instance
   SL_SIO_I2C  = 0, // Initialize SIO I2C instance
 } sio_instance_type_t;
-
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
  ******************************************************************************/
@@ -70,7 +65,6 @@ extern uint32_t SystemCoreClock;
 uint8_t tx_data[BUFFER_SIZE] = { 0 };
 uint8_t rx_data[BUFFER_SIZE] = { 0 };
 extern uint8_t bit_length;
-
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -78,7 +72,6 @@ void sio_spi_callback(en_sio_spi_events_t event);
 static void compare_loop_back_data(void);
 void sio_uart_callback(en_sio_Uart_events_t event, uint16_t rev_char);
 static void compare_uart_loop_back_data(void);
-
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
@@ -89,7 +82,9 @@ extern stc_sio_uart_config_t UartInitstc;
 uint8_t tx_buffer[BUFFER_SIZE] = { 0 };
 uint8_t rx_buffer[BUFFER_SIZE] = { 0 };
 stc_sio_i2c_config_t i2cConfig = { 0 };
-
+extern sl_sio_spi_t sl_sio_spi_init;
+extern sl_sio_uart_t sl_sio_uart_init;
+extern sl_sio_i2c_t sl_sio_i2c_init;
 /*******************************************************************************
  * SIO Example Initialization function for setting clock frequency, SIO
  *initialize, SPI initialize etc.
@@ -106,12 +101,12 @@ void sio_example_init(void)
   DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
   do {
     // Initialize SIO SPI instance
-    if (SL_SIO_SPI == ONE) {
+    if (SL_SIO_SPI == 1) {
       for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
-        buffer_in[i] = (uint8_t)(i + ONE);
+        buffer_in[i] = (uint8_t)(i + 1);
       }
       for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
-        data_in[i] = (uint8_t)(i + ONE);
+        data_in[i] = (uint8_t)(i + 1);
       }
       // Initialize the SIO
       status = sl_si91x_sio_init();
@@ -121,6 +116,13 @@ void sio_example_init(void)
         break;
       }
       DEBUGOUT("SIO GPIO initialization is successful \n");
+      status = sl_si91x_sio_spi_pin_initialization(&sl_sio_spi_init);
+      // Check the status error code
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_spi_pin_initialization: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO SPI GPIO pin initialization is successful \n");
       pstcSpiConfig.u32SpiClockFrq = SIO_SPI_CLK_FREQUENCY; // SIO SPI clock frequency
       pstcSpiConfig.u8BitOrder     = SL_SIO_SPI_MSB_FIRST;  // SIO SPI MSB bit order
       pstcSpiConfig.u8SpiClkCh     = SL_SIO_CH_1;           // SIO SPI channel clock
@@ -130,31 +132,64 @@ void sio_example_init(void)
       pstcSpiConfig.u8BitLen       = SL_SIO_SPI_BIT_16;     // SIO SPI bit length
       pstcSpiConfig.u8Mode         = SL_SIO_SPI_MODE_3;     // SIO SPI mode
       uint32_t divider             = pstcSpiConfig.u32SpiClockFrq;
-      sl_si91x_sio_select_clock(pstcSpiConfig.u8SpiClkCh, INTERNAL_CLOCK);
+      status                       = sl_si91x_sio_select_clock(pstcSpiConfig.u8SpiClkCh, INTERNAL_CLOCK);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_select_clock: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO clock selection is successful \n");
       // Initialize the SIO-SPI
       // Generate shift clock frequency
-      sl_si91x_sio_shift_clock(divider, pstcSpiConfig.u8SpiMisoCh);
+      status = sl_si91x_sio_shift_clock(divider, pstcSpiConfig.u8SpiMisoCh);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_shift_clock: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO shift clock is successful \n");
       // Bit order configuration
-      if (pstcSpiConfig.u8BitOrder == ONE) {
+      if (pstcSpiConfig.u8BitOrder == MSB_FIRST) {
         // MSB First
-        sl_si91x_sio_reverse_load(pstcSpiConfig.u8SpiMosiCh, REVERSE_ENABLE);
+        status = sl_si91x_sio_reverse_load(pstcSpiConfig.u8SpiMosiCh, REVERSE_ENABLE);
+        if (status != SL_STATUS_OK) {
+          DEBUGOUT("sl_si91x_sio_reverse_load: Error Code : %lu \n", status);
+          break;
+        }
+        DEBUGOUT("SIO reverse load is successful \n");
       } else {
         // LSB First
-        sl_si91x_sio_reverse_load(pstcSpiConfig.u8SpiMosiCh, REVERSE_DISABLE);
+        status = sl_si91x_sio_reverse_load(pstcSpiConfig.u8SpiMosiCh, REVERSE_DISABLE);
+        if (status != SL_STATUS_OK) {
+          DEBUGOUT("sl_si91x_sio_reverse_load: Error Code : %lu \n", status);
+          break;
+        }
+        DEBUGOUT("SIO reverse load is successful \n");
       }
       status = sl_si91x_sio_spi_init(&pstcSpiConfig);
-      // Configure data position counters
-      sl_si91x_sio_position_counter(pstcSpiConfig.u8SpiMosiCh, pstcSpiConfig.u8BitLen - ONE);
-      sl_si91x_sio_control_flow(pstcSpiConfig.u8SpiMosiCh, FLOW_CONTROL_DISABLE);
-      // Enable Swap interrupt
-      sl_si91x_sio_set_interrupt(BIT(pstcSpiConfig.u8SpiMosiCh));
-      // Data sampling on negative edge configuration
-      sl_si91x_sio_edge_select(pstcSpiConfig.u8SpiMosiCh, NEG_EDGE);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_sio_spi_init: Error Code : %lu \n", status);
         break;
       }
       DEBUGOUT("SIO SPI initialization is successful \n");
+      status = sl_si91x_sio_control_flow(pstcSpiConfig.u8SpiMosiCh, FLOW_CONTROL_DISABLE);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_control_flow: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO flow control is successful \n");
+      // Enable Swap interrupt
+      status = sl_si91x_sio_set_interrupt(pstcSpiConfig.u8SpiMosiCh);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_set_interrupt: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO set interrupt is successful \n");
+      // Data sampling on negative edge configuration
+      status = sl_si91x_sio_edge_select(pstcSpiConfig.u8SpiMosiCh, NEG_EDGE);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_edge_select: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO edge selection is successful \n");
       // Register user callback function
       status = sl_si91x_sio_spi_register_event_callback(sio_spi_callback);
       if (status != SL_STATUS_OK) {
@@ -164,7 +199,7 @@ void sio_example_init(void)
       DEBUGOUT("SIO SPI user event callback registered successfully \n");
     }
     // Initialize SIO UART instance
-    if (SL_SIO_UART == ONE) {
+    if (SL_SIO_UART == 1) {
       // Filling the tx_buffer array with integer values
       for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
         tx_buffer[i] = (uint8_t)i;
@@ -184,7 +219,13 @@ void sio_example_init(void)
         break;
       }
       DEBUGOUT("SIO GPIO initialization is successful \n");
-
+      status = sl_si91x_sio_uart_pin_initialization(&sl_sio_uart_init);
+      // Check the status error code
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_uart_pin_initialization: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO UART GPIO pin initialization is successful \n");
       // Register user callback function
       status = sl_si91x_sio_uart_register_event_callback(sio_uart_callback);
       if (status != SL_STATUS_OK) {
@@ -196,33 +237,73 @@ void sio_example_init(void)
       uint32_t divider = UartInitstc.u32BaudRate;
       // Initialize the SIO-SPI
       // Generate shift clock frequency
-      sl_si91x_sio_shift_clock(divider, UartInitstc.u8SioUartRxChannel);
+      status = sl_si91x_sio_shift_clock(divider, UartInitstc.u8SioUartRxChannel);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_shift_clock: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO shift clock is successful \n");
       // Fall Edge detection
-      sl_si91x_sio_configure_interrupt(UartInitstc.u8SioUartRxChannel, INTERRUPT_FALL_EDGE);
+      status = sl_si91x_sio_configure_interrupt(UartInitstc.u8SioUartRxChannel, INTERRUPT_FALL_EDGE);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_configure_interrupt: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO interrupt configure is successful \n");
       status = sl_si91x_sio_uart_init(&UartInitstc);
-      // Reverse load is disabled in RX
-      sl_si91x_sio_reverse_load(UartInitstc.u8SioUartRxChannel, REVERSE_DISABLE);
-      // Configure data position counters
-      sl_si91x_sio_position_counter(
-        UartInitstc.u8SioUartTxChannel,
-        (uint32_t)((UartInitstc.u8Bitlen + UartInitstc.u8StopBits + gstcSioCb.uart_sio.u8ParityEn + TEN) - ONE));
-      // Enable Swap interrupt
-      sl_si91x_sio_set_interrupt(BIT(UartInitstc.u8SioUartRxChannel));
-      // Enable shift interrupt
-      sl_si91x_sio_set_shift_interrupt(BIT(UartInitstc.u8SioUartTxChannel));
-      sl_si91x_sio_unmask_shift_interrupt(BIT(UartInitstc.u8SioUartTxChannel));
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_sio_uart_init: Error Code : %lu \n", status);
         break;
       }
       DEBUGOUT("SIO UART initialization is successful \n");
-      sl_si91x_sio_uart_read(rx_buffer, BUFFER_SIZE);
+      // Reverse load is disabled in RX
+      status = sl_si91x_sio_reverse_load(UartInitstc.u8SioUartRxChannel, REVERSE_DISABLE);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_reverse_load: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO reverse load is successful \n");
+      // Configure data position counters
+      status = sl_si91x_sio_position_counter(
+        UartInitstc.u8SioUartTxChannel,
+        (uint32_t)((UartInitstc.u8Bitlen + UartInitstc.u8StopBits + gstcSioCb.uart_sio.u8ParityEn + 10) - 1));
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_position_counter: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO position counter is successful \n");
+      // Enable Swap interrupt
+      status = sl_si91x_sio_set_interrupt(UartInitstc.u8SioUartRxChannel);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_set_interrupt: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO set interrupt is successful \n");
+      // Enable shift interrupt
+      status = sl_si91x_sio_set_shift_interrupt(UartInitstc.u8SioUartRxChannel);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_set_shift_interrupt: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO set shift interrupt is successful \n");
+      status = sl_si91x_sio_unmask_shift_interrupt(UartInitstc.u8SioUartRxChannel);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_unmask_shift_interrupt: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO unmask shift interrupt is successful \n");
+      status = sl_si91x_sio_uart_read(rx_buffer, BUFFER_SIZE);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_uart_read: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO uart read is successful \n");
     }
     // Initialize SIO UART instance
-    if (SL_SIO_I2C == ONE) {
+    if (SL_SIO_I2C == 1) {
       // Prepare the I2C Write buffer
       for (uint8_t i = 0; i < BUFFER_SIZE; i++) {
-        tx_data[i] = i + ONE;
+        tx_data[i] = i + 1;
       }
       // Initialize the SIO
       status = sl_si91x_sio_init();
@@ -232,6 +313,13 @@ void sio_example_init(void)
         break;
       }
       DEBUGOUT("SIO GPIO initialization is successful \n");
+      status = sl_si91x_sio_i2c_pin_initialization(&sl_sio_i2c_init);
+      // Check the status error code
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_sio_i2c_pin_initialization: Error Code : %lu \n", status);
+        break;
+      }
+      DEBUGOUT("SIO I2C GPIO pin initialization is successful \n");
       i2cConfig.u32SampleRate = SIO_I2C_SAMPLE_RATE;
       i2cConfig.u8SioI2cOen   = SIO_I2C_OEN;
       i2cConfig.u8SioI2cScl   = SL_SIO_CH_6;
@@ -250,7 +338,7 @@ void sio_example_process_action(void)
   // starts to execute the APIs Assuming all the macros are enabled, after
   // transfer, send will be executed and after send receive will be executed.
   // Initialize SIO SPI instance
-  if (SL_SIO_SPI == ONE) {
+  if (SL_SIO_SPI == 1) {
     switch (current_mode) {
       case SL_SEND_DATA:
         if (begin_transmission == true) {
@@ -272,7 +360,7 @@ void sio_example_process_action(void)
           }
           // SPI Transfer configuration
           pstcSpiXfer.rxCount  = BUFFER_SIZE;
-          pstcSpiXfer.sselNum  = ZERO;
+          pstcSpiXfer.sselNum  = CS_NUMBER;
           pstcSpiXfer.txCount  = BUFFER_SIZE;
           pstcSpiXfer.u8BitLen = SIO_SPI_BIT_LEN;
           pstcSpiXfer.u8Status = SioSpiIdle;
@@ -312,7 +400,7 @@ void sio_example_process_action(void)
     }
   }
   // Initialize SIO UART instance
-  if (SL_SIO_UART == ONE) {
+  if (SL_SIO_UART == 1) {
     switch (current_mode) {
       case SL_RECEIVE_DATA:
         if (receive_complete == true) {
@@ -349,21 +437,17 @@ void sio_example_process_action(void)
     }
   }
   // Initialize SIO UART instance
-  if (SL_SIO_I2C == ONE) {
+  if (SL_SIO_I2C == 1) {
     sl_si91x_sio_i2c_generate_start();
-    tx_data[ZERO] = SIO_TX_DATA;
-    sl_si91x_sio_i2c_transfer(&i2cConfig, SIO_SLAVE_ADDRESS, tx_data, BUFFER_SIZE, ZERO, ZERO);
+    sl_si91x_sio_i2c_transfer(&i2cConfig, SIO_SLAVE_ADDRESS, tx_data, BUFFER_SIZE, rx_data, BUFFER_SIZE);
     sl_si91x_sio_i2c_generate_stop();
 
     sl_si91x_sio_i2c_generate_start();
-    tx_data[ZERO] = SIO_TX_DATA;
-    sl_si91x_sio_i2c_transfer(&i2cConfig, SIO_SLAVE_ADDRESS, tx_data, ONE, ZERO, ZERO);
+    sl_si91x_sio_i2c_transfer(&i2cConfig, SIO_SLAVE_ADDRESS, tx_data, BUFFER_SIZE, rx_data, BUFFER_SIZE);
     DEBUGOUT("SIO i2c transfer is successful \n");
     sl_si91x_sio_i2c_generate_stop();
 
     sl_si91x_sio_i2c_write(&i2cConfig, SIO_SLAVE_ADDRESS, tx_data, BUFFER_SIZE);
-    tx_data[ZERO] = SIO_TX_DATA;
-
     sl_si91x_sio_i2c_read(&i2cConfig, SIO_SLAVE_ADDRESS, rx_data, BUFFER_SIZE);
     sl_si91x_sio_i2c_generate_stop();
 

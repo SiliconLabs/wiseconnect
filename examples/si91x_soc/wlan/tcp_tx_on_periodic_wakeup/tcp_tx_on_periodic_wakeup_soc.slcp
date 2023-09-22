@@ -32,6 +32,7 @@ template_contribution:
   value: true
 component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 - {from: wiseconnect3_sdk, id: rsilib_userconfig}
 - {from: wiseconnect3_sdk, id: rsilib_chip}
 - {from: wiseconnect3_sdk, id: siwx917_soc}

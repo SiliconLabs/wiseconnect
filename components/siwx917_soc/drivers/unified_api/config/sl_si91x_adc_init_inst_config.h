@@ -36,18 +36,20 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************* ADC Configuration **************************/
-#warning "ADC INSTANCE not configured"
+
+/* NOTE: User should configure all macros defined below, while creating an instance other than pre-defined one */
+#warning "user defined ADC insatnce INSTANCE needs to be configure in sl_si91x_adc_init_INSTANCE_config.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Configuration
 
 // <o SL_ADC_INSTANCE_INPUT_TYPE> Input Type
 //   <SL_ADC_SINGLE_ENDED=>  Single ended
-//   <SL_ADC_DIFFERENTIAL_ENDED=> Differential ended
+//   <SL_ADC_DIFFERENTIAL=> Differential
 // <i> Selection of the ADC input type.
 //#define SL_ADC_INSTANCE_INPUT_TYPE SL_ADC_SINGLE_ENDED
 
-// <o SL_ADC_INSTANCE_SAMPLING_RATE> Sampling Rate <1-5000000>
+// <o SL_ADC_INSTANCE_SAMPLING_RATE> Sampling Rate <1-10000000>
 // <i> Default: 100000
 //#define SL_ADC_INSTANCE_SAMPLING_RATE 100000
 
@@ -55,16 +57,11 @@ extern "C" {
 // <i> Default: 1023
 //#define SL_ADC_INSTANCE_SAMPLE_LENGTH 1023
 
-// <o SL_ADC_INSTANCE_POS_INPUT_CHNL_SEL> POS Input Channel Selection <0-15>
-// <i> Default: 0
-//#define SL_ADC_INSTANCE_POS_INPUT_CHNL_SEL 0
-
-// <o SL_ADC_INSTANCE_NEG_INPUT_CHNL_SEL> NEG Input Channel Selection <0-8>
-// <i> Default: 0
-//#define SL_ADC_INSTANCE_NEG_INPUT_CHNL_SEL 0
-
 // </h>
 // <<< end of configuration section >>>
+
+//#define SL_ADC_INSTANCE_POS_INPUT_CHNL_SEL 4
+//#define SL_ADC_INSTANCE_NEG_INPUT_CHNL_SEL 0
 
 #ifdef __cplusplus
 }

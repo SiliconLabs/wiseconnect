@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_si91x_socket.h
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #pragma once
 #include "sl_si91x_socket_types.h"
 
@@ -5,7 +22,11 @@ int sl_si91x_socket_async(int family, int type, int protocol, receive_data_callb
 
 int sl_si91x_socket(int family, int type, int protocol);
 
-int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *option_value, socklen_t option_len);
+int sl_si91x_setsockopt_async(int32_t sockID,
+                              int level,
+                              int option_name,
+                              const void *option_value,
+                              socklen_t option_len);
 
 int sl_si91x_bind(int socket, const struct sockaddr *addr, socklen_t addr_len);
 

@@ -36,7 +36,7 @@
  ******************************************************************************/
 sl_adc_config_t sl_adc_config;
 uint32_t intr_cnt       = 0;
-static float vref_value = VREF_VALUE;
+static float vref_value = (float)VREF_VALUE;
 static int16_t adc_output[CHANNEL_SAMPLE_LENGTH];
 static float adc_input_eqv_vltg[CHANNEL_SAMPLE_LENGTH];
 /*******************************************************************************
@@ -142,7 +142,7 @@ void adc_example_process_action(void)
         }
         for (sample_length = 0; sample_length < sl_adc_channel_config.num_of_samples[chnl_num]; sample_length++) {
           if (adc_output[sample_length] & BIT(11)) {
-            adc_output[sample_length] = (adc_output[chnl_num] & (ADC_MASK_VALUE));
+            adc_output[sample_length] = (int16_t)(adc_output[chnl_num] & (ADC_MASK_VALUE));
           } else {
             adc_output[sample_length] = adc_output[chnl_num] | BIT(11);
           }
@@ -152,7 +152,7 @@ void adc_example_process_action(void)
             vout = vout - (vref_value / 2);
           }
           adc_input_eqv_vltg[sample_length] = vout;
-          DEBUGOUT("ADC Measured input[%d] :%0.2fV \n", sample_length, (float)vout);
+          DEBUGOUT("ADC Measured input[%ld] :%0.2fV \n", sample_length, (double)vout);
         }
       }
     } else {
@@ -160,7 +160,7 @@ void adc_example_process_action(void)
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_adc_read_data_static: Error Code : %lu \n", status);
       }
-      adc_output[0] = adc_value;
+      adc_output[0] = (int16_t)adc_value;
       if (adc_output[0] & BIT(11)) {
         adc_output[0] = (int16_t)(adc_output[0] & (ADC_MASK_VALUE));
       } else {

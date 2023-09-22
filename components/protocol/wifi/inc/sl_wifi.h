@@ -299,7 +299,8 @@ sl_status_t sl_wifi_get_transmit_rate(sl_wifi_interface_t interface,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This API is not yet implemented.
+ *   By default listen interval is set 1000secs. User can call this API to overwrite the value.
+ *   Si91X implementation allows this API ONLY to be called before calling @ref sl_wifi_connect(), @ref sl_wifi_start_ap(), @ref sl_wifi_start_wps()
  ******************************************************************************/
 sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval);
 
@@ -315,7 +316,7 @@ sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This API is not yet implemented.
+*   By default listen interval is set 1000secs.
  ******************************************************************************/
 sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t *listen_interval);
 

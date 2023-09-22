@@ -27,10 +27,10 @@
 #define RSI_BLE_DEV_ADDR_TYPE LE_PUBLIC_ADDRESS
 
 //! Address of the device to connect
-#define RSI_BLE_DEV_ADDR "11:11:11:11:11:11"
+#define RSI_BLE_DEV_ADDR "00:1E:7C:25:E9:4D"
 
 //! Remote Device Name to connect
-#define RSI_REMOTE_DEVICE_NAME "ASUS6z"
+#define RSI_REMOTE_DEVICE_NAME "SILABS_DEV"
 
 #define PERIPHERAL_ROLE 0
 #define CENTRAL_ROLE    1
@@ -54,7 +54,7 @@
  * *                      Macros
  * ******************************************************/
 //! Power Save Profile Mode
-#define ENABLE_POWER_SAVE 0
+#define ENABLE_POWER_SAVE 1
 #define PSP_MODE          RSI_SLEEP_MODE_2
 
 //! Power Save Profile type

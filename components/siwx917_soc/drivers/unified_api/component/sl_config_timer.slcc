@@ -16,3 +16,6 @@ include:
     - path: "sl_si91x_config_timer.h"
 provides:
   - name: sl_config_timer
+requires:
+  - name: udma_linker_config
+  - name: rsilib_config_timer

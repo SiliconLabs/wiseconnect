@@ -23,8 +23,6 @@ include:
 define:
   - name: RSI_DEBUG_PRINTS
   - name: SNTP_CLIENT_FEATURE
-component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
 requires:
 - name: sl_system
 - name: sntp

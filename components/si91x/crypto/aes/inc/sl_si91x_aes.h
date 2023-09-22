@@ -29,7 +29,6 @@
  ******************************************************************************/
 
 #pragma once
-#include "sl_si91x_protocol_types.h"
 #include "sl_si91x_crypto.h"
 #include "sl_status.h"
 

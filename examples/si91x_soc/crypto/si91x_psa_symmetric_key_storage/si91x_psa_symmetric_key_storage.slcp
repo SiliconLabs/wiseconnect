@@ -1,0 +1,102 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: si91x_psa_symmetric_key_storage
+label: SI91x - SoC PSA symmetric key storage
+description: |
+  Demonstrates Key generate, import, export and PSA ITS write, read and erase functions for PERSISTENT PLAINTEXT and VOLATILE PLAINTEXT.
+category: example|crypto
+package: platform
+quality: production
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+readme:
+  - path: readme.md
+source:
+  - path: main.c
+  - path: app.c
+  - path: psa_symmetric_key_storage_app.c
+include:
+  - path: .
+    file_list:
+    - path: app.h
+    - path: psa_symmetric_key_storage_app.h
+sdk: {id: gecko_sdk, version: 4.3.2}
+define:
+  - name: RSI_DEBUG_PRINTS
+component:
+  - id: sl_system
+  - id: freertos
+  - id: psa_crypto_common
+  - id: psa_crypto_aes
+  - id: psa_crypto_source
+  - id: psa_driver
+  - id: psa_crypto_trng
+  - id: sl_si91x_trng
+    from: wiseconnect3_sdk
+  - id: sl_si91x_psa_crypto
+    from: wiseconnect3_sdk
+  - id: psa_its
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_manager
+    from: wiseconnect3_sdk
+  - id: si91x_basic_buffers
+    from: wiseconnect3_sdk
+  - id: si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: si91x
+    from: wiseconnect3_sdk
+  - id: si91x_support
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: sl_tls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: rsilib_userconfig
+    from: wiseconnect3_sdk
+  - id: si91x_debug
+    from: wiseconnect3_sdk
+requires:
+  - name: sl_si91x_dual_flash_nvm3
+    condition: [brd4325b]
+  - name: sl_si91x_common_flash_nvm3
+    condition: [brd4325c]
+  - name: sl_si91x_common_flash_nvm3
+    condition: [brd4325a]
+  - name: sl_si91x_common_flash_nvm3
+    condition: [brd4338a]
+  - name: sl_si91x_common_flash_nvm3
+    condition: [brd4325g]
+  - name: iostream_retarget_stdio
+    condition: [device_has_devinfo]
+  - name: iostream_recommended_stream
+    condition: [device_has_devinfo]
+  - name: iostream_stdlib_config
+    condition: [device_has_devinfo]
+  - name: device_init
+    condition: [device_has_devinfo]
+  - name: emlib_common
+    condition: [device_has_devinfo]
+  - name: emlib_ldma
+    condition: [device_has_devinfo]
+other_file:
+  - path: resources/readme/image508a.png
+  - path: resources/readme/image508c.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.0
+toolchain_settings:
+  - option: nano_c_libs
+    value: enabled
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

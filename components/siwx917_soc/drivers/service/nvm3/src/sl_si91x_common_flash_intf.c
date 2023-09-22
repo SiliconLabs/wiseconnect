@@ -29,11 +29,6 @@
 #define SECTOR_SIZE 4096 //Sector size of Si9117 common flash
 #define FLASH_ERASE 1    //flash_sector_erase_enable value for erase operation
 #define FLASH_WRITE 0    //flash_sector_erase_enable value for write operation
-#ifdef CHIP_917B0
-#define TA_M4_ADDRESS_OFFSET 0x4000000 //Difference between TA and M4 flash access address
-#else
-#define TA_M4_ADDRESS_OFFSET 0x4032000 //Difference between TA and M4 flash access address
-#endif
 
 /*******************************************************************************
  ***************************  Local VARIABLES  ********************************

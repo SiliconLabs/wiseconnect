@@ -22,8 +22,6 @@ include:
       - path: app.h
 define:
   - name: RSI_DEBUG_PRINTS
-component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
 requires:
 - name: sl_system
 - name: bsd_socket
@@ -56,27 +54,10 @@ configuration:
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/build_project_ncp.png
-  - path: resources/readme/build_project_soc.png
-  - path: resources/readme/setup_ncp.png
-  - path: resources/readme/setup_soc.png
-  - path: resources/readme/create_project_ncp.png
-  - path: resources/readme/create_project_soc.png
-  - path: resources/readme/tls_client_output.png
-  - path: resources/readme/select_project_ncp.png
-  - path: resources/readme/select_project_soc.png
-  - path: resources/readme/efr32.png
-  - path: resources/readme/port_selection.png
-  - path: resources/readme/port_selection_soc.png
-  - path: resources/readme/serial_port.png
-  - path: resources/readme/serial_port_setup.png
-  - path: resources/readme/soc_board_detection.png
-  - path: resources/readme/usb_to_uart_1.png
-  - path: resources/readme/usb_to_uart_2.png
   - path: resources/readme/server1.png
   - path: resources/readme/server2.png
-  - path: resources/readme/debug_as_ncp.png
-  - path: resources/readme/debug_as_soc.png
+  - path: resources/readme/tls_client_output.png
+  - path: resources/readme/tls_client_soc_ncp.png
 ui_hints:
   highlight:
     - path: readme.md

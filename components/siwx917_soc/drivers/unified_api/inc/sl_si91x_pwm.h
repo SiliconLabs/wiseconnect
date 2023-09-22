@@ -276,6 +276,7 @@ typedef struct {
   uint32_t base_time_counter_initial_value; ///< PWM base time counter initial value
   uint8_t duty_cycle;                       ///< PWM duty cycle
   uint8_t base_timer_mode;                  ///< PWM base timer mode
+  uint8_t channel_timer_selection;          ///< PWM channel timer selection
 } sl_pwm_config_t;
 
 ///@brief Structure to hold portl and pinh for channels

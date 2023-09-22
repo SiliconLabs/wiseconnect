@@ -202,7 +202,7 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
 sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-  return SL_STATUS_NOT_SUPPORTED;
+  return sl_wifi_stop_ap(SL_WIFI_AP_INTERFACE);
 }
 
 sl_status_t sl_dns_host_get_by_name(const char *host_name,

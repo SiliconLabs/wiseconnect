@@ -245,7 +245,7 @@ static I2S_DMA I2S1_UDMA_TX_CHNL = {
 				ARBSIZE_4,
 				0x0,
 				0x0,
-#if defined(I2S1_CHNL_TX_RES) && (I2S1_CHNL_TX_RES <= 16)
+#if (I2S1_TX_RES <= RES_16_BIT)
 				SRC_SIZE_16,
 				SRC_INC_16,
 				DST_SIZE_16,
@@ -272,7 +272,7 @@ static I2S_DMA I2S1_UDMA_RX_CHNL = {
 				ARBSIZE_4,
 				0x0,
 				0x0,
-#if defined(I2S1_CHNL_RX_RES) && (I2S1_CHNL_TX_RES <= 16)
+#if (I2S1_RX_RES <= RES_16_BIT)
 				SRC_SIZE_16,
 				SRC_INC_NONE,
 				DST_SIZE_16,

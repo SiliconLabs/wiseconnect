@@ -35,13 +35,9 @@
     value: '"BRD4325F"'
   - name: SL_BOARD_REV
     value: '"A01"'
-  - name: DEBUG_UART
-    value: '1'
   - name: SI917_RADIO_BOARD
     value: '1'
   - name: FLASH_BASED_EXECUTION_ENABLE
-    value: '1'
-  - name: ENABLE_DEBUG_MODULE
     value: '1'
   - name: IVT_OFFSET_ADDR
     value: 0x8012000

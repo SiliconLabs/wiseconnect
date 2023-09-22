@@ -37,7 +37,6 @@ extern "C" {
 #endif
 #include <stdio.h>
 #include "rsi_ccp_user_config.h"
-#define DEBUG_ENABLE
 
 /*Sample print prototype*/
 void Board_Debug_Init(void);

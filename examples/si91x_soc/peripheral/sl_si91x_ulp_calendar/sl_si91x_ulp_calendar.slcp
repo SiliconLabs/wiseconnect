@@ -33,6 +33,7 @@ component:
 - {from: wiseconnect3_sdk, id: sl_ulp_timer}
 - {from: wiseconnect3_sdk, id: systemlevel_time_period}
 - {from: wiseconnect3_sdk, id: romdriver_timer}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 other_file:
 - {path: resources/readme/image501a.png}
 - {path: resources/readme/image501b.png}

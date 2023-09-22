@@ -28,6 +28,9 @@
 extern "C" {
 #endif
 
+//Difference between TA and M4 flash access address
+#define TA_M4_ADDRESS_OFFSET 0x4000000
+
 /***************************************************************************/ /**
  *  @fn          bool rsi_flash_init(void)
  *  @pre         none

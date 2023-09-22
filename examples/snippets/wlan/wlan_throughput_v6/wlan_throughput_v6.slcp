@@ -23,8 +23,11 @@ include:
 define:
   - name: RSI_DEBUG_PRINTS
   - name: ipv6_FEATURE_REQUIRED
+  - name: EXECUTION_FROM_RAM
+    condition: [device_needs_ram_execution]
 component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_system
 - name: bsd_socket
@@ -51,6 +54,10 @@ requires:
   condition: [device_has_devinfo]
 - name: emlib_ldma
   condition: [device_has_devinfo]
+template_contribution:
+- condition: [device_needs_ram_execution]
+  name: RAM_EXECUTION
+  value: true
 toolchain_settings:
   - option: gcc_linker_option
     value: "-u _printf_float"

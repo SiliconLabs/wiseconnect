@@ -525,9 +525,6 @@ __STATIC_INLINE void sl_si91x_i2c_wait_ready(I2C_TypeDef *i2c, uint32_t mask)
 {
   // Validates the I2C instance with the corresponding base address of instance.
   SL_I2C_ASSERT(I2C_REF_VALID(i2c));
-  // Wait untill for the initiated process to finish.
-  while (!(i2c->IC_INTR_STAT & mask))
-    ;
   // Clears the pending interrupts.
   sl_si91x_i2c_clear_interrupts(i2c, mask);
 }
@@ -692,6 +689,8 @@ __STATIC_INLINE void sl_si91x_i2c_clear_bus(I2C_TypeDef *i2c)
   SL_I2C_ASSERT(I2C_REF_VALID(i2c));
   // I2C is disabled.
   sl_si91x_i2c_disable(i2c);
+  // Enable the bus clear feature
+  i2c->IC_CON_b.BUS_CLEAR_FEATURE_CTRL = 1;
   // SCL timeout value is updated to the register.
   i2c->IC_SCL_STUCK_AT_LOW_TIMEOUT = SL_I2C_SCL_STUCK_TIMEOUT;
   // SCL timeout value is updated to the register.

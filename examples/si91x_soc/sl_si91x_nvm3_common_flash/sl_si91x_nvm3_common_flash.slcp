@@ -29,6 +29,9 @@ requires:
 - name: slist
 - name: si917_memory_default_config
 - name: rsilib_userconfig
+component:
+- id: si91x_debug
+  from: wiseconnect3_sdk
 toolchain_settings: []
 configuration:
 - {name: SL_BOARD_ENABLE_VCOM, value: '1'}

@@ -263,11 +263,11 @@ int32_t rsi_app_wlan_socket_create()
 #endif
 
 #if HIGH_PERFORMANCE_ENABLE
-  status = setsockopt(client_socket,
-                      SOL_SOCKET,
-                      SO_HIGH_PERFORMANCE_SOCKET,
-                      &high_performance_socket,
-                      sizeof(high_performance_socket));
+  status = sl_si91x_set_custom_sync_sockopt(client_socket,
+                                            SOL_SOCKET,
+                                            SO_HIGH_PERFORMANCE_SOCKET,
+                                            &high_performance_socket,
+                                            sizeof(high_performance_socket));
   if (status < 0) {
     LOG_PRINT("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);

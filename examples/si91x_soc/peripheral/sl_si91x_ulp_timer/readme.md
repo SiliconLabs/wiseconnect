@@ -2,8 +2,8 @@
 
 ## Introduction
 
-- This ULP_Timer example demonstrates the ULP-TIMER with LED toggle functionality. The timer instance is configured to generate interrupts upon expiration which is when the LED1 is toggled. The timer-0 is set to expire at 1-second (1Hz) intervals.
-- ULP Timer expiration depends on the TIMER_MATCH_VALUE, which is configurable. When Timer count matches to TIMER_MATCH_VALUE the interrupt hits and the LED1 toggle can be seen.
+- This ULP_Timer example demonstrates the ULP-TIMER with LED toggle functionality. The timer instance is configured to generate interrupts upon expiration which is when the LED0 is toggled. The timer-0 is set to expire at 1-second (1Hz) intervals.
+- ULP Timer expiration depends on the TIMER_MATCH_VALUE, which is configurable. When Timer count matches to TIMER_MATCH_VALUE the interrupt hits and the LED0 toggle can be seen.
 
 ## Overview
 
@@ -107,10 +107,10 @@
 
 ## Expected Results
 
-- Evaluation kit board's LED1 will be toggled five times at 1sec periodic rate.
-- After toggling LED1 for five times, timer stops and configured with new parameters and toggles LED1 five more times.
+- Evaluation kit board's LED0 will be toggled five times at 1sec periodic rate.
+- After toggling LED0 for five times, timer stops and configured with new parameters and toggles LED0 five more times.
 
-![Figure: Onboard LED-1](resources/readme/image512d.png)
+![Figure: Onboard LED-0](resources/readme/image512d.png)
 
 ## Note
 

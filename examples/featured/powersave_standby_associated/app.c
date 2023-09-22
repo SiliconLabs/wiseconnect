@@ -38,6 +38,7 @@
 #include "sl_utility.h"
 #include "sl_net_si91x.h"
 #include "sl_wifi_callback_framework.h"
+#include "sl_si91x_driver.h"
 #include <string.h>
 
 #ifdef RSI_M4_INTERFACE
@@ -145,6 +146,12 @@ static void application_start(void *argument)
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi Client interface: 0x%lx\r\n", status);
+    return;
+  }
+
+  status = sl_si91x_set_join_configuration(SL_WIFI_CLIENT_INTERFACE, SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
+  if (status != SL_STATUS_OK) {
+    printf("Failed to start set join configuration: 0x%lx\r\n", status);
     return;
   }
 

@@ -215,36 +215,6 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle);
 
 /***************************************************************************/ /**
 * @brief
-* Set the  USART/UART power mode.
-*
-* @details
-* This function will set UART/USART power mode of operation .
-* In poweroff power state will disable the interrupt , disable DMA channel if DMA mode
-* disable the power to the USART block.So no usart operations are possible when set
-* this mode
-* In powerFull power state will enable the intterupt and set the flags initialization
-* and power on flag so that USART data transfer can takes place
-*
-* @pre \ref sl_si91x_usart_init();
-*
-* @param[in] usart_handle Pointer to the USART/UART driver
-* @param[in] state  power state
-*                 @li powerOff
-*                 @li powerLow
-*                 @li powerFull
-*
-* @return status 0 if successful, else error code
-*       \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument \n
-*       \ref SL_STATUS_FAIL (0x0001)   - Fail , UART/USART initialization failed \n
-*       \ref SL_STATUS _OK (0X000)     - Success ,UART/USART initialization done properly \n
-*
-* @note
-* powerLow power state is not supported
-******************************************************************************/
-sl_status_t sl_si91x_usart_set_power_mode(sl_usart_handle_t usart_handle, power_mode_typedef_t state);
-
-/***************************************************************************/ /**
-* @brief
 * Register the user callback function.
 *
 * @pre sl_si91x_usart_set_configuration();
@@ -274,7 +244,7 @@ void sl_si91x_usart_unregister_event_callback(void);
 * if DMA mode is set this function will configure the DMA channel and enables the DMA channel ,
 * then transfer's the data pointed to it else it fill the data to the transfer FIFO and transfer the data
 *
-* @pre \ref sl_si91x_usart_init(); \ref sl_si91x_usart_set_power_mode();
+* @pre \ref sl_si91x_usart_init();
 *      \ref sl_si91x_usart_set_configuration();
 *
 * @param[in] usart_handle Pointer to the USART/UART driver
@@ -298,7 +268,7 @@ sl_status_t sl_si91x_usart_send_data(sl_usart_handle_t usart_handle, const void 
 * If DMA mode is set, it configures the DMA channel, enables the DMA channel,
 *  and receives data via DMA. If DMA mode is not set, it receives the data from FIFO.
 *
-* @pre \ref sl_si91x_usart_init(); \ref sl_si91x_usart_set_power_mode();
+* @pre \ref sl_si91x_usart_init(); 
 *       \ref sl_si91x_usart_set_configuration();
 *
 * @param[in] usart_handle Pointer to the USART/UART driver
@@ -322,7 +292,7 @@ sl_status_t sl_si91x_usart_receive_data(sl_usart_handle_t usart_handle, void *da
 * This function will configure the DMA channel and enables the DMA channel , DMA
 * if DMA mode is set and transfer's the data pointed to it
 *
-* @pre \ref sl_si91x_usart_init(); \ref sl_si91x_usart_set_power_mode();
+* @pre \ref sl_si91x_usart_init();
 *      \ref sl_si91x_usart_set_configuration();
 *
 * @param[in] usart_handle Pointer to the USART/UART driver

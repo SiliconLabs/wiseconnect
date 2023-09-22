@@ -36,6 +36,7 @@ component:
 - id: sl_system
 - {from: wiseconnect3_sdk, id: systemlevel_time_period}
 - {from: wiseconnect3_sdk, id: sl_watchdog_timer}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 - id: status
 - id: si917_memory_default_config
   from: wiseconnect3_sdk

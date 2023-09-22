@@ -19,10 +19,6 @@ define:
     value: "1"
   - name: EXT_IRQ_COUNT
     value: "75"
-  - name: SRAM_BASE
-    value: "0x0C000000UL"
-  - name: SRAM_SIZE
-    value: "0x00040000UL"
   - name: SI91X_SYSRTC_PRESENT
     value: 1
   - name: SI91X_PLATFORM

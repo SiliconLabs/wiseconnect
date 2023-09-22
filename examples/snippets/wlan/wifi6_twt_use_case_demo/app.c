@@ -430,11 +430,11 @@ sl_status_t create_tcp_socket(void)
   }
   printf("\r\nTCP Client Socket ID : %d\r\n", tcp_client_socket);
 
-  socket_return_value = sl_si91x_setsockopt(tcp_client_socket,
-                                            SOL_SOCKET,
-                                            sl_si91x_SO_HIGH_PERFORMANCE_SOCKET,
-                                            &high_performance_socket,
-                                            sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_setsockopt_async(tcp_client_socket,
+                                                  SOL_SOCKET,
+                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                                  &high_performance_socket,
+                                                  sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nTCP Set Socket option failed with BSD error: %d\r\n", errno);
     close(tcp_client_socket);

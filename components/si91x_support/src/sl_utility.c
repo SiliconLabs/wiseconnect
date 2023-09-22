@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_utility.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include "sl_utility.h"
@@ -52,7 +69,7 @@ void print_sl_ip_address(const sl_ip_address_t *sl_ip_address)
 
   if (sl_ip_address->type == SL_IPV4) {
     print_sl_ipv4_address(&sl_ip_address->ip.v4);
-  } else if (sl_ip_address->type == SL_IPV4) {
+  } else if (sl_ip_address->type == SL_IPV6) {
     print_sl_ipv6_address(&sl_ip_address->ip.v6);
   }
 }
@@ -64,15 +81,9 @@ void print_sl_ipv4_address(const sl_ipv4_address_t *ip_address)
 
 void print_sl_ipv6_address(const sl_ipv6_address_t *ip_address)
 {
-  printf("%2X:%2X:%2X:%2X:%2X:%2X:%2X:%2X",
-         ip_address->bytes[0],
-         ip_address->bytes[1],
-         ip_address->bytes[2],
-         ip_address->bytes[3],
-         ip_address->bytes[4],
-         ip_address->bytes[5],
-         ip_address->bytes[6],
-         ip_address->bytes[7]);
+  char temp_buffer[46] = { 0 };
+  sl_inet_ntop6((const unsigned char *)(ip_address), (char *)temp_buffer, sizeof(temp_buffer));
+  printf("%s\r\n", temp_buffer);
 }
 
 void print_mac_address(sl_mac_address_t *mac_address)

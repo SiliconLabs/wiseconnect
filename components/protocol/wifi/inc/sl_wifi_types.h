@@ -270,8 +270,7 @@ typedef struct {
 
 /// Wi-Fi listen interval
 typedef struct {
-  uint8_t value;
-  sl_wifi_listen_interval_time_unit_t time_units; ///< WiFi Listen interval
+  uint32_t listen_interval; ///< Wi-Fi Listen interval in secs
 } sl_wifi_listen_interval_t;
 
 /// Wi-Fi client info

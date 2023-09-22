@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_si91x_socket_types.h
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #pragma once
 
 #include <stdint.h>
@@ -21,6 +38,22 @@ typedef enum {
   DISCONNECTED // Socket attains this state when underlying connection is lost
 } si91x_bsd_socket_state_t;
 
+#define SI91X_MAX_SIZE_OF_EXTENSION_DATA 256
+
+#pragma pack()
+typedef struct {
+	uint8_t buffer[SI91X_MAX_SIZE_OF_EXTENSION_DATA];
+	uint16_t total_extensions;
+	uint16_t current_size_of_extensions;
+} si91x_server_name_indication_extensions_t;
+
+#pragma pack()
+typedef struct {
+	uint16_t type;
+	uint16_t length;
+	uint8_t value[];
+} si91x_socket_type_length_value_t;
+
 typedef struct {
   int32_t id;
   int32_t type;
@@ -29,10 +62,12 @@ typedef struct {
   uint8_t max_tcp_retries;
   uint16_t read_timeout;
   uint8_t certificate_index;
+  uint8_t vap_id;
   uint16_t mss;
   struct sockaddr_in6 local_address; // Using sockaddr_in6 to hold either IPV4 or IPV6.
   struct sockaddr_in6 remote_address;
   si91x_bsd_socket_state_t state;
+  si91x_server_name_indication_extensions_t sni_extensions;
 #ifdef CHIP_917
   uint32_t ssl_bitmap;
   uint32_t max_retransmission_timeout_value;

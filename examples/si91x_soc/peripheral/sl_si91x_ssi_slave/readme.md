@@ -130,7 +130,7 @@
 | GPIO pin      | Description             |
 | ------------- | ----------------------- |
 | GPIO_26 [P27] | RTE_SSI_SLAVE_SCK_PIN   |
-| GPIO_25 [F09] | RTE_SSI_SLAVE_CS_PIN    |
+| GPIO_9 [F09] | RTE_SSI_SLAVE_CS_PIN    |
 | GPIO_27 [P29] | RTE_SSI_SLAVE_MOSI_PIN  |
 | GPIO_28 [P31] | RTE_SSI_SLAVE_MISO_PIN  |
 

@@ -39,10 +39,11 @@ source:
 - path: core/chip/src/system_si91x.c
 - path: core/chip/src/rsi_deepsleep_soc.c
 - path: core/chip/src/rsi_system_config.c
-- path: boards/src/syscalls.c
 - path: core/config/src/rsi_nvic_priorities_config.c
 - path: core/chip/src/startup_si91x.c
   unless: ["siwx917_soc_custom_startup"]
+- path: boards/src/syscalls.c
+  unless: ["no_syscalls"]
 include:
 - path: platform_connectivity/inc
 - path: drivers/cmsis_driver
@@ -62,11 +63,8 @@ define:
 - name: RSI_M4_INTERFACE
 - name: ENABLE_IPMU_APIS
 - name: SI917
-- name: DEBUG_UART
 - name: FLASH_BASED_EXECUTION_ENABLE
 - name: TA_DEEP_SLEEP_COMMON_FLASH
-- name: CHIP_917=1
-- name: CHIP_917B0=1
 - name: RSI_WITH_OS
   condition: [freertos]
 - name: EXECUTION_FROM_RAM

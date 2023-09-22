@@ -124,12 +124,6 @@ void ssi_master_example_init(void)
       break;
     }
     DEBUGOUT("SSI Initialization Success \n");
-    // Power up the SSI peripheral
-    sl_status = sl_si91x_ssi_configure_power_mode(ssi_driver_handle, ARM_POWER_FULL);
-    if (sl_status != SL_STATUS_OK) {
-      DEBUGOUT("Failed to Set Power to SSI, Error Code : %lu \n", sl_status);
-    }
-    DEBUGOUT("Configured Power to SSI \n");
     // Configure the SSI to Master, 16-bit mode @10000 kBits/sec
     sl_status = sl_si91x_ssi_set_configuration(ssi_driver_handle, &config);
     if (sl_status != SL_STATUS_OK) {

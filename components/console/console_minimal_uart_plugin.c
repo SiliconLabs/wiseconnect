@@ -75,7 +75,7 @@ static uint8_t user_rx_buffer[USER_RX_BUFFER_COUNT][USER_RX_BUFFER_SIZE];
 static uint16_t user_rx_buffer_write_pointer = 0;
 static uint8_t current_buffer_index          = 0;
 static uint8_t buffer_ready_index            = INVALID_INDEX;
-static uint8_t uart_rx_cache[128];
+static uint8_t uart_rx_cache[USER_RX_BUFFER_SIZE];
 static uint16_t uart_rx_write_iter = 0;
 static uint16_t uart_rx_read_iter  = 0;
 

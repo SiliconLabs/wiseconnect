@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  console.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include "console.h"
 #include "sl_ieee802_types.h"
 #include "sl_ip_types.h"
@@ -323,9 +340,10 @@ sl_status_t console_parse_arg(console_argument_type_t type, char *line, uint32_t
     } break;
 
     case CONSOLE_ARG_IP_ADDRESS: {
-      sl_ipv4_address_t *temp_ip = (sl_ipv4_address_t *)line; // Write the converted value back into the line
-      *arg_result                = (uint32_t)temp_ip;
-      return convert_string_to_sl_ipv4_address(line, temp_ip);
+      sl_ipv4_address_t temp_ip = { 0 }; // Write the converted value back into the line
+      sl_status_t status        = convert_string_to_sl_ipv4_address(line, &temp_ip);
+      *arg_result               = temp_ip.value;
+      return status;
     } break;
 
     case CONSOLE_ARG_HEX: {

@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sli_siwx917_soc.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include "sl_component_catalog.h"
 #include "system_si91x.h"
 #include "rsi_error.h"
@@ -12,11 +29,17 @@
 #include "sli_siwx917_soc.h"
 #include "sl_constants.h"
 #include "rsi_temp_sensor.h"
+#include "sl_si91x_host_interface.h"
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "cmsis_os2.h"
 #endif
 
 #define RSI_HAL_MAX_WR_BUFF_LEN 4096
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wcast-align"
 
 /**
  *@}
@@ -35,6 +58,9 @@ int16_t rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf)
   *(uint32_t *)dBuf = *(uint32_t *)addr;
   return 0;
 }
+
+#pragma GCC diagnostic pop
+#endif // __GNUC__
 
 /**
  * @fn          int16_t rsi_bl_select_option(uint8_t cmd)

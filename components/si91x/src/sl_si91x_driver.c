@@ -120,6 +120,7 @@
 sl_status_t sli_si91x_submit_rx_pkt(void);
 static sl_status_t sl_si91x_soft_reset(void);
 void sli_siwx917_update_system_core_clock(void);
+void sli_m4_ta_interrupt_init(void);
 #endif
 
 typedef struct {
@@ -167,8 +168,9 @@ bool interface_is_up[SL_WIFI_MAX_INTERFACE_INDEX] = { false, false, false, false
 bool bg_enabled                                   = false;
 uint32_t frontend_switch_control                  = 0;
 static uint16_t packet_id[SI91X_CMD_MAX]          = { 0 };
-uint8_t ap_join_feature_bitmap;
-uint8_t client_join_feature_bitmap;
+static uint8_t ap_join_feature_bitmap             = SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
+static uint8_t client_join_feature_bitmap         = SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
+static uint32_t client_listen_interval            = 1000;
 //! Currently, initialized_opermode is used only to handle concurrent mode using sl_net_init()
 static uint16_t initialized_opermode = SL_SI91X_INVALID_MODE;
 
@@ -542,7 +544,9 @@ sl_status_t sl_si91x_driver_deinit(void)
 
 #if defined(SI91X_NETWORK_OFFLOAD_ENABLED) && defined(SI91X_SOCKET_FEATURE)
   // Free all allocated sockets
-  status = sl_si91x_socket_deinit();
+  status = sl_si91x_vap_shutdown(CLIENT_MODE);
+  VERIFY_STATUS(status);
+  status = sl_si91x_vap_shutdown(AP_MODE);
   VERIFY_STATUS(status);
 #endif
 
@@ -1282,7 +1286,8 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
 
   switch (operation_mode) {
     case SL_SI91X_CLIENT_MODE:
-    case SL_SI91X_ENTERPRISE_CLIENT_MODE: {
+    case SL_SI91X_ENTERPRISE_CLIENT_MODE:
+    case SL_SI91X_TRANSMIT_TEST_MODE: {
       sl_si91x_set_region_request_t request = { 0 };
 
       request.set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER;
@@ -1582,6 +1587,11 @@ sl_status_t sl_si91x_transmit_test_stop(void)
   return status;
 }
 
+sl_si91x_operation_mode_t get_opermode(void)
+{
+  return initialized_opermode;
+}
+
 sl_status_t sl_si91x_calibration_write(sl_si91x_calibration_write_t calib_write)
 {
   sl_status_t status = SL_STATUS_OK;
@@ -1735,4 +1745,30 @@ sl_status_t sl_si91x_set_join_configuration(sl_wifi_interface_t interface, uint8
     return SL_STATUS_FAIL;
   }
   return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_get_join_configuration(sl_wifi_interface_t interface, uint8_t *join_feature_bitmap)
+{
+  ARGS_CHECK_NULL_POINTER(join_feature_bitmap);
+
+  if (interface & SL_WIFI_CLIENT_INTERFACE) {
+    *join_feature_bitmap = client_join_feature_bitmap;
+  } else if (interface & SL_WIFI_AP_INTERFACE) {
+    *join_feature_bitmap = ap_join_feature_bitmap;
+  } else {
+    return SL_STATUS_WIFI_UNKNOWN_INTERFACE;
+  }
+
+  return SL_STATUS_OK;
+}
+
+void sl_si91x_set_listen_interval(uint32_t listen_interval)
+{
+  client_listen_interval = listen_interval;
+  return;
+}
+
+uint32_t sl_si91x_get_listen_interval(void)
+{
+  return client_listen_interval;
 }

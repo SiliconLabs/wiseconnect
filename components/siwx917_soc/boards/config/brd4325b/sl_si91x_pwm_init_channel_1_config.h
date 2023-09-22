@@ -78,6 +78,12 @@ extern "C" {
 // <i> Default: SL_FREE_RUN_MODE
 #define SL_PWM_CHANNEL_1_TIMER_MODE SL_FREE_RUN_MODE
 
+// <o SL_PWM_CHANNEL_1_TIMER_SELECTION> Base Timer Selection
+//   <SL_BASE_TIMER_EACH_CHANNEL=> Timer(Each Channel)
+//   <SL_BASE_TIMER_ALL_CHANNEL=> Timer(All Channels)
+// <i> Default: SL_BASE_TIMER_EACH_CHANNEL
+#define SL_PWM_CHANNEL_1_TIMER_SELECTION SL_BASE_TIMER_ALL_CHANNEL
+
 // <o SL_PWM_CHANNEL_1_EVENT> Ext Trigger
 //   <0=> None
 //   <1=> Fault A

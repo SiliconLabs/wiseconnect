@@ -26,6 +26,7 @@ component:
 - {from: wiseconnect3_sdk, id: rsilib_clock_update}
 - {from: wiseconnect3_sdk, id: udma_linker_config}
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 other_file:
 - {path: resources/readme/image502a.png}
 - {path: resources/readme/image502b.png}

@@ -65,13 +65,14 @@ typedef enum {
   UULP_GPIO_PIN_INTR  = 0, // Configure GPIO UULP instance pin interrupt
 } gpio_instance_type_t;
 
-// Enum for UULP GPIO group interrupt
+// Enum for UULP GPIO interrupt
 typedef enum {
-  UULP_GPIO_PIN0 = (1 << 0), // UULP GPIO pin 1 interrupt
-  UULP_GPIO_PIN1 = (1 << 1), // UULP GPIO pin 2 interrupt
-  UULP_GPIO_PIN2 = (1 << 2), // UULP GPIO pin 3 interrupt
-  UULP_GPIO_PIN3 = (1 << 3), // UULP GPIO pin 4 interrupt
-} sl_si91x_uulp_gpio_grp_intr_t;
+  UULP_GPIO_INTR_1 = 0x01, // UULP GPIO pin interrupt 1
+  UULP_GPIO_INTR_2 = 0x02, // UULP GPIO pin interrupt 2
+  UULP_GPIO_INTR_3 = 0x04, // UULP GPIO pin interrupt 3
+  UULP_GPIO_INTR_4 = 0x08, // UULP GPIO pin interrupt 4
+  UULP_GPIO_INTR_5 = 0x10, // UULP GPIO pin interrupt 5
+} sl_si91x_uulp_gpio_intr_t;
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
@@ -357,7 +358,7 @@ void gpio_example_init(void)
       }
       DEBUGOUT("GPIO driver set uulp pad configuration is successful \n");
       // Unmask NPSS interrupt
-      status = sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(SL_SI91X_UULP_GPIO_2_PIN);
+      status = sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(UULP_GPIO_INTR_3);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_unmask_uulp_npss_interrupt, Error code: %lu", status);
         break;
@@ -366,7 +367,7 @@ void gpio_example_init(void)
       // Configure pin interrupt for sl_si91x_gpio_interrupt_config_flag_t structure
       status = sl_si91x_gpio_driver_configure_uulp_interrupt(
         (sl_si91x_gpio_interrupt_config_flag_t)SL_GPIO_INTERRUPT_FALL_EDGE,
-        UULP_GPIO_PIN2,
+        UULP_GPIO_INTR_3,
         &gpio_uulp_pin_interrupt_callback);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_configure_uulp_interrupt, Error code: %lu", status);
@@ -771,7 +772,7 @@ static void sl_gpio_driver_uulp_initialization(void)
       DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_direction, Error code: %lu", status);
       break;
     }
-    DEBUGOUT("GPIO driver uulp pin direction selection is successful \n");
+    DEBUGOUT("GPIO uulp driver clear pin direction selection is successful \n");
   } while (false);
 }
 

@@ -34,6 +34,8 @@ component:
     from: wiseconnect3_sdk
   - id: sl_efuse
     from: wiseconnect3_sdk
+  - id: si91x_debug
+    from: wiseconnect3_sdk
 other_file:
 - {path: resources/readme/image514a.png}
 - {path: resources/readme/image514b.png}

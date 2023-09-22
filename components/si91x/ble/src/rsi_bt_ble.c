@@ -1582,6 +1582,22 @@ uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x
         }
       }
     } break;
+    case RSI_BT_VENDOR_SPECIFIC: {
+      pkt->data[0] = ((uint8_t *)cmd_struct)[0];
+      pkt->data[1] = ((uint8_t *)cmd_struct)[1];
+      switch ((pkt->data[0] | (pkt->data[1] << 8))) {
+        case BLE_VENDOR_RF_TYPE_CMD_OPCODE:
+          payload_size = sizeof(rsi_ble_vendor_rf_type_t);
+          memcpy(pkt->data, cmd_struct, payload_size);
+          break;
+        case BLE_VENDOR_ACCEPTLIST_USING_ADV_DATA_PAYLOAD:
+          payload_size = sizeof(rsi_ble_req_acceptlist_using_payload_t);
+          memcpy(pkt->data, cmd_struct, payload_size);
+          break;
+        default:
+          break;
+      }
+    } break;
     case RSI_BT_SET_GAIN_TABLE_OFFSET_OR_MAX_POWER_UPDATE: {
       payload_size = sizeof(rsi_bt_cmd_update_gain_table_offset_or_maxpower_t);
       memcpy(pkt->data, cmd_struct, payload_size);

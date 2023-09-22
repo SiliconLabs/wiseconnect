@@ -706,8 +706,12 @@
 /// Disable Coded PHY from APP
 /// @note Device will support the LE-coded phy feature (i.e LR - 125kbps and 500kbps) by default. If this bit is enabled, the device will not the support of the LE-coded phy rates.
 #define SL_SI91X_BLE_DISABLE_CODED_PHY_FROM_HOST BIT(17)
+// BIT 19 for enabling advertising extensions
+#define SL_SI91X_BLE_ENABLE_ADV_EXTN BIT(19)
+// ble_custom_ext_feature_bit_map[20:23] for max AE adv sets
+#define SL_SI91X_BLE_AE_MAX_ADV_SETS(num_adv_sets) (num_adv_sets << 20)
 
-/// @note Bits 18 -31 are reserved
+/// @note Bits 21 -31 are reserved
 /** @} */
 
 /** \addtogroup SI91X_CONFIG_FEATURE_BITMAP si91x_config_feature_bit_map

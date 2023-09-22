@@ -59,7 +59,7 @@ extern __INLINE void sl_gpio_clear_pin_output(sl_gpio_port_t port, uint8_t pin);
 void sl_gpio_configure_interrupt(sl_gpio_port_t port, uint8_t pin, uint32_t int_no, sl_gpio_interrupt_flag_t flags)
 {
   // Pin interrupt configuration in HP GPIO instance
-  SL_GPIO_ASSERT(SL_GPIO_PORT_PIN_VALID(port, pin));
+  SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_FLAG(flags));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_INTR(int_no));
   GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PORT_NUMBER = port;
@@ -309,17 +309,21 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PAD(gpio_padnum));
   if (gpio_padnum < PAD_SELECT) {
-    // (tass_m4ss_gpio_sel)PAD selection (0 to 21)
-    // A value of 1 on this gives control to M4SS(by default it is 0)
+    /*(tass_m4ss_gpio_sel)PAD selection (0 to 21)
+  A value of 1 on this gives control to M4SS(by default it is 0 means ta control) */
     PADSELECTION |= BIT(gpio_padnum);
-  } else if (gpio_padnum >= HOST_PAD_MIN && gpio_padnum <= HOST_PAD_MAX) {
+  }
+  if (gpio_padnum >= HOST_PAD_MIN && gpio_padnum <= HOST_PAD_MAX) {
     // (tass_m4ss_gpio_sel)PAD selection (25 to 30)
     // A value of 1 on this gives control to M4SS(by default it is 0)
-    HOST_PADS_GPIO_MODE |= BIT(gpio_padnum - 12);
-    // (tass_m4ss_gpio_sel)PAD selection (22 t0 33)
+    HOST_PADS_GPIO_MODE |= BIT(gpio_padnum - HOST_PAD_SELECT);
+    // (tass_m4ss_gpio_sel)PAD selection (22 to 33)
     // A value of 1 on this gives control to M4SS(by default it is 0 means ta control)
-  } else {
-    PADSELECTION_1 |= BIT(gpio_padnum - 22);
+  }
+  if (gpio_padnum >= PAD_SELECT) {
+    /*(tass_m4ss_gpio_sel)PAD selection (22 to 33)
+  A value of 1 on this gives control to M4SS(by default it is 0 means ta control) */
+    PADSELECTION_1 |= BIT(gpio_padnum - PAD_SELECT);
   }
 }
 
@@ -1092,7 +1096,7 @@ void sl_si91x_gpio_select_uulp_npss_polarity(uint8_t pin, sl_si91x_gpio_polarity
 *******************************************************************************/
 void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
-  UULP_GPIO_FSM->GPIO_WAKEUP_REGISTER |= (BIT(npssgpio_interrupt) << 1);
+  UULP_GPIO_FSM->GPIO_WAKEUP_REGISTER |= (BIT(npssgpio_interrupt));
 }
 
 /*******************************************************************************
@@ -1100,7 +1104,7 @@ void sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
-  UULP_GPIO_FSM->GPIO_WAKEUP_REGISTER |= (BIT(npssgpio_interrupt) << 1);
+  UULP_GPIO_FSM->GPIO_WAKEUP_REGISTER |= (BIT(npssgpio_interrupt));
 }
 
 /*******************************************************************************
@@ -1113,7 +1117,7 @@ void sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_INTR(npssgpio_interrupt));
-  GPIO_NPSS_INTERRUPT_MASK_SET_REG |= (BIT(npssgpio_interrupt) << 1);
+  GPIO_NPSS_INTERRUPT_MASK_SET_REG = (npssgpio_interrupt << 1);
 }
 
 /*******************************************************************************
@@ -1130,7 +1134,7 @@ void sl_si91x_gpio_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_INTR(npssgpio_interrupt));
-  GPIO_NPSS_INTERRUPT_MASK_CLR_REG |= (BIT(npssgpio_interrupt) << 1);
+  GPIO_NPSS_INTERRUPT_MASK_CLR_REG = (npssgpio_interrupt << 1);
 }
 
 /*******************************************************************************
@@ -1138,7 +1142,7 @@ void sl_si91x_gpio_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 *******************************************************************************/
 void sl_si91x_gpio_clear_uulp_interrupt(uint8_t npssgpio_interrupt)
 {
-  GPIO_NPSS_INTERRUPT_CLEAR_REG |= (BIT(npssgpio_interrupt) << 1);
+  GPIO_NPSS_INTERRUPT_CLEAR_REG = (npssgpio_interrupt << 1);
 }
 
 /*******************************************************************************

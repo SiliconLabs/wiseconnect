@@ -62,6 +62,8 @@ component:
     from: wiseconnect3_sdk
   - id: wifi_resources
     from: wiseconnect3_sdk
+  - id: si91x_debug
+    from: wiseconnect3_sdk
   - id: slist
   - id: sl_system
 define:

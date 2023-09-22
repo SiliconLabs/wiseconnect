@@ -130,6 +130,20 @@ You can use either of the below USB to UART converters for application prints.
 
     **![serial_port](resources/readme/serial_port.png)**
 
+#### 3.3.3 **Serial Terminal Setup - for NCP and SoC modes**
+
+1. Open the Serial Debug
+
+- choose the J-Link port and update the baud rate to **115200** and click on **OK**.
+
+    **![J-link](resources/readme/port_selection_serial_terminal.png)**
+
+2. Click on open serial port
+
+    **![Start_Communication](resources/readme/communication.png)**
+
+3. By using Serial Debug we can get the prints (even without USB to UART converter)
+
 ## 4 Application Build Environment
 
 The application can be configured to suit your requirements and development environment.
@@ -209,6 +223,18 @@ The application can be configured to suit user requirements and development envi
   - NCP
 
     **![debug_mode_NCP](resources/readme/debug_as_ncp.png)**
+
+- After successful connection, open iperf application from remote PC command Prompt.
+
+- Connect to TCP Server running using below command
+
+> `C:\> iperf.exe -s -p <SERVER_PORT> -i 1`
+>
+> For example ...
+>
+> `C:\> iperf.exe -s -p 5001 -i 1`
+
+  **![iperf_Output](resources/readme/image217d.png)**
 
 ### 4.4 Application Output
 

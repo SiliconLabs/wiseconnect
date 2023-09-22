@@ -26,6 +26,7 @@ define:
   - name: RSI_DEBUG_PRINTS
 component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_system
 - name: network_manager
@@ -57,8 +58,8 @@ configuration:
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/blelrncp.png
-  - path: resources/readme/blelrsoc.png
+  - path: resources/readme/blelongrangencp.png
+  - path: resources/readme/blelongrangesoc.png
   - path: resources/readme/build_example.png
   - path: resources/readme/create_project1.png
   - path: resources/readme/create_project2.png
@@ -72,7 +73,13 @@ other_file:
   - path: resources/readme/serial_port_setup.png
   - path: resources/readme/socboarddetection111.png
   - path: resources/readme/usb_to_uart_1.png
-  - path: resources/readme/usb_to_uart_2.png   
+  - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/blelrapplicationconfigurations.png
+  - path: resources/readme/blelrconfigurations.png
+  - path: resources/readme/blelradvertising.png
+  - path: resources/readme/blelrconnection.png
+  - path: resources/readme/blelrconnection1.png   
+  
 ui_hints:
   highlight:
     - path: readme.md

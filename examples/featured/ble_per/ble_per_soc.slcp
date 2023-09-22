@@ -24,8 +24,10 @@ include:
       - path: ble_config.h
 define:
   - name: RSI_DEBUG_PRINTS
+  - name: ALARM_TIMER_BASED_WAKEUP
 component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 - {from: wiseconnect3_sdk, id: rsilib_userconfig}
 - {from: wiseconnect3_sdk, id: rsilib_chip}
 - {from: wiseconnect3_sdk, id: siwx917_soc}
@@ -80,6 +82,8 @@ other_file:
   - path: resources/readme/soc_board_detection.png
   - path: resources/readme/usb_to_uart_1.png
   - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/teraterm_prints.png
+  - path: resources/readme/bleperspectrum.png
 ui_hints:
   highlight:
     - path: readme.md

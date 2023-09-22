@@ -223,6 +223,11 @@ sl_status_t sl_si91x_pwm_set_configuration(sl_pwm_config_t *pwm_config)
     if (status != SL_STATUS_OK) {
       break;
     }
+    // Set base timer selection for channel
+    status = sl_si91x_pwm_control_base_timer(pwm_config->channel_timer_selection);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
     status = SL_STATUS_OK;
   } while (false);
   return status;

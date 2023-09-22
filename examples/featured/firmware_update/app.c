@@ -273,7 +273,6 @@ sl_status_t update_firmware()
         // Close the socket
         close(client_socket);
         printf("\r\nFirmware update complete\r\n");
-        osDelay(5000);
 
 #ifdef RSI_M4_INTERFACE
 //! Perform SOC soft reset for combined Image
@@ -287,7 +286,6 @@ sl_status_t update_firmware()
         printf("\r\nWi-Fi Deinit status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);
 
-        osDelay(5000);
         status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
         printf("\r\nWi-Fi Init status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);

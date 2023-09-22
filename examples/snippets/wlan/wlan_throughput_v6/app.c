@@ -36,6 +36,7 @@
 #include "sl_utility.h"
 #include "sl_wifi.h"
 #include "socket.h"
+#include "sl_si91x_socket_support.h"
 #include <string.h>
 
 #ifdef RSI_M4_INTERFACE
@@ -118,12 +119,12 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
-                   .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
-                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT
-                                              | SL_SI91X_TCP_IP_FEAT_DHCPV6_SERVER | SL_SI91X_TCP_IP_FEAT_IPV6
-                                              | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+  .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                   .tcp_ip_feature_bit_map =
+                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT
+                      | SL_SI91X_TCP_IP_FEAT_IPV6 | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map =
                      (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
                    .ext_custom_feature_bit_map = (
@@ -381,11 +382,11 @@ void receive_data_from_tcp_client(void)
   }
   printf("\r\nServer Socket ID : %d\r\n", server_socket);
 
-  socket_return_value = setsockopt(server_socket,
-                                   SOL_SOCKET,
-                                   SO_HIGH_PERFORMANCE_SOCKET,
-                                   &high_performance_socket,
-                                   sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_set_custom_sync_sockopt(server_socket,
+                                                         SOL_SOCKET,
+                                                         SO_HIGH_PERFORMANCE_SOCKET,
+                                                         &high_performance_socket,
+                                                         sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
@@ -584,11 +585,11 @@ void receive_data_from_tls_server(void)
     return;
   }
 
-  socket_return_value = setsockopt(client_socket,
-                                   SOL_SOCKET,
-                                   SO_HIGH_PERFORMANCE_SOCKET,
-                                   &high_performance_socket,
-                                   sizeof(high_performance_socket));
+  socket_return_value = sl_si91x_set_custom_sync_sockopt(client_socket,
+                                                         SOL_SOCKET,
+                                                         SO_HIGH_PERFORMANCE_SOCKET,
+                                                         &high_performance_socket,
+                                                         sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);

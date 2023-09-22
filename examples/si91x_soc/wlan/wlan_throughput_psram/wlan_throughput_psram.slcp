@@ -39,6 +39,8 @@ component:
     from: wiseconnect3_sdk
   - id: siwx917_soc
     from: wiseconnect3_sdk
+  - id: si91x_debug
+    from: wiseconnect3_sdk    
 requires:
 - name: sl_system
 - name: bsd_socket

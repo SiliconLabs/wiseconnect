@@ -1,3 +1,19 @@
+/*******************************************************************************
+* @file  efx32_ncp_host.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
 
 #include "sl_wifi_constants.h"
 #include "sl_si91x_host_interface.h"
@@ -39,6 +55,7 @@ osEventFlagsId_t si91x_async_events = 0;
 osThreadId_t si91x_thread           = 0;
 osMutexId_t si91x_bus_mutex         = 0;
 osThreadId_t si91x_event_thread     = 0;
+osMutexId_t malloc_free_mutex       = 0;
 
 static si91x_packet_queue_t cmd_queues[SI91X_QUEUE_MAX];
 
@@ -140,6 +157,7 @@ sl_status_t sl_si91x_host_init(void)
     // called(Which happens very frequently in bus thread)
     cmd_queues[i].flag = (1 << i);
   }
+  malloc_free_mutex = osMutexNew(NULL);
   return status;
 }
 
@@ -182,6 +200,8 @@ sl_status_t sl_si91x_host_deinit(void)
     osMutexDelete(cmd_queues[i].mutex);
     cmd_queues[i].mutex = NULL;
   }
+  osMutexDelete(malloc_free_mutex);
+  malloc_free_mutex = NULL;
   return SL_STATUS_OK;
 }
 

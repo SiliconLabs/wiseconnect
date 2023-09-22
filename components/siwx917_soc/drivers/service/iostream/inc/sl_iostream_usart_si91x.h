@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#ifndef SL_IOSTREAM_USART_H
-#define SL_IOSTREAM_USART_H
+#ifndef SL_IOSTREAM_USART_SI91X_H
+#define SL_IOSTREAM_USART_SI91X_H
 
 #if defined(SL_COMPONENT_CATALOG_PRESENT)
 #include "sl_component_catalog.h"

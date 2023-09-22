@@ -145,6 +145,15 @@
 #define TRNG_KEY_SIZE        4
 #define TRNG_TEST_DATA_SIZE  64
 
+#define SL_SI91X_TAG_SIZE 16
+
+// CCM defines
+#define SL_SI91X_KEY_BUFFER_SIZE  32
+#define SL_SI91X_CCM_IV_MIN_SIZE  7
+#define SL_SI91X_CCM_IV_MAX_SIZE  13
+#define SL_SI91X_CCM_AD_MAX_SIZE  32
+#define SL_SI91X_CCM_MSG_MAX_SIZE 1200
+
 typedef struct {
   uint32_t buffer_full : 1;
   uint32_t ready_to_transmit : 1;
@@ -386,6 +395,7 @@ typedef enum {
   RSI_WLAN_REQ_JOIN                 = 0x14,
   RSI_WLAN_REQ_SET_MAC_ADDRESS      = 0x17,
   RSI_WLAN_REQ_DISCONNECT           = 0x19,
+  RSI_WLAN_REQ_AP_STOP              = 0xAE,
   RSI_WLAN_REQ_SET_REGION           = 0x1D,
   RSI_WLAN_REQ_QUERY_NETWORK_PARAMS = 0x18,
   RSI_WLAN_REQ_AP_CONFIGURATION     = 0x24,
@@ -496,6 +506,7 @@ typedef enum {
   RSI_WLAN_RSP_SET_MAC_ADDRESS      = 0x17,
   RSI_WLAN_RSP_QUERY_NETWORK_PARAMS = 0x18,
   RSI_WLAN_RSP_DISCONNECT           = 0x19,
+  RSI_WLAN_RSP_AP_STOP              = 0xAE,
   RSI_WLAN_RSP_SET_REGION           = 0x1D,
   RSI_WLAN_RSP_AP_CONFIGURATION     = 0x24,
   RSI_WLAN_RSP_TWT_AUTO_CONFIG      = 0x2E,

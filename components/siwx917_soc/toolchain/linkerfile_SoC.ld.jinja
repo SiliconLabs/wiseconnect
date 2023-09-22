@@ -129,7 +129,7 @@ SECTIONS
 		{%- if RAM_EXECUTION %}
 		{%- if not ULP_PLATFORM %}
      	KEEP(*(.reset_handler))
-		*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *port.o *heap_*.o) .text*)
+		*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *siwx917_soc_ncp_host.o *port.o *heap_*.o) .text*)
 		{%- endif %}
 		{%- endif %}
 		{% if not RAM_EXECUTION %}	    
@@ -242,6 +242,8 @@ SECTIONS
 		*tasks.o(.text*)
 		*timers.o(.text*)
 		*freertos_umm_malloc_host.o(.text*)
+		*malloc_buffers.o(.text*)
+		*siwx917_soc_ncp_host.o(.text*)
 		*port.o(.text*)
 		*heap_*.o(.text*)
 		{%- endif %}

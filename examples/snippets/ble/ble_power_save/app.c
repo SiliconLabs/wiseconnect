@@ -279,7 +279,7 @@ void M4_sleep_wakeup(void)
   vPortSetupTimerInterrupt();
 
 #ifdef DEBUG_UART
-  fpuInit();
+
   /*Initialize UART after wake up*/
   sl_service_init();
 #endif

@@ -40,6 +40,8 @@ component:
   - id: sl_si91x_led_917
     instance: [led0]
     from: wiseconnect3_sdk
+  - id: si91x_debug
+    from: wiseconnect3_sdk
 other_file:
 - {path: resources/readme/image600a.png}
 - {path: resources/readme/image600b.png}

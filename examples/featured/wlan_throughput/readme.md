@@ -190,6 +190,7 @@ The application can be configured to suit user requirements and development envi
     #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512MB data transfer
     #define BYTES_TO_RECEIVE  (1 << 20)     // To measure RX throughput with 1MB data transfer
     #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
+    
     ```
 
 ### 4.2 Build the Application

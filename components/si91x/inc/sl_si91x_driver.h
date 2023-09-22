@@ -520,6 +520,15 @@ sl_status_t sl_si91x_transmit_test_stop(void);
 
 /***************************************************************************/ /**
  * @brief
+ *   Get the current Opermode of the module.
+ * @param[in] void
+ * @return
+ *   sl_si91x_operation_mode_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_si91x_operation_mode_t get_opermode(void);
+
+/***************************************************************************/ /**
+ * @brief
  *   This API will command the firmware to update the existing Flash/EFuse calibration data. This is a blocking API.
  * @pre 
  *   @ref sl_wifi_init, sl_si91x_transmit_test_start and sl_si91x_frequency_offset should be called before this API.
@@ -596,17 +605,52 @@ sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write);
  *******************************************************************************/
 sl_status_t sl_si91x_efuse_read(sl_si91x_efuse_read_t *efuse_read, uint8_t *efuse_read_buf);
 
+/** \addtogroup SI91X_DRIVER_FUNCTIONS Core
+ * \ingroup SL_SI91X_API
+ * @{ */
 /***************************************************************************/ /**
  * @brief
- *   Set join request configuration
+ *   Si91X specific set join feature bitmap configuration
  * @param[in] interface 
  *   Selected interface.
  * @param[in] join_feature_bitmap
- *   Join feature bit.
- *    SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED = WPA3
- *    SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY = WPA3_TRANSITION
- *    SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID = SL_WIFI_WPA2
+ *   Join feature bitmap configuration. One of values from @ref SI91X_JOIN_FEATURE_BIT_MAP
  * @return     
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note 
+ *     By default SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID bitmap is enabled. User can call this API before calling @ref sl_wifi_connect(), @ref sl_wifi_start_ap(), @ref sl_wifi_start_wps() to overwrite the join feature bitmap
  *******************************************************************************/
 sl_status_t sl_si91x_set_join_configuration(sl_wifi_interface_t interface, uint8_t join_feature_bitmap);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Si91X specific get join feature bitmap configuration
+ * @param[in] interface
+ *   Selected interface.
+ * @param[out] join_feature_bitmap
+ *   join feature bitmap configuration. One of values from @ref SI91X_JOIN_FEATURE_BIT_MAP
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *     By default SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID bitmap is enabled.
+ *******************************************************************************/
+sl_status_t sl_si91x_get_join_configuration(sl_wifi_interface_t interface, uint8_t *join_feature_bitmap);
+
+/** @} */
+
+/***************************************************************************/ /**
+ * @brief
+ *   Si91X specific set listen interval
+ * @param[in] listen_interval
+ *   Wi-Fi Listen interval.
+ * @return none
+ *******************************************************************************/
+void sl_si91x_set_listen_interval(uint32_t listen_interval);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Si91X specific get listen interval
+ * @return uint32_t
+ *     Wi-Fi Listen interval
+ *******************************************************************************/
+uint32_t sl_si91x_get_listen_interval(void);

@@ -81,6 +81,7 @@ static void sl_si91x_ssi_set_fifo_threshold(sl_ssi_handle_t ssi_handle);
 static void callback_event_handler(uint32_t event);
 static void sl_ssi_set_receive_sample_delay(sl_ssi_handle_t ssi_handle, uint32_t sample_delay);
 static boolean_t validate_ssi_handle(sl_ssi_handle_t ssi_handle);
+static sl_status_t sli_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state);
 
 /*******************************************************************************
  **********************  Local Function Definition****************************
@@ -192,6 +193,10 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
     *ssi_handle  = ssi_temp_handle;
     error_status = ((sl_ssi_driver_t *)ssi_temp_handle)->Initialize(callback_event_handler);
     status       = convert_arm_to_sl_error_code(error_status);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    status = sli_si91x_ssi_configure_power_mode(ssi_temp_handle, ARM_POWER_FULL);
   } while (false);
   return status;
 }
@@ -219,6 +224,10 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    status = sli_si91x_ssi_configure_power_mode(ssi_handle, ARM_POWER_OFF);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Uninitialize();
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
@@ -236,7 +245,7 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle)
  *  error return code such as SL_STATUS_FAIL otherwise.
  *  ARM errors are converted to SL errors via convert_arm_to_sl_error_code function.
 *******************************************************************************/
-sl_status_t sl_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state)
+static sl_status_t sli_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state)
 {
   int32_t error_status;
   sl_status_t status;

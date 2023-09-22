@@ -594,21 +594,6 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
       break;
     }
 
-    case SO_CERT_INDEX: {
-      SET_ERRNO_AND_RETURN_IF_TRUE(
-        ((*(uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(uint8_t *)option_value > SI91X_CERT_INDEX_2)),
-        EINVAL);
-
-      si91x_socket->certificate_index = *(uint8_t *)option_value;
-      break;
-    }
-
-    case SO_HIGH_PERFORMANCE_SOCKET: {
-      SET_ERRNO_AND_RETURN_IF_TRUE(*(uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
-      si91x_socket->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
-      break;
-    }
-
 #ifdef CHIP_917
     case SO_MAX_RETRANSMISSION_TIMEOUT_VALUE: {
       if (IS_POWER_OF_TWO(*(uint8_t *)option_value) && ((*(uint8_t *)option_value) < MAX_RETRANSMISSION_TIME_VALUE)) {
@@ -630,6 +615,53 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
       break;
     }
 #endif
+    default: {
+      SET_ERROR_AND_RETURN(ENOPROTOOPT);
+    }
+  }
+
+  return SI91X_NO_ERROR;
+}
+
+int sl_si91x_set_custom_sync_sockopt(int socket_id,
+                                     int option_level,
+                                     int option_name,
+                                     const void *option_value,
+                                     socklen_t option_length)
+{
+  si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
+  SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT)
+  SET_ERRNO_AND_RETURN_IF_TRUE(
+    ((option_level != SOL_SOCKET) && (option_level != SOL_TCP) && (option_level != IPPROTO_IP)),
+    EINVAL);
+
+  switch (option_name) {
+    case SO_CERT_INDEX: {
+      SET_ERRNO_AND_RETURN_IF_TRUE(
+        ((*(uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(uint8_t *)option_value > SI91X_CERT_INDEX_2)),
+        EINVAL);
+
+      si91x_socket->certificate_index = *(uint8_t *)option_value;
+      break;
+    }
+
+    case SO_HIGH_PERFORMANCE_SOCKET: {
+      SET_ERRNO_AND_RETURN_IF_TRUE(*(uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
+      si91x_socket->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
+      break;
+    }
+
+    case SO_TLS_SNI: {
+      sl_status_t status = add_server_name_indication_extension(&si91x_socket->sni_extensions,
+                                                                (si91x_socket_type_length_value_t *)option_value);
+      if (status != SL_STATUS_OK) {
+        SET_ERROR_AND_RETURN(ENOMEM);
+      }
+      break;
+    }
+
     default: {
       SET_ERROR_AND_RETURN(ENOPROTOOPT);
     }
@@ -684,6 +716,27 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
       break;
     }
 
+    default: {
+      SET_ERROR_AND_RETURN(ENOPROTOOPT);
+    }
+  }
+
+  return SI91X_NO_ERROR;
+}
+
+int sl_si91x_get_custom_sync_sockopt(int socket_id,
+                                     int option_level,
+                                     int option_name,
+                                     void *option_value,
+                                     socklen_t *option_length)
+{
+  si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
+  SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT);
+  SET_ERRNO_AND_RETURN_IF_TRUE(option_level != SOL_SOCKET || option_length == NULL, EINVAL)
+
+  switch (option_name) {
     case SO_CERT_INDEX: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->certificate_index));
       memcpy(option_value, &si91x_socket->certificate_index, *option_length);

@@ -34,9 +34,13 @@
  *                    Constants
  ******************************************************/
 #define SL_SI91X_MAX_DATA_SIZE_IN_BYTES \
-  1400                              ///< Maximum length of the AES message in bytes that can be handled in one go
+  1400 ///< Maximum length of the AES message in bytes that can be handled in one go
+#define SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CCM \
+  1200                              ///< Maximum length of the CCM message in bytes that can be handled in one go
 #define SL_SI91X_IV_SIZE         16 ///< Length of the initialization vector in bytes
 #define SL_SI91X_KEY_BUFFER_SIZE 32 ///< Key size in bytes
+
+#define WRAP_IV "0123456789ABCDEF"
 
 /// Flags to determine the chunk being handled in the API
 #define FIRST_CHUNK  BIT(0)
@@ -45,9 +49,15 @@
 
 /// Key slot for Built in keys
 typedef enum {
-  SL_SI91X_M4_OTA_KEY_SLOT = 1, ///< OTA key slot
-  SL_SI91X_M4_PUBLIC_KEY_SLOT   ///< Public key slot
+  SL_SI91X_KEY_SLOT_1 = 1, ///< M4 OTA key slot
+  SL_SI91X_KEY_SLOT_2      ///< M4 Public key slot
 } sl_si91x_crypto_key_slot_t;
+
+/// Key size for Built in keys
+typedef enum {
+  SL_SI91X_KEY_SIZE_1 = 32, ///< M4 OTA key size
+  SL_SI91X_KEY_SIZE_2 = 96  ///< M4 Public key size
+} sl_si91x_crypto_key_size_t;
 
 /// Key types
 typedef enum {
@@ -72,5 +82,6 @@ typedef enum {
   SHA3     = 16, ///< SHA3
   GCM      = 18, ///< GCM
   WRAP     = 20, ///< WRAP
-  TRNG     = 21  ///< TRNG
+  TRNG     = 21, ///< TRNG
+  CCM      = 31  ///< CCM
 } sl_si91x_crypto_algorithm_type_t;

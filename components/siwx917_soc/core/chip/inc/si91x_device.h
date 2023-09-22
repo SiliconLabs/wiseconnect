@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  si91x_device.h
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 /*
  * ARM Limited (ARM) is supplying this software for use with Cortex-M
  * processor based microcontroller, but can be equally used for other
@@ -133,9 +150,6 @@ typedef enum {
   TASS_P2P_IRQn  = 74  /*!< 74 TASS_P2P   */
 } IRQn_Type;
 
-#define EXT_IRQ_COUNT 75
-#define SRAM_BASE     (0x0C000000UL)
-#define SRAM_SIZE     (0x00040000UL)
 /* ===========================================================================================================================
  */
 /* ================                           Processor and Core Peripheral

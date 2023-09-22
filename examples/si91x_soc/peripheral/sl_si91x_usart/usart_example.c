@@ -24,6 +24,8 @@
  ******************************************************************************/
 #define BUFFER_SIZE    1024   // Data send and receive length
 #define USART_BAUDRATE 115200 // Baud rate <9600-7372800>
+#define NON_UC_DEFAULT_CONFIG \
+  0 //  Enable this macro to set the default configurations in non_uc case, this is useful when someone don't want to use UC configuration
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -51,6 +53,7 @@ void usart_example_init(void)
 {
   sl_status_t status;
   sl_si91x_usart_control_config_t usart_config;
+#if NON_UC_DEFAULT_CONFIG
   usart_config.baudrate      = USART_BAUDRATE;
   usart_config.mode          = SL_USART_MODE_ASYNCHRONOUS;
   usart_config.parity        = SL_USART_NO_PARITY;
@@ -61,23 +64,17 @@ void usart_example_init(void)
   usart_config.usart_module  = USART_0;
   usart_config.config_enable = ENABLE;
   usart_config.synch_mode    = DISABLE;
+#endif
   sl_si91x_usart_control_config_t get_config;
 
   do {
     // Initialize the UART
-    status = sl_si91x_usart_init(usart_config.usart_module, &usart_handle);
+    status = sl_si91x_usart_init(USART_0, &usart_handle);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_usart_initialize: Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("USART initialization is successful \n");
-    // Set USART power mode
-    status = sl_si91x_usart_set_power_mode(usart_handle, SL_POWER_FULL);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_usart_configure_power_mode: Error Code : %lu \n", status);
-      break;
-    }
-    DEBUGOUT("USART power configuration is successful \n");
     // Configure the USART configurations
     status = sl_si91x_usart_set_configuration(usart_handle, &usart_config);
     if (status != SL_STATUS_OK) {

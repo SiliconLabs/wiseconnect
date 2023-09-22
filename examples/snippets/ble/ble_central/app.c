@@ -58,7 +58,7 @@ uint8_t adv_payload_for_compare[31] = { 0x6E, 0xC5, 0xFD, 0x05, 0x54, 0x9E, 0x68
 #define RSI_BLE_DEV_ADDR "04:D4:C4:9A:F3:CC"
 
 //! Remote Device Name to connect
-#define RSI_REMOTE_DEVICE_NAME "Galaxy M20"
+#define RSI_REMOTE_DEVICE_NAME "SILABS_DEV"
 
 /*=======================================================================*/
 //!    Application powersave configurations

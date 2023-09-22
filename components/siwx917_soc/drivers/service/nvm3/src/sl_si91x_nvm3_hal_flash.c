@@ -63,11 +63,6 @@
 #define DEVICE_NUMBER 19
 /* Enable delay for flash (Qspi) operations.*/
 #define CCP_FLASH_DELAY 100000
-#ifdef CHIP_917B0
-#define TA_M4_ADDRESS_OFFSET 0x4000000 //Difference between TA and M4 flash access address
-#else
-#define TA_M4_ADDRESS_OFFSET 0x4032000 //Difference between TA and M4 flash access address
-#endif
 
 /******************************************************************************
  ***************************   LOCAL VARIABLES   ******************************
@@ -214,7 +209,7 @@ static Ecode_t nvm3_halFlashWriteWords(nvm3_HalPtr_t nvmAdr, void const *src, si
 
   /* Check if the data  written */
 #if CHECK_DATA
-#ifdef DUAL_FLASH_EN
+#ifndef COMMON_FLASH_EN
   uint32_t data = (uint32_t)nvmAdr;
 #else
   uint32_t data = (uint32_t)nvmAdr - TA_M4_ADDRESS_OFFSET;
@@ -248,7 +243,7 @@ static Ecode_t nvm3_halFlashPageErase(nvm3_HalPtr_t nvmAdr)
   /* Check if the page is erased */
 #if CHECK_DATA
   if (halSta == ECODE_NVM3_OK) {
-#ifdef DUAL_FLASH_EN
+#ifndef COMMON_FLASH_EN
     if (!isErased((nvmAdr), PAGE_SIZE)) {
 #else
     if (!isErased((nvmAdr - TA_M4_ADDRESS_OFFSET), PAGE_SIZE)) {

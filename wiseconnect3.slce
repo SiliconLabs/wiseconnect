@@ -16,8 +16,10 @@ component_path:
   - path: components/si91x/socket_utility
   - path: components/si91x/crypto
   - path: components/si91x/crypto/aes
+  - path: components/si91x/crypto/ccm
   - path: components/si91x/crypto/wrap
   - path: components/si91x/crypto/sha
+  - path: components/si91x/crypto/hmac
   - path: components/si91x/crypto/trng
   - path: components/si91x/crypto/attestation
   - path: components/service/network_manager
@@ -48,6 +50,7 @@ component_path:
   - path: components/siwx917_soc/drivers/service/sleeptimer/component
   - path: components/siwx917_soc/drivers/service/iostream/component
   - path: components/siwx917_soc/core/chip/component
+  - path: components/siwx917_soc/core/common/component
   - path: components/siwx917_soc/core/cmsis/component
   - path: components/siwx917_soc/core/config/component
   - path: components/siwx917_soc/hal/component

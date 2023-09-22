@@ -1,6 +1,24 @@
+/*******************************************************************************
+* @file  network_sl_api_wrapper.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include <string.h>
 #include "network_interface.h"
 #include "socket.h"
+#include "sl_si91x_socket_support.h"
 #include "netinet6_in6.h"
 #include "sl_net_dns.h"
 #include "sl_constants.h"
@@ -113,7 +131,7 @@ static int32_t ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr
     }
 
     uint8_t certificate_index = SL_CERT_INDEX_0;
-    if (setsockopt(n->socket_id, SOL_SOCKET, SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
+    if (sl_si91x_set_custom_sync_sockopt(n->socket_id, SOL_SOCKET, SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
       return get_aws_error(errno);
     }
   }

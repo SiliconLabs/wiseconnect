@@ -71,9 +71,9 @@ typedef void (*sl_adc_callback_t)(uint8_t channel, uint8_t event);
 
 /// @brief Enumeration for ADC input type
 typedef enum {
-  SL_ADC_SINGLE_ENDED,       ///< Input type single ended
-  SL_ADC_DIFFERENTIAL_ENDED, ///< Input type differential ended
-  SL_ADC_INPUT_TYPE_LAST,    ///< Last member of enum for validation
+  SL_ADC_SINGLE_ENDED,    ///< Input type single ended
+  SL_ADC_DIFFERENTIAL,    ///< Input type differential
+  SL_ADC_INPUT_TYPE_LAST, ///< Last member of enum for validation
 } sl_adc_input_type_typedef_t;
 
 /// @brief Enumeration for ADC operation mode
@@ -96,13 +96,6 @@ typedef enum {
   SL_ADC_MULTI_CHNL  = DYNAMIC_MODE_EN, ///< External DMA type
   SL_ADC_CHANNEL_TYPE_LAST,             ///< Last member of enum for validation
 } sl_adc_channel_type_typedef_t;
-
-/// @brief Enumeration for ADC power state
-typedef enum {
-  SL_ADC_POWER_ON  = ADC_POWER_ON,  ///< Power mode ON
-  SL_ADC_POWER_OFF = ADC_POWER_OFF, ///< Power mode OFF
-  SL_ADC_POWER_MODE_LAST,           ///< Last member of enum for validation
-} sl_adc_power_state_t;
 
 /// @brief Enumeration for ADC external trigger type
 typedef enum {
@@ -156,7 +149,7 @@ typedef enum {
   SL_ADC_CHANNEL_13, ///< ADC channel 14
   SL_ADC_CHANNEL_14, ///< ADC channel 15
   SL_ADC_CHANNEL_15, ///< ADC channel 16
-};
+} sl_adc_channel_id_t;
 
 typedef struct {
   uint16_t threshold1;      ///< Threshold_1
@@ -175,9 +168,9 @@ typedef struct {
 
 /// @brief Structure to hold the clock configuration parameters
 typedef struct {
+  uint16_t division_factor;         ///< Division Factor
   uint32_t soc_pll_clock;           ///< SoC PLL clock frequency
   uint32_t soc_pll_reference_clock; ///< SoC PLL reference clock frequency
-  uint32_t division_factor;         ///< Division Factor
 } sl_adc_clock_config_t;
 
 /// @brief Structure to hold the versions number of peripheral API
@@ -461,7 +454,7 @@ sl_status_t sl_si91x_adc_internal_per_channel_dma_disable(uint8_t channel_num);
  *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
  *         \ref SL_STATUS_INVALID_RANGE (0x0028) - Mismatch Range
  ******************************************************************************/
-sl_status_t sl_si91x_adc_configure_static_mode(sl_adc_channel_config_t adc_channel_config);
+sl_status_t sl_si91x_adc_configure_static_mode(sl_adc_channel_config_t adc_channel_config, uint8_t channel_num);
 
 /***************************************************************************/ /**
  * sl_status_t sl_si91x_adc_configure_fifo_mode(sl_adc_channel_config_t adc_channel_config)
@@ -525,11 +518,10 @@ sl_status_t sl_si91x_adc_channel_disable(uint8_t channel_num);
  *
  * @param[in]  state       :  \b ADC_POWER_ON - To powerup adc powergates
  *                         \b ADC_POWER_OFF - To powerdown adc powergates
-  * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success \n
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
+  * @return status 0 if successful,
+ *         \ref SL_STATUS_OK (0x0000) - Success
  ******************************************************************************/
-sl_status_t sl_si91x_adc_set_power_mode(sl_adc_power_state_t state);
+sl_status_t sl_si91x_adc_set_power_mode(POWER_STATE state);
 
 /***************************************************************************/ /**
  * sl_status_t sl_si91x_adc_set_noise_average_mode(boolean_t state)

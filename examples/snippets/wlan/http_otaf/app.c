@@ -389,7 +389,6 @@ sl_status_t http_otaf_app()
     printf("\r\nFirmware download complete using Local Apache Server\r\n");
 #endif
   }
-  osDelay(5000);
 
 #if FW_UPDATE_TYPE
   status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE, NULL);
@@ -398,7 +397,6 @@ sl_status_t http_otaf_app()
     return status;
   }
   printf("\r\nWi-Fi Deinit success\r\n");
-  osDelay(5000);
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {

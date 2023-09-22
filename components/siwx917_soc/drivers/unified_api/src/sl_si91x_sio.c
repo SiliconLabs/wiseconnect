@@ -29,18 +29,29 @@
 ******************************************************************************/
 #include "sl_si91x_sio.h"
 #include "sl_si91x_sio_config.h"
+#include "sl_si91x_peripheral_gpio.h"
 /*******************************************************************************
  ***************************  LOCAL MACROS   ***********************************
  ******************************************************************************/
 #define CS_NUM_MIN          0        ///< Minimum chip select number
+#define OUTPUT              1        ///< Output value set
+#define CLOCK_TYPE          2        ///< Maximum types of clocks
+#define PATTERN_MATCH       2        ///< Maximum pattern match number
+#define FLOW_CONTROL        2        ///< Maximum flow control number
+#define REVERSE_LOAD        2        ///< Maximum reverse load number
+#define EDGE_SELECT         2        ///< Maximum edge select number
+#define FLAG                3        ///< Maximum interrupt flag
+#define ULP_PORT            4        ///< GPIO ULP port
+#define ULP_MODE            6        ///< ULP GPIO mode
+#define SIO_CHANNEL         7        ///< SIO maximum channel
 #define CS_NUM_MAX          7        ///< Maximum chip select number
+#define HOST_MIN            24       ///< GPIO host pad minimum pin number
+#define HOST_MAX            31       ///< GPIO host pad maximum pin number
+#define MAX_GPIO            64       ///< maximum GPIO pins
 #define SIO_RELEASE_VERSION 0        ///< SIO Release version
 #define SIO_SQA_VERSION     0        ///< SIO SQA version
 #define SIO_DEV_VERSION     2        ///< SIO Developer version
 #define SLI_SIO_INTERRUPT   SIO_IRQn ///< SIO interrupt handler
-#define SIO_CHANNEL         7        ///< SIO maximum channel
-#define FLAG                3        ///< Maximum interrupt flag
-#define TWO                 2
 #define SIO_UC \
   1 /*!< SIO_UC is defined by default. when this macro (SIO_UC) is defined,    \
        peripheral configuration is directly taken from the configuration set   \
@@ -109,6 +120,82 @@ sl_status_t sl_si91x_sio_spi_init(sl_sio_spi_config_t *configuration)
     // Initialize the SIO-SPI
     error_status = RSI_SIO_InitSpi(SIO, configuration);
     status       = convert_rsi_to_sl_error_code(error_status); // Returns status code
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * This API is used for initialize sio spi pins and clock. The formal argument passed
+ * takes pointer to structure of type \ref sl_sio_uart_t. This holds the spi cs, clk,
+ * mosi, miso pins configuration. The members are assigned to SL macros defined in
+ * sl_sio_board.h. The SL macros are integrated to RTE macros present in RTE device file.
+ ******************************************************************************/
+sl_status_t sl_si91x_sio_spi_pin_initialization(sl_sio_spi_t *sio_spi_init)
+{
+  sl_status_t status;
+  do {
+    // Validates the null pointer, if true returns error code
+    if (sio_spi_init == NULL) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+    // sio spi chip select pin muxing
+    if (sio_spi_init->spi_cs_pin >= GPIO_MAX_PIN) {
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sio_spi_init->spi_cs_pin - GPIO_MAX_PIN));
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sio_spi_init->spi_cs_pin - GPIO_MAX_PIN), ULP_GPIO_MODE_6, OUTPUT);
+    } else {
+      sl_si91x_gpio_enable_pad_receiver(sio_spi_init->spi_cs_pin);
+    }
+    if (sio_spi_init->spi_cs_pin >= (HOST_PAD_GPIO_MIN - 1) && sio_spi_init->spi_cs_pin <= (HOST_PAD_GPIO_MAX + 1)) {
+      sl_si91x_gpio_enable_pad_selection(sio_spi_init->spi_cs_pin);
+    } else {
+      sl_si91x_gpio_enable_pad_selection(sio_spi_init->spi_cs_pad);
+    }
+    sl_gpio_set_pin_mode(sio_spi_init->spi_cs_port, sio_spi_init->spi_cs_pin, sio_spi_init->spi_cs_mux, OUTPUT);
+    // sio spi clock pin muxing
+    if (sio_spi_init->spi_clk_pin >= GPIO_MAX_PIN) {
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sio_spi_init->spi_clk_pin - GPIO_MAX_PIN));
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sio_spi_init->spi_clk_pin - GPIO_MAX_PIN), ULP_GPIO_MODE_6, OUTPUT);
+    } else {
+      sl_si91x_gpio_enable_pad_receiver(sio_spi_init->spi_clk_pin);
+    }
+    if (sio_spi_init->spi_clk_pin >= (HOST_PAD_GPIO_MIN - 1) && sio_spi_init->spi_clk_pin <= (HOST_PAD_GPIO_MAX + 1)) {
+      sl_si91x_gpio_enable_pad_selection(sio_spi_init->spi_clk_pin);
+    } else {
+      sl_si91x_gpio_enable_pad_selection(sio_spi_init->spi_clk_pad);
+    }
+    sl_gpio_set_pin_mode(sio_spi_init->spi_clk_port, sio_spi_init->spi_clk_pin, sio_spi_init->spi_clk_mux, OUTPUT);
+    // sio spi mosi pin muxing
+    if (sio_spi_init->spi_mosi_pin >= GPIO_MAX_PIN) {
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sio_spi_init->spi_mosi_pin - GPIO_MAX_PIN));
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sio_spi_init->spi_mosi_pin - GPIO_MAX_PIN), ULP_GPIO_MODE_6, OUTPUT);
+    } else {
+      sl_si91x_gpio_enable_pad_receiver(sio_spi_init->spi_mosi_pin);
+    }
+    if (sio_spi_init->spi_mosi_pin >= (HOST_PAD_GPIO_MIN - 1)
+        && sio_spi_init->spi_mosi_pin <= (HOST_PAD_GPIO_MAX + 1)) {
+      sl_si91x_gpio_enable_pad_selection(sio_spi_init->spi_mosi_pin);
+    } else {
+      sl_si91x_gpio_enable_pad_selection(sio_spi_init->spi_mosi_pad);
+    }
+    sl_gpio_set_pin_mode(sio_spi_init->spi_mosi_port, sio_spi_init->spi_mosi_pin, sio_spi_init->spi_mosi_mux, OUTPUT);
+    // sio spi miso pin muxing
+    if (sio_spi_init->spi_miso_pin >= GPIO_MAX_PIN) {
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sio_spi_init->spi_miso_pin - GPIO_MAX_PIN));
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sio_spi_init->spi_miso_pin - GPIO_MAX_PIN), ULP_GPIO_MODE_6, OUTPUT);
+    } else {
+      sl_si91x_gpio_enable_pad_receiver(sio_spi_init->spi_miso_pin);
+    }
+    if (sio_spi_init->spi_miso_pin >= (HOST_PAD_GPIO_MIN - 1)
+        && sio_spi_init->spi_miso_pin <= (HOST_PAD_GPIO_MAX + 1)) {
+      sl_si91x_gpio_enable_pad_selection(sio_spi_init->spi_miso_pin);
+    } else {
+      sl_si91x_gpio_enable_pad_selection(sio_spi_init->spi_miso_pad);
+    }
+    sl_gpio_set_pin_mode(sio_spi_init->spi_miso_port, sio_spi_init->spi_miso_pin, sio_spi_init->spi_miso_mux, OUTPUT);
+    // SIO CLock enable
+    RSI_SIO_ClockEnable();
+    status = SL_STATUS_OK;
   } while (false);
   return status;
 }
@@ -305,6 +392,56 @@ sl_sio_version_t sl_si91x_sio_get_version(void)
 }
 
 /*******************************************************************************
+ * This API is used for initialize sio uart pins and clock. The formal argument passed
+ * takes pointer to structure of type \ref sl_sio_uart_t. This holds the uart tx, rx pins
+ * configuration. The members are assigned to SL macros defined in sl_sio_board.h.
+ * The SL macros are integrated to RTE macros present in RTE device file.
+ ******************************************************************************/
+sl_status_t sl_si91x_sio_uart_pin_initialization(sl_sio_uart_t *sio_uart_init)
+{
+  sl_status_t status;
+  do {
+    // Validates the null pointer, if true returns error code
+    if (sio_uart_init == NULL) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+    // sio uart tx pin muxing
+    if (sio_uart_init->uart_tx_pin >= GPIO_MAX_PIN) {
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sio_uart_init->uart_tx_pin - GPIO_MAX_PIN));
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sio_uart_init->uart_tx_pin - GPIO_MAX_PIN), ULP_GPIO_MODE_6, OUTPUT);
+    } else {
+      sl_si91x_gpio_enable_pad_receiver(sio_uart_init->uart_tx_pin);
+    }
+    if (sio_uart_init->uart_tx_pin >= (HOST_PAD_GPIO_MIN - 1)
+        && sio_uart_init->uart_tx_pin <= (HOST_PAD_GPIO_MAX + 1)) {
+      sl_si91x_gpio_enable_pad_selection(sio_uart_init->uart_tx_pin);
+    } else {
+      sl_si91x_gpio_enable_pad_selection(sio_uart_init->uart_tx_pad);
+    }
+    sl_gpio_set_pin_mode(sio_uart_init->uart_tx_port, sio_uart_init->uart_tx_pin, sio_uart_init->uart_tx_mux, OUTPUT);
+    // sio uart rx pin muxing
+    if (sio_uart_init->uart_rx_pin >= GPIO_MAX_PIN) {
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sio_uart_init->uart_rx_pin - GPIO_MAX_PIN));
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sio_uart_init->uart_rx_pin - GPIO_MAX_PIN), ULP_GPIO_MODE_6, OUTPUT);
+    } else {
+      sl_si91x_gpio_enable_pad_receiver(sio_uart_init->uart_rx_pin);
+    }
+    if (sio_uart_init->uart_rx_pin >= (HOST_PAD_GPIO_MIN - 1)
+        && sio_uart_init->uart_rx_pin <= (HOST_PAD_GPIO_MAX + 1)) {
+      sl_si91x_gpio_enable_pad_selection(sio_uart_init->uart_rx_pin);
+    } else {
+      sl_si91x_gpio_enable_pad_selection(sio_uart_init->uart_rx_pad);
+    }
+    sl_gpio_set_pin_mode(sio_uart_init->uart_rx_port, sio_uart_init->uart_rx_pin, sio_uart_init->uart_rx_mux, OUTPUT);
+    // SIO CLock enable
+    RSI_SIO_ClockEnable();
+    status = SL_STATUS_OK;
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
  * This API is used for SIO-UART initialization i.e., setting baud rate, parity,
  *    channel selection, stop bits, data length.
  * The actions to be performed before UART initialization is:
@@ -483,6 +620,54 @@ void sl_si91x_sio_uart_rx_done(void)
 }
 
 /*******************************************************************************
+ * This API is used for initialize sio i2c pins and clock. The formal argument passed
+ * takes pointer to structure of type \ref sl_sio_i2c_t. This holds the i2c sda, scl pins
+ * configuration. The members are assigned to SL macros defined in sl_sio_board.h.
+ * The SL macros are integrated to RTE macros present in RTE device file.
+ ******************************************************************************/
+sl_status_t sl_si91x_sio_i2c_pin_initialization(sl_sio_i2c_t *sio_i2c_init)
+{
+  sl_status_t status;
+  do {
+    // Validates the null pointer, if true returns error code
+    if (sio_i2c_init == NULL) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+    // sio i2c scl pin muxing
+    if (sio_i2c_init->i2c_scl_pin >= GPIO_MAX_PIN) {
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sio_i2c_init->i2c_scl_pin - GPIO_MAX_PIN));
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sio_i2c_init->i2c_scl_pin - GPIO_MAX_PIN), ULP_GPIO_MODE_6, OUTPUT);
+    } else {
+      sl_si91x_gpio_enable_pad_receiver(sio_i2c_init->i2c_scl_pin);
+    }
+    if (sio_i2c_init->i2c_scl_pin >= (HOST_PAD_GPIO_MIN - 1) && sio_i2c_init->i2c_scl_pin <= (HOST_PAD_GPIO_MAX + 1)) {
+      sl_si91x_gpio_enable_pad_selection(sio_i2c_init->i2c_scl_pin);
+    } else {
+      sl_si91x_gpio_enable_pad_selection(sio_i2c_init->i2c_scl_pad);
+    }
+    sl_gpio_set_pin_mode(sio_i2c_init->i2c_scl_port, sio_i2c_init->i2c_scl_pin, sio_i2c_init->i2c_scl_mux, OUTPUT);
+    // sio i2c sda pin muxing
+    if (sio_i2c_init->i2c_sda_pin >= GPIO_MAX_PIN) {
+      sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sio_i2c_init->i2c_sda_pin - GPIO_MAX_PIN));
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sio_i2c_init->i2c_sda_pin - GPIO_MAX_PIN), ULP_GPIO_MODE_6, OUTPUT);
+    } else {
+      sl_si91x_gpio_enable_pad_receiver(sio_i2c_init->i2c_sda_pin);
+    }
+    if (sio_i2c_init->i2c_sda_pin >= (HOST_PAD_GPIO_MIN - 1) && sio_i2c_init->i2c_sda_pin <= (HOST_PAD_GPIO_MAX + 1)) {
+      sl_si91x_gpio_enable_pad_selection(sio_i2c_init->i2c_sda_pin);
+    } else {
+      sl_si91x_gpio_enable_pad_selection(sio_i2c_init->i2c_sda_pad);
+    }
+    sl_gpio_set_pin_mode(sio_i2c_init->i2c_sda_port, sio_i2c_init->i2c_sda_pin, sio_i2c_init->i2c_sda_mux, OUTPUT);
+    // SIO CLock enable
+    RSI_SIO_ClockEnable();
+    status = SL_STATUS_OK;
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
  * This API is used to write the data over SIO-I2C.
  * The actions to be performed before I2C write are:
  *    - Initialize SIO using @ref sl_si91x_sio_init() API
@@ -626,7 +811,7 @@ sl_status_t sl_si91x_sio_match_pattern(en_sio_channels_t channel,
   sl_status_t status;
   do {
     // Returns invalid parameter status code if channel > 7 and pattern > 1
-    if ((channel > SIO_CHANNEL) || (pattern >= TWO)) {
+    if ((channel > SIO_CHANNEL) || (pattern >= PATTERN_MATCH)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
@@ -668,7 +853,7 @@ sl_status_t sl_si91x_sio_select_clock(en_sio_channels_t channel, clock_type_t cl
   sl_status_t status;
   do {
     // Returns invalid parameter status code if channel > 7 and clock > 1
-    if ((channel > SIO_CHANNEL) || (clock >= TWO)) {
+    if ((channel > SIO_CHANNEL) || (clock >= CLOCK_TYPE)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
@@ -713,7 +898,7 @@ sl_status_t sl_si91x_sio_control_flow(en_sio_channels_t channel, flow_control_t 
   sl_status_t status;
   do {
     // Returns invalid parameter status code if channel > 7 and flow_control > 1
-    if ((channel > SIO_CHANNEL) || (flow_control >= TWO)) {
+    if ((channel > SIO_CHANNEL) || (flow_control >= FLOW_CONTROL)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
@@ -735,7 +920,7 @@ sl_status_t sl_si91x_sio_reverse_load(en_sio_channels_t channel, reverse_load_t 
   sl_status_t status;
   do {
     // Returns invalid parameter status code if channel > 7 and reverse > 1
-    if ((channel > SIO_CHANNEL) || (reverse >= TWO)) {
+    if ((channel > SIO_CHANNEL) || (reverse >= REVERSE_LOAD)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
@@ -951,7 +1136,7 @@ sl_status_t sl_si91x_sio_edge_select(en_sio_channels_t channel, edge_select_t ed
   sl_status_t status;
   do {
     // Returns invalid parameter status code if channel > 7 and edge_sel > 1
-    if ((channel > SIO_CHANNEL) || (edge_sel >= TWO)) {
+    if ((channel > SIO_CHANNEL) || (edge_sel >= EDGE_SELECT)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }

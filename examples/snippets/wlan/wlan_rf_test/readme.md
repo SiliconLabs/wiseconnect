@@ -176,8 +176,9 @@ The application can be configured to suit user requirements and development envi
 2. Configure the following parameters in **app.c** to test throughput app as per requirements
 
 ```c
+  sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
   #define SL_TX_TEST_POWER    4               // Tx RF power in the range [2:18] dBm
-  #define SL_TX_TEST_RATE     0x0             // WLAN data rate
+  #define SL_TX_TEST_RATE     rate             // WLAN data rate of 6Mbps
   #define SL_TX_TEST_LENGTH   30              // Tx packet length in the range [24:1500] bytes in burst mode, 
                                                //[24:260 ] bytes in continuous mode
   #define SL_TX_TEST_MODE     0               // Selects burst mode or continuous mode
@@ -214,8 +215,9 @@ The following readme provides example spectrums when the SiWx91x is configured t
 ## Transmit Spectrum Example
 
 ```c
+  sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
   #define SL_TX_TEST_POWER    127                     
-  #define SL_TX_TEST_RATE     6                     
+  #define SL_TX_TEST_RATE     rate                     
   #define SL_TX_TEST_LENGTH   100                   
   #define SL_TX_TEST_MODE     SL_CONTINUOUS_MODE   
   #define SL_TX_TEST_CHANNEL  6                     
@@ -226,8 +228,9 @@ The below result is for PER Mode with Channel '6' with 6 Mbps data rate and max 
 ![Figure: Spectrum Analyzer speed 6Mbps](resources/readme/continuous_mode_spectrum_analyser.png)
 
 ```c
+  sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
   #define SL_TX_TEST_POWER    127                     
-  #define SL_TX_TEST_RATE     6                     
+  #define SL_TX_TEST_RATE     rate                     
   #define SL_TX_TEST_LENGTH   1000                  
   #define SL_TX_TEST_MODE     SL_BURST_MODE        
   #define SL_TX_TEST_CHANNEL  6                     

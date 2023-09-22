@@ -29,6 +29,8 @@ component:
 - id: si917_memory_default_config
   from: wiseconnect3_sdk
 - {from: wiseconnect3_sdk, id: sl_gpio}
+- id: si91x_debug
+  from: wiseconnect3_sdk
 other_file:
 - {path: resources/readme/image504a.png}
 - {path: resources/readme/image504b.png}

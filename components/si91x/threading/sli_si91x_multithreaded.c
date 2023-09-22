@@ -337,6 +337,7 @@ void si91x_bus_thread(void *args)
             case RSI_WLAN_RSP_FW_VERSION:
             case RSI_WLAN_RSP_FWUP:
             case RSI_WLAN_RSP_DISCONNECT:
+            case RSI_WLAN_RSP_AP_STOP:
             case RSI_WLAN_RSP_RSSI:
             case RSI_WLAN_RSP_AP_CONFIGURATION:
             case RSI_WLAN_RSP_WPS_METHOD:

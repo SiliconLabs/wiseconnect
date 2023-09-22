@@ -54,7 +54,11 @@ void NPSS_GPIO_IRQHandler(void)
 
   if (intrStatus & NPSS_GPIO_2_INTR) {
     RSI_NPSSGPIO_ClrIntr(NPSS_GPIO_2_INTR);
+#ifdef SI917_RADIO_BOARD_V2
     sl_si91x_button_internal_isr(SL_BUTTON_BTN0_PIN);
+#else // V1 Boards
+    sl_si91x_button_internal_isr(SL_BUTTON_BTN1_PIN);
+#endif
   }
 
   if (intrStatus & NPSS_GPIO_0_INTR) {
@@ -274,8 +278,14 @@ void sl_si91x_button_internal_isr(uint8_t pin)
   }
 #endif //(DEBOUNCE > 0)
 
-  if (sl_si91x_button_state_get(pin) != buttonStateNow) { //state changed, notify app
+  if (sl_si91x_button_state_get(pin) != buttonStateNow) {
+    //state changed, notify app
     sl_si91x_button_state_set(pin, buttonStateNow);
+    sl_si91x_button_isr(pin, sl_si91x_button_state_get(pin));
+  } else {
+    // state unchanged, then notify app for a double-transition.
+    // Invert temporarily for calling ISR.
+    sl_si91x_button_state_toggle(pin);
     sl_si91x_button_isr(pin, sl_si91x_button_state_get(pin));
   }
 }

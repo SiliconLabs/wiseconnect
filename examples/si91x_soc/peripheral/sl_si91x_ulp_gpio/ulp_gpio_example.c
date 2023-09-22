@@ -63,12 +63,7 @@
 #define DELAY            1000 // Delay for 1sec
 #define FALL_EDGE        8    // Fall edge event
 
-#define UULP_INTR_1 0x01 // UULP GPIO pin interrupt 1
-#define UULP_INTR_2 0x02 // UULP GPIO pin interrupt 2
-#define UULP_INTR_3 0x04 // UULP GPIO pin interrupt 3
-#define UULP_INTR_4 0x08 // UULP GPIO pin interrupt 4
-#define UULP_INTR_5 0x10 // UULP GPIO pin interrupt 5
-#define UULP_MASK   0x00
+#define UULP_MASK 0x00
 
 uint32_t ramVector[VECTOR_TABLE_ENTRIES] __attribute__((aligned(256)));
 extern void hardware_setup(void);
@@ -85,14 +80,14 @@ typedef enum {
   UULP_GPIO_PIN_INTR  = 0, // Configure GPIO UULP instance pin interrupt
 } gpio_instance_type_t;
 
-// Enum for UULP GPIO group interrupt
+// Enum for UULP GPIO interrupt
 typedef enum {
-  UULP_GPIO_PIN0 = (1 << 0), // UULP GPIO pin 1 interrupt
-  UULP_GPIO_PIN1 = (1 << 1), // UULP GPIO pin 2 interrupt
-  UULP_GPIO_PIN2 = (1 << 2), // UULP GPIO pin 3 interrupt
-  UULP_GPIO_PIN3 = (1 << 3), // UULP GPIO pin 4 interrupt
-  UULP_GPIO_PIN4 = (1 << 4), // UULP GPIO pin 5 interrupt
-} sl_si91x_uulp_gpio_grp_intr_t;
+  UULP_GPIO_INTR_1 = 0x01, // UULP GPIO pin 1 interrupt
+  UULP_GPIO_INTR_2 = 0x02, // UULP GPIO pin 2 interrupt
+  UULP_GPIO_INTR_3 = 0x04, // UULP GPIO pin 3 interrupt
+  UULP_GPIO_INTR_4 = 0x08, // UULP GPIO pin 4 interrupt
+  UULP_GPIO_INTR_5 = 0x10, // UULP GPIO pin 5 interrupt
+} sl_si91x_uulp_gpio_intr_t;
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
@@ -215,11 +210,11 @@ void gpio_example_init(void)
     sl_gpio_uulp_initialization();
     sl_si91x_gpio_set_uulp_pad_configuration(&uulp_pad);
     // Unmask NPSS interrupt
-    sl_si91x_gpio_unmask_uulp_npss_interrupt(UULP_PIN2);
+    sl_si91x_gpio_unmask_uulp_npss_interrupt(UULP_GPIO_INTR_3);
 
     // Configure pin interrupt for sl_si91x_gpio_interrupt_config_flag_t structure
     sl_si91x_gpio_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)SL_GPIO_INTERRUPT_LEVEL_LOW,
-                                           UULP_GPIO_PIN2);
+                                           UULP_GPIO_INTR_3);
   }
 }
 /*******************************************************************************
@@ -315,20 +310,20 @@ static void sl_gpio_uulp_initialization(void)
  ******************************************************************************/
 void UULP_PIN_IRQ_Handler(void)
 {
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_1) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_1);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_1) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_1);
   }
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_2) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_2);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_2) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_2);
   }
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_3) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_3);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_3) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_3);
   }
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_4) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_4);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_4) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_4);
   }
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_5) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_5);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_5) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_5);
   }
 }
 

@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_si91x_socket_utility.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include "sl_si91x_socket_utility.h"
 #include "sl_si91x_socket_types.h"
 #include "sl_si91x_socket_callback_framework.h"
@@ -89,14 +106,16 @@ sl_status_t sl_si91x_socket_init(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_socket_deinit(void)
+sl_status_t sl_si91x_vap_shutdown(uint8_t vap_id)
 {
   if (!is_configured) {
     return SL_STATUS_OK;
   }
 
   for (uint8_t socket_index = 0; socket_index < NUMBER_OF_BSD_SOCKETS; socket_index++) {
-    reset_socket_state(socket_index);
+    if ((sockets[socket_index].vap_id == vap_id)) {
+      reset_socket_state(socket_index);
+    }
   }
 
   is_configured = false;
@@ -162,6 +181,32 @@ bool is_port_available(uint16_t port_number)
   }
 
   return true;
+}
+
+/**
+ * @brief This function is responsible to copy the SNI information provided by application into socket structure.
+ * 
+ * @param socket_sni_extensions pointer to SNI extension in socket structure
+ * @param sni_extension pointer to the SNI information provided by application
+ * @return sl_status_t possible return values are SL_STATUS_OK and SL_STATUS_SI91X_MEMORY_ERROR
+ */
+sl_status_t add_server_name_indication_extension(si91x_server_name_indication_extensions_t *socket_sni_extensions,
+                                                 const si91x_socket_type_length_value_t *sni_extension)
+{
+  // To check if memory available for new extension in SNI buffer of socket, max 256 Bytes only
+  if (SI91X_MAX_SIZE_OF_EXTENSION_DATA - socket_sni_extensions->current_size_of_extensions
+      < (sizeof(si91x_socket_type_length_value_t) + sni_extension->length)) {
+    return SL_STATUS_SI91X_MEMORY_ERROR;
+  }
+
+  uint8_t sni_size = (sizeof(si91x_socket_type_length_value_t) + sni_extension->length);
+
+  // copies SNI provided by app into SDK socket struct
+  memcpy(&socket_sni_extensions->buffer[socket_sni_extensions->current_size_of_extensions], sni_extension, sni_size);
+  socket_sni_extensions->current_size_of_extensions += sni_size;
+  socket_sni_extensions->total_extensions++;
+
+  return SL_STATUS_OK;
 }
 
 static uint16_t get_socket_id_from_socket_command(sl_si91x_packet_t *packet)
@@ -277,7 +322,7 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
   socket_create_request.rx_window_size = TCP_RX_WINDOW_SIZE;
 
   // Fill VAP_ID
-  socket_create_request.vap_id                     = 0;
+  socket_create_request.vap_id                     = si91x_bsd_socket->vap_id;
   socket_create_request.tos                        = 0;
   socket_create_request.max_tcp_retries_count      = MAX_TCP_RETRY_COUNT;
   socket_create_request.tcp_keepalive_initial_time = DEFAULT_TCP_KEEP_ALIVE_TIME;
@@ -295,6 +340,16 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
     }
 
     socket_create_request.socket_cert_inx = si91x_bsd_socket->certificate_index;
+
+    // Check if extension is provided my application and memcopy until the provided size of extensions
+    if (si91x_bsd_socket->sni_extensions.total_extensions > 0) {
+      memcpy(socket_create_request.tls_extension_data,
+             si91x_bsd_socket->sni_extensions.buffer,
+             si91x_bsd_socket->sni_extensions.current_size_of_extensions);
+
+      socket_create_request.total_extension_length = si91x_bsd_socket->sni_extensions.current_size_of_extensions;
+      socket_create_request.no_of_tls_extensions   = si91x_bsd_socket->sni_extensions.total_extensions;
+    }
 
     //In wlan_throughput example the tick_count_s configured as 10, for that reason the connect was timed out.
     //To avoid timeout, need to configure wait_period as 150000

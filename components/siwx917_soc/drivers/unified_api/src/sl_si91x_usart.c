@@ -39,11 +39,21 @@
 #define USART_RELEASE_VERSION 0       // USART Release version
 #define USART_SQA_VERSION     0       // USART SQA version
 #define USART_DEV_VERSION     2       // USART Developer version
+#define NO_OF_UART_INSTANCES  3       // No of usart instances, 3 uart instances in 91x
 #define USART_UC \
   1 /*!< USART_UC is defined by default. when this macro (USART_UC) is defined, peripheral
                                              configuration is directly taken from the configuration set in the universal configuration (UC).
                                              if the application requires the configuration to be changed in run-time, undefined this macro
                                              and change the peripheral configuration through the \ref sl_si91x_usart_set_configuration API. */
+
+/*******************************************************************************
+   *******************************   STRUCTS   ***********************************
+   ******************************************************************************/
+/// @brief USART configuration structure
+typedef struct {
+  sl_usart_handle_t usart_handle;                  ///< USART/UART Handle
+  sl_si91x_usart_control_config_t *control_config; ///< UART/USART control configuration structure
+} sl_si91x_usart_config;
 
 /*******************************************************************************
  ***************************  Global  VARIABLES   ********************************
@@ -70,6 +80,7 @@ static sl_status_t usart_set_tx_rx_configuration(const void *usart_handle);
 static void callback_event_handler(uint32_t event);
 static sl_status_t usart_get_handle(usart_peripheral_t usart_instance, sl_usart_handle_t *usart_handle);
 static boolean_t validate_usart_handle(sl_usart_handle_t usart_handle);
+static sl_status_t sli_si91x_usart_set_power_mode(sl_usart_handle_t usart_handle, power_mode_typedef_t state);
 
 /*******************************************************************************
  **************************   Global function Definitions   *******************************
@@ -177,6 +188,11 @@ sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_hand
     // converted to SL error code via convert_arm_to_sl_error_code function.
     error_status = ((sl_usart_driver_t *)usart_temp_handle)->Initialize(callback_event_handler);
     status       = convert_arm_to_sl_error_code(error_status);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // If USART Initializes success set the power mode
+    status = sli_si91x_usart_set_power_mode(usart_temp_handle, SL_POWER_FULL);
   } while (false);
   return status;
 }
@@ -208,6 +224,11 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    // Power off the USART module
+    status = sli_si91x_usart_set_power_mode(usart_handle, SL_POWER_OFF);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
     //Deinit the USART/UART
     error_status = ((sl_usart_driver_t *)usart_handle)->Uninitialize();
     status       = convert_arm_to_sl_error_code(error_status);
@@ -234,7 +255,7 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle)
  * In powerFull power state will enable the intterupt and set the flags initialization
  * and power on flag so that USART data teransfer can takes place
  *******************************************************************************/
-sl_status_t sl_si91x_usart_set_power_mode(sl_usart_handle_t usart_handle, power_mode_typedef_t state)
+static sl_status_t sli_si91x_usart_set_power_mode(sl_usart_handle_t usart_handle, power_mode_typedef_t state)
 {
   sl_status_t status;
   int32_t error_status;
@@ -462,8 +483,7 @@ uint32_t sl_si91x_usart_get_rx_data_count(sl_usart_handle_t usart_handle)
  * To control and configure the USART
  *
  * @details
- * It takes argument of pointer to the structure of control configuration and
- * baud rate.
+ * It takes argument of pointer to the structure of control configuration.
  * It will configure the different configurations such as  USART mode, Data Bits,
  * Parity , stop bits, flow control ,baud rate,
  * - USART mode - mode of operation
@@ -501,21 +521,47 @@ uint32_t sl_si91x_usart_get_rx_data_count(sl_usart_handle_t usart_handle)
  * Call the sl_si91x_usart_set_tx_rx_configuration() to set the tx and rx
  * lines before this API
  ********************************************************************************/
+
 sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
                                              sl_si91x_usart_control_config_t *control_configuration)
 {
   sl_status_t status;
   int32_t error_status;
-  uint32_t input_mode = false;
+  uint32_t input_mode = false, i = 0, uart_instances = 0;
+  sl_si91x_usart_config control_config[NO_OF_UART_INSTANCES];
+
   /* USART_UC is defined by default. when this macro (USART_UC) is defined, peripheral
    * configuration is directly taken from the configuration set in the universal configuration (UC).
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_usart_set_configuration API.
    */
 #ifdef USART_UC
-  control_configuration = &usart_configuration;
+// Update the UART1 Configurations from UC and get the UART1 handle
+#if (SL_UART1_MODULE)
+  control_config[uart_instances].control_config = &uart1_configuration;
+  usart_get_handle(UART_1, &control_config[uart_instances].usart_handle);
+  uart_instances++;
 #endif
+// Update the ULP_UART Configurations from UC and get the ULP_UART handle
+#if (SL_ULP_UART_MODULE)
+  control_config[uart_instances].control_config = &ulp_uart_configuration;
+  usart_get_handle(ULPUART, &control_config[uart_instances].usart_handle);
+  uart_instances++;
+#endif
+// Update the USART0/UART0 Configurations from UC and get the USART0 handle
+#if (SL_USART_MODULE)
+  control_config[uart_instances].control_config = &usart_configuration;
+  usart_get_handle(USART_0, &control_config[uart_instances].usart_handle);
+  uart_instances++;
+#endif
+#endif
+
   do {
+    // Update the Hadnle and control configuration from UC
+#ifdef USART_UC
+    usart_handle          = control_config[i].usart_handle;
+    control_configuration = control_config[i].control_config;
+#endif
     // Check USART handle and control_configuration parameter, if NULL return from here
     if ((usart_handle == NULL) || (control_configuration == NULL)) {
       status = SL_STATUS_NULL_POINTER;
@@ -544,7 +590,9 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
     // Configure the USART parameters
     error_status = ((sl_usart_driver_t *)usart_handle)->Control(input_mode, control_configuration->baudrate);
     status       = convert_arm_to_sl_error_code(error_status);
-  } while (false);
+    // Increment the varible after configuring the UART instance
+    i++;
+  } while (i < uart_instances);
   return status;
 }
 
@@ -598,11 +646,6 @@ sl_status_t sli_si91x_usart_set_non_uc_configuration(sl_usart_handle_t usart_han
   sl_status_t status;
   int32_t error_status;
   uint32_t input_mode = false;
-  /* USART_UC is defined by default. when this macro (USART_UC) is defined, peripheral
-   * configuration is directly taken from the configuration set in the universal configuration (UC).
-   * if the application requires the configuration to be changed in run-time, undefined this macro
-   * and change the peripheral configuration through the sl_si91x_usart_set_configuration API.
-   */
 
   do {
     // Check USART handle and control_configuration parameter, if NULL return from here
