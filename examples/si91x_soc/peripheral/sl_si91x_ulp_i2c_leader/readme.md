@@ -115,11 +115,11 @@
 ## Executing the Application
 
 1. Compile and run the application.
-2. Connect P33 and P35 with the follower device in instance 1.
+2. Connect P32 and P34 with the follower device in instance 1 this pin status may vary check the RTE_device.h file before running the code.
 3. When the application runs, it sends and receives data.
 4. After the transfer is completed, it validates the data and prints on the console.
 
 ## Expected Results
 
 - Will get "Test Case Pass" print on console
-- Both write and read 16 bytes of data should be same
+- Both write and read 15 bytes of data should be same

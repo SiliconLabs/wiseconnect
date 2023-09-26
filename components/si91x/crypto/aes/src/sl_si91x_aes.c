@@ -77,8 +77,9 @@ static sl_status_t aes_pending(sl_si91x_aes_config_t *config, uint16_t chunk_len
                                  SL_SI91X_WAIT_FOR_RESPONSE(32000),
                                  NULL,
                                  &buffer);
-  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+  if (status != SL_STATUS_OK) {
     sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    free(request);
   }
   VERIFY_STATUS_AND_RETURN(status);
 

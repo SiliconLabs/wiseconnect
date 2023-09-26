@@ -1227,7 +1227,7 @@ sl_status_t sl_si91x_wifi_set_certificate_index(uint8_t certificate_type,
   return status;
 }
 
-sl_status_t sl_si91x_set_rtc_timer(module_rtc_time_t *timer)
+sl_status_t sl_si91x_set_rtc_timer(sl_si91x_module_rtc_time_t *timer)
 {
   sl_status_t status = SL_STATUS_OK;
 
@@ -1243,7 +1243,7 @@ sl_status_t sl_si91x_set_rtc_timer(module_rtc_time_t *timer)
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_SET_RTC_TIMER,
                                         SI91X_COMMON_CMD_QUEUE,
                                         timer,
-                                        sizeof(module_rtc_time_t),
+                                        sizeof(sl_si91x_module_rtc_time_t),
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
                                         NULL,
                                         NULL);
@@ -1251,7 +1251,7 @@ sl_status_t sl_si91x_set_rtc_timer(module_rtc_time_t *timer)
   return status;
 }
 
-sl_status_t sl_si91x_get_rtc_timer(module_rtc_time_t *response)
+sl_status_t sl_si91x_get_rtc_timer(sl_si91x_module_rtc_time_t *response)
 {
   sl_status_t status       = SL_STATUS_OK;
   sl_wifi_buffer_t *buffer = NULL;
@@ -1273,7 +1273,7 @@ sl_status_t sl_si91x_get_rtc_timer(module_rtc_time_t *response)
   VERIFY_STATUS_AND_RETURN(status);
 
   sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  memcpy(response, packet->data, sizeof(module_rtc_time_t));
+  memcpy(response, packet->data, sizeof(sl_si91x_module_rtc_time_t));
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   return SL_STATUS_OK;
 }

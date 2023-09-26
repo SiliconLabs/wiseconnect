@@ -379,6 +379,7 @@ typedef struct {
 } sl_si91x_req_set_certificate_t;
 
 // join command request  structure
+#pragma pack(1)
 typedef struct {
   // reserved bytes:Can be used for security Type
   uint8_t reserved1;
@@ -416,6 +417,7 @@ typedef struct {
   // join bssid for mac based join
   uint8_t join_bssid[6];
 } sl_si91x_join_request_t;
+#pragma pack()
 
 // IPV4 ipconfig command request  structure
 typedef struct {
@@ -508,7 +510,7 @@ typedef struct {
   uint32_t tm_year;
   // Weekday from Sunday to Saturday [1-7]
   uint32_t tm_wday;
-} module_rtc_time_t;
+} sl_si91x_module_rtc_time_t;
 
 // wireless information
 typedef struct {
@@ -1787,12 +1789,76 @@ typedef struct {
 } sl_si91x_ccm_request_t;
 
 typedef struct {
+  uint16_t algorithm_type;
+  uint8_t gcm_flags;
+  uint8_t encrypt_decryption;
+  uint16_t total_msg_length;
+  uint16_t current_chunk_length;
+  uint16_t ad_length;
+  uint16_t dma_use;
+#ifdef CHIP_917B0
+  uint32_t gcm_mode;
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+  uint8_t key[SL_SI91X_KEY_BUFFER_SIZE];
+#endif
+  uint8_t nonce[SL_SI91X_GCM_IV_SIZE]; // iv length = 12 bytes
+  uint8_t ad[SL_SI91X_GCM_AD_MAX_SIZE];
+  uint8_t msg[SL_SI91X_GCM_MSG_MAX_SIZE];
+} sl_si91x_gcm_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t sx[ECDH_BUFFER_SIZE];
+  uint8_t sy[ECDH_BUFFER_SIZE];
+  uint8_t sz[ECDH_BUFFER_SIZE];
+  uint8_t tx[ECDH_BUFFER_SIZE];
+  uint8_t ty[ECDH_BUFFER_SIZE];
+  uint8_t tz[ECDH_BUFFER_SIZE];
+} sl_si91x_ecdh_add_sub_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t ecdh_curve_type;
+  uint32_t affinity;
+  uint8_t d[ECDH_BUFFER_SIZE];
+  uint8_t sx[ECDH_BUFFER_SIZE];
+  uint8_t sy[ECDH_BUFFER_SIZE];
+  uint8_t sz[ECDH_BUFFER_SIZE];
+} sl_si91x_ecdh_mul_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t sx[ECDH_BUFFER_SIZE];
+  uint8_t sy[ECDH_BUFFER_SIZE];
+  uint8_t sz[ECDH_BUFFER_SIZE];
+} sl_si91x_ecdh_double_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t ecdh_curve_type;
+  uint8_t sx[ECDH_BUFFER_SIZE];
+  uint8_t sy[ECDH_BUFFER_SIZE];
+  uint8_t sz[ECDH_BUFFER_SIZE];
+} sl_si91x_ecdh_affine_request_t;
+
+typedef struct {
   uint8_t algorithm_type;
   uint8_t algorithm_sub_type;
   uint16_t total_msg_length;
   uint32_t trng_key[TRNG_KEY_SIZE];
   uint32_t msg[TRNG_TEST_DATA_SIZE];
 } sl_si91x_trng_request_t;
+
 // Attestation token Request Frames Structures
 typedef struct {
   uint8_t algorithm_type;

@@ -309,6 +309,17 @@ sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *ma
   return SL_STATUS_OK;
 }
 
+void reverse_digits(unsigned char *xx, int no_digits)
+{
+  int count;
+  uint8_t temp;
+  for (count = 0; count < (no_digits / 2); count++) {
+    temp                      = xx[count];
+    xx[count]                 = xx[no_digits - count - 1];
+    xx[no_digits - count - 1] = temp;
+  }
+}
+
 __WEAK void sl_debug_log(const char *format, ...)
 {
   UNUSED_PARAMETER(format);

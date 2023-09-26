@@ -79,8 +79,9 @@ static sl_status_t hmac_pending(sl_si91x_hmac_config_t *config,
                                  SL_SI91X_WAIT_FOR_RESPONSE(32000),
                                  NULL,
                                  &buffer);
-  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+  if (status != SL_STATUS_OK) {
     sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    free(request);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -112,7 +113,7 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
 #endif
 
   total_length = (config->msg_length + key_length);
-  data         = (uint8_t *)malloc(sizeof(total_length) + sizeof(config->msg_length));
+  data         = (uint8_t *)malloc(total_length);
 
 #ifdef CHIP_917B0
   memcpy(data, config->key_config.B0.key, key_length); // Copy key into data

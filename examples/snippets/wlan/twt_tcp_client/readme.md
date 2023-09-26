@@ -170,6 +170,10 @@ The application can be configured to suit your requirements and development envi
     #define SERVER_PORT         5001
     #define NUMBER_OF_PACKETS   1000
     ```
+3. In the Project explorer pane, expand as follows **wiseconnect3_sdk_xxx** > **components** > **si91x** > **socket_utility** > **inc** folder and open **sl_si91x_socket_constants.h** file. Configure TCP Keep Alive timeout, in seconds, in sl_si91x_socket_constants.h 
+    ```c
+    #define DEFAULT_TCP_KEEP_ALIVE_TIME 60
+    ```    
 
 #### 4.1.1 **iTWT Configuration**
 

@@ -1,0 +1,17 @@
+id: sl_si91x_ecdh
+package: wiseconnect3_sdk
+description: >
+  Implementation of the ECDH APIs
+label: ECDH
+category: Crypto|ECDH
+quality: production
+component_root_path: ./components/si91x/crypto/ecdh
+provides:
+- name: sl_si91x_ecdh
+source:
+- path: src/sl_si91x_ecdh.c
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_ecdh.h
+

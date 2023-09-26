@@ -211,7 +211,7 @@ sl_status_t sl_si91x_wifi_set_certificate_index(uint8_t certificate_type,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_set_rtc_timer(module_rtc_time_t *timer);
+sl_status_t sl_si91x_set_rtc_timer(sl_si91x_module_rtc_time_t *timer);
 
 /***************************************************************************/ /**
  * @brief
@@ -235,7 +235,7 @@ sl_status_t sl_si91x_set_rtc_timer(module_rtc_time_t *timer);
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_get_rtc_timer(module_rtc_time_t *response);
+sl_status_t sl_si91x_get_rtc_timer(sl_si91x_module_rtc_time_t *response);
 
 /***************************************************************************/ /**
  * @brief

@@ -42,6 +42,13 @@ typedef enum {
   SL_SI91X_HMAC_SHA_512    ///< HMAC SHA 512 mode
 } sl_si91x_hmac_mode_t;
 
+typedef enum {
+  SL_SI91X_HMAC_SHA_1_DIGEST_LEN   = 20,
+  SL_SI91X_HMAC_SHA_256_DIGEST_LEN = 32,
+  SL_SI91X_HMAC_SHA_384_DIGEST_LEN = 48,
+  SL_SI91X_HMAC_SHA_512_DIGEST_LEN = 64
+} sl_si91x_hmac_digest_len_t;
+
 /******************************************************
  *                   Type Definitions
  ******************************************************/

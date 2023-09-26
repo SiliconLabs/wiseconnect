@@ -135,6 +135,11 @@
 // Assertion Interrupt indication from module
 #define RSI_ASSERT_INTR 0x80
 
+//***************************** Macros for Crypto Start **********************************/
+
+// ECDH defines
+#define ECDH_BUFFER_SIZE 32
+
 // TRNG defines
 #define TRNG_INIT       1
 #define TRNG_ENTROPY    2
@@ -153,6 +158,13 @@
 #define SL_SI91X_CCM_IV_MAX_SIZE  13
 #define SL_SI91X_CCM_AD_MAX_SIZE  32
 #define SL_SI91X_CCM_MSG_MAX_SIZE 1200
+
+// GCM defines
+#define SL_SI91X_GCM_IV_SIZE      12
+#define SL_SI91X_GCM_AD_MAX_SIZE  128
+#define SL_SI91X_GCM_MSG_MAX_SIZE 1400
+
+//***************************** Macros for Crypto End **********************************/
 
 typedef struct {
   uint32_t buffer_full : 1;

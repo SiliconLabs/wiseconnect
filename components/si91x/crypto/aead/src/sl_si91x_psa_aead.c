@@ -20,7 +20,12 @@
 // -----------------------------------------------------------------------------
 
 #include "sli_si91x_crypto_driver_functions.h"
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
 #include "sl_si91x_ccm.h"
+#endif
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
+#include "sl_si91x_gcm.h"
+#endif
 #include "sl_si91x_crypto.h"
 #include "sl_status.h"
 #include "sl_constants.h"
@@ -75,6 +80,26 @@ static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes
       }
       break;
 #endif // SLI_PSA_DRIVER_FEATURE_CCM
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
+      // verify key type
+      if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
+        return PSA_ERROR_NOT_SUPPORTED;
+      }
+      switch (psa_get_key_bits(attributes)) {
+        case 128: // Fallthrough
+        case 192: // Fallthrough
+        case 256:
+          break;
+        default:
+          return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      // verify nonce and tag lengths
+      if ((tag_length < 4) || (tag_length > 16) || nonce_length != SL_SI91X_GCM_IV_SIZE) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      break;
+#endif // SLI_PSA_DRIVER_FEATURE_GCM
     default:
       return PSA_ERROR_NOT_SUPPORTED;
   }
@@ -176,63 +201,117 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
   *ciphertext_length = 0;
 
   sl_status_t si91x_status;
-  sl_si91x_ccm_config_t config;
   switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
 #if defined(PSA_WANT_ALG_CCM)
-    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
-
-      config.encrypt_decrypt = SL_SI91X_CCM_ENCRYPT;
-      config.msg             = plaintext;
-      config.msg_length      = plaintext_length;
-      config.nonce           = nonce;
-      config.nonce_length    = nonce_length;
-      config.ad              = additional_data;
-      config.ad_length       = additional_data_length;
-      config.tag             = ciphertext + plaintext_length;
-      config.tag_length      = tag_length;
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):;
+      sl_si91x_ccm_config_t config_ccm;
+      config_ccm.encrypt_decrypt = SL_SI91X_CCM_ENCRYPT;
+      config_ccm.msg             = plaintext;
+      config_ccm.msg_length      = plaintext_length;
+      config_ccm.nonce           = nonce;
+      config_ccm.nonce_length    = nonce_length;
+      config_ccm.ad              = additional_data;
+      config_ccm.ad_length       = additional_data_length;
+      config_ccm.tag             = ciphertext + plaintext_length;
+      config_ccm.tag_length      = tag_length;
 
 #ifdef CHIP_917B0
       /* Fetch key type from attributes */
-      psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-      if (location == 0) {
-        config.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+      psa_key_location_t location_ccm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+      if (location_ccm == 0) {
+        config_ccm.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
       } else {
-        config.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+        config_ccm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
       }
 
       /* Set key_size from key_buffer_size */
       if (key_buffer_size == 16) {
-        config.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_128;
+        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_128;
       }
       if (key_buffer_size == 24) {
-        config.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_192;
+        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_192;
       }
       if (key_buffer_size == 32) {
-        config.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_256;
+        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_256;
       }
 
-      config.key_config.b0.key_slot     = 0;
-      config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-      if (config.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
-        memcpy(config.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+      config_ccm.key_config.b0.key_slot     = 0;
+      config_ccm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+      if (config_ccm.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+        memcpy(config_ccm.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
       }
-      memcpy(config.key_config.b0.key_buffer, key_buffer, config.key_config.b0.key_size);
+      memcpy(config_ccm.key_config.b0.key_buffer, key_buffer, config_ccm.key_config.b0.key_size);
 #else
-      config.key_config.a0.key_length = key_buffer_size;
-      memcpy(config.key_config.a0.key, key_buffer, config.key_config.a0.key_length);
+      config_ccm.key_config.a0.key_length = key_buffer_size;
+      memcpy(config_ccm.key_config.a0.key, key_buffer, config_ccm.key_config.a0.key_length);
 #endif
 
       if (status != PSA_SUCCESS) {
         return status;
       }
       /* Calling sl_si91x_ccm() for CCM encryption */
-      si91x_status = sl_si91x_ccm(&config, ciphertext);
+      si91x_status = sl_si91x_ccm(&config_ccm, ciphertext);
 
       /* gets the si91x error codes and returns its equivalent psa_status codes */
       status = convert_si91x_error_code_to_psa_status(si91x_status);
 
       break;
 #endif /* PSA_WANT_ALG_CCM */
+#if defined(PSA_WANT_ALG_GCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):;
+      sl_si91x_gcm_config_t config_gcm;
+      config_gcm.encrypt_decrypt = SL_SI91X_GCM_ENCRYPT;
+      config_gcm.dma_use         = SL_SI91X_DMA_ENABLE;
+      config_gcm.msg             = plaintext;
+      config_gcm.msg_length      = plaintext_length;
+      config_gcm.nonce           = nonce;
+      config_gcm.nonce_length    = nonce_length;
+      config_gcm.ad              = additional_data;
+      config_gcm.ad_length       = additional_data_length;
+
+#ifdef CHIP_917B0
+      /* Fetch key type from attributes */
+      psa_key_location_t location_gcm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+      if (location_gcm == 0) {
+        config_gcm.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+      } else {
+        config_gcm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+      }
+
+      /* Set key_size from key_buffer_size */
+      if (key_buffer_size == 16) {
+        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_128;
+      }
+      if (key_buffer_size == 24) {
+        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_192;
+      }
+      if (key_buffer_size == 32) {
+        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_256;
+      }
+
+      config_gcm.gcm_mode                   = SL_SI91X_GCM_MODE;
+      config_gcm.key_config.b0.key_slot     = 0;
+      config_gcm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+      if (config_gcm.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+        memcpy(config_gcm.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+      }
+      memcpy(config_gcm.key_config.b0.key_buffer, key_buffer, config_gcm.key_config.b0.key_size);
+#else
+      config_gcm.key_config.a0.key_length = key_buffer_size;
+      memcpy(config_gcm.key_config.a0.key, key_buffer, config_gcm.key_config.a0.key_length);
+#endif
+
+      if (status != PSA_SUCCESS) {
+        return status;
+      }
+      /* Calling sl_si91x_gcm() for GCM encryption */
+      si91x_status = sl_si91x_gcm(&config_gcm, ciphertext);
+
+      /* gets the si91x error codes and returns its equivalent psa_status codes */
+      status = convert_si91x_error_code_to_psa_status(si91x_status);
+
+      break;
+#endif /* PSA_WANT_ALG_GCM */
     default:
       (void)status;
       (void)key_buffer;
@@ -339,61 +418,113 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
   }
 
   int32_t si91x_status;
-  sl_si91x_ccm_config_t config = { 0 };
   switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
 #if defined(PSA_WANT_ALG_CCM)
-    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
-
-      config.encrypt_decrypt = SL_SI91X_CCM_DECRYPT;
-      config.msg             = ciphertext;
-      config.msg_length      = ciphertext_length - tag_length;
-      config.nonce           = nonce;
-      config.nonce_length    = nonce_length;
-      config.ad              = additional_data;
-      config.ad_length       = additional_data_length;
-      config.tag             = ciphertext + (ciphertext_length - tag_length);
-      config.tag_length      = tag_length;
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):;
+      sl_si91x_ccm_config_t config_ccm = { 0 };
+      config_ccm.encrypt_decrypt       = SL_SI91X_CCM_DECRYPT;
+      config_ccm.msg                   = ciphertext;
+      config_ccm.msg_length            = ciphertext_length - tag_length;
+      config_ccm.nonce                 = nonce;
+      config_ccm.nonce_length          = nonce_length;
+      config_ccm.ad                    = additional_data;
+      config_ccm.ad_length             = additional_data_length;
+      config_ccm.tag                   = ciphertext + (ciphertext_length - tag_length);
+      config_ccm.tag_length            = tag_length;
 
 #ifdef CHIP_917B0
       /* Fetch key type from attributes */
-      psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-      if (location == 0) {
-        config.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+      psa_key_location_t location_ccm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+      if (location_ccm == 0) {
+        config_ccm.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
       } else {
-        config.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+        config_ccm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
       }
 
       /* Set key_size from key_buffer_size */
       if (key_buffer_size == 16) {
-        config.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_128;
+        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_128;
       }
       if (key_buffer_size == 24) {
-        config.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_192;
+        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_192;
       }
       if (key_buffer_size == 32) {
-        config.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_256;
+        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_256;
       }
 
-      config.key_config.b0.key_slot     = 0;
-      config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-      if (config.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
-        memcpy(config.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+      config_ccm.key_config.b0.key_slot     = 0;
+      config_ccm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+      if (config_ccm.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+        memcpy(config_ccm.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
       }
-      memcpy(config.key_config.b0.key_buffer, key_buffer, config.key_config.b0.key_size);
+      memcpy(config_ccm.key_config.b0.key_buffer, key_buffer, config_ccm.key_config.b0.key_size);
 #else
-      config.key_config.a0.key_length = key_buffer_size;
-      memcpy(config.key_config.a0.key, key_buffer, config.key_config.a0.key_length);
+      config_ccm.key_config.a0.key_length = key_buffer_size;
+      memcpy(config_ccm.key_config.a0.key, key_buffer, config_ccm.key_config.a0.key_length);
 #endif
 
       if (status != PSA_SUCCESS) {
         return status;
       }
       /* Calling sl_si91x_ccm() for CCM decryption */
-      si91x_status = sl_si91x_ccm(&config, plaintext);
+      si91x_status = sl_si91x_ccm(&config_ccm, plaintext);
 
       status = convert_si91x_error_code_to_psa_status(si91x_status);
       break;
 #endif /* PSA_WANT_ALG_CCM */
+#if defined(PSA_WANT_ALG_GCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):;
+      sl_si91x_gcm_config_t config_gcm = { 0 };
+      config_gcm.encrypt_decrypt       = SL_SI91X_GCM_DECRYPT;
+      config_gcm.dma_use               = SL_SI91X_DMA_ENABLE;
+      config_gcm.msg                   = ciphertext;
+      config_gcm.msg_length            = ciphertext_length - tag_length;
+      config_gcm.nonce                 = nonce;
+      config_gcm.nonce_length          = nonce_length;
+      config_gcm.ad                    = additional_data;
+      config_gcm.ad_length             = additional_data_length;
+
+#ifdef CHIP_917B0
+      /* Fetch key type from attributes */
+      psa_key_location_t location_gcm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+      if (location_gcm == 0) {
+        config_gcm.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+      } else {
+        config_gcm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+      }
+
+      /* Set key_size from key_buffer_size */
+      if (key_buffer_size == 16) {
+        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_128;
+      }
+      if (key_buffer_size == 24) {
+        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_192;
+      }
+      if (key_buffer_size == 32) {
+        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_256;
+      }
+
+      config_gcm.gcm_mode                   = SL_SI91X_GCM_MODE;
+      config_gcm.key_config.b0.key_slot     = 0;
+      config_gcm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+      if (config_gcm.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+        memcpy(config_gcm.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+      }
+      memcpy(config_gcm.key_config.b0.key_buffer, key_buffer, config_gcm.key_config.b0.key_size);
+#else
+      config_gcm.key_config.a0.key_length = key_buffer_size;
+      memcpy(config_gcm.key_config.a0.key, key_buffer, config_gcm.key_config.a0.key_length);
+#endif
+
+      if (status != PSA_SUCCESS) {
+        return status;
+      }
+      /* Calling sl_si91x_gcm() for GCM decryption */
+      si91x_status = sl_si91x_gcm(&config_gcm, plaintext);
+
+      status = convert_si91x_error_code_to_psa_status(si91x_status);
+      break;
+#endif /* PSA_WANT_ALG_GCM */
     default:
       (void)status;
       (void)key_buffer;

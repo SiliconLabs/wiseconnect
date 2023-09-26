@@ -16,10 +16,11 @@ component_path:
   - path: components/si91x/socket_utility
   - path: components/si91x/crypto
   - path: components/si91x/crypto/aes
-  - path: components/si91x/crypto/ccm
+  - path: components/si91x/crypto/aead
   - path: components/si91x/crypto/wrap
   - path: components/si91x/crypto/sha
   - path: components/si91x/crypto/hmac
+  - path: components/si91x/crypto/ecdh
   - path: components/si91x/crypto/trng
   - path: components/si91x/crypto/attestation
   - path: components/service/network_manager
