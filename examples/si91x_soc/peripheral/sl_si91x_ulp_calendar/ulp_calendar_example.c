@@ -30,7 +30,7 @@
 
 #define TEST_CENTURY      2u
 #define TEST_YEAR         1u
-#define TEST_MONTH        Febuary
+#define TEST_MONTH        February
 #define TEST_DAY_OF_WEEK  Friday
 #define TEST_DAY          2u
 #define TEST_HOUR         18u
@@ -40,7 +40,7 @@
 
 #define ALARM_CENTURY      2u
 #define ALARM_YEAR         1u
-#define ALARM_MONTH        Febuary
+#define ALARM_MONTH        February
 #define ALARM_DAY_OF_WEEK  Friday
 #define ALARM_DAY          2u
 #define ALARM_HOUR         18u

@@ -78,7 +78,7 @@
 
 // <q SL_SI91X_VCOM_ENABLE> VCOM enable
 // <i> Default: 0
-#define SL_SI91X_VCOM_ENABLE 1
+#define SL_SI91X_VCOM_ENABLE 0
 
 #define USART0_MODULE   0
 #define UART1_MODULE    1

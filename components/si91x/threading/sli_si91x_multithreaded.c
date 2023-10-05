@@ -182,10 +182,11 @@ void si91x_bus_thread(void *args)
   uint8_t queue_mask      = 0;
   uint8_t *data;
   uint16_t length;
-  uint8_t queue_id        = 0;
-  uint16_t frame_type     = 0;
-  uint16_t frame_status   = 0;
-  bool global_queue_block = false;
+  uint8_t queue_id                                         = 0;
+  uint16_t frame_type                                      = 0;
+  uint16_t frame_status                                    = 0;
+  bool global_queue_block                                  = false;
+  sl_wifi_performance_profile_t current_power_profile_mode = { 0 };
   int i;
 
   sl_si91x_command_trace_t command_trace[SI91X_CMD_MAX] = { [SI91X_COMMON_CMD]  = { .sequential = true },
@@ -277,6 +278,10 @@ void si91x_bus_thread(void *args)
             case RSI_COMMON_RSP_SOFT_RESET:
             case RSI_COMMON_RSP_PWRMODE: {
               if (frame_type == command_trace[SI91X_COMMON_CMD].frame_type) {
+                if ((RSI_COMMON_RSP_PWRMODE == frame_type) && (frame_status == SL_STATUS_OK)) {
+                  get_wifi_current_performance_profile(&current_power_profile_mode);
+                  current_performance_profile = current_power_profile_mode.profile;
+                }
                 global_queue_block = false;
               }
             }
@@ -892,10 +897,6 @@ static sl_status_t bus_write_frame(sl_si91x_queue_type_t queue_type,
     sli_config_m4_dma_desc_on_reset();
   }
 #endif
-  if (trace->frame_type == RSI_COMMON_REQ_PWRMODE) {
-    // TBD : Power save Request expecting small delay while switching between Any power save mode to HIGH_PERFORMANCE and vise-versa. Maybe a small delay is required for configuring the power save parameter in the firmware.
-    osDelay(3);
-  }
 
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n BUS_WRITE_ERROR \r\n");

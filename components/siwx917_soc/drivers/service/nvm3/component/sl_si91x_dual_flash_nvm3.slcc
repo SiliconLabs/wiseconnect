@@ -2,7 +2,7 @@ id: sl_si91x_dual_flash_nvm3
 label: SL_SI91x_DUAL_FLASH_NVM3
 package: platform
 description: >
-  NVM3 component for Si91x
+  NVM3 dual flash component for Si91x
 category: Platform|si91x|service
 quality: production
 component_root_path: "components/siwx917_soc/drivers/service/nvm3"
@@ -29,8 +29,6 @@ requires:
   - name: romdriver_qspi
   - name: romdriver_gpdma
   - name: sl_system
-  - name: nvm3_lib
-  - name: nvm3_default
   - name: emlib_core
   - name: sl_assert
   - name: sl_common

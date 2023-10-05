@@ -18,7 +18,9 @@
   - name: si91x_platform
   - name: multi_slave
   - name: device_needs_ram_execution
-  - name: si91x_b0_chip  
+  - name: si91x_b0_chip 
+  - name: si91x_common_flash
+  - name: device_si91x  
 - include:
   - path: .
     condition: [wifi]

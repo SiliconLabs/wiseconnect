@@ -61,7 +61,6 @@ component_path:
   - path: utilities
   - path: components/console
   - path: components/console/variables
-  - path: components/console_auto_gen
   - path: third_party/qcbor/component
   - path: third_party/tcose/component
 

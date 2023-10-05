@@ -23,8 +23,10 @@ include:
       - path: ble_config.h
 define:
   - name: RSI_DEBUG_PRINTS
+  - name: WIRELESS_BASED_WAKEUP_TO_USE
 component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: sllib_m4_power_save}
 - {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_system

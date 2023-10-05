@@ -38,4 +38,5 @@ template_contribution:
   - name: event_handler
     value:
       event: driver_init
+      include: sl_si91x_led_instances.h
       handler: led_init_instances

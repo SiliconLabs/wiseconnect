@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file  sl_si91x_psa_ccm.h
+ * @file  sl_si91x_psa_aead.h
  * @brief
  *******************************************************************************
  * # License
@@ -15,8 +15,8 @@
  *
  ******************************************************************************/
 
-#ifndef SL_SI91X_PSA_CCM_H
-#define SL_SI91X_PSA_CCM_H
+#ifndef SL_SI91X_PSA_AEAD_H
+#define SL_SI91X_PSA_AEAD_H
 
 #include "sli_si91x_crypto_driver_functions.h"
 #include "string.h"
@@ -51,4 +51,4 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
                                            size_t plaintext_size,
                                            size_t *plaintext_length);
 
-#endif /* SL_SI91X_PSA_CCM_H */
+#endif /* SL_SI91X_PSA_AEAD_H */

@@ -25,7 +25,7 @@
 ![Figure: Introduction](resources/readme/image501a.png)
 
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 
@@ -59,7 +59,8 @@ Compile the application in Simplicity Studio using build icon
 
 ## Executing the Application
 ```c
-Note: On 2.0 boards, To see the prints on vcom console turn on VCOM enable switch and perform the below steps and Remove the DEBUG_UART macro from preprocessor window.
+Note: 
+On 2.0 boards, To see the prints on vcom console turn on VCOM enable switch and perform the below steps
 
 ```
 - In softwate components, search for iostream and open the configuration window
@@ -68,10 +69,11 @@ Note: On 2.0 boards, To see the prints on vcom console turn on VCOM enable switc
 - Turn on the vcom enable the button
 ![Figure: Excecuting the application](resources/readme/image501e.png)
 
-- Remove the debug uart macro from preprocessor window
-![Figure: Excecuting the application](resources/readme/image501f.png)
+1. Connect USART TX pin(GPIO_30) to RX pin, RX pin(GPIO_29) to TX pin pin of UART header to see prints on serial console.
+```c
+When VCOM is enabled, no need to do the physical connections, on vcom port only prints can be observe(Select Jlink CDC UART port on console) .
 
-1. Connect USART TX pin(GPIO_30) to RX pin, RX pin(GPIO_29) to TX pin pin of UART header to see prints on serail console.
+```
 
 ## Expected Results
 

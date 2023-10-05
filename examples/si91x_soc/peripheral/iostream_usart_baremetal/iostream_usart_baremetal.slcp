@@ -37,6 +37,11 @@ component:
 - {from: wiseconnect3_sdk, id: cmsis_udma}
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
 other_file:
+- {path: resources/readme/image501a.png}
+- {path: resources/readme/image501b.png}
+- {path: resources/readme/image501c.png}
+- {path: resources/readme/image501d.png}
+- {path: resources/readme/image501e.png}
 - {path: resources/readme/vcom.png}
 define:
 - {name: RSI_M4_INTERFACE}

@@ -48,6 +48,9 @@
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
 
+#ifdef RSI_M4_INTERFACE
+#include "sl_m4_ps.h"
+#endif
 //! BLE attribute service types uuid values
 #define RSI_BLE_CHAR_SERV_UUID   0x2803
 #define RSI_BLE_CLIENT_CHAR_UUID 0x2902
@@ -71,7 +74,7 @@
 #define RSI_BLE_DEV_ADDR "00:23:A7:80:70:B9"
 
 //! Remote Device Name to connect
-#define RSI_REMOTE_DEVICE_NAME "ASUS6z"
+#define RSI_REMOTE_DEVICE_NAME "SILABS"
 
 //! attribute properties
 #define RSI_BLE_ATT_PROPERTY_READ   0x02
@@ -762,7 +765,9 @@ void ble_heart_rate_gatt_server(void *argument)
 #else
   uint8_t adv[31] = { 2, 1, 6 };
 #endif
-
+#ifdef RSI_M4_INTERFACE
+  sl_si91x_hardware_setup();
+#endif /* RSI_M4_INTERFACE */
   status = sl_wifi_init(&config, default_wifi_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
@@ -879,7 +884,15 @@ void ble_heart_rate_gatt_server(void *argument)
     //! checking for events list
     event_id = rsi_ble_app_get_event();
     if (event_id == -1) {
+#ifdef RSI_M4_INTERFACE
+      //! if events are not received loop will be continued.
+      if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
+        P2P_STATUS_REG &= ~M4_wakeup_TA;
+        sl_m4_sleep_wakeup();
+      }
+#else
       osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
+#endif
       continue;
     }
 
@@ -1082,9 +1095,6 @@ adv:
 #if ((GATT_ROLE == CLIENT) || (GATT_ROLE == SERVER))
         if (connected == 1) {
           if (notify_start == 1) {
-#if (defined RSI_M4_INTERFACE)
-            osDelay(2000);
-#endif
             len    = heartratefun(rate, (uint8_t *)data);
             status = rsi_ble_set_local_att_value(rsi_ble_measurement_hndl, len, (uint8_t *)data);
             if (status != RSI_SUCCESS) {

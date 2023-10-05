@@ -34,7 +34,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4325A]
+- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
 
 ![Figure: Introduction](resources/readme/image505a.png)
 
@@ -86,10 +86,10 @@
 
 | GPIO pin                | Description             |
 | ----------------------- | ----------------------- |
-| GPIO_25 [EXP_HEADER-15] | I2S frequency			|
-| GPIO_26 [EXP_HEADER-16] | I2S Sampling frequency  |
-| GPIO_28 [EXP_HEADER-8]  | I2S DOUT				|
-| GPIO_27 [EXP_HEADER-10] | I2S DIN 				|
+| GPIO_25 [P25]           | I2S frequency           |
+| GPIO_26 [P27]           | I2S Sampling frequency  |
+| GPIO_28 [P29]           | I2S DOUT		        |
+| GPIO_27 [P31]           | I2S DIN 		        |
 
 ## Pin Description
 

@@ -2,12 +2,10 @@
 
 ## Introduction
 
-- The GPIO has ULP/UULP instances in MCU.
+- The ULP GPIO has 2 instances in MCU.
   - ULP Domain is used to control the ULP GPIO's(ULP_GPIO_n; n=0 to 11)
-  - UULP Domain which is used to control the UULP GPIO's(UULP_GPIO_n; n=0 to 5)
-- ULP Domain have same features and functionality except for different base address.
+  - UULP Domain which is used to control the UULP GPIO's(UULP_GPIO_n; n=0 to 4)
 - ULP GPIO domain has only one port and calling as Port 4 in program which has maximum of 12 pins.
-
 - All the GPIO pins in ULP Domain support set,clear,toggle,programmed as output,input etc.
 
 ## Setting Up
@@ -29,7 +27,7 @@
 
 ## Examples
 
-- Details for the example code are described in the following subsections.
+- Details for the example code are described in the following sub-sections.
 
 ## Initialization of GPIO in ULP Domain
 
@@ -61,20 +59,21 @@ NOTE : GPIO ULP instance have port-4.
 
 - **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
+### VCOM Setup
+
+- The Serial Console tool's setup instructions are provided below..
+
+![Figure: VCOM_setup](resources/readme/vcom.png)
+
 ## Loading Application on Simplicity Studio
 
 1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos in simplicity studio and click on to GPIO Example application as shown below.
 
 ![Figure: Selecting Example project](resources/readme/image504b.png)
 
-### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
-
-![Figure: VCOM_setup](resources/readme/vcom.png)
-
 ## Configuration and Steps for Execution
 
-- Configure the following parameters in gpio_example.c (examples/si91x_soc/peripheral/sl_gpio/) file and update/modify following macros if required
+- Configure the following parameters in ulp_gpio_example.c (examples/si91x_soc/peripheral/sl_si91x_ulp_gpio/) file and update/modify following macros if required
 
   ```c
   #define PORT0                    0      // GPIO Port number(0 to 4)
@@ -85,6 +84,7 @@ NOTE : GPIO ULP instance have port-4.
   #define NPSS_INTR                2      // NPSS GPIO interrupt number
   #define DELAY                    1000   // Delay for 1sec
   ```
+
 ## Build
 
 1. Compile the application in Simplicity Studio using build icon.
@@ -97,24 +97,19 @@ NOTE : GPIO ULP instance have port-4.
 
 ## Executing the Application
 
-1. Enable any of the macro whose functionality needs to be tested.
-2. Compile and run the application.
+1. Compile and run the application. Please refer **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** on how to complie and run the application. 
 
 ## Expected Results
-- GPIO should be continously toggled ,connect logic analyser to observe the toggle state.
-- If ULP_GPIO_PIN is enabled, ULP pin direction, mode are printed on the serial console. Connect logic analyser to observe the pin state. By default led will be in high state. When button pressed it goes into low state.
-- If UULP_GPIO_PIN is enabled, UULP pin direction is printed on the serial console. Connect logic analyser to observe the pin state.
-- If ULP_GPIO_PIN_INTR is enabled, it triggers ULP Domain pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in handler for now.
-- If ULP_GPIO_GROUP_INTR is enabled, it triggers ULP group interrupt. For analyzing group interrupt keep a print (or) toggle (or) set(or) clear in handler for now.
-- If UULP_GPIO_PIN_INTR is enabled, it triggers UULP pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in handler for now.
-  NOTE: ALL enumerators defined above in expected results are of type \ref gpio_instance_type_t.
-  ## Note
- - This applicatin is executed from RAM.
- - In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
- - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
-## Expected Scenario:
- - After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
- - To Erase the chip follow the below procedure
-   - Turn ON ISP switch and press the reset button → Turn OFF ISP Switch → Now perform Chip erase 
-      through commander.
+
+- GPIO should be continously toggled ,connect logic analyser to F11 on WSTK board to observe the toggle state.
+
+NOTE: These pin configurations are specific to BRD4338A board.
+
+## Additional Information:
+  NOTE: ALL enumerators defined below are of type \ref gpio_instance_type_t which are present in ulp_gpio_example.c. Make corresponding enumerator to '1', in order to enable the individual functionalities mentioned below.
+- By default ULP_GPIO_PIN(ULP GPIO instance) is enabled, ULP pin direction, mode are printed on the serial console. Connect ULP_GPIO_1 pin to 0v and to 3.3v, and observe the LED0 toggle state. By default led(LED0) will be in high state. Connect logic analyser to P16(ULP_GPIO_1), F10(LED0) and observe the pins state.
+- If UULP_GPIO_PIN is enabled, UULP pin direction is printed on the serial console. Connect logic analyser to P14 on WSTK board to observe the toggle state.
+- If ULP_GPIO_PIN_INTR is enabled, it triggers ULP Domain pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in ULP_PIN_IRQ_Handler() present in ulp_gpio_example.c.
+- If ULP_GPIO_GROUP_INTR is enabled, it triggers ULP group interrupt. For analyzing group interrupt keep a print (or) toggle (or) set(or) clear in ULP_GROUP_IRQ_Handler() present in ulp_gpio_example.c.
+- If UULP_GPIO_PIN_INTR is enabled, it triggers UULP pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in UULP_PIN_IRQ_Handler() present in ulp_gpio_example.c.
 

@@ -17,6 +17,8 @@
   - name: si91x_platform
   - name: multi_slave
   - name: si91x_b0_chip  
+  - name: si91x_common_flash
+  - name: device_si91x
 - recommends:
   - id: "%extension-wiseconnect3_sdk%psram_aps6404l_sqh"
 - template_contribution:

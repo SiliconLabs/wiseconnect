@@ -8,7 +8,7 @@
 
 ## Overview
 
-- There are four I2C Master/Slave controllers - two in the MCU HP peripherals (I2C1, I2C2), one in the NWP/security subsystem and one in the MCU ULP subsystem (ULP_I2C).
+- There are three configurable I2C Master/Slave controllers in M4 - two in the MCU HP peripherals (I2C1, I2C2) and one in the MCU ULP subsystem (ULP_I2C).
 - The I2C interface allows the processor to serve as a leader or follower on the I2C bus.
 - I2C can be configured with following features
   - I2C standard compliant bus interface with open-drain pins
@@ -77,7 +77,7 @@
 
 ![Figure: Selecting Example project](resources/readme/image507b.png)
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 

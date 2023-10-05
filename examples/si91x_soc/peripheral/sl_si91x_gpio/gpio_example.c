@@ -41,9 +41,9 @@
 #define PIN28 28 // Pin number 28 for interrupt
 
 #define ULP_PIN_0  0  // ULP GPIO Pin number 0
+#define ULP_PIN_1  1  // ULP GPIO Pin number 1
+#define ULP_PIN_2  2  // ULP GPIO Pin number 2
 #define ULP_PIN_4  4  // ULP GPIO Pin number 4
-#define ULP_PIN_5  5  // ULP GPIO Pin number 5
-#define ULP_PIN_8  8  // ULP GPIO Pin number 8
 #define ULP_PIN_10 10 // ULP GPIO Pin number 10
 
 #define UULP_PIN0 0 // UULP Pin number 0
@@ -222,13 +222,13 @@ void gpio_example_init(void)
     // GPIO initialization function for ULP instance
     sl_gpio_ulp_initialization();
     // Get the pin direction for ULP GPIO pin
-    direction = sl_si91x_gpio_get_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_8);
+    direction = sl_si91x_gpio_get_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_2);
     DEBUGOUT("get_pin_direction = %d\n", direction);
     direction = sl_si91x_gpio_get_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_4);
     DEBUGOUT("get_pin_direction = %d\n", direction);
 
     // Get the pin mode for ULP GPIO pin
-    get_pin = sl_gpio_get_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_8);
+    get_pin = sl_gpio_get_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_2);
     DEBUGOUT("get_pin_mode = %d\n", get_pin);
     get_pin = sl_gpio_get_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_4);
     DEBUGOUT("get_pin_mode = %d\n", get_pin);
@@ -308,11 +308,11 @@ void gpio_example_process_action(void)
   if (ULP_GPIO_PIN == SET) {
     uint8_t input;
     // Get GPIO pin input
-    input = sl_gpio_get_pin_input(SL_ULP_GPIO_PORT, ULP_PIN_5);
+    input = sl_gpio_get_pin_input(SL_ULP_GPIO_PORT, ULP_PIN_1);
     if (input == CLR) {
-      sl_gpio_set_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_8); // Set ULP GPIO pin
+      sl_gpio_set_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_2); // Set ULP GPIO pin
     } else {
-      sl_gpio_clear_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_8); // Clear ULP GPIO pin
+      sl_gpio_clear_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_2); // Clear ULP GPIO pin
     }
   }
 
@@ -390,7 +390,7 @@ static void sl_gpio_ulp_initialization(void)
 
   // Enable pad receiver for ULP GPIO pins
   sl_si91x_gpio_enable_ulp_pad_receiver(ULP_PIN_4);
-  sl_si91x_gpio_enable_ulp_pad_receiver(ULP_PIN_5);
+  sl_si91x_gpio_enable_ulp_pad_receiver(ULP_PIN_1);
 
   // Select pad driver strength for ULP GPIO pins
   sl_si91x_gpio_select_ulp_pad_driver_strength(ULP_PIN_4, (sl_si91x_gpio_driver_strength_select_t)GPIO_TWO_MILLI_AMPS);
@@ -399,14 +399,14 @@ static void sl_gpio_ulp_initialization(void)
   sl_si91x_gpio_select_ulp_pad_driver_disable_state(ULP_PIN_4, (sl_si91x_gpio_driver_disable_state_t)GPIO_HZ);
 
   // Set the pin mode for ULP GPIO pins.
-  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_8, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_2, _MODE0, OUTPUT_VALUE);
   sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_4, _MODE0, OUTPUT_VALUE);
-  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_5, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_1, _MODE0, OUTPUT_VALUE);
 
   // Set the pin direction for ULP GPIO pins.
-  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_8, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_2, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
   sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_4, (sl_si91x_gpio_direction_t)GPIO_INPUT);
-  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_5, (sl_si91x_gpio_direction_t)GPIO_INPUT);
+  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_1, (sl_si91x_gpio_direction_t)GPIO_INPUT);
 }
 
 /*******************************************************************************

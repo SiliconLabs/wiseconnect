@@ -25,12 +25,12 @@ define:
     value: 1
   - name: RS_PLATFORM
     value: 1
+requires:
+  - name: sleeptimer_si91x
 provides:
   - name: sleeptimer_ulp
   - name: device_has_rs_ulptimer
   - name: device_rs_platform
-requires:
-  - name: sleeptimer
 template_contribution:
   - name: event_handler
     value:

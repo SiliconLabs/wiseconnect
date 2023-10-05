@@ -20,10 +20,16 @@ source:
   - path: network_commands.c
   - path: bsd_socket_commands.c
   - path: iot_socket_commands.c
+  - path: console_commands/src/console_argument_types.c
+  - path: console_commands/src/console_command_database.c
+  - path: console_commands/src/console_variable_database.c
 include:
   - path: .
     file_list:
       - path: app.h
+  - path: console_commands/inc
+    file_list:
+      - path: console_argument_types.h
 define:
   - name: CONSOLE_MAXIMUM_ARG_COUNT
     value: 15
@@ -34,6 +40,7 @@ define:
 
   - name: RSI_DEBUG_PRINTS
   - name: DEBUG_MIDDLEWARE_EN
+  - name: INTERRUPT_BASED_DATA_RX
   - name: EXECUTION_FROM_RAM
     condition:
       - device_needs_ram_execution
@@ -47,13 +54,13 @@ component:
 requires:
 - name: console
 - name: console_variables
-- name: console_auto_gen
+- name: socket_utility
+  condition: ["si91x_internal_stack"]
+- name: iot_sockets
 - name: cli_network_commands
 - name: bsd_socket_commands
 - name: iot_socket_commands
 - name: cli_wifi_commands
-- name: commander
-- name: yamlyze
 - name: sl_system
 - name: si91x_support
 - name: sl_tls
@@ -66,6 +73,7 @@ requires:
 - name: wifi_resources
 - name: freertos
 - name: slist
+- name: sl_string
 - name: si91x_internal_stack
 - name: iostream_retarget_stdio
   condition: [device_has_devinfo]
@@ -111,7 +119,22 @@ other_file:
   - path: resources/readme/wifi_init.png
   - path: resources/readme/soc_board_detection.png
   - path: resources/readme/usb_to_uart_1.png
-  - path: resources/readme/usb_to_uart.png
+  - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/picture1.png
+  - path: resources/readme/picture2.png
+  - path: resources/readme/picture4.png
+  - path: resources/readme/picture5.png
+  - path: resources/readme/picture6.png
+  - path: resources/readme/picture8.png
+  - path: resources/readme/picture9.png
+  - path: resources/readme/picture10.png
+  - path: resources/readme/rx_stats_prints.png
+  - path: resources/readme/rx_stats.png
+  - path: resources/readme/sda_port_baud_selection.png
+  - path: resources/readme/tx_commands.png
+  - path: resources/readme/tx_modes.png
+  - path: resources/readme/sda_commands.png
+  - path: resources/readme/setup_rf.png
 ui_hints:
   highlight:
     - path: readme.md

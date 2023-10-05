@@ -28,7 +28,7 @@
 #define BUFFER_SIZE          1024                                 // Data send and receive length
 #define USART_BAUDRATE       115200                               // Baud rate <9600-7372800>
 #define PORT                 0
-#define PIN                  46
+#define PIN                  10
 #define SET                  1
 #define CLR                  0
 #define NON_UC_DEFAULT_CONFIG \
@@ -97,7 +97,7 @@ void usart_example_init(void)
   RSI_EGPIO_SetDir(EGPIO1, PORT, PIN, EGPIO_CONFIG_DIR_OUTPUT);
   do {
     // Initialize the UART
-    status = sl_si91x_usart_init(usart_config.usart_module, &usart_handle);
+    status = sl_si91x_usart_init(ULPUART, &usart_handle);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_usart_initialize: Error Code : %lu \n", status);
       break;
@@ -251,8 +251,6 @@ static void compare_loop_back_data(void)
     RSI_EGPIO_SetPin(EGPIO1, PORT, PIN, CLR);
     DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
   } else {
-    RSI_EGPIO_SetPin(EGPIO1, PORT, PIN, SET);
-    RSI_EGPIO_SetPin(EGPIO1, PORT, PIN, CLR);
     DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
   }
 }

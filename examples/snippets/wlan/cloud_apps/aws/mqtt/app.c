@@ -723,7 +723,7 @@ void set_alarm_interrupt_timer(uint16_t interval)
 
   /*Update month for next boundary alarm */
   if (alarm_configuration.Day > NO_OF_DAYS_IN_A_MONTH_1) {
-    if (alarm_configuration.Month == Febuary) {
+    if (alarm_configuration.Month == February) {
       if (alarm_configuration.Year % 4) {
         alarm_configuration.Day = 1;
         alarm_configuration.Month += 1;

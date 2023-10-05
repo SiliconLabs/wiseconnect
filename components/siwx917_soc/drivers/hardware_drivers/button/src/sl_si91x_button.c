@@ -38,7 +38,7 @@
 
 // This stores the button state so that IRQ ISRs know when to notify buttonIsrs.
 #if (SL_SI91x_BUTTON_COUNT > 0)
-static uint8_t buttonState[SL_SI91x_BUTTON_COUNT];
+static int8_t buttonState[SL_SI91x_BUTTON_COUNT];
 void sl_si91x_button_internal_isr(uint8_t pin);
 #endif //(SL_SI91x_BUTTON_COUNT > 0)
 
@@ -189,7 +189,7 @@ void sl_si91x_button_init(const sl_button_t *handle)
 #endif
 }
 
-uint8_t sl_si91x_button_state_get(uint8_t pin)
+int8_t sl_si91x_button_state_get(uint8_t pin)
 {
   // Note: this returns the "soft" state rather than reading the port
   //  so it gives with the interrupts and their callbacks
@@ -202,11 +202,11 @@ uint8_t sl_si91x_button_state_get(uint8_t pin)
   return BUTTON_STATE_INVALID;
 }
 
-void sl_si91x_button_state_set(uint8_t pin, uint8_t state)
+void sl_si91x_button_state_set(uint8_t pin, int8_t state)
 {
   // Note: this sets the "soft" state
   //  so it gives with the interrupts and their callbacks
-  uint8_t index;
+  uint8_t index = 0;
 
   if (pin == SL_BUTTON_BTN0_PIN) {
     index = SL_BUTTON_BTN0_NUMBER;
@@ -219,18 +219,24 @@ void sl_si91x_button_state_set(uint8_t pin, uint8_t state)
   }
 }
 
-void sl_si91x_button_state_toggle(const sl_button_t *handle)
+void sl_si91x_button_state_toggle(uint8_t pin)
 {
   // Note: this toggles the "soft" state
   //  so it gives with the interrupts and their callbacks
-  uint8_t index = handle->button_number;
+  uint8_t index = 0;
+
+  if (pin == SL_BUTTON_BTN0_PIN) {
+    index = SL_BUTTON_BTN0_NUMBER;
+  } else if (pin == SL_BUTTON_BTN1_PIN) {
+    index = SL_BUTTON_BTN1_NUMBER;
+  }
 
   if (index < SL_SI91x_MAX_BUTTON_COUNT) {
     buttonState[index] = !buttonState[index];
   }
 }
 
-uint8_t sl_si91x_button_pin_state(uint8_t pin)
+int8_t sl_si91x_button_pin_state(uint8_t pin)
 {
   if (pin == SL_BUTTON_BTN1_PIN)
     return RSI_EGPIO_GetPin(EGPIO, SL_BUTTON_BTN1_PORT, pin) ? BUTTON_RELEASED : BUTTON_PRESSED;
@@ -261,7 +267,7 @@ uint8_t sl_si91x_button_pin_state(uint8_t pin)
 #if (SL_SI91x_BUTTON_COUNT > 0)
 void sl_si91x_button_internal_isr(uint8_t pin)
 {
-  uint8_t buttonStateNow;
+  int8_t buttonStateNow;
 
 #if (DEBOUNCE > 0)
   uint8_t buttonStatePrev;
@@ -290,7 +296,7 @@ void sl_si91x_button_internal_isr(uint8_t pin)
   }
 }
 
-SL_WEAK void sl_si91x_button_isr(uint8_t pin, uint8_t state)
+SL_WEAK void sl_si91x_button_isr(uint8_t pin, int8_t state)
 {
   (void)pin;
   (void)state;

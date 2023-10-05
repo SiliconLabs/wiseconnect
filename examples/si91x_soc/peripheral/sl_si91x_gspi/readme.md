@@ -86,7 +86,7 @@
 - **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 
@@ -113,6 +113,8 @@
   - Configure the FIFO Thresholds, i.e. Almost Full and Almost Empty. It can be configured between 0 to 15.
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
+  ![Figure: UC screen](resources/uc_screen/gspi_uc_screen.png)
+ 
 - Configure the following macros in gspi_example.h file and update/modify following macros if required.
 
 ```C

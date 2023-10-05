@@ -1245,6 +1245,7 @@ void SPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
       spi->xfer->tx_cnt = spi->xfer->num;
       // Clear error status by reading the register
       status_reg = spi->reg->SR;
+      (void)status_reg;
       if (spi->xfer->rx_buf == NULL) {
         if (spi->info->cb_event != NULL) {
           spi->info->cb_event(ARM_SPI_EVENT_SEND_COMPLETE);
@@ -1273,6 +1274,7 @@ void SPI_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
       spi->info->status.busy = 0U;
       // Clear error status by reading the register
       status_reg = spi->reg->SR;
+      (void)status_reg;
       break;
     case UDMA_EVENT_ERROR:
       break;

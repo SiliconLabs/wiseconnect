@@ -273,9 +273,9 @@ static void compare_loopback_data(void)
     }
   }
   if (data_index == BUFFER_SIZE) {
-    DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
+    DEBUGOUT("Data comparison successful, Test case Passed \n");
   } else {
-    DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
+    DEBUGOUT("Data comparison failed, Test case failed \n");
   }
 }
 

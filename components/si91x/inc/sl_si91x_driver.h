@@ -117,7 +117,7 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
  *   Length of the command packet.
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
+sl_status_t sl_si91x_driver_send_async_command(uint32_t command,
                                                sl_si91x_queue_type_t queue_type,
                                                void *data,
                                                uint32_t data_length);
@@ -162,6 +162,8 @@ sl_status_t sl_si91x_driver_send_socket_data(sl_si91x_socket_send_request_t *req
  *   Queue type to send command on.
  * @param[in] data
  *   Pointer to Bluetooth data.
+ * @param[in] sync_command
+ *   Sync or Async command.
  * @pre 
  *   @ref sl_si91x_driver_init should be called before this API.
  * @return
@@ -169,7 +171,8 @@ sl_status_t sl_si91x_driver_send_socket_data(sl_si91x_socket_send_request_t *req
  ******************************************************************************/
 sl_status_t sl_si91x_driver_send_bt_command(rsi_wlan_cmd_request_t command,
                                             sl_si91x_queue_type_t queue_type,
-                                            sl_wifi_buffer_t *data);
+                                            sl_wifi_buffer_t *data,
+                                            uint8_t sync_command);
 
 /***************************************************************************/ /**
  * @brief

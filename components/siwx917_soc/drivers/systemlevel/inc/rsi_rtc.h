@@ -52,7 +52,7 @@ typedef enum RTC_DAY_OF_WEEK {
  ******************************************************************************/
 typedef enum RTC_MONTH {
   January   = 1u,  ///< January
-  Febuary   = 2u,  ///< February
+  February  = 2u,  ///< February
   March     = 3u,  ///< March
   April     = 4u,  ///< April
   May       = 5u,  ///< May

@@ -76,20 +76,20 @@ int handle_select_response(sl_si91x_socket_select_rsp_t *response,
   FD_ZERO(exception_fd);
 
   for (int host_socket_index = 0; host_socket_index < NUMBER_OF_SOCKETS; host_socket_index++) {
-    int firmware_socket_id = get_si91x_socket(host_socket_index)->id;
+    si91x_socket_t *socket = get_si91x_socket(host_socket_index);
 
-    if (readfds != NULL) {
-      if (response->read_fds.fd_array[0] & (1 << firmware_socket_id)) {
-        FD_SET(host_socket_index, readfds);
-        total_fd_set_count++;
-      }
+    if (socket == NULL) {
+      continue;
     }
 
-    if (writefds != NULL) {
-      if (response->write_fds.fd_array[0] & (1 << firmware_socket_id)) {
-        FD_SET(host_socket_index, writefds);
-        total_fd_set_count++;
-      }
+    if (readfds != NULL && (response->read_fds.fd_array[0] & (1 << socket->id))) {
+      FD_SET(host_socket_index, readfds);
+      total_fd_set_count++;
+    }
+
+    if (writefds != NULL && (response->write_fds.fd_array[0] & (1 << socket->id))) {
+      FD_SET(host_socket_index, writefds);
+      total_fd_set_count++;
     }
   }
 

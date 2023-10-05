@@ -3,8 +3,8 @@
 <descriptors name="attestation" label="attestation" description="Demonstrates device attestation">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/crypto/attestation/attestation.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4338a"/>
+    <properties key="projectFilePaths" value="examples/snippets/crypto/attestation/attestation.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -12,7 +12,7 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/crypto/attestation/readme.md"/>
+    <properties key="readmeFiles" value="examples/snippets/crypto/attestation/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless"/>
   </descriptors>
 <descriptors name="ble_accept_list" label="BLE - Acceptlist" description="This application demonstrates how to add a particular BD-Address to the Allow List. The Allow List can restrict which device are allowed to connect to other device.">
@@ -393,7 +393,7 @@
 <descriptors name="crypto_aes" label="Crypto - AES" description="Encrypt/decrypt the data using AES">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/crypto/aes/aes.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/crypto/aes/aes.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
@@ -402,13 +402,13 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/crypto/aes/readme.md"/>
+    <properties key="readmeFiles" value="examples/snippets/crypto/aes/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="crypto_ecdh" label="Crypto - ECDH" description="Demonstrate the use of ECDH APIs">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/crypto/ecdh/ecdh.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/crypto/ecdh/ecdh.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
@@ -417,13 +417,13 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/crypto/ecdh/readme.md"/>
+    <properties key="readmeFiles" value="examples/snippets/crypto/ecdh/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="crypto_hmac" label="Crypto - HMAC" description="Demonstrate the use of HMAC">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/crypto/hmac/hmac.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/crypto/hmac/hmac.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
@@ -432,13 +432,13 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/crypto/hmac/readme.md"/>
+    <properties key="readmeFiles" value="examples/snippets/crypto/hmac/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="crypto_sha" label="Crypto - SHA" description="Hash the data using SHA">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/_internal/Wireless_Examples/crypto/sha/sha.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/crypto/sha/sha.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
@@ -447,7 +447,7 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/_internal/Wireless_Examples/crypto/sha/readme.md"/>
+    <properties key="readmeFiles" value="examples/snippets/crypto/sha/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="gatt_test_ncp" label="BLE Gatt Test(NCP)" description="  Demonstrates how to configure GATT server in BLE peripheral mode.">
@@ -658,6 +658,21 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/crypto/si91x_psa_ccm/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="si91x_psa_chachapoly" label="SI91x - SoC PSA CHACHAPOLY" description="Demonstrates how to to use PSA CHACHAPOLY">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/crypto/si91x_psa_chachapoly/si91x_psa_chachapoly.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="alpha"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/crypto/si91x_psa_chachapoly/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="si91x_psa_gcm" label="SI91x - SoC PSA GCM" description="Demonstrates how to to use PSA GCM">
@@ -960,25 +975,10 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_i2s_secondary/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="sl_si91x_ml_blink" label="SiW91x Machine Learning - Blink" description="Demonstrates ml model trained to replicate a sine function">
-    <properties key="namespace" value="template.uc"/>
-    <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ml_blink/sl_si91x_ml_blink.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4325c brd4325e brd4325f brd4325g brd4338a brd4340a"/>
-    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
-    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
-    <properties key="toolchainCompatibility" value="gcc"/>
-    <properties key="quality" value="alpha"/>
-    <properties key="category" value="Example|Wi-Fi"/>
-    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ml_blink/readme.md"/>
-	<properties key="filters" value="Device\ Type|SoC"/>
-  </descriptors>
 <descriptors name="sl_si91x_nvm3_common_flash" label="sl_si91x_nvm3_common_flash" description="Testing NVM3 in Si91x common flash">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/sl_si91x_nvm3_common_flash/sl_si91x_nvm3_common_flash.slcp"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/service/sl_si91x_nvm3_common_flash/sl_si91x_nvm3_common_flash.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325c brd4325f brd4325g brd4338a brd4340a"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
@@ -987,14 +987,14 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/sl_si91x_nvm3_common_flash/readme.md"/>
+    <properties key="readmeFiles" value="examples/si91x_soc/service/sl_si91x_nvm3_common_flash/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="sl_si91x_nvm3_dual_flash" label="sl_si91x_nvm3_dual_flash" description="Demonstrates how to to use NVM3 in Si91x dual flash.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/sl_si91x_nvm3_dual_flash/sl_si91x_nvm3_dual_flash.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4325b brd4325e brd4340a"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/service/sl_si91x_nvm3_dual_flash/sl_si91x_nvm3_dual_flash.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325b brd4325e"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -1002,7 +1002,7 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/sl_si91x_nvm3_dual_flash/readme.md"/>
+    <properties key="readmeFiles" value="examples/si91x_soc/service/sl_si91x_nvm3_dual_flash/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="sl_si91x_pwm" label="SI91x - SL_PWM" description="Demonstrates how to to use pwm.">
@@ -1263,7 +1263,7 @@
 <descriptors name="sleeptimer" label="SI91x - Sleep Timer" description="Demonstrates how to to use SleepTimer.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sleeptimer/sleeptimer.slcp"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/service/sleeptimer/sleeptimer.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4325c brd4325e brd4325f brd4325g brd4338a brd4340a"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
@@ -1272,7 +1272,7 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
-    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sleeptimer/readme.md"/>
+    <properties key="readmeFiles" value="examples/si91x_soc/service/sleeptimer/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="tcp_tx_on_periodic_wakeup_soc" label="Wi-Fi - TCP Tx on Periodic Wakeup (SOC)" description="Wlan TCP Tx on Periodic Wakeup">
@@ -1575,10 +1575,25 @@
     <properties key="readmeFiles" value="examples/snippets/wlan/sntp_client/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="wifi_enterprise_client" label="Wi-Fi - Enterprise Client Mode" description="Connects as a Wi-Fi client to an Access Point and RADIUS server using Enterprise Security">
+<descriptors name="wifi_enterprise_client_ncp" label="Wi-Fi - Enterprise Client Mode(NCP)" description="Connects as a Wi-Fi client to an Access Point and RADIUS server using Enterprise Security">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/snippets/wlan/enterprise_client/enterprise_client.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/enterprise_client/enterprise_client_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="alpha"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/enterprise_client/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_enterprise_client_soc" label="Wi-Fi - Enterprise Client Mode(SOC)" description="Connects as a Wi-Fi client to an Access Point and RADIUS server using Enterprise Security">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/enterprise_client/enterprise_client_soc.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>

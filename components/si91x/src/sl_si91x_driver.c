@@ -675,7 +675,8 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
 
 sl_status_t sl_si91x_driver_send_bt_command(rsi_wlan_cmd_request_t command,
                                             sl_si91x_queue_type_t queue_type,
-                                            sl_wifi_buffer_t *data)
+                                            sl_wifi_buffer_t *data,
+                                            uint8_t sync_command)
 {
   sl_si91x_wait_period_t wait_period = SL_SI91X_RETURN_IMMEDIATELY;
 
@@ -684,7 +685,11 @@ sl_status_t sl_si91x_driver_send_bt_command(rsi_wlan_cmd_request_t command,
     return SL_STATUS_INVALID_INDEX;
   }
 
-  return sl_si91x_driver_send_command_packet(command, queue_type, data, wait_period, NULL, NULL);
+  if (sync_command) {
+    return sl_si91x_driver_send_command_packet(command, queue_type, data, wait_period, NULL, NULL);
+  } else {
+    return sl_si91x_driver_send_async_command(command, queue_type, data, 0);
+  }
 }
 
 sl_status_t sl_si91x_driver_wait_for_response(rsi_wlan_cmd_request_t command, sl_si91x_wait_period_t wait_period)
@@ -896,7 +901,7 @@ sl_status_t sl_si91x_driver_send_data_packet(sl_si91x_queue_type_t queue_type,
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
+sl_status_t sl_si91x_driver_send_async_command(uint32_t command,
                                                sl_si91x_queue_type_t queue_type,
                                                void *data,
                                                uint32_t data_length)
@@ -909,20 +914,25 @@ sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
   sl_si91x_packet_t *raw_rx_packet;
   sl_status_t status;
 
-  status = sl_si91x_allocate_command_buffer(&raw_rx_buffer,
-                                            (void **)&raw_rx_packet,
-                                            sizeof(sl_si91x_packet_t) + data_length,
-                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
-  VERIFY_STATUS_AND_RETURN(status);
+  if (queue_type == SI91X_BT_CMD_QUEUE) {
+    // BLE packet is created in upper layer, no allocations required here.
+    raw_rx_buffer = (sl_wifi_buffer_t *)data;
+  } else {
+    status = sl_si91x_allocate_command_buffer(&raw_rx_buffer,
+                                              (void **)&raw_rx_packet,
+                                              sizeof(sl_si91x_packet_t) + data_length,
+                                              SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+    VERIFY_STATUS_AND_RETURN(status);
 
-  memset(raw_rx_packet->desc, 0, sizeof(raw_rx_packet->desc));
-  if (data != NULL) {
-    memcpy(raw_rx_packet->data, data, data_length);
+    memset(raw_rx_packet->desc, 0, sizeof(raw_rx_packet->desc));
+    if (data != NULL) {
+      memcpy(raw_rx_packet->data, data, data_length);
+    }
+
+    // Fill frame type
+    raw_rx_packet->length  = data_length & 0xFFF;
+    raw_rx_packet->command = command;
   }
-
-  // Fill frame type
-  raw_rx_packet->length  = data_length & 0xFFF;
-  raw_rx_packet->command = command;
 
   return_status = sl_si91x_allocate_command_buffer(&buffer,
                                                    (void **)&node,

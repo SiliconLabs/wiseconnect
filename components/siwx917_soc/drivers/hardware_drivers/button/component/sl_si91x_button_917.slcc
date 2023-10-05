@@ -38,4 +38,5 @@ template_contribution:
   - name: event_handler
     value:
       event: driver_init
+      include: sl_si91x_button_instances.h
       handler: button_init_instances

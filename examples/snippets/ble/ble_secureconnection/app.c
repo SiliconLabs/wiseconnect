@@ -86,7 +86,6 @@ sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000
 #endif
 
 //! global parameters list
-static uint32_t ble_app_event_map;
 static uint8_t str_remote_address[18];
 static uint8_t remote_dev_address[6];
 static uint32_t numeric_value;
@@ -98,8 +97,8 @@ static rsi_bt_event_smp_passkey_display_t smp_passkey_display_event;
 uint16_t timeout_resp;
 #endif
 osSemaphoreId_t ble_main_task_sem;
-static uint32_t ble_app_event_map;
-static uint32_t ble_app_event_map1;
+static volatile uint32_t ble_app_event_map;
+static volatile uint32_t ble_app_event_map1;
 #define MITM_REQ 0x01
 
 static const sl_wifi_device_configuration_t config = {

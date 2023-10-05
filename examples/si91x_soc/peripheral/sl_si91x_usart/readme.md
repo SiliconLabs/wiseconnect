@@ -49,7 +49,7 @@
 - Embedded Development Environment
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 

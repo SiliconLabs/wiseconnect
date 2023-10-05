@@ -52,8 +52,8 @@ static rsi_ble_event_disconnect_t rsi_app_disconnected_device   = { 0 };
 uint8_t str_remote_address[18]                                  = { '\0' };
 
 osSemaphoreId_t ble_main_task_sem;
-static uint32_t ble_app_event_map;
-static uint32_t ble_app_event_map1;
+static volatile uint32_t ble_app_event_map;
+static volatile uint32_t ble_app_event_map1;
 
 static const sl_wifi_device_configuration_t config = {
   .boot_option = LOAD_NWP_FW,

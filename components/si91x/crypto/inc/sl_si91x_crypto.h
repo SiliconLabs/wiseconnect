@@ -33,10 +33,11 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#define SL_SI91X_MAX_DATA_SIZE_IN_BYTES \
-  1400 ///< Maximum length of the AES message in bytes that can be handled in one go
+#define SL_SI91X_MAX_DATA_SIZE_IN_BYTES 1400 ///< Maximum length of the message in bytes that can be handled in one go
 #define SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CCM \
-  1200                              ///< Maximum length of the CCM message in bytes that can be handled in one go
+  1200 ///< Maximum length of the CCM message in bytes that can be handled in one go
+#define SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY \
+  1200                              ///< Maximum length of the CHACHAPOLY message in bytes that can be handled in one go
 #define SL_SI91X_IV_SIZE         16 ///< Length of the initialization vector in bytes
 #define SL_SI91X_KEY_BUFFER_SIZE 32 ///< Key size in bytes
 
@@ -74,14 +75,15 @@ typedef enum {
 
 /// Crypto Algorithms
 typedef enum {
-  AES      = 2,  ///< AES
-  SHA      = 4,  ///< SHA
-  HMAC_SHA = 5,  ///< HMAC
-  DH       = 14, ///< DH
-  ECDH     = 15, ///< ECDH
-  SHA3     = 16, ///< SHA3
-  GCM      = 18, ///< GCM
-  WRAP     = 20, ///< WRAP
-  TRNG     = 21, ///< TRNG
-  CCM      = 31  ///< CCM
+  AES        = 2,  ///< AES
+  SHA        = 4,  ///< SHA
+  HMAC_SHA   = 5,  ///< HMAC
+  DH         = 14, ///< DH
+  ECDH       = 15, ///< ECDH
+  SHA3       = 16, ///< SHA3
+  CHACHAPOLY = 17, ///<CHACHAPOLY
+  GCM        = 18, ///< GCM
+  WRAP       = 20, ///< WRAP
+  TRNG       = 21, ///< TRNG
+  CCM        = 31  ///< CCM
 } sl_si91x_crypto_algorithm_type_t;

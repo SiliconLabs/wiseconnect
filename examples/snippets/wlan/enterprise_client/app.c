@@ -62,6 +62,10 @@ const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
+//uint8_t data_buffer[BUFFER_SIZE];
+sl_ip_address_t ip_address           = { 0 };
+sl_net_wifi_client_profile_t profile = { 0 };
+
 static const sl_net_wifi_client_profile_t wifi_client_enterprise_eap_profile = {
     .config = {
         .ssid.value = WIFI_ACCESS_POINT_SSID,
@@ -88,7 +92,7 @@ static const sl_net_wifi_eap_credential_entry_t wifi_client_enterprise_eap_crede
   .type                = SL_NET_WIFI_PSK,
   .data_length         = sizeof(sl_wifi_eap_credential_t),
   .data.username       = "user1",
-  .data.password       = "password1",
+  .data.password       = "12345678",
   .data.certificate_id = WIFI_CLIENT_CERTIFICATE_ID
 };
 
@@ -148,4 +152,17 @@ static void application_start(void *argument)
     return;
   }
   printf("Wi-Fi client connected\r\n");
+
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID, &profile);
+  if (status != SL_STATUS_OK) {
+    printf("Failed to get client profile: 0x%lx\r\n", status);
+    return;
+  }
+  printf("\r\nSuccess to get client profile\r\n");
+
+  ip_address.type = SL_IPV4;
+  memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
+  printf("\r\nIP address of the client: ");
+  print_sl_ip_address(&ip_address);
+  printf("\r\n");
 }

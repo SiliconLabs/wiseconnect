@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file  sl_si91x_psa_ccm.c
+ * @file  sl_si91x_psa_aead.c
  * @brief
  *******************************************************************************
  * # License
@@ -25,6 +25,9 @@
 #endif
 #if defined(SLI_PSA_DRIVER_FEATURE_GCM)
 #include "sl_si91x_gcm.h"
+#endif
+#if defined(SLI_PSA_DRIVER_FEATURE_CHACHAPOLY)
+#include "sl_si91x_chachapoly.h"
 #endif
 #include "sl_si91x_crypto.h"
 #include "sl_status.h"
@@ -100,6 +103,24 @@ static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes
       }
       break;
 #endif // SLI_PSA_DRIVER_FEATURE_GCM
+#if defined(SLI_PSA_DRIVER_FEATURE_CHACHAPOLY)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):
+      // verify key type
+      if (psa_get_key_type(attributes) != PSA_KEY_TYPE_CHACHA20) {
+        return PSA_ERROR_NOT_SUPPORTED;
+      }
+      switch (psa_get_key_bits(attributes)) {
+        case 256:
+          break;
+        default:
+          return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      // verify nonce and tag lengths
+      if (tag_length != SL_SI91X_TAG_SIZE || nonce_length != SL_SI91X_CHACHAPOLY_IV_SIZE) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      break;
+#endif // SLI_PSA_DRIVER_FEATURE_CHACHAPOLY
     default:
       return PSA_ERROR_NOT_SUPPORTED;
   }
@@ -312,6 +333,49 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
 
       break;
 #endif /* PSA_WANT_ALG_GCM */
+#if defined(PSA_WANT_ALG_CHACHA20_POLY1305)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):;
+      sl_si91x_chachapoly_config_t config_chachapoly;
+      config_chachapoly.encrypt_decrypt = SL_SI91X_CHACHAPOLY_ENCRYPT;
+      config_chachapoly.dma_use         = SL_SI91X_DMA_ENABLE;
+      config_chachapoly.chachapoly_mode = SL_SI91X_CHACHA20POLY1305_MODE;
+      config_chachapoly.msg             = plaintext;
+      config_chachapoly.msg_length      = plaintext_length;
+      config_chachapoly.nonce           = nonce;
+      config_chachapoly.ad              = additional_data;
+      config_chachapoly.ad_length       = additional_data_length;
+
+#ifdef CHIP_917B0
+      /* Fetch key type from attributes */
+      psa_key_location_t location_chachapoly = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+      if (location_chachapoly == 0) {
+        config_chachapoly.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+      } else {
+        config_chachapoly.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+      }
+
+      config_chachapoly.key_config.b0.key_size     = SL_SI91X_CHACHAPOLY_KEY_SIZE_256;
+      config_chachapoly.key_config.b0.key_slot     = 0;
+      config_chachapoly.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+      if (config_chachapoly.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+        memcpy(config_chachapoly.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+      }
+      memcpy(config_chachapoly.key_config.b0.key_buffer, key_buffer, config_chachapoly.key_config.b0.key_size);
+#else
+      memcpy(config_chachapoly.key_config.a0.key_chacha, key_buffer, SL_SI91X_CHACHAPOLY_KEY_SIZE_256);
+#endif
+
+      if (status != PSA_SUCCESS) {
+        return status;
+      }
+      /* Calling sl_si91x_chachapoly() for CHACHAPOLY encryption */
+      si91x_status = sl_si91x_chachapoly(&config_chachapoly, ciphertext);
+
+      /* gets the si91x error codes and returns its equivalent psa_status codes */
+      status = convert_si91x_error_code_to_psa_status(si91x_status);
+
+      break;
+#endif /* PSA_WANT_ALG_CHACHAPOLY */
     default:
       (void)status;
       (void)key_buffer;
@@ -525,6 +589,49 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       status = convert_si91x_error_code_to_psa_status(si91x_status);
       break;
 #endif /* PSA_WANT_ALG_GCM */
+#if defined(PSA_WANT_ALG_CHACHA20_POLY1305)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):;
+      sl_si91x_chachapoly_config_t config_chachapoly;
+      config_chachapoly.encrypt_decrypt = SL_SI91X_CHACHAPOLY_DECRYPT;
+      config_chachapoly.dma_use         = SL_SI91X_DMA_ENABLE;
+      config_chachapoly.chachapoly_mode = SL_SI91X_CHACHA20POLY1305_MODE;
+      config_chachapoly.msg             = ciphertext;
+      config_chachapoly.msg_length      = ciphertext_length - tag_length;
+      config_chachapoly.nonce           = nonce;
+      config_chachapoly.ad              = additional_data;
+      config_chachapoly.ad_length       = additional_data_length;
+
+#ifdef CHIP_917B0
+      /* Fetch key type from attributes */
+      psa_key_location_t location_chachapoly = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+      if (location_chachapoly == 0) {
+        config_chachapoly.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+      } else {
+        config_chachapoly.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+      }
+
+      config_chachapoly.key_config.b0.key_size     = SL_SI91X_CHACHAPOLY_KEY_SIZE_256;
+      config_chachapoly.key_config.b0.key_slot     = 0;
+      config_chachapoly.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+      if (config_chachapoly.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+        memcpy(config_chachapoly.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+      }
+      memcpy(config_chachapoly.key_config.b0.key_buffer, key_buffer, config_chachapoly.key_config.b0.key_size);
+#else
+      memcpy(config_chachapoly.key_config.a0.key_chacha, key_buffer, SL_SI91X_CHACHAPOLY_KEY_SIZE_256);
+#endif
+
+      if (status != PSA_SUCCESS) {
+        return status;
+      }
+      /* Calling sl_si91x_chachapoly() for CHACHAPOLY decryption */
+      si91x_status = sl_si91x_chachapoly(&config_chachapoly, plaintext);
+
+      /* gets the si91x error codes and returns its equivalent psa_status codes */
+      status = convert_si91x_error_code_to_psa_status(si91x_status);
+
+      break;
+#endif /* PSA_WANT_ALG_CHACHAPOLY */
     default:
       (void)status;
       (void)key_buffer;

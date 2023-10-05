@@ -35,6 +35,11 @@
 /******************************************************
  *                    Constants
  ******************************************************/
+/**
+ * @addtogroup CRYPTO_HMAC_CONSTANTS 
+ * @{ 
+ */
+
 typedef enum {
   SL_SI91X_HMAC_SHA_1 = 1, ///< HMAC SHA 1 mode
   SL_SI91X_HMAC_SHA_256,   ///< HMAC SHA 256 mode
@@ -49,9 +54,16 @@ typedef enum {
   SL_SI91X_HMAC_SHA_512_DIGEST_LEN = 64
 } sl_si91x_hmac_digest_len_t;
 
+/** @} */
+
 /******************************************************
  *                   Type Definitions
  ******************************************************/
+/**
+ * @addtogroup CRYPTO_HMAC_TYPES 
+ * @{ 
+ */
+
 typedef struct {
   uint8_t *key;        ///< Pointer to the key
   uint32_t key_length; ///< Length of the key
@@ -79,6 +91,13 @@ typedef struct {
   sl_si91x_hmac_key_config_t key_config; ///< Key configuration
 } sl_si91x_hmac_config_t;
 
+/** @} */
+
+/**
+ * @addtogroup CRYPTO_HMAC_FUNCTIONS
+ * @{ 
+ */
+
 /***************************************************************************/ /**
  * @brief This API will provide the HMAC output for the given configuration. This is a blocking API.
  * @param[in] config 
@@ -89,3 +108,5 @@ typedef struct {
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
 ******************************************************************************/
 sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output);
+
+/** @} */

@@ -14,6 +14,8 @@ provides:
 - name: rom_bypass
 - name: si91x_platform
 - name: si91x_a0_chip
+- name: si91x_dual_flash
+- name: device_si91x
 include:
 - path: .
   condition: [wifi]

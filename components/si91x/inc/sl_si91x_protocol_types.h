@@ -1809,6 +1809,27 @@ typedef struct {
 } sl_si91x_gcm_request_t;
 
 typedef struct {
+  uint16_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint8_t chachapoly_flags;
+  uint16_t total_msg_length;
+  uint16_t header_length;
+  uint16_t current_chunk_length;
+  uint16_t encrypt_decryption;
+  uint32_t dma_use;
+  uint8_t nonce[SL_SI91X_IV_SIZE];
+#ifdef CHIP_917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint8_t key_chacha[SL_SI91X_KEY_BUFFER_SIZE];
+  uint8_t keyr_in[SL_SI91X_KEYR_SIZE];
+  uint8_t keys_in[SL_SI91X_KEYS_SIZE];
+#endif
+  uint8_t header_input[SL_SI91X_GCM_AD_MAX_SIZE];
+  uint8_t msg[SL_SI91X_CHACHAPOLY_MSG_MAX_SIZE];
+} sl_si91x_chachapoly_request_t;
+
+typedef struct {
   uint8_t algorithm_type;
   uint8_t ecdh_mode;
   uint8_t ecdh_sub_mode;

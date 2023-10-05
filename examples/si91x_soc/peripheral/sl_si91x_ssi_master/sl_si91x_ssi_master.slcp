@@ -40,7 +40,6 @@ other_file:
 - {path: resources/readme/image510b.png}
 - {path: resources/readme/image510c.png}
 - {path: resources/readme/image510d.png}
-- {path: resources/readme/image510e.png}
 - {path: resources/readme/vcom.png}
 provides:
 - {name: si91x_soc}

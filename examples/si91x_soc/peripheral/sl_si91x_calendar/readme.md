@@ -31,9 +31,11 @@
   - At the time of trigger, it prints current date-time on the console.
 
 - If **CLOCK_CALIBRATION** macro is enabled:
-
-  - It is recommended to calibrate clock before activating any trigger.
+  
+  - This clock calibration applies to RO and RC Clock only. For RO clock \ref sl_si91x_calendar_roclk_calibration should be used and for RC clock \ref sl_si91x_calendar_rcclk_calibration should be used.
+  - It is recommended to calibrate clock before activating any trigger after every power cycle.
   - Initialization of clock is performed using \ref sl_si91x_calendar_calibration_init API.
+  - To select the clock in UC, follow the procedure mentioned in "Configuration and Steps for Execution" section.
   - According to the clock configured in UC, either RO or RC, use respective API to configure the clock. In this example RC clock is selected so \ref sl_si91x_calendar_rcclk_calibration API is used.
   - This API expects \ref clock_calibration_config_t structure. For rc_trigger_time, \ref RC_CLOCK_CALIBRATION_ENUM enum can be used, and for ro_trigger_time \ref RO_CLOCK_CALIBRATION_ENUM enum can be used.
   - After calibration \ref sl_si91x_calendar_rtc_start is called to start the calendar clock.
@@ -75,7 +77,7 @@
 - Embedded Development Environment
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 ## Project Setup
@@ -124,7 +126,8 @@
 ## Expected Results
 
 - By default time and date is configured and print on serial console is there.
-- If ALARM_EXAMPLE is enabled, it prints 'Alarm Triggered' on console when alarm is triggered.
-- If SEC_INTR is enabled, every one second serial console print is there.
-- If MILLI_SEC_INTR is enabled, every one millisecond serial console print is there.
+- If ALARM_EXAMPLE is enabled, it prints "Alarm Callback is Triggered" on console when alarm is triggered.
+- If SEC_INTR is enabled, every one second "One Sec Callback is Triggered" print is there on serial console.
+- If MILLI_SEC_INTR is enabled, every one second "One Milli-Sec Callback triggered 1000 times" print is there on serial console.
+- If CLOCK_CALIBRATION is enabled, after calibration "Successfully performed clock calibration" print is there on serial console.
 - If TIME_CONVERSION is enabled, time conversion between unix and ntp is printed on serial console.

@@ -54,7 +54,6 @@ other_file:
   - path: resources/readme/image505b.png
   - path: resources/readme/image505c.png
   - path: resources/readme/image505d.png
-  - path: resources/readme/image505e.png
   - path: resources/readme/vcom.png
 
 readme:

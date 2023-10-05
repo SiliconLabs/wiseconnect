@@ -26,9 +26,9 @@ define:
   - name: CHIP_917B0
     value: 1
 requires:
-  - name: sleeptimer
   - name: rsilib_sysrtc
   - name: cmsis_core
+  - name: sleeptimer_si91x
 provides:
   - name: sleeptimer_sysrtc
   - name: device_has_si91x_sysrtc

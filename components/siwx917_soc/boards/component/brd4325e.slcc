@@ -15,7 +15,9 @@
   - name: hardware_board_rb
   - name: si91x_platform
   - name: multi_slave
-  - name: si91x_b0_chip  
+  - name: si91x_b0_chip 
+  - name: si91x_dual_flash
+  - name: device_si91x  
 - define:
   - name: CHIP_917
     value: '1'

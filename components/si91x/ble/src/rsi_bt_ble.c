@@ -2329,13 +2329,13 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   // Save expected response type
   bt_cb->expected_response_buffer = resp;
 
-  sl_si91x_driver_send_bt_command(cmd, SI91X_BT_CMD_QUEUE, buffer);
-
   if (cmd == RSI_BLE_ONLY_OPER_MODE) {
     // Save expected response type
     bt_cb->expected_response_type = RSI_BT_EVENT_CARD_READY;
     bt_cb->sync_rsp               = 1;
   }
+
+  sl_si91x_driver_send_bt_command(cmd, SI91X_BT_CMD_QUEUE, buffer, bt_cb->sync_rsp);
 
   rsi_bt_set_wait_bitmap(protocol_type, BT_SEM);
   if (bt_cb->bt_sem == NULL || (osSemaphoreAcquire(bt_cb->bt_sem, calculate_timeout_ms) != osOK)) {

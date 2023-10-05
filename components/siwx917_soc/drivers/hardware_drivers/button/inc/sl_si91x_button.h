@@ -74,7 +74,7 @@ void sl_si91x_button_init(const sl_button_t *handle);
  * @return ::BUTTON_PRESSED if the button is pressed or ::BUTTON_RELEASED
  * if the button is not pressed.
  */
-uint8_t sl_si91x_button_state_get(uint8_t pin);
+int8_t sl_si91x_button_state_get(uint8_t pin);
 
 /** @brief Returns the current state (pressed or released) of the
  * pin associated with a button.
@@ -88,7 +88,7 @@ uint8_t sl_si91x_button_state_get(uint8_t pin);
  * @return  ::BUTTON_PRESSED if the button is pressed or ::BUTTON_RELEASED
  * if the button is not pressed.
  */
-uint8_t sl_si91x_button_pin_state(uint8_t pin);
+int8_t sl_si91x_button_pin_state(uint8_t pin);
 
 /** @brief A callback called in interrupt context whenever a button
  * changes its state.
@@ -105,6 +105,10 @@ uint8_t sl_si91x_button_pin_state(uint8_t pin);
  * the button has been released.
  */
 void sl_si91x_button_pin_isr(uint8_t pin, uint8_t state);
+
+void sl_si91x_button_state_toggle(uint8_t pin);
+void sl_si91x_button_state_set(uint8_t pin, int8_t state);
+void sl_si91x_button_isr(uint8_t pin, int8_t state);
 
 /** @} END addtogroup
  */

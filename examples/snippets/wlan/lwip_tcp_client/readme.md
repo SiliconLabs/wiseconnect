@@ -27,11 +27,11 @@ This application demonstrates how to transfer the TCP data using LWIP stack by c
 
 #### SoC Mode
 
-	![Figure: Setup Diagram SoC Mode for LWIP Example](resources/readme/lwip_soc.png)
+  ![Figure: Setup Diagram SoC Mode for LWIP Example](resources/readme/lwip_soc.png)
 
 #### NCP Mode
 
-	![Figure: Setup Diagram NCP Mode for LWIP Example](resources/readme/lwip_ncp.png)
+  ![Figure: Setup Diagram NCP Mode for LWIP Example](resources/readme/lwip_ncp.png)
 
 **NOTE**:
 
@@ -156,23 +156,23 @@ The application can be configured to suit user requirements and development envi
 
 - **STA instance related parameters**
 
-	- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
-	
-  	```c
-  	#define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
-  	```
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+ 
+   ```c
+   #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
+   ```
 
-	- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
-  	```c 
-  	#define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
-  	```
+   ```c 
+   #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+   ```
   
-	- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
 
-  	```c
-  	#define DEFAULT_WIFI_CLIENT_SECURITY_TYPE               SL_WIFI_WPA2 
-  	```
+   ```c
+   #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE               SL_WIFI_WPA2 
+   ```
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
@@ -180,27 +180,26 @@ The application can be configured to suit user requirements and development envi
 
 - **app related parameters**
 
-	- `SERVER_PORT` is the remote TCP server port number on the PC running Iperf.
+  - `SERVER_PORT` is the remote TCP server port number on the PC running Iperf.
 
     ```c
     #define SERVER_PORT         5001
     ```
 
-	- `SERVER_IP` is the remote TCP server IP address on the PC running Iperf. 
+  - `SERVER_IP` is the remote TCP server IP address on the PC running Iperf. 
 
     ```c
     #define SERVER_IP   "192.168.0.247"
     ```
 
-	- `NUMBER_OF_PACKETS` controls the number of packets sent to the remote TCP server. 
+  - `NUMBER_OF_PACKETS` controls the number of packets sent to the remote TCP server. 
 
     ```c
     #define NUMBER_OF_PACKETS   1000
     ```
 
-    - `ALARM_TIMER_BASED_WAKEUP` Enable this macro for M4 to wake up based on alarm time period.
-    - `WIRELESS_WAKEUP` Enable this macro for M4 to wake up once it receives the wireless message.
-
+  - `ALARM_TIMER_BASED_WAKEUP` Enable this macro for M4 to wake up based on alarm time period.
+  - `WIRELESS_WAKEUP` Enable this macro for M4 to wake up once it receives the wireless message.
 
 ### 4.2 Build the application
 

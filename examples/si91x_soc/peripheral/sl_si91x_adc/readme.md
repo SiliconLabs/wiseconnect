@@ -15,8 +15,8 @@
 - The ADC Controller works on a ADC with a resolution of 12bits at 10Msps when ADC reference Voltage is greater than 2.8v or 5Msps when ADC reference Voltage is less than 2.8v.
 - Sample application will be 12 bit ADC Output in 2's complement representation.
 - There are two operating mode in AUXADC controller:
-  - Static Mode Operation
-  - FIFO Mode Operation
+  - Static Mode Operation: ADC data input will be sampled and written to a register in this mode.
+  - FIFO Mode Operation: ADC data input will be sampled and written to the ADC FIFO in this mode.
 - There a dedicated ADC DMA to support 16 channel.
 - DMA mode supports dual buffer cyclic mode to avoid loss of data when buffer is full. In dual buffer cyclic mode, if buffer 1 is full for particular channel, incoming sampled
   data is written into buffer 2 such that, samples from buffer 1 are read back by controller during this time. That’s why there are two start addresses, two buffer lengths and
@@ -49,7 +49,7 @@
 
 ### VCOM Setup
 
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 

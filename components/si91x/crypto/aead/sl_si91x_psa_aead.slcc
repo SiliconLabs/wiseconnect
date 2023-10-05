@@ -17,6 +17,8 @@ requires:
   name: sl_si91x_ccm
 - condition: ["psa_crypto_gcm"]
   name: sl_si91x_gcm
+- condition: ["psa_crypto_chachapoly"]
+  name: sl_si91x_chachapoly
 
 include:
 - path: inc

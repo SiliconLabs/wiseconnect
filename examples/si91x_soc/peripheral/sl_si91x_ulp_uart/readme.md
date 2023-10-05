@@ -47,10 +47,6 @@
 - Si91x SDK
 - Embedded Development Environment
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
-### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
-
-![Figure: VCOM_setup](resources/readme/vcom.png)
 
 ## Project Setup
 
@@ -81,11 +77,9 @@
 |ULP_GPIO_9   [F7]    |    RX     |
 |ULP_GPIO_10  [P17]   |GPIO_Toggle|
 
-![Figure: Build run and Debug](resources/readme/image513d.png)
-
 ## Note
- - Remove the DEBUG_UART from preprocessor of IDE.
  - Enable the ULP_UART mode in UC before running/flashing the code.
+  ![Figure: peripheral configuration](resources/uc_screen/image513d.png) 
  
 ## Executing the Application
 1. When the application runs,ULP_UART sends and receives data in full duplex mode
@@ -95,11 +89,11 @@
  - Here same PINS which are used to send and recive the data where used for data transfer so we cannot able to see prins 
  we can use GPIO toggling instead.
 ## Note
- - This applicatin is executed from RAM.
- - In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
- - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
-## Expected Scenario:
- - After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
- - To Erase the chip follow the below procedure
-   - Turn ON ISP switch and press the reset button → Turn OFF ISP Switch → Now perform Chip erase 
-      through commander.
+Note
+- This applicatin is executed from RAM.
+- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
+- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
+- After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
+- To Erase the chip follow the below procedure
+- Turn ON ISP switch and press the reset button → Turn OFF ISP Switch → Now perform Chip erase
+through commander.

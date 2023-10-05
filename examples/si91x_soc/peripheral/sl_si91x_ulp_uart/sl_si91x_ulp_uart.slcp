@@ -46,13 +46,11 @@ component:
   from: wiseconnect3_sdk
 - id: romdriver_timer
   from: wiseconnect3_sdk
-- id: si91x_debug
-  from: wiseconnect3_sdk
 other_file:
 - {path: resources/readme/image513a.png}
 - {path: resources/readme/image513b.png}
 - {path: resources/readme/image513c.png}
-- {path: resources/readme/vcom.png}
+- {path: resources/uc_screen/image513d.png}
 define:
 - name: ROM_BYPASS
 - name: RSI_M4_INTERFACE

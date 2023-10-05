@@ -137,6 +137,10 @@
 
 //***************************** Macros for Crypto Start **********************************/
 
+#define SL_SI91X_KEY_BUFFER_SIZE 32
+#define SL_SI91X_TAG_SIZE        16
+#define SL_SI91X_IV_SIZE         16
+
 // ECDH defines
 #define ECDH_BUFFER_SIZE 32
 
@@ -150,10 +154,7 @@
 #define TRNG_KEY_SIZE        4
 #define TRNG_TEST_DATA_SIZE  64
 
-#define SL_SI91X_TAG_SIZE 16
-
 // CCM defines
-#define SL_SI91X_KEY_BUFFER_SIZE  32
 #define SL_SI91X_CCM_IV_MIN_SIZE  7
 #define SL_SI91X_CCM_IV_MAX_SIZE  13
 #define SL_SI91X_CCM_AD_MAX_SIZE  32
@@ -163,6 +164,12 @@
 #define SL_SI91X_GCM_IV_SIZE      12
 #define SL_SI91X_GCM_AD_MAX_SIZE  128
 #define SL_SI91X_GCM_MSG_MAX_SIZE 1400
+
+// Chachapoly defines
+#define SL_SI91X_KEYR_SIZE               16
+#define SL_SI91X_KEYS_SIZE               16
+#define SL_SI91X_CHACHAPOLY_IV_SIZE      12
+#define SL_SI91X_CHACHAPOLY_MSG_MAX_SIZE 1200
 
 //***************************** Macros for Crypto End **********************************/
 

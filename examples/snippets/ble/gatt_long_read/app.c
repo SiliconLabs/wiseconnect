@@ -223,7 +223,7 @@ rsi_ble_t att_list;
 uint16_t mtu_size;
 
 //! global parameters list
-static uint32_t ble_app_event_map;
+static volatile uint32_t ble_app_event_map;
 static uint8_t remote_addr_type = 0;
 static uint8_t remote_name[31];
 static uint8_t remote_dev_addr[18]   = { 0 };

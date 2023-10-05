@@ -14,7 +14,6 @@
 - Supports eFuse programming and read operations
 - Supports memory mapped and FSM based read operation
 
-
 ## About Example Code
 
 - sl_efuse_example.c this example code demonstates how to program the efuse to write and read the data in varoius modes.
@@ -39,7 +38,7 @@
 ### Hardware Setup
 
 - Windows PC
-- Silicon Labs [WSTK + BRD4325A]
+- Silicon Labs [WSTK + BRD4338A]
 
 ![Figure: Introduction](resources/readme/image514a.png)
 
@@ -63,11 +62,12 @@
 ## Configuration and Steps for Execution
 
 - Configure the following macros in efuse_example.c file and update/modify following macros if required.
+The chipset provides 256 efuse bits as one-time programmable memory location. These bits are 32-bit addressing with each address containing 8-bits. The 255th efuse bit is reserved with a default value to '1'.
 
 ```C
 #define WRITE_ADD_1         0x00001        // efuse address 1
 #define WRITE_ADD_2         0x00002        // efuse address 2
-#define HOLD                40             // Hold Time
+#define HOLD                40             // count value depends on clock frequency of EFUSE controller
 #define CLOCK               170000000      // Clock Time
 #define BIT_POS_0           0              // Bit position 0
 #define BIT_POS_1           1              // Bit position 1
@@ -88,7 +88,7 @@
 
 ## Executing the Application
 
-1. Connect to the WSTK and BRD4325A Radio board.
+1. Connect to the WSTK and BRD4338A Radio board.
 2. Compile and run the application.
 
 ## Expected Results

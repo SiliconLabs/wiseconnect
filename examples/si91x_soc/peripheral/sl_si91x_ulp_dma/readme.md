@@ -44,7 +44,7 @@
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
 
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 
@@ -55,7 +55,7 @@
 ## Loading Application on Simplicity Studio
 
 1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to ULP_TIMER Example application as shown below.
+   in simplicity studio and click on to ULP_DMA Example application as shown below.
 
 ![Figure: Selecting Example project](resources/readme/image503b.png)
 

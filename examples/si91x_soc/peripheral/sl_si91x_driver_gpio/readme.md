@@ -1,11 +1,11 @@
-# GPIO
+# Driver GPIO
 
 ## Introduction
 
 - The GPIO has 3 instances in MCU.
   - HP Domain is used to control the SoC GPIO's(GPIO_n; n=0 to 57).
   - ULP Domain is used to control the ULP GPIO's(ULP_GPIO_n; n=0 to 11)
-  - UULP Domain which is used to control the UULP GPIO's(UULP_GPIO_n; n=0 to 5)
+  - UULP Domain which is used to control the UULP GPIO's(UULP_GPIO_n; n=0 to 4)
 - HP and ULP Domain have same features and functionality except for different base address.
 - Each port in HP Domain have maximum of 16 GPIO pins. There are total 4 ports in HP Domain. Port 0,1,2 have maximum of 16 GPIO pins. Port 3 have 9 GPIO pins to use.
 - ULP GPIO domain has only one port and calling as Port 4 in program which has maximum of 12 pins.
@@ -53,7 +53,7 @@ NOTE : GPIO HP instance have port-0, port-1, port-2, port-3.
 
 ## Initialization of GPIO in ULP Domain
 
-NOTE : GPIO UULP instance have port-4.
+NOTE : GPIO ULP instance have port-4.
 
 - GPIO to work in ULP Domain requires few steps to consider.
 - Call \ref sl_gpio_driver_ulp_initialization(). This API has some API's being called, which are discussed below.
@@ -83,34 +83,22 @@ NOTE : GPIO UULP instance have port-4.
 
 ## Loading Application on Simplicity Studio
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos in simplicity studio and click on to GPIO Example application as shown below.
+1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos in simplicity studio and click on to  DRIVER_GPIO Example application as shown below.
 
 ![Figure: Selecting Example project](resources/readme/image504b.png)
 
 ## Configuration and Steps for Execution
 
-- Configure the following parameters in gpio_driver_example.c (examples/si91x_soc/peripheral/sl_gpio/) file and update/modify following macros if required
+- Configure the following parameters in gpio_driver_example.c (examples/si91x_soc/peripheral/sl_si91x_driver_gpio/) file and update/modify following macros if required
 
   ```c
-
-# define POLARITY  0 // Polarity for GPIO pin
-
-# define PIN_COUNT 2 // Number of interrupts needed
-
-# define AND_EVENT   0 // AND for group interrupt
-
-# define OR_EVENT    1 // OR for group interrupt
-
-# define LEVEL_EVENT 0 // level for group interrupt
-
-# define EDGE_EVENT  1 // Edge for group interrupt
-
-# define GRP_COUNT   2 // Count of group interrupt pins
-
-# define PINS       0x0c40 // Pins in a port to mask
-
-# define INT_CH       0 // GPIO Pin interrupt 0
-
+  # define POLARITY  0 // Polarity for GPIO pin
+  # define PIN_COUNT 2 // Number of interrupts needed
+  # define LEVEL_EVENT 0 // level for group interrupt
+  # define EDGE_EVENT  1 // Edge for group interrupt
+  # define GRP_COUNT   2 // Count of group interrupt pins
+  # define PINS       0x0c40 // Pins in a port to mask
+  # define INT_CH       0 // GPIO Pin interrupt 0
   ```
 
 ## Build
@@ -125,19 +113,22 @@ NOTE : GPIO UULP instance have port-4.
 
 ## Executing the Application
 
-1. Enable any of the macro whose functionality needs to be tested.
-2. Compile and run the application.
+1. Compile and run the application. Please refer **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** on how to complie and run the application. 
 
 ## Expected Results
 
-- GPIO(LED1) should be continously toggled ,connect logic analyser to observe the toggle state.
-- By default M4_GPIO_PIN(HP GPIO instance) is enabled. GPIO pin irection, output are printed on the serial console and GPIO should toggle for every 1sec. Connect logic analyser to observe the toggle state.
-- If ULP_GPIO_PIN is enabled, ULP pin direction, mode are printed on the serial console. Connect logic analyser to observe the pin state. By default led will be in high state. When button pressed it goes into low state.
-- If UULP_GPIO_PIN is enabled, UULP pin direction is printed on the serial console. Connect logic analyser to observe the pin state.
-- If M4_GPIO_PIN_INTR is enabled, it triggers HP Domain pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in callback.
-- If M4_GPIO_GROUP_INTR is enabled, it triggers HP Domain group interrupt. For analyzing group interrupt keep a print (or) toggle (or) set(or) clear in callback.
+- GPIO(LED1) should be continously toggled ,connect logic analyser to F11 on WSTK board to observe the toggle state.
+
+NOTE: These pin configurations are specific to BRD4338A board.
+
+## Additional Information:
+  NOTE: ALL enumerators defined below are of type \ref gpio_instance_type_t which are present in gpio_driver_example.c. Make corresponding enumerator to '1', in order to enable the individual functionalities mentioned below.
+- By default M4_GPIO_PIN(HP GPIO instance) is enabled. GPIO pin direction, output are printed on the serial console and GPIO should toggle for every 1sec. Connect logic analyser to F11 on WSTK board to observe the toggle state.
+- If ULP_GPIO_PIN is enabled, ULP pin direction, mode are printed on the serial console. Connect ULP_GPIO_1 pin to 0v and to 3.3v, and observe the LED0 toggle state. By default led(LED0) will be in high state. Connect logic analyser to P16(ULP_GPIO_1), F10(LED0) and observe the pins state.
+- If UULP_GPIO_PIN is enabled, UULP pin direction is printed on the serial console. Connect logic analyser to P14 on WSTK board to observe the toggle state.
+- If M4_GPIO_PIN_INTR is enabled, it triggers HP Domain pin interrupt. By default pin interrupt 0 is considered. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in gpio_pin_interrupt0_callback() present in gpio_driver_example.c.
+- If M4_GPIO_GROUP_INTR is enabled, it triggers HP Domain group interrupt. For analyzing group interrupt keep a print (or) toggle (or) set(or) clear in gpio_group_interrupt0_callback() present in gpio_driver_example.c.
 - If M4_GPIO_PORT is enabled, we can set, get pins in a port in a group and clear them.
-- If ULP_GPIO_PIN_INTR is enabled, it triggers ULP Domain pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in callback.
-- If ULP_GPIO_GROUP_INTR is enabled, it triggers ULP group interrupt. For analyzing group interrupt keep a print (or) toggle (or) set(or) clear in callback.
-- If UULP_GPIO_PIN_INTR is enabled, it triggers UULP pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in callback.
-  NOTE: ALL enumerators defined above in expected results are of type \ref gpio_instance_type_t.
+- If ULP_GPIO_PIN_INTR is enabled, it triggers ULP Domain pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in gpio_ulp_pin_interrupt_callback() present in gpio_driver_example.c.
+- If ULP_GPIO_GROUP_INTR is enabled, it triggers ULP group interrupt. For analyzing group interrupt keep a print (or) toggle (or) set(or) clear in gpio_ulp_group_interrupt_callback() present in gpio_driver_example.c.
+- If UULP_GPIO_PIN_INTR is enabled, it triggers UULP pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in gpio_uulp_pin_interrupt_callback() present in gpio_driver_example.c.

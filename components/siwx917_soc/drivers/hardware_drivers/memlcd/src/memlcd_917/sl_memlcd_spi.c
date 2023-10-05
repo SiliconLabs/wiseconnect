@@ -73,14 +73,14 @@ void mySPI_callback_spi(uint32_t event)
   }
 }
 
-sl_status_t sli_memlcd_spi_init(int spi_baud)
+sl_status_t sli_memlcd_spi_init(uint32_t spi_baud)
 {
   ARM_DRIVER_SPI *SPIdrv = &Driver_SSI_ULP_MASTER;
 
   // Initialize the SPI driver
   status_spi = SPIdrv->Initialize(mySPI_callback_spi);
   if (status_spi != ARM_DRIVER_OK) {
-    DEBUGOUT("\r\n SPI Initialization Failed, Error Code : %d\r\n", status_spi);
+    DEBUGOUT("\r\n SPI Initialization Failed, Error Code : %ld\r\n", status_spi);
     return SL_STATUS_FAIL;
   } else {
     DEBUGOUT("\r\n SPI Initialization Success\r\n");
@@ -89,7 +89,7 @@ sl_status_t sli_memlcd_spi_init(int spi_baud)
   // Power up the SPI peripheral
   status_spi = SPIdrv->PowerControl(ARM_POWER_FULL);
   if (status_spi != ARM_DRIVER_OK) {
-    DEBUGOUT("\r\n Failed to Set Power to SPI, Error Code : %d\r\n", status_spi);
+    DEBUGOUT("\r\n Failed to Set Power to SPI, Error Code : %ld\r\n", status_spi);
     return SL_STATUS_FAIL;
   } else {
     DEBUGOUT("\r\n Configured Power to SPI \r\n");
@@ -102,7 +102,7 @@ sl_status_t sli_memlcd_spi_init(int spi_baud)
     ARM_SPI_MODE_MASTER | ARM_SPI_CPOL0_CPHA0 | ARM_SPI_SS_MASTER_HW_OUTPUT | ARM_SPI_DATA_BITS(SPI_BIT_WIDTH),
     spi_baud);
   if (status_spi != ARM_DRIVER_OK) {
-    DEBUGOUT("\r\n Failed to Set Configuration Parameters to SPI, Error Code : %d\r\n", status_spi);
+    DEBUGOUT("\r\n Failed to Set Configuration Parameters to SPI, Error Code : %ld\r\n", status_spi);
     return SL_STATUS_FAIL;
   } else {
     DEBUGOUT("\r\n Set Configuration Parameters to SPI\r\n");
@@ -115,7 +115,7 @@ sl_status_t sli_memlcd_spi_shutdown()
   ARM_DRIVER_SPI *SPIdrv = &Driver_SSI_ULP_MASTER;
   status_spi             = SPIdrv->PowerControl(ARM_POWER_OFF);
   if (status_spi != ARM_DRIVER_OK) {
-    DEBUGOUT("\r\n Failed to Set Power to SPI, Error Code : %d\r\n", status_spi);
+    DEBUGOUT("\r\n Failed to Set Power to SPI, Error Code : %ld\r\n", status_spi);
     return SL_STATUS_FAIL;
   } else {
     // DEBUGOUT("\r\n Configured Power to SPI \r\n");
@@ -125,14 +125,14 @@ sl_status_t sli_memlcd_spi_shutdown()
 
 sl_status_t sli_memlcd_spi_tx(const void *data, unsigned len)
 {
-  char *buffer = data;
+  const char *buffer = data;
   char temp[len];
 
   ARM_DRIVER_SPI *SPIdrv = &Driver_SSI_ULP_MASTER;
 
   status_spi = SPIdrv->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_ACTIVE);
   if (status_spi != ARM_DRIVER_OK) {
-    DEBUGOUT("\r\n Failed to Active Slave Select Line for SPI Transfer, Error Code : %d\r\n", status_spi);
+    DEBUGOUT("\r\n Failed to Active Slave Select Line for SPI Transfer, Error Code : %ld\r\n", status_spi);
     return SL_STATUS_FAIL;
   } else {
     DEBUGOUT("\r\n Activated Slave Select Line for SPI Transfer\r\n");

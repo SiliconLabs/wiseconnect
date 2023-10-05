@@ -75,7 +75,6 @@ static sl_status_t evaluate_ocu_params(sl_config_timer_ocu_config_t *ocu_config_
  ***********************  Global function Prototypes *************************
  ******************************************************************************/
 void IRQ034_Handler(void);
-void SysTick_Handler(void);
 /*******************************************************************************
 ***********************  Global function Definitions *************************
  ******************************************************************************/
@@ -930,16 +929,6 @@ void CT_IRQHandler(void)
   } while (false);
   // calling the callback function
   callback_function_ptr(callback_flags);
-}
-
-/*******************************************************************************
-* Systick handler 
-*
-* @param none
-* @return none
-*******************************************************************************/
-void SysTick_Handler(void)
-{
 }
 
 //---------------------------------------------------------------------------------

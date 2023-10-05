@@ -43,6 +43,7 @@ other_file:
   - path: resources/readme/image507b.png
   - path: resources/readme/image507c.png
   - path: resources/readme/image507d.png
+  - path: resources/readme/image507e.png
   - path: resources/readme/vcom.png
 readme:
   - path: readme.md

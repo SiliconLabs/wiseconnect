@@ -857,24 +857,22 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
   }
 
   for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
-    if (readfds != NULL) {
+    si91x_socket_t *socket = get_si91x_socket(host_socket_index);
 
-      if (FD_ISSET(host_socket_index, readfds)) {
-        si91x_socket_t *socket = get_si91x_socket(host_socket_index);
-        request.read_fds.fd_array[0] |= (1U << socket->id);
-      }
+    if (socket == NULL) {
+      continue;
     }
 
-    if (writefds != NULL) {
-
-      if (FD_ISSET(host_socket_index, writefds)) {
-        si91x_socket_t *socket = get_si91x_socket(host_socket_index);
-        request.write_fds.fd_array[0] |= (1U << socket->id);
-      }
+    if (readfds != NULL && FD_ISSET(host_socket_index, readfds)) {
+      request.read_fds.fd_array[0] |= (1U << socket->id);
     }
 
-    if (request.num_fd <= get_si91x_socket(host_socket_index)->id) {
-      request.num_fd = get_si91x_socket(host_socket_index)->id + 1;
+    if (writefds != NULL && FD_ISSET(host_socket_index, writefds)) {
+      request.write_fds.fd_array[0] |= (1U << socket->id);
+    }
+
+    if (request.num_fd <= socket->id) {
+      request.num_fd = socket->id + 1;
     }
   }
 

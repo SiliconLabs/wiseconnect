@@ -20,7 +20,10 @@
 - This example demonstrates the generation of periodic pulse waveform with 50% duty cycle and frequency of 25Khz. 
 - Four macros are present i.e., SVT, DEAD_TIME, OVERRIDE, FAULT
 - If **DEAD_TIME** is enabled:
+  - DEAD_TIME: To perform correct status change of the power switches in the inverter leg, a PWM generator should insert small amount of time between required switching edges for top and bottom switch. This time is called dead-time.
   - Dead time mode is applied only in complementary mode.
+    - Complementary mode: In complementary PWM mode, PWM waveform output incorporates dead time (anti-short periods) to prevent overlap between the positive and antiphases.
+    - Independent Mode: In Independent PWM Output mode, the PWM outputs (PWMxH and PWMxL) are phase shifted relative to each other.
   - Initialize the PWM using \ref sl_si91x_pwm_init.
   - Set configuration using \ref sl_si91x_pwm_set_configuration.
   - Set duty cycle using \ref sl_si91x_pwm_set_duty_cycle.
@@ -29,6 +32,7 @@
   - Register callbacks using \ref sl_si91x_pwm_register_callback.
   - Start PWM using \ref sl_si91x_pwm_start.
 - If **OVERRIDE** is enabled:
+  - OVERRIDE: While overriding PWM outputs, the channel counters continue to run, only the PWM outputs are forced to user defined values.
   - Initialize the PWM using \ref sl_si91x_pwm_init.
   - Set configuration using \ref sl_si91x_pwm_set_configuration.
   - Set base timer mode using \ref sl_si91x_pwm_set_base_timer_mode.
@@ -37,6 +41,7 @@
   - Register callbacks using \ref sl_si91x_pwm_register_callback.
   - Start PWM using \ref sl_si91x_pwm_start.
 - If **FAULT** is enabled:
+  - FAULT: There are two fault pins, FAULTxA and FAULTxB, associated with the MCPWM module. When asserted, these pins can optionally drive each of the PWM I/O pins to a defined state.
   - Initialize the PWM using \ref sl_si91x_pwm_init, \ref sl_Si91x_pwm_fault_init.
   - Set configuration using \ref sl_si91x_pwm_set_configuration.
   - Set base timer mode using \ref sl_si91x_pwm_set_base_timer_mode.
@@ -46,6 +51,7 @@
     Change the event generated to fault A/B flags.
   - Start PWM using \ref sl_si91x_pwm_start.
 - If **SVT** is enabled:
+  - Special Event Trigger (SVT): The MCPWM module has a Special Event Trigger that allows analog-to-digital conversions to be synchronized to the PWM time base. The analog-to-digital sampling and conversion time may be programmed to occur at any point within the PWM period.
   - Initialize the PWM using \ref sl_si91x_pwm_init.
   - Set configuration using \ref sl_si91x_pwm_set_configuration.
   - Set base timer mode using \ref sl_si91x_pwm_set_base_timer_mode.
@@ -70,7 +76,7 @@
 - Windows PC
 - Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
 
-![Figure: Introduction](resources/readme/image515a.png)
+![Figure: Introduction](resources/readme/image516a.png)
 
 ### Software Requirements
 
@@ -87,7 +93,7 @@
 1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
   in simplicity studio and click on to PWM Example application as shown below.
 
-![Figure:](resources/readme/image515b.png)
+![Figure:](resources/readme/image516b.png)
 
 ## Configuration and Steps for Execution
 
@@ -102,7 +108,7 @@
 
 1. Compile the application in Simplicity Studio using build icon
 
-![Figure: Build run and Debug](resources/readme/image515c.png)
+![Figure: Build run and Debug](resources/readme/image516c.png)
 
 ## Device Programming
 

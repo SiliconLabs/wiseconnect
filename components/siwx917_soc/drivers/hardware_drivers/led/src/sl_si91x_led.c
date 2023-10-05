@@ -99,7 +99,7 @@ void sl_si91x_led_toggle(uint8_t pin)
 #ifndef MINIMAL_HAL
 void sl_si91x_led_StackIndicateActivity(bool turnOn)
 {
-#if NO_LED
+#if defined(NO_LED)
   // Don't touch LEDs when built with NO_LED
 #else  //!NO_LED
   if (turnOn) {

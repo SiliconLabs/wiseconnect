@@ -582,7 +582,7 @@ void RSI_Set_Alarm_Intr_Time(uint16_t interval)
   }
   /*Update month for next boundary alarm */
   if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_1) {
-    if (alarmConfig.Month == Febuary) {
+    if (alarmConfig.Month == February) {
       if (alarmConfig.Year % 4) {
         alarmConfig.Day = 1;
         alarmConfig.Month += 1;

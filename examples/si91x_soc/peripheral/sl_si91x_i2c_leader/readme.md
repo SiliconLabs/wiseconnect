@@ -8,7 +8,7 @@
 
 ## Overview
 
-- There are four I2C Master/Slave controllers - two in the MCU HP peripherals (I2C1, I2C2), one in the NWP/security subsystem and one in the MCU ULP subsystem (ULP_I2C).
+- There are three configurable I2C Master/Slave controllers in M4 - two in the MCU HP peripherals (I2C1, I2C2) and one in the MCU ULP subsystem (ULP_I2C).
 - The I2C interface allows the processor to serve as a leader or follower on the I2C bus.
 - I2C can be configured with following features
   - I2C standard compliant bus interface with open-drain pins
@@ -67,7 +67,7 @@
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
 
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 
@@ -120,6 +120,7 @@
 | SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Follower SDA pin |
 
 ![Figure: Pin Configuration I2C](resources/readme/image507d.png)
+![Figure: Pin Configuration I2C](resources/readme/image507e.png)
 
 ## Build
 
@@ -141,4 +142,4 @@
 ## Expected Results
 
 - Will get "Test Case Pass" print on console
-- Both write and read 16 bytes of data should be same
+- Both write and read 15 bytes of data should be same

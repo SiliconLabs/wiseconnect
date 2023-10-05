@@ -64,7 +64,7 @@ void button_process_action(void)
   return;
 }
 
-void sl_si91x_button_isr(uint8_t pin, uint8_t state)
+void sl_si91x_button_isr(uint8_t pin, int8_t state)
 {
   if (pin == BUTTON_INSTANCE_0.pin) {
     if (state == BUTTON_PRESSED) {

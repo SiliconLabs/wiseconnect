@@ -35,6 +35,11 @@
 /******************************************************
  *                    Constants
  ******************************************************/
+/**
+ * @addtogroup CRYPTO_AES_CONSTANTS
+ * @{ 
+ */
+
 typedef enum {
   SL_SI91X_AES_CBC = 1, ///< AES CBC mode
   SL_SI91X_AES_ECB,     ///< AES ECB mode
@@ -52,9 +57,16 @@ typedef enum {
   SL_SI91X_AES_KEY_SIZE_256 = 32  ///< key size of 256 bits
 } sl_si91x_aes_key_size_t;
 
+/** @} */
+
 /******************************************************
  *                   Type Definitions
  ******************************************************/
+/**
+ * @addtogroup CRYPTO_AES_TYPES 
+ * @{ 
+ */
+
 typedef struct {
   uint8_t *key;        ///< Pointer to the key
   uint16_t key_length; ///< Length of the key
@@ -84,6 +96,13 @@ typedef struct {
   sl_si91x_aes_key_config_t key_config; ///< Key configuration
 } sl_si91x_aes_config_t;
 
+/** @} */
+
+/**
+ * @addtogroup CRYPTO_AES_FUNCTIONS
+ * @{ 
+ */
+
 /***************************************************************************/ /**
  * @brief 
  *   This API is used to encrypt/decrypt the message according to the given configuration. This is a blocking API.
@@ -95,3 +114,5 @@ typedef struct {
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
 ******************************************************************************/
 sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output);
+
+/** @} */

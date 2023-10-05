@@ -35,6 +35,7 @@
 #define SSI_BIT_WIDTH           8         // SSI bit width
 #define SSI_BAUDRATE            10000000  // SSI baudrate
 #define MAX_BIT_WIDTH           16        // Maximum Bit width
+#define RECEIVE_SAMPLE_DELAY    0         // By default sample delay is 0
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -78,12 +79,13 @@ void ssi_master_example_init(void)
   sl_ssi_version_t version;
   // Configuring the user configuration structure
   sl_ssi_control_config_t config;
-  config.bit_width   = SSI_BIT_WIDTH;
-  config.device_mode = SL_SSI_MASTER_ACTIVE;
-  config.clock_mode  = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
-  config.master_ssm  = SL_SSI_MASTER_HW_OUTPUT;
-  config.slave_ssm   = SL_SSI_SLAVE_HW;
-  config.baud_rate   = SSI_BAUDRATE;
+  config.bit_width            = SSI_BIT_WIDTH;
+  config.device_mode          = SL_SSI_MASTER_ACTIVE;
+  config.clock_mode           = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
+  config.master_ssm           = SL_SSI_MASTER_HW_OUTPUT;
+  config.slave_ssm            = SL_SSI_SLAVE_HW;
+  config.baud_rate            = SSI_BAUDRATE;
+  config.receive_sample_delay = RECEIVE_SAMPLE_DELAY;
   // Filled data into input buffer
   for (i = 0; i < BUFFER_SIZE; i++) {
     data_out[i] = (uint8_t)(i + 1);

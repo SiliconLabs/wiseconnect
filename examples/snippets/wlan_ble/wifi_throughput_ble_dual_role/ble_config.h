@@ -292,7 +292,7 @@
 #define MITM_ENABLE                             1
 #define RSI_BLE_MAX_CHAR_DESCRIPTORS            5
 #define RSI_MAX_PROFILE_CNT                     8
-#define SMP_ENABLE                              0
+#define SMP_ENABLE                              1
 #define SIG_VUL                                 0
 #define RESOLVE_ENABLE                          0
 #define LOCAL_MTU_SIZE                          232

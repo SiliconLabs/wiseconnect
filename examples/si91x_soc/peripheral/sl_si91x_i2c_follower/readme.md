@@ -9,7 +9,7 @@
 
 ## Overview
 
-- There are four I2C Master/Slave controllers - two in the MCU HP peripherals (I2C1, I2C2), one in the NWP/security subsystem and one in the MCU ULP subsystem (ULP_I2C).
+- There are three configurable I2C Master/Slave controllers in M4 - two in the MCU HP peripherals (I2C1, I2C2) and one in the MCU ULP subsystem (ULP_I2C).
 - The I2C interface allows the processor to serve as a leader or follower on the I2C bus.
 - I2C can be configured with following features
   - I2C standard compliant bus interface with open-drain pins
@@ -33,7 +33,7 @@
   - Here in pin configuration, the pins are configured as internal pull-up.
   - To configure the pins as internal pull-up, it is necessary to disable ROM APIs.
   - It validates the ROM_BYPASS macro to configure the gpio as internal pull-up.
-- Now write_buffer is filled with some data which needs to be sent to the follower.
+- Now write_buffer is filled with some data which needs to be sent to the leader.
 - Current_mode enum is set to RECEIVE_DATA, so here receive_data is called which is a static function, that internally calls the APIs which needs to be configured before sending data.
   - Disable the interrupt using \ref sl_si91x_i2c_disable_interrupts API.
   - Disable I2C, set the rx thresholds using \ref sl_si91x_i2c_set_rx_threshold API and enable the I2C.
@@ -60,7 +60,8 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WSTK/WPK + BRD4338A]
+- Silicon Labs [Si917 Evaluation Kit WSTK/WPK + BRD4338A] It wil act as a leader 
+- Silicon Labs [Si917 Evaluation Kit WSTK/WPK + BRD4338A] It wil act as a follower 
 
 ![Figure: Introduction](resources/readme/image506a.png)
 
@@ -71,7 +72,7 @@
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
 
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 
@@ -87,7 +88,7 @@
 ![Figure: Selecting Example project](resources/readme/image506b.png)
 
 ## Configuration and Steps for Execution
-- Configure the following macros in i2c_leader_example.c file and update/modify following macros if required.
+- Configure the following macros in i2c_follower_example.c file and update/modify following macros if required.
 ```C
  #define I2C_INSTANCE    0    // I2C Instance for Pin configuration
  #define I2C             I2C0 // I2C Instance 
@@ -124,6 +125,7 @@ Change the value of following macros in config/RTE_Device.h
 | SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Leader SDA pin |
 
 ![Figure: Pin Configuration I2C](resources/readme/image506d.png)
+![Figure: Pin Configuration I2C](resources/readme/image506e.png)
 
 ## Build
 
@@ -145,4 +147,4 @@ Change the value of following macros in config/RTE_Device.h
 ## Expected Results
 
 - Will get "Test Case Pass" print on console
-- Both write and read 16 bytes of data should be same
+- Both write and read 15 bytes of data should be same

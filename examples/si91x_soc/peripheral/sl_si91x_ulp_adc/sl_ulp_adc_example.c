@@ -128,7 +128,6 @@ void adc_example_process_action(void)
   uint8_t chnl_num    = 0;
   volatile float vout = 0;
   if (chnl0_complete_flag) {
-    chnl0_complete_flag = false;
     // ADC operation mode if FIFO then it will execute, here it will give equivalent voltage of 12 bit adc output.
     if (!sl_adc_config.operation_mode) {
       for (chnl_num = 0; chnl_num < sl_adc_config.num_of_channel_enable; chnl_num++) {
@@ -150,14 +149,16 @@ void adc_example_process_action(void)
           DEBUGOUT("ADC Measured input[%ld] :%0.2fV \n", sample_length, (double)vout);
         }
       }
-      if (intr_cnt > 2) {
-        status = sl_si91x_adc_deinit(sl_adc_config);
-        if (status != SL_STATUS_OK) {
-          DEBUGOUT("sl_si91x_adc_deinit: Error Code : %lu \n", status);
-        }
-        DEBUGOUT("ADC deinit successfully \n");
-      }
     }
+  }
+  if (intr_cnt > 2) {
+    status = sl_si91x_adc_deinit(sl_adc_config);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_adc_deinit: Error Code : %lu \n", status);
+    }
+    chnl0_complete_flag = false;
+    intr_cnt            = 0;
+    DEBUGOUT("ADC deinit successfully \n");
   }
 }
 
@@ -172,7 +173,7 @@ static void callback_event(uint8_t channel_no, uint8_t event)
   if (event == SL_INTERNAL_DMA) {
     if (channel_no == 0) {
       chnl0_complete_flag = true;
+      intr_cnt++;
     }
-    intr_cnt++;
   }
 }

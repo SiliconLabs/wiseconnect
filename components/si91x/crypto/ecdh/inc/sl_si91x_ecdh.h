@@ -34,6 +34,11 @@
 /******************************************************
  *                    Constants
  ******************************************************/
+/**
+ * @addtogroup CRYPTO_ECDH_CONSTANTS
+ * @{ 
+ */
+
 #define SL_SI91X_ECDH_MAX_VECTOR_SIZE 32 ///< Maximum size of an ECDH vector
 
 typedef enum {
@@ -62,9 +67,12 @@ typedef enum {
   SL_SI91X_ECDH_CURVE_B = 2, ///< Edwards Curves
 } sl_si91x_ecdh_curve_type_t;
 
-/******************************************************
- *                   Type Definitions
- ******************************************************/
+/** @} */
+
+/**
+ * @addtogroup CRYPTO_ECDH_FUNCTIONS 
+ * @{ 
+ */
 
 /***************************************************************************/ /**
  * @brief      Compute the ECDH point addition vector. This is a blocking API.
@@ -229,3 +237,5 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
                                        uint8_t *rx,
                                        uint8_t *ry,
                                        uint8_t *rz);
+
+/** @} */

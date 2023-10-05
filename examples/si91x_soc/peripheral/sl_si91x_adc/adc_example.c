@@ -25,7 +25,7 @@
  ******************************************************************************/
 /* Core clock modification Macros */
 #define PS4_SOC_FREQ          180000000 /*<! PLL out clock 180MHz            */
-#define SOC_PLL_REF_FREQUENCY 32000000  /*<! PLL input REFERENCE clock 32MHZ */
+#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
 #define DVISION_FACTOR        0         // Division factor
 #define CHANNEL_SAMPLE_LENGTH 1023      // Number of ADC sample collect for operation
 #define ADC_MAX_OP_VALUE      4096      // Maximum output value get from adc data register

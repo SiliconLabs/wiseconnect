@@ -67,7 +67,7 @@ extern "C" {
  *   If all operations completed sucessfully SL_STATUS_OK is returned. On
  *   failure a different status code is returned specifying the error.
  *****************************************************************************/
-sl_status_t sli_memlcd_spi_init(int spi_baud);
+sl_status_t sli_memlcd_spi_init(uint32_t spi_baud);
 
 /***************************************************************************/ /**
  * @brief
@@ -123,6 +123,8 @@ void sli_memlcd_spi_wait();
  *   Handle to the SPI interface.
  *****************************************************************************/
 void sli_memlcd_spi_rx_flush();
+
+void mySPI_callback_spi(uint32_t event);
 
 /** @} */
 #ifdef __cplusplus

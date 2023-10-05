@@ -37,6 +37,7 @@
 extern const sl_button_t button_{{ inst | lower }};
 {% endfor %}
 
+void button_init_instances(void);
 void sl_simple_button_init_instances(void);
 
 #endif // BUTTON_INSTANCES_H

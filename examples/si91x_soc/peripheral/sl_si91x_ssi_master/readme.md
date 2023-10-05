@@ -15,7 +15,13 @@
 - SSI is a synchronous four-wire interface consisting of two data pins(MOSI, MISO), a device select pin (CSN) and a gated clock pin(SCLK).
 - With the two data pins, it allows for full-duplex operation with other SSI compatible devices.
 - It supports full duplex Single-bit SPI master mode.
-- It has support for 6 modes total - Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 1: Clock Polarity is zero, Clock Phase is one, Mode 2: Clock Polarity is one and Clock Phase is zero, Mode 3: Clock Polarity is one and Clock Phase is one and Mode-4 (TI SSI) and Mode-5 (Microwire).
+- It supports 6 modes:  
+   - Mode 0: Clock Polarity is zero and Clock Phase is zero.
+   - Mode 1: Clock Polarity is zero, Clock Phase is one.
+   - Mode 2: Clock Polarity is one and Clock Phase is zero. 
+   - Mode 3: Clock Polarity is one and Clock Phase is one. 
+   - Mode-4: TEXAS_INSTRUMENTS SSI.
+   - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
 - The SPI clock is programmable to meet required baud rates
 - It can generates interrupts for different events like transfer complete, data lost, mode fault.
 - It supports upto 32K bytes of read data from a SSI device in a single read operation.
@@ -76,7 +82,7 @@
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
 
 ### VCOM Setup
-- The Docklight tool's setup instructions are provided below..
+- The Serial Console tool's setup instructions are provided below..
 
 ![Figure: VCOM_setup](resources/readme/vcom.png)
 
@@ -87,7 +93,7 @@
 ## Loading Application on Simplicity Studio
 
 1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to SSI Example application as shown below.
+   in simplicity studio and click on to SSI Master Example application as shown below.
 
 ![Figure: Selecting Example project](resources/readme/image510b.png)
 

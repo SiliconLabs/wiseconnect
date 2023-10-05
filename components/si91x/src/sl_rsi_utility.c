@@ -488,7 +488,6 @@ sl_status_t sl_si91x_send_power_save_request(sl_performance_profile_t profile)
   VERIFY_STATUS_AND_RETURN(status);
   // Power save need not to be sent if the current_performance_profile is HIGH_PERFORMANCE
   if (profile == HIGH_PERFORMANCE) {
-    current_performance_profile = profile;
     return SL_STATUS_OK;
   }
 
@@ -502,7 +501,6 @@ sl_status_t sl_si91x_send_power_save_request(sl_performance_profile_t profile)
                                         NULL,
                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
-  current_performance_profile = profile;
   return status;
 }
 

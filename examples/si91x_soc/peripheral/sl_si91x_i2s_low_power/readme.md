@@ -36,7 +36,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4325A]
+- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
 
 ![Figure: Introduction](resources/readme/image505a.png)
 
@@ -86,13 +86,10 @@
 
 ## Pin Configuration
 
-| GPIO PIN | A0 PIN | B0 1.2 PIN | B0 2.0 PIN |Description |
-| --- | ---  | --- | --- | --- |
-| SCLK | ULP_GPIO_3 | ULP_GPIO_3 | ULP_GPIO_3 | Connect to SCLK pin |
-| WSCLK | ULP_GPIO_4 [EXP_HEADER-11] | ULP_GPIO_8 [F11] | ULP_GPIO_8 [P15] | Connect to WSCLK pin |
-| DOUT | ULP_GPIO_5 [EXP_HEADER-13] | ULP_GPIO_1 [P16] | ULP_GPIO_1 [P16] | DOUT |
-| DIN | ULP_GPIO_6 [P36] | ULP_GPIO_6 [P36] | ULP_GPIO_6 [EXP_HEADER-16]  | DIN |
-| LOOPBACK | ULP_GPIO_5 <-> ULP_GPIO_6 | ULP_GPIO_1  <-> ULP_GPIO_6  | ULP_GPIO_1  <-> ULP_GPIO_6 | DIN and DOUT pin loopback connection|
+| GPIO pin                | Description             |
+| ----------------------- | ----------------------- |
+| GPIO_28 [P16]           | I2S DOUT		        |
+| GPIO_27 [EXP_HEADER-16]           | I2S DIN 		        |
 
 ## Pin Description
 

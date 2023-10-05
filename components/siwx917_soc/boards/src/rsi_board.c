@@ -76,6 +76,9 @@ static ARM_DRIVER_USART *UARTdrv = &Driver_ULP_UART;
 ARM_USART_CAPABILITIES drv_ulp_capabilities;
 
 volatile uint32_t send_done = 0, recv_done = 0;
+#ifdef INTERRUPT_BASED_DATA_RX // Add this macro to receive data in interrupt based
+uint8_t rx_char;
+#endif
 
 void ARM_UART_SignalEvent(uint32_t event)
 {
@@ -84,6 +87,10 @@ void ARM_UART_SignalEvent(uint32_t event)
       send_done++;
       break;
     case ARM_USART_EVENT_RECEIVE_COMPLETE:
+#ifdef INTERRUPT_BASED_DATA_RX
+      UARTdrv->Receive((void *)&rx_char, 1);
+      cache_uart_rx_data(rx_char);
+#endif
       recv_done++;
       break;
     case ARM_USART_EVENT_TRANSFER_COMPLETE:
@@ -136,6 +143,9 @@ void Board_Debug_Init(void)
                      | ARM_USART_FLOW_CONTROL_NONE,
                    BOARD_BAUD_VALUE);
 
+#ifdef INTERRUPT_BASED_DATA_RX
+  UARTdrv->Receive((void *)&rx_char, 1);
+#else
 #if defined(M4_UART1_INSTANCE) && (M4_UART1_INSTANCE == 1)
   NVIC_DisableIRQ(USART0_IRQn);
 #endif
@@ -146,6 +156,7 @@ void Board_Debug_Init(void)
 
 #if defined(ULP_UART_INSTANCE) && (ULP_UART_INSTANCE == 1)
   NVIC_DisableIRQ(ULPSS_UART_IRQn);
+#endif
 #endif
 
   return;
