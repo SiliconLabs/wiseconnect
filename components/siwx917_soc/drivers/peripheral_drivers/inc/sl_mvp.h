@@ -39,11 +39,6 @@
 extern "C" {
 #endif
 
-/// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
-/***************************************************************************/ /**
- * @addtogroup mvp MVP API
- * @{
- ******************************************************************************/
 #if defined(__CC_ARM)
 #pragma push
 #pragma anon_unions
@@ -485,7 +480,11 @@ typedef struct {
 #ifndef __PACKED
 #define __PACKED __attribute__((packed))
 #endif
-
+/// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
+/***************************************************************************/ /**
+ * @addtogroup SOC6
+ * @{
+ ******************************************************************************/
 /**
  * @brief
  *   Initialize the mvp hardware.

@@ -488,7 +488,6 @@ sl_status_t sl_si91x_send_power_save_request(sl_performance_profile_t profile)
   VERIFY_STATUS_AND_RETURN(status);
   // Power save need not to be sent if the current_performance_profile is HIGH_PERFORMANCE
   if (profile == HIGH_PERFORMANCE) {
-    current_performance_profile = profile;
     return SL_STATUS_OK;
   }
 
@@ -502,6 +501,25 @@ sl_status_t sl_si91x_send_power_save_request(sl_performance_profile_t profile)
                                         NULL,
                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
-  current_performance_profile = profile;
   return status;
+}
+
+//In Access point mode TA only supports No Encryption, TKIP and CCMP encryptions.
+sl_status_t convert_sl_wifi_to_sl_si91x_encryption(sl_wifi_encryption_t encryption_mode, uint8_t *encryption_request)
+{
+  switch (encryption_mode) {
+    case SL_WIFI_NO_ENCRYPTION:
+      *encryption_request = SL_SI91X_NO_ENCRYPTION;
+      break;
+    case SL_WIFI_TKIP_ENCRYPTION:
+      *encryption_request = SL_SI91X_TKIP_ENCRYPTION;
+      break;
+    case SL_WIFI_CCMP_ENCRYPTION:
+      *encryption_request = SL_SI91X_CCMP_ENCRYPTION;
+      break;
+    default:
+      return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  return SL_STATUS_OK;
 }

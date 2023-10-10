@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_si91x_socket_utility.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include "sl_si91x_socket_utility.h"
 #include "sl_si91x_socket_types.h"
 #include "sl_si91x_socket_callback_framework.h"
@@ -11,26 +28,8 @@
 #include <string.h>
 
 /******************************************************
- *               Static Function Declarations
- ******************************************************/
-static sl_status_t si91x_config_socket(void);
-
-/******************************************************
  *               Variable Definitions
  ******************************************************/
-static sl_si91x_socket_config_t socket_config = {
-  TOTAL_SOCKETS,                   // Total sockets
-  TOTAL_TCP_SOCKETS,               // Total TCP sockets
-  TOTAL_UDP_SOCKETS,               // Total UDP sockets
-  TCP_TX_ONLY_SOCKETS,             // TCP TX only sockets
-  TCP_RX_ONLY_SOCKETS,             // TCP RX only sockets
-  UDP_TX_ONLY_SOCKETS,             // UDP TX only sockets
-  UDP_RX_ONLY_SOCKETS,             // UDP RX only sockets
-  TCP_RX_HIGH_PERFORMANCE_SOCKETS, // TCP RX high performance sockets^M
-  TCP_RX_WINDOW_SIZE,              // TCP RX window size^M
-  TCP_RX_WINDOW_DIVISION_FACTOR    // TCP RX window division factor
-};
-
 static si91x_socket_t sockets[NUMBER_OF_SOCKETS];
 
 static select_callback user_select_callback = NULL;
@@ -77,20 +76,20 @@ int handle_select_response(sl_si91x_socket_select_rsp_t *response,
   FD_ZERO(exception_fd);
 
   for (int host_socket_index = 0; host_socket_index < NUMBER_OF_SOCKETS; host_socket_index++) {
-    int firmware_socket_id = get_si91x_socket(host_socket_index)->id;
+    si91x_socket_t *socket = get_si91x_socket(host_socket_index);
 
-    if (readfds != NULL) {
-      if (response->read_fds.fd_array[0] & (1 << firmware_socket_id)) {
-        FD_SET(host_socket_index, readfds);
-        total_fd_set_count++;
-      }
+    if (socket == NULL) {
+      continue;
     }
 
-    if (writefds != NULL) {
-      if (response->write_fds.fd_array[0] & (1 << firmware_socket_id)) {
-        FD_SET(host_socket_index, writefds);
-        total_fd_set_count++;
-      }
+    if (readfds != NULL && (response->read_fds.fd_array[0] & (1 << socket->id))) {
+      FD_SET(host_socket_index, readfds);
+      total_fd_set_count++;
+    }
+
+    if (writefds != NULL && (response->write_fds.fd_array[0] & (1 << socket->id))) {
+      FD_SET(host_socket_index, writefds);
+      total_fd_set_count++;
     }
   }
 
@@ -107,14 +106,16 @@ sl_status_t sl_si91x_socket_init(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_socket_deinit(void)
+sl_status_t sl_si91x_vap_shutdown(uint8_t vap_id)
 {
   if (!is_configured) {
     return SL_STATUS_OK;
   }
 
   for (uint8_t socket_index = 0; socket_index < NUMBER_OF_BSD_SOCKETS; socket_index++) {
-    reset_socket_state(socket_index);
+    if ((sockets[socket_index].vap_id == vap_id)) {
+      reset_socket_state(socket_index);
+    }
   }
 
   is_configured = false;
@@ -122,7 +123,7 @@ sl_status_t sl_si91x_socket_deinit(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t si91x_config_socket(void)
+sl_status_t sl_si91x_config_socket(sl_si91x_socket_config_t socket_config)
 {
   sl_status_t status = SL_STATUS_OK;
   status             = sl_si91x_driver_send_command(RSI_WLAN_REQ_SOCKET_CONFIG,
@@ -155,10 +156,6 @@ void get_free_socket(si91x_socket_t **socket, int *socket_fd)
   if (!is_configured) {
     sl_si91x_socket_init();
 
-    if (si91x_config_socket() != SL_STATUS_OK) {
-      return;
-    }
-
     is_configured = true;
   }
 
@@ -184,6 +181,32 @@ bool is_port_available(uint16_t port_number)
   }
 
   return true;
+}
+
+/**
+ * @brief This function is responsible to copy the SNI information provided by application into socket structure.
+ * 
+ * @param socket_sni_extensions pointer to SNI extension in socket structure
+ * @param sni_extension pointer to the SNI information provided by application
+ * @return sl_status_t possible return values are SL_STATUS_OK and SL_STATUS_SI91X_MEMORY_ERROR
+ */
+sl_status_t add_server_name_indication_extension(si91x_server_name_indication_extensions_t *socket_sni_extensions,
+                                                 const si91x_socket_type_length_value_t *sni_extension)
+{
+  // To check if memory available for new extension in SNI buffer of socket, max 256 Bytes only
+  if (SI91X_MAX_SIZE_OF_EXTENSION_DATA - socket_sni_extensions->current_size_of_extensions
+      < (sizeof(si91x_socket_type_length_value_t) + sni_extension->length)) {
+    return SL_STATUS_SI91X_MEMORY_ERROR;
+  }
+
+  uint8_t sni_size = (sizeof(si91x_socket_type_length_value_t) + sni_extension->length);
+
+  // copies SNI provided by app into SDK socket struct
+  memcpy(&socket_sni_extensions->buffer[socket_sni_extensions->current_size_of_extensions], sni_extension, sni_size);
+  socket_sni_extensions->current_size_of_extensions += sni_size;
+  socket_sni_extensions->total_extensions++;
+
+  return SL_STATUS_OK;
 }
 
 static uint16_t get_socket_id_from_socket_command(sl_si91x_packet_t *packet)
@@ -296,10 +319,10 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
   //  socket_create_request.socket_bitmap|=SI91X_SOCKET_FEAT_TCP_ACK_INDICATION;
 
   // Set the RX window size
-  socket_create_request.rx_window_size = socket_config.tcp_rx_window_size_cap;
+  socket_create_request.rx_window_size = TCP_RX_WINDOW_SIZE;
 
   // Fill VAP_ID
-  socket_create_request.vap_id                     = 0;
+  socket_create_request.vap_id                     = si91x_bsd_socket->vap_id;
   socket_create_request.tos                        = 0;
   socket_create_request.max_tcp_retries_count      = MAX_TCP_RETRY_COUNT;
   socket_create_request.tcp_keepalive_initial_time = DEFAULT_TCP_KEEP_ALIVE_TIME;
@@ -318,7 +341,19 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
 
     socket_create_request.socket_cert_inx = si91x_bsd_socket->certificate_index;
 
-    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(15000);
+    // Check if extension is provided my application and memcopy until the provided size of extensions
+    if (si91x_bsd_socket->sni_extensions.total_extensions > 0) {
+      memcpy(socket_create_request.tls_extension_data,
+             si91x_bsd_socket->sni_extensions.buffer,
+             si91x_bsd_socket->sni_extensions.current_size_of_extensions);
+
+      socket_create_request.total_extension_length = si91x_bsd_socket->sni_extensions.current_size_of_extensions;
+      socket_create_request.no_of_tls_extensions   = si91x_bsd_socket->sni_extensions.total_extensions;
+    }
+
+    //In wlan_throughput example the tick_count_s configured as 10, for that reason the connect was timed out.
+    //To avoid timeout, need to configure wait_period as 150000
+    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(150000);
   }
 
   // Check for HIGH_PERFORMANCE feature bit
@@ -338,10 +373,12 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
                                         wait_period,
                                         NULL,
                                         &buffer);
-
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
   packet                 = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   socket_create_response = (sl_si91x_socket_create_response_t *)packet->data;
-  VERIFY_STATUS_AND_RETURN(status);
 
   si91x_bsd_socket->id = (socket_create_response->socket_id[0]) | (socket_create_response->socket_id[1] << 8);
   si91x_bsd_socket->local_address.sin6_port = socket_create_response->module_port[0]
@@ -408,6 +445,9 @@ int sli_si91x_shutdown(int socket, int how)
                                                NULL,
                                                &wait_period);
 
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
   for (uint8_t index = 0; index < NUMBER_OF_SOCKETS; index++) {
@@ -420,6 +460,7 @@ int sli_si91x_shutdown(int socket, int how)
       reset_socket_state(index);
     }
   }
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
 
   return SI91X_NO_ERROR;
 }
@@ -462,6 +503,7 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
     }
   } else if (rx_packet->command == RSI_RECEIVE_RAW_DATA) {
     si91x_rsp_socket_recv_t *firmware_socket_response = (si91x_rsp_socket_recv_t *)rx_packet->data;
+    uint8_t *data                                     = (uint8_t *)(rx_packet->data + firmware_socket_response->offset);
 
     uint8_t host_socket = 0;
 
@@ -472,9 +514,7 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
     }
 
     si91x_socket_t *client_socket = get_si91x_socket(host_socket);
-    client_socket->recv_data_callback(host_socket,
-                                      (uint8_t *)(firmware_socket_response + firmware_socket_response->offset),
-                                      firmware_socket_response->length);
+    client_socket->recv_data_callback(host_socket, data, firmware_socket_response->length);
   } else if (rx_packet->command == RSI_WLAN_RSP_SELECT_REQUEST) {
     fd_set read_fd, write_fd, exception_fd;
 

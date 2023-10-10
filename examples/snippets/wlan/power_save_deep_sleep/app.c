@@ -60,26 +60,8 @@ const osThreadAttr_t thread_attributes = {
 };
 
 #ifdef RSI_M4_INTERFACE
-#ifdef COMMON_FLASH_EN
-#ifdef CHIP_917B0
-#define IVT_OFFSET_ADDR 0x81C2000 /*<!Application IVT location VTOR offset>          B0 common flash Board*/
-#else
-#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>          A0 Common flash Board*/
-#endif
-#else
-#define IVT_OFFSET_ADDR \
-  0x8012000 /*<!Application IVT location VTOR offset>          Dual Flash  (both A0 and B0) Board*/
-#endif
-#ifdef CHIP_917B0
-#define WKP_RAM_USAGE_LOCATION \
-  0x24061EFC /*<!Bootloader RAM usage location upon wake up  */ // B0 Boards (common flash & Dual flash)
-#else
-#define WKP_RAM_USAGE_LOCATION \
-  0x24061000 /*<!Bootloader RAM usage location upon wake up  */ // A0 Boards (common flash & Dual flash)
-#endif
-
 #define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-#endif
+#endif // RSI_M4_INTERFACE
 
 static const sl_wifi_device_configuration_t station_init_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -100,6 +82,9 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                                                   | RAM_LEVEL_NWP_BASIC_MCU_ADV
 #else
                                                   | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
+#endif
+#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
                    .bt_feature_bit_map         = 0,

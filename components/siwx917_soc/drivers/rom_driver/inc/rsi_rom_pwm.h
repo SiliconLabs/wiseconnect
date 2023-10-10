@@ -20,7 +20,7 @@
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_PWM_DRIVERS RSI:RS1xxxx MCPWM
+ * \defgroup RSI_PWM_DRIVERS
  *  @{
  *
  */
@@ -40,14 +40,14 @@ extern "C" {
 * @{
 */
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM , uint8_t chnlNum)
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM , uint8_t chnlNum)
  * @brief		    This API is used to start the MCPWM operation for required channel
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	  chnlNum	:  Channel number(0 to 3)
  * @return 	   \ref  ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
                 \n \ref RSI_OK                    : If process is done successfully
  */
-STATIC INLINE error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_start(pMCPWM, chnlNum);
@@ -57,14 +57,14 @@ STATIC INLINE error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM , uint8_t chnlNum)
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM , uint8_t chnlNum)
  * @brief		    This API is used to stops the MCPWM operation for required channel
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	  chnlNum	:  Channel number(0 to 3)
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
                 \n \ref RSI_OK(0)              : If process is done successfully
  */
-STATIC INLINE error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_stop(pMCPWM, chnlNum);
@@ -74,7 +74,7 @@ STATIC INLINE error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_SetTimePeriod( RSI_MCPWM_T *pMCPWM, uint8_t chnlNum,
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_SetTimePeriod( RSI_MCPWM_T *pMCPWM, uint8_t chnlNum,
 																								  uint16_t period, uint16_t initVal )
  * @brief		    This API is used to set time period and counter initial,value for the required MCPWM channel.
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
@@ -84,7 +84,10 @@ STATIC INLINE error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
                 \n \ref RSI_OK (0)        : If process is done successfully
  */
-STATIC INLINE error_t RSI_MCPWM_SetTimePeriod(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal)
+STATIC INLINE rsi_error_t RSI_MCPWM_SetTimePeriod(RSI_MCPWM_T *pMCPWM,
+                                                  uint8_t chnlNum,
+                                                  uint16_t period,
+                                                  uint16_t initVal)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_set_time_period(pMCPWM, chnlNum, period, initVal);
@@ -127,7 +130,7 @@ STATIC INLINE void RSI_MCPWM_SpecialEventTriggerConfig(RSI_MCPWM_T *pMCPWM,
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM , RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,uint8_t chnlNum)
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM , RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,uint8_t chnlNum)
  * @brief		    This API is used to set dead time value to be inserted at rise
 								edge or fall edge for required MCPWM channel
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
@@ -150,9 +153,9 @@ STATIC INLINE void RSI_MCPWM_SpecialEventTriggerConfig(RSI_MCPWM_T *pMCPWM,
 * @return      \ref ERROR_PWM_INVALID_ARG : If selecetd dead time counter is invalid
                   \n \ref RSI_OK        : If process is done successfully
  */
-STATIC INLINE error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM,
-                                                 RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,
-                                                 uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM,
+                                                     RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,
+                                                     uint8_t chnlNum)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_dead_time_value_set(pMCPWM, pMCPWMDeadTimeConfig, chnlNum);
@@ -162,14 +165,14 @@ STATIC INLINE error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM,
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM,uint8_t chnlNum)
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM,uint8_t chnlNum)
  * @brief		    This API is used to reset the required channel of MCPWM.
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	  chnlNum	:  Channel number(0 to 3)
  * @return 		  \ref ERROR_PWM_INVALID_CHNLNUM : If channel is invalid
                 \n \ref RSI_OK            : If process is done successfully.
  */
-STATIC INLINE error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_channel_reset(pMCPWM, chnlNum);
@@ -179,14 +182,14 @@ STATIC INLINE error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNu
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  * @brief		    This API is used to reset the counter from required channel of MCPWM
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	  chnlNum	:  Channel number(0 to 3)
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
                 \n \ref RSI_OK            : If process is done successfully
  */
-STATIC INLINE error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_counter_reset(pMCPWM, chnlNum);
@@ -196,7 +199,7 @@ STATIC INLINE error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNu
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM, uint32_t postScale,
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM, uint32_t postScale,
                                       uint32_t preScale, uint8_t chnlNum )
  * @brief		    This API is used to set base time period control for the required MCPWM channel.
  * @param[in]	  pMCPWM     :  Pointer to the MCPWM instance register area
@@ -217,10 +220,10 @@ STATIC INLINE error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNu
                 \n RSI_OK                 : If process is done successfully
 
  */
-STATIC INLINE error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM,
-                                                    uint32_t postScale,
-                                                    uint32_t preScale,
-                                                    uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM,
+                                                        uint32_t postScale,
+                                                        uint32_t preScale,
+                                                        uint8_t chnlNum)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_period_control_config(pMCPWM, postScale, preScale, chnlNum);
@@ -230,7 +233,7 @@ STATIC INLINE error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM,
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM,uint8_t pwmOutput,
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM,uint8_t pwmOutput,
 																							   uint8_t value)
  * @brief		    This API is used to set fault A pin output value to be overridden when fault condition occurs.
  * @param[in]	  pMCPWM    : Pointer to the MCPWM instance register area
@@ -249,7 +252,7 @@ STATIC INLINE error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM,
  * @return      \ref ERROR_PWM_INVALID_PWMOUT : If pwmOutput is invalid
                 \n RSI_OK                : If process is done successfully
  */
-STATIC INLINE error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
+STATIC INLINE rsi_error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_fault_avalue_set(pMCPWM, pwmOutput, value);
@@ -279,7 +282,7 @@ STATIC INLINE error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmO
  * @return      \ref ERROR_PWM_INVALID_PWMOUT : If pwmOutput is invalid
                 \n RSI_OK                : If process is done successfully
  */
-STATIC INLINE error_t RSI_MCPWM_FaultBValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
+STATIC INLINE rsi_error_t RSI_MCPWM_FaultBValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_fault_bvalue_set(pMCPWM, pwmOutput, value);
@@ -289,7 +292,7 @@ STATIC INLINE error_t RSI_MCPWM_FaultBValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmO
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM,uint8_t mode,
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM,uint8_t mode,
                                                    uint8_t chnlNum)
  * @brief		    This API is used to set the mode of base timer for required channel
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
@@ -304,7 +307,7 @@ STATIC INLINE error_t RSI_MCPWM_FaultBValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmO
                 \n \ref RSI_OK                 : If process is done successfully
 
  */
-STATIC INLINE error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_set_base_timer_mode(pMCPWM, mode, chnlNum);
@@ -314,7 +317,7 @@ STATIC INLINE error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM, uint8_t mo
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_MCPWM_SetOutputMode(RSI_MCPWM_T *pMCPWM, boolean_t mode,
+ * @fn          STATIC INLINE rsi_error_t RSI_MCPWM_SetOutputMode(RSI_MCPWM_T *pMCPWM, boolean_t mode,
                                                 uint8_t chnlNum)
  * @brief		    This API is used to set output mode for the MCPWM
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
@@ -323,7 +326,7 @@ STATIC INLINE error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM, uint8_t mo
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
                 \n \ref RSI_OK                 : If process is done successfully
  */
-STATIC INLINE error_t RSI_MCPWM_SetOutputMode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_SetOutputMode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_MCPWM_API->mcpwm_set_output_mode(pMCPWM, mode, chnlNum);
@@ -401,31 +404,33 @@ STATIC INLINE uint16_t RSI_MCPWM_GetTimePeriod(RSI_MCPWM_T *pMCPWM, uint8_t chnl
 /**************************************************************************************
 								              MCPWM ROM FUNCTION PROTOTYPES											  
 		 **************************************************************************************/
-error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+rsi_error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+rsi_error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-error_t RSI_MCPWM_SetTimePeriod(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal);
+rsi_error_t RSI_MCPWM_SetTimePeriod(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal);
 
 void RSI_MCPWM_SpecialEventTriggerConfig(RSI_MCPWM_T *pMCPWM,
                                          boolean_t svtDir,
                                          RSI_MCPWM_SVT_CONFIG_T *pMCPWMSVTConfig);
 
-error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig, uint8_t chnlNum);
+rsi_error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM,
+                                       RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,
+                                       uint8_t chnlNum);
 
-error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+rsi_error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+rsi_error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum);
+rsi_error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum);
 
-error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
+rsi_error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
 
-error_t RSI_MCPWM_FaultBValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
+rsi_error_t RSI_MCPWM_FaultBValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
 
-error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum);
+rsi_error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum);
 
-error_t RSI_MCPWM_SetOutputMode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum);
+rsi_error_t RSI_MCPWM_SetOutputMode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum);
 
 void RSI_MCPWM_SetOutputPolarity(RSI_MCPWM_T *pMCPWM, boolean_t polL, boolean_t polH);
 

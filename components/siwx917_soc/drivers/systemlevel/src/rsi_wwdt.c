@@ -16,7 +16,9 @@
 ******************************************************************************/
 
 #include "rsi_chip.h"
-
+/** @addtogroup SOC27
+ * @{
+ */
 /*==============================================*/
 /**
  * @fn           void RSI_WWDT_Init(MCU_WDT_Type *pstcWDT)
@@ -92,5 +94,5 @@ void RSI_WWDT_Start(MCU_WDT_Type *pstcWDT)
   pstcWDT->MCU_WWD_MODE_AND_RSTART_b.WWD_MODE_RSTART    = 1;
   return;
 }
-
+/** @} */
 /*End of file not truncated*/

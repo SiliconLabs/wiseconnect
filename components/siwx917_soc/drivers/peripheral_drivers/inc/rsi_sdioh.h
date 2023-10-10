@@ -183,20 +183,20 @@ extern "C" {
 #warning Not supported compiler type
 #endif
 void RSI_SDIOH_PinMux(void);
-error_t RSI_SDIOH_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event);
-error_t RSI_SDIOH_RegisterInfo(SMIH_CARD_CONFIG_T *pSmihConfig, SMIH_CCCR_REG_INFO_T *pRegInfo);
-error_t RSI_SDIOH_WriteCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument);
-error_t RSI_SDIOH_ReadCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument);
-error_t RSI_SDIOH_SetBusWidthCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
-error_t RSI_SDIOH_BusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth);
-error_t RSI_SDIOH_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig);
-error_t RSI_SDIOH_SendRelativeCardAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
-error_t RSI_SDIOH_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
-error_t RSI_SDIOH_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig);
-error_t RSI_SDIOH_ByteBlockWriteCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr);
-error_t RSI_SDIOH_ByteBlockReadCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr);
-error_t RSI_SDIOH_ReInitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig);
-error_t RSI_SDIOH_InitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig);
+rsi_error_t RSI_SDIOH_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event);
+rsi_error_t RSI_SDIOH_RegisterInfo(SMIH_CARD_CONFIG_T *pSmihConfig, SMIH_CCCR_REG_INFO_T *pRegInfo);
+rsi_error_t RSI_SDIOH_WriteCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument);
+rsi_error_t RSI_SDIOH_ReadCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument);
+rsi_error_t RSI_SDIOH_SetBusWidthCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
+rsi_error_t RSI_SDIOH_BusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth);
+rsi_error_t RSI_SDIOH_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig);
+rsi_error_t RSI_SDIOH_SendRelativeCardAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
+rsi_error_t RSI_SDIOH_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
+rsi_error_t RSI_SDIOH_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig);
+rsi_error_t RSI_SDIOH_ByteBlockWriteCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr);
+rsi_error_t RSI_SDIOH_ByteBlockReadCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr);
+rsi_error_t RSI_SDIOH_ReInitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig);
+rsi_error_t RSI_SDIOH_InitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig);
 
 #ifdef __cplusplus
 }

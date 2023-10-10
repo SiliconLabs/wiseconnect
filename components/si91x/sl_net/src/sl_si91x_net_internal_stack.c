@@ -202,7 +202,7 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
 sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-  return SL_STATUS_NOT_SUPPORTED;
+  return sl_wifi_stop_ap(SL_WIFI_AP_INTERFACE);
 }
 
 sl_status_t sl_dns_host_get_by_name(const char *host_name,
@@ -214,7 +214,7 @@ sl_status_t sl_dns_host_get_by_name(const char *host_name,
 
   sl_status_t status;
   sl_si91x_packet_t *packet;
-  sl_wifi_buffer_t *buffer;
+  sl_wifi_buffer_t *buffer                       = NULL;
   sl_si91x_dns_response_t *dns_response          = { 0 };
   sl_si91x_dns_query_request_t dns_query_request = { 0 };
   sl_si91x_wait_period_t wait_period = timeout == 0 ? SL_SI91X_RETURN_IMMEDIATELY : SL_SI91X_WAIT_FOR_RESPONSE(timeout);
@@ -229,6 +229,9 @@ sl_status_t sl_dns_host_get_by_name(const char *host_name,
                                         wait_period,
                                         NULL,
                                         &buffer);
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
   VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
@@ -248,7 +251,7 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
                                               uint16_t tcp_retry_count,
                                               bool asynchronous)
 {
-  sl_wifi_buffer_t *buffer;
+  sl_wifi_buffer_t *buffer                         = NULL;
   sl_status_t status                               = SL_STATUS_FAIL;
   sl_si91x_wait_period_t wait_period               = SL_SI91X_RETURN_IMMEDIATELY;
   sl_si91x_ota_firmware_update_request_t otaf_fwup = { 0 };
@@ -302,7 +305,7 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
   sl_si91x_req_ipv4_params_t ip_req;
   sl_si91x_req_ipv6_params_t ipv6_request;
   sl_si91x_packet_t *packet;
-  sl_wifi_buffer_t *buffer;
+  sl_wifi_buffer_t *buffer = NULL;
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
@@ -342,13 +345,17 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
                                           SL_SI91X_WAIT_FOR_RESPONSE(150000),
                                           NULL,
                                           &buffer);
+    if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    }
     VERIFY_STATUS_AND_RETURN(status);
     packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
     if (SL_IP_MANAGEMENT_DHCP == address->mode) {
-      status = convert_rsi_ipv4_address_to_sl_ip_address((sl_ip_address_t *)&(address->ip.v4.ip_address),
-                                                         (sl_si91x_rsp_ipv4_params_t *)packet->data);
-      VERIFY_STATUS_AND_RETURN(status);
+      const sl_si91x_rsp_ipv4_params_t *response_data = (sl_si91x_rsp_ipv4_params_t *)packet->data;
+      memcpy(address->ip.v4.ip_address.bytes, response_data->ipaddr, sizeof(sl_ipv4_address_t));
+      memcpy(address->ip.v4.netmask.bytes, response_data->netmask, sizeof(sl_ipv4_address_t));
+      memcpy(address->ip.v4.gateway.bytes, response_data->gateway, sizeof(sl_ipv4_address_t));
     }
 
     sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
@@ -372,6 +379,9 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
                                           SL_SI91X_WAIT_FOR_RESPONSE(50000),
                                           NULL,
                                           &buffer);
+    if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    }
     VERIFY_STATUS_AND_RETURN(status);
 
     uint32_t input_buffer[13];

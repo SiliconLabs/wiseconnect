@@ -20,7 +20,9 @@
  */
 #include "rsi_ccp_common.h"
 #include "rsi_chip.h"
+#ifdef DEBUG_UART
 #include "rsi_board.h"
+#endif
 
 void fpuInit(void);
 #define NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR_1 (*(volatile uint32_t *)(0x41300000 + 0x4))
@@ -31,11 +33,15 @@ void fpuInit(void);
 #define MAX_NVIC_REGS                       4   // Max Interrupts register
 #define MAX_IPS                             240 // Max Interrupt Priority registers
 #define MAX_SHP                             12  //Max System Handlers Priority registers
+
 uint32_t nvic_enable[MAX_NVIC_REGS] = { 0 };
 uint8_t nvic_ip_reg[MAX_IPS]        = { 0 };
 uint8_t scs_shp_reg[MAX_SHP]        = { 0 };
-extern uint32_t __sp;
 volatile uint32_t msp_value, psp_value, control_reg_val;
+
+#ifdef EXECUTION_FROM_RAM
+extern char RAM_VECTOR[VECTOR_TABLE_ENTRIES];
+#endif
 /**
  * @fn           void RSI_Save_Context(void)
  * @brief        This function is to save Stack pointer value and Control registers.
@@ -52,12 +58,14 @@ void RSI_Save_Context(void)
  * @brief        This function is to Restore Stack pointer value and Control registers.
  *
  */
+#ifdef RSI_WITH_OS
 STATIC INLINE void RSI_Restore_Context(void)
 {
   __set_CONTROL(control_reg_val);
   __set_PSP(psp_value);
   __set_MSP(msp_value);
 }
+#endif
 #if defined(__CC_ARM) /*------------------ARM CC Compiler -----------------*/
 /**
  * @fn          __asm  void RSI_PS_SaveCpuContext(void)
@@ -225,7 +233,7 @@ void RSI_PS_RestoreCpuContext(void)
 #endif /*------------------ IAR Compiler ---------------------*/
 
 /**
- * @fn          error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType , uint8_t lf_clk_mode)
+ * @fn          rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType , uint8_t lf_clk_mode)
  * @brief	    This is the common API to keep the system in sleep state. from all possible active states.
  * @param[in]   sleepType   : selects the retention or non retention mode of processor. refer 'SLEEP_TYPE_T'.
  *                              SLEEP_WITH_RETENTION : When this is used, user must configure the which RAMs to be retained during sleep by using the 'RSI_PS_SetRamRetention()' function.
@@ -238,7 +246,7 @@ void RSI_PS_RestoreCpuContext(void)
  \n User must ensure the selected clocks are active before selecting the 'LF_32_KHZ_RC' and 'LF_32_KHZ_XTAL' clocks to the processor using this API.
  * @return      Returns the execution status.
  */
-error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
+rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 {
   volatile int var = 0, enable_sdcss_based_wakeup = 0, enable_m4ulp_retention = 0, Temp;
   uint32_t ipmuDummyRead = 0, m4ulp_ram_core_status = 0, m4ulp_ram_peri_status = 0, disable_pads_ctrl = 0,
@@ -363,6 +371,15 @@ error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     }
     /* HF processor clock */
   }
+
+#ifdef EXECUTION_FROM_PSRAM
+  RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
+  if (sleepType == SLEEP_WITH_RETENTION) {
+    //!enable flash LDO and PMU DCDC ON in M4 for PSRAM with retention
+    MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_REG |= (LDO_FLASH_ON | PMU_DCDC_ON);
+  }
+#endif
+
 #ifdef RSI_WITH_OS
   /* Save Stack pointer value and Control registers */
   RSI_Save_Context();
@@ -481,16 +498,21 @@ error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     ULP_SPI_MEM_MAP(0x141) |= (BIT(11)); // ULP PADS PDO ON
     disable_pads_ctrl = 0;
   }
-/*Start of M4 init after wake up  */
+  for (x = 0; x < 200; x++) {
+    __ASM("NOP");
+  }
+  /*Start of M4 init after wake up  */
 #ifdef DEBUG_UART
   fpuInit();
   /*Initialize UART after wake up*/
   DEBUGINIT();
 #endif
-  /*Restore the NVIC registers */
-  for (var = 0; var < MAX_NVIC_REGS; ++var) {
-    NVIC->ISER[var] = nvic_enable[var];
-  }
+
+#ifdef EXECUTION_FROM_RAM
+  //passing the ram vector address to VTOR register
+  SCB->VTOR = (uint32_t)RAM_VECTOR;
+#endif
+
   /*Restore the Interrupt Priority Register  */
   for (var = 0; var < MAX_IPS; ++var) {
     NVIC->IP[var] = nvic_ip_reg[var];
@@ -501,16 +523,10 @@ error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   }
   /*Restore NPSS INTERRUPTS*/
   NPSS_INTR_MASK_CLR_REG = ~npssIntrState;
-#ifndef CHIP_917
-  M4CLK->CLK_ENABLE_SET_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
-#endif
-  for (x = 0; x < 200; x++) {
-    __ASM("NOP");
-  }
-#ifndef CHIP_917
-  M4CLK->CLK_ENABLE_CLR_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
-#endif
-  /* Restore the NPSS domains*/
 
+  /*Restore the NVIC registers */
+  for (var = 0; var < MAX_NVIC_REGS; ++var) {
+    NVIC->ISER[var] = nvic_enable[var];
+  }
   return RSI_OK;
 }

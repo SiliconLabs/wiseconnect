@@ -15,15 +15,14 @@
 *
 ******************************************************************************/
 
-/**
- * Includes
- */
+//Includes
+
 #ifndef __RSI_ROM_FIM_H__
 #define __RSI_ROM_FIM_H__
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_FIM_DRIVERS RSI:RS1xxxx FIM 
+ * \defgroup FIM_DRIVERS
  *  @{
  *
  */
@@ -199,13 +198,14 @@ STATIC INLINE void arm_scale_q31_opt(q31_t *pSrc, q31_t scaleFract, int8_t shift
 /**
  *@brief      This API is used to set the FIM Scalar Multiplication
  *@param[in]  pSrc : is input vector A
+ *@param[out]  pDst : points to output vector
  *@param[in]  scale : is constant value that need to be multiplied for each elements of vector array.
  *@param[in]  blockSize : is size of the input array
  *@param[in]  typ_data : is to select which type of data is given as input
  *            \n i.e. real complex , complex real and complex complex
  *            \n real complex   real vector, complex  scalar
  *            \n complex real   real scalar, complex vector
- *return      none
+ *@return      none
  */
 STATIC INLINE void fim_scalar_mul_q15(q15_t *pSrc, q15_t *pDst, q15_t *scale, uint32_t blockSize, typ_data_t typ_data)
 {
@@ -216,9 +216,10 @@ STATIC INLINE void fim_scalar_mul_q15(q15_t *pSrc, q15_t *pDst, q15_t *scale, ui
 /**
  *@brief      This API is used to set the FIM Vector Addition for real data
  *@param[in]  pSrcA : is input vector A
+ *@param[out]  pDst : points to output vector
  *@param[in]  pSrcB : is input vector B
  *@param[in]  blockSize : is size of the input array
- *return      none
+ *@return      none
  */
 STATIC INLINE void arm_add_f32_opt(int32_t *pSrcA, int32_t *pDst, int32_t *pSrcB, uint32_t blockSize)
 {
@@ -232,7 +233,7 @@ STATIC INLINE void arm_add_f32_opt(int32_t *pSrcA, int32_t *pDst, int32_t *pSrcB
  *@param[in]  pSrcB : points to input vector B
  *@param[out] pDst :  points to output vector
  *@param[in]  blockSize : is size of the input array
- *return      none
+ *@return      none
  */
 STATIC INLINE void arm_add_q7_opt(q7_t *pSrcA, q7_t *pSrcB, q7_t *pDst, uint32_t blockSize)
 {
@@ -245,7 +246,7 @@ STATIC INLINE void arm_add_q7_opt(q7_t *pSrcA, q7_t *pSrcB, q7_t *pDst, uint32_t
  *@param[in]  pSrcB : points to input vector B
  *@param[out] pDst  : points to output vector
  *@param[in]  blockSize : is size of the input array
- *return      none
+ *@return      none
  */
 
 STATIC INLINE void arm_add_q15_opt(q15_t *pSrcA, q15_t *pSrcB, q15_t *pDst, uint32_t blockSize)
@@ -259,7 +260,7 @@ STATIC INLINE void arm_add_q15_opt(q15_t *pSrcA, q15_t *pSrcB, q15_t *pDst, uint
  *@param[in]  pSrcB : points to input vector B
  *@param[out] pDst :  points to output vector
  *@param[in]  blockSize : is size of the input array
- *return      none
+ *@return      none
  */
 
 STATIC INLINE void arm_add_q31_opt(q31_t *pSrcA, q31_t *pSrcB, q31_t *pDst, uint32_t blockSize)
@@ -335,7 +336,7 @@ STATIC INLINE void arm_sub_q15_opt(q15_t *pSrcA, q15_t *pSrcB, q15_t *pDst, uint
  *@param[in]  pSrcB : points to input vector B
  *@param[out] pDst :  points to output vector
  *@param[in]  blockSize : is size of the input array
- *return      none
+ *@return      none
  */
 STATIC INLINE void arm_sub_q31_opt(q31_t *pSrcA, q31_t *pSrcB, q31_t *pDst, uint32_t blockSize)
 {
@@ -379,6 +380,7 @@ STATIC INLINE void fim_vector_sub_q15(q15_t *pIn1, q15_t *pIn2, q15_t *pDst, uin
  *@brief     This API is used to set the FIM Vector Multiplication for real data
  *@param[in]  pIn1 : is input vector A
  *@param[in]  pIn2 : is input vector B
+ *@param[out]  pDst : points to output vector
  *@param[in]  length : is size of the input array
  *@param[in]  SatTruncRound : is used to limit the output as required
  *@return     none
@@ -394,9 +396,9 @@ STATIC INLINE void arm_mult_f32_opt(int32_t *pIn1,
 }
 /**
  *@brief        This API is used for Q7 vector multiplication
- *@param[in]    *pSrcA : points to the first input vector
- *@param[in]    *pSrcB : points to the second input vector
- *@param[out]   *pDst : points to the output vector
+ *@param[in]    pSrcA : points to the first input vector
+ *@param[in]    pSrcB : points to the second input vector
+ *@param[out]   pDst : points to the output vector
  *@param[in]    blockSize : number of samples in each vector
  *@return       none
  */
@@ -406,9 +408,9 @@ STATIC INLINE void arm_mult_q7_opt(q7_t *pSrcA, q7_t *pSrcB, q7_t *pDst, uint32_
 }
 /**
  *@brief       This API is used for Q15 vector multiplication
- *@param[in]   *pSrcA : points to the first input vector
- *@param[in]   *pSrcB : points to the second input vector
- *@param[out]  *pDst : points to the output vector
+ *@param[in]   pSrcA : points to the first input vector
+ *@param[in]   pSrcB : points to the second input vector
+ *@param[out]  pDst : points to the output vector
  *@param[in]   blockSize : number of samples in each vector
  *@return      none
  */
@@ -420,9 +422,9 @@ STATIC INLINE void arm_mult_q15_opt(q15_t *pSrcA, q15_t *pSrcB, q15_t *pDst, uin
 
 /**
  *@brief        This API is used for Q31 vector multiplication.
- *@param[in]    *pSrcA : points to the first input vector
- *@param[in]    *pSrcB : points to the second input vector
- *@param[out]   *pDst : points to the output vector
+ *@param[in]    pSrcA : points to the first input vector
+ *@param[in]    pSrcB : points to the second input vector
+ *@param[out]   pDst : points to the output vector
  *@param[in]    blockSize : number of samples in each vector
  *@return       none
  */
@@ -436,7 +438,7 @@ STATIC INLINE void arm_mult_q31_opt(q31_t *pSrcA, q31_t *pSrcB, q31_t *pDst, uin
  *@brief       This API is used for Vector Multiplication for complex-real data
  *@param[in]   pIn1 : is input vector A
  *@param[in]   pIn2 : is input vector B
- *@param[out]  *pDst : points to the output vector
+ *@param[out]   pDst : points to output vector
  *@param[in]   blockSize : is size of the input array
  *return       none
  */
@@ -450,8 +452,8 @@ STATIC INLINE void fim_vector_mul_q15(q15_t *pIn1, q15_t *pIn2, q15_t *pDst, uin
  *@brief     This API is used to set the FIM Vector Multiplication for complex-real data
  *@param[in]  pSrcCmplx : is input vector A
  *@param[in]  pSrcReal : is input vector B
- *@param     *pDst : points to the real output vector
- *@param     numSamples : number of complex samples in the input vector
+ *@param[out]     pDst : points to the real output vector
+ *@param[in]     numSamples : number of complex samples in the input vector
  *@return    none
  */
 STATIC INLINE void arm_cmplx_mult_real_q15_opt(q15_t *pSrcCmplx, q15_t *pSrcReal, q15_t *pDst, uint32_t numSamples)
@@ -462,9 +464,9 @@ STATIC INLINE void arm_cmplx_mult_real_q15_opt(q15_t *pSrcCmplx, q15_t *pSrcReal
 
 /**
  *@brief       This API is used for Q15 complex-by-complex multiplication
- *@param[in]   *pSrcA : points to the first input vector
- *@param[in]   *pSrcB : points to the second input vector
- *@param[out]  *pDst :  points to the output vector
+ *@param[in]   pSrcA : points to the first input vector
+ *@param[in]   pSrcB : points to the second input vector
+ *@param[out]  pDst :  points to the output vector
  *@param[in]   numSamples : number of complex samples in each vector
  *return       none
  */
@@ -476,9 +478,9 @@ STATIC INLINE void arm_cmplx_mult_cmplx_q15_opt(q15_t *pSrcA, q15_t *pSrcB, q15_
 
 /**
  *@brief     This API is used for Q15 complex magnitude squared
- *@param     *pSrc : points to the complex input vector
- *@param     *pDst : points to the real output vector
- *@param     numSamples : number of complex samples in the input vector
+ *@param[in]     pSrc : points to the complex input vector
+ *@param[out]     pDst : points to the real output vector
+ *@param[in]     numSamples : number of complex samples in the input vector
  *@return    none
  */
 STATIC INLINE void arm_cmplx_mag_squared_q15_opt(q15_t *pSrc, q15_t *pDst, uint32_t numSamples)
@@ -490,6 +492,7 @@ STATIC INLINE void arm_cmplx_mag_squared_q15_opt(q15_t *pSrc, q15_t *pDst, uint3
 /**
  *@brief     This API is used to set the FIM Absolute Squaring for real number
  *@param[in]  pSrc : is input for squaring a number
+ *@param[out]  pDst : points to output vector
  *@param[in]  length  :is size of the input array
  *@return     none
  */
@@ -502,6 +505,7 @@ STATIC INLINE void fim_absSqr_q7(q7_t *pSrc, q7_t *pDst, uint32_t length)
 /**
  *@brief      This API is used to set the FIM Absolute Squaring for real number
  *@param[in]  pSrc : is input for squaring a number
+ *@param[out]  pDst : points to output vector
  *@param[in]  length : is size of the input array
  *@return     none
  */
@@ -515,6 +519,7 @@ STATIC INLINE void fim_absSqr_q15(q15_t *pSrc, q15_t *pDst, uint32_t length)
  *@brief     This API is used to set the FIM Absolute Squaring for real number
  *@param[in]  pSrc : is input for squaring a number
  *@param[in]  length : is size of the input array
+ *@param[out]  pDst : points to output vector
  *@return      none
  */
 STATIC INLINE void fim_absSqr_q31(q31_t *pSrc, q31_t *pDst, uint32_t length)
@@ -526,6 +531,7 @@ STATIC INLINE void fim_absSqr_q31(q31_t *pSrc, q31_t *pDst, uint32_t length)
 /**
  *@brief      This API is used to set the FIM Absolute Squaring for real number
  *@param[in]  pSrc : is input for squaring a number
+ *@param[out]  pDst : points to output vector
  *@param[in]  length : is size of the input array
  *@return     none
  */
@@ -537,15 +543,15 @@ STATIC INLINE void fim_absSqr_f32(int32_t *pSrc, int32_t *pDst, uint32_t length)
 
 /**
  *@brief        This API is used to set the FIM Matrix Multiplication for real numbers
- *@param[in]	*pSrcA :	points to the first input matrix structure
- *@param[in]	*pSrcB :	points to the second input matrix structure
- *@param[out]	*pDst :	points to output matrix structure
+ *@param[in]	pSrcA :	points to the first input matrix structure
+ *@param[in]	pSrcB :	points to the second input matrix structure
+ *@param[out]	pDst :	points to output matrix structure
  *@return       none
  *
  */
-STATIC INLINE error_t arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
-                                           const arm_matrix_instance_f32_opt *pSrcB,
-                                           arm_matrix_instance_f32_opt *pDst)
+STATIC INLINE rsi_error_t arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
+                                               const arm_matrix_instance_f32_opt *pSrcB,
+                                               arm_matrix_instance_f32_opt *pDst)
 {
 
   return rsi_arm_mat_mult_f32_opt(pSrcA, pSrcB, pDst, 0x00, BANK1, BANK2);
@@ -553,14 +559,14 @@ STATIC INLINE error_t arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pS
 
 /**
  *@brief       This API is used to set the FIM Matrix Multiplication for real numbers
- *@param[in]  *pSrcA :	points to the first input matrix structure
- *@param[in]  *pSrcB :	points to the second input matrix structure
- *@param[out] *pDst :	points to output matrix structure
+ *@param[in]  pSrcA :	points to the first input matrix structure
+ *@param[in]  pSrcB :	points to the second input matrix structure
+ *@param[out] pDst :	points to output matrix structure
  *@return     none
  */
-STATIC INLINE error_t arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
-                                           const arm_matrix_instance_q31_opt *pSrcB,
-                                           arm_matrix_instance_q31_opt *pDst)
+STATIC INLINE rsi_error_t arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
+                                               const arm_matrix_instance_q31_opt *pSrcB,
+                                               arm_matrix_instance_q31_opt *pDst)
 {
 
   return rsi_arm_mat_mult_q31_opt(pSrcA, pSrcB, pDst, 0x00, BANK1, BANK2);
@@ -568,16 +574,16 @@ STATIC INLINE error_t arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pS
 
 /**
  *@brief        This API is used to set the FIM Matrix Multiplication for real numbers
- *@param[in]	*pSrcA :	points to the first input matrix structure
- *@param[in]	*pSrcB :	points to the second input matrix structure
- *@param[out]	*pDst :	points to output matrix structure
- *@param[in]	*pState :	points to the array for storing intermediate results (Unused)
+ *@param[in]	pSrcA :	points to the first input matrix structure
+ *@param[in]	pSrcB :	points to the second input matrix structure
+ *@param[out]	pDst :	points to output matrix structure
+ *@param[in]	pState :	points to the array for storing intermediate results (Unused)
  *@return        none
  */
-STATIC INLINE error_t arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
-                                           const arm_matrix_instance_q15_opt *pSrcB,
-                                           arm_matrix_instance_q15_opt *pDst,
-                                           q15_t *pState)
+STATIC INLINE rsi_error_t arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
+                                               const arm_matrix_instance_q15_opt *pSrcB,
+                                               arm_matrix_instance_q15_opt *pDst,
+                                               q15_t *pState)
 {
 
   return rsi_arm_mat_mult_q15_opt(pSrcA, pSrcB, pDst, pState, 0x00, BANK1, BANK2);
@@ -585,10 +591,10 @@ STATIC INLINE error_t arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pS
 
 /**
  *@brief        This API is used to initialize the FIM  filters
- *@param[in,out]	*S :	points to an instance of the floating-point FIR filter structure.
+ *@param[in,out]	S :	points to an instance of the floating-point FIR filter structure.
  *@param[in]	numTaps :	Number of filter coefficients in the filter.
- *@param[in]	*pCoeffs :	points to the filter coefficients buffer.
- *@param[in]	*pState :	points to the state buffer.
+ *@param[in]	pCoeffs :	points to the filter coefficients buffer.
+ *@param[in]	pState :	points to the state buffer.
  *@param[in]	blockSize :	number of samples that are processed per call.
  *@return        none
  */
@@ -604,9 +610,9 @@ STATIC INLINE void arm_fir_init_f32_opt(arm_fir_instance_f32_opt *S,
 
 /**
  *@brief     This API is used to set the FIM FIR Filter
- *@param[in]	*S :	points to an instance of the floating-point FIR filter structure.
- *@param[in]	*pSrc :	points to the block of input data.
- *@param[out]	*pDst :	points to the block of output data.
+ *@param[in]	S :	points to an instance of the floating-point FIR filter structure.
+ *@param[in]	pSrc :	points to the block of input data.
+ *@param[out]	pDst :	points to the block of output data.
  *@param[in]	blockSize :	number of samples to process per call.
  *@return     none
  */
@@ -617,10 +623,10 @@ STATIC INLINE void arm_fir_f32_opt(arm_fir_instance_f32_opt *S, int32_t *pSrc, i
 }
 /**
  *@brief         This API is used to initialize the FIM  filters
- *@param[in,out] *S :	points to an instance of the Q31 FIR filter structure.
+ *@param[in,out] S :	points to an instance of the Q31 FIR filter structure.
  *@param[in]	 numTaps :	Number of filter coefficients in the filter.
- *@param[in]	 *pCoeffs :	points to the filter coefficients buffer.
- *@param[in]	 *pState :	points to the state buffer.
+ *@param[in]	 pCoeffs :	points to the filter coefficients buffer.
+ *@param[in]	 pState :	points to the state buffer.
  *@param[in]	 blockSize :	number of samples that are processed per call.
  *return         none
  */
@@ -635,9 +641,9 @@ STATIC INLINE void arm_fir_init_q31_opt(arm_fir_instance_q31_opt *S,
 }
 /**
  *@brief        This API is used to set the FIM FIR Filter
- *@param[in]	*S :	points to an instance of the Q31 FIR filter structure.
- *@param[in]	*pSrc :	points to the block of input data.
- *@param[out]	*pDst :	points to the block of output data.
+ *@param[in]	S :	points to an instance of the Q31 FIR filter structure.
+ *@param[in]	pSrc :	points to the block of input data.
+ *@param[out]	pDst :	points to the block of output data.
  *@param[in]	blockSize :	number of samples to process per call
  *@return     none
  */
@@ -649,10 +655,10 @@ STATIC INLINE void arm_fir_q31_opt(arm_fir_instance_q31_opt *S, q31_t *pSrc, q31
 }
 /**
  *@brief         This API is used to initialise the FIM  filters
- *@param[in,out] *S :	points to an instance of the Q15 FIR filter structure.
+ *@param[in,out] S :	points to an instance of the Q15 FIR filter structure.
  *@param[in]	 numTaps :	Number of filter coefficients in the filter. Must be even and greater than or equal to 4.
- *@param[in]	 *pCoeffs :	points to the filter coefficients buffer.
- *@param[in]	 *pState :	points to the state buffer.
+ *@param[in]	 pCoeffs :	points to the filter coefficients buffer.
+ *@param[in]	 pState :	points to the state buffer.
  *@param[in]	 blockSize :	is number of samples processed per call.
  *@return        none
  *
@@ -668,9 +674,9 @@ STATIC INLINE void arm_fir_init_q15_opt(arm_fir_instance_q15_opt *S,
 }
 /**
  *@brief        This API is used to set the FIM FIR Filter
- *@param[in]	*S :	points to an instance of the Q15 FIR structure.
- *@param[in]	*pSrc :	points to the block of input data.
- *@param[out]	*pDst :	points to the block of output data.
+ *@param[in]	S :	points to an instance of the Q15 FIR structure.
+ *@param[in]	pSrc :	points to the block of input data.
+ *@param[out]	pDst :	points to the block of output data.
  *@param[in]	blockSize :	number of samples to process per call.
  *@return       none
  */
@@ -682,10 +688,10 @@ STATIC INLINE void arm_fir_q15_opt(arm_fir_instance_q15_opt *S, q15_t *pSrc, q15
 
 /**
  *@brief         This API is used to initialise the FIM  filters
- *@param[in,out] *S :	points to an instance of the Q7 FIR filter structure.
+ *@param[in,out] S :	points to an instance of the Q7 FIR filter structure.
  *@param[in]	 numTaps :	Number of filter coefficients in the filter.
- *@param[in]	 *pCoeffs :	points to the filter coefficients buffer.
- *@param[in]	 *pState :	points to the state buffer.
+ *@param[in]	 pCoeffs :	points to the filter coefficients buffer.
+ *@param[in]	 pState :	points to the state buffer.
  *@param[in]	 blockSize :	number of samples that are processed per call.
  *return         none
  */
@@ -700,9 +706,9 @@ STATIC INLINE void arm_fir_init_q7_opt(arm_fir_instance_q7_opt *S,
 }
 /**
  *@brief        This API is used to set the FIM FIR Filter
- *@param[in]	*S :	points to an instance of the Q7 FIR filter structure.
- *@param[in]	*pSrc :	points to the block of input data.
- *@param[out]	*pDst :	points to the block of output data.
+ *@param[in]	S :	points to an instance of the Q7 FIR filter structure.
+ *@param[in]	pSrc :	points to the block of input data.
+ *@param[out]	pDst :	points to the block of output data.
  *@param[in]	blockSize :	number of samples to process per call.
  *return        none
  */
@@ -724,9 +730,9 @@ STATIC INLINE void fim_interrupt_handler(volatile FIM_Type *ptFim)
 
 /**
  *@brief        This API is used Processing function for the floating-point FIR interpolator.
- *@param[in]	*S :	points to an instance of the floating-point FIR interpolator structure.
- *@param[in]	*pSrc :	points to the block of input data.
- *@param[out]   *pDst :	points to the block of output data.
+ *@param[in]	S :	points to an instance of the floating-point FIR interpolator structure.
+ *@param[in]	pSrc :	points to the block of input data.
+ *@param[out]   pDst :	points to the block of output data.
  *@param[in]	blockSize :	number of input samples to process per call.
  *@return       none
  */
@@ -741,11 +747,11 @@ STATIC INLINE void arm_fir_interpolate_f32_opt(const arm_fir_interpolate_instanc
 
 /**
  *@brief             This API is used to initialization function for the floating-point FIR interpolator.
- *@param[in,out]     *S :	points to an instance of the floating-point FIR interpolator structure.
+ *@param[in,out]     S :	points to an instance of the floating-point FIR interpolator structure.
  *@param[in]	     L	 :upsample factor.
  *@param[in]	     numTaps :	number of filter coefficients in the filter.
- *@param[in]	     *pCoeffs :	points to the filter coefficient buffer.
- *@param[in]	     *pState :	points to the state buffer.
+ *@param[in]	     pCoeffs :	points to the filter coefficient buffer.
+ *@param[in]	     pState :	points to the state buffer.
  *@param[in]	     blockSize :	number of input samples to process per call.
  *
  *@return            The function returns \ref ARM_MATH_SUCCESS if initialization was successful or \ref ARM_MATH_LENGTH_ERROR if the filter length numTaps is not a multiple of the interpolation factor L.
@@ -763,11 +769,11 @@ STATIC INLINE arm_status arm_fir_interpolate_init_f32_opt(arm_fir_interpolate_in
 
 /**
  *@brief          This API is used to initialization function for the Q15 FIR interpolator.
- *@param[in,out]  *S :	points to an instance of the Q15 FIR interpolator structure.
+ *@param[in,out]  S :	points to an instance of the Q15 FIR interpolator structure.
  *@param[in]	  L :	upsample factor.
  *@param[in]	  numTaps :	number of filter coefficients in the filter.
- *@param[in]	  *pCoeffs :	points to the filter coefficient buffer.
- *@param[in]	  *pState :	points to the state buffer.
+ *@param[in]	  pCoeffs :	points to the filter coefficient buffer.
+ *@param[in]	  pState :	points to the state buffer.
  *@param[in]	  blockSize :	number of input samples to process per call
  *@return         The function returns \ref ARM_MATH_SUCCESS if initialization was successful or \ref ARM_MATH_LENGTH_ERROR if the filter length numTaps is not a multiple of the interpolation factor L.
  *
@@ -785,11 +791,11 @@ STATIC INLINE arm_status arm_fir_interpolate_init_q15_opt(arm_fir_interpolate_in
 
 /**
  *@brief            This API  is used to  initialization function for the Q31 FIR interpolator.
- *@param[in,out]    *S :	points to an instance of the Q31 FIR interpolator structure.
+ *@param[in,out]    S :	points to an instance of the Q31 FIR interpolator structure.
  *@param[in]	    L :	upsample factor.
  *@param[in]	    numTaps :	number of filter coefficients in the filter.
- *@param[in]	    *pCoeffs :	points to the filter coefficient buffer.
- *@param[in]	    *pState :	points to the state buffer.
+ *@param[in]	    pCoeffs :	points to the filter coefficient buffer.
+ *@param[in]	    pState :	points to the state buffer.
  *@param[in]	    blockSize :	number of input samples to process per call.
  *@return           The function returns \ref ARM_MATH_SUCCESS if initialization was successful or \ref ARM_MATH_LENGTH_ERROR if the filter length numTaps is not a multiple of the interpolation factor L.
  *
@@ -807,9 +813,9 @@ STATIC INLINE arm_status arm_fir_interpolate_init_q31_opt(arm_fir_interpolate_in
 
 /**
  *@brief        This API is used to Processing function for the Q15 FIR interpolator
- *@param[in]	*S :	points to an instance of the Q15 FIR interpolator structure.
- *@param[in]	*pSrc :	points to the block of input data.
- *@param[out]	*pDst :	points to the block of output data.
+ *@param[in]	S :	points to an instance of the Q15 FIR interpolator structure.
+ *@param[in]	pSrc :	points to the block of input data.
+ *@param[out]	pDst :	points to the block of output data.
  *@param[in]	blockSize :	number of input samples to process per call.
  *@return       none
  */
@@ -824,9 +830,9 @@ STATIC INLINE void arm_fir_interpolate_q15_opt(arm_fir_interpolate_instance_q15_
 
 /**
  *@brief        This  API is used  to Processing function for the Q31 FIR interpolator.
- *@param[in]	*S :	points to an instance of the Q31 FIR interpolator structure.
- *@param[in]	*pSrc :	points to the block of input data.
- *@param[out]	*pDst :	points to the block of output data.
+ *@param[in]	S :	points to an instance of the Q31 FIR interpolator structure.
+ *@param[in]	pSrc :	points to the block of input data.
+ *@param[out]	pDst :	points to the block of output data.
  *@param[in]	blockSize :	number of input samples to process per call.
  *@return       none
  */
@@ -907,18 +913,18 @@ void fim_absSqr_q31(q31_t *pSrc, q31_t *pDst, uint32_t length);
 
 void fim_absSqr_f32(int32_t *pSrc, int32_t *pDst, uint32_t length);
 
-error_t arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
-                             const arm_matrix_instance_f32_opt *pSrcB,
-                             arm_matrix_instance_f32_opt *pDst);
+rsi_error_t arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
+                                 const arm_matrix_instance_f32_opt *pSrcB,
+                                 arm_matrix_instance_f32_opt *pDst);
 
-error_t arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
-                             const arm_matrix_instance_q31_opt *pSrcB,
-                             arm_matrix_instance_q31_opt *pDst);
+rsi_error_t arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
+                                 const arm_matrix_instance_q31_opt *pSrcB,
+                                 arm_matrix_instance_q31_opt *pDst);
 
-error_t arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
-                             const arm_matrix_instance_q15_opt *pSrcB,
-                             arm_matrix_instance_q15_opt *pDst,
-                             q15_t *pState);
+rsi_error_t arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
+                                 const arm_matrix_instance_q15_opt *pSrcB,
+                                 arm_matrix_instance_q15_opt *pDst,
+                                 q15_t *pState);
 
 void arm_fir_init_f32_opt(arm_fir_instance_f32_opt *S,
                           uint16_t numTaps,

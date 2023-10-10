@@ -32,13 +32,6 @@
 #ifndef ROMDRIVER_PRESENT
 #define FPGA_MODE 0
 
-uint32_t rsi_select_ta_boot_option(uint32_t option);
-
-void rsi_goto_sleep_with_retention(uint32_t stack_address,
-                                   uint32_t jump_cb_address,
-                                   uint32_t vector_offset,
-                                   uint32_t mode);
-void rsi_wakeup_wireless_processor(void);
 /** @addtogroup SOC2
 * @{
 */
@@ -46,8 +39,9 @@ void rsi_wakeup_wireless_processor(void);
 /** 	    
  * @fn          void ps_clr_wkp_up_status(uint32_t wakeUpIntrClear)
  * @brief       This API is used clear the NPSS/wake up interrupts.
- * @param[in]   wakeUpIntrClear : 1: wakeup  the interrupt status
- *                                0: clear  the interrupt status.  
+ * @param[in]   wakeUpIntrClear : 
+ *                                - 1: wakeup  the interrupt status
+ *                                - 0: clear  the interrupt status.  
  * @return      none   
  */
 
@@ -162,8 +156,10 @@ void ps_clr_wkp_up_status(uint32_t wakeUpIntrClear)
 /** 	  
  * @fn          void ps_bg_ldo_config(uint8_t ldo_0p6_ctrl, uint8_t ldo_0p6_lp_mode)
  * @brief       This API is used to read ldo data.
- * @param[in]   Mode : 1: enable the ldo data shift
- *                     0: disable the ldo data shift
+ * @param[in]   Mode : 
+ *                     - 1: enable the ldo data shift
+ *                     - 0: disable the ldo data shift
+ * @param[in] ldo_0p6_lp_mode : 
  * @return      none   
  */
 
@@ -175,9 +171,9 @@ void ps_bg_ldo_config(uint8_t ldo_0p6_ctrl, uint8_t ldo_0p6_lp_mode)
   if (ldo_0p6_lp_mode) {
     read_ldo_data |= (1 << 16);
   } else {
-    read_ldo_data &= ~(1 << 16);
+    read_ldo_data &= (uint32_t)(~(1 << 16));
   }
-  read_ldo_data &= ~(0x7 << 18);
+  read_ldo_data &= (uint32_t)(~(0x7 << 18));
   read_ldo_data |= (ldo_0p6_ctrl << 18);
   ULP_SPI_MEM_MAP(0x129) = read_ldo_data;
   return;
@@ -193,6 +189,12 @@ void ps_bg_ldo_config(uint8_t ldo_0p6_ctrl, uint8_t ldo_0p6_lp_mode)
  *                             uint16_t bg_trim)
  * @brief       This API is used to get the trim the values. 
  * @param       programmable trim bits for RO and RC 32kHz clock 
+ * @param         lf_ro_trim : trim value for low frequency RO clock
+ * @param         lf_rc_trim : trim value for low frequency RC clock
+ * @param         hf_ro_trim : trim value for high frequency RO clock
+ * @param         hf_rc_trim : trim value for high frequency RC clock
+ * @param         bg_ptat_trim : trim value for bg ptat 
+ * @param         bg_trim    : trim value for bg(Band Gap)
  * @return      none 
  */
 
@@ -207,28 +209,28 @@ void ps_configure_trim_values(uint16_t lf_ro_trim,
 
   /*Programmable trim bits for RO 32KHz clock*/
   reg_read = ULP_SPI_MEM_MAP(0x102);
-  reg_read &= ~(0x1F << 16);
+  reg_read &= (uint32_t)(~(0x1F << 16));
   ULP_SPI_MEM_MAP(0x102) = (reg_read | (lf_ro_trim << 16));
 
   /*Programmable fine trim for RC 32KHz clock*/
   reg_read = ULP_SPI_MEM_MAP(0x103);
-  reg_read &= ~(0x7F << 14);
+  reg_read &= (uint32_t)(~(0x7F << 14));
   ULP_SPI_MEM_MAP(0x103) = (reg_read | (lf_rc_trim << 14));
 
   /*Trim bits for RC 32MHz clock //Do not go beyond 100*/
   reg_read = ULP_SPI_MEM_MAP(0x104);
-  reg_read &= ~(0x7F << 14);
+  reg_read &= (uint32_t)(~(0x7F << 14));
   ULP_SPI_MEM_MAP(0x104) = (reg_read | (hf_rc_trim << 14));
 
   /*Trim bits for High frequency ring oscillator*/
   reg_read = ULP_SPI_MEM_MAP(0x105);
-  reg_read &= ~(0x7F << 14);
+  reg_read &= (uint32_t)(~(0x7F << 14));
   ULP_SPI_MEM_MAP(0x105) = (reg_read | BIT(12) | (hf_ro_trim << 14));
 
   /*update the 'bg_r_ptat' and 'bg_r' */
   reg_read = ULP_SPI_MEM_MAP(0x127);
-  reg_read &= ~(0x3F << 16);
-  reg_read |= ((bg_ptat_trim << 19) | (bg_trim << 16));
+  reg_read &= (uint32_t)(~(0x3F << 16));
+  reg_read |= (uint32_t)((bg_ptat_trim << 19) | (bg_trim << 16));
   ULP_SPI_MEM_MAP(0x127) = reg_read;
 }
 #endif

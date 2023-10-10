@@ -44,9 +44,9 @@
 #ifdef RSI_M4_INTERFACE
 #include "rsi_rom_clks.h"
 #endif
-
+sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
 #define SL_TX_TEST_POWER   127
-#define SL_TX_TEST_RATE    0x0
+#define SL_TX_TEST_RATE    rate
 #define SL_TX_TEST_LENGTH  100
 #define SL_TX_TEST_MODE    0
 #define SL_TX_TEST_CHANNEL 1

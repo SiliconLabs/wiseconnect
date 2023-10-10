@@ -44,79 +44,86 @@ SiWx917_WiSeConnect_SDK.X.X
 
 - Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-### 3.1 Creating the Project
+## 3 Project Environment
 
-#### 3.1.1 SoC Mode
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-1. Ensure the SiWx91x setup is connected to your PC.
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
+
+### 3.1 Creating the project
+
+#### 3.1.1 SoC mode
+
+- Ensure the SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-   ![Soc Board detection](resources/readme/socboarddetection111.png)
+  **![Soc Board detection](resources/readme/socboarddetection111.png)**
 
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
+#### 3.1.2 NCP mode
 
-- Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* and *Wi-Fi* checkbox under **Wireless Technology** and select *Wi-Fi Client HTTPS BLE Dual Role* application.
-
-   ![project_selection](resources/readme/create_project1.png)
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  ![creation_final](resources/readme/create_project2.png)
-
-#### 3.1.2 NCP Mode
-
-1. Ensure the EFx32 and SiWx91x set up is connected to your PC.
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
-   ![EFR32 Board detection](resources/readme/create_project1.png)
+  **![EFR32 Board detection](resources/readme/efr32.png)**
 
-- Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
+### 3.2 Importing the project
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *BLE - Multiconnection GATT Test* application.
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
 
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
+#### SOC Mode
 
-  ![creation_final](resources/readme/create_project2.png)
+- Select **Wi-Fi Coex - Wi-Fi Client HTTPS BLE Dual Role** test application
 
-### 3.2 Setup for Application Prints
+  **![project_selection](resources/readme/create_project1.png)**
 
-#### 3.2.1 SoC mode
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-  You can use either of the below USB to UART converters for application prints.
+  **![creation_final](resources/readme/create_project2.png)**
 
-1. Setup using USB to UART converter board.
 
-- Connect Tx (Pin-6) to P27 on WSTK
-  - Connect GND (Pin 8 or 10) to GND on WSTK
+### 3.3 Set up for application prints
+
+#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
+
+You can use either of the below USB to UART converters for application prints.
+
+1. Set up using USB to UART converter board.
+
+   - Connect Tx (Pin-6) to P27 on WSTK
+   - Connect GND (Pin 8 or 10) to GND on WSTK
 
    **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
-2. Setup using USB to UART converter cable.
+2. Set up using USB to UART converter cable.
 
-    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-    - Connect GND (Pin1) of TTL convertor to GND on WSTK
+   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
+   - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-#### 3.2.2 Tera Term setup - for NCP and SoC modes
+3. Open the Teraterm tool.
 
-1. Open the Tera Term tool.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+     **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
-   **![UART - SoC](resources/readme/port_selection_soc.png)**
+**Note:** For Other 917 SoC boards please refer section #3.3.2
 
-- For NCP mode, choose the J-Link port and click on **OK**.
+#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
 
-   **![J-link - NCP](resources/readme/port_selection.png)**
+1. Open the Teraterm tool.
+
+- choose the J-Link port and click on **OK**.
+    
+    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
-   **![Serial port](resources/readme/serial_port_setup.png)**
+    **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
-   **![Baud rate](resources/readme/serial_port.png)**
+    **![serial_port](resources/readme/serial_port.png)**
 
 ## 4. Application Configuration Parameters
 
@@ -212,10 +219,10 @@ Set below macro to enable secure connection between Silicon Labs device(peripher
 #define SMP_ENABLE_XX               0  //By default, this macro is set to '0' 
 ```
 
-Set below macro to add remote device to whitelist
+Set below macro to add remote device to acceptlist
 
 ```c
-#define ADD_TO_WHITELIST_XX         0  //By default, this macro is set to '0' 
+#define ADD_TO_ACCEPTLIST_XX         0  //By default, this macro is set to '0' 
 ```
 
 Set below macro to discover remote profiles.

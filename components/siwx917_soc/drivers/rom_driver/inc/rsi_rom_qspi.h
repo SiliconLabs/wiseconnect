@@ -15,16 +15,14 @@
 *
 ******************************************************************************/
 
-/**
- * Includes
- */
+//Includes
 
 #ifndef __RSI_ROM_QSPI_H__
 #define __RSI_ROM_QSPI_H__
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_QSPI_DRIVERS RSI:RS1xxxx QSPI 
+ * \defgroup QSPI_DRIVERS
  *  @{
  *
  */

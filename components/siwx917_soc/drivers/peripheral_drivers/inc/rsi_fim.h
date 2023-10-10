@@ -483,27 +483,27 @@ void rsi_fim_absSqr_q15(q15_t *pSrc, q15_t *pDst, uint32_t blockSize, uint16_t i
 void rsi_fim_absSqr_q31(q31_t *pSrc, q31_t *pDst, uint32_t length, uint16_t inBank, uint16_t outBank);
 void rsi_fim_absSqr_f32(int32_t *pSrc, int32_t *pDst, uint32_t length, uint16_t inBank, uint16_t outBank);
 
-error_t rsi_arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
-                                 const arm_matrix_instance_f32_opt *pSrcB,
-                                 arm_matrix_instance_f32_opt *pDst,
-                                 uint16_t inBank1,
-                                 uint16_t inBank2,
-                                 uint16_t outBank);
+rsi_error_t rsi_arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
+                                     const arm_matrix_instance_f32_opt *pSrcB,
+                                     arm_matrix_instance_f32_opt *pDst,
+                                     uint16_t inBank1,
+                                     uint16_t inBank2,
+                                     uint16_t outBank);
 
-error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
-                                 const arm_matrix_instance_q31_opt *pSrcB,
-                                 arm_matrix_instance_q31_opt *pDst,
-                                 uint16_t inBank1,
-                                 uint16_t inBank2,
-                                 uint16_t outBank);
+rsi_error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
+                                     const arm_matrix_instance_q31_opt *pSrcB,
+                                     arm_matrix_instance_q31_opt *pDst,
+                                     uint16_t inBank1,
+                                     uint16_t inBank2,
+                                     uint16_t outBank);
 
-error_t rsi_arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
-                                 const arm_matrix_instance_q15_opt *pSrcB,
-                                 arm_matrix_instance_q15_opt *pDst,
-                                 q15_t *pState,
-                                 uint16_t inBank1,
-                                 uint16_t inBank2,
-                                 uint16_t outBank);
+rsi_error_t rsi_arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
+                                     const arm_matrix_instance_q15_opt *pSrcB,
+                                     arm_matrix_instance_q15_opt *pDst,
+                                     q15_t *pState,
+                                     uint16_t inBank1,
+                                     uint16_t inBank2,
+                                     uint16_t outBank);
 
 void rsi_arm_fir_init_f32_opt(arm_fir_instance_f32_opt *S,
                               uint16_t numTaps,
@@ -692,26 +692,26 @@ void rsi_arm_Inverse_Tan_q15(q15_t *pSrc, q15_t *pDst, uint32_t blocksize);
 void rsi_arm_Sinh_q15(q15_t *pSrc, q15_t *pDst, uint32_t blocksize);
 void rsi_arm_cosh_q15(q15_t *pSrc, q15_t *pDst, uint32_t blocksize);
 void rsi_arm_Inverse_Tanh_q15(q15_t *pSrc, q15_t *pDst, uint32_t blocksize);
-error_t rsi_arm_mat_add_q15(const arm_matrix_instance_q15_opt *pSrcA,
+rsi_error_t rsi_arm_mat_add_q15(const arm_matrix_instance_q15_opt *pSrcA,
+                                const arm_matrix_instance_q15_opt *pSrcB,
+                                arm_matrix_instance_q15_opt *pDst);
+rsi_error_t arm_mat_add_q31(const arm_matrix_instance_q31_opt *pSrcA,
+                            const arm_matrix_instance_q31_opt *pSrcB,
+                            arm_matrix_instance_q31_opt *pDst);
+rsi_error_t arm_mat_sub_q15(const arm_matrix_instance_q15_opt *pSrcA,
                             const arm_matrix_instance_q15_opt *pSrcB,
                             arm_matrix_instance_q15_opt *pDst);
-error_t arm_mat_add_q31(const arm_matrix_instance_q31_opt *pSrcA,
-                        const arm_matrix_instance_q31_opt *pSrcB,
-                        arm_matrix_instance_q31_opt *pDst);
-error_t arm_mat_sub_q15(const arm_matrix_instance_q15_opt *pSrcA,
-                        const arm_matrix_instance_q15_opt *pSrcB,
-                        arm_matrix_instance_q15_opt *pDst);
-error_t arm_mat_sub_q31(const arm_matrix_instance_q31_opt *pSrcA,
-                        const arm_matrix_instance_q31_opt *pSrcB,
-                        arm_matrix_instance_q31_opt *pDst);
-error_t arm_mat_trans_q15(const arm_matrix_instance_q15_opt *pSrc, arm_matrix_instance_q15_opt *pDst);
-error_t rsi_arm_mat_trans_q31(const arm_matrix_instance_q31_opt *pSrc, arm_matrix_instance_q31_opt *pDst);
-error_t rsi_arm_mat_Hadamard_prod_q15(const arm_matrix_instance_q15_opt *pSrcA,
-                                      const arm_matrix_instance_q15_opt *pSrcB,
-                                      arm_matrix_instance_q15_opt *pDst);
-error_t arm_mat_Hadamard_prod_q31(const arm_matrix_instance_q31_opt *pSrcA,
-                                  const arm_matrix_instance_q31_opt *pSrcB,
-                                  arm_matrix_instance_q31_opt *pDst);
+rsi_error_t arm_mat_sub_q31(const arm_matrix_instance_q31_opt *pSrcA,
+                            const arm_matrix_instance_q31_opt *pSrcB,
+                            arm_matrix_instance_q31_opt *pDst);
+rsi_error_t arm_mat_trans_q15(const arm_matrix_instance_q15_opt *pSrc, arm_matrix_instance_q15_opt *pDst);
+rsi_error_t rsi_arm_mat_trans_q31(const arm_matrix_instance_q31_opt *pSrc, arm_matrix_instance_q31_opt *pDst);
+rsi_error_t rsi_arm_mat_Hadamard_prod_q15(const arm_matrix_instance_q15_opt *pSrcA,
+                                          const arm_matrix_instance_q15_opt *pSrcB,
+                                          arm_matrix_instance_q15_opt *pDst);
+rsi_error_t arm_mat_Hadamard_prod_q31(const arm_matrix_instance_q31_opt *pSrcA,
+                                      const arm_matrix_instance_q31_opt *pSrcB,
+                                      arm_matrix_instance_q31_opt *pDst);
 void rsi_arm_VSqrt_q15(q15_t *pSrc, q15_t *pDst, uint32_t blockSize);
 void rsi_arm_log_q15(q15_t *pSrc, q15_t *pDst, uint16_t blockSize);
 void rsi_enable_inst_buff(void);

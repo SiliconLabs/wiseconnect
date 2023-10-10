@@ -257,6 +257,9 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len)
 
   if (status != SL_STATUS_OK) {
     close(client_socket_id);
+    if (buffer != NULL) {
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    }
     SET_ERROR_AND_RETURN(SI91X_UNDEFINED_ERROR);
   }
 
@@ -279,6 +282,9 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len)
   }
 
   if (addr_len == NULL || *addr_len <= 0) {
+    if (buffer != NULL) {
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    }
     return client_socket_id;
   }
 
@@ -289,6 +295,9 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len)
   *addr_len = si91x_client_socket->local_address.sin6_family == AF_INET ? sizeof(struct sockaddr_in)
                                                                         : sizeof(struct sockaddr_in6);
 
+  if (buffer != NULL) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
   return client_socket_id;
 }
 
@@ -443,7 +452,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
   si91x_rsp_socket_recv_t *response  = NULL;
   si91x_socket_t *si91x_socket       = get_si91x_socket(socket_id);
 
-  sl_wifi_buffer_t *buffer;
+  sl_wifi_buffer_t *buffer = NULL;
 
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_STREAM && si91x_socket->state != CONNECTED, ENOTCONN);
@@ -482,6 +491,9 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
                                                &event,
                                                &wait_time);
 
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
   bytes_read = (response->length <= buf_len) ? response->length : buf_len;
@@ -582,21 +594,6 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
       break;
     }
 
-    case SO_CERT_INDEX: {
-      SET_ERRNO_AND_RETURN_IF_TRUE(
-        ((*(uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(uint8_t *)option_value > SI91X_CERT_INDEX_2)),
-        EINVAL);
-
-      si91x_socket->certificate_index = *(uint8_t *)option_value;
-      break;
-    }
-
-    case SO_HIGH_PERFORMANCE_SOCKET: {
-      SET_ERRNO_AND_RETURN_IF_TRUE(*(uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
-      si91x_socket->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
-      break;
-    }
-
 #ifdef CHIP_917
     case SO_MAX_RETRANSMISSION_TIMEOUT_VALUE: {
       if (IS_POWER_OF_TWO(*(uint8_t *)option_value) && ((*(uint8_t *)option_value) < MAX_RETRANSMISSION_TIME_VALUE)) {
@@ -618,6 +615,53 @@ int setsockopt(int socket_id, int option_level, int option_name, const void *opt
       break;
     }
 #endif
+    default: {
+      SET_ERROR_AND_RETURN(ENOPROTOOPT);
+    }
+  }
+
+  return SI91X_NO_ERROR;
+}
+
+int sl_si91x_set_custom_sync_sockopt(int socket_id,
+                                     int option_level,
+                                     int option_name,
+                                     const void *option_value,
+                                     socklen_t option_length)
+{
+  si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
+  SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT)
+  SET_ERRNO_AND_RETURN_IF_TRUE(
+    ((option_level != SOL_SOCKET) && (option_level != SOL_TCP) && (option_level != IPPROTO_IP)),
+    EINVAL);
+
+  switch (option_name) {
+    case SO_CERT_INDEX: {
+      SET_ERRNO_AND_RETURN_IF_TRUE(
+        ((*(uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(uint8_t *)option_value > SI91X_CERT_INDEX_2)),
+        EINVAL);
+
+      si91x_socket->certificate_index = *(uint8_t *)option_value;
+      break;
+    }
+
+    case SO_HIGH_PERFORMANCE_SOCKET: {
+      SET_ERRNO_AND_RETURN_IF_TRUE(*(uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
+      si91x_socket->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
+      break;
+    }
+
+    case SO_TLS_SNI: {
+      sl_status_t status = add_server_name_indication_extension(&si91x_socket->sni_extensions,
+                                                                (si91x_socket_type_length_value_t *)option_value);
+      if (status != SL_STATUS_OK) {
+        SET_ERROR_AND_RETURN(ENOMEM);
+      }
+      break;
+    }
+
     default: {
       SET_ERROR_AND_RETURN(ENOPROTOOPT);
     }
@@ -672,6 +716,27 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
       break;
     }
 
+    default: {
+      SET_ERROR_AND_RETURN(ENOPROTOOPT);
+    }
+  }
+
+  return SI91X_NO_ERROR;
+}
+
+int sl_si91x_get_custom_sync_sockopt(int socket_id,
+                                     int option_level,
+                                     int option_name,
+                                     void *option_value,
+                                     socklen_t *option_length)
+{
+  si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
+
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
+  SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT);
+  SET_ERRNO_AND_RETURN_IF_TRUE(option_level != SOL_SOCKET || option_length == NULL, EINVAL)
+
+  switch (option_name) {
     case SO_CERT_INDEX: {
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->certificate_index));
       memcpy(option_value, &si91x_socket->certificate_index, *option_length);
@@ -792,24 +857,22 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
   }
 
   for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
-    if (readfds != NULL) {
+    si91x_socket_t *socket = get_si91x_socket(host_socket_index);
 
-      if (FD_ISSET(host_socket_index, readfds)) {
-        si91x_socket_t *socket = get_si91x_socket(host_socket_index);
-        request.read_fds.fd_array[0] |= (1U << socket->id);
-      }
+    if (socket == NULL) {
+      continue;
     }
 
-    if (writefds != NULL) {
-
-      if (FD_ISSET(host_socket_index, writefds)) {
-        si91x_socket_t *socket = get_si91x_socket(host_socket_index);
-        request.write_fds.fd_array[0] |= (1U << socket->id);
-      }
+    if (readfds != NULL && FD_ISSET(host_socket_index, readfds)) {
+      request.read_fds.fd_array[0] |= (1U << socket->id);
     }
 
-    if (request.num_fd <= get_si91x_socket(host_socket_index)->id) {
-      request.num_fd = get_si91x_socket(host_socket_index)->id + 1;
+    if (writefds != NULL && FD_ISSET(host_socket_index, writefds)) {
+      request.write_fds.fd_array[0] |= (1U << socket->id);
+    }
+
+    if (request.num_fd <= socket->id) {
+      request.num_fd = socket->id + 1;
     }
   }
 
@@ -832,7 +895,9 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
                                         wait_time,
                                         NULL,
                                         &buffer);
-
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
   packet   = sl_si91x_host_get_buffer_data(buffer, 0, NULL);

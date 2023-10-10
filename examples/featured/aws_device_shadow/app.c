@@ -111,6 +111,9 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
 #else
                       RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
+#ifdef CHIP_917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
                       ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),

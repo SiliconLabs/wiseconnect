@@ -19,14 +19,22 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
+- Silicon Labs [Si917 Evaluation Kit WSTK + BRD4338A]
+
+
+![Figure: Introduction](resources/readme/image501a.png)
+
+### VCOM Setup
+- The Serial Console tool's setup instructions are provided below..
+
+![Figure: VCOM_setup](resources/readme/vcom.png)
 
 ### Software Requirements
 
 - Si91x SDK
 - Embedded Development Environment
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
-
+![Figure: Introduction](resources/readme/image501c.png)
 ## Project Setup
 
 - **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
@@ -41,14 +49,31 @@ Compile the application in Simplicity Studio using build icon
 
 ## Pin Configuration
 
-| Master        | GPIO    | Connector    | Slave |
-| ------------- | ------- | ------------ | ----- |
-| USART0_TX_PIN | GPIO_30 | EXP_HEADER-4 |
-| USART0_RX_PIN | GPIO_29 | EXP_HEADER-6 |
+| Discription   | GPIO    | Connector    |
+| ------------- | ------- | ------------ |
+| USART0_TX_PIN | GPIO_30 |      P35     |
+| USART0_RX_PIN | GPIO_29 |      P33     |
+
+
+![Figure: Selecting Example project](resources/readme/image501b.png)
 
 ## Executing the Application
+```c
+Note: 
+On 2.0 boards, To see the prints on vcom console turn on VCOM enable switch and perform the below steps
 
-1. Connect USART TX pin(GPIO_30) to RX pin, RX pin(GPIO_29) to TX pin pin of UART header to see prints on serail console.
+```
+- In softwate components, search for iostream and open the configuration window
+![Figure: Excecuting the application](resources/readme/image501d.png)
+
+- Turn on the vcom enable the button
+![Figure: Excecuting the application](resources/readme/image501e.png)
+
+1. Connect USART TX pin(GPIO_30) to RX pin, RX pin(GPIO_29) to TX pin pin of UART header to see prints on serial console.
+```c
+When VCOM is enabled, no need to do the physical connections, on vcom port only prints can be observe(Select Jlink CDC UART port on console) .
+
+```
 
 ## Expected Results
 

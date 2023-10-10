@@ -117,7 +117,7 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
  *   Length of the command packet.
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
+sl_status_t sl_si91x_driver_send_async_command(uint32_t command,
                                                sl_si91x_queue_type_t queue_type,
                                                void *data,
                                                uint32_t data_length);
@@ -162,6 +162,8 @@ sl_status_t sl_si91x_driver_send_socket_data(sl_si91x_socket_send_request_t *req
  *   Queue type to send command on.
  * @param[in] data
  *   Pointer to Bluetooth data.
+ * @param[in] sync_command
+ *   Sync or Async command.
  * @pre 
  *   @ref sl_si91x_driver_init should be called before this API.
  * @return
@@ -169,7 +171,8 @@ sl_status_t sl_si91x_driver_send_socket_data(sl_si91x_socket_send_request_t *req
  ******************************************************************************/
 sl_status_t sl_si91x_driver_send_bt_command(rsi_wlan_cmd_request_t command,
                                             sl_si91x_queue_type_t queue_type,
-                                            sl_wifi_buffer_t *data);
+                                            sl_wifi_buffer_t *data,
+                                            uint8_t sync_command);
 
 /***************************************************************************/ /**
  * @brief
@@ -191,6 +194,51 @@ sl_status_t sl_si91x_wifi_set_certificate_index(uint8_t certificate_type,
                                                 uint8_t certificate_index,
                                                 const uint8_t *buffer,
                                                 uint32_t certificate_length);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Set the host rtc timer. This is a blocking API.
+ * @param[in]   timer
+ *   Pointer to fill RTC time.
+ *	     second -->  seconds [0-59]
+ *	     minute -->  minutes [0-59]
+ *	  	 hour   -->  hours since midnight [0-23]
+ *	  	 day    -->  day of the month [1-31]
+ *	  	 month  -->  months since January [0-11]
+ *	  	 year   -->  year since 1990.
+ *	 	 Weekday-->  Weekday from Sunday to Saturday [1-7].
+ * @note        Hour is 24-hour format only (valid values are 0 to 23).
+ *              Valid values for Month are 0 to 11 (January to December).
+ * @pre
+ *   @ref sl_si91x_driver_init() API needs to be called before this API
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_set_rtc_timer(sl_si91x_module_rtc_time_t *timer);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Fetch current time from hardware Real Time Clock. This is a blocking API.
+ * @param[out]  response
+ *   Response of the requested command. \n
+ * @note	Response parameters: \n
+ * *   Pointer to fill RTC time.
+ *	     second -->  seconds [0-59]
+ *	     minute -->  minutes [0-59]
+ *	  	 hour   -->  hours since midnight [0-23]
+ *	  	 day    -->  day of the month [1-31]
+ *	  	 month  -->  months since January [0-11]
+ *	  	 year   -->  year since 1990.
+ *	 	 Weekday-->  Weekday from Sunday to Saturday [1-7].
+ * @note        Hour is 24-hour format only (valid values are 0 to 23).
+ *              Valid values for Month are 0 to 11 (January to December).
+ * @pre
+ *   @ref sl_si91x_set_rtc_timer() API needs to be called before this API.
+ *   @ref sl_si91x_driver_init() API needs to be called before this API also.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_get_rtc_timer(sl_si91x_module_rtc_time_t *response);
 
 /***************************************************************************/ /**
  * @brief
@@ -472,3 +520,140 @@ sl_status_t sl_si91x_transmit_test_start(uint16_t power,
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_transmit_test_stop(void);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Get the current Opermode of the module.
+ * @param[in] void
+ * @return
+ *   sl_si91x_operation_mode_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_si91x_operation_mode_t get_opermode(void);
+
+/***************************************************************************/ /**
+ * @brief
+ *   This API will command the firmware to update the existing Flash/EFuse calibration data. This is a blocking API.
+ * @pre 
+ *   @ref sl_wifi_init, sl_si91x_transmit_test_start and sl_si91x_frequency_offset should be called before this API.
+ * @param[in] calib_write
+ *   Write calibration configuration of type @ref sl_si91x_calibration_write_t
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_calibration_write(sl_si91x_calibration_write_t calib_write);
+
+/***************************************************************************/ /**
+ * @brief
+ *   This API reads the calibration data from the Flash/EFuse storage. This is a blocking API.
+ * @pre 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] target
+ * 			0 - READ_FROM_EFUSE (read calibration data from the EFuse) 
+ * 			1 - READ_FROM_FLASH (read calibration data from the Flash) 
+ * @param[out] calibration_read
+ *   Read the calibration configuration of type @ref sl_si91x_calibration_read_t
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *******************************************************************************/
+sl_status_t sl_si91x_calibration_read(sl_si91x_calibration_read_t target,
+                                      sl_si91x_calibration_read_t *calibration_read);
+
+/***************************************************************************/ /**
+ * @brief
+ *  Application to provide feedback of Frequency error in KHz. This is a blocking API.
+ * @pre 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] frequency_calibration
+ *   Frequency in KHz of type @ref sl_si91x_freq_offset_t. 
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *******************************************************************************/
+sl_status_t sl_si91x_frequency_offset(const sl_si91x_freq_offset_t *frequency_calibration);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Application to provide feedback of evm_offset error. This is a blocking API.
+ * @pre 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] evm_offset
+ *   evm offset of type @ref sl_si91x_evm_offset_t
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *******************************************************************************/
+sl_status_t sl_si91x_evm_offset(const sl_si91x_evm_offset_t *evm_offset);
+
+/***************************************************************************/ /**
+ * @brief
+ *   This API will command the firmware to update the existing Flash/EFuse calibration data. This is a blocking API.
+ * @pre 
+ *   @ref sl_wifi_init, sl_si91x_evm_offset and sl_si91x_transmit_test_start should be called before this API.
+ * @param[in] evm_write
+ *   Write the evm calibration configuration  of type @ref sl_si91x_evm_write_t
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *******************************************************************************/
+sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write);
+
+/***************************************************************************/ /**
+ * @brief
+ *  This API will command the firmware to get the data from the Efuse memory location. This is a blocking API.
+ * @pre 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] efuse_read
+ *  efuse read structure, which contains efuse read address offset and read data length of type @ref sl_si91x_efuse_read_t
+ * @param[out] efuse_read_buf
+ *  efuse read buffer
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *******************************************************************************/
+sl_status_t sl_si91x_efuse_read(sl_si91x_efuse_read_t *efuse_read, uint8_t *efuse_read_buf);
+
+/** \addtogroup SI91X_DRIVER_FUNCTIONS Core
+ * \ingroup SL_SI91X_API
+ * @{ */
+/***************************************************************************/ /**
+ * @brief
+ *   Si91X specific set join feature bitmap configuration
+ * @param[in] interface 
+ *   Selected interface.
+ * @param[in] join_feature_bitmap
+ *   Join feature bitmap configuration. One of values from @ref SI91X_JOIN_FEATURE_BIT_MAP
+ * @return     
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note 
+ *     By default SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID bitmap is enabled. User can call this API before calling @ref sl_wifi_connect(), @ref sl_wifi_start_ap(), @ref sl_wifi_start_wps() to overwrite the join feature bitmap
+ *******************************************************************************/
+sl_status_t sl_si91x_set_join_configuration(sl_wifi_interface_t interface, uint8_t join_feature_bitmap);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Si91X specific get join feature bitmap configuration
+ * @param[in] interface
+ *   Selected interface.
+ * @param[out] join_feature_bitmap
+ *   join feature bitmap configuration. One of values from @ref SI91X_JOIN_FEATURE_BIT_MAP
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *     By default SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID bitmap is enabled.
+ *******************************************************************************/
+sl_status_t sl_si91x_get_join_configuration(sl_wifi_interface_t interface, uint8_t *join_feature_bitmap);
+
+/** @} */
+
+/***************************************************************************/ /**
+ * @brief
+ *   Si91X specific set listen interval
+ * @param[in] listen_interval
+ *   Wi-Fi Listen interval.
+ * @return none
+ *******************************************************************************/
+void sl_si91x_set_listen_interval(uint32_t listen_interval);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Si91X specific get listen interval
+ * @return uint32_t
+ *     Wi-Fi Listen interval
+ *******************************************************************************/
+uint32_t sl_si91x_get_listen_interval(void);

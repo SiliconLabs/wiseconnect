@@ -24,9 +24,9 @@
 
 #define RSI_BLE_SET_RAND_ADDR "00:23:A7:12:34:56"
 
-#define CLEAR_WHITELIST              0x00
-#define ADD_DEVICE_TO_WHITELIST      0x01
-#define DELETE_DEVICE_FROM_WHITELIST 0x02
+#define CLEAR_ACCEPTLIST              0x00
+#define ADD_DEVICE_TO_ACCEPTLIST      0x01
+#define DELETE_DEVICE_FROM_ACCEPTLIST 0x02
 
 #define ALL_PHYS 0x00
 
@@ -35,7 +35,7 @@
 #ifdef RSI_M4_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 20
 /* Number of BLE notifications */
-#define RSI_BLE_NUM_CONN_EVENTS     4
+#define RSI_BLE_NUM_CONN_EVENTS     2
 #define RSI_BLE_MAX_NBR_PERIPHERALS 1
 #define RSI_BLE_MAX_NBR_CENTRALS    1
 #else
@@ -120,10 +120,10 @@
 #define LE_BR_EDR_NOT_SUPPORTED 0x04
 
 //!Advertise filters
-#define ALLOW_SCAN_REQ_ANY_CONN_REQ_ANY               0x00
-#define ALLOW_SCAN_REQ_WHITE_LIST_CONN_REQ_ANY        0x01
-#define ALLOW_SCAN_REQ_ANY_CONN_REQ_WHITE_LIST        0x02
-#define ALLOW_SCAN_REQ_WHITE_LIST_CONN_REQ_WHITE_LIST 0x03
+#define ALLOW_SCAN_REQ_ANY_CONN_REQ_ANY                 0x00
+#define ALLOW_SCAN_REQ_ACCEPT_LIST_CONN_REQ_ANY         0x01
+#define ALLOW_SCAN_REQ_ANY_CONN_REQ_ACCEPT_LIST         0x02
+#define ALLOW_SCAN_REQ_ACCEPT_LIST_CONN_REQ_ACCEPT_LIST 0x03
 
 //! Address types
 #define LE_PUBLIC_ADDRESS            0x00
@@ -132,6 +132,23 @@
 #define LE_RESOLVABLE_RANDOM_ADDRESS 0x03
 
 /*=======================================================================*/
+
+#define BLE_1MBPS  0x01
+#define BLE_2MBPS  0x02
+#define LONG_RANGE 0x01
+
+/* Coded PHY data rates*/
+#define BLE_500KBPS_CODED_PHY 0x01
+#define BLE_500_KBPS          0x01
+#define BLE_125_KBPS          0x02
+
+#define BLE_CODED_TX_PHY 0x04
+#define BLE_CODED_RX_PHY 0x04
+
+/* Uncode 2Mbps PHY data rates*/
+#define BLE_2MBPS_TX_PHY    0x02
+#define BLE_2MBPS_RX_PHY    0x02
+#define BLE_2MBPS_CODED_PHY 0x00
 
 /*=======================================================================*/
 //! Connection parameters
@@ -163,74 +180,10 @@
 #define SCAN_TYPE_PASSIVE 0x00
 
 //!Scan filters
-#define SCAN_FILTER_TYPE_ALL             0x00
-#define SCAN_FILTER_TYPE_ONLY_WHITE_LIST 0x01
+#define SCAN_FILTER_TYPE_ALL              0x00
+#define SCAN_FILTER_TYPE_ONLY_ACCEPT_LIST 0x01
 
 #define RSI_SEL_INTERNAL_ANTENNA 0x00
 #define RSI_SEL_EXTERNAL_ANTENNA 0x01
 
-/***********************************************************************************************************************************************/
-//! RS9116 Firmware Configurations
-/***********************************************************************************************************************************************/
-
-/*=======================================================================*/
-//! Opermode command parameters
-/*=======================================================================*/
-
-#define RSI_FEATURE_BIT_MAP \
-  (SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1) //! To set wlan feature select bit map
-#define RSI_TCP_IP_BYPASS RSI_DISABLE                                             //! TCP IP BYPASS feature check
-#define RSI_TCP_IP_FEATURE_BIT_MAP \
-  (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT) //! TCP/IP feature select bitmap for selecting TCP/IP features
-#define RSI_EXT_TCPIP_FEATURE_BITMAP 0
-
-#define RSI_CUSTOM_FEATURE_BIT_MAP SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID //! To set custom feature select bit map
-
-#ifdef CHIP_917
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                                                         \
-  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | RAM_LEVEL_NWP_ADV_MCU_BASIC \
-   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0)
-#else
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
-#endif
-
-#define RSI_BT_FEATURE_BITMAP     (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
-#define RSI_CONFIG_FEATURE_BITMAP 0
-/*=======================================================================*/
-//! Power save command parameters
-/*=======================================================================*/
-//! set handshake type of power mode
-#ifdef RSI_M4_INTERFACE
-#define RSI_HAND_SHAKE_TYPE M4_BASED
-#else
-#define RSI_HAND_SHAKE_TYPE GPIO_BASED
-#endif
-
-#endif
-#ifdef FW_LOGGING_ENABLE
-/*=======================================================================*/
-//! Firmware Logging Parameters
-/*=======================================================================*/
-//! Enable or Disable firmware logging (Enable = 1; Disable = 0)
-#define FW_LOG_ENABLE 1
-//! Set TSF Granularity for firmware logging in micro seconds
-#define FW_TSF_GRANULARITY_US 10
-//! Log level for COMMON component in firmware
-#define COMMON_LOG_LEVEL FW_LOG_ERROR
-//! Log level for CM_PM component in firmware
-#define CM_PM_LOG_LEVEL FW_LOG_ERROR
-//! Log level for WLAN_LMAC component in firmware
-#define WLAN_LMAC_LOG_LEVEL FW_LOG_ERROR
-//! Log level for WLAN_UMAC component in firmware
-#define WLAN_UMAC_LOG_LEVEL FW_LOG_ERROR
-//! Log level for WLAN NETWORK STACK component in firmware
-#define WLAN_NETSTACK_LOG_LEVEL FW_LOG_ERROR
-//! Log level for BT BLE CONTROL component in firmware
-#define BT_BLE_CTRL_LOG_LEVEL FW_LOG_ERROR
-//! Log level for BT BLE STACK component in firmware
-#define BT_BLE_STACK_LOG_LEVEL FW_LOG_ERROR
-//! Min Value = 2048 bytes; Max Value = 4096 bytes; Value should be in multiples of 512 bytes
-#define FW_LOG_BUFFER_SIZE 2048
-//! Set queue size for firmware log messages
-#define FW_LOG_QUEUE_SIZE 2
 #endif

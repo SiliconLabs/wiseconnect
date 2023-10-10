@@ -75,19 +75,23 @@ extern "C" {
 #define SENSOR6_ENABLE 0
 #define SENSOR7_ENABLE 1
 #define SENSOR8_ENABLE 1
-
+/** @addtogroup SOC21
+* @{
+*/
 /*===================================================*/
 /**   
  * @fn          STATIC INLINE void RSI_CTS_BypassPRS(CTS_Type *cts,boolean_t enable)
  * @brief       This API is used Bypass the Random number generator output to the Non-overlapping stream generator
  * @param[in]   cts         :pointer to cts config structure
- * @param[in]   enable      : 1:bypass the random no generator
- *                            0:use random no generator output
+ * @param[in]   enable      
+ *                           - 1: bypass the random no generator
+ *                           - 0: use random no generator output
  * @return      none               
  */
 STATIC INLINE void RSI_CTS_BypassPRS(CTS_Type *cts, boolean_t enable)
 {
-  CTS->CTS_CONFIG_REG_1_1_b.BYPASS = enable;
+  (void)cts;
+  CTS->CTS_CONFIG_REG_1_1_b.BYPASS = (unsigned int)(enable & 0x01);
 }
 
 /*===================================================*/
@@ -100,7 +104,7 @@ STATIC INLINE void RSI_CTS_BypassPRS(CTS_Type *cts, boolean_t enable)
  */
 STATIC INLINE void RSI_CTS_ThresholdProgam(CTS_Type *cts, uint8_t threshold)
 {
-  cts->CTS_CONFIG_REG_0_0_b.FIFO_AEMPTY_THRLD = threshold; // Threshold for fifo aempty
+  cts->CTS_CONFIG_REG_0_0_b.FIFO_AEMPTY_THRLD = (unsigned int)(threshold & 0x3F); // Threshold for fifo aempty
 }
 
 /*===================================================*/
@@ -113,7 +117,7 @@ STATIC INLINE void RSI_CTS_ThresholdProgam(CTS_Type *cts, uint8_t threshold)
  */
 STATIC INLINE void RSI_CTS_StaticClkEnable(CTS_Type *cts, boolean_t enable)
 {
-  cts->CTS_CONFIG_REG_0_0_b.CTS_STATIC_CLK_EN = enable; // clk are not gated
+  cts->CTS_CONFIG_REG_0_0_b.CTS_STATIC_CLK_EN = (unsigned int)(enable & 0x01); // clk are not gated
 }
 
 /*===================================================*/
@@ -121,13 +125,14 @@ STATIC INLINE void RSI_CTS_StaticClkEnable(CTS_Type *cts, boolean_t enable)
  * @fn          STATIC INLINE void RSI_CTS_ConfigSampleMode(CTS_Type *cts,boolean_t avg_enable)
  * @brief       This API is used for select averaging mode to apply samples
  * @param[in]   cts           :pointer to cts config structure
- * @param[in]   avg_enable    : 1 - for selecting averaging of samples
- *                              0 - for directly apply samples
+ * @param[in]   avg_enable    : 
+ *                             - 1: for selecting averaging of samples
+ *                             - 0: for directly apply samples
  * @return      none             
  */
 STATIC INLINE void RSI_CTS_ConfigSampleMode(CTS_Type *cts, boolean_t avg_enable)
 {
-  cts->CTS_CONFIG_REG_1_1_b.SAMPLE_MODE = avg_enable; // selects Averaging
+  cts->CTS_CONFIG_REG_1_1_b.SAMPLE_MODE = (unsigned int)(avg_enable & 0x03); // selects Averaging
 }
 
 /*============================================================================*/
@@ -135,13 +140,14 @@ STATIC INLINE void RSI_CTS_ConfigSampleMode(CTS_Type *cts, boolean_t avg_enable)
  * @fn          STATIC INLINE void RSI_CTS_ModeSelect(CTS_Type *cts,boolean_t mode)
  * @brief       This API is used for scanning mode selection 
  * @param[in]   cts    :pointer to cts config structure
- * @param[in]   mode   : 1 - for continious mode select
- *                       0 - for one hot mode
+ * @param[in]   mode   : 
+ *                      - 1: for continious mode select
+ *                      - 0: for one hot mode
  * @return      none               
  */
 STATIC INLINE void RSI_CTS_ModeSelect(CTS_Type *cts, boolean_t mode)
 {
-  cts->CTS_CONFIG_REG_1_1_b.CNT_ONEHOT_MODE = mode;
+  cts->CTS_CONFIG_REG_1_1_b.CNT_ONEHOT_MODE = (unsigned int)(mode & 0x01);
 }
 
 /*============================================================================*/
@@ -149,13 +155,14 @@ STATIC INLINE void RSI_CTS_ModeSelect(CTS_Type *cts, boolean_t mode)
  * @fn          STATIC INLINEvoid RSI_CTS_Enable(CTS_Type *cts,boolean_t enable)
  * @brief       This API is used enable/disable the cts
  * @param[in]   cts         :pointer to cts config structure
- * @param[in]   enable      : 1 - enable the CTS
- *                            0 - disable the cts
+ * @param[in]   enable      : 
+ *                           - 1: enable the CTS
+ *                           - 0: disable the cts
  * @return      none              
  */
 STATIC INLINE void RSI_CTS_Enable(CTS_Type *cts, boolean_t enable)
 {
-  cts->CTS_CONFIG_REG_1_1_b.ENABLE1 = enable; // enable the CTS
+  cts->CTS_CONFIG_REG_1_1_b.ENABLE1 = (unsigned int)(enable & 0x01); // enable the CTS
 }
 
 /*============================================================================*/
@@ -168,7 +175,7 @@ STATIC INLINE void RSI_CTS_Enable(CTS_Type *cts, boolean_t enable)
  */
 STATIC INLINE void RSI_CTS_BufferDelay(CTS_Type *cts, uint8_t delay)
 {
-  cts->CTS_CONFIG_REG_1_1_b.BUFFER_DELAY = delay; // set the buffer delay
+  cts->CTS_CONFIG_REG_1_1_b.BUFFER_DELAY = (unsigned int)(delay & 0x1F); // set the buffer delay
 }
 
 /*============================================================================*/
@@ -176,8 +183,9 @@ STATIC INLINE void RSI_CTS_BufferDelay(CTS_Type *cts, uint8_t delay)
  * @fn          STATIC INLINE void RSI_CTS_FifoInterruptEnable(CTS_Type *cts,boolean_t enable)
  * @brief       This API is used to mask the fifo interrupt
  * @param[in]   cts        :pointer to cts config structure
- * @param[in]   enable     : 1 -fifo afull interrupt will mask
- *                           0 -unmask
+ * @param[in]   enable     : 
+ *                           - 1: fifo afull interrupt will mask
+ *                           - 0: unmask
  * @return      none              
  */
 STATIC INLINE void RSI_CTS_FifoInterruptEnable(CTS_Type *cts, boolean_t enable)
@@ -186,7 +194,7 @@ STATIC INLINE void RSI_CTS_FifoInterruptEnable(CTS_Type *cts, boolean_t enable)
   if (enable)
     cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG |= BIT(1); // mask/Uunmask the interrupt
   else
-    cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG &= ~BIT(1);
+    cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG &= (unsigned int)(~BIT(1) & 0x01FF);
 #else
   cts->CTS_CONFIG_REG_1_7_b.MASK_FIFO_AFULL_INTR = enable; // mask/Uunmask the interrupt
 #endif
@@ -231,9 +239,16 @@ void RSI_CTS_Calibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samples)
 void RSI_CTS_SlowCalibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samples);
 
 void RSI_CTS_TouchDetection(uint16_t *fifo_read, uint8_t *sensor_count);
+void ULPSS_CAP_SENSOR_IRQHandler(void);
+void RSI_CTS_InputSelection(CTS_Type *cts, uint32_t cap_input, uint32_t res_input);
+void RSI_SlowCalibration();
+void RSI_CTS();
+void UDMA_Read();
+void udmaTransferComplete(uint32_t event, uint8_t ch);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif // RSI_CTS_H
+/** @} */

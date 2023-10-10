@@ -88,6 +88,7 @@ extern "C" {
 #define UDMA_MODE_MEM_ALT_SCATTER_GATHER 0x5
 #define UDMA_MODE_PER_SCATTER_GATHER     0x6
 #define UDMA_MODE_ALT_SELECT             0x1
+#define UDMA_SOFTWARE_TRIGG              0X2
 
 #define UDMA_DST_INC_NONE 0x3
 #define UDMA_SRC_INC_NONE 0x3
@@ -276,11 +277,11 @@ STATIC INLINE uint32_t RSI_UDMA_GetMemSize(void)
  * @param[in]   pCB		 :  Pointer to callback function
  * @return 		none
  */
-STATIC INLINE void RSI_UDMA_RegisterCallback(RSI_UDMA_HANDLE_T pHandle, void *pCB)
+STATIC INLINE void RSI_UDMA_RegisterCallback(RSI_UDMA_HANDLE_T pHandle, udmaTransferCompleteCB pCB)
 {
   RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
 
-  *(void **)(&pDrv->udmaCompCB) = pCB;
+  pDrv->udmaCompCB = pCB;
 }
 
 /*===================================================*/
@@ -339,13 +340,13 @@ STATIC INLINE void RSI_UDMA_ErrorStatusClear(RSI_UDMA_HANDLE_T pHandle)
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_UDMA_ChannelEnable(RSI_UDMA_HANDLE_T pHandle,uint8_t dmaCh) 
+ * @fn            rsi_error_t RSI_UDMA_ChannelEnable(RSI_UDMA_HANDLE_T pHandle,uint8_t dmaCh) 
  * @brief		  This API is used to enable the required channel of UDMA
  * @param[in]	  pHandle	: Pointer to driver context handle
  * @param[in]	  dmaCh	  : Channel number(1 to 32)
  * @return 		  RSI_OK if no errors occured, or an error code    
  */
-STATIC INLINE error_t RSI_UDMA_ChannelEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+STATIC INLINE rsi_error_t RSI_UDMA_ChannelEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
   RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
   if (dmaCh <= CHNL_31) {
@@ -359,13 +360,13 @@ STATIC INLINE error_t RSI_UDMA_ChannelEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t 
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_UDMA_ChannelDisable(RSI_UDMA_HANDLE_T pHandle,uint8_t dmaCh)
+ * @fn            rsi_error_t RSI_UDMA_ChannelDisable(RSI_UDMA_HANDLE_T pHandle,uint8_t dmaCh)
  * @brief		  This API is used to disable the required channel of UDMA
  * @param[in]	  pHandle : Pointer to driver context handle
  * @param[in]	  dmaCh	  : Channel number(1 to 32)
  * @return 		  RSI_OK if no errors occured, or an error code    
  */
-STATIC INLINE error_t RSI_UDMA_ChannelDisable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+STATIC INLINE rsi_error_t RSI_UDMA_ChannelDisable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
   RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
   if (dmaCh <= CHNL_31) {
@@ -378,13 +379,13 @@ STATIC INLINE error_t RSI_UDMA_ChannelDisable(RSI_UDMA_HANDLE_T pHandle, uint8_t
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_UDMA_ChannelIsEnabled(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+ * @fn          rsi_error_t RSI_UDMA_ChannelIsEnabled(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
  * @brief		This API is used to check the required UDMA channel is enabled or not
  * @param[in]	pHandle	 : Pointer to driver context handle
  * @param[in]	dmaCh	 : Channel number(0 to 31)
  * @return 		If process is successful then return RSI_OK  else RSI_FAIL If requied channel is not enabled
  */
-STATIC INLINE error_t RSI_UDMA_ChannelIsEnabled(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+STATIC INLINE rsi_error_t RSI_UDMA_ChannelIsEnabled(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
   RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
   if (dmaCh <= CHNL_31) {
@@ -426,13 +427,13 @@ STATIC INLINE void *RSI_UDMA_GetControlAlternateBase(RSI_UDMA_HANDLE_T pHandle)
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_UDMA_ChannelSoftwareTrigger(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+ * @fn            rsi_error_t RSI_UDMA_ChannelSoftwareTrigger(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
  * @brief		  This API is used to to generate a software UDMA request on the corresponding UDMA channel 
  * @param[in]	  pHandle	:  Pointer to driver context handle
  * @param[in]	  dmaCh   : channel number (0 to 31).
  * @return        return ERROR_UDMA_INVALID_ARG if channel is  greater than 31 or channel is invalid , and on success return RSI_OK(0).
  */
-STATIC INLINE error_t RSI_UDMA_ChannelSoftwareTrigger(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+STATIC INLINE rsi_error_t RSI_UDMA_ChannelSoftwareTrigger(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
   RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
   if (dmaCh <= CHNL_31) {
@@ -444,14 +445,14 @@ STATIC INLINE error_t RSI_UDMA_ChannelSoftwareTrigger(RSI_UDMA_HANDLE_T pHandle,
 
 /*===================================================*/
 /**
- * @fn             error_t RSI_UDMA_InterruptClear(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+ * @fn             rsi_error_t RSI_UDMA_InterruptClear(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
  * @brief          This API is used to to generate a  UDMA interrupt clear. 
  * @param[in]	   pHandle :  Pointer to driver context handle
  * @param[in]	   dmaCh   :       channel number (0 to 31).
  * @return 	       return ERROR_UDMA_INVALID_ARG if channel is  greater than 31 or channel is invalid , 
  *                 and on success return RSI_OK(0). 
  */
-STATIC INLINE error_t RSI_UDMA_InterruptClear(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+STATIC INLINE rsi_error_t RSI_UDMA_InterruptClear(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
   RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
   if (dmaCh <= CHNL_31) {
@@ -529,29 +530,32 @@ RSI_UDMA_HANDLE_T udma_init(void *mem, const RSI_UDMA_INIT_T *pInit);
 
 uint32_t udma_get_channel_transfer_mode(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
 
-error_t udma_setup_channel_transfer(RSI_UDMA_HANDLE_T pHandle,
-                                    RSI_UDMA_CHA_CFG_T *pCfg,
-                                    RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
-                                    void *pSrcAddr,
-                                    void *pDstAddr);
+rsi_error_t udma_setup_channel_transfer(RSI_UDMA_HANDLE_T pHandle,
+                                        RSI_UDMA_CHA_CFG_T *pCfg,
+                                        RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
+                                        void *pSrcAddr,
+                                        void *pDstAddr);
 
-error_t udma_set_channel_scatter_gather_transfer(RSI_UDMA_HANDLE_T pHandle,
-                                                 uint8_t dmaCh,
-                                                 uint32_t taskCount,
-                                                 void *pTaskList,
-                                                 uint32_t transferType);
+rsi_error_t udma_set_channel_scatter_gather_transfer(RSI_UDMA_HANDLE_T pHandle,
+                                                     uint8_t dmaCh,
+                                                     uint32_t taskCount,
+                                                     void *pTaskList,
+                                                     uint32_t transferType);
 
 uint32_t udma_get_channel_transfer_length(RSI_UDMA_HANDLE_T pHandle,
                                           RSI_UDMA_CHA_CFG_T *pCfg,
                                           RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData);
 
-error_t udma_setup_channel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+rsi_error_t udma_setup_channel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
 
 void udma_deInit(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
 
 void udma_interrupt_handler(RSI_UDMA_HANDLE_T pHandle);
 
-error_t udma_interrupt_enable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
+rsi_error_t udma_interrupt_enable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
+rsi_error_t RSI_UDMA_ChannelControlsDisable(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+void RSI_UDMA_SetSingleRequest(RSI_UDMA_HANDLE_T pHandle);
+void RSI_UDMA_AckEnable(RSI_UDMA_HANDLE_T pHandle, uint32_t peripheral);
 
 #ifdef __cplusplus
 }

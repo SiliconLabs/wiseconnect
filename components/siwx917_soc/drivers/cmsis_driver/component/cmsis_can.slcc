@@ -12,10 +12,5 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "CAN.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_CAN.h"
 provides:
   - name: cmsis_can
-requires:
-  - name: cmsis_driver_common

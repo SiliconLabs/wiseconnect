@@ -23,7 +23,6 @@
 #include "rsi_board.h"
 #include "sl_si91x_peripheral_gpio.h"
 #include "gpio_example.h"
-#include "rsi_chip.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -33,18 +32,18 @@
 #define PAD_SELECT_9   9  // GPIO PAD selection number
 #define MAX_PAD_SELECT 34 // Maximum GPIO PAD selection number
 
-#define PIN6  6  // GPIO Pin number 6
+#define PIN3  3  // Pin number 3 port 0
+#define PIN6  6  // Pin number 6 port 0
 #define PIN7  7  // Pin number 7 port 0 for button
 #define PIN8  8  // Pin number 8 port 0 for pin interrupt
 #define PIN10 10 // Pin number 10 port 0 for led
-#define PIN11 11 // GPIO Pin number 11
 #define PIN25 25 // Pin number 25 for interrupt
 #define PIN28 28 // Pin number 28 for interrupt
 
 #define ULP_PIN_0  0  // ULP GPIO Pin number 0
+#define ULP_PIN_1  1  // ULP GPIO Pin number 1
+#define ULP_PIN_2  2  // ULP GPIO Pin number 2
 #define ULP_PIN_4  4  // ULP GPIO Pin number 4
-#define ULP_PIN_5  5  // ULP GPIO Pin number 5
-#define ULP_PIN_8  8  // ULP GPIO Pin number 8
 #define ULP_PIN_10 10 // ULP GPIO Pin number 10
 
 #define UULP_PIN0 0 // UULP Pin number 0
@@ -61,7 +60,7 @@
 #define GRP_COUNT   2 // Count of group interrupt pins
 
 #define PRIORITY_7 7      // Priority 7 for interrupt
-#define PINS       0x0c40 // Pins in a port to mask
+#define PINS       0x0048 // Pins in a port to mask
 
 #define INT_CH       0 // GPIO Pin interrupt 0
 #define OUTPUT_VALUE 1 // GPIO output value
@@ -71,12 +70,7 @@
 #define DELAY            1000 // Delay for 1sec
 #define FALL_EDGE        8    // Fall edge event
 
-#define UULP_INTR_1 0x01 // UULP GPIO pin interrupt 1
-#define UULP_INTR_2 0x02 // UULP GPIO pin interrupt 2
-#define UULP_INTR_3 0x04 // UULP GPIO pin interrupt 3
-#define UULP_INTR_4 0x08 // UULP GPIO pin interrupt 4
-#define UULP_INTR_5 0x10 // UULP GPIO pin interrupt 5
-#define UULP_MASK   0x00
+#define UULP_MASK 0x00
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -93,21 +87,20 @@ typedef enum {
   UULP_GPIO_PIN_INTR  = 0, // Configure GPIO UULP instance pin interrupt
 } gpio_instance_type_t;
 
-// Enum for UULP GPIO group interrupt
+// Enum for UULP GPIO interrupt
 typedef enum {
-  UULP_GPIO_PIN0 = (1 << 0), // UULP GPIO pin 1 interrupt
-  UULP_GPIO_PIN1 = (1 << 1), // UULP GPIO pin 2 interrupt
-  UULP_GPIO_PIN2 = (1 << 2), // UULP GPIO pin 3 interrupt
-  UULP_GPIO_PIN3 = (1 << 3), // UULP GPIO pin 4 interrupt
-  UULP_GPIO_PIN4 = (1 << 4), // UULP GPIO pin 5 interrupt
-} sl_si91x_uulp_gpio_grp_intr_t;
+  UULP_GPIO_INTR_1 = 0x01, // UULP GPIO pin interrupt 1
+  UULP_GPIO_INTR_2 = 0x02, // UULP GPIO pin interrupt 2
+  UULP_GPIO_INTR_3 = 0x04, // UULP GPIO pin interrupt 3
+  UULP_GPIO_INTR_4 = 0x08, // UULP GPIO pin interrupt 4
+  UULP_GPIO_INTR_5 = 0x10, // UULP GPIO pin interrupt 5
+} sl_si91x_uulp_gpio_intr_t;
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
  ******************************************************************************/
 static sl_si91x_gpio_group_interrupt_config_t config_grp_int;
 uint8_t pad_sel = 1;
-uint32_t i;
 static uulp_pad_config_t uulp_pad;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -189,15 +182,12 @@ void gpio_example_init(void)
     sl_gpio_initialization();
     // Set port pins to 1's
     sl_gpio_set_port_output(PORT0, PINS);
-    __NOP();
     // Get GPIO port value
     get_port = sl_gpio_get_port_output(PORT0);
     DEBUGOUT("get_port_output = %ld\n", get_port);
     // Clear GPIO port value
     sl_gpio_clear_port_output(PORT0, PINS);
     __NOP();
-    get_port = sl_gpio_get_port_output(PORT0);
-    DEBUGOUT("get_port_output = %ld\n", get_port);
     // Set and get bits by masking which bits to modify
     sl_gpio_set_port_output_value(PORT0, PINS, PORT_MASK);
     __NOP();
@@ -232,13 +222,13 @@ void gpio_example_init(void)
     // GPIO initialization function for ULP instance
     sl_gpio_ulp_initialization();
     // Get the pin direction for ULP GPIO pin
-    direction = sl_si91x_gpio_get_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_8);
+    direction = sl_si91x_gpio_get_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_2);
     DEBUGOUT("get_pin_direction = %d\n", direction);
     direction = sl_si91x_gpio_get_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_4);
     DEBUGOUT("get_pin_direction = %d\n", direction);
 
     // Get the pin mode for ULP GPIO pin
-    get_pin = sl_gpio_get_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_8);
+    get_pin = sl_gpio_get_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_2);
     DEBUGOUT("get_pin_mode = %d\n", get_pin);
     get_pin = sl_gpio_get_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_4);
     DEBUGOUT("get_pin_mode = %d\n", get_pin);
@@ -296,11 +286,11 @@ void gpio_example_init(void)
     sl_gpio_uulp_initialization();
     sl_si91x_gpio_set_uulp_pad_configuration(&uulp_pad);
     // Unmask NPSS interrupt
-    sl_si91x_gpio_unmask_uulp_npss_interrupt(UULP_PIN2);
+    sl_si91x_gpio_unmask_uulp_npss_interrupt(UULP_GPIO_INTR_3);
 
     // Configure pin interrupt for sl_si91x_gpio_interrupt_config_flag_t structure
-    sl_si91x_gpio_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)SL_GPIO_INTERRUPT_LEVEL_LOW,
-                                           UULP_GPIO_PIN2);
+    sl_si91x_gpio_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)SL_GPIO_INTERRUPT_FALL_EDGE,
+                                           UULP_GPIO_INTR_3);
   }
 }
 /*******************************************************************************
@@ -318,11 +308,11 @@ void gpio_example_process_action(void)
   if (ULP_GPIO_PIN == SET) {
     uint8_t input;
     // Get GPIO pin input
-    input = sl_gpio_get_pin_input(SL_ULP_GPIO_PORT, ULP_PIN_5);
+    input = sl_gpio_get_pin_input(SL_ULP_GPIO_PORT, ULP_PIN_1);
     if (input == CLR) {
-      sl_gpio_set_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_8); // Set ULP GPIO pin
+      sl_gpio_set_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_2); // Set ULP GPIO pin
     } else {
-      sl_gpio_clear_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_8); // Clear ULP GPIO pin
+      sl_gpio_clear_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_2); // Clear ULP GPIO pin
     }
   }
 
@@ -363,11 +353,11 @@ static void sl_gpio_initialization(void)
     }
   }
   // Enable pad receiver for GPIO pins
-  sl_si91x_gpio_enable_pad_receiver(PIN6);
-  sl_si91x_gpio_enable_pad_receiver(PIN7);
-  sl_si91x_gpio_enable_pad_receiver(PIN8);
   sl_si91x_gpio_enable_pad_receiver(PIN10);
-  sl_si91x_gpio_enable_pad_receiver(PIN11);
+  sl_si91x_gpio_enable_pad_receiver(PIN8);
+  sl_si91x_gpio_enable_pad_receiver(PIN7);
+  sl_si91x_gpio_enable_pad_receiver(PIN6);
+  sl_si91x_gpio_enable_pad_receiver(PIN3);
 
   // Select pad driver strength for GPIO pins
   sl_si91x_gpio_select_pad_driver_strength(PIN8, (sl_si91x_gpio_driver_strength_select_t)GPIO_TWO_MILLI_AMPS);
@@ -376,18 +366,18 @@ static void sl_gpio_initialization(void)
   sl_si91x_gpio_select_pad_driver_disable_state(PIN8, (sl_si91x_gpio_driver_disable_state_t)GPIO_HZ);
 
   // Set the pin mode for GPIO pins.
-  sl_gpio_set_pin_mode(PORT0, PIN6, _MODE0, OUTPUT_VALUE);
-  sl_gpio_set_pin_mode(PORT0, PIN7, _MODE0, OUTPUT_VALUE);
-  sl_gpio_set_pin_mode(PORT0, PIN8, _MODE0, OUTPUT_VALUE);
   sl_gpio_set_pin_mode(PORT0, PIN10, _MODE0, OUTPUT_VALUE);
-  sl_gpio_set_pin_mode(PORT0, PIN11, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(PORT0, PIN8, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(PORT0, PIN7, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(PORT0, PIN3, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(PORT0, PIN6, _MODE0, OUTPUT_VALUE);
 
   // Select the direction of GPIO pin whether Input/ Output
-  sl_si91x_gpio_set_pin_direction(PORT0, PIN6, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
-  sl_si91x_gpio_set_pin_direction(PORT0, PIN7, (sl_si91x_gpio_direction_t)GPIO_INPUT);
-  sl_si91x_gpio_set_pin_direction(PORT0, PIN8, (sl_si91x_gpio_direction_t)GPIO_INPUT);
   sl_si91x_gpio_set_pin_direction(PORT0, PIN10, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
-  sl_si91x_gpio_set_pin_direction(PORT0, PIN11, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+  sl_si91x_gpio_set_pin_direction(PORT0, PIN3, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+  sl_si91x_gpio_set_pin_direction(PORT0, PIN6, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+  sl_si91x_gpio_set_pin_direction(PORT0, PIN8, (sl_si91x_gpio_direction_t)GPIO_INPUT);
+  sl_si91x_gpio_set_pin_direction(PORT0, PIN7, (sl_si91x_gpio_direction_t)GPIO_INPUT);
 }
 
 /*******************************************************************************
@@ -400,7 +390,7 @@ static void sl_gpio_ulp_initialization(void)
 
   // Enable pad receiver for ULP GPIO pins
   sl_si91x_gpio_enable_ulp_pad_receiver(ULP_PIN_4);
-  sl_si91x_gpio_enable_ulp_pad_receiver(ULP_PIN_5);
+  sl_si91x_gpio_enable_ulp_pad_receiver(ULP_PIN_1);
 
   // Select pad driver strength for ULP GPIO pins
   sl_si91x_gpio_select_ulp_pad_driver_strength(ULP_PIN_4, (sl_si91x_gpio_driver_strength_select_t)GPIO_TWO_MILLI_AMPS);
@@ -409,14 +399,14 @@ static void sl_gpio_ulp_initialization(void)
   sl_si91x_gpio_select_ulp_pad_driver_disable_state(ULP_PIN_4, (sl_si91x_gpio_driver_disable_state_t)GPIO_HZ);
 
   // Set the pin mode for ULP GPIO pins.
-  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_8, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_2, _MODE0, OUTPUT_VALUE);
   sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_4, _MODE0, OUTPUT_VALUE);
-  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_5, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_1, _MODE0, OUTPUT_VALUE);
 
   // Set the pin direction for ULP GPIO pins.
-  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_8, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_2, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
   sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_4, (sl_si91x_gpio_direction_t)GPIO_INPUT);
-  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_5, (sl_si91x_gpio_direction_t)GPIO_INPUT);
+  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_1, (sl_si91x_gpio_direction_t)GPIO_INPUT);
 }
 
 /*******************************************************************************
@@ -523,20 +513,20 @@ void GRP_IRQ1_Handler(void)
  ******************************************************************************/
 void UULP_PIN_IRQ_Handler(void)
 {
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_1) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_1);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_1) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_1);
   }
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_2) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_2);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_2) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_2);
   }
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_3) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_3);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_3) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_3);
   }
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_4) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_4);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_4) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_4);
   }
-  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_INTR_5) != UULP_MASK) {
-    sl_si91x_gpio_clear_uulp_interrupt(UULP_PIN_INTR_5);
+  if ((sl_si91x_gpio_get_uulp_interrupt_status() & UULP_GPIO_INTR_5) != UULP_MASK) {
+    sl_si91x_gpio_clear_uulp_interrupt(UULP_GPIO_INTR_5);
   }
 }
 

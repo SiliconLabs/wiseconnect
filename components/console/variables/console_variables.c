@@ -1,8 +1,26 @@
+/*******************************************************************************
+* @file  console_variables.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 //#include "console_variable_commands.h"
 #include "console.h"
 //#include "console_variables.h"
-//#include "sl_nvm.h"
+//#include "nvm3.h"
 //#include "sl_wifi_types.h"
+#include "sl_ip_types.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,7 +31,6 @@
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 #define MIN(a, b)                 ((a < b) ? a : b)
-#define UNUSED_PARAMETER(x) (void)(x)
 
 /******************************************************
  *                    Constants
@@ -49,41 +66,35 @@ sl_status_t console_variable_set(console_args_t *arguments);
  *               Variable Definitions
  ******************************************************/
 
-//extern nvm3_Handle_t nvm3_handle;
-
-//sl_status_t wlan_client_profile_handler(console_variable_action_t action, console_args_t* arguments, const console_variable_node_t* node );
-//sl_status_t wlan_credential_handler(console_variable_action_t action, console_args_t* arguments, const console_variable_node_t* node );
-//sl_status_t wlan_client_scan_handler(console_variable_action_t action, console_args_t* arguments, const console_variable_node_t* node );
-
-extern const unsigned int first_group_end;
-extern const console_variable_node_t nodes[];
+extern const console_variable_node_t console_variable_table[];
+extern const uint32_t console_variable_table_size;
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
 
-//sl_status_t process_variable_request(console_variable_action_t action, console_args_t* arguments)
 static sl_status_t find_variable_node(char **key, const console_variable_node_t **node)
 {
-  const char *token  = strtok(*key, KEY_SEPARATOR);
-  uint32_t iter      = 0;
-  uint32_t table_end = first_group_end;
+  const char *token                    = strtok(*key, KEY_SEPARATOR);
+  uint32_t iter                        = 0;
+  const console_variable_node_t *table = console_variable_table;
+  uint32_t table_size                  = console_variable_table_size;
 
   // Process key by traversing through the CLI variable table
   while (token != NULL) {
     // Check for a key match
-    if (strcmp(token, nodes[iter].key) == 0) {
-      switch (nodes[iter].type) {
+    if (strcmp(token, table[iter].key) == 0) {
+      switch (table[iter].type) {
         case SL_CONSOLE_VARIABLE_GROUP_NODE:
-          table_end = nodes[iter].data.group.last_index;
-          iter      = nodes[iter].data.group.first_index;
+          table      = table[iter].data.group.table;
+          table_size = table[iter].data.group.table_size;
           break;
 
         default:
           *key  = strtok(NULL, KEY_SEPARATOR);
-          *node = &nodes[iter];
+          *node = &table[iter];
           return SL_STATUS_OK;
-          //
+
           //        case SL_CONSOLE_VARIABLE_RAM_STRUCT_NODE:
           //          return nodes[iter].data.ram_structure.handler(action, arguments, &nodes[iter]);
           //          break;
@@ -97,7 +108,7 @@ static sl_status_t find_variable_node(char **key, const console_variable_node_t 
       }
     } else {
       ++iter;
-      if (iter > table_end)
+      if (iter > table_size)
         return SL_STATUS_ABORT;
       continue;
     }
@@ -179,6 +190,14 @@ static sl_status_t process_structure_args(console_variable_action_t action,
 static void print_variable(const structure_descriptor_entry_t *entry, const void *object)
 {
   switch (entry->type) {
+    case CONSOLE_VARIABLE_BOOL:
+      if (*(uint8_t *)(object + entry->offset)) {
+        printf("true\n");
+      } else {
+        printf("false\n");
+      }
+      break;
+
     case CONSOLE_VARIABLE_UINT:
       switch (entry->size) {
         case 1:
@@ -215,7 +234,13 @@ static void print_variable(const structure_descriptor_entry_t *entry, const void
       printf("%s\n", (char *)(object + entry->offset));
       break;
 
+    case CONSOLE_VARIABLE_IP_ADDRESS: {
+      sl_ipv4_address_t *temp = (sl_ipv4_address_t *)(object + entry->offset);
+      printf("%d.%d.%d.%d\n", temp->bytes[0], temp->bytes[1], temp->bytes[2], temp->bytes[3]);
+    } break;
+
     default:
+      printf("\n");
       break;
   }
 }
@@ -240,10 +265,13 @@ sl_status_t console_variable_get(console_args_t *arguments)
   if (status != SL_STATUS_OK)
     return status;
 
-  //  if (node->type == SL_CONSOLE_VARIABLE_RAM_STRUCT_NODE) {
-  //    find_structure_entry(key, nodes[iter].data.ram_structure.table, nodes[iter].data.ram_structure.table_size );
-  //  }
-  //  print_variable(entry, object)
+  if (node->type == SL_CONSOLE_VARIABLE_RAM_STRUCT_NODE) {
+    const structure_descriptor_entry_t *entry =
+      find_structure_entry(key, node->data.ram_structure.table, node->data.ram_structure.table_size);
+    print_variable(entry, node->data.ram_structure.object);
+  } else if (node->type == SL_CONSOLE_VARIABLE_NVM_STRUCT_NODE) {
+    node->data.custom_structure.handler(SL_CONSOLE_VARIABLE_GET, node, (void *)arguments->arg[1]);
+  }
 
   //  process_variable_request(SL_CONSOLE_VARIABLE_GET, arguments);
   return status;
@@ -286,78 +314,86 @@ sl_status_t console_variable_set(console_args_t *arguments)
       default:
         return SL_STATUS_COMMAND_IS_INVALID;
     }
+  } else if (node->type == SL_CONSOLE_VARIABLE_NVM_STRUCT_NODE) {
+    node->data.custom_structure.handler(SL_CONSOLE_VARIABLE_SET, node, (void *)arguments->arg[1]);
   }
   return status;
 }
 
 sl_status_t console_variable_list(console_args_t *arguments)
 {
-  UNUSED_PARAMETER(arguments);
-  static const char spaces[] = "                ";
+  if (console_variable_table_size == 0) {
+    printf("No variables available\n");
+    return SL_STATUS_OK;
+  }
+
+  static const char spaces[] = "| | | | | | | | ";
 #define MAX_LEVEL_DEPTH ((sizeof(spaces) - 1) / 2)
 
   uint8_t level = 0;
+  const console_variable_node_t *tables[MAX_LEVEL_DEPTH];
   uint32_t table_index[MAX_LEVEL_DEPTH];
   uint32_t table_end[MAX_LEVEL_DEPTH];
   memset(table_index, 0, sizeof(table_index));
 
-  table_end[0]   = first_group_end;
-  table_index[0] = 0;
+  table_end[0] = console_variable_table_size;
+  tables[0]    = console_variable_table;
 
   uint32_t iter = 0;
 
   printf("\nConfigurable variables\n");
 
   while (1) {
-    switch (nodes[iter].type) {
+    const console_variable_node_t *current_table = tables[level];
+    switch (current_table[iter].type) {
       case SL_CONSOLE_VARIABLE_GROUP_NODE:
-        printf("%.*s%s:\n", level * 2, spaces, nodes[iter].key);
+        printf("%.*s+ %s:\n", level * 2, spaces, current_table[iter].key);
+
         ++table_index[level];
         ++level;
-        table_end[level]   = nodes[iter].data.group.last_index;
-        table_index[level] = nodes[iter].data.group.first_index;
+        tables[level]    = current_table[iter].data.group.table;
+        table_end[level] = current_table[iter].data.group.table_size;
         break;
 
       case SL_CONSOLE_VARIABLE_RAM_STRUCT_NODE:
-        printf("%.*s%s:\n", level * 2, spaces, nodes[iter].key);
+        printf("%.*s+ %s:\n", level * 2, spaces, current_table[iter].key);
         ++table_index[level];
         ++level;
-        const structure_descriptor_entry_t *table = nodes[iter].data.ram_structure.table;
-        const uint32_t table_size                 = nodes[iter].data.ram_structure.table_size;
+        const structure_descriptor_entry_t *table = current_table[iter].data.ram_structure.table;
+        const uint32_t table_size                 = current_table[iter].data.ram_structure.table_size;
         for (unsigned int a = 0; a < table_size; ++a) {
-          printf("%.*s%s: ", level * 2, spaces, table[a].key);
-          print_variable(&table[a], nodes[iter].data.ram_structure.object);
+          printf("%.*s- %s: ", level * 2, spaces, table[a].key);
+          print_variable(&table[a], current_table[iter].data.ram_structure.object);
         }
         --level;
         break;
 
-#ifdef nvm3_FEATURE_REQUIRED
-      case SL_CONSOLE_VARIABLE_NVM_STRUCT_NODE:
-        printf("%.*s%s: ", level * 2, spaces, nodes[iter].key);
-        uint32_t type;
-        size_t length;
-        sl_status_t status =
-          sl_nvm_get_object_info(&nvm3_handle, nodes[iter].data.structure.data.nvm_id, &type, &length);
-        if (status == SL_STATUS_OK) {
-          printf("Data available\n");
-        } else {
-          printf("No data\n");
-        }
-        ++table_index[level];
-        break;
-#endif
+        //      case SL_CONSOLE_VARIABLE_NVM_STRUCT_NODE:
+        //        printf("%.*s- %s: ", level * 2, spaces, current_table[iter].key);
+        //        uint32_t type;
+        //        size_t length;
+        //        sl_status_t status =
+        //          nvm3_getObjectInfo(nvm3_defaultHandle, current_table[iter].data.custom_structure.nvm_id, &type, &length);
+        //        if (status == SL_STATUS_OK) {
+        //          printf("Data available\n");
+        //        } else {
+        //          printf("No data\n");
+        //        }
+        //        ++table_index[level];
+        //        break;
 
       case SL_CONSOLE_VARIABLE_VARIABLE_NODE:
-        printf("%.*s%s:\n", level * 2, spaces, nodes[iter].key);
+        printf("%.*s%s:\n", level * 2, spaces, tables[level][iter].key);
         ++table_index[level];
         break;
     }
 
     // Make sure we have a valid node, otherwise go up the tree until we do
-    while (table_index[level] > table_end[level]) {
+    while (table_index[level] >= table_end[level]) {
       if (level == 0) {
         return SL_STATUS_OK;
       }
+      table_index[level] = 0;
       --level;
     }
     iter = table_index[level];

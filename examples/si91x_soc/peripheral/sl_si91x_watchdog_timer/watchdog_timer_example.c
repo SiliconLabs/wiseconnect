@@ -56,7 +56,6 @@ void on_timeout_callback(void);
 static uint8_t wdt_interrupt_count = ZERO_INTERRUPT_CNT;
 static bool wdt_system_reset_flag  = false;
 static bool wdt_stop_flag          = false;
-static bool state                  = false;
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -76,6 +75,8 @@ void watchdog_timer_example_init(void)
   uint8_t new_interrupt_time;
   uint8_t new_sys_rst_time;
   uint8_t new_window_time;
+  // Toggles LED0 once
+  RSI_Board_LED_Toggle(LED0);
   DEBUGOUT("In Main..!\r\n");
   // Checking system-reset status if true means system-reset done by watchdog-timer
   // else it is a power-on system-reset.
@@ -180,9 +181,7 @@ void on_timeout_callback(void)
   // Incrementing watchdog-timer interrupt count
   wdt_interrupt_count++;
   // Toggle on-board LED0 on every WDT restart
-  state = !state;
-  RSI_Board_LED_Set(LED0, state);
-  //RSI_Board_LED_Toggle(LED0);
+  RSI_Board_LED_Toggle(LED0);
   // To not re-start(kick) WDT at 6th timeout interrupts so that WDT generates the System-reset
   if (wdt_interrupt_count <= WDT_RESTART_CNT) {
     // System restarting(kicking) watchdog-timer on interrupts

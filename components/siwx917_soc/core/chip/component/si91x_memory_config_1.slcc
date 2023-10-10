@@ -23,6 +23,27 @@ requires:
   - name: wiseconnect_toolchain_gcc
     condition: 
       - brd4325g
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4338a
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4339a
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4339b
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4340a
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4340b
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4341a
+  - name: wiseconnect_toolchain_gcc
+    condition: 
+      - brd4342a
 provides:
   - name: si917_mem_config_1
 template_contribution:
@@ -50,6 +71,34 @@ template_contribution:
     value: SiWG917M141XGTBA
     condition:
     - brd4325f
+  - name: device_opn
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4338a
+  - name: device_opn
+    value: SiWG917M141XGTBA
+    condition:
+    - brd4339a
+  - name: device_opn
+    value: SiWG917M111MGTBA (Dual Flash)
+    condition:
+    - brd4339b
+  - name: device_opn
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4340a
+  - name: device_opn
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4340b
+  - name: device_opn
+    value: SiWG917M100XNTBA
+    condition:
+    - brd4341a
+  - name: device_opn
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4342a
   - name: device_arch
     value: armv7em
   - name: device_cpu
@@ -78,6 +127,34 @@ template_contribution:
     value: siwg917M141xgtba_ext_flash_int_psram
     condition:
     - brd4325f
+  - name: device_family
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4338a
+  - name: device_family
+    value: siwg917M141xgtba_ext_flash_int_psram
+    condition:
+    - brd4339a
+  - name: device_family
+    value: SiWG917M111MGTBA_dual_flash
+    condition:
+    - brd4339b
+  - name: device_family
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4340a
+  - name: device_family
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4340b
+  - name: device_family
+    value: SiWG917M100XNTBA
+    condition:
+    - brd4341a
+  - name: device_family
+    value: SiWG917M111MGTBA
+    condition:
+    - brd4342a
   - name: device_flash_addr
     value: 136388608
     condition:
@@ -102,8 +179,36 @@ template_contribution:
     value: 136060928
     condition: 
     - brd4325f
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4338a
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4339a
+  - name: device_flash_addr
+    value: 134291456
+    condition: 
+    - brd4339b
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4340a
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4340b
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4341a
+  - name: device_flash_addr
+    value: 136060928
+    condition: 
+    - brd4342a
   - name: device_flash_size
-    value: 524288
+    value: 450560
     condition:
     - brd4325a
   - name: device_flash_size
@@ -126,10 +231,48 @@ template_contribution:
     value: 450560
     condition:
     - brd4325f
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4338a
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4339a
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4339b
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4340a
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4340b
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4341a
+  - name: device_flash_size
+    value: 450560
+    condition:
+    - brd4342a
+  - name: nvm3_enable
+    value: true
+    condition:
+    - sl_si91x_nvm3
   - name: device_flash_page_size
     value: 256
   - name: device_ram_addr
     value: 1024
+    condition:
+    - wifi
+  - name: device_ram_addr
+    value: 12
+    unless:
+    - wifi
   - name: device_ram_size
     value: 196608
   - name: device_fpu
@@ -140,6 +283,8 @@ template_contribution:
     value: 3072
   - name: default_heap_size
     value: 7168
+  - name: nvm3_size
+    value: 65536
 define:
   - name: MEM_CONFIG_917
     value: '1'

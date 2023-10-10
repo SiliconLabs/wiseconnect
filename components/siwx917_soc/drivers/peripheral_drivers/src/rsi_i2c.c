@@ -51,14 +51,14 @@ int32_t SetClockRate(I2C_RESOURCES *i2c, uint8_t speed, uint32_t icClk)
      by using this inconjunction with the minimum high and low signal
      hold times as per the I2C bus specification. */
 
-  time_p = ((1 / (float)icClk) * 1000);
+  time_p = (uint32_t)((1 / (float)icClk) * 1000);
 
-  ss_scl_high = ((SS_MIN_SCL_HIGH / time_p) - 8);
-  ss_scl_low  = ((SS_MIN_SCL_LOW / time_p) - 1);
-  fs_scl_high = ((FS_MIN_SCL_HIGH / time_p) - 8);
-  fs_scl_low  = ((FS_MIN_SCL_LOW / time_p) - 1);
-  hs_scl_high = ((HS_MIN_SCL_HIGH_400PF / time_p) - 8);
-  hs_scl_low  = ((HS_MIN_SCL_LOW_400PF / time_p) - 1);
+  ss_scl_high = (uint16_t)((SS_MIN_SCL_HIGH / time_p) - 8);
+  ss_scl_low  = (uint16_t)((SS_MIN_SCL_LOW / time_p) - 1);
+  fs_scl_high = (uint16_t)((FS_MIN_SCL_HIGH / time_p) - 8);
+  fs_scl_low  = (uint16_t)((FS_MIN_SCL_LOW / time_p) - 1);
+  hs_scl_high = (uint16_t)((HS_MIN_SCL_HIGH_400PF / time_p) - 8);
+  hs_scl_low  = (uint16_t)((HS_MIN_SCL_LOW_400PF / time_p) - 1);
 
   switch (speed) {
     case ARM_I2C_BUS_SPEED_STANDARD:
@@ -233,6 +233,13 @@ int32_t I2Cx_Initialize(ARM_I2C_SignalEvent_t cb_event, I2C_RESOURCES *i2c)
 
   return ARM_DRIVER_OK;
 }
+/*==============================================*/
+/**
+ *  @fn          int32_t I2Cx_Uninitialize(I2C_RESOURCES *i2c)
+ *  @brief       uninitialize I2C Interface.
+ *  @param[in]   i2c : Pointer to I2C resources
+ *  @return      \ref execution_status
+ */
 int32_t I2Cx_Uninitialize(I2C_RESOURCES *i2c)
 {
   if (i2c->reg == I2C0) {
@@ -285,7 +292,7 @@ int32_t I2Cx_PowerControl(ARM_POWER_STATE state, I2C_RESOURCES *i2c)
       i2c->ctrl->stalled = 0U;
       i2c->ctrl->snum    = 0U;
 
-      i2c->ctrl->flags &= ~I2C_FLAG_POWER;
+      i2c->ctrl->flags &= (uint8_t)(~I2C_FLAG_POWER);
 
       // Disable I2C Operation
       i2c->reg->IC_ENABLE_b.EN = 0;
@@ -370,7 +377,7 @@ int32_t I2Cx_MasterTransmit(uint32_t addr, const uint8_t *data, uint32_t num, bo
   NVIC_DisableIRQ(i2c->i2c_ev_irq);
 
   // Set control variables
-  i2c->ctrl->sla_rw  = addr;
+  i2c->ctrl->sla_rw  = (uint16_t)addr;
   i2c->ctrl->pending = xfer_pending;
   i2c->ctrl->data    = (uint8_t *)data;
   i2c->ctrl->num     = num;
@@ -405,7 +412,7 @@ int32_t I2Cx_MasterTransmit(uint32_t addr, const uint8_t *data, uint32_t num, bo
   // IO TX thresholds
   i2c->reg->IC_TX_TL_b.TX_TL = 0x0;
 
-  i2c->reg->IC_TAR_b.IC_TAR = addr;
+  i2c->reg->IC_TAR_b.IC_TAR = (unsigned int)(addr & 0x03FF);
   i2c->reg->IC_ENABLE_b.EN  = ENABLE;
   I2C_EnableDisableInterrupt(i2c, 1, I2C_EVENT_TRANSMIT_EMPTY);
   NVIC_EnableIRQ(i2c->i2c_ev_irq);
@@ -415,17 +422,13 @@ int32_t I2Cx_MasterTransmit(uint32_t addr, const uint8_t *data, uint32_t num, bo
 
 /*==============================================*/
 /**
- *  @fn          int32_t I2Cx_MasterReceive (uint32_t       addr,
- *                                            const uint8_t *data,
- *                                            uint32_t       num,
- *                                            bool           xfer_pending,
- *                                            I2C_RESOURCES *i2c)
+ *  @fn          int32_t I2Cx_MasterReceive (uint32_t addr, uint8_t *data, uint32_t num, bool xfer_pending, I2C_RESOURCES *i2c)
  *  @brief       Start receiving data as I2C Master.
- *  @param[in]   addr          Slave address (7-bit or 10-bit)
- *  @param[in]   data          Pointer to buffer for data to receive from I2C Slave
- *  @param[in]   num           Number of data bytes to receive
- *  @param[in]   xfer_pending  Transfer operation is pending - Stop condition will not be generated
- *  @param[in]   i2c           Pointer to I2C resources
+ *  @param[in]   addr          : Slave address (7-bit or 10-bit)
+ *  @param[in]   data          : Pointer to buffer for data to receive from I2C Slave
+ *  @param[in]   num           : Number of data bytes to receive
+ *  @param[in]   xfer_pending  : Transfer operation is pending - Stop condition will not be generated
+ *  @param[in]   i2c           : Pointer to I2C resources
  *  @return      \ref execution_status
  */
 int32_t I2Cx_MasterReceive(uint32_t addr, uint8_t *data, uint32_t num, bool xfer_pending, I2C_RESOURCES *i2c)
@@ -471,7 +474,7 @@ int32_t I2Cx_MasterReceive(uint32_t addr, uint8_t *data, uint32_t num, bool xfer
       i2c->reg->IC_TAR_b.IC_10BITADDR_MASTER = 0x0;
     }
     i2c->reg->IC_CON_b.MASTER_MODE = 1;
-    i2c->reg->IC_TAR_b.IC_TAR      = addr;
+    i2c->reg->IC_TAR_b.IC_TAR      = (unsigned int)(addr & 0x03FF);
 #if (I2C_DMA)
     // Enable DMA RX control
     i2c->reg->IC_DMA_CR_b.RDMAE = 0x1;
@@ -520,7 +523,7 @@ int32_t I2Cx_SlaveTransmit(const uint8_t *data, uint32_t num, I2C_RESOURCES *i2c
   NVIC_DisableIRQ(i2c->i2c_ev_irq);
 
   // Set control variables
-  i2c->ctrl->flags &= ~I2C_FLAG_SLAVE_RX;
+  i2c->ctrl->flags &= (uint8_t)(~I2C_FLAG_SLAVE_RX);
   i2c->ctrl->sdata = (uint8_t *)data;
   i2c->ctrl->snum  = num;
   i2c->ctrl->cnt   = 0;
@@ -593,7 +596,7 @@ int32_t I2Cx_SlaveReceive(uint8_t *data, uint32_t num, I2C_RESOURCES *i2c)
 
 /*==============================================*/
 /**
- *  @fn          int32_t I2Cx_GetDataCount ( void I2C_RESOURCES *i2c)
+ *  @fn          int32_t I2Cx_GetDataCount (I2C_RESOURCES *i2c)
  *  @brief       Get transferred data count.
  *  @param[in]   i2c           Pointer to I2C resources
  *  @return      number of data bytes transferred; -1 when Slave is not addressed by Master
@@ -636,14 +639,14 @@ int32_t I2Cx_Control(uint32_t control, uint32_t arg, I2C_RESOURCES *i2c, uint32_
         i2c->reg->IC_TAR_b.SPECIAL                   = 0x1;
       }
       i2c->reg->IC_ENABLE_b.EN  = DISABLE;
-      i2c->reg->IC_SAR_b.IC_SAR = val;
+      i2c->reg->IC_SAR_b.IC_SAR = (unsigned int)(val & 0x03FF);
       // Slave 10bit mode
       if (arg & ARM_I2C_ADDRESS_10BIT) {
         i2c->reg->IC_CON_b.IC_10BITADDR_SLAVE = 0x1;
       } else {
         i2c->reg->IC_CON_b.IC_10BITADDR_SLAVE = 0x0;
       }
-      i2c->ctrl->con_aa                   = val;
+      i2c->ctrl->con_aa                   = (uint8_t)val;
       i2c->reg->IC_CON_b.MASTER_MODE      = 0;
       i2c->reg->IC_CON_b.IC_SLAVE_DISABLE = 0;
       i2c->reg->IC_ENABLE_b.EN            = ENABLE;
@@ -858,7 +861,7 @@ uint32_t I2Cx_MasterHandler(I2C_RESOURCES *i2c)
         if (i2c->ctrl->pending) {
           i2c->reg->IC_DATA_CMD = i2c->ctrl->data[i2c->ctrl->cnt];
         } else {
-          i2c->reg->IC_DATA_CMD = i2c->ctrl->data[i2c->ctrl->cnt] | (1 << 9);
+          i2c->reg->IC_DATA_CMD = (uint32_t)(i2c->ctrl->data[i2c->ctrl->cnt] | (1 << 9));
         }
       } else {
         i2c->reg->IC_DATA_CMD_b.DAT = i2c->ctrl->data[i2c->ctrl->cnt];

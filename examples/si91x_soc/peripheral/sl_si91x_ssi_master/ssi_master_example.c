@@ -34,7 +34,8 @@
 #define SOC_PLL_MM_COUNT_LIMIT  0xA4      // SOC PLL count limit
 #define SSI_BIT_WIDTH           8         // SSI bit width
 #define SSI_BAUDRATE            10000000  // SSI baudrate
-#define MAX_BIT_WIDTH           32        // Maximum Bit width
+#define MAX_BIT_WIDTH           16        // Maximum Bit width
+#define RECEIVE_SAMPLE_DELAY    0         // By default sample delay is 0
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -78,12 +79,13 @@ void ssi_master_example_init(void)
   sl_ssi_version_t version;
   // Configuring the user configuration structure
   sl_ssi_control_config_t config;
-  config.bit_width   = SSI_BIT_WIDTH;
-  config.device_mode = SL_SSI_MASTER_ACTIVE;
-  config.clock_mode  = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
-  config.master_ssm  = SL_SSI_MASTER_HW_OUTPUT;
-  config.slave_ssm   = SL_SSI_SLAVE_HW;
-  config.baud_rate   = SSI_BAUDRATE;
+  config.bit_width            = SSI_BIT_WIDTH;
+  config.device_mode          = SL_SSI_MASTER_ACTIVE;
+  config.clock_mode           = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
+  config.master_ssm           = SL_SSI_MASTER_HW_OUTPUT;
+  config.slave_ssm            = SL_SSI_SLAVE_HW;
+  config.baud_rate            = SSI_BAUDRATE;
+  config.receive_sample_delay = RECEIVE_SAMPLE_DELAY;
   // Filled data into input buffer
   for (i = 0; i < BUFFER_SIZE; i++) {
     data_out[i] = (uint8_t)(i + 1);
@@ -113,12 +115,7 @@ void ssi_master_example_init(void)
       break;
     }
     DEBUGOUT("SSI Initialization Success \n");
-    // Power up the SSI peripheral
-    sl_status = sl_si91x_ssi_configure_power_mode(ssi_driver_handle, ARM_POWER_FULL);
-    if (sl_status != SL_STATUS_OK) {
-      DEBUGOUT("Failed to Set Power to SSI, Error Code : %lu \n", sl_status);
-    }
-    DEBUGOUT("Configured Power to SSI \n");
+
     // Configure the SSI to Master, 16-bit mode @10000 kBits/sec
     sl_status = sl_si91x_ssi_set_configuration(ssi_driver_handle, &config);
     if (sl_status != SL_STATUS_OK) {
@@ -270,7 +267,7 @@ static void compare_loopback_data(void)
   // So mask has value according to the data width and it is applied to the data.
   uint16_t data_index;
   uint8_t frame_length = 0;
-  uint16_t mask        = ~0;
+  uint16_t mask        = (uint16_t)~0;
   frame_length         = sl_si91x_ssi_get_frame_length(ssi_driver_handle);
   mask                 = mask >> (MAX_BIT_WIDTH - frame_length);
   for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
@@ -281,11 +278,9 @@ static void compare_loopback_data(void)
     }
   }
   if (data_index == BUFFER_SIZE) {
-    DEBUGOUT("Data Comparison Success \n");
-    DEBUGOUT("Test Case Pass \n");
+    DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
   } else {
-    DEBUGOUT("Data Comparison Fail \n");
-    DEBUGOUT("Test Case Fail \n");
+    DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
   }
 }
 

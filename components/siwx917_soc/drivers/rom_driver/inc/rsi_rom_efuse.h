@@ -15,16 +15,14 @@
 *
 ******************************************************************************/
 
-/**
- * Includes
- */
+//Includes
 
 #ifndef __RSI_ROM_EFUSE_H__
 #define __RSI_ROM_EFUSE_H__
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_EFUSE_DRIVER  RSI:RS1xxxx EFUSE
+ * \defgroup EFUSE_DRIVER
  *  @{
  *
  */
@@ -102,7 +100,7 @@ STATIC INLINE void RSI_EFUSE_WriteAddr(EFUSE_Type *pstcEfuse, uint16_t u16Addr)
 }
 
 /**
- * @fn           STATIC INLINE error_t RSI_EFUSE_WriteBit(EFUSE_Type *pstcEfuse , uint16_t u16Addr ,
+ * @fn           STATIC INLINE rsi_error_t RSI_EFUSE_WriteBit(EFUSE_Type *pstcEfuse , uint16_t u16Addr ,
  *                                                         uint8_t u8BitPos,uint32_t hold_time)
  * @brief        Any Bit in this macro can be programmed in any order by raising STROBE high for aperiod specified
  *               by TPGM with a proper address selected.There is only one programming scheme,which is
@@ -114,7 +112,10 @@ STATIC INLINE void RSI_EFUSE_WriteAddr(EFUSE_Type *pstcEfuse, uint16_t u16Addr)
  * @return       Nonzero     : If fails
  *               \n 0        : If success
  */
-STATIC INLINE error_t RSI_EFUSE_WriteBit(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t u8BitPos, uint32_t hold_time)
+STATIC INLINE rsi_error_t RSI_EFUSE_WriteBit(EFUSE_Type *pstcEfuse,
+                                             uint16_t u16Addr,
+                                             uint8_t u8BitPos,
+                                             uint32_t hold_time)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_EFUSE_API->efuse_write_bit(pstcEfuse, u16Addr, u8BitPos, hold_time);
@@ -124,7 +125,7 @@ STATIC INLINE error_t RSI_EFUSE_WriteBit(EFUSE_Type *pstcEfuse, uint16_t u16Addr
 }
 
 /**
- * @fn           STATIC INLINE error_t RSI_EFUSE_FsmReadByte(EFUSE_Type *pstcEfuse , uint16_t u16Addr ,
+ * @fn           STATIC INLINE rsi_error_t RSI_EFUSE_FsmReadByte(EFUSE_Type *pstcEfuse , uint16_t u16Addr ,
  *                                                            uint8_t *pu8Byte ,uint32_t SocClk)
  * @brief        This API is used to read the data from 32x8 byte eFUSE memory(OTP) in fsm mode
  * @param[in]    pstcEfuse  : Pointer to the EFUSE register instance
@@ -134,7 +135,10 @@ STATIC INLINE error_t RSI_EFUSE_WriteBit(EFUSE_Type *pstcEfuse, uint16_t u16Addr
  * @return       Non zero   : If fails
  *               \n 0       : If success
  */
-STATIC INLINE error_t RSI_EFUSE_FsmReadByte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk)
+STATIC INLINE rsi_error_t RSI_EFUSE_FsmReadByte(EFUSE_Type *pstcEfuse,
+                                                uint16_t u16Addr,
+                                                uint8_t *pu8Byte,
+                                                uint32_t SocClk)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_EFUSE_API->efuse_fsm_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
@@ -144,7 +148,7 @@ STATIC INLINE error_t RSI_EFUSE_FsmReadByte(EFUSE_Type *pstcEfuse, uint16_t u16A
 }
 
 /**
- * @fn           STATIC INLINE error_t RSI_EFUSE_MemMapReadByte(EFUSE_Type *pstcEfuse , uint16_t u16Addr ,
+ * @fn           STATIC INLINE rsi_error_t RSI_EFUSE_MemMapReadByte(EFUSE_Type *pstcEfuse , uint16_t u16Addr ,
  *                                                             uint8_t *pu8Byte ,uint32_t SocClk)
  * @brief        This API is used to read the data from 32x8 byte eFUSE memory(OTP) in memory mapped mode
  * @param[in]    pstcEfuse : Pointer to the EFUSE register instance
@@ -154,10 +158,10 @@ STATIC INLINE error_t RSI_EFUSE_FsmReadByte(EFUSE_Type *pstcEfuse, uint16_t u16A
  * @return       Non zero  : If fails
  *               \n 0      : If success
  */
-STATIC INLINE error_t RSI_EFUSE_MemMapReadByte(EFUSE_Type *pstcEfuse,
-                                               uint16_t u16Addr,
-                                               uint8_t *pu8Byte,
-                                               uint32_t SocClk)
+STATIC INLINE rsi_error_t RSI_EFUSE_MemMapReadByte(EFUSE_Type *pstcEfuse,
+                                                   uint16_t u16Addr,
+                                                   uint8_t *pu8Byte,
+                                                   uint32_t SocClk)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_EFUSE_API->efuse_mem_map_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
@@ -167,7 +171,7 @@ STATIC INLINE error_t RSI_EFUSE_MemMapReadByte(EFUSE_Type *pstcEfuse,
 }
 
 /**
- * @fn           STATIC INLINE error_t RSI_EFUSE_MemMapReadWord(EFUSE_Type *pstcEfuse , uint16_t u16Addr ,
+ * @fn           STATIC INLINE rsi_error_t RSI_EFUSE_MemMapReadWord(EFUSE_Type *pstcEfuse , uint16_t u16Addr ,
  *                                                            uint16_t *pu16Word ,uint32_t SocClk)
  * @brief        This API is used to Read the 1 word(16 bits) of data to EFUSE macro
  * @param[in]    pstcEfuse : Pointer to the EFUSE register instance
@@ -177,10 +181,10 @@ STATIC INLINE error_t RSI_EFUSE_MemMapReadByte(EFUSE_Type *pstcEfuse,
  * @return       Non zero  : If fails
  *               \n 0      : If success
  */
-STATIC INLINE error_t RSI_EFUSE_MemMapReadWord(EFUSE_Type *pstcEfuse,
-                                               uint16_t u16Addr,
-                                               uint16_t *pu16Word,
-                                               uint32_t SocClk)
+STATIC INLINE rsi_error_t RSI_EFUSE_MemMapReadWord(EFUSE_Type *pstcEfuse,
+                                                   uint16_t u16Addr,
+                                                   uint16_t *pu16Word,
+                                                   uint32_t SocClk)
 {
 #if defined(ROMDRIVER_PRESENT) && !defined(CHIP_917B0)
   return ROMAPI_EFUSE_API->efuse_mem_map_read_word(pstcEfuse, u16Addr, pu16Word, SocClk);

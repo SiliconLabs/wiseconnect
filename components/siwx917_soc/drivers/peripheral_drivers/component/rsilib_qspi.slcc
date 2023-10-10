@@ -12,5 +12,6 @@ include:
   - path: "inc"
     file_list:
     - path: "rsi_qspi.h"
+    - path: "rsi_qspi_proto.h"
 provides:
   - name: rsilib_qspi

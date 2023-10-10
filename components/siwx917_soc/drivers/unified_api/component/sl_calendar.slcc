@@ -16,3 +16,6 @@ include:
     - path: "sl_si91x_calendar.h"
 provides:
   - name: sl_calendar
+requires:
+  - name: systemlevel_time_period
+  - name: systemlevel_rtc

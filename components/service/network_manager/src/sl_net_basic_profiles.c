@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_net_basic_profiles.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include "sl_net.h"
 #include "sl_net_ip_types.h"
 #include "sl_net_wifi_types.h"
@@ -8,10 +25,10 @@
 #define MAX_WIFI_AP_PROFILES     2
 
 static sl_net_wifi_client_profile_t wifi_client_profiles[MAX_WIFI_CLIENT_PROFILES] = {
-  [0] = default_wifi_client_profile,
+  [0] = DEFAULT_WIFI_CLIENT_PROFILE,
 };
 static sl_net_wifi_ap_profile_t wifi_ap_profiles[MAX_WIFI_AP_PROFILES] = {
-  [0] = default_wifi_ap_profile,
+  [0] = DEFAULT_WIFI_ACCESS_POINT_PROFILE,
 };
 
 sl_status_t sl_net_set_profile(sl_net_interface_t interface,

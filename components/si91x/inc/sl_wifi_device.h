@@ -474,7 +474,6 @@
  * | 1       |   1     | Reserved       | Reserved       | Reserved       |
  */
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 BIT(29)
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL             BIT(29)
 #define SL_SI91X_EXT_FEAT_FRONT_END_VIRTUAL_SWITCH             BIT(30)
 #else
 /** 
@@ -488,7 +487,6 @@
  * | 1       |   1     | UILP_GPIO 4    | ULP_GPIO 5     | ULP_GPIO 7     |
  */
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 BIT(30)
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_ANT_SEL             BIT(30)
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_7 (BIT(30) | BIT(29))
 #endif
 #else
@@ -708,8 +706,12 @@
 /// Disable Coded PHY from APP
 /// @note Device will support the LE-coded phy feature (i.e LR - 125kbps and 500kbps) by default. If this bit is enabled, the device will not the support of the LE-coded phy rates.
 #define SL_SI91X_BLE_DISABLE_CODED_PHY_FROM_HOST BIT(17)
+// BIT 19 for enabling advertising extensions
+#define SL_SI91X_BLE_ENABLE_ADV_EXTN BIT(19)
+// ble_custom_ext_feature_bit_map[20:23] for max AE adv sets
+#define SL_SI91X_BLE_AE_MAX_ADV_SETS(num_adv_sets) (num_adv_sets << 20)
 
-/// @note Bits 18 -31 are reserved
+/// @note Bits 21 -31 are reserved
 /** @} */
 
 /** \addtogroup SI91X_CONFIG_FEATURE_BITMAP si91x_config_feature_bit_map
@@ -940,11 +942,12 @@ typedef struct {
 
 /// Wi-Fi performance profile
 typedef struct {
-  sl_performance_profile_t profile;  ///< Performance profile.
-  uint8_t dtim_aligned_type;         ///< Set DTIM alignment required. @ref SI91X_DTIM_ALIGNMENT_TYPES.
-  uint8_t num_of_dtim_skip;          ///< Default value to be used is 0.
-  uint16_t listen_interval;          ///< Listen interval.
-  sl_wifi_twt_request_t twt_request; ///< twt request.
+  sl_performance_profile_t profile;      ///< Performance profile.
+  uint8_t dtim_aligned_type;             ///< Set DTIM alignment required. @ref SI91X_DTIM_ALIGNMENT_TYPES.
+  uint8_t num_of_dtim_skip;              ///< Default value to be used is 0.
+  uint16_t listen_interval;              ///< Listen interval.
+  sl_wifi_twt_request_t twt_request;     ///< twt request.
+  sl_wifi_twt_selection_t twt_selection; ///< twt selection request
 } sl_wifi_performance_profile_t;
 /** @} */
 
@@ -979,6 +982,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
 #else
                       RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
+#ifdef CHIP_917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
                       ),
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
@@ -1006,6 +1012,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_enterprise_client_co
                       RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
                       RAM_LEVEL_NWP_ADV_MCU_BASIC
+#endif
+#ifdef CHIP_917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
                    .bt_feature_bit_map = 0,
@@ -1053,6 +1062,9 @@ static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_configura
 #else
                                                   RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
+#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
                                                   ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
@@ -1082,8 +1094,12 @@ static const sl_wifi_device_configuration_t sl_wifi_transmit_test_configuration 
 #ifdef RSI_M4_INTERFACE
                      RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
-                     0
+                     RAM_LEVEL_NWP_BASIC_MCU_ADV
 #endif
+#ifdef CHIP_917
+                     | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
+
                      ),
                    .bt_feature_bit_map         = SL_SI91X_BT_RF_TYPE,
                    .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,

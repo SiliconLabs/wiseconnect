@@ -1,0 +1,15 @@
+id: sl_si91x_crypto
+package: wiseconnect3_sdk
+description: >
+  Common utility folder for crypto APIs
+label: Crypto - Utility
+category: Crypto|Utility
+quality: production
+component_root_path: ./components/si91x/crypto
+provides:
+- name: sl_si91x_crypto
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_crypto.h
+

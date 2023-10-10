@@ -152,7 +152,7 @@ void IRQ005_Handler(void);
 sl_status_t sl_si91x_ulp_timer_configure_clock(ulp_timer_clk_src_config_t *timer_clk_ptr)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   status = SL_STATUS_OK;
   uint8_t clk_src;
   do {
@@ -209,7 +209,7 @@ sl_status_t sl_si91x_ulp_timer_configure_clock(ulp_timer_clk_src_config_t *timer
 sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_config_ptr)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   uint16_t integral_part;
   uint8_t fractional_part;
   uint8_t timer_index;
@@ -313,7 +313,7 @@ sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_confi
 sl_status_t sl_si91x_ulp_timer_start(ulp_timer_instance_t timer_num)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   status = SL_STATUS_OK;
   do {
     // Validating timer number parameter
@@ -345,7 +345,7 @@ sl_status_t sl_si91x_ulp_timer_start(ulp_timer_instance_t timer_num)
 sl_status_t sl_si91x_ulp_timer_stop(ulp_timer_instance_t timer_num)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   status = SL_STATUS_OK;
   do {
     // Validating timer number parameter
@@ -413,7 +413,7 @@ sl_status_t sl_si91x_ulp_timer_restart(ulp_timer_instance_t timer_num)
 sl_status_t sl_si91x_ulp_timer_set_mode(ulp_timer_instance_t timer_num, ulp_timer_mode_t timer_mode)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   // Initializing SL status variable with OK status
   status = SL_STATUS_OK;
   do {
@@ -493,7 +493,7 @@ sl_status_t sl_si91x_ulp_timer_get_mode(ulp_timer_instance_t timer_num, uint32_t
 sl_status_t sl_si91x_ulp_timer_set_direction(ulp_timer_instance_t timer_num, ulp_timer_direction_t counter_dir)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   // Initializing SL status variable with OK status
   status = SL_STATUS_OK;
   do {
@@ -575,7 +575,7 @@ sl_status_t sl_si91x_ulp_timer_get_direction(ulp_timer_instance_t timer_num, uin
 sl_status_t sl_si91x_ulp_timer_set_type(ulp_timer_instance_t timer_num, ulp_timer_type_t timer_type)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   uint16_t clk_integral_part;
   uint8_t clk_fractional_part;
   // Initializing SL status variable with OK status
@@ -710,7 +710,7 @@ sl_status_t sl_si91x_ulp_timer_get_count(ulp_timer_instance_t timer_num, uint32_
 sl_status_t sl_si91x_ulp_timer_set_count(ulp_timer_instance_t timer_num, uint32_t timer_match_value)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   // Initializing SL status variable with OK status
   status = SL_STATUS_OK;
   do {
@@ -818,7 +818,7 @@ sl_status_t sl_si91x_ulp_timer_unregister_timeout_callback(ulp_timer_instance_t 
 sl_status_t sl_si91x_ulp_timer_configure_xtal_clock(uint8_t xtal_pin)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   status       = SL_STATUS_OK;
   error_status = RSI_CLK_XtalClkConfig(xtal_pin);
   if (error_status == INVALID_PARAMETERS) {
@@ -843,7 +843,7 @@ sl_status_t sl_si91x_ulp_timer_configure_xtal_clock(uint8_t xtal_pin)
 sl_status_t sl_si91x_ulp_timer_configure_soc_clock(boolean_t div_factor_type, uint16_t div_factor)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   status       = SL_STATUS_OK;
   uint16_t two = 2;
   do {
@@ -955,7 +955,7 @@ static sl_status_t ulp_timer_clear_interrupt(ulp_timer_instance_t timer_num)
 {
 
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   status = SL_STATUS_OK;
   do {
     // Validating timer number parameter
@@ -992,7 +992,7 @@ static sl_status_t ulp_timer_clear_interrupt(ulp_timer_instance_t timer_num)
 static sl_status_t ulp_timer_enable_interrupt(ulp_timer_instance_t timer_num)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   // Initializing SL status variable with OK status
   status = SL_STATUS_OK;
   do {
@@ -1027,7 +1027,7 @@ static sl_status_t ulp_timer_enable_interrupt(ulp_timer_instance_t timer_num)
 static sl_status_t ulp_timer_disable_interrupt(ulp_timer_instance_t timer_num)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   // Initializing SL status variable with OK status
   status = SL_STATUS_OK;
   do {

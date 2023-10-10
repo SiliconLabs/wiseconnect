@@ -5,9 +5,10 @@ description: >
   CMSIS core include paths
 category: Platform|si91x|core
 quality: alpha
-component_root_path: "components/siwx917_soc/core/cmsis/component"
+component_root_path: "components/siwx917_soc/core"
 include:
   - path: "cmsis"
+    unless: [cmsis_core]
     file_list:
     - path: "cmsis_version.h"
     - path: "core_cm4.h"

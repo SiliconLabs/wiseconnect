@@ -5,13 +5,11 @@ description: >
 label: Si91x SoC
 category: Devices|Si91x
 quality: production
-component_root_path: ./components/siwx917_soc
+root_path: components/siwx917_soc
 provides:
 - name: siwx917_soc
-- name: cortexm4
-- name: armv7em
-- name: device_arm
-- name: device_has_mpu
+- condition: ["wifi"]
+  name: device_has_mpu
 - condition: ["wifi"]
   name: rsi_m4_interface
 source:
@@ -22,140 +20,70 @@ source:
 - path: drivers/systemlevel/src/rsi_temp_sensor.c
 - path: drivers/systemlevel/src/rsi_rtc.c
 - path: drivers/systemlevel/src/rsi_time_period.c
-- path: drivers/ipmu/ipmu_apis.c
 - path: drivers/cmsis_driver/USART.c
 - path: drivers/cmsis_driver/UDMA.c
-- path: drivers/ipmu/rsi_system_config_9117.c
 - path: drivers/peripheral_drivers/src/clock_update.c
 - path: drivers/peripheral_drivers/src/rsi_usart.c
 - path: drivers/peripheral_drivers/src/rsi_udma_wrapper.c
 - path: drivers/peripheral_drivers/src/rsi_egpio.c
 - path: drivers/peripheral_drivers/src/rsi_udma.c
 - path: drivers/unified_api/src/sl_si91x_usart.c
-- path: boards/brd4325x/src/rsi_board.c
-- path: rsi_hal_mcu_m4_ram.c
-- path: core/chip/src/startup_si91x.c
-  condition: [sl_siwx917_platform]
-  unless: ["siwx917_soc_custom_startup"]
+- path: boards/src/rsi_board.c
+- path: platform_connectivity/rsi_hal_mcu_m4_ram.c
+- path: platform_connectivity/sl_platform.c
+- path: platform_connectivity/sl_platform_wireless.c
+- path: platform_connectivity/sl_si91x_bus.c
+- path: platform_connectivity/sli_siwx917_soc.c
+- path: platform_connectivity/rsi_hal_mcu_m4_rom.c
+- path: platform_connectivity/sl_si91x_timer.c
 - path: core/chip/src/system_si91x.c
-  condition: [sl_siwx917_platform]
 - path: core/chip/src/rsi_deepsleep_soc.c
-  condition: [sl_siwx917_platform]
-- path: sl_platform.c
-  condition: [wifi]
-- path: sl_platform_wireless.c
-  condition: [wifi]
-- path: sl_si91x_bus.c
-  condition: [wifi]
-- path: sli_siwx917_soc.c
-  condition: [wifi]
-- path: rsi_hal_mcu_m4_rom.c
-  condition: [wifi]
-- path: sl_si91x_timer.c
-  condition: [wifi]
+- path: core/chip/src/rsi_system_config.c
+- path: core/config/src/rsi_nvic_priorities_config.c
 - path: core/chip/src/startup_si91x.c
-  condition: [wifi]
   unless: ["siwx917_soc_custom_startup"]
-- path: core/chip/src/system_si91x.c
-  condition: [wifi]
-- path: core/chip/src/rsi_deepsleep_soc.c
-  condition: [wifi]
-- path: boards/brd4325x/src/syscalls.c
+- path: boards/src/syscalls.c
+  unless: ["no_syscalls"]
+include:
+- path: platform_connectivity/inc
+- path: drivers/cmsis_driver
+- path: drivers/cmsis_driver/config
+- path: drivers/cmsis_driver/CMSIS/Driver/Include
+- path: drivers/systemlevel/inc
+- path: drivers/peripheral_drivers/inc
+- path: drivers/rom_driver/inc
+- path: drivers/unified_api/inc
+- path: drivers/unified_api/config
+- path: boards/inc
+- path: core/config
+- path: core/chip/inc
+- path: platform_connectivity/wifi_inc
   condition: [wifi]
 define:
 - name: RSI_M4_INTERFACE
 - name: ENABLE_IPMU_APIS
 - name: SI917
-- name: DEBUG_UART
 - name: FLASH_BASED_EXECUTION_ENABLE
 - name: TA_DEEP_SLEEP_COMMON_FLASH
-- name: CHIP_917
-- name: COMMON_FLASH_EN
-  condition: [brd4325a]
-- name: COMMON_FLASH_EN
-  condition: [brd4325g]
-- name: COMMON_FLASH_EN
-  condition: [brd4338a]
 - name: RSI_WITH_OS
   condition: [freertos]
 - name: EXECUTION_FROM_RAM
   condition: [ram_execution]
-- name: SL_PLATFORM_EXAMPLES_ENABLE
-  condition: [sl_siwx917_platform]
-- name: SI91X_DEVICE
-  condition: [sl_siwx917_platform]
-- name: ROM_BYPASS
-  condition: [wifi]
 requires:
 - name: wiseconnect_toolchain_gcc
 - condition: ["wifi"]
   name: si91x_core
-- condition: ["freertos"]
-  name: si91x_device_init_nvic
 - name: component_catalog
-- condition: ["wifi"]
-  name: sl_siwx917_platform
 
 template_contribution:
-- name: device_opn
-  value: si917-sb00
-- name: device_arch
-  value: armv7em
-- name: device_cpu
-  value: cortexm4
-- name: device_family
-  value: SI917
-- condition: ["brd4325a"]
-  name: device_flash_addr
-  value: 136388608
-- condition: ["brd4325g"]
-  name: device_flash_addr
-  value: 136060928
-- condition: ["brd4338a"]
-  name: device_flash_addr
-  value: 136060928
-- condition: ["brd4325b"]
-  name: device_flash_addr
-  value: 134291456
-- condition: ["brd4325c"]
-  name: device_flash_addr
-  value: 136060928
-- condition: ["sl_si91x_nvm3"]
-  name: nvm3_enable
-  value: true
-- name: device_flash_size
-  value: 450560
-- name: device_flash_page_size
-  value: 256
-- name: device_ram_addr
-  value: 1024
-- condition: ["brd4325a"]
-  name: device_ram_size
-  value: 194560
-- condition: ["brd4325b"]
-  name: device_ram_size
-  value: 194560
-- condition: ["brd4325c"]
-  name: device_ram_size
-  value: 194560
-- condition: ["brd4325g"]
-  name: device_ram_size
-  value: 196608
-- condition: ["brd4338a"]
-  name: device_ram_size
-  value: 196608
-- name: device_fpu
-  value: true
-- name: device_mpu
-  value: true
-- name: default_stack_size
-  value: 3072
-- name: default_heap_size
-  value: 71688
 - condition: ["wifi"]
   name: event_handler
   priority: -9997
   value: {"event":"platform_init","handler":"sli_si91x_platform_init","include":"sli_siwx917_soc.h"}
+- condition: ["rsi_m4_interface"]
+  name: event_handler
+  priority: -9995
+  value: {"event":"platform_init","handler":"sl_si91x_hardware_setup","include":"rsi_wisemcu_hardware_setup.h"}
 - condition: ["freertos"]
   name: event_handler
   priority: -9998
@@ -170,199 +98,4 @@ toolchain_settings:
   value: cortex-m4
 - option: fpu
   value: fpv4-sp
-
-include:
-- path: inc
-  file_list:
-    - path: base_types.h
-    - path: data_types.h
-    - path: em_device.h
-    - path: RS1xxxx.h
-    - path: RS1xxxx_9117.h
-    - path: rs9116.h
-    - path: rsi_api.h
-    - path: rsi_board.h
-    - path: rsi_ccp_common.h
-    - path: rsi_ccp_user_config.h
-    - path: rsi_chip.h
-    - path: rsi_error.h
-    - path: rsi_m4.h
-    - path: rsi_ps_config.h
-    - path: rsi_ps_ram_func.h
-    - path: rsi_reg_spi.h
-    - path: rsi_system_config.h
-    - path: si91x_device.h
-    - path: sl_device.h
-    - path: sl_uart.h
-    - path: sli_siwx917_soc.h
-    - path: sli_siwx917_timer.h
-    - path: system_si91x.h
-- path: drivers/cmsis_driver
-  file_list:
-    - path: CAN.h
-    - path: EMAC.h
-    - path: GSPI.h
-    - path: I2C.h
-    - path: MCI.h
-    - path: PHY_LAN8742A.h
-    - path: SAI.h
-    - path: SPI.h
-    - path: UDMA.h
-    - path: USART.h
-    - path: USB.h
-- path: drivers/cmsis_driver/config
-  file_list:
-    - path: RTE_Components.h
-    - path: RTE_Device.h
-    - path: RTE_Device_917.h
-- path: drivers/cmsis_driver/CMSIS/Driver/Include
-  file_list:
-    - path: Driver_CAN.h
-    - path: Driver_Common.h
-    - path: Driver_ETH.h
-    - path: Driver_ETH_MAC.h
-    - path: Driver_ETH_PHY.h
-    - path: Driver_Flash.h
-    - path: Driver_I2C.h
-    - path: Driver_MCI.h
-    - path: Driver_NAND.h
-    - path: Driver_SAI.h
-    - path: Driver_SPI.h
-    - path: Driver_USART.h
-    - path: Driver_USB.h
-    - path: Driver_USBD.h
-    - path: Driver_USBH.h
-- path: drivers/systemlevel/inc
-  file_list:
-    - path: rsi_bod.h
-    - path: rsi_ds_timer.h
-    - path: rsi_ipmu.h
-    - path: rsi_pll.h
-    - path: rsi_pmu.h
-    - path: rsi_power_save.h
-    - path: rsi_processor_sensor.h
-    - path: rsi_reg_spi.h
-    - path: rsi_retention.h
-    - path: rsi_rtc.h
-    - path: rsi_temp_sensor.h
-    - path: rsi_time_period.h
-    - path: rsi_ulpss_clk.h
-    - path: rsi_wwdt.h
-- path: drivers/peripheral_drivers/inc
-  file_list:
-    - path: aux_reference_volt_config.h
-    - path: clock_update.h
-    - path: rsi_adc.h
-    - path: rsi_cci.h
-    - path: rsi_comparator.h
-    - path: rsi_crc.h
-    - path: rsi_ct.h
-    - path: rsi_cts.h
-    - path: rsi_dac.h
-    - path: rsi_efuse.h
-    - path: rsi_egpio.h
-    - path: rsi_enhanced_fim.h
-    - path: rsi_fim.h
-    - path: rsi_gpdma.h
-    - path: rsi_gspi.h
-    - path: rsi_i2c.h
-    - path: rsi_i2s.h
-    - path: rsi_ir.h
-    - path: rsi_opamp.h
-    - path: rsi_psram.h
-    - path: rsi_psram_config.h
-    - path: rsi_pwm.h
-    - path: rsi_qei.h
-    - path: rsi_qspi.h
-    - path: rsi_qspi_proto.h
-    - path: rsi_rng.h
-    - path: rsi_rpdma.h
-    - path: rsi_sdioh.h
-    - path: rsi_sdmem.h
-    - path: rsi_sio.h
-    - path: rsi_smih.h
-    - path: rsi_spi.h
-    - path: rsi_sspi.h
-    - path: rsi_sysrtc.h
-    - path: rsi_sysrtc_headers.h
-    - path: rsi_timers.h
-    - path: rsi_udma.h
-    - path: rsi_udma_wrapper.h
-    - path: rsi_usart.h
-    - path: rsi_vad.h
-    - path: rsi_wurx.h
-    - path: sl_917_mvp.h
-    - path: sl_assert.h
-    - path: sl_common.h
-    - path: sl_mvp.h
-    - path: sl_mvp_config.h
-    - path: sl_mvp_math.h
-    - path: sl_mvp_ml_add.h
-    - path: sl_mvp_power.h
-    - path: sl_mvp_types.h
-    - path: sl_mvp_util.h
-    - path: sl_status.h
-- path: drivers/rom_driver/inc
-  file_list:
-    - path: rsi_packing.h
-    - path: rsi_rom_clks.h
-    - path: rsi_rom_crc.h
-    - path: rsi_rom_ct.h
-    - path: rsi_rom_efuse.h
-    - path: rsi_rom_egpio.h
-    - path: rsi_rom_fim.h
-    - path: rsi_rom_gpdma.h
-    - path: rsi_rom_power_save.h
-    - path: rsi_rom_pwm.h
-    - path: rsi_rom_qspi.h
-    - path: rsi_rom_rng.h
-    - path: rsi_rom_table_RS1xxxx.h
-    - path: rsi_rom_table_si91x.h
-    - path: rsi_rom_timer.h
-    - path: rsi_rom_udma.h
-    - path: rsi_rom_udma_wrapper.h
-    - path: rsi_rom_ulpss_clk.h
-- path: drivers/unified_api/inc
-  file_list:
-    - path: sl_si91x_calendar.h
-    - path: sl_si91x_config_timer.h
-    - path: sl_si91x_dma.h
-    - path: sl_si91x_documentation.h
-    - path: sl_si91x_gpio.h
-    - path: sl_si91x_gpio_brd4325a.h
-    - path: sl_si91x_gspi.h
-    - path: sl_si91x_peripheral_gpio.h
-    - path: sl_si91x_peripheral_i2c.h
-    - path: sl_si91x_sio.h
-    - path: sl_si91x_ssi.h
-    - path: sl_si91x_ulp_timer.h
-    - path: sl_si91x_usart.h
-    - path: sl_si91x_watchdog_timer.h
-- path: drivers/unified_api/config
-  file_list:
-    - path: sl_si91x_calendar_config.h
-    - path: sl_si91x_config_timer_config.h
-    - path: sl_si91x_dma_inst_config.h
-    - path: sl_si91x_gspi_common_config.h
-    - path: sl_si91x_gspi_config.h
-    - path: sl_si91x_sio_config.h
-    - path: sl_si91x_ssi_common_config.h
-    - path: sl_si91x_ssi_config.h
-    - path: sl_si91x_ulp_timer_inst_config.h
-    - path: sl_si91x_usart_common_config.h
-    - path: sl_si91x_usart_config.h
-    - path: sl_si91x_watchdog_timer_config.h
-- path: wifi_inc
-  file_list:
-    - path: rsi_common.h
-    - path: rsi_data_types.h
-    - path: rsi_driver.h
-    - path: rsi_os.h
-    - path: rsi_pkt_mgmt.h
-    - path: rsi_user.h
-    - path: rsi_wisemcu_hardware_setup.h
-    - path: rsi_wlan_common_config.h
-    - path: rsi_wlan_defines.h
-  condition:
-    - wifi
 

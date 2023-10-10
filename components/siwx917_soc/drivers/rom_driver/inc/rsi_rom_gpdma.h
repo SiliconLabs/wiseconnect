@@ -20,12 +20,13 @@
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_GPDMA_DRIVER RSI:RS1xxxx GPDMA 
+ * \defgroup GPDMA_DRIVER 
  *  @{
  *
  */
 #include "rsi_ccp_user_config.h"
 #include "rsi_packing.h"
+#include "rsi_gpdma.h"
 #if defined(A11_ROM)
 #include "rsi_rom_table_si91x.h"
 #else
@@ -74,7 +75,7 @@ STATIC INLINE RSI_GPDMA_HANDLE_T RSI_GPDMA_Init(void *mem, const RSI_GPDMA_INIT_
  * @param[in]   pCB      : Pointer to callback function
  * @return 		  none
  */
-STATIC INLINE void RSI_GPDMA_RegisterCallback(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, void *pCB)
+STATIC INLINE void RSI_GPDMA_RegisterCallback(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, gpdmaTransferCompleteCB pCB)
 {
 #if defined(ROMDRIVER_PRESENT)
   ROMAPI_GPDMA_API->gpdma_register_callback(pHandle, cbIndex, pCB);
@@ -84,13 +85,13 @@ STATIC INLINE void RSI_GPDMA_RegisterCallback(RSI_GPDMA_HANDLE_T pHandle, uint32
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_GPDMA_AbortChannel(RSI_GPDMA_HANDLE_T pHandle,uint8_t dmaCh)
+ * @fn          STATIC INLINE rsi_error_t RSI_GPDMA_AbortChannel(RSI_GPDMA_HANDLE_T pHandle,uint8_t dmaCh)
  * @brief		    This API is used to Abort the channel transfer
  * @param[in]   pHandle  : Pointer to driver context handle
  * @param[in]   dmaCh    : DMA channel number(0-7)
  * @return 		  return \ref RSI_OK
  */
-STATIC INLINE error_t RSI_GPDMA_AbortChannel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
+STATIC INLINE rsi_error_t RSI_GPDMA_AbortChannel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_abort_channel(pHandle, dmaCh);
@@ -100,7 +101,7 @@ STATIC INLINE error_t RSI_GPDMA_AbortChannel(RSI_GPDMA_HANDLE_T pHandle, uint8_t
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_GPDMA_SetupChannel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          STATIC INLINE rsi_error_t RSI_GPDMA_SetupChannel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 
  * @brief		    This API is used to configures required parameters for a channel.
  * @param[in]   pHandle  : Pointer to driver context handle
@@ -109,7 +110,7 @@ STATIC INLINE error_t RSI_GPDMA_AbortChannel(RSI_GPDMA_HANDLE_T pHandle, uint8_t
                 \n \ref ERROR_GPDMA_INVALID_ARG : If channel number is invalid
                 \n \ref RSI_OK                  : If process is done successfully
  */
-STATIC INLINE error_t RSI_GPDMA_SetupChannel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+STATIC INLINE rsi_error_t RSI_GPDMA_SetupChannel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_setup_channel(pHandle, pCfg);
@@ -119,7 +120,7 @@ STATIC INLINE error_t RSI_GPDMA_SetupChannel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPD
 }
 
 /**
- * @fn         STATIC INLINE error_t RSI_GPDMA_BuildDescriptors(RSI_GPDMA_HANDLE_T pHandle,RSI_GPDMA_DESC_T   *pXferCfg,
+ * @fn         STATIC INLINE rsi_error_t RSI_GPDMA_BuildDescriptors(RSI_GPDMA_HANDLE_T pHandle,RSI_GPDMA_DESC_T   *pXferCfg,
                                                   RSI_GPDMA_DESC_T   *pDesc,RSI_GPDMA_DESC_T   *pDescPrev )
  * @brief		   Sets and build the descriptor for data transfer.
  * @param[in]	 pHandle     : Pointer to driver context handle
@@ -129,10 +130,10 @@ STATIC INLINE error_t RSI_GPDMA_SetupChannel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPD
  * @return     \ref ERROR_GPDMA_INVALID_ARG : If any descriptor parameter is invalid
                \n \ref RSI_OK               : If process is done successfully
  */
-STATIC INLINE error_t RSI_GPDMA_BuildDescriptors(RSI_GPDMA_HANDLE_T pHandle,
-                                                 RSI_GPDMA_DESC_T *pXferCfg,
-                                                 RSI_GPDMA_DESC_T *pDesc,
-                                                 RSI_GPDMA_DESC_T *pDescPrev)
+STATIC INLINE rsi_error_t RSI_GPDMA_BuildDescriptors(RSI_GPDMA_HANDLE_T pHandle,
+                                                     RSI_GPDMA_DESC_T *pXferCfg,
+                                                     RSI_GPDMA_DESC_T *pDesc,
+                                                     RSI_GPDMA_DESC_T *pDescPrev)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_build_descriptors(pHandle, pXferCfg, pDesc, pDescPrev);
@@ -142,7 +143,7 @@ STATIC INLINE error_t RSI_GPDMA_BuildDescriptors(RSI_GPDMA_HANDLE_T pHandle,
 }
 
 /**
- * @fn         STATIC INLINE error_t RSI_GPDMA_SetupChannelTransfer( RSI_GPDMA_HANDLE_T pHandle,
+ * @fn         STATIC INLINE rsi_error_t RSI_GPDMA_SetupChannelTransfer( RSI_GPDMA_HANDLE_T pHandle,
                                                        uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc)
 
  * @brief		   Sets the control parameters for a GPDMA channel control structure.
@@ -156,7 +157,9 @@ STATIC INLINE error_t RSI_GPDMA_BuildDescriptors(RSI_GPDMA_HANDLE_T pHandle,
                \n \ref ERROR_GPDMA_INVALID_ARG : If any other descriptor parameter is invalid
                \n \ref RSI_OK                  : If process is done successfully
  */
-STATIC INLINE error_t RSI_GPDMA_SetupChannelTransfer(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc)
+STATIC INLINE rsi_error_t RSI_GPDMA_SetupChannelTransfer(RSI_GPDMA_HANDLE_T pHandle,
+                                                         uint8_t dmaCh,
+                                                         RSI_GPDMA_DESC_T *pDesc)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_setup_channelTransfer(pHandle, dmaCh, pDesc);
@@ -197,7 +200,7 @@ STATIC INLINE void RSI_GPDMA_DeInit(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CF
 #endif
 }
 /**
- * @fn          STATIC INLINE error_t RSI_GPDMA_DMAChannelTrigger(RSI_GPDMA_HANDLE_T pHandle ,uint8_t dmaCh)
+ * @fn          STATIC INLINE rsi_error_t RSI_GPDMA_DMAChannelTrigger(RSI_GPDMA_HANDLE_T pHandle ,uint8_t dmaCh)
 
  * @brief		    This API is used to enable the required channel of GPDMA
  * @param[in]   pHandle  : Pointer to driver context handle
@@ -205,7 +208,7 @@ STATIC INLINE void RSI_GPDMA_DeInit(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CF
  * @return 		  \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
                 \n \ref RSI_OK                  : If process is done successfully
  */
-STATIC INLINE error_t RSI_GPDMA_DMAChannelTrigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
+STATIC INLINE rsi_error_t RSI_GPDMA_DMAChannelTrigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_dma_channel_trigger(pHandle, dmaCh);
@@ -233,14 +236,14 @@ STATIC INLINE uint32_t RSI_GPDMA_ChannelIsEnabled(RSI_GPDMA_HANDLE_T pHandle, ui
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_GPDMA_InterruptDisable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          STATIC INLINE rsi_error_t RSI_GPDMA_InterruptDisable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
  * @brief		    This API is used to disable the interrupt for required GPDMA channel.
  * @param[in]   pHandle  : Pointer to driver context handle
  * @param[in]   pCfg     : Pointer to DMA channel configuration structure \ref RSI_GPDMA_CHA_CFG_T
  * @return 		  \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
                 \n \ref RSI_OK                  : If process is done successfully
  */
-STATIC INLINE error_t RSI_GPDMA_InterruptDisable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+STATIC INLINE rsi_error_t RSI_GPDMA_InterruptDisable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_interrupt_disable(pHandle, pCfg);
@@ -250,14 +253,14 @@ STATIC INLINE error_t RSI_GPDMA_InterruptDisable(RSI_GPDMA_HANDLE_T pHandle, RSI
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_GPDMA_InterruptEnable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          STATIC INLINE rsi_error_t RSI_GPDMA_InterruptEnable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
  * @brief		    This API is used to enable interrupt flags for required GPDMA channel
  * @param[in]   pHandle  : Pointer to driver context handle
  * @param[in]   pCfg     : Pointer to DMA channel configuration structure  \ref RSI_GPDMA_CHA_CFG_T
  * @return 		  \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
                 \n \ref RSI_OK                  : If process is done successfully
  */
-STATIC INLINE error_t RSI_GPDMA_InterruptEnable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+STATIC INLINE rsi_error_t RSI_GPDMA_InterruptEnable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_interrupt_enable(pHandle, pCfg);
@@ -267,7 +270,7 @@ STATIC INLINE error_t RSI_GPDMA_InterruptEnable(RSI_GPDMA_HANDLE_T pHandle, RSI_
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_GPDMA_ErrorStatusClear( RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          STATIC INLINE rsi_error_t RSI_GPDMA_ErrorStatusClear( RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 
  * @brief	      This API is used to clear the errors for the required GPDMA channel.
  * @param[in]   pHandle  : Pointer to driver context handle 
@@ -275,7 +278,7 @@ STATIC INLINE error_t RSI_GPDMA_InterruptEnable(RSI_GPDMA_HANDLE_T pHandle, RSI_
  * @return 		 \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
                \n \ref RSI_OK                  : If process is done successfully
  */
-STATIC INLINE error_t RSI_GPDMA_ErrorStatusClear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+STATIC INLINE rsi_error_t RSI_GPDMA_ErrorStatusClear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_error_status_clear(pHandle, pCfg);
@@ -302,7 +305,7 @@ STATIC INLINE uint32_t RSI_GPDMA_GetErrorStatus(RSI_GPDMA_HANDLE_T pHandle, RSI_
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_GPDMA_InterruptClear( RSI_GPDMA_HANDLE_T pHandle,
+ * @fn          STATIC INLINE rsi_error_t RSI_GPDMA_InterruptClear( RSI_GPDMA_HANDLE_T pHandle,
                                                   RSI_GPDMA_CHA_CFG_T *pCfg)
  * @brief		    This API is used to clear the interrupts of required GPDMA channel
  * @param[in]   pHandle  : Pointer to driver context handle
@@ -310,7 +313,7 @@ STATIC INLINE uint32_t RSI_GPDMA_GetErrorStatus(RSI_GPDMA_HANDLE_T pHandle, RSI_
  * @return 		  \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
                 \n \ref RSI_OK                  : If process is done successfully
  */
-STATIC INLINE error_t RSI_GPDMA_InterruptClear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+STATIC INLINE rsi_error_t RSI_GPDMA_InterruptClear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_interrupt_clear(pHandle, pCfg);

@@ -14,3 +14,6 @@ include:
     - path: "rsi_pll.h"
 provides:
   - name: systemlevel_pll
+requires:
+  - name: systemlevel_reg_spi
+  - name: romdriver_clks

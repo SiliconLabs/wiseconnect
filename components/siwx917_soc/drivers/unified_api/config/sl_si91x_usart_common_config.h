@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#ifndef SL_COMMON_CONFIG_H
-#define SL_COMMON_CONFIG_H
+#ifndef SL_SI91X_USART_COMMON_CONFIG_H
+#define SL_SI91X_USART_COMMON_CONFIG_H
 
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>DMA Configuration
@@ -48,4 +48,4 @@
 
 // </h>
 // <<< end of configuration section >>>
-#endif
+#endif // SL_SI91X_USART_COMMON_CONFIG_H

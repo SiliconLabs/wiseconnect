@@ -79,9 +79,17 @@ void IRQ074_Handler(void)
  */
 void rsi_m4_ta_interrupt_init(void)
 {
+#ifdef CHIP_917
+  //! Unmask the interrupt
+  unmask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
+#ifdef M4_OTAF_DF
+                      | M4_IMAGE_UPGRADATION_PENDING_INTERRUPT
+#endif
+  );
+#else
   //! Unmask the interrupt
   unmask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT);
-
+#endif
   P2P_STATUS_REG |= M4_is_active;
 
   *(volatile uint32_t *)0xE000E108 = 0x00000400;

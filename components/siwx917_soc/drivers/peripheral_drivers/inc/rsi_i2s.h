@@ -72,6 +72,7 @@ ARM_SAI_STATUS I2S_GetStatus(I2S_RESOURCES *i2s);
 void I2S_IRQHandler(I2S_RESOURCES *i2s);
 void I2S_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, I2S_RESOURCES *i2s);
 void I2S_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, I2S_RESOURCES *i2s);
+uint8_t I2S_GetInitState(uint8_t i2s_instance);
 
 #ifdef __cplusplus
 }

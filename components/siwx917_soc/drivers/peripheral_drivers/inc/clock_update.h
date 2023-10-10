@@ -35,7 +35,8 @@ typedef enum PERI_CLKS {
   M4_SD_MEM, // Enables or Disables SD_MEM Peripheral clock when it is passed
   M4_CCI,    // Enables or Disables CCI Peripheral clock when it is passed
 #endif
-  M4_QSPI,     // Enables or Disables QSPI Peripheral clock when it is passed
+  M4_QSPI, // Enables or Disables QSPI Peripheral clock when it is passed
+  M4_QSPI2,
   M4_GSPI,     // Enables or Disables GSPI Peripheral clock when it is passed
   M4_ETHERNET, // Enables or Disables ETHERNET Peripheral clock when it is passed
   M4_I2SM,     // Enables or Disables I2SM Peripheral clock when it is passed
@@ -49,6 +50,8 @@ typedef enum PERI_CLKS {
 } PERI_CLKS_T;
 
 uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src);
+uint32_t GetTickCount(void);
+void SysTick_Handler(void);
 
 #ifdef __SYSTICK
 void rsi_delay_ms(uint32_t val);

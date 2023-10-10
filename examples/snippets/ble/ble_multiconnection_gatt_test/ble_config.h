@@ -31,7 +31,6 @@
 #include "stdint.h"
 #include <string.h>
 #include <stdbool.h>
-// #include "app.h"
 #include "rsi_ble_apis.h"
 
 /***********************************************************************************************************************************************/
@@ -88,8 +87,8 @@
 /*=================Central1 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_C1 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_C1 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_C1 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_C1 1
 //! configure below macro to perform data transfer
@@ -126,8 +125,8 @@
 /*=================Central2 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_C2 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_C2 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_C2 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_C2 1
 //! configure below macro to perform data transfer
@@ -172,8 +171,8 @@
 /*=================Peripheral1 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_P1 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_P1 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_P1 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_P1 1
 //! configure below macro to perform data transfer
@@ -218,8 +217,8 @@
 /*=================Peripheral2 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_P2 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_P2 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_P2 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_P2 1
 //! configure below macro to perform data transfer
@@ -256,8 +255,8 @@
 /*=================Peripheral3 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_P3 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_P3 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_P3 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_P3 1
 //! configure below macro to perform data transfer
@@ -363,7 +362,7 @@ typedef enum rsi_ble_state_e {
   RSI_CONN_UPDATE_REQ_EVENT,
   RSI_BLE_WRITE_EVENT_RESP,
   RSI_BLE_GATT_INDICATION_CONFIRMATION,
-  RSI_BLE_REQ_WHITELIST,
+  RSI_BLE_REQ_ACCEPTLIST,
   RSI_BLE_APP_USER_INPUT,
   RSI_BLE_SELECT_DATATRANSFER,
 } rsi_ble_state_t;
@@ -371,7 +370,7 @@ typedef enum rsi_ble_state_e {
 typedef struct rsi_ble_conn_config_s {
   uint8_t conn_id;
   bool smp_enable;
-  bool add_to_whitelist;
+  bool add_to_acceptlist;
   bool profile_discovery;
   bool data_transfer;
   //	bool bidir_datatransfer;
@@ -537,68 +536,11 @@ typedef struct rsi_ble_s {
 /***********************************************************************************************************************************************/
 
 /*=======================================================================*/
-//!	Power save configurations
-/*=======================================================================*/
-#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
-#define PSP_MODE          RSI_SLEEP_MODE_2
-#define PSP_TYPE          RSI_MAX_PSP
-
-/*=======================================================================*/
-//!WMM PS parameters
-/*=======================================================================*/
-
-#define RSI_WMM_PS_ENABLE        RSI_DISABLE //! set WMM enable or disable
-#define RSI_WMM_PS_TYPE          0           //! set WMM enable or disable  //! 0- TX BASED 1 - PERIODIC
-#define RSI_WMM_PS_WAKE_INTERVAL 20          //! set WMM wake up interval
-#define RSI_WMM_PS_UAPSD_BITMAP  15          //! set WMM UAPSD bitmap
-
-/*=======================================================================*/
-//! Feature frame parameters
-/*=======================================================================*/
-#if (ENABLE_POWER_SAVE)
-#define FEATURE_ENABLES \
-  (RSI_FEAT_FRAME_PREAMBLE_DUTY_CYCLE | RSI_FEAT_FRAME_LP_CHAIN | RSI_FEAT_FRAME_IN_PACKET_DUTY_CYCLE)
-#else
-#define FEATURE_ENABLES 0
-#endif
-
-/*=======================================================================*/
 //! BT power control
 /*=======================================================================*/
 #define BT_PWR_CTRL_DISABLE 0
 #define BT_PWR_CTRL         1
 #define BT_PWR_INX          10
-
-/*=======================================================================*/
-//! Power save command parameters
-/*=======================================================================*/
-#ifdef RSI_M4_INTERFACE
-#define RSI_HAND_SHAKE_TYPE M4_BASED //! set handshake type of power mode
-#else
-#define RSI_HAND_SHAKE_TYPE GPIO_BASED
-#endif
-
-/*=======================================================================*/
-//! Opermode command parameters
-/*=======================================================================*/
-#define RSI_FEATURE_BIT_MAP \
-  (SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1) //! To set wlan feature select bit map
-#define RSI_TCP_IP_FEATURE_BIT_MAP \
-  (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT) //! TCP/IP feature select bitmap for selecting TCP/IP features
-#define RSI_CUSTOM_FEATURE_BIT_MAP SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID //! To set custom feature select bit map
-#ifdef CHIP_917
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                                                         \
-  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | RAM_LEVEL_NWP_ADV_MCU_BASIC \
-   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0)
-#else
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
-#endif
-#define RSI_EXT_TCPIP_FEATURE_BITMAP 0
-#define RSI_BT_FEATURE_BITMAP        (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
-
-#define RSI_CONFIG_FEATURE_BITMAP 0
-
-#define RSI_TCP_IP_BYPASS RSI_DISABLE //! TCP IP BYPASS feature check
 
 #include "rsi_ble_common_config.h"
 

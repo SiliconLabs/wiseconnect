@@ -11,7 +11,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -20,8 +20,9 @@ include:
     file_list:
       - path: app.h 
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
 requires:
 - name: sl_system
 - name: wifi

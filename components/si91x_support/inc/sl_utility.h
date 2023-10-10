@@ -33,23 +33,49 @@
 #include "sl_ip_types.h"
 #include "sl_ieee802_types.h"
 
+/***************************************************************************/ /**
+ * @brief 
+ *   Convert a character string into a sl_ipv4_address_t
+ * @param line  
+ *   Argument string that is expected to be like 192.168.0.1
+ * @param ip    
+ *   Pointer to sl_ipv4_address_t.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t convert_string_to_sl_ipv4_address(char *line, sl_ipv4_address_t *ip);
 
 /***************************************************************************/ /**
- * @brief
- *   Convert IPv6 binary address into presentation (printable) format
- * @param[in] input
- *   A pointer to the buffer containing the binary IPV6 address
- * @param[in] dst
- *   A pointer to the buffer where the resulting string will be stored
- * @param[in] size
- *   The size of the destination buffer in bytes
- * @return
- *   A pointer to a resulting string containing human readable representation of IPV6 address.
- ******************************************************************************/
+* @brief
+*   Convert IPv6 binary address into presentation (printable) format
+* @param[in] input
+*   A pointer to the buffer containing the binary IPV6 address
+* @param[in] dst
+*   A pointer to the buffer where the resulting string will be stored
+* @param[in] size
+*   The size of the destination buffer in bytes
+* @return
+*   A pointer to a resulting string containing human readable representation of IPV6 address.
+******************************************************************************/
 char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size);
 
-void print_sl_ip_address(sl_ip_address_t *sl_ip_address);
+/***************************************************************************/ /**
+ * @brief
+ *   Convert a character string into a sl_mac_address_t
+ * @param line
+ *   Argument string that is expected to be like 00:11:22:33:44:55
+ * @param mac
+ *   Pointer to sl_mac_address_t_address_t.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *mac);
+
+void print_sl_ip_address(const sl_ip_address_t *sl_ip_address);
+void print_sl_ipv4_address(const sl_ipv4_address_t *ip_address);
+void print_sl_ipv6_address(const sl_ipv6_address_t *ip_address);
 void print_mac_address(sl_mac_address_t *mac_address);
 void convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer);
 void little_to_big_endian(unsigned int *source, unsigned char *result, unsigned int length);
 int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, unsigned int *ptr_result);
+void reverse_digits(unsigned char *xx, int no_digits);

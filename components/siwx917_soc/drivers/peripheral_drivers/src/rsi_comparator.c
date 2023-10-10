@@ -22,7 +22,7 @@
 */
 /*==============================================*/
 /**
- * @fn           error_t RSI_COMP_Config(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, uint8_t sel_p_mux, uint8_t sel_n_mux, uint8_t hyst_en, uint8_t filter_en)
+ * @fn           rsi_error_t RSI_COMP_Config(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, uint8_t sel_p_mux, uint8_t sel_n_mux, uint8_t hyst_en, uint8_t filter_en)
  * @brief        This API is used to configure the comparator parameters.
  * @param[in]    comp        : Pointer to the comparator register instance.
  * @param[in]    comp_number : comparator number to be enabled or disabled
@@ -58,12 +58,12 @@
  * @b Example    
  *     - RSI_COMP_Config(COMPARATOR_1,COMP1, COMP1_POSITIVE_INPUT, COMP1_NEGATIVE_INPUT, HYST_ENABLE,FILTER_ENABLE); 
  */
-error_t RSI_COMP_Config(AUX_ADC_DAC_COMP_Type *comp,
-                        uint8_t comp_number,
-                        uint8_t sel_p_mux,
-                        uint8_t sel_n_mux,
-                        uint8_t hyst_en,
-                        uint8_t filter_en)
+rsi_error_t RSI_COMP_Config(AUX_ADC_DAC_COMP_Type *comp,
+                            uint8_t comp_number,
+                            uint8_t sel_p_mux,
+                            uint8_t sel_n_mux,
+                            uint8_t hyst_en,
+                            uint8_t filter_en)
 {
   /* Address of a target register ULP */
   ULP_SPI_MEM_MAP(BG_SCDC_PROG_REG1) |= BIT(3);
@@ -109,7 +109,7 @@ error_t RSI_COMP_Config(AUX_ADC_DAC_COMP_Type *comp,
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type* comp,uint8_t comp_number , uint8_t enable)
+ * @fn           rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type* comp,uint8_t comp_number , uint8_t enable)
  * @brief        This API is used to enable and disable the comparator
  * @param[in]    comp        : Pointer to the comparator register instance.
  * @param[in]    comp_number : comparator no to be enabled or disabled
@@ -124,7 +124,7 @@ error_t RSI_COMP_Config(AUX_ADC_DAC_COMP_Type *comp,
  * @b Example    
  *     - RSI_COMP_Enable(COMPARATOR_1,COMP1,ENABLE,METAL_REV1P3); 
  */
-error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, uint8_t enable)
+rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, uint8_t enable)
 {
   uint32_t i = 0;
   if ((comp_number > MAX_NUM_OF_COMPARATORS) || (comp_number < MIN_NUM_OF_COMPARATORS)) {
@@ -235,7 +235,7 @@ error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, uint8_
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type* comp,uint16_t value_thrsh)
+ * @fn           rsi_error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type* comp,uint16_t value_thrsh)
  * @brief        This API is used to set register bank threshold value.
  * @param[in]    comp        : Pointer to the comparator register instance                       
  * @param[in] 	 value_thrsh : Value of register threshold value. 
@@ -245,7 +245,7 @@ error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, uint8_
  * @b Example    
  *     - RSI_COMP_ResistorBank_Thrsh(COMPARATOR_1,value_thrsh);
  */
-error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh)
+rsi_error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh)
 {
   if ((value_thrsh > MAX_THRSHOLD_VALUE)) {
     return INVALID_PARAMETERS;
@@ -315,7 +315,7 @@ error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type* comp,uint16_t scalar_factor_value)
+ * @fn           rsi_error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type* comp,uint16_t scalar_factor_value)
  * @brief        This API is used to set the scalar output value.
  * @param[in]    comp                : Pointer to the comparator register instance                      
  * @param[in] 	 scalar_factor_value : Set reference scalar value.
@@ -328,7 +328,7 @@ error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh)
  * @b Example    
  *     - RSI_COMP_ReferenceScalarOut(COMPARATOR_1,scalar_factor_value,METAL_REV1P3);    
  */
-error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scalar_factor_value)
+rsi_error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scalar_factor_value)
 {
   if ((scalar_factor_value > MAX_SCALAR_FACTOR)) {
     return INVALID_PARAMETERS;
@@ -398,7 +398,7 @@ error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scalar_fa
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number,uint8_t MaskConfig)
+ * @fn           rsi_error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number,uint8_t MaskConfig)
  * @brief        This API is used for masking or unmasking the comparator interrupt.     
  * @param[in]    comp_number         : Select comparator for operation
  *                                     - 1:Select comparator 1. 
@@ -415,7 +415,7 @@ error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scalar_fa
  * @b Example    
  *     - RSI_COMP_ReferenceScalarOut(COMPARATOR_1,ENABLE);    
  */
-error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number, uint8_t MaskConfig)
+rsi_error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number, uint8_t MaskConfig)
 {
   if ((comp_number > MAX_NUM_OF_COMPARATORS) || (comp_number < MIN_NUM_OF_COMPARATORS)) {
     return INVALID_PARAMETERS;
@@ -492,7 +492,7 @@ error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number, uint8_t MaskConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_COMP_IntrEnableDisable(uint8_t comp_number,uint8_t enable)
+ * @fn           rsi_error_t RSI_COMP_IntrEnableDisable(uint8_t comp_number,uint8_t enable)
  * @brief        This API is used to disable or enable comparator interrupt
  *               if metal revision select as metal_rev_1p4.
  * @param[in]    comp_number : comparator no to be enabled or disabled
@@ -507,7 +507,7 @@ error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number, uint8_t MaskConfig)
  * @b Example    
  *     - RSI_COMP_IntrEnableDisable(COMPARATOR_1,ENABLE)
  */
-error_t RSI_COMP_IntrEnableDisable(uint8_t comp_number, uint8_t enable)
+rsi_error_t RSI_COMP_IntrEnableDisable(uint8_t comp_number, uint8_t enable)
 {
   if ((comp_number > MAX_NUM_OF_COMPARATORS) || (comp_number < MIN_NUM_OF_COMPARATORS)) {
     return INVALID_PARAMETERS;
@@ -539,7 +539,7 @@ error_t RSI_COMP_IntrEnableDisable(uint8_t comp_number, uint8_t enable)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_COMP_PinMux(uint8_t comp_number,uint8_t pos_pin,uint8_t neg_pin)
+ * @fn           rsi_error_t RSI_COMP_PinMux(uint8_t comp_number,uint8_t pos_pin,uint8_t neg_pin)
  * @brief        This API configure the required pin in analog for comparator operation.  
  * @param[in]    comp_number : comparator no to be enabled or disabled
  *                             - 1:for comparator 1 
@@ -552,7 +552,7 @@ error_t RSI_COMP_IntrEnableDisable(uint8_t comp_number, uint8_t enable)
  * @b Example    
  *     - RSI_COMP_PinMux(COMPARATOR_1,sel_p_mux,sel_n_mux)
  */
-error_t RSI_COMP_PinMux(uint8_t comp_number, uint8_t pos_pin, uint8_t neg_pin)
+rsi_error_t RSI_COMP_PinMux(uint8_t comp_number, uint8_t pos_pin, uint8_t neg_pin)
 {
   if ((pos_pin == 0) || (pos_pin == 1)) {
     if (comp_number == COMP1) {
@@ -565,8 +565,10 @@ error_t RSI_COMP_PinMux(uint8_t comp_number, uint8_t pos_pin, uint8_t neg_pin)
       }
     } else {
       if (pos_pin) {
-        RSI_EGPIO_PadReceiverDisable(AGPIO_PIN12);
-        RSI_EGPIO_SetPinMux(EGPIO1, AGPIO_PORT, AGPIO_PIN12, AGPIO_MODE); /* non-inverting external input pin */
+        RSI_EGPIO_PadReceiverDisable(TGPIO_PIN2);
+        RSI_EGPIO_HostPadsGpioModeDisable(TGPIO_PIN2);
+        RSI_EGPIO_PadSdioConnected();
+        RSI_EGPIO_SetPinMux(EGPIO, 0, TGPIO_PIN2, TGPIO_MODE);
       } else {
         RSI_EGPIO_PadReceiverDisable(AGPIO_PIN2);
         RSI_EGPIO_SetPinMux(EGPIO1, AGPIO_PORT, AGPIO_PIN2, AGPIO_MODE); /* non-inverting external input pin */
@@ -584,8 +586,10 @@ error_t RSI_COMP_PinMux(uint8_t comp_number, uint8_t pos_pin, uint8_t neg_pin)
       }
     } else {
       if (neg_pin) {
-        RSI_EGPIO_PadReceiverDisable(AGPIO_PIN13);
-        RSI_EGPIO_SetPinMux(EGPIO1, AGPIO_PORT, AGPIO_PIN13, AGPIO_MODE); /* inverting external input pin */
+        RSI_EGPIO_PadReceiverDisable(TGPIO_PIN3);
+        RSI_EGPIO_HostPadsGpioModeDisable(TGPIO_PIN3);
+        RSI_EGPIO_PadSdioConnected();
+        RSI_EGPIO_SetPinMux(EGPIO, 0, TGPIO_PIN3, TGPIO_MODE);
       } else {
         RSI_EGPIO_PadReceiverDisable(AGPIO_PIN3);
         RSI_EGPIO_SetPinMux(EGPIO1, AGPIO_PORT, AGPIO_PIN3, AGPIO_MODE); /* inverting external input pin */

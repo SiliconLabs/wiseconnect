@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_si91x_socket_utility.h
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #pragma once
 
 #include "sl_si91x_types.h"
@@ -49,7 +66,8 @@
 #define IS_POWER_OF_TWO(x) (x < 0) ? 0 : (x && (!(x & (x - 1))))
 
 sl_status_t sl_si91x_socket_init(void);
-sl_status_t sl_si91x_socket_deinit(void);
+sl_status_t sl_si91x_vap_shutdown(uint8_t vap_id);
+sl_status_t sl_si91x_config_socket(sl_si91x_socket_config_t socket_config);
 
 /**
  * A internal function to reset the socket.
@@ -76,6 +94,8 @@ si91x_socket_t *get_si91x_socket(int socket_id);
  * @return True if available else false.
  */
 bool is_port_available(uint16_t port_number);
+
+sl_status_t add_server_name_indication_extension(si91x_server_name_indication_extensions_t* socket_sni_extensions, const si91x_socket_type_length_value_t* sni_extension);
 
 sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *backlog);
 

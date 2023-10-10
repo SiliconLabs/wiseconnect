@@ -35,59 +35,57 @@ Before running the application, the user will need the following things to setup
 
 **SoC Mode :**
 
-   ![](resources/readme/bleheartratesoc.png)
+![](resources/readme/blehrsoc.png)
 
 **NCP Mode :**
 
-![](resources/readme/bleheartratencp.png)
+![](resources/readme/blehrncp.png)
 
 Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
-## 3. Project Environment
+## 3 Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-### 3.1 Creating the Project
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
 
-#### 3.1.1 SoC Mode
+### 3.1 Creating the project
 
-1. Ensure the SiWx91x setup is connected to your PC.
+#### 3.1.1 SoC mode
+
+- Ensure the SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-   ![Soc Board detection](resources/readme/socboarddetection111.png)
-
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
-
-- Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - Heart Rate* application.
-
-   ![project_selection](resources/readme/create_project1.png)
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  ![creation_final](resources/readme/create_project2.png)
+  **![Soc Board detection](resources/readme/socboarddetection111.png)**
 
 #### 3.1.2 NCP mode
 
-1. Ensure the EFx32 and SiWx91x setup is connected to your PC.
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
-   ![EFR32 Board detection](resources/readme/efr32.png)
+  **![EFR32 Board detection](resources/readme/efr32.png)**
 
-- Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
+### 3.2 Importing the project
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *BLE - Heart Rate* application.
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
 
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
+#### SOC Mode
 
-  ![creation_final](resources/readme/create_project2.png)
-  
-### 3.2 Setup for Application Prints
+- Select **BLE - Heart Rate** test application
 
-#### 3.2.1 SoC Mode
+  **![project_selection](resources/readme/create_project1.png)**
 
-  You can use either of the below USB to UART converters for application prints.
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+
+  **![creation_final](resources/readme/create_project2.png)**
+
+### 3.3 Set up for application prints
+
+#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
+
+You can use either of the below USB to UART converters for application prints.
 
 1. Set up using USB to UART converter board.
 
@@ -96,158 +94,114 @@ Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wisec
 
    **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
-2. Setup using USB to UART converter cable.
+2. Set up using USB to UART converter cable.
 
    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera Term setup - for NCP and SoC modes**
+3. Open the Teraterm tool.
 
-1. Open the Tera Term tool.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+     **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
-   **![UART - SoC](resources/readme/port_selection_soc.png)**
+**Note:** For Other 917 SoC boards please refer section #3.3.2
 
-- For NCP mode, choose the J-Link port and click on **OK**.
+#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
 
-   **![J-link - NCP](resources/readme/port_selection.png)**
+1. Open the Teraterm tool.
+
+- choose the J-Link port and click on **OK**.
+    
+    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
-  **![Serial port](resources/readme/serial_port_setup.png)**
+    **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
-  **![Baud rate](resources/readme/serial_port.png)**
+    **![serial_port](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
 
+### 4.1 Configure the Application
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-### 4.1 Configure the Application
+**4.1.1** In the Project explorer pane of the IDE, expand the **ble_heart_rate_profile** folder and open the **app.c** file. 
+![](resources/readme/bleheartrateapplicationconfigurations.png)
 
-Open `app.c` file and update/modify following macros,
+   - **GATT_ROLE** refers the role of the Silicon Labs module to be selected.
+      - If user configures, **SERVER**, Silicon Labs module will act as GATT SERVER, means will add heart rate profile.
 
-User must update the below parameters
+      - If user configures, **CLIENT**, Silicon Labs module will act as GATT CLIENT, means will connect to remote GATT server and get services and enable notify.
+      
+   ```c
+   #define GATT_ROLE                  SERVER
+   ```
+   
+   - **Power Save Configuration**
+   Configure "ENABLE_POWER_SAVE" parameter to enable power save mode.
+       
+      ```c
+         #define ENABLE_POWER_SAVE              1
+      ```
 
-- **GATT\_ROLE** refers the role of the Silicon Labs module to be selected.
+**4.1.2 BLE Hear rate profile application as a SERVER**
 
-  - If user configures, **SERVER**, Silicon Labs module will act as GATT SERVER, means will add heart rate profile.
+- The following parameters are required to configure, when the SiWx91x module as a **SERVER**
 
-  - If user configures, **CLIENT**, Silicon Labs module will act as GATT CLIENT, means will connect to remote GATT server and get services and enable notify.
+  ```c
+  //! RSI_BLE_HEART_RATE_PROFILE Refer to the SiWx91x module name
+  #define RSI_BLE_HEART_RATE_PROFILE "BLE_HEART_RATE"
 
-```c
-  #define GATT_ROLE                                     SERVER```
-- `RSI_BLE_DEV_ADDR_TYPE` refers address type of the remote device to connect.
-  - Based on the address of the advertising device, Valid configurations are
+  //! BLE Heart rate service & characteristic service uuid
+  #define RSI_BLE_HEART_RATE_SERVICE_UUID       0x180D
+  #define RSI_BLE_HEART_RATE_MEASUREMENT_UUID   0x2A37
+  #define RSI_BLE_SENSOR_LOCATION_UUID          0x2A38
+  #define RSI_BLE_HEART_RATE_CONTROL_POINT_UUID 0x2A39
 
-    - LE_RANDOM_ADDRESS
-    - LE_PUBLIC_ADDRESS
-    
-    **Note:** Depends 
-    - LE_PUBLIC_ADDRESS
-```c
-  #define RSI_BLE_DEV_ADDR_TYPE                         LE_PUBLIC_ADDRESS
-```
+  //! BLE attribute service types uuid values
+  #define RSI_BLE_CHAR_SERV_UUID   0x2803
+  #define RSI_BLE_CLIENT_CHAR_UUID 0x2902
 
-   **Note:** Depends on the remote device, address type will be changed.
+  //! attribute properties
+  #define RSI_BLE_ATT_PROPERTY_READ   0x02
+  #define RSI_BLE_ATT_PROPERTY_WRITE  0x08
+  #define RSI_BLE_ATT_PROPERTY_NOTIFY 0x10
+  ```
 
-- `RSI_BLE_DEV_ADDR` refers address of the remote device to connect.
+**4.1.3 BLE Hear rate profile application as a CLIENT**
 
-```c
-  #define RSI_BLE_DEV_ADDR                              "00:23:A7:80:70:B9"
-```
+- The following parameters are required to configure, when the SiWx91x module as a **CLIENT**
 
-- `RSI_REMOTE_DEVICE_NAME` refers the name of remote device to which Silicon Labs device has to connect.
+- **Remote device configuration parameters**
 
-```c
-  #define RSI_REMOTE_DEVICE_NAME                        "SILABS_DEV"
-```
+  ```c
+  // RSI_BLE_DEV_ADDR_TYPE refers to the address type of the remote device to connect.
+  //! Based on address type of remote device, valid configurations are LE_RANDOM_ADDRESS and LE_PUBLIC_ADDRESS
+ 
+	#define RSI_BLE_DEV_ADDR_TYPE                          LE_PUBLIC_ADDRESS 
+  
+  //RSI_BLE_DEV_ADDR refers to the address of the remote device to connect.
+  
+  #define RSI_BLE_DEV_ADDR                               "00:23:A7:80:70:B9" 
+  
+  //RSI_REMOTE_DEVICE_NAME refers to the name of remote device to which Silicon Labs device has to connect.
 
-**Note:**
-   Silicon Labs module can connect to remote device by referring either RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME of the remote device.
+   #define RSI_REMOTE_DEVICE_NAME                         "SILABS_DEV" 
+  ```
+  **Note:** you're required to configure either the `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` of the remote device.
 
-   **Power save configuration**
+**4.1.4** Open `ble_config.h` file and configure required parameters as per requirement.
+![](resources/readme/bleheartrateconfigurations.png)  
 
-- By default, The Application is configured without power save.
+   - **Opermode command parameters**
+  This configuration can be found in app.c as `config`	
 
-```c  
-  #define ENABLE_POWER_SAVE 0```
--  If user wants to run the application in power save, modify the below configuration. 
-```c  
-  #define ENABLE_POWER_SAVE 1 
-```
-
-The desired parameters are provided below. User can also modify the parameters as per their needs and requirements
-
-- `RSI_BLE_HEART_RATE_UUID` refers to the attribute value of the newly created service.
-
-```c
-  #define RSI_BLE_HEART_RATE_SERVICE_UUID                0x180D```
-- `RSI_BLE_HEART_RATE_MEASUREMENT_UUID` refers to the attribute type of the first attribute under this service (RSI_BLE_HEART_RATE_SERVICE_UUID`).
-```c
-  #define RSI_BLE_HEART_RATE_MEASUREMENT_UUID            0x2A37```
-- `RSI_BLE_SENSOR_LOCATION_UUID` refers to the attribute type of the second attribute under this service (RSI_BLE_HEART_RATE_SERVICE_UUID`).
-```c
-  #define RSI_BLE_SENSOR_LOCATION_UUID                   0x2A38```
-- `RSI_BLE_HEART_RATE_CONTROL_POINT_UUID` refers to the attribute type of the second attribute under this service (`RSI_BLE_HEART_RATE_SERVICE_UUID`).
-```c
-  #define RSI_BLE_HEART_RATE_CONTROL_POINT_UUID          0x2A39```
-- `RSI_BLE_MAX_DATA_LEN` refers to the Maximum length of the attribute data.
-```c
-  #define RSI_BLE_MAX_DATA_LEN                           20```
-- `BLE_HEART_RATE_PROFILE` refers name of the Repine device to appear during scanning by remote devices.
-```c
-  #define RSI_BLE_HEART_RATE_PROFILE                     "BLE_HEART_RATE_PROFILE"
-```
-
-Following are the **non-configurable** macros in the application.
-
-- `RSI_BLE_CHAR_SERV_UUID` refers to the attribute type of the characteristics to be added in a service.
-
-```c
-  #define RSI_BLE_CHAR_SERV_UUID                         0x2803```
-- `RSI_BLE_CLIENT_CHAR_UUID` refers to the attribute type of the client characteristics descriptor to be added in a service.
-```c
-  #define RSI_BLE_CLIENT_CHAR_UUID                       0x2902```
-- `RSI_BLE_ATT_PROPERTY_READ` is used to set the read property to an attribute value.
-```c
-  #define RSI_BLE_ATT_PROPERTY_READ                      0x02```
-- `RSI_BLE_ATT_PROPERTY_WRITE` is used to set the WRITE property to an attribute value.
-```c
-  #define RSI_BLE_ATT_PROPERTY_WRITE                     0x08```
-- `RSI_BLE_ATT_PROPERTY_NOTIFY` is used to set the NOTIFY property to an attribute value.
-```c
-  #define RSI_BLE_ATT_PROPERTY_NOTIFY                    0x10```
-- `BT_GLOBAL_BUFF_LEN` refers Number of bytes required by the application and the driver.
-```c
-  #define BT_GLOBAL_BUFF_LEN                             15000
-```
-
-Open `ble_config.h` file and update/modify following macros,
-
-```c
-  #define RSI_BLE_PWR_INX          30
-  #define RSI_BLE_PWR_SAVE_OPTIONS 0    
-  #define BLE_DISABLE_DUTY_CYCLING 0
-     #define BLE_DUTY_CYCLING         1
-     #define BLR_DUTY_CYCLING         2
-     #define BLE_4X_PWR_SAVE_MODE     4
-```
-
-   **Opermode command parameters**
-
-```c
-  #define RSI_FEATURE_BIT_MAP                            FEAT_SECURITY_OPEN
-  #define RSI_TCP_IP_BYPASS                              RSI_DISABLE
-  #define RSI_TCP_IP_FEATURE_BIT_MAP                     TCP_IP_FEAT_DHCPV4_CLIENT
-  #define RSI_CUSTOM_FEATURE_BIT_MAP                     FEAT_CUSTOM_FEAT_EXTENTION_VALID
-  #define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                 0
-```
-
-**Note:**
-    ble_config.h files are already set with desired configuration in respective example folders user need not change for each example.
+      
+ **Note:** `ble_config.h` and `app.c` files are already set with desired configuration in respective example folders you need not change for each example. 
+	
 
 ### 4.2 Build the Application
 
@@ -284,9 +238,13 @@ Open `ble_config.h` file and update/modify following macros,
 
    ![](resources/readme/load_image2.png)
 
-#### 4.3.2 Test the Application
+#### 4.3.2 Application Execution Flow
 
-#### Steps to be followed to verify BLE Heart rate profile application as a SERVER
+Application has the feasibility to configure the Heartrate GATT server (or) GATT client.     
+**Note:**      
+- The provided mobile screenshots are from the 2.5.2 version of the EFR Connect app, it is recommended to use the latest version.
+
+#### BLE Hear rate profile application as a SERVER
 
 1. After the program gets executed, If Silicon Labs device is configured as **SERVER** specified in the macro **GATT_ROLE**, Silicon Labs will be in Advertising state.
 
@@ -295,20 +253,22 @@ Open `ble_config.h` file and update/modify following macros,
 3. Open a EFR Connect App in the Smartphone and do the scan.
 
 4. In the App, Silicon Labs module device will appear with the name configured in the macro `RSI_BLE_HEART_RATE_PROFILE (Ex: "BLE_HEART_RATE")` or sometimes observed as Silicon Labs device as internal name "**SimpleBLEPeripheral**".
+![](resources/readme/bleheartratedeviceadvertising.png)
 
 5. Initiate connection from the App.
 
 6. After successful connection, EFR Connect APP displays the supported services of Silicon Labs module.
+![](resources/readme/bleheartratedeviceconnected.png)
 
 7. Select the attribute service which is added `RSI_BLE_HEART_RATE_SERVICE_UUID`
 
-8. Enable notify for the characteristic `RSI_BLE_HEART_RATE_MEASUREMENT_UUID`
-
-   So that GATT server indicates when value updated in that particular attribute.
+8. Enable notify for the characteristic `RSI_BLE_HEART_RATE_MEASUREMENT_UUID`. So that GATT server indicates when value updated in that particular attribute.
+![](resources/readme/bleheartratedevicegattservernotificationsenabled.png)
 
 9. Whenever the value is updated at server it will be notified to the client which can be read at Heart_Rate_Measurement attribute.
+![](resources/readme/bleheartratedevicegattserverreceiveddata.png)
 
-#### Steps to be followed to verify BLE Heart rate profile application as a CLIENT
+#### BLE Hear rate profile application as a CLIENT
 
 1. Configure the **GATT_ROLE** macro as **CLIENT**
 
@@ -319,6 +279,7 @@ Open `ble_config.h` file and update/modify following macros,
    - UUID: 0x180D
 
    **Note:** Refer the [Adding Services](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server the EFR connect mobile APP as advertiser.
+   ![](resources/readme/gattconfigurator1.png)
 
 4. Add the characteristic services and their coresponding properties as shown below
    | S.No | Name | UUID | Property |
@@ -328,11 +289,13 @@ Open `ble_config.h` file and update/modify following macros,
    |3|Heart Rate Control Point | 0x2A39 | Write|
 
    **Note:** Refer the [Adding Characteristics and Descriptors](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server in the EFR connect mobile APP.
+   ![](resources/readme/gattconfigurator2.png)
 
 5. Enable the **Heart rate** service.
+![](resources/readme/gattconfigurator3.png)
 
 6. Configure the advertiser.
-
+![](resources/readme/bleheartrateadvertiser.png)      
 **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
 
 7. When Silicon Labs device is configured as **CLIENT** specified in the macro **GATT_ROLE**, scans for remote device and tries to connect with the remote device specified in `RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME` macro.
@@ -340,8 +303,9 @@ Open `ble_config.h` file and update/modify following macros,
 8. Get all GATT profiles of remote device and Search for profile specified in the macro `RSI_BLE_HEART_RATE_SERVICE_UUID`. And get all characteristics of the heart rate service and verify the characteristic `RSI_BLE_HEART_RATE_MEASUREMENT_UUID` which has notify property.
 
 9. Observe notify property is enabled in the GATT server and indicates to the GATT client whenever the value is updated at server .
+![](resources/readme/bleheartratedevicegattserverconnection.png)
 
-10. Observe the updated heart rate measurement value on the teraterm. Refer the below images for console prints
+10. Observe the updated heart rate measurement value on the serial terminal. Refer the below images for console prints
 
 ### 4.4 Application Output
 

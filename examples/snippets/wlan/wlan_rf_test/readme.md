@@ -15,7 +15,7 @@ To use this application, the following hardware, software and project setup is r
 - Signal Generator and RF connectors
 - SiWx91x Wi-Fi Evaluation Kit
   - **SoC Mode**:
-    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
+    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A, BRD4340A](https://www.silabs.com/)
   - **NCP Mode**:
     - Silicon Labs [BRD4180B](https://www.silabs.com/)
     - Host MCU Eval Kit. This example has been tested with:
@@ -64,81 +64,84 @@ NCP
 
 ## 3 Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-2. Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-3. Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
 
 ### 3.1 Creating the project
 
-### 3.1.1 SoC mode
+#### 3.1.1 SoC mode
 
-- Connect your board. The Si917 compatible SoC boards are: **BRD4325A, BRD4325B, BRD4325C, BRD4325G**.
-- Studio should detect your board. Your board will be shown here.
+- Ensure the SiWx91x set up is connected to your PC.
 
-    **![Soc Board detection](resources/readme/soc_board_detection.png)**
+- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wlan RF Test application
+  **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
-    ![project_selection](resources/readme/rf_test_soc.png)
+#### 3.1.2 NCP mode
+
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
+
+- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
+
+  **![EFR32 Board detection](resources/readme/efr32.png)**
+
+### 3.2 Importing the project
+
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
+
+#### SOC Mode
+
+- Select **Wi-Fi - Wlan RF Test** test application
+
+  **![project_selection](resources/readme/rf_test_soc.png)**
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-  ![creation_final](resources/readme/create_project_soc.png)
+  **![creation_final](resources/readme/create_project_soc.png)**
 
-### 3.1.2 NCP mode
 
-- Connect your board. The supported NCP boards are **BRD4180B**.
-- Studio should detect your board. Your board will be shown here.
+### 3.3 Set up for application prints
 
-    **![EFR32 Board detection](resources/readme/efr32.png)**
+#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4340A
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wlan Rf_test application
-
-  ![project_selection](resources/readme/rf_test_soc.png)
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  ![creation_final](resources/readme/create_project.png)
-
-### 3.2 Set up for application prints
-
-#### 3.2.1 SoC mode
-
-  You can use either of the below USB to UART converters for application prints.
+You can use either of the below USB to UART converters for application prints.
 
 1. Set up using USB to UART converter board.
 
-    - Connect Tx (Pin-6) to P27 on WSTK
-    - Connect GND (Pin 8 or 10) to GND on WSTK
+   - Connect Tx (Pin-6) to P27 on WSTK
+   - Connect GND (Pin 8 or 10) to GND on WSTK
 
-      **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
 2. Set up using USB to UART converter cable.
 
-    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-    - Connect GND (Pin1) of TTL convertor to GND on WSTK
+   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
+   - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
-      **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera Term set up - for NCP and SoC modes**
+3. Open the Teraterm tool.
 
-1. Open the Tera Term tool.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+     **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
-      **![UART - SoC](resources/readme/port_selection_soc.png)**
+**Note:** For Other 917 SoC boards please refer section #3.3.2
 
-- For NCP mode, choose the J-Link port and click on **OK**.
+#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
 
-      **![J-link - NCP](resources/readme/port_selection.png)**
+1. Open the Teraterm tool.
+
+- choose the J-Link port and click on **OK**.
+    
+    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
- **![Serial port](resources/readme/serial_port_setup.png)**
+    **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
- **![Baud rate](resources/readme/serial_port.png)**
+    **![serial_port](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
 
@@ -150,8 +153,8 @@ The application can be configured to suit user requirements and development envi
 
 - **STA instance related parameters**
 
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
-
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+  
      ```c
      #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
      ```
@@ -162,13 +165,20 @@ The application can be configured to suit user requirements and development envi
      #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
      ```
 
+  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+
+  	  ```c
+      #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE                           SL_WIFI_WPA2 
+      ```
+  
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
 2. Configure the following parameters in **app.c** to test throughput app as per requirements
 
 ```c
+  sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
   #define SL_TX_TEST_POWER    4               // Tx RF power in the range [2:18] dBm
-  #define SL_TX_TEST_RATE     0x0             // WLAN data rate
+  #define SL_TX_TEST_RATE     rate             // WLAN data rate of 6Mbps
   #define SL_TX_TEST_LENGTH   30              // Tx packet length in the range [24:1500] bytes in burst mode, 
                                                //[24:260 ] bytes in continuous mode
   #define SL_TX_TEST_MODE     0               // Selects burst mode or continuous mode
@@ -205,8 +215,9 @@ The following readme provides example spectrums when the SiWx91x is configured t
 ## Transmit Spectrum Example
 
 ```c
+  sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
   #define SL_TX_TEST_POWER    127                     
-  #define SL_TX_TEST_RATE     6                     
+  #define SL_TX_TEST_RATE     rate                     
   #define SL_TX_TEST_LENGTH   100                   
   #define SL_TX_TEST_MODE     SL_CONTINUOUS_MODE   
   #define SL_TX_TEST_CHANNEL  6                     
@@ -217,8 +228,9 @@ The below result is for PER Mode with Channel '6' with 6 Mbps data rate and max 
 ![Figure: Spectrum Analyzer speed 6Mbps](resources/readme/continuous_mode_spectrum_analyser.png)
 
 ```c
+  sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
   #define SL_TX_TEST_POWER    127                     
-  #define SL_TX_TEST_RATE     6                     
+  #define SL_TX_TEST_RATE     rate                     
   #define SL_TX_TEST_LENGTH   1000                  
   #define SL_TX_TEST_MODE     SL_BURST_MODE        
   #define SL_TX_TEST_CHANNEL  6                     

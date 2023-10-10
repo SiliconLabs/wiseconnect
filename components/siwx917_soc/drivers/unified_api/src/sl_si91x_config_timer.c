@@ -75,7 +75,6 @@ static sl_status_t evaluate_ocu_params(sl_config_timer_ocu_config_t *ocu_config_
  ***********************  Global function Prototypes *************************
  ******************************************************************************/
 void IRQ034_Handler(void);
-void SysTick_Handler(void);
 /*******************************************************************************
 ***********************  Global function Definitions *************************
  ******************************************************************************/
@@ -207,7 +206,7 @@ sl_status_t sl_si91x_config_timer_set_ocu_configuration(sl_config_timer_ocu_conf
 *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_ocu_control(sl_config_timer_ocu_control_t *ocu_params)
 {
-  error_t error_status;
+  rsi_error_t error_status;
   sl_status_t status;
   status = SL_STATUS_OK;
   do {
@@ -269,7 +268,7 @@ sl_status_t sl_si91x_config_timer_set_wfg_configuration(sl_config_timer_wfg_conf
   wfg_config_ptr = &ct_wfg_configuration;
 #endif
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   status = SL_STATUS_OK;
   do {
     // Validates the null pointer, if true returns error code
@@ -930,16 +929,6 @@ void CT_IRQHandler(void)
   } while (false);
   // calling the callback function
   callback_function_ptr(callback_flags);
-}
-
-/*******************************************************************************
-* Systick handler 
-*
-* @param none
-* @return none
-*******************************************************************************/
-void SysTick_Handler(void)
-{
 }
 
 //---------------------------------------------------------------------------------

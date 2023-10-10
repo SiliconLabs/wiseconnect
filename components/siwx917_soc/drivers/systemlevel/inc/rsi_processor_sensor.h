@@ -34,11 +34,11 @@ extern "C" {
  */
 #include "rsi_ccp_common.h"
 
-error_t RSI_ProSense_Enable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN);
+rsi_error_t RSI_ProSense_Enable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN);
 uint32_t RSI_ProSense_Read(MCU_ProcessSensor_Type *pstcProcessSensor);
 uint32_t RSI_ProSense_GetNumCycles(MCU_ProcessSensor_Type *pstcProcessSensor);
-error_t RSI_ProSense_ClkEnable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN);
-error_t RSI_ProSense_RingClkStart(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN);
+rsi_error_t RSI_ProSense_ClkEnable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN);
+rsi_error_t RSI_ProSense_RingClkStart(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN);
 
 #ifdef __cplusplus
 }

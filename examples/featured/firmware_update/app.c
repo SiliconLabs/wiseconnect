@@ -38,12 +38,21 @@
 #include <string.h>
 #include "sl_si91x_driver.h"
 
+#ifdef RSI_M4_INTERFACE
+#include "sl_si91x_hal_soc_soft_reset.h"
+#endif
+
 /******************************************************
  *                      Macros
  ******************************************************/
 /******************************************************
  *                    Constants
  ******************************************************/
+#ifdef RSI_M4_INTERFACE
+//! Set 1 for combined image
+#define COMBINED_IMAGE 0
+#endif
+
 //! Server IP address.
 #define SERVER_IP_ADDRESS "192.168.0.213"
 
@@ -91,6 +100,9 @@ static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuratio
                       | RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
                       | RAM_LEVEL_NWP_ADV_MCU_BASIC
+#endif
+#ifdef CHIP_917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
                    .bt_feature_bit_map         = 0,
@@ -261,12 +273,19 @@ sl_status_t update_firmware()
         // Close the socket
         close(client_socket);
         printf("\r\nFirmware update complete\r\n");
-        osDelay(5000);
+
+#ifdef RSI_M4_INTERFACE
+//! Perform SOC soft reset for combined Image
+#if COMBINED_IMAGE
+        printf("\r\nSoC Soft Reset initiated!\r\n");
+        sl_si91x_soc_soft_reset();
+#endif
+#endif
+
         status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE, NULL);
         printf("\r\nWi-Fi Deinit status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);
 
-        osDelay(5000);
         status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
         printf("\r\nWi-Fi Init status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);

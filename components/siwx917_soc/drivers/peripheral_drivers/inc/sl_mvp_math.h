@@ -38,8 +38,6 @@ extern "C" {
 
 /// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
 /***************************************************************************/ /**
- * @addtogroup mvp MVP API
- * @{
  ******************************************************************************/
 
 /**
@@ -78,7 +76,6 @@ void sli_mvp_math_vector_add_i8(const int8_t *input_a, const int8_t *input_b, in
  */
 void sli_mvp_math_clamp_i8(int8_t *data, size_t len, int8_t min, int8_t max);
 
-/** @} (end addtogroup mvp) */
 /// @endcond
 
 #ifdef __cplusplus

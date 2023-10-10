@@ -925,7 +925,7 @@ typedef struct rsi_ble_per_transmit_s {
   uint8_t rx_chnl_num;
   /** Tx channel number (0 - 39) */
   uint8_t tx_chnl_num;
-  /** Initial seed to be used for whitening. It should be set to �0� in order to disable whitening. \n
+  /** Initial seed to be used for whitening. It should be set to 0 in order to disable whitening. \n
       In order to enable, one should give the scrambler seed value which is used on the receive side */
   uint8_t scrambler_seed;
   /** LE channel type (data or advertise channel) \n
@@ -1009,7 +1009,7 @@ typedef struct rsi_ble_per_receive_s {
   uint8_t rx_chnl_num;
   /** Tx channel number (0 - 39) */
   uint8_t tx_chnl_num;
-  /** Initial seed to be used for whitening. It should be set to �0� in order to disable whitening. \n
+  /** Initial seed to be used for whitening. It should be set to 0 in order to disable whitening. \n
       In order to enable, one should give the scrambler seed value which is used on the transmit side */
   uint8_t scrambler_seed;
   /** LE channel type (data or advertise channel) \n
@@ -1867,8 +1867,8 @@ int32_t rsi_ble_set_le_ping_timeout(uint8_t *remote_dev_address, uint16_t time_o
 
 /*==============================================*/
 /**
- * @fn         int32_t rsi_ble_clear_whitelist(void)
- * @brief      Clear all the BD address present in white list. This is a Blocking API
+ * @fn         int32_t rsi_ble_clear_acceptlist(void)
+ * @brief      Clear all the BD address present in accept list. This is a Blocking API
  * @pre        Device should be initialized before calling this API.
  * @param[in]  void
  * @return     0 - Success \n
@@ -1877,14 +1877,14 @@ int32_t rsi_ble_set_le_ping_timeout(uint8_t *remote_dev_address, uint16_t time_o
  *             -4 - Buffer not available to serve the command
  * @note       Refer Error Codes section for above error codes \ref error-codes .
  */
-int32_t rsi_ble_clear_whitelist(void);
+int32_t rsi_ble_clear_acceptlist(void);
 
 /*==============================================*/
 /**
- * @fn         int32_t rsi_ble_addto_whitelist(int8_t *dev_address, uint8_t dev_addr_type)
- * @brief      Add BD address to white list. This is a Blocking API
+ * @fn         int32_t rsi_ble_addto_acceptlist(int8_t *dev_address, uint8_t dev_addr_type)
+ * @brief      Add BD address to accept list. This is a Blocking API
  * @pre        Device should be initialized before calling this API.
- * @param[in]  dev_address - Address of the device which is going to add in white list
+ * @param[in]  dev_address - Address of the device which is going to add in accept list
  * @param[in]  dev_addr_type - address type of BD address
  * @return     0 - Success \n
  *             Non-Zero Value - Failure \n
@@ -1892,14 +1892,14 @@ int32_t rsi_ble_clear_whitelist(void);
  *             -4 - Buffer not available to serve the command
  * @note       Maximum number of device address that firmware can store is 10. \n Refer Error Codes section for above error codes \ref error-codes .
  */
-int32_t rsi_ble_addto_whitelist(int8_t *dev_address, uint8_t dev_addr_type);
+int32_t rsi_ble_addto_acceptlist(int8_t *dev_address, uint8_t dev_addr_type);
 
 /*==============================================*/
 /**
- * @fn         int32_t rsi_ble_deletefrom_whitelist(int8_t *dev_address, uint8_t dev_addr_type)
- * @brief      Delete particular BD address from white list. This is a Blocking API
- * @pre        \ref rsi_ble_addto_whitelist() API needs to be called before this API.
- * @param[in]  dev_address - Address of the device which is going to delete from white list
+ * @fn         int32_t rsi_ble_deletefrom_acceptlist(int8_t *dev_address, uint8_t dev_addr_type)
+ * @brief      Delete particular BD address from accept list. This is a Blocking API
+ * @pre        \ref rsi_ble_addto_acceptlist() API needs to be called before this API.
+ * @param[in]  dev_address - Address of the device which is going to delete from accept list
  * @param[in]  dev_addr_type - address type of BD address
  * @return     0 - Success \n
  *             Non-Zero Value - Failure \n
@@ -1908,7 +1908,7 @@ int32_t rsi_ble_addto_whitelist(int8_t *dev_address, uint8_t dev_addr_type);
  * @note       Refer Error Codes section for above error codes \ref error-codes .
  */
 
-int32_t rsi_ble_deletefrom_whitelist(int8_t *dev_address, uint8_t dev_addr_type);
+int32_t rsi_ble_deletefrom_acceptlist(int8_t *dev_address, uint8_t dev_addr_type);
 
 /*==============================================*/
 /**
@@ -2220,11 +2220,11 @@ int32_t rsi_ble_per_receive(struct rsi_ble_per_receive_s *rsi_ble_per_rx);
 int32_t rsi_ble_vendor_rf_type(uint8_t ble_power_index);
 /*==============================================*/
 /**
- * @fn         int32_t rsi_ble_white_list_using_adv_data(uint8_t enable,
+ * @fn         int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
  *                                                    uint8_t data_compare_index,
  *                                                    uint8_t len_for_compare_data,
  *                                                    uint8_t *payload)
- * @brief      Give vendor-specific command to set the whitelist feature based on
+ * @brief      Give vendor-specific command to set the acceptlist feature based on
  *             the advertisers advertising payload. This is a Blocking API
  * @pre        Device should be initialized before calling this API.
  * @param[in]  enable - enable/disable
@@ -2238,10 +2238,10 @@ int32_t rsi_ble_vendor_rf_type(uint8_t ble_power_index);
  *              0x4E62 	Invalid Parameters \n
  * @note       Refer Error Codes section for above error codes \ref error-codes .
  */
-int32_t rsi_ble_white_list_using_adv_data(uint8_t enable,
-                                          uint8_t data_compare_index,
-                                          uint8_t len_for_compare_data,
-                                          uint8_t *payload);
+int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
+                                           uint8_t data_compare_index,
+                                           uint8_t len_for_compare_data,
+                                           uint8_t *payload);
 
 /*==============================================*/
 /**

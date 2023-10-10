@@ -32,7 +32,7 @@ volatile static SMIH_EVENT_T event;
 // SMIH CONTROLLER RELATED FUNCTIONS
 /*==============================================*/
 /**
- * @fn           error_t RSI_SD_HostInit(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event, uint8_t MemType)
+ * @fn           rsi_error_t RSI_SD_HostInit(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event, uint8_t MemType)
  * @brief        This API is used to initialize the smih host configuration
  * @param[in]    pSmihConfig     : Pointer to the smih card configuration structure
  * @param[in]    Event           : event handler to be register
@@ -41,7 +41,7 @@ volatile static SMIH_EVENT_T event;
  *                                 0 for IO operations
  * @return       RSI_OK          : If host initialized successfully
  */
-error_t RSI_SD_HostInit(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event, uint8_t MemType)
+rsi_error_t RSI_SD_HostInit(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event, uint8_t MemType)
 {
   SMIH_CONFIG_MODES_T commandCfg;
   if (pSmihConfig == 0) {
@@ -138,11 +138,11 @@ error_t RSI_SD_HostInit(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t 
 
 /*==============================================*/
 /**
- * @fn           error_t Smih_DeInitialization(void)
+ * @fn           rsi_error_t Smih_DeInitialization(void)
  * @brief        This API is used to Deinitialize the host controller.               *
  * @return       RSI_OK  : If host deinitialized successfully.
  */
-error_t Smih_DeInitialization(void)
+rsi_error_t Smih_DeInitialization(void)
 {
   // Clear clock control and power control registers
   SMIH->SMIH_CLOCK_CONTROL_REGISTER = 0x0000;
@@ -158,7 +158,7 @@ error_t Smih_DeInitialization(void)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_bus_width_set(uint8_t BusWidthMode)
+ * @fn           rsi_error_t smih_bus_width_set(uint8_t BusWidthMode)
  * @brief        This API is used to set the smih bus width.
  * @param[in]    BusWidthMode    :   bus width mode
  *               possible values are  0 for 1bit mode
@@ -166,7 +166,7 @@ error_t Smih_DeInitialization(void)
  *                                    2 for 8bit mode
  * @return       RSI_OK : If bus width set successfully.
  */
-error_t smih_bus_width_set(uint8_t BusWidthMode)
+rsi_error_t smih_bus_width_set(uint8_t BusWidthMode)
 {
   // Configure bus width
   if (BusWidthMode == 0) {
@@ -181,7 +181,7 @@ error_t smih_bus_width_set(uint8_t BusWidthMode)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_bus_voltage_select(uint8_t enVoltage)
+ * @fn           rsi_error_t smih_bus_voltage_select(uint8_t enVoltage)
  * @brief        This API is used to select the smih voltage.
  * @param[in]    enVoltage  : voltage selection
  *                            possbile selections are
@@ -190,7 +190,7 @@ error_t smih_bus_width_set(uint8_t BusWidthMode)
  *                            VOLTAGE_33V   3.3v voltage selection for sdio interface
  * @return       RSI_OK     : If voltage configured Successfully.
  */
-error_t smih_bus_voltage_select(uint8_t enVoltage)
+rsi_error_t smih_bus_voltage_select(uint8_t enVoltage)
 {
   if (enVoltage == VOLTAGE_18V) {
     SMIH->SMIH_POWER_CONTROL_REGISTER_b.SD_BUS_VOLTAGE_SELECT = 0x5;
@@ -206,13 +206,13 @@ error_t smih_bus_voltage_select(uint8_t enVoltage)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_command_xfer(SMIH_COMMAND_FRAME_CONFIG_T *pConfig)
+ * @fn           rsi_error_t smih_command_xfer(SMIH_COMMAND_FRAME_CONFIG_T *pConfig)
  * @brief        This API is used to send the command.
  * @param[in]    pConfig             :  pointer to the command structure
  * @return       RSI_OK              :  If command sent properly.
  *               INVALID_PARAMETERS  :  If pConfig == NULL
  */
-error_t smih_command_xfer(SMIH_COMMAND_FRAME_CONFIG_T *pConfig)
+rsi_error_t smih_command_xfer(SMIH_COMMAND_FRAME_CONFIG_T *pConfig)
 {
   SMIH_COMMAND_REG_T cmdData;
 
@@ -311,13 +311,13 @@ error_t smih_command_xfer(SMIH_COMMAND_FRAME_CONFIG_T *pConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_get_response(uint16_t *pResponseData, uint8_t ResponseRegCount)
+ * @fn           rsi_error_t smih_get_response(uint16_t *pResponseData, uint8_t ResponseRegCount)
  * @brief        This API is used to receive response on cmd line.
  * @param[in]    pResponseData       :   pointer to the response data
  * @return       RSI_OK              :   If command sent properly.
  *               INVALID_PARAMETERS  :   If pConfig==NULL or ResponseRegCount >8
  */
-error_t smih_get_response(uint16_t *pResponseData, uint8_t ResponseRegCount)
+rsi_error_t smih_get_response(uint16_t *pResponseData, uint8_t ResponseRegCount)
 {
   uint16_t *pResponseBaseAddr;
   uint8_t i;
@@ -335,11 +335,11 @@ error_t smih_get_response(uint16_t *pResponseData, uint8_t ResponseRegCount)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_stop_at_block_gap(void)
+ * @fn           rsi_error_t smih_stop_at_block_gap(void)
  * @brief        This API is used to stop multiple block transfer.
  * @return       RSI_OK    : Stops data transfer.
  */
-error_t smih_stop_at_block_gap(void)
+rsi_error_t smih_stop_at_block_gap(void)
 {
   SMIH->SMIH_BLOCK_GAP_CONTROL_REGISTER_b.STOP_AT_BLOCK_GAP_REQUEST = 0x1;
   return RSI_OK;
@@ -347,11 +347,11 @@ error_t smih_stop_at_block_gap(void)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_transfer_restart(void)
+ * @fn           rsi_error_t smih_transfer_restart(void)
  * @brief        This API is used to restart the transfer when the transfer is pending.
  * @return       RSI_OK   :   If data restarts transfer successfully.
  */
-error_t smih_transfer_restart(void)
+rsi_error_t smih_transfer_restart(void)
 {
   SMIH->SMIH_BLOCK_GAP_CONTROL_REGISTER_b.CONTINUE_REQUEST = 0x1;
   return RSI_OK;
@@ -370,7 +370,7 @@ void smih_18v_signal_enable(void)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_uhs_mode_select(uint8_t UhsMode)
+ * @fn           rsi_error_t smih_uhs_mode_select(uint8_t UhsMode)
  * @brief        This API is used to select the smih UHS(ULTRA HIGH SPEED) mode.
  * @param[in]    UhsMode   : Uhs mode selection
  *                           possbile selections are
@@ -382,7 +382,7 @@ void smih_18v_signal_enable(void)
  *                           UHS_DDR50   in case of DDR50  mode requirement
  * @return       RSI_OK    : If uhs mode configured  properly.
  */
-error_t smih_uhs_mode_select(uint8_t UhsMode)
+rsi_error_t smih_uhs_mode_select(uint8_t UhsMode)
 {
   switch (UhsMode) {
     case UHS_SDR12:
@@ -593,13 +593,13 @@ void SD_IRQHandler(void)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_modes_configuration(SMIH_CONFIG_MODES_T *pSmihConfig)
+ * @fn           rsi_error_t smih_modes_configuration(SMIH_CONFIG_MODES_T *pSmihConfig)
  * @brief        This API is used to configure modes to SMIH
  * @param[in]    pSmihConfig          : Pointer to the IO card configuration
  * @return       RSI_OK               : IO command configuration structure initialized successfully
  *               INVALID_PARAMETERS   : In case of Invalid parameter
  */
-error_t smih_modes_configuration(SMIH_CONFIG_MODES_T *pSmihConfig)
+rsi_error_t smih_modes_configuration(SMIH_CONFIG_MODES_T *pSmihConfig)
 {
   if (modesConfig == NULL) {
     modesConfig = &modeConfig;
@@ -613,12 +613,12 @@ error_t smih_modes_configuration(SMIH_CONFIG_MODES_T *pSmihConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_clock_config(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t freq)
+ * @fn           rsi_error_t smih_clock_config(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t freq)
  * @brief        This API is used to configure the host controller clock
  * @param[in]    freq    : clock frequency to the host
  * @return       RSI_OK  :  If new frequency is set
  */
-error_t smih_clock_config(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t freq)
+rsi_error_t smih_clock_config(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t freq)
 {
   uint16_t Div        = 0;
   uint32_t clockInput = pSmihConfig->clock;
@@ -646,12 +646,12 @@ error_t smih_clock_config(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t freq)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_check_for_error_interrupt(void)
+ * @fn           rsi_error_t smih_check_for_error_interrupt(void)
  * @brief        This API is used to check perticular error event happend or not.
  * @return       RSI_OK         : If error event not occured.
  *               ERROR_TIMEOUT  : If event occured
  */
-error_t smih_check_for_error_interrupt(void)
+rsi_error_t smih_check_for_error_interrupt(void)
 {
   if (event.cardRemoval) {
     event.cardRemoval = 0;
@@ -666,13 +666,13 @@ error_t smih_check_for_error_interrupt(void)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_send_data(SMIH_TRANSFER_T *pTransfer)
+ * @fn           rsi_error_t smih_send_data(SMIH_TRANSFER_T *pTransfer)
  * @brief        This API is used to write the data to the SMIH FIFO
  * @param[in]    pTransfer       : Pointer to the command and data structure
  * @return       RSI_OK          : If the data sent properly.
  *               ERROR_TIMEOUT   : If the write data time out occurs.
  */
-error_t smih_send_data(SMIH_TRANSFER_T *pTransfer)
+rsi_error_t smih_send_data(SMIH_TRANSFER_T *pTransfer)
 {
   uint32_t blocksize = 0;
   uint32_t blockcnt  = 0;
@@ -765,13 +765,13 @@ error_t smih_send_data(SMIH_TRANSFER_T *pTransfer)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_receive_data(SMIH_TRANSFER_T *pTransfer)
+ * @fn           rsi_error_t smih_receive_data(SMIH_TRANSFER_T *pTransfer)
  * @brief        This API is used to read the data from SMIH FIFO
  * @param[in]    pTransfer       : Pointer to the command and data structure
  * @return       RSI_OK          : If the data read properly.
  *               ERROR_TIMEOUT   : If data timeout occurs.
  */
-error_t smih_receive_data(SMIH_TRANSFER_T *pTransfer)
+rsi_error_t smih_receive_data(SMIH_TRANSFER_T *pTransfer)
 {
   uint32_t blocksize       = 0;
   static uint32_t blockcnt = 0;
@@ -864,14 +864,14 @@ error_t smih_receive_data(SMIH_TRANSFER_T *pTransfer)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_memory_command_transfer(SMIH_TRANSFER_T *pTransfer)
+ * @fn           rsi_error_t smih_memory_command_transfer(SMIH_TRANSFER_T *pTransfer)
  * @brief        This API is used to send memory command.
  * @param[in]    pTransfer       :  Pointer to the command and data structure
  * @return       ERROR_SMIH      :  If Parameter is invalid.
  *               ERROR_TIMEOUT   :  If the command error timeout occures.
  *               RSI_OK          :  If command sent succesfully.
  */
-error_t smih_memory_command_transfer(SMIH_TRANSFER_T *pTransfer)
+rsi_error_t smih_memory_command_transfer(SMIH_TRANSFER_T *pTransfer)
 {
   uint32_t admaDespTableAddress;
   SMIH_COMMAND_FRAME_CONFIG_T commandCfg = { 0 };
@@ -1019,13 +1019,13 @@ error_t smih_memory_command_transfer(SMIH_TRANSFER_T *pTransfer)
 
 /*==============================================*/
 /**
- * @fn           error_t smih_io_command_transfer(SMIH_TRANSFER_T *pTransfer)
+ * @fn           rsi_error_t smih_io_command_transfer(SMIH_TRANSFER_T *pTransfer)
  * @brief        This API is used to transfer SMIH command.
  * @param[in]    pTransfer       : Pointer to the command and data structure
  * @return       ERROR_SMIH      : If Parameter is invalid.
  *               ERROR_TIMEOUT   : If the command error timeout occures.
  */
-error_t smih_io_command_transfer(SMIH_TRANSFER_T *pTransfer)
+rsi_error_t smih_io_command_transfer(SMIH_TRANSFER_T *pTransfer)
 {
   SMIH_COMMAND_FRAME_CONFIG_T commandCfg = { 0 };
   uint32_t admaDespTableAddress;

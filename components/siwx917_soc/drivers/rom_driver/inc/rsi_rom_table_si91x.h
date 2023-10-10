@@ -163,10 +163,10 @@ typedef PRE_PACK struct POST_PACK {
   void (*efuse_Disable)(EFUSE_Type *pstcEfuse);
   uint8_t (*efuse_read_data)(EFUSE_Type *pstcEfuse);
   void (*efuse_write_addr)(EFUSE_Type *pstcEfuse, uint16_t u16Addr);
-  error_t (*efuse_write_bit)(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t u8BitPos, uint32_t hold_time);
-  error_t (*efuse_fsm_read_byte)(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk);
-  error_t (*efuse_mem_map_read_byte)(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk);
-  error_t (*efuse_mem_map_read_word)(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint16_t *pu16Word, uint32_t SocClk);
+  rsi_error_t (*efuse_write_bit)(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t u8BitPos, uint32_t hold_time);
+  rsi_error_t (*efuse_fsm_read_byte)(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk);
+  rsi_error_t (*efuse_mem_map_read_byte)(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk);
+  rsi_error_t (*efuse_mem_map_read_word)(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint16_t *pu16Word, uint32_t SocClk);
 } ROM_EFUSE_API_T;
 ///////////////EFUSE END//////////////////
 #endif
@@ -290,29 +290,29 @@ typedef PRE_PACK struct POST_PACK {
   RSI_UDMA_HANDLE_T (*udma_init)(void *mem, const RSI_UDMA_INIT_T *pInit);
 
   uint32_t (*udma_get_channel_transfer_mode)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
-  error_t (*udma_setup_channel_transfer)(RSI_UDMA_HANDLE_T pHandle,
-                                         RSI_UDMA_CHA_CFG_T *pCfg,
-                                         RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
-                                         void *pSrcAddr,
-                                         void *pDstAddr);
+  rsi_error_t (*udma_setup_channel_transfer)(RSI_UDMA_HANDLE_T pHandle,
+                                             RSI_UDMA_CHA_CFG_T *pCfg,
+                                             RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
+                                             void *pSrcAddr,
+                                             void *pDstAddr);
 
-  error_t (*udma_set_channel_scatter_gather_transfer)(RSI_UDMA_HANDLE_T pHandle,
-                                                      uint8_t dmaCh,
-                                                      uint32_t taskCount,
-                                                      void *pTaskList,
-                                                      uint32_t transferType);
+  rsi_error_t (*udma_set_channel_scatter_gather_transfer)(RSI_UDMA_HANDLE_T pHandle,
+                                                          uint8_t dmaCh,
+                                                          uint32_t taskCount,
+                                                          void *pTaskList,
+                                                          uint32_t transferType);
 
   uint32_t (*udma_get_channel_transfer_length)(RSI_UDMA_HANDLE_T pHandle,
                                                RSI_UDMA_CHA_CFG_T *pCfg,
                                                RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData);
 
-  error_t (*udma_setup_channel)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+  rsi_error_t (*udma_setup_channel)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
 
   void (*udma_deInit)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
 
   void (*udma_interrupt_handler)(RSI_UDMA_HANDLE_T pHandle);
 
-  error_t (*udma_interrupt_enable)(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
+  rsi_error_t (*udma_interrupt_enable)(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
 } ROM_UDMA_API_T;
 
@@ -347,33 +347,36 @@ typedef PRE_PACK struct POST_PACK {
 //////////////////////////UDMA WRAPPERS END//////////////////////////
 #ifndef CHIP_917B0
 typedef PRE_PACK struct POST_PACK {
-  error_t (*mcpwm_counter_reset)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+  rsi_error_t (*mcpwm_counter_reset)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-  error_t (*mcpwm_channel_reset)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+  rsi_error_t (*mcpwm_channel_reset)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-  error_t (*mcpwm_start)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+  rsi_error_t (*mcpwm_start)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-  error_t (*mcpwm_stop)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+  rsi_error_t (*mcpwm_stop)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-  error_t (*mcpwm_set_time_period)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal);
+  rsi_error_t (*mcpwm_set_time_period)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal);
 
   void (*mcpwm_special_event_trigger_config)(RSI_MCPWM_T *pMCPWM,
                                              boolean_t svtDir,
                                              RSI_MCPWM_SVT_CONFIG_T *pMCPWMSVTConfig);
 
-  error_t (*mcpwm_dead_time_value_set)(RSI_MCPWM_T *pMCPWM,
-                                       RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,
-                                       uint8_t chnlNum);
+  rsi_error_t (*mcpwm_dead_time_value_set)(RSI_MCPWM_T *pMCPWM,
+                                           RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,
+                                           uint8_t chnlNum);
 
-  error_t (*mcpwm_period_control_config)(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum);
+  rsi_error_t (*mcpwm_period_control_config)(RSI_MCPWM_T *pMCPWM,
+                                             uint32_t postScale,
+                                             uint32_t preScale,
+                                             uint8_t chnlNum);
 
-  error_t (*mcpwm_fault_avalue_set)(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
+  rsi_error_t (*mcpwm_fault_avalue_set)(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
 
-  error_t (*mcpwm_fault_bvalue_set)(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
+  rsi_error_t (*mcpwm_fault_bvalue_set)(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
 
-  error_t (*mcpwm_set_base_timer_mode)(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum);
+  rsi_error_t (*mcpwm_set_base_timer_mode)(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum);
 
-  error_t (*mcpwm_set_output_mode)(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum);
+  rsi_error_t (*mcpwm_set_output_mode)(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum);
 
   void (*mcpwm_set_output_polarity)(RSI_MCPWM_T *pMCPWM, boolean_t polL, boolean_t polH);
 
@@ -389,36 +392,36 @@ typedef PRE_PACK struct POST_PACK {
 
   RSI_GPDMA_HANDLE_T (*gpdma_init)(void *mem, const RSI_GPDMA_INIT_T *pInit);
 
-  void (*gpdma_register_callback)(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, void *pCB);
+  void (*gpdma_register_callback)(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, gpdmaTransferCompleteCB pCB);
 
-  error_t (*gpdma_abort_channel)(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
+  rsi_error_t (*gpdma_abort_channel)(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
-  error_t (*gpdma_setup_channel)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+  rsi_error_t (*gpdma_setup_channel)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-  error_t (*gpdma_build_descriptors)(RSI_GPDMA_HANDLE_T pHandle,
-                                     RSI_GPDMA_DESC_T *pXferCfg,
-                                     RSI_GPDMA_DESC_T *pDesc,
-                                     RSI_GPDMA_DESC_T *pDescPrev);
+  rsi_error_t (*gpdma_build_descriptors)(RSI_GPDMA_HANDLE_T pHandle,
+                                         RSI_GPDMA_DESC_T *pXferCfg,
+                                         RSI_GPDMA_DESC_T *pDesc,
+                                         RSI_GPDMA_DESC_T *pDescPrev);
 
-  error_t (*gpdma_setup_channelTransfer)(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc);
+  rsi_error_t (*gpdma_setup_channelTransfer)(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc);
 
   void (*gpdma_interrupt_handler)(RSI_GPDMA_HANDLE_T pHandle);
 
   void (*gpdma_deInit)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-  error_t (*gpdma_dma_channel_trigger)(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
+  rsi_error_t (*gpdma_dma_channel_trigger)(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
   uint32_t (*gpdma_channel_is_enabled)(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
-  error_t (*gpdma_interrupt_disable)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+  rsi_error_t (*gpdma_interrupt_disable)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-  error_t (*gpdma_interrupt_enable)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+  rsi_error_t (*gpdma_interrupt_enable)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-  error_t (*gpdma_error_status_clear)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+  rsi_error_t (*gpdma_error_status_clear)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
   uint32_t (*gpdma_get_error_status)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-  error_t (*gpdma_interrupt_clear)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+  rsi_error_t (*gpdma_interrupt_clear)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
   uint32_t (*gpdma_interrupt_status)(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
@@ -427,11 +430,11 @@ typedef PRE_PACK struct POST_PACK {
 
 /** @brief TIMERS ROM indirect function structure */
 typedef PRE_PACK struct POST_PACK {
-  error_t (*timers_microsec_timer_config)(RSI_TIMERS_T *pTIMER,
-                                          uint8_t timerNum,
-                                          uint16_t integer,
-                                          uint8_t fractional,
-                                          uint8_t mode);
+  rsi_error_t (*timers_microsec_timer_config)(RSI_TIMERS_T *pTIMER,
+                                              uint8_t timerNum,
+                                              uint16_t integer,
+                                              uint8_t fractional,
+                                              uint8_t mode);
   uint32_t (*timers_read_timer)(RSI_TIMERS_T *pTIMER, uint8_t timerNum, boolean_t countDir);
 } ROM_TIMERS_API_T;
 
@@ -663,13 +666,13 @@ typedef PRE_PACK struct POST_PACK
 
 	void  (* rsi_fim_absSqr_f32)(int32_t *pSrc, uint32_t length,uint16_t inBank, uint16_t outBank);
 
-	error_t (* rsi_arm_mat_mult_f32_opt)( const arm_matrix_instance_f32_opt *pSrcA,
+	rsi_error_t (* rsi_arm_mat_mult_f32_opt)( const arm_matrix_instance_f32_opt *pSrcA,
 			const arm_matrix_instance_f32_opt *pSrcB,arm_matrix_instance_f32_opt *pDst,uint16_t inBank1, uint16_t inBank2, uint16_t outBank);
 
-	error_t (* rsi_arm_mat_mult_q31_opt)( const arm_matrix_instance_q31_opt * pSrcA,const arm_matrix_instance_q31_opt * pSrcB,
+	rsi_error_t (* rsi_arm_mat_mult_q31_opt)( const arm_matrix_instance_q31_opt * pSrcA,const arm_matrix_instance_q31_opt * pSrcB,
 			arm_matrix_instance_q31_opt * pDst,uint16_t inBank1, uint16_t inBank2, uint16_t outBank);
 
-	error_t (* rsi_arm_mat_mult_q15_opt)( const arm_matrix_instance_q15_opt * pSrcA,
+	rsi_error_t (* rsi_arm_mat_mult_q15_opt)( const arm_matrix_instance_q15_opt * pSrcA,
 			const arm_matrix_instance_q15_opt * pSrcB,arm_matrix_instance_q15_opt * pDst,q15_t * pState
 			,uint16_t inBank1, uint16_t inBank2, uint16_t outBank);
 
@@ -724,14 +727,14 @@ typedef PRE_PACK struct POST_PACK
 #endif
 typedef PRE_PACK struct POST_PACK {
   void (*ct_ocu_high_Low_toggle_select)(RSI_CT_T *pCT, boolean_t lowHigh, boolean_t counterNum, uint8_t outputSel);
-  error_t (*ct_wfg_control_config)(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg);
-  error_t (*ct_ocu_control)(RSI_CT_T *pCT,
-                            boolean_t counterNum,
-                            boolean_t dmaEn,
-                            OCU_PARAMS_T *pOCUparams,
-                            RSI_CT_CALLBACK_T *pCB);
+  rsi_error_t (*ct_wfg_control_config)(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg);
+  rsi_error_t (*ct_ocu_control)(RSI_CT_T *pCT,
+                                boolean_t counterNum,
+                                boolean_t dmaEn,
+                                OCU_PARAMS_T *pOCUparams,
+                                RSI_CT_CALLBACK_T *pCB);
 
-  error_t (*ct_wfg_comapre_value_set)(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams);
+  rsi_error_t (*ct_wfg_comapre_value_set)(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams);
 } ROM_CT_API_T;
 
 ///////////////////////CT END///////////////////////////////////
@@ -756,50 +759,50 @@ typedef PRE_PACK struct POST_PACK {
 ///////////////////////POWERSAVE END///////////////////////////
 
 typedef PRE_PACK struct POST_PACK {
-  error_t (*ulpss_clock_config)(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFactor, boolean_t oddDivFactor);
+  rsi_error_t (*ulpss_clock_config)(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFactor, boolean_t oddDivFactor);
 
-  error_t (*ulpss_ulp_peri_clk_enable)(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
+  rsi_error_t (*ulpss_ulp_peri_clk_enable)(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
 
-  error_t (*ulpss_ulp_peri_clk_disable)(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
+  rsi_error_t (*ulpss_ulp_peri_clk_disable)(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
 
-  error_t (*ulpss_ulp_dyn_clk_enable)(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
+  rsi_error_t (*ulpss_ulp_dyn_clk_enable)(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
 
-  error_t (*ulpss_ulp_dyn_clk_disable)(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
+  rsi_error_t (*ulpss_ulp_dyn_clk_disable)(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
 
-  error_t (*ulpss_ulp_ssi_clk_config)(ULPCLK_Type *pULPCLK,
-                                      CLK_ENABLE_T clkType,
-                                      ULP_SSI_CLK_SELECT_T clkSource,
+  rsi_error_t (*ulpss_ulp_ssi_clk_config)(ULPCLK_Type *pULPCLK,
+                                          CLK_ENABLE_T clkType,
+                                          ULP_SSI_CLK_SELECT_T clkSource,
+                                          uint16_t divFactor);
+
+  rsi_error_t (*ulpss_ulp_i2s_clk_config)(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkSource, uint16_t divFactor);
+
+  rsi_error_t (*ulpss_ulp_uar_clk_config)(ULPCLK_Type *pULPCLK,
+                                          CLK_ENABLE_T clkType,
+                                          boolean_t bFrClkSel,
+                                          ULP_UART_CLK_SELECT_T clkSource,
+                                          uint16_t divFactor);
+
+  rsi_error_t (*ulpss_time_clk_disable)(ULPCLK_Type *pULPCLK);
+  rsi_error_t (*ulpss_time_clk_config)(ULPCLK_Type *pULPCLK,
+                                       CLK_ENABLE_T clkType,
+                                       boolean_t bTmrSync,
+                                       ULP_TIMER_CLK_SELECT_T clkSource,
+                                       uint8_t skipSwitchTime);
+
+  rsi_error_t (*ulpss_aux_clk_config)(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX_CLK_SELECT_T clkSource);
+
+  rsi_error_t (*ulpss_vad_clk_config)(ULPCLK_Type *pULPCLK,
+                                      ULP_VAD_CLK_SELECT_T clkSource,
+                                      ULP_VAD_FCLK_SELECT_T FclkSource,
                                       uint16_t divFactor);
 
-  error_t (*ulpss_ulp_i2s_clk_config)(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkSource, uint16_t divFactor);
+  rsi_error_t (*ulpss_touch_clk_config)(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkSource, uint16_t divFactor);
 
-  error_t (*ulpss_ulp_uar_clk_config)(ULPCLK_Type *pULPCLK,
-                                      CLK_ENABLE_T clkType,
-                                      boolean_t bFrClkSel,
-                                      ULP_UART_CLK_SELECT_T clkSource,
-                                      uint16_t divFactor);
+  rsi_error_t (*ulpss_slp_sensor_clk_config)(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor);
 
-  error_t (*ulpss_time_clk_disable)(ULPCLK_Type *pULPCLK);
-  error_t (*ulpss_time_clk_config)(ULPCLK_Type *pULPCLK,
-                                   CLK_ENABLE_T clkType,
-                                   boolean_t bTmrSync,
-                                   ULP_TIMER_CLK_SELECT_T clkSource,
-                                   uint8_t skipSwitchTime);
+  rsi_error_t (*ulpss_peripheral_enable)(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
 
-  error_t (*ulpss_aux_clk_config)(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX_CLK_SELECT_T clkSource);
-
-  error_t (*ulpss_vad_clk_config)(ULPCLK_Type *pULPCLK,
-                                  ULP_VAD_CLK_SELECT_T clkSource,
-                                  ULP_VAD_FCLK_SELECT_T FclkSource,
-                                  uint16_t divFactor);
-
-  error_t (*ulpss_touch_clk_config)(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkSource, uint16_t divFactor);
-
-  error_t (*ulpss_slp_sensor_clk_config)(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor);
-
-  error_t (*ulpss_peripheral_enable)(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
-
-  error_t (*ulpss_peripheral_disable)(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module);
+  rsi_error_t (*ulpss_peripheral_disable)(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module);
 
 } ROM_ULPSS_CLK_API_T;
 
@@ -807,131 +810,134 @@ typedef PRE_PACK struct POST_PACK {
 
 typedef PRE_PACK struct POST_PACK {
   boolean_t (*clk_check_pll_lock)(PLL_TYPE_T pllType);
-  error_t (*clk_soc_pll_clk_enable)(boolean_t clkEnable);
-  error_t (*clk_set_soc_pll_freq)(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
-  error_t (*clk_soc_pll_set_freq_div)(M4CLK_Type *pCLK,
-                                      boolean_t clk_en,
-                                      uint16_t divFactor,
-                                      uint16_t nFactor,
-                                      uint16_t mFactor,
-                                      uint16_t fcwF,
-                                      uint16_t dcoFixSel,
-                                      uint16_t ldoProg);
-  error_t (*clk_soc_pll_clk_set)(M4CLK_Type *pCLK);
-  error_t (*clk_soc_pll_clk_bypass_enable)(boolean_t clkEnable);
-  error_t (*clk_soc_pll_clk_reset)(void);
-  error_t (*clk_soc_pll_pd_enable)(boolean_t en);
-  error_t (*clk_soc_pll_turn_off)(void);
-  error_t (*clk_soc_pll_turn_on)(void);
-  error_t (*clk_i2s_pll_clk_enable)(boolean_t clkEnable);
-  error_t (*clk_i2s_pll_clk_bypass_enable)(boolean_t clkEnable);
-  error_t (*clk_i2s_pll_pd_enable)(boolean_t en);
-  error_t (*clk_i2s_pll_turn_off)(void);
-  error_t (*clk_i2s_pll_turn_on)(void);
-  error_t (*clk_set_i2s_pll_freq)(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
-  error_t (*clk_i2s_pll_set_freq_div)(M4CLK_Type *pCLK,
-                                      uint16_t u16DivFactor1,
-                                      uint16_t u16DivFactor2,
-                                      uint16_t nFactor,
-                                      uint16_t mFactor,
-                                      uint16_t fcwF);
-  error_t (*clk_i2s_pll_clk_set)(M4CLK_Type *pCLK);
-  error_t (*clk_i2s_pll_clk_reset)(void);
-  error_t (*clk_intf_pll_clk_enable)(boolean_t clkEnable);
-  error_t (*clk_intf_pll_pd_enable)(boolean_t en);
-  error_t (*clk_intf_pll_turn_off)(void);
-  error_t (*clk_set_intf_pll_freq)(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
-  error_t (*clk_intf_pll_set_freq_div)(M4CLK_Type *pCLK,
-                                       boolean_t clk_en,
-                                       uint16_t divFactor,
-                                       uint16_t nFactor,
-                                       uint16_t mFactor,
-                                       uint16_t fcwF,
-                                       uint16_t dcoFixSel,
-                                       uint16_t ldoProg);
-  error_t (*clk_intf_pll_clk_bypass_enable)(boolean_t clkEnable);
-  error_t (*clk_intf_pll_turn_on)(void);
-  error_t (*clk_intf_pll_clk_reset)(void);
-  error_t (*clk_intf_pll_clk_set)(M4CLK_Type *pCLK);
-  error_t (*clk_peripheral_clk_enable1)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_peripheral_clk_disable1)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_peripheral_clk_enable2)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_peripheral_clk_disable2)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_peripheral_clk_enable3)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_peripheral_clk_disable3)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_dynamic_clk_gate_disable)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_dynamic_clk_gate_disable2)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_dynamic_clk_gate_enable)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*clk_dynamic_clk_gate_enable2)(M4CLK_Type *pCLK, uint32_t flags);
-  error_t (*ulpss_enable_ref_clks)(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn);
-  error_t (*ulpss_disable_ref_clks)(REF_CLK_ENABLE_T clk_type);
-  error_t (*clk_qspi_clk_config)(M4CLK_Type *pCLK,
-                                 QSPI_CLK_SRC_SEL_T clkSource,
-                                 boolean_t swalloEn,
-                                 boolean_t OddDivEn,
-                                 uint32_t divFactor);
-  error_t (*clk_usart_clk_config)(M4CLK_Type *pCLK,
-                                  CLK_ENABLE_T clkType,
-                                  boolean_t FracDivEn,
-                                  EN_USART_T EN_USART_T,
-                                  USART_CLK_SRC_SEL_T clkSource,
-                                  uint32_t divFactor);
-  error_t (*clk_ssi_mst_clk_config)(M4CLK_Type *pCLK,
-                                    CLK_ENABLE_T clkType,
-                                    SSI_MST_CLK_SRC_SEL_T clkSource,
-                                    uint32_t divFactor);
-#ifndef CHIP_917
-  error_t (*clk_sd_mem_clk_config)(M4CLK_Type *pCLK,
-                                   boolean_t swalloEn,
-                                   SDMEM_CLK_SRC_SEL_T clkSource,
-                                   uint32_t divFactor);
-#endif
-  error_t (*clk_ct_clk_config)(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType);
-#ifndef CHIP_917
-  error_t (*clk_cci_clk_config)(M4CLK_Type *pCLK,
-                                CCI_CLK_SRC_SEL_T clkSource,
-                                uint32_t divFactor,
-                                CLK_ENABLE_T clkType);
-#endif
-  error_t (*clk_i2s_clk_config)(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
-  error_t (*clk_mcu_clk_cut_config)(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor);
-#ifndef CHIP_917
-  error_t (*clk_can_clk_config)(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType);
-  error_t (*clk_ethernet_clk_config)(M4CLK_Type *pCLK,
+  rsi_error_t (*clk_soc_pll_clk_enable)(boolean_t clkEnable);
+  rsi_error_t (*clk_set_soc_pll_freq)(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
+  rsi_error_t (*clk_soc_pll_set_freq_div)(M4CLK_Type *pCLK,
+                                          boolean_t clk_en,
+                                          uint16_t divFactor,
+                                          uint16_t nFactor,
+                                          uint16_t mFactor,
+                                          uint16_t fcwF,
+                                          uint16_t dcoFixSel,
+                                          uint16_t ldoProg);
+  rsi_error_t (*clk_soc_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_soc_pll_clk_bypass_enable)(boolean_t clkEnable);
+  rsi_error_t (*clk_soc_pll_clk_reset)(void);
+  rsi_error_t (*clk_soc_pll_pd_enable)(boolean_t en);
+  rsi_error_t (*clk_soc_pll_turn_off)(void);
+  rsi_error_t (*clk_soc_pll_turn_on)(void);
+  rsi_error_t (*clk_i2s_pll_clk_enable)(boolean_t clkEnable);
+  rsi_error_t (*clk_i2s_pll_clk_bypass_enable)(boolean_t clkEnable);
+  rsi_error_t (*clk_i2s_pll_pd_enable)(boolean_t en);
+  rsi_error_t (*clk_i2s_pll_turn_off)(void);
+  rsi_error_t (*clk_i2s_pll_turn_on)(void);
+  rsi_error_t (*clk_set_i2s_pll_freq)(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
+  rsi_error_t (*clk_i2s_pll_set_freq_div)(M4CLK_Type *pCLK,
+                                          uint16_t u16DivFactor1,
+                                          uint16_t u16DivFactor2,
+                                          uint16_t nFactor,
+                                          uint16_t mFactor,
+                                          uint16_t fcwF);
+  rsi_error_t (*clk_i2s_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_i2s_pll_clk_reset)(void);
+  rsi_error_t (*clk_intf_pll_clk_enable)(boolean_t clkEnable);
+  rsi_error_t (*clk_intf_pll_pd_enable)(boolean_t en);
+  rsi_error_t (*clk_intf_pll_turn_off)(void);
+  rsi_error_t (*clk_set_intf_pll_freq)(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
+  rsi_error_t (*clk_intf_pll_set_freq_div)(M4CLK_Type *pCLK,
+                                           boolean_t clk_en,
+                                           uint16_t divFactor,
+                                           uint16_t nFactor,
+                                           uint16_t mFactor,
+                                           uint16_t fcwF,
+                                           uint16_t dcoFixSel,
+                                           uint16_t ldoProg);
+  rsi_error_t (*clk_intf_pll_clk_bypass_enable)(boolean_t clkEnable);
+  rsi_error_t (*clk_intf_pll_turn_on)(void);
+  rsi_error_t (*clk_intf_pll_clk_reset)(void);
+  rsi_error_t (*clk_intf_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_peripheral_clk_enable1)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_peripheral_clk_disable1)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_peripheral_clk_enable2)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_peripheral_clk_disable2)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_peripheral_clk_enable3)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_peripheral_clk_disable3)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_dynamic_clk_gate_disable)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_dynamic_clk_gate_disable2)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_dynamic_clk_gate_enable)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*clk_dynamic_clk_gate_enable2)(M4CLK_Type *pCLK, uint32_t flags);
+  rsi_error_t (*ulpss_enable_ref_clks)(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn);
+  rsi_error_t (*ulpss_disable_ref_clks)(REF_CLK_ENABLE_T clk_type);
+  rsi_error_t (*clk_qspi_clk_config)(M4CLK_Type *pCLK,
+                                     QSPI_CLK_SRC_SEL_T clkSource,
                                      boolean_t swalloEn,
-                                     ETHERNET_CLK_SRC_SEL_T clkSource,
+                                     boolean_t OddDivEn,
                                      uint32_t divFactor);
-#endif
-  error_t (*clk_m4_soc_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
-  error_t (*clk_qspi_clk_div)(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor);
-  error_t (*clk_ct_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
-  error_t (*clk_ssi_mst_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
+  rsi_error_t (*clk_usart_clk_config)(M4CLK_Type *pCLK,
+                                      CLK_ENABLE_T clkType,
+                                      boolean_t FracDivEn,
+                                      EN_USART_T EN_USART_T,
+                                      USART_CLK_SRC_SEL_T clkSource,
+                                      uint32_t divFactor);
+  rsi_error_t (*clk_ssi_mst_clk_config)(M4CLK_Type *pCLK,
+                                        CLK_ENABLE_T clkType,
+                                        SSI_MST_CLK_SRC_SEL_T clkSource,
+                                        uint32_t divFactor);
 #ifndef CHIP_917
-  error_t (*clk_cci_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
+  rsi_error_t (*clk_sd_mem_clk_config)(M4CLK_Type *pCLK,
+                                       boolean_t swalloEn,
+                                       SDMEM_CLK_SRC_SEL_T clkSource,
+                                       uint32_t divFactor);
 #endif
-  error_t (*clk_i2s_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
+  rsi_error_t (*clk_ct_clk_config)(M4CLK_Type *pCLK,
+                                   CT_CLK_SRC_SEL_T clkSource,
+                                   uint32_t divFactor,
+                                   CLK_ENABLE_T clkType);
 #ifndef CHIP_917
-  error_t (*clk_sd_mem_clk_div)(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor);
+  rsi_error_t (*clk_cci_clk_config)(M4CLK_Type *pCLK,
+                                    CCI_CLK_SRC_SEL_T clkSource,
+                                    uint32_t divFactor,
+                                    CLK_ENABLE_T clkType);
 #endif
-  error_t (*clk_usart_clk_div)(M4CLK_Type *pCLK, EN_USART_T EN_USART_T, uint8_t u8FracDivEn, uint32_t divFactor);
+  rsi_error_t (*clk_i2s_clk_config)(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
+  rsi_error_t (*clk_mcu_clk_cut_config)(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor);
+#ifndef CHIP_917
+  rsi_error_t (*clk_can_clk_config)(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType);
+  rsi_error_t (*clk_ethernet_clk_config)(M4CLK_Type *pCLK,
+                                         boolean_t swalloEn,
+                                         ETHERNET_CLK_SRC_SEL_T clkSource,
+                                         uint32_t divFactor);
+#endif
+  rsi_error_t (*clk_m4_soc_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
+  rsi_error_t (*clk_qspi_clk_div)(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor);
+  rsi_error_t (*clk_ct_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
+  rsi_error_t (*clk_ssi_mst_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
+#ifndef CHIP_917
+  rsi_error_t (*clk_cci_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
+#endif
+  rsi_error_t (*clk_i2s_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
+#ifndef CHIP_917
+  rsi_error_t (*clk_sd_mem_clk_div)(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor);
+#endif
+  rsi_error_t (*clk_usart_clk_div)(M4CLK_Type *pCLK, EN_USART_T EN_USART_T, uint8_t u8FracDivEn, uint32_t divFactor);
   uint32_t (*clk_slp_clk_calib_config)(M4CLK_Type *pCLK, uint8_t clkCycles);
-  error_t (*clk_gspi_clk_config)(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel);
-  error_t (*clk_slp_clk_config)(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc);
-  error_t (*clk_i2c_clk_config)(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C);
-  error_t (*clk_xtal_clk_config)(uint8_t xtalPin);
+  rsi_error_t (*clk_gspi_clk_config)(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel);
+  rsi_error_t (*clk_slp_clk_config)(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc);
+  rsi_error_t (*clk_i2c_clk_config)(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C);
+  rsi_error_t (*clk_xtal_clk_config)(uint8_t xtalPin);
 #ifndef CHIP_917
-  error_t (*clk_usb_clk_config)(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor);
+  rsi_error_t (*clk_usb_clk_config)(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor);
 #endif
-  error_t (*clk_peripheral_clk_enable)(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
-  error_t (*clk_peripheral_clk_disable)(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module);
+  rsi_error_t (*clk_peripheral_clk_enable)(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
+  rsi_error_t (*clk_peripheral_clk_disable)(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module);
   void (*clk_config_pll_lock)(boolean_t manual_lock, boolean_t bypass_manual_lock, uint8_t mm_count_limit);
   void (*clk_config_pll_ref_clk)(uint8_t ref_clk_src);
 #ifdef CHIP_917B0
-  error_t (*clk_qspi_2_clk_config)(M4CLK_Type *pCLK,
-                                   QSPI_CLK_SRC_SEL_T clkSource,
-                                   boolean_t swalloEn,
-                                   boolean_t OddDivEn,
-                                   uint32_t divFactor);
+  rsi_error_t (*clk_qspi_2_clk_config)(M4CLK_Type *pCLK,
+                                       QSPI_CLK_SRC_SEL_T clkSource,
+                                       boolean_t swalloEn,
+                                       boolean_t OddDivEn,
+                                       uint32_t divFactor);
 #endif
 } ROM_M4SS_CLK_API_T;
 

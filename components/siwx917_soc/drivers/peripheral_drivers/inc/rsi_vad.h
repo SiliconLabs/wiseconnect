@@ -105,11 +105,11 @@ typedef struct VAD_EVENT {
 } VAD_EVENT_T;
 
 // User APIs
-error_t VAD_Init(VAD_SignalEvent_t Event);
+rsi_error_t VAD_Init(VAD_SignalEvent_t Event);
 
 int32_t VAD_Process(int16_t *wr_buf, int32_t dc_est);
 
-error_t VAD_Deinit(void);
+rsi_error_t VAD_Deinit(void);
 
 // Internal APIs
 void RSI_VAD_PingPongMemoryAddrConfig(RSI_VAD_T *pVAD,
@@ -118,31 +118,31 @@ void RSI_VAD_PingPongMemoryAddrConfig(RSI_VAD_T *pVAD,
                                       uint8_t ping_enable,
                                       uint8_t pong_enable);
 
-error_t RSI_VAD_Config(RSI_VAD_T *ptrvad,
-                       uint16_t samples_per_frame,
-                       uint16_t samples_per_address,
-                       bool fullwidth,
-                       uint8_t datasourceselect);
+rsi_error_t RSI_VAD_Config(RSI_VAD_T *ptrvad,
+                           uint16_t samples_per_frame,
+                           uint16_t samples_per_address,
+                           bool fullwidth,
+                           uint8_t datasourceselect);
 
 void RSI_VAD_Enable(RSI_VAD_T *ptrvad);
 
 void RSI_VAD_InterruptClr(RSI_VAD_T *ptrvad, uint16_t ping_interrupt);
 
-error_t RSI_VAD_SetAlgorithmThreshold(RSI_VAD_T *ptrvad,
-                                      uint16_t algorithm_type,
-                                      uint32_t zcr_threshold,
-                                      uint32_t acf_threshold,
-                                      uint32_t wacf_threshold,
-                                      VAD_AMDF_THRESHOLD_T *config);
+rsi_error_t RSI_VAD_SetAlgorithmThreshold(RSI_VAD_T *ptrvad,
+                                          uint16_t algorithm_type,
+                                          uint32_t zcr_threshold,
+                                          uint32_t acf_threshold,
+                                          uint32_t wacf_threshold,
+                                          VAD_AMDF_THRESHOLD_T *config);
 
-error_t RSI_VAD_Set_Delay(RSI_VAD_T *ptrvad, uint16_t startdelayval, uint16_t enddelayval);
+rsi_error_t RSI_VAD_Set_Delay(RSI_VAD_T *ptrvad, uint16_t startdelayval, uint16_t enddelayval);
 
-error_t RSI_VAD_Input(RSI_VAD_T *ptrVad, int16_t data);
+rsi_error_t RSI_VAD_Input(RSI_VAD_T *ptrVad, int16_t data);
 
-error_t RSI_VAD_FrameEnergyConfig(RSI_VAD_T *ptrvad,
-                                  uint32_t threshold_frame_energy,
-                                  uint32_t threshold_smpl_collect,
-                                  uint32_t prog_smpls_for_energy_check);
+rsi_error_t RSI_VAD_FrameEnergyConfig(RSI_VAD_T *ptrvad,
+                                      uint32_t threshold_frame_energy,
+                                      uint32_t threshold_smpl_collect,
+                                      uint32_t prog_smpls_for_energy_check);
 
 void RSI_VAD_Stop(RSI_VAD_T *pVAD);
 

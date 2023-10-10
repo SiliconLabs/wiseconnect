@@ -17,16 +17,24 @@ source:
 sdk: {id: gecko_sdk, version: 4.3.1}
 toolchain_settings: []
 component:
-- {from: wiseconnect3_sdk, id: sl_siwx917_platform}
 - {from: wiseconnect3_sdk, id: rsilib_sio}
-- {from: wiseconnect3_sdk, id: si91x_support}
+- id: rsilib_userconfig
+  from: wiseconnect3_sdk
+- id: romdriver_egpio
+  from: wiseconnect3_sdk
+- id: rsilib_clock_update
+  from: wiseconnect3_sdk
+- id: romdriver_pwm
+  from: wiseconnect3_sdk
+- id: udma_linker_config
+  from: wiseconnect3_sdk
+- id: si917_memory_default_config
+  from: wiseconnect3_sdk
+- id: si91x_debug
+  from: wiseconnect3_sdk
 - {id: cmsis_common}
-- {from: wiseconnect3_sdk, id: sl_siwx917_systemcall}
-- {from: wiseconnect3_sdk, id: sl_sio_peripheral}
-- {id: component_catalog}
 - {id: sl_system}
-- {from: wiseconnect3_sdk, id: siwx917_soc}
-- {from: wiseconnect3_sdk, id: brd4325a}
+- {from: wiseconnect3_sdk, id: sl_sio_peripheral}
 other_file:
 - {path: resources/readme/image509a.png}
 - {path: resources/readme/image509b.png}
@@ -36,13 +44,12 @@ other_file:
 - {path: resources/uc_screen/sio_i2c_uc.png}
 define:
 - {name: RSI_M4_INTERFACE}
-- {name: SYSCALLS_WRITE}
 provides:
 - {name: si91x_soc}
 ui_hints:
   highlight:
   - {path: readme.md, focus: true}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

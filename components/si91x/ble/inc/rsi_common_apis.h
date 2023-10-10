@@ -35,7 +35,7 @@
     printf(__VA_ARGS__);                                                     \
     osMutexRelease(rsi_driver_cb_non_rom->debug_prints_mutex);               \
   }
-#elif defined(DEBUG_UART)
+#elif defined(DEBUGOUT)
 #define LOG_PRINT(...) DEBUGOUT(__VA_ARGS__)
 #else
 #define LOG_PRINT(...)

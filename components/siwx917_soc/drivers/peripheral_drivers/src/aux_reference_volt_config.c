@@ -23,14 +23,14 @@
 
 /*==============================================*/
 /**
- * @fn        error_t RSI_AUX_RefVoltageConfig(float verf_val, float chip_vltg)
+ * @fn        rsi_error_t RSI_AUX_RefVoltageConfig(float verf_val, float chip_vltg)
  * @brief     This API used for configure reference voltage for ADC operation.
  * @param[in] verf_val     - Reference voltage for ADC.
  * @param[in] chip_vltg    - Chip voltage 3.2V or 1.8V,If chip voltage to chip is 1.8V then. 
  *							\n chip voltage(bypass LDO) act as reference voltage to analog peripheral.
  * @return    Success      - Returns 'RSI_OK' on successful execution.
  */
-error_t RSI_AUX_RefVoltageConfig(float verf_val, float chip_vltg)
+rsi_error_t RSI_AUX_RefVoltageConfig(float verf_val, float chip_vltg)
 {
   uint8_t temp                                 = 0;
   float cntrl_val                              = 0;
@@ -45,12 +45,12 @@ error_t RSI_AUX_RefVoltageConfig(float verf_val, float chip_vltg)
       AUX_ADC_DAC_COMP->AUX_LDO_b.LDO_DEFAULT_MODE = 0;
     } else {
       cntrl_val = ((verf_val - (float)1.6) / (float)(0.08));
-      temp      = cntrl_val + 1;
+      temp      = (uint8_t)(cntrl_val + 1);
       cntrl_val = (cntrl_val + (float)0.50);
       if ((float)temp > cntrl_val) {
-        temp = cntrl_val;
+        temp = (uint8_t)cntrl_val;
       }
-      AUX_ADC_DAC_COMP->AUX_LDO_b.LDO_CTRL = temp;
+      AUX_ADC_DAC_COMP->AUX_LDO_b.LDO_CTRL = (unsigned int)(temp & 0x0F);
     }
   }
   return RSI_OK;

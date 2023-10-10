@@ -25,7 +25,7 @@
  *  Version 1.0
  *    Initial release
  */
-
+ 
 #include "rsi_ccp_user_config.h"
 #if defined(CHIP_9118)
 
@@ -40,11 +40,12 @@ volatile uint8_t USB_role  = ARM_USB_ROLE_NONE;
 volatile uint8_t USB_state = 0U;
 
 #ifdef RTE_Drivers_USBH
-extern void USBH0_IRQ(void);
+extern void USBH0_IRQ (void);
 #endif
 #ifdef RTE_Drivers_USBD
-extern void USBD0_IRQ(void);
+extern void USBD0_IRQ (void);
 #endif
+
 
 // Common IRQ Routine **********************************************************
 
@@ -52,18 +53,17 @@ extern void USBD0_IRQ(void);
   \fn          void IRQ073_Handler (void)
   \brief       USB Interrupt Routine (IRQ).
 */
-void IRQ073_Handler(void)
-{
-#if (defined(RTE_Drivers_USBH) && defined(RTE_Drivers_USBD))
+void IRQ073_Handler (void) {
+#if(defined(RTE_Drivers_USBH) && defined(RTE_Drivers_USBD))
   switch (USB_role) {
 #ifdef RTE_Drivers_USBH
     case ARM_USB_ROLE_HOST:
-      USBH_IRQ();
+      USBH_IRQ ();
       break;
 #endif
 #ifdef RTE_Drivers_USBD
     case ARM_USB_ROLE_DEVICE:
-      USBD_IRQ();
+      USBD_IRQ ();
       break;
 #endif
     default:
@@ -71,9 +71,9 @@ void IRQ073_Handler(void)
   }
 #else
 #ifdef RTE_Drivers_USBH
-  USBH_IRQ();
+  USBH_IRQ ();
 #else
-  USBD_IRQ();
+  USBD_IRQ ();
 #endif
 #endif
 }

@@ -39,7 +39,7 @@
 ### Hardware Setup
 
 - Windows PC
-- Silicon Labs [WSTK + BRD4325A]
+- Silicon Labs [WSTK + BRD4338A]
 
 ![Figure: Introduction](resources/readme/image513a.png)
 
@@ -48,6 +48,10 @@
 - Si91x SDK
 - Embedded Development Environment
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+### VCOM Setup
+- The Serial Console tool's setup instructions are provided below..
+
+![Figure: VCOM_setup](resources/readme/vcom.png)
 
 ## Project Setup
 
@@ -73,8 +77,9 @@
 
 | USART PINS     | GPIO    | Connector     | UART-TTL cable |
 | -------------- | ------- | ------------- | -------------- |
-| USART0_TX_PIN  | GPIO_30 | EXP_HEADER-4  | RX pin         |
-| USART0_RX_PIN  | GPIO_29 | EXP_HEADER-6  | TX Pin         | 
+| USART0_TX_PIN  | GPIO_30 |     P35       | RX pin         |
+| USART0_RX_PIN  | GPIO_29 |     P33       | TX Pin         | 
+
 
 ![Figure: Build run and Debug](resources/readme/image513d.png)
 

@@ -202,7 +202,7 @@ uint16_t rsi_bt_get_proto_type(uint16_t rsp_type, rsi_bt_cb_t **bt_cb)
              || (rsp_type == RSI_BLE_SET_ADVERTISE_DATA)
              || ((rsp_type >= RSI_BLE_GET_LE_PING) && (rsp_type <= RSI_BLE_CMD_READ_RESP))
              || (rsp_type == RSI_BLE_SET_SCAN_RESPONSE_DATA)
-             || ((rsp_type >= RSI_BLE_LE_WHITE_LIST) && (rsp_type <= RSI_BLE_CBFC_DISCONN))
+             || ((rsp_type >= RSI_BLE_LE_ACCEPT_LIST) && (rsp_type <= RSI_BLE_CBFC_DISCONN))
              || ((rsp_type >= RSI_BLE_LE_LTK_REQ_REPLY) && (rsp_type <= RSI_BLE_PER_RX_MODE))
              || (rsp_type == RSI_BLE_CMD_ATT_ERROR) || (rsp_type == RSI_BLE_CMD_SET_BLE_TX_POWER)
              || (rsp_type == RSI_BLE_CMD_INDICATE_SYNC) || (rsp_type == RSI_BLE_CMD_AE)
@@ -362,7 +362,7 @@ uint32_t rsi_bt_get_status(rsi_bt_cb_t *bt_cb)
 }
 
 /**
- * @brief       Update local Device buffer availability per slave in global ble cb structure
+ * @brief       Update local Device buffer availability per peripheral in global ble cb structure
  * @param[in]   void
  * @return      void
  *
@@ -1582,6 +1582,22 @@ uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x
         }
       }
     } break;
+    case RSI_BT_VENDOR_SPECIFIC: {
+      pkt->data[0] = ((uint8_t *)cmd_struct)[0];
+      pkt->data[1] = ((uint8_t *)cmd_struct)[1];
+      switch ((pkt->data[0] | (pkt->data[1] << 8))) {
+        case BLE_VENDOR_RF_TYPE_CMD_OPCODE:
+          payload_size = sizeof(rsi_ble_vendor_rf_type_t);
+          memcpy(pkt->data, cmd_struct, payload_size);
+          break;
+        case BLE_VENDOR_ACCEPTLIST_USING_ADV_DATA_PAYLOAD:
+          payload_size = sizeof(rsi_ble_req_acceptlist_using_payload_t);
+          memcpy(pkt->data, cmd_struct, payload_size);
+          break;
+        default:
+          break;
+      }
+    } break;
     case RSI_BT_SET_GAIN_TABLE_OFFSET_OR_MAX_POWER_UPDATE: {
       payload_size = sizeof(rsi_bt_cmd_update_gain_table_offset_or_maxpower_t);
       memcpy(pkt->data, cmd_struct, payload_size);
@@ -1850,8 +1866,8 @@ uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x_pac
       memcpy(pkt->data, cmd_struct, payload_size);
     } break;
 
-    case RSI_BLE_LE_WHITE_LIST: {
-      payload_size = sizeof(rsi_ble_white_list_t);
+    case RSI_BLE_LE_ACCEPT_LIST: {
+      payload_size = sizeof(rsi_ble_accept_list_t);
       memcpy(pkt->data, cmd_struct, payload_size);
     } break;
 
@@ -2313,13 +2329,13 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   // Save expected response type
   bt_cb->expected_response_buffer = resp;
 
-  sl_si91x_driver_send_bt_command(cmd, SI91X_BT_CMD_QUEUE, buffer);
-
   if (cmd == RSI_BLE_ONLY_OPER_MODE) {
     // Save expected response type
     bt_cb->expected_response_type = RSI_BT_EVENT_CARD_READY;
     bt_cb->sync_rsp               = 1;
   }
+
+  sl_si91x_driver_send_bt_command(cmd, SI91X_BT_CMD_QUEUE, buffer, bt_cb->sync_rsp);
 
   rsi_bt_set_wait_bitmap(protocol_type, BT_SEM);
   if (bt_cb->bt_sem == NULL || (osSemaphoreAcquire(bt_cb->bt_sem, calculate_timeout_ms) != osOK)) {

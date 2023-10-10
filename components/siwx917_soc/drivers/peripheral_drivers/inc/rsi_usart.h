@@ -85,6 +85,10 @@ ARM_USART_MODEM_STATUS USART_GetModemStatus(USART_RESOURCES *usart);
 uint32_t USART_GetParity_StopBit(uint8_t usart_peripheral); //API to get the parity and stop bit info
 uint32_t USART_GetBaudrate(uint8_t usart_peripheral);       //API to get the USART/UART baudrate
 uint8_t USART_GetInitState(uint8_t usart_peripheral);       //Get the USART Initialized state
+#ifdef SL_SI91X_USART_DMA
+void usart_transfer_complete_callback(uint32_t channel, void *data);
+void usart_error_callback(uint32_t channel, void *data);
+#endif
 #ifdef __cplusplus
 }
 #endif

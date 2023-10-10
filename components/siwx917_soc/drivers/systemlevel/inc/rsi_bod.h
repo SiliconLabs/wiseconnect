@@ -92,22 +92,23 @@ float RSI_BOD_SoftTriggerGetBatteryStatus(void);
 float RSI_BOD_PeriodicTriggerGetBatteryStatus(void);
 void RSI_BOD_Enable(uint8_t enable, float vbatt_threshold);
 uint32_t RSI_BOD_GetThreshold(void);
-error_t RSI_BOD_ConfigSlotValue(uint16_t slot_value);
+rsi_error_t RSI_BOD_ConfigSlotValue(uint16_t slot_value);
 void RSI_BOD_ButtonWakeUpEnable(uint8_t enable);
 uint32_t RSI_BOD_Buttonvalue(void);
-error_t RSI_BOD_CMP_Hysteresis(uint8_t value);
-error_t RSI_BOD_SetMode(uint8_t mode);
+rsi_error_t RSI_BOD_CMP_Hysteresis(uint8_t value);
+rsi_error_t RSI_BOD_SetMode(uint8_t mode);
 void RSI_BOD_BlackOutReset(uint16_t enable);
 
 void RSI_BOD_BGSampleEnable(void);
 void RSI_BOD_BGSampleDisable(void);
-error_t RSI_BOD_BodTestSel(uint8_t enable, uint8_t bod_test_sel_value);
+rsi_error_t RSI_BOD_BodTestSel(uint8_t enable, uint8_t bod_test_sel_value);
 
 void RSI_BOD_IntrEnable(uint16_t enable);
 void RSI_BOD_ButtonIntrEnable(uint16_t enable);
 void RSI_BOD_IntrClr(void);
 void RSI_BOD_ButtonIntrClr(void);
 uint32_t RSI_BOD_GetIntrStatus(void);
+void IRQ023_Handler(void);
 
 #ifdef __cplusplus
 }

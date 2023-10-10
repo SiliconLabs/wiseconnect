@@ -20,7 +20,7 @@
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_UDMA_DRIVER RSI:RS1xxxx UDMA 
+ * \defgroup RSI_UDMA_DRIVER
  *  @{
  *
  */
@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 /**
- * @fn         STATIC INLINE error_t RSI_UDMA_SetupChannelTransfer( RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg,
+ * @fn         STATIC INLINE rsi_error_t RSI_UDMA_SetupChannelTransfer( RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg,
 																			                RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
                                                       void *pSrcAddr, void *pDstAddr )
  * @brief		   This API is used to control parameters for a UDMA channel control structure.
@@ -110,11 +110,11 @@ extern "C" {
  * @param[in]  pDstAddr : Pointer to destination address
  * @return 		  \ref RSI_OK if no errors occurred, or an error code
  */
-STATIC INLINE error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandle,
-                                                    RSI_UDMA_CHA_CFG_T *pCfg,
-                                                    RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
-                                                    void *pSrcAddr,
-                                                    void *pDstAddr)
+STATIC INLINE rsi_error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandle,
+                                                        RSI_UDMA_CHA_CFG_T *pCfg,
+                                                        RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
+                                                        void *pSrcAddr,
+                                                        void *pDstAddr)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_setup_channel_transfer(pHandle, pCfg, vsUdmaChaConfigData, pSrcAddr, pDstAddr);
@@ -124,7 +124,7 @@ STATIC INLINE error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandle,
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh,
+ * @fn          STATIC INLINE rsi_error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh,
                                                                  uint8_t taskCount,
                                                                  void *pTaskList, uint32_t transferType)
  * @brief		    This API is used to configures a UDMA channel for scatter-gather mode
@@ -135,11 +135,11 @@ STATIC INLINE error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandle,
  * @param[in]	  transferType :  Transfer type
  * @return 		  return \ref ERROR_UDMA_INVALID_ARG if channel is  greater than 31, and on success return \ref RSI_OK
  */
-STATIC INLINE error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HANDLE_T pHandle,
-                                                               uint8_t dmaCh,
-                                                               uint8_t taskCount,
-                                                               void *pTaskList,
-                                                               uint32_t transferType)
+STATIC INLINE rsi_error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HANDLE_T pHandle,
+                                                                   uint8_t dmaCh,
+                                                                   uint8_t taskCount,
+                                                                   void *pTaskList,
+                                                                   uint32_t transferType)
 
 {
 #if defined(ROMDRIVER_PRESENT)
@@ -224,7 +224,7 @@ STATIC INLINE RSI_UDMA_HANDLE_T RSI_UDMA_Init(void *mem, const RSI_UDMA_INIT_T *
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
+ * @fn          STATIC INLINE rsi_error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
 
  * @brief		    This API is used to configures required parameters for a channel
  * @param[in]   pHandle	: Pointer to driver context handle
@@ -239,7 +239,7 @@ STATIC INLINE RSI_UDMA_HANDLE_T RSI_UDMA_Init(void *mem, const RSI_UDMA_INIT_T *
                           - \ref dmaCh           :dma channel number(0-31)
  * @return 		  - \ref  RSI_OK if no errors occurred, or an error code
  */
-STATIC INLINE error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
+STATIC INLINE rsi_error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_setup_channel(pHandle, pCfg);
@@ -280,13 +280,13 @@ STATIC INLINE void RSI_UDMA_Interrupthandler(RSI_UDMA_HANDLE_T pHandle)
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+ * @fn          STATIC INLINE rsi_error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
  * @brief		    This API is used to enable the done interrupt to processor
  * @param[in]	  pHandle	 : Pointer to driver context handle
  * @param[in]	  dmaCh    :  Channel number(0 to 31)
  * @return 		  return \ref ERROR_UDMA_INVALID_ARG if channel is  greater than 31, and on success return \ref RSI_OK
  */
-STATIC INLINE error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
+STATIC INLINE rsi_error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_interrupt_enable(pHandle, dmaCh);
@@ -298,17 +298,17 @@ STATIC INLINE error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_
 /**************************************************************************************
 								              UDMA ROM FUNCTION PROTOTYPES											  
 		 **************************************************************************************/
-error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandle,
-                                      RSI_UDMA_CHA_CFG_T *pCfg,
-                                      RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
-                                      void *pSrcAddr,
-                                      void *pDstAddr);
+rsi_error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandle,
+                                          RSI_UDMA_CHA_CFG_T *pCfg,
+                                          RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
+                                          void *pSrcAddr,
+                                          void *pDstAddr);
 
-error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HANDLE_T pHandle,
-                                                 uint8_t dmaCh,
-                                                 uint8_t taskCount,
-                                                 void *pTaskList,
-                                                 uint32_t transferType);
+rsi_error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HANDLE_T pHandle,
+                                                     uint8_t dmaCh,
+                                                     uint8_t taskCount,
+                                                     void *pTaskList,
+                                                     uint32_t transferType);
 
 uint32_t RSI_UDMA_GetChannelTransferLength(RSI_UDMA_HANDLE_T pHandle,
                                            RSI_UDMA_CHA_CFG_T *pCfg,
@@ -318,13 +318,13 @@ uint32_t RSI_UDMA_GetChannelTransferMode(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA
 
 RSI_UDMA_HANDLE_T RSI_UDMA_Init(void *mem, const RSI_UDMA_INIT_T *pInit);
 
-error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+rsi_error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
 
 void RSI_UDMA_DeInit(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
 
 void RSI_UDMA_Interrupthandler(RSI_UDMA_HANDLE_T pHandle);
 
-error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
+rsi_error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
 #ifdef __cplusplus
 }

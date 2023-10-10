@@ -1,10 +1,26 @@
+/*******************************************************************************
+* @file  console.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include "console.h"
 #include "sl_ieee802_types.h"
 #include "sl_ip_types.h"
 #include "sl_constants.h"
 #include "sl_string.h"
 #include "sl_utility.h"
-#include "sl_net.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>
@@ -17,13 +33,6 @@
  ******************************************************/
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
-
-// Taken from Azure SDK crt_abstractions.c
-#define DIGIT_VAL(c)                             \
-  (((c >= '0') && (c <= '9'))   ? (c - '0')      \
-   : ((c >= 'a') && (c <= 'z')) ? (c - 'a' + 10) \
-   : ((c >= 'A') && (c <= 'Z')) ? (c - 'A' + 10) \
-                                : -1)
 
 /******************************************************
  *                    Constants
@@ -56,10 +65,12 @@ typedef struct {
 
 static inline uint8_t parse_enum_arg(const char *line, const char *const *options);
 
-sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *mac);
-
 char *string_token(register char *s, register const char *delim, char **lasts);
-sl_status_t console_tokenize(char *start, char *end, char **token, char **token_end);
+sl_status_t console_tokenize(char *start,
+                             char *end,
+                             char **token,
+                             char **token_end,
+                             sl_console_tokenize_options_t options);
 
 /******************************************************
  *               Variable Definitions
@@ -101,20 +112,12 @@ sl_status_t console_parse_command(char *command_line,
   char *command_line_end = command_line + strlen(command_line); // The end should be passed in by the user
 
 #ifdef CONSOLE_SUB_COMMAND_SUPPORT
-start_processing_command_from_new_database:
 #endif
-
   args->bitmap = 0;
-
-  // Find first space
-  char *iter = command_line;
-  status     = console_tokenize(iter, command_line_end, &token, &iter);
-  if (status != SL_STATUS_OK)
-    return SL_STATUS_FAIL;
 
   // Try find matching command
   index  = 0;
-  status = console_find_command(command_line, (uint32_t)(iter - command_line), db, &entry, &index);
+  status = console_find_command(&command_line, command_line_end, db, &entry, &index);
   if (status != SL_STATUS_OK)
     return status;
 
@@ -131,7 +134,13 @@ start_processing_command_from_new_database:
 
     SL_ASSERT(arg_count < CONSOLE_MAXIMUM_ARG_COUNT, "Command has too many args");
 
-    status = console_tokenize(iter, command_line_end, &token, &iter);
+    if (type == CONSOLE_ARG_REMAINING_COMMAND_LINE) {
+      args->bitmap |= (1 << arg_count);
+      args->arg[arg_count] = (uint32_t)(command_line + 1);
+      return SL_STATUS_OK;
+    }
+
+    status = console_tokenize(command_line, command_line_end, &token, &command_line, SL_CONSOLE_TOKENIZE_ON_SPACE);
 
     // If no more tokens are available, verify there are only optional arguments left
     if (status != SL_STATUS_OK) {
@@ -158,7 +167,7 @@ start_processing_command_from_new_database:
         }
         // Found a match!
         args->bitmap |= (1 << arg_number);
-        status = console_tokenize(iter, command_line_end, &token, &iter);
+        status = console_tokenize(command_line, command_line_end, &token, &command_line, SL_CONSOLE_TOKENIZE_ON_SPACE);
         if (status == SL_STATUS_OK) {
           status = console_parse_arg(argument_list[a + 1], token, &args->arg[arg_number]);
         }
@@ -166,17 +175,6 @@ start_processing_command_from_new_database:
       }
       continue;
     }
-
-#ifdef CONSOLE_SUB_COMMAND_SUPPORT // Note: Sub commands not yet supported
-    if (type == CONSOLE_ARG_SUB_COMMAND) {
-      command_line = token;        // Not sure if this is right
-      db           = (const console_database_t *)((uint32_t)(*output_command)->argument_list[a + 1]
-                                        + ((*output_command)->argument_list[a + 2] << 8)
-                                        + ((*output_command)->argument_list[a + 3] << 16)
-                                        + ((*output_command)->argument_list[a + 4] << 24));
-      goto start_processing_command_from_new_database;
-    }
-#endif
 
     // Verify current ordered argument is not an optional argument
     for (; (type & CONSOLE_ARG_OPTIONAL);) {
@@ -243,30 +241,61 @@ void console_add_to_history(const char *line, uint8_t line_length)
 }
 
 // Simple linear database search. This function could be replaced with a more complicated version
-sl_status_t console_find_command(const char *command_string,
-                                 uint32_t command_string_length,
+sl_status_t console_find_command(char **string,
+                                 char *string_end,
                                  const console_database_t *db,
                                  const console_database_entry_t **entry,
                                  uint32_t *starting_index)
 {
+  const console_descriptive_command_t *output_command;
+  sl_status_t status;
+  char *token;
+
   // Validate inputs
-  if ((command_string == NULL) || (command_string_length == 0) || (starting_index == NULL))
+  if ((string == NULL) || (string_end == NULL) || (starting_index == NULL))
     return SL_STATUS_FAIL;
 
-  for (uint32_t i = *starting_index; i < db->length; i++) {
-    if (strncmp(command_string, db->entries[i].key, command_string_length) == 0) {
+  char *iter = *string;
+
+temp_start_processing_command_from_new_database:
+  *entry = NULL;
+
+  // Find first token
+  status = console_tokenize(iter, string_end, &token, &iter, SL_CONSOLE_TOKENIZE_ON_SPACE | SL_CONSOLE_TOKENIZE_ON_DOT);
+  if (status != SL_STATUS_OK)
+    return SL_STATUS_FAIL;
+
+  size_t token_length = strlen(token);
+
+  for (uint32_t i = 0; i < db->length; i++) {
+    if (strncmp(token, db->entries[i].key, token_length) == 0) {
       *entry          = &(db->entries[i]);
       *starting_index = i;
 
-      if (strlen(db->entries[i].key) == command_string_length) {
-        return SL_STATUS_OK;
+      if (strlen(db->entries[i].key) == token_length) {
+        break;
       } else {
         return SL_STATUS_COMMAND_INCOMPLETE;
       }
     }
   }
+  if (*entry == NULL) {
+    return SL_STATUS_FAIL;
+  }
 
-  return SL_STATUS_FAIL;
+  output_command                               = (const console_descriptive_command_t *)(*entry)->value;
+  const console_argument_type_t *argument_list = &(output_command->argument_list[0]);
+  console_argument_type_t type;
+  type = argument_list[0];
+  if (type == CONSOLE_ARG_SUB_COMMAND) {
+    iter = iter + 1;
+    db   = output_command->sub_command_database;
+    if (strlen(iter) != 0) {
+      goto temp_start_processing_command_from_new_database;
+    }
+  }
+  *string = iter;
+  return SL_STATUS_OK;
 }
 
 sl_status_t console_parse_arg(console_argument_type_t type, char *line, uint32_t *arg_result)
@@ -311,9 +340,10 @@ sl_status_t console_parse_arg(console_argument_type_t type, char *line, uint32_t
     } break;
 
     case CONSOLE_ARG_IP_ADDRESS: {
-      sl_ipv4_address_t *temp_ip = (sl_ipv4_address_t *)line; // Write the converted value back into the line
-      *arg_result                = (uint32_t)temp_ip;
-      return sl_net_inet_addr(line, (uint32_t *)temp_ip);
+      sl_ipv4_address_t temp_ip = { 0 }; // Write the converted value back into the line
+      sl_status_t status        = convert_string_to_sl_ipv4_address(line, &temp_ip);
+      *arg_result               = temp_ip.value;
+      return status;
     } break;
 
     case CONSOLE_ARG_HEX: {
@@ -334,37 +364,6 @@ static inline uint8_t parse_enum_arg(const char *line, const char *const *option
   return 0xFF;
 }
 
-/** Convert a character string into a sl_mac_address_t
- *
- * @param line  Argument string that is expected to be like 00:11:22:33:44:55
- * @param mac
- * @return
- *    sl_status_t
- */
-sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *mac)
-{
-  // Verify we have the exact number of characters. Basic argument verification
-  if (sl_strnlen((char *)line, 18) != 17) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  uint8_t index = 0;
-  while (index < 6) {
-    // Read all the data and verify validity
-    int char1 = DIGIT_VAL(line[0]);
-    int char2 = DIGIT_VAL(line[1]);
-    if (char1 == -1 || char2 == -1 || (line[2] != '\0' && line[2] != ':')) {
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-
-    // Store value
-    mac->octet[index++] = (uint8_t)((uint8_t)char1 << 4) + (uint8_t)char2;
-    line += 3;
-  }
-
-  return SL_STATUS_OK;
-}
-
 static bool escape(char *i, char *end)
 {
   // Check if next character is one of the escaped ones
@@ -378,7 +377,11 @@ static bool escape(char *i, char *end)
   }
 }
 
-sl_status_t console_tokenize(char *start, char *end, char **token, char **token_end)
+sl_status_t console_tokenize(char *start,
+                             char *end,
+                             char **token,
+                             char **token_end,
+                             sl_console_tokenize_options_t options)
 {
   // Get size of string and declare variables
   //  uint32_t input_size = strlen( input );
@@ -451,7 +454,8 @@ sl_status_t console_tokenize(char *start, char *end, char **token, char **token_
       --end;
 
       // Ordinary splitting
-    } else if (*i == ' ') {
+    } else if (((options & SL_CONSOLE_TOKENIZE_ON_SPACE) && *i == ' ')
+               || ((options & SL_CONSOLE_TOKENIZE_ON_DOT) && *i == '.')) {
       // Turn space into '\0' to indicate end of string
       *i         = '\0';
       *token_end = i;

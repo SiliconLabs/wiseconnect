@@ -96,6 +96,10 @@ sl_status_t convert_si91x_event_to_sl_net_event(uint16_t *event, sl_net_event_t 
       *sl_net_event = SL_NET_OTA_FW_UPDATE_EVENT;
       return SL_STATUS_OK;
     }
+    case RSI_WLAN_RSP_MODULE_STATE: {
+      *sl_net_event = SL_NET_ASYNC_MODULE_STATUS_EVENT;
+      return SL_STATUS_OK;
+    }
   }
 
   return SL_STATUS_FAIL;

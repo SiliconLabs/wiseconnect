@@ -27,38 +27,38 @@
 extern "C" {
 #endif
 
-error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod);
-error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                     uint32_t u32TimePeriodRefClk,
-                                     uint32_t u32XtalSettle,
-                                     uint16_t u16RcClkCnt,
-                                     boolean_t bPeriodicCalibEn,
-                                     uint8_t u8PeriodicCalibRate,
-                                     boolean_t bTemperatureCalibEn,
-                                     uint8_t u8TemperatureVal,
-                                     uint8_t u8AverageFactor);
+rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod);
+rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+                                         uint32_t u32TimePeriodRefClk,
+                                         uint32_t u32XtalSettle,
+                                         uint16_t u16RcClkCnt,
+                                         boolean_t bPeriodicCalibEn,
+                                         uint8_t u8PeriodicCalibRate,
+                                         boolean_t bTemperatureCalibEn,
+                                         uint8_t u8TemperatureVal,
+                                         uint8_t u8AverageFactor);
 uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod);
 uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod);
-error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                            uint32_t u32TimePeriodRefClk,
-                                            uint32_t u32XtalSettle,
-                                            uint16_t u16RcClkCnt,
-                                            boolean_t bPeriodicCalibEn,
-                                            uint8_t u8PeriodicCalibRate,
-                                            boolean_t bTemperatureCalibEn,
-                                            uint8_t u8TemperatureVal,
-                                            uint8_t u8AverageFactor);
-error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                     uint8_t u8RefClkSrc,
-                                     uint32_t u32XtalSettle,
-                                     uint16_t u16RoClkCnt,
-                                     boolean_t bPeriodicCalibEn,
-                                     uint8_t u8PeriodicCalibRate,
-                                     uint8_t u8AverageFactor
+rsi_error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+                                                uint32_t u32TimePeriodRefClk,
+                                                uint32_t u32XtalSettle,
+                                                uint16_t u16RcClkCnt,
+                                                boolean_t bPeriodicCalibEn,
+                                                uint8_t u8PeriodicCalibRate,
+                                                boolean_t bTemperatureCalibEn,
+                                                uint8_t u8TemperatureVal,
+                                                uint8_t u8AverageFactor);
+rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+                                         uint8_t u8RefClkSrc,
+                                         uint32_t u32XtalSettle,
+                                         uint16_t u16RoClkCnt,
+                                         boolean_t bPeriodicCalibEn,
+                                         uint8_t u8PeriodicCalibRate,
+                                         uint8_t u8AverageFactor
 
 );
-error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn);
-error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time);
+rsi_error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn);
+rsi_error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time);
 
 #ifdef __cplusplus
 }

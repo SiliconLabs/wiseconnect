@@ -99,13 +99,19 @@ uint8_t efuse_read_data(EFUSE_Type *pstcEfuse);
 
 void efuse_write_addr(EFUSE_Type *pstcEfuse, uint16_t u16Addr);
 
-error_t efuse_write_bit(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t u8BitPos, uint32_t hold_time);
+rsi_error_t efuse_get_addr(EFUSE_Type *pstcEfuse, uint16_t *u16AddrVal);
 
-error_t efuse_fsm_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk);
+rsi_error_t efuse_write_bit(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t u8BitPos, uint32_t hold_time);
 
-error_t efuse_mem_map_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk);
+rsi_error_t efuse_fsm_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk);
 
-error_t efuse_mem_map_read_word(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint16_t *pu16Word, uint32_t SocClk);
+rsi_error_t efuse_mem_map_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t SocClk);
+
+rsi_error_t efuse_mem_map_read_word(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint16_t *pu16Word, uint32_t SocClk);
+
+rsi_error_t efuse_direct_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t *pu8Byte, uint32_t hold_time);
+
+void efuse_write_address(EFUSE_Type *pstcEfuse, uint16_t u16Addr);
 
 #ifdef __cplusplus
 }

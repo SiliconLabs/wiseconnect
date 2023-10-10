@@ -82,6 +82,8 @@ void get_saved_boot_configuration(sl_si91x_boot_configuration_t *boot_configurat
 void save_coex_mode(sl_si91x_coex_mode_t coex_mode);
 sl_si91x_coex_mode_t get_coex_mode(void);
 
+sl_status_t convert_sl_wifi_to_sl_si91x_encryption(sl_wifi_encryption_t encryption_mode, uint8_t *encryption_request);
+
 /*********************************************************************************************
  * @brief
  * 	 An utility function computes coex performance profile internally and converts into sl_si91x_power_save_request_t.

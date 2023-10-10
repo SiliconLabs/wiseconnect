@@ -23,7 +23,7 @@
 
 /*==============================================*/
 /** 
- * @fn        error_t RSI_ProSense_Enable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
+ * @fn        rsi_error_t RSI_ProSense_Enable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
  * @brief     This API is used to Enable / Disable the process sensor
  * @param[in] pstcProcessSensor : pointer to the processor sensor register instance
  * @param[in] bEN : to Enable / Disble of process sensor
@@ -33,9 +33,9 @@
  *            Error code on failure
  */
 
-error_t RSI_ProSense_Enable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
+rsi_error_t RSI_ProSense_Enable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
 {
-  pstcProcessSensor->PROCESS_SENSOR_ENABLE_AND_READ_b.PROCESS_SENSOR_EN = bEN;
+  pstcProcessSensor->PROCESS_SENSOR_ENABLE_AND_READ_b.PROCESS_SENSOR_EN = (unsigned int)(bEN & 0x01);
   return RSI_OK;
 }
 
@@ -67,7 +67,7 @@ uint32_t RSI_ProSense_GetNumCycles(MCU_ProcessSensor_Type *pstcProcessSensor)
 
 /*==============================================*/
 /** 
- * @fn         error_t RSI_ProSense_ClkEnable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
+ * @fn         rsi_error_t RSI_ProSense_ClkEnable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
  * @brief      This API is used to Enable / Disable the process sensor clock
  * @param[in]  pstcProcessSensor : pointer to the processor sensor register instance
  * @param[in]  bEN : to Enable / Disble of process sensor
@@ -77,7 +77,7 @@ uint32_t RSI_ProSense_GetNumCycles(MCU_ProcessSensor_Type *pstcProcessSensor)
  *             Error code on failure
  */
 
-error_t RSI_ProSense_ClkEnable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
+rsi_error_t RSI_ProSense_ClkEnable(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
 {
   if (bEN) {
     pstcProcessSensor->PROCESS_SENSOR_ENABLE_AND_READ_b.PS_CLK_SW_ON = 1;
@@ -89,7 +89,7 @@ error_t RSI_ProSense_ClkEnable(MCU_ProcessSensor_Type *pstcProcessSensor, boolea
 
 /*==============================================*/
 /** 
- * @fn        error_t RSI_ProSense_RingClkStart(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
+ * @fn        rsi_error_t RSI_ProSense_RingClkStart(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
  * @brief     This API is used to start / Stop the Ring-Oscillator clock for estimating process corner.
  * @param[in] pstcProcessSensor  : pointer to the processor sensor register instance
  * @param[in] bEN  : to Enable / Disble of process sensor
@@ -99,8 +99,8 @@ error_t RSI_ProSense_ClkEnable(MCU_ProcessSensor_Type *pstcProcessSensor, boolea
  *            Error code on failure
  */
 
-error_t RSI_ProSense_RingClkStart(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
+rsi_error_t RSI_ProSense_RingClkStart(MCU_ProcessSensor_Type *pstcProcessSensor, boolean_t bEN)
 {
-  pstcProcessSensor->PROCESS_SENSOR_ENABLE_AND_READ_b.PS_RING_CLK_START = bEN;
+  pstcProcessSensor->PROCESS_SENSOR_ENABLE_AND_READ_b.PS_RING_CLK_START = (unsigned int)(bEN & 0x01);
   return RSI_OK;
 }

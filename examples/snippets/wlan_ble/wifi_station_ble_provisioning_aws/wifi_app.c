@@ -191,7 +191,9 @@ IoT_Publish_Message_Params publish_QOS0 = { 0 };
 volatile uint8_t nvic_enable1[240];
 
 fd_set read_fds;
-volatile uint8_t check_for_recv_data = 0, select_given = 0;
+volatile uint8_t check_for_recv_data = 0;
+extern volatile uint8_t select_given;
+
 int32_t status1            = RSI_SUCCESS;
 AWS_IoT_Client mqtt_client = { 0 };
 #define RSI_FD_ISSET(x, y) rsi_fd_isset(x, y)
@@ -1047,7 +1049,7 @@ void set_alarm_interrupt_timer(uint16_t interval)
 
   /*Update month for next boundary alarm */
   if (alarm_configuration.Day > NO_OF_DAYS_IN_A_MONTH_1) {
-    if (alarm_configuration.Month == Febuary) {
+    if (alarm_configuration.Month == February) {
       if (alarm_configuration.Year % 4) {
         alarm_configuration.Day = 1;
         alarm_configuration.Month += 1;

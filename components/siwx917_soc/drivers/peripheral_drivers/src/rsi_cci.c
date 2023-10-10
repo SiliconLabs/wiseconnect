@@ -32,7 +32,7 @@ void RSI_CCI_AmsEnable()
 
 /*==============================================*/
 /**   
- * @fn          error_t RSI_CCI_AMS_Initialise(RSI_CCI_Init_t *p_cci_config)
+ * @fn          rsi_error_t RSI_CCI_AMS_Initialise(RSI_CCI_Init_t *p_cci_config)
  * @brief       This API configures the CCI peripheral 
  * @param[in]   p_cci_config CCI configuration structure pointer
  *              \n 
@@ -42,7 +42,7 @@ void RSI_CCI_AmsEnable()
  * @return      \ref RSI_OK if success full or 
  *              else error code
  */
-error_t RSI_CCI_AMS_Initialise(RSI_CCI_Init_t *p_cci_config)
+rsi_error_t RSI_CCI_AMS_Initialise(RSI_CCI_Init_t *p_cci_config)
 {
   CCI_Type *pcci = CCI;
 

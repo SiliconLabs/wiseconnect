@@ -80,7 +80,7 @@ typedef struct RSI_CCI_Init_s {
 
 void RSI_CCI_AmsEnable(void);
 
-error_t RSI_CCI_AMS_Initialise(RSI_CCI_Init_t *p_cci_config);
+rsi_error_t RSI_CCI_AMS_Initialise(RSI_CCI_Init_t *p_cci_config);
 
 uint32_t RSI_CCI_SetFifoThreshlod(volatile CCI_Type *pstcCCI, uint8_t val);
 

@@ -12,7 +12,7 @@ filter:
     value: ["Advanced"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -21,11 +21,13 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
   - name: M4_OTAF_DF
   - name: EXECUTION_FROM_RAM
     condition: [device_needs_ram_execution]
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_system
 - name: bsd_socket
@@ -39,9 +41,7 @@ requires:
 - name: wifi_resources
 - name: freertos
 - name: slist
-- name: systemlevel_wwdt
-- name: sl_watchdog_timer
-- name: systemlevel_time_period
+- name: sl_si91x_soc_soft_reset
 - name: iostream_retarget_stdio
   condition: [device_has_devinfo]
 - name: iostream_recommended_stream
@@ -64,19 +64,10 @@ configuration:
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/build_m4_firmware_update.png 
-  - path: resources/readme/creationfinal.png 
-  - path: resources/readme/debug_soc.png 
   - path: resources/readme/output_remote_server.png 
-  - path: resources/readme/output_soc.png 
-  - path: resources/readme/port_selection_soc.png 
-  - path: resources/readme/projctselection.png 
-  - path: resources/readme/serial_port.png 
-  - path: resources/readme/serial_port_setup.png 
-  - path: resources/readme/setup_soc.png 
-  - path: resources/readme/soc_board_detection.png 
-  - path: resources/readme/usb_to_uart_1.png 
-  - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/output_soc.png  
+  - path: resources/readme/setup_soc_updated.png 
+  - path: resources/readme/vcom.png 
 ui_hints:
   highlight:
     - path: readme.md

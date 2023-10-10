@@ -173,7 +173,7 @@ sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, u
     DMADRV_LdmaStartTransfer(tx_ldma_channel, &ldmaTXConfig, &ldmaTXDescriptor, NULL, NULL);
 
     if (osSemaphoreAcquire(transfer_done_semaphore, 1000) != osOK) {
-      __asm__("bkpt");
+      BREAKPOINT();
     }
   }
   return SL_STATUS_OK;

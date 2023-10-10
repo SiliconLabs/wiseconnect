@@ -24,7 +24,7 @@
 volatile uint32_t batt_status_check;
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup  RSI_BOD RSI:RS1xxxx BOD 
+ * \defgroup  BOD 
  *  @{
  *
  */
@@ -38,8 +38,8 @@ volatile uint32_t batt_status_check;
 
 float RSI_BOD_SoftTriggerGetBatteryStatus(void)
 {
-  volatile static uint32_t batt_status, batt_status_supply = 0;
-  volatile static float vbatt = 0;
+  static volatile uint32_t batt_status, batt_status_supply = 0;
+  static volatile float vbatt = 0;
 
   /*disable the BOD interrupt  */
   RSI_BOD_IntrEnable(DISABLE);
@@ -59,11 +59,11 @@ float RSI_BOD_SoftTriggerGetBatteryStatus(void)
     /*read the battery status value at the 3.3 supply from config file */
     batt_status_supply = vbatt_status_trim_efuse[2] & (BOD_CLEAR_BATTERY_STATUS_BITS_EFUSE);
     /* converts the battery status to vbatt voltage value*/
-    vbatt = BOD_VBATT_COMPUT_FIRST_ELEMENT * (BOD_VBATT_COMPUT_SECOND_ELEMENT + batt_status)
-            / (BOD_VBATT_COMPUT_SECOND_ELEMENT + batt_status_supply);
+    vbatt = BOD_VBATT_COMPUT_FIRST_ELEMENT * (BOD_VBATT_COMPUT_SECOND_ELEMENT + (float)batt_status)
+            / (BOD_VBATT_COMPUT_SECOND_ELEMENT + (float)batt_status_supply);
   } else {
     /* converts the battery status to vbatt voltage value*/
-    vbatt = BOD_VBATT_COMPUT_FIRST_ELEMENT * (BOD_VBATT_COMPUT_SECOND_ELEMENT + batt_status)
+    vbatt = BOD_VBATT_COMPUT_FIRST_ELEMENT * (BOD_VBATT_COMPUT_SECOND_ELEMENT + (float)batt_status)
             / (BOD_VBATT_COMPUT_SECOND_ELEMENT + BOD_VBATT_COMPUT_THIRD_ELEMENT);
   }
 
@@ -78,16 +78,17 @@ float RSI_BOD_SoftTriggerGetBatteryStatus(void)
 /**
  * @fn          void RSI_BOD_Enable(uint8_t enable, float vbatt_threshold)
  * @brief       This API is used to enable or disable the BOD .
- * @param[in]   enable: 1: enables  the BOD.
- *                      0: disables  the BOD.  
+ * @param[in]   enable:
+ *                     - 1: enables  the BOD.
+ *                     - 0: disables  the BOD.  
  * @param[in]   vbatt_threshold : Set's the threshold value 
  * @return      none 
  */
 
 void RSI_BOD_Enable(uint8_t enable, float vbatt_threshold)
 {
-  volatile static uint32_t threshold_i = 0;
-  volatile static float threshold_f    = 0;
+  static volatile uint32_t threshold_i = 0;
+  static volatile float threshold_f    = 0;
   volatile uint32_t delay_button = 0, button_loop = 0;
   /* Disable signal for bod detection */
   if (BOD_ULP_PROC_CLK_SEL == 0) {
@@ -100,7 +101,7 @@ void RSI_BOD_Enable(uint8_t enable, float vbatt_threshold)
     /* Enable signal for bod detection */
     ULP_SPI_MEM_MAP(BOD_COMP_SEL_REG) |= BIT(16);
     /* Clear the MANUAL_CMP_MUX_SEL_VALUE bits for manual bod */
-    ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG) &= ~(MANUAL_CMP_MUX_SEL_BOD_CLR);
+    ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG) &= (uint32_t)(~(MANUAL_CMP_MUX_SEL_BOD_CLR));
     /* Writes the mode value 4*/
     ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG) |= (MANUAL_CMP_MUX_SEL_VALUE);
 
@@ -109,19 +110,19 @@ void RSI_BOD_Enable(uint8_t enable, float vbatt_threshold)
                    * (BOD_VBATT_COMPUT_SECOND_ELEMENT + BOD_VBATT_COMPUT_THIRD_ELEMENT))
                   - BOD_VBATT_COMPUT_SECOND_ELEMENT;
     /* Converts the thershold value to integer value */
-    threshold_i = (float)((vbatt_threshold / BOD_VBATT_COMPUT_FIRST_ELEMENT)
-                          * (BOD_VBATT_COMPUT_SECOND_ELEMENT + BOD_VBATT_COMPUT_THIRD_ELEMENT))
-                  - BOD_VBATT_COMPUT_SECOND_ELEMENT;
+    threshold_i = (uint32_t)((vbatt_threshold / BOD_VBATT_COMPUT_FIRST_ELEMENT)
+                             * (BOD_VBATT_COMPUT_SECOND_ELEMENT + BOD_VBATT_COMPUT_THIRD_ELEMENT))
+                  - (uint32_t)BOD_VBATT_COMPUT_SECOND_ELEMENT;
     /* Round off to near of integer value */
     if (threshold_f - (float)threshold_i > (float)THRESHOLD_OFFSET_VALUE)
       /* if the decimal value is greater than 0.5 then roundoff to next integer value  */
       threshold_i += THRESHOLD_ROUNDUP_VALUE;
     /* Clear the batt scale factor bits */
-    ULP_SPI_MEM_MAP(BOD_COMP_SEL_REG) &= ~(BATT_SCALE_FACTOR_BITS);
+    ULP_SPI_MEM_MAP(BOD_COMP_SEL_REG) &= (uint32_t)(~(BATT_SCALE_FACTOR_BITS));
     /* ORed with threshold value	 */
     ULP_SPI_MEM_MAP(BOD_COMP_SEL_REG) |= (threshold_i << 1);
     /* To give the BOD interrupt( to NPSS) even if the voltage is less than brown out interrupt threshold */
-    ULP_SPI_MEM_MAP(BOD_VBATT_STATUS_REG) &= ~(0x3E00);
+    ULP_SPI_MEM_MAP(BOD_VBATT_STATUS_REG) &= (uint32_t)(~(0x3E00));
   }
   /* To disable BOD */
   /*Checks to disable manual mode or automatic mode */
@@ -141,15 +142,16 @@ void RSI_BOD_Enable(uint8_t enable, float vbatt_threshold)
 
 /*==============================================*/
 /** 
- * @fn        error_t RSI_BOD_SetMode(uint8_t mode)
+ * @fn        rsi_error_t RSI_BOD_SetMode(uint8_t mode)
  * @brief     This API is used to  set the mode of BOD.
- * @param[in] mode : 1: enable automatic mode .
- *                   0: enable manual mode . 
+ * @param[in] mode : 
+ *                  - 1: enable automatic mode .
+ *                  - 0: enable manual mode . 
  * @return    RSI_OK on success 
- *            error code on failure .            
+ *           - error code on failure .            
  */
 
-error_t RSI_BOD_SetMode(uint8_t mode)
+rsi_error_t RSI_BOD_SetMode(uint8_t mode)
 {
   if (mode >= MAX_MODE_VALUE) {
     return INVALID_PARAMETERS;
@@ -186,25 +188,25 @@ uint32_t RSI_BOD_GetThreshold(void)
 
 /*==============================================*/
 /**
- * @fn        error_t RSI_BOD_ConfigSlotValue(uint16_t slot_value) 
+ * @fn        rsi_error_t RSI_BOD_ConfigSlotValue(uint16_t slot_value) 
  * @brief     This API is used to configure the slot value for automatic BOD .
- * @param     slot_value : Slot value after which compactor  outputs are sampled in auto mode.
+ * @param[in]     slot_value : Slot value after which compactor  outputs are sampled in auto mode.
  *                          The lowest possible values for this parameter 1.
  *                           The highest possible values for this parameter 32767.
- *            Example:
- *                if slot_value = '1' that means it will count 5 32kHz clock pulses to sample the next battery level.
- *                slot_value = '2' that means it will count (2*5)  32kHz clock pulses to sample the next battery level.
+ *            - Example:
+ *                - if slot_value = '1' that means it will count 5 32kHz clock pulses to sample the next battery level.
+ *                - slot_value = '2' that means it will count (2*5)  32kHz clock pulses to sample the next battery level.
  * @return    RSI_OK on success 
- *            error code on failure . 
+ *            - error code on failure . 
  */
 
-error_t RSI_BOD_ConfigSlotValue(uint16_t slot_value)
+rsi_error_t RSI_BOD_ConfigSlotValue(uint16_t slot_value)
 {
-  if (slot_value == SLOT_MIN_VALUE | slot_value > SLOT_MAX_VALUE) {
+  if ((slot_value == SLOT_MIN_VALUE) | (slot_value > SLOT_MAX_VALUE)) {
     return INVALID_PARAMETERS;
   }
   /* To clear the slot value bits */
-  ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG) &= ~(SLOT_VALUE_BITS); // 1E0
+  ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG) &= (uint32_t)(~(SLOT_VALUE_BITS)); // 1E0
   /* ORed with slotvalue */
   (ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG) |= (slot_value << 1)); //1E0
   return RSI_OK;
@@ -214,8 +216,9 @@ error_t RSI_BOD_ConfigSlotValue(uint16_t slot_value)
 /**
  * @fn           void RSI_BOD_ButtonWakeUpEnable(uint8_t enable)
  * @brief        This API is used to enable Button wake up 
- * @param[in]    enable: 1: enables  the BOD.
- *                       0: disables  the BOD.
+ * @param[in]    enable: 
+ *                      - 1: enables  the BOD.
+ *                      - 0: disables  the BOD.
  * @return       none
  */
 
@@ -223,6 +226,7 @@ void RSI_BOD_ButtonWakeUpEnable(uint8_t enable)
 {
 
   volatile uint32_t delay_button = 0, button_loop = 0, division_factor = 0;
+  (void)division_factor;
   if (BOD_ULP_PROC_CLK_SEL == 0) {
     delay_button = (16 / BOD_CLOCK_DIVISON_FACTOR) + 1;
   } else {
@@ -241,7 +245,7 @@ void RSI_BOD_ButtonWakeUpEnable(uint8_t enable)
       ULP_SPI_MEM_MAP(BOD_COMP_SEL_REG) |= BIT(21); // 1E1
     }
     /* Selecting and fixing the inputs of comparator */
-    (ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG)) &= ~(MANUAL_CMP_MUX_SEL_BUTTON_CLR);
+    (ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG)) &= (uint32_t)(~(MANUAL_CMP_MUX_SEL_BUTTON_CLR));
 
     /* write the comp mux value 5 for button mode  */
     (ULP_SPI_MEM_MAP(BOD_COMP_MODE_REG) |= MANUAL_CMP_MUX_SEL_BUTTON_VALUE);
@@ -276,7 +280,7 @@ void RSI_BOD_ButtonWakeUpEnable(uint8_t enable)
 
 uint32_t RSI_BOD_Buttonvalue(void)
 {
-  volatile static uint32_t buton_value = 0;
+  static volatile uint32_t buton_value = 0;
   /* To read which button has set to one */
   buton_value = (((ULP_SPI_MEM_MAP(BOD_VBATT_STATUS_REG)) & (READ_BUTTON_VALUE_BITS)) >> 16);
   if (buton_value == BUTTON_THREE_VALUE)
@@ -291,20 +295,20 @@ uint32_t RSI_BOD_Buttonvalue(void)
 
 /*==============================================*/
 /**
- * @fn        error_t RSI_BOD_CMP_Hysteresis(uint8_t value)
+ * @fn        rsi_error_t RSI_BOD_CMP_Hysteresis(uint8_t value)
  * @brief     This API used to set the comparator hysteresis
  * @param[in] value : hysteresis value bits 
  * @return    RSI_OK on success
- *            error code on failure 
+ *            - error code on failure 
  */
 
-error_t RSI_BOD_CMP_Hysteresis(uint8_t value)
+rsi_error_t RSI_BOD_CMP_Hysteresis(uint8_t value)
 {
   if (value > 3) {
     return INVALID_PARAMETERS;
   }
   /*Clears the cmp hysteresis value bits*/
-  ULP_SPI_MEM_MAP(BOD_COMP_SEL_REG) &= ~(BOD_COMP_SEL_REG_CLR);
+  ULP_SPI_MEM_MAP(BOD_COMP_SEL_REG) &= (uint32_t)(~(BOD_COMP_SEL_REG_CLR));
   /* writes the hysteresis value  */
   ULP_SPI_MEM_MAP(BOD_COMP_SEL_REG) |= value;
   return RSI_OK;
@@ -312,15 +316,15 @@ error_t RSI_BOD_CMP_Hysteresis(uint8_t value)
 
 /*==============================================*/
 /**
- * @fn        error_t RSI_BOD_BodTestSel(uint8_t enable, uint8_t bod_test_sel_value)
+ * @fn        rsi_error_t RSI_BOD_BodTestSel(uint8_t enable, uint8_t bod_test_sel_value)
  * @brief     This API is used to test mux the bod compartor output
  * @param[in] enable : enable to connect GPIO
  * @param[in] bod_test_sel_value : bod test select value bits
  * @return    RSI_OK on success
- *            error code on failure
+ *            - error code on failure
  */
 
-error_t RSI_BOD_BodTestSel(uint8_t enable, uint8_t bod_test_sel_value)
+rsi_error_t RSI_BOD_BodTestSel(uint8_t enable, uint8_t bod_test_sel_value)
 {
   if (enable == 1) {
     /* To enable test mux to connect to GPIO pad*/
@@ -330,12 +334,12 @@ error_t RSI_BOD_BodTestSel(uint8_t enable, uint8_t bod_test_sel_value)
       return INVALID_PARAMETERS;
     }
     /* clear the bod_test_sel_value bits  */
-    ULP_SPI_MEM_MAP(BOD_VBATT_STATUS_REG) &= ~(BOD_TEST_SEL_BITS_CLR);
+    ULP_SPI_MEM_MAP(BOD_VBATT_STATUS_REG) &= (uint32_t)(~(BOD_TEST_SEL_BITS_CLR));
     /* write the value to bod_test_sel_value (3 TO SET AS OUTPUT )*/
     ULP_SPI_MEM_MAP(BOD_VBATT_STATUS_REG) |= (bod_test_sel_value << 19);
 
     /* clear the as_bod_test_mux_out_vbatt TO SEE THE OUTPUT THROUGH ULP GPIO[8]*/
-    *(volatile uint32_t *)(0x2405A50C) &= ~(0x3E0000);
+    *(volatile uint32_t *)(0x2405A50C) &= (uint32_t)(~(0x3E0000));
     /*write the value into as_bod_test_mux_out_vbatt TO SEE THE OUTPUT THROUGH ULP GPIO[8] */
     *(volatile uint32_t *)(0x2405A50C) |= BIT(21);
 
@@ -349,8 +353,9 @@ error_t RSI_BOD_BodTestSel(uint8_t enable, uint8_t bod_test_sel_value)
 /** 
  * @fn         void RSI_BOD_BlackOutReset(uint16_t enable)
  * @brief      This API is used to enable/disable the black out reset of BOD.
- * @param[in]  enable: 1: enables  the blackout reset.
- *                     0: disables  the black out reset.
+ * @param[in]  enable: 
+ *                     - 1: enables  the blackout reset.
+ *                     - 0: disables  the black out reset.
  * @return    none
  */
 
@@ -394,8 +399,9 @@ void RSI_BOD_BGSampleDisable(void)
 /**
  * @fn        void RSI_BOD_IntrEnable(uint16_t enable) 
  * @brief     This API is used to enable/disable the BOD interrupt
- * @param     enable:    1: enables  the interrupt .
- *                       0: disables  the  interrupt .
+ * @param[in]     enable:   
+ *                      - 1: enables  the interrupt .
+ *                      - 0: disables  the  interrupt .
  * @return    none   
  */
 
@@ -413,8 +419,9 @@ void RSI_BOD_IntrEnable(uint16_t enable)
 /**
  * @fn         void RSI_BOD_ButtonIntrEnable(uint16_t enable)
  * @brief      This API is used to enable/disable the Button interrupt
- * @param      enable:    1: enables  the interrupt .
- *                        0: disables  the  interrupt .
+ * @param[in]      enable:    
+ *                        - 1: enables  the interrupt .
+ *                        - 0: disables  the  interrupt .
  * @return     none
  */
 

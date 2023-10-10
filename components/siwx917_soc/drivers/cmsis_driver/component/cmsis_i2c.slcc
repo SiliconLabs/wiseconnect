@@ -12,9 +12,6 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "I2C.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_I2C.h"
 provides:
   - name: cmsis_i2c
 requires:
@@ -22,4 +19,3 @@ requires:
   - name: romdriver_qspi
   - name: romdriver_gpdma
   - name: romdriver_timer
-  - name: cmsis_driver_common

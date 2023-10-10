@@ -381,6 +381,7 @@ typedef void (*gpdmaTransferDescFetchCompleteCB)(RSI_GPDMA_HANDLE_T gpdmaHandle,
                                                  uint32_t dmaCh);
 typedef void (*gpdmaTransferHrespErrorCB)(RSI_GPDMA_HANDLE_T gpdmaHandle, RSI_GPDMA_DESC_T *pTranDesc, uint32_t dmaCh);
 typedef void (*gpdmaTransferRpdmacErrorCB)(RSI_GPDMA_HANDLE_T gpdmaHandle, RSI_GPDMA_DESC_T *pTranDesc, uint32_t dmaCh);
+typedef void (*gpdmaTransferErrorCB)(RSI_GPDMA_HANDLE_T gpdmaHandle, RSI_GPDMA_DESC_T *pTranDesc, uint32_t dmaCh);
 
 // @brief GPDMA controller callback IDs
 typedef enum {
@@ -448,36 +449,36 @@ uint32_t gpdma_get_mem_size(void);
 
 RSI_GPDMA_HANDLE_T gpdma_init(void *mem, const RSI_GPDMA_INIT_T *pInit);
 
-void gpdma_register_callback(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, void *pCB);
+void gpdma_register_callback(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, gpdmaTransferCompleteCB pCB);
 
-error_t gpdma_abort_channel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
+rsi_error_t gpdma_abort_channel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
-error_t gpdma_setup_channel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+rsi_error_t gpdma_setup_channel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-error_t gpdma_build_descriptors(RSI_GPDMA_HANDLE_T pHandle,
-                                RSI_GPDMA_DESC_T *pXferCfg,
-                                RSI_GPDMA_DESC_T *pDesc,
-                                RSI_GPDMA_DESC_T *pDescPrev);
+rsi_error_t gpdma_build_descriptors(RSI_GPDMA_HANDLE_T pHandle,
+                                    RSI_GPDMA_DESC_T *pXferCfg,
+                                    RSI_GPDMA_DESC_T *pDesc,
+                                    RSI_GPDMA_DESC_T *pDescPrev);
 
-error_t gpdma_setup_channelTransfer(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc);
+rsi_error_t gpdma_setup_channelTransfer(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc);
 
 void gpdma_interrupt_handler(RSI_GPDMA_HANDLE_T pHandle);
 
 void gpdma_deInit(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-error_t gpdma_dma_channel_trigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
+rsi_error_t gpdma_dma_channel_trigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
 uint32_t gpdma_channel_is_enabled(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
-error_t gpdma_interrupt_disable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+rsi_error_t gpdma_interrupt_disable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-error_t gpdma_interrupt_enable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+rsi_error_t gpdma_interrupt_enable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-error_t gpdma_error_status_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+rsi_error_t gpdma_error_status_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
 uint32_t gpdma_get_error_status(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
-error_t gpdma_interrupt_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
+rsi_error_t gpdma_interrupt_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 
 uint32_t gpdma_interrupt_status(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg);
 

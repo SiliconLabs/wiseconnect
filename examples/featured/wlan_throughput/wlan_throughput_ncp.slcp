@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -21,7 +21,6 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
   - name: EXECUTION_FROM_RAM
     condition:
@@ -39,6 +38,7 @@ requires:
 - name: wifi
 - name: si91x
 - name: sl_tls
+- name: socket
 - name: si91x_internal_stack
 - name: si91x_basic_buffers
 - name: wifi_resources

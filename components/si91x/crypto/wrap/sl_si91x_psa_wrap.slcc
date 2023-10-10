@@ -1,0 +1,22 @@
+id: sl_si91x_psa_wrap
+package: wiseconnect3_sdk
+description: >
+  Implementation of mbedTls psa crypto wrap API
+label: WRAP
+category: Crypto|WRAP
+quality: production
+component_root_path: ./components/si91x/crypto/wrap
+provides:
+- name: sl_si91x_psa_wrap
+source:
+- path: src/sl_si91x_psa_wrap.c
+define:
+- name: SLI_SECURE_KEY_STORAGE_DEVICE_SI91X
+requires:
+- name: sl_si91x_wrap
+
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_psa_wrap.h
+

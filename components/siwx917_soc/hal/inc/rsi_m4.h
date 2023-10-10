@@ -80,15 +80,34 @@
 //! This interrupt is raised by M4 to TA when there is a TX packet from M4 to read
 #define RX_BUFFER_VALID          BIT(1)
 #define TX_PKT_PENDING_INTERRUPT BIT(2)
+#define UPGRADE_M4_IMAGE         BIT(5)
+#ifdef CHIP_917
+#define M4_WAITING_FOR_TA_TO_WR_ON_FLASH BIT(6)
+#endif
 
 #define TX_PKT_TRANSFER_DONE_INTERRUPT BIT(2)
 //! This interrupt is received from TA when RX packet is pending from TA
+
 #define RX_PKT_TRANSFER_DONE_INTERRUPT BIT(1)
 //! This interrupt is received from TA when TX packet transfer from M4 to TA is done
+
+#define M4_IMAGE_UPGRADATION_PENDING_INTERRUPT BIT(4)
+//! This interrupt is raised by TA to M4 when there is a TX packet from M4 to read
+
+#ifdef CHIP_917
+//! This interrupt is raised by TA to M4 when there is a flash write request from M4 to TA in comm flash mode
+#define TA_WRITING_ON_COMM_FLASH BIT(5)
+#endif
 
 #ifndef RSI_BUFFER_FULL
 //! buffer full indication register value from module
 #define RSI_BUFFER_FULL BIT(0)
+#endif
+
+#ifdef CHIP_917
+//! Option value for m4 app from flash to ram API
+#define UPGRADE_M4_IMAGE_OTA    1
+#define TA_WRITES_ON_COMM_FLASH 2
 #endif
 
 #ifdef RSI_WITH_OS
@@ -190,6 +209,7 @@ uint32_t NVIC_GetIRQEnable(IRQn_Type IRQn);
 void rsi_config_m4_dma_desc_on_reset(void);
 void rsi_update_tx_dma_desc(uint8_t skip_dma_valid);
 void rsi_update_rx_dma_desc(void);
+void IRQ074_Handler(void);
 
 #endif
 #endif

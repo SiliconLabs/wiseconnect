@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_sntp.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include "sl_slist.h"
 #include "sl_si91x_driver.h"
 #include "sl_status.h"
@@ -151,10 +168,11 @@ sl_status_t sl_sntp_client_get_time_date(uint8_t *data, uint16_t data_length, ui
                                         wait_time,
                                         (void *)sdk_context,
                                         &buffer);
-  if (SL_STATUS_OK != status) {
+
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
     sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
-    return status;
   }
+  VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   if (packet->length > data_length) {

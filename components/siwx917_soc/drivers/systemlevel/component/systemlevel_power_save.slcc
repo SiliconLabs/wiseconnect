@@ -14,3 +14,5 @@ include:
     - path: "rsi_power_save.h"
 provides:
   - name: systemlevel_power_save
+requires:
+  - name: romdriver_power_save

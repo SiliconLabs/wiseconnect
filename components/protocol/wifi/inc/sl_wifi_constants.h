@@ -254,12 +254,6 @@ typedef enum {
   SL_WIFI_HIDDEN_SSID = (1 << 0), ///< Hide SSID of the AP
 } sl_wifi_ap_flag_t;
 
-/// Listen interval time units
-typedef enum {
-  SL_WIFI_LISTEN_INTERVAL_TIME_UNIT_BEACON, ///< Time units specified in beacon periods
-  SL_WIFI_LISTEN_INTERVAL_TIME_UNIT_DTIM    ///< Time units specified in DTIM periods
-} sl_wifi_listen_interval_time_unit_t;
-
 /// Wi-Fi WPS mode
 typedef enum {
   SL_WIFI_WPS_PIN_MODE,         ///< WPS pin mode
@@ -301,24 +295,21 @@ typedef enum {
 
   // TWT specific events
   SL_WIFI_TWT_UNSOLICITED_SESSION_SUCCESS_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS
-                                                  | (1 << 16), ///< SL_WIFI_TWT_UNSOLICITED_SESSION_SUCCESS_EVENT
+                                                  | (1 << 16), ///< TWT unsolicited session success event
   SL_WIFI_TWT_AP_REJECTED_EVENT      = SL_WIFI_TWT_RESPONSE_EVENTS | (4 << 16), ///< SL_WIFI_TWT_AP_REJECTED_EVENT
   SL_WIFI_TWT_OUT_OF_TOLERANCE_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS | (5 << 16), ///< SL_WIFI_TWT_OUT_OF_TOLERANCE_EVENT
-  SL_WIFI_TWT_RESPONSE_NOT_MATCHED_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS
-                                           | (6 << 16), ///< SL_WIFI_TWT_RESPONSE_NOT_MATCHED_EVENT
-  SL_WIFI_TWT_UNSUPPORTED_RESPONSE_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS
-                                           | (10 << 16), ///< SL_WIFI_TWT_UNSUPPORTED_RESPONSE_EVENT
+  SL_WIFI_TWT_RESPONSE_NOT_MATCHED_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS | (6 << 16),  ///< TWT response-not-matched event
+  SL_WIFI_TWT_UNSUPPORTED_RESPONSE_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS | (10 << 16), ///< TWT unsupported response event
   SL_WIFI_TWT_TEARDOWN_SUCCESS_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS | (11 << 16), ///< SL_WIFI_TWT_TEARDOWN_SUCCESS_EVENT
-  SL_WIFI_TWT_AP_TEARDOWN_SUCCESS_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS
-                                          | (12 << 16), ///< SL_WIFI_TWT_AP_TEARDOWN_SUCCESS_EVENT
+  SL_WIFI_TWT_AP_TEARDOWN_SUCCESS_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS | (12 << 16), ///< TWT AP teardown success event
   SL_WIFI_TWT_FAIL_MAX_RETRIES_REACHED_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS
-                                               | (15 << 16), ///< SL_WIFI_TWT_FAIL_MAX_RETRIES_REACHED_EVENT
+                                               | (15 << 16), ///< TWT maximum-retries-reached event
   SL_WIFI_TWT_INACTIVE_DUE_TO_ROAMING_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS
-                                              | (16 << 16), ///< SL_WIFI_TWT_INACTIVE_DUE_TO_ROAMING_EVENT
+                                              | (16 << 16), ///< TWT inactive-due-to-roaming event
   SL_WIFI_TWT_INACTIVE_DUE_TO_DISCONNECT_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS
-                                                 | (17 << 16), ///< SL_WIFI_TWT_INACTIVE_DUE_TO_DISCONNECT_EVENT
+                                                 | (17 << 16), ///< TWT inactive-due-to-disconnect event
   SL_WIFI_TWT_INACTIVE_NO_AP_SUPPORT_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS
-                                             | (18 << 16), ///< SL_WIFI_TWT_INACTIVE_NO_AP_SUPPORT_EVENT
+                                             | (18 << 16), ///< TWT event - inactive due to no AP support
 
   // Stats specific events
   SL_WIFI_STATS_EVENT              = SL_WIFI_STATS_RESPONSE_EVENTS | (1 << 16), ///< SL_WIFI_STATS_EVENT
@@ -336,6 +327,30 @@ typedef enum {
   CLIENT_MODE, ///< WiFi Client mode
   AP_MODE,     ///< WiFi Access point mode
 } sl_wifi_operational_mode_t;
+
+typedef enum {
+  SL_WIFI_DATA_RATE_1       = 0,   ///< Wi-Fi 1 Mbps transfer rate
+  SL_WIFI_DATA_RATE_2       = 2,   ///< Wi-Fi 2 Mbps transfer rate
+  SL_WIFI_DATA_RATE_5_5     = 4,   ///< Wi-Fi 5.5 Mbps transfer rate
+  SL_WIFI_DATA_RATE_11      = 6,   ///< Wi-Fi 11 Mbps transfer rate
+  SL_WIFI_DATA_RATE_6       = 139, ///< Wi-Fi 6 Mbps transfer rate
+  SL_WIFI_DATA_RATE_9       = 143, ///< Wi-Fi 9 Mbps transfer rate
+  SL_WIFI_DATA_RATE_12      = 138, ///< Wi-Fi 12 Mbps transfer rate
+  SL_WIFI_DATA_RATE_18      = 142, ///< Wi-Fi 18 Mbps transfer rate
+  SL_WIFI_DATA_RATE_24      = 137, ///< Wi-Fi 24 Mbps transfer rate
+  SL_WIFI_DATA_RATE_36      = 141, ///< Wi-Fi 36 Mbps transfer rate
+  SL_WIFI_DATA_RATE_48      = 136, ///< Wif-Fi 48 Mbps transfer rate
+  SL_WIFI_DATA_RATE_54      = 140, ///< Wi-Fi 54 Mbps transfer rate
+  SL_WIFI_DATA_RATE_MCS0    = 256, ///< Wi-Fi MCS index 0 transfer rate
+  SL_WIFI_DATA_RATE_MCS1    = 257, ///< Wi-Fi MCS index 1 transfer rate
+  SL_WIFI_DATA_RATE_MCS2    = 258, ///< Wi-Fi MCS index 2 transfer rate
+  SL_WIFI_DATA_RATE_MCS3    = 259, ///< Wi-Fi MCS index 3 transfer rate
+  SL_WIFI_DATA_RATE_MCS4    = 260, ///< Wi-Fi MCS index 4 transfer rate
+  SL_WIFI_DATA_RATE_MCS5    = 261, ///< Wi-Fi MCS index 5 transfer rate
+  SL_WIFI_DATA_RATE_MCS6    = 262, ///< Wi-Fi MCS index 6 transfer rate
+  SL_WIFI_DATA_RATE_MCS7    = 263, ///< Wi-Fi MCS index 7 transfer rate
+  SL_WIFI_DATA_RATE_MCS7_SG = 775,
+} sl_wifi_data_rate_t;
 
 /// Auto detect channel
 #define SL_WIFI_AUTO_CHANNEL 0

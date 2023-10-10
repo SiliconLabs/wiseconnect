@@ -74,7 +74,8 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
       break;
     }
     case SL_NET_OTA_FW_UPDATE_EVENT:
-    case SL_NET_PING_RESPONSE_EVENT: {
+    case SL_NET_PING_RESPONSE_EVENT:
+    case SL_NET_ASYNC_MODULE_STATUS_EVENT: {
       data = &packet->data;
       break;
     }

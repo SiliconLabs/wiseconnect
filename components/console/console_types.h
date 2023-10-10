@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  console_types.h
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #pragma once
 
 #include "console_constants.h"
@@ -31,7 +48,10 @@ typedef sl_status_t (*console_handler_t)(console_args_t *arguments);
 typedef struct {
   const char *description;
   const char **argument_help;
-  console_handler_t handler;
+  union {
+    console_handler_t handler;
+    const void *sub_command_database;
+  };
   console_argument_type_t argument_list[];
 } console_descriptive_command_t;
 
@@ -66,8 +86,8 @@ typedef struct console_variable_node_s {
   union {
     // A node that points to another group of nodes
     struct {
-      uint32_t first_index;
-      uint32_t last_index;
+      void *table;
+      uint32_t table_size;
     } group;
 
     // A node that points to an object in memory

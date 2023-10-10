@@ -54,6 +54,9 @@
 // APP version
 #define APP_FW_VERSION "0.4"
 
+// TCP IP BYPASS feature check
+#define RSI_TCP_IP_BYPASS RSI_DISABLE
+
 // Function prototypes
 extern void sl_wifi_app_task(void);
 extern void rsi_ble_configurator_task(void *argument);
@@ -72,53 +75,43 @@ static const sl_wifi_device_configuration_t config = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_BLE_MODE,
+  .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_BLE_MODE,
+                   .feature_bit_map = (SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1
 #ifdef RSI_M4_INTERFACE
-                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP | SL_SI91X_FEAT_SECURITY_OPEN
-                                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
-#else
-                   .feature_bit_map        = RSI_FEATURE_BIT_MAP,
+                                       | SL_SI91X_FEAT_WPS_DISABLE
 #endif
-#if RSI_TCP_IP_BYPASS
-                   .tcp_ip_feature_bit_map = RSI_TCP_IP_FEATURE_BIT_MAP,
-#else
-                   .tcp_ip_feature_bit_map = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
-                                              | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
-                                              | SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_ICMP),
+                                       ),
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
+#if (!RSI_TCP_IP_BYPASS)
+                                              | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+                                              | SL_SI91X_TCP_IP_FEAT_SSL
 #endif
+                                              ),
                    .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE
-                      | (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1) | RAM_LEVEL_NWP_ADV_MCU_BASIC
-                         | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE)),
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
 #ifdef CHIP_917
-//(RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #else //defaults
 #ifdef RSI_M4_INTERFACE
-                   (SL_SI91X_EXT_FEAT_256K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
 #else
-                   (SL_SI91X_EXT_FEAT_384K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
 #endif
-//(SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
-#if (defined A2DP_POWER_SAVE_ENABLE)
-                   | SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
-#endif
-                       //),
-                       .bt_feature_bit_map =
-                     (RSI_BT_FEATURE_BITMAP
+                      | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
+                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
 #if (RSI_BT_GATT_ON_CLASSIC)
-                      | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
+                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
+#endif
+                                          ),
+                   .ext_tcp_ip_feature_bit_map =
+                     (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1)
+#ifdef RSI_PROCESS_MAX_RX_DATA
+                      | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH
 #endif
                       ),
-#ifdef RSI_PROCESS_MAX_RX_DATA
-                   .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
-                                                  | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
-#else
-                   .ext_tcp_ip_feature_bit_map = (SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1) | RSI_EXT_TCPIP_FEATURE_BITMAP
-                                                  | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
-#endif
                    //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
                    .ble_feature_bit_map =
                      ((SL_SI91X_BLE_MAX_NBR_PERIPHERALS(RSI_BLE_MAX_NBR_PERIPHERALS)
@@ -132,7 +125,6 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_GATT_ASYNC_ENABLE
 #endif
                       ),
-
                    .ble_ext_feature_bit_map =
                      ((SL_SI91X_BLE_NUM_CONN_EVENTS(RSI_BLE_NUM_CONN_EVENTS)
                        | SL_SI91X_BLE_NUM_REC_BYTES(RSI_BLE_NUM_REC_BYTES))
@@ -152,7 +144,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_GATT_INIT
 #endif
                       ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | RSI_CONFIG_FEATURE_BITMAP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) }
 };
 
 const osThreadAttr_t thread_attributes = {

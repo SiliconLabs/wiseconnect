@@ -19,6 +19,9 @@
 
 #include "rsi_chip.h"
 
+/** @addtogroup SOC24
+* @{
+*/
 /*==============================================*/
 /**   
  * @fn          void RSI_OPAMP1_UGB(uint8_t vin_p_sel,uint8_t enable,uint8_t lp_mode,uint8_t out_mux_en,uint8_t out_mux_sel,
@@ -41,6 +44,25 @@ void RSI_OPAMP1_UGB(uint8_t vin_p_sel,
                     uint8_t dyn_en,
                     uint8_t channel)
 {
+
+#ifdef CHIP_917B0
+  OPAMP_CONFIG_T Config;
+
+  Config.opamp1.opamp1_dyn_en         = dyn_en;
+  Config.opamp1.opamp1_sel_p_mux      = vin_p_sel;
+  Config.opamp1.opamp1_sel_n_mux      = 4;
+  Config.opamp1.opamp1_out_mux_en     = 1;
+  Config.opamp1.opamp1_out_mux_sel    = 1;
+  Config.opamp1.opamp1_res_to_out_vdd = 0;
+  Config.opamp1.opamp1_res_mux_sel    = 0;
+  Config.opamp1.opamp1_en_res_bank    = 0;
+  Config.opamp1.opamp1_r2_sel         = 0;
+  Config.opamp1.opamp1_r1_sel         = 1;
+  Config.opamp1.opamp1_lp_mode        = lp_mode;
+  Config.opamp1.opamp1_enable         = enable;
+
+  RSI_OPAMP1_Config(OPAMP, channel, &Config);
+#else
   OPAMP_CONFIG_T Config;
   Config.opamp1.opamp1_dyn_en         = dyn_en;
   Config.opamp1.opamp1_sel_p_mux      = vin_p_sel;
@@ -56,6 +78,7 @@ void RSI_OPAMP1_UGB(uint8_t vin_p_sel,
   Config.opamp1.opamp1_enable         = enable;
 
   RSI_OPAMP1_Config(OPAMP, channel, &Config);
+#endif
 }
 
 /*==============================================*/
@@ -842,7 +865,7 @@ void RSI_OPAMP_InstrAMP(uint8_t vin_p_sel,
 
 /*==============================================*/
 /**   
- * @fn          void RSI_OPAMP1_Config(AUX_ADC_DAC_COMP_Type *Opamp,uint32_t channel,opamp_config *config)
+ * @fn          void RSI_OPAMP1_Config(OPAMP_type *Opamp,uint32_t channel,OPAMP_CONFIG_T *config)
  * @brief       This API is used to configuration of an opamp1 
  * @param[in]   Opamp   : pointer to opamp
  * @param[in]   channel : channel no to set in dynamic mode           
@@ -853,13 +876,13 @@ void RSI_OPAMP1_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *conf
 {
 
   if (config->opamp1.opamp1_dyn_en) {
-    Opamp->OPAMP_1_b.OPAMP1_DYN_EN = 1;
-    AUX_ADC_DAC_COMP->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP =
-      (config->opamp1.opamp1_out_mux_sel << 29 | config->opamp1.opamp1_sel_p_mux << 25
-       | config->opamp1.opamp1_sel_n_mux << 22 | config->opamp1.opamp1_out_mux_en << 21
-       | config->opamp1.opamp1_res_to_out_vdd << 20 | config->opamp1.opamp1_res_mux_sel << 17
-       | config->opamp1.opamp1_en_res_bank << 16 | config->opamp1.opamp1_r2_sel << 13
-       | config->opamp1.opamp1_r1_sel << 11 | config->opamp1.opamp1_lp_mode << 10 | config->opamp1.opamp1_enable << 9);
+    Opamp->OPAMP_1_b.OPAMP1_DYN_EN                                                            = 1;
+    AUX_ADC_DAC_COMP->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP = (uint32_t)((
+      config->opamp1.opamp1_out_mux_sel << 29 | config->opamp1.opamp1_sel_p_mux << 25
+      | config->opamp1.opamp1_sel_n_mux << 22 | config->opamp1.opamp1_out_mux_en << 21
+      | config->opamp1.opamp1_res_to_out_vdd << 20 | config->opamp1.opamp1_res_mux_sel << 17
+      | config->opamp1.opamp1_en_res_bank << 16 | config->opamp1.opamp1_r2_sel << 13
+      | config->opamp1.opamp1_r1_sel << 11 | config->opamp1.opamp1_lp_mode << 10 | config->opamp1.opamp1_enable << 9));
   } else {
     Opamp->OPAMP_1_b.OPAMP1_EN_RES_BANK    = config->opamp1.opamp1_en_res_bank;
     Opamp->OPAMP_1_b.OPAMP1_INN_SEL        = config->opamp1.opamp1_sel_n_mux;
@@ -877,7 +900,7 @@ void RSI_OPAMP1_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *conf
 
 /*==============================================*/
 /**   
- * @fn          void RSI_OPAMP2_Config(AUX_ADC_DAC_COMP_Type *Opamp,uint32_t channel,opamp_config *config)
+ * @fn          void RSI_OPAMP2_Config(OPAMP_Type *Opamp,uint32_t channel,OPAMP_CONFIG_T *config)
  * @brief       This API is used to configuration of an opamp2 
  * @param[in]   Opamp   : pointer to opamp
  * @param[in]   channel : channel no  to set in dynamic mode           
@@ -890,12 +913,12 @@ void RSI_OPAMP2_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *conf
   if (config->opamp2.opamp2_dyn_en) {
     Opamp->OPAMP_2_b.OPAMP2_DYN_EN = 1;
     AUX_ADC_DAC_COMP->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_1_b.CHANNEL_BITMAP =
-      (config->opamp2.opamp2_lp_mode << 31 | config->opamp2.opamp2_enable << 30);
+      (uint32_t)(config->opamp2.opamp2_lp_mode << 31 | config->opamp2.opamp2_enable << 30);
     AUX_ADC_DAC_COMP->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_2_b.CHANNEL_BITMAP =
-      (config->opamp2.opamp2_sel_p_mux << 14 | config->opamp2.opamp2_sel_n_mux << 12
-       | config->opamp2.opamp2_out_mux_en << 11 | config->opamp2.opamp2_res_to_out_vdd << 9
-       | config->opamp2.opamp2_res_mux_sel << 6 | config->opamp2.opamp2_en_res_bank << 5
-       | config->opamp2.opamp2_r2_sel << 2 | config->opamp2.opamp2_r1_sel << 0);
+      (uint32_t)(config->opamp2.opamp2_sel_p_mux << 14 | config->opamp2.opamp2_sel_n_mux << 12
+                 | config->opamp2.opamp2_out_mux_en << 11 | config->opamp2.opamp2_res_to_out_vdd << 9
+                 | config->opamp2.opamp2_res_mux_sel << 6 | config->opamp2.opamp2_en_res_bank << 5
+                 | config->opamp2.opamp2_r2_sel << 2 | config->opamp2.opamp2_r1_sel << 0);
   } else {
     Opamp->OPAMP_2_b.OPAMP2_EN_RES_BANK    = config->opamp2.opamp2_en_res_bank;
     Opamp->OPAMP_2_b.OPAMP2_INN_SEL        = config->opamp2.opamp2_sel_n_mux;
@@ -912,7 +935,7 @@ void RSI_OPAMP2_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *conf
 
 /*==============================================*/
 /**   
- * @fn          void RSI_OPAMP3_Config(AUX_ADC_DAC_COMP_Type *Opamp,uint32_t channel,opamp_config *config)
+ * @fn          void RSI_OPAMP3_Config(OPAMP_Type *Opamp,uint32_t channel,OPAMP_CONFIG_T *config)
  * @brief       This API is used to configuration of an opamp3 
  * @param[in]   Opamp   : pointer to opamp
  * @param[in]   channel : channel no to set in dynamic mode           
@@ -924,12 +947,13 @@ void RSI_OPAMP3_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *conf
   if (config->opamp3.opamp3_dyn_en) {
     Opamp->OPAMP_3_b.OPAMP3_DYN_EN = 1;
     AUX_ADC_DAC_COMP->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_3_b.CHANNEL_BITMAP =
-      config->opamp3.opamp3_sel_p_mux;
+      (unsigned int)((config->opamp3.opamp3_sel_p_mux) & 0x1F);
     AUX_ADC_DAC_COMP->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_2_b.CHANNEL_BITMAP =
-      (config->opamp3.opamp3_sel_n_mux << 30 | config->opamp3.opamp3_out_mux_en << 29
-       | config->opamp3.opamp3_res_to_out_vdd << 28 | config->opamp3.opamp3_res_mux_sel << 25
-       | config->opamp3.opamp3_en_res_bank << 24 | config->opamp3.opamp3_r2_sel << 21
-       | config->opamp3.opamp3_r1_sel << 19 | config->opamp3.opamp3_lp_mode << 18 | config->opamp3.opamp3_enable << 17);
+      (uint32_t)(config->opamp3.opamp3_sel_n_mux << 30 | config->opamp3.opamp3_out_mux_en << 29
+                 | config->opamp3.opamp3_res_to_out_vdd << 28 | config->opamp3.opamp3_res_mux_sel << 25
+                 | config->opamp3.opamp3_en_res_bank << 24 | config->opamp3.opamp3_r2_sel << 21
+                 | config->opamp3.opamp3_r1_sel << 19 | config->opamp3.opamp3_lp_mode << 18
+                 | config->opamp3.opamp3_enable << 17);
 
   } else {
     Opamp->OPAMP_3_b.OPAMP3_EN_RES_BANK    = config->opamp3.opamp3_en_res_bank;
@@ -944,3 +968,4 @@ void RSI_OPAMP3_Config(OPAMP_Type *Opamp, uint32_t channel, OPAMP_CONFIG_T *conf
     Opamp->OPAMP_3_b.OPAMP3_ENABLE         = config->opamp3.opamp3_enable;
   }
 }
+/** @} */

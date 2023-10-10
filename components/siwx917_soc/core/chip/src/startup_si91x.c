@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  startup_si91x.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 /**
  ******************************************************************************
  * @file      startup_si91x.c
@@ -14,9 +31,10 @@
  *            priority is Privileged, and the Stack is set to Main.
  *******************************************************************************
  */
-#include "si91x_device.h"
+
 #include "system_si91x.h"
 #include "rsi_ps_ram_func.h"
+#include "si91x_device.h"
 #include "core_cm4.h"
 /*----------Stack Symbols-----------------------------------------------*/
 extern uint32_t __StackTop;
@@ -25,129 +43,10 @@ extern uint32_t __co_stackTop;
 /*----------Macro definition--------------------------------------------------*/
 #define WEAK __attribute__((weak))
 
-/*----------Declaration of the default fault handlers-------------------------*/
-// #ifndef __START
-// extern void  _start(void) __attribute__((noreturn));    /* Pre Main (C library entry point) */
-// #else
-// extern int  __START(void) __attribute__((noreturn));    /* main entry point */
-// #endif
-
-/* System exception vector handler */
-__attribute__((used)) void WEAK Reset_Handler(void);
-void WEAK NMI_Handler(void);
-void WEAK HardFault_Handler(void);
-void WEAK MemManage_Handler(void);
-void WEAK BusFault_Handler(void);
-void WEAK UsageFault_Handler(void);
-void WEAK SVC_Handler(void);
-void WEAK DebugMon_Handler(void);
-void WEAK PendSV_Handler(void);
-void WEAK SysTick_Handler(void);
-
-/*Boot up functions*/
-void RSI_Default_Reset_Handler(void);
-void RSI_Default_WakeUp_Handler(void);
-void RSI_PS_RestoreCpuContext(void);
-
-void WEAK IRQ000_Handler(void);                                           /*!<  ULP Processor Interrupt   0      */
-void WEAK IRQ001_Handler(void);                                           /*!<  ULP Processor Interrupt   1      */
-void WEAK IRQ002_Handler(void);                                           /*!<  ULP Processor Interrupt   2      */
-void WEAK IRQ003_Handler(void);                                           /*!<  ULP Processor Interrupt   3      */
-void WEAK IRQ004_Handler(void);                                           /*!<  ULP Processor Interrupt   4      */
-void WEAK IRQ005_Handler(void);                                           /*!<  ULP Processor Interrupt   5      */
-void WEAK IRQ006_Handler(void);                                           /*!<  ULP Processor Interrupt   6      */
-void WEAK IRQ007_Handler(void);                                           /*!<  ULP Processor Interrupt   7      */
-void WEAK IRQ008_Handler(void);                                           /*!<  ULP Processor Interrupt   8      */
-void WEAK IRQ009_Handler(void);                                           /*!<  ULP Processor Interrupt   9      */
-void WEAK IRQ010_Handler(void);                                           /*!<  ULP Processor Interrupt   10     */
-void WEAK IRQ011_Handler(void);                                           /*!<  ULP Processor Interrupt   11     */
-void WEAK IRQ012_Handler(void);                                           /*!<  ULP Processor Interrupt   12     */
-void WEAK IRQ013_Handler(void);                                           /*!<  ULP Processor Interrupt   13     */
-void WEAK IRQ014_Handler(void);                                           /*!<  ULP Processor Interrupt   14     */
-void WEAK IRQ015_Handler(void);                                           /*!<  ULP Processor Interrupt   15     */
-void WEAK IRQ016_Handler(void);                                           /*!<  ULP Processor Interrupt   15     */
-void WEAK IRQ017_Handler(void);                                           /*!<  ULP Processor Interrupt   17     */
-void WEAK IRQ018_Handler(void);                                           /*!<  ULP Processor Interrupt   18     */
-void WEAK IRQ019_Handler(void);                                           /*!<  ULP Processor Interrupt   19     */
-void WEAK IRQ020_Handler(void); /*!<  Sleep Sensor Interrupts   0      */ /*WDT*/
-void WEAK IRQ021_Handler(void);                                           /*!<  Sleep Sensor Interrupts   1      */
-void WEAK IRQ022_Handler(void);                                           /*!<  Sleep Sensor Interrupts   2      */
-void WEAK IRQ023_Handler(void);                                           /*!<  Sleep Sensor Interrupts   3      */
-void WEAK IRQ024_Handler(void);                                           /*!<  Sleep Sensor Interrupts   4      */
-void WEAK IRQ025_Handler(void);                                           /*!<  Sleep Sensor Interrupts   5      */
-void WEAK IRQ026_Handler(void);                                           /*!<  Sleep Sensor Interrupts   6      */
-void WEAK IRQ027_Handler(void);                                           /*!<  Sleep Sensor Interrupts   7      */
-void WEAK IRQ028_Handler(void); /*!<  Sleep Sensor Interrupts   8      */ /*Alarm*/
-void WEAK IRQ029_Handler(void); /*!<  Sleep Sensor Interrupts   9      */ /*Msec and sec interrupt */
-void WEAK IRQ030_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ031_Handler(void);                                           /*!<  M4SS DMA interrupt               */
-void WEAK IRQ032_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ033_Handler(void);                                           /*!<  M4SS DMA interrupt               */
-void WEAK IRQ034_Handler(void);                                           /*!<  M4SS SCT interrupt               */
-void WEAK HIF1_IRQHandler(void);                                          /*!<  HIF Interrupt 1                  */
-void WEAK HIF2_IRQHandler(void);                                          /*!<  HIF Interrupt 2                  */
-void WEAK IRQ037_Handler(void);                                           /*!<  SIO Interrupt                    */
-void WEAK IRQ038_Handler(void);                                           /*!<  USART 1 Interrupt                */
-void WEAK IRQ039_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ040_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ041_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ042_Handler(void);                                           /*!<  I2C Interrupt                    */
-void WEAK IRQ043_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ044_Handler(void);                                           /*!<  SSI Slave Interrupt              */
-void WEAK IRQ045_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ046_Handler(void);                                           /*!<  GSPI Master 1 Interrupt          */
-void WEAK IRQ047_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ048_Handler(void);                                           /*!<  MCPWM Interrupt                  */
-void WEAK IRQ049_Handler(void);                                           /*!<  QEI Interrupt                    */
-void WEAK IRQ050_Handler(void);                                           /*!<  GPIO Group Interrupt 0           */
-void WEAK IRQ051_Handler(void);                                           /*!<  GPIO Group Interrupt 1           */
-void WEAK IRQ052_Handler(void);                                           /*!<  GPIO Pin Interrupt   0           */
-void WEAK IRQ053_Handler(void);                                           /*!<  GPIO Pin Interrupt   1           */
-void WEAK IRQ054_Handler(void);                                           /*!<  GPIO Pin Interrupt   2           */
-void WEAK IRQ055_Handler(void);                                           /*!<  GPIO Pin Interrupt   3           */
-void WEAK IRQ056_Handler(void);                                           /*!<  GPIO Pin Interrupt   4           */
-void WEAK IRQ057_Handler(void);                                           /*!<  GPIO Pin Interrupt   5           */
-void WEAK IRQ058_Handler(void);                                           /*!<  GPIO Pin Interrupt   6           */
-void WEAK IRQ059_Handler(void);                                           /*!<  GPIO Pin Interrupt   7           */
-void WEAK IRQ060_Handler(void);                                           /*!<  QSPI Interrupt                   */
-void WEAK IRQ061_Handler(void);                                           /*!<  I2C 2 Interrupt                  */
-void WEAK IRQ062_Handler(void);                                           /*!<  Ethernet Interrupt               */
-void WEAK IRQ063_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ064_Handler(void);                                           /*!<  I2S master Interrupt             */
-void WEAK IRQ065_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ066_Handler(void);                                           /*!<  Can 1 Interrupt                  */
-void WEAK IRQ067_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ068_Handler(void);                                           /*!<  SDMEM Interrupt                  */
-void WEAK IRQ069_Handler(void);                                           /*!<  PLL clock ind Interrupt          */
-void WEAK IRQ070_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ071_Handler(void);                                           /*!<  CCI system Interrupt Out         */
-void WEAK IRQ072_Handler(void);                                           /*!<  FPU exception                    */
-void WEAK IRQ073_Handler(void);                                           /*!<  USB INTR                         */
-void WEAK IRQ074_Handler(void);                                           /*!<  TASS_P2P_INTR                    */
-void WEAK IRQ075_Handler(void);                                           /*!<  WLAN Band1 intr0                 */
-void WEAK IRQ076_Handler(void);                                           /*!<  WLAN Band1 intr1                 */
-void WEAK IRQ077_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ078_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ079_Handler(void);                                           /*!<  BT intr                          */
-void WEAK IRQ080_Handler(void);                                           /*!<  ZB intr                          */
-void WEAK IRQ081_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ082_Handler(void);                                           /*!<  Modem disabled mode trigger intr */
-void WEAK IRQ083_Handler(void);                                           /*!<  gpio intr                        */
-void WEAK IRQ084_Handler(void);                                           /*!<  uart intr                        */
-void WEAK IRQ085_Handler(void);                                           /*!<  watch dog level intr             */
-void WEAK IRQ086_Handler(void);                                           /*!<  ULP Sleep sensor interrupt       */
-void WEAK IRQ087_Handler(void);                                           /*!<  ECDH intr                        */
-void WEAK IRQ088_Handler(void);                                           /*!<  DH intr                          */
-void WEAK IRQ089_Handler(void);                                           /*!<  QSPI intr                        */
-void WEAK IRQ090_Handler(void);                                           /*!<  ULP processor interrupt TASS     */
-void WEAK IRQ091_Handler(void);                                           /*!<  Sys Tick Timer                   */
-void WEAK IRQ092_Handler(void);                                           /*!<  Real Timer interrupt             */
-void WEAK IRQ093_Handler(void);                                           /*!<  PLL lock interrupt               */
-void WEAK IRQ094_Handler(void);                                           /*!<  Reserved                         */
-void WEAK IRQ095_Handler(void);                                           /*!<  UART2 Interrupt                  */
-void WEAK IRQ096_Handler(void);                                           /*!<  I2S Interrupt                    */
-void WEAK IRQ097_Handler(void);                                           /*!<  I2C Interrupt                    */
-void WEAK IRQ098_Handler(void);                                           /*!<  RESERVED                         */
+/*-------To ignore -Wpedantic warnings--------*/
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 
 /*----------Symbols defined in linker script----------------------------------*/
 extern unsigned long _sidata; /*!< Start address for the initialization 
@@ -214,15 +113,15 @@ __attribute__((used, section(".isr_vector"))) void (*const g_pfnVectors[])(void)
   IRQ027_Handler,            //   27:  Sleep Sensor Interrupts 7
   IRQ028_Handler,            //   28:  Sleep Sensor Interrupts 8
   IRQ029_Handler,            //   29:  Sleep Sensor Interrupts 9
-  (void *)&__co_stackTop,    //   30:	Reserved
-  IRQ031_Handler,            //   31:	RPDMA interrupt
-  RSI_Default_Reset_Handler, //   32: 	Reserved
-  IRQ033_Handler,            //   33:	UDMA interrupt
-  IRQ034_Handler,            //   34:	SCT interrupt
-  HIF1_IRQHandler,           //   35: 	HIF Interrupt1
+  (void *)&__co_stackTop,    //   30: Reserved
+  IRQ031_Handler,            //   31: RPDMA interrupt
+  RSI_Default_Reset_Handler, //   32:   Reserved
+  IRQ033_Handler,            //   33: UDMA interrupt
+  IRQ034_Handler,            //   34: SCT interrupt
+  HIF1_IRQHandler,           //   35:   HIF Interrupt1
   HIF2_IRQHandler,           //   36:  HIF Interrupt2
   IRQ037_Handler,            //   37:  SIO Interrupt
-  IRQ038_Handler,            //   38: 	USART 1 Interrupt
+  IRQ038_Handler,            //   38:   USART 1 Interrupt
   IRQ039_Handler,            //   39:  USART 2 Interrupt
   RSI_PS_RestoreCpuContext,  //   40:  USART 3 Interrupt
   IRQ041_Handler,            //   41: GPIO WAKEUP INTERRUPT
@@ -302,7 +201,6 @@ void Default_Reset_Handler(void)
  *         necessary set is performed, after which the application
  *         supplied main() routine is called.
  */
-volatile unsigned long *pulSrc, *pulDest;
 
 #ifdef M4_PS2_STATE
 __attribute__((section(".reset_handler")))
@@ -314,10 +212,11 @@ __attribute__ ((section(".reset_handler")))
 
 void RSI_Default_Reset_Handler(void)
 {
+  /* Initialize data and bss */
+  volatile unsigned long *pulSrc, *pulDest;
   /* Copy the data segment initializers from flash to SRAM */
   pulSrc = &_sidata;
 
-  //unsigned long *pulSrc, *pulDest;  /* temporary making as volatile */
   for (pulDest = &_sdata; pulDest < &_edata;) {
     *(pulDest++) = *(pulSrc++);
   }
@@ -474,10 +373,10 @@ void RSI_Default_Reset_Handler(void)
  * @param  None
  * @retval None
  */
-static void Default_Handler(void)
+__attribute__((used)) void Default_Handler(void)
 {
   /* Go into an infinite loop. */
-  while (1) {
+  while (true) {
   }
 }
 

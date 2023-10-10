@@ -20,7 +20,7 @@
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_CRC_DRIVER  RSI:RS1xxxx Cyclic Redundancy Check Engine 
+ * \defgroup CRC_DRIVER
  *  @{
  *
  */

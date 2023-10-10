@@ -60,5 +60,5 @@
 /*Enable this macro when chip supply is on 1.8v */
 //#define ENABLE_1P8V
 #ifdef CHIP_917B0
-#define SYSRTC_COUNT 2
+#define SI91X_SYSRTC_COUNT 2
 #endif

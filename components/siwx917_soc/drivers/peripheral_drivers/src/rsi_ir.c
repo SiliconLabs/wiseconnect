@@ -20,6 +20,9 @@
 #include "rsi_chip.h"
 #include "rsi_ir.h"
 
+/** @addtogroup SOC23
+* @{
+*/
 /*==============================================*/
 /**
  * @fn           uint16_t RSI_IR_ReadData(IR_Type* pIr,uint16_t memory_address)
@@ -34,7 +37,7 @@ uint16_t RSI_IR_ReadData(IR_Type *pIr, uint16_t memory_address)
   if (memory_address > MAX_MEMORY_ADDRESS) {
     return INVALID_PARAMETERS;
   }
-  pIr->IR_MEM_ADDR_ACCESS_b.IR_MEM_ADDR  = memory_address;
+  pIr->IR_MEM_ADDR_ACCESS_b.IR_MEM_ADDR  = (unsigned int)(memory_address & 0x007F);
   pIr->IR_MEM_ADDR_ACCESS_b.IR_MEM_RD_EN = 1U;
   return pIr->IR_MEM_READ_b.IR_MEM_DATA_OUT;
 }
@@ -54,3 +57,4 @@ void RSI_IR_SoftwareRestart(IR_Type *pIr)
   }
   pIr->IR_CONFIG_b.SREST_IR_CORE = 0U;
 }
+/** @} */

@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 /***************************************************************************/ /**
- * @addtogroup common COMMON - Common Utilities
+ * @addtogroup SOC28
  * @brief General purpose utilities and cross-compiler support
  * @details
  *  This SDK supports the following compilers/IDEs:
@@ -270,7 +270,7 @@ extern "C" {
  ******************************************************************************/
 __STATIC_INLINE uint32_t SL_CTZ(uint32_t value)
 {
-#if (__CORTEX_M >= 3)
+#if defined(__CORTEX_M) && (__CORTEX_M >= 3)
   return __CLZ(__RBIT(value));
 
 #else
@@ -304,7 +304,7 @@ __STATIC_INLINE uint32_t SL_RBIT(uint32_t value)
 {
   uint32_t result;
 
-#if (__CORTEX_M >= 0x03U)
+#if defined(__CORTEX_M) && (__CORTEX_M >= 0x03U)
   result = __RBIT(value);
 #else
   int32_t s = 4 * 8 - 1;

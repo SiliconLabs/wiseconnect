@@ -79,8 +79,8 @@
 /*=================Central1 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_C1 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_C1 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_C1 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_C1 1
 //! configure below macro to perform data transfer
@@ -117,8 +117,8 @@
 /*=================Central2 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_C2 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_C2 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_C2 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_C2 1
 //! configure below macro to perform data transfer
@@ -136,14 +136,7 @@
 #define TX_WRITES_NO_RESP_TO_C2 0
 //! set below macro to Transmit 'gatt indications' to remote device
 #define TX_INDICATIONS_TO_C2 0
-//#define RSI_BLE_CLIENT_WRITE_SERVICE_UUID_C2      		0x180D                          //! Heart Rate service uuid
-//#define RSI_BLE_CLIENT_WRITE_CHAR_UUID_C2				0x2A39							//! Heart Rate control Point
-//#define RSI_BLE_CLIENT_WRITE_NO_RESP_SERVICE_UUID_C2   	0x1802                          //! Immediate Alert service uuid
-//#define RSI_BLE_CLIENT_WRITE_NO_RESP_CHAR_UUID_C2   	0x2A06                          //! Alert level char uuid
-//#define RSI_BLE_CLIENT_INIDCATIONS_SERVICE_UUID_C2    	0x1809                          //! Health thermometer Alert service uuid
-//#define RSI_BLE_CLIENT_INIDCATIONS_CHAR_UUID_C2   		0x2902                          //! Temperature measurement
-//#define RSI_BLE_CLIENT_NOTIFICATIONS_SERVICE_UUID_C2	0x180D                          //! Heart Rate service uuid
-//#define RSI_BLE_CLIENT_NOTIFICATIONS_CHAR_UUID_C2		0x2A37							//! Heart Rate measurement
+
 //! Configure below macro to select data length extension ON/OFF
 #define DLE_ON_C2 0
 #if DLE_ON_C2
@@ -163,8 +156,8 @@
 /*=================Peripheral1 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_P1 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_P1 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_P1 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_P1 1
 //! configure below macro to perform data transfer
@@ -182,14 +175,7 @@
 #define TX_WRITES_NO_RESP_TO_P1 0
 //! set below macro to Transmit 'gatt indications' to remote device
 #define TX_INDICATIONS_TO_P1 0
-//#define RSI_BLE_CLIENT_WRITE_SERVICE_UUID_P1      		0x180D                          //! Heart Rate service uuid
-//#define RSI_BLE_CLIENT_WRITE_CHAR_UUID_P1				0x2A39							//! Heart Rate control Point
-//#define RSI_BLE_CLIENT_WRITE_NO_RESP_SERVICE_UUID_P1   	0x1802                          //! Immediate Alert service uuid
-//#define RSI_BLE_CLIENT_WRITE_NO_RESP_CHAR_UUID_P1   	0x2A06                          //! Alert level char uuid
-//#define RSI_BLE_CLIENT_INIDCATIONS_SERVICE_UUID_P1    	0x1809                          //! Health thermometer Alert service uuid
-//#define RSI_BLE_CLIENT_INIDCATIONS_CHAR_UUID_P1   		0x2902                          //! Temperature measurement
-//#define RSI_BLE_CLIENT_NOTIFICATIONS_SERVICE_UUID_P1	0x180D                          //! Heart Rate service uuid
-//#define RSI_BLE_CLIENT_NOTIFICATIONS_CHAR_UUID_P1		0x2A37							//! Heart Rate measurement
+
 //! Configure below macro to select data length extension ON/OFF
 #define DLE_ON_P1 0
 #if DLE_ON_P1
@@ -209,8 +195,8 @@
 /*=================Peripheral2 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_P2 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_P2 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_P2 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_P2 1
 //! configure below macro to perform data transfer
@@ -247,8 +233,8 @@
 /*=================Peripheral3 configurations=====================*/
 //! configure below macro to enable secure connection
 #define SMP_ENABLE_P3 0
-// Add remote device to whitelist
-#define ADD_TO_WHITELIST_P3 0
+// Add remote device to acceptlist
+#define ADD_TO_ACCEPTLIST_P3 0
 //! configure below macro to discover remote profiles
 #define PROFILE_QUERY_P3 1
 //! configure below macro to perform data transfer
@@ -354,7 +340,7 @@ typedef enum rsi_ble_state_e {
   RSI_CONN_UPDATE_REQ_EVENT,
   RSI_BLE_WRITE_EVENT_RESP,
   RSI_BLE_GATT_INDICATION_CONFIRMATION,
-  RSI_BLE_REQ_WHITELIST,
+  RSI_BLE_REQ_ACCEPTLIST,
   RSI_BLE_APP_USER_INPUT,
   RSI_BLE_SELECT_DATATRANSFER,
 } rsi_ble_state_t;
@@ -362,7 +348,7 @@ typedef enum rsi_ble_state_e {
 typedef struct rsi_ble_conn_config_s {
   uint8_t conn_id;
   bool smp_enable;
-  bool add_to_whitelist;
+  bool add_to_acceptlist;
   bool profile_discovery;
   bool data_transfer;
   //	bool bidir_datatransfer;
@@ -524,25 +510,6 @@ typedef struct rsi_ble_s {
 
 #define M2S12_CONNECTION_LATENCY  0x0000
 #define M2S12_SUPERVISION_TIMEOUT (4 * M2S12_CONNECTION_INTERVAL_MIN)
-
-/***********************************************************************************************************************************************/
-/*=======================================================================*/
-//! opermode command parameters
-/*=======================================================================*/
-//! To set wlan feature select bit map
-#define RSI_FEATURE_BIT_MAP (SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1)
-
-//! TCP IP BYPASS feature check
-#define RSI_TCP_IP_BYPASS RIS_DISABLE
-
-#define RSI_EXT_TCPIP_FEATURE_BITMAP                                                                        \
-  (SL_SI91X_EXT_DYNAMIC_COEX_MEMORY | SL_SI91X_EXT_TCP_IP_WINDOW_DIV | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(4) \
-   | SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE | SL_SI91X_EXT_TCP_IP_BI_DIR_ACK_UPDATE)
-
-//! To set custom feature select bit map
-#define RSI_CUSTOM_FEATURE_BIT_MAP SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID
-
-#define RSI_BT_FEATURE_BITMAP (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
 
 /*=======================================================================*/
 //   ! Data type declarations

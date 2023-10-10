@@ -12,9 +12,6 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "SAI.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_SAI.h"
 provides:
   - name: cmsis_sai
 requires:
@@ -22,4 +19,3 @@ requires:
   - name: romdriver_gpdma
   - name: romdriver_qspi
   - name: romdriver_timer
-  - name: cmsis_driver_common

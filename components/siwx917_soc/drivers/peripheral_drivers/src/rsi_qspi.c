@@ -22,6 +22,7 @@
 #ifndef ROMDRIVER_PRESENT
 #include "rsi_chip.h"
 #include "rsi_rom_table_si91x.h"
+#include "rsi_qspi.h"
 
 /*==============================================*/
 /**
@@ -73,7 +74,7 @@ void qspi_write_to_flash(qspi_reg_t *qspi_reg, uint32_t len_in_bits, uint32_t cm
   // cmd/data/addr to be written
   qspi_reg->QSPI_MANUAL_RD_WR_DATA_REG = cmd_addr_data;
   qspi_reg->QSPI_MANUAL_CONFIG_REG =
-    (((qspi_reg->QSPI_MANUAL_CONFIG_REG & ~0x6007) & ~TAKE_LEN_FRM_REG) | WRITE_TRIGGER | (cs_no << 13));
+    (((qspi_reg->QSPI_MANUAL_CONFIG_REG & ((uint32_t)~0x6007)) & ~TAKE_LEN_FRM_REG) | WRITE_TRIGGER | (cs_no << 13));
   // wait till QSPI becomes idle
   while (qspi_reg->QSPI_STATUS_REG & 1)
     ;
@@ -93,15 +94,15 @@ void qspi_switch_qspi2(qspi_reg_t *qspi_reg, uint32_t mode, uint32_t cs_no)
   uint32_t qspi_manual_config_reg;
 
   // clearing existing read count and bus mode
-  qspi_reg->QSPI_MANUAL_CONFIG_REG &= ~0x1ffe;
+  qspi_reg->QSPI_MANUAL_CONFIG_REG &= (uint32_t)~0x1ffe;
   if (cs_no == CHIP_ZERO) {
     // for chip select zero, configure bus mode
-    qspi_reg->QSPI_BUS_MODE_REG = ((qspi_reg->QSPI_BUS_MODE_REG & ~0x6) | (mode << 1));
+    qspi_reg->QSPI_BUS_MODE_REG = ((qspi_reg->QSPI_BUS_MODE_REG & ((uint32_t)~0x6)) | (mode << 1));
   } else {
     // read the reg
     qspi_manual_config_reg = qspi_reg->QSPI_MANUAL_CONFIG_2_REG;
     // mask the bus mode bits
-    qspi_manual_config_reg &= ~(0x3 << (((cs_no - 1) * 2) + 8));
+    qspi_manual_config_reg &= (uint16_t)(~(0x3 << (((cs_no - 1) * 2) + 8)));
     // write the bus mode bits
     qspi_manual_config_reg |= ((mode) << (((cs_no - 1) * 2) + 8));
     // write back to the register
@@ -120,6 +121,7 @@ void qspi_switch_qspi2(qspi_reg_t *qspi_reg, uint32_t mode, uint32_t cs_no)
  */
 uint32_t qspi_wait_flash_status_Idle(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr_reg_delay_ms)
 {
+  (void)wr_reg_delay_ms;
   uint32_t busy, tmp_dummy;
   uint32_t qspi_operational_mode;
   uint32_t cs_no, flash_type, status_reg_read_cmd, busy_bit_pos;
@@ -234,6 +236,7 @@ uint32_t qspi_wait_flash_status_Idle(qspi_reg_t *qspi_reg, spi_config_t *spi_con
  */
 void qspi_enable_status_reg_write(qspi_reg_t *qspi_reg, uint32_t flash_type, spi_config_t *spi_config, uint32_t cs_no)
 {
+  (void)flash_type;
   uint32_t qspi_operational_mode;
   qspi_operational_mode = QSPI_MANUAL_BUS_SIZE(cs_no);
   // write enable added by Samson after verifying with LiteFi
@@ -355,6 +358,7 @@ void qspi_status_reg_write(qspi_reg_t *qspi_reg,
  */
 uint32_t qspi_flash_reg_read(qspi_reg_t *qspi_reg, uint8_t reg_read_cmd, uint32_t cs_no, spi_config_t *spi_config)
 {
+  (void)spi_config;
   uint32_t rd_config;
   uint32_t read_len = 1;
 #ifdef CHIP_917
@@ -441,13 +445,13 @@ void RSI_QSPI_UpdateOperatingMode_and_ResetType(qspi_reg_t *qspi_reg, uint32_t o
   uint32_t bbff_storage2;
   if (qspi_reg == (qspi_reg_t *)QSPI_BASE_ADDRESS) {
     bbff_storage2 = M4_BBFF_STORAGE2;
-    bbff_storage2 &= ~0xff;
+    bbff_storage2 &= (uint32_t)(~0xff);
     bbff_storage2 |= operating_mode;
     M4_BBFF_STORAGE2 = bbff_storage2;
 
   } else {
     bbff_storage2 = TA_BBFF_STORAGE2;
-    bbff_storage2 &= ~0xff;
+    bbff_storage2 &= (uint32_t)(~0xff);
     bbff_storage2 |= operating_mode;
     TA_BBFF_STORAGE2 = bbff_storage2;
   }
@@ -650,6 +654,7 @@ void qspi_set_flash_mode(qspi_reg_t *qspi_reg,
                          uint32_t ddr_mode_en,
                          uint32_t flash_type)
 {
+  (void)ddr_mode_en;
   uint32_t enable_bus_mode         = 0;
   volatile uint32_t reset_bus_mode = 0;
   // FIXME AS SST26VF016 supports only SINGLE and QUAD MODE
@@ -707,6 +712,7 @@ void qspi_set_flash_mode(qspi_reg_t *qspi_reg,
     qspi_switch_qspi2(qspi_reg, SINGLE_MODE, cs_no);
   }
 #endif
+  (void)reset_bus_mode;
 }
 
 /*==============================================*/
@@ -822,10 +828,11 @@ void qspi_config_qflash4_read(qspi_reg_t *qspi_reg, spi_config_t *spi_config, ui
 
   // incase of 9bit addressing include the A8 bit in read_cmd
   if (spi_config->spi_config_3._16bit_cmd_valid) {
-    qspi_write_to_flash(qspi_reg,
-                        QSPI_16BIT_LEN,
-                        ((spi_config->spi_config_1.read_cmd << 8) | spi_config->spi_config_3._16bit_rd_cmd_msb),
-                        cs_no);
+    qspi_write_to_flash(
+      qspi_reg,
+      QSPI_16BIT_LEN,
+      (((uint32_t)(spi_config->spi_config_1.read_cmd << 8)) | spi_config->spi_config_3._16bit_rd_cmd_msb),
+      cs_no);
   } else {
     qspi_write_to_flash(qspi_reg, QSPI_8BIT_LEN, (spi_config->spi_config_1.read_cmd | A8_BIT), cs_no);
   }
@@ -940,6 +947,7 @@ void qspi_config_qflash4_read(qspi_reg_t *qspi_reg, spi_config_t *spi_config, ui
   }
 
   //XXX CSN must not be deassert here...
+  (void)junk;
 }
 
 /*==============================================*/
@@ -954,7 +962,7 @@ void qspi_config_qflash4_read(qspi_reg_t *qspi_reg, spi_config_t *spi_config, ui
 void RSI_QSPI_GPDMA_Init(uint32_t hsize, uint32_t ch_no, uint32_t mode)
 {
   GPDMA_C->CHANNEL_CONFIG[ch_no].FIFO_CONFIG_REGS_b.FIFO_SIZE      = 8;
-  GPDMA_C->CHANNEL_CONFIG[ch_no].FIFO_CONFIG_REGS_b.FIFO_STRT_ADDR = (8 * ch_no);
+  GPDMA_C->CHANNEL_CONFIG[ch_no].FIFO_CONFIG_REGS_b.FIFO_STRT_ADDR = (unsigned int)((8 * ch_no) & 0x3F);
 
   // Default values
   GPDMA_C->CHANNEL_CONFIG[ch_no].PRIORITY_CHNL_REGS_b.PRIORITY_CH      = 0;
@@ -975,8 +983,10 @@ void RSI_QSPI_GPDMA_Init(uint32_t hsize, uint32_t ch_no, uint32_t mode)
   }
 
   // Configure Misc Config reg
-  GPDMA_C->CHANNEL_CONFIG[ch_no].CHANNEL_CTRL_REG_CHNL_b.SRC_DATA_WIDTH  = (hsize == 3) ? 2 : hsize;
-  GPDMA_C->CHANNEL_CONFIG[ch_no].CHANNEL_CTRL_REG_CHNL_b.DEST_DATA_WIDTH = (hsize == 3) ? 2 : hsize;
+  GPDMA_C->CHANNEL_CONFIG[ch_no].CHANNEL_CTRL_REG_CHNL_b.SRC_DATA_WIDTH =
+    (unsigned int)(((hsize == 3) ? 2 : hsize) & 0x03);
+  GPDMA_C->CHANNEL_CONFIG[ch_no].CHANNEL_CTRL_REG_CHNL_b.DEST_DATA_WIDTH =
+    (unsigned int)(((hsize == 3) ? 2 : hsize) & 0x03);
   //QSPI Peripheral ID is 16
   GPDMA_C->CHANNEL_CONFIG[ch_no].MISC_CHANNEL_CTRL_REG_CHNL_b.SRC_CHNL_ID = 16;
 }
@@ -996,7 +1006,7 @@ void RSI_QSPI_GPDMA_ReadFromFifo(uint32_t src, uint32_t dst, uint32_t len, uint3
   // Set src and dest in given channel
   GPDMA_C->CHANNEL_CONFIG[ch_no].SRC_ADDR_REG_CHNL                    = src;
   GPDMA_C->CHANNEL_CONFIG[ch_no].DEST_ADDR_REG_CHNL                   = dst;
-  GPDMA_C->CHANNEL_CONFIG[ch_no].CHANNEL_CTRL_REG_CHNL_b.DMA_BLK_SIZE = len;
+  GPDMA_C->CHANNEL_CONFIG[ch_no].CHANNEL_CTRL_REG_CHNL_b.DMA_BLK_SIZE = (unsigned int)(len & 0x0FFF);
 
   // Trigger DMA
   GPDMA_G->GLOBAL.DMA_CHNL_ENABLE_REG = SET_BIT(ch_no);
@@ -1019,23 +1029,25 @@ void RSI_QSPI_GPDMA_ReadFromFifo(uint32_t src, uint32_t dst, uint32_t len, uint3
 void RSI_QSPI_ReadFromFifo(uint32_t udma_read, void *udmaHandle, void *gpdmaHandle, uint32_t ch_no)
 {
   if (udma_read) {
-    RSI_UDMA_ChannelEnable(udmaHandle, ch_no);
+    RSI_UDMA_ChannelEnable(udmaHandle, (uint8_t)ch_no);
     // Enable DMA controller
     RSI_UDMA_UDMAEnable(udmaHandle);
 
     // Software trigger for transfer
-    RSI_UDMA_ChannelSoftwareTrigger(udmaHandle, ch_no);
-    while (!(RSI_UDMA_ChannelIsEnabled(udmaHandle, ch_no)))
+    RSI_UDMA_ChannelSoftwareTrigger(udmaHandle, (uint8_t)ch_no);
+    while (!(RSI_UDMA_ChannelIsEnabled(udmaHandle, (uint8_t)ch_no)))
       ;
 
   } else {
 
-    gpdma_dma_channel_trigger(gpdmaHandle, ch_no);
-    while ((gpdma_channel_is_enabled(gpdmaHandle, ch_no)))
+    gpdma_dma_channel_trigger(gpdmaHandle, (uint8_t)ch_no);
+    while ((gpdma_channel_is_enabled(gpdmaHandle, (uint8_t)ch_no)))
       ;
   }
 }
-
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wcast-align"
+#endif
 /*==============================================*/
 /**
  * @fn           void qspi_manual_read( qspi_reg_t *qspi_reg,
@@ -1085,7 +1097,7 @@ void qspi_manual_read(qspi_reg_t *qspi_reg,
       addr &= 0x3FFFFFF;
     }
   } else {
-    addr &= ((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
+    addr &= (uint16_t)((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
   }
   hsize &= ~BIT(31);
 
@@ -1116,7 +1128,7 @@ void qspi_manual_read(qspi_reg_t *qspi_reg,
   }
   if (spi_config->spi_config_2.swap_en == NO_SWAP) {
     // swap en are at 7:4 for csn 3:0
-    qspi_reg->QSPI_MANUAL_CONFIG_2_REG &= ~(SWAP << (4 + spi_config->spi_config_2.cs_no));
+    qspi_reg->QSPI_MANUAL_CONFIG_2_REG &= (uint16_t)(~(SWAP << (4 + spi_config->spi_config_2.cs_no)));
   }
   if (hsize) {
     // pad length for making align
@@ -1209,7 +1221,7 @@ void qspi_manual_read(qspi_reg_t *qspi_reg,
   }
   DEASSERT_CSN;
   if (spi_config->spi_config_4.dual_flash_mode) {
-    spi_config->spi_config_3.wr_data_mode = qspi_data_mode;
+    spi_config->spi_config_3.wr_data_mode = (unsigned int)(qspi_data_mode & 0x03);
     qspi_switch_qspi2(qspi_reg, spi_config->spi_config_3.wr_data_mode, spi_config->spi_config_2.cs_no);
   }
   if (prev_state == 1) {
@@ -1326,16 +1338,17 @@ void qspi_auto_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
     auto_3_data &= ~(1 << DDR_EXTRA_BYTE);
   }
 #endif
-  dummy_count = (spi_config->spi_config_1.no_of_dummy_bytes) | (spi_config->spi_config_4.no_of_ms_dummy_bytes << 4);
+  dummy_count =
+    (uint16_t)((spi_config->spi_config_1.no_of_dummy_bytes) | (spi_config->spi_config_4.no_of_ms_dummy_bytes << 4));
 
   if (spi_config->spi_config_2.dummy_cycles_for_controller) {
 
     // Program dummy cycles in bit mode
     auto_3_data |= DUMMY_BYTE_OR_BIT_MODE;
 
-    dummy_count =
-      ((dummy_count * 8)
-       + (spi_config->spi_config_2.dummy_cycles_for_controller * (1 << spi_config->spi_config_1.dummy_mode)));
+    dummy_count = ((dummy_count * 8)
+                   + (uint16_t)((spi_config->spi_config_2.dummy_cycles_for_controller
+                                 * (1 << spi_config->spi_config_1.dummy_mode))));
   } else {
     auto_3_data &= ~DUMMY_BYTE_OR_BIT_MODE;
   }
@@ -1345,7 +1358,7 @@ void qspi_auto_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
   if (spi_config->spi_config_3.en_word_swap) {
     auto_3_data |= (1 << WORD_SWAP_EN);
   } else {
-    auto_3_data &= ~(1 << WORD_SWAP_EN);
+    auto_3_data &= (uint32_t)(~(1 << WORD_SWAP_EN));
   }
   *auto_3_ptr = auto_3_data;
 
@@ -1367,7 +1380,7 @@ void qspi_auto_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
     *auto_2_ptr &= ~AUTO_RD_SWAP;
   }
 
-  *auto_2_ptr |= (AUTO_ADDR_WIDTH) //< address width 8, 9, 16 or 24 bit
+  *auto_2_ptr |= (uint32_t)AUTO_ADDR_WIDTH //< address width 8, 9, 16 or 24 bit
                  //	|  (spi_config->spi_config_2.jump_inst << 24)          //< cmd to be used in case of jump
                  | (spi_config->spi_config_1.read_cmd << 16)     //< read cmd is used for wrap reads too
                  | (spi_config->spi_config_3.dummys_4_jump << 4) //< no. of dummy bytes in case of jump reads
@@ -1383,7 +1396,7 @@ void qspi_auto_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
                 //		| (spi_config->spi_config_2.jump_en << 23)  					//< jump enable
                 | (0 << 23)                                        //< removed jump enable
                 | (spi_config->spi_config_1.extra_byte_en << 18)   //< extra byte enable
-                | (EXTRA_BYTE << 10)                               //< extra byte value
+                | (uint16_t)(EXTRA_BYTE << 10)                     //< extra byte value
                 | (spi_config->spi_config_1.inst_mode << 6)        //< cmd mode
                 | (spi_config->spi_config_1.addr_mode << 4)        //< addr mode
                 | (spi_config->spi_config_1.dummy_mode << 2)       //< dummy mode
@@ -1665,14 +1678,14 @@ void qspi_flash_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr
                                     qspi_reg,
                                     WCFG2,
                                     0x300,
-                                    dummy_clks,
+                                    (uint16_t)dummy_clks,
                                     spi_config->spi_config_2.cs_no,
                                     wr_reg_delay_ms);
       qspi_status_control_reg_write(spi_config,
                                     qspi_reg,
                                     WCFG2,
                                     0,
-                                    str_dtr,
+                                    (uint16_t)str_dtr,
                                     spi_config->spi_config_2.cs_no,
                                     wr_reg_delay_ms);
       break;
@@ -1798,7 +1811,7 @@ void qspi_flash_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr
                                       qspi_reg,
                                       STS_CTRL,
                                       2,
-                                      (is_quad_mode << 1),
+                                      (uint16_t)(is_quad_mode << 1),
                                       spi_config->spi_config_2.cs_no,
                                       wr_reg_delay_ms);
       }
@@ -1809,7 +1822,7 @@ void qspi_flash_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr
                                       qspi_reg,
                                       STS_CTRL,
                                       4,
-                                      (spi_config->spi_config_2.wrap_len_in_bytes | BIT(3)),
+                                      (uint16_t)(spi_config->spi_config_2.wrap_len_in_bytes | BIT(3)),
                                       spi_config->spi_config_2.cs_no,
                                       wr_reg_delay_ms);
       }
@@ -1848,7 +1861,7 @@ void qspi_flash_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr
                                     qspi_reg,
                                     STS_CTRL,
                                     3,
-                                    (dummy_clks | (spi_config->spi_config_2.wrap_len_in_bytes << 5)),
+                                    (uint16_t)(dummy_clks | (spi_config->spi_config_2.wrap_len_in_bytes << 5)),
                                     spi_config->spi_config_2.cs_no,
                                     wr_reg_delay_ms);
       // enabling opi or qpi and str or dtr
@@ -1990,10 +2003,10 @@ void qspi_spi_init(qspi_reg_t *qspi_reg,
   dataline_pos   = GET_POS;
   d7_d4_data_pos = GET_POS_D7_D4;
   qspi_reg->QSPI_BUS_MODE_REG =
-    ((qspi_reg->QSPI_BUS_MODE_REG & (MASK_D3_D2(dataline_pos))) | (spi_config->spi_config_1.d3d2_data << dataline_pos)
-     | (spi_config->spi_config_2.neg_edge_sampling << 16));
+    ((qspi_reg->QSPI_BUS_MODE_REG & (uint16_t)(MASK_D3_D2(dataline_pos)))
+     | (spi_config->spi_config_1.d3d2_data << dataline_pos) | (spi_config->spi_config_2.neg_edge_sampling << 16));
 
-  qspi_reg->OCTA_SPI_BUS_CONTROLLER = ((qspi_reg->OCTA_SPI_BUS_CONTROLLER & (MASK_D7_D4(d7_d4_data_pos)))
+  qspi_reg->OCTA_SPI_BUS_CONTROLLER = ((qspi_reg->OCTA_SPI_BUS_CONTROLLER & (uint16_t)(MASK_D7_D4(d7_d4_data_pos)))
                                        | (spi_config->spi_config_5.d7_d4_data << d7_d4_data_pos));
 
   //for micron, qspi should not be switched to spi mode, as flash might be in quad mode already
@@ -2019,7 +2032,7 @@ void qspi_spi_init(qspi_reg_t *qspi_reg,
       // send SET_BURST cmd to flash to initialize wrap
       qspi_write_to_flash(qspi_reg,
                           16,
-                          ((SET_BURST << 8) | (spi_config->spi_config_2.wrap_len_in_bytes)),
+                          (uint16_t)((SET_BURST << 8) | (spi_config->spi_config_2.wrap_len_in_bytes)),
                           spi_config->spi_config_2.cs_no);
       DEASSERT_CSN;
     }
@@ -2136,6 +2149,7 @@ void qspi_spi_erase(qspi_reg_t *qspi_reg,
   uint32_t cs_no;
   uint32_t prev_state = 0, flash_type, cmd_len;
   uint32_t cmd_to_drive;
+  (void)flash_type;
   cs_no      = spi_config->spi_config_2.cs_no;
   flash_type = spi_config->spi_config_1.flash_type;
 
@@ -2146,7 +2160,7 @@ void qspi_spi_erase(qspi_reg_t *qspi_reg,
       blk_sec_addr &= 0x3FFFFFF;
     }
   } else {
-    blk_sec_addr &= ((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
+    blk_sec_addr &= (uint16_t)((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
   }
   dis_hw_ctrl &= ~BIT(31);
 
@@ -2288,7 +2302,7 @@ uint32_t qspi_spi_write(qspi_reg_t *qspi_reg,
                         void *gpdmaHandle)
 {
 
-  uint16_t loop_count;
+  uint32_t loop_count;
   uint16_t *data_16bit;
   uint32_t *data_32bit;
   uint32_t once;
@@ -2307,6 +2321,8 @@ uint32_t qspi_spi_write(qspi_reg_t *qspi_reg,
   cs_no      = spi_config->spi_config_2.cs_no;
   flash_type = spi_config->spi_config_1.flash_type;
   ch_no      = (dma_flags & 0xFF);
+  (void)write_cmd;
+  (void)flash_type;
 
   // Ignoring bits more than address width.
   if (spi_config->spi_config_2.addr_width == 4) {
@@ -2316,7 +2332,7 @@ uint32_t qspi_spi_write(qspi_reg_t *qspi_reg,
       addr &= 0x3FFFFFF;
     }
   } else {
-    addr &= ((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
+    addr &= (uint16_t)((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
   }
   dis_hw_ctrl &= ~BIT(31);
 
@@ -2405,7 +2421,7 @@ uint32_t qspi_spi_write(qspi_reg_t *qspi_reg,
       spi_config->spi_config_3.wr_data_mode = OCTA_MODE;
     }
     if (ODD_PAGE_BOUNDARY) {
-      loop_count = page_size - ODD_PAGE_BOUNDARY;
+      loop_count = (uint16_t)(page_size - ODD_PAGE_BOUNDARY);
       loop_count = XMIN(loop_count, len_in_bytes);
     }
     // reducing total length by loop_count
@@ -2417,7 +2433,7 @@ uint32_t qspi_spi_write(qspi_reg_t *qspi_reg,
       // start writing data
       qspi_switch_qspi2(qspi_reg, spi_config->spi_config_3.wr_data_mode, cs_no);
       // write swap en is done only for data
-      qspi_reg->QSPI_MANUAL_CONFIG_2_REG = (qspi_reg->QSPI_MANUAL_CONFIG_2_REG & ~0xF)
+      qspi_reg->QSPI_MANUAL_CONFIG_2_REG = (qspi_reg->QSPI_MANUAL_CONFIG_2_REG & (uint32_t)~0xF)
                                            | (spi_config->spi_config_2.swap_en << cs_no);
 
       if (spi_config->spi_config_4.dma_write) {
@@ -2426,15 +2442,15 @@ uint32_t qspi_spi_write(qspi_reg_t *qspi_reg,
 
         if (dma_flags & USE_UDMA_MODE) {
 
-          RSI_UDMA_ChannelEnable(udmaHandle, ch_no);
+          RSI_UDMA_ChannelEnable(udmaHandle, (uint8_t)ch_no);
           // Enable DMA controller
           RSI_UDMA_UDMAEnable(udmaHandle);
-          while (!(RSI_UDMA_ChannelIsEnabled(udmaHandle, ch_no)))
+          while (!(RSI_UDMA_ChannelIsEnabled(udmaHandle, (uint8_t)ch_no)))
             ;
 
         } else {
-          gpdma_dma_channel_trigger(gpdmaHandle, ch_no);
-          while ((gpdma_channel_is_enabled(gpdmaHandle, ch_no)))
+          gpdma_dma_channel_trigger(gpdmaHandle, (uint8_t)ch_no);
+          while ((gpdma_channel_is_enabled(gpdmaHandle, (uint8_t)ch_no)))
             ;
         }
 
@@ -2468,11 +2484,11 @@ uint32_t qspi_spi_write(qspi_reg_t *qspi_reg,
     // dual flash mode
     if (spi_config->spi_config_4.dual_flash_mode) {
       qspi_reg->OCTA_SPI_BUS_CONTROLLER2 |= BIT(19);
-      spi_config->spi_config_3.wr_data_mode = qspi_data_mode;
+      spi_config->spi_config_3.wr_data_mode = (unsigned int)(qspi_data_mode & 0x03);
       qspi_switch_qspi2(qspi_reg, spi_config->spi_config_3.wr_data_mode, cs_no);
     }
 
-    qspi_reg->QSPI_MANUAL_CONFIG_2_REG &= ~0xF;
+    qspi_reg->QSPI_MANUAL_CONFIG_2_REG &= (uint32_t)~0xF;
     qspi_switch_qspi2(qspi_reg, spi_config->spi_config_1.inst_mode, cs_no);
     qspi_wait_flash_status_Idle(qspi_reg, spi_config, cs_no);
 
@@ -2763,6 +2779,8 @@ void qspi_qspiload_key(qspi_reg_t *qspi_reg, uint32_t *key, uint32_t kh_enable)
  */
 void qspi_qspiload_nonce(qspi_reg_t *qspi_reg, uint32_t *nonce)
 {
+  (void)qspi_reg;
+  (void)nonce;
 #ifdef CHIP_9118
   qspi_reg->QSPI_AES_NONCE_0_3 = *nonce++;
   qspi_reg->QSPI_AES_NONCE_4_7 = *nonce++;

@@ -107,7 +107,7 @@
 #define RSI_IN_SLEEP -4
 
 #define RSI_RESET_LOOP_COUNTER(X)     X = 0;
-#define RSI_WHILE_LOOP(X, Y)          while ((X++) < (uint32_t)Y)
+#define RSI_WHILE_LOOP(X, Y)          while ((X++) < (int32_t)Y)
 #define RSI_LOOP_COUNT_UPGRADE_IMAGE  0xFFFF
 #define RSI_LOOP_COUNT_WAKEUP_REQ     0xFFFFFFFF
 #define RSI_LOOP_COUNT_WAKEUP_WAIT    0xFFFFFFFF
@@ -121,8 +121,8 @@
       return -1;                     \
   }
 int16_t rsi_waitfor_boardready(void);
-int16_t rsi_mem_wr(uint32_t addr, uint16_t len, uint8_t *dBuf);
-int16_t rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf);
+int16_t rsi_mem_wr(volatile uint32_t addr, uint16_t len, uint8_t *dBuf);
+int16_t rsi_mem_rd(volatile uint32_t addr, uint16_t len, uint8_t *dBuf);
 int16_t rsi_boot_insn(uint8_t type, uint16_t *data);
 int16_t rsi_select_option(uint8_t cmd);
 #endif

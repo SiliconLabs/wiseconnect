@@ -39,83 +39,85 @@ This application demonstrates how SiWx91x will connect to three different SSL se
 
 Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
-### 3 Project Environment
+## 3 Project Environment
 
 - Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
+
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
 
 ### 3.1 Creating the project
 
 #### 3.1.1 SoC mode
 
+- Ensure the SiWx91x set up is connected to your PC.
+
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-    **![Soc Board detection](resources/readme/socboarddetection.png)**
-
-- Ensure the latest Gecko SDK along with the  WiSeConnect3 extension is added to Simplicity Studio.
-
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
-
-- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology**
-
-    **![Multiple TLS project](resources/readme/three_ssl.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-    **![Create Multiple TLS project](resources/readme/create_project.png)**
+  **![Soc Board detection](resources/readme/socboarddetection.png)**
 
 #### 3.1.2 NCP mode
+
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
   **![EFR32 Board detection](resources/readme/efr32.png)**
 
-- Ensure the latest Gecko SDK along with the  WiSeConnect3 extension is added to  Simplicity Studio.
+### 3.2 Importing the project
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - Three TLS Concurrent Client Sockets example.
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
 
-  **![Multiple TLS project](resources/readme/three_ssl_ncp.png)**
+#### SOC Mode
+
+- Select **Wi-Fi - Three TLS Concurrent Client Sockets** test application
+
+  **![project_selection](resources/readme/three_ssl.png)**
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-   **![Create Multiple TLS project](resources/readme/create_project.png)**
+  **![creation_final](resources/readme/create_project.png)**
 
-### 3.2 Set up for application prints
+### 3.3 Set up for application prints
 
-#### 3.2.1 SoC mode
+#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
 
-  You can use either of the below USB to UART converters for application prints.
+You can use either of the below USB to UART converters for application prints.
 
 1. Set up using USB to UART converter board.
 
-    - Connect Tx (Pin-6) to P27 on WSTK
-    - Connect GND (Pin 8 or 10) to GND on WSTK
+   - Connect Tx (Pin-6) to P27 on WSTK
+   - Connect GND (Pin 8 or 10) to GND on WSTK
 
-    **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
 2. Set up using USB to UART converter cable.
 
-    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-    - Connect GND (Pin1) of TTL convertor to GND on WSTK
+   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
+   - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
-    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera Term set up - for NCP and SoC modes**
+3. Open the Teraterm tool.
 
-1. Open the Tera Term tool.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+     **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
-      **![UART - SoC](resources/readme/port_selection_soc.png)**
+**Note:** For Other 917 SoC boards please refer section #3.3.2
 
-- For NCP mode, choose the J-Link port and click on **OK**.
-  
-      **![J-link - NCP](resources/readme/port_selection.png)**
+#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
+
+1. Open the Teraterm tool.
+
+- choose the J-Link port and click on **OK**.
+    
+    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
-  **![Serial port](resources/readme/serial_port_setup.png)**
+    **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
-  **![Baud rate](resources/readme/serial_port.png)**
+    **![serial_port](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
 
@@ -130,18 +132,24 @@ The application can be configured to suit user requirements and development envi
 
 **STA instance related parameters**
 
-- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
+	- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
 
-  ```c
-  #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
-  ```
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
+  	```
 
-- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+	- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
-  ```c 
-  #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
-  ```
+  	```c 
+  	#define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+  	```
+  
+	- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
 
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_SECURITY_TYPE               SL_WIFI_WPA2 
+  	```
+  
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
 2. Configure the following parameters in **app.c** to test three_ssl_client_sockets app as per requirements  

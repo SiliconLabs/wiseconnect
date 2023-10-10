@@ -46,49 +46,56 @@ Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wisec
 
 ## 3 Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-2. Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-3. Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
 
 ### 3.1 Creating the project
 
 #### 3.1.1 SoC mode
 
-- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under Debug Adapters pane as shown below.
+- Ensure the SiWx91x set up is connected to your PC.
 
-   **![Soc Board detection](resources/readme/soc_board_detection.png)**
+- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-- Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
-
-   **![Examples and Demos](resources/readme/examples_demos.png)**
-
-- Filter for Wi-Fi examples from the Gecko SDK added. For this, check the *Wi-Fi* checkbox under **Wireless Technology** and select **Wi-Fi - Concurrent Mode (SOC)** example
-
-    **![Concurrent Mode project](resources/readme/example_soc.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish
-
-    **![Concurrent Mode project](resources/readme/create_project_soc.png)**
+  **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
 #### 3.1.2 NCP mode
 
-- In the Simplicity Studio IDE, the EFR32 board will be detected under Debug Adapters pane as shown below.
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
-   **![Soc Board detection](resources/readme/efr32.png)**
+- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select **Wi-Fi - Concurrent Mode (NCP)** example.
+  **![EFR32 Board detection](resources/readme/efr32.png)**
 
-   **![Concurrent Mode project](resources/readme/concurrent_example_ncp.png)**
+### 3.2 Importing the project
+
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
+
+#### SOC Mode
+
+- Select **Wi-Fi - Concurrent Mode(SOC)** test application
+
+  **![project_selection](resources/readme/example_soc.png)**
 
 - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-    **![Create Concurrent Mode project](resources/readme/create_project_ncp.png)**
+  **![creation_final](resources/readme/create_project_soc.png)**
+
+#### NCP Mode
+
+- Select **Wi-Fi - Concurrent Mode(NCP)** test application
+
+  **![project_selection](resources/readme/concurrent_example_ncp.png)**
+
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+
+  **![creation_final](resources/readme/create_project_ncp.png)**
 
 ### 3.3 Set up for application prints
 
-**SoC mode**:
+#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
+
 You can use either of the below USB to UART converters for application prints.
 
 1. Set up using USB to UART converter board.
@@ -96,32 +103,36 @@ You can use either of the below USB to UART converters for application prints.
    - Connect Tx (Pin-6) to P27 on WSTK
    - Connect GND (Pin 8 or 10) to GND on WSTK
 
-    **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
 2. Set up using USB to UART converter cable.
 
    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
-    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera Term set up - for NCP and SoC modes**
+3. Open the Teraterm tool.
 
-1. Open the Tera Term tool.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
-  
-    **![UART - SoC](resources/readme/port_selection_soc.png)**
+     **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
-- For NCP mode, choose the J-Link port and click on **OK**.
+**Note:** For Other 917 SoC boards please refer section #3.3.2
 
-      **![J-link - NCP](resources/readme/port_selection.png)**
+#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
+
+1. Open the Teraterm tool.
+
+- choose the J-Link port and click on **OK**.
+    
+    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
- **![Serial port](resources/readme/serial_port_setup.png)**
+    **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
- **![Baud rate](resources/readme/baud_rate.png)**
+    **![serial_port](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
 
@@ -133,32 +144,37 @@ The application can be configured to suit user requirements and development envi
 
 - **STA instance related parameters**
 
-- WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name to which the Si91x module gets connected to.
 
-  ```c
-  #define WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"
-  ```
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"
+  	```
 
-- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+	- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
-  ```c
-  #define WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE"
-  ```
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE"
+  	```
+  	
+	- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
 
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA2 
+  	```
 - Other STA instance configurations can be modified if required in `wifi_client_profile` configuration structure.
 
 - **AP instance related parameters**
 
-- WIFI_AP_PROFILE_SSID refers to the name of the WiSeConnect Access point would be created.
+	- DEFAULT_WIFI_AP_PROFILE_SSID refers to the name of the WiSeConnect Access point would be created.
 
-  ```c
-  #define WIFI_AP_PROFILE_SSID                   "MY_AP_SSID"
-  ```
+  	```c
+  	#define DEFAULT_WIFI_AP_PROFILE_SSID                   "MY_AP_SSID"
+  	```
 
-- WIFI_AP_CREDENTIAL refers to the secret key of the WiSeConnect Access point would be created.
+	- DEFAULT_WIFI_AP_CREDENTIAL refers to the secret key of the WiSeConnect Access point would be created.
 
-  ```c
-  #define WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
+  	```c
+  	#define DEFAULT_WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
     ```
 
 > Note:

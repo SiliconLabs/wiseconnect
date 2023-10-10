@@ -70,12 +70,13 @@ extern sl_gspi_driver_t Driver_GSPI_MASTER;
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static sl_status_t convert_arm_to_sl_error_code(int32_t error);
-static sl_status_t convert_rsi_to_sl_error_code(error_t error);
+static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
 static sl_status_t validate_control_parameters(sl_gspi_control_config_t *control_configuration);
 static sl_status_t validate_clock_parameters(sl_gspi_clock_config_t *clock_configuration);
 static sl_status_t set_slave_gpio_state(sl_gspi_handle_t gspi_handle, boolean_t value);
 static sl_status_t get_gspi_handle(sl_gspi_instance_t instance, sl_gspi_handle_t *gspi_handle);
 static boolean_t validate_gspi_handle(sl_gspi_handle_t gspi_handle);
+static sl_status_t sli_si91x_gspi_configure_power_mode(sl_gspi_handle_t gspi_handle, sl_gspi_power_state_t state);
 static void callback_event_handler(uint32_t event);
 
 /*******************************************************************************
@@ -95,7 +96,7 @@ static void callback_event_handler(uint32_t event);
 sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configuration)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // returns an error code
@@ -179,6 +180,11 @@ sl_status_t sl_si91x_gspi_init(sl_gspi_instance_t instance, sl_gspi_handle_t *gs
     // converted to SL error code via convert_arm_to_sl_error_code function.
     error_status = ((sl_gspi_driver_t *)gspi_temp_handle)->Initialize(callback_event_handler);
     status       = convert_arm_to_sl_error_code(error_status);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Configuration of power mode
+    status = sli_si91x_gspi_configure_power_mode(gspi_temp_handle, SL_GSPI_FULL_POWER);
   } while (false);
   return status;
 }
@@ -204,6 +210,11 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    // Configuration of power mode
+    status = sli_si91x_gspi_configure_power_mode(gspi_handle, SL_GSPI_POWER_OFF);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
     // CMSIS API for un-initialization is called and the arm error code returned from
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
     error_status = ((sl_gspi_driver_t *)gspi_handle)->Uninitialize();
@@ -220,7 +231,7 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle)
  * In power off mode, debug is disabled, to enable the debug DEBUGINIT() needs
  * to be called.
  ******************************************************************************/
-sl_status_t sl_si91x_gspi_configure_power_mode(sl_gspi_handle_t gspi_handle, sl_gspi_power_state_t state)
+static sl_status_t sli_si91x_gspi_configure_power_mode(sl_gspi_handle_t gspi_handle, sl_gspi_power_state_t state)
 {
   sl_status_t status;
   int32_t error_status;
@@ -703,7 +714,7 @@ static sl_status_t convert_arm_to_sl_error_code(int32_t error)
  * after successful conversion it breaks the switch statement.
  * If the error code is not listed, by default is SL_STATUS_FAIL.
  ******************************************************************************/
-static sl_status_t convert_rsi_to_sl_error_code(error_t error)
+static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error)
 {
   sl_status_t status;
   switch (error) {

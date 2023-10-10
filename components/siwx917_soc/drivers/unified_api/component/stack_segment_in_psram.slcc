@@ -1,0 +1,14 @@
+id: stack_segment_in_psram
+label: Stack Segment in PSRAM
+package: platform
+description: >
+  This component puts Stack segemnt in PSRAM memory region
+category: Platform|si91x|Drivers|PSRAM Driver|PSRAM Linker Configurations
+quality: production
+provides:
+  - name: stack_segment_in_psram
+template_contribution:
+  - name: stack_segment_in_psram
+    value: 1
+  - name: psram_linker_config_enabled
+    value: 1

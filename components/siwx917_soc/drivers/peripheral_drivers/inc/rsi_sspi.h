@@ -121,7 +121,8 @@ uint32_t RSI_SSPI_ReceiveBlocking(RSI_SSPI_HANDLE_T pSPIHandle, void *data, uint
 
 int32_t RSI_SSPI_Transfer(RSI_SSPI_HANDLE_T *pSPIHandle, const void *data_out, void *data_in, uint32_t num);
 
-error_t RSI_SSPI_RegisterCallBacks(RSI_SSPI_HANDLE_T pSPIHandle, void (*psspi_cb)(RSI_SSPI_HANDLE_T, uint32_t, void *));
+rsi_error_t RSI_SSPI_RegisterCallBacks(RSI_SSPI_HANDLE_T pSPIHandle,
+                                       void (*psspi_cb)(RSI_SSPI_HANDLE_T, uint32_t, void *));
 
 void RSI_SSPI_IntClear(RSI_SSPI_HANDLE_T pSPIHandle, uint32_t intmask);
 

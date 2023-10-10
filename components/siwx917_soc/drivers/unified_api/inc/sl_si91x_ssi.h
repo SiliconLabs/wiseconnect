@@ -122,12 +122,13 @@ typedef enum {
 // fields for various parameters
 /// @brief typedef for SSI control config struct
 typedef struct {
-  uint8_t bit_width;    ///< bit width either 8 or 16 bit
-  uint32_t device_mode; ///< mode such as Master or Slave mode
-  uint32_t clock_mode;  ///< clock mode such as CPOL0 CPHA1
-  uint32_t master_ssm;  ///< Master SW or Master HW Output
-  uint32_t slave_ssm;   ///< Slave SW or Slave HW Output
-  uint32_t baud_rate;   ///< baud rate for SSI
+  uint8_t bit_width;             ///< bit width either 8 or 16 bit
+  uint32_t device_mode;          ///< mode such as Master or Slave mode
+  uint32_t clock_mode;           ///< clock mode such as CPOL0 CPHA1
+  uint32_t master_ssm;           ///< Master SW or Master HW Output
+  uint32_t slave_ssm;            ///< Slave SW or Slave HW Output
+  uint32_t baud_rate;            ///< baud rate for SSI
+  uint32_t receive_sample_delay; ///< Delay for receive input signal
 } sl_ssi_control_config_t;
 
 // SSI clock config data structure with
@@ -180,16 +181,6 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
  *         SL_STATUS_OK (0x0000) - Success, otherwise fail error code
 *******************************************************************************/
 sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle);
-
-/***************************************************************************/ /**
- * Control the SPI interface power.
- *
- * @param[in] ssi handle, power state power off or full state.
- * @return    status 0 if successful, else error code.
- *         SL_STATUS_INVALID_PARAMETER (0x0021) - power state is invalid
- *         SL_STATUS_OK (0x0000) - Success, otherwise error code on failure
-*******************************************************************************/
-sl_status_t sl_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state);
 
 /***************************************************************************/ /**
  * Control the SPI interface.
@@ -298,7 +289,7 @@ sl_status_t sl_si91x_ssi_register_event_callback(sl_ssi_handle_t ssi_handle, sl_
  *
  *  @param[in] None
  ******************************************************************************/
-void sl_si91x_gspi_unregister_event_callback(void);
+void sl_si91x_ssi_unregister_event_callback(void);
 
 /***************************************************************************/ /**
  * Get the clock division factor.
@@ -315,6 +306,34 @@ uint32_t sl_si91x_ssi_get_clock_division_factor(sl_ssi_handle_t ssi_handle);
  * @return frame_length (uint32_t) Frame length
  ******************************************************************************/
 uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle);
+
+/*******************************************************************************/ /**
+ * To fetch the transfer fifo threshold value, this value controls the level of
+ * entries at which the transmit FIFO controller triggers an interrupt.
+ *
+ * @param[in] ssi_handle Pointer to the SSI driver handle
+ * @return Transfer fifo threshold (uint32_t) The value of transfer fifo threshold
+ ***********************************************************************************/
+uint32_t sl_si91x_ssi_get_tx_fifo_threshold(sl_ssi_handle_t ssi_handle);
+
+/******************************************************************************/ /**
+ * To fetch the receiver fifo threshold value, this value controls the level of
+ * entries at which the receive FIFO controller triggers an interrupt.
+ *
+ * @param[in] ssi_handle Pointer to the SSI driver handle
+ * @return Receiver fifo threshold (uint32_t) The value of receiver fifo threshold
+ **********************************************************************************/
+uint32_t sl_si91x_ssi_get_rx_fifo_threshold(sl_ssi_handle_t ssi_handle);
+
+/******************************************************************************/ /**
+ * To fetch the receiver sample delay value, it used to delay the sample of the
+ * rxd input signal. Each value represents a single ssi_clk delay on the sample
+ * of the rxd signal.
+ *
+ * @param[in] ssi_handle Pointer to the SSI driver handle
+ * @return Receiver sample delay (uint32_t) The value of receiver sample delay
+ **********************************************************************************/
+uint32_t sl_si91x_ssi_get_receiver_sample_delay(sl_ssi_handle_t ssi_handle);
 
 /***************************************************************************/ /**
  * Set the secondary number in multi-secondary operation.

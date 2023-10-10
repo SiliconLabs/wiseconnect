@@ -917,7 +917,7 @@ STATIC INLINE void RSI_CT_ResumeHaltEvent(RSI_CT_T *pCT, boolean_t counterNum)
 
 /*===================================================*/
 /** 
- * @fn            error_t RSI_CT_PeripheralReset(RSI_CT_T *pCT,boolean_t counterNum)
+ * @fn            rsi_error_t RSI_CT_PeripheralReset(RSI_CT_T *pCT,boolean_t counterNum)
  * @brief     This API is used to Reset any counter.
  * @param[in]   pCT         :  Pointer to the CT instance register area
  * @param[in]     counterNum  :  Counter 0/1
@@ -936,7 +936,7 @@ STATIC INLINE void RSI_CT_PeripheralReset(RSI_CT_T *pCT, boolean_t counterNum)
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_CT_StartSoftwareTrig(RSI_CT_T *pCT,boolean_t counterNum)
+ * @fn            rsi_error_t RSI_CT_StartSoftwareTrig(RSI_CT_T *pCT,boolean_t counterNum)
  * @brief     Starts the Counter form software register
  * @param[in]   pCT         :  Pointer to the CT instance register area
  * @param[in]   counterNum  :  Coutner 0/1
@@ -954,7 +954,7 @@ STATIC INLINE void RSI_CT_StartSoftwareTrig(RSI_CT_T *pCT, boolean_t counterNum)
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_CT_OCUModeSet(RSI_CT_T *pCT, boolean_t counterNum)
+ * @fn            rsi_error_t RSI_CT_OCUModeSet(RSI_CT_T *pCT, boolean_t counterNum)
  * @brief     OCU mode configuration setting
  * @param[in]   pCT         :  Pointer to the CT instance register area
  * @param[in]   counterNum    :  Coutner 0/1
@@ -1059,15 +1059,15 @@ STATIC INLINE void RSI_CT_SetCounerSync(RSI_CT_T *pCT, uint8_t syncCounter, bool
 void RSI_CT_Init(void);
 void ct_ocu_high_Low_toggle_select(RSI_CT_T *pCT, boolean_t lowHigh, boolean_t counterNum, uint8_t outputSel);
 
-error_t ct_ocu_control(RSI_CT_T *pCT,
-                       boolean_t counterNum,
-                       boolean_t dmaEn,
-                       OCU_PARAMS_T *pOCUparams,
-                       RSI_CT_CALLBACK_T *pCB);
+rsi_error_t ct_ocu_control(RSI_CT_T *pCT,
+                           boolean_t counterNum,
+                           boolean_t dmaEn,
+                           OCU_PARAMS_T *pOCUparams,
+                           RSI_CT_CALLBACK_T *pCB);
 
-error_t ct_wfg_control_config(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg);
+rsi_error_t ct_wfg_control_config(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg);
 
-error_t ct_wfg_comapre_value_set(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams);
+rsi_error_t ct_wfg_comapre_value_set(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams);
 
 #ifdef __cplusplus
 }

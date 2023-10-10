@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-error_t RSI_AUX_RefVoltageConfig(float verf_val, float chip_vltg);
+rsi_error_t RSI_AUX_RefVoltageConfig(float verf_val, float chip_vltg);
 #ifdef __cplusplus
 }
 #endif

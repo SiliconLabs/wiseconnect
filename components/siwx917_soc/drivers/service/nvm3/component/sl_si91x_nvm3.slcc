@@ -1,0 +1,19 @@
+id: sl_si91x_nvm3
+label: SL_SI91x_NVM3
+package: platform
+description: >
+  NVM3 component for Si91x
+category: Platform|si91x|service
+quality: production
+component_root_path: "components/siwx917_soc/drivers/service/nvm3"
+requires:
+  - name: nvm3
+  - name: nvm3_default
+  - name: sl_si91x_common_flash_nvm3
+    condition: [si91x_common_flash]
+  - name: sl_si91x_dual_flash_nvm3
+    condition: [si91x_dual_flash]
+provides:
+  - name: sl_si91x_nvm3
+  - name: nvm3_lib
+    condition: [device_si91x]

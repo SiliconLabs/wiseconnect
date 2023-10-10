@@ -182,36 +182,36 @@ extern "C" {
 
 // SDMEM related function prototypes
 void RSI_SDMEM_PinMux(void);
-error_t RSI_SDMEM_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig);
-error_t RSI_SDMEM_SendCardInterfaceConditionCmd8(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
-error_t RSI_SDMEM_SendApplicationCommandCmd55(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
-error_t RSI_SDMEM_SetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
-error_t RSI_SDMEM_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
-error_t RSI_SDMEM_SendCidCmd2(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
-error_t RSI_SDIOH_SendRelativeAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
-error_t RSI_SDMEM_SendCsdCmd9(SMIH_CARD_CONFIG_T *pSmihConfig);
-error_t RSI_SDMEM_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig);
-error_t RSI_SDMEM_SetBusWidthAcmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
-error_t RSI_SDMEM_OperationSwitchFunctionReadCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument);
-error_t RSI_SDMEM_GetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
-error_t RSI_SDMEM_CardBusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth);
-error_t RSI_SDMEM_OperationSwitchFunctionWriteCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument);
-error_t RSI_SDMEM_BlocksWrite(SMIH_CARD_CONFIG_T *pSmihConfig,
-                              const uint8_t *DataIn,
-                              uint32_t BlockIndex,
-                              uint32_t BlockCount);
-error_t RSI_SDMEM_BlocksRead(SMIH_CARD_CONFIG_T *pSmihConfig,
-                             uint8_t *DataOut,
-                             uint32_t BlockIndex,
-                             uint32_t BlockCount);
-error_t RSI_SDMEM_EnableHighSpeed(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock);
-error_t RSI_SDMEM_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event);
-error_t RSI_SDMMC_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event);
-error_t RSI_SDMMC_SendOperationConditionCmd1(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
-error_t RSI_SDMMC_SendExtentCsdCmd(SMIH_CARD_CONFIG_T *pSmihConfig);
-error_t RSI_SDMMC_ChangeBusWidthMode(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t bus_wdith);
-error_t RSI_SDMMC_SwitchFunctionCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
-error_t RSI_SDMMC_HighSpeedMode(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock);
+rsi_error_t RSI_SDMEM_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig);
+rsi_error_t RSI_SDMEM_SendCardInterfaceConditionCmd8(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
+rsi_error_t RSI_SDMEM_SendApplicationCommandCmd55(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
+rsi_error_t RSI_SDMEM_SetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
+rsi_error_t RSI_SDMEM_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
+rsi_error_t RSI_SDMEM_SendCidCmd2(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
+rsi_error_t RSI_SDIOH_SendRelativeAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg);
+rsi_error_t RSI_SDMEM_SendCsdCmd9(SMIH_CARD_CONFIG_T *pSmihConfig);
+rsi_error_t RSI_SDMEM_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig);
+rsi_error_t RSI_SDMEM_SetBusWidthAcmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
+rsi_error_t RSI_SDMEM_OperationSwitchFunctionReadCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument);
+rsi_error_t RSI_SDMEM_GetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
+rsi_error_t RSI_SDMEM_CardBusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth);
+rsi_error_t RSI_SDMEM_OperationSwitchFunctionWriteCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument);
+rsi_error_t RSI_SDMEM_BlocksWrite(SMIH_CARD_CONFIG_T *pSmihConfig,
+                                  const uint8_t *DataIn,
+                                  uint32_t BlockIndex,
+                                  uint32_t BlockCount);
+rsi_error_t RSI_SDMEM_BlocksRead(SMIH_CARD_CONFIG_T *pSmihConfig,
+                                 uint8_t *DataOut,
+                                 uint32_t BlockIndex,
+                                 uint32_t BlockCount);
+rsi_error_t RSI_SDMEM_EnableHighSpeed(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock);
+rsi_error_t RSI_SDMEM_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event);
+rsi_error_t RSI_SDMMC_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event);
+rsi_error_t RSI_SDMMC_SendOperationConditionCmd1(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
+rsi_error_t RSI_SDMMC_SendExtentCsdCmd(SMIH_CARD_CONFIG_T *pSmihConfig);
+rsi_error_t RSI_SDMMC_ChangeBusWidthMode(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t bus_wdith);
+rsi_error_t RSI_SDMMC_SwitchFunctionCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg);
+rsi_error_t RSI_SDMMC_HighSpeedMode(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock);
 
 #ifdef __cplusplus
 }

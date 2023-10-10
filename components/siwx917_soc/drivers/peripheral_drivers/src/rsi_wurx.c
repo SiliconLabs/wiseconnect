@@ -311,7 +311,7 @@ void RSI_WURX_TailDataDecodeEnable(uint16_t enable, uint16_t data_len)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_WURX_GetTailData(uint32_t *tail_data, uint16_t tail_data_len)
+ * @fn           rsi_error_t RSI_WURX_GetTailData(uint32_t *tail_data, uint16_t tail_data_len)
  * @brief        This API is used get the tail data
  * @param[in]    tail_data      : Pointer to store the tail data.
  * @param[in]    tail_data_len  : This parameter define number of bit read in tail data.
@@ -321,7 +321,7 @@ void RSI_WURX_TailDataDecodeEnable(uint16_t enable, uint16_t data_len)
  *                              - 3 for 256 bit     
  * @return       Receive pattern tail data - If Success             
  */
-error_t RSI_WURX_GetTailData(uint32_t *tail_data, uint16_t tail_data_len)
+rsi_error_t RSI_WURX_GetTailData(uint32_t *tail_data, uint16_t tail_data_len)
 {
   if (tail_data_len == TAIL_DATA_DECODE_64BIT) {
     // get 64 bit tail data

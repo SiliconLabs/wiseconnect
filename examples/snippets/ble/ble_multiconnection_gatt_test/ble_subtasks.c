@@ -344,21 +344,21 @@ void rsi_ble_task_on_conn(void *parameters)
         if (ble_conn_conf->profile_discovery) {
           rsi_ble_set_event_based_on_conn(l_conn_id, RSI_BLE_REQ_GATT_PROFILE);
         }
-        //! add device to whitelist
-        if (ble_conn_conf->add_to_whitelist) {
-          //! clear the whitelist completely
-          status = rsi_ble_clear_whitelist();
+        //! add device to acceptlist
+        if (ble_conn_conf->add_to_acceptlist) {
+          //! clear the acceptlist completely
+          status = rsi_ble_clear_acceptlist();
           if (status != RSI_SUCCESS) {
-            LOG_PRINT("\r\n Failed to clear the white list, error: 0x%lx -conn%d\r\n", status, l_conn_id);
+            LOG_PRINT("\r\n Failed to clear the accept list, error: 0x%lx -conn%d\r\n", status, l_conn_id);
             break;
           }
-          status = rsi_ble_addto_whitelist((int8_t *)rsi_connected_dev_addr, LE_RANDOM_ADDRESS);
+          status = rsi_ble_addto_acceptlist((int8_t *)rsi_connected_dev_addr, LE_RANDOM_ADDRESS);
           rsi_6byte_dev_address_to_ascii(str_remote_address, rsi_connected_dev_addr);
           if (status != RSI_SUCCESS) {
-            LOG_PRINT("\r\n Failed to add the device:%s to white list -conn%d\r\n", str_remote_address, l_conn_id);
+            LOG_PRINT("\r\n Failed to add the device:%s to accept list -conn%d\r\n", str_remote_address, l_conn_id);
             break;
           }
-          LOG_PRINT("\r\n Device %s added to white list - conn%d\r\n", str_remote_address, l_conn_id);
+          LOG_PRINT("\r\n Device %s added to accept list - conn%d\r\n", str_remote_address, l_conn_id);
         }
 
         //! check if connection is from remote central device
@@ -439,19 +439,19 @@ void rsi_ble_task_on_conn(void *parameters)
         if (ble_conn_conf->profile_discovery) {
           rsi_ble_set_event_based_on_conn(l_conn_id, RSI_BLE_REQ_GATT_PROFILE);
         }
-        //! add device to whitelist
-        if (ble_conn_conf->add_to_whitelist) {
-          //! clear the whitelist completely
-          status = rsi_ble_clear_whitelist();
+        //! add device to acceptlist
+        if (ble_conn_conf->add_to_acceptlist) {
+          //! clear the acceptlist completely
+          status = rsi_ble_clear_acceptlist();
           if (status != RSI_SUCCESS) {
-            LOG_PRINT("\r\n Failed to clear the white list, error: 0x%lx - conn%d\r\n", status, l_conn_id);
+            LOG_PRINT("\r\n Failed to clear the accept list, error: 0x%lx - conn%d\r\n", status, l_conn_id);
           }
-          status = rsi_ble_addto_whitelist((int8_t *)rsi_connected_dev_addr, LE_RANDOM_ADDRESS);
+          status = rsi_ble_addto_acceptlist((int8_t *)rsi_connected_dev_addr, LE_RANDOM_ADDRESS);
           rsi_6byte_dev_address_to_ascii(str_remote_address, rsi_connected_dev_addr);
           if (status != RSI_SUCCESS) {
-            LOG_PRINT("\r\n Failed to add the device:%s to whitelist - conn%d\r\n", str_remote_address, l_conn_id);
+            LOG_PRINT("\r\n Failed to add the device:%s to acceptlist - conn%d\r\n", str_remote_address, l_conn_id);
           }
-          LOG_PRINT("\r\n Device %s added to whitelist -conn%d \r\n", str_remote_address, l_conn_id);
+          LOG_PRINT("\r\n Device %s added to acceptlist -conn%d \r\n", str_remote_address, l_conn_id);
         }
 
         //! check if connection is from remote central device

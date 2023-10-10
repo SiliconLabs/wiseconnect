@@ -38,8 +38,9 @@
 #include <string.h>
 #include "sl_si91x_driver.h"
 
-// WDT includes
-#include "sl_si91x_watchdog_timer.h"
+#ifdef RSI_M4_INTERFACE
+#include "sl_si91x_hal_soc_soft_reset.h"
+#endif
 
 /******************************************************
  *                      Macros
@@ -62,11 +63,6 @@
 #define CHUNK_SIZE       1024
 
 #define SI91X_STATUS_FW_UPDATE_DONE 0x10003
-
-// WDT constants
-#define SL_WDT_INTERRUPT_TIME    15 // WDT Interrupt Time
-#define SL_WDT_SYSTEM_RESET_TIME 17 // WDT System Reset Time
-#define SL_WDT_WINDOW_TIME       0  // WDT Window Time
 
 /******************************************************
  *               Global Variable
@@ -100,6 +96,9 @@ static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuratio
 #else
                                                   | RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
+#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
                                                   ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = 0,
@@ -109,9 +108,6 @@ static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuratio
 };
 
 uint8_t recv_buffer[RECV_BUFFER_SIZE];
-
-// WDT variables
-static bool wdt_system_reset_flag = false;
 
 /******************************************************
  *               Function Declarations
@@ -129,11 +125,6 @@ void app_init(const void *unused)
 {
   UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
-}
-
-void soft_reset(void)
-{
-  watchdog_timer_init();
 }
 
 static void application_start(void *argument)
@@ -265,7 +256,7 @@ sl_status_t m4_firmware_update_app()
         close(client_socket);
         printf("\r\nM4 Firmware update complete\r\n");
 
-        soft_reset();
+        sl_si91x_soc_soft_reset();
 
         return SL_STATUS_OK;
       } else {
@@ -278,68 +269,4 @@ sl_status_t m4_firmware_update_app()
   }
 
   return SL_STATUS_OK;
-}
-
-void watchdog_timer_init(void)
-{
-  sl_status_t status;
-  sl_watchdog_timer_version_t version;
-  watchdog_timer_clock_config_t wdt_clock_config;
-  wdt_clock_config.low_freq_fsm_clock_src  = KHZ_RC_CLK_SEL;
-  wdt_clock_config.high_freq_fsm_clock_src = FSM_32MHZ_RC;
-  wdt_clock_config.bg_pmu_clock_source     = RO_32KHZ_CLOCK;
-  watchdog_timer_config_t wdt_config;
-  wdt_config.interrupt_time    = SL_WDT_INTERRUPT_TIME;
-  wdt_config.system_reset_time = SL_WDT_SYSTEM_RESET_TIME;
-  wdt_config.window_time       = SL_WDT_WINDOW_TIME;
-
-  // Checking system-reset status if true means system-reset done by watchdog-timer
-  // else it is a power-on system-reset.
-  if (sl_si91x_watchdog_get_timer_system_reset_status()) {
-    // Assigning TRUE to system-reset flag, if reset done by watchdog-timer
-    wdt_system_reset_flag = true;
-    SL_DEBUG_LOG("Watchdog-timer system-reset occurred \r\n");
-  } else {
-    SL_DEBUG_LOG("Power on system-reset occurred..\r\n");
-  }
-  do {
-    //Version information of watchdog-timer
-    version = sl_si91x_watchdog_get_version();
-    SL_DEBUG_LOG("Watchdog-timer version is fetched successfully \n");
-    SL_DEBUG_LOG("API version is %d.%d.%d\n", version.release, version.major, version.minor);
-    // Initializing watchdog-timer
-    sl_si91x_watchdog_init_timer();
-    printf("\r\nSoC soft reset initiated\r\n");
-    SL_DEBUG_LOG("Successfully initialized watchdog-timer \n");
-    // Configuring watchdog-timer
-    status = sl_si91x_watchdog_configure_clock(&wdt_clock_config);
-    if (status != SL_STATUS_OK) {
-      SL_DEBUG_LOG("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
-      break;
-    }
-    SL_DEBUG_LOG("Successfully Configured watchdog-timer with default clock sources\n");
-    // Configuring watchdog-timer
-    status = sl_si91x_watchdog_set_configuration(&wdt_config);
-    if (status != SL_STATUS_OK) {
-      SL_DEBUG_LOG("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
-      break;
-    }
-    SL_DEBUG_LOG("Successfully Configured watchdog-timer with default parameters\n");
-    // Registering timeout callback
-    status = sl_si91x_watchdog_register_timeout_callback(on_timeout_callback);
-    if (status != SL_STATUS_OK) {
-      SL_DEBUG_LOG("sl_si91x_watchdog_timer_register_timeout_callback : Invalid Parameters, Error Code : %lu \n",
-                   status);
-      break;
-    }
-    // Starting watchdog-timer with changed parameters
-    sl_si91x_watchdog_start_timer();
-    SL_DEBUG_LOG("Successfully started watchdog-timer with new parameters \n");
-  } while (false);
-}
-
-void on_timeout_callback(void)
-{
-  SL_DEBUG_LOG("\r\nIn handler\r\n");
-  return;
 }

@@ -18,26 +18,27 @@ source:
 sdk: {id: gecko_sdk, version: 4.3.1}
 toolchain_settings: []
 component:
-- id: cmsis_common
+- {from: wiseconnect3_sdk, id: rsilib_clock_update}
+- {from: wiseconnect3_sdk, id: cmsis_device_config_9117}
+- {from: wiseconnect3_sdk, id: romdriver_egpio}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 - id: sl_system
-- id: component_catalog
 - instance: [timer0]
   from: wiseconnect3_sdk
   id: ulp_timers_instance
 - id: sl_ulp_timer
   from: wiseconnect3_sdk 
-- id: siwx917_soc
-  from: wiseconnect3_sdk
-- id: si91x_support
-  from: wiseconnect3_sdk
 - id: systemlevel_time_period
   from: wiseconnect3_sdk
 - id: romdriver_timer
   from: wiseconnect3_sdk
-- id: sl_siwx917_platform
+- id: si917_memory_default_config
   from: wiseconnect3_sdk
-- id: sl_siwx917_systemcall
-  from: wiseconnect3_sdk
+- {from: wiseconnect3_sdk, id: systemlevel_wwdt}
+- {from: wiseconnect3_sdk, id: systemlevel_processor_sensor}
+- {from: wiseconnect3_sdk, id: rsilib_comparator}
+- {from: wiseconnect3_sdk, id: rsilib_userconfig}
+- {id: status}
 other_file:
 - {path: resources/readme/image512a.png}
 - {path: resources/readme/image512b.PNG}
@@ -48,7 +49,6 @@ other_file:
 define:
 - {name: RSI_M4_INTERFACE}
 - {name: M4_PS2_STATE}
-- {name: SYSCALLS_WRITE}
 template_contribution:
 - {name: RAM_EXECUTION, priority: 0, value: 1}
 - {name: ULP_PLATFORM, priority: 0, value: 1}
@@ -58,7 +58,7 @@ ui_hints:
   highlight:
   - {path: readme.md, focus: true}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
 

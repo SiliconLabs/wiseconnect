@@ -92,7 +92,6 @@ typedef struct rsi_wlan_app_cb_s {
 #define RSI_WMM_PS_ENABLE        RSI_DISABLE //! set WMM enable or disable
 #define RSI_WMM_PS_TYPE          0           //! set WMM enable or disable  //! 0- TX BASED 1 - PERIODIC
 #define RSI_WMM_PS_WAKE_INTERVAL 20          //! set WMM wake up interval
-#define RSI_WMM_PS_UAPSD_BITMAP  15          //! set WMM UAPSD bitmap
 
 /***********************************************************************************************************************************************/
 //! WLAN SAPI CONFIG DEFINES

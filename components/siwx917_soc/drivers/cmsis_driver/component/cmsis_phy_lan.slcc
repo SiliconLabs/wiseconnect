@@ -12,10 +12,5 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "PHY_LAN8742A.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_ETH_PHY.h"
 provides:
   - name: cmsis_phy_lan
-requires:
-  - name: cmsis_driver_common

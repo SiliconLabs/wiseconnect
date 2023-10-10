@@ -60,7 +60,7 @@ RSI_GPDMA_CAPABILITIES_T RSI_GPDMA_GetCapabilities(void)
 
 /*==============================================*/
 /**
- * @fn          error_t gpdma_dma_channel_trigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
+ * @fn          rsi_error_t gpdma_dma_channel_trigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 
  * @brief		    This API is used to enable the required channel of GPDMA
  * @param[in]   pHandle  : Pointer to driver context handle
@@ -68,7 +68,7 @@ RSI_GPDMA_CAPABILITIES_T RSI_GPDMA_GetCapabilities(void)
  * @return 		  \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
  *               \n \ref RSI_OK                  : If process is done successfully
  */
-error_t gpdma_dma_channel_trigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
+rsi_error_t gpdma_dma_channel_trigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
 
@@ -83,14 +83,14 @@ error_t gpdma_dma_channel_trigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 
 /*==============================================*/
 /**
- * @fn          error_t gpdma_interrupt_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          rsi_error_t gpdma_interrupt_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
  * @brief		    This API is used to clear the interrupts of required GPDMA channel
  * @param[in]   pHandle  : Pointer to driver context handle
  * @param[in]   pCfg     : Pointer to DMA channel configuration structure \ref RSI_GPDMA_CHA_CFG_T
  * @return 		  \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
  *               \n \ref RSI_OK                  : If process is done successfully
  */
-error_t gpdma_interrupt_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+rsi_error_t gpdma_interrupt_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
 
@@ -161,7 +161,7 @@ uint32_t gpdma_get_error_status(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T 
 
 /*==============================================*/
 /**
- * @fn          error_t gpdma_error_status_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          rsi_error_t gpdma_error_status_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 
  * @brief	      This API is used to clear the errors for the required GPDMA channel.
  * @param[in]   pHandle  : Pointer to driver context handle 
@@ -169,7 +169,7 @@ uint32_t gpdma_get_error_status(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T 
  * @return 		\ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
  *               \n \ref RSI_OK                  : If process is done successfully
  */
-error_t gpdma_error_status_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+rsi_error_t gpdma_error_status_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
 
@@ -197,19 +197,19 @@ error_t gpdma_error_status_clear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T
 uint8_t RSI_GPDMA_GetChannelActivity(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
-  return (pDrv->baseG->GLOBAL.DMA_CHNL_ENABLE_REG & SET_BIT(dmaCh));
+  return (uint8_t)(pDrv->baseG->GLOBAL.DMA_CHNL_ENABLE_REG & SET_BIT(dmaCh));
 }
 
 /*==============================================*/
 /**
- * @fn          error_t gpdma_interrupt_enable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          rsi_error_t gpdma_interrupt_enable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
  * @brief		    This API is used to enable interrupt flags for required GPDMA channel
  * @param[in]   pHandle  : Pointer to driver context handle
  * @param[in]   pCfg     : Pointer to DMA channel configuration structure  \ref RSI_GPDMA_CHA_CFG_T
  * @return 		  \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
  *               \n \ref RSI_OK                  : If process is done successfully
  */
-error_t gpdma_interrupt_enable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+rsi_error_t gpdma_interrupt_enable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
   uint32_t maskReg          = 0;
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
@@ -234,14 +234,14 @@ error_t gpdma_interrupt_enable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *
 
 /*==============================================*/
 /**
- * @fn          error_t gpdma_interrupt_disable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          rsi_error_t gpdma_interrupt_disable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
  * @brief		    This API is used to disable the interrupt for required GPDMA channel.
  * @param[in]   pHandle  : Pointer to driver context handle
  * @param[in]   pCfg     : Pointer to DMA channel configuration structure \ref RSI_GPDMA_CHA_CFG_T
  * @return 		  \ref ERROR_GPDMA_INVALIDCHNLNUM : If DMA channel number is invalid
  *               \n \ref RSI_OK                  : If process is done successfully
  */
-error_t gpdma_interrupt_disable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+rsi_error_t gpdma_interrupt_disable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
   uint32_t maskReg          = 0;
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
@@ -267,13 +267,13 @@ error_t gpdma_interrupt_disable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T 
 
 /*==============================================*/
 /**
- * @fn          error_t gpdma_abort_channel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
+ * @fn          rsi_error_t gpdma_abort_channel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
  * @brief		    This API is used to Abort the channel transfer
  * @param[in]   pHandle  : Pointer to driver context handle
  * @param[in]   dmaCh    : DMA channel number(0-7)
  * @return 		  return \ref RSI_OK
  */
-error_t gpdma_abort_channel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
+rsi_error_t gpdma_abort_channel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
   GPDMA_DATACONTEXT_T *pDrv               = (GPDMA_DATACONTEXT_T *)pHandle;
   pDrv->baseG->GLOBAL.DMA_CHNL_SQUASH_REG = SET_BIT(dmaCh);
@@ -325,7 +325,7 @@ RSI_GPDMA_HANDLE_T gpdma_init(void *mem, const RSI_GPDMA_INIT_T *pInit)
 
 /*==============================================*/
 /**
- * @fn          error_t gpdma_setup_channel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+ * @fn          rsi_error_t gpdma_setup_channel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
  * @brief		    This API is used to configure required channel for transfer
  * @param[in]   pHandle  : Pointer to driver context handle
  * @param[in]   pCfg     : \ref RSI_GPDMA_CHA_CFG_T  Pointer to DMA channel configuration structure
@@ -333,18 +333,20 @@ RSI_GPDMA_HANDLE_T gpdma_init(void *mem, const RSI_GPDMA_INIT_T *pInit)
  *               \n \ref ERROR_GPDMA_INVALID_ARG : If channel number is invalid
  *               \n \ref RSI_OK                  : If process is done successfully
  */
-error_t gpdma_setup_channel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
+rsi_error_t gpdma_setup_channel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
   uint32_t maskReg          = 0;
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
 
   // Parameter checks
   if ((pCfg != NULL) && (pCfg->dmaCh <= GPDMA_CHNL7) && ((pCfg->channelPrio) <= PRIO_LEVEL_4)) {
-    if (RSI_GPDMA_GetChannelActivity(pDrv, pCfg->dmaCh) != 1) {
-      pDrv->baseC->CHANNEL_CONFIG[pCfg->dmaCh].FIFO_CONFIG_REGS_b.FIFO_STRT_ADDR = (8 * pCfg->dmaCh);
-      pDrv->baseC->CHANNEL_CONFIG[pCfg->dmaCh].FIFO_CONFIG_REGS_b.FIFO_SIZE      = 8;
+    if (RSI_GPDMA_GetChannelActivity(pDrv, ((uint8_t)pCfg->dmaCh) != 1)) {
+      pDrv->baseC->CHANNEL_CONFIG[pCfg->dmaCh].FIFO_CONFIG_REGS_b.FIFO_STRT_ADDR =
+        (unsigned int)((8 * pCfg->dmaCh) & 0x3F);
+      pDrv->baseC->CHANNEL_CONFIG[pCfg->dmaCh].FIFO_CONFIG_REGS_b.FIFO_SIZE = 8;
 
-      pDrv->baseC->CHANNEL_CONFIG[pCfg->dmaCh].PRIORITY_CHNL_REGS_b.PRIORITY_CH = pCfg->channelPrio;
+      pDrv->baseC->CHANNEL_CONFIG[pCfg->dmaCh].PRIORITY_CHNL_REGS_b.PRIORITY_CH =
+        (unsigned int)(pCfg->channelPrio & 0x03);
 
       // Error status clear
       if (pCfg->hrespErr == 1) {
@@ -387,28 +389,28 @@ error_t gpdma_setup_channel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCf
  * @return 		  none
  */
 
-void gpdma_register_callback(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, void *pCB)
+void gpdma_register_callback(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, gpdmaTransferCompleteCB pCB)
 {
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
   switch (cbIndex) {
     case RSI_GPDMA_XFERCOMPLETE_CB:
-      pDrv->gpdmaCompCB = (gpdmaTransferCompleteCB)pCB;
+      pDrv->gpdmaCompCB = pCB;
       break;
     case RSI_GPDMA_XFERDESCFETCHCOMPLETE_CB:
-      pDrv->gpdmaDescFetchCompCB = (gpdmaTransferDescFetchCompleteCB)pCB;
+      pDrv->gpdmaDescFetchCompCB = pCB;
       break;
     case RSI_GPDMA_XFERHRESPERROR_CB:
-      pDrv->gpdmaHrespErrorCB = (gpdmaTransferHrespErrorCB)pCB;
+      pDrv->gpdmaHrespErrorCB = pCB;
       break;
     case RSI_GPDMA_XFERGPDMACERROR_CB:
-      pDrv->gpdmaRpdmacErrorCB = (gpdmaTransferRpdmacErrorCB)pCB;
+      pDrv->gpdmaRpdmacErrorCB = pCB;
       break;
   }
 }
 
 /*==============================================*/
 /**
- * @fn        error_t gpdma_build_descriptors(RSI_GPDMA_HANDLE_T pHandle,
+ * @fn        rsi_error_t gpdma_build_descriptors(RSI_GPDMA_HANDLE_T pHandle,
  *                               RSI_GPDMA_DESC_T *pXferCfg,
  *                               RSI_GPDMA_DESC_T *pDesc,
  *                               RSI_GPDMA_DESC_T *pDescPrev)
@@ -420,11 +422,12 @@ void gpdma_register_callback(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, void 
  * @return     \ref ERROR_GPDMA_INVALID_ARG : If any descriptor parameter is invalid
                \n \ref RSI_OK               : If process is done successfully
  */
-error_t gpdma_build_descriptors(RSI_GPDMA_HANDLE_T pHandle,
-                                RSI_GPDMA_DESC_T *pXferCfg,
-                                RSI_GPDMA_DESC_T *pDesc,
-                                RSI_GPDMA_DESC_T *pDescPrev)
+rsi_error_t gpdma_build_descriptors(RSI_GPDMA_HANDLE_T pHandle,
+                                    RSI_GPDMA_DESC_T *pXferCfg,
+                                    RSI_GPDMA_DESC_T *pDesc,
+                                    RSI_GPDMA_DESC_T *pDescPrev)
 {
+  (void)pHandle;
   // Parameter checks
   if (pDesc == NULL) {
     return ERROR_GPDMA_INVALID_ARG;
@@ -572,7 +575,7 @@ error_t gpdma_build_descriptors(RSI_GPDMA_HANDLE_T pHandle,
 
 /*==============================================*/
 /**
- * @fn         error_t gpdma_setup_channelTransfer(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc)
+ * @fn         rsi_error_t gpdma_setup_channelTransfer(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc)
  * @brief		   This API is used to prepare descriptor with required configurations and addresses.
  * @param[in]	 pHandle  : Pointer to driver context handle
  * @param[in]	 dmaCh    :	DMA channel number(0-7)
@@ -584,7 +587,7 @@ error_t gpdma_build_descriptors(RSI_GPDMA_HANDLE_T pHandle,
  *              \n \ref ERROR_GPDMA_INVALID_ARG : If any other descriptor parameter is invalid
  *              \n \ref RSI_OK                  : If process is done successfully
  */
-error_t gpdma_setup_channelTransfer(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc)
+rsi_error_t gpdma_setup_channelTransfer(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_GPDMA_DESC_T *pDesc)
 {
   GPDMA_DATACONTEXT_T *pDrv = (GPDMA_DATACONTEXT_T *)pHandle;
 

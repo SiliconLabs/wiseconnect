@@ -14,5 +14,3 @@ include:
     - path: "GSPI.h"
 provides:
   - name: cmsis_gspi
-requires:
-  - name: cmsis_driver_common

@@ -33,13 +33,8 @@
 
 #include "si91x_device.h"
 
+/******************************************************************************/
 /**************************************************************************/ /**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************/ /**
- * @defgroup SI917_MVP MVP
- * @{
  * @brief SI917 MVP Register Declaration.
  *****************************************************************************/
 
@@ -189,10 +184,6 @@ typedef struct {
 /** @} End of group SI917_MVP */
 
 /**************************************************************************/ /**
- * @addtogroup SI917_MVP
- * @{
- * @defgroup SI917_MVP_BitFields MVP Bit Fields
- * @{
  *****************************************************************************/
 
 /* Bit fields for MVP IPVERSION */
@@ -1611,9 +1602,5 @@ typedef struct {
 #define _MVP_STOREADDR_ADDR_DEFAULT 0x00000000UL /**< Mode DEFAULT for MVP_STOREADDR              */
 #define MVP_STOREADDR_ADDR_DEFAULT \
   (_MVP_STOREADDR_ADDR_DEFAULT << 0) /**< Shifted mode DEFAULT for MVP_STOREADDR      */
-
-/** @} End of group SI917_MVP_BitFields */
-/** @} End of group SI917_MVP */
-/** @} End of group Parts */
 
 #endif /* SI917_MVP_H */

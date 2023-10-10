@@ -75,16 +75,21 @@ extern "C" {
 // <i> Selection of SSI Master Output.
 #define SL_SSI_SLAVE_DEFAULT SL_SSI_SLAVE_HW
 
+// <o SL_SSI_RECEIVE_SAMPLE_DELAY> Rx Sample Delay <0-63>
+// <i> Default: 0
+#define SL_SSI_RECEIVE_SAMPLE_DELAY 0
+
 // </h>
 // <<< end of configuration section >>>
 
 #if defined(SL_SSI_CLOCK_MODE)
-sl_ssi_control_config_t ssi_configuration = { .bit_width   = SL_SSI_BIT_WIDTH,
-                                              .device_mode = SL_SSI_DEVICE_MODE,
-                                              .clock_mode  = SL_SSI_CLOCK_MODE,
-                                              .master_ssm  = SL_SSI_MASTER_DEFAULT,
-                                              .slave_ssm   = SL_SSI_SLAVE_DEFAULT,
-                                              .baud_rate   = SL_SPI_BAUD };
+sl_ssi_control_config_t ssi_configuration = { .bit_width            = SL_SSI_BIT_WIDTH,
+                                              .device_mode          = SL_SSI_DEVICE_MODE,
+                                              .clock_mode           = SL_SSI_CLOCK_MODE,
+                                              .master_ssm           = SL_SSI_MASTER_DEFAULT,
+                                              .slave_ssm            = SL_SSI_SLAVE_DEFAULT,
+                                              .receive_sample_delay = SL_SSI_RECEIVE_SAMPLE_DELAY,
+                                              .baud_rate            = SL_SPI_BAUD };
 #endif
 
 #ifdef __cplusplus

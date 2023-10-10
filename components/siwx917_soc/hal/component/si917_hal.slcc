@@ -4,21 +4,24 @@ package: wiseconnect
 description: si917_hal
 category: Platform|si91x|HAL
 quality: alpha
-component_root_path: "components/siwx917_soc/hal"
+root_path: . 
 source:
-  - path: src/rsi_bootup_config.c
-  - path: src/rsi_hal_mcu_m4.c
-  - path: src/rsi_hal_mcu_platform_init.c
-  - path: src/rsi_hal_mcu_timer.c
-  - path: src/rsi_hal_mcu_m4_rom.c
-  - path: src/rsi_hal_mcu_interrupt.c
+  - path: components/siwx917_soc/hal/src/rsi_bootup_config.c
+  - path: components/siwx917_soc/hal/src/rsi_hal_mcu_m4.c
+  - path: components/siwx917_soc/hal/src/rsi_hal_mcu_platform_init.c
+  - path: components/siwx917_soc/hal/src/rsi_hal_mcu_timer.c
+  - path: components/siwx917_soc/hal/src/rsi_hal_mcu_m4_rom.c
+    unless: [siwx917_soc]
+  - path: components/siwx917_soc/hal/src/rsi_hal_mcu_interrupt.c
+  - path: components/siwx917_soc/hal/src/rsi_hal_mcu_m4_ram.c
+    unless: [siwx917_soc]
 include:
-  - path: inc
+  - path: components/siwx917_soc/hal/inc
     file_list:
       - path: rs9116.h
       - path: rsi_api.h
       - path: rsi_m4.h
-      - path: rsi_reg_spi.h
+        unless: [siwx917_soc]
 provides:
   - name: si917_hal
 requires:

@@ -58,7 +58,7 @@ uint8_t adv_payload_for_compare[31] = { 0x6E, 0xC5, 0xFD, 0x05, 0x54, 0x9E, 0x68
 #define RSI_BLE_DEV_ADDR "04:D4:C4:9A:F3:CC"
 
 //! Remote Device Name to connect
-#define RSI_REMOTE_DEVICE_NAME "Galaxy M20"
+#define RSI_REMOTE_DEVICE_NAME "SILABS_DEV"
 
 /*=======================================================================*/
 //!    Application powersave configurations
@@ -70,7 +70,8 @@ uint8_t adv_payload_for_compare[31] = { 0x6E, 0xC5, 0xFD, 0x05, 0x54, 0x9E, 0x68
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
-sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000 };
+
+sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000, { 0 } };
 #endif
 
 //! Application supported events list
@@ -92,45 +93,35 @@ osSemaphoreId_t ble_peripheral_conn_sem;
 uint8_t str_remote_address[18] = { '\0' };
 
 osSemaphoreId_t ble_main_task_sem;
-static uint32_t ble_app_event_map;
-static uint32_t ble_app_event_map1;
+static volatile uint32_t ble_app_event_map;
+static volatile uint32_t ble_app_event_map1;
 
 static const sl_wifi_device_configuration_t config = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_BLE_MODE,
-#ifdef RSI_M4_INTERFACE
-                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
-#else
-                   .feature_bit_map            = RSI_FEATURE_BIT_MAP,
-#endif
+  .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
+                   .coex_mode              = SL_SI91X_WLAN_BLE_MODE,
+                   .feature_bit_map        = (SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+                                       | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
-
+                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
 #ifdef CHIP_917
-                   .ext_custom_feature_bit_map = (RSI_EXT_CUSTOM_FEATURE_BIT_MAP
-#else //defaults
+                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#else
 #ifdef RSI_M4_INTERFACE
-                   .ext_custom_feature_bit_map = ((SL_SI91X_EXT_FEAT_256K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
 #else
-                   .ext_custom_feature_bit_map = ((SL_SI91X_EXT_FEAT_384K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
 #endif
-                                                  | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE // Enable BT feature
-#if (defined A2DP_POWER_SAVE_ENABLE)
-                                                  | SL_SI91X_EXT_FEAT_XTAL_CLK
-#endif
-                                                  ),
-#ifdef RSI_PROCESS_MAX_RX_DATA
-                   .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
-                                                  | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
-#else
+                      | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE // Enable BT feature
+                      ),
                    .ext_tcp_ip_feature_bit_map = (0),
-#endif
-                   .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
+                   .bt_feature_bit_map         = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
 #endif
@@ -372,10 +363,12 @@ void ble_central(void *argument)
 {
   UNUSED_PARAMETER(argument);
 
-  int32_t status          = 0;
-  int32_t temp_event_map  = 0;
-  int32_t temp_event_map1 = 0;
-#ifdef RSI_BLE_ENABLE_WHITELIST_BASEDON_ADV_PAYLOAD
+  int32_t status                   = 0;
+  int32_t temp_event_map           = 0;
+  int32_t temp_event_map1          = 0;
+  sl_wifi_version_string_t version = { 0 };
+
+#ifdef RSI_BLE_ENABLE_ACCEPTLIST_BASEDON_ADV_PAYLOAD
   uint8_t compare[31];
 #endif
 
@@ -385,6 +378,14 @@ void ble_central(void *argument)
     return;
   } else {
     LOG_PRINT("\r\n Wi-Fi Initialization Success\n");
+  }
+
+  //! Firmware version Prints
+  status = sl_wifi_get_firmware_version(&version);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
+  } else {
+    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
   }
 
   //! BLE register GAP callbacks
@@ -408,16 +409,16 @@ void ble_central(void *argument)
   //! initialize the event map
   rsi_ble_app_init_events();
 
-#ifdef RSI_BLE_ENABLE_WHITELIST_BASEDON_ADV_PAYLOAD
+#ifdef RSI_BLE_ENABLE_ACCEPTLIST_BASEDON_ADV_PAYLOAD
   memset(compare, 0, 31);
   memcpy(&compare[RSI_BLE_ADV_PAYLOAD_INDEX_FOR_COMPARE],
          adv_payload_for_compare,
          RSI_BLE_ADV_PAYLOAD_LENGTH_FROM_INDEX_TO_COMPARE);
 
-  status = rsi_ble_white_list_using_adv_data(RSI_BLE_ENABLE_WHITELIST_BASEDON_ADV_PAYLOAD,
-                                             RSI_BLE_ADV_PAYLOAD_INDEX_FOR_COMPARE,
-                                             RSI_BLE_ADV_PAYLOAD_LENGTH_FROM_INDEX_TO_COMPARE,
-                                             compare);
+  status = rsi_ble_accept_list_using_adv_data(RSI_BLE_ENABLE_ACCEPTLIST_BASEDON_ADV_PAYLOAD,
+                                              RSI_BLE_ADV_PAYLOAD_INDEX_FOR_COMPARE,
+                                              RSI_BLE_ADV_PAYLOAD_LENGTH_FROM_INDEX_TO_COMPARE,
+                                              compare);
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\r\n status: 0x%x\r\n", status);
     return;
@@ -445,7 +446,7 @@ void ble_central(void *argument)
   //! initiating power save in wlan mode
   status = sl_wifi_set_performance_profile(&wifi_profile);
   if (status != SL_STATUS_OK) {
-    LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%d\r\n", status);
+    LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
     return;
   }
 
@@ -558,9 +559,7 @@ void ble_central(void *argument)
   }
 }
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
-
   osThreadNew((osThreadFunc_t)ble_central, NULL, &thread_attributes);
 }

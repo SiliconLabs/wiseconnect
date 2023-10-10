@@ -291,7 +291,7 @@ typedef struct SMIH_CMD_OCR {
   uint32_t cardReady : 1;
 } SMIH_CMD_OCR_T;
 // command transfer function.
-typedef error_t (*cmd_transfer_function_t)(SMIH_TRANSFER_T *Transfer);
+typedef rsi_error_t (*cmd_transfer_function_t)(SMIH_TRANSFER_T *Transfer);
 
 typedef struct SMIH_CARD_CONFIG {
   uint8_t busWidthMode;
@@ -459,24 +459,24 @@ typedef struct CSD_REG_VERSION2 {
 #warning Not supported compiler type
 #endif
 
-error_t RSI_SD_HostInit(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event, uint8_t MemType);
-error_t Smih_DeInitialization(void);
-error_t smih_bus_width_set(uint8_t BusWidthMode);
-error_t smih_bus_voltage_select(uint8_t enVoltage);
-error_t smih_send_command(SMIH_COMMAND_FRAME_CONFIG_T *pConfig);
-error_t smih_get_response(uint16_t *pResponseData, uint8_t ResponseRegCount);
-error_t smih_stop_at_block_gap(void);
-error_t smih_transfer_restart(void);
+rsi_error_t RSI_SD_HostInit(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event, uint8_t MemType);
+rsi_error_t Smih_DeInitialization(void);
+rsi_error_t smih_bus_width_set(uint8_t BusWidthMode);
+rsi_error_t smih_bus_voltage_select(uint8_t enVoltage);
+rsi_error_t smih_send_command(SMIH_COMMAND_FRAME_CONFIG_T *pConfig);
+rsi_error_t smih_get_response(uint16_t *pResponseData, uint8_t ResponseRegCount);
+rsi_error_t smih_stop_at_block_gap(void);
+rsi_error_t smih_transfer_restart(void);
 void smih_18v_signal_enable(void);
-error_t smih_uhs_mode_select(uint8_t UhsMode);
+rsi_error_t smih_uhs_mode_select(uint8_t UhsMode);
 void smih_irq_handler(void);
-error_t smih_modes_configuration(SMIH_CONFIG_MODES_T *pSmihConfig);
-error_t smih_clock_config(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t freq);
-error_t smih_check_for_error_interrupt(void);
-error_t smih_send_data(SMIH_TRANSFER_T *pTransfer);
-error_t smih_receive_data(SMIH_TRANSFER_T *pTransfer);
-error_t smih_memory_command_transfer(SMIH_TRANSFER_T *pTransfer);
-error_t smih_io_command_transfer(SMIH_TRANSFER_T *pTransfer);
+rsi_error_t smih_modes_configuration(SMIH_CONFIG_MODES_T *pSmihConfig);
+rsi_error_t smih_clock_config(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t freq);
+rsi_error_t smih_check_for_error_interrupt(void);
+rsi_error_t smih_send_data(SMIH_TRANSFER_T *pTransfer);
+rsi_error_t smih_receive_data(SMIH_TRANSFER_T *pTransfer);
+rsi_error_t smih_memory_command_transfer(SMIH_TRANSFER_T *pTransfer);
+rsi_error_t smih_io_command_transfer(SMIH_TRANSFER_T *pTransfer);
 void RegisterCallBack(ARM_SMIH_SignalEvent_t Event);
 
 #ifdef __cplusplus

@@ -136,8 +136,6 @@ extern "C" {
 #define IMD_UPDATE_DIS2 (1 << 2)
 #define IMD_UPDATE_DIS3 (1 << 3)
 
-//#define    DUTYCYCLE_UPDATE_EN				         0xF0
-
 #define TMR0_DUTYCYCLE 0xA80
 #define TMR1_DUTYCYCLE 0xA80
 #define TMR2_DUTYCYCLE 0xA80
@@ -230,16 +228,16 @@ typedef struct {
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_MCPWM_ReadCounter(RSI_MCPWM_T *pMCPWM,uint16_t *counterVal,
+ * @fn            rsi_error_t RSI_MCPWM_ReadCounter(RSI_MCPWM_T *pMCPWM,uint16_t *counterVal,
                                               uint8_t chnlNum)
- * @brief		  This API is used to read the counter current value
- * @param[in]	  pMCPWM     : Pointer to the MCPWM instance register area
- * @param[in] 	  counterVal : counter value 
- * @param[in]	  chnlNum    : Channel number(0 to 3)
- * @return 		  \ref ERROR_PWM_INVALID_CHNLNUM : If channel is invalid.
+ * @brief     This API is used to read the counter current value
+ * @param[in]   pMCPWM     : Pointer to the MCPWM instance register area
+ * @param[in]     counterVal : counter value
+ * @param[in]   chnlNum    : Channel number(0 to 3)
+ * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel is invalid.
                   \n \ref RSI_OK                 : If process is done successfully.  
  */
-STATIC INLINE error_t RSI_MCPWM_ReadCounter(RSI_MCPWM_T *pMCPWM, uint16_t *counterVal, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_ReadCounter(RSI_MCPWM_T *pMCPWM, uint16_t *counterVal, uint8_t chnlNum)
 {
   // Gets Time period counter current value
   switch (chnlNum) {
@@ -263,16 +261,16 @@ STATIC INLINE error_t RSI_MCPWM_ReadCounter(RSI_MCPWM_T *pMCPWM, uint16_t *count
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_MCPWM_GetCounterDir(RSI_MCPWM_T *pMCPWM,uint8_t *counterDir,
+ * @fn            rsi_error_t RSI_MCPWM_GetCounterDir(RSI_MCPWM_T *pMCPWM,uint8_t *counterDir,
                                                  uint8_t chnlNum)
- * @brief		  This API is used to get time period counter direction status of required MCPWM channel 
- * @param[in]	  pMCPWM     :  Pointer to the MCPWM instance register area
- * @param[in]	  chnlNum    :  Channel number(0 to 3)
- * @param[out]	  counterDir :  Counter direction as up/down counter.
- * @return 		  \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid.
+ * @brief     This API is used to get time period counter direction status of required MCPWM channel
+ * @param[in]   pMCPWM     :  Pointer to the MCPWM instance register area
+ * @param[in]   chnlNum    :  Channel number(0 to 3)
+ * @param[out]    counterDir :  Counter direction as up/down counter.
+ * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid.
                 \n \ref RSI_OK(0)              : If process is done successfully.
  */
-STATIC INLINE error_t RSI_MCPWM_GetCounterDir(RSI_MCPWM_T *pMCPWM, uint8_t *counterDir, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_GetCounterDir(RSI_MCPWM_T *pMCPWM, uint8_t *counterDir, uint8_t chnlNum)
 {
   // Gets the counter direction
   switch (chnlNum) {
@@ -297,14 +295,14 @@ STATIC INLINE error_t RSI_MCPWM_GetCounterDir(RSI_MCPWM_T *pMCPWM, uint8_t *coun
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_DeadTimeEnable(RSI_MCPWM_T *pMCPWM ,uint32_t flag)
- * @brief		  Enables dead time insertion at rise edge or fall edge of any four channels
- * @param[in]	  pMCPWM :  Pointer to the MCPWM instance register area
- * @param[in]	  flag	 :  This can be ORing of below values
+ * @brief     Enables dead time insertion at rise edge or fall edge of any four channels
+ * @param[in]   pMCPWM :  Pointer to the MCPWM instance register area
+ * @param[in]   flag   :  This can be ORing of below values
                           -  DT_EN_CH0
                           -  DT_EN_CH1
                           -  DT_EN_CH2
                           -  DT_EN_CH3
- * @return 		  none
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_DeadTimeEnable(RSI_MCPWM_T *pMCPWM, uint32_t flag)
 {
@@ -313,15 +311,15 @@ STATIC INLINE void RSI_MCPWM_DeadTimeEnable(RSI_MCPWM_T *pMCPWM, uint32_t flag)
 
 /*===================================================*/
 /**
- * @fn            void RSI_MCPWM_DeadTimeDisable(RSI_MCPWM_T *pMCPWM ,uint32_t flag)	
- * @brief		  This API is used to disable the dead time mode for the specified MCPWM generator.
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  flag	  :  This can be ORing of below values
+ * @fn            void RSI_MCPWM_DeadTimeDisable(RSI_MCPWM_T *pMCPWM ,uint32_t flag)
+ * @brief     This API is used to disable the dead time mode for the specified MCPWM generator.
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   flag    :  This can be ORing of below values
                            -  DT_DIS_CH0
                            -  DT_DIS_CH1
                            -  DT_DIS_CH2
                            -  DT_DIS_CH3
- * @return 		  none
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_DeadTimeDisable(RSI_MCPWM_T *pMCPWM, uint32_t flag)
 {
@@ -330,10 +328,44 @@ STATIC INLINE void RSI_MCPWM_DeadTimeDisable(RSI_MCPWM_T *pMCPWM, uint32_t flag)
 
 /*===================================================*/
 /**
+ * @fn            void RSI_MCPWM_Dead_Time_Enable(RSI_MCPWM_T *pMCPWM ,uint32_t flag)
+ * @brief     Enables dead time insertion at rise edge or fall edge of any four channels
+ * @param[in]   pMCPWM :  Pointer to the MCPWM instance register area
+ * @param[in]   flag   :  This can be ORing of below values
+                          -  DT_EN_CH0
+                          -  DT_EN_CH1
+                          -  DT_EN_CH2
+                          -  DT_EN_CH3
+ * @return      none
+ */
+STATIC INLINE void RSI_MCPWM_Dead_Time_Enable(RSI_MCPWM_T *pMCPWM, uint32_t flag)
+{
+  pMCPWM->PWM_DEADTIME_CTRL_SET_REG = flag;
+}
+
+/*===================================================*/
+/**
+ * @fn            void RSI_MCPWM_Dead_Time_Disable(RSI_MCPWM_T *pMCPWM ,uint32_t flag)
+ * @brief     This API is used to disable the dead time mode for the specified MCPWM generator.
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   flag    :  This can be ORing of below values
+                           -  DT_DIS_CH0
+                           -  DT_DIS_CH1
+                           -  DT_DIS_CH2
+                           -  DT_DIS_CH3
+ * @return      none
+ */
+STATIC INLINE void RSI_MCPWM_Dead_Time_Disable(RSI_MCPWM_T *pMCPWM, uint32_t flag)
+{
+  pMCPWM->PWM_DEADTIME_CTRL_RESET_REG = flag;
+}
+
+/*===================================================*/
+/**
  * @fn            void RSI_MCPWM_InterruptClear(RSI_MCPWM_T *pMCPWM, uint32_t clrFlag)
- * @brief		  This API is used to clear the interrupts of MCPWM
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  clrFlag :  This can be logical OR of the below parameters
+ * @brief     This API is used to clear the interrupts of MCPWM
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   clrFlag :  This can be logical OR of the below parameters
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH0_ACK : Time base interrupt for 0th channel without considering postscaler 
                                           \n if bit is one then pwm time period match interrupt for 0th channel will 
                                             be cleared if bit zero then no effect.
@@ -370,7 +402,7 @@ STATIC INLINE void RSI_MCPWM_DeadTimeDisable(RSI_MCPWM_T *pMCPWM, uint32_t flag)
                                           \n if bit is one then pwm time period match interrupt for 3rd channel will 
                                             be cleared if bit zero then no effect.
                          
- * @return 		  none
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_InterruptClear(RSI_MCPWM_T *pMCPWM, uint32_t clrFlag)
 {
@@ -380,9 +412,9 @@ STATIC INLINE void RSI_MCPWM_InterruptClear(RSI_MCPWM_T *pMCPWM, uint32_t clrFla
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_InterruptEnable(RSI_MCPWM_T *pMCPWM, uint16_t flag)
- * @brief		  This API is used to enable the interrupts of MCPWM
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  flag		:	 flag value can be logical OR of the below parameters
+ * @brief     This API is used to enable the interrupts of MCPWM
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   flag    :  flag value can be logical OR of the below parameters
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH0 : Time base interrupt for 0th channel without 
                                                                   considering postscaler 
                                                     \n if bit is 1 then pwm time period match interrupt for 0th channel 
@@ -400,28 +432,28 @@ STATIC INLINE void RSI_MCPWM_InterruptClear(RSI_MCPWM_T *pMCPWM, uint32_t clrFla
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH1 : Time base interrupt for 1st channel without
                                                                    considering postscaler 
                                                        \n if bit is one pwm time period match interrupt for 1st channel
-           																								will be cleared if bit is zero no effect
+                                                          will be cleared if bit is zero no effect
                            -  PWM_TIME_PRD_MATCH_INTR_CH1   :  Time base interrupt for 1st channel which 
                                                                    considering postscaler 
                                           \n if bit is 1 then pwm time period match interrupt for 1st channel
                                              will be cleared if zero then no effect.
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH2 : Time base interrupt for 2nd channel without 
-													                                         considering postscaler 
+                                                                   considering postscaler
                                                        \n if bit is one pwm time period match interrupt for 2nd channel
-           																								will be cleared if bit is zero no effect
+                                                          will be cleared if bit is zero no effect
                            -  PWM_TIME_PRD_MATCH_INTR_CH2  :   Time base interrupt for 2nd channel which 
-													                                         considering postscaler 
+                                                                   considering postscaler
                                                        \n if bit is one pwm time period match interrupt for 2nd channel
-           																								will be cleared if bit is zero no effect
+                                                          will be cleared if bit is zero no effect
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH3 : Time base interrupt for 3rd channel without 
-													                                         considering postscaler 
+                                                                   considering postscaler
                                                        \n if bit is one pwm time period match interrupt for 3rd channel
-           																								will be cleared if bit is zero no effect
+                                                          will be cleared if bit is zero no effect
                            -  PWM_TIME_PRD_MATCH_INTR_CH3   :  Time base interrupt for 3rd channel which considering
-                                         													 postscaler 
+                                                                   postscaler
                                                        \n if bit is one pwm time period match interrupt for 3rd channel
-           																								will be cleared if bit is zero no effect
- * @return 		  none
+                                                          will be cleared if bit is zero no effect
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_InterruptEnable(RSI_MCPWM_T *pMCPWM, uint16_t flag)
 {
@@ -432,8 +464,8 @@ STATIC INLINE void RSI_MCPWM_InterruptEnable(RSI_MCPWM_T *pMCPWM, uint16_t flag)
 /**
  * @fn          void RSI_MCPWM_InterruptDisable(RSI_MCPWM_T *pMCPWM, uint16_t flag)
  * @brief       This API is used to disable the interrupts of MCPWM
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  flag		:	 flag value can be logical OR of the below parameters
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   flag    :  flag value can be logical OR of the below parameters
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH0 : Time base interrupt for 0th channel without 
                                                                   considering postscaler 
                                                     \n if bit is 1 then pwm time period match interrupt for 0th channel 
@@ -451,28 +483,28 @@ STATIC INLINE void RSI_MCPWM_InterruptEnable(RSI_MCPWM_T *pMCPWM, uint16_t flag)
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH1 : Time base interrupt for 1st channel without
                                                                    considering postscaler 
                                                        \n if bit is one pwm time period match interrupt for 1st channel
-           																								will be cleared if bit is zero no effect
+                                                          will be cleared if bit is zero no effect
                            -  PWM_TIME_PRD_MATCH_INTR_CH1   :  Time base interrupt for 1st channel which 
                                                                    considering postscaler 
                                           \n if bit is 1 then pwm time period match interrupt for 0th channel
                                              will be cleared if zero then no effect.
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH2 : Time base interrupt for 2nd channel without 
-													                                         considering postscaler 
+                                                                   considering postscaler
                                                        \n if bit is one pwm time period match interrupt for 2nd channel
-           																								will be cleared if bit is zero no effect
+                                                          will be cleared if bit is zero no effect
                            -  PWM_TIME_PRD_MATCH_INTR_CH2  :   Time base interrupt for 2nd channel which 
-													                                         considering postscaler 
+                                                                   considering postscaler
                                                        \n if bit is one pwm time period match interrupt for 2nd channel
-           																								will be cleared if bit is zero no effect
+                                                          will be cleared if bit is zero no effect
                            -  RISE_PWM_TIME_PERIOD_MATCH_CH3 : Time base interrupt for 3rd channel without 
-													                                         considering postscaler 
+                                                                   considering postscaler
                                                        \n if bit is one pwm time period match interrupt for 3rd channel
-           																								will be cleared if bit is zero no effect
+                                                          will be cleared if bit is zero no effect
                            -  PWM_TIME_PRD_MATCH_INTR_CH3   :  Time base interrupt for 3rd channel which considering
-                                         													 postscaler 
+                                                                   postscaler
                                                        \n if bit is one pwm time period match interrupt for 3rd channel
-           																								will be cleared if bit is zero no effect
- * @return 		  none
+                                                          will be cleared if bit is zero no effect
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_InterruptDisable(RSI_MCPWM_T *pMCPWM, uint16_t flag)
 {
@@ -482,10 +514,10 @@ STATIC INLINE void RSI_MCPWM_InterruptDisable(RSI_MCPWM_T *pMCPWM, uint16_t flag
 /*===================================================*/
 /**
  * @fn            uint16_t RSI_PWM_GetInterruptStatus(RSI_MCPWM_T *pMCPWM, uint16_t flag)
- * @brief		  This API is used to get the interrupt status of interrupt flags of MCPWM.
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  flag		:	 Flag value
- * @return 		  Interrupt status of required interrupt flag
+ * @brief     This API is used to get the interrupt status of interrupt flags of MCPWM.
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   flag    :  Flag value
+ * @return      Interrupt status of required interrupt flag
  */
 STATIC INLINE uint16_t RSI_PWM_GetInterruptStatus(RSI_MCPWM_T *pMCPWM, uint16_t flag)
 {
@@ -494,7 +526,7 @@ STATIC INLINE uint16_t RSI_PWM_GetInterruptStatus(RSI_MCPWM_T *pMCPWM, uint16_t 
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_MCPWM_DutyCycleControlSet(RSI_MCPWM_T *pMCPWM,uint32_t value,uint8_t chnlNum)
+ * @fn          rsi_error_t RSI_MCPWM_DutyCycleControlSet(RSI_MCPWM_T *pMCPWM,uint32_t value,uint8_t chnlNum)
  * @brief		    This API is used to set duty cycle control parameters for the required MCPWM channel
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	  value   :  This can be logical OR of below parameters
@@ -504,7 +536,7 @@ STATIC INLINE uint16_t RSI_PWM_GetInterruptStatus(RSI_MCPWM_T *pMCPWM, uint16_t 
  * @return 		  ERROR_PWM_INVALID_CHNLNUM : If channel is invalid.
                 \n RSI_OK                 : If process is done successfully.
  */
-STATIC INLINE error_t RSI_MCPWM_DutyCycleControlSet(RSI_MCPWM_T *pMCPWM, uint32_t value, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_DutyCycleControlSet(RSI_MCPWM_T *pMCPWM, uint32_t value, uint8_t chnlNum)
 {
   if (chnlNum <= PWM_CHNL_3) {
     pMCPWM->PWM_DUTYCYCLE_CTRL_SET_REG = value;
@@ -516,17 +548,17 @@ STATIC INLINE error_t RSI_MCPWM_DutyCycleControlSet(RSI_MCPWM_T *pMCPWM, uint32_
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_MCPWM_DutyCycleControlReset(RSI_MCPWM_T *pMCPWM,uint32_t value, uint8_t chnlNum)
+ * @fn            rsi_error_t RSI_MCPWM_DutyCycleControlReset(RSI_MCPWM_T *pMCPWM,uint32_t value, uint8_t chnlNum)
  * @brief		  This API is used to reset the duty cycle control parameters of required MCPWM channel 
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	  value   :  This can be logical OR of below parameters
                            - IMDT_DUTYCYCLE_UPDATE_EN :  Enable to update the duty cycle immediately
                            - DUTYCYCLE_UPDATE_DISABLE :  Duty cycle register updation disable
- * @param[in]	  chnlNum	 Channel number(0 to 3)
- * @return 	      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
+ * @param[in]   chnlNum  Channel number(0 to 3)
+ * @return        \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
                   \n \ref RSI_OK                 : If process is done successfully.
  */
-STATIC INLINE error_t RSI_MCPWM_DutyCycleControlReset(RSI_MCPWM_T *pMCPWM, uint32_t value, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_DutyCycleControlReset(RSI_MCPWM_T *pMCPWM, uint32_t value, uint8_t chnlNum)
 {
   if (chnlNum <= PWM_CHNL_3) {
     pMCPWM->PWM_DUTYCYCLE_CTRL_RESET_REG = value;
@@ -538,7 +570,7 @@ STATIC INLINE error_t RSI_MCPWM_DutyCycleControlReset(RSI_MCPWM_T *pMCPWM, uint3
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_MCPWM_OutputOverrideEnable(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput)
+ * @fn            rsi_error_t RSI_MCPWM_OutputOverrideEnable(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput)
  * @brief		  This API is used to enable the output override operation of MCPWM
  * @param[in]	  pMCPWM    :  Pointer to the MCPWM instance register area
  * @param[in]	  pwmOutput :  Pwm output over ride,possible values are as below
@@ -550,10 +582,10 @@ STATIC INLINE error_t RSI_MCPWM_DutyCycleControlReset(RSI_MCPWM_T *pMCPWM, uint3
                              - 5 : H1
                              - 6 : H2
                              - 7 : H3
-  * @return 	  \ref ERROR_PWM_INVALID_ARG : If pwmOutput value is invalid
+  * @return     \ref ERROR_PWM_INVALID_ARG : If pwmOutput value is invalid
   *               \n \ref RSI_OK             : If process is done successfully.
  */
-STATIC INLINE error_t RSI_MCPWM_OutputOverrideEnable(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput)
+STATIC INLINE rsi_error_t RSI_MCPWM_OutputOverrideEnable(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput)
 {
   if (pwmOutput <= PWM_OUTPUT_MAX) {
     pMCPWM->PWM_OP_OVERRIDE_ENABLE_SET_REG = (1 << pwmOutput);
@@ -565,7 +597,7 @@ STATIC INLINE error_t RSI_MCPWM_OutputOverrideEnable(RSI_MCPWM_T *pMCPWM, uint8_
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_MCPWM_OutputOverrideDisable(RSI_MCPWM_T *pMCPWM,uint8_t pwmOutput)
+ * @fn            rsi_error_t RSI_MCPWM_OutputOverrideDisable(RSI_MCPWM_T *pMCPWM,uint8_t pwmOutput)
  * @brief		  This API is used to disable the output override operation of MCPWM
  * @param[in]	  pMCPWM    :  Pointer to the MCPWM instance register area
  * @param[in]	  pwmOutput :  Pwm output over ride enable,possible values are as below
@@ -577,10 +609,10 @@ STATIC INLINE error_t RSI_MCPWM_OutputOverrideEnable(RSI_MCPWM_T *pMCPWM, uint8_
                              - 5 : H1
                              - 6 : H2
                              - 7 : H3
-  * @return 	  \ref ERROR_PWM_INVALID_ARG : If pwmOutput value is invalid
+  * @return     \ref ERROR_PWM_INVALID_ARG : If pwmOutput value is invalid
   *               \n \ref RSI_OK             : If process is done successfully.
 */
-STATIC INLINE error_t RSI_MCPWM_OutputOverrideDisable(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput)
+STATIC INLINE rsi_error_t RSI_MCPWM_OutputOverrideDisable(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput)
 {
   if (pwmOutput <= PWM_OUTPUT_MAX) {
     pMCPWM->PWM_OP_OVERRIDE_ENABLE_RESET_REG = (1 << pwmOutput);
@@ -593,11 +625,11 @@ STATIC INLINE error_t RSI_MCPWM_OutputOverrideDisable(RSI_MCPWM_T *pMCPWM, uint8
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_OverrideControlSet(RSI_MCPWM_T *pMCPWM,uint32_t value)
- * @brief		  This API is used to set the override control parameter,output is synced with pwm time period depending on operating mode
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  value   :  if value is 1 then Output override is synced with pwm time period depending
+ * @brief     This API is used to set the override control parameter,output is synced with pwm time period depending on operating mode
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   value   :  if value is 1 then Output override is synced with pwm time period depending
                              \n on operating mode, if 0 then no effect. 
- * @return 		  none	
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_OverrideControlSet(RSI_MCPWM_T *pMCPWM, uint32_t value)
 {
@@ -607,11 +639,11 @@ STATIC INLINE void RSI_MCPWM_OverrideControlSet(RSI_MCPWM_T *pMCPWM, uint32_t va
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_OverrideControlReSet(RSI_MCPWM_T *pMCPWM,uint32_t value)
- * @brief		  This API is used to reset the output override sync control parameter.
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  value   :  if value is 1 then Output override is synced with pwm time period depending
+ * @brief     This API is used to reset the output override sync control parameter.
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   value   :  if value is 1 then Output override is synced with pwm time period depending
                              \n on operating mode, if 0 then no effect. 
- * @return 		  none
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_OverrideControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t value)
 {
@@ -621,9 +653,9 @@ STATIC INLINE void RSI_MCPWM_OverrideControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t 
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_OverrideValueSet(RSI_MCPWM_T *pMCPWM,uint8_t pwmOutput,uint8_t value)
- * @brief		  This API is used to set override value for the required output of MCPWM.
- * @param[in]	  pMCPWM    :  Pointer to the MCPWM instance register area
- * @param[in]	  pwmOutput :  PWM outputs are as below
+ * @brief     This API is used to set override value for the required output of MCPWM.
+ * @param[in]   pMCPWM    :  Pointer to the MCPWM instance register area
+ * @param[in]   pwmOutput :  PWM outputs are as below
                              -  0 : L0
                              -  1 : L1
                              -  2 : L2
@@ -633,10 +665,10 @@ STATIC INLINE void RSI_MCPWM_OverrideControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t 
                              -  6 : H2
                              -  7 : H3
  * @param[in]   value     :  override value can be 0 or 1
- * @return 	  	\ref ERROR_PWM_INVALID_ARG : If pwmOutput value is invalid
+ * @return      \ref ERROR_PWM_INVALID_ARG : If pwmOutput value is invalid
  *              \n \ref RSI_OK             : If process is done successfully.
  */
-STATIC INLINE error_t RSI_MCPWM_OverrideValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
+STATIC INLINE rsi_error_t RSI_MCPWM_OverrideValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
 {
   if (pwmOutput <= PWM_OUTPUT_MAX) {
     pMCPWM->PWM_OP_OVERRIDE_VALUE_SET_REG = (value << pwmOutput);
@@ -648,7 +680,7 @@ STATIC INLINE error_t RSI_MCPWM_OverrideValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pw
 
 /*===================================================*/
 /**
- * @fn            error_t RSI_MCPWM_OverrideValueReSet(RSI_MCPWM_T *pMCPWM,uint8_t pwmOutput,uint8_t value)
+ * @fn            rsi_error_t RSI_MCPWM_OverrideValueReSet(RSI_MCPWM_T *pMCPWM,uint8_t pwmOutput,uint8_t value)
  * @brief		  This API is used to reset override value for the required output of MCPWM. 
  * @param[in]	  pMCPWM    :  Pointer to the MCPWM instance register area
  * @param[in]	  pwmOutput :  PWM outputs are as below
@@ -661,10 +693,10 @@ STATIC INLINE error_t RSI_MCPWM_OverrideValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pw
                              -  6 : H2
                              -  7 : H3
  * @param[in]   value     :  override value can be 0 or 1
- * @return 	  	\ref ERROR_PWM_INVALID_ARG : If pwmOutput value is invalid
+ * @return      \ref ERROR_PWM_INVALID_ARG : If pwmOutput value is invalid
                 \n \ref RSI_OK             : If process is done successfully.
  */
-STATIC INLINE error_t RSI_MCPWM_OverrideValueReSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
+STATIC INLINE rsi_error_t RSI_MCPWM_OverrideValueReSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
 {
   if (pwmOutput <= PWM_OUTPUT_MAX) {
     pMCPWM->PWM_OP_OVERRIDE_VALUE_RESET_REG = (value << pwmOutput);
@@ -677,9 +709,9 @@ STATIC INLINE error_t RSI_MCPWM_OverrideValueReSet(RSI_MCPWM_T *pMCPWM, uint8_t 
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_FaultControlSet(RSI_MCPWM_T *pMCPWM,uint32_t value)
- * @brief		  This API is used to set output fault override control parameters for required PWM output
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  value   :  This can be logical OR of below parameters
+ * @brief     This API is used to set output fault override control parameters for required PWM output
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   value   :  This can be logical OR of below parameters
                            -  FLT_A_MODE      : if bit one then cycle by cycle by mode and zero then latched mode                                            
                            -  FLT_B_MODE      : if bit one then cycle by cycle by mode and zero then latched mode
                            -  OP_POLARITY_H Ouput polarity for high (H3, H2, H1, H0) side signals. 
@@ -688,10 +720,10 @@ STATIC INLINE error_t RSI_MCPWM_OverrideValueReSet(RSI_MCPWM_T *pMCPWM, uint8_t 
                            \n if bit 0 then in active low mode and 1 then active high mode.
                            -  FLT_A_ENABLE    :  enable fault A
                            -  FLT_B_ENABLE    :  enable fault B
-                           -  COMPLEMENT_MODE	:  PWM I/O pair mode 
+                           -  COMPLEMENT_MODE :  PWM I/O pair mode
                            \n if bit is 1 then PWM I/O pin pair is in the complementary output mode
                            \n if bit is 0 then PWM I/O pin pair is in the independent output mode
- * @return 		  none
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_FaultControlSet(RSI_MCPWM_T *pMCPWM, uint32_t value)
 {
@@ -701,9 +733,9 @@ STATIC INLINE void RSI_MCPWM_FaultControlSet(RSI_MCPWM_T *pMCPWM, uint32_t value
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_FaultControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t value)
- * @brief		  This API is used to reset output fault override control parameters for required PWM output. 
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  value   :  This can be logical OR of below parameters
+ * @brief     This API is used to reset output fault override control parameters for required PWM output.
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   value   :  This can be logical OR of below parameters
                            -  FLT_A_MODE      : if bit one then cycle by cycle by mode and zero then latched mode                                            
                            -  FLT_B_MODE      : if bit one then cycle by cycle by mode and zero then latched mode
                            -  OP_POLARITY_H Ouput polarity for high (H3, H2, H1, H0) side signals. 
@@ -712,10 +744,10 @@ STATIC INLINE void RSI_MCPWM_FaultControlSet(RSI_MCPWM_T *pMCPWM, uint32_t value
                            \n if bit 0 then in active low mode and 1 then active high mode.
                            -  FLT_A_ENABLE    :  enable fault A
                            -  FLT_B_ENABLE    :  enable fault B
-                           -  COMPLEMENT_MODE	:  PWM I/O pair mode 
+                           -  COMPLEMENT_MODE :  PWM I/O pair mode
                            \n if bit is 1 then PWM I/O pin pair is in the complementary output mode
                            \n if bit is 0 then PWM I/O pin pair is in the independent output mode
- * @return 		  none
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_FaultControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t value)
 {
@@ -725,9 +757,9 @@ STATIC INLINE void RSI_MCPWM_FaultControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t val
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_SpecialEventTriggerEnable(RSI_MCPWM_T *pMCPWM )
- * @brief		  This API is used to enable generation of special event trigger for required channel of MCPWM  
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @return 		  none
+ * @brief     This API is used to enable generation of special event trigger for required channel of MCPWM
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_SpecialEventTriggerEnable(RSI_MCPWM_T *pMCPWM)
 {
@@ -737,9 +769,9 @@ STATIC INLINE void RSI_MCPWM_SpecialEventTriggerEnable(RSI_MCPWM_T *pMCPWM)
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_SpecialEventTriggerDisable(RSI_MCPWM_T *pMCPWM )
- * @brief		  This API is used to disable generation of special event trigger for required channel of MCPWM  
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @return 		  none
+ * @brief     This API is used to disable generation of special event trigger for required channel of MCPWM
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_SpecialEventTriggerDisable(RSI_MCPWM_T *pMCPWM)
 {
@@ -749,14 +781,14 @@ STATIC INLINE void RSI_MCPWM_SpecialEventTriggerDisable(RSI_MCPWM_T *pMCPWM)
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_DeadTimeControlSet(RSI_MCPWM_T *pMCPWM, uint32_t value )
- * @brief		  This API is used to set dead time control parameters for the reqired channel. 
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area 
- * @param[in]	  value		:  This can be logical OR of below parameters
-							 - DEADTIME_SELECT_ACTIVE  : Deadtime select bits for PWM going active
-														 Possible values are as below if bit zero then use counter A , if one then use counter B  
-							 - DEADTIME_SELECT_INACTIVE : Deadtime select bits for PWM going inactive
-														 Possible values are as below if bit zero then use counter A , if one then use counter B
- * @return 		  none
+ * @brief     This API is used to set dead time control parameters for the reqired channel.
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   value   :  This can be logical OR of below parameters
+               - DEADTIME_SELECT_ACTIVE  : Deadtime select bits for PWM going active
+                             Possible values are as below if bit zero then use counter A , if one then use counter B
+               - DEADTIME_SELECT_INACTIVE : Deadtime select bits for PWM going inactive
+                             Possible values are as below if bit zero then use counter A , if one then use counter B
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_DeadTimeControlSet(RSI_MCPWM_T *pMCPWM, uint32_t value)
 {
@@ -766,14 +798,14 @@ STATIC INLINE void RSI_MCPWM_DeadTimeControlSet(RSI_MCPWM_T *pMCPWM, uint32_t va
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_DeadTimeControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t value )
- * @brief		  This API is used to reset dead time control for the MCPWM.
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  value		:  This can be logical OR of below parameters
+ * @brief     This API is used to reset dead time control for the MCPWM.
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   value   :  This can be logical OR of below parameters
                             - DEADTIME_SELECT_ACTIVE   : Deadtime select bits for PWM going active
-													     Possible values are as below if bit zero then use counter A , if one then use counter B  
+                               Possible values are as below if bit zero then use counter A , if one then use counter B
                             - DEADTIME_SELECT_INACTIVE : Deadtime select bits for PWM going inactive
-														 Possible values are as below if bit zero then use counter A , if one then use counter B 
- * @return 		  none
+                             Possible values are as below if bit zero then use counter A , if one then use counter B
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_DeadTimeControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t value)
 {
@@ -782,15 +814,15 @@ STATIC INLINE void RSI_MCPWM_DeadTimeControlReSet(RSI_MCPWM_T *pMCPWM, uint32_t 
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_MCPWM_SetDutyCycle(RSI_MCPWM_T *pMCPWM, uint16_t dutyCycle, uint8_t chnlNum)
+ * @fn          rsi_error_t RSI_MCPWM_SetDutyCycle(RSI_MCPWM_T *pMCPWM, uint16_t dutyCycle, uint8_t chnlNum)
  * @brief		This API is used to set duty cycle for the required MCPWM channel. 
  * @param[in]	pMCPWM    :  Pointer to the MCPWM instance register area
  * @param[in]	dutyCycle :  Duty cycle value 
  * @param[in]   chnlNum   :  channel number(0 to 3)
- * @return 	  	\ref ERROR_PWM_INVALID_ARG : If channel number is invalid
+ * @return      \ref ERROR_PWM_INVALID_ARG : If channel number is invalid
                 \n \ref RSI_OK             : If process is done successfully.
  */
-STATIC INLINE error_t RSI_MCPWM_SetDutyCycle(RSI_MCPWM_T *pMCPWM, uint16_t dutyCycle, uint8_t chnlNum)
+STATIC INLINE rsi_error_t RSI_MCPWM_SetDutyCycle(RSI_MCPWM_T *pMCPWM, uint16_t dutyCycle, uint8_t chnlNum)
 {
   if (chnlNum <= PWM_CHNL_3) {
     pMCPWM->PWM_DUTYCYCLE_REG_WR_VALUE_b[chnlNum].PWM_DUTYCYCLE_REG_WR_VALUE_CH = dutyCycle;
@@ -803,11 +835,11 @@ STATIC INLINE error_t RSI_MCPWM_SetDutyCycle(RSI_MCPWM_T *pMCPWM, uint16_t dutyC
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_ExternalTriggerControl(RSI_MCPWM_T *pMCPWM,boolean_t enable)
- * @brief		  This API is used to enable to use external trigger for base time counter increment or decrement of MCPWM 
- * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
- * @param[in]	  enable  :  If 0 then disable external trigger 
+ * @brief     This API is used to enable to use external trigger for base time counter increment or decrement of MCPWM
+ * @param[in]   pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in]   enable  :  If 0 then disable external trigger
                            \n If 1 then enable external trigger.
- * @return 		  none 
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_ExternalTriggerControl(RSI_MCPWM_T *pMCPWM, boolean_t enable)
 {
@@ -817,11 +849,11 @@ STATIC INLINE void RSI_MCPWM_ExternalTriggerControl(RSI_MCPWM_T *pMCPWM, boolean
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_BaseTimerSelect(RSI_MCPWM_T *pMCPWM,uint8_t baseTime)
- * @brief		  This API is used to select number of base timers as four base timers for four channels or one base timer for all channels of MCPWM
- * @param[in]	  pMCPWM   :  Pointer to the MCPWM instance register area
- * @param[in]	  baseTime :  if 0 then one base timer for each channel 
+ * @brief     This API is used to select number of base timers as four base timers for four channels or one base timer for all channels of MCPWM
+ * @param[in]   pMCPWM   :  Pointer to the MCPWM instance register area
+ * @param[in]   baseTime :  if 0 then one base timer for each channel
                             \n if 1 then only one base timer for all channels                                    
- * @return 		  none
+ * @return      none
  */
 STATIC INLINE void RSI_MCPWM_BaseTimerSelect(RSI_MCPWM_T *pMCPWM, uint8_t baseTime)
 {
@@ -832,32 +864,38 @@ RSI_DRIVER_VERSION_M4 RSI_MCPWM_GetVersion(void);
 
 RSI_MCPWM_CAPABILITIES_T RSI_MCPWM_GetCapabilities(void);
 
-error_t mcpwm_counter_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+rsi_error_t mcpwm_counter_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-error_t mcpwm_channel_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+rsi_error_t mcpwm_channel_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-error_t mcpwm_start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+rsi_error_t mcpwm_start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-error_t mcpwm_stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
+rsi_error_t mcpwm_stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
-error_t mcpwm_set_time_period(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal);
+rsi_error_t mcpwm_set_time_period(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal);
 
 void mcpwm_special_event_trigger_config(RSI_MCPWM_T *pMCPWM, boolean_t svtDir, RSI_MCPWM_SVT_CONFIG_T *pMCPWMSVTConfig);
 
-error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig, uint8_t chnlNum);
-error_t mcpwm_fault_avalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
+rsi_error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM,
+                                      RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,
+                                      uint8_t chnlNum);
+rsi_error_t mcpwm_fault_avalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
 
-error_t mcpwm_fault_bvalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
+rsi_error_t mcpwm_fault_bvalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value);
 
-error_t mcpwm_set_base_timer_mode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum);
+rsi_error_t mcpwm_set_base_timer_mode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum);
 
-error_t mcpwm_set_output_mode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum);
+rsi_error_t mcpwm_set_output_mode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum);
 
 void mcpwm_set_output_polarity(RSI_MCPWM_T *pMCPWM, boolean_t polL, boolean_t polH);
 
 void mcpwm_interrupt_handler(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_CALLBACK_T *pCallBack);
 
-error_t mcpwm_period_control_config(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum);
+rsi_error_t mcpwm_period_control_config(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum);
+void SysTick_Handler(void);
+uint32_t MCPWM_PercentageToTicks(uint8_t percent, uint8_t chnl_num);
+void MCPWM_SetChannelPeriod(uint32_t freq);
+void RSI_MCPWM_PinMux();
 
 #ifdef __cplusplus
 }

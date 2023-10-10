@@ -116,6 +116,7 @@ typedef enum {
   SL_NET_WIFI_CLIENT_DISCONNECTED_EVENT, ///< Client Disconnected Event
   SL_NET_DNS_RESOLVE_EVENT,              ///< DNS Address resolution Event
   SL_NET_OTA_FW_UPDATE_EVENT,            ///< OTA Firmware Update Event
+  SL_NET_ASYNC_MODULE_STATUS_EVENT,      ///< Asynchronous module status update Event
   SL_NET_EVENT_COUNT                     ///< Maximum event count
 } sl_net_event_t;
 

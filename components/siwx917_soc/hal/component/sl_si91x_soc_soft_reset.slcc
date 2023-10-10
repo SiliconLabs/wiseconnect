@@ -1,0 +1,17 @@
+id: sl_si91x_soc_soft_reset
+label: sl_si91x_soc_soft_reset
+package: platform
+description: sl_si91x_soc_soft_reset
+category: Platform|si91x|HAL
+quality: alpha
+component_root_path: "components/siwx917_soc/hal"
+source:
+  - path: src/sl_si91x_hal_soc_soft_reset.c
+include:
+  - path: inc
+    file_list:
+      - path: sl_si91x_hal_soc_soft_reset.h
+provides:
+  - name: sl_si91x_soc_soft_reset
+requires:
+  - name: systemlevel_wwdt

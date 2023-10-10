@@ -286,61 +286,61 @@ typedef enum ULPPERIPHERALS_CLK {
   ULP_I2S_CLK,   /*!< Enables or Disables Ulp_I2S Peripheral clock when it is passed */
 } ULPPERIPHERALS_CLK_T;
 
-error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
-                                  ULP_PROC_CLK_SELECT_T clkSource,
-                                  uint16_t divFactor,
-                                  cdDelay delayFn);
-error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource);
+rsi_error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
+                                      ULP_PROC_CLK_SELECT_T clkSource,
+                                      uint16_t divFactor,
+                                      cdDelay delayFn);
+rsi_error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource);
 
-error_t ulpss_clock_config(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFactor, boolean_t oddDivFactor);
+rsi_error_t ulpss_clock_config(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFactor, boolean_t oddDivFactor);
 
-error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
-                                  ULP_PROC_CLK_SELECT_T clkSource,
-                                  uint16_t divFactor,
-                                  cdDelay delayFn);
+rsi_error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
+                                      ULP_PROC_CLK_SELECT_T clkSource,
+                                      uint16_t divFactor,
+                                      cdDelay delayFn);
 
-error_t ulpss_ulp_peri_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
+rsi_error_t ulpss_ulp_peri_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
 
-error_t ulpss_ulp_peri_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
+rsi_error_t ulpss_ulp_peri_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
 
-error_t ulpss_ulp_dyn_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
+rsi_error_t ulpss_ulp_dyn_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
 
-error_t ulpss_ulp_dyn_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
+rsi_error_t ulpss_ulp_dyn_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags);
 
-error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
-                                 CLK_ENABLE_T clkType,
-                                 ULP_SSI_CLK_SELECT_T clkSource,
+rsi_error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
+                                     CLK_ENABLE_T clkType,
+                                     ULP_SSI_CLK_SELECT_T clkSource,
+                                     uint16_t divFactor);
+
+rsi_error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkSource, uint16_t divFactor);
+
+rsi_error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
+                                     CLK_ENABLE_T clkType,
+                                     boolean_t bFrClkSel,
+                                     ULP_UART_CLK_SELECT_T clkSource,
+                                     uint16_t divFactor);
+
+rsi_error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
+                                  CLK_ENABLE_T clkType,
+                                  boolean_t bTmrSync,
+                                  ULP_TIMER_CLK_SELECT_T clkSource,
+                                  uint8_t skipSwitchTime);
+
+rsi_error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX_CLK_SELECT_T clkSource);
+
+rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
+                                 ULP_VAD_CLK_SELECT_T clkSource,
+                                 ULP_VAD_FCLK_SELECT_T FclkSource,
                                  uint16_t divFactor);
 
-error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkSource, uint16_t divFactor);
+rsi_error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkSource, uint16_t divFactor);
 
-error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
-                                 CLK_ENABLE_T clkType,
-                                 boolean_t bFrClkSel,
-                                 ULP_UART_CLK_SELECT_T clkSource,
-                                 uint16_t divFactor);
+rsi_error_t ulpss_slp_sensor_clk_config(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor);
 
-error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
-                              CLK_ENABLE_T clkType,
-                              boolean_t bTmrSync,
-                              ULP_TIMER_CLK_SELECT_T clkSource,
-                              uint8_t skipSwitchTime);
+rsi_error_t ulpss_peripheral_enable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
 
-error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX_CLK_SELECT_T clkSource);
+rsi_error_t ulpss_peripheral_disable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module);
 
-error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
-                             ULP_VAD_CLK_SELECT_T clkSource,
-                             ULP_VAD_FCLK_SELECT_T FclkSource,
-                             uint16_t divFactor);
-
-error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkSource, uint16_t divFactor);
-
-error_t ulpss_slp_sensor_clk_config(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor);
-
-error_t ulpss_peripheral_enable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
-
-error_t ulpss_peripheral_disable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module);
-
-error_t ulpss_time_clk_disable(ULPCLK_Type *pULPCLK);
+rsi_error_t ulpss_time_clk_disable(ULPCLK_Type *pULPCLK);
 
 #endif /*__RSI_ULPSS_CLK_H__*/

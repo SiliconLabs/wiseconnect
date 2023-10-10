@@ -15,11 +15,12 @@
 *
 ******************************************************************************/
 
-/**
- * Includes
- */
+// Includes
 
 #include "rsi_driver.h"
+/*WWDT */
+#include "rsi_wwdt.h"
+#include "rsi_hal.h"
 #ifdef RSI_WITH_OS
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -61,7 +62,12 @@ int32_t rsi_timer_start(uint8_t timer_node,
                         uint32_t duration,
                         void (*rsi_timer_expiry_handler)(void))
 {
-
+  (void)timer_node;
+  (void)mode;
+  (void)timer_node;
+  (void)duration;
+  (void)type;
+  (void)rsi_timer_expiry_handler;
   //! Initialise the timer
 
   //! register the call back
@@ -86,6 +92,7 @@ int32_t rsi_timer_start(uint8_t timer_node,
 int32_t rsi_timer_stop(uint8_t timer_node)
 {
 
+  (void)timer_node;
   //! Stop the timer
 
   return 0;
@@ -104,7 +111,7 @@ int32_t rsi_timer_stop(uint8_t timer_node)
 
 uint32_t rsi_timer_read(uint8_t timer_node)
 {
-
+  (void)timer_node;
   volatile uint32_t timer_val = 0;
 
   //! read the timer and return timer value
@@ -124,10 +131,8 @@ uint32_t rsi_timer_read(uint8_t timer_node)
  */
 void rsi_delay_us(uint32_t delay_us)
 {
-
+  (void)delay_us;
   //! call the API for delay in micro seconds
-
-  return;
 }
 
 /*===================================================*/
@@ -142,10 +147,8 @@ void rsi_delay_us(uint32_t delay_us)
  */
 void rsi_delay_ms1(uint32_t delay_ms)
 {
-
+  (void)delay_ms;
   //! call the API for delay in milli seconds
-
-  return;
 }
 
 /*===================================================*/
@@ -204,7 +207,6 @@ void rsi_delay_ms(uint32_t delay_ms)
   start = rsi_hal_gettickcount();
   do {
   } while (rsi_hal_gettickcount() - start < delay_ms);
-  return;
 }
 
 /*===================================================*/
@@ -220,4 +222,37 @@ uint32_t rsi_hal_gettickcount(void)
 {
   return GetTickCount();
 }
+#ifdef RSI_M4_INTERFACE
+/*==============================================*/
+/*
+ *
+ * @brief  WDT interrupt handler
+ * @param  None
+ * @return None
+ */
+void WDT_IRQHandler(void)
+{
+  /*Clear interrupt */
+  RSI_WWDT_IntrClear();
+}
+/*
+ *
+ * @brief  This API is used to config WDT
+ * @param  None
+ * @return None
+ */
+void soc_soft_reset(void)
+{
+  /*Un mask WDT interrupt */
+  RSI_WWDT_IntrUnMask();
+  /*configure the WDT reset and interrupt counters */
+  RSI_WWDT_ConfigIntrTimer(MCU_WDT, WDT_INTERRUPT_TIMER);
+  /*Configure the WDT reset value*/
+  RSI_WWDT_ConfigSysRstTimer(MCU_WDT, WDT_SYSTEM_RESET_TIMER);
+  /*NVIC interrupt enables*/
+  NVIC_EnableIRQ(NVIC_WDT);
+  /*Start WDT */
+  RSI_WWDT_Start(MCU_WDT);
+}
+#endif
 /** @} */

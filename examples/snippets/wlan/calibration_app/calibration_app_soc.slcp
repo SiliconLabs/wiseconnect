@@ -1,0 +1,108 @@
+project_name: wifi_calibration_app_soc
+package: wifi
+quality: alpha
+label: wifi_calibration_app
+category: Example|Wi-Fi
+description: >
+  Calibrates carrier frequency offset and Tx gain offset and update that to the Flash/Efuse
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.1.0}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: RSI_DEBUG_PRINTS
+  - name: USART_CONFIG
+  - name: EXECUTION_FROM_RAM
+    condition: [device_needs_ram_execution]
+template_contribution:
+- condition: [device_needs_ram_execution]
+  name: RAM_EXECUTION
+  value: true
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {id: stdio}
+- {from: wiseconnect3_sdk, id: rsilib_clock_update}
+- {id: sl_system}
+- {id: iostream_retarget_stdio}
+- instance: [vcom]
+  id: iostream_uart_si91x
+- {from: wiseconnect3_sdk, id: sl_usart_iostream}
+- {from: wiseconnect3_sdk, id: iostream_si91x}
+- {from: wiseconnect3_sdk, id: cmsis_usart}
+- {from: wiseconnect3_sdk, id: rsilib_userconfig}
+- {from: wiseconnect3_sdk, id: rsilib_usart}
+- {from: wiseconnect3_sdk, id: romdriver_egpio}
+- {id: brd4002a}
+- {from: wiseconnect3_sdk, id: udma_linker_config}
+- {from: wiseconnect3_sdk, id: cmsis_udma}
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+requires:
+- name: sl_system
+- name: bsd_socket
+- name: network_manager
+- name: basic_network_manager
+- name: si91x_support
+- name: wifi
+- name: si91x
+- name: si91x_internal_stack
+- name: si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+- {path: readme.md}
+other_file:
+  - path: resources/readme/build_project.png
+  - path: resources/readme/calibrationappbuild.png
+  - path: resources/readme/calibrationappbuildoutput.png
+  - path: resources/readme/calibrationappprints.png
+  - path: resources/readme/calibrationapprun.png
+  - path: resources/readme/calibrationncp.png
+  - path: resources/readme/calibrationsoc.png
+  - path: resources/readme/commandexamples.png
+  - path: resources/readme/creation_final_ncp.png
+  - path: resources/readme/creation_final_soc.png
+  - path: resources/readme/ftdiprints118.png
+  - path: resources/readme/image_c10.png
+  - path: resources/readme/image_c7.png
+  - path: resources/readme/image_c9.png
+  - path: resources/readme/ncpboarddetection112.png
+  - path: resources/readme/ncp_board_detection.png
+  - path: resources/readme/output.png
+  - path: resources/readme/port_selection.png
+  - path: resources/readme/port_selection_soc.png
+  - path: resources/readme/projct_selection_ncp.png
+  - path: resources/readme/projct_selection_soc.png
+  - path: resources/readme/serial_port.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/soc_board_detection.png
+  - path: resources/readme/usb_to_uart_1.png
+  - path: resources/readme/usb_to_uart_2.png
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

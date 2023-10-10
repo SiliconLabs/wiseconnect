@@ -72,13 +72,16 @@ extern sl_ssi_driver_t Driver_SSI_ULP_MASTER;
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static sl_status_t convert_arm_to_sl_error_code(int32_t error);
-static sl_status_t convert_rsi_to_sl_error_code(error_t error);
+static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
 static sl_status_t get_ssi_handle(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_handle);
 static sl_status_t validate_control_parameters(sl_ssi_control_config_t *control_configuration);
 static sl_status_t validate_clock_parameters(sl_ssi_clock_config_t *clock_configuration);
 static sl_status_t sl_si91x_ssi_slave_enable_gpio(sl_ssi_handle_t ssi_handle, boolean_t value);
+static void sl_si91x_ssi_set_fifo_threshold(sl_ssi_handle_t ssi_handle);
 static void callback_event_handler(uint32_t event);
+static void sl_ssi_set_receive_sample_delay(sl_ssi_handle_t ssi_handle, uint32_t sample_delay);
 static boolean_t validate_ssi_handle(sl_ssi_handle_t ssi_handle);
+static sl_status_t sli_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state);
 
 /*******************************************************************************
  **********************  Local Function Definition****************************
@@ -136,10 +139,12 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
     if (status != SL_STATUS_OK) {
       break;
     }
-    /* The frequency of the SSI master bit-rate clock is one-half the frequency of SSI master input clock.
+/* The frequency of the SSI master bit-rate clock is one-half the frequency of SSI master input clock.
 	   * This allows the shift control logic to capture data on one clock edge of bit-rate clock and propagate data on the opposite edge.
 	   */
+#ifdef SSI_UC
     clock_config->soc_pll_clock = (DOUBLE * baud_rate);
+#endif
     // RSI API to set SoC pll clock is called and the status is converted to the SL error code.
     RSI_CLK_SocPllLockConfig(MANUAL_LOCK, BYPASS_MANUAL_LOCK, clock_config->soc_pll_mm_count_value);
     error_status = RSI_CLK_SetSocPllFreq(M4CLK, clock_config->soc_pll_clock, clock_config->soc_pll_reference_clock);
@@ -161,9 +166,9 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
 *******************************************************************************/
 sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_handle)
 {
-  sl_status_t status;
+  sl_status_t status = 0;
   int32_t error_status;
-  sl_ssi_handle_t ssi_temp_handle;
+  sl_ssi_handle_t ssi_temp_handle = NULL;
   /* SSI_UC is defined by default. when this macro (SSI_UC) is defined, peripheral
    * configuration is directly taken from the configuration set in the universal configuration (UC).
    * if the application requires the configuration to be changed in run-time, undefined this macro
@@ -188,6 +193,10 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
     *ssi_handle  = ssi_temp_handle;
     error_status = ((sl_ssi_driver_t *)ssi_temp_handle)->Initialize(callback_event_handler);
     status       = convert_arm_to_sl_error_code(error_status);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    status = sli_si91x_ssi_configure_power_mode(ssi_temp_handle, ARM_POWER_FULL);
   } while (false);
   return status;
 }
@@ -215,6 +224,10 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    status = sli_si91x_ssi_configure_power_mode(ssi_handle, ARM_POWER_OFF);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Uninitialize();
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
@@ -232,7 +245,7 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle)
  *  error return code such as SL_STATUS_FAIL otherwise.
  *  ARM errors are converted to SL errors via convert_arm_to_sl_error_code function.
 *******************************************************************************/
-sl_status_t sl_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state)
+static sl_status_t sli_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state)
 {
   int32_t error_status;
   sl_status_t status;
@@ -303,6 +316,7 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle, sl_ssi_co
       input_mode |= control_configuration->master_ssm;
       input_mode |= SL_SSI_MASTER_ACTIVE;
     }
+    sl_ssi_set_receive_sample_delay(ssi_handle, control_configuration->receive_sample_delay);
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Control(input_mode, control_configuration->baud_rate);
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
@@ -344,6 +358,7 @@ sl_status_t sl_si91x_ssi_receive_data(sl_ssi_handle_t ssi_handle, void *data, ui
         break;
       }
     }
+    sl_si91x_ssi_set_fifo_threshold(ssi_handle);
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Receive(data, data_length);
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
@@ -384,6 +399,7 @@ sl_status_t sl_si91x_ssi_send_data(sl_ssi_handle_t ssi_handle, const void *data,
         break;
       }
     }
+    sl_si91x_ssi_set_fifo_threshold(ssi_handle);
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Send(data, data_length);
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
@@ -428,10 +444,67 @@ sl_status_t sl_si91x_ssi_transfer_data(sl_ssi_handle_t ssi_handle,
         break;
       }
     }
+    sl_si91x_ssi_set_fifo_threshold(ssi_handle);
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Transfer(data_out, data_in, data_length);
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
   return status;
+}
+
+/*******************************************************************************
+ * To set the Receive Data (rxd) Sample Delay. This is used to delay the sample
+ * of the rxd input signal.
+ * NOTE: If this register is programmed with a value that exceeds the depth of
+ *       the internal shift registers (63), a zero delay will be applied to the
+ *       rxd sample.
+ *
+ * @param[in] ssi handle
+ * @param[in] sample_delay
+ * @return    none
+*******************************************************************************/
+static void sl_ssi_set_receive_sample_delay(sl_ssi_handle_t ssi_handle, uint32_t sample_delay)
+{
+  do {
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      SSI_SetRxSamplingDelay(SPI_MASTER_MODE, sample_delay);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      SSI_SetRxSamplingDelay(SPI_SLAVE_MODE, sample_delay);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      SSI_SetRxSamplingDelay(SPI_ULP_MASTER_MODE, sample_delay);
+      break;
+    }
+  } while (false);
+}
+
+/*******************************************************************************
+ * This API to set the Transmit FIFO Threshold and Receive FIFO Threshold values
+ * Controls the level of entries at which the transmit/receive FIFO controller
+ * triggers an interrupt.
+ * NOTE: If this field is set to a value greater than or equal  to the depth of
+ *       the FIFO, this field is not written and retains its current value.
+ * @param[in] ssi handle
+ * @return    none
+*******************************************************************************/
+static void sl_si91x_ssi_set_fifo_threshold(sl_ssi_handle_t ssi_handle)
+{
+  do {
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      SSI_SetFifoThreshold(SPI_MASTER_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      SSI_SetFifoThreshold(SPI_SLAVE_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      SSI_SetFifoThreshold(SPI_ULP_MASTER_MODE);
+      break;
+    }
+  } while (false);
 }
 
 /*******************************************************************************
@@ -545,7 +618,7 @@ sl_status_t sl_si91x_ssi_register_event_callback(sl_ssi_handle_t ssi_handle, sl_
  * It unregisters the callback, i.e., clear the callback function address
  * and pass NULL value to the variable
  ******************************************************************************/
-void sl_si91x_gspi_unregister_event_callback(void)
+void sl_si91x_ssi_unregister_event_callback(void)
 {
   // Pass the NULL value to the static variable which is called at the time of
   // interrupt.
@@ -556,8 +629,10 @@ void sl_si91x_gspi_unregister_event_callback(void)
 
 /*******************************************************************************
  * To fetch the clock division factor
- * It reads the register which holds the clock division factor
- * and return the value of in 32 bit unsigned integer.
+ * @param[in] ssi_handle
+ * @return
+ * *      It reads the register which holds the clock division factor
+ * *      and return the value of in 32 bit unsigned integer.
  ******************************************************************************/
 uint32_t sl_si91x_ssi_get_clock_division_factor(sl_ssi_handle_t ssi_handle)
 {
@@ -581,8 +656,10 @@ uint32_t sl_si91x_ssi_get_clock_division_factor(sl_ssi_handle_t ssi_handle)
 
 /*******************************************************************************
  * To fetch the frame length i.e., bit width
- * It reads the register which holds the frame length
- * and return the value of in 32 bit unsigned integer.
+ * @param[in] ssi_handle
+ * @return
+ * *      It reads the register which holds the frame length
+ * *      and return the value of in 32 bit unsigned integer.
  ******************************************************************************/
 uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle)
 {
@@ -602,6 +679,87 @@ uint32_t sl_si91x_ssi_get_frame_length(sl_ssi_handle_t ssi_handle)
     }
   } while (false);
   return frame_length;
+}
+
+/*******************************************************************************
+ * To fetch the transfer fifo threshold
+ * @param[in] ssi_handle
+ * @return
+ * *      It reads the register which holds the transfer fifo threshold
+ * *      and return the value of in 32 bit unsigned integer.
+ ******************************************************************************/
+uint32_t sl_si91x_ssi_get_tx_fifo_threshold(sl_ssi_handle_t ssi_handle)
+{
+  uint32_t tx_fifo_threshold = 0;
+  do {
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      tx_fifo_threshold = SSI_GetTxFifoThreshold(SPI_MASTER_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      tx_fifo_threshold = SSI_GetTxFifoThreshold(SPI_SLAVE_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      tx_fifo_threshold = SSI_GetTxFifoThreshold(SPI_ULP_MASTER_MODE);
+      break;
+    }
+  } while (false);
+  return tx_fifo_threshold;
+}
+
+/*******************************************************************************
+ * To fetch the receiver fifo threshold
+ * @param[in] ssi_handle
+ * @return
+ * *      It reads the register which holds the receiver fifo threshold
+ * *      and return the value of in 32 bit unsigned integer.
+ ******************************************************************************/
+uint32_t sl_si91x_ssi_get_rx_fifo_threshold(sl_ssi_handle_t ssi_handle)
+{
+  uint32_t rx_fifo_threshold = 0;
+  do {
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      rx_fifo_threshold = SSI_GetRxFifoThreshold(SPI_MASTER_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      rx_fifo_threshold = SSI_GetRxFifoThreshold(SPI_SLAVE_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      rx_fifo_threshold = SSI_GetRxFifoThreshold(SPI_ULP_MASTER_MODE);
+      break;
+    }
+  } while (false);
+  return rx_fifo_threshold;
+}
+
+/*******************************************************************************
+ * To fetch the receiver sample delay
+ * @param[in] ssi_handle
+ * @return
+ * *      It reads the register which holds the receiver sample delay
+ * *      and return the value of in 32 bit unsigned integer.
+ ******************************************************************************/
+uint32_t sl_si91x_ssi_get_receiver_sample_delay(sl_ssi_handle_t ssi_handle)
+{
+  uint32_t rx_sample_delay = 0;
+  do {
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      rx_sample_delay = SSI_GetReceiveSampleDelay(SPI_MASTER_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      rx_sample_delay = SSI_GetReceiveSampleDelay(SPI_SLAVE_MODE);
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      rx_sample_delay = SSI_GetReceiveSampleDelay(SPI_ULP_MASTER_MODE);
+      break;
+    }
+  } while (false);
+  return rx_sample_delay;
 }
 
 /*******************************************************************************
@@ -734,7 +892,7 @@ static sl_status_t convert_arm_to_sl_error_code(int32_t error)
  * @return
  * *         returns SL_STATUS type errors.
 *******************************************************************************/
-static sl_status_t convert_rsi_to_sl_error_code(error_t error)
+static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error)
 {
   sl_status_t status;
   switch (error) {

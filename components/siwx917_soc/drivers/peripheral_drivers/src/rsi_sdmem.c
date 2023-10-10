@@ -24,13 +24,13 @@
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
+ * @fn           rsi_error_t RSI_SDMEM_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @brief        This API is used to send the CMD0 to the memory card.
  * @param[in]    pSmihConfig        :   Pointer to the smih config structure.
  * @return       RSI_OK             :   If the command sent successfully
  *               ERROR_TIMEOUT      :   If the command error timeout occures.
  */
-error_t RSI_SDMEM_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
+rsi_error_t RSI_SDMEM_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -56,14 +56,14 @@ error_t RSI_SDMEM_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_SendCardInterfaceConditionCmd8(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+ * @fn           rsi_error_t RSI_SDMEM_SendCardInterfaceConditionCmd8(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
  * @brief        This API is used to send interface condition command(Cmd8).
  * @param[in]    pSmihConfig      :  Pointer to the smih config structure.
  * @param[in]    Arg              :  Command argument to send
  * @return       RSI_OK           :  If command sent successfully
  *               ERROR_TIMEOUT    :  If command error timeout occures.
  */
-error_t RSI_SDMEM_SendCardInterfaceConditionCmd8(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+rsi_error_t RSI_SDMEM_SendCardInterfaceConditionCmd8(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -89,14 +89,14 @@ error_t RSI_SDMEM_SendCardInterfaceConditionCmd8(SMIH_CARD_CONFIG_T *pSmihConfig
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_SendApplicationCommandCmd55(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+ * @fn           rsi_error_t RSI_SDMEM_SendApplicationCommandCmd55(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
  * @brief        This API is used to send the application command(CMD55) to the memory card.
  * @param[in]    pSmihConfig      :  Pointer to the smih config structure.
  * @param[in]    Arg              :  Argument to the command
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_SendApplicationCommandCmd55(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+rsi_error_t RSI_SDMEM_SendApplicationCommandCmd55(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -122,14 +122,14 @@ error_t RSI_SDMEM_SendApplicationCommandCmd55(SMIH_CARD_CONFIG_T *pSmihConfig, u
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_SetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+ * @fn           rsi_error_t RSI_SDMEM_SetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
  * @brief        This API is used to send operation condition command(Acmd41).
  * @param[in]    Arg            :  Command argument to send
  * @param[in]    pSmihConfig    :  Pointer to the Command info structure
  * @return       RSI_OK         :  If the command sent successfully
  *               ERROR_TIMEOUT  :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_SetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+rsi_error_t RSI_SDMEM_SetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -169,14 +169,14 @@ error_t RSI_SDMEM_SetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfi
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+ * @fn           rsi_error_t RSI_SDMEM_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
  * @brief        This API is used to send voltage switch command(SDIO_CMD11).
  * @param[in]    pSmihConfig       :  Pointer to the Command info structure
  * @param[in]    Arg               :  Command argument to send
  * @return       RSI_OK            :  If the command sent successfully
  *               ERROR_TIMEOUT     :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+rsi_error_t RSI_SDMEM_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -205,14 +205,14 @@ error_t RSI_SDMEM_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t C
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_SendCidCmd2(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+ * @fn           rsi_error_t RSI_SDMEM_SendCidCmd2(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
  * @brief        This API is used to send CMD2(to get CID of the card).
  * @param[in]    pSmihConfig      :  Pointer to the Command info structure
  * @param[in]    Arg              :  Command argument to send
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_SendCidCmd2(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+rsi_error_t RSI_SDMEM_SendCidCmd2(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 {
   uint32_t i               = 0;
   SMIH_TRANSFER_T transfer = { 0 };
@@ -242,14 +242,14 @@ error_t RSI_SDMEM_SendCidCmd2(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_SendRelativeAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+ * @fn           rsi_error_t RSI_SDIOH_SendRelativeAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
  * @brief        This API is used to send CMD3(send card relative address).
  * @param[in]    pSmihConfig     :  Pointer to the Command info structure
  * @param[in]    CmdArg          :  Command argument to send
  * @return       RSI_OK          :  If command sent successfully
  *               ERROR_TIMEOUT   :  If command error timeout occures.
  */
-error_t RSI_SDIOH_SendRelativeAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+rsi_error_t RSI_SDIOH_SendRelativeAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -278,13 +278,13 @@ error_t RSI_SDIOH_SendRelativeAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint3
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_SendCsdCmd9(SMIH_CARD_CONFIG_T *pSmihConfig)
+ * @fn           rsi_error_t RSI_SDMEM_SendCsdCmd9(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @brief        This API is used to send CMD9(CSD) to the sd card
  * @param[in]    pSmihConfig       :  Pointer to the Command info structure
  * @return       RSI_OK            :  If the command sent successfully
  *               ERROR_TIMEOUT     :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_SendCsdCmd9(SMIH_CARD_CONFIG_T *pSmihConfig)
+rsi_error_t RSI_SDMEM_SendCsdCmd9(SMIH_CARD_CONFIG_T *pSmihConfig)
 {
   SMIH_TRANSFER_T transfer     = { 0 };
   SMIH_CMD_FEILD_T cmd         = { 0 };
@@ -339,13 +339,13 @@ error_t RSI_SDMEM_SendCsdCmd9(SMIH_CARD_CONFIG_T *pSmihConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
+ * @fn           rsi_error_t RSI_SDMEM_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @brief        This API is used to send SDIO_CMD7(to select the card).
  * @param[in]    pSmihConfig      :  Pointer to the Command info structure
  * @return       RSI_OK           :  If command sent successfully
  *               ERROR_TIMEOUT    :  If command error timeout occures.
  */
-error_t RSI_SDMEM_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
+rsi_error_t RSI_SDMEM_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -372,14 +372,14 @@ error_t RSI_SDMEM_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_SetBusWidthAcmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg) 
+ * @fn           rsi_error_t RSI_SDMEM_SetBusWidthAcmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg) 
  * @brief        This API is used to send ACMD6(set bus width command to the card).
  * @param[in]    pSmihConfig       :  Pointer to the Command info structure
  * @param[in]    Arg               :  Command argument to send
  * @return       RSI_OK            :  If command sent successfully
  *               ERROR_TIMEOUT     :  If command error timeout occures.
  */
-error_t RSI_SDMEM_SetBusWidthAcmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+rsi_error_t RSI_SDMEM_SetBusWidthAcmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -410,14 +410,14 @@ error_t RSI_SDMEM_SetBusWidthAcmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_OperationSwitchFunctionReadCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
+ * @fn           rsi_error_t RSI_SDMEM_OperationSwitchFunctionReadCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
  * @brief        This API is used to send the switch function read command(asks card about its capability).
  * @param[in]    pSmihConfig      :  Pointer to the Command info structure
  * @param[in]    Argument         :  Argument to the command
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_OperationSwitchFunctionReadCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
+rsi_error_t RSI_SDMEM_OperationSwitchFunctionReadCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -444,14 +444,14 @@ error_t RSI_SDMEM_OperationSwitchFunctionReadCmd6(SMIH_CARD_CONFIG_T *pSmihConfi
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_GetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+ * @fn           rsi_error_t RSI_SDMEM_GetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
  * @brief        This API is used to send operation condition command(ACMD41).
  * @param[in]    pSmihConfig     :  Pointer to the smih command info structure
  * @param[in]    Arg             :  Command argument to send
  * @return       RSI_OK          :  If command sent successfully
  *               ERROR_TIMEOUT   :  If command error timeout occures.
  */
-error_t RSI_SDMEM_GetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+rsi_error_t RSI_SDMEM_GetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -496,7 +496,7 @@ error_t RSI_SDMEM_GetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfi
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_CardBusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth)
+ * @fn           rsi_error_t RSI_SDMEM_CardBusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth)
  * @brief        This API is used to configure the bus width.
  * @param[in]    pSmihConfig          : Pointer to the Command info structure
  * @param[in]    BusWidth             : bus width mode
@@ -506,7 +506,7 @@ error_t RSI_SDMEM_GetCardOperationConditionAcmd41(SMIH_CARD_CONFIG_T *pSmihConfi
  * @return       RSI_OK               : If command sent successfully
  *               ERROR_TIMEOUT        : If command error timeout occures.
  */
-error_t RSI_SDMEM_CardBusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth)
+rsi_error_t RSI_SDMEM_CardBusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth)
 {
   uint32_t cmdArg = 0;
   boolean_t hostMode;
@@ -532,14 +532,14 @@ error_t RSI_SDMEM_CardBusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t Bu
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_OperationSwitchFunctionWriteCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
+ * @fn           rsi_error_t RSI_SDMEM_OperationSwitchFunctionWriteCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
  * @brief        This API is used to send the switch function command.
  * @param[in]    pSmihConfig      :  Pointer to the Command info structure
  * @param[in]    Argument         :  Argument to the command
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_OperationSwitchFunctionWriteCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
+rsi_error_t RSI_SDMEM_OperationSwitchFunctionWriteCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -566,7 +566,7 @@ error_t RSI_SDMEM_OperationSwitchFunctionWriteCmd6(SMIH_CARD_CONFIG_T *pSmihConf
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_BlocksWrite(SMIH_CARD_CONFIG_T *pSmihConfig,
+ * @fn           rsi_error_t RSI_SDMEM_BlocksWrite(SMIH_CARD_CONFIG_T *pSmihConfig,
                               const uint8_t *DataIn,
                               uint32_t BlockIndex,
                               uint32_t BlockCount)
@@ -578,10 +578,10 @@ error_t RSI_SDMEM_OperationSwitchFunctionWriteCmd6(SMIH_CARD_CONFIG_T *pSmihConf
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_BlocksWrite(SMIH_CARD_CONFIG_T *pSmihConfig,
-                              const uint8_t *DataIn,
-                              uint32_t BlockIndex,
-                              uint32_t BlockCount)
+rsi_error_t RSI_SDMEM_BlocksWrite(SMIH_CARD_CONFIG_T *pSmihConfig,
+                                  const uint8_t *DataIn,
+                                  uint32_t BlockIndex,
+                                  uint32_t BlockCount)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -632,7 +632,7 @@ error_t RSI_SDMEM_BlocksWrite(SMIH_CARD_CONFIG_T *pSmihConfig,
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_BlocksRead(SMIH_CARD_CONFIG_T *pSmihConfig,
+ * @fn           rsi_error_t RSI_SDMEM_BlocksRead(SMIH_CARD_CONFIG_T *pSmihConfig,
                              uint8_t *DataOut,
                              uint32_t BlockIndex,
                              uint32_t BlockCount)
@@ -644,10 +644,10 @@ error_t RSI_SDMEM_BlocksWrite(SMIH_CARD_CONFIG_T *pSmihConfig,
  * @return       RSI_OK            :  Command sent successfully
  *               ERROR_TIMEOUT     :  Command error timeout occured.
  */
-error_t RSI_SDMEM_BlocksRead(SMIH_CARD_CONFIG_T *pSmihConfig,
-                             uint8_t *DataOut,
-                             uint32_t BlockIndex,
-                             uint32_t BlockCount)
+rsi_error_t RSI_SDMEM_BlocksRead(SMIH_CARD_CONFIG_T *pSmihConfig,
+                                 uint8_t *DataOut,
+                                 uint32_t BlockIndex,
+                                 uint32_t BlockCount)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -698,7 +698,7 @@ error_t RSI_SDMEM_BlocksRead(SMIH_CARD_CONFIG_T *pSmihConfig,
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_SDMEM_EnableHighSpeed(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock)
+ * @fn          rsi_error_t RSI_SDMEM_EnableHighSpeed(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock)
  * @brief        This API is used to enable high speed mode
  * @param[in]    pSmihConfig      :  Pointer to the smih card configuration structure
  * @param[in]    HighSpeed        :  High speed enable bit
@@ -708,7 +708,7 @@ error_t RSI_SDMEM_BlocksRead(SMIH_CARD_CONFIG_T *pSmihConfig,
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDMEM_EnableHighSpeed(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock)
+rsi_error_t RSI_SDMEM_EnableHighSpeed(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock)
 {
   uint32_t actualClock    = 0;
   uint32_t highSpeedValue = 0;
@@ -813,14 +813,14 @@ void RSI_SDMEM_PinMux(void)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMEM_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
+ * @fn           rsi_error_t RSI_SDMEM_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
  * @brief        This API is used for SD memory enumeration process
  * @param[in]    pSmihConfig      : Pointer to the smih card configuration structure
  * @param[in]    Event            : event handler to be register
  * @return       RSI_OK           : If commands sent successfully in enumeration process.
  *               ERROR_TIMEOUT    : If commands error timeout occures.
  */
-error_t RSI_SDMEM_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
+rsi_error_t RSI_SDMEM_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
 {
   uint8_t val  = 0;
   uint32_t arg = 0;
@@ -979,14 +979,14 @@ error_t RSI_SDMEM_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEv
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMMC_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
+ * @fn           rsi_error_t RSI_SDMMC_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
  * @brief        This API is used for SD MMC card enumeration process
  * @param[in]    pSmihConfig     :  Pointer to the smih card configuration structure
  * @param[in]    Event           :  event handler to be register
  * @return       RSI_OK          :  If MMC card enumeration successfully done
  *               ERROR_TIMEOUT   :  If the commands error timeout occures.
  */
-error_t RSI_SDMMC_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
+rsi_error_t RSI_SDMMC_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
 {
   if (pSmihConfig == 0) {
     return INVALID_PARAMETERS;
@@ -1051,14 +1051,14 @@ error_t RSI_SDMMC_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEv
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMMC_SendOperationConditionCmd1(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+ * @fn           rsi_error_t RSI_SDMMC_SendOperationConditionCmd1(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
  * @brief        This API is used to send MMC operation condition command.
  * @param[in]    pSmihConfig      : Pointer to the smih card configuration structure
  * @param[in]    Arg              : Argument to the command
  * @return       RSI_OK           : If the command sent successfully
  *               ERROR_TIMEOUT    : If the command error timeout occures.
  */
-error_t RSI_SDMMC_SendOperationConditionCmd1(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+rsi_error_t RSI_SDMMC_SendOperationConditionCmd1(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -1093,13 +1093,13 @@ error_t RSI_SDMMC_SendOperationConditionCmd1(SMIH_CARD_CONFIG_T *pSmihConfig, ui
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMMC_SendExtentCsdCmd(SMIH_CARD_CONFIG_T *pSmihConfig)
+ * @fn           rsi_error_t RSI_SDMMC_SendExtentCsdCmd(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @brief        This API is used to send csd command to the MMC card.
  * @param[in]    pSmihConfig       : Pointer to the smih card configuration structure
  * @return       RSI_OK            : If the command sent successfully
  *               ERROR_TIMEOUT     : If the command error timeout occures.
  */
-error_t RSI_SDMMC_SendExtentCsdCmd(SMIH_CARD_CONFIG_T *pSmihConfig)
+rsi_error_t RSI_SDMMC_SendExtentCsdCmd(SMIH_CARD_CONFIG_T *pSmihConfig)
 {
   uint8_t ext_csd[BLOCK_SIZE_512] = { 0 };
   SMIH_TRANSFER_T transfer        = { 0 };
@@ -1133,7 +1133,7 @@ error_t RSI_SDMMC_SendExtentCsdCmd(SMIH_CARD_CONFIG_T *pSmihConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMMC_ChangeBusWidthMode(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t bus_wdith)
+ * @fn           rsi_error_t RSI_SDMMC_ChangeBusWidthMode(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t bus_wdith)
  * @brief        This API is used to change bus width  mode to MMC card.
  * @param[in]    pSmihConfig        :  Pointer to the smih card configuration structure
  * @param[in]    bus_wdith          :  bus width mode to be configured
@@ -1143,7 +1143,7 @@ error_t RSI_SDMMC_SendExtentCsdCmd(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @return       RSI_OK             :  If the command sent successfully
  *               ERROR_TIMEOUT      :  If the command error timeout occures.
  */
-error_t RSI_SDMMC_ChangeBusWidthMode(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t bus_wdith)
+rsi_error_t RSI_SDMMC_ChangeBusWidthMode(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t bus_wdith)
 {
   uint32_t argument = 0;
   switch (bus_wdith) {
@@ -1171,14 +1171,14 @@ error_t RSI_SDMMC_ChangeBusWidthMode(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t bu
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMMC_SwitchFunctionCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+ * @fn           rsi_error_t RSI_SDMMC_SwitchFunctionCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
  * @brief        This API is used to send switch mode function command to MMC card.
  * @param[in]    pSmihConfig      :  Pointer to the smih card configuration structure
  * @param[in]    Arg              :  Command argument to send
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDMMC_SwitchFunctionCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
+rsi_error_t RSI_SDMMC_SwitchFunctionCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -1204,7 +1204,7 @@ error_t RSI_SDMMC_SwitchFunctionCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t A
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDMMC_HighSpeedMode(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock)
+ * @fn           rsi_error_t RSI_SDMMC_HighSpeedMode(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock)
  * @brief        This API is used to enable high speed mode to MMC card.
  * @param[in]    pSmihConfig      : Pointer to the smih card configuration structure
  * @param[in]    HighSpeed        : high speed value : 1 for enbale
@@ -1213,7 +1213,7 @@ error_t RSI_SDMMC_SwitchFunctionCmd6(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t A
  * @return       RSI_OK           : If the command sent successfully
  *               ERROR_TIMEOUT    : If the command error timeout occures.
  */
-error_t RSI_SDMMC_HighSpeedMode(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock)
+rsi_error_t RSI_SDMMC_HighSpeedMode(SMIH_CARD_CONFIG_T *pSmihConfig, boolean_t HighSpeed, uint32_t Clock)
 {
   uint32_t clk       = 0;
   uint32_t arg       = 0;

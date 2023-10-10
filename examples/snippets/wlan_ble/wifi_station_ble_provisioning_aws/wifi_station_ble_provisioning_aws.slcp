@@ -14,7 +14,7 @@ filter:
     value: ["Intermediate"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -29,12 +29,14 @@ include:
       - path: wifi_config.h
       - path: i2c_leader_example.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_M4_INTERFACE
   - name: RSI_DEBUG_PRINTS
   - name: SI91X_SOCKET_FEATURE
 provides:
 - {name: si91x_soc}
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_siwx917_platform
 - name: cmsis_common

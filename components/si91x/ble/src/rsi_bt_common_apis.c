@@ -347,7 +347,6 @@ int32_t rsi_bt_set_antenna_tx_power_level(uint8_t protocol_mode, int8_t tx_power
  * @param[in]   psp_type Following psp_type is defined. \n
  *              0 - RSI_MAX_PSP. This psp_type will be used for max power saving \n
  *              1 - Fast PSP, ONLY supported in RSI_SLEEP_MODE_2\n
- *              2 - UAPSD, Not supported for BLE \n
  * @return      0		-	Success \n
  *              Non-Zero Value	-	Failure \n
  * @note        If the user wants to enable power save in CoEx mode (WLAN + BT LE) mode - It is mandatory to enable WLAN power save along with BT LE power save. \n

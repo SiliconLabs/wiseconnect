@@ -1,5 +1,5 @@
 /*******************************************************************************
-* @file  rsi_spi.h
+* @file  rsi_gspi.h
 * @brief 
 *******************************************************************************
 * # License
@@ -74,6 +74,13 @@ uint32_t SSI_GetClockDivisionFactor(uint8_t ssi_instance);
 uint32_t SSI_GetFrameLength(uint8_t ssi_instance);
 uint8_t SSI_GetInitState(uint8_t ssi_instance);
 uint32_t SSI_GetTxCount(uint8_t ssi_instance);
+void SSI_SetFifoThreshold(uint8_t ssi_instance);
+void SSI_SetRxSamplingDelay(uint8_t ssi_instance, uint32_t sample_delay);
+uint32_t SSI_GetReceiveSampleDelay(uint8_t ssi_instance);
+uint32_t SSI_GetTxFifoThreshold(uint8_t ssi_instance);
+uint32_t SSI_GetRxFifoThreshold(uint8_t ssi_instance);
+void SPI_Clear_SSI_Enable_State(const SPI_RESOURCES *spi);
+void SPI_Slave_Set_CS_Init_State(const SPI_RESOURCES *spi);
 
 // Static Inline function to set the spi memory map pll
 static inline void SSI_SetMemoryMapPll(uint16_t value)

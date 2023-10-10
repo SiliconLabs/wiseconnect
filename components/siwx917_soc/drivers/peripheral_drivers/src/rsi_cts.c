@@ -52,7 +52,7 @@ uint32_t Ref_voltage;
 #endif
 
 #if defined(__GNUC__)
-uint32_t Threshold;    // __attribute__((at(0x24063FD8)));
+double Threshold;      // __attribute__((at(0x24063FD8)));
 uint32_t sample_count; // __attribute__((at(0x240637DC)));
 uint32_t avg_count;    // __attribute__((at(0x24063FE0)));
 
@@ -129,7 +129,7 @@ void Aux_VddPowerOn()
 /**   
  * @fn          void RSI_CTS_ClkSelection(CTS_Type *cts,uint8_t clk_sel_1,uint8_t clk_sel_2,uint8_t clk_divider_1,uint8_t clk_divider_2)
  * @brief       This API is used for clk selection 
- * @param[in]   cts           : Ppointer to cts config structure
+ * @param[in]   cts           : Pointer to cts config structure
  * @param[in]   clk_Sel_1     : mux select value for clk select 1
  * @param[in]   clk_Sel_2     : mux select value for clk select 2              
  * @param[in]   clk_divider_1 : Division factor for clk_1
@@ -142,17 +142,17 @@ void RSI_CTS_ClkSelection(CTS_Type *cts,
                           uint8_t clk_divider_1,
                           uint8_t clk_divider_2)
 {
-  cts->CTS_CONFIG_REG_0_0_b.CLK_SEL1     = clk_sel_1;
-  cts->CTS_CONFIG_REG_0_0_b.CLK_SEL2     = clk_sel_2;     //select the musx for clk_Sel1 and clk sel2
-  cts->CTS_CONFIG_REG_0_0_b.PRE_SCALAR_1 = clk_divider_1; //select the clk divider for both clk
-  cts->CTS_CONFIG_REG_0_0_b.PRE_SCALAR_2 = clk_divider_2;
+  cts->CTS_CONFIG_REG_0_0_b.CLK_SEL1     = (unsigned int)(clk_sel_1 & 0x03);
+  cts->CTS_CONFIG_REG_0_0_b.CLK_SEL2     = (unsigned int)(clk_sel_2 & 0x01); //select the musx for clk_Sel1 and clk sel2
+  cts->CTS_CONFIG_REG_0_0_b.PRE_SCALAR_1 = clk_divider_1;                    //select the clk divider for both clk
+  cts->CTS_CONFIG_REG_0_0_b.PRE_SCALAR_2 = (unsigned int)(clk_divider_2 & 0x0F);
 }
 
 /*==============================================*/
 /**   
  * @fn          uint32_t RSI_CTS_GetStatus(CTS_Type *cts)
  * @brief       This API is used to get the status of cts 
- * @param[in]   cts           : Pointer to cts config structure
+ * @param[in]   cts: Pointer to cts config structure
  * @return      status of an cts              
  */
 uint32_t RSI_CTS_GetStatus(CTS_Type *cts)
@@ -167,19 +167,20 @@ uint32_t RSI_CTS_GetStatus(CTS_Type *cts)
 /**   
  * @fn          void RSI_CTS_ConfigPolynomial(CTS_Type *cts,boolean_t enable,uint8_t poly_length,uint32_t seed,uint32_t polynomial)
  * @brief       This API is used config polynomial parameters
- * @param[in]   cts        : Pointer to cts config structure
- * @param[in]   enable     : 1 -enable seed value feed
- *                           0 -disable seed value feed
+ * @param[in]   cts: Pointer to cts config structure
+ * @param[in]   enable     
+ *                         - 1: enable seed value feed
+ *                         - 0: disable seed value feed
  * @param[in]   poly_length: polynomial length 
- * @param[in]    seed       : seed value to be loaded
- * @param[in]   polynomial  : polynomial for PRS 
+ * @param[in]    seed: seed value to be loaded
+ * @param[in]   polynomial: polynomial for PRS 
  * @return      none 
  *              
  */
 void RSI_CTS_ConfigPolynomial(CTS_Type *cts, boolean_t enable, uint8_t poly_length, uint32_t seed, uint32_t polynomial)
 {
-  cts->CTS_CONFIG_REG_1_1_b.SEED_LOAD      = enable; //load the seed value
-  cts->CTS_CONFIG_REG_1_1_b.POLYNOMIAL_LEN = poly_length;
+  cts->CTS_CONFIG_REG_1_1_b.SEED_LOAD      = (unsigned int)(enable & 0x01); //load the seed value
+  cts->CTS_CONFIG_REG_1_1_b.POLYNOMIAL_LEN = (unsigned int)(poly_length & 0x03);
   cts->CTS_CONFIG_REG_1_3_b.PRS_SEED       = seed;       //LOAD SEED VALUE
   cts->CTS_CONFIG_REG_1_4_b.PRS_POLY       = polynomial; //load the polynomial for PRS
 }
@@ -188,9 +189,9 @@ void RSI_CTS_ConfigPolynomial(CTS_Type *cts, boolean_t enable, uint8_t poly_leng
 /**   
  * @fn          void RSI_CTS_ConfigOnOffTime(CTS_Type *cts,uint16_t on_time ,uint16_t off_time)
  * @brief       This API is used set on and off time
- * @param[in]   cts        : Pointer to cts config structure
- * @param[in]   on_time    : required on time 
- * @param[in]   off_time   : required off time 
+ * @param[in]   cts: Pointer to cts config structure
+ * @param[in]   on_time: required on time 
+ * @param[in]   off_time: required off time 
  * @return      none 
  *              
  */
@@ -204,8 +205,8 @@ void RSI_CTS_ConfigOnOffTime(CTS_Type *cts, uint16_t on_time, uint16_t off_time)
 /**   
  * @fn          void RSI_CTS_ConfigSampling(CTS_Type *cts,uint16_t delay,uint16_t repetitions)
  * @brief       This API is used for configue the sampling delay
- * @param[in]   cts        : Pointer to cts config structure
- * @param[in]   delay      : inter sensor delay time
+ * @param[in]   cts: Pointer to cts config structure
+ * @param[in]   delay: inter sensor delay time
  * @param[in]   repetitions: no of times scan 
  * @return      none              
  */
@@ -219,34 +220,34 @@ void RSI_CTS_ConfigSampling(CTS_Type *cts, uint16_t delay, uint16_t repetitions)
 /**   
  * @fn          void RSI_CTS_ConfigSamplingPattern(CTS_Type *cts,uint32_t pattern,uint32_t valid_sensor)
  * @brief       This API is used for configue the scanning pattern and valid sensor
- * @param[in]   cts         : Pointer to cts config structure
- * @param[in]   pattern     : Sensor pattern to scan(0x12345678)
+ * @param[in]   cts: Pointer to cts config structure
+ * @param[in]   pattern: Sensor pattern to scan(0x12345678)
  * @param[in]   valid_sensor: no of valid sensors(1 to 8)
  * @return      none              
  */
 void RSI_CTS_ConfigSamplingPattern(CTS_Type *cts, uint32_t pattern, uint32_t valid_sensor)
 {
-  cts->CTS_CONFIG_REG_1_6_b.SENSOR_CFG    = pattern;      //set the pattern to sense sensor
-  cts->CTS_CONFIG_REG_1_7_b.VALID_SENSORS = valid_sensor; //sets the valid sensors to sense
+  cts->CTS_CONFIG_REG_1_6_b.SENSOR_CFG    = pattern;                             //set the pattern to sense sensor
+  cts->CTS_CONFIG_REG_1_7_b.VALID_SENSORS = (unsigned int)(valid_sensor & 0x0F); //sets the valid sensors to sense
 }
 
 /*==============================================*/
 /**   
- * @fn          void RSI_CTS_RefVoltageConfig(CTS_Type *cts,uint16_t ref_voltage,boolean_t enable)
+ * @fn          void RSI_CTS_ConfigRefVoltage(CTS_Type *cts, int16_t ref_voltage, boolean_t enable, uint16_t *samples, uint16_t *avg_samples)
  * @brief       This API is used to configure reference voltage
- * @param[in]   cts     : Pointer to cts config structure
- * @param[in]   enable  : Enable reference voltage select  
- * @param[in]   ref_voltage : reference voltage to be set
- *                  0  -0.5V
- *                  1  -0.6V
- *                  2  -0.7V
- *                  3  -0.8V
- *                  4  -0.9V
- *                  5  -1.0V
- *                  6  -1.1V
- *                  7  -1.2V
- * @param[in]   *samples     : pointer to array to store samples 
- * @param[in]   *avg_samples : pointer to array to store avg_samples
+ * @param[in]   cts: Pointer to cts config structure
+ * @param[in]   enable: Enable reference voltage select  
+ * @param[in]   ref_voltage: reference voltage to be set
+ *                 - 0:  -0.5V
+ *                 - 1:  -0.6V
+ *                 - 2:  -0.7V
+ *                 - 3:  -0.8V
+ *                 - 4:  -0.9V
+ *                 - 5:  -1.0V
+ *                 - 6:  -1.1V
+ *                 - 7:  -1.2V
+ * @param[in]   *samples: pointer to array to store samples 
+ * @param[in]   *avg_samples: pointer to array to store avg_samples
  * @return      none              
  */
 void RSI_CTS_ConfigRefVoltage(CTS_Type *cts,
@@ -303,11 +304,11 @@ void RSI_CTS_ConfigRefVoltage(CTS_Type *cts,
     }
   }
 #ifdef CHIP_917
-  cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG |= (Ref_voltage << 6);
+  cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG = (cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG | (Ref_voltage << 6)) & 0x01FF;
   if (enable)
     cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG |= (BIT(0));
   else
-    cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG &= (~BIT(0));
+    cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG &= (unsigned int)(~BIT(0) & 0x01FF);
 #else
   cts->CTS_CONFIG_REG_1_7_b.REF_VOLT_CONFIG = Ref_voltage; //set the reference voltage
   cts->CTS_CONFIG_REG_1_7_b.VREF_SEL        = enable;      //enables ref vlg select
@@ -318,19 +319,20 @@ void RSI_CTS_ConfigRefVoltage(CTS_Type *cts,
 /**   
  * @fn          void RSI_CTS_ConfigWakeUp(CTS_Type *cts,uint8_t mode,uint16_t threshold)
  * @brief       This API is used to configure the wakeup mode
- * @param[in]   cts      :pointer to cts config structure
- * @param[in]   mode     : 1 -wakeup if count is greater than threshold  
- *                         0 -wakeup if count is less than threshold 
- * @param[in]   threshold : wakeup threshold
+ * @param[in]   cts: pointer to cts config structure
+ * @param[in]   mode: 
+ *                        - 1: wakeup if count is greater than threshold  
+ *                        - 0: wakeup if count is less than threshold 
+ * @param[in]   threshold: wakeup threshold
  * @return      none 
  *              
  */
 void RSI_CTS_ConfigWakeUp(CTS_Type *cts, uint8_t mode, uint16_t threshold)
 {
-  cts->CTS_CONFIG_REG_1_7_b.WAKEUP_MODE = mode; //configure the wakeup mode
+  cts->CTS_CONFIG_REG_1_7_b.WAKEUP_MODE = (unsigned int)(mode & 0x01); //configure the wakeup mode
 
   if (threshold) {
-    cts->CTS_CONFIG_REG_1_7_b.WAKE_UP_THRESHOLD = threshold; //write threshold value
+    cts->CTS_CONFIG_REG_1_7_b.WAKE_UP_THRESHOLD = (uint16_t)threshold; //write threshold value
   } else {
     cts->CTS_CONFIG_REG_1_7_b.WAKE_UP_THRESHOLD = WAKEUP_THRESHOLD;
     Threshold                                   = WAKEUP_THRESHOLD;
@@ -341,7 +343,7 @@ void RSI_CTS_ConfigWakeUp(CTS_Type *cts, uint8_t mode, uint16_t threshold)
 /**   
  * @fn          uint32_t RSI_CTS_ReadRandomData(CTS_Type *cts)
  * @brief       This API is used read the random data
- * @param[in]   cts      :pointer to cts config structure                  
+ * @param[in]   cts:pointer to cts config structure                  
  * @return      none 
  *              
  */
@@ -356,7 +358,7 @@ uint32_t RSI_CTS_ReadRandomData(CTS_Type *cts)
 /**   
  * @fn          uint32_t RSI_CTS_ReadFifo(CTS_Type *cts)
  * @brief       This API is used read the data from fifo
- * @param[in]   cts      :pointer to cts config structure                      
+ * @param[in]   cts:pointer to cts config structure                      
  * @return      none 
  *              
  */
@@ -371,27 +373,29 @@ uint32_t RSI_CTS_ReadFifo(CTS_Type *cts)
 /**   
  * @fn          void RSI_CTS_IntrClear(CTS_Type *cts)
  * @brief       This API is used clear the interrupt for cts
- * @param[in]   cts      :Pointer to cts config structure                     
+ * @param[in]   cts:Pointer to cts config structure                     
  * @return      none               
  */
 void RSI_CTS_IntrClear(CTS_Type *cts)
 {
+  (void)cts;
   CTS->CTS_CONFIG_REG_1_1_b.WAKE_UP_ACK = 1;
   CTS->CTS_CONFIG_REG_1_1_b.WAKE_UP_ACK = 0;
 }
 
 /*==============================================*/
 /**   
- * @fn          void RSI_CTS_InputSelection(CTS_Type *cts)
+ * @fn          void RSI_CTS_InputSelection(CTS_Type *cts, uint32_t cap_input, uint32_t res_input)
  * @brief       This API is used to selection of an capacitance and resistance input
- * @param[in]   cts       : pointer to cts config structure
- * @param[in]   cap_input : 1 to  select Int cap input(AGPIO8) for cap sensor
- * @param[in]   res_input : 1 to select resistance input select(AGPIO10) for cap sensor                 
+ * @param[in]   cts: pointer to cts config structure
+ * @param[in]   cap_input: 1 to  select Int cap input(AGPIO8) for cap sensor
+ * @param[in]   res_input: 1 to select resistance input select(AGPIO10) for cap sensor                 
  * @return      none 
  * @NOTE:Default inpus on AGPIO4 and AGPIO5 to select AGPIO8 and AGPIO10 pass 0             
  */
 void RSI_CTS_InputSelection(CTS_Type *cts, uint32_t cap_input, uint32_t res_input)
 {
+  (void)cts;
   if (cap_input) {
     ULP_SPI_MEM_MAP(0x141) &= ~BIT(13);
   } else if (res_input) {
@@ -401,11 +405,11 @@ void RSI_CTS_InputSelection(CTS_Type *cts, uint32_t cap_input, uint32_t res_inpu
 
 /*==============================================*/
 /**   
- * @fn          void RSI_CTS_Calibration(uint16_t avg)
+ * @fn          void RSI_CTS_Calibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samples)
  * @brief       This API is used to do CTS fast calibration
- * @param[in]   avg         : average of the samples
- * @param[in]   samples     : pointer to array to store samples
- * @param[in]   avg_samples : pointer to array to store avg_samples 
+ * @param[in]   avg: average of the samples
+ * @param[in]   samples: pointer to array to store samples
+ * @param[in]   avg_samples: pointer to array to store avg_samples 
  * @return      none 
  *              
  */
@@ -416,7 +420,7 @@ void RSI_CTS_Calibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samples)
 
   if ((sample_count == 0) && (avg_count == 0) && (default_cal == 1)) {
     Threshold             = WAKEUP_THRESHOLD;
-    samples[sample_count] = avg;
+    samples[sample_count] = (uint16_t)avg;
 
     if (default_cal == 1) {
       sample_count = 0;
@@ -426,7 +430,7 @@ void RSI_CTS_Calibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samples)
     default_cal = 2;
   } else {
     if ((sample_count < NO_OF_SAMPLES) && (avg_count < NO_OF_AVG_SAMPLES)) {
-      samples[sample_count] = avg;
+      samples[sample_count] = (uint16_t)avg;
       sample_count += 1;
     } else {
       average = 0;
@@ -434,7 +438,7 @@ void RSI_CTS_Calibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samples)
         for (i = 0; i < NO_OF_SAMPLES; i++) {
           average += samples[i];
         }
-        avg_samples[avg_count] = average / NO_OF_SAMPLES;
+        avg_samples[avg_count] = (uint16_t)(average / NO_OF_SAMPLES);
 
         avg_count += 1;
         average = 0;
@@ -464,10 +468,10 @@ void RSI_CTS_Calibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samples)
 
 /*==============================================*/
 /**   
- * @fn          void RSI_CTS_SlowCalibration(uint16_t avg)
+ * @fn          void RSI_CTS_SlowCalibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samples)
  * @brief       This API is used to do CTS calibration
- * @param[in]   avg         : average of the samples
- * @param[in]   samples    : pointer to array to store samples
+ * @param[in]   avg: average of the samples
+ * @param[in]   samples: pointer to array to store samples
  * @param[in]   avg_samples: pointer to array to store avg_sampless                     
  * @return      none             
  */
@@ -479,7 +483,7 @@ void RSI_CTS_SlowCalibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samp
   if (default_cal == 2) //fill all the avg_sample locations with fast clibration sample locations
   {
     if (sample_count < NO_OF_SAMPLES && avg_count < NO_OF_SLOW_AVG_SAMPLES) {
-      samples[sample_count] = avg;
+      samples[sample_count] = (uint16_t)avg;
       sample_count += 1;
     } else {
       average = 0;
@@ -487,7 +491,7 @@ void RSI_CTS_SlowCalibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samp
         for (i = 0; i < NO_OF_SAMPLES; i++) {
           average += samples[i];
         }
-        avg_samples[avg_count] = average / NO_OF_SAMPLES;
+        avg_samples[avg_count] = (uint16_t)(average / NO_OF_SAMPLES);
 
         avg_count += 1;
         average = 0;
@@ -514,7 +518,7 @@ void RSI_CTS_SlowCalibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samp
     }
   } else if (default_cal == 4) {
     if ((sample_count < NO_OF_SLOW_SAMPLES) && (avg_count < NO_OF_SLOW_AVG_SAMPLES)) {
-      samples[sample_count] = avg;
+      samples[sample_count] = (uint16_t)avg;
       sample_count += 1;
     } else {
       average = 0;
@@ -522,7 +526,7 @@ void RSI_CTS_SlowCalibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samp
         for (i = 0; i < NO_OF_SLOW_SAMPLES; i++) {
           average += samples[i];
         }
-        avg_samples[avg_count] = (average / NO_OF_SLOW_SAMPLES);
+        avg_samples[avg_count] = (uint16_t)(average / NO_OF_SLOW_SAMPLES);
         avg_count += 1;
         average = 0;
 
@@ -545,10 +549,10 @@ void RSI_CTS_SlowCalibration(uint16_t avg, uint16_t *samples, uint16_t *avg_samp
 
 /*==============================================*/
 /**   
- * @fn          void RSI_CTS_TouchDetection(uint16_t avg)
+ * @fn          void RSI_CTS_TouchDetection(uint16_t *fifo_read, uint8_t *sensor_count)
  * @brief       This API is used to check which sensor is pressed
- * @param[in]   fifo_read    : Pointer to Sensor count value
- * @param[in]   sensor_count : Pointer to store pressed sensor no                    
+ * @param[in]   fifo_read: Pointer to Sensor count value
+ * @param[in]   sensor_count: Pointer to store pressed sensor no                    
  * @return      none            
  */
 void RSI_CTS_TouchDetection(uint16_t *fifo_read, uint8_t *sensor_count)

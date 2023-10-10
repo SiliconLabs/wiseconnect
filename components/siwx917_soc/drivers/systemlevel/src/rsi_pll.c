@@ -18,9 +18,8 @@
  *
  */
 
-/**
- * Includes
- */
+// Includes
+
 #include "rsi_ccp_user_config.h"
 
 #include <math.h>
@@ -41,7 +40,7 @@
 
 boolean_t clk_check_pll_lock(PLL_TYPE_T pllType)
 {
-  uint8_t lock = 0;
+  uint16_t lock = 0;
 
   if (pllType == SOC_PLL) {
     lock = SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG13) >> 14;
@@ -69,27 +68,27 @@ boolean_t clk_check_pll_lock(PLL_TYPE_T pllType)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_soc_pll_clk_enable(boolean_t clkEnable)
+ * @fn         rsi_error_t clk_soc_pll_clk_enable(boolean_t clkEnable)
  * @brief      This API is used to enable SoC-PLL output clock
  * @param[in]  clkEnable : enable the clock for SoC-PLL output clock
  * @return     RSI_OK on success
  */
 
-error_t clk_soc_pll_clk_enable(boolean_t clkEnable)
+rsi_error_t clk_soc_pll_clk_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
     /*Enable SoC-PLL*/
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) |= PLL_500_CLK_ENABLE;
   } else {
     /*Disable SoC-PLL*/
-    SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= ~(PLL_500_CLK_ENABLE);
+    SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_CLK_ENABLE));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn          error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
+ * @fn          rsi_error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
  * @brief       This API is used to set the Soc PLL clock to particular frequency
  * @param[in]   pCLK        : pointer to the processor clock source
  * @param[in]   socPllFreq  : SoC PLL frequency for Soc PLL clock to particular frequency
@@ -97,7 +96,7 @@ error_t clk_soc_pll_clk_enable(boolean_t clkEnable)
  * @return      RSI_OK on success
  */
 
-error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
+rsi_error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
 {
   uint16_t shiftFac     = 0;
   uint16_t socPllMulFac = 0;
@@ -143,27 +142,27 @@ error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pll
         shiftFac = 0;
       }
 
-      socPllDivFac = (1 << shiftFac) - 1;
+      socPllDivFac = (uint16_t)((1 << shiftFac) - 1);
 
-      socPllMulFac = ((socPllDivFac + 1) * socPllFreq) - 1;
+      socPllMulFac = (uint16_t)(((socPllDivFac + 1) * socPllFreq) - 1);
 
       /*RESET PLL*/
       clk_soc_pll_clk_reset();
 
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
-      reg &= ~(LDO_PROG_SOCPLL);
+      reg &= (uint16_t)(~(LDO_PROG_SOCPLL));
       reg |= 1 << 13;
 
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
 
-      socreg1 &= ~(DCO_FIX_SEL_MASK);
+      socreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       /*writing the value into the dco_fix_sel=1*/
       socreg1 |= 1;
 
-      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (((socPllDivFac) << 9) | ((pllRefClk - 1) << 3));
-      socreg1 &= ~(PLL_500_M_MASK);
-      socreg1 |= ((socPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (uint16_t)(((socPllDivFac) << 9) | ((pllRefClk - 1) << 3));
+      socreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      socreg1 |= (uint16_t)((socPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
 
       /*Enable */
@@ -171,7 +170,7 @@ error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pll
       /* Set and clear(read modify write) PLL500CTRLREG7 BIT[4] :  TV value will be latched */
 
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) |= SPI_INP_RD_EN;
-      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) &= ~(SPI_INP_RD_EN);
+      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) &= (uint16_t)(~(SPI_INP_RD_EN));
 
       /* Read the TV value from PLL500CTRLREG12  BIT[15 : 11]*/
       socPllTvRead = (SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG12) & 0xF800) >> 11;
@@ -207,16 +206,16 @@ error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pll
     } else {
       shiftFac = 0;
     }
-    dcoFreq      = (socPllFreq << shiftFac);
-    socPllMulFac = (socPllFreq << shiftFac) - 1;
-    socPllDivFac = (1 << shiftFac) - 1;
+    dcoFreq      = (uint16_t)(socPllFreq << shiftFac);
+    socPllMulFac = (uint16_t)((socPllFreq << shiftFac) - 1);
+    socPllDivFac = (uint16_t)((1 << shiftFac) - 1);
 
     /*RESET PLL*/
     clk_soc_pll_clk_reset();
 
     if (socPllFreq >= 201) {
       if ((socPllFreq % 2) == 0) {
-        socreg3 &= ~(FCW_F_MASK);
+        socreg3 &= (uint16_t)(~(FCW_F_MASK));
         SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG3) = socreg3;
       } else {
         socreg3 |= (8192 << 2);
@@ -225,44 +224,44 @@ error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pll
     }
     if (dcoFreq >= 251) {
       /*clearing the two bits i.e dco_fix_sel*/
-      socreg1 &= ~(DCO_FIX_SEL_MASK);
+      socreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       /*writing the value into the dco_fix_sel=2*/
       socreg1 |= 2;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift*/
-      reg &= ~(LDO_PROG_SOCPLL);
+      reg &= (uint16_t)(~(LDO_PROG_SOCPLL));
       reg |= 5 << 13;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3)       = reg;
       socPllMulFac                           = ((dcoFreq / 2) - 1);
-      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (((socPllDivFac) << 9) | ((pllRefClk - 1) << 3));
-      socreg1 &= ~(PLL_500_M_MASK);
-      socreg1 |= ((socPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (uint16_t)(((socPllDivFac) << 9) | ((pllRefClk - 1) << 3));
+      socreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      socreg1 |= (uint16_t)((socPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     } else if ((dcoFreq >= 201) && (dcoFreq <= 250)) {
-      socreg1 &= ~(DCO_FIX_SEL_MASK);
+      socreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift*/
-      reg &= ~(LDO_PROG_SOCPLL);
+      reg &= (uint16_t)(~(LDO_PROG_SOCPLL));
       reg |= 5 << 13;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3)       = reg;
       socPllMulFac                           = ((dcoFreq / 2) - 1);
-      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (((socPllDivFac) << 9) | ((pllRefClk - 1) << 3));
-      socreg1 &= ~(PLL_500_M_MASK);
-      socreg1 |= ((socPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (uint16_t)(((socPllDivFac) << 9) | ((pllRefClk - 1) << 3));
+      socreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      socreg1 |= (uint16_t)((socPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     } else {
-      socreg3 &= ~(FCW_F_MASK);
+      socreg3 &= (uint16_t)(~(FCW_F_MASK));
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG3) = socreg3;
-      socreg1 &= ~(DCO_FIX_SEL_MASK);
+      socreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       socreg1 |= 1;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift*/
-      reg &= ~(LDO_PROG_SOCPLL);
+      reg &= (uint16_t)(~(LDO_PROG_SOCPLL));
       reg |= 4 << 13;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3)       = reg;
-      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (((socPllDivFac) << 9) | ((pllRefClk - 1) << 3));
-      socreg1 &= ~(PLL_500_M_MASK);
-      socreg1 |= ((socPllMulFac << 6) | PLL_500_CLK_ENABLE); // m factor
+      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (uint16_t)(((socPllDivFac) << 9) | ((pllRefClk - 1) << 3));
+      socreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      socreg1 |= (uint16_t)((socPllMulFac << 6) | PLL_500_CLK_ENABLE); // m factor
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     }
     /*Enable */
@@ -273,7 +272,7 @@ error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pll
 
 /*==============================================*/
 /**
- * @fn          error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
+ * @fn          rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
  *                                boolean_t clk_en,
  *                                uint16_t divFactor,
  *                                uint16_t nFactor,
@@ -293,14 +292,14 @@ error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pll
  * @return      RSI_OK on success
  */
 
-error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
-                                 boolean_t clk_en,
-                                 uint16_t divFactor,
-                                 uint16_t nFactor,
-                                 uint16_t mFactor,
-                                 uint16_t fcwF,
-                                 uint16_t dcoFixSel,
-                                 uint16_t ldoProg)
+rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
+                                     boolean_t clk_en,
+                                     uint16_t divFactor,
+                                     uint16_t nFactor,
+                                     uint16_t mFactor,
+                                     uint16_t fcwF,
+                                     uint16_t dcoFixSel,
+                                     uint16_t ldoProg)
 {
   uint16_t socreg1 = 0x31c9, socreg3 = 0, reg = 0, socPllTvRead = 0;
   if (pCLK == NULL) {
@@ -310,23 +309,23 @@ error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
   clk_soc_pll_clk_reset();
   if ((MCU_RET->CHIP_CONFIG_MCU_READ_b.LIMIT_M4_FREQ_110MHZ_b == 1) || (M4_BBFF_STORAGE1 & BIT(10))) {
     if (clk_en) {
-      socreg3 &= ~(FCW_F_MASK);
+      socreg3 &= (uint16_t)(~(FCW_F_MASK));
       socreg3                                = fcwF << 2;
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG3) = socreg3;
-      socreg1 &= ~(DCO_FIX_SEL_MASK);
+      socreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       socreg1 |= 1;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift*/
-      reg &= ~(LDO_PROG_SOCPLL);
+      reg &= (uint16_t)(~(LDO_PROG_SOCPLL));
       reg |= 1 << 13;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
       socreg1 |= PLL_500_CLK_ENABLE;
-      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (((divFactor) << 9) | (nFactor << 3));
-      socreg1 &= ~(PLL_500_M_MASK);
-      socreg1 |= ((mFactor << 6) | PLL_500_CLK_ENABLE);
+      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (uint16_t)(((divFactor) << 9) | (nFactor << 3));
+      socreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      socreg1 |= (uint16_t)(((mFactor << 6) | PLL_500_CLK_ENABLE));
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     } else {
-      socreg1 &= ~PLL_500_CLK_ENABLE; /*soc_pll_clk o/p disable */
+      socreg1 &= (uint16_t)(~PLL_500_CLK_ENABLE); /*soc_pll_clk o/p disable */
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     }
 
@@ -335,7 +334,7 @@ error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
     /* Set and clear(read modify write) PLL500CTRLREG7 BIT[4] :  TV value will be latched */
 
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) |= SPI_INP_RD_EN;
-    SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) &= ~(SPI_INP_RD_EN);
+    SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) &= (uint16_t)(~(SPI_INP_RD_EN));
 
     /* Read the TV value from PLL500CTRLREG12  BIT[15 : 11]*/
     socPllTvRead = (SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG12) & 0xF800) >> 11;
@@ -350,23 +349,23 @@ error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
     }
   } else {
     if (clk_en) {
-      socreg3 &= ~(FCW_F_MASK);
+      socreg3 &= (uint16_t)(~(FCW_F_MASK));
       socreg3                                = fcwF << 2;
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG3) = socreg3;
-      socreg1 &= ~(DCO_FIX_SEL_MASK);
+      socreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       socreg1 |= dcoFixSel;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; // according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift
-      reg &= ~(LDO_PROG_SOCPLL);
-      reg |= ldoProg << 13;
+      reg &= (uint16_t)(~(LDO_PROG_SOCPLL));
+      reg |= (uint16_t)(ldoProg << 13);
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
       socreg1 |= PLL_500_CLK_ENABLE;
-      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (((divFactor) << 9) | (nFactor << 3));
-      socreg1 &= ~(PLL_500_M_MASK);
-      socreg1 |= ((mFactor << 6) | PLL_500_CLK_ENABLE);
+      SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (uint16_t)(((divFactor) << 9) | (nFactor << 3));
+      socreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      socreg1 |= (uint16_t)((mFactor << 6) | PLL_500_CLK_ENABLE);
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     } else {
-      socreg1 &= ~PLL_500_CLK_ENABLE; // soc_pll_clk o/p disable
+      socreg1 &= (uint16_t)(~PLL_500_CLK_ENABLE); // soc_pll_clk o/p disable
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     }
 
@@ -378,13 +377,13 @@ error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
 
 /*==============================================*/
 /**
- * @fn        error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK)
+ * @fn        rsi_error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK)
  * @brief     This API is used to Enables the SoC-PLL
  * @param[in] pCLK : pointer to the processor clock source
  * @return    RSI_OK on success
  */
 
-error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK)
+rsi_error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK)
 {
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG11) = 0xFFFF;
   /*Wait for lock*/
@@ -395,32 +394,32 @@ error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_soc_pll_clk_bypass_enable(boolean_t clkEnable)
+ * @fn         rsi_error_t clk_soc_pll_clk_bypass_enable(boolean_t clkEnable)
  * @brief      This API is used to Enable bypass clock
  * @param[in]  clkEnable : enable the clock
  * @return     RSI_OK on success
  */
 
-error_t clk_soc_pll_clk_bypass_enable(boolean_t clkEnable)
+rsi_error_t clk_soc_pll_clk_bypass_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
     /*Enable PLL clock*/
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) |= PLL_500_BYPASS;
   } else {
     /*Disable PLL clock*/
-    SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= ~(PLL_500_BYPASS);
+    SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_BYPASS));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t clk_soc_pll_clk_reset(void)
+ * @fn        rsi_error_t clk_soc_pll_clk_reset(void)
  * @brief     This API is used to Reset the Soc_pll_clk
  * @return    RSI_OK on success
  */
 
-error_t clk_soc_pll_clk_reset(void)
+rsi_error_t clk_soc_pll_clk_reset(void)
 {
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG11) = 0x01FF;
   return RSI_OK;
@@ -428,32 +427,32 @@ error_t clk_soc_pll_clk_reset(void)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_soc_pll_pd_enable(boolean_t en)
+ * @fn         rsi_error_t clk_soc_pll_pd_enable(boolean_t en)
  * @brief      This API is used to Enable the PdEnable(power down)
  * @param[in]  en : enable
  * @return     RSI_OK on success
  */
 
-error_t clk_soc_pll_pd_enable(boolean_t en)
+rsi_error_t clk_soc_pll_pd_enable(boolean_t en)
 {
   if (en == Enable) {
     /*Enable power down*/
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) |= PLL_500_PD;
   } else {
     /*Disable power down*/
-    SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= ~(PLL_500_PD);
+    SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_PD));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t clk_soc_pll_turn_off(void)
+ * @fn        rsi_error_t clk_soc_pll_turn_off(void)
  * @brief     This API is used to TurnOff the SOC_PLL
  * @return    RSI_OK on success
  */
 
-error_t clk_soc_pll_turn_off(void)
+rsi_error_t clk_soc_pll_turn_off(void)
 {
   uint16_t socreg1 = 0x31c9;
   /*Set PLL PD Bit*/
@@ -465,89 +464,89 @@ error_t clk_soc_pll_turn_off(void)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_soc_pll_turn_on(void)
+ * @fn        rsi_error_t clk_soc_pll_turn_on(void)
  * @brief     This API is used to TurnOn the SOC_PLL
  * @return    RSI_OK on success
  */
 
-error_t clk_soc_pll_turn_on(void)
+rsi_error_t clk_soc_pll_turn_on(void)
 {
   uint16_t socreg1 = 0x31c9;
   /*Disable power down */
-  socreg1 &= ~(PLL_500_RST);
-  socreg1 &= ~(PLL_500_PD);
+  socreg1 &= (uint16_t)(~(PLL_500_RST));
+  socreg1 &= (uint16_t)(~(PLL_500_PD));
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         error_t clk_i2s_pll_clk_enable(boolean_t clkEnable)
+ * @fn         rsi_error_t clk_i2s_pll_clk_enable(boolean_t clkEnable)
  * @brief      This API is used to Enable the I2s_PLL output clock
  * @param[in]  clkEnable : enable the clock  for I2s_PLL output clock
  * @return     RSI_OK on success
  */
 
-error_t clk_i2s_pll_clk_enable(boolean_t clkEnable)
+rsi_error_t clk_i2s_pll_clk_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
     /*Enable SoC-PLL*/
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) |= PLL_500_CLK_ENABLE;
   } else {
     /*Disable SoC-PLL*/
-    SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= ~(PLL_500_CLK_ENABLE);
+    SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= (uint16_t)(~(PLL_500_CLK_ENABLE));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         error_t clk_i2s_pll_clk_bypass_enable(boolean_t clkEnable)
+ * @fn         rsi_error_t clk_i2s_pll_clk_bypass_enable(boolean_t clkEnable)
  * @brief      This API is used to Enable bypass clock
  * @param[in]  clkEnable : enable the clock  for bypass clock
  * @return     RSI_OK on success
  */
 
-error_t clk_i2s_pll_clk_bypass_enable(boolean_t clkEnable)
+rsi_error_t clk_i2s_pll_clk_bypass_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
     /*Enable PLL clock*/
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) |= PLL_500_BYPASS;
   } else {
     /*Disable PLL clock*/
-    SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= ~(PLL_500_BYPASS);
+    SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= (uint16_t)(~(PLL_500_BYPASS));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         error_t clk_i2s_pll_pd_enable(boolean_t en)
+ * @fn         rsi_error_t clk_i2s_pll_pd_enable(boolean_t en)
  * @brief      This API is used to Enable the PdEnable(power down)
  * @param[in]  en : enable 
  * @return     RSI_OK on success
  */
 
-error_t clk_i2s_pll_pd_enable(boolean_t en)
+rsi_error_t clk_i2s_pll_pd_enable(boolean_t en)
 {
   if (en == Enable) {
     /*Enable power down*/
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) |= PLL_500_PD;
   } else {
     /*Disable power down*/
-    SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= ~(PLL_500_PD);
+    SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= (uint16_t)(~(PLL_500_PD));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t clk_i2s_pll_turn_off(void)             
+ * @fn        rsi_error_t clk_i2s_pll_turn_off(void)             
  * @brief     This API is used to TurnOff the I2s_PLL
  * @return    RSI_OK on success
  */
 
-error_t clk_i2s_pll_turn_off(void)
+rsi_error_t clk_i2s_pll_turn_off(void)
 {
   uint16_t i2sreg1 = 0x1244;
   /*Set PLL PD Bit*/
@@ -559,23 +558,23 @@ error_t clk_i2s_pll_turn_off(void)
 
 /*==============================================*/
 /**
- * @fn       error_t clk_i2s_pll_turn_on(void)
+ * @fn       rsi_error_t clk_i2s_pll_turn_on(void)
  * @brief    This API is used to TurnOn the I2s_PLL
  * @return   RSI_OK on success
  */
 
-error_t clk_i2s_pll_turn_on(void)
+rsi_error_t clk_i2s_pll_turn_on(void)
 {
   uint16_t i2sreg1 = 0x1244;
-  i2sreg1 &= ~(PLL_500_PD);
-  i2sreg1 &= ~(PLL_500_RST);
+  i2sreg1 &= (uint16_t)(~(PLL_500_PD));
+  i2sreg1 &= (uint16_t)(~(PLL_500_RST));
   SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) = i2sreg1;
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
+ * @fn        rsi_error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
  * @brief     This API is used to set the I2s_pll clock to particular frequency 
  * @param[in] pCLK       : pointer to the processor clock source
  * @param[in] i2sPllFreq : PLL clock of I2S for particular frequency
@@ -583,7 +582,7 @@ error_t clk_i2s_pll_turn_on(void)
  * @return    RSI_OK on success
  */
 
-error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
+rsi_error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
 {
   uint16_t p_div = 0, u16DivFactor1 = 0, u16DivFactor2 = 0, N = 0, M = 0, FCW_F = 0;
   uint32_t fref = 0, Fdco;
@@ -603,18 +602,18 @@ error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXt
   g = ((float)I2S_DCO_FREQ1 / (float)i2sPllFreq);
   if (g - (int)g == 0) /*checking the integer value or not*/
   {
-    p_div = g;
+    p_div = (uint16_t)(g);
     Fdco  = I2S_DCO_FREQ1;
   } else {
-    p_div = (I2S_DCO_FREQ2 / i2sPllFreq);
+    p_div = (uint16_t)(I2S_DCO_FREQ2 / i2sPllFreq);
     Fdco  = I2S_DCO_FREQ2;
   }
-  N = fXtal / fref; /*calculating N value*/
+  N = (uint16_t)(fXtal / fref); /*calculating N value*/
   /*deriving M and FCW_F value*/
   FCW   = (float)Fdco / (float)fref;
-  M     = (int)FCW;
+  M     = (uint16_t)FCW;
   frac  = (FCW - M);
-  FCW_F = (frac)*pow(2, 14);
+  FCW_F = (uint16_t)((frac)*pow(2, 14));
   if (Fdco == I2S_DCO_FREQ1) {
     FCW_F = (FCW_F + 1);
   }
@@ -638,16 +637,16 @@ error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXt
   }
   /*RESET PLL*/
   clk_i2s_pll_clk_reset();
-  i2sreg2 &= ~(N_DIV_MASK);
-  i2sreg2 |= (N << 1);
-  i2sreg3 &= ~(FCW_F_MASK);
-  i2sreg3 |= (FCW_F << 2);
-  i2sreg1 &= ~(PLL_500_M_MASK);
-  i2sreg1 |= M << 6;
-  i2sreg2 &= ~(0xff00);
-  i2sreg2 |= ((u16DivFactor1 << 11) | (u16DivFactor2 << 8));
-  i2sreg1 &= ~PLL_500_PD;
-  i2sreg1 &= ~PLL_500_RST;
+  i2sreg2 &= (uint16_t)(~(N_DIV_MASK));
+  i2sreg2 |= (uint16_t)((N << 1));
+  i2sreg3 &= (uint16_t)(~(FCW_F_MASK));
+  i2sreg3 |= (uint16_t)(FCW_F << 2);
+  i2sreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+  i2sreg1 |= (uint16_t)(M << 6);
+  i2sreg2 &= (uint16_t)(~(0xff00));
+  i2sreg2 |= (uint16_t)((u16DivFactor1 << 11) | (u16DivFactor2 << 8));
+  i2sreg1 &= (uint16_t)(~PLL_500_PD);
+  i2sreg1 &= (uint16_t)(~PLL_500_RST);
   i2sreg1 |= PLL_500_BYPASS;
   SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) = i2sreg1;
   SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG2) = i2sreg2;
@@ -658,7 +657,7 @@ error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXt
 
 /*==============================================*/
 /**
- * @fn        error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
+ * @fn        rsi_error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
  *                               uint16_t u16DivFactor1,
  *                               uint16_t u16DivFactor2,
  *                               uint16_t nFactor,
@@ -674,12 +673,12 @@ error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXt
  * @return    RSI_OK on success
  */
 
-error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
-                                 uint16_t u16DivFactor1,
-                                 uint16_t u16DivFactor2,
-                                 uint16_t nFactor,
-                                 uint16_t mFactor,
-                                 uint16_t fcwF)
+rsi_error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
+                                     uint16_t u16DivFactor1,
+                                     uint16_t u16DivFactor2,
+                                     uint16_t nFactor,
+                                     uint16_t mFactor,
+                                     uint16_t fcwF)
 {
   uint16_t i2sreg1 = 0x1244, i2sreg2 = 0x5850, i2sreg3 = 0xba60;
   if (pCLK == NULL) {
@@ -687,16 +686,16 @@ error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
   }
   clk_i2s_pll_clk_reset();
   if (u16DivFactor1) {
-    i2sreg2 &= ~(N_DIV_MASK);
-    i2sreg2 |= (nFactor << 1);
-    i2sreg3 &= ~(FCW_F_MASK);
-    i2sreg3 |= (fcwF << 2);
-    i2sreg1 &= ~(PLL_500_M_MASK);
-    i2sreg1 |= mFactor << 6;
-    i2sreg2 &= ~(0xff00);
-    i2sreg2 |= ((u16DivFactor1 << 11) | (u16DivFactor2 << 8));
-    i2sreg1 &= ~PLL_500_PD;
-    i2sreg1 &= ~PLL_500_RST;
+    i2sreg2 &= (uint16_t)(~(N_DIV_MASK));
+    i2sreg2 |= (uint16_t)(nFactor << 1);
+    i2sreg3 &= (uint16_t)(~(FCW_F_MASK));
+    i2sreg3 |= (uint16_t)(fcwF << 2);
+    i2sreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+    i2sreg1 |= (uint16_t)(mFactor << 6);
+    i2sreg2 &= (uint16_t)(~(0xff00));
+    i2sreg2 |= (uint16_t)((u16DivFactor1 << 11) | (u16DivFactor2 << 8));
+    i2sreg1 &= (uint16_t)~PLL_500_PD;
+    i2sreg1 &= (uint16_t)(~PLL_500_RST);
     i2sreg1 |= PLL_500_BYPASS;
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) = i2sreg1;
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG2) = i2sreg2;
@@ -708,13 +707,13 @@ error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
 
 /*==============================================*/
 /**
- * @fn         error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK)
+ * @fn         rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK)
  * @brief      This API is used to set the I2s_pll_clk
  * @param[in]  pCLK  : pointer to the processor clock source
  * @return     RSI_OK on success
  */
 
-error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK)
+rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -727,12 +726,12 @@ error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_i2s_pll_clk_reset(void)
+ * @fn        rsi_error_t clk_i2s_pll_clk_reset(void)
  * @brief     This API is used to set the I2s_pll_clk
  * @return    RSI_OK on success
  */
 
-error_t clk_i2s_pll_clk_reset(void)
+rsi_error_t clk_i2s_pll_clk_reset(void)
 {
   SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG11) = 0x01FF;
   return RSI_OK;
@@ -740,52 +739,52 @@ error_t clk_i2s_pll_clk_reset(void)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_intf_pll_clk_enable(boolean_t clkEnable)
+ * @fn         rsi_error_t clk_intf_pll_clk_enable(boolean_t clkEnable)
  * @brief      This API is used to Enable the Intf_PLL output clock
  * @param[in]  clkEnable : enable the clock
  * @return     RSI_OK on success
  */
 
-error_t clk_intf_pll_clk_enable(boolean_t clkEnable)
+rsi_error_t clk_intf_pll_clk_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
     /*Enable SoC-PLL*/
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) |= PLL_500_CLK_ENABLE;
   } else {
     /*Disable SoC-PLL*/
-    SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= ~(PLL_500_CLK_ENABLE);
+    SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_CLK_ENABLE));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         error_t clk_intf_pll_pd_enable(boolean_t en)
+ * @fn         rsi_error_t clk_intf_pll_pd_enable(boolean_t en)
  * @brief      This API is used to Enable the PdEnable(power down)
  * @param[in]  en : enable
  * @return     RSI_OK on success
  */
 
-error_t clk_intf_pll_pd_enable(boolean_t en)
+rsi_error_t clk_intf_pll_pd_enable(boolean_t en)
 {
   if (en == Enable) {
     /*Enable power down*/
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) |= PLL_500_PD;
   } else {
     /*Disable power down*/
-    SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= ~(PLL_500_PD);
+    SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_PD));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         error_t clk_intf_pll_turn_off(void)
+ * @fn         rsi_error_t clk_intf_pll_turn_off(void)
  * @brief      This API is used to TurnOff the Intf_PLL
  * @return     RSI_OK on success
  */
 
-error_t clk_intf_pll_turn_off(void)
+rsi_error_t clk_intf_pll_turn_off(void)
 {
   uint16_t intfreg1 = 0x31c9;
   /*Set PLL PD Bit*/
@@ -798,7 +797,7 @@ error_t clk_intf_pll_turn_off(void)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
+ * @fn         rsi_error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
  * @brief      This API is used to set the INTFPLL clock to particular frequency
  * @param[in]  pCLK        : pointer to the processor clock source
  * @param[in]  intfPllFreq : input frequency of PLL frequency
@@ -806,7 +805,7 @@ error_t clk_intf_pll_turn_off(void)
  * @return     RSI_OK on success
  */
 
-error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
+rsi_error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
 {
   uint16_t shiftFac      = 0;
   uint16_t intfPllMulFac = 0;
@@ -851,27 +850,27 @@ error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t p
         shiftFac = 0;
       }
 
-      intfPllDivFac = (1 << shiftFac) - 1;
+      intfPllDivFac = (uint16_t)((1 << shiftFac) - 1);
 
-      intfPllMulFac = ((intfPllDivFac + 1) * intfPllFreq) - 1;
+      intfPllMulFac = (uint16_t)(((intfPllDivFac + 1) * intfPllFreq) - 1);
 
       /*RESET PLL*/
       clk_intf_pll_clk_reset();
 
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
-      reg &= ~(LDO_PROG_INTFPLL);
+      reg &= (uint16_t)(~(LDO_PROG_INTFPLL));
       reg |= 1 << 10;
 
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
 
-      intfreg1 &= ~(DCO_FIX_SEL_MASK);
+      intfreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       /*writing the value into the dco_fix_sel=1*/
       intfreg1 |= 1;
 
-      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = (((intfPllDivFac) << 9) | ((pllRefClk - 1) << 3));
-      intfreg1 &= ~(PLL_500_M_MASK);
-      intfreg1 |= ((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = (uint16_t)(((intfPllDivFac) << 9) | ((pllRefClk - 1) << 3));
+      intfreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      intfreg1 |= (uint16_t)((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
 
       /*Enable */
@@ -879,7 +878,7 @@ error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t p
       /* Set and clear(read modify write) INTFPLL500CTRLREG7 BIT[4] :  TV value will be latched */
 
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG7) |= SPI_INP_RD_EN;
-      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG7) &= ~(SPI_INP_RD_EN);
+      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG7) &= (uint16_t)(~(SPI_INP_RD_EN));
       /* Read the TV value from INTFPLL500CTRLREG12  BIT[15 : 11]*/
       intfPllTvRead = (SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG12) & 0xF800) >> 11;
 
@@ -914,14 +913,14 @@ error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t p
     } else {
       shiftFac = 0;
     }
-    dcoFreq       = (intfPllFreq << shiftFac);
-    intfPllMulFac = (intfPllFreq << shiftFac) - 1;
-    intfPllDivFac = (1 << shiftFac) - 1;
+    dcoFreq       = (uint16_t)(intfPllFreq << shiftFac);
+    intfPllMulFac = (uint16_t)((intfPllFreq << shiftFac) - 1);
+    intfPllDivFac = (uint16_t)((1 << shiftFac) - 1);
     /*RESET PLL*/
     clk_intf_pll_clk_reset();
     if (intfPllFreq >= 201) {
       if ((intfPllFreq % 2) == 0) {
-        intfreg3 &= ~(FCW_F_MASK);
+        intfreg3 &= (uint16_t)(~(FCW_F_MASK));
         SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG3) = intfreg3;
       } else {
         intfreg3 |= (8192 << 2);
@@ -931,47 +930,47 @@ error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t p
 
     if (dcoFreq >= 251) {
 
-      intfreg1 &= ~(DCO_FIX_SEL_MASK);
+      intfreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       /*writing the value into the dco_fix_sel=2*/
       intfreg1 |= 2;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1;
-      reg &= ~(LDO_PROG_INTFPLL);
+      reg &= (uint16_t)(~(LDO_PROG_INTFPLL));
       reg |= 5 << 10;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
       intfPllMulFac                    = ((dcoFreq / 2) - 1);
       intfreg1 |= PLL_500_CLK_ENABLE; /* soc_pll_clk o/p en */
-      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = ((intfPllDivFac << 9) | ((pllRefClk - 1) << 3));
-      intfreg1 &= ~(PLL_500_M_MASK);
-      intfreg1 |= ((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = (uint16_t)((intfPllDivFac << 9) | ((pllRefClk - 1) << 3));
+      intfreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      intfreg1 |= (uint16_t)((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
     } else if ((dcoFreq >= 201) && (dcoFreq <= 250)) {
-      intfreg1 &= ~(DCO_FIX_SEL_MASK);
+      intfreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
-      reg &= ~(LDO_PROG_INTFPLL);
+      reg &= (uint16_t)(~(LDO_PROG_INTFPLL));
       reg |= 5 << 10;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
       intfPllMulFac                    = ((dcoFreq / 2) - 1);
       intfreg1 |= PLL_500_CLK_ENABLE; /* soc_pll_clk o/p en */
-      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = ((intfPllDivFac << 9) | ((pllRefClk - 1) << 3));
-      intfreg1 &= ~(PLL_500_M_MASK);
-      intfreg1 |= ((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = (uint16_t)((intfPllDivFac << 9) | ((pllRefClk - 1) << 3));
+      intfreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      intfreg1 |= (uint16_t)((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
     } else {
-      intfreg3 &= ~(FCW_F_MASK);
+      intfreg3 &= (uint16_t)(~(FCW_F_MASK));
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG3) = intfreg3;
-      intfreg1 &= ~(DCO_FIX_SEL_MASK);
+      intfreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       intfreg1 |= 1;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1;
-      reg &= ~(LDO_PROG_INTFPLL);
+      reg &= (uint16_t)(~(LDO_PROG_INTFPLL));
       reg |= 4 << 10;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
       intfreg1 |= PLL_500_CLK_ENABLE; /* soc_pll_clk o/p en */
-      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = ((intfPllDivFac << 9) | ((pllRefClk - 1) << 3));
-      intfreg1 &= ~(PLL_500_M_MASK);
-      intfreg1 |= ((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = (uint16_t)((intfPllDivFac << 9) | ((pllRefClk - 1) << 3));
+      intfreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      intfreg1 |= (uint16_t)(((intfPllMulFac << 6) | PLL_500_CLK_ENABLE)); /* m factor */
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
     }
     /*Enable */
@@ -983,7 +982,7 @@ error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t p
 
 /*==============================================*/
 /**
- * @fn          error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
+ * @fn          rsi_error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
  *                                boolean_t clk_en,
  *                                uint16_t divFactor,
  *                                uint16_t nFactor,
@@ -1003,14 +1002,14 @@ error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t p
  * @return      RSI_OK on success  
  */
 
-error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
-                                  boolean_t clk_en,
-                                  uint16_t divFactor,
-                                  uint16_t nFactor,
-                                  uint16_t mFactor,
-                                  uint16_t fcwF,
-                                  uint16_t dcoFixSel,
-                                  uint16_t ldoProg)
+rsi_error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
+                                      boolean_t clk_en,
+                                      uint16_t divFactor,
+                                      uint16_t nFactor,
+                                      uint16_t mFactor,
+                                      uint16_t fcwF,
+                                      uint16_t dcoFixSel,
+                                      uint16_t ldoProg)
 {
   uint16_t intfreg1 = 0x31c9, intfreg3 = 0, reg = 0, intfPllTvRead = 0;
 
@@ -1021,23 +1020,23 @@ error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
   clk_intf_pll_clk_reset();
   if ((MCU_RET->CHIP_CONFIG_MCU_READ_b.LIMIT_M4_FREQ_110MHZ_b == 1) || (M4_BBFF_STORAGE1 & BIT(10))) {
     if (clk_en) {
-      intfreg3 &= ~(FCW_F_MASK);
+      intfreg3 &= (uint16_t)(~(FCW_F_MASK));
       intfreg3                                = fcwF << 2;
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG3) = intfreg3;
-      intfreg1 &= ~(DCO_FIX_SEL_MASK);
+      intfreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       intfreg1 |= 1;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
-      reg &= ~(LDO_PROG_INTFPLL);
+      reg &= (uint16_t)(~(LDO_PROG_INTFPLL));
       reg |= 1 << 10;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
       intfreg1 |= PLL_500_CLK_ENABLE; /* soc_pll_clk o/p en */
-      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = ((divFactor << 9) | (nFactor << 3));
-      intfreg1 &= ~(PLL_500_M_MASK);
-      intfreg1 |= ((mFactor << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = (uint16_t)((divFactor << 9) | (nFactor << 3));
+      intfreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      intfreg1 |= (uint16_t)((mFactor << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
     } else {
-      intfreg1 &= ~PLL_500_CLK_ENABLE;
+      intfreg1 &= (uint16_t)(~PLL_500_CLK_ENABLE);
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1; /* soc_pll_clk o/p disable */
     }
     /*Enable */
@@ -1045,7 +1044,7 @@ error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
     /* Set and clear(read modify write) PLL500CTRLREG7 BIT[4] :  TV value will be latched */
 
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG7) |= SPI_INP_RD_EN;
-    SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG7) &= ~(SPI_INP_RD_EN);
+    SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG7) &= (uint16_t)(~(SPI_INP_RD_EN));
 
     /* Read the TV value from PLL500CTRLREG12  BIT[15 : 11] */
     intfPllTvRead = (SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG12) & 0xF800) >> 11;
@@ -1060,23 +1059,23 @@ error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
     }
   } else {
     if (clk_en) {
-      intfreg3 &= ~(FCW_F_MASK);
+      intfreg3 &= (uint16_t)(~(FCW_F_MASK));
       intfreg3                                = fcwF << 2;
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG3) = intfreg3;
-      intfreg1 &= ~(DCO_FIX_SEL_MASK);
+      intfreg1 &= (uint16_t)(~(DCO_FIX_SEL_MASK));
       intfreg1 |= dcoFixSel;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = reg << 1; /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
-      reg &= ~(LDO_PROG_INTFPLL);
-      reg |= ldoProg << 10;
+      reg &= (uint16_t)(~(LDO_PROG_INTFPLL));
+      reg |= (uint16_t)(ldoProg << 10);
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
       intfreg1 |= PLL_500_CLK_ENABLE; /* soc_pll_clk o/p en */
-      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = ((divFactor << 9) | (nFactor << 3));
-      intfreg1 &= ~(PLL_500_M_MASK);
-      intfreg1 |= ((mFactor << 6) | PLL_500_CLK_ENABLE); /* m factor */
+      SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = (uint16_t)((divFactor << 9) | (nFactor << 3));
+      intfreg1 &= (uint16_t)(~(PLL_500_M_MASK));
+      intfreg1 |= (uint16_t)((mFactor << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
     } else {
-      intfreg1 &= ~PLL_500_CLK_ENABLE;
+      intfreg1 &= (uint16_t)(~PLL_500_CLK_ENABLE);
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1; /* soc_pll_clk o/p disable */
     }
     /*Enable */
@@ -1087,37 +1086,37 @@ error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
 
 /*==============================================*/
 /**
- * @fn        error_t clk_intf_pll_clk_bypass_enable(boolean_t clkEnable)  
+ * @fn        rsi_error_t clk_intf_pll_clk_bypass_enable(boolean_t clkEnable)  
  * @brief     This API is used to Enable bypass clock
  * @param[in] clkEnable : enable the clock 
  * @return    RSI_OK on success
  */
 
-error_t clk_intf_pll_clk_bypass_enable(boolean_t clkEnable)
+rsi_error_t clk_intf_pll_clk_bypass_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
     /*Enable PLL clock*/
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) |= PLL_500_BYPASS;
   } else {
     /*Disable PLL clock*/
-    SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= ~(PLL_500_BYPASS);
+    SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_BYPASS));
   }
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn       error_t clk_intf_pll_turn_on()
+ * @fn       rsi_error_t clk_intf_pll_turn_on()
  * @brief    This API is used to TurnOn the Intf_PLL
  * @return   RSI_OK on success
  */
 
-error_t clk_intf_pll_turn_on()
+rsi_error_t clk_intf_pll_turn_on()
 {
   uint16_t intfreg1 = 0x31c9;
 
-  intfreg1 &= ~PLL_500_PD;  /* clearing pd  */
-  intfreg1 &= ~PLL_500_RST; /* clearing reset */
+  intfreg1 &= (uint16_t)(~PLL_500_PD);  /* clearing pd  */
+  intfreg1 &= (uint16_t)(~PLL_500_RST); /* clearing reset */
   SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
 
   return RSI_OK;
@@ -1125,12 +1124,12 @@ error_t clk_intf_pll_turn_on()
 
 /*==============================================*/
 /**
- * @fn       error_t clk_intf_pll_clk_reset(void)
+ * @fn       rsi_error_t clk_intf_pll_clk_reset(void)
  * @brief    This API is used to Reset the Intf_PLL
  * @return   RSI_OK on success
  */
 
-error_t clk_intf_pll_clk_reset(void)
+rsi_error_t clk_intf_pll_clk_reset(void)
 {
   SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG11) = 0x01FF;
   return RSI_OK;
@@ -1138,13 +1137,13 @@ error_t clk_intf_pll_clk_reset(void)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK)
+ * @fn        rsi_error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK)
  * @brief     This API is used to Enable the Intf_PLL
  * @param[in] pCLK  : pointer to the processor clock source
  * @return    RSI_OK on success
  */
 
-error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK)
+rsi_error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1157,14 +1156,14 @@ error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_peripheral_clk_enable1(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn        rsi_error_t clk_peripheral_clk_enable1(M4CLK_Type *pCLK, uint32_t flags)
  * @brief     This API is used to Enable the peripheral cloks for SET1 register
  * @param[in] pCLK  : pointer to the processor clock source
  * @param[in] flags : flags for SET1 register
  * @return    RSI_OK on success
  */
 
-error_t clk_peripheral_clk_enable1(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_peripheral_clk_enable1(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1175,14 +1174,14 @@ error_t clk_peripheral_clk_enable1(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_peripheral_clk_disable1(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn         rsi_error_t clk_peripheral_clk_disable1(M4CLK_Type *pCLK, uint32_t flags)
  * @brief      This API is used to disable the peripheral cloks for CLR1 register
  * @param[in]  pCLK   : pointer to the processor clock source
  * @param[in]  flags  : flags for CLR1 register
  * @return     RSI_OK on success
  */
 
-error_t clk_peripheral_clk_disable1(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_peripheral_clk_disable1(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1193,14 +1192,14 @@ error_t clk_peripheral_clk_disable1(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_peripheral_clk_enable2(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn         rsi_error_t clk_peripheral_clk_enable2(M4CLK_Type *pCLK, uint32_t flags)
  * @brief      This API is used to Enable the peripheral cloks for SET2 register
  * @param[in]  pCLK  : pointer to the processor clock source
  * @param[in]  flags : flags for SET2 register
  * @return     RSI_OK on success
  */
 
-error_t clk_peripheral_clk_enable2(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_peripheral_clk_enable2(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1211,14 +1210,14 @@ error_t clk_peripheral_clk_enable2(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_peripheral_clk_disable2(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn        rsi_error_t clk_peripheral_clk_disable2(M4CLK_Type *pCLK, uint32_t flags)
  * @brief     This API is used to disable the peripheral cloks for CLR2 register
  * @param[in] pCLK  : pointer to the processor clock source
  * @param[in] flags : flags for CLR2 register
  * @return    RSI_OK on success
  */
 
-error_t clk_peripheral_clk_disable2(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_peripheral_clk_disable2(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1229,14 +1228,14 @@ error_t clk_peripheral_clk_disable2(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_peripheral_clk_enable3(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn        rsi_error_t clk_peripheral_clk_enable3(M4CLK_Type *pCLK, uint32_t flags)
  * @brief     This API is used to Enable the peripheral cloks for SET3 register
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] flags : flags for SET3 register
  * @return    RSI_OK on success
  */
 
-error_t clk_peripheral_clk_enable3(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_peripheral_clk_enable3(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1247,14 +1246,14 @@ error_t clk_peripheral_clk_enable3(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn       error_t clk_dynamic_clk_gate_disable(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn       rsi_error_t clk_peripheral_clk_disable3(M4CLK_Type *pCLK, uint32_t flags)
  * @brief    This API is used to disable the peripheral cloks for CLR3 register
  * @param[in] pCLK  : pointer to the processor clock source
  * @param[in] flags : flags for CLR3 register
  * @return    RSI_OK on success
  */
 
-error_t clk_peripheral_clk_disable3(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_peripheral_clk_disable3(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1265,14 +1264,14 @@ error_t clk_peripheral_clk_disable3(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_dynamic_clk_gate_disable(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn        rsi_error_t clk_dynamic_clk_gate_disable(M4CLK_Type *pCLK, uint32_t flags)
  * @brief     This API is used to disable the dynamic clock gate for peripherals 
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] flags : flags for dynamic clock gate of peripherals 
  * @return    RSI_OK on success
  */
 
-error_t clk_dynamic_clk_gate_disable(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_dynamic_clk_gate_disable(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1283,14 +1282,14 @@ error_t clk_dynamic_clk_gate_disable(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn       error_t clk_dynamic_clk_gate_disable2(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn       rsi_error_t clk_dynamic_clk_gate_disable2(M4CLK_Type *pCLK, uint32_t flags)
  * @brief    This API is used to disable the dynamic clock gate for peripherals 
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] flags : flags for dynamic clock gate of peripherals 
  * @return    RSI_OK on success
  */
 
-error_t clk_dynamic_clk_gate_disable2(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_dynamic_clk_gate_disable2(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1301,14 +1300,14 @@ error_t clk_dynamic_clk_gate_disable2(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_dynamic_clk_gate_enable(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn        rsi_error_t clk_dynamic_clk_gate_enable(M4CLK_Type *pCLK, uint32_t flags)
  * @brief     This API is used to enable the dynamic clock gate for peripherals 
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] flags : flags for dynamic clock gate of peripherals 
  * @return    RSI_OK on success
  */
 
-error_t clk_dynamic_clk_gate_enable(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_dynamic_clk_gate_enable(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1319,14 +1318,14 @@ error_t clk_dynamic_clk_gate_enable(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_dynamic_clk_gate_enable2(M4CLK_Type *pCLK, uint32_t flags)
+ * @fn        rsi_error_t clk_dynamic_clk_gate_enable2(M4CLK_Type *pCLK, uint32_t flags)
  * @brief     This API is used to enable the dynamic clock gate for peripherals 
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] flags : flags for dynamic clock gate of peripherals 
  * @return    RSI_OK on success 
  */
 
-error_t clk_dynamic_clk_gate_enable2(M4CLK_Type *pCLK, uint32_t flags)
+rsi_error_t clk_dynamic_clk_gate_enable2(M4CLK_Type *pCLK, uint32_t flags)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1337,7 +1336,7 @@ error_t clk_dynamic_clk_gate_enable2(M4CLK_Type *pCLK, uint32_t flags)
 
 /*==============================================*/
 /**
- * @fn       error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
+ * @fn       rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
  *                          QSPI_CLK_SRC_SEL_T clkSource,
  *                          boolean_t swalloEn,
  *                          boolean_t OddDivEn,
@@ -1351,14 +1350,14 @@ error_t clk_dynamic_clk_gate_enable2(M4CLK_Type *pCLK, uint32_t flags)
  * @return    clock spi on success           
  */
 
-error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
-                            QSPI_CLK_SRC_SEL_T clkSource,
-                            boolean_t swalloEn,
-                            boolean_t OddDivEn,
-                            uint32_t divFactor)
+rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
+                                QSPI_CLK_SRC_SEL_T clkSource,
+                                boolean_t swalloEn,
+                                boolean_t OddDivEn,
+                                uint32_t divFactor)
 {
 
-  error_t errorCode = RSI_OK;
+  rsi_error_t errorCode = RSI_OK;
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > QSPI_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
@@ -1415,7 +1414,7 @@ error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
       ;
 
     /*update the division factor */
-    pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_DIV_FAC = divFactor;
+    pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
     /*Specifies whether QSPI clock is in sync with Soc clock.
 	  Before enabling this make sure that qspi_clk_onehot_enable is 1\92b0 to enable glitch free switching*/
     /*Enable the QSPI clock*/
@@ -1436,7 +1435,7 @@ error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
 #ifdef CHIP_917B0
 /*==============================================*/
 /**
- * @fn       error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
+ * @fn       rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
  *                          QSPI_CLK_SRC_SEL_T clkSource,
  *                          boolean_t swalloEn,
  *                          boolean_t OddDivEn,
@@ -1450,14 +1449,14 @@ error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
  * @return    clock spi on success           
  */
 
-error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
-                              QSPI_CLK_SRC_SEL_T clkSource,
-                              boolean_t swalloEn,
-                              boolean_t OddDivEn,
-                              uint32_t divFactor)
+rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
+                                  QSPI_CLK_SRC_SEL_T clkSource,
+                                  boolean_t swalloEn,
+                                  boolean_t OddDivEn,
+                                  uint32_t divFactor)
 {
 
-  error_t errorCode = RSI_OK;
+  rsi_error_t errorCode = RSI_OK;
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > QSPI_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
@@ -1514,7 +1513,7 @@ error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
       ;
 
     /*update the division factor */
-    pCLK->CLK_CONFIG_REG6_b.QSPI_2_CLK_DIV_FAC = divFactor;
+    pCLK->CLK_CONFIG_REG6_b.QSPI_2_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
     /*Specifies whether QSPI clock is in sync with Soc clock.
 	  Before enabling this make sure that qspi_clk_onehot_enable is 1\92b0 to enable glitch free switching*/
     /*Enable the QSPI clock*/
@@ -1535,7 +1534,7 @@ error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
 #endif
 /*==============================================*/
 /**
-* @fn        error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
+* @fn        rsi_error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
 *                              CLK_ENABLE_T clkType,
 *                              SSI_MST_CLK_SRC_SEL_T clkSource,
 *                              uint32_t divFactor)
@@ -1547,10 +1546,10 @@ error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
 * @return    RSI_OK on success 
 */
 
-error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
-                               CLK_ENABLE_T clkType,
-                               SSI_MST_CLK_SRC_SEL_T clkSource,
-                               uint32_t divFactor)
+rsi_error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
+                                   CLK_ENABLE_T clkType,
+                                   SSI_MST_CLK_SRC_SEL_T clkSource,
+                                   uint32_t divFactor)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > SSI_MAX_CLK_DIVISION_FACTOR)) {
@@ -1608,7 +1607,7 @@ error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
   while ((pCLK->PLL_STAT_REG_b.SSI_MST_SCLK_SWITCHED) != 1)
     ;
   /*division factor */
-  pCLK->CLK_CONFIG_REG1_b.SSI_MST_SCLK_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG1_b.SSI_MST_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
   /*Enable the SSI clock */
   clk_peripheral_clk_enable(pCLK, SSIMST_CLK, clkType);
   return RSI_OK;
@@ -1617,7 +1616,7 @@ error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
 
 /*==============================================*/
 /**
- * @fn        error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK, boolean_t swalloEn, SDMEM_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
+ * @fn        rsi_error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK, boolean_t swalloEn, SDMEM_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
  * @brief     This API is used to configure the SdMem clocks
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] swalloEn : enable for SdMem clocks
@@ -1626,7 +1625,10 @@ error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
  * @return    RSI_OK on success
  */
 
-error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK, boolean_t swalloEn, SDMEM_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
+rsi_error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK,
+                                  boolean_t swalloEn,
+                                  SDMEM_CLK_SRC_SEL_T clkSource,
+                                  uint32_t divFactor)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > SDMEM_MAX_CLK_DIVISION_FACTOR)) {
@@ -1684,7 +1686,7 @@ error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK, boolean_t swalloEn, SDMEM_CLK_SR
 
 /*==============================================*/
 /**
- * @fn        error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
+ * @fn        rsi_error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
  * @brief     This API is used to configure the CCI clocks
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] clkSource : source clock for configure the CCI clocks
@@ -1693,7 +1695,7 @@ error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK, boolean_t swalloEn, SDMEM_CLK_SR
  * @return    RSI_OK on success
  */
 
-error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
+rsi_error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > CCI_MAX_CLK_DIVISION_FACTOR)) {
@@ -1733,7 +1735,7 @@ error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32
 
 /*==============================================*/
 /**
- * @fn        error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType)
+ * @fn        rsi_error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType)
  * @brief     This API is used to configure the Can clocks
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] divFactor : division factor for configure the Can clocks
@@ -1741,7 +1743,7 @@ error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32
  * @return    RSI_OK on success 
  */
 
-error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType)
+rsi_error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType)
 {
   if ((pCLK == NULL) || (divFactor > CAN_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
@@ -1761,7 +1763,7 @@ error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T cl
 
 /*==============================================*/
 /**
- * @fn       error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
+ * @fn       rsi_error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
  *                              boolean_t swalloEn,
  *                              ETHERNET_CLK_SRC_SEL_T clkSource,
  *                              uint32_t divFactor)
@@ -1773,10 +1775,10 @@ error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T cl
  * @return    RSI_OK on success 
  */
 
-error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
-                                boolean_t swalloEn,
-                                ETHERNET_CLK_SRC_SEL_T clkSource,
-                                uint32_t divFactor)
+rsi_error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
+                                    boolean_t swalloEn,
+                                    ETHERNET_CLK_SRC_SEL_T clkSource,
+                                    uint32_t divFactor)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > PLL_INTF_MAX_CLK_DIVISION_FACTOR)) {
@@ -1812,14 +1814,14 @@ error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
 
 /*==============================================*/
 /**
- * @fn       error_t clk_cci_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+ * @fn       rsi_error_t clk_cci_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
  * @brief    This API is used to divide the CCI clock
  * @param[in] pCLK : pointer to the processor clock source 
  * @param[in] divFactor : division factor for CCI clock 
  * @return    RSI_OK on success 
  */
 
-error_t clk_cci_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+rsi_error_t clk_cci_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1830,7 +1832,7 @@ error_t clk_cci_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor)
+ * @fn        rsi_error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor)
  * @brief     This API is used to divide the SDMEM clock
  * @param[in] pCLK : pointer to the processor clock source 
  * @param[in] u8SwallowEn : enable for SDMEM clock
@@ -1838,7 +1840,7 @@ error_t clk_cci_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
  * @return    RSI_OK on success 
  */
 
-error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor)
+rsi_error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1857,7 +1859,7 @@ error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t div
 
 /*==============================================*/
 /**
- * @fn       error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor)
+ * @fn       rsi_error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor)
  * @brief    This API is used to configure the USB clock
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] clkSource : source clock
@@ -1865,7 +1867,7 @@ error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t div
  * @return    RSI_OK on success 
  */
 
-error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor)
+rsi_error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > USB_MAX_CLK_DIVISION_FACTOR)) {
@@ -1907,7 +1909,7 @@ error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16
 
 /*==============================================*/
 /**
- * @fn        error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
+ * @fn        rsi_error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
  * @brief     This API is used to configure the CT clocks
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] clkSource : source clock for CT clocks
@@ -1916,7 +1918,7 @@ error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16
  * @return    RSI_OK on success
  */
 
-error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
+rsi_error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > CT_MAX_CLK_DIVISION_FACTOR)) {
@@ -1956,14 +1958,14 @@ error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t
   while ((pCLK->PLL_STAT_REG_b.CT_CLK_SWITCHED) != 1)
     ;
   /*Program the division factor */
-  pCLK->CLK_CONFIG_REG5_b.CT_CLK_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG5_b.CT_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   clk_peripheral_clk_enable(pCLK, CT_CLK, clkType);
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
+ * @fn        rsi_error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
  * @brief     This API is used to configure the I2S clocks
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] clkSource : source clock
@@ -1971,7 +1973,7 @@ error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t
  * @return    RSI_OK on success 
  */
 
-error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
+rsi_error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor > I2S_MAX_CLK_DIVISION_FACTOR)) {
@@ -1995,7 +1997,7 @@ error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32
   while ((pCLK->PLL_STAT_REG_b.I2S_CLK_SWITCHED) != 1)
     ;
   /*update the division factor */
-  pCLK->CLK_CONFIG_REG5_b.I2S_CLK_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG5_b.I2S_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   /*enable the clock*/
   clk_peripheral_clk_enable(pCLK, I2SM_CLK, ENABLE_STATIC_CLK);
   return RSI_OK;
@@ -2003,7 +2005,7 @@ error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32
 
 /*==============================================*/
 /**
- * @fn        error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor)
+ * @fn        rsi_error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor)
  * @brief     This API is used to configure the McuClkOut clocks
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] clkSource : source clock
@@ -2011,7 +2013,7 @@ error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32
  * @return    RSI_OK on success 
  */
 
-error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor)
+rsi_error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (divFactor >= MCU_CLKOUT_MAX_CLK_DIVISION_FACTOR)) {
@@ -2020,7 +2022,7 @@ error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource,
   clk_peripheral_clk_disable(pCLK, MCUCLKOUT_CLK);
   /*clock out mux select */
   /*apply division factor */
-  pCLK->CLK_CONFIG_REG3_b.MCU_CLKOUT_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG3_b.MCU_CLKOUT_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   switch (clkSource) {
     case MCUCLKOUT_ULP_32MHZ_RC_CLK:
       pCLK->CLK_CONFIG_REG3_b.MCU_CLKOUT_SEL = 0x01;
@@ -2114,25 +2116,25 @@ error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource,
 
 /*==============================================*/
 /**
- * @fn        error_t clk_m4_soc_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+ * @fn        rsi_error_t clk_m4_soc_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
  * @brief     This API is used to divide the M4soc  clock
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] divFactor : division factor
  * @return    RSI_OK on success 
  */
 
-error_t clk_m4_soc_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+rsi_error_t clk_m4_soc_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
-  pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t clk_qspi_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor)
+ * @fn        rsi_error_t clk_qspi_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor)
  * @brief     This API is used to divide the QSPI clock
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] u8SwallowEn : enable
@@ -2141,7 +2143,7 @@ error_t clk_m4_soc_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
  * @return    RSI_OK on success 
  */
 
-error_t clk_qspi_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor)
+rsi_error_t clk_qspi_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -2156,67 +2158,67 @@ error_t clk_qspi_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8Od
   } else {
     pCLK->CLK_CONFIG_REG2_b.QSPI_ODD_DIV_SEL = 0;
   }
-  pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         error_t clk_ct_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+ * @fn         rsi_error_t clk_ct_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
  * @brief      This API is used to divide the CT clock
  * @param[in]  pCLK : pointer to the processor clock source
  * @param[in]  divFactor : division factor
  * @return     RSI_OK on success
  */
 
-error_t clk_ct_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+rsi_error_t clk_ct_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
-  pCLK->CLK_CONFIG_REG5_b.CT_CLK_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG5_b.CT_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         error_t clk_ssi_mst_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+ * @fn         rsi_error_t clk_ssi_mst_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
  * @brief      This API is used to divide the SSI clock
  * @param[in]  pCLK : pointer to the processor clock source
  * @param[in]  divFactor : division factor
  * @return     RSI_OK on success
  */
 
-error_t clk_ssi_mst_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+rsi_error_t clk_ssi_mst_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
-  pCLK->CLK_CONFIG_REG1_b.SSI_MST_SCLK_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG1_b.SSI_MST_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t clk_i2s_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+ * @fn        rsi_error_t clk_i2s_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
  * @brief     This API is used to divide the I2S clock
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] divFactor : division factor
  * @return    RSI_OK on success
  */
 
-error_t clk_i2s_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
+rsi_error_t clk_i2s_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
-  pCLK->CLK_CONFIG_REG5_b.I2S_CLK_DIV_FAC = divFactor;
+  pCLK->CLK_CONFIG_REG5_b.I2S_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t clk_usart_clk_div(M4CLK_Type *pCLK, EN_USART_T enUsart, boolean_t u8FracDivEn, uint32_t divFactor)
+ * @fn        rsi_error_t clk_usart_clk_div(M4CLK_Type *pCLK, EN_USART_T enUsart, boolean_t u8FracDivEn, uint32_t divFactor)
  * @brief      This API is used to divide the USART/UART  clock
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] enUsart : enable UART
@@ -2225,7 +2227,7 @@ error_t clk_i2s_clk_div(M4CLK_Type *pCLK, uint32_t divFactor)
  * @return    RSI_OK on success
  */
 
-error_t clk_usart_clk_div(M4CLK_Type *pCLK, EN_USART_T enUsart, boolean_t u8FracDivEn, uint32_t divFactor)
+rsi_error_t clk_usart_clk_div(M4CLK_Type *pCLK, EN_USART_T enUsart, boolean_t u8FracDivEn, uint32_t divFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -2236,14 +2238,14 @@ error_t clk_usart_clk_div(M4CLK_Type *pCLK, EN_USART_T enUsart, boolean_t u8Frac
     } else {
       pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
     }
-    pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = divFactor;
+    pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
   } else {
     if (u8FracDivEn) {
       pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 1;
     } else {
       pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
     }
-    pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = divFactor;
+    pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
   }
 
   return RSI_OK;
@@ -2251,13 +2253,13 @@ error_t clk_usart_clk_div(M4CLK_Type *pCLK, EN_USART_T enUsart, boolean_t u8Frac
 
 /*==============================================*/
 /**
- * @fn         error_t clk_xtal_clk_config(uint8_t xtalPin)
+ * @fn         rsi_error_t clk_xtal_clk_config(uint8_t xtalPin)
  * @brief      This API is used to configure the Xtal clock 
  * @param[in]  xtalPin : oscillator pin
  * @return     RSI_OK on success 
  */
 
-error_t clk_xtal_clk_config(uint8_t xtalPin)
+rsi_error_t clk_xtal_clk_config(uint8_t xtalPin)
 {
   if (xtalPin > 4) {
     return INVALID_PARAMETERS;
@@ -2291,7 +2293,7 @@ error_t clk_xtal_clk_config(uint8_t xtalPin)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_slp_clk_config(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc)
+ * @fn         rsi_error_t clk_slp_clk_config(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc)
  * @brief      This API is used to calibrate the sleep clock
  * @param[in]  pCLK : pointer to the processor clock source
  * @param[in]  clkEnable : enable the clock
@@ -2299,7 +2301,7 @@ error_t clk_xtal_clk_config(uint8_t xtalPin)
  * @return     RSI_OK on success
  */
 
-error_t clk_slp_clk_config(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc)
+rsi_error_t clk_slp_clk_config(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc)
 {
   /*Parameter validation */
   if ((pCLK == NULL) || (clkSrc > SLP_MAX_SEL)) {
@@ -2352,7 +2354,7 @@ uint32_t clk_slp_clk_calib_config(M4CLK_Type *pCLK, uint8_t clkCycles)
   if (((pCLK == NULL) || (clkCycles > MAX_SLP_CYCLES))) {
     return INVALID_PARAMETERS;
   }
-  pCLK->SLEEP_CALIB_REG_b.SLP_CALIB_CYCLES = clkCycles;
+  pCLK->SLEEP_CALIB_REG_b.SLP_CALIB_CYCLES = (unsigned int)(clkCycles & 0x03);
   /*Start the sleep clock */
   pCLK->SLEEP_CALIB_REG_b.SLP_CALIB_START_b = 1;
   /*wait for calib done*/
@@ -2364,14 +2366,14 @@ uint32_t clk_slp_clk_calib_config(M4CLK_Type *pCLK, uint8_t clkCycles)
 
 /*==============================================*/
 /**
- * @fn        error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
+ * @fn        rsi_error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
  * @brief     This API is used to configure the GSPI Clocks
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] clkSel : clock select
  * @return    RSI_OK on success
  */
 
-error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
+rsi_error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -2424,7 +2426,7 @@ error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C)
+ * @fn         rsi_error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C)
  * @brief      This API is used to configure the I2C clock
  * @param[in]  pCLK : pointer to the processor clock source
  * @param[in]  clkEnable : module for I2C clock
@@ -2432,7 +2434,7 @@ error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
  * @return     RSI_OK on success
  */
 
-error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C)
+rsi_error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -2467,7 +2469,7 @@ error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C
 
 /*==============================================*/
 /**
- * @fn        error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
+ * @fn        rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
  * @brief     This API is used to enable the particular clock
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] module : module for particular clock
@@ -2475,7 +2477,7 @@ error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C
  * @return    RSI_OK on success 
  */
 
-error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
+rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
 {
   /*valid parameter check*/
   if (pCLK == NULL) {
@@ -2605,14 +2607,14 @@ error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CL
 
 /*==============================================*/
 /**
- * @fn         error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module)
+ * @fn         rsi_error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module)
  * @brief      This API is used to disable the particular clock
  * @param[in]  pCLK : pointer to the processor clock source
  * @param[in]  module : module
  * @return     RSI_OK on success
  */
 
-error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module)
+rsi_error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module)
 {
   /*valid parameter check*/
   if (pCLK == NULL) {
@@ -2710,9 +2712,9 @@ void clk_config_pll_ref_clk(uint8_t ref_clk_src)
 {
   uint32_t reg_read = 0;
   reg_read          = SPI_MEM_MAP_PLL(SOCPLLMACROREG2);
-  reg_read &= ~((0x3 << 14));
+  reg_read &= (uint16_t)(~((0x3 << 14)));
   reg_read |= (ref_clk_src << 14U);
-  SPI_MEM_MAP_PLL(SOCPLLMACROREG2) = reg_read;
+  SPI_MEM_MAP_PLL(SOCPLLMACROREG2) = (uint16_t)reg_read;
 }
 #endif //ROMDRIVER_PRESENT
 
@@ -2787,14 +2789,14 @@ uint32_t RSI_CLK_CheckPresent(M4CLK_Type *pCLK, CLK_PRESENT_T clkPresent)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
+ * @fn         rsi_error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
  * @brief      This API is used to configure the m4ss_ref clocks
  * @param[in]  pCLK is pointer to the processor clock source
  * @param[in]  clkSource is source clock
  * @return     RSI_OK on success
  */
 
-error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
+rsi_error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -2847,13 +2849,13 @@ error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
+ * @fn        rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
  * @brief     This API is used to enable the ULP reference clocks and provide delay for clock starting
  * @param[in] clk_Type : clock type 
  * @return    RSI_OK on success
  */
 
-error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
+rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
 {
   /*Select clock source*/
   switch (clk_type) {
@@ -2892,7 +2894,7 @@ error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
 
 /*==============================================*/
 /**
- * @fn         error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
+ * @fn         rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
  * @brief      This API is used to configure the m4_soc clocks
  * @param[in]  pCLK : pointer to the processor clock source
  * @param[in]  clkSource : source clock
@@ -2900,7 +2902,7 @@ error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
  * @return     RSI_OK on success
  */
 
-error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
+rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
 {
   /*check valid parameters*/
   if ((pCLK == NULL) || (divFactor >= SOC_MAX_CLK_DIVISION_FACTOR)) {
@@ -2980,7 +2982,7 @@ error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, 
 
 /*==============================================*/
 /**
- * @fn            error_t clk_usart_clk_config(M4CLK_Type *pCLK,
+ * @fn            rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
  *                           CLK_ENABLE_T clkType,
  *                           boolean_t FracDivEn,
  *                           EN_USART_T enUsart,
@@ -2996,12 +2998,12 @@ error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, 
  * @return        RSI_OK on success
  */
 
-error_t clk_usart_clk_config(M4CLK_Type *pCLK,
-                             CLK_ENABLE_T clkType,
-                             boolean_t FracDivEn,
-                             EN_USART_T enUsart,
-                             USART_CLK_SRC_SEL_T clkSource,
-                             uint32_t divFactor)
+rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
+                                 CLK_ENABLE_T clkType,
+                                 boolean_t FracDivEn,
+                                 EN_USART_T enUsart,
+                                 USART_CLK_SRC_SEL_T clkSource,
+                                 uint32_t divFactor)
 {
 
   /*Parameter validation */
@@ -3025,7 +3027,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         /*fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
@@ -3040,7 +3042,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
           ;
         /*fractional clock divider select */
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
 
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
@@ -3061,7 +3063,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         /*fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
@@ -3076,7 +3078,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
           ;
         /*fractional clock divider select */
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
         } else {
@@ -3098,7 +3100,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
           ;
         /*fractional clock divider select */
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
         } else {
@@ -3111,7 +3113,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
         while ((pCLK->PLL_STAT_REG_b.USART2_SCLK_SWITCHED) != 1)
           ;
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
 
         /*fractional clock divider select */
         if (FracDivEn) {
@@ -3134,7 +3136,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         /*fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
@@ -3148,7 +3150,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
         while ((pCLK->PLL_STAT_REG_b.USART2_SCLK_SWITCHED) != 1)
           ;
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         /*fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
@@ -3168,7 +3170,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         /*fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
@@ -3183,7 +3185,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
         while ((pCLK->PLL_STAT_REG_b.USART2_SCLK_SWITCHED) != 1)
           ;
         /*Update the division factor */
-        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = divFactor;
+        pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         /*fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
@@ -3207,7 +3209,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
 
 /*==============================================*/
 /**
-* @fn         error_t ulpss_enable_ref_clks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn)
+* @fn         rsi_error_t ulpss_enable_ref_clks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn)
 * @brief      This API is used to enable the ULP reference clocks and provide delay for clock starting
 * @param[in]  enable  : enable
 * @param[in]  srcType : source type
@@ -3215,7 +3217,7 @@ error_t clk_usart_clk_config(M4CLK_Type *pCLK,
 * @return     RSI_OK on success
 */
 
-error_t ulpss_enable_ref_clks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn)
+rsi_error_t ulpss_enable_ref_clks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn)
 {
   /*Select clock source*/
   switch (enable) {

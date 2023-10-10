@@ -18,6 +18,7 @@
 // Include files
 
 #include "rsi_ccp_user_config.h"
+#if !defined(A11_ROM) || !defined(ROMDRIVER_PRESENT)
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_egpio.h"
@@ -95,7 +96,7 @@ int32_t I2S_Control(uint32_t control,
         // Set TX level to 0
         val = i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TXFCR_b.TXCHET;
         val |= 0x8; // max FIFO level for TX overflow
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TXFCR_b.TXCHET = val;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TXFCR_b.TXCHET = (volatile unsigned int)(val & 0x0F);
         if (i2s->info->status.tx_busy == 0U) {
           // Ready to detect TX underflow
           i2s->info->tx.num = 0U;
@@ -122,7 +123,7 @@ int32_t I2S_Control(uint32_t control,
       if (i2s->info->status.rx_busy == 0U) {
         // Set FIFO level to full, to detect RX overflow
         val |= 0x8;
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = val;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = (volatile unsigned int)(val & 0x0F);
 
         // Ready to detect RX overflow
         i2s->info->rx.num = 0U;
@@ -177,9 +178,10 @@ int32_t I2S_Control(uint32_t control,
         // Set FIFO level to full and enable TX interrupt, to detect RX overflow
         val = i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TXFCR_b.TXCHET;
         val |= (8U);
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TXFCR_b.TXCHET = val;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TXFCR_b.TXCHET = (volatile unsigned int)(val & 0x0F);
         //RSI_I2S_InterruptEnableDisable( i2s,i2s->xfer_chnl, F_TXFOM ,INTR_UNMASK );
       }
+      i2s->reg->I2S_CER_b.CLKEN = DISABLE;
       return ARM_DRIVER_OK;
 
     case ARM_SAI_ABORT_RECEIVE:
@@ -212,7 +214,7 @@ int32_t I2S_Control(uint32_t control,
         // Set FIFO level to full and enable RX interrupt, to detect RX overflow
         val = i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT;
         val |= (8U);
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = val;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = (volatile unsigned int)(val & 0x0F);
         RSI_I2S_InterruptEnableDisable(i2s, i2s->xfer_chnl, F_RXFOM, INTR_UNMASK);
       }
       return ARM_DRIVER_OK;
@@ -253,7 +255,7 @@ int32_t I2S_Control(uint32_t control,
       // Slave mode
       if (i2s->reg == I2S0) {
         // sets master mode for I2S0(M4SS)
-        MISC_CFG_MISC_CTRL1 |= (0 << 23);
+        MISC_CFG_MISC_CTRL1 &= ~(1 << 23);
       }
       if (i2s->reg == I2S1) {
 /* sets master mode for I2S1(ULPSS)*/
@@ -373,15 +375,15 @@ int32_t I2S_Control(uint32_t control,
     if (i2s->reg == I2S1) {
       if (i2s->clk->clk_src == ULP_I2S_REF_CLK) {
         val = 32000000 / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, val / 2);
+        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, (uint16_t)val / 2);
       }
       if (i2s->clk->clk_src == ULP_I2S_ULP_32MHZ_RC_CLK) {
         val = 32000000 / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_32MHZ_RC_CLK, val / 2);
+        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_32MHZ_RC_CLK, (uint16_t)val / 2);
       }
       if (i2s->clk->clk_src == ULP_I2S_ULP_20MHZ_RO_CLK) {
         val = 20000000 / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_20MHZ_RO_CLK, val);
+        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_ULP_20MHZ_RO_CLK, (uint16_t)val);
       }
       if (i2s->clk->clk_src == ULP_I2S_SOC_CLK) {
         // TODO: This source is not working
@@ -391,25 +393,24 @@ int32_t I2S_Control(uint32_t control,
       }
       if (i2s->clk->clk_src == ULP_I2S_PLL_CLK) {
         val = 6250000 / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_PLL_CLK, val / 2);
+        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_PLL_CLK, (uint16_t)val / 2);
       }
     }
   }
 
   // Save values to registers and globals
   if ((control & ARM_SAI_CONTROL_Msk) == ARM_SAI_CONFIGURE_TX) {
-    i2s->info->tx.data_bits = data_bits;
-    i2s->info->tx.master    = master;
+    i2s->info->tx.data_bits = (uint8_t)data_bits;
+    i2s->info->tx.master    = (uint8_t)master;
   } else {
-    i2s->info->rx.data_bits = data_bits;
-    i2s->info->rx.master    = master;
+    i2s->info->rx.data_bits = (uint8_t)data_bits;
+    i2s->info->rx.master    = (uint8_t)master;
   }
 
   i2s->flags |= I2S_FLAG_CONFIGURED;
 
   return ARM_DRIVER_OK;
 }
-#if !defined(A11_ROM) || !defined(ROMDRIVER_PRESENT)
 /*==============================================*/
 /**
  *  @fn          void I2S0_Chnl0_PinMux(I2S_RESOURCES *i2s)
@@ -676,6 +677,7 @@ int32_t I2S_Uninitialize(I2S_RESOURCES *i2s, UDMA_RESOURCES *udma)
  *  @fn          int32_t I2S_PowerControl(ARM_POWER_STATE state, I2S_RESOURCES *i2s, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
  *  @brief       Configure Power to I2S interface. 
  *  @param[in]   state      : I2S Power state \ref ARM_POWER_STATE
+ *  @param[in]   i2s        : Pointer to I2S resources
  *  @param[in]   udma       : Pointer to UDMA resources
  *  @param[in]   udmaHandle : Pointer to UDMA handler
  *  @return      \ref execution_status
@@ -830,7 +832,7 @@ int32_t I2S_Send(const void *data,
   i2s->info->tx.cnt              = 0U;
   num                            = num * (i2s->info->tx.data_bits / 8U);
 
-  i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TXFCR_b.TXCHET = (i2s->tx_fifo_level);
+  i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TXFCR_b.TXCHET = (unsigned int)((i2s->tx_fifo_level) & 0x0F);
 
   // Only 32-bit value can be written to FIFO. If there is data left from last send,
   // fill residue buffer to 32bits and write to TX FIFO
@@ -840,7 +842,10 @@ int32_t I2S_Send(const void *data,
     }
     if (i2s->info->tx.residue_cnt == 4U) {
       // Write 32bits to TX FIFO
-      i2s->reg->CHANNEL_CONFIG[0].I2S_LTHR = *(uint32_t *)(i2s->info->tx.residue_buf);
+      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = i2s->info->tx.residue_buf[3];
+      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = (i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR << 8) | i2s->info->tx.residue_buf[2];
+      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = (i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR << 8) | i2s->info->tx.residue_buf[1];
+      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = (i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR << 8) | i2s->info->tx.residue_buf[0];
 
       // There is no valid data in residue buffer
       i2s->info->tx.residue_cnt = 0U;
@@ -852,7 +857,10 @@ int32_t I2S_Send(const void *data,
     }
     if (i2s->info->tx.residue_cnt == 4U) {
       // Write 32bits to TX FIFO
-      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = *(uint32_t *)(i2s->info->tx.residue_buf);
+      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = i2s->info->tx.residue_buf[3];
+      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = (i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR << 8) | i2s->info->tx.residue_buf[2];
+      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = (i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR << 8) | i2s->info->tx.residue_buf[1];
+      i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR = (i2s->reg->CHANNEL_CONFIG[1].I2S_LTHR << 8) | i2s->info->tx.residue_buf[0];
 
       // There is no valid data in residue buffer
       i2s->info->tx.residue_cnt = 0U;
@@ -874,7 +882,7 @@ int32_t I2S_Send(const void *data,
       chnl_cfg.altStruct = 0;
       chnl_cfg.burstReq  = 1;
       if ((num / 2) < 1024) {
-        i2s->dma_tx->control.totalNumOfDMATrans = (num / (i2s->info->tx.data_bits / 8U)) - 1;
+        i2s->dma_tx->control.totalNumOfDMATrans = (unsigned int)(((num / (i2s->info->tx.data_bits / 8U)) - 1) & 0x03FF);
       } else {
         i2s->dma_tx->control.totalNumOfDMATrans = 0x3FF;
       }
@@ -976,7 +984,7 @@ int32_t I2S_Receive(void *data,
   num = num * (i2s->info->rx.data_bits / 8U);
 
   // Set FIFO level and enable RX DMA
-  i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = (i2s->rx_fifo_level);
+  i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = (unsigned int)((i2s->rx_fifo_level) & 0x0F);
 
   while ((i2s->info->rx.cnt < num) && (i2s->info->rx.residue_cnt < i2s->info->rx.residue_num)) {
     // RX Data available in residue buffer
@@ -1007,7 +1015,7 @@ int32_t I2S_Receive(void *data,
     chnl_cfg.altStruct = 0;
     chnl_cfg.burstReq  = 1;
     if ((num / 2) < 1024) {
-      i2s->dma_rx->control.totalNumOfDMATrans = (num / (i2s->info->rx.data_bits / 8U)) - 1;
+      i2s->dma_rx->control.totalNumOfDMATrans = (unsigned int)(((num / (i2s->info->rx.data_bits / 8U)) - 1) & 0x03FF);
     } else {
       i2s->dma_rx->control.totalNumOfDMATrans = 0x3FF;
     }
@@ -1046,7 +1054,9 @@ int32_t I2S_Receive(void *data,
       UDMAx_DMAEnable(udma, udmaHandle);
 #ifndef I2S_LOOP_BACK
       if (i2s->info->rx.master) {
+#ifndef SL_SI91X_I2S
         i2s->reg->I2S_CER_b.CLKEN = ENABLE; //RX_Clock is not required in Loopback connections.
+#endif
       }
 #endif
     }
@@ -1099,11 +1109,11 @@ ARM_SAI_STATUS I2S_GetStatus(I2S_RESOURCES *i2s)
 {
   ARM_SAI_STATUS status;
 
-  status.frame_error  = i2s->info->status.frame_error;
-  status.rx_busy      = i2s->info->status.rx_busy;
-  status.rx_overflow  = i2s->info->status.rx_overflow;
-  status.tx_busy      = i2s->info->status.tx_busy;
-  status.tx_underflow = i2s->info->status.tx_underflow;
+  status.frame_error  = (unsigned int)(i2s->info->status.frame_error & 0x01);
+  status.rx_busy      = (unsigned int)(i2s->info->status.rx_busy & 0x01);
+  status.rx_overflow  = (unsigned int)(i2s->info->status.rx_overflow & 0x01);
+  status.tx_busy      = (unsigned int)(i2s->info->status.tx_busy & 0x01);
+  status.tx_underflow = (unsigned int)(i2s->info->status.tx_underflow & 0x01);
 
   return status;
 }
@@ -1119,7 +1129,7 @@ void I2S_IRQHandler(I2S_RESOURCES *i2s)
 {
   uint32_t state, val = 0, event, level = 0;
   uint32_t i, j;
-  uint8_t *ptr_buf;
+  void *ptr_buf;
 
   state = i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_ISR;
   event = 0U;
@@ -1238,6 +1248,7 @@ void I2S_IRQHandler(I2S_RESOURCES *i2s)
 void I2S_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, I2S_RESOURCES *i2s)
 {
   uint32_t evt = 0;
+  (void)dmaCh;
 
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
@@ -1282,6 +1293,7 @@ void I2S_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, I2S_RESOURCES *i2s)
 {
   uint32_t evt = 0U;
   uint32_t val;
+  (void)dmaCh;
 
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
@@ -1295,12 +1307,12 @@ void I2S_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, I2S_RESOURCES *i2s)
         // Set FIFO level to full, to detect RX overflow
         val = i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT;
         val |= (8U);
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = val;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = (unsigned int)(val & 0x0F);
       } else {
         // Set user defined level, to retrieve remaining requested data
         val = i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT;
         val |= (uint32_t)(i2s->rx_fifo_level);
-        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = val;
+        i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RFCR_b.RXCHDT = (unsigned int)(val & 0x0F);
       }
 
       RSI_I2S_InterruptEnableDisable(i2s, i2s->xfer_chnl, F_RXFOM, INTR_UNMASK);

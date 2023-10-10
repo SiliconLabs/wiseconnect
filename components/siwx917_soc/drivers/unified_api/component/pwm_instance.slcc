@@ -1,0 +1,34 @@
+id: pwm_instance
+label: PWM Instance
+package: platform
+description: >
+  Add a PWM instance.
+category: Platform|si91x|Drivers
+quality: production
+instantiable:
+  prefix: inst
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_pwm_init_{{instance}}_config.h
+    file_id: pwm_config
+provides:
+  - name: pwm_instance
+    allow_multiple: true
+template_file:
+  - path: init/sl_pwm_instances.h.jinja
+  - path: init/sl_pwm_init.c.jinja
+template_contribution:
+  - name: pwm_instances
+    value: "{{instance}}"
+  - name: component_catalog
+    value: pwm
+  - name: component_catalog
+    value: "pwm_{{instance}}"
+  - name: event_handler
+    condition: [sl_pwm]
+    value:
+      event: driver_init
+      include: "sl_pwm_instances.h"
+      handler: sl_pwm_init_instances
+requires:
+  - name: sl_pwm

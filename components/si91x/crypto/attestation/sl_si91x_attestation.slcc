@@ -1,0 +1,17 @@
+id: sl_si91x_attestation
+package: wiseconnect3_sdk
+description: >
+  Implementation of the ATTESTATION API
+label: ATTESTATION
+category: Crypto|ATTESTATION
+quality: production
+component_root_path: ./components/si91x/crypto/attestation
+provides:
+- name: sl_si91x_attestation
+source:
+- path: src/sl_si91x_attestation.c
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_attestation.h
+

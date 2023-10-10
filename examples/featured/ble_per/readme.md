@@ -13,7 +13,7 @@ Before running the application, the user will need the following things to setup
 - A Windows PC.
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes](https://www.silabs.com) for details.
   - **SoC Mode**:
-    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
+    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4340A](https://www.silabs.com/)
   - **NCP Mode**:
     - Silicon Labs [BRD4180B](https://www.silabs.com/)
     - Host MCU Eval Kit. This example has been tested with:
@@ -38,85 +38,95 @@ Before running the application, the user will need the following things to setup
 
 Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
-## 3. Project Environment
+## 3 Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-### 3.1 Create the Project
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
 
-#### 3.1.1 SoC Mode
+### 3.1 Creating the project
 
-1. Ensure the SiWx91x setup is connected to your PC.
+#### 3.1.1 SoC mode
+
+- Ensure the SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-   ![Soc Board detection](resources/readme/socboarddetection111.png)
+  **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
+#### 3.1.2 NCP mode
 
-- Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - PER* application.
-
-   ![project_selection](resources/readme/select_project_soc.png)
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  ![creation_final](resources/readme/create_project_soc.png)
-
-#### 3.1.2 NCP Mode
-
-1. Ensure the EFx32 and SiWx91x setup is connected to your PC.
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
-   ![EFR32 Board detection](resources/readme/efr32.png)
+  **![EFR32 Board detection](resources/readme/efr32.png)**
 
-- Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
+### 3.2 Importing the project
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *BLE - PER* application.
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
 
-  ![creation_final](resources/readme/select_project_ncp.png)
+#### SOC Mode
 
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
+- Select **BLE - PER (SOC)** test application
 
-  ![creation_final](resources/readme/create_project_ncp.png)
+  **![project_selection](resources/readme/select_project_soc.png)**
 
-### 3.2 Setup for Application Prints
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-#### 3.2.1 SoC Mode
+  **![creation_final](resources/readme/create_project_soc.png)**
 
-  You can use either of the below USB to UART converters for application prints.
+#### NCP Mode
 
-1. Setup using USB to UART converter board.
+- Select **BLE - PER (NCP)** test application
+
+  **![project_selection](resources/readme/select_project_ncp.png)**
+
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+
+  **![creation_final](resources/readme/create_project_ncp.png)**
+
+### 3.3 Set up for application prints
+
+#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4340A
+
+You can use either of the below USB to UART converters for application prints.
+
+1. Set up using USB to UART converter board.
 
    - Connect Tx (Pin-6) to P27 on WSTK
    - Connect GND (Pin 8 or 10) to GND on WSTK
 
-**![FTDI_prints](resources/readme/usb_to_uart_1.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
-2. Setup using USB to UART converter cable
+2. Set up using USB to UART converter cable.
 
    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
-**![FTDI_prints](resources/readme/usb_to_uart_2.png)**
+   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera Term setup - for NCP and SoC modes**
-
-1. Open the Tera Term tool.
+3. Open the Teraterm tool.
 
    - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-   **![UART - SoC](resources/readme/port_selection_soc.png)**
+     **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
-   - For NCP mode, choose the J-Link port and click on **OK**.
+**Note:** For Other 917 SoC boards please refer section #3.3.2
 
-   **![J-link - NCP](resources/readme/port_selection.png)**
+#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
+
+1. Open the Teraterm tool.
+
+- choose the J-Link port and click on **OK**.
+    
+    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
-  **![Serial port](resources/readme/serial_port_setup.png)**
+    **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
-  **![Baud rate](resources/readme/serial_port.png)**
+    **![serial_port](resources/readme/serial_port.png)**
 
 ## 4. Application Build Environment
 
@@ -133,13 +143,13 @@ Update or modify following macros
 ```c
   #define RSI_CONFIG_PER_MODE RSI_BLE_PER_TRANSMIT_MODE
                                  OR
-  #define RSI_CONFIG_PER_MODE RSI_BLE_PER_RECEIVE_MODE```
-- `CMD_ID` refers the command id for transmit or receive
-```c
+  #define RSI_CONFIG_PER_MODE RSI_BLE_PER_RECEIVE_MODE
+  CMD_ID refers the command id for transmit or receive
+
   #define BLE_TRANSMIT_CMD_ID 0x13
-  #define BLE_RECEIVE_CMD_ID  0x14```
-- `PAYLOAD_TYPE` refers type of payload to be transmitted
-```c
+  #define BLE_RECEIVE_CMD_ID  0x14
+  PAYLOAD_TYPE refers type of payload to be transmitted
+
   #define DATA_PRBS9                 0x00
   #define DATA_FOUR_ONES_FOUR_ZEROES 0x01
   #define DATA_ALT_ONES_AND_ZEROES 0x02
@@ -147,60 +157,60 @@ Update or modify following macros
   #define DATA_ALL_ONES                 0x04
   #define DATA_ALL_ZEROES         0x05
   #define DATA_FOUR_ZEROES_FOUR_ONES 0x06
-  #define DATA_ALT_ZEROES_AND_ONES 0x07```
-- `LE_CHNL_TYPE`: advertising channel - 0 data channel - 1
-```c
+  #define DATA_ALT_ZEROES_AND_ONES 0x07
+  LE_CHNL_TYPE: advertising channel - 0 data channel - 1
+
   #define LE_ADV_CHNL_TYPE 0
-  #define LE_DATA_CHNL_TYPE 1```
-- `PACKET_LEN`: Length of the packet, in bytes, to be transmitted. Packet length range 0 to 255.
-```c
-  #define BLE_TX_PKT_LEN                32```
-- `BLE_RX_CHNL_NUM`- Receive channel index, as per the Bluetooth standard.i.e, 0 to 39
-- `BLE_TX_CHNL_NUM` - Transmit channel index, as per the Bluetooth standard. i.e, 0 to 39
-```c
+  #define LE_DATA_CHNL_TYPE 1
+   PACKET_LEN: Length of the packet, in bytes, to be transmitted. Packet length range 0 to 255.
+
+  #define BLE_TX_PKT_LEN                32
+   BLE_RX_CHNL_NUM - Receive channel index, as per the Bluetooth standard.i.e, 0 to 39
+   BLE_TX_CHNL_NUM - Transmit channel index, as per the Bluetooth standard. i.e, 0 to 39
+
   #define BLE_RX_CHNL_NUM 10
-  #define BLE_TX_CHNL_NUM 10```
-- `BLE_PHY_RATE`: ,2Mbps - 2 , 125Kbps - 4, 500Kbps - 8
-```c
+  #define BLE_TX_CHNL_NUM 10
+  BLE_PHY_RATE: 2Mbps - 2 , 125Kbps - 4, 500Kbps - 8
+
   #define LE_ONE_MBPS         1
   #define LE_TWO_MBPS         2
   #define LE_125_KBPS_CODED   4
   #define LE_500_KBPS_CODED   8
-  #define BLE_PHY_RATE LE_ONE_MBPS```
-- `SCRAMBLER_SEED`: Initial seed to be used for whitening. It should be set to '0' in order to disable whitening.
-```c
-  #define SCRAMBLER_SEED 0```
+  #define BLE_PHY_RATE LE_ONE_MBPS
+  SCRAMBLER_SEED: Initial seed to be used for whitening. It should be set to '0' in order to disable whitening.
+
+  #define SCRAMBLER_SEED 0
 - `TX_MODE`: Burst mode - 0 Continuous mode - 1
-```c
+
   #define BURST_MODE         0
-  #define CONTINUOUS_MODE 1```
-- `HOPPING TYPE` : no hopping -0 fixed hopping - 1 random hopping - 2
+  #define CONTINUOUS_MODE 1
+  HOPPING TYPE : no hopping -0 fixed hopping - 1 random hopping - 2
 ```c
   #define NO_HOPPING 0
   #define FIXED_HOPPING 1
-  #define RANDOM_HOPPING 2```
-- `ANT_SEL` : onchip antenna - 2 u.f.l - 3
-```c
+  #define RANDOM_HOPPING 2
+  ANT_SEL : onchip antenna - 2 u.f.l - 3
+
   #define ONBOARD_ANT_SEL 2
-  #define EXT_ANT_SEL     3```
-- `RF_TYPE` : External RF – 0 Internal RF – 1
-```c
+  #define EXT_ANT_SEL     3
+  RF_TYPE : External RF – 0 Internal RF – 1
+
   #define BLE_EXTERNAL_RF 0
-  #define BLE_INTERNAL_RF 1```
-- `RF CHAIN`: Select the required RF chain
-```c
-     #define NO_CHAIN_SEL 0
-     #define WLAN_HP_CHAIN_BIT 0
+  #define BLE_INTERNAL_RF 1
+  RF CHAIN: Select the required RF chain
+
+  #define NO_CHAIN_SEL 0
+  #define WLAN_HP_CHAIN_BIT 0
   #define WLAN_LP_CHAIN_BIT 1
   #define BT_HP_CHAIN_BIT 2
-  #define BT_LP_CHAIN_BIT 3```
-- `PLL MODE` : PLL_MODE0 – 0 PLL_MODE1 – 1
+  #define BT_LP_CHAIN_BIT 3
+  PLL MODE : PLL_MODE0 – 0 PLL_MODE1 – 1
 ```c
-     #define PLL_MODE_0 0
+  #define PLL_MODE_0 0
   #define PLL_MODE_1 1
 ```
 
-- `LOOP_BACK_MODE` : enable 1 or disable 0 #define LOOP_BACK_MODE_DISABLE 0
+ LOOP_BACK_MODE : enable 1 or disable 0 #define LOOP_BACK_MODE_DISABLE 0
 
 ```c
      #define LOOP_BACK_MODE_ENABLE 1
@@ -221,7 +231,7 @@ Update or modify following macros
   #define RSI_TCP_IP_FEATURE_BIT_MAP                     TCP_IP_FEAT_DHCPV4_CLIENT
   #define RSI_CUSTOM_FEATURE_BIT_MAP                     FEAT_CUSTOM_FEAT_EXTENTION_VALID
   #define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                 0
-```
+
 
 **Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example. 
 
@@ -274,17 +284,15 @@ Follow the steps below for the successful execution of the application.
 
 4. After the program gets executed, Silicon Labs module starts BLE PER transmit or BLE PER receive.
 
-5. For receiving purpose use BT dongle and keep it in BLE PER RX mode.
+5. Check for BLE PER stats whatever configured values are affecting or not.
 
-6. Check for BLE PER stats whatever configured values are affecting or not.
+6. After successful program execution of BLE PER Transmit the waveform on the spectrum looks as shown below. 
 
-7. After successful program execution of BLE PER Transmit the waveform on the spectrum looks as shown below.  
+![Figure: Spectrum Analyzer](resources/readme/bleperspectrum.png)
 
-8. After successful program execution the prints in Tera Term looks as shown below.
+7. After successful program execution the prints in Tera Term looks as shown below.
 
-![output](resources/readme/output_1.png)
-
-![output](resources/readme/output_2.png)
+![output](resources/readme/teraterm_prints.png)
 
 ### Note
 

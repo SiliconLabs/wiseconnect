@@ -1,6 +1,24 @@
+/*******************************************************************************
+* @file  network_sl_api_wrapper.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include <string.h>
 #include "network_interface.h"
 #include "socket.h"
+#include "sl_si91x_socket_support.h"
 #include "netinet6_in6.h"
 #include "sl_net_dns.h"
 #include "sl_constants.h"
@@ -9,6 +27,11 @@
 #include "sl_si91x_protocol_types.h"
 #include "errno.h"
 #include "aws_iot_error.h"
+#include "cmsis_os2.h"
+
+//Application level variables for QOS1. Extern these variables in the application for QOS1.
+volatile uint8_t pub_state, qos1_publish_handle, select_given;
+osSemaphoreId_t select_sem;
 
 /******************************************************
 *                    Macros
@@ -113,7 +136,7 @@ static int32_t ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr
     }
 
     uint8_t certificate_index = SL_CERT_INDEX_0;
-    if (setsockopt(n->socket_id, SOL_SOCKET, SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
+    if (sl_si91x_set_custom_sync_sockopt(n->socket_id, SOL_SOCKET, SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
       return get_aws_error(errno);
     }
   }
@@ -218,6 +241,12 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
     return get_aws_error(errno);
   }
 
+    if(pub_state == 1){    //This check is for handling PUBACK in QOS1
+    osSemaphoreAcquire(select_sem, osWaitForever);
+    qos1_publish_handle = 1;
+    pub_state = 0;
+    select_given        = 0;
+    }
   do {
     bytes_read = recv(pNetwork->socket_id, pMsg, temp_len, 0);
     if (bytes_read == 0) {

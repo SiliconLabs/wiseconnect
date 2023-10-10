@@ -12,10 +12,5 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "EMAC.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_ETH_MAC.h"
 provides:
   - name: cmsis_emac
-requires:
-  - name: cmsis_driver_common

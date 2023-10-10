@@ -12,11 +12,10 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "USART.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_USART.h"
 provides:
   - name: cmsis_usart
 requires:
-  - name: cmsis_driver_common
+  - name: cmsis_usart_driver
+  - name: cmsis_common_driver
   - name: rsilib_usart
+  - name: rsilib_clock_update

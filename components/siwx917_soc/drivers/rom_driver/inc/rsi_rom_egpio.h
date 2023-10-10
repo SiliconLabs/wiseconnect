@@ -15,15 +15,14 @@
 *
 ******************************************************************************/
 
-/**
- * Includes
- */
+//Includes
+
 #ifndef __RSI_ROM_EGPIO_H__
 #define __RSI_ROM_EGPIO_H__
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_EGPIO_DRIVER RSI:RS1xxxx EGPIO 
+ * \defgroup EGPIO_DRIVER
  *  @{
  *
  */

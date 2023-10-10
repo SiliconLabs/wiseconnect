@@ -632,191 +632,194 @@ STATIC INLINE void _usdelay(uint32_t delayUs, cdDelay delayCb)
   delayCb(delayUs);
 }
 
-error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK);
+rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK);
 
 boolean_t clk_check_pll_lock(PLL_TYPE_T pllType);
 
-error_t clk_soc_pll_clk_enable(boolean_t clkEnable);
+rsi_error_t clk_soc_pll_clk_enable(boolean_t clkEnable);
 
-error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
-                                 boolean_t clk_en,
-                                 uint16_t divFactor,
-                                 uint16_t nFactor,
-                                 uint16_t mFactor,
-                                 uint16_t fcwF,
-                                 uint16_t dcoFixSel,
-                                 uint16_t ldoProg);
+rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
+                                     boolean_t clk_en,
+                                     uint16_t divFactor,
+                                     uint16_t nFactor,
+                                     uint16_t mFactor,
+                                     uint16_t fcwF,
+                                     uint16_t dcoFixSel,
+                                     uint16_t ldoProg);
 
-error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK);
+rsi_error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK);
 
-error_t clk_soc_pll_clk_bypass_enable(boolean_t clkEnable);
+rsi_error_t clk_soc_pll_clk_bypass_enable(boolean_t clkEnable);
 
-error_t clk_soc_pll_clk_reset(void);
+rsi_error_t clk_soc_pll_clk_reset(void);
 
-error_t clk_soc_pll_pd_enable(boolean_t en);
+rsi_error_t clk_soc_pll_pd_enable(boolean_t en);
 
-error_t clk_soc_pll_turn_off(void);
+rsi_error_t clk_soc_pll_turn_off(void);
 
-error_t clk_soc_pll_turn_on(void);
+rsi_error_t clk_soc_pll_turn_on(void);
 
-error_t clk_i2s_pll_clk_enable(boolean_t clkEnable);
+rsi_error_t clk_i2s_pll_clk_enable(boolean_t clkEnable);
 
-error_t clk_i2s_pll_clk_bypass_enable(boolean_t clkEnable);
+rsi_error_t clk_i2s_pll_clk_bypass_enable(boolean_t clkEnable);
 
-error_t clk_i2s_pll_pd_enable(boolean_t en);
+rsi_error_t clk_i2s_pll_pd_enable(boolean_t en);
 
-error_t clk_i2s_pll_turn_off(void);
+rsi_error_t clk_i2s_pll_turn_off(void);
 
-error_t clk_i2s_pll_turn_on(void);
+rsi_error_t clk_i2s_pll_turn_on(void);
 
-error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
-                                 uint16_t u16DivFactor1,
-                                 uint16_t u16DivFactor2,
-                                 uint16_t nFactor,
-                                 uint16_t mFactor,
-                                 uint16_t fcwF);
+rsi_error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
+                                     uint16_t u16DivFactor1,
+                                     uint16_t u16DivFactor2,
+                                     uint16_t nFactor,
+                                     uint16_t mFactor,
+                                     uint16_t fcwF);
 
-error_t clk_i2s_pll_clk_reset(void);
+rsi_error_t clk_i2s_pll_clk_reset(void);
 
-error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK);
+rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK);
 
-error_t clk_intf_pll_clk_enable(boolean_t clkEnable);
+rsi_error_t clk_intf_pll_clk_enable(boolean_t clkEnable);
 
-error_t clk_intf_pll_pd_enable(boolean_t en);
+rsi_error_t clk_intf_pll_pd_enable(boolean_t en);
 
-error_t clk_intf_pll_turn_off(void);
+rsi_error_t clk_intf_pll_turn_off(void);
 
-error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
-                                  boolean_t clk_en,
-                                  uint16_t divFactor,
-                                  uint16_t nFactor,
-                                  uint16_t mFactor,
-                                  uint16_t fcwF,
-                                  uint16_t dcoFixSel,
-                                  uint16_t ldoProg);
+rsi_error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
+                                      boolean_t clk_en,
+                                      uint16_t divFactor,
+                                      uint16_t nFactor,
+                                      uint16_t mFactor,
+                                      uint16_t fcwF,
+                                      uint16_t dcoFixSel,
+                                      uint16_t ldoProg);
 
-error_t clk_intf_pll_clk_bypass_enable(boolean_t clkEnable);
+rsi_error_t clk_intf_pll_clk_bypass_enable(boolean_t clkEnable);
 
-error_t clk_intf_pll_turn_on(void);
+rsi_error_t clk_intf_pll_turn_on(void);
 
-error_t clk_intf_pll_clk_reset(void);
+rsi_error_t clk_intf_pll_clk_reset(void);
 
-error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK);
+rsi_error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK);
 
-error_t clk_peripheral_clk_enable1(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_peripheral_clk_enable1(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_peripheral_clk_disable1(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_peripheral_clk_disable1(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_peripheral_clk_enable2(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_peripheral_clk_enable2(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_peripheral_clk_disable2(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_peripheral_clk_disable2(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_peripheral_clk_enable3(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_peripheral_clk_enable3(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_peripheral_clk_disable3(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_peripheral_clk_disable3(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_dynamic_clk_gate_disable(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_dynamic_clk_gate_disable(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_dynamic_clk_gate_disable2(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_dynamic_clk_gate_disable2(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_dynamic_clk_gate_enable(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_dynamic_clk_gate_enable(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_dynamic_clk_gate_enable2(M4CLK_Type *pCLK, uint32_t flags);
+rsi_error_t clk_dynamic_clk_gate_enable2(M4CLK_Type *pCLK, uint32_t flags);
 
-error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
-                            QSPI_CLK_SRC_SEL_T clkSource,
-                            boolean_t swalloEn,
-                            boolean_t OddDivEn,
-                            uint32_t divFactor);
-#ifdef CHIP_917B0
-error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
-                              QSPI_CLK_SRC_SEL_T clkSource,
-                              boolean_t swalloEn,
-                              boolean_t OddDivEn,
-                              uint32_t divFactor);
-#endif
-error_t clk_usart_clk_config(M4CLK_Type *pCLK,
-                             CLK_ENABLE_T clkType,
-                             boolean_t FracDivEn,
-                             EN_USART_T enUsart,
-                             USART_CLK_SRC_SEL_T clkSource,
-                             uint32_t divFactor);
-
-error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
-                               CLK_ENABLE_T clkType,
-                               SSI_MST_CLK_SRC_SEL_T clkSource,
-                               uint32_t divFactor);
-
-error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK, boolean_t swalloEn, SDMEM_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
-
-error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType);
-
-error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType);
-
-error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
-
-error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor);
-
-error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType);
-
-error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
+rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
+                                QSPI_CLK_SRC_SEL_T clkSource,
                                 boolean_t swalloEn,
-                                ETHERNET_CLK_SRC_SEL_T clkSource,
+                                boolean_t OddDivEn,
                                 uint32_t divFactor);
+#ifdef CHIP_917B0
+rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
+                                  QSPI_CLK_SRC_SEL_T clkSource,
+                                  boolean_t swalloEn,
+                                  boolean_t OddDivEn,
+                                  uint32_t divFactor);
+#endif
+rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
+                                 CLK_ENABLE_T clkType,
+                                 boolean_t FracDivEn,
+                                 EN_USART_T enUsart,
+                                 USART_CLK_SRC_SEL_T clkSource,
+                                 uint32_t divFactor);
 
-error_t clk_m4_soc_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+rsi_error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
+                                   CLK_ENABLE_T clkType,
+                                   SSI_MST_CLK_SRC_SEL_T clkSource,
+                                   uint32_t divFactor);
 
-error_t clk_qspi_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor);
+rsi_error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK,
+                                  boolean_t swalloEn,
+                                  SDMEM_CLK_SRC_SEL_T clkSource,
+                                  uint32_t divFactor);
 
-error_t clk_ct_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+rsi_error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType);
 
-error_t clk_ssi_mst_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+rsi_error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType);
 
-error_t clk_cci_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+rsi_error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
 
-error_t clk_i2s_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+rsi_error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor);
 
-error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor);
+rsi_error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType);
 
-error_t clk_usart_clk_div(M4CLK_Type *pCLK, EN_USART_T enUsart, boolean_t u8FracDivEn, uint32_t divFactor);
+rsi_error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
+                                    boolean_t swalloEn,
+                                    ETHERNET_CLK_SRC_SEL_T clkSource,
+                                    uint32_t divFactor);
 
-error_t RSI_CLK_CanClkDiv(M4CLK_Type *pCLK, uint16_t divFactor);
+rsi_error_t clk_m4_soc_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+
+rsi_error_t clk_qspi_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor);
+
+rsi_error_t clk_ct_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+
+rsi_error_t clk_ssi_mst_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+
+rsi_error_t clk_cci_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+
+rsi_error_t clk_i2s_clk_div(M4CLK_Type *pCLK, uint32_t divFactor);
+
+rsi_error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor);
+
+rsi_error_t clk_usart_clk_div(M4CLK_Type *pCLK, EN_USART_T enUsart, boolean_t u8FracDivEn, uint32_t divFactor);
+
+rsi_error_t RSI_CLK_CanClkDiv(M4CLK_Type *pCLK, uint16_t divFactor);
 
 uint32_t clk_slp_clk_calib_config(M4CLK_Type *pCLK, uint8_t clkCycles);
 
-error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel);
+rsi_error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel);
 
-error_t clk_slp_clk_config(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc);
+rsi_error_t clk_slp_clk_config(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc);
 
-error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C);
+rsi_error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C);
 
-error_t clk_xtal_clk_config(uint8_t xtalPin);
+rsi_error_t clk_xtal_clk_config(uint8_t xtalPin);
 
-error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor);
+rsi_error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor);
 
-error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
+rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
 
-error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module);
+rsi_error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module);
 
-error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
+rsi_error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
 
-error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
+rsi_error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
 
-error_t ulpss_enable_ref_clks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn);
+rsi_error_t ulpss_enable_ref_clks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn);
 
-error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
+rsi_error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
 
 void _usdelay(uint32_t delayUs, cdDelay delayCb);
 
-error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type);
+rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type);
 
 void clk_config_pll_lock(boolean_t manual_lock, boolean_t bypass_manual_lock, uint8_t mm_count_limit);
 
 void clk_config_pll_ref_clk(uint8_t ref_clk_src);
-error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
+rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
 uint32_t RSI_CLK_CheckPresent(M4CLK_Type *pCLK, CLK_PRESENT_T clkPresent);
-error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource);
-error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type);
+rsi_error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource);
+rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type);
 
 /*End of file not truncated*/
 

@@ -49,9 +49,10 @@ void ROM_WL_rsi_raise_pkt_pending_interrupt_to_ta(void)
  * @return      0 - Success \n
  * 			    1 - Failure
  */
-int32_t ROM_WL_rsi_send_pkt_to_ta(rsi_m4ta_desc_t *tx_desc)
+int32_t ROM_WL_rsi_send_pkt_to_ta(rsi_m4ta_desc_t *tx_desc_p)
 {
 
+  (void)tx_desc_p;
   //raise interrupt to TA
   ROM_WL_rsi_raise_pkt_pending_interrupt_to_ta();
 
@@ -66,13 +67,13 @@ int32_t ROM_WL_rsi_send_pkt_to_ta(rsi_m4ta_desc_t *tx_desc)
  * @return      0 - Success \n
  * 			    1 - Failure
  */
-int ROM_WL_rsi_submit_rx_pkt(global_cb_t *global_cb_p)
+int ROM_WL_rsi_submit_rx_pkt(global_cb_t *controlblock_p)
 {
 
   rsi_pkt_t *rx_pkt = NULL;
 
-  rsi_driver_cb_t *rsi_driver_cb = global_cb_p->rsi_driver_cb;
-  rsi_m4ta_desc_t *rx_desc       = global_cb_p->rx_desc;
+  rsi_driver_cb_t *rsi_driver_cb_p = controlblock_p->rsi_driver_cb;
+  rsi_m4ta_desc_t *rx_desc_p       = controlblock_p->rx_desc;
 
   int8_t *pkt_buffer = NULL;
   //Get commmon cb pointer
@@ -84,12 +85,12 @@ int ROM_WL_rsi_submit_rx_pkt(global_cb_t *global_cb_p)
   }
 
   // Allocate packet to receive packet from module
-  rx_pkt = ROM_WL_rsi_pkt_alloc(global_cb_p, &rsi_driver_cb->rx_pool);
+  rx_pkt = ROM_WL_rsi_pkt_alloc(controlblock_p, &rsi_driver_cb_p->rx_pool);
 
   if (rx_pkt == NULL) {
     RSI_ASSERTION(SAPIS_M4_DEBUG_OUT, "\nIn submit rx pkt , RX buffer is not available\n");
 
-    global_cb_p->submit_rx_pkt_to_ta = 1;
+    controlblock_p->submit_rx_pkt_to_ta = 1;
 
     return -1;
   }
@@ -97,16 +98,16 @@ int ROM_WL_rsi_submit_rx_pkt(global_cb_t *global_cb_p)
   pkt_buffer = (int8_t *)&rx_pkt->desc[0];
 
   // Fill source address in the TX descriptors
-  rx_desc[0].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)pkt_buffer);
+  rx_desc_p[0].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)pkt_buffer);
 
   // Fill source address in the TX descriptors
-  rx_desc[0].length = (16);
+  rx_desc_p[0].length = (16);
 
   // Fill source address in the TX descriptors
-  rx_desc[1].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)(pkt_buffer + 16));
+  rx_desc_p[1].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)(pkt_buffer + 16));
 
   // Fill source address in the TX descriptors
-  rx_desc[1].length = (1600);
+  rx_desc_p[1].length = (1600);
 
   ROM_WL_raise_m4_to_ta_interrupt(RX_BUFFER_VALID);
 
@@ -121,10 +122,10 @@ int ROM_WL_rsi_submit_rx_pkt(global_cb_t *global_cb_p)
  * @return      Packet which is read from the  module
  */
 
-rsi_pkt_t *ROM_WL_rsi_frame_read(global_cb_t *global_cb_p)
+rsi_pkt_t *ROM_WL_rsi_frame_read(global_cb_t *controlblock_p)
 {
 
-  return ROM_WL_rsi_dequeue_pkt(global_cb_p, &global_cb_p->rsi_driver_cb->m4_rx_q);
+  return ROM_WL_rsi_dequeue_pkt(controlblock_p, &controlblock_p->rsi_driver_cb->m4_rx_q);
 }
 
 /*====================================================*/
@@ -140,12 +141,12 @@ rsi_pkt_t *ROM_WL_rsi_frame_read(global_cb_t *global_cb_p)
  *              Negative Value - Failure
  */
 
-int16_t ROM_WL_rsi_frame_write(global_cb_t *global_cb_p,
+int16_t ROM_WL_rsi_frame_write(global_cb_t *controlblock_p,
                                rsi_frame_desc_t *uFrameDscFrame,
                                uint8_t *payloadparam,
                                uint16_t size_param)
 {
-  rsi_m4ta_desc_t *tx_desc = global_cb_p->tx_desc;
+  rsi_m4ta_desc_t *tx_desc_p = controlblock_p->tx_desc;
 
   if (((uFrameDscFrame->frame_len_queue_no[1]) >> 4) == 0x0) {
     RSI_ASSERTION(SAPIS_M4_TX_INVALID_DESC, "\nIn frame write , Invalid TX frame descriptor\n");
@@ -154,18 +155,18 @@ int16_t ROM_WL_rsi_frame_write(global_cb_t *global_cb_p,
   }
 
   // Fill source address in the TX descriptors
-  tx_desc[0].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)uFrameDscFrame);
+  tx_desc_p[0].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)uFrameDscFrame);
 
   // Fill source address in the TX descriptors
-  tx_desc[0].length = (16);
+  tx_desc_p[0].length = (16);
 
   // Fill source address in the TX descriptors
-  tx_desc[1].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)payloadparam);
+  tx_desc_p[1].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)payloadparam);
 
   // Fill source address in the TX descriptors
-  tx_desc[1].length = (size_param);
+  tx_desc_p[1].length = (size_param);
 
-  ROM_WL_rsi_send_pkt_to_ta(&tx_desc[0]);
+  ROM_WL_rsi_send_pkt_to_ta(&tx_desc_p[0]);
 
   return 0;
 }
@@ -262,10 +263,10 @@ void ROM_WL_clear_ta_to_m4_interrupt(uint32_t interrupt_no)
  * @param[in]    global_cb_p - pointer to the global control block
  * @return       void
  */
-void ROM_WL_rsi_transfer_to_ta_done_isr(global_cb_t *global_cb_p)
+void ROM_WL_rsi_transfer_to_ta_done_isr(global_cb_t *controlblock_p)
 {
   // Unmask TX Event
-  ROM_WL_rsi_unmask_event_from_isr(global_cb_p, RSI_TX_EVENT);
+  ROM_WL_rsi_unmask_event_from_isr(controlblock_p, RSI_TX_EVENT);
 }
 
 /*==============================================*/
@@ -275,17 +276,17 @@ void ROM_WL_rsi_transfer_to_ta_done_isr(global_cb_t *global_cb_p)
  * @param[in]    global_cb_p - pointer to the global control block
  * @return       void
  */
-rsi_pkt_t *ROM_WL_rsi_get_rx_pkt(global_cb_t *global_cb_p)
+rsi_pkt_t *ROM_WL_rsi_get_rx_pkt(global_cb_t *controlblock_p)
 {
 
-  rsi_m4ta_desc_t *rx_desc = global_cb_p->rx_desc;
-  if (rx_desc[0].addr == (uint32_t)NULL) {
+  rsi_m4ta_desc_t *rx_desc_p = controlblock_p->rx_desc;
+  if (rx_desc_p[0].addr == (uint32_t)NULL) {
     RSI_ASSERTION(SAPIS_M4_RX_BUFF_ADDR_NULL, "\nIn get  rx pkt,Rx Buffer in rx dma desc is NULL\n");
     // ASSERTION
     return NULL;
   }
 
-  return ((rsi_pkt_t *)((rx_desc[0].addr - M4_MEMORY_OFFSET_ADDRESS) - 4));
+  return ((rsi_pkt_t *)((rx_desc_p[0].addr - M4_MEMORY_OFFSET_ADDRESS) - 4));
 }
 /*==============================================*/
 /**
@@ -294,22 +295,22 @@ rsi_pkt_t *ROM_WL_rsi_get_rx_pkt(global_cb_t *global_cb_p)
  * @param[in]    global_cb_p - pointer to the global control block
  * @return       void
  */
-void ROM_WL_rsi_receive_from_ta_done_isr(global_cb_t *global_cb_p)
+void ROM_WL_rsi_receive_from_ta_done_isr(global_cb_t *controlblock_p)
 {
 
-  rsi_pkt_t *rx_pkt              = NULL;
-  rsi_driver_cb_t *rsi_driver_cb = global_cb_p->rsi_driver_cb;
+  rsi_pkt_t *rx_pkt                = NULL;
+  rsi_driver_cb_t *rsi_driver_cb_p = controlblock_p->rsi_driver_cb;
 
-  rx_pkt = ROM_WL_rsi_get_rx_pkt(global_cb_p);
+  rx_pkt = ROM_WL_rsi_get_rx_pkt(controlblock_p);
   if (rx_pkt != NULL) {
     // Enqueue the packet
-    ROM_WL_rsi_enqueue_pkt_from_isr(global_cb_p, &rsi_driver_cb->m4_rx_q, rx_pkt);
+    ROM_WL_rsi_enqueue_pkt_from_isr(controlblock_p, &rsi_driver_cb_p->m4_rx_q, rx_pkt);
   } else {
     RSI_ASSERTION(SAPIS_M4_RX_BUFF_NULL_RECIEVED, "\n receive_from_ta_done_isr, Received NULL Packet \n");
   }
 
   // Set event RX pending from device
-  ROM_WL_rsi_set_event_from_isr(global_cb_p, RSI_RX_EVENT);
+  ROM_WL_rsi_set_event_from_isr(controlblock_p, RSI_RX_EVENT);
 }
 
 /*==============================================*/
@@ -320,13 +321,13 @@ void ROM_WL_rsi_receive_from_ta_done_isr(global_cb_t *global_cb_p)
  * @return       void
  */
 
-void ROM_WL_rsi_m4_interrupt_isr(global_cb_t *global_cb_p)
+void ROM_WL_rsi_m4_interrupt_isr(global_cb_t *controlblock_p)
 {
 
   if (TASS_P2P_INTR_CLEAR & TX_PKT_TRANSFER_DONE_INTERRUPT) {
 
     // Call done interrupt isr
-    ROM_WL_rsi_transfer_to_ta_done_isr(global_cb_p);
+    ROM_WL_rsi_transfer_to_ta_done_isr(controlblock_p);
 
     // Clear the interrupt
     ROM_WL_clear_ta_to_m4_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT);
@@ -334,16 +335,30 @@ void ROM_WL_rsi_m4_interrupt_isr(global_cb_t *global_cb_p)
   } else if (TASS_P2P_INTR_CLEAR & RX_PKT_TRANSFER_DONE_INTERRUPT) {
 
     // Call done interrupt isr
-    ROM_WL_rsi_receive_from_ta_done_isr(global_cb_p);
+    ROM_WL_rsi_receive_from_ta_done_isr(controlblock_p);
 
     // Clear the interrupt
     ROM_WL_clear_ta_to_m4_interrupt(RX_PKT_TRANSFER_DONE_INTERRUPT);
 
-  } else {
+  }
+#ifdef CHIP_917
+  else if (TASS_P2P_INTR_CLEAR & TA_WRITING_ON_COMM_FLASH) {
+    //! moves m4 app to RAM and polls for TA done
+    sl_mv_m4_app_from_flash_to_ram(TA_WRITES_ON_COMM_FLASH);
+    // Clear the interrupt
+    ROM_WL_clear_ta_to_m4_interrupt(TA_WRITING_ON_COMM_FLASH);
+  }
+  //! Below changes are requried for M4 Image upgration in dual flash config
+  else if (TASS_P2P_INTR_CLEAR & M4_IMAGE_UPGRADATION_PENDING_INTERRUPT) {
+    //! moves m4 app to RAM and polls for TA done
+    sl_mv_m4_app_from_flash_to_ram(UPGRADE_M4_IMAGE_OTA);
+    // Clear the interrupt
+    ROM_WL_clear_ta_to_m4_interrupt(M4_IMAGE_UPGRADATION_PENDING_INTERRUPT);
+  }
+#endif
+  else {
     RSI_ASSERTION(SAPIS_M4_ISR_UNEXPECTED_INTR, "\nM4 ISR , unexpected interrupt  \n");
   }
-
-  return;
 }
 #endif
 /** @} */

@@ -1,0 +1,24 @@
+id: sl_pwm
+label: SL PWM
+package: platform
+description: >
+  pwm Peripheral API's
+category: Platform|si91x|Drivers
+quality: production
+root_path: "components/siwx917_soc/drivers"
+source:
+  - path: "unified_api/src/sl_si91x_pwm.c"
+  - path: "unified_peripheral_drivers/src/sl_si91x_peripheral_gpio.c"
+include:
+  - path: "unified_api/inc"
+    file_list:
+    - path: "sl_si91x_pwm.h"
+  - path: "unified_peripheral_drivers/inc"
+    file_list:
+    - path: "sl_si91x_peripheral_gpio.h"
+    - path: "sl_si91x_gpio.h"
+    - path: "sl_si91x_gpio_common.h"
+provides:
+  - name: sl_pwm
+requires:
+  - name: rsilib_pwm

@@ -24,14 +24,14 @@
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_RegisterInfo(SMIH_CARD_CONFIG_T *pSmihConfig, SMIH_CCCR_REG_INFO_T *pRegInfo)
+ * @fn           rsi_error_t RSI_SDIOH_RegisterInfo(SMIH_CARD_CONFIG_T *pSmihConfig, SMIH_CCCR_REG_INFO_T *pRegInfo)
  * @brief        This API is used to know the register info of the card.
  * @param[in]    pSmihConfig : Pointer to the card command information structure
  * @param[in]    pRegInfo    : Pointer to the Command info structure 
  * @return       RSI_OK      : command sent succesfully
  *               ERROR_SMIH  : If Parameter is invalid. 
  */
-error_t RSI_SDIOH_RegisterInfo(SMIH_CARD_CONFIG_T *pSmihConfig, SMIH_CCCR_REG_INFO_T *pRegInfo)
+rsi_error_t RSI_SDIOH_RegisterInfo(SMIH_CARD_CONFIG_T *pSmihConfig, SMIH_CCCR_REG_INFO_T *pRegInfo)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -62,7 +62,7 @@ error_t RSI_SDIOH_RegisterInfo(SMIH_CARD_CONFIG_T *pSmihConfig, SMIH_CCCR_REG_IN
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_WriteCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
+ * @fn           rsi_error_t RSI_SDIOH_WriteCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
  * @brief        This API is used to send the SDIO_CMD52 to the card.
  * @param[in]    pSmihConfig    : Pointer to the card command information structure
  * @param[in]    Argument       : Argument to the command
@@ -70,7 +70,7 @@ error_t RSI_SDIOH_RegisterInfo(SMIH_CARD_CONFIG_T *pSmihConfig, SMIH_CCCR_REG_IN
  *               ERROR_SMIH     : If Parameter is invalid.
  *               ERROR_TIMEOUT  : If the command error timeout occures.
  */
-error_t RSI_SDIOH_WriteCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
+rsi_error_t RSI_SDIOH_WriteCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -100,7 +100,7 @@ error_t RSI_SDIOH_WriteCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Ar
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_ReadCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)     
+ * @fn           rsi_error_t RSI_SDIOH_ReadCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)     
  * @brief        This API is used to send the SDIO_CMD52 to the card.
  * @param[in]    pcmdInfo      : Pointer to the card information strut
  * @param[in]    Argument      : Argument to the command
@@ -108,7 +108,7 @@ error_t RSI_SDIOH_WriteCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Ar
  *               ERROR_SMIH    : If Parameter is invalid.
  *               ERROR_TIMEOUT : If the command error timeout occures.
  */
-error_t RSI_SDIOH_ReadCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
+rsi_error_t RSI_SDIOH_ReadCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Argument)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -137,14 +137,14 @@ error_t RSI_SDIOH_ReadCommandCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Arg
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_SetBusWidthCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+ * @fn           rsi_error_t RSI_SDIOH_SetBusWidthCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
  * @brief        This API is used to send the SDIO_CMD52 to set bus width to the IO card.
  * @param[in]    pSmihConfig      :  Pointer to the card info struct
  * @param[in]    CmdArg           :  Command Argument
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDIOH_SetBusWidthCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+rsi_error_t RSI_SDIOH_SetBusWidthCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -170,7 +170,7 @@ error_t RSI_SDIOH_SetBusWidthCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Cmd
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_BusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth)
+ * @fn           rsi_error_t RSI_SDIOH_BusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth)
  * @brief        This API is used to change the bus width.
  * @param[in]    pcmdInfo       :  Pointer to the card information strut
  * @param[in]    BusWidth       :  Width of the bus
@@ -181,7 +181,7 @@ error_t RSI_SDIOH_SetBusWidthCmd52(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t Cmd
  * @return       RSI_OK         :  If  bus width set properly
  *               ERROR_SMIH     :  If Parameter is invalid.
  */
-error_t RSI_SDIOH_BusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth)
+rsi_error_t RSI_SDIOH_BusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWidth)
 {
   uint32_t cmdArg        = 0;
   boolean_t host4BitMode = FALSE;
@@ -204,13 +204,13 @@ error_t RSI_SDIOH_BusWidthConfig(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t BusWid
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
+ * @fn           rsi_error_t RSI_SDIOH_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @brief        This API is used to send the cmd0 to the io card.
  * @param[in]    pSmihConfig      :  Pointer to the Command info structure
  * @return       RSI_OK           :  If  command sent successfully
  *               ERROR_TIMEOUT    :  If  command error timeout occures.
  */
-error_t RSI_SDIOH_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
+rsi_error_t RSI_SDIOH_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -235,14 +235,14 @@ error_t RSI_SDIOH_GoIdleStateCmd0(SMIH_CARD_CONFIG_T *pSmihConfig)
 }
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_SendRelativeCardAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+ * @fn           rsi_error_t RSI_SDIOH_SendRelativeCardAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
  * @brief        This API is used to send the SDIO_CMD3(Get relative card address) to the IO card.
  * @param[in]    pSmihConfig     :  Pointer to the card info struct
  * @param[in]    CmdArg          :  Command argument to send
  * @return       RSI_OK          :  If command sent successfully
  *               ERROR_TIMEOUT   :  If command error timeout occures.
  */
-error_t RSI_SDIOH_SendRelativeCardAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+rsi_error_t RSI_SDIOH_SendRelativeCardAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -271,14 +271,14 @@ error_t RSI_SDIOH_SendRelativeCardAddressCmd3(SMIH_CARD_CONFIG_T *pSmihConfig, u
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+ * @fn           rsi_error_t RSI_SDIOH_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
  * @brief        This API is used to send the SDIO_CMD11(Voltage switch command in case of uhs modes) to the io card.
  * @param[in]    pSmihConfig      :  Pointer to the card info struct
  * @param[in]    CmdArg           :  Command argument to send
  * @return       RSI_OK           :  If  command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDIOH_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
+rsi_error_t RSI_SDIOH_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t CmdArg)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -304,13 +304,13 @@ error_t RSI_SDIOH_SwitchVoltageCmd11(SMIH_CARD_CONFIG_T *pSmihConfig, uint32_t C
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
+ * @fn           rsi_error_t RSI_SDIOH_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @brief        This API is used to send the cmd 7(select the cards) to the IO card.
  * @param[in]    pSmihConfig     : Pointer to the Command info structure
  * @return       RSI_OK          : If the command sent successfully
  *               ERROR_TIMEOUT   : If the command error timeout occures.
  */
-error_t RSI_SDIOH_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
+rsi_error_t RSI_SDIOH_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -336,7 +336,7 @@ error_t RSI_SDIOH_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_ByteBlockWriteCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr)
+ * @fn           rsi_error_t RSI_SDIOH_ByteBlockWriteCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr)
  * @brief        This API is used to send the SDIO_CMD53 to write data to the IO card.
  * @param[in]    pSmihConfig        : Pointer to the smih config struct
  * @param[in]    pData              : Pointer to the buffer data to write
@@ -344,7 +344,7 @@ error_t RSI_SDIOH_SelectCardCmd7(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @return       RSI_OK             : If the command sent successfully
  *               ERROR_TIMEOUT      : If the command error timeout occured.
  */
-error_t RSI_SDIOH_ByteBlockWriteCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr)
+rsi_error_t RSI_SDIOH_ByteBlockWriteCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -381,7 +381,7 @@ error_t RSI_SDIOH_ByteBlockWriteCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *
 }
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_ByteBlockReadCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr)
+ * @fn           rsi_error_t RSI_SDIOH_ByteBlockReadCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr)
  * @brief        This API is used to send the SDIO_CMD53 to read data from the IO card.
  * @param[in]    pSmihConfig        :  Pointer to the smih config struct
  * @param[in]    pData              :  Pointer to the buffer data to read
@@ -389,7 +389,7 @@ error_t RSI_SDIOH_ByteBlockWriteCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *
  * @return       RSI_OK             :  If the command sent successfully
  *               ERROR_TIMEOUT      :  If the command error timeout occures.
  */
-error_t RSI_SDIOH_ByteBlockReadCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr)
+rsi_error_t RSI_SDIOH_ByteBlockReadCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *pData, uint32_t Addr)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -424,13 +424,13 @@ error_t RSI_SDIOH_ByteBlockReadCmd53(SMIH_CARD_CONFIG_T *pSmihConfig, uint8_t *p
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_ReInitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
+ * @fn           rsi_error_t RSI_SDIOH_ReInitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @brief        This API is used to send the SDIO_CMD5 to reinitialize the SDIO card.
  * @param[in]    pSmihConfig      :  Pointer to the smih config struct
  * @return       RSI_OK           :  If the command sent successfully
  *               ERROR_TIMEOUT    :  If the command error timeout occures.
  */
-error_t RSI_SDIOH_ReInitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
+rsi_error_t RSI_SDIOH_ReInitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -462,13 +462,13 @@ error_t RSI_SDIOH_ReInitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_InitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
+ * @fn           rsi_error_t RSI_SDIOH_InitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
  * @brief        This API is used to send the SDIO_CMD5 to initialize the SDIO card.
  * @param[in]    pSmihConfig       :  Pointer to the smih card information struct
  * @return       RSI_OK            :  If the command sent successfully
  *               ERROR_TIMEOUT     :  If the command error timeout occures.
  */
-error_t RSI_SDIOH_InitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
+rsi_error_t RSI_SDIOH_InitializationCmd5(SMIH_CARD_CONFIG_T *pSmihConfig)
 {
   SMIH_TRANSFER_T transfer = { 0 };
   SMIH_CMD_FEILD_T cmd     = { 0 };
@@ -558,14 +558,14 @@ void RSI_SDIOH_PinMux(void)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SDIOH_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
+ * @fn           rsi_error_t RSI_SDIOH_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
  * @brief        This API is used to initialize the IO card
  * @param[in]    pSmihConfig           : Pointer to the smih card configuration
  *               Event                 : event handler to be register
  * @return       RSI_OK                : IO card initialized successfully
  *               INVALID_PARAMETERS    : if  pSmihConfig == NULL
  */
-error_t RSI_SDIOH_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
+rsi_error_t RSI_SDIOH_Enumeration(SMIH_CARD_CONFIG_T *pSmihConfig, ARM_SMIH_SignalEvent_t Event)
 {
   if (pSmihConfig == 0) {
     return INVALID_PARAMETERS;

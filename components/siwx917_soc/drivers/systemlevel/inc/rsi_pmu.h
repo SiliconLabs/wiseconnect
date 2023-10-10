@@ -75,7 +75,7 @@ extern "C" {
 #define TEST_DIG_MUX1_SEL_MASK 0x0000F000
 #define TEST_DIG_MUX2_SEL_MASK 0x00000F00
 
-error_t RSI_PMU_SetChipVoltage(uint8_t enVoltage);
+rsi_error_t RSI_PMU_SetChipVoltage(uint8_t enVoltage);
 
 /*End of file not truncated*/
 #ifdef __cplusplus

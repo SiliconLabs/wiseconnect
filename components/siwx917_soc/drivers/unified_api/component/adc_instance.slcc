@@ -1,0 +1,30 @@
+id: adc_instance
+label: ADC Instance
+package: platform
+description: >
+  Add a ADC instanse 
+category: Platform|si91x|Drivers
+quality: production
+instantiable:
+  prefix: inst
+root_path: "components/siwx917_soc/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_adc_init_{{instance}}_config.h
+    file_id: adc_config
+provides:
+  - name: adc_instance
+    allow_multiple: true
+template_file:
+  - path: init/sl_adc_instances.h.jinja
+  - path: init/sl_adc_init.c.jinja
+template_contribution:
+  - name: adc_instances
+    value: "{{instance}}"
+  - name: component_catalog
+    value: adc
+  - name: component_catalog
+    value: "adc_{{instance}}"
+  - name: event_handler
+    condition: [sl_adc]
+    value:
+      include: "sl_adc_instances.h"

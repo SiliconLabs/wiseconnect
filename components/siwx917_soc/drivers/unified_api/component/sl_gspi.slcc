@@ -19,3 +19,5 @@ provides:
   - name: sl_gspi
 requires:
   - name: udma_linker_config
+  - name: rsilib_gspi
+  - name: cmsis_gspi

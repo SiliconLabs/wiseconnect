@@ -20,6 +20,6 @@ typedef struct sockaddr_store {
   uint8_t socket_port[2];
   uint32_t socket_data[3];
 #if defined(ipv6_FEATURE_REQUIRED)
-  uint32_t socket_data_extended[1];
+  uint32_t socket_data_extended[2];
 #endif /* LWIP_IPV6 */
 } sockaddr_storage_t;

@@ -31,6 +31,8 @@
 #ifndef RSI_SYSRTC_H
 #define RSI_SYSRTC_H
 
+#define SYSRTC_CMP_DEF_PINS
+
 #include "si91x_device.h"
 #if defined(SI91X_SYSRTC_COUNT) && (SI91X_SYSRTC_COUNT > 0)
 #include "rsi_sysrtc_headers.h"
@@ -351,10 +353,10 @@ __STATIC_INLINE void rsi_sysrtc_clear_npss_mcu_intr(void)
 
 /**
  * @fn            STATIC INLINE void RSI_PS_NpssIntrUnMask(uint32_t mask)
- * @brief	  This API is used to  un mask the NPSS interrupts
+ * @brief   This API is used to  un mask the NPSS interrupts
  * @param[in]     mask  is OR'ed value of the NPSS interrupt bits
  *                \ref NPSS_INTR_MASK_CLR_REG
- * @return 	  none 
+ * @return    none
  */
 __STATIC_INLINE void RSI_NpssIntrUnMask(uint32_t mask)
 {
@@ -363,10 +365,10 @@ __STATIC_INLINE void RSI_NpssIntrUnMask(uint32_t mask)
 
 /**
  * @fn            STATIC INLINE void RSI_PS_NpssIntrMask(uint32_t mask)
- * @brief	  This API is used to  mask the NPSS interrupts
+ * @brief   This API is used to  mask the NPSS interrupts
  * @param[in]     mask  is OR'ed value of the NPSS interrupt bits
  *                \ref NPSS_INTR_MASK_SET_REG
- * @return 	  none 
+ * @return    none
  */
 __STATIC_INLINE void RSI_NpssIntrMask(uint32_t mask)
 {
@@ -375,10 +377,10 @@ __STATIC_INLINE void RSI_NpssIntrMask(uint32_t mask)
 
 /**
  * @fn            STATIC INLINE void RSI_NpssIntrClear(uint32_t mask)
- * @brief	  This API is used to  clear the NPSS interrupts
+ * @brief   This API is used to  clear the NPSS interrupts
  * @param[in]     mask  is OR'ed value of the NPSS interrupt bits
  *                \ref NPSS_INTR_CLEAR_REG
- * @return 	  none 
+ * @return    none
  */
 __STATIC_INLINE void RSI_NpssIntrClear(uint32_t mask)
 {
@@ -533,11 +535,11 @@ void rsi_sysrtc_set_compare_gpio(const uint32_t group, const uint32_t chan);
 /***************************************************************************/ /**
  * Sets the  SYSRTC clock source
  * @param[in] 
- *						sysrtc_clk - sysrtc clock as defined by sl_clk_clk_input_t structure
- *						div - Clock division factor for 32Khz clk (Used in SYSRTC and MCU WWD). 
- *									Note: Need to set 6'b010000 to generate 1 KHz clock
- *									If 0th bit is set ? it divides by 2
- *									Similarly, if 4th bit is set ? it divides by 32
+ *            sysrtc_clk - sysrtc clock as defined by sl_clk_clk_input_t structure
+ *            div - Clock division factor for 32Khz clk (Used in SYSRTC and MCU WWD).
+ *                  Note: Need to set 6'b010000 to generate 1 KHz clock
+ *                  If 0th bit is set ? it divides by 2
+ *                  Similarly, if 4th bit is set ? it divides by 32
  *
  * @return  none
  ******************************************************************************/
@@ -549,7 +551,7 @@ void rsi_sysrtc_clk_set(rsi_sysrtc_clk_inp_t sysrtc_clk, uint32_t div);
  * MCUSYSRTC_REG1 or via GPIO. 
  *
  * @param[in] 
- *						set_gpio - a boolen which set if the IO is done via GPIO or not. 
+ *            set_gpio - a boolen which set if the IO is done via GPIO or not.
  *
  * @return  none
  ******************************************************************************/
@@ -559,8 +561,8 @@ void rsi_sysrtc_set_gpio(const bool set_gpio);
  * Read the output compare value which is set in MCUSYSRTC_REG1 
  *
  * @param[in] 
- *						group - group number
- *						channel - the compare channel 
+ *            group - group number
+ *            channel - the compare channel
  *
  * @return  the status of the selected compare channel in the group
  ******************************************************************************/
@@ -571,7 +573,7 @@ uint32_t rsi_sysrtc_get_compare_bit(const uint32_t group, const uint32_t channel
  * Write the input capture bit in MCUSYSRTC_REG1 
  *
  * @param[in] 
- *						group - group number
+ *            group - group number
  *
  * @return  none
  ******************************************************************************/

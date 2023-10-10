@@ -40,33 +40,35 @@ Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wisec
 
 ## 3 Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-2. Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-3. Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
 
 ### 3.1 Creating the project
 
 #### 3.1.1 SoC mode
 
-- Connect your board. The Si917 compatible SoC board is **BRD4325A,BRD4325B**.
-- The Si917 board will be detected under **Debug Adapters** pane as shown below.
+- Ensure the SiWx91x set up is connected to your PC.
+
+- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
   **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
 #### 3.1.2 NCP mode
 
-- Connect your board. The supported NCP boards are: **BRD4180B**
-- The EFR32 board will be detected under **Debug Adapters** pane as shown below.
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
+
+- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
   **![EFR32 Board detection](resources/readme/efr32.png)**
 
-#### 3.1.3 Importing the project
+### 3.2 Importing the project
+
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
 
 #### SOC Mode
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - SOC Throughput Test application
+- Select **Wi-Fi - Throughput(SOC)** test application
 
   **![project_selection](resources/readme/select_project-soc.png)**
 
@@ -76,7 +78,7 @@ Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wisec
 
 #### NCP Mode
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - NCP Throughput Test application
+- Select **Wi-Fi - Throughput(NCP)** test application
 
   **![project_selection](resources/readme/select_project_ncp.png)**
 
@@ -136,23 +138,23 @@ The application can be configured to suit user requirements and development envi
 
 - **STA instance related parameters**
 
-- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
+	- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+	
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
+  	```
 
-  ```c
-  #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
-  ```
+	- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
-- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+  	```
 
-  ```c
-  #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
-  ```
+	- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type of the Access point. The supported security modes are mentioned in `sl_wifi_security_t`.
 
-- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type of the Access point. The supported security modes are mentioned in `sl_wifi_security_t`.
-
-  ```c
-  #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE               SL_WIFI_WPA_WPA2_MIXED
-  ```
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_SECURITY_TYPE               SL_WIFI_WPA2
+  	```
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
@@ -164,6 +166,7 @@ The application can be configured to suit user requirements and development envi
     #define LISTENING_PORT     <local_port>       // Local port to use
     #define SERVER_PORT        <remote_port>      // Remote server port
     #define SERVER_IP_ADDRESS  "192.168.0.100"    // Remote server IP address
+    #define SOCKET_ASYNC_FEATURE 1                // Type of Socket used. Synchronous = 0, Asynchronous = 1
     ```
 
 - **Throughput Measurement Types**
@@ -187,6 +190,7 @@ The application can be configured to suit user requirements and development envi
     #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput with 512MB data transfer
     #define BYTES_TO_RECEIVE  (1 << 20)     // To measure RX throughput with 1MB data transfer
     #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
+    
     ```
 
 ### 4.2 Build the Application

@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -21,7 +21,6 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
 requires:
 - name: sl_system
@@ -64,9 +63,9 @@ other_file:
   - path: resources/readme/efr32.png
   - path: resources/readme/select_project_ncp.png
   - path: resources/readme/select_project_soc.png 
-  - path: resources/readme/LWIP_NCP.png
+  - path: resources/readme/lwip_ncp.png
   - path: resources/readme/lwip_output.png
-  - path: resources/readme/LWIP_SOC.png
+  - path: resources/readme/lwip_soc.png
   - path: resources/readme/port_selection_soc.png
   - path: resources/readme/port_selection.png
   - path: resources/readme/debug_as_ncp.png
@@ -76,6 +75,9 @@ other_file:
   - path: resources/readme/soc_board_detection.png
   - path: resources/readme/usb_to_uart_1.png
   - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/image217d.png
+  - path: resources/readme/port_selection_serial_terminal.png
+  - path: resources/readme/communication.png
 ui_hints:
   highlight:
     - path: readme.md

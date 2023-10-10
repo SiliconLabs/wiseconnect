@@ -1,7 +1,8 @@
 {
-  "app.js": "/assets/js/app.d2c6eaf4ee0f7eaf295c.bundle.js",
-  "app.js.map": "/assets/js/app.d2c6eaf4ee0f7eaf295c.bundle.js.map",
+  "app.js": "/assets/js/app.71e2e316bca823e40af1.bundle.js",
+  "app.js.map": "/assets/js/app.71e2e316bca823e40af1.bundle.js.map",
   "../../components/DynamicNav.d.ts": "/assets/js/../../components/DynamicNav.d.ts",
+  "../../components/Header.d.ts": "/assets/js/../../components/Header.d.ts",
   "../../components/Menu.d.ts": "/assets/js/../../components/Menu.d.ts",
   "../../components/MenuGroup.d.ts": "/assets/js/../../components/MenuGroup.d.ts",
   "../../components/MenuLink.d.ts": "/assets/js/../../components/MenuLink.d.ts",

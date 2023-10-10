@@ -296,11 +296,11 @@ extern stc_sio_cb_t gstcSioCb;
 //  SIO_SIO apis function prototype
 void RSI_SIO_ClockEnable(void);
 void RSI_SIO_I2cGenerateStop(volatile SIO_Type *pstcSio);
-error_t RSI_SIO_Init(volatile SIO_Type *pstcSio);
-error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiConfig);
+rsi_error_t RSI_SIO_Init(volatile SIO_Type *pstcSio);
+rsi_error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiConfig);
 void RSI_SIO_SpiCsAssert(volatile SIO_Type *pstcSio, uint8_t u8CsNo);
 void RSI_SIO_SpiCsDeAssert(volatile SIO_Type *pstcSio, uint8_t u8CsNo);
-error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstcSpiXfer);
+rsi_error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstcSpiXfer);
 
 //  SIO_UART apis function prototype
 uint8_t RSI_SIO_UartInit(SIO_Type *pstcSio, stc_sio_uart_config_t *pstcConfig);
@@ -318,27 +318,27 @@ int RSI_SIO_UARTReadBlocking(volatile SIO_Type *pstcSio, void *data, int numByte
 //  SIO_I2C apis function prototype
 uint32_t RSI_SIO_I2cPrepareWrite(uint8_t u8InDat);
 uint32_t RSI_SIO_I2cPrepareRead(uint32_t u32Indata);
-error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
-                         stc_sio_i2c_config_t *pstcConfig,
-                         uint8_t u8SlaveAddr,
-                         uint8_t *u8Data,
-                         uint16_t u16Len);
-error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
-                        stc_sio_i2c_config_t *pstcConfig,
-                        uint8_t u8SlaveAddr,
-                        uint8_t *u8Data,
-                        uint16_t u16Len);
-error_t RSI_SIO_I2cTransfer(volatile SIO_Type *pstcSio,
+rsi_error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
+                             stc_sio_i2c_config_t *pstcConfig,
+                             uint8_t u8SlaveAddr,
+                             uint8_t *u8Data,
+                             uint16_t u16Len);
+rsi_error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
                             stc_sio_i2c_config_t *pstcConfig,
                             uint8_t u8SlaveAddr,
-                            uint8_t *u8PtrTxDat,
-                            uint16_t u16TxLen,
-                            uint8_t *u8PtrRxDat,
-                            uint16_t u16RxLen);
+                            uint8_t *u8Data,
+                            uint16_t u16Len);
+rsi_error_t RSI_SIO_I2cTransfer(volatile SIO_Type *pstcSio,
+                                stc_sio_i2c_config_t *pstcConfig,
+                                uint8_t u8SlaveAddr,
+                                uint8_t *u8PtrTxDat,
+                                uint16_t u16TxLen,
+                                uint8_t *u8PtrRxDat,
+                                uint16_t u16RxLen);
 void RSI_SIO_I2cGenerateStart(volatile SIO_Type *pstcSio);
 void RSI_SIO_I2cGenerateStop(volatile SIO_Type *pstcSio);
 
-error_t RSI_SIO_Initialization(void);
+rsi_error_t RSI_SIO_Initialization(void);
 void RSI_SIO_Configure_Interrupt(volatile SIO_Type *pstcSio, en_sio_channels_t channel, interrupt_flag_t flag);
 void RSI_SIO_Match_Pattern(volatile SIO_Type *pstcSio,
                            en_sio_channels_t channel,

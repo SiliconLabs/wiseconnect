@@ -12,11 +12,7 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "SPI.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_SPI.h"
 provides:
   - name: cmsis_spi
 requires:
   - name: rsilib_spi
-  - name: cmsis_driver_common

@@ -333,24 +333,25 @@ RSI_SSPI_HANDLE_T RSI_SSPI_Initialize(void *drv_mem, uint32_t base_address, uint
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_SSPI_UnInitialize()
+ * @fn          rsi_error_t RSI_SSPI_UnInitialize()
  * @brief       This API is used to de init the SPI interface  
  * @return      SUCCESS in case of success or failure 
  */
-error_t RSI_SSPI_UnInitialize()
+rsi_error_t RSI_SSPI_UnInitialize()
 {
   return RSI_OK;
 }
 
 /*==============================================*/
 /** 
- * @fn         error_t RSI_SSPI_RegisterCallBacks(RSI_SSPI_HANDLE_T pSPIHandle, void (*psspi_cb)(RSI_SSPI_HANDLE_T, uint32_t, void *))
+ * @fn         rsi_error_t RSI_SSPI_RegisterCallBacks(RSI_SSPI_HANDLE_T pSPIHandle, void (*psspi_cb)(RSI_SSPI_HANDLE_T, uint32_t, void *))
  * @brief      This API is used to register callbacks .
  * @param[in]  pSPIHandle  :  SPI base register pointer
  * @param[in]  psspi_cb    :  Call back function pointer
  * @return    SUCCESS in case of success or failure 
  */
-error_t RSI_SSPI_RegisterCallBacks(RSI_SSPI_HANDLE_T pSPIHandle, void (*psspi_cb)(RSI_SSPI_HANDLE_T, uint32_t, void *))
+rsi_error_t RSI_SSPI_RegisterCallBacks(RSI_SSPI_HANDLE_T pSPIHandle,
+                                       void (*psspi_cb)(RSI_SSPI_HANDLE_T, uint32_t, void *))
 {
 
   RSI_SSPI_DRIVER_T *pdrv = (RSI_SSPI_DRIVER_T *)pSPIHandle;

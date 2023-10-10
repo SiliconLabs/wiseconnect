@@ -20,7 +20,7 @@
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_RNG_DRIVERS RSI:RS1xxxx RNG 
+ * \defgroup RNG_DRIVERS 
  *  @{
  *
  */

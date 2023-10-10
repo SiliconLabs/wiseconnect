@@ -38,12 +38,12 @@ void VAD_PING_IRQHandler()
 
 /*==============================================*/
 /**
- * @fn         error_t VAD_Init(VAD_SignalEvent_t Event)
+ * @fn         rsi_error_t VAD_Init(VAD_SignalEvent_t Event)
  * @brief      This API is used to configure the VAD related parameters.
  * @param[in]  Event      : Register callback event.
  * @return     Execution status - If success
  */
-error_t VAD_Init(VAD_SignalEvent_t Event)
+rsi_error_t VAD_Init(VAD_SignalEvent_t Event)
 {
   // Register callback event
   event.callb_event = Event;
@@ -139,11 +139,11 @@ int32_t VAD_Process(int16_t *wr_buf, int32_t dc_est)
 
 /*==============================================*/
 /**
- * @fn         error_t VAD_Deinit(void)
+ * @fn         rsi_error_t VAD_Deinit(void)
  * @brief      This API is used to deinitialize the VAD related parameters.
  * @return     Execution status - If success
  */
-error_t VAD_Deinit(void)
+rsi_error_t VAD_Deinit(void)
 {
   RSI_ULPSS_PeripheralDisable(ULPCLK, ULP_VAD_CLK);
 #if defined(CHIP_9118)
@@ -201,11 +201,11 @@ void RSI_VAD_PingPongMemoryAddrConfig(RSI_VAD_T *pVAD,
  *                                   01: Reserved
  * @return      RSI_OK - If success
  */
-error_t RSI_VAD_Config(RSI_VAD_T *pVAD,
-                       uint16_t samples_per_frame,
-                       uint16_t samples_per_address,
-                       bool fullwidth,
-                       uint8_t datasourceselect)
+rsi_error_t RSI_VAD_Config(RSI_VAD_T *pVAD,
+                           uint16_t samples_per_frame,
+                           uint16_t samples_per_address,
+                           bool fullwidth,
+                           uint8_t datasourceselect)
 {
   if ((samples_per_frame > MAXIMUM_VALUE_1024) || (samples_per_address > MAXIMUM_VALUE_4)
       || (datasourceselect > MAXIMUM_VALUE_4)) {
@@ -255,7 +255,7 @@ void RSI_VAD_InterruptClr(RSI_VAD_T *pVAD, uint16_t ping_interrupt)
 
 /*==============================================*/
 /**
- * @fn         error_t RSI_VAD_SetAlgorithmThreshold(RSI_VAD_T *pVAD,
+ * @fn         rsi_error_t RSI_VAD_SetAlgorithmThreshold(RSI_VAD_T *pVAD,
  *                                     uint16_t algorithm_type,
  *                                     uint32_t zcr_threshold,
  *                                     uint32_t acf_threshold,
@@ -277,12 +277,12 @@ void RSI_VAD_InterruptClr(RSI_VAD_T *pVAD, uint16_t ping_interrupt)
  *                              for AMDF algorithm delay.  
  * @return     RSI_OK - If success
  */
-error_t RSI_VAD_SetAlgorithmThreshold(RSI_VAD_T *pVAD,
-                                      uint16_t algorithm_type,
-                                      uint32_t zcr_threshold,
-                                      uint32_t acf_threshold,
-                                      uint32_t wacf_threshold,
-                                      VAD_AMDF_THRESHOLD_T *config)
+rsi_error_t RSI_VAD_SetAlgorithmThreshold(RSI_VAD_T *pVAD,
+                                          uint16_t algorithm_type,
+                                          uint32_t zcr_threshold,
+                                          uint32_t acf_threshold,
+                                          uint32_t wacf_threshold,
+                                          VAD_AMDF_THRESHOLD_T *config)
 {
   if ((algorithm_type > MAXIMUM_VALUE_8) || (zcr_threshold > MAXIMUM_VALUE_1024) || (acf_threshold > MAXIMUM_VALUE_4096)
       || (wacf_threshold > MAXIMUM_VALUE_4096)) {
@@ -342,7 +342,7 @@ error_t RSI_VAD_SetAlgorithmThreshold(RSI_VAD_T *pVAD,
 
 /*==============================================*/
 /**
- * @fn         error_t RSI_VAD_Set_Delay(RSI_VAD_T *pVAD, uint16_t startdelayval, uint16_t enddelayval)
+ * @fn         rsi_error_t RSI_VAD_Set_Delay(RSI_VAD_T *pVAD, uint16_t startdelayval, uint16_t enddelayval)
  * @brief      This API is used to set start the end delay value for ACF,WACF,AMDF algorithm .
  * @param[in]  pVAD          : Pointer to the VAD_Type structure.
  * @param[in]  startdelayval : This parameter define the start delay value for ACF,WACF,AMDF algorithm.
@@ -351,7 +351,7 @@ error_t RSI_VAD_SetAlgorithmThreshold(RSI_VAD_T *pVAD,
  *                             maximum value is 1023 and default value is 16
  * @return     RSI_OK - If success 
  */
-error_t RSI_VAD_Set_Delay(RSI_VAD_T *pVAD, uint16_t startdelayval, uint16_t enddelayval)
+rsi_error_t RSI_VAD_Set_Delay(RSI_VAD_T *pVAD, uint16_t startdelayval, uint16_t enddelayval)
 {
   if ((startdelayval > MAXIMUM_VALUE_1024) || (enddelayval > MAXIMUM_VALUE_1024)) {
     return INVALID_PARAMETERS;
@@ -365,13 +365,13 @@ error_t RSI_VAD_Set_Delay(RSI_VAD_T *pVAD, uint16_t startdelayval, uint16_t endd
 
 /*==============================================*/
 /**
- * @fn         error_t RSI_VAD_Input(RSI_VAD_T *pVAD, int16_t data)
+ * @fn         rsi_error_t RSI_VAD_Input(RSI_VAD_T *pVAD, int16_t data)
  * @brief      This API is used to give the input for VAD.
  * @param[in]  pVAD   : Pointer to the VAD_Type structure.
  * @param[in]  data   : This parameter input for VAD block input is 1023 and default value is 16
  * @return     RSI_OK - If success
  */
-error_t RSI_VAD_Input(RSI_VAD_T *pVAD, int16_t data)
+rsi_error_t RSI_VAD_Input(RSI_VAD_T *pVAD, int16_t data)
 {
   if (data > MAXIMUM_VALUE_1024) {
     return INVALID_PARAMETERS;
@@ -384,7 +384,7 @@ error_t RSI_VAD_Input(RSI_VAD_T *pVAD, int16_t data)
 
 /*==============================================*/
 /**
- * @fn         error_t RSI_VAD_FrameEnergyConfig(RSI_VAD_T *pVAD,
+ * @fn         rsi_error_t RSI_VAD_FrameEnergyConfig(RSI_VAD_T *pVAD,
  *                                 uint32_t threshold_frame_energy,
  *                                 uint32_t threshold_smpl_collect,
  *                                 uint32_t prog_smpls_for_energy_check)
@@ -398,10 +398,10 @@ error_t RSI_VAD_Input(RSI_VAD_T *pVAD, int16_t data)
  *                                           maximum value is 3 and default value is 1.
  * @return     RSI_OK - If success 
  */
-error_t RSI_VAD_FrameEnergyConfig(RSI_VAD_T *pVAD,
-                                  uint32_t threshold_frame_energy,
-                                  uint32_t threshold_smpl_collect,
-                                  uint32_t prog_smpls_for_energy_check)
+rsi_error_t RSI_VAD_FrameEnergyConfig(RSI_VAD_T *pVAD,
+                                      uint32_t threshold_frame_energy,
+                                      uint32_t threshold_smpl_collect,
+                                      uint32_t prog_smpls_for_energy_check)
 {
   if ((threshold_frame_energy > MAXIMUM_VALUE_1024) || (threshold_smpl_collect > MAXIMUM_VALUE_1024)
       || (prog_smpls_for_energy_check > MAXIMUM_VALUE_4)) {

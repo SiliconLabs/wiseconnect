@@ -30,7 +30,7 @@
 
 #define TEST_CENTURY      2u
 #define TEST_YEAR         1u
-#define TEST_MONTH        Febuary
+#define TEST_MONTH        February
 #define TEST_DAY_OF_WEEK  Friday
 #define TEST_DAY          2u
 #define TEST_HOUR         18u
@@ -40,7 +40,7 @@
 
 #define ALARM_CENTURY      2u
 #define ALARM_YEAR         1u
-#define ALARM_MONTH        Febuary
+#define ALARM_MONTH        February
 #define ALARM_DAY_OF_WEEK  Friday
 #define ALARM_DAY          2u
 #define ALARM_HOUR         18u
@@ -131,7 +131,7 @@ void calendar_example_init(void)
     clock_calibration_config.ro_enable_calibration          = true;
     clock_calibration_config.ro_enable_periodic_calibration = true;
     clock_calibration_config.ro_trigger_time                = SL_RO_ONE_SEC;
-    status = sl_si91x_calendar_roclk_calibration(&clock_calibration_config);
+    status = sl_si91x_calendar_rcclk_calibration(&clock_calibration_config);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_calendar_rcclk_calibration: Invalid Parameters, Error Code : %lu \n", status);
       break;

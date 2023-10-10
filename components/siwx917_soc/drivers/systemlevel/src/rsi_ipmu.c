@@ -598,13 +598,13 @@ uint32_t RSI_IPMU_32MHzClkClib(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_ProgramConfigData(uint32_t *config)
+ * @fn          rsi_error_t RSI_IPMU_ProgramConfigData(uint32_t *config)
  * @brief     This API is used to program the any mcu configuration structure
  * @param[in]   config : pointer configuration
  * @return      RSI_OK on success
  */
 
-error_t RSI_IPMU_ProgramConfigData(uint32_t *config)
+rsi_error_t RSI_IPMU_ProgramConfigData(uint32_t *config)
 {
   volatile uint32_t index = 0, program_len = 0, reg_addr = 0;
   volatile uint32_t reg_write_data = 0, clear_cnt = 0, cnt = 0;
@@ -706,84 +706,84 @@ uint32_t RSI_APB_ProgramConfigData(uint32_t *config)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_CommonConfig(void)
+ * @fn          rsi_error_t RSI_IPMU_CommonConfig(void)
  * @brief     This API is used to program the default system start-up IPMU hardware programming.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_CommonConfig(void)
+rsi_error_t RSI_IPMU_CommonConfig(void)
 {
   return RSI_IPMU_ProgramConfigData(ipmu_common_config);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_PMUCommonConfig(void)
+ * @fn          rsi_error_t RSI_IPMU_PMUCommonConfig(void)
  * @brief     This API is used to program the default system start-up PMU hardware programming.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_PMUCommonConfig(void)
+rsi_error_t RSI_IPMU_PMUCommonConfig(void)
 {
   return RSI_IPMU_ProgramConfigData(pmu_common_config);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_PocbiasCurrent(void)
+ * @fn          rsi_error_t RSI_IPMU_PocbiasCurrent(void)
  * @brief     This API is used to Decreasing the bias current of RETN_LDO .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_PocbiasCurrent(void)
+rsi_error_t RSI_IPMU_PocbiasCurrent(void)
 {
   return RSI_IPMU_ProgramConfigData(poc_bias_current);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_PocbiasCurrent11(void)
+ * @fn          rsi_error_t RSI_IPMU_PocbiasCurrent11(void)
  * @brief     This API is used to increasing the bias current of RETN_LDO .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_PocbiasCurrent11(void)
+rsi_error_t RSI_IPMU_PocbiasCurrent11(void)
 {
   return RSI_IPMU_ProgramConfigData(poc_bias_current_11);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_RO32khzTrim00Efuse(void)
+ * @fn          rsi_error_t RSI_IPMU_RO32khzTrim00Efuse(void)
  * @brief     This API is used to trim to 32Khz RO .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_RO32khzTrim00Efuse(void)
+rsi_error_t RSI_IPMU_RO32khzTrim00Efuse(void)
 {
   return RSI_IPMU_ProgramConfigData(ro_32khz_trim00_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_RetnLdoVoltsel(void)
+ * @fn          rsi_error_t RSI_IPMU_RetnLdoVoltsel(void)
  * @brief     This API is used to setting RETN_LDO voltage to 0.7V.
  * @return      RSI_IPMU_ProgramConfigData on success .
  */
 
-error_t RSI_IPMU_RetnLdoVoltsel(void)
+rsi_error_t RSI_IPMU_RetnLdoVoltsel(void)
 {
   return RSI_IPMU_ProgramConfigData(retn_ldo_voltsel);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_RetnLdo0p75(void)
+ * @fn          rsi_error_t RSI_IPMU_RetnLdo0p75(void)
  * @brief     This API is used to setting RETN_LDO voltage to 0.75V .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_RetnLdo0p75(void)
+rsi_error_t RSI_IPMU_RetnLdo0p75(void)
 {
   return RSI_IPMU_ProgramConfigData(retn_ldo_0p75);
 }
@@ -834,12 +834,12 @@ void RSI_IPMU_HP_LDO_Enable(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_M32rc_OscTrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_M32rc_OscTrimEfuse(void)
  * @brief     This API is used to program the trim value for 32Mhz RC oscillator .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_M32rc_OscTrimEfuse(void)
+rsi_error_t RSI_IPMU_M32rc_OscTrimEfuse(void)
 {
   system_clocks.rc_32mhz_clock = DEFAULT_32MHZ_RC_CLOCK;
 
@@ -855,12 +855,12 @@ error_t RSI_IPMU_M32rc_OscTrimEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
  * @brief     This API is used to program the trim value for 20Mhz RC oscillator .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
+rsi_error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
 {
   system_clocks.rc_32mhz_clock = 20000000;
   if (system_clocks.m4_ref_clock_source == ULP_32MHZ_RC_CLK) {
@@ -874,12 +874,12 @@ error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_DBLR32M_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_DBLR32M_TrimEfuse(void)
  * @brief     This API is used to program DBLR 32MHz trim value  .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_DBLR32M_TrimEfuse(void)
+rsi_error_t RSI_IPMU_DBLR32M_TrimEfuse(void)
 {
   system_clocks.doubler_clock = 32000000;
   return RSI_IPMU_ProgramConfigData(dblr_32m_trim_efuse);
@@ -887,12 +887,12 @@ error_t RSI_IPMU_DBLR32M_TrimEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_M20roOsc_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_M20roOsc_TrimEfuse(void)
  * @brief     This API is used to program the trim value for 20Mhz RO oscillator .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_M20roOsc_TrimEfuse(void)
+rsi_error_t RSI_IPMU_M20roOsc_TrimEfuse(void)
 {
   system_clocks.ro_20mhz_clock = DEFAULT_20MHZ_RO_CLOCK;
   if (system_clocks.m4_ref_clock_source == ULP_20MHZ_RINGOSC_CLK) {
@@ -906,12 +906,12 @@ error_t RSI_IPMU_M20roOsc_TrimEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_RO32khz_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_RO32khz_TrimEfuse(void)
  * @brief     This API is used to program the trim value for 32KHz RO oscillator .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_RO32khz_TrimEfuse(void)
+rsi_error_t RSI_IPMU_RO32khz_TrimEfuse(void)
 {
   system_clocks.ro_32khz_clock = DEFAULT_32KHZ_RO_CLOCK;
 
@@ -920,12 +920,12 @@ error_t RSI_IPMU_RO32khz_TrimEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_RC16khz_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_RC16khz_TrimEfuse(void)
  * @brief     This API is used to program the trim value for 16KHz RC oscillator .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_RC16khz_TrimEfuse(void)
+rsi_error_t RSI_IPMU_RC16khz_TrimEfuse(void)
 {
   system_clocks.rc_32khz_clock = 16000;
   return RSI_IPMU_ProgramConfigData(rc_16khz_trim_efuse);
@@ -933,12 +933,12 @@ error_t RSI_IPMU_RC16khz_TrimEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_RC64khz_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_RC64khz_TrimEfuse(void)
  * @brief     This API is used to program the trim value for 64KHz RC oscillator .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_RC64khz_TrimEfuse(void)
+rsi_error_t RSI_IPMU_RC64khz_TrimEfuse(void)
 {
   system_clocks.rc_32khz_clock = 64000;
   return RSI_IPMU_ProgramConfigData(rc_64khz_trim_efuse);
@@ -946,12 +946,12 @@ error_t RSI_IPMU_RC64khz_TrimEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_RC32khz_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_RC32khz_TrimEfuse(void)
  * @brief     This API is used to program the trim value for 32KHz RC oscillator .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_RC32khz_TrimEfuse(void)
+rsi_error_t RSI_IPMU_RC32khz_TrimEfuse(void)
 {
   system_clocks.rc_32khz_clock = 32000;
   return RSI_IPMU_ProgramConfigData(rc_32khz_trim_efuse);
@@ -983,12 +983,12 @@ uint32_t RSI_IPMU_RO_TsConfig(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Vbattstatus_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Vbattstatus_TrimEfuse(void)
  * @brief     This API is used to program the trim value for Vbatt status .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Vbattstatus_TrimEfuse(void)
+rsi_error_t RSI_IPMU_Vbattstatus_TrimEfuse(void)
 {
   return RSI_IPMU_ProgramConfigData(vbatt_status_trim_efuse);
 }
@@ -1055,72 +1055,72 @@ uint32_t RSI_IPMU_Auxadcgain_SeEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Bg_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Bg_TrimEfuse(void)
  * @brief     This API is used to program BG trim value.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Bg_TrimEfuse(void)
+rsi_error_t RSI_IPMU_Bg_TrimEfuse(void)
 {
   return RSI_IPMU_ProgramConfigData(bg_trim_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Blackout_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Blackout_TrimEfuse(void)
  * @brief     This API is used to program BLACKOUT thresholds .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Blackout_TrimEfuse(void)
+rsi_error_t RSI_IPMU_Blackout_TrimEfuse(void)
 {
   return RSI_IPMU_ProgramConfigData(blackout_trim_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_POCbias_Efuse(void)
+ * @fn          rsi_error_t RSI_IPMU_POCbias_Efuse(void)
  * @brief     This API is used to program the poc bias.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_POCbias_Efuse(void)
+rsi_error_t RSI_IPMU_POCbias_Efuse(void)
 {
   return RSI_IPMU_ProgramConfigData(poc_bias_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Buck_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Buck_TrimEfuse(void)
  * @brief     This API is used to program BUCK value .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Buck_TrimEfuse(void)
+rsi_error_t RSI_IPMU_Buck_TrimEfuse(void)
 {
   return RSI_IPMU_ProgramConfigData(buck_trim_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Ldosoc_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Ldosoc_TrimEfuse(void)
  * @brief     This API is used to program LDO SOC value .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Ldosoc_TrimEfuse(void)
+rsi_error_t RSI_IPMU_Ldosoc_TrimEfuse(void)
 {
   return RSI_IPMU_ProgramConfigData(ldosoc_trim_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Dpwmfreq_TrimEfuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Dpwmfreq_TrimEfuse(void)
  * @brief     This API is used to program DPWM frequency value .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Dpwmfreq_TrimEfuse(void)
+rsi_error_t RSI_IPMU_Dpwmfreq_TrimEfuse(void)
 {
   return RSI_IPMU_ProgramConfigData(dpwm_freq_trim_efuse);
 }
@@ -1139,84 +1139,84 @@ uint32_t RSI_IPMU_Delvbe_Tsbjt_Efuse(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Xtal1bias_Efuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Xtal1bias_Efuse(void)
  * @brief     This API is used to program Xtal bias value .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Xtal1bias_Efuse(void)
+rsi_error_t RSI_IPMU_Xtal1bias_Efuse(void)
 {
   return RSI_IPMU_ProgramConfigData(xtal1_bias_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Xtal2bias_Efuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Xtal2bias_Efuse(void)
  * @brief     This API is used to program Xtal2 bias value .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Xtal2bias_Efuse(void)
+rsi_error_t RSI_IPMU_Xtal2bias_Efuse(void)
 {
   return RSI_IPMU_ProgramConfigData(xtal2_bias_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_RetnHP_Volttrim_Efuse(void)
+ * @fn          rsi_error_t RSI_IPMU_RetnHP_Volttrim_Efuse(void)
  * @brief     This API is used to program the HP retention voltage .
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_RetnHP_Volttrim_Efuse(void)
+rsi_error_t RSI_IPMU_RetnHP_Volttrim_Efuse(void)
 {
   return RSI_IPMU_ProgramConfigData(retnHP_volt_trim_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_BOD_ClksCommonconfig1(void)
+ * @fn          rsi_error_t RSI_IPMU_BOD_ClksCommonconfig1(void)
  * @brief     This API is used to enable bias currents to BOD.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_BOD_ClksCommonconfig1(void)
+rsi_error_t RSI_IPMU_BOD_ClksCommonconfig1(void)
 {
   return RSI_IPMU_ProgramConfigData(ipmu_bod_clks_common_config1);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_BOD_ClksCommonconfig2(void)
+ * @fn          rsi_error_t RSI_IPMU_BOD_ClksCommonconfig2(void)
  * @brief     This API is used to disable bias currents to BOD.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_BOD_ClksCommonconfig2(void)
+rsi_error_t RSI_IPMU_BOD_ClksCommonconfig2(void)
 {
   return RSI_IPMU_ProgramConfigData(ipmu_bod_clks_common_config2);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Hpldo_volt_trim_efuse(void)
+ * @fn          rsi_error_t RSI_IPMU_Hpldo_volt_trim_efuse(void)
  * @brief     This API is used to set the LDO to the correct voltage based on E-Fuse.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Hpldo_volt_trim_efuse(void)
+rsi_error_t RSI_IPMU_Hpldo_volt_trim_efuse(void)
 {
   return RSI_IPMU_ProgramConfigData(hpldo_volt_trim_efuse);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Scdc_volt_trim_efuse(void))
+ * @fn          rsi_error_t RSI_IPMU_Scdc_volt_trim_efuse(void))
  * @brief     This API is used to set the SC-DCDC to the corrrect voltage based on E-Fuse.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Scdc_volt_trim_efuse(void)
+rsi_error_t RSI_IPMU_Scdc_volt_trim_efuse(void)
 {
   return RSI_IPMU_ProgramConfigData(scdc_volt_trim_efuse);
 }
@@ -1237,24 +1237,24 @@ void RSI_IPMU_Reconfig_to_SCDCDC(void)
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_Lp_scdc_extcapmode(void)
+ * @fn          rsi_error_t RSI_IPMU_Lp_scdc_extcapmode(void)
  * @brief     This API is used to SCDC into the external CAP mode.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_Lp_scdc_extcapmode(void)
+rsi_error_t RSI_IPMU_Lp_scdc_extcapmode(void)
 {
   return RSI_IPMU_ProgramConfigData(lp_scdc_extcapmode);
 }
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_IPMU_BOD_Cmphyst(void)
+ * @fn          rsi_error_t RSI_IPMU_BOD_Cmphyst(void)
  * @brief     This API is used to set the comparator hysteresis.
  * @return      RSI_IPMU_ProgramConfigData on success.
  */
 
-error_t RSI_IPMU_BOD_Cmphyst(void)
+rsi_error_t RSI_IPMU_BOD_Cmphyst(void)
 {
   return RSI_IPMU_ProgramConfigData(bod_cmp_hyst);
 }

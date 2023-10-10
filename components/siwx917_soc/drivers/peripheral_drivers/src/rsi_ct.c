@@ -63,14 +63,14 @@ void ct_ocu_high_Low_toggle_select(RSI_CT_T *pCT, boolean_t lowHigh, boolean_t c
 
 /*==============================================*/
 /**
- * @fn            error_t ct_wfg_control_config(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
+ * @fn            rsi_error_t ct_wfg_control_config(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
  * @brief		  This API is used to toggle output state of WFG
  * @param[in]	  pCT         : Pointer to the CT instance register area
  * @param[in]	  ctrlReg     : Variable to a structure of type \ref WFG_PARAMS_T
  * @return 		  \ref ERROR_CT_INVALID_ARG : If WFG_PARAMS_T structure parameters are invalid
  *                \n \ref RSI_OK            : If process is done successfully
  */
-error_t ct_wfg_control_config(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
+rsi_error_t ct_wfg_control_config(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
 {
   uint32_t value = 0;
 
@@ -91,7 +91,7 @@ error_t ct_wfg_control_config(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
 
 /*==============================================*/
 /**
- * @fn          error_t ct_ocu_control(RSI_CT_T *pCT, boolean_t counterNum,boolean_t dmaEn,
+ * @fn          rsi_error_t ct_ocu_control(RSI_CT_T *pCT, boolean_t counterNum,boolean_t dmaEn,
  *                                         OCU_PARAMS_T *pOCUparams,RSI_CT_CALLBACK_T *pCB)
  * @brief		This API controls OCU operation
  * @param[in]   pCT        	 : Pointer to the CT instance register area
@@ -115,11 +115,11 @@ error_t ct_wfg_control_config(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
  * @return 	    \ref ERROR_CT_INVALID_ARG : If passed parameters are invalid
  *               \n \ref RSI_OK            : If process is done successfully
  */
-error_t ct_ocu_control(RSI_CT_T *pCT,
-                       boolean_t counterNum,
-                       boolean_t dmaEn,
-                       OCU_PARAMS_T *pOCUparams,
-                       RSI_CT_CALLBACK_T *pCB)
+rsi_error_t ct_ocu_control(RSI_CT_T *pCT,
+                           boolean_t counterNum,
+                           boolean_t dmaEn,
+                           OCU_PARAMS_T *pOCUparams,
+                           RSI_CT_CALLBACK_T *pCB)
 {
   if ((pOCUparams) == NULL) {
     return ERROR_CT_INVALID_ARG;
@@ -177,7 +177,7 @@ error_t ct_ocu_control(RSI_CT_T *pCT,
 
 /*==============================================*/
 /**
- * @fn           error_t ct_wfg_comapre_value_set( RSI_CT_T *pCT,
+ * @fn           rsi_error_t ct_wfg_comapre_value_set( RSI_CT_T *pCT,
  *                                                 boolean_t counterNum,																                  OCU_PARAMS_T *pOCUparams)
  * @brief		 This function controls WFG operation
  * @param[in]	 pCT          : Pointer to the CT instance register area
@@ -192,7 +192,7 @@ error_t ct_ocu_control(RSI_CT_T *pCT,
  * @return 		  \ref ERROR_CT_INVALID_ARG : If passed parameters are invalid
  *                 \n \ref RSI_OK            : If process is done successfully
  */
-error_t ct_wfg_comapre_value_set(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams)
+rsi_error_t ct_wfg_comapre_value_set(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams)
 {
   if (pOCUparams != NULL) {
     if (counterNum == 0) {

@@ -18,9 +18,8 @@
  *
  */
 
-/**
- * Includes
- */
+// Includes
+
 #include "rsi_ccp_user_config.h"
 #include "rsi_rom_ulpss_clk.h"
 #ifndef ROMDRIVER_PRESENT
@@ -29,7 +28,7 @@
 */
 /*==============================================*/
 /**
- * @fn        error_t ulpss_clock_config(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFactor, boolean_t oddDivFactor)
+ * @fn        rsi_error_t ulpss_clock_config(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFactor, boolean_t oddDivFactor)
  * @brief     This API is used to select the ULPSS processor clock source when input is soc clk source which is greater than 100MHz
  * @param[in] pCLK : pointer to the processor clock source
  * @param[in] clkEnable  : clock enable for clock source
@@ -38,14 +37,14 @@
  * @return    RSI_OK on success 
  */
 
-error_t ulpss_clock_config(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFactor, boolean_t oddDivFactor)
+rsi_error_t ulpss_clock_config(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFactor, boolean_t oddDivFactor)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
   if (clkEnable == Enable) {
-    pCLK->CLK_CONFIG_REG4_b.ULPSS_CLK_DIV_FAC = divFactor;
-    pCLK->CLK_CONFIG_REG5_b.ULPSS_ODD_DIV_SEL = oddDivFactor;
+    pCLK->CLK_CONFIG_REG4_b.ULPSS_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
+    pCLK->CLK_CONFIG_REG5_b.ULPSS_ODD_DIV_SEL = (unsigned int)(oddDivFactor & 0x01);
     pCLK->CLK_ENABLE_SET_REG1                 = ULPSS_CLK_ENABLE;
   } else {
     pCLK->CLK_ENABLE_CLEAR_REG1 = ULPSS_CLK_ENABLE;
@@ -55,14 +54,14 @@ error_t ulpss_clock_config(M4CLK_Type *pCLK, boolean_t clkEnable, uint16_t divFa
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_ulp_peri_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
+ * @fn        rsi_error_t ulpss_ulp_peri_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
  * @brief     This API is used to enable different peripherial clocks in ULPSS
  * @param[in] pULPCLK : pointer to the processor ULP clock 
  * @param[in] u32Flags  : flags for perpheral clocks
  * @return    RSI_OK on success
  */
 
-error_t ulpss_ulp_peri_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
+rsi_error_t ulpss_ulp_peri_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
 {
   if (pULPCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -73,14 +72,14 @@ error_t ulpss_ulp_peri_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_ulp_peri_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
+ * @fn        rsi_error_t ulpss_ulp_peri_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
  * @brief     This API is used to disable different peripherial clocks in ULPSS
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] u32Flags  : flags for peripheral clocks
  * @return    RSI_OK on success
  */
 
-error_t ulpss_ulp_peri_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
+rsi_error_t ulpss_ulp_peri_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
 {
   if (pULPCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -91,14 +90,14 @@ error_t ulpss_ulp_peri_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_ulp_dyn_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
+ * @fn        rsi_error_t ulpss_ulp_dyn_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
  * @brief     This API is used to enable different dynamic clocks in ULPSS
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] u32Flags  : flags for dynamic clocks
  * @return    RSI_OK on success
  */
 
-error_t ulpss_ulp_dyn_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
+rsi_error_t ulpss_ulp_dyn_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
 {
   if (pULPCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -109,14 +108,14 @@ error_t ulpss_ulp_dyn_clk_enable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_ulp_dyn_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
+ * @fn        rsi_error_t ulpss_ulp_dyn_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
  * @brief     This API is used to disable different dynamic clocks in ULPSS
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] u32Flags  : flags for dynamic clocks
  * @return    RSI_OK on success
  */
 
-error_t ulpss_ulp_dyn_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
+rsi_error_t ulpss_ulp_dyn_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
 {
   if (pULPCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -127,7 +126,7 @@ error_t ulpss_ulp_dyn_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
 
 /*==============================================*/
 /**
- * @fn         error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
+ * @fn         rsi_error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
  *                                CLK_ENABLE_T clkType,
  *                                ULP_SSI_CLK_SELECT_T clkSource,
  *                                uint16_t divFactor)
@@ -139,10 +138,10 @@ error_t ulpss_ulp_dyn_clk_disable(ULPCLK_Type *pULPCLK, uint32_t u32Flags)
  * @return     RSI_OK on success 
  */
 
-error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
-                                 CLK_ENABLE_T clkType,
-                                 ULP_SSI_CLK_SELECT_T clkSource,
-                                 uint16_t divFactor)
+rsi_error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
+                                     CLK_ENABLE_T clkType,
+                                     ULP_SSI_CLK_SELECT_T clkSource,
+                                     uint16_t divFactor)
 {
   /*Parameter validation */
   if ((pULPCLK == NULL) || (divFactor > ULP_SSI_MAX_DIVISION_FACTOR) || (clkSource > ULP_SSI_MAX_SEL)) {
@@ -208,7 +207,7 @@ error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
     ;
 
   /*Update the division factor */
-  pULPCLK->ULP_I2C_SSI_CLK_GEN_REG_b.ULP_SSI_CLK_DIV_FACTOR = divFactor;
+  pULPCLK->ULP_I2C_SSI_CLK_GEN_REG_b.ULP_SSI_CLK_DIV_FACTOR = (unsigned int)(divFactor & 0x7F);
 
   ulpss_peripheral_enable(pULPCLK, ULP_SSI_CLK, clkType);
   return RSI_OK;
@@ -216,7 +215,7 @@ error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkSource, uint16_t divFactor)
+ * @fn        rsi_error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkSource, uint16_t divFactor)
  * @brief     This API is used to configure the I2S clock source
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] clkType  : clock type for ULP I2S
@@ -225,7 +224,7 @@ error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
  * @return    RSI_OK on success 
  */
 
-error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkSource, uint16_t divFactor)
+rsi_error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkSource, uint16_t divFactor)
 {
   /*Parameter validation */
   if ((pULPCLK == NULL) || (divFactor > ULP_I2S_MAX_DIVISION_FACTOR) || (clkSource > ULP_I2S_MAX_SEL)) {
@@ -303,7 +302,7 @@ error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkS
     ;
 
   /*Set the division factor */
-  pULPCLK->ULP_I2S_CLK_GEN_REG_b.ULP_I2S_CLKDIV_FACTOR = divFactor;
+  pULPCLK->ULP_I2S_CLK_GEN_REG_b.ULP_I2S_CLKDIV_FACTOR = (uint8_t)divFactor;
 
   ulpss_peripheral_enable(pULPCLK, ULP_I2S_CLK, ENABLE_STATIC_CLK);
 
@@ -312,7 +311,7 @@ error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkS
 
 /*==============================================*/
 /**
- * @fn         error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
+ * @fn         rsi_error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
  *                                CLK_ENABLE_T clkType,
  *                                boolean_t bFrClkSel,
  *                                ULP_UART_CLK_SELECT_T clkSource,
@@ -326,11 +325,11 @@ error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T clkS
  * @return     RSI_OK on success 
  */
 
-error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
-                                 CLK_ENABLE_T clkType,
-                                 boolean_t bFrClkSel,
-                                 ULP_UART_CLK_SELECT_T clkSource,
-                                 uint16_t divFactor)
+rsi_error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
+                                     CLK_ENABLE_T clkType,
+                                     boolean_t bFrClkSel,
+                                     ULP_UART_CLK_SELECT_T clkSource,
+                                     uint16_t divFactor)
 {
   /*Parameter validation */
   if ((pULPCLK == NULL) || (divFactor > ULP_UART_MAX_DIVISION_FACTOR) || (clkSource > ULP_UART_MAX_SEL)) {
@@ -338,7 +337,7 @@ error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
   }
   ulpss_peripheral_disable(pULPCLK, ULP_UART_CLK);
   /*UART Fractional clock select */
-  pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_FRAC_CLK_SEL_b = bFrClkSel;
+  pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_FRAC_CLK_SEL_b = (unsigned int)(bFrClkSel & 0x01);
 
   /*Select */
   switch (clkSource) {
@@ -400,7 +399,7 @@ error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
   while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_UART_CLK_b != 1U))
     ;
 
-  pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_CLKDIV_FACTOR = divFactor;
+  pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_CLKDIV_FACTOR = (unsigned int)(divFactor & 0x07);
 
   ulpss_peripheral_enable(pULPCLK, ULP_UART_CLK, clkType);
   return RSI_OK;
@@ -408,7 +407,7 @@ error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
 
 /*==============================================*/
 /**
- * @fn         error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
+ * @fn         rsi_error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
  *                             CLK_ENABLE_T clkType,
  *                             boolean_t bTmrSync,
  *                             ULP_TIMER_CLK_SELECT_T clkSource,
@@ -422,11 +421,11 @@ error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
  * @return     RSI_OK on success
  */
 
-error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
-                              CLK_ENABLE_T clkType,
-                              boolean_t bTmrSync,
-                              ULP_TIMER_CLK_SELECT_T clkSource,
-                              uint8_t skipSwitchTime)
+rsi_error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
+                                  CLK_ENABLE_T clkType,
+                                  boolean_t bTmrSync,
+                                  ULP_TIMER_CLK_SELECT_T clkSource,
+                                  uint8_t skipSwitchTime)
 {
   /*Parameter validation */
   if ((pULPCLK == NULL) || (clkSource > ULP_TIMER_MAX_SEL)) {
@@ -499,7 +498,7 @@ error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX_CLK_SELECT_T clkSource)
+ * @fn        rsi_error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX_CLK_SELECT_T clkSource)
  * @brief     This API is used to configure the AUX clock source
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] clkType  : clock type for AUX
@@ -507,7 +506,7 @@ error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
  * @return    RSI_OK on success 
  */
 
-error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX_CLK_SELECT_T clkSource)
+rsi_error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX_CLK_SELECT_T clkSource)
 {
   /*Parameter validation */
   if ((pULPCLK == NULL) || (clkSource > ULP_AUX_MAX_SEL)) {
@@ -594,7 +593,7 @@ error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
+ * @fn        rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
  *                            ULP_VAD_CLK_SELECT_T clkSource,
  *                            ULP_VAD_FCLK_SELECT_T FclkSource,
  *                            uint16_t divFactor)
@@ -606,10 +605,10 @@ error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP_AUX
  * @return    RSI_OK on success 
  */
 
-error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
-                             ULP_VAD_CLK_SELECT_T clkSource,
-                             ULP_VAD_FCLK_SELECT_T FclkSource,
-                             uint16_t divFactor)
+rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
+                                 ULP_VAD_CLK_SELECT_T clkSource,
+                                 ULP_VAD_FCLK_SELECT_T FclkSource,
+                                 uint16_t divFactor)
 {
   /*Parameter validation */
   if (((pULPCLK == NULL) || (divFactor >= ULP_VAD_MAX_DIVISION_FACTOR) || (clkSource > ULP_VAD_MAX_SEL)
@@ -677,7 +676,7 @@ error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
   while ((pULPCLK->CLOCK_STAUS_REG_b.CLOCK_SWITCHED_VAD_b != 1U))
     ;
   /*Set VAD clock division factor */
-  pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_CLKDIV_FACTOR = divFactor;
+  pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_CLKDIV_FACTOR = (uint8_t)divFactor;
 
   ulpss_peripheral_enable(pULPCLK, ULP_VAD_CLK, ENABLE_STATIC_CLK);
 
@@ -686,7 +685,7 @@ error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkSource, uint16_t divFactor)
+ * @fn        rsi_error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkSource, uint16_t divFactor)
  * @brief     This API is used to configure the Touch clock source
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] clkSource  : clock source for ULP Touch
@@ -694,7 +693,7 @@ error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
  * @return    RSI_OK on success
  */
 
-error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkSource, uint16_t divFactor)
+rsi_error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkSource, uint16_t divFactor)
 {
   /*Parameter validation */
   if ((pULPCLK == NULL) || (divFactor > ULP_TOUCH_MAX_DIVISION_FACTOR) || (clkSource > ULP_TOUCH_MAX_SEL)) {
@@ -757,7 +756,7 @@ error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkS
     ;
 
   /*Program the division factor */
-  pULPCLK->ULP_TOUCH_CLK_GEN_REG_b.ULP_TOUCH_CLKDIV_FACTOR = divFactor;
+  pULPCLK->ULP_TOUCH_CLK_GEN_REG_b.ULP_TOUCH_CLKDIV_FACTOR = (uint8_t)divFactor;
 
   ulpss_peripheral_enable(pULPCLK, ULP_TOUCH_CLK, ENABLE_STATIC_CLK);
 
@@ -766,7 +765,7 @@ error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkS
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_slp_sensor_clk_config(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor)
+ * @fn        rsi_error_t ulpss_slp_sensor_clk_config(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor)
  * @brief     This API is used to configure the sleep sensor clock source
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] clkEnable  : enable clock for ULP sleep sensor
@@ -774,7 +773,7 @@ error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T clkS
  * @return    RSI_OK on success
  */
 
-error_t ulpss_slp_sensor_clk_config(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor)
+rsi_error_t ulpss_slp_sensor_clk_config(ULPCLK_Type *pULPCLK, boolean_t clkEnable, uint32_t divFactor)
 {
   /*Parameter validation */
   if ((pULPCLK == NULL) || (divFactor > ULP_SLP_SENSOR_MAX_DIVISION_FACTOR)) {
@@ -788,13 +787,13 @@ error_t ulpss_slp_sensor_clk_config(ULPCLK_Type *pULPCLK, boolean_t clkEnable, u
     pULPCLK->SLP_SENSOR_CLK_REG_b.ENABLE_b = 0;
   }
   /*Apply division factor*/
-  pULPCLK->SLP_SENSOR_CLK_REG_b.DIVISON_FACTOR = divFactor;
+  pULPCLK->SLP_SENSOR_CLK_REG_b.DIVISON_FACTOR = (uint8_t)divFactor;
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_peripheral_enable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
+ * @fn        rsi_error_t ulpss_peripheral_enable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
  * @brief     This API is used to enable the particular ULP perpheral Clock
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] module : module for ULP peripheral Clock
@@ -802,7 +801,7 @@ error_t ulpss_slp_sensor_clk_config(ULPCLK_Type *pULPCLK, boolean_t clkEnable, u
  * @return    RSI_OK on success
  */
 
-error_t ulpss_peripheral_enable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
+rsi_error_t ulpss_peripheral_enable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
 {
   if (pULPCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -898,14 +897,14 @@ error_t ulpss_peripheral_enable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T modul
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_peripheral_disable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module)
+ * @fn        rsi_error_t ulpss_peripheral_disable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module)
  * @brief     This API is used to Disable the particulat ULP perpheral Clock
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @param[in] module : module for ULP peripheral Clock
  * @return    RSI_OK on success	
  */
 
-error_t ulpss_peripheral_disable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module)
+rsi_error_t ulpss_peripheral_disable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T module)
 {
   if (pULPCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -981,13 +980,13 @@ error_t ulpss_peripheral_disable(ULPCLK_Type *pULPCLK, ULPPERIPHERALS_CLK_T modu
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_time_clk_disable(ULPCLK_Type *pULPCLK)
+ * @fn        rsi_error_t ulpss_time_clk_disable(ULPCLK_Type *pULPCLK)
  * @brief     This API is used to disable the timer clock
  * @param[in] pULPCLK : pointer to the processor ULP clock source
  * @return    ulpss_peripheral_disable on success	
  */
 
-error_t ulpss_time_clk_disable(ULPCLK_Type *pULPCLK)
+rsi_error_t ulpss_time_clk_disable(ULPCLK_Type *pULPCLK)
 {
   pULPCLK->ULP_TIMER_CLK_GEN_REG_b.ULP_TIMER_CLK_SEL = 0xF;
   return ulpss_peripheral_disable(pULPCLK, ULP_TIMER_CLK);
@@ -995,13 +994,13 @@ error_t ulpss_time_clk_disable(ULPCLK_Type *pULPCLK)
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource)
+ * @fn        rsi_error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource)
  * @brief     This API is used to select the ULPSS processor ref clk configuration
  * @param[in] clkSource  : clock source for ULPSS processor reference clock select
  * @return    RSI_OK on success	
  */
 
-error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource)
+rsi_error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource)
 {
 
   switch (clkSource) {
@@ -1049,7 +1048,7 @@ error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource)
 
 /*==============================================*/
 /**
- * @fn        error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
+ * @fn        rsi_error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
  *                                 ULP_PROC_CLK_SELECT_T clkSource,
  *                                 uint16_t divFactor,
  *                                 cdDelay delayFn)
@@ -1061,10 +1060,10 @@ error_t ulpss_ref_clk_config(ULPSS_REF_CLK_SEL_T clkSource)
  * @return    RSI_OK on success	
  */
 
-error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
-                                  ULP_PROC_CLK_SELECT_T clkSource,
-                                  uint16_t divFactor,
-                                  cdDelay delayFn)
+rsi_error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
+                                      ULP_PROC_CLK_SELECT_T clkSource,
+                                      uint16_t divFactor,
+                                      cdDelay delayFn)
 {
   /*Parameter validation */
   if ((pULPCLK == NULL) || (divFactor > ULP_PROC_MAX_DIVISOIN_FACTOR) || (clkSource > ULP_PROC_MAX_SEL)) {

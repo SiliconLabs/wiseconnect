@@ -25,23 +25,23 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SIZE_BUFFERS      15   // Size of buffer
-#define FOLLOWER_I2C_ADDR 0x50 // EEPROM I2C address
-#define RX_LENGTH         16   // Number of bytes to receive
-#define TX_LENGTH         16   // Number of bytes to send
-#define OFFSET_LENGTH     1    // Offset length
-#define FIFO_THRESHOLD    0x0  // FIFO threshold
-#define ZERO_FLAG         0    // Zero flag, No argument
-#define PINMUX_MODE       6    // I2C pinmux mode
-#define PORT_ZERO         0    // Port zero
-#define HP_MAX_GPIO       64   // High Power GPIO Maximum number
-#define LAST_DATA_COUNT   0    // Last read-write count
-#define DATA_COUNT        1    // Last second data count for verification
-#define BIT_SET           1    // Set bit
-#define STOP_BIT          9    // Bit to send stop command
-#define RW_MASK_BIT       8    // Bit to mask read and write
-#define I2C_INSTANCE      0    // I2C Instance for Pin configuration
-#define I2C               I2C0 // I2C Instance
+#define SIZE_BUFFERS      15           // Size of buffer
+#define FOLLOWER_I2C_ADDR 0x50         // EEPROM I2C address
+#define RX_LENGTH         SIZE_BUFFERS // Number of bytes to receive
+#define TX_LENGTH         SIZE_BUFFERS // Number of bytes to send
+#define OFFSET_LENGTH     1            // Offset length
+#define FIFO_THRESHOLD    0x0          // FIFO threshold
+#define ZERO_FLAG         0            // Zero flag, No argument
+#define PINMUX_MODE       6            // I2C pinmux mode
+#define PORT_ZERO         0            // Port zero
+#define HP_MAX_GPIO       64           // High Power GPIO Maximum number
+#define LAST_DATA_COUNT   0            // Last read-write count
+#define DATA_COUNT        1            // Last second data count for verification
+#define BIT_SET           1            // Set bit
+#define STOP_BIT          9            // Bit to send stop command
+#define RW_MASK_BIT       8            // Bit to mask read and write
+#define I2C_INSTANCE      0            // I2C Instance for Pin configuration
+#define I2C               I2C0         // I2C Instance
 
 /*******************************************************************************
  ******************************  Data Types  ***********************************
@@ -140,7 +140,7 @@ void i2c_leader_example_init(void)
   pin_configurations();
   DEBUGOUT("Pin is configured successfully \n");
   // Generating a buffer with values that needs to be sent.
-  for (uint8_t loop = 0; loop < SIZE_BUFFERS; loop++) {
+  for (uint32_t loop = 0; loop < SIZE_BUFFERS; loop++) {
     write_buffer[loop] = (loop + 0x1);
     read_buffer[loop]  = 0;
   }
@@ -216,8 +216,6 @@ static void i2c_send_data(const uint8_t *data, uint32_t data_length)
   sl_si91x_i2c_set_tx_threshold(I2C, FIFO_THRESHOLD);
   // Enables the I2C peripheral.
   sl_si91x_i2c_enable(I2C);
-  // Sets the direction to write.
-  sl_si91x_i2c_control_direction(I2C, SL_I2C_WRITE_MASK);
   // Configures the transmit empty interrupt.
   sl_si91x_i2c_set_interrupts(I2C, SL_I2C_EVENT_TRANSMIT_EMPTY);
   DEBUGOUT("Tx Interrupts configured successfully \n");
@@ -307,7 +305,7 @@ static void compare_data(void)
   for (data_index = 0; data_index < SIZE_BUFFERS; data_index++) {
     // If the read_buffer and buffer are same, it will be continued else, the for
     // loop will be break.
-    if (write_buffer[data_index] != read_buffer[data_index + 1]) {
+    if (write_buffer[data_index] != read_buffer[data_index]) {
       break;
     }
   }
@@ -327,6 +325,7 @@ static void compare_data(void)
  ******************************************************************************/
 static void pin_configurations(void)
 {
+#ifndef SI917_RADIO_BOARD_V2
 #if (I2C_INSTANCE == 0)
   //SCL
   RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(scl.pin - HP_MAX_GPIO));
@@ -334,12 +333,35 @@ static void pin_configurations(void)
   RSI_EGPIO_PadSelectionEnable(scl.pad_sel);
   //configure DIN0 pin
   RSI_EGPIO_SetPinMux(EGPIO, scl.port, scl.pin, scl.mode);
+#if defined(ROM_BYPASS)
+  // Configuring internal pullup for follower mode
+  egpio_ulp_pad_driver_disable_state(ULP_GPIO_SCL, INTERNAL_PULLUP);
+#endif
   //SDA
   RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(sda.pin - HP_MAX_GPIO));
   RSI_EGPIO_SetPinMux(EGPIO1, PORT_ZERO, (uint8_t)(sda.pin - HP_MAX_GPIO), PINMUX_MODE);
   RSI_EGPIO_PadSelectionEnable(sda.pad_sel);
   //configure DIN0 pin
   RSI_EGPIO_SetPinMux(EGPIO, sda.port, sda.pin, sda.mode);
+#if defined(ROM_BYPASS)
+  // Configuring internal pullup for follower mode
+  egpio_ulp_pad_driver_disable_state(ULP_GPIO_SDA, INTERNAL_PULLUP);
+#endif
+#endif
+#else
+  RSI_EGPIO_PadSelectionEnable(scl.pad_sel);
+  RSI_EGPIO_PadReceiverEnable(scl.pin);
+  RSI_EGPIO_SetPinMux(EGPIO, scl.port, scl.pin, scl.mode);
+#if defined(ROM_BYPASS)
+  egpio_pad_driver_disable_state(scl.pin, INTERNAL_PULLUP);
+#endif
+  //SDA
+  RSI_EGPIO_PadSelectionEnable(sda.pad_sel);
+  RSI_EGPIO_PadReceiverEnable(sda.pin);
+  RSI_EGPIO_SetPinMux(EGPIO, sda.port, sda.pin, sda.mode);
+#if defined(ROM_BYPASS)
+  egpio_pad_driver_disable_state(sda.pin, INTERNAL_PULLUP);
+#endif
 #endif // I2C_INSTANCE 0
 
 #if (I2C_INSTANCE == 1)

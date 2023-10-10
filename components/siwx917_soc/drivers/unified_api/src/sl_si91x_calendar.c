@@ -152,7 +152,7 @@ sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type)
 sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *config)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // returns an error code
@@ -189,7 +189,7 @@ sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *confi
 sl_status_t sl_si91x_calendar_get_date_time(sl_calendar_datetime_config_t *config)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // returns an error code
@@ -311,7 +311,7 @@ sl_status_t sl_si91x_calendar_roclk_calibration(clock_calibration_config_t *cloc
 sl_status_t sl_si91x_calendar_set_alarm(sl_calendar_datetime_config_t *alarm)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // returns an error code
@@ -354,7 +354,7 @@ sl_status_t sl_si91x_calendar_set_alarm(sl_calendar_datetime_config_t *alarm)
 sl_status_t sl_si91x_calendar_get_alarm(sl_calendar_datetime_config_t *alarm)
 {
   sl_status_t status;
-  error_t error_status;
+  rsi_error_t error_status;
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // returns an error code

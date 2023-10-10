@@ -1,6 +1,6 @@
 id: udma_linker_config
 label: UDMA LINKER
-package: wiseconnect3_sdk
+package: platform
 description: >
   UDMA LINKER 
 category: Platform|si91x|Core
@@ -11,11 +11,11 @@ provides:
 template_contribution:
   - name: udma_enable
     value: 1
-  - name: udma0
-    value: 0x00030000
+  - name: udma_buffer
+    value: 0x400
   - name: udma0_size
     value: 0x00000400
   - name: udma1
-    value: 0x24060000
+    value: 0x24062000
   - name: udma1_size
     value: 0x00000400

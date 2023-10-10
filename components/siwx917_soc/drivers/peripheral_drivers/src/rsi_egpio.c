@@ -39,7 +39,7 @@
  */
 void egpio_set_dir(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, boolean_t dir)
 {
-  pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.DIRECTION = dir;
+  pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.DIRECTION = (unsigned int)(dir & 0x01);
 }
 
 /*==============================================*/
@@ -71,7 +71,7 @@ void egpio_set_pin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t val)
  */
 boolean_t egpio_get_pin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
 {
-  return pEGPIO->PIN_CONFIG[(port * 16) + pin].BIT_LOAD_REG;
+  return ((boolean_t)(pEGPIO->PIN_CONFIG[(port * 16) + pin].BIT_LOAD_REG));
 }
 
 /*==============================================*/
@@ -101,8 +101,8 @@ boolean_t egpio_get_dir(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
  */
 void egpio_pin_int_sel(EGPIO_Type *pEGPIO, uint8_t intCh, uint8_t port, uint8_t pin)
 {
-  pEGPIO->INTR[intCh].GPIO_INTR_CTRL_b.PIN_NUMBER  = pin;
-  pEGPIO->INTR[intCh].GPIO_INTR_CTRL_b.PORT_NUMBER = port;
+  pEGPIO->INTR[intCh].GPIO_INTR_CTRL_b.PIN_NUMBER  = (unsigned int)(pin & 0x0F);
+  pEGPIO->INTR[intCh].GPIO_INTR_CTRL_b.PORT_NUMBER = (unsigned int)(port & 0x03);
 }
 
 /*==============================================*/
@@ -261,7 +261,7 @@ void egpio_set_int_high_level_disable(EGPIO_Type *pEGPIO, uint8_t intCh)
  */
 uint8_t egpio_get_int_stat(EGPIO_Type *pEGPIO, uint8_t intCh)
 {
-  return pEGPIO->INTR[intCh].GPIO_INTR_STATUS;
+  return (uint8_t)(pEGPIO->INTR[intCh].GPIO_INTR_STATUS);
 }
 
 /*==============================================*/
@@ -311,7 +311,7 @@ void egpio_int_clr(EGPIO_Type *pEGPIO, uint8_t intCh, uint8_t flags)
  */
 void egpio_set_pin_mux(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t mux)
 {
-  pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.MODE = (mux);
+  pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.MODE = (unsigned int)(mux & 0x0F);
 }
 
 /*==============================================*/
@@ -336,7 +336,7 @@ void egpio_set_pin_mux(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t mu
 void egpio_ulp_soc_gpio_mode(ULPCLK_Type *pULPCLK, uint8_t gpio, uint8_t mode)
 {
 #ifdef CHIP_917
-  pULPCLK->ULP_SOC_GPIO_MODE_REG[gpio].ULP_SOC_GPIO_MODE_REG_b.ULP_SOC_GPIO_MODE_REG = (mode);
+  pULPCLK->ULP_SOC_GPIO_MODE_REG[gpio].ULP_SOC_GPIO_MODE_REG_b.ULP_SOC_GPIO_MODE_REG = (unsigned int)(mode & 0x07);
 #else
   pULPCLK->ULP_SOC_GPIO_MODE_REG[gpio].ULP_SOC_GPIO_0_MODE_REG_b.ULP_SOCGPIO_N_MODE = (mode);
 #endif
@@ -705,7 +705,7 @@ void egpio_group_int_two_disable(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
  */
 void egpio_set_group_int_one_pol(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t pol)
 {
-  pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT1_POLARITY = pol;
+  pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT1_POLARITY = (unsigned int)(pol & 0x01);
 }
 
 /*==============================================*/
@@ -723,7 +723,7 @@ void egpio_set_group_int_one_pol(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, 
  */
 void egpio_set_group_int_two_pol(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t pol)
 {
-  pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT2_POLARITY = pol;
+  pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT2_POLARITY = (unsigned int)(pol & 0x01);
 }
 
 /*==============================================*/
@@ -760,17 +760,17 @@ void egpio_host_pads_gpio_mode_enable(uint8_t u8GpioNum)
 void egpio_host_pads_gpio_mode_disable(uint8_t u8GpioNum)
 {
   if (u8GpioNum == 25) {
-    HOST_PADS_GPIO_MODE &= ~(0x1 << 13);
+    HOST_PADS_GPIO_MODE &= (unsigned int)(~(0x1 << 13));
   } else if (u8GpioNum == 26) {
-    HOST_PADS_GPIO_MODE &= ~(0x1 << 14);
+    HOST_PADS_GPIO_MODE &= (unsigned int)(~(0x1 << 14));
   } else if (u8GpioNum == 27) {
-    HOST_PADS_GPIO_MODE &= ~(0x1 << 15);
+    HOST_PADS_GPIO_MODE &= (unsigned int)(~(0x1 << 15));
   } else if (u8GpioNum == 28) {
-    HOST_PADS_GPIO_MODE &= ~(0x1 << 16);
+    HOST_PADS_GPIO_MODE &= (unsigned int)(~(0x1 << 16));
   } else if (u8GpioNum == 29) {
-    HOST_PADS_GPIO_MODE &= ~(0x1 << 17);
+    HOST_PADS_GPIO_MODE &= (unsigned int)(~(0x1 << 17));
   } else if (u8GpioNum == 30) {
-    HOST_PADS_GPIO_MODE &= ~(0x1 << 18);
+    HOST_PADS_GPIO_MODE &= (unsigned int)(~(0x1 << 18));
   }
 }
 
@@ -830,7 +830,7 @@ void egpio_pad_selection_disable(uint8_t padNum)
 void egpio_pad_receiver_enable(uint8_t u8GpioNum)
 {
   // REN enable bit(this should be enable)
-  PAD_CONFIG_REG(u8GpioNum) |= (0x1 << 4);
+  PAD_CONFIG_REG(u8GpioNum) |= (uint32_t)(0x1 << 4);
 }
 
 /*==============================================*/
@@ -843,7 +843,7 @@ void egpio_pad_receiver_enable(uint8_t u8GpioNum)
 void egpio_pad_receiver_disable(uint8_t u8GpioNum)
 {
   // REN enable bit(this should be enable)
-  PAD_CONFIG_REG(u8GpioNum) &= ~(0x1 << 4);
+  PAD_CONFIG_REG(u8GpioNum) &= (uint32_t)(~(0x1 << 4));
 }
 
 /*==============================================*/
@@ -873,10 +873,10 @@ void egpio_pad_sdio_connected()
  */
 void egpio_pad_driver_disable_state(uint8_t u8GpioNum, en_driver_state_t endstate)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   reg          = PAD_CONFIG_REG(u8GpioNum);
-  reg &= ~DDS_MASK;
-  reg |= (endstate << 6);
+  reg &= (uint32_t)(~DDS_MASK);
+  reg |= (uint32_t)(endstate << 6);
   PAD_CONFIG_REG(u8GpioNum) = reg;
 }
 
@@ -895,9 +895,9 @@ void egpio_pad_driver_disable_state(uint8_t u8GpioNum, en_driver_state_t endstat
  */
 void egpio_pad_driver_strength_select(uint8_t u8GpioNum, en_driver_strength_select_t strength)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   reg          = PAD_CONFIG_REG(u8GpioNum);
-  reg &= ~DSS_MASK;
+  reg &= (uint32_t)(~DSS_MASK);
   reg |= (strength << 0);
   PAD_CONFIG_REG(u8GpioNum) = reg;
 }
@@ -915,10 +915,10 @@ void egpio_pad_driver_strength_select(uint8_t u8GpioNum, en_driver_strength_sele
  */
 void egpio_pad_power_on_start_enable(uint8_t u8GpioNum, uint8_t val)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   reg          = PAD_CONFIG_REG(u8GpioNum);
-  reg &= ~POS_MASK;
-  reg |= (val << 2);
+  reg &= (uint32_t)(~POS_MASK);
+  reg |= (uint32_t)(val << 2);
   PAD_CONFIG_REG(u8GpioNum) = reg;
 }
 
@@ -933,10 +933,10 @@ void egpio_pad_power_on_start_enable(uint8_t u8GpioNum, uint8_t val)
  */
 void egpio_pad_active_high_schmitt_trigger(uint8_t u8GpioNum, uint8_t val)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   reg          = PAD_CONFIG_REG(u8GpioNum);
-  reg &= ~ST_MASK;
-  reg |= (val << 3);
+  reg &= (uint32_t)(~ST_MASK);
+  reg |= (uint32_t)(val << 3);
   PAD_CONFIG_REG(u8GpioNum) = reg;
 }
 
@@ -952,10 +952,10 @@ void egpio_pad_active_high_schmitt_trigger(uint8_t u8GpioNum, uint8_t val)
  */
 void egpio_pad_slew_rate_controll(uint8_t u8GpioNum, uint8_t val)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   reg          = PAD_CONFIG_REG(u8GpioNum);
-  reg &= ~SR_MASK;
-  reg |= (val << 5);
+  reg &= (uint32_t)(~SR_MASK);
+  reg |= (uint32_t)(val << 5);
   PAD_CONFIG_REG(u8GpioNum) = reg;
 }
 
@@ -980,7 +980,7 @@ void egpio_ulp_pad_receiver_enable(uint8_t u8GpioNum)
  */
 void egpio_ulp_pad_receiver_disable(uint8_t u8GpioNum)
 {
-  ULP_PAD_CONFIG_REG_2 &= ~(0x1 << u8GpioNum);
+  ULP_PAD_CONFIG_REG_2 &= (uint32_t)(~(0x1 << u8GpioNum));
 }
 
 /*==============================================*/
@@ -998,15 +998,15 @@ void egpio_ulp_pad_receiver_disable(uint8_t u8GpioNum)
  */
 void egpio_ulp_pad_driver_disable_state(uint8_t u8GpioNum, en_ulp_driver_disable_state_t disablestate)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   switch (u8GpioNum) {
     case 0:
     case 1:
     case 2:
     case 3:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_DDS_MASK_SET_1_AND_3;
-      reg |= (disablestate << 6);
+      reg &= (uint32_t)(~ULP_DDS_MASK_SET_1_AND_3);
+      reg |= (uint32_t)(disablestate << 6);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 4:
@@ -1014,8 +1014,8 @@ void egpio_ulp_pad_driver_disable_state(uint8_t u8GpioNum, en_ulp_driver_disable
     case 6:
     case 7:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_DDS_MASK_SET_2_AND_4;
-      reg |= (disablestate << 14);
+      reg &= (uint32_t)(~ULP_DDS_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(disablestate << 14);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 8:
@@ -1023,8 +1023,8 @@ void egpio_ulp_pad_driver_disable_state(uint8_t u8GpioNum, en_ulp_driver_disable
     case 10:
     case 11:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_DDS_MASK_SET_1_AND_3;
-      reg |= (disablestate << 6);
+      reg &= (uint32_t)(~ULP_DDS_MASK_SET_1_AND_3);
+      reg |= (uint32_t)(disablestate << 6);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
     case 12:
@@ -1032,8 +1032,8 @@ void egpio_ulp_pad_driver_disable_state(uint8_t u8GpioNum, en_ulp_driver_disable
     case 14:
     case 15:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_DDS_MASK_SET_2_AND_4;
-      reg |= (disablestate << 14);
+      reg &= (uint32_t)(~ULP_DDS_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(disablestate << 14);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
   }
@@ -1054,14 +1054,14 @@ void egpio_ulp_pad_driver_disable_state(uint8_t u8GpioNum, en_ulp_driver_disable
  */
 void egpio_ulp_pad_driver_strength_select(uint8_t u8GpioNum, en_ulp_driver_strength_select_t strength)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   switch (u8GpioNum) {
     case 0:
     case 1:
     case 2:
     case 3:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_DSS_MASK_SET_1_AND_3;
+      reg &= (uint32_t)(~ULP_DSS_MASK_SET_1_AND_3);
       reg |= (strength << 0);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
@@ -1070,8 +1070,8 @@ void egpio_ulp_pad_driver_strength_select(uint8_t u8GpioNum, en_ulp_driver_stren
     case 6:
     case 7:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_DSS_MASK_SET_2_AND_4;
-      reg |= (strength << 8);
+      reg &= (uint32_t)(~ULP_DSS_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(strength << 8);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 8:
@@ -1079,7 +1079,7 @@ void egpio_ulp_pad_driver_strength_select(uint8_t u8GpioNum, en_ulp_driver_stren
     case 10:
     case 11:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_DSS_MASK_SET_1_AND_3;
+      reg &= (uint32_t)(~ULP_DSS_MASK_SET_1_AND_3);
       reg |= (strength << 0);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
@@ -1088,8 +1088,8 @@ void egpio_ulp_pad_driver_strength_select(uint8_t u8GpioNum, en_ulp_driver_stren
     case 14:
     case 15:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_DSS_MASK_SET_2_AND_4;
-      reg |= (strength << 8);
+      reg &= (uint32_t)(~ULP_DSS_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(strength << 8);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
   }
@@ -1108,15 +1108,15 @@ void egpio_ulp_pad_driver_strength_select(uint8_t u8GpioNum, en_ulp_driver_stren
  */
 void egpio_ulp_pad_power_on_start_enable(uint8_t u8GpioNum, uint8_t val)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   switch (u8GpioNum) {
     case 0:
     case 1:
     case 2:
     case 3:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_POS_MASK_SET_1_AND_3;
-      reg |= (val << 2);
+      reg &= (uint32_t)(~ULP_POS_MASK_SET_1_AND_3);
+      reg |= (uint32_t)(val << 2);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 4:
@@ -1124,8 +1124,8 @@ void egpio_ulp_pad_power_on_start_enable(uint8_t u8GpioNum, uint8_t val)
     case 6:
     case 7:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_POS_MASK_SET_2_AND_4;
-      reg |= (val << 10);
+      reg &= (uint32_t)(~ULP_POS_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(val << 10);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 8:
@@ -1133,8 +1133,8 @@ void egpio_ulp_pad_power_on_start_enable(uint8_t u8GpioNum, uint8_t val)
     case 10:
     case 11:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_POS_MASK_SET_1_AND_3;
-      reg |= (val << 2);
+      reg &= (uint32_t)(~ULP_POS_MASK_SET_1_AND_3);
+      reg |= (uint32_t)(val << 2);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
     case 12:
@@ -1142,8 +1142,8 @@ void egpio_ulp_pad_power_on_start_enable(uint8_t u8GpioNum, uint8_t val)
     case 14:
     case 15:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_POS_MASK_SET_2_AND_4;
-      reg |= (val << 10);
+      reg &= (uint32_t)(~ULP_POS_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(val << 10);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
   }
@@ -1159,15 +1159,15 @@ void egpio_ulp_pad_power_on_start_enable(uint8_t u8GpioNum, uint8_t val)
  */
 void egpio_ulp_pad_active_high_schmitt_trigger(uint8_t u8GpioNum, uint8_t val)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   switch (u8GpioNum) {
     case 0:
     case 1:
     case 2:
     case 3:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_ST_MASK_SET_1_AND_3;
-      reg |= (val << 3);
+      reg &= (uint32_t)(~ULP_ST_MASK_SET_1_AND_3);
+      reg |= (uint32_t)(val << 3);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 4:
@@ -1175,8 +1175,8 @@ void egpio_ulp_pad_active_high_schmitt_trigger(uint8_t u8GpioNum, uint8_t val)
     case 6:
     case 7:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_ST_MASK_SET_2_AND_4;
-      reg |= (val << 11);
+      reg &= (uint32_t)(~ULP_ST_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(val << 11);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 8:
@@ -1184,8 +1184,8 @@ void egpio_ulp_pad_active_high_schmitt_trigger(uint8_t u8GpioNum, uint8_t val)
     case 10:
     case 11:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_ST_MASK_SET_1_AND_3;
-      reg |= (val << 3);
+      reg &= (uint32_t)(~ULP_ST_MASK_SET_1_AND_3);
+      reg |= (uint32_t)(val << 3);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
     case 12:
@@ -1193,8 +1193,8 @@ void egpio_ulp_pad_active_high_schmitt_trigger(uint8_t u8GpioNum, uint8_t val)
     case 14:
     case 15:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_ST_MASK_SET_2_AND_4;
-      reg |= (val << 11);
+      reg &= (uint32_t)(~ULP_ST_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(val << 11);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
   }
@@ -1211,15 +1211,15 @@ void egpio_ulp_pad_active_high_schmitt_trigger(uint8_t u8GpioNum, uint8_t val)
  */
 void egpio_ulp_pad_slew_rate_controll(uint8_t u8GpioNum, uint8_t val)
 {
-  uint16_t reg = 0;
+  uint32_t reg = 0;
   switch (u8GpioNum) {
     case 0:
     case 1:
     case 2:
     case 3:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_SR_MASK_SET_1_AND_3;
-      reg |= (val << 5);
+      reg &= (uint32_t)(~ULP_SR_MASK_SET_1_AND_3);
+      reg |= (uint32_t)(val << 5);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 4:
@@ -1227,8 +1227,8 @@ void egpio_ulp_pad_slew_rate_controll(uint8_t u8GpioNum, uint8_t val)
     case 6:
     case 7:
       reg = ULP_PAD_CONFIG_REG_0;
-      reg &= ~ULP_SR_MASK_SET_2_AND_4;
-      reg |= (val << 13);
+      reg &= (uint32_t)(~ULP_SR_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(val << 13);
       ULP_PAD_CONFIG_REG_0 = reg;
       break;
     case 8:
@@ -1236,8 +1236,8 @@ void egpio_ulp_pad_slew_rate_controll(uint8_t u8GpioNum, uint8_t val)
     case 10:
     case 11:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_SR_MASK_SET_1_AND_3;
-      reg |= (val << 5);
+      reg &= (uint32_t)(~ULP_SR_MASK_SET_1_AND_3);
+      reg |= (uint32_t)(val << 5);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
     case 12:
@@ -1245,8 +1245,8 @@ void egpio_ulp_pad_slew_rate_controll(uint8_t u8GpioNum, uint8_t val)
     case 14:
     case 15:
       reg = ULP_PAD_CONFIG_REG_1;
-      reg &= ~ULP_SR_MASK_SET_2_AND_4;
-      reg |= (val << 13);
+      reg &= (uint32_t)(~ULP_SR_MASK_SET_2_AND_4);
+      reg |= (uint32_t)(val << 13);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
   }

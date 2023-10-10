@@ -1,0 +1,27 @@
+id: sl_si91x_trng
+package: wiseconnect3_sdk
+description: >
+  True Random Number Generator (TRNG) APIs
+label: TRNG
+category: Crypto|TRNG
+quality: production
+component_root_path: ./components/si91x/crypto/trng
+provides:
+- name: sl_si91x_trng
+source:
+- path: src/sl_si91x_psa_trng.c
+- path: src/sl_si91x_trng.c
+define:
+- name: SLI_TRNG_DEVICE_SI91X
+template_contribution:
+- name: psa_crypto_config
+  value: MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
+- name: mbedtls_config
+  value: MBEDTLS_NO_PLATFORM_ENTROPY
+
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_psa_trng.h
+    - path: sl_si91x_trng.h
+

@@ -61,7 +61,7 @@ RSI_TIMERS_CAPABILITIES_T RSI_TIMERS_GetCapabilities(void)
 
 /*==============================================*/
 /** 
- * @fn          error_t timers_microsec_timer_config(RSI_TIMERS_T *pTIMER, uint8_t timerNum,uint16_t integer,uint8_t fractional,uint8_t mode)
+ * @fn          rsi_error_t timers_microsec_timer_config(RSI_TIMERS_T *pTIMER, uint8_t timerNum,uint16_t integer,uint8_t fractional,uint8_t mode)
  * @brief       This API is used to configure timer mode as a 1 micro second or 256 micro second mode
  * @param[in]   pTIMER     :  pointer to timer
  * @param[in]   timerNum   :  timer number
@@ -70,11 +70,11 @@ RSI_TIMERS_CAPABILITIES_T RSI_TIMERS_GetCapabilities(void)
  * @param[in]   mode       :  mode
  * @return      return RSI_OK if success 
  */
-error_t timers_microsec_timer_config(RSI_TIMERS_T *pTIMER,
-                                     uint8_t timerNum,
-                                     uint16_t integer,
-                                     uint8_t fractional,
-                                     uint8_t mode)
+rsi_error_t timers_microsec_timer_config(RSI_TIMERS_T *pTIMER,
+                                         uint8_t timerNum,
+                                         uint16_t integer,
+                                         uint8_t fractional,
+                                         uint8_t mode)
 {
   if (timerNum <= TIMER_3) {
     /* System clock if 1TU micro second timer */

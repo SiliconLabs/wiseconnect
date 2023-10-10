@@ -20,7 +20,7 @@
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_CT_DRIVER  RSI:RS1xxxx CT
+ * \defgroup CT_DRIVER
  *  @{
  *
  */
@@ -58,14 +58,14 @@ STATIC INLINE void RSI_CT_OCUHighLowToggleSelect(RSI_CT_T *pCT,
 #endif
 }
 /**
- * @fn          STATIC INLINE error_t RSI_CT_WFGControlConfig( RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg )
+ * @fn          STATIC INLINE rsi_error_t RSI_CT_WFGControlConfig( RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg )
  * @brief		    This API is used to toggle output state of WFG
  * @param[in]	  pCT         : Pointer to the CT instance register area
  * @param[in]	  ctrlReg     : Variable to a structure of type \ref WFG_PARAMS_T
  * @return 		  \ref ERROR_CT_INVALID_ARG : If WFG_PARAMS_T structure parameters are invalid
-                \n \ref RSI_OK            : If process is done successfully
+ *              - \n \ref RSI_OK            : If process is done successfully
  */
-STATIC INLINE error_t RSI_CT_WFGControlConfig(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
+STATIC INLINE rsi_error_t RSI_CT_WFGControlConfig(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_CT_API->ct_wfg_control_config(pCT, ctrlReg);
@@ -74,7 +74,7 @@ STATIC INLINE error_t RSI_CT_WFGControlConfig(RSI_CT_T *pCT, WFG_PARAMS_T ctrlRe
 #endif
 }
 /**
- * @fn          STATIC INLINE error_t RSI_CT_OCUControl(RSI_CT_T *pCT, boolean_t counterNum,boolean_t dmaEn,
+ * @fn          STATIC INLINE rsi_error_t RSI_CT_OCUControl(RSI_CT_T *pCT, boolean_t counterNum,boolean_t dmaEn,
                                           OCU_PARAMS_T *pOCUparams,RSI_CT_CALLBACK_T *pCB)
  * @brief		    This API controls OCU operation
  * @param[in]   pCT        	 : Pointer to the CT instance register area
@@ -96,13 +96,13 @@ STATIC INLINE error_t RSI_CT_WFGControlConfig(RSI_CT_T *pCT, WFG_PARAMS_T ctrlRe
  *                                                          possible values for two counters (0x0 to 0xFFFF).
  * @param[in]   pCB          : Pointer to CT callback structure \ref RSI_CT_CALLBACK_T
  * @return 	    \ref ERROR_CT_INVALID_ARG : If passed parameters are invalid
-                \n \ref RSI_OK            : If process is done successfully
+ *              \n \ref RSI_OK            : If process is done successfully
  */
-STATIC INLINE error_t RSI_CT_OCUControl(RSI_CT_T *pCT,
-                                        boolean_t counterNum,
-                                        boolean_t dmaEn,
-                                        OCU_PARAMS_T *pOCUparams,
-                                        RSI_CT_CALLBACK_T *pCB)
+STATIC INLINE rsi_error_t RSI_CT_OCUControl(RSI_CT_T *pCT,
+                                            boolean_t counterNum,
+                                            boolean_t dmaEn,
+                                            OCU_PARAMS_T *pOCUparams,
+                                            RSI_CT_CALLBACK_T *pCB)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_CT_API->ct_ocu_control(pCT, counterNum, dmaEn, pOCUparams, pCB);
@@ -111,7 +111,7 @@ STATIC INLINE error_t RSI_CT_OCUControl(RSI_CT_T *pCT,
 #endif
 }
 /**
- * @fn           STATIC INLINE error_t RSI_CT_WFGComapreValueSet( RSI_CT_T *pCT,
+ * @fn           STATIC INLINE rsi_error_t RSI_CT_WFGComapreValueSet( RSI_CT_T *pCT,
                                                     boolean_t counterNum,
 																	                  OCU_PARAMS_T *pOCUparams)
  * @brief		     This function controls WFG operation
@@ -128,7 +128,7 @@ STATIC INLINE error_t RSI_CT_OCUControl(RSI_CT_T *pCT,
  * @return 		  \ref ERROR_CT_INVALID_ARG : If passed parameters are invalid
                 \n \ref RSI_OK            : If process is done successfully
  */
-STATIC INLINE error_t RSI_CT_WFGComapreValueSet(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams)
+STATIC INLINE rsi_error_t RSI_CT_WFGComapreValueSet(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_CT_API->ct_wfg_comapre_value_set(pCT, counterNum, pOCUparams);

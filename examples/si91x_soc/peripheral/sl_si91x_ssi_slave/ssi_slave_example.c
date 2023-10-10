@@ -34,7 +34,7 @@
 #define SOC_PLL_MM_COUNT_LIMIT  0xA4      // SOC PLL count limit
 #define SSI_BIT_WIDTH           8         // SSI bit width
 #define SSI_BAUDRATE            10000000  // SSI baudrate
-#define MAX_BIT_WIDTH           32        // Maximum Bit width
+#define MAX_BIT_WIDTH           16        // Maximum Bit width
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -114,12 +114,6 @@ void ssi_slave_example_init(void)
       break;
     }
     DEBUGOUT("SSI Initialization Success \n");
-    // Power up the SSI peripheral
-    sl_status = sl_si91x_ssi_configure_power_mode(ssi_driver_handle, ARM_POWER_FULL);
-    if (sl_status != SL_STATUS_OK) {
-      DEBUGOUT("Failed to Set Power to SSI, Error Code : %lu \n", sl_status);
-    }
-    DEBUGOUT("Configured Power to SSI \n");
     // Configure the SSI to Master, 16-bit mode @10000 kBits/sec
     sl_status = sl_si91x_ssi_set_configuration(ssi_driver_handle, &config);
     if (sl_status != SL_STATUS_OK) {
@@ -279,11 +273,9 @@ static void compare_loopback_data(void)
     }
   }
   if (data_index == BUFFER_SIZE) {
-    DEBUGOUT("Data Comparison Success \n");
-    DEBUGOUT("Test Case Pass \n");
+    DEBUGOUT("Data comparison successful, Test case Passed \n");
   } else {
-    DEBUGOUT("Data Comparison Fail \n");
-    DEBUGOUT("Test Case Fail \n");
+    DEBUGOUT("Data comparison failed, Test case failed \n");
   }
 }
 

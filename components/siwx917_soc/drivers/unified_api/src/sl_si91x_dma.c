@@ -31,7 +31,7 @@
 #include "sl_status.h"
 #include "rsi_rom_udma_wrapper.h"
 #include "rsi_udma.h"
-#include "RS1xxxx_9117.h"
+#include "si91x_device.h"
 #include "rsi_board.h"
 
 /*******************************************************************************
@@ -123,6 +123,7 @@ static void process_dma_irq(uint32_t dma_number, uint32_t channel, uint32_t irq_
  ******************************************************************************/
 static boolean_t channel_status(uint32_t dma_number, uint32_t channel)
 {
+
   return ((UDMA_driver_resources[dma_number]->reg->CHANNEL_STATUS_REG >> channel) & EXTRACT_LSB);
 }
 
@@ -140,18 +141,15 @@ static void process_dma_irq(uint32_t dma_number, uint32_t channel, uint32_t irq_
   uint32_t src_inc = 0;
   uint32_t dst_inc = 0;
   // Obtain the DMA channel info
-  volatile UDMA_Channel_Info *channel_info =
+  UDMA_Channel_Info *channel_info =
     (UDMA_Channel_Info *)((UDMA_Channel_Info *)(udma_driver_channel_info[dma_number]) + channel);
   // Obtain DMA descriptor info
   RSI_UDMA_DESC_T *udma_table = (RSI_UDMA_DESC_T *)((RSI_UDMA_DESC_T *)(udma_driver_table[dma_number]) + channel);
-  uint32_t size;
-  uint32_t count;
 
   if (irq_type == SL_DMA_TRANSFER_DONE_CB) {
     // Interrupt is triggered by transfer complete
     if (channel_info->Cnt < channel_info->Size) {
       // Transfer size is greater than max DMA transfer count
-
       // Obtain remaining transfer data size
       remaining_data_size = channel_info->Size - channel_info->Cnt;
       // Update next transfer count
@@ -166,31 +164,44 @@ static void process_dma_irq(uint32_t dma_number, uint32_t channel, uint32_t irq_
       // Update source and dest increment for next transfer
       src_inc = udma_table->vsUDMAChaConfigData1.srcInc;
       dst_inc = udma_table->vsUDMAChaConfigData1.dstInc;
-      // Update src and dest end address for next transfer
-      udma_table->pSrcEndAddr = (void *)((uint32_t)udma_table->pSrcEndAddr + (remaining_data_size << src_inc));
-      udma_table->pDstEndAddr = (void *)((uint32_t)udma_table->pDstEndAddr + (remaining_data_size << dst_inc));
+
+      // No need to update source end address if src_inc is configured to UDMA_SRC_INC_NONE. Only update for
+      //SRC_INC_8/16/32
+      if (src_inc != UDMA_SRC_INC_NONE) {
+        udma_table->pSrcEndAddr = (void *)((uint32_t)udma_table->pSrcEndAddr + (remaining_data_size << src_inc));
+      } else {
+        udma_table->pSrcEndAddr = (void *)((uint32_t)udma_table->pSrcEndAddr);
+      }
+      // No need to update destination end address if dst_inc is configured to UDMA_DST_INC_NONE. Only update for
+      //SRC_INC_8/16/32
+      if (dst_inc != UDMA_DST_INC_NONE) {
+        udma_table->pDstEndAddr = (void *)((uint32_t)udma_table->pDstEndAddr + (remaining_data_size << dst_inc));
+      } else {
+        udma_table->pDstEndAddr = (void *)((uint32_t)udma_table->pDstEndAddr);
+      }
 
       // Update transfer type and transfer count
-      udma_table->vsUDMAChaConfigData1.transferType = sl_channel_allocation_data_t[dma_number][channel].transfer_mode;
-      udma_table->vsUDMAChaConfigData1.totalNumOfDMATrans = dma_count;
+      udma_table->vsUDMAChaConfigData1.transferType =
+        (unsigned int)(sl_channel_allocation_data_t[dma_number][channel].transfer_mode & 0x07);
+      udma_table->vsUDMAChaConfigData1.totalNumOfDMATrans = (unsigned int)(dma_count & 0x03FF);
 
       // Enable channel for next transfer
-      UDMA_driver_resources[dma_number]->reg->CHNL_ENABLE_SET |= SET_BIT(channel);
+      UDMA_driver_resources[dma_number]->reg->CHNL_ENABLE_SET = (1U << channel);
       if (sl_channel_allocation_data_t[dma_number][channel].transfer_type == SL_DMA_MEMORY_TO_MEMORY) {
         // for memory to memory request, trigger SW request
-        UDMA_driver_resources[dma_number]->reg->CHNL_SW_REQUEST |= SET_BIT(channel);
+        UDMA_driver_resources[dma_number]->reg->CHNL_SW_REQUEST = (1U << channel);
       }
     } else {
-      if (sl_channel_allocation_data_t[dma_number][channel].dma_callback_t->transfer_complete_cb != NULL) {
+      if (sl_channel_allocation_data_t[dma_number][channel].dma_callback_t.transfer_complete_cb != NULL) {
         // Transfer complete callback
-        sl_channel_allocation_data_t[dma_number][channel].dma_callback_t->transfer_complete_cb(channel, NULL);
+        sl_channel_allocation_data_t[dma_number][channel].dma_callback_t.transfer_complete_cb(channel, NULL);
       }
     }
   }
   if (irq_type == SL_DMA_ERROR_CB) {
-    if (sl_channel_allocation_data_t[dma_number][channel].dma_callback_t->error_cb != NULL) {
+    if (sl_channel_allocation_data_t[dma_number][channel].dma_callback_t.error_cb != NULL) {
       // error complete callback
-      sl_channel_allocation_data_t[dma_number][channel].dma_callback_t->error_cb(channel, NULL);
+      sl_channel_allocation_data_t[dma_number][channel].dma_callback_t.error_cb(channel, NULL);
     }
   }
 }
@@ -205,20 +216,25 @@ static void process_dma_irq(uint32_t dma_number, uint32_t channel, uint32_t irq_
  *******************************************************************************/
 sl_status_t sl_si91x_dma_init(sl_dma_init_t *dma_init)
 {
+
   sl_status_t status;
 
-  // Initialize dma peripheral
-  udmaHandle[dma_init->dma_number] = UDMAx_Initialize(UDMA_driver_resources[dma_init->dma_number],
-                                                      udma_driver_table[dma_init->dma_number],
-                                                      (RSI_UDMA_HANDLE_T)udmaHandle[dma_init->dma_number],
-                                                      dma_rom_buff[dma_init->dma_number]);
+  if (dma_init->dma_number <= DMA_INSTANCE1) {
+    // Initialize dma peripheral
+    udmaHandle[dma_init->dma_number] = UDMAx_Initialize(UDMA_driver_resources[dma_init->dma_number],
+                                                        udma_driver_table[dma_init->dma_number],
+                                                        (RSI_UDMA_HANDLE_T)udmaHandle[dma_init->dma_number],
+                                                        dma_rom_buff[dma_init->dma_number]);
 
-  if (udmaHandle[dma_init->dma_number] == NULL) {
-    // DMA init fail
-    status = SL_STATUS_NOT_INITIALIZED;
+    if (udmaHandle[dma_init->dma_number] == NULL) {
+      // DMA init fail
+      status = SL_STATUS_NOT_INITIALIZED;
+    } else {
+      //DMA init pass
+      status = SL_STATUS_OK;
+    }
   } else {
-    //DMA init pass
-    status = SL_STATUS_OK;
+    status = SL_STATUS_INVALID_PARAMETER;
   }
   return status;
 }
@@ -230,8 +246,15 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
 {
 
   sl_status_t status = SL_STATUS_OK;
-
-  if (udmaHandle[dma_number] != NULL) {
+  do {
+    if (dma_number > DMA_INSTANCE1) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    if (udmaHandle[dma_number] == NULL) {
+      status = SL_STATUS_NOT_INITIALIZED;
+      break;
+    }
     for (int ch = 0; ch < DMA_CHANNEL_32; ch++) {
       if (channel_status(dma_number, ch)) {
         // DMA channel is busy
@@ -243,10 +266,7 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
       // Uninitialize DMA
       status = (sl_status_t)UDMAx_Uninitialize(UDMA_driver_resources[dma_number]);
     }
-  } else {
-    // DMA not initialized
-    status = SL_STATUS_NOT_INITIALIZED;
-  }
+  } while (false);
   return status;
 }
 
@@ -260,20 +280,17 @@ sl_status_t sl_si91x_dma_allocate_channel(uint32_t dma_number, uint32_t *channel
 {
 
   sl_status_t status = SL_STATUS_OK;
-
   do {
+    if (((*channel_no > DMA_CHANNEL_32) || (channel_no == NULL)) && (dma_number > DMA_INSTANCE1)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
     if (udmaHandle[dma_number] == NULL) {
       // DMA not initialized
       status = SL_STATUS_NOT_INITIALIZED;
       break;
     }
-
-    if ((*channel_no > DMA_CHANNEL_32) || (channel_no == NULL)) {
-      // Invalid channel number
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-
     if (*channel_no == 0) {
       // Scan for available channels
       for (uint32_t ch = 0; ch < DMA_CHANNEL_32; ch++) {
@@ -281,10 +298,10 @@ sl_status_t sl_si91x_dma_allocate_channel(uint32_t dma_number, uint32_t *channel
           // Channel available
           *channel_no = ch + 1;
           // Allocate the channel using channel allocator
-          sl_channel_allocation_data_t[dma_number][ch].allocated                            = true;
-          sl_channel_allocation_data_t[dma_number][ch].priority                             = priority;
-          sl_channel_allocation_data_t[dma_number][ch].dma_callback_t->transfer_complete_cb = NULL;
-          sl_channel_allocation_data_t[dma_number][ch].dma_callback_t->error_cb             = NULL;
+          sl_channel_allocation_data_t[dma_number][ch].allocated                           = true;
+          sl_channel_allocation_data_t[dma_number][ch].priority                            = priority;
+          sl_channel_allocation_data_t[dma_number][ch].dma_callback_t.transfer_complete_cb = NULL;
+          sl_channel_allocation_data_t[dma_number][ch].dma_callback_t.error_cb             = NULL;
           break;
         }
       }
@@ -295,16 +312,16 @@ sl_status_t sl_si91x_dma_allocate_channel(uint32_t dma_number, uint32_t *channel
     } else {
       if (!sl_channel_allocation_data_t[dma_number][*channel_no - 1].allocated) {
         // Allocate desired DMA channel, if it is available
-        sl_channel_allocation_data_t[dma_number][*channel_no - 1].priority                             = priority;
-        sl_channel_allocation_data_t[dma_number][*channel_no - 1].allocated                            = true;
-        sl_channel_allocation_data_t[dma_number][*channel_no - 1].dma_callback_t->transfer_complete_cb = NULL;
-        sl_channel_allocation_data_t[dma_number][*channel_no - 1].dma_callback_t->error_cb             = NULL;
+        sl_channel_allocation_data_t[dma_number][*channel_no - 1].priority                            = priority;
+        sl_channel_allocation_data_t[dma_number][*channel_no - 1].allocated                           = true;
+        sl_channel_allocation_data_t[dma_number][*channel_no - 1].dma_callback_t.transfer_complete_cb = NULL;
+        sl_channel_allocation_data_t[dma_number][*channel_no - 1].dma_callback_t.error_cb             = NULL;
       } else {
         // Desired DMA channel is already allocated
         status = SL_STATUS_DMA_CHANNEL_ALLOCATED;
       }
     }
-  } while (0);
+  } while (false);
 
   return status;
 }
@@ -318,16 +335,15 @@ sl_status_t sl_si91x_dma_deallocate_channel(uint32_t dma_number, uint32_t channe
 {
 
   sl_status_t status = SL_STATUS_OK;
-
   do {
+    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0) && (dma_number > DMA_INSTANCE1)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
     if (udmaHandle[dma_number] == NULL) {
       // DMA not initialized
       status = SL_STATUS_NOT_INITIALIZED;
-      break;
-    }
-    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0)) {
-      // Invalid channel number
-      status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
     if (channel_status(dma_number, channel_no)) {
@@ -337,14 +353,14 @@ sl_status_t sl_si91x_dma_deallocate_channel(uint32_t dma_number, uint32_t channe
     }
     if (sl_channel_allocation_data_t[dma_number][channel_no - 1].allocated) {
       // Clear channel allocator data
-      sl_channel_allocation_data_t[dma_number][channel_no - 1].allocated                            = false;
-      sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t->transfer_complete_cb = NULL;
-      sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t->error_cb             = NULL;
+      sl_channel_allocation_data_t[dma_number][channel_no - 1].allocated                           = false;
+      sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t.transfer_complete_cb = NULL;
+      sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t.error_cb             = NULL;
     } else {
       // DMA channel is already unallocated
       status = SL_STATUS_DMA_CHANNEL_ALREADY_UNALLOCATED;
     }
-  } while (0);
+  } while (false);
 
   return status;
 }
@@ -358,21 +374,22 @@ sl_status_t sl_si91x_dma_register_callbacks(uint32_t dma_number, uint32_t channe
 {
 
   sl_status_t status = SL_STATUS_OK;
-
   do {
+    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0) && (dma_number > DMA_INSTANCE1)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
     if (udmaHandle[dma_number] == NULL) {
       // DMA not initialized
       status = SL_STATUS_NOT_INITIALIZED;
       break;
     }
-    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0)) {
-      // Invalid channel number
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
     // Register callbacks
-    sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t = callback_t;
-  } while (0);
+    sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t.transfer_complete_cb =
+      callback_t->transfer_complete_cb;
+    sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t.error_cb = callback_t->error_cb;
+  } while (false);
 
   return status;
 }
@@ -384,29 +401,28 @@ sl_status_t sl_si91x_dma_unregister_callbacks(uint32_t dma_number, uint32_t chan
 {
 
   sl_status_t status = SL_STATUS_OK;
-
   do {
+    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0) && (dma_number > DMA_INSTANCE1)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
     if (udmaHandle[dma_number] == NULL) {
       // DMA not initialized
       status = SL_STATUS_NOT_INITIALIZED;
       break;
     }
-    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0)) {
-      // Invalid channel number
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
     if (callback_type & TRANSFER_COMPLETE_CALLBACK) {
       // unregister transfer complete callback
-      sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t->transfer_complete_cb = NULL;
+      sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t.transfer_complete_cb = NULL;
     } else if (callback_type & ERROR_CALLBACK) {
       // unregister error callback
-      sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t->error_cb = NULL;
+      sl_channel_allocation_data_t[dma_number][channel_no - 1].dma_callback_t.error_cb = NULL;
     } else {
       // Invalid callback type
       status = SL_STATUS_INVALID_PARAMETER;
     }
-  } while (0);
+  } while (false);
 
   return status;
 }
@@ -425,16 +441,15 @@ sl_status_t sl_si91x_dma_simple_transfer(uint32_t dma_number,
 
   sl_status_t status = SL_STATUS_OK;
   uint32_t channel   = channel_no - 1;
-
   do {
+    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0) && (dma_number > DMA_INSTANCE1)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
     if (udmaHandle[dma_number] == NULL) {
       // DMA not initialized
       status = SL_STATUS_NOT_INITIALIZED;
-      break;
-    }
-    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0)) {
-      // Invalid channel number
-      status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
     if (sl_channel_allocation_data_t[dma_number][channel].allocated) {
@@ -456,7 +471,7 @@ sl_status_t sl_si91x_dma_simple_transfer(uint32_t dma_number,
         // Transfer size is more than maximum transfer size in one DMA cycle
         control.totalNumOfDMATrans = (DMA_MAX_TRANSFER_COUNT - 1);
       } else {
-        control.totalNumOfDMATrans = (data_size - 1);
+        control.totalNumOfDMATrans = (unsigned int)((data_size - 1) & 0x03FF);
       }
       // Update DMA descriptor
       control.rPower      = ARBSIZE_1024;
@@ -472,27 +487,28 @@ sl_status_t sl_si91x_dma_simple_transfer(uint32_t dma_number,
       // Update DMA transfer mode in channel allocator
       sl_channel_allocation_data_t[dma_number][channel].transfer_mode = SL_DMA_BASIC_MODE;
       // Configure dma channel for transfer
-      status = UDMAx_ChannelConfigure(UDMA_driver_resources[dma_number],
-                                      (channel),
-                                      (uint32_t)src_addr,
-                                      (uint32_t)dst_addr,
-                                      data_size,
-                                      control,
-                                      &config,
-                                      NULL,
-                                      udma_driver_channel_info[dma_number],
-                                      udmaHandle[dma_number]);
+      status = (sl_status_t)UDMAx_ChannelConfigure(UDMA_driver_resources[dma_number],
+                                                   ((uint8_t)channel),
+                                                   (uint32_t)src_addr,
+                                                   (uint32_t)dst_addr,
+                                                   data_size,
+                                                   control,
+                                                   &config,
+                                                   NULL,
+                                                   udma_driver_channel_info[dma_number],
+                                                   udmaHandle[dma_number]);
       // Enable DMA channel
-      status = UDMAx_ChannelEnable(channel, UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
+      status =
+        (sl_status_t)UDMAx_ChannelEnable((uint8_t)channel, UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
       // Enable DMA peripheral
-      status = UDMAx_DMAEnable(UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
+      status = (sl_status_t)UDMAx_DMAEnable(UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
       // Start transfer using software trigger
-      status = RSI_UDMA_ChannelSoftwareTrigger(udmaHandle[dma_number], channel);
+      status = (sl_status_t)RSI_UDMA_ChannelSoftwareTrigger(udmaHandle[dma_number], (uint8_t)channel);
     } else {
       // Channel is unallocated
       status = SL_STATUS_DMA_CHANNEL_UNALLOCATED;
     }
-  } while (0);
+  } while (false);
 
   return status;
 }
@@ -508,16 +524,15 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
 
   sl_status_t status = SL_STATUS_OK;
   uint32_t channel   = channel_no - 1;
-
   do {
+    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0) && (dma_number > DMA_INSTANCE1)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
     if (udmaHandle[dma_number] == NULL) {
       // DMA peripheral not initialized
       status = SL_STATUS_NOT_INITIALIZED;
-      break;
-    }
-    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0)) {
-      // Invalid channel number
-      status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
     if (sl_channel_allocation_data_t[dma_number][channel].allocated) {
@@ -538,10 +553,14 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
         config.channelPrioHigh = CHANNEL_PRIO_DISABLE;
       }
       if ((dma_transfer_t->transfer_type == SL_DMA_MEMORY_TO_PERIPHERAL)
-          || (dma_transfer_t->transfer_type == SL_PERIPHERAL_TO_MEMORY)) {
+          || (dma_transfer_t->transfer_type == SL_DMA_PERIPHERAL_TO_MEMORY)) {
         // Memory-Peripheral/Peripheral-Memory transfer
         config.periphReq = PERIPHERAL_REQUEST_ENABLE;
-        control.rPower   = ARBSIZE_1;
+#if SL_SI91X_GSPI_DMA
+        control.rPower = ARBSIZE_4;
+#else
+        control.rPower = ARBSIZE_1;
+#endif
       } else {
         // Memory-memory transfer
         config.periphReq = PERIPHERAL_REQUEST_DISABLE;
@@ -553,9 +572,13 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
       } else {
         config.periAck = PERIPHERAL_ACK_DISABLE;
       }
-      config.dmaCh    = (channel);
+      config.dmaCh = (channel);
+#if (SL_SI91X_GSPI_DMA || SL_SI91X_SSI_DMA)
+      config.burstReq = BURST_REQUEST_DISABLE;
+#else
       config.burstReq = BURST_REQUEST_ENABLE;
-      config.reqMask  = REQUEST_MASK_DISABLE;
+#endif
+      config.reqMask = REQUEST_MASK_DISABLE;
       // Memory-meory transfer
       if (dma_transfer_t->dma_mode == SL_DMA_BASIC_MODE) {
         control.transferType = SL_DMA_BASIC_MODE;
@@ -564,48 +587,57 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
       }
 
       control.nextBurst = NEXT_BURST_DISABLE;
-      if (dma_transfer_t->transfer_count > (DMA_MAX_TRANSFER_COUNT - 1)) {
+      if (dma_transfer_t->transfer_count >= DMA_MAX_TRANSFER_COUNT) {
         // Transfer size is more than maximum transfer size in one DMA cycle
         control.totalNumOfDMATrans = (DMA_MAX_TRANSFER_COUNT - 1);
       } else {
-        control.totalNumOfDMATrans = (dma_transfer_t->transfer_count - 1);
+        control.totalNumOfDMATrans = (unsigned int)((dma_transfer_t->transfer_count - 1) & 0x03FF);
       }
       // Update DMA descriptor
       control.srcProtCtrl = SOURCE_PROTECT_CONTROL_DISABLE;
       control.dstProtCtrl = DESTINATION_PROTECT_CONTROL_DISABLE;
-      control.srcSize     = dma_transfer_t->xfer_size;
-      control.srcInc      = dma_transfer_t->src_inc;
-      control.dstSize     = dma_transfer_t->xfer_size;
-      control.dstInc      = dma_transfer_t->dst_inc;
+      control.srcSize     = (unsigned int)(dma_transfer_t->xfer_size & 0x03);
+      control.srcInc      = (unsigned int)(dma_transfer_t->src_inc & 0x03);
+      control.dstSize     = (unsigned int)(dma_transfer_t->xfer_size & 0x03);
+      control.dstInc      = (unsigned int)(dma_transfer_t->dst_inc & 0x03);
 
       // Update DMA transfer type in channel allocator
       sl_channel_allocation_data_t[dma_number][channel].transfer_type = dma_transfer_t->transfer_type;
       // Update DMA transfer mode in channel allocator
       sl_channel_allocation_data_t[dma_number][channel].transfer_mode = control.transferType;
       // Configure dma channel for transfer
-      status = UDMAx_ChannelConfigure(UDMA_driver_resources[dma_number],
-                                      (channel),
-                                      (uint32_t)dma_transfer_t->src_addr,
-                                      (uint32_t)dma_transfer_t->dest_addr,
-                                      dma_transfer_t->transfer_count,
-                                      control,
-                                      &config,
-                                      NULL,
-                                      udma_driver_channel_info[dma_number],
-                                      udmaHandle[dma_number]);
+      status = (sl_status_t)UDMAx_ChannelConfigure(UDMA_driver_resources[dma_number],
+                                                   ((uint8_t)channel),
+                                                   (uint32_t)dma_transfer_t->src_addr,
+                                                   (uint32_t)dma_transfer_t->dest_addr,
+                                                   dma_transfer_t->transfer_count,
+                                                   control,
+                                                   &config,
+                                                   NULL,
+                                                   udma_driver_channel_info[dma_number],
+                                                   udmaHandle[dma_number]);
       // Enable DMA channel
-      status = UDMAx_ChannelEnable(channel, UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
+      status =
+        (sl_status_t)UDMAx_ChannelEnable((uint8_t)channel, UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
       // Enable DMA peripheral
-      status = UDMAx_DMAEnable(UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
+      status = (sl_status_t)UDMAx_DMAEnable(UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
       if (dma_transfer_t->transfer_type == SL_DMA_MEMORY_TO_MEMORY) {
         // Start transfer using software trigger
-        status = RSI_UDMA_ChannelSoftwareTrigger(udmaHandle[dma_number], channel);
+        status = (sl_status_t)RSI_UDMA_ChannelSoftwareTrigger(udmaHandle[dma_number], (uint8_t)channel);
+      }
+      if (config.periphReq == PERIPHERAL_REQUEST_DISABLE) {
+        //For memory to peripheral and peripheral to memory transfer types, below functions should be called explicitly by application
+
+        // Enable DMA channel
+        status = sl_si91x_dma_channel_enable(dma_number, channel);
+        // Enable DMA peripheral
+        status = sl_si91x_dma_enable(dma_number);
       }
     } else {
       // Channel is unallocated
       status = SL_STATUS_DMA_CHANNEL_UNALLOCATED;
     }
-  } while (0);
+  } while (false);
 
   return status;
 }
@@ -617,19 +649,23 @@ sl_status_t sl_si91x_dma_stop_transfer(uint32_t dma_number, uint32_t channel_no)
 {
 
   sl_status_t status = SL_STATUS_OK;
-
   do {
+    if (dma_number > DMA_INSTANCE1) {
+      // Invalid DMA instance
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
     if (udmaHandle[dma_number] == NULL) {
       // DMA not initialized
       status = SL_STATUS_NOT_INITIALIZED;
       break;
     }
     // Disable channel for stopping transfer
-    if (RSI_UDMA_ChannelDisable(udmaHandle[dma_number], (channel_no - 1))) {
+    if (RSI_UDMA_ChannelDisable(udmaHandle[dma_number], (uint8_t)(channel_no - 1))) {
       // Invalid channel number
       status = SL_STATUS_INVALID_PARAMETER;
     }
-  } while (0);
+  } while (false);
 
   return status;
 }
@@ -643,16 +679,15 @@ sl_status_t sl_si91x_dma_channel_status_get(uint32_t dma_number, uint32_t channe
 {
 
   sl_status_t status = SL_STATUS_IDLE;
-
   do {
+    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0) && (dma_number > DMA_INSTANCE1)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
     if (udmaHandle[dma_number] == NULL) {
       // DMA not initialized
       status = SL_STATUS_NOT_INITIALIZED;
-      break;
-    }
-    if ((channel_no > DMA_CHANNEL_32) && (channel_no == 0)) {
-      // Invalid channel number
-      status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
     if (channel_status(dma_number, channel_no - 1)) {
@@ -664,11 +699,90 @@ sl_status_t sl_si91x_dma_channel_status_get(uint32_t dma_number, uint32_t channe
       // Channel is allocated by idle
       status = SL_STATUS_DMA_CHANNEL_ALLOCATED;
     }
-  } while (0);
+  } while (false);
 
   return status;
 }
-#ifdef SL_SI91X_DMA
+
+/*******************************************************************************
+ * Enable DMA Channel
+ * SL_STATUS_NOT_INITIALIZED - DMA is not initialized
+ * SL_STATUS_INVALID_PARAMETER - Invalid channel number
+ * *****************************************************************************/
+sl_status_t sl_si91x_dma_channel_enable(uint32_t dma_number, uint32_t channel_no)
+{
+
+  sl_status_t status = SL_STATUS_OK;
+  do {
+    if (dma_number > DMA_INSTANCE1) {
+      // Invalid DMA instance
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    if (udmaHandle[dma_number] == NULL) {
+      // DMA not initialized
+      status = SL_STATUS_NOT_INITIALIZED;
+      break;
+    }
+    if (RSI_UDMA_ChannelEnable(udmaHandle[dma_number], channel_no)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * Disable DMA Channel
+ * SL_STATUS_NOT_INITIALIZED - DMA is not initialized
+ * SL_STATUS_INVALID_PARAMETER - Invalid channel number
+ * *****************************************************************************/
+sl_status_t sl_si91x_dma_channel_disable(uint32_t dma_number, uint32_t channel_no)
+{
+
+  sl_status_t status = SL_STATUS_OK;
+  do {
+    if (dma_number > DMA_INSTANCE1) {
+      // Invalid DMA instance
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    if (udmaHandle[dma_number] == NULL) {
+      // DMA not initialized
+      status = SL_STATUS_NOT_INITIALIZED;
+      break;
+    }
+    if (RSI_UDMA_ChannelDisable(udmaHandle[dma_number], channel_no)) {
+      // Invalid channel number
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * Enable DMA peripheral
+ * *****************************************************************************/
+sl_status_t sl_si91x_dma_enable(uint32_t dma_number)
+{
+
+  sl_status_t status = SL_STATUS_OK;
+  if (dma_number <= DMA_INSTANCE1) {
+    if (udmaHandle[dma_number] == NULL) {
+      // DMA not initialized
+      status = SL_STATUS_NOT_INITIALIZED;
+    } else {
+      status = UDMAx_DMAEnable(UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
+    }
+  } else {
+    status = SL_STATUS_INVALID_PARAMETER;
+  }
+  return status;
+}
+
+#if (SL_SI91X_DMA == 1)
 /*******************************************************************************
  * Interrupt handler for UDMA0 peripheral.
  * This function clears the interrupts
@@ -682,7 +796,6 @@ void DMA0_IRQ_HANDLER(void)
   volatile uint32_t interrupt_status;
   volatile uint32_t error_status;
   uint32_t irq_type = 0;
-
   // Scan the channel which triggered interrupt
   for (channel = 0; channel < DMA_CHANNEL_32; channel++) {
     irq_type = 0;
@@ -690,16 +803,16 @@ void DMA0_IRQ_HANDLER(void)
     interrupt_status = UDMA_driver_resources[0]->reg->UDMA_DONE_STATUS_REG;
     if (interrupt_status & (1 << channel)) {
       // Interrupt is due to transfer complete
-      UDMA_driver_resources[0]->reg->UDMA_DONE_STATUS_REG |= SET_BIT(channel);
-      irq_type = TRANSFER_COMPLETE_CALLBACK;
+      UDMA_driver_resources[0]->reg->UDMA_DONE_STATUS_REG = (1 << channel);
+      irq_type                                            = TRANSFER_COMPLETE_CALLBACK;
     } else {
       // Check for bus error interrupt
       error_status = UDMA_driver_resources[0]->reg->ERR_CLR;
       if (error_status & (1 << channel)) {
         // Interrupt is due to bus error
         UDMA_driver_resources[0]->reg->ERR_CLR &= CLR_BIT(channel);
-        UDMA_driver_resources[0]->reg->UDMA_DONE_STATUS_REG |= SET_BIT(channel);
-        irq_type = ERROR_CALLBACK;
+        UDMA_driver_resources[0]->reg->UDMA_DONE_STATUS_REG = (1 << channel);
+        irq_type                                            = ERROR_CALLBACK;
       }
     }
     if (irq_type) {
@@ -730,16 +843,16 @@ void DMA1_IRQ_HANDLER(void)
     interrupt_status = UDMA_driver_resources[1]->reg->UDMA_DONE_STATUS_REG;
     if (interrupt_status & (1 << channel)) {
       // Interrupt is due to transfer complete
-      UDMA_driver_resources[1]->reg->UDMA_DONE_STATUS_REG |= SET_BIT(channel);
-      irq_type = TRANSFER_COMPLETE_CALLBACK;
+      UDMA_driver_resources[1]->reg->UDMA_DONE_STATUS_REG = (1 << channel);
+      irq_type                                            = TRANSFER_COMPLETE_CALLBACK;
     } else {
       // Check for bus error interrupt
       error_status = UDMA_driver_resources[1]->reg->ERR_CLR;
       if (error_status & (1 << channel)) {
         // Interrupt is due to bus error
         UDMA_driver_resources[1]->reg->ERR_CLR &= CLR_BIT(channel);
-        UDMA_driver_resources[1]->reg->UDMA_DONE_STATUS_REG |= SET_BIT(channel);
-        irq_type = ERROR_CALLBACK;
+        UDMA_driver_resources[1]->reg->UDMA_DONE_STATUS_REG = (1 << channel);
+        irq_type                                            = ERROR_CALLBACK;
       }
     }
     if (irq_type) {
@@ -748,4 +861,4 @@ void DMA1_IRQ_HANDLER(void)
     }
   }
 }
-#endif /* SL_SI91X_DMA */
+#endif /* Enable SL DMA driver */

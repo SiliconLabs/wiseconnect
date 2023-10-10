@@ -160,8 +160,8 @@ sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_confi
  * Start the ULP-Timer.
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
- *      \ref sl_si91x_ulp_timer_set_configuration \n
- *      \ref sl_si91x_ulp_timer_register_timeout_callback \n
+ * @pre \ref sl_si91x_ulp_timer_set_configuration \n
+ * @pre \ref sl_si91x_ulp_timer_register_timeout_callback \n
  * 
  * @param[in]  timer_num enum for ULP-timer Number (0 to 3), \ref #ulp_timer_instance_t for possible values
  * @return    status 0 if successful, else error code
@@ -250,9 +250,9 @@ sl_status_t sl_si91x_ulp_timer_set_mode(ulp_timer_instance_t timer_num, ulp_time
  * Set ULP-Timer match value.
  *
  * @pre \ref sl_si91x_ulp_timer_configure_clock \n
- *      \ref sl_si91x_ulp_timer_stop \n
- *      \ref sl_si91x_ulp_timer_set_type \n
- *      \ref sl_si91x_ulp_timer_set_direction \n 
+ * @pre \ref sl_si91x_ulp_timer_stop \n
+ * @pre \ref sl_si91x_ulp_timer_set_type \n
+ * @pre \ref sl_si91x_ulp_timer_set_direction \n 
  * 
  * @param[in]  timer_num enum for ULP-timer Number, \ref #ulp_timer_instance_t for possible values.
  * @param[in]  timer_match_value for ULP-timer timeout value

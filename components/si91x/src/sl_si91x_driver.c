@@ -120,6 +120,7 @@
 sl_status_t sli_si91x_submit_rx_pkt(void);
 static sl_status_t sl_si91x_soft_reset(void);
 void sli_siwx917_update_system_core_clock(void);
+void sli_m4_ta_interrupt_init(void);
 #endif
 
 typedef struct {
@@ -167,7 +168,9 @@ bool interface_is_up[SL_WIFI_MAX_INTERFACE_INDEX] = { false, false, false, false
 bool bg_enabled                                   = false;
 uint32_t frontend_switch_control                  = 0;
 static uint16_t packet_id[SI91X_CMD_MAX]          = { 0 };
-
+static uint8_t ap_join_feature_bitmap             = SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
+static uint8_t client_join_feature_bitmap         = SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
+static uint32_t client_listen_interval            = 1000;
 //! Currently, initialized_opermode is used only to handle concurrent mode using sl_net_init()
 static uint16_t initialized_opermode = SL_SI91X_INVALID_MODE;
 
@@ -303,14 +306,6 @@ const sl_si91x_set_region_ap_request_t default_SG_region_5GHZ_configurations = {
                                                         [SI91X_SOCKET_CMD]  = NCP_HOST_SOCKET_RESPONSE_EVENT,
                                                         [SI91X_BT_CMD]      = NCP_HOST_BT_RESPONSE_EVENT };
 // clang-format on
-
-void si91x_default_event_handler(uint32_t event, void *data, void *arg)
-{
-  UNUSED_PARAMETER(event);
-  UNUSED_PARAMETER(data);
-  UNUSED_PARAMETER(arg);
-  // Handle things
-}
 
 sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t *config)
 {
@@ -547,9 +542,11 @@ sl_status_t sl_si91x_driver_deinit(void)
   }
 #endif
 
-#if defined(SI91X_NETWORK_OFFLOAD_ENABLED) && defined(sockets_FEATURE_REQUIRED)
+#if defined(SI91X_NETWORK_OFFLOAD_ENABLED) && defined(SI91X_SOCKET_FEATURE)
   // Free all allocated sockets
-  status = sl_si91x_socket_deinit();
+  status = sl_si91x_vap_shutdown(CLIENT_MODE);
+  VERIFY_STATUS(status);
+  status = sl_si91x_vap_shutdown(AP_MODE);
   VERIFY_STATUS(status);
 #endif
 
@@ -678,7 +675,8 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
 
 sl_status_t sl_si91x_driver_send_bt_command(rsi_wlan_cmd_request_t command,
                                             sl_si91x_queue_type_t queue_type,
-                                            sl_wifi_buffer_t *data)
+                                            sl_wifi_buffer_t *data,
+                                            uint8_t sync_command)
 {
   sl_si91x_wait_period_t wait_period = SL_SI91X_RETURN_IMMEDIATELY;
 
@@ -687,7 +685,11 @@ sl_status_t sl_si91x_driver_send_bt_command(rsi_wlan_cmd_request_t command,
     return SL_STATUS_INVALID_INDEX;
   }
 
-  return sl_si91x_driver_send_command_packet(command, queue_type, data, wait_period, NULL, NULL);
+  if (sync_command) {
+    return sl_si91x_driver_send_command_packet(command, queue_type, data, wait_period, NULL, NULL);
+  } else {
+    return sl_si91x_driver_send_async_command(command, queue_type, data, 0);
+  }
 }
 
 sl_status_t sl_si91x_driver_wait_for_response(rsi_wlan_cmd_request_t command, sl_si91x_wait_period_t wait_period)
@@ -899,7 +901,7 @@ sl_status_t sl_si91x_driver_send_data_packet(sl_si91x_queue_type_t queue_type,
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
+sl_status_t sl_si91x_driver_send_async_command(uint32_t command,
                                                sl_si91x_queue_type_t queue_type,
                                                void *data,
                                                uint32_t data_length)
@@ -912,20 +914,25 @@ sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
   sl_si91x_packet_t *raw_rx_packet;
   sl_status_t status;
 
-  status = sl_si91x_allocate_command_buffer(&raw_rx_buffer,
-                                            (void **)&raw_rx_packet,
-                                            sizeof(sl_si91x_packet_t) + data_length,
-                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
-  VERIFY_STATUS_AND_RETURN(status);
+  if (queue_type == SI91X_BT_CMD_QUEUE) {
+    // BLE packet is created in upper layer, no allocations required here.
+    raw_rx_buffer = (sl_wifi_buffer_t *)data;
+  } else {
+    status = sl_si91x_allocate_command_buffer(&raw_rx_buffer,
+                                              (void **)&raw_rx_packet,
+                                              sizeof(sl_si91x_packet_t) + data_length,
+                                              SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+    VERIFY_STATUS_AND_RETURN(status);
 
-  memset(raw_rx_packet->desc, 0, sizeof(raw_rx_packet->desc));
-  if (data != NULL) {
-    memcpy(raw_rx_packet->data, data, data_length);
+    memset(raw_rx_packet->desc, 0, sizeof(raw_rx_packet->desc));
+    if (data != NULL) {
+      memcpy(raw_rx_packet->data, data, data_length);
+    }
+
+    // Fill frame type
+    raw_rx_packet->length  = data_length & 0xFFF;
+    raw_rx_packet->command = command;
   }
-
-  // Fill frame type
-  raw_rx_packet->length  = data_length & 0xFFF;
-  raw_rx_packet->command = command;
 
   return_status = sl_si91x_allocate_command_buffer(&buffer,
                                                    (void **)&node,
@@ -953,7 +960,7 @@ sl_status_t sl_si91x_driver_send_asycn_command(uint32_t command,
   context.packet  = node;
   context.payload = &(packet_id[queue_type]);
   sl_si91x_host_add_to_queue_with_atomic_action(queue_type, buffer, &context, sl_si91x_atomic_packet_id_allocator);
-  sl_si91x_host_set_event(NCP_HOST_DATA_TX_EVENT);
+  sl_si91x_host_set_bus_event(NCP_HOST_DATA_TX_EVENT);
 
   return SL_STATUS_OK;
 }
@@ -1230,6 +1237,57 @@ sl_status_t sl_si91x_wifi_set_certificate_index(uint8_t certificate_type,
   return status;
 }
 
+sl_status_t sl_si91x_set_rtc_timer(sl_si91x_module_rtc_time_t *timer)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  if ((timer->tm_sec > 59) || (timer->tm_min > 59) || (timer->tm_hour > 23)
+      || ((timer->tm_mday < 1) || (timer->tm_mday > 31)) || (timer->tm_mon > 11)
+      || ((timer->tm_wday < 1) || (timer->tm_wday > 7))) {
+
+    // Checking Invalid Parameters
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Send set RTC timer request
+  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_SET_RTC_TIMER,
+                                        SI91X_COMMON_CMD_QUEUE,
+                                        timer,
+                                        sizeof(sl_si91x_module_rtc_time_t),
+                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+
+sl_status_t sl_si91x_get_rtc_timer(sl_si91x_module_rtc_time_t *response)
+{
+  sl_status_t status       = SL_STATUS_OK;
+  sl_wifi_buffer_t *buffer = NULL;
+
+  ARGS_CHECK_NULL_POINTER(response);
+
+  // Send get RTC timer request
+  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_GET_RTC_TIMER,
+                                        SI91X_COMMON_CMD_QUEUE,
+                                        NULL,
+                                        0,
+                                        SL_SI91X_WAIT_FOR_RESPONSE(30000),
+                                        NULL,
+                                        &buffer);
+
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  memcpy(response, packet->data, sizeof(sl_si91x_module_rtc_time_t));
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  return SL_STATUS_OK;
+}
+
 sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
                                        sl_si91x_band_mode_t band,
                                        sl_si91x_region_code_t region_code)
@@ -1238,7 +1296,8 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
 
   switch (operation_mode) {
     case SL_SI91X_CLIENT_MODE:
-    case SL_SI91X_ENTERPRISE_CLIENT_MODE: {
+    case SL_SI91X_ENTERPRISE_CLIENT_MODE:
+    case SL_SI91X_TRANSMIT_TEST_MODE: {
       sl_si91x_set_region_request_t request = { 0 };
 
       request.set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER;
@@ -1536,4 +1595,190 @@ sl_status_t sl_si91x_transmit_test_stop(void)
                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
+}
+
+sl_si91x_operation_mode_t get_opermode(void)
+{
+  return initialized_opermode;
+}
+
+sl_status_t sl_si91x_calibration_write(sl_si91x_calibration_write_t calib_write)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_CALIB_WRITE,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        &calib_write,
+                                        sizeof(sl_si91x_calibration_write_t),
+                                        SL_SI91X_WAIT_FOR(30000),
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+
+sl_status_t sl_si91x_calibration_read(sl_si91x_calibration_read_t target, sl_si91x_calibration_read_t *calibration_read)
+{
+  sl_wifi_buffer_t *buffer = NULL;
+  sl_status_t status       = SL_STATUS_OK;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  SL_VERIFY_POINTER_OR_RETURN(calibration_read, SL_STATUS_NULL_POINTER);
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_CALIB_READ,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        &target,
+                                        sizeof(sl_si91x_calibration_read_t),
+                                        SL_SI91X_WAIT_FOR_RESPONSE(30100),
+                                        NULL,
+                                        &buffer);
+
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    return status;
+  }
+
+  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  memcpy(calibration_read, packet->data, sizeof(sl_si91x_calibration_read_t));
+
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  return status;
+}
+
+sl_status_t sl_si91x_frequency_offset(const sl_si91x_freq_offset_t *frequency_calibration)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  SL_VERIFY_POINTER_OR_RETURN(frequency_calibration, SL_STATUS_NULL_POINTER);
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_FREQ_OFFSET,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        frequency_calibration,
+                                        sizeof(sl_si91x_freq_offset_t),
+                                        SL_SI91X_WAIT_FOR_RESPONSE(35000),
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+
+sl_status_t sl_si91x_evm_offset(const sl_si91x_evm_offset_t *evm_offset)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  SL_VERIFY_POINTER_OR_RETURN(evm_offset, SL_STATUS_NULL_POINTER);
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_EVM_OFFSET,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        evm_offset,
+                                        sizeof(sl_si91x_evm_offset_t),
+                                        SL_SI91X_WAIT_FOR_RESPONSE(35000),
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_evm_write(const sl_si91x_evm_write_t *evm_write)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  SL_VERIFY_POINTER_OR_RETURN(evm_write, SL_STATUS_NULL_POINTER);
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_EVM_WRITE,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        evm_write,
+                                        sizeof(sl_si91x_evm_write_t),
+                                        SL_SI91X_WAIT_FOR_RESPONSE(35000),
+                                        NULL,
+                                        NULL);
+  VERIFY_STATUS_AND_RETURN(status);
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_efuse_read(sl_si91x_efuse_read_t *efuse_read, uint8_t *efuse_read_buf)
+{
+  sl_wifi_buffer_t *buffer = NULL;
+  sl_status_t status       = SL_STATUS_OK;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  SL_VERIFY_POINTER_OR_RETURN(efuse_read, SL_STATUS_NULL_POINTER);
+  SL_VERIFY_POINTER_OR_RETURN(efuse_read_buf, SL_STATUS_NULL_POINTER);
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_EFUSE_READ,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        efuse_read,
+                                        sizeof(sl_si91x_efuse_read_t),
+                                        SL_SI91X_WAIT_FOR_RESPONSE(30100),
+                                        NULL,
+                                        &buffer);
+
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    return status;
+  }
+
+  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  memcpy(efuse_read_buf, packet->data, efuse_read->efuse_read_data_len);
+
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  return status;
+}
+
+sl_status_t sl_si91x_set_join_configuration(sl_wifi_interface_t interface, uint8_t join_feature_bitmap)
+{
+  if (interface & SL_WIFI_CLIENT_INTERFACE) {
+    client_join_feature_bitmap = join_feature_bitmap;
+  } else if (interface & SL_WIFI_AP_INTERFACE) {
+    ap_join_feature_bitmap = join_feature_bitmap;
+  } else {
+    return SL_STATUS_FAIL;
+  }
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_get_join_configuration(sl_wifi_interface_t interface, uint8_t *join_feature_bitmap)
+{
+  ARGS_CHECK_NULL_POINTER(join_feature_bitmap);
+
+  if (interface & SL_WIFI_CLIENT_INTERFACE) {
+    *join_feature_bitmap = client_join_feature_bitmap;
+  } else if (interface & SL_WIFI_AP_INTERFACE) {
+    *join_feature_bitmap = ap_join_feature_bitmap;
+  } else {
+    return SL_STATUS_WIFI_UNKNOWN_INTERFACE;
+  }
+
+  return SL_STATUS_OK;
+}
+
+void sl_si91x_set_listen_interval(uint32_t listen_interval)
+{
+  client_listen_interval = listen_interval;
+  return;
+}
+
+uint32_t sl_si91x_get_listen_interval(void)
+{
+  return client_listen_interval;
 }

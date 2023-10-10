@@ -527,6 +527,7 @@ STATIC INLINE uint32_t RSI_QEI_GetMode(volatile QEI_Type *pstcQei)
 // Function prototypes
 void RSI_QEI_Enable(volatile QEI_Type *pstcQei);
 void RSI_QEI_Disable(volatile QEI_Type *pstcQei);
+void IRQ049_Handler(void);
 
 #ifdef __cplusplus
 }

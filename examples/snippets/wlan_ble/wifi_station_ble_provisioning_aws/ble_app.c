@@ -121,7 +121,7 @@
 
 // global parameters list
 uint8_t data[20] = { 0 };
-static uint32_t ble_app_event_map;
+static volatile uint32_t ble_app_event_map;
 rsi_ble_event_conn_status_t conn_event_to_app;
 static rsi_ble_event_disconnect_t disconn_event_to_app;
 static uint8_t rsi_ble_app_data[100];

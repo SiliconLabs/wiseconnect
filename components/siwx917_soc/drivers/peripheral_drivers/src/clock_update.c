@@ -406,6 +406,59 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
       }
       break;
 
+    case M4_QSPI2:
+      src_clk_mux = M4CLK->CLK_CONFIG_REG6_b.QSPI_2_CLK_SEL;
+      switch (src_clk_mux) {
+        case QSPI_ULPREFCLK:
+          src_clk = system_clocks.rc_32mhz_clock;
+          break;
+        case QSPI_MODELPLLCLK2:
+          src_clk = system_clocks.modem_pll_clock2;
+          break;
+        case QSPI_INTFPLLCLK:
+          src_clk = system_clocks.intf_pll_clock;
+          break;
+        case QSPI_SOCPLLCLK:
+          src_clk = system_clocks.soc_pll_clock;
+          break;
+        case M4_SOCCLKNOSWLSYNCCLKTREEGATED:
+          //TODO:src_clk =system_clocks.
+          break;
+      }
+      swallow_val = (M4CLK->CLK_CONFIG_REG1_b.QSPI_CLK_SWALLOW_SEL);
+      div_fac     = (M4CLK->CLK_CONFIG_REG1_b.QSPI_CLK_DIV_FAC);
+      odd_div     = (M4CLK->CLK_CONFIG_REG2_b.QSPI_ODD_DIV_SEL);
+      if (swallow_val) {
+        if (odd_div == 0) {
+          if (div_fac == 0) {
+            return src_clk;
+          } else {
+            src_clk = (src_clk / div_fac);
+          }
+        } else {
+          if ((div_fac % 2 != 0) && (div_fac >= 3)) {
+            src_clk = (src_clk / div_fac);
+          } else {
+            break; //clock gated
+          }
+        }
+      } else {
+        if (odd_div == 0) {
+          if (div_fac == 0) {
+            src_clk = (src_clk / 2);
+          } else {
+            src_clk = (src_clk / (2 * div_fac));
+          }
+        } else {
+          if ((div_fac % 2 != 0) && (div_fac >= 3)) {
+            src_clk = (src_clk / div_fac);
+          } else {
+            break; //clock gated
+          }
+        }
+      }
+      break;
+
     case M4_GSPI:
       src_clk_mux = M4CLK->CLK_CONFIG_REG1_b.GEN_SPI_MST1_SCLK_SEL;
       switch (src_clk_mux) {

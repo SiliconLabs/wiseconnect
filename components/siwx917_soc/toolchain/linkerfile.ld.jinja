@@ -59,11 +59,22 @@
 {%- set app_flash_size = app_flash_end - app_flash_start %}
 {%- set app_ram_size = app_ram_end - app_ram_start %}
 
+{%- if udma_enable %}
+  {%- set udma_buffer = udma_buffer | sum %}
+  {%- set app_ram_size = app_ram_size - udma_buffer %}
+  {%- set udma0_start_addr = app_ram_size %}
+  {%- set udma1_start_addr = udma1_start_addr -  udma_buffer%}
+{%- endif %}
+
 {%- set rtt = 0 %}
 {% if linker_rtt_section is defined %}
 {%-   set rtt = 1 %}
 {% endif %}
 
+{%- if nvm3_flash_size %}
+	{%- set nvm_size = nvm3_size | first%}
+	{%- set app_flash_size = app_flash_size - nvm_size %}
+{%- endif %}
  MEMORY
  {
    rom   (rx)  : ORIGIN = 0x{{ '%0x' % app_flash_start }}, LENGTH = 0x{{ '%0x' % app_flash_size }}
@@ -85,14 +96,19 @@ SECTIONS
 	.text :
 	{
 		KEEP(*(.isr_vector))
+		{% if not EXECUTION_FROM_RAM_PS2 %}
+		{% if not RAM_EXECUTION %}	    
+                *(.text*)        
+		{% endif %}
 		{% if EXECUTION_FROM_RAM %}
 		KEEP(*(.reset_handler))
-		*(EXCLUDE_FILE( *rsi_common.o *rsi_driver.o *rsi_driver_event_handlers.o *rsi_events.o *rsi_os_none.o *rsi_pkt_mgmt.o *rsi_queue.o *rsi_scheduler.o *rsi_timer.o *rsi_utils.o *rsi_wlan.o *rsi_common_apis.o *rsi_wlan_apis.o *rsi_apis_non_rom.o *rsi_hal_mcu_timer.o *rsi_hal_mcu_interrupt.o *rsi_hal_mcu_m4.o *rsi_hal_mcu_platform_init.o *rsi_apis_rom.o *rsi_events_rom.o *rsi_hal_mcu_m4_rom.o *rsi_pkt_mgmt_rom.o *rsi_queue_rom.o *rsi_scheduler_rom.o *rsi_socket_rom.o *rsi_utils_rom.o *rsi_nwk_rom.o *rsi_os_wrapper.o *port.o *heap_4.o *timers.o *croutine.o *event_groups.o *list.o *queue.o *tasks.o *stream_buffer.o *network_sapi_wrapper.o *rsi_deepsleep_soc.o ) .text*)
+		*(EXCLUDE_FILE( *rsi_common.o *rsi_driver.o *rsi_driver_event_handlers.o *rsi_events.o *rsi_os_none.o *rsi_pkt_mgmt.o *rsi_queue.o *rsi_scheduler.o *rsi_timer.o *rsi_utils.o *rsi_wlan.o *rsi_common_apis.o *rsi_wlan_apis.o *rsi_apis_non_rom.o *rsi_hal_mcu_timer.o *rsi_hal_mcu_interrupt.o *rsi_hal_mcu_m4.o *rsi_hal_mcu_platform_init.o *rsi_apis_rom.o *rsi_events_rom.o *rsi_hal_mcu_m4_rom.o *rsi_hal_mcu_m4_ram.o *rsi_pkt_mgmt_rom.o *rsi_queue_rom.o *rsi_scheduler_rom.o *rsi_socket_rom.o *rsi_utils_rom.o *rsi_nwk_rom.o *rsi_os_wrapper.o *port.o *heap_4.o *timers.o *croutine.o *event_groups.o *list.o *queue.o *tasks.o *stream_buffer.o *network_sapi_wrapper.o *rsi_deepsleep_soc.o ) .text*)
 		{% endif %}
 		{% if not EXECUTION_FROM_RAM %}
-		*(EXCLUDE_FILE(*rsi_deepsleep_soc.o ) .text*)
+		*(EXCLUDE_FILE(*rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o) .text*)
 		KEEP(*(.init))
 		KEEP(*(.fini))
+		{% endif %}
 		{% endif %}
 		/* .ctors */
 		*crtbegin.o(.ctors)
@@ -107,8 +123,13 @@ SECTIONS
 		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
 		*(SORT(.dtors.*))
 		*(.dtors)
+		{% if not EXECUTION_FROM_RAM_PS2 %}
 		{% if not EXECUTION_FROM_RAM %}
 		*(.rodata*)
+		{% endif %}
+		{% if not RAM_EXECUTION %}
+		*(.rodata*)
+		{% endif %}
 		{% endif %}
 		KEEP(*(.eh_fram e*))
 	} > rom 
@@ -141,6 +162,13 @@ SECTIONS
 		KEEP(*(.fini))
 		*(.rodata*)
 		{% endif %}
+		{% if EXECUTION_FROM_RAM_PS2 %}
+		KEEP(*(.ramVector))
+		KEEP(*(.init))
+		KEEP(*(.fini))
+		*(.rodata*)
+		*(.text*) 
+		{% endif %}
 		*(vtable)
 		*(.data*)
 		{% if EXECUTION_FROM_RAM %}
@@ -163,6 +191,7 @@ SECTIONS
 		*rsi_hal_mcu_interrupt.o(.text*)
 		*rsi_hal_mcu_platform_init.o(.text*)
 		*rsi_hal_mcu_m4_rom.o(.text*)
+		*rsi_hal_mcu_m4_ram.o(.text*)
 		*rsi_apis_rom.o(.text*)
 		*rsi_events_rom.o(.text*)
 		*rsi_pkt_mgmt_rom.o(.text*)
@@ -184,8 +213,17 @@ SECTIONS
 		*network_sapi_wrapper.o(.text*)
         *rsi_deepsleep_soc.o(.text*)
 		{% endif %}
+		{% if not EXECUTION_FROM_RAM_PS2 %}
 		{% if not EXECUTION_FROM_RAM %}
 		*rsi_deepsleep_soc.o(.text*)
+		*rsi_hal_mcu_m4_ram.o(.text*)
+		{% endif %}
+		{% endif %}
+		{% if RAM_EXECUTION %}		
+		*(.text*)		
+		*(.rodata*)
+		KEEP(*(.init))
+		KEEP(*(.fini))
 		{% endif %}
 		. = ALIGN(4);
 		/* preinit data */

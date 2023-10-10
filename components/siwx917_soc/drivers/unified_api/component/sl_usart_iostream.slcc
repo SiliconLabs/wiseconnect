@@ -11,6 +11,8 @@ define:
      value: 1
 config_file:
   - path: config/sl_si91x_usart_common_config.h
+  - path: config/sl_si91x_usart_config.h
+
 source:
   - path: "src/sl_si91x_usart.c"
 include:

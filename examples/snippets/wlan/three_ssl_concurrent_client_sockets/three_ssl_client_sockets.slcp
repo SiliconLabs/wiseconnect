@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -21,10 +21,12 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
   - name: EXECUTION_FROM_RAM
     condition: [device_needs_ram_execution]
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_system
 - name: bsd_socket
@@ -58,5 +60,26 @@ template_contribution:
 toolchain_settings: []
 configuration:
 - {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/build_project.png
+  - path: resources/readme/create_project.png
+  - path: resources/readme/efr32.png
+  - path: resources/readme/port_selection_soc.png
+  - path: resources/readme/port_selection.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/serial_port.png
+  - path: resources/readme/socboarddetection.png
+  - path: resources/readme/ssl_server.png
+  - path: resources/readme/three_ssl_ncp.png
+  - path: resources/readme/three_ssl_socket_output_1.png
+  - path: resources/readme/three_ssl_socket_output_2.png
+  - path: resources/readme/three_ssl.png
+  - path: resources/readme/threesslsocketncp.png
+  - path: resources/readme/threesslsocketsoc.png
+  - path: resources/readme/usb_to_uart_1.png
+  - path: resources/readme/usb_to_uart_2.png
+
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

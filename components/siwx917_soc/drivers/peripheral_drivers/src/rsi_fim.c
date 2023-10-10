@@ -2128,7 +2128,7 @@ void rsi_fim_absSqr_f32(int32_t *pSrc, int32_t *pDst, uint32_t blockSize, uint16
 
 /*==============================================*/
 /**
- *@fn          error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
+ *@fn          rsi_error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
  *                                const arm_matrix_instance_q31_opt *pSrcB,
  *                                arm_matrix_instance_q31_opt *pDst,
  *                                uint16_t inBank1,
@@ -2141,12 +2141,12 @@ void rsi_fim_absSqr_f32(int32_t *pSrc, int32_t *pDst, uint32_t blockSize, uint16
  *@return     none
  */
 
-error_t rsi_arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
-                                 const arm_matrix_instance_f32_opt *pSrcB,
-                                 arm_matrix_instance_f32_opt *pDst,
-                                 uint16_t inBank1,
-                                 uint16_t inBank2,
-                                 uint16_t outBank)
+rsi_error_t rsi_arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
+                                     const arm_matrix_instance_f32_opt *pSrcB,
+                                     arm_matrix_instance_f32_opt *pDst,
+                                     uint16_t inBank1,
+                                     uint16_t inBank2,
+                                     uint16_t outBank)
 {
   // Number of rows of input matrix A
   uint16_t numRowsA = pSrcA->nRows;
@@ -2190,7 +2190,7 @@ error_t rsi_arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
 
 /*==============================================*/
 /**
- *@fn          error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
+ *@fn          rsi_error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
  *                                const arm_matrix_instance_q31_opt *pSrcB,
  *                                arm_matrix_instance_q31_opt *pDst,
  *                                uint16_t inBank1,
@@ -2202,12 +2202,12 @@ error_t rsi_arm_mat_mult_f32_opt(const arm_matrix_instance_f32_opt *pSrcA,
  *@param[out] *pDst :	points to output matrix structure
  *@return     none
  */
-error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
-                                 const arm_matrix_instance_q31_opt *pSrcB,
-                                 arm_matrix_instance_q31_opt *pDst,
-                                 uint16_t inBank1,
-                                 uint16_t inBank2,
-                                 uint16_t outBank)
+rsi_error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
+                                     const arm_matrix_instance_q31_opt *pSrcB,
+                                     arm_matrix_instance_q31_opt *pDst,
+                                     uint16_t inBank1,
+                                     uint16_t inBank2,
+                                     uint16_t outBank)
 {
   // Number of rows of input matrix A
   uint16_t numRowsA = pSrcA->nRows;
@@ -2251,7 +2251,7 @@ error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
 
 /*==============================================*/
 /**
- *@fn           error_t rsi_arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
+ *@fn           rsi_error_t rsi_arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
  *                               const arm_matrix_instance_q15_opt *pSrcB,
  *                                arm_matrix_instance_q15_opt *pDst,
  *                                q15_t *pState,
@@ -2265,13 +2265,13 @@ error_t rsi_arm_mat_mult_q31_opt(const arm_matrix_instance_q31_opt *pSrcA,
  *@param[in]	*pState :	points to the array for storing intermediate results (Unused)
  *@return        none
  */
-error_t rsi_arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
-                                 const arm_matrix_instance_q15_opt *pSrcB,
-                                 arm_matrix_instance_q15_opt *pDst,
-                                 q15_t *pState,
-                                 uint16_t inBank1,
-                                 uint16_t inBank2,
-                                 uint16_t outBank)
+rsi_error_t rsi_arm_mat_mult_q15_opt(const arm_matrix_instance_q15_opt *pSrcA,
+                                     const arm_matrix_instance_q15_opt *pSrcB,
+                                     arm_matrix_instance_q15_opt *pDst,
+                                     q15_t *pState,
+                                     uint16_t inBank1,
+                                     uint16_t inBank2,
+                                     uint16_t outBank)
 {
   // Number of rows of input matrix A
   uint16_t numRowsA = pSrcA->nRows;
@@ -3662,7 +3662,7 @@ void rsi_arm_Inverse_Tanh_q15(q15_t *pSrc, q15_t *pDst, uint32_t blocksize)
 
 /*==============================================*/
 /**    
- * @fn     error_t rsi_arm_mat_add_q15(const arm_matrix_instance_q15_opt *pSrcA,
+ * @fn     rsi_error_t rsi_arm_mat_add_q15(const arm_matrix_instance_q15_opt *pSrcA,
                             const arm_matrix_instance_q15_opt *pSrcB,
                             arm_matrix_instance_q15_opt *pDst)
  * @brief Q15 matrix addition.    
@@ -3673,9 +3673,9 @@ void rsi_arm_Inverse_Tanh_q15(q15_t *pSrc, q15_t *pDst, uint32_t blocksize)
  * <code>ERROR_FIM_MATRIX_INVALID_ARG</code> or <code>RSI_OK</code> based on the outcome of size checking.    
  *      
  */
-error_t rsi_arm_mat_add_q15(const arm_matrix_instance_q15_opt *pSrcA,
-                            const arm_matrix_instance_q15_opt *pSrcB,
-                            arm_matrix_instance_q15_opt *pDst)
+rsi_error_t rsi_arm_mat_add_q15(const arm_matrix_instance_q15_opt *pSrcA,
+                                const arm_matrix_instance_q15_opt *pSrcB,
+                                arm_matrix_instance_q15_opt *pDst)
 {
 
   // Number of rows of input matrix A
@@ -3723,7 +3723,7 @@ error_t rsi_arm_mat_add_q15(const arm_matrix_instance_q15_opt *pSrcA,
 
 /*==============================================*/
 /**   
- * @fn        error_t arm_mat_add_q31(const arm_matrix_instance_q31_opt *pSrcA,
+ * @fn        rsi_error_t arm_mat_add_q31(const arm_matrix_instance_q31_opt *pSrcA,
                         const arm_matrix_instance_q31_opt *pSrcB,
                         arm_matrix_instance_q31_opt *pDst)
  * @brief Q31 matrix addition.      
@@ -3733,9 +3733,9 @@ error_t rsi_arm_mat_add_q15(const arm_matrix_instance_q15_opt *pSrcA,
  * @return     		The function returns either      
  * <code>ERROR_FIM_MATRIX_INVALID_ARG</code> or <code>RSI_OK</code> based on the outcome of size checking.                 
  */
-error_t arm_mat_add_q31(const arm_matrix_instance_q31_opt *pSrcA,
-                        const arm_matrix_instance_q31_opt *pSrcB,
-                        arm_matrix_instance_q31_opt *pDst)
+rsi_error_t arm_mat_add_q31(const arm_matrix_instance_q31_opt *pSrcA,
+                            const arm_matrix_instance_q31_opt *pSrcB,
+                            arm_matrix_instance_q31_opt *pDst)
 {
 
   // Number of rows of input matrix A
@@ -3784,7 +3784,7 @@ error_t arm_mat_add_q31(const arm_matrix_instance_q31_opt *pSrcA,
 
 /*==============================================*/
 /**  
- * @fn       error_t arm_mat_sub_q15(const arm_matrix_instance_q15_opt *pSrcA,
+ * @fn       rsi_error_t arm_mat_sub_q15(const arm_matrix_instance_q15_opt *pSrcA,
                         const arm_matrix_instance_q15_opt *pSrcB,
                         arm_matrix_instance_q15_opt *pDst)
  * @brief Q15 matrix subtraction.    
@@ -3794,9 +3794,9 @@ error_t arm_mat_add_q31(const arm_matrix_instance_q31_opt *pSrcA,
  * @return     		The function returns either    
  * <code>ERROR_FIM_MATRIX_INVALID_ARG</code> or <code>RSI_OK</code> based on the outcome of size checking.        
  */
-error_t arm_mat_sub_q15(const arm_matrix_instance_q15_opt *pSrcA,
-                        const arm_matrix_instance_q15_opt *pSrcB,
-                        arm_matrix_instance_q15_opt *pDst)
+rsi_error_t arm_mat_sub_q15(const arm_matrix_instance_q15_opt *pSrcA,
+                            const arm_matrix_instance_q15_opt *pSrcB,
+                            arm_matrix_instance_q15_opt *pDst)
 {
   // Number of rows of input matrix A
   uint16_t numRowsA = pSrcA->nRows;
@@ -3843,7 +3843,7 @@ error_t arm_mat_sub_q15(const arm_matrix_instance_q15_opt *pSrcA,
 
 /*==============================================*/
 /** 
- * @fn        error_t arm_mat_sub_q31(const arm_matrix_instance_q31_opt *pSrcA,
+ * @fn        rsi_error_t arm_mat_sub_q31(const arm_matrix_instance_q31_opt *pSrcA,
                         const arm_matrix_instance_q31_opt *pSrcB,
                         arm_matrix_instance_q31_opt *pDst)   
  * @brief Q31 matrix subtraction.        
@@ -3853,9 +3853,9 @@ error_t arm_mat_sub_q15(const arm_matrix_instance_q15_opt *pSrcA,
  * @return     		The function returns either        
  * <code>ERROR_FIM_MATRIX_INVALID_ARG</code> or <code>RSI_OK</code> based on the outcome of size checking.                  
  */
-error_t arm_mat_sub_q31(const arm_matrix_instance_q31_opt *pSrcA,
-                        const arm_matrix_instance_q31_opt *pSrcB,
-                        arm_matrix_instance_q31_opt *pDst)
+rsi_error_t arm_mat_sub_q31(const arm_matrix_instance_q31_opt *pSrcA,
+                            const arm_matrix_instance_q31_opt *pSrcB,
+                            arm_matrix_instance_q31_opt *pDst)
 {
   // Number of rows of input matrix A
   uint16_t numRowsA = pSrcA->nRows;
@@ -3903,14 +3903,14 @@ error_t arm_mat_sub_q31(const arm_matrix_instance_q31_opt *pSrcA,
 
 /*==============================================*/
 /**   
- * @fn     error_t arm_mat_trans_q15(const arm_matrix_instance_q15_opt *pSrc, arm_matrix_instance_q15_opt *pDst)
+ * @fn     rsi_error_t arm_mat_trans_q15(const arm_matrix_instance_q15_opt *pSrc, arm_matrix_instance_q15_opt *pDst)
  * @brief Q15 matrix transpose.    
  * @param[in]  *pSrc points to the input matrix    
  * @param[out] *pDst points to the output matrix    
  * @return 	The function returns either  <code>ERROR_FIM_MATRIX_INVALID_ARG</code>    
  * or <code>RSI_OK</code> based on the outcome of size checking.    
  */
-error_t arm_mat_trans_q15(const arm_matrix_instance_q15_opt *pSrc, arm_matrix_instance_q15_opt *pDst)
+rsi_error_t arm_mat_trans_q15(const arm_matrix_instance_q15_opt *pSrc, arm_matrix_instance_q15_opt *pDst)
 {
   // Number of rows of input matrix A
   uint16_t numRows = pSrc->nRows;
@@ -3949,7 +3949,7 @@ error_t arm_mat_trans_q15(const arm_matrix_instance_q15_opt *pSrc, arm_matrix_in
 
 /*==============================================*/
 /** 
-  * @fn       error_t rsi_arm_mat_trans_q31(const arm_matrix_instance_q31_opt *pSrc, arm_matrix_instance_q31_opt *pDst)
+  * @fn       rsi_error_t rsi_arm_mat_trans_q31(const arm_matrix_instance_q31_opt *pSrc, arm_matrix_instance_q31_opt *pDst)
   * @brief Q31 matrix transpose.    
   * @param[in]  *pSrc points to the input matrix    
   * @param[out] *pDst points to the output matrix    
@@ -3957,7 +3957,7 @@ error_t arm_mat_trans_q15(const arm_matrix_instance_q15_opt *pSrc, arm_matrix_in
   * or <code>RSI_OK</code> based on the outcome of size checking.    
  */
 
-error_t rsi_arm_mat_trans_q31(const arm_matrix_instance_q31_opt *pSrc, arm_matrix_instance_q31_opt *pDst)
+rsi_error_t rsi_arm_mat_trans_q31(const arm_matrix_instance_q31_opt *pSrc, arm_matrix_instance_q31_opt *pDst)
 {
   // Number of rows of input matrix A
   uint16_t numRows = pSrc->nRows;
@@ -3995,7 +3995,7 @@ error_t rsi_arm_mat_trans_q31(const arm_matrix_instance_q31_opt *pSrc, arm_matri
 
 /*==============================================*/
 /**  
- * @fn       error_t rsi_arm_mat_Hadamard_prod_q15(const arm_matrix_instance_q15_opt *pSrcA,
+ * @fn       rsi_error_t rsi_arm_mat_Hadamard_prod_q15(const arm_matrix_instance_q15_opt *pSrcA,
                                       const arm_matrix_instance_q15_opt *pSrcB,
                                       arm_matrix_instance_q15_opt *pDst)
  * @brief Q15 matrix Hadamard product.    
@@ -4005,9 +4005,9 @@ error_t rsi_arm_mat_trans_q31(const arm_matrix_instance_q31_opt *pSrc, arm_matri
  * @return     		The function returns either    
  * <code>ERROR_FIM_MATRIX_INVALID_ARG</code> or <code>RSI_OK</code> based on the outcome of size checking.    
  */
-error_t rsi_arm_mat_Hadamard_prod_q15(const arm_matrix_instance_q15_opt *pSrcA,
-                                      const arm_matrix_instance_q15_opt *pSrcB,
-                                      arm_matrix_instance_q15_opt *pDst)
+rsi_error_t rsi_arm_mat_Hadamard_prod_q15(const arm_matrix_instance_q15_opt *pSrcA,
+                                          const arm_matrix_instance_q15_opt *pSrcB,
+                                          arm_matrix_instance_q15_opt *pDst)
 {
   // Number of rows of input matrix A
   uint16_t numRowsA = pSrcA->nRows;
@@ -4054,7 +4054,7 @@ error_t rsi_arm_mat_Hadamard_prod_q15(const arm_matrix_instance_q15_opt *pSrcA,
 
 /*==============================================*/
 /**    
- * @fn     error_t arm_mat_Hadamard_prod_q31(const arm_matrix_instance_q31_opt *pSrcA,
+ * @fn     rsi_error_t arm_mat_Hadamard_prod_q31(const arm_matrix_instance_q31_opt *pSrcA,
                                   const arm_matrix_instance_q31_opt *pSrcB,
                                   arm_matrix_instance_q31_opt *pDst)
  * @brief Q31 matrix Hadamard product.    
@@ -4064,9 +4064,9 @@ error_t rsi_arm_mat_Hadamard_prod_q15(const arm_matrix_instance_q15_opt *pSrcA,
  * @return     		The function returns either    
  * <code>ERROR_FIM_MATRIX_INVALID_ARG</code> or <code>RSI_OK</code> based on the outcome of size checking.    
  */
-error_t arm_mat_Hadamard_prod_q31(const arm_matrix_instance_q31_opt *pSrcA,
-                                  const arm_matrix_instance_q31_opt *pSrcB,
-                                  arm_matrix_instance_q31_opt *pDst)
+rsi_error_t arm_mat_Hadamard_prod_q31(const arm_matrix_instance_q31_opt *pSrcA,
+                                      const arm_matrix_instance_q31_opt *pSrcB,
+                                      arm_matrix_instance_q31_opt *pDst)
 {
 
   // Number of rows of input matrix A

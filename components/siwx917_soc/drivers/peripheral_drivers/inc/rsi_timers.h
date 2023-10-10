@@ -80,7 +80,7 @@ typedef enum {
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_SetDirection(RSI_TIMERS_T *pTIMER, uint8_t timerNum, boolean_t countDir)
+ * @fn          rsi_error_t RSI_TIMERS_SetDirection(RSI_TIMERS_T *pTIMER, uint8_t timerNum, boolean_t countDir)
  * @brief   This API is used to set direction of the timer
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)
@@ -89,7 +89,7 @@ typedef enum {
  *                          - \ref DOWN_COUNTER
  * @return    return the timer error code
  */
-STATIC INLINE error_t RSI_TIMERS_SetDirection(RSI_TIMERS_T *pTIMER, uint8_t timerNum, ulp_timer_dir_t countDir)
+STATIC INLINE rsi_error_t RSI_TIMERS_SetDirection(RSI_TIMERS_T *pTIMER, uint8_t timerNum, ulp_timer_dir_t countDir)
 {
   if (timerNum <= TIMER_3) {
     if (countDir == UP_COUNTER) {
@@ -145,13 +145,13 @@ STATIC INLINE uint32_t RSI_TIMERS_GetTimerMode(RSI_TIMERS_T *pTIMER, uint8_t tim
 }
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_TimerStart(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_TimerStart(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
  * @brief		This API is used to start the timer 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the timer error code
  */
-STATIC INLINE error_t RSI_TIMERS_TimerStart(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE rsi_error_t RSI_TIMERS_TimerStart(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     pTIMER->MATCH_CTRL[timerNum].MCUULP_TMR_CNTRL_b.TMR_START = ENABLE;
@@ -163,13 +163,13 @@ STATIC INLINE error_t RSI_TIMERS_TimerStart(RSI_TIMERS_T *pTIMER, uint8_t timerN
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_TimerStop(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_TimerStop(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
  * @brief		This API is used to stop the timer 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the timer error code 
  */
-STATIC INLINE error_t RSI_TIMERS_TimerStop(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE rsi_error_t RSI_TIMERS_TimerStop(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     pTIMER->MATCH_CTRL[timerNum].MCUULP_TMR_CNTRL_b.TMR_STOP = ENABLE;
@@ -181,13 +181,13 @@ STATIC INLINE error_t RSI_TIMERS_TimerStop(RSI_TIMERS_T *pTIMER, uint8_t timerNu
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_InterruptEnable(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_InterruptEnable(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
  * @brief		This API is used to enable the timer interrupt 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the timer error code 
  */
-STATIC INLINE error_t RSI_TIMERS_InterruptEnable(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE rsi_error_t RSI_TIMERS_InterruptEnable(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     pTIMER->MATCH_CTRL[timerNum].MCUULP_TMR_CNTRL_b.TMR_INTR_ENABLE = ENABLE;
@@ -199,13 +199,13 @@ STATIC INLINE error_t RSI_TIMERS_InterruptEnable(RSI_TIMERS_T *pTIMER, uint8_t t
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_InterruptDisable(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_InterruptDisable(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
  * @brief		This API is used to disable the timer interrupt 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the timer error code 
  */
-STATIC INLINE error_t RSI_TIMERS_InterruptDisable(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE rsi_error_t RSI_TIMERS_InterruptDisable(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     pTIMER->MATCH_CTRL[timerNum].MCUULP_TMR_CNTRL_b.TMR_INTR_ENABLE = DISABLE;
@@ -217,13 +217,13 @@ STATIC INLINE error_t RSI_TIMERS_InterruptDisable(RSI_TIMERS_T *pTIMER, uint8_t 
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_InterruptClear(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_InterruptClear(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
  * @brief		This API is used to clear the timer interrupt 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the timer error code 
  */
-STATIC INLINE error_t RSI_TIMERS_InterruptClear(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE rsi_error_t RSI_TIMERS_InterruptClear(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     pTIMER->MATCH_CTRL[timerNum].MCUULP_TMR_CNTRL_b.TMR_INTR_CLR = ENABLE;
@@ -235,14 +235,14 @@ STATIC INLINE error_t RSI_TIMERS_InterruptClear(RSI_TIMERS_T *pTIMER, uint8_t ti
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_SetMatch( RSI_TIMERS_T *pTIMER, uint8_t timerNum, uint32_t match)
+ * @fn          rsi_error_t RSI_TIMERS_SetMatch( RSI_TIMERS_T *pTIMER, uint8_t timerNum, uint32_t match)
  * @brief		This API is used to disable the timer interrupt 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)
  * @param[in]   match      : delay time
  * @return 		return the timer error code 
  */
-STATIC INLINE error_t RSI_TIMERS_SetMatch(RSI_TIMERS_T *pTIMER, uint8_t timerNum, uint32_t match)
+STATIC INLINE rsi_error_t RSI_TIMERS_SetMatch(RSI_TIMERS_T *pTIMER, uint8_t timerNum, uint32_t match)
 {
   if (timerNum <= TIMER_3) {
     pTIMER->MATCH_CTRL[timerNum].MCUULP_TMR_MATCH = match;
@@ -254,7 +254,7 @@ STATIC INLINE error_t RSI_TIMERS_SetMatch(RSI_TIMERS_T *pTIMER, uint8_t timerNum
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_InterruptStatus(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_InterruptStatus(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
  * @brief		This API is used to get the timer interrupt status 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)                          
@@ -271,7 +271,7 @@ STATIC INLINE uint8_t RSI_TIMERS_InterruptStatus(RSI_TIMERS_T *pTIMER, uint8_t t
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_SetTimerType( RSI_TIMERS_T *pTIMER, uint8_t timerType,  uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_SetTimerType( RSI_TIMERS_T *pTIMER, uint8_t timerType,  uint8_t timerNum)
  * @brief		This API is used to set the timer type 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerType  : timer type
@@ -281,7 +281,7 @@ STATIC INLINE uint8_t RSI_TIMERS_InterruptStatus(RSI_TIMERS_T *pTIMER, uint8_t t
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the timer error code 
  */
-STATIC INLINE error_t RSI_TIMERS_SetTimerType(RSI_TIMERS_T *pTIMER, uint8_t timerType, uint8_t timerNum)
+STATIC INLINE rsi_error_t RSI_TIMERS_SetTimerType(RSI_TIMERS_T *pTIMER, uint8_t timerType, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     if ((timerType == MICRO_SEC_MODE) || (timerType == _256_MICRO_SEC_MODE) || (timerType == COUNTER_DOWN_MODE)) {
@@ -297,7 +297,7 @@ STATIC INLINE error_t RSI_TIMERS_SetTimerType(RSI_TIMERS_T *pTIMER, uint8_t time
 
 /*===================================================*/
 /**
- * @fn          error_t RSI_TIMERS_SetTimerMode(RSI_TIMERS_T *pTIMER, boolean_t mode,uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_SetTimerMode(RSI_TIMERS_T *pTIMER, boolean_t mode,uint8_t timerNum)
  * @brief		This API is used to set the timer mode 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   mode       : in which mode timer run
@@ -306,7 +306,7 @@ STATIC INLINE error_t RSI_TIMERS_SetTimerType(RSI_TIMERS_T *pTIMER, uint8_t time
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the timer error code 
  */
-STATIC INLINE error_t RSI_TIMERS_SetTimerMode(RSI_TIMERS_T *pTIMER, boolean_t mode, uint8_t timerNum)
+STATIC INLINE rsi_error_t RSI_TIMERS_SetTimerMode(RSI_TIMERS_T *pTIMER, boolean_t mode, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     if ((mode == PERIODIC_TIMER) || (mode == ONESHOT_TIMER)) {
@@ -342,12 +342,13 @@ RSI_DRIVER_VERSION_M4 RSI_TIMERS_GetVersion(void);
 
 RSI_TIMERS_CAPABILITIES_T RSI_TIMERS_GetCapabilities(void);
 
-error_t timers_microsec_timer_config(RSI_TIMERS_T *pTIMER,
-                                     uint8_t timerNum,
-                                     uint16_t integer,
-                                     uint8_t fractional,
-                                     uint8_t mode);
+rsi_error_t timers_microsec_timer_config(RSI_TIMERS_T *pTIMER,
+                                         uint8_t timerNum,
+                                         uint16_t integer,
+                                         uint8_t fractional,
+                                         uint8_t mode);
 uint32_t timers_read_timer(RSI_TIMERS_T *pTIMER, uint8_t timerNum, boolean_t countDir);
+void IRQ002_Handler();
 
 #ifdef __cplusplus
 }

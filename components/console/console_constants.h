@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  console_constants.h
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #pragma once
 
 #include <stddef.h>
@@ -47,20 +64,21 @@ extern "C" {
   }
 
 //#define SL_CONSOLE_VARIABLE_GROUP(keystring, group_object)          { .type=SL_CONSOLE_VARIABLE_GROUP_NODE,      .key=keystring, .group.next=group_object, .group.size=(sizeof(group_object)/sizeof(console_variable_node_t)) }
-#define SL_CONSOLE_VARIABLE_GROUP(keystring, start_of_group, end_of_group)                              \
-  {                                                                                                     \
-    .type = SL_CONSOLE_VARIABLE_GROUP_NODE, .key = keystring, .data.group.first_index = start_of_group, \
-    .data.group.last_index = end_of_group                                                               \
+#define SL_CONSOLE_VARIABLE_GROUP(keystring, _table)                                       \
+  {                                                                                        \
+    .type = SL_CONSOLE_VARIABLE_GROUP_NODE, .key = keystring, .data.group.table = &_table, \
+    .data.group.table_size = sizeof(_table) / sizeof(console_variable_node_t)              \
   }
-#define SL_CONSOLE_VARIABLE_RAM_STRUCTURE(keystring, table_object, size, instance)                           \
+#define SL_CONSOLE_VARIABLE_RAM_STRUCTURE(keystring, table_object, instance)                                 \
   {                                                                                                          \
     .type = SL_CONSOLE_VARIABLE_RAM_STRUCT_NODE, .key = keystring, .data.ram_structure.table = table_object, \
-    .data.ram_structure.table_size = size, .data.ram_structure.object = instance                             \
+    .data.ram_structure.table_size = sizeof(table_object) / sizeof(structure_descriptor_entry_t),            \
+    .data.ram_structure.object     = &instance                                                               \
   }
-#define SL_CONSOLE_VARIABLE_NVM_STRUCTURE(keystring, nvm_id, function)                                      \
-  {                                                                                                         \
-    .type = SL_CONSOLE_VARIABLE_NVM_STRUCT_NODE, .key = keystring, .data.custom_structure.data.nvm_id = id, \
-    .data.custom_structure.handler = (console_variable_handler_t)function                                   \
+#define SL_CONSOLE_VARIABLE_NVM_STRUCTURE(keystring, id, function)                                     \
+  {                                                                                                    \
+    .type = SL_CONSOLE_VARIABLE_NVM_STRUCT_NODE, .key = keystring, .data.custom_structure.nvm_id = id, \
+    .data.custom_structure.handler = (console_variable_handler_t)function                              \
   }
 #define SL_CONSOLE_VARIABLE_VARIABLE(keystring, object, size)                                  \
   {                                                                                            \
@@ -127,6 +145,7 @@ typedef enum {
   CONSOLE_VARIABLE_IP_ADDRESS,
   CONSOLE_VARIABLE_MAC_ADDRESS,
   CONSOLE_VARIABLE_HEX,
+  CONSOLE_VARIABLE_BOOL,
   CONSOLE_VARIABLE_REMAINING_COMMAND_LINE,
 
   CONSOLE_VARIABLE_ENUM     = (1 << 6),
@@ -146,6 +165,11 @@ typedef enum {
   SL_CONSOLE_VARIABLE_GET,
   SL_CONSOLE_VARIABLE_SET,
 } console_variable_action_t;
+
+typedef enum {
+  SL_CONSOLE_TOKENIZE_ON_SPACE = (1 << 0),
+  SL_CONSOLE_TOKENIZE_ON_DOT   = (1 << 1),
+} sl_console_tokenize_options_t;
 
 #ifdef __cplusplus
 } /*extern "C" */

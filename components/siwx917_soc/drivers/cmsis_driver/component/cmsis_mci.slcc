@@ -12,10 +12,5 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "MCI.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_MCI.h"
 provides:
   - name: cmsis_mci
-requires:
-  - name: cmsis_driver_common

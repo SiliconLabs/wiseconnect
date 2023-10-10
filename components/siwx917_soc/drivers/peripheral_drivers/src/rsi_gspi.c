@@ -22,8 +22,16 @@
 #ifndef ROMDRIVER_PRESENT
 #include "rsi_rom_clks.h"
 #include "rsi_rom_egpio.h"
-#include "rsi_rom_udma_wrapper.h"
 #include "GSPI.h"
+#ifndef SL_SI91X_GSPI_DMA
+#include "rsi_rom_udma_wrapper.h"
+#endif
+#ifdef SL_SI91X_GSPI_DMA
+#include "sl_si91x_dma.h"
+#include "rsi_gspi.h"
+#define DMA_NUMBER 0
+#endif
+#include "rsi_gspi.h"
 
 /*==============================================*/
 /**
@@ -34,6 +42,10 @@
  *                       RSI_UDMA_HANDLE_T *udmaHandle,
  *                       uint32_t *mem)
  * @brief		     This API is used to Initialize the GSPI interface.
+ * note: By default GSPI initialize, transfer, send and receive APIs use rsi_udma_wrapper.c
+ * drivers. SL_DMA driver can be enabled by defining SL_SI91X_GSPI_DMA to 1.
+ * rsi_udma_wrapper drivers can be executed from ROM. SL_DMA drivers cannot be executed
+ * from ROM.
  * @param[in]	   cb_event    : Pointer to the ARM_SPI_SignalEvent_t
  * @param[in]	   gspi        : Pointer to the GSPI resources
  * @param[in]    udma        : Pointer to the UDMA resources
@@ -48,6 +60,13 @@ int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
                         RSI_UDMA_HANDLE_T *udmaHandle,
                         uint32_t *mem)
 {
+#ifdef SL_SI91X_GSPI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+  (void)udmaHandle;
+  (void)UDMA_Table;
+  (void)mem;
+#endif
 #if defined(CHIP_917)
   RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -165,10 +184,18 @@ int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
     if ((gspi->rx_dma != NULL) || (gspi->tx_dma != NULL)) {
       // Enable DMA instance
       if ((gspi->reg == GSPI0)) {
+#ifdef SL_SI91X_GSPI_DMA
+        sl_dma_init_t dma_init;
+        dma_init.dma_number = DMA_NUMBER;
+        if (sl_si91x_dma_init(&dma_init)) {
+          return ARM_DRIVER_ERROR;
+        }
+#else
         //if using uart debug init in application this UDMA0_Uninitialize is power gating the uart peri power,then disabled this  ,
         // if other issue occures enable UDMA0_Uninitialize and try
         // DMA0
         *udmaHandle = UDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
+#endif
       }
     }
   }
@@ -187,13 +214,23 @@ int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
  */
 int32_t GSPI_Uninitialize(const GSPI_RESOURCES *gspi, UDMA_RESOURCES *udma)
 {
+#ifdef SL_SI91X_GSPI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+#endif
   // Clear SPI state
   gspi->info->state = 0U;
 
   if ((gspi->rx_dma != NULL) || (gspi->tx_dma != NULL)) {
     // Diasable DMA instance
     if ((gspi->reg == GSPI0)) {
+#ifdef SL_SI91X_GSPI_DMA
+      if (sl_si91x_dma_deinit(DMA_NUMBER)) {
+        return ARM_DRIVER_ERROR;
+      }
+#else
       UDMAx_Uninitialize(udma);
+#endif
     }
   }
   return ARM_DRIVER_OK;
@@ -225,7 +262,7 @@ int32_t GSPI_PowerControl(ARM_POWER_STATE state, const GSPI_RESOURCES *gspi)
       // Clear transfer information
       memset(gspi->xfer, 0, sizeof(GSPI_TRANSFER_INFO));
 
-      gspi->info->state &= ~SPI_POWERED; // SPI is not powered
+      gspi->info->state &= (uint8_t)~SPI_POWERED; // SPI is not powered
 
 // power down
 #if defined(CHIP_917)
@@ -310,7 +347,7 @@ int32_t GSPI_Control(uint32_t control,
     case ARM_SPI_MODE_INACTIVE:
       gspi->info->mode &= ~ARM_SPI_CONTROL_Msk;
       gspi->info->mode |= ARM_SPI_MODE_INACTIVE;
-      gspi->info->state &= ~SPI_CONFIGURED;
+      gspi->info->state &= (uint8_t)~SPI_CONFIGURED;
       return ARM_DRIVER_OK;
 
     case ARM_SPI_MODE_MASTER:
@@ -342,7 +379,7 @@ set_speed:
         gspi->reg->GSPI_CLK_CONFIG_b.GSPI_CLK_SYNC = 0x1;
       }
       // Update the clock rate to hardware
-      gspi->reg->GSPI_CLK_DIV_b.GSPI_CLK_DIV_FACTOR = clk_div_factor;
+      gspi->reg->GSPI_CLK_DIV_b.GSPI_CLK_DIV_FACTOR = (uint8_t)clk_div_factor;
       break;
 
     case ARM_SPI_GET_BUS_SPEED: // Get Bus Speed in bps
@@ -362,7 +399,7 @@ set_speed:
       if (arg == ARM_SPI_SS_INACTIVE) {
         if (val == ARM_SPI_SS_MASTER_HW_OUTPUT) {
           // Assert selected CS line
-          gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN_SELECT = slavenumber;
+          gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN_SELECT = (unsigned int)(slavenumber & 0x03);
           gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN        = 0x1;
           while (!(gspi->reg->GSPI_STATUS & GSPI_MAN_CSN))
             ;
@@ -388,7 +425,7 @@ set_speed:
       } else {
         if (val == ARM_SPI_SS_MASTER_HW_OUTPUT) {
           // Assert selected CS line
-          gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN_SELECT = slavenumber;
+          gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN_SELECT = (unsigned int)(slavenumber & 0x03);
           gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN        = 0;
           while ((gspi->reg->GSPI_STATUS & GSPI_MAN_CSN))
             ;
@@ -457,7 +494,7 @@ set_speed:
         break;
       case ARM_SPI_SS_MASTER_HW_OUTPUT: // SPI Slave Select when Master: Hardware controlled Output
         gspi->info->mode &= ~ARM_SPI_SS_MASTER_MODE_Msk;
-        if ((gspi->io.cs0->pin != NULL) || (gspi->io.cs1->pin != NULL) || (gspi->io.cs2->pin != NULL)) {
+        if ((gspi->io.cs0->pin != (int)NULL) || (gspi->io.cs1->pin != (int)NULL) || (gspi->io.cs2->pin != (int)NULL)) {
           gspi->info->mode |= ARM_SPI_SS_MASTER_HW_OUTPUT;
         } else {
           return ARM_SPI_ERROR_SS_MODE;
@@ -501,7 +538,7 @@ set_speed:
     return ARM_SPI_ERROR_DATA_BITS;
   } else {
     // Update the number of Data Bits
-    gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+    gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
   }
 
   return ARM_DRIVER_OK;
@@ -531,9 +568,16 @@ int32_t GSPI_Send(const void *data,
                   UDMA_Channel_Info *chnl_info,
                   RSI_UDMA_HANDLE_T udmaHandle)
 {
+#ifdef SL_SI91X_GSPI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+  (void)udmaHandle;
+  (void)chnl_info;
+#else
+  volatile int32_t stat = 0;
+#endif
   RSI_UDMA_CHA_CONFIG_DATA_T control = { 0 };
 
-  volatile int32_t stat   = 0;
   uint16_t data_bits      = 0, data_16bit;
   gspi->info->status.busy = 0U;
   if ((data == NULL) || (num == 0U)) {
@@ -558,17 +602,17 @@ int32_t GSPI_Send(const void *data,
   if (gspi->tx_dma) {
     if (num > 10) {
       // Configure the FIFO thresholds
-      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = gspi->threshold->gspi_aempty_threshold;
-      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = gspi->threshold->gspi_afull_threshold;
+      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = (unsigned int)(gspi->threshold->gspi_aempty_threshold & 0x0F);
+      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = (unsigned int)(gspi->threshold->gspi_afull_threshold & 0x0F);
 
       control.transferType = UDMA_MODE_BASIC;
       control.nextBurst    = 0;
       if (num < 1024) {
-        control.totalNumOfDMATrans = (num - 1);
+        control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
       } else {
         control.totalNumOfDMATrans = 0x3FF;
       }
-      control.rPower      = gspi->threshold->txdma_arb_size;
+      control.rPower      = (unsigned int)(gspi->threshold->txdma_arb_size & 0x0F);
       control.srcProtCtrl = 0x0;
       control.dstProtCtrl = 0x0;
       if ((data_bits <= 8) && (data_bits != 0)) {
@@ -578,12 +622,44 @@ int32_t GSPI_Send(const void *data,
         control.dstSize = DST_SIZE_8;
         control.dstInc  = DST_INC_NONE;
       } else {
-        //8-bit data frame
+        //16-bit data frame
         control.srcSize = SRC_SIZE_16;
         control.srcInc  = SRC_INC_16;
         control.dstSize = DST_SIZE_16;
         control.dstInc  = DST_INC_NONE;
       }
+#if SL_SI91X_GSPI_DMA
+      sl_dma_xfer_t dma_transfer_tx = { 0 };
+      uint32_t channel              = gspi->tx_dma->channel + 1;
+      uint32_t channel_priority     = gspi->tx_dma->chnl_cfg.channelPrioHigh;
+      sl_dma_callback_t gspi_tx_callback;
+      //Initialize sl_dma callback structure
+      gspi_tx_callback.transfer_complete_cb = gspi_transfer_complete_callback;
+      gspi_tx_callback.error_cb             = gspi_error_callback;
+      //Initialize sl_dma transfer structure
+      dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(gspi->xfer->tx_buf));
+      dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (gspi->reg->GSPI_WRITE_FIFO));
+      dma_transfer_tx.src_inc        = control.srcInc;
+      dma_transfer_tx.dst_inc        = control.dstInc;
+      dma_transfer_tx.xfer_size      = control.dstSize;
+      dma_transfer_tx.transfer_count = num;
+      dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+      dma_transfer_tx.dma_mode       = control.transferType;
+      dma_transfer_tx.signal         = gspi->tx_dma->chnl_cfg.periAck;
+
+      //Allocate DMA channel for Tx
+      if (sl_si91x_dma_allocate_channel(DMA_NUMBER, &channel, channel_priority)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Register transfer complete and error callback
+      if (sl_si91x_dma_register_callbacks(DMA_NUMBER, channel, &gspi_tx_callback)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Configure the channel for DMA transfer
+      if (sl_si91x_dma_transfer(DMA_NUMBER, channel, &dma_transfer_tx)) {
+        return ARM_DRIVER_ERROR;
+      }
+#else
       stat = UDMAx_ChannelConfigure(udma,
                                     gspi->tx_dma->channel,
                                     (uint32_t)(gspi->xfer->tx_buf),
@@ -597,23 +673,28 @@ int32_t GSPI_Send(const void *data,
       if (stat == -1) {
         return ARM_DRIVER_ERROR;
       }
-      GSPI0->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+#endif
+      GSPI0->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
       gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR          = 0x1; //write enable
       GSPI0->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH         = 0x1;
-
+#ifdef SL_SI91X_GSPI_DMA
+      sl_si91x_dma_channel_enable(DMA_NUMBER, gspi->tx_dma->channel);
+      sl_si91x_dma_enable(DMA_NUMBER);
+#else
       UDMAx_ChannelEnable(gspi->tx_dma->channel, udma, udmaHandle);
       UDMAx_DMAEnable(udma, udmaHandle);
+#endif
     } else { // configure IO mode
       // Configure the FIFO thresholds in I/0 mode
       gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD        = 0x1;
       gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD         = 0xC;
-      gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+      gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
       gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR              = 0x1; //write enable
       if ((data_bits <= 8U) && (data_bits != 0)) {
         (*(volatile uint8_t *)(0x45030000 + 0x80)) = *(gspi->xfer->tx_buf++); //rite first index data
       } else {
         data_16bit = *(gspi->xfer->tx_buf++);
-        data_16bit |= *(gspi->xfer->tx_buf++) << 8U;
+        data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf++) << 8U);
         (*(volatile uint16_t *)(0x45030000 + 0x80)) = data_16bit; //write first index data
       }
       while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
@@ -625,13 +706,13 @@ int32_t GSPI_Send(const void *data,
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = 0x1;
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = 0xC;
     gspi->reg->GSPI_INTR_UNMASK |= GSPI_INTR_UNMASK_BIT;
-    gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+    gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
     gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR              = 0x1; //write enable
     if ((data_bits <= 8U) && (data_bits != 0)) {
       (*(volatile uint8_t *)(0x45030000 + 0x80)) = *(gspi->xfer->tx_buf++); //rite first index data
     } else {
       data_16bit = *(gspi->xfer->tx_buf++);
-      data_16bit |= *(gspi->xfer->tx_buf++) << 8U;
+      data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf++) << 8U);
       (*(volatile uint16_t *)(0x45030000 + 0x80)) = data_16bit; //write first index data
     }
     while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
@@ -664,8 +745,15 @@ int32_t GSPI_Receive(void *data,
                      UDMA_Channel_Info *chnl_info,
                      RSI_UDMA_HANDLE_T udmaHandle)
 {
+#ifdef SL_SI91X_GSPI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+  (void)udmaHandle;
+  (void)chnl_info;
+#else
+  volatile int32_t stat = 0;
+#endif
   RSI_UDMA_CHA_CONFIG_DATA_T control = { 0 };
-  volatile int32_t stat              = 0;
   uint8_t dummy_data                 = 0;
   uint16_t data_bits                 = 0;
   gspi->info->status.busy            = 0U;
@@ -698,8 +786,8 @@ int32_t GSPI_Receive(void *data,
   if ((gspi->rx_dma) || (gspi->tx_dma)) {
     if (num > 10) {
       // Configure the FIFO thresholds
-      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = gspi->threshold->gspi_aempty_threshold;
-      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = gspi->threshold->gspi_afull_threshold;
+      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = (unsigned int)(gspi->threshold->gspi_aempty_threshold & 0x0F);
+      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = (unsigned int)(gspi->threshold->gspi_afull_threshold & 0x0F);
 
       // Enable Full duplex mode
       gspi->reg->GSPI_CONFIG1_b.SPI_FULL_DUPLEX_EN = 0x1;
@@ -707,11 +795,11 @@ int32_t GSPI_Receive(void *data,
         control.transferType = UDMA_MODE_BASIC;
         control.nextBurst    = 0;
         if (num < 1024) {
-          control.totalNumOfDMATrans = (num - 1);
+          control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
         } else {
           control.totalNumOfDMATrans = 0x3FF;
         }
-        control.rPower      = gspi->threshold->rxdma_arb_size;
+        control.rPower      = (unsigned int)(gspi->threshold->rxdma_arb_size & 0x0F);
         control.srcProtCtrl = 0x0;
         control.dstProtCtrl = 0x0;
         if ((data_bits <= 8) && (data_bits != 0)) {
@@ -727,6 +815,38 @@ int32_t GSPI_Receive(void *data,
           control.dstSize = DST_SIZE_16;
           control.dstInc  = DST_INC_NONE;
         }
+#if SL_SI91X_GSPI_DMA
+        sl_dma_xfer_t dma_transfer_tx = { 0 };
+        uint32_t channel              = gspi->tx_dma->channel + 1;
+        uint32_t channel_priority     = gspi->tx_dma->chnl_cfg.channelPrioHigh;
+        sl_dma_callback_t gspi_tx_callback;
+        //Initialize sl_dma callback structure
+        gspi_tx_callback.transfer_complete_cb = gspi_transfer_complete_callback;
+        gspi_tx_callback.error_cb             = gspi_error_callback;
+        //Initialize sl_dma transfer structure
+        dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)dummy_data);
+        dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (gspi->reg->GSPI_WRITE_FIFO));
+        dma_transfer_tx.src_inc        = control.srcInc;
+        dma_transfer_tx.dst_inc        = control.dstInc;
+        dma_transfer_tx.xfer_size      = control.dstSize;
+        dma_transfer_tx.transfer_count = num;
+        dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+        dma_transfer_tx.dma_mode       = control.transferType;
+        dma_transfer_tx.signal         = gspi->tx_dma->chnl_cfg.periAck;
+
+        //Allocate DMA channel for Tx
+        if (sl_si91x_dma_allocate_channel(DMA_NUMBER, &channel, channel_priority)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Register transfer complete and error callback
+        if (sl_si91x_dma_register_callbacks(DMA_NUMBER, channel, &gspi_tx_callback)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Configure the channel for DMA transfer
+        if (sl_si91x_dma_transfer(DMA_NUMBER, channel, &dma_transfer_tx)) {
+          return ARM_DRIVER_ERROR;
+        }
+#else
         stat = UDMAx_ChannelConfigure(udma,
                                       gspi->tx_dma->channel,
                                       (dummy_data),
@@ -740,7 +860,8 @@ int32_t GSPI_Receive(void *data,
         if (stat == -1) {
           return ARM_DRIVER_ERROR;
         }
-        GSPI0->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+#endif
+        GSPI0->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
         gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR          = 0x1; //write enable
         GSPI0->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH         = 0x1;
       } else {
@@ -750,7 +871,7 @@ int32_t GSPI_Receive(void *data,
         control.transferType = UDMA_MODE_BASIC;
         control.nextBurst    = 0;
         if (num < 1024) {
-          control.totalNumOfDMATrans = (num - 1);
+          control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
         } else {
           control.totalNumOfDMATrans = 0x3FF;
         }
@@ -770,6 +891,38 @@ int32_t GSPI_Receive(void *data,
           control.dstSize = DST_SIZE_16;
           control.dstInc  = DST_INC_16;
         }
+#ifdef SL_SI91X_GSPI_DMA
+        sl_dma_xfer_t dma_transfer_rx = { 0 };
+        uint32_t channel              = gspi->rx_dma->channel + 1;
+        uint32_t channel_priority     = gspi->rx_dma->chnl_cfg.channelPrioHigh;
+        sl_dma_callback_t gspi_rx_callback;
+        //Initialize sl_dma callback structure
+        gspi_rx_callback.transfer_complete_cb = gspi_transfer_complete_callback;
+        gspi_rx_callback.error_cb             = gspi_error_callback;
+        //Initialize sl_dma transfer structure
+        dma_transfer_rx.src_addr       = (uint32_t *)((uint32_t) & (gspi->reg->GSPI_READ_FIFO));
+        dma_transfer_rx.dest_addr      = (uint32_t *)((uint32_t)(gspi->xfer->rx_buf));
+        dma_transfer_rx.src_inc        = control.srcInc;
+        dma_transfer_rx.dst_inc        = control.dstInc;
+        dma_transfer_rx.xfer_size      = control.dstSize;
+        dma_transfer_rx.transfer_count = num;
+        dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
+        dma_transfer_rx.dma_mode       = control.transferType;
+        dma_transfer_rx.signal         = gspi->rx_dma->chnl_cfg.periAck;
+
+        //Allocate DMA channel for Rx
+        if (sl_si91x_dma_allocate_channel(DMA_NUMBER, &channel, channel_priority)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Register transfer complete and error callback
+        if (sl_si91x_dma_register_callbacks(DMA_NUMBER, channel, &gspi_rx_callback)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Configure the channel for DMA transfer
+        if (sl_si91x_dma_transfer(DMA_NUMBER, channel, &dma_transfer_rx)) {
+          return ARM_DRIVER_ERROR;
+        }
+#else
         stat = UDMAx_ChannelConfigure(udma,
                                       gspi->rx_dma->channel,
                                       (uint32_t) & (gspi->reg->GSPI_READ_FIFO),
@@ -783,19 +936,26 @@ int32_t GSPI_Receive(void *data,
         if (stat == -1) {
           return ARM_DRIVER_ERROR;
         }
+#endif
         gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD = 0x1;
       } else {
         return ARM_DRIVER_ERROR;
       }
+#ifdef SL_SI91X_GSPI_DMA
+      sl_si91x_dma_channel_enable(DMA_NUMBER, gspi->tx_dma->channel);
+      sl_si91x_dma_channel_enable(DMA_NUMBER, gspi->rx_dma->channel);
+      sl_si91x_dma_enable(DMA_NUMBER);
+#else
       UDMAx_ChannelEnable(gspi->tx_dma->channel, udma, udmaHandle);
       UDMAx_ChannelEnable(gspi->rx_dma->channel, udma, udmaHandle);
       UDMAx_DMAEnable(udma, udmaHandle);
+#endif
     } else {
       // receive data in IO mode
       // Configure the FIFO thresholds in I/0 mode
       gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD        = 0x1;
       gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD         = 0xC;
-      gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+      gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
       gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD              = 0x1; //read enable
       gspi->reg->GSPI_CONFIG3_b.SPI_MANUAL_RD_LNTH_TO_BC    = 1;
       while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
@@ -806,7 +966,7 @@ int32_t GSPI_Receive(void *data,
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = 0x1;
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = 0xC;
     gspi->reg->GSPI_INTR_UNMASK |= GSPI_INTR_UNMASK_BIT;
-    gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+    gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
     gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD              = 0x1; //read enable
     gspi->reg->GSPI_CONFIG3_b.SPI_MANUAL_RD_LNTH_TO_BC    = 1;
     while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
@@ -842,8 +1002,15 @@ int32_t GSPI_Transfer(const void *data_out,
                       UDMA_Channel_Info *chnl_info,
                       RSI_UDMA_HANDLE_T udmaHandle)
 {
+#ifdef SL_SI91X_GSPI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+  (void)udmaHandle;
+  (void)chnl_info;
+#else
+  volatile int32_t stat = 0;
+#endif
   RSI_UDMA_CHA_CONFIG_DATA_T control = { 0 };
-  volatile int32_t stat              = 0;
   uint16_t data_bits                 = 0;
   uint16_t data_16bit;
 
@@ -875,17 +1042,17 @@ int32_t GSPI_Transfer(const void *data_out,
   if ((gspi->rx_dma) || (gspi->tx_dma)) {
     if (num > 10) {
       // Configure the FIFO thresholds
-      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = gspi->threshold->gspi_aempty_threshold;
-      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = gspi->threshold->gspi_afull_threshold;
+      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = (unsigned int)(gspi->threshold->gspi_aempty_threshold & 0x0F);
+      gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = (unsigned int)(gspi->threshold->gspi_afull_threshold & 0x0F);
       if (gspi->tx_dma) {
         control.transferType = UDMA_MODE_BASIC;
         control.nextBurst    = 0;
         if (num < 1024) {
-          control.totalNumOfDMATrans = (num - 1);
+          control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x0F);
         } else {
           control.totalNumOfDMATrans = 0x3FF;
         }
-        control.rPower      = gspi->threshold->txdma_arb_size;
+        control.rPower      = (unsigned int)(gspi->threshold->txdma_arb_size & 0x0F);
         control.srcProtCtrl = 0x0;
         control.dstProtCtrl = 0x0;
         if ((data_bits <= 8) && (data_bits != 0)) {
@@ -901,6 +1068,38 @@ int32_t GSPI_Transfer(const void *data_out,
           control.dstSize = DST_SIZE_16;
           control.dstInc  = DST_INC_NONE;
         }
+#ifdef SL_SI91X_GSPI_DMA
+        sl_dma_xfer_t dma_transfer_tx = { 0 };
+        uint32_t channel              = gspi->tx_dma->channel + 1;
+        uint32_t channel_priority     = gspi->tx_dma->chnl_cfg.channelPrioHigh;
+        sl_dma_callback_t gspi_tx_callback;
+        //Initialize sl_dma callback structure
+        gspi_tx_callback.transfer_complete_cb = gspi_transfer_complete_callback;
+        gspi_tx_callback.error_cb             = gspi_error_callback;
+        //Initialize sl_dma transfer structure
+        dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(gspi->xfer->tx_buf));
+        dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (gspi->reg->GSPI_WRITE_FIFO));
+        dma_transfer_tx.src_inc        = control.srcInc;
+        dma_transfer_tx.dst_inc        = control.dstInc;
+        dma_transfer_tx.xfer_size      = control.dstSize;
+        dma_transfer_tx.transfer_count = num;
+        dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+        dma_transfer_tx.dma_mode       = control.transferType;
+        dma_transfer_tx.signal         = gspi->tx_dma->chnl_cfg.periAck;
+
+        //Allocate DMA channel for Tx
+        if (sl_si91x_dma_allocate_channel(DMA_NUMBER, &channel, channel_priority)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Register transfer complete and error callback
+        if (sl_si91x_dma_register_callbacks(DMA_NUMBER, channel, &gspi_tx_callback)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Configure the channel for DMA transfer
+        if (sl_si91x_dma_transfer(DMA_NUMBER, channel, &dma_transfer_tx)) {
+          return ARM_DRIVER_ERROR;
+        }
+#else
         stat = UDMAx_ChannelConfigure(udma,
                                       gspi->tx_dma->channel,
                                       (uint32_t)(gspi->xfer->tx_buf),
@@ -914,7 +1113,8 @@ int32_t GSPI_Transfer(const void *data_out,
         if (stat == -1) {
           return ARM_DRIVER_ERROR;
         }
-        GSPI0->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+#endif
+        GSPI0->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
         gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR          = 0x1; //write enable
         GSPI0->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH         = 0x1;
       }
@@ -922,11 +1122,11 @@ int32_t GSPI_Transfer(const void *data_out,
         control.transferType = UDMA_MODE_BASIC;
         control.nextBurst    = 0;
         if (num < 1024) {
-          control.totalNumOfDMATrans = (num - 1);
+          control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
         } else {
           control.totalNumOfDMATrans = 0x3FF;
         }
-        control.rPower      = gspi->threshold->rxdma_arb_size;
+        control.rPower      = (unsigned int)(gspi->threshold->rxdma_arb_size & 0x0F);
         control.srcProtCtrl = 0x0;
         control.dstProtCtrl = 0x0;
         if ((data_bits <= 8) && (data_bits != 0)) {
@@ -942,6 +1142,38 @@ int32_t GSPI_Transfer(const void *data_out,
           control.dstSize = DST_SIZE_16;
           control.dstInc  = DST_INC_16;
         }
+#ifdef SL_SI91X_GSPI_DMA
+        sl_dma_xfer_t dma_transfer_rx = { 0 };
+        uint32_t channel              = gspi->rx_dma->channel + 1;
+        uint32_t channel_priority     = gspi->rx_dma->chnl_cfg.channelPrioHigh;
+        sl_dma_callback_t gspi_rx_callback;
+        //Initialize sl_dma callback structure
+        gspi_rx_callback.transfer_complete_cb = gspi_transfer_complete_callback;
+        gspi_rx_callback.error_cb             = gspi_error_callback;
+        //Initialize sl_dma transfer structure
+        dma_transfer_rx.src_addr       = (uint32_t *)((uint32_t) & (gspi->reg->GSPI_READ_FIFO));
+        dma_transfer_rx.dest_addr      = (uint32_t *)((uint32_t)(gspi->xfer->rx_buf));
+        dma_transfer_rx.src_inc        = control.srcInc;
+        dma_transfer_rx.dst_inc        = control.dstInc;
+        dma_transfer_rx.xfer_size      = control.dstSize;
+        dma_transfer_rx.transfer_count = num;
+        dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
+        dma_transfer_rx.dma_mode       = control.transferType;
+        dma_transfer_rx.signal         = gspi->rx_dma->chnl_cfg.periAck;
+
+        //Allocate DMA channel for Rx
+        if (sl_si91x_dma_allocate_channel(DMA_NUMBER, &channel, channel_priority)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Register transfer complete and error callback
+        if (sl_si91x_dma_register_callbacks(DMA_NUMBER, channel, &gspi_rx_callback)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Configure the channel for DMA transfer
+        if (sl_si91x_dma_transfer(DMA_NUMBER, channel, &dma_transfer_rx)) {
+          return ARM_DRIVER_ERROR;
+        }
+#else
         stat = UDMAx_ChannelConfigure(udma,
                                       gspi->rx_dma->channel,
                                       (uint32_t) & (gspi->reg->GSPI_READ_FIFO),
@@ -955,8 +1187,13 @@ int32_t GSPI_Transfer(const void *data_out,
         if (stat == -1) {
           return ARM_DRIVER_ERROR;
         }
+#endif
         gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD = 0x1;
-#if 1
+#ifdef SL_SI91X_GSPI_DMA
+        sl_si91x_dma_channel_enable(DMA_NUMBER, gspi->rx_dma->channel);
+        sl_si91x_dma_channel_enable(DMA_NUMBER, gspi->tx_dma->channel);
+        sl_si91x_dma_enable(DMA_NUMBER);
+#else
         UDMAx_ChannelEnable(gspi->rx_dma->channel, udma, udmaHandle);
         UDMAx_ChannelEnable(gspi->tx_dma->channel, udma, udmaHandle);
         UDMAx_DMAEnable(udma, udmaHandle);
@@ -968,13 +1205,13 @@ int32_t GSPI_Transfer(const void *data_out,
       // Configure the FIFO thresholds in I/0 mode
       gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD        = 0x1;
       gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD         = 0xC;
-      gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+      gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
       gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR              = 0x1; //write enable
       if ((data_bits <= 8U) && (data_bits != 0)) {
         (*(volatile uint8_t *)(0x45030000 + 0x80)) = *(gspi->xfer->tx_buf++); //rite first index data
       } else {
         data_16bit = *(gspi->xfer->tx_buf++);
-        data_16bit |= *(gspi->xfer->tx_buf++) << 8U;
+        data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf++) << 8U);
         (*(volatile uint16_t *)(0x45030000 + 0x80)) = data_16bit; //write first index data
       }
       while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
@@ -985,14 +1222,14 @@ int32_t GSPI_Transfer(const void *data_out,
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AEMPTY_THRLD = 0x1;
     gspi->reg->GSPI_FIFO_THRLD_b.FIFO_AFULL_THRLD  = 0xC;
     gspi->reg->GSPI_INTR_UNMASK |= GSPI_INTR_UNMASK_BIT;
-    gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = data_bits;
+    gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2 = (unsigned int)(data_bits & 0x0F);
     gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR              = 0x1; //write enable
     if ((data_bits <= 8U) && (data_bits != 0)) {
       (*(volatile uint8_t *)(0x45030000 + 0x80)) = *(gspi->xfer->tx_buf++);
       ; //rite first index data
     } else {
       data_16bit = *(gspi->xfer->tx_buf++);
-      data_16bit |= *(gspi->xfer->tx_buf++) << 8U;
+      data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf++) << 8U);
       (*(volatile uint16_t *)(0x45030000 + 0x80)) = data_16bit; //write first index data
     }
     while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
@@ -1027,6 +1264,7 @@ uint32_t GSPI_GetDataCount(const GSPI_RESOURCES *gspi)
  */
 void GSPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, GSPI_RESOURCES *gspi)
 {
+  (void)dmaCh;
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
       //gspi->info->status.busy       = 0U;
@@ -1054,6 +1292,7 @@ void GSPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, GSPI_RESOURCES *gspi)
  */
 void GSPI_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, GSPI_RESOURCES *gspi)
 {
+  (void)dmaCh;
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
       //gspi->xfer->rx_cnt    = gspi->xfer->num;
@@ -1141,8 +1380,9 @@ void GSPI_IRQHandler(const GSPI_RESOURCES *gspi)
             (*(volatile uint8_t *)(0x45030000 + 0x80)) = data_8bit;
           } else {
             data_16bit = *(gspi->xfer->tx_buf++);
-            data_16bit |= *(gspi->xfer->tx_buf++) << 8;
+            data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf++) << 8);
             (*(volatile uint16_t *)(0x45030000 + 0x80)) = data_16bit;
+            (void)dummy_data_read;
           }
         }
       }

@@ -73,24 +73,25 @@ extern "C" {
 #define COMP2        2
 #define METAL_REV1P4 0x14
 
-error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, uint8_t enable);
+rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, uint8_t enable);
 
-error_t RSI_COMP_Config(AUX_ADC_DAC_COMP_Type *comp,
-                        uint8_t comp_number,
-                        uint8_t sel_p_mux,
-                        uint8_t sel_n_mux,
-                        uint8_t hyst_en,
-                        uint8_t filter_en);
+rsi_error_t RSI_COMP_Config(AUX_ADC_DAC_COMP_Type *comp,
+                            uint8_t comp_number,
+                            uint8_t sel_p_mux,
+                            uint8_t sel_n_mux,
+                            uint8_t hyst_en,
+                            uint8_t filter_en);
 
-error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh);
+rsi_error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh);
 
-error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scalar_factor_value);
+rsi_error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scalar_factor_value);
 
-error_t RSI_COMP_PinMux(uint8_t comp_num, uint8_t pos_pin, uint8_t neg_pin);
+rsi_error_t RSI_COMP_PinMux(uint8_t comp_num, uint8_t pos_pin, uint8_t neg_pin);
 
-error_t RSI_COMP_IntrEnableDisable(uint8_t comp_number, uint8_t enable);
+rsi_error_t RSI_COMP_IntrEnableDisable(uint8_t comp_number, uint8_t enable);
 
-error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number, uint8_t MaskConfig);
+rsi_error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number, uint8_t MaskConfig);
+void IRQ008_Handler(void);
 #ifdef __cplusplus
 }
 #endif

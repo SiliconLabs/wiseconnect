@@ -18,9 +18,8 @@
  *
  */
 
-/**
- * Includes
- */
+// Includes
+
 #ifndef __RSI_ROM_POWER_SAVE_H__
 #define __RSI_ROM_POWER_SAVE_H__
 
@@ -40,12 +39,12 @@ extern "C" {
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_POWER_SAVE RSI:RS1xxxx POWER SAVE 
+ * \defgroup POWER_SAVE
  *  @{
  *
  */
 /**
- * @fn            STATIC INLINE error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel          ,
+ * @fn            STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel          ,
  *		                                          uint8_t PwrMuxSelUlpssRam    ,
  *                                                        uint8_t pwrMuxSelM4UlpRam    ,
  *							  uint8_t pwrMuxSelM4UlpRam16K ,
@@ -96,18 +95,18 @@ extern "C" {
  *                                  \n 1 :Enale 
  * @return        returns 0 \ref RSI_OK on success,return error code on error
  */
-STATIC INLINE error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
-                                                      uint8_t PwrMuxSelUlpssRam,
-                                                      uint8_t pwrMuxSelM4UlpRam,
-                                                      uint8_t pwrMuxSelM4UlpRam16K,
-                                                      uint8_t pwrMuxSelM4Ulp,
-                                                      uint8_t pwrMuxSelUlpss,
-                                                      uint8_t bgSampleEnable,
-                                                      uint8_t dcDcEnable,
-                                                      uint8_t socLdoEnable,
-                                                      uint8_t standByDc,
-                                                      uint8_t taRamRetEnable,
-                                                      uint8_t M4RamRetEnable)
+STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
+                                                          uint8_t PwrMuxSelUlpssRam,
+                                                          uint8_t pwrMuxSelM4UlpRam,
+                                                          uint8_t pwrMuxSelM4UlpRam16K,
+                                                          uint8_t pwrMuxSelM4Ulp,
+                                                          uint8_t pwrMuxSelUlpss,
+                                                          uint8_t bgSampleEnable,
+                                                          uint8_t dcDcEnable,
+                                                          uint8_t socLdoEnable,
+                                                          uint8_t standByDc,
+                                                          uint8_t taRamRetEnable,
+                                                          uint8_t M4RamRetEnable)
 {
   uint8_t x = 0;
   // TODO: Check  silicon rev from flash/efuse offset; for 1.4V do this programming
@@ -144,13 +143,13 @@ STATIC INLINE error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
 }
 
 /**
- * @fn          STATIC INLINE error_t RSI_PS_PowerStateChangePs2toPs4(uint32_t PmuBuckTurnOnWaitTime , uint32_t SocLdoTurnOnWaitTime)
+ * @fn          STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs2toPs4(uint32_t PmuBuckTurnOnWaitTime , uint32_t SocLdoTurnOnWaitTime)
  * @brief	      This API is used to change the power state from PS2 to PS4
  * @param[in]	  PmuBuckTurnOnWaitTime :  PMU buck time
  * @param[in]	  SocLdoTurnOnWaitTime : soc ldo turn on time
  * @return       returns 0 \ref RSI_OK on success,return error code on error
  */
-STATIC INLINE error_t RSI_PS_PowerStateChangePs2toPs4(uint32_t PmuBuckTurnOnWaitTime, uint32_t SocLdoTurnOnWaitTime)
+STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs2toPs4(uint32_t PmuBuckTurnOnWaitTime, uint32_t SocLdoTurnOnWaitTime)
 {
   // Moved this API from ROM to appication memmory
   return ps_power_state_change_ps2_to_Ps4(PmuBuckTurnOnWaitTime, SocLdoTurnOnWaitTime);
@@ -189,7 +188,7 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig_bypass(uint32_t stack_address,
         M4_BBFF_STORAGE1 |= KEY_LENGTH;
       }
     }
-    M4_BBFF_STORAGE1 &= ~(0xff << STACK_AND_CB_ADDR_BIT_NO);
+    M4_BBFF_STORAGE1 &= ~(0xffUL << STACK_AND_CB_ADDR_BIT_NO);
     //! Keeping stack address with 2k granularity.
     M4_BBFF_STORAGE1 |= (((stack_address >> 11) & 0xFF) << STACK_AND_CB_ADDR_BIT_NO);
 
@@ -246,12 +245,12 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
  * @fn            STATIC INLINE void RSI_PS_BgLdoConfig(uint8_t ldo_0p6_ctrl, uint8_t ldo_0p6_lp_mode)
  * @brief	        This API is used configure the LP low power mode and vref for DCDC1p1_lp_500uA
  * @param         ldo_0p6_ctrl :  vref for DCDC1p1_lp_500uA
- *                                0 - 0.8V
- *                                1 - 0.75V
- *                                2 - 0.7V
- *                                3 - 0.65V
- *                                4 - 0.6V
- *                                5 - 0.55V
+ *                                - 0 - 0.8V
+ *                                - 1 - 0.75V
+ *                                - 2 - 0.7V
+ *                                - 3 - 0.65V
+ *                                - 4 - 0.6V
+ *                                - 5 - 0.55V
  * @param         ldo_0p6_lp_mode : 1:enable low power mode, 0:otherwise in high power mode
  * @return        none
  */
@@ -267,12 +266,12 @@ STATIC INLINE void RSI_PS_BgLdoConfig(uint8_t ldo_0p6_ctrl, uint8_t ldo_0p6_lp_m
 /**
  * @fn            STATIC INLINE void RSI_PS_ConfigurTrimValues(uint16_t lf_ro_trim ,uint16_t lf_rc_trim , uint16_t hf_ro_trim ,uint16_t hf_rc_trim ,uint16_t bg_ptat_trim , uint16_t bg_trim)
  * @brief	        This API is used configure the clock and bg trim values
- * @param         lf_ro_trim : trim value for low frequency RO clock
- * @param         lf_rc_trim : trim value for low frequency RC clock
- * @param         hf_ro_trim : trim value for high frequency RO clock
- * @param         hf_rc_trim : trim value for high frequency RC clock
- * @param         bg_ptat_trim : trim value for bg ptat 
- * @param         bg_trim    : trim value for bg(Band Gap)
+ * @param[in]         lf_ro_trim : trim value for low frequency RO clock
+ * @param[in]         lf_rc_trim : trim value for low frequency RC clock
+ * @param[in]         hf_ro_trim : trim value for high frequency RO clock
+ * @param[in]         hf_rc_trim : trim value for high frequency RC clock
+ * @param[in]         bg_ptat_trim : trim value for bg ptat 
+ * @param[in]         bg_trim    : trim value for bg(Band Gap)
  * @return        none
  */
 STATIC INLINE void RSI_PS_ConfigurTrimValues(uint16_t lf_ro_trim,

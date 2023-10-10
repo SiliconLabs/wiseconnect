@@ -164,4 +164,16 @@ typedef struct {
   void *sdk_context;                    ///< sdk context, unused internally to invoke user callbacks
 } sl_si91x_queue_packet_t;
 
+/// Structure for module state async notification
+#pragma pack(1)
+typedef struct {
+  uint32_t timestamp;
+  uint8_t state_code;
+  uint8_t reason_code;
+  uint8_t channel;
+  uint8_t rssi;
+  uint8_t bssid[6];
+} sl_si91x_con_state_notificaton_t;
+#pragma pack()
+
 /** @} */

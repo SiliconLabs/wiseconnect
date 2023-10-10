@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -21,11 +21,16 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
   - name: MQTT_CLIENT_FEATURE
   - name: HIGH_EFFICIENCY_PARAMS_SUPPORT
   - name: TWT_SUPPORT
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
+- {from: wiseconnect3_sdk, id: rsilib_userconfig}
+- {from: wiseconnect3_sdk, id: rsilib_chip}
+- {from: wiseconnect3_sdk, id: siwx917_soc}
 requires:
 - name: sl_system
 - name: mqtt

@@ -23,6 +23,27 @@ requires:
   - name: si917_mem_config_1
     condition: 
       - brd4325g
+  - name: si917_mem_config_1
+    condition: 
+      - brd4338a
+  - name: si917_mem_config_1
+    condition: 
+      - brd4339a
+  - name: si917_mem_config_1
+    condition: 
+      - brd4339b
+  - name: si917_mem_config_1
+    condition: 
+      - brd4340a
+  - name: si917_mem_config_1
+    condition: 
+      - brd4340b
+  - name: si917_mem_config_1
+    condition: 
+      - brd4341a
+  - name: si917_mem_config_1
+    condition: 
+      - brd4342a
 provides:
   - name: si917_memory_default_config
   - name: si917_mem_config

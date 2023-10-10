@@ -36,6 +36,8 @@
 #include "sl_sntp.h"
 #include "sl_wifi.h"
 #include "sl_net_dns.h"
+#include "sl_wifi_callback_framework.h"
+#include "sl_si91x_types.h"
 #include "string.h"
 
 /******************************************************
@@ -76,13 +78,17 @@ static const sl_wifi_device_configuration_t sl_wifi_sntp_client_configuration = 
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                       | SL_SI91X_TCP_IP_FEAT_SNTP_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map =
+                     (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
 #ifndef RSI_M4_INTERFACE
                                                   RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
                                                   RAM_LEVEL_NWP_ADV_MCU_BASIC
+#endif
+#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
                    .bt_feature_bit_map = 0,
@@ -111,6 +117,28 @@ static void application_start(void *argument);
 /******************************************************
  *               Function Definitions
  ******************************************************/
+static sl_status_t module_status_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+{
+  UNUSED_PARAMETER(event);
+  UNUSED_PARAMETER(arg);
+  sl_si91x_con_state_notificaton_t *notif = (sl_si91x_con_state_notificaton_t *)data;
+
+  printf("---> Module status handler event with length : %lu\r\n", data_length);
+  printf("  <> Timestamp : %lu, state_code : %u, reason_code : %u, channel : %u, rssi : %u.\n",
+         notif->timestamp,
+         notif->state_code,
+         notif->reason_code,
+         notif->channel,
+         notif->rssi);
+  printf("  <> BSSID : %x:%x:%x:%x:%x:%x.\n",
+         notif->bssid[0],
+         notif->bssid[1],
+         notif->bssid[2],
+         notif->bssid[3],
+         notif->bssid[4],
+         notif->bssid[5]);
+  return SL_STATUS_OK;
+}
 
 void app_init(const void *unused)
 {
@@ -130,6 +158,7 @@ static void application_start(void *argument)
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
   }
+  sl_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS, module_status_handler, NULL);
 
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {

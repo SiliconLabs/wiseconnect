@@ -1,13 +1,27 @@
 # GSPI
 
-## Introduction
+## Table of Contents
 
-- This application demonstrate the GSPI for data transfer in full duplex as well as full duplex mode.
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+  - [Pin Configuration](#pin-configuration)
+  - [Pin Description](#pin-description)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
+
+- This application demonstrate the GSPI for data transfer in full duplex as well as half duplex mode.
 - This application can run in synchronous mode with full-duplex operation
   - Master transmits data on MOSI pin and receives the same data on MISO pin
 - This also supports send and receive data with any SPI slave, additionally it also supports DMA and non-DMA transfer.
 - For half duplex communication, i.e., send and receive, master / slave connection is required.
-- Note: For GSPI example, it mandatory to run it in non-rom code, i.e., Navigate to core/config/rsi_ccp_user_config.h and comment out the A11 ROM and ROMDRIVER_PRESENT
 
 ## Overview
 
@@ -15,7 +29,7 @@
 - SPI is a synchronous four-wire interface consisting of two data pins(MOSI, MISO), a device select pin (CSN) and a gated clock pin(SCLK).
 - With the two data pins, it allows for full-duplex operation to other SPI compatible devices.
 - It supports full duplex Single-bit SPI master mode.
-- It has support for Mode-0 and Mode-3 (Motorola). Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 1: Clock Polarity is one, Clock Phase is one.
+- It has support for Mode-0 and Mode-3 (Motorola). Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 3: Clock Polarity is one, Clock Phase is one.
 - It supports both Full speed and High speed modes.
 - The SPI clock is programmable to meet required baud rates
 - It can generates interrupt for different events like transfer complete, data lost, mode fault.
@@ -33,7 +47,7 @@
 - In example code, firstly the output buffer is filled with some data which is transferred to the slave.
 - Firmware version of API is fetched using \ref sl_si91x_gspi_get_version which includes release version, major version and minor version \ref sl_gspi_version_t.
 - A static function is called to fill the \ref sl_gspi_clock_config_t structure, which is passed in \ref sl_si91x_gspi_configure_clock API to configure the clock.
-- \ref sl_si91x_gspi_init is used to initialize the peripheral, that includes pin configuration and it power up the module.
+- \ref sl_si91x_gspi_init is used to initialize the peripheral, that includes pin configuration and also enables DMA if configured.
 - GSPI instance must be passed in init to get the respective instance handle \ref sl_gspi_instance_t, which is used in other APIs.
 - After initialization \ref sl_si91x_gspi_configure_power_mode is called to set the power mode \ref sl_gspi_power_state_t.
 - All the necessary parameters are configured using \ref sl_si91x_gspi_set_configuration API, it expects a structure with required parameters \ref sl_gspi_control_config_t.
@@ -65,41 +79,42 @@
   - If it is not in DMA mode, it waits till the send is completed i.e., the send count is equal to the number of bytes entered by user \ref sl_si91x_gspi_get_tx_data_count.
   - Now the current_mode enum is updated as TRANSMISSION_COMPLETED.
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4325A]
+- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
 
-![Figure: Introduction](resources/readme/image505a.png)
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- VCOM Setup
+  - The Serial Console setup instructions are provided below.
 
-## Project Setup
+    ![Figure: VCOM_setup](resources/readme/vcom.png)
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+### Setup Diagram
 
-## Loading Application on Simplicity Studio
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to GSPI Example application as shown below.
+## Getting Started
 
-![Figure: Selecting Example project](resources/readme/image505b.png)
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-## Configuration and Steps for Execution
+- Install Simplicity Studio and WiSeConnect 3 extension
+- Connect SiWx917 device to the computer
+- Upgrade the device connectivity firmware
+- Create the Studio project
+
+## Application Build Environment
 
 - Configure UC from the slcp component.
-- Open **sl_si91x_gspi.slcp** project file select **software component** tab and search for **GSPI** in search bar.
+- Open **sl_si91x_gspi.slcp** project file, select **Software Component** tab and search for **GSPI** in search bar.
 - Using configuration wizard one can configure different parameters like:
   - **General Configuration**
-  - Mode: SPI mode can be configured, i.e. mode 0 and mode 3 (motorola). Mode 0: Clock Polarity 0 and Clock Phase 0, Mode 1: Clock Polarity 1 and Clock Phase 1.
+  - Mode: SPI mode can be configured, i.e. mode 0 and mode 3 (motorola). Mode 0: Clock Polarity 0 and Clock Phase 0, Mode 3: Clock Polarity 1 and Clock Phase 1.
   - Bitrate: The speed of transfer can be configured, i.e. bits/second.
   - Data Width: The size of data packet, it can be configured between 1 to 15.
   - Manual Chip Select: If the user wants to control the chip select manually, then it can be enabled otherwise it will configure the chip select automatically.
@@ -109,6 +124,8 @@
   - Configure the FIFO Thresholds, i.e. Almost Full and Almost Empty. It can be configured between 0 to 15.
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
+  ![Figure: UC screen](resources/uc_screen/gspi_uc_screen.png)
+ 
 - Configure the following macros in gspi_example.h file and update/modify following macros if required.
 
 ```C
@@ -117,43 +134,36 @@
 #define SL_USE_RECEIVE  DISABLE   ///< To use the receive API
 ```
 
-## Build
+### Pin Configuration
 
-1. Compile the application in Simplicity Studio using build icon
+|   GPIO Pin    |      Description        |
+| ------------- | ----------------------- |
+| GPIO_25 [P25] | RTE_SSI_MASTER_CLK_PIN  |
+| GPIO_28 [P31] | RTE_SSI_MASTER_CS0_PIN  |
+| GPIO_26 [P27] | RTE_SSI_MASTER_MOSI_PIN |
+| GPIO_27 [P29] | RTE_SSI_MASTER_MISO_PIN |
 
-![Figure: Build run and Debug](resources/readme/image505c.png)
-
-## Device Programming
-
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
-
-## Pin Configuration
-
-| GPIO pin                | Description             |
-| ----------------------- | ----------------------- |
-| GPIO_25 [EXP_HEADER-15] | RTE_SSI_MASTER_CLK_PIN  |
-| GPIO_28 [EXP_HEADER-8]  | RTE_SSI_MASTER_CS0_PIN  |
-| GPIO_26 [EXP_HEADER-16] | RTE_SSI_MASTER_MOSI_PIN |
-| GPIO_27 [EXP_HEADER-10] | RTE_SSI_MASTER_MISO_PIN |
-
-## Pin Description
+### Pin Description
 
 ![Figure: Pin Configuration for GSPI1](resources/readme/image505d.png)
 
-![Figure: Pin Configuration for GSPI2](resources/readme/image505e.png)
+## Test the Application
 
-**Note!** Make sure pin configuration in RTE_Device_9117.h file.(path: /$project/wiseconnect_1.0.0/platforms/si91x/drivers/cmsis_driver/config/RTE_Device_9117.h)
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-## Executing the Application
+- Build the application
+- Flash, run and debug the application
+
+Follow the steps below for successful execution of the application:
 
 1. Compile and run the application.
-2. Connect GPIO_26 to GPIO_27 for loopback connection.
-3. Enable the macro in gspi_example.h file as per requirement.
+2. Connect GPIO_26 [P27] to GPIO_27 [P29] for loopback connection.
+3. Enable the macro in `gspi_example.h` file as per requirement.
 
-- #define SL_USE_TRANSFER ENABLE
-- #define SL_USE_RECEIVE DISABLE
-- #define SL_USE_SEND DISABLE
-- By default transfer is enabled.
+    - #define SL_USE_TRANSFER ENABLE
+    - #define SL_USE_RECEIVE DISABLE
+    - #define SL_USE_SEND DISABLE
+    - By default transfer is enabled.
 
 4. When the application runs,It sends and receives data in loopback if USE_TRANSFER is enabled.
 5. If USE_RECEIVE or USE_SEND is enabled, SPI slave will receive and send data respectively.

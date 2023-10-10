@@ -176,25 +176,6 @@ sl_status_t sl_si91x_gspi_init(sl_gspi_instance_t instance, sl_gspi_handle_t *gs
  ******************************************************************************/
 sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
 
-/***************************************************************************/ /**
- * Change the power mode of GSPI, the supported modes are
- *  - POWER_OFF
- *  - FULL_POWER
- * 
- * @pre \ref sl_si91x_gspi_configure_clock \n
- *      \ref sl_si91x_gspi_init \n
- * 
- * @param[in] gspi_handle Pointer to the GSPI driver handle
- * @param[in] control_configuration pointer to the configuration structure
- * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success \n
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer \n
- *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
- *         \ref SL_STATUS_FAIL (0x0001) - The function is failed \n
- *         \ref SL_STATUS_NOT_SUPPORTED (0x000F) - Parameter is not supported
- ******************************************************************************/
-sl_status_t sl_si91x_gspi_configure_power_mode(sl_gspi_handle_t gspi_handle, sl_gspi_power_state_t state);
-
 /*******************************************************************************
  * Control and configure the GSPI.
  *   - swap_read (enable/disable)

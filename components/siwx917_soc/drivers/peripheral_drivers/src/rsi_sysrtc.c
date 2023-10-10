@@ -31,6 +31,39 @@
 #include "rsi_sysrtc.h"
 #if defined(SI91X_SYSRTC_COUNT) && (SI91X_SYSRTC_COUNT > 0)
 
+// SYSRTC Default pins for compare group is taken as Mode 3
+STATIC INLINE void RSI_NPSSGPIO_SetPinMux(uint8_t pin, uint8_t mux)
+{
+  MCU_RET->NPSS_GPIO_CNTRL[pin].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = mux;
+}
+
+/**
+ * @fn         void RSI_NPSSGPIO_InputBufferEn(uint8_t pin , boolean_t enable)
+* @brief        This API is used to enable/disable NPSS GPIO input buffer
+ *@param[in] pin: is NPSS GPIO pin number (0...4)
+ *@param[in]  enable: is enable / disable NPSS GPIO input buffer
+ *           1- Enable
+ *           0- Disable
+ *@return  : none
+ * */
+STATIC INLINE void RSI_NPSSGPIO_InputBufferEn(uint8_t pin, boolean_t enable)
+{
+  MCU_RET->NPSS_GPIO_CNTRL[pin].NPSS_GPIO_CTRLS_b.NPSS_GPIO_REN = enable;
+}
+
+/**
+ * @brief    This API is used to set the direction of the NPSS GPIO
+ *@param[in]  pin: is NPSS GPIO pin number (0...4)
+ *@param[in]  dir: is direction value (Input / Output)
+ *           1- Input Direction
+ *           0- Output Direction
+ *@return  : none
+ * */
+STATIC INLINE void RSI_NPSSGPIO_SetDir(uint8_t pin, boolean_t dir)
+{
+  MCU_RET->NPSS_GPIO_CNTRL[pin].NPSS_GPIO_CTRLS_b.NPSS_GPIO_OEN = dir;
+}
+
 #include "stddef.h"
 
 /***************************************************************************/ /**
@@ -66,7 +99,7 @@ void rsi_sysrtc_init(const rsi_sysrtc_config_t *p_config)
  ******************************************************************************/
 void rsi_sysrtc_clk_set(rsi_sysrtc_clk_inp_t sysrtc_clk, uint32_t div)
 {
-  MCU_AON->MCUAON_KHZ_CLK_SEL_POR_RESET_STATUS_b.SYSRTC_32KHZ_RC_CLK_DIV_FACTOR = div;
+  MCU_AON->MCUAON_KHZ_CLK_SEL_POR_RESET_STATUS_b.SYSRTC_32KHZ_RC_CLK_DIV_FACTOR = (unsigned int)(div & 0x3F);
 
   MCU_AON->MCUAON_KHZ_CLK_SEL_POR_RESET_STATUS_b.AON_KHZ_CLK_SEL_SYSRTC = sysrtc_clk;
 
@@ -108,53 +141,66 @@ void rsi_sysrtc_set_capture_reg(const uint32_t group)
  ******************************************************************************/
 void rsi_sysrtc_set_capture_gpio(const uint32_t group)
 {
+  uint8_t gpio_pin;
+  uint8_t gpio_mode;
   switch (group) {
     case 0:
-      MCU_RET->NPSS_GPIO_CNTRL[0].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0x03UL;
-      // Group 0 input can be changed from two different pins.
-      //  MCU_RET->NPSS_GPIO_CNTRL[1].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0x04UL;
-
+      gpio_pin  = 0U;
+      gpio_mode = 3U;
       break;
     case 1:
-      MCU_RET->NPSS_GPIO_CNTRL[0].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0x05UL;
+      gpio_pin  = 1U;
+      gpio_mode = 4U;
       break;
     default:
 
       break;
   }
+  RSI_NPSSGPIO_InputBufferEn(gpio_pin, 1U);
+  RSI_NPSSGPIO_SetPinMux(gpio_pin, gpio_mode);
+  RSI_NPSSGPIO_SetDir(gpio_pin, 0U);
 }
 
 /***************************************************************************/ /**
- * Configures SYSRTC Input(Capture) from gpio
+ * Configures SYSRTC Output(Compare) from gpio
  ******************************************************************************/
 void rsi_sysrtc_set_compare_gpio(const uint32_t group, const uint32_t chan)
 {
+  uint8_t ch0_gpio_pin;
+  uint8_t ch1_gpio_pin;
+  uint8_t gpio_mode;
+
   switch (group) {
     case 0:
-      switch (chan) {
-        case 0:
-          MCU_RET->NPSS_GPIO_CNTRL[3].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0x03UL;
-          // Group 0 output can be viewed from two different pins.
-          //  MCU_RET->NPSS_GPIO_CNTRL[4].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0x04UL;
-          break;
-        case 1:
-          MCU_RET->NPSS_GPIO_CNTRL[4].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0x03UL;
-      }
+#ifdef SYSRTC_CMP_DEF_PINS
+      ch0_gpio_pin = 3U;
+      ch1_gpio_pin = 4U;
+      gpio_mode    = 3U;
+#else
+      ch0_gpio_pin = 4U;
+      ch1_gpio_pin = 0U;
+      gpio_mode    = 4U;
+#endif
       break;
     case 1:
-      switch (chan) {
-        case 0:
-          MCU_RET->NPSS_GPIO_CNTRL[1].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0x05UL;
-          break;
-        case 1:
-          MCU_RET->NPSS_GPIO_CNTRL[2].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0x05UL;
-          break;
-      }
-      break;
-    default:
+      ch0_gpio_pin = 1U;
+      ch1_gpio_pin = 2U;
+      gpio_mode    = 5U;
 
       break;
   }
+
+  RSI_NPSSGPIO_InputBufferEn(ch0_gpio_pin, 1U);
+  RSI_NPSSGPIO_SetPinMux(ch0_gpio_pin, gpio_mode);
+  RSI_NPSSGPIO_SetDir(ch0_gpio_pin, 0U);
+
+  if (chan) {
+    RSI_NPSSGPIO_InputBufferEn(ch1_gpio_pin, 1U);
+    RSI_NPSSGPIO_SetPinMux(ch1_gpio_pin, gpio_mode);
+    RSI_NPSSGPIO_SetDir(ch1_gpio_pin, 0U);
+  }
+
+  return;
 }
 
 /***************************************************************************/ /**
@@ -442,36 +488,43 @@ uint32_t rsi_sysrtc_get_group_compare_channel_value(uint8_t group_number, uint8_
       switch (channel) {
         case 0:
           return SYSRTC0->GRP0_CMP0VALUE;
+          break;
 
 #ifdef SYSRTC_GRP0_CTRL_CMP1EN
         case 1:
           return SYSRTC0->GRP0_CMP1VALUE;
+          break;
 #endif
 
         default:
           break;
       }
+      break;
 
 #if SYSRTC_GROUP_NUMBER > 1
     case 1:
       switch (channel) {
         case 0:
           return SYSRTC0->GRP1_CMP0VALUE;
+          break;
 
 #ifdef SYSRTC_GRP1_CTRL_CMP1EN
         case 1:
           return SYSRTC0->GRP1_CMP1VALUE;
+          break;
 #endif
 
         default:
           break;
       }
+      break;
 
 #endif
 
     default:
       return 0;
   }
+  return 0;
 }
 
 /***************************************************************************/ /**

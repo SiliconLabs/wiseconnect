@@ -17,4 +17,3 @@ provides:
 requires:
   - name: rsilib_udma_wrapper
   - name: rsilib_udma
-  - name: cmsis_driver_common

@@ -20,19 +20,7 @@
 #include "rsi_ccp_common.h"
 #include "rsi_chip.h"
 
-#define ZERO     0
-#define ONE      1
-#define TWO      2
-#define THREE    3
-#define SIX      6
-#define NINE     9
-#define FOURTEEN 14
-#define HOST_MIN 25
-#define HOST_MAX 30
-#define MAX_GPIO 64
-#define DATA     0xFFFFFFFF
-#define FOUR     0x04
-#define SEVEN    0x07
+#define DATA 0xFFFFFFFF
 
 // Global structure to hold the SIO channel configuration
 stc_sio_cb_t gstcSioCb;
@@ -53,69 +41,69 @@ void RSI_SIO_ClockEnable(void)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SIO_Init(volatile SIO_Type *pstcSio)
+ * @fn           rsi_error_t RSI_SIO_Init(volatile SIO_Type *pstcSio)
  * @brief        This API is used to initialize the SIO module
  * @param[in]    pstcSio   : pointer to the register instance of SIO module
  * @return       return RSI_OK on success
  *               failure return error code.
  */
-error_t RSI_SIO_Init(volatile SIO_Type *pstcSio)
+rsi_error_t RSI_SIO_Init(volatile SIO_Type *pstcSio)
 {
   // SIO_0
-  if (RTE_SIO_0_PIN > 63) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_0_PIN - 64));
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(RTE_SIO_0_PIN - 64), 6);
+  if (RTE_SIO_0_PIN > (GPIO_MAX_PIN - 1)) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_0_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_0_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_0_PIN);
   }
-  if (RTE_SIO_0_PIN >= 25 && RTE_SIO_0_PIN <= 30) {
+  if (RTE_SIO_0_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_0_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_0_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_0_PAD);
   }
-  RSI_EGPIO_SetPinMux(EGPIO, 0, RTE_SIO_0_PIN, RTE_SIO_0_MUX);
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_0_PIN, RTE_SIO_0_MUX);
 
   // SIO_1
-  if (RTE_SIO_1_PIN > 63) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_1_PIN - 64));
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(RTE_SIO_1_PIN - 64), 6);
+  if (RTE_SIO_1_PIN > (GPIO_MAX_PIN - 1)) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_1_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_1_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_1_PIN);
   }
-  if (RTE_SIO_1_PIN >= 25 && RTE_SIO_1_PIN <= 30) {
+  if (RTE_SIO_1_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_1_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_1_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_1_PAD);
   }
-  RSI_EGPIO_SetPinMux(EGPIO, 0, RTE_SIO_1_PIN, RTE_SIO_1_MUX);
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_1_PIN, RTE_SIO_1_MUX);
 
   // SIO_2
-  if (RTE_SIO_2_PIN > 63) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_2_PIN - 64));
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(RTE_SIO_2_PIN - 64), 6);
+  if (RTE_SIO_2_PIN > (GPIO_MAX_PIN - 1)) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_2_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_2_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_2_PIN);
   }
-  if (RTE_SIO_2_PIN >= 25 && RTE_SIO_2_PIN <= 30) {
+  if (RTE_SIO_2_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_2_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_2_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_2_PAD);
   }
-  RSI_EGPIO_SetPinMux(EGPIO, 0, RTE_SIO_2_PIN, RTE_SIO_2_MUX);
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_2_PIN, RTE_SIO_2_MUX);
 
   // SIO_3
-  if (RTE_SIO_3_PIN > 63) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_3_PIN - 64));
-    RSI_EGPIO_SetPinMux(EGPIO1, 0, (uint8_t)(RTE_SIO_3_PIN - 64), 6);
+  if (RTE_SIO_3_PIN > (GPIO_MAX_PIN - 1)) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_3_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_3_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_3_PIN);
   }
-  if (RTE_SIO_3_PIN >= 25 && RTE_SIO_3_PIN <= 30) {
+  if (RTE_SIO_3_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_3_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_3_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_3_PAD);
   }
-  RSI_EGPIO_SetPinMux(EGPIO, 0, RTE_SIO_3_PIN, RTE_SIO_3_MUX);
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_3_PIN, RTE_SIO_3_MUX);
 
   // SIO CLock enable
   RSI_SIO_ClockEnable();
@@ -141,8 +129,8 @@ void IRQ037_Handler(void) // with interrupt
   // I2S Handle
   if (gstcSioCb.i2s_sio.u8I2sValid) {
     // SIO-I2S DIN Handle
-    if (u32SwapStsReg & (1 << gstcSioCb.i2s_sio.u8I2sDataInCh)) {
-      pstcSio->SIO_SWAP_INTR_STATUS_REG = (1 << gstcSioCb.i2s_sio.u8I2sDataInCh);
+    if (u32SwapStsReg & (BIT(gstcSioCb.i2s_sio.u8I2sDataInCh))) {
+      pstcSio->SIO_SWAP_INTR_STATUS_REG = (BIT(gstcSioCb.i2s_sio.u8I2sDataInCh));
       if (gstcSioCb.i2s_sio.pstcI2sXfer->rxDoneCount < gstcSioCb.i2s_sio.pstcI2sXfer->rxCount) {
         // Fill the buffer
         ((uint32_t *)gstcSioCb.i2s_sio.pstcI2sXfer->rxBuff)[gstcSioCb.i2s_sio.pstcI2sXfer->rxDoneCount] =
@@ -161,8 +149,8 @@ void IRQ037_Handler(void) // with interrupt
       }
     }
     // SIO-I2S DOUT handle
-    if (u32SwapStsReg & (1 << gstcSioCb.i2s_sio.u8I2sDataOutCh)) {
-      pstcSio->SIO_SWAP_INTR_STATUS_REG = (1 << gstcSioCb.i2s_sio.u8I2sDataOutCh);
+    if (u32SwapStsReg & (BIT(gstcSioCb.i2s_sio.u8I2sDataOutCh))) {
+      pstcSio->SIO_SWAP_INTR_STATUS_REG = BIT(gstcSioCb.i2s_sio.u8I2sDataOutCh);
 
       if (gstcSioCb.i2s_sio.pstcI2sXfer->txDoneCount < gstcSioCb.i2s_sio.pstcI2sXfer->txCount) {
         pstcSio->SIO_BUFFER_REG[gstcSioCb.i2s_sio.u8I2sDataOutCh] =
@@ -196,9 +184,9 @@ void IRQ037_Handler(void) // with interrupt
   // SIO-SPI Handle
   if (gstcSioCb.spi_sio.u8SpiValid) {
     // SIO-SPI MOSI handling
-    if (u32SwapStsReg & (1 << gstcSioCb.spi_sio.u8SpiMosiCh)) {
+    if (u32SwapStsReg & (BIT(gstcSioCb.spi_sio.u8SpiMosiCh))) {
       // Clear the SWAP interrupt
-      pstcSio->SIO_SWAP_INTR_STATUS_REG = (1 << gstcSioCb.spi_sio.u8SpiMosiCh);
+      pstcSio->SIO_SWAP_INTR_STATUS_REG = (BIT(gstcSioCb.spi_sio.u8SpiMosiCh));
       if (gstcSioCb.spi_sio.pstscSpiXfer->txDoneCount < gstcSioCb.spi_sio.pstscSpiXfer->txCount) {
         // As per bit configuration typecast the pointer
         if (gstcSioCb.spi_sio.pstscSpiXfer->u8BitLen == 8) {
@@ -226,14 +214,14 @@ void IRQ037_Handler(void) // with interrupt
         gstcSioCb.spi_sio.pstscSpiXfer->u8Status = SioSpiTrasmitDone;
         // Trigger TX done call back
         pstcSio->SIO_SWAP_INTR_EN_CLEAR_REG =
-          ((1 << gstcSioCb.spi_sio.u8SpiMosiCh | (1 << gstcSioCb.spi_sio.u8SpiMisoCh)));
+          ((BIT(gstcSioCb.spi_sio.u8SpiMosiCh) | BIT(gstcSioCb.spi_sio.u8SpiMisoCh)));
         gstcSioCb.spi_sio.pstscSpiXfer->pfnCb(SioSpiTxDone);
       }
 
       // SIO-SPI MISO handling
-      if (u32SwapStsReg & (1 << gstcSioCb.spi_sio.u8SpiMisoCh)) {
+      if (u32SwapStsReg & BIT(gstcSioCb.spi_sio.u8SpiMisoCh)) {
         // Clear the swap interrupt
-        pstcSio->SIO_SWAP_INTR_STATUS_REG = (1 << gstcSioCb.spi_sio.u8SpiMisoCh);
+        pstcSio->SIO_SWAP_INTR_STATUS_REG = BIT(gstcSioCb.spi_sio.u8SpiMisoCh);
         if (gstcSioCb.spi_sio.pstscSpiXfer->rxDoneCount < gstcSioCb.spi_sio.pstscSpiXfer->rxCount) {
           // Fill the buffer
           u32Data = pstcSio->SIO_BUFFER_REG[gstcSioCb.spi_sio.u8SpiMisoCh];
@@ -277,19 +265,17 @@ void IRQ037_Handler(void) // with interrupt
       if (gstcSioCb.spi_sio.pstscSpiXfer->u8Status == SioSpiBusy) {
         // Enable and pause the shift counters
         pstcSio->SIO_ENABLE_REG_b.SIO_OPERATION_ENABLE |=
-          ((1 << gstcSioCb.spi_sio.u8SpiMisoCh) | (1 << gstcSioCb.spi_sio.u8SpiMosiCh)
-           | (1 << gstcSioCb.spi_sio.u8SpiClkCh));
+          (BIT(gstcSioCb.spi_sio.u8SpiMisoCh) | BIT(gstcSioCb.spi_sio.u8SpiMosiCh) | BIT(gstcSioCb.spi_sio.u8SpiClkCh));
 
         pstcSio->SIO_PAUSE_REG_b.SIO_POSITION_COUNTER_DISABLE |=
-          ((1 << gstcSioCb.spi_sio.u8SpiMisoCh) | (1 << gstcSioCb.spi_sio.u8SpiMosiCh)
-           | (1 << gstcSioCb.spi_sio.u8SpiClkCh));
+          (BIT(gstcSioCb.spi_sio.u8SpiMisoCh) | BIT(gstcSioCb.spi_sio.u8SpiMosiCh) | BIT(gstcSioCb.spi_sio.u8SpiClkCh));
       }
     }
   }
   // UART Handle
   if (gstcSioCb.uart_sio.u8UartValid) {
     // SIO RX GPIO Interrupt is triggered
-    if ((pstcSio->SIO_GPIO_INTR_STATUS_REG & (1 << gstcSioCb.uart_sio.u8UartRxCh))) {
+    if ((pstcSio->SIO_GPIO_INTR_STATUS_REG & BIT(gstcSioCb.uart_sio.u8UartRxCh))) {
       pstcSio->SIO_DATA_POS_COUNT_REG_b[gstcSioCb.uart_sio.u8UartRxCh].RELOAD_VALUE =
         ((gstcSioCb.uart_sio.pstcSioUart->u8Bitlen + gstcSioCb.uart_sio.pstcSioUart->u8StopBits
           + gstcSioCb.uart_sio.u8ParityEn + 1)
@@ -297,33 +283,33 @@ void IRQ037_Handler(void) // with interrupt
       u32EnableReg = pstcSio->SIO_ENABLE_REG_b.SIO_OPERATION_ENABLE;
 
       // clear reg
-      u32EnableReg &= ~(1 << gstcSioCb.uart_sio.u8UartRxCh);
+      u32EnableReg &= ~BIT(gstcSioCb.uart_sio.u8UartRxCh);
 
-      u32EnableReg |= (1 << gstcSioCb.uart_sio.u8UartRxCh);
+      u32EnableReg |= BIT(gstcSioCb.uart_sio.u8UartRxCh);
 
       pstcSio->SIO_ENABLE_REG_b.SIO_OPERATION_ENABLE = u32EnableReg;
-      pstcSio->SIO_GPIO_INTR_EN_CLEAR_REG            = (1 << gstcSioCb.uart_sio.u8UartRxCh);
+      pstcSio->SIO_GPIO_INTR_EN_CLEAR_REG            = BIT(gstcSioCb.uart_sio.u8UartRxCh);
 
       // clear the GPIO status
-      pstcSio->SIO_GPIO_INTR_STATUS_REG = (1 << gstcSioCb.uart_sio.u8UartRxCh);
+      pstcSio->SIO_GPIO_INTR_STATUS_REG = BIT(gstcSioCb.uart_sio.u8UartRxCh);
       // mask the GPIO reg
-      pstcSio->SIO_GPIO_INTR_MASK_SET_REG = (1 << gstcSioCb.uart_sio.u8UartRxCh);
+      pstcSio->SIO_GPIO_INTR_MASK_SET_REG = BIT(gstcSioCb.uart_sio.u8UartRxCh);
 
       u32PauseReg = pstcSio->SIO_PAUSE_REG_b.SIO_POSITION_COUNTER_DISABLE;
 
-      u32PauseReg &= ~(1 << gstcSioCb.uart_sio.u8UartRxCh);
+      u32PauseReg &= ~BIT(gstcSioCb.uart_sio.u8UartRxCh);
 
-      u32PauseReg |= (1 << gstcSioCb.uart_sio.u8UartRxCh);
+      u32PauseReg |= BIT(gstcSioCb.uart_sio.u8UartRxCh);
 
       pstcSio->SIO_PAUSE_REG_b.SIO_POSITION_COUNTER_DISABLE = u32PauseReg;
     }
     // Check RX swap interrupt
-    if ((pstcSio->SIO_SWAP_INTR_STATUS_REG) & (1 << gstcSioCb.uart_sio.u8UartRxCh)) {
+    if ((pstcSio->SIO_SWAP_INTR_STATUS_REG) & BIT(gstcSioCb.uart_sio.u8UartRxCh)) {
       if (gstcSioCb.uart_sio.u16UartRxDone < gstcSioCb.uart_sio.u16UartRxCnt) {
         u32Data = pstcSio->SIO_BUFFER_REG[gstcSioCb.uart_sio.u8UartRxCh];
         // clear the GPIO mask
-        pstcSio->SIO_GPIO_INTR_MASK_CLEAR_REG = (1 << gstcSioCb.uart_sio.u8UartRxCh);
-        pstcSio->SIO_GPIO_INTR_EN_SET_REG     = (1 << gstcSioCb.uart_sio.u8UartRxCh);
+        pstcSio->SIO_GPIO_INTR_MASK_CLEAR_REG = BIT(gstcSioCb.uart_sio.u8UartRxCh);
+        pstcSio->SIO_GPIO_INTR_EN_SET_REG     = BIT(gstcSioCb.uart_sio.u8UartRxCh);
         u32Data                               = (u32Data >> (32
                                - (gstcSioCb.uart_sio.pstcSioUart->u8Bitlen + gstcSioCb.uart_sio.pstcSioUart->u8StopBits
                                   + gstcSioCb.uart_sio.u8ParityEn + 1)));
@@ -340,7 +326,7 @@ void IRQ037_Handler(void) // with interrupt
 
         gstcSioCb.uart_sio.pstcSioUart->pfn(SioUartRecvChar, (u32Data & 0XFF));
 
-        pstcSio->SIO_SWAP_INTR_STATUS_REG = (1 << gstcSioCb.uart_sio.u8UartRxCh);
+        pstcSio->SIO_SWAP_INTR_STATUS_REG = BIT(gstcSioCb.uart_sio.u8UartRxCh);
       }
       if (gstcSioCb.uart_sio.u16UartRxDone == gstcSioCb.uart_sio.u16UartRxCnt) {
         gstcSioCb.uart_sio.enRxStatus = SioUartRxComeplete;
@@ -348,10 +334,10 @@ void IRQ037_Handler(void) // with interrupt
       }
     }
     // Check TX swap interrupt
-    if ((u32SwapStsReg) & (1 << gstcSioCb.uart_sio.u8UartTxCh)) {
+    if ((u32SwapStsReg)&BIT(gstcSioCb.uart_sio.u8UartTxCh)) {
 
       if (gstcSioCb.uart_sio.u16UartTxDone < gstcSioCb.uart_sio.u16UartTxCnt) {
-        pstcSio->SIO_SWAP_INTR_STATUS_REG = (1 << gstcSioCb.uart_sio.u8UartTxCh);
+        pstcSio->SIO_SWAP_INTR_STATUS_REG = BIT(gstcSioCb.uart_sio.u8UartTxCh);
 
         // As per bit configuration typecast the pointer
         if (gstcSioCb.uart_sio.pstcSioUart->u8Bitlen == 8) {
@@ -377,12 +363,12 @@ void IRQ037_Handler(void) // with interrupt
         // Write TX data to buffer
         pstcSio->SIO_BUFFER_REG[gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel] = u32Data;
         // FIXME : compilation issue
-        pstcSio->SIO_ENABLE_REG |= (1 << gstcSioCb.uart_sio.u8UartTxCh);
-        pstcSio->SIO_PAUSE_REG |= (1 << gstcSioCb.uart_sio.u8UartTxCh);
+        pstcSio->SIO_ENABLE_REG |= BIT(gstcSioCb.uart_sio.u8UartTxCh);
+        pstcSio->SIO_PAUSE_REG |= BIT(gstcSioCb.uart_sio.u8UartTxCh);
       } else {
         // Trigger TX done call back
-        pstcSio->SIO_SWAP_INTR_STATUS_REG   = (1 << gstcSioCb.uart_sio.u8UartTxCh);
-        pstcSio->SIO_SWAP_INTR_EN_CLEAR_REG = (1 << gstcSioCb.uart_sio.u8UartTxCh);
+        pstcSio->SIO_SWAP_INTR_STATUS_REG   = BIT(gstcSioCb.uart_sio.u8UartTxCh);
+        pstcSio->SIO_SWAP_INTR_EN_CLEAR_REG = BIT(gstcSioCb.uart_sio.u8UartTxCh);
         // Update the status to transmit done
         gstcSioCb.uart_sio.u8Status = SioUartTxComeplete;
         // Transmit done call back
@@ -395,7 +381,7 @@ void IRQ037_Handler(void) // with interrupt
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio,
+ * @fn           rsi_error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio,
  * stc_sio_spi_cfg_t *pstcSpiConfig)
  * @brief        This API is used to configure the SPI in SIO.
  * @param[in]    pstcSio       : pointer to the register instance of SIO module
@@ -403,7 +389,7 @@ void IRQ037_Handler(void) // with interrupt
  * @return       return RSI_OK on success
  *               failure return error code.
  */
-error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiConfig)
+rsi_error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiConfig)
 {
   uint32_t u32RelaodVal = 0;
 
@@ -422,8 +408,8 @@ error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiCo
   // chip select channel mux configuration
   pstcSio->SIO_OUT_MUX_REG[pstcSpiConfig->u8SpiCsCh] = 0x00;
   // chip select channel OUTPUT enable
-  pstcSio->SIO_GPIO_OEN_REG &= (~(1 << pstcSpiConfig->u8SpiCsCh));
-  pstcSio->SIO_GPIO_OUT_REG |= (1 << pstcSpiConfig->u8SpiCsCh);
+  pstcSio->SIO_GPIO_OEN_REG &= (~BIT(pstcSpiConfig->u8SpiCsCh));
+  pstcSio->SIO_GPIO_OUT_REG |= BIT(pstcSpiConfig->u8SpiCsCh);
 
   // SPI clock channel configuration
   pstcSio->SIO_OUT_MUX_REG[pstcSpiConfig->u8SpiClkCh] = (((0x1 & 0x7) << 3));
@@ -439,8 +425,8 @@ error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiCo
     pstcSio->SIO_CONFIG_REG[pstcSpiConfig->u8SpiClkCh] |= BIT(14);
   }
   // clock channel OUTPUT enable
-  pstcSio->SIO_GPIO_OEN_REG &= (~(1 << pstcSpiConfig->u8SpiClkCh));
-  pstcSio->SIO_GPIO_OUT_REG |= (1 << pstcSpiConfig->u8SpiClkCh);
+  pstcSio->SIO_GPIO_OEN_REG &= (~BIT(pstcSpiConfig->u8SpiClkCh));
+  pstcSio->SIO_GPIO_OUT_REG |= BIT(pstcSpiConfig->u8SpiClkCh);
 
   // SPI MOSI MUX configuration
   pstcSio->SIO_OUT_MUX_REG[pstcSpiConfig->u8SpiMosiCh] = ((0x4 & 0x7) << 3);
@@ -448,18 +434,18 @@ error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiCo
   pstcSio->SIO_CONFIG_REG[pstcSpiConfig->u8SpiMosiCh] |= BIT(2);
 
   // MOSI Output enable
-  pstcSio->SIO_GPIO_OEN_REG &= ~(0x1 << pstcSpiConfig->u8SpiMosiCh);
+  pstcSio->SIO_GPIO_OEN_REG &= ~BIT(pstcSpiConfig->u8SpiMosiCh);
 
   // High the line default
-  pstcSio->SIO_GPIO_OUT_REG |= (0x1 << pstcSpiConfig->u8SpiMosiCh);
+  pstcSio->SIO_GPIO_OUT_REG |= BIT(pstcSpiConfig->u8SpiMosiCh);
 
   // MISO channel configuration as input
   pstcSio->SIO_INPUT_MUX_REG[pstcSpiConfig->u8SpiMisoCh] = (0x0 << 0);
 
   // Enable Swap interrupts for MOSI and MISO channels
-  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= ((1 << pstcSpiConfig->u8SpiMisoCh) | (1 << pstcSpiConfig->u8SpiMosiCh));
+  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= (BIT(pstcSpiConfig->u8SpiMisoCh) | BIT(pstcSpiConfig->u8SpiMosiCh));
   // unmask interrupts
-  pstcSio->SIO_SWAP_INTR_MASK_CLEAR_REG |= ((1 << pstcSpiConfig->u8SpiMisoCh) | (1 << pstcSpiConfig->u8SpiMosiCh));
+  pstcSio->SIO_SWAP_INTR_MASK_CLEAR_REG |= (BIT(pstcSpiConfig->u8SpiMisoCh) | BIT(pstcSpiConfig->u8SpiMosiCh));
 
   // SPI interface clock frequency configuration
   // Derive the reload value
@@ -502,7 +488,7 @@ error_t RSI_SIO_InitSpi(volatile SIO_Type *pstcSio, stc_sio_spi_cfg_t *pstcSpiCo
 void RSI_SIO_SpiCsAssert(volatile SIO_Type *pstcSio, uint8_t u8CsNo)
 {
   // Assert CS : 0
-  pstcSio->SIO_GPIO_OUT_REG &= ~(0x1 << u8CsNo);
+  pstcSio->SIO_GPIO_OUT_REG &= ~BIT(u8CsNo);
 }
 
 /*==============================================*/
@@ -517,12 +503,12 @@ void RSI_SIO_SpiCsAssert(volatile SIO_Type *pstcSio, uint8_t u8CsNo)
 void RSI_SIO_SpiCsDeAssert(volatile SIO_Type *pstcSio, uint8_t u8CsNo)
 {
   // Assert CS : 1
-  pstcSio->SIO_GPIO_OUT_REG |= (0x1 << u8CsNo);
+  pstcSio->SIO_GPIO_OUT_REG |= BIT(u8CsNo);
 }
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio,
+ * @fn           rsi_error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio,
  * stc_sio_spi_xfer_t *pstcSpiXfer)
  * @brief        This API is used to make the SIO-SPI Transfer in non blocking
  * mode.
@@ -531,7 +517,7 @@ void RSI_SIO_SpiCsDeAssert(volatile SIO_Type *pstcSio, uint8_t u8CsNo)
  * @return       return  RSI_OK on success
  *               failure return error code.
  */
-error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstcSpiXfer)
+rsi_error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstcSpiXfer)
 {
   volatile uint32_t u32Data = 0;
   // volatile uint32_t u32cnt = 0;
@@ -565,7 +551,7 @@ error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstc
   // Clear the interrupt MASK
   // pstcSio->SWAP_INTR_MASK_CLEAR_REG |= ((1 << gstcSioCb.spi_sio.u8SpiMosiCh)
   // | (1 << gstcSioCb.spi_sio.u8SpiMisoCh));
-  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= ((1 << gstcSioCb.spi_sio.u8SpiMosiCh) | (1 << gstcSioCb.spi_sio.u8SpiMisoCh));
+  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= (BIT(gstcSioCb.spi_sio.u8SpiMosiCh) | BIT(gstcSioCb.spi_sio.u8SpiMisoCh));
   // check for Bit order
   if ((pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[gstcSioCb.spi_sio.u8SpiMisoCh].REVERSE_LOAD == 1)
       && ((pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[gstcSioCb.spi_sio.u8SpiMosiCh].REVERSE_LOAD == 1))) {
@@ -578,12 +564,10 @@ error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstc
 
   // Enable and pause the shift counters
   pstcSio->SIO_ENABLE_REG_b.SIO_OPERATION_ENABLE =
-    ((0x1 << gstcSioCb.spi_sio.u8SpiMisoCh) | (1 << gstcSioCb.spi_sio.u8SpiMosiCh)
-     | (1 << gstcSioCb.spi_sio.u8SpiClkCh));
+    (BIT(gstcSioCb.spi_sio.u8SpiMisoCh) | BIT(gstcSioCb.spi_sio.u8SpiMosiCh) | BIT(gstcSioCb.spi_sio.u8SpiClkCh));
 
   pstcSio->SIO_PAUSE_REG_b.SIO_POSITION_COUNTER_DISABLE =
-    ((1 << gstcSioCb.spi_sio.u8SpiMisoCh) | (0x1 << gstcSioCb.spi_sio.u8SpiMosiCh)
-     | (1 << gstcSioCb.spi_sio.u8SpiClkCh));
+    (BIT(gstcSioCb.spi_sio.u8SpiMisoCh) | BIT(gstcSioCb.spi_sio.u8SpiMosiCh) | BIT(gstcSioCb.spi_sio.u8SpiClkCh));
 
   return RSI_OK;
 }
@@ -591,7 +575,7 @@ error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstc
 // SIO-I2S
 /*==============================================*/
 /**
- * @fn           error_t RSI_SIO_InitI2s(volatile SIO_Type *pstcSio,
+ * @fn           rsi_error_t RSI_SIO_InitI2s(volatile SIO_Type *pstcSio,
  * stc_sio_i2s_config_t *pstcI2sConfig)
  * @brief        This API is used to configure the I2S in SIO.
  * @param[in]    pstcSio       : pointer to the register instance of SIO module
@@ -599,7 +583,7 @@ error_t RSI_SIO_SpiTrasnfer(volatile SIO_Type *pstcSio, stc_sio_spi_xfer_t *pstc
  * @return       return RSI_OK on success
  *               failure return error code.
  */
-error_t RSI_SIO_InitI2s(volatile SIO_Type *pstcSio, stc_sio_i2s_config_t *pstcI2sConfig)
+rsi_error_t RSI_SIO_InitI2s(volatile SIO_Type *pstcSio, stc_sio_i2s_config_t *pstcI2sConfig)
 {
   uint32_t u32RelaodVal = 0;
 
@@ -621,36 +605,36 @@ error_t RSI_SIO_InitI2s(volatile SIO_Type *pstcSio, stc_sio_i2s_config_t *pstcI2
   // Enable clock mode with inverted clock
   pstcSio->SIO_CONFIG_REG[pstcI2sConfig->u8SioI2sClkChannel] = BIT(9) | BIT(14);
   // clock channel OUTPUT enable
-  pstcSio->SIO_GPIO_OEN_REG &= (~(1 << pstcI2sConfig->u8SioI2sClkChannel));
-  pstcSio->SIO_GPIO_OUT_REG |= (1 << pstcI2sConfig->u8SioI2sClkChannel);
+  pstcSio->SIO_GPIO_OEN_REG &= (~BIT(pstcI2sConfig->u8SioI2sClkChannel));
+  pstcSio->SIO_GPIO_OUT_REG |= BIT(pstcI2sConfig->u8SioI2sClkChannel);
 
   // DOUT channel MUX configuration
   pstcSio->SIO_OUT_MUX_REG[pstcI2sConfig->u8SioI2sDataOutChannel] = ((0x4 & 0x7) << 3);
   // Data sampling on neg edge configuration
   pstcSio->SIO_CONFIG_REG[pstcI2sConfig->u8SioI2sDataOutChannel] = BIT(2);
   // MOSI Output enable
-  pstcSio->SIO_GPIO_OEN_REG &= ~(0x1 << pstcI2sConfig->u8SioI2sDataOutChannel);
+  pstcSio->SIO_GPIO_OEN_REG &= ~BIT(pstcI2sConfig->u8SioI2sDataOutChannel);
   // High the line default
-  pstcSio->SIO_GPIO_OUT_REG |= (0x1 << pstcI2sConfig->u8SioI2sDataOutChannel);
+  pstcSio->SIO_GPIO_OUT_REG |= BIT(pstcI2sConfig->u8SioI2sDataOutChannel);
 
   // WS channel MUX configuration
   pstcSio->SIO_OUT_MUX_REG[pstcI2sConfig->u8SioI2sWsChannel] = ((0x4 & 0x7) << 3);
   // Data sampling on neg edge configuration
   pstcSio->SIO_CONFIG_REG[pstcI2sConfig->u8SioI2sWsChannel] = BIT(2);
   // MOSI Outpit enable
-  pstcSio->SIO_GPIO_OEN_REG &= ~(0x1 << pstcI2sConfig->u8SioI2sWsChannel);
+  pstcSio->SIO_GPIO_OEN_REG &= ~BIT(pstcI2sConfig->u8SioI2sWsChannel);
   // High the line default
-  pstcSio->SIO_GPIO_OUT_REG |= (0x1 << pstcI2sConfig->u8SioI2sWsChannel);
+  pstcSio->SIO_GPIO_OUT_REG |= BIT(pstcI2sConfig->u8SioI2sWsChannel);
 
   // DIN channel configuration as input
   pstcSio->SIO_INPUT_MUX_REG[pstcI2sConfig->u8SioI2sDataInChannel] = (0x0 << 0);
 
   // Enable Swap interrupts for MOSI and MISO channels
-  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= (1 << pstcI2sConfig->u8SioI2sDataOutChannel)
-                                       | (1 << pstcI2sConfig->u8SioI2sDataInChannel);
+  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= BIT(pstcI2sConfig->u8SioI2sDataOutChannel)
+                                       | BIT(pstcI2sConfig->u8SioI2sDataInChannel);
   // unmask interrupts
-  pstcSio->SIO_SWAP_INTR_MASK_CLEAR_REG |= (1 << pstcI2sConfig->u8SioI2sDataOutChannel)
-                                           | (1 << pstcI2sConfig->u8SioI2sDataInChannel);
+  pstcSio->SIO_SWAP_INTR_MASK_CLEAR_REG |= BIT(pstcI2sConfig->u8SioI2sDataOutChannel)
+                                           | BIT(pstcI2sConfig->u8SioI2sDataInChannel);
   // SPI interface clock frequcncy configuration
   //  Derive the reload value
   u32RelaodVal = (SystemCoreClock / pstcI2sConfig->u32SampleRate);
@@ -687,7 +671,7 @@ error_t RSI_SIO_InitI2s(volatile SIO_Type *pstcSio, stc_sio_i2s_config_t *pstcI2
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SIO_I2sTrasnfer(volatile SIO_Type *pstcSio,
+ * @fn           rsi_error_t RSI_SIO_I2sTrasnfer(volatile SIO_Type *pstcSio,
  * stc_sio_i2s_xfer_t *pstcI2sXfer)
  * @brief        This API is used to transfer the I2S data , in non blocking
  * mode.
@@ -696,7 +680,7 @@ error_t RSI_SIO_InitI2s(volatile SIO_Type *pstcSio, stc_sio_i2s_config_t *pstcI2
  * @return       return RSI_OK on success
  *               failure return error code.
  */
-error_t RSI_SIO_I2sTrasnfer(volatile SIO_Type *pstcSio, stc_sio_i2s_xfer_t *pstcI2sXfer)
+rsi_error_t RSI_SIO_I2sTrasnfer(volatile SIO_Type *pstcSio, stc_sio_i2s_xfer_t *pstcI2sXfer)
 {
   pstcI2sXfer->txDoneCount = 0;
   pstcI2sXfer->rxDoneCount = 0;
@@ -710,8 +694,7 @@ error_t RSI_SIO_I2sTrasnfer(volatile SIO_Type *pstcSio, stc_sio_i2s_xfer_t *pstc
 
   // Update the global buffer with xfer structure
   gstcSioCb.i2s_sio.pstcI2sXfer = (stc_sio_i2s_xfer_t *)pstcI2sXfer;
-  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= (1 << gstcSioCb.i2s_sio.u8I2sDataInCh)
-                                       | ((1 << gstcSioCb.i2s_sio.u8I2sDataOutCh));
+  pstcSio->SIO_SWAP_INTR_EN_SET_REG |= BIT(gstcSioCb.i2s_sio.u8I2sDataInCh) | (BIT(gstcSioCb.i2s_sio.u8I2sDataOutCh));
   // word select line configuration
   if (!gstcSioCb.i2s_sio.u8I2sWsWidth) {
     pstcSio->SIO_BUFFER_REG[gstcSioCb.i2s_sio.u8I2sWsCh] = 0xFFFF0000; // this is execute when WS is non zero
@@ -727,8 +710,8 @@ error_t RSI_SIO_I2sTrasnfer(volatile SIO_Type *pstcSio, stc_sio_i2s_xfer_t *pstc
   // Enable and pause the shift counters
   // Enable required channel function
   pstcSio->SIO_ENABLE_REG_b.SIO_OPERATION_ENABLE |=
-    (1 << gstcSioCb.i2s_sio.u8I2sDataOutCh) | (1 << gstcSioCb.i2s_sio.u8I2sWsCh) | (1 << gstcSioCb.i2s_sio.u8I2sClkCh)
-    | (1 << gstcSioCb.i2s_sio.u8I2sDataInCh);
+    BIT(gstcSioCb.i2s_sio.u8I2sDataOutCh) | BIT(gstcSioCb.i2s_sio.u8I2sWsCh) | BIT(gstcSioCb.i2s_sio.u8I2sClkCh)
+    | BIT(gstcSioCb.i2s_sio.u8I2sDataInCh);
   return RSI_OK;
 }
 
@@ -856,23 +839,23 @@ uint16_t RSI_SIO_UARTSend(SIO_Type *pstcSio, const void *u16ptr, uint16_t u16Len
   // Write TX data to buffer
   pstcSio->SIO_BUFFER_REG[gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel] = u32Data;
 
-  pstcSio->SIO_SWAP_INTR_EN_SET_REG = (1 << gstcSioCb.uart_sio.u8UartTxCh);
+  pstcSio->SIO_SWAP_INTR_EN_SET_REG = BIT(gstcSioCb.uart_sio.u8UartTxCh);
 
   // enable particular SIO : TX and RX
   u32EnableReg = pstcSio->SIO_ENABLE_REG_b.SIO_OPERATION_ENABLE;
 
   // clear reg
-  u32EnableReg &= ~(1 << gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel);
+  u32EnableReg &= ~BIT(gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel);
 
-  u32EnableReg |= (1 << gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel);
+  u32EnableReg |= BIT(gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel);
 
   pstcSio->SIO_ENABLE_REG_b.SIO_OPERATION_ENABLE = u32EnableReg;
 
   u32PauseReg = pstcSio->SIO_PAUSE_REG_b.SIO_POSITION_COUNTER_DISABLE;
 
-  u32PauseReg &= ~(1 << gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel);
+  u32PauseReg &= ~BIT(gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel);
 
-  u32PauseReg |= (1 << gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel);
+  u32PauseReg |= BIT(gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel);
 
   pstcSio->SIO_PAUSE_REG_b.SIO_POSITION_COUNTER_DISABLE = u32PauseReg;
 
@@ -1042,10 +1025,10 @@ uint8_t RSI_SIO_UartInit(SIO_Type *pstcSio, stc_sio_uart_config_t *pstcConfig)
   pstcSio->SIO_OUT_MUX_REG[pstcConfig->u8SioUartTxChannel] = ((0x4 & 0x7) << 3);
 
   // Select is as output pin
-  pstcSio->SIO_GPIO_OEN_REG &= (~(1 << pstcConfig->u8SioUartTxChannel));
+  pstcSio->SIO_GPIO_OEN_REG &= (~BIT(pstcConfig->u8SioUartTxChannel));
 
   // Reset value should be 1
-  pstcSio->SIO_GPIO_OUT_REG |= (1 << pstcConfig->u8SioUartTxChannel);
+  pstcSio->SIO_GPIO_OUT_REG |= BIT(pstcConfig->u8SioUartTxChannel);
 
   // UART RX
   pstcSio->SIO_INPUT_MUX_REG[pstcConfig->u8SioUartRxChannel] = (0 << 0);
@@ -1054,10 +1037,10 @@ uint8_t RSI_SIO_UartInit(SIO_Type *pstcSio, stc_sio_uart_config_t *pstcConfig)
   pstcSio->SIO_CONFIG_REG_b[pstcConfig->u8SioUartRxChannel].PIN_DETECTION_MODE = 1;
 
   // Enable the GPIO interrupt
-  pstcSio->SIO_GPIO_INTR_EN_SET_REG |= (1 << pstcConfig->u8SioUartRxChannel);
+  pstcSio->SIO_GPIO_INTR_EN_SET_REG |= BIT(pstcConfig->u8SioUartRxChannel);
 
   // Mask the interrup
-  pstcSio->SIO_GPIO_INTR_MASK_CLEAR_REG |= (1 << pstcConfig->u8SioUartRxChannel);
+  pstcSio->SIO_GPIO_INTR_MASK_CLEAR_REG |= BIT(pstcConfig->u8SioUartRxChannel);
 
   // SWAP Interrupt enable
   pstcSio->SIO_SWAP_INTR_EN_SET_REG |= BIT(pstcConfig->u8SioUartTxChannel) | BIT(pstcConfig->u8SioUartRxChannel);
@@ -1122,8 +1105,8 @@ uint32_t RSI_SIO_I2cPrepareRead(uint32_t u32Indata)
   uint8_t u8OutDat = 0;
 
   while (1) {
-    if (u32Indata & (1 << j)) {
-      u8OutDat |= (1 << i);
+    if (u32Indata & BIT(j)) {
+      u8OutDat |= BIT(i);
       j = j - 2;
     } else {
       u8OutDat |= (0 << i);
@@ -1139,7 +1122,7 @@ uint32_t RSI_SIO_I2cPrepareRead(uint32_t u32Indata)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
+ * @fn           rsi_error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
                          stc_sio_i2c_config_t *pstcConfig,
                          uint8_t u8SlaveAddr,
                          uint8_t *u8Data,
@@ -1152,11 +1135,11 @@ uint32_t RSI_SIO_I2cPrepareRead(uint32_t u32Indata)
  * @param[in]    u16Len     : data length
  * @return       return RSI_OK if successful execute
  */
-error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
-                         stc_sio_i2c_config_t *pstcConfig,
-                         uint8_t u8SlaveAddr,
-                         uint8_t *u8Data,
-                         uint16_t u16Len)
+rsi_error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
+                             stc_sio_i2c_config_t *pstcConfig,
+                             uint8_t u8SlaveAddr,
+                             uint8_t *u8Data,
+                             uint16_t u16Len)
 {
   uint32_t u32Enable  = 0;
   uint32_t u32RecvDat = 0, u32I2cClok = 0;
@@ -1181,7 +1164,7 @@ error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
   pstcSio->SIO_BUFFER_REG[6] = u32Sdat;
   // As we need 2 bits to be shifted [er shift clock. We want the value to
   // change at the negedge
-  pstcSio->SIO_CONFIG_REG[6] |= (1 << 15 | 1 << 2 | 1 << 10);
+  pstcSio->SIO_CONFIG_REG[6] |= (BIT(15) | BIT(2) | BIT(10));
 
   u32I2cClok = (SystemCoreClock / pstcConfig->u32SampleRate);
   u32I2cClok = (u32I2cClok / 2) - 1;
@@ -1208,7 +1191,7 @@ error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
   u32RecvDat = pstcSio->SIO_BUFFER_REG[6];
 
   // Check ACK for slave address
-  if ((u32RecvDat) & (1U << 31)) {
+  if ((u32RecvDat) & (BIT(31))) {
     // arm_print("A: NA\n");
     //  giving the stop condition for wrong address
     pstcSio->SIO_GPIO_OUT_REG   = 0x0040;
@@ -1277,7 +1260,7 @@ error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
 
 /* ==============================================*/
 /**
- * @fn           error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
+ * @fn           rsi_error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
                         stc_sio_i2c_config_t *pstcConfig,
                         uint8_t u8SlaveAddr,
                         uint8_t *u8Data,
@@ -1290,11 +1273,11 @@ error_t RSI_SIO_I2cWrite(volatile SIO_Type *pstcSio,
  * @param[in]    u16Len     : data length
  * @return       return RSI_OK if successfull execute
  */
-error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
-                        stc_sio_i2c_config_t *pstcConfig,
-                        uint8_t u8SlaveAddr,
-                        uint8_t *u8Data,
-                        uint16_t u16Len)
+rsi_error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
+                            stc_sio_i2c_config_t *pstcConfig,
+                            uint8_t u8SlaveAddr,
+                            uint8_t *u8Data,
+                            uint16_t u16Len)
 {
 
   uint32_t u32Enable = 0, u32Sdat = 0, u32Slav = 0;
@@ -1317,7 +1300,7 @@ error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
   pstcSio->SIO_BUFFER_REG[6] = u32Sdat;
   // As we need 2 bits to be shifted [er shift clock. We want the value to
   // change at the negedge
-  pstcSio->SIO_CONFIG_REG[6] |= (1 << 15 | 1 << 2 | 1 << 10);
+  pstcSio->SIO_CONFIG_REG[6] |= (BIT(15) | BIT(2) | BIT(10));
 
   //   u32I2cClok = (SystemCoreClock / pstcConfig->u32SampleRate);
   //   u32I2cClok = (u32I2cClok /2)-1;
@@ -1346,7 +1329,7 @@ error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
   u32RecvDat = pstcSio->SIO_BUFFER_REG[6];
 
   // Check ACK for slave address
-  if ((u32RecvDat) & (1U << 31)) {
+  if ((u32RecvDat) & (BIT(31))) {
     // arm_print("R A: NA\n");
     // giving the stop condition for wrong address
     RSI_SIO_I2cGenerateStop(pstcSio);
@@ -1365,7 +1348,7 @@ error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
     } while (u32Enable != 0x0000);
 
     u32RecvDat = pstcSio->SIO_BUFFER_REG[6];
-    if ((u32RecvDat) & (1U << 31)) {
+    if ((u32RecvDat) & (BIT(31))) {
       // arm_print("R D: NA\n");
       // giving the stop condition for wrong address
       RSI_SIO_I2cGenerateStop(pstcSio);
@@ -1383,7 +1366,7 @@ error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SIO_I2cTransfer(volatile SIO_Type
+ * @fn           rsi_error_t RSI_SIO_I2cTransfer(volatile SIO_Type
  * *pstcSio,stc_sio_i2c_config_t *pstcConfig,uint8_t u8SlaveAddr,uint8_t
  * *u8PtrTxDat,uint16_t u16TxLen,uint8_t *u8PtrRxDat, uint16_t u16RxLen)
  * @brief        This API is used to data transfer using i2c in sio
@@ -1397,13 +1380,13 @@ error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
  * @return       return RSI_OK on success
  *               failure return error code.
  */
-error_t RSI_SIO_I2cTransfer(volatile SIO_Type *pstcSio,
-                            stc_sio_i2c_config_t *pstcConfig,
-                            uint8_t u8SlaveAddr,
-                            uint8_t *u8PtrTxDat,
-                            uint16_t u16TxLen,
-                            uint8_t *u8PtrRxDat,
-                            uint16_t u16RxLen)
+rsi_error_t RSI_SIO_I2cTransfer(volatile SIO_Type *pstcSio,
+                                stc_sio_i2c_config_t *pstcConfig,
+                                uint8_t u8SlaveAddr,
+                                uint8_t *u8PtrTxDat,
+                                uint16_t u16TxLen,
+                                uint8_t *u8PtrRxDat,
+                                uint16_t u16RxLen)
 {
   uint32_t u32Enable  = 0;
   uint32_t u32RecvDat = 0, u32I2cClok = 0;
@@ -1429,7 +1412,7 @@ error_t RSI_SIO_I2cTransfer(volatile SIO_Type *pstcSio,
   pstcSio->SIO_BUFFER_REG[6] = u32Sdat;
   // As we need 2 bits to be shifted [er shift clock. We want the value to
   // change at the negedge
-  pstcSio->SIO_CONFIG_REG[6] |= (1 << 15 | 1 << 2 | 1 << 10);
+  pstcSio->SIO_CONFIG_REG[6] |= (BIT(15) | BIT(2) | BIT(10));
 
   u32I2cClok = (SystemCoreClock / pstcConfig->u32SampleRate);
   u32I2cClok = (u32I2cClok / 2) - 1;
@@ -1456,7 +1439,7 @@ error_t RSI_SIO_I2cTransfer(volatile SIO_Type *pstcSio,
   u32RecvDat = pstcSio->SIO_BUFFER_REG[6];
 
   // Check ACK for slave address
-  if ((u32RecvDat) & (1U << 31)) {
+  if ((u32RecvDat) & (BIT(31))) {
     // arm_print("A: NA\n");
     // giving the stop condition for wrong address
     RSI_SIO_I2cGenerateStop(pstcSio);
@@ -1541,126 +1524,118 @@ void RSI_SIO_I2cGenerateStop(volatile SIO_Type *pstcSio)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_SIO_Initialization(void)
+ * @fn           rsi_error_t RSI_SIO_Initialization(void)
  * @brief        This API is used to initialize the SIO module
  * @param[in]    none
  * @return       return RSI_OK on success
  *               failure return error code.
  */
-error_t RSI_SIO_Initialization(void)
+rsi_error_t RSI_SIO_Initialization(void)
 {
   // SIO_0
-  if (RTE_SIO_0_PIN >= MAX_GPIO) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_0_PIN - MAX_GPIO));
-    RSI_EGPIO_SetPinMux(EGPIO1, ZERO, (uint8_t)(RTE_SIO_0_PIN - MAX_GPIO), SIX);
+  if (RTE_SIO_0_PIN >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_0_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_0_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_0_PIN);
-    RSI_EGPIO_SetPinMux(EGPIO, ZERO, RTE_SIO_0_PIN, RTE_SIO_0_MUX);
   }
-  if (RTE_SIO_0_PIN >= HOST_MIN && RTE_SIO_0_PIN <= HOST_MAX) {
+  if (RTE_SIO_0_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_0_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_0_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_0_PAD);
   }
-
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_0_PIN, RTE_SIO_0_MUX);
   // SIO_1
-  if (RTE_SIO_1_PIN >= MAX_GPIO) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_1_PIN - MAX_GPIO));
-    RSI_EGPIO_SetPinMux(EGPIO1, ZERO, (uint8_t)(RTE_SIO_1_PIN - MAX_GPIO), SIX);
+  if (RTE_SIO_1_PIN >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_1_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_1_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_1_PIN);
-    RSI_EGPIO_SetPinMux(EGPIO, ZERO, RTE_SIO_1_PIN, RTE_SIO_1_MUX);
   }
-  if (RTE_SIO_1_PIN >= HOST_MIN && RTE_SIO_1_PIN <= HOST_MAX) {
+  if (RTE_SIO_1_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_1_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_1_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_1_PAD);
   }
-
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_1_PIN, RTE_SIO_1_MUX);
   // SIO_2
-  if (RTE_SIO_2_PIN >= MAX_GPIO) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_2_PIN - MAX_GPIO));
-    RSI_EGPIO_SetPinMux(EGPIO1, ZERO, (uint8_t)(RTE_SIO_2_PIN - MAX_GPIO), SIX);
+  if (RTE_SIO_2_PIN >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_2_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_2_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_2_PIN);
-    RSI_EGPIO_SetPinMux(EGPIO, ZERO, RTE_SIO_2_PIN, RTE_SIO_2_MUX);
   }
-  if (RTE_SIO_2_PIN >= HOST_MIN && RTE_SIO_2_PIN <= HOST_MAX) {
+  if (RTE_SIO_2_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_2_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_2_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_2_PAD);
   }
-
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_2_PIN, RTE_SIO_2_MUX);
   // SIO_3
-  if (RTE_SIO_3_PIN >= MAX_GPIO) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_3_PIN - MAX_GPIO));
-    RSI_EGPIO_SetPinMux(EGPIO1, ZERO, (uint8_t)(RTE_SIO_3_PIN - MAX_GPIO), SIX);
+  if (RTE_SIO_3_PIN >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_3_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_3_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_3_PIN);
-    RSI_EGPIO_SetPinMux(EGPIO, ZERO, RTE_SIO_3_PIN, RTE_SIO_3_MUX);
   }
-  if (RTE_SIO_3_PIN >= HOST_MIN && RTE_SIO_3_PIN <= HOST_MAX) {
+  if (RTE_SIO_3_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_3_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_3_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_3_PAD);
   }
-
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_3_PIN, RTE_SIO_3_MUX);
   // SIO_4
-  if (RTE_SIO_4_PIN >= MAX_GPIO) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_4_PIN - MAX_GPIO));
-    RSI_EGPIO_SetPinMux(EGPIO1, ZERO, (uint8_t)(RTE_SIO_4_PIN - MAX_GPIO), SIX);
+  if (RTE_SIO_4_PIN >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_4_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_4_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_4_PIN);
-    RSI_EGPIO_SetPinMux(EGPIO, ZERO, RTE_SIO_4_PIN, RTE_SIO_4_MUX);
   }
-  if (RTE_SIO_4_PIN >= HOST_MIN && RTE_SIO_4_PIN <= HOST_MAX) {
+  if (RTE_SIO_4_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_4_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_4_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_4_PAD);
   }
-
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_4_PIN, RTE_SIO_4_MUX);
   // SIO_5
-  if (RTE_SIO_5_PIN >= MAX_GPIO) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_5_PIN - MAX_GPIO));
-    RSI_EGPIO_SetPinMux(EGPIO1, ZERO, (uint8_t)(RTE_SIO_5_PIN - MAX_GPIO), SIX);
+  if (RTE_SIO_5_PIN >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_5_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_5_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_5_PIN);
-    RSI_EGPIO_SetPinMux(EGPIO, ZERO, RTE_SIO_5_PIN, RTE_SIO_5_MUX);
   }
-  if (RTE_SIO_5_PIN >= HOST_MIN && RTE_SIO_5_PIN <= HOST_MAX) {
+  if (RTE_SIO_5_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_5_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_5_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_5_PAD);
   }
-
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_5_PIN, RTE_SIO_5_MUX);
   // SIO_6
-  if (RTE_SIO_6_PIN >= MAX_GPIO) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_6_PIN - MAX_GPIO));
-    RSI_EGPIO_SetPinMux(EGPIO1, ZERO, (uint8_t)(RTE_SIO_6_PIN - MAX_GPIO), SIX);
+  if (RTE_SIO_6_PIN >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_6_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_6_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_6_PIN);
-    RSI_EGPIO_SetPinMux(EGPIO, ZERO, RTE_SIO_6_PIN, RTE_SIO_6_MUX);
   }
-  if (RTE_SIO_6_PIN >= HOST_MIN && RTE_SIO_6_PIN <= HOST_MAX) {
+  if (RTE_SIO_6_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_6_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_6_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_6_PAD);
   }
-
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_6_PIN, RTE_SIO_6_MUX);
   // SIO_7
-  if (RTE_SIO_7_PIN >= MAX_GPIO) {
-    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_7_PIN - MAX_GPIO));
-    RSI_EGPIO_SetPinMux(EGPIO1, ZERO, (uint8_t)(RTE_SIO_7_PIN - MAX_GPIO), SIX);
+  if (RTE_SIO_7_PIN >= GPIO_MAX_PIN) {
+    RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_7_PIN - GPIO_MAX_PIN));
+    RSI_EGPIO_SetPinMux(EGPIO1, GPIO_PORT_0, (uint8_t)(RTE_SIO_7_PIN - GPIO_MAX_PIN), ULP_GPIO_MODE_6);
   } else {
     RSI_EGPIO_PadReceiverEnable(RTE_SIO_7_PIN);
-    RSI_EGPIO_SetPinMux(EGPIO, ZERO, RTE_SIO_7_PIN, RTE_SIO_7_MUX);
   }
-  if (RTE_SIO_7_PIN >= HOST_MIN && RTE_SIO_7_PIN <= HOST_MAX) {
+  if (RTE_SIO_7_PIN >= HOST_PAD_GPIO_MIN && RTE_SIO_7_PIN <= HOST_PAD_GPIO_MAX) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_SIO_7_PIN);
   } else {
     RSI_EGPIO_PadSelectionEnable(RTE_SIO_7_PAD);
   }
-
+  RSI_EGPIO_SetPinMux(EGPIO, GPIO_PORT_0, RTE_SIO_7_PIN, RTE_SIO_7_MUX);
   // SIO CLock enable
   RSI_SIO_ClockEnable();
   return RSI_OK;
@@ -1760,7 +1735,7 @@ void RSI_SIO_Shift_Clock(volatile SIO_Type *pstcSio, uint32_t Divider, en_sio_ch
 {
   uint32_t u32RelaodVal;
   u32RelaodVal = (SystemCoreClock / Divider);
-  u32RelaodVal = (u32RelaodVal / TWO) - ONE;
+  u32RelaodVal = (u32RelaodVal / 2) - 1;
   // Update clock reload
   pstcSio->SIO_SHIFT_COUNT_PRELOAD_REG_b[channel].RELOAD_VALUE = (u32RelaodVal);
 }

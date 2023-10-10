@@ -12,10 +12,5 @@ include:
   - path: "cmsis_driver"
     file_list:
     - path: "USB.h"
-  - path: "cmsis_driver/CMSIS/Driver/Include"
-    file_list:
-    - path: "Driver_USB.h"
 provides:
   - name: cmsis_usb
-requires:
-  - name: cmsis_driver_common

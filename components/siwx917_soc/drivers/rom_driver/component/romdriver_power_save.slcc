@@ -14,4 +14,3 @@ provides:
   - name: romdriver_power_save
 requires:
   - name: romdriver_romtable
-  - name: systemlevel_power_save

@@ -20,6 +20,9 @@
 #include "rsi_chip.h"
 #include "rsi_ccp_common.h"
 
+/** @addtogroup SOC25
+* @{
+*/
 /*==============================================*/
 /**
  * @fn          void RSI_QEI_Enable(volatile QEI_Type *pstcQei)      
@@ -29,6 +32,7 @@
  */
 void RSI_QEI_Enable(volatile QEI_Type *pstcQei)
 {
+  (void)pstcQei;
   // QEI Direction pin mux
   if (RTE_QEI_DIR_PIN >= 25 && RTE_QEI_DIR_PIN <= 30) {
     RSI_EGPIO_HostPadsGpioModeEnable(RTE_QEI_DIR_PIN);
@@ -97,7 +101,9 @@ void RSI_QEI_Enable(volatile QEI_Type *pstcQei)
  */
 void RSI_QEI_Disable(volatile QEI_Type *pstcQei)
 {
+  (void)pstcQei;
   // clock disable to QEI module
   RSI_CLK_PeripheralClkDisable2(M4CLK, QE_PCLK_ENABLE);
   return;
 }
+/** @} */

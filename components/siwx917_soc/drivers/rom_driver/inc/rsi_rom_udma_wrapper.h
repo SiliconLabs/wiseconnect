@@ -23,7 +23,7 @@
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
- * \defgroup RSI_UDMA_DRIVER RSI:RS1xxxx UDMA WRAPPER 
+ * \defgroup RSI_UDMA_DRIVER UDMA WRAPPER 
  *  @{
  *
  */
@@ -72,6 +72,12 @@ STATIC INLINE int32_t UDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
                                              UDMA_Channel_Info *chnl_info,
                                              RSI_UDMA_HANDLE_T udmaHandle)
 {
+  if (control.transferType == UDMA_SOFTWARE_TRIGG) {
+    udma->desc->vsUDMAChaConfigData1.transferType = UDMA_SOFTWARE_TRIGG;
+  }
+  if ((control.totalNumOfDMATrans + 1UL) > size) {
+    control.totalNumOfDMATrans = (unsigned int)((size - 1) & 0x03FF);
+  }
 
 #if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
   return ROMAPI_UDMA_WRAPPER_API

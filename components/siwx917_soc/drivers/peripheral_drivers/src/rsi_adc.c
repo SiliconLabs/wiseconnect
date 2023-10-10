@@ -65,15 +65,15 @@ extern RSI_UDMA_DESC_T __attribute__((section(".udma_addr1"))) UDMA1_Table[32];
 */
 /*==============================================*/
 /**
- * @fn         error_t ADC_Init(adc_ch_config_t adcChConfig,adc_config_t adcConfig,adccallbacFunc event)
+ * @fn         rsi_error_t ADC_Init(adc_ch_config_t adcChConfig,adc_config_t adcConfig,adccallbacFunc event)
  * @brief      This API use for initialize ADC.
  * @param[in]  adcChConfig  : ADC channels configuration structure variable.
  * @param[in]  adcConfig    : ADC operation configuration structure variable. 
  * @param[in]  event        : Callback function pointer.
- * @return     error_t      : Execution status,This function return 'RSI_OK' on
+ * @return     rsi_error_t      : Execution status,This function return 'RSI_OK' on
  *                            successful execution.  
  */
-error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccallbacFunc event)
+rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccallbacFunc event)
 {
 #ifndef SIMULATION
   uint32_t integer_val = 0;
@@ -126,7 +126,7 @@ error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccallbac
   RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
 
   // Set analog reference voltage
-  RSI_AUX_RefVoltageConfig(2.8, 3.2);
+  RSI_AUX_RefVoltageConfig((float)2.8, (float)3.2);
 
   // ADC Calibration
   RSI_ADC_Calibration();
@@ -185,34 +185,34 @@ error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccallbac
   }
 
   // Offset value and gain value read from efuse
-  adc_commn_config.adc_sing_offset = RSI_IPMU_Auxadcoff_SeEfuse();
-  adc_commn_config.adc_diff_offset = RSI_IPMU_Auxadcoff_DiffEfuse();
+  adc_commn_config.adc_sing_offset = (uint16_t)RSI_IPMU_Auxadcoff_SeEfuse();
+  adc_commn_config.adc_diff_offset = (uint16_t)RSI_IPMU_Auxadcoff_DiffEfuse();
 
   // Single ended gain
   integer_val = RSI_IPMU_Auxadcgain_SeEfuse();
-  frac = ((integer_val) & (0x3FFF));
+  frac = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
-  adc_commn_config.adc_sing_gain = ((integer_val >> 14) + frac);
+  adc_commn_config.adc_sing_gain = ((float)(integer_val >> 14) + frac);
 
   // Differential ended gain
   integer_val = RSI_IPMU_Auxadcgain_DiffEfuse();
-  frac = ((integer_val) & (0x3FFF));
+  frac = (float)((integer_val) & (0x3FFF));
   frac /= 1000;
-  adc_commn_config.adc_diff_gain = ((integer_val >> 14) + frac);
+  adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn         error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig,adc_config_t adcConfig)
+ * @fn         rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig,adc_config_t adcConfig)
  * @brief      This API used for configure parameter to ADC channels.
  * @param[in]  adcChConfig  :  ADC channels configuration structure variable.
  * @param[in]  adcConfig    :  ADC operation configuration structure variable. 
- * @return     error_t      :  Execution status,This function return 'RSI_OK' on
+ * @return     rsi_error_t      :  Execution status,This function return 'RSI_OK' on
  *                             successful execution.  
  */
-error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
+rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
 {
   uint8_t ch_num                = 0;
   uint32_t fs_adc               = 0;
@@ -230,10 +230,10 @@ error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
   f_sample_rate_achive = max_sample_rate_achive(min_sampl_time); // Need to implement   Step2
 
   // Find out total number of ADC cycle
-  total_clk = ceil(((1 / (float)f_sample_rate_achive) / (1 / (float)adc_commn_config.adc_clk_src)));
+  total_clk = (uint16_t)(ceil(((1 / (float)f_sample_rate_achive) / (1 / (float)adc_commn_config.adc_clk_src))));
 
   // Find out number of ON cycles in total ADC cycle
-  on_clk = ceil((min_sampl_time / (1 / (float)adc_commn_config.adc_clk_src)));
+  on_clk = (uint16_t)(ceil((min_sampl_time / (1 / (float)adc_commn_config.adc_clk_src))));
 
   if (total_clk == on_clk) {
     total_clk = total_clk + 1;
@@ -242,7 +242,7 @@ error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
   // modify the total cycle number for ADC static mode operation
   if (adcConfig.operation_mode) {
     if (total_clk < ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[0])) {
-      total_clk = ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[0]);
+      total_clk = (uint16_t)(ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[0]));
     }
   }
 
@@ -260,7 +260,7 @@ error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
 
       if (ch_num == 0) {
         // Configure channel frequency value for channel0
-        adcInterConfig.ch_sampling_factor[0] = (ceil(fs_adc / adcChConfig.sampling_rate[0]));
+        adcInterConfig.ch_sampling_factor[0] = (uint16_t)((ceil(fs_adc / adcChConfig.sampling_rate[0])));
 
         if (adcInterConfig.ch_sampling_factor[0] < 2) {
           adcInterConfig.ch_sampling_factor[0] = 2;
@@ -270,14 +270,15 @@ error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
         // Configure channel frequency value
         adcInterConfig.ch_sampling_factor[ch_num] =
           (adcInterConfig.ch_sampling_factor[ch_num - 1]
-           * (ceil(adcChConfig.sampling_rate[ch_num - 1] / adcChConfig.sampling_rate[ch_num])));
+           * (uint16_t)((ceil(adcChConfig.sampling_rate[ch_num - 1] / adcChConfig.sampling_rate[ch_num]))));
       }
 
       /* Check configured channel frequency value is power of 2 or not,
 			   If configured channel frequency value is not power of 2 then round of value with nearest power of 2 value */
       if (!(adcConfig.num_of_channel_enable == 1)) {
         if (!(check_power_two(adcInterConfig.ch_sampling_factor[ch_num]))) {
-          adcInterConfig.ch_sampling_factor[ch_num] = roundupto_pwr2(adcInterConfig.ch_sampling_factor[ch_num]);
+          adcInterConfig.ch_sampling_factor[ch_num] =
+            (uint16_t)(roundupto_pwr2(adcInterConfig.ch_sampling_factor[ch_num]));
         }
       }
 
@@ -412,7 +413,7 @@ error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
  * @fn        uint32_t ADC_GetSamplingRate(uint8_t ch_num)
  * @brief     This API get the channel sampling rate value which is configured to ADC.
  * @param[in] ch_num       : ADC Channel number (0 to 15).
- * @return    error_t       :Returns the channel sampling rate
+ * @return    rsi_error_t       :Returns the channel sampling rate
  */
 uint32_t ADC_GetSamplingRate(uint8_t ch_num)
 {
@@ -425,16 +426,24 @@ uint32_t ADC_GetSamplingRate(uint8_t ch_num)
 
 /*==============================================*/
 /**
- * @fn        error_t ADC_Start(void)
+ * @fn        rsi_error_t ADC_Start(void)
  * @brief     This API used for start ADC operation.
- * @return    error_t      : Execution status,This function return 'RSI_OK' on
+ * @return    rsi_error_t      : Execution status,This function return 'RSI_OK' on
  *                        successful execution.  
  */
-error_t ADC_Start(void)
+rsi_error_t ADC_Start(void)
 #endif
 /// @endcond
 #ifdef CHIP_917
-  error_t ADC_Start(adc_config_t adcConfig)
+  /*==============================================*/
+  /**
+ * @fn        rsi_error_t ADC_Start(adc_config_t adcConfig)
+ * @brief     This API used for start ADC operation.
+ * @param[in]  adcConfig    : ADC operation configuration structure variable.
+ * @return    rsi_error_t      : Execution status,This function return 'RSI_OK' on
+ *                        successful execution.  
+ */
+  rsi_error_t ADC_Start(adc_config_t adcConfig)
 #endif
 {
   if (adc_commn_config.num_of_channel_enable > 1) {
@@ -477,25 +486,25 @@ error_t ADC_Start(void)
 
 /*==============================================*/
 /**
- * @fn     error_t ADC_Deinit(void)
+ * @fn     rsi_error_t ADC_Deinit(void)
  * @brief  This API used for De-initialize the ADC.
- * @return error_t      : Execution status,This function return 'RSI_OK' on
+ * @return rsi_error_t      : Execution status,This function return 'RSI_OK' on
  *                        successful execution.  
  */
-error_t ADC_Deinit(void)
+rsi_error_t ADC_Deinit(void)
 #endif
 /// @endcond
 #ifdef CHIP_917
 
   /*==============================================*/
   /**
- * @fn         error_t ADC_Deinit(adc_config_t adcConfig)
+ * @fn         rsi_error_t ADC_Deinit(adc_config_t adcConfig)
  * @brief      This API used for De-initialize the ADC.
  * @param[in]  adcConfig    : ADC operation configuration structure variable.
- * @return     error_t      : Execution status,This function return 'RSI_OK' on
+ * @return     rsi_error_t      : Execution status,This function return 'RSI_OK' on
  *                            successful execution.  
  */
-  error_t ADC_Deinit(adc_config_t adcConfig)
+  rsi_error_t ADC_Deinit(adc_config_t adcConfig)
 #endif
 {
   // Power down the ADC block
@@ -516,11 +525,11 @@ error_t ADC_Deinit(void)
 
 /*==============================================*/
 /**
- * @fn           error_t ADC_Stop(void)
+ * @fn           rsi_error_t ADC_Stop(void)
  * @brief        This API is used to stop the ADC
  * @return       execution status 
  */
-error_t ADC_Stop(void)
+rsi_error_t ADC_Stop(void)
 {
   RSI_ADC_Stop(AUX_ADC_DAC_COMP);
   return RSI_OK;
@@ -531,12 +540,12 @@ error_t ADC_Stop(void)
 
 /*==============================================*/
 /**
- * @fn           error_t ADC_Stop(adc_config_t adcConfig)
+ * @fn           rsi_error_t ADC_Stop(adc_config_t adcConfig)
  * @brief        This API is used to stop the ADC
  * @param[in]    adcConfig    : ADC operation configuration structure variable.
  * @return       execution status 
  */
-error_t ADC_Stop(adc_config_t adcConfig)
+rsi_error_t ADC_Stop(adc_config_t adcConfig)
 {
 
   RSI_ADC_Stop(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
@@ -546,14 +555,15 @@ error_t ADC_Stop(adc_config_t adcConfig)
 
 /*==============================================*/
 /**
- * @fn     error_t ADC_PingPongReconfig(uint8_t event)
+ * @fn     rsi_error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num)
  * @brief  This API used for reconfigure the ADC ping or pong descriptor address.
  *         Use this APIs to reconfigure the ping or pong descriptor in ADC multi-channel case.   
  * @param[in]  event        : EXTERNAL_DMA_RECONFIG or INTERNAL_DMA          
- * @return error_t          : Execution status,This function return 'RSI_OK' on
+ * @param[in]  channel_num  : ADC Channel Number        
+ * @return rsi_error_t          : Execution status,This function return 'RSI_OK' on
  *                            successful execution.  
  */
-error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num)
+rsi_error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num)
 {
   if (pong_enable_sel) {
     if (event == EXTERNAL_DMA_RECONFIG) {
@@ -644,16 +654,17 @@ void ADC_IRQ_Handler(void)
 
 /*==============================================*/
 /**
- * @fn         error_t ADC_ChannelsDataSort(uint8_t data_select)
+ * @fn         rsi_error_t ADC_ChannelsDataSort(uint8_t data_select)
  * @brief      This API used for sort channels data.  
  * @param[in]  data_select : This parameter define ADC data is available in ping location or pong location.
- *		       data_select : 0 , Data available in pong location.
- *		       data_select : 1 , Data available in ping location. 
- * @return     error_t     : Execution status,This function return 'RSI_OK' on
+ *		                       - data_select : 0 , Data available in pong location.
+ *		                       - data_select : 1 , Data available in ping location. 
+ * @return     rsi_error_t     : Execution status,This function return 'RSI_OK' on
  *                         successful execution.  
  */
-error_t ADC_ChannelsDataSort(uint8_t data_select)
+rsi_error_t ADC_ChannelsDataSort(uint8_t data_select)
 {
+  (void)data_select;
 #ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
   uint16_t sample_incr = 0, ch_num = 0;
   int16_t channel_data;
@@ -738,13 +749,13 @@ error_t ADC_ChannelsDataSort(uint8_t data_select)
 
 /*==============================================*/
 /**
- * @fn     error_t cal_adc_channel_offset(void)
+ * @fn     rsi_error_t cal_adc_channel_offset(void)
  * @brief  This API used for calculating adc channels offset value.
  *         this value define on which ADC clock channels will be sampled. 
- * @return error_t     : Execution status,This function return 'RSI_OK' on
+ * @return rsi_error_t     : Execution status,This function return 'RSI_OK' on
  *                        successful execution.  
  */
-error_t cal_adc_channel_offset(void)
+rsi_error_t cal_adc_channel_offset(void)
 {
   uint8_t ch_num               = 0;
   uint16_t i                   = 0;
@@ -791,8 +802,8 @@ error_t cal_adc_channel_offset(void)
  * @brief  This API used for find out given number is power of two. 
  * @param[in]  num      : Given number to find out number is power of two or not power of two. 
  * @return Return the status of given number is power of two or not power of two.
- *         Return 1 : Number is power of two.
- *         Return 0 : Number is not power of two. 
+ *        - Return 1 : Number is power of two.
+ *        - Return 0 : Number is not power of two. 
  */
 uint8_t check_power_two(uint16_t num)
 {
@@ -820,9 +831,9 @@ uint32_t roundupto_pwr2(uint16_t num)
   }
   diff = num - (power / 2);
   if (diff < power / 4) {
-    return power / 2;
+    return (uint32_t)power / 2;
   } else {
-    return power;
+    return (uint32_t)power;
   }
 }
 
@@ -841,7 +852,7 @@ uint32_t max_sample_rate_achive(float min_sampling_time)
 
   t = ((min_sampling_time) + (1 / (float)10000000));
 
-  f_max1 = (1 / t);
+  f_max1 = (uint32_t)(1 / t);
 
   f_return = f_max1 < f_max2 ? f_max1 : f_max2;
 
@@ -850,9 +861,10 @@ uint32_t max_sample_rate_achive(float min_sampling_time)
 
 /*==============================================*/
 /**
- * @fn     float get_min_sampling_time(uint8_t number_of_channel)
+ * @fn     float get_min_sampling_time(uint8_t number_of_channel, adc_ch_config_t adcChConfig)
  * @brief  This API gives required minimum sampling time(ON time of ADC cycles) form given channels configuration.
  * @param[in]  number_of_channel : Number of channel enable for ADC operation.
+ * @param[in]  adcChConfig : ADC channels configuration structure variable.
  * @return Required minimum sampling time(ON time of ADC cycles)  
  */
 float get_min_sampling_time(uint8_t number_of_channel, adc_ch_config_t adcChConfig)
@@ -914,16 +926,17 @@ float get_min_sampling_time(uint8_t number_of_channel, adc_ch_config_t adcChConf
 
 /*==============================================*/
 /**
- * @fn     error_t ADC_PinMux(uint8_t pos_input_pinsel,uint8_t neg_input_pinsel)
+ * @fn     rsi_error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t input_type)
  * @brief  This API used for configure GPIO pins in analog mode for ADC operation.
  * @param[in]  pos_inp_sel : Positive input selection for ADC channel.
  * @param[in] neg_inp_sel  : Negative input selection for ADC channel.
  * @param[in]  input_type  : Select single ended or differential ended input to ADC, 
- *                           For Single ended : 0 and Differential ended : 1 
- * @return error_t         : Execution status,This function return 'RSI_OK' on
+ *                           - For Single ended : 0 
+ *                           - Differential ended : 1 
+ * @return rsi_error_t         : Execution status,This function return 'RSI_OK' on
  *                           successful execution.  
  */
-error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t input_type)
+rsi_error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t input_type)
 {
   if (pos_input_pinsel == 0) {
     RSI_EGPIO_UlpPadReceiverDisable(ADCGPIO0);
@@ -1026,7 +1039,7 @@ error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t i
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC, 
+ * @fn           rsi_error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC, 
  *                                                       uint32_t channel ,uint32_t ping_addr,
  *											             uint32_t pong_addr,uint16_t ping_length,
  *														 uint16_t pong_length,uint8_t ping_enable,
@@ -1044,17 +1057,17 @@ error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t i
  * @param[in]    pong_enable : pong enable  
  * @return       execution status 
  */
-error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
-                                        uint32_t channel,
-                                        uint32_t ping_addr,
-                                        uint32_t pong_addr,
-                                        uint16_t ping_length,
-                                        uint16_t pong_length,
-                                        uint8_t ping_enable,
-                                        uint8_t pong_enable)
+rsi_error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                            uint32_t channel,
+                                            uint32_t ping_addr,
+                                            uint32_t pong_addr,
+                                            uint16_t ping_length,
+                                            uint16_t pong_length,
+                                            uint8_t ping_enable,
+                                            uint8_t pong_enable)
 {
   if ((channel > MAX_CHNL_NO) || (ping_length > PING_LEN_MAX) || (pong_length > PONG_LEN_MAX)
-      || (ping_addr > PING_ADDR_MAX) || (pong_addr > PONG_ADDR_MAX)) {
+      || (ping_addr > ((uint32_t)PING_ADDR_MAX)) || (pong_addr > ((uint32_t)PONG_ADDR_MAX))) {
     return INVALID_PARAMETERS;
   }
   adcInterConfig.ping_addr[channel]   = ping_addr;
@@ -1077,7 +1090,7 @@ error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
       adcInterConfig.ping_mem3[channel] = pstcADC->ADC_INT_MEM_2;
     }
     if (pong_enable) {
-      pong_addr                             = pong_addr + ((ping_length + (pong_length * 2)));
+      pong_addr                             = pong_addr + (uint32_t)((ping_length + (pong_length * 2)));
       pstcADC->ADC_INT_MEM_1_b.PROG_WR_DATA = pong_addr;
       adcInterConfig.pong_mem1[channel]     = pong_addr;
 
@@ -1093,18 +1106,19 @@ error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
 
 /*==============================================*/
 /**
- * @fn           uint32_t RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP_Type *pstcADC,
- *                                                uint8_t ping_enable,uint8_t pong_enable )
+ * @fn           uint32_t RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t channel, uint8_t ping_enable,uint8_t pong_enable )
  * @brief        This API is used to reconfigure Ping-pong memory location along with the length of the samples
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel     : ADC channel to be configured as 0,1,2 ...15
+ * @param[in]    ping_enable : ping enable 
+ * @param[in]    pong_enable : pong enable
  * @return       execution status 
  *
  */
-error_t RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP_Type *pstcADC,
-                               uint8_t channel,
-                               uint8_t ping_enable,
-                               uint8_t pong_enable)
+rsi_error_t RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                   uint8_t channel,
+                                   uint8_t ping_enable,
+                                   uint8_t pong_enable)
 {
   if (channel > MAX_CHNL_NO) {
     return INVALID_PARAMETERS;
@@ -1132,6 +1146,7 @@ error_t RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP_Type *pstcADC,
 void RSI_ADC_Calibration(void)
 {
   uint32_t impuDummyRead = 0;
+  (void)impuDummyRead;
 
   AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_ENABLE |= 1U;
   AUX_ADC_DAC_COMP->AUXADC_CONFIG_2 |= BIT(10);
@@ -1165,72 +1180,72 @@ void RSI_ADC_Calibration(void)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+ * @fn           rsi_error_t RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @brief        This API is used to enable ping pong for corresponding ADC channels 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  : ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  *
  */
-error_t RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 {
   if (channel > MAX_CHNL_NO) {
     return INVALID_PARAMETERS;
   }
-  pstcADC->ADC_SEQ_CTRL_b.ADC_SEQ_CTRL_PING_PONG |= 1 << channel;
+  pstcADC->ADC_SEQ_CTRL_b.ADC_SEQ_CTRL_PING_PONG |= (uint16_t)(1 << channel);
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_PingpongDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+ * @fn           rsi_error_t RSI_ADC_PingpongDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @brief        This API is used to disable the ping pong for corresponding ADC channels 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  :ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  *
  */
-error_t RSI_ADC_PingpongDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_PingpongDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 {
   if (channel > MAX_CHNL_NO) {
     return INVALID_PARAMETERS;
   }
-  pstcADC->ADC_SEQ_CTRL_b.ADC_SEQ_CTRL_PING_PONG &= ~(1 << channel);
+  pstcADC->ADC_SEQ_CTRL_b.ADC_SEQ_CTRL_PING_PONG &= (uint16_t)(~(1 << channel));
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP_Type *pstcADC, * uint32_t channel)
+ * @fn           rsi_error_t RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @brief        This API is used to enable internal DMA for corresponding ADC channels 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  :ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  */
-error_t RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 {
   if (channel > MAX_CHNL_NO) {
     return INVALID_PARAMETERS;
   }
-  pstcADC->ADC_SEQ_CTRL_b.ADC_SEQ_CTRL_DMA_MODE |= 1 << channel;
+  pstcADC->ADC_SEQ_CTRL_b.ADC_SEQ_CTRL_DMA_MODE |= (uint16_t)(1 << channel);
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_InternalPerChnlDmaDisable(AUX_ADC_DAC_COMP_Type *pstcADC,
+ * @fn           rsi_error_t RSI_ADC_InternalPerChnlDmaDisable(AUX_ADC_DAC_COMP_Type *pstcADC,
  *                                                         uint32_t channel)
  * @brief        This API is used to disable the internal dma channel for corresponding ADC channels 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  :ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  */
-error_t RSI_ADC_InternalPerChnlDmaDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_InternalPerChnlDmaDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 {
   if (channel > MAX_CHNL_NO) {
     return INVALID_PARAMETERS;
   }
-  pstcADC->ADC_SEQ_CTRL_b.ADC_SEQ_CTRL_DMA_MODE &= ~(1 << channel);
+  pstcADC->ADC_SEQ_CTRL_b.ADC_SEQ_CTRL_DMA_MODE &= (uint16_t)(~(1 << channel));
   return RSI_OK;
 }
 
@@ -1245,50 +1260,52 @@ error_t RSI_ADC_InternalPerChnlDmaDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    multi_channel_en : Multi channel enable parameter.
  * @param[in]    static_fifo_mode : Static mode  enable parameter,
- *                                  static_fifo_mode =1 static mode
- *                                  static_fifo_mode =0 fifo mode
+ *                                  - static_fifo_mode =1 static mode
+ *                                  - static_fifo_mode =0 fifo mode
  * @param[in]    fifo_threshold   : fifo threshold value for ADC operation.
  * @param[in]    internal_dma_en  : Internal DMA enable parameter.
  * @return       execution status.
  */
-error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
-                       uint8_t multi_channel_en,
-                       uint8_t static_fifo_mode,
-                       uint8_t fifo_threshold,
-                       uint8_t internal_dma_en)
+rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
+                           uint8_t multi_channel_en,
+                           uint8_t static_fifo_mode,
+                           uint8_t fifo_threshold,
+                           uint8_t internal_dma_en)
 #endif
 /// @endcond
 #ifdef CHIP_917
   /*==============================================*/
   /**
- * @fn           void RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,uint8_t multi_channel_en,
- *                                   uint8_t static_fifo_mode, uint8_t fifo_threshold )
+ * @fn           rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t multi_channel_en, uint8_t static_fifo_mode, uint8_t a_empty_threshold, uint8_t a_full_threshold, uint8_t internal_dma_en)
  * @brief        This API is used to configure the ADC channels 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    multi_channel_en : Multi channel enable parameter.
  * @param[in]    static_fifo_mode : Static mode  enable parameter,
- *                                  static_fifo_mode =1 static mode
- *                                  static_fifo_mode =0 fifo mode
+ *                                  - static_fifo_mode =1 static mode
+ *                                  - static_fifo_mode =0 fifo mode
  * @param[in]    a_empty_threshold : aempty fifo threshold value.
  * @param[in]    a_full_threshold  : afull fifo threshold value. 
  * @param[in]    internal_dma_en   : Internal DMA enable parameter.
  * @return       execution status.
  */
-  error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
-                         uint8_t multi_channel_en,
-                         uint8_t static_fifo_mode,
-                         uint8_t a_empty_threshold,
-                         uint8_t a_full_threshold,
-                         uint8_t internal_dma_en)
+  rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
+                             uint8_t multi_channel_en,
+                             uint8_t static_fifo_mode,
+                             uint8_t a_empty_threshold,
+                             uint8_t a_full_threshold,
+                             uint8_t internal_dma_en)
 #endif
 {
+  (void)static_fifo_mode;
+  (void)a_empty_threshold;
+  (void)a_full_threshold;
 #ifdef CHIP_9118
   if (fifo_threshold > MAX_THRS_VAL) {
     return INVALID_PARAMETERS;
   }
 #endif
   pstcADC->AUXADC_CTRL_1_b.ADC_NUM_PHASE            = 1;
-  pstcADC->AUXADC_CTRL_1_b.ADC_MULTIPLE_CHAN_ACTIVE = multi_channel_en;
+  pstcADC->AUXADC_CTRL_1_b.ADC_MULTIPLE_CHAN_ACTIVE = (unsigned int)(multi_channel_en & 0x01);
 #ifdef CHIP_9118
   pstcADC->AUXADC_CTRL_1_b.ADC_STATIC_MODE = static_fifo_mode;
 #endif
@@ -1296,7 +1313,7 @@ error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
   if ((static_fifo_mode == ADC_STATICMODE_ENABLE) || (static_fifo_mode == ADC_STATICMODE_THRESHOLD_EN)) {
     pstcADC->AUXADC_CTRL_1_b.ADC_STATIC_MODE = 1;
   } else {
-    pstcADC->AUXADC_CTRL_1_b.ADC_STATIC_MODE = static_fifo_mode;
+    pstcADC->AUXADC_CTRL_1_b.ADC_STATIC_MODE = (unsigned int)(static_fifo_mode & 0x01);
   }
 #endif
 
@@ -1304,11 +1321,11 @@ error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
   pstcADC->AUXADC_CTRL_1_b.ADC_FIFO_THRESHOLD = fifo_threshold;
 #endif
 #ifdef CHIP_917
-  pstcADC->ADC_FIFO_THRESHOLD = (a_empty_threshold | a_full_threshold << 4);
+  pstcADC->ADC_FIFO_THRESHOLD = (unsigned int)(a_empty_threshold | a_full_threshold << 4);
 #endif
   pstcADC->AUXADC_CTRL_1_b.ADC_FIFO_FLUSH = 1;
   if (internal_dma_en == INTERNAL_DMA_EN) {
-    pstcADC->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE = internal_dma_en;
+    pstcADC->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE = (unsigned int)(internal_dma_en & 0x01);
   } else {
     pstcADC->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE = 0;
   }
@@ -1317,7 +1334,7 @@ error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel , uint8_t an_perif_adc_ip_sel,uint8_t an_perif_adc_in_sel, uint8_t an_perif_adc_diffmode )
+ * @fn           rsi_error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel , uint8_t an_perif_adc_ip_sel,uint8_t an_perif_adc_in_sel, uint8_t an_perif_adc_diffmode )
  * @brief        This API is used to configure the ADC channels 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  :ADC channel to be configured as 0,1,2 ...15
@@ -1326,11 +1343,11 @@ error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
  * @param[in]    an_perif_adc_diffmode   : ADC differential mode selection in static mode.
  * @return       execution status 
  */
-error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
-                              uint32_t channel,
-                              uint8_t an_perif_adc_ip_sel,
-                              uint8_t an_perif_adc_in_sel,
-                              uint8_t an_perif_adc_diffmode)
+rsi_error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                  uint32_t channel,
+                                  uint8_t an_perif_adc_ip_sel,
+                                  uint8_t an_perif_adc_in_sel,
+                                  uint8_t an_perif_adc_diffmode)
 {
   if ((channel > MAX_CHNL_NO) || (an_perif_adc_ip_sel > MAX_POS_IN_SEL) || (an_perif_adc_in_sel > MAX_NEG_IN_SEL)
       || (an_perif_adc_diffmode > MAX_DIFF_MODE)) {
@@ -1339,7 +1356,7 @@ error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
   if (pstcADC->AUXADC_CTRL_1_b.ADC_MULTIPLE_CHAN_ACTIVE) {
     if (an_perif_adc_diffmode) {
       pstcADC->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_0_b.CHANNEL_BITMAP |=
-        ((an_perif_adc_diffmode << POS26) | (an_perif_adc_in_sel << POS22));
+        (uint32_t)((an_perif_adc_diffmode << POS26) | (an_perif_adc_in_sel << POS22));
     }
     pstcADC->ADC_CH_BIT_MAP_CONFIG[channel].ADC_CH_BIT_MAP_CONFIG_0_b.CHANNEL_BITMAP |= an_perif_adc_ip_sel << POS17;
   } else {
@@ -1349,15 +1366,15 @@ error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
       pstcADC->AUXADC_CONFIG_1_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
 #endif
 #ifdef CHIP_917
-      pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = an_perif_adc_diffmode;
-      pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
+      pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = (unsigned int)(an_perif_adc_diffmode & 0x01);
+      pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = (unsigned int)(an_perif_adc_in_sel & 0x0F);
 #endif
     }
 #ifdef CHIP_9118
     pstcADC->AUXADC_CONFIG_1_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
 #endif
 #ifdef CHIP_917
-    pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
+    pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = (unsigned int)(an_perif_adc_ip_sel & 0x1F);
 #endif
   }
   return RSI_OK;
@@ -1365,7 +1382,7 @@ error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel )
+ * @fn           rsi_error_t RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint16_t adc_ch_offset, uint16_t adc_ch_freq_val)
  * @brief        This API is used to configure the ADC sampling rate for ADC channels. 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  :ADC channel to be configured as 0,1,2 ...15
@@ -1373,10 +1390,10 @@ error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
  * @param[in]    adc_ch_freq_val   : channel frequency for each channel to set sampling rate
  * @return       execution status 
  */
-error_t RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP_Type *pstcADC,
-                                    uint32_t channel,
-                                    uint16_t adc_ch_offset,
-                                    uint16_t adc_ch_freq_val)
+rsi_error_t RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                        uint32_t channel,
+                                        uint16_t adc_ch_offset,
+                                        uint16_t adc_ch_freq_val)
 {
   if (adc_ch_freq_val == 1) {
     return ERROR_FREQ_VAL;
@@ -1389,7 +1406,7 @@ error_t RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP_Type *pstcADC,
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC, adcConfig *config)
+ * @fn           rsi_error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t an_perif_adc_ip_sel, uint16_t an_perif_adc_in_sel, uint8_t an_perif_adc_diffmode)
  * @brief        This API is used to configure the ADC in Static Mode 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    an_perif_adc_ip_sel   : ADC positive input select in static mode.
@@ -1397,10 +1414,10 @@ error_t RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP_Type *pstcADC,
  * @param[in]    an_perif_adc_diffmode : ADC differential mode selection in static mode.
  * @return       execution status 
  */
-error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC,
-                           uint16_t an_perif_adc_ip_sel,
-                           uint16_t an_perif_adc_in_sel,
-                           uint8_t an_perif_adc_diffmode)
+rsi_error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC,
+                               uint16_t an_perif_adc_ip_sel,
+                               uint16_t an_perif_adc_in_sel,
+                               uint8_t an_perif_adc_diffmode)
 {
 
   if (an_perif_adc_diffmode) {
@@ -1409,38 +1426,41 @@ error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC,
     pstcADC->AUXADC_CONFIG_1_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
 #endif
 #ifdef CHIP_917
-    pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = an_perif_adc_diffmode;
-    pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
+    pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = (unsigned int)(an_perif_adc_diffmode & 0x01);
+    pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = (unsigned int)(an_perif_adc_in_sel & 0x0F);
 #endif
   }
 #ifdef CHIP_9118
   pstcADC->AUXADC_CONFIG_1_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
 #endif
 #ifdef CHIP_917
-  pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
+  pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = (unsigned int)(an_perif_adc_ip_sel & 0x1F);
 #endif
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,uint16_t an_perif_adc_ip_sel, uint16_t an_perif_adc_in_sel, uint8_t an_perif_adc_diffmode)
+ * @fn          rsi_error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t channel_no, uint16_t an_perif_adc_ip_sel, uint16_t an_perif_adc_in_sel, uint8_t an_perif_adc_diffmode)
  * @brief        This API is used to configure the ADC in FIFO Mode 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
+ * @param[in]    channel_no  : Pointer to ADC Channel number
  * @param[in]    an_perif_adc_ip_sel   : ADC positive input select in Fifo mode.
  * @param[in]    an_perif_adc_in_sel   : ADC negative input select in Fifo mode.
  * @param[in]    an_perif_adc_diffmode : ADC differential mode selection in Fifo mode.
  * @return       execution status 
  */
-error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
-                         uint16_t channel_no,
-                         uint16_t an_perif_adc_ip_sel,
-                         uint16_t an_perif_adc_in_sel,
-                         uint8_t an_perif_adc_diffmode)
+rsi_error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
+                             uint16_t channel_no,
+                             uint16_t an_perif_adc_ip_sel,
+                             uint16_t an_perif_adc_in_sel,
+                             uint8_t an_perif_adc_diffmode)
 {
+  (void)an_perif_adc_in_sel;
+  (void)an_perif_adc_ip_sel;
   pstcADC->AUXADC_CTRL_1_b.ADC_NUM_PHASE = 1;
 
-  pstcADC->INTERNAL_DMA_CH_ENABLE_b.PER_CHANNEL_ENABLE |= 1 << channel_no;
+  pstcADC->INTERNAL_DMA_CH_ENABLE_b.PER_CHANNEL_ENABLE |= (uint16_t)(1 << channel_no);
 
   if (an_perif_adc_diffmode) {
 #ifdef CHIP_9118
@@ -1448,15 +1468,15 @@ error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
     pstcADC->AUXADC_CONFIG_1_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
 #endif
 #ifdef CHIP_917
-    pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = an_perif_adc_diffmode;
-    pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = an_perif_adc_in_sel;
+    pstcADC->AUXADC_CONFIG_2_b.AUXADC_DIFF_MODE = (unsigned int)(an_perif_adc_diffmode & 0x01);
+    pstcADC->AUXADC_CONFIG_2_b.AUXADC_INN_SEL   = (unsigned int)(an_perif_adc_in_sel & 0x0F);
 #endif
   }
 #ifdef CHIP_9118
   pstcADC->AUXADC_CONFIG_1_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
 #endif
 #ifdef CHIP_917
-  pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = an_perif_adc_ip_sel;
+  pstcADC->AUXADC_CONFIG_2_b.AUXADC_INP_SEL = (unsigned int)(an_perif_adc_ip_sel & 0x1F);
 #endif
   return RSI_OK;
 }
@@ -1465,25 +1485,25 @@ error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
 #ifdef CHIP_9118
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_Start( AUX_ADC_DAC_COMP_Type *pstcADC )
+ * @fn           rsi_error_t RSI_ADC_Start( AUX_ADC_DAC_COMP_Type *pstcADC )
  * @brief        This API is used to start the ADC
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  : ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  */
-error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC)
+rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC)
 #endif
 /// @endcond
 #ifdef CHIP_917
   /*==============================================*/
   /**
- * @fn           error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC,uint8_t oper_mode)
+ * @fn           rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC,uint8_t oper_mode)
  * @brief        This API is used to start the ADC
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    oper_mode   : oper_mode; Static or dynamic mode.
  * @return       execution status 
  */
-  error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t oper_mode)
+  rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t oper_mode)
 #endif
 {
 #ifdef CHIP_9118
@@ -1502,17 +1522,26 @@ error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC)
 #ifdef CHIP_9118
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_Stop( AUX_ADC_DAC_COMP_Type *pstcADC )
+ * @fn           rsi_error_t RSI_ADC_Stop( AUX_ADC_DAC_COMP_Type *pstcADC )
  * @brief        This API is used to stop the ADC
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
- * @param[in]    channel  :ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  */
-error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC)
+rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC)
 #endif
 /// @endcond
 #ifdef CHIP_917
-  error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t oper_mode)
+  /*==============================================*/
+  /**
+ * @fn           rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t oper_mode)
+ * @brief        This API is used to stop the ADC
+ * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
+ * @param[in]    oper_mode   : ADC operation mode select,
+ *                             - oper_mode : 1 Static Mode
+ *                             - oper_mode : 0 Dynamic Mode 
+ * @return       execution status 
+ */
+  rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t oper_mode)
 #endif
 {
 #ifdef CHIP_9118
@@ -1529,20 +1558,20 @@ error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ChnlEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+ * @fn           rsi_error_t RSI_ADC_ChnlEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @brief        This API is used to Enable the ADC channel
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  :ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  */
-error_t RSI_ADC_ChnlEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_ChnlEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 {
   if (channel > MAX_CHNL_NO) {
     return INVALID_PARAMETERS;
   }
   if ((AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_MULTIPLE_CHAN_ACTIVE)
       || (AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE)) {
-    pstcADC->INTERNAL_DMA_CH_ENABLE_b.PER_CHANNEL_ENABLE |= 1 << channel;
+    pstcADC->INTERNAL_DMA_CH_ENABLE_b.PER_CHANNEL_ENABLE |= (uint16_t)(1 << channel);
   } else {
     return ERROR_NO_MULTI_CHNL_ENABLE;
   }
@@ -1551,18 +1580,18 @@ error_t RSI_ADC_ChnlEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ChnlDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+ * @fn           rsi_error_t RSI_ADC_ChnlDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @brief        This API is used to Disable the ADC
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  :ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  */
-error_t RSI_ADC_ChnlDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_ChnlDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 {
   if (channel > MAX_CHNL_NO) {
     return INVALID_PARAMETERS;
   }
-  pstcADC->INTERNAL_DMA_CH_ENABLE_b.PER_CHANNEL_ENABLE &= ~(1 << channel);
+  pstcADC->INTERNAL_DMA_CH_ENABLE_b.PER_CHANNEL_ENABLE &= (uint16_t)(~(1 << channel));
   return RSI_OK;
 }
 
@@ -1573,13 +1602,13 @@ error_t RSI_ADC_ChnlDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @param[in]    pstcADC             : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[out]   data_process_en     : This parameter define for the output ADC samples 
  *                                     gain and calculation enable or disable.
- *                                     data_process_en -  1 enable the gain 
+ *                                     - data_process_en -  1: enable the gain 
  *                                                        and calculation on output samples
- *                                     data_process_en -  0 disable the gain 
+ *                                     - data_process_en -  0: disable the gain 
  *                                                        and calculation on output samples
  * @param[in]    diff_en             : ADC mode of operation single ended or differential ended
- *                                     diff_en   - 1   differential ended mode enable.
- *                                     diff_en   - 0   single ended mode enable. 
+ *                                     - diff_en   - 1   differential ended mode enable.
+ *                                     - diff_en   - 0   single ended mode enable. 
  * @return       execution status 
  */
 int16_t RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t data_process_en, uint8_t diff_en)
@@ -1595,23 +1624,28 @@ int16_t RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t data_proc
 }
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ReadData(int16_t *data,uint8_t ping_pong,uint16_t channel,
+ * @fn           rsi_error_t RSI_ADC_ReadData(int16_t *data,uint8_t ping_pong,uint16_t channel,
  *                                        uint8_t data_process_en,uint8_t diff_en)
  * @brief        This API is used to read the ADC samples when ulp memories are used.
  * @param[out]   data            :Pointer to read buffer 
  * @param[in]    Channel         :ADC channel number 
- * @param[in]    ping_pong       : 1 - ping memory read
- *                                 0 - pong memory read
+ * @param[in]    ping_pong       : 
+ *                                 - 1 - ping memory read
+ *                                 - 0 - pong memory read
  * @param[in]    data_process_en :This parameter define gain and offset calculation 
  *                                enabled on ADC output samples. 
- *                                data_process_en :  1 , Enable the gain and offset calculation on ADC data.
- *                                data_process_en :  0 , Disable the gain and offset calculation on ADC data. 
+ *                                - data_process_en :  1 , Enable the gain and offset calculation on ADC data.
+ *                                - data_process_en :  0 , Disable the gain and offset calculation on ADC data. 
  * @param[in]    diff_en         : ADC mode of operation single ended or differential ended
- *                                 diff_en   - 1   differential ended mode
- *                                 diff_en   - 0   single ended mode
+ *                                 - diff_en   - 1   differential ended mode
+ *                                 - diff_en   - 0   single ended mode
  * @return       execution status 
  */
-error_t RSI_ADC_ReadData(int16_t *data, uint8_t ping_pong, uint16_t channel, uint8_t data_process_en, uint8_t diff_en)
+rsi_error_t RSI_ADC_ReadData(int16_t *data,
+                             uint8_t ping_pong,
+                             uint16_t channel,
+                             uint8_t data_process_en,
+                             uint8_t diff_en)
 {
   uint32_t i, addr_read = 0, sample_len = 0;
   if (ping_pong) {
@@ -1625,17 +1659,17 @@ error_t RSI_ADC_ReadData(int16_t *data, uint8_t ping_pong, uint16_t channel, uin
   }
 
   for (i = 0; i < sample_len; i++) {
-    data[i] = *(volatile uint16_t *)(addr_read + i * 2);
+    data[i] = *(volatile int16_t *)(addr_read + i * 2);
     if (data_process_en) {
       if (data[i] & BIT(11)) {
-        data[i] = (data[i] & (ADC_MASK_VALUE));
+        data[i] = (data[i] & ((int16_t)(ADC_MASK_VALUE)));
       } else {
         data[i] = data[i] | BIT(11);
       }
       if (diff_en) {
-        data[i] = ((data[i] - adc_commn_config.adc_diff_offset) * adc_commn_config.adc_diff_gain);
+        data[i] = (int16_t)((data[i] - adc_commn_config.adc_diff_offset) * adc_commn_config.adc_diff_gain);
       } else {
-        data[i] = ((data[i] - adc_commn_config.adc_sing_offset) * adc_commn_config.adc_sing_gain);
+        data[i] = (int16_t)((data[i] - adc_commn_config.adc_sing_offset) * adc_commn_config.adc_sing_gain);
       }
       if (data[i] > 4095) {
         data[i] = 4095;
@@ -1655,7 +1689,7 @@ error_t RSI_ADC_ReadData(int16_t *data, uint8_t ping_pong, uint16_t channel, uin
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC,
+ * @fn           rsi_error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC,
  *                                            uint16_t adc_on_time , uint16_t adc_total_duration)
  * @brief        This API is used to set clock with configurable on time 
  * @param[in]    pstcADC          : Pointer to the AUX_ADC_DAC_COMP_Type structure.
@@ -1663,14 +1697,14 @@ error_t RSI_ADC_ReadData(int16_t *data, uint8_t ping_pong, uint16_t channel, uin
  * @param[in]    adcTotalDuration : Total ON and OFF duration of the clock
  * @return       execution status 
  */
-error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t adc_on_time, uint16_t adc_total_duration)
+rsi_error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t adc_on_time, uint16_t adc_total_duration)
 {
   if ((adc_on_time > MAX_ON_DUR_TIME) || (adc_total_duration > MAX_TOL_DUR_TIME)) {
     return INVALID_PARAMETERS;
   }
   pstcADC->AUXADC_CTRL_1_b.EN_ADC_CLK           = 0;
-  pstcADC->AUXADC_CLK_DIV_FAC_b.ADC_CLK_ON_DUR  = adc_on_time;
-  pstcADC->AUXADC_CLK_DIV_FAC_b.ADC_CLK_DIV_FAC = adc_total_duration;
+  pstcADC->AUXADC_CLK_DIV_FAC_b.ADC_CLK_ON_DUR  = (uint16_t)(adc_on_time & 0x01FF);
+  pstcADC->AUXADC_CLK_DIV_FAC_b.ADC_CLK_DIV_FAC = (uint16_t)(adc_total_duration & 0x3FF);
   pstcADC->AUXADC_CTRL_1_b.EN_ADC_CLK           = 1;
 
   return RSI_OK;
@@ -1681,29 +1715,29 @@ error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t adc_on_tim
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+ * @fn           rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @brief        This API is used to Unmask the ADC channel
  * @param[in]    pstcADC  : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
  * @param[in]    channel  : ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  */
-error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 #endif
 /// @endcond
 #ifdef CHIP_917
 
   /*==============================================*/
   /**
- * @fn           error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode)
+ * @fn           rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode)
  * @brief        This API is used to Unmask the ADC channel
  * @param[in]    pstcADC  : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
  * @param[in]    channel  : ADC channel to be configured as 0,1,2 ...15
  * @param[in]    oper_mode: ADC operation mode select,
- *                          oper_mode : 1 Static Mode
- *                          oper_mode : 0 Dynamic Mode
+ *                          - oper_mode : 1 Static Mode
+ *                          - oper_mode : 0 Dynamic Mode
  * @return       execution status 
  */
-  error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode)
+  rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode)
 #endif
 {
   if (channel > MAX_CHNL_NO) {
@@ -1727,7 +1761,7 @@ error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
     pstcADC->INTR_MASK_REG_b.ADC_FIFO_FULL_INTR_MASK     = 0;
   } else {
     if ((AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE)) {
-      pstcADC->INTR_MASK_REG_b.FIRST_MEM_SWITCH_INTR_MASK &= ~(1 << channel);
+      pstcADC->INTR_MASK_REG_b.FIRST_MEM_SWITCH_INTR_MASK &= (uint16_t)(~(1 << channel));
     }
   }
 #endif
@@ -1739,29 +1773,29 @@ error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+ * @fn           rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @brief        This API is used to Mask the ADC channel
  * @param[in]    pstcADC  : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
  * @param[in]    channel  : ADC channel to be configured as 0,1,2 ...15
  * @return       execution status 
  */
-error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 #endif
 /// @endcond
 #ifdef CHIP_917
 
   /*==============================================*/
   /**
- * @fn           error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode)
+ * @fn           rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode)
  * @brief        This API is used to Mask the ADC channel
  * @param[in]    pstcADC  : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
  * @param[in]    channel  : ADC channel to be configured as 0,1,2 ...15
  * @param[in]    oper_mode: ADC operation mode select,
- *                          oper_mode : 1 Static Mode
- *                          oper_mode : 0 Dynamic Mode
+ *                         - oper_mode : 1 Static Mode
+ *                         - oper_mode : 0 Dynamic Mode
  * @return       execution status 
  */
-  error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode)
+  rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode)
 #endif
 {
   if (channel > MAX_CHNL_NO) {
@@ -1785,7 +1819,7 @@ error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
     pstcADC->INTR_MASK_REG_b.ADC_FIFO_FULL_INTR_MASK     = 1;
   } else {
     if ((AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE)) {
-      pstcADC->INTR_MASK_REG_b.FIRST_MEM_SWITCH_INTR_MASK |= (1 << channel);
+      pstcADC->INTR_MASK_REG_b.FIRST_MEM_SWITCH_INTR_MASK |= (uint16_t)(1 << channel);
     }
   }
 #endif
@@ -1794,25 +1828,25 @@ error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+ * @fn           rsi_error_t RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
  * @brief        This API is used to clear the ADC channel
  * @param[in]    pstcADC  : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    channel  : ADC channel to be configured as 2^n where n = channel number = 0,1,2,3...15
  * @return       execution status 
  */
-error_t RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+rsi_error_t RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
 {
   if (channel > MAX_CHNL_NO) {
     return INVALID_PARAMETERS;
   }
-  pstcADC->INTR_CLEAR_REG_b.INTR_CLEAR_REG |= (1 << (channel));
-  pstcADC->INTR_CLEAR_REG_b.INTR_CLEAR_REG &= ~(1 << (channel));
+  pstcADC->INTR_CLEAR_REG_b.INTR_CLEAR_REG |= (uint16_t)(1 << (channel));
+  pstcADC->INTR_CLEAR_REG_b.INTR_CLEAR_REG &= (uint16_t)(~(1 << (channel)));
   return RSI_OK;
 }
 
 /*==============================================*/
 /**
- * @fn           uint32_t RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel)
+ * @fn           uint32_t RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP_Type *pstcADC)
  * @brief        This API is used to status the ADC channel
  * @param[in]    pstcADC  : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @return       execution status 
@@ -1831,8 +1865,9 @@ uint32_t RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP_Type *pstcADC)
 /**
  * @fn           void RSI_ADC_PowerControl(POWER_STATE state)
  * @brief        This API is used to Power On and off for ADC
- * @param[in]    state : ADC_POWER_ON - To powerup adc powergates
-                         ADC_POWER_OFF - To powerdown adc powergates
+ * @param[in]    state : 
+ *                     \b ADC_POWER_ON - To powerup adc powergates
+ *                     \b ADC_POWER_OFF - To powerdown adc powergates
  * @return       execution status 
  */
 void RSI_ADC_PowerControl(POWER_STATE state)
@@ -1850,14 +1885,15 @@ void RSI_ADC_PowerControl(POWER_STATE state)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP_Type *pstcADC, bool en_disable)
+ * @fn           rsi_error_t RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP_Type *pstcADC, bool en_disable)
  * @brief        This API is used to Enable or Disable Noise averaging mode
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
- * @param[in]    en_disable  : 1 - To enable noise averaging mode
- *                             0 - To disable noise averaging mode           
+ * @param[in]    en_disable  :
+ *                            - 1 - To enable noise averaging mode 
+ *                            - 0 - To disable noise averaging mode        
  * @return       execution status 
  */
-error_t RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP_Type *pstcADC, bool en_disable)
+rsi_error_t RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP_Type *pstcADC, bool en_disable)
 {
   pstcADC->AUXADC_CTRL_1_b.BYPASS_NOISE_AVG = en_disable;
   ULP_SPI_MEM_MAP(0x110) |= en_disable << POS17;
@@ -1866,12 +1902,12 @@ error_t RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP_Type *pstcADC, bool en_disable)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_TempSensorEnable(AUX_ADC_DAC_COMP_Type *pstcADC)
+ * @fn           rsi_error_t RSI_ADC_TempSensorEnable(AUX_ADC_DAC_COMP_Type *pstcADC)
  * @brief        This API is used to Enable temp-Sensor 
  * @param[in]    pstcADC             : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @return       execution status 
  */
-error_t RSI_ADC_TempSensorEnable(AUX_ADC_DAC_COMP_Type *pstcADC)
+rsi_error_t RSI_ADC_TempSensorEnable(AUX_ADC_DAC_COMP_Type *pstcADC)
 {
   pstcADC->TS_PTAT_ENABLE_b.TS_PTAT_EN = 1U;
   return RSI_OK;
@@ -1881,34 +1917,34 @@ error_t RSI_ADC_TempSensorEnable(AUX_ADC_DAC_COMP_Type *pstcADC)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC, int16_t threshold1, uint8_t *threshold1_cond,
+ * @fn           rsi_error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC, int16_t threshold1, uint8_t *threshold1_cond,
  *                                int16_t threshold2, uint8_t *threshold2_cond, uint8_t range)
  * @brief        This API is used to compare threshold value with adc data 
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    threshold1  : threshold value to be programmed
  * @param[in]    threshold1_cond : threshold1 condition configuration 
- *                                 THRESHOLD1_EQ   : 1
- *                                 THRESHOLD1_GRT  : 2
- *                                 THRESHOLD1_LESS : 3
+ *                                 - THRESHOLD1_EQ   : 1
+ *                                 - THRESHOLD1_GRT  : 2
+ *                                 - THRESHOLD1_LESS : 3
  * @param[in]    threshold2  : threshold value to be programmed when range is 1 
  * @param[in]    threshold2_cond : threshold2 condition configuration 
- *                                 THRESHOLD2_EQ   : 1
- *                                 THRESHOLD2_GRT  : 2
- *                                 THRESHOLD2_LESS : 3
+ *                                 - THRESHOLD2_EQ   : 1
+ *                                 - THRESHOLD2_GRT  : 2
+ *                                 - THRESHOLD2_LESS : 3
  * @param[in]    range       : When adc data compared lies in certain range of threshold values set this bit
  * @return       execution status 
  */
-error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
-                                int16_t threshold1,
-                                uint8_t *threshold1_cond,
-                                int16_t threshold2,
-                                uint8_t *threshold2_cond,
-                                uint8_t range)
+rsi_error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                    int16_t threshold1,
+                                    uint8_t *threshold1_cond,
+                                    int16_t threshold2,
+                                    uint8_t *threshold2_cond,
+                                    uint8_t range)
 {
   int16_t temp_1                                                = 0;
   temp_1                                                        = pstcADC->AUXADC_DATA_b.AUXADC_DATA;
-  pstcADC->ADC_DET_THR_CTRL_0_b.ADC_INPUT_DETECTION_THRESHOLD_0 = threshold1;
-  pstcADC->ADC_DET_THR_CTRL_0_b.ADC_INPUT_DETECTION_THRESHOLD_1 = (threshold1 << 8);
+  pstcADC->ADC_DET_THR_CTRL_0_b.ADC_INPUT_DETECTION_THRESHOLD_0 = (uint8_t)threshold1;
+  pstcADC->ADC_DET_THR_CTRL_0_b.ADC_INPUT_DETECTION_THRESHOLD_1 = (unsigned int)((threshold1 << 8) & 0x0F);
 
   if ((pstcADC->ADC_DET_THR_CTRL_0_b.ADC_INPUT_DETECTION_THRESHOLD_0
        | (pstcADC->ADC_DET_THR_CTRL_0_b.ADC_INPUT_DETECTION_THRESHOLD_1 >> 8))
@@ -1930,8 +1966,8 @@ error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
   if (range) {
     pstcADC->ADC_DET_THR_CTRL_0_b.RANGE_COMPARISON_ENABLE = 1U;
 
-    pstcADC->ADC_DET_THR_CTRL_1_b.ADC_INPUT_DETECTION_THRESHOLD_2      = threshold2;
-    pstcADC->ADC_DET_THR_CTRL_1_b.ADC_DETECTION_THRESHOLD_4_UPPER_BITS = (threshold2 << 8);
+    pstcADC->ADC_DET_THR_CTRL_1_b.ADC_INPUT_DETECTION_THRESHOLD_2      = (uint8_t)threshold2;
+    pstcADC->ADC_DET_THR_CTRL_1_b.ADC_DETECTION_THRESHOLD_4_UPPER_BITS = (unsigned int)((threshold2 << 8) & 0x0F);
 
     if ((pstcADC->ADC_DET_THR_CTRL_1_b.ADC_INPUT_DETECTION_THRESHOLD_2
          | (pstcADC->ADC_DET_THR_CTRL_1_b.ADC_DETECTION_THRESHOLD_4_UPPER_BITS >> 8))
@@ -1956,7 +1992,7 @@ error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC ,uint8_t adc_bbp_en, uint8_t bbp_en, uint8_t bbp_id)
+ * @fn           rsi_error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC ,uint8_t adc_bbp_en, uint8_t bbp_en, uint8_t bbp_id)
  * @brief        This API is used for baseband
  * @param[in]    pstcADC    : Pointer to the AUX_ADC_DAC_COMP_Type structure. 
  * @param[in]    adc_bbp_en : To enable adc to bbp path
@@ -1964,11 +2000,11 @@ error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
  * @param[in]    bbp_id     : Channel id for bbp samples
  * @return       execution status 
  */
-error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t adc_bbp_en, uint8_t bbp_en, uint8_t bbp_id)
+rsi_error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t adc_bbp_en, uint8_t bbp_en, uint8_t bbp_id)
 {
-  pstcADC->VAD_BBP_ID_b.AUX_ADC_BPP_EN = adc_bbp_en;
-  pstcADC->VAD_BBP_ID_b.BPP_EN         = bbp_en;
-  pstcADC->VAD_BBP_ID_b.BPP_ID         = bbp_id;
+  pstcADC->VAD_BBP_ID_b.AUX_ADC_BPP_EN = (unsigned int)(adc_bbp_en & 0x01);
+  pstcADC->VAD_BBP_ID_b.BPP_EN         = (unsigned int)(bbp_en & 0x01);
+  pstcADC->VAD_BBP_ID_b.BPP_ID         = (unsigned int)(bbp_id & 0x01);
 
   return RSI_OK;
 }
@@ -1977,12 +2013,11 @@ error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t adc_bbp_en, uint8_t 
 
 /*==============================================*/
 /**
- * @fn          error_t RSI_ADC_InterruptHandler( AUX_ADC_DAC_COMP_Type *pstcADC,RSI_ADC_CALLBACK_T *pADCCallBack)
+ * @fn          rsi_error_t RSI_ADC_InterruptHandler( AUX_ADC_DAC_COMP_Type *pstcADC)
  * @brief		    Handles all interrupt of ADC
  * @param[in]	  pstcADC   :  Pointer to the MCPWM instance register area
- * @param[in]	  pADCCallBack Pointer to the structure of type RSI_CALLBACK
  */
-error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
+rsi_error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
 {
   uint32_t intr_status = 0;
 
@@ -2006,7 +2041,7 @@ error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
   else {
     if ((AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_MULTIPLE_CHAN_ACTIVE)
         || (AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE)) {
-      if (intr_status != NULL) {
+      if (intr_status != (int)NULL) {
         if (intr_status & BIT(7)) {
           RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL0_INTR);
           ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL0_INTR);
@@ -2078,7 +2113,7 @@ error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
     if ((!(AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_STATIC_MODE))
         && (!(AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE))) {
       AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_FIFO_FLUSH = 1;
-      adc_commn_config.call_back_event(intr_status, FIFO_MODE_EVENT);
+      adc_commn_config.call_back_event((uint8_t)intr_status, FIFO_MODE_EVENT);
     }
   }
   return RSI_OK;
@@ -2103,8 +2138,8 @@ void RSI_ADC_ThreshInterruptClr(AUX_ADC_DAC_COMP_Type *pstcADC)
  * @brief        This API is used enable or disable the LDO for application.
  * @param[in]    pstcADC   : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    bypass_en : This parameter define LDO bypass enable or disable.
- *                           bypass_en : 1 bypass the LDO    
- *                           bypass_en : 0 On LDO mode 
+ *                           - bypass_en : 1 bypass the LDO    
+ *                           - bypass_en : 0 On LDO mode 
  * @param[in]    value     : Configuration value for LDO when bypass_en =1.
  * @return       None
  */
@@ -2115,9 +2150,9 @@ void RSI_ADC_AUXLdoConfig(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t bypass_en, ui
 
   if (bypass_en) {
     pstcADC->AUX_LDO_b.BYPASS_LDO = 1;
-    pstcADC->AUX_LDO_b.LDO_CTRL   = value;
+    pstcADC->AUX_LDO_b.LDO_CTRL   = (unsigned int)(value & 0x0F);
   } else {
-    pstcADC->AUX_LDO_b.LDO_CTRL = value;
+    pstcADC->AUX_LDO_b.LDO_CTRL = (unsigned int)(value & 0x0F);
   }
 }
 
@@ -2132,15 +2167,15 @@ void RSI_ADC_AUXLdoConfig(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t bypass_en, ui
 int16_t RSI_ADC_GainOffsetCal(int16_t data, uint8_t diff_en)
 {
   if (data & BIT(11)) {
-    data = data & (ADC_MASK_VALUE);
+    data = data & (int16_t)(ADC_MASK_VALUE);
   } else {
     data = data | BIT(11);
   }
 
   if (diff_en) {
-    data = ((data - adc_commn_config.adc_diff_offset) * adc_commn_config.adc_diff_gain);
+    data = (int16_t)((data - adc_commn_config.adc_diff_offset) * adc_commn_config.adc_diff_gain);
   } else {
-    data = ((data - adc_commn_config.adc_sing_offset) * adc_commn_config.adc_sing_gain);
+    data = (int16_t)((data - adc_commn_config.adc_sing_offset) * adc_commn_config.adc_sing_gain);
   }
   if (data > 4095) {
     data = 4095;
@@ -2160,7 +2195,8 @@ int16_t RSI_ADC_GainOffsetCal(int16_t data, uint8_t diff_en)
 /**
  * @brief  This function is callback function to reconfigure uDMA ping and pong descriptor.
  * @param[in]  udmaHandle  :  uDMA handler
- * @param[in]  pTranDesc   :  Event type 
+ * @param[in]  pTranDesc   :  Event type
+ * @param[in] channel_no   : Pointer to ADC Channel number
  * @return None
  */
 void adc_udmaTransferComplete(RSI_UDMA_HANDLE_T udmaHandle, RSI_UDMA_DESC_T *pTranDesc, uint32_t channel_no)
@@ -2189,8 +2225,8 @@ void UDMA_ADC_Start(void)
  * @brief  This function use for configure descriptor fo primary or alternate structure.
  * @param[in]  reconfig : This parameter use for skip uDMA initialization function in 
  *                     ping descriptor reconfiguration time.
- *         reconfig : 1 Dont skip configuration 
- *         reconfig : 0 skip configuration 
+ *                        - reconfig : 1 Dont skip configuration 
+ *                        - reconfig : 0 skip configuration 
  * @return None
  */
 void UDMA_ADC_Pong_Write(uint8_t reconfig)
@@ -2236,8 +2272,8 @@ void UDMA_ADC_Pong_Write(uint8_t reconfig)
  * @brief      This function use for configure descriptor fo primary or alternate structure.
  * @param[in]  reconfig : This parameter use for skip uDMA initialization function in 
  *                        ping descriptor reconfiguration time.
- *             reconfig : 1 Dont skip configuration 
- *             reconfig : 0 skip configuration 
+ *                        - reconfig : 1 Dont skip configuration 
+ *                        - reconfig : 0 skip configuration 
  * @return None
  */
 void UDMA_ADC_Ping_Write(uint8_t ping_reconfig)
@@ -2315,13 +2351,13 @@ void UDMA_ADC_Init(void)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_DectEdgeSel(uint8_t detection_num, uint8_t edge_sel)
+ * @fn           rsi_error_t RSI_ADC_DectEdgeSel(uint8_t detection_num, uint8_t edge_sel)
  * @brief        This API is used to select detection edge.
  * @param[in]    detection_num      : Detection Number
  * @param[in]    edge_sel           : This parameter use for select edge for trigger operation.
  * @return       Execution Status
  */
-error_t RSI_ADC_DectEdgeSel(uint8_t detection_num, uint8_t edge_sel)
+rsi_error_t RSI_ADC_DectEdgeSel(uint8_t detection_num, uint8_t edge_sel)
 {
   if (edge_sel == POSITIVE_EDGE) {
     if (detection_num == DETECTION1) {
@@ -2367,22 +2403,22 @@ error_t RSI_ADC_DectEdgeSel(uint8_t detection_num, uint8_t edge_sel)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ChnlTriggSel(uint8_t ext_sel_num, uint8_t chnl_id)
+ * @fn           rsi_error_t RSI_ADC_ChnlTriggSel(uint8_t ext_sel_num, uint8_t chnl_id)
  * @brief        This API is used to select channel trigger selection.
  * @param[in]    ext_sel_num       : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    chnl_id           : Channel Number
  * @return       Execution Status
  */
-error_t RSI_ADC_ChnlTriggSel(uint8_t ext_sel_num, uint8_t chnl_id)
+rsi_error_t RSI_ADC_ChnlTriggSel(uint8_t ext_sel_num, uint8_t chnl_id)
 {
   if (ext_sel_num == EXT_TRIGGER_SEL1) {
-    AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.EXT_TRIGGER_SEL_1 = chnl_id;
+    AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.EXT_TRIGGER_SEL_1 = (unsigned int)(chnl_id & 0x0F);
   } else if (ext_sel_num == EXT_TRIGGER_SEL2) {
-    AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.EXT_TRIGGER_SEL_2 = chnl_id;
+    AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.EXT_TRIGGER_SEL_2 = (unsigned int)(chnl_id & 0x0F);
   } else if (ext_sel_num == EXT_TRIGGER_SEL3) {
-    AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.EXT_TRIGGER_SEL_3 = chnl_id;
+    AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.EXT_TRIGGER_SEL_3 = (unsigned int)(chnl_id & 0x0F);
   } else if (ext_sel_num == EXT_TRIGGER_SEL4) {
-    AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.EXT_TRIGGER_SEL_4 = chnl_id;
+    AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.EXT_TRIGGER_SEL_4 = (unsigned int)(chnl_id & 0x0F);
   } else {
     return ERROR_ADC_INVALID_ARG;
   }
@@ -2392,14 +2428,15 @@ error_t RSI_ADC_ChnlTriggSel(uint8_t ext_sel_num, uint8_t chnl_id)
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
+ * @fn           rsi_error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
  * @brief        This API is used clear the threshold interrupt.
  * @param[in]    pstcADC           : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    ExtrTrigConfig    : ADC external trigger configuration structure variable. .
  * @return       Execution Status
  */
-error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
+rsi_error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
 {
+  (void)pstcADC;
   if (ExtrTrigConfig.trigger_type == ULP_TIMER_EXT_TRIGGER) {
     if (ExtrTrigConfig.trigger_num == DETECTION1) {
       // Timer 0 Select for trigger
@@ -2434,10 +2471,10 @@ error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t 
   } else {
     return ERROR_ADC_INVALID_ARG;
   }
-  if (RSI_OK != RSI_ADC_DectEdgeSel(ExtrTrigConfig.trigger_num, ExtrTrigConfig.trigger_num)) {
+  if (RSI_OK != RSI_ADC_DectEdgeSel((uint8_t)ExtrTrigConfig.trigger_num, (uint8_t)ExtrTrigConfig.trigger_num)) {
     return ERROR_ADC_INVALID_ARG;
   }
-  if (RSI_OK != RSI_ADC_ChnlTriggSel(ExtrTrigConfig.trigger_sel, ExtrTrigConfig.trigger_sel_val)) {
+  if (RSI_OK != RSI_ADC_ChnlTriggSel((uint8_t)ExtrTrigConfig.trigger_sel, (uint8_t)ExtrTrigConfig.trigger_sel_val)) {
     return ERROR_ADC_INVALID_ARG;
   }
   return RSI_OK;
@@ -2453,6 +2490,7 @@ error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t 
  */
 uint8_t RSI_ADC_ExtTrigStatusRead(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
 {
+  (void)pstcADC;
   if (ExtrTrigConfig.trigger_num == DETECTION1) {
     return (AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.TRIG_1_MATCH);
   } else if (ExtrTrigConfig.trigger_num == DETECTION2) {
@@ -2462,19 +2500,21 @@ uint8_t RSI_ADC_ExtTrigStatusRead(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_confi
   } else if (ExtrTrigConfig.trigger_num == DETECTION4) {
     return (AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.TRIG_4_MATCH);
   }
+  return 0;
 }
 
 /*==============================================*/
 /**
- * @fn           error_t RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
+ * @fn           rsi_error_t RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
  * @brief        This API is used clear external trigger status.
  * @param[in]    pstcADC           : Pointer to the AUX_ADC_DAC_COMP_Type structure.
  * @param[in]    ExtrTrigConfig    : ADC external trigger configuration structure variable. .
  * @return       If API return non value then interrupt match value occured
  *
  */
-error_t RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
+rsi_error_t RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig)
 {
+  (void)pstcADC;
   if (ExtrTrigConfig.trigger_num == DETECTION1) {
     AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.TRIG_1_MATCH = 1;
     AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.TRIG_1_MATCH = 0;
@@ -2488,6 +2528,7 @@ error_t RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_conf
     AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.TRIG_4_MATCH = 1;
     AUX_ADC_DAC_COMP->ADC_CTRL_REG_2_b.TRIG_4_MATCH = 0;
   }
+  return 0;
 }
 /** @} */
 #endif

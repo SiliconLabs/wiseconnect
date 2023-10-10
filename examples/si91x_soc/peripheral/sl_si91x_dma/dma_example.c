@@ -26,6 +26,7 @@
 #include "sl_si91x_dma.h"
 #include "rsi_board.h"
 #include "sl_si91x_dma_inst_config.h"
+#include "dma_example.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -56,6 +57,8 @@ void transfer_complete_callback_dmadrv(uint32_t channel, void *data);
 void transfer_complete_callback_dmadrv(uint32_t channel, void *data)
 {
 
+  (void)channel;
+  (void)data;
   transfer_done = 1;
 }
 /*******************************************************************************
@@ -109,7 +112,7 @@ void dma_example_init(void)
 
     // Filled data in source buffer
     for (int i = 0; i < SL_DMA_TRANSFER_SIZE; i++) {
-      src0[i] = i + 1;
+      src0[i] = (uint32_t)(i + 1);
     }
 #if SL_DMA_SIMPLE_TRANSFER
     //Perform DMA transfer using simple dma transfer API

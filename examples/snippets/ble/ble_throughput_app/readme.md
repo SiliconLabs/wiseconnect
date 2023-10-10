@@ -26,7 +26,7 @@ This Application explains to the user how to:
 - Windows PC with Host interface(UART/ SPI/ SDIO).
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4340A](https://www.silabs.com/)
 - **NCP Mode**:
   - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
   - Host MCU Eval Kit. This example has been tested with:
@@ -46,89 +46,93 @@ This Application explains to the user how to:
 
 - **SoC Mode :**
 
-   ![Figure: Setup Diagram SoC Mode for BLE Throughput Example](resources/readme/throughputappsoc.png)
+   ![Figure: Setup Diagram SoC Mode for BLE Throughput Example](resources/readme/blethroughputsoc.png)
 
 - **NCP Mode :**
 
-   ![Figure: Setup Diagram NCP Mode for BLE Throughput Example](resources/readme/throughputappncp.png)
+   ![Figure: Setup Diagram NCP Mode for BLE Throughput Example](resources/readme/blethroughputncp.png)
 
 Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
-## 3. Project Environment
+## 3 Project Environment
 
-### 3.1 Create the Project
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-#### 3.1.1 SoC Mode
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
 
-1. Ensure the SiWx91x setup is connected to your PC.
+### 3.1 Creating the project
+
+#### 3.1.1 SoC mode
+
+- Ensure the SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
-   ![Soc Board detection](resources/readme/socboarddetection111.png)
+  **![Soc Board detection](resources/readme/socboarddetection111.png)**
 
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.
+#### 3.1.2 NCP mode
 
-- Filter for Bluetooth examples from the Gecko SDK added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *BLE - Throughput* application.
-
-   ![project_selection](resources/readme/create_project1.png)
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  ![](resources/readme/create_project2.png)
-
-#### 3.1.2 NCP Mode
-
-1. Ensure the EFx32 and SiWx91x setup is connected to your PC.
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
 
 - In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
-   ![EFR32 Board detection](resources/readme/efr32.png)
+  **![EFR32 Board detection](resources/readme/efr32.png)**
 
-- Ensure the latest Gecko SDK along with the WiSeConnect 3 extension is added to Simplicity Studio.
+### 3.2 Importing the project
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *BLE - Throughput* application.
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
 
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
+#### SOC Mode
 
-  ![](resources/readme/create_project2.png)
+- Select **BLE - Throughput** test application
 
-### 3.2 Setup for Application Prints
+  **![project_selection](resources/readme/create_project1.png)**
 
-#### 3.2.1 SoC Mode
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-  You can use either of the below USB to UART converters for application prints.
+  **![creation_final](resources/readme/create_project2.png)**
 
-1. Setup using USB to UART converter board.
+### 3.3 Set up for application prints
+
+#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4340A
+
+You can use either of the below USB to UART converters for application prints.
+
+1. Set up using USB to UART converter board.
 
    - Connect Tx (Pin-6) to P27 on WSTK
    - Connect GND (Pin 8 or 10) to GND on WSTK
 
    **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
-2. Setup using USB to UART converter cable
+2. Set up using USB to UART converter cable.
 
    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
    **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera Term setup - for NCP and SoC modes**
+3. Open the Teraterm tool.
 
-1. Open the Tera Term tool.
+   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-- For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
+     **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
-   **![UART - SoC](resources/readme/port_selection_soc.png)**
+**Note:** For Other 917 SoC boards please refer section #3.3.2
 
-- For NCP mode, choose the J-Link port and click on **OK**.
+#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
 
-   **![J-link - NCP](resources/readme/port_selection.png)**
+1. Open the Teraterm tool.
+
+- choose the J-Link port and click on **OK**.
+    
+    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
-  **![Serial port](resources/readme/serial_port_setup.png)**
+    **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
-  **![Baud rate](resources/readme/serial_port.png)**
+    **![serial_port](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
 
@@ -136,104 +140,104 @@ Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wisec
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-**4.1.1** Open `ble_config.h` file
+**4.1.1** In the Project explorer pane of the IDE, expand the **ble_throughput_app** folder and open the **app.c** file. 
+	**![Application_configuration](resources/readme/blethroughputapplicationconfigurations.png)**
+	
+   - **BLE_THROUGHPUT** refers the name of the Silicon Labs device to appear during scanning by remote devices.
+   
+      ```c    
+      #define RSI_BLE_DEVICE_NAME                                  "BLE_THROUGHPUT"
+      ```
+**4.1.2** Open `rsi_ble_common_config.h` file and update the below parameters.    
+![ble_throughput_configurations](resources/readme/blethroughputconfigurations2.png)
 
-User must update the below parameters
+   - **BLE characteristic service and attribute uuid**
+   ```c
+   //RSI_BLE_NEW_SERVICE_UUID refers to the 16-bit of 128-bit attribute value of the newly created service. 
+   //128-bit UUID service: 0000AABB-0000-1000-8000-0026BB765291
+   #define RSI_BLE_NEW_SERVICE_UUID                                0xAABB
 
-- **RSI_BLE_NEW_SERVICE_UUID** refers to the attribute value of the newly created service.
+   //RSI_BLE_ATTRIBUTE_1_UUID refers to the attribute type of the first attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+   #define RSI_BLE_ATTRIBUTE_1_UUID                                0x1AA1
 
-```c
-#define RSI_BLE_NEW_SERVICE_UUID                          0xAABB
-```
+   //RSI_BLE_ATTRIBUTE_2_UUID refers to the attribute type of the second attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+   #define RSI_BLE_ATTRIBUTE_2_UUID                                0x1BB1
+   ```
+   
+   - **Note:**   Following are the **Non-configurable** macros in the application.
+   
+   ```c
+   //RSI_BLE_CHAR_SERV_UUID refers to the attribute type of the characteristics to be added in a service.
+   #define RSI_BLE_CHAR_SERV_UUID                                    0x2803
 
-- **RSI_BLE_ATTRIBUTE_1_UUID** refers to the attribute type of the first attribute under this service **(RSI_BLE_NEW_SERVICE_UUID)**.
+   //RSI_BLE_CLIENT_CHAR_UUID refers to the attribute type of the client characteristics descriptor to be added in a service.
+   #define RSI_BLE_CLIENT_CHAR_UUID                                  0x2902
+   ```
+   
+   - **Note:**  Following are the properties:
+   
+   ```c
+   //RSI_BLE_ATT_PROPERTY_READ is used to set the READ property to an attribute value.
+   #define RSI_BLE_ATT_PROPERTY_READ                                 0x02
 
-```c
-#define RSI_BLE_ATTRIBUTE_1_UUID                          0x1AA1
-```
+   //RSI_BLE_ATT_PROPERTY_WRITE is used to set the WRITE property to an attribute value.
 
-- **BLE_THROUGHPUT** refers the name of the Silicon Labs device to appear during scanning by remote devices.
+   #define RSI_BLE_ATT_PROPERTY_WRITE                                0x08
+   
+   //RSI_BLE_ATT_PROPERTY_NOTIFY is used to set the NOTIFY property to an attribute value.
+   #define RSI_BLE_ATT_PROPERTY_NOTIFY                               0x10
+   ```
+   
+**4.1.3** Open ``ble_config.h`` and `app.c` files and configure the Opermode command parameters.   
+![ble_throughput_configurations](resources/readme/blethroughputconfigurations.png)
 
-```c
-#define RSI_BLE_DEVICE_NAME                               "BLE_THROUGHPUT"
-```  
+   - **BLE Throughput Configurations**
+   
+   ```c 
+   #define RSI_BLE_PWR_INX                                             30
+   #define RSI_BLE_PWR_SAVE_OPTIONS                                    0
+   
+   #define RSI_BLE_REMOTE_DEV_ADDR                                     "00:12:45:AB:1D:32"
+   #define RSI_REMOTE_DEVICE_NAME                                      "Note10"
+   
+   #define CONN_BY_ADDR                                                1
+   #define CONN_BY_NAME                                                2
+   
+   #define CONNECT_OPTION                                              CONN_BY_NAME
+   
+   #define CENTERAL_ROLE                                               1
+   #define PERIPHERAL_ROLE                                             2
+   #define CONNECTION_ROLE                                             PERIPHERAL_ROLE
+   
+   #define CONN_INTERVAL_MIN                                           45
+   #define CONN_INTERVAL_MAX                                           45
+   #define CONN_LATENCY                                                0
+   #define SUPERVISION_TIMEOUT                                         800
+   
+   #define SMP_ENABLE                                                  1
+   
+   #define TX_LEN                                                      0xFB
+   #define TX_TIME                                                     0x0148
+   
+   #define TX_PHY_RATE                                                 0x02
+   #define RX_PHY_RATE                                                 0x02
+   #define CODDED_PHY_RATE                                             0x00
+   
+   #define NOTIFY_DISABLE                                              0x00
+   #define NOTIFY_ENABLE                                               0x01
+   
+   #define DLE_ON                                                      1
+   
+   #define DLE_BUFFER_MODE                                             1
+   #define DLE_BUFFER_COUNT                                            25
+   #define RSI_BLE_MAX_DATA_LEN                                        232
+   ```
 
-**Note:**   Following are the **Non-configurable** macros in the application.
-
-- **RSI_BLE_CHAR_SERV_UUID** refers to the attribute type of the characteristics to be added in a service.
-
-```c
-#define RSI_BLE_CHAR_SERV_UUID                            0x2803
-```
-
-- **RSI_BLE_CLIENT_CHAR_UUID** refers to the attribute type of the client characteristics descriptor to be added in a service.
-
-```c
-#define RSI_BLE_CLIENT_CHAR_UUID                          0x2902
-```  
-
-**Note:**  Following are the properties:
-
-- **RSI_BLE_ATT_PROPERTY_READ** is used to set the READ property to an attribute value.
-
-```c
-#define RSI_BLE_ATT_PROPERTY_READ                         0x02
-```
-
-- **RSI_BLE_ATT_PROPERTY_WRITE** is used to set the WRITE property to an attribute value.
-
-```c
-#define RSI_BLE_ATT_PROPERTY_WRITE                        0x08
-```
-
-- **RSI_BLE_ATT_PROPERTY_NOTIFY** is used to set the NOTIFY property to an attribute value.
-
-```c
-#define RSI_BLE_ATT_PROPERTY_NOTIFY                       0x10
-```
-
-```c
-#define RSI_BLE_PWR_INX                                   30
-#define RSI_BLE_PWR_SAVE_OPTIONS                          0
- 
-#define RSI_BLE_REMOTE_DEV_ADDR                           "00:12:45:AB:1D:32"
-#define RSI_REMOTE_DEVICE_NAME                            "Note10"
- 
-#define CONN_BY_ADDR                                      1
-#define CONN_BY_NAME                                      2
-
-#define CONNECT_OPTION                                    CONN_BY_NAME
- 
-#define CENTERAL_ROLE                                     1
-#define PERIPHERAL_ROLE                                   2
-#define CONNECTION_ROLE                                   PERIPHERAL_ROLE
- 
-#define CONN_INTERVAL_MIN                                 45
-#define CONN_INTERVAL_MAX                                 45
-#define CONN_LATENCY                                      0
-#define SUPERVISION_TIMEOUT                               800
- 
-#define SMP_ENABLE                                        1
- 
-#define TX_LEN                                            0xFB
-#define TX_TIME                                           0x0148
- 
-#define TX_PHY_RATE                                       0x02
-#define RX_PHY_RATE                                       0x02
-#define CODDED_PHY_RATE                                   0x00
-
-#define NOTIFY_DISABLE                                    0x00
-#define NOTIFY_ENABLE                                     0x01
- 
-#define DLE_ON                                            1
- 
-#define DLE_BUFFER_MODE                                   1
-#define DLE_BUFFER_COUNT                                  25
-#define RSI_BLE_MAX_DATA_LEN                              232
-
-**Note:**
-  ble_config.h file is already set with the desired configuration in respective example folders user need not change for each example.
-
+   - **Opermode command parameters**
+     This configuration can be found in app.c as `config`	
+   
+   **Note:** `ble_config.h` and `app.c` files are already set with desired configuration in respective example folders you need not change for each example.	      
+      
 ### 4.2 Build the Application
 
 - Follow the below steps for the successful execution of the application.
@@ -270,20 +274,26 @@ User must update the below parameters
 
 2. Connect any serial console for prints.
 
-3. Open a nRF Connect App on the Smartphone and do the scan.
+3. Open a ERF Connect App on the Smartphone and do the scan.
 
 4. In the App, the Silicon Labs module device will appear with the name configured in the macro **RSI_BLE_DEVICE_NAME (Ex: "BLE_THROUGHPUT")**
+![ble_throughput_advertiser](resources/readme/blethroughputadvertiser.png)
+
 5. Initiate a connection from the App.
 
-6. After successful connection, nRF connect APP displays the supported services of Silicon Labs module
+6. After successful connection, EFR connect APP displays the supported services of Silicon Labs module
+![ble_throughput_device_connected](resources/readme/blethroughputdeviceconnected.png)
+
 7. Select the attribute service which is added **RSI_BLE_NEW_SERVICE_UUID**
    **(Ex: 0xAABB)**
+   
 8. After Enable notifications for the read attribute **RSI_BLE_ATTRIBUTE_2_UUID**
    **(Example: 0x1BB1) So that the GATT server notifies when value updated in that particular attribute.**
+   ![ble_throughput_notifications_enables](resources/readme/blethroughputnotificationsenabled.png)
 
 9. Please refer to the given below images for continuous notification received on the mobile.
 
-![](resources/readme/ble_remote_image.png)
+![ble_throughput_data_tf](resources/readme/blethroughputdatatf.png)
 
 ### 4.5 Application Output
 

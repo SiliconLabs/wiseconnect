@@ -23,9 +23,9 @@
  * ******************************************************/
 #define RSI_BLE_SET_RAND_ADDR "04:D4:C4:9A:F3:CC"
 
-#define CLEAR_WHITELIST              0x00
-#define ADD_DEVICE_TO_WHITELIST      0x01
-#define DELETE_DEVICE_FROM_WHITELIST 0x02
+#define CLEAR_ACCEPTLIST              0x00
+#define ADD_DEVICE_TO_ACCEPTLIST      0x01
+#define DELETE_DEVICE_FROM_ACCEPTLIST 0x02
 
 #define ALL_PHYS 0x00
 
@@ -119,10 +119,10 @@
 #define LE_BR_EDR_NOT_SUPPORTED 0x04
 
 //!Advertise filters
-#define ALLOW_SCAN_REQ_ANY_CONN_REQ_ANY               0x00
-#define ALLOW_SCAN_REQ_WHITE_LIST_CONN_REQ_ANY        0x01
-#define ALLOW_SCAN_REQ_ANY_CONN_REQ_WHITE_LIST        0x02
-#define ALLOW_SCAN_REQ_WHITE_LIST_CONN_REQ_WHITE_LIST 0x03
+#define ALLOW_SCAN_REQ_ANY_CONN_REQ_ANY                 0x00
+#define ALLOW_SCAN_REQ_ACCEPT_LIST_CONN_REQ_ANY         0x01
+#define ALLOW_SCAN_REQ_ANY_CONN_REQ_ACCEPT_LIST         0x02
+#define ALLOW_SCAN_REQ_ACCEPT_LIST_CONN_REQ_ACCEPT_LIST 0x03
 
 //! Address types
 #define LE_PUBLIC_ADDRESS            0x00
@@ -162,46 +162,17 @@
 #define SCAN_TYPE_PASSIVE 0x00
 
 //!Scan filters
-#define SCAN_FILTER_TYPE_ALL             0x00
-#define SCAN_FILTER_TYPE_ONLY_WHITE_LIST 0x01
+#define SCAN_FILTER_TYPE_ALL              0x00
+#define SCAN_FILTER_TYPE_ONLY_ACCEPT_LIST 0x01
 
 #define RSI_SEL_INTERNAL_ANTENNA 0x00
 #define RSI_SEL_EXTERNAL_ANTENNA 0x01
 
 /*=======================================================================*/
-//! Parameters for whitelisting of BLE advertise reports based on the ADV payload
+//! Parameters for acceptlisting of BLE advertise reports based on the ADV payload
 /*=======================================================================*/
-//#define RSI_BLE_ENABLE_WHITELIST_BASEDON_ADV_PAYLOAD     0x00
+//#define RSI_BLE_ENABLE_ACCEPTLIST_BASEDON_ADV_PAYLOAD     0x00
 //#define RSI_BLE_ADV_PAYLOAD_INDEX_FOR_COMPARE            0x00
 //#define RSI_BLE_ADV_PAYLOAD_LENGTH_FROM_INDEX_TO_COMPARE 0x00
-
-/***********************************************************************************************************************************************/
-//! RS9116 Firmware Configurations
-/***********************************************************************************************************************************************/
-
-/*=======================================================================*/
-//! Opermode command parameters
-/*=======================================================================*/
-#define RSI_FEATURE_BIT_MAP \
-  (SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1) //! To set wlan feature select bit map
-#define RSI_CUSTOM_FEATURE_BIT_MAP SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID //! To set custom feature select bit map
-#ifdef CHIP_917
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                                                         \
-  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | RAM_LEVEL_NWP_ADV_MCU_BASIC \
-   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0)
-#else
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
-#endif
-#define RSI_BT_FEATURE_BITMAP (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
-
-/*=======================================================================*/
-//! Power save command parameters
-/*=======================================================================*/
-//! set handshake type of power mode
-#ifdef RSI_M4_INTERFACE
-#define RSI_HAND_SHAKE_TYPE M4_BASED
-#else
-#define RSI_HAND_SHAKE_TYPE GPIO_BASED
-#endif
 
 #endif

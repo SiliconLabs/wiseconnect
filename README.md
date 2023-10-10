@@ -32,7 +32,6 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
   - [Migration Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-migr-overview)
   - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
-  - [App Notes](docs/software-reference/app-notes)
 
 ### Hardware Reference
 

@@ -24,13 +24,13 @@
 /**
  * @fn          void rsi_hal_intr_config(void (*rsi_interrupt_handler)(void))
  * @brief       HAL API should contain the code to initialize the register/pins related to interrupts and enable the interrupts.
- * @param[in]   rsi_interrupt_handler() - call back function to handle interrupt
+ * @param[in]   rsi_interrupt_handler_cb() - call back function to handle interrupt
  * @return      void 
  */
 
-void rsi_hal_intr_config(void (*rsi_interrupt_handler)(void))
+void rsi_hal_intr_config(void (*rsi_interrupt_handler_cb)(void))
 {
-
+  (void)rsi_interrupt_handler_cb;
   // Configure interrupt pin/register in input mode and register the interrupt handler
 
   return;

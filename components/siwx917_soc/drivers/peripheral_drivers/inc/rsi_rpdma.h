@@ -453,34 +453,34 @@ RSI_RPDMA_HANDLE_T rpdma_init(void *mem, const RSI_RPDMA_INIT_T *pInit);
 
 void rpdma_register_callback(RSI_RPDMA_HANDLE_T pHandle, uint32_t cbIndex, void *pCB);
 
-error_t rpdma_abort_channel(RSI_RPDMA_HANDLE_T pHandle, uint8_t dmaCh);
+rsi_error_t rpdma_abort_channel(RSI_RPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
-error_t rpdma_setup_channel(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
+rsi_error_t rpdma_setup_channel(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
 
-error_t rpdma_build_descriptors(RSI_RPDMA_HANDLE_T pHandle,
-                                RSI_RPDMA_DESC_T *pXferCfg,
-                                RSI_RPDMA_DESC_T *pDesc,
-                                RSI_RPDMA_DESC_T *pDescPrev);
+rsi_error_t rpdma_build_descriptors(RSI_RPDMA_HANDLE_T pHandle,
+                                    RSI_RPDMA_DESC_T *pXferCfg,
+                                    RSI_RPDMA_DESC_T *pDesc,
+                                    RSI_RPDMA_DESC_T *pDescPrev);
 
-error_t rpdma_setup_channelTransfer(RSI_RPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_RPDMA_DESC_T *pDesc);
+rsi_error_t rpdma_setup_channelTransfer(RSI_RPDMA_HANDLE_T pHandle, uint8_t dmaCh, RSI_RPDMA_DESC_T *pDesc);
 
 void rpdma_interrupt_handler(RSI_RPDMA_HANDLE_T pHandle);
 
 void rpdma_deInit(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
 
-error_t rpdma_dma_channel_trigger(RSI_RPDMA_HANDLE_T pHandle, uint8_t dmaCh);
+rsi_error_t rpdma_dma_channel_trigger(RSI_RPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
 uint32_t rpdma_channel_is_enabled(RSI_RPDMA_HANDLE_T pHandle, uint8_t dmaCh);
 
-error_t rpdma_interrupt_disable(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
+rsi_error_t rpdma_interrupt_disable(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
 
-error_t rpdma_interrupt_enable(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
+rsi_error_t rpdma_interrupt_enable(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
 
-error_t rpdma_error_status_clear(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
+rsi_error_t rpdma_error_status_clear(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
 
 uint32_t rpdma_get_error_status(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
 
-error_t rpdma_interrupt_clear(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
+rsi_error_t rpdma_interrupt_clear(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
 
 uint32_t rpdma_interrupt_status(RSI_RPDMA_HANDLE_T pHandle, RSI_RPDMA_CHA_CFG_T *pCfg);
 

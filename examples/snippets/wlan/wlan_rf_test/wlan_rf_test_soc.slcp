@@ -1,0 +1,102 @@
+project_name: wlan_rf_test_soc
+package: wifi
+quality: alpha
+label: Wlan RF TEST
+category: Example|Wi-Fi
+description: >
+  Configure the SiWx91x to transmit Wi-Fi packets at varying data rates and power levels
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: gecko_sdk, version: 4.3.1}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.1.0}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: RSI_DEBUG_PRINTS
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
+- {from: wiseconnect3_sdk, id: rsilib_userconfig}
+- {from: wiseconnect3_sdk, id: rsilib_chip}
+- {from: wiseconnect3_sdk, id: siwx917_soc}
+requires:
+- name: sl_system
+- name: bsd_socket
+- name: network_manager
+- name: basic_network_manager
+- name: si91x_support
+- name: wifi
+- name: si91x
+- name: si91x_internal_stack
+- name: si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/application_prints_ncp.png
+  - path: resources/readme/application_prints_soc.png
+  - path: resources/readme/build_project_ncp.png
+  - path: resources/readme/build_project_soc.png
+  - path: resources/readme/burst_mode_spectrum_analyser.png
+  - path: resources/readme/continuous_mode_spectrum_analyser.png
+  - path: resources/readme/create_project.png
+  - path: resources/readme/efm32.png
+  - path: resources/readme/efr32.png
+  - path: resources/readme/examples_demos.png
+  - path: resources/readme/image217a.png
+  - path: resources/readme/image217b.png
+  - path: resources/readme/image217c.png
+  - path: resources/readme/image217d.png
+  - path: resources/readme/image217ncp.png
+  - path: resources/readme/image217soc.png
+  - path: resources/readme/image218.png
+  - path: resources/readme/image219.png
+  - path: resources/readme/ncp_macros.png 
+  - path: resources/readme/ncp_radio_front_end.png
+  - path: resources/readme/port_selection_soc.png
+  - path: resources/readme/port_selection.png
+  - path: resources/readme/post_build_script.png
+  - path: resources/readme/program_device.png
+  - path: resources/readme/rf_test_example_soc.png
+  - path: resources/readme/rf_test_example.png
+  - path: resources/readme/run.png
+  - path: resources/readme/serial_port_setup.png
+  - path: resources/readme/serial_port.png
+  - path: resources/readme/soc_board_detection.png
+  - path: resources/readme/soc_macros.png
+  - path: resources/readme/soc_radio_front_end.png
+  - path: resources/readme/usb_to_uart_1.png
+  - path: resources/readme/usb_to_uart_2.png        
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+

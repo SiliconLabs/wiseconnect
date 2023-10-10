@@ -15,13 +15,16 @@
 *
 ******************************************************************************/
 #include "rsi_ccp_user_config.h"
+#ifndef ENABLE_IPMU_APIS
 #define ENABLE_IPMU_APIS
+#endif
+
 #ifdef CHIP_9118
 #include "iPMU_prog/iPMU_dotc/rsi_system_config.c"
 #endif
 
-#ifdef CHIP_9117
-#include "iPMU_prog/iPMU_dotc/rsi_system_config_9117.c"
+#ifdef CHIP_917
+#include "iPMU_prog/iPMU_dotc/rsi_system_config_917.c"
 #endif
 #include "iPMU_prog/iPMU_dotc/ipmu_apis.c"
 //EOF

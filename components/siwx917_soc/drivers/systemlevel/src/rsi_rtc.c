@@ -15,9 +15,8 @@
 *
 ******************************************************************************/
 
-/**
- * Includes
- */
+// Includes
+
 #include "rsi_chip.h"
 #define CENTURTY_START 0
 /** @addtogroup SOC19
@@ -91,15 +90,16 @@ void RSI_RTC_Stop(RTC_Type *Cal)
 
 /*==============================================*/
 /**	
- * @fn           error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
+ * @fn           rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
  * @brief   	 This API is used to set the rtc configuration
  * @param[in]    Cal   : pointer to the rtc register instance
  * @param[in]    date  : pointer to the rtc configuration structure
  * @return       RSI_OK on success 
- *               Error code on failure
+ *               
+ * - Error code on failure
  */
 
-error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
+rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
 {
   if ((Cal == NULL) || (date == NULL)) {
     return ERROR_CAL_INVALID_PARAMETERS;
@@ -128,15 +128,16 @@ error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
 
 /*==============================================*/
 /**
- * @fn              error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
+ * @fn              rsi_error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
  * @brief    	 	This API is used to Get the RTC time
  * @param[in]  	    Cal  : pointer to the rtc register instance
  * @param[in] 		date : pointer to the rtc structure to hold the current time parameters
  * @return    		RSI_OK on success 
- *                  Error code on failure
+ *                  
+ * - Error code on failure
  */
 
-error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
+rsi_error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
 {
   if ((Cal == NULL) || (date == NULL)) {
     return ERROR_CAL_INVALID_PARAMETERS;
@@ -156,15 +157,16 @@ error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
 
 /*==============================================*/
 /**	
- * @fn	             error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm
+ * @fn	             rsi_error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
  * @brief    		 This API is used to Set the alarm for RTC module
  * @param[in]  		 Cal   : pointer to the rtc register instance
  * @param[in]  		 alarm : pointer to alarm configuration structure
  * @return    		 RSI_OK on success
- *                   Error code on failure
+ *                   
+ * - Error code on failure
  */
 
-error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
+rsi_error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
 {
   if ((Cal == NULL) || (alarm == NULL)) {
     return ERROR_CAL_INVALID_PARAMETERS;
@@ -195,8 +197,9 @@ error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
  * @brief   		This API is used to Enable alarm in RTC
  * @param[in] 		Cal : pointer to the rtc register instance
  * @param[in] 		val    : to enable or disable the alarm
- *           				-\b 0 : Disable the alarm
- *            			-\b 1 : Enable the alarm
+ *           				- 0 : Disable the alarm
+ *            			- 1 : Enable the alarm
+ *
  * @return  		none
  */
 
@@ -208,15 +211,16 @@ void RSI_RTC_AlamEnable(RTC_Type *Cal, boolean_t val)
 
 /*==============================================*/
 /**
- * @fn               error_t RSI_RTC_GetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
+ * @fn               rsi_error_t RSI_RTC_GetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
  * @brief   		 This API is used to Get alarm configurations for RTC
  * @param[in]		 Cal 	 : pointer to the rtc register instance
  * @param[in]		 alarm : pointer to the rtc alarm configuration structure
  * @return			 RSI_OK on success
- *                   Error code on failure
+ *                   
+ * - Error code on failure
  */
 
-error_t RSI_RTC_GetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
+rsi_error_t RSI_RTC_GetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
 {
   if ((Cal == NULL) || (alarm == NULL)) {
     return ERROR_CAL_INVALID_PARAMETERS;
@@ -318,7 +322,7 @@ void RSI_RTC_IntrClear(uint32_t intr)
 
 /*==============================================*/
 /**
- * @fn			void RSI_RTC_IntrClear(uint32_t intr)
+ * @fn			void RSI_RTC_CalibInitialization(void)
  * @brief   	This API is used to initilization RTC CALIBRATION
  * @return		none
  */
@@ -334,17 +338,18 @@ void RSI_RTC_CalibInitilization(void)
 
 /*==============================================*/
 /**
- * @fn			void RSI_RTC_RCCLK_Calib(uint8_t enable,uint8_t periodic_en,uint8_t trigger_time)
+ * @fn			void RSI_RTC_RCCLK_Calib(TIME_PERIOD_Type *rtc, uint8_t enable,uint8_t periodic_en,uint8_t trigger_time)
  * @brief   	This API is used to rc calibration
+ * @param[in]	rtc      : 
  * @param[in]	enable      : 1 to start rc calibration
- *              periodic_en : 1 to start periodically calibrate
- *              trigger_time : rc_trigger time
- *              0 -5 sec
-                1 -10 sec 
-                2 -15 sec
-                3 -30 sec
-                4 -1 minute
-                5 -2minute          
+ * @param[in]	periodic_en : 1 to start periodically calibrate
+ * @param[in]	trigger_time : rc_trigger time
+ *             - 0 :5 sec
+ *             - 1 :10 sec 
+ *             - 2 :15 sec
+ *             - 3 :30 sec
+ *             - 4 :1 minute
+ *             - 5 :2 minute          
  * @return		none
  */
 
@@ -367,24 +372,23 @@ void RSI_RTC_RCCLK_Calib(TIME_PERIOD_Type *rtc, uint8_t enable, uint8_t periodic
  *                       uint8_t ro_periodic_en,
  *                       uint8_t ro_trigger_time)
  * @brief   	This API is used to rc and ro calibration
+ * @param[in]	rtc      : 
  * @param[in]	enable      : 1 to start rc calibration
- *              periodic_en : 1 to start periodically calibrate
- *              trigger_time : rc_trigger time
- *              0 -5 sec
-                1 -10 sec 
-                2 -15 sec
-                3 -30 sec
-                4 -1 minute
-                5 -2minute   
-
-							 ro_enable  :1 to enavle ro calib
-							 periodic_en:1 to enable periodic ro calib
-							 trigger_time : ro_trigger time
-                0 -1 time in sec
-                1 -2 time in sec 
-                2 -4 time in sec
-                3 -8 time in sec
-                
+ * @param[in] periodic_en : 1 to start periodically calibrate
+ * @param[in] trigger_time : rc_trigger time
+ *              - 0 :5 sec
+ *              - 1 :10 sec 
+ *              - 2 :15 sec
+ *              - 3 :30 sec
+ *              - 4 :1 minute
+ *              - 5 :2 minute   
+ * @param[in] ro_enable  :1 to enavle ro calib
+ * @param[in] periodic_en:1 to enable periodic ro calib
+ * @param[in] trigger_time : ro_trigger time
+ *               - 0 :1 time in sec
+ *               - 1 :2 time in sec 
+ *               - 2 :4 time in sec
+ *               - 3 :8 time in sec               
  * @return		none
  */
 

@@ -80,7 +80,10 @@ static inline void GSPI_SetMemoryMapPll(uint16_t value)
 {
   SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG9) = value;
 }
-
+#ifdef SL_SI91X_GSPI_DMA
+void gspi_transfer_complete_callback(uint32_t channel, void *data);
+void gspi_error_callback(uint32_t channel, void *data);
+#endif
 #ifdef __cplusplus
 }
 #endif

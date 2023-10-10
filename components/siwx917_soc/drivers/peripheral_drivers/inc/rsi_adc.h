@@ -118,7 +118,7 @@ extern "C" {
 #define MAX_TOL_DUR_TIME    1023
 #define MAX_ON_DUR_TIME     511
 
-#define MAX_SINGCH_SAMPLING_RATE 2500000
+#define MAX_SINGCH_SAMPLING_RATE 10000000
 #define ADC_MASK_VALUE           0xF7FF
 #define ADC_FIFO_THR             3
 #define SDIO_HOST_CONTROL_IN_M4  0x41300004
@@ -279,124 +279,124 @@ typedef struct {
 } adc_extr_config_t;
 
 // Function Declarations
-error_t ADC_Init(adc_ch_config_t adcChnfig, adc_config_t adcConfig, adccallbacFunc event);
+rsi_error_t ADC_Init(adc_ch_config_t adcChnfig, adc_config_t adcConfig, adccallbacFunc event);
 
-error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig);
+rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig);
 
 #ifdef CHIP_9118
-error_t ADC_Start(void);
+rsi_error_t ADC_Start(void);
 
-error_t ADC_Deinit(void);
+rsi_error_t ADC_Deinit(void);
 
-error_t ADC_Stop(void);
+rsi_error_t ADC_Stop(void);
 
-error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
-                       uint8_t multi_channel_en,
-                       uint8_t static_fifo_mode,
-                       uint8_t fifo_threshold,
-                       uint8_t internal_dma_en);
-error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC);
-error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC);
-error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
-error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
+                           uint8_t multi_channel_en,
+                           uint8_t static_fifo_mode,
+                           uint8_t fifo_threshold,
+                           uint8_t internal_dma_en);
+rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC);
+rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC);
+rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 #endif
 #ifdef CHIP_917
-error_t ADC_Start(adc_config_t adcConfig);
-error_t ADC_Deinit(adc_config_t adcConfig);
-error_t ADC_Stop(adc_config_t adcConfig);
-error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
-                       uint8_t multi_channel_en,
-                       uint8_t static_fifo_mode,
-                       uint8_t a_empty_threshold,
-                       uint8_t a_full_threshold,
-                       uint8_t internal_dma_en);
-error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t mode);
-error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t mode);
-error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode);
-error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode);
-error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
-error_t RSI_ADC_ChnlTriggSel(uint8_t ext_sel_num, uint8_t chnl_id);
-error_t RSI_ADC_DectEdgeSel(uint8_t detection_num, uint8_t edge_sel);
+rsi_error_t ADC_Start(adc_config_t adcConfig);
+rsi_error_t ADC_Deinit(adc_config_t adcConfig);
+rsi_error_t ADC_Stop(adc_config_t adcConfig);
+rsi_error_t RSI_ADC_Config(AUX_ADC_DAC_COMP_Type *pstcADC,
+                           uint8_t multi_channel_en,
+                           uint8_t static_fifo_mode,
+                           uint8_t a_empty_threshold,
+                           uint8_t a_full_threshold,
+                           uint8_t internal_dma_en);
+rsi_error_t RSI_ADC_Start(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t mode);
+rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t mode);
+rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode);
+rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel, uint8_t oper_mode);
+rsi_error_t RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
+rsi_error_t RSI_ADC_ChnlTriggSel(uint8_t ext_sel_num, uint8_t chnl_id);
+rsi_error_t RSI_ADC_DectEdgeSel(uint8_t detection_num, uint8_t edge_sel);
 uint8_t RSI_ADC_ExtTrigStatusRead(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
-error_t RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
+rsi_error_t RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP_Type *pstcADC, adc_extr_config_t ExtrTrigConfig);
 #endif
-error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num);
+rsi_error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num);
 
 // Internal APIs
-error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
-                                        uint32_t channel,
-                                        uint32_t ping_addr,
-                                        uint32_t pong_addr,
-                                        uint16_t ping_length,
-                                        uint16_t pong_length,
-                                        uint8_t ping_enable,
-                                        uint8_t pong_enable);
+rsi_error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                            uint32_t channel,
+                                            uint32_t ping_addr,
+                                            uint32_t pong_addr,
+                                            uint16_t ping_length,
+                                            uint16_t pong_length,
+                                            uint8_t ping_enable,
+                                            uint8_t pong_enable);
 
 void RSI_ADC_Calibration(void);
 
-error_t RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 
-error_t RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 
-error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
-                              uint32_t channel,
-                              uint8_t an_perif_adc_ip_sel,
-                              uint8_t an_perif_adc_in_sel,
-                              uint8_t an_perif_adc_diffmode);
+rsi_error_t RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                  uint32_t channel,
+                                  uint8_t an_perif_adc_ip_sel,
+                                  uint8_t an_perif_adc_in_sel,
+                                  uint8_t an_perif_adc_diffmode);
 
-error_t RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP_Type *pstcADC,
-                                    uint32_t channel,
-                                    uint16_t adc_ch_offset,
-                                    uint16_t adc_ch_freq_val);
+rsi_error_t RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                        uint32_t channel,
+                                        uint16_t adc_ch_offset,
+                                        uint16_t adc_ch_freq_val);
 
-error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC,
-                           uint16_t an_perif_adc_ip_sel,
-                           uint16_t an_perif_adc_in_sel,
-                           uint8_t an_perif_adc_diffmode);
+rsi_error_t RSI_ADC_StaticMode(AUX_ADC_DAC_COMP_Type *pstcADC,
+                               uint16_t an_perif_adc_ip_sel,
+                               uint16_t an_perif_adc_in_sel,
+                               uint8_t an_perif_adc_diffmode);
 
-error_t RSI_ADC_ChnlEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_ChnlEnable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 
-error_t RSI_ADC_ChnlDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_ChnlDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 
-error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t adc_on_time, uint16_t adc_total_duration);
+rsi_error_t RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t adc_on_time, uint16_t adc_total_duration);
 
-error_t RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 
 uint32_t RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP_Type *pstcADC);
 
 void RSI_ADC_PowerControl(POWER_STATE state);
 
-error_t RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP_Type *pstcADC, bool en_disable);
+rsi_error_t RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP_Type *pstcADC, bool en_disable);
 
-error_t RSI_ADC_TempSensorEnable(AUX_ADC_DAC_COMP_Type *pstcADC);
+rsi_error_t RSI_ADC_TempSensorEnable(AUX_ADC_DAC_COMP_Type *pstcADC);
 
-error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
-                                int16_t threshold1,
-                                uint8_t *threshold1_cond,
-                                int16_t threshold2,
-                                uint8_t *threshold2_cond,
-                                uint8_t range);
+rsi_error_t RSI_ADC_ThresholdConfig(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                    int16_t threshold1,
+                                    uint8_t *threshold1_cond,
+                                    int16_t threshold2,
+                                    uint8_t *threshold2_cond,
+                                    uint8_t range);
 
-error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t adc_bbp_en, uint8_t bbp_en, uint8_t bbp_id);
+rsi_error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t adc_bbp_en, uint8_t bbp_en, uint8_t bbp_id);
 
-error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC);
+rsi_error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC);
 
 void RSI_ADC_ThreshInterruptClr(AUX_ADC_DAC_COMP_Type *pstcADC);
 
-error_t RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP_Type *pstcADC,
-                               uint8_t channel,
-                               uint8_t ping_enable,
-                               uint8_t pong_enable);
+rsi_error_t RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP_Type *pstcADC,
+                                   uint8_t channel,
+                                   uint8_t ping_enable,
+                                   uint8_t pong_enable);
 
-error_t RSI_ADC_InternalPerChnlDmaDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_InternalPerChnlDmaDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 
-error_t RSI_ADC_PingpongDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
+rsi_error_t RSI_ADC_PingpongDisable(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 
-error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
-                         uint16_t channel_no,
-                         uint16_t an_perif_adc_ip_sel,
-                         uint16_t an_perif_adc_in_sel,
-                         uint8_t an_perif_adc_diffmode);
+rsi_error_t RSI_ADC_FifoMode(AUX_ADC_DAC_COMP_Type *pstcADC,
+                             uint16_t channel_no,
+                             uint16_t an_perif_adc_ip_sel,
+                             uint16_t an_perif_adc_in_sel,
+                             uint8_t an_perif_adc_diffmode);
 
 int16_t RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t data_process_en, uint8_t diff_en);
 
@@ -406,25 +406,29 @@ void RSI_ADC_AUXLdoConfig(AUX_ADC_DAC_COMP_Type *pstcADC, uint16_t bypass_en, ui
 
 float RSI_ADC_VrefCal(void);
 
-error_t RSI_ADC_ReadData(int16_t *data, uint8_t ping_pong, uint16_t channel, uint8_t data_process_en, uint8_t diff_en);
+rsi_error_t RSI_ADC_ReadData(int16_t *data,
+                             uint8_t ping_pong,
+                             uint16_t channel,
+                             uint8_t data_process_en,
+                             uint8_t diff_en);
 
 uint32_t max_sample_rate_achive(float min_sampling_time);
 
 uint32_t get_adc_clock(uint32_t f_sample_rate_achive);
 
-error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t input_type);
+rsi_error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8_t input_type);
 
-error_t RSI_ADC_AUXLdoConfiguration(float verf_val);
+rsi_error_t RSI_ADC_AUXLdoConfiguration(float verf_val);
 
-error_t ADC_ChannelsDataSort(uint8_t data_select);
+rsi_error_t ADC_ChannelsDataSort(uint8_t data_select);
 
-error_t ADC_Channel_freq_offset_cal(adc_ch_config_t *);
+rsi_error_t ADC_Channel_freq_offset_cal(adc_ch_config_t *);
 
 uint8_t check_power_two(uint16_t num);
 
 uint32_t roundupto_pwr2(uint16_t num);
 
-error_t cal_adc_channel_offset(void);
+rsi_error_t cal_adc_channel_offset(void);
 
 float get_min_sampling_time(uint8_t number_of_channel, adc_ch_config_t adcChConfig);
 
@@ -437,6 +441,8 @@ void UDMA_ADC_Pong_Write(uint8_t reconfig);
 void UDMA_ADC_Ping_Write(uint8_t ping_reconfig);
 
 void UDMA_ADC_Init(void);
+void IRQ011_Handler(void);
+void callback_handler(uint8_t channel_no, uint8_t event);
 #ifdef __cplusplus
 }
 #endif

@@ -31,10 +31,6 @@ include:
     - path: servercert.pem.h
     - path: serverkey.pem.h
     - path: wifiuser.pem.h
-- path: defaults
-  file_list:
-    - path: aws_iot_config.h
-    - path: sl_net_default_values.h
 - path: other
   file_list:
     - path: index.html.h

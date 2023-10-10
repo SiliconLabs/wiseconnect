@@ -20,25 +20,29 @@ source:
 sdk: {id: gecko_sdk, version: 4.3.1}
 toolchain_settings: []
 component:
-- id: cmsis_common
-- id: component_catalog
-- id: sl_system
-- id: siwx917_soc
-  from: wiseconnect3_sdk
-- id: si91x_support
-  from: wiseconnect3_sdk
 - {id: stdio}
+- {from: wiseconnect3_sdk, id: rsilib_clock_update}
+- {id: sl_system}
 - {id: iostream_retarget_stdio}
 - instance: [vcom]
   id: iostream_uart_si91x
 - {from: wiseconnect3_sdk, id: sl_usart_iostream}
 - {from: wiseconnect3_sdk, id: iostream_si91x}
 - {from: wiseconnect3_sdk, id: cmsis_usart}
+- {from: wiseconnect3_sdk, id: rsilib_userconfig}
 - {from: wiseconnect3_sdk, id: rsilib_usart}
 - {from: wiseconnect3_sdk, id: romdriver_egpio}
-- {from: wiseconnect3_sdk, id: sl_siwx917_platform}
 - {id: brd4002a}
+- {from: wiseconnect3_sdk, id: udma_linker_config}
 - {from: wiseconnect3_sdk, id: cmsis_udma}
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+other_file:
+- {path: resources/readme/image501a.png}
+- {path: resources/readme/image501b.png}
+- {path: resources/readme/image501c.png}
+- {path: resources/readme/image501d.png}
+- {path: resources/readme/image501e.png}
+- {path: resources/readme/vcom.png}
 define:
 - {name: RSI_M4_INTERFACE}
 - {name: ROM_BYPASS}
@@ -46,17 +50,15 @@ define:
 - {name: SI917_RADIO_BOARD}
 - {name: USART_CONFIG}
 configuration:
-- unless: [siwx917_soc]
-  name: SL_BOARD_ENABLE_VCOM
-  value: '1'
-- unless: [siwx917_soc]
-  name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
-  value: '1'
+  - name: SL_BOARD_ENABLE_VCOM
+    value: '1'
+  - name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
+    value: '1'
 ui_hints:
   highlight:
   - {path: readme.md, focus: true}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 template_contribution:
   - name: udma_enable
     value: true

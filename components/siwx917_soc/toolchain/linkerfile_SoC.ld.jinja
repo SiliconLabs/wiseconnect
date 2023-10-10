@@ -79,9 +79,11 @@
   {%- set udma_buffer = udma_buffer | sum %}
   {%- set app_ram_size = app_ram_size - udma_buffer %}
   {%- set udma0_start_addr = app_ram_size %}
+  {%- set udma1_start_addr = udma1_start_addr -  udma_buffer%}
 {%- endif %}
+
 {%- if psram_present %}	
-	{%- set app_psram_size = psram_size %}
+	{%- set app_psram_size = app_psram_end - app_psram_start %}
 {%- endif %}
 
 {%- set rtt = 0 %}
@@ -127,7 +129,7 @@ SECTIONS
 		{%- if RAM_EXECUTION %}
 		{%- if not ULP_PLATFORM %}
      	KEEP(*(.reset_handler))
-		*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *port.o *heap_*.o) .text*)
+		*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *siwx917_soc_ncp_host.o *port.o *heap_*.o) .text*)
 		{%- endif %}
 		{%- endif %}
 		{% if not RAM_EXECUTION %}	    
@@ -197,7 +199,11 @@ SECTIONS
 			{% endif %}
 	{% endif %} 
 	
+	{%- if psram_present and psram_linker_config_enabled %} 	
+	.data . :
+	{%- else %}
 	.data :
+	{% endif %}
 	{
 		__data_start__ = .;
 		
@@ -236,6 +242,8 @@ SECTIONS
 		*tasks.o(.text*)
 		*timers.o(.text*)
 		*freertos_umm_malloc_host.o(.text*)
+		*malloc_buffers.o(.text*)
+		*siwx917_soc_ncp_host.o(.text*)
 		*port.o(.text*)
 		*heap_*.o(.text*)
 		{%- endif %}
@@ -271,6 +279,9 @@ SECTIONS
 	{%- if psram_present and data_segment_in_psram and not text_segment_in_psram %}
 		_last_psram_location = .;
 	} > psram	AT> rom
+	{%- elif psram_present and data_segment_in_psram and text_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram
 	{%- elif psram_present and text_segment_in_psram %}	
 		_last_ram_location = .;	
 	} > ram AT> psram
@@ -289,7 +300,7 @@ SECTIONS
 			{% endif %} 
 	{% endif %}	
 	
-	.bss :
+	.bss (NOLOAD) :
 	{
 		. = ALIGN(4);
 		__bss_start__ = .;

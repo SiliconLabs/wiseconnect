@@ -1,9 +1,27 @@
+/*******************************************************************************
+* @file  sl_utility.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include "sl_utility.h"
 #include "sl_constants.h"
-#include "string.h"
+#include "sl_string.h"
 #include "cmsis_compiler.h"
+#include <string.h>
 #include <stdio.h>
 
 #ifdef SPRINTF_CHAR
@@ -11,6 +29,12 @@
 #else
 #define SPRINTF(x) ((size_t)sprintf x)
 #endif
+
+#define DIGIT_VAL(c)                             \
+  (((c >= '0') && (c <= '9'))   ? (c - '0')      \
+   : ((c >= 'a') && (c <= 'z')) ? (c - 'a' + 10) \
+   : ((c >= 'A') && (c <= 'Z')) ? (c - 'A' + 10) \
+                                : -1)
 
 extern char *strtok_r(char *, const char *, char **);
 
@@ -23,38 +47,57 @@ void convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer)
   return;
 }
 
-void print_sl_ip_address(sl_ip_address_t *sl_ip_address)
+sl_status_t convert_string_to_sl_ipv4_address(char *line, sl_ipv4_address_t *ip)
+{
+  char *lasts = NULL;
+  char *token = strtok_r(line, ".", &lasts);
+
+  for (uint8_t i = 0; i < 4; i++, token = strtok_r(NULL, ".", &lasts)) {
+    if (token == NULL) {
+      return SL_STATUS_COMMAND_IS_INVALID;
+    }
+    ip->bytes[i] = (uint8_t)strtoul(token, 0, 0);
+  }
+  return SL_STATUS_OK;
+}
+
+void print_sl_ip_address(const sl_ip_address_t *sl_ip_address)
 {
   if (sl_ip_address == NULL) {
     return;
   }
 
-  uint8_t *ip_address;
-  uint8_t ip_address_size;
-  ip_address_size = sl_ip_address->type == SL_IPV4 ? SL_IPV4_ADDRESS_LENGTH : SL_IPV6_ADDRESS_LENGTH;
-  ip_address      = sl_ip_address->type == SL_IPV4 ? sl_ip_address->ip.v4.bytes : sl_ip_address->ip.v6.bytes;
-  
-  if(sl_ip_address->type == SL_IPV4) {
-    for (uint8_t ip_address_index = 0; ip_address_index < ip_address_size; ip_address_index++) {
-      printf((ip_address_index != 0) ? ".%d" : "\r\nIP address is %d", ip_address[ip_address_index]);
-    }
-  printf("\r\n");
+  if (sl_ip_address->type == SL_IPV4) {
+    print_sl_ipv4_address(&sl_ip_address->ip.v4);
+  } else if (sl_ip_address->type == SL_IPV6) {
+    print_sl_ipv6_address(&sl_ip_address->ip.v6);
   }
-  else if(sl_ip_address->type == SL_IPV6){
-    char temp_buffer[46] = { 0 };
-    sl_inet_ntop6((const unsigned char *)&(sl_ip_address->ip.v6),
-                  (char *)temp_buffer,
-                  sizeof(temp_buffer));
-    printf("%s\r\n", temp_buffer);
-  }
+}
+
+void print_sl_ipv4_address(const sl_ipv4_address_t *ip_address)
+{
+  printf("%d.%d.%d.%d", ip_address->bytes[0], ip_address->bytes[1], ip_address->bytes[2], ip_address->bytes[3]);
+}
+
+void print_sl_ipv6_address(const sl_ipv6_address_t *ip_address)
+{
+  char temp_buffer[46] = { 0 };
+  sl_inet_ntop6((const unsigned char *)(ip_address), (char *)temp_buffer, sizeof(temp_buffer));
+  printf("%s\r\n", temp_buffer);
 }
 
 void print_mac_address(sl_mac_address_t *mac_address)
 {
   if (mac_address == NULL) {
-      return;
-    }
-  printf("%2X:%2X:%2X:%2X:%2X:%2X", mac_address->octet[0], mac_address->octet[1], mac_address->octet[2], mac_address->octet[3], mac_address->octet[4], mac_address->octet[5]);
+    return;
+  }
+  printf("%2X:%2X:%2X:%2X:%2X:%2X",
+         mac_address->octet[0],
+         mac_address->octet[1],
+         mac_address->octet[2],
+         mac_address->octet[3],
+         mac_address->octet[4],
+         mac_address->octet[5]);
 }
 
 char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
@@ -176,7 +219,7 @@ int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, uns
     if (src == src_endp || *src != ':')
       return 0;
   }
-  
+
   curtok       = src;
   xdigits_seen = 0;
   val          = 0;
@@ -242,6 +285,42 @@ int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, uns
   return 1;
 }
 
-__WEAK void sl_debug_log(const char* format, ...) {
+sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *mac)
+{
+  // Verify we have the exact number of characters. Basic argument verification
+  if (sl_strnlen((char *)line, 18) != 17) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  uint8_t index = 0;
+  while (index < 6) {
+    // Read all the data and verify validity
+    int char1 = DIGIT_VAL(line[0]);
+    int char2 = DIGIT_VAL(line[1]);
+    if (char1 == -1 || char2 == -1 || (line[2] != '\0' && line[2] != ':')) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+
+    // Store value
+    mac->octet[index++] = (uint8_t)((uint8_t)char1 << 4) + (uint8_t)char2;
+    line += 3;
+  }
+
+  return SL_STATUS_OK;
+}
+
+void reverse_digits(unsigned char *xx, int no_digits)
+{
+  int count;
+  uint8_t temp;
+  for (count = 0; count < (no_digits / 2); count++) {
+    temp                      = xx[count];
+    xx[count]                 = xx[no_digits - count - 1];
+    xx[no_digits - count - 1] = temp;
+  }
+}
+
+__WEAK void sl_debug_log(const char *format, ...)
+{
   UNUSED_PARAMETER(format);
 }

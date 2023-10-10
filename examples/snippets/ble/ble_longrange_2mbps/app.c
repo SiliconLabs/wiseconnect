@@ -36,10 +36,7 @@
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
 
-#ifdef FW_LOGGING_ENABLE
-//! Firmware logging includes
-#include "sl_fw_logging.h"
-#endif
+#define RSI_DEVICE_DATA_RATE LONG_RANGE
 
 //! Address type of the device to connect
 #define RSI_BLE_DEV_ADDR_TYPE LE_PUBLIC_ADDRESS
@@ -48,7 +45,7 @@
 #define RSI_BLE_DEV_ADDR "00:23:A7:80:70:B9"
 
 //! Remote Device Name to connect
-#define RSI_REMOTE_DEVICE_NAME "ASUS6z"
+#define RSI_REMOTE_DEVICE_NAME "SILABS_DEV"
 
 #define RSI_REM_DEV_ADDR_LEN 18
 
@@ -57,21 +54,6 @@
 #define RSI_APP_EVENT_CONNECTED           1
 #define RSI_APP_EVENT_DISCONNECTED        2
 #define RSI_APP_EVENT_PHY_UPDATE_COMPLETE 3
-
-#ifdef FW_LOGGING_ENABLE
-/*=======================================================================*/
-//!    Firmware logging configurations
-/*=======================================================================*/
-//! Firmware logging task defines
-#define RSI_FW_TASK_STACK_SIZE (512 * 2)
-#define RSI_FW_TASK_PRIORITY   2
-//! Firmware logging variables
-extern rsi_semaphore_handle_t fw_log_app_sem;
-rsi_task_handle_t fw_log_task_handle = NULL;
-//! Firmware logging prototypes
-void sl_fw_log_callback(uint8_t *log_message, uint16_t log_message_length);
-void sl_fw_log_task(void);
-#endif
 
 /*=======================================================================*/
 //!    Powersave configurations
@@ -97,53 +79,39 @@ static rsi_ble_event_disconnect_t rsi_app_disconnected_device;
 static rsi_ble_event_phy_update_t rsi_app_phy_update_complete;
 uint8_t str_remote_address[RSI_REM_DEV_ADDR_LEN] = { '\0' };
 osSemaphoreId_t ble_main_task_sem;
-static uint32_t ble_app_event_map;
-static uint32_t ble_app_event_map1;
+static volatile uint32_t ble_app_event_map;
+static volatile uint32_t ble_app_event_map1;
 
 static const sl_wifi_device_configuration_t config = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_BLE_MODE,
-#ifdef RSI_M4_INTERFACE
-                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
-#else
-                   .feature_bit_map        = RSI_FEATURE_BIT_MAP,
-#endif
-#if RSI_TCP_IP_BYPASS
-                   .tcp_ip_feature_bit_map = RSI_TCP_IP_FEATURE_BIT_MAP,
-#else
-                   .tcp_ip_feature_bit_map = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-#endif
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
-                   .ext_custom_feature_bit_map = (
+  .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_BLE_MODE,
+                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+                                       | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
+                   .tcp_ip_feature_bit_map =
+                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
 #ifdef CHIP_917
-                     (RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                     (SL_SI91X_EXT_FEAT_256K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #else
-                     (SL_SI91X_EXT_FEAT_384K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+#ifdef RSI_M4_INTERFACE
+                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
+#else
+                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
 #endif
-                     | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
-#if (defined A2DP_POWER_SAVE_ENABLE)
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK
-#endif
-                     ),
-                   .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
+                      | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
+                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
 #endif
                                           ),
-#ifdef RSI_PROCESS_MAX_RX_DATA
-                   .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
-                                                  | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
-#else
-                   .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
-#endif
+                   .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
                    .ble_feature_bit_map =
                      ((SL_SI91X_BLE_MAX_NBR_PERIPHERALS(RSI_BLE_MAX_NBR_PERIPHERALS)
@@ -157,7 +125,6 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_GATT_ASYNC_ENABLE
 #endif
                       ),
-
                    .ble_ext_feature_bit_map =
                      ((SL_SI91X_BLE_NUM_CONN_EVENTS(RSI_BLE_NUM_CONN_EVENTS)
                        | SL_SI91X_BLE_NUM_REC_BYTES(RSI_BLE_NUM_REC_BYTES))
@@ -177,7 +144,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_GATT_INIT
 #endif
                       ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | RSI_CONFIG_FEATURE_BITMAP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) }
 };
 
 const osThreadAttr_t thread_attributes = {
@@ -187,7 +154,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_size    = 0,
   .stack_mem  = 0,
   .stack_size = 3072,
-  .priority   = 0,
+  .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -224,9 +191,8 @@ void rsi_ble_app_set_event(uint32_t event_num)
   } else {
     ble_app_event_map1 |= BIT((event_num - 32));
   }
-  if (ble_main_task_sem) {
-    osSemaphoreRelease(ble_main_task_sem);
-  }
+
+  osSemaphoreRelease(ble_main_task_sem);
 
   return;
 }
@@ -242,7 +208,6 @@ void rsi_ble_app_set_event(uint32_t event_num)
  */
 static void rsi_ble_app_clear_event(uint32_t event_num)
 {
-
   if (event_num < 32) {
     ble_app_event_map &= ~BIT(event_num);
   } else {
@@ -310,7 +275,6 @@ void rsi_ble_simple_central_on_enhance_conn_status_event(rsi_ble_event_enhance_c
  */
 void rsi_ble_simple_central_on_adv_report_event(rsi_ble_event_adv_report_t *adv_report)
 {
-
   if (device_found == 1) {
     return;
   }
@@ -394,11 +358,19 @@ void ble_central(void *argument)
 
   int32_t status = 0;
   rsi_ble_resp_read_phy_t read_phy_resp;
-  int32_t temp_event_map = 0;
+  int32_t temp_event_map           = 0;
+  sl_wifi_version_string_t version = { 0 };
 
-#ifdef FW_LOGGING_ENABLE
-  //Fw log component level
-  sl_fw_log_level_t fw_component_log_level;
+#if (RSI_DEVICE_DATA_RATE == LONG_RANGE)
+  uint8_t tx_phy_rate    = BLE_CODED_TX_PHY;
+  uint8_t rx_phy_rate    = BLE_CODED_RX_PHY;
+  uint8_t coded_phy_rate = BLE_500KBPS_CODED_PHY;
+#endif
+
+#if (RSI_DEVICE_DATA_RATE == BLE_2MBPS)
+  uint8_t tx_phy_rate    = BLE_2MBPS_TX_PHY;
+  uint8_t rx_phy_rate    = BLE_2MBPS_RX_PHY;
+  uint8_t coded_phy_rate = BLE_2MBPS_CODED_PHY;
 #endif
 
   status = sl_wifi_init(&config, default_wifi_event_handler);
@@ -409,29 +381,13 @@ void ble_central(void *argument)
     LOG_PRINT("\r\n Wi-Fi Initialization Success\n");
   }
 
-#ifdef FW_LOGGING_ENABLE
-  //! Set log levels for firmware components
-  sl_set_fw_component_log_levels(&fw_component_log_level);
-
-  //! Configure firmware logging
-  status = sl_fw_log_configure(FW_LOG_ENABLE,
-                               FW_TSF_GRANULARITY_US,
-                               &fw_component_log_level,
-                               FW_LOG_BUFFER_SIZE,
-                               sl_fw_log_callback);
-  if (status != RSI_SUCCESS) {
-    LOG_PRINT("\r\n Firmware Logging Init Failed\r\n");
+  //! Firmware version Prints
+  status = sl_wifi_get_firmware_version(&version);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
+  } else {
+    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
   }
-  //! Create firmware logging semaphore
-  rsi_semaphore_create(&fw_log_app_sem, 0);
-  //! Create firmware logging task
-  rsi_task_create((rsi_task_function_t)sl_fw_log_task,
-                  (uint8_t *)"fw_log_task",
-                  RSI_FW_TASK_STACK_SIZE,
-                  NULL,
-                  RSI_FW_TASK_PRIORITY,
-                  &fw_log_task_handle);
-#endif
 
   //! BLE register GAP callbacks
   rsi_ble_gap_register_callbacks(rsi_ble_simple_central_on_adv_report_event,
@@ -446,6 +402,9 @@ void ble_central(void *argument)
                                  NULL);
   //! create ble main task if ble protocol is selected
   ble_main_task_sem = osSemaphoreNew(1, 0, NULL);
+  if (ble_main_task_sem == NULL) {
+    LOG_PRINT("Failed to create ble_main_task_sem semaphore\r\n");
+  }
 
   //! initialize the event map
   rsi_ble_app_init_events();
@@ -484,9 +443,7 @@ void ble_central(void *argument)
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
       //! if events are not received, loop will be continued
-      if (ble_main_task_sem) {
-        osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
-      }
+      osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
       continue;
     }
 
@@ -515,8 +472,7 @@ void ble_central(void *argument)
           return;
         }
 
-        status =
-          rsi_ble_setphy((int8_t *)rsi_app_connected_device.dev_addr, 1 /* tx_phy */, 2 /*rx_phy */, 0 /* coded_phy */);
+        status = rsi_ble_setphy((int8_t *)rsi_app_connected_device.dev_addr, tx_phy_rate, rx_phy_rate, coded_phy_rate);
         if (status != RSI_SUCCESS) {
           return;
         }
@@ -576,8 +532,22 @@ void ble_central(void *argument)
 
       case RSI_APP_EVENT_PHY_UPDATE_COMPLETE: {
         //! phy update complete event
-        LOG_PRINT("\r\n In Phy rate update complete event\r\n");
-        //! clear the phy updare complete event.
+        LOG_PRINT("\r\n Phy rate update complete event\r\n");
+
+        if ((rsi_app_phy_update_complete.TxPhy != BLE_2MBPS) && (rsi_app_phy_update_complete.RxPhy != BLE_2MBPS)) {
+          if (coded_phy_rate == BLE_500_KBPS) {
+            LOG_PRINT("\r\nPHY data rate is updated to 500kbps\n");
+          } else if (coded_phy_rate == BLE_125_KBPS) {
+            LOG_PRINT("\r\nPHY data rate is updated to 125kbps PHY data rate \n");
+          }
+        } else if ((rsi_app_phy_update_complete.TxPhy == BLE_1MBPS)
+                   && (rsi_app_phy_update_complete.RxPhy == BLE_1MBPS)) {
+          LOG_PRINT("\r\nPHY data rate is updated to 1Mbps PHY data rate \n");
+        } else {
+          LOG_PRINT("\r\nPHY data rate is updated to 2Mbps PHY data rate \n");
+        }
+
+        //! clear the phy update complete event.
         rsi_ble_app_clear_event(RSI_APP_EVENT_PHY_UPDATE_COMPLETE);
       } break;
       default: {
@@ -586,9 +556,7 @@ void ble_central(void *argument)
   }
 }
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
-
   osThreadNew((osThreadFunc_t)ble_central, NULL, &thread_attributes);
 }

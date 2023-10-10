@@ -1,0 +1,18 @@
+id: sleeptimer_si91x
+label: SI91X Sleeptimer
+package: platform
+description: >
+  Sleeptimer APIs
+category: Platform|si91x|core
+quality: production
+component_root_path: "components/siwx917_soc/drivers/service/sleeptimer"
+requires:
+  - name: sleeptimer_core
+  - name: sleeptimer_sysrtc
+    condition: [si91x_b0_chip]
+  - name: sleeptimer_ulp
+    condition: [si91x_a0_chip]
+provides:
+  - name: sleeptimer_si91x
+  - name: sleeptimer
+    condition: [device_si91x]

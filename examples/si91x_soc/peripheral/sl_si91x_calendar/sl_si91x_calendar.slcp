@@ -19,39 +19,29 @@ toolchain_settings: []
 component:
 - {from: wiseconnect3_sdk, id: rsilib_clock_update}
 - {from: wiseconnect3_sdk, id: cmsis_device_config_9117}
-# - {from: wiseconnect3_sdk, id: romdriver_egpio}
+- {from: wiseconnect3_sdk, id: romdriver_egpio}
 - {from: wiseconnect3_sdk, id: systemlevel_wwdt}
 - {from: wiseconnect3_sdk, id: rsilib_userconfig}
 - {from: wiseconnect3_sdk, id: systemlevel_processor_sensor}
 - {from: wiseconnect3_sdk, id: systemlevel_rtc}
 - {from: wiseconnect3_sdk, id: systemlevel_time_period}
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
 - {from: wiseconnect3_sdk, id: sl_calendar}
 - {from: wiseconnect3_sdk, id: sl_ulp_timer}
-- id: sl_siwx917_platform
-  from: wiseconnect3_sdk
-- id: cmsis_common
-- id: component_catalog
-- id: sl_si91x_usart
-  from: wiseconnect3_sdk
-- id: siwx917_soc
-  from: wiseconnect3_sdk
-- id: si91x_support
-  from: wiseconnect3_sdk
-- id: sl_siwx917_systemcall
-  from: wiseconnect3_sdk
+- {from: wiseconnect3_sdk, id: si91x_debug}
 - {id: sl_system}
-# - {id: status}
+- {id: status}
 other_file:
 - {path: resources/readme/image501a.png}
 - {path: resources/readme/image501b.png}
 - {path: resources/readme/image501c.png}
+- {path: resources/readme/vcom.png}
 define:
 - {name: RSI_M4_INTERFACE}
-- {name: SYSCALLS_WRITE}
 ui_hints:
   highlight:
   - {path: readme.md, focus: true}
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -38,8 +38,6 @@ extern "C" {
 
 /// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
 /***************************************************************************/ /**
- * @addtogroup mvp MVP API
- * @{
  ******************************************************************************/
 
 /**
@@ -88,7 +86,6 @@ __INLINE int sli_mvp_util_offset_nhwc(int height, int width, int depth, int n, i
   return (((((n * height) + h) * width) + w) * depth) + c;
 }
 
-/** @} (end addtogroup mvp) */
 /// @endcond
 
 #ifdef __cplusplus

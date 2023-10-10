@@ -51,51 +51,48 @@ Set up diagram for NCP mode:
 
 Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
-## Project Environment
+## 3 Project Environment
 
-1. Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware). The firmware file is located at `<WiSeConnect3>/connectivity_firmware/`.
+- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
 
-2. Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-3. Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
+- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
 
 ### 3.1 Creating the project
 
 #### 3.1.1 SoC mode
 
-- Connect your board. The Si917 compatible SoC boards are **BRD4325A, BRD4325B, BRD4325C, BRD4325G**.
-- Studio should detect your board. Your board will be shown here.
+- Ensure the SiWx91x set up is connected to your PC.
+
+- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
 
   **![Soc Board detection](resources/readme/soc_board_detection.png)**
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select "Wi-Fi - HTTP OTAF UPDATE"
-
-  **![HTTP OTAF project](resources/readme/http_otaf_example_soc.png)**
-
-- Give the desired name to your project and click on **Finish**.
-
-  **![Finish creating project](resources/readme/create_project_soc.png)**
-
 #### 3.1.2 NCP mode
 
-- Connect your board. The supported NCP boards are: **BRD4180B**
-- The EFR32 board will be detected under **Debug Adapters** pane as shown below.
+- Ensure the EFx32 and SiWx91x set up is connected to your PC.
+
+- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
 
   **![EFR32 Board detection](resources/readme/efr32.png)**
 
-- Go to the 'EXAMPLE PROJECT & DEMOS' tab and select Wi-Fi - NCP http_otaf
+### 3.2 Importing the project
 
-  **![HTTP OTAF project](resources/readme/http_otaf_example.png)**
+- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
 
-- Give the desired name to your project and cick on **Finish**
+#### SOC Mode
 
-  **![Finish creating project](resources/readme/create_project.png)**
+- Select **Wi-Fi - HTTP OTAF Update** test application
 
-### Setup for applications prints
+  **![project_selection](resources/readme/http_otaf_example_soc.png)**
 
-Before setting up Tera Term, do the following for SoC mode.
+- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
 
-**SoC Mode**:
+  **![creation_final](resources/readme/create_project_soc.png)**
+
+### 3.3 Set up for application prints
+
+#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
+
 You can use either of the below USB to UART converters for application prints.
 
 1. Set up using USB to UART converter board.
@@ -103,33 +100,36 @@ You can use either of the below USB to UART converters for application prints.
    - Connect Tx (Pin-6) to P27 on WSTK
    - Connect GND (Pin 8 or 10) to GND on WSTK
 
-      ![FTDI_prints](resources/readme/usb_to_uart_1.png)
+   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
 
 2. Set up using USB to UART converter cable.
 
    - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
    - Connect GND (Pin1) of TTL convertor to GND on WSTK
 
-      ![FTDI_prints](resources/readme/usb_to_uart_2.png)
+   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
 
-**Tera term set up - for NCP and SoC modes**
+3. Open the Teraterm tool.
 
-1. Open the Tera Term tool.
    - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
 
-     **![](resources/readme/port_selection_soc.png)**
+     **![port_selection_soc](resources/readme/port_selection_soc.png)**
 
-   - For NCP mode, choose the J-Link port and click on **OK**.
+**Note:** For Other 917 SoC boards please refer section #3.3.2
 
-     **![](resources/readme/port_selection.png)**
+#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
+
+1. Open the Teraterm tool.
+
+- choose the J-Link port and click on **OK**.
+    
+    **![J-link - NCP](resources/readme/port_selection.png)**
 
 2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
 
-    **![](resources/readme/serial_port_setup.png)**
+    **![serial_port_setup](resources/readme/serial_port_setup.png)**
 
-    **![](resources/readme/serial_port.png)**
-
-The serial port is now connected.
+    **![serial_port](resources/readme/serial_port.png)**
 
 ## 4 Application Build Environment
 
@@ -143,18 +143,24 @@ The application can be configured to suit user requirements and development envi
 
 - **STA instance related parameters**
 
-- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
+	- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+	
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
+  	```
 
-  ```c
-  #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
-  ```
+	- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
-- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+  	```
 
-  ```c
-  #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
-  ```
+	- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
 
+  	```c
+  	#define DEFAULT_WIFI_CLIENT_SECURITY_TYPE              SL_WIFI_WPA2 
+  	```
+  
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
 #### 4.1.2 Below mentioned configurations in **app.c** file can be configured as per requirements

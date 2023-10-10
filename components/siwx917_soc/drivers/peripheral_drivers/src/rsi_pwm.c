@@ -65,14 +65,14 @@ RSI_MCPWM_CAPABILITIES_T RSI_MCPWM_GetCapabilities(void)
 
 /*==============================================*/
 /**
- * @fn            error_t mcpwm_start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+ * @fn            rsi_error_t mcpwm_start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  * @brief		  This API is used to start the MCPWM operation for required channel
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	  chnlNum	:  Channel number(0 to 3)
  * @return 	      \ref  ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
  *                 \n \ref RSI_OK                    : If process is done successfully
  */
-error_t mcpwm_start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+rsi_error_t mcpwm_start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
   // starts base timer operation
   switch (chnlNum) {
@@ -96,14 +96,14 @@ error_t mcpwm_start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 
 /*==============================================*/
 /**
- * @fn            error_t mcpwm_stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+ * @fn            rsi_error_t mcpwm_stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  * @brief		  This API is used to start the MCPWM operation for required channel
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	  chnlNum	:  Channel number(0 to 3)
  * @return 	      \ref  ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
  *                \n \ref RSI_OK(0)               : If process is done successfully
  */
-error_t mcpwm_stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+rsi_error_t mcpwm_stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
   // Stops base timer operation
   switch (chnlNum) {
@@ -126,7 +126,7 @@ error_t mcpwm_stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 }
 /*==============================================*/
 /**
- * @fn          error_t mcpwm_set_time_period(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal)
+ * @fn          rsi_error_t mcpwm_set_time_period(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal)
  * @brief		This API is used to set time period and counter initial,value for the required MCPWM channel.
  * @param[in]	pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	chnlNum	:  Channel number(0 to 3)
@@ -135,7 +135,7 @@ error_t mcpwm_stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
  *              \n \ref RSI_OK (0)        : If process is done successfully
  */
-error_t mcpwm_set_time_period(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal)
+rsi_error_t mcpwm_set_time_period(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum, uint16_t period, uint16_t initVal)
 {
   // Sets initial value and timer period for time base counter
   switch (chnlNum) {
@@ -192,16 +192,17 @@ void mcpwm_special_event_trigger_config(RSI_MCPWM_T *pMCPWM, boolean_t svtDir, R
     pMCPWM->PWM_SVT_CTRL_RESET_REG = (1 << 1);
   }
   // selct the channel to generate SVT
-  pMCPWM->PWM_TIME_PRD_COMMON_REG_b.PWM_TIME_PRD_COMMON_TIMER_VALUE = pMCPWMSVTConfig->svtChannel;
+  pMCPWM->PWM_TIME_PRD_COMMON_REG_b.PWM_TIME_PRD_COMMON_TIMER_VALUE =
+    (unsigned int)(pMCPWMSVTConfig->svtChannel & 0x03);
   // sets post scalar
-  pMCPWM->PWM_SVT_PARAM_REG_b.SVT_POSTSCALER_SELECT = pMCPWMSVTConfig->svtPostscalar;
+  pMCPWM->PWM_SVT_PARAM_REG_b.SVT_POSTSCALER_SELECT = (unsigned int)(pMCPWMSVTConfig->svtPostscalar & 0x0F);
   // compare value for SVT
   pMCPWM->PWM_SVT_COMPARE_VALUE_REG = pMCPWMSVTConfig->svtCompareVal;
 }
 
 /*==============================================*/
 /**
- * @fn            error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig, uint8_t chnlNum)
+ * @fn            rsi_error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig, uint8_t chnlNum)
  * @brief		  This API is used to Configure Dead time insertion parameters for MCPWM
  * @param[in]	  pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]     pMCPWMDeadTimeConfig  :  Pointer to the structure of type \ref RSI_MCPWM_DT_CONFIG_T
@@ -223,7 +224,7 @@ void mcpwm_special_event_trigger_config(RSI_MCPWM_T *pMCPWM, boolean_t svtDir, R
  * @return      \ref ERROR_PWM_INVALID_ARG : If selecetd dead time counter is invalid
  *                 \n \ref RSI_OK        : If process is done successfully
  */
-error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig, uint8_t chnlNum)
+rsi_error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig, uint8_t chnlNum)
 {
   if ((pMCPWMDeadTimeConfig->counterSelect == COUNTER_A) || (pMCPWMDeadTimeConfig->counterSelect == COUNTER_B)) {
     // Sets prescale for counter A or counter B
@@ -232,7 +233,7 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
         if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_A) {
           if ((pMCPWMDeadTimeConfig->preScaleA >= 0) && (pMCPWMDeadTimeConfig->preScaleA <= 3)) {
             pMCPWM->PWM_DEADTIME_PRESCALE_SELECT_A_b.DEADTIME_PRESCALE_SELECT_A =
-              (pMCPWMDeadTimeConfig->preScaleA << 0);
+              (uint8_t)(pMCPWMDeadTimeConfig->preScaleA << 0);
           } else {
             return ERROR_PWM_INVALID_ARG;
           }
@@ -240,7 +241,7 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
         if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_B) {
           if ((pMCPWMDeadTimeConfig->preScaleB >= 0) && (pMCPWMDeadTimeConfig->preScaleB <= 3)) {
             pMCPWM->PWM_DEADTIME_PRESCALE_SELECT_B_b.DEADTIME_PRESCALE_SELECT_B =
-              (pMCPWMDeadTimeConfig->preScaleB << 0);
+              (uint8_t)(pMCPWMDeadTimeConfig->preScaleB << 0);
           } else {
             return ERROR_PWM_INVALID_ARG;
           }
@@ -250,7 +251,7 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
         if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_A) {
           if ((pMCPWMDeadTimeConfig->preScaleA >= 0) && (pMCPWMDeadTimeConfig->preScaleA <= 3)) {
             pMCPWM->PWM_DEADTIME_PRESCALE_SELECT_A_b.DEADTIME_PRESCALE_SELECT_A =
-              (pMCPWMDeadTimeConfig->preScaleA << 2);
+              (uint8_t)(pMCPWMDeadTimeConfig->preScaleA << 2);
           } else {
             return ERROR_PWM_INVALID_ARG;
           }
@@ -258,7 +259,7 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
         if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_B) {
           if ((pMCPWMDeadTimeConfig->preScaleB >= 0) && (pMCPWMDeadTimeConfig->preScaleB <= 3)) {
             pMCPWM->PWM_DEADTIME_PRESCALE_SELECT_B_b.DEADTIME_PRESCALE_SELECT_B =
-              (pMCPWMDeadTimeConfig->preScaleB << 2);
+              (uint8_t)(pMCPWMDeadTimeConfig->preScaleB << 2);
           } else {
             return ERROR_PWM_INVALID_ARG;
           }
@@ -268,7 +269,7 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
         if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_A) {
           if ((pMCPWMDeadTimeConfig->preScaleA >= 0) && (pMCPWMDeadTimeConfig->preScaleA <= 3)) {
             pMCPWM->PWM_DEADTIME_PRESCALE_SELECT_A_b.DEADTIME_PRESCALE_SELECT_A =
-              (pMCPWMDeadTimeConfig->preScaleA << 4);
+              (uint8_t)(pMCPWMDeadTimeConfig->preScaleA << 4);
           } else {
             return ERROR_PWM_INVALID_ARG;
           }
@@ -276,7 +277,7 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
         if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_B) {
           if ((pMCPWMDeadTimeConfig->preScaleB >= 0) && (pMCPWMDeadTimeConfig->preScaleB <= 3)) {
             pMCPWM->PWM_DEADTIME_PRESCALE_SELECT_B_b.DEADTIME_PRESCALE_SELECT_B =
-              (pMCPWMDeadTimeConfig->preScaleB << 4);
+              (uint8_t)(pMCPWMDeadTimeConfig->preScaleB << 4);
           } else {
             return ERROR_PWM_INVALID_ARG;
           }
@@ -286,7 +287,7 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
         if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_A) {
           if ((pMCPWMDeadTimeConfig->preScaleA >= 0) && (pMCPWMDeadTimeConfig->preScaleA <= 3)) {
             pMCPWM->PWM_DEADTIME_PRESCALE_SELECT_A_b.DEADTIME_PRESCALE_SELECT_A =
-              (pMCPWMDeadTimeConfig->preScaleA << 6);
+              (uint8_t)(pMCPWMDeadTimeConfig->preScaleA << 6);
           } else {
             return ERROR_PWM_INVALID_ARG;
           }
@@ -294,7 +295,7 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
         if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_B) {
           if ((pMCPWMDeadTimeConfig->preScaleB >= 0) && (pMCPWMDeadTimeConfig->preScaleB <= 3)) {
             pMCPWM->PWM_DEADTIME_PRESCALE_SELECT_B_b.DEADTIME_PRESCALE_SELECT_B =
-              (pMCPWMDeadTimeConfig->preScaleB << 6);
+              (uint8_t)(pMCPWMDeadTimeConfig->preScaleB << 6);
           } else {
             return ERROR_PWM_INVALID_ARG;
           }
@@ -305,11 +306,13 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
     }
     // Sets DeadTime for counter A
     if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_A) {
-      pMCPWM->PWM_DEADTIME[chnlNum].PWM_DEADTIME_A_b.DEADTIME_A_CH = pMCPWMDeadTimeConfig->deadTimeA;
+      pMCPWM->PWM_DEADTIME[chnlNum].PWM_DEADTIME_A_b.DEADTIME_A_CH =
+        (volatile unsigned int)(pMCPWMDeadTimeConfig->deadTimeA & 0x3F);
     }
     // Sets DeadTime for counter B
     if (pMCPWMDeadTimeConfig->counterSelect == COUNTER_B) {
-      pMCPWM->PWM_DEADTIME[chnlNum].PWM_DEADTIME_B_b.DEADTIME_B_CH = pMCPWMDeadTimeConfig->deadTimeB;
+      pMCPWM->PWM_DEADTIME[chnlNum].PWM_DEADTIME_B_b.DEADTIME_B_CH =
+        (volatile unsigned int)(pMCPWMDeadTimeConfig->deadTimeB & 0x3F);
     }
   } else {
     return ERROR_PWM_INVALID_ARG;
@@ -319,14 +322,14 @@ error_t mcpwm_dead_time_value_set(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_DT_CONFIG_T *pM
 
 /*==============================================*/
 /**
- * @fn          error_t mcpwm_channel_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+ * @fn          rsi_error_t mcpwm_channel_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  * @brief		This API is used to reset the required channel of MCPWM.
  * @param[in]	pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	chnlNum	:  Channel number(0 to 3)
  * @return 		\ref ERROR_PWM_INVALID_CHNLNUM : If channel is invalid
  *               \n \ref RSI_OK            : If process is done successfully.
  */
-error_t mcpwm_channel_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+rsi_error_t mcpwm_channel_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
   // Resets operation of MCPWM channel
   switch (chnlNum) {
@@ -350,14 +353,14 @@ error_t mcpwm_channel_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 
 /*==============================================*/
 /**
- * @fn          error_t mcpwm_counter_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+ * @fn          rsi_error_t mcpwm_counter_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  * @brief		This API is used to reset the counter from required channel of MCPWM
  * @param[in]	pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	chnlNum	:  Channel number(0 to 3)
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
  *               \n \ref RSI_OK            : If process is done successfully
  */
-error_t mcpwm_counter_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+rsi_error_t mcpwm_counter_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
   // resets counter operations
   switch (chnlNum) {
@@ -381,7 +384,7 @@ error_t mcpwm_counter_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 
 /*==============================================*/
 /**
- * @fn          error_t mcpwm_period_control_config(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum)
+ * @fn          rsi_error_t mcpwm_period_control_config(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum)
  * @brief		This API is used to set base time period control for the required MCPWM channel.
  * @param[in]	pMCPWM     :  Pointer to the MCPWM instance register area
  * @param[in]	postScale  :  Time base output postscale bits ,possible values are as below
@@ -400,25 +403,25 @@ error_t mcpwm_counter_reset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
  *              \n RSI_OK                 : If process is done successfully
  */
-error_t mcpwm_period_control_config(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum)
+rsi_error_t mcpwm_period_control_config(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uint32_t preScale, uint8_t chnlNum)
 {
   // sets prescale and post scale values
   switch (chnlNum) {
     case PWM_CHNL_0:
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH0_b.PWM_TIME_PRD_POST_SCALAR_VALUE_CH0 = postScale;
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH0_b.PWM_TIME_PRD_PRE_SCALAR_VALUE_CH0  = preScale;
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH0_b.PWM_TIME_PRD_POST_SCALAR_VALUE_CH0 = (unsigned int)(postScale & 0x0F);
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH0_b.PWM_TIME_PRD_PRE_SCALAR_VALUE_CH0  = (unsigned int)(preScale & 0x07);
       break;
     case PWM_CHNL_1:
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH1_b.PWM_TIME_PRD_POST_SCALAR_VALUE_CH1 = postScale;
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH1_b.PWM_TIME_PRD_PRE_SCALAR_VALUE_CH1  = preScale;
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH1_b.PWM_TIME_PRD_POST_SCALAR_VALUE_CH1 = (unsigned int)(postScale & 0x0F);
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH1_b.PWM_TIME_PRD_PRE_SCALAR_VALUE_CH1  = (unsigned int)(preScale & 0x07);
       break;
     case PWM_CHNL_2:
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH2_b.PWM_TIME_PRD_POST_SCALAR_VALUE_CH2 = postScale;
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH2_b.PWM_TIME_PRD_PRE_SCALAR_VALUE_CH2  = preScale;
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH2_b.PWM_TIME_PRD_POST_SCALAR_VALUE_CH2 = (unsigned int)(postScale & 0x0F);
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH2_b.PWM_TIME_PRD_PRE_SCALAR_VALUE_CH2  = (unsigned int)(preScale & 0x07);
       break;
     case PWM_CHNL_3:
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH3_b.PWM_TIME_PRD_POST_SCALAR_VALUE_CH3 = postScale;
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH3_b.PWM_TIME_PRD_PRE_SCALAR_VALUE_CH3  = preScale;
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH3_b.PWM_TIME_PRD_POST_SCALAR_VALUE_CH3 = (unsigned int)(postScale & 0x07);
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH3_b.PWM_TIME_PRD_PRE_SCALAR_VALUE_CH3  = (unsigned int)(preScale & 0x07);
       break;
     default:
       return ERROR_PWM_INVALID_CHNLNUM;
@@ -428,7 +431,7 @@ error_t mcpwm_period_control_config(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uin
 
 /*==============================================*/
 /**
- * @fn            error_t mcpwm_fault_avalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
+ * @fn            rsi_error_t mcpwm_fault_avalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
  * @brief		  This API is used to set fault A pin output value to be overridden when fault condition occurs.
  * @param[in]	  pMCPWM    : Pointer to the MCPWM instance register area
  * @param[in]	  pwmOutput : PWM outputs are as below
@@ -446,32 +449,32 @@ error_t mcpwm_period_control_config(RSI_MCPWM_T *pMCPWM, uint32_t postScale, uin
  * @return      \ref ERROR_PWM_INVALID_PWMOUT : If pwmOutput is invalid
  *               \n RSI_OK                : If process is done successfully
  */
-error_t mcpwm_fault_avalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
+rsi_error_t mcpwm_fault_avalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
 {
   switch (pwmOutput) {
     case PWM_OUTPUT_L0:
-      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_L0 = value;
+      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_L0 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_H0:
-      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_H0 = value;
+      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_H0 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_L1:
-      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_L1 = value;
+      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_L1 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_H1:
-      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_H1 = value;
+      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_H1 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_L2:
-      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_L2 = value;
+      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_L2 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_H2:
-      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_H2 = value;
+      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_H2 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_L3:
-      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_L3 = value;
+      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_L3 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_H3:
-      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_H3 = value;
+      pMCPWM->PWM_FLT_A_OVERRIDE_VALUE_REG_b.PWM_FLT_A_OVERRIDE_VALUE_H3 = (unsigned int)(value & 0x01);
       break;
     default:
       return ERROR_PWM_INVALID_PWMOUT;
@@ -481,7 +484,7 @@ error_t mcpwm_fault_avalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t v
 
 /*==============================================*/
 /**
- * @fn          error_t mcpwm_fault_bvalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
+ * @fn          rsi_error_t mcpwm_fault_bvalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
  * @brief		    This API is used to set fault B pin output value to
  *								be overridden when fault condition occurs
  * @param[in]	  pMCPWM    : Pointer to the MCPWM instance register area
@@ -500,32 +503,32 @@ error_t mcpwm_fault_avalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t v
  * @return      \ref ERROR_PWM_INVALID_PWMOUT : If pwmOutput is invalid
  *               \n RSI_OK                : If process is done successfully
  */
-error_t mcpwm_fault_bvalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
+rsi_error_t mcpwm_fault_bvalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
 {
   switch (pwmOutput) {
     case PWM_OUTPUT_L0:
-      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_L0 = value;
+      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_L0 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_H0:
-      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_H0 = value;
+      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_H0 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_L1:
-      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_L1 = value;
+      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_L1 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_H1:
-      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_H1 = value;
+      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_H1 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_L2:
-      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_L2 = value;
+      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_L2 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_H2:
-      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_H2 = value;
+      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_H2 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_L3:
-      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_L3 = value;
+      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_L3 = (unsigned int)(value & 0x01);
       break;
     case PWM_OUTPUT_H3:
-      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_H3 = value;
+      pMCPWM->PWM_FLT_B_OVERRIDE_VALUE_REG_b.PWM_FLT_B_OVERRIDE_VALUE_H3 = (unsigned int)(value & 0x01);
       break;
     default:
       return ERROR_PWM_INVALID_PWMOUT;
@@ -535,7 +538,7 @@ error_t mcpwm_fault_bvalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t v
 
 /*==============================================*/
 /**
- * @fn          error_t mcpwm_set_base_timer_mode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum)
+ * @fn          rsi_error_t mcpwm_set_base_timer_mode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum)
  * @brief		This API is used to set the mode of base timer for required channel
  * @param[in]	pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	mode    :  Base timer operating mode is below
@@ -548,20 +551,20 @@ error_t mcpwm_fault_bvalue_set(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t v
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
  *              \n \ref RSI_OK                 : If process is done successfully
  */
-error_t mcpwm_set_base_timer_mode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum)
+rsi_error_t mcpwm_set_base_timer_mode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum)
 {
   switch (chnlNum) {
     case 0:
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH0_b.TMR_OPEARATING_MODE_CH0 = mode;
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH0_b.TMR_OPEARATING_MODE_CH0 = (unsigned int)(mode & 0x07);
       break;
     case 1:
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH1_b.TMR_OPEARATING_MODE_CH1 = mode;
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH1_b.TMR_OPEARATING_MODE_CH1 = (unsigned int)(mode & 0x07);
       break;
     case 2:
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH2_b.TMR_OPEARATING_MODE_CH2 = mode;
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH2_b.TMR_OPEARATING_MODE_CH2 = (unsigned int)(mode & 0x07);
       break;
     case 3:
-      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH3_b.TMR_OPEARATING_MODE_CH3 = mode;
+      pMCPWM->PWM_TIME_PRD_PARAM_REG_CH3_b.TMR_OPEARATING_MODE_CH3 = (unsigned int)(mode & 0x07);
       break;
     default:
       return ERROR_PWM_INVALID_CHNLNUM;
@@ -571,7 +574,7 @@ error_t mcpwm_set_base_timer_mode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chn
 
 /*==============================================*/
 /**
- * @fn          error_t mcpwm_set_output_mode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum)
+ * @fn          rsi_error_t mcpwm_set_output_mode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum)
  * @brief		This API is used to set output mode for the MCPWM
  * @param[in]	pMCPWM  :  Pointer to the MCPWM instance register area
  * @param[in]	mode    :  If input is one then complementary output mode if zero then independent output mode.
@@ -579,7 +582,7 @@ error_t mcpwm_set_base_timer_mode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chn
  * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
  *               \n \ref RSI_OK                 : If process is done successfully
  */
-error_t mcpwm_set_output_mode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum)
+rsi_error_t mcpwm_set_output_mode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum)
 {
   switch (chnlNum) {
     case 0:

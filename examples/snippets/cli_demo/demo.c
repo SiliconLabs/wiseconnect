@@ -106,7 +106,7 @@ void application_start(const void *unused)
       osDelay(20);
     }
 
-    sl_status_t result = process_buffer_line(&console_command_database, &args, &command);
+    sl_status_t result = console_process_buffer(&console_command_database, &args, &command);
 
     if (result == SL_STATUS_OK) {
       SL_DEBUG_LOG("Processing command\n");

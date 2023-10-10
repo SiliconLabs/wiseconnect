@@ -84,6 +84,7 @@ uint32_t si91x_host_wait_for_async_event(uint32_t event_mask, uint32_t timeout);
 uint32_t si91x_host_clear_events(uint32_t event_mask);
 uint32_t si91x_host_clear_bus_events(uint32_t event_mask);
 uint32_t si91x_host_clear_async_events(uint32_t event_mask);
+void sl_si91x_ta_events_init(void);
 
 // ---------------
 sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,

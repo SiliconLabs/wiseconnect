@@ -54,70 +54,78 @@ typedef struct {
 
 uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc event);
 
-error_t DAC_WriteData_StaticMode(int16_t input_data);
+rsi_error_t DAC_WriteData_StaticMode(int16_t input_data);
 
-error_t DAC_WriteData(uint8_t operation_mode, int16_t *wr_buf, uint16_t length);
+rsi_error_t DAC_WriteData(uint8_t operation_mode, int16_t *wr_buf, uint16_t length);
 
-error_t DAC_Start(uint8_t operation_mode);
+rsi_error_t DAC_Start(uint8_t operation_mode);
 
-error_t DAC_Stop(void);
+rsi_error_t DAC_Stop(void);
 
-error_t DAC_Deinit(void);
+rsi_error_t DAC_Deinit(void);
 
-error_t DAC_PingPongReconfig(int16_t *wr_buf, uint16_t length);
+rsi_error_t DAC_PingPongReconfig(int16_t *wr_buf, uint16_t length);
 
 // New internal API
-error_t DAC_PinMux(uint8_t pin_sel);
+rsi_error_t DAC_PinMux(uint8_t pin_sel);
 
 uint32_t dac_set_clock(uint32_t sampl_rate);
 
-error_t RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP_Type *pstcDAC, uint16_t div_factor);
+rsi_error_t RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP_Type *pstcDAC, uint16_t div_factor);
 
 void RSI_DAC_PowerControl(POWER_STATE_DAC state);
 
-error_t RSI_DAC_Config(AUX_ADC_DAC_COMP_Type *pstcDAC,
-                       uint8_t static_fifo_mode,
-                       uint16_t aux_dac_out_mux_en,
-                       uint16_t aux_dac_out_mux_sel,
-                       uint8_t prbs_sel);
+rsi_error_t RSI_DAC_Config(AUX_ADC_DAC_COMP_Type *pstcDAC,
+                           uint8_t static_fifo_mode,
+                           uint16_t aux_dac_out_mux_en,
+                           uint16_t aux_dac_out_mux_sel,
+                           uint8_t prbs_sel);
 
-error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, int16_t *data, uint8_t static_fifo_mode, uint16_t len);
+rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, int16_t *data, uint8_t static_fifo_mode, uint16_t len);
 
-error_t RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint16_t channel, uint16_t *data, uint32_t len);
+rsi_error_t RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,
+                                         uint16_t channel,
+                                         uint16_t *data,
+                                         uint32_t len);
 
 uint16_t RSI_DAC_DyanamicModeReadData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t data);
 
-error_t RSI_DAC_Stop(AUX_ADC_DAC_COMP_Type *pstcDAC);
+rsi_error_t RSI_DAC_Stop(AUX_ADC_DAC_COMP_Type *pstcDAC);
 
-error_t RSI_DAC_Start(AUX_ADC_DAC_COMP_Type *pstcDAC, uint16_t aux_dac_en);
+rsi_error_t RSI_DAC_Start(AUX_ADC_DAC_COMP_Type *pstcDAC, uint16_t aux_dac_en);
 
-error_t RSI_DAC_DynamicModeConfig(AUX_ADC_DAC_COMP_Type *pstcDAC,
-                                  uint16_t channel_no,
-                                  uint16_t aux_dac_out_mux_en,
-                                  uint16_t aux_dac_out_mux_sel);
+rsi_error_t RSI_DAC_DynamicModeConfig(AUX_ADC_DAC_COMP_Type *pstcDAC,
+                                      uint16_t channel_no,
+                                      uint16_t aux_dac_out_mux_en,
+                                      uint16_t aux_dac_out_mux_sel);
 
-error_t RSI_DAC_DynamicModeStart(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t aux_dac_en);
+rsi_error_t RSI_DAC_DynamicModeStart(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t aux_dac_en);
 
-error_t RSI_DAC_SetFifoThreshold(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t fifo_threshold);
+rsi_error_t RSI_DAC_SetFifoThreshold(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t fifo_threshold);
 
 uint16_t RSI_DAC_ReadData(AUX_ADC_DAC_COMP_Type *pstcDAC);
 
 #ifdef CHIP_9118
-error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC);
-error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC);
+rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC);
+rsi_error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC);
 #endif
 #ifdef CHIP_917
-error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC, uint8_t oper_mode);
-error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC, uint8_t oper_mode);
+rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC, uint8_t oper_mode);
+rsi_error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC, uint8_t oper_mode);
 #endif
 
-error_t RSI_DAC_InterruptClr(AUX_ADC_DAC_COMP_Type *pstcDAC);
+rsi_error_t RSI_DAC_InterruptClr(AUX_ADC_DAC_COMP_Type *pstcDAC);
 
 void dac_udma_init(void);
 
 void dac_udma_write(uint8_t ping_pong_write, uint16_t num_of_samples, int16_t *input_buff, uint8_t skip_flag);
 
 void dac_udma_start(void);
+uint16_t RSI_DAC_DynamicModeReadData(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel, uint16_t data);
+rsi_error_t RSI_DAC_DynamicModeStop(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t channel);
+void dac_udmaTransferComplete(RSI_UDMA_HANDLE_T udmaHandle, RSI_UDMA_DESC_T *pTranDesc, uint32_t channel_no);
+void UDMA_DAC_Ping_Write(uint16_t num_of_samples, int16_t *input_buff, uint8_t pingreconfig);
+void UDMA_DAC_Pong_Write(uint16_t num_of_samples, int16_t *input_buff, uint8_t pongreconfig);
 
 #ifdef __cplusplus
 }

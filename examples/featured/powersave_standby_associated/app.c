@@ -38,6 +38,7 @@
 #include "sl_utility.h"
 #include "sl_net_si91x.h"
 #include "sl_wifi_callback_framework.h"
+#include "sl_si91x_driver.h"
 #include <string.h>
 
 #ifdef RSI_M4_INTERFACE
@@ -56,25 +57,8 @@
 #define BROADCAST_TIM_TILL_NEXT_COMMAND 1
 
 #ifdef RSI_M4_INTERFACE
-#ifdef COMMON_FLASH_EN
-#ifdef CHIP_917B0
-#define IVT_OFFSET_ADDR 0x81C2000 /*<!Application IVT location VTOR offset>          B0 common flash Board*/
-#else
-#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>          A0 Common flash Board*/
-#endif
-#else
-#define IVT_OFFSET_ADDR \
-  0x8012000 /*<!Application IVT location VTOR offset>          Dual Flash  (both A0 and B0) Board*/
-#endif
-#ifdef CHIP_917B0
-#define WKP_RAM_USAGE_LOCATION \
-  0x24061EFC /*<!Bootloader RAM usage location upon wake up  */ // B0 Boards (common flash & Dual flash)
-#else
-#define WKP_RAM_USAGE_LOCATION \
-  0x24061000 /*<!Bootloader RAM usage location upon wake up  */ // A0 Boards (common flash & Dual flash)
-#endif
 #define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-#endif
+#endif // RSI_M4_INTERFACE
 
 /******************************************************
  *                    Constants
@@ -100,6 +84,9 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                                                   RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
                                                   RAM_LEVEL_NWP_BASIC_MCU_ADV
+#endif
+#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
                    .bt_feature_bit_map         = 0,
@@ -159,6 +146,12 @@ static void application_start(void *argument)
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi Client interface: 0x%lx\r\n", status);
+    return;
+  }
+
+  status = sl_si91x_set_join_configuration(SL_WIFI_CLIENT_INTERFACE, SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
+  if (status != SL_STATUS_OK) {
+    printf("Failed to start set join configuration: 0x%lx\r\n", status);
     return;
   }
 

@@ -20,6 +20,7 @@
 #include "rsi_ccp_common.h"
 #include "base_types.h"
 #include "stdint.h"
+#include "rsi_qspi_proto.h"
 
 #ifndef RSI_QSPI_H
 #define RSI_QSPI_H
@@ -528,7 +529,7 @@ struct qspi_reg_s {
 // LIST OF MACRO USED
 
 //  Macro to Deassert CS
-#define DEASSERT_CSN qspi_reg->QSPI_MANUAL_CONFIG_REG = ((qspi_reg->QSPI_MANUAL_CONFIG_REG & ~0x1FFF) | 0x1)
+#define DEASSERT_CSN qspi_reg->QSPI_MANUAL_CONFIG_REG = ((qspi_reg->QSPI_MANUAL_CONFIG_REG & (~0x1FFFU)) | 0x1)
 
 // Macro to check Quad mode
 #define CHK_QUAD_MODE (spi_config->spi_config_1.data_mode == QUAD_MODE)
@@ -661,5 +662,15 @@ struct qspi_reg_s {
 #ifdef __cplusplus
 }
 #endif
+void initialise_m4_efuse_in_io_mode();
+void rsi_cmemcpy(uint8_t *dst, uint8_t *src, uint32_t len);
+void RSI_QSPI_GPDMA_Init(uint32_t hsize, uint32_t ch_no, uint32_t mode);
+void RSI_QSPI_GPDMA_ReadFromFifo(uint32_t src, uint32_t dst, uint32_t len, uint32_t ch_no);
+void RSI_QSPI_ReadFromFifo(uint32_t udma_read, void *udmaHandle, void *gpdmaHandle, uint32_t ch_no);
+void RSI_QSPI_AutoModeEn(qspi_reg_t *qspi_reg);
+void RSI_QSPI_ConfigQspiDll(spi_config_t *spi_config, qspi_reg_t *qspi_reg);
+void RSI_QSPI_TIMER_Config(void);
+void qspi_semi_auto_mode_config(qspi_reg_t *qspi_reg, uint32_t addr, uint32_t hsize, uint32_t bsize, uint32_t length);
+void RSI_QSPI_ProtectAdesto(spi_config_t *spi_config, qspi_reg_t *qspi_reg, uint32_t protection, uint32_t cs_no);
 
 #endif // RSI_QSPI_H

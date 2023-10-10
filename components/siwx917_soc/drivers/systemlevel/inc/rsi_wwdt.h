@@ -28,6 +28,12 @@ extern "C" {
 #endif
 #include "rsi_ccp_common.h"
 #include "base_types.h"
+#include "rsi_power_save.h"
+
+#define WDT_SYSTEM_RESET_TIMER 0x3
+#define WDT_INTERRUPT_TIMER    0x1
+#define WDT_IRQHandler         IRQ020_Handler            /*!<WDT IRQ Handler*/
+#define NVIC_WDT               NPSS_TO_MCU_WDT_INTR_IRQn /*!<WDT NVIC IRQ Numb */
 
 /**
  * @fn          void RSI_WWDT_ConfigWindowTimer(MCU_WDT_Type *pstcWDT , uint16_t u16IntrTimerVal)
@@ -38,7 +44,7 @@ extern "C" {
  */
 STATIC INLINE void RSI_WWDT_ConfigWindowTimer(MCU_WDT_Type *pstcWDT, uint8_t u8WindowTimerVal)
 {
-  pstcWDT->MCU_WWD_WINDOW_TIMER_b.WINDOW_TIMER = u8WindowTimerVal;
+  pstcWDT->MCU_WWD_WINDOW_TIMER_b.WINDOW_TIMER = (unsigned int)(u8WindowTimerVal & 0x0F);
 }
 
 /**
@@ -54,7 +60,7 @@ STATIC INLINE void RSI_WWDT_ConfigIntrTimer(MCU_WDT_Type *pstcWDT, uint16_t u16I
 }
 
 /**
- * @fn          void RSI_WWDT_ConfigSysRstTimer(MCU_WDT_Type *pstcWDT , uint16_t u16SysRstVal)
+ * @fn          void RSI_WWDT_ConfigSysRstTimer(MCU_WDT_Type *pstcWDT , uint16_t u16SysRstVal)  
  * @brief       This API is used to configure the system reset timer of the watch dog timer
  * @param[in]   pstcWDT         : pointer to the WDT register instance
  * @param[in]     u16SysRstVal    : reset value
@@ -190,6 +196,7 @@ void RSI_WWDT_DeInit(MCU_WDT_Type *pstcWDT);
 void RSI_WWDT_Start(MCU_WDT_Type *pstcWDT);
 
 void RSI_WWDT_Init(MCU_WDT_Type *pstcWDT);
+void IRQ020_Handler(void);
 
 #ifdef __cplusplus
 }

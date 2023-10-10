@@ -23,7 +23,7 @@
 #include "rsi_chip.h"
 #include "rsi_ps_ram_func.h"
 #include "rsi_board.h"
-#include "rsi_rom_table_rs9116.h"
+#include "rsi_rom_table_si91x.h"
 
 /*Note : Enable the WiSe_MCU_MODE if it is WiSeMCU product, and comment off the MCU_MODE define*/
 #define MCU_MODE
@@ -35,9 +35,11 @@
 #define INTERMEDIATE_SP 0x8000
 /*Note please update this FLASH_VECTOR_OFFSET based on Application vector offset, default is 0x8012000*/
 #define FLASH_VECTOR_OFFSET 0x8012000
+//!qspi hardware address
+#define QSPI_HW_ADDR 0x12000000
 
 /*QSPI configuration structure*/
-spi_config_t spi_configs_giga = { { 0 } };
+spi_config_t spi_configs_giga;
 
 #ifdef WiSe_MCU_MODE
 #define PadSelectionEnable 15
@@ -399,6 +401,107 @@ void RSI_PS_Restore(void)
   RSI_PS_RestoreCpuContext();
   return;
 }
+#if (defined(RAM_COMPILATION) && defined(COMMON_FLASH_EN))
+/**
+* @fn           void GetQspiConfig(spi_config_t *spi_config)
+* @brief        This function is used to get the QSPI configuration structure of selected flash.
+* @param[in]    None
+* @return       None.
+*
+*/
+void GetQspiConfig(spi_config_t *spi_config)
+{
+  memset(spi_config, 0, sizeof(spi_config_t));
+#ifdef GIGA_DEVICE
+  spi_config->spi_config_1.inst_mode  = SINGLE_MODE; // For Radio Board , instr mode should be in SINGLE_MODE
+  spi_config->spi_config_1.addr_mode  = QUAD_MODE;
+  spi_config->spi_config_1.dummy_mode = QUAD_MODE;
+#else
+  spi_config->spi_config_1.inst_mode              = SINGLE_MODE;
+  spi_config->spi_config_1.addr_mode              = SINGLE_MODE;
+  spi_config->spi_config_1.dummy_mode             = SINGLE_MODE;
+#endif
+  spi_config->spi_config_1.data_mode       = QUAD_MODE;
+  spi_config->spi_config_1.extra_byte_mode = QUAD_MODE;
+  spi_config->spi_config_1.prefetch_en     = DIS_PREFETCH;
+  spi_config->spi_config_1.dummy_W_or_R    = DUMMY_READS;
+  spi_config->spi_config_1.d3d2_data       = 3;
+  spi_config->spi_config_1.continuous      = DIS_CONTINUOUS;
+#ifdef GIGA_DEVICE
+  spi_config->spi_config_1.read_cmd          = 0xEB;
+  spi_config->spi_config_1.flash_type        = GIGA_DEVICE_FLASH;
+  spi_config->spi_config_1.no_of_dummy_bytes = 2;
+  spi_config->spi_config_1.extra_byte_en     = 1;
+#else
+  spi_config->spi_config_1.read_cmd               = 0x6B;
+  spi_config->spi_config_1.flash_type             = MX_QUAD_FLASH;
+  spi_config->spi_config_1.no_of_dummy_bytes      = 1;
+  spi_config->spi_config_1.extra_byte_en          = 0;
+#endif
+  spi_config->spi_config_2.auto_mode                   = EN_AUTO_MODE;
+  spi_config->spi_config_2.cs_no                       = CHIP_ZERO;
+  spi_config->spi_config_2.neg_edge_sampling           = NEG_EDGE_SAMPLING;
+  spi_config->spi_config_2.qspi_clk_en                 = QSPI_FULL_TIME_CLK;
+  spi_config->spi_config_2.protection                  = DNT_REM_WR_PROT;
+  spi_config->spi_config_2.dma_mode                    = NO_DMA;
+  spi_config->spi_config_2.swap_en                     = SWAP;
+  spi_config->spi_config_2.full_duplex                 = IGNORE_FULL_DUPLEX;
+  spi_config->spi_config_2.wrap_len_in_bytes           = NO_WRAP;
+  spi_config->spi_config_2.addr_width_valid            = 0;
+  spi_config->spi_config_2.addr_width                  = _24BIT_ADDR;
+  spi_config->spi_config_2.pinset_valid                = 0;
+  spi_config->spi_config_2.dummy_cycles_for_controller = 0;
+
+  spi_config->spi_config_3.xip_mode          = 0;
+  spi_config->spi_config_3._16bit_cmd_valid  = 0;
+  spi_config->spi_config_3._16bit_rd_cmd_msb = 0;
+  spi_config->spi_config_3.reserved          = 0;
+  spi_config->spi_config_3.wr_cmd            = 0x2;
+  spi_config->spi_config_3.wr_inst_mode      = SINGLE_MODE;
+  spi_config->spi_config_3.wr_addr_mode      = SINGLE_MODE;
+  spi_config->spi_config_3.wr_data_mode      = SINGLE_MODE;
+  spi_config->spi_config_3.dummys_4_jump     = 1;
+
+  spi_config->spi_config_4._16bit_wr_cmd_msb = 0;
+  spi_config->spi_config_4.dual_flash_mode   = 0;
+  spi_config->spi_config_4.secondary_csn     = 1;
+  spi_config->spi_config_4.polarity_mode     = 0;
+#ifdef GIGA_DEVICE
+  spi_config->spi_config_4.valid_prot_bits = 5;
+#else
+  spi_config->spi_config_4.valid_prot_bits        = 4;
+#endif
+  spi_config->spi_config_4.no_of_ms_dummy_bytes = 0;
+  spi_config->spi_config_4.continue_fetch_en    = 0;
+
+  spi_config->spi_config_5.block_erase_cmd      = BLOCK_ERASE;
+  spi_config->spi_config_5.busy_bit_pos         = 0;
+  spi_config->spi_config_5.d7_d4_data           = 0xf;
+  spi_config->spi_config_5.dummy_bytes_for_rdsr = 0x0;
+  spi_config->spi_config_5.reset_type           = 0x0;
+
+  spi_config->spi_config_6.chip_erase_cmd   = CHIP_ERASE;
+  spi_config->spi_config_6.sector_erase_cmd = SECTOR_ERASE;
+
+  spi_config->spi_config_7.status_reg_write_cmd = 0x1;
+  spi_config->spi_config_7.status_reg_read_cmd  = 0x5;
+}
+/**
+* @fn           void RSI_FLASH_Initialize(void)
+* @brief        This function is used to initialize QSPI .
+* @param[in]    None
+* @return       None.
+*
+*/
+void RSI_FLASH_Initialize(void)
+{
+  spi_config_t spi_configs_init;
+  // Get QSPI configurations
+  GetQspiConfig(&spi_configs_init);
+  // QSPI Initialization
+  ROMAPI_QSPI_API->qspi_spi_init((qspi_reg_t *)QSPI_HW_ADDR, &spi_configs_init, 0, 0, 1);
+}
+#endif
 
 /**
 * @fn           void RSI_PS_Restore_WiseAoc(void)

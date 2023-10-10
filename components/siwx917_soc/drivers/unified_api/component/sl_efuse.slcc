@@ -1,0 +1,19 @@
+id: sl_efuse
+label: SL EFUSE
+package: platform
+description: >
+  Efuse Peripheral API's. Include ROM_BYPASS in properties. 
+category: Platform|si91x|Drivers
+quality: production
+component_root_path: "components/siwx917_soc/drivers/unified_api"
+source:
+  - path: "src/sl_si91x_efuse.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_efuse.h"
+provides:
+  - name: sl_efuse
+requires:
+  - name: rsilib_efuse
+  - name: romdriver_efuse

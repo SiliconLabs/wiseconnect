@@ -15,8 +15,7 @@
 *
 ******************************************************************************/
 
-/**
- * Includes */
+//Includes
 #include "rsi_api.h"
 #include "rsi_driver.h"
 
@@ -24,6 +23,10 @@
 * @{
 */
 
+/*-------To ignore -Wcast-align warnings--------*/
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wcast-align"
+#endif
 /*===========================================================================*/
 /** 
  * @fn          int16 rsi_mem_wr(uint32 addr, uint16 len, uint8 *dBuf)
@@ -39,8 +42,9 @@
  *
  * ABH Master Write (Internal Legacy Name)
  */
-int16_t rsi_mem_wr(uint32_t addr, uint16_t len, uint8_t *dBuf)
+int16_t rsi_mem_wr(volatile uint32_t addr, uint16_t len, uint8_t *dBuf)
 {
+  (void)len;
   *(uint32_t *)addr = *(uint32_t *)dBuf;
 
   return 0;
@@ -61,8 +65,9 @@ int16_t rsi_mem_wr(uint32_t addr, uint16_t len, uint8_t *dBuf)
  *
  * ABH Master Read (Internal Legacy Name)
  */
-int16_t rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf)
+int16_t rsi_mem_rd(volatile uint32_t addr, uint16_t len, uint8_t *dBuf)
 {
+  (void)len;
   *(uint32_t *)dBuf = *(uint32_t *)addr;
   return 0;
 }
@@ -144,7 +149,7 @@ int16_t rsi_boot_insn(uint8_t type, uint16_t *data)
         if (retval < 0) {
           return retval;
         }
-        if (read_data == (RSI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
+        if (read_data == (uint16_t)(RSI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
           break;
         }
       }
@@ -172,7 +177,7 @@ int16_t rsi_boot_insn(uint8_t type, uint16_t *data)
         if (retval < 0) {
           return retval;
         }
-        if (read_data == (RSI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
+        if (read_data == (uint16_t)(RSI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
           break;
         }
       }
@@ -226,7 +231,7 @@ int16_t rsi_waitfor_boardready(void)
 #endif
       return -5;
     }
-#if BOOTLOADER_VERSION_CHECK
+#if defined(BOOTLOADER_VERSION_CHECK) && (BOOTLOADER_VERSION_CHECK == 1)
     else if ((read_value & 0xFF) == BOOTLOADER_VERSION) {
 #ifdef RSI_DEBUG_PRINT
       RSI_DPRINT(RSI_PL3, "BOOTLOADER VERSION CORRECT\n");
@@ -272,10 +277,10 @@ int16_t rsi_select_option(uint8_t cmd)
   uint8_t image_number          = 0;
   volatile int32_t loop_counter = 0;
 
-  boot_cmd = HOST_INTERACT_REG_VALID | cmd;
+  boot_cmd = (uint16_t)(HOST_INTERACT_REG_VALID | cmd);
   if (cmd == CHECK_NWP_INTEGRITY) {
     boot_cmd &= 0xF0FF;
-    boot_cmd |= (image_number << 8);
+    boot_cmd |= (uint16_t)(image_number << 8);
   }
   retval = rsi_boot_insn(REG_WRITE, &boot_cmd);
   if (retval < 0) {
@@ -305,7 +310,7 @@ int16_t rsi_select_option(uint8_t cmd)
 #endif
         }
       }
-      if (read_value == (HOST_INTERACT_REG_VALID | cmd)) {
+      if (read_value == (uint16_t)(HOST_INTERACT_REG_VALID | cmd)) {
         break;
       }
     }

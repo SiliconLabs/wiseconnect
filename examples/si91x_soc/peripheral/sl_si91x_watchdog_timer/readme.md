@@ -23,17 +23,17 @@
 ## About Example Code
 
 - \ref watchdog_timer_example.c this example file demonstrates how to use Watchdog-timer(WDT) to trigger WDT warnings and reset system after few warnings .
-  With every WDT timeout interrupt at every 1 seconds, WDT restarted (kicked) by application & onboard LED-0 toggles. After 6 time toggles application does not restart WDT then timer
+  With every WDT timeout interrupt at every 1 seconds, WDT restarted (kicked) by application & onboard LED0 toggles. After 6 time toggles application does not restart WDT then timer
   loads system-reset time (kept 4 seconds), once that time is over WDT resets system. After that again WDT started with new parameters and toggles LED0 6 times and then WDT is stopped,
   callback unregistered and de-initialized.
-- In this example, first application checks whether its a power-on reset or WDT system reset through \ref sl_si91x_watchdog_get_timer_system_reset_status API.
+- In this example, first application toggles LED0 once and checks whether its a power-on reset or WDT system reset through \ref sl_si91x_watchdog_get_timer_system_reset_status API.
 - If its a power-on reset then initializes WDT by enabling peripheral power, enabling WDT to run during CPU sleep mode & unmasking its interrupt through \ref sl_si91x_watchdog_init_timer API.
 - Then clock and timer are configured with default configuration values from UC through \ref sl_si91x_watchdog_configure_clock and \ref sl_si91x_watchdog_set_configuration APIs respectively.
 - Then Registered timer timeout callback and enabling its interrupt using \ref sl_si91x_watchdog_register_timeout_callback API.
 - Then WDT is started using \ref sl_si91x_watchdog_start_timer API.
-- Then application toggles onboard LED-0 & restarts (kicks) WDT, on every interrupt(every 1 seconds) through \ref sl_si91x_watchdog_restart_timer
+- Then application toggles onboard LED0 & restarts (kicks) WDT, on every interrupt(every 1 seconds) through \ref sl_si91x_watchdog_restart_timer
 - At 6th WDT interrupt application not restarts WDT, so when timer count reaches system-reset time (4 seconds) it resets application.
-- After that application starts again and again checks WDT system reset status and on finding it true debugout "Watchdog-timer system-reset occurred"
+- After that application starts again, toggles LED0 once and checks WDT system reset status and on finding it true debugout "Watchdog-timer system-reset occurred"
 - Then timer is again initialized, registers callback and started with new parameters, configured using following APIs:
   \ref sl_si91x_watchdog_set_system_reset_time to change WDT system-reset time to 8 seconds, for possible values refer \ref time_delays_t enum.
   \ref sl_si91x_watchdog_set_interrupt_time to change WDT interrupt time to 2 seconds, for possible values refer \ref time_delays_t enum.
@@ -42,7 +42,7 @@
   \ref sl_si91x_watchdog_get_system_reset_time to read system-reset time.
   \ref sl_si91x_watchdog_get_interrupt_time to read interrupt time.
   \ref sl_si91x_watchdog_get_window_time to read window time.
-- Then application again toggles onboard LED-0 6 times & restarts (kicks) WDT, on every interrupt(every 2 seconds) through \ref sl_si91x_watchdog_restart_timer
+- Then application again toggles onboard LED0 6 times & restarts (kicks) WDT, on every interrupt(every 2 seconds) through \ref sl_si91x_watchdog_restart_timer
 - At sixth WDT interrupt application not restarts WDT and immediately application stops WDT through \ref sl_si91x_watchdog_stop_timer API
 - Then unregisters callback and deinitializes timer through \ref sl_si91x_watchdog_unregister_timeout_callback & \ref sl_si91x_watchdog_deinit_timer APIs respectively.
 
@@ -53,7 +53,7 @@
 ### Hardware Setup
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WSTK + BRD4325A]
+- Silicon Labs Si917 Evaluation Kit [WSTK + BRD4338A]
 
 ![Figure: Introduction](resources/readme/image514a.png)
 
@@ -62,6 +62,11 @@
 - Si91x SDK
 - Embedded Development Environment
   - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+
+### VCOM Setup
+- The Serial Console tool's setup instructions are provided below..
+
+![Figure: VCOM_setup](resources/readme/vcom.png)
 
 ### Project Setup
 
@@ -135,7 +140,6 @@ In handler : WDT restarted
 In handler : WDT restarted
 In handler : WDT restarted
 In handler : WDT restarted
-In handler : WDT restarted
 In Main..!
 Watchdog-timer system-reset occurred
 Watchdog-timer version is fetched successfully
@@ -151,7 +155,6 @@ New interrupt time value : 16
 New system-reset time value : 18
 New window time value : 10
 Successfully started watchdog-timer again with new parameters
-In handler : WDT restarted
 In handler : WDT restarted
 In handler : WDT restarted
 In handler : WDT restarted

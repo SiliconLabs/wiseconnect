@@ -1,3 +1,20 @@
+/*******************************************************************************
+* @file  sl_si91x_socket.c
+* @brief 
+*******************************************************************************
+* # License
+* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+*******************************************************************************
+*
+* The licensor of this software is Silicon Laboratories Inc. Your use of this
+* software is governed by the terms of Silicon Labs Master Software License
+* Agreement (MSLA) available at
+* www.silabs.com/about-us/legal/master-software-license-agreement. This
+* software is distributed to you in Source Code format and is governed by the
+* sections of the MSLA applicable to Source Code.
+*
+******************************************************************************/
+
 #include "sl_si91x_socket_utility.h"
 #include "sl_status.h"
 #include "sl_constants.h"
@@ -269,7 +286,11 @@ static int sli_si91x_accept_async(int socket, const struct sockaddr *addr, sockl
   return client_socket_id;
 }
 
-int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *option_value, socklen_t option_len)
+int sl_si91x_setsockopt_async(int32_t sockID,
+                              int level,
+                              int option_name,
+                              const void *option_value,
+                              socklen_t option_len)
 {
   UNUSED_PARAMETER(level);
   si91x_socket_t *si91x_socket = get_si91x_socket(sockID);
@@ -280,7 +301,7 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
   SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT)
 
   switch (option_name) {
-    case sl_si91x_SO_RCVTIME: {
+    case SL_SI91X_SO_RCVTIME: {
       // Configure receive timeout
       timeout = (sl_si91x_time_value *)option_value;
       if ((timeout->tv_sec == 0) && (timeout->tv_usec != 0) && (timeout->tv_usec < 1000)) {
@@ -295,51 +316,56 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
       break;
     }
 
-    case sl_si91x_SO_MAXRETRY: {
+    case SL_SI91X_SO_MAXRETRY: {
       memcpy(&si91x_socket->max_tcp_retries,
              (uint16_t *)option_value,
              GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->max_tcp_retries), option_len));
       break;
     }
 
-    case sl_si91x_SO_TCP_KEEPALIVE: {
+    case SL_SI91X_SO_TCP_KEEPALIVE: {
       memcpy(&si91x_socket->tcp_keepalive_initial_time,
              (uint16_t *)option_value,
              GET_SAFE_MEMCPY_LENGTH(sizeof(si91x_socket->tcp_keepalive_initial_time), option_len));
       break;
     }
-    case sl_si91x_SO_HIGH_PERFORMANCE_SOCKET: {
+    case SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET: {
       SET_ERRNO_AND_RETURN_IF_TRUE(*(uint8_t *)option_value != SI91X_HIGH_PERFORMANCE_SOCKET, EINVAL);
       si91x_socket->ssl_bitmap |= SI91X_HIGH_PERFORMANCE_SOCKET;
       break;
     }
 
-    case sl_si91x_SO_SSL_ENABLE: {
+    case SL_SI91X_SO_SSL_ENABLE: {
       SET_ERRNO_AND_RETURN_IF_TRUE((*(uint8_t *)option_value) != SI91X_SOCKET_FEAT_SSL, EINVAL);
       si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL;
       break;
     }
-    case sl_si91x_SO_SSL_V_1_0_ENABLE: {
+    case SL_SI91X_SO_SSL_V_1_0_ENABLE: {
       SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_0)),
                                    EINVAL);
       si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_0;
       break;
     }
-    case sl_si91x_SO_SSL_V_1_1_ENABLE: {
+    case SL_SI91X_SO_SSL_V_1_1_ENABLE: {
       SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_1)),
                                    EINVAL);
       si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_1;
       break;
     }
-    case sl_si91x_SO_SSL_V_1_2_ENABLE: {
+    case SL_SI91X_SO_SSL_V_1_2_ENABLE: {
       SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_2)),
                                    EINVAL);
       si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_2;
       break;
     }
 
+    case SL_SI91X_SO_SOCK_VAP_ID: {
+      si91x_socket->vap_id = *((uint8_t *)option_value);
+      break;
+    }
+
 #ifdef CHIP_917
-    case sl_si91x_SO_SSL_V_1_3_ENABLE: {
+    case SL_SI91X_SO_SSL_V_1_3_ENABLE: {
       SET_ERRNO_AND_RETURN_IF_TRUE(((*(uint8_t *)option_value) != (SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_3)),
                                    EINVAL);
       si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_SSL | SL_SI91X_TLS_V_1_3;
@@ -352,7 +378,7 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
     //     si91x_socket->ssl_bitmap |= SI91X_SOCKET_FEAT_TCP_ACK_INDICATION;
     //     break;
     //  }
-    case sl_si91x_SO_CERT_INDEX: {
+    case SL_SI91X_SO_CERT_INDEX: {
       SET_ERRNO_AND_RETURN_IF_TRUE(
         ((*(uint8_t *)option_value < SI91X_CERT_INDEX_0) || (*(uint8_t *)option_value > SI91X_CERT_INDEX_2)),
         EINVAL);
@@ -361,8 +387,18 @@ int sl_si91x_setsockopt(int32_t sockID, int level, int option_name, const void *
       break;
     }
 
+    case SL_SI91X_SO_TLS_SNI: {
+      sl_status_t status = add_server_name_indication_extension(&si91x_socket->sni_extensions,
+                                                                (si91x_socket_type_length_value_t *)option_value);
+
+      if (status != SL_STATUS_OK) {
+        SET_ERROR_AND_RETURN(ENOMEM);
+      }
+      break;
+    }
+
 #ifdef CHIP_917
-    case sl_si91x_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE: {
+    case SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE: {
       if (IS_POWER_OF_TWO((*(uint8_t *)option_value)) && ((*(uint8_t *)option_value) < MAX_RETRANSMISSION_TIME_VALUE)) {
         memcpy(&si91x_socket->max_retransmission_timeout_value,
                (uint8_t *)option_value,
@@ -505,7 +541,7 @@ int sl_si91x_recvfrom(int socket,
   ssize_t bytes_read                 = 0;
   si91x_rsp_socket_recv_t *response  = NULL;
   si91x_socket_t *si91x_socket       = get_si91x_socket(socket);
-  sl_wifi_buffer_t *buffer;
+  sl_wifi_buffer_t *buffer           = NULL;
 
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_STREAM && si91x_socket->state != CONNECTED, ENOTCONN);
@@ -541,7 +577,9 @@ int sl_si91x_recvfrom(int socket,
                                                            (void *)&response,
                                                            &event,
                                                            &wait_time);
-
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR)
 
   bytes_read = (response->length <= buf_len) ? response->length : buf_len;
@@ -628,7 +666,7 @@ int sl_si91x_select(int nfds,
   }
 
   status =
-    sl_si91x_driver_send_asycn_command(RSI_WLAN_REQ_SELECT_REQUEST, SI91X_SOCKET_CMD_QUEUE, &request, sizeof(request));
+    sl_si91x_driver_send_async_command(RSI_WLAN_REQ_SELECT_REQUEST, SI91X_SOCKET_CMD_QUEUE, &request, sizeof(request));
 
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
   return SI91X_NO_ERROR;

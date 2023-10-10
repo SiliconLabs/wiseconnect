@@ -135,6 +135,44 @@
 // Assertion Interrupt indication from module
 #define RSI_ASSERT_INTR 0x80
 
+//***************************** Macros for Crypto Start **********************************/
+
+#define SL_SI91X_KEY_BUFFER_SIZE 32
+#define SL_SI91X_TAG_SIZE        16
+#define SL_SI91X_IV_SIZE         16
+
+// ECDH defines
+#define ECDH_BUFFER_SIZE 32
+
+// TRNG defines
+#define TRNG_INIT       1
+#define TRNG_ENTROPY    2
+#define TRNG_KEY        3
+#define TRNG_GENERATION 4
+
+#define TRNG_INIT_MSG_LENGTH 16
+#define TRNG_KEY_SIZE        4
+#define TRNG_TEST_DATA_SIZE  64
+
+// CCM defines
+#define SL_SI91X_CCM_IV_MIN_SIZE  7
+#define SL_SI91X_CCM_IV_MAX_SIZE  13
+#define SL_SI91X_CCM_AD_MAX_SIZE  32
+#define SL_SI91X_CCM_MSG_MAX_SIZE 1200
+
+// GCM defines
+#define SL_SI91X_GCM_IV_SIZE      12
+#define SL_SI91X_GCM_AD_MAX_SIZE  128
+#define SL_SI91X_GCM_MSG_MAX_SIZE 1400
+
+// Chachapoly defines
+#define SL_SI91X_KEYR_SIZE               16
+#define SL_SI91X_KEYS_SIZE               16
+#define SL_SI91X_CHACHAPOLY_IV_SIZE      12
+#define SL_SI91X_CHACHAPOLY_MSG_MAX_SIZE 1200
+
+//***************************** Macros for Crypto End **********************************/
+
 typedef struct {
   uint32_t buffer_full : 1;
   uint32_t ready_to_transmit : 1;
@@ -322,7 +360,7 @@ typedef enum {
   RSI_COMMON_RSP_SOFT_RESET            = 0x1C,
   RSI_COMMON_RSP_ULP_NO_RAM_RETENTION  = 0xCD,
   RSI_COMMON_RSP_ASYNCHRONOUS          = 0xFF,
-  RSI_RSP_ENCRYPT_CRYPTO               = 0x76,
+  RSI_COMMON_RSP_ENCRYPT_CRYPTO        = 0x76,
   RSI_COMMON_RSP_UART_FLOW_CTRL_ENABLE = 0xA4,
   RSI_COMMON_RSP_TA_M4_COMMANDS        = 0xB0,
   RSI_COMMON_RSP_DEBUG_LOG             = 0x26
@@ -376,9 +414,12 @@ typedef enum {
   RSI_WLAN_REQ_JOIN                 = 0x14,
   RSI_WLAN_REQ_SET_MAC_ADDRESS      = 0x17,
   RSI_WLAN_REQ_DISCONNECT           = 0x19,
+  RSI_WLAN_REQ_AP_STOP              = 0xAE,
   RSI_WLAN_REQ_SET_REGION           = 0x1D,
   RSI_WLAN_REQ_QUERY_NETWORK_PARAMS = 0x18,
   RSI_WLAN_REQ_AP_CONFIGURATION     = 0x24,
+  RSI_WLAN_REQ_EVM_OFFSET           = 0x36,
+  RSI_WLAN_REQ_EVM_WRITE            = 0x37,
   RSI_WLAN_REQ_RSSI                 = 0x3A,
   RSI_WLAN_REQ_EAP_CONFIG           = 0x4C,
   RSI_WLAN_REQ_FW_VERSION           = 0x49,
@@ -387,10 +428,12 @@ typedef enum {
   RSI_WLAN_REQ_SET_CERTIFICATE      = 0x4D,
   RSI_WLAN_REQ_BG_SCAN              = 0x6A,
   RSI_WLAN_REQ_WPS_METHOD           = 0x72,
+  RSI_WLAN_REQ_EFUSE_READ           = 0x73,
   RSI_WLAN_REQ_ROAM_PARAMS          = 0x7B,
   RSI_WLAN_REQ_RX_STATS             = 0xA2,
   RSI_WLAN_REQ_RADIO                = 0x81,
   RSI_WLAN_REQ_EXT_STATS            = 0x68,
+  RSI_WLAN_REQ_TWT_AUTO_CONFIG      = 0x2E,
   RSI_WLAN_REQ_TWT_PARAMS           = 0x2F,
   RSI_WLAN_REQ_GAIN_TABLE           = 0x47,
   RSI_WLAN_REQ_TX_TEST_MODE         = 0x7C,
@@ -398,6 +441,7 @@ typedef enum {
   RSI_WLAN_REQ_SET_REGION_AP        = 0xBD,
   RSI_WLAN_REQ_CALIB_WRITE          = 0xCA,
   RSI_WLAN_REQ_FILTER_BCAST_PACKETS = 0xC9,
+  RSI_WLAN_REQ_CALIB_READ           = 0xCF,
   RSI_WLAN_REQ_HTTP_OTAF            = 0xF4,
   RSI_WLAN_REQ_11AX_PARAMS          = 0xFF,
 
@@ -481,9 +525,13 @@ typedef enum {
   RSI_WLAN_RSP_SET_MAC_ADDRESS      = 0x17,
   RSI_WLAN_RSP_QUERY_NETWORK_PARAMS = 0x18,
   RSI_WLAN_RSP_DISCONNECT           = 0x19,
+  RSI_WLAN_RSP_AP_STOP              = 0xAE,
   RSI_WLAN_RSP_SET_REGION           = 0x1D,
   RSI_WLAN_RSP_AP_CONFIGURATION     = 0x24,
+  RSI_WLAN_RSP_TWT_AUTO_CONFIG      = 0x2E,
   RSI_WLAN_RSP_TWT_PARAMS           = 0x2F,
+  RSI_WLAN_RSP_EVM_OFFSET           = 0x36,
+  RSI_WLAN_RSP_EVM_WRITE            = 0x37,
   RSI_WLAN_RSP_RSSI                 = 0x3A,
   RSI_WLAN_RSP_GAIN_TABLE           = 0x47,
   RSI_WLAN_RSP_FW_VERSION           = 0x49,
@@ -493,6 +541,7 @@ typedef enum {
   RSI_WLAN_RSP_QUERY_GO_PARAMS      = 0x4E,
   RSI_WLAN_RSP_BG_SCAN              = 0x6A,
   RSI_WLAN_RSP_EXT_STATS            = 0x68, // Neither part 22q2 nor alpha 2
+  RSI_WLAN_RSP_EFUSE_READ           = 0x73,
   RSI_WLAN_RSP_TX_TEST_MODE         = 0x7C,
   RSI_WLAN_RSP_ROAM_PARAMS          = 0x7B,
   RSI_WLAN_RSP_RADIO                = 0x81,
@@ -502,6 +551,7 @@ typedef enum {
   RSI_WLAN_RSP_CONFIG               = 0XBE,
   RSI_WLAN_RSP_SET_REGION_AP        = 0xBD,
   RSI_WLAN_RSP_FILTER_BCAST_PACKETS = 0xC9,
+  RSI_WLAN_RSP_CALIB_READ           = 0xCF,
   RSI_WLAN_RSP_GET_STATS            = 0xF1,
   RSI_WLAN_RSP_HTTP_OTAF            = 0xF4,
   RSI_WLAN_RSP_11AX_PARAMS          = 0xFF,
@@ -603,3 +653,5 @@ typedef enum {
 typedef enum { SET_REGION_CODE_FROM_BEACONS, SET_REGION_CODE_FROM_USER } si91x_set_region_code_command_t;
 
 typedef enum { SL_SI91X_SOCKET_REMOTE_TERMINATED_EVENT, SL_SI91X_SOCKET_EVENT_COUNT } sl_si91x_socket_event_t;
+
+typedef enum { SL_SI91X_NO_ENCRYPTION, SL_SI91X_TKIP_ENCRYPTION, SL_SI91X_CCMP_ENCRYPTION } sl_si91x_encryption_t;

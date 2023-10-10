@@ -299,7 +299,8 @@ sl_status_t sl_wifi_get_transmit_rate(sl_wifi_interface_t interface,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This API is not yet implemented.
+ *   By default listen interval is set 1000secs. User can call this API to overwrite the value.
+ *   Si91X implementation allows this API ONLY to be called before calling @ref sl_wifi_connect(), @ref sl_wifi_start_ap(), @ref sl_wifi_start_wps()
  ******************************************************************************/
 sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval);
 
@@ -315,7 +316,7 @@ sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This API is not yet implemented.
+*   By default, the listen interval is set to 1000 secs.
  ******************************************************************************/
 sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t *listen_interval);
 
@@ -343,12 +344,12 @@ sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
- *   1. This frame has to be used only by customers who has done FCC/ETSI/TELEC/KCC certification with their own antenna. Silicon Labs is not liable for inappropriate usage of this frame that may result in violation of FCC/ETSI/TELEC/KCC or any certifications. 
- *   2. Internally, firmware maintains two tables : Worldwide table & Region based table. Worldwide table is populated by firmware with max power values that chip can transmit and meet target specs like EVM. Region based table has default gain value set.
- *   3. When certifying with user antenna, Region has to be set to Worldwide and sweep the power from 0 to 21dBm. Arrive at max power level that is passing certification especially band-edge.
- *   4. These FCC/ETSI/TELEC/KCC max power level should be loaded in end-to-end mode via WLAN User Gain table. This has to be called done for every boot-up as this information is not saved inside the flash. Region based user gain table sent by application is copied onto Region based table. SoC uses this table in FCC/ETSI/TELEC/KCC to limit the power and to not violate the allowed limits.
- *   5. For Worldwide region, the firmware uses Worldwide table for Tx. For other regions(FCC/ETSI/TELEC/KCC), the firmware uses min value out of Worldwide & Region based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
- *   6. In 2.4Ghz band, 40Mhz is not supported.
+ *   1. This frame must be used only by customers who have done FCC/ETSI/TELEC/KCC certification with their own antenna. Silicon Labs is not liable for inappropriate usage of this frame that may result in violation of FCC/ETSI/TELEC/KCC or any certifications. 
+ *   2. Internally, firmware maintains two tables: Worldwide table & Region-based table. Worldwide table is populated by the firmware with max power values that the chip can transmit and meet target specs like EVM. Region-based table has a default gain value set.
+ *   3. When certifying with user antenna, the Region has to be set to Worldwide and sweep the power from 0 to 21 dBm. Arrive at a max power level that will pass certifications, especially band-edge.
+ *   4. The FCC/ETSI/TELEC/KCC max power level should be loaded in an end-to-end mode via WLAN User Gain table. This has to be called done for every boot-up as this information is not saved inside the flash. Region-based user gain table sent by the application is copied onto the Region-based table. SoC uses this table in FCC/ETSI/TELEC/KCC to limit the power and to not violate the allowed limits.
+ *   5. For Worldwide region, the firmware uses the Worldwide table for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of the Worldwide & Region-based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
+ *   6. In a 2.4 Ghz band, 40 Mhz is not supported.
  ******************************************************************************/
 sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *payload, uint16_t payload_len);
 
@@ -793,9 +794,6 @@ sl_status_t sl_wifi_get_performance_profile(sl_wifi_performance_profile_t *profi
 
 /** @} */
 
-/** \addtogroup WIFI_MONITOR_API Monitor Mode
-  * \ingroup SL_WIFI_FUNCTIONS
-  * @{ */
 // "Monitor Mode" functions
 
 /***************************************************************************/ /**
@@ -823,11 +821,6 @@ sl_status_t sl_wifi_enable_monitor_mode(sl_wifi_interface_t interface);
  ******************************************************************************/
 sl_status_t sl_wifi_disable_monitor_mode(sl_wifi_interface_t interface);
 
-/** @} */
-
-/** \addtogroup WIFI_P2P_API Wi-Fi Direct
-  * \ingroup SL_WIFI_FUNCTIONS
-  * @{ */
 // P2P functions
 
 /***************************************************************************/ /**
@@ -861,8 +854,6 @@ sl_status_t sl_wifi_start_p2p_discovery(sl_wifi_interface_t interface,
  *   This API is not yet implemented.
  ******************************************************************************/
 sl_status_t sl_wifi_p2p_connect(sl_wifi_interface_t interface, const sl_wifi_p2p_configuration_t *configuration);
-
-/** @} */
 
 /** \addtogroup WIFI_WPS_API Wi-Fi Protected Setup
   * \ingroup SL_WIFI_FUNCTIONS
@@ -967,7 +958,7 @@ sl_status_t sl_wifi_send_raw_data_frame(sl_wifi_interface_t interface, const voi
 
 /***************************************************************************/ /**
  * @brief
- *   Configure TWT parameters. Enables or disables a TWT session. This is blocking API.
+ *   Configure TWT parameters. Enables a TWT session. This is blocking API.
  * @pre 
  *   @ref sl_wifi_connect should be called before this API.
  * @param[in] twt_req
@@ -979,7 +970,7 @@ sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req);
 
 /***************************************************************************/ /**
  * @brief
- *   Configure TWT parameters. Enables or disables a TWT session. This is blocking API.
+ *   Configure TWT parameters. Disables a TWT session. This is blocking API.
  * @pre 
  *   @ref sl_wifi_enable_target_wake_time should be called before this API.
  * @param[in] twt_req
@@ -988,6 +979,18 @@ sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req);
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_wifi_disable_target_wake_time(sl_wifi_twt_request_t *twt_req);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Calculates and configures TWT parameters based on the given inputs. Enables or disables a TWT session. This is blocking API.
+ * @pre 
+ *   @ref sl_wifi_connect should be called before this API.
+ * @param[in] twt_selection_req
+ *   Configurable TWT selection parameters.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_target_wake_time_auto_selection(sl_wifi_twt_selection_t *twt_selection_req);
 
 /***************************************************************************/ /**
  * @brief

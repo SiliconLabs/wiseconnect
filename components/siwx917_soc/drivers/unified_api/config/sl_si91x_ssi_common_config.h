@@ -50,6 +50,14 @@ extern "C" {
 // <i> Default: 0
 #define SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE 0
 
+// <o SL_SSI_TX_FIFO_THRESHOLD> TX FIFO Threshold <0-15>
+// <i> Default: 0
+#define SL_SSI_TX_FIFO_THRESHOLD 0
+
+// <o SL_SSI_RX_FIFO_THRESHOLD> RX FIFO Threshold <0-15>
+// <i> Default: 0
+#define SL_SSI_RX_FIFO_THRESHOLD 0
+
 // </h>
 // <<< end of configuration section >>>
 

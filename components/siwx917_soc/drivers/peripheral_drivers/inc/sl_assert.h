@@ -44,7 +44,7 @@ extern "C" {
 
 #if defined(DEBUG_EFM) || defined(DEBUG_EFM_USER)
 /***************************************************************************/ /**
- * @addtogroup assert ASSERT - Assert
+ 
  * @brief Assert/error checking module
  * @details
  * By default, library assert usage is not included to reduce
@@ -82,8 +82,6 @@ void assertEFM(const char *file, int line);
 #define EFM_ASSERT(expr) ((void)(expr))
 
 #endif /* defined(DEBUG_EFM) || defined(DEBUG_EFM_USER) */
-
-/** @} (end addtogroup assert) */
 
 #ifdef __cplusplus
 }

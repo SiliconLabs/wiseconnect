@@ -31,7 +31,7 @@
 
 /*==============================================*/
 /**
- * @fn        error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+ * @fn        rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
  *                                    uint32_t u32TimePeriodRefClk,
  *                                    uint32_t u32XtalSettle,
  *                                    uint16_t u16RcClkCnt,
@@ -63,15 +63,15 @@
  *            Error code on failure
  */
 
-error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                     uint32_t u32TimePeriodRefClk,
-                                     uint32_t u32XtalSettle,
-                                     uint16_t u16RcClkCnt,
-                                     boolean_t bPeriodicCalibEn,
-                                     uint8_t u8PeriodicCalibRate,
-                                     boolean_t bTemperatureCalibEn,
-                                     uint8_t u8TemperatureVal,
-                                     uint8_t u8AverageFactor)
+rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+                                         uint32_t u32TimePeriodRefClk,
+                                         uint32_t u32XtalSettle,
+                                         uint16_t u16RcClkCnt,
+                                         boolean_t bPeriodicCalibEn,
+                                         uint8_t u8PeriodicCalibRate,
+                                         boolean_t bTemperatureCalibEn,
+                                         uint8_t u8TemperatureVal,
+                                         uint8_t u8AverageFactor)
 {
   /*Parameter validation*/
   if (pstcTimePeriod == NULL) {
@@ -149,7 +149,7 @@ uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod)
 
 /*==============================================*/
 /**
- * @fn        error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+ * @fn        rsi_error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
  *                                           uint32_t u32TimePeriodRefClk,
  *                                           uint32_t u32XtalSettle,
  *                                           uint16_t u16RcClkCnt,
@@ -180,15 +180,15 @@ uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod)
  * @return     RSI_OK on success
  */
 
-error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                            uint32_t u32TimePeriodRefClk,
-                                            uint32_t u32XtalSettle,
-                                            uint16_t u16RcClkCnt,
-                                            boolean_t bPeriodicCalibEn,
-                                            uint8_t u8PeriodicCalibRate,
-                                            boolean_t bTemperatureCalibEn,
-                                            uint8_t u8TemperatureVal,
-                                            uint8_t u8AverageFactor)
+rsi_error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+                                                uint32_t u32TimePeriodRefClk,
+                                                uint32_t u32XtalSettle,
+                                                uint16_t u16RcClkCnt,
+                                                boolean_t bPeriodicCalibEn,
+                                                uint8_t u8PeriodicCalibRate,
+                                                boolean_t bTemperatureCalibEn,
+                                                uint8_t u8TemperatureVal,
+                                                uint8_t u8AverageFactor)
 
 {
   UNUSED_PARAMETER(u32XtalSettle);
@@ -220,7 +220,7 @@ error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
 
 /*==============================================*/
 /**
- * @fn         error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+ * @fn         rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
  *                                    uint8_t u8RefClkSrc,
  *                                    uint32_t u32XtalSettle,
  *                                    uint16_t u16RoClkCnt,
@@ -248,13 +248,13 @@ error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
  *             Error code on failure
  */
 
-error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
-                                     uint8_t u8RefClkSrc,
-                                     uint32_t u32XtalSettle,
-                                     uint16_t u16RoClkCnt,
-                                     boolean_t bPeriodicCalibEn,
-                                     uint8_t u8PeriodicCalibRate,
-                                     uint8_t u8AverageFactor
+rsi_error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
+                                         uint8_t u8RefClkSrc,
+                                         uint32_t u32XtalSettle,
+                                         uint16_t u16RoClkCnt,
+                                         boolean_t bPeriodicCalibEn,
+                                         uint8_t u8PeriodicCalibRate,
+                                         uint8_t u8AverageFactor
 
 )
 {
@@ -302,7 +302,7 @@ error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
 
 /*==============================================*/
 /**
- * @fn        error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
+ * @fn        rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
  * @brief     This API is select the RTC clock
  * @param[in] pstcTimePeriod is pointer to the timperiod calibration registration instance
  * @param[in] u32TimePeriod is RTC time period in pico seconds as 32Khz as reference
@@ -310,7 +310,7 @@ error_t RSI_TIMEPERIOD_ROCalibration(TIME_PERIOD_Type *pstcTimePeriod,
  *            Error code on failure
  */
 
-error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
+rsi_error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u32TimePeriod)
 {
   /*Check for the NULL parameter*/
   if (pstcTimePeriod == NULL) {
@@ -328,7 +328,7 @@ error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u3
 
 /*==============================================*/
 /**
- * @fn         error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn)
+ * @fn         rsi_error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn)
  * @brief      This API is select the low power trigger
  * @param[in]  pstcTimePeriod : pointer to the timperiod calibration registration instance
  * @param[in]  bEn 1: seperate counter runs based 2^15 clocks of 32KHz clock = 1sec
@@ -337,7 +337,7 @@ error_t RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD_Type *pstcTimePeriod, uint32_t u3
  *             Error code on failure
  */
 
-error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn)
+rsi_error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean_t bEn)
 {
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;
@@ -348,7 +348,7 @@ error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean
 
 /*==============================================*/
 /**
- * @fn         error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time)
+ * @fn         rsi_error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time)
  * @brief      This API is select the vbat trigger selection
  * @param[in]  pstcTimePeriod : pointer to the timperiod calibration registration instance
  * @param[in]  u8Time : time period
@@ -362,7 +362,7 @@ error_t RSI_TIMEPERIOD_LowPwrTrigSelEn(TIME_PERIOD_Type *pstcTimePeriod, boolean
  *            Error code on failure
  */
 
-error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time)
+rsi_error_t RSI_TIMEPERIOD_VbatTrigSel(TIME_PERIOD_Type *pstcTimePeriod, uint8_t u8Time)
 {
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;

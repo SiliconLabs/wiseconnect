@@ -14,7 +14,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -24,8 +24,10 @@ include:
       - path: app.h
       - path: ble_config.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
 requires:
 - name: sl_system
 - name: network_manager
@@ -57,10 +59,6 @@ configuration:
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/ble_slave1.png
-  - path: resources/readme/ble_slave2.png
-  - path: resources/readme/ble_slave3.png
-  - path: resources/readme/ble_slave4.png
   - path: resources/readme/bleprivacyncp.png
   - path: resources/readme/bleprivacysoc.png
   - path: resources/readme/build_example.png
@@ -78,6 +76,12 @@ other_file:
   - path: resources/readme/socboarddetection111.png
   - path: resources/readme/usb_to_uart_1.png
   - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/bleprivacyapplicationconfigurations.png
+  - path: resources/readme/bleprivacyconfigurations.png
+  - path: resources/readme/bleprivacyperipheral1.png
+  - path: resources/readme/bleprivacysmpreq1.png
+  - path: resources/readme/bleprivacysmpreq2.png
+  - path: resources/readme/bleprivacyadvertiser.png
 ui_hints:
   highlight:
     - path: readme.md

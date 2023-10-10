@@ -34,7 +34,6 @@
 #include <stdint.h>
 
 /*******************************************************************************
- * @addtogroup status Status Codes
  * @details Status Codes contains error and status code definitions used by GSDK
  *          software components and stacks. This module also provides routines to
  *          read the string linked with the error and status codes.
@@ -185,6 +184,9 @@
 #define SL_STATUS_MAC_INCORRECT_SCAN_TYPE ((sl_status_t)0x004E) ///<
 #define SL_STATUS_INVALID_CHANNEL_MASK    ((sl_status_t)0x004F) ///<
 #define SL_STATUS_BAD_SCAN_DURATION       ((sl_status_t)0x0050) ///<
+
+//TRNG errors
+#define SL_STATUS_TRNG_DUPLICATE_ENTROPY ((sl_status_t)0x0051) ///<
 
 // Bluetooth status codes
 #define SL_STATUS_BT_OUT_OF_BONDS \
@@ -560,7 +562,5 @@ void sl_status_print(sl_status_t status);
 #ifdef __cplusplus
 }
 #endif
-
-/** @} (end addtogroup status) */
 
 #endif /* SL_STATUS_H */

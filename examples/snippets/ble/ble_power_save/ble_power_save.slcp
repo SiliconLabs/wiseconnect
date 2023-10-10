@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -22,8 +22,13 @@ include:
       - path: app.h
       - path: ble_config.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
+component:
+- {from: wiseconnect3_sdk, id: si917_memory_default_config}
+- {from: wiseconnect3_sdk, id: si91x_debug}
+- {from: wiseconnect3_sdk, id: rsilib_userconfig}
+- {from: wiseconnect3_sdk, id: rsilib_chip}
+- {from: wiseconnect3_sdk, id: siwx917_soc}
 requires:
 - name: sl_system
 - name: network_manager
@@ -60,8 +65,8 @@ other_file:
   - path: resources/readme/create_project1.png
   - path: resources/readme/create_project2.png
   - path: resources/readme/efr32.png
-  - path: resources/readme/image31spps.png
-  - path: resources/readme/image31sppsncp.png
+  - path: resources/readme/blepowersavesoc.png
+  - path: resources/readme/blepowersavencp.png
   - path: resources/readme/image32.png
   - path: resources/readme/load_image1.png
   - path: resources/readme/load_image2.png
@@ -74,7 +79,15 @@ other_file:
   - path: resources/readme/serial_port_setup.png
   - path: resources/readme/socboarddetection111.png
   - path: resources/readme/usb_to_uart_1.png
-  - path: resources/readme/usb_to_uart_2.png   
+  - path: resources/readme/usb_to_uart_2.png  
+  - path: resources/readme/blepowersaveconfigurations.png
+  - path: resources/readme/blepowersavencpmeasurement.png
+  - path: resources/readme/blepowersaveadvertising.png 
+  - path: resources/readme/blepowersavedeviceconnection.png
+  - path: resources/readme/blepwlog.png
+  - path: resources/readme/blepowersavecurrentmeasurementpins.png
+  - path: resources/readme/blepwsocadv.png
+  
 ui_hints:
   highlight:
     - path: readme.md

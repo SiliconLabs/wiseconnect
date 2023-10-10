@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.3.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.0.13}
+- {id: wiseconnect3_sdk, version: 3.1.0}
 source:
   - path: app.c
   - path: main.c
@@ -21,7 +21,6 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: SYSCALLS_WRITE
   - name: RSI_DEBUG_PRINTS
 requires:
 - name: sl_system
@@ -67,16 +66,15 @@ other_file:
   - path: resources/readme/aws_create_thing_step5.png
   - path: resources/readme/aws_iot_mqtt_host_url_1.png
   - path: resources/readme/aws_iot_mqtt_host_url_2.png
-  - path: resources/readme/aws_mqtt_example.png
+  - path: resources/readme/aws_mqtt_example_ncp.PNG
   - path: resources/readme/aws_mqtt_example_soc.png
+  - path: resources/readme/aws_sdk_architecture.png
   - path: resources/readme/aws_thing_certificates_download.png
   - path: resources/readme/build_aws_mqtt1.png
   - path: resources/readme/create_project_soc.png  
   - path: resources/readme/create_project_ncp.png
-  - path: resources/readme/debugmodencp120.png
-  - path: resources/readme/debugmodesoc117.png
-  - path: resources/readme/image431a.png
-  - path: resources/readme/image451.png
+  - path: resources/readme/debug_project.png
+  - path: resources/readme/aws_policy.png
   - path: resources/readme/efr32.png
   - path: resources/readme/port_selection.png
   - path: resources/readme/port_selection_soc.png
@@ -87,7 +85,8 @@ other_file:
   - path: resources/readme/soc_board_detection.png
   - path: resources/readme/usb_to_uart_1.png
   - path: resources/readme/usb_to_uart_2.png
-  - path: resources/readme/debug_prints_with_data_transfer_soc.png
+  - path: resources/readme/application_prints_soc.PNG
+  - path: resources/readme/application_prints_ncp.PNG
 ui_hints:
   highlight:
     - path: readme.md

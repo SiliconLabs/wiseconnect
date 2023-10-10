@@ -33,6 +33,7 @@
 #include "sl_ieee802_types.h"
 #include "sl_ip_types.h"
 #include "sl_wifi_constants.h"
+#include "sl_si91x_constants.h"
 
 // below defines and structure for CFG_GET: Getting user store configuration.
 #define IP_ADDRESS_SZ            4
@@ -43,7 +44,7 @@
 #define RSI_PSK_LEN              64
 #define RSI_MAC_ADDR_LEN         6
 
-// Maximum Acccess points that can be scanned
+// Maximum Access points that can be scanned
 #define RSI_AP_SCANNED_MAX 11
 
 // Maximum number of stations associated when running as an AP
@@ -114,7 +115,6 @@
 
 #define SL_MAX_PSP  0
 #define SL_FAST_PSP 1
-#define SL_UAPSD    2
 
 /****************************** POWER RELATED DEFINES END ***********************************/
 
@@ -137,34 +137,38 @@
 
 //**************************** Macros for WPS Method request END ***********************************/
 
-//**************************** Macros for JOIN Method request START *********************************/
-// To enable b/g only mode in station mode
+/** \addtogroup SL_SI91X_CONSTANTS Constants
+ * @{ */
+/** \addtogroup SI91X_JOIN_FEATURE_BIT_MAP si91x_join_feature_bit_map_defines
+ * @{ */
+/*=========================================================================*/
+// Join feature bit map parameters description !//
+/*=========================================================================*/
+/// To enable b/g only mode in station mode
 #define SI91X_JOIN_FEAT_STA_BG_ONLY_MODE_ENABLE (1 << 0)
 
-// To take listen interval from join command.
+/// To take listen interval from join command.
 #define SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID (1 << 1)
 
-// To enable quick join feature
+/// To enable quick join feature
 #define SI91X_JOIN_FEAT_QUICK_JOIN (1 << 2)
 
-//To enable CCXV2 feature
+/// To enable CCXV2 feature
 #define SI91X_JOIN_FEAT_CCXV2_FEATURE (1 << 3)
 
-//To connect to AP based on BSSID together with configured SSID
+/// To connect to AP based on BSSID together with configured SSID
 #define SI91X_JOIN_FEAT_BSSID_BASED (1 << 4)
 
-// MFP Type
-#define SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY     (1 << 5)
+/// MFP Capable only
+#define SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY (1 << 5)
+
+/// MFP Capable required
 #define SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED ((1 << 5) | (1 << 6))
 
-// listen interval from power save command
+/// listen interval from power save command
 #define SI91X_JOIN_FEAT_PS_CMD_LISTEN_INTERVAL_VALID (1 << 7)
-
-// To take listen interval from join command.
-#define SI91X_JOIN_FEAT_BIT_MAP SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID
-#define SI91X_LISTEN_INTERVAL   1000
-
-//**************************** Macros for JOIN Method request END ***********************************/
+/** @} */
+/** @} */
 
 //**************************** Macros for FEATURE frame Method request START *********************************/
 #define SI91X_FEAT_FRAME_PREAMBLE_DUTY_CYCLE  (1 << 0)
@@ -210,6 +214,10 @@
 
 #define SI91X_COUNTRY_CODE_LENGTH  3
 #define SI91X_MAX_POSSIBLE_CHANNEL 24
+
+#define ATTESTATION 30
+
+#define NONCE_DATA_SIZE 32
 
 typedef enum { RSI_NONE, RSI_TKIP, RSI_CCMP } sl_si91x_encryption_mode_t;
 
@@ -371,11 +379,12 @@ typedef struct {
 } sl_si91x_req_set_certificate_t;
 
 // join command request  structure
+#pragma pack(1)
 typedef struct {
   // reserved bytes:Can be used for security Type
   uint8_t reserved1;
 
-  // 0- Open, 1-WPA, 2-WPA2,6-MIXED_MODE
+  // 0- Open, 1-WPA, 2-WPA2,6-MIXED_MODE, 7-WPA3, 8-WP3_Transition
   uint8_t security_type;
 
   // data rate, 0=auto, 1=1Mbps, 2=2Mbps, 3=5.5Mbps, 4=11Mbps, 12=54Mbps
@@ -384,7 +393,7 @@ typedef struct {
   // transmit power level, 0=low (6-9dBm), 1=medium (10-14dBm, 2=high (15-17dBm)
   uint8_t power_level;
 
-  // pre-shared key, 63-byte string , last charecter is NULL
+  // pre-shared key, 63-byte string , last character is NULL
   uint8_t psk[RSI_PSK_LEN];
 
   // ssid of access point to join to, 34-byte string
@@ -400,7 +409,7 @@ typedef struct {
   uint8_t ssid_len;
 
   // listen interval
-  uint8_t listen_interval[4];
+  uint32_t listen_interval;
 
   // vap id, 0 - station mode, 1 - AP mode
   uint8_t vap_id;
@@ -408,6 +417,7 @@ typedef struct {
   // join bssid for mac based join
   uint8_t join_bssid[6];
 } sl_si91x_join_request_t;
+#pragma pack()
 
 // IPV4 ipconfig command request  structure
 typedef struct {
@@ -483,6 +493,24 @@ typedef struct {
   // RPS content
   uint8_t content[SL_MAX_FWUP_CHUNK_SIZE];
 } sl_si91x_req_fwup_t;
+
+// RTC time from host
+typedef struct {
+  // seconds [0-59]
+  uint32_t tm_sec;
+  // minutes [0-59]
+  uint32_t tm_min;
+  // hours since midnight [0-23]
+  uint32_t tm_hour;
+  // day of the month [1-31]
+  uint32_t tm_mday;
+  // months since January [0-11]
+  uint32_t tm_mon;
+  // year since 1990
+  uint32_t tm_year;
+  // Weekday from Sunday to Saturday [1-7]
+  uint32_t tm_wday;
+} sl_si91x_module_rtc_time_t;
 
 // wireless information
 typedef struct {
@@ -1302,7 +1330,6 @@ typedef struct {
   uint8_t buffer[SI91X_HTTP_BUFFER_LEN];
 } sl_si91x_http_client_request_t;
 
-#ifdef HTTP_CLIENT_FEATURE
 //! HTTP client PUT START create structure
 typedef struct {
   //! HTTP server ip version
@@ -1366,7 +1393,6 @@ typedef struct {
   uint32_t offset;
   uint32_t data_len;
 } sl_si91x_http_put_pkt_server_rsp_t;
-#endif
 
 typedef struct {
   uint8_t wake_duration;
@@ -1508,6 +1534,113 @@ typedef struct {
 } sl_si91x_request_tx_test_info_t;
 
 typedef struct {
+  /* Target
+ * 			0 - BURN_INTO_EFUSE (Burns calibration data to EFuse) \n
+ * 			1 - BURN_INTO_FLASH (Burns calibration data to Flash) \n
+ **/
+  uint8_t target;
+  uint8_t reserved0[3];
+  /* Flags - Validate information 
+ *  Bit |	MACRO 		           |	Description
+ *  :---|:---------------------:|:---------------------------------------------------
+ *  0   |	RESERVED_0     |  Reserved
+ *  1   |	BURN_FREQ_OFFSET     |	1 - Update XO Ctune to calibration data \n	0 - Skip XO Ctune update
+ *  2   |	SW_XO_CTUNE_VALID    |	1 - Use XO Ctune provided as argument to update calibration data \n	0 - Use XO Ctune value as read from hardware register
+ *  3   |	BURN_XO_FAST_DISABLE |     Used to apply patch for cold temperature issue(host interface detection) observed on CC0/CC1 modules. \ref appendix
+ *  4   |  BURN_GAIN_OFFSET_LOW  | 1 - Update gain offset for low sub-band (2 GHz) \n	0 - Skip low sub-band gain-offset update
+ *  5   |  BURN_GAIN_OFFSET_MID  | 1 - Update gain offset for mid sub-band (2 GHz) \n	0 - Skip mid sub-band gain-offset update
+ *  6   |  BURN_GAIN_OFFSET_HIGH | 1 - Update gain offset for high sub-band (2 GHz) \n	0 - Skip high sub-band gain-offset update
+ *  8   |  ENABLE_DPD_CALIB      | 1 - Collect dpd coefficients data \n 0 - Skip dpd coefficients calibration 
+ *  9   |  BURN_DPD_COEFFICIENTS | 1 - Burn dpd coefficients data \n 0 - Skip dpd coefficients calibration 
+ *  31-4 |                       |	Reserved
+ **/
+  uint32_t flags;
+  /*
+gain_offset_low - gain_offset as observed in dBm in channel-1
+gain_offset_mid - gain_offset as observed in dBm in channel-6
+gain_offset_high - gain_offset as observed in dBm in channel-11
+*/
+  int8_t gain_offset[3];
+  /*xo_ctune - Allow user to directly update xo_ctune value to calibration data bypassing the freq offset loop,
+ *valid only when BURN_FREQ_OFFSET & SW_XO_CTUNE_VALID of flags is set. The range of xo_ctune is [0, 255], and the typical value is 80
+ */
+  int8_t xo_ctune;
+} sl_si91x_calibration_write_t;
+
+typedef struct {
+
+  /*  target
+* 			0 - READ_FROM_EFUSE (read calibration data from the EFuse) \n
+* 			1 - READ_FROM_FLASH (read calibration data from the Flash)
+*/
+  uint8_t target;
+  uint8_t reserved0[3];
+  /*
+ gain_offset_low - gain_offset in dBm that will be applied for transmissions in channel-1.
+ gain_offset_mid - gain_offset in dBm that will be applied for transmissions in channel-6.
+ gain_offset_high -gain_offset in dBm that will be applied for transmissions in channel-11.
+ */
+  int8_t gain_offset[3];
+
+  //xo_ctune - xo_ctune value as read from the target memory.
+  int8_t xo_ctune;
+#ifndef CHIP_917
+  struct rsi_evm_data_t {
+    int8_t evm_offset[5];
+  } rsi_evm_data_t;
+#endif
+} sl_si91x_calibration_read_t;
+
+typedef struct {
+  int32_t frequency_offset_in_khz;
+} sl_si91x_freq_offset_t;
+
+typedef struct {
+  int8_t evm_offset_val; //EVM_offset_val - emv_offset value observed.
+                         /*            index          -  index of EVM,range from[0 to 4].
+ *             index | description
+ *             0     | Update evm_offset_11B
+ *             1     | Update evm_offset_11G_6M_24M_11N_MCS0_MCS2 
+ *             2     | Update evm_offset_11G_36M_54M_11N_MCS3_MCS7 
+ *             3     | Update evm_offset_11N_MCS0 
+ *             4     | Update evm_offset_11N_MCS7 
+ *             > 4   | Reserved
+ * */
+  uint8_t evm_index;
+} sl_si91x_evm_offset_t;
+
+typedef struct {
+  /*
+ *Target 
+ * 0 - BURN_INTO_EFUSE (Burns calibration data to EFuse)(Not supported)
+ * 1 - BURN_INTO_FLASH (Burns calibration data to Flash)
+ **/
+  uint8_t target;
+  /*
+ * Flags - Validate information \n
+ *                     Bit |	MACRO 		           |	Description
+ *                     :---|:---------------------:|:---------------------------------------------------
+ *                     0   |  EVM_OFFSET_CUST_0    | 1 - Update evm_offset_11B rate calibration data \n	0 - Skip evm_offset update
+ *                     1   |  EVM_OFFSET_CUST_1    | 1 - Update evm_offset_11G_6M_24M_11N_MCS0_MCS2 rate calibration data \n	0 - Skip evm_offset update
+ *                     2   |  EVM_OFFSET_CUST_2    | 1 - Update evm_offset_11G_36M_54M_11N_MCS3_MCS7 rate calibration data \n	0 - Skip evm_offset update
+ *                     3   |  EVM_OFFSET_CUST_3    | 1 - Update evm_offset_11N_MCS0 rate calibration data \n	0 - Skip evm_offset update
+ *                     4   |  EVM_OFFSET_CUST_4    | 1 - Update evm_offset_11N_MCS7 rate calibration data \n	0 - Skip evm_offset update
+ *                     31-5|  Reserved
+ */
+  uint32_t flags;
+  uint8_t evm_offset_11B;                       //evm_offset for 11B rate
+  uint8_t evm_offset_11G_6M_24M_11N_MCS0_MCS2;  //evm_offset for 11G_6M_24M_11N_MCS0_MCS2 rate
+  uint8_t evm_offset_11G_36M_54M_11N_MCS3_MCS7; //evm_offset for 11G_36M_54M_11N_MCS3_MCS7 rate
+  uint8_t evm_offset_11N_MCS0;                  //evm_offset for 11N_MCS0 rate
+  uint8_t evm_offset_11N_MCS7;                  //evm_offset for 11N_MCS7 rate
+} sl_si91x_evm_write_t;
+
+typedef struct {
+  uint32_t efuse_read_addr_offset;
+  uint16_t efuse_read_data_len;
+} sl_si91x_efuse_read_t;
+
+typedef struct {
   uint32_t max_retry_attempts;      ///< Maximum number of retries before indicating join failure
   uint32_t scan_interval;           ///< Scan interval between each retry
   uint32_t beacon_missed_count;     ///< Number of missed beacons that will trigger rejoin
@@ -1559,3 +1692,197 @@ typedef struct {
   uint32_t
     overrun_count; ///< Number of packets dropped either at ingress or egress, due to lack of buffer memory to retain all packets.
 } sl_si91x_advance_stats_response_t;
+
+typedef struct crypto_key_s {
+  uint32_t key_slot;      ///< For built-in key
+  uint32_t wrap_iv_mode;  ///< IV mode 0-> ECB; 1-> CBC
+  uint8_t wrap_iv[16];    ///< IV for CBC mode
+  uint8_t key_buffer[32]; ///< Key data wrapped/ Plain text
+} sl_si91x_crypto_key_t;
+
+typedef struct {
+  uint32_t key_size;
+  sl_si91x_crypto_key_t key_spec;
+} sl_si91x_key_info_t;
+
+typedef struct {
+  uint32_t key_type;
+  uint32_t reserved;
+  sl_si91x_key_info_t key_detail;
+} sl_si91x_key_descriptor_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint8_t aes_flags;
+  uint16_t total_msg_length;
+  uint16_t current_chunk_length;
+  uint32_t encrypt_decryption;
+#ifdef CHIP_917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+  uint8_t key[32];
+#endif
+  uint8_t IV[16];
+  uint8_t msg[1400];
+} sl_si91x_aes_request_t;
+
+typedef struct {
+  uint32_t key_type;
+  uint32_t reserved;
+  uint32_t key_size;
+  uint32_t wrap_iv_mode;
+  uint8_t wrap_iv[16];
+  uint8_t key_buffer[1400];
+} sl_si91x_wrap_key_descriptor_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t wrap_flags;
+  uint16_t current_chunk_length;
+  sl_si91x_wrap_key_descriptor_t key_info;
+} sl_si91x_wrap_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint8_t hmac_sha_flags;
+  uint16_t total_length;
+  uint16_t current_chunk_length;
+#ifdef CHIP_917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+#endif
+  uint8_t hmac_data[1400];
+} sl_si91x_hmac_sha_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint8_t sha_flags;
+  uint16_t total_msg_length;
+  uint16_t current_chunk_length;
+  uint8_t msg[1400];
+} sl_si91x_sha_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint8_t ccm_flags;
+  uint8_t nonce_length;
+  uint16_t encrypt_decryption;
+  uint16_t total_msg_length;
+  uint16_t current_chunk_length;
+  uint16_t ad_length;
+  uint32_t tag_length;
+#ifdef CHIP_917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+  uint8_t key[SL_SI91X_KEY_BUFFER_SIZE];
+#endif
+  uint8_t nonce[SL_SI91X_CCM_IV_MAX_SIZE]; // max iv length = 13 bytes
+  uint8_t ad[SL_SI91X_CCM_AD_MAX_SIZE];    // max ad length = 2^32
+  uint8_t tag[SL_SI91X_TAG_SIZE];          // tag size = 16
+  uint8_t msg[SL_SI91X_CCM_MSG_MAX_SIZE];  // max msg size = 1200 bytes
+} sl_si91x_ccm_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint8_t gcm_flags;
+  uint8_t encrypt_decryption;
+  uint16_t total_msg_length;
+  uint16_t current_chunk_length;
+  uint16_t ad_length;
+  uint16_t dma_use;
+#ifdef CHIP_917B0
+  uint32_t gcm_mode;
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+  uint8_t key[SL_SI91X_KEY_BUFFER_SIZE];
+#endif
+  uint8_t nonce[SL_SI91X_GCM_IV_SIZE]; // iv length = 12 bytes
+  uint8_t ad[SL_SI91X_GCM_AD_MAX_SIZE];
+  uint8_t msg[SL_SI91X_GCM_MSG_MAX_SIZE];
+} sl_si91x_gcm_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint8_t chachapoly_flags;
+  uint16_t total_msg_length;
+  uint16_t header_length;
+  uint16_t current_chunk_length;
+  uint16_t encrypt_decryption;
+  uint32_t dma_use;
+  uint8_t nonce[SL_SI91X_IV_SIZE];
+#ifdef CHIP_917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint8_t key_chacha[SL_SI91X_KEY_BUFFER_SIZE];
+  uint8_t keyr_in[SL_SI91X_KEYR_SIZE];
+  uint8_t keys_in[SL_SI91X_KEYS_SIZE];
+#endif
+  uint8_t header_input[SL_SI91X_GCM_AD_MAX_SIZE];
+  uint8_t msg[SL_SI91X_CHACHAPOLY_MSG_MAX_SIZE];
+} sl_si91x_chachapoly_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t sx[ECDH_BUFFER_SIZE];
+  uint8_t sy[ECDH_BUFFER_SIZE];
+  uint8_t sz[ECDH_BUFFER_SIZE];
+  uint8_t tx[ECDH_BUFFER_SIZE];
+  uint8_t ty[ECDH_BUFFER_SIZE];
+  uint8_t tz[ECDH_BUFFER_SIZE];
+} sl_si91x_ecdh_add_sub_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t ecdh_curve_type;
+  uint32_t affinity;
+  uint8_t d[ECDH_BUFFER_SIZE];
+  uint8_t sx[ECDH_BUFFER_SIZE];
+  uint8_t sy[ECDH_BUFFER_SIZE];
+  uint8_t sz[ECDH_BUFFER_SIZE];
+} sl_si91x_ecdh_mul_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t sx[ECDH_BUFFER_SIZE];
+  uint8_t sy[ECDH_BUFFER_SIZE];
+  uint8_t sz[ECDH_BUFFER_SIZE];
+} sl_si91x_ecdh_double_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t ecdh_curve_type;
+  uint8_t sx[ECDH_BUFFER_SIZE];
+  uint8_t sy[ECDH_BUFFER_SIZE];
+  uint8_t sz[ECDH_BUFFER_SIZE];
+} sl_si91x_ecdh_affine_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint16_t total_msg_length;
+  uint32_t trng_key[TRNG_KEY_SIZE];
+  uint32_t msg[TRNG_TEST_DATA_SIZE];
+} sl_si91x_trng_request_t;
+
+// Attestation token Request Frames Structures
+typedef struct {
+  uint8_t algorithm_type;
+  uint16_t total_msg_length;
+  uint32_t msg[NONCE_DATA_SIZE];
+} sl_si91x_rsi_token_req_t;

@@ -204,6 +204,21 @@ typedef struct {
   uint8_t wake_duration_unit;      ///< Wake duration unit. 0 - 256 TU; 1 - 1024 TU.
 } sl_wifi_twt_request_t;
 
+/// TWT request structure to auto select a session
+typedef struct {
+  uint8_t twt_enable;                            ///< TWT enable. 0 - TWT session teardown; 1 - TWT session setup.
+  uint16_t average_tx_throughput;                ///< Average Throughput: 0 to half of Device Throughput
+  uint32_t tx_latency;                           ///< TX Latency. 0 or [ 200 - 6hrs] ms.
+  uint32_t rx_latency;                           ///< RX Latency. [ 200 - 6hrs] ms.
+  uint16_t device_average_throughput;            ///< The average throughput NCP mode device can support
+  uint8_t estimated_extra_wake_duration_percent; ///< The percentage by which wake duration is to overestimated. 0 - 50
+  uint8_t twt_tolerable_deviation;               ///< The allowed deviation of wake duration TWT response. 0 - 50
+  uint32_t default_wake_interval_ms;             ///< Default minimum wake interval. Recommended Range: 512 to 1024ms
+  uint32_t default_minimum_wake_duration_ms;     ///< Default minimum wake interval. Recommended Range: 10 - 15ms
+  uint8_t
+    beacon_wake_up_count_after_sp; ///< The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
+} sl_wifi_twt_selection_t;
+
 /// Wi-Fi device status
 typedef struct {
   uint8_t client_active : 1;       ///< WiFi Client active
@@ -255,8 +270,7 @@ typedef struct {
 
 /// Wi-Fi listen interval
 typedef struct {
-  uint8_t value;
-  sl_wifi_listen_interval_time_unit_t time_units; ///< WiFi Listen interval
+  uint32_t listen_interval; ///< Wi-Fi Listen interval in secs
 } sl_wifi_listen_interval_t;
 
 /// Wi-Fi client info

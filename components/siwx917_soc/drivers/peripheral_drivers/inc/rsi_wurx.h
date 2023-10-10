@@ -131,7 +131,7 @@ void RSI_WURX_CorrEnable(uint16_t wurx_enable);
 void RSI_WURX_SetPatternLength(uint16_t enable, uint16_t l1_len, uint16_t l2_len);
 void RSI_WURX_SetWakeUpThreshold(uint16_t threshold_1, uint16_t threshold_2);
 void RSI_WURX_TailDataDecodeEnable(uint16_t enable, uint16_t data_len);
-error_t RSI_WURX_GetTailData(uint32_t *tail_data, uint16_t tail_data_len);
+rsi_error_t RSI_WURX_GetTailData(uint32_t *tail_data, uint16_t tail_data_len);
 void RSI_IPMU_40MhzClkCalib(uint16_t clk_enable, uint32_t channel_selection_value);
 uint32_t RSI_WURX_CalThershValue(uint32_t bit_length, uint32_t percentage);
 void RSI_WURX_SoftwareRestart(void);
