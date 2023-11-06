@@ -21,7 +21,19 @@
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_driver.h"
+#include "sl_si91x_sha.h"
 #include <string.h>
+
+
+static const uint8_t sha_digest_len_table[] =
+{
+    [SL_SI91x_SHA_1]   = SL_SI91x_SHA_1_DIGEST_LEN,
+    [SL_SI91x_SHA_256] = SL_SI91x_SHA_256_DIGEST_LEN,
+    [SL_SI91x_SHA_384] = SL_SI91x_SHA_384_DIGEST_LEN,
+    [SL_SI91x_SHA_512] = SL_SI91x_SHA_512_DIGEST_LEN,
+    [SL_SI91x_SHA_224] = SL_SI91x_SHA_224_DIGEST_LEN
+};
+
 /*==============================================*/
 /**
  * @brief      Compute the SHA digest. This is a blocking API.
@@ -101,7 +113,7 @@ static sl_status_t sha_pending(uint8_t sha_mode,
   }
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  memcpy(digest, packet->data, request->total_msg_length);
+  memcpy(digest, packet->data, sha_digest_len_table[sha_mode]);
 
   free(request);
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
