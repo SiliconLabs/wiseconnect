@@ -114,7 +114,7 @@ void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x
 #endif
 
 #ifdef SNTP_CLIENT_FEATURE
-  if (packet->command & RSI_WLAN_RSP_SNTP_CLIENT) {
+  if (packet->command == RSI_WLAN_RSP_SNTP_CLIENT) {
     si91x_sntp_event_handler(data);
     return;
   }
