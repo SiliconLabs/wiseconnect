@@ -30,7 +30,6 @@
 
 #include "app.h"
 #include "psa_chachapoly_app.h"
-#include "sl_si91x_psa_trng.h"
 
 #include <string.h>
 #include "cmsis_os2.h"
@@ -61,19 +60,19 @@ static const sl_wifi_device_configuration_t client_configuration = {
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (
-#ifdef RSI_M4_INTERFACE
-                     RAM_LEVEL_NWP_ADV_MCU_BASIC
+#ifdef SLI_SI91X_MCU_INTERFACE
+                     SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
-                     RAM_LEVEL_NWP_ALL_MCU_ZERO
+                     SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
-#ifdef CHIP_917
+#ifdef SLI_SI917
                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                      ),
@@ -107,12 +106,6 @@ static void application_start(void *argument)
     return;
   }
   printf("\r\nWi-Fi Init Success\r\n");
-
-  /* TRNG initialization */
-  status = sl_si91x_psa_trng_init();
-  if (status != SL_STATUS_OK) {
-    printf("\r\nTRNG Initialization Failed, Error Code : 0x%x\r\n", status);
-  }
 
   app_process_action();
 }

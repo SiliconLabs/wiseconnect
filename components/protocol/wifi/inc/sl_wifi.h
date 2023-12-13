@@ -49,20 +49,25 @@ extern const sl_wifi_ap_configuration_t default_wifi_ap_configuration;
  * @brief
  *   Initialize the Wi-Fi device.
  * @param[in] configuration
- *   @ref sl_wifi_device_configuration_t object that contains Wi-Fi device configuration.
+ *   [sl_wifi_device_configuration_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-device-configuration-t) object that contains Wi-Fi device configuration.
+ * @param[in] device_context
+ *  Reserved for future use.
  * @param[in] event_handler
- *   Wi-Fi event handler function.
+ *   Wi-Fi event handler function of type @ref sl_wifi_event_handler_t.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
  *   This function should be called before calling any other sl_wifi functions.
  ******************************************************************************/
-sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration, sl_wifi_event_handler_t event_handler);
+sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration,
+                         sl_wifi_device_context_t *device_context,
+                         sl_wifi_event_handler_t event_handler);
 
 /***************************************************************************/ /**
  * @brief
  *   De-initialize the Wi-Fi device.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
@@ -72,7 +77,8 @@ sl_status_t sl_wifi_deinit(void);
 /***************************************************************************/ /**
  * @brief
  *   Check if Wi-Fi interface is up.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -85,28 +91,15 @@ bool sl_wifi_is_interface_up(sl_wifi_interface_t interface);
 /***************************************************************************/ /**
  * @brief
  *   Return the firmware version running on the Wi-Fi device.
- * @pre 
+ * @pre Pre-conditions:
+ * -
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] version
- *   @ref sl_wifi_version_string_t object that contains the version string.
+ *   @ref sl_wifi_firmware_version_t object that contains the version string.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_wifi_get_firmware_version(sl_wifi_version_string_t *version);
-
-/***************************************************************************/ /**
- * @brief
- *   Return Wi-Fi operational statistics.
- * @pre 
- *   @ref sl_wifi_init should be called before this API.
- * @param[in] interface
- *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
- * @param[out] statistics
- *   @ref sl_wifi_statistics_t object that contains Wi-Fi statistics.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_wifi_get_statistics(sl_wifi_interface_t interface, sl_wifi_statistics_t *statistics);
+sl_status_t sl_wifi_get_firmware_version(sl_wifi_firmware_version_t *version);
 
 /***************************************************************************/ /**
  * @brief
@@ -120,7 +113,8 @@ void sl_wifi_set_default_interface(sl_wifi_interface_t interface);
 /***************************************************************************/ /**
  * @brief
  *   Get the default interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @return
  *   @ref sl_wifi_interface_t previously set by @ref sl_wifi_set_default_interface
@@ -130,7 +124,8 @@ sl_wifi_interface_t sl_wifi_get_default_interface(void);
 /***************************************************************************/ /**
  * @brief
  *   Get the Wi-Fi interface MAC address.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -167,18 +162,19 @@ sl_status_t sl_wifi_set_mac_address(sl_wifi_interface_t interface, const sl_mac_
 /***************************************************************************/ /**
  * @brief
  *   Get the maximum Wi-Fi transmit power.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[out] max_tx_power
- *   A variable that contains current maximum transmit power in dBm.
+ *   A variable that contains current maximum transmit power in dBm as identified by @ref sl_wifi_max_tx_power_t.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
  *   This function gets the transmit power for a particular radio interface: SL_WIFI_2_4GHZ_INTERFACE or SL_WIFI_5GHZ_INTERFACE.
  ******************************************************************************/
-sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, uint8_t *max_tx_power);
+sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_tx_power_t *max_tx_power);
 
 /***************************************************************************/ /**
  * @brief
@@ -186,19 +182,20 @@ sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, uint8_t *max
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] max_tx_power
- *   Maximum transmit power to set in dBm.
+ *   Max transmission power to set in dBm as identified by @ref sl_wifi_max_tx_power_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
  *   This function sets the transmit power for a particular radio interface: SL_WIFI_2_4GHZ_INTERFACE or SL_WIFI_5GHZ_INTERFACE.
  *   Eg: Setting transmit power for client interface at 2.4GHz will also set transmit power of the AP interface at 2.4GHz.
  ******************************************************************************/
-sl_status_t sl_wifi_set_max_tx_power(sl_wifi_interface_t interface, uint8_t max_tx_power);
+sl_status_t sl_wifi_set_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_tx_power_t max_tx_power);
 
 /***************************************************************************/ /**
  * @brief
  *   Set the Wi-Fi antenna for an interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -212,7 +209,8 @@ sl_status_t sl_wifi_set_antenna(sl_wifi_interface_t interface, sl_wifi_antenna_t
 /***************************************************************************/ /**
  * @brief
  *   Get the Wi-Fi antenna for an interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -226,7 +224,8 @@ sl_status_t sl_wifi_get_antenna(sl_wifi_interface_t interface, sl_wifi_antenna_t
 /***************************************************************************/ /**
  * @brief
  *   Get the current channel for the given Wi-Fi interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -240,7 +239,8 @@ sl_status_t sl_wifi_get_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
 /***************************************************************************/ /**
  * @brief
  *   Set the channel for the given Wi-Fi Access Point interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -254,7 +254,8 @@ sl_status_t sl_wifi_set_channel(sl_wifi_interface_t interface, sl_wifi_channel_t
 /***************************************************************************/ /**
  * @brief
  *   Set the Wi-Fi transmit rate for the given 802.11 protocol on the specified Wi-Fi interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -272,7 +273,8 @@ sl_status_t sl_wifi_set_transmit_rate(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Get the Wi-Fi transmit rate for the given 802.11 protocol on the specified Wi-Fi interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -290,7 +292,8 @@ sl_status_t sl_wifi_get_transmit_rate(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Set the Wi-Fi client interface listen interval.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -299,7 +302,7 @@ sl_status_t sl_wifi_get_transmit_rate(sl_wifi_interface_t interface,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   By default listen interval is set 1000secs. User can call this API to overwrite the value.
+ *   By default listen interval is set 1000 millisecs. User can call this API to overwrite the value.
  *   Si91X implementation allows this API ONLY to be called before calling @ref sl_wifi_connect(), @ref sl_wifi_start_ap(), @ref sl_wifi_start_wps()
  ******************************************************************************/
 sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t listen_interval);
@@ -307,7 +310,8 @@ sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
 /***************************************************************************/ /**
  * @brief
  *   Get the Wi-Fi client listen interval.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -316,20 +320,24 @@ sl_status_t sl_wifi_set_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
-*   By default, the listen interval is set to 1000 secs.
+*   By default, the listen interval is set to 1000 millisecs.
  ******************************************************************************/
 sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_listen_interval_t *listen_interval);
 
 /***************************************************************************/ /**
  * @brief
  *   Assign the user configurable channel gain values in different regions to the module from user. 
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   This method is used for overwriting default gain tables that are present in firmware.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   Customer can load all the three gain tables (i.e., 2.4GHz-20Mhz, 5GHz-20Mhz, 5GHz-40Mhz) one the after other by changing band and bandwidth values.
- * @pre
+ * @pre Pre-conditions:
+ * -
  * This is a blocking API.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in]  band 
  *    1 - 2.4GHz,
@@ -353,6 +361,19 @@ sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  ******************************************************************************/
 sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *payload, uint16_t payload_len);
 
+/***************************************************************************/ /**
+ * @brief
+ *   Configure the 11ax params.This is a blocking API.
+ * @pre Pre-conditions:
+ * -
+ *   This API should be called before @ref sl_wifi_connect
+ * @param[in] guard_interval
+ *   Period of time delta between two packets in wireless transmission. Valid values : 0 - 3 (0 = 8us, 1 = 16us, 2 = 32us, 3 = 64us).
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
+
 /** @} */
 
 /** \addtogroup WIFI_SCANNING_API Scanning
@@ -363,7 +384,8 @@ sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *
 /***************************************************************************/ /**
  * @brief
  *   Start scanning for Wi-Fi networks.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -375,6 +397,7 @@ sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
  * 	For 911x, Advanced scan results are not populated to user.
+ *      Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called. If the scan_type is not ADV_SCAN then, the time is for foreground scan. Otherwise it is used for back ground scanning.
  ******************************************************************************/
 sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
                                const sl_wifi_ssid_t *optional_ssid,
@@ -383,7 +406,8 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Stop Wi-Fi scan.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -397,7 +421,8 @@ sl_status_t sl_wifi_stop_scan(sl_wifi_interface_t interface);
 /***************************************************************************/ /**
  * @brief
  *   Set advanced scan configuration.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] configuration
  *   Set advanced scan configuration as identified by @ref sl_wifi_advanced_scan_configuration_t
@@ -409,7 +434,8 @@ sl_status_t sl_wifi_set_advanced_scan_configuration(const sl_wifi_advanced_scan_
 /***************************************************************************/ /**
  * @brief
  *   Get advanced scan configuration.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] configuration
  *   @ref sl_wifi_advanced_scan_configuration_t object that will contain the current advanced scan configuration.
@@ -421,9 +447,11 @@ sl_status_t sl_wifi_get_advanced_scan_configuration(sl_wifi_advanced_scan_config
 /***************************************************************************/ /**
  * @brief
  *   Wait for current scan to complete and stores the results in the provided array.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   This function also returns when the scan result array is full.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   Once the scan result array is full, any further scan results will be lost.
  * @param[in] scan_result_array
  *   Array of @ref sl_wifi_scan_result_t objects to store the scan results.
@@ -446,7 +474,8 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
 /***************************************************************************/ /**
  * @brief
  *   Connect to the given Wi-Fi AP.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi client interface as identified by @ref sl_wifi_interface_t
@@ -459,6 +488,11 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
  *   If channel, band, and BSSID are provided, this API will attempt to connect without scanning.
+ *   If security_type is SL_WIFI_WPA3 then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is enabled internally by SDK.
+ *   If security_type is SL_WIFI_WPA3_TRANSITION then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is disabled and SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY join feature is enabled internally by SDK."
+ *   Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called.
+ *   Default Auth Association timeout is 300 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
+ *   Default Keep Alive timeout is 30 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
  ******************************************************************************/
 sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
                             const sl_wifi_client_configuration_t *access_point,
@@ -467,7 +501,8 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Disconnect the Wi-Fi client interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_connect should be called before this API.
  * @param[in] interface
  *   Wi-Fi client interface as identified by @ref sl_wifi_interface_t
@@ -479,7 +514,8 @@ sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface);
 /***************************************************************************/ /**
  * @brief
  *   Get current Wi-Fi client's signal strength (RSSI).
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_connect should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -493,7 +529,8 @@ sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *
 /***************************************************************************/ /**
  * @brief
  *   Set the Wi-Fi roaming configuration.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   @ref sl_wifi_set_advanced_scan_configuration should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -515,7 +552,7 @@ sl_status_t sl_wifi_set_roam_configuration(sl_wifi_interface_t interface,
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[out] roam_configuration
- *   @sl_wifi_roam_configuration_t object that will contain the current roam configuration.
+ *   @ref sl_wifi_roam_configuration_t object that will contain the current roam configuration.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
@@ -527,7 +564,8 @@ sl_status_t sl_wifi_get_roam_configuration(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Verify the Wi-Fi client configuration is valid and available.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -546,7 +584,8 @@ sl_status_t sl_wifi_test_client_configuration(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Load the certificate into the device.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] certificate_type
  *   Certificate type being set
@@ -562,7 +601,8 @@ sl_status_t sl_wifi_set_certificate(uint8_t certificate_type, const uint8_t *buf
 /***************************************************************************/ /**
  * @brief
  *   Load the certificate into the device.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] certificate_type
  *   Certificate type being set.
@@ -592,6 +632,137 @@ sl_status_t sl_wifi_set_certificate_with_index(uint8_t certificate_type,
 sl_status_t sl_wifi_set_advanced_client_configuration(sl_wifi_interface_t interface,
                                                       const sl_wifi_advanced_client_configuration_t *configuration);
 
+/***************************************************************************/ /**
+ * @brief
+ *   Send raw data frame.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] data
+ *   Data buffer.
+ * @param[in] data_length
+ *   length of the data.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_send_raw_data_frame(sl_wifi_interface_t interface, const void *data, uint16_t data_length);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Configure TWT parameters. Enables a TWT session. This is blocking API.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_connect should be called before this API.
+ * @param[in] twt_req
+ *   Configurable TWT parameters specified in @ref sl_wifi_twt_request_t.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Configure TWT parameters. Disables a TWT session. This is blocking API.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_enable_target_wake_time should be called before this API.
+ * @param[in] twt_req
+ *   Configurable TWT parameters specified in @ref sl_wifi_twt_request_t.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_disable_target_wake_time(sl_wifi_twt_request_t *twt_req);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Calculates and configures TWT parameters based on the given inputs. Enables or disables a TWT session. This is blocking API.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_connect should be called before this API.
+ * @param[in] twt_selection_req
+ *   @ref sl_wifi_twt_selection_t object containing configurable TWT selection parameters.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_target_wake_time_auto_selection(sl_wifi_twt_selection_t *twt_selection_req);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Suspends the TWT agreement corresponding to given flow id and resumes it when suspend duration expires.
+ *   This API performs following actions on TWT agreement: SL_WIFI_SUSPEND_INDEFINITELY, SL_WIFI_RESUME_IMMEDIATELY, SL_WIFI_SUSPEND_FOR_DURATION.
+ * @note
+ *   The reschedule TWT actions are valid till the end of current TWT agreement. If the TWT agreement is terminated
+ *   (TWT tear down or wlan disconnection), these actions are not retained.
+ *   To reapply these actions upon new TWT agreement, the user must re-issue the command.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_connect should be called before this API.
+ * @param[in] flow_id
+ *   Flow id of the twt agreement.
+ * @param[in] twt_action
+ *   @ref sl_wifi_reschedule_twt_action_t specifying different actions that can be taken in relation to rescheduling TWT.
+ * @param[in] suspend_duration
+ *   Time interval until which twt agreement is suspended, value taken in milliseconds.
+ * ## The table below outlines the valid values for TWT actions and their corresponding suspend durations:
+ * | twt_action           | Valid values for suspend duration |
+ * | -------------------- | --------------------------------- |
+ * | SL_WIFI_SUSPEND_INDEFINITELY | 0                                 |
+ * | SL_WIFI_RESUME_IMMEDIATELY   | 0                                 |
+ * | SL_WIFI_SUSPEND_FOR_DURATION | 1 to 86400000                     |
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_reschedule_twt(uint8_t flow_id,
+                                   sl_wifi_reschedule_twt_action_t twt_action,
+                                   uint64_t suspend_duration);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Send Filter Broadcast Request frame.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] beacon_drop_threshold
+ *   The amount of time that FW waits to receive full beacon. Default value is 5000ms.
+ * @param[in] filter_bcast_in_tim
+ *   If this bit is set, then from the next dtim any broadcast data pending bit in TIM indicated will be ignored valid values: 0 - 1.
+ * @param[in] filter_bcast_tim_till_next_cmd
+ *   0 - filter_bcast_in_tim is valid till disconnect of the STA.
+ *   1 - filter_bcast_in_tim is valid till next update by giving the same command.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_filter_broadcast(uint16_t beacon_drop_threshold,
+                                     uint8_t filter_bcast_in_tim,
+                                     uint8_t filter_bcast_tim_till_next_cmd);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Generate PMK if PSK and SSID are provided. This is a blocking API.
+ * @pre Pre-conditions:
+ * -
+ *   @ref This API should be called after @ref sl_wifi_init and called before @ref sl_wifi_connect.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] type
+ *   Possible values of this field are 1, 2, and 3, but we only pass 3 for generation of PMK.
+ * @param[in] ssid
+ *  SSID of type @ref sl_wifi_ssid_t has the SSID of the access point
+ * @param[in] pre_shared_key
+ *  Expected parameters are pre-shared key(PSK) of the access point
+ * @param[in] pairwise_master_key
+ *   PMK array
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_pairwise_master_key(sl_wifi_interface_t interface,
+                                            const uint8_t type,
+                                            const sl_wifi_ssid_t *ssid,
+                                            const char *pre_shared_key,
+                                            uint8_t *pairwise_master_key);
+
 /** @} */
 
 /** \addtogroup WIFI_AP_API Access Point
@@ -602,7 +773,8 @@ sl_status_t sl_wifi_set_advanced_client_configuration(sl_wifi_interface_t interf
 /***************************************************************************/ /**
  * @brief
  *   Start a Wi-Fi access point (AP) interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -610,6 +782,10 @@ sl_status_t sl_wifi_set_advanced_client_configuration(sl_wifi_interface_t interf
  *   Wi-Fi AP configuration. See @ref sl_wifi_ap_configuration_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   For AP mode with WPA3 security, only SAE-H2E method is supported. SAE Hunting and pecking method is not supported.
+ *   TKIP encryption mode is not supported. Encryption mode is automatically configured to RSI_CCMP.
+ *   PMKSA is not supported in WPA3 AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_configuration_t *configuration);
 
@@ -632,7 +808,8 @@ sl_status_t sl_wifi_set_ap_configuration(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Get the configuration of a Wi-Fi AP interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -676,21 +853,21 @@ sl_status_t sl_wifi_get_advanced_ap_configuration(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Stop Wi-Fi access point.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
  *   Wi-Fi Access Point interface as identified by @ref sl_wifi_interface_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- * @note
- *   This API is not yet implemented.
  ******************************************************************************/
 sl_status_t sl_wifi_stop_ap(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
  *   De-authenticate Wi-Fi client with the given MAC address.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
  *   Wi-Fi Access Point interface as identified by @ref sl_wifi_interface_t
@@ -710,23 +887,25 @@ sl_status_t sl_wifi_disconnect_ap_client(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Return the Wi-Fi client information of all clients connected to the AP.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
  *   Wi-Fi Access Point interface as identified by @ref sl_wifi_interface_t
  * @param[out] client_info
- *   @ref sl_wifi_client_info_response object to store the client info.
+ *   @ref sl_wifi_client_info_response_t object to store the client info.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
  *   Client interfaces are not supported.
  ******************************************************************************/
-sl_status_t sl_wifi_get_ap_client_info(sl_wifi_interface_t interface, sl_wifi_client_info_response *client_info);
+sl_status_t sl_wifi_get_ap_client_info(sl_wifi_interface_t interface, sl_wifi_client_info_response_t *client_info);
 
 /***************************************************************************/ /**
  * @brief
  *   Return a list of Wi-Fi clients connected to the Wi-Fi access point.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
  *   Wi-Fi Access Point interface as identified by @ref sl_wifi_interface_t
@@ -746,7 +925,8 @@ sl_status_t sl_wifi_get_ap_client_list(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Provide the number of Wi-Fi clients connected to the Wi-Fi access point
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
  *   Wi-Fi Access Point interface as identified by @ref sl_wifi_interface_t
@@ -769,10 +949,11 @@ sl_status_t sl_wifi_get_ap_client_count(sl_wifi_interface_t interface, uint32_t 
 /***************************************************************************/ /**
  * @brief
  *   Set Wi-Fi performance profile.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] profile
- *   Wi-Fi performance profile as indicated by @ref sl_wifi_performance_profile_t
+ *   Wi-Fi performance profile as indicated by [sl_wifi_performance_profile_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-performance-profile-t)
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
@@ -783,10 +964,11 @@ sl_status_t sl_wifi_set_performance_profile(const sl_wifi_performance_profile_t 
 /***************************************************************************/ /**
  * @brief
  *   Get Wi-Fi performance profile.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] profile
- *   Wi-Fi performance profile as indicated by @ref sl_wifi_performance_profile_t
+ *   Wi-Fi performance profile as indicated by [sl_wifi_performance_profile_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-performance-profile-t)
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -831,7 +1013,7 @@ sl_status_t sl_wifi_disable_monitor_mode(sl_wifi_interface_t interface);
  * @param[in] configuration
  *   P2P configuration as identified by @ref sl_wifi_p2p_configuration_t
  * @param[in] credential_id
- *   Credential ID
+ *   Credential ID as identified by @ref sl_wifi_credential_id_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
@@ -863,7 +1045,8 @@ sl_status_t sl_wifi_p2p_connect(sl_wifi_interface_t interface, const sl_wifi_p2p
 /***************************************************************************/ /**
  * @brief
  *   Generate Wi-Fi Protected Setup (WPS) pin.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] response
  *   @ref sl_wifi_wps_pin_t object that will contain the WPS pin.
@@ -875,7 +1058,8 @@ sl_status_t sl_wifi_generate_wps_pin(sl_wifi_wps_pin_t *response);
 /***************************************************************************/ /**
  * @brief
  *   Start Wi-Fi Protected Setup (WPS).
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_start_ap should be called before this API.
  * @param[in] interface
  *   Wi-Fi Access Point interface as identified by @ref sl_wifi_interface_t
@@ -895,7 +1079,8 @@ sl_status_t sl_wifi_start_wps(sl_wifi_interface_t interface,
 /***************************************************************************/ /**
  * @brief
  *   Stop current running Wi-Fi Protected Setup (WPS).
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_start_wps should be called before this API.
  * @param[in] interface
  *   Wi-Fi Access Point interface as identified by @ref sl_wifi_interface_t
@@ -913,16 +1098,31 @@ sl_status_t sl_wifi_stop_wps(sl_wifi_interface_t interface);
   * @{ */
 
 // Debug functions
+/***************************************************************************/ /**
+ * @brief
+ *   Return Wi-Fi operational statistics.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[out] statistics
+ *   @ref sl_wifi_statistics_t object that contains Wi-Fi statistics.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_statistics(sl_wifi_interface_t interface, sl_wifi_statistics_t *statistics);
 
 /***************************************************************************/ /**
  * @brief
  *   Start collecting statistical data.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] channel
- *   Provides the statistics report on the specified channel.
+ *   Provides the statistics report on the channel specified by @ref sl_wifi_channel_t.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -931,7 +1131,8 @@ sl_status_t sl_wifi_start_statistic_report(sl_wifi_interface_t interface, sl_wif
 /***************************************************************************/ /**
  * @brief
  *   Stop collecting statistical data.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_wifi_start_statistic_report should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -939,113 +1140,6 @@ sl_status_t sl_wifi_start_statistic_report(sl_wifi_interface_t interface, sl_wif
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_wifi_stop_statistic_report(sl_wifi_interface_t interface);
-
-/***************************************************************************/ /**
- * @brief
- *   Send raw data frame.
- * @pre 
- *   @ref sl_wifi_init should be called before this API.
- * @param[in] interface
- *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
- * @param[in] data
- *   Data buffer.
- * @param[in] data_length
- *   length of the data.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_wifi_send_raw_data_frame(sl_wifi_interface_t interface, const void *data, uint16_t data_length);
-
-/***************************************************************************/ /**
- * @brief
- *   Configure TWT parameters. Enables a TWT session. This is blocking API.
- * @pre 
- *   @ref sl_wifi_connect should be called before this API.
- * @param[in] twt_req
- *   Configurable TWT parameters.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req);
-
-/***************************************************************************/ /**
- * @brief
- *   Configure TWT parameters. Disables a TWT session. This is blocking API.
- * @pre 
- *   @ref sl_wifi_enable_target_wake_time should be called before this API.
- * @param[in] twt_req
- *   Configurable TWT parameters.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_wifi_disable_target_wake_time(sl_wifi_twt_request_t *twt_req);
-
-/***************************************************************************/ /**
- * @brief
- *   Calculates and configures TWT parameters based on the given inputs. Enables or disables a TWT session. This is blocking API.
- * @pre 
- *   @ref sl_wifi_connect should be called before this API.
- * @param[in] twt_selection_req
- *   Configurable TWT selection parameters.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_wifi_target_wake_time_auto_selection(sl_wifi_twt_selection_t *twt_selection_req);
-
-/***************************************************************************/ /**
- * @brief
- *   Send Filter Broadcast Request frame.
- * @pre 
- *   @ref sl_wifi_init should be called before this API.
- * @param[in] beacon_drop_threshold
- *   The amount of time that FW waits to receive full beacon. Default value is 5000ms.
- * @param[in] filter_bcast_in_tim
- *   If this bit is set, then from the next dtim any broadcast data pending bit in TIM indicated will be ignored valid values: 0 - 1.
- * @param[in] filter_bcast_tim_till_next_cmd
- *   0 - filter_bcast_in_tim is valid till disconnect of the STA. 
- *   1 - filter_bcast_in_tim is valid till next update by giving the same command.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_wifi_filter_broadcast(uint16_t beacon_drop_threshold,
-                                     uint8_t filter_bcast_in_tim,
-                                     uint8_t filter_bcast_tim_till_next_cmd);
-
-/***************************************************************************/ /**
- * @brief
- *   Configure the 11ax params.This is a blocking API.
- * @pre
- *   This API should be called before @ref sl_wifi_connect
- * @param[in] guard_interval
- *   Period of time delta between two packets in wireless transmission. Valid values : 0 - 3 (0 = 8us, 1 = 16us, 2 = 32us, 3 = 64us).
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
-
-/***************************************************************************/ /**
- * @brief
- *   Generate PMK if PSK and SSID are provided. This is a blocking API.
- * @pre
- *   @ref This API should be called after @ref sl_wifi_init and called before @ref sl_wifi_connect.
- * @param[in] interface
- *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
- * @param[in] type
- *   Possible values of this field are 1, 2, and 3, but we only pass 3 for generation of PMK.
- * @param[in] ssid
- *  SSID of type @ref sl_wifi_ssid_t has the SSID of the access point
- * @param[in] pre_shared_key
- *  Expected parameters are pre-shared key(PSK) of the access point
- * @param[in] pairwise_master_key
- *   PMK array
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_wifi_get_pairwise_master_key(sl_wifi_interface_t interface,
-                                            const uint8_t type,
-                                            const sl_wifi_ssid_t *ssid,
-                                            const char *pre_shared_key,
-                                            uint8_t *pairwise_master_key);
 
 /** @} */
 

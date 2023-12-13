@@ -43,6 +43,11 @@
 #include "rsi_ble_apis.h"
 #include "ble_config.h"
 
+/*=======================================================================*/
+//!    Powersave configurations
+/*=======================================================================*/
+#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
+
 typedef struct rsi_ble_conn_info_s {
   uint8_t conn_id;
   uint8_t conn_status;

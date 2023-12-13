@@ -5,11 +5,11 @@ description: |
   Demonstates how to request and get attestation token.
 category: example|crypto
 package: platform
-quality: alpha
-sdk: {id: gecko_sdk, version: 4.3.1}
+quality: production
+sdk: {id: gecko_sdk, version: 4.4.0}
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.0
+    version: 3.1.1
 source:
   - path: app.c
   - path: main.c
@@ -35,33 +35,37 @@ component:
   - id: freertos
   - id: wifi
     from: wiseconnect3_sdk
-  - id: si91x
+  - id: sl_si91x_wireless
     from: wiseconnect3_sdk
   - id: sl_si91x_crypto	
     from: wiseconnect3_sdk
   - id: sl_si91x_attestation
     from: wiseconnect3_sdk    
-  - id: si91x_support
+  - id: wiseconnect3_common
     from: wiseconnect3_sdk
-  - id: siwx917_soc
+  - id: sl_si91x_mcu
     from: wiseconnect3_sdk
   - id: network_manager
     from: wiseconnect3_sdk
-  - id: basic_network_manager
+  - id: basic_network_config_manager
     from: wiseconnect3_sdk
   - id: wifi_resources
     from: wiseconnect3_sdk
-  - id: si91x_internal_stack
+  - id: sl_si91x_internal_stack
     from: wiseconnect3_sdk
-  - id: si91x_basic_buffers
+  - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
   - id: sl_si91x_trng
     from: wiseconnect3_sdk 
   - id: si91x_debug
     from: wiseconnect3_sdk
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
 define:
-  - name: RSI_DEBUG_PRINTS
-  - name: RSI_M4_INTERFACE
+  - name: SL_SI91X_PRINT_DBG_LOG
+  - name: SLI_SI91X_MCU_INTERFACE
   - name: RSI_CRYPTO_ENABLE
 readme:
   - path: readme.md

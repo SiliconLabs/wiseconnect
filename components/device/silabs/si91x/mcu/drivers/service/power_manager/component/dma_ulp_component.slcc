@@ -1,0 +1,26 @@
+id: dma_ulp_component
+label: DMA
+package: platform
+description: >
+  Install this component to enable execution of DMA peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: sl_dma
+  - name: cmsis_udma
+
+provides:
+  - name: dma_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: dma_ps2
+    value: sl_si91x_dma.o
+  - name: dma_ps2
+    value: rsi_udma.o
+  - name: dma_ps2
+    value: rsi_udma_wrapper.o
+  - name: dma_ps2
+    value: UDMA.o

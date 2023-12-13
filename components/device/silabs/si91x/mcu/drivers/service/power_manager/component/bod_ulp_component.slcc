@@ -1,0 +1,20 @@
+id: bod_ulp_component
+label: BOD
+package: platform
+description: >
+  Install this component to enable execution of BOD peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: systemlevel_bod
+
+provides:
+  - name: bod_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: bod_ps2
+    value: rsi_bod.o
+

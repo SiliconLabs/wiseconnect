@@ -391,7 +391,7 @@ The driver assumes that buffers can be chained together and may need to query mu
 
 ```mermaid
  sequenceDiagram 
-     #sl_status_t sl_wifi_get_firmware_version( sl_wifi_version_string_t* version )
+     #sl_status_t sl_wifi_get_firmware_version( sl_wifi_firmware_version_t* version )
   participant app as Application
   participant wifi as SL WIFI
   participant bus as Bus thread  

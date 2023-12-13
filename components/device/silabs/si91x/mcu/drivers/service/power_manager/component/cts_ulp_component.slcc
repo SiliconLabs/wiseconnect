@@ -1,0 +1,19 @@
+id: cts_ulp_component
+label: CTS
+package: platform
+description: >
+  Install this component to enable execution of CTS peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: rsilib_cts
+
+provides:
+  - name: cts_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: cts_ps2
+    value: rsi_cts.o

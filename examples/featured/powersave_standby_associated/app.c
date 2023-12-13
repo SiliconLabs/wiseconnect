@@ -41,8 +41,8 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 
-#ifdef RSI_M4_INTERFACE
-#include "rsi_wisemcu_hardware_setup.h"
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
 #endif
 
 /******************************************************
@@ -56,10 +56,6 @@
 #define BROADCAST_IN_TIM                1
 #define BROADCAST_TIM_TILL_NEXT_COMMAND 1
 
-#ifdef RSI_M4_INTERFACE
-#define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-#endif // RSI_M4_INTERFACE
-
 /******************************************************
  *                    Constants
  ******************************************************/
@@ -68,24 +64,19 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_MODE,
+                   .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                       | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                       ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-                                                  | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
-#ifndef RSI_M4_INTERFACE
-                                                  RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                                                  RAM_LEVEL_NWP_BASIC_MCU_ADV
-#endif
-#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -101,7 +92,6 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
  ******************************************************/
 static void application_start(void *argument);
 sl_status_t send_data(void);
-void M4_sleep_wakeup(void);
 
 /******************************************************
  *               Static Inline Functions
@@ -142,17 +132,31 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
   sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE };
+  sl_wifi_firmware_version_t version                = { 0 };
+  sl_mac_address_t mac_addr                         = { 0 };
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi Client interface: 0x%lx\r\n", status);
     return;
   }
-
-  status = sl_si91x_set_join_configuration(SL_WIFI_CLIENT_INTERFACE, SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
+  status = sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
+  if (status == SL_STATUS_OK) {
+    printf("Device MAC address: %x:%x:%x:%x:%x:%x\r\n",
+           mac_addr.octet[0],
+           mac_addr.octet[1],
+           mac_addr.octet[2],
+           mac_addr.octet[3],
+           mac_addr.octet[4],
+           mac_addr.octet[5]);
+  } else {
+    printf("Failed to get mac address: 0x%lx\r\n", status);
+  }
+  status = sl_wifi_get_firmware_version(&version);
   if (status != SL_STATUS_OK) {
-    printf("Failed to start set join configuration: 0x%lx\r\n", status);
-    return;
+    printf("\r\nFailed to fetch firmware version: 0x%lx\r\n", status);
+  } else {
+    print_firmware_version(&version);
   }
 
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
@@ -181,8 +185,8 @@ static void application_start(void *argument)
   }
   printf("\r\nExample Demonstration Completed\r\n");
 
-#ifdef RSI_M4_INTERFACE
-  M4_sleep_wakeup();
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sl_si91x_m4_sleep_wakeup();
 #endif
 }
 
@@ -225,42 +229,3 @@ sl_status_t send_data(void)
 
   return SL_STATUS_OK;
 }
-
-#ifdef RSI_M4_INTERFACE
-
-void M4_sleep_wakeup(void)
-{
-#ifndef FLASH_BASED_EXECUTION_ENABLE
-  /* LDOSOC Default Mode needs to be disabled */
-  sl_si91x_disable_default_ldo_mode();
-
-  /* bypass_ldorf_ctrl needs to be enabled */
-  sl_si91x_enable_bypass_ldo_rf();
-
-  sl_si91x_disable_flash_ldo();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep */
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         0,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         0,
-                         RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
-
-#else
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep*/
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         WKP_RAM_USAGE_LOCATION,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         IVT_OFFSET_ADDR,
-                         RSI_WAKEUP_FROM_FLASH_MODE);
-#endif
-}
-#endif

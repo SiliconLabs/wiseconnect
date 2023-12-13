@@ -1,69 +1,81 @@
 project_name: ble_multiconnection_gatt_test
 package: wiseconnect
-quality: alpha
+quality: production
 label: BLE Multiple GATT Connections
 category: Example|BLE
 description: >
   The Application demonstrates how to configure SiWx91x EVK in
   central/peripheral modes and then connect with multiple peripherals/centrals.
 filter:
-  - name: "Wireless Technology"
-    value: ["BLE"]
-  - name: "Project Difficulty"
-    value: ["Advanced"]
-sdk: {id: gecko_sdk, version: 4.3.1}
-sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.0}
+- name: Wireless Technology
+  value:
+  - BLE
+- name: Project Difficulty
+  value:
+  - Advanced
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+- id: wiseconnect3_sdk
+  version: 3.1.1
 source:
-  - path: ble_device_info.c
-  - path: ble_main_task.c
-  - path: ble_subtasks.c
-  - path: main.c
-  - path: app.c
+- path: ble_device_info.c
+- path: ble_main_task.c
+- path: ble_subtasks.c
+- path: main.c
+- path: app.c
 include:
-  - path: 
-    file_list:
-      - path: ble_device_info.h
-      - path: app.h
-      - path: ble_config.h
+- path: .
+  file_list:
+  - path: ble_device_info.h
+  - path: app.h
+  - path: ble_config.h
 define:
-  - name: RSI_DEBUG_PRINTS
+- name: SL_SI91X_PRINT_DBG_LOG
+- name: SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
 component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
-- {from: wiseconnect3_sdk, id: si91x_debug}
+- id: sl_system
+- id: freertos
+- id: syscalls
+  from: wiseconnect3_sdk
+- id: si917_memory_default_config
+  from: wiseconnect3_sdk
+- id: wiseconnect3_common
+  from: wiseconnect3_sdk
+- id: wifi
+  from: wiseconnect3_sdk
+- id: sl_si91x_internal_stack
+  from: wiseconnect3_sdk
+- id: wifi_resources
+  from: wiseconnect3_sdk
+- id: network_manager
+  from: wiseconnect3_sdk
+- id: basic_network_config_manager
+  from: wiseconnect3_sdk
+- id: ble
+  from: wiseconnect3_sdk
+- id: sllib_m4_power_save
+  from: wiseconnect3_sdk
 requires:
-- name: sl_system
-- name: network_manager
-- name: basic_network_manager
-- name: si91x_support
-- name: wifi
-- name: si91x
-- name: ble
-- name: si91x_internal_stack
-- name: si91x_basic_buffers
-- name: wifi_resources
-- name: freertos
-- name: slist
-- name: iostream_retarget_stdio
-  condition: [device_has_devinfo]
-- name: iostream_recommended_stream
-  condition: [device_has_devinfo]
-- name: iostream_stdlib_config
-  condition: [device_has_devinfo]
-- name: device_init
-  condition: [device_has_devinfo]
-- name: emlib_common
-  condition: [device_has_devinfo]
-- name: emlib_ldma
-  condition: [device_has_devinfo]
+  - name: device_needs_ram_execution
+    condition:
+      - si91x_common_flash
 toolchain_settings: []
 configuration:
-- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
 readme:
-  - path: readme.md
+- path: readme.md
+other_file:
+- path: resources/readme/blemultigatt_soc_ncp.png
+- path: resources/readme/output_1.png
+- path: resources/readme/output_2.png
+- path: resources/readme/output_3.png
+- path: resources/readme/output_4.png
 ui_hints:
   highlight:
-    - path: readme.md
-      focus: true
+  - path: readme.md
+    focus: true
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

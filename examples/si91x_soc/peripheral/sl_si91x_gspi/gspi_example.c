@@ -17,7 +17,7 @@
 #include "sl_si91x_gspi.h"
 #include "sl_si91x_gspi_common_config.h"
 #include "gspi_example.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************

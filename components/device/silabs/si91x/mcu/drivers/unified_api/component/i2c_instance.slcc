@@ -1,0 +1,35 @@
+id: i2c_instance
+label: I2C Instance
+package: platform
+description: >
+  Add a I2C instance. 
+  Instances created must be named as I2C0, I2C1, I2C2. 
+category: Device|Si91x|MCU|Peripheral
+quality: production
+instantiable:
+  prefix: inst
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_i2c_init_{{instance}}_config.h
+    file_id: i2c_config
+provides:
+  - name: i2c_instance
+    allow_multiple: true
+template_file:
+  - path: init/sl_i2c_instances.h.jinja
+  - path: init/sl_i2c_init.c.jinja
+template_contribution:
+  - name: i2c_instances
+    value: "{{instance}}"
+  - name: component_catalog
+    value: i2c
+  - name: component_catalog
+    value: "i2c_{{instance}}"
+  - name: event_handler
+    condition: [sl_i2c]
+    value:
+      event: driver_init
+      include: "sl_i2c_instances.h"
+      handler: sl_i2c_init_instances
+requires:
+  - name: sl_i2c

@@ -38,7 +38,7 @@
 #include <string.h>
 #include "sl_si91x_driver.h"
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "sl_si91x_hal_soc_soft_reset.h"
 #endif
 
@@ -48,7 +48,7 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 //! Set 1 for combined image
 #define COMBINED_IMAGE 0
 #endif
@@ -93,15 +93,10 @@ static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuratio
                    .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
-#ifndef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC
-#endif
-#ifdef CHIP_917
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -151,7 +146,6 @@ static void application_start(void *argument)
   printf("\r\nWi-Fi Client Connected\r\n");
 
   status = update_firmware();
-  printf("FW UP duration : %ld\n", end - start);
   if (status != SL_STATUS_OK) {
     printf("\r\n Update Firmware failed with status 0x%lx\r\n", status);
     return;
@@ -162,24 +156,24 @@ static void application_start(void *argument)
 
 sl_status_t update_firmware()
 {
-  sl_wifi_version_string_t version  = { 0 };
-  sl_status_t status                = SL_STATUS_FAIL;
-  struct sockaddr_in server_address = { 0 };
-  socklen_t socket_length           = sizeof(struct sockaddr_in);
-  int client_socket                 = -1;
-  int socket_return_value           = 0;
-  uint16_t chunk                    = 1;
-  uint16_t chunk_max_count          = 1; // for header
-  uint16_t fwup_chunk_length        = 0;
-  int16_t recv_size                 = 0;
-  uint8_t send_buffer[3]            = { 0 };
-  uint8_t fwup_chunk_type           = 0;
+  sl_wifi_firmware_version_t version = { 0 };
+  sl_status_t status                 = SL_STATUS_FAIL;
+  struct sockaddr_in server_address  = { 0 };
+  socklen_t socket_length            = sizeof(struct sockaddr_in);
+  int client_socket                  = -1;
+  int socket_return_value            = 0;
+  uint16_t chunk                     = 1;
+  uint16_t chunk_max_count           = 1; // for header
+  uint16_t fwup_chunk_length         = 0;
+  int16_t recv_size                  = 0;
+  uint8_t send_buffer[3]             = { 0 };
+  uint8_t fwup_chunk_type            = 0;
 
   chunk_max_count += (FW_RPS_FILE_SIZE - FW_HEADER_SIZE) / CHUNK_SIZE;
 
   status = sl_wifi_get_firmware_version(&version);
   VERIFY_STATUS_AND_RETURN(status);
-  printf("\r\nFirmware version before update: %s\r\n", version.version);
+  print_firmware_version(&version);
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = SERVER_PORT;
@@ -272,9 +266,11 @@ sl_status_t update_firmware()
         end = osKernelGetTickCount();
         // Close the socket
         close(client_socket);
+        osDelay(3000);
         printf("\r\nFirmware update complete\r\n");
+        printf("FW update duration : %ld\n", end - start);
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 //! Perform SOC soft reset for combined Image
 #if COMBINED_IMAGE
         printf("\r\nSoC Soft Reset initiated!\r\n");
@@ -282,7 +278,7 @@ sl_status_t update_firmware()
 #endif
 #endif
 
-        status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE, NULL);
+        status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
         printf("\r\nWi-Fi Deinit status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);
 
@@ -292,13 +288,14 @@ sl_status_t update_firmware()
 
         status = sl_wifi_get_firmware_version(&version);
         VERIFY_STATUS_AND_RETURN(status);
+        print_firmware_version(&version);
 
-        printf("\r\nFirmware version after update: %s\r\n", version.version);
         return SL_STATUS_OK;
       } else {
         printf("\r\nFirmware update failed : %lx\n", status);
         end = osKernelGetTickCount();
         close(client_socket);
+        printf("FW update duration : %ld\n", end - start);
         return SL_STATUS_FAIL;
       }
     }

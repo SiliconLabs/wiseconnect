@@ -62,11 +62,15 @@
 //   ! GLOBAL VARIABLES
 /*=======================================================================*/
 osThreadId_t ble_app_task_handle[TOTAL_CONNECTIONS] = { NULL };
+#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+osThreadId_t ble_sleep_task_handle = NULL;
+#endif
 uint8_t ble_conn_id = 0xFF, peripheral_connection_in_prgs = 0, peripheral_con_req_pending = 0;
 uint16_t rsi_scan_in_progress;
 uint32_t ble_main_app_event_task_map;
-uint32_t ble_app_event_task_map[TOTAL_CONNECTIONS];
-uint32_t ble_app_event_task_map1[TOTAL_CONNECTIONS];
+volatile uint32_t ble_app_event_task_map[TOTAL_CONNECTIONS];
+volatile uint32_t ble_app_event_task_map1[TOTAL_CONNECTIONS];
+volatile uint32_t ble_temp_event_map[TOTAL_CONNECTIONS];
 uint8_t remote_device_role     = 0;
 uint8_t central_task_instances = 0, peripheral_task_instances = 0;
 volatile uint16_t rsi_disconnect_reason[TOTAL_CONNECTIONS] = { 0 };
@@ -1639,7 +1643,50 @@ void rsi_ble_on_sc_method(rsi_bt_event_sc_method_t *scmethod)
   }
 }
 #endif
+#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+/*==============================================*/
+/**
+ * @fn         check_pending_events
+ * @brief      this function checks the pending event to be handled by the application before going to sleep.
+ * @param[in]  none
+ * @param[out] none
+ * @return     True / False.
+ * @section description
+ * this function checks the pending event to be handled by the application before going to sleep.
+ */
+uint32_t check_pending_events()
+{
+  uint32_t ix, pending_event = 0;
+  for (ix = 0; ix < TOTAL_CONNECTIONS; ix++) {
+    if ((ble_app_event_task_map[ix] != 0) || (ble_app_event_task_map1[ix] != 0) || (ble_temp_event_map[ix] != 0)) {
+      pending_event = 1;
+      return pending_event;
+    }
+  }
+  return pending_event;
+}
 
+/*==============================================*/
+/**
+ * @fn         rsi_common_sleep_task
+ * @brief      this function creates the task for triggering m4 sleep.
+ * @param[in]  none
+ * @param[out] none
+ * @return     none.
+ * @section description
+ * this function function creates the task for triggering m4 sleep.
+ */
+void rsi_common_sleep_task()
+{
+  while (1) {
+    //! if events are not received loop will be continued.
+    if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && !(check_pending_events())) {
+      P2P_STATUS_REG &= ~M4_wakeup_TA;
+      sl_si91x_m4_sleep_wakeup();
+    }
+  }
+}
+#endif
 /*==============================================*/
 /**
  * @fn         rsi_ble_dual_role
@@ -1835,13 +1882,26 @@ void rsi_ble_main_app_task()
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\n BLE dual role init failed\r\n");
   }
-
+#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+  const osThreadAttr_t sleep_thread_attributes = {
+    .name       = "sleep_thread",
+    .attr_bits  = 0,
+    .cb_mem     = 0,
+    .cb_size    = 0,
+    .stack_mem  = 0,
+    .stack_size = 2048,
+    .priority   = osPriorityBelowNormal,
+    .tz_module  = 0,
+    .reserved   = 0,
+  };
+  ble_sleep_task_handle = osThreadNew((osThreadFunc_t)rsi_common_sleep_task, NULL, &sleep_thread_attributes);
+#endif
   while (1) {
     //! checking for events list
     event_id = rsi_ble_app_get_event();
     if (event_id == -1) {
       //! wait on events
-      osSemaphoreAcquire(ble_main_task_sem, 0);
+      osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
       continue;
     }
 
@@ -1860,7 +1920,7 @@ void rsi_ble_main_app_task()
               .name       = "ble_peripheral_task",
               .priority   = osPriorityNormal,
               .stack_mem  = 0,
-              .stack_size = 2048,
+              .stack_size = 3072,
               .cb_mem     = 0,
               .cb_size    = 0,
               .attr_bits  = 0u,
@@ -1907,7 +1967,7 @@ void rsi_ble_main_app_task()
                 .name       = "ble_central_task",
                 .priority   = osPriorityNormal,
                 .stack_mem  = 0,
-                .stack_size = 2048,
+                .stack_size = 3072,
                 .cb_mem     = 0,
                 .cb_size    = 0,
                 .attr_bits  = 0u,
@@ -1963,7 +2023,7 @@ void rsi_ble_main_app_task()
                 .name       = "ble_master_task",
                 .priority   = osPriorityNormal,
                 .stack_mem  = 0,
-                .stack_size = 2048,
+                .stack_size = 3072,
                 .cb_mem     = 0,
                 .cb_size    = 0,
                 .attr_bits  = 0u,
@@ -2039,6 +2099,16 @@ void rsi_ble_main_app_task()
         LOG_PRINT("\r\n In dis-conn evt \r\n");
         //! clear the served event
         rsi_ble_app_clear_event(RSI_BLE_DISCONN_EVENT);
+#if ENABLE_POWER_SAVE
+        LOG_PRINT("\r\n keep module in to active state \r\n");
+        if (!powersave_cmd_given) {
+          status = rsi_initiate_power_awake();
+          if (status != RSI_SUCCESS) {
+            LOG_PRINT("\r\n Failed to keep Module in ACTIVE mode \r\n");
+            return status;
+          }
+        }
+#endif
       } break;
       case RSI_BLE_GATT_WRITE_EVENT: {
         //! event invokes when write/notification events received

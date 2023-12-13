@@ -1,19 +1,24 @@
 project_name: wifi_powersave_standby_associated_soc
 package: wifi
-quality: alpha
+quality: production
 label: wifi_powersave_standby_associated
 category: Example|Wi-Fi
 description: >
-  Start a Wi-Fi client in ASSOCIATED_POWER_SAVE mode and connects to AP and send data to UDP server 
-
+  Start a Wi-Fi client in ASSOCIATED_POWER_SAVE mode and connects to
+  AP and send data to UDP server 
 filter:
-  - name: "Wireless Technology"
-    value: ["Wi-Fi"]
-  - name: "Project Difficulty"
-    value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.3.1}
-sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.0}
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.1
 source:
   - path: app.c
   - path: main.c
@@ -22,87 +27,53 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: RSI_DEBUG_PRINTS
-  - name: EXECUTION_FROM_RAM
-    condition: [device_needs_ram_execution]
+  - name: SL_SI91X_PRINT_DBG_LOG
 component:
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
-- {from: wiseconnect3_sdk, id: si91x_debug}
-- {from: wiseconnect3_sdk, id: rsilib_userconfig}
-- {from: wiseconnect3_sdk, id: rsilib_chip}
-- {from: wiseconnect3_sdk, id: siwx917_soc}
+  - id: sl_system
+  - id: freertos
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wiseconnect3_common
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: bsd_socket
+    from: wiseconnect3_sdk
+  - id: sllib_m4_power_save
+    from: wiseconnect3_sdk
 requires:
-- name: sl_system
-- name: bsd_socket
-- name: network_manager
-- name: basic_network_manager
-- name: si91x_support
-- name: wifi
-- name: si91x
-- name: si91x_internal_stack
-- name: si91x_basic_buffers
-- name: wifi_resources
-- name: freertos
-- name: slist
-- name: iostream_retarget_stdio
-  condition: [device_has_devinfo]
-- name: iostream_recommended_stream
-  condition: [device_has_devinfo]
-- name: iostream_stdlib_config
-  condition: [device_has_devinfo]
-- name: device_init
-  condition: [device_has_devinfo]
-- name: emlib_common
-  condition: [device_has_devinfo]
-- name: emlib_ldma
-  condition: [device_has_devinfo]
-template_contribution:
-- condition: [device_needs_ram_execution]
-  name: RAM_EXECUTION
-  value: true
+  - name: device_needs_ram_execution
+    condition:
+      - si91x_common_flash
 toolchain_settings: []
 configuration:
-- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+  - name: SL_BOARD_ENABLE_VCOM
+    value: "1"
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/build_powersave_standby_associated_ncp.png
-  - path: resources/readme/powersave_standby_build_ncp.png
-  - path: resources/readme/powersave_build_soc.png
-  - path: resources/readme/projectselection_soc.png
-  - path: resources/readme/projectselection_soc2.png
-  - path: resources/readme/debug_prints_with_data_transfer_ncp.png
-  - path: resources/readme/powersave_standby_debugas.png
-  - path: resources/readme/powersave_standby_debugas_ncp.png
-  - path: resources/readme/efr32.png
-  - path: resources/readme/energy_profiler_step_1.png
-  - path: resources/readme/energy_profiler_step_2.png
-  - path: resources/readme/energy_profiler_step_3.png
-  - path: resources/readme/energy_profiler_step_4.png
-  - path: resources/readme/energy_profiler_step_5.png
   - path: resources/readme/energy_profiler_step_6.png
   - path: resources/readme/energy_profiler_step_7.png
   - path: resources/readme/energy_profiler_step_8.png
   - path: resources/readme/image185.png
   - path: resources/readme/image187.png
-  - path: resources/readme/output_soc.png 
-  - path: resources/readme/port_selection_soc.png
-  - path: resources/readme/port_selection.png
+  - path: resources/readme/output_soc.png
   - path: resources/readme/power_meter_avg_current_consumption.png
   - path: resources/readme/power_save_current_measurement_pins.png
-  - path: resources/readme/projectselection_ncp.png
-  - path: resources/readme/project_selection_ncp.png
-  - path: resources/readme/serial_port_setup.png
-  - path: resources/readme/serial_port.png
-  - path: resources/readme/setup_ncp.png
-  - path: resources/readme/setup_soc.png
-  - path: resources/readme/soc_board_detection.png
-  - path: resources/readme/usb_to_uart_1.png  
-  - path: resources/readme/usb_to_uart_2.png
+  - path: resources/readme/setup_soc_ncp.png
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
 post_build:
   path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb
-

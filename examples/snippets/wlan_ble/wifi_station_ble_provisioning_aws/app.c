@@ -37,7 +37,6 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
-#include "i2c_leader_example.h"
 
 //BLE Specific inclusions
 #include <rsi_ble_apis.h>
@@ -45,11 +44,9 @@
 #include "rsi_ble_common_config.h"
 #include <rsi_common_apis.h>
 
-#define RSI_APPLICATION_TASK_PRIORITY   1
-#define RSI_BLE_TASK_PRIORITY           2
-#define RSI_APPLICATION_TASK_STACK_SIZE 3072
-#define RSI_BLE_TASK_STACK_SIZE         1000
-#define RSI_I2C_TASK_STACK_SIZE         1000
+#ifdef v
+#include "i2c_leader_example.h"
+#endif
 
 // APP version
 #define APP_FW_VERSION "0.4"
@@ -78,7 +75,7 @@ static const sl_wifi_device_configuration_t config = {
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_BLE_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
@@ -88,17 +85,11 @@ static const sl_wifi_device_configuration_t config = {
                                               | SL_SI91X_TCP_IP_FEAT_SSL
 #endif
                                               ),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef CHIP_917
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
@@ -153,7 +144,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_mem     = 0,
   .cb_size    = 0,
   .stack_mem  = 0,
-  .stack_size = RSI_APPLICATION_TASK_STACK_SIZE,
+  .stack_size = 3072,
   .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
@@ -165,7 +156,7 @@ const osThreadAttr_t ble_thread_attributes = {
   .cb_mem     = 0,
   .cb_size    = 0,
   .stack_mem  = 0,
-  .stack_size = RSI_BLE_TASK_STACK_SIZE,
+  .stack_size = 2048,
   .priority   = osPriorityNormal,
   .tz_module  = 0,
   .reserved   = 0,
@@ -174,28 +165,41 @@ const osThreadAttr_t ble_thread_attributes = {
 void rsi_wlan_ble_app_init(void *argument)
 {
   UNUSED_PARAMETER(argument);
-
   int32_t status = RSI_SUCCESS;
 
   //! Wi-Fi initialization
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
   LOG_PRINT("\r\n Wi-Fi Initialization Success\n");
 
-#ifdef RSI_M4_INTERFACE
-  uint8_t xtal_enable = 1;
-  status              = sl_si91x_m4_ta_secure_handshake(SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
-  if (status != SL_STATUS_OK) {
-    printf("\r\nFailed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
+  wlan_thread_sem = osSemaphoreNew(1, 0, NULL);
+  if (wlan_thread_sem == NULL) {
+    LOG_PRINT("Failed to create wlan_thread_sem\n");
     return;
   }
-  printf("\r\nm4_ta_secure_handshake Success\r\n");
+
+  ble_thread_sem = osSemaphoreNew(1, 0, NULL);
+  if (ble_thread_sem == NULL) {
+    LOG_PRINT("Failed to create ble_thread_sem\n");
+    return;
+  }
+
+#ifdef SLI_SI91X_MCU_INTERFACE
+  uint8_t xtal_enable = 1;
+  status              = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFailed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
+    return;
+  }
+  LOG_PRINT("\r\nm4_ta_secure_handshake Success\r\n");
 #endif
 
-  osThreadNew((osThreadFunc_t)rsi_ble_configurator_task, NULL, &ble_thread_attributes);
+  if (osThreadNew((osThreadFunc_t)rsi_ble_configurator_task, NULL, &ble_thread_attributes) == NULL) {
+    LOG_PRINT("Failed to create BLE thread\n");
+  }
 
   status = rsi_wlan_mqtt_certs_init();
   if (status != RSI_SUCCESS) {
@@ -213,12 +217,7 @@ void rsi_wlan_ble_app_init(void *argument)
   return;
 }
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
-
-  wlan_thread_sem = osSemaphoreNew(1, 0, NULL);
-  ble_thread_sem  = osSemaphoreNew(1, 0, NULL);
-
   osThreadNew((osThreadFunc_t)rsi_wlan_ble_app_init, NULL, &thread_attributes);
 }

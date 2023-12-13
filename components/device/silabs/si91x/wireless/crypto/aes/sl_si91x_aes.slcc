@@ -1,0 +1,17 @@
+id: sl_si91x_aes
+package: wiseconnect3_sdk
+description: >
+  Implementation of the AES API
+label: AES
+category: Device|Si91x|Wireless|Crypto
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless/crypto/aes
+provides:
+- name: sl_si91x_aes
+source:
+- path: src/sl_si91x_aes.c
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_aes.h
+

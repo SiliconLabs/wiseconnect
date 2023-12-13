@@ -1,184 +1,111 @@
-# Power Save Deep Sleep
+# Wi-Fi - Powersave Deep Sleep
 
-## 1 Purpose/Scope
+## Table of Contents
 
-This application demonstrates how to enable power save deep sleep profile with SiWx91x. This application enables power save profile mode 8 and then wait in a scheduler for some time. Once it will come out of delay, it will start running in HIGH performance mode.
+- [Purpose/Scope](#purposescope)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Set up Diagram](#set-up-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+- [Application Output](#application-output)
 
-## 2 Prerequisites/Setup Requirements
+## Purpose/Scope
 
-### 2.1 Hardware Requirements
+This application demonstrates how to enable power save deep sleep profile with SiWx91x. This application enables power save profile mode in STANDBY_POWER_SAVE_WITH_RAM_RETENTION and then wait in a scheduler for some time. Once it will come out of delay, it will start running in HIGH performance mode.
+
+## Prerequisites/Setup Requirements
+
+### Hardware Requirements
 
 - Windows PC
 - Wireless Access Point
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A, BRD4340A](https://www.silabs.com/)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4340A [SiWx917-RB4340A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+  	
 - **NCP Mode**:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
-  - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+  - Kits
+  	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 
-### 2.2 Software Requirements
+### Software Requirements
 
-- Simplicity Studio IDE
-  - Download the [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio).
-  - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE.
+- Simplicity Studio
 
-### 2.3 Set up Diagram
+### Set up Diagram
 
-#### SoC Mode
+  ![Figure: Setup Diagram SOC and NCP Mode for Power Save Deep Sleep soc Example](resources/readme/setup_soc_ncp.png)
 
-Set up diagram for SoC mode:
+## Getting Started
 
-![Figure: Setup Diagram NCP Mode for Power Save Deep Sleep soc Example](resources/readme/setup_soc.png)
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-#### NCP Mode
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-Set up diagram for NCP mode:
-
-![Figure: Setup Diagram NCP Mode for Power Save Deep Sleep Example](resources/readme/setup_ncp.png)
-
-Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
-
-## 3 Project Environment
-
-- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
-
-- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
-
-### 3.1 Creating the project
-
-#### 3.1.1 SoC mode
-
-- Ensure the SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
-
-  **![Soc Board detection](resources/readme/soc_board_detection.png)**
-
-#### 3.1.2 NCP mode
-
-- Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-
-  **![EFR32 Board detection](resources/readme/efr32.png)**
-
-### 3.2 Importing the project
-
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
-
-#### SOC Mode
-
-- Select **Wi-Fi - Powersave Deep Sleep** test application
-
-  **![project_selection](resources/readme/powersave_deepsleep_example_soc.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  **![creation_final](resources/readme/create_project_soc.png)**
-
-### 3.3 Set up for application prints
-
-#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4340A
-
-You can use either of the below USB to UART converters for application prints.
-
-1. Set up using USB to UART converter board.
-
-   - Connect Tx (Pin-6) to P27 on WSTK
-   - Connect GND (Pin 8 or 10) to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
-
-2. Set up using USB to UART converter cable.
-
-   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-   - Connect GND (Pin1) of TTL convertor to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
-
-3. Open the Teraterm tool.
-
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
-
-     **![port_selection_soc](resources/readme/port_selection_soc.png)**
-
-**Note:** For Other 917 SoC boards please refer section #3.3.2
-
-#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
-
-1. Open the Teraterm tool.
-
-- choose the J-Link port and click on **OK**.
-    
-    **![J-link - NCP](resources/readme/port_selection.png)**
-
-2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
-
-    **![serial_port_setup](resources/readme/serial_port_setup.png)**
-
-    **![serial_port](resources/readme/serial_port.png)**
-
-## 4 Application Build Environment
-
-### 4.1 Configure the Application
+## Application Build Environment
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-#### 4.1.1 In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+- In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
-- **STA instance related parameters**
+- STA instance related parameters
 
-	- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
-	
-  	```c
-  	#define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
-  	```
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+ 
+   ```c
+   #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
+   ```
 
-	- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
+  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
-  	```c
-  	#define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
-  	```
+   ```c
+   #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+   ```
 
-	- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
+  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
 
-  	```c
-  	#define DEFAULT_WIFI_CLIENT_SECURITY_TYPE SL_WIFI_WPA2 
-  	```
+   ```c
+   #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE SL_WIFI_WPA2 
+   ```
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-#### 4.1.2 `sl_wifi_performance_profile_t` in **app.c** can be configured as per requirements to test Deep-Sleep Powersave application
+- `sl_wifi_performance_profile_t` in **app.c** can be configured as per requirements to test Deep-Sleep Powersave application.
 
-### 4.2 Build the Application
+**Soc Mode**:
 
-#### - SoC Mode : Build as powersave_deep_sleep Example
+The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
-  **![Build as](resources/readme/build_powersave_deep_sleep.png)**
+- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
+  - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
+  - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
+- Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
+  - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
+- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
+  - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
 
-#### - NCP Mode
+## Test the Application
 
-### 4.3 Run and Test the application
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. Once the build was successful, right click on project and select Debug As → Silicon Labs ARM Program to program the device as shown in below image.
+- Build the application.
+- Flash, run and debug the application.
 
-    **![debug_mode_NCP](resources/readme/program_device.png)**
+## Application Output
 
-2. As soon as the debug process is completed, the application control branches to the main().
-
-3. Go to the J-link Silicon Labs console pane to observe the debug prints in the Serial 1 tab.
-
-4. Click on the **Resume** icon in the Simplicity Studio IDE toolbar to run the application.
-
-    **![Run](resources/readme/run.png)**
-
-### 4.4 Application Output
-
-- SoC mode:
-
-  ![Application Prints Soc](resources/readme/application_prints_soc.png)
-
-- NCP mode:
-
-  ![Application Prints NCP](resources/readme/application_prints_ncp.png)
+  ![Application Prints Soc](resources/readme/application_prints_soc_ncp.png)

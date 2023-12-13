@@ -1,0 +1,13 @@
+id: ulp_mode_execution
+package: platform
+description: Enables ultra-low-power (ULP) mode by executing text section from RAM.
+category: Device|Si91x|MCU|Core
+label: ULP Platform RAM Execution
+quality: production
+provides:
+  - name: ulp_mode_execution
+define:
+  - name: ULP_MODE_EXECUTION
+template_contribution:
+  - name: ulp_mode_execution
+    value: true

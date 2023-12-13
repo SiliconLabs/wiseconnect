@@ -36,6 +36,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 //! BLE include file to refer BLE APIs
 #include "ble_config.h"
@@ -112,6 +113,9 @@ static uint8_t conn_params_updated     = 0;
 #if SMP_ENABLE
 static uint8_t smp_passkey[BLE_PASSKEY_SIZE];
 #endif
+uint32_t tx_start_timer = 0;
+uint32_t tx_stop_timer  = 0;
+uint64_t tx_pkt_cnt     = 0;
 
 osSemaphoreId_t ble_main_task_sem;
 
@@ -126,18 +130,12 @@ static const sl_wifi_device_configuration_t config = {
                                        | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
 
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef CHIP_917
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
@@ -174,7 +172,7 @@ static const sl_wifi_device_configuration_t config = {
 #if RSI_BLE_DISABLE_CODED_PHY_FROM_HOST
                       | (SL_SI91X_BLE_DISABLE_CODED_PHY_FROM_HOST) //Disable Coded PHY from app
 #endif
-#if BLE_SIMPLE_GATT
+#if RSI_BLE_GATT_INIT
                       | SL_SI91X_BLE_GATT_INIT
 #endif
                       ),
@@ -278,6 +276,30 @@ static int32_t rsi_ble_app_get_event(void)
   }
 
   return (-1);
+}
+
+/*============================================================================*/
+/**
+ * @fn         throughput_calculation
+ * @brief      this function is used for throughput calculation
+ * @param[in]  start_timer, start timer
+ * @param[in]  stop_timer, stop timer
+ * @param[in]  packet_count, received packet count
+ * @return     none
+ * @section description
+ * This function is used to start or stop the data transfer to the remote
+ * device.
+ */
+void throughput_calculation(uint32_t start_timer, uint32_t stop_timer, uint32_t packet_count)
+{
+  float throughput = 0;
+  float timing     = 0;
+
+  timing     = (((float)(stop_timer - start_timer)) / 1000);
+  throughput = (((float)(packet_count * RSI_BLE_MAX_DATA_LEN * 8)) / timing);
+  LOG_PRINT("\r\nThroughput : %.07f bps\n", (float)throughput);
+  LOG_PRINT("\r\nThroughput : %.07f kbps\n", (float)(throughput / 1000));
+  LOG_PRINT("\r\n Time duration in sec:%0.2f \n", timing);
 }
 
 /*==============================================*/
@@ -820,20 +842,21 @@ void ble_throughput_test_app(void *argument)
   UNUSED_PARAMETER(argument);
   int32_t status = 0;
   int32_t event_id;
-  uint8_t adv[31]         = { 2, 1, 6 };
-  uint8_t read_data1[232] = {
+  uint8_t adv[31]                        = { 2, 1, 6 };
+  sl_wifi_firmware_version_t version     = { 0 };
+  uint8_t send_buf[RSI_BLE_MAX_DATA_LEN] = {
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
     29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
     58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86,
     87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
     16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
     45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 72,
-    74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 00, 01
+    74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 00, 1,  2,
+    3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
   };
-  sl_wifi_version_string_t version = { 0 };
 
   //! Wi-Fi initialization
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -845,7 +868,7 @@ void ble_throughput_test_app(void *argument)
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+    print_firmware_version(&version);
   }
 
   //! registering the GAP callback functions
@@ -1155,6 +1178,7 @@ void ble_throughput_test_app(void *argument)
         rsi_ble_app_clear_event(RSI_APP_EVENT_DATA_LENGTH_CHANGE);
 
         if (remote_dev_feature.remote_features[1] & 0x01) {
+          osDelay(500);
           status = rsi_ble_setphy((int8_t *)remote_dev_address, TX_PHY_RATE, RX_PHY_RATE, CODDED_PHY_RATE);
           if (status != RSI_SUCCESS) {
             if (status != BT_HCI_COMMAND_DISALLOWED) {
@@ -1237,13 +1261,17 @@ void ble_throughput_test_app(void *argument)
         if ((*(uint16_t *)app_ble_write_event.handle - 1) == rsi_ble_att2_val_hndl) {
           if (app_ble_write_event.att_value[0] == NOTIFY_ENABLE) {
             LOG_PRINT("\r\n Remote device enabled the notification \n");
-            //! set the data tranfer event
+            //! set the data transfer event
             notifies_enabled = 0x01;
+            tx_pkt_cnt       = 0;
+            tx_start_timer   = osKernelGetTickCount();
             rsi_ble_app_set_event(RSI_DATA_TRANSMIT_EVENT);
           } else if (app_ble_write_event.att_value[0] == NOTIFY_DISABLE) {
             LOG_PRINT("\r\n Remote device disabled the notification \n");
             //! clear the data transfer event
             notifies_enabled = 0x00;
+            tx_stop_timer    = osKernelGetTickCount();
+            throughput_calculation(tx_start_timer, tx_stop_timer, tx_pkt_cnt);
             rsi_ble_app_clear_event(RSI_DATA_TRANSMIT_EVENT);
           }
         }
@@ -1266,10 +1294,10 @@ void ble_throughput_test_app(void *argument)
           }
         }
 
-        read_data1[0]++;
+        send_buf[0]++;
 
         if (notifies_enabled) {
-          status = rsi_ble_notify_value(remote_dev_address, rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, read_data1);
+          status = rsi_ble_notify_value(remote_dev_address, rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, send_buf);
           if (status != RSI_SUCCESS) {
             if (status == RSI_ERROR_BLE_DEV_BUF_FULL) {
               //LOG_PRINT("\r\n write with response failed with buffer error = %d \r\n", status);
@@ -1281,6 +1309,8 @@ void ble_throughput_test_app(void *argument)
               //! clear the served event
               rsi_ble_app_clear_event(RSI_DATA_TRANSMIT_EVENT);
             }
+          } else {
+            tx_pkt_cnt = tx_pkt_cnt + 1;
           }
         } else {
           //! clear the served event

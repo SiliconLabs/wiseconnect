@@ -61,22 +61,17 @@ static const sl_wifi_device_configuration_t client_configuration = {
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (
-#ifdef RSI_M4_INTERFACE
-                     RAM_LEVEL_NWP_ADV_MCU_BASIC
-#else
-                     RAM_LEVEL_NWP_ALL_MCU_ZERO
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map = (MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#ifdef CHIP_917
-                     | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                     ),
+                                                  ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = 0,
                    .ble_feature_bit_map        = 0,

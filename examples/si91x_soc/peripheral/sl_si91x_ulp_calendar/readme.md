@@ -1,15 +1,28 @@
-# ULP CALENDAR
+# SL ULP CALENDAR
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - This example demonstrates the clock configuration, one millisecond trigger, one second trigger, alarm configuration and time conversion in this example.
 - Before enabling any trigger, it is recommended to calibrate the clock.
 
 ## Overview
 
-- Calendar calculates milliseconds, seconds, minutes, hours, days, months and years upto 4 centuries.
+- Calendar calculates milliseconds, seconds, minutes, hours, days, months and years up to 4 centuries.
 - It also calculates days of week and takes care of number of days in month as well as leap year.
-- It can also configure alarm for desired time as a oneshot trigger.
+- It can also configure alarm for desired time as a one shot trigger.
 - It can generate triggers on one second and one millisecond time interval.
 - It uses APB for read and write operations in real time.
 - RC clock and RO clock are configurable, and it can also be calibrated using the APIs.
@@ -18,9 +31,9 @@
 
 - This example demonstrates clock configuration, set calendar date-time, calendar get date-time, set alarm date-time, get alarm date-time, alarm trigger, one millisecond trigger, one second trigger and clock calibration.
 - To configure the calendar clock, select the clock from UC. \ref sl_si91x_calendar_config is used to set the calendar clock.
-- A structure is created which contains default values for calendar date-time. It is created using \ref sl_si91x_calendar_build_datetime_struct, After entering all the parameters, it returns a stucture filled with all the parameters.
+- A structure is created which contains default values for calendar date-time. It is created using \ref sl_si91x_calendar_build_datetime_struct, After entering all the parameters, it returns a structure filled with all the parameters.
 - Calendar date-time is configured using \ref sl_si91x_calendar_set_date_time API. It configures the date time and the calendar blocks starts counting from that time.
-- To verify if the desired time is set, \ref sl_si91x_calendar_get_date_time API is used, It reutrns a structure which has current date-time.
+- To verify if the desired time is set, \ref sl_si91x_calendar_get_date_time API is used, It returns a structure which has current date-time.
 
 - If **ALARM_EXAMPLE** macro is enabled:
 
@@ -60,84 +73,88 @@
   - It updates the variable with unix time which is passed as parameter.
   - After conversion, ntp time and unix time are printed on the console.
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required.
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK/WSTK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image501a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
-## Project Setup
+### Setup Diagram
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+ ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Loading Application on Simplicity Studio
+## Getting Started
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to rtc Example application as shown below.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Selecting Example project](resources/readme/image501b.png)
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-## Configuration and Steps for Execution
+## Application Build Environment
 
 - Configure UC from the slcp component.
+
+   ![Figure: Introduction](resources/uc_screen/calendar_uc_screen.png)
+
 - Open **sl_si91x_calendar.slcp** project file select **software component** tab and search for **Calendar** in search bar.
 - Using configuration wizard one can configure the Calendar clock, i.e., RO, RC and XTAL.
 - Configuration file is generated in **config folder**, if not changed then the code will run on default UC values.
 
-- Configure the following macros in calenadar_example.h file and update/modify following macros if required.
+- Set any of the macro in calender_example.h whose functionality needs to be tested.
 
-```C
-#define ALARM_EXAMPLE     0 ///< To enable alarm trigger \n
-#define CLOCK_CALIBRATION 0 ///< To enable clock calibration \n
-#define SEC_INTR          0 ///< To enable one second trigger \n
-#define MILLI_SEC_INTR    0 ///< To enable one millisecond trigger \n
-#define TIME_CONVERSION   0 ///< To enable time conversion \n
-```
+- To enable alarm trigger callback set the ALARM_EXAMPLE macro.
 
-## Build
+  ```C
+   #define ALARM_EXAMPLE       1 ///< To enable alarm trigger \n
+  ```
 
-1. Compile the application in Simplicity Studio using build icon.
+- To enable clock calibration set the CLOCK_CALIBRATION macro.
 
-![Figure: Build run and Debug](resources/readme/image501c.png)
+   ```C
+    #define CLOCK_CALIBRATION  1 ///< To enable clock calibration \n
+   ```
+- To enable second trigger callback set the SEC_INTR macro.
 
-## Device Programming
+   ```C
+    #define SEC_INTR           1 ///< To enable one second trigger \n
+   ```
 
-- To program the device ,refer **Burn M4 Binary** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+- To enable millisecond trigger callback set the MILLI_SEC_INTR macro.
 
-## Executing the Application
+   ```C
+    #define MILLI_SEC_INTR     1 ///< To enable one millisecond trigger \n
+   ```
 
-1. Enable any of the macro whose functionality needs to be tested.
-2. Compile and run the application.
+- To enable time conversion set the TIME_CONVERSION macro.
 
-## Expected Results
+   ```C
+    #define TIME_CONVERSION    1 ///< To enable time conversion trigger \n
+   ```
 
-- By default time and date is configured and print on serial console is there.
-- If ALARM_EXAMPLE is enabled, it prints "Alarm Callback is Triggered" on console when alarm is triggered.
-- If SEC_INTR is enabled, every one second "One Sec Callback is Triggered" print is there on serial console.
-- If MILLI_SEC_INTR is enabled, every one second "One Milli-Sec Callback triggered 1000 times" print is there on serial console.
-- If CLOCK_CALIBRATION is enabled, after calibration "Successfully performed clock calibration" print is there on serial console.
-- If TIME_CONVERSION is enabled, time conversion between unix and ntp is printed on serial console.
-## Note
- - This application is executed from RAM.
- - In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
- - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
- 
-## Expected Scenario:
- - After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
- - To Erase the chip follow the below procedure
-   - Turn ON ISP switch and press the reset button → Turn OFF ISP Switch → Now perform Chip erase 
-      through commander. 
+## Test the Application
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+- Build the SL ULP CALENDAR example in Studio.
+- Flash, run and debug the application.
+- After successful program execution the prints in serial console looks as shown below.
+
+  >![output](resources/readme/output_ulp_calendar.png)
+
+> **Note:**
+>- This application is executed from RAM.
+>- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
+>- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
+>- To Erase the chip follow the below procedure
+>- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.  
+

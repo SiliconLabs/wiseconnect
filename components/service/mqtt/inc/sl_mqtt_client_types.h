@@ -27,11 +27,14 @@
  * @{
  */
 
-/// MQTT QOS levels
+/**
+ * @brief MQTT quality of service (QoS) levels
+ * @note  Quality of service (QoS) level 2 not currently supported.
+*/
 typedef enum {
-  SL_MQTT_QOS_LEVEL_0, ///< MQTT QOS level 0
-  SL_MQTT_QOS_LEVEL_1, ///< MQTT QOS level 1
-  SL_MQTT_QOS_LEVEL_2, ///< MQTT QOS level 2
+  SL_MQTT_QOS_LEVEL_0, ///< MQTT QoS level 0
+  SL_MQTT_QOS_LEVEL_1, ///< MQTT QoS level 1
+  SL_MQTT_QOS_LEVEL_2, ///< MQTT QoS level 2 (not currently supported)
 } sl_mqtt_qos_t;
 
 /// MQTT Client connection states
@@ -105,13 +108,16 @@ typedef struct {
   bool is_connection_encrypted; ///< Whether to use MQTT or MQTTS.
   uint16_t connect_timeout;     ///< MQTT Connection timeout.
   uint16_t keep_alive_interval; ///< Keep alive timeout of MQTT connection.
+  uint16_t keep_alive_retries;  ///< MQTT ping retries.
 } sl_mqtt_broker_t;
 
 /// MQTT Client credentials structure
 typedef struct {
-  uint16_t username_length; ///< Length of the username.
-  uint16_t password_length; ///< Length of the password.
-  uint8_t data[];           ///< A flexible array to store both username and password.
+  uint16_t
+    username_length; ///< Length of the username. Length should not exceed 62 bytes including NULL termination character.
+  uint16_t
+    password_length; ///< Length of the password. Length should not exceed 62 bytes including NULL termination character.
+  uint8_t data[];    ///< A flexible array to store both username and password.
 } sl_mqtt_client_credentials_t;
 
 /// MQTT Client Configuration structure
@@ -125,50 +131,52 @@ typedef struct {
   uint16_t client_port;                 ///< Port number of client.
   sl_net_credential_id_t credential_id; ///< Credential id for username and password of MQTT connect request.
   uint8_t *client_id;                   ///< Pointer to MQTT client id.
-  uint8_t client_id_length;             ///< Length of client id.
+  uint8_t
+    client_id_length; ///< Length of client id. Length should not exceed 62 bytes including NULL termination character.
 } sl_mqtt_client_configuration_t;
 
 /**
+ * @typedef sl_mqtt_client_event_handler_t
  * @brief
  *    Handler for MQTT client Events.
- * @param[out] client		
- *    Client on which the event occurred.
- * @param[out] event			
- *    Event occurred.
- * @param[out] event_data	
+ * @param client		
+ *    Client on which the event occurred. 
+ * @param event			
+ *    Event occurred of type @ref sl_mqtt_client_event_t
+ * @param event_data	
  *    Event data for the data. This parameter would be non-null only for MQTT_CLIENT_MESSAGED_RECEIVED and MQTT_CLIENT_ERROR.
- * @param[out] context		
+ * @param context		
  *    Context provided by user at the time of API call. The caller must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
  */
-typedef void (*sl_mqtt_client_event_handler)(void *client,
-                                             sl_mqtt_client_event_t event,
-                                             void *event_data,
-                                             void *context);
+typedef void (*sl_mqtt_client_event_handler_t)(void *client,
+                                               sl_mqtt_client_event_t event,
+                                               void *event_data,
+                                               void *context);
 
 /**
+ * @typedef sl_mqtt_client_message_received_t
  * @brief
  *    Handler for MQTT client RX message.
- * @param[out] client	
+ * @param client	
  *    Client which has received message.
- * @param[out] message	
- *    Message received.
- * @param[out] context	
+ * @param message_to_be_published	
+ *    Message received of type @ref sl_mqtt_client_message_t
+ * @param context	
  *    Context provided by user at the time of Subscribe API call. The caller must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
- *
  * @note
  * 	  Due to the constraints from the firmware, is_retained, qos_level, packet_identifer, duplicate_message of sl_mqtt_client_message_t are not populated and shall be ignored while processing the message.
  */
-typedef void (*sl_mqtt_client_message_received)(void *client,
-                                                sl_mqtt_client_message_t *message_to_be_published,
-                                                void *context);
+typedef void (*sl_mqtt_client_message_received_t)(void *client,
+                                                  sl_mqtt_client_message_t *message_to_be_published,
+                                                  void *context);
 
 /// MQTT Client Topic Subscription Info structure
 typedef struct {
-  sl_slist_node_t next_subscription;                     ///< Next node in the linked list.
-  sl_mqtt_client_message_received topic_message_handler; ///< A function pointer to message handler.
-  sl_mqtt_qos_t qos_of_subscription;                     ///< Quality of subscription.
-  uint16_t topic_length;                                 ///< Length of the subscribed topic.
-  uint8_t topic[];                                       ///< A flexible array to store the topic.
+  sl_slist_node_t next_subscription;                       ///< Next node in the linked list.
+  sl_mqtt_client_message_received_t topic_message_handler; ///< A function pointer to message handler.
+  sl_mqtt_qos_t qos_of_subscription;                       ///< Quality of subscription.
+  uint16_t topic_length;                                   ///< Length of the subscribed topic.
+  uint8_t topic[];                                         ///< A flexible array to store the topic.
 } sl_mqtt_client_topic_subscription_info_t;
 
 /// MQTT Client Handle structure
@@ -181,7 +189,7 @@ typedef struct {
     *client_configuration; ///< Pointer to client configuration, given at the time of connect() API.
   sl_mqtt_client_topic_subscription_info_t
     *subscription_list_head; ///< Pointer to the head of the subscription linked list.
-  sl_mqtt_client_event_handler
+  sl_mqtt_client_event_handler_t
     client_event_handler; ///< Function pointer to event handler given at the time of @ref sl_mqtt_client_init.
 } sl_mqtt_client_t;
 

@@ -1,0 +1,19 @@
+id: sl_si91x_crypto
+package: wiseconnect3_sdk
+description: >
+  Common folder for crypto APIs
+label: Crypto - Common
+category: Device|Si91x|Wireless|Crypto
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless/crypto
+provides:
+- name: sl_si91x_crypto
+source:
+requires:
+- name: sl_si91x_wireless
+
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_crypto.h
+

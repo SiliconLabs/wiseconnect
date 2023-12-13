@@ -17,15 +17,19 @@
 #include "sl_net.h"
 #include "sl_net_wifi_types.h"
 #include "nvm3.h"
+#include "sl_common.h"
+#ifdef SLI_SI917
+#include "sl_net_si91x.h"
+#endif
 #include <string.h>
-
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 #ifndef SL_NET_CREDENTIAL_NVM3_BASE_KEY
 #define SL_NET_CREDENTIAL_NVM3_BASE_KEY 0x3000
 #endif
 
 #define SL_NET_CREDENTIAL_TABLE_KEY SL_NET_CREDENTIAL_NVM3_BASE_KEY
+#define CRED_TYPE_CERT              0
+#define CRED_TYPE_CRED              1
 
 #define VERIFY_ECODE_AND_RETURN(ecode) \
   do {                                 \
@@ -46,26 +50,67 @@ static sl_status_t load_credential_table(void);
 static sl_status_t save_credential_table(void);
 static sl_status_t find_entry(sl_net_credential_id_t id, sl_net_credential_entry_t **entry);
 
+static int check_cred_type(sl_net_credential_type_t type)
+{
+  if ((SL_NET_CERTIFICATE == type) || (SL_NET_PUBLIC_KEY == type) || (SL_NET_PRIVATE_KEY == type)
+      || (SL_NET_SIGNING_CERTIFICATE == type)) {
+    return CRED_TYPE_CERT;
+  }
+
+  return CRED_TYPE_CRED;
+}
+
 sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
                                   sl_net_credential_type_t type,
                                   const void *credential,
                                   uint32_t credential_length)
 {
   Ecode_t ecode;
+  sl_net_credential_entry_t *entry;
+  int group_id = 0;
+  int cred_id  = 0;
+
   if (id == SL_NET_INVALID_CREDENTIAL_ID) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  sl_net_credential_entry_t *entry;
-  find_entry(id, &entry);
 
-  switch (id) {
+  if (CRED_TYPE_CERT == check_cred_type(type)) {
+#ifdef SLI_SI917
+    return sl_si91x_set_credential(id, type, credential, credential_length);
+#else
+    return SL_STATUS_FAIL;
+#endif
+  }
+
+  group_id = (id & SL_NET_CREDENTIAL_GROUP_MASK);
+
+  if (group_id > 0) {
+    cred_id = (SL_NET_USER_CREDENTIAL_ID + (group_id >> 8));
+  } else {
+    group_id = id;
+    cred_id  = id;
+  }
+
+  switch (group_id) {
     case SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID:
     case SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID:
+    case SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID:
+    case SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID:
+    case SL_NET_USER_CREDENTIAL_ID:
+    case SL_NET_TLS_CLIENT_CREDENTIAL_START:
+    case SL_NET_TLS_SERVER_CREDENTIAL_START:
+    case SL_NET_MQTT_SERVER_CREDENTIAL_START:
+    case SL_NET_MQTT_CLIENT_CREDENTIAL_START:
+    case SL_NET_HTTP_SERVER_CREDENTIAL_START:
+    case SL_NET_HTTP_CLIENT_CREDENTIAL_START:
+      find_entry(cred_id, &entry);
+
       if (entry->type != type) {
         entry->type = type;
         save_credential_table();
       }
-      ecode = nvm3_writeData(nvm3_defaultHandle, SL_NET_CREDENTIAL_NVM3_BASE_KEY + id, credential, credential_length);
+      ecode =
+        nvm3_writeData(nvm3_defaultHandle, SL_NET_CREDENTIAL_NVM3_BASE_KEY + cred_id, credential, credential_length);
       VERIFY_ECODE_AND_RETURN(ecode);
       break;
 
@@ -84,17 +129,38 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
   size_t data_length;
   sl_net_credential_entry_t *entry;
   uint32_t object_type;
+  int group_id = 0;
+  int cred_id  = 0;
 
-  find_entry(id, &entry);
+  group_id = (id & SL_NET_CREDENTIAL_GROUP_MASK);
 
-  switch (id) {
+  if (group_id > 0) {
+    cred_id = (SL_NET_USER_CREDENTIAL_ID + (group_id >> 8));
+  } else {
+    group_id = id;
+    cred_id  = id;
+  }
+
+  find_entry(cred_id, &entry);
+
+  switch (group_id) {
     case SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID:
     case SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID:
-      ecode = nvm3_getObjectInfo(nvm3_defaultHandle, SL_NET_CREDENTIAL_NVM3_BASE_KEY + id, &object_type, &data_length);
+    case SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID:
+    case SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID:
+    case SL_NET_USER_CREDENTIAL_ID:
+    case SL_NET_TLS_CLIENT_CREDENTIAL_START:
+    case SL_NET_TLS_SERVER_CREDENTIAL_START:
+    case SL_NET_MQTT_SERVER_CREDENTIAL_START:
+    case SL_NET_MQTT_CLIENT_CREDENTIAL_START:
+    case SL_NET_HTTP_SERVER_CREDENTIAL_START:
+    case SL_NET_HTTP_CLIENT_CREDENTIAL_START:
+      ecode =
+        nvm3_getObjectInfo(nvm3_defaultHandle, SL_NET_CREDENTIAL_NVM3_BASE_KEY + cred_id, &object_type, &data_length);
       if (credential_length != NULL) {
         if (credential != NULL) {
-          data_length = MIN(data_length, *credential_length);
-          ecode = nvm3_readData(nvm3_defaultHandle, SL_NET_CREDENTIAL_NVM3_BASE_KEY + id, credential, data_length);
+          data_length = SL_MIN(data_length, *credential_length);
+          ecode = nvm3_readData(nvm3_defaultHandle, SL_NET_CREDENTIAL_NVM3_BASE_KEY + cred_id, credential, data_length);
           if (ecode != ECODE_OK) {
             return SL_STATUS_FAIL;
           }
@@ -112,12 +178,41 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
   }
 }
 
-sl_status_t sl_net_delete_credential(sl_net_credential_id_t id)
+sl_status_t sl_net_delete_credential(sl_net_credential_id_t id, sl_net_credential_type_t type)
 {
-  switch (id) {
+  int group_id = 0;
+  int cred_id  = 0;
+
+  if (CRED_TYPE_CERT == check_cred_type(type)) {
+#ifdef SLI_SI917
+    return sl_si91x_delete_credential(id, type);
+#else
+    return SL_STATUS_FAIL;
+#endif
+  }
+
+  group_id = (id & SL_NET_CREDENTIAL_GROUP_MASK);
+
+  if (group_id > 0) {
+    cred_id = (SL_NET_USER_CREDENTIAL_ID + (group_id >> 8));
+  } else {
+    group_id = id;
+    cred_id  = id;
+  }
+
+  switch (group_id) {
     case SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID:
     case SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID:
-      nvm3_deleteObject(nvm3_defaultHandle, SL_NET_CREDENTIAL_NVM3_BASE_KEY + id);
+    case SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID:
+    case SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID:
+    case SL_NET_USER_CREDENTIAL_ID:
+    case SL_NET_TLS_CLIENT_CREDENTIAL_START:
+    case SL_NET_TLS_SERVER_CREDENTIAL_START:
+    case SL_NET_MQTT_SERVER_CREDENTIAL_START:
+    case SL_NET_MQTT_CLIENT_CREDENTIAL_START:
+    case SL_NET_HTTP_SERVER_CREDENTIAL_START:
+    case SL_NET_HTTP_CLIENT_CREDENTIAL_START:
+      nvm3_deleteObject(nvm3_defaultHandle, SL_NET_CREDENTIAL_NVM3_BASE_KEY + cred_id);
       break;
 
     default:

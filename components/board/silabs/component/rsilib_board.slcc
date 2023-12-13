@@ -1,0 +1,42 @@
+id: rsilib_board
+label: Si91x SoC Board Configurations
+package: platform
+description: >
+  Provides selections of valid hardware configuration for the Si91x SoC boards.
+category: Board|Configuration
+quality: production
+component_root_path: "components/board/silabs"
+source:
+  - path: "src/rsi_board.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_board.h"
+    - path: "rsi_board_configuration.h"
+    - path: "sl_gpio_board.h"
+    - path: "sl_i2c_board.h"
+    - path: "sl_pwm_board.h"
+    - path: "sl_sio_board.h"
+    - path: "sl_sysrtc_board.h"
+provides:
+  - name: rsilib_board
+  - name: wiseconnect_platform_soc_mode
+define:
+  - name: SRAM_BASE
+    value: "0x0cUL"
+  - name: SRAM_SIZE
+    value: "0x2fc00UL"
+    condition: [si917_mem_config_1]
+  - name: SRAM_SIZE
+    value: "0x3fc00UL"
+    condition: [si917_mem_config_2]
+  - name: SRAM_SIZE
+    value: "0x4fc00UL"
+    condition: [si917_mem_config_3]
+template_contribution:
+  - name: event_handler
+    value:
+      event: platform_init
+      include: rsi_board.h
+      handler: RSI_Board_Init
+    priority: -9996

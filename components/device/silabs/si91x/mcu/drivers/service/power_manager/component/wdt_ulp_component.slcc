@@ -1,0 +1,22 @@
+id: wdt_ulp_component
+label: Watchdog Timer
+package: platform
+description: >
+  Install this component to enable execution of Watchdog Timer peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: sl_watchdog_timer
+  - name: systemlevel_wwdt
+
+provides:
+  - name: wdt_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: wdt_ps2
+    value: sl_si91x_watchdog_timer.o
+  - name: wdt_ps2
+    value: rsi_wwdt.o

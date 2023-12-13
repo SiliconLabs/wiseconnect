@@ -33,6 +33,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 //! BLE include file to refer BLE APIs
 #include <string.h>
@@ -44,6 +45,9 @@
 #include "rsi_bt_common.h"
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
+#endif
 
 //! the below array is used to compare the data in the controller for the adv report.
 uint8_t adv_payload_for_compare[31] = { 0x6E, 0xC5, 0xFD, 0x05, 0x54, 0x9E, 0x68, 0xF8, 0xD0, 0x05 };
@@ -106,17 +110,11 @@ static const sl_wifi_device_configuration_t config = {
                    .feature_bit_map        = (SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
                                        | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef CHIP_917
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE // Enable BT feature
                       ),
@@ -363,16 +361,20 @@ void ble_central(void *argument)
 {
   UNUSED_PARAMETER(argument);
 
-  int32_t status                   = 0;
-  int32_t temp_event_map           = 0;
-  int32_t temp_event_map1          = 0;
-  sl_wifi_version_string_t version = { 0 };
+  int32_t status                     = 0;
+  int32_t temp_event_map             = 0;
+  int32_t temp_event_map1            = 0;
+  sl_wifi_firmware_version_t version = { 0 };
 
 #ifdef RSI_BLE_ENABLE_ACCEPTLIST_BASEDON_ADV_PAYLOAD
   uint8_t compare[31];
 #endif
 
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sl_si91x_hardware_setup();
+#endif /* SLI_SI91X_MCU_INTERFACE */
+
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -385,7 +387,7 @@ void ble_central(void *argument)
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+    print_firmware_version(&version);
   }
 
   //! BLE register GAP callbacks
@@ -439,7 +441,11 @@ void ble_central(void *argument)
   //! initiating power save in BLE mode
   status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
   if (status != RSI_SUCCESS) {
-    LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+    if (status == RSI_FEATURE_NOT_SUPPORTED) {
+      LOG_PRINT("\r\n Configured power save profile not supported in BLE mode \r\n");
+    } else {
+      LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+    }
     return;
   }
 
@@ -458,8 +464,15 @@ void ble_central(void *argument)
     //! checking for received events
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
-      //! if events are not received, loop will be continued
+#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+      //! if events are not received loop will be continued.
+      if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
+        P2P_STATUS_REG &= ~M4_wakeup_TA;
+        sl_si91x_m4_sleep_wakeup();
+      }
+#else
       osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
+#endif
       continue;
     }
 
@@ -517,7 +530,11 @@ void ble_central(void *argument)
         //! initiating Active mode in BT mode
         status = rsi_bt_power_save_profile(RSI_ACTIVE, PSP_TYPE);
         if (status != RSI_SUCCESS) {
-          LOG_PRINT("\r\n Failed to keep Module in ACTIVE mode \r\n");
+          if (status == RSI_FEATURE_NOT_SUPPORTED) {
+            LOG_PRINT("\r\n Configured power save profile not supported in BLE mode \r\n");
+          } else {
+            LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+          }
           return;
         }
 
@@ -540,6 +557,11 @@ void ble_central(void *argument)
         LOG_PRINT("\r\n keep module in to power save \r\n");
         status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
         if (status != RSI_SUCCESS) {
+          if (status == RSI_FEATURE_NOT_SUPPORTED) {
+            LOG_PRINT("\r\n Configured power save profile not supported in BLE mode \r\n");
+          } else {
+            LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+          }
           return;
         }
 

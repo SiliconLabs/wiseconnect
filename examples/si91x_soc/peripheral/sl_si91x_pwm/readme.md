@@ -1,9 +1,23 @@
-# PWM
+# SL PWM
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+  - [Application Configuration Parameters](#application-configuration-parameters)
+  - [PWM Pin Configuration](#pwm-pin-configuration)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - This application demonstrate the PWM (Pulse Width Modulation) to generate a periodic pulse waveform, which is useful in motor control and power control applications.
- The PWM acts as a timer to count up to a period count value. The time period and the duty cycle of the pulses are both programmable.
 
 ## Overview
 
@@ -13,16 +27,15 @@
 - Manual override option for PWM output pins. Output pin polarity is programmable
 - Supports generation of interrupt for different events
 - Supports two hardware fault input pins
-- Special event trigger for synchronizing analog-to-digital conversions
 
 ## About Example Code
 
-- This example demonstrates the generation of periodic pulse waveform with 50% duty cycle and frequency of 25Khz. 
-- Four macros are present i.e., SVT, DEAD_TIME, OVERRIDE, FAULT
+- This example demonstrates the generation of periodic pulse waveform with 50% duty cycle and frequency of 25Khz.
+- Four macros are present i.e., DEAD_TIME, OVERRIDE, FAULT.
 - If **DEAD_TIME** is enabled:
   - DEAD_TIME: To perform correct status change of the power switches in the inverter leg, a PWM generator should insert small amount of time between required switching edges for top and bottom switch. This time is called dead-time.
   - Dead time mode is applied only in complementary mode.
-    - Complementary mode: In complementary PWM mode, PWM waveform output incorporates dead time (anti-short periods) to prevent overlap between the positive and antiphases.
+    - Complementary mode: In complementary PWM mode, PWM waveform output incorporates dead time (anti-short periods) to prevent overlap between the positive and anti phases.
     - Independent Mode: In Independent PWM Output mode, the PWM outputs (PWMxH and PWMxL) are phase shifted relative to each other.
   - Initialize the PWM using \ref sl_si91x_pwm_init.
   - Set configuration using \ref sl_si91x_pwm_set_configuration.
@@ -50,82 +63,121 @@
   - Register callbacks using \ref sl_si91x_pwm_register_callback.
     Change the event generated to fault A/B flags.
   - Start PWM using \ref sl_si91x_pwm_start.
-- If **SVT** is enabled:
-  - Special Event Trigger (SVT): The MCPWM module has a Special Event Trigger that allows analog-to-digital conversions to be synchronized to the PWM time base. The analog-to-digital sampling and conversion time may be programmed to occur at any point within the PWM period.
-  - Initialize the PWM using \ref sl_si91x_pwm_init.
-  - Set configuration using \ref sl_si91x_pwm_set_configuration.
-  - Set base timer mode using \ref sl_si91x_pwm_set_base_timer_mode.
-  - Set base time period control using \ref sl_si91x_pwm_control_period.
-  - Register callbacks using \ref sl_si91x_pwm_register_callback.
-  - Start PWM using \ref sl_si91x_pwm_start.
 - If user wants to work without UC configuration, one can use their own macros and structure configuration and pass it directly in application.
   
-**Note!** 
+>**Note:**
+>
+>1. PWM has four channels. User can handle these channels using instances.
+>2. channel_0, channel_1, channel_2 and channel_3 are the names pre-defined for the PWM channels.
+>3. For user defined instances, one may have to define his hardware specific definitions in config.h file.
+>4. User can directly use APIs in application by passing appropriate structure members, if user doesn't want to configure from UC.
 
-1. PWM has four channels. User can handle these channels using instances. 
-2. channel_0, channel_1, channel_2 and channel_3 are the names pre-defined for the PWM channels.
-3. For user defined instances, one may have to define his hardware specific definitions in config.h file.
-4. User can directly use APIs in application by passing appropriate structure members, if user doesn't want to configure from UC.
-
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required. User Configuration(UC) is provided with instances to select multiple channels at a time.
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image516a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-## Project Setup
+### Setup Diagram
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Loading Application on Simplicity Studio
+## Getting Started
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-  in simplicity studio and click on to PWM Example application as shown below.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure:](resources/readme/image516b.png)
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-## Configuration and Steps for Execution
+## Application Build Environment
+
+### Application Configuration Parameters
 
 - Configure the following macros in pwm_example.c file and update/modify following macros if required.
 
-```C
-#define ENABLE 1  // enable
+  ```C
+    #define EVENT_COUNT       10    // Count of events that can generate
+    #define PRESCALE_A        0x100 // PWM Prescale_A value
+    #define DEADTIME_A        0x08  // PWM deadtime_A
+    #define FAULT_A_ENABLE    0x11  // Fault A enable for channel 0
+    #define DT_COUNTER_A      0x00  // Dead time counter A enable
+    #define DT_ENABLE         0x01  // Dead time enable for channel 0
+    #define INTR_EVENT        0x01  // Rise PWM time period match channel 0 event
+    #define DUTY_CYCLE_UPDATE 0x01  // Enable duty cycle updating bit in register
+  ```
 
-```
+- Configure UC from the slcp component.
+- Open **sl_si91x_pwm.slcp** project file select **software component** tab and search for **PWM** in search bar.
+- By default, PWM has channel 0 instance.
+- Using configuration wizard, one can configure different parameters:
 
-## Build
+  - **General Configuration for PWM**
 
-1. Compile the application in Simplicity Studio using build icon
+    - Frequency: Frequency changes from 500Hz to 200Khz. By default 25Khz is considered.
+    - Output polarity low: There are 2 polarities- polarity low, polarity high. The difference can be observed in waveforms, when polarity is changed. By default it is set to polarity high.
+    - Output polarity high: There are 2 polarities- polarity low, polarity high. The difference can be observed in waveforms, when polarity is changed. By default it is set to polarity high.
+    - PWM mode: There are 2 modes, independent mode and complementary mode. The definitions for these modes are covered in about example code. The difference can be seen in waveform, when modes are changed.
+    - Timer counter: This is initial base time counter value to set. By default it is set to 0.
+    - Duty cycle: By default 50% duty cycle is take. One can vary duty from 0% to 100%.
+    - Base timer mode: There are 6 different modes. By default free run mode is selected.
+    - Base timer selection: Timer for each channel and Timer for all channels are 2 base timers we have.
+    - Ext trigger: In order to enable fault A, fault B and other external triggers present, ext trigger parameter is used.
 
-![Figure: Build run and Debug](resources/readme/image516c.png)
+      ![Figure: UC image](resources/uc_screen/pwm_uc_screen.png)
 
-## Device Programming
+### PWM Pin Configuration
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+Tested on WPK Base board - 4002A and Radio board - BRD4338A.
 
-## PWM Pin Configuration
+- PWM channel-0 pin configuration.
 
-Tested on WSTK Base board - 40002A and Radio boards - BRD4325C, BRD4338A. Below GPIO pins are for SI917_RADIO_BOARD. These exposed pins like P19 etc., are specific to 2.0(BRD4338A) Radio board. These exposed pins may change on other boards. 
+  | Description   | GPIO    | Connector    |
+  | ------------- | ------- | ------------ |
+  | PWM_H         | GPIO_7  | P20          |
+  | PWM_L         | GPIO_6  | P19          |
 
-**Note!** When PWM channel is changed from default, take care GPIO pins assigned to PWM channel. Either look into GPIO pin mux from HRM (or) check RTE_Device_917.h file.
+- PWM channel-1 pin configuration.
 
-## Executing the Application
+  | Description   | GPIO    | Connector    |
+  | ------------- | ------- | ------------ |
+  | PWM_H         | GPIO_9  | F9           |
+  | PWM_L         | GPIO_8  | F8           |
+
+- PWM channel-2 pin configuration.
+
+  | Description   | GPIO    | Connector    |
+  | ------------- | ------- | ------------ |
+  | PWM_H         | GPIO_11 | F13          |
+  | PWM_L         | GPIO_10 | F11          |
+
+- PWM channel-3 pin configuration.
+
+  | Description   | GPIO    | Connector    |
+  | ------------- | ------- | ------------ |
+  | PWM_H         | ULP_GPIO_7  | P12         |
+  | PWM_L         | ULP_GPIO_6  | P13         |
+
+> **Note:** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/config/RTE_Device_917.h)
+
+## Test the Application
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. When the application runs, it generates periodic pulse waveform.
+2. When the application runs, it generates periodic pulse waveform with 50% duty cycle.
+3. Connect oscilloscope to GPIO_6(P19) & GPIO_7(P20) and observe the PWM waveform.
+4. After successful program execution the prints in serial console looks as shown below.
 
-## Expected Results
+   ![Figure: Introduction](resources/readme/output1.png)
 
-- PWM_1L and PWM_1H produces periodic pulse waveform with 50% duty cycle. Observe the waveform on GPIO_6, GPIO_7.
-- Connect oscilloscope to Evaluation kit board's GPIO_6(P19) & GPIO_7(P20) and observe the PWM waveform.
+   ![Figure: Introduction](resources/readme/output2.png)

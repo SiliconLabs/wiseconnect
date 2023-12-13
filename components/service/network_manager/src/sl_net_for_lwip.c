@@ -50,10 +50,9 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
   return SL_STATUS_NOT_SUPPORTED;
 }
 
-sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface, void *wifi_ap_context)
+sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(wifi_ap_context);
   return SL_STATUS_NOT_SUPPORTED;
 }
 
@@ -77,7 +76,7 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
 {
   UNUSED_PARAMETER(interface);
   UNUSED_PARAMETER(event_handler);
-  sl_status_t status = sl_wifi_init(configuration, default_wifi_event_handler);
+  sl_status_t status = sl_wifi_init(configuration, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -86,10 +85,9 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface, void *wifi_client_context)
+sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(wifi_client_context);
   struct sys_timeo **list_head = NULL;
 
   if (lwip_thread.thread_handle != NULL) {

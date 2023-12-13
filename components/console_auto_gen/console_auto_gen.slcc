@@ -1,8 +1,9 @@
 id: console_auto_gen
 package: wiseconnect3_sdk
 description: >
-  
-category: 
+  Provides readily available command database exercising WiSeConnect 3 SDK functionalities.
+label: Built-In Command Database
+category: Service|Console
 quality: production
 component_root_path: ./components/console_auto_gen
 provides:
@@ -14,8 +15,3 @@ source:
 - path: src/sl_string.c
 include:
 - path: inc
-requires:
-- name: socket_utility
-- condition: ["si91x_internal_stack"]
-  name: iot_sockets
-

@@ -39,6 +39,7 @@
 #include "sl_wifi.h"
 #include "sl_net_ip_types.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 // BLE include file to refer BLE APIs
 #include <rsi_ble_apis.h>
@@ -112,7 +113,6 @@
 #define CONN_INTERVAL_DEFAULT_MIN 0xC8
 #define CONN_INTERVAL_DEFAULT_MAX 0xC8
 #define CONN_LATENCY              0
-#define SUPERVISION_TIMEOUT       200
 
 /********************************************************************************************************
  *                                               DATA TYPES
@@ -183,28 +183,6 @@ static void rsi_ble_add_char_serv_att(void *serv_handler,
   return;
 }
 
-/*============================================================================*/
-/**
- * @fn         rsi_ble_on_conn_update_complete_event
- * @brief      invoked when conn update complete event is received
- * @param[out] rsi_ble_event_conn_update_complete contains the controller
- * support conn information.
- * @param[out] resp_status contains the response status (Success or Error code)
- * @return     none.
- * @section description
- * This Callback function indicated the conn update complete event is received
- */
-void rsi_ble_on_conn_update_complete_event(rsi_ble_event_conn_update_t *rsi_ble_event_conn_update_complete,
-                                           uint16_t resp_status)
-{
-  //  memcpy(remote_dev_address, rsi_ble_event_conn_update_complete->dev_addr, 6);
-  //  memcpy(&rsi_app_conn_update_complete, rsi_ble_event_conn_update_complete,
-  //         sizeof(rsi_ble_event_conn_update_t));
-  //  latest_connection_interval =
-  //      rsi_ble_event_conn_update_complete->conn_interval;
-  //  latest_connection_interval = latest_connection_interval * 1.25;
-  //  rsi_ble_app_set_event(RSI_BLE_CONN_UPDATE_EVENT);
-}
 /*==============================================*/
 /**
  * @fn         rsi_ble_add_char_val_att
@@ -661,7 +639,7 @@ void rsi_ble_configurator_init(void)
                                  NULL,
                                  rsi_ble_on_enhance_conn_status_event,
                                  NULL,
-                                 rsi_ble_on_conn_update_complete_event,
+                                 NULL,
                                  NULL);
 
   // registering the GATT callback functions
@@ -741,7 +719,7 @@ void rsi_ble_configurator_task(void *argument)
     LOG_PRINT("Failed to allocate memory for scan result\n");
     return;
   }
-
+  memset(scanresult, 0, scanbuf_size);
   while (1) {
     // checking for events list
     event_id = rsi_ble_app_get_event();
@@ -800,19 +778,19 @@ adv:
       } break;
 
       case RSI_APP_FW_VERSION: {
-        sl_wifi_version_string_t fw_version = { 0 };
+        sl_wifi_firmware_version_t firmware_version = { 0 };
 
         rsi_ble_app_clear_event(RSI_APP_FW_VERSION);
         memset(data, 0, RSI_BLE_MAX_DATA_LEN);
 
-        status = sl_wifi_get_firmware_version(&fw_version);
+        status = sl_wifi_get_firmware_version(&firmware_version);
         if (status == SL_STATUS_OK) {
           data[0] = 0x08;
-          data[1] = 8;
-          memcpy(&data[2], fw_version.version, 8);
+          data[1] = sizeof(sl_wifi_firmware_version_t);
+          memcpy(&data[2], &firmware_version, sizeof(sl_wifi_firmware_version_t));
 
           rsi_ble_set_local_att_value(rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, data);
-          LOG_PRINT("\r\nFirmware version response: %s\r\n", fw_version.version);
+          print_firmware_version(&firmware_version);
         }
       } break;
 

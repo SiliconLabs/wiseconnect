@@ -1,130 +1,75 @@
-# WLAN Throughput IPv6
+# Wi-Fi - Throughput IPv6
 
-## 1 Purpose/Scope
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+  - [UDP Tx Throughput](#udp-tx-throughput)
+  - [UDP Rx Throughput](#udp-rx-throughput)
+  - [TCP Tx Throughput](#tcp-tx-throughput)
+  - [TCP Rx Throughput](#tcp-rx-throughput)
+  - [TLS Tx Throughput](#tls-tx-throughput)
+  - [TLS Rx Throughput](#tls-rx-throughput)
+- [Application Output](#application-output)
+
+## Purpose/Scope
 
 This application demonstrates the procedure to measure WLAN UDP/TCP/TLS throughput by configuring the SiWx91x in client/server role using IPv6 addresses.
 In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IPv6 address, connects to Iperf server/client or python based TLS scripts, running on a remote PC and measures Tx/Rx throughput transmitted/received from remote PC.
 
-## 2 Prerequisites/Setup Requirements
+## Prerequisites/Setup Requirements
 
-### 2.1 Hardware Requirements
+### Hardware Requirements
 
 - Windows PC
 - Wireless Access Point
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4340A [SiWx917-RB4340A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+  	
 - **NCP Mode**:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
-  - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+  - Kits
+  	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 
-### 2.2 Software Requirements
+### Software Requirements
 
-- Simplicity Studio IDE 
-  - Download the [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio).
-  - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE.
+- [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
 - [Iperf Application](https://iperf.fr/iperf-download.php)
 - [Python Environment](https://www.python.org/downloads/)
 
-### 2.3 Set up Diagram
+### Setup Diagram
 
-#### SoC Mode
+![Figure: Setup Diagram for WLAN Throughput Example](resources/readme/wlanthroughputv6setup.png)
 
-![Figure: Setup Diagram SoC Mode for WLAN Throughput Example](resources/readme/wlanthroughputv6setupsoc.png)
+## Getting Started
 
-#### NCP Mode
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Setup Diagram NCP Mode for WLAN Throughput Example](resources/readme/wlanthroughputv6setupsoc.png)
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
+## Application Build Environment
 
-## 3 Project Environment
-
-- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
-
-- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
-
-### 3.1 Creating the project
-
-#### 3.1.1 SoC mode
-
-- Ensure the SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
-
-  **![Soc Board detection](resources/readme/soc_board_detection.png)**
-
-#### 3.1.2 NCP mode
-
-- Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-
-  **![EFR32 Board detection](resources/readme/efr32.png)**
-
-### 3.2 Importing the project
-
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
-
-#### SOC Mode
-
-- Select **Wi-Fi - Throughput IPv6** test application
-
-  **![project_selection](resources/readme/project_selection.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  **![creation_final](resources/readme/project_creation.png)**
-
-### 3.3 Set up for application prints
-
-#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
-
-You can use either of the below USB to UART converters for application prints.
-
-1. Set up using USB to UART converter board.
-
-   - Connect Tx (Pin-6) to P27 on WSTK
-   - Connect GND (Pin 8 or 10) to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
-
-2. Set up using USB to UART converter cable.
-
-   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-   - Connect GND (Pin1) of TTL convertor to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
-
-3. Open the Teraterm tool.
-
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
-
-     **![port_selection_soc](resources/readme/port_selection_soc.png)**
-
-**Note:** For Other 917 SoC boards please refer section #3.3.2
-
-#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
-
-1. Open the Teraterm tool.
-
-- choose the J-Link port and click on **OK**.
-    
-    **![J-link - NCP](resources/readme/port_selection.png)**
-
-2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
-
-    **![serial_port_setup](resources/readme/serial_port_setup.png)**
-
-    **![serial_port](resources/readme/serial_port.png)**
-
-## 4 Application Build Environment
-
-### 4.1 Configure the Application
-
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
-
-#### 4.1.1 In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+The application can be configured to suit user requirements and development environment.
+#### In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
 
 - **STA instance related parameters**
 
@@ -148,7 +93,7 @@ The application can be configured to suit user requirements and development envi
   
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-#### 4.1.2 Configure the following parameters in **app.c** to test throughput app as per requirements
+#### Configure the following parameters in **app.c** to test throughput app as per requirements
 
 - **Client/Server IP Settings**
 
@@ -180,15 +125,12 @@ The application can be configured to suit user requirements and development envi
     #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
     ```
 
-### 4.2 Build and Run the Application
+## Test the Application
 
-  ![Build project](resources/readme/build_project.png)
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-Once the build was successful, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
-
-  ![Debug the project](resources/readme/debug_project.png)
-
-### 4.3 Testing Throughput steps at remote system
+- Build the application
+- Flash, run and debug the application
 
 There are two 'ends' involved when measuring throughput, data is sent between the client end and the server end. By default, the Iperf protocol sends data from the client to the server to measure throughput. Depending on the configuration selected, the SiWx91x may be the client or the server. In general, it is advisable to start the server before the client since the client will immediately begin to try to connect to the server to send data.
 
@@ -262,7 +204,7 @@ To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a T
 
 The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the iperf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the throughput numbers in serial console.
 
-### 4.4 Application Output
+## Application Output
 
 1. UDP Tx Throughput
   
@@ -287,11 +229,3 @@ The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the
 6. TLS Rx Throughput
 
     ![TLS_RX](resources/readme/TLS_RX.png)
-
-### Note
-
-For NCP mode, following defines have to enabled manually in preprocessor setting of example project
-
-- For 917A0 expansion board, enable CHIP_917 = 1
-- For 917B0 1.2 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1
-- For 917B0 2.0 expansion board, enable CHIP_917 = 1, CHIP_917B0 = 1, SI917_RADIO_BOARD_V2 = 1 (This is enabled by default for all examples)

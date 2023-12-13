@@ -16,6 +16,7 @@
  ******************************************************************************/
 #include "psa_sha_app.h"
 #include "psa/crypto.h"
+#include <stdio.h>
 
 #ifdef SL_SLI91x_SHA_1_EN
 void test_psa_sha_1()
@@ -35,12 +36,17 @@ void test_psa_sha_1()
   //! Hash length
   size_t hash_len;
 
-  ret = psa_hash_compute(PSA_ALG_SHA_1, test_msg, strlen(test_msg), hash_buf, sizeof(hash_buf), &hash_len);
+  ret = psa_hash_compute(PSA_ALG_SHA_1,
+                         (const unsigned char *)test_msg,
+                         strlen(test_msg),
+                         hash_buf,
+                         sizeof(hash_buf),
+                         &hash_len);
 
   printf("\n\r SHA 1 STATUS - %d", ret);
   printf("\n\r SHA 1 Val - ");
 
-  for (int i = 0; i < hash_len; i++) {
+  for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
@@ -78,12 +84,17 @@ void test_psa_sha_224()
   //! Hash length
   size_t hash_len;
 
-  ret = psa_hash_compute(PSA_ALG_SHA_224, test_msg, strlen(test_msg), hash_buf, sizeof(hash_buf), &hash_len);
+  ret = psa_hash_compute(PSA_ALG_SHA_224,
+                         (const unsigned char *)test_msg,
+                         strlen(test_msg),
+                         hash_buf,
+                         sizeof(hash_buf),
+                         &hash_len);
 
   printf("\n\r SHA 224 STATUS - %d", ret);
   printf("\n\r SHA 224 Val - ");
 
-  for (int i = 0; i < hash_len; i++) {
+  for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
@@ -109,7 +120,7 @@ void test_psa_sha_256()
   psa_status_t ret;
 
   //! Test message for streaming
-  char test_msg[] = { "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" };
+  const char test_msg[] = { "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" };
 
   //! Expected SHA256 hash value of test message
   uint8_t expect_sha256_hash[] = { 0x24, 0x8d, 0x6a, 0x61, 0xd2, 0x06, 0x38, 0xb8, 0xe5, 0xc0, 0x26,
@@ -122,20 +133,24 @@ void test_psa_sha_256()
   //! Hash length
   size_t hash_len;
 
-  ret = psa_hash_compute(PSA_ALG_SHA_256, test_msg, strlen(test_msg), hash_buf, sizeof(hash_buf), &hash_len);
+  ret = psa_hash_compute(PSA_ALG_SHA_256,
+                         (const unsigned char *)test_msg,
+                         strlen(test_msg),
+                         hash_buf,
+                         sizeof(hash_buf),
+                         &hash_len);
 
-  printf("\n\r SHA 256 STATUS - %d", ret);
+  printf("\n\r SHA 256 STATUS - %ld", ret);
   printf("\n\r SHA 256 Val - ");
 
-  for (int i = 0; i < hash_len; i++) {
+  for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
   if (ret == 0) {
-    printf("\n SHA 256 Operation Success Status 0x%x \n", ret);
+    printf("\n SHA 256 Operation Success Status 0x%lx \n", ret);
   } else {
-    printf("\n SHA 256 Operation Failed Status 0x%x \n", ret);
-    return ret;
+    printf("\n SHA 256 Operation Failed Status 0x%lx \n", ret);
   }
 
   // COmpare with the expected result
@@ -167,12 +182,17 @@ void test_psa_sha_384()
   //! Hash length
   size_t hash_len;
 
-  ret = psa_hash_compute(PSA_ALG_SHA_384, test_msg, strlen(test_msg), hash_buf, sizeof(hash_buf), &hash_len);
+  ret = psa_hash_compute(PSA_ALG_SHA_384,
+                         (const unsigned char *)test_msg,
+                         strlen(test_msg),
+                         hash_buf,
+                         sizeof(hash_buf),
+                         &hash_len);
 
   printf("\n\r SHA 384 STATUS - %d", ret);
   printf("\n\r SHA 384 Val - ");
 
-  for (int i = 0; i < hash_len; i++) {
+  for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
@@ -213,12 +233,17 @@ void test_psa_sha_512()
   //! Hash length
   size_t hash_len;
 
-  ret = psa_hash_compute(PSA_ALG_SHA_512, test_msg, strlen(test_msg), hash_buf, sizeof(hash_buf), &hash_len);
+  ret = psa_hash_compute(PSA_ALG_SHA_512,
+                         (const unsigned char *)test_msg,
+                         strlen(test_msg),
+                         hash_buf,
+                         sizeof(hash_buf),
+                         &hash_len);
 
   printf("\n\r SHA 512 STATUS - %d", ret);
   printf("\n\r SHA 512 Val - ");
 
-  for (int i = 0; i < hash_len; i++) {
+  for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
@@ -243,7 +268,7 @@ void psa_app_process_action()
   psa_status_t ret;
   ret = psa_crypto_init();
   if (ret != PSA_SUCCESS) {
-    printf("PSA Crypto Init failed with status : %d\n", ret);
+    printf("PSA Crypto Init failed with status : %ld\n", ret);
   } else {
     printf("PSA Crypto Init Success\n");
   }

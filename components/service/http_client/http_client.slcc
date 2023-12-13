@@ -1,17 +1,21 @@
 id: http_client
 package: wiseconnect3_sdk
 description: >
-  HTTP Client Library
-label: HTTP Client Library
-category: Networking|Protocol
+  The HTTP Client provides an API to start a HTTP client service
+label: HTTP Client
+category: Service
 quality: production
 component_root_path: ./components/service/http_client
 provides:
 - name: http_client
 source:
-- path: si91x/sl_http_client.c
+- path: si91x_socket/sl_http_client.c
+  condition: [sl_si91x_internal_stack]
 define:
-- name: HTTP_CLIENT_FEATURE
+- name: SLI_SI91X_INTERNAL_HTTP_CLIENT
+requires:
+- name: sl_si91x_socket
+
 include:
 - path: inc
   file_list:

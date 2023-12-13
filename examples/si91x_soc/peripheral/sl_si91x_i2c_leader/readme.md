@@ -1,10 +1,28 @@
-# I2C LEADER
+# SL I2C LEADER
 
-## Introduction
+## Table of Contents
 
-- Note: The master-slave terminology is now replaced with leader-follower. Master is now recognized as Leader and slave is now recognized as Follower.
-- This application demonstrates the I2C will be configured in leader mode. The SCL and SDA lines of leader controller are connected to Follower's SCL and SDA pins.
-- Data is transferred from leader to follower and follower to leader. After transmission the data is compared and result is printed on the console.
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+  - [Pin Configuration](#pin-configuration)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
+
+- This application deals with low level driver example and demonstrates the I2C will be configured in leader mode. The SCL and SDA lines of leader controller are connected to Follower's SCL and SDA pins.
+After transmission the data is compared and result is printed on the console.
+
+> **Note:** 
+>
+>- The master-slave terminology is now replaced with leader-follower. Master is now recognized as Leader and slave is now recognized as Follower.
+>- Data is transferred from leader to follower and follower to leader. 
 
 ## Overview
 
@@ -21,26 +39,22 @@
 
 - This example code demonstrates I2C data transfer between leader and follower
 - In example code, firstly clock is initialized using static function.
-- After that I2C abort is called to clear any pending transfer using \ref sl_si91x_i2c_abort_transfer. Note: I2C should be enabled for aborting.
 - \ref sl_si91x_i2c_init API is called to configure various parameters of \ref sl_i2c_init_params_t structure. This structure includes:
   - \ref sl_i2c_clock_hlr_t bus speed, Standard, Fast, Fast plus or High speed.
   - Frequency which needs to be configured.
-  - is_10bit_addr flag is set according to the address, here it is set as false.
   - \ref sl_i2c_mode_t mode, either leader or follower, here leader is selected.
-  - Address of the slave.
 - After initialization of the parameters, pin configuration is performed using static function.
 - Now write_buffer is filled with some data which needs to be sent to the follower.
 - Current_mode enum is set to SEND_DATA, so here send_data is called which is a static function, that internally calls the APIs which needs to be configured before sending data.
   - Disable the interrupt using \ref sl_si91x_i2c_disable_interrupts API, fill the write_data variable with the data.
-  - Disable I2C, set the tx thresholds using \ref sl_si91x_i2c_set_tx_threshold API and enable the I2C.
-  - Set the direction of transfer using \ref sl_si91x_i2c_control_direction.
+  - Disable I2C, sets slave address and tx thresholds using \ref sl_si91x_i2c_set_tx_threshold API and enable the I2C.
   - Set the \ref SL_I2C_EVENT_TRANSMIT_EMPTY interrupt using \ref sl_si91x_i2c_set_interrupts API.
   - Enable the interrupt using \ref sl_si91x_i2c_enable_interrupts API.
 - After calling send_data, it will wait till all the data is transferred to the follower device.
 - Once the irq handler generates send_complete flag, it changes current_mode enum to RECEIVE_DATA.
 - Here receive_data is called which is a static function, that internally calls the APIs which needs to be configured before sending data.
   - Disable the interrupt using \ref sl_si91x_i2c_disable_interrupts API.
-  - Disable I2C, set the rx thresholds using \ref sl_si91x_i2c_set_rx_threshold API and enable the I2C.
+  - Disable I2C, sets slave address and rx thresholds using \ref sl_si91x_i2c_set_rx_threshold API and enable the I2C.
   - Set the direction of transfer using \ref sl_si91x_i2c_control_direction.
   - Set the \ref SL_I2C_EVENT_RECEIVE_FULL interrupt using \ref sl_si91x_i2c_set_interrupts API.
   - Enable the interrupt using \ref sl_si91x_i2c_enable_interrupts API.
@@ -49,97 +63,95 @@
 - Now it compares the data which is received from the follower device to the data which it has sent.
 - If the data is same, it will print Test Case Passed on the console.
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WSTK/WPK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image507a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+### Setup Diagram
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Project Setup
+## Getting Started
 
-- **Silicon Labs Si91x** refer **"Download SDKs"**, **"Add SDK to Simplicity Studio"**, **"Connect SiWx917"**, **"Open Example Project in Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-## Loading Application on Simplicity Studio
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to i2c leader Example application as shown below.
+## Application Build Environment
 
-![Figure: Selecting Example project](resources/readme/image507b.png)
-
-## Configuration and Steps for Execution
 - Configure the following macros in i2c_leader_example.c file and update/modify following macros if required.
-```C
- #define I2C_INSTANCE    0    // I2C Instance for Pin configuration
- #define I2C             I2C0 // I2C Instance 
- Available Configurations:
- #define I2C_INSTANCE    1    // I2C Instance for Pin configuration
- #define I2C             I2C1 // I2C Instance 
- #define I2C_INSTANCE    2    // I2C Instance for Pin configuration
- #define I2C             I2C2 // I2C Instance 
+
+  ```C
+    #define I2C_INSTANCE    0    // I2C Instance for Pin configuration
+    #define I2C             I2C0 // I2C Instance 
   ```
-  Change the value of following macros in config/RTE_Device.h
-```c
-  #define RTE_I2C0_SCL_PORT_ID 0   // SCL pin port id
 
-  #define RTE_I2C0_SDA_PORT_ID 0   //SDA pin port id
-```
+- `Available Configurations`: Apart from I2C0, other configurations are given below.
+ 
+  ```C
+    #define I2C_INSTANCE    1    // I2C Instance for Pin configuration
+    #define I2C             I2C1 // I2C Instance 
+    #define I2C_INSTANCE    2    // I2C Instance for Pin configuration
+    #define I2C             I2C2 // I2C Instance 
+  ```
 
-## Base Board Pin Configuration
-#### I2C0
-| PIN | 	ULP GPIO PIN           | 		Description          |
+- Change the value of following macros in config/RTE_Device_917.h
+
+  ```c
+    #define RTE_I2C0_SCL_PORT_ID 0   // SCL pin port id
+    #define RTE_I2C0_SDA_PORT_ID 0   //SDA pin port id
+  ```
+
+### Pin Configuration
+
+**I2C0:**
+
+| PIN |  ULP GPIO PIN           |   Description          |
 | --- | -------------------------- | --------------------------- |
-| SCL | 	GPIO_7 [P20] 		   | Connect to Follower SCL pin |
-| SDA | 	GPIO_6 [P19]  		   | Connect to Follower SDA pin |
+| SCL |  GPIO_7 [P20]      | Connect to Follower SCL pin |
+| SDA |  GPIO_6 [P19]       | Connect to Follower SDA pin |
 
-#### I2C1
-| PIN | 		GPIO PIN     	 | 		Description            |
+**I2C1:**
+
+| PIN |   GPIO PIN       |   Description            |
 | --- | -------------------------| --------------------------- |
-| SCL | 		GPIO_50 [P32] 	 | Connect to Follower SCL pin |
-| SDA | 		GPIO_51 [P34] 	 | Connect to Follower SDA pin |
+| SCL |   GPIO_50 [P32]   | Connect to Follower SCL pin |
+| SDA |   GPIO_51 [P34]   | Connect to Follower SDA pin |
 
-#### I2C2
-| PIN | 		ULP GPIO PIN       | 		Description          |
+**I2C2:**
+
+| PIN |   ULP GPIO PIN       |   Description          |
 | --- | -------------------------- | --------------------------- |
 | SCL | ULP_GPIO_7 [EXP_HEADER-15] | Connect to Follower SCL pin |
 | SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Follower SDA pin |
 
 ![Figure: Pin Configuration I2C](resources/readme/image507d.png)
+
 ![Figure: Pin Configuration I2C](resources/readme/image507e.png)
 
-## Build
+Follow the steps below for successful execution of the application:
 
-1. Compile the application in Simplicity Studio using build icon
-
-![Figure: Build run and Debug](resources/readme/image507c.png)
-
-## Device Programming
-
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
-
-## Executing the Application
+## Test the Application
 
 1. Compile and run the application.
 2. Connect GPIO_6 and GPIO_7 with the follower device. in the case of I2C0.
 3. When the application runs, it sends and receives data.
 4. After the transfer is completed, it validates the data and prints on the console.
+5. Will get "Test Case Pass" print on console.
+6. Both write and read 15 bytes of data should be same.
+7. After successful program execution the prints in serial console looks as shown below.
 
-## Expected Results
-
-- Will get "Test Case Pass" print on console
-- Both write and read 15 bytes of data should be same
+   ![Figure: Introduction](resources/readme/output.png)

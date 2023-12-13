@@ -1,0 +1,23 @@
+id: sl_ssi
+label: SSI
+package: platform
+description: >
+  Si91x Serial Syncronous Interface (SSI) API
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_ssi_config.h
+  - path: config/sl_si91x_ssi_common_config.h
+source:
+  - path: "src/sl_si91x_ssi.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_ssi.h"
+provides:
+  - name: sl_ssi
+requires:
+  - name: udma_linker_config
+  - name: cmsis_spi
+  - name: rsilib_spi

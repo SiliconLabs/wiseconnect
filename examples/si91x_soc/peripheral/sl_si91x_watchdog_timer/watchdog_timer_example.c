@@ -30,7 +30,8 @@
 
 #include "watchdog_timer_example.h"
 #include "sl_si91x_watchdog_timer.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
+#include "sl_si91x_led.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -76,7 +77,7 @@ void watchdog_timer_example_init(void)
   uint8_t new_sys_rst_time;
   uint8_t new_window_time;
   // Toggles LED0 once
-  RSI_Board_LED_Toggle(LED0);
+  sl_si91x_led_toggle(RTE_LED0_PIN);
   DEBUGOUT("In Main..!\r\n");
   // Checking system-reset status if true means system-reset done by watchdog-timer
   // else it is a power-on system-reset.
@@ -181,7 +182,7 @@ void on_timeout_callback(void)
   // Incrementing watchdog-timer interrupt count
   wdt_interrupt_count++;
   // Toggle on-board LED0 on every WDT restart
-  RSI_Board_LED_Toggle(LED0);
+  sl_si91x_led_toggle(RTE_LED0_PIN);
   // To not re-start(kick) WDT at 6th timeout interrupts so that WDT generates the System-reset
   if (wdt_interrupt_count <= WDT_RESTART_CNT) {
     // System restarting(kicking) watchdog-timer on interrupts

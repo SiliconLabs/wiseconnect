@@ -1,0 +1,21 @@
+id: sl_sdio_secondary
+label: SDIO Secondary 
+package: platform
+description: >
+  Si91x SDIO Secondary Driver API
+category: Device|Si91x|MCU|Peripheral|SDIO Slave Driver
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+provides:
+  - name: sl_sdio_secondary
+requires:
+  - name: sl_sdio_secondary_peripheral  
+source:
+  - path: src/sl_si91x_sdio_secondary.c
+include:
+  - path: inc
+    file_list:
+      - path: sl_si91x_sdio_secondary.h
+config_file:
+  - path: config/sl_si91x_sdio_secondary_drv_config.h
+    file_id: sdio_secondary_drv_config

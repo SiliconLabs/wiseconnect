@@ -1,6 +1,19 @@
-# I2S
+# SL I2S SECONDARY
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - This application demonstrate the I2S secondary device transfer.
 
@@ -28,48 +41,47 @@
 - Application will be in wait state until data transmit complete.
 - Test will be pass after sending data to primary device.
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image505a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-## Project Setup
+### Setup Diagram
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+ >![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Loading Application on Simplicity Studio
+## Getting Started
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to I2S loopback Example application as shown below.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Selecting Example project](resources/readme/image505b.png)
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-## Configuration and Steps for Execution
+## Application Build Environment
 
 - Configure UC from the slcp component.
-- Open **sl_si91x_i2s.slcp** project file select **software component** tab and search for **I2S** in search bar.
-  ![slcp open](resources/readme/i2ssecondaryslcpopen.png)
-  ![uc open](resources/readme/i2ssecondaryucopen.png)
-  ![uc screen](resources/readme/i2ssecondaryucscreen.png)
+- Open **sl_si91x_i2s_secondary.slcp** project file select **software component** tab and search for **I2S** in search bar.
+  
+  ![Figure: Introduction](resources/uc_screen/i2s_secondary_uc_screen.png)
 
 - Using configuration wizard one can configure different parameters like:
-  - **General Configuration**
-  - I2S resolution: I2S resolution can be configured through this macro,valid resolution values are 12, 16, 20, 24 and 32 bit.
-  - I2S sampling rate: I2S sampling rate can be configured through this macro,valid sampling rate values are 
+
+### General Configuration
+
+- I2S resolution: I2S resolution can be configured through this macro,valid resolution values are 12, 16, 20, 24 and 32 bit.
+- I2S sampling rate: I2S sampling rate can be configured through this macro,valid sampling rate values are
     8kHz, 11.025kHz, 16kHz, 22.05kHz, 24kHz, 32kHz, 44.1kHz, 48kHz, 88.2kHz, 96kHz and 192kHz
-![uc success](resources/readme/i2ssecondaryucsave.png)
 
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
@@ -80,42 +92,33 @@
 #define BUFFER_SIZE 1024    ///< I2S transfer size
 ```
 
-## Build
+### Pin Configuration
 
-1. Compile the application in Simplicity Studio using build icon
+- For BRD4338A
 
-![Figure: Build run and Debug](resources/readme/image505c.png)
+  | Si917 GPIO pin | Breakout pin on WPK (4002A baseboard) | Description             |
+  | ---------------| --------------------------------------|------------------------ |
+  | GPIO_25        | P25                                   | I2S SCK              |
+  | GPIO_26        | P27                                   | I2S Frame               |
+  | GPIO_28        | P31                                   | I2S DOUT             |
+  | GPIO_27        | P29                                   | I2S DIN              |
 
-## Device Programming
+- For pin connections, refer to
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+   >![Figure: Pin connections](resources/readme/image505d.png)
 
-## Pin Configuration
+### Pin Description
 
-For BRD4338A
+**Note:** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/config/RTE_Device_917.h)
 
-| Si917 GPIO pin | Breakout pin on WPK (4002A baseboard) | Description             |
-| ---------------| --------------------------------------|------------------------ |
-| GPIO_25        | P25                                   | I2S SCK      			     |
-| GPIO_26        | P27                                   | I2S Frame               |
-| GPIO_28        | P29                                   | I2S DOUT        				 |
-| GPIO_27        | P31                                   | I2S DIN         				 |
+## Test the Application
 
-## Pin Description
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-**Note!** Make sure pin configuration in RTE_Device_9117.h file.(path: /$project/wiseconnect_1.0.0/platforms/si91x/drivers/cmsis_driver/config/RTE_Device_9117.h)
+1. Take two Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A]
+2. First compile and run i2s secondary device application in one board.
+3. Compile and run primary i2s application in another board.
+4. When the application runs. It receives data from and send data to primary device.
+5. After successful program execution the prints in serial console looks as shown below.
 
-## Executing the Application
-
-1. Take two Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4325A/BRD4325B/BRD4338A]
-2. For pin connections, refer to ![Figure: Pin connections](resources/readme/image505d.png)
-3. First compile and run i2s secondary device application in one board.
-4. Compile and run primary i2s application in another board.
-5. When the application runs,It receives data from and send data to primary device.
-
-## Expected Results
-
-- Console output of successful configuration of PLL, initialization, power mode and I2S configuration
-  ![Application prints1](resources/readme/i2ssecondaryapplicationprints1.png)
-- Console output of Data received successfully, Data send successfully, Data comparison successful.
-  ![Application prints1](resources/readme/i2ssecondaryapplicationprints2.png)
+   >![output](resources/readme/output_i2s_secondary.png)

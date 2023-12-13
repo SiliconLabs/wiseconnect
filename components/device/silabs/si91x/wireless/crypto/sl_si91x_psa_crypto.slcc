@@ -1,0 +1,20 @@
+id: sl_si91x_psa_crypto
+package: wiseconnect3_sdk
+description: >
+  Common utility folder for PSA crypto APIs
+label: PSA Crypto - Utility
+category: Device|Si91x|Wireless|PSA Crypto
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless/crypto
+provides:
+- name: sl_si91x_psa_crypto
+source:
+- path: src/sli_si91x_crypto_driver_functions.c
+requires:
+- name: sl_si91x_crypto
+
+include:
+- path: inc
+  file_list:
+    - path: sli_si91x_crypto_driver_functions.h
+

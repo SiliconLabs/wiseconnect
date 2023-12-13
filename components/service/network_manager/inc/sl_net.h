@@ -43,53 +43,67 @@
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
  * @param[in] configuration
- *   Configuration object specific to network interface.
- * @param[in] context
+ *   Configuration object specific to network interface of type [sl_wifi_device_configuration_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-device-configuration-t).
+ *   If configuration = NULL, then following configuration is used internally by SDK
+ * | sl_net_interface_t           | Default configuration                 |
+ * |:-----------------------------|:--------------------------------------|
+ * | SL_NET_WIFI_CLIENT_INTERFACE | sl_wifi_default_client_configuration  |
+ * | SL_NET_WIFI_AP_INTERFACE     | sl_wifi_default_ap_configuration      |
+ * @param[in] network_context
  *   Runtime context specific to network interface.
  * @param[in] event_handler
- *   Processes all events related to network interface.
+ *   Processes all network events related to network interface as identified by @ref sl_net_event_handler_t
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.4
+ * @note 
+ *   For Wi-Fi events, sl_net uses the wifi callback framework. Register the corresponding Wi-Fi event handlers using [sl_wifi_set_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-callback) API.
+ * @note
+ * 	 Parameter \p network_context is only being used when module is acting as station in external stack mode[lwIP].
+ * 	 In such case, \p network_context is supposed to refer a valid @ref sl_net_wifi_lwip_context_t variable.
+ *
  ******************************************************************************/
 sl_status_t sl_net_init(sl_net_interface_t interface,
                         const void *configuration,
-                        void *context,
+                        void *network_context,
                         sl_net_event_handler_t event_handler);
 
 /***************************************************************************/ /**
  * @brief
  *   De-initialize a network interface.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
- * @param[in] context
- *   Runtime context specific to network interface.
- * @pre
- *   @ref sl_net_init should be called before this API.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_net_deinit(sl_net_interface_t interface, void *context);
+sl_status_t sl_net_deinit(sl_net_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
  *   Bring a network interface up.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
  * @param[in] profile_id
- *   SL Network profile identifier for specific interface.
+ *   Network profile identifier for specific interface of type @ref sl_net_profile_id_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
+   @note
+ *   By default, profile and credential configurations in sl_net_defaults.h are used by SDK. 
+ *   User can define their profile and credential configurations for an interface, by calling @ref sl_net_set_profile and @ref sl_net_set_credentials APIs before calling @ref sl_net_up API".
+ * ******************************************************************************/
 sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
 
 /***************************************************************************/ /**
  * @brief
  *   Bring a network interface down.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_net_up should be called before this API.
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
@@ -108,14 +122,15 @@ sl_status_t sl_net_down(sl_net_interface_t interface);
 /***************************************************************************/ /**
  * @brief
  *   Store a network profile for a given interface.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
  * @param[in] index
  *   Profile storage index / identifier of type @ref sl_net_profile_id_t
  * @param[in] profile
- *   Pointer to profile data.
+ *   Pointer to profile data of type @ref sl_net_profile_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -124,14 +139,15 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface, sl_net_profile_id_t
 /***************************************************************************/ /**
  * @brief
  *   Retrieve a stored network profile for a given interface.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
  * @param[in] index
  *   Profile storage index / identifier of type @ref sl_net_profile_id_t
  * @param[out] profile
- *   Pointer to profile object that stores data.
+ *   Pointer to @ref sl_net_profile_t object that stores data.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -140,7 +156,8 @@ sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t
 /***************************************************************************/ /**
  * @brief
  *   Delete a stored network profile for a given interface.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   @ref sl_net_init should be called before this API.
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
@@ -161,12 +178,13 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
 /***************************************************************************/ /**
  * @brief
  *   Set a network credential including client credentials, certificates, and keys.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   @ref sl_net_init should be called before this API.
  * @param[in] id
- *   Network credential identifier.
+ *   Network credential identifier as identified by @ref sl_net_credential_id_t
  * @param[in] type
- *   Network credential type.
+ *   Network credential type as identified by @ref sl_net_credential_type_t
  * @param[in] credential
  *   Pointer to the credential data object.
  * @param[in] credential_length
@@ -182,12 +200,13 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
 /***************************************************************************/ /**
  * @brief
  *   Retrieve a stored network credential.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   @ref sl_net_init should be called before this API.
  * @param[in] id
- *   Network credential identifier.
+ *   Network credential identifier as identified by @ref sl_net_credential_id_t
  * @param[out] type
- *   Network credential type.
+ *   Network credential type as identified by @ref sl_net_credential_type_t
  * @param[out] credential
  *   Pointer to location where credential data is stored.
  * @param[in,out] credential_length
@@ -204,14 +223,17 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
 /***************************************************************************/ /**
  * @brief
  *   Delete a stored network credential.
- * @pre
+ * @pre Pre-conditions:
+ * -
  *   @ref sl_net_init should be called before this API.
  * @param[in] id
- *   Network credential identifier.
+ *   Network credential identifier as identified by @ref sl_net_credential_id_t
+ * @param[out] type
+ *   Network credential type as identified by @ref sl_net_credential_type_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_net_delete_credential(sl_net_credential_id_t id);
+sl_status_t sl_net_delete_credential(sl_net_credential_id_t id, sl_net_credential_type_t type);
 
 /** @} */
 
@@ -251,7 +273,7 @@ sl_status_t sl_net_verify_certificate();
  * @brief
  *   Convert an IPv4 address in string of from a.b.c.d to a binary uint32_t value
  * @param[in] addr
- *   IPV4 address in the form of string @ref sl_ipv4_address_t
+ *   IPV4 address.
  * @param[out] value
  *   Binary value of the given IP address.
  * @return
@@ -267,12 +289,13 @@ sl_status_t sl_net_inet_addr(const char *addr, uint32_t *value);
 /***************************************************************************/ /**
  * @brief
  *   Enable multicast for the given IP address.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_net_up should be called before this API.
  * @param[in] interface
- *   Selected interface.
+ *   Interface identified by @ref sl_net_interface_t
  * @param[in] ip_address
- *   Multicast IP address.
+ *   Multicast IP address of type @ref sl_ip_address_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -281,12 +304,13 @@ sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl
 /***************************************************************************/ /**
  * @brief
  *   Disable multicast for the given IP address.
- * @pre 
+ * @pre Pre-conditions:
+ * - 
  *   @ref sl_net_up should be called before this API.
  * @param[in] interface
- *   Selected interface.
+ *   Interface identified by @ref sl_net_interface_t
  * @param[in] ip_address
- *   Multicast IP address.
+ *   Multicast IP address of type @ref sl_ip_address_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -299,7 +323,7 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
                                     const void *configuration,
                                     void *context,
                                     sl_net_event_handler_t event_handler);
-sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface, void *context);
+sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface);
 sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
 sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface);
 
@@ -307,6 +331,6 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
                                 const void *configuration,
                                 void *context,
                                 sl_net_event_handler_t event_handler);
-sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface, void *context);
+sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface);
 sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
 sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface);

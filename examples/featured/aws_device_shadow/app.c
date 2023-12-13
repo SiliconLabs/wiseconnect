@@ -35,7 +35,6 @@
 #include "sl_wifi_device.h"
 #include "sl_net_wifi_types.h"
 #include "sl_utility.h"
-#include "sl_tls.h"
 #include "sl_si91x_driver.h"
 
 //! Certificates to be loaded
@@ -91,7 +90,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                   .coex_mode       = SL_SI91X_WLAN_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK
 #if ENABLE_POWER_SAVE
                                        | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
@@ -99,19 +98,14 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                                        ),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_RSA_KEY_WITH_4096_SUPPORT | SL_SI91X_EXT_FEAT_SSL_CERT_WITH_4096_KEY_SUPPORT
-                      | SL_SI91X_EXT_FEAT_XTAL_CLK |
+                      | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
 #if ENABLE_POWER_SAVE
-                      SL_SI91X_EXT_FEAT_LOW_POWER_MODE |
+                      | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
-#ifndef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                      RAM_LEVEL_NWP_ADV_MCU_BASIC
-#endif
-#ifdef CHIP_917
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -151,9 +145,9 @@ static void application_start(void *argument)
   }
   printf("\r\nWiFi Init Success\r\n");
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
   uint8_t xtal_enable = 1;
-  status              = sl_si91x_m4_ta_secure_handshake(SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
+  status              = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
     return;
@@ -188,8 +182,7 @@ static void application_start(void *argument)
 
 #if ENABLE_POWER_SAVE
   sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE };
-
-  status = sl_wifi_set_performance_profile(&performance_profile);
+  status                                            = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -207,37 +200,37 @@ static void application_start(void *argument)
 
 sl_status_t load_certificates_in_flash()
 {
-  sl_status_t status                             = SL_STATUS_FAIL;
-  sl_tls_store_configuration_t tls_configuration = { 0 };
+  sl_status_t status = SL_STATUS_FAIL;
 
-  //! Clearing certificates loaded in to FLASH if any
-  status = sl_tls_clear_global_ca_store();
+  status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0),
+                                 SL_NET_SIGNING_CERTIFICATE,
+                                 aws_starfield_ca,
+                                 sizeof(aws_starfield_ca));
   if (status != SL_STATUS_OK) {
-    printf("\r\nFailed to clear the certificates in FLASH, Error Code : 0x%lX\r\n", status);
+    printf("\r\nUnexpected error while loading CA certificate: 0x%lx\r\n", status);
     return status;
   }
-  printf("\r\nCleared the certificates in FLASH\r\n");
 
-  tls_configuration.cacert             = (uint8_t *)aws_starfield_ca;
-  tls_configuration.cacert_length      = (sizeof(aws_starfield_ca));
-  tls_configuration.cacert_type        = SL_TLS_SSL_CA_CERTIFICATE;
-  tls_configuration.clientcert         = (uint8_t *)aws_client_certificate;
-  tls_configuration.clientcert_length  = (sizeof(aws_client_certificate));
-  tls_configuration.clientcert_type    = SL_TLS_SSL_CLIENT;
-  tls_configuration.clientkey          = (uint8_t *)aws_client_private_key;
-  tls_configuration.clientkey_length   = (sizeof(aws_client_private_key));
-  tls_configuration.clientkey_type     = SL_TLS_SSL_CLIENT_PRIVATE_KEY;
-  tls_configuration.use_secure_element = false;
-
-  //! Loading SSL Client certificate in FLASH
-  status = sl_tls_set_global_ca_store(tls_configuration);
+  status = sl_net_set_credential(SL_NET_TLS_CLIENT_CREDENTIAL_ID(0),
+                                 SL_NET_CERTIFICATE,
+                                 aws_client_certificate,
+                                 sizeof(aws_client_certificate));
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading SSL certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+    printf("\r\nUnexpected error while loading Client certificate: 0x%lx\r\n", status);
     return status;
   }
-  printf("\r\nLoading SSL certificate in to FLASH Success\r\n");
 
-  return SL_STATUS_OK;
+  status = sl_net_set_credential(SL_NET_TLS_CLIENT_CREDENTIAL_ID(0),
+                                 SL_NET_PRIVATE_KEY,
+                                 aws_client_private_key,
+                                 sizeof(aws_client_private_key));
+  if (status != SL_STATUS_OK) {
+    printf("\r\nUnexpected error while loading private key: 0x%lx\r\n", status);
+  } else {
+    printf("\r\nCertificate loading success\r\n");
+  }
+
+  return status;
 }
 
 sl_status_t start_aws_device_shadow()
@@ -258,6 +251,28 @@ sl_status_t start_aws_device_shadow()
   shadow_init_parameters.pClientKey          = (char *)aws_client_private_key;
   shadow_init_parameters.enableAutoReconnect = true;
 
+  sl_mac_address_t mac_addr = { 0 };
+  char mac_id[18]           = { 0 };
+  char client_id[25]        = { 0 };
+
+  sl_status_t status = sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nError while fetching mac address: 0x%lx\r\n", status);
+    return status;
+  }
+  print_mac_address(&mac_addr);
+
+  sprintf(mac_id,
+          "%x:%x:%x:%x:%x:%x",
+          mac_addr.octet[0],
+          mac_addr.octet[1],
+          mac_addr.octet[2],
+          mac_addr.octet[3],
+          mac_addr.octet[4],
+          mac_addr.octet[5]);
+  sprintf(client_id, "silabs_%s", mac_id);
+  printf("\r\nClient ID: %s\r\n", client_id);
+
   rc = aws_iot_shadow_init(&mqtt_client, &shadow_init_parameters);
   if (rc < 0) {
     printf("\r\nShadow Initialization failed with aws error: %d\r\n", rc);
@@ -266,8 +281,8 @@ sl_status_t start_aws_device_shadow()
   printf("\r\nShadow Initialization Success\r\n");
 
   shadow_connect_parameters.pMyThingName    = AWS_IOT_MY_THING_NAME;
-  shadow_connect_parameters.pMqttClientId   = AWS_IOT_MQTT_CLIENT_ID;
-  shadow_connect_parameters.mqttClientIdLen = strlen(AWS_IOT_MQTT_CLIENT_ID);
+  shadow_connect_parameters.pMqttClientId   = client_id;
+  shadow_connect_parameters.mqttClientIdLen = (uint16_t)strlen(client_id);
 
   rc = aws_iot_shadow_connect(&mqtt_client, &shadow_connect_parameters);
   if (rc < 0) {

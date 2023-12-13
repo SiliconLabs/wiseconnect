@@ -52,7 +52,8 @@ const osThreadAttr_t thread_attributes = {
  *               Function Declarations
  ******************************************************/
 
-static sl_status_t ap_event_handler(uint32_t event, sl_status_t status, void *data, uint32_t data_length);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
 static void application_start(void *argument);
 
 /******************************************************
@@ -70,11 +71,14 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_WIFI_AP_INTERFACE, NULL, NULL, ap_event_handler);
+  status = sl_net_init(SL_NET_WIFI_AP_INTERFACE, NULL, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
     return;
   }
+
+  sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+  sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
   printf("\r\nWi-Fi AP interface init Success");
   status = sl_net_up(SL_NET_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID);
   if (status != SL_STATUS_OK) {
@@ -93,21 +97,28 @@ static void application_start(void *argument)
   }
 }
 
-static sl_status_t ap_event_handler(uint32_t event, sl_status_t status, void *data, uint32_t data_length)
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
 {
-  UNUSED_PARAMETER(status);
   UNUSED_PARAMETER(data_length);
-  switch (event) {
-    case SL_WIFI_CLIENT_CONNECTED_EVENT:
-      printf("Client connected: ");
-      print_mac_address((sl_mac_address_t *)data);
-      printf("\n");
-      break;
-    case SL_WIFI_CLIENT_DISCONNECTED_EVENT:
-      printf("Client disconnected: ");
-      print_mac_address((sl_mac_address_t *)data);
-      printf("\n");
-      break;
-  }
+  UNUSED_PARAMETER(event);
+  UNUSED_PARAMETER(arg);
+
+  printf("Remote Client connected: ");
+  print_mac_address((sl_mac_address_t *)data);
+  printf("\n");
+
+  return SL_STATUS_OK;
+}
+
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+{
+  UNUSED_PARAMETER(data_length);
+  UNUSED_PARAMETER(arg);
+  UNUSED_PARAMETER(event);
+
+  printf("Remote Client disconnected: ");
+  print_mac_address((sl_mac_address_t *)data);
+  printf("\n");
+
   return SL_STATUS_OK;
 }

@@ -24,7 +24,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "pwm_example.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_chip.h"
 #include "sl_si91x_pwm.h"
 #include "sl_pwm_instances.h"
@@ -94,26 +94,6 @@ void pwm_example_init(void)
       DEBUGOUT("sl_si91x_pwm_enable_interrupt, Error code: %lu", status);
       break;
     }
-#ifdef SVT
-    sl_si91x_pwm_svt_config_t svt_config = { SL_TIME_PERIOD_POSTSCALE_1_1,
-                                             PRESCALE_A,
-                                             sl_pwm_channel_0_config.channel };
-    // enable SVT
-    status = sl_si91x_pwm_control_special_event_trigger(SL_EVENT_ENABLE);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_pwm_control_special_event_trigger, Error code: %lu", status);
-      break;
-    }
-    DEBUGOUT("PWM enable SVT is successful \n");
-
-    // special trigger
-    status = sl_si91x_pwm_trigger_special_event(SL_SVT_COUNT_UP, &svt_config);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_pwm_trigger_special_event, Error code: %lu", status);
-      break;
-    }
-    DEBUGOUT("PWM special trigger event is successful \n");
-#endif
 #ifdef DEAD_TIME
     sl_si91x_pwm_dt_config_t dead_time;
     dead_time.counterSelect = 0;

@@ -31,7 +31,8 @@
 #include "sl_si91x_sysrtc.h"
 #include "sl_si91x_sysrtc_config.h"
 #include "sysrtc_example.h"
-#include "rsi_board.h"
+#include "sl_si91x_led.h"
+#include "rsi_debug.h"
 #include <stdint.h>
 
 /*******************************************************************************
@@ -251,7 +252,7 @@ void sysrtc_callback(void *callback_flags)
   interrupt_count++;
   // To toggle LED1
   state = !state;
-  RSI_Board_LED_Set(LED1, state);
+  sl_si91x_led_toggle(RTE_LED1_PIN);
   // Reading current count
 #if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 1) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 1))
   status = sl_si91x_sysrtc_get_count(&current_count);

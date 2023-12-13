@@ -1,6 +1,19 @@
-# ULP TIMER
+# SL ULP Timer
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - This ULP_Timer example demonstrates the ULP-TIMER with LED toggle functionality. The timer instance is configured to generate interrupts upon expiration which is when the LED0 is toggled. The timer-0 is set to expire at 1-second (1Hz) intervals.
 - ULP Timer expiration depends on the TIMER_MATCH_VALUE, which is configurable. When Timer count matches to TIMER_MATCH_VALUE the interrupt hits and the LED0 toggle can be seen.
@@ -33,42 +46,45 @@
 - At last timer is de-initialized through \ref sl_si91x_ulp_timer_deinit API
 - Before above steps first timer power state is changed to ULP, through \ref hardware_setup, for using timers in ULP mode
 
-## Running Example Code
+## Prerequisites/Setup Requirements
 
-- To use this application following Hardware, Software and the Project Setup is required.
-
-### Hardware Setup
+### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WSTK + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
-![Figure: Introduction](resources/readme/image512a.png)
+### Software Requirements
 
-### Software Setup
+- Si91x
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+### Setup Diagram
 
-### Project Setup
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+## Getting Started
 
-### Loading Application on Simplicity Studio
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- With the product **Si917** selected, navigate to the example projects by clicking on **Example Projects & Demos**
-  in simplicity studio and click on to ULP_TIMER Example application as shown below.
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-![Figure: Selecting Example project](resources/readme/image512b.png)
-
-## Configuration and Steps for Execution:
+## Application Build Environment
 
 - Open **sl_si91x_ulp_timer.slcp** project file select **software component** tab and search for **ULP-Timer** in search bar.
 - Click on **timer0** and configure the ULP-timer instance as per configuration parameters given in wizard
 - For using any other timer instance user has to add that timer instance by clicking on **ULP Timer Instance** from configuration wizard and then clicking on **Add New Instance**
 - For creating timer instances write 'timer0', 'timer1', 'timer2' or 'timer3' on the wizard for respective instance and then click on **Done**
-- After creation of instances seperate configuration files are get generated in **config folder**.
-- If project built without selecting configurations, it will take default values from UC
+- After creation of instances separate configuration files are get generated in **config folder**.
+- If project built without selecting configurations, it will take default values from UC.
+
+  ![Figure: Introduction](resources/uc_screen/ulp_timer_uc_screen.png)
+
 - Configure Clock and timer using following macros, defined in \ref sl_si91x_ulp_timer_inst_config.h file and update/modify following macros if required:
 
 ### Macros for Clock Configurations:
@@ -90,41 +106,37 @@
 - Update \ref SL_TIMER_MATCH_VALUE macro before calling \ref sl_si91x_ulp_timer_set_configurations API to change the timer match value, update this macro as per clock source and timer-type selected.
 - After configuring above macros, their values are passed to \ref ulp_timer_config_t structure type variable \ref sl_timer_handle which is used to configure timer using API-\ref sl_si91x_ulp_timer_set_configurations.
 
-## Build
+## Test the Application
 
-- Compile the application in Simplicity Studio using build icon.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Build run and Debug](resources/readme/image512c.png)
+- Build the SL ULP Timer example in Studio.
+- Flash, run and debug the application
 
-## Device Programming
+  ![Figure: Onboard LED-0](resources/readme/image512d.png)
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
-
-## Executing the Application
-
-- Compile and run the application.
-
-## Expected Results
+  ![Figure: F6 Pin ](resources/readme/image512e.png)
+  
+  ![Figure: ISP Switch](resources/readme/image512f.png)
 
 - Evaluation kit board's LED0 will be toggled five times at 1sec periodic rate.
 - After toggling LED0 for five times, timer stops and configured with new parameters and toggles LED0 five more times.
 - At the end of this example "Unregistered timer timeout callback, on timer operation completion" serial console print can be noticed.
+- After successful program execution the prints in serial console looks as shown below.
 
-![Figure: Onboard LED-0](resources/readme/image512d.png)
+  ![output](resources/readme/output_ulp_timer.png)
 
-## Note
+> **Note:**
+>
+>- This application is executed from RAM.
+>- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
+>- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
+>- To check Prints for ULP Peripheral examples, connect the USB to TTL uart connector's RX_pin, to the F06 of the WPK[BRD4002A] Base Board.
+>- To Erase the chip follow the below procedure :
+>- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.
 
-- This applicatin is executed from RAM.
-- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
-- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
-- To check Prints for ULP Peripheral examples, connect the USB to TTL uart connector's RX_pin, to the F06 of the WPK[BRD4002A]/WSTK[BRD4001A] Base Board.
 
-![Figure: F6 Pin ](resources/readme/image512e.png)
 
-## Expected Scenario:
 
-- After Flashing ULP examples as M4 flash will be turned off, flash erase does not work.
-- To Erase the chip follow the below proceedure :
-- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.
 
-![Figure: ISP Switch](resources/readme/image512f.png)
+

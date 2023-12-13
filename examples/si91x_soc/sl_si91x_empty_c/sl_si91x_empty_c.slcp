@@ -1,0 +1,37 @@
+project_name: sl_si91x_emptyc
+package: platform
+quality: production
+label: Platform - Empty C Example
+description: >
+  This example project shows an empty configuration that can be used as a starting point to add components and functionality.
+category: Example|Platform
+filter:
+  - name: "Device Type"
+    value: ["SoC"]
+  - name: "MCU"
+    value: ["32-bit MCU"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.1
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+    - path: app.h
+component:
+  - id: sl_system
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+readme:
+  - path: readme.md
+ui_hints:
+  highlight: readme.md

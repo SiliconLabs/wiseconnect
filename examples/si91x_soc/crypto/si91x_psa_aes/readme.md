@@ -1,46 +1,67 @@
-#PSA AES for SI91X
+# PSA AES for SI91X
 
-## Introduction 
-- This application contains an example code to demonstrate the PSA AES functionality
+## Table of Contents
 
+- [Purpose/Scope](#purposescope)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+  - [Application Configuration Parameters](#application-configuration-parameters)
+- [Test the Application](#test-the-application)
 
-## Setting Up 
- - To use this application following Hardware, Software and the Project Setup is required
+## Purpose/Scope
+
+- This application contains an example code to demonstrate the PSA AES functionality.
+
+## Prerequisites/Setup Requirements
+
+Before running the application, the user will need the following things to setup.
 
 ### Hardware Requirements	
+
   - Windows PC 
   - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
- 
-![Figure: Introduction](resources/readme/image508a.png)
 
 ### Software Requirements
-  - GSDK version 4.3.2
-  - Si91x SDK
-  - Embedded Development Environment
-    - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
- 
-## Project Setup
-- **Silicon Labs Si91x** refer **"Download SDKs"**, **"Add SDK to Simplicity Studio"**, **"Connect SiWx917"**, **"Open Example Project in Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
-## Build 
-- Compile the application in Simplicity Studio using build icon 
+- Simplicity Studio
 
-![Figure: Build run and Debug](resources/readme/image508c.png)
+### Setup Diagram
 
-## Device Programming
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+ ![Figure: Introduction](resources/readme/image508a.png)
 
-## Executing the Application
-- The current implementation will support AES-ECB single-part encryption and decryption.
+## Getting Started
 
-### Configuration
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
+
+## Application Build Environment
+
+- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+
+### Application Configuration Parameters
+
  * To use CTR/CBC algorithms, pass the respective PSA_ALG macro as a parameter to `test_psa_aes()` in `app.c`
  * To use CTR/CBC algorithms, change encryption_output size to CIPHER_TEXT_SIZE
+ * To use software fallback instead of hardware accelerators:
+  - Add mbedtls_aes and mbedtls_cipher_xxx in component section of slcp file
+  - Undefine the macro SLI_CIPHER_DEVICE_SI91X
 
-## Expected Results 
-- The Encryption/Decryption function should produce the expected results. 
- 
-## Resources
+## Test the Application
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+- Build the application.
+- Flash, run and debug the application.
+
+Follow the steps as mentioned for the successful execution of the application:
 
 * [AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)
 

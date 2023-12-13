@@ -40,77 +40,115 @@
 #include "sl_net_wifi_types.h"
 #include "sl_wifi_callback_framework.h"
 #include "sl_si91x_driver.h"
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #endif
-sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
-//! Transmit test power
-#define SL_TX_TEST_POWER 127
+const sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
 
-//! Transmit test rate
-#define SL_TX_TEST_RATE rate
-
-//! Transmit test length
-#define SL_TX_TEST_LENGTH 1000
-
-//! Transmit test mode
-#define SL_TX_TEST_MODE 0
-
-//! Transmit test channel
-#define SL_TX_TEST_CHANNEL 1
-
-//! Bandwidth 0 = 20Mhz, 1 = 40Mhz
+//! Bandwidth 0 = 20Mhz
 #define SL_WIFI_BANDWIDTH_20MHz 0
-#define SL_WIFI_BANDWIDTH_40MHz 1
 
-//! Select bandwidth either 20Mhz or 40Mhz
+//! Select bandwidth either 20Mhz
 #define BANDWIDTH SL_WIFI_BANDWIDTH_20MHz
 
 //! Select band
 #define BAND SL_SI91X_WIFI_BAND_2_4GHZ
 
-#if (BAND == SL_SI91X_WIFI_BAND_2_4GHZ)
 #define BAND_VALUE 1
-#elif (BAND == SL_SI91X_WIFI_BAND_5GHZ)
-#define BAND_VALUE 2
-#endif
 
-#ifndef MARS_ANTENNA
-#if (BAND == SL_SI91X_WIFI_BAND_2_4GHZ)
-#if (BANDWIDTH == SL_WIFI_BANDWIDTH_20MHz)
-uint8_t gain_table_payload[] = { 3,  0,  13, 1,  34, 20, 20,  2,  34, 28, 28, 3,  34,  32, 32, 4,  34,
-                                 36, 36, 5,  34, 38, 38, 6,   34, 40, 40, 7,  34, 38,  38, 8,  34, 36,
-                                 36, 9,  34, 32, 32, 10, 34,  32, 32, 11, 34, 24, 24,  12, 34, 16, 24,
-                                 13, 34, 12, 12, 2,  17, 255, 20, 16, 16, 4,  17, 255, 26, 20, 20 };
-#endif
-#elif (BAND == SL_SI91X_WIFI_BAND_5GHZ)
-#if (BANDWIDTH == SL_WIFI_BANDWIDTH_20MHz)
-uint8_t gain_table_payload[] = { 2, 0, 6, 1, 9, 10, 2, 8,  9, 100, 4,  4, 3, 6, 8, 149, 3, 3,
-                                 4, 6, 7, 2, 4, 1,  9, 10, 2, 8,   10, 3, 6, 8, 4, 6,   7 };
-#elif (BANDWIDTH == SL_WIFI_BANDWIDTH_40MHz)
-uint8_t gain_table_payload[] = { 2,   0, 8, 1, 9, 10, 62, 8, 9, 2, 8,  9, 102, 4,  4, 134, 6, 8, 3, 6, 8,
-                                 151, 3, 3, 4, 6, 7,  2,  4, 1, 9, 10, 2, 8,   10, 3, 6,   8, 4, 6, 7 };
-#endif
-#endif
-#else
-#if (BAND == SL_SI91X_WIFI_BAND_2_4GHZ)
-#if (BANDWIDTH == SL_WIFI_BANDWIDTH_20MHz)
-//M7DB - MARS ANTENNA
-uint8_t gain_table_payload[] = { 3,  FCC, 0xD, 1,  28,    32,   30,  2,  28, 32, 30,  3,    28,  32, 30, 4,  30,
-                                 28, 34,  5,   30, 28,    34,   6,   30, 28, 34, 7,   30,   28,  34, 8,  30, 28,
-                                 34, 9,   28,  30, 30,    10,   28,  30, 30, 11, 28,  30,   30,  12, 28, 30, 30,
-                                 13, 28,  30,  30, TELEC, 0x11, 255, 20, 16, 16, KCC, 0x11, 255, 26, 20, 20 };
-#endif
-#elif (BAND == SL_SI91X_WIFI_BAND_5GHZ)
-#if (BANDWIDTH == SL_WIFI_BANDWIDTH_20MHz)
-uint8_t gain_table_payload[] = { 2, FCC, 0x6, 1,     12,  12, 2, 11, 11, 100, 10, 12, 3, 13, 13, 140, 10, 11,
-                                 4, 13,  13,  TELEC, 0x4, 1,  9, 10, 2,  8,   10, 3,  6, 8,  4,  6,   7 };
-#elif (BANDWIDTH == SL_WIFI_BANDWIDTH_40MHz)
-uint8_t gain_table_payload[] = { 2,   FCC, 0x8, 1, 9,  9,  62,    8,   8, 2, 9,  9, 102, 9,  9, 134, 12, 12, 3, 10, 10,
-                                 151, 11,  11,  4, 11, 11, TELEC, 0x4, 1, 9, 10, 2, 8,   10, 3, 6,   8,  4,  6, 7 };
-#endif
-#endif
-#endif
+uint8_t gain_table_payload[] = {
+  //{{{
+  4, //NUM_OF_REGIONS
+  0,
+  0xB, //NUM_OF_CHANNELS
+       //   rate,  11b, 11g, 11n, 11ax
+  1,
+  34,
+  26,
+  24,
+  22,
+  2,
+  36,
+  30,
+  30,
+  28,
+  3,
+  40,
+  34,
+  34,
+  32,
+  4,
+  40,
+  36,
+  36,
+  34,
+  5,
+  40,
+  38,
+  38,
+  38,
+  6,
+  40,
+  38,
+  38,
+  38,
+  7,
+  40,
+  38,
+  38,
+  38,
+  8,
+  40,
+  38,
+  38,
+  38,
+  9,
+  40,
+  36,
+  36,
+  32,
+  10,
+  36,
+  34,
+  34,
+  28,
+  11,
+  36,
+  28,
+  26,
+  24,
+  1,
+  0x11,
+  255,
+  36,
+  36,
+  36,
+  36,
+  2,
+  0x23,
+  12,
+  36,
+  36,
+  36,
+  36,
+  13,
+  34,
+  34,
+  34,
+  34,
+  14,
+  34,
+  34,
+  34,
+  34,
+  4,
+  0x11,
+  255,
+  36,
+  36,
+  36,
+  36,
+};
 
 /******************************************************
  *               Variable Definitions
@@ -126,6 +164,40 @@ const osThreadAttr_t thread_attributes = {
   .priority   = osPriorityLow,
   .tz_module  = 0,
   .reserved   = 0,
+};
+
+sl_si91x_request_tx_test_info_t tx_test_info = {
+  .enable      = 1,
+  .power       = 127,
+  .rate        = rate,
+  .length      = 1000,
+  .mode        = 0,
+  .channel     = 1,
+  .aggr_enable = 0,
+#ifdef SLI_SI917
+  .enable_11ax            = 0,
+  .coding_type            = 0,
+  .nominal_pe             = 0,
+  .ul_dl                  = 0,
+  .he_ppdu_type           = 0,
+  .beam_change            = 0,
+  .bw                     = 0,
+  .stbc                   = 0,
+  .tx_bf                  = 0,
+  .gi_ltf                 = 0,
+  .dcm                    = 0,
+  .nsts_midamble          = 0,
+  .spatial_reuse          = 0,
+  .bss_color              = 0,
+  .he_siga2_reserved      = 0,
+  .ru_allocation          = 0,
+  .n_heltf_tot            = 0,
+  .sigb_dcm               = 0,
+  .sigb_mcs               = 0,
+  .user_sta_id            = 0,
+  .user_idx               = 0,
+  .sigb_compression_field = 0,
+#endif
 };
 
 /******************************************************
@@ -156,7 +228,7 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi Init Done \r\n");
 
-  status = sl_wifi_set_antenna(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, SL_WIFI_ANTENNA_EXTERNAL);
+  status = sl_wifi_set_antenna(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, SL_WIFI_ANTENNA_INTERNAL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start set Antenna, Error Code: 0x%lx\r\n", status);
     return;
@@ -170,11 +242,8 @@ static void application_start(void *argument)
   }
   printf("\r\nUpdate gain table Success \r\n");
 
-  status = sl_si91x_transmit_test_start(SL_TX_TEST_POWER,
-                                        SL_TX_TEST_RATE,
-                                        SL_TX_TEST_LENGTH,
-                                        SL_TX_TEST_MODE,
-                                        SL_TX_TEST_CHANNEL);
+  status = sl_si91x_transmit_test_start(&tx_test_info);
+
   if (status != SL_STATUS_OK) {
     printf("\r\nTransmit test start Failed, Error Code : 0x%lX\r\n", status);
     return;

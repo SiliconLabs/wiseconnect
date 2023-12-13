@@ -28,14 +28,16 @@
 
 /**
  * Resolve given host name to IP address.
- * @param host_name 			Host name which needs to be resolved.
- * @param timeout 				If value is greater than zero, caller would be blocked till timeout milliseconds to get the response.
- * 								If the values is equal's to zero, response would sent asynchronously using callbacks.
- * @param dns_resolution_ip 	Whether the host name needs to be resolved to IPV4 or IPV6.
- * @param ip_address 			IP address object to store resolved IP address
+ * @param[in] host_name 			Host name which needs to be resolved.
+ * @param[in] timeout 				timeout in millisecs.
+ * @param[in] dns_resolution_ip 	DNS resolution by IP of type @ref sl_net_dns_resolution_ip_type_t
+ * @param[out] ip_address 			IP address object to store resolved IP address of type @ref sl_ip_address_t
  * @return
+ *  sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note If timeout value is greater than zero, caller would be blocked till timeout milliseconds to get the response.
+ * 		 If the values is equal's to zero, response would sent through @ref sl_net_event_handler_t.
  */
-sl_status_t sl_dns_host_get_by_name(const char *host_name,
+sl_status_t sl_net_host_get_by_name(const char *host_name,
                                     const uint32_t timeout,
                                     const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
                                     sl_ip_address_t *ip_address);

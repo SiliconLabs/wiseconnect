@@ -32,14 +32,13 @@
 #include "errno.h"
 #include "sl_net.h"
 #include "sl_net_wifi_types.h"
-#include "sl_tls.h"
 #include "sl_utility.h"
 #include "sl_wifi.h"
 #include "socket.h"
 #include "sl_si91x_socket_support.h"
 #include <string.h>
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #endif
 
@@ -58,8 +57,8 @@
 #define THROUGHPUT_TYPE UDP_RX
 
 // Memory length for send buffer
-#define TCP_BUFFER_SIZE 1440
-#define UDP_BUFFER_SIZE 1450
+#define TCP_BUFFER_SIZE 1380
+#define UDP_BUFFER_SIZE 1390
 #define TLS_BUFFER_SIZE 1200
 #define SERVER_IP       "2401:4901:1290:10de::1004"
 
@@ -89,7 +88,7 @@
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
 #define PS4_SOC_FREQ          119000000 /*<! PLL out clock 100MHz            */
 #endif
@@ -126,17 +125,12 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT
                       | SL_SI91X_TCP_IP_FEAT_IPV6 | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map =
-                     (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
-                   .ext_custom_feature_bit_map = (
-#ifndef RSI_M4_INTERFACE
-                     RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                     RAM_LEVEL_NWP_ADV_MCU_BASIC
+                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
+                   .ext_custom_feature_bit_map = (MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#ifdef CHIP_917
-                     | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                     ),
+                                                  ),
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_EXT_TCP_IP_WINDOW_DIV | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
@@ -156,7 +150,7 @@ void receive_data_from_tls_server(void);
 void send_data_to_tls_server(void);
 static void application_start(void *argument);
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout);
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 void switch_m4_frequency(void);
 #endif
 
@@ -178,7 +172,7 @@ static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t t
   printf("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 void switch_m4_frequency(void)
 {
   /*Switch M4 SOC clock to Reference clock*/
@@ -225,47 +219,33 @@ static void application_start(void *argument)
     print_sl_ip_address(&ip_address);
   } else if (profile.ip.type == SL_IPV6) {
     sl_ip_address_t link_local_address = { 0 };
-    link_local_address.ip.v6           = profile.ip.ip.v6.link_local_address;
-    link_local_address.type            = SL_IPV6;
+    memcpy(&link_local_address.ip.v6, &profile.ip.ip.v6.link_local_address, SL_IPV6_ADDRESS_LENGTH);
+    link_local_address.type = SL_IPV6;
     printf("Link Local Address: ");
     print_sl_ip_address(&link_local_address);
 
     sl_ip_address_t global_address = { 0 };
-    global_address.ip.v6           = profile.ip.ip.v6.global_address;
-    global_address.type            = SL_IPV6;
+    memcpy(&global_address.ip.v6, &profile.ip.ip.v6.global_address, SL_IPV6_ADDRESS_LENGTH);
+    global_address.type = SL_IPV6;
     printf("Global Address: ");
     print_sl_ip_address(&global_address);
 
     sl_ip_address_t gateway = { 0 };
-    gateway.ip.v6           = profile.ip.ip.v6.gateway;
-    gateway.type            = SL_IPV6;
+    memcpy(&gateway.ip.v6, &profile.ip.ip.v6.gateway, SL_IPV6_ADDRESS_LENGTH);
+    gateway.type = SL_IPV6;
     printf("Gateway Address: ");
     print_sl_ip_address(&gateway);
   }
 
 #if ((THROUGHPUT_TYPE == TLS_RX) || (THROUGHPUT_TYPE == TLS_TX))
-  sl_tls_store_configuration_t tls_configuration = { 0 };
-
-  // Clearing certificate
-  status = sl_tls_clear_global_ca_store();
-  if (status != SL_STATUS_OK) {
-    return;
-  }
-
-  tls_configuration.cacert             = (uint8_t *)cacert;
-  tls_configuration.cacert_length      = (sizeof(cacert) - 1);
-  tls_configuration.cacert_type        = SL_TLS_SSL_CA_CERTIFICATE;
-  tls_configuration.use_secure_element = false;
-
   // Load SSL CA certificate
-  status = sl_tls_set_global_ca_store(tls_configuration);
+  status =
+    sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading SSL CA certificate in to FLASH Failed, Error Code : "
-           "0x%lX\r\n",
-           status);
+    printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
-  printf("\r\nLoad SSL CA certificate Success\r\n");
+  printf("\r\nLoad TLS CA certificate at index %d Success\r\n", 0);
 #endif
 
   for (size_t i = 0; i < sizeof(data_buffer); i++)

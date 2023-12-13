@@ -178,7 +178,7 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
   sl_ip_address_t dns_query_response = { 0 };
 
   do {
-    status = sl_dns_host_get_by_name((char *)pNetwork->tlsConnectParams.pDestinationURL,
+    status = sl_net_host_get_by_name((char *)pNetwork->tlsConnectParams.pDestinationURL,
                                      SL_SI91X_WAIT_FOR_DNS_RESOLUTION,
                                      SL_NET_DNS_TYPE_IPV4, // TODO: handle ipv6
                                      &dns_query_response);
@@ -202,7 +202,7 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
 
 IoT_Error_t iot_tls_write(Network *pNetwork, unsigned char *pMsg, size_t len, Timer *timer, size_t *written_len)
 {
-  size_t bytes_written = 0;
+  ssize_t bytes_written = 0;
   size_t temp_len      = len;
 
   if (len <= 0) {
@@ -252,7 +252,7 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
     if (bytes_read == 0) {
       return NETWORK_SSL_READ_ERROR;
     } else if (bytes_read < 0) {
-      return get_aws_error(get_saved_firmware_status());
+      return get_aws_error(sl_si91x_get_saved_firmware_status());
     }
 
     total_bytes_read += bytes_read;

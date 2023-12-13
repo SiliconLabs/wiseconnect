@@ -1,0 +1,29 @@
+id: si917_hal
+label: HAL
+package: wiseconnect
+description: Hardware abstraction layer (HAL) for the Si91x MCU.
+category: Device|Si91x|MCU|HAL
+quality: production
+root_path: . 
+source:
+  - path: components/device/silabs/si91x/mcu/hal/src/rsi_bootup_config.c
+  - path: components/device/silabs/si91x/mcu/hal/src/rsi_hal_mcu_m4.c
+  - path: components/device/silabs/si91x/mcu/hal/src/rsi_hal_mcu_platform_init.c
+  - path: components/device/silabs/si91x/mcu/hal/src/rsi_hal_mcu_timer.c
+  - path: components/device/silabs/si91x/mcu/hal/src/rsi_hal_mcu_m4_rom.c
+    unless: [sl_si91x_mcu]
+  - path: components/device/silabs/si91x/mcu/hal/src/rsi_hal_mcu_interrupt.c
+  - path: components/device/silabs/si91x/mcu/hal/src/rsi_hal_mcu_m4_ram.c
+    unless: [sl_si91x_mcu]
+include:
+  - path: components/device/silabs/si91x/mcu/hal/inc
+    file_list:
+      - path: rs9116.h
+      - path: rsi_api.h
+      - path: rsi_m4.h
+        unless: [sl_si91x_mcu]
+provides:
+  - name: si917_hal
+requires:
+  - name: rsilib_egpio
+  - name: rsilib_clock_update

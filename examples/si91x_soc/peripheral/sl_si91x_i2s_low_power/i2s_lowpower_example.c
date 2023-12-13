@@ -17,7 +17,7 @@
 #include "sl_si91x_i2s.h"
 #include "sl_si91x_i2s_config.h"
 #include "i2s_lowpower_example.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_chip.h"
 
 /*******************************************************************************
@@ -27,9 +27,6 @@
 #define PS4_SOC_FREQ          180000000 // PLL out clock 180MHz
 #define BUFFER_SIZE           1024      // Transmit/Receive buffer size
 #define I2S_INSTANCE          1         // I2S instance
-#define RESERVED_IRQ_COUNT    16
-#define EXT_IRQ_COUNT         98
-#define VECTOR_TABLE_ENTRIES  (RESERVED_IRQ_COUNT + EXT_IRQ_COUNT)
 #define ULP_BANK_OFFSET       0x800
 #define TX_BUF_MEMORY         (ULP_SRAM_START_ADDR + (1 * ULP_BANK_OFFSET))
 #define RX_BUF_MEMORY         (ULP_SRAM_START_ADDR + (2 * ULP_BANK_OFFSET))
@@ -43,7 +40,6 @@ static sl_i2s_handle_t i2s_driver_handle    = NULL;
 static uint8_t send_complete                = 0;
 static uint8_t receive_complete             = 0;
 static sl_i2s_xfer_config_t i2s_xfer_config = { 0 };
-uint32_t ramVector[VECTOR_TABLE_ENTRIES] __attribute__((aligned(256)));
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -67,12 +63,6 @@ void i2s_lowpower_example_init(void)
   i2s_xfer_config.sampling_rate = SL_I2S_SAMPLING_RATE;
   i2s_xfer_config.sync          = SL_I2S_ASYNC;
   i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE32;
-  //copying the vector table from flash to ram
-
-  memcpy(ramVector, (uint32_t *)SCB->VTOR, sizeof(uint32_t) * VECTOR_TABLE_ENTRIES);
-
-  //assing the ram vector adress to VTOR register
-  SCB->VTOR = (uint32_t)ramVector;
 
   hardware_setup();
   DEBUGINIT();

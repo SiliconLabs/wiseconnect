@@ -13,10 +13,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/** \defgroup WIFI_HOST Host Interface Types
-  * \ingroup SL_WIFI_TYPES
-  * @{ */
-
 /// Types of Wi-Fi buffers
 typedef enum {
   SL_WIFI_TX_FRAME_BUFFER,
@@ -25,10 +21,12 @@ typedef enum {
   SL_WIFI_SCAN_RESULT_BUFFER,
 } sl_wifi_buffer_type_t;
 
+/** \addtogroup SL_WIFI_TYPES
+  * @{ */
+/// Wi-Fi buffer
 typedef struct {
   sl_slist_node_t node;
   uint32_t length;
   uint8_t data[];
 } sl_wifi_buffer_t;
-
 /** @} */

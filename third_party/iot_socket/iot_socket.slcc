@@ -1,0 +1,26 @@
+id: iot_socket
+package: wiseconnect3_sdk
+description: >
+  ARM IoT Socket provides a simple, BSD-like IP socket API
+label: IoT Socket
+category: Third Party
+quality: production
+component_root_path: ./third_party/iot_socket
+provides:
+- name: iot_socket
+source:
+- path: source/bsd_socket/iot_socket.c
+  condition: [bsd_socket]
+- path: source/lwip/iot_socket.c
+  condition: [lwip]
+requires:
+- name: bsd_socket
+
+include:
+- path: include
+  file_list:
+    - path: iot_socket.h
+- path: silabs
+  file_list:
+    - path: iot_socket_types.h
+

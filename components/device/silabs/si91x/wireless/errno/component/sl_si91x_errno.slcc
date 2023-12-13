@@ -1,0 +1,21 @@
+id: sl_si91x_errno
+label: SL errno
+package: platform
+description: >
+  Enables thread-safe errno
+category: Device|Si91x|MCU|Service
+quality: production
+root_path: components/device/silabs/si91x/wireless/errno
+include:
+  - path: inc
+    file_list:
+      - path: errno.h
+source:
+  - path: src/sl_si91x_errno.c
+provides:
+  - name: sl_si91x_errno
+define:
+  - name: configUSE_POSIX_ERRNO
+    value: 1
+    condition:
+    - freertos

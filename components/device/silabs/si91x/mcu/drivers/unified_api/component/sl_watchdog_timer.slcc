@@ -1,0 +1,18 @@
+id: sl_watchdog_timer
+label: WDT
+package: platform
+description: >
+  Si91x Watchdog Timer API
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: "config/sl_si91x_watchdog_timer_config.h"
+source:
+  - path: "src/sl_si91x_watchdog_timer.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_watchdog_timer.h"
+provides:
+  - name: sl_watchdog_timer

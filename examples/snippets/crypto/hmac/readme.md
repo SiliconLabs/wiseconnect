@@ -1,4 +1,4 @@
-# Crypto HMAC
+# Crypto - HMAC
 
 ## Table of Contents
 
@@ -31,7 +31,7 @@ This application demonstrates how to configure and use the HMAC API and generate
 
 #### SoC Mode 
 
-![Figure: Setup Diagram SoC Mode for Crypto HMAC Example](resources/readme/setup_diagram_soc.png)
+  ![Figure: Setup Diagram SoC Mode for Crypto HMAC Example](resources/readme/setup_diagram_soc.png)
 
 ## Getting Started
 
@@ -62,4 +62,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Output
 
-![HMAC Output](resources/readme/output.png)
+  ![HMAC Output](resources/readme/output.png)

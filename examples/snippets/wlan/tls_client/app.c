@@ -33,7 +33,6 @@
 #include "sl_wifi_types.h"
 #include <string.h>
 #include "sl_wifi.h"
-#include "sl_tls.h"
 #include "errno.h"
 #include "socket.h"
 #include "sl_net_si91x.h"
@@ -81,35 +80,31 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
-                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT |
-#ifndef RSI_M4_INTERFACE
-                                                  RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                                                  RAM_LEVEL_NWP_ADV_MCU_BASIC
+                   .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#ifdef CHIP_917
-                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                                                  ),
+                      ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
                    .ble_feature_bit_map        = 0,
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
+
 /******************************************************
  *               Function Declarations
  ******************************************************/
 static void application_start(void *argument);
 sl_status_t send_data_from_tls_socket();
-static sl_status_t clear_and_load_certificates_in_flash(void);
 
 /******************************************************
  *               Function Definitions
@@ -133,7 +128,8 @@ static void application_start(void *argument)
   printf("\r\nWi-Fi client interface init success\r\n");
 
 #if LOAD_CERTIFICATE
-  status = clear_and_load_certificates_in_flash();
+  status =
+    sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   if (status != SL_STATUS_OK) {
     printf("\r\nUnexpected error while loading certificate: 0x%lx\r\n", status);
     return;
@@ -153,32 +149,6 @@ static void application_start(void *argument)
     printf("\r\nError while sending data: 0x%lx \r\n", status);
     return;
   }
-}
-
-sl_status_t clear_and_load_certificates_in_flash(void)
-{
-  sl_tls_store_configuration_t tls_configuration = { 0 };
-  //! Erase SSL CA certificate
-  sl_status_t status = sl_tls_clear_global_ca_store();
-  if (status != SL_STATUS_OK) {
-    printf("\r\nCertificate erase failed, Error Code : 0x%lX\r\n", status);
-    return status;
-  }
-  printf("\r\nCertificate erase Success\r\n");
-
-  tls_configuration.cacert             = (uint8_t *)cacert;
-  tls_configuration.cacert_length      = (sizeof(cacert) - 1);
-  tls_configuration.cacert_type        = SL_TLS_SSL_CA_CERTIFICATE;
-  tls_configuration.use_secure_element = false;
-
-  //! Loading SSL CA certificate in to FLASH
-  status = sl_tls_set_global_ca_store(tls_configuration);
-  if (status != SL_STATUS_OK) {
-    printf("\r\nLoading SSL CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
-    return status;
-  }
-
-  return status;
 }
 
 sl_status_t send_data_from_tls_socket()

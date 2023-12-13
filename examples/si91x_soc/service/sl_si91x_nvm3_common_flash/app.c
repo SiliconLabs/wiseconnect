@@ -1,7 +1,7 @@
 
 /***************************************************************************/ /**
  * @file
- * @brief HTTP OTAF Example Application
+ * @brief NVM3 Example Application
  *******************************************************************************
  * # License
  * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
@@ -33,6 +33,7 @@
 #include "sl_si91x_driver.h"
 #include "nvm3_default.h"
 #include "nvm3_default_config.h"
+#include "sl_wifi_device.h"
 
 /******************************************************
  *                      Macros
@@ -80,13 +81,13 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_OTAF
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
-                   .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
+                   .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
-#ifndef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_ALL_MCU_ZERO
+#ifndef SLI_SI91X_MCU_INTERFACE
+                      SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
-                      RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
+                      SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
 #endif
                       ),
                    .bt_feature_bit_map = 0,
@@ -98,6 +99,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .config_feature_bit_map  = 0 }
 };
 static char buffer[NVM3_DEFAULT_MAX_OBJECT_SIZE];
+static osSemaphoreId_t nvm3_Sem;
 
 /******************************************************
  *               Function Declarations
@@ -133,20 +135,24 @@ void application_start(const void *unused)
   }
   printf("\r\nWi-Fi Init success\r\n");
   err = nvm3_initDefault();
-  printf("\r\n NVM3 init status %d \r\n", err);
+  printf("\r\n NVM3 init status %lx \r\n", err);
   // Initialise the counter objects to track writes and deletes.
   initialise_counters();
 
-  printf("write key 1 data\r\n");
+  printf("\nwrite key 1 data\r\n");
   nvm3_app_write(1, write_data1, 12);
-  printf("write key 2 data\r\n");
+  nvm3_app_read(1);
+  printf("\nwrite key 2 data\r\n");
   nvm3_app_write(2, write_data2, 4);
-  printf("write key 3 data\r\n");
+  nvm3_app_read(2);
+  printf("\nwrite key 3 data\r\n");
   nvm3_app_write(3, write_data2, 4);
-  printf("write key 4 data\r\n");
+  nvm3_app_read(3);
+  printf("\nwrite key 4 data\r\n");
   nvm3_app_write(4, write_data1, 12);
+  nvm3_app_read(4);
   nvm3_app_display();
-  printf("Deleting all keys\r\n");
+  printf("\nDeleting all keys\r\n");
   nvm3_app_delete(1);
   nvm3_app_delete(2);
   nvm3_app_delete(3);
@@ -301,4 +307,19 @@ static void nvm3_app_display(void)
     printf("%lu objects have been written since last display\r\n", counter);
   }
   nvm3_writeCounter(NVM3_DEFAULT_HANDLE, WRITE_COUNTER_KEY, 0);
+}
+
+void nvm3_lockBegin(void)
+{
+
+  if (nvm3_Sem == NULL) {
+    nvm3_Sem = osSemaphoreNew(1, 0, NULL);
+    osSemaphoreRelease(nvm3_Sem);
+  }
+  osSemaphoreAcquire(nvm3_Sem, osWaitForever);
+}
+
+void nvm3_lockEnd(void)
+{
+  osSemaphoreRelease(nvm3_Sem);
 }

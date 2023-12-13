@@ -1,6 +1,19 @@
-# ULP GPIO
+# SL ULP GPIO
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - The ULP GPIO has 2 instances in MCU.
   - ULP Domain is used to control the ULP GPIO's(ULP_GPIO_n; n=0 to 11)
@@ -8,30 +21,42 @@
 - ULP GPIO domain has only one port and calling as Port 4 in program which has maximum of 12 pins.
 - All the GPIO pins in ULP Domain support set,clear,toggle,programmed as output,input etc.
 
-## Setting Up
-
-- To use this application following Hardware, Software and the Project Setup is required
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WSTK/WPK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image504a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-## Examples
+### Setup Diagram
+
+![Figure: Introduction](resources/readme/setupdiagram.png)
+
+## Getting Started
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
+
+## Application Build Environment
 
 - Details for the example code are described in the following sub-sections.
 
-## Initialization of GPIO in ULP Domain
+### Initialization of GPIO in ULP Domain
 
-NOTE : GPIO ULP instance have port-4.
+  > **Note:**
+  >
+  > GPIO ULP instance have Port-4.
 
 - GPIO to work in ULP Domain requires few steps to consider.
 - Call \ref ulp_gpio_initialization(). This API has some API's being called, which are discussed below.
@@ -43,7 +68,7 @@ NOTE : GPIO ULP instance have port-4.
 - To handle the pin interrupt in ULP GPIO, API \ref sl_si91x_gpio_configure_ulp_pin_interrupt() is used.
 - To handle the group interrupt in ULP GPIO, API \ref sl_si91x_gpio_configure_ulp_group_interrupt() is used.
 
-## Initialization of GPIO in UULP Domain
+### Initialization of GPIO in UULP Domain
 
 - GPIO to work in UULP Domain requires few steps to consider.
 - Call \ref uulp_gpio_initialization(). This API has some API's being called, which are discussed below.
@@ -55,23 +80,8 @@ NOTE : GPIO ULP instance have port-4.
 - To handle the pin interrupt in UULP GPIO, API \ref sl_si91x_gpio_configure_uulp_interrupt() is used.
 - To get the status of the GPIO pin use \ref sl_si91x_gpio_get_uulp_npss_pin() API, by passing pin number as parameter.
 
-## Project Setup
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
-
-### VCOM Setup
-
-- The Serial Console tool's setup instructions are provided below..
-
-![Figure: VCOM_setup](resources/readme/vcom.png)
-
-## Loading Application on Simplicity Studio
-
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos in simplicity studio and click on to GPIO Example application as shown below.
-
-![Figure: Selecting Example project](resources/readme/image504b.png)
-
-## Configuration and Steps for Execution
+### Configuration and Steps for Execution
 
 - Configure the following parameters in ulp_gpio_example.c (examples/si91x_soc/peripheral/sl_si91x_ulp_gpio/) file and update/modify following macros if required
 
@@ -84,32 +94,49 @@ NOTE : GPIO ULP instance have port-4.
   #define NPSS_INTR                2      // NPSS GPIO interrupt number
   #define DELAY                    1000   // Delay for 1sec
   ```
+  
+- If UULP_GPIO_PIN is enabled, UULP pin direction is printed on the serial console. Connect logic analyzer to P14 on WPK board to observe the toggle state.
 
-## Build
+   ```c
+     UULP_GPIO_PIN       = 1, // Initialize GPIO UULP instance
+   ```
+- If ULP_GPIO_PIN_INTR is enabled, it triggers ULP Domain pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in ULP_PIN_IRQ_Handler() present in ulp_gpio_example.c.
 
-1. Compile the application in Simplicity Studio using build icon.
+   ```c
+    ULP_GPIO_PIN_INTR    = 1, // Configure GPIO ULP instance pin interrupt
+   ```
 
-![Figure: Build run and Debug](resources/readme/image504c.png)
+- If ULP_GPIO_GROUP_INTR is enabled, it triggers ULP group interrupt. For analyzing group interrupt keep a print (or) toggle (or) set(or) clear in ULP_GROUP_IRQ_Handler() present in ulp_gpio_example.c.
 
-## Device Programming
+   ```c
+    ULP_GPIO_GROUP_INTR = 1, // Configure GPIO ULP instance group interrupt
+   ```
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+- If UULP_GPIO_PIN_INTR is enabled, it triggers UULP pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in UULP_PIN_IRQ_Handler() present in ulp_gpio_example.c.
 
-## Executing the Application
+   ```c
+    UULP_GPIO_PIN_INTR  = 1, // Configure GPIO UULP instance pin interrupt
+   ```
 
-1. Compile and run the application. Please refer **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** on how to complie and run the application. 
 
-## Expected Results
+## Test the Application
 
-- GPIO should be continously toggled ,connect logic analyser to F11 on WSTK board to observe the toggle state.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+1. Compile and run the application.
+2. By default ULP_GPIO_PIN(ULP GPIO instance) is enabled, ULP pin direction, mode are printed on the serial console. Connect ULP_GPIO_1 pin to 0v and to 3.3v, and observe the LED0 toggle state. By default led(LED0) will be in high state. Connect logic analyzer to P16(ULP_GPIO_1), F10(LED0) and observe the pins state.
 
 NOTE: These pin configurations are specific to BRD4338A board.
+- ALL enumerators defined below are of type \ref gpio_instance_type_t which are present in ulp_gpio_example.c. Make corresponding enumerator to '1', in order to enable the individual functionalities mentioned below.
+- By default ULP_GPIO_PIN(ULP GPIO instance) is enabled, ULP pin direction, mode are printed on the serial console. Connect ULP_GPIO_1 pin to 0v and to 3.3v, and observe the LED0 toggle state. By default led(LED0) will be in high state. Connect logic analyzer to P16(ULP_GPIO_1), F10(LED0) and observe the pins state.
+- After successful program execution the prints in serial console looks as shown below.
 
-## Additional Information:
-  NOTE: ALL enumerators defined below are of type \ref gpio_instance_type_t which are present in ulp_gpio_example.c. Make corresponding enumerator to '1', in order to enable the individual functionalities mentioned below.
-- By default ULP_GPIO_PIN(ULP GPIO instance) is enabled, ULP pin direction, mode are printed on the serial console. Connect ULP_GPIO_1 pin to 0v and to 3.3v, and observe the LED0 toggle state. By default led(LED0) will be in high state. Connect logic analyser to P16(ULP_GPIO_1), F10(LED0) and observe the pins state.
-- If UULP_GPIO_PIN is enabled, UULP pin direction is printed on the serial console. Connect logic analyser to P14 on WSTK board to observe the toggle state.
-- If ULP_GPIO_PIN_INTR is enabled, it triggers ULP Domain pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in ULP_PIN_IRQ_Handler() present in ulp_gpio_example.c.
-- If ULP_GPIO_GROUP_INTR is enabled, it triggers ULP group interrupt. For analyzing group interrupt keep a print (or) toggle (or) set(or) clear in ULP_GROUP_IRQ_Handler() present in ulp_gpio_example.c.
-- If UULP_GPIO_PIN_INTR is enabled, it triggers UULP pin interrupt. For analyzing pin interrupt keep a print (or) toggle (or) set(or) clear in UULP_PIN_IRQ_Handler() present in ulp_gpio_example.c.
+  >![output](resources/readme/output_ulp_gpio.png)
+
+> **Note:**
+>- This application is executed from RAM.
+>- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
+>- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
+>- To Erase the chip follow the below procedure
+>- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.  
 

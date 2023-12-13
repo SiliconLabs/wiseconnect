@@ -15,22 +15,23 @@
  *
  ******************************************************************************/
 #include "sl_si91x_usart.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "ulp_uart_example.h"
 #include "rsi_egpio.h"
 #include "rsi_rom_egpio.h"
+#include "sl_si91x_driver_gpio.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define RESERVED_IRQ_COUNT   16                                   // Reserved IRQ count
-#define EXT_IRQ_COUNT        98                                   // External IRQ count
-#define VECTOR_TABLE_ENTRIES (RESERVED_IRQ_COUNT + EXT_IRQ_COUNT) // Vector table entries
-#define BUFFER_SIZE          1024                                 // Data send and receive length
-#define USART_BAUDRATE       115200                               // Baud rate <9600-7372800>
-#define PORT                 0
-#define PIN                  10
-#define SET                  1
-#define CLR                  0
+
+#define BUFFER_SIZE     1024   // Data send and receive length
+#define USART_BAUDRATE  115200 // Baud rate <9600-7372800>
+#define ULP_GPIO_PIN    2      // ULP GPIO to receive
+#define OUTPUT_VALUE    1      // GPIO output value
+#define ULP_GPIO_PORT   4      // GPIO Port no
+#define ULP_GPIO_TOGGLE 10     // ULP GPIO to toggle
+#define SET             1      // Macro to set
+#define CLR             0      // Macro to clear
 #define NON_UC_DEFAULT_CONFIG \
   0 //  Enable this macro to set the default configurations in non_uc case, this is useful when someone don't want to use UC configuration
 
@@ -53,8 +54,9 @@ static void compare_loop_back_data(void);
  ******************************************************************************/
 sl_usart_handle_t usart_handle;
 usart_mode_enum_t current_mode = SL_SEND_DATA;
+sl_gpio_t ulp_gpio_rx          = { ULP_GPIO_PORT, ULP_GPIO_PIN };
+sl_gpio_t ulp_gpio_toggle      = { ULP_GPIO_PORT, ULP_GPIO_TOGGLE };
 
-uint32_t ramVector[VECTOR_TABLE_ENTRIES] __attribute__((aligned(256)));
 extern void hardware_setup(void);
 /*******************************************************************************
  * USART Example Initialization function
@@ -67,10 +69,6 @@ void usart_example_init(void)
      * To reconfigure the default setting of SystemInit() function, refer to
      * startup_rs1xxxx.c file
      */
-  //copying the vector table from flash to ram
-  memcpy(ramVector, (uint32_t *)SCB->VTOR, sizeof(uint32_t) * VECTOR_TABLE_ENTRIES);
-  // Assigning the ram vector address to VTOR register
-  SCB->VTOR = (uint32_t)ramVector;
   // Switching MCU from PS4 to PS2 state(low power state)
   // In this mode, whatever be the timer clock source value, it will run with 20MHZ only
   // To use usart in high power mode, don't call hardware_setup()
@@ -91,10 +89,11 @@ void usart_example_init(void)
   usart_config.config_enable = ENABLE;
   usart_config.synch_mode    = DISABLE;
 #endif
+
   //Set pin 0 in GPIO mode
-  RSI_EGPIO_SetPinMux(EGPIO1, PORT, PIN, EGPIO_PIN_MUX_MODE0);
+  sl_gpio_driver_set_pin_mode(&ulp_gpio_toggle, EGPIO_PIN_MUX_MODE0, OUTPUT_VALUE);
   //Set output direction
-  RSI_EGPIO_SetDir(EGPIO1, PORT, PIN, EGPIO_CONFIG_DIR_OUTPUT);
+  sl_si91x_gpio_driver_set_pin_direction(ULP_GPIO_PORT, ULP_GPIO_TOGGLE, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
   do {
     // Initialize the UART
     status = sl_si91x_usart_init(ULPUART, &usart_handle);
@@ -110,6 +109,17 @@ void usart_example_init(void)
       break;
     }
     DEBUGOUT("USART configuration is successful \n");
+#if USE_SEND
+    // Enable ULP clk
+    sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
+    // Enable ULP pad receiver
+    sl_si91x_gpio_driver_enable_ulp_pad_receiver(ULP_GPIO_PIN);
+    // Pull up the ULP GPIO
+    sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state(ULP_GPIO_PIN,
+                                                             (sl_si91x_gpio_driver_disable_state_t)GPIO_PULLUP);
+    //configure RX pin
+    sl_gpio_driver_set_pin_mode(&ulp_gpio_rx, EGPIO_PIN_MUX_MODE3, OUTPUT_VALUE);
+#endif
     // Register user callback function
     status = sl_si91x_usart_register_event_callback(callback_event);
     if (status != SL_STATUS_OK) {
@@ -184,6 +194,7 @@ void usart_example_process_action(void)
           // If send macro is enabled, current mode is set to send
           current_mode       = SL_SEND_DATA;
           begin_transmission = true;
+          compare_loop_back_data();
           DEBUGOUT("USART receive completed \n");
           break;
         }
@@ -247,8 +258,10 @@ static void compare_loop_back_data(void)
     }
   }
   if (data_index == BUFFER_SIZE) {
-    RSI_EGPIO_SetPin(EGPIO1, PORT, PIN, SET);
-    RSI_EGPIO_SetPin(EGPIO1, PORT, PIN, CLR);
+    // Set the pin
+    sl_gpio_driver_set_pin(&ulp_gpio_toggle);
+    // Clear the pin
+    sl_gpio_driver_clear_pin(&ulp_gpio_toggle);
     DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
   } else {
     DEBUGOUT("Data comparison failed, Loop Back Test failed \n");

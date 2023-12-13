@@ -1,0 +1,20 @@
+id: ir_ulp_component
+label: IR
+package: platform
+description: >
+  Install this component to enable execution of IR peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: rsilib_ir
+
+provides:
+  - name: ir_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: ir_ps2
+    value: rsi_ir.o
+

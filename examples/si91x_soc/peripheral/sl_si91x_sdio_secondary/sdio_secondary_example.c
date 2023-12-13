@@ -25,7 +25,7 @@
 #include "clock_update.h"
 #include "sl_si91x_sdio_secondary_drv_config.h"
 #include "sl_si91x_peripheral_sdio_secondary.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************

@@ -1,0 +1,21 @@
+id: sl_sysrtc
+label: SysRTC
+package: platform
+description: >
+  Si91x System RTC (SysRTC) API
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_sysrtc_config.h
+source:
+  - path: "src/sl_si91x_sysrtc.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_sysrtc.h"
+provides:
+  - name: sl_sysrtc
+requires:
+  - name: udma_linker_config
+  - name: rsilib_sysrtc

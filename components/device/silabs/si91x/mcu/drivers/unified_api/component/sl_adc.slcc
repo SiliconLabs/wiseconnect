@@ -1,0 +1,20 @@
+id: sl_adc
+label: ADC
+package: platform
+description: >
+  Si91x ADC API.
+category: Device|Si91x|MCU|Peripheral
+quality: production
+component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_adc_common_config.h
+source:
+  - path: "src/sl_si91x_adc.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_adc.h"
+provides:
+  - name: sl_adc
+requires:
+  - name: rsilib_adc

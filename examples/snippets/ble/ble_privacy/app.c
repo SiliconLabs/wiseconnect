@@ -36,6 +36,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 //! BLE include file to refer BLE APIs
 #include "rsi_ble_apis.h"
@@ -49,6 +50,9 @@
 #include "rsi_common_apis.h"
 #include <stdio.h>
 #include <string.h>
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
+#endif
 
 //! Remote Device Name to connect
 #define RSI_REMOTE_DEVICE_NAME "BLE_SIMPLE_PRIVACY"
@@ -104,7 +108,19 @@
 
 #define MITM_REQ          0x01
 #define RSI_MAX_LIST_SIZE 0x05
+/*=======================================================================*/
+//!    Powersave configurations
+/*=======================================================================*/
+#define ENABLE_POWER_SAVE 0 //! Set to 1 for powersave mode
 
+#if ENABLE_POWER_SAVE
+//! Power Save Profile Mode
+#define PSP_MODE RSI_SLEEP_MODE_2
+//! Power Save Profile type
+#define PSP_TYPE RSI_MAX_PSP
+
+sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000 };
+#endif
 //! user defined structure
 //LE resolvlist group.
 typedef struct rsi_ble_resolvlist_group_s {
@@ -196,17 +212,11 @@ static const sl_wifi_device_configuration_t config = {
                                        | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef CHIP_917
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
@@ -847,15 +857,17 @@ void ble_privacy_app(void *unused)
   int32_t event_id;
   uint8_t first_connect               = 0;
   rsi_ble_dev_ltk_list_t *ble_dev_ltk = NULL;
-  sl_wifi_version_string_t version    = { 0 };
+  sl_wifi_firmware_version_t version  = { 0 };
 
 #if (RSI_DEVICE_ROLE == PERIPHERAL_ROLE)
   uint8_t adv[31] = { 2, 1, 6 };
 #endif
   sl_status_t status;
-
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sl_si91x_hardware_setup();
+#endif /* SLI_SI91X_MCU_INTERFACE */
   //! Wi-Fi initialization
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Wi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -867,7 +879,7 @@ void ble_privacy_app(void *unused)
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+    print_firmware_version(&version);
   }
 
   //! registering the GAP callback functions
@@ -952,16 +964,39 @@ void ble_privacy_app(void *unused)
   }
 
 #endif
+#if ENABLE_POWER_SAVE
+  LOG_PRINT("\r\n keep module in to power save \r\n");
+  //! initiating power save in BLE mode
+  status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+    return;
+  }
 
+  //! initiating power save in wlan mode
+  status = sl_wifi_set_performance_profile(&wifi_profile);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\n Failed to initiate power save in Wi-Fi mode :%lx\r\n", status);
+    return;
+  }
+
+  LOG_PRINT("\r\n Module is in power save \r\n");
+#endif
   //! waiting for events from controller.
   while (1) {
     //! checking for events list
     event_id = rsi_ble_app_get_event();
 
     if (event_id == -1) {
-      if (ble_main_task_sem) {
-        osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
+#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+      //! if events are not received loop will be continued.
+      if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
+        P2P_STATUS_REG &= ~M4_wakeup_TA;
+        sl_si91x_m4_sleep_wakeup();
       }
+#else
+      osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
+#endif
       continue;
     }
 
@@ -994,6 +1029,23 @@ void ble_privacy_app(void *unused)
         //! clear the served event
         rsi_ble_app_clear_event(RSI_BLE_DISCONN_EVENT);
         LOG_PRINT("\r\n Module got disconnected\r\n");
+#if ENABLE_POWER_SAVE
+        LOG_PRINT("\r\n keep module in to active state \r\n");
+        //! initiating Active mode in BT mode
+        status = rsi_bt_power_save_profile(RSI_ACTIVE, PSP_TYPE);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\r\n Failed to keep Module in ACTIVE mode \r\n");
+          return;
+        }
+
+        //! initiating power save in wlan mode
+        wifi_profile.profile = HIGH_PERFORMANCE;
+        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\n Failed to keep module in HIGH_PERFORMANCE mode \r\n");
+          return;
+        }
+#endif
         device_found  = 0;
         first_connect = 0;
 #if (RSI_DEVICE_ROLE == CENTRAL_ROLE)
@@ -1013,6 +1065,22 @@ void ble_privacy_app(void *unused)
           LOG_PRINT("\n Failed to start advertising, error code : %lx\n", status);
           return;
         }
+#endif
+#if ENABLE_POWER_SAVE
+        LOG_PRINT("\r\n keep module in to power save \r\n");
+        status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
+        if (status != RSI_SUCCESS) {
+          return;
+        }
+
+        //! initiating power save in wlan mode
+        wifi_profile.profile = ASSOCIATED_POWER_SAVE;
+        status               = sl_wifi_set_performance_profile(&wifi_profile);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\n Failed to keep module in power save \r\n");
+          return;
+        }
+        LOG_PRINT("\r\n Module is in power save \r\n");
 #endif
       } break;
 

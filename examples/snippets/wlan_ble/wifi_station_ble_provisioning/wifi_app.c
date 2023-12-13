@@ -64,7 +64,7 @@ extern osSemaphoreId_t wlan_thread_sem;
 sl_wifi_scan_result_t *scan_result          = NULL;
 static volatile bool scan_complete          = false;
 static volatile sl_status_t callback_status = SL_STATUS_OK;
-uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
+uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
 uint8_t connected = 0, timeout = 0;
 uint8_t disconnected = 0, disassosiated = 0;
@@ -82,6 +82,7 @@ static uint32_t wlan_app_event_map;
  */
 
 extern void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
+static sl_status_t show_scan_results();
 extern uint8_t coex_ssid[50], pwd[34], sec_type;
 uint8_t retry = 1;
 
@@ -161,27 +162,29 @@ void sl_wifi_join_fail_handler(uint16_t status, uint8_t *buffer, const uint32_t 
 
 static sl_status_t show_scan_results()
 {
-  printf("%lu Scan results:\n", scan_result->scan_count);
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(scan_result);
+  uint8_t *bssid = NULL;
+  LOG_PRINT("%lu Scan results:\n", scan_result->scan_count);
 
   if (scan_result->scan_count) {
-    printf("\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
-    printf("%12s %12s %s\n", "BSSID", "CHANNEL", "RSSI");
+    LOG_PRINT("\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
+    LOG_PRINT("%12s %12s %s\n", "BSSID", "CHANNEL", "RSSI");
 
     for (int a = 0; a < (int)scan_result->scan_count; ++a) {
-      uint8_t *bssid = (uint8_t *)&scan_result->scan_info[a].bssid;
-      printf("%-24s %4u,  %4u, ",
-             scan_result->scan_info[a].ssid,
-             scan_result->scan_info[a].security_mode,
-             scan_result->scan_info[a].network_type);
-      printf("  %02x:%02x:%02x:%02x:%02x:%02x, %4u,  -%u\n",
-             bssid[0],
-             bssid[1],
-             bssid[2],
-             bssid[3],
-             bssid[4],
-             bssid[5],
-             scan_result->scan_info[a].rf_channel,
-             scan_result->scan_info[a].rssi_val);
+      bssid = (uint8_t *)&scan_result->scan_info[a].bssid;
+      LOG_PRINT("%-24s %4u,  %4u, ",
+                scan_result->scan_info[a].ssid,
+                scan_result->scan_info[a].security_mode,
+                scan_result->scan_info[a].network_type);
+      LOG_PRINT("  %02x:%02x:%02x:%02x:%02x:%02x, %4u,  -%u\n",
+                bssid[0],
+                bssid[1],
+                bssid[2],
+                bssid[3],
+                bssid[4],
+                bssid[5],
+                scan_result->scan_info[a].rf_channel,
+                scan_result->scan_info[a].rssi_val);
     }
   }
 
@@ -198,11 +201,11 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
 
   scan_complete = true;
 
-  if (CHECK_IF_EVENT_FAILED(event)) {
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     callback_status = *(sl_status_t *)result;
     return SL_STATUS_FAIL;
   }
-
+  SL_VERIFY_POINTER_OR_RETURN(scan_result, SL_STATUS_NULL_POINTER);
   memset(scan_result, 0, scanbuf_size);
   memcpy(scan_result, result, scanbuf_size);
 
@@ -223,7 +226,7 @@ void sl_wifi_app_task()
     LOG_PRINT("Failed to allocate memory for scan result\n");
     return;
   }
-
+  memset(scan_result, 0, scanbuf_size);
   while (1) {
     // checking for events list
     event_id = sl_wifi_app_get_event();
@@ -291,12 +294,12 @@ void sl_wifi_app_task()
         sl_wifi_credential_id_t id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
         memset(&access_point, 0, sizeof(sl_wifi_client_configuration_t));
 
-        cred.type = SL_WIFI_CRED_PSK;
+        cred.type = SL_WIFI_PSK_CREDENTIAL;
         memcpy(cred.psk.value, pwd, strlen((char *)pwd));
 
         status = sl_net_set_credential(id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
         if (SL_STATUS_OK == status) {
-          printf("Credentials set, id : %lu\n", id);
+          LOG_PRINT("Credentials set, id : %lu\n", id);
 
           access_point.ssid.length = strlen((char *)coex_ssid);
           memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);
@@ -351,7 +354,7 @@ void sl_wifi_app_task()
         ip_address.host_name = DHCP_HOST_NAME;
 
         // Configure IP
-        status = sl_si91x_configure_ip_address(&ip_address, CLIENT_MODE);
+        status = sl_si91x_configure_ip_address(&ip_address, SL_SI91X_WIFI_CLIENT_VAP_ID);
         if (status != RSI_SUCCESS) {
           a++;
           if (a == 3) {
@@ -374,7 +377,7 @@ void sl_wifi_app_task()
           disconnected  = 0;
           disassosiated = 0;
 
-#if defined(RSI_DEBUG_PRINTS)
+#if defined(SL_SI91X_PRINT_DBG_LOG)
           sl_ip_address_t ip = { 0 };
           ip.type            = ip_address.type;
           ip.ip.v4.value     = ip_address.ip.v4.ip_address.value;

@@ -1,0 +1,21 @@
+id: si917_mem_config_3
+label: 'MCU Advanced Features and Wireless Basic Features'
+package: platform
+description: >
+  Provides RAM memory configuration option 3 for the Si91x, namely EXT_FEAT_256K_MODE.
+  This memory split provides sufficient RAM split to enable advance features on
+  the MCU and basic features on the wireless subsystem.
+category: Device|Si91x|Memory Configuration
+quality: production
+provides:
+  - name: si917_mem_config
+  - name: si917_mem_config_3
+define:
+  - name: SL_SI91X_SI917_RAM_MEM_CONFIG
+    value: '3'
+template_contribution:
+  - name: device_ram_size
+    value: 327680
+conflicts:
+  - name: si917_mem_config_2
+  - name: si917_memory_config

@@ -1,6 +1,19 @@
-# USART
+# SL USART
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - Universal Synchronous Asynchronous Receiver-Transmitter (USART)
 - This application demonstrates how to configure USART In asyncronous mode, it will send and receive data in loopback mode
@@ -32,64 +45,97 @@
 - Once the receive data event triggered ,compares both transmitt and receive buffers to confirm the received data if data is
   same then it prints the Data comparison successful, Loop Back Test Passed on the usart console.
 
-## Running Example code
+  > **Note** 
+    >- To use same example code in syncronuous mode do the below changes
+    >- Enable the SL_USART_SYNCH_MODE macro (path: /$project/usart_example.h)
+    >-  Modify current_mode to SL_TRANSFER_DATA (path: /$project/usart_example.c) 
+    >- Enable RTE_USART_MODE and RTE_CONTINUOUS_CLOCK_MODE in RTE_Device_917.h(path: /$project/config/RTE_Device_917.h)
+    >- Connect Master and slave as per pin configurations i.e Connect USART master clock pin(GPIO_8) to USART slave clock pin ,Master TX pin(GPIO_30) to Slave RX pin,Master RX pin(GPIO_29) to Slave TX pin
+    >- Modify the SL_USART_MODE from UC to Synchronous Master to act as Synchronous Master mode and  Synchronous Slave for Synchronous Slave mode. 
 
-- To use this application following Hardware, Software and the Project Setup is required.
+## Prerequisites/Setup Requirements
 
-### Hardware Setup
+### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [WSTK + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A]
 
-![Figure: Introduction](resources/readme/image513a.png)
+### Software Requirements
 
-### Software Setup
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+### Setup Diagram
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Project Setup
+## Getting Started
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-## Loading Application on Simplicity Studio
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to SI91x - SoC USART Example application as shown below.
+## Application Build Environment
 
-![Figure: Selecting Example project](resources/readme/image513b.png)
-
-## Build
-
-1. Compile the application in Simplicity Studio using build icon
-   ![Figure: Build run and Debug](resources/readme/image513c.png)
-
-## Device Programming
-
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+- Configuration of USART at UC.
+  > ![Figure: Selecting UC](resources/uc_screen/usart_uc_screen.png)
 
 ## Pin Configuration
 
-| USART PINS     | GPIO    | Connector     | UART-TTL cable |
-| -------------- | ------- | ------------- | -------------- |
-| USART0_TX_PIN  | GPIO_30 |     P35       | RX pin         |
-| USART0_RX_PIN  | GPIO_29 |     P33       | TX Pin         | 
+  | USART PINS     | GPIO    | Connector     | UART-TTL cable |
+  | -------------- | ------- | ------------- | -------------- |
+  | USART0_TX_PIN  | GPIO_30 |     P35       | RX pin         |
+  | USART0_RX_PIN  | GPIO_29 |     P33       | TX Pin         | 
 
 
-![Figure: Build run and Debug](resources/readme/image513d.png)
+ > ![Figure: Build run and Debug](resources/readme/image513d.png)
 
-## Executing the Application
+## Flow Control Configuration
 
-1. Connect TX pin(GPIO_30) to RX pin of UART to TTL cable and RX pin(GPIO_29) to TX pin of UART-TTL cable
-2. When the application runs,USART sends and receives data in full duplex mode
-3. Observe the UART transferred data on console and Send back the same 1024 bytes back
+- Set the SL_USART_FLOW_CONTROL_TYPE parameter to SL_USART_FLOW_CONTROL_RTS_CTS to enable UART flow control.
+- Make the following two macros in RTE_Device_917.h to '1', to map RTS and CTS pins to WSTK/WPK Main Board EXP header or breakout pins.
+  ```C
+  #define RTE_USART0_CTS_PORT_ID    1
+  #define RTE_USART0_RTS_PORT_ID    1
+  ```
+  | USART PINS     | GPIO    | Connector(B0) |
+  | -------------- | ------- | ------------- |
+  | USART0_CTS_PIN | GPIO_26 |     P27       |
+  | USART0_RTS_PIN | GPIO_28 |     P31       |
 
-## Expected Results
+## Test the Application
 
-- Will get "Data comparison successful, Loop Back Test Passed" print on console when this transfer success
-- Add data_in buffer to watch window for checking receive data
+1. Connect TX pin(GPIO_30) to RX pin of UART to TTL cable and RX pin(GPIO_29) to TX pin of UART-TTL cable.
+2. When the application runs,USART sends and receives data in full duplex mode.
+3. Observe the UART transferred data on console and Send back the same 1024 bytes back.
+4. After running this application below console output can be observed.
+
+    > ![Figure: expected result](resources/readme/outputConsoleI_usart.png)
+>
+> **Note**:
+>
+>- Add data_in buffer to watch window for checking receive data.
+
+## Configuring SOCPLL clock
+For Baudrates higher than 2 Million configure the SOCPLL clock by following the below steps
+>- In usart_example.c (path: /$project/usart_example.c) add below lines of code 
+```c
+#include "rsi_rom_clks.h"
+
+#define SOC_PLL_CLK             120000000 // SOC_PLL clock frequency
+#define SOC_PLL_REF_CLK         40000000 // SOC_PLL reference clock frequency
+```
+>- Configure PLL clocks as shown below
+```c
+RSI_CLK_SetSocPllFreq(M4CLK, SOC_PLL_CLK, SOC_PLL_REF_CLK); //To configure SOCPLL clock frequency
+```
+>- Change the clock source to USART_SOCPLLCLK in RTE_Device_917.h (/$project/config/RTE_Device_917.h)
+```c
+#define RTE_USART0_CLK_SRC //If using USART0
+#define RTE_UART1_CLK_SRC  //If using UART1
+```

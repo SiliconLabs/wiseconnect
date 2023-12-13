@@ -41,7 +41,8 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#define BUFFER_SIZE 16
+#define SHA \
+  "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"
 
 /******************************************************
  *               Variable Definitions
@@ -66,22 +67,17 @@ static const sl_wifi_device_configuration_t client_configuration = {
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (
-#ifdef RSI_M4_INTERFACE
-                     RAM_LEVEL_NWP_ADV_MCU_BASIC
-#else
-                     RAM_LEVEL_NWP_ALL_MCU_ZERO
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map = (MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#ifdef CHIP_917
-                     | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                     ),
+                                                  ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = 0,
                    .ble_feature_bit_map        = 0,
@@ -89,9 +85,10 @@ static const sl_wifi_device_configuration_t client_configuration = {
                    .config_feature_bit_map     = 0 }
 };
 
-#define SHA \
-  "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"
+// Buffer to store response
+uint8_t digest[SL_SI91x_SHA_512_DIGEST_LEN];
 
+// Expected output for the given SHA input message
 uint8_t digest_out[SL_SI91x_SHA_512_DIGEST_LEN] = { 0x8e, 0x95, 0x9b, 0x75, 0xda, 0xe3, 0x13, 0xda, 0x8c, 0xf4, 0xf7,
                                                     0x28, 0x14, 0xfc, 0x14, 0x3f, 0x8f, 0x77, 0x79, 0xc6, 0xeb, 0x9f,
                                                     0x7f, 0xa1, 0x72, 0x99, 0xae, 0xad, 0xb6, 0x88, 0x90, 0x18, 0x50,
@@ -135,30 +132,24 @@ sl_status_t sha_process(void)
 {
   sl_status_t status;
 
-  //Buffers to store responses
-  uint8_t digest[SL_SI91x_SHA_512_DIGEST_LEN];
-
-  //! Memset before filling
-  memset(digest, 0, SL_SI91x_SHA_512_DIGEST_LEN);
-
-  //!To compute digest using SHA
+  // Compute digest using SHA
   status = sl_si91x_sha(SL_SI91x_SHA_512, SHA, strlen(SHA), digest);
+  if (status != SL_STATUS_OK) {
+    printf("\r\n SHA Failed, Error Code : 0x%lX\r\n", status);
+    return status;
+  }
+  printf("\r\nSHA success\r\n");
 
   for (int i = 0; i < SL_SI91x_SHA_512_DIGEST_LEN; i++) {
     printf(" 0x%x", digest[i]);
   }
 
-  if (status != SL_STATUS_OK) {
-    printf("\r\n SHA Failed, Error Code : 0x%lX\r\n", status);
-    return status;
-  }
-
   // By default SHA mode is SHA_512. So compare the resultant hash with digest_out
   // Change the expected sha in the comparison
   if (memcmp(digest, digest_out, SL_SI91x_SHA_512_DIGEST_LEN)) {
-    printf("SHA Compare with expected value failed ");
+    printf("\r\nSHA Compare with expected value failed\r\n");
   } else {
-    printf("SHA Compare with expected value is Successful!\n");
+    printf("\r\nSHA Compare with expected value is Successful\r\n");
   }
 
   return status;

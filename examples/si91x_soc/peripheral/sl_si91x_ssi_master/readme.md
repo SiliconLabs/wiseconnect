@@ -1,12 +1,23 @@
-# SSI MASTER
+# SL SSI MASTER
 
-## Introduction
+## Table of Contents
 
-- This application demonstrate the use of SSI for data transfer in full duplex as well as half duplex mode in master mode.
-- This application can run in synchronous mode with full-duplex operation
-  - Master transmits data on MOSI pin and receives the same data on MISO pin
-- This also supports send and receive data with any SSI slave, additionally it also supports DMA and non-DMA transfer.
-- For half duplex communication, i.e., send and receive, master / slave connection is required.
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+  - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Pin Configuration](#pin-configuration)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
+
+- This application demonstrates the use of SSI for data transfer in full duplex in master mode.
 
 ## Overview
 
@@ -16,36 +27,47 @@
 - With the two data pins, it allows for full-duplex operation with other SSI compatible devices.
 - It supports full duplex Single-bit SPI master mode.
 - It supports 6 modes:  
-   - Mode 0: Clock Polarity is zero and Clock Phase is zero.
-   - Mode 1: Clock Polarity is zero, Clock Phase is one.
-   - Mode 2: Clock Polarity is one and Clock Phase is zero. 
-   - Mode 3: Clock Polarity is one and Clock Phase is one. 
-   - Mode-4: TEXAS_INSTRUMENTS SSI.
-   - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
+  - Mode 0: Clock Polarity is zero and Clock Phase is zero.
+  - Mode 1: Clock Polarity is zero, Clock Phase is one.
+  - Mode 2: Clock Polarity is one and Clock Phase is zero.
+  - Mode 3: Clock Polarity is one and Clock Phase is one.
+  - Mode-4: TEXAS_INSTRUMENTS SSI.
+  - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
 - The SPI clock is programmable to meet required baud rates
 - It can generates interrupts for different events like transfer complete, data lost, mode fault.
-- It supports upto 32K bytes of read data from a SSI device in a single read operation.
+- It supports up to 32K bytes of read data from a SSI device in a single read operation.
 - It has support for DMA (Dynamic Memory Access).
+- It can run in synchronous mode with full-duplex operation
+  - Master transmits data on MOSI pin and receives the same data on MISO pin
+- It also supports send and receive data with any SSI slave, additionally it also supports DMA and non-DMA transfer.
+- For half duplex communication, i.e., send and receive, master / slave connection is required.
+- The SSI Master in MCU HP peripherals provides an option to connect up to four slaves and supports Single, Dual and Quad modes.
 
 ## About Example Code
 
 - This example demonstrates SSI transfer i.e., full duplex communication and SSI send, SSI receive i.e., half duplex communication.
-- Various parameters like SSI clock mode, bit-width, manual cs pin and SSI baudrate can be configured using UC. Also, Master or Slave or ULP Master DMA can be configured using UC.
+- Various parameters like SSI clock mode, bit-width, manual cs pin and SSI baud rate can be configured using UC. Also, Master or Slave or ULP Master DMA can be configured using UC.
 - sl_si91x_ssi_config.h file contains the control configurations and sl_si91x_ssi_common_config.h contains DMA configuration selection.
 - In the example code, first the output buffer is filled with some data which is transferred to the slave.
 - Firmware version of API is fetched using \ref sl_si91x_ssi_get_version which includes release version, major version and minor version \ref sl_ssi_version_t.
 - A static function is called to fill in the \ref sl_ssi_clock_config_t structure, which is passed in \ref sl_si91x_ssi_configure_clock API to configure the clock.
 - \ref sl_si91x_ssi_init is used to initialize the peripheral, that includes pin configuration and it powers up the module.
 - SSI instance must be passed in init to get the instance handle \ref sl_ssi_instance_t, which is used in other APIs.
-- After initialization \ref sl_si91x_ssi_configure_power_mode is called to set the power mode \ref sl_ssi_power_state_t.
 - All the necessary parameters are configured using \ref sl_si91x_ssi_set_configuration API, it expects a structure with required parameters \ref sl_ssi_control_config_t.
 - After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_ssi_register_event_callback.
 - The State machine code is implemented for transfer, send and receive data, the current mode is determined by ssi_mode_enum_t which is declared in ssi_master_example.c file.
-- According to the macro which is enabled, the example code executes the transfer of data:
+- According to the macro which is enabled, the example code executes the transfer of data.
+- Four serial slave can be connected using this SSI master. For validation should change the slave number range from 0 to 3 #line56 in ssi_master_example.c file, and should enable the respective macro (ex: M4_SSI_CS0 for slave 0) in RTE_Device_917.h file. (path: /$project/config/RTE_Device_917.h)
+
+>**Note:** The frequency of the SSI master bit-rate clock is one-half the frequency of SSI master input clock.
+>
+> The SOC_PLL_CLK macro present in example file deals with SOC PLL clock frequency.
+>
+> #define SOC_PLL_CLK 20000000  // SOC PLL Clock frequency.
 
 - If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
 
-  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and recieving data simultaneously (full duplex).
+  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
   - This test can also be performed in loopback state, i.e. connect MISO and MOSI pins.
   - The example code waits till the transfer is completed, when the transfer complete event is generated, it compares the sent and received data.
   - The result is printed on the console.
@@ -64,73 +86,79 @@
   - It waits till the send is completed i.e., transfer complete event is generated.
   - Now the current_mode enum is updated to TRANSMISSION_COMPLETED.
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image510a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+### Setup Diagram
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Project Setup
+## Getting Started
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-## Loading Application on Simplicity Studio
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to SSI Master Example application as shown below.
+## Application Build Environment
 
-![Figure: Selecting Example project](resources/readme/image510b.png)
-
-## Configuration and Steps for Execution
+### Application Configuration Parameters
 
 - Configure UC from the slcp component.
-- Open **sl_si91x_gspi.slcp** project file select **software component** tab and search for **SSI** in search bar.
+
+  ![Figure: UC image](resources/uc_screen/ssi_uc_screen.png)
+
+- Open **sl_si91x_ssi_master.slcp** project file select **software component** tab and search for **SSI** in search bar.
 - Using configuration wizard one can configure different parameters like:
-  - **General Configuration**
-  - Mode: SSI mode can be configured, i.e. Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 1: Clock Polarity is zero, Clock Phase is one, Mode 2: Clock Polarity is one and Clock Phase is zero, Mode 3: Clock Polarity is one and Clock Phase is one, Mode-4 (TI SSI) and Mode-5 (Microwire).
-  - SSI Baudrate: The speed of transfer can be configured, i.e. bits/second.
-  - Data Width: The size of data packet, it can be configured between 4 to 32.
-  - CS Control (Master): When device is in slave mode, it can be configured as H/w control or S/w control.
-  - CS Control (Slave): When device is in slave mode, it can be configured as H/w control or S/w control.
+  - **SSI Configuration**
+    - Frame Format: SSI Frame Format can be configured, i.e.,
+      - Mode 0: Clock Polarity is zero and Clock Phase is zero.
+      - Mode 1: Clock Polarity is zero, Clock Phase is one.
+      - Mode 2: Clock Polarity is one and Clock Phase is zero.
+      - Mode 3: Clock Polarity is one and Clock Phase is one.
+      - Mode-4: TEXAS_INSTRUMENTS SSI.
+      - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
+    - Bit Rate: The speed of transfer is configurable. The configuration range is from 500Kbps to 40Mbps in high power mode.
+    - Data Width: The size of data packet. The configuration range from 4 to 16.
+    - Mode: SSI mode/instance can be configurable, it can be configured Master/SLave/ULP Master.
+    - Rx Sample Delay: Receive Data (rxd) Sample Delay, this to delay the sample of the rxd input signal. Each value represents a single SSI clock delay on the sample of the rxd signal. the configuration range from 0 to 63.
   - **DMA Configuration**
-  - Enable/Disable the DMA configuration.
+    - Master DMA: DMA enable for SSI master mode. it will interface with a DMA Controller using an optional set of DMA signals.
+    - Slave DMA: DMA enable for SSI slave mode. it will interface with a DMA Controller using an optional set of DMA signals.
+    - ULP Master DMA: DMA enable for ULP SSI master mode. it will interface with a DMA Controller using an optional set of DMA signals.
+    - Tx FIFO Threshold: Transmit FIFO Threshold. Controls the level of entries (or below) at which the transmit FIFO controller triggers an interrupt. The configuration range from 0 to 15.
+    - Rx FIFO Threshold: Receive FIFO Threshold. Controls the level of entries (or below) at which the receive FIFO controller triggers an interrupt. The configuration range from 0 to 15.
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
 - Configure the following macros in ssi_master_example.h file and update/modify following macros if required.
 
-```C
-#define SL_USE_TRANSFER ENABLE    // To use the transfer API
-#define SL_USE_SEND     DISABLE   // To use the send API
-#define SL_USE_RECEIVE  DISABLE   // To use the receive API
-```
+- `USE_TRANSFER`: This macro is enabled default, it sends and receives data in full duplex.
 
-## Build
+  ```C
+    #define SL_USE_TRANSFER ENABLE    // To use the transfer API
+  ```
 
-1. Compile the application in Simplicity Studio using build icon
+- `USE_SEND (or) USE_RECEIVE`: If USE_RECEIVE (or) USE_SEND is enabled, SSI slave will receive and send data in half duplex respectively.
 
-![Figure: Build run and Debug](resources/readme/image510c.png)
+  ```C
+    #define SL_USE_SEND     DISABLE   // To use the send API
+    #define SL_USE_RECEIVE  DISABLE   // To use the receive API
+  ```
 
-## Device Programming
-
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
-
-## Pin Configuration
+### Pin Configuration
 
 | GPIO pin       | Description             |
 | -------------- | ----------------------- |
@@ -141,25 +169,17 @@
 
 ![Figure: Pin Configuration for SSI1](resources/readme/image510d.png)
 
-**Note!** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h)
+>**Note:** Make sure pin configuration in RTE_Device_917.h file. (path: /$project/config/RTE_Device_917.h)
 
-## Executing the Application
+## Test the Application
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. Connect GPIO_26 to GPIO_27 for loopback connection.
-3. Update the following macros from ssi_master_example.h file.
-   Code should be in master mode.
+2. Connect master ssi pins to slave ssi pins on WPK board.
+3. Console output of successful configuration of clock, power mode and SSI configuration.
+4. Console output of SSI transfer complete, Loop back test passed.
+5. In the case of loopback mode, when the loopback jumper wire is removed and the test is run - the result should come as data comparison fail and test case fail.
+6. After successful program execution the prints in serial console looks as shown below.
 
-- #define SL_USE_TRANSFER ENABLE
-- #define SL_USE_RECEIVE DISABLE
-- #define SL_USE_SEND DISABLE
-- By default transfer is enabled.
-
-4. When the application runs, It sends and receives data in loopback if USE_TRANSFER is enabled.
-5. If USE_RECEIVE or USE_SEND is enabled, SSI slave will receive and send data respectively.
-
-## Expected Results
-
-- Console output of successful configuration of clock, power mode and SSI configuration
-- Console output of SSI transfer complete, Loop back test passed.
-- In the case of loopback mode, when the loopback jumper wire is removed and the test is run - the result should come as data comparison fail and test case fail.
+   > ![Figure: Introduction](resources/readme/output.png)

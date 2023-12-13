@@ -1,0 +1,19 @@
+id: sl_gpio
+label: GPIO
+package: platform
+description: >
+  Si91x GPIO API.
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers"
+source:
+  - path: "unified_api/src/sl_si91x_driver_gpio.c"
+include:
+  - path: "unified_api/inc"
+    file_list:
+    - path: "sl_si91x_driver_gpio.h"
+    - path: "sl_driver_gpio.h"
+provides:
+  - name: sl_gpio
+requires:
+  - name: sl_gpio_peripheral

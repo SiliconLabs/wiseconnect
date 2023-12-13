@@ -25,6 +25,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 //! BLE include file to refer BLE APIs
 #include "rsi_ble_apis.h"
@@ -73,22 +74,16 @@ static const sl_wifi_device_configuration_t config = {
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                   .coex_mode       = SL_SI91X_WLAN_BLE_MODE,
+                   .coex_mode       = SL_SI91X_BLE_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
                                        | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef CHIP_917
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)),
                    .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
@@ -153,11 +148,11 @@ const osThreadAttr_t thread_attributes = {
  */
 void ble_testmodes(void)
 {
-  int32_t status                      = 0;
-  sl_wifi_version_string_t fw_version = { 0 };
+  int32_t status                        = 0;
+  sl_wifi_firmware_version_t fw_version = { 0 };
 
   //! Wi-Fi initialization
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Wi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -166,10 +161,10 @@ void ble_testmodes(void)
 
   //! Firmware version Prints
   status = sl_wifi_get_firmware_version(&fw_version);
-  if (status == SL_STATUS_OK) {
-    LOG_PRINT("\r\nFirmware version response: %s\r\n", fw_version.version);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    LOG_PRINT("\r\nFailed to get Firmware version \r\n");
+    print_firmware_version(&fw_version);
   }
 
   if (RSI_CONFIG_TEST_MODE == RSI_BLE_TESTMODE_TRANSMIT) {

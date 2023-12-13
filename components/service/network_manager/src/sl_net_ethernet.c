@@ -53,12 +53,18 @@ static sl_status_t sli_ethernet_init_context(sl_ethernet_context_t *workspace,
   workspace->tx_buffer_config =
     malloc(sizeof(sl_ethernet_tx_buffer_configuration_t) + tx_buffer_count * sizeof(sl_ethernet_tx_descriptor_t));
   SL_VERIFY_POINTER_OR_EXIT(workspace->tx_buffer_config);
+  memset(workspace->tx_buffer_config,
+         0,
+         sizeof(sl_ethernet_tx_buffer_configuration_t) + tx_buffer_count * sizeof(sl_ethernet_tx_descriptor_t));
   workspace->rx_buffer_config =
     malloc(sizeof(sl_ethernet_rx_buffer_configuration_t) + rx_buffer_count * sizeof(sl_ethernet_rx_descriptor_t));
   SL_VERIFY_POINTER_OR_EXIT(workspace->rx_buffer_config);
+  memset(workspace->rx_buffer_config,
+         0,
+         sizeof(sl_ethernet_rx_buffer_configuration_t) + rx_buffer_count * sizeof(sl_ethernet_rx_descriptor_t));
   workspace->thread_stack = malloc(ETHERNET_DRIVER_THREAD_STACK_SIZE);
   SL_VERIFY_POINTER_OR_EXIT(workspace->thread_stack);
-
+  memset(workspace->thread_stack, 0, ETHERNET_DRIVER_THREAD_STACK_SIZE);
   // Set the buffer counts
   workspace->tx_buffer_config->buffer_count = tx_buffer_count;
   workspace->rx_buffer_config->buffer_count = rx_buffer_count;

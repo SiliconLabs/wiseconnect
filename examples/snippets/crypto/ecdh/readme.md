@@ -1,4 +1,4 @@
-# Crypto ECDH
+# Crypto - ECDH
 
 ## Table of Contents
 
@@ -31,7 +31,7 @@ This application explains how to configure and use the ECDH crypto APIs.
 
 #### SoC Mode 
 
-![Figure: Setup Diagram SoC Mode for Crypto ECDH Example](resources/readme/setup_diagram_soc.png)
+  ![Figure: Setup Diagram SoC Mode for Crypto ECDH Example](resources/readme/setup_diagram_soc.png)
 
 ## Getting Started
 
@@ -76,4 +76,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Output
 
-![ECDH Output](resources/readme/output.png)
+  ![ECDH Output](resources/readme/output.png)

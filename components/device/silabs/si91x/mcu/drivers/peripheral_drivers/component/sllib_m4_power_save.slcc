@@ -1,0 +1,25 @@
+id: sllib_m4_power_save
+label: Si91x Cortex-M4 Powersave
+package: platform
+description: >
+  Provides API to control powersave functionality on the Cortex-M4 processor core of the Si91x.
+category: Device|Si91x|MCU|Internal|RSI Peripheral Drivers
+quality: production
+component_root_path: "components/device/silabs/si91x/mcu/drivers/peripheral_drivers"
+source:
+  - path: "src/sl_si91x_m4_ps.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_m4_ps.h"
+template_contribution:
+- name: event_handler
+  condition:
+  - sli_si91x_mcu_interface
+  value:
+    event: platform_init
+    include: rsi_wisemcu_hardware_setup.h
+    handler: sl_si91x_hardware_setup
+  priority: -9995
+provides:
+  - name: sllib_m4_power_save

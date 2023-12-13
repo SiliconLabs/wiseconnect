@@ -1,138 +1,78 @@
-# WLAN Throughput BLE Dual Role 
+# Wi-Fi Coex - Wi-Fi Throughput BLE Dual Role
 
-## 1. Purpose / Scope
+## Table of Contents
 
+- [Purpose/Scope](#purposescope)
+- [Prerequisites](#prerequisites)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 This example demonstrates throughput measurements of WLAN/BLE in individual or with protocol combinations in the SiWx91x module.
 
 The application can measure throughput ranges for TCP/UDP/SSL TX/RX to and from remote servers, while BLE data transfers are in progress. It has provision to control other protocol activities while measuring WLAN/BLE throughputs.
 
 The Application can be configured for the individual protocol throughput measurement as well the combination of protocols throughputs (Wi-Fi, BLE, Wi-Fi+BLE).
 
-## 2. Prerequisites / Setup Requirements
+## Prerequisites / Setup Requirements
 
-Before running the application, the user will need the following things to setup.
-
-### 2.1 Hardware Requirements
+### Hardware Requirements
 
 - Windows PC with Host interface (UART / SPI).
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
-  - **SoC Mode**:
-    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
-  - **NCP Mode**:
-    - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
-    - Host MCU Eval Kit. This example has been tested with:
-      - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+- **SoC Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4340A [SiWx917-RB4340A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+  	
+- **NCP Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+  - Kits
+  	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 - Wireless Access Point
 - Smart phone/tablet with BLE Application (Ex: Light Blue / BLE Connect App)
 - Windows PC with iperf and openssl applications.
 
-![Setup Diagram for WLAN Throughput BT SPP BLE Dual Role](resources/readme/image1_soc.png)
-
-![Setup Diagram for WLAN Throughput BT SPP BLE Dual Role](resources/readme/image1_ncp_setup.png)
-
-Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
-
-### 2.2 Software Requirements
-
-- WiSeConnect SDK 3
-
-- Embedded Development Environment
-
-  - For Silicon Labs EFx32, use the latest version of [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
-
+### Software Requirements
+  - Simplicity Studio
   - Download and install iperf from this link [Iperf Application](https://iperf.fr/iperf-download.php).
 
   - Download and install OpenSSL from this link [OpenSSL](http://ufpr.dl.sourceforge.net/project/gnuwin32/openssl/0.9.8h-1/openssl-0.9.8h-1-bin.zip) to download openssl in remote PC.
 
-- Download and install the Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing the BLE applications.  
+  - Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
-## 3 Project Environment
+### Setup Diagram
 
-- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
+![Setup Diagram for WLAN Throughput BT SPP BLE Dual Role](resources/readme/image1_soc.png)
 
-- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
+## Getting Started
 
-### 3.1 Creating the project
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-#### 3.1.1 SoC mode
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-- Ensure the SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
-
-  **![Soc Board detection](resources/readme/socboarddetection111.png)**
-
-#### 3.1.2 NCP mode
-
-- Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-
-  **![EFR32 Board detection](resources/readme/efr32.png)**
-
-### 3.2 Importing the project
-
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
-
-#### SOC Mode
-
-- Select **Wi-Fi Coex - Wi-Fi Throughput BLE Dual Role** test application
-
-  **![project_selection](resources/readme/create_project1.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  **![creation_final](resources/readme/create_project2.png)**
-
-### 3.3 Set up for application prints
-
-#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
-
-You can use either of the below USB to UART converters for application prints.
-
-1. Set up using USB to UART converter board.
-
-   - Connect Tx (Pin-6) to P27 on WSTK
-   - Connect GND (Pin 8 or 10) to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
-
-2. Set up using USB to UART converter cable.
-
-   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-   - Connect GND (Pin1) of TTL convertor to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
-
-3. Open the Teraterm tool.
-
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
-
-     **![port_selection_soc](resources/readme/port_selection_soc.png)**
-
-**Note:** For Other 917 SoC boards please refer section #3.3.2
-
-#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
-
-1. Open the Teraterm tool.
-
-- choose the J-Link port and click on **OK**.
-    
-    **![J-link - NCP](resources/readme/port_selection.png)**
-
-2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
-
-    **![serial_port_setup](resources/readme/serial_port_setup.png)**
-
-    **![serial_port](resources/readme/serial_port.png)**
-
-## 4. Application Configuration Parameters
+## Application Build Environment
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-### 4.1 WLAN Throughput
+### WLAN Throughput
 
-**4.1.1** Open `rsi_common_config.h` file and configure below macros.
+Open `wifi_app_config.h` file and configure below macros.
 
 This section explains how to configure the application to measure TCP/UDP/SSL unidirectional throughput in alone or with combination of BT/BLE activities.
 
@@ -151,7 +91,7 @@ Set below macros to 1 to measure **WLAN** throughput along with specific **BLE**
 #define RSI_ENABLE_BLE_TEST     1 //Set this to 0 to disable BLE
 ```
 
-> Note:
+> **Note:**
 >
 > While measuring WLAN throughput along with BLE activities, ensure 'BLE_THROUGHPUT_TEST' is set to '0'
 
@@ -171,8 +111,7 @@ Set below macros to 1 to measure **WLAN** throughput along with **BT and BLE** a
 #define RSI_ENABLE_BLE_TEST     1 //Set this to 0 to disable BLE
 #define RSI_ENABLE_BT_TEST      1 //Set this to 0 to disable BT
 ```
-
-> Note:
+> **Note:**
 >
 > While measuring WLAN throughput with BLE activities ensure 'BLE_THROUGHPUT_TEST' is set to '0'
 
@@ -193,11 +132,11 @@ Valid Configurations are:
 - 0  - WLAN alone mode
 - 13 - WLAN + BLE mode
 
-> Note:
+> **Note:**
 >
 > By default, opermode is set to WLAN+BLE
 
-**4.1.2** Select WLAN configurations in `wifi_app_config.h` file
+Select WLAN configurations in `wifi_app_config.h` file
 
 Enter the AP Connectivity essentials configs as the value to SSID, SECURITY_TYPE and PSK
 
@@ -278,12 +217,12 @@ Configure below macro to choose throughput measurement type . This option is val
 
 If **CONTINUOUS_THROUGHPUT** is set to '1', then application measures throughput for every interval of 'THROUGHPUT_AVG_TIME' independent of throughput type. If **CONTINUOUS_THROUGHPUT** is set to '0', then throughput is calculated only once for interval of 'THROUGHPUT_AVG_TIME' in case of UDP/TCP TX , for MAX_TX_PKTS in case of UDP RX/ SSL TX and for default interval provided by server in case of TCP RX/SSL RX.
 
-> Note:
+> **Note:**
 >
 > 1. By default, 'CONTINUOUS_THROUGHPUT' is set to '0' 
 > 2. If CONTINUOUS_THROUGHPUT is set to '1', then ensure that client/server should run with interval at least greater than THROUGHPUT_AVG_TIME
 
-**4.1.3** Open `ble_config.h` file
+Open `ble_config.h` file
 
 BLE Advertise name
 
@@ -306,11 +245,11 @@ Configure below macros to set connection interval, connection latency and connec
 #define     CONN_SUPERVISION_TIMEOUT_C1 1600   
 ```
 
-### 4.2 BLE throughput
+## BLE throughput
 
 This section explains user how to configure the application for measuring BLE Tx/Rx throughput using sniffer in alone or with combination of WLAN/BT.
 
-**4.2.1** Open `rsi_common_config.h` file
+Open `app_common_config.h` file
 
 Set below macro to 1 to measure **BLE** alone throughput
 
@@ -327,8 +266,8 @@ Set below macros to 1 to measure **BLE** throughput along with specific **WLAN**
 #define     RSI_ENABLE_WLAN_TEST       1 //Set this to 0 to disable WLAN
 ```
 
-> Note:
-> While measuring BLE throughput with WLAN activities, ensure 'WLAN_THROUGHPUT_TEST' is set to '0'
+> **Note:**
+> While measuring BLE throughput with WLAN activities, > ensure 'WLAN_THROUGHPUT_TEST' is set to '0'
 
 Set below macros to 1 to measure **BLE** throughput.
 
@@ -345,7 +284,7 @@ Set below macros to 1 to measure **BLE** throughput and **WLAN** activities.
 #define     RSI_ENABLE_WLAN_TEST       1 //Set this to 0 to disable WLAN
 ```
 
-> Note:
+> **Note:**
 > While measuring BLE throughput with WLAN activities ensure 'WLAN_THROUGHPUT_TEST' is set to '0'.
 
 If WLAN is enabled, configure specific activity of WLAN using below macros.
@@ -358,7 +297,7 @@ If WLAN is enabled, configure specific activity of WLAN using below macros.
 #define     WLAN_DATATRANSFER          1           //! make it 1 for WLAN TCP TX
 ```
 
-**4.2.2** Open `ble_config.h` file
+Open `ble_config.h` file
 
 BLE Advertise name
 
@@ -397,11 +336,10 @@ Configure BLE data transfer type
 #define     TX_WRITES_NO_RESP_TO_C1     0  //! set below macro to Transmit 'gatt write without response' to remote device
 #define     TX_INDICATIONS_TO_C1        0  //! set below macro to Transmit 'gatt indications' to remote device
 ```
-
-> Note:
+> **Note:**
 > By default, all BLE configurations are chosen to get high BLE throughput.
 
-**4.2.3** Select WLAN configurations in `wifi_app_config.h`
+Select WLAN configurations in `wifi_app_config.h`
 
 Enter the AP Connectivity essentials configs as the value to SSID, SECURITY_TYPE and PSK
 
@@ -423,46 +361,23 @@ Configure throughput type as TCP_TX
 #define     THROUGHPUT_TYPE          TCP_TX 
 ```
 
-## 5. Build and Test the Application
+## Test the Application
 
-- Follow the below steps for the successful execution of the application.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Follow the below steps for the successful execution of the application.
+- Build the application.
+- Flash, run and debug the application
+- Observing the output prints on serial terminal 
+   
+![](resources/readme/output1.png)
 
-### 5.1 Build the Application
+![](resources/readme/output2.png)
 
-- Follow the below steps for the successful execution of the application.
+![](resources/readme/output3.png)
 
-#### SoC Mode
+### Common Steps
 
-- Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
-
-   ![build_project](resources/readme/build_example.png)
-
-- Successful build output will show as below.
-
-#### NCP Mode
-
-   ![build_project](resources/readme/build_example.png)
-
-- Successful build output will show as below.
-
-### 5.2 Loading the Application Image
-
-1. Click on Tools and Simplicity Commander as shown below.
-
-   ![](resources/readme/load_image1.png)
-
-2. Load the firmware image
-
-- Select the board.
-- Browse the application image (.hex) and click on Flash button.
-
-   ![](resources/readme/load_image2.png)
-
-### 5.3 Common Steps
-
-### 5.3.1 WLAN throughputs: UDP/TCP/SSL unidirectional
+### WLAN throughputs: UDP/TCP/SSL unidirectional
 
 1. Compile the project and flash the binary onto STM32
 
@@ -534,12 +449,12 @@ Configure throughput type as TCP_TX
 
 11. Once above activities are completed, Module transmits/receives packets based on the configuration selected and measures the WLAN throughput
 
-> Note:
+> **Note:**
 > Verify that all connections are stable and throughput is as expected.
+> **Note:**
+> In this release, due to low SPI frequency in EFR, wlan throughput are less compared to STM. Work is in progress to support the high frequency.
 
-**Note:** In this release, due to low SPI frequency in EFR, wlan throughput are less compared to STM. Work is in progress to support the high frequency.
-
-### 5.3.2 BLE throughput
+### BLE throughput
 
 1. Compile the project and flash the binary onto STM32
 
@@ -567,13 +482,5 @@ Configure throughput type as TCP_TX
 
 10. While transmitting, measure the throughput using BLE sniffer
 
-> Note:
+> **Note:**
 > Verify that all connections are stable and throughput is as expected.
-
-## 5.4 Observing the output prints on serial terminal  
-
-![](resources/readme/output1.png)
-
-![](resources/readme/output2.png)
-
-![](resources/readme/output3.png)

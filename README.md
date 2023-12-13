@@ -1,4 +1,5 @@
 # WiSeConnect™ 3 SDK
+**Note:** A documentation enhanced release will follow on the 20th of December 2023
 
 The Silicon Labs WiSeConnect™ software development kit (SDK) offers an application programming interface (API) for use with the SiWx91x™ chipset family for Wi-Fi and Bluetooth Low Energy (BLE) connectivity.
 
@@ -12,7 +13,8 @@ The WiSeConnect 3 (versions 3.0.0 and later) SDK is the next-generation API for 
 
 ## Release Notes
 
-See [here](docs/release-notes/index.md) for the latest release notes.
+- See [here](docs/release-notes/index_soc.md) for the latest SoC release notes.
+- See [here](docs/release-notes/index_ncp.md) for the latest NCP release notes.
 
 ## Licensing
 

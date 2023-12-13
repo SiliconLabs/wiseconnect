@@ -1,8 +1,22 @@
-# WATCHDOG TIMER
+# SL WATCHDOG TIMER
 
-## Introduction
+## Table of Contents
 
-- This examples demonstrates triggerring of WDT warnings & LED toggeling, in WDT interrupt handler continously for 6 times. System restarts (kicks) WDT on every interrupt, on sixth interrupt system does not restart WDT then WDT resets the application.
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+- [Expected Results](#expected-results)
+
+## Purpose/Scope
+
+- This examples demonstrates triggering of WDT warnings & LED toggling, in WDT interrupt handler continuously for 6 times. System restarts (kicks) WDT on every interrupt, on sixth interrupt system does not restart WDT then WDT resets the application.
 - Then WDT is started again with new parameters, toggled LED again for 6 times, after that timer is stopped & de-initialized.
 
 ## Overview
@@ -44,49 +58,46 @@
   \ref sl_si91x_watchdog_get_window_time to read window time.
 - Then application again toggles onboard LED0 6 times & restarts (kicks) WDT, on every interrupt(every 2 seconds) through \ref sl_si91x_watchdog_restart_timer
 - At sixth WDT interrupt application not restarts WDT and immediately application stops WDT through \ref sl_si91x_watchdog_stop_timer API
-- Then unregisters callback and deinitializes timer through \ref sl_si91x_watchdog_unregister_timeout_callback & \ref sl_si91x_watchdog_deinit_timer APIs respectively.
+- Then un-registers callback and de-initializes timer through \ref sl_si91x_watchdog_unregister_timeout_callback & \ref sl_si91x_watchdog_deinit_timer APIs respectively.
 
-## Running Example Code
+## Prerequisites/Setup Requirements
 
-- To use this application following Hardware, Software and the Project Setup is required.
-
-### Hardware Setup
+### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WSTK + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
-![Figure: Introduction](resources/readme/image514a.png)
+### Software Requirements
 
-### Software Setup
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+### Setup Diagram
 
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
+## Getting Started
 
-### Project Setup
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-### Loading Application on Simplicity Studio
-
-- With the product **Si917** selected, navigate to the example projects by clicking on **Example Projects & Demos**
-  in simplicity studio and click on to Watchdog Example application as shown below.
-
-![Figure: Selecting Example project](resources/readme/image514b.png)
-
-## Configuration and Steps for Execution:
+## Application Build Environment
 
 - Open **sl_si91x_watchdog_timer.slcp** project file select **software component**tab and search for **WDT** in search bar.
 - Click on **SL_WDT** and configure the WDT as per configuration parameters given in wizard.
-- If project built without selecting configurations, it will take default values from UC
+- If project built without selecting configurations, it will take default values from UC.
+
+  ![Figure: UC](resources/uc_screen/watchdog_uc_screen.png)
+
 - Configure Clock and timer using following macros, defined in \ref sl_si91x_watchdog_timer_config.h file and update/modify following macros if required:
 
-### Macros for Clock Configurations:
+### Macros for Clock Configurations
 
 - \ref SL_LOW_FREQ_FSM_CLK_SRC, for configuring low frequency FSM clock refer \ref low_freq_fsm_clock_t
 - \ref SL_HIGH_FREQ_FSM_CLK_SRC, for configuring high frequency FSM clock refer \ref high_freq_fsm_clock_t
@@ -94,72 +105,25 @@
 - \ref SL_ULP_TIMER_DIRECTION, true to enable waiting for switching timer clk & false to skip waiting for switching timer clk.
 - After configuring above macros, their values are passed to \ref watchdog_timer_clock_config_t structure type variable \ref sl_watchdog_timer_clk_config_handle which is used to configure clock through API-\ref sl_si91x_watchdog_configure_clock.
 
-### Macros for Timer Configurations:
+### Macros for Timer Configurations
 
 - \ref SL_WDT_SYSTEM_RESET_TIME , for possible values refer \ref time_delays_t
 - \ref SL_WDT_INTERRUPT_TIME (timeout time), for possible values refer \ref time_delays_t
 - \ref SL_WDT_WINDOW_TIME , for possible values refer \ref time_delays_t
 - After configuring above macros, their values are passed to \ref watchdog_timer_config_t structure type variable \ref sl_watchdog_timer_config_handle which is used to configure timer through API-\ref sl_si91x_watchdog_set_configuration.
 
-## Build
+## Test the Application
 
-- Compile the application in Simplicity Studio using build icon.
+1. Compile and run the application.
+2. The watchdog LED0 will be toggled, every 1 secs with WDT warning.
+3. At 6th toggle, timer will reset the application after 4 seconds.
+4. Then WDT started with new parameters and again toggles LED0 every 2 seconds.
+5. After 6 toggles, stop toggling LED as timer is stopped and de-initialized. Toggling of LED can be seen in below image.
 
-![Figure: Build run and Debug](resources/readme/image514c.png)
-
-## Device Programming
-
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
-
-## Executing the Application
-
-- Compile and run the application.
+    ![Figure: Onboard LED0](resources/readme/image514d.png)
 
 ## Expected Results
 
-- The watchdog LED0 will be toggled, every 1 secs with WDT warning.
-- At 6th toggle, timer will reset the application after 4 seconds.
-- Then WDT started with new parameters and again toggles LED0 every 2 seconds.
-- After 6 toggles, stop togglling LED as timer is stopped and de-initialized.
+- After successful program execution the prints in serial console looks as shown below.
 
-![Figure: Onboard LED0](resources/readme/image514d.png)
-
-- The following prints are displayed on the console or any serial terminal:
-
-In Main..!
-Power on system-reset occurred..
-Watchdog-timer version is fetched successfully
-API version is 0.0.2
-Successfully initialized watchdog-timer
-Successfully Configured watchdog-timer with default clock sources
-Successfully Configured watchdog-timer with default parameters
-Successfully registered watchdog-timer timeout callback
-Successfully started watchdog-timer with UC parameters
-In handler : WDT restarted
-In handler : WDT restarted
-In handler : WDT restarted
-In handler : WDT restarted
-In handler : WDT restarted
-In Main..!
-Watchdog-timer system-reset occurred
-Watchdog-timer version is fetched successfully
-API version is 0.0.2
-Successfully initialized watchdog-timer 
-Successfully Configured watchdog-timer with default clock sources
-Successfully Configured watchdog-timer with default parameters
-Successfully registered watchdog-timer timeout callback
-Successfully changed watchdog-timer system reset time
-Successfully changed watchdog-timer interrupt time
-Successfully changed watchdog-timer window time
-New interrupt time value : 16
-New system-reset time value : 18
-New window time value : 10
-Successfully started watchdog-timer again with new parameters
-In handler : WDT restarted
-In handler : WDT restarted
-In handler : WDT restarted
-In handler : WDT restarted
-In handler : WDT restarted
-Successfully stopped watchdog-timer after it resets system
-Successfully unregistered watchdog-timer timeout callback after operation
-Successfully De-initialized watchdog-timer
+  ![Figure: Introduction](resources/readme/output.png)

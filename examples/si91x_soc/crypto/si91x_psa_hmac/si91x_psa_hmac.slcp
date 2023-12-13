@@ -1,4 +1,3 @@
-# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: si91x_psa_hmac
 label: SI91x - SoC PSA HMAC
 description: |
@@ -6,10 +5,12 @@ description: |
 category: example|crypto
 package: platform
 quality: production
-sdk: {id: gecko_sdk, version: 4.3.2}
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.0
+    version: 3.1.1
 source:
   - path: main.c
   - path: psa_hmac_app.c
@@ -23,66 +24,40 @@ toolchain_settings: []
 component:
   - id: sl_system
   - id: freertos
-  - id: psa_crypto_common
-  - id: psa_crypto_hmac
-  - id: psa_crypto_source
+  - id: psa_crypto
   - id: psa_driver
+  - id: psa_crypto_hmac
   - id: psa_crypto_trng
-  - id: sl_si91x_trng
-    from: wiseconnect3_sdk
-  - id: sl_si91x_psa_crypto
-    from: wiseconnect3_sdk
-  - id: sl_si91x_psa_hmac
-    from: wiseconnect3_sdk
+  - id: psa_crypto_sha256
+  - id: psa_crypto_sha384
+  - id: psa_crypto_sha512
+  - id: psa_crypto_sha1
+  - id: psa_crypto_sha224
   - id: sl_si91x_psa_wrap
     from: wiseconnect3_sdk
-  - id: network_manager
-    from: wiseconnect3_sdk
-  - id: basic_network_manager
-    from: wiseconnect3_sdk
-  - id: si91x_basic_buffers
-    from: wiseconnect3_sdk
-  - id: si91x_internal_stack
-    from: wiseconnect3_sdk
-  - id: si91x
-    from: wiseconnect3_sdk
-  - id: si91x_support
-    from: wiseconnect3_sdk
-  - id: wifi
-    from: wiseconnect3_sdk
-  - id: wifi_resources
-    from: wiseconnect3_sdk
-  - id: sl_tls
+  - id: mbedtls_hmac
+  - id: syscalls
     from: wiseconnect3_sdk
   - id: si917_memory_default_config
     from: wiseconnect3_sdk
-  - id: rsilib_userconfig
+  - id: wifi
     from: wiseconnect3_sdk
-  - id: si91x_debug
+  - id: sl_si91x_internal_stack
     from: wiseconnect3_sdk
-requires:
-  - name: iostream_retarget_stdio
-    condition: [device_has_devinfo]
-  - name: iostream_recommended_stream
-    condition: [device_has_devinfo]
-  - name: iostream_stdlib_config
-    condition: [device_has_devinfo]
-  - name: device_init
-    condition: [device_has_devinfo]
-  - name: emlib_common
-    condition: [device_has_devinfo]
-  - name: emlib_ldma
-    condition: [device_has_devinfo]
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
 readme:
   - path: readme.md
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/image508c.png
 ui_hints:
-  highlight: 
+  highlight:
     - path: readme.md
       focus: true
-provides:
-  - name: si91x_soc
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

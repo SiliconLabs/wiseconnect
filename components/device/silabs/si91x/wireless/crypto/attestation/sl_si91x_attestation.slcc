@@ -1,0 +1,20 @@
+id: sl_si91x_attestation
+package: wiseconnect3_sdk
+description: >
+  Implementation of the ATTESTATION API
+label: ATTESTATION
+category: Device|Si91x|Wireless|Crypto
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless/crypto/attestation
+provides:
+- name: sl_si91x_attestation
+source:
+- path: src/sl_si91x_attestation.c
+requires:
+- name: sl_si91x_crypto
+
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_attestation.h
+

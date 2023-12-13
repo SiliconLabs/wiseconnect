@@ -1,0 +1,26 @@
+id: sl_dma
+label: DMA
+package: platform
+description: >
+  Si91x DMA API.
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_dma_inst_config.h
+requires:
+  - name: udma_linker_config
+source:
+  - path: "src/sl_si91x_dma.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_dma.h"
+provides:
+  - name: sl_dma
+define:
+  - name: __STATIC_INLINE
+    value: "static inline"
+template_contribution:
+  - name: udma_enable
+    value: true

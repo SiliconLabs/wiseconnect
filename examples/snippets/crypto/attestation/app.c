@@ -33,7 +33,7 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-
+uint8_t attestation_token[LENGTH_OF_TOKEN];
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -60,15 +60,9 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_OTAF
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
-                   .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
+                   .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
-#ifndef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                      RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#endif
-                      ),
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG),
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_EXT_TCP_IP_FEAT_SSL_HIGH_PERFORMANCE | SL_SI91X_EXT_TCP_IP_SSL_16K_RECORD
@@ -84,9 +78,8 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
  @section description
  *      This API initiates application
  */
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 /**
@@ -102,7 +95,6 @@ void application_start(const void *unused)
   uint32_t trng_key[TRNG_KEY_SIZE]         = { 0x16157E2B, 0xA6D2AE28, 0x8815F7AB, 0x3C4FCF09 };
   uint32_t trng_num[LENGTH_OF_RANDOM_DATA] = { 0 };
   UNUSED_PARAMETER(unused);
-  uint32_t err       = 0;
   sl_status_t status = SL_STATUS_OK;
   status             = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
@@ -129,7 +121,7 @@ void application_start(const void *unused)
   printf("\r\n TRNG Key Programming Successful \r\n");
 
   //! Memset the buffer
-  memset(trng_num, 0, LENGTH_OF_RANDOM_DATA);
+  memset(trng_num, 0, sizeof(trng_num));
 
   //! Get Random dwords of desired length
   status = sl_si91x_trng_get_random_num(trng_num, LENGTH_OF_RANDOM_DATA);
@@ -165,8 +157,6 @@ void application_start(const void *unused)
  */
 void sl_decode()
 {
-  enum t_cose_err_t return_value;
-  Q_USEFUL_BUF_MAKE_STACK_UB(signed_cose_buffer, 300);
   struct q_useful_buf_c signed_cose;
   struct q_useful_buf_c returned_payload;
   struct t_cose_key key_pair;

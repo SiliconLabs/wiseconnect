@@ -100,98 +100,81 @@ int8_t rsi_app_resp_tx_power                  = 0;
 uint8_t rsi_app_resp_max_no_of_supp_adv_sets  = 0;
 static uint16_t rsi_app_resp_max_adv_data_len = 0;
 
-static const sl_wifi_device_configuration_t config = {
-  .boot_option = LOAD_NWP_FW,
-  .mac_address = NULL,
-  .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .region_code = US,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_BLE_MODE,
-#ifdef RSI_M4_INTERFACE
-                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
-                                       | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
+static const sl_wifi_device_configuration_t
+  config = { .boot_option = LOAD_NWP_FW,
+             .mac_address = NULL,
+             .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
+             .region_code = US,
+             .boot_config = {
+               .oper_mode = SL_SI91X_CLIENT_MODE,
+               .coex_mode = SL_SI91X_WLAN_BLE_MODE,
+#ifdef SLI_SI91X_MCU_INTERFACE
+               .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+                                   | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
 #else
-                   .feature_bit_map = SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1,
+               .feature_bit_map        = SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1,
 #endif
 #if RSI_DISABLE
-                   .tcp_ip_feature_bit_map = SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
+               .tcp_ip_feature_bit_map = SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
 #else
-                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID)
+               .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID)
 #endif
-                                             | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL,
-
-                   .custom_feature_bit_map =
-                     (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-
-#ifdef CHIP_917
-                   .ext_custom_feature_bit_map =
-                     ((SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | RAM_LEVEL_NWP_ADV_MCU_BASIC
-                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0)
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                   .ext_custom_feature_bit_map =
-                     ((SL_SI91X_EXT_FEAT_256K_MODE | SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
-#else
-                   .ext_custom_feature_bit_map =
-                     ((SL_SI91X_EXT_FEAT_384K_MODE | SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
+                                         | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL,
+               .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+               .ext_custom_feature_bit_map =
+                 (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG
+#ifdef SLI_SI917
+                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#endif
-                      | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE // Enable BT feature
-#if (defined A2DP_POWER_SAVE_ENABLE)
-                      | SL_SI91X_EXT_FEAT_XTAL_CLK
-#endif
-                      ),
+                  | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
 #ifdef RSI_PROCESS_MAX_RX_DATA
-                   .ext_tcp_ip_feature_bit_map =
-                     (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
+               .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
 #else
-                   .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
+               .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
 #endif
-                   .bt_feature_bit_map = ((SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
+               .bt_feature_bit_map = ((SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
 #if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
+                                      | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
 #endif
-                                          ),
-                   /*Enable BLE custom feature bitmap*/
-                   .ble_feature_bit_map =
-                     (SL_SI91X_BLE_MAX_NBR_PERIPHERALS(RSI_BLE_MAX_NBR_PERIPHERALS)
-                      | SL_SI91X_BLE_MAX_NBR_CENTRALS(RSI_BLE_MAX_NBR_CENTRALS)
-                      | SL_SI91X_BLE_MAX_NBR_ATT_SERV(RSI_BLE_MAX_NBR_ATT_SERV)
-                      | SL_SI91X_BLE_MAX_NBR_ATT_REC(RSI_BLE_MAX_NBR_ATT_REC)
-                      | SL_SI91X_FEAT_BLE_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_BLE_PWR_INX(RSI_BLE_PWR_INX)
-                      | SL_SI91X_BLE_PWR_SAVE_OPTIONS(RSI_BLE_PWR_SAVE_OPTIONS)
-                      | SL_SI91X_916_BLE_COMPATIBLE_FEAT_ENABLE
+                                      ),
+               /*Enable BLE custom feature bitmap*/
+               .ble_feature_bit_map =
+                 (SL_SI91X_BLE_MAX_NBR_PERIPHERALS(RSI_BLE_MAX_NBR_PERIPHERALS)
+                  | SL_SI91X_BLE_MAX_NBR_CENTRALS(RSI_BLE_MAX_NBR_CENTRALS)
+                  | SL_SI91X_BLE_MAX_NBR_ATT_SERV(RSI_BLE_MAX_NBR_ATT_SERV)
+                  | SL_SI91X_BLE_MAX_NBR_ATT_REC(RSI_BLE_MAX_NBR_ATT_REC)
+                  | SL_SI91X_FEAT_BLE_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_BLE_PWR_INX(RSI_BLE_PWR_INX)
+                  | SL_SI91X_BLE_PWR_SAVE_OPTIONS(RSI_BLE_PWR_SAVE_OPTIONS) | SL_SI91X_916_BLE_COMPATIBLE_FEAT_ENABLE
 #if RSI_BLE_GATT_ASYNC_ENABLE
-                      | SL_SI91X_BLE_GATT_ASYNC_ENABLE
+                  | SL_SI91X_BLE_GATT_ASYNC_ENABLE
 #endif
-                      ),
-                   .ble_ext_feature_bit_map =
-                     (SL_SI91X_BLE_NUM_CONN_EVENTS(RSI_BLE_NUM_CONN_EVENTS)
-                      | SL_SI91X_BLE_NUM_REC_BYTES(RSI_BLE_NUM_REC_BYTES)
+                  ),
+               .ble_ext_feature_bit_map =
+                 (SL_SI91X_BLE_NUM_CONN_EVENTS(RSI_BLE_NUM_CONN_EVENTS)
+                  | SL_SI91X_BLE_NUM_REC_BYTES(RSI_BLE_NUM_REC_BYTES)
 #if RSI_BLE_INDICATE_CONFIRMATION_FROM_HOST
-                      | SL_SI91X_BLE_INDICATE_CONFIRMATION_FROM_HOST //indication response from app
+                  | SL_SI91X_BLE_INDICATE_CONFIRMATION_FROM_HOST //indication response from app
 #endif
 #if RSI_BLE_MTU_EXCHANGE_FROM_HOST
-                      | SL_SI91X_BLE_MTU_EXCHANGE_FROM_HOST //MTU Exchange request initiation from app
+                  | SL_SI91X_BLE_MTU_EXCHANGE_FROM_HOST //MTU Exchange request initiation from app
 #endif
 #if RSI_BLE_SET_SCAN_RESP_DATA_FROM_HOST
-                      | (SL_SI91X_BLE_SET_SCAN_RESP_DATA_FROM_HOST) //Set SCAN Resp Data from app
+                  | (SL_SI91X_BLE_SET_SCAN_RESP_DATA_FROM_HOST) //Set SCAN Resp Data from app
 #endif
 #if RSI_BLE_DISABLE_CODED_PHY_FROM_HOST
-                      | (SL_SI91X_BLE_DISABLE_CODED_PHY_FROM_HOST) //Disable Coded PHY from app
+                  | (SL_SI91X_BLE_DISABLE_CODED_PHY_FROM_HOST) //Disable Coded PHY from app
 #endif
 #if BLE_SIMPLE_GATT
-                      | SL_SI91X_BLE_GATT_INIT
+                  | SL_SI91X_BLE_GATT_INIT
 #endif
 #if RSI_BLE_ENABLE_ADV_EXTN
-                      | SL_SI91X_BLE_ENABLE_ADV_EXTN
+                  | SL_SI91X_BLE_ENABLE_ADV_EXTN
 #endif
 #if RSI_BLE_AE_MAX_ADV_SETS
-                      | SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)
+                  | SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)
 #endif
-                        ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) }
-};
+                    ),
+               .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) } };
 
 const osThreadAttr_t thread_attributes = {
   .name       = "application_thread",
@@ -378,7 +361,7 @@ void rsi_ble_peripheral(void)
   rsi_ascii_dev_address_to_6bytes_rev((uint8_t *)rand_addr, (int8_t *)RSI_BLE_SET_RAND_ADDR);
   uint8_t data[BLE_AE_ADV_DATA_LEN] = { 0 };
   strncpy((char *)data, BLE_AE_ADV_DATA, BLE_AE_ADV_DATA_LEN);
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;

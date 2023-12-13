@@ -94,7 +94,7 @@ sl_status_t wifi_iot_socket_close_handler(console_args_t *arguments)
 sl_status_t wifi_iot_socket_bind_handler(console_args_t *arguments)
 {
   int32_t sock_fd       = (int32_t)arguments->arg[0];
-  sl_ipv4_address_t *ip = (sl_ipv4_address_t *)arguments->arg[1];
+  sl_ipv4_address_t *ip = (sl_ipv4_address_t *)&arguments->arg[1];
   uint16_t port         = (uint16_t)arguments->arg[2];
   uint32_t ip_length    = GET_OPTIONAL_COMMAND_ARG(arguments, 3, sizeof(sl_ipv4_address_t), uint32_t);
 
@@ -134,7 +134,7 @@ sl_status_t wifi_iot_socket_accept_handler(console_args_t *arguments)
 sl_status_t wifi_iot_socket_connect_handler(console_args_t *arguments)
 {
   int32_t sock_fd       = (int32_t)arguments->arg[0];
-  sl_ipv4_address_t *ip = (sl_ipv4_address_t *)arguments->arg[1];
+  sl_ipv4_address_t *ip = (sl_ipv4_address_t *)&arguments->arg[1];
   uint16_t port         = (uint16_t)arguments->arg[2];
   uint32_t ip_length    = GET_OPTIONAL_COMMAND_ARG(arguments, 3, sizeof(sl_ipv4_address_t), uint32_t);
 
@@ -266,7 +266,7 @@ sl_status_t wifi_iot_socket_send_to_handler(console_args_t *arguments)
 {
   int32_t sock_fd       = (int32_t)arguments->arg[0];
   uint8_t *buffer       = (uint8_t *)arguments->arg[1];
-  sl_ipv4_address_t *ip = (sl_ipv4_address_t *)arguments->arg[2];
+  sl_ipv4_address_t *ip = (sl_ipv4_address_t *)&arguments->arg[2];
   uint16_t port         = (uint16_t)arguments->arg[3];
   uint32_t ip_length    = GET_OPTIONAL_COMMAND_ARG(arguments, 4, sizeof(sl_ipv4_address_t), uint32_t);
   uint32_t length       = strlen((char *)buffer);

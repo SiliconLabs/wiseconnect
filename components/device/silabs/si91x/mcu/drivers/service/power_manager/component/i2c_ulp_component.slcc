@@ -1,0 +1,20 @@
+id: i2c_ulp_component
+label: I2C
+package: platform
+description: >
+  Install this component to enable execution of I2C peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: sl_i2c
+
+provides:
+  - name: i2c_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: i2c_ps2
+    value: sl_si91x_peripheral_i2c.o
+

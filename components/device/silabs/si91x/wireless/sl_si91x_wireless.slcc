@@ -1,0 +1,122 @@
+id: sl_si91x_wireless
+package: wiseconnect3_sdk
+description: >
+  Si91x Wireless Subsystem provides an API to manage the Wireless Subsystem in the Si91x SoC
+label: Si91x Wireless Subsystem
+category: Device|Si91x|Wireless
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless
+provides:
+- name: sl_si91x_wireless
+- name: wifi_driver
+source:
+- path: src/sl_si91x_driver.c
+- path: src/sl_rsi_utility.c
+- path: src/sl_si91x_callback_framework.c
+- path: threading/sli_si91x_multithreaded.c
+- path: sl_net/src/sl_net_rsi_utility.c
+  condition: [network_manager]
+- path: sl_net/src/sl_net_si91x_integration_handler.c
+  condition: [network_manager]
+- path: sl_net/src/sl_si91x_net_credentials.c
+  condition: [network_manager]
+- path: host_mcu/si91x/siwx917_soc_ncp_host.c
+  condition: ["device_si91x"]
+- path: ahb_interface/src/rsi_hal_mcu_m4_ram.c
+  condition: ["device_si91x"]
+- path: ahb_interface/src/sl_platform.c
+  condition: ["device_si91x"]
+- path: ahb_interface/src/sl_platform_wireless.c
+  condition: ["device_si91x"]
+- path: ahb_interface/src/sl_si91x_bus.c
+  condition: ["device_si91x"]
+- path: ahb_interface/src/sli_siwx917_soc.c
+  condition: ["device_si91x"]
+- path: ahb_interface/src/rsi_hal_mcu_m4_rom.c
+  condition: ["device_si91x"]
+- path: ahb_interface/src/sl_si91x_timer.c
+  condition: ["device_si91x"]
+- path: host_mcu/efx32/efx32_ncp_host.c
+  condition: ["device_efx"]
+  unless: ["efx_ncp_custom_host_mcu"]
+- path: spi_interface/sl_si91x_spi_driver.c
+  condition: ["device_efx"]
+  unless: ["siwx917_ncp_custom_spi_driver"]
+define:
+- name: SLI_SI917
+- {"condition":["device_si91x"],"name":"SLI_SI91X_MCU_INTERFACE"}
+requires:
+- name: wiseconnect3_common
+- name: bsd_socket_api
+- condition: ["wifi"]
+  name: sl_si91x_network_stack
+- name: sl_si91x_buffer_management
+- name: bit
+- name: cmsis_os2_ext_task_register
+- condition: ["device_si91x"]
+  name: sl_si91x_mcu
+- condition: ["device_si91x"]
+  name: rsilib_headers
+- condition: ["device_si91x"]
+  name: romdriver_headers
+- condition: ["device_si91x"]
+  name: cmsis_driver_headers
+- condition: ["device_si91x"]
+  name: romdriver_romtable_headers
+- condition: ["device_efx"]
+  name: efx32_si91x_wireless_connector
+- condition: ["device_efx"]
+  name: gpiointerrupt
+- condition: ["device_efx"]
+  name: dmadrv
+- name: sl_si91x_errno
+
+recommends:
+- id: "%extension-wiseconnect3_sdk%sl_si91x_internal_stack"
+- id: "%extension-wiseconnect3_sdk%sl_si91x_basic_buffers"
+
+template_contribution:
+- condition: ["device_si91x"]
+  name: event_handler
+  priority: -9997
+  value: {"event":"platform_init","handler":"sli_si91x_platform_init","include":"sli_siwx917_soc.h"}
+
+include:
+- path: inc
+  file_list:
+    - path: sl_rsi_utility.h
+    - path: sl_si91x_constants.h
+    - path: sl_si91x_core_utilities.h
+    - path: sl_si91x_driver.h
+    - path: sl_si91x_host_interface.h
+    - path: sl_si91x_iot_socket.h
+    - path: sl_si91x_protocol_types.h
+    - path: sl_si91x_spi_constants.h
+    - path: sl_si91x_status.h
+    - path: sl_si91x_types.h
+    - path: sl_wifi_device.h
+- path: sl_net/inc
+  file_list:
+    - path: sl_net_rsi_utility.h
+    - path: sl_net_si91x_integration_handler.h
+    - path: sl_net_si91x.h
+  condition:
+    - network_manager
+- path: ahb_interface/inc
+  file_list:
+    - path: rsi_common.h
+    - path: rsi_data_types.h
+    - path: rsi_driver.h
+    - path: rsi_m4.h
+    - path: rsi_os.h
+    - path: rsi_pkt_mgmt.h
+    - path: rsi_user.h
+    - path: rsi_wisemcu_hardware_setup.h
+    - path: rsi_wlan_common_config.h
+    - path: rsi_wlan_defines.h
+    - path: sli_siwx917_soc.h
+    - path: sli_siwx917_timer.h
+    - path: sl_device.h
+  condition:
+    - device_si91x
+

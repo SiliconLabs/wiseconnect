@@ -1,0 +1,19 @@
+id: comparator_ulp_component
+label: Comparator
+package: platform
+description: >
+  Install this component to enable execution of Comparator peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: rsilib_comparator
+
+provides:
+  - name: comparator_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: comparator_ps2
+    value: rsi_comparator.o

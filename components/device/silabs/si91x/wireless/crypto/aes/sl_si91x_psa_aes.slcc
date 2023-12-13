@@ -1,0 +1,22 @@
+id: sl_si91x_psa_aes
+package: wiseconnect3_sdk
+description: >
+  Implementation of mbedTls psa crypto AES API
+label: PSA AES
+category: Device|Si91x|Wireless|PSA Crypto
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless/crypto/aes
+provides:
+- name: sl_si91x_psa_aes
+source:
+- path: src/sl_si91x_psa_aes.c
+define:
+- name: SLI_CIPHER_DEVICE_SI91X
+requires:
+- name: sl_si91x_aes
+
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_psa_aes.h
+

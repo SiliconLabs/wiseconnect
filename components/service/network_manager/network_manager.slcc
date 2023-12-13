@@ -1,9 +1,9 @@
 id: network_manager
 package: wiseconnect3_sdk
 description: >
-  Network management API
+  The Network Manager (SL Net) provides an API to manage network interfaces and their behaviour
 label: Network Manager
-category: Networking|Core
+category: Service|Network Management
 quality: production
 component_root_path: ./components/service/network_manager
 provides:
@@ -11,10 +11,20 @@ provides:
 source:
 - path: src/sl_net_basic_certificate_store.c
 - path: src/sl_net.c
+- path: si91x/sl_net_si91x.c
+  condition: [sl_si91x_internal_stack]
 - path: src/sl_net_for_lwip.c
-  condition: [si91x_lwip_stack]
+  condition: [sl_si91x_lwip_stack]
 define:
 - name: SL_NET_COMPONENT_INCLUDED
+- {"name":"__STATIC_INLINE","value":"static inline"}
+requires:
+- name: wifi
+- name: network_config_manager
+
+recommends:
+- id: "%extension-wiseconnect3_sdk%basic_network_config_manager"
+
 include:
 - path: inc
   file_list:
@@ -28,5 +38,5 @@ include:
   file_list:
     - path: sl_net_for_lwip.h
   condition:
-    - si91x_lwip_stack
+    - sl_si91x_lwip_stack
 

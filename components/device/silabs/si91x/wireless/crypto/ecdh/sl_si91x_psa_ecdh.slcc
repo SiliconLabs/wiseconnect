@@ -1,0 +1,22 @@
+id: sl_si91x_psa_ecdh
+package: wiseconnect3_sdk
+description: >
+  Implenetation of mbedTls PSA crypto ECDH API
+label: PSA ECDH
+category: Device|Si91x|Wireless|PSA Crypto
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless/crypto/ecdh
+provides:
+- name: sl_si91x_psa_ecdh
+source:
+- path: src/sl_si91x_psa_ecdh.c
+define:
+- name: SLI_ECDH_DEVICE_SI91X
+requires:
+- name: sl_si91x_ecdh
+
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_psa_ecdh.h
+

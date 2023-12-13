@@ -17,7 +17,7 @@
 #include "sl_si91x_i2s.h"
 #include "sl_si91x_i2s_config.h"
 #include "i2s_loopback_example.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_chip.h"
 
 /*******************************************************************************

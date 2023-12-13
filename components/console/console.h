@@ -60,6 +60,7 @@ sl_status_t console_process_buffer(const console_database_t *command_database,
 void console_print_command_args(const console_descriptive_command_t *command);
 
 char *console_get_command_buffer(void);
+uint32_t console_read_data_from_cache(char *buffer, uint32_t buffer_size);
 
 #ifdef __cplusplus
 } /*extern "C" */

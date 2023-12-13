@@ -44,7 +44,7 @@ sl_status_t sl_wifi_set_callback(sl_wifi_event_group_t group, sl_wifi_callback_f
   return SL_STATUS_FAIL;
 }
 
-sl_status_t default_wifi_event_handler(sl_wifi_event_t event, sl_wifi_buffer_t *buffer)
+sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_t *buffer)
 {
   sl_wifi_callback_entry_t *entry = get_callback_entry((sl_wifi_event_group_t)event);
 
@@ -55,8 +55,8 @@ sl_status_t default_wifi_event_handler(sl_wifi_event_t event, sl_wifi_buffer_t *
 
   // Start processing the event
   sl_si91x_packet_t *packet = (sl_si91x_packet_t *)sl_si91x_host_get_buffer_data((sl_wifi_buffer_t *)buffer, 0, NULL);
-  if (CHECK_IF_EVENT_FAILED(event)) {
-    sl_status_t status = convert_firmware_status(get_si91x_frame_status(packet));
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    sl_status_t status = convert_and_save_firmware_status(get_si91x_frame_status(packet));
     if (packet->command == RSI_WLAN_RSP_JOIN) {
       sl_status_t temp_status = sl_si91x_driver_send_command(RSI_WLAN_REQ_INIT,
                                                              SI91X_WLAN_CMD_QUEUE,
@@ -89,6 +89,7 @@ static sl_wifi_event_group_t get_event_group_from_event(sl_wifi_event_t event)
       || event == SL_WIFI_TWT_UNSUPPORTED_RESPONSE_EVENT || event == SL_WIFI_TWT_TEARDOWN_SUCCESS_EVENT
       || event == SL_WIFI_TWT_AP_TEARDOWN_SUCCESS_EVENT || event == SL_WIFI_TWT_FAIL_MAX_RETRIES_REACHED_EVENT
       || event == SL_WIFI_TWT_INACTIVE_DUE_TO_ROAMING_EVENT || event == SL_WIFI_TWT_INACTIVE_DUE_TO_DISCONNECT_EVENT
+      || event == SL_WIFI_RESCHEDULE_TWT_SUCCESS_EVENT || event == SL_WIFI_TWT_INFO_FRAME_EXCHANGE_FAILED_EVENT
       || event == SL_WIFI_TWT_INACTIVE_NO_AP_SUPPORT_EVENT) {
     return SL_WIFI_TWT_RESPONSE_EVENTS;
   }

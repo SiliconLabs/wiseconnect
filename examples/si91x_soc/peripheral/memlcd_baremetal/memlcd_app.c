@@ -18,14 +18,14 @@
 #include "sl_sleeptimer.h"
 #include "sl_sleeptimer_config.h"
 #include "app.h"
-#include "rsi_board.h"
 #include "glib.h"
+#include "sl_memlcd.h"
 #include "dmd.h"
 #include "RTE_Device_917.h"
 #include "sl_status.h"
 #include "rsi_ccp_user_config.h"
 #include "rsi_chip.h"
-#include "em_assert.h"
+#include "sl_assert.h"
 
 #define SL_BOARD_ENABLE_DISPLAY_PIN  0
 #define SL_BOARD_ENABLE_DISPLAY_PORT 0
@@ -37,11 +37,8 @@ void memlcd_app_init(void)
 {
   sl_status_t status;
 
-  // Enabling LCD display
-  RSI_NPSSGPIO_InputBufferEn(SL_BOARD_ENABLE_DISPLAY_PIN, 1U);
-  RSI_NPSSGPIO_SetPinMux(SL_BOARD_ENABLE_DISPLAY_PIN, 0);
-  RSI_NPSSGPIO_SetDir(SL_BOARD_ENABLE_DISPLAY_PIN, 0);
-  RSI_NPSSGPIO_SetPin(SL_BOARD_ENABLE_DISPLAY_PIN, 1U);
+  /* Enabling MEMLCD display */
+  sl_memlcd_display_enable();
 
   /* Initialize the DMD support for memory lcd display */
   status = DMD_init(0);

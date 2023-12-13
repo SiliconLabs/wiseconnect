@@ -30,7 +30,6 @@
  ******************************************************/
 
 #define member_size(type, member) sizeof(((type *)0)->member)
-#define MIN(a, b)                 ((a < b) ? a : b)
 
 /******************************************************
  *                    Constants
@@ -119,7 +118,7 @@ static sl_status_t find_variable_node(char **key, const console_variable_node_t 
   return SL_STATUS_ABORT;
 }
 
-#ifdef subcommand_FEATURE_REQUIRED
+#ifdef SLI_SI91X_CONSOLE_SUBCOMMANDS
 /*
  * get <variable>
  * set <variable> [item=value] [item2=value2]
@@ -171,7 +170,7 @@ static sl_status_t process_structure_args(console_variable_action_t action,
           //          if (sli_cli_validate_argument(entry->type, temp)) {
           //            sli_cli_arguments_convert_single(entry->type, temp, argv, &memory, &arg_index, &mem_index);
           //            if (entry->type == CONSOLE_ARG_STRING) {
-          //              memcpy(object + entry->offset, argv[0], MIN(entry->size, strlen((char*)argv[0])));
+          //              memcpy(object + entry->offset, argv[0], SL_MIN(entry->size, strlen((char*)argv[0])));
           //            } else {
           //              memcpy(object + entry->offset, argv[0], entry->size);
           //            }

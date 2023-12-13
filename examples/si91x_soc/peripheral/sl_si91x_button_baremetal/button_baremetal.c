@@ -16,11 +16,10 @@
  ******************************************************************************/
 
 #include "button_baremetal.h"
-#include "rsi_board.h"
 #include "rsi_chip.h"
 #include "sl_si91x_led.h"
 #include "sl_si91x_button.h"
-#include "sl_si91x_button_config.h"
+#include "sl_si91x_button_pin_config.h"
 #include "sl_si91x_led_config.h"
 #include "sl_si91x_button_instances.h"
 #include "sl_si91x_led_instances.h"

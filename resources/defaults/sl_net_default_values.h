@@ -23,7 +23,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
-#ifdef ipv6_FEATURE_REQUIRED
+#ifdef SLI_SI91X_ENABLE_IPV6
 #define REQUIRED_IP_TYPE SL_IPV6
 #else
 #define REQUIRED_IP_TYPE SL_IPV4
@@ -109,7 +109,7 @@
         .rate_protocol = SL_WIFI_RATE_PROTOCOL_AUTO, \
         .options = 0, \
         .credential_id = SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID, \
-        .keepalive_type = SI91X_AP_NULL_BASED_KEEP_ALIVE, \
+        .keepalive_type = SL_SI91X_AP_NULL_BASED_KEEP_ALIVE, \
         .beacon_interval = 100, \
         .client_idle_timeout = 0xFF, \
         .dtim_beacon_count = 3, \

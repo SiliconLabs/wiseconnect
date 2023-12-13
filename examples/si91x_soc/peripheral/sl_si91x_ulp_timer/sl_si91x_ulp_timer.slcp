@@ -1,64 +1,55 @@
-# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_si91x_ulp_timer
 label: SI91x - SL_ULP_Timer
 description: |
-  demostrate ULP Timer functionality.
+  Demonstrates ULP Timer functionality.
 category: example|peripheral
 package: platform
 quality: production
 readme:
-- {path: readme.md}
+  - path: readme.md
 source:
-- {path: app.c}
-- {path: main.c}
-- {path: ulp_timer_example.c}
-- {path: hardware_setup.c}
-- {path: ulp_timer_example.h}
-- {path: app.h}
-sdk: {id: gecko_sdk, version: 4.3.1}
+  - path: app.c
+  - path: main.c
+  - path: ulp_timer_example.c
+  - path: hardware_setup.c
+  - path: ulp_timer_example.h
+  - path: app.h
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.1
 toolchain_settings: []
 component:
-- {from: wiseconnect3_sdk, id: rsilib_clock_update}
-- {from: wiseconnect3_sdk, id: cmsis_device_config_9117}
-- {from: wiseconnect3_sdk, id: romdriver_egpio}
-- {from: wiseconnect3_sdk, id: si91x_debug}
-- id: sl_system
-- instance: [timer0]
-  from: wiseconnect3_sdk
-  id: ulp_timers_instance
-- id: sl_ulp_timer
-  from: wiseconnect3_sdk 
-- id: systemlevel_time_period
-  from: wiseconnect3_sdk
-- id: romdriver_timer
-  from: wiseconnect3_sdk
-- id: si917_memory_default_config
-  from: wiseconnect3_sdk
-- {from: wiseconnect3_sdk, id: systemlevel_wwdt}
-- {from: wiseconnect3_sdk, id: systemlevel_processor_sensor}
-- {from: wiseconnect3_sdk, id: rsilib_comparator}
-- {from: wiseconnect3_sdk, id: rsilib_userconfig}
-- {id: status}
+  - id: sl_system
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: ulp_timers_instance
+    instance:
+      - timer0
+    from: wiseconnect3_sdk
+  - id: sl_ulp_timer
+    from: wiseconnect3_sdk
+  - id: sl_si91x_led_917
+    instance:
+      - led0
+    from: wiseconnect3_sdk
 other_file:
-- {path: resources/readme/image512a.png}
-- {path: resources/readme/image512b.PNG}
-- {path: resources/readme/image512c.png}
-- {path: resources/readme/image512d.png}
-- {path: resources/readme/image512e.png}
-- {path: resources/readme/image512f.png}
-define:
-- {name: RSI_M4_INTERFACE}
-- {name: M4_PS2_STATE}
-template_contribution:
-- {name: RAM_EXECUTION, priority: 0, value: 1}
-- {name: ULP_PLATFORM, priority: 0, value: 1}
-provides:
-- {name: si91x_soc}
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/image512d.png
+  - path: resources/readme/image512e.png
+  - path: resources/readme/image512f.png
+  - path: resources/uc_screen/ulp_timer_uc_screen.png
+  - path: resources/readme/output_ulp_timer.png
+requires:
+  - name: ulp_mode_execution
 ui_hints:
   highlight:
-  - {path: readme.md, focus: true}
-sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.1.0}
+    - path: readme.md
+      focus: true
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
-

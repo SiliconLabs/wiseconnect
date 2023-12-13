@@ -26,7 +26,8 @@
 #include "sl_si91x_ulp_timer.h"
 #include "ulp_timer_example.h"
 #include "sl_si91x_ulp_timer_init.h"
-#include "rsi_board.h"
+#include "sl_si91x_led.h"
+#include "rsi_debug.h"
 #include "rsi_chip.h"
 #include <stdint.h>
 
@@ -44,10 +45,8 @@
  ******************************************************************************/
 #define SL_TIMER_MATCH_VALUE \
   ((CLOCKS_PER_MICROSECONDS_20MHZ) * (TIME_IN_MICROSECONDS)) // Timer match value for down-counter type with 20mhz clock
-#define RESERVED_IRQ_COUNT             16                    // Reserved IRQ count
-#define EXT_IRQ_COUNT                  98                    // External IRQ count
-#define VECTOR_TABLE_ENTRIES           (RESERVED_IRQ_COUNT + EXT_IRQ_COUNT) // Vector table entries
-#define LED0                           0                                    // For On-board LED-0
+
+#define LED0                           0    // For On-board LED-0
 #define ONE_SEC_MATCH_VALUE_256US_TYPE 3906 // Timer match value for 1-sec, in 256us type
 #define FIFTH_INTERRUPT_COUNT          5    // Count for fifth timeout interrupt
 #define TENTH_INTERRUPT_COUNT          10   // Count for tenth timeout interrupt
@@ -74,7 +73,6 @@ static bool timer_callback_unregister_flag = false;
 static uint32_t timer_count_value;
 static uint32_t timer_direction;
 sl_status_t status;
-uint32_t ramVector[VECTOR_TABLE_ENTRIES] __attribute__((aligned(256)));
 extern void hardware_setup(void);
 
 /*******************************************************************************
@@ -88,10 +86,6 @@ void ulp_timer_example_init(void)
    * To reconfigure the default setting of SystemInit() function, refer to
    * startup_rs1xxxx.c file
    */
-  //copying the vector table from flash to ram
-  memcpy(ramVector, (uint32_t *)SCB->VTOR, sizeof(uint32_t) * VECTOR_TABLE_ENTRIES);
-  // Assigning the ram vector address to VTOR register
-  SCB->VTOR = (uint32_t)ramVector;
   // Switching MCU from PS4 to PS2 state(low power state)
   // In this mode, whatever be the timer clock source value, it will run with 20MHZ only,
   // as it trims higher clock frequencies to 20MHZ.
@@ -219,7 +213,7 @@ static void SL_ULP_TIMER_CALLBACK(void)
   interrupt_count++;
   // To toggle LED0
   state = !state;
-  RSI_Board_LED_Set(LED0, state);
+  sl_si91x_led_toggle(RTE_LED0_PIN);
   // Checking interrupt count
   if (interrupt_count == FIFTH_INTERRUPT_COUNT) {
     //Stopping the timer instance, after five LED toggles.

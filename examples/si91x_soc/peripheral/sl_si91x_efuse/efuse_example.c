@@ -15,7 +15,7 @@
 *
 ******************************************************************************/
 #include "efuse_example.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_chip.h"
 #include "sl_si91x_efuse.h"
 
@@ -33,6 +33,8 @@
 #define MATCH_BYTE  0x2A      // 1 byte to be read
 #define MATCH_WORD  0x032A    // 1 word to be read
 
+/* Since efuse is a one-time programmable, WRITE_ENABLE macro must not be enabled unless user wants to use efuse write */
+#define WRITE_ENABLE 0 // Enables efuse write if set to '1'
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
  ******************************************************************************/
@@ -71,7 +73,6 @@ void efuse_example_init(void)
       break;
     }
     DEBUGOUT("Efuse initialization is successful \n");
-
     /* Set the eFUSE address WRITE_ADD_1 for read and write operations */
     status = sl_si91x_efuse_set_address(WRITE_ADD_1);
     if (status != SL_STATUS_OK) {
@@ -80,7 +81,6 @@ void efuse_example_init(void)
     }
     DEBUGOUT("Setting the eFUSE address WRITE_ADD_1 for read and write "
              "operations is successful \n");
-
     /* Get the eFUSE address WRITE_ADD_1 for read and write operations */
     status = sl_si91x_efuse_get_address(&address_value_1);
     if (status != SL_STATUS_OK) {
@@ -95,9 +95,9 @@ void efuse_example_init(void)
     DEBUGOUT("Getting the eFUSE address WRITE_ADD_1 for read and write "
              "operations is successful \n");
 
+#if defined(WRITE_ENABLE) && (WRITE_ENABLE == 1)
     /*Writing 0X2A Data at address 0x00001*/
     /*Address :0x00001 -> Data : 0010 1010  */
-
     /* Write WRITE_ADD_1 , bit position 1*/
     status = sl_si91x_efuse_write_bit(WRITE_ADD_1, BIT_POS_1, HOLD);
     if (status != SL_STATUS_OK) {
@@ -106,7 +106,6 @@ void efuse_example_init(void)
     }
     DEBUGOUT("Writing on bit position 1 of address WRITE_ADD_1 is "
              "successful \n");
-
     /* Write WRITE_ADD_1 , bit position 3*/
     status = sl_si91x_efuse_write_bit(WRITE_ADD_1, BIT_POS_3, HOLD);
     if (status != SL_STATUS_OK) {
@@ -124,7 +123,7 @@ void efuse_example_init(void)
     }
     DEBUGOUT("Writing on bit position 5 of address WRITE_ADD_1 is "
              "successful \n");
-
+#endif
     /* Set the eFUSE address WRITE_ADD_2 for read and write operations */
     status = sl_si91x_efuse_set_address(WRITE_ADD_2);
     if (status != SL_STATUS_OK) {
@@ -148,9 +147,9 @@ void efuse_example_init(void)
     DEBUGOUT("Getting the eFUSE address WRITE_ADD_2 for read and write "
              "operations is successful \n");
 
+#if defined(WRITE_ENABLE) && (WRITE_ENABLE == 1)
     /*Writing 0X02 Data at address 0x00002*/
     /*Address :0x00002 -> Data : 0000 0011  */
-
     /* Write WRITE_ADD_2 , bit position 0*/
     status = sl_si91x_efuse_write_bit(WRITE_ADD_2, BIT_POS_0, HOLD);
     if (status != SL_STATUS_OK) {
@@ -168,7 +167,7 @@ void efuse_example_init(void)
     }
     DEBUGOUT("Writing on bit position 1 of address WRITE_ADD_2 is "
              "successful \n");
-
+#endif
     /* Read byte from address WRITE_ADD_1 in FSM read mode */
     status = sl_si91x_efuse_fsm_read_byte(WRITE_ADD_1, &fsm_read_byte, CLOCK);
     if (status != SL_STATUS_OK) {

@@ -31,29 +31,29 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "config_timer_example.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_chip.h"
 #include "sl_si91x_config_timer.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-
-#define CT_RATE               1000  // value for dividing system core clock
-#define TICKS                 1000  // tick value
-#define TENTH_INTERRUPT_COUNT 10    // Count for tenth timeout interrupt
-#define CT_MATCH_VALUE        16000 // value for 1ms interrupt time
-#define INITIAL_MATCH_VALUE   0     // for match initial value
-#define INITIAL_VALUE         0     // for zero value
-#define PIN_1                 1     // for ulp-gpio-1
-#define PORT_0                0     // for gpio port 0
-#define HUNDRED               100   // for value 100
-#define ONE                   1     // for value 1
-#define TWO                   2     // for value 2
-#define TWENTY                20    // for value 20
-#define SET                   1     // for setting any value high
-#define CLEAR                 0     // for clearing any value
-#define DELAY_COUNT           10    // delay count value
+#define CT_COUNTER_USED       SL_COUNTER_0 // counter number used for normal counter application
+#define CT_RATE               1000         // value for dividing system core clock
+#define TICKS                 1000         // tick value
+#define TENTH_INTERRUPT_COUNT 10           // Count for tenth timeout interrupt
+#define CT_MATCH_VALUE        16000        // value for 1ms interrupt time
+#define INITIAL_MATCH_VALUE   0            // for match initial value
+#define INITIAL_VALUE         0            // for zero value
+#define PIN_1                 1            // for ulp-gpio-1
+#define PORT_0                0            // for gpio port 0
+#define HUNDRED               100          // for value 100
+#define ONE                   1            // for value 1
+#define TWO                   2            // for value 2
+#define TWENTY                20           // for value 20
+#define SET                   1            // for setting any value high
+#define CLEAR                 0            // for clearing any value
+#define DELAY_COUNT           10           // delay count value
 
 /*******************************************************************************
  **********************  GLOBAL variables   ***************************
@@ -82,7 +82,9 @@ static sl_config_timer_ocu_control_t ocu_params1;
 static sl_config_timer_ocu_params_t vsOCUparams = { INITIAL_VALUE };
 #endif
 static sl_config_timer_interrupt_flags_t ct_interrupt_flags;
-
+#if (CT_COUNTER_MODE_USECASE == SET)
+sl_counter_number_t counter_used = CT_COUNTER_USED;
+#endif
 /*******************************************************************************
  * Config-Timer example initialization function
  ******************************************************************************/
@@ -234,14 +236,18 @@ void config_timer_example_init(void)
     }
     DEBUGOUT("CT Initial Count is set successfully \n");
     // Setting match value
-    status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, SL_COUNTER_0, match_value);
+    status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, counter_used, match_value);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu", status);
       break;
     }
     DEBUGOUT("CT Match Count is set successfully\n");
-    // Enabling interrupt on match value for counter-0
-    ct_interrupt_flags.is_counter0_hit_peak_interrupt_enabled = true;
+    // Enabling interrupt at match value for counter-used
+    if (counter_used == SL_COUNTER_0) {
+      ct_interrupt_flags.is_counter0_hit_peak_interrupt_enabled = true;
+    } else {
+      ct_interrupt_flags.is_counter1_hit_peak_interrupt_enabled = true;
+    }
     // Registering callback
     status = sl_si91x_config_timer_unregister_callback(&ct_interrupt_flags);
     status = sl_si91x_config_timer_register_callback(on_config_timer_callback, callback_flag_data, &ct_interrupt_flags);
@@ -251,7 +257,7 @@ void config_timer_example_init(void)
     }
     DEBUGOUT("CT callback registered successfully \n");
     // Starting CT counter0 on software trigger
-    status = sl_si91x_config_timer_start_on_software_trigger(SL_COUNTER_0);
+    status = sl_si91x_config_timer_start_on_software_trigger(counter_used);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu", status);
       break;
@@ -315,6 +321,7 @@ static uint32_t CT_PercentageToTicks(uint8_t percent, uint32_t freq)
 // Remove all debugs from callback function for proper delays
 void on_config_timer_callback(void *callback_flag)
 {
+  uint32_t interrupt_flag_value = 0;
 #if (CT_PWM_MODE_USECASE == SET)
   if (*(uint32_t *)callback_flag == SL_CT_COUNTER_1_IS_PEAK_FLAG) {
     // incrementing delay variable on every interrupt
@@ -322,7 +329,14 @@ void on_config_timer_callback(void *callback_flag)
   }
 #endif
 #if (CT_COUNTER_MODE_USECASE == SET)
-  if (*(uint32_t *)callback_flag == SL_CT_COUNTER_0_IS_PEAK_FLAG) {
+  // Updating expected interrupt flag value as per enabled interrupt and counter used
+  if (counter_used == SL_COUNTER_0) {
+    interrupt_flag_value = SL_CT_COUNTER_0_IS_PEAK_FLAG;
+  } else {
+    interrupt_flag_value = SL_CT_COUNTER_1_IS_PEAK_FLAG;
+  }
+  // Checking interrupt flag value
+  if (*(uint32_t *)callback_flag == interrupt_flag_value) {
     // Incrementing interrupt count
     interrupt_count++;
     // Toggles ULP_GPIO_1 on every interrupt

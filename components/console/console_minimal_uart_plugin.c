@@ -13,15 +13,21 @@
  */
 
 #include "console.h"
-#include "sl_uart.h"
 #include "sl_board_configuration.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
+#ifdef SL_UART
+#include "sl_uart.h"
+#endif
 /******************************************************
  *                      Macros
  ******************************************************/
+
+#ifndef SLI_SI91X_MCU_INTERFACE
+#define sl_uart_print(a, b) printf(b)
+#endif
 
 /******************************************************
  *                    Constants
@@ -101,6 +107,18 @@ void cache_uart_rx_data(const char character)
 {
   uart_rx_cache[uart_rx_write_iter] = character;
   uart_rx_write_iter                = (uart_rx_write_iter + 1) % sizeof(uart_rx_cache);
+}
+
+uint32_t console_read_data_from_cache(char *buffer, uint32_t buffer_size)
+{
+  uint32_t a = 0;
+  while ((a < buffer_size) && (uart_rx_read_iter != uart_rx_write_iter)) {
+    *buffer++ = uart_rx_cache[uart_rx_read_iter];
+    ++a;
+    uart_rx_read_iter = (uart_rx_read_iter + 1) % sizeof(uart_rx_cache);
+  }
+
+  return a;
 }
 
 void console_process_uart_data(void)

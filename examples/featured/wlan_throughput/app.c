@@ -32,7 +32,6 @@
 #include "cmsis_os2.h"
 #include "sl_wifi.h"
 #include "sl_net.h"
-#include "sl_tls.h"
 #include "socket.h"
 #include "sl_si91x_socket_support.h"
 #include "sl_utility.h"
@@ -42,8 +41,7 @@
 #include "sl_net_wifi_types.h"
 #include "sl_si91x_socket_utility.h"
 #include "sl_si91x_socket_constants.h"
-#include "sl_si91x_socket.h"
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #endif
 
@@ -63,6 +61,9 @@
 
 // Type of Socket used. Synchronous = 0, Asynchronous = 1
 #define SOCKET_ASYNC_FEATURE 1
+#if SOCKET_ASYNC_FEATURE
+#include "sl_si91x_socket.h"
+#endif
 
 // Memory length for send buffer
 #define TCP_BUFFER_SIZE 1460
@@ -90,22 +91,58 @@
 #define LISTENING_PORT 5005
 #define BACK_LOG       1
 
+#ifdef SLI_SI91X_MCU_INTERFACE
+uint32_t tick_count_s = 10;
+#else
+uint32_t tick_count_s = 1;
+#endif
+
 #define BYTES_TO_SEND    (1 << 29)              //512MB
 #define BYTES_TO_RECEIVE (1 << 28)              //256MB
 #define TEST_TIMEOUT     (30000 * tick_count_s) //30sec
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
 #define PS4_SOC_FREQ          119000000 /*<! PLL out clock 100MHz            */
 #endif
 
+/*=======================================================================*/
+// TA buffer allocation parameters
+/*=======================================================================*/
+
+#ifndef TX_POOL_RATIO
+#define TX_POOL_RATIO 1
+#endif
+
+#ifndef RX_POOL_RATIO
+#define RX_POOL_RATIO 1
+#endif
+
+#ifndef GLOBAL_POOL_RATIO
+#define GLOBAL_POOL_RATIO 1
+#endif
+
+/*****************************************************
+ *                      Socket configuration
+*****************************************************/
+#define TOTAL_SOCKETS                   1  //@ Total number of sockets. TCP TX + TCP RX + UDP TX + UDP RX
+#define TOTAL_TCP_SOCKETS               1  //@ Total TCP sockets. TCP TX + TCP RX
+#define TOTAL_UDP_SOCKETS               0  //@ Total UDP sockets. UDP TX + UDP RX
+#define TCP_TX_ONLY_SOCKETS             0  //@ Total TCP TX only sockets. TCP TX
+#define TCP_RX_ONLY_SOCKETS             1  //@ Total TCP RX only sockets. TCP RX
+#define UDP_TX_ONLY_SOCKETS             0  //@ Total UDP TX only sockets. UDP TX
+#define UDP_RX_ONLY_SOCKETS             0  //@ Total UDP RX only sockets. UDP RX
+#define TCP_RX_HIGH_PERFORMANCE_SOCKETS 1  //@ Total TCP RX High Performance sockets
+#define TCP_RX_WINDOW_SIZE_CAP          44 //@ TCP RX Window size
+#define TCP_RX_WINDOW_DIV_FACTOR        44 //@ TCP RX Window division factor
+
 /******************************************************
  *                    Constants
  ******************************************************/
-
 /******************************************************
+
  *               Variable Definitions
  ******************************************************/
 
@@ -136,43 +173,35 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map =
-                     (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
-                   .ext_custom_feature_bit_map = (
-#ifndef RSI_M4_INTERFACE
-                     RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                     RAM_LEVEL_NWP_ADV_MCU_BASIC
+                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
+                   .ext_custom_feature_bit_map = (MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#ifdef CHIP_917
-                     | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                     ),
+                                                  ),
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_EXT_TCP_IP_WINDOW_DIV | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
                       | SL_SI91X_EXT_TCP_IP_FEAT_SSL_THREE_SOCKETS | SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
-                   .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+                   .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP },
+  .ta_pool = { .tx_ratio_in_buffer_pool     = TX_POOL_RATIO,
+               .rx_ratio_in_buffer_pool     = RX_POOL_RATIO,
+               .global_ratio_in_buffer_pool = GLOBAL_POOL_RATIO }
 };
 
-#ifdef RSI_M4_INTERFACE
-uint32_t tick_count_s = 10;
-#else
-uint32_t tick_count_s = 1;
-#endif
-
 static sl_si91x_socket_config_t socket_config = {
-  1,  // Total sockets
-  1,  // Total TCP sockets
-  0,  // Total UDP sockets
-  0,  // TCP TX only sockets
-  1,  // TCP RX only sockets
-  0,  // UDP TX only sockets
-  0,  // UDP RX only sockets
-  1,  // TCP RX high performance sockets
-  10, // TCP RX window size
-  10  // TCP RX window division factor
+  TOTAL_SOCKETS,                   // Total sockets
+  TOTAL_TCP_SOCKETS,               // Total TCP sockets
+  TOTAL_UDP_SOCKETS,               // Total UDP sockets
+  TCP_TX_ONLY_SOCKETS,             // TCP TX only sockets
+  TCP_RX_ONLY_SOCKETS,             // TCP RX only sockets
+  UDP_TX_ONLY_SOCKETS,             // UDP TX only sockets
+  UDP_RX_ONLY_SOCKETS,             // UDP RX only sockets
+  TCP_RX_HIGH_PERFORMANCE_SOCKETS, // TCP RX high performance sockets
+  TCP_RX_WINDOW_SIZE_CAP,          // TCP RX window size
+  TCP_RX_WINDOW_DIV_FACTOR         // TCP RX window division factor
 };
 
 /******************************************************
@@ -186,7 +215,7 @@ void receive_data_from_tls_server(void);
 void send_data_to_tls_server(void);
 static void application_start(void *argument);
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout);
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 void switch_m4_frequency(void);
 #endif
 
@@ -212,9 +241,29 @@ uint8_t has_data_received = 0;
 uint32_t bytes_read       = 0;
 uint32_t start            = 0;
 uint32_t now              = 0;
+uint8_t first_data_frame  = 1;
 
 void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)
 {
+  UNUSED_PARAMETER(buffer);
+
+  if (first_data_frame) {
+    start = osKernelGetTickCount();
+    printf("\r\nClient Socket ID : %ld\r\n", sock_no);
+    switch (THROUGHPUT_TYPE) {
+      case UDP_RX:
+        printf("\r\nUDP_RX Throughput test start\r\n");
+        break;
+      case TCP_RX:
+        printf("\r\nTCP_RX Throughput test start\r\n");
+        break;
+      case TLS_RX:
+        printf("\r\nTLS_RX Throughput test start\r\n");
+        break;
+    }
+    first_data_frame = 0;
+  }
+
   bytes_read += length;
   now = osKernelGetTickCount();
   if ((bytes_read > BYTES_TO_RECEIVE) || ((now - start) > TEST_TIMEOUT)) {
@@ -222,7 +271,7 @@ void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)
   }
 }
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 void switch_m4_frequency(void)
 {
   /*Switch M4 SOC clock to Reference clock*/
@@ -239,6 +288,8 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
+  sl_mac_address_t mac_addr                   = { 0 };
+  sl_wifi_firmware_version_t firmware_version = { 0 };
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_throughput_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
@@ -247,6 +298,27 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi client interface init success\r\n");
 
+  status = sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nFailed to get mac address: 0x%lx\r\n", status);
+    return;
+  }
+  printf("\r\nDevice MAC address: %x:%x:%x:%x:%x:%x\r\n",
+         mac_addr.octet[0],
+         mac_addr.octet[1],
+         mac_addr.octet[2],
+         mac_addr.octet[3],
+         mac_addr.octet[4],
+         mac_addr.octet[5]);
+
+  status = sl_wifi_get_firmware_version(&firmware_version);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nFailed to fetch firmware version: 0x%lx\r\n", status);
+    return;
+  } else {
+    print_firmware_version(&firmware_version);
+  }
+
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to connect to AP: 0x%lx\r\n", status);
@@ -254,7 +326,7 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi client connected\r\n");
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
   switch_m4_frequency();
   SysTick_Config(SystemCoreClock / (1000 * tick_count_s));
 #endif
@@ -271,26 +343,14 @@ static void application_start(void *argument)
   print_sl_ip_address(&ip_address);
 
 #if ((THROUGHPUT_TYPE == TLS_RX) || (THROUGHPUT_TYPE == TLS_TX))
-  sl_tls_store_configuration_t tls_configuration = { 0 };
-
-  // Clearing certificate
-  status = sl_tls_clear_global_ca_store();
-  if (status != SL_STATUS_OK) {
-    return;
-  }
-
-  tls_configuration.cacert             = (uint8_t *)cacert;
-  tls_configuration.cacert_length      = (sizeof(cacert) - 1);
-  tls_configuration.cacert_type        = SL_TLS_SSL_CA_CERTIFICATE;
-  tls_configuration.use_secure_element = false;
-
   // Load SSL CA certificate
-  status = sl_tls_set_global_ca_store(tls_configuration);
+  status =
+    sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading SSL CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+    printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
-  printf("\r\nLoad SSL CA certificate Success\r\n");
+  printf("\r\nLoad SSL CA certificate at index %d Success\r\n", 0);
 #endif
 
   for (size_t i = 0; i < sizeof(data_buffer); i++)
@@ -434,10 +494,6 @@ void receive_data_from_tcp_client(void)
     close(server_socket);
     return;
   }
-  printf("\r\nClient Socket ID : %d\r\n", client_socket);
-
-  printf("\r\nTCP_RX Throughput test start\r\n");
-  start = osKernelGetTickCount();
 
   while (!has_data_received) {
     osThreadYield();
@@ -448,13 +504,14 @@ void receive_data_from_tcp_client(void)
   printf("\r\nTCP_RX Throughput test finished\r\n");
   printf("\r\nTotal bytes received : %ld\r\n", bytes_read);
 
-  close(client_socket);
   close(server_socket);
+  close(client_socket);
+
   measure_and_print_throughput(bytes_read, (now - start));
 #else
-  int read_bytes = 1;
+  int read_bytes                = 1;
   uint32_t total_bytes_received = 0;
-  server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  server_socket                 = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (server_socket < 0) {
     printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
     return;
@@ -472,7 +529,7 @@ void receive_data_from_tcp_client(void)
     return;
   }
   server_address.sin_family = AF_INET;
-  server_address.sin_port = LISTENING_PORT;
+  server_address.sin_port   = LISTENING_PORT;
 
   socket_return_value = bind(server_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
@@ -508,7 +565,7 @@ void receive_data_from_tcp_client(void)
       return;
     }
     total_bytes_received = total_bytes_received + read_bytes;
-    now = osKernelGetTickCount();
+    now                  = osKernelGetTickCount();
 
     if ((now - start) > TEST_TIMEOUT) {
       printf("\r\nTest Time Out: %ld ms\r\n", (now - start));
@@ -520,8 +577,9 @@ void receive_data_from_tcp_client(void)
 
   measure_and_print_throughput(total_bytes_received, (now - start));
 
-  close(client_socket);
   close(server_socket);
+  close(client_socket);
+
 #endif
 }
 
@@ -601,8 +659,6 @@ void receive_data_from_udp_client(void)
   }
   printf("\r\nListening on Local Port %d\r\n", LISTENING_PORT);
 
-  printf("\r\nUDP_RX Async Throughput test start\r\n");
-  start = osKernelGetTickCount();
   while (!has_data_received) {
     osThreadYield();
   }
@@ -614,9 +670,9 @@ void receive_data_from_udp_client(void)
 
   close(client_socket);
 #else
-  int read_bytes = 1;
+  int read_bytes                = 1;
   uint32_t total_bytes_received = 0;
-  client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  client_socket                 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (client_socket < 0) {
     printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
     return;
@@ -624,7 +680,7 @@ void receive_data_from_udp_client(void)
   printf("\r\nSocket ID : %d\r\n", client_socket);
 
   server_address.sin_family = AF_INET;
-  server_address.sin_port = LISTENING_PORT;
+  server_address.sin_port   = LISTENING_PORT;
 
   socket_return_value = bind(client_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
@@ -644,7 +700,7 @@ void receive_data_from_udp_client(void)
       return;
     }
     total_bytes_received = total_bytes_received + read_bytes;
-    now = osKernelGetTickCount();
+    now                  = osKernelGetTickCount();
     if ((now - start) > TEST_TIMEOUT) {
       printf("\r\nTest Time Out: %ld ms\r\n", (now - start));
       break;
@@ -712,10 +768,6 @@ void receive_data_from_tls_server(void)
   }
   printf("\r\nSocket connected to TLS server\r\n");
 
-  printf("\r\nTLS_RX Throughput test start\r\n");
-  start = osKernelGetTickCount();
-  now   = start;
-
   while (!has_data_received) {
     osThreadYield();
   }
@@ -729,7 +781,7 @@ void receive_data_from_tls_server(void)
   measure_and_print_throughput(bytes_read, (now - start));
 #else
   uint32_t total_bytes_received = 0;
-  client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  client_socket                 = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (client_socket < 0) {
     printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
     return;
@@ -755,7 +807,7 @@ void receive_data_from_tls_server(void)
   }
 
   server_address.sin_family = AF_INET;
-  server_address.sin_port = SERVER_PORT;
+  server_address.sin_port   = SERVER_PORT;
   sl_net_inet_addr(SERVER_IP, &server_address.sin_addr.s_addr);
 
   socket_return_value = connect(client_socket, (struct sockaddr *)&server_address, socket_length);
@@ -767,8 +819,8 @@ void receive_data_from_tls_server(void)
   printf("\r\nSocket connected to TLS server\r\n");
 
   printf("\r\nTLS_RX Throughput test start\r\n");
-  start = osKernelGetTickCount();
-  now = start;
+  start          = osKernelGetTickCount();
+  now            = start;
   int read_bytes = 1;
   while (read_bytes > 0) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
@@ -778,7 +830,7 @@ void receive_data_from_tls_server(void)
       return;
     }
     total_bytes_received = total_bytes_received + read_bytes;
-    now = osKernelGetTickCount();
+    now                  = osKernelGetTickCount();
 
     if ((now - start) > TEST_TIMEOUT) {
       printf("\r\nTest Time Out: %ld ms\r\n", (now - start));

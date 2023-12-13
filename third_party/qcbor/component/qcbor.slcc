@@ -2,9 +2,9 @@ id: qcbor
 label: QCBOR
 package: third_party
 description: >
-  QCBOR library 
-category: third_party
-quality: alpha
+  QCBOR is a Concise Binary Object Representation (CBOR) encoder/decoder library
+category: Third Party
+quality: production
 component_root_path: "third_party/qcbor"
 source:
   - path: "src/ieee754.c"
@@ -19,7 +19,7 @@ include:
     - path: "qcbor_common.h"
     - path: "qcbor_decode.h"
     - path: "qcbor_encode.h"
-    - path: "qcbor_privte.h"
+    - path: "qcbor_private.h"
     - path: "qcbor_spiffy_decode.h"
     - path: "qcbor.h"
     - path: "UsefulBuf.h"

@@ -33,13 +33,8 @@
 #define RSI_BLE_DEV_ADDR_RESOLUTION_ENABLE 0
 #define RSI_BLE_MAX_NBR_PERIPHERALS        1
 
-#ifdef RSI_M4_INTERFACE
-#define RSI_BLE_MAX_NBR_ATT_REC 20
-#define RSI_BLE_NUM_CONN_EVENTS 4
-#else
-#define RSI_BLE_MAX_NBR_ATT_REC 80
-#define RSI_BLE_NUM_CONN_EVENTS 30
-#endif
+#define RSI_BLE_MAX_NBR_ATT_REC  80
+#define RSI_BLE_NUM_CONN_EVENTS  30
 #define RSI_BLE_MAX_NBR_ATT_SERV 10
 
 #define RSI_BLE_MAX_NBR_CENTRALS  1
@@ -139,7 +134,7 @@
 #define CONNECTION_INTERVAL_MAX 0x00A0
 
 #define CONNECTION_LATENCY  0x0000
-#define SUPERVISION_TIMEOUT 0x07D0 //2000
+#define SUPERVISION_TIMEOUT 800
 
 /*=======================================================================*/
 
@@ -181,8 +176,8 @@
 #define CONNECTION_ROLE PERIPHERAL_ROLE
 
 //! connection update params
-#define CONN_INTERVAL_MIN 45
-#define CONN_INTERVAL_MAX 45
+#define CONN_INTERVAL_MIN 0x08
+#define CONN_INTERVAL_MAX 0x08
 #define CONN_LATENCY      0
 
 //! enabling the security
@@ -192,9 +187,15 @@
 #define TX_LEN  0xFB
 #define TX_TIME 0x4290
 
-//! Phy parameters
-#define TX_PHY_RATE     0x01
-#define RX_PHY_RATE     0x01
+// DATA RATE
+//  0x02 - 2Mbps
+//  0x01 - 1Mbps
+//  0x04 - Coded PHY (set desired CODDED_PHY_RATE)
+//! Phy parameter
+#define TX_PHY_RATE 0x02
+#define RX_PHY_RATE 0x02
+// CODED_PHY_RATE: 0x01 - 500Kbps
+// CODED_PHY_RATE: 0x02 - 125Kbps
 #define CODDED_PHY_RATE 0x00
 
 //! Notify status
@@ -205,7 +206,7 @@
 
 #if DLE_ON
 #define DLE_BUFFER_MODE      1
-#define DLE_BUFFER_COUNT     2 // Should be less than RSI_BLE_NUM_CONN_EVENTS
+#define DLE_BUFFER_COUNT     25 // Should be less than RSI_BLE_NUM_CONN_EVENTS
 #define RSI_BLE_MAX_DATA_LEN 232
 #else
 #define DLE_BUFFER_MODE      0

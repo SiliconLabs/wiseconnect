@@ -1,0 +1,28 @@
+id: external_flash_8mb
+label: 8MB Flash (External)
+package: platform
+description: Adds a 8MB external flash to the SiWG91x part.
+category: Device|Si91x|MCU|Flash
+quality: production
+provides:
+  - name: external_flash_8mb
+  - name: external_flash_implementation
+
+template_contribution:
+    - name: external_flash_present
+      value: 1
+    - name: external_flash_addr
+      value: 136323072 # 0x0820 2000
+    - name: external_flash_size
+      value: 8388608
+    - name: external_flash_page_size
+      value: 256
+
+metadata:
+    device:
+      memory:
+      - name: External Flash
+        page_size: 256
+        size: 8388608
+        start: 136323072 # 0x0820 2000
+        type: non-volatile

@@ -1,0 +1,20 @@
+id: sl_ulp_timer
+label: ULP Timer
+package: platform
+description: >
+  Si91x Ultra Low Power (ULP) Timer API
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_ulp_timer_inst_config.h
+source:
+  - path: "src/sl_si91x_ulp_timer.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_ulp_timer.h"
+provides:
+  - name: sl_ulp_timer
+requires:
+  - name: romdriver_timer

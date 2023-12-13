@@ -1,0 +1,25 @@
+id: ssi_ulp_component
+label: SSI
+package: platform
+description: >
+  Install this component to enable execution of SSI peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: sl_ssi
+  - name: cmsis_spi
+
+provides:
+  - name: ssi_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: ssi_ps2
+    value: sl_si91x_ssi.o
+  - name: ssi_ps2
+    value: rsi_spi.o
+  - name: ssi_ps2
+    value: SPI.o
+

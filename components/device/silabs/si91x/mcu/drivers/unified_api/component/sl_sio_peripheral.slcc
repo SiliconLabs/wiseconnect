@@ -1,0 +1,27 @@
+id: sl_sio_peripheral
+label: SIO
+package: platform
+description: >
+  Si91x Serial Input/Output (SIO) API
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers"
+config_file:
+  - path: unified_api/config/sl_si91x_sio_config.h
+source:
+  - path: "unified_api/src/sl_si91x_sio.c"
+  - path: "unified_peripheral_drivers/src/sl_si91x_peripheral_gpio.c"
+include:
+  - path: "unified_api/inc"
+    file_list:
+    - path: "sl_si91x_sio.h"  
+  - path: "unified_peripheral_drivers/inc"
+    file_list:
+    - path: "sl_si91x_peripheral_gpio.h"
+    - path: "sl_si91x_gpio.h"
+    - path: "sl_si91x_gpio_common.h"
+provides:
+  - name: sl_sio_peripheral
+requires:
+  - name: udma_linker_config
+  - name: rsilib_sio

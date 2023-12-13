@@ -1,0 +1,13 @@
+id: external_psram_none
+label: No External PSRAM
+package: platform
+description: Excludes an external PSRAM from the SiWG91x part.
+category: Device|Si91x|MCU|PSRAM
+quality: production
+provides:
+  - name: external_psram_none
+  - name: external_psram_implementation
+
+template_contribution:
+    - name: external_psram_present
+      value: 0

@@ -54,8 +54,12 @@ int main(int argc, char *argv[])
     char *File_create_with;
     File_create_with = malloc(strlen(fout) + strlen(fout1) + strlen(fout2) + strlen(fout3)
                               + strlen(fout4)); /* make space for the new string (should check the return value ...) */
-    strcpy(File_create_with, fout);             /* copy name into the new var */
-    strcat(File_create_with, fout1);            /* add the extension */
+    if (File_create_with == NULL) {             /* copy name into the new var */
+      return -1;                                /* add the extension */
+    }
+    memset(File_create_with, 0, strlen(fout) + strlen(fout1) + strlen(fout2) + strlen(fout3) + strlen(fout4));
+    strcpy(File_create_with, fout);
+    strcat(File_create_with, fout1);
     strcat(File_create_with, fout2);
     strcat(File_create_with, fout3);
     strcat(File_create_with, fout4);
@@ -67,7 +71,10 @@ int main(int argc, char *argv[])
     char fout[]      = "00000000\n";
     int line_inc     = atoi(argv[3]);
     File_create_with = malloc(sizeof(fout) * line_inc);
-    memset(File_create_with, 0, sizeof(File_create_with));
+    if (File_create_with == NULL) {
+      return -1;
+    }
+    memset(File_create_with, 0, sizeof(fout) * line_inc);
     if (File_create_with == NULL) {
       printf("cannot allocate memory");
     }

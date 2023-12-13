@@ -34,22 +34,15 @@
 #include "rsi_bt_common.h"
 #include "sl_si91x_driver.h"
 #include "app.h"
+#include "sl_utility.h"
 
-#ifdef RSI_M4_INTERFACE
-#include "rsi_rtc.h"
-#include "rsi_m4.h"
-#include "rsi_ds_timer.h"
-#include "rsi_wisemcu_hardware_setup.h"
-#include "rsi_rom_ulpss_clk.h"
-#include "rsi_rom_timer.h"
-#include "rsi_rom_power_save.h"
-#include "sl_event_handler.h"
-
-#endif
 //! Common include file
 #include "rsi_common_apis.h"
 
 #include <string.h>
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
+#endif
 
 #define RSI_BLE_LOCAL_NAME (void *)"BLE_PERIPHERAL"
 
@@ -122,39 +115,8 @@
 
 #define DUTY_CYCLING_DISABLE 0
 #define DUTY_CYCLING_ENABLE  1
+#define ENABLE_POWER_SAVE    0 //! Set to 1 for powersave mode
 
-#ifdef RSI_M4_INTERFACE
-#define WIRELESS_WAKEUP_IRQ_PRI    8
-#define portNVIC_SHPR3_REG         (*((volatile uint32_t *)0xe000ed20))
-#define portNVIC_PENDSV_PRI        (((uint32_t)(0x3f << 4)) << 16UL)
-#define portNVIC_SYSTICK_PRI       (((uint32_t)(0x3f << 4)) << 24UL)
-#define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-void M4_sleep_wakeup(void);
-void IRQ026_Handler();
-void fpuInit(void);
-
-#ifdef ALARM_TIMER_BASED_WAKEUP
-void InitM4AlarmConfig(void);
-void RSI_Set_Alarm_Intr_Time(uint16_t interval);
-static RTC_TIME_CONFIG_T rtcConfig, readTime, alarmConfig, readAlarmConfig, rtc_get_Time;
-#define RTC_ALARM_IRQHandler IRQ028_Handler
-#define NVIC_RTC_ALARM       MCU_CAL_ALARM_IRQn
-#define RC_TRIGGER_TIME      3
-#define RO_TRIGGER_TIME      0
-
-#define ALARM_PERIODIC_TIME       5 /*<! periodic alarm configuration in SEC */
-#define NO_OF_HOURS_IN_A_DAY      24
-#define NO_OF_MINUTES_IN_AN_HOUR  60
-#define NO_OF_SECONDS_IN_A_MINUTE 60
-#define NO_OF_MONTHS_IN_A_YEAR    12
-#define BASE_YEAR                 2000
-#define NO_OF_DAYS_IN_A_MONTH_1   28
-#define NO_OF_DAYS_IN_A_MONTH_2   29
-#define NO_OF_DAYS_IN_A_MONTH_3   30
-#define NO_OF_DAYS_IN_A_MONTH_4   31
-#endif
-
-#endif
 //! Application global parameters.
 static rsi_bt_resp_get_local_name_t rsi_app_resp_get_local_name = { 0 };
 static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN]      = { 0 };
@@ -169,32 +131,23 @@ static const sl_wifi_device_configuration_t config = {
   .region_code = US,
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_BLE_MODE,
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                    .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
 #else
-                   .feature_bit_map        = RSI_FEATURE_BIT_MAP,
+                   .feature_bit_map            = RSI_FEATURE_BIT_MAP,
 #endif
 #if RSI_TCP_IP_BYPASS
                    .tcp_ip_feature_bit_map = RSI_TCP_IP_FEATURE_BIT_MAP,
 #else
-                   .tcp_ip_feature_bit_map = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                   .tcp_ip_feature_bit_map     = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
 #endif
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
-                   .ext_custom_feature_bit_map = (
-#ifdef CHIP_917
-                     (RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                     (SL_SI91X_EXT_FEAT_256K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
-#else
-                     (SL_SI91X_EXT_FEAT_384K_MODE | RSI_EXT_CUSTOM_FEATURE_BIT_MAP)
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#endif
-                     | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)
-#if (defined A2DP_POWER_SAVE_ENABLE)
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK
-#endif
-                     ),
+                      | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
@@ -253,79 +206,6 @@ const osThreadAttr_t thread_attributes = {
   .tz_module  = 0,
   .reserved   = 0,
 };
-/*==============================================*/
-/**
- * @fn         M4_sleep_wakeup
- * @brief      Keeps the M4 In the Sleep
- * @param[in]  none
- * @return    none.
- * @section description
- * This function is used to trigger sleep in the M4 and in the case of the retention submitting the buffer valid
- * to the TA for the rx packets.
- */
-/*==============================================*/
-#ifdef RSI_M4_INTERFACE
-void M4_sleep_wakeup(void)
-{
-#ifdef ALARM_TIMER_BASED_WAKEUP
-  /* Update the alarm time interval, when to get next interrupt  */
-  RSI_Set_Alarm_Intr_Time(ALARM_PERIODIC_TIME);
-
-#endif
-  /* Configure Wakeup-Source */
-  RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
-
-  /* sets the priority of an Wireless wakeup interrupt. */
-  NVIC_SetPriority(WIRELESS_WAKEUP_IRQHandler, WIRELESS_WAKEUP_IRQ_PRI);
-
-  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
-
-#ifndef FLASH_BASED_EXECUTION_ENABLE
-  /* LDOSOC Default Mode needs to be disabled */
-  sl_si91x_disable_default_ldo_mode();
-
-  /* bypass_ldorf_ctrl needs to be enabled */
-  sl_si91x_enable_bypass_ldo_rf();
-
-  sl_si91x_disable_flash_ldo();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep */
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         0,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         0,
-                         RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
-#else
-
-#ifdef COMMON_FLASH_EN
-  M4SS_P2P_INTR_SET_REG &= ~BIT(3);
-#endif
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep*/
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         WKP_RAM_USAGE_LOCATION,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         IVT_OFFSET_ADDR,
-                         RSI_WAKEUP_FROM_FLASH_MODE);
-#endif
-
-  /*  Setup the systick timer */
-  vPortSetupTimerInterrupt();
-
-#ifdef DEBUG_UART
-  //fpuInit();
-  /*Initialize UART after wake up*/
-  sl_service_init();
-#endif
-}
-#endif
 /**
  * @fn         ble_per
  * @brief      Tests the BLE PER Modes.
@@ -338,26 +218,25 @@ void ble_per(void *unused)
 {
   UNUSED_PARAMETER(unused);
   sl_status_t status;
-  sl_wifi_version_string_t version = { 0 };
+  sl_wifi_firmware_version_t version = { 0 };
 
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sl_si91x_hardware_setup();
+#endif
   //! Wi-Fi initialization
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nWireless Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
   LOG_PRINT("\r\nWireless Initialization Success\n");
 
-#if (defined RSI_M4_INTERFACE && defined ALARM_TIMER_BASED_WAKEUP)
-  InitM4AlarmConfig();
-#endif
-
   //! Firmware version Prints
   status = sl_wifi_get_firmware_version(&version);
   if (status != SL_STATUS_OK) {
-    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
+    LOG_PRINT("\r\nFailed to fetch firmware version: 0x%lx\r\n", status);
   } else {
-    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+    print_firmware_version(&version);
   }
 
   //! get the local device address(MAC address).
@@ -523,11 +402,11 @@ void ble_per(void *unused)
                 per_stats.rssi,
                 per_stats.id_pkts_rcvd);
     }
-#if (defined RSI_M4_INTERFACE)
+#if (SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
     if (!(P2P_STATUS_REG & TA_wakeup_M4)) {
       P2P_STATUS_REG &= ~M4_wakeup_TA;
-      LOG_PRINT("\r\n triggering M4 sleep\r\n");
-      M4_sleep_wakeup();
+      LOG_PRINT("\r\n M4 sleep");
+      sl_si91x_m4_sleep_wakeup();
     }
 #endif
   }
@@ -539,150 +418,3 @@ void app_init(void)
 
   osThreadNew((osThreadFunc_t)ble_per, NULL, &thread_attributes);
 }
-
-#if (defined RSI_M4_INTERFACE && defined ALARM_TIMER_BASED_WAKEUP)
-/**
- * @fn           void RSI_Set_Alarm_Time(uint16_t interval)
- * @brief        This function will update the alarm time ,when to get next alarm interrupt .
- * @param[in]    interval  : Alarm  timer interrupt time
- * @param[out]   None
- *
- */
-void RSI_Set_Alarm_Intr_Time(uint16_t interval)
-{
-  /* Get the RTC time,which is used to update alarm time as per RTC time  */
-  RSI_RTC_GetDateTime(RTC, &rtc_get_Time);
-  /*RTC alarm configuration */
-  alarmConfig.DayOfWeek    = rtc_get_Time.DayOfWeek;
-  alarmConfig.Month        = rtc_get_Time.Month;
-  alarmConfig.Century      = rtc_get_Time.Century;
-  alarmConfig.MilliSeconds = rtc_get_Time.MilliSeconds;
-  alarmConfig.Day          = rtc_get_Time.Day;
-  alarmConfig.Year         = rtc_get_Time.Year;
-  alarmConfig.Minute       = rtc_get_Time.Minute;
-  alarmConfig.Hour         = rtc_get_Time.Hour;
-  alarmConfig.Second       = rtc_get_Time.Second;
-  /*Update seconds for next boundary alarm */
-  alarmConfig.Second = alarmConfig.Second + (interval % 60);
-  if (alarmConfig.Second >= (NO_OF_SECONDS_IN_A_MINUTE)) {
-    alarmConfig.Second -= NO_OF_SECONDS_IN_A_MINUTE;
-    alarmConfig.Minute += 1;
-  }
-  /*Update minutes for next boundary alarm */
-  alarmConfig.Minute = alarmConfig.Minute + ((interval / 60) % 60);
-  if (alarmConfig.Minute >= (NO_OF_MINUTES_IN_AN_HOUR)) {
-    alarmConfig.Minute -= NO_OF_MINUTES_IN_AN_HOUR;
-    alarmConfig.Hour += 1;
-  }
-  /*Update hour for next boundary alarm */
-  alarmConfig.Hour = alarmConfig.Hour + (interval / 3600) % 24;
-  if (alarmConfig.Hour >= (NO_OF_HOURS_IN_A_DAY)) {
-    alarmConfig.Hour -= NO_OF_HOURS_IN_A_DAY;
-    alarmConfig.Day += 1;
-  }
-  /*Update month for next boundary alarm */
-  if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_1) {
-    if (alarmConfig.Month == February) {
-      if (alarmConfig.Year % 4) {
-        alarmConfig.Day = 1;
-        alarmConfig.Month += 1;
-      } else if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_2) {
-        alarmConfig.Day = 1;
-        alarmConfig.Month += 1;
-      }
-    }
-    if (alarmConfig.Month <= July) {
-      if (alarmConfig.Month % 2 == 0) {
-        if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_3) {
-          alarmConfig.Day = 1;
-          alarmConfig.Month += 1;
-        }
-      } else if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_4) {
-        alarmConfig.Day = 1;
-        alarmConfig.Month += 1;
-      }
-
-    } else if (alarmConfig.Month % 2 == 0) {
-      if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_4) {
-        alarmConfig.Day = 1;
-        alarmConfig.Month += 1;
-      }
-    } else if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_3) {
-      alarmConfig.Day = 1;
-      alarmConfig.Month += 1;
-    }
-  }
-  /*Update year  for next boundary alarm */
-  if (alarmConfig.Month > (NO_OF_MONTHS_IN_A_YEAR)) {
-    alarmConfig.Month = 1;
-    alarmConfig.Year += 1;
-  }
-  /*Set Alarm configuration */
-  RSI_RTC_SetAlarmDateTime(RTC, &alarmConfig);
-}
-/**
- * @fn           void InitM4AlarmConfig(void)
- * @brief        This function is to initialize Alarm block .
- *
- */
-void InitM4AlarmConfig(void)
-{
-  /*Init RTC*/
-  RSI_RTC_Init(RTC);
-
-  /*RTC configuration with some default time */
-  rtcConfig.DayOfWeek    = Saturday;
-  rtcConfig.Month        = March;
-  rtcConfig.Day          = 19;
-  rtcConfig.Century      = 0;
-  rtcConfig.Year         = 19;
-  rtcConfig.Hour         = 23;
-  rtcConfig.Minute       = 59;
-  rtcConfig.Second       = 50;
-  rtcConfig.MilliSeconds = 0;
-  /*Set the RTC configuration*/
-  RSI_RTC_SetDateTime(RTC, &rtcConfig);
-  /*Enable Alarm feature*/
-  RSI_RTC_AlamEnable(RTC, ENABLE);
-  /*Enable RTC ALARM interrupts*/
-  RSI_RTC_IntrUnMask(RTC_ALARM_INTR);
-  /*Initilization RTC CALIBRATION*/
-  RSI_RTC_CalibInitilization();
-  /* To calibrate rc and ro */
-  RSI_RTC_ROCLK_Calib(TIME_PERIOD, ENABLE, ENABLE, RC_TRIGGER_TIME, ENABLE, ENABLE, RO_TRIGGER_TIME);
-
-  RSI_PS_SetWkpSources(ALARM_BASED_WAKEUP);
-
-  RSI_RTC_IntrUnMask(RTC_ALARM_INTR);
-
-  /*Enable NVIC for RTC */
-  NVIC_EnableIRQ(NVIC_RTC_ALARM);
-}
-
-/*RTC Alarm interrupt*/
-void RTC_ALARM_IRQHandler(void)
-{
-  volatile uint32_t statusRead = 0;
-  static RTC_TIME_CONFIG_T alarmConfig, readTime;
-  /*Get the interrupt status */
-  statusRead = RSI_RTC_GetIntrStatus();
-  if (statusRead & NPSS_TO_MCU_ALARM_INTR) {
-    /*Clear wake up interrupt */
-    RSI_RTC_IntrClear(RTC_ALARM_INTR);
-  }
-  return;
-}
-
-void IRQ026_Handler()
-{
-  volatile uint32_t wakeUpSrc = 0;
-
-  /*Get the wake up source */
-  wakeUpSrc = RSI_PS_GetWkpUpStatus();
-
-  /*Clear interrupt */
-  RSI_PS_ClrWkpUpStatus(NPSS_TO_MCU_WIRELESS_INTR);
-
-  return;
-}
-#endif

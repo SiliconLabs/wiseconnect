@@ -39,6 +39,7 @@
 #include "sl_wifi.h"
 #include "sl_net_ip_types.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 // BLE include file to refer BLE APIs
 #include <rsi_ble_apis.h>
@@ -708,7 +709,7 @@ void rsi_ble_configurator_task(void *argument)
     LOG_PRINT("Failed to allocate memory for scan result\n");
     return;
   }
-
+  memset(scanresult, 0, scanbuf_size);
   while (1) {
     // checking for events list
     event_id = rsi_ble_app_get_event();
@@ -768,19 +769,19 @@ adv:
       } break;
 
       case RSI_APP_FW_VERSION: {
-        sl_wifi_version_string_t fw_version = { 0 };
+        sl_wifi_firmware_version_t firmware_version = { 0 };
 
         rsi_ble_app_clear_event(RSI_APP_FW_VERSION);
         memset(data, 0, RSI_BLE_MAX_DATA_LEN);
 
-        status = sl_wifi_get_firmware_version(&fw_version);
+        status = sl_wifi_get_firmware_version(&firmware_version);
         if (status == SL_STATUS_OK) {
           data[0] = 0x08;
-          data[1] = 8;
-          memcpy(&data[2], fw_version.version, 8);
+          data[1] = sizeof(sl_wifi_firmware_version_t);
+          memcpy(&data[2], &firmware_version, sizeof(sl_wifi_firmware_version_t));
 
           rsi_ble_set_local_att_value(rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, data);
-          LOG_PRINT("\r\nFirmware version response: %s\r\n", fw_version.version);
+          print_firmware_version(&firmware_version);
         }
       } break;
 

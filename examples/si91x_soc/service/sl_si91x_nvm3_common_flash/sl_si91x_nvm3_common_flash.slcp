@@ -1,18 +1,23 @@
 project_name: sl_si91x_nvm3_common_flash
 package: wifi
-quality: alpha
+quality: production
 label: sl_si91x_nvm3_common_flash
 category: Example|Service
-description: >
+description: |
   Testing NVM3 in Si91x common flash 
 filter:
-  - name: "Wireless Technology"
-    value: ["Wi-Fi"]
-  - name: "Project Difficulty"
-    value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.3.1}
-sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.0}
+  - name: Wireless Technology
+    value:
+      - Wi-Fi
+  - name: Project Difficulty
+    value:
+      - Beginner
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.1
 source:
   - path: app.c
   - path: main.c
@@ -21,31 +26,28 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: RSI_DEBUG_PRINTS
-  - name: RSI_M4_INTERFACE
-requires:
-- name: sl_system
-- name: nvm3_lib
-- name: slist
-- name: si917_memory_default_config
-- name: rsilib_userconfig
+  - name: SL_SI91X_PRINT_DBG_LOG
 component:
-- id: si91x_debug
-  from: wiseconnect3_sdk
+  - id: sl_system
+  - id: freertos
+  - id: nvm3_lib
+  - id: slist
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
 toolchain_settings: []
 configuration:
-- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+  - name: SL_BOARD_ENABLE_VCOM
+    value: "1"
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/image508a.png
-  - path: resources/readme/image508b.png
-  - path: resources/readme/image508c.png
-  - path: resources/readme/image508d.PNG
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/output.png
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
-

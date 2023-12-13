@@ -1,8 +1,8 @@
 id: aws_sdk
 package: wiseconnect3_sdk
 description: >
-  AWS IoT Library
-label: AWS IoT Library
+  AWS IoT Device SDK for Embedded C
+label: AWS IoT Device SDK
 category: Third Party
 quality: production
 component_root_path: ./third_party/aws_sdk

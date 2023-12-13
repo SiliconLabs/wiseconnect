@@ -48,6 +48,8 @@
 /******************************************************
  *               Variable Definitions
  ******************************************************/
+static osSemaphoreId_t nvm3_Sem;
+
 const osThreadAttr_t thread_attributes = {
   .name       = "app",
   .attr_bits  = 0,
@@ -68,19 +70,19 @@ static const sl_wifi_device_configuration_t client_configuration = {
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (
-#ifdef RSI_M4_INTERFACE
-                     RAM_LEVEL_NWP_ADV_MCU_BASIC
+#ifdef SLI_SI91X_MCU_INTERFACE
+                     SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
-                     RAM_LEVEL_NWP_ALL_MCU_ZERO
+                     SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
-#ifdef CHIP_917
+#ifdef SLI_SI917
                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                      ),
@@ -123,4 +125,19 @@ static void application_start(void *argument)
 void app_process_action(void)
 {
   test_psa_asymmetric_key_storage();
+}
+
+void nvm3_lockBegin(void)
+{
+
+  if (nvm3_Sem == NULL) {
+    nvm3_Sem = osSemaphoreNew(1, 0, NULL);
+    osSemaphoreRelease(nvm3_Sem);
+  }
+  osSemaphoreAcquire(nvm3_Sem, osWaitForever);
+}
+
+void nvm3_lockEnd(void)
+{
+  osSemaphoreRelease(nvm3_Sem);
 }

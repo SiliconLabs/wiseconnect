@@ -34,12 +34,14 @@
 #include "sl_wifi.h"
 #include "sl_si91x_aes.h"
 #include "sl_si91x_wrap.h"
+#include "sl_si91x_crypto_utility.h"
 
 /******************************************************
  *                    Constants
  ******************************************************/
-#define BUFFER_SIZE      16
+#define BUFFER_SIZE      256
 #define USE_WRAPPED_KEYS 0
+#define PKCS_7_PADDING   0
 
 /******************************************************
  *               Variable Definitions
@@ -64,22 +66,17 @@ static const sl_wifi_device_configuration_t client_configuration = {
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (
-#ifdef RSI_M4_INTERFACE
-                     RAM_LEVEL_NWP_ADV_MCU_BASIC
-#else
-                     RAM_LEVEL_NWP_ALL_MCU_ZERO
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map = (MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#ifdef CHIP_917
-                     | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                     ),
+                                                  ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = 0,
                    .ble_feature_bit_map        = 0,
@@ -90,8 +87,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
 uint8_t encrypted_buffer[BUFFER_SIZE];
 uint8_t decrypted_buffer[BUFFER_SIZE];
 
-uint8_t msg[BUFFER_SIZE] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
-                             0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a };
+uint8_t msg[] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a };
 
 uint8_t key[SL_SI91X_AES_KEY_SIZE_256] = { 0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae,
                                            0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61,
@@ -104,6 +100,13 @@ uint8_t iv[SL_SI91X_IV_SIZE] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                                  0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
 sl_si91x_wrap_config_t wrap_config = { 0 };
+
+#if PKCS_7_PADDING
+size_t padded_data_length = 0;
+uint8_t *padded_data;
+int32_t unpadded_data_length = 0;
+uint8_t decrypted_unpadded_data_buffer[BUFFER_SIZE];
+#endif
 
 /******************************************************
  *               Function Declarations
@@ -176,6 +179,14 @@ sl_status_t aes_encryption(void)
   memcpy(config.key_config.b0.key_buffer, &wrapped_key, config.key_config.b0.key_size);
 #endif
 
+#if PKCS_7_PADDING
+  padded_data = pkcs7_padding(config.msg, config.msg_length, SL_SI91X_AES_BLOCK_SIZE, &padded_data_length);
+  SL_VERIFY_POINTER_OR_RETURN(padded_data, SL_STATUS_NULL_POINTER);
+
+  config.msg        = padded_data;
+  config.msg_length = padded_data_length;
+#endif
+
   status = sl_si91x_aes(&config, encrypted_buffer);
   if (status != SL_STATUS_OK) {
     printf("\r\nAES encryption failed, Error Code : 0x%lX\r\n", status);
@@ -207,12 +218,25 @@ sl_status_t aes_decryption(void)
   memcpy(config.key_config.b0.key_buffer, &wrapped_key, config.key_config.b0.key_size);
 #endif
 
+#if PKCS_7_PADDING
+  config.msg_length = padded_data_length;
+#endif
+
   status = sl_si91x_aes(&config, decrypted_buffer);
   if (status != SL_STATUS_OK) {
     printf("\r\nAES decryption failed, Error Code : 0x%lX\r\n", status);
     return status;
   }
   printf("\r\nAES decryption success\r\n");
+
+#if PKCS_7_PADDING
+  unpadded_data_length = pkcs7_unpad(decrypted_buffer, padded_data_length);
+  if (unpadded_data_length < 0) {
+    return SL_STATUS_FAIL;
+  }
+  memset(decrypted_unpadded_data_buffer, 0, BUFFER_SIZE);
+  memcpy(decrypted_unpadded_data_buffer, decrypted_buffer, unpadded_data_length);
+#endif
 
   return status;
 }

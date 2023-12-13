@@ -1,0 +1,22 @@
+id: bsd_socket
+package: wiseconnect3_sdk
+description: >
+  The BSD Socket provides an BSD-style TCP/IP communications API
+label: BSD Socket
+category: Service
+quality: production
+component_root_path: ./components/service/bsd_socket
+provides:
+- name: bsd_socket
+source:
+- path: si91x_socket/sl_si91x_bsd_socket.c
+  condition: [sl_si91x_internal_stack]
+requires:
+- name: bsd_socket_api
+- name: sl_si91x_socket
+
+include:
+- path: si91x_socket
+  file_list:
+    - path: sl_si91x_socket_support.h
+

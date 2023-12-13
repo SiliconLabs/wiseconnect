@@ -83,6 +83,7 @@
 /*=======================================================================*/
 #define TCP_RX_WINDOW_SIZE_CAP   20 //@ TCP RX Window size - 64K (44 * 1460)
 #define TCP_RX_WINDOW_DIV_FACTOR 0
+#define USE_SELECT_FEATURE       0
 
 //! Enumeration for states in application
 typedef enum rsi_wlan_app_state_e {

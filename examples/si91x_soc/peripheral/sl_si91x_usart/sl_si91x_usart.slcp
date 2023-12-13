@@ -1,15 +1,17 @@
-# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_si91x_usart
 label: SI91x - SL_USART
-description: |
-  This example project configures USART transmits and receives data in full duplex mode.
+description: >
+  This example project configures USART transmits and receives data
+  in full duplex mode.
 category: example|peripheral
 package: platform
 quality: production
-sdk: {id: gecko_sdk, version: 4.3.1}
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.0
+    version: 3.1.1
 source:
   - path: main.c
   - path: app.c
@@ -18,55 +20,32 @@ source:
   - path: usart_example.h
 toolchain_settings: []
 component:
-- id: rsilib_userconfig
-  from: wiseconnect3_sdk
-- id: romdriver_egpio
-  from: wiseconnect3_sdk
-- id: rsilib_clock_update
-  from: wiseconnect3_sdk
-- id: udma_linker_config
-  from: wiseconnect3_sdk
-- id: sl_system
-- id: systemlevel_processor_sensor
-  from: wiseconnect3_sdk
-- id: cmsis_device_config_9117
-  from: wiseconnect3_sdk
-- id: systemlevel_wwdt
-  from: wiseconnect3_sdk
-- id: rsilib_comparator
-  from: wiseconnect3_sdk
-- id: si91x_debug
-  from: wiseconnect3_sdk
-#- id: freertos
-#- id: romdriver_egpio
-#  from: wiseconnect3_sdk
-#- id: udma_linker_config
-#  from: wiseconnect3_sdk
-- id: sl_usart
-  from: wiseconnect3_sdk
-- id: sl_system
-- id: status  
-- id: si917_memory_default_config
-  from: wiseconnect3_sdk
-- id: sl_dma
-  from: wiseconnect3_sdk
+  - id: sl_system
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_usart
+    from: wiseconnect3_sdk
+  - id: sl_dma
+    from: wiseconnect3_sdk
 define:
-  - name: ROM_BYPASS
-  - name: RSI_M4_INTERFACE
+  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
   - name: USART_CONFIG
-  - name: SI917_RADIO_BOARD
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
   - name: SL_SI91X_USART_DMA
   - name: SL_SI91X_DMA
 other_file:
-- {path: resources/readme/image513a.png}
-- {path: resources/readme/image513b.png}
-- {path: resources/readme/image513c.png}
-- {path: resources/readme/image513d.png}
-- {path: resources/readme/vcom.png}
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/image513d.png
+  - path: resources/uc_screen/usart_uc_screen.png
+  - path: resources/readme/outputConsoleI_usart.png
 readme:
   - path: readme.md
 ui_hints:
-  highlight: readme.md
-  focus: true
+  highlight: 
+    - path: readme.md
+      focus: true
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

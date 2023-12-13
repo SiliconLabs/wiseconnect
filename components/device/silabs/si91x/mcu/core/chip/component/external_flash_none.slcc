@@ -1,0 +1,13 @@
+id: external_flash_none
+label: No External Flash
+package: platform
+description: Excludes an external flash from the SiWG91x part. 
+category: Device|Si91x|MCU|Flash
+quality: production
+provides:
+  - name: external_flash_none
+  - name: external_flash_implementation
+
+template_contribution:
+    - name: external_flash_present
+      value: 0

@@ -17,61 +17,29 @@
 
 /// IPv4 address settings for a network interface
 typedef struct {
-  sl_ipv4_address_t ip_address; ///< IPv4 address
-  sl_ipv4_address_t gateway;    ///< IPv4 gateway address
-  sl_ipv4_address_t netmask;    ///< IPv4 netmask
+  sl_ipv4_address_t ip_address; ///< IPv4 address of type @ref sl_ipv4_address_t
+  sl_ipv4_address_t gateway;    ///< IPv4 gateway address of type @ref sl_ipv4_address_t
+  sl_ipv4_address_t netmask;    ///< IPv4 netmask of type of @ref sl_ipv4_address_t
 } sl_net_ipv4_setting_t;
 
 /// IPv6 address settings for a network interface
 typedef struct {
-  sl_ipv6_address_t link_local_address; ///< IPv6 link local address
-  sl_ipv6_address_t global_address;     ///< IPv6 global address
-  sl_ipv6_address_t gateway;            ///< IPv6 gateway address
+  sl_ipv6_address_t link_local_address; ///< IPv6 link local address of type @ref sl_ipv6_address_t
+  sl_ipv6_address_t global_address;     ///< IPv6 global address of type @ref sl_ipv6_address_t
+  sl_ipv6_address_t gateway;            ///< IPv6 gateway address of type of @ref sl_ipv6_address_t
 } sl_net_ipv6_setting_t;
 
+/// IP configuration for a network interface
 typedef struct {
-  sl_ip_management_t mode;   ///< IP Assignment Type
-  sl_ip_address_type_t type; ///< IP Address Type
+  sl_ip_management_t mode;   ///< IP Assignment Type of @ref sl_ip_management_t
+  sl_ip_address_type_t type; ///< IP Address Type of @ref sl_ip_address_type_t
   char *host_name;           ///< Host name visible on network
   union {
-    sl_net_ipv4_setting_t v4; ///< IPv4 setting to be used in case of static IP address assignment
-    sl_net_ipv6_setting_t v6; ///< IPv6 setting to be used in case of static IP address assignment
-  } ip;                       ///< IP setting to be used for static IP address assignment
+    sl_net_ipv4_setting_t
+      v4; ///< IPv4 setting to be used in case of static IP address assignment of type @ref sl_net_ipv4_setting_t
+    sl_net_ipv6_setting_t
+      v6; ///< IPv6 setting to be used in case of static IP address assignment of type @ref sl_net_ipv6_setting_t
+  } ip;   ///< IP setting to be used for static IP address assignment
 } sl_net_ip_configuration_t;
-
-/// Wi-Fi specific IPv4 address settings
-typedef struct {
-  sl_ipv4_address_t ip_address; ///< IPv4 address
-  sl_ipv4_address_t gateway;    ///< IPv4 gateway address
-  sl_ipv4_address_t netmask;    ///< IPv4 netmask
-} sl_wifi_ipv4_setting_t;
-
-/// Wi-Fi specific IPv6 address settings
-typedef struct {
-  sl_ipv6_address_t link_local_address; ///< IPv6 link local address
-  sl_ipv6_address_t global_address;     ///< IPv6 global address
-  sl_ipv6_address_t gateway;            ///< IPv6 gateway address
-} sl_wifi_ipv6_setting_t;
-
-/// Ethernet specific IPv4 address settings
-typedef struct {
-  sl_ipv4_address_t ip_address; ///< IPv4 address
-  sl_ipv4_address_t gateway;    ///< IPv4 gateway address
-  sl_ipv4_address_t netmask;    ///< IPv4 netmask
-} sl_ethernet_ipv4_setting_t;
-
-/// Ethernet specific IPv6 address settings
-typedef struct {
-  sl_ipv6_address_t link_local_address; ///< IPv6 link local address
-  sl_ipv6_address_t global_address;     ///< IPv6 global address
-  sl_ipv6_address_t gateway;            ///< IPv6 gateway address
-} sl_ethernet_ipv6_setting_t;
-
-/// Thread specific IPv6 address settings
-typedef struct {
-  sl_ipv6_address_t link_local_address; ///< IPv6 link local address
-  sl_ipv6_address_t mesh_local_address; ///< IPv6 mesh local address
-  sl_ipv6_address_t global_address;     ///< IPv6 global address
-} sl_thread_ipv6_setting_t;
 
 /** @} */

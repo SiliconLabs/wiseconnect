@@ -16,6 +16,7 @@
  ******************************************************************************/
 #include "psa_aes_app.h"
 #include "psa/crypto.h"
+#include <stdio.h>
 
 /* Test vector (AES) for  AES-128/256 key */
 // 128 Key Size
@@ -51,7 +52,7 @@ void test_psa_aes(psa_algorithm_t alg)
   if (status == PSA_SUCCESS) {
     printf("\n PSA crypto library initialization Success \n");
   } else {
-    printf("\n PSA crypto library initialization failed with error: %d\n", status);
+    printf("\n PSA crypto library initialization failed with error: %ld\n", status);
   }
 
   for (int i = 0; i < NB_TESTS; i++) {
@@ -68,10 +69,10 @@ void test_psa_aes(psa_algorithm_t alg)
 
     /* Import a volatile plain key for AES */
     if (i == 0) { // 128 key size
-      printf("\n Import a volatile plain %d size key for AES \n", (sizeof(aes_key_16) * 8));
+      printf("\n Import a volatile plain %d size key for AES \n", (key_len_test_data[i] * 8));
       status = psa_import_key(&key_attr, aes_key_16, sizeof(aes_key_16), &key_id);
     } else if (i == 1) { // 256 key size
-      printf("\n Import a volatile plain %d size key for AES \n", (sizeof(aes_key_32) * 8));
+      printf("\n Import a volatile plain %d size key for AES \n", (key_len_test_data[i] * 8));
       status = psa_import_key(&key_attr, aes_key_32, sizeof(aes_key_32), &key_id);
     }
 
@@ -79,7 +80,7 @@ void test_psa_aes(psa_algorithm_t alg)
     if (status == PSA_SUCCESS) {
       printf("\n Key import Success \n");
     } else {
-      printf("\n Key import Failed with error: %d\n", status);
+      printf("\n Key import Failed with error: %ld\n", status);
     }
 
     /* Encryption */
@@ -94,7 +95,7 @@ void test_psa_aes(psa_algorithm_t alg)
     if ((status == 0) && (memcmp(encryption_output, res_test_data[i], sizeof(msg_test_data[i])) == 0)) {
       printf("\n Encryption Success \n");
     } else {
-      printf("\n Encryption Failed with error: %d\n", status);
+      printf("\n Encryption Failed with error: %ld\n", status);
     }
 
     /* Decryption */
@@ -108,13 +109,13 @@ void test_psa_aes(psa_algorithm_t alg)
     if ((status == 0) && (memcmp(decryption_output, msg_test_data[i], sizeof(decryption_output)) == 0)) {
       printf("\n Decryption Success \n");
     } else {
-      printf("\n Decryption Failed with error: %d\n", status);
+      printf("\n Decryption Failed with error: %ld\n", status);
     }
 
     /* Destroy a volatile plain key for AES */
     status = psa_destroy_key(key_id);
     if (status != PSA_SUCCESS) {
-      printf("Destroy key failed with error: %d\n", status);
+      printf("Destroy key failed with error: %ld\n", status);
     }
   }
 }

@@ -41,7 +41,7 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#define REMOTE_IP_ADDRESS "192.168.0.145"
+#define REMOTE_IP_ADDRESS "8.8.8.8"
 
 #define CONNECT_WITH_PMK 0
 
@@ -66,7 +66,7 @@ const osThreadAttr_t thread_attributes = {
  *               Function Declarations
  ******************************************************/
 static void application_start(void *argument);
-static sl_status_t ping_callback_handler(uint32_t event, sl_status_t status, void *data, uint32_t data_length);
+static sl_status_t ping_callback_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t data_length);
 
 /******************************************************
  *               Function Definitions
@@ -82,7 +82,7 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, NULL, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, NULL, NULL, ping_callback_handler);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi Client interface: 0x%lX\r\n", status);
     return;
@@ -93,7 +93,7 @@ static void application_start(void *argument)
   uint8_t pairwise_master_key[32] = { 0 };
   sl_wifi_ssid_t ssid;
   uint8_t type = 3;
-  ssid.length  = (uint8_t)strnlen(DEFAULT_WIFI_CLIENT_PROFILE_SSID, sizeof(ssid.value));
+  ssid.length  = (uint8_t)(sizeof(DEFAULT_WIFI_CLIENT_PROFILE_SSID) - 1);
   memcpy(ssid.value, DEFAULT_WIFI_CLIENT_PROFILE_SSID, ssid.length);
 
   status = sl_wifi_get_pairwise_master_key(SL_NET_WIFI_CLIENT_INTERFACE,
@@ -107,25 +107,32 @@ static void application_start(void *argument)
   }
   printf("\r\nGet Pairwise Master Key Success\r\n");
 
-  status = sl_net_set_credential(SL_NET_DEFAULT_PMK_CREDENTIAL_ID,
+  status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE,
+                              SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
+                              &DEFAULT_WIFI_CLIENT_PROFILE);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nFailed to set client profile: 0x%lx\r\n", status);
+    return;
+  }
+  printf("\r\nWi-Fi set client profile success\r\n");
+
+  status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
                                  SL_NET_WIFI_PMK,
                                  pairwise_master_key,
-                                 sizeof(sl_wifi_pmk_credential_t));
+                                 sizeof(pairwise_master_key));
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed sl_net_set_credential: 0x%lX\r\n", status);
     return;
   }
   printf("\r\nsl_net_set_credential done\r\n");
-#endif
 
+#endif
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
     return;
   }
   printf("\r\nWi-Fi client connected\r\n");
-
-  sl_si91x_register_callback(SL_NET_PING_RESPONSE_EVENT, ping_callback_handler);
 
   sl_ip_address_t remote_ip_address = { 0 };
   sl_net_inet_addr(REMOTE_IP_ADDRESS, (uint32_t *)&remote_ip_address.ip.v4);
@@ -144,7 +151,7 @@ static void application_start(void *argument)
   }
 }
 
-static sl_status_t ping_callback_handler(uint32_t event, sl_status_t status, void *data, uint32_t data_length)
+static sl_status_t ping_callback_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t data_length)
 {
   UNUSED_PARAMETER(data_length);
   switch (event) {
@@ -162,6 +169,8 @@ static sl_status_t ping_callback_handler(uint32_t event, sl_status_t status, voi
              response->ping_address.ipv4_address[3]);
       break;
     }
+    default:
+      break;
   }
 
   return SL_STATUS_OK;

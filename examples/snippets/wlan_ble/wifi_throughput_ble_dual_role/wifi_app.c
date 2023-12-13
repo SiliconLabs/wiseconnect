@@ -40,7 +40,6 @@
 #include "sl_net.h"
 #include "sl_net_si91x.h"
 #include "sl_utility.h"
-#include "sl_tls.h"
 #include "sl_si91x_driver.h"
 
 #include "errno.h"
@@ -117,7 +116,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
 
-  if (CHECK_IF_EVENT_FAILED(event)) {
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     LOG_PRINT("F: Join Event received with %lu bytes payload\n", result_length);
     rsi_wlan_app_cb.state = RSI_WLAN_UNCONNECTED_STATE;
     return SL_STATUS_FAIL;
@@ -142,26 +141,16 @@ void rsi_wlan_app_callbacks_init(void)
 #if SSL && LOAD_CERTIFICATE
 sl_status_t clear_and_load_certificates_in_flash(void)
 {
-  sl_tls_store_configuration_t tls_configuration = { 0 };
-  //! Erase SSL CA certificate
-  sl_status_t status = sl_tls_clear_global_ca_store();
-  if (status != SL_STATUS_OK) {
-    printf("\r\nClient certificate erase failed, Error Code : 0x%lX\r\n", status);
-    return status;
-  }
+  sl_status_t status;
 
-  tls_configuration.cacert             = (uint8_t *)cacert;
-  tls_configuration.cacert_length      = (sizeof(cacert) - 1);
-  tls_configuration.cacert_type        = SL_TLS_SSL_CA_CERTIFICATE;
-  tls_configuration.use_secure_element = false;
-
-  //! Loading SSL CA certificate in to FLASH
-  status = sl_tls_set_global_ca_store(tls_configuration);
+  // Load SSL CA certificate
+  status =
+    sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading SSL CA certificate into FLASH Failed, Error Code : 0x%lX\r\n", status);
-    return status;
+    LOG_PRINT("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+    return;
   }
-  printf("\r\nLoading SSL CA certificate into FLASH Success\r\n");
+  LOG_PRINT("\r\nLoad TLS CA certificate at index %d Success\r\n", 0);
 
   return status;
 }
@@ -169,27 +158,29 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 
 static sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result)
 {
-  printf("%lu Scan results:\n", scan_result->scan_count);
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(scan_result);
+  uint8_t *bssid = NULL;
+  LOG_PRINT("%lu Scan results:\n", scan_result->scan_count);
 
   if (scan_result->scan_count) {
-    printf("\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
-    printf("%12s %12s %s\n", "BSSID", "CHANNEL", "RSSI");
+    LOG_PRINT("\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
+    LOG_PRINT("%12s %12s %s\n", "BSSID", "CHANNEL", "RSSI");
 
     for (int a = 0; a < (int)scan_result->scan_count; ++a) {
-      uint8_t *bssid = (uint8_t *)&scan_result->scan_info[a].bssid;
-      printf("%-24s %4u,  %4u, ",
-             scan_result->scan_info[a].ssid,
-             scan_result->scan_info[a].security_mode,
-             scan_result->scan_info[a].network_type);
-      printf("  %02x:%02x:%02x:%02x:%02x:%02x, %4u,  -%u\n",
-             bssid[0],
-             bssid[1],
-             bssid[2],
-             bssid[3],
-             bssid[4],
-             bssid[5],
-             scan_result->scan_info[a].rf_channel,
-             scan_result->scan_info[a].rssi_val);
+      bssid = (uint8_t *)&scan_result->scan_info[a].bssid;
+      LOG_PRINT("%-24s %4u,  %4u, ",
+                scan_result->scan_info[a].ssid,
+                scan_result->scan_info[a].security_mode,
+                scan_result->scan_info[a].network_type);
+      LOG_PRINT("  %02x:%02x:%02x:%02x:%02x:%02x, %4u,  -%u\n",
+                bssid[0],
+                bssid[1],
+                bssid[2],
+                bssid[3],
+                bssid[4],
+                bssid[5],
+                scan_result->scan_info[a].rf_channel,
+                scan_result->scan_info[a].rssi_val);
     }
   }
   return SL_STATUS_OK;
@@ -205,7 +196,7 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
 
   scan_complete = true;
 
-  if (CHECK_IF_EVENT_FAILED(event)) {
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     callback_status = *(sl_status_t *)result;
     return SL_STATUS_FAIL;
   }
@@ -237,14 +228,14 @@ void rsi_wlan_app_thread(void *unused)
 #if ENABLE_POWER_SAVE
         osMutexAcquire(power_cmd_mutex, 0xFFFFFFFFUL);
         if (!powersave_cmd_given) {
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
           uint8_t xtal_enable = 1;
-          status              = sl_si91x_m4_ta_secure_handshake(SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
+          status              = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
           if (status != SL_STATUS_OK) {
-            printf("Failed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
+            LOG_PRINT("Failed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
             return;
           }
-          printf("m4_ta_secure_handshake Success\r\n");
+          LOG_PRINT("m4_ta_secure_handshake Success\r\n");
 #endif
           status = rsi_initiate_power_save();
           if (status != RSI_SUCCESS) {
@@ -305,12 +296,12 @@ void rsi_wlan_app_thread(void *unused)
         sl_wifi_credential_t cred  = { 0 };
         sl_wifi_credential_id_t id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
 
-        cred.type = SL_WIFI_CRED_PSK;
+        cred.type = SL_WIFI_PSK_CREDENTIAL;
         memcpy(cred.psk.value, PSK, strlen((char *)PSK));
 
         status = sl_net_set_credential(id, SL_NET_WIFI_PSK, PSK, strlen((char *)PSK));
         if (SL_STATUS_OK == status) {
-          printf("Credentials set, id : %lu\n", id);
+          LOG_PRINT("Credentials set, id : %lu\n", id);
 
           access_point.ssid.length = strlen((char *)SSID);
           memcpy(access_point.ssid.value, SSID, access_point.ssid.length);
@@ -350,7 +341,7 @@ void rsi_wlan_app_thread(void *unused)
         ip_address.host_name = DHCP_HOST_NAME;
 
         // Configure IP
-        status = sl_si91x_configure_ip_address(&ip_address, CLIENT_MODE);
+        status = sl_si91x_configure_ip_address(&ip_address, SL_SI91X_WIFI_CLIENT_VAP_ID);
         if (status != RSI_SUCCESS) {
           LOG_PRINT("IP Config failed %lx\r\n", status);
           break;

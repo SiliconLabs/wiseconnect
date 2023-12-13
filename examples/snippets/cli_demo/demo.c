@@ -11,12 +11,12 @@
  * File Description
  *
  */
+#ifndef SLI_SI91X_MCU_INTERFACE
+#include "sl_iostream.h"
+#endif
 #include "console.h"
 #include "sl_constants.h"
 #include "sl_status.h"
-#ifndef RSI_M4_INTERFACE
-#include "sl_uart.h"
-#endif
 #include "sl_board_configuration.h"
 #include "cmsis_os2.h"
 #include "sl_utility.h"
@@ -26,7 +26,8 @@
  *                    Constants
  ******************************************************/
 
-#define UART_BUFFER_SIZE 128
+#define BUFFER_SIZE 256
+bool end_of_cmd = false;
 
 #define MY_ARG_TYPE uart, spi, i2c, tcp
 
@@ -50,6 +51,7 @@
 
 sl_status_t help_command_handler(console_args_t *arguments);
 sl_status_t rtt_command_handler(console_args_t *arguments);
+extern void cache_uart_rx_data(const char character);
 
 static void print_command_args(const console_descriptive_command_t *command);
 
@@ -87,11 +89,44 @@ void app_init(const void *unused)
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
+#ifndef SLI_SI91X_MCU_INTERFACE
+void iostream_usart_init()
+{
+  /* Prevent buffering of output/input.*/
+#if !defined(__CROSSWORKS_ARM) && defined(__GNUC__)
+  setvbuf(stdout, NULL, _IONBF, 0); /*Set unbuffered mode for stdout (newlib)*/
+  setvbuf(stdin, NULL, _IONBF, 0);  /*Set unbuffered mode for stdin (newlib)*/
+#endif
+}
+
+void iostream_rx()
+{
+  char c               = 0;
+  static uint8_t index = 0;
+  sl_iostream_getchar(SL_IOSTREAM_STDIN, &c);
+  if (c > 0) {
+    if ((c == '\n')) {
+      index      = 0;
+      end_of_cmd = true;
+    } else {
+      if (index < BUFFER_SIZE - 1) {
+        cache_uart_rx_data(c);
+        ;
+        index++;
+      }
+    }
+  }
+}
+#endif
+
 void application_start(const void *unused)
 {
   UNUSED_PARAMETER(unused);
   console_args_t args;
   const console_descriptive_command_t *command;
+#ifndef SLI_SI91X_MCU_INTERFACE
+  iostream_usart_init();
+#endif
 
   SL_DEBUG_LOG("app start\n");
 
@@ -101,6 +136,12 @@ void application_start(const void *unused)
 
   while (1) {
     printf("\r\n> \r\n");
+#ifndef SLI_SI91X_MCU_INTERFACE
+    while (!end_of_cmd) {
+      iostream_rx();
+    }
+    end_of_cmd = false;
+#endif
     while (!console_line_ready) {
       console_process_uart_data();
       osDelay(20);
@@ -167,6 +208,7 @@ sl_status_t thread_command_handler(console_args_t *arguments)
       if (new_thread == NULL) {
         return SL_STATUS_ALLOCATION_FAILED;
       }
+      memset(new_thread, 0, sizeof(console_threaded_command_t) + stack_size);
       new_thread->next = 0;
       if (threaded_commands_list_head == NULL) {
         threaded_commands_list_head = new_thread;

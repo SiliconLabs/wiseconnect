@@ -16,11 +16,11 @@
 ******************************************************************************/
 #ifndef APP_H
 #define APP_H
-
+#include <stdint.h>
 /***************************************************************************/ /**
  * Initialize application.
  ******************************************************************************/
-void app_init(const void *);
+void app_init(void);
 
 /***************************************************************************/ /**
  * App ticking function.
@@ -37,6 +37,4 @@ void sl_decode();
 
 //! Number of random needed to generate in Bytes
 #define LENGTH_OF_RANDOM_DATA 32
-//! Buffer to store response
-uint8_t attestation_token[LENGTH_OF_TOKEN];
 #endif // APP_H

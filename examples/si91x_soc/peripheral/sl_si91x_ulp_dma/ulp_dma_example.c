@@ -24,7 +24,7 @@
  ===================================================================================*/
 #include "sl_common.h"
 #include "sl_si91x_dma.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "sl_si91x_dma_inst_config.h"
 #include "ulp_dma_example.h"
 /*******************************************************************************
@@ -37,10 +37,6 @@
 volatile uint32_t transfer_done = 0;         // Transfer done flag
 uint32_t src0[SL_DMA_TRANSFER_SIZE];         // source buffer
 uint32_t dst0[SL_DMA_TRANSFER_SIZE] = { 0 }; // destination buffer
-
-#define RESERVED_IRQ_COUNT   16                                   // Reserved IRQ count
-#define EXT_IRQ_COUNT        98                                   // External IRQ count
-#define VECTOR_TABLE_ENTRIES (RESERVED_IRQ_COUNT + EXT_IRQ_COUNT) // Vector table entries
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -65,7 +61,6 @@ void transfer_complete_callback_dmadrv(uint32_t channel, void *data)
   (void)data;
   transfer_done = 1;
 }
-uint32_t ramVector[VECTOR_TABLE_ENTRIES] __attribute__((aligned(256)));
 extern void hardware_setup(void);
 
 /*******************************************************************************
@@ -84,10 +79,6 @@ void dma_example_init(void)
    * To reconfigure the default setting of SystemInit() function, refer to
    * startup_rs1xxxx.c file
    */
-  // copying the vector table from flash to ram
-  memcpy(ramVector, (uint32_t *)SCB->VTOR, sizeof(uint32_t) * VECTOR_TABLE_ENTRIES);
-  // Assigning the ram vector address to VTOR register
-  SCB->VTOR = (uint32_t)ramVector;
   // Switching MCU from PS4 to PS2 state(low power state)
   // In this mode, whatever be the timer clock source value, it will run with
   // 20MHZ only, as it trims higher clock frequencies to 20MHZ. To use timer in

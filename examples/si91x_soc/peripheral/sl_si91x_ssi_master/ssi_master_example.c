@@ -17,7 +17,7 @@
 // Include Files
 
 #include "sl_si91x_ssi.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_rom_clks.h"
 #include "ssi_master_example.h"
 
@@ -52,7 +52,8 @@ static uint8_t data_in[BUFFER_SIZE]      = { '\0' };
 static sl_ssi_handle_t ssi_driver_handle = NULL;
 boolean_t transfer_complete              = false;
 boolean_t begin_transmission             = true;
-static uint16_t division_factor          = 1;
+static uint16_t size_factor              = 1;
+static uint32_t slave_number             = SSI_SLAVE_0;
 
 /// @brief Enumeration for different transmission scenarios
 typedef enum {
@@ -82,8 +83,6 @@ void ssi_master_example_init(void)
   config.bit_width            = SSI_BIT_WIDTH;
   config.device_mode          = SL_SSI_MASTER_ACTIVE;
   config.clock_mode           = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
-  config.master_ssm           = SL_SSI_MASTER_HW_OUTPUT;
-  config.slave_ssm            = SL_SSI_SLAVE_HW;
   config.baud_rate            = SSI_BAUDRATE;
   config.receive_sample_delay = RECEIVE_SAMPLE_DELAY;
   // Filled data into input buffer
@@ -117,7 +116,7 @@ void ssi_master_example_init(void)
     DEBUGOUT("SSI Initialization Success \n");
 
     // Configure the SSI to Master, 16-bit mode @10000 kBits/sec
-    sl_status = sl_si91x_ssi_set_configuration(ssi_driver_handle, &config);
+    sl_status = sl_si91x_ssi_set_configuration(ssi_driver_handle, &config, slave_number);
     if (sl_status != SL_STATUS_OK) {
       DEBUGOUT("Failed to Set Configuration Parameters to SSI, Error Code : %lu \n", sl_status);
       break;
@@ -134,15 +133,15 @@ void ssi_master_example_init(void)
     DEBUGOUT("Current Clock division factor is %lu \n", sl_si91x_ssi_get_clock_division_factor(ssi_driver_handle));
     // Fetching and printing the current frame length
     DEBUGOUT("Current Frame Length is %lu \n", sl_si91x_ssi_get_frame_length(ssi_driver_handle));
-    if (sl_si91x_ssi_get_frame_length(ssi_driver_handle) > SSI_BIT_WIDTH) {
-      division_factor = sizeof(data_out[0]);
+    if (sl_si91x_ssi_get_frame_length(ssi_driver_handle) >= SSI_BIT_WIDTH) {
+      size_factor = sizeof(data_out[0]);
     }
     // As per the macros enabled in the header file, it will configure the current mode.
     if (SL_USE_TRANSFER) {
       current_mode = SL_TRANSFER_DATA;
       break;
     }
-    if (SL_USE_RECEIVE) {
+    if (SL_USE_SEND) {
       current_mode = SL_SEND_DATA;
       break;
     }
@@ -163,8 +162,8 @@ void ssi_master_example_process_action(void)
     case SL_TRANSFER_DATA:
       if (begin_transmission == true) {
         // Validation for executing the API only once
-        sl_si91x_ssi_set_slave_number(SSI_SLAVE_0);
-        status = sl_si91x_ssi_transfer_data(ssi_driver_handle, data_out, data_in, sizeof(data_out) / division_factor);
+        sl_si91x_ssi_set_slave_number(slave_number);
+        status = sl_si91x_ssi_transfer_data(ssi_driver_handle, data_out, data_in, sizeof(data_out) / size_factor);
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_ssi_transfer_data: Error Code : %lu \n", status);
@@ -199,8 +198,8 @@ void ssi_master_example_process_action(void)
     case SL_SEND_DATA:
       if (begin_transmission) {
         // Validation for executing the API only once
-        sl_si91x_ssi_set_slave_number(SSI_SLAVE_0);
-        status = sl_si91x_ssi_send_data(ssi_driver_handle, data_out, sizeof(data_out) / division_factor);
+        sl_si91x_ssi_set_slave_number(slave_number);
+        status = sl_si91x_ssi_send_data(ssi_driver_handle, data_out, sizeof(data_out) / size_factor);
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_ssi_send_data: Error Code : %lu \n", status);
@@ -218,10 +217,10 @@ void ssi_master_example_process_action(void)
           // If send macro is enabled, current mode is set to send
           current_mode       = SL_RECEIVE_DATA;
           begin_transmission = true;
-          DEBUGOUT("SSI receive completed \n");
+          DEBUGOUT("SSI send completed \n");
           break;
         }
-        DEBUGOUT("SSI receive completed \n");
+        DEBUGOUT("SSI send completed \n");
         // If send macro is not enabled, current mode is set to completed.
         current_mode = SL_TRANSMISSION_COMPLETED;
       }
@@ -229,7 +228,7 @@ void ssi_master_example_process_action(void)
     case SL_RECEIVE_DATA:
       if (begin_transmission == true) {
         // Validation for executing the API only once
-        sl_si91x_ssi_set_slave_number(SSI_SLAVE_0);
+        sl_si91x_ssi_set_slave_number(slave_number);
         status = sl_si91x_ssi_receive_data(ssi_driver_handle, data_in, sizeof(data_in));
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
@@ -244,6 +243,8 @@ void ssi_master_example_process_action(void)
       if (transfer_complete) {
         // If DMA is enabled, it will wait untill transfer_complete flag is set.
         transfer_complete = false;
+        DEBUGOUT("SSI receive completed \n");
+        compare_loopback_data();
         // At last current mode is set to completed.
         current_mode = SL_TRANSMISSION_COMPLETED;
       }

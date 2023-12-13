@@ -36,6 +36,10 @@
 #include "sl_wifi.h"
 #include "sl_si91x_driver.h"
 
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
+#endif // SLI_SI91X_MCU_INTERFACE
+
 /******************************************************
  *               Function Declarations
  ******************************************************/
@@ -59,34 +63,26 @@ const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
-#ifdef RSI_M4_INTERFACE
-#define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-#endif // RSI_M4_INTERFACE
-
 static const sl_wifi_device_configuration_t station_init_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                   .coex_mode       = SL_SI91X_WLAN_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                                        | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef RSI_M4_INTERFACE
-                                                  | RAM_LEVEL_NWP_BASIC_MCU_ADV
-#else
-                                                  | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-#ifdef CHIP_917
-                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-                                                  ),
+                      ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
                    .ble_feature_bit_map        = 0,
@@ -115,9 +111,9 @@ static void application_start(void *argument)
   }
   printf("Wi-Fi interface up Success\r\n");
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
   uint8_t xtal_enable = 1;
-  status              = sl_si91x_m4_ta_secure_handshake(SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
+  status              = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
     return;
@@ -127,7 +123,15 @@ static void application_start(void *argument)
 
   enable_standby();
   printf("Device is in power save mode \n");
+
+#ifdef SLI_SI91X_MCU_INTERFACE
+  printf("\r\nM4 in Sleep\r\n");
+  sl_si91x_m4_sleep_wakeup();
+  printf("\r\nM4 wake up\r\n");
+#else
   osDelay(10000);
+#endif
+
   enable_high_performance();
 
   printf("\r\nExample Demonstration Completed\r\n");

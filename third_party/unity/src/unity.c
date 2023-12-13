@@ -1,15 +1,15 @@
 /***************************************************************************/ /**
- * # License
- *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is Third Party Software licensed by Silicon Labs from a third party
- * and is governed by the sections of the MSLA applicable to Third Party
- * Software and the additional terms set forth below.
- *
- ******************************************************************************/
+                                                                               * # License
+                                                                               *
+                                                                               * The licensor of this software is Silicon Laboratories Inc. Your use of this
+                                                                               * software is governed by the terms of Silicon Labs Master Software License
+                                                                               * Agreement (MSLA) available at
+                                                                               * www.silabs.com/about-us/legal/master-software-license-agreement. This
+                                                                               * software is Third Party Software licensed by Silicon Labs from a third party
+                                                                               * and is governed by the sections of the MSLA applicable to Third Party
+                                                                               * Software and the additional terms set forth below.
+                                                                               *
+                                                                               ******************************************************************************/
 /* ==========================================
     Unity Project - A Test Framework for C
     Copyright (c) 2007 Mike Karlesky, Mark VanderVoord, Greg Williams
@@ -18,9 +18,9 @@
 
 #include "unity.h"
 //#include "em_int.h"
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 
 #if !defined(UNITY_FAIL_AND_BAIL)
 #define UNITY_FAIL_AND_BAIL             \
@@ -55,8 +55,9 @@
 
 #if defined(UNITY_FREERTOS)
 #include "FreeRTOS.h"
-#include "task.h"
 #include "semphr.h"
+#include "task.h"
+
 #endif
 
 #if defined(UNITY_MICRIUM)
@@ -239,17 +240,17 @@ void UnityPrint(const char *string)
       if ((*pch <= 126) && (*pch >= 32)) {
         UNITY_OUTPUT_CHAR(*pch);
       }
-      //write escaped carriage returns
+      // write escaped carriage returns
       else if (*pch == 13) {
         UNITY_OUTPUT_CHAR('\\');
         UNITY_OUTPUT_CHAR('r');
       }
-      //write escaped line feeds
+      // write escaped line feeds
       else if (*pch == 10) {
         UNITY_OUTPUT_CHAR('\\');
         UNITY_OUTPUT_CHAR('n');
       }
-      //write escape character for text formating
+      // write escape character for text formating
       else if (*pch == 27) {
         UNITY_OUTPUT_CHAR(*pch);
       }
@@ -540,12 +541,12 @@ void UnityPrintExpectedAndActualStrings(const char *expected, const char *actual
 
 int UnityCheckArraysForNull(const void *expected, const void *actual, const UNITY_LINE_TYPE lineNumber, const char *msg)
 {
-  //return true if they are both NULL
+  // return true if they are both NULL
   if ((expected == NULL) && (actual == NULL)) {
     return 1;
   }
 
-  //throw error if just expected is NULL
+  // throw error if just expected is NULL
   if (expected == NULL) {
     UnityTestResultsFailBegin(lineNumber);
     UnityPrint(UnityStrNullPointerForExpected);
@@ -553,7 +554,7 @@ int UnityCheckArraysForNull(const void *expected, const void *actual, const UNIT
     UNITY_FAIL_AND_BAIL;
   }
 
-  //throw error if just actual is NULL
+  // throw error if just actual is NULL
   if (actual == NULL) {
     UnityTestResultsFailBegin(lineNumber);
     UnityPrint(UnityStrNullPointerForActual);
@@ -561,7 +562,7 @@ int UnityCheckArraysForNull(const void *expected, const void *actual, const UNIT
     UNITY_FAIL_AND_BAIL;
   }
 
-  //return false if neither is NULL
+  // return false if neither is NULL
   return 0;
 }
 
@@ -923,7 +924,8 @@ void UnityAssertEqualString(const char *expected, const char *actual, const char
         break;
       }
     }
-  } else { // handle case of one pointers being null (if both null, test should pass)
+  } else { // handle case of one pointers being null (if both null, test should
+           // pass)
     if (expected != actual) {
       UnityGet()->CurrentTestFailed = 1;
     }
@@ -969,7 +971,8 @@ void UnityAssertEqualStringArray(const char **expected,
           break;
         }
       }
-    } else { // handle case of one pointers being null (if both null, test should pass)
+    } else { // handle case of one pointers being null (if both null, test
+             // should pass)
       if (expected[j] != actual[j]) {
         UnityGet()->CurrentTestFailed = 1;
       }
@@ -1174,17 +1177,17 @@ int UnityEnd(void)
   UNITY_PRINT_TEXT_COLOR("\033[0m");
 
   UnityPrintNumber(UnityGet()->TestIgnores);
-  UnityPrint(" Ignored");
-  UNITY_PRINT_EOL;
+  UnityPrint(" Ignored : ");
+  //  UNITY_PRINT_EOL;
   if (UnityGet()->TestFailures == 0U) {
-    UnityPrint("OK");
+    UnityPrint("OK : ");
   } else {
-    UnityPrint("FAIL");
+    UnityPrint("FAIL : ");
 #ifdef UNITY_SIM
     print_error("Error detected in test suite");
 #endif
   }
-  UNITY_PRINT_EOL;
+  //  UNITY_PRINT_EOL;
   UnityPrintRegionExit();
   return UnityGet()->TestFailures;
 }

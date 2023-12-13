@@ -1,0 +1,21 @@
+id: sl_sdio_secondary_peripheral
+label: SL SDIO Secondary Peripheral
+package: platform
+description: >
+  Si91x low-level SDIO secondary peripheral API.
+category: Device|Si91x|MCU|Peripheral|Register-Level API
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_peripheral_drivers"
+provides:
+  - name: sl_sdio_secondary_peripheral
+requires:
+  - name: romdriver_gpdma
+  - name: rsilib_gpdma
+source:
+  - path: src/sl_si91x_peripheral_sdio_secondary.c
+include:
+  - path: inc
+    file_list:
+      - path: sl_si91x_peripheral_sdio_secondary.h
+define:
+  - name: __SYSTICK

@@ -1,0 +1,22 @@
+id: bsd_socket_api
+package: wiseconnect3_sdk
+description: >
+  The BSD Socket API provides a BSD socket API prototypes
+label: BSD Socket API
+category: Common
+quality: production
+component_root_path: ./components/service/bsd_socket
+provides:
+- name: bsd_socket_api
+source:
+include:
+- path: inc
+  file_list:
+    - path: netdb.h
+    - path: netinet_in.h
+    - path: netinet6_in6.h
+    - path: select.h
+    - path: socket.h
+    - path: sys.h
+    - path: uio.h
+

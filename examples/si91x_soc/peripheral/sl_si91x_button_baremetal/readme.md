@@ -1,53 +1,71 @@
-# Simple Button Bare Metal
+# SL BUTTON BAREMETAL
 
-## Introduction
-- This example application demonstrates the use of BUTTON in a bare metal environment.The application toggles LED on each BUTTON press using the sl_si91x_led_toggle() function. Additional LED and BUTTON instances could be added.
+## Table of Contents
 
-## Requirements
-- SI91X Board
+- [Purpose/Scope](#purposescope)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
 
-## Setting Up 
- - To use this application following Hardware, Software and the Project Setup is required
+## Purpose/Scope
 
-### Hardware Requirements	
-  - Windows PC 
-  - Silicon Labs [SiWx917 Radio Board]
+- This example application demonstrates the use of BUTTON in a bare metal environment.The application toggles LED on each BUTTON press using the sl_si91x_led_toggle() function. 
+- Additional LED and BUTTON instances could be added.
 
-  ![Figure: Introduction](resources/readme/image600a.png)
+## Prerequisites/Setup Requirements
+
+### Hardware Requirements
+
+- Windows PC
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
-  - Si91x SDK
-  - Embedded Development Environment
-    - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
- 
-## Project Setup
-- **Silicon Labs Si91x** refer **"Download SDKs"**, **"Add SDK to Simplicity Studio"**, **"Connect SiWx917"**, **"Open Example Project in Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
-## Loading Application on Simplicity Studio
+- Simplicity Studio
 
-1. With the product BRD4338A selected, navigate to the example projects by clicking on Example Projects & Demos
-   in Simplicity Studio and create MEMLCD Baremetal example application as shown below.
+### Setup Diagram
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-![Figure: Selecting Example project](resources/readme/image600b.png)
+## Getting Started
 
-## Build 
-- Compile the application in Simplicity Studio using build icon 
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Build](resources/readme/image600c.png)
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-## Device Programming
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+## Application Build Environment
 
-## Output
 - The application will toggle the selected LED on each selected button press.
 
-## Note
-- The project uses BTN0 by default. To change the button to BTN1, follow the below steps :
+### Configuration
 
-  1. Add btn1 instance by traversing to the below path and select "Add New Instances" :
-  "Software Components -> WiSeConnect 3 SDK -> Platform -> Si91x -> core -> BUTTON"
-![Figure: Adding Button Instance](resources/readme/image600d.png)
-  
-  2. Change the definition of macro BUTTON_INSTANCE_0 in button_baremetal.c file to button_btn1.
-  
-  3. Build and test the output.
+- Button Configure Interrupt: The button interrupt type can be configured. By default, Rise and Fall edge interrupt type has been set. One of the following can be selected - 
+  - Low level interrupt: Interrupt on low/pressed button state can be configured
+  - High level interrupt: Interrupt on high/released button state
+  - Low level and High level: Interrupt on low/pressed and high/released button state
+  - Rise edge interrupt: Interrupt on rising edge of the button press
+  - Fall edge interrupt: Interrupt on falling edge of the button press
+  - Rise adge and fall edge interrupt: Interrupt on rising edge and falling edge of the button press
+
+> ![Figure: Introduction](resources/readme/image600a.png)
+
+## Test the Application
+>
+>- The project uses BTN0 by default. To change the button to BTN1, follow the below steps :
+>
+  >  1. Add btn1 instance by traversing to the below path and select "Add New Instances" :
+    "Software Components -> WiSeConnect 3 SDK -> Device -> Si91x -> MCU -> Drivers -> BUTTON"
+    >
+  > ![Figure: Adding Button Instance](resources/readme/image600d.png)
+  > 
+  >  2. Change the definition of macro BUTTON_INSTANCE_0 in button_baremetal.c file to button_btn1.
+  >  
+  >  3. Build and test the output.
+
+  - LED0 will toggle when Button0 pressed.

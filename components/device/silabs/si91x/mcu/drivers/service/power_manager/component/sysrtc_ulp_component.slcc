@@ -1,0 +1,23 @@
+id: sysrtc_ulp_component
+label: SysRTC
+package: platform
+description: >
+  Install this component to enable execution of Sysrtc peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+requires:
+  - name: sl_sysrtc
+  - name: rsilib_sysrtc
+
+provides:
+  - name: sysrtc_ulp_component
+
+template_contribution:
+  - name: power_manager_ps2
+    value: 1
+  - name: sysrtc_ps2
+    value: sl_si91x_sysrtc.o
+  - name: sysrtc_ps2
+    value: rsi_sysrtc.o
+

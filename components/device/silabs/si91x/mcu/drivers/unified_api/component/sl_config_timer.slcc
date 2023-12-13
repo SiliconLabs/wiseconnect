@@ -1,0 +1,21 @@
+id: sl_config_timer
+label: Config Timer
+package: platform
+description: >
+   Si91x Config Timer (CT) API.
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_config_timer_config.h
+source:
+  - path: "src/sl_si91x_config_timer.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_config_timer.h"
+provides:
+  - name: sl_config_timer
+requires:
+  - name: udma_linker_config
+  - name: rsilib_ct

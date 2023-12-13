@@ -29,7 +29,6 @@
  ******************************************************************************/
 
 #include "sl_net.h"
-#include "sl_tls.h"
 #include "sl_utility.h"
 #include "cmsis_os2.h"
 #include "sl_constants.h"
@@ -41,9 +40,8 @@
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_wifi_types.h"
 
-#ifdef RSI_M4_INTERFACE
-#include "rsi_power_save.h"
-#include "rsi_wisemcu_hardware_setup.h"
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
 #endif
 
 /******************************************************
@@ -95,26 +93,6 @@
 #define MAX_BEACON_WAKE_UP_AFTER_SP \
   2 // The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
 
-#ifdef RSI_M4_INTERFACE
-#ifdef COMMON_FLASH_EN
-#ifdef CHIP_917B0
-#define IVT_OFFSET_ADDR 0x81C2000 /*<!Application IVT location VTOR offset>          B0 common flash Board*/
-#else
-#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>          A0 Common flash Board*/
-#endif
-#else
-#define IVT_OFFSET_ADDR \
-  0x8012000 /*<!Application IVT location VTOR offset>          Dual Flash  (both A0 and B0) Board*/
-#endif
-#ifdef CHIP_917B0
-#define WKP_RAM_USAGE_LOCATION \
-  0x24061EFC /*<!Bootloader RAM usage location upon wake up  */ // B0 Boards (common flash & Dual flash)
-#else
-#define WKP_RAM_USAGE_LOCATION \
-  0x24061000 /*<!Bootloader RAM usage location upon wake up  */ // A0 Boards (common flash & Dual flash)
-#endif
-#endif
-
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -136,24 +114,19 @@ static sl_wifi_device_configuration_t sl_wifi_mqtt_client_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_MODE,
+                   .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                       | SL_SI91X_FEAT_WPS_DISABLE
 #endif
                       ),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
                                               | SL_SI91X_TCP_IP_FEAT_SSL),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-                                                  | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS |
-#ifndef RSI_M4_INTERFACE
-                                                  RAM_LEVEL_NWP_ADV_MCU_BASIC
-#else
-                                                  RAM_LEVEL_NWP_BASIC_MCU_ADV
-#endif
-#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS | MEMORY_CONFIG
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -199,7 +172,6 @@ sl_wifi_twt_selection_t default_twt_selection_configuration = {
   .beacon_wake_up_count_after_sp         = MAX_BEACON_WAKE_UP_AFTER_SP
 };
 
-bool twt_results_complete   = false;
 sl_status_t callback_status = SL_STATUS_OK;
 
 sl_mqtt_client_t client              = { 0 };
@@ -252,7 +224,6 @@ void mqtt_client_error_event_handler(void *client, sl_mqtt_client_error_status_t
 void mqtt_client_cleanup();
 void print_char_buffer(char *buffer, uint32_t buffer_length);
 sl_status_t mqtt_example();
-
 sl_status_t twt_callback_handler(sl_wifi_event_t event,
                                  sl_si91x_twt_response_t *result,
                                  uint32_t result_length,
@@ -299,8 +270,8 @@ static void application_start(void *argument)
 
   mqtt_example();
 
-#ifdef RSI_M4_INTERFACE
-  M4_sleep_wakeup();
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sl_si91x_m4_sleep_wakeup();
 #endif
 
   while (1) {
@@ -321,8 +292,7 @@ sl_status_t twt_callback_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
 
-  if (CHECK_IF_EVENT_FAILED(event)) {
-    twt_results_complete = true;
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     return SL_STATUS_FAIL;
   }
 
@@ -363,6 +333,12 @@ sl_status_t twt_callback_handler(sl_wifi_event_t event,
     case SL_WIFI_TWT_INACTIVE_NO_AP_SUPPORT_EVENT:
       printf("\r\nConnected AP Does not support TWT");
       break;
+    case SL_WIFI_RESCHEDULE_TWT_SUCCESS_EVENT:
+      printf("\r\nTWT rescheduled");
+      break;
+    case SL_WIFI_TWT_INFO_FRAME_EXCHANGE_FAILED_EVENT:
+      printf("\r\nTWT rescheduling failed due to a failure in the exchange of TWT information frames.");
+      break;
     default:
       printf("\r\nTWT Setup Failed.");
   }
@@ -378,11 +354,10 @@ sl_status_t twt_callback_handler(sl_wifi_event_t event,
     printf("\r\n twt_channel : 0x%X", result->twt_channel);
     printf("\r\n twt_protection : 0x%X", result->twt_protection);
     printf("\r\n twt_flow_id : 0x%X\r\n", result->twt_flow_id);
-  } else if (event <= SL_WIFI_TWT_AP_TEARDOWN_SUCCESS_EVENT) {
+  } else if (event < SL_WIFI_TWT_EVENTS_END) {
     printf("\r\n twt_flow_id : 0x%X", result->twt_flow_id);
     printf("\r\n negotiation_type : 0x%X\r\n", result->negotiation_type);
   }
-  twt_results_complete = true;
   return SL_STATUS_OK;
 }
 
@@ -435,6 +410,10 @@ void mqtt_client_error_event_handler(void *client, sl_mqtt_client_error_status_t
 
 void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void *event_data, void *context)
 {
+#if !(ENABLE_MQTT_SUBSCRIBE_PUBLISH)
+  UNUSED_PARAMETER(context);
+#endif
+
   switch (event) {
     case SL_MQTT_CLIENT_CONNECTED_EVENT: {
       printf("MQTT client connection success\r\n");
@@ -522,7 +501,6 @@ sl_status_t mqtt_example()
 {
   sl_status_t status;
   sl_wifi_performance_profile_t performance_profile = { 0 };
-  sl_tls_store_configuration_t tls_configuration    = { 0 };
 
   //! Enable Broadcast data filter
   status = sl_wifi_filter_broadcast(5000, 1, 1);
@@ -530,17 +508,14 @@ sl_status_t mqtt_example()
   printf("\r\nEnabled Broadcast Data Filter\n");
 
   if (ENCRYPT_CONNECTION) {
-    tls_configuration.cacert             = (uint8_t *)cacert;
-    tls_configuration.cacert_length      = (sizeof(cacert) - 1);
-    tls_configuration.cacert_type        = SL_TLS_SSL_CA_CERTIFICATE;
-    tls_configuration.use_secure_element = false;
-
-    status = sl_tls_set_global_ca_store(tls_configuration);
+    // Load SSL CA certificate
+    status =
+      sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
     if (status != SL_STATUS_OK) {
-      printf("\r\nLoading SSL CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+      printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
       return status;
     }
-    printf("\r\nLoading SSL certificate in FLASH Success \r\n ");
+    printf("\r\nLoad TLS CA certificate at index %d Success\r\n", 0);
   }
 
   if (SEND_CREDENTIALS) {
@@ -552,15 +527,17 @@ sl_status_t mqtt_example()
     uint32_t malloc_size = sizeof(sl_mqtt_client_credentials_t) + username_length + password_length;
 
     client_credentails = malloc(malloc_size);
-
+    if (client_credentails == NULL)
+      return SL_STATUS_ALLOCATION_FAILED;
+    memset(client_credentails, 0, malloc_size);
     client_credentails->username_length = username_length;
     client_credentails->password_length = password_length;
 
     memcpy(&client_credentails->data[0], USERNAME, username_length);
     memcpy(&client_credentails->data[username_length], PASSWORD, password_length);
 
-    status = sl_net_set_credential(SL_NET_MQTT_CLIENT_CREDENTIALS_ID,
-                                   SL_NET_MQTT_CLIENT_CREDENTIALS,
+    status = sl_net_set_credential(SL_NET_MQTT_CLIENT_CREDENTIAL_ID(0),
+                                   SL_NET_MQTT_CLIENT_CREDENTIAL,
                                    client_credentails,
                                    malloc_size);
 
@@ -571,7 +548,7 @@ sl_status_t mqtt_example()
       return status;
     }
 
-    mqtt_client_configuration.credential_id = SL_NET_MQTT_CLIENT_CREDENTIALS_ID;
+    mqtt_client_configuration.credential_id = SL_NET_MQTT_CLIENT_CREDENTIAL_ID(0);
   }
 
   status = sl_mqtt_client_init(&client, mqtt_client_event_handler);
@@ -605,18 +582,9 @@ sl_status_t mqtt_example()
     performance_profile.twt_request = default_twt_setup_configuration;
     status                          = sl_wifi_enable_target_wake_time(&performance_profile.twt_request);
   }
-  if (SL_STATUS_IN_PROGRESS == status) {
-    const uint32_t start = osKernelGetTickCount();
-
-    while (!twt_results_complete && (osKernelGetTickCount() - start) <= TWT_SCAN_TIMEOUT) {
-      osThreadYield();
-    }
-
-    status = twt_results_complete ? callback_status : SL_STATUS_TIMEOUT;
-  }
-
   VERIFY_STATUS_AND_RETURN(status);
-  twt_results_complete = false;
+  // A small delay is added so that the asynchronous response from TWT is printed in correct format.
+  osDelay(100);
 
   //! Apply power save profile
   performance_profile.profile = ASSOCIATED_POWER_SAVE;
@@ -631,43 +599,3 @@ sl_status_t mqtt_example()
 
   return SL_STATUS_OK;
 }
-
-#ifdef RSI_M4_INTERFACE
-
-void M4_sleep_wakeup(void)
-{
-  printf("\r\nM4 in sleep\r\n");
-#ifndef FLASH_BASED_EXECUTION_ENABLE
-  /* LDOSOC Default Mode needs to be disabled */
-  sl_si91x_disable_default_ldo_mode();
-
-  /* bypass_ldorf_ctrl needs to be enabled */
-  sl_si91x_enable_bypass_ldo_rf();
-
-  sl_si91x_disable_flash_ldo();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep */
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         0,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         0,
-                         RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
-
-#else
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep*/
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         WKP_RAM_USAGE_LOCATION,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         IVT_OFFSET_ADDR,
-                         RSI_WAKEUP_FROM_FLASH_MODE);
-#endif
-}
-#endif

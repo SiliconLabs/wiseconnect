@@ -16,6 +16,7 @@
  ******************************************************************************/
 #include "psa_symmetric_key_storage_app.h"
 #include "psa/crypto.h"
+#include <stdio.h>
 
 void test_import_and_export_volatile_plain_key()
 {
@@ -39,7 +40,7 @@ void test_import_and_export_volatile_plain_key()
   // Import a volatile plain key for AES ECB
   ret = psa_import_key(&key_attr, aes_ecb_key, sizeof(aes_ecb_key), &import_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Import volatile plain Key failed with error: %d\n", ret);
+    printf("Import volatile plain Key failed with error: %ld\n", ret);
   } else {
     printf("Import Volatile Plain Key Success\n");
   }
@@ -47,7 +48,7 @@ void test_import_and_export_volatile_plain_key()
   // Export a volatile plain key
   ret = psa_export_key(import_key_id, key_buf, sizeof(aes_ecb_key), &key_len);
   if (((memcmp(key_buf, aes_ecb_key, sizeof(aes_ecb_key))) != 0) || ret != PSA_SUCCESS) {
-    printf("Export volatile plain key failed with error: %d\n", ret);
+    printf("Export volatile plain key failed with error: %ld\n", ret);
   } else {
     printf("Export Volatile Plain Key Success\n");
   }
@@ -55,7 +56,7 @@ void test_import_and_export_volatile_plain_key()
   // Destroy the volatile plain keys for AES ECB
   ret = psa_destroy_key(import_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Destroy key failed with error: %d\n", ret);
+    printf("Destroy key failed with error: %ld\n", ret);
   } else {
     printf("Destroy Key Success\n");
   }
@@ -80,7 +81,7 @@ void test_generate_and_export_volatile_plain_key()
   // Generate a random volatile plain key for AES ECB
   ret = psa_generate_key(&key_attr, &generate_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Generate volatile plain Key failed with error: %d\n", ret);
+    printf("Generate volatile plain Key failed with error: %ld\n", ret);
   } else {
     printf("Generate Volatile Plain Key Success\n");
   }
@@ -88,7 +89,7 @@ void test_generate_and_export_volatile_plain_key()
   // Export a volatile Plain Key
   ret = psa_export_key(generate_key_id, key_buf, sizeof(key_buf), &key_len);
   if (ret != PSA_SUCCESS) {
-    printf("Export volatile plain Key failed with error: %d\n", ret);
+    printf("Export volatile plain Key failed with error: %ld\n", ret);
   } else {
     printf("Export Volatile Plain Key Success\n");
   }
@@ -96,7 +97,7 @@ void test_generate_and_export_volatile_plain_key()
   // Destroy the volatile plain key
   ret = psa_destroy_key(generate_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Destroy key failed with error: %d\n", ret);
+    printf("Destroy key failed with error: %ld\n", ret);
   } else {
     printf("Destroy Key Success\n");
   }
@@ -124,7 +125,7 @@ void test_import_and_export_persistent_plain_key()
   psa_set_key_id(&key_attr, 0x02);
   ret = psa_import_key(&key_attr, aes_ecb_key, sizeof(aes_ecb_key), &import_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Import persistent plain Key failed with error: %d\n", ret);
+    printf("Import persistent plain Key failed with error: %ld\n", ret);
   } else {
     printf("Import Persistent Plain Key Success\n");
   }
@@ -132,7 +133,7 @@ void test_import_and_export_persistent_plain_key()
   // Export a persistent plain key for AES ECB (ID = 0x02)
   ret = psa_export_key(import_key_id, key_buf, sizeof(aes_ecb_key), &key_len);
   if (((memcmp(key_buf, aes_ecb_key, sizeof(aes_ecb_key))) != 0) || ret != PSA_SUCCESS) {
-    printf("Export persistent plain key failed with error: %d\n", ret);
+    printf("Export persistent plain key failed with error: %ld\n", ret);
   } else {
     printf("Export Persistent Plain Key Success\n");
   }
@@ -140,7 +141,7 @@ void test_import_and_export_persistent_plain_key()
   // Destroy the persistent plain keys for AES ECB
   ret = psa_destroy_key(import_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Destroy key failed with error: %d\n", ret);
+    printf("Destroy key failed with error: %ld\n", ret);
   } else {
     printf("Destroy Key Success\n");
   }
@@ -166,7 +167,7 @@ void test_generate_and_export_persistent_plain_key()
   psa_set_key_id(&key_attr, 0x03);
   ret = psa_generate_key(&key_attr, &generate_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Generate persistent plain Key failed with error: %d\n", ret);
+    printf("Generate persistent plain Key failed with error: %ld\n", ret);
   } else {
     printf("Generate Persistent Plain Key Success\n");
   }
@@ -174,7 +175,7 @@ void test_generate_and_export_persistent_plain_key()
   // Export a persistent plain key for AES ECB (ID = 0x03)
   ret = psa_export_key(generate_key_id, key_buf, sizeof(key_buf), &key_len);
   if (ret != PSA_SUCCESS) {
-    printf("Export persistent plain Key failed with error: %d\n", ret);
+    printf("Export persistent plain Key failed with error: %ld\n", ret);
   } else {
     printf("Export Persistent Plain Key Success\n");
   }
@@ -182,7 +183,7 @@ void test_generate_and_export_persistent_plain_key()
   // Destroy the persistent plain keys for AES ECB
   ret = psa_destroy_key(generate_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Destroy key failed with error: %d\n", ret);
+    printf("Destroy key failed with error: %ld\n", ret);
   } else {
     printf("Destroy Key Success\n");
   }
@@ -205,7 +206,7 @@ void psa_its_app_process_action()
   psa_status_t ret;
   ret = psa_crypto_init();
   if (ret != PSA_SUCCESS) {
-    printf("PSA Crypto Init failed with status : %d\n", ret);
+    printf("PSA Crypto Init failed with status : %ld\n", ret);
   } else {
     printf("PSA Crypto Init Success\n");
   }

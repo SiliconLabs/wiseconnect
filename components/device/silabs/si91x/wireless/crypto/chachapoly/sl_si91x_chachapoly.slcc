@@ -1,0 +1,20 @@
+id: sl_si91x_chachapoly
+package: wiseconnect3_sdk
+description: >
+  Implementation of the CHACHAPOLY API
+label: CHACHAPOLY
+category: Device|Si91x|Wireless|Crypto
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless/crypto/chachapoly
+provides:
+- name: sl_si91x_chachapoly
+source:
+- path: src/sl_si91x_chachapoly.c
+requires:
+- name: sl_si91x_crypto
+
+include:
+- path: inc
+  file_list:
+    - path: sl_si91x_chachapoly.h
+

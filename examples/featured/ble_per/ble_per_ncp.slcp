@@ -1,6 +1,6 @@
 project_name: ble_per_ncp
 package: ble
-quality: alpha
+quality: production
 label: ble_per
 category: Example|BLE
 description: >
@@ -11,9 +11,12 @@ filter:
     value: ["BLE"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.3.1}
-sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.0}
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+- id: wiseconnect3_sdk
+  version: 3.1.1
 source:
   - path: app.c
   - path: main.c
@@ -23,64 +26,46 @@ include:
       - path: app.h
       - path: ble_config.h
 define:
-  - name: RSI_DEBUG_PRINTS
-requires:
-- name: sl_system
-- name: network_manager
-- name: basic_network_manager
-- name: si91x_support
-- name: wifi
-- name: si91x
-- name: ble
-- name: si91x_internal_stack
-- name: si91x_basic_buffers
-- name: wifi_resources
-- name: freertos
-- name: slist
-- name: iostream_retarget_stdio
-  condition: [device_has_devinfo]
-- name: iostream_recommended_stream
-  condition: [device_has_devinfo]
-- name: iostream_stdlib_config
-  condition: [device_has_devinfo]
-- name: device_init
-  condition: [device_has_devinfo]
-- name: emlib_common
-  condition: [device_has_devinfo]
-- name: emlib_ldma
-  condition: [device_has_devinfo]
+  - name: SL_SI91X_PRINT_DBG_LOG
+component:
+  - id: sl_system
+  - id: freertos
+  - id: device_init
+  - id: iostream_retarget_stdio
+  - id: iostream_recommended_stream
+  - id: iostream_stdlib_config
+  - id: wiseconnect3_common
+    from: wiseconnect3_sdk
+  - id: ble
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
 toolchain_settings:
   - option: gcc_linker_option
     value: "-u _printf_float"
 configuration:
-- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+  - name: SL_BOARD_ENABLE_VCOM
+    value: '1'
+  - name: configUSE_POSIX_ERRNO
+    value: '1'
+  - name: configTOTAL_HEAP_SIZE
+    value: '51200'
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/build_example.png
-  - path: resources/readme/build_project_ncp.png
-  - path: resources/readme/select_project_soc.png
-  - path: resources/readme/create_project_soc.png
-  - path: resources/readme/select_project_ncp.png
-  - path: resources/readme/create_project_ncp.png
-  - path: resources/readme/efr32.png
-  - path: resources/readme/imagesncpble.png
-  - path: resources/readme/imagesocble.png
-  - path: resources/readme/load_image1.png
-  - path: resources/readme/load_image2.png
   - path: resources/readme/output_1.png
   - path: resources/readme/output_2.png
-  - path: resources/readme/port_selection_soc.png
-  - path: resources/readme/port_selection.png
-  - path: resources/readme/serial_port_setup.png
-  - path: resources/readme/serial_port.png
-  - path: resources/readme/soc_board_detection.png
-  - path: resources/readme/usb_to_uart_1.png
-  - path: resources/readme/usb_to_uart_2.png
-  - path: resources/readme/teraterm_prints.png
-  - path: resources/readme/bleperspectrum.png
+  - path: resources/readme/ble_per_soc_ncp.png 
+  - path: resources/readme/bleperspectrum.png 
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
-

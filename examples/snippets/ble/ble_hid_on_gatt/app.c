@@ -25,6 +25,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 //! BLE include file to refer BLE APIs
 #include "ble_config.h"
@@ -35,9 +36,11 @@
 //! Common include file
 #include "rsi_common_apis.h"
 #include <string.h>
-
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
+#endif
 //! [ble_gls] is a tag for every print
-#ifdef RSI_DEBUG_PRINTS
+#ifdef SL_SI91X_PRINT_DBG_LOG
 #include <stdio.h>
 #define LOG_SCAN(fmt, args...) scanf(fmt, ##args)
 #else
@@ -60,6 +63,7 @@
 
 //! Remote Device Name to connect
 #define RSI_REMOTE_DEVICE_NAME "SILABS_DEV"
+#define MAX_DEVICE_NAME_LENGTH 31
 
 #define RSI_BLE_SMP_PASSKEY 0x000000
 
@@ -181,12 +185,12 @@ static rsi_bt_event_smp_passkey_display_t smp_passkey_display_event;
 static uint16_t rsi_ble_hid_in_report_val_hndl;
 static uint8_t remote_dev_addr[BD_ADDR_ARRAY_LEN];
 static uint8_t remote_dev_bd_addr[6];
-static uint8_t remote_addr_type   = 0;
-static uint8_t remote_name[31]    = { 0 };
-static uint8_t device_found       = 0;
-static uint32_t smp_passkey       = 0;
-uint16_t att_resp_status          = 0;
-uint8_t passkey[BLE_PASSKEY_SIZE] = { 0 };
+static uint8_t remote_addr_type                    = 0;
+static uint8_t remote_name[MAX_DEVICE_NAME_LENGTH] = { 0 };
+static uint8_t device_found                        = 0;
+static uint32_t smp_passkey                        = 0;
+uint16_t att_resp_status                           = 0;
+uint8_t passkey[BLE_PASSKEY_SIZE]                  = { 0 };
 
 uint8_t app_state                         = 0;
 uint8_t str_remote_address[18]            = { '\0' };
@@ -305,17 +309,11 @@ static const sl_wifi_device_configuration_t config = {
                                        | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef CHIP_917
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)),
                    .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
@@ -474,7 +472,7 @@ void rsi_ble_on_adv_report_event(rsi_ble_event_adv_report_t *adv_report)
   if (device_found == 1) {
     return;
   }
-
+  memset(remote_name, 0, MAX_DEVICE_NAME_LENGTH);
   BT_LE_ADPacketExtract(remote_name, adv_report->adv_data, adv_report->adv_data_len);
 
   remote_addr_type = adv_report->dev_addr_type;
@@ -1318,7 +1316,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   int32_t event_id, i;
   uint8_t local_dev_addr[BD_ADDR_ARRAY_LEN]           = { 0 };
   uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
-  sl_wifi_version_string_t fw_version                 = { 0 };
+  sl_wifi_firmware_version_t fw_version               = { 0 };
 #if (GATT_ROLE == SERVER)
   uint8_t scan_data_len = 0;
   uint8_t scan_data[32] = { 0 };
@@ -1336,12 +1334,15 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   adv_data_len = strlen(RSI_BLE_APP_HIDS) + 13;
 #elif (GATT_ROLE == CLIENT)
   uuid_t service_uuid;
-  profile_descriptors_t ble_servs = { 0 };
+  profile_descriptors_t ble_servs         = { 0 };
   rsi_ble_resp_char_services_t char_servs = { 0 };
-  rsi_ble_resp_att_descs_t att_desc = { 0 };
+  rsi_ble_resp_att_descs_t att_desc       = { 0 };
 #endif
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sl_si91x_hardware_setup();
+#endif /* SLI_SI91X_MCU_INTERFACE */
 
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Wi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -1350,10 +1351,10 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   }
 
   status = sl_wifi_get_firmware_version(&fw_version);
-  if (status == SL_STATUS_OK) {
-    LOG_PRINT("\r\nFirmware version response: %s\r\n", fw_version.version);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    LOG_PRINT("\r\nFailed to get Firmware version \r\n");
+    print_firmware_version(&fw_version);
   }
 
 #if (GATT_ROLE == SERVER)
@@ -1491,7 +1492,15 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
     //! checking for events list
     event_id = rsi_ble_app_get_event();
     if (event_id == -1) {
+#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+      //! if events are not received loop will be continued.
+      if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
+        P2P_STATUS_REG &= ~M4_wakeup_TA;
+        sl_si91x_m4_sleep_wakeup();
+      }
+#else
       osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
+#endif
       continue;
     }
     switch (event_id) {
@@ -1885,9 +1894,6 @@ scan:
         //! clear the served event
         if (app_state & BIT(CONNECTED)) {
           if (app_state & BIT(REPORT_IN_NOTIFY_ENABLE)) {
-#if RSI_M4_INTERFACE
-            osDelay(3000);
-#endif
             hid_data[2] = 0xb; // key 'h' pressed
             rsi_ble_set_local_att_value(rsi_ble_hid_in_report_val_hndl, HID_KDB_IN_RPT_DATA_LEN, hid_data);
             hid_data[2] = 0x0; // key released

@@ -1,13 +1,26 @@
-# ULP UART
+# SL ULP UART
 
-## Introduction
+## Table of Contents
 
-- This application demonstrates how to configure ULP_UART In asyncronous mode, it will send and receive data in loopback mode
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
+
+- This application demonstrates how to configure ULP UART In asynchronous mode, it will send and receive data in loopback mode
 
 ## Overview
 
-- ULP_UART is used in communication through wired medium in Asynchronous fashion. It enables the device to
-  communicate using serail protocols
+- ULP UART is used in communication through wired medium in Asynchronous fashion. It enables the device to
+  communicate using serial protocols
 - This application is configured with following configs
   - Tx and Rx enabled
   - Asynchronous mode
@@ -19,55 +32,57 @@
 
 ## About Example Code
 
-- \ref ulp_uart_example.c this example code demonstates how to configure the uart to send and receive data in loopback mode
+- \ref ulp_uart_example.c this example code demonstrates how to configure the uart to send and receive data in loopback mode
 - In this example, first uart get initialized if it's not initialized already with clock and dma configurations if dma is
-  enalbed using \ref sl_si91x_uart_init
+  enabled using \ref sl_si91x_uart_init
 - After uart initialization ,sets the uart power mode using \ref sl_si91x_uart_set_power_mode() and configures the UART
-  with default configurations from UC and uart transmitt and receive lines using \ref sl_si91x_uart_set_configuration()
-- Then register's user event callback for send ,recevie and transfer complete notification using
+  with default configurations from UC and uart transmit and receive lines using \ref sl_si91x_uart_set_configuration()
+- Then register's user event callback for send ,receive and transfer complete notification using
   \ref sl_si91x_uart_register_event_callback()
 - After user event callback registered data send and receive can happen through \ref sl_si91x_uart_send_data() and
-  \ref sl_si91x_uart_receive_data() respectively
-- Once the receive data event triggered ,compares both transmitt and receive buffers to confirm the received data if data is
-  same then it prints the Data comparison successful, Loop Back Test Passed on the uart console.
+  \ref sl_si91x_uart_receive_data() respectively.
 
-## Running Example code
+## Prerequisites/Setup Requirements
 
-- To use this application following Hardware, Software and the Project Setup is required.
-
-### Hardware Setup
+### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [WSTK + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
-![Figure: Introduction](resources/readme/image513a.png)
+### Software Requirements
 
-### Software Setup
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+### Setup Diagram
 
-## Project Setup
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+## Getting Started
 
-## Loading Application on Simplicity Studio
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to SI91x - SoC UART Example application as shown below.
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-![Figure: Selecting Example project](resources/readme/image513b.png)
+## Application Build Environment
 
-## Build
+- - Enable the ULP_UART mode in UC before running/flashing the code.
 
-1. Compile the application in Simplicity Studio using build icon
-   ![Figure: Build run and Debug](resources/readme/image513c.png)
+   ![Figure: Introduction](resources/readme/image513d.png)
 
+- Remove DEBUG_UART macro from preprocessor window
+- Data send and receive from vcom console is for one iteration. To check continuous data transfer modify below macro to ENABLE in ulp_uart_example.h file.
 
-## Device Programming
+  ```c
+  #define USE_SEND    ENABLE
+  ```
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+- Loopback ULP_GPIO_2 to ULP_GPIO_11 to observe continuous toggle, once data sent and received matches.
 
 ## Pin Configuration 
 
@@ -75,25 +90,36 @@
 |   --------------    | --------- |
 |ULP_GPIO_11  [F6]    |    TX     |
 |ULP_GPIO_9   [F7]    |    RX     |
-|ULP_GPIO_10  [P17]   |GPIO_Toggle|
+|ULP_GPIO_10 [P17]    |GPIO_Toggle|
 
-## Note
- - Enable the ULP_UART mode in UC before running/flashing the code.
-  ![Figure: peripheral configuration](resources/uc_screen/image513d.png) 
- 
-## Executing the Application
+## Test the Application
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+- Build the SL ULP UART example in Studio.
+- Flash, run and debug the application
+
+Follow the steps below for successful execution of the application:
+
 1. When the application runs,ULP_UART sends and receives data in full duplex mode
+2. When tx and rx data both are matching ULP_GPIO_10 should be toggled ,connect logic analyzer to observe the toggle state. 
+3. Here same PINS which are used to send and receive the data where used for data transfer so we cannot able to see prints 
+ we can use GPIO toggling instead like shown below.
+ - when use send disabled:
 
-## Expected Results 
- - When tx and rx data both are matching ULP_GPIO_10 should be toggled ,connect logic analyser to observe the toggle state. 
- - Here same PINS which are used to send and recive the data where used for data transfer so we cannot able to see prins 
- we can use GPIO toggling instead.
-## Note
-Note
-- This applicatin is executed from RAM.
-- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
-- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
-- After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
-- To Erase the chip follow the below procedure
-- Turn ON ISP switch and press the reset button → Turn OFF ISP Switch → Now perform Chip erase
-through commander.
+   ![output](resources/readme/ulp_uart_gpio_toggle.png)
+
+- when use send enabled:
+
+   ![output](resources/readme/ulp_uart_continuous_toggling.png)
+
+
+ 
+> **Note:**
+>
+>- This application is executed from RAM.
+>- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
+>- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
+>- After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
+>- To Erase the chip follow the below procedure
+>- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.

@@ -105,8 +105,8 @@ extern "C" {
  *                    Constants
  ******************************************************/
 
-#ifndef CONSOLE_MAXIMUM_ARG_COUNT
-#define CONSOLE_MAXIMUM_ARG_COUNT (10)
+#ifndef SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT
+#define SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT (10)
 #endif
 
 #define CONSOLE_ARG_OPTIONAL_CHARACTER_MASK 0x7F

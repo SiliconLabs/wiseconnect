@@ -24,6 +24,7 @@
 #include "sl_wifi_callback_framework.h"
 #include "sl_constants.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 //! BLE include file to refer BLE APIs
 #include <string.h>
@@ -35,6 +36,9 @@
 #include "rsi_bt_common.h"
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
+#endif
 
 //! Address type of the device to connect
 #define RSI_BLE_DEV_ADDR_TYPE LE_RANDOM_ADDRESS
@@ -95,17 +99,11 @@ static const sl_wifi_device_configuration_t config = {
                                        | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef CHIP_917
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
@@ -362,10 +360,12 @@ void ble_central(void *argument)
   UNUSED_PARAMETER(argument);
   int32_t temp_event_map = 0;
   sl_status_t status;
-  sl_wifi_version_string_t version = { 0 };
-
+  sl_wifi_firmware_version_t version = { 0 };
+#ifdef SLI_SI91X_MCU_INTERFACE
+  sl_si91x_hardware_setup();
+#endif /* SLI_SI91X_MCU_INTERFACE */
   //! Wi-Fi initialization
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -378,7 +378,7 @@ void ble_central(void *argument)
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+    print_firmware_version(&version);
   }
 
   //! BLE register GAP callbacks
@@ -461,9 +461,15 @@ void ble_central(void *argument)
     //! checking for received events
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
+#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+      //! if events are not received loop will be continued.
+      if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
+        P2P_STATUS_REG &= ~M4_wakeup_TA;
+        sl_si91x_m4_sleep_wakeup();
+      }
+#else
       osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
-
-      //! if events are not received, loop will be continued
+#endif
       continue;
     }
 

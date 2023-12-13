@@ -44,7 +44,7 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
   }
 
   switch (interface) {
-#ifdef wifi_FEATURE_REQUIRED
+#ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE:
       status = nvm3_writeData(nvm3_defaultHandle,
                               SL_NET_WIFI_CLIENT_NVM3_KEY + profile_id,
@@ -69,13 +69,13 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
 sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t profile_id, sl_net_profile_t *profile)
 {
   sl_status_t status;
-  ARGS_CHECK_NULL_POINTER(profile);
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(profile);
   if (profile_id >= SL_NET_MAXIMUM_NVM_PROFILES_PER_INTERFACE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
   switch (interface) {
-#ifdef wifi_FEATURE_REQUIRED
+#ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE:
       status = nvm3_readData(nvm3_defaultHandle,
                              SL_NET_WIFI_CLIENT_NVM3_KEY + profile_id,
@@ -106,7 +106,7 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
   }
 
   switch (interface) {
-#ifdef wifi_FEATURE_REQUIRED
+#ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE:
       nvm3_deleteObject(nvm3_defaultHandle, SL_NET_WIFI_CLIENT_NVM3_KEY + profile_id);
       break;

@@ -1,9 +1,9 @@
 id: mqtt
 package: wiseconnect3_sdk
 description: >
-  MQTT Client Library
-label: MQTT Client Library
-category: Networking|Protocol
+  The MQTT Client provides an API to start an MQTT client service
+label: MQTT Client
+category: Service
 quality: production
 component_root_path: ./components/service/mqtt
 provides:
@@ -11,7 +11,10 @@ provides:
 source:
 - path: si91x/sl_mqtt_client.c
 define:
-- name: MQTT_CLIENT_FEATURE
+- name: SLI_SI91X_EMBEDDED_MQTT_CLIENT
+requires:
+- name: sl_si91x_internal_stack
+
 include:
 - path: inc
   file_list:

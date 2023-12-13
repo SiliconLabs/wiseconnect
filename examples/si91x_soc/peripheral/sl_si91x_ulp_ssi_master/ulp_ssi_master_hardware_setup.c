@@ -21,7 +21,6 @@
 #define NVIC_RTC_ALARM MCU_CAL_ALARM_IRQn
 
 #include "rsi_chip.h"
-#include "rsi_board.h"
 #include "rsi_ps_ram_func.h"
 #include "rsi_ds_timer.h"
 
@@ -87,7 +86,7 @@ void hardware_setup(void)
                                   DISABLE_TA192K_RAM_RET,
                                   DISABLE_M464K_RAM_RET);
 
-#ifdef CHIP_9117
+#ifdef SLI_SI917
   /* Power-Down Unused M4SS Domains */
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_QSPI_ICACHE | M4SS_PWRGATE_ULP_M4_DEBUG_FPU | M4SS_PWRGATE_ULP_EFUSE_PERI
                            | M4SS_PWRGATE_ULP_SDIO_SPI | M4SS_PWRGATE_ULP_RPDMA);

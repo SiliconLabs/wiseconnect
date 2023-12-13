@@ -2,65 +2,75 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Gecko SDK
-version: "3.1.0"
+version: "3.1.1"
 sdk:
   id: gecko_sdk
-  version: "4.3.1"
+  version: "4.4.0"
 component_path:
   - path: resources
-  - path: components/si91x
-  - path: components/si91x/ble
-  - path: components/si91x/bsd_socket
-  - path: components/si91x/iot_socket
-  - path: components/si91x/socket
-  - path: components/si91x/socket_utility
-  - path: components/si91x/crypto
-  - path: components/si91x/crypto/aes
-  - path: components/si91x/crypto/aead
-  - path: components/si91x/crypto/wrap
-  - path: components/si91x/crypto/sha
-  - path: components/si91x/crypto/hmac
-  - path: components/si91x/crypto/ecdh
-  - path: components/si91x/crypto/trng
-  - path: components/si91x/crypto/attestation
+  - path: components/board
+  - path: components/common
+  - path: components/device/silabs/si91x/wireless
+  - path: components/device/silabs/si91x/wireless/ble
+  - path: components/device/silabs/si91x/wireless/asynchronous_socket
+  - path: components/device/silabs/si91x/wireless/socket
+  - path: components/device/silabs/si91x/wireless/crypto
+  - path: components/device/silabs/si91x/wireless/crypto/crypto_utility
+  - path: components/device/silabs/si91x/wireless/crypto/aes
+  - path: components/device/silabs/si91x/wireless/crypto/aead
+  - path: components/device/silabs/si91x/wireless/crypto/ccm
+  - path: components/device/silabs/si91x/wireless/crypto/gcm
+  - path: components/device/silabs/si91x/wireless/crypto/chachapoly
+  - path: components/device/silabs/si91x/wireless/crypto/wrap
+  - path: components/device/silabs/si91x/wireless/crypto/sha
+  - path: components/device/silabs/si91x/wireless/crypto/hmac
+  - path: components/device/silabs/si91x/wireless/crypto/ecdh
+  - path: components/device/silabs/si91x/wireless/crypto/trng
+  - path: components/device/silabs/si91x/wireless/crypto/attestation
+  - path: components/device/silabs/si91x/wireless/errno/component
+  - path: components/service/bsd_socket
   - path: components/service/network_manager
   - path: components/service/http_client
   - path: components/service/mqtt
   - path: components/service/sntp
   - path: components/protocol/wifi
-  - path: components/si91x_support
-  - path: components/siwx917_soc
-  - path: components/siwx917_soc/platform_connectivity
-  - path: components/siwx917_soc/toolchain/component
-  - path: components/siwx917_soc/boards/component
-  - path: components/siwx917_soc/drivers/cmsis_driver/CMSIS/Driver/component
-  - path: components/siwx917_soc/drivers/hardware_drivers/memlcd/component
-  - path: components/siwx917_soc/drivers/hardware_drivers/button/component
-  - path: components/siwx917_soc/drivers/hardware_drivers/led/component
-  - path: components/siwx917_soc/drivers/cmsis_driver/component
-  - path: components/siwx917_soc/drivers/cmsis_driver/config/component
-  - path: components/siwx917_soc/drivers/peripheral_drivers/component
-  - path: components/siwx917_soc/drivers/rom_driver/component
-  - path: components/siwx917_soc/drivers/systemlevel/component
-  - path: components/siwx917_soc/drivers/unified_api/
-  - path: components/siwx917_soc/drivers/unified_api/component
-  - path: components/siwx917_soc/drivers/unified_peripheral_drivers/
-  - path: components/siwx917_soc/drivers/unified_peripheral_drivers/component
-  - path: components/siwx917_soc/drivers/service/sensorhub/component
-  - path: components/siwx917_soc/drivers/service/nvm3/component
-  - path: components/siwx917_soc/drivers/service/sleeptimer/component
-  - path: components/siwx917_soc/drivers/service/iostream/component
-  - path: components/siwx917_soc/core/chip/component
-  - path: components/siwx917_soc/core/common/component
-  - path: components/siwx917_soc/core/cmsis/component
-  - path: components/siwx917_soc/core/config/component
-  - path: components/siwx917_soc/hal/component
-  - path: components/sl_tls
+  - path: components/wiseconnect3_common
+  - path: components/device/silabs/si91x/mcu
+  - path: components/device/silabs/si91x/mcu/platform_connectivity
+  - path: components/device/silabs/si91x/mcu/toolchain/component
+  - path: components/board/silabs/component
+  - path: components/device/silabs/si91x/mcu/drivers/cmsis_driver/CMSIS/Driver/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/memlcd/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/button/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/led/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/sl_joystick/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/si70xx_sensor/component
+  - path: components/device/silabs/si91x/mcu/drivers/cmsis_driver/component
+  - path: components/device/silabs/si91x/mcu/drivers/cmsis_driver/config/component
+  - path: components/device/silabs/si91x/mcu/drivers/peripheral_drivers/component
+  - path: components/device/silabs/si91x/mcu/drivers/rom_driver/component
+  - path: components/device/silabs/si91x/mcu/drivers/systemlevel/component
+  - path: components/device/silabs/si91x/mcu/drivers/unified_api/
+  - path: components/device/silabs/si91x/mcu/drivers/unified_api/component
+  - path: components/device/silabs/si91x/mcu/drivers/unified_peripheral_drivers/
+  - path: components/device/silabs/si91x/mcu/drivers/unified_peripheral_drivers/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/sensorhub/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/nvm3/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/sleeptimer/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/iostream/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/power_manager/component
+  - path: components/device/silabs/si91x/mcu/core/chip/component
+  - path: components/device/silabs/si91x/mcu/core/common/component
+  - path: components/device/silabs/si91x/mcu/core/cmsis/component
+  - path: components/device/silabs/si91x/mcu/core/config/component
+  - path: components/device/silabs/si91x/mcu/core/common/component
+  - path: components/device/silabs/si91x/mcu/hal/component
+  - path: components/segger_sysview
   - path: third_party/aws_sdk
+  - path: third_party/iot_socket
   - path: third_party/unity/component
   - path: utilities
   - path: components/console
   - path: components/console/variables
   - path: third_party/qcbor/component
   - path: third_party/tcose/component
-

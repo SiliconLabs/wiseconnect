@@ -1,4 +1,3 @@
-# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_si91x_dma
 label: SI91x - SL_DMA
 description: |
@@ -6,48 +5,43 @@ description: |
 category: example|peripheral
 package: platform
 quality: production
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.1
 readme:
-- {path: readme.md}
+  - path: readme.md
 source:
-- {path: app.c}
-- {path: main.c}
-- {path: dma_example.c}
-- {path: dma_example.h}
-- {path: app.h}
-sdk: {id: gecko_sdk, version: 4.3.1}
+  - path: app.c
+  - path: main.c
+  - path: dma_example.c
+  - path: dma_example.h
+  - path: app.h
 toolchain_settings: []
 component:
-  - id: rsilib_userconfig
-    from: wiseconnect3_sdk
-  - id: romdriver_egpio
-    from: wiseconnect3_sdk
-  - id: rsilib_clock_update
-    from: wiseconnect3_sdk
   - id: sl_system
   - id: status
   - id: sl_dma
     from: wiseconnect3_sdk
-  - id: udma_linker_config
+  - id: syscalls
     from: wiseconnect3_sdk
   - id: si917_memory_default_config
     from: wiseconnect3_sdk
-  - id: si91x_debug
-    from: wiseconnect3_sdk
 other_file:
-- {path: resources/readme/image503a.png}
-- {path: resources/readme/image503b.png}
-- {path: resources/readme/image503c.png}
-- {path: resources/readme/vcom.png}
+  - path: resources/readme/outputConsoleI_DMA.png
+  - path: resources/readme/setupdiagram.png
+  - path: resources/uc_screen/ucScreenDMA.png
 define:
-- {name: RSI_M4_INTERFACE}
-- {name: SL_SI91X_DMA}
-- {name: __STATIC_INLINE, value: "static inline"}
+  - name: SL_SI91X_DMA
+  - name: __STATIC_INLINE
+    value: static inline
 provides:
-- {name: si91x_soc}
+  - name: si91x_soc
 ui_hints:
   highlight:
-  - {path: readme.md, focus: true}
-sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.1.0}
+    - path: readme.md
+      focus: true
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

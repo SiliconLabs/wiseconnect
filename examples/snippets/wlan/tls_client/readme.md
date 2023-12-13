@@ -1,4 +1,4 @@
-# TLS Client
+# Wi-Fi - TLS Client
 
 ## Table of Contents
 
@@ -13,7 +13,10 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to open a TCP client socket and use this TCP client socket with secure connection using SSL and send the data on socket.
+This application demonstrates how to open a TCP client socket on SiWx917 module and use this TCP client socket with a secure connection using SSL and transmit data over the socket.
+
+- Two TCP sockets are opened over SSL. One socket uses SSL TLS v1.0 protocol and the other socket uses SSL TLS v1.2 protocol.
+- CA certificate and device certificates are loaded into module flash, as they are necessary for the key exchanges involved while using SSL.
 
 ## Prerequisites/Setup Requirements
 
@@ -50,15 +53,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
 - The application uses the default configurations as provided in the **default_wifi_ap_profile** in ``sl_net_default_values.h`` and user can choose to configure these parameters as needed.
-
-> **Note:**
->
-> - For NCP mode, following defines have to enabled manually in preprocessor setting of example project
->
-> - For 917 A0 expansion board, enable `CHIP_917 = 1`
-> - For 917 B0 1.2 expansion board, enable `CHIP_917 = 1`, `CHIP_917B0 = 1`
-> - For 917 B0 2.0 expansion board, enable `CHIP_917 = 1`, `CHIP_917B0 = 1`, `SI917_RADIO_BOARD_V2 = 1` (This is enabled by default for all examples)
-
 - In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
   - STA instance related parameters
@@ -95,7 +89,7 @@ The application can be configured to suit user requirements and development envi
 
 - `sl_wifi_device_configuration_t` from `app.c` should be modified as per below requirements
 
-  **sl_wifi_set_certificate()** API expects the certificate in the form of linear array. Convert the pem certificate into linear array form using python script provided in the SDK `<SDK>/resources/scripts/certificate_script.py`.
+  **[sl_net_set_credential()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API expects the certificate in the form of linear array. Convert the pem certificate into linear array form using python script provided in the SDK `<SDK>/resources/scripts/certificate_script.py`.
 
    For example : If the certificate is ca-certificate.pem, enter the command in the following way:
    python certificate_script.py ca-certificate.pem 
@@ -105,15 +99,14 @@ The application can be configured to suit user requirements and development envi
 
   After the conversion, place the converted file in `<SDK>/resources/certificates/` path and include the certificate file in app.c
 
-  - For HTTPs Apache server
-
   ```c
   // Certificate includes
-  #include "cacert.pem"
+  #include "ca-certificate.pem.h"
   
   // Load Security Certificates
-  status = sl_wifi_set_certificate(SL_TLS_SSL_CA_CERTIFICATE, cacert, (sizeof(cacert) - 1));
+  status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, ca-certificate, sizeof(ca-certificate) - 1);
   ```
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -125,7 +118,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - After making any custom configuration changes required, build, download and run the application as below.
 - Copy the certificates server-cert and server-key into Openssl/bin folder in the Windows PC2 (Remote PC).
-- In Windows PC2 (Remote PC) which is connected to AP, run the Openssl and run two SSL servers by giving the following command
+- In Windows PC2 (Remote PC) which is connected to AP, run the Openssl and run two SSL servers by giving the following command:
 
   ```sh
       > Openssl.exe s_server -accept<SERVER_PORT> -cert <server_certificate_file_path> -key <server_key_file_path> -tls<tls_version>

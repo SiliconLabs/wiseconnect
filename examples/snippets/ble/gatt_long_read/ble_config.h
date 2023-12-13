@@ -32,7 +32,7 @@
 
 #define RSI_BLE_DEV_ADDR_RESOLUTION_ENABLE 0
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC     20
 #define RSI_BLE_MAX_NBR_PERIPHERALS 1
 #define RSI_BLE_NUM_CONN_EVENTS     2
@@ -170,7 +170,7 @@
 //! Power save command parameters
 /*=======================================================================*/
 //! set handshake type of power mode
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_HAND_SHAKE_TYPE M4_BASED
 #else
 #define RSI_HAND_SHAKE_TYPE GPIO_BASED

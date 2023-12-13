@@ -34,7 +34,7 @@
 
 #define PERIPHERAL_ROLE 0
 #define CENTRAL_ROLE    1
-#define DUAL_MODE       2
+#define DUAL_ROLE       2
 #define BLE_ROLE        PERIPHERAL_ROLE
 
 #define SET_BIT1(state_map, pos) (state_map |= (1 << pos))
@@ -70,7 +70,7 @@
 
 #define RSI_BLE_DEV_ADDR_RESOLUTION_ENABLE 0
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 20
 /* Number of BLE notifications */
 #define RSI_BLE_NUM_CONN_EVENTS     4

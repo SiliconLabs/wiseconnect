@@ -1,4 +1,4 @@
-# Enterprise client
+# Wi-Fi - Enterprise Client Mode
 
 ## Table of Contents
 
@@ -27,12 +27,22 @@ Before running the application, the user will need the following things to setup
 - Windows PC
 - A Wireless Access Point with WPA2-Enterprise configuration
 - **SoC Mode**:
-  - [Silicon Labs BRD4325A/BRD4325B/BRD4325C/BRD4325G/BRD4338A Radio boards](https://www.silabs.com/)
-  - [BRD4002A Wireless Pro Kit Mainboard (WPK)](https://www.silabs.com/)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4340A [SiWx917-RB4340A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+  	
 - **NCP Mode**:
-  - [Silicon Labs SLWSTK6006A EFR32xG21 Wireless Starter Kit](https://www.silabs.com/development-tools/wireless/efr32xg21-wireless-starter-kit) which includes
-      - BRD4001A Wireless Starter Kit Mainboard (WSTK)/BRD4002A Wireless Pro Kit Mainboard (WPK)
-      - BRD4180A/BRD4180B Radio Board
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+  - Kits
+  	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 
 
 ###  Software Requirements
@@ -51,7 +61,7 @@ Before running the application, the user will need the following things to setup
 
 ###  **Setup Diagram**
 
-The picture below illustrates the EAP frame exchanges between SiWx91x, Access Point and FreeRADIUS Server.
+Following image illustrates the EAP frame exchanges between SiWx91x, Access Point and FreeRADIUS Server.
 
 **![Figure: Setup Diagram for Enterprise Client soc Example](resources/readme/eap_exchanges.png)**
 
@@ -101,14 +111,14 @@ The application can be configured to suit your requirements and development envi
 
 >  **Note:**
 >
-> 1. Application shall load the certificates using **sl_wifi_set_certificate** API.
+> 1. Application shall load the certificates using **[sl_net_set_credential](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API.
 > 2. By default, the application loads **wifiuser.pem** certificate present at **<WiFi SDK> → resources → certificates** 
       
-   - In order to load your own certificate, follow the below steps:
+   - In order to load your own certificate, refer following steps:
 
-   - The certificate has to be passed as a parameter to **rsi_wlan_set_certificate** API in linear array format. Convert the **.pem** format certificate into linear array form using python script provided in the SDK **SiWx91x COMBO SDK → resources → certificates → certificate_to_array.py**
+   - The certificate has to be passed as a parameter to **sl_net_set_credential** API in linear array format. Convert the **.pem** format certificate into linear array form using python script provided in the SDK **SiWx91x COMBO SDK → resources → certificates → certificate_to_array.py**
 
-   - You can load the certificate in two ways as mentioned below. 
+   - You can load the certificate in two ways as mentioned in the following. 
      - Aggregate the certificates in to one file in a fixed order of private key, public key, intermediate CA/dummy certificate, and CA certificate and load the certificate with certificate type **1**. Place the certificate at **<SiWx91x COMBO SDK> → resources → certificates**. Convert the single certificate file into linear array using the following command.
 
          `python certificate_to_array.py wifi-user.pem`
@@ -164,8 +174,8 @@ The application can be configured to suit your requirements and development envi
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Build the application
-- Flash, run and debug the application
+- Build the application.
+- Flash, run and debug the application.
 
     **![Application prints](resources/readme/application_prints.png)**
 
@@ -174,7 +184,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Configure Access Point in WAP2-EAP
 
-- Navigate to the Wireless Security section and enable the **WPA/WPA2 - Enterprise** option, as shown in the figure below. The image below is for a TP-Link Access Point.
+- Navigate to the Wireless Security section and enable the **WPA/WPA2 - Enterprise** option, as shown in the following figure. Following image is for a TP-Link Access Point.
 
    **![Enable the WPA/WPA2 - Enterprise option](resources/readme/wpa2_eap.png)**
 
@@ -194,7 +204,7 @@ The configuration explained below is for Linux OS, similar process may be follow
 
    [http://xperiencetech.com/download/radius-free-download.asp](http://xperiencetech.com/download/radius-free-download.asp)
 
-   **Note**: This example application has been tested with  FreeRADIUS-server-3.2.3.
+   >**Note**: This example application has been tested with  FreeRADIUS-server-3.2.3.
    
 - Once installed, go to the **C: → FreeRADIUS → etc → raddb** folder. Open the **clients.conf** file and add the following lines at the end of the file.
 
@@ -212,21 +222,21 @@ The gateway ip address of TP_Link Access Point is,
    **![Change the input for the default_eap_type field ](resources/readme/lan_ip.png)**
 
 - Open the **eap.conf** file  by following the path, **FreeRADIUS → etc → raddb → mods-available** and make the following changes:
-  - Change the **default_eap_type** field under the **eap** section to  **tls**, as shown in the figure below.
+  - Change the **default_eap_type** field under the **eap** section to  **tls**, as shown in the following figure.
 
       **![Change the input for the default_eap_type field ](resources/readme/eap_type.png)**
 
-  - Change the paths for **private_key_file**, **certificate_file** and **CA_file** under the **tls** section to **${certdir}/wifi-user.pem**, as shown in the figure below.
+  - Change the paths for **private_key_file**, **certificate_file** and **CA_file** under the **tls** section to **${certdir}/wifi-user.pem**, as shown in the following figure.
 
       **![Change the inputs](resources/readme/certs_path1.png)**
 
       **![Change the inputs](resources/readme/certs_path2.png)**
   
-  - Uncomment the **fragment_size** and **include_length** lines under the **tls** section, as shown in the figure below.
+  - Uncomment the **fragment_size** and **include_length** lines under the **tls** section, as shown in the following figure.
 
       **![Uncomment the fragment_size and include_length lines](resources/readme/eap_fragment_size.png)**
   
-  - Open the **users** file present at **C: → FreeRADIUS → etc → raddb** and add the lines shown below. This adds/registers a user with username **user1** and password **test123**. These are given in the `app.c`     at  **sl_net_wifi_eap_credential_entry_t** api.
+  - Open the **users** file present at **C: → FreeRADIUS → etc → raddb** and add the lines shown in following figure. This adds/registers a user with username **user1** and password **test123**. These are given in the `app.c`     at  **sl_net_wifi_eap_credential_entry_t** api.
 
      **![Open the users file and add the lines](resources/readme/eap_credentials.png)**
 
@@ -242,7 +252,7 @@ The gateway ip address of TP_Link Access Point is,
 
      **![Run Radius server in Windows PC2](resources/readme/radius_server.png)**
 
-**Note:**
+>**Note:**
  The radius server has to run before the application is executed. You will observe some transactions when the module is trying to connect to the radius server. Restart the Radius server when you execute the application every time.
  
  Make sure that, the radius server and module is on the same network. 

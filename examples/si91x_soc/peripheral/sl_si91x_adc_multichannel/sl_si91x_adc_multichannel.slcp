@@ -1,0 +1,53 @@
+---
+project_name: sl_si91x_adc_multichannel
+label: Si91x - SL ADC MULTICHANNEL
+description: >
+  Demonstrates the how to configure and use the ADC peripheral for
+  multichannel on the the SiWx917 SoC device.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.1
+source:
+  - path: adc_multichannel_example.c
+  - path: app.c
+  - path: main.c
+  - path: app.h
+  - path: adc_multichannel_example.h
+toolchain_settings: []
+component:
+  - id: sl_system
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_adc
+    from: wiseconnect3_sdk
+  - id: adc_instance
+    instance:
+      - channel_0
+      - channel_1
+      - channel_2
+      - channel_3
+    from: wiseconnect3_sdk
+define:
+  - name: GAIN_OFFSET_CAL_EN
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/sl_adc_output.png
+  - path: resources/uc_screen/sl_adc_channel_uc_screen.png
+  - path: resources/uc_screen/sl_adc_common_uc_screen.png
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

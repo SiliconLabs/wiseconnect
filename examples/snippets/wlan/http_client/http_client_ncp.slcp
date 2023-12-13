@@ -1,0 +1,63 @@
+project_name: wifi_http_client_ncp
+package: wifi
+quality: production
+label: Wi-Fi - HTTP CLIENT(NCP)
+category: Example|Wi-Fi
+description: >
+  Demonstrates how to create HTTP client and do PUT, GET and POST operations with the server opened on remote peer
+filter:
+  - name: "Wireless Technology"
+    value: ["Wi-Fi"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+sdk: {id: gecko_sdk, version: 4.4.0}
+sdk_extension: 
+- {id: wiseconnect3_sdk, version: 3.1.1}
+source:
+  - path: app.c
+  - path: main.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+define:
+  - name: SL_SI91X_PRINT_DBG_LOG
+requires:
+- name: sl_system
+- name: http_client
+- name: network_manager
+- name: basic_network_config_manager
+- name: wiseconnect3_common
+- name: wifi
+- name: sl_si91x_wireless
+- name: sl_si91x_internal_stack
+- name: sl_si91x_basic_buffers
+- name: wifi_resources
+- name: freertos
+- name: slist
+- name: iostream_retarget_stdio
+  condition: [device_has_devinfo]
+- name: iostream_recommended_stream
+  condition: [device_has_devinfo]
+- name: iostream_stdlib_config
+  condition: [device_has_devinfo]
+- name: device_init
+  condition: [device_has_devinfo]
+- name: emlib_common
+  condition: [device_has_devinfo]
+- name: emlib_ldma
+  condition: [device_has_devinfo]
+toolchain_settings: []
+configuration:
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+- {name: configTOTAL_HEAP_SIZE, value: '51200'}
+- {name: configUSE_POSIX_ERRNO, value: '1'}
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/http_client_output.png
+- path: resources/readme/http_client_soc_ncp.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true

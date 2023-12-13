@@ -1,6 +1,19 @@
-# ULP DMA
+# SL ULP DMA
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - This DMA example performs memory to memory DMA transfer of different sizes. User can change the DMA transfer size by updating SL_DMA_TRANSFER_SIZE in UC.
 - This example used both simple DMA transfer API and generic API for performing DMA transfer
@@ -16,7 +29,7 @@
 
 ## About Example Code
 
-- \ref dma_example.c file demonstrates how to use DMA peipheral to perform memory to memory transfers
+- \ref dma_example.c file demonstrates how to use DMA peripheral to perform memory to memory transfers
 - In this example first dma initialization is done using \ref sl_si91x_dma_init
 - Then \ref sl_si91x_dma_allocate_channel is used to allocate SL_DMA_CHANNEL for transfer. This SL_DMA_CHANNEL can be configured
   by UC
@@ -26,40 +39,41 @@
   2.  Using \ref sl_si91x_dma_transfer, user can configure more DMA parameters for transfer
 - User can either use any of above functions for performing DMA transfer. This can be selected by UC
 
-## Running Example Code
+## Prerequisites/Setup Requirements
 
-- To use this application following Hardware, Software and the Project Setup is required.
+Before running the application, the user will need the following things to setup.
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image503a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+### Setup Diagram
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Project Setup
+## Getting Started
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-## Loading Application on Simplicity Studio
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to ULP_DMA Example application as shown below.
+## Application Build Environment
 
-![Figure: Selecting Example project](resources/readme/image503b.png)
+### Application Configuration Parameters
+- Configure UC from the slcp component.
 
-## Configuration and Steps for Execution:
+  ![Figure: Introduction](resources/readme/ulp_dma_uc_screen.png)
 
 - Open **sl_si91x_dma.slcp** project file select **software component**tab and search for **SL_DMA** in search bar.
 - Select DMA instance 1
@@ -67,51 +81,23 @@
 - Select DMA transfer size in bytes (0 - 10000).
 - Select transfer API type (simple/generic transfer API).
 
-## Build
+## Test the Application
 
-1. Compile the application in Simplicity Studio using build icon.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Build run and Debug](resources/readme/image503c.png)
+- Build the SL ULP DMA example in Studio.
+- Flash, run and debug the application.
+- After successful program execution the prints in serial console looks as shown below.
 
-## Device Programming
+  >![Figure: Introduction](resources/readme/output_ulp_dma.png)
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+> **Note:**
+>- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
+>- To Erase the chip follow the below procedure
+>- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.
 
-## Executing the Application
 
-1. Compile and run the application.
 
-## Expected Results
 
-- Following prints should appear on console
-  UDMA Initialization Success
 
-Channel Allocated successfully
 
-Callbacks registered
-
-Xfer start
-
-Transfer completed successfully
-
-UDMA Uninitialization Success
-
-## Note
-
-- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
-- To check Prints for DMA Peripheral examples, VCOM of the WPK[BRD4002A]/WSTK[BRD4001A] Base Board.
-
-## Expected Scenario:
-
-- Following prints should appear on console
-  UDMA Initialization Success
-
-Channel Allocated successfully
-
-Callbacks registered
-
-Xfer start
-
-Transfer completed successfully
-
-UDMA Uninitialization Success

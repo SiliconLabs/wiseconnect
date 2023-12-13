@@ -36,7 +36,6 @@
 #include "sl_wifi_device.h"
 #include "sl_net_wifi_types.h"
 #include "sl_utility.h"
-#include "sl_tls.h"
 #include "sl_si91x_driver.h"
 
 #include "sl_board_configuration.h"
@@ -45,24 +44,25 @@
 #include "sl_net_si91x.h"
 #include "sl_wifi_callback_framework.h"
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #include "rsi_rtc.h"
 #include "rsi_chip.h"
 #include "rsi_wisemcu_hardware_setup.h"
+#include "rsi_ps_config.h"
 #endif
 
 /******************************************************
  *                    Constants
  ******************************************************/
 
-#define ENABLE_POWER_SAVE        1
-#define ALARM_TIMER_BASED_WAKEUP 1
-#define BUTTON_BASED_WAKEUP      0
+#define ENABLE_POWER_SAVE                1
+#define SL_SI91X_MCU_ALARM_BASED_WAKEUP  1
+#define SL_SI91X_MCU_BUTTON_BASED_WAKEUP 0
 
 volatile uint8_t powersave_given;
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
 
 #define ALARM_PERIODIC_TIME 30 /*<! periodic alarm configuration in SEC */
@@ -94,7 +94,7 @@ volatile uint8_t powersave_given;
 
 #define RTC_ALARM_IRQHandler IRQ028_Handler
 #define NVIC_RTC_ALARM       MCU_CAL_ALARM_IRQn
-#endif // RSI_M4_INTERFACE
+#endif // SLI_SI91X_MCU_INTERFACE
 
 /******************************************************
  *                      Macros
@@ -118,7 +118,7 @@ volatile uint8_t powersave_given;
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
 #define PS4_SOC_FREQ          119000000 /*<! PLL out clock 100MHz            */
 #endif
@@ -129,7 +129,7 @@ volatile uint8_t powersave_given;
 void send_data_to_tcp_server(void);
 static void application_start(void *argument);
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 void sl_service_init(void);
 void fpuInit(void);
 void sli_m4_ta_interrupt_init(void);
@@ -165,18 +165,18 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
   .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
-                   .coex_mode              = SL_SI91X_WLAN_MODE,
+                   .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1) | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_BASIC_MCU_ADV
+#ifdef SLI_SI91X_MCU_INTERFACE
+                      | SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV
 #else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
+                      | SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
                       ),
                    .bt_feature_bit_map = 0,
@@ -185,7 +185,7 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                       | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
                    .config_feature_bit_map = 0
 #else
 #if ENABLE_POWER_SAVE
@@ -202,7 +202,7 @@ uint32_t tick_count_s = 1;
 #define WIRELESS_WAKEUP_IRQHandler          NPSS_TO_MCU_WIRELESS_INTR_IRQn
 #define WIRELESS_WAKEUP_IRQHandler_Priority 8
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 static RTC_TIME_CONFIG_T rtc_configuration, alarm_configuration, rtc_get_time;
 #endif
 
@@ -228,9 +228,9 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi client interface init success\r\n");
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
   uint8_t xtal_enable = 1;
-  status              = sl_si91x_m4_ta_secure_handshake(SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
+  status              = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);
     return;
@@ -278,8 +278,8 @@ void send_data_to_tcp_server(void)
   server_address.sin_port   = SERVER_PORT;
   sl_net_inet_addr(SERVER_IP, &server_address.sin_addr.s_addr);
 
-#ifdef RSI_M4_INTERFACE
-#if ALARM_TIMER_BASED_WAKEUP
+#ifdef SLI_SI91X_MCU_INTERFACE
+#if SL_SI91X_MCU_ALARM_BASED_WAKEUP
   initialize_m4_alarm();
 #endif
 #endif
@@ -308,7 +308,7 @@ void send_data_to_tcp_server(void)
     performance_profile.profile = HIGH_PERFORMANCE;
     rc                          = sl_wifi_set_performance_profile(&performance_profile);
     if (rc != SL_STATUS_OK) {
-      printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
+      printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", rc);
     } else {
       printf("\r\nHigh Performance Enabled\n");
     }
@@ -331,14 +331,14 @@ void send_data_to_tcp_server(void)
     performance_profile.profile = ASSOCIATED_POWER_SAVE;
     rc                          = sl_wifi_set_performance_profile(&performance_profile);
     if (rc != SL_STATUS_OK) {
-      printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
+      printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", rc);
     } else {
       printf("\r\nAssociated Power Save Enabled\n");
     }
 #endif
 
 #if ENABLE_POWER_SAVE
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
     m4_sleep_wakeup();
 #endif
 #endif
@@ -348,10 +348,10 @@ void send_data_to_tcp_server(void)
   close(client_socket);
 }
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 void m4_sleep_wakeup(void)
 {
-#ifndef FLASH_BASED_EXECUTION_ENABLE
+#ifndef SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
   /* LDOSOC Default Mode needs to be disabled */
   sl_si91x_disable_default_ldo_mode();
 
@@ -373,7 +373,7 @@ void m4_sleep_wakeup(void)
 
 #else
 
-#if ALARM_TIMER_BASED_WAKEUP
+#if SL_SI91X_MCU_ALARM_BASED_WAKEUP
   /* Update the alarm time interval, when to get next interrupt  */
   set_alarm_interrupt_timer(ALARM_PERIODIC_TIME);
 
@@ -386,7 +386,7 @@ void m4_sleep_wakeup(void)
   /* Enable NVIC */
   NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
 
-#if BUTTON_BASED_WAKEUP
+#if SL_SI91X_MCU_BUTTON_BASED_WAKEUP
   /*Configure the UULP GPIO 2 as wakeup source */
   wakeup_source_config();
 #endif
@@ -407,11 +407,14 @@ void m4_sleep_wakeup(void)
   /* Enable M4_TA interrupt */
   sli_m4_ta_interrupt_init();
 
+  /* Clear M4_wakeup_TA bit so that TA will go to sleep after M4 wakeup*/
+  sl_si91x_host_clear_sleep_indicator();
+
   //  /*Start of M4 init after wake up  */
   printf("\r\nM4 Wake Up\r\n");
 #endif
 }
-#if ALARM_TIMER_BASED_WAKEUP
+#if SL_SI91X_MCU_ALARM_BASED_WAKEUP
 void set_alarm_interrupt_timer(uint16_t interval)
 {
   /* Get the RTC time,which is used to update alarm time as per RTC time  */
@@ -550,7 +553,7 @@ void IRQ026_Handler()
   return;
 }
 
-#if BUTTON_BASED_WAKEUP
+#if SL_SI91X_MCU_BUTTON_BASED_WAKEUP
 /**
  * @brief  Configure the UULP GPIO 2 as wakeup source
  * @param  none

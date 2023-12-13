@@ -1,6 +1,19 @@
-# I2S
+# SI91x - SL_I2S_LOWPOWER
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - This application demonstrates ULP_I2S will be configured in PS2 state and master mode.Here we will connect TX pin to RX pin in loopback mode
 - Master transmits data on TX pin using DMA and receives same data on RX pin using DMA
@@ -29,42 +42,46 @@
 - When send data is received by receiver channel, it compares the data received with transferred data
 - Loopback test will be pass after successful data comparison.
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image505a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-## Project Setup
+### Setup Diagram
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Loading Application on Simplicity Studio
+## Getting Started
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to I2S loopback Example application as shown below.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Selecting Example project](resources/readme/image505b.png)
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-## Configuration and Steps for Execution
+## Application Build Environment
 
 - Configure UC from the slcp component.
+
+   ![Figure: Introduction](resources/uc_screen/i2s_lowpower_uc_screen.png)
+
 - Open **sl_si91x_i2s_low_power.slcp** project file select **software component** tab and search for **I2S** in search bar.
 - Using configuration wizard one can configure different parameters like:
-  - **General Configuration**
-  - I2S resolution: I2S resolution can be configured through this macro,valid resolution values are 12, 16, 20, 24 and 32 bit.
-  - I2S sampling rate: I2S sampling rate can be configured through this macro,valid sampling rate values are 
+
+### General Configuration
+
+- I2S resolution: I2S resolution can be configured through this macro,valid resolution values are 12, 16, 20, 24 and 32 bit.
+- I2S sampling rate: I2S sampling rate can be configured through this macro,valid sampling rate values are
     8kHz, 11.025kHz, 16kHz, 22.05kHz, 24kHz, 32kHz, 44.1kHz, 48kHz, 88.2kHz, 96kHz and 192kHz
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
@@ -74,36 +91,25 @@
 #define BUFFER_SIZE 1024    ///< I2S transfer size
 ```
 
-## Build
-
-1. Compile the application in Simplicity Studio using build icon
-
-![Figure: Build run and Debug](resources/readme/image505c.png)
-
-## Device Programming
-
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
-
-## Pin Configuration
+### Pin Configuration
 
 | GPIO pin                | Description             |
 | ----------------------- | ----------------------- |
-| GPIO_28 [P16]           | I2S DOUT		        |
-| GPIO_27 [EXP_HEADER-16]           | I2S DIN 		        |
+| ULP_GPIO_1 [P16]           | I2S DOUT          |
+| ULP_GPIO_6 [EXP_HEADER-16]           | I2S DIN           |
 
-## Pin Description
+### Pin Description
 
-**Note!** Make sure pin configuration in RTE_Device_9117.h file.(path: /$project/wiseconnect_1.0.0/platforms/si91x/drivers/cmsis_driver/config/RTE_Device_9117.h)
+**Note!** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/config/RTE_Device_917.h)
 
-## Executing the Application
+## Test the Application
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Connect DOUT to DIN for loopback connection.
 2. Compile and run the application.
 3. When the application runs,It sends and receives data in loopback.
-Note: To check Prints for ULP Peripheral examples, connect the USB to TTL uart connector's RX_pin,
-to the EXP_HEADER-5 of the WPK[BRD4002A]/WSTK[BRD4001A] Base Board.
+4. Data send/receive success and data comparison success prints can be seen on serial console.
+5. After successful program execution the prints in serial console looks as shown below.
 
-## Expected Results
-
-- Console output of successful configuration of PLL, initialization, power mode and I2S configuration
-- Console output of I2S transfer complete, Data comparison successful, Loop Back Test Passed.
+   >![output](resources/readme/output_i2s_low_power.png)

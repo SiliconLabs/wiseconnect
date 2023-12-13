@@ -22,9 +22,13 @@
 #include "sl_si91x_types.h"
 #include "lwip/netif.h"
 
+/** \addtogroup SL_NET_TYPES
+ * @{ */
+/// LwIP network context
 typedef struct {
-  struct netif netif;
+  struct netif netif; ///< lwIP network interfaces
 } sl_net_wifi_lwip_context_t;
+/** @} */
 
 typedef struct {
   sl_status_t (*init)(const sl_wifi_device_configuration_t *configuration,

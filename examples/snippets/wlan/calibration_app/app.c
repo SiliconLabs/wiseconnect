@@ -40,6 +40,7 @@
 #include "sl_utility.h"
 #include <string.h>
 #include "sl_si91x_driver.h"
+#include <string.h>
 
 /******************************************************
  *                      Macros
@@ -49,15 +50,10 @@
  ******************************************************/
 #define BURST_MODE      0
 #define CONTINUOUS_MODE 1
-#define TX_TEST_POWER   18
-#define TX_TEST_RATE    0
-#define TX_TEST_LENGTH  30
-#define TX_TEST_MODE    BURST_MODE
-#define TEST_CHANNEL    1
 
 #define MAX_CALIB_COMMAND_LENGTH 200
 #define MIN_CALIB_COMMAND_LENGTH (strlen("rsi_evm_write=") + 2 /*atleast one char of input data and CR/LF */)
-#define NO_OF_CALIB_COMMANDS     4
+#define NO_OF_CALIB_COMMANDS     5
 
 #define PARSE_1_BYTE  1
 #define PARSE_2_BYTES 2
@@ -67,12 +63,21 @@ typedef struct calib_commands_t {
   uint8_t cmd[MAX_CALIB_COMMAND_LENGTH];
 } calib_commands_t;
 
-enum calib_cmd_types { FREQ_OFFSET, CALIB_WRITE, EVM_OFFSET, EVM_WRITE };
+enum calib_cmd_types {
+  FREQ_OFFSET,
+  CALIB_WRITE,
+  EVM_OFFSET,
+  EVM_WRITE,
+#ifdef SLI_SI917
+  DPD_CALIB_WRITE
+#endif
+};
 
 calib_commands_t calib_commands[NO_OF_CALIB_COMMANDS] = { { "sl_freq_offset=" },
                                                           { "sl_calib_write=" },
                                                           { "sl_evm_offset=" },
-                                                          { "sl_evm_write=" } };
+                                                          { "sl_evm_write=" },
+                                                          { "sl_process_dpd_calibration=" } };
 
 /******************************************************
  *               Global Variable
@@ -90,12 +95,47 @@ const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
+const sl_wifi_data_rate_t rate               = SL_WIFI_DATA_RATE_1;
+sl_si91x_request_tx_test_info_t tx_test_info = {
+  .enable      = 1,
+  .power       = 18,
+  .rate        = rate,
+  .length      = 30,
+  .mode        = BURST_MODE,
+  .channel     = 1,
+  .aggr_enable = 0,
+#ifdef SLI_SI917
+  .enable_11ax            = 0,
+  .coding_type            = 0,
+  .nominal_pe             = 0,
+  .ul_dl                  = 0,
+  .he_ppdu_type           = 0,
+  .beam_change            = 0,
+  .bw                     = 0,
+  .stbc                   = 0,
+  .tx_bf                  = 0,
+  .gi_ltf                 = 0,
+  .dcm                    = 0,
+  .nsts_midamble          = 0,
+  .spatial_reuse          = 0,
+  .bss_color              = 0,
+  .he_siga2_reserved      = 0,
+  .ru_allocation          = 0,
+  .n_heltf_tot            = 0,
+  .sigb_dcm               = 0,
+  .sigb_mcs               = 0,
+  .user_sta_id            = 0,
+  .user_idx               = 0,
+  .sigb_compression_field = 0,
+#endif
+};
+
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
 
 #ifndef BUFSIZE
-#define BUFFER_SIZE 80 //Input buffer size
+#define BUFFER_SIZE 200 //Input buffer size
 #endif
 
 /*******************************************************************************
@@ -126,16 +166,11 @@ static const sl_wifi_device_configuration_t sl_wifi_calibration_configuration = 
                    .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
-#ifdef CHIP_917B0
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
+#ifdef SLI_SI917B0
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#endif
-#ifndef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
                       ),
                    .bt_feature_bit_map         = 0,
@@ -150,10 +185,8 @@ static const sl_wifi_device_configuration_t sl_wifi_calibration_configuration = 
  ******************************************************/
 static void application_start(void *argument);
 sl_status_t calibration_app(void);
-#ifdef RSI_M4_INTERFACE
 void iostream_usart_init(void);
 void iostream_rx(void);
-#endif
 void display_calib_cmd_usage(void);
 void validate_input_cmd(void);
 
@@ -167,7 +200,6 @@ void app_init(const void *unused)
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
-#ifdef RSI_M4_INTERFACE
 void iostream_usart_init()
 {
   /* Prevent buffering of output/input.*/
@@ -176,16 +208,14 @@ void iostream_usart_init()
   setvbuf(stdin, NULL, _IONBF, 0);  /*Set unbuffered mode for stdin (newlib)*/
 #endif
 }
-#endif
 
 static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
-
-#ifdef RSI_M4_INTERFACE
+  printf("\r\n initializing usart \r\n");
   iostream_usart_init();
-#endif
+  printf("\r\n initialised usart \r\n");
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_calibration_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
@@ -195,9 +225,10 @@ static void application_start(void *argument)
     printf("Wi-Fi initialization successful\r\n");
   }
 
-  status = sl_si91x_transmit_test_start(TX_TEST_POWER, TX_TEST_RATE, TX_TEST_LENGTH, TX_TEST_MODE, TEST_CHANNEL);
+  status = sl_si91x_transmit_test_start(&tx_test_info);
   if (status != SL_STATUS_OK) {
     printf("Transmit test start failed: 0x%lx\r\n", status);
+    return;
   } else {
     printf("Transmit test started\r\n");
   }
@@ -210,7 +241,6 @@ static void application_start(void *argument)
   }
 }
 
-#ifdef RSI_M4_INTERFACE
 void iostream_rx()
 {
   char c               = 0;
@@ -231,7 +261,6 @@ void iostream_rx()
     }
   }
 }
-#endif
 
 void display_calib_cmd_usage()
 {
@@ -268,7 +297,7 @@ int32_t validate_and_set_cmd_index()
     return -1;
 
   for (i = 0; i < NO_OF_CALIB_COMMANDS; i++) {
-    cmd_len = strlen((const unsigned char *)calib_commands[i].cmd);
+    cmd_len = strlen((const char *)calib_commands[i].cmd);
     if (!strncasecmp((const char *)&buffer, (char *)calib_commands[i].cmd, cmd_len)) {
       cmd_index = i;
       cmd_valid = true;
@@ -297,13 +326,13 @@ int16_t parse_cmd(void *address, uint16_t length, uint8_t *value)
     temp_buff[index] = '\0';
     temp_offset++;
     if (length == PARSE_2_BYTES) {
-      *((uint16_t *)address) = atoi((int8_t *)temp_buff);
+      *((uint16_t *)address) = atoi((const char *)temp_buff);
       break;
     } else if (length == PARSE_4_BYTES) {
-      *((uint32_t *)address) = atoi((int8_t *)temp_buff);
+      *((uint32_t *)address) = atoi((const char *)temp_buff);
       break;
     } else
-      *((uint8_t *)address + offset) = atoi((int8_t *)temp_buff);
+      *((uint8_t *)address + offset) = atoi((const char *)temp_buff);
   }
 
   return temp_offset;
@@ -314,7 +343,6 @@ sl_status_t calibration_app()
   sl_status_t status;
   int32_t cmd_len                            = 0;
   int8_t temp1B                              = 0;
-  int16_t temp2B                             = 0;
   int32_t temp4B                             = 0;
   int32_t offset                             = 0;
   sl_si91x_calibration_read_t target         = { 0 };
@@ -323,8 +351,8 @@ sl_status_t calibration_app()
   sl_si91x_freq_offset_t freq_calib_pkt      = { 0 };
   sl_si91x_evm_offset_t evm_offset_pkt       = { 0 };
   sl_si91x_evm_write_t evm_write_pkt         = { 0 };
-  sl_si91x_efuse_read_t efuse_read_pkt       = { 0 };
-  uint8_t *efuse_read_buf                    = NULL;
+  //sl_si91x_efuse_read_t efuse_read_pkt        = { 0 };
+  sl_si91x_get_dpd_calib_data_t dpd_calib_pkt = { 0 };
 
   target.target      = 1;
   calib_pkt.target   = 1;
@@ -340,31 +368,29 @@ sl_status_t calibration_app()
   evm_write_pkt.flags                               = 2;
   evm_write_pkt.evm_offset_11G_6M_24M_11N_MCS0_MCS2 = 10;
 
-  efuse_read_pkt.efuse_read_addr_offset = 602;
-  efuse_read_pkt.efuse_read_data_len    = 20;
+  // efuse_read_pkt.efuse_read_addr_offset = 602;
+  // efuse_read_pkt.efuse_read_data_len    = 20;
+
+  dpd_calib_pkt.dpd_power_index = 127;
 
   while (1) {
     display_calib_cmd_usage();
 
     printf("Enter the calibration command:\r\n");
 
-#ifdef RSI_M4_INTERFACE
     while (!end_of_cmd) {
       iostream_rx();
     }
-#endif
-
     end_of_cmd = false;
 
     printf("Command read complete\r\n");
 
     cmd_len = validate_and_set_cmd_index();
     offset  = cmd_len;
-
     if (cmd_valid) {
       switch (cmd_index) {
         case FREQ_OFFSET:
-          offset += parse_cmd(&temp4B, PARSE_4_BYTES, &buffer[offset]);
+          offset += parse_cmd(&temp4B, PARSE_4_BYTES, (uint8_t *)&buffer[offset]);
           freq_calib_pkt.frequency_offset_in_khz = temp4B;
           status                                 = sl_si91x_frequency_offset(&freq_calib_pkt);
           if (status != SL_STATUS_OK) {
@@ -378,27 +404,27 @@ sl_status_t calibration_app()
           break;
         case CALIB_WRITE:
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             calib_pkt.target = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp4B, PARSE_4_BYTES, &buffer[offset]);
+            offset += parse_cmd(&temp4B, PARSE_4_BYTES, (uint8_t *)&buffer[offset]);
             calib_pkt.flags = temp4B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             calib_pkt.gain_offset[0] = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             calib_pkt.gain_offset[1] = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             calib_pkt.gain_offset[2] = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             calib_pkt.xo_ctune = temp1B;
           }
           status = sl_si91x_calibration_write(calib_pkt);
@@ -426,12 +452,19 @@ sl_status_t calibration_app()
           temp4B = 0;
           break;
         case EVM_OFFSET:
+          status = sl_si91x_transmit_test_stop();
+          if (status != SL_STATUS_OK) {
+            printf("Transmit test stop failed: 0x%lx\r\n", status);
+            return status;
+          } else {
+            printf("Transmit test stopped\r\n");
+          }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             evm_offset_pkt.evm_index = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             evm_offset_pkt.evm_offset_val = temp1B;
           }
           status = sl_si91x_evm_offset(&evm_offset_pkt);
@@ -443,34 +476,41 @@ sl_status_t calibration_app()
           }
           offset = 0;
           temp1B = 0;
+          status = sl_si91x_transmit_test_start(&tx_test_info);
+          if (status != SL_STATUS_OK) {
+            printf("Transmit test start failed: 0x%lx\r\n", status);
+            return status;
+          } else {
+            printf("Transmit test started\r\n");
+          }
           break;
         case EVM_WRITE:
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             evm_write_pkt.target = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp4B, PARSE_4_BYTES, &buffer[offset]);
+            offset += parse_cmd(&temp4B, PARSE_4_BYTES, (uint8_t *)&buffer[offset]);
             evm_write_pkt.flags = temp4B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             evm_write_pkt.evm_offset_11B = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             evm_write_pkt.evm_offset_11G_36M_54M_11N_MCS3_MCS7 = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             evm_write_pkt.evm_offset_11G_6M_24M_11N_MCS0_MCS2 = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             evm_write_pkt.evm_offset_11N_MCS0 = temp1B;
           }
           if (buffer[offset] != '\0') {
-            offset += parse_cmd(&temp1B, PARSE_1_BYTE, &buffer[offset]);
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             evm_write_pkt.evm_offset_11N_MCS7 = temp1B;
           }
           status = sl_si91x_evm_write(&evm_write_pkt);
@@ -479,6 +519,15 @@ sl_status_t calibration_app()
             return status;
           } else {
             printf("EVM offset correction successful\r\n");
+          }
+          break;
+        case DPD_CALIB_WRITE:
+          status = sl_process_dpd_calibration(&dpd_calib_pkt);
+          if (status != SL_STATUS_OK) {
+            printf("DPD calibration failed: 0x%lx\r\n", status);
+            return status;
+          } else {
+            printf("DPD claibration successful\r\n");
           }
           break;
         default:
@@ -490,5 +539,73 @@ sl_status_t calibration_app()
     }
 
     memset(buffer, 0, sizeof(buffer));
+  }
+}
+#define MAX_DPD_TRAINING_CHANNELS 6
+uint8_t channel_sel[MAX_DPD_TRAINING_CHANNELS] = { 1, 3, 6, 8, 11, 13 };
+void sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx)
+{
+  uint8_t i;
+  sl_status_t status;
+  sl_si91x_calibration_write_t calib_pkt = { 0 };
+  calib_pkt.target                       = 1;
+  calib_pkt.flags                        = 256;
+  status                                 = sl_si91x_transmit_test_stop();
+  if (status != SL_STATUS_OK) {
+    printf("Transmit failed to stop %lx\r\n", status);
+    return;
+  } else {
+    printf("Transmit command stopped\n");
+  }
+
+  for (i = 0; i < MAX_DPD_TRAINING_CHANNELS; i++) {
+    //! Checking the region code if the channel number is above 11
+    //!
+    if (!((channel_sel[i] > 11) && (sl_wifi_calibration_configuration.region_code < 2))) {
+      tx_test_info.channel = channel_sel[i];
+      status               = sl_si91x_transmit_test_start(&tx_test_info);
+      if (status != SL_STATUS_OK) {
+        printf("Transmit failed with channel num %lx\r\n", status);
+        return;
+      } else {
+        printf("Transmit command started with channel num %x\r\n", channel_sel[i]);
+      }
+      osDelay(1000);
+
+      status = sl_si91x_transmit_test_stop();
+      if (status != SL_STATUS_OK) {
+        printf("Transmit failed to stop %lx\r\n", status);
+        return;
+      } else {
+        printf("Transmit command stopped\n");
+      }
+      osDelay(1000);
+    }
+    if (i == MAX_DPD_TRAINING_CHANNELS - 1) {
+      status = sl_si91x_dpd_calibration(dpd_power_inx);
+      if (status != SL_STATUS_OK) {
+        printf("rsi_calibration_dpd_failed %lx\r\n", status);
+        return;
+      } else {
+        printf("calib-val coellecting\n");
+      }
+      osDelay(1000);
+      status = sl_si91x_calibration_write(calib_pkt);
+      if (status != SL_STATUS_OK) {
+        printf("rsi_calib_write failed with error %lx\r\n", status);
+        return;
+      } else {
+        printf("calib-write pass\n");
+      }
+    } else {
+      status = sl_si91x_dpd_calibration(dpd_power_inx);
+      if (status != SL_STATUS_OK) {
+        printf("rsi_calibration_dpd_failed %lx\r\n", status);
+        return;
+      } else {
+        printf("calib val collect\n");
+      }
+    }
+    osDelay(1000);
   }
 }

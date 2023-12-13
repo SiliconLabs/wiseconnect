@@ -21,7 +21,7 @@
  *  in SPI mode and performing loop back test on data sent and received.
  ============================================================================**/
 #include "sio_example.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_chip.h"
 #include "sl_si91x_sio.h"
 #include "string.h"
@@ -40,10 +40,6 @@
 // SIO-UART Configuration parameters
 #define SIO_UART_BAUD_RATE 115200 // SIO-UART baud rate
 
-// SIO-I2C Configuration parameters
-#define SIO_I2C_SAMPLE_RATE 100000 // SIO-I2C sample rate
-#define SIO_I2C_OEN         2      // SIO-I2C OEN selection
-#define SIO_SLAVE_ADDRESS   0x50   // SIO-I2C slave address
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -51,7 +47,6 @@
 typedef enum {
   SL_SIO_SPI  = 1, // Initialize SIO SPI instance
   SL_SIO_UART = 0, // Initialize SIO UART instance
-  SL_SIO_I2C  = 0, // Initialize SIO I2C instance
 } sio_instance_type_t;
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
@@ -81,10 +76,8 @@ stc_sio_spi_xfer_t pstcSpiXfer    = { 0 };
 extern stc_sio_uart_config_t UartInitstc;
 uint8_t tx_buffer[BUFFER_SIZE] = { 0 };
 uint8_t rx_buffer[BUFFER_SIZE] = { 0 };
-stc_sio_i2c_config_t i2cConfig = { 0 };
 extern sl_sio_spi_t sl_sio_spi_init;
 extern sl_sio_uart_t sl_sio_uart_init;
-extern sl_sio_i2c_t sl_sio_i2c_init;
 /*******************************************************************************
  * SIO Example Initialization function for setting clock frequency, SIO
  *initialize, SPI initialize etc.
@@ -299,32 +292,6 @@ void sio_example_init(void)
       }
       DEBUGOUT("SIO uart read is successful \n");
     }
-    // Initialize SIO UART instance
-    if (SL_SIO_I2C == 1) {
-      // Prepare the I2C Write buffer
-      for (uint8_t i = 0; i < BUFFER_SIZE; i++) {
-        tx_data[i] = i + 1;
-      }
-      // Initialize the SIO
-      status = sl_si91x_sio_init();
-      // Check the status error code
-      if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_sio_init: Error Code : %lu \n", status);
-        break;
-      }
-      DEBUGOUT("SIO GPIO initialization is successful \n");
-      status = sl_si91x_sio_i2c_pin_initialization(&sl_sio_i2c_init);
-      // Check the status error code
-      if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_sio_i2c_pin_initialization: Error Code : %lu \n", status);
-        break;
-      }
-      DEBUGOUT("SIO I2C GPIO pin initialization is successful \n");
-      i2cConfig.u32SampleRate = SIO_I2C_SAMPLE_RATE;
-      i2cConfig.u8SioI2cOen   = SIO_I2C_OEN;
-      i2cConfig.u8SioI2cScl   = SL_SIO_CH_6;
-      i2cConfig.u8SioI2cSda   = SL_SIO_CH_7;
-    }
   } while (false);
 }
 
@@ -435,27 +402,6 @@ void sio_example_process_action(void)
       case SL_TRANSFER_DATA:
         break;
     }
-  }
-  // Initialize SIO UART instance
-  if (SL_SIO_I2C == 1) {
-    sl_si91x_sio_i2c_generate_start();
-    sl_si91x_sio_i2c_transfer(&i2cConfig, SIO_SLAVE_ADDRESS, tx_data, BUFFER_SIZE, rx_data, BUFFER_SIZE);
-    sl_si91x_sio_i2c_generate_stop();
-
-    sl_si91x_sio_i2c_generate_start();
-    sl_si91x_sio_i2c_transfer(&i2cConfig, SIO_SLAVE_ADDRESS, tx_data, BUFFER_SIZE, rx_data, BUFFER_SIZE);
-    DEBUGOUT("SIO i2c transfer is successful \n");
-    sl_si91x_sio_i2c_generate_stop();
-
-    sl_si91x_sio_i2c_write(&i2cConfig, SIO_SLAVE_ADDRESS, tx_data, BUFFER_SIZE);
-    sl_si91x_sio_i2c_read(&i2cConfig, SIO_SLAVE_ADDRESS, rx_data, BUFFER_SIZE);
-    sl_si91x_sio_i2c_generate_stop();
-
-    for (uint8_t i = 0; i < BUFFER_SIZE; i++) {
-      DEBUGOUT("rx_data[%d] = %d\n", i, rx_data[i]);
-    }
-    while (1)
-      ;
   }
 }
 

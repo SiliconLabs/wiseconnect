@@ -1,0 +1,109 @@
+project_name: cli_demo_soc
+package: wifi
+quality: production
+label: cli_demo_soc
+category: Example|Wi-Fi
+description: >
+  Demonstrates to run all commands individually
+filter:
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+- name: Project Difficulty
+  value:
+  - Beginner
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+- id: wiseconnect3_sdk
+  version: 3.1.1
+source:
+- path: demo.c
+- path: main.c
+- path: wifi_commands.c
+- path: network_commands.c
+- path: bsd_socket_commands.c
+- path: iot_socket_commands.c
+- path: console_commands/src/console_argument_types.c
+- path: console_commands/src/console_command_database.c
+- path: console_commands/src/console_variable_database.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+- path: console_commands/inc
+  file_list:
+  - path: console_argument_types.h
+define:
+- name: SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT
+  value: 15
+- name: SLI_SI91X_OFFLOAD_NETWORK_STACK
+  value: 1
+- name: SL_SI91X_PRINT_DBG_LOG
+- name: SLI_SI91X_DBG_MIDDLEWARE_EN
+- name: SLI_SI91X_MCU_INTR_BASED_RX_ON_UART
+component:
+- id: sl_system
+- id: freertos
+- id: syscalls
+  from: wiseconnect3_sdk
+- id: si917_memory_default_config
+  from: wiseconnect3_sdk
+- id: wiseconnect3_common
+  from: wiseconnect3_sdk
+- id: wifi
+  from: wiseconnect3_sdk
+- id: sl_si91x_internal_stack
+  from: wiseconnect3_sdk
+- id: wifi_resources
+  from: wiseconnect3_sdk
+- id: network_manager
+  from: wiseconnect3_sdk
+- id: basic_network_config_manager
+  from: wiseconnect3_sdk
+- id: device_needs_ram_execution
+  from: wiseconnect3_sdk
+- id: console
+  from: wiseconnect3_sdk
+- id: console_variables
+  from: wiseconnect3_sdk
+- id: iot_socket
+  from: wiseconnect3_sdk
+toolchain_settings: []
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/clidemo_soc_ncp.png
+- path: resources/readme/build_output.png
+- path: resources/readme/help.png
+- path: resources/readme/prints.png
+- path: resources/readme/prints7.png
+- path: resources/readme/empty_data.png
+- path: resources/readme/tx_commands.png
+- path: resources/readme/tx_modes.png
+- path: resources/readme/rx_stats.png
+- path: resources/readme/rx_stats_prints.png
+- path: resources/readme/wifi_init.png
+- path: resources/readme/wifi_init_prints.png
+- path: resources/readme/scan_prints.png
+- path: resources/readme/wifi_connect.png
+- path: resources/readme/connect.png
+- path: resources/readme/deinit.png
+- path: resources/readme/picture1.png
+- path: resources/readme/picture2.png
+- path: resources/readme/picture4.png
+- path: resources/readme/picture8.png
+- path: resources/readme/picture9.png
+- path: resources/readme/picture10.png
+- path: resources/readme/picture5.png
+- path: resources/readme/picture6.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+post_build:
+  path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb

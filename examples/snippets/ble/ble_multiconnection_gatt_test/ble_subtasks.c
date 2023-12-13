@@ -54,6 +54,7 @@ extern volatile uint16_t rsi_ble_att3_val_hndl;
 extern volatile uint32_t ble_app_event_task_map[];
 extern volatile uint32_t ble_app_event_task_map1[];
 extern volatile uint16_t rsi_disconnect_reason[TOTAL_CONNECTIONS];
+extern volatile uint32_t ble_temp_event_map[TOTAL_CONNECTIONS];
 extern rsi_ble_conn_info_t rsi_ble_conn_info[];
 extern rsi_ble_req_adv_t change_adv_param;
 extern rsi_ble_req_scan_t change_scan_param;
@@ -184,6 +185,7 @@ void rsi_ble_task_on_conn(void *parameters)
   uint16_t indication_handle        = 0;
   uint16_t notfy_cnt                = 0;
   uint16_t indication_cnt           = 0;
+  uint8_t max_data_length           = 0;
   uint8_t no_of_profiles = 0, total_remote_profiles = 0;
   uint8_t l_num_of_services = 0, l_char_property = 0;
   uint8_t profs_evt_cnt = 0, prof_evt_cnt = 0, char_for_serv_cnt = 0, char_desc_cnt = 0;
@@ -213,7 +215,6 @@ void rsi_ble_task_on_conn(void *parameters)
   rsi_bt_event_encryption_enabled_t l_rsi_encryption_enabled = { 0 };
   uint8_t smp_done = 0, mtu_exchange_done = 0;
   uint8_t l_conn_id                    = 0xff;
-  uint8_t max_data_length              = 0;
   rsi_ble_conn_config_t *ble_conn_conf = NULL;
   bool rsi_rx_from_rem_dev             = false;
   bool rsi_tx_to_rem_dev               = false;
@@ -267,8 +268,6 @@ void rsi_ble_task_on_conn(void *parameters)
     //! checking for events list
     event_id = rsi_ble_get_event_based_on_conn(l_conn_id);
     if (event_id == -1) {
-
-      //! wait on connection specific semaphore
       osSemaphoreAcquire(ble_conn_sem[l_conn_id], osWaitForever);
       continue;
     }
@@ -281,7 +280,7 @@ void rsi_ble_task_on_conn(void *parameters)
         rsi_ble_clear_event_based_on_conn(l_conn_id, event_id);
       }
     }
-
+    ble_temp_event_map[l_conn_id] |= BIT(event_id);
     switch (event_id) {
       case RSI_APP_EVENT_ADV_REPORT: {
         LOG_PRINT("\r\n Advertise report received- conn%d \r\n", l_conn_id);
@@ -315,9 +314,9 @@ void rsi_ble_task_on_conn(void *parameters)
 
         osSemaphoreAcquire(ble_peripheral_conn_sem, 10000);
 
-        event_id = rsi_ble_get_event_based_on_conn(l_conn_id);
+        int32_t temp_event_id = rsi_ble_get_event_based_on_conn(l_conn_id);
 
-        if ((event_id == -1) || (!(event_id & (RSI_BLE_CONN_EVENT | RSI_BLE_ENHC_CONN_EVENT)))) {
+        if ((temp_event_id == -1) || (!(temp_event_id & (RSI_BLE_CONN_EVENT | RSI_BLE_ENHC_CONN_EVENT)))) {
           LOG_PRINT("\r\n Initiating connect cancel command in -conn%d\n", l_conn_id);
           status = rsi_ble_connect_cancel((int8_t *)rsi_ble_conn_info[l_conn_id].rsi_app_adv_reports_to_app.dev_addr);
           if (status != RSI_SUCCESS) {
@@ -633,6 +632,8 @@ void rsi_ble_task_on_conn(void *parameters)
             if (rsi_ble_profile_list_by_conn.profile_desc == NULL) {
               rsi_ble_profile_list_by_conn.profile_desc =
                 (profile_descriptors_t *)malloc(sizeof(profile_descriptors_t) * no_of_profiles);
+              if (rsi_ble_profile_list_by_conn.profile_desc == NULL)
+                return;
               memset(rsi_ble_profile_list_by_conn.profile_desc, 0, sizeof(profile_descriptors_t) * no_of_profiles);
             } else {
               void *temp = NULL;
@@ -1217,6 +1218,13 @@ void rsi_ble_task_on_conn(void *parameters)
               continue;
             }
             LOG_PRINT("\r\n Advertising started - conn%d\n", l_conn_id);
+#if ENABLE_POWER_SAVE
+            LOG_PRINT("\r\n Initiate module in to power save \r\n");
+            status = rsi_initiate_power_save();
+            if (status != RSI_SUCCESS) {
+              LOG_PRINT("\n Failed to keep module in power save \r\n");
+            }
+#endif
           }
         } else {
           LOG_PRINT("\r\n Peripheral is disconnected, reason : 0x%x - conn%d\r\n",
@@ -1256,6 +1264,7 @@ void rsi_ble_task_on_conn(void *parameters)
         // Deallocate all threads, mutexes and event handlers
         if (NULL != ble_app_task_handle[l_conn_id]) {
           osThreadTerminate(ble_app_task_handle[l_conn_id]);
+          ble_temp_event_map[l_conn_id]  = 0;
           ble_app_task_handle[l_conn_id] = NULL;
         }
         l_conn_id = 0xff;
@@ -1968,5 +1977,6 @@ void rsi_ble_task_on_conn(void *parameters)
       default:
         break;
     }
+    ble_temp_event_map[l_conn_id] &= ~(BIT(event_id));
   }
 }

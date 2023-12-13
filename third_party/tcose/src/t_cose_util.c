@@ -49,7 +49,7 @@ bool signature_algorithm_id_is_supported(int32_t cose_algorithm_id)
 #endif
     ;
 }
-
+#ifdef TCOSE_UNUSED
 /*
  * Public function.
  *
@@ -60,7 +60,7 @@ bool t_cose_is_algorithm_supported(int32_t cose_algorithm_id)
   /* REMOVED AS DEPENDENT ON PSA OR OPENSSL LIBTARY */
   //return t_cose_crypto_is_algorithm_supported(cose_algorithm_id);
 }
-
+#endif
 /*
  * Public function. See t_cose_util.h
  */
@@ -145,12 +145,10 @@ static void hash_bstr(struct t_cose_crypto_hash *hash_ctx, struct q_useful_buf_c
      *   hash function (a guess! variable!)        16-512      16-512
      *   TOTAL                                     41-537      23-529
      */
-
+  (void)hash_ctx;
   /* make a struct q_useful_buf on the stack of size QCBOR_HEAD_BUFFER_SIZE */
   Q_USEFUL_BUF_MAKE_STACK_UB(buffer_for_encoded_head, QCBOR_HEAD_BUFFER_SIZE);
-  struct q_useful_buf_c encoded_head;
-
-  encoded_head = QCBOREncode_EncodeHead(buffer_for_encoded_head, CBOR_MAJOR_TYPE_BYTE_STRING, 0, bstr.len);
+  QCBOREncode_EncodeHead(buffer_for_encoded_head, CBOR_MAJOR_TYPE_BYTE_STRING, 0, bstr.len);
 
   /* An encoded bstr is the CBOR head with its length followed by the bytes */
   /* REMOVED AS DEPENDENT ON PSA OR OPENSSL LIBTARY */
@@ -192,6 +190,8 @@ enum t_cose_err_t create_tbs_hash(int32_t cose_algorithm_id,
      *   hash function (a guess! variable!)        16-512      16-512
      *   TOTAL                                     32-748      30-746
      */
+  (void)buffer_for_hash;
+  (void)hash;
   enum t_cose_err_t return_value;
   struct t_cose_crypto_hash hash_ctx;
   int32_t hash_alg_id;
@@ -200,15 +200,6 @@ enum t_cose_err_t create_tbs_hash(int32_t cose_algorithm_id,
   hash_alg_id = hash_alg_id_from_sig_alg_id(cose_algorithm_id);
   if (hash_alg_id == T_COSE_INVALID_ALGORITHM_ID) {
     return_value = T_COSE_ERR_UNSUPPORTED_SIGNING_ALG;
-    goto Done;
-  }
-
-  /* REMOVED AS DEPENDENT ON PSA OR OPENSSL LIBTARY */
-  /* Don't check hash_alg_id for failure. t_cose_crypto_hash_start()
-     * will handle error properly. It was also checked earlier.
-     */
-  //return_value = t_cose_crypto_hash_start(&hash_ctx, hash_alg_id);
-  if (return_value) {
     goto Done;
   }
 

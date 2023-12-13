@@ -32,6 +32,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include "rsi_ble_apis.h"
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_m4_ps.h"
+#endif
 
 /***********************************************************************************************************************************************/
 /***********************************************************************************************************************************************/
@@ -41,7 +44,7 @@
 //Max 3 (peripheral + central) devices can be configured due to memory constraints in STM32
 #define RSI_BLE_APP_GATT_TEST (void *)"SL_MC_GATT_DEMO" //! local device name
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 20
 /* Number of BLE notifications */
 #define RSI_BLE_NUM_CONN_EVENTS     4
@@ -558,6 +561,7 @@ typedef struct rsi_parsed_conf_s {
 //   ! Function prototype declarations
 /*=======================================================================*/
 int32_t rsi_initiate_power_save(void);
+int32_t rsi_initiate_power_awake(void);
 void rsi_ble_main_app_task(void);
 void rsi_ble_task_on_conn(void *parameters);
 void rsi_ble_slave_app_task(void);

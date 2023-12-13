@@ -1,43 +1,45 @@
-# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
 project_name: sl_si91x_config_timer
-label: SI91x - SL CONFIG TIMER
-description: |
-  Demonstrates the how to configure and use the Calendar peripheral in SiLabs MCU chip .
+label: SI91x - SL Config Timer
+description: >
+  Demonstrates the how to configure and use the Calendar peripheral
+  in SiLabs MCU chip.
 category: example|peripheral
 package: platform
 quality: production
 readme:
-- {path: readme.md}
+  - path: readme.md
 source:
-- {path: config_timer_example.c}
-- {path: app.c}
-- {path: main.c}
-- {path: app.h}
-- {path: config_timer_example.h}
-sdk: {id: gecko_sdk, version: 4.3.1}
+  - path: config_timer_example.c
+  - path: app.c
+  - path: main.c
+  - path: app.h
+  - path: config_timer_example.h
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
 toolchain_settings: []
 component:
-- id: sl_system
-- id: status
-- {from: wiseconnect3_sdk, id: sl_config_timer}
-- {from: wiseconnect3_sdk, id: rsilib_ct}
-- {from: wiseconnect3_sdk, id: rsilib_userconfig}
-- {from: wiseconnect3_sdk, id: romdriver_egpio}
-- {from: wiseconnect3_sdk, id: rsilib_clock_update}
-- {from: wiseconnect3_sdk, id: udma_linker_config}
-- {from: wiseconnect3_sdk, id: si917_memory_default_config}
-- {from: wiseconnect3_sdk, id: si91x_debug}
+  - id: sl_system
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_config_timer
+    from: wiseconnect3_sdk
 other_file:
-- {path: resources/readme/image502a.png}
-- {path: resources/readme/image502b.png}
-- {path: resources/readme/image502c.png}
-- {path: resources/readme/vcom.png}
-define:
-- {name: RSI_M4_INTERFACE}
+  - path: resources/readme/image502e.png
+  - path: resources/uc_screen/uc_screen_1.png
+  - path: resources/uc_screen/uc_screen_2.png
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/outputConsoleI_CT.png
+  - path: resources/readme/outputConsoleI_CT_OCU.png
 ui_hints:
   highlight:
-  - {path: readme.md, focus: true}
+    - path: readme.md
+      focus: true
 sdk_extension:
-- {id: wiseconnect3_sdk, version: 3.1.0}
+  - id: wiseconnect3_sdk
+    version: 3.1.1
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

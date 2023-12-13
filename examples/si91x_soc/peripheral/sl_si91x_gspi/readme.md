@@ -1,4 +1,4 @@
-# GSPI
+# SL GSPI
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@
 ## Purpose/Scope
 
 - This application demonstrate the GSPI for data transfer in full duplex as well as half duplex mode.
-- This application can run in synchronous mode with full-duplex operation
+- This application can run in synchronous mode with full-duplex operation.
   - Master transmits data on MOSI pin and receives the same data on MISO pin
 - This also supports send and receive data with any SPI slave, additionally it also supports DMA and non-DMA transfer.
 - For half duplex communication, i.e., send and receive, master / slave connection is required.
@@ -31,9 +31,9 @@
 - It supports full duplex Single-bit SPI master mode.
 - It has support for Mode-0 and Mode-3 (Motorola). Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 3: Clock Polarity is one, Clock Phase is one.
 - It supports both Full speed and High speed modes.
-- The SPI clock is programmable to meet required baud rates
+- The SPI clock is programmable to meet required baud rates.
 - It can generates interrupt for different events like transfer complete, data lost, mode fault.
-- It supports upto 32K bytes of read data from a SPI device in a single read operation.
+- It supports up to 32K bytes of read data from a SPI device in a single read operation.
 - It also supports for byte-wise swapping of read and write data.
 - It has programmable FIFO thresholds with maximum FIFO depth of 16.
 - It has support for DMA (Dynamic Memory Access).
@@ -52,13 +52,13 @@
 - After initialization \ref sl_si91x_gspi_configure_power_mode is called to set the power mode \ref sl_gspi_power_state_t.
 - All the necessary parameters are configured using \ref sl_si91x_gspi_set_configuration API, it expects a structure with required parameters \ref sl_gspi_control_config_t.
 - After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_gspi_register_event_callback.
-- Current frame length and clock divsion factor are printed on console, \ref sl_si91x_gspi_get_clock_division_factor \ref sl_si91x_gspi_get_frame_length.
+- Current frame length and clock division factor are printed on console, \ref sl_si91x_gspi_get_clock_division_factor \ref sl_si91x_gspi_get_frame_length.
 - State machine code is implemented for transfer, send and receive, the current mode is determined by gspi_mode_enum_t which is declared in example file.
-- According to the macro is enabled, the example code exectues the transfer.
+- According to the macro is enabled, the example code executes the transfer.
 
-- If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and recieve data in full duplex mode.
+- If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
 
-  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_gspi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and recieving data simultaneously.
+  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_gspi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously.
   - This test can also be performed in loopback condition, i.e. connect MISO and MOSI pins.
   - It waits till the transfer is completed, when the transfer complete event is generated, it compares the sent and received data.
   - The result is printed on the console.
@@ -84,16 +84,15 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
-
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
+- Si91x
 - Simplicity Studio
-- VCOM Setup
-  - The Serial Console setup instructions are provided below.
-
-    ![Figure: VCOM_setup](resources/readme/vcom.png)
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
 ### Setup Diagram
 
@@ -103,29 +102,33 @@
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Simplicity Studio and WiSeConnect 3 extension
-- Connect SiWx917 device to the computer
-- Upgrade the device connectivity firmware
-- Create the Studio project
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
 ## Application Build Environment
 
 - Configure UC from the slcp component.
 - Open **sl_si91x_gspi.slcp** project file, select **Software Component** tab and search for **GSPI** in search bar.
 - Using configuration wizard one can configure different parameters like:
-  - **General Configuration**
-  - Mode: SPI mode can be configured, i.e. mode 0 and mode 3 (motorola). Mode 0: Clock Polarity 0 and Clock Phase 0, Mode 3: Clock Polarity 1 and Clock Phase 1.
-  - Bitrate: The speed of transfer can be configured, i.e. bits/second.
-  - Data Width: The size of data packet, it can be configured between 1 to 15.
-  - Manual Chip Select: If the user wants to control the chip select manually, then it can be enabled otherwise it will configure the chip select automatically.
-  - Byte-wise swapping of read and write data, enable will swap the data and disable will not swap the data.
-  - **DMA Configuration**
-  - Enable/Disable the DMA configuration.
-  - Configure the FIFO Thresholds, i.e. Almost Full and Almost Empty. It can be configured between 0 to 15.
+
+### General Configuration
+
+- Mode: SPI mode can be configured, i.e. mode 0 and mode 3 (motorola). Mode 0: Clock Polarity 0 and Clock Phase 0, Mode 3: Clock Polarity 1 and Clock Phase 1.
+- Bitrate: The speed of transfer can be configured, i.e. bits/second.
+- Data Width: The size of data packet, it can be configured between 1 to 15.
+- Byte-wise swapping of read and write data, enable will swap the data and disable will not swap the data.
+
+### DMA Configuration
+
+- Enable/Disable the DMA configuration.
+- Configure the FIFO Thresholds, i.e. Almost Full and Almost Empty. It can be configured between 0 to 15.
+- It is recommended to have maximum depth for Fifo Threshold. Almost Full refers to the Rx Fifo and Almost Empty refers to Tx Fifo.
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
   ![Figure: UC screen](resources/uc_screen/gspi_uc_screen.png)
- 
+
 - Configure the following macros in gspi_example.h file and update/modify following macros if required.
 
 ```C
@@ -138,10 +141,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 |   GPIO Pin    |      Description        |
 | ------------- | ----------------------- |
-| GPIO_25 [P25] | RTE_SSI_MASTER_CLK_PIN  |
-| GPIO_28 [P31] | RTE_SSI_MASTER_CS0_PIN  |
-| GPIO_26 [P27] | RTE_SSI_MASTER_MOSI_PIN |
-| GPIO_27 [P29] | RTE_SSI_MASTER_MISO_PIN |
+| GPIO_25 [P25] | RTE_GSPI_MASTER_CLK_PIN  |
+| GPIO_49 [P30] | RTE_GSPI_MASTER_CS0_PIN  |
+| GPIO_27 [P29] | RTE_GSPI_MASTER_MOSI_PIN |
+| GPIO_26 [P27] | RTE_GSPI_MASTER_MISO_PIN |
 
 ### Pin Description
 
@@ -151,11 +154,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Build the application
-- Flash, run and debug the application
-
-Follow the steps below for successful execution of the application:
-
 1. Compile and run the application.
 2. Connect GPIO_26 [P27] to GPIO_27 [P29] for loopback connection.
 3. Enable the macro in `gspi_example.h` file as per requirement.
@@ -163,12 +161,10 @@ Follow the steps below for successful execution of the application:
     - #define SL_USE_TRANSFER ENABLE
     - #define SL_USE_RECEIVE DISABLE
     - #define SL_USE_SEND DISABLE
-    - By default transfer is enabled.
+    - By default transfer is enabled
 
 4. When the application runs,It sends and receives data in loopback if USE_TRANSFER is enabled.
 5. If USE_RECEIVE or USE_SEND is enabled, SPI slave will receive and send data respectively.
+6. After successful program execution the prints in serial console looks as shown below.
 
-## Expected Results
-
-- Console output of successful configuration of clock, power mode and GSPI configuration
-- Console output of GSPI transfer complete, Loop back test passed.
+   > ![output](resources/readme/output_gspi.png)

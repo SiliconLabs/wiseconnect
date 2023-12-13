@@ -38,7 +38,7 @@
 #include <string.h>
 #include "sl_si91x_driver.h"
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "sl_si91x_hal_soc_soft_reset.h"
 #endif
 
@@ -89,14 +89,14 @@ static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuratio
                    .coex_mode                  = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map            = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifndef RSI_M4_INTERFACE
-                                                  | RAM_LEVEL_NWP_ALL_MCU_ZERO
+#ifndef SLI_SI91X_MCU_INTERFACE
+                                                  | SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 #else
-                                                  | RAM_LEVEL_NWP_ADV_MCU_BASIC
+                                                  | SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
-#ifdef CHIP_917
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),

@@ -40,7 +40,7 @@ typedef const uint32_t *value_list_t;
 
 typedef struct {
   uint32_t bitmap;
-  uint32_t arg[CONSOLE_MAXIMUM_ARG_COUNT];
+  uint32_t arg[SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT];
 } console_args_t;
 
 typedef sl_status_t (*console_handler_t)(console_args_t *arguments);

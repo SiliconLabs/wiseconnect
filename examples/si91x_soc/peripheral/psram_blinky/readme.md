@@ -1,48 +1,71 @@
 # PSRAM Blinky
 
-## Introduction  
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [PSRAM Linker Component Installation](#psram-linker-component-installation)
+- [Test the Application](#test-the-application) 
+
+## Purpo/sescope
 
 - This example project demonstrates blinky application (GPIO/LED toggle) executing from PSRAM. By default, the Text segment, Data segment, BSS segment, Stack and Heap are placed in PSRAM.
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WSTK/WPK + BRD4340A Si917 radio board]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4342A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
 
-## Project Setup
+### Setup Diagram
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+ ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Configuration and Steps for Execution
+## Getting Started
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
+- Compile and run the application.
+
+## Application Build Environment
 
 - Configure the following parameter in main.c file, update/modify following macro if required
-```C
-#define RSI_BLINK_RATE //  configured for 10 ticks per second   
-```   
+
+  ```C
+    #define RSI_BLINK_RATE //  configured for 10 ticks per second   
+  ```   
 - Sections can be included in PSRAM by installing components present under "PSRAM Linker Configurations" from "SOFTWARE COMPONENTS" GUI. Same can be removed from PSRAM and placed into default memory by uninstalling the respective component from software component selection GUI. 
 
-## Build
+## PSRAM Linker Component Installation
 
-- Compile the application in Simplicity Studio using build icon.
+1. Open the .slcp file generated for your specific project by double-clicking it.
+2. Navigate to the SOFTWARE COMPONENTS tab within the interface.
+3. Utilize the search bar to look for "PSRAM."
+4. Install the necessary component sections located within the PSRAM Linker Configurations.
 
-## Device Programming
+> ![Figure: Component Installation](resources/readme/section_component_installation.png)
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+## Test the Application
 
-## Executing the Application
-- Compile and run the application.
-- Toggles the state of LED0 at configured blink rate and then device goes to sleep 
-**Note!** LED toggling and device sleep will be a continous process 
+1. Compile and run the application.
+2. Toggles the state of LED0 at configured blink rate and then device goes to sleep.
+3. LED0 should blink on WPK base board.
 
-## Expected Results 
-- LED0 should blink on WSTK base board.
+> **Note!** 
+>
+> LED toggling and device sleep will be a continous process.
+

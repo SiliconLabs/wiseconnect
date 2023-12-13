@@ -113,6 +113,7 @@ sl_status_t console_parse_command(char *command_line,
 
 #ifdef CONSOLE_SUB_COMMAND_SUPPORT
 #endif
+
   args->bitmap = 0;
 
   // Try find matching command
@@ -132,7 +133,7 @@ sl_status_t console_parse_command(char *command_line,
   while (true) {
     type = argument_list[arg_index];
 
-    SL_ASSERT(arg_count < CONSOLE_MAXIMUM_ARG_COUNT, "Command has too many args");
+    SL_ASSERT(arg_count < SL_SI91X_CLI_CONSOLE_MAX_ARG_COUNT, "Command has too many args");
 
     if (type == CONSOLE_ARG_REMAINING_COMMAND_LINE) {
       args->bitmap |= (1 << arg_count);
@@ -347,7 +348,10 @@ sl_status_t console_parse_arg(console_argument_type_t type, char *line, uint32_t
     } break;
 
     case CONSOLE_ARG_HEX: {
-      return 0;
+      if (line[0] == '0' && line[1] == 'x') {
+        line += 2;
+      }
+      *arg_result = strtoul(line, NULL, 16);
     } break;
   }
   return SL_STATUS_OK;

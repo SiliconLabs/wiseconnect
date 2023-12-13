@@ -16,7 +16,7 @@
  ******************************************************************************/
 #include "sl_si91x_peripheral_i2c.h"
 #include "i2c_leader_example.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_rom_egpio.h"
 #include "rsi_power_save.h"
 #include "rsi_rom_clks.h"
@@ -43,6 +43,7 @@
 #define BIT_SET           1    // Set bit
 #define STOP_BIT          9    // Bit to send stop command
 #define RW_MASK_BIT       8    // Bit to mask read and write
+#define MAX_7BIT_ADDRESS  127  // Maximum 7-bit address
 
 /*******************************************************************************
  ******************************  Data Types  ***********************************
@@ -97,8 +98,8 @@ void I2C_Init(void)
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 static void pin_configurations(void);
-static void i2c_send_data(const uint8_t *data, uint32_t data_length);
-static void i2c_receive_data(uint8_t *data, uint32_t data_length);
+static void i2c_send_data(const uint8_t *data, uint32_t data_length, uint16_t follower_address);
+static void i2c_receive_data(uint8_t *data, uint32_t data_length, uint16_t follower_address);
 static void i2c_clock_init(I2C_TypeDef *i2c);
 static void handle_leader_transmit_irq(void);
 static void handle_leader_receive_irq(void);
@@ -120,11 +121,9 @@ void i2c_leader_example_init(void)
   NVIC_SetPriority(I2C2_IRQn, 15);
   sl_i2c_init_params_t config;
   // Filling the structure with default values.
-  config.clhr          = SL_I2C_STANDARD_BUS_SPEED;
-  config.freq          = sl_si91x_i2c_get_frequency(I2C2);
-  config.is_10bit_addr = false;
-  config.mode          = SL_I2C_LEADER_MODE;
-  config.address       = FOLLOWER_I2C_ADDR;
+  config.clhr = SL_I2C_STANDARD_BUS_SPEED;
+  config.freq = sl_si91x_i2c_get_frequency(I2C2);
+  config.mode = SL_I2C_LEADER_MODE;
   // Passing the structure and i2c instance for the initialization.
   sl_si91x_i2c_init(I2C2, &config);
   // Pin is configured here.
@@ -162,14 +161,14 @@ void i2c_leader_example_process_action(void)
     // Validation for executing the API only once.
     a[0] = (uint8_t)(0x00 & 0xFF);
     a[1] = (uint8_t)(0x01 & 0xFF);
-    i2c_send_data(a, 2);
+    i2c_send_data(a, 2, FOLLOWER_I2C_ADDR);
     while (!i2c_send_complete)
       ;
     // It waits till i2c_send_complete is true in IRQ handler.
     DEBUGOUT("Data is transferred to Follower successfully \n");
 
     // Validation for executing the API only once.
-    i2c_receive_data(read_buffer, 2);
+    i2c_receive_data(read_buffer, 2, FOLLOWER_I2C_ADDR);
     Delay(10);
     while (!i2c_receive_complete)
       ;
@@ -221,8 +220,9 @@ void i2c_leader_example_process_action(void)
  * @param[in] data_length (uint32_t) Length of the data that needs to be received.
  * @return none
  ******************************************************************************/
-static void i2c_send_data(const uint8_t *data, uint32_t data_length)
+static void i2c_send_data(const uint8_t *data, uint32_t data_length, uint16_t follower_address)
 {
+  bool is_10bit_addr = false;
   // Disables the interrupts.
   sl_si91x_i2c_disable_interrupts(I2C2, ZERO_FLAG);
   // Updates the variables which are required for trasmission.
@@ -231,6 +231,12 @@ static void i2c_send_data(const uint8_t *data, uint32_t data_length)
   write_number = data_length;
   // Disables the I2C peripheral.
   sl_si91x_i2c_disable(I2C2);
+  // Checking is address is 7-bit or 10bit
+  if (follower_address > MAX_7BIT_ADDRESS) {
+    is_10bit_addr = true;
+  }
+  // Setting the follower address recevied in parameter structure.
+  sl_si91x_i2c_set_follower_address(I2C2, follower_address, is_10bit_addr);
   // Configures the FIFO threshold.
   sl_si91x_i2c_set_tx_threshold(I2C2, FIFO_THRESHOLD);
   // Enables the I2C peripheral.
@@ -250,8 +256,9 @@ static void i2c_send_data(const uint8_t *data, uint32_t data_length)
  * @param[in] data_length (uint32_t) Length of the data that needs to be received.
  * @return none
  ******************************************************************************/
-static void i2c_receive_data(uint8_t *data, uint32_t data_length)
+static void i2c_receive_data(uint8_t *data, uint32_t data_length, uint16_t follower_address)
 {
+  bool is_10bit_addr = false;
   // Disables the interrupts.
   sl_si91x_i2c_disable_interrupts(I2C2, ZERO_FLAG);
   // Updates the variables which are required for trasmission.
@@ -261,6 +268,12 @@ static void i2c_receive_data(uint8_t *data, uint32_t data_length)
   // Disables the I2C peripheral.
   sl_si91x_i2c_disable(I2C2);
   // Configures the FIFO threshold.
+  // Checking is address is 7-bit or 10bit
+  if (follower_address > MAX_7BIT_ADDRESS) {
+    is_10bit_addr = true;
+  }
+  // Setting the follower address recevied in parameter structure.
+  sl_si91x_i2c_set_follower_address(I2C2, follower_address, is_10bit_addr);
   sl_si91x_i2c_set_rx_threshold(I2C2, FIFO_THRESHOLD);
   // Enables the I2C peripheral.
   sl_si91x_i2c_enable(I2C2);
@@ -282,7 +295,7 @@ static void i2c_receive_data(uint8_t *data, uint32_t data_length)
 static void i2c_clock_init(I2C_TypeDef *i2c)
 {
   if ((uint32_t)i2c == I2C2_BASE) {
-#if defined(CHIP_917)
+#if defined(SLI_SI917)
     // Powering up the peripheral.
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -293,7 +306,7 @@ static void i2c_clock_init(I2C_TypeDef *i2c)
     RSI_CLK_I2CClkConfig(M4CLK, 1, I2C1_INSTAN);
   }
   if ((uint32_t)i2c == I2C2_BASE) {
-#if defined(CHIP_917)
+#if defined(SLI_SI917)
     // Powering up the peripheral.
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -350,7 +363,6 @@ static void handle_leader_transmit_irq(void)
     sl_si91x_i2c_clear_interrupts(I2C2, SL_I2C_EVENT_TRANSMIT_EMPTY);
     sl_si91x_i2c_disable_interrupts(I2C2, ZERO_FLAG);
     i2c_send_complete = 1;
-    // printf("low level send complete\r\n");
   }
 }
 
@@ -381,7 +393,6 @@ static void handle_leader_receive_irq(void)
     sl_si91x_i2c_clear_interrupts(I2C2, SL_I2C_EVENT_RECEIVE_FULL);
     sl_si91x_i2c_disable_interrupts(I2C2, ZERO_FLAG);
     i2c_receive_complete = 1;
-    // printf("low level read complete\r\n");
   }
 }
 

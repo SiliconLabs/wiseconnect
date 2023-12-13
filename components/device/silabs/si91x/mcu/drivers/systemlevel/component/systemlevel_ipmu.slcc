@@ -1,0 +1,16 @@
+id: systemlevel_ipmu
+label: IPMU
+package: platform
+description: >
+  IPMU API's
+category: Device|Si91x|MCU|Internal|System-Level Drivers
+quality: production
+component_root_path: "components/device/silabs/si91x/mcu/drivers/systemlevel"
+source:
+  - path: "src/rsi_ipmu.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "rsi_ipmu.h"
+provides:
+  - name: systemlevel_ipmu

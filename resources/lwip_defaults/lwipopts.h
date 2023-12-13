@@ -186,10 +186,10 @@ a lot of data that needs to be copied, this should be set high. */
 #define DEFAULT_ACCEPTMBOX_SIZE   6
 #define DEFAULT_THREAD_STACKSIZE  500
 
-#if defined(freertos_FEATURE_REQUIRED)
+#if defined(SLI_SI91X_FREERTOS_SUPPORT)
 //#include "cmsis_os.h"
 #define TCPIP_THREAD_PRIO 2
-#elif defined(micirum_FEATURE_REQUIRED)
+#elif defined(SLI_SI91X_MICIRUM_SUPPORT)
 #define TCPIP_THREAD_PRIO 1
 #endif
 

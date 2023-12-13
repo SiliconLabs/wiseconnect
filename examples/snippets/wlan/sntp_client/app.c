@@ -29,7 +29,6 @@
  ******************************************************************************/
 
 #include "sl_net.h"
-#include "sl_tls.h"
 #include "sl_utility.h"
 #include "cmsis_os2.h"
 #include "sl_constants.h"
@@ -47,10 +46,10 @@
 #define SNTP_METHOD        SL_SNTP_UNICAST_MODE
 #define FLAGS              0
 #define NTP_SERVER_IP      "0.pool.ntp.org" // Mostly "162.159.200.123"
-#define DATA_BUFFER_LENGTH 30
+#define DATA_BUFFER_LENGTH 50
 #define SNTP_TIMEOUT       50
 #define SNTP_API_TIMEOUT   0
-#define ASYNC_WAIT_TIMEOUT 10000
+#define ASYNC_WAIT_TIMEOUT (SNTP_API_TIMEOUT + 1000)
 
 /******************************************************
  *               Variable Definitions
@@ -79,15 +78,10 @@ static const sl_wifi_device_configuration_t sl_wifi_sntp_client_configuration = 
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                       | SL_SI91X_TCP_IP_FEAT_SNTP_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map =
-                     (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS),
+                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK
-                                                  | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
-#ifndef RSI_M4_INTERFACE
-                                                  RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                                                  RAM_LEVEL_NWP_ADV_MCU_BASIC
-#endif
-#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -121,22 +115,22 @@ static sl_status_t module_status_handler(sl_wifi_event_t event, void *data, uint
 {
   UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(arg);
-  sl_si91x_con_state_notificaton_t *notif = (sl_si91x_con_state_notificaton_t *)data;
+  sl_si91x_module_state_stats_response_t *notif = (sl_si91x_module_state_stats_response_t *)data;
 
-  printf("---> Module status handler event with length : %lu\r\n", data_length);
-  printf("  <> Timestamp : %lu, state_code : %u, reason_code : %u, channel : %u, rssi : %u.\n",
-         notif->timestamp,
-         notif->state_code,
-         notif->reason_code,
-         notif->channel,
-         notif->rssi);
-  printf("  <> BSSID : %x:%x:%x:%x:%x:%x.\n",
-         notif->bssid[0],
-         notif->bssid[1],
-         notif->bssid[2],
-         notif->bssid[3],
-         notif->bssid[4],
-         notif->bssid[5]);
+  SL_DEBUG_LOG("---> Module status handler event with length : %lu\r\n", data_length);
+  SL_DEBUG_LOG("  <> Timestamp : %lu, state_code : %u, reason_code : %u, channel : %u, rssi : %u.\n",
+               notif->timestamp,
+               notif->state_code,
+               notif->reason_code,
+               notif->channel,
+               notif->rssi);
+  SL_DEBUG_LOG("  <> BSSID : %x:%x:%x:%x:%x:%x.\n",
+               notif->bssid[0],
+               notif->bssid[1],
+               notif->bssid[2],
+               notif->bssid[3],
+               notif->bssid[4],
+               notif->bssid[5]);
   return SL_STATUS_OK;
 }
 
@@ -192,38 +186,24 @@ static void print_char_buffer(char *buffer, uint32_t buffer_length)
   return;
 }
 
-static void print_server_info(char *buffer, uint32_t buffer_length)
-{
-  uint32_t i = 0;
-
-  for (i = 0; i < buffer_length; i++) {
-    if ((i > 1) && (i < 5)) {
-      printf("%u.", buffer[i]);
-    } else {
-      printf("%u ", buffer[i]);
-    }
-  }
-
-  printf("\r\n");
-  return;
-}
-
 static void sntp_client_event_handler(sl_sntp_client_response_t *response,
                                       uint8_t *user_data,
                                       uint16_t user_data_length)
 {
-  UNUSED_PARAMETER(user_data);
-  UNUSED_PARAMETER(user_data_length);
+  uint16_t length = 0;
 
   printf("\nReceived %s SNTP event with status %s\n",
          event_type[response->event_type],
          (0 == response->status) ? "Success" : "Failed");
-  if ((SL_SNTP_CLIENT_GET_TIME_DATE == response->event_type) && (0 == response->status)) {
-    printf("Response %u bytes data : ", response->data_length);
-    print_char_buffer((char *)response->data, response->data_length);
-  } else if ((SL_SNTP_CLIENT_GET_SERVER_INFO == response->event_type) && (0 == response->status)) {
-    printf("Response %u bytes data : ", response->data_length);
-    print_server_info((char *)response->data, response->data_length);
+
+  if (0 == response->status) {
+    if (response->data_length > user_data_length) {
+      length = user_data_length;
+    } else {
+      length = response->data_length;
+    }
+
+    memcpy(user_data, response->data, length);
   }
 
   callback_event = response->event_type;
@@ -242,8 +222,9 @@ sl_status_t embedded_sntp_client(void)
   sl_ip_address_t address          = { 0 };
   sl_sntp_client_config_t config   = { 0 };
   uint8_t data[DATA_BUFFER_LENGTH] = { 0 };
+  sl_sntp_server_info_t serverInfo = { 0 };
 
-  sl_dns_host_get_by_name(NTP_SERVER_IP, 10000, SL_NET_DNS_TYPE_IPV4, &address);
+  sl_net_host_get_by_name(NTP_SERVER_IP, 10000, SL_NET_DNS_TYPE_IPV4, &address);
   printf("Ip Address : %u.%u.%u.%u\n",
          address.ip.v4.bytes[0],
          address.ip.v4.bytes[1],
@@ -270,7 +251,9 @@ sl_status_t embedded_sntp_client(void)
       return cb_status;
     }
   } else {
-    if (status != SL_STATUS_OK) {
+    if (status == SL_STATUS_OK) {
+      printf("SNTP Client started successfully\n");
+    } else {
       printf("Failed to start SNTP client: 0x%lx\r\n", status);
       return status;
     }
@@ -290,14 +273,17 @@ sl_status_t embedded_sntp_client(void)
       return cb_status;
     }
   } else {
-    if (status != SL_STATUS_OK) {
+    if (status == SL_STATUS_OK) {
+      printf("SNTP Client got TIME and DATE successfully\n");
+    } else {
       printf("Failed to get date and time from ntp server : 0x%lx\r\n", status);
       return status;
     }
   }
+  print_char_buffer((char *)data, strlen((const char *)data));
 
   cb_status = SL_STATUS_FAIL;
-  status    = sl_sntp_client_get_server_info(data, DATA_BUFFER_LENGTH, SNTP_API_TIMEOUT);
+  status    = sl_sntp_client_get_server_info(&serverInfo, SNTP_API_TIMEOUT);
   if ((SNTP_API_TIMEOUT == 0) && (SL_STATUS_IN_PROGRESS == status)) {
     start = osKernelGetTickCount();
 
@@ -311,11 +297,28 @@ sl_status_t embedded_sntp_client(void)
       return cb_status;
     }
   } else {
-    if (status != SL_STATUS_OK) {
+    if (status == SL_STATUS_OK) {
+      printf("SNTP Client got server info successfully\n");
+    } else {
       printf("Failed to get ntp server info : 0x%lx\r\n", status);
       return status;
     }
   }
+  printf("Got Server IP version as : %u\n", serverInfo.ip_version);
+  if (4 == serverInfo.ip_version) {
+    printf("IPv4 Address is : %u.%u.%u.%u\n",
+           serverInfo.server_ip_address.ipv4_address[0],
+           serverInfo.server_ip_address.ipv4_address[1],
+           serverInfo.server_ip_address.ipv4_address[2],
+           serverInfo.server_ip_address.ipv4_address[3]);
+  } else {
+    printf("IPv6 Address is : %lx:%lx:%lx:%lx\n",
+           serverInfo.server_ip_address.ipv6_address[0],
+           serverInfo.server_ip_address.ipv6_address[1],
+           serverInfo.server_ip_address.ipv6_address[2],
+           serverInfo.server_ip_address.ipv6_address[3]);
+  }
+  printf("SNTP Server Method : %u\n", serverInfo.sntp_method);
 
   cb_status = SL_STATUS_FAIL;
   status    = sl_sntp_client_stop(SNTP_API_TIMEOUT);
@@ -331,7 +334,9 @@ sl_status_t embedded_sntp_client(void)
       return cb_status;
     }
   } else {
-    if (status != SL_STATUS_OK) {
+    if (status == SL_STATUS_OK) {
+      printf("SNTP Client stopped successfully\n");
+    } else {
       printf("Failed to stop SNTP client: 0x%lx\r\n", status);
       return status;
     }

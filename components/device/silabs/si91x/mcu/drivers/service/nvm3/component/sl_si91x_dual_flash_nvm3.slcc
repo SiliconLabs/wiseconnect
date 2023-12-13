@@ -1,0 +1,40 @@
+id: sl_si91x_dual_flash_nvm3
+label: NVM3 Dual Flash
+package: platform
+description: >
+  Implements NVM3 for the SiWG91x parts that have both internal and external flash parts fitted.
+category: Device|Si91x|MCU|Service
+quality: production
+component_root_path: "components/device/silabs/si91x/mcu/drivers/service/nvm3"
+define:
+  - name: EXT_IRQ_COUNT
+    value: "75"
+  - name: SLI_SI91X_MCU_INTERFACE
+  - name: FLASH_PAGE_SIZE
+  - name: __STATIC_INLINE
+    value: "static inline"
+  - name: RSI_SAMPLE_HAL
+    value: 1
+  - name: SL_NVM3_PRESENT
+    value: 1
+source:
+  - path: "src/sl_si91x_dual_flash_intf.c"
+  - path: "src/sl_si91x_nvm3_hal_flash.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "nvm3_default_config.h"
+    - path: "sl_si91x_dual_flash_intf.h"
+requires:
+  - name: romdriver_qspi
+  - name: romdriver_gpdma
+  - name: sl_system
+  - name: emlib_core
+  - name: sl_assert
+  - name: sl_common
+  - name: status
+template_contribution:
+  - name: nvm3_enable
+    value: true
+provides:
+  - name: sl_si91x_dual_flash_nvm3

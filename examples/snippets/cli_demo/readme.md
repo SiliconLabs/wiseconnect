@@ -1,136 +1,80 @@
 # Cli Demo
 
-## 1 Purpose/Scope
+## Table of Contents
+
+- [Purpose/Scope](#purposescope) 
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 The CLI Demo application is a command-line interface (CLI) application designed to showcase various functionalities and capabilities of SiWx91x in different scenarios and configuration modes. It serves as a quick reference guide and a hands-on demonstration of SiWx91x core features for developers and users.
-Note: Currently only Wi-Fi connection, powersave and RF test commands are supported.
 
-## 2 Prerequisites/Setup Requirements
+## Prerequisites/Setup Requirements
 
-### 2.1 Hardware Requirements
+### Hardware Requirements
 
 - A Windows PC.
 - **SoC Mode**:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4340A [SiWx917-RB4340A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+  	
+- **NCP Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+  - Kits
+  	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)  
 
-### 2.2 Software Requirements
+### Software Requirements
 
-- Simplicity Studio IDE
+- Simplicity Studio
 
-  - Download the latest [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
-  - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
+### Setup Diagram
 
-### 2.3 Setup Diagram
+![Figure: Setup Diagram SoC Mode for cli_demo Example](resources/readme/clidemo_soc_ncp.png)
 
-#### SoC Mode  
+## Getting Started
 
-![Figure: Setup Diagram SoC Mode for cli_demo Example](resources/readme/clidemo_soc.png)
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-Follow the [Getting Started with Wiseconnect SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-#### Setup for the RF test in SoC Mode
-
-![Figure: Setup Diagram in SoC Mode for cli_demo RF test Example](resources/readme/setup_rf.png)
-
-## 3 Project Environment
-
-- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
-
-- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
-
-### 3.1 Creating the project
-
-#### 3.1.1 SoC mode
-
-- Ensure the SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
-
-  **![Soc Board detection](resources/readme/soc_board_detection.png)**
-
-### 3.2 Importing the project
-
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
-
-#### SOC Mode
-
-- Select **Cli Demo** test application
-
-  **![project_selection](resources/readme/create_project1.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  **![creation_final](resources/readme/create_project2.png)**
-
-### 3.3 Set up for application prints
-
-#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
-
-You can use either of the below USB to UART converters for application prints.
-
-1. Set up using USB to UART converter board.
-
-   - Connect Tx (Pin-6) to P27 on WSTK
-   - Connect GND (Pin 8 or 10) to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
-
-2. Set up using USB to UART converter cable.
-
-   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-   - Connect GND (Pin1) of TTL convertor to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
-
-3. Open the Teraterm tool.
-
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
-
-     **![port_selection_soc](resources/readme/port_selection_soc.png)**
-
-**Note:** For Other 917 SoC boards please refer section #3.3.2
-
-#### 3.3.2 **Serial Debug Assistant set up - for SoC mode**
-
-1. Open the [Serial Debug Assistant](https://apps.microsoft.com/store/detail/serial-debug-assistant/9NBLGGH43HDM?hl=en-in&gl=in&rtc=1) tool. (The user can download it from the Microsoft store for transmitting and receiving commands)
-
-   - For SoC mode, choose the serial port to which USB to UART converter is connected (For E.g.: FT232R USB UART or COM Port can be detected) and update the baud rate to **115200** and click on  **Open Serial Port**.
-
-      **![UART - SoC](resources/readme/sda_port_baud_selection.png)**
-
-2. Click on **Extension cmd** under Send settings window to enter the CLI commands.
-
- **![Extension Command](resources/readme/sda_commands.PNG)**
-
-## 4 Application Build Environment
+## Application Build Environment
 
 The application can be configured to suit your requirements and development environment.
 
-### 4.1 Configure the application
-
 - The application uses the default configurations as provided in the **wifi_commands.c** and user can choose to configure these parameters as needed.
+  
+  User can enable or disable powersave related optimizations by setting the ENABLE_POWERSAVE_CLI macro in the **wifi_commands.c** file to 1 or 0 respectively
 
-### 4.2 Build the application
+## Test the application
 
-- SoC mode: Build as cli_demo Example
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-  **![Build as](resources/readme/build_project.png)**
+- Build the application in Studio.
+- Flash, run and debug the application
 
-### 4.3 Run and Test the application
+   ![cli_demo_Output](resources/readme/build_output.png)
 
-- Once the build was successful, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
+Follow the steps below for successful execution of the application:
 
-  - SoC
-
-    **![debug_mode_soc](resources/readme/run_project.png)**
-
-### 4.4 Application Output
-
-- After the application gets executed successfully, **Ready** is displayed on the Serial Debug Assistant screen.
-
-  **![cli_demo_Output](resources/readme/build_output.png)**
-
-- In terminal screen We have so many commands by manually we can add those commands in Extension command in Serial debug assistant.we can add those commands to it.
+- The terminal screen displays lot of commands which can be added manually in Extension command in Serial debug assistant.
 
  **Here are List of those commands:**
 
@@ -144,7 +88,7 @@ The application can be configured to suit your requirements and development envi
 8. wifi_scan -s **ssid** -i ap
 9. wifi_scan -s **ssid** -i client
 10. wifi_scan -s **ssid** -i ap_5g
-11. wifi_connect  **ssid** **password**
+11. wifi_connect  **ssid** -p **password** -s **security mode**
 12. wifi_deinit
 13. wifi_disconnect -i client
 14. wifi_get_client_info
@@ -156,7 +100,7 @@ The application can be configured to suit your requirements and development envi
 20. wifi_set_performance_profile ultra_power_save
 21. wifi_get_statistics
 22. wifi_get_performance_profile
-23. sl_dns_host_get_by_name **url** -t **time_in_milliseconds** -i **ipv4/ipv6**
+23. sl_net_host_get_by_name **url** -t **time_in_milliseconds** -i **ipv4/ipv6**
 24. wifi_iot_socket_create -i 1 -j 2 -k 2
 25. wifi_iot_socket_connect -i 0 -j **server_ip** -k 4 -l **server_port**
 26. wifi_iot_socket_bind -i 0 -j **local_ip** -k 4 -l **local_port**
@@ -189,22 +133,22 @@ And so on...
 
 - **Transmit Test Commands**
 
-  ![Tx Commands](resources/readme/tx_commands.PNG)
+  ![Tx Commands](resources/readme/tx_commands.png)
 
 1. wifi_init -i **mode** for initializing the WiFi interface and for selecting the mode.
 
-e.g., wifi_init -i transmit_test
+    e.g., wifi_init -i transmit_test
 
 2. wifi_set_antenna -i client -a **antenna type** is used for selecting the antenna.
 
-e.g., wifi_set_antenna -i client -a 0
+    e.g., wifi_set_antenna -i client -a 0
 By default antenna type should be set to 0.
 
 3. wifi_transmit_test_start **power** **data rate** **length** **mode** **channel**
 
-e.g., wifi_transmit_test_start 127 0 100 1 1.
+    e.g., wifi_transmit_test_start 127 0 100 1 1.
 
-**power**: Set transmit power in dbm. Valid values are from 2dBm to 18dBm.
+  **power**: Set transmit power in dbm. Valid values are from 2dBm to 18dBm.
 
 **Note**: To configure the maximum power level for a particular frequency band, 
 Set **power** = 127
@@ -218,7 +162,7 @@ Set **power** = 127
 [24 ... 260] bytes in continuous mode
 
 **mode**: Transmit mode
-**![Tx modes](resources/readme/tx_modes.PNG)**
+**![Tx modes](resources/readme/tx_modes.png)**
 
 **Note**:
 
@@ -245,97 +189,104 @@ The DUT transmits a spectrum that is generated at 5MHz from the center frequency
 carrier leakage will be seen at Center Frequency.
 For example, for 2412 MHz the output will be seen at 2417 MHz. 
 
-**Note**
-
-1. Before starting CW mode, it is required to start Continuous mode with power and channel values which is intended to be used 
-in CW mode as follows:
-
-a. Start Continuous mode with intended power value and channel value; pass any valid values for rate and length.
-
-b. Stop Continuous mode.
-
-c. Start CW mode.
-
-2. To switch CW mode, stop PER mode and then give CW mode.
-
-3. Generally, it is recommended to measure the TX power with “Burst mode” or “Continuous mode” only. "Continuous wave 
-mode" for TX power measurement is not recommended. "Continuous wave mode" can be used for certification purposes and 
-to measure the frequency error. 
-
-**channel**: Set the Channel number.
-
-5. **wifi_transmit_test_stop** is used for stopping the Transmit test.
+>**Note**
+>
+>1. Before starting CW mode, it is required to start Continuous mode with >power and channel values which is intended to be used 
+>in CW mode as follows:
+>
+>    a. Start Continuous mode with intended power value and channel value; >pass any valid values for rate and length.
+>
+>    b. Stop Continuous mode.
+>
+>    c. Start CW mode.
+>
+>2. To switch CW mode, stop PER mode and then give CW mode.
+>
+>3. Generally, it is recommended to measure the TX power with “Burst mode” >or “Continuous mode” only. "Continuous wave 
+>mode" for TX power measurement is not recommended. "Continuous wave mode" >can be used for certification purposes and 
+>to measure the frequency error. 
+>
+>    **channel**: Set the Channel number.
+>
+>5. **wifi_transmit_test_stop** is used for stopping the Transmit test.
 
 **Receive test Commands**
 
-**![Rx_commands](resources/readme/rx_stats.PNG)**
-**![Rx_stats](resources/readme/rx_stats_prints.PNG)**
+**NOTE**:
+    Receive stats testing should be done in a controlled environment (RF shield box or chamber).
+
+**![Rx_commands](resources/readme/rx_stats.png)**
+**![Rx_stats](resources/readme/rx_stats_prints.png)**
 
 **Receive Test Commands for the CLI**:
 
-1. wifi_init -i **mode** for initializing the WiFi interface and for selecting the mode. 
+1. wifi_init -i **mode** for initializing the WiFi interface and for selecting the mode.
 
-e.g., wifi_init -i transmit_test
+    e.g., wifi_init -i transmit_test
 
 2. wifi_set_antenna -i client -a **antenna type** is used for selecting the antenna.
 
-e.g., wifi_set_antenna -i client -a 0
-By default antenna type should be set to 0. 
+    e.g., wifi_set_antenna -i client -a 0
+By default antenna type should be set to 0.
 
-3. wifi_start_statistic_report -i client -c **channel** is used receive the packet statistics once per second in that selected 
-channel. 
+3. wifi_start_statistic_report -i client -c **channel** is used receive the packet statistics once per second in that selected channel.
 
-e.g., wifi_start_statistic_report -i client -c 1
+    e.g., wifi_start_statistic_report -i client -c 1
+  
+  To observe the receive stats for 'n' iterations (e.g. 20), the command can be given as follows:   
+     e.g., wifi_start_statistic_report -i client -c 1 -n 20
+
 
 **WIFI INIT COMMAND:-**
 
 - Click on the extension cmd and click on the Entered **wifi_init** command from the command console
 
-**![Prints](resources/readme/wifi_init.png)**
+  **![Prints](resources/readme/wifi_init.png)**
 
 - After issuing the **wifi_init** command from the command console, This is how the response is displayed on the screen.
 
-**![Prints](resources/readme/wifi_init-prints.png)**
+  **![Prints](resources/readme/wifi_init_prints.png)**
 
 **WIFI SCAN COMMAND:-**
 
 - After issuing the **wifi_scan** command in the command console, This is how the response is displayed on the screen.
 
-**![Prints](resources/readme/scan_prints.png)**
+  **![Prints](resources/readme/scan_prints.png)**
 
 **WIFI CONNECT COMMAND:-**
 
 - After issuing the **wifi_connect** command in the command console, This is how the response is displayed on the screen. 
 
-**![Prints](resources/readme/wifi_connect.png)**
-**![Prints](resources/readme/connect.png)**
+  **![Prints](resources/readme/wifi_connect.png)**
+
+- To connect to open mode networks, following command can be issued: wifi_connect <SSID> -s open
 
 **WIFI DEINIT COMMAND:-**
 
 - After issuing the **wifi_deinit** command in command console, This is how the response is displayed on the screen.  
 
-**![Prints](resources/readme/deinit.png)**
+  **![Prints](resources/readme/deinit.png)**
 
-## 5 Steps to add new commands for cli_demo application
+## Steps to add new commands for cli_demo application
 
 1. First add the ‘key-value’ pair in the *console_command_database* structure in **console_commands/src/console_command_database.c** file as shown below:
 
    - The ‘key’ is the name of new command to be created, and the value is the structure variable for the command.
 
-**![keyvalue](resources/readme/picture1.png)**
+      **![keyvalue](resources/readme/picture1.png)**
 	
 Here the new command is: *cli_demo_new_cmd*
 The structure variable for the newly created command is *_cli_demo_new_cmd_command*.
 
 2. The *_cli_demo_new_cmd_command* structure variable should be declared in the **console_commands/src/console_command_database.c** file with the following fields
 
-**![cmdstructure](resources/readme/picture2.png)**
+    **![cmdstructure](resources/readme/picture2.png)**
 
-**2.1 The description of the new command:-**
+**The description of the new command:-**
 
 - The description of the new command is a string which explains briefly about the command.
 
-**2.2 The command handler for the new command:-**
+**The command handler for the new command:-**
 
 - In the above figure, *cli_demo_new_cmd_command_handler* is the command handler which needs to be defined.
 - For any new command, we have to declare a function in **console_commands/src/console_command_database.c** file with a specific proptotype as shown below.
@@ -343,14 +294,16 @@ The structure variable for the newly created command is *_cli_demo_new_cmd_comma
 
 - The function name can be anything, but the return type and argument must be as shown above.
 
-**2.3 The string array for argument description of the command  handler:-**
+**The string array for argument description of the command  handler:-**
 
 - In the above figure, *_cli_demo_new_cmd_arg_help* is the string array which needs to be defined.
 - We need to define a string array in **console_commands/src/console_command_database.c** file which briefly explains about the arguments in the command handler. The declaration is as shown below.
-**![cmdhandler](resources/readme/picture4.png)**
+
+  **![cmdhandler](resources/readme/picture4.png)**
+
 We have given the description for all three strings as 0.
 
-**2.4 The list of data types of arguments of command handler:-**
+**The list of data types of arguments of command handler:-**
 
 - Refering to the *_cli_demo_new_cmd_command* structure variable image, { CONSOLE_OPTIONAL_ARG('s', CONSOLE_ARG_STRING ), CONSOLE_ARG_UINT, CONSOLE_ARG_INT, CONSOLE_ARG_END } }  are the list of datatypes corresponding to the list of arguments.
 - The data types CONSOLE_ARG_UINT corresponds to ‘uint’ , CONSOLE_ARG_INT corresponds to ‘int’ and CONSOLE_ARG_STRING corresponds to ‘string’. The list of arguments must end with CONSOLE_ARG_END.

@@ -16,7 +16,7 @@
  ******************************************************************************/
 
 #include "sl_si91x_usart.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 #include "usart_example.h"
 
 /*******************************************************************************
@@ -90,7 +90,11 @@ void usart_example_init(void)
     }
     DEBUGOUT("USART user event callback registered successfully \n");
     sl_si91x_usart_get_configurations(USART_0, &get_config);
-    DEBUGOUT("Baud Rate = %d \n", get_config.baudrate);
+#if SL_USART_SYNCH_MODE
+    DEBUGOUT("Baud Rate = %ld \n", (get_config.baudrate << 3));
+#else
+    DEBUGOUT("Baud Rate = %ld \n", get_config.baudrate);
+#endif
   } while (false);
 }
 
@@ -104,8 +108,8 @@ void usart_example_process_action(void)
   // Assuming all the macros are enabled, after transfer, receive will be executed and after receive
   // send will be executed.
   switch (current_mode) {
-#if (SL_USART_SYNCH_MODE != ENABLE)
     case SL_SEND_DATA:
+#if (SL_USART_SYNCH_MODE != ENABLE)
       // Validation for executing the API only once
       if (begin_transmission == true) {
         // Fill the data buffer to be send
@@ -133,9 +137,11 @@ void usart_example_process_action(void)
       DEBUGOUT("USART send completed successfully \n");
       // Current mode is set to complete
       current_mode = SL_TRANSMISSION_COMPLETED;
+#endif
       break;
 
     case SL_RECEIVE_DATA:
+#if (SL_USART_SYNCH_MODE != ENABLE)
       if (begin_transmission == true) {
         // Validation for executing the API only once
         status = sl_si91x_usart_receive_data(usart_handle, data_in, sizeof(data_in));
@@ -166,36 +172,38 @@ void usart_example_process_action(void)
         // If send macro is not enabled, current mode is set to completed.
         current_mode = SL_TRANSMISSION_COMPLETED;
       }
+#endif
       break;
-
     case SL_TRANSFER_DATA:
-#else
-    // Validation for executing the API only once
-    if (begin_transmission) {
-      // Fill the data buffer to be send
-      for (int i = 0; i < BUFFER_SIZE; i++) {
-        data_out[i] = (uint8_t)i + 1;
+#if (SL_USART_SYNCH_MODE == ENABLE)
+      // Validation for executing the API only once
+      if (begin_transmission) {
+        // Fill the data buffer to be send
+        for (int i = 0; i < BUFFER_SIZE; i++) {
+          data_out[i] = (uint8_t)i + 1;
+        }
+
+        status = sl_si91x_usart_transfer_data(usart_handle, data_out, data_in, sizeof(data_out));
+        if (status != SL_STATUS_OK) {
+          // If it fails to execute the API, it will not execute rest of the things
+          DEBUGOUT("sl_si91x_usart_transfer_data: Error Code : %lu \n", status);
+          current_mode = SL_TRANSMISSION_COMPLETED;
+          break;
+        }
+        DEBUGOUT("USART transfer begin successfully \n");
+        begin_transmission = false;
       }
 
-      status = sl_si91x_usart_transfer_data(usart_handle, data_out, data_in, sizeof(data_out));
-      if (status != SL_STATUS_OK) {
-        // If it fails to execute the API, it will not execute rest of the things
-        DEBUGOUT("sl_si91x_usart_transfer_data: Error Code : %lu \n", status);
-        current_mode = completed;
-        break;
-      }
-      DEBUGOUT("USART transfer begin successfully \n");
-      begin_transmission = false;
-    }
+      //Waiting till the transfer is completed
+      if (transfer_complete) {
+        // Update transfer_complete flag with 0.
+        transfer_complete = false;
 
-    //Waiting till the transfer is completed
-    if (transfer_complete) {
-      // Update transfer_complete flag with 0.
-      transfer_complete = false;
-      // At last current mode is set to completed.
-      current_mode = SL_TRANSMISSION_COMPLETED;
-    }
-    DEBUGOUT("USART transfer completed \n");
+        compare_loop_back_data();
+        // At last current mode is set to completed.
+        current_mode = SL_TRANSMISSION_COMPLETED;
+        DEBUGOUT("USART transfer completed \n");
+      }
 #endif
       break;
 

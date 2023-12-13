@@ -20,7 +20,6 @@
 #define NVIC_RTC       MCU_CAL_RTC_IRQn /*<! RTC NVIC enable   */
 #define NVIC_RTC_ALARM MCU_CAL_ALARM_IRQn
 
-#include "rsi_board.h"
 #include "rsi_chip.h"
 #include "rsi_ds_timer.h"
 #include "rsi_ps_ram_func.h"
@@ -37,6 +36,9 @@ void hardware_setup(void)
   RSI_CLK_PeripheralClkDisable3(M4CLK, M4_SOC_CLK_FOR_OTHER_ENABLE); /* Disable OTHER_CLK which is enabled
                                               at Start-up */
   RSI_ULPSS_TimerClkDisable(ULPCLK); /* Disable Timer clock which is enabled in Bootloader */
+
+  RSI_ULPSS_DisableRefClks(MCU_ULP_40MHZ_CLK_EN);    /* Disabling 40MHz Clocks */
+  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RC_CLK_EN); /* Disabling LF_RC Clocks */
 
   RSI_PS_BodPwrGateButtonCalibDisable();                     /* Power-Down Button Calibration */
   RSI_IPMU_ProgramConfigData(ana_perif_ptat_common_config2); /* Disable PTAT for Analog Peripherals */
@@ -60,7 +62,6 @@ void hardware_setup(void)
                                 not present */
 
   // /* Change 32MHz-RC to 20MHz-RC to be used as Processor Clock in PS2 state */
-  RSI_IPMU_M20rcOsc_TrimEfuse();
   RSI_PS_FsmHfFreqConfig(20);
   system_clocks.rc_32mhz_clock = 20000000;
 

@@ -1,6 +1,20 @@
-# ULP SSI MASTER
+# SL ULP SSI MASTER
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Pin Configuration](#pin-configuration-of-the-wpkbrd4002a-base-board)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - This application demonstrate the use of ULP SSI MASTER for data transfer in full duplex as well as half duplex mode in master mode.
 - This application can run in synchronous mode with full-duplex operation
@@ -16,16 +30,17 @@
 - With the two data pins, it allows for full-duplex operation with other SSI compatible devices.
 - It supports full duplex Single-bit SPI master mode.
 - It supports 6 modes:  
-   - Mode 0: Clock Polarity is zero and Clock Phase is zero.
-   - Mode 1: Clock Polarity is zero, Clock Phase is one.
-   - Mode 2: Clock Polarity is one and Clock Phase is zero. 
-   - Mode 3: Clock Polarity is one and Clock Phase is one. 
-   - Mode-4: TEXAS_INSTRUMENTS SSI.
-   - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
+  - Mode 0: Clock Polarity is zero and Clock Phase is zero.
+  - Mode 1: Clock Polarity is zero, Clock Phase is one.
+  - Mode 2: Clock Polarity is one and Clock Phase is zero.
+  - Mode 3: Clock Polarity is one and Clock Phase is one.
+  - Mode-4: TEXAS_INSTRUMENTS SSI.
+  - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
 - The SPI clock is programmable to meet required baud rates
 - It can generates interrupts for different events like transfer complete, data lost, mode fault.
-- It supports upto 32K bytes of read data from a SSI device in a single read operation.
+- It supports up to 32K bytes of read data from a SSI device in a single read operation.
 - It has support for DMA (Dynamic Memory Access).
+- The ULP_SSI_MST in the MCU ULP peripherals supports Single-bit mode and can be connected to only one slave.
 
 ## About Example Code
 
@@ -45,7 +60,7 @@
 
 - If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
 
-  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and recieving data simultaneously (full duplex).
+  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
   - This test can also be performed in loopback state, i.e. connect MISO and MOSI pins.
   - The example code waits till the transfer is completed, when the transfer complete event is generated, it compares the sent and received data.
   - The result is printed on the console.
@@ -64,55 +79,64 @@
   - It waits till the send is completed i.e., transfer complete event is generated.
   - Now the current_mode enum is updated to TRANSMISSION_COMPLETED.
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image510a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Si91x
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+### Setup Diagram
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
+ > ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Project Setup
+## Getting Started
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-## Loading Application on Simplicity Studio
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to SL_ULP_SSI_MASTER Example application as shown below.
-
-![Figure: Selecting Example project](resources/readme/image510b.png)
-
-## Configuration and Steps for Execution
+## Application Build Environment
 
 - Configure UC from the slcp component.
-- Open **sl_si91x_gspi.slcp** project file select **software component** tab and search for **SSI** in search bar.
+
+   ![Figure: Introduction](resources/uc_screen/ssi_uc_screen.png)
+
+- Enable the ULP_SSI_MASTER in UC before running/flashing the code.
+- Open **sl_si91x_ulp_ssi_master.slcp** project file select **software component** tab and search for **SSI** in search bar.
 - Using configuration wizard one can configure different parameters like:
-  - **General Configuration**
-  - Mode: SSI mode can be configured, i.e. Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 1: Clock Polarity is zero, Clock Phase is one, Mode 2: Clock Polarity is one and Clock Phase is zero, Mode 3: Clock Polarity is one and Clock Phase is one, Mode-4 (TI SSI) and Mode-5 (Microwire).
-  - SSI Baudrate: The speed of transfer can be configured, i.e. bits/second.
-  - Data Width: The size of data packet, it can be configured between 4 to 32.
-  - CS Control (Master): When device is in slave mode, it can be configured as H/w control or S/w control.
-  - CS Control (Slave): When device is in slave mode, it can be configured as H/w control or S/w control.
+  - **SSI Configuration**
+    - Frame Format: SSI Frame Format can be configured, i.e.,
+      - Mode 0: Clock Polarity is zero and Clock Phase is zero.
+      - Mode 1: Clock Polarity is zero, Clock Phase is one.
+      - Mode 2: Clock Polarity is one and Clock Phase is zero.
+      - Mode 3: Clock Polarity is one and Clock Phase is one.
+      - Mode-4: TEXAS_INSTRUMENTS SSI.
+      - Mode-5: NATIONAL_SEMICONDUCTORS_MICROWIRE.
+    - Bit Rate: The speed of transfer is configurable. The configuration range is from 500Kbps to 10Mbps in low power mode.
+    - Data Width: The size of data packet. The configuration range from 4 to 16.
+    - Mode: SSI mode/instance can be configurable, it can be configured Master/SLave/ULP Master.
+    - Rx Sample Delay: Receive Data (rxd) Sample Delay, this to delay the sample of the rxd input signal. Each value represents a single SSI clock delay on the sample of the rxd signal. the configuration range from 0 to 63.
   - **DMA Configuration**
-  - Enable/Disable the DMA configuration.
+    - Master DMA: DMA enable for SSI master mode. it will interface with a DMA Controller using an optional set of DMA signals.
+    - Slave DMA: DMA enable for SSI slave mode. it will interface with a DMA Controller using an optional set of DMA signals.
+    - ULP Master DMA: DMA enable for ULP SSI master mode. it will interface with a DMA Controller using an optional set of DMA signals.
+    - Tx FIFO Threshold: Transmit FIFO Threshold. Controls the level of entries (or below) at which the transmit FIFO controller triggers an interrupt. The configuration range from 0 to 15.
+    - Rx FIFO Threshold: Receive FIFO Threshold. Controls the level of entries (or below) at which the receive FIFO controller triggers an interrupt. The configuration range from 0 to 15.
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
 
-- Configure the following macros in ssi_master_example.h file and update/modify following macros if required.
+- Configure the following macros in ulp_ssi_master_example.h file and update/modify following macros if required.
 
 ```C
 #define SL_USE_TRANSFER ENABLE    // To use the transfer API
@@ -120,47 +144,42 @@
 #define SL_USE_RECEIVE  DISABLE   // To use the receive API
 ```
 
-## Build
-
-1. Compile the application in Simplicity Studio using build icon
-
-![Figure: Build run and Debug](resources/readme/image510c.png)
-
-## Device Programming
-
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
-
-## Pin Configuration of the WPK[BRD4002A]/WSTK[BRD4001A] Base Board
+## Pin Configuration of the WPK[BRD4002A] Base Board
 
 | GPIO pin           | Description              |
 | ------------------ | ------------------------ |
 | ULP_GPIO_8  [P15]  |RTE_SSI_ULP_MASTER_SCK_PIN|
-| ULP_GPIO_10 [F17]  |RTE_SSI_ULP_MASTER_CS0_PIN|
+| ULP_GPIO_10 [P17]  |RTE_SSI_ULP_MASTER_CS0_PIN|
 | ULP_GPIO_1  [P16]  | ULP_SSI_MASTER_MOSI_PIN  |
 | ULP_GPIO_2  [F10]  | ULP_SSI_MASTER_MISO_PIN  |
 
-**Note!** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h)
+Note: Make sure pin configuration in RTE_Device_917.h file.(path: /$project/config/RTE_Device_917.h)
 
-## Executing the Application
-1. Compile and run the application.
-2. Connect ULP_GPIO_1 to ULP_GPIO_2 for loopback connection.
-3. When the application runs, It sends and receives data in loopback if USE_TRANSFER is enabled.
-4. If USE_RECEIVE or USE_SEND is enabled, SSI slave will receive and send data respectively.
+## Test the Application
 
-## Expected Results
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Console output of successful configuration of clock, power mode and SSI configuration
-- Console output of SSI transfer complete, Loop back test passed.
-- In the case of loopback mode, when the loopback jumper wire is removed and the test is run - the result should come as data comparison fail and test case fail.
+- Build the SL ULP SSI MASTER example in Studio.
+- Flash, run and debug the application
 
-## Note
- - This applicatin is executed from RAM.
- - In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
- - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
- - Enable the ULP_MASTER in UC before running/flashing the code. 
+Follow the steps below for successful execution of the application:
 
-## Expected Scenario:
- - After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
- - To Erase the chip follow the below procedure
- - Turn ON ISP switch and press the reset button → Turn OFF ISP Switch → Now perform Chip erase 
-      through commander. 
+1. Connect ULP SSI Master SCK, CS0, MOSI, MISO pins with the SSI Slave device.
+2. When the application runs, it receives and send data.
+3. After the transfer is completed, it validates the data and prints "Test Case Passed" on the console.
+3. If USE_RECEIVE or USE_SEND is enabled, SSI slave will receive and send data respectively.
+4. After successful program execution the prints in serial console looks as shown below.
+
+- Master output:
+
+   > ![output](resources/readme/output_ulp_ssi.png)
+
+- Slave output:
+
+   > ![output](resources/readme/output_ssi_slave.png)
+
+> **Note:**
+>
+>- After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
+>- To Erase the chip follow the below procedure
+>- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.

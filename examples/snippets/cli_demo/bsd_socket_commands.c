@@ -29,7 +29,7 @@
  ******************************************************************************/
 #include "console.h"
 #include "sl_utility.h"
-#ifdef si91x_internal_stack_FEATURE_REQUIRED
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
 #include "socket.h"
 #include "errno.h"
 #include "select.h"
@@ -41,7 +41,7 @@
 #include "netdb.h"
 #include "sl_utility.h"
 #include <string.h>
-#ifdef si91x_lwip_stack_FEATURE_REQUIRED
+#ifdef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
 #include "lwip/sockets.h"
 int errno;
 #endif
@@ -92,7 +92,7 @@ sl_status_t wifi_bsd_socket_bind_handler(console_args_t *arguments)
   sl_ipv4_address_t ip              = { 0 };
   struct sockaddr_in socket_address = { 0 };
   const int32_t socket_fd           = (int32_t)arguments->arg[0];
-#ifdef si91x_lwip_stack_FEATURE_REQUIRED
+#ifdef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
   const uint16_t port = htons((uint16_t)arguments->arg[3]);
 #else
   const uint16_t port = (uint16_t)arguments->arg[3];
@@ -200,7 +200,7 @@ sl_status_t wifi_bsd_socket_send_to_handler(console_args_t *arguments)
     memcpy(&address.sin_addr.s_addr, &ip.value, SL_IPV4_ADDRESS_LENGTH);
   }
 
-#ifdef si91x_lwip_stack_FEATURE_REQUIRED
+#ifdef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
   address.sin_port = htons((in_port_t)arguments->arg[4]);
 #else
   address.sin_port    = (in_port_t)arguments->arg[4];
@@ -222,7 +222,7 @@ sl_status_t wifi_bsd_socket_connect_handler(console_args_t *arguments)
 
   int32_t sock_fd     = (int32_t)arguments->arg[0];
   socklen_t ip_length = (socklen_t)arguments->arg[2];
-#ifdef si91x_lwip_stack_FEATURE_REQUIRED
+#ifdef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
   address.sin_port = htons((in_port_t)arguments->arg[3]);
 #else
   address.sin_port    = (in_port_t)arguments->arg[3];
@@ -251,7 +251,7 @@ sl_status_t wifi_bsd_socket_close_handler(console_args_t *arguments)
 
 sl_status_t wifi_bsd_get_host_by_name_handler(console_args_t *arguments)
 {
-#ifndef si91x_lwip_stack_FEATURE_REQUIRED
+#ifndef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
   char *host_name = (char *)arguments->arg[0];
 
   struct hostent *host_ent = gethostbyname(host_name);

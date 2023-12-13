@@ -1,0 +1,99 @@
+project_name: ble_power_save_psram
+package: ble
+quality: production
+label: ble_power_save_psram
+category: Example|BLE
+description: >
+  This application demonstrates how to configure the device in power save 
+  profile with Advertising mode.
+filter:
+- name: Wireless Technology
+  value:
+  - BLE
+- name: Project Difficulty
+  value:
+  - Beginner
+sdk:
+  id: gecko_sdk
+  version: 4.4.0
+sdk_extension:
+- id: wiseconnect3_sdk
+  version: 3.1.1
+source:
+- path: app.c
+- path: main.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: ble_config.h
+define:
+- name: SL_SI91X_PRINT_DBG_LOG
+- name: SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
+- name: SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
+template_contribution:
+- name: psram_powersave_handle
+  value: true
+- name: event_handler
+  condition:
+  - sli_si91x_mcu_interface
+  value:
+    event: platform_init
+    include: rsi_wisemcu_hardware_setup.h
+    handler: sl_si91x_hardware_setup
+  priority: -9995
+component:
+- id: sl_system
+- id: freertos
+- id: syscalls
+  from: wiseconnect3_sdk
+- id: si917_memory_default_config
+  from: wiseconnect3_sdk
+- id: wiseconnect3_common
+  from: wiseconnect3_sdk
+- id: wifi
+  from: wiseconnect3_sdk
+- id: sl_si91x_internal_stack
+  from: wiseconnect3_sdk
+- id: wifi_resources
+  from: wiseconnect3_sdk
+- id: network_manager
+  from: wiseconnect3_sdk
+- id: basic_network_config_manager
+  from: wiseconnect3_sdk
+- id: ble
+  from: wiseconnect3_sdk
+- id: sllib_m4_power_save
+  from: wiseconnect3_sdk
+- id: psram_core
+  from: wiseconnect3_sdk
+- id: psram_aps6404l_sqh
+  from: wiseconnect3_sdk
+- id: data_segment_in_psram
+  from: wiseconnect3_sdk
+- id: stack_segment_in_psram
+  from: wiseconnect3_sdk
+- id: text_segment_in_psram
+  from: wiseconnect3_sdk
+toolchain_settings: []
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/ble_power_save_soc_ncp.png
+- path: resources/readme/blepowersavencpmeasurement.png
+- path: resources/readme/blepowersaveadvertising.png
+- path: resources/readme/blepowersavedeviceconnection.png
+- path: resources/readme/blepwlog.png
+- path: resources/readme/output1.png
+- path: resources/readme/blepowersavecurrentmeasurementpins.png
+- path: resources/readme/blepowersavencpmeasurement.png
+- path: resources/readme/blepwsocadv.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

@@ -38,6 +38,7 @@
 
 #include "app_common_config.h"
 #include "wifi_app_config.h"
+#include "sl_utility.h"
 
 //! BLE include file to refer BLE APIs
 #include "ble_config.h"
@@ -103,19 +104,15 @@ static const sl_wifi_device_configuration_t config = {
 #endif
                       ),
                    .custom_feature_bit_map =
-                     (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
-                   .ext_custom_feature_bit_map = (
-#ifdef CHIP_917
-                     RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else //defaults
-#ifdef RSI_M4_INTERFACE
-                     | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                     | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif // RSI_M4_INTERFACE
-                     | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
+                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
+                   .ext_custom_feature_bit_map = (MEMORY_CONFIG | SL_SI91X_EXT_FEAT_XTAL_CLK
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-                     | SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
+#if ENABLE_POWER_SAVE
+                                                  | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
+#endif
+                                                  | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
 #if (RSI_BT_GATT_ON_CLASSIC)
                                           | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
@@ -126,6 +123,9 @@ static const sl_wifi_device_configuration_t config = {
                      SL_SI91X_EXT_TCP_MAX_RECV_LENGTH
 #else
                      SL_SI91X_EXT_TCP_IP_WINDOW_DIV
+#endif
+#ifdef USE_SELECT_FEATURE
+                     | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1)
 #endif
                      | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
@@ -389,12 +389,12 @@ int8_t rsi_fill_user_config()
  */
 void rsi_common_app_task(void)
 {
-  uint32_t status                  = RSI_SUCCESS;
-  wlan_app_thread_id               = NULL;
-  sl_wifi_version_string_t version = { 0 };
+  uint32_t status                    = RSI_SUCCESS;
+  wlan_app_thread_id                 = NULL;
+  sl_wifi_firmware_version_t version = { 0 };
 
   //! WiSeConnect initialization
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -406,7 +406,7 @@ void rsi_common_app_task(void)
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+    print_firmware_version(&version);
   }
 
 #if SSL && LOAD_CERTIFICATE

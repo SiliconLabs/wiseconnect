@@ -1900,18 +1900,18 @@ void rsi_ble_main_app_task(void)
   while (1) {
 #if WLAN_TRANSIENT_CASE
     if (disable_factor_count == DISABLE_ITER_COUNT) {
-      printf("Reach the disable factor in ble main task\r\n");
+      LOG_PRINT("Reach the disable factor in ble main task\r\n");
       if (ble_scanning_is_there) {
         status = rsi_ble_stop_scanning();
         if (status == 0) {
-          printf("disabled ble scan activity \n");
+          LOG_PRINT("disabled ble scan activity \n");
         }
         ble_scanning_is_there = 0;
       }
       if (ble_adv_is_there) {
         status = rsi_ble_stop_advertising();
         if (status == 0) {
-          printf("disabled ble Adv activity \n");
+          LOG_PRINT("disabled ble Adv activity \n");
         }
         ble_adv_is_there = 0;
       }

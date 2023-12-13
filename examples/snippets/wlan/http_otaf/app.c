@@ -33,16 +33,17 @@
 #include "sl_wifi_types.h"
 #include <string.h>
 #include "sl_wifi.h"
-#include "sl_tls.h"
 #include "sl_wifi_callback_framework.h"
 #include "firmware_upgradation.h"
 #include "sl_net_dns.h"
+#include "sl_utility.h"
 
 // include certificates
 #include "aws_starfield_ca.pem.h"
+#include "azure_baltimore_ca.pem.h"
 #include "cacert.pem.h"
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "sl_si91x_hal_soc_soft_reset.h"
 #endif
 
@@ -117,7 +118,7 @@ char *hostname = "otafaws.s3.ap-south-1.amazonaws.com";
 //! Server URL
 #define HTTP_URL             "rps/firmware.rps"
 //! Server Hostname
-char *hostname = "rs9116updates.blob.core.windows.net";
+char *hostname = "si917updates.blob.core.windows.net";
 //! set HTTP extended header
 #define HTTP_EXTENDED_HEADER NULL
 //! set Username
@@ -174,15 +175,10 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
-                   .custom_feature_bit_map = SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID,
+                   .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
-#ifndef RSI_M4_INTERFACE
-                      RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                      RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#endif
-#ifdef CHIP_917
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -240,16 +236,16 @@ void application_start(const void *unused)
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
-    printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
+    printf("Failed to start Wi-Fi client interface: 0x%lX\r\n", status);
     return;
   }
-  printf("\r\nWi-Fi Init success\r\n");
+  printf("\r\nWi-Fi Init is successful\r\n");
 
 #if LOAD_CERTIFICATE
   if (FLAGS & HTTPS_SUPPORT) {
     status = clear_and_load_certificates_in_flash();
     if (status != SL_STATUS_OK) {
-      printf("\r\nUnexpected error while loading certificate: 0x%lx\r\n", status);
+      printf("\r\nUnexpected error while loading certificate: 0x%lX\r\n", status);
       return;
     }
   }
@@ -257,45 +253,43 @@ void application_start(const void *unused)
 
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {
-    printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
+    printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
     return;
   }
-  printf("\r\nWi-Fi client interface up success\r\n");
+  printf("\r\nConnected to Wi-Fi\r\n");
 
   status = http_otaf_app();
   if (status != SL_STATUS_OK) {
-    printf("\r\nFirmware Update failed: 0x%lX\r\n", status);
+    printf("\r\nFirmware update failed: 0x%lX\r\n", status);
     return;
   }
-  printf("\r\nFirmware Update success\r\n");
+  printf("\r\nFirmware update is successful\r\n");
 }
 
 sl_status_t clear_and_load_certificates_in_flash(void)
 {
   sl_status_t status;
-  sl_tls_store_configuration_t tls_configuration = { 0 };
+  void *cert           = NULL;
+  uint32_t cert_length = 0;
 
-  //Reset certificate
-  status = sl_tls_clear_global_ca_store();
-
-  tls_configuration.cacert_type        = SL_TLS_SSL_CA_CERTIFICATE;
-  tls_configuration.use_secure_element = false;
 #ifdef AWS_ENABLE
-  tls_configuration.cacert        = (uint8_t *)aws_starfield_ca;
-  tls_configuration.cacert_length = (sizeof(aws_starfield_ca) - 1);
+  cert        = (void *)aws_starfield_ca;
+  cert_length = (sizeof(aws_starfield_ca) - 1);
+#elif AZURE_ENABLE
+  cert        = (void *)azure_baltimore_ca;
+  cert_length = (sizeof(azure_baltimore_ca) - 1);
 #else
-  tls_configuration.cacert        = (uint8_t *)cacert;
-  tls_configuration.cacert_length = (sizeof(cacert) - 1);
+  cert        = (uint8_t *)cacert;
+  cert_length = (sizeof(cacert) - 1);
 #endif
 
-  //Load certificate
-  status = sl_tls_set_global_ca_store(tls_configuration);
-
+  // Load SSL CA certificate
+  status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cert, cert_length);
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading SSL CA certificate failed, Error Code : 0x%lX\r\n", status);
-    return status;
+    printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+  } else {
+    printf("\r\nLoad TLS CA certificate at index %d Success\r\n", 0);
   }
-  printf("\r\nLoading SSL CA certificate Success\r\n");
 
   return status;
 }
@@ -307,10 +301,10 @@ sl_status_t http_otaf_app()
   char server_ip[16];
 
 #if FW_UPDATE_TYPE
-  sl_wifi_version_string_t version = { 0 };
-  status                           = sl_wifi_get_firmware_version(&version);
+  sl_wifi_firmware_version_t version = { 0 };
+  status                             = sl_wifi_get_firmware_version(&version);
   VERIFY_STATUS_AND_RETURN(status);
-  printf("\r\nFirmware version before update: %s\r\n", version.version);
+  print_firmware_version(&version);
 #endif
 
   sl_wifi_set_callback(SL_WIFI_HTTP_OTA_FW_UPDATE_EVENTS,
@@ -323,15 +317,15 @@ sl_status_t http_otaf_app()
   int32_t dns_retry_count = MAX_DNS_RETRY_COUNT;
   do {
     //! Getting IP address of the AWS server using DNS request
-    status = sl_dns_host_get_by_name((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
+    status = sl_net_host_get_by_name((const char *)hostname, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &dns_query_rsp);
     dns_retry_count--;
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 
   if (status != SL_STATUS_OK) {
-    printf("\r\nUnexpected error while resolving dns, Error 0x%X\r\n", status);
+    printf("\r\nUnexpected error while resolving dns, Error 0x%lX\r\n", status);
     return status;
   }
-  printf("\r\nResolving dns Success \r\n");
+  printf("\r\nResolving dns Success\r\n");
 
   server_address = dns_query_rsp.ip.v4.value;
   sprintf((char *)server_ip,
@@ -343,16 +337,16 @@ sl_status_t http_otaf_app()
 
 #ifdef AWS_ENABLE
   printf("\nResolved AWS S3 Bucket IP address = %s\n", server_ip);
-  printf("\r\nFirmware download in progress from AWS S3 Bucket.\r\n");
+  printf("\r\nFirmware download from AWS S3 Bucket is in progress...\r\n");
 #elif AZURE_ENABLE
   printf("\nResolved AZURE Blob Storage IP address = %s\n", server_ip);
-  printf("\r\nFirmware download in progress from AZURE Blob Storage.\r\n");
+  printf("\r\nFirmware download from AZURE Blob Storage is in progress...\r\n");
 #endif
 
 #else
   strcpy(server_ip, HTTP_SERVER_IP_ADDRESS);
   printf("\r\nLocal Apache Server IP Address: %s\r\n", HTTP_HOSTNAME);
-  printf("\r\nFirmware download in progress from Local Apache Server.\r\n");
+  printf("\r\nFirmware download from Local Apache Server is in progress...\r\n");
 #endif
   status = sl_si91x_http_otaf(HTTP_OTAF,
                               (uint8_t)flags,
@@ -366,48 +360,40 @@ sl_status_t http_otaf_app()
                               NULL,
                               0);
 
-  printf("\r\nFirmware update status : 0x%lX\r\n", status);
-  if (SL_STATUS_IN_PROGRESS == status) {
-    const uint32_t start = osKernelGetTickCount();
-
-    while (!response && (osKernelGetTickCount() - start) <= OTAF_TIMEOUT) {
-      osThreadYield();
-    }
-
-    status = response ? callback_status : SL_STATUS_TIMEOUT;
-  }
+  printf("\r\nFirmware update status: 0x%lX\r\n", status);
 
   if (status != SL_STATUS_OK) {
-    printf("\r\nFirmware update FAILED with error : 0x%lX\r\n", status);
+    printf("\r\nFirmware update FAILED with error: 0x%lX\r\n", status);
     return status;
   } else {
 #ifdef AWS_ENABLE
-    printf("\r\nFirmware download complete using AWS\r\n");
+    printf("\r\nCompleted firmware download using AWS\r\n");
 #elif AZURE_ENABLE
-    printf("\r\nFirmware download complete using AZURE\r\n");
+    printf("\r\nCompleted firmware download using AZURE\r\n");
 #else
-    printf("\r\nFirmware download complete using Local Apache Server\r\n");
+    printf("\r\nCompleted firmware download using Local Apache Server\r\n");
 #endif
+    printf("\r\nUpdating the firmware...\r\n");
   }
 
 #if FW_UPDATE_TYPE
-  status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE, NULL);
+  status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
   if (status != SL_STATUS_OK) {
-    printf("\r\nError while wifi deinit: 0x%lx \r\n", status);
+    printf("\r\nError while wifi deinit: 0x%lX \r\n", status);
     return status;
   }
-  printf("\r\nWi-Fi Deinit success\r\n");
+  printf("\r\nWi-Fi Deinit is successful\r\n");
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
-    printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
+    printf("Failed to start Wi-Fi client interface: 0x%lX\r\n", status);
     return status;
   }
   printf("\r\nWi-Fi Init success\r\n");
 
   status = sl_wifi_get_firmware_version(&version);
   VERIFY_STATUS_AND_RETURN(status);
-  printf("\r\nFirmware version after update: %s\r\n", version.version);
+  print_firmware_version(&version);
 #else
   printf("\r\nSoC Soft Reset initiated!\r\n");
   sl_si91x_soc_soft_reset();
@@ -424,7 +410,7 @@ static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(data);
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  if (CHECK_IF_EVENT_FAILED(event)) {
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     response = false;
     return SL_STATUS_FAIL;
   }

@@ -1,10 +1,30 @@
-# CONFIG TIMER
+# SL CONFIG TIMER
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+  - [Pin Configuration](#pin-configuration-for-pwm-mode-usecase)
+  - [Macros for CT Configurations:](#macros-for-ct-configurations)
+  - [Macros for CT Interrupt Flags](#macros-for-ct-interrupt-flags)
+  - [Macros for OCU Configuration](#macros-for-ocu-configuration)
+  - [Macros for WFG Configuration](#macros-for-wfg-configuration)
+- [Test the Application](#test-the-application)
+  - [Run the application in counter mode](#run-the-application-in-counter-mode)
+  - [Run the application in PWM mode](#run-the-application-in-pwm-mode)
+
+## Purpose/Scope
 
 - This Config Timer example demonstrates two usecases of timer :
-- First as free running timer with GPIO toggle functionality. Counter-0 is configured to generate interrupts every millisecond and toggles GPIO. 
-- Second as waveform generator producing two PWM outputs, counter-1 generates a square wave (50%-duty cycle) and counter-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1% at every 20 Milliseconds.
+  - First as free running timer with GPIO toggle functionality. Counter-0 is configured to generate interrupts every millisecond and toggles GPIO.
+  - Second as waveform generator producing two PWM outputs, counter-1 generates a square wave (50%-duty cycle) and counter-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1% at every 20 Milliseconds.
 
 ## Overview
 
@@ -30,7 +50,7 @@
 - If **CT_PWM_MODE_USECASE** is enabled:
   - Config Timer is initialized using \ref sl_si91x_ct_init() API.
   - After intialization, the desired counter parameters are configured using \ref sl_si91x_ct_set_configuration() API, the parameters are set through UC.
-  - Match count for both the counters are configured using same \ref sl_si91x_ct_set_match_count() API.
+  - Match count for both the counters are configured using same @ref sl_si91x_ct_set_match_count() API.
   - Initial duty cycle is set for PWM channels \ref RSI_MCPWM_SetDutyCycle() API.
   - The desired OCU parameters are configured using \ref sl_si91x_ct_set_ocu_configuration() API, the parameters are set using UC. For getting these configurations through UC enable OCU-configuration button on UC.
   - The desired OCU controls for both counters, are configured using API \ref sl_si91x_config_timer_set_ocu_control(), by changing the counter number.
@@ -53,51 +73,73 @@
   - When interrupt count is greater than ten, then unregisters timer callback and disables interrupt through \ref sl_si91x_ct_unregister_timeout_callback() API.
   - At last timer is deinitialized through \ref sl_si91x_config_timer_deinit() API.
 
-## Running Example Code
+## Prerequisites/Setup Requirements
 
-- To use this application following Hardware, Software and the Project Setup is required.
+### Hardware Requirements
 
-### Hardware Setup
+- Windows PC.
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A].
 
-- Windows PC
-- Silicon Labs Si917 Evaluation Kit [WSTK + BRD4338A]
+### Software Requirements
 
-![Figure: Introduction](resources/readme/image502a.png)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-### Software Setup
+### Setup Diagram
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+## Getting Started
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
-### Project Setup
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-## Loading Application on Simplicity Studio
+## Application Build Environment
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to CONFIG_TIMER Example application as shown below.
+- Configure the following macros in config_timer_example.h file to change the application usecase(enable any one at a time).
 
-![Figure: Selecting Example project](resources/readme/image502b.png)
+  ```C
+    #define CT_PWM_MODE_USECASE           1      -  To run PWM output code
+    #define CT_COUNTER_MODE_USECASE       1      -  To run normal counter code
+  ```
 
-## Configuration and Steps for Execution
-- Configure the following macros in config_timer_example.h file to change the application usecase(enable any one at a time)
-```C
-#define CT_PWM_MODE_USECASE           1      -  To run PWM output code
-#define CT_COUNTER_MODE_USECASE       1      -  To run normal counter code
-```
 - Also enable CT-configuration & OCU-configuration buttons on UC for using PWM mode usecase.
-- Configure the following macros in config_timer_example.c file to change match value for counter Mode usecase and update/modify following macros if required.
-```C
-#define CT_MATCH_VALUE             16000  -  For 1ms timer timeout
-```
+- Configure the following macros in config_timer_example.c file to change match value for counter-mode usecase, update/modify following macros if required.
 
-### Macros for CT Configurations:
+  ```C
+   #define CT_MATCH_VALUE             16000  -  For 1ms timer timeout
+  ```
+
+- Use following CT configurations to run application in Normal counter mode usecase (using Counter-0 or Counter-1).
+
+  > ![Figure: Pin configuration](resources/uc_screen/uc_screen_1.png)
+
+  - Change following macros in config_timer_example.c file to change counter-number used for counter-mode usecase, by default application is using counter-0 to use counter-1 change it to 'SL_COUNTER_1'.
+
+  ```C
+    #define CT_COUNTER_USED            SL_COUNTER_0  -  For using counter-0
+  ```
+
+- Use following OCU Configuraions, along with default CT configurations to run the application in PWM mode usecase.
+
+  > ![Figure: Pin configuration](resources/uc_screen/uc_screen_2.png)
+
+### Pin Configuration for pwm-mode usecase
+
+|  Discription  | GPIO    | Connector     |
+| ------------- | ------- | ------------- |
+|    output-0   | GPIO_29 |     P33       |
+|    output-1   | GPIO_30 |     P35       |
+
+> ![Figure: Pin configuration](resources/readme/image502e.png)
+
+### Macros for CT Configurations
 
 - \ref SL_CT_MODE_32BIT_ENABLE_MACRO , for possible values refer \ref sl_config_timer_mode_t
 - \ref SL_COUNTER0_DIRECTION_MACRO , for possible values refer \ref sl_counter0_direction_t
@@ -148,61 +190,21 @@
 - \ref SL_OUTPUT1_TOGGLE1_MACRO, true to enable output-1 toggle-HIGH & false to skip output-1 toggle-HIGH.
 - \ref SL_TOGGLE_COUNTER1_PEAK_MACRO, true to enable Toggle counter-1 peak & false to skip Toggle counter-1 peak.
 
-## Build
+## Test the Application
 
-1. Compile the application in Simplicity Studio using build icon.
+### Run the application in counter mode
 
-![Figure: Build run and Debug](resources/readme/image502c.png)
-
-## Device Programming
-
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
-
-## Executing the Application
-
-1. Compile and run the application.
-
-## Expected Results from counter mode usecase:
 - Evaluation kit board's ULP_GPIO_1 (Connector - P16) will be toggled ten times at every millisecond.
-- After toggling GPIO for 10 times, interrupt callback is unregistered and counter is de-initialized. 
+- After toggling GPIO for 10 times, interrupt callback is unregistered and counter is de-initialized.
 - Following prints will be observed on console:
-```C
-API version is 0.0.1
-CT initialized successfully 
-CT configuration is set successfully 
-CT Initial Count is set successfully 
-CT Match Count is set successfully
-CT callback registered successfully 
-CT started successfully on software trigger 
-CT Callback unregistered & de-inits timer after 10th interrupt
-```
-## Pin Configuration for pwm-mode usecase
 
-|  Discription  | GPIO    | Connector     | 
-| ------------- | ------- | ------------- | 
-|    output-0   | GPIO_29 |     P33       | 
-|    output-1   | GPIO_30 |     P35       |
+  > ![Figure: Result](resources/readme/outputConsoleI_CT.png)
 
-![Figure: Pin configuration](resources/readme/image502e.png)
-
-## Expected Results from PWM usecase:
+### Run the application in PWM mode
 
 - CT Output-1 will produce a square wave (50% duty cycle).
 - CT Output-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1% at every 20 Milliseconds.
 - Connect logic analyzer to evaluation kit board's GPIO-29 & GPIO-30 for output-0 and output-1 respectively and observe the PWM waveforms.
 - Following prints will be observed on console:
-```C
-API version is 0.0.1
-CT initialized successfully 
-CT configuration is set successfully 
-Counter0 Match Count is set successfully 
-Counter1 Match Count is set successfully 
-Sets Duty Cycle for PWM Channel0
-Sets Duty Cycle for PWM Channel1
-CT OCU configuration is set successfully 
-CT OCU configuration is set successfully 
-CT OCU configuration is set successfully 
-CT callback registered successfully 
-CT started successfully on software trigger 
-CT started successfully on software trigger 
-```
+
+  > ![Figure: Result](resources/readme/outputConsoleI_CT_OCU.png)

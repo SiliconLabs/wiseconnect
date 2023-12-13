@@ -29,7 +29,6 @@
  ******************************************************************************/
 
 #include "sl_net.h"
-#include "sl_tls.h"
 #include "sl_utility.h"
 #include "cmsis_os2.h"
 #include "sl_constants.h"
@@ -47,12 +46,12 @@
 
 #define CLIENT_PORT 1
 
-#define CLIENT_ID "WIFI-SDK-MQTT-CLIENT"
+#define CLIENT_ID "WISECONNECT-SDK-MQTT-CLIENT-ID"
 
 #define TOPIC_TO_BE_SUBSCRIBED "THERMOSTAT-DATA\0"
 #define QOS_OF_SUBSCRIPTION    SL_MQTT_QOS_LEVEL_1
 
-#define PUBLISH_TOPIC          "WiFiSDK_TOPIC"
+#define PUBLISH_TOPIC          "WISECONNECT_SDK_TOPIC"
 #define PUBLISH_MESSAGE        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
 #define QOS_OF_PUBLISH_MESSAGE 0
 
@@ -60,18 +59,19 @@
 #define IS_MESSAGE_RETAINED  1
 #define IS_CLEAN_SESSION     1
 
-#define LAST_WILL_TOPIC       "WiFiSDK-MQTT-CLIENT-LAST-WILL"
-#define LAST_WILL_MESSAGE     "WiFiSDK-MQTT-CLIENT has been disconnect from network"
+#define LAST_WILL_TOPIC       "WISECONNECT-SDK-MQTT-CLIENT-LAST-WILL"
+#define LAST_WILL_MESSAGE     "WISECONNECT-SDK-MQTT-CLIENT has been disconnect from network"
 #define QOS_OF_LAST_WILL      1
 #define IS_LAST_WILL_RETAINED 1
 
-#define ENCRYPT_CONNECTION   0
-#define KEEP_ALIVE_INTERVAL  2000
-#define MQTT_CONNECT_TIMEOUT 5000
+#define ENCRYPT_CONNECTION     0
+#define KEEP_ALIVE_INTERVAL    2000
+#define MQTT_CONNECT_TIMEOUT   5000
+#define MQTT_KEEPALIVE_RETRIES 0
 
 #define SEND_CREDENTIALS 0
 
-#define USERNAME "WIFISDK"
+#define USERNAME "username"
 #define PASSWORD "password"
 
 /******************************************************
@@ -99,15 +99,10 @@ static const sl_wifi_device_configuration_t sl_wifi_mqtt_client_configuration = 
                    .feature_bit_map            = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK
-                                                  | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS |
-#ifndef RSI_M4_INTERFACE
-                                                  RAM_LEVEL_NWP_ALL_MCU_ZERO
-#else
-                                                  RAM_LEVEL_NWP_ADV_MCU_BASIC
-#endif
-#ifdef CHIP_917
+                                                  | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -137,6 +132,7 @@ sl_mqtt_broker_t mqtt_broker_configuration = {
   .is_connection_encrypted = ENCRYPT_CONNECTION,
   .connect_timeout         = MQTT_CONNECT_TIMEOUT,
   .keep_alive_interval     = KEEP_ALIVE_INTERVAL,
+  .keep_alive_retries      = MQTT_KEEPALIVE_RETRIES,
 };
 
 sl_mqtt_client_message_t message_to_be_published = {
@@ -330,20 +326,16 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
 sl_status_t mqtt_example()
 {
   sl_status_t status;
-  sl_tls_store_configuration_t tls_configuration = { 0 };
 
   if (ENCRYPT_CONNECTION) {
-    tls_configuration.cacert             = (uint8_t *)cacert;
-    tls_configuration.cacert_length      = (sizeof(cacert) - 1);
-    tls_configuration.cacert_type        = SL_TLS_SSL_CA_CERTIFICATE;
-    tls_configuration.use_secure_element = false;
-
-    status = sl_tls_set_global_ca_store(tls_configuration);
+    // Load SSL CA certificate
+    status =
+      sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
     if (status != SL_STATUS_OK) {
-      printf("Failed to load certificates: 0x%lx\r\n ", status);
+      printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
       return status;
     }
-    printf("Success to load certificates \r\n ");
+    printf("\r\nLoad TLS CA certificate at index %d Success\r\n", 0);
   }
 
   if (SEND_CREDENTIALS) {
@@ -355,15 +347,17 @@ sl_status_t mqtt_example()
     uint32_t malloc_size = sizeof(sl_mqtt_client_credentials_t) + username_length + password_length;
 
     client_credentails = malloc(malloc_size);
-
+    if (client_credentails == NULL)
+      return SL_STATUS_ALLOCATION_FAILED;
+    memset(client_credentails, 0, malloc_size);
     client_credentails->username_length = username_length;
     client_credentails->password_length = password_length;
 
     memcpy(&client_credentails->data[0], USERNAME, username_length);
     memcpy(&client_credentails->data[username_length], PASSWORD, password_length);
 
-    status = sl_net_set_credential(SL_NET_MQTT_CLIENT_CREDENTIALS_ID,
-                                   SL_NET_MQTT_CLIENT_CREDENTIALS,
+    status = sl_net_set_credential(SL_NET_MQTT_CLIENT_CREDENTIAL_ID(0),
+                                   SL_NET_MQTT_CLIENT_CREDENTIAL,
                                    client_credentails,
                                    malloc_size);
 
@@ -376,7 +370,7 @@ sl_status_t mqtt_example()
     printf("Set credentials Success \r\n ");
 
     free(client_credentails);
-    mqtt_client_configuration.credential_id = SL_NET_MQTT_CLIENT_CREDENTIALS_ID;
+    mqtt_client_configuration.credential_id = SL_NET_MQTT_CLIENT_CREDENTIAL_ID(0);
   }
 
   status = sl_mqtt_client_init(&client, mqtt_client_event_handler);

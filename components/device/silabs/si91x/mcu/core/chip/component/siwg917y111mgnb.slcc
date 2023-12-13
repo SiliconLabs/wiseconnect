@@ -1,0 +1,98 @@
+!!omap
+- id: SIWG917Y111MGNB
+- package: platform-si91x
+- description: Silicon Labs CMSIS-Device part headers for SIWG917Y111MGNB.
+- category: Platform|Device|Si91x|MCU|Family|SIWG917Y
+- quality: production
+- define:
+  - name: SIWG917Y111MGNB
+    unless:
+    - device_content_override
+  - name: SLI_SI917
+    value: '1'
+  - name: SLI_SI917B0
+    value: '1'
+  - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
+    value: '1'
+- source:
+  - path: components/device/silabs/si91x/mcu/core/chip/src/system_si91x.c
+  - path: components/device/silabs/si91x/mcu/core/chip/src/startup_si91x.c
+    unless: [siwx917_soc_custom_startup]
+- provides:
+  - name: siwg917y111mgnb
+  - name: device_si91x
+  - name: device_family_siwg917
+  - name: si91x_platform
+  - name: device_arm
+  - name: cortexm4
+  - name: armv7em
+  - name: device_has_mvp
+  - name: device_compute_mvp
+  - name: device_supports_psram
+  - name: device_has_stacked_flash
+  - name: device_has_mpu
+  - name: device_is_module
+  - name: device_no_antenna
+- requires:
+  - name: rsilib_chip
+  - name: si917_mem_config
+  - name: external_flash_implementation
+  - name: external_psram_implementation
+  - name: sl_si91x_mcu
+  - name: board_configuration_headers
+  - name: wiseconnect_toolchain_plugin
+- template_contribution:
+  - name: device_opn
+    value: SIWG917Y111MGNB
+  - name: device_arch
+    value: armv7em
+  - name: device_cpu
+    value: cortexm4
+  - name: device_family
+    value: siwg917y
+  - name: device_fpu
+    value: true
+  - name: device_mpu
+    value: true
+  - name: default_stack_size
+    value: 3072
+  - name: default_heap_size
+    value: 7168
+  - name: nvm3_size
+    value: 65536
+
+  - name: device_flash_addr
+    value: 136060928
+  - name: device_flash_size
+    value: 8388608
+  - name: device_flash_page_size
+    value: 256
+
+  - name: device_ram_addr
+    value: 12
+- tag:
+  - device:opn:siwg917y111mgnb
+- toolchain_settings:
+  - option: device_opn
+    value: siwg917y111mgnb
+  - option: architecture
+    value: armv7e-m
+  - option: cpu
+    value: cortex-m4
+  - option: fpu
+    value: fpv4-sp
+- metadata:
+    device:
+      memory:
+      # External flash details will be provided by the External Flash component
+      - name: Main Flash
+        page_size: 256
+        size: 8388608
+        start: 136060928
+        type: non-volatile
+      # TODO: Check these Values
+      - name: RAM
+        size: 196608
+        start: 12
+        type: volatile
+      opn: siwg917y111mgnb

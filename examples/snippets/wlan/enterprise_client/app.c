@@ -29,11 +29,12 @@
  ******************************************************************************/
 #include "sl_net.h"
 #include "sl_net_wifi_types.h"
-#include "sl_tls.h"
 #include "cmsis_os2.h"
 #include "sl_ip_types.h"
 #include "wifiuser.pem.h"
 #include "sl_wifi.h"
+#include <string.h>
+#include "sl_utility.h"
 
 /******************************************************
  *               Function Declarations
@@ -78,7 +79,7 @@ static const sl_net_wifi_client_profile_t wifi_client_enterprise_eap_profile = {
         .security = SL_WIFI_WPA2_ENTERPRISE,
         .encryption = SL_WIFI_EAP_TLS_ENCRYPTION,
         .client_options = 0,
-        .credential_id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
+        .credential_id = SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID,
     },
     .ip = {
         .mode = SL_IP_MANAGEMENT_DHCP,
@@ -89,11 +90,12 @@ static const sl_net_wifi_client_profile_t wifi_client_enterprise_eap_profile = {
 };
 
 static const sl_net_wifi_eap_credential_entry_t wifi_client_enterprise_eap_credential = {
-  .type                = SL_NET_WIFI_PSK,
-  .data_length         = sizeof(sl_wifi_eap_credential_t),
-  .data.username       = "user1",
-  .data.password       = "12345678",
-  .data.certificate_id = WIFI_CLIENT_CERTIFICATE_ID
+  .type                 = SL_NET_WIFI_PSK,
+  .data_length          = sizeof(sl_wifi_eap_credential_t),
+  .data.username        = "user1",
+  .data.password        = "12345678",
+  .data.certificate_key = {},
+  .data.certificate_id  = WIFI_CLIENT_CERTIFICATE_ID
 };
 
 /******************************************************
@@ -109,19 +111,7 @@ void app_init(const void *unused)
 static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
-  sl_status_t status                             = SL_STATUS_OK;
-  sl_tls_store_configuration_t tls_configuration = { 0 };
-
-  // Set the custom Wi-Fi client profile
-  sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE,
-                     SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
-                     &wifi_client_enterprise_eap_profile);
-
-  // Set the custom Wi-Fi client enterprise credential
-  sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-                        SL_NET_WIFI_EAP,
-                        &(wifi_client_enterprise_eap_credential.data),
-                        sizeof(sl_wifi_eap_credential_t));
+  sl_status_t status = SL_STATUS_OK;
 
   // Initialize the network interface
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_default_enterprise_client_configuration, NULL, NULL);
@@ -131,19 +121,25 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi client interface up Success\r\n");
 
-  tls_configuration.cacert             = (uint8_t *)wifiuser;
-  tls_configuration.cacert_length      = (sizeof(wifiuser) - 1);
-  tls_configuration.cacert_type        = SL_TLS_EAP_CLIENT;
-  tls_configuration.use_secure_element = false;
+  // Set the custom Wi-Fi client profile
+  sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE,
+                     SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
+                     &wifi_client_enterprise_eap_profile);
 
-  // Set the Wi-Fi client certificate
-  status = sl_tls_set_global_ca_store(tls_configuration);
+  // Set the custom Wi-Fi client enterprise credential
+  sl_net_set_credential(SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID,
+                        SL_NET_EAP_CLIENT_CREDENTIAL,
+                        &(wifi_client_enterprise_eap_credential.data),
+                        sizeof(sl_wifi_eap_credential_t));
+
+  // Load SSL CA certificate
+  status =
+    sl_net_set_credential(SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID, SL_NET_CERTIFICATE, wifiuser, sizeof(wifiuser) - 1);
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading SSL EAP certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+    printf("\r\nLoading TLS EAP certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
-
-  printf("\r\nLoad SSL EAP certificate Success\r\n");
+  printf("\r\nLoad TLS EAP certificate Success\r\n");
 
   // Bring up network interface
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);

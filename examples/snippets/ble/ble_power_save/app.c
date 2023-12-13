@@ -25,6 +25,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
+#include "sl_utility.h"
 
 //! BLE include files to refer BLE APIs
 #include <string.h>
@@ -38,15 +39,8 @@
 #include "sl_si91x_driver.h"
 #include "app.h"
 
-#ifdef RSI_M4_INTERFACE
-#include "rsi_rtc.h"
-#include "rsi_m4.h"
-#include "rsi_ds_timer.h"
-#include "rsi_wisemcu_hardware_setup.h"
-#include "rsi_rom_ulpss_clk.h"
-#include "rsi_rom_timer.h"
-#include "rsi_rom_power_save.h"
-#include "sl_event_handler.h"
+#if (defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#include "sl_si91x_m4_ps.h"
 #endif
 
 /*=======================================================================*/
@@ -55,41 +49,13 @@
 //! Maximum number of advertise reports to hold
 #define NO_OF_ADV_REPORTS 10
 
-#ifdef COMMON_FLASH_EN
-#define NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR_1 (*(volatile uint32_t *)(0x41300000 + 0x4))
-#define M4SS_TASS_CTRL_SET_REG              (*(volatile uint32_t *)(0x24048400 + 0x34))
-#define M4SS_TASS_CTRL_CLR_REG              (*(volatile uint32_t *)(0x24048400 + 0x38))
-#endif
-
 /*=======================================================================*/
 //!    Application powersave configurations
 /*=======================================================================*/
 #if ENABLE_POWER_SAVE
 sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000 };
 
-#ifdef RSI_M4_INTERFACE
-#ifdef COMMON_FLASH_EN
-#ifdef CHIP_917B0
-#define IVT_OFFSET_ADDR 0x81C2000 /*<!Application IVT location VTOR offset for B0>  */
-#else
-#define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset for A0>  */
-#endif
-#else
-#define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset for dual flash A0 and B0>  */
-#endif
-#ifdef CHIP_917B0
-#define WKP_RAM_USAGE_LOCATION 0x24061EFC /*<!Bootloader RAM usage location upon wake up  for B0 */
-#else
-#define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up for A0  */
-#endif
-#define WIRELESS_WAKEUP_IRQ_PRI    8
-#define portNVIC_SHPR3_REG         (*((volatile uint32_t *)0xe000ed20))
-#define portNVIC_PENDSV_PRI        (((uint32_t)(0x3f << 4)) << 16UL)
-#define portNVIC_SYSTICK_PRI       (((uint32_t)(0x3f << 4)) << 24UL)
-#define WKP_RAM_USAGE_LOCATION     0x24061EFC /*<! Bootloader RAM usage location upon wake up  */
-#define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-void M4_sleep_wakeup(void);
-void IRQ026_Handler();
+#ifdef SLI_SI91X_MCU_INTERFACE
 void fpuInit(void);
 #endif
 
@@ -100,7 +66,7 @@ int32_t rsi_initiate_power_save(void);
 /*=======================================================================*/
 //! Memory to initialize driver
 uint8_t wlan_radio_initialized = 0, powersave_cmd_given = 0;
-uint8_t device_found          = 0;
+uint8_t device_found          = false;
 uint8_t remote_dev_addr[18]   = { 0 };
 uint8_t remote_dev_bd_addr[6] = { 0 };
 static uint8_t remote_name[31];
@@ -110,7 +76,6 @@ static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN]      = { 0 };
 static rsi_ble_event_conn_status_t rsi_app_connected_device     = { 0 };
 static rsi_ble_event_disconnect_t rsi_app_disconnected_device   = { 0 };
 uint8_t rsi_ble_states_bitmap;
-
 osSemaphoreId_t ble_slave_conn_sem;
 osSemaphoreId_t ble_main_task_sem;
 static volatile uint32_t ble_app_event_map;
@@ -127,17 +92,11 @@ static const sl_wifi_device_configuration_t config = {
                                        | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
-#ifdef CHIP_917
-                      | RAM_LEVEL_NWP_ADV_MCU_BASIC | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
-#else
-#ifdef RSI_M4_INTERFACE
-                      | RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-#else
-                      | RAM_LEVEL_NWP_ALL_MCU_ZERO
-#endif
+                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)),
                    .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
@@ -208,83 +167,7 @@ const osThreadAttr_t thread_attributes = {
 //   ! PROCEDURES
 /*=======================================================================*/
 /*==============================================*/
-void IRQ026_Handler()
-{
-  volatile uint32_t wakeUpSrc = 0;
 
-  /*Get the wake up source */
-  wakeUpSrc = RSI_PS_GetWkpUpStatus();
-
-  /*Clear interrupt */
-  RSI_PS_ClrWkpUpStatus(NPSS_TO_MCU_WIRELESS_INTR);
-  return;
-}
-/**
- * @fn         M4_sleep_wakeup
- * @brief      Keeps the M4 In the Sleep
- * @param[in]  none
- * @return    none.
- * @section description
- * This function is used to trigger sleep in the M4 and in the case of the retention submitting the buffer valid
- * to the TA for the rx packets.
- */
-#if (defined RSI_M4_INTERFACE && ENABLE_POWER_SAVE)
-void M4_sleep_wakeup(void)
-{
-  /* Configure Wakeup-Source */
-  RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
-
-  /* sets the priority of an Wireless wakeup interrupt. */
-  NVIC_SetPriority(WIRELESS_WAKEUP_IRQHandler, WIRELESS_WAKEUP_IRQ_PRI);
-
-  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
-
-#ifndef FLASH_BASED_EXECUTION_ENABLE
-  /* LDOSOC Default Mode needs to be disabled */
-  sl_si91x_disable_default_ldo_mode();
-
-  /* bypass_ldorf_ctrl needs to be enabled */
-  sl_si91x_enable_bypass_ldo_rf();
-
-  sl_si91x_disable_flash_ldo();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep */
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         0,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         0,
-                         RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
-#else
-
-#ifdef COMMON_FLASH_EN
-  M4SS_P2P_INTR_SET_REG &= ~BIT(3);
-#endif
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep*/
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         WKP_RAM_USAGE_LOCATION,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         IVT_OFFSET_ADDR,
-                         RSI_WAKEUP_FROM_FLASH_MODE);
-#endif
-
-  /*  Setup the systick timer */
-  vPortSetupTimerInterrupt();
-
-#ifdef DEBUG_UART
-
-  /*Initialize UART after wake up*/
-  sl_service_init();
-#endif
-}
-#endif
 /**
  * @fn         rsi_ble_app_init_events
  * @brief      initializes the event parameter.
@@ -316,10 +199,7 @@ void rsi_ble_app_set_event(uint32_t event_num)
   } else {
     ble_app_event_map1 |= BIT((event_num - 32));
   }
-
-  if (ble_main_task_sem) {
-    osSemaphoreRelease(ble_main_task_sem);
-  }
+  osSemaphoreRelease(ble_main_task_sem);
 
   return;
 }
@@ -340,7 +220,6 @@ static void rsi_ble_app_clear_event(uint32_t event_num)
   } else {
     ble_app_event_map1 &= ~BIT((event_num - 32));
   }
-
   return;
 }
 
@@ -385,20 +264,20 @@ static int32_t rsi_ble_app_get_event(void)
  */
 void rsi_ble_on_adv_report_event(rsi_ble_event_adv_report_t *adv_report)
 {
-  if (device_found == 1) {
+  if (device_found == true) {
     return;
   }
 
-  memset(remote_name, 0, 31);
+  memset(remote_name, 0, sizeof(remote_name));
   BT_LE_ADPacketExtract(remote_name, adv_report->adv_data, adv_report->adv_data_len);
 
   remote_addr_type = adv_report->dev_addr_type;
   rsi_6byte_dev_address_to_ascii(remote_dev_addr, (uint8_t *)adv_report->dev_addr);
-  memcpy(remote_dev_bd_addr, (uint8_t *)adv_report->dev_addr, 6);
-  if (((device_found == 0) && ((strcmp((const char *)remote_name, RSI_REMOTE_DEVICE_NAME)) == 0))
+  memcpy(remote_dev_bd_addr, (uint8_t *)adv_report->dev_addr, sizeof(remote_dev_bd_addr));
+  if (((device_found == false) && ((strcmp((const char *)remote_name, RSI_REMOTE_DEVICE_NAME)) == 0))
       || ((remote_addr_type == RSI_BLE_DEV_ADDR_TYPE)
           && ((strcmp((const char *)remote_dev_addr, RSI_BLE_DEV_ADDR) == 0)))) {
-    device_found = 1;
+    device_found = true;
     rsi_ble_app_set_event(RSI_APP_EVENT_ADV_REPORT);
   }
 }
@@ -514,16 +393,18 @@ void ble_app_task(void *argument)
 {
   UNUSED_PARAMETER(argument);
 
-  int32_t status                   = 0;
-  int32_t temp_event_map           = 0;
-  int32_t temp_event_map1          = 0;
-  sl_wifi_version_string_t version = { 0 };
-
-#if ((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_MODE))
+  int32_t status                     = 0;
+  int32_t temp_event_map             = 0;
+  int32_t temp_event_map1            = 0;
+  sl_wifi_firmware_version_t version = { 0 };
+#if ((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_ROLE))
   uint8_t adv[31] = { 2, 1, 6 };
 #endif
+#if (defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+  sl_si91x_hardware_setup();
+#endif /* SLI_SI91X_MCU_INTERFACE */
 
-  status = sl_wifi_init(&config, default_wifi_event_handler);
+  status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\n Wi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -536,7 +417,7 @@ void ble_app_task(void *argument)
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    LOG_PRINT("\r\nfirmware_version = %s\r\n", version.version);
+    print_firmware_version(&version);
   }
 
   //! BLE register GAP callbacks
@@ -585,7 +466,7 @@ void ble_app_task(void *argument)
 
   ble_slave_conn_sem = osSemaphoreNew(1, 0, NULL);
 
-#if ((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_MODE))
+#if ((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_ROLE))
   //! prepare advertise data //local/device name
   adv[3] = strlen(RSI_BLE_LOCAL_NAME) + 1;
   adv[4] = 9;
@@ -604,7 +485,7 @@ void ble_app_task(void *argument)
   SET_BIT1(rsi_ble_states_bitmap, RSI_ADV_STATE);
 #endif
 
-#if ((BLE_ROLE == CENTRAL_ROLE) || (BLE_ROLE == DUAL_MODE))
+#if ((BLE_ROLE == CENTRAL_ROLE) || (BLE_ROLE == DUAL_ROLE))
   //! start scanning
   LOG_PRINT("\n Start scanning \n");
   status = rsi_ble_start_scanning();
@@ -625,7 +506,7 @@ void ble_app_task(void *argument)
     powersave_cmd_given = 1;
   }
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
   P2P_STATUS_REG &= ~M4_wakeup_TA;
   // LOG_PRINT("\n RSI_BLE_REQ_PWRMODE\n ");
 #endif
@@ -636,20 +517,18 @@ void ble_app_task(void *argument)
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
       //! if events are not received loop will be continued.
-#if (defined RSI_M4_INTERFACE && ENABLE_POWER_SAVE)
+#if (defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
       //! if events are not received loop will be continued.
 
-      if (!(P2P_STATUS_REG & TA_wakeup_M4)) {
+      if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (ble_app_event_map == 0) && (ble_app_event_map1 == 0)) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;
         LOG_PRINT("\r\n triggering M4 sleep\r\n");
-        M4_sleep_wakeup();
+        sl_si91x_m4_sleep_wakeup();
       }
 #else
-      if (ble_main_task_sem) {
-        osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
-      }
-      continue;
+      osSemaphoreAcquire(ble_main_task_sem, osWaitForever);
 #endif
+      continue;
     }
 
     //! if any event is received, it will be served.
@@ -723,7 +602,7 @@ void ble_app_task(void *argument)
           return;
         }
 #endif
-        if (((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_MODE))
+        if (((BLE_ROLE == PERIPHERAL_ROLE) || (BLE_ROLE == DUAL_ROLE))
             && (!(CHK_BIT1(rsi_ble_states_bitmap, RSI_ADV_STATE)))) {
           //! set device in advertising mode.
           LOG_PRINT("\n Start advertising \n");
@@ -735,9 +614,9 @@ adv:
           }
           SET_BIT1(rsi_ble_states_bitmap, RSI_ADV_STATE);
         }
-        if (((BLE_ROLE == CENTRAL_ROLE) || (BLE_ROLE == DUAL_MODE))
+        if (((BLE_ROLE == CENTRAL_ROLE) || (BLE_ROLE == DUAL_ROLE))
             && (!(CHK_BIT1(rsi_ble_states_bitmap, RSI_SCAN_STATE)))) {
-          device_found = 0;
+          device_found = false;
           //! set device in scanning mode.
           LOG_PRINT("\n Start scanning \n");
 scan:

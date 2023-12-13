@@ -1,17 +1,34 @@
-# SIO
+# SL SIO
 
-## Introduction
+## Table of Contents
 
-- This application demonstrate the SIO (Serial Input Output) for data transfer in SPI, I2C and UART.
-- Serial IO supports regular GPIO and enhanced serial stream processing features for 8/16 GPIO pins.
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+  - [SIO SPI functionality](#sio-spi-functionality)
+  - [SIO UART functionality](#sio-uart-functionality)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+  - [Application Configuration Parameters](#application-configuration-parameters)
+  - [SIO SPI Pin Configuration](#sio-spi-pin-configuration)
+  - [SIO UART Pin Configuration](#sio-uart-pin-configuration)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
+
+- This application demonstrate the SIO (Serial Input Output) for data transfer in SPI and UART.
 
 ## Overview
 
 - It is a MCU HP peripheral, which is used to support a wide variety of SIO functionality.
-- It can be used to implement Serial interfaces like UART, I2C, SPI protocols.
+- It can be used to implement Serial interfaces like UART, SPI protocols.
 - Eight GPIOs support the SIO functionality.
 - Support pattern matching based interrupt generation - the GPIO is monitored to compare against a pre-programmed bit pattern. The bit pattern can be between 1 and 32 bits.
-- Generates interrupts on shift, swap (position counter reaching zero), pattern match (supported by 0,1st,2nd, 8th, 9th and 10th slices only), GPIO edge/level detection and underun/overrun.
+- Generates interrupts on shift, swap (position counter reaching zero), pattern match (supported by 0,1st,2nd, 8th, 9th and 10th slices only), GPIO edge/level detection and underrun/overrun.
 - Supports generation of interrupt for different events.
 - Generates a shift clock from 14-bit shift counter.
 - Clock used for shift operations can be internal counter clock or external clock coming in.
@@ -20,7 +37,7 @@
 
 ## About Example Code
 
-## SIO SPI functionality
+### SIO SPI functionality
 
 - This example demonstrates SIO SPI transfer of data between MOSI and MISO using API \ref sl_si91x_sio_spi_transfer.
 - Various parameters SPI bit order, SPI clock, SPI clock channel, MOSI channel, MISO channel, SPI CS channel, bit length, SPI mode can be configured using UC. \ref pstcSpiConfig.
@@ -30,15 +47,15 @@
 - \ref sl_si91x_sio_init is used to initialize SIO.
 - \ref sl_si91x_sio_spi_init is used to initialize the SIO SPI functionality, that includes SIO SPI configuration.
 - After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_sio_spi_register_event_callback.
-- The current_mode is set to SL_SEND_DATA and calls the \ref sl_si91x_sio_spi_transfer API which expects structure of type \ref pstcSpiXfer, for sending and recieving data simultaneously.
+- The current_mode is set to SL_SEND_DATA and calls the \ref sl_si91x_sio_spi_transfer API which expects structure of type \ref pstcSpiXfer, for sending and receiving data simultaneously.
 - Before transfer has begin, chip select assert is to be done using \ref sl_si91x_sio_spi_cs_assert.
 - This test is performed in loopback condition, i.e. connect MISO and MOSI pins.
 - It waits till the transfer is completed.
-- After transfer completion, chip select deassert is to be done using \ref sl_si91x_sio_spi_cs_deassert.
+- After transfer completion, chip select de-assert is to be done using \ref sl_si91x_sio_spi_cs_deassert.
 - When the transfer complete event is generated, it compares the sent and received data.
 - The result is printed on the console.
 
-## SIO UART functionality
+### SIO UART functionality
 
 - This example demonstrates SIO UART send and receive data using API \ref sl_si91x_sio_uart_send, \ref sl_si91x_sio_uart_read.
 - Various parameters UART baud rate, bit length, parity, receive channel selection, transmit channel selection, stop bits can be configured using UC. \ref UartInitstc.
@@ -52,51 +69,45 @@
 - When the receive complete event is generated, it compares the sent and received data.
 - The result is printed on the console.
 
-## SIO I2C functionality
+## Prerequisites/Setup Requirements
 
-- This example demonstrates SIO I2C transfer and read data using API \ref sl_si91x_sio_i2c_transfer, \ref sl_si91x_sio_i2c_read.
-- Various parameters I2C baud rate, SCL channel, SDA channel can be configured using UC. \ref i2cConfig.
-- sl_si91x_sio_config.h file contains the control configurations.
-- In example code, firstly the tx_data is filled with some data which is to be transferred to the i2c receive.
-- \ref sl_si91x_sio_init is used to initialize SIO.
-- Generate I2C start using \ref sl_si91x_sio_i2c_generate_start.
-- Transfer data using \ref sl_si91x_sio_i2c_transfer.
-- Generate I2C stop using \ref sl_si91x_sio_i2c_generate_stop.
-
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required.
+Before running the application, the user will need the following things to setup.
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK/WSTK + BRD4325A]
-
-![Figure: Introduction](resources/readme/image509a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-## Project Setup
+### Setup Diagram
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Loading Application on Simplicity Studio
+## Getting Started
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-  in simplicity studio and click on to SIO Example application as shown below.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure:](resources/readme/image509b.png)
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-## Configuration and Steps for Execution
+## Application Build Environment
+
+### Application Configuration Parameters
 
 - Configure UC from the slcp component.
 - Open **sl_si91x_sio.slcp** project file select **software component** tab and search for **SIO** in search bar.
-- Using configuration wizard one can configure different parameters like:
+- Using configuration wizard, one can configure different parameters:
+
   - **General Configuration for SIO SPI**
+
     - Clock: SIO SPI Clock can be configured, between 9600 to 7372800.
     - Mode: SIO SPI mode can be configured, i.e. mode 0 and mode 3.
     - Clock Channel: SIO SPI clock channel can be configured, between channel 0 to channel 7.
@@ -105,84 +116,66 @@
     - CS Channel: SIO SPI CS channel can be configured, between channel 0 to channel 7.
     - Data Width: SIO SPI Data Width can be configured, i.e. Data Width 8 and Data Width 16.
     - MSB/LSB First: SIO SPI MSB/LSB first can be configured, i.e. MSB first/ LSB first.
+    - Configure the UC as mentioned below.
+
+      ![Figure: UC image](resources/uc_screen/sio_spi_uc.png)
 
   - **General Configuration for SIO UART**
+
     - Baud Rate: SIO UART baud rate can be configured, between 4800 to 128000.
     - Bit Length: SIO UART bit length can be configured, i.e. bit length 8 and bit length 9.
     - Parity: SIO UART parity can be configured, between odd parity and even parity.
     - Receive Channel: SIO UART rx channel can be configured, between channel 0 to channel 7.
     - Transmit Channel: SIO UART tx channel can be configured, between channel 0 to channel 7.
     - Stop Bit: SIO UART stop bit can be configured, between  stop bit 1 and stop bit 2.
+    - Configure the UC as mentioned below.
 
-  - **General Configuration for SIO I2C**
-    - Sample Rate: SIO I2C sample rate can be configured, between 100000 to 4000000.
-    - SCL Channel: SIO I2C SCL Channel can be configured, between channel 0 to channel 7.
-    - SDA Channel: SIO I2C SDA Channel can be configured, between channel 0 to channel 7.
+      ![Figure: UC image](resources/uc_screen/sio_uart_uc.png)
 
 - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
-
-![Figure: UC](resources/uc_screen/sl_sio_uc_screen.png)
-
 - Configure the following macros in sio_example.h file and update/modify following macros if required. Please take care about gpio pin configurations, if different channels are being selected.
 
-```C
-// SIO-SPI Configuration parameters
-#define SIO_SPI_CLK_FREQUENCY 1000000   // SIO-SPI 1Mhz clock frequency
-#define SIO_SPI_BIT_LEN       16        // SIO-SPI data length
+- `SIO-SPI Configuration parameters`: SIO SPI clock frequency anf bit length to be set.
 
-// SIO-UART Configuration parameters
-#define SIO_UART_BAUD_RATE  115200      // SIO-UART baud rate
+  ```C
+    #define SIO_SPI_CLK_FREQUENCY 1000000   // SIO-SPI 1Mhz clock frequency
+    #define SIO_SPI_BIT_LEN       16        // SIO-SPI data length
+  ```
 
-// SIO-I2C Configuration parameters
-#define SIO_I2C_SAMPLE_RATE 100000      // SIO-I2C sample rate
-#define SIO_SLAVE_ADDRESS   0x50        // SIO-I2C slave address
-```
+- `SIO-UART Configuration parameters`: SIO UART baud rate to be set. By default it is 115200.
 
-## Build
+  ```C
+    #define SIO_UART_BAUD_RATE  115200      // SIO-UART baud rate
+  ```
+  
+### SIO SPI Pin Configuration
 
-1. Compile the application in Simplicity Studio using build icon
+Tested on WPK Base board - 4002A and Radio board - BRD4338A.
 
-![Figure: Build run and Debug](resources/readme/image509c.png)
+| Description            | GPIO    | Connector    |
+| -------------          | ------- | ------------ |
+| SIO_SPI_MASTER_CS0_PIN | GPIO_6  |     P19      |
+| SIO_SPI_MASTER_CLK_PIN | GPIO_7  |     P20      |
+| SIO_SPI_MASTER_MISO_PIN| GPIO_27 |     P29      |
+| SIO_SPI_MASTER_MOSI_PIN| GPIO_28 |     P31      |
 
-## Device Programming
+### SIO UART Pin Configuration
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+| Description     | GPIO    | Connector    |
+| -------------   | ------- | ------------ |
+| SIO_UART_RX_PIN | GPIO_27 | P29          |
+| SIO_UART_TX_PIN | GPIO_28 | P31          |
 
-## SIO SPI Pin Configuration
+> **Note:** Make sure pin configuration in RTE_Device_917.h file.(path: /$project/config/RTE_Device_917.h)
 
-Tested on WSTK Base board - 40002A and Radio boards - BRD4325A, BRD4325C.
+## Test the Application
 
-| GPIO pin | Description |
-| --- | --- |
-| GPIO_6 [P14] | SIO_SPI_MASTER_CS0_PIN |
-| GPIO_7 [P37] | SIO_SPI_MASTER_CLK_PIN |
-| GPIO_27 [EXP_HEADER-10] | SIO_SPI_MASTER_MISO_PIN |
-| GPIO_28 [EXP_HEADER-8] | SIO_SPI_MASTER_MOSI_PIN |
-
-## SIO UART Pin Configuration
-
-| GPIO pin  | Description |
-| --- | --- |
-| GPIO_27 [EXP_HEADER-10] | SIO_UART_RX_PIN |
-| GPIO_28 [EXP_HEADER-8] | SIO_UART_TX_PIN |
-
-## SIO I2C Pin Configuration
-
-| GPIO pin | Description |
-| --- | --- |
-| GPIO_27 [EXP_HEADER-10] | SIO_I2C_SDA_PIN |
-| GPIO_28 [EXP_HEADER-8] | SIO_I2C_SCL_PIN |
-
-**Note!** Make sure pin configuration in RTE_Device_9117.h file.(path: /$project/wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_9117.h)
-
-## Executing the Application
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
 2. By default SL_SIO_SPI instance is enabled.
 3. Loopback GPIO-27 and GPIO-28 pins for SIO SPI data transfer.
-4. When the application runs, it sends and receives data in loopback.
+4. When the application runs, SIO SPI transfer complete, loop back test passed prints are shown in console.
+5. After successful program execution the prints in serial console looks as shown below.
 
-## Expected Results
-
-- Console output of SIO SPI transfer complete, Loop back test passed.
-- Console output of SIO UART send and receive complete, Loop back test passed.
+   ![Figure: Introduction](resources/readme/output.png)

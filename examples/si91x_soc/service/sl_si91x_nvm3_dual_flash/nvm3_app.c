@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include "rsi_chip.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 
 #include "rsi_ccp_user_config.h"
 #include "nvm3.h"

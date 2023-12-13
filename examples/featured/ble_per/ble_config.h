@@ -34,7 +34,7 @@
 
 #define RSI_OPERMODE_WLAN_BLE 13
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 20
 /* Number of BLE notifications */
 #define RSI_BLE_NUM_CONN_EVENTS 4
@@ -183,17 +183,7 @@
 #define RSI_TCP_IP_FEATURE_BIT_MAP   0 //! TCP/IP feature select bitmap for selecting TCP/IP features
 #define RSI_EXT_TCPIP_FEATURE_BITMAP 0
 
-#define RSI_CUSTOM_FEATURE_BIT_MAP SL_SI91X_FEAT_CUSTOM_FEAT_EXTENTION_VALID //! To set custom feature select bit map
-
-#ifdef CHIP_917
-//! To set Extended custom feature select bit map
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP                                                         \
-  (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | RAM_LEVEL_NWP_ADV_MCU_BASIC \
-   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0)
-#else
-//! To set Extended custom feature select bit map
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK)
-#endif
+#define RSI_CUSTOM_FEATURE_BIT_MAP SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID //! To set custom feature select bit map
 
 #define RSI_BT_FEATURE_BITMAP     (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
 #define RSI_CONFIG_FEATURE_BITMAP 0
@@ -202,7 +192,7 @@
 //! Power save command parameters
 /*=======================================================================*/
 //! set handshake type of power mode
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_HAND_SHAKE_TYPE M4_BASED
 #else
 #define RSI_HAND_SHAKE_TYPE GPIO_BASED

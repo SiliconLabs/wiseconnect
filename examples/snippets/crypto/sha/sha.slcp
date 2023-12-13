@@ -1,6 +1,6 @@
 project_name: crypto_sha
 package: wifi
-quality: alpha
+quality: production
 label: Crypto SHA
 category: Example|Crypto 
 description: >
@@ -10,9 +10,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.3.1}
+sdk: {id: gecko_sdk, version: 4.4.0}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.0}
+- {id: wiseconnect3_sdk, version: 3.1.1}
 source:
   - path: app.c
   - path: main.c
@@ -22,24 +22,24 @@ include:
       - path: app.h
 define:
   - name: SYSCALLS_WRITE
-  - name: RSI_DEBUG_PRINTS
+  - name: SL_SI91X_PRINT_DBG_LOG
 component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
-- {from: wiseconnect3_sdk, id: si91x_debug}  
+- {from: wiseconnect3_sdk, id: si91x_debug}
+- {from: wiseconnect3_sdk, id: syscalls}
 requires:
 - name: sl_system
 - name: network_manager
-- name: basic_network_manager
-- name: si91x_basic_buffers
+- name: basic_network_config_manager
+- name: sl_si91x_basic_buffers
 - name: freertos
 - name: wifi
-- name: si91x
-- name: si91x_support
-- name: si91x_internal_stack
+- name: sl_si91x_wireless
+- name: wiseconnect3_common
+- name: sl_si91x_internal_stack
 - name: wifi_resources
 - name: sl_si91x_sha
 - name: sl_si91x_crypto
-- name: psa_crypto_common
 - name: iostream_retarget_stdio
   condition: [device_has_devinfo]
 - name: iostream_recommended_stream

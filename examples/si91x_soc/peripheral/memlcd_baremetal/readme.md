@@ -1,4 +1,4 @@
-# MEMLCD
+# MEMLCD BAREMATAL
 
 ## Table of Contents
 
@@ -32,16 +32,18 @@ dark, and no backlight is needed in normal daylight conditions.
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x
 - Simplicity Studio
+- The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+
 
 ### Setup Diagram
 
-![Figure: Introduction](resources/readme/Ex_Std_Img.png)
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -56,10 +58,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Build the SI91x - MEMLCD Baremetal example in Studio.
-- Flash, run and debug the application
-
-Follow the steps below for successful execution of the application:
-
-1. Compile and run the application.
-2. Renders "MEMLCD Sample App" and "Hello There!" strings on MEMLCD display.
+1. Build the SI91x - MEMLCD Baremetal example in Studio.
+2. Flash, run and debug the application
+3. Renders "MEMLCD Sample App" and "Hello There!" strings on MEMLCD display.
+ 
+   > ![Figure: Introduction](resources/readme/MEMLCD_OP_SCRN.png)

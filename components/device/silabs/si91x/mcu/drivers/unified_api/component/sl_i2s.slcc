@@ -1,0 +1,24 @@
+id: sl_i2s
+label: I2S
+package: platform
+description: >
+   Si91x I2S API.
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_i2s_config.h
+source:
+  - path: "src/sl_si91x_i2s.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_i2s.h"
+define:
+  - name: SL_SI91X_I2S
+provides:
+  - name: sl_i2s
+requires:
+  - name: udma_linker_config
+  - name: rsilib_i2s
+  - name: cmsis_sai

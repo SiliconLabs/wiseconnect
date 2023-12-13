@@ -23,7 +23,7 @@
 #include "sl_fw_logging.h"
 
 //! Defines
-#ifdef RSI_WITH_OS
+#ifdef SLI_SI91X_ENABLE_OS
 #define RSI_FOREVER 1
 #else
 #define RSI_FOREVER 0
@@ -77,7 +77,7 @@ void sl_fw_log_dump(void)
 void sl_fw_log_task(void)
 {
   do {
-#ifdef RSI_WITH_OS
+#ifdef SLI_SI91X_ENABLE_OS
     rsi_semaphore_wait(&fw_log_app_sem, 0);
 #endif
     if (fw_log_flag) {
@@ -123,7 +123,7 @@ void sl_fw_log_callback(uint8_t *log_message, uint16_t log_message_length)
   fw_log_flag = 1;
   rsi_mutex_unlock(&rsi_driver_cb->fw_log_cb->fw_log_queue.fw_log_mutex);
 
-#ifdef RSI_WITH_OS
+#ifdef SLI_SI91X_ENABLE_OS
   rsi_semaphore_post(&fw_log_app_sem);
 #endif
 }

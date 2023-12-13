@@ -39,7 +39,7 @@
 
 #define ROLE PERIPHERAL_ROLE
 
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #define RSI_BLE_MAX_NBR_ATT_REC 40
 /* Number of BLE notifications */
 #define RSI_BLE_NUM_CONN_EVENTS     4

@@ -20,7 +20,6 @@
 #define NVIC_RTC       MCU_CAL_RTC_IRQn /*<! RTC NVIC enable   */
 #define NVIC_RTC_ALARM MCU_CAL_ALARM_IRQn
 
-#include "rsi_board.h"
 #include "rsi_chip.h"
 #include "rsi_ds_timer.h"
 #include "rsi_ps_ram_func.h"

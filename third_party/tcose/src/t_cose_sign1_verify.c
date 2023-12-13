@@ -19,6 +19,7 @@
 #include "t_cose_util.h"
 #include "t_cose_parameters.h"
 #include "t_cose_short_circuit.h"
+#include <stdio.h>
 
 //! Protected parameter
 uint8_t protected_param[20] = { 0x53, 0x69, 0x67, 0x6E, 0x61, 0x74, 0x75, 0x72,
@@ -141,7 +142,7 @@ static inline enum t_cose_err_t qcbor_decode_error_to_t_cose_error(QCBORError qc
   }
   return T_COSE_SUCCESS;
 }
-
+#ifdef TCOSE_UNUSED
 #ifndef T_COSE_DISABLE_SHORT_CIRCUIT_SIGN
 /**
  * \brief Verify the short-circuit signature of a COSE_Sign1 message.
@@ -329,7 +330,7 @@ static enum t_cose_err_t sign1_verify_default(struct t_cose_sign1_verify_ctx *me
 Done:
   return return_value;
 }
-
+#endif
 unsigned int payload_len = 0;
 static void hash_bstr(struct q_useful_buf_c bstr)
 {
@@ -375,6 +376,7 @@ enum t_cose_err_t t_cose_sign1_verify_internal(struct t_cose_sign1_verify_ctx *m
      *       crypto lib verify  64-1024 64-1024) 768-1024    768-1024
      *   TOTAL                                  1724-1436   1560-1272
      */
+  (void)aad;
   QCBORDecodeContext decode_context;
   struct q_useful_buf_c protected_parameters;
   enum t_cose_err_t return_value;
@@ -383,14 +385,18 @@ enum t_cose_err_t t_cose_sign1_verify_internal(struct t_cose_sign1_verify_ctx *m
   struct t_cose_label_list unknown_parameter_labels;
   struct t_cose_parameters parameters;
   struct q_useful_buf_c signed_payload;
+#ifdef TCOSE_UNUSED
   QCBORError qcbor_error;
 #ifndef T_COSE_DISABLE_SHORT_CIRCUIT_SIGN
   struct q_useful_buf_c short_circuit_kid;
 #endif
+#endif
   memset(verify_data, 0, 500);
-  payload_len = 0;
-  int count   = 0;
-  strncat(&verify_data[0], "Signature1", sizeof("Signature1"));
+  payload_len        = 0;
+  unsigned int count = 0;
+  char *sig_ptr      = "Signature1";
+  memcpy(&verify_data[0], sig_ptr, strlen(sig_ptr));
+
   payload_len = sizeof("Signature1") - 1;
   clear_label_list(&unknown_parameter_labels);
   clear_label_list(&critical_parameter_labels);

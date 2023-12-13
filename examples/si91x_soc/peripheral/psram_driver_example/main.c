@@ -29,8 +29,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "core_cm4.h"
 #include "rsi_board.h"
+#include "rsi_debug.h"
 #include "rsi_rom_clks.h"
 #include "clock_update.h"
 #include "sl_si91x_psram_handle.h"

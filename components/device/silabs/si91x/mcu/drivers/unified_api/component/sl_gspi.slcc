@@ -1,0 +1,23 @@
+id: sl_gspi
+label: GSPI
+package: platform
+description: >
+   Si91x Generic Serial Peripheral Interface (GSPI) API
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_gspi_config.h
+  - path: config/sl_si91x_gspi_common_config.h
+source:
+  - path: "src/sl_si91x_gspi.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_gspi.h"
+provides:
+  - name: sl_gspi
+requires:
+  - name: udma_linker_config
+  - name: rsilib_gspi
+  - name: cmsis_gspi

@@ -1,6 +1,6 @@
 project_name: wifi_calibration_app_ncp
 package: wifi
-quality: alpha
+quality: production
 label: wifi_calibration_app
 category: Example|Wi-Fi
 description: >
@@ -10,9 +10,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.3.1}
+sdk: {id: gecko_sdk, version: 4.4.0}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.0}
+- {id: wiseconnect3_sdk, version: 3.1.1}
 source:
   - path: app.c
   - path: main.c
@@ -21,23 +21,19 @@ include:
     file_list:
       - path: app.h
 define:
-  - name: RSI_DEBUG_PRINTS
-  - name: EXECUTION_FROM_RAM
-    condition: [device_needs_ram_execution]
-template_contribution:
-- condition: [device_needs_ram_execution]
-  name: RAM_EXECUTION
-  value: true
+  - name: SL_SI91X_PRINT_DBG_LOG
+
+
 requires:
 - name: sl_system
 - name: bsd_socket
 - name: network_manager
-- name: basic_network_manager
-- name: si91x_support
+- name: basic_network_config_manager
+- name: wiseconnect3_common
 - name: wifi
-- name: si91x
-- name: si91x_internal_stack
-- name: si91x_basic_buffers
+- name: sl_si91x_wireless
+- name: sl_si91x_internal_stack
+- name: sl_si91x_basic_buffers
 - name: wifi_resources
 - name: freertos
 - name: slist
@@ -56,4 +52,16 @@ requires:
 toolchain_settings: []
 configuration:
 - {name: SL_BOARD_ENABLE_VCOM, value: '1'}
-
+- {name: configTOTAL_HEAP_SIZE, value: '51200'}
+- {name: configUSE_POSIX_ERRNO, value: '1'}
+readme:
+  - path: readme.md
+other_file:
+  - path: resources/readme/calibration_soc_ncp.png
+  - path: resources/readme/image_c7.png
+  - path: resources/readme/image_c9.png
+  - path: resources/readme/output.png
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true

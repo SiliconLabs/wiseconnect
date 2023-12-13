@@ -1,25 +1,71 @@
-# WLAN Station BLE Provisioning with AWS cloud
+# Wi-Fi Coex - Wi-Fi Client BLE Provisioning with AWS
 
-## 1. Purpose / Scope
+## Table of Contents
+
+- [Purpose / Scope](#purpose--scope)
+- [Prerequisites / Setup Requirements](#prerequisites--setup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+  - [Application Configuration Parameters](#application-configuration-parameters)
+  - [Base Board Pin Configuration- A0 Board](#base-board-pin-configuration--a0-board)
+  - [Base Board Pin Configuration- B0 Board](#base-board-pin-configuration--b0-board)
+- [Test the Application](#test-the-application)
+  - [MQTT Connection](#mqtt-connection)
+
+## Purpose / Scope
 
 This example demonstrates how to configure/connects SiWx91x to get the WiFi connection functionality using BLE provisioning. In this application, SiWx91x starts advertising in BLE mode and Access Point details are fetched using BLE Provisioning.
 
-The SiWx91x module is configured  as a station, which associates to an access point and then communicates with an AWS server using MQTT. Si917 connected to LM75 Temperature Sensor via I2C interface, collects real time temperature data publishes to the cloud until the device is disconnected from the access point.  
+The SiWx91x module is configured  as a station, which associates to an access point and then communicates with an AWS server using MQTT. Si917 connected to LM75 Temperature Sensor via I2C interface, collects real time temperature data publishes to the cloud until the device is disconnected from the access point. After publish, the NWP processor is set in to associated power save.  Next, the application works differently in NCP and SoC modes as defined below.  
 
-## 2. Prerequisites / Setup Requirements
+**Soc Mode**:
 
-Before running the application, the user will need the following things to setup.
+The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
-### 2.1 Hardware Requirements
+- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
+  - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
+  - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
+- Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
+  - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
+- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
+  - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
+
+After M4 processor wakes up via any of the above processes, the application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic.
+
+**NCP Mode**:
+A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
+
+1. Once in every **PUBLISH_PERIODICITY** time period.
+2. When an incoming publish is received by the application.
+
+*NOTE*: The bold texts are the macros defined in the application. You can find more details about them in the upcoming section (#section 4).
+
+## Prerequisites / Setup Requirements
+
+### Hardware Requirements
 
 - Windows PC.
 - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
-  - **SoC Mode**:
-    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
-  - **NCP Mode**:
-    - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
-    - Host MCU Eval Kit. This example has been tested with:
-      - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+- **SoC Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+     - BRD4338A [SiWx917-RB4338A]
+     - BRD4340A [SiWx917-RB4340A]
+  - Kits
+   - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+   - SiWx917 Pro Kit [Si917-PK6032A]
+   
+- **NCP Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+  - Kits
+   - EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 
 - Wireless Access point
 - Android Phone or iPhone with **EFR Connect** App, which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
@@ -60,120 +106,28 @@ Before running the application, the user will need the following things to setup
 | SCL | ULP_GPIO_7 [EXP_HEADER-15] | Connect to Follower SCL pin |
 | SDA | ULP_GPIO_6 [EXP_HEADER-16] | Connect to Follower SDA pin |
 
-### 2.2 Software Requirements
+### Software Requirements
 
 - Embedded Development Environment
 
-  - For Silicon Labs EFx32, use the latest version of [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
-  - Download and install the Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+### Setup Diagram
 
-### **SoC Mode**
+  ![](resources/readme/wifi_station_ble_provisioning_aws_soc_ncp.png)
 
-- WLAN Station BLE Provisioning with Android EFR Connect App
+## Getting Started
 
-   ![](resources/readme/image279wsbpa.png)
-  
-- WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-   ![](resources/readme/bleprovisioningsetup.png)
-  
-### **NCP Mode**
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-- WLAN Station BLE Provisioning with Android EFR Connect App
-
-   ![](resources/readme/image279wsbpancp.png)
-
-- WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
-
-   ![](resources/readme/bleprovisioningncp.png)
-
-Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
-
-## 3 Project Environment
-
-- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
-
-- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
-
-### 3.1 Creating the project
-
-#### 3.1.1 SoC mode
-
-- Ensure the SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
-
-  **![Soc Board detection](resources/readme/socboarddetection111.png)**
-
-#### 3.1.2 NCP mode
-
-- Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-
-  **![EFR32 Board detection](resources/readme/efr32.png)**
-
-### 3.2 Importing the project
-
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
-
-#### SOC Mode
-
-- Select **Wi-Fi Coex - Wi-Fi Client BLE Provisioning with AWS** test application
-
-  **![project_selection](resources/readme/create_project1.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  **![creation_final](resources/readme/create_project2.png)**
-
-### 3.3 Set up for application prints
-
-#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
-
-You can use either of the below USB to UART converters for application prints.
-
-1. Set up using USB to UART converter board.
-
-   - Connect Tx (Pin-6) to P27 on WSTK
-   - Connect GND (Pin 8 or 10) to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
-
-2. Set up using USB to UART converter cable.
-
-   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-   - Connect GND (Pin1) of TTL convertor to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
-
-3. Open the Teraterm tool.
-
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
-
-     **![port_selection_soc](resources/readme/port_selection_soc.png)**
-
-**Note:** For Other 917 SoC boards please refer section #3.3.2
-
-#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
-
-1. Open the Teraterm tool.
-
-- choose the J-Link port and click on **OK**.
-    
-    **![J-link - NCP](resources/readme/port_selection.png)**
-
-2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
-
-    **![serial_port_setup](resources/readme/serial_port_setup.png)**
-
-    **![serial_port](resources/readme/serial_port.png)**
-
-### 4. Application Configuration Parameters
+### Application Configuration Parameters
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-**4.1** Open `<wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h>` and set the following parameters
+  Open `<wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h>` and set the following parameters
 
 ```c
 #define RTE_I2C2_SCL_PORT_ID 2
@@ -183,7 +137,7 @@ The application can be configured to suit your requirements and development envi
 #define RTE_I2C2_SDA_PORT_ID 2
 ```
 
-**4.2** Open `wlan_app.c` file and update/modify following macros
+ Open `wlan_app.c` file and update/modify following macros
 
    Modify the MQTT topics and give different names for both topics SiWx91x is subscribed to MQTT_TOPIC1 and publishing to MQTT_TOPIC2. 
    MQTT web application is subscribed to `MQTT_TOPIC2` and publishing on `MQTT_TOPIC1`.
@@ -205,7 +159,18 @@ The application can be configured to suit your requirements and development envi
 #define BUF_SIZE                                 1400
 ```
 
-**4.2.2** Open `wlan_config.h` file and update/modify the following macros
+  The below parameters are only applicable for SoC with power save enabled.
+
+```c
+#define ENABLE_POWER_SAVE         1                 //! Enable this macro to run application with power save enabled
+#define SL_SI91X_MCU_ALARM_BASED_WAKEUP  1                 //! Enable this macro for M4 processor to wake up based on alarm time period
+#define SL_SI91X_MCU_BUTTON_BASED_WAKEUP       1                 //! Enable this macro for M4 processor to wake up when button (BTN0) is pressed
+#define ALARM_PERIODIC_TIME       30                //! periodic alarm configuration in seconds
+
+#define PUBLISH_PERIODICITY       (30000)          // Configure this macro to publish data every 30 seconds (this works only in NCP with and without POWERSAVE and in SOC without POWERSAVE).
+```
+
+Open `wlan_config.h` file and update/modify the following macros
 
 ```c
 #define CONCURRENT_MODE                          RSI_DISABLE
@@ -220,10 +185,9 @@ define RSI_BT_FEATURE_BITMAP                     (BT_RF_TYPE | ENABLE_BLE_PROTOC
 define RSI_BAND                                  RSI_BAND_2P4GHZ 
 ```
 
-   **Note:**
-   `wlan_config.h` file is already set with the desired configuration in respective example folders, user need not change for each example.
+   > **Note:** `wlan_config.h` file is already set with the desired configuration in respective example folders, user need not change for each example.
 
-**4.3** Open `ble_app.c` file and update/modify following macros
+Open `ble_app.c` file and update/modify following macros
 
    **Configuring the BLE Application**
 
@@ -301,7 +265,7 @@ define RSI_BAND                                  RSI_BAND_2P4GHZ
 #define  BT_GLOBAL_BUFF_LEN                              15000
 ```
 
-**4.4** Open `aws_iot_config.h` file and change the AWS_IOT_MQTT_CLIENT_ID to your choice (Make sure this is unique, if more than one user use has same client id it might get conflict at server side). 
+ Open `aws_iot_config.h` file and change the AWS_IOT_MQTT_CLIENT_ID to your choice (Make sure this is unique, if more than one user use has same client id it might get conflict at server side). 
 
  ```c
    //AWS Host name 
@@ -316,7 +280,7 @@ define RSI_BAND                                  RSI_BAND_2P4GHZ
    #define AWS_IOT_MY_THING_NAME      "AWS-IoT-C-SDK"    
 ```
 
-**4.5 To Load Certificate**
+To Load Certificate
 
 Place the certificate files in `<SDK>/resources/certificates/` path and include the certificate files in wifi_app.c
 
@@ -327,16 +291,15 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
    #include "aws_client_certificate.pem.crt.h"
    #include "aws_client_private_key.pem.key.h"
 
-   Replace the default Device certificate and Private key certificate given in `rsi_wlan_set_certificate()` API in the application with the converted pem array.
+   Replace the default Device certificate and Private key certificate given in `sl_net_set_credential()` API in the application with the converted pem array.
 
    // Load Security Certificates
-   status = rsi_wlan_set_certificate(RSI_SSL_CLIENT, aws_client_certificate, (sizeof(aws_client_certificate) - 1));
+   status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_CERTIFICATE, aws_client_certificate, (sizeof(aws_client_certificate) - 1));
   
-   status =
-   rsi_wlan_set_certificate(RSI_SSL_CLIENT_PRIVATE_KEY, aws_client_private_key, (sizeof(aws_client_private_key) - 1));
+   status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_PRIVATE_KEY, aws_client_private_key, (sizeof(aws_client_private_key) - 1));
    ```
 
-> NOTE :
+> **Note:**
 > For AWS connectivity, StarField Root CA Class 2 certificate has the highest authority being at the top of the signing hierarchy.
 >
 > The StarField Root CA Class 2 certificate is an expected/required certificate which usually comes pre-installed in the operating systems and it plays a key part in certificate chain verification when a device is performing TLS authentication with the IoT endpoint.
@@ -355,43 +318,14 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
 > Reference links :
 > <https://aws.amazon.com/blogs/security/how-to-prepare-for-aws-move-to-its-own-certificate-authority/>
 
-## 5. Testing the Application
+## Test the Application
 
-- Follow the below steps for the successful execution of the application.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-### 5.1 Build the Application
+- Build the application.
+- Flash, run and debug the application
 
-- Follow the below steps for the successful execution of the application.
-
-#### SoC Mode
-
-- Once the project is created, click on the build icon (hammer) to build the project (or) right click on project and click on Build Project.
-
-   ![build_project](resources/readme/build_example.png)
-
-- Successful build output will show as below.
-
-#### NCP Mode
-
-   ![build_project](resources/readme/build_example.png)
-
-- Successful build output will show as below.
-
-### 5.2 Loading the Application Image
-
-1. Click on Tools and Simplicity Commander as shown below.
-
-   ![](resources/readme/load_image1.png)
-
-2. Load the application image
-   - Select the board.
-   - Browse the application image (.hex) and click on Flash button.
-
-      ![](resources/readme/load_image2.png)
-
-### 5.2 Execution of AWS IoT with BLE Provisioning
-
-### 5.2.2 BLE Provisioning with Android Application
+Follow the steps below for successful execution of the application:
 
 1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK mode to connect the SiWx91x in STA mode.
 
@@ -426,7 +360,7 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
 
 ![](resources/readme/remote_screen5.png)
 
-### 5.2.3 MQTT Connection
+### MQTT Connection
 
 1. Once MQTT connection completed , device subscribed to specific Topic and waits for data from the Cloud.
    if any data received through AWS cloud from subscribed clients, then module publishes temperature sensor reading to MQTT client in case of EFR32.
@@ -435,10 +369,63 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
 
 2. You can use any MQTT client and connect to the AWS cloud, for subscribe and publishing messages.
 
-## 5.3 Observing the output prints on serial terminal  
+## Observing the output prints on serial terminal  
 
 ![](resources/readme/output1.png)
 
 ![](resources/readme/output2.png)
 
 ![](resources/readme/output3.png)
+
+### Additional Information
+
+- Average current consumption measured in power-meter
+
+  ![output_prints](resources/readme/power_meter_avg_current_consumption.png)
+
+  **NOTE** : The measured current may vary if the scenario is performed in open environment. AP to AP variation is also observed.
+  **NOTE** : To achieve the lowest power numbers in connected sleep, in SoC mode, one should configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to without RAM retention i.e. `sl_si91x_configure_ram_retention` should not be done.
+
+Using Simplicity Studio Energy Profiler for current measurement:
+  
+- After flashing the application code to the module. Energy profiler can be used for current consumption measurements.
+
+- Go to launcher → Debug Adapters pane and click on the board name.
+  
+  ![Figure: Energy Profiler Step 1](resources/readme/energy_profiler_step_1.png)
+
+- Click on Device configuration symbol
+  
+  ![Figure: Energy Profiler Step 2](resources/readme/energy_profiler_step_2.png)
+
+- Open the device configuration tab
+  
+  ![Figure: Energy Profiler Step 3](resources/readme/energy_profiler_step_3.png)
+
+- Change the Target part name to "EFR32MG21A020F1024IM32"
+
+  ![Figure: Energy Profiler Step 4](resources/readme/energy_profiler_step_4.png)
+
+- Change board name to "BRD4180B", click "OK"
+
+  ![Figure: Energy Profiler Step 5](resources/readme/energy_profiler_step_5.png)
+
+- From tools, choose Energy Profiler and click "OK"
+
+  ![Figure: Energy Profiler Step 6](resources/readme/energy_profiler_step_6.png)
+
+- From Quick Access, choose Start Energy Capture option
+
+  ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_7.png)
+
+**NOTE** : The target part and board name have to be reverted to default to flash application binary.
+
+  ![Figure: Energy Profiler Step 8](resources/readme/energy_profiler_step_8.png)
+
+### Note
+
+For NCP mode, following defines have to enabled manually in preprocessor setting of example project
+
+- For 917A0 expansion board, enable SLI_SI917 = 1
+- For 917B0 1.2 expansion board, enable SLI_SI917 = 1, SLI_SI917B0 = 1
+- For 917B0 2.0 expansion board, enable SLI_SI917 = 1, SLI_SI917B0 = 1, SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2 = 1 (This is enabled by default for all examples)  

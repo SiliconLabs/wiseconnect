@@ -1,17 +1,31 @@
-# DMA
+# SL DMA
 
-## Introduction
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Overview](#overview)
+- [About Example Code](#about-example-code)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+
+## Purpose/Scope
 
 - This DMA example performs memory to memory DMA transfer of different sizes. User can change the DMA transfer size by updating SL_DMA_TRANSFER_SIZE in UC.
-- This example used both simple DMA transfer API and generic API for performing DMA transfer
+- This example used both simple DMA transfer API and generic API for performing DMA transfer.
 
 ## Overview
 
 - DMA is used for performing transfers without processor intervention.
-- Si91x DMA supports 3 types of DMA transfers. They are memory to memory, peripheral to memory, memory to peripheral
-- This DMA supports 32 channels. Out of which last 24 are dedicated channels for particular peripherals. First 8 channels can support 32 different peripherals.
-- The number of transfers in a single DMA cycle can be programmed from 1 to 1024
-- The transfer address increment can be greater than the data width
+- Si91x DMA supports 3 types of DMA transfers. They are memory to memory, peripheral to memory, memory to peripheral.
+- UDMA0 supports 32 channels. Out of which last 24 are dedicated channels for particular peripherals. First 8 channels can support 32 different peripherals.
+- The number of transfers in a single DMA cycle can be programmed from 1 to 1024.
+- The transfer address increment can be greater than the data width.
+- UDMA1 only supports 12 channels.
 
 ## About Example Code
 
@@ -25,92 +39,55 @@
   2.  Using \ref sl_si91x_dma_transfer, user can configure more DMA parameters for transfer
 - User can either use any of above functions for performing DMA transfer. This can be selected by UC
 
-## Running Example Code
-
-- To use this application following Hardware, Software and the Project Setup is required.
+## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK + BRD4338A]
-
-![Figure: Introduction](resources/readme/image503a.png)
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
 
 ### Software Requirements
 
-- Si91x SDK
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Simplicity Studio
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
-### VCOM Setup
-- The Serial Console tool's setup instructions are provided below..
+### Setup Diagram
 
-![Figure: VCOM_setup](resources/readme/vcom.png)
+> ![Figure: Introduction](resources/readme/setupdiagram.png)
 
-## Project Setup
+## Getting Started
 
-- **Silicon Labs Si91x** refer **"Download SDK"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-## Loading Application on Simplicity Studio
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-1. With the product Si917 selected, navigate to the example projects by clicking on Example Projects & Demos
-   in simplicity studio and click on to ULP_TIMER Example application as shown below.
-
-![Figure: Selecting Example project](resources/readme/image503b.png)
-
-## Configuration and Steps for Execution:
+## Application Build Environment
 
 - Open **sl_si91x_dma.slcp** project file select **software component**tab and search for **SL_DMA** in search bar.
+
+  > ![Figure: result](resources/uc_screen/ucScreenDMA.png)
+
 - Select DMA instance 0 or 1
 - Select the DMA channel used for transfer (1 - 32).
 - Select DMA transfer size in bytes (0 - 10000).
 - Select transfer API type (simple/generic transfer API).
 
-## Build
+## Test the Application
 
-1. Compile the application in Simplicity Studio using build icon.
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Build run and Debug](resources/readme/image503c.png)
+1. Build the SI91x - SL_DMA example in Studio.
+2. Flash, run and debug the application
+3. Following prints should appear on console
 
-## Device Programming
+   > ![Figure: result](resources/readme/outputConsoleI_DMA.png)
 
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
-
-## Executing the Application
-
-1. Compile and run the application.
-
-## Expected Results
-
-- Following prints should appear on console
-  UDMA Initialization Success
-
-Channel Allocated successfully
-
-Callbacks registered
-
-Xfer start
-
-Transfer completed successfully
-
-UDMA Uninitialization Success
-
-## Note
-
-- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
-- To check Prints for DMA Peripheral examples, VCOM of the WPK[BRD4002A]/WSTK[BRD4001A] Base Board.
-
-## Expected Scenario:
-
-- Following prints should appear on console
-  UDMA Initialization Success
-
-Channel Allocated successfully
-
-Callbacks registered
-
-Xfer start
-
-Transfer completed successfully
-
-UDMA Uninitialization Success
+> **Note:**
+>
+> - The debug feature of Simplicity Studio will not work after M4 flash is turned off.
+> - To check Prints for DMA Peripheral examples, connect the USB to TTL uart connector's RX_pin, to the EXP_HEADER-7 of the WPK[BRD4002A] Base Board.

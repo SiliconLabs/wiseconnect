@@ -1,0 +1,32 @@
+id: wiseconnect_toolchain_plugin
+label: GCC Toolchain Support
+package: platform
+description: >
+  Toolchain support for GCC in Wiseconnect.
+  Selecting this component will also include the GCC Toolchain component.
+category: Device|Si91x|MCU|Toolchain
+quality: production
+root_path: components/device/silabs/si91x/mcu/toolchain
+provides:
+  - name: wiseconnect_toolchain_plugin
+template_file:
+  - path: linkerfile_SoC.ld.jinja
+    unless:
+      - wiseconnect_toolchain_gcc_override
+requires:
+  - name: toolchain_gcc
+  - name: toolchain_variant_arm
+library:
+  - system: gcc
+    unless:
+      - wiseconnect_toolchain_gcc_override
+  - system: nosys
+    unless:
+      - wiseconnect_toolchain_gcc_override
+toolchain_settings:
+  - option: linkerfile
+    value: autogen/linkerfile_SoC.ld
+    unless:
+      - wiseconnect_toolchain_gcc_override
+  - option: gcc_linker_option
+    value: "-u _printf_float"

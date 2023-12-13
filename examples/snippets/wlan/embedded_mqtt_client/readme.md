@@ -1,145 +1,68 @@
-# Embedded MQTT
+# Wi-Fi - Embedded MQTT Client
 
-## 1 Purpose/Scope
+## Table of Contents
+
+- [Purpose/Scope](#purposescope)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Test the Application](#test-the-application)
+  - [Procedure for executing the application when enabled with SSL](#procedure-for-executing-the-application-when-enabled-with-ssl)
+- [Additional Information](#additional-information)
+  - [Steps to set up MQTT server](#steps-to-set-up-mqtt-server)
+
+## Purpose/Scope
 
 This application demonstrates how SiWx91x is configured as an MQTT client, connects to an MQTT broker, subscribes to a topic and publishes messages on a particular MQTT topic.
 In this application, SiWx91x is configured as a Wi-Fi station and connects to an Access Point. After successful Wi-Fi connection, application connects to a MQTT broker and subscribes to the topic called **THERMOSTAT-DATA**. Subsequently, the application publishes a message **"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do** on the **WiFiSDK_TOPIC** topic. Finally, the application waits to receive the data published on the subscribed topic by other clients after which it would be unsubscribe from topic it has subscribed to and disconnect from MQTT broker.
 
-## 2 Prerequisites/Setup Requirements
+## Prerequisites/Setup Requirements
 
-### 2.1 Hardware Requirements  
+### Hardware Requirements  
 
 - A Windows PC
-
 - A Wireless Access Point
-
 - Windows PC1 (for running MQTT broker)
-
 - Windows PC2 (for running MQTT client utility - MQTT Explorer)
-- **SoC Mode**:
+- SoC Mode:
   - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
   - For Soc Mode, Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
-- **NCP Mode**:
+- NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
 
-### 2.2 Software Requirements
+### Software Requirements
 
-- Simplicity Studio IDE
+- Simplicity Studio
 
-  - Download the latest [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
-  - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE
+### Setup Diagram
 
-  - [Mosquitto broker](https://mosquitto.org/download/)
+  ![Figure: Setup Diagram for SoC mode Power Save Standby Example](resources/readme/setup_soc_ncp.png)
 
-  - [MQTT Explorer](http://mqtt-explorer.com/)
+>**NOTE:**
+>
+>- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
-### 2.3 Setup Diagram
+## Getting Started
 
-#### SoC Mode
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-![Figure: Setup Diagram for SoC mode Power Save Standby Example](resources/readme/setup_soc.png)
-  
-#### NCP Mode
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
 
-![Figure: Setup Diagram for NCP mode Power Save Standby Example](resources/readme/setup_ncp.png)
-
-**NOTE**:
-
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
-
-Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
-
-## 3 Project Environment
-
-- Ensure the SiWx91x loaded with the latest firmware following the [Upgrade Si91x firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#upgrade-si-wx91x-connectivity-firmware)
-
-- Ensure the latest Gecko SDK along with the extension WiSeConnect3 is added to Simplicity Studio.
-
-### 3.1 Creating the project
-
-#### 3.1.1 SoC mode
-
-- Ensure the SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the SiWx91x SoC board will be detected under **Debug Adapters** pane as shown below.
-
-  **![Soc Board detection](resources/readme/soc_board_detection.png)**
-
-#### 3.1.2 NCP mode
-
-- Ensure the EFx32 and SiWx91x set up is connected to your PC.
-
-- In the Simplicity Studio IDE, the EFR32 board will be detected under **Debug Adapters** pane as shown below.
-
-  **![EFR32 Board detection](resources/readme/efr32.png)**
-
-### 3.2 Importing the project
-
-- Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section 
-
-#### SOC Mode
-
-- Select **Wi-Fi - Embedded MQTT Client** test application
-
-  **![project_selection](resources/readme/embedded_mqtt_example_soc.png)**
-
-- Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
-
-  **![creation_final](resources/readme/create_project_soc.png)**
-
-### 3.3 Set up for application prints
-
-#### 3.3.1 Teraterm set up - for BRD4325A, BRD4325B, BRD4325C, BRD4325G
-
-You can use either of the below USB to UART converters for application prints.
-
-1. Set up using USB to UART converter board.
-
-   - Connect Tx (Pin-6) to P27 on WSTK
-   - Connect GND (Pin 8 or 10) to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_1.png)**
-
-2. Set up using USB to UART converter cable.
-
-   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-   - Connect GND (Pin1) of TTL convertor to GND on WSTK
-
-   **![FTDI_prints](resources/readme/usb_to_uart_2.png)**
-
-3. Open the Teraterm tool.
-
-   - For SoC mode, choose the serial port to which USB to UART converter is connected and click on **OK**.
-
-     **![port_selection_soc](resources/readme/port_selection_soc.png)**
-
-**Note:** For Other 917 SoC boards please refer section #3.3.2
-
-#### 3.3.2 **Teraterm set up - for NCP and SoC modes**
-
-1. Open the Teraterm tool.
-
-- choose the J-Link port and click on **OK**.
-    
-    **![J-link - NCP](resources/readme/port_selection.png)**
-
-2. Navigate to the Setup → Serial port and update the baud rate to **115200** and click on **OK**.
-
-    **![serial_port_setup](resources/readme/serial_port_setup.png)**
-
-    **![serial_port](resources/readme/serial_port.png)**
-
-## 4 Application Build Environment
-
-### 4.1 Configure the application
+## Application Build Environment
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-#### 4.1.1 In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+In the Project explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
-- **STA instance related parameters**
+- STA instance related parameters
 
 	- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
 	
@@ -280,25 +203,22 @@ The application can be configured to suit user requirements and development envi
    #define PASSWORD "password"
    ```
 
-### 4.2 Build the application
+## Test the Application
 
-- SoC mode:  Build as embedded mqtt Example
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-    **![Build as](resources/readme/embedded_mqtt.png)**
+- Build the application.
+- Flash, run and debug the application.
 
-- NCP mode:
+- SoC mode
 
-### 4.3 Run and Test the application
+   ![Application prints](resources/readme/application_prints_soc.png)
 
-- Once the build was successful, right click on project and click on Debug As->Silicon Labs ARM Program as shown in below image.
+- NCP mode
 
-  - SoC
+   ![Application prints](resources/readme/application_prints_ncp.png)
 
-    ![debug_mode_soc](resources/readme/program_device.png)
-
-  - NCP
-
-    ![debug_mode_NCP](resources/readme/program_device.png)
+Follow the steps below for successful execution of the application:
 
 - Once the SiWx91x gets connected to the MQTT broker, it will subscribe to the topic **TOPIC_TO_BE_SUBSCRIBED (Ex: "THERMOSTAT-DATA")**. The user can see the client connected and subscription success information in the MQTT broker.
 
@@ -323,7 +243,7 @@ The application can be configured to suit user requirements and development envi
 
 - Once subscription is successful, SiWx91x disconnects from the broker.
 
-**Procedure for executing the application when enabled with SSL**
+### Procedure for executing the application when enabled with SSL
 
 1. Install MQTT broker in Windows PC1 which is connected to Access Point through LAN.
 
@@ -339,7 +259,7 @@ The application can be configured to suit user requirements and development envi
 
 5. If you see any error - Unsupported tls_version **tlsv1**, just comment the **tls_version tlsv1** in **mosquitto.conf** file.
 
-**Note**:
+>**Note:**
 > Multiple MQTT client instances can be created.
 > If mosquitto isn't allowing external connections to broker, add the below lines in **mosquitto.conf** file:
 
@@ -352,19 +272,9 @@ The application can be configured to suit user requirements and development envi
   `mosquitto -v -p 8886 -c config/mosquitto.conf`
   where **config** is the sub folder and **mosquitto.conf** is the different config file than default.
 
-### 4.4 Application Output
+## Additional Information
 
-**Application Prints - SoC mode**:
-
-   **![Application prints](resources/readme/application_prints_soc.png)**
-
-**Application Prints - NCP mode**:
-
-   **![Application prints](resources/readme/application_prints_ncp.png)**
-
-### 4.5 Additional Information
-
-**Steps to set up MQTT server**
+### Steps to set up MQTT server
 
 1. To run MQTT broker on port 8886 in Windows PC1, open command prompt and go to MQTT installed folder (Ex: C:\Program Files\mosquitto) and run the following command:
 

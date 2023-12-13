@@ -41,15 +41,11 @@
 #include "sl_net_wifi_types.h"
 #include "sl_wifi_callback_framework.h"
 #include "sl_si91x_driver.h"
-#ifdef RSI_M4_INTERFACE
+#ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #endif
-sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
-#define SL_TX_TEST_POWER   127
-#define SL_TX_TEST_RATE    rate
-#define SL_TX_TEST_LENGTH  100
-#define SL_TX_TEST_MODE    0
-#define SL_TX_TEST_CHANNEL 1
+
+const sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
 
 #define RECEIVE_STATS           0
 #define MAX_RECEIVE_STATS_COUNT 5
@@ -73,6 +69,49 @@ const osThreadAttr_t thread_attributes = {
 static uint8_t stats_count = 0;
 #endif
 volatile sl_status_t callback_status = SL_STATUS_OK;
+
+sl_si91x_request_tx_test_info_t tx_test_info = {
+  .enable      = 1,
+  .power       = 127,
+  .rate        = rate,
+  .length      = 100,
+  .mode        = 0,
+  .channel     = 1,
+  .aggr_enable = 0,
+#ifdef SLI_SI917
+  .enable_11ax            = 0,
+  .coding_type            = 0,
+  .nominal_pe             = 0,
+  .ul_dl                  = 0,
+  .he_ppdu_type           = 0,
+  .beam_change            = 0,
+  .bw                     = 0,
+  .stbc                   = 0,
+  .tx_bf                  = 0,
+  .gi_ltf                 = 0,
+  .dcm                    = 0,
+  .nsts_midamble          = 0,
+  .spatial_reuse          = 0,
+  .bss_color              = 0,
+  .he_siga2_reserved      = 0,
+  .ru_allocation          = 0,
+  .n_heltf_tot            = 0,
+  .sigb_dcm               = 0,
+  .sigb_mcs               = 0,
+  .user_sta_id            = 0,
+  .user_idx               = 0,
+  .sigb_compression_field = 0,
+#endif
+};
+
+float pass_avg          = 0;
+float fail_avg          = 0;
+uint32_t rssi_avg       = 0;
+uint32_t crc_pass       = 0;
+uint32_t crc_fail       = 0;
+uint32_t cal_rssi       = 0;
+uint16_t total_crc_pass = 0;
+uint16_t total_crc_fail = 0;
 
 /******************************************************
  *               Function Declarations
@@ -110,18 +149,14 @@ static void application_start(void *argument)
   sl_wifi_set_stats_callback(wifi_stats_receive_handler, NULL);
 #endif
 
-  status = sl_wifi_set_antenna(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, SL_WIFI_ANTENNA_EXTERNAL);
+  status = sl_wifi_set_antenna(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, SL_WIFI_ANTENNA_INTERNAL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start set Antenna: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nAntenna Command Frame Success \r\n");
 
-  status = sl_si91x_transmit_test_start(SL_TX_TEST_POWER,
-                                        SL_TX_TEST_RATE,
-                                        SL_TX_TEST_LENGTH,
-                                        SL_TX_TEST_MODE,
-                                        SL_TX_TEST_CHANNEL);
+  status = sl_si91x_transmit_test_start(&tx_test_info);
   if (status != SL_STATUS_OK) {
     printf("\r\nTransmit test start Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -173,7 +208,7 @@ sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event, void *reponse, uin
 {
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
-  if (CHECK_IF_EVENT_FAILED(event)) {
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     callback_status = *(sl_status_t *)reponse;
     return SL_STATUS_FAIL;
   }
@@ -182,7 +217,29 @@ sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event, void *reponse, uin
     sl_si91x_async_stats_response_t *result = (sl_si91x_async_stats_response_t *)reponse;
 
     printf("\r\n%s: WIFI STATS Recieved packet# %d\n", __func__, stats_count);
-    printf("stats : crc_pass %x, crc_fail %x, cal_rssi :%x\n", result->crc_pass, result->crc_fail, result->cal_rssi);
+    printf("stats : crc_pass %d, crc_fail %d, cal_rssi :%d\n", result->crc_pass, result->crc_fail, result->cal_rssi);
+    float p = result->crc_pass;
+    float f = result->crc_fail;
+    float t = p + f;
+    float r = result->cal_rssi;
+
+    float per_pass = (p * 100 / t);
+    float per_fail = (f * 100 / t);
+
+    pass_avg += per_pass;
+    fail_avg += per_fail;
+
+    total_crc_pass += result->crc_pass;
+    total_crc_fail += result->crc_fail;
+
+    if (stats_count == MAX_RECEIVE_STATS_COUNT - 1) {
+      printf("\r\n CRC Average pass%% = %.6f,         CRC Average fail%% = %.6f \r\n",
+             pass_avg / MAX_RECEIVE_STATS_COUNT,
+             fail_avg / MAX_RECEIVE_STATS_COUNT);
+      printf("Total : total_crc_pass %d, total_crc_fail %d \n", total_crc_pass, total_crc_fail);
+      pass_avg = 0;
+      fail_avg = 0;
+    }
     stats_count++;
     callback_status = SL_STATUS_OK;
   }
