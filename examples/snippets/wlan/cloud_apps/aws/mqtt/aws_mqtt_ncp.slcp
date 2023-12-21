@@ -80,14 +80,8 @@ other_file:
 -  path: resources/readme/aws_policy.png
 -  path: resources/readme/power_meter_avg_current_consumption.png
 -  path: resources/readme/setup_soc_ncp.png
--  path: resources/readme/energy_profiler_step_1.png
--  path: resources/readme/energy_profiler_step_2.png
--  path: resources/readme/energy_profiler_step_3.png
--  path: resources/readme/energy_profiler_step_4.png
--  path: resources/readme/energy_profiler_step_5.png
 -  path: resources/readme/energy_profiler_step_6.png
 -  path: resources/readme/energy_profiler_step_7.png
--  path: resources/readme/energy_profiler_step_8.png
 ui_hints:
    highlight:
    -  path: readme.md

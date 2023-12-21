@@ -10,20 +10,20 @@
 - [Getting Started](#getting-started)
 - [Application Build Environment](#application-build-environment)
   - [Application Configuration Parameters](#application-configuration-parameters)
-  - [Base Board Pin Configuration- A0 Board](#base-board-pin-configuration--a0-board)
-  - [Base Board Pin Configuration- B0 Board](#base-board-pin-configuration--b0-board)
+  - [Base Board Pin Configuration for I2C- B0 Board(BRD4338A SOC Boards)](#base-board-pin-configuration-for-i2c-b0-boardbrd4338a-soc-boards)
 - [Test the Application](#test-the-application)
   - [MQTT Connection](#mqtt-connection)
+  - [Create an AWS Thing](#create-an-aws-thing)
 
 ## Purpose / Scope
 
-This example demonstrates how to configure/connects SiWx91x to get the WiFi connection functionality using BLE provisioning. In this application, SiWx91x starts advertising in BLE mode and Access Point details are fetched using BLE Provisioning.
-
-The SiWx91x module is configured  as a station, which associates to an access point and then communicates with an AWS server using MQTT. Si917 connected to LM75 Temperature Sensor via I2C interface, collects real time temperature data publishes to the cloud until the device is disconnected from the access point. After publish, the NWP processor is set in to associated power save.  Next, the application works differently in NCP and SoC modes as defined below.  
+This example demonstrates how to configure/connects SiWx91x to get the Wi-Fi connection functionality using BLE provisioning. In this application, SiWx91x starts advertising in BLE mode and Access Point details are fetched using BLE Provisioning. After successful Wi-Fi connection, application connects to AWS Core and subscribes to a topic. Publishes a message on subscribed topic and application waits to receive the data published on subscribed topic from the cloud.
 
 **Soc Mode**:
 
-The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
+Si917 connected to LM75 Temperature Sensor via I2C interface, collects real time temperature data publishes to the cloud until the device is disconnected from the access point. After publish, the NWP processor is set in to associated power save.  Next, the application works differently in NCP and SoC modes as defined below.  
+
+If macro **ENABLE_POWER_SAVE** enabled, Then M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
 - ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
   - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
@@ -35,20 +35,26 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
 
 After M4 processor wakes up via any of the above processes, the application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic.
 
-**NCP Mode**:
-A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
+If macro **ENABLE_POWER_SAVE** disabled, Then M4 processor is not in sleep mode. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds.The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
 
 1. Once in every **PUBLISH_PERIODICITY** time period.
 2. When an incoming publish is received by the application.
 
-*NOTE*: The bold texts are the macros defined in the application. You can find more details about them in the upcoming section (#section 4).
+**NCP Mode**:
+
+A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
+
+- Once in every **PUBLISH_PERIODICITY** time period.
+- When an incoming publish is received by the application.
+
+
+*NOTE*: The bold texts are the macros defined in the application. You can find more details about them in the [Application Configuration Parameters](#application-configuration-parameters)
 
 ## Prerequisites / Setup Requirements
 
 ### Hardware Requirements
 
-- Windows PC.
-- SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
+- Windows PC with Host interface (UART).
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
@@ -67,37 +73,11 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
   - Kits
    - EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 
-- Wireless Access point
-- Android Phone or iPhone with **EFR Connect** App, which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
-- Windows/Linux/Mac PC with AWS Smart Lock GUI
-- LM75 Temperature Sensor
-  
-![Setup diagram of WLAN Station BLE Provisioning with AWS cloud ](resources/readme/image_aws1.png)
+- Wireless Access point (which has an active internet access)
+- Android Phone or iPhone with **EFR Connect** App, which is available in Play Store and App Store.
+- LM75 Temperature Sensor (inbuilt sensor available on WSDK/WPK board)
 
-## Base Board Pin Configuration- A0 Board
-
-#### I2C0
-
-| PIN | ULP GPIO PIN               | Description                 |
-| --- | -------------------------- | --------------------------- |
-| SCL | ULP_GPIO_11 [EXP_HEADER-5] | Connect to Follower SCL pin |
-| SDA | ULP_GPIO_10 [EXP_HEADER-3] | Connect to Follower SDA pin |
-
-#### I2C1
-
-| PIN | GPIO PIN                 | Description                 |
-| --- | -------------------------| --------------------------- |
-| SCL | GPIO_50 [EXP_HEADER-P19] | Connect to Follower SCL pin |
-| SDA | GPIO_51 [EXP_HEADER-P20] | Connect to Follower SDA pin |
-
-#### I2C2
-
-| PIN | ULP GPIO PIN               | Description                 |
-| --- | -------------------------- | --------------------------- |
-| SCL | ULP_GPIO_5 [EXP_HEADER-13] | Connect to Follower SCL pin |
-| SDA | ULP_GPIO_4 [EXP_HEADER-11] | Connect to Follower SDA pin |
-
-## Base Board Pin Configuration- B0 Board
+### Base Board Pin Configuration for I2C B0 Board(BRD4338A SOC Boards)
 
 #### I2C2
 
@@ -108,11 +88,22 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
 
 ### Software Requirements
 
-- Embedded Development Environment
+- Simplicity Studio IDE
+  - Download the [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio).
+  - Follow the [Simplicity Studio user guide](https://docs.silabs.com/simplicity-studio-5-users-guide/1.1.0/ss-5-users-guide-getting-started/install-ss-5-and-software#install-ssv5) to install Simplicity Studio IDE.
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+- Download and install the Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app),
+which is also avilable in Play Store or app store. 
+ (OR)
+- Android phone or iPhone with the Silabs_connect.apk,which is available in the path $\wiseconnect\utilities\ble_provisioning_apps\android_based_provisioning_app
 
 ### Setup Diagram
 
   ![](resources/readme/wifi_station_ble_provisioning_aws_soc_ncp.png)
+
+  ![Setup diagram of WLAN Station BLE Provisioning with AWS cloud ](resources/readme/image_aws1.png)
 
 ## Getting Started
 
@@ -127,14 +118,15 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-  Open `<wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h>` and set the following parameters
-
 ```c
+For SoC Mode only:
+
+ Open `<wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h>` and set the following parameters
+
 #define RTE_I2C2_SCL_PORT_ID 2
-```
 
-```c
 #define RTE_I2C2_SDA_PORT_ID 2
+
 ```
 
  Open `wlan_app.c` file and update/modify following macros
@@ -143,26 +135,16 @@ The application can be configured to suit your requirements and development envi
    MQTT web application is subscribed to `MQTT_TOPIC2` and publishing on `MQTT_TOPIC1`.
 
 ```c
-#define MQTT_TOPIC1           "$aws/things/SmartLockWebApp-v01/shadow/update/device_status"
-#define MQTT_TOPIC2           "$aws/things/SmartLockWebAppv01/shadow/update/delta/temperature_reading"
+#define MQTT_TOPIC1               "aws_status"   //! Subscribe Topic to receive the message from cloud
+#define MQTT_TOPIC2               "si91x_status" //! Publish Topic to send the status from application to cloud
 ```
 
-   **NOTE:** If you would like to change the topic names, then you can modify only the last keyword of the topic, which are `device_status` and `temperature_reading`.
+   **NOTE:** If you would like to change the topic names, then you can modify only the last keyword of the topic, which are `aws_status` and `si91x_status`.
 
-**To configure the IP address**
-
-   Memory length for driver
-  
-   Memory length for the send buffer
+  The below parameters are only applicable for SoC with power save enabled  whereas **PUBLISH_PERIODICITY** and **ENABLE_POWER_SAVE** can be configured in NCP also.
 
 ```c
-#define BUF_SIZE                                 1400
-```
-
-  The below parameters are only applicable for SoC with power save enabled.
-
-```c
-#define ENABLE_POWER_SAVE         1                 //! Enable this macro to run application with power save enabled
+#define ENABLE_POWER_SAVE         1                 //! Enable this macro to run application with power save mode.
 #define SL_SI91X_MCU_ALARM_BASED_WAKEUP  1                 //! Enable this macro for M4 processor to wake up based on alarm time period
 #define SL_SI91X_MCU_BUTTON_BASED_WAKEUP       1                 //! Enable this macro for M4 processor to wake up when button (BTN0) is pressed
 #define ALARM_PERIODIC_TIME       30                //! periodic alarm configuration in seconds
@@ -265,7 +247,7 @@ Open `ble_app.c` file and update/modify following macros
 #define  BT_GLOBAL_BUFF_LEN                              15000
 ```
 
- Open `aws_iot_config.h` file and change the AWS_IOT_MQTT_CLIENT_ID to your choice (Make sure this is unique, if more than one user use has same client id it might get conflict at server side). 
+ Open `aws_iot_config.h` file and change the AWS_IOT_MQTT_CLIENT_ID to your choice (Make sure this is unique, if more than one user use has same client id it might get conflict at server side).
 
  ```c
    //AWS Host name 
@@ -279,6 +261,12 @@ Open `ble_app.c` file and update/modify following macros
    // Thing Name of the Shadow this device is associated with 
    #define AWS_IOT_MY_THING_NAME      "AWS-IoT-C-SDK"    
 ```
+
+- **AWS_IOT_MQTT_HOST** parameter can be found as follows:
+
+ ![AWS_IOT_MQTT_HOST_PAGE_1](resources/readme/aws_iot_mqtt_host_url_1.png)
+
+ ![AWS_IOT_MQTT_HOST_PAGE_2](resources/readme/aws_iot_mqtt_host_url_2.png)
 
 To Load Certificate
 
@@ -299,7 +287,44 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
    status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_PRIVATE_KEY, aws_client_private_key, (sizeof(aws_client_private_key) - 1));
    ```
 
-> **Note:**
+ **Note:** 
+ 
+ If user want to load certificates follow this steps:
+
+To authenticate and securely connect with AWS, your Wi-Fi device requires a unique x.509 security certificate and private key, as well as a CA certificate which is used to verify the AWS server. Security credentials need to be converted into a C-array rather than [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) provided by AWS; they also need to be added to your project.
+ 
+The WiSeConnect SDK provides a conversion script (written in Python 3) to make the conversion straightforward. 
+ 
+To convert the device certificate and private key to C arrays, go to the `<SDK>resources>scripts>certificate_to_array.py`. Open a system command prompt and use the script as indicated in the following examples.
+ 
+```sh
+$> python certificate_to_array.py <input filename> <output arrayname>
+ 
+For example:
+$> python certificate_to_array.py d8f3a44d3f.cert.pem    aws_client_certificate
+$> python certificate_to_array.py d8f3a44d3f.private.key aws_client_private_certificate
+```
+
+ **NOTE**:
+
+1. If python command is not working replace the python with py 
+
+2. Make sure the certificate to be converted has to be in the same path.
+
+After running the script on the certificate and private key, two new files are created.
+ 
+```sh
+aws_client_certificate.pem.crt.h
+aws_client_private_key.pem.key.h
+```
+ 
+Before proceeding, copy both of the new files to the WiSeConnect directory: `<SDK>/resources/certificates`  
+Go ahead and overwrite any existing files with the same name in that directory, the originals are not needed.
+ 
+The Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect SDK; no additional setup is required.
+For reference, Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/aws_starfield_ca.pem.h).
+ 
+> NOTE :
 > For AWS connectivity, StarField Root CA Class 2 certificate has the highest authority being at the top of the signing hierarchy.
 >
 > The StarField Root CA Class 2 certificate is an expected/required certificate which usually comes pre-installed in the operating systems and it plays a key part in certificate chain verification when a device is performing TLS authentication with the IoT endpoint.
@@ -313,10 +338,10 @@ Place the certificate files in `<SDK>/resources/certificates/` path and include 
 >
 > On SiWx91x to authenticate the AWS server, firstly Root CA is validated (validate the Root CA received with the Root CA loaded on the device). Once the Root CA is validation is successful , other certificates sent from the AWS server are validated.
 > SiWx91x don't authenticate to AWS server if intermediate CA certificates are loaded instead of StarField Root CA Class 2 certificate and would result in Handshake error.
-> StarField Root CA Class 2 certificate is at <https://certs.secureserver.net/repository/sf-class2-root.crt>
+> StarField Root CA Class 2 certificate is at https://certs.secureserver.net/repository/sf-class2-root.crt
 >
 > Reference links :
-> <https://aws.amazon.com/blogs/security/how-to-prepare-for-aws-move-to-its-own-certificate-authority/>
+> https://aws.amazon.com/blogs/security/how-to-prepare-for-aws-move-to-its-own-certificate-authority/
 
 ## Test the Application
 
@@ -327,25 +352,27 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps below for successful execution of the application:
 
-1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK mode to connect the SiWx91x in STA mode.
+1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK mode to connect the SiWx91x in STA mode.(make sure access point has active internet)
 
 2. Connect any serial console for prints.
 
 3. When SiWx91x EVK enters BLE advertising mode, launch the **EFR Connect** App.
 
-4. Click on Demo and select Wifi-Commissioning tile.
+4. Click on Demo and select Wi-Fi Commissioning over BLE.
 
    ![](resources/readme/remote_screen1.png)
 
-5. It will scan for the module, and it appears in the list. For example, â€œSILABS_BLE_Configuratorâ€� on the UI, select this.
-  
+5. It will scan for the module, and it appears in the list. For example, 'BLE_CONFIGURATOR' on the UI, select as shown below.
+
+  ![](resources/readme/dut_scan_result.png)
+
 6. Now, SiWx91x module will start as a station and scan for the access points (AP) nearby.
 
 7. Once the list of AP scan results is displayed on the screen, you can select the SSID of the AP to which you want to connect.
 
    ![](resources/readme/remote_screen2.png)
 
-8. Click on the SSID of the AP, enter â€œpasswordâ€� if the AP is in security mode. Click on â€œConnectâ€� to associate with the access point.
+8. Click on the SSID of the AP, enter password if the AP is in security mode. Click on connect to associate with the access point.
 
    ![](resources/readme/remote_screen3.png)
 
@@ -353,24 +380,41 @@ Follow the steps below for successful execution of the application:
 
    ![](resources/readme/remote_screen4.png)
 
-10. This completes the BLE provisioning using Android application, next step is the MQTT communication.
-   Refer *Section 5.2.3*
+10. This completes the BLE provisioning using Android application, next step is the [MQTT Connection](#mqtt-connection)
 
 11. To disconnect from Access Point, click on connected AP and click on YES
 
 ![](resources/readme/remote_screen5.png)
 
+
+
 ### MQTT Connection
 
-1. Once MQTT connection completed , device subscribed to specific Topic and waits for data from the Cloud.
-   if any data received through AWS cloud from subscribed clients, then module publishes temperature sensor reading to MQTT client in case of EFR32.
+Based on application configuration parameters the MQTT connection completed , after successful Wi-Fi connection, application connects to AWS Core and subscribes to a topic. Publishes a message on subscribed topic and application waits to receive the data published on subscribed topic from the cloud.
 
-   ![](resources/readme/aws_screen.png)
+To do that, 
+1. Go to the  [AWS IoT console](https://console.aws.amazon.com/iot/home), in the navigation pane, under Manage, choose All devices, and then choose Things.
 
-2. You can use any MQTT client and connect to the AWS cloud, for subscribe and publishing messages.
+2. Click on the thing you have created. Go to activity at below. Click on MQTT test client as shown below.
+
+  ![](resources/readme/aws_screen.png)
+
+
+3. Then subscribe to a topic you gave in the application as shown in the picture. You can see the published data from the module as shown below.
+
+  ![](resources/readme/aws_screen1.png)
+
+  ![](resources/readme/aws_screen2.png)
+
+4. If we want to publish data from AWS. Give the name of the topic name configured in application to publish as shown in the below picture. Write down the data at Message payload to send data to the module.Then click on publish.
+
+  ![](resources/readme/aws_screen3.png)
 
 ## Observing the output prints on serial terminal  
 
+![](resources/readme/output5.png)
+
+### when **I2C_SENSOR_PERI_ENABLE** macro enabled :
 ![](resources/readme/output1.png)
 
 ![](resources/readme/output2.png)
@@ -379,36 +423,10 @@ Follow the steps below for successful execution of the application:
 
 ### Additional Information
 
-- Average current consumption measured in power-meter
-
-  ![output_prints](resources/readme/power_meter_avg_current_consumption.png)
-
-  **NOTE** : The measured current may vary if the scenario is performed in open environment. AP to AP variation is also observed.
-  **NOTE** : To achieve the lowest power numbers in connected sleep, in SoC mode, one should configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to without RAM retention i.e. `sl_si91x_configure_ram_retention` should not be done.
-
 Using Simplicity Studio Energy Profiler for current measurement:
   
 - After flashing the application code to the module. Energy profiler can be used for current consumption measurements.
 
-- Go to launcher → Debug Adapters pane and click on the board name.
-  
-  ![Figure: Energy Profiler Step 1](resources/readme/energy_profiler_step_1.png)
-
-- Click on Device configuration symbol
-  
-  ![Figure: Energy Profiler Step 2](resources/readme/energy_profiler_step_2.png)
-
-- Open the device configuration tab
-  
-  ![Figure: Energy Profiler Step 3](resources/readme/energy_profiler_step_3.png)
-
-- Change the Target part name to "EFR32MG21A020F1024IM32"
-
-  ![Figure: Energy Profiler Step 4](resources/readme/energy_profiler_step_4.png)
-
-- Change board name to "BRD4180B", click "OK"
-
-  ![Figure: Energy Profiler Step 5](resources/readme/energy_profiler_step_5.png)
 
 - From tools, choose Energy Profiler and click "OK"
 
@@ -418,9 +436,13 @@ Using Simplicity Studio Energy Profiler for current measurement:
 
   ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_7.png)
 
-**NOTE** : The target part and board name have to be reverted to default to flash application binary.
+  **NOTE** : The measured current may vary if the scenario is performed in open environment. AP to AP variation is also observed.
+  **NOTE** : To achieve the lowest power numbers in connected sleep, in SoC mode, one should configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to without RAM retention i.e. `sl_si91x_configure_ram_retention` should not be done.
 
-  ![Figure: Energy Profiler Step 8](resources/readme/energy_profiler_step_8.png)
+- Average current consumption measured in power-meter
+
+  ![output_prints](resources/readme/power_meter_avg_current_consumption.png)
+
 
 ### Note
 
@@ -429,3 +451,59 @@ For NCP mode, following defines have to enabled manually in preprocessor setting
 - For 917A0 expansion board, enable SLI_SI917 = 1
 - For 917B0 1.2 expansion board, enable SLI_SI917 = 1, SLI_SI917B0 = 1
 - For 917B0 2.0 expansion board, enable SLI_SI917 = 1, SLI_SI917B0 = 1, SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2 = 1 (This is enabled by default for all examples)  
+
+### Create an AWS Thing
+
+ **Thing Note**: By default we are giving ThingName: silicon_labs_thing, these related configuration we set default If you want your own thing name you can follow the below procedure.
+
+Create a thing in the AWS IoT registry to represent your IoT device.
+
+- In the [AWS IoT console](https://console.aws.amazon.com/iot/home), in the navigation pane, under Manage, choose All devices, and then choose Things.
+
+  ![AWS console](resources/readme/aws_create_thing_step1.png)
+
+- If a **You don't have any things yet** dialog box is displayed, Click on **Create things**.
+
+  ![AWS thing](resources/readme/aws_create_thing_step2.png)
+
+- On the **Create things** page, choose **Create a single thing** and click next.
+
+  ![AWS thing creation](resources/readme/aws_create_thing_step3.png)
+
+- On the **Specify thing properties** page, enter a name for your IoT thing (for example, **Test_IoT**), and choose **Unnamed shadow (classic)** in the Device Shadow section, then choose **Next**. You can't change the name of a thing after you create it. To change a thing's name, you must create a new thing, give it the new name, and then delete the old thing.
+
+  ![Add Device 1](resources/readme/aws_create_thing_step4.png)
+
+- During **Configure device certificate** step, choose **Auto-generate a new certificate (recommended)** option and click next.
+
+  ![Add Device 2](resources/readme/aws_create_thing_step5.png)
+
+- Choose the **Download** links to download the device certificate, private key, and root CA certificate. Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
+  > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them safely.
+
+  ![Downloading certificates](resources/readme/aws_thing_certificates_download.png)
+
+- To attach an existing policy choose the policy and click on create thing, if policy is not yet created Choose Create policy and fill the fields as mentioned in the following images.
+
+- choosing an existing policy
+
+  ![Attach policy](resources/readme/aws_choosing_policy.png)
+
+### Steps to create a policy from AWS console
+
+- Navigate to **AWS IoT console**.
+- Choose **Policies** under **Secure**.
+
+  ![AWS console create policy](resources/readme/aws_policy.png)
+
+- Click on **Create policy**.
+
+  ![Create policy](resources/readme/aws_create_policy.png)
+
+- Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**.
+
+  ![Register Thing](resources/readme/aws_create_thing_policy_create.png)
+
+- The created thing should now be visible on the AWS console (Manage > All devices > Things).
+
+  

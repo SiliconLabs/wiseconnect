@@ -92,11 +92,6 @@ The application can be configured to suit user requirements and development envi
         #define RSI_CONFIG_TEST_MODE                          RSI_BLE_TESTMODE_RECEIVE
         ```
 
-      - `RSI_SEL_ANTENNA` refers the antenna which is to be used by Silicon Labs module, Valid configurations are `RSI_SEL_INTERNAL_ANTENNA` and `RSI_SEL_EXTERNAL_ANTENNA`
-        ```c
-        #define RSI_SEL_ANTENNA                               RSI_SEL_INTERNAL_ANTENNA
-        ```
-
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

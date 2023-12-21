@@ -9,6 +9,7 @@ This application demonstrates the WLAN, BLE, MCU peripheral features and NWP (ne
   - [Hardware Requirements](#hardware-requirements)
   - [Software Requirements](#software-requirements)
   - [Setup Diagram](#setup-diagram)
+- [Application Build Environment](#application-build-environment)
 - [Test the Application](#test-the-application)
   - [Run the Application](#run-the-application)
   - [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler)
@@ -20,6 +21,8 @@ Then Network processor of SiWG917 enters connected sleep state.
 If a message is published onto the topic from a MQTT client application [https://testclient-cloud.mqtt.cool/](https://testclient-cloud.mqtt.cool/) to which the module is subscribed (Si917_MQTT_RECEIVE), the NWP wakes up and displays the received data and goes back to sleep. The status of application is updated on the TFT-LCD display on the WPK baseboard, the same can be observed on the serial terminal prints as well.
 
 ## Prerequisites/Setup Requirements
+
+- Before running the application, the user will need the following things to setup.
 
 ### Hardware Requirements
 
@@ -43,9 +46,14 @@ If a message is published onto the topic from a MQTT client application [https:/
 
 ![Figure: Setup Diagram for OOB Demo](resources/readme/oobdemo_soc.png)
 
+## Application build environment
+
+It is highly recommended to modify the `CLIENT_ID` parameter from the default value (WIFI-SDK-MQTT-CLIENT) to any other unique string of user's choice in the wifi_app.c file before building and flashing the example. As the test MQTT server limits multiple devices with same CLIENT ID from connecting at the same time.  
+(wifi_app.c file can be found under the out_of_box_demo folder in the Project Explorer pane)
+
 ## Test the Application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode) to:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
 
 - Install Studio and WiSeConnect 3 extension
 - Connect your device to the computer
@@ -132,7 +140,7 @@ Please note that
 
 Refer the following ouput image:
 
-- To view the prints on the console, follow the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#console-input-and-output)
+- To view the prints on the console, follow the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 The application prints would be as follows:
 

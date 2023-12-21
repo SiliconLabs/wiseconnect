@@ -114,6 +114,5 @@ Follow the steps below for the successful execution of the application:
 
 7. After successful program execution, Prints can see as below in any Console terminal.
 
-   ![](resources/readme/output_1.png)
 
    ![](resources/readme/output_2.png)

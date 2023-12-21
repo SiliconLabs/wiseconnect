@@ -42,7 +42,7 @@ The device address of the remote device, referred to as the private address, wil
     - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
-- Smartphone configured as BLE peripheral
+- Smartphone configured as BLE peripheral/Central.
 
 ### Software Requirements
 
@@ -74,7 +74,7 @@ The application can be configured to suit your requirements and development envi
       #define RSI_BLE_DEVICE_NAME                              "SIMPLE_PRIVACY"
       ```
 
-   - `RSI_DEVICE_ROLE` refers the role of the Silicon Labs device.
+   - `RSI_DEVICE_ROLE` refers the role of the Silicon Labs device. Possible values are PERIPHERAL_ROLE and CENTRAL_ROLE
 
       ```c
       #define RSI_DEVICE_ROLE                                  PERIPHERAL_ROLE 
@@ -217,7 +217,7 @@ Follow the below steps for the successful execution of the application:
 
 10. Silicon Labs device will add the remote device's IRK's and local IRK's in to resolve list and enable resolution
 
-11. Give disconnect from remote device and the Silicon labs device starts advertising
+11. Give disconnect from remote device and the Silicon labs device starts advertising.
 
 12. Refer the below images for console prints
 

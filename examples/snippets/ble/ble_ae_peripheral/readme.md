@@ -26,7 +26,7 @@ This application demonstrates how to configure SiWx91x in Advertising Extended p
   - Silicon Labs [BRD4180B](https://www.silabs.com/);
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
-- Smartphone configured as BLE peripheral
+- Smartphone configured as BLE central which supports extended scanning
 
 ### Software Requirements
 
@@ -53,7 +53,7 @@ The application can be configured to suit your requirements and development envi
 
 - Open `app.c` file and update/modify the following parameters 
 
-  - `RSI_BLE_LOCAL_NAME` defines the name with which RS9116W EVK advertises with
+  - `RSI_BLE_LOCAL_NAME` defines the name with which SiWx91x advertises with
  
     ```c
     #define RSI_BLE_LOCAL_NAME             "AE_PERIPHERAL" 
@@ -92,7 +92,7 @@ The application can be configured to suit your requirements and development envi
     #define  RSI_BLE_ADV_INT_MAX                           0x200
     ```
 
-  - `RSI_BLE_ADV_CHANNEL_MAP` refers to the channels RS9116W EVK advertises in 
+  - `RSI_BLE_ADV_CHANNEL_MAP` refers to the channels SiWx91x advertises in 
 
     ```c
     #define  RSI_BLE_ADV_CHANNEL_MAP                       0x07 
@@ -101,8 +101,13 @@ The application can be configured to suit your requirements and development envi
   - `BLE_AE_ADV_EVNT_PROP` defines the type of advertising 
 
     ```c
-    #define BLE_CONNECTABLE_ADV                           (1 << 0)
-    #define BLE_SCANNABLE_ADV                             (1 << 1)
+    #define BLE_CONNECTABLE_ADV        (1 << 0)
+    #define BLE_SCANNABLE_ADV          (0 << 1)
+    #define BLE_LOW_DUTY_DIR_CONN_ADV  (0 << 2)
+    #define BLE_HIGH_DUTY_DIR_CONN_ADV (0 << 3)
+    #define BLE_LEGACY_ADV             (0 << 4)
+    #define BLE_ANONYMOUS_ADV          (0 << 5)
+    #define BLE_TX_WR_ADV              (0 << 6)
     #define BLE_AE_ADV_EVNT_PROP                          (BLE_CONNECTABLE_ADV | BLE_SCANNABLE_ADV )
     ```
 
@@ -113,7 +118,7 @@ The application can be configured to suit your requirements and development envi
 
   - Following are the non configurable macros
 
-    - There are three advertising types:
+    - There are three advertising data types:
 
     ```c
     #define BLE_AE_ADV_DATA_TYPE                              0x01

@@ -213,3 +213,58 @@ Follow the steps as mentioned for the successful execution of the application:
 ### BLE-PER-RX
 
   ![output](resources/readme/output_2.png)
+
+### Troubleshooting
+The region is set to FCC by default. To change region to Worldwide or TELEC or KCC, required to call sl_si91x_set_device_region() and sl_si91x_disable_radio() API's. 
+Refer below code snippet to change region:  
+
+ - Open `components/device/silabs/si91x/wireless/threading/sli_si91x_multithreaded.c` file 
+
+   - Go to `void si91x_bus_thread(void *args)` function and add `case RSI_WLAN_RSP_RADIO: ` line next to `case RSI_WLAN_RSP_INIT:` as shown below 
+
+  ```c
+    case RSI_WLAN_RSP_BAND:
+    case RSI_WLAN_RSP_INIT:
+    case RSI_WLAN_RSP_RADIO:
+    case RSI_WLAN_RSP_EAP_CONFIG:
+  ```
+  
+ - Open `featured/ble_per/app.c` file 
+
+   - Go to `ble_per(void *unused)` function and add 
+
+     Set region_code to worldwide( or any other region) as shown below in `sl_wifi_device_configuration_t` structure
+
+        ```c
+           static const sl_wifi_device_configuration_t config = {
+                            .region_code = WORLD_DOMAIN,
+        ``` 
+      
+     Set coex_mode to `SL_SI91X_WLAN_BLE_MODE` as shown below in `sl_wifi_device_configuration_t` structure    
+
+        ```c
+           .boot_config = {.oper_mode = SL_SI91X_CLIENT_MODE,
+                           .coex_mode = SL_SI91X_WLAN_BLE_MODE,
+        ```  
+     Add `sl_si91x_set_device_region( )` & `sl_si91x_disable_radio( )` functions as shown below after  `sl_wifi_get_firmware_version(&version)` API is successful 
+      
+      ```c
+        //! set region support
+        status = sl_si91x_set_device_region(config.boot_config.oper_mode, config.band, config.region_code);
+        if (status != RSI_SUCCESS) {
+           LOG_PRINT("\r\nSet Region Failed, Error Code : %ld\r\n", status);
+        } else {
+           LOG_PRINT("\r\nSet Region Success\r\n");
+        }
+        //! WLAN radio deinit
+        status = sl_si91x_disable_radio();
+        if (status != RSI_SUCCESS) {
+           LOG_PRINT("\r\nsl_si91x_radio_deinit failed , Error Code : %ld\r\n", status);
+        } else {
+           LOG_PRINT("\r\n sl_si91x_radio_deinit Success\r\n");
+        }
+
+      ```
+  
+###  Important Notes: 
+ The maximum power that BLE can support is 16 dBm. It is not permitted for users to program more than 16dBm. 127 power_index is not supported in this release. 

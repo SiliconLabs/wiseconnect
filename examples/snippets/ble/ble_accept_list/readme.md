@@ -17,7 +17,7 @@ This application is used to add a particular BD-Address to the Accept List. The 
 
 This enumerates the remote devices that are allowed to communicate with the local device. The Accept List can restrict which device are allowed to connect to other device.
 
-If it is not, it wont connect. Once the address was saved, the connection with that device is going to be an auto connection establishment procedure.
+If it is not added to accept list,connection is not established. Once the address is saved, the connection with that device is going to be an auto connection establishment procedure.
 
 This means that the Controller autonomously establishes a connection with the device address that matches the address stored in the Accept List.
 
@@ -88,13 +88,18 @@ The application can be configured to suit your requirements and development envi
   #define RSI_BLE_DEV_ADDR                      "00:1A:7D:DA:71:48"
   ```
 
-  - `RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE`, `RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE` refers address of the remote devices to be acceptlisted
+  - `RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE`, `RSI_BLE_ACCEPTLIST_DEV_ADDR2_TYPE` refer to the address types of the remotes device to be acceptlisted
 
   ```c
     #define RSI_BLE_ACCEPTLIST_DEV_ADDR1_TYPE              LE_PUBLIC_ADDRESS
     #define RSI_BLE_ACCEPTLIST_DEV_ADDR2_TYPE              LE_PUBLIC_ADDRESS
   ```
-  
+  - `ble_acceptlist_addr1`,fill the address of the remote devices to be added to accept list in these arrays in big-endian format .
+  ```c
+  ble_acceptlist_addr1[6] = { 0x48, 0x71, 0xDA, 0x7D, 0x1A, 0x00 };
+  ble_acceptlist_addr2[6] = { 0xB9, 0x70, 0x80, 0xA7, 0x23, 0x00 };
+   ```
+
   - `RSI_REMOTE_DEVICE_NAME` refers the name of remote device to which Silicon Labs device has to connect.
 
   ```c
@@ -119,7 +124,7 @@ The application can be configured to suit your requirements and development envi
 
   - The desired parameters are provided in following steps. User can also modify the parameters as per their needs and requirements.
 
-  - Following are the event numbers for advertising, connection and Disconnection events,
+  - Following are the event numbers for advertising report, connection and Disconnection events,
 
   ```c
     #define RSI_APP_EVENT_ADV_REPORT                       0

@@ -34,7 +34,7 @@ The WiSeConnect SDK provides CMSIS supported drivers for a few peripherals while
 
 The following diagram shows CMSIS and non-CMSIS peripherals in different blocks. It also higlights the ultra low power (ULP) peripherals.
 
-For more details on MCU Peripherals, see the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf). 
+For more details on MCU Peripherals, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access). 
 
 ![SiWx917 MCU Architecture](./resources/SiWx917_mcu_architecture.PNG)
 
@@ -124,9 +124,6 @@ The following example code snippet illustrates measuring the clock frequency:
 #define PLL_OUT_FREQUENCY   180000000
 //!pad selection
 sl_si91x_gpio_enable_pad_selection(3);
- 
-//!Enable PAD Receive enable
-sl_si91x_gpio_enable_pad_receiver(GPIO_12);
 
 //!Configure the GPIO pin mux to MCU clock Out ,and observe clock on GPIO 12
 sl_gpio_set_pin_mode(0, GPIO_12, EGPIO_PIN_MUX_MODE8, 0);  
@@ -160,7 +157,7 @@ The following registers may be configured in order to access any of the GPIOs to
 * Pad configuration Register
 * GPIO mode Register
 
-Refer to the **SiWx917 Pad Configurations** section in the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf) for details.
+Refer to the **SiWx917 Pad Configurations** section in the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 #### Pin Muxing
 
@@ -168,9 +165,9 @@ The SiWx917 provides multiplexing features on several pins. It is possible to co
 
 There are many digital and analog peripherals on the SiWx917 such as the I2C, I2S, UART, SPI, Ethernet, SDIO, SDMEM, PWM, QEI, CAN, etc. However, the number of pins is limited. 
 
-The pin multiplexing module makes it possbible to accommodate all of the peripherals in a small package without compromising on functionality. The module makes it possible to multiplex different functions on the same I/O pin. If a I/O pin is used for a peripheral function, it cannot be used as GPIO. The reset values for the GPIO mode for each of the GPIOs are provided in the [Pad Configuration](#pad-configuration) section.
+The pin multiplexing module makes it possbible to accommodate all of the peripherals in a small package without compromising on functionality. The module makes it possible to multiplex different functions on the same I/O pin. If a I/O pin is used for a peripheral function, it cannot be used as GPIO. The reset values for the GPIO mode for each of the GPIOs are provided in the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access) under **PAD Configuration and GPIO Mode Reset Values** section  .
 
-Refer to the **SiWx917 Pin MUX** section in the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf) for details.
+Refer to the **SiWx917 Pin MUX** section in the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 **Code Snippet - GPIO Toggle**
 
@@ -217,9 +214,9 @@ sl_gpio_set_pin_mode(PORT, GPIO_PIN, EGPIO_PIN_MUX_MODE6,0);
 
 ##### SoC GPIOs
 
-The SoC GPIOs below (GPIO_6 to GPIO_51) are available in the normal mode of operation (power states 3 and 4). For a description of power states, see the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf). 
+The SoC GPIOs below (GPIO_6 to GPIO_51) are available in the normal mode of operation (power states 3 and 4). For a description of power states, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access). 
 
-Each of these GPIO pin functions is controlled by the GPIO Mode register mentioned in **SoC GPIO's** section of the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf). 
+Each of these GPIO pin functions is controlled by the GPIO Mode register mentioned in **SoC GPIO's** section of the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access). 
 
 | **PIN** | **PAD NUMBER** | **GPIO** | **GPIO Mode= 0** | **GPIO Mode= 1** | **GPIO Mode= 2** | **GPIO Mode= 3** | **GPIO Mode= 4** | **GPIO Mode= 5** | **GPIO Mode= 6** | **GPIO Mode= 7** | **GPIO Mode= 8** | **GPIO Mode= 9** | **GPIO Mode= 10** | **GPIO Mode= 11** | **GPIO Mode= 12** | **GPIO Mode*= 13** | **GPIO Mode*= 14** | **GPIO Mode*= 15** |
 | ------- | -------------- | ---------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- |
@@ -273,44 +270,68 @@ The following is an example code snippet illustrating the use of the above APIs:
    sl_si91x_gpio_set_pin_direction(0, 10, 0);
 ```
 
-##### Digital Functions for Virtual ULP GPIOs
+##### Digital ULP GPIOs
 
-In the multiplexing table in the [SoC GPIOs](#soc-gpios) section, some can be configured as ULP GPIOs by configuring MODE9 or MODE11 in the GPIO Mode register. This allows ULP functionality to be achieved on a physical SoC GPIO pin. See the table below for ULP functionality multiplexing options on the SoC GPIOs that are converted to ULP GPIOs. The ULP GPIOs below (ULPPERH_ON_SOC_GPIO_0 to ULPPERH_ON_SOC_GPIO_11) are available in the normal mode of operation (power states 3 and 4). For a description of power states, see the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf).
+The SoC GPIOs configured for ULP Peripheral functionality (ULPPERH_ON_SOC_GPIO_0 to ULPPERH_ON_SOC_GPIO_11) are available only in the normal mode of operation (Power-states 4 and 3). For a description of power-states,For a description of power states, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
-Each of these GPIO pin functions is controlled by the Special Function ULP register mentioned in **ULP GPIO's** section of the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf).
+Each of these GPIO pin functions is controlled by the Special Function ULP register mentioned in **ULP GPIO's** section of the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+
+> **Note:** These Digital functions are only available in normal mode of operation PS3 and PS4. For more details refer to powersave app note
 
 | PIN | ULP_GPIO | ULP_GPIO Mode 0 | ULP_GPIO Mode 1 | ULP_GPIO Mode 2 | ULP_GPIO Mode 3 | ULP_GPIO Mode 4 | ULP_GPIO Mode 5 | ULP_GPIO Mode 6 | ULP_GPIO Mode 7 | ULP_GPIO Mode 8 | ULP_GPIO Mode 9 | ULP_GPIO Mode 10 | ULP_GPIO Mode 11 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | ULPPERH_ON_SOC_GPIO_0 | ULP_EGPIO[0] | ULP_SPI_CLK | ULP_I2S_DIN | ULP_UART_RTS | ULP_I2C_SDA | NPSS_GPIO_1 |  |  |  |  |  |  |
+| 0 | ULPPERH_ON_SOC_GPIO_0 | ULP_EGPIO[0] | ULP_SPI_CLK | ULP_I2S_DIN | ULP_UART_RTS | ULP_I2C_SDA |  |  |  |  |  |  |  |
 | 1 | ULPPERH_ON_SOC_GPIO_1 | ULP_EGPIO[1] | ULP_SPI_DOUT | ULP_I2S_DOUT | ULP_UART_CTS | ULP_I2C_SCL | Timer0 |  |  |  |  |  |  |
-| 2 | ULPPERH_ON_SOC_GPIO_2 | ULP_EGPIO[2] | ULP_SPI_DIN | ULP_I2S_WS | ULP_UART_RX | NPSS_GPIO_4 | COMP1_OUT |  |  |  |  |  |  |
-| 4 | ULPPERH_ON_SOC_GPIO_4 | ULP_EGPIO[4] | ULP_SPI_CS1 | ULP_I2S_WS | ULP_UART_RTS | ULP_I2C_SDA | NPSS_GPIO_4 | NPSS_TEST_MODE_1 |  | ULP_SPI_CLK | Timer0 | IR_INPUT | NPSS_GPIO_2 |
-| 5 | ULPPERH_ON_SOC_GPIO_5 | ULP_EGPIO[5] | IR_OUTPUT | ULP_I2S_DOUT | ULP_UART_CTS | ULP_I2C_SCL | AUX_ULP_TRIG_0 | NPSS_TEST_MODE_2 |  | ULP_SPI_DOUT | Timer1 | IR_OUTPUT | NPSS_GPIO_3 |
-| 6 | ULPPERH_ON_SOC_GPIO_6 | ULP_EGPIO[6] | ULP_SPI_CS2 | ULP_I2S_DIN | ULP_UART_RX | ULP_I2C_SDA | NPSS_GPIO_1 | NPSS_GPIO_0 |  | ULP_SPI_DIN | COMP1_OUT | AUX_ULP_TRIG_0 | NPSS_GPIO_4 |
-| 7 | ULPPERH_ON_SOC_GPIO_7 | ULP_EGPIO[7] | IR_INPUT | ULP_I2S_CLK | ULP_UART_TX | ULP_I2C_SCL | Timer1 | NPSS_GPIO_1 |  | ULP_SPI_CS0 | COMP2_OUT | AUX_ULP_TRIG_1 | NPSS_TEST_MODE_0 |
-| 8 | ULPPERH_ON_SOC_GPIO_8 | ULP_EGPIO[8] | ULP_SPI_CLK | ULP_I2S_CLK | ULP_UART_CTS | ULP_I2C_SCL | Timer0 | NPSS_GPIO_2 |  |  |  |  |  |
-| 9 | ULPPERH_ON_SOC_GPIO_9 | ULP_EGPIO[9] | ULP_SPI_DIN | ULP_I2S_DIN | ULP_UART_RX | ULP_I2C_SDA | COMP1_OUT | NPSS_GPIO_3 |  |  |  |  |  |
-| 10 | ULPPERH_ON_SOC_GPIO_10 | ULP_EGPIO[10] | ULP_SPI_CS0 | ULP_I2S_WS | ULP_UART_RTS | IR_INPUT | NPSS_GPIO_4 | NPSS_TEST_MODE_0 |  |  |  |  |  |
-| 11 | ULPPERH_ON_SOC_GPIO_11 | ULP_EGPIO[11] | ULP_SPI_DOUT | ULP_I2S_DOUT | ULP_UART_TX | ULP_I2C_SDA | AUX_ULP_TRIG_0 | NPSS_GPIO_4 |  |  |  |  |  |
+| 2 | ULPPERH_ON_SOC_GPIO_2 | ULP_EGPIO[2] | ULP_SPI_DIN | ULP_I2S_WS | ULP_UART_RX |  | COMP1_OUT |  |  |  |  |  |  |
+| 4 | ULPPERH_ON_SOC_GPIO_4 | ULP_EGPIO[4] | ULP_SPI_CS1 | ULP_I2S_WS | ULP_UART_RTS | ULP_I2C_SDA |  | NPSS_TEST_MODE_1 |  | ULP_SPI_CLK | Timer0 | IR_INPUT |  |
+| 5 | ULPPERH_ON_SOC_GPIO_5 | ULP_EGPIO[5] | IR_OUTPUT | ULP_I2S_DOUT | ULP_UART_CTS | ULP_I2C_SCL | AUX_ULP_TRIG_0 | NPSS_TEST_MODE_2 |  | ULP_SPI_DOUT | Timer1 | IR_OUTPUT |  |
+| 6 | ULPPERH_ON_SOC_GPIO_6 | ULP_EGPIO[6] | ULP_SPI_CS2 | ULP_I2S_DIN | ULP_UART_RX | ULP_I2C_SDA |  |  |  | ULP_SPI_DIN | COMP1_OUT | AUX_ULP_TRIG_0 |  |
+| 7 | ULPPERH_ON_SOC_GPIO_7 | ULP_EGPIO[7] | IR_INPUT | ULP_I2S_CLK | ULP_UART_TX | ULP_I2C_SCL | Timer1 |  |  | ULP_SPI_CS0 | COMP2_OUT | AUX_ULP_TRIG_1 | NPSS_TEST_MODE_0 |
+| 8 | ULPPERH_ON_SOC_GPIO_8 | ULP_EGPIO[8] | ULP_SPI_CLK | ULP_I2S_CLK | ULP_UART_CTS | ULP_I2C_SCL | Timer0 |  |  |  |  |  |  |
+| 9 | ULPPERH_ON_SOC_GPIO_9 | ULP_EGPIO[9] | ULP_SPI_DIN | ULP_I2S_DIN | ULP_UART_RX | ULP_I2C_SDA | COMP1_OUT |  |  |  |  |  |  |
+| 10 | ULPPERH_ON_SOC_GPIO_10 | ULP_EGPIO[10] | ULP_SPI_CS0 | ULP_I2S_WS | ULP_UART_RTS | IR_INPUT |  | NPSS_TEST_MODE_0 |  |  |  |  |  |
+| 11 | ULPPERH_ON_SOC_GPIO_11 | ULP_EGPIO[11] | ULP_SPI_DOUT | ULP_I2S_DOUT | ULP_UART_TX | ULP_I2C_SDA | AUX_ULP_TRIG_0 |  |  |  |  |  |  |
+
+```C
+/* Example for configuring GPIO6 in UART2_RX(mode 6) */
+#define PORT        0
+#define GPIO_PIN    PIN10
+#define PAD_NUM     2
+
+// Enable M4 Clock​
+sl_si91x_gpio_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO);​
+
+// Enable pad selection for GPIO pin​
+sl_si91x_gpio_enable_pad_selection(PAD_NUM);​
+
+// Enable pad receiver for GPIO pin (For Input GPIO)​
+sl_si91x_gpio_enable_pad_receiver(GPIO_PIN);​
+
+// Set the pin mode for GPIO pin​
+sl_gpio_set_pin_mode(PORT, GPIO_PIN, MODE9, OUTPUT_VALUE);​
+
+// Select the Virtual ULP GPIO Mode​
+sl_si91x_gpio_ulp_soc_mode((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO, ULP_GPIO_4, MODE3)​
+```
 
 ##### ULP GPIO's
 
-The ULP GPIOs listed in the table below (ULP_GPIO_0 to ULP_GPIO_11) are available in the normal mode of operation (power states 3 and 4) and also in the ultra low power mode of operation (power states 1 and 2). For a description of power states, see the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf).
+The ULP GPIOs listed in the table below (ULP_GPIO_0 to ULP_GPIO_11) are available in the normal mode of operation (power states 3 and 4) and also in the ultra low power mode of operation (power states 1 and 2). For a description of power states, refer the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
-Each of these GPIO pin functions is controlled by the GPIO Mode register mentioned in **ULP GPIO's** section of the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf).
+Each of these GPIO's Pin function is controlled by the Special ULP register mentioned in **ULP GPIO's** section of the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 | PIN | ULP_GPIO | ULP_GPIO Mode 0 | ULP_GPIO Mode 1 | ULP_GPIO Mode 2 | ULP_GPIO Mode 3 | ULP_GPIO Mode 4 | ULP_GPIO Mode 5 | ULP_GPIO Mode 6 | ULP_GPIO Mode 7 | ULP_GPIO Mode 8 | ULP_GPIO Mode 9 | ULP_GPIO Mode 10 | ULP_GPIO Mode 11 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | ULP_GPIO_0 | ULP_EGPIO[0] | ULP_SPI_CLK | ULP_I2S_DIN | ULP_UART_RTS | ULP_I2C_SDA | NPSS_GPIO_1 | SOCPERH_ON_ULP_GPIO_0 | AGPIO_0 |  |  |  |  |
+| 0 | ULP_GPIO_0 | ULP_EGPIO[0] | ULP_SPI_CLK | ULP_I2S_DIN | ULP_UART_RTS | ULP_I2C_SDA |  | SOCPERH_ON_ULP_GPIO_0 | AGPIO_0 |  |  |  |  |
 | 1 | ULP_GPIO_1 | ULP_EGPIO[1] | ULP_SPI_DOUT | ULP_I2S_DOUT | ULP_UART_CTS | ULP_I2C_SCL | Timer2 | SOCPERH_ON_ULP_GPIO_1 | AGPIO_1 |  |  |  |  |
 | 2 | ULP_GPIO_2 | ULP_EGPIO[2] | ULP_SPI_DIN | ULP_I2S_WS | ULP_UART_RX | NPSS_GPIO_4 | COMP1_OUT | SOCPERH_ON_ULP_GPIO_2 | AGPIO_2 |  |  |  |  |
-| 4 | ULP_GPIO_4 | ULP_EGPIO[4] | ULP_SPI_CS1 | ULP_I2S_WS | ULP_UART_RTS | ULP_I2C_SDA | AUX_ULP_TRIG_1 | SOCPERH_ON_ULP_GPIO_4 | AGPIO_4 | ULP_SPI_CLK | Timer0 | IR_INPUT | NPSS_GPIO_2 |
-| 5 | ULP_GPIO_5 | ULP_EGPIO[5] | IR_OUTPUT | ULP_I2S_DOUT | ULP_UART_CTS | ULP_I2C_SCL | AUX_ULP_TRIG_0 | SOCPERH_ON_ULP_GPIO_5 | AGPIO_5 | ULP_SPI_DOUT | Timer1 | IR_OUTPUT | NPSS_GPIO_3 |
-| 6 | ULP_GPIO_6 | ULP_EGPIO[6] | ULP_SPI_CS2 | ULP_I2S_DIN | ULP_UART_RX | ULP_I2C_SDA | NPSS_GPIO_1 | SOCPERH_ON_ULP_GPIO_6 | AGPIO_6 | ULP_SPI_DIN | COMP1_OUT | AUX_ULP_TRIG_0 | NPSS_GPIO_4 |
+| 4 | ULP_GPIO_4 | ULP_EGPIO[4] | ULP_SPI_CS1 | ULP_I2S_WS | ULP_UART_RTS | ULP_I2C_SDA | AUX_ULP_TRIG_1 | SOCPERH_ON_ULP_GPIO_4 | AGPIO_4 | ULP_SPI_CLK | Timer0 | IR_INPUT |  |
+| 5 | ULP_GPIO_5 | ULP_EGPIO[5] | IR_OUTPUT | ULP_I2S_DOUT | ULP_UART_CTS | ULP_I2C_SCL | AUX_ULP_TRIG_0 | SOCPERH_ON_ULP_GPIO_5 | AGPIO_5 | ULP_SPI_DOUT | Timer1 | IR_OUTPUT |  |
+| 6 | ULP_GPIO_6 | ULP_EGPIO[6] | ULP_SPI_CS2 | ULP_I2S_DIN | ULP_UART_RX | ULP_I2C_SDA |  | SOCPERH_ON_ULP_GPIO_6 | AGPIO_6 | ULP_SPI_DIN | COMP1_OUT | AUX_ULP_TRIG_0 |  |
 | 7 | ULP_GPIO_7 | ULP_EGPIO[7] | IR_INPUT | ULP_I2S_CLK | ULP_UART_TX | ULP_I2C_SCL | Timer1 | SOCPERH_ON_ULP_GPIO_7 | AGPIO_7 | ULP_SPI_CS0 | COMP2_OUT | AUX_ULP_TRIG_1 | NPSS_TEST_MODE_0 |
 | 8 | ULP_GPIO_8 | ULP_EGPIO[8] | ULP_SPI_CLK | ULP_I2S_CLK | ULP_UART_CTS | ULP_I2C_SCL | Timer0 | SOCPERH_ON_ULP_GPIO_8 | AGPIO_8 |  |  |  |  |
 | 9 | ULP_GPIO_9 | ULP_EGPIO[9] | ULP_SPI_DIN | ULP_I2S_DIN | ULP_UART_RX | ULP_I2C_SDA | NPSS_TEST_MODE_0 | SOCPERH_ON_ULP_GPIO_9 | AGPIO_9 |  |  |  |  |
-| 10 | ULP_GPIO_10 | ULP_EGPIO[10] | ULP_SPI_CS0 | ULP_I2S_WS | ULP_UART_RTS | IR_INPUT | NPSS_GPIO_4 | SOCPERH_ON_ULP_GPIO_10 | AGPIO_10 |  |  |  |  |
+| 10 | ULP_GPIO_10 | ULP_EGPIO[10] | ULP_SPI_CS0 | ULP_I2S_WS | ULP_UART_RTS | IR_INPUT |  | SOCPERH_ON_ULP_GPIO_10 | AGPIO_10 |  |  |  |  |
 | 11 | ULP_GPIO_11 | ULP_EGPIO[11] | ULP_SPI_DOUT | ULP_I2S_DOUT | ULP_UART_TX | ULP_I2C_SDA | AUX_ULP_TRIG_0 | SOCPERH_ON_ULP_GPIO_11 | AGPIO_11 |  |  |  |  |
 
 The following WiSeConnect SDK APIs are available for configuring the ULP GPIOs:
@@ -328,11 +349,13 @@ The following is an example code snippet illustrating the use of the above APIs:
    sl_si91x_gpio_set_pin_direction(4, 10, 0);
 ```
 
-##### Digital Functions for Virtual SoC GPIOs
+##### Digital SoC GPIOs
 
-In the multiplexing table in the [ULP GPIOs](#ulp-gpios) section, every ULP GPIO can be configured as an SoC GPIO using the ULP Mode register. The SoC GPIOs below (SOCPERH_ON_ULP_GPIO_0 to SOCPERH_ON_ULP_GPIO_11) are available in the normal mode of operation (power states 3 and 4). For a description of power states, see the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf).
+The ULP GPIOs configured for SoC Peripheral functionality (SOCPERH_ON_ULP_GPIO_0 to SOCPERH_ON_ULP_GPIO_11) are available only in the normal mode of operation (Power-states 4 and 3). For a description of power-states, refer the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
-Each of these GPIO pin functions is controlled by the GPIO Mode register mentioned in **SoC GPIO's** section of the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf).
+Each of these GPIO pin functions is controlled by the GPIO Mode register mentioned in **SoC GPIO's** section of the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+
+> **Note:** These Digital functions are only available in normal mode of operation PS3 and PS4. For more details refer to powersave app note
 
 | **PIN** | **PAD NUMBER** | **GPIO** | **GPIO Mode= 0** | **GPIO Mode= 1** | **GPIO Mode= 2** | **GPIO Mode= 3** | **GPIO Mode= 4** | **GPIO Mode= 5** | **GPIO Mode= 6** | **GPIO Mode= 7** | **GPIO Mode= 8** | **GPIO Mode= 9** | **GPIO Mode= 10** | **GPIO Mode= 11** | **GPIO Mode= 12** | **GPIO Mode*= 13** |
 | ------- | -------------- | ---------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- |
@@ -348,6 +371,23 @@ Each of these GPIO pin functions is controlled by the GPIO Mode register mention
 | 73      | 31             | SOCPERH_ON_ULP_GPIO_9  | GPIO_73               | SIO_1                 | USART1_RS485_EN       | QEI_PHA               |                       |                       | UART2_TX              | SCT_OUT_5             | PWM_FAULTA            | UART2_CTS             | PWM_TMR_EXT_TRIG_4         |                            |                            |                            |
 | 74      | 32             | SOCPERH_ON_ULP_GPIO_10 | GPIO_74               | SIO_2                 | USART1_RS485_RE       | QEI_PHB               | I2C1_SDA              |                       | UART2_RS485_RE        | SCT_OUT_6             | PWM_FAULTB            | UART2_RX              | PMU_TEST_1                 |                            |                            |                            |
 | 75      | 33             | SOCPERH_ON_ULP_GPIO_11 | GPIO_75               | SIO_3                 | USART1_RS485_DE       | QEI_DIR               | I2C1_SCL              |                       | UART2_RS485_DE        | SCT_OUT_7             | PWM_TMR_EXT_TRIG_1    | UART2_TX              | PMU_TEST_2                 |                            |                            |                            |
+
+```C
+// Enable GPIO ULP_CLK​
+sl_si91x_gpio_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);​
+
+// Enable pad receiver for ULP GPIO pin​
+sl_si91x_gpio_enable_ulp_pad_receiver(ULP_PIN_8);​
+
+// Set the pin mode for ULP GPIO pin​
+sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_8, MODE6, OUTPUT_VALUE);​
+
+// Enable pad selection for SoC GPIO pin​
+sl_si91x_gpio_enable_pad_selection(30);​
+
+// Set the pin mode for Virtual SoC GPIO pin​
+sl_gpio_set_pin_mode(PORT0, PIN72, MODE1, OUTPUT_VALUE);
+```
 
 ### Power Save
 
@@ -534,7 +574,7 @@ The PSRAM interface comes with security features which allow the user to protect
 
 The WiSeConnect SDK provides a power save mechanism for the PSRAM which effectively utilizes the hardware power handles and sleep features of the PSRAM die across sleep and wake up to minimize power consumption.
 
-For more information on the memory architecture and hardware interfaces of PSRAM, see the **SiWx917 Memory Architecture** and **SiWx917 SPI Flash/PSRAM Controller** sections of the [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf).
+For more information on the memory architecture and hardware interfaces of PSRAM, see the **SiWx917 Memory Architecture** and **SiWx917 SPI Flash/PSRAM Controller** sections of the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 > **Note:** Currently, the radio boards map the CSN0 to drive the PSRAM die and thus enable CSN0 address space 0x0A00_0000-0x0AFF_FFFF.
 
@@ -673,7 +713,7 @@ The SWV provides real-time data trace information from various sources within a 
 
 To setup the SWV, configure GPIO_12 pin in mode 8 (MCU_CLK_OUT) and connect to back to GPIO_15 pin configured in GPIO mode 6 (M4SS_TRACE_CLKIN). The MCU_CLK_OUT has programmable divider option from MCU clock. The MCU_CLK_OUT frequency must be less than 40Mhz to use the SWO function. After configuration, data traces can be observed with the supporting debug probes.
 
-MCU_CLK_OUT register details are present in the **SiWx917 MCU HP Clock Architecture > MCUHP_CLK_CONFIG_REG3** section of the  [SiWx917 Hardware Reference](https://www.silabs.com/documents/public/reference-manuals/siw917x-family-rm.pdf).
+MCU_CLK_OUT register details are present in the **SiWx917 MCU HP Clock Architecture > MCUHP_CLK_CONFIG_REG3** section of the  **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 ### Embedded Trace Macrocell (ETM) Support
 
@@ -696,3 +736,40 @@ The virtual COM (VCOM) port is available on the wireless pro kit mainboard (BRD4
   * In this mode, GPIO_8 (RX) and GPIO_9 (TX) will be mapped to TA UART
 
 > **Note:** Debug logs from the NWP can be fetched via the NWP UART which is available on the EXP header's EXP14 (UART_RX) and EXP12 (UART_TX) pins.
+
+## Firmware Upgrade
+Firmware  is  the  software  that  is  embedded  into  a  hardware  device.  It  contains  a  set  of  commands  that  control  the behavior  of  a  network  device. Whenever  a  new  firmware  version  is  available,  it  is  recommended  that  users  update their  devices  to  the  latest  version.  Complete  details  about  the  latest  firmware  will  be  available  in  the  Release  Notes (shared  as  part  of  the  release  package),  which  will  help  the  users  decide  whether  to  update  to  the  new  firmware  or not.
+
+### Firmware File Format
+
+The TA Bootloader uses a proprietary format for its upgrade images, called RPS. These files have extension “.rps”. 
+
+The RPS Format is a binary executable format understood by the Bootloader to conduct integrity and authenticity verification, as well as to load and execute the application. The Firmware Image in RPS format includes an RPS header, Boot descriptors, Application's binary image and an optional trailer (digital signature).
+
+### SiWx917 Firmware Load and Update Process
+
+The firmware load process  loads  firmware  onto  SiWx917  device  for  the  first  time  in  the  case  of  new  devices. The Firmware update process updates SiWx917 devices with the latest firmware by replacing the firmware already existing in the device. 
+
+The steps are as follows: 
+1. To  update  existing  firmware  or  a  device  without  firmware,  download  the  new  firmware  file  to  the  device’s  flash memory from host (MCU/PC) through any host interface or through OTA process.
+2. After reboot, the current firmware is replaced by the new firmware in flash memory, and the device is updated with the new firmware.
+
+### SiWx917 Firmware Update Mechanisms
+
+Firmware in the SiWx917 device can be updated using the following mechanisms:
+
+1. Firmware update via Over-The-Air (OTA): In this mechanism firmware in the device can be updated by the following methods.
+   * HTTP/S: Firmware is updated by downloading the firmware file from a remote HTTP/S or cloud server via Wi-Fi. The firmware file is directly downloaded to TA flash location.
+   * M4  as  Host:  Using  host  interfaces  –  SPI/UART/SDIO  or  a  remote  TCP  server  via  Wi-Fi  or  BLE,  the firmware  is  reaching  in  chunks  to  M4.  The  user  can  choose  to  send  the  firmware  to  TA  Bootloader  for upgrade or save in the external flash as per their requirements.
+
+2. Firmware update via Bootloader: In this mechanism firmware in the device can be updated by the following methods.
+   * Kermit:  Firmware  is  updated  using  Kermit  protocol  in  a  serial  terminal  like  Tera  Term  running  in  a Windows/Linux PC The connected to the device through UART interface in ISP mode.
+   * Simplicity Commander Tool/ Command Line Interface (CLI): Using the Simplicity Commander tool or by using the CLI commands the firmware is updated.
+
+> **Note:** SiWx917  also  have  Secure  and  Non-Secure  Firmware  update.  The  above  mechanisms  are  same  for  both secure and non-secure except that the firmware does security related integrity checks before loading the device with the new firmware.
+
+### Secure Firmware Update
+
+In  case  of  bootloader  and  OTA,  secure  firmware  update  can be carried out by  enabling   the  security  in  the  firmware  image using  the  SiWx917  Manufacturing  Utility  (Refer  to  the  SiWx917  Manufacturing  Utility  User  Guide).  The  process  of firmware  update  remains  same  for  Non-Secure  and  Secure  Firmware  update  except  that  in  the  case  of  secure firmware image the integrity checks are done.
+
+> **Note:** For more information on the Firmware upgradation, see the Firmware Update App Note.

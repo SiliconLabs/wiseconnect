@@ -91,7 +91,7 @@ The application can be configured to suit your requirements and development envi
     - `RSI_REMOTE_DEVICE_NAME` refers the name of remote device to which Silicon Labs device has to connect.
 
       ```c
-      #define RSI_REMOTE_DEVICE_NAME                           "Designer Keyboard"
+      #define RSI_REMOTE_DEVICE_NAME                           "Designer_Keyboard"
       ```
 
       > **Note:** User can configure either `RSI_BLE_REMOTE_BD_ADDRESS` or `RSI_REMOTE_DEVICE_NAME` of the remote device.
@@ -247,6 +247,8 @@ Follow the steps as mentioned for the successful execution of the application:
 Refer the following images for console prints:
 
   ![](resources/readme/output_1.png)
+
+  ![](resources/readme/output_5.png)
 
   ![](resources/readme/output_2.png)
 

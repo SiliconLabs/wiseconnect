@@ -63,6 +63,7 @@ readme:
 other_file:
 - path: resources/readme/ble_secureconnection_soc_ncp.png
 - path: resources/readme/output.png
+- path: resources/readme/output_1.png
 ui_hints:
   highlight:
   - path: readme.md

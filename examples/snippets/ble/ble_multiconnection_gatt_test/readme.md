@@ -62,8 +62,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Build Environment
 
-The application can be configured to suit your requirements and development environment.
-
 The application can be configured to suit you requirements and development environment. Go through the following sections and make any changes if needed.
 
 - In the Project Explorer pane of the IDE, expand the `ble_multiconnection_gatt_test` folder and open the `ble_config.h` file. Configure the following parameters based on your requirements.
@@ -279,7 +277,7 @@ Follow the steps below for the successful execution of the program:
 4. Silicon Labs device is in scanning and advertising mode.
 
 5. After the program gets executed, Silicon Labs device tries to connect with the remote device name specified in
-   the macro **RSI_REMOTE_DEVICE_NAME1** or **RSI_BLE_DEV_1_ADDR**.
+   the macro **RSI_REMOTE_DEVICE_NAMEX** or **RSI_BLE_DEV_X_ADDR**. X could be 1,2 or 3.
 
 6. Observe that the connection is established between the desired device and Silicon Labs device.
 

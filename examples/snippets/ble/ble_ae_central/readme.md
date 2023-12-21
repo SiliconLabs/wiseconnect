@@ -26,7 +26,7 @@ This application demonstrates how to configure SiWx91x in Advertising Extended c
   - Silicon Labs [BRD4180B](https://www.silabs.com/);
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
-- Smartphone configured as BLE peripheral
+- Smartphone configured as BLE peripheral which supports extended advertising 
 
 ### Software Requirements
 
@@ -79,7 +79,39 @@ The application can be configured to suit your requirements and development envi
       > **Note:** If you are using the NCP-EXP-Board, refer the "**Powersave functionality with NCP expansion board**" section  the ***Getting started with SiWx91x NCP*** guide.
 
    >**Note:** `app.c` files are already set with desired configuration in respective example folders user need not change for each example. 
-   
+
+- Change the following parameters as desired in **ble_config.h**
+
+    - `LE_SCAN_INTERVAL` refers to primary phy scan interval.
+    - `LE_SCAN_WINDOW` refers to primary phy scan window.
+    - `SEC_PHY_LE_SCAN_INTERVAL` refers to secondary phy scan interval.
+    - `SEC_PHY_LE_SCAN_WINDOW` refers to secondary phy scan window.
+   ```c
+       #define LE_SCAN_INTERVAL         0x100
+       #define LE_SCAN_WINDOW           0x50
+       #define SEC_PHY_LE_SCAN_INTERVAL 0x100
+       #define SEC_PHY_LE_SCAN_WINDOW   0x50
+   ```
+   >**Note:** Scan window value should always be less than or equal to scan inerval.
+
+    - `RSI_BLE_SCAN_TYPE` refers to primary phy scan type.
+    - `SEC_PHY_BLE_SCAN_TYPE` refers to secondary phy scan type.  
+    - `RSI_BLE_SCAN_FILTER_TYPE` refers to the scan filter type
+
+   ```c
+       #define RSI_BLE_SCAN_TYPE        SCAN_TYPE_ACTIVE
+       #define SEC_PHY_BLE_SCAN_TYPE    SCAN_TYPE_ACTIVE
+       #define RSI_BLE_SCAN_FILTER_TYPE SCAN_FILTER_TYPE_ALL
+   ```
+    - `BLE_SCAN_DUR` refers to extended scan duration.
+    - `BLE_SCAN_PERIOD` refers to extended scan period. 
+
+   ```c 
+    #define BLE_SCAN_DUR               0x00
+    #define BLE_SCAN_PERIOD            0x00
+   ```
+  >**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example. 
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -89,7 +121,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps as mentioned for the successful execution of the application:
 
-1. Configure the remote BLE device in peripheral mode, where add the complete local name record,  Enable the scan response data, and connectable options to the advertising data. And keep it in the advertising mode. Ensure that the specified the remote device name in the RSI_REMOTE_DEVICE_NAME macro is proper.
+1. Configure the remote BLE device in peripheral mode, add the complete local name record, enable the scan response data, and connectable options to the advertising data. And keep it in the advertising mode. Ensure that the specified remote device name in the RSI_REMOTE_DEVICE_NAME macro is proper.
 
       ![](resources/readme/centraladvertiser.png)  
 

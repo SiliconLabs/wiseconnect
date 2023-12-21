@@ -124,7 +124,7 @@ The application can be configured to suit your requirements and development envi
       ```c
       #define RSI_BLE_MAX_DATA_LEN                           20
       ```
-    - `BLE_HEART_RATE_PROFILE` refers name of the Repine device to appear during scanning by remote devices.
+    - `BLE_HEART_RATE_PROFILE` refers name of the Silabs device to appear during scanning by remote devices.
       ```c
       #define RSI_BLE_HEART_RATE_PROFILE                     "BLE_HEART_RATE_PROFILE"
       ```

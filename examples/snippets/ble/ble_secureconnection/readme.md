@@ -125,10 +125,11 @@ Follow the steps for successful execution of the program:
 
 7. Enter the passkey displayed on the console (host logs) on the remote mobile side.  
 
-8. After successful connection, application will initiate SMP paring and wait for SMP response event and SMP passkey request event. After receiving SMP response and SMP SC passkey events, application sends SMP response and stores passkey in numeric value and sets SMP Sc Passkey responses event.
+8. SiWx91x will initiate SMP Procedure by giving a security request . The remote device will give a SMP Pair request and SiWx91x responds with a SMP pair response . SMP Passkey event , encryption event and security keys exchange event follow after it .
 
 9. If SMP is successful, device sends SMP encrypt started event to host. If not success, device sends SMP failure event to host.
 
-10. Refer the following image for console prints:
+10. Refer the following images for console prints:
  
     ![](resources/readme/output.png)
+    ![](resources/readme/output_1.png)

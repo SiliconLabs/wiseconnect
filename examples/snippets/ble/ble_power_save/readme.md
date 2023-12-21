@@ -143,7 +143,9 @@ Follow the steps for successful execution of the program:
     ![](resources/readme/blepowersavedeviceconnection.png) 
 
 8. After successful connection, Silicon Labs device goes to sleep and wakes up for every connection interval. Check the following image for power save cycle after connection.
-![](resources/readme/blepwlog.png)    
+
+
+   ![](resources/readme/blepwlog.png)    
 
 9. After successful program execution, if the Silicon Labs device is configured in PERIPHERAL_ROLE , the prints in teraterm looks as shown below.
 

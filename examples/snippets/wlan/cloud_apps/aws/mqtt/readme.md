@@ -25,7 +25,7 @@ In this application, the SiWx91x, which is configured as a Wi-Fi client interfac
 
 **Soc Mode**:
 
-The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
+If macro **ENABLE_POWER_SAVE** enabled, Then M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
 - ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
   - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
@@ -36,6 +36,11 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
   - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
 
 After M4 processor wakes up via any of the above processes, the application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic.
+
+If macro **ENABLE_POWER_SAVE** disabled, Then M4 processor is not in sleep mode. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds.The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
+
+1. Once in every **PUBLISH_PERIODICITY** time period.
+2. When an incoming publish is received by the application.
 
 **NCP Mode**:
 
@@ -58,7 +63,7 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 
 ### Hardware Requirements
 
-- Windows PC
+- Windows PC with Host interface (UART).
 - Wi-Fi Access point with internet connection
 - **SoC Mode**:
   - Standalone
@@ -208,26 +213,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   
 - After flashing the application code to the module. Energy profiler can be used for current consumption measurements.
 
-- Go to launcher → Debug Adapters pane and click on the board name.
-  
-  ![Figure: Energy Profiler Step 1](resources/readme/energy_profiler_step_1.png)
-
-- Click on Device configuration symbol
-  
-  ![Figure: Energy Profiler Step 2](resources/readme/energy_profiler_step_2.png)
-
-- Open the device configuration tab
-  
-  ![Figure: Energy Profiler Step 3](resources/readme/energy_profiler_step_3.png)
-
-- Change the Target part name to "EFR32MG21A020F1024IM32"
-
-  ![Figure: Energy Profiler Step 4](resources/readme/energy_profiler_step_4.png)
-
-- Change board name to "BRD4180B", click "OK"
-
-  ![Figure: Energy Profiler Step 5](resources/readme/energy_profiler_step_5.png)
-
 - From tools, choose Energy Profiler and click "OK"
 
   ![Figure: Energy Profiler Step 6](resources/readme/energy_profiler_step_6.png)
@@ -235,10 +220,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - From Quick Access, choose Start Energy Capture option
 
   ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_7.png)
-
-**NOTE** : The target part and board name have to be reverted to default to flash application binary.
-
-  ![Figure: Energy Profiler Step 8](resources/readme/energy_profiler_step_8.png)
  
 ### Setting up Security Certificates
 

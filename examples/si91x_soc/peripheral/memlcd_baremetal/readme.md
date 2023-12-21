@@ -37,8 +37,6 @@ dark, and no backlight is needed in normal daylight conditions.
 ### Software Requirements
 
 - Simplicity Studio
-- The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
 
 
 ### Setup Diagram
