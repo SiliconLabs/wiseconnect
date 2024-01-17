@@ -159,7 +159,7 @@ uint8_t heartratefun(heart_rate_t, uint8_t *);
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
 
-sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000 };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 #endif
 
 //! global parameters list
@@ -206,11 +206,7 @@ static const sl_wifi_device_configuration_t
 #endif
                   | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)),
                .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
-               .bt_feature_bit_map         = ((SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
-#if (RSI_BT_GATT_ON_CLASSIC)
-                                      | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
-#endif
-                                      ),
+               .bt_feature_bit_map         = ((SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)),
                //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
                .ble_feature_bit_map =
                  ((SL_SI91X_BLE_MAX_NBR_PERIPHERALS(RSI_BLE_MAX_NBR_PERIPHERALS)

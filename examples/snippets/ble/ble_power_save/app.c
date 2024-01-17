@@ -53,7 +53,7 @@
 //!    Application powersave configurations
 /*=======================================================================*/
 #if ENABLE_POWER_SAVE
-sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000 };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 void fpuInit(void);
@@ -68,6 +68,7 @@ int32_t rsi_initiate_power_save(void);
 uint8_t wlan_radio_initialized = 0, powersave_cmd_given = 0;
 uint8_t device_found          = false;
 uint8_t remote_dev_addr[18]   = { 0 };
+uint8_t local_dev_addr[18]    = { 0 };
 uint8_t remote_dev_bd_addr[6] = { 0 };
 static uint8_t remote_name[31];
 static uint8_t remote_addr_type                                 = 0;
@@ -99,11 +100,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)),
-                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
-#if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
-#endif
-                                          ),
+                   .bt_feature_bit_map         = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL),
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
                    .ble_feature_bit_map =
@@ -443,11 +440,8 @@ void ble_app_task(void *argument)
     LOG_PRINT("\r\n ble get local device address cmd failed with reason code : %lX \n", status);
     return;
   }
-  LOG_PRINT("\n Get local device address: %x:%x:%x:%x\n",
-            rsi_app_resp_get_dev_addr[3],
-            rsi_app_resp_get_dev_addr[2],
-            rsi_app_resp_get_dev_addr[1],
-            rsi_app_resp_get_dev_addr[0]);
+  rsi_6byte_dev_address_to_ascii(local_dev_addr, (uint8_t *)rsi_app_resp_get_dev_addr);
+  LOG_PRINT("\n Get local device address: %s \n", local_dev_addr);
 
   //! set the local device name
   status = rsi_bt_set_local_name((uint8_t *)RSI_BLE_LOCAL_NAME);
@@ -455,6 +449,7 @@ void ble_app_task(void *argument)
     LOG_PRINT("\r\n ble set local name cmd failed with reason code : %lX \n", status);
     return;
   }
+  LOG_PRINT("\n Local name set to: %s\n", RSI_BLE_LOCAL_NAME);
 
   //! get the local device name
   status = rsi_bt_get_local_name(&rsi_app_resp_get_local_name);
@@ -462,7 +457,7 @@ void ble_app_task(void *argument)
     LOG_PRINT("\r\n ble get local name cmd failed with reason code : %lX \n", status);
     return;
   }
-  LOG_PRINT("\n Local name set to: %s\n", rsi_app_resp_get_local_name.name);
+  LOG_PRINT("\n Get local name: %s\n", rsi_app_resp_get_local_name.name);
 
   ble_slave_conn_sem = osSemaphoreNew(1, 0, NULL);
 

@@ -21,7 +21,7 @@
 #include "cmsis_os2.h"
 #include "sl_utility.h"
 #include <stdbool.h>
-
+#include <string.h>
 /******************************************************
  *                    Constants
  ******************************************************/

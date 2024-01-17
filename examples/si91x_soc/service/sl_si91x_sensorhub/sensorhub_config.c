@@ -53,13 +53,13 @@ sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS] = {
   /* {
     .sensor_name               = "ADC_JOYSTICK",
     .sensor_id                 = SL_SENSOR_ADC_JOYSTICK_ID,
-    .channel                   = SL_SH_ADC_CH0_CHANNEL,
+    .channel                   = BIT(SL_SH_ADC_CH1_CHANNEL),
     .sensor_bus                = SL_SH_ADC,
     .sensor_mode               = SL_SH_POLLING_MODE,
     .sampling_interval         = 100,
     .data_deliver.data_mode    = SL_SH_NUM_OF_SAMPLES,
-    .data_deliver.numofsamples = SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES,
-  }, */
+    .data_deliver.numofsamples = SL_SH_ADC_SENSOR1_NUM_OF_SAMPLES,
+  },*/
   /*  {
     .sensor_name               = "ACCELEROMETER_SENSOR",
     .sensor_bus                = SL_SH_SPI,
@@ -74,13 +74,22 @@ sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS] = {
   {
     .sensor_name               = "GUVA_12D_UV",
     .sensor_id                 = SL_SENSOR_ADC_GUVA_S12D_ID,
-    .channel                   = SL_SH_ADC_CH0_CHANNEL,
+    .channel                   = BIT(SL_SH_ADC_CH0_CHANNEL),
     .sensor_bus                = SL_SH_ADC,
     .sensor_mode               = SL_SH_POLLING_MODE,
     .sampling_interval         = 100,
     .data_deliver.data_mode    = SL_SH_NUM_OF_SAMPLES,
     .data_deliver.numofsamples = SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES,
   },
+
+  /*{
+    .sensor_name               = "GY61",
+    .sensor_id                 = SL_SENSOR_ADC_GY_61_ID,
+    .channel                   = BIT(SL_SH_ADC_CH1_CHANNEL) | BIT(SL_SH_ADC_CH2_CHANNEL) | BIT(SL_SH_ADC_CH3_CHANNEL),
+    .sensor_bus                = SL_SH_ADC,
+    .sensor_mode            = SL_SH_INTERRUPT_MODE,
+    .data_deliver.data_mode = SL_SH_NO_DATA_MODE,
+  },*/
 
   {
     .sensor_name               = "LIGHT_SENSOR",
@@ -116,7 +125,7 @@ sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS] = {
   }
 };
 
-const sl_bus_intf_config_t bus_intf_info = {
+sl_bus_intf_config_t bus_intf_info = {
   .i2c_config.i2c_bus_speed    = ARM_I2C_BUS_SPEED_FAST,
   .i2c_config.i2c_power_state  = ARM_POWER_FULL,
   .i2c_config.i2c_control_mode = ARM_I2C_BUS_SPEED,
@@ -130,7 +139,7 @@ const sl_bus_intf_config_t bus_intf_info = {
   .spi_config.spi_cs_number    = SPI_CHIP_SELECT,
   .spi_config.spi_cs_misc_mode = ARM_SPI_CONTROL_SS,
   .spi_config.spi_sec_sel_sig  = ARM_SPI_SS_ACTIVE,
-
+#ifdef SL_SH_ADC_CHANNEL0
   .adc_config.adc_cfg.operation_mode        = SL_ADC_STATIC_MODE,
   .adc_config.adc_cfg.num_of_channel_enable = SL_SH_ADC_NUM_CHANNELS_ENABLE,
 
@@ -139,6 +148,34 @@ const sl_bus_intf_config_t bus_intf_info = {
   .adc_config.adc_ch_cfg.pos_inp_sel[0]       = SL_SH_ADC_CH0_P_INPUT,
   .adc_config.adc_ch_cfg.opamp_gain[0]        = SL_SH_ADC_CH0_OPAMP_GAIN,
   .adc_config.adc_ch_cfg.num_of_samples[0]    = SL_SH_ADC_CH0_NUM_SAMPLES,
-  .adc_config.adc_ch_cfg.chnl_ping_address[0] = ADC_PING_BUFFER,
-  .adc_config.adc_ch_cfg.chnl_pong_address[0] = ADC_PING_BUFFER + (SL_SH_ADC_CH0_NUM_SAMPLES),
+  .adc_config.adc_ch_cfg.chnl_ping_address[0] = ADC_PING_BUFFER0,
+  .adc_config.adc_ch_cfg.chnl_pong_address[0] = ADC_PING_BUFFER0 + SL_SH_ADC_CH0_NUM_SAMPLES,
+#endif
+#ifdef SL_SH_ADC_CHANNEL1
+  .adc_config.adc_ch_cfg.input_type[1]        = SL_ADC_SINGLE_ENDED,
+  .adc_config.adc_ch_cfg.sampling_rate[1]     = SL_SH_ADC_SAMPLING_RATE,
+  .adc_config.adc_ch_cfg.pos_inp_sel[1]       = SL_SH_ADC_CH1_P_INPUT,
+  .adc_config.adc_ch_cfg.opamp_gain[1]        = SL_SH_ADC_CH1_OPAMP_GAIN,
+  .adc_config.adc_ch_cfg.num_of_samples[1]    = SL_SH_ADC_CH1_NUM_SAMPLES,
+  .adc_config.adc_ch_cfg.chnl_ping_address[1] = ADC_PING_BUFFER1,
+  .adc_config.adc_ch_cfg.chnl_pong_address[1] = ADC_PING_BUFFER1 + SL_SH_ADC_CH1_NUM_SAMPLES,
+#endif
+#ifdef SL_SH_ADC_CHANNEL2
+  .adc_config.adc_ch_cfg.input_type[2]        = SL_ADC_SINGLE_ENDED,
+  .adc_config.adc_ch_cfg.sampling_rate[2]     = SL_SH_ADC_SAMPLING_RATE,
+  .adc_config.adc_ch_cfg.pos_inp_sel[2]       = SL_SH_ADC_CH2_P_INPUT,
+  .adc_config.adc_ch_cfg.opamp_gain[2]        = SL_SH_ADC_CH2_OPAMP_GAIN,
+  .adc_config.adc_ch_cfg.num_of_samples[2]    = SL_SH_ADC_CH2_NUM_SAMPLES,
+  .adc_config.adc_ch_cfg.chnl_ping_address[2] = ADC_PING_BUFFER2,
+  .adc_config.adc_ch_cfg.chnl_pong_address[2] = ADC_PING_BUFFER2 + SL_SH_ADC_CH2_NUM_SAMPLES,
+#endif
+#ifdef SL_SH_ADC_CHANNEL3
+  .adc_config.adc_ch_cfg.input_type[3]        = SL_ADC_SINGLE_ENDED,
+  .adc_config.adc_ch_cfg.sampling_rate[3]     = SL_SH_ADC_SAMPLING_RATE,
+  .adc_config.adc_ch_cfg.pos_inp_sel[3]       = SL_SH_ADC_CH3_P_INPUT,
+  .adc_config.adc_ch_cfg.opamp_gain[3]        = SL_SH_ADC_CH3_OPAMP_GAIN,
+  .adc_config.adc_ch_cfg.num_of_samples[3]    = SL_SH_ADC_CH3_NUM_SAMPLES,
+  .adc_config.adc_ch_cfg.chnl_ping_address[3] = ADC_PING_BUFFER3,
+  .adc_config.adc_ch_cfg.chnl_pong_address[3] = ADC_PING_BUFFER3 + SL_SH_ADC_CH3_NUM_SAMPLES,
+#endif
 };

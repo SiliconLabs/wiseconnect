@@ -337,4 +337,10 @@ typedef struct {
 typedef struct {
   uint8_t join_tx_power;
 } sl_wifi_max_tx_power_t;
+
+/// Wi-Fi station TSF
+typedef struct {
+  uint32_t tsf_l; ///< Used to store LSB of TSF
+  uint32_t tsf_m; ///< Used to store MSB of TSF
+} sl_wifi_tsf64_t;
 /** @} */

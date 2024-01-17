@@ -22,30 +22,30 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define BUFFER_SIZE    1024   // Data send and receive length
-#define USART_BAUDRATE 115200 // Baud rate <9600-7372800>
+#define USART_BUFFER_SIZE 1024   // Data send and receive length
+#define USART_BAUDRATE    115200 // Baud rate <9600-7372800>
 #define NON_UC_DEFAULT_CONFIG \
   0 //  Enable this macro to set the default configurations in non_uc case, this is useful when someone don't want to use UC configuration
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static uint8_t data_in[BUFFER_SIZE];
-static uint8_t data_out[BUFFER_SIZE];
+static uint8_t usart_data_in[USART_BUFFER_SIZE];
+static uint8_t usart_data_out[USART_BUFFER_SIZE];
 
-volatile boolean_t send_complete = false, transfer_complete = false, receive_complete = false;
-static boolean_t begin_transmission = true;
+volatile boolean_t usart_send_complete = false, usart_transfer_complete = false, usart_receive_complete = false;
+static boolean_t usart_begin_transmission = true;
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-void callback_event(uint32_t event);
+void usart_callback_event(uint32_t event);
 static void compare_loop_back_data(void);
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
 sl_usart_handle_t usart_handle;
-usart_mode_enum_t current_mode = SL_SEND_DATA;
+usart_mode_enum_t current_mode = SL_USART_SEND_DATA;
 /*******************************************************************************
  * USART Example Initialization function
  ******************************************************************************/
@@ -83,7 +83,7 @@ void usart_example_init(void)
     }
     DEBUGOUT("USART configuration is successful \n");
     // Register user callback function
-    status = sl_si91x_usart_register_event_callback(callback_event);
+    status = sl_si91x_usart_register_event_callback(usart_callback_event);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_usart_register_event_callback: Error Code : %lu \n", status);
       break;
@@ -108,60 +108,60 @@ void usart_example_process_action(void)
   // Assuming all the macros are enabled, after transfer, receive will be executed and after receive
   // send will be executed.
   switch (current_mode) {
-    case SL_SEND_DATA:
+    case SL_USART_SEND_DATA:
 #if (SL_USART_SYNCH_MODE != ENABLE)
       // Validation for executing the API only once
-      if (begin_transmission == true) {
+      if (usart_begin_transmission == true) {
         // Fill the data buffer to be send
-        for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
-          data_out[i] = (uint8_t)(i + 1);
+        for (uint16_t i = 0; i < USART_BUFFER_SIZE; i++) {
+          usart_data_out[i] = (uint8_t)(i + 1);
         }
-        status = sl_si91x_usart_send_data(usart_handle, data_out, sizeof(data_out));
+        status = sl_si91x_usart_send_data(usart_handle, usart_data_out, sizeof(usart_data_out));
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_usart_send_data: Error Code : %lu \n", status);
-          current_mode = SL_TRANSMISSION_COMPLETED;
+          current_mode = SL_USART_TRANSMISSION_COMPLETED;
           break;
         }
-        begin_transmission = false;
+        usart_begin_transmission = false;
       }
 
-      send_complete = false;
+      usart_send_complete = false;
 
       if (USE_RECEIVE) {
         // If receive macro is enabled, current mode is set to receive
-        current_mode       = SL_RECEIVE_DATA;
-        begin_transmission = true;
+        current_mode             = SL_USART_RECEIVE_DATA;
+        usart_begin_transmission = true;
         break;
       }
       DEBUGOUT("USART send completed successfully \n");
       // Current mode is set to complete
-      current_mode = SL_TRANSMISSION_COMPLETED;
+      current_mode = SL_USART_TRANSMISSION_COMPLETED;
 #endif
       break;
 
-    case SL_RECEIVE_DATA:
+    case SL_USART_RECEIVE_DATA:
 #if (SL_USART_SYNCH_MODE != ENABLE)
-      if (begin_transmission == true) {
+      if (usart_begin_transmission == true) {
         // Validation for executing the API only once
-        status = sl_si91x_usart_receive_data(usart_handle, data_in, sizeof(data_in));
+        status = sl_si91x_usart_receive_data(usart_handle, usart_data_in, sizeof(usart_data_in));
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_usart_receive_data: Error Code : %lu \n", status);
-          current_mode = SL_TRANSMISSION_COMPLETED;
+          current_mode = SL_USART_TRANSMISSION_COMPLETED;
           break;
         }
         DEBUGOUT("USART receive begin successfully \n");
-        begin_transmission = false;
+        usart_begin_transmission = false;
       }
       //Waiting till the receive is completed
-      if (receive_complete) {
+      if (usart_receive_complete) {
         // Update the receive compelete flag with 0.
-        receive_complete = false;
+        usart_receive_complete = false;
         if (USE_SEND) {
           // If send macro is enabled, current mode is set to send
-          current_mode       = SL_SEND_DATA;
-          begin_transmission = true;
+          current_mode             = SL_USART_SEND_DATA;
+          usart_begin_transmission = true;
           DEBUGOUT("USART receive completed \n");
           break;
         }
@@ -170,44 +170,44 @@ void usart_example_process_action(void)
         DEBUGOUT("USART receive completed \n");
         compare_loop_back_data();
         // If send macro is not enabled, current mode is set to completed.
-        current_mode = SL_TRANSMISSION_COMPLETED;
+        current_mode = SL_USART_TRANSMISSION_COMPLETED;
       }
 #endif
       break;
-    case SL_TRANSFER_DATA:
+    case SL_USART_TRANSFER_DATA:
 #if (SL_USART_SYNCH_MODE == ENABLE)
       // Validation for executing the API only once
-      if (begin_transmission) {
+      if (usart_begin_transmission) {
         // Fill the data buffer to be send
-        for (int i = 0; i < BUFFER_SIZE; i++) {
-          data_out[i] = (uint8_t)i + 1;
+        for (int i = 0; i < USART_BUFFER_SIZE; i++) {
+          usart_data_out[i] = (uint8_t)i + 1;
         }
 
-        status = sl_si91x_usart_transfer_data(usart_handle, data_out, data_in, sizeof(data_out));
+        status = sl_si91x_usart_transfer_data(usart_handle, usart_data_out, usart_data_in, sizeof(usart_data_out));
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_usart_transfer_data: Error Code : %lu \n", status);
-          current_mode = SL_TRANSMISSION_COMPLETED;
+          current_mode = SL_USART_TRANSMISSION_COMPLETED;
           break;
         }
         DEBUGOUT("USART transfer begin successfully \n");
-        begin_transmission = false;
+        usart_begin_transmission = false;
       }
 
       //Waiting till the transfer is completed
-      if (transfer_complete) {
-        // Update transfer_complete flag with 0.
-        transfer_complete = false;
+      if (usart_transfer_complete) {
+        // Update usart_transfer_complete flag with 0.
+        usart_transfer_complete = false;
 
         compare_loop_back_data();
         // At last current mode is set to completed.
-        current_mode = SL_TRANSMISSION_COMPLETED;
+        current_mode = SL_USART_TRANSMISSION_COMPLETED;
         DEBUGOUT("USART transfer completed \n");
       }
 #endif
       break;
 
-    case SL_TRANSMISSION_COMPLETED:
+    case SL_USART_TRANSMISSION_COMPLETED:
       break;
   }
 }
@@ -221,12 +221,12 @@ static void compare_loop_back_data(void)
   uint16_t data_index = 0;
   // Check for data in and data out are same, if same then comparision
   // will continue till end of the buffer
-  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
-    if (data_in[data_index] != data_out[data_index]) {
+  for (data_index = 0; data_index < USART_BUFFER_SIZE; data_index++) {
+    if (usart_data_in[data_index] != usart_data_out[data_index]) {
       break;
     }
   }
-  if (data_index == BUFFER_SIZE) {
+  if (data_index == USART_BUFFER_SIZE) {
     DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
   } else {
     DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
@@ -236,17 +236,17 @@ static void compare_loop_back_data(void)
 /*******************************************************************************
  * Callback function triggered on data Transfer and reception
  ******************************************************************************/
-void callback_event(uint32_t event)
+void usart_callback_event(uint32_t event)
 {
   switch (event) {
     case SL_USART_EVENT_SEND_COMPLETE:
-      send_complete = true;
+      usart_send_complete = true;
       break;
     case SL_USART_EVENT_RECEIVE_COMPLETE:
-      receive_complete = true;
+      usart_receive_complete = true;
       break;
     case SL_USART_EVENT_TRANSFER_COMPLETE:
-      transfer_complete = true;
+      usart_transfer_complete = true;
       break;
   }
 }

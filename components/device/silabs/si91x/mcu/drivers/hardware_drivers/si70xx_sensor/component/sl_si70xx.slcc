@@ -16,3 +16,4 @@ provides:
   - name: sl_si70xx
 requires:
   - name: sl_i2c
+  - name: sl_gpio

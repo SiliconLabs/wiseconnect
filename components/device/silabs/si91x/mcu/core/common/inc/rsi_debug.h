@@ -32,6 +32,7 @@ void Board_UARTPutSTR(uint8_t *ptr);
 uint8_t Board_UARTGetChar(void);
 void Board_UARTPutChar(uint8_t ch);
 
+#ifndef IOSTREAM_USART
 #ifdef DEBUG_UART
 #define DEBUGINIT()   Board_Debug_Init()
 #define DEBUGOUT(...) printf(__VA_ARGS__)
@@ -42,6 +43,10 @@ void Board_UARTPutChar(uint8_t ch);
 #define DEBUGOUT(...)
 #define DEBUGSTR(str)
 #define DEBUGIN()
+#endif
+#else
+#define DEBUGINIT()
+#define DEBUGOUT(...) printf(__VA_ARGS__)
 #endif
 
 #ifdef __cplusplus

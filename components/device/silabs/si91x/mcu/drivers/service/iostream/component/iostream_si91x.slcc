@@ -1,5 +1,5 @@
 id: iostream_si91x
-label: IO Stream
+label: IO Stream Si91x
 package: platform
 description: >
   The IO Stream component allows to read/write data using a variety of physical
@@ -45,3 +45,4 @@ provides:
   - name: iostream_si91x
 requires:
   - name: sl_usart_iostream
+  - name: iostream_retarget_stdio  

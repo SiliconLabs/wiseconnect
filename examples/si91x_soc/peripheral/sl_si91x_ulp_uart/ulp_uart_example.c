@@ -24,36 +24,40 @@
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 
-#define BUFFER_SIZE     1024   // Data send and receive length
-#define USART_BAUDRATE  115200 // Baud rate <9600-7372800>
-#define ULP_GPIO_PIN    2      // ULP GPIO to receive
-#define OUTPUT_VALUE    1      // GPIO output value
-#define ULP_GPIO_PORT   4      // GPIO Port no
-#define ULP_GPIO_TOGGLE 10     // ULP GPIO to toggle
-#define SET             1      // Macro to set
-#define CLR             0      // Macro to clear
+#define ULP_UART_BUFFER_SIZE 1024   // Data send and receive length
+#define USART_BAUDRATE       115200 // Baud rate <9600-7372800>
+#define ULP_GPIO_PIN         2      // ULP GPIO to receive
+#define OUTPUT_VALUE         1      // GPIO output value
+#define ULP_GPIO_PORT        4      // GPIO Port no
+#define ULP_GPIO_TOGGLE      10     // ULP GPIO to toggle
+#define SET                  1      // Macro to set
+#define CLR                  0      // Macro to clear
 #define NON_UC_DEFAULT_CONFIG \
   0 //  Enable this macro to set the default configurations in non_uc case, this is useful when someone don't want to use UC configuration
+#define ULP_BANK_OFFSET 0x800                                         // ULP Memory bank offset value.
+#define TX_BUF_MEMORY   (ULP_SRAM_START_ADDR + (1 * ULP_BANK_OFFSET)) // Transfer buffer start address at 2K
+#define RX_BUF_MEMORY   (ULP_SRAM_START_ADDR + (2 * ULP_BANK_OFFSET)) // Rx buffer start address at 4k
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static uint8_t data_in[BUFFER_SIZE];
-static uint8_t data_out[BUFFER_SIZE];
+static uint8_t ulp_uart_data_in[ULP_UART_BUFFER_SIZE];
+static uint8_t ulp_uart_data_out[ULP_UART_BUFFER_SIZE];
 
-volatile boolean_t send_complete = false, transfer_complete = false, receive_complete = false;
-static boolean_t begin_transmission = true;
+volatile boolean_t ulp_uart_send_complete = false, ulp_uart_transfer_complete = false,
+                   ulp_uart_receive_complete = false;
+static boolean_t ulp_uart_begin_transmission = true;
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-void callback_event(uint32_t event);
+void ulp_uart_callback_event(uint32_t event);
 static void compare_loop_back_data(void);
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
 sl_usart_handle_t usart_handle;
-usart_mode_enum_t current_mode = SL_SEND_DATA;
+usart_mode_enum_t current_mode = SL_ULP_UART_SEND_DATA;
 sl_gpio_t ulp_gpio_rx          = { ULP_GPIO_PORT, ULP_GPIO_PIN };
 sl_gpio_t ulp_gpio_toggle      = { ULP_GPIO_PORT, ULP_GPIO_TOGGLE };
 
@@ -90,10 +94,11 @@ void usart_example_init(void)
   usart_config.synch_mode    = DISABLE;
 #endif
 
-  //Set pin 0 in GPIO mode
+  //Set ulp pin 10 in GPIO mode
   sl_gpio_driver_set_pin_mode(&ulp_gpio_toggle, EGPIO_PIN_MUX_MODE0, OUTPUT_VALUE);
   //Set output direction
   sl_si91x_gpio_driver_set_pin_direction(ULP_GPIO_PORT, ULP_GPIO_TOGGLE, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+
   do {
     // Initialize the UART
     status = sl_si91x_usart_init(ULPUART, &usart_handle);
@@ -121,14 +126,14 @@ void usart_example_init(void)
     sl_gpio_driver_set_pin_mode(&ulp_gpio_rx, EGPIO_PIN_MUX_MODE3, OUTPUT_VALUE);
 #endif
     // Register user callback function
-    status = sl_si91x_usart_register_event_callback(callback_event);
+    status = sl_si91x_usart_register_event_callback(ulp_uart_callback_event);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_usart_register_event_callback: Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("USART user event callback registered successfully \n");
     sl_si91x_usart_get_configurations(ULPUART, &get_config);
-    DEBUGOUT("Baud Rate = %d \n", get_config.baudrate);
+    DEBUGOUT("Baud Rate = %ld \n", get_config.baudrate);
   } while (false);
 }
 
@@ -139,61 +144,65 @@ void usart_example_process_action(void)
 {
   sl_status_t status;
   // In this switch case, according to the macros enabled in header file, it starts to execute the APIs
-  // Assuming all the macros are enabled, after transfer, receive will be executed and after receive
-  // send will be executed.
   switch (current_mode) {
-#if (SL_USART_SYNCH_MODE != ENABLE)
-    case SL_SEND_DATA:
+    case SL_ULP_UART_SEND_DATA:
       // Validation for executing the API only once
-      if (begin_transmission == true) {
+      if (ulp_uart_begin_transmission == true) {
         // Fill the data buffer to be send
-        for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
-          data_out[i] = (uint8_t)(i + 1);
+        for (uint16_t i = 0; i < ULP_UART_BUFFER_SIZE; i++) {
+          ulp_uart_data_out[i] = (uint8_t)(i + 1);
         }
-        status = sl_si91x_usart_send_data(usart_handle, data_out, sizeof(data_out));
+
+        memcpy((uint8_t *)TX_BUF_MEMORY, &ulp_uart_data_out, sizeof(ulp_uart_data_out[0]) * ULP_UART_BUFFER_SIZE);
+
+        status = sl_si91x_usart_send_data(usart_handle, (uint8_t *)TX_BUF_MEMORY, sizeof(ulp_uart_data_out));
+
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_usart_send_data: Error Code : %lu \n", status);
-          current_mode = SL_TRANSMISSION_COMPLETED;
+          current_mode = SL_ULP_UART_TRANSMISSION_COMPLETED;
           break;
         }
-        begin_transmission = false;
+        ulp_uart_begin_transmission = false;
       }
 
-      send_complete = false;
+      ulp_uart_send_complete = false;
 
       if (USE_RECEIVE) {
         // If receive macro is enabled, current mode is set to receive
-        current_mode       = SL_RECEIVE_DATA;
-        begin_transmission = true;
+        current_mode                = SL_ULP_UART_RECEIVE_DATA;
+        ulp_uart_begin_transmission = true;
         break;
       }
       DEBUGOUT("USART send completed successfully \n");
       // Current mode is set to complete
-      current_mode = SL_TRANSMISSION_COMPLETED;
+      current_mode = SL_ULP_UART_TRANSMISSION_COMPLETED;
       break;
 
-    case SL_RECEIVE_DATA:
-      if (begin_transmission == true) {
+    case SL_ULP_UART_RECEIVE_DATA:
+      if (ulp_uart_begin_transmission == true) {
         // Validation for executing the API only once
-        status = sl_si91x_usart_receive_data(usart_handle, data_in, sizeof(data_in));
+        status = sl_si91x_usart_receive_data(usart_handle, (uint8_t *)RX_BUF_MEMORY, sizeof(ulp_uart_data_in));
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_usart_receive_data: Error Code : %lu \n", status);
-          current_mode = SL_TRANSMISSION_COMPLETED;
+          current_mode = SL_ULP_UART_TRANSMISSION_COMPLETED;
           break;
         }
         DEBUGOUT("USART receive begin successfully \n");
-        begin_transmission = false;
+        ulp_uart_begin_transmission = false;
       }
-      //Waiting till the receive is completed
-      if (receive_complete) {
+
+      if (ulp_uart_receive_complete) {
+
+        //Waiting till the receive is completed
+        memcpy(&ulp_uart_data_in, (uint8_t *)RX_BUF_MEMORY, sizeof(ulp_uart_data_in[0]) * ULP_UART_BUFFER_SIZE);
         // Update the receive compelete flag with 0.
-        receive_complete = false;
+        ulp_uart_receive_complete = false;
         if (USE_SEND) {
           // If send macro is enabled, current mode is set to send
-          current_mode       = SL_SEND_DATA;
-          begin_transmission = true;
+          current_mode                = SL_ULP_UART_SEND_DATA;
+          ulp_uart_begin_transmission = true;
           compare_loop_back_data();
           DEBUGOUT("USART receive completed \n");
           break;
@@ -203,42 +212,13 @@ void usart_example_process_action(void)
         DEBUGOUT("USART receive completed \n");
         compare_loop_back_data();
         // If send macro is not enabled, current mode is set to completed.
-        current_mode = SL_TRANSMISSION_COMPLETED;
+        current_mode = SL_ULP_UART_TRANSMISSION_COMPLETED;
       }
       break;
 
-    case SL_TRANSFER_DATA:
-#else
-    // Validation for executing the API only once
-    if (begin_transmission) {
-      // Fill the data buffer to be send
-      for (int i = 0; i < BUFFER_SIZE; i++) {
-        data_out[i] = (uint8_t)i + 1;
-      }
-
-      status = sl_si91x_usart_transfer_data(usart_handle, data_out, data_in, sizeof(data_out));
-      if (status != SL_STATUS_OK) {
-        // If it fails to execute the API, it will not execute rest of the things
-        DEBUGOUT("sl_si91x_usart_transfer_data: Error Code : %lu \n", status);
-        current_mode = completed;
-        break;
-      }
-      DEBUGOUT("USART transfer begin successfully \n");
-      begin_transmission = false;
-    }
-
-    //Waiting till the transfer is completed
-    if (transfer_complete) {
-      // Update transfer_complete flag with 0.
-      transfer_complete = false;
-      // At last current mode is set to completed.
-      current_mode = SL_TRANSMISSION_COMPLETED;
-    }
-    DEBUGOUT("USART transfer completed \n");
-#endif
+    case SL_ULP_UART_TRANSMISSION_COMPLETED:
       break;
-
-    case SL_TRANSMISSION_COMPLETED:
+    case SL_ULP_UART_TRANSFER_DATA: // This case is not required in ULP_UART mode
       break;
   }
 }
@@ -252,12 +232,12 @@ static void compare_loop_back_data(void)
   uint16_t data_index = 0;
   // Check for data in and data out are same, if same then comparision
   // will continue till end of the buffer
-  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
-    if (data_in[data_index] != data_out[data_index]) {
+  for (data_index = 0; data_index < ULP_UART_BUFFER_SIZE; data_index++) {
+    if (ulp_uart_data_in[data_index] != ulp_uart_data_out[data_index]) {
       break;
     }
   }
-  if (data_index == BUFFER_SIZE) {
+  if (data_index == ULP_UART_BUFFER_SIZE) {
     // Set the pin
     sl_gpio_driver_set_pin(&ulp_gpio_toggle);
     // Clear the pin
@@ -271,17 +251,14 @@ static void compare_loop_back_data(void)
 /*******************************************************************************
  * Callback function triggered on data Transfer and reception
  ******************************************************************************/
-void callback_event(uint32_t event)
+void ulp_uart_callback_event(uint32_t event)
 {
   switch (event) {
     case SL_USART_EVENT_SEND_COMPLETE:
-      send_complete = true;
+      ulp_uart_send_complete = true;
       break;
     case SL_USART_EVENT_RECEIVE_COMPLETE:
-      receive_complete = true;
-      break;
-    case SL_USART_EVENT_TRANSFER_COMPLETE:
-      transfer_complete = true;
+      ulp_uart_receive_complete = true;
       break;
   }
 }

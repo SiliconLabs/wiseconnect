@@ -31,7 +31,7 @@
 #include "sl_net.h"
 #include "sl_utility.h"
 #include "cmsis_os2.h"
-
+#include "sl_wifi_callback_framework.h"
 /******************************************************
  *               Variable Definitions
  ******************************************************/

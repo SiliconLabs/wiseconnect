@@ -15,7 +15,6 @@
  *
  ******************************************************************************/
 
-#include "sl_si91x_psram.h"
 #include "UDMA.h"
 #include "rsi_pll.h"
 #include "rsi_qspi.h"
@@ -41,7 +40,7 @@
  ******************************   VARIABLES   **********************************
  ******************************************************************************/
 
-extern PSRAMSecureSegmentType PSRAMSecureSegments[MAX_SEC_SEGMENTS];
+extern struct PSRAMSecureSegmentType PSRAMSecureSegments[MAX_SEC_SEGMENTS];
 
 static sl_psram_return_type_t autoModeState = PSRAM_UNKNOWN;
 
@@ -57,7 +56,7 @@ spi_config_t spi_psram_default_config = {
                     .d3d2_data         = 3,
                     .continuous        = DIS_CONTINUOUS,
                     .read_cmd          = 0x03,
-                    .flash_type        = 255,
+                    .flash_type        = 0xf,
                     .no_of_dummy_bytes = 0,
                     .extra_byte_en     = 0 },
 
@@ -95,7 +94,7 @@ spi_config_t spi_psram_default_config = {
 
 };
 
-static PSRAMStatusType PSRAMStatus = {
+static struct PSRAMStatusType PSRAMStatus = {
   .state               = unknown,
   .interfaceMode       = SINGLE_MODE,
   .burstSize           = 0,
@@ -103,7 +102,7 @@ static PSRAMStatusType PSRAMStatus = {
   .secureSegmentNumber = 0,
 };
 
-PSRAMPinConfigType PSRAMPinConfig[NUM_OF_PSRAM_PINS] = {
+struct PSRAMPinConfigType PSRAMPinConfig[NUM_OF_PSRAM_PINS] = {
   { M4SS_PSRAM_CLK_PORT, M4SS_PSRAM_CLK_PIN, M4SS_PSRAM_CLK_MUX, M4SS_PSRAM_CLK_PAD },
   { M4SS_PSRAM_CSN_PORT, M4SS_PSRAM_CSN_PIN, M4SS_PSRAM_CSN_MUX, M4SS_PSRAM_CSN_PAD },
   { M4SS_PSRAM_D0_PORT, M4SS_PSRAM_D0_PIN, M4SS_PSRAM_D0_MUX, M4SS_PSRAM_D0_PAD },
@@ -137,7 +136,7 @@ extern RSI_UDMA_HANDLE_T udmaHandle0;
 
 extern uint32_t dma_rom_buff0[30];
 
-static volatile xferContextType ctx;
+static volatile struct xferContextType ctx;
 RSI_UDMA_CHA_CONFIG_DATA_T control;
 RSI_UDMA_CHA_CFG_T config;
 
@@ -305,6 +304,7 @@ static void qspi_deassert_csn(qspi_reg_t *qspi_reg);
  ******************************************************************************/
 static void qspi_sram_auto_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config);
 
+#if (PSRAM_MODEL_WRAP == 1)
 /***************************************************************************/ /**
  * @brief       
  *   Initialize SRAM Wrap mode
@@ -316,6 +316,7 @@ static void qspi_sram_auto_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config);
  *   SPI configs for QSPI interface                    
  ******************************************************************************/
 static void qspi_sram_wrap_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config);
+#endif
 
 /***************************************************************************/ /**
  * @brief       
@@ -340,7 +341,9 @@ static void qspi_auto_mode_en(qspi_reg_t *qspi_reg);
 
 static void qspi_qspiload_key_ext(qspi_reg_t *qspi_reg, uint16_t key_size);
 
+#ifdef SECURITY_KEY_CONFIG
 static void qspi_qspiunload_key_ext(qspi_reg_t *qspi_reg);
+#endif
 
 /*******************************************************************************
  ***************************   LOCAL FUNCTIONS   *******************************
@@ -356,7 +359,7 @@ __STATIC_INLINE void wait_state_manual()
 }
 
 /* UDMA controller transfer descriptor chain complete callback */
-static void udma_transfer_complete(uint32_t event, uint8_t ch)
+static void udma_transfer_complete(uint32_t event, uint32_t ch)
 {
   if (event == UDMA_EVENT_XFER_DONE) {
     if (ch == 5 || ch == 4) {
@@ -611,6 +614,7 @@ void qspi_sram_auto_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
   }
 }
 
+#if (PSRAM_MODEL_WRAP == 1)
 /* Initialize SRAM Wrap mode */
 void qspi_sram_wrap_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
 {
@@ -638,6 +642,7 @@ void qspi_sram_wrap_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
   // read cmd for wrap mode
   *auto_2_ptr |= 0x8B << 16;
 }
+#endif
 
 /* Set SWAP mode based on SPI config */
 void qspi_set_swap_mode(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
@@ -692,6 +697,7 @@ void qspi_qspiload_key_ext(qspi_reg_t *qspi_reg, uint16_t key_size)
   qspi_reg->OCTA_SPI_BUS_CONTROLLER2 = aes_octa_spi_controller_2; // enabling security ;
 }
 
+#ifdef SECURITY_KEY_CONFIG
 void qspi_qspiunload_key_ext(qspi_reg_t *qspi_reg)
 {
 
@@ -703,16 +709,13 @@ void qspi_qspiunload_key_ext(qspi_reg_t *qspi_reg)
 
   qspi_reg->QSPI_AES_SEC_KEY_FRM_KH = DEFAULT_AES_SEC_KEY_FRM_KH;
 }
+#endif
 
 /* Enters QPI Mode, can only be called in SPI mode */
 sl_psram_return_type_t psram_enter_qpi_mode(void)
 {
 
   uint8_t command[2];
-
-  if (&PSRAM_Device.spi_config == NULL) {
-    return PSRAM_NOT_INITIALIZED;
-  }
 
   // Set the PSRAM device to QPI mode
   command[0] = PSRAM_ENTER_QPI;
@@ -732,10 +735,6 @@ sl_psram_return_type_t psram_exit_qpi_mode(void)
 {
 
   uint8_t command[2];
-
-  if (&PSRAM_Device.spi_config == NULL) {
-    return PSRAM_NOT_INITIALIZED;
-  }
 
   // Set the PSRAM device to SPI mode
   command[0] = PSRAM_EXIT_QPI;
@@ -1089,9 +1088,6 @@ sl_psram_return_type_t sl_si91x_psram_init()
 sl_psram_return_type_t sl_si91x_psram_uninit(void)
 {
   uint8_t pinIndex = 0;
-#ifdef D_CACHE_ENABLE
-  uint32_t dCacheDeInitStatus = 0;
-#endif
 
   /*Exits PSRAM device from QPI mode*/
   psram_exit_qpi_mode();
@@ -1295,7 +1291,6 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_blocking_mode(uint32_t addr
                                                                    uint32_t num_of_elements)
 {
   uint32_t prev_bus_mode;
-  uint32_t dummy_cnt, tmp_dummy;
   uint16_t readLength;
   uint8_t psramXferBuf[7];
   uint32_t xferAddr;
@@ -1583,7 +1578,7 @@ sl_psram_return_type_t sl_si91x_psram_manual_write_in_dma_mode(uint32_t addr,
                                   splitLength / hSize,
                                   control,
                                   &config,
-                                  udma_transfer_complete,
+                                  (UDMA_SignalEvent_t)udma_transfer_complete,
                                   udma0_chnl_info,
                                   udmaHandle0);
   if (status != RSI_OK) {
@@ -1721,7 +1716,6 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_dma_mode(uint32_t addr,
 {
   uint32_t qspi_manual_config_reg;
   uint32_t prev_bus_mode;
-  uint32_t dummy_cnt, tmp_dummy;
   int32_t status       = RSI_OK;
   qspi_reg_t *qspi_reg = (qspi_reg_t *)M4_QSPI_2_BASE_ADDRESS;
   uint16_t xferLength  = 0;
@@ -1834,7 +1828,7 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_dma_mode(uint32_t addr,
                                   splitLength / hSize,
                                   control,
                                   &config,
-                                  udma_transfer_complete,
+                                  (UDMA_SignalEvent_t)udma_transfer_complete,
                                   udma0_chnl_info,
                                   udmaHandle0);
   if (status != RSI_OK) {
@@ -1981,9 +1975,6 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_dma_mode(uint32_t addr,
 sl_psram_return_type_t sl_si91x_psram_reset(void)
 {
   uint8_t command;
-  if (&PSRAM_Device.spi_config == NULL) {
-    return PSRAM_NOT_INITIALIZED;
-  }
 
   /*Send the RESET Enable command first*/
   command = PSRAM_RESET_EN;

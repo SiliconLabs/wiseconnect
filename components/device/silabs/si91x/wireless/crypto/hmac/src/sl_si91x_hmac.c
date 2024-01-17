@@ -32,6 +32,9 @@
 #include "sl_si91x_protocol_types.h"
 #include "sl_constants.h"
 #include "sl_si91x_driver.h"
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+#include "sl_si91x_crypto_thread.h"
+#endif
 #include <string.h>
 
 static sl_status_t hmac_pending(sl_si91x_hmac_config_t *config,
@@ -127,6 +130,13 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
 
   memcpy((data + key_length), config->msg, config->msg_length); // Copy message into data
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_hmac_mutex == NULL) {
+    crypto_hmac_mutex = sl_si91x_crypto_threadsafety_init(crypto_hmac_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_hmac_mutex);
+#endif
+
   while (total_length) {
     // Check total length
     if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {
@@ -152,6 +162,9 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
     status = hmac_pending(config, data, chunk_len, (config->msg_length + key_length), hmac_sha_flags, output);
     if (status != SL_STATUS_OK) {
       free(data);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+      mutex_result = sl_si91x_crypto_mutex_release(crypto_hmac_mutex);
+#endif
       return status;
     }
 
@@ -164,5 +177,8 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
   }
 
   free(data);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_hmac_mutex);
+#endif
   return status;
 }

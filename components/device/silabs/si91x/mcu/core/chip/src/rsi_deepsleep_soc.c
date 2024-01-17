@@ -45,6 +45,14 @@ void fpuInit(void);
 
 extern void set_scdc(uint32 Deepsleep);
 
+#ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
+#include "sl_si91x_psram_config.h"
+#ifdef PSRAM_HALF_SLEEP_SUPPORTED
+extern void sl_si91x_psram_sleep(void);
+extern void sl_si91x_psram_wakeup(void);
+#endif
+#endif
+
 uint32_t nvic_enable[MAX_NVIC_REGS] = { 0 };
 uint8_t nvic_ip_reg[MAX_IPS]        = { 0 };
 uint8_t scs_shp_reg[MAX_SHP]        = { 0 };
@@ -388,7 +396,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   set_scdc(SL_SCDC_SLEEP);
 
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
-#include "sl_si91x_psram_config.h"
 #if (defined INTERNAL_LDO_FOR_PSRAM)
   RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
   if (sleepType == SLEEP_WITH_RETENTION) {

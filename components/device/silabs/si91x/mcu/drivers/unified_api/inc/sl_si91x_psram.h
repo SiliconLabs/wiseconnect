@@ -94,8 +94,10 @@ typedef enum {
   PSRAM_MAX_SEC_SEGMENT_REACH
 } sl_psram_return_type_t;
 
+#if PSRAM_BURST_LEN_TOGGLE_SUPPORTED
 /// Wrap burst size enum
 typedef enum { _WRAP16, _WRAP32, _WRAP64, _WRAP512 } sl_psram_burst_size_type_t;
+#endif
 
 /// PSRAM DMA status enum
 typedef enum { DMA_NONE, DMA_DONE, DMA_FAIL } sl_psram_dma_status_type_t;
@@ -125,7 +127,7 @@ typedef struct {
 } sl_psram_id_type_t;
 
 /// PSRAM configuration handle structure
-typedef struct {
+struct sl_psram_info_type_t {
   PSRAMDevType deviceName;         ///< PSRAM Device enum value
   sl_psram_id_type_t deviceID;     ///< Device ID struct
   uint32_t devDensity;             ///< Device Density in bits
@@ -135,46 +137,46 @@ typedef struct {
   spi_config_t spi_config;         ///< SPI Config for QSPI interface
   uint16_t defaultBurstWrapSize;   ///< Default burst wrap size
   uint16_t toggleBurstWrapSize;    ///< Toggle Burst Wrap size
-} sl_psram_info_type_t;
+};
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
 /// PSRAM status context
-typedef struct {
+struct PSRAMStatusType {
   PSRAMStateType state;        ///< PSRAM state enum value
   uint8_t interfaceMode;       ///< QSPI Interface mode for PSRAM
   bool secureModeEnable;       ///<
   uint8_t secureSegmentNumber; ///<
   uint16_t burstSize;          ///< Burst Size
-} PSRAMStatusType;
+};
 
 /// PSRAM pin configuration structure
-typedef struct {
+struct PSRAMPinConfigType {
   uint8_t port;
   uint8_t pin;
   uint8_t mux;
   uint8_t pad;
-} PSRAMPinConfigType;
+};
 
 /// DMA transfer status enum
 typedef enum { IDLE, TX_RUNNING, RX_RUNNING, FAILED } XferStatusType;
 
 /// DMA transfer context
-typedef struct {
+struct xferContextType {
   XferStatusType xferStatus;
   uint32_t xferNextAddress;
   void *xferNextSourceAddress;
   uint32_t xferRemLength;
   uint8_t xferHsize;
   sl_psram_dma_status_type_t *done;
-} xferContextType;
+};
 
-typedef struct {
+struct PSRAMSecureSegmentType {
   uint8_t segmentEnable;
   uint32_t lowerBoundary;
   uint32_t higherBoundary;
 #define MAX_SEC_SEGMENTS 4
-} PSRAMSecureSegmentType;
+};
 
 /** @endcond */
 
@@ -372,9 +374,9 @@ sl_psram_return_type_t sl_si91x_psram_enable_encry_decry(uint16_t keySize);
      - QPI Mode (Quad IO)
    - Operation frequency Source
      - Interface PLL Clock
-     - ULP Reference clock
-     - Modem PLL clock 
-     - SoC PLL clock
+     - ULP Reference Clock 
+     - SoC PLL Clock
+     - M4_SOCCLKNOSWLSYNCCLKTREEGATED Clock
 
    # Linker configurations {#psram_linker_configuration}
    The text segment, data segment, bss, heap and stack can be placed in PSRAM by 

@@ -215,6 +215,13 @@ sl_status_t sl_si91x_sio_init(void);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_spi_init(sl_sio_spi_config_t *configuration);
 
+/*******************************************************************************
+ * @brief This API is used to De-initialize SIO module
+ * @param[in] none
+ * @return none
+ ******************************************************************************/
+void sl_si91x_sio_deinit(void);
+
 /***************************************************************************/ /**
  * @brief Initialize SIO SPI pins and clock
  * @param[in] sio_spi_init : Pointer to the structure of type \ref sl_sio_spi_t

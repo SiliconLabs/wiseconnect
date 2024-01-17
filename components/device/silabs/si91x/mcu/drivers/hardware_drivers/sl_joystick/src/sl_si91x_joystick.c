@@ -120,7 +120,7 @@ sl_status_t sl_si91x_joystick_get_position(sl_joystick_state_t state, sl_joystic
     sample_data = (((float)adc_value / (float)ADC_MAX_OP_VALUE) * vref_value);
     sample_data = (sample_data * DIVISION_MULTIPLIER);
     // determine which direction pad was pressed
-    if ((sample_data <= JOYSTICK_MV_C + JOYSTICK_MV_ERROR)) {
+    if ((sample_data >= JOYSTICK_MV_C - JOYSTICK_MV_ERROR) && (sample_data <= JOYSTICK_MV_C + JOYSTICK_MV_ERROR)) {
       joystick_direction = SL_JOYSTICK_C;
     } else if ((sample_data >= JOYSTICK_MV_N - JOYSTICK_MV_ERROR)
                && (sample_data <= JOYSTICK_MV_N + JOYSTICK_MV_ERROR)) {

@@ -176,13 +176,13 @@ psa_status_t sli_si91x_psa_export_public_key_ecdh(const psa_key_attributes_t *at
 
 psa_status_t sli_si91x_psa_ecdh_key_agreement(psa_algorithm_t alg,
                                               const psa_key_attributes_t *attributes,
-                                              uint8_t *private_key,
-                                              uint32_t private_key_len,
-                                              uint8_t *peer_key,
-                                              uint32_t peer_key_length,
+                                              const uint8_t *private_key,
+                                              size_t private_key_len,
+                                              const uint8_t *peer_key,
+                                              size_t peer_key_length,
                                               uint8_t *shared_secret,
-                                              uint32_t shared_secret_size,
-                                              uint32_t *shared_secret_length)
+                                              size_t shared_secret_size,
+                                              size_t *shared_secret_length)
 {
   (void)alg;
   (void)attributes;

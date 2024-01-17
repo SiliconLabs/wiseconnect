@@ -72,7 +72,7 @@
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
 
-sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000, { 0 } };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 #endif
 
 #if defined(SL_SI91X_PRINT_DBG_LOG)
@@ -129,11 +129,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
-                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
-#if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
-#endif
-                                          ),
+                   .bt_feature_bit_map         = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL),
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
                    .ble_feature_bit_map =
@@ -420,6 +416,7 @@ void rsi_ble_simple_central_on_conn_status_event(rsi_ble_event_conn_status_t *re
  */
 void rsi_ble_simple_central_on_disconnect_event(rsi_ble_event_disconnect_t *resp_disconnect, uint16_t reason)
 {
+  UNUSED_PARAMETER(reason);
   memcpy(&rsi_app_disconnected_device, resp_disconnect, sizeof(rsi_ble_event_disconnect_t));
 
   rsi_ble_app_set_event(RSI_APP_EVENT_DISCONNECTED);
@@ -497,7 +494,6 @@ void ble_ae_central(void)
   int32_t status                     = 0;
   int32_t temp_event_map             = 0;
   int32_t temp_event_map1            = 0;
-  int32_t size                       = 0;
   sl_wifi_firmware_version_t version = { 0 };
 
   status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
@@ -658,7 +654,7 @@ void ble_ae_central(void)
 #endif
   rsi_ble_ae_dev_to_periodic_list_t ae_clear_dev = { 0 };
   // AE Clear Periodic Adv list
-  rsi_ascii_dev_address_to_6bytes_rev((uint8_t *)REM_ADDR1, (int8_t *)ae_clear_dev.adv_addr);
+  rsi_ascii_dev_address_to_6bytes_rev((uint8_t *)ae_clear_dev.adv_addr, (int8_t *)REM_ADDR1);
   ae_clear_dev.adv_addr_type = LE_RANDOM_ADDRESS;
   ae_clear_dev.adv_sid       = 1;
   ae_clear_dev.type          = BLE_AE_CLEAR_PER_LIST;

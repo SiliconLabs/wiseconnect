@@ -4453,7 +4453,7 @@ void rsi_ble_on_terminate(uint16_t __attribute__((unused)) status, void __attrib
  */
 void rsi_ble_event_extended_scan_req_received(uint16_t status, void *event_data)
 {
-
+  UNUSED_PARAMETER(status);
   uint8_t remote_dev_str_addr[18] = { 0 };
 
   rsi_ble_scan_req_recvd_t *scan_req_recvd = (rsi_ble_scan_req_recvd_t *)event_data;

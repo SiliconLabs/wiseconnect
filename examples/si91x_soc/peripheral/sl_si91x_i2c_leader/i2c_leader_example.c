@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
- * @file i2c_example.c
+ * @file i2c_leader_example.c
  * @brief I2C examples functions
  *******************************************************************************
  * # License
@@ -40,8 +40,8 @@
 #define BIT_SET                              1            // Set bit
 #define STOP_BIT                             9            // Bit to send stop command
 #define RW_MASK_BIT                          8            // Bit to mask read and write
-#define I2C_INSTANCE                         0            // I2C Instance for Pin configuration
-#define I2C                                  I2C0         // I2C Instance
+#define I2C_INSTANCE                         2            // I2C Instance for Pin configuration
+#define I2C                                  I2C2         // I2C Instance
 #define MAX_7BIT_ADDRESS                     127          // Maximum 7-bit address
 #define REFERENCE_CLOCK_FREQUENCY            (32000000u)  // Reference clock frequency
 #define HIGH_SPEED_REFERENCE_CLOCK_FREQUENCY (40000000u)  // Reference clock frequency
@@ -49,6 +49,10 @@
 #define I2C_FAST_MODE_CLOCK_FREQUENCY        (32000000u)  // clock frequency for i2c Fast mode
 #define I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY   (80000000u)  // clock frequency for i2c fast plus mode
 #define I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY  (80000000u)  // clock frequency for i2c high speed mode
+#define ULP_CLOCK_DIV_FACTOR                 0            // division factor value for ULP clock
+#define ULP_PRO_CLOCK_DIV_FACTOR             0            // division factor value for ULP pro clock
+#define EVEN_DIVISION_FACTOR                 0            // ulp clock division factor type
+#define DELAY_DISABLE                        0            // to disable delay function callback for ulp pro clock
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -71,22 +75,16 @@ typedef enum {
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
 #if (I2C_INSTANCE == 0)
-// SCL, GPIO: 75, Exapansion Header: 5
-// SDA, GPIO: 75, Exapansion Header: 3
 static I2C_PIN scl = { RTE_I2C0_SCL_PORT, RTE_I2C0_SCL_PIN, RTE_I2C0_SCL_MUX, RTE_I2C0_SCL_PAD };
 static I2C_PIN sda = { RTE_I2C0_SDA_PORT, RTE_I2C0_SDA_PIN, RTE_I2C0_SDA_MUX, RTE_I2C0_SDA_PAD };
 #endif
 
 #if (I2C_INSTANCE == 1)
-// SCL, GPIO: 50, Board Pin: P19
-// SDA, GPIO: 51, Board Pin: P20
 static I2C_PIN scl = { RTE_I2C1_SCL_PORT, RTE_I2C1_SCL_PIN, RTE_I2C1_SCL_MUX, RTE_I2C1_SCL_PAD };
 static I2C_PIN sda = { RTE_I2C1_SDA_PORT, RTE_I2C1_SDA_PIN, RTE_I2C1_SDA_MUX, RTE_I2C1_SDA_PAD };
 #endif
 
 #if (I2C_INSTANCE == 2)
-// SCL, ULP_GPIO: 5, Exapansion Header: 13
-// SDA, ULP_GPIO: 4, Exapansion Header: 11
 static I2C_PIN scl = { RTE_I2C2_SCL_PORT, RTE_I2C2_SCL_PIN, RTE_I2C2_SCL_MUX, 0 };
 static I2C_PIN sda = { RTE_I2C2_SDA_PORT, RTE_I2C2_SDA_PIN, RTE_I2C2_SDA_MUX, 0 };
 #endif
@@ -143,14 +141,24 @@ void i2c_leader_example_init(void)
   if (config.clhr == SL_I2C_FAST_PLUS_BUS_SPEED) {
     RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
     RSI_CLK_SetSocPllFreq(M4CLK, I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY, REFERENCE_CLOCK_FREQUENCY);
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-    config.freq = I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY;
+    RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
+    if (I2C == I2C2) {
+      RSI_ULPSS_ClockConfig(M4CLK, ENABLE, ULP_CLOCK_DIV_FACTOR, EVEN_DIVISION_FACTOR);
+      RSI_ULPSS_UlpProcClkConfig(ULPCLK, ULP_PROC_SOC_CLK, ULP_PRO_CLOCK_DIV_FACTOR, DELAY_DISABLE);
+      DEBUGINIT();
+    }
+    config.freq = sl_si91x_i2c_get_frequency(I2C);
   }
   if (config.clhr == SL_I2C_HIGH_BUS_SPEED) {
     RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
     RSI_CLK_SetSocPllFreq(M4CLK, I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY, HIGH_SPEED_REFERENCE_CLOCK_FREQUENCY);
     RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-    config.freq = I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY;
+    if (I2C == I2C2) {
+      RSI_ULPSS_ClockConfig(M4CLK, ENABLE, ULP_CLOCK_DIV_FACTOR, EVEN_DIVISION_FACTOR);
+      RSI_ULPSS_UlpProcClkConfig(ULPCLK, ULP_PROC_SOC_CLK, ULP_PRO_CLOCK_DIV_FACTOR, DELAY_DISABLE);
+      DEBUGINIT();
+    }
+    config.freq = sl_si91x_i2c_get_frequency(I2C);
   }
   config.mode = SL_I2C_LEADER_MODE;
   // Passing the structure and i2c instance for the initialization.

@@ -10,6 +10,7 @@
 - [Getting Started](#getting-started)
 - [Application Build Environment](#application-build-environment)
 - [Test the Application](#test-the-application)
+- [Steps to set up HTTP server](#steps-to-set-up-http-server)
 
 ## Purpose/Scope
 
@@ -23,14 +24,15 @@ This application demonstrates how to configure SiWx91x device as an HTTP client 
 - SoC Mode:
   - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
 - NCP Mode:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
-  - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
 
 ### Software Requirements
 
 - Simplicity Studio
-- Windows PC (Remote PC) with openssl application
+- Windows PC (Remote PC) with HTTP server
 
 ### Setup Diagram
 
@@ -124,3 +126,18 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - User can see the log messages (success responses for HTTP PUT, HTTP GET and HTTP POST) at HTTP server as follows:
   ![http_client_Output](resources/readme/http_client_output.png)
+
+## Steps to set up HTTP server
+
+1. In a Windows PC, make sure python is installed.
+2. Navigate to **`/<SDK>/resources/scripts/`**. Run **simple_http_server.py** script on port number 80 using the following command.
+
+   `python simple_http_server.py 80`
+
+   **NOTE:** If python command is not working replace the python with py.
+   
+## Trouble shooting
+
+- If any permission errors are observed while setting up the Python HTTP server:
+  - Try running the python HTTP server script with admin privileges (Open command prompt or terminal in admin mode)
+  - Try using a different port like 8080 for the HTTP connection

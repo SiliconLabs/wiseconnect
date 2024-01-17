@@ -60,7 +60,7 @@ SiWx91x is configured as a WiFi station and connects to an Access Point.
 
 - WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
 
-  ![](resources/readme/bleprovisioningsetup_soc_ncp.png)
+  ![](resources/readme/image279wsbpa.png)
 
 
 ## Getting Started
@@ -109,11 +109,12 @@ Open `ble_app.c` file and update/modify following macros
 
     #define RSI_BLE_MAX_DATA_LEN                             66
 
+
+**The following are the **non-configurable** macros in the application.**
+
 `RSI_BLE_APP_DEVICE_NAME` refers to the name of the SiWx91x EVK to appear during scanning by remote devices.
 
     #define  RSI_BLE_APP_DEVICE_NAME                         "BLE_CONFIGURATOR"
-
-The following are the **non-configurable** macros in the application.
 
 `RSI_BLE_ATT_PROPERTY_READ` is used to set the READ property to an attribute value.
 
@@ -139,7 +140,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
  Steps to be followed to verify WLAN Station BLE Provisioning with Android **EFR Connect** App
 
-1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK mode to connect the SiWx91x in STA mode.
+1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK/WPA3 mode to connect the SiWx91x in STA mode.
 
 2. Connect any serial console for prints.
 
@@ -177,4 +178,3 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ![](resources/readme/output2.png)
 
-![](resources/readme/output3.png)

@@ -248,7 +248,9 @@ sl_status_t sl_si91x_dma_init(sl_dma_init_t *dma_init)
 sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
 {
 
-  sl_status_t status = SL_STATUS_OK;
+  sl_status_t status     = SL_STATUS_OK;
+  uint32_t channel_count = 0;
+  uint32_t channel;
   do {
     if (dma_number > DMA_INSTANCE1) {
       status = SL_STATUS_INVALID_PARAMETER;
@@ -258,14 +260,24 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
       status = SL_STATUS_NOT_INITIALIZED;
       break;
     }
-    for (int ch = 0; ch < DMA_CHANNEL_32; ch++) {
-      if (channel_status(dma_number, ch)) {
+    for (channel = 0; channel < DMA_CHANNEL_32; channel++) {
+      if (channel_status(dma_number, channel)) {
         // DMA channel is busy
         status = SL_STATUS_BUSY;
         break;
       }
     }
     if (status == SL_STATUS_OK) {
+      //Unregister callbacks for all DMA channels
+      if (dma_number) {
+        channel_count = DMA_CHANNEL_32;
+      } else {
+        channel_count = DMA_CHANNEL_12;
+      }
+      for (channel = 0; channel < channel_count; channel++) {
+        sl_channel_allocation_data_t[dma_number][channel].dma_callback_t.error_cb             = NULL;
+        sl_channel_allocation_data_t[dma_number][channel].dma_callback_t.transfer_complete_cb = NULL;
+      }
       // Uninitialize DMA
       status = (sl_status_t)UDMAx_Uninitialize(UDMA_driver_resources[dma_number]);
     }

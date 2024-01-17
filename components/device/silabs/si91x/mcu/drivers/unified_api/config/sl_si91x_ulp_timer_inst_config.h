@@ -68,7 +68,6 @@
 //   <SL_ULP_TIMER_32KHZ_XTAL_CLK=> 32KHZ_XTAL
 //   <SL_ULP_TIMER_32MHZ_RC_CLK=> 32MHZ_RC (auto select)
 //   <SL_ULP_TIMER_20MHZ_RO_CLK=> 20MHZ_RO
-//   <SL_ULP_TIMER_ULP_SOC_CLK=> SOC_CLK
 // <i> Selection of the Clock source
 #define SL_ULP_TIMER_CLK_INPUT_SOURCE SL_ULP_TIMER_32MHZ_RC_CLK //default timer clock input source is ref clock
 

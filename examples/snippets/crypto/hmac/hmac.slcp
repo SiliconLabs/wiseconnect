@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: gecko_sdk, version: 4.4.0}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.1}
+- {id: wiseconnect3_sdk, version: 3.1.2}
 source:
   - path: app.c
   - path: main.c
@@ -50,7 +50,9 @@ requires:
   condition: [device_has_devinfo]
 - name: emlib_ldma
   condition: [device_has_devinfo]
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 configuration:
 - {name: SL_BOARD_ENABLE_VCOM, value: '1'}
 readme:

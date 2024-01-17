@@ -46,10 +46,11 @@
 #define SL_TIMER_MATCH_VALUE \
   ((CLOCKS_PER_MICROSECONDS_20MHZ) * (TIME_IN_MICROSECONDS)) // Timer match value for down-counter type with 20mhz clock
 
-#define LED0                           0    // For On-board LED-0
-#define ONE_SEC_MATCH_VALUE_256US_TYPE 3906 // Timer match value for 1-sec, in 256us type
-#define FIFTH_INTERRUPT_COUNT          5    // Count for fifth timeout interrupt
-#define TENTH_INTERRUPT_COUNT          10   // Count for tenth timeout interrupt
+#define LED0                           0       // For On-board LED-0
+#define ONE_SEC_MATCH_VALUE_256US_TYPE 3906    // Timer match value for 1-sec, in 256us type
+#define ONE_SEC_MATCH_VALUE_1US_TYPE   1000000 // Timer match value for 1-sec, in 1us type
+#define FIFTH_INTERRUPT_COUNT          5       // Count for fifth timeout interrupt
+#define TENTH_INTERRUPT_COUNT          10      // Count for tenth timeout interrupt
 
 // Macros used to construct ulp-timer instance
 #define ULP_TIMER_INSTANCE \
@@ -201,10 +202,11 @@ void ulp_timer_example_process_action(void)
 
 /*******************************************************************************
 * Callback function of ulp-timer instance
-*
+* 
 * @param none
 * @return none
 ******************************************************************************/
+// Note : Remove all debugouts for exact delays
 static void SL_ULP_TIMER_CALLBACK(void)
 {
   static uint8_t interrupt_count = 0;

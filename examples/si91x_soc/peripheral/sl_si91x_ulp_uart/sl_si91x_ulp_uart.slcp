@@ -11,7 +11,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 source:
   - path: main.c
   - path: app.c
@@ -40,9 +40,7 @@ requires:
   - name: ulp_mode_execution
 define:
   - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
-  - name: USART_CONFIG
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  - name: SYSCALLS_WRITE
 readme:
   - path: readme.md
 ui_hints:

@@ -11,7 +11,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 source:
   - path: sl_ulp_adc_multichannel_example.c
   - path: app.c
@@ -40,6 +40,9 @@ requires:
   - name: ulp_mode_execution
 define:
   - name: GAIN_OFFSET_CAL_EN
+configuration:
+  - name: NUMBER_OF_CHANNEL
+    value: '4'
 template_contribution:
   - name: ulp_platform
     priority: 0

@@ -58,9 +58,8 @@ extern "C" {
  * @param data (void *)extra parameter for user application
  ******************************************************************************/
 typedef void (*watchdog_timer_callback_t)(void);
-
-typedef AON_CLK_T low_freq_fsm_clock_t;  ///< Renaming low frequency fsm-clock type enum
 typedef FSM_CLK_T high_freq_fsm_clock_t; ///< Renaming high frequency fsm-clock type enum
+typedef AON_CLK_T low_freq_fsm_clock_t;  ///< Renaming low frequency fsm-clock type enum
 
 /// @brief Enumeration to represent bg-pmu clock sources
 typedef enum {
@@ -157,9 +156,9 @@ void sl_si91x_watchdog_init_timer(void);
 sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *timer_clk_config_ptr);
 
 /***************************************************************************/ /**
- * Configure clock sources & timer parameters like interrupt time(WDT restart time),
+ * Configure timer parameters like interrupt time(WDT restart time),
  * system reset time & window time (another time stamp for WDT restart, if required).
- * Also un-masks its interrupt & sets RTC clock time-period.
+ * Also un-masks its interrupt.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_watchdog_init_timer 
@@ -283,13 +282,12 @@ boolean_t sl_si91x_watchdog_get_timer_system_reset_status(void);
 
 /***************************************************************************/ /**
  * De-initialize Watchdog timer, mask its interrupt, de-power and disable timer.
- *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_watchdog_init_timer 
  *      - \ref sl_si91x_watchdog_unregister_timeout_callback 
- * 
  * @param[in]   none
  * @return      none
+ * @note Unregisters the timer callback.
 *******************************************************************************/
 void sl_si91x_watchdog_deinit_timer(void);
 

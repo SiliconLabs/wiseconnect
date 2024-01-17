@@ -103,9 +103,9 @@ int handle_select_response(sl_si91x_socket_select_rsp_t *response,
   int total_fd_set_count = 0;
 
   // Clear file descriptor sets
-  FD_ZERO(readfds);
-  FD_ZERO(writefds);
-  FD_ZERO(exception_fd);
+  SLI_SI91X_NULL_SAFE_FD_ZERO(readfds);
+  SLI_SI91X_NULL_SAFE_FD_ZERO(writefds);
+  SLI_SI91X_NULL_SAFE_FD_ZERO(exception_fd);
 
   // Iterate through all host sockets
   for (int host_socket_index = 0; host_socket_index < NUMBER_OF_SOCKETS; host_socket_index++) {

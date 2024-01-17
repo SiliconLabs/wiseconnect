@@ -67,6 +67,11 @@ typedef struct {
   sl_si91x_coex_mode_t coex_mode;
 } sli_si91x_performance_profile_t;
 
+/// Efuse data information
+typedef struct {
+  uint8_t mfg_sw_version; ///< Manufacturing PTE software version
+} sl_si91x_efuse_data_t;
+
 typedef uint32_t sl_si91x_host_timestamp_t;
 
 typedef void (*sl_si91x_host_atomic_action_function_t)(void *user_data);
@@ -148,6 +153,47 @@ sl_status_t convert_sl_wifi_to_sl_si91x_encryption(
  * 	 sl_status_t
  *********************************************************************************************/
 sl_status_t sl_si91x_send_power_save_request(sl_si91x_performance_profile_t profile);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Get the Efuse Data content from flash.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[out] efuse_data
+ *   @ref sl_si91x_efuse_data_t object that contains the Manufacturing software version.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   This API is not supported in the current release.
+ ******************************************************************************/
+sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Get the Efuse Data content from driver context.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[out] efuse_data
+ *   @ref sl_si91x_efuse_data_t object that contains the Manufacturing software version.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+void sl_si91x_get_efuse_data(sl_si91x_efuse_data_t *efuse_data);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Set the Efuse Data content in driver context.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[out] efuse_data
+ *   @ref sl_si91x_efuse_data_t object that contains the Manufacturing software version.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+void sl_si91x_set_efuse_data(sl_si91x_efuse_data_t *efuse_data);
 
 /**
  * An utility function to convert dBm value  to si91x specific power value

@@ -18,9 +18,9 @@
 #ifndef SL_SI91X_SSI_MASTER_EXAMPLE_H_
 #define SL_SI91X_SSI_MASTER_EXAMPLE_H_
 
-#define SL_USE_TRANSFER ENABLE
-#define SL_USE_SEND     DISABLE
-#define SL_USE_RECEIVE  DISABLE
+#define SSI_MASTER_TRANSFER ENABLE
+#define SSI_MASTER_SEND     DISABLE
+#define SSI_MASTER_RECEIVE  DISABLE
 
 // -----------------------------------------------------------------------------
 // Prototypes

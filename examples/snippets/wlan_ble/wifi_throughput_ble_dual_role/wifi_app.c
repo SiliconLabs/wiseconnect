@@ -319,20 +319,6 @@ void rsi_wlan_app_thread(void *unused)
           rsi_wlan_app_cb.state = RSI_WLAN_CONNECTED_STATE; //! update WLAN application state to connected state
           LOG_PRINT("WLAN connected state \r\n");
         }
-
-#if (RX_DATA && ENABLE_POWER_SAVE)
-        status = rsi_wlan_power_save_profile(RSI_ACTIVE, PSP_TYPE);
-        if (status != RSI_SUCCESS) {
-          LOG_PRINT("\r\n Failed in initiating power save\r\n");
-          return;
-        }
-        status = rsi_wlan_power_save_profile(RSI_SLEEP_MODE_2, PSP_TYPE);
-        if (status != RSI_SUCCESS) {
-          LOG_PRINT("\r\n Failed in initiating power save\r\n");
-          return;
-        }
-        LOG_PRINT("Kept power save \r\n");
-#endif
       } break;
       case RSI_WLAN_CONNECTED_STATE: {
         //! Configure IP

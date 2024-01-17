@@ -23,7 +23,7 @@
 #include "sl_si91x_psram_pin_config.h"
 
 // Handle for PSRAM Operations
-extern sl_psram_info_type_t PSRAM_Device;
+extern struct sl_psram_info_type_t PSRAM_Device;
 
 #define PSRAM_GPIO_PIN_SET_52_TO_57      1
 #define PSRAM_GPIO_PIN_SET_0_TO_5        2

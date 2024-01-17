@@ -32,6 +32,10 @@
 /*******************************************************************************
  ***************************   Defines / Macros   ******************************
  ******************************************************************************/
+#define RX_LEN 2 ///< Read buffer length 2 bytes
+#define TX_LEN 2 ///< Write buffer length 2 bytes
+#define RD_BUF 6 ///< Read buffer length 6 bytes
+#define WR_BUF 1 ///< Write buffer length 1 byte
 
 /*******************************************************************************
  ***********************  Local function Prototypes ***************************
@@ -105,10 +109,8 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
                                                              uint32_t *data)
 {
   sl_status_t status;
-  uint8_t read_buffer_size  = RX_LEN;
-  uint8_t write_buffer_size = WR_BUF;
-  uint8_t i2c_read_data[read_buffer_size];
-  uint8_t i2c_write_data[write_buffer_size];
+  uint8_t i2c_read_data[RX_LEN]  = { 0 };
+  uint8_t i2c_write_data[WR_BUF] = { 0 };
   uint8_t cmd;
   // Validate invalid parameters
   if ((i2c_instance >= SL_I2C_LAST) || (type >= SL_LAST_MEASUREMENT)) {
@@ -124,18 +126,28 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
   }
   i2c_write_data[0] = cmd;
   // Send no hold master mode command to sensor
-  status = sl_i2c_driver_send_data_blocking(i2c_instance, addr, i2c_write_data, write_buffer_size);
+  status = sl_i2c_driver_send_data_blocking(i2c_instance, addr, i2c_write_data, WR_BUF);
   if (status != SL_STATUS_OK) {
     return status;
   }
   wait_till_i2c_gets_idle(I2C_BASE);
-  // Receive no hold master mode response from sensor
-  status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, read_buffer_size);
-  if (status != SL_STATUS_OK) {
-    return status;
+
+  while (*data == 0) {
+    // Receive no hold master mode response from sensor
+    status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, RX_LEN);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    wait_till_i2c_gets_idle(I2C_BASE);
+    *data = (uint32_t)((i2c_read_data[0] << 8) | (i2c_read_data[1]));
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
-  *data = (uint32_t)((i2c_read_data[0] << 8) | (i2c_read_data[1]));
+  if (i2c_write_data[0] == SL_HUMIDITY_NHM) {
+    // Convert relative humidity measurement to percent relative humidity
+    *data = (uint32_t)si70xx_get_percent_relative_humidity(*data);
+  } else {
+    // Convert temperature measurement to temperature in degrees Celcius
+    *data = (int32_t)si70xx_get_celcius_temperature(*data);
+  }
   return SL_STATUS_OK;
 }
 

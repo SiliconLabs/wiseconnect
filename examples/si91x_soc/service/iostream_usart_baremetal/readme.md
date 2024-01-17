@@ -112,7 +112,5 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
    > ![Figure: output screen](resources/readme/outputConsoleI_IOSTREAM.png)
 
    > **Note** 
-   >- To add iostream for debug prints in any examples, install below components **Wiseconnect_3_SDK/IOSTREAM**, **SERVICES/IO Stream: Si91x UART  - Give instance name vcom** , **Services/IO Stream: Retarget STDIO**,   
+   >- To add iostream for debug prints in any examples, install below components **Wiseconnect_3_SDK/IOSTREAM Si91x**, **SERVICES/IO Stream: Si91x UART  - Give instance name vcom**
    >- When iostream components installed for debug prints then make sure DEBUG_UART macro is not present in preprocessor window.
-
-

@@ -133,15 +133,22 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
 
     /* Set key_size from key_buffer_size */
     config.key_config.B0.key_size = key_buffer_size;
-
+    config.key_config.B0.key      = (uint8_t *)malloc(key_buffer_size);
     config.key_config.B0.key_slot = 0;
     memcpy(config.key_config.B0.key, key_buffer, key_buffer_size);
 #else
+    config.key_config.A0.key        = (uint8_t *)malloc(key_buffer_size);
     config.key_config.A0.key_length = key_buffer_size;
     memcpy(config.key_config.A0.key, key_buffer, key_buffer_size);
 #endif
 
     si91x_status = sl_si91x_hmac(&config, mac);
+
+#ifdef SLI_SI917B0
+    free(config.key_config.B0.key);
+#else
+    free(config.key_config.A0.key);
+#endif
 
     //Convert the error code from si91x to psa
     status = convert_si91x_error_code_to_psa_status(si91x_status);

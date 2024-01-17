@@ -24,6 +24,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include "sl_constants.h"
 
 /******************************************************
  *                      Macros
@@ -321,6 +322,7 @@ sl_status_t console_variable_set(console_args_t *arguments)
 
 sl_status_t console_variable_list(console_args_t *arguments)
 {
+  UNUSED_PARAMETER(arguments);
   if (console_variable_table_size == 0) {
     printf("No variables available\n");
     return SL_STATUS_OK;

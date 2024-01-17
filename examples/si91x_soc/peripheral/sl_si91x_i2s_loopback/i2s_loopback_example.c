@@ -25,17 +25,17 @@
  ******************************************************************************/
 #define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock 40MHZ
 #define PS4_SOC_FREQ          180000000 // PLL out clock 180MHz
-#define BUFFER_SIZE           1024      // Transmit/Receive buffer size
+#define I2S_BUFFER_SIZE       1024      // Transmit/Receive buffer size
 #define I2S_INSTANCE          0         // I2S instance
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-uint16_t data_in[BUFFER_SIZE];
-uint16_t data_out[BUFFER_SIZE];
+uint16_t i2s_data_in[I2S_BUFFER_SIZE];
+uint16_t i2s_data_out[I2S_BUFFER_SIZE];
 static sl_i2s_handle_t i2s_driver_handle    = NULL;
-static uint8_t send_complete                = 0;
-static uint8_t receive_complete             = 0;
+static uint8_t i2s_send_complete            = 0;
+static uint8_t i2s_receive_complete         = 0;
 static sl_i2s_xfer_config_t i2s_xfer_config = { 0 };
 
 /*******************************************************************************
@@ -63,8 +63,8 @@ void i2s_example_init(void)
   i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE32;
 
   // Filling the data out array with integer values
-  for (uint32_t i = 0; i < BUFFER_SIZE; i++) {
-    data_out[i] = i;
+  for (uint32_t i = 0; i < I2S_BUFFER_SIZE; i++) {
+    i2s_data_out[i] = i;
   }
   do {
     //Fetch I2S driver version
@@ -121,13 +121,13 @@ void i2s_example_init(void)
     }
     DEBUGOUT("I2S receive config success\r\n");
     //Configure I2S receive DMA channel
-    if (sl_si91x_i2s_receive_data(i2s_driver_handle, data_in, BUFFER_SIZE)) {
+    if (sl_si91x_i2s_receive_data(i2s_driver_handle, i2s_data_in, I2S_BUFFER_SIZE)) {
       DEBUGOUT("I2S receive start fail\r\n");
       break;
     }
     DEBUGOUT("I2S receive start success\r\n");
     //Configure I2S transmit DMA channel
-    if (sl_si91x_i2s_transmit_data(i2s_driver_handle, data_out, BUFFER_SIZE)) {
+    if (sl_si91x_i2s_transmit_data(i2s_driver_handle, i2s_data_out, I2S_BUFFER_SIZE)) {
       DEBUGOUT("I2S transmit start fail\r\n");
       break;
     }
@@ -139,19 +139,19 @@ void i2s_example_init(void)
  ******************************************************************************/
 void i2s_example_process_action(void)
 {
-  if ((send_complete && receive_complete)) {
+  if ((i2s_send_complete && i2s_receive_complete)) {
     //Data has been transferred and received successfully
     //Validate the transmit and receive data count
-    if ((sl_si91x_i2s_get_transmit_data_count(i2s_driver_handle) == BUFFER_SIZE)
-        && (sl_si91x_i2s_get_receive_data_count(i2s_driver_handle) == BUFFER_SIZE)) {
+    if ((sl_si91x_i2s_get_transmit_data_count(i2s_driver_handle) == I2S_BUFFER_SIZE)
+        && (sl_si91x_i2s_get_receive_data_count(i2s_driver_handle) == I2S_BUFFER_SIZE)) {
       //I2S transfer completed
       DEBUGOUT("I2S transfer complete\r\n");
       //Compare transmit data and receive data
       compare_loop_back_data();
     }
     //reset send and receive complete status flags
-    send_complete    = 0;
-    receive_complete = 0;
+    i2s_send_complete    = 0;
+    i2s_receive_complete = 0;
   }
 }
 
@@ -196,14 +196,14 @@ static int32_t clock_configuration_pll(void)
 static void compare_loop_back_data(void)
 {
   uint16_t data_index = 0;
-  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
+  for (data_index = 0; data_index < I2S_BUFFER_SIZE; data_index++) {
     // If the data in and data out are same, it will be continued else, the for
     // loop will be break.
-    if (data_in[data_index] != data_out[data_index]) {
+    if (i2s_data_in[data_index] != i2s_data_out[data_index]) {
       break;
     }
   }
-  if (data_index == BUFFER_SIZE) {
+  if (data_index == I2S_BUFFER_SIZE) {
     DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
   } else {
     DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
@@ -221,10 +221,10 @@ static void callback_event(uint32_t event)
 {
   switch (event) {
     case SL_I2S_SEND_COMPLETE:
-      send_complete = 1;
+      i2s_send_complete = 1;
       break;
     case SL_I2S_RECEIVE_COMPLETE:
-      receive_complete = 1;
+      i2s_receive_complete = 1;
       break;
     case SL_I2S_TX_UNDERFLOW:
       break;

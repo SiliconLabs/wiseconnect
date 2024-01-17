@@ -470,13 +470,23 @@ typedef struct {
 // IPV6 ipconfig command response structure
 typedef struct {
   // prefix length
-  uint8_t prefixLength[2];
+  uint16_t prefixLength;
 
-  // Configured IPv address
-  uint8_t ipaddr6[16];
+  // reserved bytes
+  uint16_t reserved;
 
-  // Router IPv6 address
-  uint8_t defaultgw6[16];
+  // Link local address
+  uint32_t link_local_address[4];
+
+  // Global address
+  uint32_t global_address[4];
+
+  // Gateway address
+  uint32_t gateway_address[4];
+
+  // Mac address
+  uint8_t mac_address[6];
+
 } sl_si91x_rsp_ipv6_params_t;
 
 // Structure for firmware upgradation

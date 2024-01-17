@@ -93,7 +93,6 @@ typedef enum {
   ULP_TIMER_32KHZ_XTAL_CLK_SRC, ///< 32 kHz xtal clock input source
   ULP_TIMER_32MHZ_RC_CLK_SRC,   ///< 32 MHz rc clock input source
   ULP_TIMER_20MHZ_RO_CLK_SRC,   ///< 20 MHz  ro clock input source
-  ULP_TIMER_ULP_SOC_CLK_SRC,    ///< SoC clock input source
   ULP_TIMER_ULP_CLK_SRC_LAST,   ///< Last member of enum for validation
 } ulp_timer_clk_input_source_t;
 
@@ -398,13 +397,13 @@ sl_status_t sl_si91x_ulp_timer_init(ulp_timer_clk_src_config_t *timer_clk_ptr);
 
 /***************************************************************************/ /**
  * De-Initializes ULP-Timer clock by disabling the peripheral clock.
- * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_unregister_timeout_callback
  *
  * @param[in] none
  * @return none
+ * @note Unregisters the callbacks of all timer instances
 *******************************************************************************/
 void sl_si91x_ulp_timer_deinit(void);
 

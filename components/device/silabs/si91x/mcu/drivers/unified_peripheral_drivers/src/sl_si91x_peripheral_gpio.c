@@ -273,11 +273,11 @@ uint8_t sl_si91x_gpio_get_pin_direction(uint8_t port, uint8_t pin)
  *  @note: Select HP GPIO pins for HP instances(GPIO_6 to GPIO_57). Do not use
  *      GPIO pin number(0 to 5) in HP instance as these are used for other functionality.
 *******************************************************************************/
-void sl_si91x_gpio_enable_pad_receiver(uint8_t gpio_padnum)
+void sl_si91x_gpio_enable_pad_receiver(uint8_t gpio_num)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_num));
   // Set the REN(receiver bit) in PAD configuration register
-  PAD_REG(gpio_padnum)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_REN = SET;
+  PAD_REG(gpio_num)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_REN = SET;
 }
 
 /*******************************************************************************
@@ -290,11 +290,11 @@ void sl_si91x_gpio_enable_pad_receiver(uint8_t gpio_padnum)
  *  @note: Select HP GPIO pins for HP instances(GPIO_6 to GPIO_57). Do not use
  *      GPIO pin number(0 to 5) in HP instance as these are used for other functionality.
 *******************************************************************************/
-void sl_si91x_gpio_disable_pad_receiver(uint8_t gpio_padnum)
+void sl_si91x_gpio_disable_pad_receiver(uint8_t gpio_num)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_num));
   // Clear the REN(receiver bit) in PAD configuration register
-  PAD_REG(gpio_padnum)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_REN = CLR;
+  PAD_REG(gpio_num)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_REN = CLR;
 }
 
 /*******************************************************************************
@@ -342,12 +342,12 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum)
  *  @note: Select HP GPIO pins for HP instances(GPIO_6 to GPIO_57). Do not use
  *      GPIO pin number(0 to 5) in HP instance as these are used for other functionality.
  ******************************************************************************/
-void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_gpio_driver_strength_select_t strength)
+void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_num, sl_si91x_gpio_driver_strength_select_t strength)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_num));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_STRENGTH(strength));
   // Select the required drive strength in HP GPIO instance
-  PAD_REG(gpio_padnum)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_E1_E2 = strength;
+  PAD_REG(gpio_num)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_E1_E2 = strength;
 }
 
 /*******************************************************************************
@@ -363,13 +363,12 @@ void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_gpio
  *  @note: Select HP GPIO pins for HP instances(GPIO_6 to GPIO_57). Do not use
  *      GPIO pin number(0 to 5) in HP instance as these are used for other functionality.
  ******************************************************************************/
-void sl_si91x_gpio_select_pad_driver_disable_state(uint8_t gpio_padnum,
-                                                   sl_si91x_gpio_driver_disable_state_t disable_state)
+void sl_si91x_gpio_select_pad_driver_disable_state(uint8_t gpio_num, sl_si91x_gpio_driver_disable_state_t disable_state)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_num));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_DISABLE_STATE(disable_state));
   // Select the required driver disable state in HP GPIO instance
-  PAD_REG(gpio_padnum)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_P1_P2 = disable_state;
+  PAD_REG(gpio_num)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_P1_P2 = disable_state;
 }
 
 /*******************************************************************************
@@ -435,6 +434,8 @@ void sl_si91x_gpio_enable_group_interrupt(sl_si91x_group_interrupt_t group_inter
     // Enable group interrupt 1 in ULP GPIO instance
     if (group_interrupt == GROUP_INT_1) {
       ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT1_ENABLE = ENABLE;
+    } else {
+      ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT2_ENABLE = ENABLE;
     }
   }
   // Enable group interrupt in HP GPIO instance
@@ -582,6 +583,8 @@ void sl_si91x_gpio_set_group_interrupt_polarity(sl_si91x_group_interrupt_t group
     // Set group interrupt polarity in ULP GPIO instance
     if (group_interrupt == GROUP_INT_1) {
       ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT1_POLARITY = polarity;
+    } else {
+      ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT2_POLARITY = polarity;
     }
   } else {
     SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
@@ -872,22 +875,22 @@ void sl_si91x_gpio_select_group_interrupt_wakeup(uint8_t port,
  *        output/input.
  *  @note: Select ULP GPIO pins for ULP instances(ULP_GPIO_0 to ULP_GPIO_11).
 *******************************************************************************/
-void sl_si91x_gpio_enable_ulp_pad_receiver(uint8_t gpio_padnum)
+void sl_si91x_gpio_enable_ulp_pad_receiver(uint8_t gpio_num)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_num));
   // Enable receiver bit in PAD configuration register in ULP instance
-  ULP_PAD_CONFIG_REG |= BIT(gpio_padnum);
+  ULP_PAD_CONFIG_REG |= BIT(gpio_num);
 }
 
 /*******************************************************************************
  * This API is used to disable the ULP PAD receiver.
  * @note: Select ULP GPIO pins for ULP instances(ULP_GPIO_0 to ULP_GPIO_11).
 *******************************************************************************/
-void sl_si91x_gpio_disable_ulp_pad_receiver(uint32_t gpio_padnum)
+void sl_si91x_gpio_disable_ulp_pad_receiver(uint32_t gpio_num)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_num));
   // Disable receiver bit in PAD configuration register in ULP instance
-  ULP_PAD_CONFIG_REG &= ~BIT(gpio_padnum);
+  ULP_PAD_CONFIG_REG &= ~BIT(gpio_num);
 }
 
 /*******************************************************************************
@@ -901,15 +904,15 @@ void sl_si91x_gpio_disable_ulp_pad_receiver(uint32_t gpio_padnum)
  *   - Select the PAD driver disable state of type @ref sl_si91x_gpio_driver_disable_state_t.
  *  @note: Select ULP GPIO pins for ULP instances(ULP_GPIO_0 to ULP_GPIO_11).
  ******************************************************************************/
-void sl_si91x_gpio_select_ulp_pad_driver_disable_state(uint8_t gpio_padnum,
+void sl_si91x_gpio_select_ulp_pad_driver_disable_state(uint8_t gpio_num,
                                                        sl_si91x_gpio_driver_disable_state_t disable_state)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_num));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_DISABLE_STATE(disable_state));
   // Select driver disable state in ULP PAD configuration registers
-  if (gpio_padnum <= GPIO_PAD_3) {
+  if (gpio_num <= GPIO_PAD_3) {
     ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_P1_P2_1 = disable_state;
-  } else if ((gpio_padnum >= GPIO_PAD_4) && (gpio_padnum <= GPIO_PAD_7)) {
+  } else if ((gpio_num >= GPIO_PAD_4) && (gpio_num <= GPIO_PAD_7)) {
     ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_P1_P2_2 = disable_state;
   } else {
     ULP_PAD_CONFIG1_REG->ULP_GPIO_PAD_CONFIG_REG_1.PADCONFIG_P1_P2_1 = disable_state;
@@ -927,14 +930,14 @@ void sl_si91x_gpio_select_ulp_pad_driver_disable_state(uint8_t gpio_padnum,
  *   - Select the PAD driver strength of type @ref sl_si91x_gpio_driver_strength_select_t.
  *  @note: Select ULP GPIO pins for ULP instances(ULP_GPIO_0 to ULP_GPIO_11).
  ******************************************************************************/
-void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_gpio_driver_strength_select_t strength)
+void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_num, sl_si91x_gpio_driver_strength_select_t strength)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_num));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_STRENGTH(strength));
   // Select drive strength in ULP PAD configuration registers
-  if (gpio_padnum <= GPIO_PAD_3) {
+  if (gpio_num <= GPIO_PAD_3) {
     ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_E1_E2_1 = strength;
-  } else if ((gpio_padnum >= GPIO_PAD_4) && (gpio_padnum <= GPIO_PAD_7)) {
+  } else if ((gpio_num >= GPIO_PAD_4) && (gpio_num <= GPIO_PAD_7)) {
     ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_E1_E2_2 = strength;
   } else {
     ULP_PAD_CONFIG1_REG->ULP_GPIO_PAD_CONFIG_REG_1.PADCONFIG_E1_E2_1 = strength;
@@ -952,14 +955,14 @@ void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_
  *   - Select the PAD slew rate of type @ref sl_si91x_gpio_slew_rate_t.
  *  @note: Select ULP GPIO pins for ULP instances(ULP_GPIO_0 to ULP_GPIO_11).
  ******************************************************************************/
-void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_padnum, sl_si91x_gpio_slew_rate_t slew_rate)
+void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_si91x_gpio_slew_rate_t slew_rate)
 {
-  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_padnum));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_num));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(slew_rate));
   // Select slew rate in ULP PAD configuration registers
-  if (gpio_padnum <= GPIO_PAD_3) {
+  if (gpio_num <= GPIO_PAD_3) {
     ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_SR_1 = slew_rate;
-  } else if ((gpio_padnum >= GPIO_PAD_4) && (gpio_padnum <= GPIO_PAD_7)) {
+  } else if ((gpio_num >= GPIO_PAD_4) && (gpio_num <= GPIO_PAD_7)) {
     ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_SR_2 = slew_rate;
   } else {
     ULP_PAD_CONFIG1_REG->ULP_GPIO_PAD_CONFIG_REG_1.PADCONFIG_SR_1 = slew_rate;

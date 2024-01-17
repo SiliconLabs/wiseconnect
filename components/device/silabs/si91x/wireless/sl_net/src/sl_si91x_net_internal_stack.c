@@ -212,14 +212,15 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
     VERIFY_STATUS_AND_RETURN(status);
 
     // Extract the IPv6 configuration response data
-    uint32_t input_buffer[13];
-    packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-    memcpy(input_buffer, packet->data, packet->length);
+    packet                                    = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+    sl_si91x_rsp_ipv6_params_t *ipv6_response = (sl_si91x_rsp_ipv6_params_t *)packet->data;
 
     // Copy the IPv6 addresses to the address structure
-    memcpy(&address->ip.v6.link_local_address, &input_buffer[1], 16);
-    memcpy(&address->ip.v6.global_address, &input_buffer[5], 16);
-    memcpy(&address->ip.v6.gateway, &input_buffer[9], 16);
+    memcpy(&address->ip.v6.link_local_address,
+           ipv6_response->link_local_address,
+           sizeof(ipv6_response->link_local_address));
+    memcpy(&address->ip.v6.global_address, ipv6_response->global_address, sizeof(ipv6_response->global_address));
+    memcpy(&address->ip.v6.gateway, ipv6_response->gateway_address, sizeof(ipv6_response->gateway_address));
 
     // Free the buffer and return success status
     sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);

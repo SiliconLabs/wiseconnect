@@ -81,6 +81,16 @@ typedef struct {
 #define SL_UV_T sl_uv_t
 #endif
 
+//Sensor ADXL335 GY61 analog data
+#ifndef SL_ADC_GY61_T
+typedef struct {
+  uint16_t *x;
+  uint16_t *y;
+  uint16_t *z;
+} sl_adc_gy61_t;
+#define SL_ADC_GY61_T sl_adc_gy61_t
+#endif
+
 //Sensor operations
 typedef enum {
   SL_COMMAND_SET_MODE,
@@ -111,6 +121,7 @@ typedef struct {
     float temperature;       ///< Temperature         unit: dCelsius
     float light;             ///< Light               unit: lux
     SL_UV_T uv;              ///< ultraviole          unit: lux
+    SL_ADC_GY61_T gy61;      ///< ADC GY61            uint: gy61
     uint16_t *adc;           ///< ADC output          unit: mV
   };
 } sl_sensor_data_t;

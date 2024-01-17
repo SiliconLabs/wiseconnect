@@ -103,8 +103,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Configure the following macros in i2c_follower_example.c file and update/modify following macros if required.
 
   ```C
-    #define I2C_INSTANCE    0    // I2C Instance for Pin configuration
-    #define I2C             I2C0 // I2C Instance 
+    #define I2C_INSTANCE    2    // I2C Instance for Pin configuration
+    #define I2C             I2C2 // I2C Instance 
   ```
 
 - `Available Configurations`: Apart from I2C0, other configurations are given below.
@@ -112,11 +112,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   ```C
     #define I2C_INSTANCE    1    // I2C Instance for Pin configuration
     #define I2C             I2C1 // I2C Instance 
-    #define I2C_INSTANCE    2    // I2C Instance for Pin configuration
-    #define I2C             I2C2 // I2C Instance 
+    #define I2C_INSTANCE    0    // I2C Instance for Pin configuration
+    #define I2C             I2C0 // I2C Instance 
   ```
 
-- Change the value of following macros in config/RTE_Device_917.h
+- Change the value of following macros in config/RTE_Device_917.h for I2C0
 
   ```c
     #define RTE_I2C0_SCL_PORT_ID 0   // SCL pin port id
@@ -155,10 +155,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. Connect GPIO_6(P19) and GPIO_7(P20) with the leader device. in the case of I2C0.
+2. Connect ULP_GPIO_6 and ULP_GPIO_7 with the leader device for I2C2.
 3. When the application runs, it receives and sends data.
 4. After the transfer is completed, it validates the data and prints on the console.
 5. Will get "Test Case Pass" print on console.
 6. After successful program execution the prints in serial console looks as shown below.
 
-    ![Figure: Introduction](resources/readme/output.png)
+    ![Figure: Output](resources/readme/output.png)

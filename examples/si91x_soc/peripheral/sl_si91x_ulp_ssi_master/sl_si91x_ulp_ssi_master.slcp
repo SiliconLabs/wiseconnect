@@ -17,7 +17,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 toolchain_settings: []
 component:
   - id: sl_system
@@ -35,10 +35,9 @@ other_file:
   - path: resources/readme/output_ssi_slave.png
 requires:
   - name: ulp_mode_execution
-define:
-  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
-  - name: SPI_MULTI_SLAVE
-  - name: SSI_CONFIG
+configuration:
+  - name: SL_SSI_DEVICE_MODE
+    value: SL_SSI_ULP_MASTER_ACTIVE
 readme:
   - path: readme.md
 ui_hints:

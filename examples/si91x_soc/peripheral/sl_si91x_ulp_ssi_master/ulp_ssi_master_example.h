@@ -18,9 +18,9 @@
 #ifndef ULP_SSI_MASTER_EXAMPLE_H_
 #define ULP_SSI_MASTER_EXAMPLE_H_
 
-#define SL_USE_TRANSFER ENABLE
-#define SL_USE_SEND     DISABLE
-#define SL_USE_RECEIVE  DISABLE
+#define ULP_SSI_MASTER_TRANSFER ENABLE
+#define ULP_SSI_MASTER_SEND     DISABLE
+#define ULP_SSI_MASTER_RECEIVE  DISABLE
 
 // -----------------------------------------------------------------------------
 // Prototypes

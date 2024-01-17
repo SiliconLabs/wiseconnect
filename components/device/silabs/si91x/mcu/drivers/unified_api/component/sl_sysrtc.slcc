@@ -16,6 +16,9 @@ include:
     - path: "sl_si91x_sysrtc.h"
 provides:
   - name: sl_sysrtc
+define:
+  - name: SI91X_SYSRTC_COUNT
+    value: "1"
 requires:
   - name: udma_linker_config
   - name: rsilib_sysrtc

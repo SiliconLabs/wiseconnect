@@ -102,6 +102,8 @@
 #include "cacert.pem.h"
 #include "sl_wifi.h"
 #include "string.h"
+#include "sl_net_dns.h"
+#include "sl_net_ping.h"
 
 /******************************************************
  *                    Constants
@@ -192,6 +194,7 @@ void mqtt_client_error_event_handler(void *client, sl_mqtt_client_error_status_t
 void mqtt_client_cleanup();
 void print_char_buffer(char *buffer, uint32_t buffer_length);
 sl_status_t mqtt_example();
+void memlcd_app_init(void);
 /*
  *********************************************************************************************************
  *                                         LOCAL GLOBAL VARIABLES
@@ -203,7 +206,7 @@ static volatile bool scan_complete          = false;
 static volatile sl_status_t callback_status = SL_STATUS_OK;
 uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
-sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000, { 0 } };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 
 //MQTT related variables
 uint8_t connected = 0, timeout = 0;
@@ -293,6 +296,7 @@ extern void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t d
 extern uint8_t coex_ssid[50], pwd[34], sec_type;
 void m4_sleep_wakeup(void);
 void wakeup_source_config(void);
+void lcd_mac(void);
 
 uint8_t conn_status;
 extern uint8_t magic_word;
@@ -462,6 +466,7 @@ sl_status_t network_event_handler(sl_net_event_t event, sl_status_t status, void
   switch (event) {
     case SL_NET_PING_RESPONSE_EVENT: {
       sl_si91x_ping_response_t *response = (sl_si91x_ping_response_t *)data;
+      UNUSED_VARIABLE(response);
       if (status != SL_STATUS_OK) {
         printf("\r\nPing request unsuccessful\r\n");
         return status;
@@ -469,6 +474,8 @@ sl_status_t network_event_handler(sl_net_event_t event, sl_status_t status, void
       printf("\r\nPing response from www.silabs.com \r\n");
       break;
     }
+    default:
+      break;
   }
 
   return SL_STATUS_OK;
@@ -483,6 +490,8 @@ void ping_silabs()
 
   remote_ip_address.type = SL_IPV4;
 
+  UNUSED_VARIABLE(remote_ip_address);
+
   sl_ip_address_t dns_query_rsp = { 0 };
   uint32_t server_address;
   int32_t dns_retry_count = MAX_DNS_RETRY_COUNT;
@@ -495,7 +504,7 @@ void ping_silabs()
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 
   if (status != SL_STATUS_OK) {
-    printf("\r\nUnexpected error while resolving dns, Error 0x%X\r\n", status);
+    printf("\r\nUnexpected error while resolving dns, Error 0x%lX\r\n", status);
     return;
   }
 
@@ -533,6 +542,7 @@ void mqtt_client_cleanup()
 void mqtt_client_message_handler(void *client, sl_mqtt_client_message_t *message, void *context)
 {
   UNUSED_PARAMETER(context);
+  UNUSED_PARAMETER(client);
   wireless_wkp_triggered = 1;
   printf("Message Received on Topic: ");
   print_char_buffer((char *)message->topic, message->topic_length);
@@ -660,6 +670,8 @@ sl_status_t mqtt_example()
 
   remote_ip_address.type = SL_IPV4;
 
+  UNUSED_VARIABLE(remote_ip_address);
+
   sl_ip_address_t dns_query_rsp = { 0 };
   uint32_t server_address;
   int32_t dns_retry_count = MAX_DNS_RETRY_COUNT;
@@ -672,7 +684,7 @@ sl_status_t mqtt_example()
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 
   if (status != SL_STATUS_OK) {
-    printf("\r\nUnexpected error while resolving dns, Error 0x%X\r\n", status);
+    printf("\r\nUnexpected error while resolving dns, Error 0x%lX\r\n", status);
   }
 
   server_address = dns_query_rsp.ip.v4.value;
@@ -686,6 +698,22 @@ sl_status_t mqtt_example()
   printf("\nResolved test.mosquitto.com ip address = %s\n", server_ip);
 
   mqtt_broker_configuration.ip.ip.v4.value = dns_query_rsp.ip.v4.value;
+
+  sl_mac_address_t mac_addr = { 0 };
+  char mac_id[18];
+  char client_id[25];
+  sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
+  sprintf(mac_id,
+          "%x:%x:%x:%x:%x:%x",
+          mac_addr.octet[0],
+          mac_addr.octet[1],
+          mac_addr.octet[2],
+          mac_addr.octet[3],
+          mac_addr.octet[4],
+          mac_addr.octet[5]);
+  int mac_id_len                             = strlen(mac_id);
+  mqtt_client_configuration.client_id        = mac_id;
+  mqtt_client_configuration.client_id_length = strlen(mqtt_client_configuration.client_id);
 
   status =
     sl_mqtt_client_connect(&client, &mqtt_broker_configuration, &last_will_message, &mqtt_client_configuration, 0);
@@ -918,7 +946,7 @@ void sl_wifi_app_task(void)
                   fetch_ip->bytes[3]);
           printf("\r\nIP Address:%s \r\n", ip_add);
           GLIB_drawStringOnLine(&glibContext, "IP Address:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-          GLIB_drawStringOnLine(&glibContext, &ip_add, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+          GLIB_drawStringOnLine(&glibContext, ip_add, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
           DMD_updateDisplay();
           osDelay(1000);
 
@@ -977,7 +1005,7 @@ void sl_wifi_app_task(void)
 
         rc = sl_wifi_set_performance_profile(&performance_profile);
         if (rc != SL_STATUS_OK) {
-          printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
+          printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", rc);
         }
         printf("\r\nAssociated Power Save Enabled\n");
 
@@ -1102,7 +1130,7 @@ void m4_sleep_wakeup(void)
   printf("\r\nM4 Wake Up\r\n");
 
   //Re-init of LCD
-  struct sl_memlcd_t *device1;
+  const struct sl_memlcd_t *device1;
   device1 = sl_memlcd_get();
   sl_memlcd_clear(device1);
 
@@ -1201,7 +1229,7 @@ void memlcd_app_init(void)
 void lcd_mac(void)
 {
   GLIB_drawStringOnLine(&glibContext, "MAC ID:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, &mac_id, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, mac_id, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   GLIB_drawStringOnLine(&glibContext, "                   ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   DMD_updateDisplay();
 }

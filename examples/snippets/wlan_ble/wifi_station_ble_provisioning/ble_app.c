@@ -71,34 +71,24 @@
 #define RSI_BLE_ATT_PROPERTY_WRITE  0x08
 #define RSI_BLE_ATT_PROPERTY_NOTIFY 0x10
 
-// local device IO capability
-#define RSI_BLE_SMP_IO_CAPABILITY 0x00
-#define RSI_BLE_SMP_PASSKEY       0
-
 // application event list
-#define RSI_BLE_ENH_CONN_EVENT   0x01
-#define RSI_BLE_DISCONN_EVENT    0x02
-#define RSI_BLE_SMP_REQ_EVENT    0x05
-#define RSI_BLE_WLAN_SCAN_RESP   0x03
-#define RSI_BLE_WLAN_JOIN_STATUS 0x15
+#define RSI_BLE_ENH_CONN_EVENT 0x01
+#define RSI_BLE_DISCONN_EVENT  0x02
+#define RSI_BLE_WLAN_SCAN_RESP 0x03
 
-#define RSI_BLE_SMP_RESP_EVENT        0x06
-#define RSI_BLE_SMP_PASSKEY_EVENT     0x07
-#define RSI_BLE_SMP_FAILED_EVENT      0x08
-#define RSI_BLE_ENCRYPT_STARTED_EVENT 0x09
-
-#define RSI_BLE_WLAN_DISCONNECT_STATUS 0x14
-#define RSI_CUSTOMERID_EVENT           0x0B
-#define RSI_CUSTOMERID_EVENT1          0x0C
-#define RSI_SSID                       0x0D
-#define RSI_SECTYPE                    0x0E
-#define RSI_BLE_WLAN_DISCONN_NOTIFY    0x0F
-#define RSI_WLAN_ALREADY               0x10
-#define RSI_WLAN_NOT_ALREADY           0x11
-#define RSI_BLE_WLAN_TIMEOUT_NOTIFY    0x12
-#define RSI_APP_FW_VERSION             0x13
-
-#define RSI_FW_VERSION 0x01
+#define RSI_SSID                        0x0D
+#define RSI_SECTYPE                     0x0E
+#define RSI_BLE_WLAN_DISCONN_NOTIFY     0x0F
+#define RSI_WLAN_ALREADY                0x10
+#define RSI_WLAN_NOT_ALREADY            0x11
+#define RSI_BLE_WLAN_TIMEOUT_NOTIFY     0x12
+#define RSI_APP_FW_VERSION              0x13
+#define RSI_BLE_WLAN_DISCONNECT_STATUS  0x14
+#define RSI_BLE_WLAN_JOIN_STATUS        0x15
+#define RSI_BLE_MTU_EVENT               0x16
+#define RSI_BLE_CONN_UPDATE_EVENT       0x17
+#define RSI_BLE_RECEIVE_REMOTE_FEATURES 0x18
+#define RSI_BLE_DATA_LENGTH_CHANGE      0x19
 
 // Maximum length of SSID
 #define RSI_SSID_LEN 34
@@ -117,7 +107,6 @@ uint8_t data[20] = { 0 };
 static volatile uint32_t ble_app_event_map;
 static rsi_ble_event_conn_status_t conn_event_to_app;
 static rsi_ble_event_disconnect_t disconn_event_to_app;
-static uint8_t rsi_ble_app_data[100];
 static uint8_t rsi_ble_att1_val_hndl;
 static uint16_t rsi_ble_att2_val_hndl;
 static uint16_t rsi_ble_att3_val_hndl;
@@ -125,6 +114,12 @@ uint8_t coex_ssid[50];
 uint8_t pwd[RSI_BLE_MAX_DATA_LEN];
 uint8_t sec_type;
 sl_wifi_scan_result_t *scanresult = NULL;
+
+uint8_t remote_dev_addr[18] = { 0 };
+static rsi_ble_event_mtu_t app_ble_mtu_event;
+static rsi_ble_event_conn_update_t event_conn_update_complete;
+static rsi_ble_event_remote_features_t remote_dev_feature;
+static rsi_ble_event_data_length_update_t updated_data_len_params;
 
 extern uint8_t connected, disassosiated;
 extern uint8_t retry;
@@ -385,7 +380,7 @@ static int32_t rsi_ble_app_get_event(void)
 /**
  * @fn         rsi_ble_on_enhance_conn_status_event
  * @brief      invoked when enhanced connection complete event is received
- * @param[out] resp_conn, connected remote device information
+ * @param[out] resp_enh_conn, connected remote device information
  * @return     none.
  * @section description
  * This callback function indicates the status of the connection
@@ -419,8 +414,8 @@ static void rsi_ble_on_connect_event(rsi_ble_event_conn_status_t *resp_conn)
 /**
  * @fn         rsi_ble_on_disconnect_event
  * @brief      invoked when disconnection event is received
- * @param[in]  resp_disconnect, disconnected remote device information
- * @param[in]  reason, reason for disconnection.
+ * @param[out]  resp_disconnect, disconnected remote device information
+ * @param[out]  reason, reason for disconnection.
  * @return     none.
  * @section description
  * This Callback function indicates disconnected device information and status
@@ -434,91 +429,74 @@ static void rsi_ble_on_disconnect_event(rsi_ble_event_disconnect_t *resp_disconn
 
 /*==============================================*/
 /**
- * @fn         rsi_ble_on_smp_request
- * @brief      its invoked when smp request event is received.
- * @param[in]  remote_dev_address, it indicates remote bd address.
+ * @fn         rsi_ble_on_conn_update_complete_event
+ * @brief      invoked when conn update complete event is received
+ * @param[out] rsi_ble_event_conn_update_complete contains the controller
+ * support conn information.
+ * @param[out] resp_status contains the response status (Success or Error code)
  * @return     none.
  * @section description
- * This callback function is invoked when SMP request events is received(we are in Central mode)
- * Note: Peripheral requested to start SMP request, we have to send SMP request command
+ * This Callback function indicates the conn update complete event is received
  */
-void rsi_ble_on_smp_request(rsi_bt_event_smp_req_t *remote_dev_address)
+void rsi_ble_on_conn_update_complete_event(rsi_ble_event_conn_update_t *rsi_ble_event_conn_update_complete,
+                                           uint16_t resp_status)
 {
-  UNUSED_PARAMETER(remote_dev_address);
-  rsi_ble_app_set_event(RSI_BLE_SMP_REQ_EVENT);
+  UNUSED_PARAMETER(resp_status);
+  rsi_6byte_dev_address_to_ascii(remote_dev_addr, (uint8_t *)rsi_ble_event_conn_update_complete->dev_addr);
+  memcpy(&event_conn_update_complete, rsi_ble_event_conn_update_complete, sizeof(rsi_ble_event_conn_update_t));
+  rsi_ble_app_set_event(RSI_BLE_CONN_UPDATE_EVENT);
 }
 
-/*==============================================*/
+/*============================================================================*/
 /**
- * @fn         rsi_ble_on_smp_response
- * @brief      its invoked when smp response event is received.
- * @param[in]  remote_dev_address, it indicates remote bd address.
+ * @fn         rsi_ble_on_remote_features_event
+ * @brief      invoked when LE remote features event is received.
+ * @param[out] rsi_ble_event_remote_features, connected remote device information
  * @return     none.
  * @section description
- * This callback function is invoked when SMP response events is received(we are in Peripheral mode)
- * Note: Central initiated SMP protocol, we have to send SMP response command
+ * This callback function indicates the remote device features
  */
-void rsi_ble_on_smp_response(rsi_bt_event_smp_resp_t *remote_dev_address)
+void rsi_ble_on_remote_features_event(rsi_ble_event_remote_features_t *rsi_ble_event_remote_features)
 {
-  UNUSED_PARAMETER(remote_dev_address);
-  rsi_ble_app_set_event(RSI_BLE_SMP_RESP_EVENT);
+  memcpy(&remote_dev_feature, rsi_ble_event_remote_features, sizeof(rsi_ble_event_remote_features_t));
+  rsi_ble_app_set_event(RSI_BLE_RECEIVE_REMOTE_FEATURES);
 }
 
-/*==============================================*/
+/*============================================================================*/
 /**
- * @fn         rsi_ble_on_smp_passkey
- * @brief      its invoked when smp passkey event is received.
- * @param[in]  remote_dev_address, it indicates remote bd address.
- * @return     none.
+ * @fn         rsi_ble_data_length_change_event
+ * @brief      invoked when data length is set
+ * @param[out] rsi_ble_data_length_update, data length information
  * @section description
- * This callback function is invoked when SMP passkey events is received
- * Note: We have to send SMP passkey command
+ * This Callback function indicates data length is set
  */
-void rsi_ble_on_smp_passkey(rsi_bt_event_smp_passkey_t *remote_dev_address)
+void rsi_ble_data_length_change_event(rsi_ble_event_data_length_update_t *rsi_ble_data_length_update)
 {
-  UNUSED_PARAMETER(remote_dev_address);
-  rsi_ble_app_set_event(RSI_BLE_SMP_PASSKEY_EVENT);
+  memcpy(&updated_data_len_params, rsi_ble_data_length_update, sizeof(rsi_ble_event_data_length_update_t));
+  rsi_ble_app_set_event(RSI_BLE_DATA_LENGTH_CHANGE);
 }
-
 /*==============================================*/
 /**
- * @fn         rsi_ble_on_smp_failed
- * @brief      its invoked when smp failed event is received.
- * @param[in]  remote_dev_address, it indicates remote bd address.
+ * @fn         rsi_ble_on_mtu_event
+ * @brief      invoked  when an MTU size event is received
+ * @param[out]  rsi_ble_mtu, it indicates MTU size.
  * @return     none.
  * @section description
- * This callback function is invoked when SMP failed events is received
+ * This callback function is invoked  when an MTU size event is received
  */
-void rsi_ble_on_smp_failed(uint16_t status, rsi_bt_event_smp_failed_t *remote_dev_address)
+static void rsi_ble_on_mtu_event(rsi_ble_event_mtu_t *rsi_ble_mtu)
 {
-  UNUSED_PARAMETER(remote_dev_address);
-  UNUSED_PARAMETER(status);
-  rsi_ble_app_set_event(RSI_BLE_SMP_FAILED_EVENT);
-}
-
-/*==============================================*/
-/**
- * @fn         rsi_ble_on_encrypt_started
- * @brief      its invoked when encryption started event is received.
- * @param[in]  remote_dev_address, it indicates remote bd address.
- * @return     none.
- * @section description
- * This callback function is invoked when encryption started events is received
- */
-void rsi_ble_on_encrypt_started(uint16_t status, rsi_bt_event_encryption_enabled_t *enc_enabled)
-{
-  UNUSED_PARAMETER(enc_enabled);
-  UNUSED_PARAMETER(status);
-
-  rsi_ble_app_set_event(RSI_BLE_ENCRYPT_STARTED_EVENT);
+  memcpy(&app_ble_mtu_event, rsi_ble_mtu, sizeof(rsi_ble_event_mtu_t));
+  rsi_6byte_dev_address_to_ascii(remote_dev_addr, app_ble_mtu_event.dev_addr);
+  rsi_ble_app_set_event(RSI_BLE_MTU_EVENT);
 }
 
 /*==============================================*/
 /**
  * @fn         rsi_ble_on_gatt_write_event
  * @brief      this is call back function, it invokes when write/notify events received.
- * @param[in]  event_id, it indicates write/notification event id.
- * @param[in]  rsi_ble_write, write event parameters.
+ * @param[out]  event_id, it indicates write/notification event id.
+ * @param[out]  rsi_ble_write, write event parameters.
  * @return     none.
  * @section description
  * This is a callback function
@@ -554,7 +532,7 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
       // Sending Security type
       case '5': //else if(rsi_ble_write->att_value[0] == '5')
       {
-        sec_type = 2; //rsi_ble_write->att_value[3]; // FixMe: Getting wrong sec_type from ble app
+        sec_type = ((rsi_ble_write->att_value[3]) - '0');
         LOG_PRINT("In Security Request\n");
 
         rsi_ble_app_set_event(RSI_SECTYPE);
@@ -627,11 +605,13 @@ void rsi_ble_configurator_init(void)
                                  rsi_ble_on_disconnect_event,
                                  NULL,
                                  NULL,
-                                 NULL,
+                                 rsi_ble_data_length_change_event,
                                  rsi_ble_on_enhance_conn_status_event,
                                  NULL,
-                                 NULL,
+                                 rsi_ble_on_conn_update_complete_event,
                                  NULL);
+  //! registering the GAP extended call back functions
+  rsi_ble_gap_extended_register_callbacks(rsi_ble_on_remote_features_event, NULL);
 
   // registering the GATT callback functions
   rsi_ble_gatt_register_callbacks(NULL,
@@ -645,7 +625,7 @@ void rsi_ble_configurator_init(void)
                                   NULL,
                                   NULL,
                                   NULL,
-                                  NULL,
+                                  rsi_ble_on_mtu_event,
                                   NULL,
                                   NULL,
                                   NULL,
@@ -657,18 +637,6 @@ void rsi_ble_configurator_init(void)
                                   NULL,
                                   NULL,
                                   NULL);
-
-  rsi_ble_smp_register_callbacks(rsi_ble_on_smp_request, // registering the SMP call back functions
-                                 rsi_ble_on_smp_response,
-                                 rsi_ble_on_smp_passkey,
-                                 rsi_ble_on_smp_failed,
-                                 rsi_ble_on_encrypt_started,
-                                 NULL,
-                                 NULL,
-                                 NULL,
-                                 NULL,
-                                 NULL,
-                                 NULL);
 
   // Set local name
   rsi_bt_set_local_name((uint8_t *)RSI_BLE_APP_DEVICE_NAME);
@@ -683,6 +651,7 @@ void rsi_ble_configurator_init(void)
 
   // set device in advertising mode.
   rsi_ble_start_advertising();
+  LOG_PRINT("\r\nBLE Advertising Started...\r\n");
 }
 
 /*==============================================*/
@@ -730,9 +699,15 @@ void rsi_ble_configurator_task(void *argument)
         //MTU exchange
         status = rsi_ble_mtu_exchange_event(conn_event_to_app.dev_addr, BLE_MTU_SIZE);
         if (status != RSI_SUCCESS) {
-          LOG_PRINT("\n rsi_ble_mtu_exchange_event command failed : %lx", status);
-        } else {
-          LOG_PRINT("\n rsi_ble_mtu_exchange_event command success \n");
+          LOG_PRINT("\n MTU request failed with error code %lx", status);
+        }
+        status = rsi_ble_conn_params_update(conn_event_to_app.dev_addr,
+                                            CONN_INTERVAL_DEFAULT_MIN,
+                                            CONN_INTERVAL_DEFAULT_MAX,
+                                            CONNECTION_LATENCY,
+                                            SUPERVISION_TIMEOUT);
+        if (status != RSI_SUCCESS) {
+          LOG_PRINT("\n rsi_ble_conn_params_update command failed : %lx", status);
         }
       } break;
 
@@ -741,33 +716,18 @@ void rsi_ble_configurator_task(void *argument)
 
         // clear the served event
         rsi_ble_app_clear_event(RSI_BLE_DISCONN_EVENT);
+        LOG_PRINT("\r\nDisconnected - remote_dev_addr : %s\r\n",
+                  rsi_6byte_dev_address_to_ascii(remote_dev_addr, disconn_event_to_app.dev_addr));
 
         // set device in advertising mode.
 adv:
-// These lines are commented to avoid wlan disconnection if ble is disconnected.
-#if 0
-        if (connected) {
-          LOG_PRINT("disconnect command is passed\n");
-          memset(data, 0, RSI_BLE_MAX_DATA_LEN);
-          sl_wifi_app_set_event(RSI_WLAN_DISCONN_NOTIFY_STATE);
-        }
-#endif
         status = rsi_ble_start_advertising();
         if (status != RSI_SUCCESS) {
           goto adv;
+        } else {
+          LOG_PRINT("\r\nStarted Advertising \n");
         }
       } break;
-
-      case SL_BLE_GATT_WRITE_EVENT: {
-        // event invokes when write/notification events received
-
-        // clear the served event
-        rsi_ble_app_clear_event(SL_BLE_GATT_WRITE_EVENT);
-
-        // set the local attribute value.
-        rsi_ble_set_local_att_value(rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, rsi_ble_app_data);
-      } break;
-
       case RSI_APP_FW_VERSION: {
         sl_wifi_firmware_version_t firmware_version = { 0 };
 
@@ -834,7 +794,7 @@ adv:
 
       case RSI_SECTYPE: {
         rsi_ble_app_clear_event(RSI_SECTYPE);
-        if (sec_type == '0') {
+        if (sec_type == 0) {
           sl_wifi_app_set_event(SL_WIFI_JOIN_STATE);
         }
       } break;
@@ -901,6 +861,34 @@ adv:
                                     RSI_BLE_MAX_DATA_LEN,
                                     data); // set the local attribute value.
         LOG_PRINT("AP joined successfully\n\n");
+      } break;
+      case RSI_BLE_MTU_EVENT: {
+        //! clear the served event
+        rsi_ble_app_clear_event(RSI_BLE_MTU_EVENT);
+        //! event invokes when write/notification events received
+      } break;
+      case RSI_BLE_CONN_UPDATE_EVENT: {
+        rsi_ble_app_clear_event(RSI_BLE_CONN_UPDATE_EVENT);
+
+      } break;
+      case RSI_BLE_RECEIVE_REMOTE_FEATURES: {
+        //! clear the served event
+        rsi_ble_app_clear_event(RSI_BLE_RECEIVE_REMOTE_FEATURES);
+
+        if (remote_dev_feature.remote_features[0] & 0x20) {
+          status = rsi_ble_set_data_len(conn_event_to_app.dev_addr, TX_LEN, TX_TIME);
+          if (status != RSI_SUCCESS) {
+            LOG_PRINT("\n set data length cmd failed with error code = "
+                      "%lx \n",
+                      status);
+            rsi_ble_app_set_event(RSI_BLE_RECEIVE_REMOTE_FEATURES);
+          }
+        }
+
+      } break;
+      case RSI_BLE_DATA_LENGTH_CHANGE: {
+        //! clear the served event
+        rsi_ble_app_clear_event(RSI_BLE_DATA_LENGTH_CHANGE);
       } break;
       default:
         break;

@@ -46,8 +46,8 @@
 #define I2C_RELEASE_VERSION         0    // I2C Release version
 #define I2C_SQA_VERSION             0    // I2C SQA version
 #define I2C_DEV_VERSION             2    // I2C Developer version
-#define HIGH_SPEED_HIGH_COUNT_VALUE 14   // High speed mode clock high count value
-#define HIGH_SPEED_LOW_COUNT_VALUE  43   // High speed mode clock high count value
+#define HIGH_SPEED_HIGH_COUNT_VALUE 8    // High speed mode clock high count value
+#define HIGH_SPEED_LOW_COUNT_VALUE  14   // High speed mode clock high count value
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************

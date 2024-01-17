@@ -163,14 +163,14 @@ extern "C" {
 #define ULP_PIN_IRQ_Handler   IRQ018_Handler ///< ULP Pin Interrupt
 #define ULP_GROUP_IRQ_Handler IRQ019_Handler ///< ULP Group Interrupt
 
-#define PIN_INTR_0 0 ///< GPIO pin interrupt 0
-#define PIN_INTR_1 1 ///< GPIO pin interrupt 1
-#define PIN_INTR_2 2 ///< GPIO pin interrupt 2
-#define PIN_INTR_3 3 ///< GPIO pin interrupt 3
-#define PIN_INTR_4 4 ///< GPIO pin interrupt 4
-#define PIN_INTR_5 5 ///< GPIO pin interrupt 5
-#define PIN_INTR_6 6 ///< GPIO pin interrupt 6
-#define PIN_INTR_7 7 ///< GPIO pin interrupt 7
+#define PIN_INTR_0 0 ///< HP GPIO pin interrupt 0
+#define PIN_INTR_1 1 ///< HP GPIO pin interrupt 1
+#define PIN_INTR_2 2 ///< HP GPIO pin interrupt 2
+#define PIN_INTR_3 3 ///< HP GPIO pin interrupt 3
+#define PIN_INTR_4 4 ///< HP GPIO pin interrupt 4
+#define PIN_INTR_5 5 ///< HP GPIO pin interrupt 5
+#define PIN_INTR_6 6 ///< HP GPIO pin interrupt 6
+#define PIN_INTR_7 7 ///< HP GPIO pin interrupt 7
 
 #define UULP_MASK   0x00 ///< UULP GPIO pin mask
 #define ULP_STATUS  0x01 ///< ULP GPIO pin status

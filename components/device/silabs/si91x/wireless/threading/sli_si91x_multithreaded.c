@@ -394,6 +394,7 @@ void si91x_bus_thread(void *args)
               }
             }
             // intentional fallthrough
+            case RSI_COMMON_RSP_GET_EFUSE_DATA:
             case RSI_COMMON_RSP_GET_RAM_DUMP:
             case RSI_COMMON_RSP_ANTENNA_SELECT:
             case RSI_COMMON_RSP_ENCRYPT_CRYPTO:
@@ -448,6 +449,7 @@ void si91x_bus_thread(void *args)
             }
             case RSI_WLAN_RSP_BAND:
             case RSI_WLAN_RSP_INIT:
+            case RSI_WLAN_RSP_RADIO:
             case RSI_WLAN_RSP_EAP_CONFIG:
             case RSI_WLAN_RSP_SET_CERTIFICATE:
             case RSI_WLAN_RSP_HOST_PSK:
@@ -460,6 +462,7 @@ void si91x_bus_thread(void *args)
             case RSI_WLAN_RSP_DISCONNECT:
             case RSI_WLAN_RSP_AP_STOP:
             case RSI_WLAN_RSP_RSSI:
+            case RSI_WLAN_RSP_TSF:
             case RSI_WLAN_RSP_AP_CONFIGURATION:
             case RSI_WLAN_RSP_WPS_METHOD:
             case RSI_WLAN_RSP_QUERY_NETWORK_PARAMS:

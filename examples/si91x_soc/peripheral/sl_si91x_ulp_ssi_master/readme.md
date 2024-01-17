@@ -58,26 +58,26 @@
 - The State machine code is implemented for transfer, send and receive data, the current mode is determined by ssi_mode_enum_t which is declared in ulp_ssi_master_example.c file.
 - According to the macro which is enabled, the example code executes the transfer of data:
 
-- If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
+- If **ULP_SSI_MASTER_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
 
-  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
+  - The current_mode enum is set to ULP_SSI_MASTER_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
   - This test can also be performed in loopback state, i.e. connect MISO and MOSI pins.
   - The example code waits till the transfer is completed, when the transfer complete event is generated, it compares the sent and received data.
   - The result is printed on the console.
-  - Now the current_mode enum is updated as per the macros enabled i.e., either SL_USE_SEND or SL_USE_RECEIVE.
-  - If no other macros are enabled, the current_mode is updated to SL_TRANSMISSION_COMPLETED.
+  - Now the current_mode enum is updated as per the macros enabled i.e., either ULP_SSI_MASTER_SEND or ULP_SSI_MASTER_RECEIVE.
+  - If no other macros are enabled, the current_mode is updated to ULP_SSI_MASTER_TRANSMISSION_COMPLETED.
 
-- If **SL_USE_RECEIVE** macro is enabled, it only receives the data from slave - SPI slave must be connected, it cannot be tested in loopback mode.
+- If **ULP_SSI_MASTER_RECEIVE** macro is enabled, it only receives the data from slave - SPI slave must be connected, it cannot be tested in loopback mode.
 
-  - The current_mode is set to the SL_RECEIVE_DATA and calls the \ref sl_si91x_ssi_receive_data API which expects data_in (empty buffer) and number of data bytes to be received.
+  - The current_mode is set to the ULP_SSI_MASTER_RECEIVE_DATA and calls the \ref sl_si91x_ssi_receive_data API which expects data_in (empty buffer) and number of data bytes to be received.
   - It waits till the receive is completed i.e., transfer complete event is generated.
-  - Now the current_mode enum is updated as per the macros enabled i.e., SL_USE_SEND.
-  - If no other macros are enabled, the current_mode is updated to SL_TRANSMISSION_COMPLETED.
+  - Now the current_mode enum is updated as per the macros enabled i.e., ULP_SSI_MASTER_SEND.
+  - If no other macros are enabled, the current_mode is updated to ULP_SSI_MASTER_TRANSMISSION_COMPLETED.
 
-- If **SL_USE_SEND** macro is enabled, it only sends the data to slave, SPI slave must be connected, it cannot be tested in loopback mode.
-  - The current_mode enum is set to SL_SEND_DATA and calls the \ref sl_si91x_ssi_send_data API which expects data_out (data buffer that needs to be sent) and number of bytes to send.
+- If **ULP_SSI_MASTER_SEND** macro is enabled, it only sends the data to slave, SPI slave must be connected, it cannot be tested in loopback mode.
+  - The current_mode enum is set to ULP_SSI_MASTER_SEND_DATA and calls the \ref sl_si91x_ssi_send_data API which expects data_out (data buffer that needs to be sent) and number of bytes to send.
   - It waits till the send is completed i.e., transfer complete event is generated.
-  - Now the current_mode enum is updated to TRANSMISSION_COMPLETED.
+  - Now the current_mode enum is updated to ULP_SSI_MASTER_TRANSMISSION_COMPLETED.
 
 ## Prerequisites/Setup Requirements
 
@@ -110,12 +110,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Application Build Environment
 
 - Configure UC from the slcp component.
+- Open **sl_si91x_ulp_ssi_master.slcp** project file select **software component** tab and search for **SSI** in search bar.
+- Using configuration wizard one can configure different parameters like:
 
    ![Figure: Introduction](resources/uc_screen/ssi_uc_screen.png)
 
-- Enable the ULP_SSI_MASTER in UC before running/flashing the code.
-- Open **sl_si91x_ulp_ssi_master.slcp** project file select **software component** tab and search for **SSI** in search bar.
-- Using configuration wizard one can configure different parameters like:
   - **SSI Configuration**
     - Frame Format: SSI Frame Format can be configured, i.e.,
       - Mode 0: Clock Polarity is zero and Clock Phase is zero.
@@ -139,9 +138,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Configure the following macros in ulp_ssi_master_example.h file and update/modify following macros if required.
 
 ```C
-#define SL_USE_TRANSFER ENABLE    // To use the transfer API
-#define SL_USE_SEND     DISABLE   // To use the send API
-#define SL_USE_RECEIVE  DISABLE   // To use the receive API
+#define ULP_SSI_MASTER_TRANSFER ENABLE    // To use the transfer API
+#define ULP_SSI_MASTER_SEND     DISABLE   // To use the send API
+#define ULP_SSI_MASTER_RECEIVE  DISABLE   // To use the receive API
 ```
 
 ## Pin Configuration of the WPK[BRD4002A] Base Board
@@ -167,7 +166,7 @@ Follow the steps below for successful execution of the application:
 1. Connect ULP SSI Master SCK, CS0, MOSI, MISO pins with the SSI Slave device.
 2. When the application runs, it receives and send data.
 3. After the transfer is completed, it validates the data and prints "Test Case Passed" on the console.
-3. If USE_RECEIVE or USE_SEND is enabled, SSI slave will receive and send data respectively.
+3. If ULP_SSI_MASTER_RECEIVE or ULP_SSI_MASTER_SEND is enabled, SSI slave will receive and send data respectively.
 4. After successful program execution the prints in serial console looks as shown below.
 
 - Master output:
@@ -181,5 +180,6 @@ Follow the steps below for successful execution of the application:
 > **Note:**
 >
 >- After Flashing ULP examples as M4 flash will be turned off,flash erase does not work.
->- To Erase the chip follow the below procedure
->- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.
+>
+- To Erase the chip follow the below procedure
+  - **Press ISP and RESET button at same time and then release, now perform Chip erase through commander.**

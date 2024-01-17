@@ -145,7 +145,7 @@ void IRQ005_Handler(void);
   which can be done through sl_si91x_ulp_timer_configure_xtal_clock(uint8_t xtal_pin) API
   i.e user need to call that API first.
 * In order to enable the soc CLK source need to configure the Ulpss soc Clk from M4 soc clk
-  please refer \ref sl_si91x_ulp_timer_configure_soc_clock(boolean_t div_factor_type, 
+  please use \ref sl_si91x_ulp_timer_configure_soc_clock(boolean_t div_factor_type, 
                                           uint16_t div_factor )
  *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_configure_clock(ulp_timer_clk_src_config_t *timer_clk_ptr)
@@ -883,12 +883,22 @@ sl_status_t sl_si91x_ulp_timer_init(ulp_timer_clk_src_config_t *timer_clk_ptr)
 
 /*******************************************************************************
 * De-Initialization of ulp timer clock
+* Unregisters callback of all timer instances
 *
 * @details:
 * This API is used to de-initializes timer by disabling peripheral clock
 *******************************************************************************/
 void sl_si91x_ulp_timer_deinit(void)
 {
+  //Unregistering callback for timer-0
+  sl_si91x_ulp_timer_unregister_timeout_callback(ULP_TIMER_0);
+  //Unregistering callback for timer-1
+  sl_si91x_ulp_timer_unregister_timeout_callback(ULP_TIMER_1);
+  //Unregistering callback for timer-0
+  sl_si91x_ulp_timer_unregister_timeout_callback(ULP_TIMER_2);
+  //Unregistering callback for timer-0
+  sl_si91x_ulp_timer_unregister_timeout_callback(ULP_TIMER_3);
+  // Disabling clock for ULP-timer peripheral
   RSI_ULPSS_TimerClkDisable(ULPCLK);
 }
 

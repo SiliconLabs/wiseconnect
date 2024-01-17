@@ -20,11 +20,12 @@
 
 //Note: Please go through http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
 
-#define SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH   62
-#define SI91X_MQTT_CLIENT_MESSAGE_MAXIMUM_LENGTH 100
+#define SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH      202
+#define SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH 62
+#define SI91X_MQTT_CLIENT_MESSAGE_MAXIMUM_LENGTH    100
 
 #define SI91X_MQTT_CLIENT_ID_MAXIMUM_LENGTH       62
-#define SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH 62
+#define SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH 122
 #define SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH 62
 
 #define SI91X_MQTT_CLIENT_INIT_COMMAND         1
@@ -93,7 +94,7 @@ typedef struct __attribute__((__packed__)) {
   // length of topic
   uint8_t will_topic_len;
   //  topic name of will
-  uint8_t will_topic[SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH];
+  uint8_t will_topic[SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH];
   // Length of Will message
   uint8_t will_message_len;
   //  message of will

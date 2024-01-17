@@ -52,10 +52,6 @@ extern "C" {
 #define SI7020_ADDR 0X40 ///< I2C device address for Si7020
 #define SI7021_ADDR 0x40 ///< I2C device address for Si7021
 #define I2C_BASE    I2C2 ///< I2C2 base
-#define RX_LEN      2    ///< Read buffer length 2 bytes
-#define TX_LEN      2    ///< Write buffer length 2 bytes
-#define RD_BUF      6    ///< Read buffer length 6 bytes
-#define WR_BUF      1    ///< Write buffer length 1 byte
 
 /*******************************************************************************
  ********************************   ENUMS   ************************************

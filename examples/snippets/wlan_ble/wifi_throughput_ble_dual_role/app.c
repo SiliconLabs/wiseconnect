@@ -92,17 +92,16 @@ static const sl_wifi_device_configuration_t config = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                   .coex_mode       = SL_SI91X_WLAN_BLE_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION
+  .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
+                   .coex_mode              = SL_SI91X_WLAN_BLE_MODE,
+                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION
                                        | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
-                   .tcp_ip_feature_bit_map =
-                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
 #if (!RSI_TCP_IP_BYPASS)
-                      | SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
-                      | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
+                                              | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+                                              | SL_SI91X_TCP_IP_FEAT_SSL
 #endif
-                      ),
+                                              ),
                    .custom_feature_bit_map =
                      (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG | SL_SI91X_EXT_FEAT_XTAL_CLK
@@ -113,11 +112,7 @@ static const sl_wifi_device_configuration_t config = {
                                                   | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
 #endif
                                                   | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
-                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
-#if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
-#endif
-                                          ),
+                   .bt_feature_bit_map         = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL),
                    .ext_tcp_ip_feature_bit_map = (
 #ifdef RSI_PROCESS_MAX_RX_DATA
                      SL_SI91X_EXT_TCP_MAX_RECV_LENGTH
@@ -444,7 +439,7 @@ void rsi_common_app_task(void)
     return;
   }
 #else
-  rsi_wlan_app_thread();
+  rsi_wlan_app_thread(NULL);
 #endif
 #endif
 

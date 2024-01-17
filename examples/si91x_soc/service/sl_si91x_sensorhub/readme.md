@@ -25,6 +25,7 @@
   * 3- I2C-based sensors namely a BH1750(Light Sensor), LM75(Temperature Sensor) and APDS9960(RGB Proximity Gesture sensor)
   * 2- ADC-based Sensors(Joystick and GUVA_12D_UV)
   * 1- GPIO-based Push Button-0 as sensor
+  * 1- SPI-based sensor ADXL345(Accelorometer Sensor)
 
 - The application starts in PS4 mode, initializes peripherals, and configures sensors on the corresponding peripheral interfaces. Sensor data will be sampled and shown on the serial console based on the sensor configurations.
 
@@ -150,6 +151,17 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
               .data_deliver.data_mode    = SL_SH_NUM_OF_SAMPLES,
               .data_deliver.numofsamples = 5,
               ```
+              ```c
+              //For ADC Sensors, channel should be BIT(channel number)
+              .sensor_name               = "ADC_JOYSTICK",
+              .sensor_id                 = SL_SENSOR_ADC_JOYSTICK_ID,
+              .channel                   = BIT(SL_SH_ADC_CH0_CHANNEL),
+              .sensor_bus                = SL_SH_ADC,
+              .sensor_mode               = SL_SH_POLLING_MODE,
+              .sampling_interval         = 200,
+              .data_deliver.data_mode    = SL_SH_NUM_OF_SAMPLES,
+              .data_deliver.numofsamples = SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES,
+              ```
 
       - **INTERRUPT Sensor Mode** configures the below parameters:
 
@@ -175,16 +187,16 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
             .data_deliver.data_mode    = SL_SH_NO_DATA_MODE,
             ```
 
+
             ```c
-            //For ADC Sensor
+            //For ADC Sensors, channel should be BIT(channel number)
             .sensor_name               = "ADC_JOYSTICK",
             .sensor_id                 = SL_SENSOR_ADC_JOYSTICK_ID,
-            .channel                   = SL_SH_ADC_CH0_CHANNEL,
+            .channel                   = BIT(SL_SH_ADC_CH0_CHANNEL),
             .sensor_bus                = SL_SH_ADC,
             .sensor_mode               = SL_SH_INTERRUPT_MODE,
             .data_deliver.data_mode     = SL_SH_NO_DATA_MODE,
             ```
-
 3. **PowerSave Configurations:**
     * The SensorHub utilizes the **Tickles Idle low-power mode** provided by the RTOS.
     * To configure the PS2, please update the below macro in the preprocessor settings:
@@ -248,17 +260,34 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
       configure as shown below in the ***adc_sensor_hal.h*** file:
 
         ```C
-          // Set SL_SH_ADC_CH0_NUM_SAMPLES to a value between 100 and 1023 if you are using sleep mode. 
-          //Setting it to a value less than 100 may result in undefined behavior due to an immediate ADC interrupt.
-          #define SL_SH_ADC_CH0_NUM_SAMPLES 100 
+          // Set SL_SH_ADC_CH0_NUM_SAMPLES to a value between 100 and 1023 if you are using sample rate >= 100
+          // If you want to set SL_SH_ADC_CH0_NUM_SAMPLES to 1 and use <= 2 channels, you should use a lower sampling rate (less than 100)
+          // Using any other combination may result in undefined behavior due to an immediate ADC interrupt.
+          #define SL_SH_ADC_CH0_NUM_SAMPLES         100 
+          #define SL_SH_ADC_SAMPLING_RATE           100
+          #define SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES  1
+        ``` 
+      * **Example configurations for ADXL335 GY61 sensor**.
+        ```C
+          #define SL_SH_ADC_CH0_NUM_SAMPLES     1
+          #define SL_SH_ADC_CH1_NUM_SAMPLES     1
+          #define SL_SH_ADC_CH2_NUM_SAMPLES     1
+          #define SL_SH_ADC_SAMPLING_RATE       10
+          #define SL_SH_ADC_NUM_CHANNELS_ENABLE 4
+          #define GY61_ADC_SENSOR
 
-          #define SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES 1
-        ```
-
-      - ADC can read between 1 and 1023 samples at a time and generates interrupts when operating in FIFO mode.
-      - To configure the PS1 power state from the PS2 State, please update the below macro in the preprocessor settings.
-          * Disable the tickles mode in the FreeRTOS.h file.
-          * The PS1 state transition only applies to ADC FIFO Mode. Before entering this mode, kindly turn off any other sensors.
+          .sensor_name               = "GY61",
+          .sensor_id                 = SL_SENSOR_ADC_GY_61_ID,
+          .channel                   = BIT(SL_SH_ADC_CH1_CHANNEL) | BIT(SL_SH_ADC_CH2_CHANNEL) | BIT(SL_SH_ADC_CH3_CHANNEL),
+          .sensor_bus                = SL_SH_ADC,
+          .sensor_mode               = SL_SH_INTERRUPT_MODE,
+          .data_deliver.data_mode    = SL_SH_NO_DATA_MODE,
+        ``` 
+ 
+      * ADC can read between 1 and 1023 samples at a time and generates interrupts when operating in FIFO mode.
+      * To configure the PS1 power state from the PS2 State, please update the below macro in the preprocessor settings.
+        1. Disable the tickles mode in the FreeRTOS.h file.
+        2. The PS1 state transition only applies to ADC FIFO Mode. Before entering this mode, kindly turn off any other sensors.
 
           ```C
           SL_SH_ADC_PS1=1 
@@ -283,18 +312,29 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 | ADDR (for BH1750 Light Sensor) |(WPK) (GND) | Connect to GND pin |
 |
 
+### SPI Sensor Pin Configurations
+| Sensor PIN | ULP GPIO PIN | Description |
+| --- | --- | --- |
+| MOSI | ULP_GPIO_1 [ F16/ P16 ] | Connect to SDA pin |
+| MISO | ULP_GPIO_2 [ F10 ] | Connect to SDO pin |
+| CLK | ULP_GPIO_8 | P15 |
+| CS | ULP_GPIO_10 | P17 |
+|
 
 ### ADC Sensor Pin Configurations
 
 | Sensor PIN | ULP GPIO PIN | Description |
 | --- | --- | --- |
-| ADC Input | ULP_GPIO_10 [ P17 ] | Connect to Joystick output (P36)
-|
+| ADC Input | ULP_GPIO_2 [ F10 ] | Connect to Joystick output (P36) / GUVA sensor output
+| ADC Input | ULP_GPIO_8 [ P15 ] | Connect to ADXL335 GY61 X axis analog output
+| ADC Input | ULP_GPIO_10 [ P17 ] | Connect to ADXL335 GY61 Y axis analog output
+| ADC Input | ULP_GPIO_1 [ P16 ] | Connect to ADXL335 GY61 Z axis analog output
+| 
 
 ## Test the Application
 
 - Compile and run the application.
-- Connect the I2C and ADC sensors, based on the above pin configuration.
+- Connect the I2C, SPI and ADC sensors, based on the above pin configuration.
 
 ## Expected Results
 
@@ -303,8 +343,8 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 >### Note:
 >#### General
   >
-  >- ADC sensor will not work in Sleep state.
   >- The GPIO bsed Interrupt Sensor Mode won't function in Sleep mode.
+  >- SPI sensor will only work in PS4 state
   >
 >#### ADC
   >

@@ -578,12 +578,11 @@ sl_status_t start_aws_mqtt(void)
 #if ENABLE_POWER_SAVE
       case SLEEP_STATE: {
         sl_si91x_host_delay_ms(200);
-        printf("\rM4 going to power save state..\r\n");
-        printf("\rselect_given before sleep: %d\r\n", select_given);
-
         if (select_given == 1 && (check_for_recv_data != 1)) {
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+          printf("\rM4 going to power save state..\r\n");
+          printf("\rselect_given before sleep: %d\r\n", select_given);
           sl_si91x_m4_sleep_wakeup();
 #endif
         }

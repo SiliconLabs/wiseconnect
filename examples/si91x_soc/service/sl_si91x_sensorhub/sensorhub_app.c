@@ -57,12 +57,38 @@ const osThreadAttr_t app_thread_attributes = {
   .tz_module  = 0,
   .reserved   = 0,
 };
+
+#if SH_AWS_ENABLE
+const osThreadAttr_t aws_thread_attributes = {
+  .name       = "AWS_App",
+  .attr_bits  = 0,
+  .cb_mem     = 0,
+  .cb_size    = 0,
+  .stack_mem  = 0,
+  .stack_size = 3072,
+  .priority   = osPriorityLow,
+  .tz_module  = 0,
+  .reserved   = 0,
+};
+#endif
+
 rsi_task_handle_t app_task_handle = NULL;
+
+#if SH_AWS_ENABLE
+osSemaphoreId_t sl_semaphore_app_task_id_2;
+
+extern osSemaphoreId_t sl_semaphore_aws_task_id;
+
+char mqtt_publish_payload[500];
+
+void sl_si91x_aws_task(void);
+#endif
 
 /*******************************************************************************
  ********************  Extern variables/structures   ***************************
  ******************************************************************************/
 extern sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS]; // Sensor info structure
+extern sl_bus_intf_config_t bus_intf_info;                     //< Bus interface configuration structure
 
 /*******************************************************************************
  ********************** Local/global variables  *******************************
@@ -78,6 +104,23 @@ void sensorhub_app_init(void);                                        // applica
 void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event); // application event handler
 
 /**************************************************************************/ /**
+ * @fn           void gy61_adc_raw_data_map()
+ * @brief        Map the raw input data of adc gy61 to output range
+ *
+ * @param[in]    x        :Sensor raw dara
+ * @param[in]    in_min   :Sensor raw min
+ * @param[in]    in_max   :Sensor raw max
+ * @param[in]    out_min  :Sensor output min
+ * @param[in]    out_max  :Sensor output max
+ * @param[out]   sensor g output
+ *
+******************************************************************************/
+static long gy61_adc_raw_data_map(long x, long in_min, long in_max, long out_min, long out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+/**************************************************************************/ /**
  * @fn           void sl_si91x_sensor_event_handler()
  * @brief        This Sensor event handle to the Sensor HUB.
  *
@@ -88,6 +131,12 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event); // applica
 ******************************************************************************/
 void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 {
+#if SH_AWS_ENABLE
+  osStatus_t sl_semapptaskacq_status;
+
+  strcpy(mqtt_publish_payload, "");
+#endif
+
   uint8_t sens_ind;
   for (sens_ind = 0; sens_ind < SL_MAX_NUM_SENSORS; sens_ind++) {
     if (sensor_hub_info_t[sens_ind].sensor_id == sensor_id) {
@@ -123,6 +172,20 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
                    (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.y);
           DEBUGOUT("Axis Z = %f \t\n ",
                    (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.z);
+#if SH_AWS_ENABLE
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_ADXL345_ID_x: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.x);
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_ADXL345_ID_y: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.y);
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_ADXL345_ID_z: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.z);
+#endif
         } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
             DEBUGOUT("Axis X = %f, \t",
@@ -131,6 +194,20 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
                      (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.y);
             DEBUGOUT("Axis Z = %f \t\r\n ",
                      (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.z);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_ADXL345_ID_x: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.x);
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_ADXL345_ID_y: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.y);
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_ADXL345_ID_z: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].accelerometer.z);
+#endif
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
             for (uint32_t i = 0;
@@ -142,6 +219,23 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
                        (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.y);
               DEBUGOUT("Axis Z = %f \r\n ",
                        (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.z);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADXL345_ID_%lu_x: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.x);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADXL345_ID_%lu_y: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.y);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADXL345_ID_%lu_z: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.z);
+#endif
             }
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
@@ -152,6 +246,23 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
                        (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.y);
               DEBUGOUT("Z = %f  \t",
                        (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.z);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADXL345_ID_%lu_x: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.x);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADXL345_ID_%lu_y: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.y);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADXL345_ID_%lu_z: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].accelerometer.z);
+#endif
             }
           }
         }
@@ -164,6 +275,24 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
           DEBUGOUT("Proximity = %f ;\t\n",
                    (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.proximity);
           //   DEBUGOUT("Gesture = %c \t\n", (char)sensor_hub_info_t[sens_ind].sens_data_ptr->sensor_data[0].gesture);
+#if SH_AWS_ENABLE
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_APDS9960_ID_r: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.r);
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_APDS9960_ID_g: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.g);
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_APDS9960_ID_b: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.b);
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_APDS9960_ID_prox: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.proximity);
+#endif
 
         } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
@@ -173,6 +302,24 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
             DEBUGOUT("Proximity = %f ;\t\n",
                      (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.proximity);
             //  DEBUGOUT("Gesture = %c \t\n", (char)sensor_hub_info_t[sens_ind].sens_data_ptr->sensor_data[0].gesture);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_APDS9960_ID_r: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.r);
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_APDS9960_ID_g: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.g);
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_APDS9960_ID_b: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.b);
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_APDS9960_ID_prox: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].rgbw.proximity);
+#endif
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
             for (uint32_t i = 0;
@@ -184,6 +331,28 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
               DEBUGOUT(" G = %f, \t", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.g);
               DEBUGOUT(" B = %f \t\n ", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.b);
               // DEBUGOUT("Gesture = %c \t\n", (char)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].gesture);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_APDS9960_ID_%lu_r: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.r);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_APDS9960_ID_%lu_g: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.g);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_APDS9960_ID_%lu_b: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.b);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_APDS9960_ID_%lu_prox: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.proximity);
+#endif
             }
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
@@ -194,6 +363,28 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
               DEBUGOUT(" Proximity = %f ",
                        (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.proximity);
               //  DEBUGOUT("Gesture = %c \t\n", (char)sensor_hub_info_t[sens_ind].sens_data_ptr->sensor_data[i].gesture);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_APDS9960_ID_%lu_r: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.r);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_APDS9960_ID_%lu_g: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.g);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_APDS9960_ID_%lu_b: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.b);
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_APDS9960_ID_%lu_prox: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].rgbw.proximity);
+#endif
             }
           }
         }
@@ -202,22 +393,48 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
       if (SL_SENSOR_LM75_ID == sensor_id) {
         if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_INTERRUPT_MODE) {
           DEBUGOUT("%f \t", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].temperature);
+#if SH_AWS_ENABLE
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_LM75_ID: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].temperature);
+#endif
         } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
             for (uint32_t i = 0;
                  i < sensor_hub_info_t[sens_ind].data_deliver.timeout / sensor_hub_info_t[sens_ind].sampling_interval;
                  i++) {
               DEBUGOUT(" %f \t ", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].temperature);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_LM75_ID_%lu: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].temperature);
+#endif
             }
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
             for (uint32_t i = 0; i < sensor_hub_info_t[sens_ind].data_deliver.numofsamples; i++) {
               DEBUGOUT("%f \t", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].temperature);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_LM75_ID_%lu: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].temperature);
+#endif
             }
           }
 
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
             DEBUGOUT("%f \t", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].temperature);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_LM75_ID: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].temperature);
+#endif
           }
         }
       }
@@ -225,22 +442,48 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
       if (SL_SENSOR_BH1750_ID == sensor_id) {
         if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_INTERRUPT_MODE) {
           DEBUGOUT("%f \t", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].light);
+#if SH_AWS_ENABLE
+          snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                   sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                   "SL_SENSOR_BH1750_ID: %f    ",
+                   (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].light);
+#endif
         } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
             for (uint32_t i = 0;
                  i < sensor_hub_info_t[sens_ind].data_deliver.timeout / sensor_hub_info_t[sens_ind].sampling_interval;
                  i++) {
               DEBUGOUT("%f \t", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].light);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_BH1750_ID_%lu: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].light);
+#endif
             }
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
             for (uint32_t i = 0; i < sensor_hub_info_t[sens_ind].data_deliver.numofsamples; i++) {
               DEBUGOUT("%f \t", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].light);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_BH1750_ID_%lu: %f    ",
+                       (i + 1),
+                       (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[i].light);
+#endif
             }
           }
 
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
             DEBUGOUT("%f \t", (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].light);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_BH1750_ID: %f    ",
+                     (double)sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].light);
+#endif
           }
         }
       }
@@ -248,8 +491,15 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
       if (SL_SENSOR_ADC_JOYSTICK_ID == sensor_id) {
         float vout = 0;
         if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_INTERRUPT_MODE) {
-          for (uint32_t i = 0; i < SL_SH_ADC_CH0_NUM_SAMPLES; i++) {
+          for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[JS_ADC_CHANNEL]; i++) {
             DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_ADC_JOYSTICK_ID_%lu: %dmV    ",
+                     (i + 1),
+                     sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
           }
         } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
@@ -257,52 +507,162 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
                  i < sensor_hub_info_t[sens_ind].data_deliver.timeout / sensor_hub_info_t[sens_ind].sampling_interval;
                  i++) {
               DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADC_JOYSTICK_ID_%lu: %dmV    ",
+                       (i + 1),
+                       sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
             }
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
             for (uint32_t i = 0; i < sensor_hub_info_t[sens_ind].data_deliver.numofsamples; i++) {
               DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADC_JOYSTICK_ID_%lu: %dmV    ",
+                       (i + 1),
+                       sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
             }
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
             DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_ADC_JOYSTICK_ID: %dmV    ",
+                     sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
+#endif
           }
         }
         vout =
-          (((float)*(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc) / (float)SL_SH_ADC_MAX_OP_VALUE)
+          (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]) / (float)SL_SH_ADC_MAX_OP_VALUE)
            * SL_SH_ADC_VREF_VALUE);
+#if SH_AWS_ENABLE
+        snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                 sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                 "Single-ended output: %lfV    ",
+                 (double)vout);
+#endif
         DEBUGOUT("Single ended input: %lfV \t", (double)vout);
       }
 
       if (SL_SENSOR_ADC_GUVA_S12D_ID == sensor_id) {
         float vout = 0;
         if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_INTERRUPT_MODE) {
-          for (uint32_t i = 0; i < SL_SH_ADC_CH0_NUM_SAMPLES; i++) {
+          for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GUVA_ADC_CHANNEL]; i++) {
             DEBUGOUT("%d \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_ADC_GUVA_S12D_ID_%lu: %d    ",
+                     (i + 1),
+                     sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
           }
         } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
             for (uint32_t i = 0;
                  i < sensor_hub_info_t[sens_ind].data_deliver.timeout / sensor_hub_info_t[sens_ind].sampling_interval;
                  i++) {
-              DEBUGOUT("%d \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+              DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADC_GUVA_S12D_ID_%lu: %d    ",
+                       (i + 1),
+                       sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
             }
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_NUM_OF_SAMPLES) {
             for (uint32_t i = 0; i < sensor_hub_info_t[sens_ind].data_deliver.numofsamples; i++) {
-              DEBUGOUT("%d \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+              DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#if SH_AWS_ENABLE
+              snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                       sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                       "SL_SENSOR_ADC_GUVA_S12D_ID_%lu: %d    ",
+                       (i + 1),
+                       sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
+#endif
             }
           }
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_THRESHOLD) {
             DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_ADC_GUVA_S12D_ID: %dmV    ",
+                     sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
+#endif
           }
         }
         vout =
-          (((float)*(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc) / (float)SL_SH_ADC_MAX_OP_VALUE)
+          (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]) / (float)SL_SH_ADC_MAX_OP_VALUE)
            * SL_SH_ADC_VREF_VALUE);
+#if SH_AWS_ENABLE
+        snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                 sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                 "Single-ended output: %lfV    ",
+                 (double)vout);
+#endif
         DEBUGOUT("Single ended input: %lfV \t", (double)vout);
       }
+
+      if (SL_SENSOR_ADC_GY_61_ID == sensor_id) {
+#ifdef GY61_X_AXIS_ADC_CHANNEL
+        for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_X_AXIS_ADC_CHANNEL]; i++) {
+          double x_g =
+            ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.x[i],
+                                          GY61_X_RAW_MIN,
+                                          GY61_X_RAW_MAX,
+                                          GY61_G_SCALE_MIN,
+                                          GY61_G_SCALE_MAX))
+            / -100.0;
+          DEBUGOUT("X = %gg, \t", x_g);
+        }
+#endif
+#ifdef GY61_Y_AXIS_ADC_CHANNEL
+        for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_Y_AXIS_ADC_CHANNEL]; i++) {
+          double y_g =
+            ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.y[0],
+                                          GY61_Y_RAW_MIN,
+                                          GY61_Y_RAW_MAX,
+                                          GY61_G_SCALE_MIN,
+                                          GY61_G_SCALE_MAX))
+            / -100.0;
+          DEBUGOUT("Y = %gg, \t", y_g);
+        }
+#endif
+#ifdef GY61_Z_AXIS_ADC_CHANNEL
+        for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[GY61_Z_AXIS_ADC_CHANNEL]; i++) {
+          double z_g =
+            ((float)gy61_adc_raw_data_map(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].gy61.z[0],
+                                          GY61_Z_RAW_MIN,
+                                          GY61_Z_RAW_MAX,
+                                          GY61_G_SCALE_MIN,
+                                          GY61_G_SCALE_MAX))
+            / -100.0;
+          DEBUGOUT("Z = %gg \t", z_g);
+        }
+#endif
+      }
+
       DEBUGOUT(" data_deliver.mode:%d \r\n", sensor_hub_info_t[sens_ind].data_deliver.data_mode);
+#if SH_AWS_ENABLE
+      sl_semapptaskacq_status = osSemaphoreRelease(sl_semaphore_aws_task_id);
+      if (sl_semapptaskacq_status != osOK) {
+        DEBUGOUT("\r\n event post osSemaphoreRelease failed :%d \r\n", sl_semapptaskacq_status);
+      }
+
+      sl_semapptaskacq_status = osSemaphoreAcquire(sl_semaphore_app_task_id_2, osWaitForever);
+      if (sl_semapptaskacq_status != osOK) {
+        DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_semapptaskacq_status);
+      }
+#endif
 
       // Acknowledge data reception
       event_ack = sensor_id;
@@ -356,6 +716,13 @@ void sl_si91x_sensorhub_app_task(void)
 
   DEBUGOUT("\r\n Start Sensor HUB APP Task \r\n");
   sl_semaphore_app_task_id = osSemaphoreNew(1U, 0U, &sl_app_semaphore_attr_st);
+
+#if SH_AWS_ENABLE
+  sl_semapptaskacq_status = osSemaphoreAcquire(sl_semaphore_app_task_id_2, osWaitForever);
+  if (sl_semapptaskacq_status != osOK) {
+    DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_semapptaskacq_status);
+  }
+#endif
 
   // Register callback handler for getting different events from the sensor hub
   status = sl_si91x_sensorhub_notify_cb_register(sl_si91x_sensor_event_handler, (sl_sensor_id_t *)&event_ack);
@@ -445,6 +812,19 @@ void sensorhub_app_init(void)
   // Initializes board UART for Prints
   DEBUGINIT();
 
+#if SH_AWS_ENABLE
+  osSemaphoreAttr_t sl_app_semaphore_attr_st;
+  sl_app_semaphore_attr_st.attr_bits = 0U;
+  sl_app_semaphore_attr_st.cb_mem    = NULL;
+  sl_app_semaphore_attr_st.cb_size   = 0U;
+  sl_app_semaphore_attr_st.name      = NULL;
+
+  sl_semaphore_app_task_id_2 = osSemaphoreNew(1U, 0U, &sl_app_semaphore_attr_st);
+#endif
+
   // Create the APP task
   osThreadNew((osThreadFunc_t)sl_si91x_sensorhub_app_task, NULL, &app_thread_attributes);
+#if SH_AWS_ENABLE
+  osThreadNew((osThreadFunc_t)sl_si91x_aws_task, NULL, &aws_thread_attributes);
+#endif
 }

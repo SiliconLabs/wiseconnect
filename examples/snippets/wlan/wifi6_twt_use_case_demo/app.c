@@ -115,7 +115,7 @@ static const sl_wifi_device_configuration_t sl_wifi_twt_client_configuration = {
                    .bt_feature_bit_map = SL_SI91X_BT_RF_TYPE,
                    .ext_tcp_ip_feature_bit_map =
                      SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
-                     | (SL_SI91X_EXT_TCP_IP_FEAT_SSL_HIGH_PERFORMANCE | SL_SI91X_EXT_TCP_IP_SSL_16K_RECORD),
+                     | (SL_SI91X_EXT_FEAT_HTTP_OTAF_SUPPORT | SL_SI91X_EXT_TCP_IP_SSL_16K_RECORD),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
                    .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }

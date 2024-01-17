@@ -21,6 +21,7 @@
 #include "rsi_pll.h"
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
+#include "rsi_rom_power_save.h"
 #include "sl_si91x_host_interface.h"
 #include "sl_rsi_utility.h"
 #include "system_si91x.h"
@@ -227,28 +228,17 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 
   // Turn on the ULPSS RAM domains and retain ULPSS RAMs
   if ((mode != RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM) || (mode != RSI_WAKEUP_WO_RETENTION_WO_ULPSS_RAM)) {
-#ifdef CHIP_9118
     /* Turn on ULPSS SRAM domains*/
-    RSI_PS_UlpssRamBanksPowerUp(ULPSS_2K_BANK_0 | ULPSS_2K_BANK_1 | ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3 | ULPSS_2K_BANK_4
-                                | ULPSS_2K_BANK_5 | ULPSS_2K_BANK_6 | ULPSS_2K_BANK_7);
-#endif
-#ifdef SLI_SI917
-    /* Turn on ULPSS SRAM domains*/
-
     RSI_PS_UlpssRamBanksPowerUp(ULPSS_2K_BANK_0 | ULPSS_2K_BANK_1 | ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
-#endif
 
-#ifdef CHIP_9118
-    /* Turn on ULPSS SRAM Core/Periphery domains*/
-    RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_0 | ULPSS_2K_BANK_1 | ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3
-                                    | ULPSS_2K_BANK_4 | ULPSS_2K_BANK_5 | ULPSS_2K_BANK_6 | ULPSS_2K_BANK_7);
-#endif
-#ifdef SLI_SI917
     /* Turn on ULPSS SRAM Core/Periphery domains*/
     RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_0 | ULPSS_2K_BANK_1 | ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
-#endif
 
-    if ((mode == RSI_WAKEUP_FROM_FLASH_MODE) || (mode == RSI_WAKEUP_WITH_RETENTION)) {
+    if ((mode == RSI_WAKEUP_FROM_FLASH_MODE) || (mode == RSI_WAKEUP_WITH_RETENTION)
+#if defined SLI_SI917B0
+        || (mode == SL_SI91X_MCU_WAKEUP_PSRAM_MODE)
+#endif // SLI_SI917B0
+    ) {
       /* Retain ULPSS RAM*/
       RSI_PS_SetRamRetention(ULPSS_RAM_RETENTION_MODE_EN);
     }
@@ -256,13 +246,8 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 
   // Peripherals needed on Wake-up (without RAM retention) needs to be powered up before going to sleep
   if ((mode == RSI_WAKEUP_WITH_OUT_RETENTION) || (mode == RSI_WAKEUP_WO_RETENTION_WO_ULPSS_RAM)) {
-#ifdef SLI_SI917
 
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
-#endif
-#ifdef CHIP_9118
-    RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_M4_FPU);
-#endif
   }
   // Indicate M4 is Inactive
   P2P_STATUS_REG &= ~M4_is_active;
@@ -279,23 +264,12 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     return;
   }
 #ifndef ENABLE_DEBUG_MODULE
-#ifdef SLI_SI917
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
-#endif
-#ifdef CHIP_9118
-  RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_M4_DEBUG);
-#endif
 #endif // ENABLE_DEBUG_MODULE
 
   /* Define 'SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION' macro if FLASH execution is needed*/
 #ifndef SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
-
-#ifdef CHIP_9118
-  RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_QSPI | M4SS_PWRGATE_ULP_ICACHE);
-#endif
-#ifdef SLI_SI917
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_QSPI_ICACHE);
-#endif
   // Remove this if MCU is executing from Flash
 #endif //SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
 
@@ -309,7 +283,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp  = M4SS_P2P_INTR_SET_REG;
 
   // Configure sleep parameters required by bootloader upon Wake-up
-  ROMAPI_PWR_API->RSI_GotoSleepWithRetention(stack_address, (uint32_t)jump_cb_address, vector_offset, mode);
+  RSI_PS_RetentionSleepConfig(stack_address, (uint32_t)jump_cb_address, vector_offset, mode);
 
   // Trigger M4 to sleep
   RSI_PS_EnterDeepSleep(sleepType, lf_clk_mode);
@@ -393,37 +367,17 @@ void sl_si91x_configure_ram_retention(uint32_t rams_in_use, uint32_t rams_retent
   if (rams_retention_during_sleep & WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP) {
     /* If none of the banks are powered on, clear all retention controls*/
     if (rams_in_use & WISEMCU_0KB_RAM_IN_USE) {
-      RSI_PS_ClrRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN | TA_RAM_RETENTION_MODE_EN | M4ULP_RAM_RETENTION_MODE_EN
-                             | M4SS_RAM_RETENTION_MODE_EN);
+      RSI_PS_ClrRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN | TA_RAM_RETENTION_MODE_EN | M4ULP_RAM_RETENTION_MODE_EN);
     }
     /* Set the 16KB SRAM memory retention */
     if (rams_in_use == WISEMCU_16KB_RAM_IN_USE) {
       RSI_PS_SetRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN);
     }
-#ifdef SLI_SI917
     /* Set the full SRAM memory retention if the SRAM memory usage is greater than 16KB */
     /* For different SRAM retention modes, respective unused SRAM banks (both SRAM power and core/periphery domains) are powered down as part of the initial configuration above */
     else {
       RSI_PS_SetRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN | M4ULP_RAM_RETENTION_MODE_EN);
     }
-#endif
-#ifdef CHIP_9118
-    /* Set the M4-ULP 112KB RAM retention*/
-    if ((rams_in_use & WISEMCU_48KB_RAM_IN_USE) || (rams_in_use & WISEMCU_112KB_RAM_IN_USE)
-        || (rams_in_use & WISEMCU_128KB_RAM_IN_USE)) {
-      RSI_PS_SetRamRetention(M4ULP_RAM_RETENTION_MODE_EN);
-    }
-    /* Set the M4SS 64KB RAM retention*/
-    if ((rams_in_use & WISEMCU_144KB_RAM_IN_USE) || (rams_in_use & WISEMCU_176KB_RAM_IN_USE)
-        || (rams_in_use & WISEMCU_192KB_RAM_IN_USE)) {
-      RSI_PS_SetRamRetention(M4SS_RAM_RETENTION_MODE_EN);
-    }
-    /* Set the M4SS 64KB RAM retention*/
-    if ((rams_in_use & WISEMCU_208KB_RAM_IN_USE) || (rams_in_use & WISEMCU_240KB_RAM_IN_USE)
-        || (rams_in_use & WISEMCU_320KB_RAM_IN_USE) || (rams_in_use & WISEMCU_384KB_RAM_IN_USE)) {
-      RSI_PS_SetRamRetention(TA_RAM_RETENTION_MODE_EN);
-    }
-#endif
   } else {
     /* Program user configuration*/
     RSI_PS_SetRamRetention(rams_retention_during_sleep);

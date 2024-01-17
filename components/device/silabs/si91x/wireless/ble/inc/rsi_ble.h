@@ -487,12 +487,10 @@ typedef struct rsi_ble_req_acceptlist_using_payload_s {
 #define PERIPHERAL_ROLE 0x03
 #endif
 #define CONN_ROLE 0x04
-// Set BLE tx power per role cmd_ix=0x012D
+// Set BLE tx power cmd_ix=0x012D
 typedef struct rsi_ble_set_ble_tx_power_s {
-  uint8_t role;
-  //Address of the device
-  uint8_t dev_addr[RSI_DEV_ADDR_LEN];
-  uint8_t tx_power;
+  //int8, tx power value
+  int8_t tx_power;
 } rsi_ble_set_ble_tx_power_t;
 
 //Scan response data command structure
@@ -1699,8 +1697,5 @@ struct rsi_ble_cb_s {
  * * BLE internal function declarations
  * ******************************************************/
 void rsi_ble_callbacks_handler(rsi_bt_cb_t *ble_cb, uint16_t rsp_type, uint8_t *payload, uint16_t payload_length);
-int32_t rsi_ble_get_multiple_att_values(uint8_t *dev_addr,
-                                        uint8_t num_of_handlers,
-                                        uint16_t *handles,
-                                        rsi_ble_resp_att_value_t *p_att_vals);
+
 #endif

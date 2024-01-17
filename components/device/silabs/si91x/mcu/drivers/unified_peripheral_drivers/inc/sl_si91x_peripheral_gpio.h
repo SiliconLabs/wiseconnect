@@ -264,7 +264,7 @@ void sl_gpio_configure_interrupt(sl_gpio_port_t port, uint8_t pin, uint32_t int_
 void sl_gpio_set_pin_mode(sl_gpio_port_t port, uint8_t pin, sl_gpio_mode_t mode, uint32_t output_value);
 
 /***************************************************************************/ /**
- * @brief      Get the GPIO pin status.
+ * @brief      Get the GPIO pin mode.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -385,7 +385,7 @@ static __INLINE void sl_gpio_set_slew_rate(sl_gpio_port_t port, uint32_t slewrat
 }
 
 /***************************************************************************/ /**
- * @brief  Set a single pin in GPIO configuration register to 0.
+ * @brief  Clear a single pin in GPIO configuration register to 0.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -412,7 +412,7 @@ static __INLINE void sl_gpio_clear_pin_output(sl_gpio_port_t port, uint8_t pin)
 }
 
 /***************************************************************************/ /**
- * @brief  Set bits in configuration register for a port to 0.
+ * @brief  Clear bits in configuration register for a port to 0.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -437,7 +437,7 @@ static __INLINE void sl_gpio_clear_port_output(sl_gpio_port_t port, uint32_t pin
 }
 
 /***************************************************************************/ /**
- * @brief  Read the pad value for a single pin in a GPIO port.
+ * @brief  Read the pin value for a single pin in a GPIO port.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -498,7 +498,7 @@ static __INLINE uint8_t sl_gpio_get_pin_output(sl_gpio_port_t port, uint8_t pin)
 }
 
 /***************************************************************************/ /**
- * @brief  Read the pad values for GPIO port.
+ * @brief  Read the port value for GPIO port.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -522,7 +522,7 @@ static __INLINE uint32_t sl_gpio_get_port_input(sl_gpio_port_t port)
 }
 
 /***************************************************************************/ /**
- * Get the current setting for a GPIO configuration register.
+ * @brief Get the current setting for a GPIO configuration register.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -758,6 +758,28 @@ static __INLINE uint32_t sl_gpio_get_enabled_pending_interrupts(void)
     intflags |= (tmp_sts << (NIBBLE_SHIFT * intch));
   }
   return intflags;
+}
+
+/**************************************************************************/ /**
+ * @brief        This API is used set ulp soc gpio mode
+ *               \n(Gpio pin mode,ranges 000 -> Mode 0 to 111 -> Mode 7 Used for GPIO Pin Muxing )
+ * @param[in]    ulp_gpio : ulp gpio number
+ * @param[in]    mode     : GPIO mode
+ *               \n possible values for this parameter are the following
+ *               - \ref EGPIO_PIN_MUX_MODE0   : Select pin mode 0
+ *               - \ref EGPIO_PIN_MUX_MODE1   : Select pin mode 1
+ *               - \ref EGPIO_PIN_MUX_MODE2   : Select pin mode 2
+ *               - \ref EGPIO_PIN_MUX_MODE3   : Select pin mode 3
+ *               - \ref EGPIO_PIN_MUX_MODE4   : Select pin mode 4
+ *               - \ref EGPIO_PIN_MUX_MODE5   : Select pin mode 5
+ *               - \ref EGPIO_PIN_MUX_MODE6   : Select pin mode 6
+ *               - \ref EGPIO_PIN_MUX_MODE7   : Select pin mode 7
+ * @return       None
+ ******************************************************************************/
+static __INLINE void sl_si91x_gpio_ulp_soc_mode(uint8_t ulp_gpio, uint8_t mode)
+
+{
+  ULPCLK->ULP_SOC_GPIO_MODE_REG[ulp_gpio].ULP_SOC_GPIO_MODE_REG_b.ULP_SOC_GPIO_MODE_REG = (unsigned int)(mode & 0x07);
 }
 
 /** @} (end addtogroup GPIO) */

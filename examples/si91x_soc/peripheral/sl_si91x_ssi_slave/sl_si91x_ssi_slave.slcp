@@ -16,7 +16,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 toolchain_settings: []
 component:
   - id: sl_system
@@ -27,10 +27,9 @@ component:
     from: wiseconnect3_sdk
   - id: sl_ssi
     from: wiseconnect3_sdk
-define:
-  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
-  - name: SPI_MULTI_SLAVE
-  - name: SSI_CONFIG
+configuration:
+  - name: SL_SSI_DEVICE_MODE
+    value: SL_SSI_SLAVE_ACTIVE
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/image511d.png

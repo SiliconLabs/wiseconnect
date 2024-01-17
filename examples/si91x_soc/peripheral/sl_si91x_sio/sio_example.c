@@ -28,10 +28,10 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define BUFFER_SIZE 10        // Data buffer size
-#define CS_NUMBER   0         // Chip select number
-#define MSB_FIRST   1         // Select MSB first
-#define SYS_CLOCK   180000000 // System clock
+#define SIO_BUFFER_SIZE 10        // Data buffer size
+#define CS_NUMBER       0         // Chip select number
+#define MSB_FIRST       1         // Select MSB first
+#define SYS_CLOCK       180000000 // System clock
 
 // SIO-SPI Configuration parameters
 #define SIO_SPI_CLK_FREQUENCY 1000000 // SIO-SPI 1Mhz clock frequency
@@ -51,14 +51,14 @@ typedef enum {
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *********************************
  ******************************************************************************/
-uint8_t data_out[BUFFER_SIZE]    = { 0 }, buffer_in[BUFFER_SIZE];
-uint16_t data_in[BUFFER_SIZE]    = { 0 }, buffer_out[BUFFER_SIZE];
-volatile boolean_t send_complete = false, receive_complete = false;
-static boolean_t begin_transmission = true;
+uint8_t sio_data_out[SIO_BUFFER_SIZE] = { 0 }, sio_buffer_in[SIO_BUFFER_SIZE];
+uint16_t sio_data_in[SIO_BUFFER_SIZE] = { 0 }, sio_buffer_out[SIO_BUFFER_SIZE];
+volatile boolean_t sio_send_complete = false, sio_receive_complete = false;
+static boolean_t sio_begin_transmission = true;
 extern sl_sio_spi_callback_t spi_user_callback;
 extern uint32_t SystemCoreClock;
-uint8_t tx_data[BUFFER_SIZE] = { 0 };
-uint8_t rx_data[BUFFER_SIZE] = { 0 };
+uint8_t tx_data[SIO_BUFFER_SIZE] = { 0 };
+uint8_t rx_data[SIO_BUFFER_SIZE] = { 0 };
 extern uint8_t bit_length;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -74,8 +74,8 @@ sio_uart_mode_enum_t current_mode = SL_SEND_DATA;
 stc_sio_spi_cfg_t pstcSpiConfig   = { 0 };
 stc_sio_spi_xfer_t pstcSpiXfer    = { 0 };
 extern stc_sio_uart_config_t UartInitstc;
-uint8_t tx_buffer[BUFFER_SIZE] = { 0 };
-uint8_t rx_buffer[BUFFER_SIZE] = { 0 };
+uint8_t tx_buffer[SIO_BUFFER_SIZE] = { 0 };
+uint8_t rx_buffer[SIO_BUFFER_SIZE] = { 0 };
 extern sl_sio_spi_t sl_sio_spi_init;
 extern sl_sio_uart_t sl_sio_uart_init;
 /*******************************************************************************
@@ -95,11 +95,11 @@ void sio_example_init(void)
   do {
     // Initialize SIO SPI instance
     if (SL_SIO_SPI == 1) {
-      for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
-        buffer_in[i] = (uint8_t)(i + 1);
+      for (uint16_t i = 0; i < SIO_BUFFER_SIZE; i++) {
+        sio_buffer_in[i] = (uint8_t)(i + 1);
       }
-      for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
-        data_in[i] = (uint8_t)(i + 1);
+      for (uint16_t i = 0; i < SIO_BUFFER_SIZE; i++) {
+        sio_data_in[i] = (uint8_t)(i + 1);
       }
       // Initialize the SIO
       status = sl_si91x_sio_init();
@@ -194,7 +194,7 @@ void sio_example_init(void)
     // Initialize SIO UART instance
     if (SL_SIO_UART == 1) {
       // Filling the tx_buffer array with integer values
-      for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
+      for (uint16_t i = 0; i < SIO_BUFFER_SIZE; i++) {
         tx_buffer[i] = (uint8_t)i;
       }
       // SIO UART configuration structure
@@ -285,7 +285,7 @@ void sio_example_init(void)
         break;
       }
       DEBUGOUT("SIO unmask shift interrupt is successful \n");
-      status = sl_si91x_sio_uart_read(rx_buffer, BUFFER_SIZE);
+      status = sl_si91x_sio_uart_read(rx_buffer, SIO_BUFFER_SIZE);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_sio_uart_read: Error Code : %lu \n", status);
         break;
@@ -308,7 +308,7 @@ void sio_example_process_action(void)
   if (SL_SIO_SPI == 1) {
     switch (current_mode) {
       case SL_SEND_DATA:
-        if (begin_transmission == true) {
+        if (sio_begin_transmission == true) {
           // Assert the SIO SPI chip select
           status = sl_si91x_sio_spi_cs_assert(pstcSpiConfig.u8SpiCsCh);
           if (status != SL_STATUS_OK) {
@@ -319,16 +319,16 @@ void sio_example_process_action(void)
           }
           DEBUGOUT("SIO SPI chip select assert successfully \n");
           if (bit_length == 8) {
-            pstcSpiXfer.rxBuff = data_out;
-            pstcSpiXfer.txBuff = buffer_in;
+            pstcSpiXfer.rxBuff = sio_data_out;
+            pstcSpiXfer.txBuff = sio_buffer_in;
           } else {
-            pstcSpiXfer.rxBuff = buffer_out;
-            pstcSpiXfer.txBuff = data_in;
+            pstcSpiXfer.rxBuff = sio_buffer_out;
+            pstcSpiXfer.txBuff = sio_data_in;
           }
           // SPI Transfer configuration
-          pstcSpiXfer.rxCount  = BUFFER_SIZE;
+          pstcSpiXfer.rxCount  = SIO_BUFFER_SIZE;
           pstcSpiXfer.sselNum  = CS_NUMBER;
-          pstcSpiXfer.txCount  = BUFFER_SIZE;
+          pstcSpiXfer.txCount  = SIO_BUFFER_SIZE;
           pstcSpiXfer.u8BitLen = SIO_SPI_BIT_LEN;
           pstcSpiXfer.u8Status = SioSpiIdle;
           pstcSpiXfer.pfnCb    = spi_user_callback;
@@ -342,20 +342,20 @@ void sio_example_process_action(void)
             DEBUGOUT("sl_si91x_sio_spi_transfer: Error Code : %lu \n", status);
           }
           DEBUGOUT("SIO SPI transfer begin successfully \n");
-          begin_transmission = false;
+          sio_begin_transmission = false;
         }
         // Waiting till the send is completed
-        if (send_complete) {
-          // Update send_complete flag with 0.
-          send_complete = false;
+        if (sio_send_complete) {
+          // Update sio_send_complete flag with 0.
+          sio_send_complete = false;
           DEBUGOUT("SIO SPI transfer completed \n");
           // De-assert SIO-SPI chip select
           sl_si91x_sio_spi_cs_deassert(pstcSpiConfig.u8SpiCsCh);
           current_mode = SL_SEND_DATA;
-          // After comparing the loopback transfer, it compares the data_out and
-          // data_outin.
+          // After comparing the loopback transfer, it compares the sio_data_out and
+          // sio_data_in.
           compare_loop_back_data();
-          begin_transmission = true;
+          sio_begin_transmission = true;
         }
         break;
       case SL_TRANSMISSION_COMPLETED:
@@ -370,18 +370,18 @@ void sio_example_process_action(void)
   if (SL_SIO_UART == 1) {
     switch (current_mode) {
       case SL_RECEIVE_DATA:
-        if (receive_complete == true) {
-          receive_complete = false;
+        if (sio_receive_complete == true) {
+          sio_receive_complete = false;
           DEBUGOUT("SIO UART receive completed \n");
           // After comparing the loopback transfer, it compares the tx_buffer and
           // rx_buffer.
           compare_uart_loop_back_data();
-          begin_transmission = true;
-          current_mode       = SL_SEND_DATA;
+          sio_begin_transmission = true;
+          current_mode           = SL_SEND_DATA;
         }
         break;
       case SL_SEND_DATA:
-        if (begin_transmission == true) {
+        if (sio_begin_transmission == true) {
           // Validation for executing the API only once
           status = sl_si91x_sio_uart_send(tx_buffer, (sizeof(tx_buffer) / sizeof(tx_buffer[0])));
           if (status != SL_STATUS_OK) {
@@ -392,8 +392,8 @@ void sio_example_process_action(void)
             break;
           }
           DEBUGOUT("SIO UART send begin successfully \n");
-          begin_transmission = false;
-          current_mode       = SL_RECEIVE_DATA;
+          sio_begin_transmission = false;
+          current_mode           = SL_RECEIVE_DATA;
           DEBUGOUT("SIO UART send completed \n");
         }
         break;
@@ -414,12 +414,12 @@ static void compare_uart_loop_back_data(void)
   uint16_t data_index = 0;
   // Check for tx_buffe and rx_buffer are same, if same then comparison
   // will continue till end of the buffer
-  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
+  for (data_index = 0; data_index < SIO_BUFFER_SIZE; data_index++) {
     if (rx_buffer[data_index] != tx_buffer[data_index]) {
       break;
     }
   }
-  if (data_index == BUFFER_SIZE) {
+  if (data_index == SIO_BUFFER_SIZE) {
     DEBUGOUT("Data comparison successful, UART Loop Back Test Passed \n");
   } else {
     DEBUGOUT("Data comparison failed, UART Loop Back Test failed \n");
@@ -433,23 +433,23 @@ static void compare_uart_loop_back_data(void)
 static void compare_loop_back_data(void)
 {
   uint16_t data_index = 0;
-  // Check for buffer_in and data_out are same, if same then comparison
+  // Check for sio_buffer_in and sio_data_out are same, if same then comparison
   // will continue till end of the buffer
   if (bit_length == 8) {
-    for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
-      if (buffer_in[data_index] != data_out[data_index]) {
+    for (data_index = 0; data_index < SIO_BUFFER_SIZE; data_index++) {
+      if (sio_buffer_in[data_index] != sio_data_out[data_index]) {
         break;
       }
     }
   }
   if (bit_length == 16) {
-    for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
-      if (data_in[data_index] != buffer_out[data_index]) {
+    for (data_index = 0; data_index < SIO_BUFFER_SIZE; data_index++) {
+      if (sio_data_in[data_index] != sio_buffer_out[data_index]) {
         break;
       }
     }
   }
-  if (data_index == BUFFER_SIZE) {
+  if (data_index == SIO_BUFFER_SIZE) {
     DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
   } else {
     DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
@@ -463,7 +463,7 @@ void sio_spi_callback(en_sio_spi_events_t event)
 {
   switch (event) {
     case SL_SIO_SPI_TX_DONE: // SIO SPI send complete
-      send_complete = true;
+      sio_send_complete = true;
       break;
     case SL_SIO_SPI_RX_DONE: // SIO SPI receive complete
       break;
@@ -480,7 +480,7 @@ void sio_uart_callback(en_sio_Uart_events_t event, uint16_t rev_char)
     case SL_SIO_UART_TX_DONE: // SIO UART transfer complete event
       break;
     case SL_SIO_UART_RX_DONE: // SIO UART receive complete event
-      receive_complete = true;
+      sio_receive_complete = true;
       sl_si91x_sio_uart_rx_done();
       break;
     case SL_SIO_UART_PARITY_ERR: // SIO UART parity error event

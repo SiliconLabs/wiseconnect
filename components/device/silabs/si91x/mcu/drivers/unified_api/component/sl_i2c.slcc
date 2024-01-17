@@ -14,6 +14,9 @@ include:
     - path: "sl_si91x_i2c.h"
 provides:
   - name: sl_i2c
+define:
+  - name: SL_SI91X_DMA
+  - name: SL_SI91X_I2C_DMA
 requires:
   - name: sl_i2c_peripheral
   - name: sl_gpio_peripheral

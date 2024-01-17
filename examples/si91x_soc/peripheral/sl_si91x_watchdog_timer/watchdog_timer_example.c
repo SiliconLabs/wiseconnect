@@ -66,9 +66,8 @@ void watchdog_timer_example_init(void)
   sl_status_t status;
   sl_watchdog_timer_version_t version;
   watchdog_timer_clock_config_t wdt_clock_config;
-  wdt_clock_config.low_freq_fsm_clock_src  = KHZ_RC_CLK_SEL;
-  wdt_clock_config.high_freq_fsm_clock_src = FSM_32MHZ_RC;
-  wdt_clock_config.bg_pmu_clock_source     = RO_32KHZ_CLOCK;
+  wdt_clock_config.low_freq_fsm_clock_src = KHZ_RC_CLK_SEL;
+  wdt_clock_config.bg_pmu_clock_source    = RO_32KHZ_CLOCK;
   watchdog_timer_config_t wdt_config;
   wdt_config.interrupt_time    = SL_WDT_INTERRUPT_TIME;
   wdt_config.system_reset_time = SL_WDT_SYSTEM_RESET_TIME;
@@ -99,14 +98,14 @@ void watchdog_timer_example_init(void)
     // Configuring watchdog-timer
     status = sl_si91x_watchdog_configure_clock(&wdt_clock_config);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_watchdog_configure_clock : Invalid Parameters, Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("Successfully Configured watchdog-timer with default clock sources\n");
     // Configuring watchdog-timer
     status = sl_si91x_watchdog_set_configuration(&wdt_config);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_watchdog_timer_config : Invalid Parameters, Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_watchdog_set_configuration : Invalid Parameters, Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("Successfully Configured watchdog-timer with default parameters\n");
@@ -192,9 +191,7 @@ void on_timeout_callback(void)
   if ((wdt_interrupt_count > WDT_RESTART_CNT) && (wdt_stop_flag)) {
     // Stopping the watchdog-timer after watchdog-timer system reset
     sl_si91x_watchdog_stop_timer();
-    // Unregistering the timeout_callback
-    sl_si91x_watchdog_unregister_timeout_callback();
-    // De-initializing watchdog-timer
+    // De-initializing and unregistering callback for watchdog-timer
     sl_si91x_watchdog_deinit_timer();
     DEBUGOUT("Successfully stopped, unregistered & De-initialized watchdog-timer\n");
   }

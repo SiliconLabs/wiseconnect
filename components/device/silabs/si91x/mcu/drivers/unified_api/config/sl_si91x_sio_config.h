@@ -160,36 +160,12 @@ extern "C" {
 #define SL_SIO_UART_STOP_BIT SL_SIO_UART_STOP_BIT_1
 // </h>
 
-// <h>I2C Configuration
-
-// <o SL_SIO_I2C_SAMPLE_RATE> Sample Rate <100000-4000000>
-// <i> Default: 100000
 #define SL_SIO_I2C_SAMPLE_RATE 100000
 
-// <o SL_SIO_I2C_SCL_CHANNEL> SCL Channel
-// <SL_SIO_CH_0=> Channel 0
-// <SL_SIO_CH_1=> Channel 1
-// <SL_SIO_CH_2=> Channel 2
-// <SL_SIO_CH_3=> Channel 3
-// <SL_SIO_CH_4=> Channel 4
-// <SL_SIO_CH_5=> Channel 5
-// <SL_SIO_CH_6=> Channel 6
-// <SL_SIO_CH_7=> Channel 7
-// <i> Default: SL_SIO_CH_6
 #define SL_SIO_I2C_SCL_CHANNEL SL_SIO_CH_6
 
-// <o SL_SIO_I2C_SDA_CHANNEL> SDA Channel
-// <SL_SIO_CH_0=> Channel 0
-// <SL_SIO_CH_1=> Channel 1
-// <SL_SIO_CH_2=> Channel 2
-// <SL_SIO_CH_3=> Channel 3
-// <SL_SIO_CH_4=> Channel 4
-// <SL_SIO_CH_5=> Channel 5
-// <SL_SIO_CH_6=> Channel 6
-// <SL_SIO_CH_7=> Channel 7
-// <i> Default: SL_SIO_CH_7
 #define SL_SIO_I2C_SDA_CHANNEL SL_SIO_CH_7
-// </h>
+
 #ifdef __cplusplus
 }
 #endif

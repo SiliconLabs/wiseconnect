@@ -68,12 +68,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ### Application Configuration Parameters
 
 - Configure UC from the slcp component.
-- Open **sl_si91x_adc.slcp** project file select **software component** tab and search for **ADC** in search bar.
+- Open **sl_si91x_adc_multichannel.slcp** project file select **software component** tab and search for **ADC** in search bar.
 - Using configuration wizard one can configure different parameters. Below are the 2 configuration screens where user can select as per requirement.
 
   - **ADC Peripheral Common Configuration**
 
-    - Number of channel: By default channel is set to '1'. When the channel number is changed, then care must be taken to create instance of that respective channel number. Otherwise, an error is thrown.
+    - Number of channel: In multichannel mode by default number of channel is '4'. When the number of channel is changed, then care must be taken to create instance of that respective channel number. Otherwise, an error is thrown.
     - ADC operation mode: There are 2 modes, FIFO mode and Static mode. By default it is in FIFO mode. When static mode is set, sample length should be '1'.
 
       ![Figure: Introduction](resources/uc_screen/sl_adc_common_uc_screen.png)
@@ -126,10 +126,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. Adjust the number of channel as 4 in ADC Peripheral Common Configuration UC.
-2. Compile and run the application.
-3. When the application runs, it starts ADC conversion.
-4. After completion of conversion ADC input, it will print all the captured samples data in console by connecting vcom.
+1. Compile and run the application.
+2. When the application runs, it starts ADC conversion.
+3. After completion of conversion ADC input, it will print all the captured samples data in console by connecting vcom.
 
    - **Channel 0 pin connections**
      - When configured Single ended mode connect the positive analog input to ULP_GPIO_1 and GND to ULP_GPIO_7
@@ -146,7 +145,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:**
 >
-- Users who only want to utilize two channels can uninstall channels two and three from the software components on sl_si91x_ulp_adc_multichannel_2.slcp. By default, four channels instances will be created.
+- Users who only want to utilize two channels can uninstall channels two and three from the software components on sl_si91x_adc_multichannel.slcp. By default, four channels instances will be created.
 - This application only applicable for FIFO mode.
 - Sample rate should be either same for all channels or 1/2, 1/4, 1/16.(for example if channel_0 sample rate is 10000sps, then channel_1 = 10000/2 sps, channel_2 = 10000/4 sps, channel_3 = 10000/16 sps)
 - User can configure input selection GPIO in channel configuration file ($path: $project/config/specific channel config file) if default GPIO is work around.

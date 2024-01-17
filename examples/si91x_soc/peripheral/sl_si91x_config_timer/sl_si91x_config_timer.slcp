@@ -29,8 +29,7 @@ component:
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/image502e.png
-  - path: resources/uc_screen/uc_screen_1.png
-  - path: resources/uc_screen/uc_screen_2.png
+  - path: resources/uc_screen/uc_screen.png
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/outputConsoleI_CT.png
   - path: resources/readme/outputConsoleI_CT_OCU.png
@@ -40,6 +39,6 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

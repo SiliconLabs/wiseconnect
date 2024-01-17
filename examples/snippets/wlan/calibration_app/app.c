@@ -38,10 +38,8 @@
 #include "sl_wifi.h"
 #include "sl_net.h"
 #include "sl_utility.h"
-#include <string.h>
 #include "sl_si91x_driver.h"
-#include <string.h>
-
+#include <strings.h>
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -152,7 +150,7 @@ uint8_t cmd_index = -1;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-
+sl_status_t sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx);
 /***************************************************************************/ /**
  * Initialize example.
  ******************************************************************************/
@@ -543,17 +541,17 @@ sl_status_t calibration_app()
 }
 #define MAX_DPD_TRAINING_CHANNELS 6
 uint8_t channel_sel[MAX_DPD_TRAINING_CHANNELS] = { 1, 3, 6, 8, 11, 13 };
-void sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx)
+sl_status_t sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx)
 {
   uint8_t i;
-  sl_status_t status;
+  sl_status_t status                     = SL_STATUS_OK;
   sl_si91x_calibration_write_t calib_pkt = { 0 };
   calib_pkt.target                       = 1;
   calib_pkt.flags                        = 256;
   status                                 = sl_si91x_transmit_test_stop();
   if (status != SL_STATUS_OK) {
     printf("Transmit failed to stop %lx\r\n", status);
-    return;
+    return status;
   } else {
     printf("Transmit command stopped\n");
   }
@@ -566,7 +564,7 @@ void sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx)
       status               = sl_si91x_transmit_test_start(&tx_test_info);
       if (status != SL_STATUS_OK) {
         printf("Transmit failed with channel num %lx\r\n", status);
-        return;
+        return status;
       } else {
         printf("Transmit command started with channel num %x\r\n", channel_sel[i]);
       }
@@ -575,7 +573,7 @@ void sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx)
       status = sl_si91x_transmit_test_stop();
       if (status != SL_STATUS_OK) {
         printf("Transmit failed to stop %lx\r\n", status);
-        return;
+        return status;
       } else {
         printf("Transmit command stopped\n");
       }
@@ -585,7 +583,7 @@ void sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx)
       status = sl_si91x_dpd_calibration(dpd_power_inx);
       if (status != SL_STATUS_OK) {
         printf("rsi_calibration_dpd_failed %lx\r\n", status);
-        return;
+        return status;
       } else {
         printf("calib-val coellecting\n");
       }
@@ -593,7 +591,7 @@ void sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx)
       status = sl_si91x_calibration_write(calib_pkt);
       if (status != SL_STATUS_OK) {
         printf("rsi_calib_write failed with error %lx\r\n", status);
-        return;
+        return status;
       } else {
         printf("calib-write pass\n");
       }
@@ -601,11 +599,12 @@ void sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_inx)
       status = sl_si91x_dpd_calibration(dpd_power_inx);
       if (status != SL_STATUS_OK) {
         printf("rsi_calibration_dpd_failed %lx\r\n", status);
-        return;
+        return status;
       } else {
         printf("calib val collect\n");
       }
     }
     osDelay(1000);
   }
+  return status;
 }

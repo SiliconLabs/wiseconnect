@@ -113,7 +113,7 @@ static volatile bool scan_complete          = false;
 static volatile sl_status_t callback_status = SL_STATUS_OK;
 uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
-sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000, { 0 } };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 
 uint8_t connected = 0, timeout = 0;
 uint8_t disconnected = 0, disassosiated = 0;
@@ -144,10 +144,6 @@ extern volatile uint8_t select_given;
 int32_t status1            = RSI_SUCCESS;
 AWS_IoT_Client mqtt_client = { 0 };
 #define RSI_FD_ISSET(x, y) rsi_fd_isset(x, y)
-
-#ifdef SLI_SI91X_MCU_INTERFACE
-static RTC_TIME_CONFIG_T rtc_configuration, alarm_configuration, rtc_get_time;
-#endif
 
 typedef struct sl_wlan_app_cb_s {
   //! wlan application state
@@ -307,20 +303,20 @@ static void iot_subscribe_callback_handler(AWS_IoT_Client *pClient,
 static void disconnectCallbackHandler(AWS_IoT_Client *pClient, void *data)
 {
   IoT_Error_t rc = FAILURE;
-  LOG_PRINT("MQTT Disconnect");
+  LOG_PRINT("MQTT Disconnect\r\n");
   if (NULL == pClient) {
     return;
   }
   IOT_UNUSED(data);
   if (aws_iot_is_autoreconnect_enabled(pClient)) {
-    LOG_PRINT("Auto Reconnect is enabled, Reconnecting attempt will start now\n");
+    LOG_PRINT("Auto Reconnect is enabled, Reconnecting attempt will start now\r\n");
   } else {
-    LOG_PRINT("Auto Reconnect not enabled. Starting manual reconnect...\n");
+    LOG_PRINT("Auto Reconnect not enabled. Starting manual reconnect...\r\n");
     rc = aws_iot_mqtt_attempt_reconnect(pClient);
     if (NETWORK_RECONNECTED == rc) {
-      LOG_PRINT("Manual Reconnect Successful");
+      LOG_PRINT("Manual Reconnect Successful\r\n");
     } else {
-      LOG_PRINT("Manual Reconnect \n");
+      LOG_PRINT("Manual Reconnect \r\n");
     }
   }
 }
@@ -384,11 +380,11 @@ static sl_status_t show_scan_results()
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(scan_result);
   uint8_t *bssid = NULL;
-  LOG_PRINT("%lu Scan results:\n", scan_result->scan_count);
+  LOG_PRINT("%lu Scan results:\r\n", scan_result->scan_count);
 
   if (scan_result->scan_count) {
-    LOG_PRINT("\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
-    LOG_PRINT("%12s %12s %s\n", "BSSID", "CHANNEL", "RSSI");
+    LOG_PRINT("\r\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
+    LOG_PRINT("%12s %12s %s\r\n", "BSSID", "CHANNEL", "RSSI");
 
     for (int a = 0; a < (int)scan_result->scan_count; ++a) {
       bssid = (uint8_t *)&scan_result->scan_info[a].bssid;
@@ -396,7 +392,7 @@ static sl_status_t show_scan_results()
                 scan_result->scan_info[a].ssid,
                 scan_result->scan_info[a].security_mode,
                 scan_result->scan_info[a].network_type);
-      LOG_PRINT("  %02x:%02x:%02x:%02x:%02x:%02x, %4u,  -%u\n",
+      LOG_PRINT("  %02x:%02x:%02x:%02x:%02x:%02x, %4u,  -%u\r\n",
                 bssid[0],
                 bssid[1],
                 bssid[2],
@@ -443,7 +439,7 @@ void sl_wifi_app_task(void)
   // Allocate memory for scan buffer
   scan_result = (sl_wifi_scan_result_t *)malloc(scanbuf_size);
   if (scan_result == NULL) {
-    LOG_PRINT("Failed to allocate memory for scan result\n");
+    LOG_PRINT("Failed to allocate memory for scan result\r\n");
     return;
   }
   memset(scan_result, 0, scanbuf_size);
@@ -515,7 +511,7 @@ void sl_wifi_app_task(void)
 
         status = sl_net_set_credential(id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
         if (SL_STATUS_OK == status) {
-          LOG_PRINT("Credentials set, id : %lu\n", id);
+          LOG_PRINT("Credentials set, id : %lu\r\n", id);
 
           access_point.ssid.length = strlen((char *)coex_ssid);
           memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);
@@ -523,7 +519,7 @@ void sl_wifi_app_task(void)
           access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
           access_point.credential_id = id;
 
-          LOG_PRINT("SSID %s\n", access_point.ssid.value);
+          LOG_PRINT("SSID %s\r\n", access_point.ssid.value);
           status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
         }
         if (status != RSI_SUCCESS) {
@@ -535,7 +531,7 @@ void sl_wifi_app_task(void)
           disconnected = 1;
           connected    = 0;
         } else {
-          LOG_PRINT("\n WLAN Connection Success\n");
+          LOG_PRINT("\n WLAN Connection Success\r\n");
           // update wlan application state
           sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
         }
@@ -606,7 +602,7 @@ void sl_wifi_app_task(void)
 
         sl_wifi_mqtt_task();
 
-        LOG_PRINT("SL_WIFI_IPCONFIG_DONE_STATE\n");
+        LOG_PRINT("SL_WIFI_IPCONFIG_DONE_STATE\r\n");
       } break;
 
       case SL_WIFI_ERROR_STATE: {
@@ -619,7 +615,7 @@ void sl_wifi_app_task(void)
         sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_STATUS, (uint8_t *)&disconnected, 1);
         sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
 
-        LOG_PRINT("SL_WIFI_DISCONNECTED_STATE\n");
+        LOG_PRINT("SL_WIFI_DISCONNECTED_STATE\r\n");
       } break;
 
       case SL_WIFI_DISCONN_NOTIFY_STATE: {
@@ -655,7 +651,6 @@ void sl_wifi_app_task(void)
 void sl_wifi_mqtt_task(void)
 {
   IoT_Error_t rc = FAILURE;
-  uint32_t status;
 
   IoT_Client_Init_Params mqttInitParams   = iotClientInitParamsDefault;
   IoT_Client_Connect_Params connectParams = iotClientConnectParamsDefault;
@@ -712,7 +707,7 @@ void sl_wifi_mqtt_task(void)
     osSemaphoreAcquire(rsi_mqtt_sem, osWaitForever);
 
     if (sl_wifi_app_get_event() == SL_WIFI_DISCONN_NOTIFY_STATE) {
-      LOG_PRINT("WLAN disconnect initiated\n");
+      LOG_PRINT("WLAN disconnect initiated\r\n");
       return;
     }
 
@@ -731,11 +726,11 @@ void sl_wifi_mqtt_task(void)
       } break;
 
       case SL_WIFI_MQTT_CONNECT_STATE: {
-        LOG_PRINT("AWS IOT MQTT Connecting...\n");
+        LOG_PRINT("AWS IOT MQTT Connecting...\r\n");
         rc = aws_iot_mqtt_connect(&mqtt_client, &connectParams);
         if (SUCCESS != rc) {
           if (rc == NETWORK_ALREADY_CONNECTED_ERROR) {
-            LOG_PRINT("Network is already connected\n");
+            LOG_PRINT("Network is already connected\r\n");
             //sl_wlan_app_cb.state = RSI_WLAN_MQTT_PUBLISH_STATE;
           } else {
             LOG_PRINT("\r\nMqtt Subscribe failed with error: 0x%x\r\n", rc);
@@ -751,13 +746,13 @@ void sl_wifi_mqtt_task(void)
         rc = aws_iot_mqtt_autoreconnect_set_status(&mqtt_client, false);
         if (SUCCESS != rc) {
           if (NETWORK_DISCONNECTED_ERROR == rc) {
-            LOG_PRINT("MQTT auto reconnect error\n");
+            LOG_PRINT("MQTT auto reconnect error\r\n");
             sl_wlan_app_cb.state = SL_WIFI_MQTT_CONNECT_STATE;
           } else if (NETWORK_ATTEMPTING_RECONNECT == rc) {
             // If the client is attempting to reconnect we will skip the rest of the loop.
             continue;
           }
-          LOG_PRINT("Unable to set Auto Reconnect to true\n ");
+          LOG_PRINT("Unable to set Auto Reconnect to true\r\n ");
           sl_wlan_app_cb.state = SL_WIFI_MQTT_AUTO_RECONNECT_SET_STATE;
         } else {
           sl_wlan_app_cb.state = SL_WIFI_MQTT_SUBSCRIBE_STATE;
@@ -766,7 +761,7 @@ void sl_wifi_mqtt_task(void)
       } break;
 
       case SL_WIFI_MQTT_SUBSCRIBE_STATE: {
-        LOG_PRINT("\r\nAWS IOT MQTT Subscribe...\n");
+        LOG_PRINT("\r\nAWS IOT MQTT Subscribe...\r\n");
         rc = aws_iot_mqtt_subscribe(&mqtt_client,
                                     MQTT_TOPIC1,
                                     strlen(MQTT_TOPIC1),
@@ -776,7 +771,7 @@ void sl_wifi_mqtt_task(void)
 
         if (SUCCESS != rc) {
           if (NETWORK_DISCONNECTED_ERROR == rc) {
-            LOG_PRINT("\r\nSubscribe error\n");
+            LOG_PRINT("\r\nSubscribe error\r\n");
             sl_wlan_app_cb.state = SL_WIFI_MQTT_CONNECT_STATE;
           } else if (NETWORK_ATTEMPTING_RECONNECT == rc) {
             // If the client is attempting to reconnect we will skip the rest of the loop.
@@ -787,8 +782,7 @@ void sl_wifi_mqtt_task(void)
         sl_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
 #if ENABLE_POWER_SAVE
         //! initiating power save in BLE mode
-        status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
-        if (status != RSI_SUCCESS) {
+        if (rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE) != RSI_SUCCESS) {
           LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
         }
 
@@ -799,7 +793,7 @@ void sl_wifi_mqtt_task(void)
         if (rc != SL_STATUS_OK) {
           LOG_PRINT("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
         }
-        LOG_PRINT("\r\nAssociated Power Save Enabled\n");
+        LOG_PRINT("\r\nAssociated Power Save Enabled\r\n");
 #endif
 
         osSemaphoreRelease(rsi_mqtt_sem);
@@ -813,7 +807,7 @@ void sl_wifi_mqtt_task(void)
             memset(&read_fds, 0, sizeof(fd_set));
 
             FD_SET(mqtt_client.networkStack.socket_id, &read_fds);
-            LOG_PRINT("\r\n Socket ID: %d", mqtt_client.networkStack.socket_id);
+            LOG_PRINT("\r\n Socket ID: %d\r\n", mqtt_client.networkStack.socket_id);
 
             status1 =
               sl_si91x_select(mqtt_client.networkStack.socket_id + 1, &read_fds, NULL, NULL, NULL, async_socket_select);
@@ -846,12 +840,11 @@ void sl_wifi_mqtt_task(void)
           publish_QOS0.isRetained = 0;
           publish_QOS0.payloadLen = strlen(MQTT_publish_QOS0_PAYLOAD);
 
-#if I2C_SENSOR_PERI_ENABLE
+#if (defined(SLI_SI91X_MCU_INTERFACE) && I2C_SENSOR_PERI_ENABLE)
           char temp_data[11];
           // Initialize I2C
           I2C_Init();
           i2c_leader_example_process_action();
-          //float sensor_data=temp_data;
           gcvt(sensor_data, 9, temp_data);
           char temp_string[] = "Current Temperature in Celsius: ";
           strcat(temp_string, temp_data);
@@ -870,7 +863,7 @@ void sl_wifi_mqtt_task(void)
           }
 
           if (rc == MQTT_REQUEST_TIMEOUT_ERROR) {
-            LOG_PRINT("QOS0 publish ack not received.\n");
+            LOG_PRINT("QOS0 publish ack not received.\r\n");
           }
           LOG_PRINT("\r\nMQTT Publish Successful\r\n");
 #if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
@@ -922,10 +915,10 @@ void sl_wifi_mqtt_task(void)
       case SL_WLAN_MQTT_DISCONNECT: {
         rc = aws_iot_mqtt_disconnect(&mqtt_client);
         if (SUCCESS != rc) {
-          LOG_PRINT("MQTT Disconnection error\n");
+          LOG_PRINT("MQTT Disconnection error\r\n");
           sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
         } else {
-          LOG_PRINT("MQTT Disconnection Successful\n");
+          LOG_PRINT("MQTT Disconnection Successful\r\n");
           sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
         }
         osSemaphoreRelease(rsi_mqtt_sem);

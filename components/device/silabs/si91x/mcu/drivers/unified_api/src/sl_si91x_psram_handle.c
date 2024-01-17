@@ -16,7 +16,7 @@
  ******************************************************************************/
 #include "sl_si91x_psram_handle.h"
 
-sl_psram_info_type_t PSRAM_Device = {
+struct sl_psram_info_type_t PSRAM_Device = {
 
     .devDensity = Mbit_(PSRAM_DEVICE_DENSITY_MBIT),
     .deviceName = PSRAM_DEVICE_NAME,
@@ -40,10 +40,10 @@ sl_psram_info_type_t PSRAM_Device = {
             .extra_byte_mode = PSRAM_EXTRA_BYTE_MODE,
             .prefetch_en = DIS_PREFETCH,
             .dummy_W_or_R = DUMMY_READS,
-            .d3d2_data = 0x11,
+            .d3d2_data = 3,
             .continuous = DIS_CONTINUOUS,
             .read_cmd = PSRAM_READ_CMD_CODE,
-            .flash_type = 255,
+            .flash_type = 0xf,
             .no_of_dummy_bytes = (PSRAM_RD_DUMMY_BITS/8),
             .extra_byte_en = 0,
         },
@@ -99,7 +99,7 @@ sl_psram_info_type_t PSRAM_Device = {
     }
 };
 
-PSRAMSecureSegmentType PSRAMSecureSegments[MAX_SEC_SEGMENTS] = {
+struct PSRAMSecureSegmentType PSRAMSecureSegments[MAX_SEC_SEGMENTS] = {
   { .segmentEnable = 1, .lowerBoundary = 0x0000, .higherBoundary = 0x0ffff },
   { .segmentEnable = 0, .lowerBoundary = 0x0000, .higherBoundary = 0x0000 },
   { .segmentEnable = 0, .lowerBoundary = 0xf0001, .higherBoundary = 0xfffff },

@@ -785,7 +785,7 @@ sl_status_t wifi_connect_command_handler(console_args_t *arguments)
   sl_wifi_credential_id_t id        = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
   sl_wifi_client_configuration_t ap = { 0 };
   char *ssid                        = (char *)arguments->arg[0];
-  char *password                    = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, const char *);
+  const char *password              = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, const char *);
   sl_wifi_security_t security_type  = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_WIFI_WPA2, sl_wifi_security_t);
   const char *user_name             = GET_OPTIONAL_COMMAND_ARG(arguments, 3, NULL, const char *);
   sl_wifi_encryption_t encryption_type =
@@ -939,7 +939,7 @@ sl_status_t wifi_start_statistic_report_command_handler(console_args_t *argument
 {
   stop_wifi_statistic_report = false;
   // Run the start_statistic_report on a different thread as we should be able to call stop_statistic_report while the start_statistic_report is still running.
-  wifi_statistic_thread_id = osThreadNew(wifi_statistic_thread, arguments, NULL);
+  wifi_statistic_thread_id = osThreadNew((osThreadFunc_t)wifi_statistic_thread, arguments, NULL);
   if (wifi_statistic_thread_id == NULL) {
     return SL_STATUS_FAIL;
   }

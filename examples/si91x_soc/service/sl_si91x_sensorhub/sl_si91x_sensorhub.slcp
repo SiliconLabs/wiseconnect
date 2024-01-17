@@ -10,7 +10,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 source:
   - path: sensorhub_config.c
   - path: sensors/src/hub_hal_intf.c
@@ -74,6 +74,8 @@ component:
   - id: network_manager
     from: wiseconnect3_sdk
   - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: sl_si91x_asynchronous_socket
     from: wiseconnect3_sdk
 requires:
   - name: ulp_mode_execution

@@ -169,14 +169,6 @@ void sl_si91x_config_timer_reset_configuration(void)
 *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_ocu_configuration(sl_config_timer_ocu_config_t *ocu_config_ptr)
 {
-  /* CONFIG_TIMER_UC is defined by default. when this macro (CONFIG_TIMER_UC) is defined, peripheral
-  * configuration is directly taken from the configuration set in the universal configuration (UC).
-  * if the application requires the configuration to be changed in run-time, undefined this macro
-  * and change the peripheral configuration.
-  */
-#ifdef CONFIG_TIMER_UC
-  ocu_config_ptr = &ct_ocu_configuration;
-#endif
   uint32_t ocu_config_value;
   sl_status_t status;
   do {
@@ -258,14 +250,6 @@ void sl_si91x_config_timer_reset_ocu_configuration(void)
 *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_wfg_configuration(sl_config_timer_wfg_config_t *wfg_config_ptr)
 {
-  /* CONFIG_TIMER_UC is defined by default. when this macro (CONFIG_TIMER_UC) is defined, peripheral
-  * configuration is directly taken from the configuration set in the universal configuration (UC).
-  * if the application requires the configuration to be changed in run-time, undefined this macro
-  * and change the peripheral configuration.
-  */
-#ifdef CONFIG_TIMER_UC
-  wfg_config_ptr = &ct_wfg_configuration;
-#endif
   sl_status_t status;
   rsi_error_t error_status;
   status = SL_STATUS_OK;
@@ -864,17 +848,28 @@ sl_config_timer_version_t sl_si91x_config_timer_get_version(void)
 }
 
 /*******************************************************************************
-* @brief: De-initializes config-timer output pins and configures clock
+* De-initializes config-timer output pins and configures clock
+* Unregisters callback and disable all CT interrupts.
 *
 * @details:
 * Disables CT clock
 *******************************************************************************/
 void sl_si91x_config_timer_deinit(void)
 {
+  sl_config_timer_interrupt_flags_t interrupt_flag;
+  interrupt_flag.is_counter0_event_interrupt_enabled     = true;
+  interrupt_flag.is_counter0_fifo_full_interrupt_enabled = true;
+  interrupt_flag.is_counter0_hit_peak_interrupt_enabled  = true;
+  interrupt_flag.is_counter0_hit_zero_interrupt_enabled  = true;
+  interrupt_flag.is_counter1_event_interrupt_enabled     = true;
+  interrupt_flag.is_counter1_fifo_full_interrupt_enabled = true;
+  interrupt_flag.is_counter1_hit_peak_interrupt_enabled  = true;
+  interrupt_flag.is_counter1_hit_zero_interrupt_enabled  = true;
+  // Unregistering callback and disabling all CT interrupts
+  sl_si91x_config_timer_unregister_callback(&interrupt_flag);
   // Disabling peripheral clock
   RSI_CLK_PeripheralClkDisable(M4CLK, CT_CLK);
 }
-
 /*******************************************************************************
 * Interrupt handler for config-timer
 *

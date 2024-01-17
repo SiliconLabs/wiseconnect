@@ -446,9 +446,9 @@ sl_sysrtc_version_t sl_si91x_sysrtc_get_version(void);
 
 /***************************************************************************/ /**
 * De-initializes SYSRTC by disabling its clock.
-*
 * @param[in]   none
 * @return      none
+* @note Unregisters the SYSRTC callback and disables all interrupts.
 *******************************************************************************/
 void sl_si91x_sysrtc_deinit(void);
 

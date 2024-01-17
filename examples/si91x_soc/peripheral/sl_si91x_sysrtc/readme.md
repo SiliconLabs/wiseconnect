@@ -56,6 +56,7 @@
 - Starts counter through \ref sl_si91x_sysrtc_start
 - After starting waits unless counter reaches compare value for 1-second and then sets SYSRTC register capture input high through \ref sl_si91x_sysrtc_sets_register_capture_input API.
 - A capture interrupt is generated and toggles LED1 one time.
+- And SYSRTC is de-initialized through \ref sl_si91x_sysrtc_deinit
 
 ### If no channels enabled through UC
 
@@ -82,7 +83,7 @@ Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-star
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+> ![Figure: Setup Diagram](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
@@ -132,7 +133,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 2. When the application runs, LED1(GPIO_10) will be toggled five times at 1sec periodic rate.
 3. After successful program execution the prints in serial console looks as shown below.
 
-    ![Figure: Introduction](resources/readme/output.png)
+    ![Figure: Output](resources/readme/output.png)
 
 > **Note:**
 >

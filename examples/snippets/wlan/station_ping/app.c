@@ -134,6 +134,17 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi client connected\r\n");
 
+#define GET_STA_TSF 0
+#if GET_STA_TSF
+  sl_wifi_tsf64_t tsf = { 0 };
+  status              = sl_wifi_get_sta_tsf(SL_WIFI_2_4GHZ_INTERFACE, &tsf);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nGet station TSF failed, Error Code : 0x%lX", status);
+  } else {
+    printf("\r\nGet station TSF success: tsf_m=0x%lx, tsf_l=0x%lx\r\n", tsf.tsf_m, tsf.tsf_l);
+  }
+#endif
+
   sl_ip_address_t remote_ip_address = { 0 };
   sl_net_inet_addr(REMOTE_IP_ADDRESS, (uint32_t *)&remote_ip_address.ip.v4);
   remote_ip_address.type = SL_IPV4;

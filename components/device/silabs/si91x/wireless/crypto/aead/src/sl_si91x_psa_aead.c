@@ -216,16 +216,17 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       }
       memcpy(config_ccm.key_config.b0.key_buffer, key_buffer, config_ccm.key_config.b0.key_size);
 #else
+      config_ccm.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
       config_ccm.key_config.a0.key_length = key_buffer_size;
       memcpy(config_ccm.key_config.a0.key, key_buffer, config_ccm.key_config.a0.key_length);
 #endif
 
-      if (status != PSA_SUCCESS) {
-        return status;
-      }
       /* Calling sl_si91x_ccm() for CCM encryption */
       si91x_status = sl_si91x_ccm(&config_ccm, ciphertext);
 
+#ifndef SLI_SI917B0
+      free(config_ccm.key_config.a0.key);
+#endif
       /* gets the si91x error codes and returns its equivalent psa_status codes */
       status = convert_si91x_error_code_to_psa_status(si91x_status);
 
@@ -271,16 +272,17 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       }
       memcpy(config_gcm.key_config.b0.key_buffer, key_buffer, config_gcm.key_config.b0.key_size);
 #else
+      config_gcm.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
       config_gcm.key_config.a0.key_length = key_buffer_size;
       memcpy(config_gcm.key_config.a0.key, key_buffer, config_gcm.key_config.a0.key_length);
 #endif
 
-      if (status != PSA_SUCCESS) {
-        return status;
-      }
       /* Calling sl_si91x_gcm() for GCM encryption */
       si91x_status = sl_si91x_gcm(&config_gcm, ciphertext);
 
+#ifndef SLI_SI917B0
+      free(config_gcm.key_config.a0.key);
+#endif
       /* gets the si91x error codes and returns its equivalent psa_status codes */
       status = convert_si91x_error_code_to_psa_status(si91x_status);
 
@@ -318,9 +320,6 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       memcpy(config_chachapoly.key_config.a0.key_chacha, key_buffer, SL_SI91X_CHACHAPOLY_KEY_SIZE_256);
 #endif
 
-      if (status != PSA_SUCCESS) {
-        return status;
-      }
       /* Calling sl_si91x_chachapoly() for CHACHAPOLY encryption */
       si91x_status = sl_si91x_chachapoly(&config_chachapoly, ciphertext);
 
@@ -395,7 +394,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       config_ccm.nonce_length          = nonce_length;
       config_ccm.ad                    = additional_data;
       config_ccm.ad_length             = additional_data_length;
-      config_ccm.tag                   = ciphertext + (ciphertext_length - tag_length);
+      config_ccm.tag                   = (uint8_t *)ciphertext + (ciphertext_length - tag_length);
       config_ccm.tag_length            = tag_length;
 
 #ifdef SLI_SI917B0
@@ -425,16 +424,17 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       }
       memcpy(config_ccm.key_config.b0.key_buffer, key_buffer, config_ccm.key_config.b0.key_size);
 #else
+      config_ccm.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
       config_ccm.key_config.a0.key_length = key_buffer_size;
       memcpy(config_ccm.key_config.a0.key, key_buffer, config_ccm.key_config.a0.key_length);
 #endif
 
-      if (status != PSA_SUCCESS) {
-        return status;
-      }
       /* Calling sl_si91x_ccm() for CCM decryption */
       si91x_status = sl_si91x_ccm(&config_ccm, plaintext);
 
+#ifndef SLI_SI917B0
+      free(config_ccm.key_config.a0.key);
+#endif
       status = convert_si91x_error_code_to_psa_status(si91x_status);
       break;
 #endif /* PSA_WANT_ALG_CCM */
@@ -478,16 +478,17 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       }
       memcpy(config_gcm.key_config.b0.key_buffer, key_buffer, config_gcm.key_config.b0.key_size);
 #else
+      config_gcm.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
       config_gcm.key_config.a0.key_length = key_buffer_size;
       memcpy(config_gcm.key_config.a0.key, key_buffer, config_gcm.key_config.a0.key_length);
 #endif
 
-      if (status != PSA_SUCCESS) {
-        return status;
-      }
       /* Calling sl_si91x_gcm() for GCM decryption */
       si91x_status = sl_si91x_gcm(&config_gcm, plaintext);
 
+#ifndef SLI_SI917B0
+      free(config_gcm.key_config.a0.key);
+#endif
       status = convert_si91x_error_code_to_psa_status(si91x_status);
       break;
 #endif /* PSA_WANT_ALG_GCM */
@@ -523,9 +524,6 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       memcpy(config_chachapoly.key_config.a0.key_chacha, key_buffer, SL_SI91X_CHACHAPOLY_KEY_SIZE_256);
 #endif
 
-      if (status != PSA_SUCCESS) {
-        return status;
-      }
       /* Calling sl_si91x_chachapoly() for CHACHAPOLY decryption */
       si91x_status = sl_si91x_chachapoly(&config_chachapoly, plaintext);
 

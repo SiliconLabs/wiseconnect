@@ -345,15 +345,8 @@ void on_config_timer_callback(void *callback_flag)
   }
   // Checking interrupt count
   if (interrupt_count >= TENTH_INTERRUPT_COUNT) {
-    // Unregistering timer callback and disabling interrupt
-    status = sl_si91x_config_timer_unregister_callback(&ct_interrupt_flags);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_timeout_callback_unregister : Invalid "
-               "Parameters Error Code : %lu \n",
-               status);
-    }
     // De-initializing config-timer
-    DEBUGOUT("CT Callback unregistered & de-inits timer after 10th interrupt\n");
+    DEBUGOUT("Config timer de-inits and unregistered callback after 10th interrupt\n");
     sl_si91x_config_timer_deinit();
   }
 #endif

@@ -25,24 +25,24 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SIZE_BUFFERS      15           // Size of buffer
-#define FOLLOWER_I2C_ADDR 0x50         // EEPROM I2C address
-#define RX_LENGTH         SIZE_BUFFERS // Number of bytes to receive
-#define TX_LENGTH         SIZE_BUFFERS // Number of bytes to send
-#define OFFSET_LENGTH     1            // Offset length
-#define FIFO_THRESHOLD    0x0          // FIFO threshold
-#define ZERO_FLAG         0            // Zero flag, No argument
-#define PINMUX_MODE       6            // I2C pinmux mode
-#define PORT_ZERO         0            // Port zero
-#define HP_MAX_GPIO       64           // High Power GPIO Maximum number
-#define LAST_DATA_COUNT   0            // Last read-write count
-#define DATA_COUNT        1            // Last second data count for verification
-#define BIT_SET           1            // Set bit
-#define STOP_BIT          9            // Bit to send stop command
-#define RW_MASK_BIT       8            // Bit to mask read and write
-#define I2C_INSTANCE      2            // I2C Instance for Pin configuration
-#define I2C               I2C2         // I2C Instance
-#define MAX_7BIT_ADDRESS  127          // Maximum 7-bit address
+#define ULP_I2C_SIZE_BUFFERS   15                   // Size of buffer
+#define FOLLOWER_I2C_ADDR      0x50                 // EEPROM I2C address
+#define ULP_I2C_RX_LENGTH      ULP_I2C_SIZE_BUFFERS // Number of bytes to receive
+#define ULP_I2C_TX_LENGTH      ULP_I2C_SIZE_BUFFERS // Number of bytes to send
+#define ULP_I2C_OFFSET_LENGTH  1                    // Offset length
+#define ULP_I2C_FIFO_THRESHOLD 0x0                  // FIFO threshold
+#define ZERO_FLAG              0                    // Zero flag, No argument
+#define PINMUX_MODE            6                    // I2C pinmux mode
+#define PORT_ZERO              0                    // Port zero
+#define HP_MAX_GPIO            64                   // High Power GPIO Maximum number
+#define LAST_DATA_COUNT        0                    // Last read-write count
+#define DATA_COUNT             1                    // Last second data count for verification
+#define BIT_SET                1                    // Set bit
+#define STOP_BIT               9                    // Bit to send stop command
+#define RW_MASK_BIT            8                    // Bit to mask read and write
+#define I2C_INSTANCE           2                    // I2C Instance for Pin configuration
+#define I2C                    I2C2                 // I2C Instance
+#define MAX_7BIT_ADDRESS       127                  // Maximum 7-bit address
 
 /*******************************************************************************
  ******************************  Data Types  ***********************************
@@ -57,50 +57,44 @@ typedef const struct {
 
 // Enum for different transmission scenarios
 typedef enum {
-  SEND_DATA,              // Send mode
-  RECEIVE_DATA,           // Receive mode
-  TRANSMISSION_COMPLETED, // Transmission completed mode
+  ULP_I2C_SEND_DATA,              // Send mode
+  ULP_I2C_RECEIVE_DATA,           // Receive mode
+  ULP_I2C_TRANSMISSION_COMPLETED, // Transmission completed mode
 } i2c_mode_enum_t;
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
 #if (I2C_INSTANCE == 0)
-// SCL, GPIO: 75, Exapansion Header: 5
-// SDA, GPIO: 75, Exapansion Header: 3
 static I2C_PIN scl = { RTE_I2C0_SCL_PORT, RTE_I2C0_SCL_PIN, RTE_I2C0_SCL_MUX, RTE_I2C0_SCL_PAD };
 static I2C_PIN sda = { RTE_I2C0_SDA_PORT, RTE_I2C0_SDA_PIN, RTE_I2C0_SDA_MUX, RTE_I2C0_SDA_PAD };
 #endif
 
 #if (I2C_INSTANCE == 1)
-// SCL, GPIO: 50, Board Pin: P19
-// SDA, GPIO: 51, Board Pin: P20
 static I2C_PIN scl = { RTE_I2C1_SCL_PORT, RTE_I2C1_SCL_PIN, RTE_I2C1_SCL_MUX, RTE_I2C1_SCL_PAD };
 static I2C_PIN sda = { RTE_I2C1_SDA_PORT, RTE_I2C1_SDA_PIN, RTE_I2C1_SDA_MUX, RTE_I2C1_SDA_PAD };
 #endif
 
 #if (I2C_INSTANCE == 2)
-// SCL, ULP_GPIO: 5, Exapansion Header: 13
-// SDA, ULP_GPIO: 4, Exapansion Header: 11
 static I2C_PIN scl = { RTE_I2C2_SCL_PORT, RTE_I2C2_SCL_PIN, RTE_I2C2_SCL_MUX, 0 };
 static I2C_PIN sda = { RTE_I2C2_SDA_PORT, RTE_I2C2_SDA_PIN, RTE_I2C2_SDA_MUX, 0 };
 #endif
 
-static i2c_mode_enum_t current_mode = SEND_DATA;
-boolean_t i2c_send_complete         = false;
-boolean_t i2c_receive_complete      = false;
-boolean_t send_data_flag            = false;
-boolean_t receive_data_flag         = false;
+static i2c_mode_enum_t current_mode = ULP_I2C_SEND_DATA;
+boolean_t ulp_i2c_send_complete     = false;
+boolean_t ulp_i2c_receive_complete  = false;
+boolean_t ulp_i2c_send_data_flag    = false;
+boolean_t ulp_i2c_receive_data_flag = false;
 
-static uint32_t write_number = 0;
-static uint32_t write_count  = 0;
-static uint32_t read_number  = 0;
-static uint32_t read_count   = 0;
-static uint8_t *write_data;
-static uint8_t *read_data;
+static uint32_t ulp_i2c_write_number = 0;
+static uint32_t ulp_i2c_write_count  = 0;
+static uint32_t ulp_i2c_read_number  = 0;
+static uint32_t ulp_i2c_read_count   = 0;
+static uint8_t *ulp_i2c_write_data;
+static uint8_t *ulp_i2c_read_data;
 
-static uint8_t read_buffer[SIZE_BUFFERS + OFFSET_LENGTH];
-static uint8_t write_buffer[SIZE_BUFFERS];
+static uint8_t ulp_i2c_read_buffer[ULP_I2C_SIZE_BUFFERS + ULP_I2C_OFFSET_LENGTH];
+static uint8_t ulp_i2c_write_buffer[ULP_I2C_SIZE_BUFFERS];
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -146,11 +140,11 @@ void i2c_leader_example_init(void)
   pin_configurations();
   DEBUGOUT("Pins are configured successfully \n");
   // Generating a buffer with values that needs to be sent.
-  for (uint32_t loop = 0; loop < SIZE_BUFFERS; loop++) {
-    write_buffer[loop] = (loop + 0x1);
-    read_buffer[loop]  = 0;
+  for (uint32_t loop = 0; loop < ULP_I2C_SIZE_BUFFERS; loop++) {
+    ulp_i2c_write_buffer[loop] = (loop + 0x1);
+    ulp_i2c_read_buffer[loop]  = 0;
   }
-  send_data_flag = true;
+  ulp_i2c_send_data_flag = true;
 }
 
 /*******************************************************************************
@@ -163,35 +157,35 @@ void i2c_leader_example_process_action(void)
   // After that offset address is sent to the follower device.
   // Now data is read from the EEPROM using I2C recevie.
   switch (current_mode) {
-    case SEND_DATA:
-      if (send_data_flag) {
+    case ULP_I2C_SEND_DATA:
+      if (ulp_i2c_send_data_flag) {
         // Validation for executing the API only once.
-        i2c_send_data(write_buffer, TX_LENGTH + OFFSET_LENGTH, FOLLOWER_I2C_ADDR);
-        send_data_flag = false;
+        i2c_send_data(ulp_i2c_write_buffer, ULP_I2C_TX_LENGTH + ULP_I2C_OFFSET_LENGTH, FOLLOWER_I2C_ADDR);
+        ulp_i2c_send_data_flag = false;
       }
-      if (i2c_send_complete) {
-        // It waits till i2c_send_complete is true in IRQ handler.
-        current_mode      = RECEIVE_DATA;
-        receive_data_flag = true;
-        i2c_send_complete = false;
+      if (ulp_i2c_send_complete) {
+        // It waits till ulp_i2c_send_complete is true in IRQ handler.
+        current_mode              = ULP_I2C_RECEIVE_DATA;
+        ulp_i2c_receive_data_flag = true;
+        ulp_i2c_send_complete     = false;
       }
       break;
-    case RECEIVE_DATA:
-      if (receive_data_flag) {
+    case ULP_I2C_RECEIVE_DATA:
+      if (ulp_i2c_receive_data_flag) {
         // Validation for executing the API only once.
-        i2c_receive_data(read_buffer, RX_LENGTH + OFFSET_LENGTH, FOLLOWER_I2C_ADDR);
-        receive_data_flag = false;
+        i2c_receive_data(ulp_i2c_read_buffer, ULP_I2C_RX_LENGTH + ULP_I2C_OFFSET_LENGTH, FOLLOWER_I2C_ADDR);
+        ulp_i2c_receive_data_flag = false;
       }
-      if (i2c_receive_complete) {
-        // It waits till i2c_receive_complete is true in IRQ handler.
-        current_mode         = TRANSMISSION_COMPLETED;
-        i2c_receive_complete = false;
+      if (ulp_i2c_receive_complete) {
+        // It waits till ulp_i2c_receive_complete is true in IRQ handler.
+        current_mode             = ULP_I2C_TRANSMISSION_COMPLETED;
+        ulp_i2c_receive_complete = false;
         // After the receive is completed, input and output data is compared and
         // output is printed on console.
         compare_data();
       }
       break;
-    case TRANSMISSION_COMPLETED:
+    case ULP_I2C_TRANSMISSION_COMPLETED:
       break;
     default:
       break;
@@ -213,9 +207,9 @@ static void i2c_send_data(const uint8_t *data, uint32_t data_length, uint16_t fo
   // Disables the interrupts.
   sl_si91x_i2c_disable_interrupts(I2C, ZERO_FLAG);
   // Updates the variables which are required for trasmission.
-  write_data   = (uint8_t *)data;
-  write_count  = 0;
-  write_number = data_length;
+  ulp_i2c_write_data   = (uint8_t *)data;
+  ulp_i2c_write_count  = 0;
+  ulp_i2c_write_number = data_length;
   // Disables the I2C peripheral.
   sl_si91x_i2c_disable(I2C);
   // Checking is address is 7-bit or 10bit
@@ -225,7 +219,7 @@ static void i2c_send_data(const uint8_t *data, uint32_t data_length, uint16_t fo
   // Setting the follower address recevied in parameter structure.
   sl_si91x_i2c_set_follower_address(I2C, follower_address, is_10bit_addr);
   // Configures the FIFO threshold.
-  sl_si91x_i2c_set_tx_threshold(I2C, FIFO_THRESHOLD);
+  sl_si91x_i2c_set_tx_threshold(I2C, ULP_I2C_FIFO_THRESHOLD);
   // Enables the I2C peripheral.
   sl_si91x_i2c_enable(I2C);
   // Configures the transmit empty interrupt.
@@ -249,9 +243,9 @@ static void i2c_receive_data(uint8_t *data, uint32_t data_length, uint16_t follo
   // Disables the interrupts.
   sl_si91x_i2c_disable_interrupts(I2C, ZERO_FLAG);
   // Updates the variables which are required for trasmission.
-  read_data   = (uint8_t *)data;
-  read_count  = 0;
-  read_number = data_length;
+  ulp_i2c_read_data   = (uint8_t *)data;
+  ulp_i2c_read_count  = 0;
+  ulp_i2c_read_number = data_length;
   // Disables the I2C peripheral.
   sl_si91x_i2c_disable(I2C);
   // Checking is address is 7-bit or 10bit
@@ -261,7 +255,7 @@ static void i2c_receive_data(uint8_t *data, uint32_t data_length, uint16_t follo
   // Setting the follower address recevied in parameter structure.
   sl_si91x_i2c_set_follower_address(I2C, follower_address, is_10bit_addr);
   // Configures the FIFO threshold.
-  sl_si91x_i2c_set_rx_threshold(I2C, FIFO_THRESHOLD);
+  sl_si91x_i2c_set_rx_threshold(I2C, ULP_I2C_FIFO_THRESHOLD);
   // Enables the I2C peripheral.
   sl_si91x_i2c_enable(I2C);
   // Sets the direction to read.
@@ -320,14 +314,14 @@ static void i2c_clock_init(I2C_TypeDef *i2c)
 static void compare_data(void)
 {
   uint32_t data_index = 0;
-  for (data_index = 0; data_index < SIZE_BUFFERS; data_index++) {
-    // If the read_buffer and buffer are same, it will be continued else, the for
+  for (data_index = 0; data_index < ULP_I2C_SIZE_BUFFERS; data_index++) {
+    // If the ulp_i2c_read_buffer and buffer are same, it will be continued else, the for
     // loop will be break.
-    if (write_buffer[data_index] != read_buffer[data_index]) {
+    if (ulp_i2c_write_buffer[data_index] != ulp_i2c_read_buffer[data_index]) {
       break;
     }
   }
-  if (data_index == SIZE_BUFFERS) {
+  if (data_index == ULP_I2C_SIZE_BUFFERS) {
     DEBUGOUT("Leader-Follower read-write Data comparison is successful, Test Case Passed \n");
   } else {
     DEBUGOUT("Leader-Follower read-write Data comparison is not successful, Test Case Failed \n");
@@ -413,18 +407,18 @@ static void pin_configurations(void)
  ******************************************************************************/
 static void handle_leader_transmit_irq(void)
 {
-  if (write_number > LAST_DATA_COUNT) {
-    if (write_number == DATA_COUNT) {
-      I2C->IC_DATA_CMD = (uint32_t)write_data[write_count] | (BIT_SET << STOP_BIT);
+  if (ulp_i2c_write_number > LAST_DATA_COUNT) {
+    if (ulp_i2c_write_number == DATA_COUNT) {
+      I2C->IC_DATA_CMD = (uint32_t)ulp_i2c_write_data[ulp_i2c_write_count] | (BIT_SET << STOP_BIT);
     } else {
-      sl_si91x_i2c_tx(I2C, write_data[write_count]);
+      sl_si91x_i2c_tx(I2C, ulp_i2c_write_data[ulp_i2c_write_count]);
     }
-    write_count++;
-    write_number--;
+    ulp_i2c_write_count++;
+    ulp_i2c_write_number--;
   } else {
     sl_si91x_i2c_clear_interrupts(I2C, SL_I2C_EVENT_TRANSMIT_EMPTY);
     sl_si91x_i2c_disable_interrupts(I2C, ZERO_FLAG);
-    i2c_send_complete = true;
+    ulp_i2c_send_complete = true;
   }
 }
 
@@ -438,23 +432,23 @@ static void handle_leader_transmit_irq(void)
  ******************************************************************************/
 static void handle_leader_receive_irq(void)
 {
-  if (read_number > LAST_DATA_COUNT) {
-    read_data[read_count] = I2C->IC_DATA_CMD_b.DAT;
-    read_count++;
-    read_number--;
-    if (read_number == DATA_COUNT) {
+  if (ulp_i2c_read_number > LAST_DATA_COUNT) {
+    ulp_i2c_read_data[ulp_i2c_read_count] = I2C->IC_DATA_CMD_b.DAT;
+    ulp_i2c_read_count++;
+    ulp_i2c_read_number--;
+    if (ulp_i2c_read_number == DATA_COUNT) {
       // If the last byte is there to receive, and in leader mode, it needs to send
       // the stop byte.
       I2C->IC_DATA_CMD = (BIT_SET << RW_MASK_BIT) | (BIT_SET << STOP_BIT);
     }
-    if (read_number > DATA_COUNT) {
+    if (ulp_i2c_read_number > DATA_COUNT) {
       I2C->IC_DATA_CMD = (BIT_SET << RW_MASK_BIT);
     }
   }
-  if (read_number == LAST_DATA_COUNT) {
+  if (ulp_i2c_read_number == LAST_DATA_COUNT) {
     sl_si91x_i2c_clear_interrupts(I2C, SL_I2C_EVENT_RECEIVE_FULL);
     sl_si91x_i2c_disable_interrupts(I2C, ZERO_FLAG);
-    i2c_receive_complete = true;
+    ulp_i2c_receive_complete = true;
   }
 }
 

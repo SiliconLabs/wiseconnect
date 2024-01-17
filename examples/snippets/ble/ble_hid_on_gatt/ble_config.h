@@ -168,8 +168,10 @@
 #define CONNECTION_INTERVAL_MIN 0x00A0
 #define CONNECTION_INTERVAL_MAX 0x00A0
 
-#define CONNECTION_LATENCY  0x0000
-#define SUPERVISION_TIMEOUT 0x07D0 //2000
+#define CONNECTION_LATENCY 0x0000
+#ifndef SUPERVISION_TIMEOUT
+#define SUPERVISION_TIMEOUT 300 //2000
+#endif
 
 /*=======================================================================*/
 

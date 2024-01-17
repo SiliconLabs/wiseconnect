@@ -528,6 +528,22 @@ sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *
 
 /***************************************************************************/ /**
  * @brief
+ *   Get the station TSF time which is synchronised with connected AP beacon TSF.
+ * @pre
+ *   Pre-condition: @ref sl_wifi_connect should be called before this API.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[out] tsf 
+ *   64-bit TSF time in microseconds stored in @ref sl_wifi_tsf64_t structure.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   If the station is not connected or at least one beacon is not received after connection, tsf value will be '0'.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_sta_tsf(sl_wifi_interface_t interface, sl_wifi_tsf64_t *tsf);
+
+/***************************************************************************/ /**
+ * @brief
  *   Set the Wi-Fi roaming configuration.
  * @pre Pre-conditions:
  * -

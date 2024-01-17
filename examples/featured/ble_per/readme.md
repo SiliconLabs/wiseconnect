@@ -177,6 +177,161 @@ The application can be configured to suit your requirements and development envi
     #define LOOP_BACK_MODE_DISABLE 0
   ```
 
+  Set below macro to update Max TX power and offset
+```c
+#define GAIN_TABLE_AND_MAX_POWER_UPDATE_ENABLE 1 //! To update gain table and max tx power and offsets
+```
+
+   The API used to update the gain table is:
+```c
+int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
+                                                       uint8_t payload_len,
+                                                       uint8_t *payload,
+                                                       uint8_t req_type)
+```
+---
+**Note!**
+* This command must be used immediately after opermode request
+* Internally, the firmware maintains two tables
+    * Gain table holding Max Tx power values for all regions
+    * Gain table with Max power vs offset values for each channel of all regions
+* There are 5 regions supported and are FCC, ETSI, TELEC, KCC, WORLDWIDE. These FCC/ETSI/TELEC/KCC gain table max power level and offset values should be loaded in end-to-end mode via BLE User Gain table. This has to be called upon every boot-up since this information is not saved inside flash. SoC uses these tables in FCC/ETSI/TELEC/KCC to limit power and not to violate allowed limits.
+* For Worldwide region firmware uses Worldwide values for Tx. For other regions(FCC/ETSI/TELEC/KCC), Firmware uses min value out of Worldwide & Region based values for Tx.  Also there will be part to part variation across chips and offsets are estimated during manufacturing flow which will be applied as correction factor during normal mode of operation.
+* This frame has to be used by customers who has done FCC/ETSI/TELEC/KCC certification with their own antenna. All other customers should not use this. Inappropriate use of this frame may result in violation of FCC/ETSI/TELEC/KCC or any certifications and Silicon labs is not liable for that.
+
+---
+
+* BLE power offset like <CHANNEL_NUM>, <1M_OFFSET>, <2M_OFFSET>, <500kbps_oFFSET>, <125kbps_oFFSET>
+
+---
+
+**req_type** can be set to one of the following macros :
+```c
+#define BLE_GAIN_TABLE_MAXPOWER_UPDATE 0
+#define BLE_GAIN_TABLE_OFFSET_UPDATE   1
+#define BLE_GAIN_TABLE_LP_CHAIN_0DBM_OFFSET_UPDATE  2
+#define BLE_GAIN_TABLE_LP_CHAIN_10DBM_OFFSET_UPDATE 3
+```
+**node_id** refers to BLE Node id :
+```c
+#define BLE_NODE 0  // For selecting BLE node
+```
+
+The following arrays will be used to update_gain_table based on `node_id` and `req_type`.
+
+| `node_id`  | `req_type`                    | Payload Array                                    |
+| ---------- | ----------------------------- | ------------------------------------------------ |
+| `BLE_NODE` | `UPDATE_GAIN_TABLE_MAX_POWER` | `Si917_BLE_REGION_BASED_MAXPOWER_XX`           |
+| `BLE_NODE` | `UPDATE_GAIN_TABLE_OFFSET`    | `Si917_BLE_REGION_BASED_MAXPOWER_VS_OFFSET_XX` |
+| `BLE_NODE` | `BLE_GAIN_TABLE_LP_CHAIN_0DBM_OFFSET_UPDATE` | `Si917_BLE_REGION_BASED_LP_CHAIN_0DBM_OFFSET_XX`           |
+| `BLE_NODE` | `BLE_GAIN_TABLE_LP_CHAIN_10DBM_OFFSET_UPDATE`    | `Si917_BLE_REGION_BASED_LP_CHAIN_10DBM_OFFSET_XX` |
+
+**Gain Table Max Power Array Format**
+
+```c
+uint8_t _Si917_BLE_REGION_BASED_MAXPOWER_XX[] = {}; //! Fill the user gain table max power values in the below mentioned way.
+
+<TABLE NAME>[] = { 
+                   <REGION NAME 1>, <MAX POWER>, 
+                   <REGION NAME 1>, <MAX POWER>,
+                    .
+                    .
+                   <REGION NAME N>, <MAX POWER> 
+                 };
+```
+
+**Gain Table Offset Array Format**
+```c
+uint8_t _Si917_BLE_REGION_BASED_MAXPOWER_VS_OFFSET[] = {};  // Fill the user gain table offset values as shown.
+
+<TABLE NAME>[] = {
+                  <Number Of Regions - 'r'>,
+                    <REGION NAME 1>, <Number of Channels - 'm'>,
+                      <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      .
+                      .
+                      <CHANNEL NUMBER m>, <OFFSET>,
+                    <REGION NAME 2>, <Number of Channels - 'n'>,
+                      <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      .
+                      .
+                      <CHANNEL NUMBER n>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                     .
+                     .
+                     <REGION NAME r>, <Number of Channels - 'n'>,
+                       <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                       <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                       .
+                       .
+                       <CHANNEL NUMBER n>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                   };
+
+uint8_t Si917_BLE_REGION_BASED_LP_CHAIN_0DBM_OFFSET_XX[] = {};  // Fill the user gain table offset values as shown.
+
+<TABLE NAME>[] = {
+                  <Number Of Regions - 'r'>,
+                    <REGION NAME 1>, <Number of Channels - 'm'>,
+                      <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      .
+                      .
+                      <CHANNEL NUMBER m>, <OFFSET>,
+                    <REGION NAME 2>, <Number of Channels - 'n'>,
+                      <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      .
+                      .
+                      <CHANNEL NUMBER n>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                     .
+                     .
+                     <REGION NAME r>, <Number of Channels - 'n'>,
+                       <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                       <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                       .
+                       .
+                       <CHANNEL NUMBER n>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                   };
+
+uint8_t Si917_BLE_REGION_BASED_LP_CHAIN_10DBM_OFFSET_XX[] = {};  // Fill the user gain table offset values as shown.
+
+<TABLE NAME>[] = {
+                  <Number Of Regions - 'r'>,
+                    <REGION NAME 1>, <Number of Channels - 'm'>,
+                      <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      .
+                      .
+                      <CHANNEL NUMBER m>, <OFFSET>,
+                    <REGION NAME 2>, <Number of Channels - 'n'>,
+                      <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                      .
+                      .
+                      <CHANNEL NUMBER n>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                     .
+                     .
+                     <REGION NAME r>, <Number of Channels - 'n'>,
+                       <CHANNEL NUMBER 1>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                       <CHANNEL NUMBER 2>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                       .
+                       .
+                       <CHANNEL NUMBER n>, <OFFSET>, <OFFSET>, <OFFSET>, <OFFSET>
+                   };
+
+```
+
+**Region Name and Values**
+
+|  Region Name | Value   | 
+|--------------|---------|
+| `FCC`          | `0`       |
+| `ETSI`         | `1`       | 
+| `TELEC`        | `2`       |
+| `WORLDWIDE`    | `3`       |
+| `KCC`          | `4`       |
+
 - Open `ble_config.h` file and update/modify following macros,
 
   ```c

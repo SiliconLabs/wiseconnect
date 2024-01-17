@@ -168,7 +168,7 @@ void i2c_leader_example_process_action(void)
     DEBUGOUT("Data is transferred to Follower successfully \n");
 
     // Validation for executing the API only once.
-    i2c_receive_data(read_buffer, 2, FOLLOWER_I2C_ADDR);
+    i2c_receive_data((uint8_t *)read_buffer, 2, FOLLOWER_I2C_ADDR);
     Delay(10);
     while (!i2c_receive_complete)
       ;
@@ -201,8 +201,6 @@ void i2c_leader_example_process_action(void)
     info              = 0;
     read_buffer[0]    = 0;
     read_buffer[1]    = 0;
-    read_buffer[2]    = 0;
-
     if (i2c_receive_complete) {
       // It waits till i2c_receive_complete is true in IRQ handler.
       DEBUGOUT("Data is received from Follower successfully \n");

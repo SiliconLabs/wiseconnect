@@ -81,105 +81,102 @@ int main()
   status = sl_si91x_psram_uninit();
   status = sl_si91x_psram_init();
 
-  while (1) {
+  /* Write and read in Auto mode ---------------------------------------------*/
 
-    /* Write and read in Auto mode ---------------------------------------------*/
-
-    /// Auto Write to PSRAM base address
-    for (uint32_t index = 0; index < BIT_8_READ_WRITE_LENGTH; index++) {
-      psramBufWrtPtr[index] = testBuf[index];
-    }
-
-    memset(verifyBuf, 0, READ_WRITE_LENGTH); /// Clearing the buffer
-
-    /// Auto Read from PSRAM base address
-    for (uint32_t index = 0; index < BIT_8_READ_WRITE_LENGTH; index++) {
-      verifyBuf[index] = psramBufWrtPtr[index];
-    }
-
-    for (size_t i = 0; i < BIT_8_READ_WRITE_LENGTH; i++) {
-      if (testBuf[i] != verifyBuf[i]) {
-        status_flag = 1;
-      }
-    }
-
-    if (status_flag) {
-      DEBUGOUT("\r\nAuto read Write Failed\r\n");
-      status_flag = 0;
-    } else {
-      DEBUGOUT("\r\nAuto Write and auto read successful from PSRAM\r\n");
-    }
-
-    /* Write and read in manual blocking mode ----------------------------------*/
-
-    /// Manual write to PSRAM base address
-    sl_si91x_psram_manual_write_in_blocking_mode(PSRAM_BASE_ADDRESS,
-                                                 (void *)testBuf,
-                                                 sizeof(uint8_t),
-                                                 BIT_8_READ_WRITE_LENGTH);
-
-    memset(verifyBuf, 0, READ_WRITE_LENGTH); /// Clearing the buffer
-
-    /// Manual read from PSRAM base address
-    sl_si91x_psram_manual_read_in_blocking_mode(PSRAM_BASE_ADDRESS,
-                                                verifyBuf,
-                                                sizeof(uint8_t),
-                                                BIT_8_READ_WRITE_LENGTH);
-
-    for (size_t i = 0; i < BIT_8_READ_WRITE_LENGTH; i++) {
-      if (testBuf[i] != verifyBuf[i]) {
-        status_flag = 1;
-      }
-    }
-
-    if (status_flag) {
-      DEBUGOUT("\r\nManual read Write Failed\r\n");
-      status_flag = 0;
-    } else {
-      DEBUGOUT("\r\nManual Write and auto read successful from PSRAM\r\n");
-    }
-
-    /* Write and read in manual dma mode ---------------------------------------*/
-
-    volatile sl_psram_dma_status_type_t xferStatus = 0;
-
-    /// Manual write in dma mode
-    sl_si91x_psram_manual_write_in_dma_mode(PSRAM_BASE_ADDRESS,
-                                            (void *)testBuf,
-                                            sizeof(uint8_t),
-                                            BIT_8_READ_WRITE_LENGTH,
-                                            &xferStatus);
-
-    while (!xferStatus) {
-      /// Wait till dma done
-    }
-
-    memset(verifyBuf, 0, READ_WRITE_LENGTH); /// Clearing the buffer
-
-    /// Manual read in dma mode
-    sl_si91x_psram_manual_read_in_dma_mode(PSRAM_BASE_ADDRESS,
-                                           verifyBuf,
-                                           sizeof(uint8_t),
-                                           BIT_8_READ_WRITE_LENGTH,
-                                           &xferStatus);
-
-    while (!xferStatus) {
-      /// Wait till dma done
-    }
-
-    for (size_t i = 0; i < BIT_8_READ_WRITE_LENGTH; i++) {
-      if (testBuf[i] != verifyBuf[i]) {
-        status_flag = 1;
-      }
-    }
-
-    if (status_flag) {
-      DEBUGOUT("\r\nManual read Write with DMA Failed\r\n");
-      status_flag = 0;
-    } else {
-      DEBUGOUT("\r\nManual Write and auto read with DMA successful from PSRAM\r\n");
-    }
-
-    DEBUGOUT("\r\n*************************************************************\r\n\n\n");
+  /// Auto Write to PSRAM base address
+  for (uint32_t index = 0; index < BIT_8_READ_WRITE_LENGTH; index++) {
+    psramBufWrtPtr[index] = testBuf[index];
   }
+
+  memset(verifyBuf, 0, READ_WRITE_LENGTH); /// Clearing the buffer
+
+  /// Auto Read from PSRAM base address
+  for (uint32_t index = 0; index < BIT_8_READ_WRITE_LENGTH; index++) {
+    verifyBuf[index] = psramBufWrtPtr[index];
+  }
+
+  for (size_t i = 0; i < BIT_8_READ_WRITE_LENGTH; i++) {
+    if (testBuf[i] != verifyBuf[i]) {
+      status_flag = 1;
+    }
+  }
+
+  if (status_flag) {
+    DEBUGOUT("\r\nAuto Read Write Failed\r\n");
+    status_flag = 0;
+  } else {
+    DEBUGOUT("\r\nAuto Write and Read successful from PSRAM\r\n");
+  }
+
+  /* Write and read in manual blocking mode ----------------------------------*/
+
+  /// Manual write to PSRAM base address
+  sl_si91x_psram_manual_write_in_blocking_mode(PSRAM_BASE_ADDRESS,
+                                               (void *)testBuf,
+                                               sizeof(uint8_t),
+                                               BIT_8_READ_WRITE_LENGTH);
+
+  memset(verifyBuf, 0, READ_WRITE_LENGTH); /// Clearing the buffer
+
+  /// Manual read from PSRAM base address
+  sl_si91x_psram_manual_read_in_blocking_mode(PSRAM_BASE_ADDRESS, verifyBuf, sizeof(uint8_t), BIT_8_READ_WRITE_LENGTH);
+
+  for (size_t i = 0; i < BIT_8_READ_WRITE_LENGTH; i++) {
+    if (testBuf[i] != verifyBuf[i]) {
+      status_flag = 1;
+    }
+  }
+
+  if (status_flag) {
+    DEBUGOUT("\r\nManual Read Write Failed\r\n");
+    status_flag = 0;
+  } else {
+    DEBUGOUT("\r\nManual Write and Read successful from PSRAM\r\n");
+  }
+
+  /* Write and read in manual dma mode ---------------------------------------*/
+
+  volatile sl_psram_dma_status_type_t xferStatus = 0;
+
+  /// Manual write in dma mode
+  sl_si91x_psram_manual_write_in_dma_mode(PSRAM_BASE_ADDRESS,
+                                          (void *)testBuf,
+                                          sizeof(uint8_t),
+                                          BIT_8_READ_WRITE_LENGTH,
+                                          (sl_psram_dma_status_type_t *)&xferStatus);
+
+  while (!xferStatus) {
+    /// Wait till dma done
+  }
+
+  memset(verifyBuf, 0, READ_WRITE_LENGTH); /// Clearing the buffer
+
+  /// Manual read in dma mode
+  sl_si91x_psram_manual_read_in_dma_mode(PSRAM_BASE_ADDRESS,
+                                         verifyBuf,
+                                         sizeof(uint8_t),
+                                         BIT_8_READ_WRITE_LENGTH,
+                                         (sl_psram_dma_status_type_t *)&xferStatus);
+
+  while (!xferStatus) {
+    /// Wait till dma done
+  }
+
+  for (size_t i = 0; i < BIT_8_READ_WRITE_LENGTH; i++) {
+    if (testBuf[i] != verifyBuf[i]) {
+      status_flag = 1;
+    }
+  }
+
+  if (status_flag) {
+    DEBUGOUT("\r\nManual Read Write with DMA Failed\r\n");
+    status_flag = 0;
+  } else {
+    DEBUGOUT("\r\nManual Write and Read with DMA successful from PSRAM\r\n");
+  }
+
+  DEBUGOUT("\r\n*************************************************************\r\n\n\n");
+
+  while (1)
+    ;
 }

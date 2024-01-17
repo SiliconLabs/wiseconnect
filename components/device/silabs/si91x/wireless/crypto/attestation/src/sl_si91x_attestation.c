@@ -35,6 +35,9 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 #include "sl_si91x_attestation.h"
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+#include "sl_si91x_crypto_thread.h"
+#endif
 
 /**
  * @fn    sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint32_t *nonce)
@@ -76,6 +79,13 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   //! Copy Data
   memcpy(&attest->msg[0], nonce, NONCE_DATA_SIZE);
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_attestation_mutex == NULL) {
+    crypto_attestation_mutex = sl_si91x_crypto_threadsafety_init(crypto_attestation_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_attestation_mutex);
+#endif
+
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         attest,
@@ -87,6 +97,9 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
     free(attest);
     if (buffer != NULL)
       sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+    mutex_result = sl_si91x_crypto_mutex_release(crypto_attestation_mutex);
+#endif
     return status;
   }
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
@@ -94,5 +107,10 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   memcpy(token, packet->data, packet->length);
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(attest);
+
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_attestation_mutex);
+#endif
+
   return status;
 }

@@ -12,7 +12,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 source:
   - path: adc_multichannel_example.c
   - path: app.c
@@ -38,6 +38,9 @@ component:
     from: wiseconnect3_sdk
 define:
   - name: GAIN_OFFSET_CAL_EN
+configuration:
+  - name: NUMBER_OF_CHANNEL
+    value: '4'
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/sl_adc_output.png

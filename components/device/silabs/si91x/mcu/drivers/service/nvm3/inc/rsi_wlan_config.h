@@ -193,8 +193,7 @@
 #define RSI_HT_CAPS_SUPPORT_CH_WIDTH BIT(1)
 
 //! HT caps bit map.
-#define RSI_HT_CAPS_BIT_MAP \
-  (RSI_HT_CAPS_NUM_RX_STBC | RSI_HT_CAPS_SHORT_GI_20MHZ | RSI_HT_CAPS_GREENFIELD_EN | RSI_HT_CAPS_SUPPORT_CH_WIDTH)
+#define RSI_HT_CAPS_BIT_MAP (RSI_HT_CAPS_NUM_RX_STBC | RSI_HT_CAPS_SHORT_GI_20MHZ | RSI_HT_CAPS_GREENFIELD_EN)
 
 /*=======================================================================*/
 //! Scan command parameters

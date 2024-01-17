@@ -134,6 +134,14 @@ sl_status_t sl_si91x_i2s_deinit(sl_i2s_handle_t *i2s_handle)
     status = SL_STATUS_NULL_POINTER;
   } else {
     if ((i2s_handle == &Driver_SAI0) || (i2s_handle == &Driver_SAI1)) {
+      //Unregister callbacks
+      if (i2s_handle == &Driver_SAI0) {
+        i2s0_user_callback = NULL;
+        local_i2s0_handle  = NULL;
+      } else {
+        i2s1_user_callback = NULL;
+        local_i2s1_handle  = NULL;
+      }
       // CMSIS API for un-initialization is called and the arm error code returned from
       // the API is converted to SL error code via convert_arm_to_sl_error_code function.
       error_status = ((sl_i2s_driver_t *)i2s_handle)->Uninitialize();

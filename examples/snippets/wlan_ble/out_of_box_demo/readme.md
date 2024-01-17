@@ -48,8 +48,8 @@ If a message is published onto the topic from a MQTT client application [https:/
 
 ## Application build environment
 
-It is highly recommended to modify the `CLIENT_ID` parameter from the default value (WIFI-SDK-MQTT-CLIENT) to any other unique string of user's choice in the wifi_app.c file before building and flashing the example. As the test MQTT server limits multiple devices with same CLIENT ID from connecting at the same time.  
-(wifi_app.c file can be found under the out_of_box_demo folder in the Project Explorer pane)
+It is highly recommended to set the CLIENT_ID parameter in the wifi_app.c file to a unique string. As the test MQTT server limits multiple devices with same CLIENT ID from connecting at the same time.
+In this version of the out of box demo example, the CLIENT_ID parameter is automatically set to a unique value.
 
 ## Test the Application
 

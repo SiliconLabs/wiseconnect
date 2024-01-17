@@ -38,34 +38,31 @@
 #define ICACHE2_ADDR_TRANSLATE_1_REG  *(volatile uint32_t *)(0x20280000 + 0x24)
 #define MISC_CFG_SRAM_REDUNDANCY_CTRL *(volatile uint32_t *)(0x46008000 + 0x18)
 #define MISC_CONFIG_MISC_CTRL1        *(volatile uint32_t *)(0x46008000 + 0x44)
-#define SOC_PLL_LIMIT                 120000000 // Limit for soc pll clock.
-#define MAX_SAMPLE_RATE               5000000   // Maximum sampling rate 5 Msps.
-#define MINIMUM_NUMBER_OF_CHANNEL     1         // Minimum number of channel enable
-#define MAXIMUM_NUMBER_OF_CHANNEL     16        // Maximum number of channel enable
-#define MAXIMUM_CHANNEL_ID            16        // Maximum adc dma support channel id.
-#define ADC_PING_ENABLE               1         // Enable the ADC ping buffer.
-#define ADC_PONG_ENABLE               1         // Enable the ADC pong buffer.
-#define ADC_PING_DISABLE              0         // Disable the ADC Ping buffer.
-#define INVALID_POWER_STATE           2         // Invalid power state.
-#define MAXIMUM_PING_LENGTH           1024      // Maximum ping length
-#define MAXIMUM_PONG_LENGTH           1024      // Maximum pong length
-#ifdef ULP_MODE_EXECUTION
-#define START_PING_ADDR 0x24060000 // Starting ping address
-#define END_PONG_ADDR   0x24061B00 // Ending pong address
-#else
-#define MAXIMUM_PING_ADDR 0x2F400 // Maximum ping address
-#define MAXIMUM_PONG_ADDR 0x2F7FF // Maximum pong address
-#endif
-#define MAX_THRS_VAL            7    // Maximum threshold value
-#define MAX_POS_IN_SEL          31   // Maximum positive input selection
-#define MAX_NEG_IN_SEL          15   // Maximum negative input selection
-#define MINIMUM_SAMPLING_LENGTH 1    // Minimum sampling length
-#define MAXIMUM_SAMPLING_LENGTH 1023 // Maximum sampling length
-#define MINIMUM_REF_VOLT        1.8  // Maximum reference voltage
-#define MAXMIMUM_REF_VOLT       3.6  // Maximum reference voltage
-#define ADC_RELEASE_VERSION     0    // ADC Release version
-#define ADC_SQA_VERSION         0    // ADC SQA version
-#define ADC_DEV_VERSION         1    // ADC Developer version
+#define SOC_PLL_LIMIT                 120000000  // Limit for soc pll clock.
+#define MAX_SAMPLE_RATE               5000000    // Maximum sampling rate 5 Msps.
+#define MINIMUM_NUMBER_OF_CHANNEL     1          // Minimum number of channel enable
+#define MAXIMUM_NUMBER_OF_CHANNEL     16         // Maximum number of channel enable
+#define MAXIMUM_CHANNEL_ID            16         // Maximum adc dma support channel id.
+#define ADC_PING_ENABLE               1          // Enable the ADC ping buffer.
+#define ADC_PONG_ENABLE               1          // Enable the ADC pong buffer.
+#define ADC_PING_DISABLE              0          // Disable the ADC Ping buffer.
+#define INVALID_POWER_STATE           2          // Invalid power state.
+#define MAXIMUM_PING_LENGTH           1024       // Maximum ping length
+#define MAXIMUM_PONG_LENGTH           1024       // Maximum pong length
+#define START_PING_ADDR               0x24060000 // Starting ping address
+#define END_PONG_ADDR                 0x24061B00 // Ending pong address
+#define MAXIMUM_PING_ADDR             0x2F400    // Maximum ping address
+#define MAXIMUM_PONG_ADDR             0x2F7FF    // Maximum pong address
+#define MAX_THRS_VAL                  7          // Maximum threshold value
+#define MAX_POS_IN_SEL                31         // Maximum positive input selection
+#define MAX_NEG_IN_SEL                15         // Maximum negative input selection
+#define MINIMUM_SAMPLING_LENGTH       1          // Minimum sampling length
+#define MAXIMUM_SAMPLING_LENGTH       1023       // Maximum sampling length
+#define MINIMUM_REF_VOLT              1.8        // Maximum reference voltage
+#define MAXMIMUM_REF_VOLT             3.6        // Maximum reference voltage
+#define ADC_RELEASE_VERSION           0          // ADC Release version
+#define ADC_SQA_VERSION               0          // ADC SQA version
+#define ADC_DEV_VERSION               1          // ADC Developer version
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -1034,19 +1031,19 @@ static sl_status_t validate_adc_channel_parameters(sl_adc_channel_config_t *adc_
       break;
     }
     // Validate ping and pong address maximum value.
-#ifdef ULP_MODE_EXECUTION
-    if ((adc_channel_config->chnl_ping_address[0] < ((uint32_t)START_PING_ADDR))
-        || (adc_channel_config->chnl_pong_address[0] > ((uint32_t)END_PONG_ADDR))) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
+    if (adc_channel_config->chnl_ping_address[0] >= START_PING_ADDR) {
+      if ((adc_channel_config->chnl_ping_address[0] < ((uint32_t)START_PING_ADDR))
+          || (adc_channel_config->chnl_pong_address[0] > ((uint32_t)END_PONG_ADDR))) {
+        status = SL_STATUS_INVALID_PARAMETER;
+        break;
+      }
+    } else {
+      if ((adc_channel_config->chnl_ping_address[0] > ((uint32_t)MAXIMUM_PING_ADDR))
+          || (adc_channel_config->chnl_pong_address[0] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
+        status = SL_STATUS_INVALID_PARAMETER;
+        break;
+      }
     }
-#else
-    if ((adc_channel_config->chnl_ping_address[0] > ((uint32_t)MAXIMUM_PING_ADDR))
-        || (adc_channel_config->chnl_pong_address[0] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-#endif
     // Returns SL_STATUS_OK if the parameter are appropriate
     status = SL_STATUS_OK;
   } while (false);
@@ -1112,19 +1109,19 @@ static sl_status_t validate_adc_internal_parameters(sl_adc_internal_config_t *ad
       break;
     }
     // Validate ping and pong address maximum value.
-#ifdef ULP_MODE_EXECUTION
-    if ((adc_internal_config->ping_addr[0] < ((uint32_t)START_PING_ADDR))
-        || (adc_internal_config->pong_addr[0] > ((uint32_t)END_PONG_ADDR))) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
+    if (adc_internal_config->ping_addr[0] >= START_PING_ADDR) {
+      if ((adc_internal_config->ping_addr[0] < ((uint32_t)START_PING_ADDR))
+          || (adc_internal_config->pong_addr[0] > ((uint32_t)END_PONG_ADDR))) {
+        status = SL_STATUS_INVALID_PARAMETER;
+        break;
+      }
+    } else {
+      if ((adc_internal_config->ping_addr[0] > ((uint32_t)MAXIMUM_PING_ADDR))
+          || (adc_internal_config->pong_addr[0] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
+        status = SL_STATUS_INVALID_PARAMETER;
+        break;
+      }
     }
-#else
-    if ((adc_internal_config->ping_addr[0] > ((uint32_t)MAXIMUM_PING_ADDR))
-        || (adc_internal_config->pong_addr[0] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-#endif
     //       Validate ping and pong length maximum value
     if ((adc_internal_config->ping_length[0] >= MAXIMUM_PING_LENGTH)
         || (adc_internal_config->pong_length[0] >= MAXIMUM_PONG_LENGTH)) {

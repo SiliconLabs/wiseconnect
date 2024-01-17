@@ -121,7 +121,6 @@ uint8_t data[20] = { 0 };
 static volatile uint32_t ble_app_event_map;
 rsi_ble_event_conn_status_t conn_event_to_app;
 static rsi_ble_event_disconnect_t disconn_event_to_app;
-static uint8_t rsi_ble_app_data[100];
 static uint8_t rsi_ble_att1_val_hndl;
 static uint16_t rsi_ble_att2_val_hndl;
 static uint16_t rsi_ble_att3_val_hndl;
@@ -466,9 +465,11 @@ static void rsi_ble_on_disconnect_event(rsi_ble_event_disconnect_t *resp_disconn
 void rsi_ble_on_conn_update_complete_event(rsi_ble_event_conn_update_t *rsi_ble_event_conn_update_complete,
                                            uint16_t resp_status)
 {
+  UNUSED_PARAMETER(resp_status);
   rsi_6byte_dev_address_to_ascii(remote_dev_addr, (uint8_t *)rsi_ble_event_conn_update_complete->dev_addr);
   memcpy(&event_conn_update_complete, rsi_ble_event_conn_update_complete, sizeof(rsi_ble_event_conn_update_t));
   rsi_ble_app_set_event(RSI_BLE_CONN_UPDATE_EVENT);
+  return;
 }
 
 /*============================================================================*/
@@ -780,7 +781,7 @@ adv:
 
           rsi_ble_set_local_att_value(rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, data);
           sprintf(fw,
-                  "%x%x.%d.%d.%d.%d.%d.%d\r\n",
+                  "%x%x.%d.%d.%d.%d.%d.%d",
                   firmware_version.chip_id,
                   firmware_version.rom_id,
                   firmware_version.major,
@@ -792,7 +793,7 @@ adv:
 
           print_firmware_version(&firmware_version);
           GLIB_drawStringOnLine(&glibContext, "Firmware version:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-          GLIB_drawStringOnLine(&glibContext, &fw, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+          GLIB_drawStringOnLine(&glibContext, fw, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
 
           DMD_updateDisplay();
           osDelay(1000);

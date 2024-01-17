@@ -47,12 +47,12 @@
 - It also initializes DMA, if transfer type is 'Using DMA'.
 - Now transmit and receive FIFO threshold values are configured using \ref sl_i2c_driver_configure_fifo_threshold API.
 - Now write_buffer is filled with some data which needs to be sent to the follower.
-- Current_mode enum is set to SEND_DATA and it calls send_data API to send data to follower & configures follower address through \ref sl_i2c_driver_send_data_blocking (for blocking Application) or through \ref sl_i2c_driver_send_data_non_blocking (for Non-blocking Application).
+- Current_mode enum is set to I2C_SEND_DATA and it calls send_data API to send data to follower & configures follower address through \ref sl_i2c_driver_send_data_blocking (for blocking Application) or through \ref sl_i2c_driver_send_data_non_blocking (for Non-blocking Application).
 - After that it will wait till all the data is transferred to the follower device.
-- Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to RECEIVE_DATA.
+- Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_RECEIVE_DATA.
 - Then it receives data from follower through \ref sl_i2c_driver_receive_data_blocking (for blocking Application) or through \ref sl_i2c_driver_receive_data_non_blocking (for Non-blocking Application).
 - After calling receive_data, it will wait till all the data is received from the follower device.
-- Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to TRANSMISSION_COMPLETED.
+- Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
 - Now it compares the data which is received from the follower device to the data which it has sent.
 - If the data is same, it will print Test Case Passed on the console.
 
@@ -95,7 +95,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ### Application Configuration Parameters
 
 - Open sl_si91x_i2c_driver_leader.slcp project file select software component tab and search for i2c in search bar.
-- Click on **I2C0** and configure the I2C0 instance as per configuration parameters given in wizard.
+- Click on **I2C2** and configure the I2C2 instance as per configuration parameters given in wizard.
 - For using any other I2C instance user has to add that I2C instance by clicking on **I2C Instance** from configuration wizard and then clicking on **Add New Instance**
 - For creating I2C instances write 'I2C0', 'I2C1' or 'I2C2' on the wizard for respective instance and then click on **Done**
 - After creation of instances separate configuration files are get generated in **config folder**.
@@ -111,10 +111,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     #define BLOCKING_APPLICATION     // Enable it for enabling I2C transfer using interrupt Application
     #define NON_BLOCKING_APPLICATION // Enable it for enabling I2C transfer using interrupt Application
     #define FOLLOWER_I2C_ADDR        // Update I2C follower address
-    #define SIZE_BUFFERS             // To change the number of bytes to send and receive.Its value should be less than maximum buffer size macro value.
+    #define I2C_SIZE_BUFFERS             // To change the number of bytes to send and receive.Its value should be less than maximum buffer size macro value.
   ```
 
-> **Note:** Enable either BLOCKING application or NON-BLOCKING application macro, at a time. Change the value of following macros in path: /$project/config/RTE_Device_917.h
+> **Note:** Enable either BLOCKING application or NON-BLOCKING application macro, at a time. For I2C0 instance change the value of following macros in path: /$project/config/RTE_Device_917.h
 
 ```c
   #define RTE_I2C0_SCL_PORT_ID 0   // SCL pin port id
@@ -123,6 +123,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:** After above configurations connect SCL and SDA pins of Leader and follower then run the application and observe the results by connecting SDA and SCL pins to logic Analyzer(Also enable glitch filter for SCL channel with time period 100ns, to avoid glitches).
 
+- For getting proper speeds with fast and fast plus modes, please use external pullup of around 1.8K
+- For high speed mode data transfer external pullup is must.
 - Configure the UC as mentioned below.
 
   ![Figure: Introduction](resources/uc_screen/i2c_uc_screen.png)
@@ -159,11 +161,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. Connect SCL(GPIO_7) and SDA(GPIO_6) pins with the follower device.
+2. Connect SCL(ULP_GPIO_7) and SDA(ULP_GPIO_6) pins with the follower device.
 3. When the application runs, it receives and send data.
 4. After the transfer is completed, it validates the data and prints "Test Case Passed" on the console.
 5. Will get "Test Case Passed" print on console.
 6. Connect Analyzer channels to respective I2C instance SDA & SCA pins to observe the data on lines.
 7. After successful program execution the prints in serial console looks as shown below.
 
-   ![Figure: Introduction](resources/readme/output.png)
+   ![Figure: Output](resources/readme/output.png)

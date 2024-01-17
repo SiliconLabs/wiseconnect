@@ -56,7 +56,8 @@
 #define RSI_BLE_SMP_PASSKEY       0
 #define MITM_REQ                  0x01
 
-#define MAX_MTU_SIZE 240
+#define MAX_MTU_SIZE      240
+#define MAX_SEND_DATA_LEN 232
 
 //! application event list
 #define RSI_BLE_ADV_REPORT_EVENT          0x01
@@ -138,11 +139,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
-                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
-#if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
-#endif
-                                          ),
+                   .bt_feature_bit_map         = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL),
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
                    .ble_feature_bit_map =
@@ -634,7 +631,7 @@ static uint32_t rsi_ble_add_simple_chat_serv(void)
 {
   uuid_t new_uuid                       = { 0 };
   rsi_ble_resp_add_serv_t new_serv_resp = { 0 };
-  uint8_t data[20]                      = { "silabs_sampletest" };
+  uint8_t data[RSI_BLE_MAX_DATA_LEN]    = { "silabs_sampletest" };
 
   //! adding new service
   new_uuid.size      = 16;
@@ -684,7 +681,7 @@ static uint32_t rsi_ble_add_simple_chat_serv(void)
                            new_uuid,
                            RSI_BLE_ATT_PROPERTY_READ | RSI_BLE_ATT_PROPERTY_NOTIFY,
                            data,
-                           RSI_BLE_MAX_DATA_LEN,
+                           sizeof(data),
                            0);
   return 0;
 }
@@ -842,9 +839,9 @@ void ble_throughput_test_app(void *argument)
   UNUSED_PARAMETER(argument);
   int32_t status = 0;
   int32_t event_id;
-  uint8_t adv[31]                        = { 2, 1, 6 };
-  sl_wifi_firmware_version_t version     = { 0 };
-  uint8_t send_buf[RSI_BLE_MAX_DATA_LEN] = {
+  uint8_t adv[31]                     = { 2, 1, 6 };
+  sl_wifi_firmware_version_t version  = { 0 };
+  uint8_t send_buf[MAX_SEND_DATA_LEN] = {
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
     29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
     58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86,

@@ -52,7 +52,7 @@
   - After intialization, the desired counter parameters are configured using \ref sl_si91x_ct_set_configuration() API, the parameters are set through UC.
   - Match count for both the counters are configured using same @ref sl_si91x_ct_set_match_count() API.
   - Initial duty cycle is set for PWM channels \ref RSI_MCPWM_SetDutyCycle() API.
-  - The desired OCU parameters are configured using \ref sl_si91x_ct_set_ocu_configuration() API, the parameters are set using UC. For getting these configurations through UC enable OCU-configuration button on UC.
+  - The desired OCU parameters are configured using \ref sl_si91x_ct_set_ocu_configuration() API.
   - The desired OCU controls for both counters, are configured using API \ref sl_si91x_config_timer_set_ocu_control(), by changing the counter number.
   - Registers callback for enabling peak interrupt, for counter-1 using \ref sl_si91x_ct_register_callback() API.
   - Starts both the counters using API \ref sl_si91x_ct_start_on_software_trigger(), by changing the counter number.
@@ -70,9 +70,8 @@
   - Starts counter-0 using \ref sl_si91x_ct_start_on_software_trigger() API.
   - **Callback Function**
   - ULP_GPIO_1 pin gets toggled on every interrupt occurring at every millisecond and increments interrupt count.
-  - When interrupt count is greater than ten, then unregisters timer callback and disables interrupt through \ref sl_si91x_ct_unregister_timeout_callback() API.
-  - At last timer is deinitialized through \ref sl_si91x_config_timer_deinit() API.
-
+  - When interrupt count is greater than ten, then timer is deinitialized, callback is unregistered and disables interrupt through \ref sl_si91x_config_timer_deinit() API.
+  
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
@@ -109,7 +108,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     #define CT_COUNTER_MODE_USECASE       1      -  To run normal counter code
   ```
 
-- Also enable CT-configuration & OCU-configuration buttons on UC for using PWM mode usecase.
+- Also enable CT-configuration for using PWM mode usecase.
 - Configure the following macros in config_timer_example.c file to change match value for counter-mode usecase, update/modify following macros if required.
 
   ```C
@@ -118,7 +117,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Use following CT configurations to run application in Normal counter mode usecase (using Counter-0 or Counter-1).
 
-  > ![Figure: Pin configuration](resources/uc_screen/uc_screen_1.png)
+  > ![Figure: Pin configuration](resources/uc_screen/uc_screen.png)
 
   - Change following macros in config_timer_example.c file to change counter-number used for counter-mode usecase, by default application is using counter-0 to use counter-1 change it to 'SL_COUNTER_1'.
 
@@ -126,9 +125,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     #define CT_COUNTER_USED            SL_COUNTER_0  -  For using counter-0
   ```
 
-- Use following OCU Configuraions, along with default CT configurations to run the application in PWM mode usecase.
+- Use following CT Configuraions, to run the application in PWM mode usecase.
 
-  > ![Figure: Pin configuration](resources/uc_screen/uc_screen_2.png)
+  > ![Figure: Pin configuration](resources/uc_screen/uc_screen.png)
 
 ### Pin Configuration for pwm-mode usecase
 
@@ -146,49 +145,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - \ref SL_COUNTER1_DIRECTION_MACRO , for possible values refer \ref sl_counter1_direction_t
 - \ref SL_COUNTER0_PERIODIC_ENABLE_MACRO, true to enable Counter0 Periodic mode & false to skip Counter0 Periodic mode.
 - \ref SL_COUNTER1_PERIODIC_ENABLE_MACRO, true to enable Counter1 Periodic mode & false to skip Counter1 Periodic mode.
-- \ref SL_COUNTER0_SOFT_RESET_ENABLE_MACRO, true to enable Counter0 soft reset & false to skip Counter0 soft reset.
-- \ref SL_COUNTER1_SOFT_RESET_ENABLE_MACRO, true to Counter1 soft reset & false to skip Counter1 soft reset.
-- \ref SL_COUNTER0_TRIGGER_ENABLE_MACRO, true to enable Counter0 software trigger & false to skip Counter0 software trigger.
-- \ref SL_COUNTER1_TRIGGER_ENABLE_MACRO, true to enable Counter1 software trigger & false to skip Counter1 software trigger.
 - \ref SL_COUNTER0_SYNC_TRIGGER_ENABLE_MACRO, true to enable Counter0 sync trigger & false to skip Counter0 sync trigger.
 - \ref SL_COUNTER1_SYNC_TRIGGER_ENABLE_MACRO, true to enable Counter1 sync trigger & false to skip Counter1 sync trigger.
-- \ref SL_COUNTER0_BUFFER_ENABLE_MACRO, true to enable Counter0 buffer & false to skip Counter0 buffer.
-- \ref SL_COUNTER1_BUFFER_ENABLE_MACRO, true to enable Counter1 buffer & false to skip Counter1 buffer.
-
-### Macros for CT Interrupt Flags
-
-- \ref SL_CT_EVENT_INTR_0_FLAG_MACRO, true to enable interrupt on event occurrence & false to skip interrupt on event occurrence.
-- \ref SL_CT_FIFO_0_FULL_FLAG_MACRO, true to enable interrupt on FIFO FULL & false to skip interrupt on FIFO FULL.
-- \ref SL_CT_COUNTER_0_IS_ZERO_FLAG_MACRO, true to enable interrupt on zero value & false to skip interrupt on zero value.
-- \ref SL_CT_COUNTER_0_IS_PEAK_FLAG_MACRO, true to enable interrupt on match value & false to skip interrupt on match value.
-- \ref SL_CT_EVENT_INTR_1_FLAG_MACRO, true to enable interrupt on event occurrence & false to skip interrupt on event occurrence.
-- \ref SL_CT_FIFO_1_FULL_FLAG_MACRO, true to enable interrupt on FIFO FULL & false to skip interrupt on FIFO FULL.
-- \ref SL_CT_COUNTER_1_IS_ZERO_FLAG_MACRO, true to enable interrupt on zero value & false to skip interrupt on zero value.
-- \ref SL_CT_COUNTER_1_IS_PEAK_FLAG_MACRO, true to enable interrupt on match value & false to skip interrupt on match value.
-
-### Macros for OCU Configuration
-
-- \ref SL_COUNTER0_OCU_OUTPUT_ENABLE_MACRO, true to enable Counter0 OCU Output & false to skip Counter0 OCU Output.
-- \ref SL_COUNTER0_OCU_DMA_ENABLE_MACRO, true to enable Counter0 OCU DMA & false to skip Counter0 OCU DMA.
-- \ref SL_COUNTER0_OCU_8BIT_MODE_ENABLE_MACRO, true to enable Counter0 OCU 8-bit mode & false to skip Counter0 OCU 8-bit mode.
-- \ref SL_COUNTER0_OCU_SYNC_ENABLE_MACRO, true to enable Counter0 OCU sync & false to skip Counter0 OCU sync.
-- \ref SL_COUNTER1_OCU_OUTPUT_ENABLE_MACRO, true to enable Counter1 OCU Output & false to skip Counter1 OCU Output.
-- \ref SL_COUNTER1_OCU_DMA_ENABLE_MACRO, true to enable Counter1 OCU DMA & false to skip Counter1 OCU DMA.
-- \ref SL_COUNTER1_OCU_8BIT_ENABLE_MACRO, true to enable Counter1 OCU 8-bit mode & false to skip Counter1 OCU 8-bit mode.
-- \ref SL_COUNTER1_OCU_SYNC_ENABLE_MACRO, true to enable Counter1 OCU sync & false to skip Counter1 OCU sync.
-- \ref SL_OCU_OUTPUT0_TOGGLE_HIGH_MACRO, true to enable OCU output0 Toggle HIGH & false to skip OCU output1 Toggle HIGH.
-- \ref SL_OCU_OUTPUT0_TOGGLE_LOW_MACRO, true to enable OCU output0 Toggle LOW & false to skip OCU output0 Toggle LOW.
-- \ref SL_OCU_OUTPUT1_TOGGLE_HIGH_MACRO, true to enable OCU output1 Toggle HIGH & false to skip OCU output1 Toggle LOW.
-- \ref SL_OCU_OUTPUT1_TOGGLE_LOW_MACRO, true to enable OCU output1 interrupt on match value & false to skip OCU output1 interrupt on match value.
-
-### Macros for WFG Configuration
-
-- \ref SL_OUTPUT0_TOGGLE0_MACRO, true to enable output-0 toggle-LOW & false to skip output-0 toggle-LOW.
-- \ref SL_OUTPUT0_TOGGLE1_MACRO, true to enable output-0 toggle-HIGH & false to skip output-0 toggle-HIGH.
-- \ref SL_TOGGLE_COUNTER0_PEAK_MACRO, true to enable Toggle counter-0 peak & false to skip Toggle counter-0 peak.
-- \ref SL_OUTPUT1_TOGGLE0_MACRO, true to enable output-1 toggle-LOW & false to skip output-1 toggle-LOW.
-- \ref SL_OUTPUT1_TOGGLE1_MACRO, true to enable output-1 toggle-HIGH & false to skip output-1 toggle-HIGH.
-- \ref SL_TOGGLE_COUNTER1_PEAK_MACRO, true to enable Toggle counter-1 peak & false to skip Toggle counter-1 peak.
 
 ## Test the Application
 

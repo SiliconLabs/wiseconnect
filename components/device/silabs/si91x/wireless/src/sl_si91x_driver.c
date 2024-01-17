@@ -156,6 +156,7 @@ static uint16_t packet_id[SI91X_CMD_MAX]          = { 0 };
 static uint8_t ap_join_feature_bitmap             = SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
 static uint8_t client_join_feature_bitmap         = SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID;
 static uint32_t client_listen_interval            = 1000;
+static sl_si91x_efuse_data_t si91x_efuse_data     = { 0 };
 //! Currently, initialized_opermode is used only to handle concurrent mode using sl_net_init()
 static uint16_t initialized_opermode = SL_SI91X_INVALID_MODE;
 
@@ -296,6 +297,16 @@ const sl_si91x_set_region_ap_request_t default_SG_region_5GHZ_configurations = {
                                                         [SI91X_SOCKET_CMD]  = NCP_HOST_SOCKET_RESPONSE_EVENT,
                                                         [SI91X_BT_CMD]      = NCP_HOST_BT_RESPONSE_EVENT };
 // clang-format on
+
+void sl_si91x_get_efuse_data(sl_si91x_efuse_data_t *efuse_data)
+{
+  memcpy(efuse_data, &si91x_efuse_data, sizeof(sl_si91x_efuse_data_t));
+}
+
+void sl_si91x_set_efuse_data(sl_si91x_efuse_data_t *efuse_data)
+{
+  memcpy(&si91x_efuse_data, efuse_data, sizeof(sl_si91x_efuse_data_t));
+}
 
 sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t *config)
 {
@@ -588,6 +599,9 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   }
   // Save the coexistence mode in the driver
   save_coex_mode(config->boot_config.coex_mode);
+#ifdef SL_SI91X_GET_EFUSE_DATA
+  status = sl_si91x_get_flash_efuse_data(&si91x_efuse_data);
+#endif
   return status;
 }
 
@@ -648,6 +662,38 @@ sl_status_t sl_si91x_driver_deinit(void)
   memset(interface_is_up, 0, sizeof(interface_is_up));
 
   return status;
+}
+
+sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data)
+{
+  sl_status_t status;
+  sl_wifi_buffer_t *buffer = NULL;
+
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(efuse_data);
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_GET_EFUSE_DATA,
+                                        SI91X_COMMON_CMD_QUEUE,
+                                        NULL,
+                                        0,
+                                        SL_SI91X_WAIT_FOR_RESPONSE(15000),
+                                        NULL,
+                                        &buffer);
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  if (packet->length > 0) {
+    sl_si91x_efuse_data_t *response = (sl_si91x_efuse_data_t *)packet->data;
+    efuse_data->mfg_sw_version      = response->mfg_sw_version;
+  }
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_si91x_driver_raw_send_command(uint8_t command,

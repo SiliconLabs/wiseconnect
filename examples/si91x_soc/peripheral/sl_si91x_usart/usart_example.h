@@ -31,10 +31,10 @@
  ******************************************************************************/
 //Enum for different transmission scenarios
 typedef enum {
-  SL_SEND_DATA,
-  SL_RECEIVE_DATA,
-  SL_TRANSFER_DATA,
-  SL_TRANSMISSION_COMPLETED,
+  SL_USART_SEND_DATA,
+  SL_USART_RECEIVE_DATA,
+  SL_USART_TRANSFER_DATA,
+  SL_USART_TRANSMISSION_COMPLETED,
 } usart_mode_enum_t;
 
 // -----------------------------------------------------------------------------

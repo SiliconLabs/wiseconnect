@@ -21,6 +21,7 @@ provides:
 define:
   - name: __STATIC_INLINE
     value: "static inline"
+  - name: SL_SI91X_DMA
 template_contribution:
   - name: udma_enable
     value: true

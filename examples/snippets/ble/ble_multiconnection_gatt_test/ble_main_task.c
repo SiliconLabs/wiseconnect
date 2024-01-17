@@ -2105,7 +2105,7 @@ void rsi_ble_main_app_task()
           status = rsi_initiate_power_awake();
           if (status != RSI_SUCCESS) {
             LOG_PRINT("\r\n Failed to keep Module in ACTIVE mode \r\n");
-            return status;
+            return;
           }
         }
 #endif

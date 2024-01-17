@@ -15,9 +15,15 @@ include:
   - path: "inc"
     file_list:
     - path: "sl_si91x_gspi.h"
+define:
+  - name: GSPI_MULTI_SLAVE
+  - name: GSPI_CONFIG
+  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
+  - name: SL_SI91X_GSPI_DMA
 provides:
   - name: sl_gspi
 requires:
   - name: udma_linker_config
   - name: rsilib_gspi
   - name: cmsis_gspi
+  - name: sl_dma

@@ -8,18 +8,9 @@ quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 define:
    - name: IOSTREAM_USART
-     value: 1
-config_file:
-  - path: config/sl_si91x_usart_common_config.h
-  - path: config/sl_si91x_usart_config.h
-
-source:
-  - path: "src/sl_si91x_usart.c"
-include:
-  - path: "inc"
-    file_list:
-    - path: "sl_si91x_usart.h"  
+     value: 1 
 provides:
   - name: sl_usart_iostream
 requires:
   - name: udma_linker_config
+  - name: sl_usart

@@ -25,7 +25,6 @@ extern "C" {
 
 /*==============================================*/
 /**
-/**
  * @fn          RSI_DRIVER_VERSION_M4 RSI_GPDMA_GetVersion(void)
  * @brief		    This API is used to get version information of the driver implementation
  * @return 		  structure of type RSI_DRIVER_VERSION_M4 and its members are as below

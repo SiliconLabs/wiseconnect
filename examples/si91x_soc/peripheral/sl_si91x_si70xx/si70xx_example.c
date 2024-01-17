@@ -18,6 +18,7 @@
 #include "sl_si91x_si70xx.h"
 #include "si70xx_example.h"
 #include "sl_sleeptimer.h"
+#include "sl_si91x_driver_gpio.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -26,6 +27,7 @@
 #define I2C                SL_I2C2 // I2C 2 instance
 #define USER_REG_1         0xBA    // writing data into user register
 #define DELAY_PERIODIC_MS1 2000    //sleeptimer1 periodic timeout in ms
+#define UULP_GPIO_1_PIN    1       // UULP GPIO pin number 1(sensor enable)
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -61,6 +63,36 @@ void si70xx_example_init(void)
   i2c_config.operating_mode = SL_I2C_STANDARD_MODE;
   i2c_config.i2c_callback   = i2c_leader_callback;
   do {
+    if (sl_si91x_gpio_driver_get_uulp_npss_pin(UULP_GPIO_1_PIN) != 1) {
+      // Enable GPIO ULP_CLK
+      status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO); // Enable GPIO ULP_CLK
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_gpio_driver_enable_clock, Error code: %lu", status);
+        break;
+      }
+      DEBUGOUT("GPIO driver clock enable is successful \n");
+      // Set NPSS GPIO pin MUX
+      status = sl_si91x_gpio_driver_set_uulp_npss_pin_mux(UULP_GPIO_1_PIN, NPSS_GPIO_PIN_MUX_MODE0);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_pin_mux, Error code: %lu", status);
+        break;
+      }
+      DEBUGOUT("GPIO driver uulp pin mux selection is successful \n");
+      // Set NPSS GPIO pin direction
+      status = sl_si91x_gpio_driver_set_uulp_npss_direction(UULP_GPIO_1_PIN, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_direction, Error code: %lu", status);
+        break;
+      }
+      DEBUGOUT("GPIO driver uulp pin direction selection is successful \n");
+      // Set UULP GPIO pin
+      status = sl_si91x_gpio_driver_set_uulp_npss_pin_value(UULP_GPIO_1_PIN, SET);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_pin_value, Error code: %lu", status);
+        break;
+      }
+      DEBUGOUT("GPIO driver set uulp pin value is successful \n");
+    }
     //Start 2000 ms periodic timer
     sl_sleeptimer_start_periodic_timer_ms(&timer1,
                                           DELAY_PERIODIC_MS1,

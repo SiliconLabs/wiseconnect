@@ -71,6 +71,10 @@
 
 #define BLE_MTU_SIZE 232
 
+//! Tx Datalength parameters
+#define TX_LEN  0xFB
+#define TX_TIME 0x0148
+
 /*=======================================================================*/
 //! Advertising command parameters
 /*=======================================================================*/

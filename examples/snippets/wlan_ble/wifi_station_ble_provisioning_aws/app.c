@@ -37,14 +37,14 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
-
+#include "sl_si91x_driver.h"
 //BLE Specific inclusions
 #include <rsi_ble_apis.h>
 #include "ble_config.h"
 #include "rsi_ble_common_config.h"
 #include <rsi_common_apis.h>
 
-#ifdef v
+#if (defined(SLI_SI91X_MCU_INTERFACE) && I2C_SENSOR_PERI_ENABLE)
 #include "i2c_leader_example.h"
 #endif
 
@@ -92,11 +92,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
-                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
-#if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
-#endif
-                                          ),
+                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL),
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1)
 #ifdef RSI_PROCESS_MAX_RX_DATA
@@ -173,17 +169,17 @@ void rsi_wlan_ble_app_init(void *argument)
     LOG_PRINT("\r\nWi-Fi Initialization Failed, Error Code : 0x%lX\r\n", status);
     return;
   }
-  LOG_PRINT("\r\n Wi-Fi Initialization Success\n");
+  LOG_PRINT("\r\n Wi-Fi Initialization Success\r\n");
 
   wlan_thread_sem = osSemaphoreNew(1, 0, NULL);
   if (wlan_thread_sem == NULL) {
-    LOG_PRINT("Failed to create wlan_thread_sem\n");
+    LOG_PRINT("Failed to create wlan_thread_sem\r\n");
     return;
   }
 
   ble_thread_sem = osSemaphoreNew(1, 0, NULL);
   if (ble_thread_sem == NULL) {
-    LOG_PRINT("Failed to create ble_thread_sem\n");
+    LOG_PRINT("Failed to create ble_thread_sem\r\n");
     return;
   }
 
@@ -198,7 +194,7 @@ void rsi_wlan_ble_app_init(void *argument)
 #endif
 
   if (osThreadNew((osThreadFunc_t)rsi_ble_configurator_task, NULL, &ble_thread_attributes) == NULL) {
-    LOG_PRINT("Failed to create BLE thread\n");
+    LOG_PRINT("Failed to create BLE thread\r\n");
   }
 
   status = rsi_wlan_mqtt_certs_init();

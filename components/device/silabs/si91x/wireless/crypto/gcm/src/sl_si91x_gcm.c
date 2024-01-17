@@ -34,6 +34,9 @@
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_driver.h"
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+#include "sl_si91x_crypto_thread.h"
+#endif
 #include <string.h>
 
 static sl_status_t gcm_pending(sl_si91x_gcm_config_t *config, uint16_t chunk_length, uint8_t gcm_flags, uint8_t *output)
@@ -129,7 +132,7 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
 
   if ((config->msg == NULL) || (output == NULL) ||
 #ifdef SLI_SI917B0
-      (config->key_config.b0.key_buffer == NULL) || (config->gcm_mode == SL_SI91X_GCM_MODE && config->nonce == NULL)
+      (config->gcm_mode == SL_SI91X_GCM_MODE && config->nonce == NULL)
 #else
       (config->key_config.a0.key == NULL) || (config->nonce == NULL)
 #endif
@@ -138,6 +141,13 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
   }
 
   uint16_t total_length = config->msg_length;
+
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_gcm_mutex == NULL) {
+    crypto_gcm_mutex = sl_si91x_crypto_threadsafety_init(crypto_gcm_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_gcm_mutex);
+#endif
 
   while (total_length) {
     // Check total length
@@ -162,6 +172,9 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
     // Send the current chunk length message
     status = gcm_pending(config, chunk_len, gcm_flags, output);
     if (status != SL_STATUS_OK) {
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+      mutex_result = sl_si91x_crypto_mutex_release(crypto_gcm_mutex);
+#endif
       return status;
     }
 
@@ -173,5 +186,8 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
     total_length -= chunk_len;
   }
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_gcm_mutex);
+#endif
   return status;
 }

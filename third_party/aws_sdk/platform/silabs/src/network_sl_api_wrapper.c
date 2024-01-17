@@ -202,7 +202,7 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
 
 IoT_Error_t iot_tls_write(Network *pNetwork, unsigned char *pMsg, size_t len, Timer *timer, size_t *written_len)
 {
-  ssize_t bytes_written = 0;
+  size_t bytes_written = 0;
   size_t temp_len      = len;
 
   if (len <= 0) {

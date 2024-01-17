@@ -271,8 +271,12 @@ extern "C" {
 
 /*Retention sleep configurations*/
 #ifdef SLI_SI917B0
-//!BIT(0) refers to flash based sleep wakeup mode ,BIT(4) refers to program flash upon wakeup
-#define RSI_WAKEUP_FROM_FLASH_MODE 0x11
+
+//!PSRAM only initialized upon wakeup and it branches to PSRAM
+#define SL_SI91X_MCU_WAKEUP_PSRAM_MODE 1
+
+//!PSRAM and FLASH both will be initialized upon wake up,BIT4 refers to program flash upon wakeup
+#define RSI_WAKEUP_FROM_FLASH_MODE (0x1 | (BIT(4)))
 #else
 #define RSI_WAKEUP_FROM_FLASH_MODE 1
 #endif
@@ -280,6 +284,11 @@ extern "C" {
 #define RSI_WAKEUP_WITH_RETENTION              3
 #define RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM 4
 #define RSI_WAKEUP_WO_RETENTION_WO_ULPSS_RAM   5
+
+//!Retention ram content ulp memory start ,end addresses for power save retention sleep cases
+#define RETEN_RAM_CONTENT_START_LOCATION            (*(volatile uint32_t *)(0x24061F00))
+#define RETEN_RAM_CONTENT_END_LOCATION              (*(volatile uint32_t *)(0x24061FCC))
+#define RETEN_RAM_CONTENT_WAKEUP_FLASH_BIT_LOCATION (*(volatile uint32_t *)(0x24061FC8))
 
 #define ICACHE2_ADDR_TRANSLATE_1_REG  *(volatile uint32_t *)(0x20280000 + 0x24) // ICACHE address register
 #define MISC_CFG_SRAM_REDUNDANCY_CTRL *(volatile uint32_t *)(0x46008000 + 0x18) // Misc config register

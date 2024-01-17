@@ -34,6 +34,9 @@
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_driver.h"
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+#include "sl_si91x_crypto_thread.h"
+#endif
 #include <string.h>
 
 static sl_status_t chachapoly_pending(sl_si91x_chachapoly_config_t *config,
@@ -59,11 +62,7 @@ static sl_status_t chachapoly_pending(sl_si91x_chachapoly_config_t *config,
   if (config->chachapoly_mode > 3)
     return SL_STATUS_INVALID_PARAMETER;
 
-#ifdef SLI_SI917B0
-  if (config->key_config.b0.key_buffer == NULL) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-#else
+#ifndef SLI_SI917B0
   if (config->chachapoly_mode == SL_SI91X_CHACHAPOLY_POLY1305_KEYR_KEYS_MODE
       || config->chachapoly_mode == SL_SI91X_POLY1305_MODE) {
     if ((config->key_config.a0.keyr_in == NULL) || (config->key_config.a0.keys_in == NULL)) {
@@ -154,6 +153,13 @@ sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *o
 
   uint16_t total_length = config->msg_length;
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_chachapoly_mutex == NULL) {
+    crypto_chachapoly_mutex = sl_si91x_crypto_threadsafety_init(crypto_chachapoly_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_chachapoly_mutex);
+#endif
+
   while (total_length) {
     // Check total length
     if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY) {
@@ -177,6 +183,9 @@ sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *o
     // Send the current chunk length message
     status = chachapoly_pending(config, chunk_len, chachapoly_flags, output);
     if (status != SL_STATUS_OK) {
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+      mutex_result = sl_si91x_crypto_mutex_release(crypto_chachapoly_mutex);
+#endif
       return status;
     }
 
@@ -187,6 +196,10 @@ sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *o
     // Decrement the total message length
     total_length -= chunk_len;
   }
+
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_chachapoly_mutex);
+#endif
 
   return status;
 }

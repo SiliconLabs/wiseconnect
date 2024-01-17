@@ -34,6 +34,9 @@
 #include "sl_constants.h"
 #include "sl_si91x_driver.h"
 #include "sl_utility.h"
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+#include "sl_si91x_crypto_thread.h"
+#endif
 #include <string.h>
 
 static sl_status_t get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_mode, uint8_t *size)
@@ -105,6 +108,13 @@ static sl_status_t ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(request->ty, ty, size);
   memcpy(request->tz, tz, size);
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_ecdh_mutex == NULL) {
+    crypto_ecdh_mutex = sl_si91x_crypto_threadsafety_init(crypto_ecdh_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ecdh_mutex);
+#endif
+
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         request,
@@ -116,6 +126,9 @@ static sl_status_t ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
     free(request);
     if (buffer != NULL)
       sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+    mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
+#endif
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -128,6 +141,9 @@ static sl_status_t ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(request);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
+#endif
   return status;
 }
 
@@ -213,6 +229,13 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
     reverse_digits(request->d, size);
   }
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_ecdh_mutex == NULL) {
+    crypto_ecdh_mutex = sl_si91x_crypto_threadsafety_init(crypto_ecdh_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ecdh_mutex);
+#endif
+
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         request,
@@ -224,6 +247,9 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
     free(request);
     if (buffer != NULL)
       sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+    mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
+#endif
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -243,6 +269,9 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
 
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(request);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
+#endif
   return status;
 }
 
@@ -287,6 +316,13 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(request->sy, sy, size);
   memcpy(request->sz, sz, size);
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_ecdh_mutex == NULL) {
+    crypto_ecdh_mutex = sl_si91x_crypto_threadsafety_init(crypto_ecdh_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ecdh_mutex);
+#endif
+
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         request,
@@ -298,6 +334,9 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
     free(request);
     if (buffer != NULL)
       sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+    mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
+#endif
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -310,6 +349,9 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(request);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
+#endif
   return status;
 }
 
@@ -355,6 +397,13 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(request->sy, sy, size);
   memcpy(request->sz, sz, size);
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_ecdh_mutex == NULL) {
+    crypto_ecdh_mutex = sl_si91x_crypto_threadsafety_init(crypto_ecdh_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ecdh_mutex);
+#endif
+
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         request,
@@ -366,6 +415,9 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
     free(request);
     if (buffer != NULL)
       sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+    mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
+#endif
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -379,5 +431,8 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
 
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(request);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
+#endif
   return status;
 }

@@ -116,7 +116,7 @@
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
 
-sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000, { 0 } };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 #endif
 
 #define MITM_REQ 0x01
@@ -166,6 +166,9 @@ sl_wifi_performance_profile_t wifi_profile = { ASSOCIATED_POWER_SAVE, 0, 0, 1000
 #define ADVERTISE               3
 #define SCAN                    4
 
+#define MIN_CONN_INTERVAL 36
+#define MAX_CONN_INTERVAL 36
+#define SLAVE_LATENCY     0
 //! global parameters list
 static volatile uint32_t ble_app_event_map;
 static volatile uint32_t ble_app_event_map1;
@@ -216,7 +219,7 @@ typedef struct rsi_ble_hid_info_s {
 } rsi_ble_hid_info_t;
 
 static rsi_ble_hid_info_t hid_info_g;
-
+void rsi_ble_hid_srv_gatt_wr_cb(void);
 #if (GATT_ROLE == SERVER)
 static const uint8_t hid_report_map[] = {
   0x05,
@@ -316,11 +319,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | (SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE)),
-                   .bt_feature_bit_map = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL
-#if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
-#endif
-                                          ),
+                   .bt_feature_bit_map         = (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL),
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    //!ENABLE_BLE_PROTOCOL in bt_feature_bit_map
                    .ble_feature_bit_map =
@@ -552,6 +551,9 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
   UNUSED_PARAMETER(event_id); //This statement is added only to resolve compilation warning, value is unchanged
   LOG_PRINT("gatt wr \n");
   memcpy(&app_ble_write_event, rsi_ble_write, sizeof(rsi_ble_event_write_t));
+#if (GATT_ROLE == SERVER)
+  rsi_ble_hid_srv_gatt_wr_cb();
+#endif
   rsi_ble_app_set_event(RSI_BLE_EVENT_GATT_WR);
 }
 
@@ -1262,7 +1264,7 @@ static uint32_t rsi_ble_add_hid_serv(rsi_ble_hid_info_t *p_hid_info)
  * @section description
  * handles server side write events and set respective flags.
  */
-static void rsi_ble_hid_srv_gatt_wr_cb(void)
+void rsi_ble_hid_srv_gatt_wr_cb(void)
 {
   LOG_PRINT("wr handle\n");
   LOG_PRINT("report handle is:%d\n", rsi_ble_hid_in_report_val_hndl);
@@ -1279,8 +1281,6 @@ static void rsi_ble_hid_srv_gatt_wr_cb(void)
       rsi_ble_app_clear_event(RSI_BLE_GATT_SEND_DATA);
     }
     LOG_PRINT("Input report notify val: %lu\n", app_state & BIT(REPORT_IN_NOTIFY_ENABLE));
-
-    rsi_ble_conn_params_update(temp_le_ltk_req.dev_addr, 36, 36, 0, 300);
   }
 }
 #endif
@@ -1494,7 +1494,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
     if (event_id == -1) {
 #if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
       //! if events are not received loop will be continued.
-      if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
+      if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (ble_app_event_map == 0) && (ble_app_event_map1 == 0)) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;
         sl_si91x_m4_sleep_wakeup();
       }
@@ -1613,10 +1613,6 @@ scan:
 #endif
         //! clear the served event
         rsi_ble_app_clear_event(RSI_BLE_EVENT_GATT_WR);
-
-#if (GATT_ROLE == SERVER)
-        rsi_ble_hid_srv_gatt_wr_cb();
-#endif
       } break;
 
       case RSI_BLE_EVENT_GATT_RD: {
@@ -1892,6 +1888,15 @@ scan:
 
       case RSI_BLE_GATT_SEND_DATA:
         //! clear the served event
+        status = rsi_ble_conn_params_update(conn_event_to_app.dev_addr,
+                                            MIN_CONN_INTERVAL,
+                                            MAX_CONN_INTERVAL,
+                                            SLAVE_LATENCY,
+                                            SUPERVISION_TIMEOUT);
+        if (status != SL_STATUS_OK) {
+          LOG_PRINT("\r\nrsi_ble_conn_params_update Failed, Error Code : 0x%lX\r\n", status);
+          return;
+        }
         if (app_state & BIT(CONNECTED)) {
           if (app_state & BIT(REPORT_IN_NOTIFY_ENABLE)) {
             hid_data[2] = 0xb; // key 'h' pressed

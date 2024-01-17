@@ -68,15 +68,15 @@ extern "C" {
  *                ULP instance has total 12 pins.
  * @param[in]  direction  -  pin direction of type \ref sl_si91x_gpio_direction_t
  *                 '0' - Output
-*-
+ * -
  *                 '1' - Input
-*
+ * 
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_pin_direction(uint8_t port, uint8_t pin, sl_si91x_gpio_direction_t direction);
 
@@ -91,11 +91,11 @@ sl_status_t sl_si91x_gpio_driver_set_pin_direction(uint8_t port, uint8_t pin, sl
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use corresponding pad receiver API for corresponding GPIO instance. 
-*-
+ * -
  *        \ref sl_si91x_gpio_driver_set_pin_direction() 
-*-
+ * -
  *        \ref sl_si91x_gpio_driver_get_pin_direction() 
-*
+ * 
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
  *                  ULP instance - PORT 4
@@ -105,9 +105,9 @@ sl_status_t sl_si91x_gpio_driver_set_pin_direction(uint8_t port, uint8_t pin, sl
  *                ULP instance has total 12 pins.
  * @return      Returns the direction of the pin.
  *                  '0' - Output
-*-
+ * -
  *                  '1' - Input
-*
+ *
  ******************************************************************************/
 uint8_t sl_si91x_gpio_driver_get_pin_direction(uint8_t port, uint8_t pin);
 
@@ -115,16 +115,16 @@ uint8_t sl_si91x_gpio_driver_get_pin_direction(uint8_t port, uint8_t pin);
  * @brief      Enable the receiver bit in the PAD configuration register.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*-
+ * -
  *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
-*
- * @param[in]  gpio_num - GPIO number to be use.
+ *
+ * @param[in]  gpio_num - GPIO pin number to be use.
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_pad_receiver(uint8_t gpio_num);
 
@@ -132,16 +132,16 @@ sl_status_t sl_si91x_gpio_driver_enable_pad_receiver(uint8_t gpio_num);
  * @brief      Disable the receiver bit in the PAD configuration register.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*-
+ * -
  *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
-*
- * @param[in]  gpio_num - GPIO number to be use.
+ *
+ * @param[in]  gpio_num - GPIO pin number to be use.
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_disable_pad_receiver(uint8_t gpio_num);
 
@@ -149,14 +149,14 @@ sl_status_t sl_si91x_gpio_driver_disable_pad_receiver(uint8_t gpio_num);
  * @brief   Select the pad(0 to 21).
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @param[in]   gpio_padnum - PAD number to be use
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_pad_selection(uint8_t gpio_padnum);
 
@@ -168,24 +168,24 @@ sl_status_t sl_si91x_gpio_driver_enable_pad_selection(uint8_t gpio_padnum);
  * -   \ref sl_si91x_gpio_driver_enable_clock
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver()
- * @param[in]    gpio_num - GPIO number to be use
+ * @param[in]    gpio_num - GPIO pin number to be use
  * @param[in]    strength    - Drive strength selector(E1,E2) of type
  *                  \ref sl_si91x_gpio_driver_strength_select_t
  *                    possible values are
  *                      0, for two_milli_amps   (E1=0,E2=0)
-*-
+ * -
  *                      1, for four_milli_amps  (E1=0,E2=1)
-*-
+ * -
  *                      2, for eight_milli_amps (E1=1,E2=0)
-*-
+ * -
  *                      3, for twelve_milli_amps(E1=1,E2=1)
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
                                                             sl_si91x_gpio_driver_strength_select_t strength);
@@ -198,24 +198,24 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
  * -   \ref sl_si91x_gpio_driver_enable_clock
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver()
- * @param[in]    gpio_num     -  GPIO number to be use
+ * @param[in]    gpio_num     -  GPIO pin number to be use
  * @param[in]    disable_state    -  driver disable state of type
  *                  \ref sl_si91x_gpio_driver_disable_state_t
  *                 possible values are
  *                    0, for HiZ       (P1=0,P2=0)
-*-
+ * -
  *                    1, for Pull-up   (P1=0,P2=1)
-*-
+ * -
  *                    2, for Pull-down (P1=1,P2=0)
-*-
+ * -
  *                    3, for Repeater  (P1=1,P2=1)
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_pad_driver_disable_state(uint8_t gpio_num,
                                                                  sl_si91x_gpio_driver_disable_state_t disable_state);
@@ -228,29 +228,29 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_disable_state(uint8_t gpio_nu
  *      Choose AND, all the selected pins are necessary for group interrupt generation
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock, for HP instance 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance 
-*
+ *
  *  Use corresponding pad receiver API for corresponding GPIO instance.
  * @pre Pre-conditions:
  * -   \ref sl_gpio_driver_set_pin_mode() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_configure_ulp_group_interrupt(), for HP instance 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_configure_ulp_group_interrupt, for ULP instance 
-*
+ *
  *  Use corresponding group interrupt configuration API for corresponding GPIO instance.
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
@@ -260,16 +260,16 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_disable_state(uint8_t gpio_nu
  * @param[in]  and_or  - AND/OR of GPIO group interrupts of type
  *                    \ref sl_si91x_gpio_and_or_t
  *                          '0'  - AND
-*-
+ * -
  *                          '1'  - OR
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
-*******************************************************************************/
+ *
+ *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_group_interrupt_and_or(uint8_t port,
                                                                sl_si91x_group_interrupt_t group_interrupt,
                                                                sl_si91x_gpio_and_or_t and_or);
@@ -293,9 +293,9 @@ sl_status_t sl_si91x_gpio_driver_select_group_interrupt_and_or(uint8_t port,
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_group_interrupt(sl_si91x_group_interrupt_t group_interrupt);
 
@@ -326,9 +326,9 @@ sl_status_t sl_si91x_gpio_driver_clear_group_interrupt(sl_si91x_group_interrupt_
  *                        \ref sl_si91x_group_interrupt_t
  * @return       returns the group interrupt status register
  *                        1, when interrupt is enabled
-*-
+ * -
  *                        0, when interrupt is disabled
-*
+ *
  ******************************************************************************/
 uint32_t sl_si91x_gpio_driver_get_group_interrupt_status(uint8_t port, sl_si91x_group_interrupt_t group_interrupt);
 
@@ -342,15 +342,15 @@ uint32_t sl_si91x_gpio_driver_get_group_interrupt_status(uint8_t port, sl_si91x_
  * @param[in]    flags   - GPIO group interrupt wake up flag of type
  *                              \ref sl_si91x_gpio_wakeup_t
  *                        '1'  - enable
-*-
+ * -
  *                        '0'  - disable
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_group_interrupt_wakeup(uint8_t port,
                                                                sl_si91x_group_interrupt_t group_interrupt,
@@ -377,9 +377,9 @@ sl_status_t sl_si91x_gpio_driver_select_group_interrupt_wakeup(uint8_t port,
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_configure_group_interrupt(sl_si91x_gpio_group_interrupt_config_t *configuration,
                                                            sl_gpio_irq_callback_t gpio_callback);
@@ -415,9 +415,9 @@ sl_status_t sl_si91x_gpio_driver_configure_group_interrupt(sl_si91x_gpio_group_i
  *                ULP instance has total 12 pins.
  * @return     returns group interrupt polarity
  *                      1, when GPIO pin status is '1'
-*-
+ * -
  *                      0, when GPIO pin status is '0'
-*
+ *
  ******************************************************************************/
 uint8_t sl_si91x_gpio_driver_get_group_interrupt_polarity(sl_si91x_group_interrupt_t group_interrupt,
                                                           uint8_t port,
@@ -455,15 +455,15 @@ uint8_t sl_si91x_gpio_driver_get_group_interrupt_polarity(sl_si91x_group_interru
  * @param[in]  polarity   -  polarity of GPIO group interrupt of type
  *                      \ref  sl_si91x_gpio_polarity_t
  *               1, group interrupt gets generated when GPIO pin status is '1'
-*-
+ * -
  *               0, group interrupt gets generated when GPIO pin status is '0'
-*
+ *
   * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_group_interrupt_polarity(sl_si91x_group_interrupt_t group_interrupt,
                                                               uint8_t port,
@@ -497,9 +497,9 @@ sl_status_t sl_si91x_gpio_driver_set_group_interrupt_polarity(sl_si91x_group_int
  *                    \ref  sl_si91x_group_interrupt_t
  * @return     returns group interrupt level_edge
  *                     1, for Edge
-*-
+ * -
  *                     0, for Level
-*
+ *
  ******************************************************************************/
 uint8_t sl_si91x_gpio_driver_get_group_interrupt_level_edge(uint8_t port, sl_si91x_group_interrupt_t group_interrupt);
 
@@ -531,15 +531,15 @@ uint8_t sl_si91x_gpio_driver_get_group_interrupt_level_edge(uint8_t port, sl_si9
  * @param[in]  level_edge - GPIO level edge group interrupt of type
  *                  \ref  sl_si91x_gpio_level_edge_t
  *                     1, for Edge
-*-
+ * -
  *                     0, for Level
-*
+ *
   * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_group_interrupt_level_edge(uint8_t port,
                                                                 sl_si91x_group_interrupt_t group_interrupt,
@@ -573,9 +573,9 @@ sl_status_t sl_si91x_gpio_driver_set_group_interrupt_level_edge(uint8_t port,
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_unmask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t group_interrupt);
 
@@ -602,9 +602,9 @@ sl_status_t sl_si91x_gpio_driver_unmask_group_interrupt(uint8_t port, sl_si91x_g
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_mask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t group_interrupt);
 
@@ -613,15 +613,15 @@ sl_status_t sl_si91x_gpio_driver_mask_group_interrupt(uint8_t port, sl_si91x_gro
  * @param[in]    clock  - Selects M4 clock or ULP clock of type
  *                    \ref  sl_si91x_gpio_select_clock_t
  *                         0, for M4 GPIO CLK
-*-
+ * -
  *                         1, for ULP GPIO CLK
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_disable_clock(sl_si91x_gpio_select_clock_t clock);
 
@@ -630,15 +630,15 @@ sl_status_t sl_si91x_gpio_driver_disable_clock(sl_si91x_gpio_select_clock_t cloc
  * @param[in]    clock  - Selects M4 clock or ULP clock of type
  *                    \ref  sl_si91x_gpio_select_clock_t
  *                         0, for M4 GPIO CLK
-*-
+ * -
  *                         1, for ULP GPIO CLK
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_clock(sl_si91x_gpio_select_clock_t clock);
 
@@ -674,9 +674,9 @@ sl_status_t sl_si91x_gpio_driver_enable_clock(sl_si91x_gpio_select_clock_t clock
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
 *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_group_interrupt(sl_si91x_group_interrupt_t group_interrupt,
                                                         uint8_t port,
@@ -686,33 +686,33 @@ sl_status_t sl_si91x_gpio_driver_enable_group_interrupt(sl_si91x_group_interrupt
  * @brief      Disable the group interrupts.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock, for HP instance 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance 
-*
+ *
  *  Use corresponding pad receiver API for corresponding GPIO instance. 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_gpio_driver_set_pin_mode() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_configure_ulp_group_interrupt(), for HP instance 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_configure_ulp_group_interrupt, for ULP instance 
-*
+ *
  *  Use corresponding group interrupt configuration API for corresponding GPIO instance.
  * @param[in]  group_interrupt  - GPIO group interrupt number of type
  *                    \ref  sl_si91x_group_interrupt_t
@@ -726,9 +726,9 @@ sl_status_t sl_si91x_gpio_driver_enable_group_interrupt(sl_si91x_group_interrupt
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
 *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_disable_group_interrupt(sl_si91x_group_interrupt_t group_interrupt,
                                                          uint8_t port,
@@ -738,21 +738,21 @@ sl_status_t sl_si91x_gpio_driver_disable_group_interrupt(sl_si91x_group_interrup
  * @brief      Select the slew rate.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*-
+ * -
  *        \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
-*
- * @param[in]  gpio_num - GPIO number to be use
+ *
+ * @param[in]  gpio_num - GPIO pin number to be use
  * @param[in]  slew_rate   -   slew rate of type \ref sl_si91x_gpio_slew_rate_t
  *                  '0' - Slow
-*-
+ * -
  *                  '1' - Fast
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_si91x_gpio_slew_rate_t slew_rate);
 
@@ -760,26 +760,26 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_s
  * @brief        Select the drive strength.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*-
+ * -
  *        \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
-*
- * @param[in]    gpio_padnum -  GPIO number to be use
+ *
+ * @param[in]    gpio_num -  GPIO pin number to be use
  * @param[in]    strength    -  Drive strength selector(E1,E2) of type
  *                    \ref  sl_si91x_gpio_driver_strength_select_t
  *                    0, for two_milli_amps   (E1=0,E2=0)
-*-
+ * -
  *                    1, for four_milli_amps  (E1=0,E2=1)
-*-
+ * -
  *                    2, for eight_milli_amps (E1=1,E2=0)
-*-
+ * -
  *                    3, for twelve_milli_amps(E1=1,E2=1)
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num,
                                                                 sl_si91x_gpio_driver_strength_select_t strength);
@@ -788,26 +788,26 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num
  * @brief        Select the driver-disabled state control.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*-
+ * -
  *        \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
-*
- * @param[in]    gpio_num    -  GPIO number to be use
+ *
+ * @param[in]    gpio_num    -  GPIO pin number to be use
  * @param[in]    disable_state  -  driver disable state of type
  *                    \ref sl_si91x_gpio_driver_disable_state_t
  *                  0, for HiZ       (P1=0,P2=0)
-*-
+ * -
  *                  1, for Pull up   (P1=0,P2=1)
-*-
+ * -
  *                  2, for Pull down (P1=1,P2=0)
-*-
+ * -
  *                  3, for Repeater  (P1=1,P2=1)
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state(
   uint8_t gpio_num,
@@ -817,14 +817,14 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state(
  * @brief     Disable the receiver bit for ULP.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
- * @param[in]    gpio_num  - GPIO number to be used
+ *
+ * @param[in]    gpio_num  - GPIO pin number to be used
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_disable_ulp_pad_receiver(uint8_t gpio_num);
 
@@ -832,14 +832,14 @@ sl_status_t sl_si91x_gpio_driver_disable_ulp_pad_receiver(uint8_t gpio_num);
  * @brief        Enable the receiver bit for ULP.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
- * @param[in]    gpio_num  - GPIO number to be used
+ *
+ * @param[in]    gpio_num  - GPIO pin number to be used
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_ulp_pad_receiver(uint8_t gpio_num);
 
@@ -847,16 +847,16 @@ sl_status_t sl_si91x_gpio_driver_enable_ulp_pad_receiver(uint8_t gpio_num);
  * @brief      Configure the MCU ULP GPIO pin interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_gpio_driver_set_pin_mode() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
+ *
  * @param[in]  int_no - The interrupt number to trigger.
  * @param[in]  flags  - Interrupt configuration flags of type
  *                   \ref  sl_si91x_gpio_interrupt_config_flag_t
@@ -865,11 +865,11 @@ sl_status_t sl_si91x_gpio_driver_enable_ulp_pad_receiver(uint8_t gpio_num);
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_configure_ulp_pin_interrupt(uint8_t int_no,
                                                              sl_si91x_gpio_interrupt_config_flag_t flags,
@@ -880,18 +880,18 @@ sl_status_t sl_si91x_gpio_driver_configure_ulp_pin_interrupt(uint8_t int_no,
  * @brief     Set the NPSS GPIO pin MUX(mode).
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*-
+ * -
  *        \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @param[in]  pin  -  NPSS GPIO pin number(0...4) of type
  *                      \ref sl_si91x_uulp_npss_mode_t
  * @param[in]  mode  -  NPSS GPIO  MUX value
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uulp_npss_mode_t mode);
 
@@ -899,20 +899,20 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uul
  * @brief     Enable/disable NPSS GPIO receiver.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @param[in]  pin    - is NPSS GPIO pin number (0...4)
  * @param[in]  receiver - is enable/disable NPSS GPIO receiver of type
  *                  \ref  sl_si91x_gpio_receiver_t
  *                 '1' - Enable
-*-
+ * -
  *                 '0' - Disable
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_uulp_npss_receiver(uint8_t pin, sl_si91x_gpio_receiver_t receiver);
 
@@ -920,26 +920,26 @@ sl_status_t sl_si91x_gpio_driver_select_uulp_npss_receiver(uint8_t pin, sl_si91x
  * @brief     Set the direction of the NPSS GPIO.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @param[in]  pin  - is NPSS GPIO pin number (0...4)
  * @param[in]  direction  - is direction value (Input / Output) of type
  *                \ref  sl_si91x_gpio_direction_t
  *                  '1' - Input Direction
-*-
+ * -
  *                  '0' - Output Direction
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ * 
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_direction(uint8_t pin, sl_si91x_gpio_direction_t direction);
 
@@ -947,16 +947,16 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_direction(uint8_t pin, sl_si91x_g
  * @brief      Get the direction of the NPSS GPIO.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @param[in]  pin - is NPSS GPIO pin number(0...4)
  * @return     returns the GPIO pin direction
  *                - 1, Input Direction
@@ -968,29 +968,29 @@ uint8_t sl_si91x_gpio_driver_get_uulp_npss_direction(uint8_t pin);
  * @brief      Control the NPSS GPIO pin value.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @param[in]  pin - is NPSS GPIO pin number (0...4) of type
  *                    \ref  sl_si91x_gpio_pin_value_t
  * @param[in]  pin_value - is NPSS GPIO pin value
  *                      '0' - Output
-*-
+ * -
  *                      '1' - Input
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_value(uint8_t pin, sl_si91x_gpio_pin_value_t pin_value);
 
@@ -998,25 +998,25 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_value(uint8_t pin, sl_si91x_g
  * @brief     Get the NPSS GPIO pin value.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_value() 
-*
+ *
  * @param[in]  pin  - is NPSS GPIO pin number (0...4)
  * @return     returns the pin logical state of pin
  *                        '0' - Output
-*-
+ * -
  *                        '1' - Input
-*
+ *
  ******************************************************************************/
 uint8_t sl_si91x_gpio_driver_get_uulp_npss_pin(uint8_t pin);
 
@@ -1024,20 +1024,20 @@ uint8_t sl_si91x_gpio_driver_get_uulp_npss_pin(uint8_t pin);
  * @brief     Select the NPSS GPIO polarity.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @param[in] pin   - is NPSS GPIO pin number (0...4)
  * @param[in] polarity - GPIO polarity
  *                 \ref sl_si91x_gpio_polarity_t
  *                 '1' - High
-*-
+ * -
  *                 '0' - Low
-*
+ *
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_uulp_npss_polarity(uint8_t pin, sl_si91x_gpio_polarity_t polarity);
 
@@ -1045,14 +1045,14 @@ sl_status_t sl_si91x_gpio_driver_select_uulp_npss_polarity(uint8_t pin, sl_si91x
  * @brief       Set the UULP NPSS GPIO to wake up interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
 
@@ -1060,14 +1060,14 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio
  * @brief       Clear the UULP NPSS GPIO to wake up interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt);
 
@@ -1075,26 +1075,26 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgp
  * @brief       Mask the NPSS GPIO interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_set_uulp_pad_configuration() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
 
@@ -1102,26 +1102,26 @@ sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_inter
  * @brief       Unmask the NPSS GPIO interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_set_uulp_pad_configuration() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
 
@@ -1129,29 +1129,29 @@ sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_int
  * @brief    Clear the NPSS GPIO interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_set_uulp_pad_configuration() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_configure_uulp_interrupt() 
-*
+ *
  * @param[in]   npssgpio_interrupt - OR'ed values of the NPSS GPIO interrupts
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt);
 
@@ -1159,28 +1159,28 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt
  * @brief     Get the NPSS GPIO interrupt status.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_set_uulp_pad_configuration() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_configure_uulp_interrupt() 
-*
+ *
  * @param[in]  None
  * @return    returns the UULP INTR status.
  *                   1, interrupt has been raised
-*-
+ * -
  *                   0, interrupt is masked or not raised
-*
+ *
  ******************************************************************************/
 uint8_t sl_si91x_gpio_driver_get_uulp_interrupt_status(void);
 
@@ -1188,25 +1188,25 @@ uint8_t sl_si91x_gpio_driver_get_uulp_interrupt_status(void);
  * @brief     Get the ULP GPIO interrupt status.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_gpio_driver_set_pin_mode() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_configure_ulp_pin_interrupt() 
-*
+ *
  * @param[in]  flags : ULP GPIO interrupt sources status.
  * @return    returns the ULP INTR status.
  *                   1, interrupt has been raised
-*-
+ * -
  *                   0, interrupt is masked or not raised
-*
+ *
  ******************************************************************************/
 uint32_t sl_si91x_gpio_driver_get_ulp_interrupt_status(uint32_t flags);
 
@@ -1214,26 +1214,26 @@ uint32_t sl_si91x_gpio_driver_get_ulp_interrupt_status(uint32_t flags);
  * @brief     Clear one or more pending ULP GPIO interrupts.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_gpio_driver_set_pin_mode() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_configure_ulp_pin_interrupt() 
-*
+ *
  * @param[in] flags : ULP GPIO interrupt sources to clear.
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_ulp_interrupt(uint32_t flags);
 
@@ -1241,27 +1241,27 @@ sl_status_t sl_si91x_gpio_driver_clear_ulp_interrupt(uint32_t flags);
  * @brief     Clear the ULP group interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_gpio_driver_set_pin_mode() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
+ *
  *        \ref sl_si91x_gpio_driver_configure_ulp_group_interrupt() 
-*
+ *
  *  Use corresponding group interrupt configuration API for corresponding GPIO instance.
  * @param[in]    group_interrupt - Group interrupt number of type
  *                     \ref   sl_si91x_group_interrupt_t
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_ulp_group_interrupt(sl_si91x_group_interrupt_t group_interrupt);
 
@@ -1269,19 +1269,19 @@ sl_status_t sl_si91x_gpio_driver_clear_ulp_group_interrupt(sl_si91x_group_interr
  * @brief     Configure the UULP GPIO pin interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_set_uulp_pad_configuration() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @param[in] flags  -  Interrupt configuration flags of type
  *                     \ref  sl_si91x_gpio_interrupt_config_flag_t
  * @param[in] npssgpio_interrupt - NPSS GPIO input number (0 to 4) 
@@ -1289,11 +1289,11 @@ sl_status_t sl_si91x_gpio_driver_clear_ulp_group_interrupt(sl_si91x_group_interr
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_t flags,
                                                           uint8_t npssgpio_interrupt,
@@ -1303,25 +1303,25 @@ sl_status_t sl_si91x_gpio_driver_configure_uulp_interrupt(sl_si91x_gpio_interrup
  * @brief      Configure ULP GPIO group interrupts.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_gpio_driver_set_pin_mode() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
+ *
  * @param[in]  configuration - configuration pointer to
  *                  \ref sl_si91x_gpio_group_interrupt_config_t structure
  * @param[in] gpio_callback - IRQ function pointer
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_configure_ulp_group_interrupt(sl_si91x_gpio_group_interrupt_config_t *configuration,
                                                                sl_gpio_irq_callback_t gpio_callback);
@@ -1330,23 +1330,23 @@ sl_status_t sl_si91x_gpio_driver_configure_ulp_group_interrupt(sl_si91x_gpio_gro
  * @brief  Toggle the UULP pin.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_select_uulp_npss_receiver() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() 
-*
+ *
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_uulp_npss_direction() 
-*
+ *
  * @param[in]   pin  -  UULP pin number to toggle
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_toggle_uulp_npss_pin(uint8_t pin);
 
@@ -1354,14 +1354,14 @@ sl_status_t sl_si91x_gpio_driver_toggle_uulp_npss_pin(uint8_t pin);
  * @brief        Indicate UULP GPIO PAD configuration.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
-*
+ *
  * @param[in]    pad_config : PAD configuration pointer to \ref uulp_pad_config_t structure
  * @return returns status 0 if successful,
  *               else error code as follow.
  *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*-
+ * -
  *        \ref SL_STATUS _OK (0X000)  - Success 
-*
+ *
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_pad_configuration(uulp_pad_config_t *pad_config);
 

@@ -34,6 +34,9 @@
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_driver.h"
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+#include "sl_si91x_crypto_thread.h"
+#endif
 #include <string.h>
 
 static sl_status_t ccm_pending(sl_si91x_ccm_config_t *config, uint16_t chunk_length, uint8_t ccm_flags, uint8_t *output)
@@ -127,17 +130,22 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
 
   if (((config->msg == NULL) && (config->msg_length != 0)) || ((config->ad == NULL) && (config->ad_length != 0))
-      || (config->nonce == NULL) || (config->tag == NULL) || ((output == NULL) && (config->msg_length != 0)) ||
-#ifdef SLI_SI917B0
-      config->key_config.b0.key_buffer == NULL
-#else
-      config->key_config.a0.key == NULL
+      || (config->nonce == NULL) || (config->tag == NULL) || ((output == NULL) && (config->msg_length != 0))
+#ifndef SLI_SI917B0
+      || (config->key_config.a0.key == NULL)
 #endif
   ) {
     status = SL_STATUS_INVALID_PARAMETER;
   }
 
   uint16_t total_length = config->msg_length;
+
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_ccm_mutex == NULL) {
+    crypto_ccm_mutex = sl_si91x_crypto_threadsafety_init(crypto_ccm_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ccm_mutex);
+#endif
 
   if (total_length != 0) {
     while (total_length) {
@@ -163,6 +171,9 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
       // Send the current chunk length message
       status = ccm_pending(config, chunk_len, ccm_flags, output);
       if (status != SL_STATUS_OK) {
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+        mutex_result = sl_si91x_crypto_mutex_release(crypto_ccm_mutex);
+#endif
         return status;
       }
 
@@ -181,12 +192,19 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
     // Send the current chunk length message
     status = ccm_pending(config, chunk_len, ccm_flags, output);
     if (status != SL_STATUS_OK) {
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+      mutex_result = sl_si91x_crypto_mutex_release(crypto_ccm_mutex);
+#endif
       return status;
     }
   }
 
   // Copy the tag to the tag_buffer
   memcpy(config->tag, output + config->msg_length, config->tag_length);
+
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_ccm_mutex);
+#endif
 
   return status;
 }

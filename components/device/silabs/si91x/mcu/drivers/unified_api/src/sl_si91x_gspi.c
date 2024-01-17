@@ -215,6 +215,8 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle)
     if (status != SL_STATUS_OK) {
       return status;
     }
+    // Unregistering the GSPI event callback.
+    sl_si91x_gspi_unregister_event_callback();
     // CMSIS API for un-initialization is called and the arm error code returned from
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
     error_status = ((sl_gspi_driver_t *)gspi_handle)->Uninitialize();

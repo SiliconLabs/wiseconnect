@@ -33,6 +33,30 @@
 #include "psa/crypto.h"
 #include "sl_status.h"
 #include "sl_si91x_crypto.h"
+
+#ifdef SLI_CIPHER_DEVICE_SI91X
+#include "sl_si91x_psa_aes.h"
+#endif
+
+#ifdef SLI_AEAD_DEVICE_SI91X
+#include "sl_si91x_psa_aead.h"
+#endif
+
+#ifdef SLI_TRNG_DEVICE_SI91X
+#include "sl_si91x_psa_trng.h"
+#endif
+
+#ifdef SLI_ECDH_DEVICE_SI91X
+#include "sl_si91x_psa_ecdh.h"
+#endif
+
+#ifdef SLI_MAC_DEVICE_SI91X
+#include "sl_si91x_psa_hmac.h"
+#endif
+
+#ifdef SLI_SHA_DEVICE_SI91X
+#include "sl_si91x_psa_sha.h"
+#endif
 /******************************************************
  *                Function Declarations
 *******************************************************/

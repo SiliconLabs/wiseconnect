@@ -236,6 +236,8 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    // Unregister the Usart callback
+    sl_si91x_usart_unregister_event_callback();
     // Power off the USART module
     status = sli_si91x_usart_set_power_mode(usart_handle, SL_POWER_OFF);
     if (status != SL_STATUS_OK) {

@@ -323,7 +323,7 @@
 
 // HT caps bit map.
 #ifndef RSI_HT_CAPS_BIT_MAP
-#define RSI_HT_CAPS_BIT_MAP 2
+#define RSI_HT_CAPS_BIT_MAP 0
 #endif
 
 /*=======================================================================*/

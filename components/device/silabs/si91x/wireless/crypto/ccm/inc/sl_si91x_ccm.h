@@ -86,7 +86,7 @@ typedef struct {
   const uint8_t *msg;                   ///< Pointer to the input message
   uint16_t msg_length;                  ///< Length of the message
   const uint8_t *nonce;                 ///< Pointer to the Initialization vector
-  const uint8_t *tag;                   ///< Pointer to the tag
+  uint8_t *tag;                         ///< Pointer to the tag
   const uint8_t *ad;                    ///< Pointer to the additional data
   uint16_t nonce_length;                ///< Length of the Initialization vector
   uint16_t tag_length;                  ///< Length of the tag

@@ -43,24 +43,7 @@
 //   <KHZ_XTAL_CLK_SEL=> XTAL CLK
 // <i> Selection of Low Frequency FSM CLK
 #define SL_LOW_FREQ_FSM_CLK_SRC KHZ_RC_CLK_SEL
-
-#define FSM_20MHZ_RO   1
-#define FSM_32MHZ_RC   2
-#define FSM_40MHZ_XTAL 4
-// <o SL_HIGH_FREQ_FSM_CLK_SRC> High Frequency ClocK
-//   <FSM_20MHZ_RO=> 20MHZ RO CLK
-//   <FSM_32MHZ_RC=> 32MHZ RC CLK
-//   <FSM_40MHZ_XTAL=> 40MHZ XTAL CLK
-// <i> Selection of High Frequency FSM CLK
-#define SL_HIGH_FREQ_FSM_CLK_SRC FSM_32MHZ_RC
-
-#define RO_32KHZ_CLOCK 1
-#define MCU_FSM_CLOCK  2
-// <o SL_BG_PMU_CLOCK_SRC> BG PMU Clock
-//   <RO_32KHZ_CLOCK=> RO 32KHZ CLK
-//   <MCU_FSM_CLOCK=> MCU FSM CLK
-// <i> Selection of BG PMU Clock Source
-#define SL_BG_PMU_CLOCK_SRC RO_32KHZ_CLOCK
+#define FSM_32MHZ_RC            2
 // </h>
 
 // <h>Watchdog Timer Configuration
@@ -164,8 +147,8 @@
 #if defined(SL_LOW_FREQ_FSM_CLK_SRC)
 watchdog_timer_clock_config_t sl_watchdog_timer_clk_config_handle = {
   .low_freq_fsm_clock_src  = SL_LOW_FREQ_FSM_CLK_SRC,
-  .high_freq_fsm_clock_src = SL_HIGH_FREQ_FSM_CLK_SRC,
-  .bg_pmu_clock_source     = SL_BG_PMU_CLOCK_SRC,
+  .high_freq_fsm_clock_src = FSM_32MHZ_RC,
+  .bg_pmu_clock_source     = RO_32KHZ_CLOCK,
 };
 #endif // SL_LOW_FREQ_FSM_CLK_SRC
 

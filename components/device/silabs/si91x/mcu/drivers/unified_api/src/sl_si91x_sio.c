@@ -30,6 +30,7 @@
 #include "sl_si91x_sio.h"
 #include "sl_si91x_sio_config.h"
 #include "sl_si91x_peripheral_gpio.h"
+#include "rsi_chip.h"
 /*******************************************************************************
  ***************************  LOCAL MACROS   ***********************************
  ******************************************************************************/
@@ -97,6 +98,16 @@ sl_status_t sl_si91x_sio_init(void)
     status = SL_STATUS_FAIL; // Returns status error code
   }
   return status;
+}
+
+/*******************************************************************************
+ * This API is used to De-initialize SIO module
+ ******************************************************************************/
+void sl_si91x_sio_deinit(void)
+{
+  sl_si91x_sio_spi_unregister_event_callback();
+  sl_si91x_sio_uart_unregister_event_callback();
+  RSI_CLK_PeripheralClkDisable3(M4CLK, (SGPIO_PCLK_ENABLE));
 }
 
 /*******************************************************************************

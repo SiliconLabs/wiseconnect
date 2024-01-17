@@ -716,9 +716,9 @@ sl_status_t sl_si91x_config_timer_set_wfg_compare_values(sl_counter_number_t cou
 
 /***************************************************************************/ /**
 * De-initialize config-timer by disabling its clock.
-*
 * @param[in]   none
 * @return      none
+* @note Unregisters the callback and disables all config timer interrupts.
 *******************************************************************************/
 void sl_si91x_config_timer_deinit(void);
 

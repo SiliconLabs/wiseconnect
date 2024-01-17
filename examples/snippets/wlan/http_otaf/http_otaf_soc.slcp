@@ -17,7 +17,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.1.1
+  version: 3.1.2
 source:
 - path: app.c
 - path: main.c
@@ -54,7 +54,9 @@ requires:
   - name: device_needs_ram_execution
     condition:
       - si91x_common_flash
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 configuration:
 - name: SL_BOARD_ENABLE_VCOM
   value: '1'

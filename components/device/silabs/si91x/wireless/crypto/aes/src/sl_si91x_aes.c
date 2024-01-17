@@ -33,6 +33,9 @@
 #include "sl_status.h"
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+#include "sl_si91x_crypto_thread.h"
+#endif
 #include "sl_si91x_driver.h"
 #include <string.h>
 
@@ -110,6 +113,13 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
 
   uint16_t total_length = config->msg_length;
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_aes_mutex == NULL) {
+    crypto_aes_mutex = sl_si91x_crypto_threadsafety_init(crypto_aes_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_aes_mutex);
+#endif
+
   while (total_length) {
     // Check total length
     if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {
@@ -133,6 +143,9 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
     // Send the current chunk length message
     status = aes_pending(config, chunk_len, aes_flags, output);
     if (status != SL_STATUS_OK) {
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+      mutex_result = sl_si91x_crypto_mutex_release(crypto_aes_mutex);
+#endif
       return status;
     }
 
@@ -143,6 +156,10 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
     // Decrement the total message length
     total_length -= chunk_len;
   }
+
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_aes_mutex);
+#endif
 
   return status;
 }

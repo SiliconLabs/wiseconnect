@@ -1716,27 +1716,20 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, uin
 
 /*==============================================*/
 /**
- * @fn          int32_t rsi_ble_set_ble_tx_power(uint8_t role, uint8_t *remote_dev_address,
- *                                               int8_t tx_power)
- * @brief       Set the TX power value per GAP role. This is a Blocking API
- * @note        This API is not supported in the current release.
- * @param[in]   role
- *              ADV_ROLE               0x01 \n
- *              SCAN_AND_CENTRAL_ROLE  0x02 \n
- *              PERIPHERAL_ROLE        0x03 \n
- *              CONN_ROLE              0x04 \n
- * @param[in]   remote_dev_address - Remote device address     
+ * @fn          int32_t rsi_ble_set_ble_tx_power(int8_t tx_power)
+ * @brief       Set the TX power value. This is a Blocking API    
  * @param[in]   tx_power - power value 
- * @note        remote_dev_address is valid only on role=CONN_ROLE \n
  *              #define RSI_BLE_PWR_INX_DBM  0  indicate tx_power in index \n
- *              Default Value for BLE Tx Power Index is 31, The range for the BLE Tx Power Index is 1 to 75 (0, 32 indexes are invalid) \n
+ *              Default Value for BLE Tx Power Index is 31, The range for the BLE Tx Power Index is 1 to 127 (0, 32 indexes are invalid) \n
  *                      1 - 31    BLE - 0DBM Mode.  \n
  *                     33 - 63    BLE - 10DBM Mode. \n
- *                     64 - 79    BLE - HP Mode.    \n
- *              Currently this API is supports only BLE LP mode . i.e. 1 to  63 BLE LP MODE \n
+ *                     64 - 82    BLE - 1dBm - 18dBm HP Mode in the resolution of 1dBm. \n
+ * @note: the higher power will be backed off based on country region.
+ *                     104 - 126  BLE - 0.5dBm - 11dBm HP Mode in the resolution of 0.5dbm. \n
+ *                     127  	    BLE HP Mode, Max power supported. \n
  *              #define RSI_BLE_PWR_INX_DBM  1  indicate tx_power in dBm \n
- *              tx_power in dBm (-8dBm to 15 dBm) \n
- *              Currently this API is supports only BLE LP mode . i.e. -8 dBm to  4dBm BLE LP MODE \n
+ *              tx_power in dBm (-8dBm to 18 dBm) \n
+ * @note: When switching between HP mode and LP mode user need to ensure there should not be any protocol activity running.  
  * @return      0 - Success \n
  *              Non-Zero Value - Failure \n
  *              0x4E02 	Unknown Connection Identifier \n 
@@ -1749,17 +1742,12 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, uin
  *
  */
 
-int32_t rsi_ble_set_ble_tx_power(uint8_t role, uint8_t *remote_dev_address, int8_t tx_power)
+int32_t rsi_ble_set_ble_tx_power(int8_t tx_power)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_BLE_TX_POWER, BLE, LOG_INFO);
   rsi_ble_set_ble_tx_power_t ble_tx_power = { 0 };
-#ifdef BD_ADDR_IN_ASCII
-  rsi_ascii_dev_address_to_6bytes_rev(ble_tx_power.dev_addr, remote_dev_address);
-#else
-  memcpy(ble_tx_power.dev_addr, remote_dev_address, RSI_DEV_ADDR_LEN);
-#endif
-  ble_tx_power.role = role;
+
 #if RSI_BLE_PWR_INX_DBM
   ble_tx_power.tx_power = rsi_convert_db_to_powindex(tx_power);
   if (ble_tx_power.tx_power == 0) {

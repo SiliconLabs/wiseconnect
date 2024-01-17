@@ -1,13 +1,14 @@
 #include "ble_cmd_hdlr_auto_gen.h"
 #include "event_loop.h"
 #include <stdlib.h>
+#include "rsi_common_apis.h"
 
 generic_command_handler_lut_entry_t ble_commands_hdlr_lut[] = 
 {
 {% for command, details in user_interface["ble"]["commands"].items() %}
-	{{ details["module_handler"] }},
+	{ {{ details["module_handler"] }} },
 {% endfor %}
-    NULL
+    { NULL }
 };
 
 {% macro render_ui_cmd_handler_callback_function(command) %}

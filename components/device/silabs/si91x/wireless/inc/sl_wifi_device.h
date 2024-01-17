@@ -94,8 +94,11 @@
 #define SL_SI91X_FEAT_HIDE_PSK_CREDENTIALS BIT(9)
 
 /// To enable high SSL streaming throughput
-/// @note bits 11 - 29 are reserved
 #define SL_SI91X_FEAT_SSL_HIGH_STREAMING_BIT BIT(10)
+
+///To enable support for long sized ICMP packets. Max 1472 Bytes for IPv4 and Max 1452 Bytes for IPv6.
+/// @note bit 11 & bits 13 - 29 are reserved
+#define SL_SI91X_FEAT_LONG_ICMP_PACKET BIT(12)
 
 /// Secure Attestation
 /// @note bit 31 is reserved
@@ -356,10 +359,7 @@
 /// @note 1. Resource Request Support is not Present. 2. If both BIT[11] and BIT[16] are not enabled then it will select as Legacy Roaming.
 #define SL_SI91X_EXT_FEAT_ENABLE_11R_ODS BIT(16)
 
-/// @note Bit 17 is reserved
-
-/// To enable http otaf support
-#define SL_SI91X_EXT_FEAT_HTTP_OTAF_SUPPORT BIT(18)
+/// @note Bit 17, 18 are reserved
 
 /// To enable low power mode in Wlan
 /// @note EXT_FEAT_LOW_POWER_MODE is not supported for 1.3 version chipset.
@@ -552,9 +552,9 @@
 /// Enable Embedded/internal MQTT
 /// @note If user wants to use AT command for MQTT, enable this bit in the Opermode Command
 #define SL_SI91X_EXT_EMB_MQTT_ENABLE BIT(17)
-/// Enables the SSL_HIGH_PERFORMANCE
+/// Enables the http otaf support
 /// @note To do firmware upgrade with HTTP this bit should be enabled
-#define SL_SI91X_EXT_TCP_IP_FEAT_SSL_HIGH_PERFORMANCE BIT(18)
+#define SL_SI91X_EXT_FEAT_HTTP_OTAF_SUPPORT BIT(18)
 /// Enabled to update TCP window from host
 #define SL_SI91X_EXT_TCP_DYNAMIC_WINDOW_UPDATE_FROM_HOST BIT(19)
 

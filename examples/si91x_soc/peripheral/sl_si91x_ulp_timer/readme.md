@@ -93,7 +93,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - \ref SL_ULP_TIMER_SYNC_TO_ULPSS_PCLK, true to Enable & false to disable sync to ULPSS pclock
 - \ref SL_ULP_TIMER_CLK_INPUT_SOURCE, for possible options \ref ulp_timer_clk_input_source_t
 - \ref SL_ULP_TIMER_DIRECTION, true to enable waiting for switching timer clk & false to skip waiting for switching timer clk.
-- After configuring above macros, their values are passed to \ref ulp_timer_clk_src_config_t structure type variable \ref sl_timer_clk_handle which is used to configure clock using API-\ref sl_si91x_ulp_timer_init.
+- After configuring above macros, their values are passed to \ref ulp_timer_clk_src_config_t structure type variable \ref sl_timer_clk_handle which is used to     configure clock using API-\ref sl_si91x_ulp_timer_init.
+- To use SOC clock source use API \ref sl_si91x_ulp_timer_configure_soc_clock() API in place of \ref sl_si91x_ulp_timer_init API. Also comment out hardware_setup()
+call from ulp_timer_example.c file as this clock source should be used in high power mode only.
 
 ### Macros for Timer Configurations:
 
@@ -121,6 +123,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Evaluation kit board's LED0 will be toggled five times at 1sec periodic rate.
 - After toggling LED0 for five times, timer stops and configured with new parameters and toggles LED0 five more times.
+- If timer-mode is 'one-shot' mode then LED0 will toggle only one time and then timer will stop.
 - At the end of this example "Unregistered timer timeout callback, on timer operation completion" serial console print can be noticed.
 - After successful program execution the prints in serial console looks as shown below.
 

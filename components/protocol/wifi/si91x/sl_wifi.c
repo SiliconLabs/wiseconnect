@@ -135,6 +135,7 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
     join_request->vap_id          = SL_SI91X_WIFI_CLIENT_VAP_ID; // For Station vap_id will be 0
     join_request->power_level     = convert_dbm_to_si91x_power_level(get_max_tx_power());
     join_request->listen_interval = sl_si91x_get_listen_interval();
+    memcpy(join_request->join_bssid, client_configuration->bssid.octet, sizeof(join_request->join_bssid));
   } else if (module_interface & SL_WIFI_AP_INTERFACE) {
     // get join feature bitmap
     status = sl_si91x_get_join_configuration(SL_WIFI_AP_INTERFACE, &(join_request->join_feature_bitmap));
@@ -527,6 +528,43 @@ sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *
 
   sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   *rssi                     = -(packet->data[0]);
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_wifi_get_sta_tsf(sl_wifi_interface_t interface, sl_wifi_tsf64_t *tsf)
+{
+  sl_status_t status;
+  sl_wifi_buffer_t *buffer = NULL;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  SL_VERIFY_POINTER_OR_RETURN(tsf, SL_STATUS_WIFI_NULL_PTR_ARG);
+
+  if (interface & SL_WIFI_AP_INTERFACE) {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  if (!sl_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_TSF,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        NULL,
+                                        0,
+                                        SL_SI91X_WAIT_FOR_RESPONSE(15000),
+                                        NULL,
+                                        &buffer);
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  memcpy(tsf, packet->data, packet->length);
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   return SL_STATUS_OK;
 }

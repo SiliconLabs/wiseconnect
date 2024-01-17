@@ -227,9 +227,14 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
 {
 
 #ifdef SLI_SI917B0
-  //!write magic numbers in ulp memory (work around for jtag mode powersave)
-  (*(volatile uint32_t *)(0x24061F00)) = 0xBEAFBEAF;
-  (*(volatile uint32_t *)(0x24061FCC)) = 0xBEADBEAD;
+  //!write magic numbers in retention ram content ulp memory start ,end addresses (work around for jtag mode powersave)
+  RETEN_RAM_CONTENT_START_LOCATION = 0xBEAFBEAF;
+  RETEN_RAM_CONTENT_END_LOCATION   = 0xBEADBEAD;
+
+  //!remove wakeup flash bit in ulpss ram if flash is not required upon wakuep
+  if (mode == SL_SI91X_MCU_WAKEUP_PSRAM_MODE) {
+    RETEN_RAM_CONTENT_WAKEUP_FLASH_BIT_LOCATION = 0x0;
+  }
 
   if ((mode == RSI_WAKEUP_WITH_RETENTION) || (mode == RSI_WAKEUP_WO_RETENTION_WO_ULPSS_RAM)) {
     RSI_PS_RetentionSleepConfig_bypass(stack_address, jump_cb_address, vector_offset, mode);

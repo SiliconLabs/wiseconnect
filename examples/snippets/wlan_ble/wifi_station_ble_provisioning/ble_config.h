@@ -60,6 +60,10 @@
 
 #define BLE_MTU_SIZE 232
 
+//! Tx Datalength parameters
+#define TX_LEN  0xFB
+#define TX_TIME 0x0148
+
 /*=======================================================================*/
 // Advertising command parameters
 /*=======================================================================*/
@@ -144,11 +148,12 @@
 #define LE_SCAN_INTERVAL 0x0100
 #define LE_SCAN_WINDOW   0x0050
 
-#define CONNECTION_INTERVAL_MIN 0x00A0
-#define CONNECTION_INTERVAL_MAX 0x00A0
-
-#define CONNECTION_LATENCY  0x0000
-#define SUPERVISION_TIMEOUT 0x07D0 //2000
+#define CONNECTION_INTERVAL_MIN   0x320 //0x08
+#define CONNECTION_INTERVAL_MAX   0x320 //0x08
+#define CONN_INTERVAL_DEFAULT_MIN 0x18
+#define CONN_INTERVAL_DEFAULT_MAX 0x18
+#define SUPERVISION_TIMEOUT       400
+#define CONNECTION_LATENCY        0
 
 /*=======================================================================*/
 

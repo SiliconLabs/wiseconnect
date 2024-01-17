@@ -232,6 +232,9 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    // Unregister the user callback function.
+    user_callback = NULL;
+    // Power gate off to ssi peripheral.
     status = sli_si91x_ssi_configure_power_mode(ssi_handle, ARM_POWER_OFF);
     if (status != SL_STATUS_OK) {
       return status;

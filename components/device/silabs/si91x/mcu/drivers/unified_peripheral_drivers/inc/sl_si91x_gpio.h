@@ -203,6 +203,20 @@ typedef enum {
   ULP_GPIO_PIN_11 = 11, ///< ULP GPIO pin number 11
 } sl_si91x_gpio_pin_ulp_t;
 
+///@brief GPIO instances
+typedef enum {
+  M4_GPIO_INSTANCE   = 1, ///<  1 for HP GPIO
+  ULP_GPIO_INSTANCE  = 2, ///<  2 for ULP GPIO
+  UULP_GPIO_INSTANCE = 3, ///<  3 for UULP GPIO
+  GPIO_INSTANCE_LAST,     ///< Last enum for validating
+} sl_si91x_gpio_instances_t;
+
+///@brief GPIO interrupt type
+typedef enum {
+  GPIO_PIN_INTERRUPT,   ///<  0 for GPIO pin interrupt
+  GPIO_GROUP_INTERRUPT, ///<  1 for GPIO group interrupt
+} sl_si91x_gpio_intr_t;
+
 /// @brief Structure to hold the versions of peripheral API
 typedef struct {
   uint8_t release; ///< Release version number
@@ -258,19 +272,19 @@ uint8_t sl_si91x_gpio_get_pin_direction(uint8_t port, uint8_t pin);
  * @brief      Enable the receiver bit in the PAD configuration register.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
- * @param[in]  gpio_padnum - GPIO number to be use.
+ * @param[in]  gpio_num - GPIO pin number to be use.
  * @return     None
 *******************************************************************************/
-void sl_si91x_gpio_enable_pad_receiver(uint8_t gpio_padnum);
+void sl_si91x_gpio_enable_pad_receiver(uint8_t gpio_num);
 
 /***************************************************************************/ /**
  * @brief      Disable the receiver bit in the PAD configuration register.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
- * @param[in]  gpio_padnum - GPIO number to be use.
+ * @param[in]  gpio_num - GPIO pin number to be use.
  * @return     None
 *******************************************************************************/
-void sl_si91x_gpio_disable_pad_receiver(uint8_t gpio_padnum);
+void sl_si91x_gpio_disable_pad_receiver(uint8_t gpio_num);
 
 /***************************************************************************/ /**
  * @brief   Select the pad(0 to 21).
@@ -285,7 +299,7 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum);
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection() \n
  *        \ref sl_si91x_gpio_enable_pad_receiver() \n
- * @param[in]    gpio_padnum - GPIO number to be use
+ * @param[in]    gpio_num - GPIO pin number to be use
  * @param[in]    strength    - Drive strength selector(E1,E2) of type
  *                  \ref sl_si91x_gpio_driver_strength_select_t
  *                    possible values are
@@ -295,14 +309,14 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum);
  *                      3, for twelve_milli_amps(E1=1,E2=1)\n
  * @return       None
  ******************************************************************************/
-void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_gpio_driver_strength_select_t strength);
+void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_num, sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
  * @brief    Select the Driver disabled state control.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_pad_selection() \n
  *        \ref sl_si91x_gpio_enable_pad_receiver() \n
- * @param[in]    gpio_padnum     -  GPIO number to be use
+ * @param[in]    gpio_num     -  GPIO pin number to be use
  * @param[in]    disable_state    -  driver disable state of type
  *                  \ref sl_si91x_gpio_driver_disable_state_t
  *                 possible values are
@@ -312,7 +326,7 @@ void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_gpio
  *                    3, for Repeater  (P1=1,P2=1)\n
  * @return       None
  ******************************************************************************/
-void sl_si91x_gpio_select_pad_driver_disable_state(uint8_t gpio_padnum,
+void sl_si91x_gpio_select_pad_driver_disable_state(uint8_t gpio_num,
                                                    sl_si91x_gpio_driver_disable_state_t disable_state);
 
 /***************************************************************************/ /**
@@ -641,19 +655,19 @@ void sl_si91x_gpio_disable_group_interrupt(sl_si91x_group_interrupt_t group_inte
  * @brief      Select the slew rate.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
- * @param[in]  gpio_padnum - GPIO number to be use
+ * @param[in]  gpio_num - GPIO pin number to be use
  * @param[in]  slew_rate   -   slew rate of type \ref sl_si91x_gpio_slew_rate_t
  *                  '0' - Slow\n
  *                  '1' - Fast\n
  * @return    None
  ******************************************************************************/
-void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_padnum, sl_si91x_gpio_slew_rate_t slew_rate);
+void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_si91x_gpio_slew_rate_t slew_rate);
 
 /***************************************************************************/ /**
  * @brief        Select the drive strength.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
- * @param[in]    gpio_padnum -  GPIO number to be use
+ * @param[in]    gpio_num -  GPIO pin number to be use
  * @param[in]    strength    -  Drive strength selector(E1,E2) of type
  *                    \ref  sl_si91x_gpio_driver_strength_select_t
  *                    0, for two_milli_amps   (E1=0,E2=0)\n
@@ -662,13 +676,13 @@ void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_padnum, sl_si91x_gpio_s
  *                    3, for twelve_milli_amps(E1=1,E2=1)\n
  * @return       None
  ******************************************************************************/
-void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_gpio_driver_strength_select_t strength);
+void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_num, sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
  * @brief        Select the driver-disabled state control.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_enable_ulp_pad_receiver() \n
- * @param[in]    gpio_padnum    -  GPIO number to be use
+ * @param[in]    gpio_num    -  GPIO pin number to be use
  * @param[in]    disable_state  -  driver disable state of type
  *                    \ref sl_si91x_gpio_driver_disable_state_t
  *                  0, for HiZ       (P1=0,P2=0)\n
@@ -677,24 +691,24 @@ void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_padnum, sl_si91x_
  *                  3, for Repeater  (P1=1,P2=1)\n
  * @return       None
  ******************************************************************************/
-void sl_si91x_gpio_select_ulp_pad_driver_disable_state(uint8_t gpio_padnum,
+void sl_si91x_gpio_select_ulp_pad_driver_disable_state(uint8_t gpio_num,
                                                        sl_si91x_gpio_driver_disable_state_t disable_state);
 
 /***************************************************************************/ /**
  * @brief     Disable the receiver bit for ULP.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
- * @param[in]    gpio_padnum  - GPIO number to be used
+ * @param[in]    gpio_num  - GPIO pin number to be used
  * @return       None
 *******************************************************************************/
-void sl_si91x_gpio_disable_ulp_pad_receiver(uint32_t gpio_padnum);
+void sl_si91x_gpio_disable_ulp_pad_receiver(uint32_t gpio_num);
 
 /***************************************************************************/ /**
  * @brief        Enable the receiver bit for ULP.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
- * @param[in]    gpio_padnum  - GPIO number to be used
+ * @param[in]    gpio_num  - GPIO pin number to be used
  * @return       None
 *******************************************************************************/
-void sl_si91x_gpio_enable_ulp_pad_receiver(uint8_t gpio_padnum);
+void sl_si91x_gpio_enable_ulp_pad_receiver(uint8_t gpio_num);
 
 /***************************************************************************/ /**
  * @brief      Configure the MCU ULP GPIO pin interrupt.
@@ -912,7 +926,7 @@ void sl_si91x_gpio_clear_ulp_interrupt(uint32_t flags);
 void sl_si91x_gpio_clear_ulp_group_interrupt(sl_si91x_group_interrupt_t group_interrupt);
 
 /***************************************************************************/ /**
-* @brief     Configure the ULP GPIO pin interrupt.
+* @brief     Configure the UULP GPIO pin interrupt.
 * @pre   \ref sl_si91x_gpio_enable_clock() \n
 *        \ref sl_si91x_gpio_set_uulp_pad_configuration() \n
 *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
@@ -946,7 +960,7 @@ void sl_si91x_gpio_configure_ulp_group_interrupt(sl_si91x_gpio_group_interrupt_c
 void sl_assert_failed(uint8_t *file, uint32_t line);
 
 /***************************************************************************/ /**
- * Toggle the UULP pin.
+ * @brief Toggle the UULP pin.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  *        \ref sl_si91x_gpio_select_uulp_npss_receiver() \n
  *        \ref sl_si91x_gpio_set_uulp_npss_pin_mux() \n
@@ -959,7 +973,7 @@ void sl_si91x_gpio_toggle_uulp_npss_pin(uint8_t pin);
 /***************************************************************************/ /**
  * @brief        Indicate UULP GPIO PAD configuration.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
- * @param[in]    PAD configuration pointer to \ref uulp_pad_config_t structure
+ * @param[in]    pad_config - pointer to \ref uulp_pad_config_t structure
  * @return       None
 *******************************************************************************/
 void sl_si91x_gpio_set_uulp_pad_configuration(uulp_pad_config_t *pad_config);

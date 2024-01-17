@@ -20,6 +20,9 @@
 #include "sl_status.h"
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+#include "sl_si91x_crypto_thread.h"
+#endif
 #include "sl_si91x_driver.h"
 #include <string.h>
 
@@ -103,6 +106,13 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
 
   total_len = msg_length;
 
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_sha_mutex == NULL) {
+    crypto_sha_mutex = sl_si91x_crypto_threadsafety_init(crypto_sha_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_sha_mutex);
+#endif
+
   while (total_len) {
     // Check total length
     if (total_len > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {
@@ -131,6 +141,9 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
 
     if (status != SL_STATUS_OK) {
       SL_PRINTF(SL_SHA_CHUNK_LENGTH_MSG_ERROR, CRYPTO, LOG_ERROR, "status: %4x", status);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+      mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
+#endif
       return status;
     }
 
@@ -141,6 +154,10 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
     // Decrement the total message lenth
     total_len -= chunk_len;
   }
+
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
+#endif
 
   SL_PRINTF(SL_SHA_EXIT, CRYPTO, LOG_INFO, "status: %4x", status);
   return status;

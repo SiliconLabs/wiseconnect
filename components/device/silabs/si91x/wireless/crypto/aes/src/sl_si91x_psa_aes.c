@@ -115,16 +115,17 @@ psa_status_t sli_si91x_crypto_cipher_encrypt(const psa_key_attributes_t *attribu
   config.key_config.b0.key_slot = 0;
   memcpy(config.key_config.b0.key_buffer, key_buffer, config.key_config.b0.key_size);
 #else
+  config.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
   config.key_config.a0.key_length = key_buffer_size;
   memcpy(config.key_config.a0.key, key_buffer, config.key_config.a0.key_length);
 #endif
 
-  if (status != PSA_SUCCESS) {
-    return status;
-  }
-
   /* Calling sl_si91x_aes() for AES encryption */
   si91x_status = sl_si91x_aes(&config, output);
+
+#ifndef SLI_SI917B0
+  free(config.key_config.a0.key);
+#endif
 
   /* gets the si91x error codes and returns its equivalent psa_status codes */
   status = convert_si91x_error_code_to_psa_status(si91x_status);
@@ -218,16 +219,17 @@ psa_status_t sli_si91x_crypto_cipher_decrypt(const psa_key_attributes_t *attribu
   config.key_config.b0.key_slot = 0;
   memcpy(config.key_config.b0.key_buffer, key_buffer, config.key_config.b0.key_size);
 #else
+  config.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
   config.key_config.a0.key_length = key_buffer_size;
   memcpy(config.key_config.a0.key, key_buffer, config.key_config.a0.key_length);
 #endif
 
-  if (status != PSA_SUCCESS) {
-    return status;
-  }
-
   /* Calling sl_si91x_aes() for AES decryption */
   si91x_status = sl_si91x_aes(&config, output);
+
+#ifndef SLI_SI917B0
+  free(config.key_config.a0.key);
+#endif
 
   /* gets the si91x error codes and returns its equivalent psa_status codes */
   status = convert_si91x_error_code_to_psa_status(si91x_status);

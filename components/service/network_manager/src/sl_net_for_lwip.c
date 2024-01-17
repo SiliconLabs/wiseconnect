@@ -18,7 +18,7 @@
 #include "sl_net_wifi_types.h"
 #include "sl_net.h"
 #include <string.h>
-
+#include "sl_rsi_utility.h"
 #define INTERFACE_NAME_0  's' ///< Network interface name 0
 #define INTERFACE_NAME_1  'l' ///< Network interface name 1
 #define MAX_TRANSFER_UNIT 1500
@@ -163,6 +163,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
 
 sl_status_t sl_net_wifi_client_down(sl_net_interface_t interface)
 {
+  UNUSED_PARAMETER(interface);
   // DHCP stop and release the resources
   dhcp_release_and_stop(&wifi_client_context->netif);
 

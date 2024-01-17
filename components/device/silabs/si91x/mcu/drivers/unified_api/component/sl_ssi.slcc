@@ -17,6 +17,10 @@ include:
     - path: "sl_si91x_ssi.h"
 provides:
   - name: sl_ssi
+define:
+  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
+  - name: SPI_MULTI_SLAVE
+  - name: SSI_CONFIG
 requires:
   - name: udma_linker_config
   - name: cmsis_spi

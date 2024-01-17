@@ -25,9 +25,7 @@
  *                      Macros
  ******************************************************/
 
-#ifndef SLI_SI91X_MCU_INTERFACE
 #define sl_uart_print(a, b) printf(b)
-#endif
 
 /******************************************************
  *                    Constants
@@ -300,7 +298,7 @@ static void print_command_database(const console_database_t *database, const cha
         sl_uart_print(DEFAULT_UART, command->description);
       }
       sl_uart_print(DEFAULT_UART, "\r\n");
-      for (int b = 0; b < temp->length; b++) {
+      for (uint32_t b = 0; b < temp->length; b++) {
         sl_uart_print(DEFAULT_UART, "  - ");
         sl_uart_print(DEFAULT_UART, temp->entries[b].key);
         sl_uart_print(DEFAULT_UART, " : ");

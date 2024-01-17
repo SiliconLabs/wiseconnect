@@ -149,11 +149,9 @@ sl_status_t sl_si91x_calendar_set_date_time(sl_calendar_datetime_config_t *confi
 /***************************************************************************/ /**
  * Get the date and time of an existing Calendar RTC.
  * @pre Pre-conditions:
- *- \ref sl_si91x_calendar_set_configuration 
-*   \ref sl_si91x_calendar_init 
-*
- *      \ref sl_si91x_calendar_set_date_time 
-*
+ * - \ref sl_si91x_calendar_set_configuration 
+ * - \ref sl_si91x_calendar_init 
+ * - \ref sl_si91x_calendar_set_date_time 
  * 
  * @param[in] config (sl_calendar_datetime_config_t) Pointer to the Date Configuration Structure 
  * @return status 0 if successful, else error code as follow

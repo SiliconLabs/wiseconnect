@@ -343,7 +343,7 @@ sl_status_t sl_http_client_delete_header(sl_http_client_request_t *request, cons
 
   // Search key in linked list
   while ((current_header != NULL) && (strcmp(current_header->key, key) != 0)) {
-    current_header = current_header->next;
+    current_header = (sl_http_client_header_t *)current_header->next;
   }
 
   // If key not present in linked list
@@ -375,7 +375,7 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
 
   while (current_header != NULL) {
     // Store next header link
-    next_header = current_header->next;
+    next_header = (sl_http_client_header_t *)current_header->next;
 
     // Remove node from list
     sl_slist_remove((sl_slist_node_t **)&request->extended_header, (sl_slist_node_t *)current_header);
@@ -461,7 +461,7 @@ static void load_extended_headers_into_request_buffer(uint8_t *buffer,
       (*http_buffer_offset)++;
 
       // Point to next header
-      current_header = current_header->next;
+      current_header = (sl_http_client_header_t *)current_header->next;
     }
   }
 }

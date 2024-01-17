@@ -84,9 +84,11 @@ typedef struct {
   bool is_retained;             ///< Flag whether to retain the will message or not.
   sl_mqtt_qos_t will_qos_level; ///< Quality of subscription.
   uint8_t *will_topic;          ///< Name of will topic.
-  uint16_t will_topic_length;   ///< Length of topic.
-  uint8_t *will_message;        ///< Pointer to will message.
-  uint32_t will_message_length; ///<  Length of the will message.
+  uint16_t
+    will_topic_length;   ///< Length of topic. Length should not exceed 62 bytes including NULL termination character.
+  uint8_t *will_message; ///< Pointer to will message.
+  uint32_t
+    will_message_length; ///<  Length of the will message. Length should not exceed 62 bytes including NULL termination character.
 } sl_mqtt_client_last_will_message_t;
 
 /// MQTT Client Message structure
@@ -96,9 +98,10 @@ typedef struct {
   bool is_retained;          ///< Retained flag of message as sent by the broker.
   bool is_duplicate_message; ///< Whether this is a duplicate message.
   uint8_t *topic;            ///< Pointer to topic name.
-  uint16_t topic_length;     ///< Length of the topic.
-  uint8_t *content;          ///< Pointer to content.
-  uint32_t content_length;   ///< Length of the content.
+  uint16_t
+    topic_length;   ///< Length of the topic. Length should not exceed 202 bytes including NULL termination character.
+  uint8_t *content; ///< Pointer to content.
+  uint32_t content_length; ///< Length of the content.
 } sl_mqtt_client_message_t;
 
 /// MQTT Client broker information structure
@@ -114,7 +117,7 @@ typedef struct {
 /// MQTT Client credentials structure
 typedef struct {
   uint16_t
-    username_length; ///< Length of the username. Length should not exceed 62 bytes including NULL termination character.
+    username_length; ///< Length of the username. Length should not exceed 122 bytes including NULL termination character.
   uint16_t
     password_length; ///< Length of the password. Length should not exceed 62 bytes including NULL termination character.
   uint8_t data[];    ///< A flexible array to store both username and password.
@@ -175,8 +178,9 @@ typedef struct {
   sl_slist_node_t next_subscription;                       ///< Next node in the linked list.
   sl_mqtt_client_message_received_t topic_message_handler; ///< A function pointer to message handler.
   sl_mqtt_qos_t qos_of_subscription;                       ///< Quality of subscription.
-  uint16_t topic_length;                                   ///< Length of the subscribed topic.
-  uint8_t topic[];                                         ///< A flexible array to store the topic.
+  uint16_t
+    topic_length; ///< Length of the subscribed topic. Length should not exceed 202 bytes including NULL termination character.
+  uint8_t topic[]; ///< A flexible array to store the topic.
 } sl_mqtt_client_topic_subscription_info_t;
 
 /// MQTT Client Handle structure

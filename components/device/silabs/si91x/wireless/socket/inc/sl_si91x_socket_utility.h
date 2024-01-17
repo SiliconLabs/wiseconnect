@@ -59,6 +59,15 @@
       }                                                                       \
     } while (0);                                                              \
   }
+#define SLI_SI91X_NULL_SAFE_FD_ZERO(fd_set) 	\
+{									\
+	do {							\
+		if (NULL != fd_set) {		\
+		FD_ZERO(fd_set);			\
+		} 							\
+	} while(0);						\
+}
+
 
 #define GET_SAFE_MEMCPY_LENGTH(destination_size, source_size) \
   source_size > destination_size ? destination_size : source_size

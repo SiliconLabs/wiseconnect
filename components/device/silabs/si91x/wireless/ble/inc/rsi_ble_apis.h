@@ -90,7 +90,7 @@ typedef struct rsi_ble_event_conn_status_s {
   /**Address of the connected device*/
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
   /**status of the connection - success/failure*/
-  uint8_t status;
+  uint16_t status;
 
 } rsi_ble_event_conn_status_t;
 
@@ -115,7 +115,7 @@ typedef struct rsi_ble_event_enhnace_conn_status_s {
   /**Only applicable for peripheral, for central this value is set to 0x00*/
   uint8_t master_clock_accuracy;
   /**Status of the Connection - success/failure*/
-  uint8_t status;
+  uint16_t status;
 } rsi_ble_event_enhance_conn_status_t;
 
 //Disconnect event structure
@@ -1101,15 +1101,116 @@ typedef struct rsi_ble_per_transmit_s {
 -
        Transmit power value for the rf chain parameter set to LP chain and values are: 
 -
-       0 -31 o/p power equation is  -2+10log10(power_index/31) 
--
-       32-63 o/p power equation is  
--
-       6 + 10log10((power_index -32)/31) 
--
        TX power for the BLE LP Chain :1 to 31 (0dBm Mode), 33 to 63 ( 10dBm Mode) 
 -
-       TX power for the BLE HP chain : 64 to 79 */
+       TX power for the BLE HP chain : 64 to 127 
+-
+     @note For the LP Chain - Power index vs Outpt power in dBm
+
+ *    -----------------------------------------------------------------------------------------
+ *   |       Power Index   |                  Output Power in dBm                              |
+ *   ----------------------|-------------------------------------------------------------------
+ *   |      1              |      		 -22.3054959      			       |
+ *   |      2              |      		 -16.59332574     			       |
+ *   |      3              |      		 -13.38278365     			       |
+ *   |      4              |      		 -11.19804718                                  |
+ *   |      5              |      		 -9.576522466                                  |
+ *   |      6              |      		 -8.312070432                                  |
+ *   |      7              |      		 -7.294640362                                  |
+ *   |      8              |      		 -6.458448154                                  |
+ *   |      9              |      		 -5.760963318                                  |
+ *   |      10             |      		 -5.173042366                                  |
+ *   |      11             |      		 -4.673788189                                  |
+ *   |      12             |      		 -4.247653993                                  |
+ *   |      13             |      		 -3.882708784                                  |
+ *   |      14             |      		 -3.569545894                                  |
+ *   |      15             |      		 -3.300567503                                  |
+ *   |      16             |      		 -3.069499167                                  |
+ *   |      17             |      		 -2.871050592                                  |
+ *   |      18             |      		 -2.700672503                                  |
+ *   |      19             |      		 -2.554378603                                  |
+ *   |      20             |      		 -2.428612817                                  |
+ *   |      21             |      		 -2.32014891                                   |
+ *   |      22             |      		 -2.226013876                                  |
+ *   |      23             |      		 -2.143429275                                  |
+ *   |      24             |      		 -2.069766557                                  |
+ *   |      25             |      		 -2.002513642                                  |
+ *   |      26             |      		 -1.939250859                                  |
+ *   |      27             |      		 -1.87763493                                   |
+ *   |      28             |      		 -1.815390046                                  |
+ *   |      29             |      		 -1.750305305                                  |
+ *   |      30             |      		 -1.680237892                                  |
+ *   |      31             |      		 -1.603121401                                  |
+ *   |      32             |                     NA		  		               |
+ *   |      33             |                     -10.4822997	  		               |
+ *   |      34             |                     -4.9531679	  		               |
+ *   |      35             |                     -1.931961022	  		               |
+ *   |      36             |                     0.057132993	  		               |
+ *   |      37             |                     1.476764101	  		               |
+ *   |      38             |                     2.5332116	  		               |
+ *   |      39             |                     3.336771823	  		               |
+ *   |      40             |                     3.953605265	  		               |
+ *   |      41             |                     4.426779615	  		               |
+ *   |      42             |                     4.786171523	  		               |
+ *   |      43             |                     5.053647759	  		               |
+ *   |      44             |                     5.246007208	  		               |
+ *   |      45             |                     5.37676618	  		               |
+ *   |      46             |                     5.457304255	  		               |
+ *   |      47             |                     5.497635316	  		               |
+ *   |      48             |                     5.506945838	  		               |
+ *   |      49             |                     5.493978354	  		               |
+ *   |      50             |                     5.467302132	  		               |
+ *   |      51             |                     5.435491631	  		               |
+ *   |      52             |                     5.407220119	  		               |
+ *   |      53             |                     5.391268248	  		               |
+ *   |      54             |                     5.396444507	  		               |
+ *   |      55             |                     5.431416481	  		               |
+ *   |      56             |                     5.504458826	  		               |
+ *   |      57             |                     5.62313521	  		               |
+ *   |      58             |                     5.793945208	  		               |
+ *   |      59             |                     6.02197959	  		               |
+ *   |      60             |                     6.310634089	  		               |
+ *   |      61             |                     6.661428559	  		               |
+ *   |      62             |                     7.073964236	  		               |
+ *   |      63             |                     7.546029076	  		               |
+ *   ----------------------|-------------------------------------------------------------------
+-
+     @note For the HP Chain - Power index vs Outpt power in dBm
+
+ *    -----------------------------------------------------------------------------------------
+ *   |       Power Index   |                  Output Power in dBm                              |
+ *   ----------------------|-------------------------------------------------------------------
+ *   |         1           |      		    1	 	  			       |
+ *   |         2           |      		    2	   				       |
+ *   |         3           |      		    3	   				       |
+ *   |         4           |      		    4	                        	       |
+ *   |         5           |      		    5					       |
+ *   |         6           |      		    6	                                       |
+ *   |         7           |      		    7	                                       |
+ *   |         8           |      		    8	                                       |
+ *   |         9           |      		    9	                                       |
+ *   |         10          |      		    10	                                       |
+ *   |         -           |      		    -	                                       |
+ *   |         -           |      		    -	                                       |
+ *   |         -           |      		    -	                                       |
+ *   |         -           |      		    -	                                       |
+ *   |         41          |      		    0.5                                        |
+ *   |         42          |      		    1	                                       |
+ *   |         43          |      		    1.5                                        |
+ *   |         44          |      		    2	                                       |
+ *   |         45          |      		    2.5                                        |
+ *   |         46          |      		    3	                                       |
+ *   |         47          |      		    3.5                                        |
+ *   |         48          |      		    4	                                       |
+ *   |         49          |      		    4.5                                        |
+ *   |         50          |      		    5	                                       |
+ *   |         -           |      		    -	                                       |
+ *   |         -           |      		    -	                                       |
+ *   |         127         |   		(Max Power Supported by Country region)                |
+ *   ----------------------|-------------------------------------------------------------------
+
+ */
+
   uint8_t tx_power;
   /** Transmit mode to be used either Burst/Continuous 
 -
@@ -2864,67 +2965,136 @@ void BT_LE_ADPacketExtract(uint8_t *remote_name, uint8_t *pbuf, uint8_t buf_len)
  * -
  *              0x4D04	BLE not connected 
  * -
- * @note       Refer Error Codes section for above error codes \ref error-codes .
+ * @note       Refer Error Codes section for above error codes \ref error-codes.
  */
 int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, uint8_t *rand, uint8_t *ltk);
 
 /*==============================================*/
 /**
- * @fn          int32_t rsi_ble_set_ble_tx_power(uint8_t role, uint8_t *remote_dev_address,
- *                                               int8_t tx_power)
- * @brief       Set the TX power value per GAP role. This is a Blocking API
- * @note        This API is not supported in the current release.
- * @param[in]   role
- *              ADV_ROLE               0x01 
- * -
- *              SCAN_AND_CENTRAL_ROLE  0x02 
- * -
- *              PERIPHERAL_ROLE        0x03 
- * -
- *              CONN_ROLE              0x04 
- * -
- * @param[in]   remote_dev_address - Remote device address
- * @param[in]   tx_power - power value
- * @note        remote_dev_address is valid only on role=CONN_ROLE 
- * -
- *              #define RSI_BLE_PWR_INX_DBM  0  indicate tx_power in index 
- * -
- *              Default Value for BLE TX Power Index is 31, The range for the BLE TX Power Index is 1 to 75 (0, 32 indexes are invalid) 
- * -
- *                      1 - 31    BLE - 0DBM Mode.  
- * -
- *                     33 - 63    BLE - 10DBM Mode. 
- * -
- *                     64 - 75    BLE - HP Mode.    
- * -
- *              Currently this API is supports only BLE LP mode . i.e. 1 to  63 BLE LP MODE 
- * -
- *              #define RSI_BLE_PWR_INX_DBM  1  indicate tx_power in dBm 
- * -
- *              tx_power in dBm (-8dBm to 15 dBm) 
- * -
- *              Currently this API is supports only BLE LP mode . i.e. -8 dBm to  4dBm BLE LP MODE 
- * -
+ * @fn          int32_t rsi_ble_set_ble_tx_power(int8_t tx_power)
+ * @brief       Set TX power
+ * @param[in]   tx_power Power value
  * @return The following values are returned:
- * -      0 - Success 
- * -
- *              Non-Zero Value - Failure 
- * -
- *              0x4E02 	Unknown Connection Identifier 
- * -
- *              0x4E01	Unknown HCI Command 
- * -
- *              0x4E0C	Command disallowed 
- * -
- *              0x4046 	Invalid Arguments 
- * -
- *              0x4D04	BLE not connected 
- * -
- *              0x4D14	BLE parameter out of mandatory range
- * @note        Refer Error Codes section for above error codes \ref error-codes .
- *
+ * - 0 - Success 
+ * - Non-zero value - Failure
+ * - 0x4E02 - Unknown connection identifier
+ * - 0x4E01	- Unknown HCI command
+ * - 0x4E0C	- Command disallowed 
+ * - 0x4046 - Invalid arguments
+ * - 0x4D04	- BLE not connected 
+ * - 0x4D14	- BLE parameter out of mandatory range
+ * @note        This is a Blocking API.
+ * @note        Refer Error Codes section for above error codes \ref error-codes.
+ * @note        The higher power will be backed off based on country region.
+ * @note        Use the following setting to indicate tx_power as an index: `#define RSI_BLE_PWR_INX_DBM  0`
+ * - Default value for power index is 31. 
+ * - Valid values for power index range from 1 to 31 and 33 to 127:
+ *   - 1 to 31: BLE - 0dBm mode.  
+ *   - 33 to 63: BLE - 10dBm mode. 
+ *   - 64 to 82: BLE - 1dBm - 18dBm HP mode in the resolution of 1dBm.
+ *   - 104 to 126: BLE - 0.5dBm - 11dBm HP mode in the resolution of 0.5dbm.
+ *   - 127: BLE HP Mode, max power supported.
+ * @note        Use the following setting to indicate tx_power in dBm (-8dBm to 18dBm): `#define RSI_BLE_PWR_INX_DBM  1`
+ * @note        When switching between HP mode and LP mode, please ensure that no protocol activity is running.  
+ * @note        For the LP Chain - Power index vs output power in dBm in E2E mode:
+ *   |       Power Index   |                  Output Power in dBm                              |
+ *   ----------------------|-------------------------------------------------------------------|
+ *   |      1              |      		 -22.3054959      			       |
+ *   |      2              |      		 -16.59332574     			       |
+ *   |      3              |      		 -13.38278365     			       |
+ *   |      4              |      		 -11.19804718                                  |
+ *   |      5              |      		 -9.576522466                                  |
+ *   |      6              |      		 -8.312070432                                  |
+ *   |      7              |      		 -7.294640362                                  |
+ *   |      8              |      		 -6.458448154                                  |
+ *   |      9              |      		 -5.760963318                                  |
+ *   |      10             |      		 -5.173042366                                  |
+ *   |      11             |      		 -4.673788189                                  |
+ *   |      12             |      		 -4.247653993                                  |
+ *   |      13             |      		 -3.882708784                                  |
+ *   |      14             |      		 -3.569545894                                  |
+ *   |      15             |      		 -3.300567503                                  |
+ *   |      16             |      		 -3.069499167                                  |
+ *   |      17             |      		 -2.871050592                                  |
+ *   |      18             |      		 -2.700672503                                  |
+ *   |      19             |      		 -2.554378603                                  |
+ *   |      20             |      		 -2.428612817                                  |
+ *   |      21             |      		 -2.32014891                                   |
+ *   |      22             |      		 -2.226013876                                  |
+ *   |      23             |      		 -2.143429275                                  |
+ *   |      24             |      		 -2.069766557                                  |
+ *   |      25             |      		 -2.002513642                                  |
+ *   |      26             |      		 -1.939250859                                  |
+ *   |      27             |      		 -1.87763493                                   |
+ *   |      28             |      		 -1.815390046                                  |
+ *   |      29             |      		 -1.750305305                                  |
+ *   |      30             |      		 -1.680237892                                  |
+ *   |      31             |      		 -1.603121401                                  |
+ *   |      32             |                     N/A		  		               |
+ *   |      33             |                     -10.4822997	  		               |
+ *   |      34             |                     -4.9531679	  		               |
+ *   |      35             |                     -1.931961022	  		               |
+ *   |      36             |                     0.057132993	  		               |
+ *   |      37             |                     1.476764101	  		               |
+ *   |      38             |                     2.5332116	  		               |
+ *   |      39             |                     3.336771823	  		               |
+ *   |      40             |                     3.953605265	  		               |
+ *   |      41             |                     4.426779615	  		               |
+ *   |      42             |                     4.786171523	  		               |
+ *   |      43             |                     5.053647759	  		               |
+ *   |      44             |                     5.246007208	  		               |
+ *   |      45             |                     5.37676618	  		               |
+ *   |      46             |                     5.457304255	  		               |
+ *   |      47             |                     5.497635316	  		               |
+ *   |      48             |                     5.506945838	  		               |
+ *   |      49             |                     5.493978354	  		               |
+ *   |      50             |                     5.467302132	  		               |
+ *   |      51             |                     5.435491631	  		               |
+ *   |      52             |                     5.407220119	  		               |
+ *   |      53             |                     5.391268248	  		               |
+ *   |      54             |                     5.396444507	  		               |
+ *   |      55             |                     5.431416481	  		               |
+ *   |      56             |                     5.504458826	  		               |
+ *   |      57             |                     5.62313521	  		               |
+ *   |      58             |                     5.793945208	  		               |
+ *   |      59             |                     6.02197959	  		               |
+ *   |      60             |                     6.310634089	  		               |
+ *   |      61             |                     6.661428559	  		               |
+ *   |      62             |                     7.073964236	  		               |
+ *   |      63             |                     7.546029076	  		               |
+ * @note For the HP Chain - Power index vs output power in dBm in E2E mode:
+ *   |       Power Index   |                  Output Power in dBm                              |
+ *   |---------------------|-------------------------------------------------------------------|
+ *   |         64	   |      		1		  			       |
+ *   |         65	   |      		2	  				       |
+ *   |         66	   |      		3	  				       |
+ *   |         67	   |      		4	       	                	       |
+ *   |         68	   |      		5	       				       |
+ *   |         69	   |      		6	               	                       |
+ *   |         70	   |      		7	               	                       |
+ *   |         71	   |      		8	               	                       |
+ *   |         72	   |      		9	               	                       |
+ *   |         73	   |      		10	               	                       |
+ *   |         74	   |      		11	               	                       |
+ *   |         75	   |      		12	               	                       |
+ *   |         76	   |      		13	               	                       |
+ *   |         77	   |      		14	               	                       |
+ *   |         78	   |      		15	               	                       |
+ *   |         -	   |      		-	               	                       |
+ *   |         -	   |      		-	               	                       |
+ *   |         104	   |      		0.5	               	                       |
+ *   |         105	   |      		1	               	                       |
+ *   |         106	   |      		1.5	               	                       |
+ *   |         107	   |      		2	               	                       |
+ *   |         108	   |      		2.5	               	                       |
+ *   |         109	   |      		3	               	                       |
+ *   |         110	   |      		3.5	               	                       |
+ *   |         111	   |      		4	               	                       |
+ *   |         -	   |      		-	                                       |
+ *   |         126	   |      		10.5	                                       |
+ *   |         127	   | Max Power Supported by Country region			       |
  */
-int32_t rsi_ble_set_ble_tx_power(uint8_t role, uint8_t *remote_dev_address, int8_t tx_power);
+int32_t rsi_ble_set_ble_tx_power(int8_t tx_power);
 /** @} */
 
 /******************************************************

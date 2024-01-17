@@ -23,23 +23,23 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock 40MHZ
-#define PS4_SOC_FREQ          180000000 // PLL out clock 180MHz
-#define BUFFER_SIZE           1024      // Transmit/Receive buffer size
-#define I2S_INSTANCE          1         // I2S instance
-#define ULP_BANK_OFFSET       0x800
-#define TX_BUF_MEMORY         (ULP_SRAM_START_ADDR + (1 * ULP_BANK_OFFSET))
-#define RX_BUF_MEMORY         (ULP_SRAM_START_ADDR + (2 * ULP_BANK_OFFSET))
+#define SOC_PLL_REF_FREQUENCY    40000000  // PLL input REFERENCE clock 40MHZ
+#define PS4_SOC_FREQ             180000000 // PLL out clock 180MHz
+#define I2S_LOWPOWER_BUFFER_SIZE 1024      // Transmit/Receive buffer size
+#define I2S_INSTANCE             1         // I2S instance
+#define ULP_BANK_OFFSET          0x800
+#define TX_BUF_MEMORY            (ULP_SRAM_START_ADDR + (1 * ULP_BANK_OFFSET))
+#define RX_BUF_MEMORY            (ULP_SRAM_START_ADDR + (2 * ULP_BANK_OFFSET))
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-uint8_t data_in[BUFFER_SIZE];
-uint8_t data_out[BUFFER_SIZE];
-static sl_i2s_handle_t i2s_driver_handle    = NULL;
-static uint8_t send_complete                = 0;
-static uint8_t receive_complete             = 0;
-static sl_i2s_xfer_config_t i2s_xfer_config = { 0 };
+uint8_t i2s_lowpower_data_in[I2S_LOWPOWER_BUFFER_SIZE];
+uint8_t i2s_lowpower_data_out[I2S_LOWPOWER_BUFFER_SIZE];
+static sl_i2s_handle_t i2s_driver_handle     = NULL;
+static uint8_t i2s_lowpower_send_complete    = 0;
+static uint8_t i2s_lowpower_receive_complete = 0;
+static sl_i2s_xfer_config_t i2s_xfer_config  = { 0 };
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -55,8 +55,6 @@ static void compare_loop_back_data(void);
 void i2s_lowpower_example_init(void)
 {
   sl_status_t status;
-  sl_i2s_version_t i2s_version;
-  sl_i2s_status_t i2s_status; //Initialize I2S transfer structure
   i2s_xfer_config.mode          = SL_I2S_MASTER;
   i2s_xfer_config.protocol      = SL_I2S_PROTOCOL;
   i2s_xfer_config.resolution    = SL_I2S_RESOLUTION;
@@ -68,10 +66,10 @@ void i2s_lowpower_example_init(void)
   DEBUGINIT();
 
   // Filling the data out array with integer values
-  for (uint32_t i = 0; i < BUFFER_SIZE; i++) {
-    data_out[i] = i;
+  for (uint32_t i = 0; i < I2S_LOWPOWER_BUFFER_SIZE; i++) {
+    i2s_lowpower_data_out[i] = i;
   }
-  memcpy((uint8_t *)TX_BUF_MEMORY, data_out, BUFFER_SIZE);
+  memcpy((uint8_t *)TX_BUF_MEMORY, i2s_lowpower_data_out, I2S_LOWPOWER_BUFFER_SIZE);
   do {
     //Initialize I2S peripheral and store driver handle in i2s_driver_handle
     status = sl_si91x_i2s_init(I2S_INSTANCE, &i2s_driver_handle);
@@ -109,13 +107,13 @@ void i2s_lowpower_example_init(void)
     }
     DEBUGOUT("I2S receive config success\r\n");
     //Configure I2S receive DMA channel
-    if (sl_si91x_i2s_receive_data(i2s_driver_handle, (uint8_t *)RX_BUF_MEMORY, BUFFER_SIZE)) {
+    if (sl_si91x_i2s_receive_data(i2s_driver_handle, (uint8_t *)RX_BUF_MEMORY, I2S_LOWPOWER_BUFFER_SIZE)) {
       DEBUGOUT("I2S receive start fail\r\n");
       break;
     }
     DEBUGOUT("I2S receive start success\r\n");
     //Configure I2S transmit DMA channel
-    if (sl_si91x_i2s_transmit_data(i2s_driver_handle, (uint8_t *)TX_BUF_MEMORY, BUFFER_SIZE)) {
+    if (sl_si91x_i2s_transmit_data(i2s_driver_handle, (uint8_t *)TX_BUF_MEMORY, I2S_LOWPOWER_BUFFER_SIZE)) {
       DEBUGOUT("I2S transmit start fail\r\n");
       break;
     }
@@ -127,20 +125,20 @@ void i2s_lowpower_example_init(void)
  ******************************************************************************/
 void i2s_lowpower_example_process_action(void)
 {
-  if ((send_complete && receive_complete)) {
-    memcpy(data_in, (uint8_t *)RX_BUF_MEMORY, BUFFER_SIZE);
+  if ((i2s_lowpower_send_complete && i2s_lowpower_receive_complete)) {
+    memcpy(i2s_lowpower_data_in, (uint8_t *)RX_BUF_MEMORY, I2S_LOWPOWER_BUFFER_SIZE);
     //Data has been transferred and received successfully
     //Validate the transmit and receive data count
-    if ((sl_si91x_i2s_get_transmit_data_count(i2s_driver_handle) == BUFFER_SIZE)
-        && (sl_si91x_i2s_get_receive_data_count(i2s_driver_handle) == BUFFER_SIZE)) {
+    if ((sl_si91x_i2s_get_transmit_data_count(i2s_driver_handle) == I2S_LOWPOWER_BUFFER_SIZE)
+        && (sl_si91x_i2s_get_receive_data_count(i2s_driver_handle) == I2S_LOWPOWER_BUFFER_SIZE)) {
       //I2S transfer completed
       DEBUGOUT("I2S transfer complete\r\n");
       //Compare transmit data and receive data
       compare_loop_back_data();
     }
     //reset send and receive complete status flags
-    send_complete    = 0;
-    receive_complete = 0;
+    i2s_lowpower_send_complete    = 0;
+    i2s_lowpower_receive_complete = 0;
   }
 }
 
@@ -154,14 +152,14 @@ void i2s_lowpower_example_process_action(void)
 static void compare_loop_back_data(void)
 {
   uint16_t data_index = 0;
-  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
+  for (data_index = 0; data_index < I2S_LOWPOWER_BUFFER_SIZE; data_index++) {
     // If the data in and data out are same, it will be continued else, the for
     // loop will be break.
-    if (data_in[data_index] != data_out[data_index]) {
+    if (i2s_lowpower_data_in[data_index] != i2s_lowpower_data_out[data_index]) {
       break;
     }
   }
-  if (data_index == BUFFER_SIZE) {
+  if (data_index == I2S_LOWPOWER_BUFFER_SIZE) {
     DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
   } else {
     DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
@@ -179,10 +177,10 @@ static void callback_event(uint32_t event)
 {
   switch (event) {
     case SL_I2S_SEND_COMPLETE:
-      send_complete = 1;
+      i2s_lowpower_send_complete = 1;
       break;
     case SL_I2S_RECEIVE_COMPLETE:
-      receive_complete = 1;
+      i2s_lowpower_receive_complete = 1;
       break;
     case SL_I2S_TX_UNDERFLOW:
       break;

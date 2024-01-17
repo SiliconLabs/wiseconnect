@@ -116,6 +116,9 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
 - Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
   - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
   
+### Note
+  - Enable `SL_SI91X_TCP_IP_FEAT_BYPASS` bitmap in tcp_ip_feature_bitmap to use the lwip stack.
+  - Refer [sl_net_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-init) API for using the lwip stack.
 
 ## Test the application
 

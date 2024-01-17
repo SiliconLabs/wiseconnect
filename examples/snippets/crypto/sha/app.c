@@ -41,9 +41,8 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#define SHA \
-  "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"
-
+const char *message =
+  "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -133,7 +132,7 @@ sl_status_t sha_process(void)
   sl_status_t status;
 
   // Compute digest using SHA
-  status = sl_si91x_sha(SL_SI91x_SHA_512, SHA, strlen(SHA), digest);
+  status = sl_si91x_sha(SL_SI91x_SHA_512, (uint8_t *)message, strlen(message), digest);
   if (status != SL_STATUS_OK) {
     printf("\r\n SHA Failed, Error Code : 0x%lX\r\n", status);
     return status;

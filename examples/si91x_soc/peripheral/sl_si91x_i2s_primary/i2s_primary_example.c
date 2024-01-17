@@ -23,19 +23,19 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock 40MHZ
-#define PS4_SOC_FREQ          180000000 // PLL out clock 180MHz
-#define BUFFER_SIZE           1024      // Transmit/Receive buffer size
-#define I2S_INSTANCE          0         // I2S instance
+#define SOC_PLL_REF_FREQUENCY   40000000  // PLL input REFERENCE clock 40MHZ
+#define PS4_SOC_FREQ            180000000 // PLL out clock 180MHz
+#define I2S_PRIMARY_BUFFER_SIZE 1024      // Transmit/Receive buffer size
+#define I2S_INSTANCE            0         // I2S instance
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-uint16_t data_in[BUFFER_SIZE];
-uint16_t data_out[BUFFER_SIZE];
+uint16_t i2s_primary_data_in[I2S_PRIMARY_BUFFER_SIZE];
+uint16_t i2s_primary_data_out[I2S_PRIMARY_BUFFER_SIZE];
 static sl_i2s_handle_t i2s_driver_handle    = NULL;
-static uint8_t send_complete                = 0;
-static uint8_t receive_complete             = 0;
+static uint8_t i2s_primary_send_complete    = 0;
+static uint8_t i2s_primary_receive_complete = 0;
 static sl_i2s_xfer_config_t i2s_xfer_config = { 0 };
 typedef enum { SEND_DATA, RECEIVE_DATA, WAIT_STATE, INVALID_STATE } transfer_state_t;
 
@@ -55,11 +55,10 @@ void i2s_example_init(void)
 {
   sl_status_t status;
   sl_i2s_version_t i2s_version;
-  sl_i2s_status_t i2s_status;
 
   // Filling the data out array with integer values
-  for (uint32_t i = 0; i < BUFFER_SIZE; i++) {
-    data_out[i] = i;
+  for (uint32_t i = 0; i < I2S_PRIMARY_BUFFER_SIZE; i++) {
+    i2s_primary_data_out[i] = i;
   }
   do {
     //Fetch I2S driver version
@@ -125,7 +124,7 @@ void i2s_example_process_action(void)
           DEBUGOUT("I2S transmit config success\r\n");
         }
         //Configure I2S transmit DMA channel
-        if (sl_si91x_i2s_transmit_data(i2s_driver_handle, data_out, BUFFER_SIZE)) {
+        if (sl_si91x_i2s_transmit_data(i2s_driver_handle, i2s_primary_data_out, I2S_PRIMARY_BUFFER_SIZE)) {
           DEBUGOUT("I2S transmit start fail\r\n");
           state = INVALID_STATE;
           break;
@@ -155,7 +154,7 @@ void i2s_example_process_action(void)
           DEBUGOUT("I2S receive config success\r\n");
         }
         //Configure I2S receive DMA channel
-        if (sl_si91x_i2s_receive_data(i2s_driver_handle, data_in, BUFFER_SIZE)) {
+        if (sl_si91x_i2s_receive_data(i2s_driver_handle, i2s_primary_data_in, I2S_PRIMARY_BUFFER_SIZE)) {
           DEBUGOUT("I2S receive start fail\r\n");
           state = INVALID_STATE;
           break;
@@ -167,16 +166,16 @@ void i2s_example_process_action(void)
       break;
 
     case WAIT_STATE:
-      if (send_complete) {
+      if (i2s_primary_send_complete) {
         DEBUGOUT("Data send successfully\r\n");
-        send_complete = 0;
-        state         = RECEIVE_DATA;
+        i2s_primary_send_complete = 0;
+        state                     = RECEIVE_DATA;
         sl_si91x_i2s_end_transfer(i2s_driver_handle, SL_I2S_SEND_ABORT);
       }
-      if (receive_complete) {
+      if (i2s_primary_receive_complete) {
         DEBUGOUT("Data received successfully\r\n");
         compare_loop_back_data();
-        receive_complete = 0;
+        i2s_primary_receive_complete = 0;
       }
       break;
 
@@ -226,14 +225,14 @@ static int32_t clock_configuration_pll(void)
 static void compare_loop_back_data(void)
 {
   uint16_t data_index = 0;
-  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
+  for (data_index = 0; data_index < I2S_PRIMARY_BUFFER_SIZE; data_index++) {
     // If the data in and data out are same, it will be continued else, the for
     // loop will be break.
-    if (data_in[data_index] != data_out[data_index]) {
+    if (i2s_primary_data_in[data_index] != i2s_primary_data_out[data_index]) {
       break;
     }
   }
-  if (data_index == BUFFER_SIZE) {
+  if (data_index == I2S_PRIMARY_BUFFER_SIZE) {
     DEBUGOUT("Data comparison successful\n");
   } else {
     DEBUGOUT("Data comparison failed\n");
@@ -251,10 +250,10 @@ static void callback_event(uint32_t event)
 {
   switch (event) {
     case SL_I2S_SEND_COMPLETE:
-      send_complete = 1;
+      i2s_primary_send_complete = 1;
       break;
     case SL_I2S_RECEIVE_COMPLETE:
-      receive_complete = 1;
+      i2s_primary_receive_complete = 1;
       break;
     case SL_I2S_TX_UNDERFLOW:
       break;

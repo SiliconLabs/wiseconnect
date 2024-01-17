@@ -102,7 +102,15 @@ int32_t rsi_bt_set_local_name(uint8_t *local_name);
  * @param[in]  node_id     - Node ID (0 - BLE, 1 - BT).
  * @param[in]  payload_len - Length of the payload.
  * @param[in]  payload     - Payload containing table data of gain table offset/max power
- * @param[in]  req_type    - update gain table request type (0 - max power update, 1 - offset update)
+ * @param[in]  req_type    - Update gain table request type 
+ * -
+ *              0 - Max power update
+ * -
+ *              1 - Max power offset update
+ * -
+ *              2 - LP_Chain 0dBm offset update
+ * -
+ *              3 - LP_chain 10dBm offset update.
  * @return The following values are returned:
  * -     0		-	Success 
 *-

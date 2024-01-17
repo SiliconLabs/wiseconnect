@@ -21,7 +21,7 @@
 #include "rsi_ccp_common.h"
 
 void ARM_UART_SignalEvent(uint32_t event);
-
+extern void cache_uart_rx_data(const char character);
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define M4_UART1_INSTANCE 0U //!Select m4 uart1 for prints
 #if ((defined(ULP_MODE_EXECUTION)) || (defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2)))

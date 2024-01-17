@@ -368,8 +368,6 @@ uint16_t rsi_bt_global_cb_init(struct rsi_driver_cb_s *driver_cb, uint8_t *buffe
 uint16_t rsi_driver_process_bt_resp_handler(void *rx_pkt);
 uint16_t rsi_bt_get_proto_type(uint16_t rsp_type, rsi_bt_cb_t **bt_cb);
 
-int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_name);
-
 #define HCI_BT_PER_STATS_CMD_ID 0x08
 #define HCI_BLE_TRANSMIT_CMD_ID 0x13
 #define HCI_BLE_RECEIVE_CMD_ID  0x14

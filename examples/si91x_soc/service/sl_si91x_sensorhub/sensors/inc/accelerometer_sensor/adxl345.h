@@ -258,7 +258,7 @@ void sl_si91x_adxl345_read_acceleration_value(int *xyz);
 *  @param[in]   a, b, c: Axis at all g ranges with 10 Bit Resolution (2 Bytes)
 *  @return      Returns RSI_OK if Success, else SL_FAIL for Failure
 *******************************************************************************/
-void sl_si91x_adxl345_read_acceleration(int *read_a, int *read_b, int *read_c);
+void sl_si91x_adxl345_read_acceleration(int16_t *read_a, int16_t *read_b, int16_t *read_c);
 
 /*******************************************************************************
 *  @fn          void sl_si91x_adxl345_get_Gxyz(double *xyz)

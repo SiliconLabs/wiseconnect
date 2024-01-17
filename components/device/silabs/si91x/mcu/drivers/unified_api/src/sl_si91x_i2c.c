@@ -36,56 +36,56 @@
 #include "sl_si91x_dma.h"
 #include "sl_si91x_peripheral_gpio.h"
 #include "sl_si91x_peripheral_i2c.h"
+#include "rsi_debug.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS ********************************
  ******************************************************************************/
-#define DMA_NUMBER                           0           // DMA number of DMA used for I2C1 and I2C0 instances
-#define I2C2_DMA_NUMBER                      1           // DMA number of DMA used for I2C2 instance
-#define ZERO_FLAG                            0           // Zero flag, No argument
-#define PORT_ZERO                            0           // Port zero
-#define HP_MAX_GPIO                          64          // High Power GPIO Maximum number
-#define PINMUX_MODE                          6           // I2C pinmux mode
-#define LAST_DATA_COUNT                      0           // Last read-write count
-#define DATA_COUNT                           1           // Last second data count for verification
-#define BIT_SET                              1           // Set bit
-#define STOP_BIT                             9           // Bit to send stop command
-#define MASK_READ_BIT                        8           // Bit to mask read and write
-#define INTERNAL_PULLUP                      1           // Internal Pull-up enable
-#define ULP_GPIO_SDA                         10          // SDA ULP GPIO Pin number
-#define ULP_GPIO_SCL                         11          // SCL ULP GPIO Pin number
-#define ULP_GPIO_SDA2                        6           // SDA ULP GPIO Pin number
-#define ULP_GPIO_SCL2                        7           // SCL ULP GPIO Pin number
-#define BUFFER_START_INDEX                   0           // Starting buffer index
-#define MAX_7BIT_ADDRESS                     127         // Maximum 7-bit address
-#define SIXTY_FOUR                           64          // Value 64
-#define SIXTY_THREE                          63          // Value 64
-#define TWENTY_FIVE                          25          // Value 25
-#define TWENTY_SIX                           26          // Value 26
-#define TWENTY_EIGHT                         28          // Value 28
-#define TWENTY_NINE                          29          // Value 29
-#define SIX                                  6           // Value 25
-#define ZERO                                 0           // Value 0
-#define ONE                                  1           // Value 1
-#define TWO                                  2           // Value 2
-#define SET                                  1           // to set a bit
-#define CLEAR                                0           // to clear a bit
-#define ACK_BYTE                             0x00000100  // to write ack
-#define FOLLOWER_ADDR_10BIT_MAX              0x3FF       // maximum value for 10-bit address
-#define REFERENCE_CLOCK_FREQUENCY            (32000000u) // Reference clock frequency
-#define HIGH_SPEED_REFERENCE_CLOCK_FREQUENCY (40000000u) // Reference clock frequency
-#define I2C_STANDARD_MODE_CLOCK_FREQUENCY    (32000000u) // clock frequency for i2c standard mode
-#define I2C_FAST_MODE_CLOCK_FREQUENCY        (32000000u) // clock frequency for i2c fast mode
-#define I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY   (80000000u) // clock frequency for i2c fast plus mode
-#define I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY  (80000000u) // clock frequency for i2c high speed mode
-#define ULP_PORT                             4           // GPIO ULP port
-#define ULP_MODE                             6           // ULP GPIO mode
-#define MAX_GPIO                             64          // maximum GPIO pins
-#define OUTPUT                               1           // Output value set
-#define HOST_MIN                             24          // GPIO host pad minimum pin number
-#define HOST_MAX                             31          // GPIO host pad maximum pin number
-#define I2C2_MUX                             4           // I2C2 MUX number
-#define I2C2_PAD                             0           // I2C2 PAD number
+#define DMA_NUMBER                           0            // DMA number of DMA used for I2C1 and I2C0 instances
+#define I2C2_DMA_NUMBER                      1            // DMA number of DMA used for I2C2 instance
+#define ZERO_FLAG                            0            // Zero flag, No argument
+#define PORT_ZERO                            0            // Port zero
+#define HP_MAX_GPIO                          64           // High Power GPIO Maximum number
+#define PINMUX_MODE                          6            // I2C pinmux mode
+#define LAST_DATA_COUNT                      0            // Last read-write count
+#define DATA_COUNT                           1            // Last second data count for verification
+#define BIT_SET                              1            // Set bit
+#define STOP_BIT                             9            // Bit to send stop command
+#define MASK_READ_BIT                        8            // Bit to mask read and write
+#define INTERNAL_PULLUP                      1            // Internal Pull-up enable
+#define ULP_GPIO_SDA                         10           // SDA ULP GPIO Pin number
+#define ULP_GPIO_SCL                         11           // SCL ULP GPIO Pin number
+#define ULP_GPIO_SDA2                        6            // SDA ULP GPIO Pin number
+#define ULP_GPIO_SCL2                        7            // SCL ULP GPIO Pin number
+#define BUFFER_START_INDEX                   0            // Starting buffer index
+#define MAX_7BIT_ADDRESS                     127          // Maximum 7-bit address
+#define SIX                                  6            // Value 25
+#define ZERO                                 0            // Value 0
+#define ONE                                  1            // Value 1
+#define TWO                                  2            // Value 2
+#define SET                                  1            // to set a bit
+#define CLEAR                                0            // to clear a bit
+#define ACK_BYTE                             0x00000100   // to write ack
+#define FOLLOWER_ADDR_10BIT_MAX              0x3FF        // maximum value for 10-bit address
+#define REFERENCE_CLOCK_FREQUENCY            (32000000u)  // Reference clock frequency
+#define HIGH_SPEED_REFERENCE_CLOCK_FREQUENCY (40000000u)  // Reference clock frequency
+#define I2C_STANDARD_MODE_CLOCK_FREQUENCY    (32000000u)  // clock frequency for i2c standard mode
+#define I2C_FAST_MODE_CLOCK_FREQUENCY        (32000000u)  // clock frequency for i2c fast mode
+#define I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY   (80000000u)  // clock frequency for i2c fast plus mode
+#define I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY  (180000000u) // clock frequency for i2c high speed mode
+#define ULP_PORT                             4            // GPIO ULP port
+#define ULP_MODE                             6            // ULP GPIO mode
+#define MAX_GPIO                             64           // maximum GPIO pins
+#define OUTPUT                               1            // Output value set
+#define HOST_MIN                             24           // GPIO host pad minimum pin number
+#define HOST_MAX                             31           // GPIO host pad maximum pin number
+#define I2C2_MUX                             4            // I2C2 MUX number
+#define I2C2_PAD                             0            // I2C2 PAD number
+#define ULP_CLOCK_DIV_FACTOR                 0            // division factor value for ULP clock
+#define ULP_PRO_CLOCK_DIV_FACTOR             0            // division factor value for ULP pro clock
+#define EVEN_DIVISION_FACTOR                 0            // ulp clock division factor type
+#define DELAY_DISABLE                        0            // to disable delay function callback for ulp pro clock
+
 /*******************************************************************************
  ***************************  Local TYPES  ********************************
  ******************************************************************************/
@@ -205,7 +205,6 @@ sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_
         i2c2_instance.mode = SL_I2C_FOLLOWER_MODE;
       }
     }
-
     // Initializing I2c clock
     i2c_clock_init(i2c);
     // Default keep M4 in reference clock
@@ -225,14 +224,24 @@ sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_
     if (p_user_config->operating_mode == SL_I2C_FAST_PLUS_MODE) {
       RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
       RSI_CLK_SetSocPllFreq(M4CLK, I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY, REFERENCE_CLOCK_FREQUENCY);
-      RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-      config.freq = I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY;
+      RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
+      if (i2c_instance == SL_I2C2) {
+        RSI_ULPSS_ClockConfig(M4CLK, ENABLE, ULP_CLOCK_DIV_FACTOR, EVEN_DIVISION_FACTOR);
+        RSI_ULPSS_UlpProcClkConfig(ULPCLK, ULP_PROC_SOC_CLK, ULP_PRO_CLOCK_DIV_FACTOR, DELAY_DISABLE);
+        DEBUGINIT();
+      }
+      config.freq = sl_si91x_i2c_get_frequency(i2c);
     }
     if ((p_user_config->operating_mode == SL_I2C_HIGH_SPEED_MODE)) {
       RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
       RSI_CLK_SetSocPllFreq(M4CLK, I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY, HIGH_SPEED_REFERENCE_CLOCK_FREQUENCY);
       RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-      config.freq = I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY;
+      if (i2c_instance == SL_I2C2) {
+        RSI_ULPSS_ClockConfig(M4CLK, ENABLE, ULP_CLOCK_DIV_FACTOR, EVEN_DIVISION_FACTOR);
+        RSI_ULPSS_UlpProcClkConfig(ULPCLK, ULP_PROC_SOC_CLK, ULP_PRO_CLOCK_DIV_FACTOR, DELAY_DISABLE);
+        DEBUGINIT();
+      }
+      config.freq = sl_si91x_i2c_get_frequency(i2c);
     }
     // Registering callback as per transfer type
     i2c_callback_function_ptr[i2c_instance] = p_user_config->i2c_callback;
@@ -816,7 +825,7 @@ sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init)
       RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_I2C);
       // SCL
       sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(pin_init->scl_pin));
-      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(pin_init->scl_pin), pin_init->sda_mux, OUTPUT);
+      sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(pin_init->scl_pin), pin_init->scl_mux, OUTPUT);
 #if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
       egpio_ulp_pad_driver_disable_state(pin_init->scl_pin, INTERNAL_PULLUP);
 #endif
@@ -837,13 +846,13 @@ sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init)
       if (pin_init->scl_pin >= MAX_GPIO) {
         sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(pin_init->scl_pin - MAX_GPIO));
         sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(pin_init->scl_pin - MAX_GPIO), ULP_MODE, OUTPUT);
+#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
+        // Configuring internal pullup for follower mode
+        egpio_ulp_pad_driver_disable_state(ULP_GPIO_SCL, INTERNAL_PULLUP);
+#endif
       } else {
         sl_si91x_gpio_enable_pad_receiver(pin_init->scl_pin);
       }
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-      // Configuring internal pullup for follower mode
-      egpio_ulp_pad_driver_disable_state(ULP_GPIO_SCL, INTERNAL_PULLUP);
-#endif
       if (pin_init->scl_pin >= HOST_MIN && pin_init->scl_pin <= HOST_MAX) {
         sl_si91x_gpio_enable_pad_selection(pin_init->scl_pin);
       } else {

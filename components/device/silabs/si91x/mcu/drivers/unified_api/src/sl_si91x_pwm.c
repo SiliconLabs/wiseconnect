@@ -120,6 +120,7 @@ sl_status_t sl_si91x_pwm_init(sl_pwm_init_t *pwm_init)
  ******************************************************************************/
 void sl_si91x_pwm_deinit(void)
 {
+  callback.cbFunc = NULL;
   RSI_CLK_PeripheralClkDisable(M4CLK, PWM_CLK);
 }
 

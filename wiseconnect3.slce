@@ -2,7 +2,7 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Gecko SDK
-version: "3.1.1"
+version: "3.1.2"
 sdk:
   id: gecko_sdk
   version: "4.4.0"
@@ -27,6 +27,7 @@ component_path:
   - path: components/device/silabs/si91x/wireless/crypto/ecdh
   - path: components/device/silabs/si91x/wireless/crypto/trng
   - path: components/device/silabs/si91x/wireless/crypto/attestation
+  - path: components/device/silabs/si91x/wireless/crypto/multithread
   - path: components/device/silabs/si91x/wireless/errno/component
   - path: components/service/bsd_socket
   - path: components/service/network_manager

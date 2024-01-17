@@ -221,7 +221,6 @@ sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event, void *reponse, uin
     float p = result->crc_pass;
     float f = result->crc_fail;
     float t = p + f;
-    float r = result->cal_rssi;
 
     float per_pass = (p * 100 / t);
     float per_fail = (f * 100 / t);

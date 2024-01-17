@@ -537,12 +537,28 @@ sl_sysrtc_version_t sl_si91x_sysrtc_get_version(void)
 }
 /*******************************************************************************
 * De-Initialization of sysrtc
+* Unregisters SYSRTC callback and disables its interrupts
 *
 * @details:
 * This API is used to de-initializes sysrtc by disabling peripheral
 *******************************************************************************/
 void sl_si91x_sysrtc_deinit(void)
 {
+  sl_sysrtc_interrupt_enables_t group_0_interrupt_flags;
+  sl_sysrtc_interrupt_enables_t group_1_interrupt_flags;
+  group_0_interrupt_flags.group0_capture0_interrupt_is_enabled = true;
+  group_0_interrupt_flags.group0_compare0_interrupt_is_enabled = true;
+  group_0_interrupt_flags.group0_compare1_interrupt_is_enabled = true;
+  group_0_interrupt_flags.group0_overflow_interrupt_is_enabled = true;
+  group_1_interrupt_flags.group1_capture0_interrupt_is_enabled = true;
+  group_1_interrupt_flags.group1_compare0_interrupt_is_enabled = true;
+  group_1_interrupt_flags.group1_compare1_interrupt_is_enabled = true;
+  group_1_interrupt_flags.group1_overflow_interrupt_is_enabled = true;
+  // Unregistering callback for all interrupts and disabling interrupts of group-0
+  sl_si91x_sysrtc_unregister_callback(SL_SYSRTC_GROUP_0, &group_0_interrupt_flags);
+  // Unregistering callback for all interrupts and disabling interrupts of group-1
+  sl_si91x_sysrtc_unregister_callback(SL_SYSRTC_GROUP_1, &group_1_interrupt_flags);
+  // disabling SYSRTC
   rsi_sysrtc_disable();
 }
 

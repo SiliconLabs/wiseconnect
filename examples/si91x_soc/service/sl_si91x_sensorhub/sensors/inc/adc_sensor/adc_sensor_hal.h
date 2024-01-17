@@ -43,29 +43,85 @@ typedef int32_t sl_adc_error_t;
 
 /* Macros for sensor hub */
 #define SL_SH_ADC_CHANNEL0
+#define SL_SH_ADC_CHANNEL1
+#define SL_SH_ADC_CHANNEL2
+#define SL_SH_ADC_CHANNEL3
 
 #ifdef SL_SH_ADC_CHANNEL0
 #include "adc_sensor_hal.h"
 #endif
 
-#define SL_SH_FIFO_MODE
 /* ADC peripheral configurations */
-#define SL_SH_ADC_SAMPLING_RATE       10000 ///< ADC sampling rate, 10sps, 20 milliseconds per sample */
-#define SL_SH_ADC_NUM_CHANNELS_ENABLE 1     ///< ADC number of channels enabled */
+#define SL_SH_ADC_SAMPLING_RATE       1000 ///< ADC sampling rate, 10sps, 20 milliseconds per sample */
+#define SL_SH_ADC_NUM_CHANNELS_ENABLE 1    ///< ADC number of channels enabled */
 
-/* ADC sensor 0 configurations */
+/* ADC channel 0 configurations */
 #ifdef SL_SH_ADC_CHANNEL0
-#define SL_SH_ADC_CH0_P_INPUT     5 ///< ADC sensor 0 positive input selection */
-#define SL_SH_ADC_CH0_CHANNEL     0 ///< ADC sensor 0 channel number */
-#define SL_SH_ADC_CH0_OPAMP_GAIN  2 ///< ADC sensor 0 opamp gain */
-#define SL_SH_ADC_CH0_NUM_SAMPLES 1 ///< ADC sensor 0 number of samples */
+#define SL_SH_ADC_CH0_P_INPUT     1          ///< ADC channel 0 positive input selection ULP_GPIO_2 */
+#define SL_SH_ADC_CH0_CHANNEL     0          ///< ADC channel 0 channel number */
+#define SL_SH_ADC_CH0_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
+#define SL_SH_ADC_CH0_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
+#define ADC_PING_BUFFER0          0x24060000 ///< ADC ping buffer starting address for channel 0.
 #endif
 
-#define SL_SH_ADC_MAX_OP_VALUE 4096       ///< Maximum voltage output value from adc */
-#define SL_SH_ADC_VREF_VALUE   3.3f       ///< Reference voltage */
-#define ADC_PING_BUFFER        0x24060800 ///< ADC ping buffer starting address.
+/* ADC channel 1 configurations */
+#ifdef SL_SH_ADC_CHANNEL1
+#define SL_SH_ADC_CH1_P_INPUT     4          ///< ADC channel 0 positive input selection ULP_GPIO_8 */
+#define SL_SH_ADC_CH1_CHANNEL     1          ///< ADC channel 0 channel number */
+#define SL_SH_ADC_CH1_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
+#define SL_SH_ADC_CH1_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
+#define ADC_PING_BUFFER1          0x24060800 ///< ADC ping buffer starting address for channel 1.
+#endif
 
-#define SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES 5 ///< Number of samples for ADC sensor0
+/* ADC channel 2 configurations */
+#ifdef SL_SH_ADC_CHANNEL2
+#define SL_SH_ADC_CH2_P_INPUT     5          ///< ADC channel 0 positive input selection ULP_GPIO_10 */
+#define SL_SH_ADC_CH2_CHANNEL     2          ///< ADC channel 0 channel number */
+#define SL_SH_ADC_CH2_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
+#define SL_SH_ADC_CH2_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
+#define ADC_PING_BUFFER2          0x24061000 ///< ADC ping buffer starting address for channel 2.
+#endif
+
+/* ADC channel 3 configurations */
+#ifdef SL_SH_ADC_CHANNEL3
+#define SL_SH_ADC_CH3_P_INPUT     10         ///< ADC channel 0 positive input selection ULP_GPIO_1 */
+#define SL_SH_ADC_CH3_CHANNEL     3          ///< ADC channel 0 channel number */
+#define SL_SH_ADC_CH3_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
+#define SL_SH_ADC_CH3_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
+#define ADC_PING_BUFFER3          0x24061800 ///< ADC ping buffer starting address for channel 2.
+#endif
+
+#define SL_SH_ADC_MAX_OP_VALUE 4095 ///< Maximum voltage output value from adc */
+#define SL_SH_ADC_VREF_VALUE   3.3f ///< Reference voltage */
+
+#define SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES 1 ///< Number of samples for ADC sensor0
+#define SL_SH_ADC_SENSOR1_NUM_OF_SAMPLES 1 ///< Number of samples for ADC sensor1
+#define SL_SH_ADC_SENSOR2_NUM_OF_SAMPLES 1 ///< Number of samples for ADC sensor2
+
+#define GY61_ADC_SENSOR
+/* ADC channel numbers used for sensors */
+#define JS_ADC_CHANNEL   0
+#define GUVA_ADC_CHANNEL 0
+#ifdef GY61_ADC_SENSOR
+#define GY61_X_AXIS_ADC_CHANNEL 1
+#define GY61_Y_AXIS_ADC_CHANNEL 2
+#define GY61_Z_AXIS_ADC_CHANNEL 3
+#define GY61_ADC_SENSOR_CHANNELS \
+  (BIT(GY61_X_AXIS_ADC_CHANNEL) | BIT(GY61_Y_AXIS_ADC_CHANNEL) | BIT(GY61_Z_AXIS_ADC_CHANNEL))
+
+/* ADXL335 GY61 sensor g conversion values*/
+#define GY61_X_RAW_MIN   3005
+#define GY61_X_RAW_MAX   3390
+#define GY61_Y_RAW_MIN   3005
+#define GY61_Y_RAW_MAX   3380
+#define GY61_Z_RAW_MIN   1750
+#define GY61_Z_RAW_MAX   2550
+#define GY61_G_SCALE_MIN -100
+#define GY61_G_SCALE_MAX 100
+#endif
+
+#define IS_MULTI_CHANNEL(X)  ((X & (X - 1)) != 0)
+#define IS_SINGLE_CHANNEL(X) ((X & (X - 1)) == 0)
 
 /* ADC sensor implementations for sensors */
 typedef struct {

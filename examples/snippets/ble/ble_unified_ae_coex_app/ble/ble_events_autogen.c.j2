@@ -3,6 +3,7 @@
 #include "event_loop.h"
 #include <stdlib.h>
 #include "rsi_common_utils.h"
+#include "rsi_common_apis.h"
 
 generic_task_cb_t ble_generic_cb;
 
@@ -11,26 +12,26 @@ generic_event_handler_lut_entry_t ble_events_lut[] =
 {
 {% for ble_event, callback in ble_events.items() %}
 {% if "handler" in callback.keys() and callback["handler"] != Null %}
-	{{ callback["handler"] }},
+	{ {{ callback["handler"] }} },
 {% else %}
 	NULL,
 {% endif %}
 {% endfor %}
 {% for bt_event, callback in bt_events.items() %}
 {% if "handler" in callback.keys() and callback["handler"] != Null %}
-	{{ callback["handler"] }},
+	{ {{ callback["handler"] }} },
 {% else %}
 	NULL,
 {% endif %}
 {% endfor %}
 {% for dummy_event, callback in dummy_events.items() %}
 {% if "handler" in callback.keys() and callback["handler"] != Null %}
-	{{ callback["handler"] }},
+	{ {{ callback["handler"] }} },
 {% else %}
 	NULL,
 {% endif %}
 {% endfor %}
-	NULL
+	{ NULL }
 };
 
 {% macro render_driver_callback_function(ble_event, value) %}
@@ -321,7 +322,10 @@ APP_WEAK void rsi_ble_event_{{ dummy_event }}_driver_callback(rsi_ble_{{ dummy_e
 {
 	LOG_PRINT_D("\n in rsi_ble_{{ dummy_event }}_driver_callback \n");
 	generic_event_message_t *msg;
-
+	{% if dummy_event == 'data_transmit' %}
+        UNUSED_PARAMETER(conn_id);
+    {% endif %}
+	
 	//! allocate message
 
 	{% if value == 'uint' %}

@@ -400,7 +400,7 @@ void sl_si91x_adxl345_read_acceleration_value(int *xyz)
 *  @param[in]   a, b, c: Axis at all g ranges with 10 Bit Resolution (2 Bytes)
 *  @return      NULL
 *******************************************************************************/
-void sl_si91x_adxl345_read_acceleration(int *read_a, int *read_b, int *read_c)
+void sl_si91x_adxl345_read_acceleration(int16_t *read_a, int16_t *read_b, int16_t *read_c)
 {
   read(SL_ADXL345_DATAX0, SL_ADXL345_TO_READ, buff); // Read Accel Data from ADXL345
 

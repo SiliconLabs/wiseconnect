@@ -16,7 +16,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.1.1
+  version: 3.1.2
 source:
 - path: app.c
 - path: main.c
@@ -47,8 +47,8 @@ component:
 - id: basic_network_config_manager
   from: wiseconnect3_sdk
 toolchain_settings:
-- option: optimize
-  value: speed
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 configuration:
 - name: SL_BOARD_ENABLE_VCOM
   value: '1'

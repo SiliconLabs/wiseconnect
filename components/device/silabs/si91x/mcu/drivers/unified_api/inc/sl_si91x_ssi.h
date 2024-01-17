@@ -153,7 +153,10 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle);
 /***************************************************************************/ /**
  * Control the SPI interface.
  *
- * @param[in]  ssi handle, pointer to control config structure.
+ * @param[in]  ssi_handle, pointer to ssi instance handle. 
+ * @param[in]  control_configuration, pointer to control config structure.
+ * @param[in]  slave_number, SSI chip_select/slave_number, this parameter is 
+ *                           not using in this function definition.
  * @return    status 0 if successful, else error code as follow.
  *            - SL_STATUS_INVALID_PARAMETER (0x0021) - invalid parameters
  *            - SL_STATUS_OK (0x0000) - Success

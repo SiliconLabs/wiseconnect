@@ -10,7 +10,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 source:
   - path: main.c
   - path: app.c
@@ -34,11 +34,9 @@ component:
   - id: i2c_instance
     from: wiseconnect3_sdk
     instance:
-      - i2c0
+      - i2c2
 define:
   - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
-  - name: SL_SI91X_DMA
-  - name: SL_SI91X_I2C_DMA
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/image506d.png

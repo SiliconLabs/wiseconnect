@@ -608,6 +608,7 @@ void NPSS_GPIO_IRQHandler(void)
   for (uint8_t idx = 0; idx < int_list_map.map_index; idx++) {
     if (BIT(int_list_map.map_table[idx].intr) == intrStatus) {
       RSI_NPSSGPIO_ClrIntr(BIT(int_list_map.map_table[idx].intr));
+      RSI_NPSSGPIO_IntrMask(BIT(int_list_map.map_table[idx].intr));
       osEventFlagsSet(sl_event_group, (0x01 << int_list_map.map_table[idx].sensor_list_index));
     }
   }
@@ -629,6 +630,9 @@ sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_gpio_intr_type_
 
   /* Set the direction of the NPSS GPIO */
   RSI_NPSSGPIO_SetDir((uint8_t)gpio_pin, NPSS_GPIO_DIR_INPUT);
+
+  /* Clear GPIO Rise edge interrupt (it is enabled by default) */
+  RSI_NPSSGPIO_ClrIntRiseEdgeEnable(BIT(gpio_pin));
 
   /*Program interrupt type */
   switch (intr_type) {
@@ -695,9 +699,14 @@ void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event)
 {
   if (event == SL_INTERNAL_DMA) {
     bus_intf_info.adc_config.adc_data_ready |= BIT(channel_no);
-    for (uint8_t idx = 0; idx < int_list_map.map_index; idx++) {
-      if (int_list_map.map_table[idx].adc_intr_channel
-          & BIT(channel_no)) { // in non-interrupt mode channel variable in map table will be always zero
+    for (uint8_t idx = 0; (idx < int_list_map.map_index) && (int_list_map.map_table[idx].adc_intr_channel != 0);
+         idx++) {
+      // Checking if we got single channel interrupt, which is required for the respective sensor
+      if ((IS_SINGLE_CHANNEL(int_list_map.map_table[idx].adc_intr_channel)
+           && (int_list_map.map_table[idx].adc_intr_channel & bus_intf_info.adc_config.adc_data_ready))
+          // Checking if we got multiple channels interrupt, which are required for the respective sensor
+          || (int_list_map.map_table[idx].adc_intr_channel == bus_intf_info.adc_config.adc_data_ready)) {
+        bus_intf_info.adc_config.adc_data_ready &= ~(int_list_map.map_table[idx].adc_intr_channel);
         osEventFlagsSet(sl_event_group, (0x01 << int_list_map.map_table[idx].sensor_list_index));
       }
     }
@@ -1057,15 +1066,9 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id)
     case SL_SH_INTERRUPT_MODE:
       if (sensor_list.sl_sensors_st[sensor_index].config_st->sensor_bus == SL_SH_ADC) {
         int_list_map.map_table[int_list_map.map_index].adc_intr_channel =
-          BIT(sensor_list.sl_sensors_st[sensor_index].config_st->channel);
+          sensor_list.sl_sensors_st[sensor_index].config_st->channel;
         int_list_map.map_table[int_list_map.map_index].sensor_list_index = sensor_index;
         int_list_map.map_index++;
-        uint32_t intr_status = RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP);
-        if (intr_status != (int)NULL) {
-          if (intr_status & BIT(7 + sensor_list.sl_sensors_st[sensor_index].config_st->channel)) {
-            RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, sensor_list.sl_sensors_st[sensor_index].config_st->channel);
-          }
-        }
       } else {
         status =
           sl_si91x_gpio_interrupt_config(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin,
@@ -1191,8 +1194,11 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id)
       break;
 
     case SL_SH_INTERRUPT_MODE:
-      sl_si91x_gpio_interrupt_start(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin);
-
+      if (sensor_list.sl_sensors_st[sensor_index].config_st->sensor_bus == SL_SH_ADC) {
+        NVIC_SetPriority(ADC_IRQn, configMAX_SYSCALL_INTERRUPT_PRIORITY - 1);
+      } else {
+        sl_si91x_gpio_interrupt_start(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin);
+      }
       break;
     default:
       //!Post-event to the application as sensor config_st invalid
@@ -1557,6 +1563,7 @@ void sl_si91x_sensor_task(void)
                                      SL_SENSOR_DATA_READY,
                                      sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
                                      EM_POST_TIME);
+              RSI_NPSSGPIO_IntrUnMask(BIT(sensor_list.sl_sensors_st[i].config_st->sampling_intr_req_pin));
             }
             break;
 

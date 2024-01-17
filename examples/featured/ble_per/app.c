@@ -117,6 +117,143 @@
 #define DUTY_CYCLING_ENABLE  1
 #define ENABLE_POWER_SAVE    0 //! Set to 1 for powersave mode
 
+#define GAIN_TABLE_AND_MAX_POWER_UPDATE_ENABLE 0 //! To update gain table and max tx power and offsets
+
+#if GAIN_TABLE_AND_MAX_POWER_UPDATE_ENABLE
+
+#define FCC       0
+#define ETSI      1
+#define TELEC     2
+#define WORLDWIDE 3
+#define KCC       4
+
+#define BLE_GAIN_TABLE_MAXPOWER_UPDATE              0
+#define BLE_GAIN_TABLE_OFFSET_UPDATE                1
+#define BLE_GAIN_TABLE_LP_CHAIN_0DBM_OFFSET_UPDATE  2
+#define BLE_GAIN_TABLE_LP_CHAIN_10DBM_OFFSET_UPDATE 3
+
+// clang-format off
+//! structure for the MAXPOWER
+uint8_t Si917_BLE_REGION_BASED_MAXPOWER_XX[16] = {//{{{
+	// BLE Max Power Index,
+	FCC,        16,
+	ETSI,       8,
+	TELEC,      10,
+	WORLDWIDE,  16,
+	KCC,        10,
+};//}}}
+
+//! structure for the MAXPOWER OFFSET
+uint8_t Si917_BLE_REGION_BASED_MAXPOWER_VS_OFFSET_XX[128] = {//{{{
+	5,//NUM_OF_REGIONS
+	FCC,
+	4,//NUM_OF_CHANNELS
+	//chan_num   1M   2M   125kbps 500kbps
+	255,	    0,   0,      6,   0,
+	0,          0,   0,      6,   0,
+	38,         0,   2,      6,   0,
+	39,         0,  16,      6,   0,
+	ETSI,
+	4,//NUM_OF_CHANNELS
+	255,	    0,   0,      0,   0,
+	0,          0,   0,      0,   0,
+	19,         0,   0,      0,   0,
+	39,         0,   0,      0,   0,
+	TELEC,
+	4,//NUM_OF_CHANNELS
+	255,	    0,   0,      0,   0,
+	0,	    0,   0,      0,   0,
+	19,         0,   0,      0,   0,
+	39,         0,   0,      0,   0,
+	WORLDWIDE,
+	4,//NUM_OF_CHANNELS
+	255,	    0,   0,      0,   0,
+	0,          0,   0,      0,   0,
+	19,         0,   0,      0,   0,
+	39,         0,   0,      0,   0,
+	KCC,
+	4,//NUM_OF_CHANNELS
+	255,	    0,   0,      0,   0,
+	0,	    0,   0,      0,   0,
+	19,         0,   0,      0,   0,
+	39,         0,   0,      0,   0
+};//}}}
+
+//! structure for the LP_CHAIN 0dBm OFFSET
+uint8_t Si917_BLE_REGION_BASED_LP_CHAIN_0DBM_OFFSET_XX[128] = {//{{{
+	5,//NUM_OF_REGIONS
+	FCC,
+	4,//NUM_OF_CHANNELS
+	//chan_num    1M   2M   125kbps 500kbps
+	255,	      31,  31,      31,   31,
+	0,            31,  31,      31,   31,
+	19,           31,  31,      31,   31,
+	39,           31,   8,      31,   31,
+	ETSI,
+	4,//NUM_OF_CHANNELS
+	255,	      31,  31,      31,   31,
+	0,            31,  31,      31,   31,
+	19,           31,  31,      31,   31,
+	39,           31,  31,      31,   31,
+	TELEC,
+	4,//NUM_OF_CHANNELS
+	255,	      31,  31,      31,   31,
+	0,            31,  31,      31,   31,
+	19,           31,  31,      31,   31,
+	39,           31,  31,      31,   31,
+	WORLDWIDE,
+	4,//NUM_OF_CHANNELS
+	255,	      31,  31,      31,   31,
+	0,            31,  31,      31,   31,
+	19,           31,  31,      31,   31,
+	39,           31,  31,      31,   31,
+	KCC,
+	4,//NUM_OF_CHANNELS
+	255,	      31,  31,      31,   31,
+	0,            31,  31,      31,   31,
+	19,           31,  31,      31,   31,
+	39,           31,  31,      31,   31,
+};//}}}
+
+//! structure for the LP_CHAIN 10dBm OFFSET
+uint8_t Si917_BLE_REGION_BASED_LP_CHAIN_10DBM_OFFSET_XX[128] = {//{{{
+	5,//NUM_OF_REGIONS
+	FCC,
+	4,//NUM_OF_CHANNELS
+	//chan_num    1M   2M   125kbps 500kbps
+	255,	      63,  63,      63,   63,
+	0,            63,  63,      63,   63,
+	19,           63,  63,      63,   63,
+	39,           63,  35,      63,   63,
+	ETSI,
+	4,//NUM_OF_CHANNELS
+	255,	      63,  63,      63,   63,
+	0,            63,  63,      63,   63,
+	19,           63,  63,      63,   63,
+	39,           63,  63,      63,   63,
+	TELEC,
+	4,//NUM_OF_CHANNELS
+	255,	      63,  63,      63,   63,
+	0,            63,  63,      63,   63,
+	19,           63,  63,      63,   63,
+	39,           63,  63,      63,   63,
+	WORLDWIDE,
+	4,//NUM_OF_CHANNELS
+	255,	      63,  63,      63,   63,
+	0,            63,  63,      63,   63,
+	19,           63,  63,      63,   63,
+	39,           63,  63,      63,   63,
+	KCC,
+	4,//NUM_OF_CHANNELS
+	255,	      63,  63,      63,   63,
+	0,            63,  63,      63,   63,
+	19,           63,  63,      63,   63,
+	39,           63,  63,      63,   63,
+};//}}}
+
+// clang-format on
+#endif
+
 //! Application global parameters.
 static rsi_bt_resp_get_local_name_t rsi_app_resp_get_local_name = { 0 };
 static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN]      = { 0 };
@@ -130,7 +267,7 @@ static const sl_wifi_device_configuration_t config = {
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_BLE_MODE,
+                   .coex_mode = SL_SI91X_WLAN_BLE_MODE,
 #ifdef SLI_SI91X_MCU_INTERFACE
                    .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
 #else
@@ -148,11 +285,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
-                   .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP
-#if (RSI_BT_GATT_ON_CLASSIC)
-                                          | SL_SI91X_BT_ATT_OVER_CLASSIC_ACL /* to support att over classic acl link */
-#endif
-                                          ),
+                   .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP),
 #ifdef RSI_PROCESS_MAX_RX_DATA
                    .ext_tcp_ip_feature_bit_map = (RSI_EXT_TCPIP_FEATURE_BITMAP | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
                                                   | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
@@ -231,6 +364,22 @@ void ble_per(void *unused)
   }
   LOG_PRINT("\r\nWireless Initialization Success\n");
 
+  //! set region support
+  status = sl_si91x_set_device_region(config.boot_config.oper_mode, config.band, config.region_code);
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\nSet Region Failed, Error Code : %ld\r\n", status);
+  } else {
+    LOG_PRINT("\r\nSet Region Success\r\n");
+  }
+
+  //!  WLAN radio deinit
+  status = sl_si91x_disable_radio();
+  if (status != SL_STATUS_OK) {
+    LOG_PRINT("\r\n  Failed to disable WLAN radio, Error Code : %ld\r\n", status);
+  } else {
+    LOG_PRINT("\r\n Disable WLAN radio success\r\n");
+  }
+
   //! Firmware version Prints
   status = sl_wifi_get_firmware_version(&version);
   if (status != SL_STATUS_OK) {
@@ -264,6 +413,54 @@ void ble_per(void *unused)
     LOG_PRINT("\r\n Get Local Name Failed = %lx\r\n", status);
   }
   LOG_PRINT("Local name set to: %s\n", rsi_app_resp_get_local_name.name);
+
+#if GAIN_TABLE_AND_MAX_POWER_UPDATE_ENABLE
+
+  //! structure update for the MAXPOWER
+  status = rsi_bt_cmd_update_gain_table_offset_or_max_pwr(0,
+                                                          sizeof(Si917_BLE_REGION_BASED_MAXPOWER_XX),
+                                                          Si917_BLE_REGION_BASED_MAXPOWER_XX,
+                                                          BLE_GAIN_TABLE_MAXPOWER_UPDATE);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Failed to update gain table for max power with status = %lx\r\n", status);
+  } else {
+    LOG_PRINT("\r\n Updation of gain table max tx power command is successful \r\n");
+  }
+
+  //! structure update for the MAXPOWER OFFSET
+  status = rsi_bt_cmd_update_gain_table_offset_or_max_pwr(0,
+                                                          sizeof(Si917_BLE_REGION_BASED_MAXPOWER_VS_OFFSET_XX),
+                                                          Si917_BLE_REGION_BASED_MAXPOWER_VS_OFFSET_XX,
+                                                          BLE_GAIN_TABLE_OFFSET_UPDATE);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Failed to update gain table offset with status = %lx\r\n", status);
+  } else {
+    LOG_PRINT("\r\n Updation of gain table offset command is successful \r\n");
+  }
+
+  //! structure update for the LP_CHAIN 0dBm OFFSET
+  status = rsi_bt_cmd_update_gain_table_offset_or_max_pwr(0,
+                                                          sizeof(Si917_BLE_REGION_BASED_LP_CHAIN_0DBM_OFFSET_XX),
+                                                          Si917_BLE_REGION_BASED_LP_CHAIN_0DBM_OFFSET_XX,
+                                                          BLE_GAIN_TABLE_LP_CHAIN_0DBM_OFFSET_UPDATE);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Failed to update gain table LP-Chain 0dBm offset with status = %lx\r\n", status);
+  } else {
+    LOG_PRINT("\r\n Updation of gain table LP-Chain 0dBm offset command is successful \r\n");
+  }
+
+  //! structure update for the LP_CHAIN 10dBm OFFSET
+  status = rsi_bt_cmd_update_gain_table_offset_or_max_pwr(0,
+                                                          sizeof(Si917_BLE_REGION_BASED_LP_CHAIN_10DBM_OFFSET_XX),
+                                                          Si917_BLE_REGION_BASED_LP_CHAIN_10DBM_OFFSET_XX,
+                                                          BLE_GAIN_TABLE_LP_CHAIN_10DBM_OFFSET_UPDATE);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Failed to update gain table LP-Chain 10dBm offset with status = %lx\r\n", status);
+  } else {
+    LOG_PRINT("\r\n Updation of gain table LP-Chain 10dBm offset command is successful \r\n");
+  }
+
+#endif
 
   if (RSI_CONFIG_PER_MODE == RSI_BLE_PER_TRANSMIT_MODE) {
     rsi_ble_per_tx.cmd_ix                       = BLE_TRANSMIT_CMD_ID;

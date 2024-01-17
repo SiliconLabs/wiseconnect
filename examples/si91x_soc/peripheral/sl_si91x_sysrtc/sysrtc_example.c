@@ -169,7 +169,7 @@ void sysrtc_example_init(void)
     sl_si91x_sysrtc_set_count(counter_value1);
     //Setting compare value.
     status = sl_si91x_sysrtc_set_compare_value(SL_SYSRTC_GROUP, COMPARE_CHANNEL, compare_value);
-    DEBUGOUT("\r\nSYSRTC group 0 compare value set successfully\r\n");
+    DEBUGOUT("\r\nSYSRTC group compare value set successfully\r\n");
     // Starting Sysrtc
     sl_si91x_sysrtc_start();
     DEBUGOUT("\nStarted SYSRTC successfully\n");
@@ -253,8 +253,8 @@ void sysrtc_callback(void *callback_flags)
   // To toggle LED1
   state = !state;
   sl_si91x_led_toggle(RTE_LED1_PIN);
+#if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE))
   // Reading current count
-#if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 1) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 1))
   status = sl_si91x_sysrtc_get_count(&current_count);
   // Setting compare value again after every interrupt, to get next interrupt
   sl_si91x_sysrtc_set_compare_value(SL_SYSRTC_GROUP, COMPARE_CHANNEL, (current_count + compare_value));
@@ -262,10 +262,14 @@ void sysrtc_callback(void *callback_flags)
   if (interrupt_count == TENTH_INTERRUPT) {
     //Stopping the timer instance, after five LED toggles.
     sl_si91x_sysrtc_stop();
-    // Unregister callback and disabling interrupts
-    status = sl_si91x_sysrtc_unregister_callback(SL_SYSRTC_GROUP, &interrupt_enabled);
-    // Deinit sysrtc
+    // Deinit sysrtc and unregistering callback
     sl_si91x_sysrtc_deinit();
   }
+#endif
+#if (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE)
+  //Stopping the timer instance, after capture interrupt.
+  sl_si91x_sysrtc_stop();
+  // Deinit sysrtc and unregistering callback
+  sl_si91x_sysrtc_deinit();
 #endif
 }

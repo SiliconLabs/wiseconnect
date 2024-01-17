@@ -22,36 +22,36 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define BUFFER_SIZE             1024      // Size of buffer
-#define INTF_PLL_CLK            180000000 // Intf pll clock frequency
-#define INTF_PLL_REF_CLK        40000000  // Intf pll reference clock frequency
-#define SOC_PLL_CLK             20000000  // Soc pll clock frequency
-#define SOC_PLL_REF_CLK         40000000  // Soc pll reference clock frequency
-#define INTF_PLL_500_CTRL_VALUE 0xD900    // Intf pll control value
-#define SOC_PLL_MM_COUNT_LIMIT  0xA4      // Soc pll count limit
-#define DVISION_FACTOR          0         // Division factor
-#define SWAP_READ_DATA          1         // true to enable and false to disable swap read
-#define SWAP_WRITE_DATA         0         // true to enable and false to disable swap write
-#define GSPI_BITRATE            10000000  // Bitrate for setting the clock division factor
-#define GSPI_BIT_WIDTH          8         // Default Bit width
-#define MAX_BIT_WIDTH           16        // Maximum Bit width
+#define GSPI_BUFFER_SIZE             1024      // Size of buffer
+#define GSPI_INTF_PLL_CLK            180000000 // Intf pll clock frequency
+#define GSPI_INTF_PLL_REF_CLK        40000000  // Intf pll reference clock frequency
+#define GSPI_SOC_PLL_CLK             20000000  // Soc pll clock frequency
+#define GSPI_SOC_PLL_REF_CLK         40000000  // Soc pll reference clock frequency
+#define GSPI_INTF_PLL_500_CTRL_VALUE 0xD900    // Intf pll control value
+#define GSPI_SOC_PLL_MM_COUNT_LIMIT  0xA4      // Soc pll count limit
+#define GSPI_DVISION_FACTOR          0         // Division factor
+#define GSPI_SWAP_READ_DATA          1         // true to enable and false to disable swap read
+#define GSPI_SWAP_WRITE_DATA         0         // true to enable and false to disable swap write
+#define GSPI_BITRATE                 10000000  // Bitrate for setting the clock division factor
+#define GSPI_BIT_WIDTH               8         // Default Bit width
+#define GSPI_MAX_BIT_WIDTH           16        // Maximum Bit width
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static uint16_t data_in[BUFFER_SIZE];
-static uint16_t data_out[BUFFER_SIZE];
-static uint16_t division_factor            = 1;
+static uint16_t gspi_data_in[GSPI_BUFFER_SIZE];
+static uint16_t gspi_data_out[GSPI_BUFFER_SIZE];
+static uint16_t gspi_division_factor       = 1;
 static sl_gspi_handle_t gspi_driver_handle = NULL;
 
 //Enum for different transmission scenarios
 typedef enum {
-  SL_TRANSFER_DATA,
-  SL_RECEIVE_DATA,
-  SL_SEND_DATA,
-  SL_TRANSMISSION_COMPLETED,
+  SL_GSPI_TRANSFER_DATA,
+  SL_GSPI_RECEIVE_DATA,
+  SL_GSPI_SEND_DATA,
+  SL_GSPI_TRANSMISSION_COMPLETED,
 } gspi_mode_enum_t;
-static gspi_mode_enum_t current_mode = SL_TRANSFER_DATA;
+static gspi_mode_enum_t current_mode = SL_GSPI_TRANSFER_DATA;
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -79,12 +79,12 @@ void gspi_example_init(void)
   config.bitrate           = GSPI_BITRATE;
   config.clock_mode        = SL_GSPI_MODE_0;
   config.slave_select_mode = SL_GSPI_MASTER_HW_OUTPUT;
-  config.swap_read         = SWAP_READ_DATA;
-  config.swap_write        = SWAP_WRITE_DATA;
+  config.swap_read         = GSPI_SWAP_READ_DATA;
+  config.swap_write        = GSPI_SWAP_WRITE_DATA;
 
   // Filling the data out array with integer values
-  for (uint16_t i = 0; i < BUFFER_SIZE; i++) {
-    data_out[i] = i;
+  for (uint16_t i = 0; i < GSPI_BUFFER_SIZE; i++) {
+    gspi_data_out[i] = i;
   }
   do {
     // Version information of GSPI driver
@@ -140,18 +140,18 @@ void gspi_example_init(void)
     // Fetching and printing the current frame length
     DEBUGOUT("Current Frame Length is %lu \n", sl_si91x_gspi_get_frame_length());
     if (sl_si91x_gspi_get_frame_length() > GSPI_BIT_WIDTH) {
-      division_factor = sizeof(data_out[0]);
+      gspi_division_factor = sizeof(gspi_data_out[0]);
     }
     // As per the macros enabled in the header file, it will configure the current mode.
     if (SL_USE_TRANSFER) {
-      current_mode = SL_TRANSFER_DATA;
+      current_mode = SL_GSPI_TRANSFER_DATA;
       break;
     }
     if (SL_USE_RECEIVE) {
-      current_mode = SL_RECEIVE_DATA;
+      current_mode = SL_GSPI_RECEIVE_DATA;
       break;
     }
-    current_mode = SL_SEND_DATA;
+    current_mode = SL_GSPI_SEND_DATA;
   } while (false);
 }
 /*******************************************************************************
@@ -166,15 +166,18 @@ void gspi_example_process_action(void)
   // Assuming all the macros are enabled, after transfer, receive will be executed and after receive
   // send will be executed.
   switch (current_mode) {
-    case SL_TRANSFER_DATA:
+    case SL_GSPI_TRANSFER_DATA:
       if (begin_transmission == true) {
         // Validation for executing the API only once
         sl_si91x_gspi_set_slave_number(GSPI_SLAVE_0);
-        status = sl_si91x_gspi_transfer_data(gspi_driver_handle, data_out, data_in, sizeof(data_out) / division_factor);
+        status = sl_si91x_gspi_transfer_data(gspi_driver_handle,
+                                             gspi_data_out,
+                                             gspi_data_in,
+                                             sizeof(gspi_data_out) / gspi_division_factor);
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_gspi_transfer_data: Error Code : %lu \n", status);
-          current_mode = SL_TRANSMISSION_COMPLETED;
+          current_mode = SL_GSPI_TRANSMISSION_COMPLETED;
           break;
         }
         DEBUGOUT("GSPI transfer begin successfully \n");
@@ -183,34 +186,34 @@ void gspi_example_process_action(void)
       if (transfer_complete) {
         transfer_complete = false;
         DEBUGOUT("GSPI transfer completed successfully \n");
-        // After comparing the loopback transfer, it compares the data_out and
-        // data_in.
+        // After comparing the loopback transfer, it compares the gspi_data_out and
+        // gspi_data_in.
         compare_loop_back_data();
         if (SL_USE_RECEIVE) {
           // If receive macro is enabled, current mode is set to receive
-          current_mode       = SL_RECEIVE_DATA;
+          current_mode       = SL_GSPI_RECEIVE_DATA;
           begin_transmission = true;
           break;
         }
         if (SL_USE_SEND) {
           // If send macro is enabled, current mode is set to send
-          current_mode       = SL_SEND_DATA;
+          current_mode       = SL_GSPI_SEND_DATA;
           begin_transmission = true;
           break;
         }
         // If above macros are not enabled, current mode is set to complete
-        current_mode = SL_TRANSMISSION_COMPLETED;
+        current_mode = SL_GSPI_TRANSMISSION_COMPLETED;
       }
       break;
-    case SL_RECEIVE_DATA:
+    case SL_GSPI_RECEIVE_DATA:
       if (begin_transmission == true) {
         // Validation for executing the API only once
         sl_si91x_gspi_set_slave_number(GSPI_SLAVE_0);
-        status = sl_si91x_gspi_receive_data(gspi_driver_handle, data_in, sizeof(data_in));
+        status = sl_si91x_gspi_receive_data(gspi_driver_handle, gspi_data_in, sizeof(gspi_data_in));
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_gspi_receive_data: Error Code : %lu \n", status);
-          current_mode = SL_TRANSMISSION_COMPLETED;
+          current_mode = SL_GSPI_TRANSMISSION_COMPLETED;
           break;
         }
         DEBUGOUT("GSPI receive begin successfully \n");
@@ -223,38 +226,39 @@ void gspi_example_process_action(void)
         transfer_complete = false;
         if (SL_USE_SEND) {
           // If send macro is enabled, current mode is set to send
-          current_mode       = SL_SEND_DATA;
+          current_mode       = SL_GSPI_SEND_DATA;
           begin_transmission = true;
           DEBUGOUT("GSPI receive completed \n");
           break;
         }
         DEBUGOUT("GSPI receive completed \n");
         // If send macro is not enabled, current mode is set to completed.
-        current_mode = SL_TRANSMISSION_COMPLETED;
+        current_mode = SL_GSPI_TRANSMISSION_COMPLETED;
       }
 #else
       // If DMA is not enabled, it will wait till the rx_count is equal to number of
       // data to be received.
-      if (rx_count < sizeof(data_in)) {
+      if (rx_count < sizeof(gspi_data_in)) {
         rx_count = sl_si91x_gspi_get_rx_data_count(gspi_driver_handle);
         break;
       }
       if (SL_USE_SEND) {
-        current_mode       = SL_SEND_DATA;
+        current_mode       = SL_GSPI_SEND_DATA;
         begin_transmission = true;
       }
 #endif // SL_GSPI_DMA_CONFIG_ENABLE
       DEBUGOUT("GSPI receive completed \n");
       break;
-    case SL_SEND_DATA:
+    case SL_GSPI_SEND_DATA:
       if (begin_transmission) {
         // Validation for executing the API only once
         sl_si91x_gspi_set_slave_number(GSPI_SLAVE_0);
-        status = sl_si91x_gspi_send_data(gspi_driver_handle, data_out, sizeof(data_out) / division_factor);
+        status =
+          sl_si91x_gspi_send_data(gspi_driver_handle, gspi_data_out, sizeof(gspi_data_out) / gspi_division_factor);
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_gspi_send_data: Error Code : %lu \n", status);
-          current_mode = SL_TRANSMISSION_COMPLETED;
+          current_mode = SL_GSPI_TRANSMISSION_COMPLETED;
           break;
         }
         DEBUGOUT("GSPI send begin successfully \n");
@@ -266,21 +270,21 @@ void gspi_example_process_action(void)
         // If DMA is enabled, it will wait untill transfer_complete flag is set.
         transfer_complete = false;
         // At last current mode is set to completed.
-        current_mode = SL_TRANSMISSION_COMPLETED;
+        current_mode = SL_GSPI_TRANSMISSION_COMPLETED;
       }
 #else
       // If DMA is not enabled, it will wait till the tx_count is equal to number of
       // data to be send.
-      if (tx_count < sizeof(data_out)) {
+      if (tx_count < sizeof(gspi_data_out)) {
         tx_count = sl_si91x_gspi_get_tx_data_count();
         break;
       }
       // At last current mode is set to completed.
-      current_mode = SL_TRANSMISSION_COMPLETED;
+      current_mode = SL_GSPI_TRANSMISSION_COMPLETED;
 #endif // SL_GSPI_DMA_CONFIG_ENABLE
       DEBUGOUT("GSPI send completed \n");
       break;
-    case SL_TRANSMISSION_COMPLETED:
+    case SL_GSPI_TRANSMISSION_COMPLETED:
       break;
   }
 }
@@ -300,13 +304,13 @@ static sl_status_t init_clock_configuration_structure(sl_gspi_clock_config_t *cl
   if (clock_config == NULL) {
     status = SL_STATUS_NULL_POINTER;
   } else {
-    clock_config->soc_pll_mm_count_value     = SOC_PLL_MM_COUNT_LIMIT;
-    clock_config->intf_pll_500_control_value = INTF_PLL_500_CTRL_VALUE;
-    clock_config->intf_pll_clock             = INTF_PLL_CLK;
-    clock_config->intf_pll_reference_clock   = INTF_PLL_REF_CLK;
-    clock_config->soc_pll_clock              = SOC_PLL_CLK;
-    clock_config->soc_pll_reference_clock    = SOC_PLL_REF_CLK;
-    clock_config->division_factor            = DVISION_FACTOR;
+    clock_config->soc_pll_mm_count_value     = GSPI_SOC_PLL_MM_COUNT_LIMIT;
+    clock_config->intf_pll_500_control_value = GSPI_INTF_PLL_500_CTRL_VALUE;
+    clock_config->intf_pll_clock             = GSPI_INTF_PLL_CLK;
+    clock_config->intf_pll_reference_clock   = GSPI_INTF_PLL_REF_CLK;
+    clock_config->soc_pll_clock              = GSPI_SOC_PLL_CLK;
+    clock_config->soc_pll_reference_clock    = GSPI_SOC_PLL_REF_CLK;
+    clock_config->division_factor            = GSPI_DVISION_FACTOR;
     status                                   = SL_STATUS_OK;
   }
   return status;
@@ -329,17 +333,17 @@ static void compare_loop_back_data(void)
   uint32_t frame_length = 0;
   uint16_t mask         = (uint16_t)~0;
   frame_length          = sl_si91x_gspi_get_frame_length();
-  mask                  = mask >> (MAX_BIT_WIDTH - frame_length);
-  for (data_index = 0; data_index < BUFFER_SIZE; data_index++) {
-    data_in[data_index] &= mask;
-    data_out[data_index] &= mask;
+  mask                  = mask >> (GSPI_MAX_BIT_WIDTH - frame_length);
+  for (data_index = 0; data_index < GSPI_BUFFER_SIZE; data_index++) {
+    gspi_data_in[data_index] &= mask;
+    gspi_data_out[data_index] &= mask;
     // If the data in and data out are same, it will be continued else, the for
     // loop will be break.
-    if (data_in[data_index] != data_out[data_index]) {
+    if (gspi_data_in[data_index] != gspi_data_out[data_index]) {
       break;
     }
   }
-  if (data_index == BUFFER_SIZE) {
+  if (data_index == GSPI_BUFFER_SIZE) {
     DEBUGOUT("Data comparison successful, Loop Back Test Passed \n");
   } else {
     DEBUGOUT("Data comparison failed, Loop Back Test failed \n");

@@ -65,26 +65,26 @@
 >
 > #define SOC_PLL_CLK 20000000  // SOC PLL Clock frequency.
 
-- If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
+- If **SSI_MASTER_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
 
-  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
+  - The current_mode enum is set to SSI_MASTER_TRANSFER_DATA and calls the \ref sl_si91x_ssi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously (full duplex).
   - This test can also be performed in loopback state, i.e. connect MISO and MOSI pins.
   - The example code waits till the transfer is completed, when the transfer complete event is generated, it compares the sent and received data.
   - The result is printed on the console.
-  - Now the current_mode enum is updated as per the macros enabled i.e., either SL_USE_SEND or SL_USE_RECEIVE.
-  - If no other macros are enabled, the current_mode is updated to SL_TRANSMISSION_COMPLETED.
+  - Now the current_mode enum is updated as per the macros enabled i.e., either SSI_MASTER_SEND or SSI_MASTER_RECEIVE.
+  - If no other macros are enabled, the current_mode is updated to SSI_MASTER_TRANSMISSION_COMPLETED.
 
-- If **SL_USE_RECEIVE** macro is enabled, it only receives the data from slave - SPI slave must be connected, it cannot be tested in loopback mode.
+- If **SSI_MASTER_RECEIVE** macro is enabled, it only receives the data from slave - SPI slave must be connected, it cannot be tested in loopback mode.
 
-  - The current_mode is set to the SL_RECEIVE_DATA and calls the \ref sl_si91x_ssi_receive_data API which expects data_in (empty buffer) and number of data bytes to be received.
+  - The current_mode is set to the SSI_MASTER_RECEIVE_DATA and calls the \ref sl_si91x_ssi_receive_data API which expects data_in (empty buffer) and number of data bytes to be received.
   - It waits till the receive is completed i.e., transfer complete event is generated.
-  - Now the current_mode enum is updated as per the macros enabled i.e., SL_USE_SEND.
-  - If no other macros are enabled, the current_mode is updated to SL_TRANSMISSION_COMPLETED.
+  - Now the current_mode enum is updated as per the macros enabled i.e., SSI_MASTER_SEND.
+  - If no other macros are enabled, the current_mode is updated to SSI_MASTER_TRANSMISSION_COMPLETED.
 
-- If **SL_USE_SEND** macro is enabled, it only sends the data to slave, SPI slave must be connected, it cannot be tested in loopback mode.
-  - The current_mode enum is set to SL_SEND_DATA and calls the \ref sl_si91x_ssi_send_data API which expects data_out (data buffer that needs to be sent) and number of bytes to send.
+- If **SSI_MASTER_SEND** macro is enabled, it only sends the data to slave, SPI slave must be connected, it cannot be tested in loopback mode.
+  - The current_mode enum is set to SSI_MASTER_SEND_DATA and calls the \ref sl_si91x_ssi_send_data API which expects data_out (data buffer that needs to be sent) and number of bytes to send.
   - It waits till the send is completed i.e., transfer complete event is generated.
-  - Now the current_mode enum is updated to TRANSMISSION_COMPLETED.
+  - Now the current_mode enum is updated to SSI_MASTER_TRANSMISSION_COMPLETED.
 
 ## Prerequisites/Setup Requirements
 
@@ -118,11 +118,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ### Application Configuration Parameters
 
 - Configure UC from the slcp component.
-
-  ![Figure: UC image](resources/uc_screen/ssi_uc_screen.png)
-
 - Open **sl_si91x_ssi_master.slcp** project file select **software component** tab and search for **SSI** in search bar.
 - Using configuration wizard one can configure different parameters like:
+  
+   ![Figure: UC image](resources/uc_screen/ssi_uc_screen.png)
+
   - **SSI Configuration**
     - Frame Format: SSI Frame Format can be configured, i.e.,
       - Mode 0: Clock Polarity is zero and Clock Phase is zero.
@@ -145,17 +145,17 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Configure the following macros in ssi_master_example.h file and update/modify following macros if required.
 
-- `USE_TRANSFER`: This macro is enabled default, it sends and receives data in full duplex.
+- `SSI_MASTER_TRANSFER`: This macro is enabled default, it sends and receives data in full duplex.
 
   ```C
-    #define SL_USE_TRANSFER ENABLE    // To use the transfer API
+    #define SSI_MASTER_TRANSFER ENABLE    // To use the transfer API
   ```
 
-- `USE_SEND (or) USE_RECEIVE`: If USE_RECEIVE (or) USE_SEND is enabled, SSI slave will receive and send data in half duplex respectively.
+- `SSI_MASTER_SEND (or) SSI_MASTER_RECEIVE`: If SSI_MASTER_RECEIVE (or) SSI_MASTER_SEND is enabled, SSI slave will receive and send data in half duplex respectively.
 
   ```C
-    #define SL_USE_SEND     DISABLE   // To use the send API
-    #define SL_USE_RECEIVE  DISABLE   // To use the receive API
+    #define SSI_MASTER_SEND     DISABLE   // To use the send API
+    #define SSI_MASTER_RECEIVE  DISABLE   // To use the receive API
   ```
 
 ### Pin Configuration

@@ -80,9 +80,6 @@ void sl_si91x_watchdog_init_timer(void)
 {
   // Un-masking WDT interrupt
   RSI_WWDT_IntrUnMask();
-  // RTC time Period Programming
-  // status = set_rtc_clock_timeperiod(TIME_PERIOD_VALUE);
-  // RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, TIME_PERIOD_VALUE);
   // Initializing watchdog-timer (powering up WDT and enabling it to run during CPU sleep mode)
   RSI_WWDT_Init(MCU_WDT);
 }
@@ -134,9 +131,8 @@ sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *tim
     }
     // FSM clock enable for WDT to be functional
     // Enable clock sources
-    RSI_IPMU_ClockMuxSel(timer_clk_config_ptr->bg_pmu_clock_source);
+    RSI_IPMU_ClockMuxSel(RO_32KHZ_CLOCK);
     RSI_PS_FsmLfClkSel(timer_clk_config_ptr->low_freq_fsm_clock_src);
-    RSI_PS_FsmHfClkSel(timer_clk_config_ptr->high_freq_fsm_clock_src);
   } while (false);
   return status;
 }
@@ -388,11 +384,14 @@ boolean_t sl_si91x_watchdog_get_timer_system_reset_status(void)
 * @brief: De-initializes watchdog-timer
 *
 * @details:
+* It will unregister the timer callback
 * It masks the timer interrupt.
 * Disables the timer and de-powers it.
 *******************************************************************************/
 void sl_si91x_watchdog_deinit_timer(void)
 {
+  // Unregistering the callback
+  sl_si91x_watchdog_unregister_timeout_callback();
   // Masking the interrupt
   RSI_WWDT_IntrMask();
   // Disabling the timer

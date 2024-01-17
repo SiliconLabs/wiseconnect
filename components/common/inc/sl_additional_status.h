@@ -276,6 +276,7 @@
 #define SL_STATUS_SI91X_MQTT_ERROR_BAD_USERNAME_PASSWORD \
   ((sl_status_t)0x10084) ///< The data in the user name or password is malformed.
 #define SL_STATUS_SI91X_MQTT_ERROR_NOT_AUTHORIZED ((sl_status_t)0x10085) ///< The Client is not authorized to connect.
+#define SL_STATUS_SI91X_SA_QUERY_TIMEOUT          ((sl_status_t)0x10086) ///< Disconnection due to SA Query Timeout.
 #define SL_STATUS_SI91X_DUPLICATE_ENTRY_EXISTS_IN_DNS_SERVER_TABLE \
   ((sl_status_t)0x100AF) ///< Duplicate entry exists in DNS server table.
 #define SL_STATUS_SI91X_NO_MEM_AVAILABLE                  ((sl_status_t)0x100B1) ///< Memory error: No memory available.

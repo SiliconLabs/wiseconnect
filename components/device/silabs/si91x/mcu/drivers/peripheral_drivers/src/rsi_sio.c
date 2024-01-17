@@ -1279,7 +1279,6 @@ rsi_error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
                             uint8_t *u8Data,
                             uint16_t u16Len)
 {
-
   uint32_t u32Enable = 0, u32Sdat = 0, u32Slav = 0;
   volatile uint32_t u32RecvDat = 0;
   int cnt;

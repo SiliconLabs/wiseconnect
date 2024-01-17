@@ -10,7 +10,7 @@ sdk:
   version: 4.4.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.1
+    version: 3.1.2
 readme:
   - path: readme.md
 source:
@@ -34,7 +34,6 @@ other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/uc_screen/ucScreenDMA.png
 define:
-  - name: SL_SI91X_DMA
   - name: __STATIC_INLINE
     value: static inline
 provides:
