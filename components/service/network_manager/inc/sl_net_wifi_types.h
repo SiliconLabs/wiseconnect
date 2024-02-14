@@ -37,6 +37,13 @@ typedef struct {
   sl_net_ip_configuration_t ip; ///< Network IP configuration of type @ref sl_net_ip_configuration_t
 } sl_net_wifi_ap_profile_t;
 
+/*! @cond SL_SI91X_WIFI_BTR_MODE */
+/// Network Wi-Fi BTR Profile
+typedef struct {
+  sl_wifi_btr_configuration_t config; ///< Wi-Fi BTR configuration of type @ref sl_wifi_btr_configuration_t
+} sl_net_wifi_btr_profile_t;
+/*! @endcond SL_SI91X_WIFI_BTR_MODE */
+
 /// Network Wi-Fi PSK credential entry
 typedef struct {
   sl_net_credential_type_t type; ///< Network credential type of @ref sl_net_credential_type_t

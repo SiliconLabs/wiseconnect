@@ -35,11 +35,20 @@
 extern "C" {
 #endif
 
+// Current module name for debugging features
+#ifndef CURRENT_MODULE_NAME
+#define CURRENT_MODULE_NAME "Anonymous" ///< current module name
+#endif
+
 #include "sl_status.h"
 #include "sl_slist.h"
 #include "system_si91x.h"
 #include "base_types.h"
 #include "rsi_power_save.h"
+
+#ifdef SL_SI91X_POWER_MANAGER_DEBUG_COMPONENT
+#include "sl_si91x_power_manager_debug_config.h"
+#endif
 
 /***************************************************************************/ /**
  * @addtogroup POWER-MANAGER Power Manager
@@ -64,29 +73,17 @@ extern "C" {
 #define SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_STANDBY (1 << 8) ///< Event transition for leaving standby state
 
 //  Wakeup sources
-#define SL_SI91X_POWER_MANAGER_DST_WAKEUP          DST_BASED_WAKEUP      ///< Deep Sleep Timer based wakeup source
-#define SL_SI91X_POWER_MANAGER_HOST_WAKEUP         HOST_BASED_WAKEUP     ///< Host based wakeup source
-#define SL_SI91X_POWER_MANAGER_WIRELESS_WAKEUP     WIRELESS_BASED_WAKEUP ///< Wireless based wakeup source
-#define SL_SI91X_POWER_MANAGER_M4_PROCESSOR_WAKEUP M4_PROCS_BASED_WAKEUP ///< M4 Processor based wakeup source
-#define SL_SI91X_POWER_MANAGER_GPIO_WAKEUP         GPIO_BASED_WAKEUP     ///< GPIO based wakeup source
-#define SL_SI91X_POWER_MANAGER_COMPARATOR_WAKEUP   COMPR_BASED_WAKEUP    ///< Comparator based wakeup source
-#define SL_SI91X_POWER_MANAGER_SYSRTC_WAKEUP       SYSRTC_BASED_WAKEUP   ///< Sysrtc based wakeup source
-#define SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP        ULPSS_BASED_WAKEUP    ///< ULP peripheral based wakeup source
-#define SL_SI91X_POWER_MANAGER_SDCSS_WAKEUP        SDCSS_BASED_WAKEUP ///< SDC (Sensor data collector) based wakeup source
-#define SL_SI91X_POWER_MANAGER_ALARM_WAKEUP        ALARM_BASED_WAKEUP    ///< Alarm based wakeup source
-#define SL_SI91X_POWER_MANAGER_SEC_WAKEUP          SEC_BASED_WAKEUP      ///< Second based wakeup source
-#define SL_SI91X_POWER_MANAGER_MSEC_WAKEUP         MSEC_BASED_WAKEUP     ///< Milli second based wakeup source
-#define SL_SI91X_POWER_MANAGER_WDT_WAKEUP          WDT_INTR_BASED_WAKEUP ///< Watchdog interrupt based wakeup source
-
-//  Ram retention modes
-#define SL_SI91X_POWER_MANAGER_HPSRAM_RETENTION_ULP_ENABLE \
-  HPSRAM_RET_ULP_MODE_EN ///< High Power ULP SRAM retention enable
-#define SL_SI91X_POWER_MANAGER_M4SS_RAM_RETENTION_ENABLE  M4SS_RAM_RETENTION_MODE_EN  ///< M4SS RAM retention enable
-#define SL_SI91X_POWER_MANAGER_M4ULP_RAM_RETENTION_ENABLE M4ULP_RAM_RETENTION_MODE_EN ///< M4 ULP RAM retention enable
-#define SL_SI91X_POWER_MANAGER_TA_RAM_RETENTION_ENABLE    TA_RAM_RETENTION_MODE_EN    ///< TA RAM retention enable
-#define SL_SI91X_POWER_MANAGER_ULPSS_RAM_RETENTION_ENABLE ULPSS_RAM_RETENTION_MODE_EN ///< ULPSS RAM retention enable
-#define SL_SI91X_POWER_MANAGER_M4ULP_RAM16K_RETENTION_ENABLE \
-  M4ULP_RAM16K_RETENTION_MODE_EN ///< M4 ULP 16K RAM retention enable
+#define SL_SI91X_POWER_MANAGER_DST_WAKEUP        DST_BASED_WAKEUP      ///< Deep Sleep Timer based wakeup source
+#define SL_SI91X_POWER_MANAGER_WIRELESS_WAKEUP   WIRELESS_BASED_WAKEUP ///< Wireless based wakeup source
+#define SL_SI91X_POWER_MANAGER_GPIO_WAKEUP       GPIO_BASED_WAKEUP     ///< GPIO based wakeup source
+#define SL_SI91X_POWER_MANAGER_COMPARATOR_WAKEUP COMPR_BASED_WAKEUP    ///< Comparator based wakeup source
+#define SL_SI91X_POWER_MANAGER_SYSRTC_WAKEUP     SYSRTC_BASED_WAKEUP   ///< Sysrtc based wakeup source
+#define SL_SI91X_POWER_MANAGER_ULPSS_WAKEUP      ULPSS_BASED_WAKEUP    ///< ULP peripheral based wakeup source
+#define SL_SI91X_POWER_MANAGER_SDCSS_WAKEUP      SDCSS_BASED_WAKEUP ///< SDC (Sensor data collector) based wakeup source
+#define SL_SI91X_POWER_MANAGER_ALARM_WAKEUP      ALARM_BASED_WAKEUP ///< Alarm based wakeup source
+#define SL_SI91X_POWER_MANAGER_SEC_WAKEUP        SEC_BASED_WAKEUP   ///< Second based wakeup source
+#define SL_SI91X_POWER_MANAGER_MSEC_WAKEUP       MSEC_BASED_WAKEUP  ///< Milli second based wakeup source
+#define SL_SI91X_POWER_MANAGER_WDT_WAKEUP        WDT_INTR_BASED_WAKEUP ///< Watchdog interrupt based wakeup source
 
 // M4SS peripherals
 #define SL_SI91X_POWER_MANAGER_M4SS_PG_EFUSE        M4SS_PWRGATE_ULP_EFUSE_PERI   ///< M4SS EFUSE Power Gate
@@ -145,14 +142,12 @@ extern "C" {
 
 /// @brief Struture to store configuration parameters for RAM retention
 typedef struct {
-  uint16_t m4ss_ram_size_kb;         ///< M4SS RAM size that needs to be restored
-  uint16_t ulpss_ram_size_kb;        ///< ULPSS RAM size that needs to be restored
-  boolean_t configure_ram_retention; ///< Set or Clear RAM retention
+  uint16_t m4ss_ram_size_kb;  ///< M4SS RAM size that needs to be restored
+  uint16_t ulpss_ram_size_kb; ///< ULPSS RAM size that needs to be restored
   boolean_t
     configure_ram_banks;    ///< Enable will set the RAM banks using size, disable will set RAM banks using bank number
   uint32_t m4ss_ram_banks;  ///< M4SS RAM bank number that needs to be restored
   uint32_t ulpss_ram_banks; ///< ULPSS RAM bank number that needs to be restored
-  uint32_t ram_retention_mode; ///< RAM Retention modes based on the flags \ref sl_power_ram_retention_mode_t
 } sl_power_ram_retention_config_t;
 
 /// @brief Structure to store masked values of peripherals to enable/disable it
@@ -181,6 +176,16 @@ typedef enum {
   LAST_ENUM_CLOCK_SCALING,            ///< Last enum for validation
 } sl_clock_scaling_t;
 
+/// On ISR Exit Hook answer
+typedef enum {
+  SL_SI91X_POWER_MANAGER_ISR_IGNORE =
+    (1UL << 0UL), ///< The module did not trigger an ISR and it doesn't want to contribute to the decision
+  SL_SI91X_POWER_MANAGER_ISR_SLEEP =
+    (1UL << 1UL), ///< The module was the one that caused the system wakeup and the system SHOULD go back to sleep
+  SL_SI91X_POWER_MANAGER_ISR_WAKEUP =
+    (1UL << 2UL), ///< The module was the one that caused the system wakeup and the system MUST NOT go back to sleep
+} sl_si91x_power_manager_on_isr_exit_t;
+
 /// @brief Mask of all the event(s) to listen to.
 typedef uint32_t sl_power_manager_ps_transition_event_t;
 
@@ -205,6 +210,41 @@ typedef struct {
   sl_slist_node_t node;                              ///< List node.
   sl_power_manager_ps_transition_event_info_t *info; ///< Handle event info.
 } sl_power_manager_ps_transition_event_handle_t;
+
+// -----------------------------------------------------------------------------
+// Internal API Prototypes
+/*******************************************************************************
+ * Updates the power state requirement, requirement table and current state variable.
+ * 
+ * 
+ * @note FOR INTERNAL USE ONLY.
+ * 
+ * @pre Pre-conditions:
+ * - none
+ * 
+ * @param[in] state Power state requirement that needs to be updated
+ * @param[in] add  Flag indicating if requirement is added (true) or removed
+ *                 (false).
+ * 
+ * @return The following values are returned:
+ * - status SL_STATUS_OK on success, else error code. 
+ * -
+ *         SL_STATUS_OK (0x0000) Success. 
+ * -
+ *         SL_STATUS_ALREADY_INITIALIZED (0x0012) Power Manager is already initialized. 
+ * 
+ ******************************************************************************/
+sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state, boolean_t add);
+
+// To make sure that we are able to optimize out the string argument when the
+// debug feature is disable, we use a pre-processor macro resulting in a no-op.
+// We also make sure to always have a definition for the function regardless if
+// the debug feature is enable or not for binary compatibility.
+#if (SL_SI91X_POWER_MANAGER_DEBUG == 1)
+void sli_si91x_power_manager_debug_log_ps_requirement(sl_power_state_t ps, bool add, const char *name);
+#else
+#define sli_si91x_power_manager_debug_log_ps_requirement(em, add, name) /* no-op */
+#endif
 
 // -----------------------------------------------------------------------------
 // Prototypes
@@ -258,7 +298,19 @@ sl_status_t sl_si91x_power_manager_init(void);
  *
  *         - SL_STATUS_INVALID_PARAMETER (0x0021) Invalid Parameter is passed.
  ******************************************************************************/
-sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_state_t state);
+__STATIC_INLINE sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_state_t state)
+{
+  sl_status_t status = SL_STATUS_OK;
+  // updates the current power state.
+  status = sli_si91x_power_manager_update_ps_requirement(state, true);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  if ((state != SL_SI91X_POWER_MANAGER_PS1) && (state != SL_SI91X_POWER_MANAGER_PS0)) {
+    sli_si91x_power_manager_debug_log_ps_requirement(state, true, (const char *)CURRENT_MODULE_NAME);
+  }
+  return status;
+}
 
 /***************************************************************************/ /**
  * Removes requirement on power states.
@@ -291,7 +343,19 @@ sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_state_t state);
  *
  *         - SL_STATUS_INVALID_PARAMETER (0x0021) Invalid Parameter is passed.
  ******************************************************************************/
-sl_status_t sl_si91x_power_manager_remove_ps_requirement(sl_power_state_t state);
+__STATIC_INLINE sl_status_t sl_si91x_power_manager_remove_ps_requirement(sl_power_state_t state)
+{
+  sl_status_t status = SL_STATUS_OK;
+  // updated the current power state.
+  status = sli_si91x_power_manager_update_ps_requirement(state, false);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  if ((state != SL_SI91X_POWER_MANAGER_PS1) && (state != SL_SI91X_POWER_MANAGER_PS0)) {
+    sli_si91x_power_manager_debug_log_ps_requirement(state, false, (const char *)CURRENT_MODULE_NAME);
+  }
+  return status;
+}
 
 /***************************************************************************/ /**
  * Configures the clock scaling.
@@ -484,6 +548,22 @@ sl_status_t sl_si91x_power_manager_unsubscribe_ps_transition_event(
  * active states.
  * If any error is there, it returns the error code and does not transit to sleep mode.
  * 
+ * @note This function expects and call a callback with the following
+ *       signature: `boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)`.
+ *       This function can be used to cancel a sleep action and handle the
+ *       possible race condition where an ISR that would cause a wakeup is
+ *       triggered right after the decision to call sl_si91x_power_manager_sleep()
+ *       has been made.
+ * 
+ * This function also expects and call a callback with the following
+ * signature: `boolean_t sl_si91x_power_manager_isr_wakeup(void)` after 
+ * wakeup from sleep. The possible return values are 
+ *        - SL_SI91X_POWER_MANAGER_ISR_IGNORE
+ *        - SL_SI91X_POWER_MANAGER_ISR_SLEEP
+ *        - SL_SI91X_POWER_MANAGER_ISR_WAKEUP
+ * @note It can end up in infinite sleep-wakeup loop if continuously SL_SI91X_POWER_MANAGER_ISR_SLEEP 
+ *       return value is passed.
+ * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_power_manager_init 
  * -
@@ -494,7 +574,7 @@ sl_status_t sl_si91x_power_manager_unsubscribe_ps_transition_event(
  *      \ref sl_si91x_power_manager_set_wakeup_sources 
 *
  * 
- * @param[in] none
+ * @param none
  * 
  * @return The following values are returned:
  * - status SL_STATUS_OK on success, else error code.
@@ -519,7 +599,7 @@ sl_status_t sl_si91x_power_manager_sleep(void);
  *      \ref sl_si91x_power_manager_subscribe_ps_transition 
 *
  * 
- * @param[in] none
+ * @param none
  * 
  * @return The following values are returned:
  * - none
@@ -559,7 +639,6 @@ sl_status_t sl_si91x_power_manager_set_wakeup_sources(uint32_t source, boolean_t
 /***************************************************************************/ /**
  * Retains the RAM in low power state either by using size or RAM bank as input parameter.
  * Structure member possible values: \ref sl_power_ram_retention_config_t
- * - configure_ram_retention -> Boolean to enable RAM retention. (Enable/Disable).
  * - configure_ram_banks -> Boolean to switch between RAM Bank retentions. Either by size
  *                          or by RAM bank number. 
  * - 
@@ -574,7 +653,6 @@ sl_status_t sl_si91x_power_manager_set_wakeup_sources(uint32_t source, boolean_t
  * - 
  *                        less than 8 KB (Enter 5 for 5 KB).
  * - ram_bank_number -> Retains the m4ss and ulpss RAM Bank using bank number
- * - ram_retention_mode -> Configures the RAM retention mode 
  * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_power_manager_init 
@@ -645,6 +723,7 @@ sl_power_state_t sl_si91x_power_manager_get_current_state(void);
  *            requirement_table[0]); 
  * -
  * }
+ * ```
  ******************************************************************************/
 uint8_t *sl_si91x_power_manager_get_requirement_table(void);
 

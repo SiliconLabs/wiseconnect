@@ -1,6 +1,5 @@
 #ifndef BLE_AUTO_GEN_H
 #define BLE_AUTO_GEN_H
-#include "rsi_driver.h"
 #include "event_loop.h"
 #include "ble_private.h"
 

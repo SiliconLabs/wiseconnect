@@ -47,6 +47,13 @@ void sl_mv_m4_app_from_flash_to_ram(int option)
     //! Poll for bit to clear
     while (M4SS_P2P_INTR_CLR_REG & M4_WAITING_FOR_TA_TO_WR_ON_FLASH)
       ;
+  } else if (option == M4_WAIT_FOR_NWP_DEINIT) {
+    //! Raise interrupt to TA
+    raise_m4_to_ta_interrupt(M4_WAITING_FOR_TA_DEINIT);
+
+    //! Poll for bit to clear
+    while (M4SS_P2P_INTR_CLR_REG & M4_WAITING_FOR_TA_DEINIT)
+      ;
   }
 
   //! Enable all interrupts

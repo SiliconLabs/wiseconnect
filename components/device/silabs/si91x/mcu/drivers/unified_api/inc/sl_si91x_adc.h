@@ -37,12 +37,10 @@ extern "C" {
 
 #include "sl_status.h"
 #include "rsi_adc.h"
-
 /***************************************************************************/ /**
- * @addtogroup ADC ADC
+ * @addtogroup ADC Analog to Digital Converter
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
- *
  ******************************************************************************/
 // -----------------------------------------------------------------------------
 // Data Types
@@ -53,8 +51,12 @@ typedef adc_inter_config_t sl_adc_internal_config_t; ///< Renamed ADC internal c
 typedef adc_extr_config_t sl_adc_external_config_t;  ///< Renamed ADC external trigger configuration structure
 
 /***************************************************************************/ /**
- * Typedef for the function pointer of the callback function
- ******************************************************************************/
+     * Typedef for user supplied callback function, which is called when ADC sample completes
+     *
+     * @param[in]   channel      ADC channel number
+     * @param[in]   event        ADC event for different interrupt.
+
+     ******************************************************************************/
 typedef void (*sl_adc_callback_t)(uint8_t channel, uint8_t event);
 
 // -----------------------------------------------------------------------------
@@ -145,6 +147,7 @@ typedef enum {
   SL_ADC_CHANNEL_15, ///< ADC channel 16
 } sl_adc_channel_id_t;
 
+/// @brief Structure to hold the threshold detection configuration parameters
 typedef struct {
   uint16_t threshold1;      ///< Threshold_1
   uint16_t threshold2;      ///< Threshold_2
@@ -153,6 +156,7 @@ typedef struct {
   uint8_t range;
 } sl_adc_threshold_config_t;
 
+/// @brief Structure to hold the fifo threshold configuration parameters
 typedef struct {
   uint8_t num_of_channel_en; ///< Number of channel enable
   uint8_t a_empty_threshold; ///< AEMPTY Threshold
@@ -178,9 +182,10 @@ typedef struct {
 // Prototypes
 
 /***************************************************************************/ /**
- * Configure the ADC clock.
+ * Set the clock for the ADC peripheral, Configures the PLL clock with the 
+ * value set by user in the clock configuration structure.
  *
- * @param[in] clock_configuration : clock structure variables
+ * @param[in] clock_configuration : clock structure variables  ( \ref sl_adc_clock_config_t)
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success
  *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
@@ -191,17 +196,18 @@ typedef struct {
 sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configuration);
 
 /***************************************************************************/ /**
- * Initialize the ADC peripheral.
+ * Initialize the ADC peripheral. Based on the sampling rate, the ADC clock source 
+ * will set and Pass the Vref value to set the reference voltage to ADC.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock - Only for FIFO mode on M4 state 
  *
- * @param[in]  adc_channel_config  : ADC channels configuration structure variable.
- * @param[in]  adc_config    : ADC operation configuration structure variable.
- * @param[in]  vref_value    : Reference voltage.
+ * @param[in]  adc_channel_config  : ADC channels configuration structure variable
+ * @param[in]  adc_config    : ADC operation configuration structure variable
+ * @param[in]  vref_value    : Reference voltage
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
  *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid 
  *         - SL_STATUS_BUSY (0x0004) - The function is already active 
  *         - SL_STATUS_INVALID_COUNT (0x002B) - Mismatch count 
@@ -216,12 +222,16 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
  * - \ref sl_si91x_adc_configure_clock 
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_init
+ * @pre Pre-conditions:
+ * - \ref sl_si91x_adc_configure_clock 
+ * @pre Pre-conditions:
+ * -  \ref sl_si91x_adc_init
  *
  * @param[in]  adc_channel_config  : ADC channels configuration structure variable.
  * @param[in]  adc_config    : ADC operation configuration structure variable.
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
  *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid 
  *         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch Range
  ******************************************************************************/
@@ -230,6 +240,10 @@ sl_status_t sl_si91x_adc_set_channel_configuration(sl_adc_channel_config_t adc_c
 
 /***************************************************************************/ /**
  * Register the user callback function.
+ * At the time of events, the function passed in the parameter is called with the respective
+ * event as the parameter.
+ * Before calling this function again, it is mandatory to call the \ref sl_si91x_adc_unregister_event_callback
+ * function to unregister the callback, otherwise it returns SL_STATUS_BUSY error code.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -241,13 +255,14 @@ sl_status_t sl_si91x_adc_set_channel_configuration(sl_adc_channel_config_t adc_c
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
  *         - SL_STATUS_BUSY (0x0004) - Driver is busy
  ******************************************************************************/
 sl_status_t sl_si91x_adc_register_event_callback(sl_adc_callback_t callback_event);
 
 /***************************************************************************/ /**
  * Un-register the user callback function.
+ * It is mandatory to call this function before registering the callback again.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_register_event_callback 
@@ -259,9 +274,13 @@ void sl_si91x_adc_unregister_event_callback(void);
 
 /***************************************************************************/ /**
  * Configure the ADC external trigger.
- * This API is used to mux select to choose between ulp_timer, ulp_gpio, 
- * M4_timer based on this detection edge and channel trigger will interrupt.
- *
+ * Triggers can be used in PS4 State to collect the sample from a pre-defined channel.
+ * ADC can give a sample for the selected trigger with a trigger match.
+ * There are 3 external triggers, which are enabled by
+ *  - ULPSS Timer interrupts
+ *  - ULPSS GPIOs
+ *  - M4SS Config_Timer.
+ * Trigger match can be checked by reading the \ref sl_si91x_adc_get_external_trigger_status
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
  * @pre Pre-conditions:
@@ -274,13 +293,16 @@ void sl_si91x_adc_unregister_event_callback(void);
  * @param[in] adc_external_trigger  :  ADC external trigger configuration structure variable.
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
  *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
  ******************************************************************************/
 sl_status_t sl_si91x_adc_configure_external_trigger(sl_adc_external_config_t adc_external_trigger);
 
 /***************************************************************************/ /**
- * Configure the ADC sampling rate for ADC channels.
+ * Configure the ADC sampling rate for the ADC channels.
+ * It will set the channel offset value and channel frequency for each channel to set the
+ * sampling rate. The minimum allowed value is 3 to satisfy the Nyquist criteria of sampling rates. 
+ * Freq_value 1 and 2 are not allowed.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -295,7 +317,8 @@ sl_status_t sl_si91x_adc_configure_channel_sampling_rate(sl_adc_internal_config_
                                                          uint8_t channel_num);
 
 /***************************************************************************/ /**
- * Read the ADC external trigger status.
+ * ADC can give a sample for the selected trigger with a trigger match.
+ * Read the ADC external trigger match.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -310,14 +333,16 @@ sl_status_t sl_si91x_adc_configure_channel_sampling_rate(sl_adc_internal_config_
  * @param[in]  ext_trigger           :  The status of external trigger will be store in this.
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
  *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
  ******************************************************************************/
 sl_status_t sl_si91x_adc_get_external_trigger_status(sl_adc_external_config_t adc_external_trigger,
                                                      uint8_t *ext_trigger);
 
 /***************************************************************************/ /**
- * Clear the ADC external trigger status.
+ * Clear the ADC external trigger.
+ * After reading the trigger match can clear specific trigger using 
+ * \ref sl_si91x_adc_clear_external_trigger API.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -331,13 +356,19 @@ sl_status_t sl_si91x_adc_get_external_trigger_status(sl_adc_external_config_t ad
  * @param[in]  adc_external_trigger  :  ADC external trigger configuration structure variable.
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
  *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
  ******************************************************************************/
 sl_status_t sl_si91x_adc_clear_external_trigger(sl_adc_external_config_t adc_external_trigger);
 
 /***************************************************************************/ /**
  * Configure the ADC ping and pong memory location and length
+ * To configure the Ping and pong memory location along with length of
+ * ping memory and pong memory. It is an applicable only for FIFO mode of ADC operation.
+ * FIFO mode supports dual buffer cyclic mode to avoid loss of data when buffer is full. 
+ * In dual buffer cyclic mode, if Ping buffer is full for particular channel, incoming 
+ * sampled data is written into Pong buffer such that, samples from Ping buffer are read back 
+ * by controller during this time. That’s why there are two start addresses, 
+ * two buffer lengths and two valid signals for each channel.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock 
@@ -354,7 +385,8 @@ sl_status_t sl_si91x_adc_configure_ping_pong_memory_address(sl_adc_internal_conf
                                                             uint8_t channel_num);
 
 /***************************************************************************/ /**
- * Enable ping pong for corresponding ADC channels
+ * Enable ping pong for the corresponding ADC channels
+ * It is an applicable only for FIFO mode of ADC operation.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -371,7 +403,7 @@ sl_status_t sl_si91x_adc_configure_ping_pong_memory_address(sl_adc_internal_conf
 sl_status_t sl_si91x_adc_enable_ping_pong(uint8_t channel_num);
 
 /***************************************************************************/ /**
- * Disable ping pong for corresponding ADC channels
+ * Disable ping pong for the corresponding ADC channels
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -392,7 +424,8 @@ sl_status_t sl_si91x_adc_enable_ping_pong(uint8_t channel_num);
 sl_status_t sl_si91x_adc_disable_ping_pong(uint8_t channel_num);
 
 /***************************************************************************/ /**
- * Enable internal DMA for corresponding ADC channels.
+ * Enable DMA for the corresponding ADC channels.
+ * It is an applicable only for FIFO mode of ADC operation.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -409,7 +442,7 @@ sl_status_t sl_si91x_adc_disable_ping_pong(uint8_t channel_num);
 sl_status_t sl_si91x_adc_internal_per_channel_dma_enable(uint8_t channel_num);
 
 /***************************************************************************/ /**
- * Disable internal dma channel for corresponding ADC channels.
+ * Disable DMA for the corresponding ADC channels.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -431,6 +464,7 @@ sl_status_t sl_si91x_adc_internal_per_channel_dma_disable(uint8_t channel_num);
 
 /***************************************************************************/ /**
  * Configure the ADC in Static Mode
+ * it can be programmed for setting input type, positive and negative input channel selection.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -513,7 +547,7 @@ sl_status_t sl_si91x_adc_channel_enable(uint8_t channel_num);
 sl_status_t sl_si91x_adc_channel_disable(uint8_t channel_num);
 
 /***************************************************************************/ /**
- * Set to Power On and off for ADC.
+ * Set the Power On and off for ADC.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock 
@@ -522,13 +556,14 @@ sl_status_t sl_si91x_adc_channel_disable(uint8_t channel_num);
  *
  * @param[in]  state       :  \b ADC_POWER_ON - To powerup adc powergates,
  *                            \b ADC_POWER_OFF - To powerdown adc powergates
-  * @return status 0 if successful,
+ *                           ( \ref POWER_STATE )
+ * @return status 0 if successful,
  *         - SL_STATUS_OK (0x0000) - Success
  ******************************************************************************/
 sl_status_t sl_si91x_adc_set_power_mode(POWER_STATE state);
 
 /***************************************************************************/ /**
- * Enable or Disable Noise averaging mode
+ * Enable or Disable the Noise averaging mode to ADC.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -544,7 +579,8 @@ sl_status_t sl_si91x_adc_set_power_mode(POWER_STATE state);
 sl_status_t sl_si91x_adc_set_noise_average_mode(boolean_t state);
 
 /***************************************************************************/ /**
- * Enable temp-sensor for ADC.
+ * Enable BJT based Temperature sensor as an input to ADC.
+ * Operation mode of ADC should be Static.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock 
@@ -557,7 +593,7 @@ sl_status_t sl_si91x_adc_set_noise_average_mode(boolean_t state);
 sl_status_t sl_si91x_adc_temperature_sensor_enable(void);
 
 /***************************************************************************/ /**
- * Configuring ADC fifo threshold.
+ * Configuring ADC fifo threshold. Maximum FIFO depth is 16 can configure the threshold value.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -567,7 +603,8 @@ sl_status_t sl_si91x_adc_temperature_sensor_enable(void);
  * - \ref sl_si91x_adc_set_channel_configuration
  *
  * @param[in]  adc_config    : ADC operation configuration structure variable.
- * @param[in]  adc_fifo_threshold : ADC fifo structure variable like aempty fifo, afull fifo threshold level.
+ * @param[in]  adc_fifo_threshold : ADC fifo structure variable like an empty fifo, a full fifo threshold level.
+ *                                  ( \ref sl_adc_fifo_thrld_config_t )
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success 
  *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid 
@@ -578,6 +615,7 @@ sl_status_t sl_si91x_adc_fifo_threshold_configuration(sl_adc_config_t adc_config
 
 /***************************************************************************/ /**
  * Configure the ADC threshold to compare threshold value with ADC data.
+ * This is valid in ADC Static mode only.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -594,7 +632,7 @@ sl_status_t sl_si91x_adc_fifo_threshold_configuration(sl_adc_config_t adc_config
 sl_status_t sl_si91x_adc_threshold_configuration(sl_adc_threshold_config_t adc_threshold);
 
 /***************************************************************************/ /**
- * Read the ADC samples when ulp memories are used.
+ * Read the ADC samples when FIFO mode is enabled.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -627,6 +665,7 @@ sl_status_t sl_si91x_adc_read_data(sl_adc_channel_config_t adcchconfig, uint8_t 
  * - \ref sl_si91x_adc_start
  *
  * @param[in]  adc_channel_config   :  ADC channels configuration structure variable.
+ * @param[in]  adc_config    : ADC operation configuration structure variable.
  * @param[in]  adc_value     :  Store the reading data on adc_value.
  * @return status 0 if successful, else error code as follow
  *         - SL_STATUS_OK (0x0000) - Success 
@@ -638,7 +677,7 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
                                           uint16_t *adc_value);
 
 /***************************************************************************/ /**
- * Read the ADC sampling rate when static mode is enabled.
+ * To get the channel sampling rate value which is configured to ADC.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock
@@ -655,7 +694,8 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
 uint32_t sl_si91x_adc_get_sampling_rate(uint8_t channel_num);
 
 /***************************************************************************/ /**
- * De-initialize the ADC.
+ * Uninitialize the ADC. If the DMA is enabled, it also uninitializes the
+ * DMA.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_adc_configure_clock 
@@ -706,7 +746,8 @@ sl_status_t sl_si91x_adc_start(sl_adc_config_t adc_config);
 sl_status_t sl_si91x_adc_stop(sl_adc_config_t adc_config);
 
 /***************************************************************************/ /**
- * Get the release, sqa and dev version of ADC.
+ * Get the ADC version.
+ * It returns the API version of ADC.
  *
  * @param[in] none
  * @return (sl_adc_version_t) type structure

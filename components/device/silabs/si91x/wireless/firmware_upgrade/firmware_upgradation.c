@@ -23,8 +23,6 @@
 #include <string.h>
 #include "firmware_upgradation.h"
 
-#define SI91X_HTTP_BUFFER_LEN 1200
-
 extern bool device_initialized;
 
 /***************************************************************************/ /**

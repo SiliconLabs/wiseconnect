@@ -168,7 +168,7 @@ sl_status_t sl_wifi_set_mac_address(sl_wifi_interface_t interface, const sl_mac_
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[out] max_tx_power
- *   A variable that contains current maximum transmit power in dBm as identified by @ref sl_wifi_max_tx_power_t.
+ *   A variable that contains current maximum transmit power as identified by by @ref sl_wifi_max_tx_power_t.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
@@ -182,12 +182,15 @@ sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @param[in] max_tx_power
- *   Max transmission power to set in dBm as identified by @ref sl_wifi_max_tx_power_t
+ *   Max transmission power as identified by @ref sl_wifi_max_tx_power_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
  *   This function sets the transmit power for a particular radio interface: SL_WIFI_2_4GHZ_INTERFACE or SL_WIFI_5GHZ_INTERFACE.
  *   Eg: Setting transmit power for client interface at 2.4GHz will also set transmit power of the AP interface at 2.4GHz.
+ * @note
+ *   The effective transmit power is subject to regional and device limitations. If the specified transmit power exceeds the
+ *   maximum supported value for that region, the transmission will occur at the maximum supported transmit power.
  ******************************************************************************/
 sl_status_t sl_wifi_set_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_tx_power_t max_tx_power);
 
@@ -538,7 +541,7 @@ sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   If the station is not connected or at least one beacon is not received after connection, tsf value will be '0'.
+ *   This API returns error if station is not connected or at least one beacon is not received.
  ******************************************************************************/
 sl_status_t sl_wifi_get_sta_tsf(sl_wifi_interface_t interface, sl_wifi_tsf64_t *tsf);
 
@@ -804,6 +807,22 @@ sl_status_t sl_wifi_get_pairwise_master_key(sl_wifi_interface_t interface,
  *   PMKSA is not supported in WPA3 AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_start_ap(sl_wifi_interface_t interface, const sl_wifi_ap_configuration_t *configuration);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Reconfigure the dynamic parameters of a Wi-Fi access point (AP) interface.
+ * @pre
+ *   @ref sl_wifi_start_ap should be called before this API.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] config
+ *   Wi-Fi AP dynamic configuration. See @ref sl_si91x_ap_reconfiguration_t
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   The access point continues to transmit beacons when a client is connected, regardless of the beacon_stop configuration.
+ ******************************************************************************/
+sl_status_t sl_wifi_reconfigure_ap(sl_wifi_interface_t interface, sl_si91x_ap_reconfiguration_t config);
 
 /***************************************************************************/ /**
  * @brief
@@ -1170,3 +1189,263 @@ sl_status_t sl_wifi_stop_statistic_report(sl_wifi_interface_t interface);
  *   This API is not yet implemented.
  ******************************************************************************/
 sl_status_t sl_wifi_get_status(sl_wifi_status_t *wifi_status);
+
+/*! @cond SL_SI91X_WIFI_BTR_MODE */
+/** \addtogroup WIFI_BTR_API Wi-Fi Basic Transceiver
+  * \ingroup SL_WIFI_FUNCTIONS
+  * @{ */
+// WiFi Basic Transceiver (BTR) functions
+/***************************************************************************/ /**
+ * @brief
+ *   Start a Wi-Fi Basic Transceiver (BTR) interface.
+ * @pre Pre-conditions:
+ * - @ref sl_wifi_init should be called before this API.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] config
+ *   Wi-Fi BTR configuration. See @ref sl_wifi_btr_configuration_t
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   `Wi-Fi Basic Transceiver Mode(BTR) Client` example can be used as reference for this API.
+ ******************************************************************************/
+sl_status_t sl_wifi_btr_up(sl_wifi_interface_t interface, sl_wifi_btr_configuration_t *config);
+
+/***************************************************************************/ /**
+ * @brief Configure channel from the host.
+ *
+ * @pre Pre-conditions:
+ * - @ref sl_wifi_init should be called before this API.
+ *
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] btr_chan_info
+ *   Application shall decide the channel at which device operates and transmits frames. See @ref sl_wifi_btr_set_channel_t.
+ *             | Param                  | Description
+ *             |:-----------------------|:-----------------------------------------------------------
+ *             |channel                 | Primary channel number. Valid channels are 1-14.
+ *             |band                    | Reserved
+ *             |bandwidth               | Reserved
+ *             |tx_power                | Reserved
+ *
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. Possible Error Codes:
+ *   - `0xFFFFFFFD` - Command given in wrong state
+ *   - `0xFFFFFFC4` - Invalid channel
+ *
+ * @note This API is only supported in Wi-Fi Basic Tranceiver opermode (7).
+ * @note This is a blocking API.
+ * @note `Wi-Fi Basic Transceiver Mode(BTR) Client` example can be used as reference for this API.
+ *
+ * Sample command usage:
+ * @code
+ * // Initialize channel
+ * sl_wifi_btr_set_channel_t btr_chan_info;
+ * btr_chan_info.chan_info.channel = 14;
+ *
+ * // Set channel
+ * sl_wifi_btr_set_channel(SL_WIFI_BTR_INTERFACE, btr_chan_info);
+ * @endcode 
+ *
+ ******************************************************************************/
+sl_status_t sl_wifi_btr_set_channel(sl_wifi_interface_t interface, sl_wifi_btr_set_channel_t btr_chan_info);
+
+/***************************************************************************/ /**
+ * @brief This API shall be used to configure the CWmin, CWmax, and AIFSN per access category and retransmit count.
+ *
+ * @pre Pre-conditions:
+ * - @ref sl_wifi_init should be called before this API.
+ *
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ *
+ * @param[in] config_params
+ *   Shall be used to set/get the contention parameters per access category and the retransmit count in MAC layer. See @ref sl_wifi_btr_config_params_t.
+ *
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *
+ * @note Configurations must not be changed dynamically.
+ * @note This API is optional. Default configurations are used if API is not called.
+ * @note This is a blocking API.
+ * @note `Wi-Fi Basic Transceiver Mode(BTR) Client` example can be used as reference for this API.
+ *
+ * Sample command usage:
+ * @code
+ * // Initialize config params
+ * sl_wifi_btr_config_params_t config_params;
+ * config_params.set = 1;
+ * config_params.retransmit_count = 15;
+ * config_params.cw_params[0].aifsn = 3;
+ *
+ * // Set config params
+ * sl_wifi_btr_config_params(SL_WIFI_BTR_INTERFACE, &config_params);
+ * @endcode
+ ******************************************************************************/
+sl_status_t sl_wifi_btr_config_params(sl_wifi_interface_t interface, sl_wifi_btr_config_params_t *config_params);
+
+/***************************************************************************/ /**
+ * @brief When new peer is added or deleted from the network, application shall call this API to update peer information to the MAC layer.
+ *
+ * @pre Pre-conditions:
+ * - @ref sl_wifi_btr_set_channel should be called before this API.
+ *
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] peer
+ *   Peer to be added/deleted in MAC layer. See @ref sl_wifi_btr_peer_update_t.
+ *
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. Possible Error Codes:
+ *   - `0xFFFFFFC3` - Invalid data rate
+ *   - `0xFFFFFFA8` - Invalid mac address
+ *   - `0x75`       - Feature disabled
+ *   - `0x76`       - Peer already exists
+ *   - `0x77`       - Max peer limit reached
+ *   - `0x78`       - Peer not found
+ *
+ * @note This is a blocking API.
+ * @note `Wi-Fi Basic Transceiver Mode(BTR) Client` example can be used as reference for this API.
+ *
+ * Sample command usage:
+ * @code
+ * // Initialize peer
+ * sl_wifi_btr_peer_update_t peer;
+ * uint8_t peer_mac[6] = {0x00, 0x23, 0xa7, 0x20, 0x21, 0x24};
+ * memcpy(peer.peer_mac_address, peer_mac, 6);
+ * peer.peer_supported_rate_bitmap = PEER_DS_BITMAP_DATA_RATE_48 | PEER_DS_BITMAP_DATA_RATE_54;
+ * peer.flags                     |= BIT(0)); // Set bit 0 to add peer
+ *
+ * // Add peer
+ * sl_wifi_btr_peer_list_update(SL_WIFI_BTR_INTERFACE, peer);
+ * @endcode
+ ******************************************************************************/
+sl_status_t sl_wifi_btr_peer_list_update(sl_wifi_interface_t interface, sl_wifi_btr_peer_update_t peer);
+
+/***************************************************************************/ /**
+ * @brief This API configures the multicast MAC address to filter Rx multicast packets.
+ *
+ * @pre Pre-conditions:
+ * - @ref sl_wifi_btr_set_channel should be called before this API.
+ *
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[in] mcast
+ *   Filtering multicast MAC address to be added/deleted from MAC layer. See @ref sl_wifi_btr_mcast_filter_t.
+ *
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. Possible Error Codes:
+ *   - `0xFFFFFFFE` - Invalid param
+ *   - `0xFFFFFFA8` - Invalid mac address
+ *
+ * @note This API can be called dynamically.
+ * @note `Wi-Fi Basic Transceiver Mode(BTR) Client` example can be used as reference for this API.
+ *
+ * Sample command usage:
+ * @code
+ * // Initialize multicast filter address structure
+ * sl_wifi_btr_mcast_filter_t mcast;
+ * uint8_t filter_mac[6] = { 0x01, 0x00, 0x5e, 0x00, 0x01, 0x01 };
+ * mcast.flags |= BIT(0);
+ * mcast.num_of_mcast_addr = 1;
+ * memcpy(mcast.mac[0], filter_mac, 6);
+ *
+ * // Add MAC address to be filtered
+ * sl_wifi_btr_multicast_filter(SL_WIFI_BTR_INTERFACE, mcast);
+ * @endcode
+ ******************************************************************************/
+sl_status_t sl_wifi_btr_multicast_filter(sl_wifi_interface_t interface, sl_wifi_btr_mcast_filter_t mcast);
+
+/***************************************************************************/ /**
+ * @brief This API shall flush the entire SW buffer pool.
+ *
+ * @pre Pre-conditions:
+ * - @ref sl_wifi_btr_set_channel should be called before this API.
+ *
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ *
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *
+ * @note All priority queues shall be flushed.
+ * @note `Wi-Fi Basic Transceiver Mode(BTR) Client` example can be used as reference for this API.
+ *
+ * Sample command usage:
+ * @code
+ * sl_wifi_btr_flush_data(SL_WIFI_BTR_INTERFACE);
+ * @endcode
+ ******************************************************************************/
+sl_status_t sl_wifi_btr_flush_data(sl_wifi_interface_t interface);
+
+/***************************************************************************/ /**
+ * @brief Host shall call this API to encapsulate the data with 802.11 MAC header and send it to MAC layer.
+ *
+ * @pre Pre-conditions:
+ * - @ref sl_wifi_btr_set_channel should be called before this API.
+ *
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ *
+ * @param[in] data_ctrlblk
+ *   API uses meta data for preparing data packet along with MAC header for sending to MAC layer. See @ref sl_wifi_btr_data_ctrlblk_t. 
+ * @param[in] payload
+ *   Pointer to payload (encrypted by host) to be sent to LMAC.
+ * @param[in] payload_len
+ *   Length of the payload. Valid range is 1 - 2020 bytes.
+ *
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. Possible Error Codes:
+ *   - `0xFFFFFFFD` - Command given in wrong state
+ *   - `0xFFFFFFFE` - Invalid param
+ *   - `0xFFFFFFC3` - Invalid data rate
+ * 
+ * #### Format of encapsulated data sent to LMAC ####
+ * | Field name | Frame Control  | Duration | Addr1 | Addr2 | Adddr3 | Seq Ctrl | Addr4                  | QoS ctrl              | Payload (LLC + Data)  |
+ * |:-----------|:---------------|:---------|:------|:------|:-------|:---------|:-----------------------|:----------------------|:----------------------|
+ * | Size(bytes)| 2              | 2        | 6     | 6     | 6      | 2        | 6 (Optionally present) | 2 (Optionally present)| Variable              |
+ *
+ * #### RSI_RATES ####
+ * | MACRO              | Value | Rate in Mbps |
+ * |:------------------ |:----- |:------------ |
+ * | `RSI_RATE_1`       | 0x0   | 1            |
+ * | `RSI_RATE_2`       | 0x2   | 2            |
+ * | `RSI_RATE_5_5`     | 0x4   | 5.5          |
+ * | `RSI_RATE_11`      | 0x6   | 11           |
+ * | `RSI_RATE_6`       | 0x8b  | 6            |
+ * | `RSI_RATE_9`       | 0x8f  | 9            |
+ * | `RSI_RATE_12`      | 0x8a  | 12           |
+ * | `RSI_RATE_18`      | 0x8e  | 18           |
+ * | `RSI_RATE_24`      | 0x89  | 24           |
+ * | `RSI_RATE_36`      | 0x8d  | 36           |
+ * | `RSI_RATE_48`      | 0x88  | 48           |
+ * | `RSI_RATE_54`      | 0x8c  | 54           |
+ *
+ * @note This API is only supported in Wi-Fi Basic Tranceiver opermode (7).
+ * @note Once this functions returns, the calling API is responsible for freeing data_ctrlblk and payload.
+ * @note On chip MAC level encryption is not supported in BTR mode.
+ * @note This is not a blocking API. Callback SL_WIFI_BTR_TX_DATA_STATUS_CB can be registered to get the status report from firmware.
+ * @note Only 11b/g rates shall be supported.
+ * @note It is recommended to use basic rate for multicast/broadcast packets.
+ * @note `Wi-Fi Basic Transceiver Mode(BTR) Client` example can be used as reference for this API.
+ * @note Sample command usage:
+ * @code
+ * // Prepare payload
+ * <Prepare data payload in "payload" buffer>
+ * <Initialize data control block @ref sl_wifi_btr_data_ctrlblk_t >
+ * data_ctrlblk->ctrl_flags = BIT(0) | BIT(1) | BIT(2) | BIT(5); // Enable 4-addr MAC hdr, QoS frame, Fixed data rate, send status report for data packet
+ * data_ctrlblk->priority = 2;                                   // Voice priority queue
+ * data_ctrlblk->rate = RSI_RATE_36;
+ * data_ctrlblk->token = token;
+ * <Fill data_ctrlblk addr1, addr2, addr3 and addr4(optionally) with 6 byte RA, TA, DA and SA MAC addresses respectively>
+ *
+ * // Call API to encapsulate the data with 802.11 MAC header and send it to MAC layer.
+ * sl_wifi_btr_send_80211_data(SL_WIFI_BTR_INTERFACE, data_ctrlblk, payload, payload_len);
+ * @endcode
+ ******************************************************************************/
+sl_status_t sl_wifi_btr_send_80211_data(sl_wifi_interface_t interface,
+                                        sl_wifi_btr_data_ctrlblk_t *data_ctrlblk,
+                                        uint8_t *payload,
+                                        uint16_t payload_len);
+/** @} */
+/*! @endcond SL_SI91X_WIFI_BTR_MODE */

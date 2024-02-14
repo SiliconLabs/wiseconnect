@@ -39,8 +39,6 @@
 - requires:
   - name: rsilib_chip
   - name: si917_mem_config
-  - name: external_flash_implementation
-  - name: external_psram_implementation
   - name: sl_si91x_mcu
     condition: [wifi]
   - name: sl_si91x_wireless

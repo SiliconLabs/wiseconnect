@@ -169,7 +169,7 @@ void i2c_leader_example_init(void)
   DEBUGOUT("Pins are configured successfully \n");
   // Generating a buffer with values that needs to be sent.
   for (uint32_t loop = 0; loop < SIZE_BUFFERS; loop++) {
-    write_buffer[loop] = (loop + 0x1);
+    write_buffer[loop] = (uint8_t)(loop + 0x1);
     read_buffer[loop]  = 0;
   }
   send_data_flag = true;
@@ -486,6 +486,7 @@ static void handle_leader_receive_irq(void)
 void I2C0_IRQHandler(void)
 {
   uint32_t status = 0;
+  uint32_t clear  = 0;
   // Checking interrupt status
   status = I2C0->IC_INTR_STAT;
   if (status & SL_I2C_EVENT_TRANSMIT_ABORT) {
@@ -512,11 +513,11 @@ void I2C0_IRQHandler(void)
     }
     if (tx_abrt & SL_I2C_ABORT_GENERAL_CALL_NOACK) {
       // Clearing interrupt by reading the respective bit
-      uint32_t clear = I2C0->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
+      clear = I2C0->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
     }
     if (tx_abrt & SL_I2C_ABORT_GENERAL_CALL_READ) {
       // Clearing interrupt by reading the respective bit
-      uint32_t clear = I2C0->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
+      clear = I2C0->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
     }
     if (tx_abrt & SL_I2C_ABORT_HIGH_SPEED_ACK) {
     }
@@ -542,28 +543,28 @@ void I2C0_IRQHandler(void)
       I2C0->IC_ENABLE_b.SDA_STUCK_RECOVERY_ENABLE = 0x1;
     }
     // Clearing all interrupts
-    uint32_t clear = I2C0->IC_CLR_INTR;
+    clear = I2C0->IC_CLR_INTR;
     // Disables the interrupts.
     sl_si91x_i2c_disable_interrupts(I2C0, SL_I2C_EVENT_TRANSMIT_EMPTY);
   }
   if (status & (SL_I2C_EVENT_SCL_STUCK_AT_LOW)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C0->IC_CLR_INTR;
+    clear = I2C0->IC_CLR_INTR;
     return;
   }
   if (status & (SL_I2C_EVENT_MST_ON_HOLD)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C0->IC_CLR_INTR;
+    clear = I2C0->IC_CLR_INTR;
     return;
   }
   if (status & (SL_I2C_EVENT_START_DETECT)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C0->IC_CLR_START_DET_b.CLR_START_DET;
+    clear = I2C0->IC_CLR_START_DET_b.CLR_START_DET;
     return;
   }
   if (status & (SL_I2C_EVENT_STOP_DETECT)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear     = I2C0->IC_CLR_STOP_DET_b.CLR_STOP_DET;
+    clear              = I2C0->IC_CLR_STOP_DET_b.CLR_STOP_DET;
     uint32_t maskReg   = 0;
     maskReg            = I2C0->IC_INTR_MASK;
     I2C0->IC_INTR_MASK = (maskReg & (~SL_I2C_EVENT_RECEIVE_FULL));
@@ -571,7 +572,7 @@ void I2C0_IRQHandler(void)
   }
   if (status & (SL_I2C_EVENT_ACTIVITY_ON_BUS)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C0->IC_CLR_ACTIVITY_b.CLR_ACTIVITY;
+    clear = I2C0->IC_CLR_ACTIVITY_b.CLR_ACTIVITY;
     return;
   }
   if (status & SL_I2C_EVENT_TRANSMIT_EMPTY) {
@@ -581,11 +582,11 @@ void I2C0_IRQHandler(void)
     handle_leader_receive_irq();
   }
   if (status & (SL_I2C_EVENT_RECEIVE_UNDER)) {
-    uint32_t clear = I2C0->IC_CLR_RX_UNDER_b.CLR_RX_UNDER;
+    clear = I2C0->IC_CLR_RX_UNDER_b.CLR_RX_UNDER;
     return;
   }
   if (status & (SL_I2C_EVENT_RECEIVE_OVER)) {
-    uint32_t clear = I2C0->IC_CLR_RX_OVER_b.CLR_RX_OVER;
+    clear = I2C0->IC_CLR_RX_OVER_b.CLR_RX_OVER;
     return;
   }
   if (status & (SL_I2C_EVENT_RECEIVE_DONE)) {
@@ -600,6 +601,8 @@ void I2C0_IRQHandler(void)
     sl_si91x_i2c_clear_interrupts(I2C0, SL_I2C_EVENT_RESTART_DET);
     return;
   }
+  // to avoid unused variable warning
+  (void)clear;
 }
 
 /*******************************************************************************
@@ -608,6 +611,7 @@ void I2C0_IRQHandler(void)
 void I2C1_IRQHandler(void)
 {
   uint32_t status = 0;
+  uint32_t clear  = 0;
   // Checking interrupt status
   status = I2C1->IC_INTR_STAT;
   if (status & SL_I2C_EVENT_TRANSMIT_ABORT) {
@@ -634,11 +638,11 @@ void I2C1_IRQHandler(void)
     }
     if (tx_abrt & SL_I2C_ABORT_GENERAL_CALL_NOACK) {
       // Clearing interrupt by reading the respective bit
-      uint32_t clear = I2C1->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
+      clear = I2C1->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
     }
     if (tx_abrt & SL_I2C_ABORT_GENERAL_CALL_READ) {
       // Clearing interrupt by reading the respective bit
-      uint32_t clear = I2C1->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
+      clear = I2C1->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
     }
     if (tx_abrt & SL_I2C_ABORT_HIGH_SPEED_ACK) {
     }
@@ -664,28 +668,28 @@ void I2C1_IRQHandler(void)
       I2C1->IC_ENABLE_b.SDA_STUCK_RECOVERY_ENABLE = 0x1;
     }
     // Clearing all interrupts
-    uint32_t clear = I2C1->IC_CLR_INTR;
+    clear = I2C1->IC_CLR_INTR;
     // Disables the interrupts.
     sl_si91x_i2c_disable_interrupts(I2C1, SL_I2C_EVENT_TRANSMIT_EMPTY);
   }
   if (status & (SL_I2C_EVENT_SCL_STUCK_AT_LOW)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C1->IC_CLR_INTR;
+    clear = I2C1->IC_CLR_INTR;
     return;
   }
   if (status & (SL_I2C_EVENT_MST_ON_HOLD)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C1->IC_CLR_INTR;
+    clear = I2C1->IC_CLR_INTR;
     return;
   }
   if (status & (SL_I2C_EVENT_START_DETECT)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C1->IC_CLR_START_DET_b.CLR_START_DET;
+    clear = I2C1->IC_CLR_START_DET_b.CLR_START_DET;
     return;
   }
   if (status & (SL_I2C_EVENT_STOP_DETECT)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear     = I2C1->IC_CLR_STOP_DET_b.CLR_STOP_DET;
+    clear              = I2C1->IC_CLR_STOP_DET_b.CLR_STOP_DET;
     uint32_t maskReg   = 0;
     maskReg            = I2C1->IC_INTR_MASK;
     I2C0->IC_INTR_MASK = (maskReg & (~SL_I2C_EVENT_RECEIVE_FULL));
@@ -693,7 +697,7 @@ void I2C1_IRQHandler(void)
   }
   if (status & (SL_I2C_EVENT_ACTIVITY_ON_BUS)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C1->IC_CLR_ACTIVITY_b.CLR_ACTIVITY;
+    clear = I2C1->IC_CLR_ACTIVITY_b.CLR_ACTIVITY;
     return;
   }
   if (status & SL_I2C_EVENT_TRANSMIT_EMPTY) {
@@ -703,11 +707,11 @@ void I2C1_IRQHandler(void)
     handle_leader_receive_irq();
   }
   if (status & (SL_I2C_EVENT_RECEIVE_UNDER)) {
-    uint32_t clear = I2C1->IC_CLR_RX_UNDER_b.CLR_RX_UNDER;
+    clear = I2C1->IC_CLR_RX_UNDER_b.CLR_RX_UNDER;
     return;
   }
   if (status & (SL_I2C_EVENT_RECEIVE_OVER)) {
-    uint32_t clear = I2C1->IC_CLR_RX_OVER_b.CLR_RX_OVER;
+    clear = I2C1->IC_CLR_RX_OVER_b.CLR_RX_OVER;
     return;
   }
   if (status & (SL_I2C_EVENT_RECEIVE_DONE)) {
@@ -722,6 +726,8 @@ void I2C1_IRQHandler(void)
     sl_si91x_i2c_clear_interrupts(I2C1, SL_I2C_EVENT_RESTART_DET);
     return;
   }
+  // to avoid unused variable warning
+  (void)clear;
 }
 
 /*******************************************************************************
@@ -730,6 +736,7 @@ void I2C1_IRQHandler(void)
 void I2C2_IRQHandler(void)
 {
   uint32_t status = 0;
+  uint32_t clear  = 0;
   // Checking interrupt status
   status = I2C2->IC_INTR_STAT;
   if (status & SL_I2C_EVENT_TRANSMIT_ABORT) {
@@ -756,11 +763,11 @@ void I2C2_IRQHandler(void)
     }
     if (tx_abrt & SL_I2C_ABORT_GENERAL_CALL_NOACK) {
       // Clearing interrupt by reading the respective bit
-      uint32_t clear = I2C2->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
+      clear = I2C2->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
     }
     if (tx_abrt & SL_I2C_ABORT_GENERAL_CALL_READ) {
       // Clearing interrupt by reading the respective bit
-      uint32_t clear = I2C2->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
+      clear = I2C2->IC_CLR_GEN_CALL_b.CLR_GEN_CALL;
     }
     if (tx_abrt & SL_I2C_ABORT_HIGH_SPEED_ACK) {
     }
@@ -786,28 +793,28 @@ void I2C2_IRQHandler(void)
       I2C2->IC_ENABLE_b.SDA_STUCK_RECOVERY_ENABLE = 0x1;
     }
     // Clearing all interrupts
-    uint32_t clear = I2C2->IC_CLR_INTR;
+    clear = I2C2->IC_CLR_INTR;
     // Disables the interrupts.
     sl_si91x_i2c_disable_interrupts(I2C2, SL_I2C_EVENT_TRANSMIT_EMPTY);
   }
   if (status & (SL_I2C_EVENT_SCL_STUCK_AT_LOW)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C2->IC_CLR_INTR;
+    clear = I2C2->IC_CLR_INTR;
     return;
   }
   if (status & (SL_I2C_EVENT_MST_ON_HOLD)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C2->IC_CLR_INTR;
+    clear = I2C2->IC_CLR_INTR;
     return;
   }
   if (status & (SL_I2C_EVENT_START_DETECT)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C2->IC_CLR_START_DET_b.CLR_START_DET;
+    clear = I2C2->IC_CLR_START_DET_b.CLR_START_DET;
     return;
   }
   if (status & (SL_I2C_EVENT_STOP_DETECT)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear     = I2C2->IC_CLR_STOP_DET_b.CLR_STOP_DET;
+    clear              = I2C2->IC_CLR_STOP_DET_b.CLR_STOP_DET;
     uint32_t maskReg   = 0;
     maskReg            = I2C2->IC_INTR_MASK;
     I2C0->IC_INTR_MASK = (maskReg & (~SL_I2C_EVENT_RECEIVE_FULL));
@@ -815,7 +822,7 @@ void I2C2_IRQHandler(void)
   }
   if (status & (SL_I2C_EVENT_ACTIVITY_ON_BUS)) {
     // Clearing interrupt by reading the respective bit
-    uint32_t clear = I2C2->IC_CLR_ACTIVITY_b.CLR_ACTIVITY;
+    clear = I2C2->IC_CLR_ACTIVITY_b.CLR_ACTIVITY;
     return;
   }
   if (status & SL_I2C_EVENT_TRANSMIT_EMPTY) {
@@ -825,11 +832,11 @@ void I2C2_IRQHandler(void)
     handle_leader_receive_irq();
   }
   if (status & (SL_I2C_EVENT_RECEIVE_UNDER)) {
-    uint32_t clear = I2C2->IC_CLR_RX_UNDER_b.CLR_RX_UNDER;
+    clear = I2C2->IC_CLR_RX_UNDER_b.CLR_RX_UNDER;
     return;
   }
   if (status & (SL_I2C_EVENT_RECEIVE_OVER)) {
-    uint32_t clear = I2C1->IC_CLR_RX_OVER_b.CLR_RX_OVER;
+    clear = I2C1->IC_CLR_RX_OVER_b.CLR_RX_OVER;
     return;
   }
   if (status & (SL_I2C_EVENT_RECEIVE_DONE)) {
@@ -844,4 +851,6 @@ void I2C2_IRQHandler(void)
     sl_si91x_i2c_clear_interrupts(I2C2, SL_I2C_EVENT_RESTART_DET);
     return;
   }
+  // to avoid unused variable warning
+  (void)clear;
 }

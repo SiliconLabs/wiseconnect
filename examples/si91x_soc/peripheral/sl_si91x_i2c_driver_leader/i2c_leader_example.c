@@ -61,7 +61,7 @@ static uint8_t i2c_read_buffer[I2C_SIZE_BUFFERS];
 static uint8_t i2c_read_buffer[I2C_SIZE_BUFFERS + I2C_OFFSET_LENGTH];
 #endif
 #if NON_BLOCKING_APPLICATION
-volatile uint32_t i2c_write_buffer[I2C_SIZE_BUFFERS];
+uint32_t i2c_write_buffer[I2C_SIZE_BUFFERS];
 #else
 static uint8_t i2c_write_buffer[I2C_SIZE_BUFFERS];
 #endif
@@ -85,7 +85,7 @@ sl_i2c_dma_config_t p_dma_config;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static void i2c_leader_callback(sl_i2c_instance_t i2c_instance, uint32_t status);
+static void i2c_leader_callback(sl_i2c_instance_t instance, uint32_t status);
 static void compare_data(void);
 
 /*******************************************************************************
@@ -280,7 +280,7 @@ static void compare_data(void)
 /*******************************************************************************
  Leader callback function
  ******************************************************************************/
-void i2c_leader_callback(sl_i2c_instance_t i2c_instance, uint32_t status)
+void i2c_leader_callback(sl_i2c_instance_t instance, uint32_t status)
 {
   switch (status) {
     case SL_I2C_DATA_TRANSFER_COMPLETE:
@@ -322,4 +322,6 @@ void i2c_leader_callback(sl_i2c_instance_t i2c_instance, uint32_t status)
     default:
       break;
   }
+  // to avoid unused variable warning
+  (void)instance;
 }

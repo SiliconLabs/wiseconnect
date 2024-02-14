@@ -20,11 +20,16 @@ The CLI Demo application is a command-line interface (CLI) application designed 
 ### Hardware Requirements
 
 - A Windows PC.
+- Spectrum Analyzer for WLAN RF measurement (PER_Tx). 
+- Signal Generator for WLAN RF measurement (PER_Rx).
+- 802.11 ax/b/g/n Access point.
+- A Micro-coaxial connector plug to SMA-female cable (RF connector) for connecting the U.Fl port of the Si917 radio board to the Spectrum Analyzer or Signal Generator.
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+      - BRD4339B [SiWx917-RB4339B]
   	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
@@ -41,10 +46,15 @@ The CLI Demo application is a command-line interface (CLI) application designed 
 ### Software Requirements
 
 - Simplicity Studio
+- A Serial terminal software such as [Serial Debug Assistant](https://apps.microsoft.com/detail/9NBLGGH43HDM?rtc=1&hl=en-in&gl=in)
 
+Note : The user can use the Simplicity studio’s console window for sending and receiving the CLI command.
 ### Setup Diagram
 
-![Figure: Setup Diagram SoC Mode for cli_demo Example](resources/readme/clidemo_soc_ncp.png)
+- The figure below shows the setup and the connections for the WLAN RF testing.
+![Figure: Setup Diagram SoC Mode for cli_demo Example for WLAN RF test](resources/readme/cli_setup.png)
+- The figure below shows the setup and the connections for SiWG917 in Station mode.
+![Figure: Setup Diagram SoC Mode for cli_demo Example for Station Mode](resources/readme/cli_station.png)
 
 ## Getting Started
 
@@ -131,7 +141,7 @@ And so on...
 
 ### **Below are the Commands to run the RF test example.**
 
-- **Transmit Test Commands**
+- **Transmit Test Commands for Wi-Fi**
 
   ![Tx Commands](resources/readme/tx_commands.png)
 
@@ -148,6 +158,9 @@ By default antenna type should be set to 0.
 
     e.g., wifi_transmit_test_start 127 0 100 1 1.
 
+- For Wi-Fi 6 or 802.11ax mode RF test, issue the below command. 
+4. wifi_ax_transmit_test_start **power** **data rate** **length** **mode** **channel** **enable_11ax** **coding_type** **nominal_pe** **ul_dl** **he_ppdu_type** **beam_change** **bw** **stbc** **tx_bf** **gi_ltf** **dcm** **nsts_midamble** **spatial_reuse** **bss_color** **he_siga2_reserved** **ru_allocation** **n_heltf_tot** **sigb_dcm** **sigb_mcs** **user_sta_id** **user_idx** **sigb_compression_field**
+    e.g., wifi_ax_transmit_test_start 127 0 100 1 1 1 0 1 1 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 1 1 1
   **power**: Set transmit power in dbm. Valid values are from 2dBm to 18dBm.
 
 **Note**: To configure the maximum power level for a particular frequency band, 
@@ -207,6 +220,7 @@ For example, for 2412 MHz the output will be seen at 2417 MHz.
 >to measure the frequency error. 
 >
 >    **channel**: Set the Channel number.
+- The wifi 6 parameter descriptions are mentioned in the sl_si91x_protocol_types.h file of the SDK.
 >
 >5. **wifi_transmit_test_stop** is used for stopping the Transmit test.
 
@@ -229,9 +243,9 @@ For example, for 2412 MHz the output will be seen at 2417 MHz.
     e.g., wifi_set_antenna -i client -a 0
 By default antenna type should be set to 0.
 
-3. wifi_start_statistic_report -i client -c **channel** is used receive the packet statistics once per second in that selected channel.
+3. wifi_start_statistic_report -i client -c **channel** -n **stats_count** is used to receive the packet statistics once per second in that selected channel.
 
-    e.g., wifi_start_statistic_report -i client -c 1
+    e.g., wifi_start_statistic_report -i client -c 1 -n 30
   
   To observe the receive stats for 'n' iterations (e.g. 20), the command can be given as follows:   
      e.g., wifi_start_statistic_report -i client -c 1 -n 20

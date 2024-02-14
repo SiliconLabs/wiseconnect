@@ -35,34 +35,38 @@
 /*******************************************************************************
  ***************************  DEFINES / MACROS   *******************************
  ******************************************************************************/
-#define ICACHE2_ADDR_TRANSLATE_1_REG  *(volatile uint32_t *)(0x20280000 + 0x24)
+#define ICACHE2_ADDR_TRANSLATE_1_REG *(volatile uint32_t *)(0x20280000 + 0x24)
+#ifndef MISC_CFG_SRAM_REDUNDANCY_CTRL
 #define MISC_CFG_SRAM_REDUNDANCY_CTRL *(volatile uint32_t *)(0x46008000 + 0x18)
-#define MISC_CONFIG_MISC_CTRL1        *(volatile uint32_t *)(0x46008000 + 0x44)
-#define SOC_PLL_LIMIT                 120000000  // Limit for soc pll clock.
-#define MAX_SAMPLE_RATE               5000000    // Maximum sampling rate 5 Msps.
-#define MINIMUM_NUMBER_OF_CHANNEL     1          // Minimum number of channel enable
-#define MAXIMUM_NUMBER_OF_CHANNEL     16         // Maximum number of channel enable
-#define MAXIMUM_CHANNEL_ID            16         // Maximum adc dma support channel id.
-#define ADC_PING_ENABLE               1          // Enable the ADC ping buffer.
-#define ADC_PONG_ENABLE               1          // Enable the ADC pong buffer.
-#define ADC_PING_DISABLE              0          // Disable the ADC Ping buffer.
-#define INVALID_POWER_STATE           2          // Invalid power state.
-#define MAXIMUM_PING_LENGTH           1024       // Maximum ping length
-#define MAXIMUM_PONG_LENGTH           1024       // Maximum pong length
-#define START_PING_ADDR               0x24060000 // Starting ping address
-#define END_PONG_ADDR                 0x24061B00 // Ending pong address
-#define MAXIMUM_PING_ADDR             0x2F400    // Maximum ping address
-#define MAXIMUM_PONG_ADDR             0x2F7FF    // Maximum pong address
-#define MAX_THRS_VAL                  7          // Maximum threshold value
-#define MAX_POS_IN_SEL                31         // Maximum positive input selection
-#define MAX_NEG_IN_SEL                15         // Maximum negative input selection
-#define MINIMUM_SAMPLING_LENGTH       1          // Minimum sampling length
-#define MAXIMUM_SAMPLING_LENGTH       1023       // Maximum sampling length
-#define MINIMUM_REF_VOLT              1.8        // Maximum reference voltage
-#define MAXMIMUM_REF_VOLT             3.6        // Maximum reference voltage
-#define ADC_RELEASE_VERSION           0          // ADC Release version
-#define ADC_SQA_VERSION               0          // ADC SQA version
-#define ADC_DEV_VERSION               1          // ADC Developer version
+#endif // MISC_CFG_SRAM_REDUNDANCY_CTRL
+#ifndef MISC_CONFIG_MISC_CTRL1
+#define MISC_CONFIG_MISC_CTRL1 *(volatile uint32_t *)(0x46008000 + 0x44)
+#endif                                       // MISC_CONFIG_MISC_CTRL1
+#define SOC_PLL_LIMIT             120000000  // Limit for soc pll clock.
+#define MAX_SAMPLE_RATE           5000000    // Maximum sampling rate 5 Msps.
+#define MINIMUM_NUMBER_OF_CHANNEL 1          // Minimum number of channel enable
+#define MAXIMUM_NUMBER_OF_CHANNEL 16         // Maximum number of channel enable
+#define MAXIMUM_CHANNEL_ID        16         // Maximum adc dma support channel id.
+#define ADC_PING_ENABLE           1          // Enable the ADC ping buffer.
+#define ADC_PONG_ENABLE           1          // Enable the ADC pong buffer.
+#define ADC_PING_DISABLE          0          // Disable the ADC Ping buffer.
+#define INVALID_POWER_STATE       2          // Invalid power state.
+#define MAXIMUM_PING_LENGTH       1024       // Maximum ping length
+#define MAXIMUM_PONG_LENGTH       1024       // Maximum pong length
+#define START_PING_ADDR           0x24060000 // Starting ping address
+#define END_PONG_ADDR             0x24061B00 // Ending pong address
+#define MAXIMUM_PING_ADDR         0x2F400    // Maximum ping address
+#define MAXIMUM_PONG_ADDR         0x2F7FF    // Maximum pong address
+#define MAX_THRS_VAL              7          // Maximum threshold value
+#define MAX_POS_IN_SEL            31         // Maximum positive input selection
+#define MAX_NEG_IN_SEL            15         // Maximum negative input selection
+#define MINIMUM_SAMPLING_LENGTH   1          // Minimum sampling length
+#define MAXIMUM_SAMPLING_LENGTH   1023       // Maximum sampling length
+#define MINIMUM_REF_VOLT          1.8        // Maximum reference voltage
+#define MAXMIMUM_REF_VOLT         3.6        // Maximum reference voltage
+#define ADC_RELEASE_VERSION       0          // ADC Release version
+#define ADC_SQA_VERSION           0          // ADC SQA version
+#define ADC_DEV_VERSION           1          // ADC Developer version
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -202,14 +206,25 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
     if (status != SL_STATUS_OK) {
       break;
     }
-    // Get the battery/chip voltage level status.
-    battery_status = sl_si91x_adc_get_chip_voltage();
+#if defined(ULP_MODE_EXECUTION) || defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
+    /* Power-up Button Calibration*/
+    RSI_PS_BodPwrGateButtonCalibEnable();
+    /* Enable PTAT for Analog Peripherals*/
+    RSI_PS_AnalogPeriPtatEnable();
+    /* Power-up Analog(IPMU) Domain peripherals*/
+    RSI_IPMU_PowerGateSet(CMP_NPSS_PG_ENB);
+    /*Turn on ULPSS SRAM Core/Periphery domains*/
+    RSI_PS_UlpssRamBanksPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
+    RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
+#endif
     // Initialize ADC.
     error_status = ADC_Init(adc_channel_config, adc_config, callback_event_handler);
     status       = convert_rsi_to_sl_error_code(error_status);
     if (status != SL_STATUS_OK) {
       break;
     }
+    // Get the battery/chip voltage level status.
+    battery_status = sl_si91x_adc_get_chip_voltage();
     /* Configure reference voltage for analog peripheral ,here till 2.8V generate by using
         AUX_LDO so more than 2.8V enable LDO bypass mode */
     status = sl_si91x_adc_configure_reference_voltage(vref_value, battery_status);

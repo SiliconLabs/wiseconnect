@@ -37,6 +37,7 @@
 #endif
 #include <string.h>
 
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t hmac_pending(sl_si91x_hmac_config_t *config,
                                 uint8_t *data,
                                 uint16_t chunk_length,
@@ -98,6 +99,43 @@ static sl_status_t hmac_pending(sl_si91x_hmac_config_t *config,
   return status;
 }
 
+#else
+static sl_status_t hmac_side_band(uint16_t total_length, uint8_t *data, sl_si91x_hmac_config_t *config, uint8_t *output)
+{
+  sl_status_t status                   = SL_STATUS_FAIL;
+  sl_si91x_hmac_sha_request_t *request = (sl_si91x_hmac_sha_request_t *)malloc(sizeof(sl_si91x_hmac_sha_request_t));
+  SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
+
+  memset(request, 0, sizeof(sl_si91x_hmac_sha_request_t));
+
+  request->algorithm_type     = HMAC_SHA;
+  request->algorithm_sub_type = config->hmac_mode;
+  request->total_length       = total_length;
+  request->hmac_data          = data;
+  request->output             = output;
+
+  request->key_info.key_type                         = config->key_config.B0.key_type;
+  request->key_info.key_detail.key_size              = config->key_config.B0.key_size;
+  request->key_info.key_detail.key_spec.key_slot     = config->key_config.B0.key_slot;
+  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.B0.wrap_iv_mode;
+
+  // NOTE: The parameter request->key_info.key_detail.key_spec.key_buffer isn't required in HMAC, as the key is being concatenated with the input data in sl_si91x_hmac().
+
+  if (config->key_config.B0.wrap_iv_mode != SL_SI91X_WRAP_IV_ECB_MODE) {
+    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.B0.wrap_iv, SL_SI91X_IV_SIZE);
+  }
+
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_hmac_sha_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  free(request);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+
+#endif
+
 sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
 {
   uint32_t total_length  = 0;
@@ -113,11 +151,12 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
 #ifdef SLI_SI917B0
   key_length = config->key_config.B0.key_size;
 #else
-  key_length          = config->key_config.A0.key_length;
+  key_length = config->key_config.A0.key_length;
 #endif
 
   total_length = (config->msg_length + key_length);
-  data         = (uint8_t *)malloc(total_length);
+
+  data = (uint8_t *)malloc(total_length);
   SL_VERIFY_POINTER_OR_RETURN(data, SL_STATUS_ALLOCATION_FAILED);
 
   memset(data, 0, total_length);
@@ -130,11 +169,16 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
 
   memcpy((data + key_length), config->msg, config->msg_length); // Copy message into data
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = hmac_side_band(total_length, data, config, output);
+  return status;
+#else
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_hmac_mutex == NULL) {
     crypto_hmac_mutex = sl_si91x_crypto_threadsafety_init(crypto_hmac_mutex);
   }
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_hmac_mutex);
+
 #endif
 
   while (total_length) {
@@ -181,4 +225,5 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_hmac_mutex);
 #endif
   return status;
+#endif
 }

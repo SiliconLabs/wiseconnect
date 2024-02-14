@@ -47,7 +47,7 @@ typedef enum {
   HOST_INTR_RECEIVED     = 1,
 } sl_sdio_slave_rx_intr_status_t;
 
-/// @brief Structure to hold the versions number of  API
+/// @brief Structure to hold the version numbers of  API
 typedef struct {
   uint8_t release; ///< Release version number
   uint8_t major;   ///< Major version number
@@ -62,10 +62,9 @@ typedef void (*sl_sdio_secondary_gpdma_callback_t)(uint8_t dma_ch); // SDIO dma 
  ******************************************************************************/
 
 /***************************************************************************/ /**
- * @brief       
- * Initializes SDIO secondary, by default SDIO pin access with TA
- * this API gives the pin access to M4, selects the SDIO mode and enable the sdio
- * primary interrupts 
+ * Initializes the SDIO secondary.
+ * By default, the SDIO pin access with TA, this API gives the pin access to M4, 
+ * selects the SDIO mode and enable the SDIO primary interrupts. 
  *
  * @param[in] none
  *
@@ -73,12 +72,11 @@ typedef void (*sl_sdio_secondary_gpdma_callback_t)(uint8_t dma_ch); // SDIO dma 
  ******************************************************************************/
 sl_status_t sl_si91x_sdio_secondary_init(void);
 
-/***************************************************************************/ /**
- * @brief       
- *   Trigger sequence to send data from sdio secondary in non blocking mode to 
+/***************************************************************************/ /**       
+ *   Trigger sequence to send data from the SDIO secondary in non-blocking mode to the
  *   host/primary device.
- *   This API accepts the num of blocks i.e one block will have  block length
- *   (1 to 1024) byptes and pointer to the data buffer to be transffered.  
+ *   This API accepts the num of blocks i.e., one block will have block length
+ *   (1 to 1024) bytes and a pointer to the data buffer to be transffered.  
  *
  * @param[in] num_of_blocks
  *   Number of blocks to be sent
@@ -90,20 +88,18 @@ sl_status_t sl_si91x_sdio_secondary_init(void);
  ******************************************************************************/
 void sl_si91x_sdio_secondary_send(uint8_t num_of_blocks, uint8_t *data_buf);
 
-/***************************************************************************/ /**
- * @brief       
- *  Receive data on sdio secondary in non blocking mode from host/primary device 
+/***************************************************************************/ /**  
+ *  Receive data on the SDIO secondary in non-blocking mode from the host/primary device 
  *  using DMA.
  *
  * @param[in] data_buf
- *   Reference of the Destination buffer in whuch data will receive
+ *   Reference of the Destination buffer in which data will receive
  *
  * @return none
  ******************************************************************************/
 void sl_si91x_sdio_secondary_receive(uint8_t *data_buf);
 
 /***************************************************************************/ /**
-* @brief
 * Register the SDIO secondary user callback function.
 *
 * @pre Pre-conditions:
@@ -114,7 +110,7 @@ void sl_si91x_sdio_secondary_receive(uint8_t *data_buf);
 * @return status 0 if successful, else error code as follow
 *         \ref SL_STATUS_OK (0x0000) - Success 
 *-
-*         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+*         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
 *-
 *         \ref SL_STATUS_BUSY (0x0004) - Driver is busy 
 *
@@ -122,8 +118,7 @@ void sl_si91x_sdio_secondary_receive(uint8_t *data_buf);
 sl_status_t sl_si91x_sdio_secondary_register_event_callback(sl_sdio_secondary_callback_t callback_event, uint32_t flag);
 
 /***************************************************************************/ /**
-* @brief
-* Un-register the SDIO secondary user callback function.
+* Unregister the SDIO secondary user callback function.
 *
 * @param[in] flag Interrupt flag to be unregistered
 * @return none
@@ -131,8 +126,7 @@ sl_status_t sl_si91x_sdio_secondary_register_event_callback(sl_sdio_secondary_ca
 void sl_si91x_sdio_secondary_unregister_event_callback(uint32_t flag);
 
 /***************************************************************************/ /**
-* @brief
-* Register the SDIO secondary dma user callback function.
+* Register the SDIO secondary DMA user callback function.
 *
 * @pre Pre-conditions:
  * - sl_si91x_sdio_secondary_init();
@@ -141,7 +135,7 @@ void sl_si91x_sdio_secondary_unregister_event_callback(uint32_t flag);
 * @return status 0 if successful, else error code as follow
 *         \ref SL_STATUS_OK (0x0000) - Success 
 *-
-*         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+*         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
 *-
 *         \ref SL_STATUS_BUSY (0x0004) - Driver is busy 
 *
@@ -149,8 +143,7 @@ void sl_si91x_sdio_secondary_unregister_event_callback(uint32_t flag);
 sl_status_t sl_si91x_sdio_secondary_gpdma_register_event_callback(sl_sdio_secondary_gpdma_callback_t callback_event);
 
 /***************************************************************************/ /**
-* @brief
-* Un-register the SDIO secondary dma user callback function.
+* Unregister the SDIO secondary DMA user callback function.
 *
 * @param[in] none
 * @return none
@@ -158,11 +151,8 @@ sl_status_t sl_si91x_sdio_secondary_gpdma_register_event_callback(sl_sdio_second
 void sl_si91x_sdio_secondary_gpdma_unregister_event_callback(void);
 
 /***************************************************************************/ /**
-* @brief
 * Get the SDIO Secondary Driver version.
-*
-* @details
-* This function is used to know the SDIO Secondary Driver version
+* This function is used to know the SDIO Secondary Driver version.
 *
 * @param[in] none
 * @return \ref sl_sdio_secondary_version_t type version

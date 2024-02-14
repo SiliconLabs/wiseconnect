@@ -515,3 +515,9 @@ int _execve(char *name, char **argv, char **env)
   errno = ENOMEM;
   return -1;
 }
+
+SL_WEAK void _putchar(char character)
+{
+  Board_UARTPutChar(character);
+  return;
+}

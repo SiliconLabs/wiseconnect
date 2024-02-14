@@ -130,6 +130,64 @@ sl_status_t sl_sntp_client_start(sl_sntp_client_config_t *config, uint32_t timeo
   return status;
 }
 
+sl_status_t sl_sntp_client_get_time(uint8_t *data, uint16_t data_length, uint32_t timeout)
+{
+  sl_status_t status                      = SL_STATUS_FAIL;
+  si91x_sntp_client_t client_req          = { 0 };
+  sl_si91x_wait_period_t wait_time        = 0;
+  sl_wifi_buffer_t *buffer                = NULL;
+  sl_si91x_packet_t *packet               = NULL;
+  sl_wifi_buffer_t *sdk_context           = NULL;
+  sl_internal_sntp_client_context_t *node = NULL;
+  uint16_t length                         = 0;
+  uint16_t buffer_length                  = 0;
+
+  if ((timeout > 0) && ((data == NULL) || (data_length == 0))) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  client_req.command_type = SI91X_SNTP_CLIENT_GETTIME;
+
+  if (timeout > 0) {
+    wait_time = SL_SI91X_WAIT_FOR_RESPONSE(timeout);
+  } else {
+    status = sl_si91x_host_allocate_buffer(&sdk_context,
+                                           SL_WIFI_CONTROL_BUFFER,
+                                           sizeof(sl_internal_sntp_client_context_t),
+                                           1000);
+    VERIFY_STATUS_AND_RETURN(status);
+    node                      = sl_si91x_host_get_buffer_data(sdk_context, 0, &buffer_length);
+    node->callback_event_type = SL_SNTP_CLIENT_GET_TIME;
+    node->data                = data;
+    node->data_length         = data_length;
+    wait_time                 = SL_SI91X_RETURN_IMMEDIATELY;
+  }
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SNTP_CLIENT,
+                                        SI91X_NETWORK_CMD_QUEUE,
+                                        &client_req,
+                                        sizeof(client_req),
+                                        wait_time,
+                                        (void *)sdk_context,
+                                        &buffer);
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  if (packet->length > data_length) {
+    length = data_length;
+  } else {
+    length = packet->length;
+  }
+  memcpy(data, packet->data, length);
+  status = SL_STATUS_OK;
+
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  return status;
+}
+
 sl_status_t sl_sntp_client_get_time_date(uint8_t *data, uint16_t data_length, uint32_t timeout)
 {
   sl_status_t status                      = SL_STATUS_FAIL;

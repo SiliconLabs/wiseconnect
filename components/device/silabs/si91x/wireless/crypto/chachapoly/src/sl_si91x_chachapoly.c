@@ -39,6 +39,7 @@
 #endif
 #include <string.h>
 
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t chachapoly_pending(sl_si91x_chachapoly_config_t *config,
                                       uint16_t chunk_length,
                                       uint8_t chachapoly_flags,
@@ -142,6 +143,67 @@ static sl_status_t chachapoly_pending(sl_si91x_chachapoly_config_t *config,
   return status;
 }
 
+#else
+static sl_status_t chachapoly_side_band(sl_si91x_chachapoly_config_t *config, uint8_t *output)
+{
+
+  sl_status_t status = SL_STATUS_FAIL;
+  sl_si91x_chachapoly_request_t *request =
+    (sl_si91x_chachapoly_request_t *)malloc(sizeof(sl_si91x_chachapoly_request_t));
+
+  SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
+
+  // Only 32 bytes M4 OTA built-in key support is present
+  if (config->key_config.b0.key_type == SL_SI91X_BUILT_IN_KEY) {
+    if ((int)(config->key_config.b0.key_size != (int)SL_SI91X_KEY_SIZE_1)
+        || (config->key_config.b0.key_slot != SL_SI91X_KEY_SLOT_1))
+      return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if (config->chachapoly_mode > 3)
+    return SL_STATUS_INVALID_PARAMETER;
+
+  if (config->key_config.b0.key_buffer == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  memset(request, 0, sizeof(sl_si91x_chachapoly_request_t));
+
+  request->algorithm_type     = CHACHAPOLY;
+  request->algorithm_sub_type = config->chachapoly_mode;
+  request->encrypt_decryption = config->encrypt_decrypt;
+  request->dma_use            = config->dma_use;
+  request->total_msg_length   = config->msg_length;
+  request->header_length      = config->ad_length;
+
+  request->header_input = config->ad;
+  request->msg          = config->msg;
+  request->output       = config->output;
+
+  request->key_info.key_type                         = config->key_config.b0.key_type;
+  request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
+  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
+  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
+  request->key_info.reserved                         = config->key_config.b0.reserved;
+  memcpy(request->nonce, config->nonce, SL_SI91X_IV_SIZE);
+  if (config->key_config.b0.wrap_iv_mode) {
+    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
+  }
+  memcpy(request->key_info.key_detail.key_spec.key_buffer,
+         config->key_config.b0.key_buffer,
+         config->key_config.b0.key_size);
+
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_chachapoly_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  free(request);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+
+#endif
+
 sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *output)
 {
   uint16_t chunk_len       = 0;
@@ -152,6 +214,11 @@ sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *o
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
 
   uint16_t total_length = config->msg_length;
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = chachapoly_side_band(config, output);
+  return status;
+#endif
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_chachapoly_mutex == NULL) {

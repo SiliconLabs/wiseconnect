@@ -1,0 +1,284 @@
+/***************************************************************************/ /**
+ * @file
+ * @brief
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
+#include "sl_si91x_status.h"
+#include "sl_si91x_types.h"
+#include "sl_si91x_constants.h"
+#include "sl_si91x_spi_constants.h"
+#include "sl_si91x_host_interface.h"
+#include "sl_status.h"
+#include "sl_additional_status.h"
+#include "sl_wifi_constants.h"
+#include "sl_constants.h"
+#include "sl_rsi_utility.h"
+#include <stdint.h>
+#include <stddef.h>
+
+// This macro converts a 32-bit value from host to little-endian byte order
+#define htole32(x) (x)
+
+// This macro converts a 16-bit value from host to little-endian byte order
+#define htole16(x) (x)
+
+#define FRAME_SIZE 1600
+
+static sl_wifi_buffer_t *resp_buffer = NULL;
+static sl_status_t resp_status       = SL_STATUS_OK;
+/************************************************************************************
+ ******************************** Static Functions *********************************
+************************************************************************************/
+static sl_status_t sli_si91x_uart_command_handler(uint8_t *cmd, uint16_t cmd_length, const char *expected_response)
+{
+  //sl_status_t status;
+  uint16_t temp                 = 0;
+  uint8_t *response             = NULL;
+  volatile uint32_t data_length = 0;
+
+  response = (uint8_t *)sl_si91x_host_get_buffer_data(resp_buffer, 0, &temp);
+
+  SL_DEBUG_LOG("Command : { %c }\n", *((char *)(cmd)));
+  sl_si91x_host_uart_transfer((const void *)cmd, NULL, cmd_length);
+  while (1) {
+    sl_si91x_host_uart_transfer(NULL, (void *)(&response[data_length]), 1);
+    data_length++;
+
+    if (strstr((const char *)response, expected_response)) {
+      SL_DEBUG_LOG("Response(%lu bytes) %s\n", data_length, (char *)response);
+      // break the loop when "JTAG Selection" string is found
+      memset(response, 0, FRAME_SIZE);
+      break;
+    }
+  }
+
+  return SL_STATUS_OK;
+}
+
+/************************************************************************************
+ ******************************** Public Functions *********************************
+************************************************************************************/
+sl_status_t sl_si91x_bus_init(void)
+{
+  uint8_t boot_cmd[4] = { '|', 'U', 'b', '4' };
+  uint8_t *response   = NULL;
+  sl_status_t status;
+  uint16_t temp;
+  SL_DEBUG_LOG("Bus Init startup\n");
+
+  // Allocate a buffer for the frame using sl_si91x_host_allocate_buffer
+  status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
+  if (status != SL_STATUS_OK) {
+    SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+    BREAKPOINT();
+  }
+
+  response = (uint8_t *)sl_si91x_host_get_buffer_data(resp_buffer, 0, &temp);
+  memset(response, 0, FRAME_SIZE);
+
+  status = sli_si91x_uart_command_handler(boot_cmd, 1, "Enter 'U'");
+  VERIFY_STATUS_AND_RETURN(status);
+
+  status = sli_si91x_uart_command_handler(&boot_cmd[1], 1, "JTAG Selection");
+  VERIFY_STATUS_AND_RETURN(status);
+
+#ifdef SL_SI91X_UART_HIGH_SPEED_ENABLE
+  status = sli_si91x_uart_command_handler(&boot_cmd[2], 1, "5 115200");
+  VERIFY_STATUS_AND_RETURN(status);
+
+  status = sli_si91x_uart_command_handler(&boot_cmd[3], 1, "4");
+  VERIFY_STATUS_AND_RETURN(status);
+
+  sl_si91x_host_enable_high_speed_bus();
+
+  status = sli_si91x_uart_command_handler(&boot_cmd[1], 1, "Enter Next Command");
+  VERIFY_STATUS_AND_RETURN(status);
+#endif
+
+  SL_DEBUG_LOG("Bus Init Done\n");
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint8_t *buffer)
+{
+  UNUSED_PARAMETER(addr);
+  UNUSED_PARAMETER(length);
+  UNUSED_PARAMETER(buffer);
+  return SL_STATUS_WIFI_UNSUPPORTED;
+}
+
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer)
+{
+  UNUSED_PARAMETER(addr);
+  UNUSED_PARAMETER(length);
+  UNUSED_PARAMETER(buffer);
+  return SL_STATUS_WIFI_UNSUPPORTED;
+}
+
+sl_status_t sl_si91x_bus_write_register(uint8_t address, uint8_t register_size, uint16_t data)
+{
+  UNUSED_PARAMETER(address);
+  UNUSED_PARAMETER(register_size);
+  UNUSED_PARAMETER(data);
+  return SL_STATUS_WIFI_UNSUPPORTED;
+}
+
+sl_status_t sl_si91x_bus_read_register(uint8_t address, uint8_t register_size, uint16_t *output)
+{
+  UNUSED_PARAMETER(address);
+  UNUSED_PARAMETER(register_size);
+  UNUSED_PARAMETER(output);
+  return SL_STATUS_WIFI_UNSUPPORTED;
+}
+
+sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet, const uint8_t *payloadparam, uint16_t size_param)
+{
+  UNUSED_PARAMETER(payloadparam);
+  sl_status_t status;
+
+  // Write host descriptor
+  status = sl_si91x_host_uart_transfer((const void *)&packet->desc, NULL, RSI_FRAME_DESC_LEN);
+  VERIFY_STATUS(status);
+
+  // Write payload if present
+  if (size_param) {
+    status = sl_si91x_host_uart_transfer((const void *)&packet->data, NULL, size_param);
+    VERIFY_STATUS(status);
+  }
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
+{
+  sl_status_t status;
+
+  status = sl_si91x_host_remove_from_queue(CCP_M4_TA_RX_QUEUE, buffer);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  return SL_STATUS_OK;
+}
+
+// Function for reading the interrupt status
+sl_status_t sl_si91x_bus_read_interrupt_status(uint16_t *interrupt_status)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  if (0 != sl_si91x_host_queue_status(CCP_M4_TA_RX_QUEUE)) {
+    *interrupt_status = RSI_RX_PKT_PENDING;
+  }
+
+  return status;
+}
+
+sl_status_t si91x_bootup_firmware(const uint8_t select_option)
+{
+  UNUSED_PARAMETER(select_option);
+  sl_status_t status     = SL_STATUS_OK;
+  uint8_t load_binary[2] = { 'H', '1' };
+  SL_DEBUG_LOG("Bootup startup\n");
+
+  status = sli_si91x_uart_command_handler(load_binary, 1, "Enter Next Command");
+  VERIFY_STATUS_AND_RETURN(status);
+
+  status = sli_si91x_uart_command_handler(&load_binary[1], 1, "Loading...");
+  VERIFY_STATUS_AND_RETURN(status);
+
+  sl_si91x_host_flush_uart_rx();
+  sl_si91x_host_set_event(NCP_HOST_COMMON_RESPONSE_EVENT);
+
+  SL_DEBUG_LOG("Bootup Done\n");
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_bus_rx_irq_handler(void)
+{
+  sl_status_t status;
+  uint16_t data_desc[2] = { 0 };
+  uint8_t *response     = NULL;
+  uint16_t temp;
+
+  response = (uint8_t *)sl_si91x_host_get_buffer_data(resp_buffer, 0, &temp);
+
+  // Read the first 4 bytes to determine the frame size
+  status = sl_si91x_host_uart_transfer(NULL, (void *)data_desc, 4);
+  if (status != SL_STATUS_OK) {
+    SL_DEBUG_LOG("\r\n Data descriptor read failed \r\n");
+    BREAKPOINT();
+  }
+
+  data_desc[0] = data_desc[0] - 4;
+
+  // Read the first 4 bytes to determine the frame size
+  status = sl_si91x_host_uart_transfer(NULL, (void *)response, data_desc[0]);
+  if (SL_STATUS_IN_PROGRESS == status) {
+    resp_status = SL_STATUS_IN_PROGRESS;
+    return status;
+  } else if (status != SL_STATUS_OK) {
+    SL_DEBUG_LOG("\r\n Data frame read failed \r\n");
+    BREAKPOINT();
+  }
+
+  status = sl_si91x_host_add_to_queue(CCP_M4_TA_RX_QUEUE, resp_buffer);
+
+  // Allocate a buffer for the next frame
+  status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
+  if (status != SL_STATUS_OK) {
+    SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+    BREAKPOINT();
+  }
+
+  sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
+  return SL_STATUS_OK;
+}
+
+void sl_si91x_bus_rx_done_handler(void)
+{
+  sl_status_t status;
+
+  if (SL_STATUS_IN_PROGRESS == resp_status) {
+    status = sl_si91x_host_add_to_queue(CCP_M4_TA_RX_QUEUE, resp_buffer);
+
+    // Allocate a buffer for the next frame
+    status = sl_si91x_host_allocate_buffer(&resp_buffer, SL_WIFI_RX_FRAME_BUFFER, FRAME_SIZE, 10000);
+    if (status != SL_STATUS_OK) {
+      SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+      BREAKPOINT();
+    }
+
+    sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
+    sl_si91x_host_enable_bus_interrupt();
+  }
+  return;
+}
+
+//! Initialize with modules UART interface on ulp wakeup.
+void sl_si91x_ulp_wakeup_init(void)
+{
+  return;
+}

@@ -99,7 +99,6 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .config_feature_bit_map  = 0 }
 };
 static char buffer[NVM3_DEFAULT_MAX_OBJECT_SIZE];
-static osSemaphoreId_t nvm3_Sem;
 
 /******************************************************
  *               Function Declarations
@@ -158,6 +157,11 @@ void application_start(const void *unused)
   nvm3_app_delete(3);
   nvm3_app_delete(4);
   nvm3_app_display();
+  // Delete all data in NVM3.
+  err = nvm3_eraseAll(NVM3_DEFAULT_HANDLE);
+  if (ECODE_NVM3_OK == err) {
+    printf("Deleting all data stored in NVM3\r\n");
+  }
 }
 
 static void nvm3_app_read(nvm3_ObjectKey_t key)
@@ -307,19 +311,4 @@ static void nvm3_app_display(void)
     printf("%lu objects have been written since last display\r\n", counter);
   }
   nvm3_writeCounter(NVM3_DEFAULT_HANDLE, WRITE_COUNTER_KEY, 0);
-}
-
-void nvm3_lockBegin(void)
-{
-
-  if (nvm3_Sem == NULL) {
-    nvm3_Sem = osSemaphoreNew(1, 0, NULL);
-    osSemaphoreRelease(nvm3_Sem);
-  }
-  osSemaphoreAcquire(nvm3_Sem, osWaitForever);
-}
-
-void nvm3_lockEnd(void)
-{
-  osSemaphoreRelease(nvm3_Sem);
 }

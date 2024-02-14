@@ -470,9 +470,12 @@ static sl_status_t send_http_client_request(sl_http_client_method_type_t send_re
                                             sl_http_client_internal_t *client_internal,
                                             const sl_http_client_request_t *request)
 {
-  sl_status_t status          = SL_STATUS_OK;
-  uint32_t packet_length      = 0;
-  uint16_t http_buffer_offset = 0;
+  sl_status_t status                            = SL_STATUS_OK;
+  uint32_t packet_length                        = 0;
+  uint8_t packet_identifier                     = 0;
+  uint16_t http_buffer_offset                   = 0;
+  sl_si91x_http_client_request_t *packet_buffer = NULL;
+  uint16_t offset = 0, rem_length = 0, chunk_size = SI91X_MAX_HTTP_CHUNK_SIZE;
 
   // Allocate memory for request structure
   sl_si91x_http_client_request_t *http_client_request =
@@ -624,8 +627,8 @@ static sl_status_t send_http_client_request(sl_http_client_method_type_t send_re
     }
   }
 
-  // Check if request buffer is overflowed
-  if (http_buffer_offset > SI91X_HTTP_BUFFER_LEN) {
+  // Check if request buffer is overflowed or resource length is overflowed
+  if (http_buffer_offset > SI91X_HTTP_BUFFER_LEN || strlen((char *)request->resource) > SI91X_MAX_HTTP_URL_SIZE) {
     free(http_client_request);
     return SL_STATUS_HAS_OVERFLOWED;
   }
@@ -633,25 +636,83 @@ static sl_status_t send_http_client_request(sl_http_client_method_type_t send_re
   // Fill total packet length
   packet_length = sizeof(sl_si91x_http_client_request_t) - SI91X_HTTP_BUFFER_LEN + http_buffer_offset;
 
-  // Send HTTP request
-  if (send_request == SL_HTTP_POST) {
-    // HTTP Post request
-    status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_POST,
-                                          SI91X_NETWORK_CMD_QUEUE,
-                                          http_client_request,
-                                          packet_length,
-                                          SL_SI91X_RETURN_IMMEDIATELY,
-                                          request->context,
-                                          NULL);
+  // Copy the total http buffer size to the rem_length
+  rem_length = http_buffer_offset;
+
+  // Check if the HTTP buffer size exceeds the limit
+  if (http_buffer_offset <= SI91X_MAX_HTTP_CHUNK_SIZE) {
+
+    // Send HTTP request
+    if (send_request == SL_HTTP_POST) {
+      // HTTP Post request
+      status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_POST,
+                                            SI91X_NETWORK_CMD_QUEUE,
+                                            http_client_request,
+                                            packet_length,
+                                            SL_SI91X_RETURN_IMMEDIATELY,
+                                            request->context,
+                                            NULL);
+    } else {
+      // HTTP Get request
+      status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_GET,
+                                            SI91X_NETWORK_CMD_QUEUE,
+                                            http_client_request,
+                                            packet_length,
+                                            SL_SI91X_RETURN_IMMEDIATELY,
+                                            request->context,
+                                            NULL);
+    }
   } else {
-    // HTTP Get request
-    status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_GET,
-                                          SI91X_NETWORK_CMD_QUEUE,
-                                          http_client_request,
-                                          packet_length,
-                                          SL_SI91X_RETURN_IMMEDIATELY,
-                                          request->context,
-                                          NULL);
+    // Allocate memory for a new packet buffer
+    packet_buffer = malloc(sizeof(sl_si91x_http_client_request_t));
+    VERIFY_MALLOC_AND_RETURN(packet_buffer);
+
+    // Iterate through the length of the packet
+    while (rem_length) {
+      memset(packet_buffer, 0, sizeof(sl_si91x_http_client_request_t));
+
+      // Fill the packet identifier
+      if (rem_length > SI91X_MAX_HTTP_CHUNK_SIZE) {
+        if (!offset) {
+          packet_identifier = HTTP_GET_FIRST_PKT;
+        } else {
+          packet_identifier = HTTP_GET_MIDDLE_PKT;
+        }
+      } else {
+        packet_identifier = HTTP_GET_LAST_PKT;
+        chunk_size        = rem_length;
+      }
+
+      // Fill the HTTP params
+      packet_buffer->ip_version   = http_client_request->ip_version;
+      packet_buffer->https_enable = http_client_request->https_enable;
+      packet_buffer->port_number  = http_client_request->port_number;
+
+      // Copy the original buffer into the new packet buffer with an offset and for a chunk size
+      memcpy(packet_buffer->buffer, (http_client_request->buffer + offset), chunk_size);
+
+      if (send_request == SL_HTTP_GET) {
+        // HTTP Get request with custom driver command
+        status = sl_si91x_custom_driver_send_command(
+          RSI_WLAN_REQ_HTTP_CLIENT_GET,
+          SI91X_NETWORK_CMD_QUEUE,
+          packet_buffer,
+          (sizeof(sl_si91x_http_client_request_t) - SI91X_HTTP_BUFFER_LEN + chunk_size),
+          SL_SI91X_RETURN_IMMEDIATELY,
+          request->context,
+          NULL,
+          packet_identifier);
+      }
+
+      // Increase the offset by chunk_size
+      offset += chunk_size;
+
+      // Decrease the rem_length by chunk_size
+      rem_length = rem_length - chunk_size;
+    }
+
+    // Free packet buffer structure memory
+    free(packet_buffer);
   }
 
   // Free request structure memory

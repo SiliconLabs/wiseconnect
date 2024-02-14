@@ -32,7 +32,9 @@
 //   ! INCLUDES
 /*=======================================================================*/
 #include <rsi_common_app.h>
-#include "rsi_driver.h"
+#include "rsi_common_apis.h"
+#include "cmsis_os2.h"
+#include "rsi_bt_common_apis.h"
 #include "rsi_common_utils.h"
 #include "assert.h"
 #ifdef MXRT_595s

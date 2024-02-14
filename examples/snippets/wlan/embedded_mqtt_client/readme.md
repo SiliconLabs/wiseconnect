@@ -28,7 +28,7 @@ In this application, SiWx91x is configured as a Wi-Fi station and connects to an
 - Windows PC1 (for running MQTT broker)
 - Windows PC2 (for running MQTT client utility - MQTT Explorer)
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B](https://www.silabs.com/)
   - For Soc Mode, Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**

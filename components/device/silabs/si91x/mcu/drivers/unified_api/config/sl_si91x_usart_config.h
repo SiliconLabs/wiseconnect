@@ -100,12 +100,12 @@ extern "C" {
 // <h>UART1 Configuration
 // <q SL_UART1_MODULE> UART_1
 // <i> Default: 0
-#define SL_UART1_MODULE 0
+#define SL_UART1_MODULE 1
 
 #if (SL_UART1_MODULE)
 // <o SL_UART1_BAUDRATE> Baud Rate (Baud/Second) <300-7372800>
 // <i> Default: 115200
-#define SL_UART1_BAUDRATE 921600
+#define SL_UART1_BAUDRATE 115200
 
 // <o SL_UART1_MODE> Mode
 // <SL_USART_MODE_ASYNCHRONOUS=> Asynchronous
@@ -152,7 +152,7 @@ extern "C" {
 // <h>ULP UART Configuration
 // <q SL_ULP_UART_MODULE> ULP UART
 // <i> Default: 0
-#define SL_ULP_UART_MODULE 0
+#define SL_ULP_UART_MODULE 1
 
 #if (SL_ULP_UART_MODULE)
 // <o SL_ULP_UART_BAUDRATE> Baud Rate (Baud/Second) <9600-921600>
@@ -206,7 +206,6 @@ extern "C" {
 #endif
 // <<< end of configuration section >>>
 
-#if (SL_USART_MODULE)
 sl_si91x_usart_control_config_t usart_configuration = { .baudrate      = SL_USART_BAUDRATE,
                                                         .mode          = SL_USART_MODE,
                                                         .parity        = SL_USART_PARITY,
@@ -214,9 +213,7 @@ sl_si91x_usart_control_config_t usart_configuration = { .baudrate      = SL_USAR
                                                         .hwflowcontrol = SL_USART_FLOW_CONTROL_TYPE,
                                                         .databits      = SL_USART_DATA_BITS,
                                                         .usart_module  = USART0_MODULE };
-#endif // SL_USART_MODULE
 
-#if (SL_UART1_MODULE)
 sl_si91x_usart_control_config_t uart1_configuration = { .baudrate      = SL_UART1_BAUDRATE,
                                                         .mode          = SL_UART1_MODE,
                                                         .parity        = SL_UART1_PARITY,
@@ -224,9 +221,7 @@ sl_si91x_usart_control_config_t uart1_configuration = { .baudrate      = SL_UART
                                                         .hwflowcontrol = SL_UART1_FLOW_CONTROL_TYPE,
                                                         .databits      = SL_UART1_DATA_BITS,
                                                         .usart_module  = UART1_MODULE };
-#endif // SL_UART1_MODULE
 
-#if (SL_ULP_UART_MODULE)
 sl_si91x_usart_control_config_t ulp_uart_configuration = { .baudrate      = SL_ULP_UART_BAUDRATE,
                                                            .mode          = SL_ULP_UART_MODE,
                                                            .parity        = SL_ULP_UART_PARITY,
@@ -234,6 +229,5 @@ sl_si91x_usart_control_config_t ulp_uart_configuration = { .baudrate      = SL_U
                                                            .hwflowcontrol = SL_ULP_UART_FLOW_CONTROL_TYPE,
                                                            .databits      = SL_ULP_UART_DATA_BITS,
                                                            .usart_module  = ULP_UART_MODULE };
-#endif // SL_ULP_UART_MODULE
 
 #endif //SL_SI91X_USART_CONFIG_H

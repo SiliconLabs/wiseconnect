@@ -34,6 +34,8 @@ static si91x_socket_t sockets[NUMBER_OF_SOCKETS];
 
 static select_callback user_select_callback = NULL;
 
+static remote_socket_termination_callback user_remote_socket_termination_callback = NULL;
+
 static bool is_configured = false;
 
 /******************************************************
@@ -134,6 +136,11 @@ int handle_select_response(sl_si91x_socket_select_rsp_t *response,
 void set_select_callback(select_callback callback)
 {
   user_select_callback = callback;
+}
+
+void sli_si91x_set_remote_socket_termination_callback(remote_socket_termination_callback callback)
+{
+  user_remote_socket_termination_callback = callback;
 }
 
 sl_status_t sl_si91x_socket_init(void)
@@ -591,15 +598,27 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
     sl_si91x_socket_close_response_t *remote_socket_closure = (sl_si91x_socket_close_response_t *)rx_packet->data;
 
     for (uint8_t socket_index = 0; socket_index < NUMBER_OF_SOCKETS; socket_index++) {
-      if (sockets[socket_index].id == remote_socket_closure->socket_id) {
+      si91x_socket_t *socket = get_si91x_socket(socket_index);
+
+      if (socket == NULL) {
+        continue;
+      }
+
+      if (socket->id == remote_socket_closure->socket_id) {
         // The break statement is not issued as there is a case where one firmware socket might be mapped with multiple host ID.
-        sockets[socket_index].state = DISCONNECTED;
+        socket->state = DISCONNECTED;
 
         /* Flush the pending tx request packets from the socket command queue */
         sl_si91x_host_flush_nodes_from_queue(SI91X_SOCKET_CMD_QUEUE,
                                              remote_socket_closure,
                                              si91x_socket_identification_function,
                                              si91x_socket_node_free_function);
+      }
+
+      if (user_remote_socket_termination_callback != NULL) {
+        user_remote_socket_termination_callback(socket->id,
+                                                socket->local_address.sin6_port,
+                                                remote_socket_closure->sent_bytes_count);
       }
     }
   } else if (rx_packet->command == RSI_RECEIVE_RAW_DATA) {

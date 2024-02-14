@@ -23,15 +23,11 @@
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-#define ECC_P256_LEN 32
-#define ECC_P192_LEN 24
-
-/// ECC Curve
-/// By default cure P 256 is selected
-#define ECC_SEPR1_256
-//#define ECC_SEPR1_192         /* Enable to select curve P 192 */
-//#define ECC_OTHER_CURVE       /* This will enable software fallback as only p192 and p256 curves point multiplication is supported in hardware */
-
+#define ECC_P256_LEN      32
+#define ECC_P192_LEN      24
+#define ECC_P256_BITS_LEN 256
+#define ECC_P192_BITS_LEN 192
+#define BUFFER_SIZE       32
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------

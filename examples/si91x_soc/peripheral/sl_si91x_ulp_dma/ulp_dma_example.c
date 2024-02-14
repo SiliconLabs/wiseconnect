@@ -129,7 +129,7 @@ void dma_example_init(void)
     for (int i = 0; i < SL_DMA_TRANSFER_SIZE; i++) {
       src0[i] = (uint32_t)(i + 1);
     }
-#if SL_DMA_SIMPLE_TRANSFER
+#ifdef SL_DMA_SIMPLE_TRANSFER
     //Perform DMA transfer using simple dma transfer API
     status = sl_si91x_dma_simple_transfer(SL_DMA_INSTANCE, channel, src0, dst0, SL_DMA_TRANSFER_SIZE);
 #else

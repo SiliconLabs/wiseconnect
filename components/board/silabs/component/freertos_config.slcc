@@ -1,0 +1,42 @@
+!!omap
+- id: freertos_config
+- label: FreeRTOS Configuration file for SI917 devices.
+- description: FreeRTOS Configuration file for SI917 devices.
+- package: platform
+- category: Board|Configuration
+- quality: production
+- root_path: "components/board/silabs/config"
+- provides:
+  - name: freertos_config
+    condition: [freertos]
+- config_file:
+  - path: "brd4325a/FreeRTOSConfig.h"
+    condition: [brd4325a]
+  - path: "brd4325b/FreeRTOSConfig.h"
+    condition: [brd4325b]
+  - path: "brd4325c/FreeRTOSConfig.h"
+    condition: [brd4325c]
+  - path: "brd4325e/FreeRTOSConfig.h"
+    condition: [brd4325e]
+  - path: "brd4325f/FreeRTOSConfig.h"
+    condition: [brd4325f]
+  - path: "brd4325g/FreeRTOSConfig.h"
+    condition: [brd4325g]
+  - path: "brd4338a/FreeRTOSConfig.h"
+    condition: [brd4338a]
+  - path: "brd4339a/FreeRTOSConfig.h"
+    condition: [brd4339a]
+  - path: "brd4339b/FreeRTOSConfig.h"
+    condition: [brd4339b]
+  - path: "brd4340a/FreeRTOSConfig.h"
+    condition: [brd4340a]
+  - path: "brd4340b/FreeRTOSConfig.h"
+    condition: [brd4340b]
+  - path: "brd4341a/FreeRTOSConfig.h"
+    condition: [brd4341a]
+  - path: "brd4342a/FreeRTOSConfig.h"
+    condition: [brd4342a]
+  - path: "brd4343a/FreeRTOSConfig.h"
+    condition: [brd4343a]
+  - path: "brd4343b/FreeRTOSConfig.h"
+    condition: [brd4343b]

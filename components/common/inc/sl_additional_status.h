@@ -267,6 +267,8 @@
   ((sl_status_t)0x10077) ///< Suspend or resume TWT action is in progress.
 #define SL_STATUS_SI91X_RESCHEDULE_TWT_PACKET_CREATION_FAILED \
   ((sl_status_t)0x10078) ///< TWT information frame packet creation failed in firmware.
+#define SL_STATUS_SI91X_INVALID_STATION_TSF \
+  ((sl_status_t)0x10079) ///< Invalid station TSF error returned when station is not connected or atleast one beacon is not received
 #define SL_STATUS_SI91X_MQTT_ERROR_UNACCEPTABLE_PROTOCOL \
   ((sl_status_t)0x10081) ///< The Server does not support the level of the MQTT protocol requested by the Client.
 #define SL_STATUS_SI91X_MQTT_ERROR_IDENTIFIER_REJECTED \
@@ -484,6 +486,7 @@
 #define SL_STATUS_SI91X_INVALID_COMMAND_SEQUENCE    ((sl_status_t)0x1FF69) ///< Invalid command in sequence.
 #define SL_STATUS_SI91X_DNS_RESPONSE_TIMEOUT_ERROR  ((sl_status_t)0x1FF42) ///< DNS response timed out.
 #define SL_STATUS_SI91X_HTTP_SOCKET_CREATION_FAILED ((sl_status_t)0x1FF41) ///< HTTP socket creation failed.
+#define SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS    ((sl_status_t)0x10005) ///< HTTP GET command is in progress
 #define SL_STATUS_SI91X_TCP_CLOSE_BEFORE_RESPONSE_ERROR \
   ((sl_status_t)0x1FF40) ///< TCP socket close command is issued before getting the response of the previous close command.
 #define SL_STATUS_SI91X_WAIT_ON_HOST_FEATURE_NOT_ENABLED ((sl_status_t)0x1FF36) ///< 'Wait On Host' feature not enabled.

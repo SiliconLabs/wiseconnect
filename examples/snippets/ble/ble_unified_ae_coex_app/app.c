@@ -45,7 +45,7 @@
 #include <rsi_ble.h>
 #include "rsi_ble_apis.h"
 #include "rsi_bt_common_apis.h"
-#include "rsi_driver.h"
+#include "rsi_common_apis.h"
 #include "ble_event_hdlr_auto_gen.h"
 #include "ble_private.h"
 #include "ble_cmd_hdlr_auto_gen.h"

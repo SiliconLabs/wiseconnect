@@ -224,19 +224,19 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
     clk_src_val = RSI_CLK_GetBaseClock(ULPSS_AUX);
 
     if ((clk_src_val * 2) >= sampl_rate) {
-      clk_div_fac = (uint16_t)(ceil(clk_src_val / (2 * sampl_rate)));
+      clk_div_fac = (uint16_t)(ceil((2 * clk_src_val) / sampl_rate));
       // Configure the DAC division factor for required sampling rate
       RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
     }
     return clk_src_val;
   } else {
-    if (sampl_rate < 20000) {
+    if (sampl_rate <= 32000) {
       // Configured ADC clock as 20Khz RC
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
-      clk_div_fac = (uint16_t)(ceil(32000 / (2 * sampl_rate)));
+      clk_div_fac = (uint16_t)(ceil((2 * 32000) / sampl_rate));
       // Configure the DAC division factor for required sampling rate
       RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
-      return (uint32_t)(32000 / (2 * clk_div_fac));
+      return (uint32_t)((clk_div_fac * sampl_rate) / 2);
     } else {
       if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) {
         // Program in PS2 state  Need to integrate
@@ -244,18 +244,31 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
         RSI_IPMU_M20rcOsc_TrimEfuse();
         // Configured DAC clock as 32Mhz RC
         RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-        clk_div_fac = (uint16_t)ceil(20000000 / (2 * sampl_rate));
+        clk_div_fac = (uint16_t)ceil((2 * 20000000) / sampl_rate);
         // Configure the DAC division factor for required sampling rate
         RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
-        return (uint32_t)(20000000 / (2 * clk_div_fac));
+        return (uint32_t)((clk_div_fac * sampl_rate) / 2);
       } else {
-        RSI_ULPSS_RefClkConfig(ULPSS_RF_REF_CLK);
-        // Configured DAC clock as 40Mhz XTAL
-        RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
-        clk_div_fac = (uint16_t)ceil(40000000 / (2 * sampl_rate));
-        // Configure the DAC division factor for required sampling rate
-        RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
-        return (uint32_t)(40000000 / (2 * clk_div_fac));
+        if (sampl_rate > 32000 && sampl_rate < 80000) {
+          RSI_IPMU_M20rcOsc_TrimEfuse();
+          // Configured DAC clock as 32Mhz RC
+          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+          clk_div_fac = (uint16_t)ceil((2 * 20000000) / sampl_rate);
+          if (clk_div_fac > 0x03FF) {
+            clk_div_fac = 0x03FF;
+          }
+          // Configure the DAC division factor for required sampling rate
+          RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
+          return (uint32_t)((clk_div_fac * sampl_rate) / 2);
+        } else {
+          RSI_ULPSS_RefClkConfig(ULPSS_RF_REF_CLK);
+          // Configured DAC clock as 40Mhz XTAL
+          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
+          clk_div_fac = (uint16_t)ceil((2 * 40000000) / sampl_rate);
+          // Configure the DAC division factor for required sampling rate
+          RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
+          return (uint32_t)((clk_div_fac * sampl_rate) / 2);
+        }
       }
     }
   }
@@ -266,8 +279,8 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
  * @fn           rsi_error_t DAC_PinMux(uint8_t pin_sel)
  * @brief        This API use for configure the DAC output pin in analog mode.
  * @param[in]    pin_sel      : 
- *                              - pin_sel = 0 , Configure the ULP_GPIO15 in Analog mode.
- *                              - pin_sel = 1 , Configure the ULP_GPIO4 in Analog mode.
+ *                              - pin_sel = 1 , Configure the ULP_GPIO15 in Analog mode.
+ *                              - pin_sel = 0 , Configure the ULP_GPIO4 in Analog mode.
  */
 rsi_error_t DAC_PinMux(uint8_t pin_sel)
 {

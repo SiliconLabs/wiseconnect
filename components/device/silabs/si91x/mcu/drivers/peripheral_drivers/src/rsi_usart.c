@@ -67,12 +67,26 @@ void UartIrqHandler(USART_RESOURCES *usart)
 {
   volatile uint32_t int_status, line_status, modem_status;
   uint32_t event, val;
+  uint8_t usart_instance = 0U;
 
   int_status   = 0U;
   line_status  = 0U;
   modem_status = 0U;
   event        = 0U;
   val          = 0U;
+  // Check which uart instance irq got triggered and update the usart instance
+  if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
+    usart_instance = USART_0;
+  }
+  // Check for UART1 and update the instance
+  if (usart->pREGS == UART1) {
+    usart_instance = UART_1;
+  }
+  // Check for ULP_UART and update the instance
+  if (usart->pREGS == ULP_UART)
+    usart_instance = ULPUART;
+  // Update the usart_instance in event flag
+  event |= (usart_instance << USART_INSTANCE_BIT);
 
   int_status = usart->pREGS->IIR;
 
@@ -170,7 +184,9 @@ void UartIrqHandler(USART_RESOURCES *usart)
     }
     //Check if requested amount of data is not received
     if (usart->info->xfer.rx_cnt != usart->info->xfer.rx_num) {
-      usart->info->cb_event(ARM_USART_EVENT_RX_TIMEOUT);
+      // Update the event with rx tiemout
+      event |= ARM_USART_EVENT_RX_TIMEOUT;
+      usart->info->cb_event(event);
     }
   }
   if ((int_status & 0xF) == USART_MODEM_STATUS_INTR) {
@@ -212,15 +228,32 @@ void UartIrqHandler(USART_RESOURCES *usart)
  */
 void USART_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
 {
+  uint8_t usart_instance = 0;
   UNUSED_PARAMETER(dmaCh);
+  // Check which uart instance irq got triggered and update the usart instance
+  if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
+    usart_instance = USART_0;
+  }
+  // Check for UART1 and update the instance
+  if (usart->pREGS == UART1) {
+    usart_instance = UART_1;
+  }
+  // Check for ULP_UART and update the instance
+  if (usart->pREGS == ULP_UART)
+    usart_instance = ULPUART;
+
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
       // Update TX buffer info
       usart->info->xfer.tx_cnt = usart->info->xfer.tx_num;
       // Clear TX busy flag
       usart->info->xfer.send_active = 0U;
+
+      event |= ARM_USART_EVENT_SEND_COMPLETE;
+      // Set the usart instance bit in event flag
+      event |= (usart_instance << USART_INSTANCE_BIT);
       // Set Send Complete event for asynchronous transfers
-      usart->info->cb_event(ARM_USART_EVENT_SEND_COMPLETE);
+      usart->info->cb_event(event);
       break;
     case UDMA_EVENT_ERROR:
       break;
@@ -239,6 +272,20 @@ void USART_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, USART_RESOURCES *usart)
   UNUSED_PARAMETER(dmaCh);
   uint32_t evt1 = 0U;
   uint32_t val;
+  uint8_t usart_instance = 0;
+  // Check which uart instance irq got triggered and update the usart instance
+  if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
+    usart_instance = USART_0;
+  }
+  // Check for UART1 and update the instance
+  if (usart->pREGS == UART1) {
+    usart_instance = UART_1;
+  }
+  // Check for ULP_UART and update the instance
+  if (usart->pREGS == ULP_UART)
+    usart_instance = ULPUART;
+
+  evt1 |= (usart_instance << USART_INSTANCE_BIT);
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
       usart->info->xfer.rx_cnt       = usart->info->xfer.rx_num;
@@ -323,10 +370,10 @@ int32_t USART_SetBaudrate(uint32_t baudrate, uint32_t baseClk, USART_RESOURCES *
 /**
  * @fn          int32_t int32_t USART_Initialize( ARM_USART_SignalEvent_t cb_event,
  *                                                 USART_RESOURCES *usart,
- *                        												 UDMA_RESOURCES *udma,
- *                        												 RSI_UDMA_DESC_T *UDMA_Table,
- *                       													 RSI_UDMA_HANDLE_T *udmaHandle,
- *                       													 uint32_t *mem )
+ *                                                 UDMA_RESOURCES *udma,
+ *                                                 RSI_UDMA_DESC_T *UDMA_Table,
+ *                                                 RSI_UDMA_HANDLE_T *udmaHandle,
+ *                                                 uint32_t *mem )
  * @brief       Initialize USART Interface.
  * note: By default USART initialize, transfer, send and receive APIs use rsi_udma_wrapper.c
  * drivers. SL_DMA driver can be enabled by defining SL_SI91X_USART_DMA to 1.
@@ -679,7 +726,7 @@ int32_t USART_Send_Data(const void *data,
       dma_transfer_tx.transfer_count = num;
       dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
       dma_transfer_tx.dma_mode       = UDMA_MODE_BASIC;
-      dma_transfer_tx.signal         = chnl_cfg.periAck;
+      dma_transfer_tx.signal         = (uint8_t)chnl_cfg.periAck;
 
       //Allocate DMA channel for Tx
       status = sl_si91x_dma_allocate_channel(dma_init.dma_number, &channel, channel_priority);
@@ -837,7 +884,7 @@ int32_t USART_Receive_Data(const void *data,
       dma_transfer_rx.transfer_count = num;
       dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
       dma_transfer_rx.dma_mode       = UDMA_MODE_BASIC;
-      dma_transfer_rx.signal         = chnl_cfg.periAck;
+      dma_transfer_rx.signal         = (uint8_t)chnl_cfg.periAck;
 
       //Allocate DMA channel for Rx
       status = sl_si91x_dma_allocate_channel(dma_init.dma_number, &channel, channel_priority);
@@ -1282,8 +1329,8 @@ int32_t USART_Control(uint32_t control,
       break;
     case ARM_USART_MODE_IRDA:
       /*the number of data bits(8 DATA BITS) that can be sent is fixed. No parity information can be supplied,
-	     and only one stop bit is used in this mode. Trying to adjust the number of data bits sent or enable
-	     parity with the Line Control Register (LCR) has no effect*/
+       and only one stop bit is used in this mode. Trying to adjust the number of data bits sent or enable
+       parity with the Line Control Register (LCR) has no effect*/
       if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
         if (usart->capabilities.irda) {
 
@@ -1827,26 +1874,26 @@ ARM_USART_MODEM_STATUS USART_GetModemStatus(USART_RESOURCES *usart)
 
 /*ROM API Structure
 const ROM_USART_API_T usart_api = {
-		&USART_Initialize,
-		&USART_Uninitialize,
-		&USART_PowerControl,
-		&USART_SetBaudrate,
-		&USART_Send_Data,
-		&USART_Receive_Data,	
-		&USART_Transfer,
-		&USART_GetTxCount,
-		&USART_GetRxCount,
-		&USART_Control ,
-		&USART_GetStatus ,
-		&USART_SetModemControl ,
-		&USART_GetModemStatus ,
-		&UartIrqHandler   , 
-		&USART_UDMA_Tx_Event,
-		&USART_UDMA_Rx_Event,  
+    &USART_Initialize,
+    &USART_Uninitialize,
+    &USART_PowerControl,
+    &USART_SetBaudrate,
+    &USART_Send_Data,
+    &USART_Receive_Data,
+    &USART_Transfer,
+    &USART_GetTxCount,
+    &USART_GetRxCount,
+    &USART_Control ,
+    &USART_GetStatus ,
+    &USART_SetModemControl ,
+    &USART_GetModemStatus ,
+    &UartIrqHandler   ,
+    &USART_UDMA_Tx_Event,
+    &USART_UDMA_Rx_Event,
 };
 
 */
 #else
 typedef int dummy; // To remove empty translation unit warning.
 #endif //A11_ROM || ROMDRIVER_PRESENT
-/*End of file not truncated */
+       /*End of file not truncated */

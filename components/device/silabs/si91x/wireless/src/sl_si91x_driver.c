@@ -54,6 +54,14 @@
 #include "sl_si91x_socket_callback_framework.h"
 #endif
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+#include "rsi_m4.h"
+#define SIDE_BAND_DONE (1 << 2) //! had to be redefined as this macro is not in .h
+rsi_m4ta_desc_t crypto_desc[2];
+extern osEventFlagsId_t ta_events;
+extern osMutexId_t side_band_crypto_mutex;
+#endif
+
 #ifndef NULL
 #define NULL (void *)0
 #endif
@@ -70,6 +78,11 @@
 #endif
 
 #define SL_SI91X_INVALID_MODE 0xFFFF
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+#define SL_HOST_DESC_LEN  16
+#define SL_CRYPTO_PKT_LEN 128
+#endif
 
 // Enterprise configuration command parameters
 /*=======================================================================*/
@@ -134,12 +147,23 @@ sl_status_t sl_si91x_allocate_data_buffer(sl_wifi_buffer_t **host_buffer,
                                           void **buffer,
                                           uint32_t data_size,
                                           uint32_t wait_duration_ms);
-
+sl_status_t sl_si91x_driver_init_wifi_radio(const sl_wifi_device_configuration_t *config);
+sl_status_t sl_si91x_driver_wait_for_response_packet(sl_si91x_queue_type_t queue_type,
+                                                     uint32_t event_mask,
+                                                     uint16_t packet_id,
+                                                     sl_si91x_wait_period_t wait_period,
+                                                     sl_wifi_buffer_t **packet_buffer);
+sl_status_t sli_verify_device_boot(uint32_t *rom_version);
 sl_status_t sl_si91x_enable_radio(void);
-
+sl_status_t sli_wifi_select_option(const uint8_t configuration);
 sl_status_t si91x_bootup_firmware(const uint8_t select_option);
-
+int32_t encapsulate_tx_data_packet(sl_wifi_btr_data_ctrlblk_t *data_ctrlblk, uint8_t *pkt_data, uint32_t mac_hdr_len);
 sl_status_t sl_si91x_host_power_cycle(void);
+
+#ifndef MAC_PEER_DS_SUPPORT
+uint16_t get_seq_ctrl(uint8_t is_qos);
+#endif
+
 //static void convert_sl_wifi_to_si91x_security_type( sl_wifi_security_t security_type, uint8_t* security, uint8_t* encryption );
 
 // This variable stores the frame status of response packet in case of API executed being failed.
@@ -149,7 +173,7 @@ sl_wifi_event_handler_t si91x_event_handler = NULL;
 // Global variables for device and driver management
 sl_wifi_interface_t default_interface;
 bool device_initialized                           = false;
-bool interface_is_up[SL_WIFI_MAX_INTERFACE_INDEX] = { false, false, false, false };
+bool interface_is_up[SL_WIFI_MAX_INTERFACE_INDEX] = { false, false, false, false, false };
 bool bg_enabled                                   = false;
 uint32_t frontend_switch_control                  = 0;
 static uint16_t packet_id[SI91X_CMD_MAX]          = { 0 };
@@ -161,6 +185,8 @@ static sl_si91x_efuse_data_t si91x_efuse_data     = { 0 };
 static uint16_t initialized_opermode = SL_SI91X_INVALID_MODE;
 
 sli_si91x_performance_profile_t performance_profile;
+
+extern si91x_packet_queue_t cmd_queues[SI91X_QUEUE_MAX];
 
 #ifdef SLI_SI91X_ENABLE_BLE
 //! Memory length for driver
@@ -256,14 +282,17 @@ const sl_si91x_set_region_ap_request_t default_KR_region_2_4GHZ_configurations =
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "KR ",
   .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 13, .max_tx_power = 27 }
+  .channel_info[0]               = { .first_channel = 1, .no_of_channels = 13, .max_tx_power = 23 }
 };
 
 const sl_si91x_set_region_ap_request_t default_KR_region_5GHZ_configurations = {
   .set_region_code_from_user_cmd = SET_REGION_CODE_FROM_USER,
   .country_code                  = "KR ",
-  .no_of_rules                   = 1,
-  .channel_info[0]               = { .first_channel = 149, .no_of_channels = 4, .max_tx_power = 29 }
+  .no_of_rules                   = 4,
+  .channel_info[0]               = { .first_channel = 36, .no_of_channels = 4, .max_tx_power = 23 },
+  .channel_info[1]               = { .first_channel = 52, .no_of_channels = 4, .max_tx_power = 20 },
+  .channel_info[2]               = { .first_channel = 100, .no_of_channels = 11, .max_tx_power = 20 },
+  .channel_info[3]               = { .first_channel = 149, .no_of_channels = 5, .max_tx_power = 23 }
 };
 
 // Define default configurations for the Singapore region for 2.4GHz and 5GHz bands
@@ -382,8 +411,9 @@ osSemaphoreId_t cmd_lock = NULL;
 sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, sl_wifi_event_handler_t event_handler)
 {
   sl_status_t status;
-  const uint8_t select_option = config->boot_option;         //LOAD_NWP_FW;
-  if (config->boot_config.coex_mode == SL_SI91X_WLAN_MODE) { // Check for not support mode
+  sl_si91x_host_init_configuration init_config = { 0 };
+  const uint8_t select_option                  = config->boot_option; //LOAD_NWP_FW;
+  if (config->boot_config.coex_mode == SL_SI91X_WLAN_MODE) {          // Check for not support mode
     return SL_STATUS_NOT_SUPPORTED;
   }
 
@@ -430,8 +460,17 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   }
 #endif
 
+  // Initialize the buffer manager
+  status = sl_si91x_host_init_buffer_manager();
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  init_config.rx_irq  = sl_si91x_bus_rx_irq_handler;
+  init_config.rx_done = sl_si91x_bus_rx_done_handler;
+
   // Initialize the SI91x host
-  status = sl_si91x_host_init();
+  status = sl_si91x_host_init(&init_config);
   VERIFY_STATUS_AND_RETURN(status);
 
 #ifndef SLI_SI91X_MCU_INTERFACE
@@ -542,8 +581,12 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   }
 
   // For the transmit test mode we need to disable BIT 0, 4, 5. These bitmaps are only required in powersave.
+  // To receive broadcast data packets in BTR opermode, we need to enable BIT 1.
   feature_frame_request.feature_enables = (config->boot_config.oper_mode == SL_SI91X_TRANSMIT_TEST_MODE)
                                             ? feature_frame_request.feature_enables & ~(FEATURE_ENABLES)
+                                          : (config->boot_config.oper_mode == SL_SI91X_WLAN_BTR_MODE)
+                                            ? feature_frame_request.feature_enables
+                                                | SI91X_FEAT_FRAME_PERMIT_UNDESTINED_PACKETS
                                             : feature_frame_request.feature_enables;
 
   // Dispatch a feature request frame to the SI91x driver
@@ -778,6 +821,45 @@ sl_status_t sl_si91x_driver_send_socket_data(sl_si91x_socket_send_request_t *req
   return sl_si91x_driver_send_data_packet(SI91X_SOCKET_CMD_QUEUE, buffer, wait_time);
 }
 
+sl_status_t sl_si91x_custom_driver_send_command(uint32_t command,
+                                                sl_si91x_queue_type_t queue_type,
+                                                const void *data,
+                                                uint32_t data_length,
+                                                sl_si91x_wait_period_t wait_period,
+                                                void *sdk_context,
+                                                sl_wifi_buffer_t **data_buffer,
+                                                uint8_t custom_host_desc)
+{
+  sl_wifi_buffer_t *buffer;
+  sl_si91x_packet_t *packet;
+  sl_status_t status;
+
+  // Check if the queue type is within valid range
+  if (queue_type >= (sl_si91x_queue_type_t)SI91X_CMD_MAX) {
+    return SL_STATUS_INVALID_INDEX;
+  }
+
+  // Allocate a buffer for the command with appropriate size
+  status = sl_si91x_allocate_command_buffer(&buffer,
+                                            (void **)&packet,
+                                            sizeof(sl_si91x_packet_t) + data_length,
+                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  // Clear the packet descriptor and copy the command data if available
+  memset(packet->desc, 0, sizeof(packet->desc));
+  if (data != NULL) {
+    memcpy(packet->data, data, data_length);
+  }
+
+  // Fill frame type
+  packet->length  = data_length & 0xFFF;
+  packet->command = command;
+  // Fill the packet identifier
+  packet->unused[1] = custom_host_desc;
+  return sl_si91x_driver_send_command_packet(command, queue_type, buffer, wait_period, sdk_context, data_buffer);
+}
+
 sl_status_t sl_si91x_driver_send_command(uint32_t command,
                                          sl_si91x_queue_type_t queue_type,
                                          const void *data,
@@ -813,6 +895,67 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
   packet->command = command;
   return sl_si91x_driver_send_command_packet(command, queue_type, buffer, wait_period, sdk_context, data_buffer);
 }
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+sl_status_t sl_si91x_driver_send_side_band_crypto(uint32_t command,
+                                                  const void *data,
+                                                  uint32_t data_length,
+                                                  sl_si91x_wait_period_t wait_period)
+{
+  sl_wifi_buffer_t *buffer;
+  sl_si91x_packet_t *packet;
+  uint32_t result;
+  sl_status_t status = SL_STATUS_OK;
+
+  // Allocate a buffer for the command with appropriate size
+  status = sl_si91x_allocate_command_buffer(&buffer, (void **)&packet, sizeof(sl_si91x_packet_t) + data_length, 1000);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  // Clear the packet descriptor and copy the command data if available
+  memset(packet->desc, 0, sizeof(packet->desc));
+  if (data != NULL) {
+    memcpy(packet->data, data, data_length);
+  }
+
+  // Fill frame type
+  packet->length  = data_length & 0xFFF;
+  packet->command = command;
+
+  // Acquire Mutex
+  osMutexAcquire(side_band_crypto_mutex, 0xFFFFFFFFUL);
+
+  // fill crypto desc
+  crypto_desc[0].addr   = packet->desc;
+  crypto_desc[0].length = SL_HOST_DESC_LEN;
+  crypto_desc[1].addr   = packet->data;
+  crypto_desc[1].length = SL_CRYPTO_PKT_LEN;
+
+  //! Enter Critical Section
+  __disable_irq();
+
+  sli_si91x_raise_side_band_interrupt_to_ta();
+
+  //! Exit Critical Section
+  __enable_irq();
+
+  result =
+    osEventFlagsWait(ta_events, SIDE_BAND_DONE, (osFlagsWaitAny), (wait_period & ~SL_SI91X_WAIT_FOR_RESPONSE_BIT));
+  if (result == (uint32_t)osErrorTimeout || result == (uint32_t)osErrorResource) {
+    osMutexRelease(side_band_crypto_mutex);
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_TX_FRAME_BUFFER);
+    return SL_STATUS_TIMEOUT;
+  }
+
+  status =
+    (((uint8_t *)crypto_desc[0].addr)[12] + ((uint8_t *)crypto_desc[0].addr)[13] << 8); // Extract the frame status
+
+  // Release Mutex
+  osMutexRelease(side_band_crypto_mutex);
+
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_TX_FRAME_BUFFER);
+  return status;
+}
+#endif
 
 sl_status_t sl_si91x_driver_send_bt_command(rsi_wlan_cmd_request_t command,
                                             sl_si91x_queue_type_t queue_type,
@@ -1010,6 +1153,7 @@ sl_status_t sl_si91x_driver_send_command_packet(uint32_t command,
 
   // Add the command packet to the queue and trigger a bus event
   sl_si91x_host_add_to_queue_with_atomic_action(queue_type, packet, &context, sl_si91x_atomic_packet_id_allocator);
+
   sl_si91x_host_set_bus_event(NCP_HOST_DATA_TX_EVENT);
 
   // Check if the command should return immediately or wait for a response
@@ -1089,6 +1233,7 @@ sl_status_t sl_si91x_driver_send_data_packet(sl_si91x_queue_type_t queue_type,
 
   // Add the packet to the queue with atomic action and trigger a bus event
   sl_si91x_host_add_to_queue_with_atomic_action(queue_type, packet, &context, sl_si91x_atomic_packet_id_allocator);
+
   sl_si91x_host_set_bus_event(NCP_HOST_DATA_TX_EVENT);
 
   return SL_STATUS_OK;
@@ -1157,6 +1302,7 @@ sl_status_t sl_si91x_driver_send_async_command(uint32_t command,
 
   // Add the command packet to the queue with atomic action and trigger a bus event
   sl_si91x_host_add_to_queue_with_atomic_action(queue_type, buffer, &context, sl_si91x_atomic_packet_id_allocator);
+
   sl_si91x_host_set_bus_event(NCP_HOST_DATA_TX_EVENT);
 
   return SL_STATUS_OK;
@@ -1499,7 +1645,8 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
   switch (operation_mode) {
     case SL_SI91X_CLIENT_MODE:
     case SL_SI91X_ENTERPRISE_CLIENT_MODE:
-    case SL_SI91X_TRANSMIT_TEST_MODE: {
+    case SL_SI91X_TRANSMIT_TEST_MODE:
+    case SL_SI91X_WLAN_BTR_MODE: {
       // For client and transmit test modes, send a command to set the region code
       sl_si91x_set_region_request_t request = { 0 };
 
@@ -2005,4 +2152,205 @@ sl_status_t sl_si91x_configure_timeout(sl_si91x_timeout_type_t timeout_type, uin
                                         NULL,
                                         NULL);
   return status;
+}
+
+/**
+ * @brief Dump 802.11 Tx/Rx packet
+ *
+ * @param[in] pkt - pointer to start of MAC header
+ * @param[in] pkt_len - total packet length (MAC header + payload)
+ */
+void dump_80211_pkt(uint8_t *pkt, uint32_t pkt_len, uint16_t req_dump_bytes)
+{
+  uint32_t dump_bytes = 0;
+  uint32_t hdr_len    = MAC80211_HDR_MIN_LEN;
+
+  hdr_len += (pkt[0] & BIT(7)) ? 2 : 0;                        /* 2 bytes QoS Ctrl */
+  hdr_len += ((pkt[1] & BIT(0)) && (pkt[1] & BIT(1))) ? 6 : 0; /* 6 byte Addr4 */
+
+  printf("%02x %02x | ", pkt[0], pkt[1]);                                                           /* FC */
+  printf("%02x %02x | ", pkt[2], pkt[3]);                                                           /* Dur */
+  printf("%02x:%02x:%02x:%02x:%02x:%02x | ", pkt[4], pkt[5], pkt[6], pkt[7], pkt[8], pkt[9]);       /* Addr1/RA */
+  printf("%02x:%02x:%02x:%02x:%02x:%02x | ", pkt[10], pkt[11], pkt[12], pkt[13], pkt[14], pkt[15]); /* Addr2/TA */
+  printf("%02x:%02x:%02x:%02x:%02x:%02x | ", pkt[16], pkt[17], pkt[18], pkt[19], pkt[20], pkt[21]); /* Addr3/DA */
+  printf("%02x %02x | ", pkt[22], pkt[23]);                                                         /* Seq Ctrl */
+  if ((pkt[1] & BIT(0)) && (pkt[1] & BIT(1)))                                                       /* Addr4 */
+    printf("%02x:%02x:%02x:%02x:%02x:%02x | ", pkt[24], pkt[25], pkt[26], pkt[27], pkt[28], pkt[29]);
+  if (pkt[0] & BIT(7))
+    printf("%02x %02x | ", pkt[30], pkt[31]); /* QoS Ctrl */
+
+  // Length of payload without MAC header
+  dump_bytes = pkt_len - hdr_len;
+
+#define TX_RX_FRAME_DUMP_BYTE_COUNT 20
+// If disabled, all payload bytes will be displayed
+#ifdef TX_RX_FRAME_DUMP_BYTE_COUNT
+  dump_bytes = req_dump_bytes > dump_bytes ? dump_bytes : req_dump_bytes;
+#else
+  UNUSED_PARAMETER(req_dump_bytes);
+#endif
+
+  for (uint32_t i = hdr_len; i < hdr_len + dump_bytes; i++) /* Data */
+    printf("%02x ", pkt[i]);
+
+  printf("|\r\n");
+}
+
+#ifndef MAC_PEER_DS_SUPPORT
+uint16_t get_seq_ctrl(uint8_t is_qos)
+{
+  static uint16_t qos_pkt_count     = 0;
+  static uint16_t non_qos_pkt_count = 0;
+
+  if (qos_pkt_count > 4095)
+    qos_pkt_count = 0;
+
+  if (non_qos_pkt_count > 4095)
+    non_qos_pkt_count = 0;
+
+  return is_qos ? qos_pkt_count++ : non_qos_pkt_count++;
+}
+#endif
+
+int32_t encapsulate_tx_data_packet(sl_wifi_btr_data_ctrlblk_t *data_ctrlblk, uint8_t *pkt_data, uint32_t mac_hdr_len)
+{
+  uint16_t seq_ctrl = 0;
+  uint16_t *frame_ctrl;
+  uint32_t qos_ctrl_off = MAC80211_HDR_MIN_LEN;
+
+  if (data_ctrlblk == NULL)
+    return RSI_ERROR_INVALID_PACKET;
+
+  if (IS_MAC_ZERO(data_ctrlblk->addr1))
+    return RSI_ERROR_INVALID_MAC_ADDRESS;
+
+  if (IS_QOS_PKT(data_ctrlblk->ctrl_flags) && !IS_BCAST_MCAST_MAC(data_ctrlblk->addr1[0])) {
+    if (data_ctrlblk->priority > 3)
+      return RSI_ERROR_INVALID_QOS_PRIORITY;
+  }
+
+  if (IS_4ADDR(data_ctrlblk->ctrl_flags)) {
+    qos_ctrl_off += MAC80211_HDR_ADDR4_LEN;
+  }
+
+  memset(pkt_data, 0, mac_hdr_len);
+  /* Add frame control (2 bytes) */
+  frame_ctrl = (uint16_t *)&pkt_data[0];
+  *frame_ctrl |= FC_TYPE_DATA;
+
+  if (IS_4ADDR(data_ctrlblk->ctrl_flags)) {
+    *frame_ctrl |= FC_TO_DS;
+    *frame_ctrl |= FC_FROM_DS;
+  } else {
+    *frame_ctrl |= IS_TODS(data_ctrlblk->ctrl_flags) ? FC_TO_DS : 0;
+    *frame_ctrl |= IS_FROMDS(data_ctrlblk->ctrl_flags) ? FC_FROM_DS : 0;
+  }
+
+  /* Add Addr1, Addr2, Addr3 (18 bytes) */
+  memcpy(&pkt_data[4], data_ctrlblk->addr1, 6);
+  memcpy(&pkt_data[10], data_ctrlblk->addr2, 6);
+  memcpy(&pkt_data[16], data_ctrlblk->addr3, 6);
+
+#ifndef MAC_PEER_DS_SUPPORT
+  /* Add Sequence control [b0-b3] FragNo [b4-b15] SeqNo */
+  seq_ctrl = get_seq_ctrl(IS_QOS_PKT(data_ctrlblk->ctrl_flags)) << 4;
+  memcpy(&pkt_data[22], &seq_ctrl, 2);
+#endif
+
+  /* Add Addr4 optionally based on ctrl_flag (6 bytes) */
+  if (IS_4ADDR(data_ctrlblk->ctrl_flags))
+    memcpy(&pkt_data[24], data_ctrlblk->addr4, 6); /* sa */
+
+  /* Add QoS control optionally based on ctrl_flag (2 bytes) */
+  if (IS_QOS_PKT(data_ctrlblk->ctrl_flags) && !IS_BCAST_MCAST_MAC(data_ctrlblk->addr1[0])) {
+    *frame_ctrl |= FC_SUBTYPE_QOS_DATA;
+    pkt_data[qos_ctrl_off] = WME_AC_TO_TID(data_ctrlblk->priority);
+  }
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_driver_btr_send_data(sl_wifi_btr_data_ctrlblk_t *data_ctrlblk,
+                                          uint8_t *payload,
+                                          uint16_t payload_len,
+                                          uint32_t wait_time)
+{
+  sl_wifi_buffer_t *buffer;
+  sl_si91x_packet_t *packet;
+  sl_status_t status = SL_STATUS_OK;
+  uint8_t *pkt_offset;
+  uint8_t ext_desc_size;
+  uint8_t *host_desc;
+  uint32_t mac_hdr_len = MAC80211_HDR_MIN_LEN;
+
+  if (IS_QOS_PKT(data_ctrlblk->ctrl_flags) && !IS_BCAST_MCAST_MAC(data_ctrlblk->addr1[0])) {
+    mac_hdr_len += MAC80211_HDR_QOS_CTRL_LEN;
+  }
+
+  if (IS_4ADDR(data_ctrlblk->ctrl_flags)) {
+    mac_hdr_len += MAC80211_HDR_ADDR4_LEN;
+  }
+
+  ext_desc_size = BTR_TX_DATA_EXT_DESC_SIZE;
+
+  // Allocate a command buffer with space for the command data and metadata
+  status = sl_si91x_allocate_command_buffer(&buffer,
+                                            (void **)&packet,
+                                            sizeof(sl_si91x_packet_t) + ext_desc_size + mac_hdr_len + payload_len,
+                                            SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  // If the packet is not allocated successfully, return an allocation failed error
+  if (packet == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  pkt_offset = packet->data + ext_desc_size;
+  status     = encapsulate_tx_data_packet(data_ctrlblk, pkt_offset, mac_hdr_len);
+  if (status != SL_STATUS_OK) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_TX_FRAME_BUFFER);
+    return status;
+  }
+
+  memcpy(pkt_offset + mac_hdr_len, payload, payload_len);
+
+#ifdef TX_RX_FRAME_DUMP_BYTE_COUNT
+  dump_80211_pkt(pkt_offset, mac_hdr_len + payload_len, TX_RX_FRAME_DUMP_BYTE_COUNT);
+#endif
+
+  // Clear the packet descriptor and copy the command data if available
+  memset(packet->desc, 0, sizeof(packet->desc));
+
+  // Fill length in first 2 host_desc bytes
+  packet->length = (ext_desc_size + mac_hdr_len + payload_len) & 0xFFF;
+
+  // Fill packet type
+  host_desc = packet->desc;
+
+  host_desc[2] = 0x01;
+  if (IS_CFM_TO_HOST_SET(data_ctrlblk->ctrl_flags))
+    host_desc[3] |= CONFIRM_REQUIRED_TO_HOST; //! This bit is used to set CONFIRM_REQUIRED_TO_HOST in firmware.
+  host_desc[4] = ext_desc_size;               //! xtend_desc size
+  host_desc[5] = ((mac_hdr_len + 3) & ~3);    //! Mac_header length
+
+  if (IS_BCAST_MCAST_MAC(data_ctrlblk->addr1[0]))
+    host_desc[7] |= BCAST_INDICATION; //! Bcast_indication
+
+  if (IS_FIXED_DATA_RATE(data_ctrlblk->ctrl_flags)) {
+    host_desc[6] |= MAC_INFO_ENABLE; //! Fixed Rate
+    host_desc[8] = data_ctrlblk->rate;
+  }
+
+  if (IS_QOS_PKT(data_ctrlblk->ctrl_flags)) {
+    host_desc[13] |= QOS_ENABLE; // QOS ENABLE
+  }
+
+  host_desc[14] =
+    (((WME_AC_TO_TID(data_ctrlblk->priority) & 0xf) << 4) | (WME_AC_TO_QNUM(data_ctrlblk->priority) & 0xf));
+
+  //! Initialize extended desc
+  memcpy(&host_desc[16], &data_ctrlblk->token, 4);
+
+  // Send command packet to the SI91x WLAN queue and await a response
+  return sl_si91x_driver_send_data_packet(SI91X_WLAN_CMD_QUEUE, buffer, wait_time);
 }

@@ -67,7 +67,7 @@ void i2s_lowpower_example_init(void)
 
   // Filling the data out array with integer values
   for (uint32_t i = 0; i < I2S_LOWPOWER_BUFFER_SIZE; i++) {
-    i2s_lowpower_data_out[i] = i;
+    i2s_lowpower_data_out[i] = (uint8_t)i;
   }
   memcpy((uint8_t *)TX_BUF_MEMORY, i2s_lowpower_data_out, I2S_LOWPOWER_BUFFER_SIZE);
   do {

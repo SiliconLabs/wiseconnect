@@ -270,6 +270,7 @@ sl_status_t set_nvm_profile_command_handler(console_args_t *arguments)
     		        .client_idle_timeout = 0xFF,
     		        .dtim_beacon_count = 3,
     		        .maximum_clients = 3,
+    		        .beacon_stop = 0,
     		    },
     		    .ip = {
     		      .mode = SL_IP_MANAGEMENT_DHCP,

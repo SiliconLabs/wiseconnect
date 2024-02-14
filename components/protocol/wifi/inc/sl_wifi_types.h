@@ -20,6 +20,46 @@
 #define SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME 0xFFFF
 #define SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT       0xFFFF
 
+/// Wi-Fi BTR Mode configurations
+#if SPI_EXTENDED_TX_LEN_2K
+#define MAX_PAYLOAD_LEN 2020
+#else
+#define MAX_PAYLOAD_LEN 1450
+#endif
+#define MAC_INFO_ENABLE                BIT(0)
+#define BCAST_INDICATION               BIT(1)
+#define CONFIRM_REQUIRED_TO_HOST       BIT(2)
+#define QOS_ENABLE                     BIT(4)
+#define MAC80211_HDR_MIN_LEN           24
+#define MAC80211_HDR_QOS_CTRL_LEN      2
+#define MAC80211_HDR_ADDR4_LEN         6
+#define WME_AC_BE                      0 /* best effort */
+#define WME_AC_BK                      1 /* background */
+#define WME_AC_VI                      2 /* video */
+#define WME_AC_VO                      3 /* voice */
+#define WME_AC_TO_TID(_ac)             (((_ac) == WME_AC_VO) ? 6 : ((_ac) == WME_AC_VI) ? 5 : ((_ac) == WME_AC_BK) ? 1 : 0)
+#define WME_AC_TO_QNUM(_ac)            (((_ac) == WME_AC_BK) ? 0 : ((_ac) == WME_AC_BE) ? 1 : ((_ac) == WME_AC_VI) ? 2 : 3)
+#define FC_TYPE_DATA                   BIT(3)
+#define FC_SUBTYPE_QOS_DATA            BIT(7)
+#define FC_TO_DS                       BIT(8)
+#define FC_FROM_DS                     BIT(9)
+#define IS_4ADDR(ctrl_flags)           (ctrl_flags & BIT(0))
+#define IS_QOS_PKT(ctrl_flags)         (ctrl_flags & BIT(1))
+#define IS_FIXED_DATA_RATE(ctrl_flags) (ctrl_flags & BIT(2))
+#define IS_TODS(ctrl_flags)            (ctrl_flags & BIT(3))
+#define IS_FROMDS(ctrl_flags)          (ctrl_flags & BIT(4))
+#define IS_CFM_TO_HOST_SET(ctrl_flags) (ctrl_flags & BIT(5))
+#define IS_BCAST_MCAST_MAC(addr)       (addr & BIT(0))
+#define IS_MAC_ZERO(mac)               (!(mac[0] | mac[1] | mac[2] | mac[3] | mac[4] | mac[5]))
+#define MAX_RETRANSMIT_COUNT           15
+#define MAX_CW_EXPN_COUNT              15
+#define MAX_AIFSN                      15
+#define BTR_PEER_ADD_FLAG              BIT(0)
+#define BTR_PEER_AUTO_RATE_FLAG        BIT(1)
+#define BTR_MCAST_FILTER_EN            BIT(0)
+#define BTR_MCAST_FILTER_ADDR_LIMIT    2
+#define BTR_TX_DATA_EXT_DESC_SIZE      4
+
 /** @addtogroup SL_WIFI_TYPES Types
   * @{ */
 
@@ -124,6 +164,9 @@ typedef struct {
   uint32_t client_idle_timeout; ///< Duration in milliseconds to kick idle client
   uint16_t dtim_beacon_count;   ///< How many beacons per DTIM
   uint8_t maximum_clients;      ///< Maximum number of associated clients
+  uint8_t beacon_stop;          ///< Stop beaconing when there are no associated clients
+  sl_wifi_tdi_t tdi_flags; ///< To enable Transition Disable Indication (TDI). One of the values from @ref sl_wifi_tdi_t
+  uint8_t is_11n_enabled;  ///< A flag to enable 11n.
 } sl_wifi_ap_configuration_t;
 
 /// Wi-Fi Access Point advanced configuration
@@ -131,6 +174,11 @@ typedef struct {
   uint8_t csa_announcement_delay; ///< In beacon periods
   uint32_t tbd;                   ///< Advanced configuration option to be added
 } sl_wifi_advanced_ap_configuration_t;
+
+/// Wi-Fi Access Point dynamic configuration
+typedef struct {
+  uint8_t beacon_stop; ///< Beaconing control when no clients are connected
+} sl_si91x_ap_reconfiguration_t;
 
 /// Wi-Fi Client interface configuration
 typedef struct {
@@ -335,7 +383,8 @@ typedef struct {
 
 /// Wi-Fi max transmit power
 typedef struct {
-  uint8_t join_tx_power;
+  uint8_t scan_tx_power; ///< Transmit power during scan. Valid input range: 1dBm to 31dBm.
+  uint8_t join_tx_power; ///< Transmit power during join. Valid input range: 1dBm to 31dBm.
 } sl_wifi_max_tx_power_t;
 
 /// Wi-Fi station TSF
@@ -343,4 +392,126 @@ typedef struct {
   uint32_t tsf_l; ///< Used to store LSB of TSF
   uint32_t tsf_m; ///< Used to store MSB of TSF
 } sl_wifi_tsf64_t;
+
+/*! @cond SL_SI91X_WIFI_BTR_MODE */
+/// Control block structure used to hold meta data for the payload passed in \ref sl_wifi_btr_send_80211_data
+typedef struct sl_wifi_btr_data_ctrlblk_s {
+  ///       | Bit position | ctrl_flags bit description                                                                                                                     |
+  ///       |--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+  ///       | 0            | Shall be set for 4-address packet or unset for 3-address packet. addr4 is ignored if set to 0.                                                 |
+  ///       | 1            | Shall be set for QoS packet. QoS control field shall not be present in the MAC header for non-QoS packet. priority is ignored if set to 0.     |
+  ///       | 2            | Shall be set to use the fixed data rate provided in the rate field. If set to 0, rate field is ignored and auto rate shall be used.            |
+  ///       | 3            | Shall be set to enable ToDS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                               |
+  ///       | 4            | Shall be set to enable FromDS bit in Frame Control. Valid only for 3-addr packet (bit 0 is unset).                                             |
+  ///       | 5            | Shall be set if host requires tx data status report. Token is used for synchronization between data packets sent and reports received.         |
+  ///       | 6:7          | Reserved.                                                                                                                                      |
+  /// @note If addr1 is multicast/broadcast, ctrl_flags bit 1 is ignored and the frame is sent as a non-QoS frame, i.e. QoS control field shall not be present in the MAC header.
+  uint8_t ctrl_flags;
+  uint8_t reserved1;
+  uint8_t reserved2;
+  /// Data Packets are queued to respective queue based on priority. Best Effort - 0, Background - 1, Video - 2, Voice - 3.
+  uint8_t priority;
+  /// Rates shall be provided as per \ref RSI_RATES. Only 11b/g rates shall be supported.
+  sl_wifi_data_rate_t rate;
+  /// Used for synchronization between data packets sent and reports received. Application shall provide token/identifier per PPDU. MAC layer shall send the same token/identifier in status report along with the status of the transmitted packet.
+  uint32_t token;
+  /// Receiver MAC address
+  uint8_t addr1[6];
+  /// Transmitter MAC address
+  uint8_t addr2[6];
+  /// Destination MAC address
+  uint8_t addr3[6];
+  /// Source MAC address. Initialization of addr4 is optional.
+  uint8_t addr4[6];
+} sl_wifi_btr_data_ctrlblk_t;
+
+typedef struct sl_wifi_btr_cw_params_s {
+  /// Min contention window size. Value is calculated from 2n - 1 where exponent shall be provided as the input. Valid values for exponent N are 0 - 10
+  uint8_t cwmin;
+  /// Max contention window size. Value is calculated from 2n - 1 where exponent shall be provided as the input. Valid values for exponent N are 0 - 10.
+  uint8_t cwmax;
+  /// AIFSN. Valid range is 0 to 15.
+  uint8_t aifsn;
+  uint8_t reserved;
+} sl_wifi_btr_cw_params_t;
+
+typedef struct sl_wifi_btr_config_params_s {
+  /// Set or get BTR config params
+  uint8_t set;
+  /// Retransmit count. Common across all peers and access categories and valid only for unicast data frames
+  uint8_t retransmit_count;
+  /// Reserved
+  uint16_t flags;
+  /// CW params for respective queues. AC index: Best Effort - 0, Background - 1, Video - 2, Voice - 3
+  sl_wifi_btr_cw_params_t cw_params[4];
+} sl_wifi_btr_config_params_t;
+
+typedef struct sl_wifi_btr_set_channel_s {
+  /// Channel information
+  sl_wifi_channel_t chan_info;
+  /// TX power
+  uint8_t tx_power;
+} sl_wifi_btr_set_channel_t;
+
+typedef struct sl_wifi_btr_peer_update_s {
+  /// | Bit position | Flags bit description                                                                                              |
+  /// |--------------|--------------------------------------------------------------------------------------------------------------------|
+  /// | 0            | Shall be set to add the peer, else reset to 0 to delete the peer.                                                  |
+  /// | 1            | Shall be set for auto-rate enable. To enable auto-rate application needs to provide peer_supported_rate_bitmap     |
+  uint8_t flags;
+  /// MAC address of peer to be added or deleted.
+  uint8_t peer_mac_address[6];
+  /// Rate bitmap of peer station
+  /// | peer_supported_rate_bitmap | Data rate  |
+  /// | :--------------------------| :----------|
+  /// | BIT(0)                     | 1 Mbps     |
+  /// | BIT(1)                     | 2 Mbps     |
+  /// | BIT(2)                     | 5.5 Mbps   |
+  /// | BIT(3)                     | 11 Mbps    |
+  /// | BIT(4)                     | 6 Mbps     |
+  /// | BIT(5)                     | 9 Mbps     |
+  /// | BIT(6)                     | 12 Mbps    |
+  /// | BIT(7)                     | 18 Mbps    |
+  /// | BIT(8)                     | 24 Mbps    |
+  /// | BIT(9)                     | 36 Mbps    |
+  /// | BIT(10)                    | 48 Mbps    |
+  /// | BIT(11)                    | 54 Mbps    |
+  /// | BIT(12:31)                 | Reserved   |
+  uint32_t peer_supported_rate_bitmap;
+} sl_wifi_btr_peer_update_t;
+
+typedef struct sl_wifi_btr_mcast_filter_s {
+  /// Bit 0 is set to 1 to enable filtering for the specified MAC addresses, else set to 0 to disable filtering.
+  uint8_t flags;
+  /// Number of multicast addresses. Valid values are 1, 2. This field is ignored when disabling filtering.
+  uint8_t num_of_mcast_addr;
+  /// List of multicast addresses. This field is ignored when disabling filtering.
+  uint8_t mac[2][6];
+} sl_wifi_btr_mcast_filter_t;
+
+/// Wi-Fi BTR interface configuration
+typedef struct {
+  sl_wifi_btr_set_channel_t btr_chan_info;   ///< Channel info
+  sl_mac_address_t addr2_ta;                 ///< DUT MAC address (Addr2/Transmitter Address)
+  sl_wifi_btr_config_params_t config_params; ///< BTR config params
+} sl_wifi_btr_configuration_t;
+
+/// Wi-Fi BTR Tx data confirm callback structure
+typedef struct sl_wifi_btr_tx_cfm_cb_data_s {
+  sl_status_t status;
+  uint32_t rate;
+  uint8_t priority;
+  uint32_t token;
+} sl_wifi_btr_tx_cfm_cb_data_t;
+
+/// Wi-Fi BTR Rx Data callback structure
+typedef struct sl_wifi_btr_rx_cb_data_s {
+  sl_status_t status;
+  int8_t rssi;
+  uint32_t rate;
+  uint32_t length;
+  uint8_t *buffer;
+} sl_wifi_btr_rx_cb_data_t;
+
+/*! @endcond SL_SI91X_WIFI_BTR_MODE */
 /** @} */

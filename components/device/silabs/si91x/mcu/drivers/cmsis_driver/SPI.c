@@ -1037,21 +1037,21 @@ void SSI_SetFifoThreshold(uint8_t ssi_instance)
 {
   do {
     if (ssi_instance == SPI_MASTER_MODE) {
-#if SL_SSI_MASTER_DMA_CONFIG_ENABLE
+#if defined SL_SSI_MASTER_DMA_CONFIG_ENABLE 
       SSI_MASTER_Resources.reg->TXFTLR_b.TFT = SL_SSI_TX_FIFO_THRESHOLD;
       SSI_MASTER_Resources.reg->RXFTLR_b.RFT = SL_SSI_RX_FIFO_THRESHOLD;
 #endif
       break;
     }
     if (ssi_instance == SPI_SLAVE_MODE) {
-#if SL_SSI_SLAVE_DMA_CONFIG_ENABLE
+#if defined SL_SSI_SLAVE_DMA_CONFIG_ENABLE
       SSI_SLAVE_Resources.reg->TXFTLR_b.TFT = SL_SSI_TX_FIFO_THRESHOLD;
       SSI_SLAVE_Resources.reg->RXFTLR_b.RFT = SL_SSI_RX_FIFO_THRESHOLD;
 #endif
       break;
     }
     if (ssi_instance == SPI_ULP_MASTER_MODE) {
-#if SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE
+#if defined SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE
       SSI_ULP_MASTER_Resources.reg->TXFTLR_b.TFT = SL_SSI_TX_FIFO_THRESHOLD;
       SSI_ULP_MASTER_Resources.reg->RXFTLR_b.RFT = SL_SSI_RX_FIFO_THRESHOLD;
 #endif

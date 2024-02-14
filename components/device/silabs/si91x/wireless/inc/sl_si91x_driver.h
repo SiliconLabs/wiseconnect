@@ -102,6 +102,27 @@ sl_status_t sl_si91x_driver_send_command(uint32_t command,
 
 /***************************************************************************/ /**
  * @brief
+ *   Register a function and optional argument for scan results callback.
+ * @param[in] command
+ *   Command type to be sent to TA firmware.
+ * @param[in] data
+ *   Command packet to be sent to the TA firmware.
+ * @param[in] data_length
+ *   Length of command packet.
+ * @param[in] wait_period
+ *   @ref sl_si91x_wait_period_t Timeout for the command response.
+ * @pre 
+ *   @ref sl_si91x_driver_init should be called before this API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_driver_send_side_band_crypto(uint32_t command,
+                                                  const void *data,
+                                                  uint32_t data_length,
+                                                  sl_si91x_wait_period_t wait_period);
+
+/***************************************************************************/ /**
+ * @brief
  * Send commands to the TA; whose response needs to be handled asynchronously.
  * Note: This function doesn't acquire "command_in_flight" boolean
  * @param[in] command
@@ -527,11 +548,13 @@ sl_status_t sl_si91x_fwup_load(uint8_t *content, uint16_t length);
 #if defined(SLI_SI91X_MCU_INTERFACE) || defined(DOXYGEN)
 /*==============================================*//**
  * @brief      Secure handshake. This is a blocking API.
- * @param[in]  sub_cmd_type - Specifies the Sub command type for the secure handshake.
- * @param[in]  input_data  - Input data is a pointer contains the information used during secure handshake.
- * @param[in]  input_len  - Specifies the length of input data.
- * @param[in]  output_len  - Specifies the length of output data.
- * @param[in]  output_data - Pointer to store the response data after the secure handshake process.
+ *
+ * @param[in]  sub_cmd_type Specifies the Sub command type for the secure handshake.
+ * @param[in]  input_data  Input data is a pointer that contains the information used during a secure handshake.
+ * @param[in]  input_len  Specifies the length of input data.
+ * @param[in]  output_len  Specifies the length of output data.
+ * @param[in]  output_data Pointer to store the response data after the secure handshake process.
+ *
  * @return       sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  *
  */
@@ -710,3 +733,52 @@ sl_status_t sl_si91x_assert(void);
 sl_status_t sl_si91x_get_ram_log(uint32_t address, uint32_t length);
 
 /** @} */
+
+/*! @cond SL_SI91X_WIFI_BTR_MODE */
+/***************************************************************************/ /**
+ * @brief     Si91X specific Wi-Fi BTR mode driver function to send Tx data
+ * @param[in] data_ctrlblk - Meta data for the payload.
+ * @param[in] payload      - Pointer to payload to be sent to LMAC.
+ * @param[in] payload_len  - Length of the payload.
+ * @param[in] wait_time    - Wait time for the command response.
+ * @return    sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *******************************************************************************/
+sl_status_t sl_si91x_driver_btr_send_data(sl_wifi_btr_data_ctrlblk_t *data_ctrlblk,
+                                          uint8_t *payload,
+                                          uint16_t payload_len,
+                                          uint32_t wait_time);
+/*! @endcond SL_SI91X_WIFI_BTR_MODE */
+
+/***************************************************************************/ /**
+ * @brief
+ *   Register a function and optional argument for scan results callback.
+ * @param[in] command
+ *   Command type to be sent to TA firmware.
+ * @param[in] queue_type
+ *   @ref sl_si91x_queue_type_t Queue type to be used to send the command on.
+ * @param[in] data
+ *   Command packet to be sent to the TA firmware.
+ * @param[in] data_length
+ *   Length of command packet.
+ * @param[in] wait_period
+ *   @ref sl_si91x_wait_period_t Timeout for the command response.
+ * @param[in] sdk_context
+ *   Pointer to the context.
+ * @param[in] data_buffer
+ *   [sl_wifi_buffer_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-buffer-t) Pointer to a data buffer pointer for the response data to be returned in.
+ *  @param[in] custom_host_desc
+ *   Custom Variable to send additional data to the firmware through the host descriptor.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_si91x_driver_init should be called before this API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_custom_driver_send_command(uint32_t command,
+                                                sl_si91x_queue_type_t queue_type,
+                                                const void *data,
+                                                uint32_t data_length,
+                                                sl_si91x_wait_period_t wait_period,
+                                                void *sdk_context,
+                                                sl_wifi_buffer_t **data_buffer,
+                                                uint8_t custom_host_desc);

@@ -88,6 +88,10 @@
 #ifdef SLI_SI917
 #define M4_WAITING_FOR_TA_TO_WR_ON_FLASH BIT(6)
 #endif
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+#define SIDE_BAND_CRYPTO_INTR BIT(7)
+#endif
+#define M4_WAITING_FOR_TA_DEINIT BIT(8)
 
 #define TX_PKT_TRANSFER_DONE_INTERRUPT BIT(2)
 //! This interrupt is received from TA when RX packet is pending from TA
@@ -102,10 +106,16 @@
 #define TA_WRITING_ON_COMM_FLASH BIT(5)
 #endif
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+#define SIDE_BAND_CRYPTO_DONE BIT(6)
+#endif
+#define NWP_DEINIT_IN_COMM_FLASH BIT(7)
+
 #ifdef SLI_SI917
 //! Option value for m4 app from flash to ram API
 #define UPGRADE_M4_IMAGE_OTA    1
 #define TA_WRITES_ON_COMM_FLASH 2
+#define M4_WAIT_FOR_NWP_DEINIT  3
 #endif
 
 #ifdef SLI_SI91X_ENABLE_OS
@@ -185,6 +195,9 @@ int16_t rsi_device_interrupt_status(uint8_t *int_status);
 sl_status_t sli_m4_interrupt_isr(void);
 void sli_m4_ta_interrupt_init(void);
 void sli_si91x_raise_pkt_pending_interrupt_to_ta(void);
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+void sli_si91x_raise_side_band_interrupt_to_ta(void);
+#endif
 int32_t rsi_send_pkt_to_ta(rsi_m4ta_desc_t *tx_desc);
 void rsi_transfer_to_ta_done_isr(void);
 void rsi_pkt_pending_from_ta_isr(void);
@@ -201,7 +214,7 @@ void unmask_ta_interrupt(uint32_t interrupt_no);
 void clear_ta_to_m4_interrupt(uint32_t interrupt_no);
 void sl_mv_m4_app_from_flash_to_ram(int option);
 uint32_t NVIC_GetIRQEnable(IRQn_Type IRQn);
-void sli_config_m4_dma_desc_on_reset(void);
+void sli_si91x_config_m4_dma_desc_on_reset(void);
 void rsi_update_tx_dma_desc(uint8_t skip_dma_valid);
 void rsi_update_rx_dma_desc(void);
 sl_status_t si91x_req_wakeup(void);

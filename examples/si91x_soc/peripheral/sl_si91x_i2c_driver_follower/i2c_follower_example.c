@@ -59,7 +59,7 @@ typedef enum {
 sl_i2c_status_t i2c_status;
 sl_i2c_instance_t i2c_instance = I2C_INSTANCE_USED;
 #if NON_BLOCKING_APPLICATION
-volatile uint8_t i2c_read_buffer[I2C_SIZE_BUFFERS];
+uint8_t i2c_read_buffer[I2C_SIZE_BUFFERS];
 #else
 static uint8_t i2c_read_buffer[I2C_SIZE_BUFFERS + I2C_OFFSET_LENGTH];
 #endif
@@ -88,7 +88,7 @@ sl_i2c_dma_config_t p_dma_config;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static void i2c_follower_callback(sl_i2c_instance_t i2c_instance, uint32_t status);
+static void i2c_follower_callback(sl_i2c_instance_t instance, uint32_t status);
 static void compare_data(void);
 
 /*******************************************************************************
@@ -292,7 +292,7 @@ static void compare_data(void)
 /*******************************************************************************
  * I2C Follower callback function
  ******************************************************************************/
-void i2c_follower_callback(sl_i2c_instance_t i2c_instance, uint32_t status)
+void i2c_follower_callback(sl_i2c_instance_t instance, uint32_t status)
 {
   switch (status) {
     case SL_I2C_DATA_TRANSFER_COMPLETE:
@@ -334,4 +334,6 @@ void i2c_follower_callback(sl_i2c_instance_t i2c_instance, uint32_t status)
     default:
       break;
   }
+  // to avoid unused variable warning
+  (void)instance;
 }

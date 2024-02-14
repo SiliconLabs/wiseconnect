@@ -14,8 +14,10 @@
 #pragma once
 
 #include "sl_status.h"
+#include "sl_common.h"
 #include <stdint.h>
 #include <stdbool.h>
+
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -56,6 +58,7 @@
 /// SNTP Client Events
 typedef enum {
   SL_SNTP_CLIENT_START = 1,       ///< Event for SNTP client started
+  SL_SNTP_CLIENT_GET_TIME,        ///< Event for SNTP get time
   SL_SNTP_CLIENT_GET_TIME_DATE,   ///< Event for SNTP get time date
   SL_SNTP_CLIENT_GET_SERVER_INFO, ///< Event for SNTP client get server info
   SL_SNTP_CLIENT_STOP             ///< Event for SNTP client stopped
@@ -78,9 +81,9 @@ typedef struct {
   union {
     uint8_t ipv4_address[4];       ///< Ipv4 address of the SNTP server
     unsigned long ipv6_address[4]; ///< Ipv6 address of the SNTP server
-  } __attribute__((__packed__)) server_ip_address;
+  } SL_ATTRIBUTE_PACKED server_ip_address;
   uint8_t sntp_method; ///< SNTP server method
-} __attribute__((__packed__)) sl_sntp_server_info_t;
+} SL_ATTRIBUTE_PACKED sl_sntp_server_info_t;
 
 /// SNTP Response
 typedef struct {
@@ -88,7 +91,7 @@ typedef struct {
   sl_status_t
     status; ///< Status of the call which triggered this response. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
   uint8_t *
-    data; ///< Pointer to response data. Incase of SL_SNTP_CLIENT_GET_TIME_DATE it is a (uint8_t *) buffer and incase of SL_SNTP_CLIENT_GET_SERVER_INFO it is a pointer to @ref __attribute__ structure
+    data; ///< Pointer to response data. In case of SL_SNTP_CLIENT_GET_TIME, SL_SNTP_CLIENT_GET_TIME_DATE, it is a (uint8_t *) buffer and in case of SL_SNTP_CLIENT_GET_SERVER_INFO it is a pointer to @ref __attribute__ structure
   uint16_t data_length; ///< Length of response data
 } sl_sntp_client_response_t;
 
@@ -96,8 +99,8 @@ typedef struct {
  * @typedef sl_sntp_client_event_handler_t
  * @brief SNTP response handler
  * @param[in] response         SNTP response of type @ref sl_sntp_client_response_t
- * @param[in] user_data        User data passed in sl_sntp_client_get_time_date(), sl_sntp_client_get_server_info() APIs.
- * @param[in] user_data_length User data length in sl_sntp_client_get_time_date(), sl_sntp_client_get_server_info() APIs
+ * @param[in] user_data        User data passed in sl_sntp_client_get_time(), sl_sntp_client_get_time_date(), sl_sntp_client_get_server_info() APIs.
+ * @param[in] user_data_length User data length in sl_sntp_client_get_time(), sl_sntp_client_get_time_date(), sl_sntp_client_get_server_info() APIs
  */
 typedef void (*sl_sntp_client_event_handler_t)(sl_sntp_client_response_t *response,
                                                uint8_t *user_data,
@@ -151,6 +154,17 @@ typedef struct {
  *   This API needs to be called before calling any other SNTP API
  */
 sl_status_t sl_sntp_client_start(sl_sntp_client_config_t *config, uint32_t timeout);
+
+/**
+ * @brief
+ * Get the current NTP epoch time in seconds.
+ * @param[in] data		    Valid pointer to data buffer which should be greater than or equal to 50 bytes. In synchronous case, time is returned in this buffer in string format. In async call, this parameter is given to user in user_data parameter of event handler.
+ * @param[in] data_length   Data buffer length. In async call, this parameter is given to user in user_data_length parameter of event handler.
+ * @param[in] timeout       Timeout for getting time. This is blocking API for timeout > 0, else results are returned in @ref sl_sntp_client_event_handler_t callback
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ */
+sl_status_t sl_sntp_client_get_time(uint8_t *data, uint16_t data_length, uint32_t timeout);
 
 /**
  * @brief

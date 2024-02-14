@@ -42,12 +42,12 @@
  */
 
 typedef struct {
-  uint32_t key_type;                            ///< Key type
-  uint32_t reserved;                            ///< Reserved for future use
-  uint32_t key_size;                            ///< Key size
-  sl_si91x_crypto_wrap_mode_t wrap_iv_mode;     ///< Wrap IV mode
-  uint8_t wrap_iv[SL_SI91X_IV_SIZE];            ///< Buffer to store IV
-  uint8_t key_buffer[SL_SI91X_KEY_BUFFER_SIZE]; ///< Key data wrapped/ Plain text
+  uint32_t key_type;                                 ///< Key type
+  uint32_t reserved;                                 ///< Reserved for future use
+  uint32_t key_size;                                 ///< Key size
+  sl_si91x_crypto_wrap_mode_t wrap_iv_mode;          ///< Wrap IV mode
+  uint8_t wrap_iv[SL_SI91X_IV_SIZE];                 ///< Buffer to store IV
+  uint8_t key_buffer[SL_SI91X_WRAP_KEY_BUFFER_SIZE]; ///< Key data wrapped/ Plain text
 } sl_si91x_wrap_config_t;
 
 /** @} */

@@ -49,7 +49,7 @@ extern "C" {
 *
 * ##Overview
 * I2C standard compliant bus interface with open-drain pins
-* Configurable as Master or Slave
+* Configurable as Primary or Secondary
 * Four speed modes: Standard Mode (100 kbps), Fast Mode (400 kbps),
 * Fast Mode Plus (1Mbps) and High-Speed Mode (3.4 Mbps)
 * 7 or 10-bit addressing
@@ -78,7 +78,7 @@ extern "C" {
 // -----------------------------------------------------------------------------
 // Data Types
 
-/// @brief Enumeration to represent i2c instances
+/// @brief Enumeration to represent I2C instances
 typedef enum {
   SL_I2C0,     ///< I2C Instance 0.
   SL_I2C1,     ///< I2C Instance 1.
@@ -86,7 +86,7 @@ typedef enum {
   SL_I2C_LAST, ///< Last member of enum for validation
 } sl_i2c_instance_t;
 
-/// @brief Enumeration to represent i2c driver status values
+/// @brief Enumeration to represent I2C driver status values
 typedef enum {
   SL_I2C_SUCCESS,                  ///< Success.
   SL_I2C_IDLE,                     ///< I2C Idle.
@@ -106,14 +106,14 @@ typedef enum {
   SL_I2C_INVALID_PARAMETER,        ///< Invalid Parameter.
 } sl_i2c_status_t;
 
-/// @brief Enumeration to represent i2c transfer type
+/// @brief Enumeration to represent I2C transfer type
 typedef enum {
   SL_I2C_USING_INTERRUPT,   ///< The driver will use interrupts to perform I2C transfer.
   SL_I2C_USING_DMA,         ///< The driver will use DMA to perform I2C transfer.
   SL_I2C_TRANFER_TYPE_LAST, ///< For Validation
 } sl_i2c_transfer_type_t;
 
-/// @brief Enumeration to represent i2c operating mode
+/// @brief Enumeration to represent I2C operating mode
 typedef enum {
   SL_I2C_STANDARD_MODE = 1,   ///< Standard-mode, bidirectional data transfers up to 100 kbit/s.
   SL_I2C_FAST_MODE,           ///< Fast-mode, bidirectional data transfers up to 400 kbit/s.
@@ -124,7 +124,7 @@ typedef enum {
 
 typedef void (*sl_i2c_callback_t)(sl_i2c_instance_t i2c_instance, uint32_t status); ///< Callback for I2C Driver
 
-/// @brief Structure to hold the parameters of i2c instance configurations
+/// @brief Structure to hold the parameters of I2C instance configurations
 typedef struct {
   sl_i2c_mode_t mode;                     ///< Leader/Follower Mode, 0 for leader mode and 1 for follower mode
   sl_i2c_operating_mode_t operating_mode; ///< Speed mode \ref sl_i2c_operating_mode_t for possible values
@@ -146,7 +146,7 @@ typedef struct {
   uint32_t rx_len;    ///< Number of bytes to receive
 } sl_i2c_transfer_config_t;
 
-///@brief Structure to hold port and pin of i2c
+///@brief Structure to hold port and pin of I2C
 typedef struct {
   uint8_t sda_port; ///< PWM GPIO port
   uint8_t sda_pin;  ///< PWM GPIO pin
@@ -181,6 +181,8 @@ sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_
 /**
  * This API configures the follower address of the I2C module. Should be
  * used only in Follower mode after instance initialization.
+ * I2C leader device initiates an I2C transfer with an address that matches this 
+ * address in the IC_SAR register of I2C follower device.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_i2c_driver_init 
@@ -201,7 +203,7 @@ sl_i2c_status_t sl_i2c_driver_set_follower_address(sl_i2c_instance_t i2c_instanc
  * not allow this value to be set to a value larger than the depth of the buffer.
  * A value of 0 sets the threshold for 1 entry,
  * and a value of 255 sets the threshold for 256 entries.
- * 
+ * This should be called after I2C instance initialization.
  * @pre Pre-conditions:
  *      - \ref sl_i2c_driver_init 
  * 
@@ -234,9 +236,9 @@ sl_i2c_status_t sl_i2c_driver_get_frequency(sl_i2c_instance_t i2c_instance, uint
 
 /***************************************************************************/
 /**
- * This function sends the data in blocking mode (using interrupt),
- * also sets the follower address when used in Leader application.
- * Sets transmit empty interrupt and enables I2C interrupts.
+ * This API sends the data in blocking mode (using interrupt),
+ * sets follower address when used in leader application,
+ * sets transmit empty interrupt and enable I2C interrupts. 
  * 
  * @pre Pre-conditions:
  *      - \ref sl_i2c_driver_init 
@@ -260,9 +262,10 @@ sl_i2c_status_t sl_i2c_driver_send_data_blocking(sl_i2c_instance_t i2c_instance,
 
 /***************************************************************************/
 /**
- * This function sends the data in non-blocking mode (using DMA),
+ * This API sends the data in non-blocking mode (using DMA),
  * also sets the follower address when used in Leader application.
  * Configures DMA rx and tx channels.
+ * Registers DMA callback & enables DMA channels.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_i2c_driver_init 
@@ -288,10 +291,9 @@ sl_i2c_status_t sl_i2c_driver_send_data_non_blocking(sl_i2c_instance_t i2c_insta
 
 /***************************************************************************/
 /**
- * This function receives the data in blocking mode (using interrupt),
+ * This API receives the data in blocking mode (using interrupt),
  * also sets the follower address when used in Leader application.
- * Sets receive full interrupt while receiving data.
- * Sets transmit empty interrupt while sending data.
+ * Sets receive full interrupt and enables I2C interrupts.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_i2c_driver_init 
@@ -315,9 +317,10 @@ sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instan
 
 /***************************************************************************/
 /**
- * This function receives the data in non-blocking mode (using DMA),
+ * This API receives the data in non-blocking mode (using DMA),
  * also sets the follower address when used in Leader application.
  * Configures DMA rx and tx channels.
+ * Registers DMA callback & enables DMA channels.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_i2c_driver_init 
@@ -343,9 +346,10 @@ sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_in
 
 /***************************************************************************/
 /**
- * This function transmits and receives the data in blocking mode
- * also sets the follower address when used in Leader application.
- * Sets receive full interrupt and enables I2C interrupts.
+ * This API first transmits data and then receives data from an I2C device (using interrupts).
+ * Also sets follower address when used in Leader application.
+ * Sets & enable transmit empty interrupt while transmitting data .
+ * Sets & enable receive full interrupt while receiving data
  * 
  * @pre Pre-conditions:
  *      - \ref sl_i2c_driver_init 
@@ -381,6 +385,7 @@ sl_i2c_status_t sl_i2c_driver_deinit(sl_i2c_instance_t i2c_instance);
 /***************************************************************************/
 /**
  * Set the Pin configuration for I2C. It configures the SDA and SCL pins.
+ * Also enables internal pullups of SDA & SCL lines of follower device.
  * 
  * @param[in] pin_init Pointer to pin init structure \ref sl_i2c_pin_init_t
  * @return status 0 if successful, else error code as follow

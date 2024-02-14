@@ -5,7 +5,7 @@ constants:
   value: "wiseconnect_soc"
 steps:
 - task: "create_rps"
-  input: "{{build_dir}}/{{project_name}}.axf"
+  input: "{{build_dir}}/{{project_name}}.out"
   map: "{{build_dir}}/{{project_name}}.map"
   app-version: "1"
   output: "{{build_dir}}/{{project_name}}.rps"

@@ -33,6 +33,7 @@
 #include "rsi_bt_common.h"
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
+#include "sl_si91x_status.h"
 #include <rsi_ble.h>
 
 /*=======================================================================*/

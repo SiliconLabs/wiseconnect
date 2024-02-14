@@ -49,7 +49,6 @@ include:
       - path: rsi_vad.h
       - path: rsi_wurx.h
       - path: sl_assert.h
-      - path: sl_common.h
       - path: sl_si91x_m4_ps.h
 provides:
   - name: rsilib_headers

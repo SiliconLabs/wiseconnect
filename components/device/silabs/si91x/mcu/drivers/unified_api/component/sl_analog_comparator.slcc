@@ -1,0 +1,24 @@
+id: sl_analog_comparator
+label: Analog Comparator
+package: platform
+description: >
+   Si91x Analog Comparator API.
+category: Device|Si91x|MCU|Peripheral
+quality: production
+component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_analog_comparator_inst_config.h
+source:
+  - path: "src/sl_si91x_analog_comparator.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_analog_comparator.h"
+provides:
+  - name: sl_analog_comparator
+requires:
+  - name: rsilib_comparator
+  - name: romdriver_rng
+  - name: rsilib_clock_update
+  - name: rsilib_adc
+  - name: rsilib_opamp

@@ -175,6 +175,7 @@ void sl_wifi_mqtt_task(void);
 void m4_sleep_wakeup(void);
 void wakeup_source_config(void);
 static sl_status_t show_scan_results();
+void sl_wifi_app_set_event(uint32_t event_num);
 
 uint8_t conn_status;
 extern uint8_t magic_word;

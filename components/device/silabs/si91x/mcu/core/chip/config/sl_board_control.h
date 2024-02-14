@@ -15,10 +15,8 @@
 *
 ******************************************************************************/
 
-#warning "sl_board_control.h is not configured. Please configure here.\n"
+#pragma once
 
-// #pragma once
+#include "sl_status.h"
 
-// #include "sl_status.h"
-
-// sl_status_t sl_board_enable_vcom(void);
+sl_status_t sl_board_enable_vcom(void);

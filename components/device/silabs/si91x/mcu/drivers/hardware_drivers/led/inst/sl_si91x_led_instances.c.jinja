@@ -30,9 +30,10 @@
 
 #include "sl_si91x_led.h"
 #include "sl_si91x_led_config.h"
+#include "sl_si91x_led_instances.h"
 
 {%- for inst in led_instance | sort %}
-sl_led_t led_{{ inst | lower }} = {
+sl_led_t const led_{{ inst | lower }} = {
   .port = SL_LED_{{ inst | upper }}_PORT,
   .pin = SL_LED_{{ inst | upper }}_PIN,
   .led_number = SL_LED_{{ inst | upper }}_NUMBER,

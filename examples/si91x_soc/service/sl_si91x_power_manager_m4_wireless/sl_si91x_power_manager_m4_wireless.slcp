@@ -7,10 +7,10 @@ package: platform
 quality: production
 sdk:
   id: gecko_sdk
-  version: 4.4.0
+  version: 4.4.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.2
+    version: 3.1.3
 readme:
   - path: readme.md
 source:
@@ -22,7 +22,6 @@ source:
 toolchain_settings: []
 component:
   - id: sl_system
-  - id: slist
   - id: freertos
   - id: syscalls
     from: wiseconnect3_sdk
@@ -32,13 +31,9 @@ component:
     from: wiseconnect3_sdk
   - id: sl_power_manager
     from: wiseconnect3_sdk
-  - id: sl_calendar
-    from: wiseconnect3_sdk
   - id: ulp_timers_instance
     instance:
       - timer0
-    from: wiseconnect3_sdk
-  - id: sl_ulp_timer
     from: wiseconnect3_sdk
   - id: sl_si91x_button_917
     instance:
@@ -62,9 +57,25 @@ component:
     from: wiseconnect3_sdk
   - id: wifi_resources
     from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers
+    from: wiseconnect3_sdk
 configuration:
   - name: SL_BUTTON_CONFIG_BTN0_INTR
     value: "RISE_EDGE_INTERRUPT"
+template_contribution:
+  - name: user_files_ps2
+    value: power_manager_m4_wireless_example.o
+  - name: user_files_ps2
+    value: sl_si91x_button.o
+  - name: user_files_ps2
+    value: sl_si91x_button_instances.o
+  - name: user_files_ps2
+    value: app.o
+  - name: user_files_ps2
+    value: main.o
+define:
+  - name: SL_SI91X_ENABLE_LOWPWR_RET_LDO
+    value: "1"
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png

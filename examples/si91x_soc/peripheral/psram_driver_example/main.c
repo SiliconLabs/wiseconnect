@@ -80,7 +80,7 @@ int main()
 
   status = sl_si91x_psram_uninit();
   status = sl_si91x_psram_init();
-
+  UNUSED_PARAMETER(status);
   /* Write and read in Auto mode ---------------------------------------------*/
 
   /// Auto Write to PSRAM base address

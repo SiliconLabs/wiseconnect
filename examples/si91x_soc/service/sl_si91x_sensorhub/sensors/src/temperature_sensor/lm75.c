@@ -115,7 +115,7 @@ sl_lm75_err_t sl_si91x_lm75_delete(sl_lm75_handle_t *sensor)
     return RSI_OK;
   }
   free(sensor);
-  *sensor = NULL;
+  sensor = NULL;
   return RSI_OK;
 }
 

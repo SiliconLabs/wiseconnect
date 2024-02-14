@@ -1,6 +1,6 @@
 /*******************************************************************************
  * @file  sl_si91x_psram.h
- * @brief
+ * @brief PSRAM Driver API implementation
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -45,7 +45,6 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
-// TODO: set value based on clock freq and device tCEM
 #define PSRAM_READ_WRITE_PAGE_SIZE (16) ///< PSRAM Read Write Page Size
 
 /* Types of Read Write */
@@ -54,7 +53,7 @@
 #define QUAD_RW   3
 
 #define MHz_(a)  (a * 1000000)
-#define Mbit_(a) (a * 1000000) // 1024*1024
+#define Mbit_(a) (a * 1000000)
 
 #define D_CACHE_ENABLE
 
@@ -77,30 +76,39 @@
 
 /// PSRAM return error code
 typedef enum {
-  PSRAM_SUCCESS,
-  PSRAM_FAILURE,
-  PSRAM_UNKNOWN,
-  PSRAM_UNKNOWN_DEVICE,
-  PSRAM_CLOCK_INIT_FAILURE,
-  PSRAM_NOT_INITIALIZED,
-  PSRAM_SUPPORTED_DEVICE,
-  PSRAM_DEVICE_MISMATCH,
-  PSRAM_INVALID_HSIZE,
-  PSRAM_NULL_ADDRESS,
-  PSRAM_INVALID_ADDRESS_LENGTH,
-  PSRAM_AUTO_MODE,
-  PSRAM_MANUAL_MODE,
-  PSRAM_UNSUPPORTED_SECURITY,
-  PSRAM_MAX_SEC_SEGMENT_REACH
+  PSRAM_SUCCESS,                ///< No error.
+  PSRAM_FAILURE,                ///< Generic error
+  PSRAM_UNKNOWN,                ///< Unknown request
+  PSRAM_UNKNOWN_DEVICE,         ///< Unknown PSRAM Device
+  PSRAM_CLOCK_INIT_FAILURE,     ///< Clock init failure
+  PSRAM_NOT_INITIALIZED,        ///< PSRAM not initialized
+  PSRAM_SUPPORTED_DEVICE,       ///< PSRAM Device supported
+  PSRAM_DEVICE_MISMATCH,        ///< PSRAM Device mismatch
+  PSRAM_INVALID_HSIZE,          ///< Invalid size of element
+  PSRAM_NULL_ADDRESS,           ///< Null address
+  PSRAM_INVALID_ADDRESS_LENGTH, ///< Invalid address length
+  PSRAM_AUTO_MODE,              ///< PSRAM Auto mode
+  PSRAM_MANUAL_MODE,            ///< PSRAM Manual mode
+  PSRAM_UNSUPPORTED_SECURITY,   ///< Unsupported security
+  PSRAM_MAX_SEC_SEGMENT_REACH   ///< Maximum secure segment reached
 } sl_psram_return_type_t;
 
 #if PSRAM_BURST_LEN_TOGGLE_SUPPORTED
 /// Wrap burst size enum
-typedef enum { _WRAP16, _WRAP32, _WRAP64, _WRAP512 } sl_psram_burst_size_type_t;
+typedef enum {
+  _WRAP16, ///< Burst wrap size 16 Bytes
+  _WRAP32, ///< Burst wrap size 32 Bytes
+  _WRAP64, ///< Burst wrap size 64 Bytes
+  _WRAP512 ///< Burst wrap size 512 Bytes
+} sl_psram_burst_size_type_t;
 #endif
 
 /// PSRAM DMA status enum
-typedef enum { DMA_NONE, DMA_DONE, DMA_FAIL } sl_psram_dma_status_type_t;
+typedef enum {
+  DMA_NONE, ///< DMA status default
+  DMA_DONE, ///< DMA transfer completed
+  DMA_FAIL  ///< DMA transfer failed
+} sl_psram_dma_status_type_t;
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
@@ -145,8 +153,8 @@ struct sl_psram_info_type_t {
 struct PSRAMStatusType {
   PSRAMStateType state;        ///< PSRAM state enum value
   uint8_t interfaceMode;       ///< QSPI Interface mode for PSRAM
-  bool secureModeEnable;       ///<
-  uint8_t secureSegmentNumber; ///<
+  bool secureModeEnable;       ///< Secure mode enable status
+  uint8_t secureSegmentNumber; ///< Secure segment number
   uint16_t burstSize;          ///< Burst Size
 };
 
@@ -186,16 +194,24 @@ struct PSRAMSecureSegmentType {
 
 /***************************************************************************/ /**
  * @brief     
- *   Initialize the PSRAM Device                                         
+ *   Initialize the PSRAM Device 
+ * 
+ * @param none                                        
  *
  * @return      
- *   Status Code of the operation           
+ *   Status Code of the operation   
+ * 
+ * @note The configurations for initialization are taken from the PSRAM Device 
+ * config header file. The selection of configuration file happens implicitely 
+ * based on the radio board selection.         
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_init(void);
 
 /***************************************************************************/ /**
  * @brief     
  *   Uninitialize the PSRAM Device
+ * 
+ * @param none
  *
  * @return      
  *   Status Code of the operation
@@ -205,6 +221,8 @@ sl_psram_return_type_t sl_si91x_psram_uninit(void);
 /***************************************************************************/ /**
  * @brief       
  *   Reset the PSRAM Device
+ * 
+ * @param none
  *
  * @return      
  *   Status Code of the operation
@@ -318,7 +336,12 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_dma_mode(uint32_t addr,
 #if PSRAM_HALF_SLEEP_SUPPORTED
 /***************************************************************************/ /**
  * @brief       
- *   Put PSRAM Device in sleep           
+ *   Put PSRAM Device in sleep 
+ * 
+ * Sleep mode is a feature which puts the PSRAM device in an ultra-low power state, 
+ * while the stored data is retained.
+ * 
+ * @param none         
  *
  * @return      
  *   Status Code of the operation
@@ -327,10 +350,14 @@ sl_psram_return_type_t sl_si91x_psram_sleep(void);
 
 /***************************************************************************/ /**
  * @brief       
- *   Exit PSRAM device from sleep                     
+ *   Exit PSRAM device from sleep               
  *
+ * @param none
+ * 
  * @return      
  *   Status Code of the operation
+ * 
+ * @note This function call re-initializes the PSRAM device after wakeup sequence.
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_wakeup(void);
 #endif

@@ -508,8 +508,12 @@ void sli_m4_ta_interrupt_init(void)
 #ifdef SLI_SI917
   //! Unmask the interrupt
   unmask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
+                      | NWP_DEINIT_IN_COMM_FLASH
 #ifdef SLI_SI91X_MCU_FW_UPGRADE_OTA_DUAL_FLASH
                       | M4_IMAGE_UPGRADATION_PENDING_INTERRUPT
+#endif
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+                      | SIDE_BAND_CRYPTO_DONE
 #endif
   );
 #else

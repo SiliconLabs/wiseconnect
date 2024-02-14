@@ -17,8 +17,6 @@ define:
     value: "static inline"
   - name: __WEAK
     value: "__attribute__((weak))"
-  - name: EXT_IRQ_COUNT
-    value: "75"
   - name: SI91X_SYSRTC_PRESENT
     value: 1
   - name: SI91X_PLATFORM

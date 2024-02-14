@@ -31,6 +31,9 @@
 /*=======================================================================*/
 #include "event_loop.h"
 #include "rsi_common_utils.h"
+#include "stdint.h"
+#include "rsi_bt_common_apis.h"
+#include "rsi_common_apis.h"
 
 /*==============================================*/
 /**

@@ -71,6 +71,7 @@ typedef enum SLEEP_TYPE {
 #define DEFAULT_I2S_PLL_CLOCK    6144000
 #define DEFAULT_REF_CLOCK        2
 
+#define M4SS_P2P_INT_BASE_ADDRESS 0x46008000
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
 #define NWPAON_MEM_HOST_ACCESS_CTRL_SET_1   (*(volatile uint32_t *)(0x41300000 + 0x0))
 #define NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR_1 (*(volatile uint32_t *)(0x41300000 + 0x4))
@@ -78,8 +79,6 @@ typedef enum SLEEP_TYPE {
 
 #define M4SS_TASS_CTRL_SET_REG_VAL (*(volatile uint32_t *)(0x24048400 + 0x34))
 #define M4SS_TASS_CTRL_CLR_REG_VAL (*(volatile uint32_t *)(0x24048400 + 0x38))
-#define M4SS_P2P_INT_BASE_ADDRESS  0x46008000
-#define M4SS_P2P_INTR_CLR_REG      *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x170)
 #define M4SS_P2P_INTR_CLR_REG      *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x170)
 #define M4SS_REF_CLK_MUX_CTRL      BIT(24)
 #define TASS_REF_CLK_MUX_CTRL      BIT(25)
@@ -89,6 +88,12 @@ typedef enum SLEEP_TYPE {
 #define M4SS_CTRL_TASS_AON_PWR_DMN_RST_BYPASS_BIT BIT(2)
 #define M4_USING_FLASH                            BIT(3)
 #endif
+#define M4SS_P2P_INTR_SET_REG  *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x16C)
+#define P2P_STATUS_REG         *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x174)
+#define TASS_P2P_INTR_MASK_CLR *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x17C)
+
+#define M4_is_active    BIT(1)
+#define RX_BUFFER_VALID BIT(1)
 
 /* Flash offset to read Silicon revision */
 #define TA_FLASH_BASE 0x04000000
@@ -138,6 +143,11 @@ typedef struct SYSTEM_CLOCK_SOURCE_FREQUENCIES {
   uint32_t ulp_ref_clock_source;
 } SYSTEM_CLOCK_SOURCE_FREQUENCIES_T;
 
+typedef struct sl_p2p_intr_status_bkp_s {
+  uint32_t tass_p2p_intr_mask_clr_bkp;
+  uint32_t m4ss_p2p_intr_set_reg_bkp;
+} sl_p2p_intr_status_bkp_t;
+
 extern SYSTEM_CLOCK_SOURCE_FREQUENCIES_T system_clocks;
 
 /**
@@ -168,6 +178,9 @@ typedef union {
 extern void SystemInit(void);
 
 extern void SystemCoreClockUpdate(void);
+
+void RSI_Set_Cntrls_To_M4(void);
+void RSI_Set_Cntrls_To_TA(void);
 
 rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode);
 

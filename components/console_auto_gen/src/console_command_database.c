@@ -1172,13 +1172,15 @@ static const console_descriptive_command_t _wifi_set_transmit_rate_command = {
 extern sl_status_t wifi_set_tx_power_command_handler(console_args_t *arguments);
 static const char *_wifi_set_tx_power_arg_help[] = {
   0,
+  0,
 };
 
-static const console_descriptive_command_t _wifi_set_tx_power_command = { .description   = "Set module TX power",
-                                                                          .argument_help = _wifi_set_tx_power_arg_help,
-                                                                          .handler = wifi_set_tx_power_command_handler,
-                                                                          .argument_list = { CONSOLE_ARG_UINT,
-                                                                                             CONSOLE_ARG_END } };
+static const console_descriptive_command_t _wifi_set_tx_power_command = {
+  .description   = "Set module TX power",
+  .argument_help = _wifi_set_tx_power_arg_help,
+  .handler       = wifi_set_tx_power_command_handler,
+  .argument_list = { CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_END }
+};
 
 extern sl_status_t wifi_start_ap_command_handler(console_args_t *arguments);
 static const char *_wifi_start_ap_arg_help[] = {

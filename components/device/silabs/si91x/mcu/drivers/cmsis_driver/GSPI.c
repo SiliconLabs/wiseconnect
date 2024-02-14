@@ -61,7 +61,6 @@ extern RSI_UDMA_DESC_T UDMA0_Table[CONTROL_STRUCT0] ;
 
 #if defined( __GNUC__ )
 extern RSI_UDMA_DESC_T __attribute__ ((section(".udma_addr0"))) UDMA0_Table[CONTROL_STRUCT0];
-extern RSI_UDMA_DESC_T __attribute__ ((section(".udma_addr1"))) UDMA1_Table[CONTROL_STRUCT1];
 #endif /* defined (__GNUC__) */
 
 extern UDMA_Channel_Info udma0_chnl_info[32] ;
@@ -89,7 +88,7 @@ extern UDMA_RESOURCES UDMA0_Resources ;
 #endif
 
 #define ARM_SPI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(2, 0) /* driver version */
-extern RSI_UDMA_HANDLE_T udmaHandle0,udmaHandle1;
+extern RSI_UDMA_HANDLE_T udmaHandle0;
 /* Driver Version */
 static const ARM_DRIVER_VERSION DriverVersion = {
 		ARM_SPI_API_VERSION,
@@ -415,10 +414,10 @@ void gspi_transfer_complete_callback(uint32_t channel, void *data)
 {
   (void)(&data);
   if (channel == RTE_GSPI_MASTER_CHNL_UDMA_TX_CH) {
-    GSPI_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, channel, &GSPI_MASTER_Resources);
+    GSPI_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &GSPI_MASTER_Resources);
   }
   if (channel == RTE_GSPI_MASTER_CHNL_UDMA_RX_CH) {
-    GSPI_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, channel, &GSPI_MASTER_Resources);
+    GSPI_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &GSPI_MASTER_Resources);
   }
 }
 
@@ -431,10 +430,10 @@ void gspi_error_callback(uint32_t channel, void *data)
 {
   (void)(&data);
   if (channel == RTE_GSPI_MASTER_CHNL_UDMA_TX_CH) {
-    GSPI_UDMA_Tx_Event(UDMA_EVENT_ERROR, channel, &GSPI_MASTER_Resources);
+    GSPI_UDMA_Tx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &GSPI_MASTER_Resources);
   }
   if (channel == RTE_GSPI_MASTER_CHNL_UDMA_RX_CH) {
-    GSPI_UDMA_Rx_Event(UDMA_EVENT_ERROR, channel, &GSPI_MASTER_Resources);
+    GSPI_UDMA_Rx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &GSPI_MASTER_Resources);
   }
 }
 #endif /* SL_SI91X_GSPI_DMA */

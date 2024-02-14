@@ -1,0 +1,19 @@
+id: sl_si91x_uart_bus
+package: wiseconnect3_sdk
+description: >
+  This component implements UART communication interface to Si91x from the host MCU.
+
+label: Si91x NCP UART bus interface
+category: Device|Si91x|Wireless|Network Stack
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless/ncp_interface/uart
+provides:
+- name: sl_si91x_uart_bus
+- name: sl_si91x_uart_bus
+source:
+- path: sl_si91x_uart.c
+include:
+- path: .
+define:
+- name: SL_NCP_UART_INTERFACE
+- {"name":"SL_NCP_UART_INTERFACE","value":1}

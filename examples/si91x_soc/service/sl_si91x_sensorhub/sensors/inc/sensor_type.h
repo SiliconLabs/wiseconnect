@@ -123,6 +123,10 @@ typedef struct {
     SL_UV_T uv;              ///< ultraviole          unit: lux
     SL_ADC_GY61_T gy61;      ///< ADC GY61            uint: gy61
     uint16_t *adc;           ///< ADC output          unit: mV
+
+#ifdef SH_SDC_ENABLE
+    int16_t sh_sdc_data[16];
+#endif
   };
 } sl_sensor_data_t;
 

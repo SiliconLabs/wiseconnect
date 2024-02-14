@@ -19,6 +19,7 @@
 #define RSI_BLE_H
 
 #include "rsi_ble_apis.h"
+#include "sl_common.h"
 
 /******************************************************
  * *                      Macros
@@ -1153,11 +1154,11 @@ typedef struct rsi_ble_mtu_exchange_resp_s {
 
 typedef struct rsi_ble_ae_get_supported_no_of_adv_sets_s {
   uint16_t reserved; //sets_cnt;
-} __attribute__((__packed__)) rsi_ble_ae_get_supported_no_of_adv_sets_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_get_supported_no_of_adv_sets_t;
 
 typedef struct rsi_ble_ae_read_supported_max_adv_data_s {
   uint16_t reserved; //max_adv_data_len;
-} __attribute__((__packed__)) rsi_ble_ae_read_supported_max_adv_data_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_read_supported_max_adv_data_t;
 
 // AE Set Random Address (cmd), cmd_ix =
 typedef struct rsi_ble_ae_set_random_address_s {
@@ -1165,7 +1166,7 @@ typedef struct rsi_ble_ae_set_random_address_s {
   uint8_t adv_handle;
   /** uint8[6] Random_Address , The Random Address may be of either Static Address or Private Address */
   uint8_t addr[RSI_DEV_ADDR_LEN];
-} __attribute__((__packed__)) rsi_ble_ae_set_random_address_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_set_random_address_t;
 
 //! AE Advertising Params
 typedef struct ae_adv_params_s {
@@ -1249,7 +1250,7 @@ typedef struct ae_adv_params_s {
   */
   uint8_t scan_req_notify_enable;
 
-} __attribute__((__packed__)) rsi_ble_ae_adv_params_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_adv_params_t;
 
 // AE adv,scan_rsp and periodic data
 typedef struct rsi_ble_ae_data_s {
@@ -1277,7 +1278,7 @@ typedef struct rsi_ble_ae_data_s {
   uint8_t data_len;
   /** uint8_t Data ,Specifies Advertising_Data. */
   uint8_t data[0xC8]; //FIXME
-} __attribute__((__packed__)) rsi_ble_ae_data_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_data_t;
 
 //! AE Advertising enable
 typedef struct rsi_ble_ae_adv_enabel_s {
@@ -1304,7 +1305,7 @@ typedef struct rsi_ble_ae_adv_enabel_s {
   /** uint8_t Maximum Extended Advertising Events, It specifies the Maximum number of extended advertising events the Controller shall
      attempt to send prior to terminating the extended advertising */
   uint8_t max_ae_events;
-} __attribute__((__packed__)) rsi_ble_ae_adv_enable_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_adv_enable_t;
 
 //AE adv set clear/remove
 typedef struct rsi_ble_ae_adv_set_clear_or_remove_s {
@@ -1316,7 +1317,7 @@ typedef struct rsi_ble_ae_adv_set_clear_or_remove_s {
   uint8_t type;
   /** uint8_t Advertising_Handle, used to identify Advertising set, Ranges from 0x00 to 0xEF */
   uint8_t adv_handle;
-} __attribute__((__packed__)) rsi_ble_ae_adv_set_clear_or_remove_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_adv_set_clear_or_remove_t;
 
 //AE periodic adv params
 typedef struct ae_periodic_adv_params {
@@ -1331,7 +1332,7 @@ typedef struct ae_periodic_adv_params {
    *  Bit Number, 6: Include TxPower in the advertising PDU
    *  All other Values - Reserved For future use */
   uint16_t properties;
-} __attribute__((__packed__)) rsi_ble_ae_periodic_adv_params_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_periodic_adv_params_t;
 
 //AE periodic adv enable
 typedef struct ae_periodic_adv_enable {
@@ -1344,7 +1345,7 @@ typedef struct ae_periodic_adv_enable {
    *  Range : 0x00 to 0xEF
 */
   uint8_t adv_handle;
-} __attribute__((__packed__)) rsi_ble_ae_periodic_adv_enable_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_periodic_adv_enable_t;
 
 typedef struct ae_scan_params_s {
   /** uint8_t, Scan Type, this parameter specifies the type of scan to perform
@@ -1358,7 +1359,7 @@ typedef struct ae_scan_params_s {
   /** uint16_t, Scan Window, this parameter is a recommendation from the Host on how long the Controller should scan
  *   Range : 0x0004 to 0xFFFF */
   uint16_t ScanWindow;
-} __attribute__((__packed__)) ae_scan_params_t;
+} SL_ATTRIBUTE_PACKED ae_scan_params_t;
 
 //AE set sacn params
 #define SUPPORTED_SCNNING_PHYS 2
@@ -1394,7 +1395,7 @@ typedef struct rsi_ble_ae_set_scan_params_s {
   uint8_t scanning_phys;
   /** ScanParams is an array of variable of structure ae_scan_params_s */
   ae_scan_params_t ScanParams[SUPPORTED_SCNNING_PHYS];
-} __attribute__((__packed__)) rsi_ble_ae_set_scan_params_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_set_scan_params_t;
 
 //AE set scan enable
 typedef struct rsi_ble_ae_set_scan_enable_s {
@@ -1422,7 +1423,7 @@ typedef struct rsi_ble_ae_set_scan_enable_s {
  *  Range : 0x0001 to 0xFFFF
 */
   uint16_t period;
-} __attribute__((__packed__)) rsi_ble_ae_set_scan_enable_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_set_scan_enable_t;
 
 //#pragma pack(push, 1)
 typedef struct rsi_ble_ae_set_periodic_adv_create_sync_s {
@@ -1448,13 +1449,13 @@ typedef struct rsi_ble_ae_set_periodic_adv_create_sync_s {
  *  Range : 0x000A to 0x4000 */
   uint16_t sync_timeout;
   uint8_t reserved;
-} __attribute__((__packed__)) rsi_ble_ae_set_periodic_adv_create_sync_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_set_periodic_adv_create_sync_t;
 
 typedef struct rsi_ble_ae_set_periodic_adv_terminate_sync_s {
   /** uint16_t, Sync Handle, identifies the periodic Advertising Train
  *  Range : 0x0000 to 0x0EFF*/
   uint16_t sync_handle;
-} __attribute__((__packed__)) rsi_ble_ae_set_periodic_adv_terminate_sync_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_set_periodic_adv_terminate_sync_t;
 
 //AE set periodic sync(create/terminate or cancel) params
 typedef struct rsi_ble_ae_set_periodic_sync_s {
@@ -1466,8 +1467,8 @@ typedef struct rsi_ble_ae_set_periodic_sync_s {
   union {
     rsi_ble_ae_set_periodic_adv_create_sync_t create_sync;
     rsi_ble_ae_set_periodic_adv_terminate_sync_t terminate_sync;
-  } __attribute__((__packed__)) sync_type;
-} __attribute__((__packed__)) rsi_ble_ae_set_periodic_sync_t;
+  } SL_ATTRIBUTE_PACKED sync_type;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_set_periodic_sync_t;
 //#pragma pack(pop)
 // AE add/remove/clear dev to/from periodic adv list
 typedef struct rsi_ble_ae_dev_to_periodic_list_s {
@@ -1489,7 +1490,7 @@ typedef struct rsi_ble_ae_dev_to_periodic_list_s {
   uint8_t adv_addr[RSI_DEV_ADDR_LEN];
   /** uint8_t, Advertising_Sid, Value of the Advertising SID subfield in the ADI field of the PDU, Range : 0x00 to 0x0F*/
   uint8_t adv_sid;
-} __attribute__((__packed__)) rsi_ble_ae_dev_to_periodic_list_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_dev_to_periodic_list_t;
 
 typedef struct rsi_ble_initiation_params_s {
   /** uint16_t, ScanInterval, It is the Time interval from when the Controller started its last scan until it begins the subsequent scan on the primary
@@ -1516,7 +1517,7 @@ typedef struct rsi_ble_initiation_params_s {
   /** uint16_t,The Max CE Length parameter provide the controller with the expected maximum length of the connection events.
   *  Range: 0x0000 to 0xFFFF */
   uint16_t MaxCELen;
-} __attribute__((__packed__)) rsi_ble_initiation_params_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_initiation_params_t;
 
 // AE extended create connect
 typedef struct rsi_ble_ae_extended_create_connect_s {
@@ -1563,7 +1564,7 @@ typedef struct rsi_ble_ae_extended_create_connect_s {
   uint8_t init_phys;
   /** init_params is an array of Variable of Structure rsi_ble_initiation_params_s */
   rsi_ble_initiation_params_t init_params[3];
-} __attribute__((__packed__)) rsi_ble_ae_extended_create_connect_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_extended_create_connect_t;
 
 // LE Read Transmit Power
 typedef struct rsi_ble_tx_pwr_s {
@@ -1571,7 +1572,7 @@ typedef struct rsi_ble_tx_pwr_s {
   int8_t min_tx_pwr;
   /** int8_t, Maximum TX Power, Range: -127 to +20 */
   int8_t max_tx_pwr;
-} __attribute__((__packed__)) rsi_ble_tx_pwr_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_tx_pwr_t;
 
 // Query Rf Path Compensation
 typedef struct rsi_ble_query_rf_path_comp_s {
@@ -1579,7 +1580,7 @@ typedef struct rsi_ble_query_rf_path_comp_s {
   int16_t tx_path_value;
   /** int16_t, RF RX Path Compensation Value, Range: -128.0 dB (0xFB00) to 128.0 dB (0x0500) */
   int16_t rx_path_value;
-} __attribute__((__packed__)) rsi_ble_query_rf_path_comp_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_query_rf_path_comp_t;
 
 // write Rf Path Compensation
 typedef struct rsi_ble_write_rf_path_comp_s {
@@ -1587,7 +1588,7 @@ typedef struct rsi_ble_write_rf_path_comp_s {
   int16_t tx_path_value;
   /** int16_t, RF RX Path Compensation Value, Range: -128.0 dB (0xFB00) to 128.0 dB (0x0500)*/
   int16_t rx_path_value;
-} __attribute__((__packed__)) rsi_ble_write_rf_path_comp_t;
+} SL_ATTRIBUTE_PACKED rsi_ble_write_rf_path_comp_t;
 
 typedef struct rsi_ble_ae_pdu {
   uint16_t cmd_sub_opcode;
@@ -1611,8 +1612,8 @@ typedef struct rsi_ble_ae_pdu {
     rsi_ble_ae_extended_create_connect_t extended_create_conn;
 
     //uint8_t data[1];
-  } __attribute__((__packed__)) pdu_type;
-} __attribute__((__packed__)) rsi_ble_ae_pdu_t;
+  } SL_ATTRIBUTE_PACKED pdu_type;
+} SL_ATTRIBUTE_PACKED rsi_ble_ae_pdu_t;
 
 /** @} */
 

@@ -47,8 +47,8 @@
                                              and change the peripheral configuration through the \ref sl_si91x_usart_set_configuration API. */
 
 /*******************************************************************************
-   *******************************   STRUCTS   ***********************************
-   ******************************************************************************/
+ *******************************   STRUCTS   ***********************************
+ ******************************************************************************/
 /// @brief USART configuration structure
 typedef struct {
   sl_usart_handle_t usart_handle;                  ///< USART/UART Handle
@@ -61,11 +61,12 @@ typedef struct {
 extern ARM_DRIVER_USART Driver_USART0;
 extern ARM_DRIVER_USART Driver_UART1;
 extern ARM_DRIVER_USART Driver_ULP_UART;
+boolean_t sl_usart_receive_complete = false, sl_usart_send_complete = false;
 
 /*******************************************************************************
  ***************************  LOCAL VARIABLES   ********************************
  ******************************************************************************/
-static sl_usart_signal_event_t user_callback = NULL;
+static sl_usart_signal_event_t user_callback[] = { NULL, NULL, NULL }; ///< Callback for USART user callback
 
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
@@ -81,6 +82,7 @@ static void callback_event_handler(uint32_t event);
 static sl_status_t usart_get_handle(usart_peripheral_t usart_instance, sl_usart_handle_t *usart_handle);
 static boolean_t validate_usart_handle(sl_usart_handle_t usart_handle);
 static sl_status_t sli_si91x_usart_set_power_mode(sl_usart_handle_t usart_handle, power_mode_typedef_t state);
+static usart_peripheral_t get_usart_instance(sl_usart_handle_t usart_handle);
 
 /*******************************************************************************
  **************************   Global function Definitions   *******************************
@@ -122,6 +124,30 @@ static sl_status_t usart_get_handle(usart_peripheral_t usart_instance, sl_usart_
     }
   } while (false);
   return status;
+}
+
+/*******************************************************************************
+ * @brief
+ * Return the usart instance
+ *
+ * @details
+ * This function checks the usart handle is valid or not if it's valid handle then
+ * returns the USART instance
+ ******************************************************************************/
+static usart_peripheral_t get_usart_instance(sl_usart_handle_t usart_handle)
+{
+  usart_peripheral_t usart_instance = USART_0;
+  // Return the USART instance
+  if (usart_handle == &Driver_USART0) {
+    usart_instance = USART_0;
+  }
+  if (usart_handle == &Driver_UART1) {
+    usart_instance = UART_1;
+  }
+  if (usart_handle == &Driver_ULP_UART) {
+    usart_instance = ULPUART;
+  }
+  return usart_instance;
 }
 
 /*******************************************************************************
@@ -225,6 +251,7 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle)
 {
   sl_status_t status;
   int32_t error_status;
+  usart_peripheral_t usart_instance = USART_0;
   do {
     // Check for USART handle parameter, if NULL return from here
     if (usart_handle == NULL) {
@@ -236,8 +263,12 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    // Unregister the Usart callback
+    // Get the USART Insatnce
+    usart_instance = get_usart_instance(usart_handle);
+    // Unregister the user callback
     sl_si91x_usart_unregister_event_callback();
+    // Unregister user callback for multiple instance
+    sl_si91x_usart_multiple_instance_unregister_event_callback(usart_instance);
     // Power off the USART module
     status = sli_si91x_usart_set_power_mode(usart_handle, SL_POWER_OFF);
     if (status != SL_STATUS_OK) {
@@ -317,13 +348,13 @@ sl_status_t sl_si91x_usart_register_event_callback(sl_usart_signal_event_t callb
     }
     // To validate the function pointer if the parameters is not NULL then, it
     // returns an error code
-    if (user_callback != NULL) {
+    if (user_callback[0] != NULL) {
       status = SL_STATUS_BUSY;
       break;
     }
     // User callback address is passed to the static variable which is called at the time of
     // interrupt
-    user_callback = callback_event;
+    user_callback[0] = callback_event;
     // Returns SL_STATUS_OK if callback is successfully registered
     status = SL_STATUS_OK;
   } while (false);
@@ -339,7 +370,62 @@ void sl_si91x_usart_unregister_event_callback(void)
   // Pass the NULL value to the static variable which is called at the time of
   // interrupt.
   // It is further validated in register callback API.
-  user_callback = NULL;
+  // Hadcoded to 0 because this API is used to unregiser, only one usart callback handler
+  user_callback[0] = NULL;
+}
+
+/*******************************************************************************
+ * To register the event callback in case of multiple usart instances
+ * It registers the callback, i.e., stores the callback function address
+ * and pass to the variable that is called in Interrupt Handler.
+ * If another callback is registered without unregistering previous callback then, it
+ * returns an error code, so it is mandatory to unregister the callback before registering
+ * another callback.
+ * It will returns error if any callback is already registered.
+ ******************************************************************************/
+sl_status_t sl_si91x_usart_multiple_instance_register_event_callback(usart_peripheral_t usart_instance,
+                                                                     sl_usart_signal_event_t callback_event)
+{
+  sl_status_t status;
+  do {
+    // Validates the null pointer, if true returns error code
+    if (callback_event == NULL) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+    // Check for USART instance valid
+    if (usart_instance >= UARTLAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // To validate the function pointer if the parameters is not NULL then, it
+    // returns an error codex
+    if (user_callback[usart_instance] != NULL) {
+      status = SL_STATUS_BUSY;
+      break;
+    }
+    // User callback address is passed to the static variable which is called at the time of
+    // interrupt
+    user_callback[usart_instance] = callback_event;
+    // Returns SL_STATUS_OK if callback is successfully registered
+    status = SL_STATUS_OK;
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * It unregisters the callback, i.e., clear the callback function address
+ * and pass NULL value to the variable
+ ******************************************************************************/
+void sl_si91x_usart_multiple_instance_unregister_event_callback(usart_peripheral_t usart_instance)
+{
+  // Pass the NULL value to the static variable which is called at the time of
+  // interrupt.
+  // It is further validated in register callback API.
+  // Check for USART instance valid
+  if (usart_instance < UARTLAST) {
+    user_callback[usart_instance] = NULL;
+  }
 }
 
 /*******************************************************************************
@@ -382,6 +468,26 @@ sl_status_t sl_si91x_usart_send_data(sl_usart_handle_t usart_handle, const void 
 
 /*******************************************************************************
  * @brief
+ * To Send the data in async mode when USART/UART is configured
+ *
+ * @details
+ * This function returns immediately and data transfer happens asyncronously. Once the data transfer compeletes ,
+ * registered user callback get invoked
+ * It takes two arguments,
+ *   - data: pointer to the data buffer which stores the data received
+ *   - data_legth: The number of data length to receive
+ *
+ * Stores the data received in data pointer
+ ******************************************************************************/
+sl_status_t sl_si91x_usart_async_send_data(sl_usart_handle_t usart_handle, const void *data, uint32_t data_length)
+{
+  sl_status_t status;
+  status = sl_si91x_usart_send_data(usart_handle, data, data_length);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief
  * To receive the data when USART/UART is configured
  *
  * @details
@@ -416,6 +522,26 @@ sl_status_t sl_si91x_usart_receive_data(sl_usart_handle_t usart_handle, void *da
     error_status = ((sl_usart_driver_t *)usart_handle)->Receive(data, data_length);
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * @brief
+ * To receive the data in async mode when USART/UART is configured
+ *
+ * @details
+ * This function returns immediately and data reception happens asyncronously. Once the data reception compeletes ,
+ * registered user callback get invoked
+ * It takes two arguments,
+ *   - data: pointer to the data buffer which stores the data received
+ *   - data_legth: The number of data length to receive
+ *
+ * Stores the data received in data pointer
+ ******************************************************************************/
+sl_status_t sl_si91x_usart_async_receive_data(sl_usart_handle_t usart_handle, void *data, uint32_t data_length)
+{
+  sl_status_t status;
+  status = sl_si91x_usart_receive_data(usart_handle, data, data_length);
   return status;
 }
 
@@ -530,10 +656,6 @@ uint32_t sl_si91x_usart_get_rx_data_count(sl_usart_handle_t usart_handle)
  *                - usartHwFlowControlRts
  *                - usartHwFlowControlCtsAndRts
  * - Baud rate -Set the usart baud rate
- *
- * @note
- * Call the sl_si91x_usart_set_tx_rx_configuration() to set the tx and rx
- * lines before this API
  ********************************************************************************/
 
 sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
@@ -541,40 +663,33 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
 {
   sl_status_t status;
   int32_t error_status;
-  uint32_t input_mode = false, i = 0, uart_instances = 0;
-  sl_si91x_usart_config control_config[NO_OF_UART_INSTANCES];
+  uint32_t input_mode = false;
+  sl_si91x_usart_control_config_t control_config[NO_OF_UART_INSTANCES];
+  usart_peripheral_t uart_instance;
 
   /* USART_UC is defined by default. when this macro (USART_UC) is defined, peripheral
    * configuration is directly taken from the configuration set in the universal configuration (UC).
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_usart_set_configuration API.
    */
-#ifdef USART_UC
-// Update the UART1 Configurations from UC and get the UART1 handle
-#if (SL_UART1_MODULE)
-  control_config[uart_instances].control_config = &uart1_configuration;
-  usart_get_handle(UART_1, &control_config[uart_instances].usart_handle);
-  uart_instances++;
-#endif
-// Update the ULP_UART Configurations from UC and get the ULP_UART handle
-#if (SL_ULP_UART_MODULE)
-  control_config[uart_instances].control_config = &ulp_uart_configuration;
-  usart_get_handle(ULPUART, &control_config[uart_instances].usart_handle);
-  uart_instances++;
-#endif
-// Update the USART0/UART0 Configurations from UC and get the USART0 handle
-#if (SL_USART_MODULE)
-  control_config[uart_instances].control_config = &usart_configuration;
-  usart_get_handle(USART_0, &control_config[uart_instances].usart_handle);
-  uart_instances++;
-#endif
-#endif
-
   do {
-    // Update the Hadnle and control configuration from UC
 #ifdef USART_UC
-    usart_handle          = control_config[i].usart_handle;
-    control_configuration = control_config[i].control_config;
+    // Get the USART Instance
+    uart_instance = get_usart_instance(usart_handle);
+    // if usart intance is USART_0 , update usart config  from UC
+    if (uart_instance == USART_0) {
+      control_config[uart_instance] = usart_configuration;
+    }
+    // if usart intance is UART_1 , update uart1 config  from UC
+    if (uart_instance == UART_1) {
+      control_config[uart_instance] = uart1_configuration;
+    }
+    // if usart intance is  ULPUART, update ulp uart config  from UC
+    if (uart_instance == ULPUART) {
+      control_config[uart_instance] = ulp_uart_configuration;
+    }
+
+    *control_configuration = control_config[uart_instance];
 #endif
     // Check USART handle and control_configuration parameter, if NULL return from here
     if ((usart_handle == NULL) || (control_configuration == NULL)) {
@@ -604,9 +719,7 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
     // Configure the USART parameters
     error_status = ((sl_usart_driver_t *)usart_handle)->Control(input_mode, control_configuration->baudrate);
     status       = convert_arm_to_sl_error_code(error_status);
-    // Increment the varible after configuring the UART instance
-    i++;
-  } while (i < uart_instances);
+  } while (false);
   return status;
 }
 
@@ -899,7 +1012,7 @@ static sl_status_t usart_get_parity(uint8_t usart_module, usart_parity_typedef_t
  * peipheral i.e USART0,UART1 or ULP_UART and enum address to store the stopbits
  *
  * @note
- * This function should call after USART Initliazation ,configuration
+ * This function should call after USART Initialization ,configuration
  ******************************************************************************/
 static sl_status_t usart_get_stop_bit(uint8_t usart_module, usart_stopbit_typedef_t *stopbits)
 {
@@ -1021,13 +1134,21 @@ static sl_status_t validate_control_parameters(sl_si91x_usart_control_config_t *
  ******************************************************************************/
 static void callback_event_handler(uint32_t event)
 {
+  uint8_t usart_instance = 0;
+  // To get the usart instance
+  usart_instance = (uint8_t)(event >> USART_INSTANCE_BIT);
+  // Remove USART instance by anding with USART instance mask bit
+  event &= (USART_EVENT_MASK);
+
   switch (event) {
     case SL_USART_EVENT_SEND_COMPLETE:
+      sl_usart_send_complete = true;
       break;
     case SL_USART_EVENT_RECEIVE_COMPLETE:
+      sl_usart_receive_complete = true;
       break;
     case SL_USART_EVENT_TRANSFER_COMPLETE:
       break;
   }
-  user_callback(event);
+  user_callback[usart_instance](event);
 }

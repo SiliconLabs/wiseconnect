@@ -99,7 +99,8 @@ __STATIC_INLINE uint32_t get_time_diff(uint32_t a, uint32_t b)
 /*******************************************************************************
  ***************************  Global function Definitions **********************
  ******************************************************************************/
-
+uint32_t sleeptimer_hal_get_capture(void);
+void sleeptimer_hal_reset_prs_signal(void);
 /*******************************************************************************
  * Initialize ULP timer peripheral.
  *

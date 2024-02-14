@@ -18,7 +18,7 @@ source:
   - path: src/memlcd_917/sl_memlcd_spi.c
   - path: src/sl_memlcd_display.c
 requires:
-  - name: rsilib_egpio
+  - name: sl_gpio
   - name: rsilib_spi
   - name: ls013b7dh03
   - name: status

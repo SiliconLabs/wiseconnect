@@ -165,7 +165,7 @@ void gpio_example_init(void)
       status = sl_gpio_driver_configure_interrupt(&gpio_port_pin,
                                                   INT_CH,
                                                   (sl_gpio_interrupt_flag_t)SL_GPIO_INTERRUPT_RISE_EDGE,
-                                                  (void *)&gpio_pin_interrupt0_callback,
+                                                  (sl_gpio_irq_callback_t)&gpio_pin_interrupt0_callback,
                                                   AVL_INTR_NO);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_gpio_driver_configure_interrupt, Error code: %lu", status);
@@ -245,7 +245,8 @@ void gpio_example_init(void)
       // GPIO initialization function for HP instance
       sl_gpio_driver_initialization();
       // Configure group interrupt for grp_config_int structure
-      status = sl_si91x_gpio_driver_configure_group_interrupt(&config_grp_int, (void *)&gpio_group_interrupt0_callback);
+      status = sl_si91x_gpio_driver_configure_group_interrupt(&config_grp_int,
+                                                              (sl_gpio_irq_callback_t)&gpio_group_interrupt0_callback);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_configure_group_interrupt, Error code: %lu", status);
         break;
@@ -292,7 +293,7 @@ void gpio_example_init(void)
         ULP_INT_CH,
         (sl_si91x_gpio_interrupt_config_flag_t)SL_GPIO_INTERRUPT_FALL_EDGE,
         SL_SI91X_ULP_GPIO_8_PIN,
-        (void *)&gpio_ulp_pin_interrupt_callback);
+        (sl_gpio_irq_callback_t)&gpio_ulp_pin_interrupt_callback);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_configure_ulp_pin_interrupt, Error code: %lu", status);
         break;
@@ -318,7 +319,8 @@ void gpio_example_init(void)
       sl_gpio_driver_ulp_initialization();
       // Configure group interrupt for grp_config_int structure
       status =
-        sl_si91x_gpio_driver_configure_ulp_group_interrupt(&config_grp_int, (void *)&gpio_ulp_group_interrupt_callback);
+        sl_si91x_gpio_driver_configure_ulp_group_interrupt(&config_grp_int,
+                                                           (sl_gpio_irq_callback_t)&gpio_ulp_group_interrupt_callback);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_configure_ulp_group_interrupt, Error code: %lu", status);
         break;
@@ -355,7 +357,7 @@ void gpio_example_init(void)
       status = sl_si91x_gpio_driver_configure_uulp_interrupt(
         (sl_si91x_gpio_interrupt_config_flag_t)SL_GPIO_INTERRUPT_RISE_EDGE,
         UULP_GPIO_INTR_2,
-        (void *)&gpio_uulp_pin_interrupt_callback);
+        (sl_gpio_irq_callback_t)&gpio_uulp_pin_interrupt_callback);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_configure_uulp_interrupt, Error code: %lu", status);
         break;

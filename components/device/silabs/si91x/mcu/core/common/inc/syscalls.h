@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <sys/times.h>
 #endif // __CC_ARM
+#include "sl_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,6 +50,7 @@ int _execve(char *name, char **argv, char **env);
 int _stat(char *file, struct stat *st);
 int _times(struct tms *buff);
 int _fstat(int file, struct stat *st);
+SL_WEAK void _putchar(char character);
 
 #ifdef __cplusplus
 }

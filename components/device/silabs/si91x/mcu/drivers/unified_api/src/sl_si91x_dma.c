@@ -672,7 +672,7 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
         config.periAck = PERIPHERAL_ACK_DISABLE;
       }
       config.dmaCh = (channel);
-#if (SL_SI91X_GSPI_DMA || SL_SI91X_SSI_DMA)
+#if (defined(SL_SI91X_GSPI_DMA) && (SL_SI91X_GSPI_DMA == ENABLE))
       config.burstReq = BURST_REQUEST_DISABLE;
 #else
       config.burstReq = BURST_REQUEST_ENABLE;
@@ -838,7 +838,7 @@ sl_status_t sl_si91x_dma_channel_enable(uint32_t dma_number, uint32_t channel_no
       status = SL_STATUS_NOT_INITIALIZED;
       break;
     }
-    if (RSI_UDMA_ChannelEnable(udmaHandle[dma_number], channel_no - 1)) {
+    if (RSI_UDMA_ChannelEnable(udmaHandle[dma_number], (uint8_t)channel_no - 1)) {
       // Invalid channel number
       status = SL_STATUS_INVALID_PARAMETER;
       break;
@@ -872,7 +872,7 @@ sl_status_t sl_si91x_dma_channel_disable(uint32_t dma_number, uint32_t channel_n
       status = SL_STATUS_NOT_INITIALIZED;
       break;
     }
-    if (RSI_UDMA_ChannelDisable(udmaHandle[dma_number], channel_no - 1)) {
+    if (RSI_UDMA_ChannelDisable(udmaHandle[dma_number], (uint8_t)channel_no - 1)) {
       // Invalid channel number
       status = SL_STATUS_INVALID_PARAMETER;
       break;
@@ -893,7 +893,9 @@ sl_status_t sl_si91x_dma_enable(uint32_t dma_number)
       // DMA not initialized
       status = SL_STATUS_NOT_INITIALIZED;
     } else {
-      status = UDMAx_DMAEnable(UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
+      if (UDMAx_DMAEnable(UDMA_driver_resources[dma_number], udmaHandle[dma_number])) {
+        status = SL_STATUS_FAIL;
+      }
     }
   } else {
     status = SL_STATUS_INVALID_PARAMETER;

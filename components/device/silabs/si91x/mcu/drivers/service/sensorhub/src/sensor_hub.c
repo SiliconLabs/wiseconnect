@@ -46,14 +46,22 @@
 #include "sl_si91x_adc.h"
 #include "adc_sensor_driver.h"
 #include "sensorhub_error_codes.h"
+#include "rsi_ps_ram_func.h"
+
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
 /*******************************************************************************
  ********************** Sensor HUB Defines / Macros  ***************************
  ******************************************************************************/
-#define SENSORS_RAM_SIZE    4096 //< This RAM is used the store all sensor's data
-#define ALARM_WAKEUP_SOURCE 1    //< This is for the Alarm based wakup
-#define GPIO_WAKEUP_SOURCE  0    //< This is for the UULP_GPIO based wakup
-
+#define SENSORS_RAM_SIZE            4096 //< This RAM is used the store all sensor's data
+#define ALARM_WAKEUP_SOURCE         1    //< This is for the Alarm based wakup
+#define GPIO_WAKEUP_SOURCE          0    //< This is for the UULP_GPIO based wakup
+#define SL_SH_SOCLDOTURNONWAITTIME  31
+#define SL_SH_PMUBUCKTURNONWAITTIME 31
+#define SL_PWR_STATE_SWICTH_DONE    1
 /*******************************************************************************
  ********************* Sleep&Wakeup Defines / Macros  **************************
  ******************************************************************************/
@@ -78,6 +86,18 @@ extern ARM_DRIVER_I2C Driver_I2C2;                             //< I2C driver st
 extern ARM_DRIVER_SPI Driver_SSI_ULP_MASTER;                   //< SPI driver structure
 extern sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS]; //< Sensor configuration structure
 extern sl_bus_intf_config_t bus_intf_info;                     //< Bus interface configuration structure
+osSemaphoreId_t sl_semaphore_power_task_id;                    //< Power task semaphore id
+osSemaphoreAttr_t sl_semaphore_attr_st;                        //< Power task semaphore attributes
+sl_power_state_t sl_power_state_enum;                          //< Power state structure
+extern osSemaphoreId_t sl_semaphore_aws_task_id;
+uint32_t sl_ps4_ps2_done;                   //< Variable to check power switch status
+uint32_t sl_ps2_ps4_done;                   //< Variable to check power switch status
+osSemaphoreId_t sl_semaphore_em_task_id;    //< EM task semaphore
+osSemaphoreId_t sl_semaphore_power_task_id; //< Power task semaphore id
+extern osSemaphoreId_t sl_semaphore_app_task_id_2;
+extern osSemaphoreId_t sl_semaphore_aws_task_id; // AWS task semaphore
+
+extern uint8_t sdc_intr_done;
 
 /*******************************************************************************
  ************************  Global structures   *********************************
@@ -359,22 +379,29 @@ void sli_si91x_config_wakeup_source(uint16_t sleep_time)
  * @param[in]    sleep_time - sleep time for the alarm
  * @param[out]   None
 *******************************************************************************/
-#ifdef SL_SH_ADC_PS1
+#ifdef SL_SH_PS1_STATE
 void sli_si91x_sleep_wakeup(void)
 #else
 void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time)
 #endif
 {
   uint32_t status = 0;
-#ifdef SL_SH_ADC_PS1
+#ifdef SL_SH_PS1_STATE
+#ifdef SH_ADC_ENABLE
   /* set the ULPSS as a wake up source */
   RSI_PS_SetWkpSources(ULPSS_BASED_WAKEUP);
+#endif
+
+#ifdef SH_SDC_ENABLE
+  /* set the ULPSS as a wake up source */
+  RSI_PS_SetWkpSources(SDCSS_BASED_WAKEUP);
+#endif
 #else
   DEBUGOUT("\r\n idle_sleep_time:%u \r\n", sh_sleep_time);
   sli_si91x_config_wakeup_source(sh_sleep_time);
 #endif
-
-  RSI_PS_SkipXtalWaitTime(1); /* XTAL wait time is skipped since RC_32MHZ Clock is used for Processor on wakeup */
+  RSI_PS_EnableFirstBootUp(1); /* Enable first boot up */
+  RSI_PS_SkipXtalWaitTime(1);  /* XTAL wait time is skipped since RC_32MHZ Clock is used for Processor on wakeup */
 
   RSI_PS_SetRamRetention(
     M4ULP_RAM16K_RETENTION_MODE_EN | ULPSS_RAM_RETENTION_MODE_EN | /* TA_RAM_RETENTION_MODE_EN |*/
@@ -388,13 +415,14 @@ void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time)
   /*Goto Sleep with retention */
   RSI_PS_EnterDeepSleep(SLEEP_WITH_RETENTION, DISABLE_LF_MODE);
 
-  DEBUGOUT("\r\n Wake_up \r\n");
+  /*Power state transition from PS2 to PS4. */
+  sli_si91x_sensorhub_ps2tops4_state();
 
 #ifdef SLI_SI91X_ENABLE_OS
   /*  Setup the systick timer */
   vPortSetupTimerInterrupt();
 #endif
-#ifndef SL_SH_ADC_PS1
+#ifndef SL_SH_PS1_STATE
   //!Initialize sensor interfaces
   status = sl_si91x_sensorhub_init();
   if (status != SL_STATUS_OK) {
@@ -420,15 +448,9 @@ void sli_si91x_sensorhub_ps4tops2_state(void)
 {
   RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
 
-  /* Change the TASS reference clock to 32MHz RC clock
-    NOTE: This should not be used in WiSeMCU mode, should be used in MCU-only mode */
-  RSI_ChangeTassRefClock();
-
   RSI_CLK_PeripheralClkDisable3(M4CLK,
                                 M4_SOC_CLK_FOR_OTHER_ENABLE); /* Disable OTHER_CLK which is enabled at Start-up */
   RSI_ULPSS_TimerClkDisable(ULPCLK);                          /* Disable Timer clock which is enabled in Bootloader */
-
-  RSI_ULPSS_DisableRefClks(MCU_ULP_40MHZ_CLK_EN); /* Disabling 40MHz Clocks */
 
   RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RC_CLK_EN); /* Disabling LF_RC Clocks */
 
@@ -445,8 +467,6 @@ void sli_si91x_sensorhub_ps4tops2_state(void)
   RSI_PS_SocPllSpiDisable(); /* Power-Down High-Frequency PLL Domain */
 
   RSI_PS_QspiDllDomainDisable(); /* Power-Down QSPI-DLL Domain */
-
-  RSI_PS_WirelessShutdown(); /* Shutdown Wireless since Wireless Processor is not present */
 
   RSI_PS_EnableFirstBootUp(1); /* Enable first boot up */
 
@@ -469,12 +489,16 @@ void sli_si91x_sensorhub_ps4tops2_state(void)
                                   DISABLE_SOCLDO_ENABLE,
                                   DISABLE_STANDBYDC,
                                   DISABLE_TA192K_RAM_RET,
-                                  DISABLE_M464K_RAM_RET);
+                                  ENABLE_M464K_RAM_RET);
 }
 void sli_si91x_sensorhub_ps2tops4_state(void)
 {
-  RSI_PS_PowerStateChangePs2toPs4(31, 31);
-  // RSI_FLASH_Initialize();
+  RSI_PS_PowerStateChangePs2toPs4(SL_SH_PMUBUCKTURNONWAITTIME, SL_SH_SOCLDOTURNONWAITTIME);
+  __disable_irq();
+  /* Initialize the QSPI after moving to PS4 state because it was powered down in PS2 mode. */
+  RSI_PS_FlashLdoEnable();
+  RSI_FLASH_Initialize();
+  __enable_irq();
 }
 
 /**************************************************************************/ /**
@@ -714,6 +738,25 @@ void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event)
 }
 
 /**************************************************************************/ /**
+ *  @fn          void sl_si91x_sdc_intr_event_set(uint8_t channel_no, uint8_t event)
+ *  @brief       Enable and set the priority of GPIO interrupt.
+ *  @param[in]   channel_no     SDC Channel Number
+ *  @param[in]   event          Event
+ *  Return       None
+*******************************************************************************/
+void sl_si91x_sdc_intr_event_set(uint8_t channel_no, uint8_t event)
+{
+  (void)event;
+  for (uint8_t idx = 0; idx < int_list_map.map_index; idx++) {
+    int_list_map.map_table[idx].sdc_intr_channel |= sdc_intr_done;
+    if (int_list_map.map_table[idx].sdc_intr_channel
+        & BIT(channel_no)) { // in non-interrupt mode channel variable in map table will be always zero
+      osEventFlagsSet(sl_event_group, (0x01 << int_list_map.map_table[idx].sensor_list_index));
+    }
+  }
+}
+
+/**************************************************************************/ /**
  *  @fn          uint8_t sli_si91x_adc_init(void)
  *  @brief       Initialize the ADC Interface based on the configuration.
  *  @param[in]   None
@@ -777,6 +820,85 @@ sl_status_t sli_si91x_adc_init(void)
 }
 
 /**************************************************************************/ /**
+ *  @fn          void sli_config_sdc_params(sl_sdc_config_t * sdc_config)
+ *  @brief       Initialize the sdc Interface based on the configuration.
+ *  @param[in]   None
+ *  @return      status 0 if successful,
+ *               else error code
+ *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
+ *               \ref SL_STATUS_OK (0X000)- Success,
+*******************************************************************************/
+void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p)
+{
+  sdc_config_st_p->sdc_clk_div = SDC_CLK_DIV_VALUE;
+
+  sdc_config_st_p->sdc_p_channel_sel[0]       = bus_intf_info.sh_sdc_config.sh_sdc_p_channel_sel[0];
+  sdc_config_st_p->sdc_n_channel_sel[0]       = bus_intf_info.sh_sdc_config.sh_sdc_n_channel_sel[0];
+  sdc_config_st_p->sdc_auxadc_diff_mode_ch[0] = bus_intf_info.sh_sdc_config.sh_sdc_auxadc_diff_mode_ch[0];
+
+#ifdef SDC_MUTI_CHANNEL_ENABLE
+#ifdef SDC_CHANNEL_2
+  sdc_config_st_p->sdc_p_channel_sel[1]       = bus_intf_info.sh_sdc_config.sh_sdc_p_channel_sel[1];
+  sdc_config_st_p->sdc_n_channel_sel[1]       = bus_intf_info.sh_sdc_config.sh_sdc_n_channel_sel[1];
+  sdc_config_st_p->sdc_auxadc_diff_mode_ch[1] = bus_intf_info.sh_sdc_config.sh_sdc_auxadc_diff_mode_ch[1];
+#endif
+
+#ifdef SDC_CHANNEL_3
+  sdc_config_st_p->sdc_p_channel_sel[2]       = bus_intf_info.sh_sdc_config.sh_sdc_p_channel_sel[2];
+  sdc_config_st_p->sdc_n_channel_sel[2]       = bus_intf_info.sh_sdc_config.sh_sdc_n_channel_sel[2];
+  sdc_config_st_p->sdc_auxadc_diff_mode_ch[2] = bus_intf_info.sh_sdc_config.sh_sdc_auxadc_diff_mode_ch[2];
+#endif
+
+#ifdef SDC_CHANNEL_4
+  sdc_config_st_p->sdc_p_channel_sel[4]       = bus_intf_info.sh_sdc_config.sh_sdc_p_channel_sel[4];
+  sdc_config_st_p->sdc_n_channel_sel[4]       = bus_intf_info.sh_sdc_config.sh_sdc_n_channel_sel[4];
+  sdc_config_st_p->sdc_auxadc_diff_mode_ch[4] = bus_intf_info.sh_sdc_config.sh_sdc_auxadc_diff_mode_ch[4];
+#endif
+#endif
+  sdc_config_st_p->sdc_cnt_trig_evnt      = bus_intf_info.sh_sdc_config.sh_sdc_cnt_trig_evnt;
+  sdc_config_st_p->sdc_data_trigger_sel   = bus_intf_info.sh_sdc_config.sh_sdc_data_trigger_sel;
+  sdc_config_st_p->sdc_no_channel_sel     = bus_intf_info.sh_sdc_config.sh_sdc_no_channel_sel;
+  sdc_config_st_p->sdc_sample_ther        = bus_intf_info.sh_sdc_config.sh_sdc_sample_ther;
+  sdc_config_st_p->sdc_sample_trigger_sel = bus_intf_info.sh_sdc_config.sh_sdc_sample_trigger_sel;
+}
+/**************************************************************************/ /**
+ *  @fn          uint8_t sli_si91x_sdc_init(void)
+ *  @brief       Initialize the sdc Interface based on the configuration.
+ *  @param[in]   None
+ *  @return      status 0 if successful,
+ *               else error code
+ *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
+ *               \ref SL_STATUS_OK (0X000)- Success,
+*******************************************************************************/
+sl_status_t sli_si91x_sdc_init(void)
+{
+  sl_drv_sdc_config_t sli_sdc_config_st;
+
+  sl_si91x_sh_rtc_start(); //start the RTC
+
+  sli_config_sdc_params(&sli_sdc_config_st);
+
+  sdc_pin_mux(sli_sdc_config_st.sdc_p_channel_sel[0], sli_sdc_config_st.sdc_n_channel_sel[0], 0);
+
+#ifdef SDC_MUTI_CHANNEL_ENABLE
+#ifdef SDC_CHANNEL_2
+  sdc_pin_mux(sli_sdc_config_st.sdc_p_channel_sel[1], sli_sdc_config_st.sdc_n_channel_sel[1], 0);
+#endif
+#ifdef SDC_CHANNEL_3
+  sdc_pin_mux(sli_sdc_config_st.sdc_p_channel_sel[2], sli_sdc_config_st.sdc_n_channel_sel[2], 0);
+#endif
+#ifdef SDC_CHANNEL_4
+  sdc_pin_mux(sli_sdc_config_st.sdc_p_channel_sel[3], sli_sdc_config_st.sdc_n_channel_sel[3], 0);
+#endif
+#endif
+  sl_si91x_sdc_configure_clock(); //init the clocks
+
+  sl_si91x_configure_sdcss(sli_sdc_config_st); //configure the sdc
+
+  return SL_STATUS_OK;
+}
+
+/**************************************************************************/ /**
  *  @fn          uint8_t sl_si91x_fetch_adc_bus_intf_info(void)
  *  @brief       Fetch ADC bus interface information. This can be used by lower
  *               level layers
@@ -815,13 +937,22 @@ sl_status_t sl_si91x_sensorhub_init()
     bus_errors.spi = false;
     DEBUGOUT("\r\n SPI Init Fail \r\n");
   }
-
+#ifdef SH_ADC_ENABLE
   status = sli_si91x_adc_init();
   if (status != SL_STATUS_OK) {
     bus_errors.adc = false;
     DEBUGOUT("\r\n ADC Init Fail \r\n");
   }
-  if (!bus_errors.i2c && !bus_errors.spi && !bus_errors.adc) {
+#endif
+#ifdef SH_SDC_ENABLE
+  status = sli_si91x_sdc_init();
+  if (status != SL_STATUS_OK) {
+    bus_errors.sdc = false;
+    DEBUGOUT("\r\n sdc Init Fail \r\n");
+  }
+  DEBUGOUT("\r\n sdc Init done \r\n");
+#endif
+  if (!bus_errors.i2c && !bus_errors.spi && !bus_errors.adc && !bus_errors.sdc) {
     return SL_ALL_PERIPHERALS_INIT_FAILED;
   }
   return SL_STATUS_OK;
@@ -835,7 +966,7 @@ sl_status_t sl_si91x_sensorhub_init()
 sl_status_t sl_si91x_sensor_hub_start()
 {
   osThreadId_t status = 0;
-#ifdef SL_SENSORHUB_PS2_STATE
+#ifdef SL_SH_POWER_STATE_TRANSITIONS
 
   status = osThreadNew((osThreadFunc_t)sl_si91x_power_state_task, NULL, &Power_save_thread_attributes);
   if (status == NULL) {
@@ -1105,7 +1236,7 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id)
 *******************************************************************************/
 sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id)
 {
-
+  /*TODO: Need to verify the delete function*/
   uint32_t sensor_index;
   osStatus_t timer_status;
   /*Delete the sensor to the sensor list*/
@@ -1236,6 +1367,7 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id)
 *******************************************************************************/
 sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id)
 {
+  /*TODO: Need to verify the delete function*/
   uint32_t sensor_index, status = 0;
   sensor_index = sli_si91x_get_sensor_index(sensor_id);
   if (sensor_index == SL_SH_SENSOR_INDEX_NOT_FOUND) {
@@ -1323,7 +1455,8 @@ void sl_si91x_em_task(void)
 {
 
   sl_em_event_t em_event;
-
+  osStatus_t sl_semcq_status;
+  sl_status_t em_wlan_status;
   sl_osMessageQueueAttr.name      = NULL;
   sl_osMessageQueueAttr.attr_bits = 0;
   sl_osMessageQueueAttr.cb_mem    = NULL;
@@ -1337,6 +1470,7 @@ void sl_si91x_em_task(void)
   sl_em_osMutexAttr_t.cb_size   = 0;
 
   osStatus_t sl_em_mutex_acc_status = 0, sl_em_mutex_rel_status = 0, sl_semrel_status = 0;
+  sl_semaphore_em_task_id = osSemaphoreNew(1U, 0U, NULL);
 
   /*Create an Event Queue*/
   sl_event_queue_handler = osMessageQueueNew(20, sizeof(sl_em_event_t), &sl_osMessageQueueAttr); //CMSIS V2 API
@@ -1364,10 +1498,18 @@ void sl_si91x_em_task(void)
       }
 #ifdef SL_SH_POWER_STATE_TRANSITIONS
       if (em_event.event == SL_SENSOR_DATA_READY) {
-        sl_power_state_enum = SL_SH_PS2TOPS4;
-        sl_semrel_status    = osSemaphoreRelease(sl_semaphore_power_task_id);
-        if (sl_semrel_status != osOK) {
-          DEBUGOUT("\r\n PS2TOPS4 Semaphore Release fail :%d \r\n", sl_semrel_status);
+        if (sl_ps4_ps2_done == SL_PWR_STATE_SWICTH_DONE) {
+          sl_ps4_ps2_done     = 0;
+          sl_power_state_enum = SL_SH_PS2TOPS4;
+          sl_semrel_status    = osSemaphoreRelease(sl_semaphore_power_task_id);
+          if (sl_semrel_status != osOK) {
+            DEBUGOUT("\r\n PS2TOPS4 Semaphore Release fail :%d \r\n", sl_semrel_status);
+          }
+          sl_ps2_ps4_done = 1;
+          sl_semcq_status = osSemaphoreAcquire(sl_semaphore_em_task_id, osWaitForever);
+          if (sl_semcq_status != osOK) {
+            DEBUGOUT("\r\n emaphore Acquire fail :%d \r\n", sl_semcq_status);
+          }
         }
       }
 #endif
@@ -1388,16 +1530,34 @@ void sl_si91x_em_task(void)
       if (sl_em_mutex_rel_status != osOK) {
         DEBUGOUT("\r\n Mutex Release fail:%d\r\n", sl_em_mutex_rel_status);
       }
+#if SH_AWS_ENABLE
+      sl_semrel_status = osSemaphoreRelease(sl_semaphore_aws_task_id);
+      if (sl_semrel_status != osOK) {
+        DEBUGOUT("\r\n event post osSemaphoreRelease failed :%d \r\n", sl_semrel_status);
+      }
+
+      sl_semcq_status = osSemaphoreAcquire(sl_semaphore_app_task_id_2, osWaitForever);
+      if (sl_semcq_status != osOK) {
+        DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_semcq_status);
+      }
+#endif
 #ifdef SL_SH_POWER_STATE_TRANSITIONS
       if (em_event.event == SL_SENSOR_DATA_READY) {
-        sl_power_state_enum = SL_SH_PS4TOPS2;
-        sl_semrel_status    = osSemaphoreRelease(sl_semaphore_power_task_id);
-        if (sl_semrel_status != osOK) {
-          DEBUGOUT("\r\n PS4TOPS2 Semaphore Release fail :%d \r\n", sl_semrel_status);
+        if (sl_ps4_ps2_done != SL_PWR_STATE_SWICTH_DONE) {
+          sl_power_state_enum = SL_SH_PS4TOPS2;
+          sl_semrel_status    = osSemaphoreRelease(sl_semaphore_power_task_id);
+          if (sl_semrel_status != osOK) {
+            DEBUGOUT("\r\n PS4TOPS2 Semaphore Release fail :%d \r\n", sl_semrel_status);
+          }
+          sl_ps4_ps2_done = 1;
+          sl_semcq_status = osSemaphoreAcquire(sl_semaphore_em_task_id, osWaitForever);
+          if (sl_semcq_status != osOK) {
+            DEBUGOUT("\r\n EM task Semaphore Acquire fail :%d \r\n", sl_semcq_status);
+          }
         }
       }
 #endif
-#ifdef SL_SH_ADC_PS1
+#ifdef SL_SH_PS1_STATE
       osStatus_t sl_semrel_status;
       if (em_event.event == SL_SENSOR_DATA_READY) {
         sl_power_state_enum = SL_SH_SLEEP_WAKEUP;
@@ -1589,7 +1749,7 @@ void sl_si91x_sensor_task(void)
 *******************************************************************************/
 void sl_si91x_power_state_task(void)
 {
-  osStatus_t sl_semacq_status    = 0;
+  osStatus_t sl_semacq_status = 0, sl_semrel_status = 0;
   sl_power_state_enum            = SL_SH_PS4TOPS2;
   sl_semaphore_attr_st.attr_bits = 0U;
   sl_semaphore_attr_st.cb_mem    = NULL;
@@ -1599,19 +1759,30 @@ void sl_si91x_power_state_task(void)
   sl_semaphore_power_task_id = osSemaphoreNew(1U, 0U, &sl_semaphore_attr_st);
   /*Wait for the Event on Queue*/
   while (1) {
-
+    sl_semacq_status = osSemaphoreAcquire(sl_semaphore_power_task_id, osWaitForever);
+    if (sl_semacq_status != osOK) {
+      DEBUGOUT("\r\n Semaphore Acquire fail :%d \r\n", sl_semacq_status);
+    }
     switch (sl_power_state_enum) {
       case SL_SH_PS4TOPS2:
         DEBUGOUT("\r\n PS2 Mode \r\n");
         sli_si91x_sensorhub_ps4tops2_state();
+        sl_semrel_status = osSemaphoreRelease(sl_semaphore_em_task_id);
+        if (sl_semrel_status != osOK) {
+          DEBUGOUT("\r\nPower task Semaphore Release fail :%d \r\n", sl_semrel_status);
+        }
         break;
       case SL_SH_PS2TOPS4:
         DEBUGOUT("\r\n PS4 Mode \r\n");
         sli_si91x_sensorhub_ps2tops4_state();
+        sl_semrel_status = osSemaphoreRelease(sl_semaphore_em_task_id);
+        if (sl_semrel_status != osOK) {
+          DEBUGOUT("\r\n Power task Semaphore Release fail :%d \r\n", sl_semrel_status);
+        }
         break;
       case SL_SH_SLEEP_WAKEUP:
         DEBUGOUT("\r\n Sleep Mode \r\n");
-#ifdef SL_SH_ADC_PS1
+#ifdef SL_SH_PS1_STATE
         sli_si91x_sleep_wakeup();
         DEBUGOUT("\r\n Wake-up Mode \r\n");
 #endif
@@ -1619,10 +1790,6 @@ void sl_si91x_power_state_task(void)
       default:
         DEBUGOUT("\r\n Invalid power state \r\n");
         break;
-    }
-    sl_semacq_status = osSemaphoreAcquire(sl_semaphore_power_task_id, osWaitForever);
-    if (sl_semacq_status != osOK) {
-      DEBUGOUT("\r\n Semaphore Acquire fail :%d \r\n", sl_semacq_status);
     }
   }
 }

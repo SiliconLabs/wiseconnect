@@ -55,6 +55,11 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 
   ![Figure: Introduction](resources/readme/output.png)
 
+## API Locking and Interrupt handling
+
+- The default NVM3 protection functions (nvm3_lockBegin() and nvm3_lockEnd()) can be substituted by the application if other syncronization functions are available and disabling interrupts for extended periods is not desired.
+- This application provides freeRTOS based lock-begin and lock-end implementation.
+
 ## Resources
 
 - [AN1135: Using Third Generation Non-Volatile Memory (NVM3) Data Storage](https://www.silabs.com/documents/public/application-notes/an1135-using-third-generation-nonvolatile-memory.pdf)

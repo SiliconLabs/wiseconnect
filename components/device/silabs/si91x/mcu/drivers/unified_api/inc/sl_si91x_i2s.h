@@ -68,10 +68,10 @@ typedef enum {
   SL_I2S_FULL_POWER = ARM_POWER_FULL ///< Full power mode
 } sl_i2s_power_state_t;
 
-/// @brief Enumeration for I2S master and slave modes
+/// @brief Enumeration for I2S Primary and Secondary modes
 typedef enum {
-  SL_I2S_MASTER = ARM_SAI_MODE_MASTER, ///< I2S master mode
-  SL_I2S_SLAVE  = ARM_SAI_MODE_SLAVE   ///< I2S slave mode
+  SL_I2S_MASTER = ARM_SAI_MODE_MASTER, ///< I2S primary mode
+  SL_I2S_SLAVE  = ARM_SAI_MODE_SLAVE   ///< I2S secondary mode
 } sl_i2s_mode_t;
 
 /// @brief Enumeration for SAI protocol type
@@ -126,7 +126,7 @@ typedef enum {
   SL_I2S_SAMPLING_RATE_192000 = 192000 ///< 192kHz
 } sl_i2s_sampling_rate_t;
 
-/// @brief Structure to hold the versions number of peripheral API
+/// @brief Structure to hold the version numbers of peripheral API
 typedef struct {
   uint8_t release; ///< Release version number
   uint8_t major;   ///< sqa version number
@@ -135,7 +135,7 @@ typedef struct {
 
 /// @brief Structure to hold transmit and receive config parameters
 typedef struct {
-  uint16_t mode;          ///< Master/Slave mode
+  uint16_t mode;          ///< Primary/Secondary mode
   uint16_t sync;          ///< SYNC/ASYNC mode
   uint16_t protocol;      ///< I2S/PCM (currently only I2S is supported)
   uint16_t resolution;    ///< Audio data resolutions
@@ -154,7 +154,8 @@ typedef struct {
  * @pre Pre-conditions:
  *      - \ref none 
  *
- * @param[in] I2S instance 
+ * @param[in] I2S instance , 0 - I2S0
+                            1 - I2S1
  * @param[in] i2s_handle Double Pointer to the I2S driver handle
  * @return status 0 if successful, else error code as follow
  *         - \ref SL_STATUS_OK (0x0000) - Success 
@@ -166,7 +167,8 @@ sl_status_t sl_si91x_i2s_init(uint32_t i2s_instance, sl_i2s_handle_t *i2s_handle
 
 /***************************************************************************/
 /**
- * Uninitialize I2S peripheral.
+ * Uninitialize I2S peripheral. This will also disable the DMA instance used for I2S transfer.
+ * This API needs to be called only if the I2S peripheral is initialized before using sl_si91x_i2s_init(). 
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 
@@ -182,14 +184,14 @@ sl_status_t sl_si91x_i2s_deinit(sl_i2s_handle_t *i2s_handle);
 /***************************************************************************/
 /**
  * Change the power mode of I2S, the supported modes are
- *  - POWER_OFF
- *  - FULL_POWER
+ *  POWER_OFF - I2S peripheral clocks and I2S DMA channel is disabled.
+ *  FULL_POWER - Enable I2S peripheral clocks and configure I2S DMA channel.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 
  * 
  * @param[in] i2s_handle Pointer to the I2S driver handle
- * @param[in] power state
+ * @param[in] power state, SL_I2S_POWER_OFF/SL_I2S_FULL_POWER
  * @return status 0 if successful, else error code as follow
  *         - \ref SL_STATUS_OK (0x0000) - Success 
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid 
@@ -200,6 +202,10 @@ sl_status_t sl_si91x_i2s_configure_power_mode(sl_i2s_handle_t i2s_handle, sl_i2s
 /***************************************************************************/
 /**
  * Configure transmitter/Receiver parameters for I2S transfer.
+ * DMA transmit and receive configurations. 
+ * Configuring transfer_type to SL_I2S_TRANSMIT will configure Tx channel and SL_I2S_RECEIVE
+ * will configure Rx channel. 
+ * receiving data.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 
@@ -216,7 +222,8 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
 
 /***************************************************************************/
 /**
- * Configure I2S peripheral DMA channel to send data.
+ * Configure I2S tx DMA channel descriptors and trigger dma transfer. sl_si91x_i2s_config_transmit_receive()
+ * should be called with transfer_type set to SL_I2S_TRANSMIT before sending data.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 
@@ -224,7 +231,7 @@ sl_status_t sl_si91x_i2s_config_transmit_receive(sl_i2s_handle_t i2s_handle, sl_
  *      - \ref sl_si91x_i2s_config_transmit_receive 
  * 
  * @param[in] i2s_handle Pointer to the I2S driver handle
- * @param[in] transmit data
+ * @param[in] Address of transmit data
  * @param[in] data size
  * @return status 0 if successful, else error code as follow
  *         - \ref SL_STATUS_OK (0x0000) - Success 
@@ -235,7 +242,8 @@ sl_status_t sl_si91x_i2s_transmit_data(sl_i2s_handle_t i2s_handle, const void *d
 
 /***************************************************************************/
 /**
- * Configure I2S peripheral DMA channel to receive data.
+ * Configure I2S rx DMA channel descriptors and enable dma channel to recieve data. sl_si91x_i2s_config_transmit_receive()
+ * should be called with transfer_type set to SL_I2S_RECEIVE before receiving data.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 
@@ -243,7 +251,7 @@ sl_status_t sl_si91x_i2s_transmit_data(sl_i2s_handle_t i2s_handle, const void *d
  *      - \ref sl_si91x_i2s_config_transmit_receive 
  * 
  * @param[in] i2s_handle Pointer to the I2S driver handle
- * @param[in] receive data
+ * @param[in] Address of receive data
  * @param[in] data size
  * @return status 0 if successful, else error code as follow
  *         - \ref SL_STATUS_OK (0x0000) - Success 
@@ -254,7 +262,8 @@ sl_status_t sl_si91x_i2s_receive_data(sl_i2s_handle_t i2s_handle, const void *da
 
 /***************************************************************************/
 /**
- * Register the user callback function.
+ * Register the user callback function. Transfer complete event can be notified using this callback.
+ * Callbacks should be registered before starting I2S transfer.
  * 
  * @pre Pre-conditions:
  *      - \ref none 
@@ -270,19 +279,24 @@ sl_status_t sl_si91x_i2s_register_event_callback(sl_i2s_handle_t i2s_handle, sl_
 
 /***************************************************************************/
 /**
- * Un-register the user callback function.
+ * Un-register the user callback function. This function can be used only if callbacks are
+ * registered before using sl_si91x_i2s_register_event_callback()
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_register_event_callback 
  * 
- * @param[in] none
- * @return none
+ * @param[in] i2s_handle Pointer to the I2S driver handle
+ * @return status 0 if successful, else error code
+ *         \ref SL_STATUS_OK (0x0000) - Success \n
+ *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid \n
+ *         \ref SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as argument
  ******************************************************************************/
 sl_status_t sl_si91x_i2s_unregister_event_callback(sl_i2s_handle_t i2s_handle);
 
 /***************************************************************************/
 /**
- * Get the transmit data count of I2S.
+ * Get the transmit data count of I2S. If an active I2S transfer is started, this function
+ * can be used to get number of data bytes transfered.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 
@@ -297,7 +311,8 @@ uint32_t sl_si91x_i2s_get_transmit_data_count(sl_i2s_handle_t i2s_handle);
 
 /***************************************************************************/
 /**
- * Get the receive data count of I2S.
+ * Get the receive data count of I2S. If I2S is configured for receive, this function
+ * can be used to get number of data bytes received.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 
@@ -324,7 +339,12 @@ sl_i2s_version_t sl_si91x_i2s_get_version(void);
 
 /***************************************************************************/
 /**
- * Get the transfer status I2S.
+ *  Get following transfer status of I2S,
+ * 1. Frame error
+ * 2. Rx busy
+ * 3. Rx overflow
+ * 4. Tx busy
+ * 5. Tx underflow
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 
@@ -338,7 +358,8 @@ sl_i2s_status_t sl_si91x_i2s_get_status(sl_i2s_handle_t i2s_handle);
 
 /***************************************************************************/
 /**
- * Abort I2S Tx/Rx operations.
+ * Abort I2S Tx/Rx operations. Disable I2S clocks and DMA channel.
+ * This function need to be called after completion of I2S transmit/receive.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_i2s_init 

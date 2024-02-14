@@ -33,13 +33,17 @@
 #include "RTE_Device_917.h"
 #include "rsi_chip.h"
 #include "sl_si91x_ulp_timer_init.h"
+#include "sl_si91x_peripheral_gpio.h"
 
-#define SL_MEMLCD_EXTCOMIN_PORT 0
+/*******************************************************************************
+ ***************************  DEFINES / MACROS ********************************
+ ******************************************************************************/
 
-#define SL_MEMLCD_SPI_CS_PORT   0
-#define SL_MEMLCD_EXTCOMIN_PORT 0
-#define SL_MEMLCD_SPI_CS_PIN    10
+#define SL_MEMLCD_SPI_CS_PORT 0
+#define SL_MEMLCD_SPI_CS_PIN  10
+
 #define SL_MEMLCD_EXTCOMIN_PIN  3
+#define SL_MEMLCD_EXTCOMIN_PORT 0
 
 #define SL_BOARD_ENABLE_DISPLAY_PIN  0
 #define SL_BOARD_ENABLE_DISPLAY_PORT 0
@@ -47,10 +51,13 @@
 #define CMD_UPDATE    0x01
 #define CMD_ALL_CLEAR 0x04
 
-/* Concatenate preprocessor tokens A and B. */
-#define SL_CONCAT(A, B) A##B
-
 #define ONE_USEC 32 // Ticks required for every one microsecond
+
+#define EGPIO_ULP_PORT 4
+
+/*******************************************************************************
+ ************************ Global function Prototypes ***************************
+ ******************************************************************************/
 
 #if defined(SL_MEMLCD_EXTCOMIN_PORT)
 typedef struct sl_sleeptimer_timer_handle sl_sleeptimer_timer_handle_t;
@@ -61,10 +68,14 @@ static void extcomin_toggle(sl_sleeptimer_timer_handle_t *handle, void *data);
 
 static void delay_us(uint16_t time_us);
 
+/*******************************************************************************
+ **************************** Global Variables *********************************
+ ******************************************************************************/
+
 /** Memory lcd instance. This variable will be initialized in the
  *  @ref sl_memlcd_configure() function. */
 static sl_memlcd_t memlcd_instance;
-struct sl_memlcd_t *wakeup_memlcd;
+struct sl_memlcd_t *memlcd_post_wakeup_handle;
 
 /** Flag to monitor is this driver has been initialized. The memlcd_instance
  *  is only valid after initialized=true. */
@@ -96,21 +107,18 @@ sl_status_t sl_memlcd_configure(struct sl_memlcd_t *device)
   sli_memlcd_spi_init(device->spi_freq);
 
   /* Setup GPIOs */
-  RSI_EGPIO_SetPinMux(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, EGPIO_PIN_MUX_MODE0);
+  sl_gpio_set_pin_mode(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN, SL_GPIO_MODE_0, 0);
   // Set output direction
-  RSI_EGPIO_SetDir(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, EGPIO_CONFIG_DIR_OUTPUT);
+  sl_si91x_gpio_set_pin_direction(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN, GPIO_OUTPUT);
   //clearing the GPIO pin
-  RSI_EGPIO_SetPin(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, 0);
+  sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN);
 
 #if defined(SL_MEMLCD_EXTCOMIN_PORT)
   // NPSS GPIO
-  RSI_NPSSGPIO_InputBufferEn(SL_MEMLCD_EXTCOMIN_PIN, 1U);
-
-  RSI_NPSSGPIO_SetPinMux(SL_MEMLCD_EXTCOMIN_PIN, 0);
-
-  RSI_NPSSGPIO_SetDir(SL_MEMLCD_EXTCOMIN_PIN, NPSS_GPIO_DIR_OUTPUT);
-
-  RSI_NPSSGPIO_SetPin(SL_MEMLCD_EXTCOMIN_PIN, 0U);
+  sl_si91x_gpio_select_uulp_npss_receiver(SL_MEMLCD_EXTCOMIN_PIN, GPIO_RECEIVER_EN);
+  sl_si91x_gpio_set_uulp_npss_pin_mux(SL_MEMLCD_EXTCOMIN_PIN, NPSS_GPIO_PIN_MUX_MODE0);
+  sl_si91x_gpio_set_uulp_npss_direction(SL_MEMLCD_EXTCOMIN_PIN, GPIO_OUTPUT);
+  sl_si91x_gpio_set_uulp_npss_pin_value(SL_MEMLCD_EXTCOMIN_PIN, GPIO_PIN_CLEAR);
 #endif
 
   memlcd_instance = *device;
@@ -130,10 +138,10 @@ sl_status_t sl_memlcd_refresh(const struct sl_memlcd_t *device)
 void sl_memlcd_display_enable(void)
 {
   // Enabling LCD display
-  RSI_NPSSGPIO_InputBufferEn(SL_BOARD_ENABLE_DISPLAY_PIN, 1U);
-  RSI_NPSSGPIO_SetPinMux(SL_BOARD_ENABLE_DISPLAY_PIN, 0);
-  RSI_NPSSGPIO_SetDir(SL_BOARD_ENABLE_DISPLAY_PIN, 0);
-  RSI_NPSSGPIO_SetPin(SL_BOARD_ENABLE_DISPLAY_PIN, 1U);
+  sl_si91x_gpio_select_uulp_npss_receiver(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_RECEIVER_EN);
+  sl_si91x_gpio_set_uulp_npss_pin_mux(SL_BOARD_ENABLE_DISPLAY_PIN, NPSS_GPIO_PIN_MUX_MODE0);
+  sl_si91x_gpio_set_uulp_npss_direction(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_OUTPUT);
+  sl_si91x_gpio_set_uulp_npss_pin_value(SL_BOARD_ENABLE_DISPLAY_PIN, GPIO_PIN_SET);
 }
 
 sl_status_t sl_memlcd_power_on(const struct sl_memlcd_t *device, bool on)
@@ -167,7 +175,7 @@ sl_status_t sl_memlcd_clear(const struct sl_memlcd_t *device)
   cmd = CMD_ALL_CLEAR;
 
   /* Set SCS */
-  RSI_EGPIO_SetPin(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, 1);
+  sl_gpio_set_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN);
   /* SCS setup time */
   delay_us(device->setup_us);
   /* Send command */
@@ -178,7 +186,7 @@ sl_status_t sl_memlcd_clear(const struct sl_memlcd_t *device)
   delay_us(device->hold_us);
 
   /* Clear SCS */
-  RSI_EGPIO_SetPin(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, 0);
+  sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN);
 
   return SL_STATUS_OK;
 }
@@ -200,7 +208,7 @@ sl_status_t sl_memlcd_draw(const struct sl_memlcd_t *device,
   row_len = (device->width * device->bpp) / 8;
   row_start++;
 
-  RSI_EGPIO_SetPin(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, 1); //CS PIN IS A ULP PIN
+  sl_gpio_set_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN);
 
   delay_us(device->setup_us);
 
@@ -249,7 +257,7 @@ sl_status_t sl_memlcd_draw(const struct sl_memlcd_t *device,
   sli_memlcd_spi_wait();
   delay_us(device->hold_us);
 
-  RSI_EGPIO_SetPin(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, 0);
+  sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN);
   /* Clean up garbage RX data */
   /* This is important when paired with others slaves */
   sli_memlcd_spi_rx_flush();
@@ -277,30 +285,29 @@ sl_status_t sl_memlcd_post_wakeup_init(void)
 
   sl_memlcd_display_enable();
 
-  wakeup_memlcd = (struct sl_memlcd_t *)sl_memlcd_get();
+  memlcd_post_wakeup_handle = (struct sl_memlcd_t *)sl_memlcd_get();
 
   /* Initialize the SPI bus. */
-  status = sli_memlcd_spi_init(wakeup_memlcd->spi_freq);
+  status = sli_memlcd_spi_init(memlcd_post_wakeup_handle->spi_freq);
   if (status != SL_STATUS_OK) {
     return SL_STATUS_FAIL;
   }
 
-  /* Setup GPIOs */
-  RSI_EGPIO_SetPinMux(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, EGPIO_PIN_MUX_MODE0);
+  sl_gpio_set_pin_mode(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN, SL_GPIO_MODE_0, 0);
   // Set output direction
-  RSI_EGPIO_SetDir(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, EGPIO_CONFIG_DIR_OUTPUT);
+  sl_si91x_gpio_set_pin_direction(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN, GPIO_OUTPUT);
   //clearing the GPIO pin
-  RSI_EGPIO_SetPin(EGPIO1, SL_MEMLCD_SPI_CS_PORT, SL_MEMLCD_SPI_CS_PIN, 0);
+  sl_gpio_clear_pin_output(EGPIO_ULP_PORT, SL_MEMLCD_SPI_CS_PIN);
 
 #if defined(SL_MEMLCD_EXTCOMIN_PORT)
   // NPSS GPIO
-  RSI_NPSSGPIO_InputBufferEn(SL_MEMLCD_EXTCOMIN_PIN, 1U);
-  RSI_NPSSGPIO_SetPinMux(SL_MEMLCD_EXTCOMIN_PIN, 0);
-  RSI_NPSSGPIO_SetDir(SL_MEMLCD_EXTCOMIN_PIN, NPSS_GPIO_DIR_OUTPUT);
-  RSI_NPSSGPIO_SetPin(SL_MEMLCD_EXTCOMIN_PIN, 0U);
+  sl_si91x_gpio_select_uulp_npss_receiver(SL_MEMLCD_EXTCOMIN_PIN, GPIO_RECEIVER_EN);
+  sl_si91x_gpio_set_uulp_npss_pin_mux(SL_MEMLCD_EXTCOMIN_PIN, NPSS_GPIO_PIN_MUX_MODE0);
+  sl_si91x_gpio_set_uulp_npss_direction(SL_MEMLCD_EXTCOMIN_PIN, GPIO_OUTPUT);
+  sl_si91x_gpio_set_uulp_npss_pin_value(SL_MEMLCD_EXTCOMIN_PIN, GPIO_PIN_CLEAR);
 #endif
 
-  status = sl_memlcd_power_on(wakeup_memlcd, true);
+  status = sl_memlcd_power_on(memlcd_post_wakeup_handle, true);
   if (status != SL_STATUS_OK) {
     return SL_STATUS_FAIL;
   }
@@ -330,10 +337,10 @@ static void extcomin_toggle(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   (void)handle;
   (void)data;
-  if (RSI_NPSSGPIO_GetPin(SL_MEMLCD_EXTCOMIN_PIN) == true) {
-    RSI_NPSSGPIO_SetPin(SL_MEMLCD_EXTCOMIN_PIN, 0U);
+  if (sl_si91x_gpio_get_uulp_npss_pin(SL_MEMLCD_EXTCOMIN_PIN) == true) {
+    sl_si91x_gpio_set_uulp_npss_pin_value(SL_MEMLCD_EXTCOMIN_PIN, GPIO_PIN_CLEAR);
   } else {
-    RSI_NPSSGPIO_SetPin(SL_MEMLCD_EXTCOMIN_PIN, 1U);
+    sl_si91x_gpio_set_uulp_npss_pin_value(SL_MEMLCD_EXTCOMIN_PIN, GPIO_PIN_SET);
   }
 }
 #endif

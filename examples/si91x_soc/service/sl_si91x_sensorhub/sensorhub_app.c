@@ -77,8 +77,6 @@ rsi_task_handle_t app_task_handle = NULL;
 #if SH_AWS_ENABLE
 osSemaphoreId_t sl_semaphore_app_task_id_2;
 
-extern osSemaphoreId_t sl_semaphore_aws_task_id;
-
 char mqtt_publish_payload[500];
 
 void sl_si91x_aws_task(void);
@@ -96,6 +94,8 @@ extern sl_bus_intf_config_t bus_intf_info;                     //< Bus interface
 uint32_t event_ack              = 0; // Sensor event acknowledge
 static uint32_t sensor_scan_cnt = 0; // Sensor scan count
 
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+
 /*******************************************************************************
  ************************* Local functions  ************************************
  ******************************************************************************/
@@ -107,7 +107,7 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event); // applica
  * @fn           void gy61_adc_raw_data_map()
  * @brief        Map the raw input data of adc gy61 to output range
  *
- * @param[in]    x        :Sensor raw dara
+ * @param[in]    x        :Sensor raw data
  * @param[in]    in_min   :Sensor raw min
  * @param[in]    in_max   :Sensor raw max
  * @param[in]    out_min  :Sensor output min
@@ -491,16 +491,51 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
       if (SL_SENSOR_ADC_JOYSTICK_ID == sensor_id) {
         float vout = 0;
         if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_INTERRUPT_MODE) {
+#ifdef SH_ADC_ENABLE
           for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[JS_ADC_CHANNEL]; i++) {
             DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #if SH_AWS_ENABLE
             snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                      sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                     "SL_SENSOR_ADC_JOYSTICK_ID_%lu: %dmV    ",
+                     "SL_SENSOR_JOYSTICK_ID_%lu: %dmV    ",
                      (i + 1),
                      sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #endif
           }
+#endif
+
+#ifdef SH_SDC_ENABLE
+          uint16_t sdc_channel_id = 0;
+#ifdef SDC_MUTI_CHANNEL_ENABLE
+
+          for (uint32_t i = 0; i <= bus_intf_info.sh_sdc_config.sh_sdc_sample_ther; i++) {
+            //DEBUGOUT("%dmV \t", (0x0FFF&sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].sh_sdc_data[i]));
+            sdc_channel_id = sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].sh_sdc_data[i];
+            sdc_channel_id = sdc_channel_id >> 12;
+            vout = (((float)((0x0FFF & sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].sh_sdc_data[i]))
+                     / (float)SL_SH_ADC_MAX_OP_VALUE)
+                    * SL_SH_ADC_VREF_VALUE);
+
+            DEBUGOUT("\n\r SDC Channel_Id:[%d]\tSample: %lfV", sdc_channel_id, (double)vout);
+#else
+          DEBUGOUT("SDC_Samples:");
+          for (uint32_t i = 0; i <= bus_intf_info.sh_sdc_config.sh_sdc_sample_ther; i++) {
+            //DEBUGOUT("%dmV \t", sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].sh_sdc_data[i]);
+            vout = (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].sh_sdc_data[i])
+                     / (float)SL_SH_ADC_MAX_OP_VALUE)
+                    * SL_SH_ADC_VREF_VALUE);
+            DEBUGOUT(" %lfV \t", (double)vout);
+#endif
+#if SH_AWS_ENABLE
+            snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
+                     sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
+                     "SL_SENSOR_JOYSTICK_ID_%lu: C_ID[%d] %dmV    ",
+                     (i + 1),
+                     sdc_channel_id,
+                     sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].sh_sdc_data[i]);
+#endif
+          }
+#endif
         } else if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_POLLING_MODE) {
           if (sensor_hub_info_t[sens_ind].data_deliver.data_mode == SL_SH_TIMEOUT) {
             for (uint32_t i = 0;
@@ -510,7 +545,7 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 #if SH_AWS_ENABLE
               snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                        sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                       "SL_SENSOR_ADC_JOYSTICK_ID_%lu: %dmV    ",
+                       "SL_SENSOR_JOYSTICK_ID_%lu: %dmV    ",
                        (i + 1),
                        sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #endif
@@ -522,7 +557,7 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 #if SH_AWS_ENABLE
               snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                        sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                       "SL_SENSOR_ADC_JOYSTICK_ID_%lu: %dmV    ",
+                       "SL_SENSOR_JOYSTICK_ID_%lu: %dmV    ",
                        (i + 1),
                        sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #endif
@@ -533,21 +568,26 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 #if SH_AWS_ENABLE
             snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                      sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                     "SL_SENSOR_ADC_JOYSTICK_ID: %dmV    ",
+                     "SL_SENSOR_JOYSTICK_ID: %dmV    ",
                      sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
 #endif
           }
         }
+#ifdef SH_ADC_ENABLE
         vout =
           (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]) / (float)SL_SH_ADC_MAX_OP_VALUE)
            * SL_SH_ADC_VREF_VALUE);
+#endif
 #if SH_AWS_ENABLE
         snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                  sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
                  "Single-ended output: %lfV    ",
                  (double)vout);
 #endif
+
+#ifdef SH_ADC_ENABLE
         DEBUGOUT("Single ended input: %lfV \t", (double)vout);
+#endif
       }
 
       if (SL_SENSOR_ADC_GUVA_S12D_ID == sensor_id) {
@@ -558,7 +598,7 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 #if SH_AWS_ENABLE
             snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                      sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                     "SL_SENSOR_ADC_GUVA_S12D_ID_%lu: %d    ",
+                     "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
                      (i + 1),
                      sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #endif
@@ -572,7 +612,7 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 #if SH_AWS_ENABLE
               snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                        sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                       "SL_SENSOR_ADC_GUVA_S12D_ID_%lu: %d    ",
+                       "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
                        (i + 1),
                        sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #endif
@@ -584,7 +624,7 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 #if SH_AWS_ENABLE
               snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                        sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                       "SL_SENSOR_ADC_GUVA_S12D_ID_%lu: %d    ",
+                       "SL_SENSOR_GUVA_S12D_ID_%lu: %d    ",
                        (i + 1),
                        sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[i]);
 #endif
@@ -595,7 +635,7 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 #if SH_AWS_ENABLE
             snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                      sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
-                     "SL_SENSOR_ADC_GUVA_S12D_ID: %dmV    ",
+                     "SL_SENSOR_GUVA_S12D_ID: %dmV    ",
                      sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]);
 #endif
           }
@@ -652,18 +692,6 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
       }
 
       DEBUGOUT(" data_deliver.mode:%d \r\n", sensor_hub_info_t[sens_ind].data_deliver.data_mode);
-#if SH_AWS_ENABLE
-      sl_semapptaskacq_status = osSemaphoreRelease(sl_semaphore_aws_task_id);
-      if (sl_semapptaskacq_status != osOK) {
-        DEBUGOUT("\r\n event post osSemaphoreRelease failed :%d \r\n", sl_semapptaskacq_status);
-      }
-
-      sl_semapptaskacq_status = osSemaphoreAcquire(sl_semaphore_app_task_id_2, osWaitForever);
-      if (sl_semapptaskacq_status != osOK) {
-        DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_semapptaskacq_status);
-      }
-#endif
-
       // Acknowledge data reception
       event_ack = sensor_id;
       break;
@@ -777,21 +805,6 @@ void sl_si91x_sensorhub_app_task(void)
       DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_semapptaskacq_status);
     }
   }
-
-  // If you need to delete a specific sensor during runtime, utilize the API listed below.
-  /*      while (1) {
-          uint32_t delay;
-          delay++;
-          vTaskDelay(1000);
-          if (delay > 100) {
-              for (uint32_t sensor_cnt = 0; sensor_cnt < sensor_scan_cnt; sensor_cnt++) {
-                  //Stop the sensor
-                  sl_si91x_sensorhub_stop_sensor(sl_sensor_scan_info[sensor_cnt]);
-              }
-        while (1)
-          ;
-      }
-    }*/
 }
 /**************************************************************************/ /**
  * @fn           void sensorhub_app_init()
@@ -801,9 +814,9 @@ void sl_si91x_sensorhub_app_task(void)
  * @param[in]    None
  * @param[out]   None
 ******************************************************************************/
+
 void sensorhub_app_init(void)
 {
-
   // Updating the CPU core clock by 20 MHz to work in PS2 mode
   RSI_IPMU_M20rcOsc_TrimEfuse();
   RSI_PS_FsmHfFreqConfig(20);
@@ -824,6 +837,7 @@ void sensorhub_app_init(void)
 
   // Create the APP task
   osThreadNew((osThreadFunc_t)sl_si91x_sensorhub_app_task, NULL, &app_thread_attributes);
+
 #if SH_AWS_ENABLE
   osThreadNew((osThreadFunc_t)sl_si91x_aws_task, NULL, &aws_thread_attributes);
 #endif

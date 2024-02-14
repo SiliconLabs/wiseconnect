@@ -73,7 +73,6 @@ static void on_config_timer_callback(void *callback_flag);
  ******************************************************************************/
 static sl_status_t status;
 static void *callback_flag_data;
-static uint32_t interrupt_count = INITIAL_VALUE;
 #if (CT_PWM_MODE_USECASE == SET)
 static uint32_t delay = INITIAL_VALUE;
 static int pwm_out_0, duty_p = INITIAL_VALUE, incr = ONE;
@@ -84,6 +83,7 @@ static sl_config_timer_ocu_params_t vsOCUparams = { INITIAL_VALUE };
 static sl_config_timer_interrupt_flags_t ct_interrupt_flags;
 #if (CT_COUNTER_MODE_USECASE == SET)
 sl_counter_number_t counter_used = CT_COUNTER_USED;
+static uint32_t interrupt_count  = INITIAL_VALUE;
 #endif
 /*******************************************************************************
  * Config-Timer example initialization function
@@ -151,7 +151,7 @@ void config_timer_example_init(void)
     DEBUGOUT("\r\nSets Duty Cycle for PWM Channel0\r\n");
     error_status = RSI_MCPWM_SetDutyCycle(MCPWM, match_value, PWM_CHNL_1);
     if (error_status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to Set Duty Cycle to PWM Channel1,Error Code : %lu\r\n", error_status);
+      DEBUGOUT("\r\nFailed to Set Duty Cycle to PWM Channel1,Error Code : %u\r\n", error_status);
       break;
     }
     DEBUGOUT("\r\nSets Duty Cycle for PWM Channel1\r\n");
@@ -321,7 +321,6 @@ static uint32_t CT_PercentageToTicks(uint8_t percent, uint32_t freq)
 // Remove all debugs from callback function for proper delays
 void on_config_timer_callback(void *callback_flag)
 {
-  uint32_t interrupt_flag_value = 0;
 #if (CT_PWM_MODE_USECASE == SET)
   if (*(uint32_t *)callback_flag == SL_CT_COUNTER_1_IS_PEAK_FLAG) {
     // incrementing delay variable on every interrupt
@@ -329,6 +328,7 @@ void on_config_timer_callback(void *callback_flag)
   }
 #endif
 #if (CT_COUNTER_MODE_USECASE == SET)
+  uint32_t interrupt_flag_value = 0;
   // Updating expected interrupt flag value as per enabled interrupt and counter used
   if (counter_used == SL_COUNTER_0) {
     interrupt_flag_value = SL_CT_COUNTER_0_IS_PEAK_FLAG;
@@ -346,7 +346,7 @@ void on_config_timer_callback(void *callback_flag)
   // Checking interrupt count
   if (interrupt_count >= TENTH_INTERRUPT_COUNT) {
     // De-initializing config-timer
-    DEBUGOUT("Config timer de-inits and unregistered callback after 10th interrupt\n");
+    DEBUGOUT("Config timer unregistered & de-inits callback after 10th interrupt\n");
     sl_si91x_config_timer_deinit();
   }
 #endif

@@ -109,7 +109,7 @@ extern "C" {
 
 #define SL_PERIPHERAL_CLK M4CLK ///< GPIO instance clock
 
-#define UNUSED_VARIABLE(expr) ((void)(expr))
+#define UNUSED_VAR(expr) ((void)(expr))
 
 #define GPIO_PA_PIN_MAX_VALIDATE 75 ///< GPIO port A maximum pins to validate
 #define GPIO_PB_PIN_MAX_VALIDATE 59 ///< GPIO port B maximum pins to validate

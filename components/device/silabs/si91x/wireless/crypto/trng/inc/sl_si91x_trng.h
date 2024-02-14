@@ -24,6 +24,10 @@
 #include "sl_si91x_protocol_types.h"
 #endif //SLI_TRNG_DEVICE_SI91X
 
+#ifndef SLI_SI91X_TRNG_DUPLICATE_CHECK
+#define SLI_SI91X_TRNG_DUPLICATE_CHECK 1
+#endif // SLI_SI91X_TRNG_DUPLICATE_CHECK
+
 /******************************************************
  *                   Type Definitions
  ******************************************************/
@@ -89,6 +93,7 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length);
 ******************************************************************************/
 sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t length);
 
+#if SLI_SI91X_TRNG_DUPLICATE_CHECK
 /***************************************************************************/ /**
  * @brief
  *   This API checks if there are any repeating elements in the Array.
@@ -97,6 +102,7 @@ sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t lengt
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
 ******************************************************************************/
-sl_status_t sl_si91x_duplicate_element(uint32_t *a, uint32_t length);
+sl_status_t sl_si91x_duplicate_element(uint32_t *dword, uint32_t length_in_dwords);
+#endif // SLI_SI91X_TRNG_DUPLICATE_CHECK
 
 /** @} */

@@ -41,6 +41,8 @@
 - Application will be in wait state until data transmit complete.
 - Test will be pass after sending data to primary device.
 
+**Note!** Make sure to use non-ROM I2S APIs for this application and SL_I2S driver.
+
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
@@ -98,10 +100,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   | Si917 GPIO pin | Breakout pin on WPK (4002A baseboard) | Description             |
   | ---------------| --------------------------------------|------------------------ |
-  | GPIO_25        | P25                                   | I2S SCK              |
+  | GPIO_25        | P25                                   | I2S SCK                 |
   | GPIO_26        | P27                                   | I2S Frame               |
-  | GPIO_28        | P31                                   | I2S DOUT             |
-  | GPIO_27        | P29                                   | I2S DIN              |
+  | GPIO_28        | P31                                   | I2S DOUT                |
+  | GPIO_27        | P29                                   | I2S DIN                 |
 
 - For pin connections, refer to
 

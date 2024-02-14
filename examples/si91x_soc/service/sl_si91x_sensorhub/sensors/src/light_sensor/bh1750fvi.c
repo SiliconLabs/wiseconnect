@@ -103,7 +103,7 @@ sl_bh170_err_t sl_si91x_bh1750_delete(sl_bh1750_handle_t *sensor)
     return RSI_OK;
   }
   free(sensor);
-  *sensor = NULL;
+  sensor = NULL;
   return RSI_OK;
 }
 

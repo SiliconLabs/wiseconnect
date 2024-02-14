@@ -719,9 +719,14 @@
               <FilePath>../../../../components/device/silabs/si91x/wireless/socket/src/sl_si91x_socket_utility.c</FilePath>
             </File>
             <File>
-              <FileName>sl_si91x_spi_driver.c</FileName>
+              <FileName>sl_si91x_ncp_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../components/device/silabs/si91x/wireless/spi_interface/sl_si91x_spi_driver.c</FilePath>
+              <FilePath>../../../../components/device/silabs/si91x/wireless/ncp_interface/sl_si91x_ncp_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>sl_si91x_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../components/device/silabs/si91x/wireless/ncp_interface/spi/sl_si91x_spi.c</FilePath>
             </File>
             <File>
               <FileName>sli_si91x_multithreaded.c</FileName>

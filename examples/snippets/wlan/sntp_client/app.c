@@ -49,7 +49,7 @@
 #define DATA_BUFFER_LENGTH 50
 #define SNTP_TIMEOUT       50
 #define SNTP_API_TIMEOUT   0
-#define ASYNC_WAIT_TIMEOUT (SNTP_API_TIMEOUT + 1000)
+#define ASYNC_WAIT_TIMEOUT 2000
 
 /******************************************************
  *               Variable Definitions
@@ -98,6 +98,7 @@ static uint8_t callback_event = 0;
 static sl_status_t cb_status  = SL_STATUS_FAIL;
 static uint8_t exec_status    = 0;
 static char *event_type[]     = { [SL_SNTP_CLIENT_START]           = "SNTP Client Start",
+                                  [SL_SNTP_CLIENT_GET_TIME]        = "SNTP Client Get Time",
                                   [SL_SNTP_CLIENT_GET_TIME_DATE]   = "SNTP Client Get Time and Date",
                                   [SL_SNTP_CLIENT_GET_SERVER_INFO] = "SNTP Client Get Server Info",
                                   [SL_SNTP_CLIENT_STOP]            = "SNTP Client Stop" };
@@ -258,6 +259,29 @@ sl_status_t embedded_sntp_client(void)
       return status;
     }
   }
+
+  cb_status = SL_STATUS_FAIL;
+  status    = sl_sntp_client_get_time(data, DATA_BUFFER_LENGTH, SNTP_API_TIMEOUT);
+  if ((SNTP_API_TIMEOUT == 0) && (SL_STATUS_IN_PROGRESS == status)) {
+    start = osKernelGetTickCount();
+
+    while ((SL_SNTP_CLIENT_GET_TIME != callback_event) && (osKernelGetTickCount() - start) <= ASYNC_WAIT_TIMEOUT) {
+      osThreadYield();
+    }
+
+    if (cb_status != SL_STATUS_OK) {
+      printf("Failed to get async time from ntp server : 0x%lx\r\n", status);
+      return cb_status;
+    }
+  } else {
+    if (status == SL_STATUS_OK) {
+      printf("SNTP Client got TIME successfully\n");
+    } else {
+      printf("Failed to get time from ntp server : 0x%lx\r\n", status);
+      return status;
+    }
+  }
+  print_char_buffer((char *)data, strlen((const char *)data));
 
   cb_status = SL_STATUS_FAIL;
   status    = sl_sntp_client_get_time_date(data, DATA_BUFFER_LENGTH, SNTP_API_TIMEOUT);

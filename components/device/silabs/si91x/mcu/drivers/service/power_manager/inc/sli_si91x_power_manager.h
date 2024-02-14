@@ -213,6 +213,17 @@ sl_status_t sli_si91x_power_manager_configure_clock(sl_power_state_t state, bool
  ******************************************************************************/
 void sli_si91x_power_manager_init_hardware(void);
 
+/***************************************************************************/ /**
+ * Initialize debugging feature.
+ * 
+ * @note FOR INTERNAL USE ONLY.
+ * 
+ * @param[in] none
+ * 
+ * @return none
+ ******************************************************************************/
+void sli_si91x_power_manager_init_debug(void);
+
 /** @} (end addtogroup POWER-MANAGER) */
 
 #ifdef __cplusplus

@@ -266,13 +266,13 @@ static void ssi_slave_compare_loopback_data(void)
   // For example, if bit width is 7, then from 8-15 all bits should be zero in a 16 bit integer.
   // So mask has value according to the data width and it is applied to the data.
   int ssi_data_index;
-  uint8_t ssi_frame_length = 0;
-  uint16_t ssi_mask        = ~0;
-  ssi_frame_length         = sl_si91x_ssi_get_frame_length(ssi_driver_handle);
-  ssi_mask                 = ssi_mask >> (SSI_SLAVE_MAX_BIT_WIDTH - ssi_frame_length);
+  uint32_t ssi_frame_length = 0;
+  uint16_t ssi_mask         = (uint16_t)~0;
+  ssi_frame_length          = sl_si91x_ssi_get_frame_length(ssi_driver_handle);
+  ssi_mask                  = ssi_mask >> (SSI_SLAVE_MAX_BIT_WIDTH - ssi_frame_length);
   for (ssi_data_index = 0; ssi_data_index < SSI_SLAVE_BUFFER_SIZE; ssi_data_index++) {
-    ssi_slave_rx_buffer[ssi_data_index] &= ssi_mask;
-    ssi_slave_tx_buffer[ssi_data_index] &= ssi_mask;
+    ssi_slave_rx_buffer[ssi_data_index] &= (uint8_t)ssi_mask;
+    ssi_slave_tx_buffer[ssi_data_index] &= (uint8_t)ssi_mask;
     if (ssi_slave_tx_buffer[ssi_data_index] != ssi_slave_rx_buffer[ssi_data_index]) {
       break;
     }

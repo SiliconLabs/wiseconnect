@@ -37,6 +37,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef sl_status_t (*sl_si91x_host_rx_irq_handler)(void);
+typedef void (*sl_si91x_host_rx_done_handler)(void);
+
+typedef struct {
+  sl_si91x_host_rx_irq_handler rx_irq;
+  sl_si91x_host_rx_done_handler rx_done;
+} sl_si91x_host_init_configuration;
+
 /**
  * @brief 
  *  This API will make RST GPIO to low.
@@ -54,7 +62,7 @@ void sl_si91x_host_release_from_reset(void);
  *  This API used to allocate all threads, mutexes and event handlers
  * @return sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. 
  */
-sl_status_t sl_si91x_host_init(void);
+sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config);
 
 /**
   * @brief 
@@ -122,9 +130,17 @@ void sl_si91x_host_clear_sleep_indicator(void);
  */
 uint32_t sl_si91x_host_get_wake_indicator(void);
 
-sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer,
-                                       void *rx_buffer,
-                                       uint16_t buffer_length); /*Function used for data transfer between TA and MCU*/
+sl_status_t sl_si91x_host_spi_transfer(
+  const void *tx_buffer,
+  void *rx_buffer,
+  uint16_t buffer_length); /*Function used for data transfer between TA and MCU over SPI*/
+
+sl_status_t sl_si91x_host_uart_transfer(
+  const void *tx_buffer,
+  void *rx_buffer,
+  uint16_t buffer_length); /*Function used for data transfer between TA and MCU over UART/USART*/
+
+void sl_si91x_host_flush_uart_rx(void); /*Function used to flush all the old data in the uart/usart rx stream*/
 
 /**
  * @brief Check whether the current CPU operation mode is handler mode

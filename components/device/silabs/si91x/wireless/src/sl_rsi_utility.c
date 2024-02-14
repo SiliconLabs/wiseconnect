@@ -47,26 +47,24 @@
       return s;            \
   } while (0);
 
-// Structure to represent a packet queue
-typedef struct {
-  sl_wifi_buffer_t *head;
-  sl_wifi_buffer_t *tail;
-  osMutexId_t mutex;
-  uint32_t flag;
-} si91x_packet_queue_t;
-
 osThreadId_t si91x_thread           = 0;
 osThreadId_t si91x_event_thread     = 0;
 osEventFlagsId_t si91x_events       = 0;
 osEventFlagsId_t si91x_bus_events   = 0;
 osEventFlagsId_t si91x_async_events = 0;
 osMutexId_t malloc_free_mutex       = 0;
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+osMutexId_t side_band_crypto_mutex = 0;
+#endif
 
-static si91x_packet_queue_t cmd_queues[SI91X_QUEUE_MAX];
+si91x_packet_queue_t cmd_queues[SI91X_QUEUE_MAX];
 
 // Declaration of external functions
 extern void si91x_bus_thread(void *args);
 extern void si91x_event_handler_thread(void *args);
+sl_status_t sl_si91x_host_power_cycle(void);
+void convert_performance_profile_to_power_save_command(sl_si91x_performance_profile_t profile,
+                                                       sl_si91x_power_save_request_t *power_save_request);
 extern sl_status_t sl_create_generic_rx_packet_from_params(sl_si91x_queue_packet_t **queue_packet,
                                                            sl_wifi_buffer_t **packet_buffer,
                                                            uint16_t packet_id,
@@ -80,7 +78,10 @@ extern sli_si91x_performance_profile_t performance_profile;
 static bool tcp_auto_close_enabled;
 
 // This value will be used in connect request/ AP configurations to set the TX power of the module
-static sl_wifi_max_tx_power_t wifi_max_tx_power;
+static sl_wifi_max_tx_power_t wifi_max_tx_power = {
+  .scan_tx_power = 0x1f, //Default power value set to max value supported in dBm
+  .join_tx_power = 0x1f, //Default power value set to max value supported in dBm
+};
 
 static sl_wifi_rate_t saved_wifi_data_rate = SL_WIFI_AUTO_RATE;
 
@@ -224,9 +225,10 @@ bool is_tcp_auto_close_enabled()
   return tcp_auto_close_enabled;
 }
 
-void save_max_tx_power(uint8_t max_tx_power)
+void save_max_tx_power(uint8_t max_scan_tx_power, uint8_t max_join_tx_power)
 {
-  wifi_max_tx_power.join_tx_power = max_tx_power;
+  wifi_max_tx_power.scan_tx_power = max_scan_tx_power;
+  wifi_max_tx_power.join_tx_power = max_join_tx_power;
 }
 
 sl_wifi_max_tx_power_t get_max_tx_power()
@@ -236,7 +238,8 @@ sl_wifi_max_tx_power_t get_max_tx_power()
 
 void reset_max_tx_power()
 {
-  wifi_max_tx_power.join_tx_power = 0;
+  wifi_max_tx_power.scan_tx_power = 0x1f;
+  wifi_max_tx_power.join_tx_power = 0x1f;
 }
 
 void set_card_ready_required(bool card_ready_required)
@@ -343,6 +346,12 @@ sl_wifi_event_t convert_si91x_event_to_sl_wifi_event(rsi_wlan_cmd_response_t com
         default:
           return SL_WIFI_TWT_RESPONSE_EVENT | (frame_status << 16);
       }
+    case SL_SI91X_WIFI_BTR_TX_DATA_STATUS:
+      return SL_WIFI_BTR_TX_DATA_STATUS_CB | fail_indication;
+      break;
+    case SL_SI91X_WIFI_RX_DOT11_DATA:
+      return SL_WIFI_BTR_RX_DATA_RECEIVE_CB | fail_indication;
+      break;
     default:
       return SL_WIFI_INVALID_EVENT;
   }
@@ -640,14 +649,21 @@ sl_status_t sl_si91x_platform_init(void)
 
   // Initialize command queues and associated mutexes
   for (i = 0; i < SI91X_QUEUE_MAX; i++) {
-    cmd_queues[i].head  = NULL;
-    cmd_queues[i].tail  = NULL;
-    cmd_queues[i].mutex = osMutexNew(NULL);
-    cmd_queues[i].flag  = (1 << i);
+    cmd_queues[i].head                = NULL;
+    cmd_queues[i].tail                = NULL;
+    cmd_queues[i].mutex               = osMutexNew(NULL);
+    cmd_queues[i].flag                = (1 << i);
+    cmd_queues[i].queued_packet_count = 0;
   }
 
   // Create malloc/free mutex
   malloc_free_mutex = osMutexNew(NULL);
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  // Create side_band_crypto_mutex mutex
+  side_band_crypto_mutex = osMutexNew(NULL);
+#endif
+
   return status;
 }
 
@@ -771,6 +787,9 @@ sl_status_t sl_si91x_host_add_to_queue_with_atomic_action(sl_si91x_queue_type_t 
     cmd_queues[queue].tail->node.node = (sl_slist_node_t *)packet;
     cmd_queues[queue].tail            = packet;
   }
+  // This flag is typically used to track the number of commands currently
+  // enqueued or in progress for the specific queue type.
+  cmd_queues[queue].queued_packet_count++;
 
   osMutexRelease(cmd_queues[queue].mutex); // Release the mutex
   return SL_STATUS_OK;
@@ -793,6 +812,9 @@ sl_status_t sl_si91x_host_remove_from_queue(sl_si91x_queue_type_t queue, sl_wifi
   if (NULL == cmd_queues[queue].head) {
     cmd_queues[queue].tail = NULL;
   }
+
+  // Decrement the flag associated with the specified command queue type.
+  cmd_queues[queue].queued_packet_count--;
 
   *buffer = (sl_wifi_buffer_t *)packet;
   osMutexRelease(cmd_queues[queue].mutex); // Release the mutex

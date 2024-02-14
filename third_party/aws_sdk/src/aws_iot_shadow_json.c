@@ -39,6 +39,7 @@ static uint32_t clientTokenNum = 0;
 //helper functions
 static IoT_Error_t convertDataToString(char *pStringBuffer, size_t maxSizoStringBuffer, JsonPrimitiveType type,
 									   void *pData);
+int32_t FillWithClientTokenSize(char *pBufferToBeUpdatedWithClientToken, size_t maxSizeOfJsonDocument);
 
 void resetClientTokenSequenceNum(void) {
 	clientTokenNum = 0;

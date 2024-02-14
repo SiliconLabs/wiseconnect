@@ -70,6 +70,7 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+      - BRD4339B [SiWx917-RB4339B]
   	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
@@ -140,12 +141,13 @@ By default, the application connects to the remote Access point with `default_wi
 #define DEFAULT_WIFI_CLIENT_CREDENTIAL   "YOUR_AP_PASSPHRASE"
 ```
 
->**NOTE:**
->
->1. By default, the AWS IoT MQTT application connects to AWS IoT cloud >with AWS Cloud certificates that comes with the project and above >configurations. 
->2. Should you want to create your own thing on AWS IoT Cloud and use your >own configurations, please refer to [5 AWS IoT configuration]>(#5-aws-iot-configuration) section. 
+### Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`
 
-### Configure the below parameters in `aws_iot_config.h` file present at `\<project>/config`
+> - Before configuring the parameters in `aws_iot_config.h`, register the SiWx917 device in the AWS IoT registry by following the steps mentioned in [Create an AWS Thing](#create-an-aws-thing) section.
+
+> - Configure AWS_IOT_MQTT_HOST macro with the device data endpoint to connect to AWS. For getting the device data endpoint in the AWS IoT Console navigate to Settings and copy the Endpoint and define the AWS_IOT_MQTT_HOST macro with this value.
+
+  ![AWS_IOT_MQTT_HOST_NAME](resources/readme/aws_iot_mqtt_host_url_1.png)
 
 ```c
 #define AWS_IOT_MQTT_HOST \
@@ -154,6 +156,12 @@ By default, the application connects to the remote Access point with `default_wi
 #define AWS_IOT_MQTT_CLIENT_ID "silicon_labs_thing" ///< MQTT client ID should be unique for every device
 #define AWS_IOT_MY_THING_NAME  "silicon_labs_thing" 
 ```
+
+> - To authenticate and securely connect with AWS, the SiWx917 device requires a unique x.509 security certificate and private key, as well as a CA certificate. At this point, you must be having device certificate, private key and CA certificate which are downloaded during the creation/registration of AWS Thing.
+
+> - By default the certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the certificate and private key to the SiWx917, the certificate and private key should be converted into a C-array. For converting the certificates and private key into C-array refer to [Setting up Security Certificates](#setting-up-security-certificates).
+
+> - By default the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format. 
 
 ## Test the Application
 
@@ -223,34 +231,38 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
  
 ### Setting up Security Certificates
 
-- To authenticate and securely connect with AWS, your Wi-Fi device requires a unique x.509 security certificate and private key, as well as a CA certificate which is used to verify the AWS server. Security credentials need to be converted into a C-array rather than [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) provided by AWS; they also need to be added to your project.
+- The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/).
 
-- The WiSeConnect SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK 'resources' directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/).
+- Copy the downloaded device certificate, private key from AWS and also the certificate_to_array.py to the `<SDK>/resources/certificates`.
 
-- To convert the device certificate and private key to C arrays, open a system command prompt and use the script as indicated in the following examples.
+- To convert the device certificate and private key to C arrays, open a system command prompt in the same path and give the following commands.
 
   ```sh
   $> python3 certificate_to_array.py <input filename> <output arrayname>
 
   For example:
-  $> python3 certificate_to_array.py d8f3a44d3f.cert.pem    aws_client_certificate
-  $> python3 certificate_to_array.py d8f3a44d3f.private.key aws_client_private_key
+  $> python3 certificate_to_array.py d8f3a44d3f.pem.crt aws_device_certificate
+  $> python3 certificate_to_array.py d8f3a44d3f.pem.key aws_private_key
   ```
 
-- After running the script on the certificate and private key, two new files are created.
+- After running the above commands, two new files shall be created as below:
 
   ```sh
-  aws_client_certificate.pem.crt.h
-  aws_client_private_key.pem.key.h
+  aws_device_certificate.crt.h
+  aws_private_key.key.h
   ```
 
-- Before proceeding, copy both of the new files to the WiSeConnect directory: `<SDK>/resources/certificates`  
-  Go ahead and overwrite any existing files with the same name in that directory, the originals are not needed.
+- After converting the certificate and private key to C - array, it is essential to include the device certificate: aws_device_certificate.crt.h and private key: aws_private_key.key.h in the app.c.
 
-- The Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect SDK; no additional setup is required.
-  For reference, Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/aws_starfield_ca.pem.h).
+- Ensure to load the certificate and private key to SiWx917 using [sl_net_set_credential()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential) API.
+
+- Ensure to update the certificate names in the **IoT_Client_Init_Params** structure before calling the **aws_iot_mqtt_init()** API.
+
+- The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
 
 > **NOTE :**
+> Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/aws_starfield_ca.pem.h).
+>
 > For AWS connectivity, StarField Root CA Class 2 certificate has the highest authority being at the top of the signing hierarchy.
 >
 > The StarField Root CA Class 2 certificate is an expected/required certificate which usually comes pre-installed in the operating systems and plays a key part in certificate chain verification when a device is performing TLS authentication with the IoT endpoint.
@@ -279,8 +291,7 @@ Create a thing in the AWS IoT registry to represent your IoT device.
 
   ![AWS console](resources/readme/aws_create_thing_step1.png)
 
-- If a **You don't have any things yet** dialog box is displayed, choose **Register a thing**. Otherwise, choose **Create**.
-- Click on **Create things**.
+- If **No things** message is displayed, click on **Create things**.
 
   ![AWS thing](resources/readme/aws_create_thing_step2.png)
 
@@ -296,48 +307,26 @@ Create a thing in the AWS IoT registry to represent your IoT device.
 
   ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
-- Choose the **Download** links to download the device certificate, private key, and root CA certificate. Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
+- To attach an existing policy choose the policy and click on create thing, if policy is not yet created Choose Create policy and fill the fields as mentioned in the following images.
+
+- choosing an existing policy.
+
+  ![Attach policy](resources/readme/aws_choosing_policy.png)
+
+- creating a policy. 
+  - Click on create policy. 
+  ![Create policy](resources/readme/aws_create_thing_attach_policy.png)
+
+  - Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**.
+  ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
+
+  - choose the created policy and click on **Create thing**.
+
+- Choose the **Download** links to download the device certificate and private key. Note that Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
   > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them safely.
 
   ![Downloading certificates](resources/readme/aws_thing_certificates_download.png)
 
-- To attach an existing policy choose the policy and click on create thing, if policy is not yet created Choose Create policy and fill the fields as mentioned in the following images.
-
-- choosing an existing policy
-
-  ![Attach policy](resources/readme/aws_choosing_policy.png)
-
-- creating a policy - step 1
-
-  ![Create policy](resources/readme/aws_create_thing_attach_policy.png)
-
-- creating a policy - step 2 (filling the fields)
-  Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**.
-  ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
-
-- choose the created policy and click on **Create thing**.
+- Click **Done**.
 
 - The created thing should now be visible on the AWS console (Manage > All devices > Things).
-
-### Steps to create a policy from AWS console
-
-- Navigate to **AWS IoT console**.
-- Choose **Policies** under **Secure**.
-
-  ![AWS console create policy](resources/readme/aws_policy.png)
-
-- Click on **Create**.
-
-  ![Create policy](resources/readme/aws_create_policy.png)
-
-- Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**.
-
-  ![Register Thing](resources/readme/aws_create_thing_policy_create.png)
-
-### Additional Information
-
-- **AWS_IOT_MQTT_HOST** parameter can be found as follows:
-
-  ![AWS_IOT_MQTT_HOST_PAGE_1](resources/readme/aws_iot_mqtt_host_url_1.png)
-
-  ![AWS_IOT_MQTT_HOST_PAGE_2](resources/readme/aws_iot_mqtt_host_url_2.png)

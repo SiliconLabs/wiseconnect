@@ -133,14 +133,14 @@ typedef enum {
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
-/// @brief Structure to hold the different versions of peripheral API
+/// @brief Structure to hold the different versions of the peripheral API
 typedef struct {
   uint8_t release; ///< Release version number
-  uint8_t major;   ///< major version number
-  uint8_t minor;   ///< minor version number
+  uint8_t major;   ///< Major version number
+  uint8_t minor;   ///< Minor version number
 } sl_sio_version_t;
 
-///@brief Structure to hold port and pin of sio spi
+///@brief Structure to hold the port and pin of SIO SPI
 typedef struct {
   uint8_t spi_cs_port;   ///< SIO SPI CS port
   uint8_t spi_cs_pin;    ///< SIO SPI CS pin
@@ -160,7 +160,7 @@ typedef struct {
   uint8_t spi_miso_pad;  ///< SIO SPI MISO pad
 } sl_sio_spi_t;
 
-///@brief Structure to hold port and pin of sio uart
+///@brief Structure to hold the port and pin of SIO UART
 typedef struct {
   uint8_t uart_tx_port; ///< SIO UART TX port
   uint8_t uart_tx_pin;  ///< SIO UART TX pin
@@ -172,7 +172,7 @@ typedef struct {
   uint8_t uart_rx_pad;  ///< SIO UART RX pad
 } sl_sio_uart_t;
 
-///@brief Structure to hold port and pin of sio i2c
+///@brief Structure to hold the port and pin of SIO I2C
 typedef struct {
   uint8_t i2c_sda_port; ///< SIO I2C SDA port
   uint8_t i2c_sda_pin;  ///< SIO I2C SDA pin
@@ -215,7 +215,7 @@ sl_status_t sl_si91x_sio_init(void);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_spi_init(sl_sio_spi_config_t *configuration);
 
-/*******************************************************************************
+/***************************************************************************/ /**
  * @brief This API is used to De-initialize SIO module
  * @param[in] none
  * @return none
@@ -233,7 +233,8 @@ void sl_si91x_sio_deinit(void);
 sl_status_t sl_si91x_sio_spi_pin_initialization(sl_sio_spi_t *sio_spi_init);
 
 /***************************************************************************/ /**
- * @brief Initialize SIO UART pins and clock
+ * @brief Initialize SIO UART pins and clock. This holds the UART Tx, Rx pins
+ * 		configuration.
  * @param[in] sio_uart_init : Pointer to the structure of type \ref sl_sio_uart_t
  * @return    returns status 0 if successful,
  *           else error code as follows:
@@ -243,7 +244,8 @@ sl_status_t sl_si91x_sio_spi_pin_initialization(sl_sio_spi_t *sio_spi_init);
 sl_status_t sl_si91x_sio_uart_pin_initialization(sl_sio_uart_t *sio_uart_init);
 
 /***************************************************************************/ /**
- * @brief Initialize SIO I2C pins and clock
+ * @brief Initialize SIO I2C pins and clock. This holds the I2C SDA, SCL pins
+ * 		configuration.
  * @param[in] sio_i2c_init : Pointer to the structure of type \ref sl_sio_i2c_t
  * @return    returns status 0 if successful,
  *           else error code as follows:
@@ -253,7 +255,9 @@ sl_status_t sl_si91x_sio_uart_pin_initialization(sl_sio_uart_t *sio_uart_init);
 sl_status_t sl_si91x_sio_i2c_pin_initialization(sl_sio_i2c_t *sio_i2c_init);
 
 /***************************************************************************/ /**
- * @brief Assert the SIO SPI chip select.
+ * @brief Assert the SIO SPI chip select. This tells peripheral that it should wake up 
+ *     and receive / send data and is also used when multiple peripherals are present to 
+ *	   select the one you'd like to communicate with.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_spi_init()
@@ -267,7 +271,8 @@ sl_status_t sl_si91x_sio_i2c_pin_initialization(sl_sio_i2c_t *sio_i2c_init);
 sl_status_t sl_si91x_sio_spi_cs_assert(uint8_t chip_select_num);
 
 /***************************************************************************/ /**
- * @brief De-assert the SIO SPI chip select.
+ * @brief De-assert the SIO SPI chip select. This is used to disable after the last byte
+ *     is transmitted / received.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_spi_init()
@@ -283,7 +288,12 @@ sl_status_t sl_si91x_sio_spi_cs_assert(uint8_t chip_select_num);
 sl_status_t sl_si91x_sio_spi_cs_deassert(uint8_t chip_select_num);
 
 /***************************************************************************/ /**
- * @brief Register the user callback function.
+ * @brief Register the user callback function. It registers the callback, i.e., 
+ *    stores the callback function address and pass to the variable that is called 
+ *    in Interrupt Handler. If another callback is registered without unregistering 
+ *    previous callback then, it returns an error code, so it is mandatory to unregister 
+ *    the callback before registering another callback. It will returns error if any 
+ *    callback is already registered.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_spi_init()
@@ -298,7 +308,8 @@ sl_status_t sl_si91x_sio_spi_cs_deassert(uint8_t chip_select_num);
 sl_status_t sl_si91x_sio_spi_register_event_callback(sl_sio_spi_callback_t callback_event);
 
 /***************************************************************************/ /**
- * @brief Un-register the user callback function.
+ * @brief Un-register the user callback function, i.e., clear the callback 
+ *     function address and disables IRQ handler.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_spi_init()
@@ -326,7 +337,8 @@ void sl_si91x_sio_spi_unregister_event_callback(void);
 sl_status_t sl_si91x_sio_spi_transfer(sl_sio_spi_xfer_config_t *xfer_config);
 
 /***************************************************************************/ /**
- * @brief Get the SIO version.
+ * @brief Get the SIO version. It is used to get the release, SQA and DEV version 
+ *			of the SIO module.
  * @param[in] none
  * @return returns structure of type \ref sl_sio_version_t
 ******************************************************************************/
@@ -348,7 +360,9 @@ sl_sio_version_t sl_si91x_sio_get_version(void);
 sl_status_t sl_si91x_sio_uart_init(sl_sio_uart_config_t *configuration);
 
 /***************************************************************************/ /**
- * @brief Send the data over SIO-UART.
+ * @brief Send the data over SIO-UART in non-blocking mode. Transmit bytes from the 
+ *    buffer using an interrupt service. Will return immediately, but cannot be called 
+ *    again until the previous call has finished.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_uart_init()
@@ -363,7 +377,8 @@ sl_status_t sl_si91x_sio_uart_init(sl_sio_uart_config_t *configuration);
 sl_status_t sl_si91x_sio_uart_send(const void *buffer, uint16_t length);
 
 /***************************************************************************/ /**
- * @brief Send the data over SIO-UART in blocking mode.
+ * @brief Send the data over SIO-UART in blocking mode. Transmit bytes from the 
+ *     buffer using a blocking send byte function. Does not return until all bytes are sent.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_uart_init()
@@ -379,12 +394,12 @@ sl_status_t sl_si91x_sio_uart_send(const void *buffer, uint16_t length);
 sl_status_t sl_si91x_sio_uart_send_blocking(const void *buffer, uint16_t length);
 
 /***************************************************************************/ /**
- * @brief Read data from UART.
+ * @brief Read data from SIO-UART in non-blocking mode.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_uart_init()
  *      - \ref sl_si91x_sio_uart_send() (or) \ref sl_si91x_sio_uart_send_blocking()
- * @param[in] data_buffer - data buffer pointer to read
+ * @param[out] data_buffer - data buffer pointer to read
  * @param[in] num_bytes - number of bytes read
  * @return returns status 0 if successful,
  *         else error code as follows:
@@ -401,7 +416,7 @@ sl_status_t sl_si91x_sio_uart_read(void *data_buffer, uint16_t num_bytes);
  *      - \ref sl_si91x_sio_uart_init()
  *      - \ref sl_si91x_sio_uart_send() (or)
  *      - \ref sl_si91x_sio_uart_send_blocking()
- * @param[in] data_buffer - data buffer pointer to read
+ * @param[out] data_buffer - data buffer pointer to read
  * @param[in] num_bytes - number of bytes read
  * @return returns status 0 if successful,
  *         else error code as follows:
@@ -457,7 +472,7 @@ sl_status_t sl_si91x_sio_i2c_write(stc_sio_i2c_config_t *configuration,
  * @param[in] configuration - pointer to the I2C configuration structure
  *                           \ref stc_sio_i2c_config_t in SIO module
  * @param[in] address - slave address
- * @param[in] data - pointer to the data
+ * @param[out] data - pointer to the data
  * @param[in] length - data length
  * @return returns status 0 if successful,
  *         else error code as follows:
@@ -467,8 +482,7 @@ sl_status_t sl_si91x_sio_i2c_write(stc_sio_i2c_config_t *configuration,
 ******************************************************************************/
 sl_status_t sl_si91x_sio_i2c_read(stc_sio_i2c_config_t *configuration, uint8_t address, uint8_t *data, uint16_t length);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Transfer data using SIO-I2C.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -478,7 +492,7 @@ sl_status_t sl_si91x_sio_i2c_read(stc_sio_i2c_config_t *configuration, uint8_t a
  * @param[in] address - Slave address
  * @param[in] tx_buffer - Pointer to the data transmit buffer
  * @param[in] tx_length - TX data length
- * @param[in] rx_buffer - Pointer to the data receive buffer
+ * @param[out] rx_buffer - Pointer to the data receive buffer
  * @param[in] rx_length - RX data length
  * @return returns status 0 if successful,
  *         else error code as follows:
@@ -493,8 +507,7 @@ sl_status_t sl_si91x_sio_i2c_transfer(stc_sio_i2c_config_t *configuration,
                                       uint8_t *rx_buffer,
                                       uint16_t rx_length);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Generate I2C start in SIO.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -503,8 +516,7 @@ sl_status_t sl_si91x_sio_i2c_transfer(stc_sio_i2c_config_t *configuration,
 ******************************************************************************/
 void sl_si91x_sio_i2c_generate_start(void);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Generate I2C stop in SIO.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -528,8 +540,7 @@ void sl_si91x_sio_i2c_generate_stop(void);
 ******************************************************************************/
 void sl_si91x_sio_uart_unregister_event_callback(void);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Used when UART receive is done.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -541,8 +552,7 @@ void sl_si91x_sio_uart_unregister_event_callback(void);
 ******************************************************************************/
 void sl_si91x_sio_uart_rx_done(void);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Configure pin detection mode to be considered for GPIO interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -560,8 +570,7 @@ void sl_si91x_sio_uart_rx_done(void);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_configure_interrupt(en_sio_channels_t channel, interrupt_flag_t flag);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Match the pattern with data to be detected.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -582,8 +591,7 @@ sl_status_t sl_si91x_sio_match_pattern(en_sio_channels_t channel,
                                        uint8_t slice,
                                        uint32_t slice_pattern);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Generate the shift clock.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -597,9 +605,8 @@ sl_status_t sl_si91x_sio_match_pattern(en_sio_channels_t channel,
 ******************************************************************************/
 sl_status_t sl_si91x_sio_shift_clock(uint32_t divider, en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
- * @brief Select clock.
+/***************************************************************************/ /**
+ * @brief Select SIO peripheral clock.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_uart_init()
@@ -617,9 +624,10 @@ sl_status_t sl_si91x_sio_shift_clock(uint32_t divider, en_sio_channels_t channel
 ******************************************************************************/
 sl_status_t sl_si91x_sio_select_clock(en_sio_channels_t channel, clock_type_t clock);
 
-/***************************************************************************/
-/**
- * @brief Shift the number of bits.
+/***************************************************************************/ /**
+ * @brief Shift the number of bits. Number of shifts to happen before reloading 
+ *       the shift register with data/pausing the operation. i.e. value to be 
+ *      set = (total no. of valid bits in shift register/ number of bits per shift) – 1 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
@@ -633,8 +641,7 @@ sl_status_t sl_si91x_sio_select_clock(en_sio_channels_t channel, clock_type_t cl
 ******************************************************************************/
 sl_status_t sl_si91x_sio_position_counter(en_sio_channels_t channel, uint32_t data_shift);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Enable/disable the flow control bit.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -651,8 +658,7 @@ sl_status_t sl_si91x_sio_position_counter(en_sio_channels_t channel, uint32_t da
 ******************************************************************************/
 sl_status_t sl_si91x_sio_control_flow(en_sio_channels_t channel, flow_control_t flow_control);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Load data to buffer in reverse order.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -666,8 +672,7 @@ sl_status_t sl_si91x_sio_control_flow(en_sio_channels_t channel, flow_control_t 
 ******************************************************************************/
 sl_status_t sl_si91x_sio_reverse_load(en_sio_channels_t channel, reverse_load_t reverse);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Enable the common swap interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -680,8 +685,7 @@ sl_status_t sl_si91x_sio_reverse_load(en_sio_channels_t channel, reverse_load_t 
 ******************************************************************************/
 sl_status_t sl_si91x_sio_set_interrupt(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Disable the common swap interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -697,8 +701,7 @@ sl_status_t sl_si91x_sio_set_interrupt(en_sio_channels_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_clear_interrupt(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Mask the common swap interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -711,8 +714,7 @@ sl_status_t sl_si91x_sio_clear_interrupt(en_sio_channels_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_mask_interrupt(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Unmask the common swap interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -725,8 +727,7 @@ sl_status_t sl_si91x_sio_mask_interrupt(en_sio_channels_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_unmask_interrupt(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Read the common swap interrupt status.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -735,8 +736,7 @@ sl_status_t sl_si91x_sio_unmask_interrupt(en_sio_channels_t channel);
 ******************************************************************************/
 uint32_t sl_si91x_sio_get_interrupt_status(void);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Enable the common shift interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -749,8 +749,7 @@ uint32_t sl_si91x_sio_get_interrupt_status(void);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_set_shift_interrupt(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Disable the common shift interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -763,8 +762,7 @@ sl_status_t sl_si91x_sio_set_shift_interrupt(en_sio_channels_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_clear_shift_interrupt(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Mask the common shift interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -777,8 +775,7 @@ sl_status_t sl_si91x_sio_clear_shift_interrupt(en_sio_channels_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_mask_shift_interrupt(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Unmask the common shift interrupt.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -791,8 +788,7 @@ sl_status_t sl_si91x_sio_mask_shift_interrupt(en_sio_channels_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_unmask_shift_interrupt(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Read the common shift interrupt status.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -801,8 +797,7 @@ sl_status_t sl_si91x_sio_unmask_shift_interrupt(en_sio_channels_t channel);
 ******************************************************************************/
 uint32_t sl_si91x_sio_shift_interrupt_status(void);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Select edge of the clock cycle for sampling bits.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -818,8 +813,7 @@ uint32_t sl_si91x_sio_shift_interrupt_status(void);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_edge_select(en_sio_channels_t channel, edge_select_t edge_sel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Read SIO buffer register.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()
@@ -831,8 +825,7 @@ sl_status_t sl_si91x_sio_edge_select(en_sio_channels_t channel, edge_select_t ed
 ******************************************************************************/
 uint32_t sl_si91x_sio_read_buffer(en_sio_channels_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Write into SIO buffer register.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sio_init()

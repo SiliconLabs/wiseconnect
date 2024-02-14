@@ -1,4 +1,5 @@
 #include "generic_command_handling.h"
+#include <stdint.h>
 
 extern void ui_task_req_adv_cmd_handler(uint8_t argc, uint8_t *argv[]);
 extern void ui_task_req_scan_cmd_handler(uint8_t argc, uint8_t *argv[]);

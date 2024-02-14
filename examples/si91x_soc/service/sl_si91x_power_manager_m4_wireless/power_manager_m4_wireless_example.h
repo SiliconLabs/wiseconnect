@@ -18,8 +18,6 @@
 #ifndef POWER_MANAGER_EXAMPLE_H_
 #define POWER_MANAGER_EXAMPLE_H_
 
-#define SWITCH_TO_PS0 DISABLE // Enable this macro to configure soc state as PS0
-
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**
@@ -31,10 +29,7 @@
  * - Wireless interface is initialized first and then power manager service is initialized.
  * - Events are subscribed to get the callbacks.
  * - This function is called in the thread.
- * - If SWITCH_TO_PS0 is enabled, it transits its state from PS4 (default High Power State)
- * to PS0 (Sleep without retention) and when the wakeup source is triggered, it restarts
- * the controller.
- * - If SWITCH_TO_PS0 is disabled, it transits different power states and sleep upon the button press.
+ * - This function transits between different power states and sleep upon the button press.
  * - The soc transits the power state in the following patter: 
  *    - By default the power state is PS4. After button press it transits to PS2 and waits for button trigger.
  *    - When button trigger is detected, it transits to PS4 and waits for button trigger.
@@ -54,8 +49,11 @@
  *      soc and the current power state is PS2. Now it waits for the button trigger.
  *    - When button trigger is detected, it transits to PS3 and waits for button trigger.
  *    - When button trigger is detected, it transits to PS4.
+ *    - When button trigger is detected, it transits to PS0 deepsleep without retention with calendar one-second trigger as a wakeup
+ *      source and wait for the calendar one second trigger, it triggers after one second. When calendar trigger is detected, it wakes up the
+ *      soc and resets the controller and starts the execution from main(). Now it waits for the button trigger.
  *    - The transition summary is PS4 -> PS2 -> PS4 -> PS4 Sleep -> PS4 -> PS3 -> PS3 Sleep -> PS3
- *      -> PS2 -> PS2 Sleep -> PS2 -> PS1 -> PS2 -> PS3 -> PS4.
+ *      -> PS2 -> PS2 Sleep -> PS2 -> PS1 -> PS2 -> PS3 -> PS4 -> PS0 -> resets the controller.
  ******************************************************************************/
 void power_manager_example_init(void);
 

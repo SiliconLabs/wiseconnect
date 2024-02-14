@@ -6,7 +6,6 @@
 #include "USART.h"
 #include "rsi_board.h"
 #endif
-#include "rsi_driver.h"
 #include "cmsis_os2.h"
 #ifdef MXRT_595s
 #include "sl_hal_mcu_uart.h"

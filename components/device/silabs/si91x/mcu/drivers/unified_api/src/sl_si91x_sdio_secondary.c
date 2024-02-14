@@ -53,8 +53,8 @@ RSI_GPDMA_HANDLE_T GPDMAHandle;
 /*******************************************************************************
  ************************       GLOBAL FUNCTIONS      **************************
  ******************************************************************************/
-extern __INLINE uint16_t sl_si91x_sdio_secondary_get_block_cnt(void);
-extern __INLINE uint16_t sl_si91x_sdio_secondary_get_block_len(void);
+extern __INLINE uint32_t sl_si91x_sdio_secondary_get_block_cnt(void);
+extern __INLINE uint32_t sl_si91x_sdio_secondary_get_block_len(void);
 extern __INLINE void sl_si91x_sdio_secondary_set_tx_blocks(uint8_t no_of_blocks);
 extern __INLINE void sl_si91x_sdio_secondary_set_interrupts(uint32_t flags);
 extern __INLINE void sl_si91x_sdio_secondary_clear_interrupts(uint32_t flags);
@@ -67,6 +67,10 @@ static void sl_si91x_fill_rx_descriptors(uint8_t *data_buf);
 static void sl_si91x_fill_tx_descriptors(uint8_t *data_buff, uint8_t num_of_blocks);
 static void sl_si91x_setup_rx_channel_desc(uint8_t *data_buf);
 static void sl_si91x_setup_tx_channel_desc(uint8_t *data_buf, uint8_t num_of_blocks);
+void GPDMATransferComplete(RSI_GPDMA_HANDLE_T GPDMAHandle_p, RSI_GPDMA_DESC_T *pTranDesc, uint32_t dmaCh);
+void GPDMATransferDescComplete(RSI_GPDMA_HANDLE_T GPDMAHandle_p, RSI_GPDMA_DESC_T *pTranDesc, uint32_t dmaCh);
+void GPDMATransferError(RSI_GPDMA_HANDLE_T GPDMAHandle_p, RSI_GPDMA_DESC_T *pTranDesc, uint32_t dmaCh);
+void GPDMATransferDescFetchComplete(RSI_GPDMA_HANDLE_T GPDMAHandle_p, RSI_GPDMA_DESC_T *pTranDesc, uint32_t dmaCh);
 
 /*******************************************************************************
  ***************************  LOCAL VARIABLES   ********************************
@@ -121,7 +125,7 @@ void GPDMATransferComplete(RSI_GPDMA_HANDLE_T GPDMAHandle_p, RSI_GPDMA_DESC_T *p
 {
   (void)pTranDesc;
   (void)GPDMAHandle_p;
-  user_gpdma_callback(dmaCh);
+  user_gpdma_callback((uint8_t)dmaCh);
 }
 
 /*******************************************************************************
@@ -186,7 +190,7 @@ void sl_si91x_fill_rx_descriptors(uint8_t *data_buf)
   for (j = 0; j < no_of_desc; j++) {
 
     // Channel Control Config
-    XferCfg.chnlCtrlConfig.transSize        = sl_si91x_sdio_secondary_get_block_len();
+    XferCfg.chnlCtrlConfig.transSize        = (sl_si91x_sdio_secondary_get_block_len() & 0xfff);
     XferCfg.chnlCtrlConfig.transType        = PERIPHERAL_MEMORY;
     XferCfg.chnlCtrlConfig.dmaFlwCtrl       = DMA_FLW_CTRL;
     XferCfg.chnlCtrlConfig.mastrIfFetchSel  = MASTER0_FETCH_IFSEL;

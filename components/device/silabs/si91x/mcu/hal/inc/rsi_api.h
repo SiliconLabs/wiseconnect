@@ -106,6 +106,12 @@
 #endif
 #define RSI_IN_SLEEP -4
 
+#define RSI_SAFE_UPGRADE_ADDR 0x1d408
+#define RSI_SAFE_UPGRADE      BIT(12)
+#define RSI_FW_START_OF_FILE  BIT(0)
+#define RSI_FW_END_OF_FILE    BIT(1)
+#define RSI_MIN_CHUNK_SIZE    4096
+
 #define RSI_RESET_LOOP_COUNTER(X)     X = 0;
 #define RSI_WHILE_LOOP(X, Y)          while ((X++) < (int32_t)Y)
 #define RSI_LOOP_COUNT_UPGRADE_IMAGE  0xFFFF
@@ -125,4 +131,6 @@ int16_t rsi_mem_wr(volatile uint32_t addr, uint16_t len, uint8_t *dBuf);
 int16_t rsi_mem_rd(volatile uint32_t addr, uint16_t len, uint8_t *dBuf);
 int16_t rsi_boot_insn(uint8_t type, uint16_t *data);
 int16_t rsi_select_option(uint8_t cmd);
+int16_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_image_size, uint8_t flags);
+int32_t sl_si91x_set_fast_fw_up(void);
 #endif

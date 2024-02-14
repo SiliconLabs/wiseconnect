@@ -5,7 +5,7 @@ description: >
   Install this component to enable execution of Calendar peripheral from RAM
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
-
+component_root_path: "components/device/silabs/si91x/mcu/drivers/service/power_manager"
 requires:
   - name: sl_calendar
 
@@ -19,4 +19,13 @@ template_contribution:
     value: sl_si91x_calendar.o
   - name: calendar_ps2
     value: rsi_rtc.o
+  - name: wakeup
+    value: 
+      event: wakeup_init
+      function:
+        name: sli_si91x_power_manager_calendar_init
+        return: sl_status_t
+      include:
+        name: sl_si91x_calendar.h
+    priority: -5000
 

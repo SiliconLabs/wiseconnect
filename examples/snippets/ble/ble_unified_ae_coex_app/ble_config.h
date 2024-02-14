@@ -17,7 +17,8 @@
 
 #ifndef BLE_CONFIG_H
 #define BLE_CONFIG_H
-#include "base_types.h"
+#include "stdint.h"
+#include "rsi_utils.h"
 /******************************************************
  * *                      Macros
  * ******************************************************/
@@ -48,6 +49,8 @@ uint8_t ascii_to_dec(uint8_t *num);
 
 /***********************************************************************************************************************************************/
 /***********************************************************************************************************************************************/
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 #define RSI_BLE_APP_GATT_TEST       (void *)"BLE_AE_DEMO" //! local device name
 #define RSI_BLE_MAX_NBR_PERIPHERALS 1
 #define RSI_BLE_MAX_NBR_CENTRALS    1

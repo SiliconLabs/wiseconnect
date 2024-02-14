@@ -762,7 +762,8 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 sl_status_t wifi_set_tx_power_command_handler(console_args_t *arguments)
 {
   sl_wifi_max_tx_power_t max_tx_power = { 0 };
-  max_tx_power.join_tx_power          = (uint8_t)arguments->arg[0];
+  max_tx_power.scan_tx_power          = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0x1F, uint8_t);
+  max_tx_power.join_tx_power          = GET_OPTIONAL_COMMAND_ARG(arguments, 1, 0x1F, uint8_t);
 
   return sl_wifi_set_max_tx_power(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, max_tx_power);
 }
@@ -774,6 +775,7 @@ sl_status_t wifi_get_tx_power_command_handler(console_args_t *arguments)
   sl_status_t status                  = sl_wifi_get_max_tx_power(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &max_tx_power);
 
   if (status == SL_STATUS_OK) {
+    printf("Scan Power value: %d", max_tx_power.scan_tx_power);
     printf("Join Power value: %d", max_tx_power.join_tx_power);
   }
   return status;
@@ -1766,6 +1768,40 @@ sl_status_t sl_wifi_transmit_test_start_command_handler(console_args_t *argument
   return SL_STATUS_OK;
 }
 
+sl_status_t sl_wifi_ax_transmit_test_start_command_handler(console_args_t *arguments)
+{
+  sl_status_t status                  = SL_STATUS_OK;
+  tx_test_info.power                  = (uint16_t)GET_COMMAND_ARG(arguments, 0);
+  tx_test_info.rate                   = (uint32_t)GET_COMMAND_ARG(arguments, 1);
+  tx_test_info.length                 = (uint16_t)GET_COMMAND_ARG(arguments, 2);
+  tx_test_info.mode                   = (uint16_t)GET_COMMAND_ARG(arguments, 3);
+  tx_test_info.channel                = (uint16_t)GET_COMMAND_ARG(arguments, 4);
+  tx_test_info.enable_11ax            = (uint8_t)GET_COMMAND_ARG(arguments, 5);
+  tx_test_info.coding_type            = (uint8_t)GET_COMMAND_ARG(arguments, 6);
+  tx_test_info.nominal_pe             = (uint8_t)GET_COMMAND_ARG(arguments, 7);
+  tx_test_info.ul_dl                  = (uint8_t)GET_COMMAND_ARG(arguments, 8);
+  tx_test_info.he_ppdu_type           = (uint8_t)GET_COMMAND_ARG(arguments, 9);
+  tx_test_info.beam_change            = (uint8_t)GET_COMMAND_ARG(arguments, 10);
+  tx_test_info.bw                     = (uint8_t)GET_COMMAND_ARG(arguments, 11);
+  tx_test_info.stbc                   = (uint8_t)GET_COMMAND_ARG(arguments, 12);
+  tx_test_info.tx_bf                  = (uint8_t)GET_COMMAND_ARG(arguments, 13);
+  tx_test_info.gi_ltf                 = (uint8_t)GET_COMMAND_ARG(arguments, 14);
+  tx_test_info.dcm                    = (uint8_t)GET_COMMAND_ARG(arguments, 15);
+  tx_test_info.nsts_midamble          = (uint8_t)GET_COMMAND_ARG(arguments, 16);
+  tx_test_info.spatial_reuse          = (uint8_t)GET_COMMAND_ARG(arguments, 17);
+  tx_test_info.bss_color              = (uint8_t)GET_COMMAND_ARG(arguments, 18);
+  tx_test_info.he_siga2_reserved      = (uint16_t)GET_COMMAND_ARG(arguments, 19);
+  tx_test_info.ru_allocation          = (uint8_t)GET_COMMAND_ARG(arguments, 20);
+  tx_test_info.n_heltf_tot            = (uint8_t)GET_COMMAND_ARG(arguments, 21);
+  tx_test_info.sigb_dcm               = (uint8_t)GET_COMMAND_ARG(arguments, 22);
+  tx_test_info.sigb_mcs               = (uint8_t)GET_COMMAND_ARG(arguments, 23);
+  tx_test_info.user_sta_id            = (uint16_t)GET_COMMAND_ARG(arguments, 24);
+  tx_test_info.user_idx               = (uint8_t)GET_COMMAND_ARG(arguments, 25);
+  tx_test_info.sigb_compression_field = (uint8_t)GET_COMMAND_ARG(arguments, 26);
+  status                              = sl_si91x_transmit_test_start(&tx_test_info);
+  VERIFY_STATUS_AND_RETURN(status);
+  return SL_STATUS_OK;
+}
 sl_status_t sl_wifi_transmit_test_stop_command_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);

@@ -36,6 +36,8 @@
  ============================================================================**/
 #include "hub_hal_intf.h"
 #include "rsi_error.h"
+
+#pragma GCC diagnostic ignored "-Wint-conversion"
 //Null functions
 int32_t sample_null_func(void *bus, sl_sensor_data_group_t *id)
 {
@@ -106,10 +108,16 @@ sl_sensor_impl_type_t sensor_impls[] = {
   },
 #ifdef SL_CONFIG_SENSOR_ADC
   {
-    .type    = SL_ADC_SENSOR_ID,
-    .create  = sl_si91x_adc_sensor_create,
-    .delete  = sl_si91x_adc_sensor_delete,
-    .sample  = sl_si91x_adc_sensor_sample,
+    .type   = SL_ADC_SENSOR_ID,
+    .create = sl_si91x_adc_sensor_create,
+    .delete = sl_si91x_adc_sensor_delete,
+#ifdef SH_ADC_ENABLE
+    .sample = sl_si91x_adc_sensor_sample,
+#endif
+
+#ifdef SH_SDC_ENABLE
+    .sample = sl_si91x_sdc_sensor_sample,
+#endif
     .control = sl_si91x_adc_sensor_control,
   },
 #endif

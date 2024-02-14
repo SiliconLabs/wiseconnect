@@ -33,6 +33,7 @@
 #include "psa/crypto.h"
 #include "sl_status.h"
 #include "sl_si91x_crypto.h"
+#include "sli_psa_driver_features.h"
 
 #ifdef SLI_CIPHER_DEVICE_SI91X
 #include "sl_si91x_psa_aes.h"

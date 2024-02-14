@@ -653,6 +653,8 @@ void ble_ae_central(void)
   }
 #endif
   rsi_ble_ae_dev_to_periodic_list_t ae_clear_dev = { 0 };
+  uint8_t size                       = 0;
+
   // AE Clear Periodic Adv list
   rsi_ascii_dev_address_to_6bytes_rev((uint8_t *)ae_clear_dev.adv_addr, (int8_t *)REM_ADDR1);
   ae_clear_dev.adv_addr_type = LE_RANDOM_ADDRESS;

@@ -34,8 +34,6 @@
 - requires:
   - name: rsilib_chip
   - name: trustzone_unaware
-  - name: external_flash_implementation
-  - name: external_psram_implementation
   - name: sl_si91x_mcu
   - name: board_configuration_headers
   - name: wiseconnect_toolchain_plugin

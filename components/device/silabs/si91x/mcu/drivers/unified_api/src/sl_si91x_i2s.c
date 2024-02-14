@@ -63,7 +63,6 @@ extern sl_i2s_driver_t Driver_SAI1;
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static sl_status_t convert_arm_to_sl_error_code(int32_t error);
-static sl_status_t convert_rsi_to_sl_error_code(int32_t error);
 static void i2s0_callback_event_handler(uint32_t event);
 static void i2s1_callback_event_handler(uint32_t event);
 
@@ -94,7 +93,7 @@ sl_status_t sl_si91x_i2s_init(uint32_t i2s_instance, sl_i2s_handle_t *i2s_handle
       break;
     }
     // To validate status of I2S, if already enabled, returns error code.
-    if (I2S_GetInitState(i2s_instance)) {
+    if (I2S_GetInitState((uint8_t)i2s_instance)) {
       //I2S instance already initialized
       status = SL_STATUS_BUSY;
       break;
@@ -133,9 +132,9 @@ sl_status_t sl_si91x_i2s_deinit(sl_i2s_handle_t *i2s_handle)
   if (i2s_handle == NULL) {
     status = SL_STATUS_NULL_POINTER;
   } else {
-    if ((i2s_handle == &Driver_SAI0) || (i2s_handle == &Driver_SAI1)) {
+    if ((i2s_handle == (sl_i2s_handle_t *)&Driver_SAI0) || (i2s_handle == (sl_i2s_handle_t *)&Driver_SAI1)) {
       //Unregister callbacks
-      if (i2s_handle == &Driver_SAI0) {
+      if (i2s_handle == (sl_i2s_handle_t *)&Driver_SAI0) {
         i2s0_user_callback = NULL;
         local_i2s0_handle  = NULL;
       } else {
@@ -177,14 +176,14 @@ sl_status_t sl_si91x_i2s_configure_power_mode(sl_i2s_handle_t i2s_handle, sl_i2s
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    if ((state < SL_I2S_POWER_OFF) || (state > SL_I2S_FULL_POWER)) {
+    if (state > SL_I2S_FULL_POWER) {
       //Invalid power state
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
     // CMSIS API for power mode config is called and the arm error code returned from
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
-    error_status = ((sl_i2s_driver_t *)i2s_handle)->PowerControl(state);
+    error_status = ((sl_i2s_driver_t *)i2s_handle)->PowerControl((ARM_POWER_STATE)state);
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
   return status;
@@ -305,6 +304,7 @@ sl_status_t sl_si91x_i2s_transmit_data(sl_i2s_handle_t i2s_handle, const void *d
     // CMSIS API for I2S send/receive is called and the arm error code returned from
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
     error_status = ((sl_i2s_driver_t *)i2s_handle)->Send(data, size);
+    status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
   return status;
 }
@@ -329,7 +329,8 @@ sl_status_t sl_si91x_i2s_receive_data(sl_i2s_handle_t i2s_handle, const void *da
     }
     // CMSIS API for I2S send/receive is called and the arm error code returned from
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
-    error_status = ((sl_i2s_driver_t *)i2s_handle)->Receive(data, size);
+    error_status = ((sl_i2s_driver_t *)i2s_handle)->Receive((void *)data, size);
+    status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
   return status;
 }
@@ -541,38 +542,6 @@ static sl_status_t convert_arm_to_sl_error_code(int32_t error)
       break;
     default:
       status = SL_STATUS_NOT_SUPPORTED;
-      break;
-  }
-  return status;
-}
-
-/*******************************************************************************
- * To validate the RSI error code
- * While calling the RSI APIs, it returns the RSI Error codes.
- * This function converts the RSI error codes into SL error codes.
- * It takes argument as RSI error type and returns the SL error type.
- * It has a single switch statement which is mapped with the SL error code and
- * after successful conversion it breaks the switch statement.
- * If the error code is not listed, by default is SL_STATUS_FAIL.
- ******************************************************************************/
-static sl_status_t convert_rsi_to_sl_error_code(int32_t error)
-{
-  sl_status_t status;
-  switch (error) {
-    case RSI_OK:
-      status = SL_STATUS_OK;
-      break;
-    case INVALID_PARAMETERS:
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    case ERROR_INVALID_INPUT_FREQUENCY:
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    case ERROR_CLOCK_NOT_ENABLED:
-      status = SL_STATUS_NOT_INITIALIZED;
-      break;
-    default:
-      status = SL_STATUS_FAIL;
       break;
   }
   return status;

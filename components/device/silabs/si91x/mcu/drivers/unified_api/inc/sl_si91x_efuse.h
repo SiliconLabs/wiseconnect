@@ -77,23 +77,25 @@ typedef struct {
  ******************************************************************************/
 
 /***************************************************************************/ /**
-* To get the release, sqa and dev version of EFUSE
+* @brief This API is used to get the release, sqa and dev version of EFUSE
 * @param[in] none
-* @return (sl_efuse_version_t) type structure
+* @return \ref sl_efuse_version_t type structure
 *
 ******************************************************************************/
 sl_efuse_version_t sl_si91x_efuse_get_version(void);
 
 /***************************************************************************/ /**
-* @brief This API Is Used to enable efuse clock.
+* @brief This API is used to enable peripheral clock for efuse.
 * @param[in] none
 * @return returns status 0 if successful,
 *                 else error code.
+*        \ref SL_STATUS_INVALID_PARAMETER - The parameter is an invalid argument \n
+*        \ref SL_STATUS _OK - Success \n
 ******************************************************************************/
 sl_status_t sl_si91x_efuse_enable_clock(void);
 
 /***************************************************************************/ /**
-* @brief This API Is Used to disable efuse clock.
+* @brief This API is used to disable peripheral clock for efuse.
 * @pre   \ref sl_si91x_efuse_init() 
 *
 * @pre   \ref sl_si91x_efuse_set_address() 
@@ -105,20 +107,24 @@ sl_status_t sl_si91x_efuse_enable_clock(void);
 * @param[in] none
 * @return returns status 0 if successful,
 *                 else error code.
+*        \ref SL_STATUS_INVALID_PARAMETER - The parameter is an invalid argument \n
+*        \ref SL_STATUS _OK - Success \n
 ******************************************************************************/
 sl_status_t sl_si91x_efuse_disable_clock(void);
 
 /***************************************************************************/ /**
-* @brief This API is used to Initialize the EFUSE. This API first enables the
+* @brief This API is used to Initialize the eFUSE. This API first enables the
 *        efuse clock and then efuse.
 * @param[in] none
 * @return returns status 0 if successful,
 *                 else error code.
+*        \ref SL_STATUS_INVALID_PARAMETER - The parameter is an invalid argument \n
+*        \ref SL_STATUS _OK - Success \n
 ******************************************************************************/
 sl_status_t sl_si91x_efuse_init(void);
 
 /***************************************************************************/ /**
-* @brief This API is used to Un-initialize the EFUSE. This API first disables
+* @brief This API is used to un-initialize the eFUSE. This API first disables
 *        the efuse and then efuse clock.
 * @pre   \ref sl_si91x_efuse_init() 
 *
@@ -131,6 +137,8 @@ sl_status_t sl_si91x_efuse_init(void);
 * @param[in] none
 * @return returns status 0 if successful,
 *                 else error code.
+*        \ref SL_STATUS_INVALID_PARAMETER - The parameter is an invalid argument \n
+*        \ref SL_STATUS _OK - Success \n
 ******************************************************************************/
 sl_status_t sl_si91x_efuse_deinit(void);
 
@@ -145,6 +153,7 @@ sl_status_t sl_si91x_efuse_deinit(void);
 *                 else error code.
 *      - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid
 *                                                   argument 
+*      - SL_STATUS _OK - Success
 *
 ******************************************************************************/
 sl_status_t sl_si91x_efuse_set_address(uint16_t address);
@@ -156,18 +165,21 @@ sl_status_t sl_si91x_efuse_set_address(uint16_t address);
 *
 * @pre   \ref sl_si91x_efuse_set_address() 
 *
-* @param[in] read_address - Pointer holds the address at which the data has
+* @param[out] read_address - Pointer holds the address at which the data has
 *                           to be written in the efuse
 * @return returns status 0 if successful,
 *                 else error code as follow:
 *       - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid
 *                                                   argument 
+*       - SL_STATUS _OK - Success
 *
 ******************************************************************************/
 sl_status_t sl_si91x_efuse_get_address(uint16_t *read_address);
 
 /***************************************************************************/ /**
- * @brief This API is used to write the eFUSE data in the specified address.
+ * @brief This API is used to write the bit in the position of an 8-bit location
+ *        in eFUSE specified address. There is only one programming scheme,
+ *        which is single bit programming.
  * @pre   \ref sl_si91x_efuse_init() 
 *
  * @pre   \ref sl_si91x_efuse_set_address() 
@@ -176,16 +188,17 @@ sl_status_t sl_si91x_efuse_get_address(uint16_t *read_address);
  *                      the efuse
  * @param[in] bit_pos - Variable that holds the position of bit on which the
  *                      data will be placed
- * @param[in] hold_time - hold time in write bit
+ * @param[in] hold_time - eFUSE strobe hold time, depends on clock frequency of eFUSE controller
  * @return returns status 0 if successful,
  *                 else error code as follow.
- *       - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *       - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ *       - SL_STATUS _OK - Success
 *
  ******************************************************************************/
 sl_status_t sl_si91x_efuse_write_bit(uint16_t address, uint8_t bit_pos, uint32_t hold_time);
 
 /***************************************************************************/ /**
- * @brief This API is used to Read the 1 word(16 bits) of data to EFUSE macro in
+ * @brief This API is used to read the 1 word (16 bits) of data from 32x8 byte eFUSE memory (OTP) in
  *        memory mapped mode.
  * @pre   \ref sl_si91x_efuse_init() 
 *
@@ -195,21 +208,22 @@ sl_status_t sl_si91x_efuse_write_bit(uint16_t address, uint8_t bit_pos, uint32_t
 *
  * @param[in] address - Holds the address from where we are reading the 1 word
  *                      of data
- * @param[in] read_word - Pointer that points to the data which is stored in the
+ * @param[out] read_word - Pointer that points to the data which is stored in the
  *                        efuse
- * @param[in] soc_clk  - It is input clock frequency
+ * @param[in] soc_clk  - It is input clock frequency of eFUSE controller
  * @return returns status 0 if successful,
  *                 else error code as follow.
- *       - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid
+ *       - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid
  *                                                   argument 
 *-
- *       - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *       - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ *       - SL_STATUS _OK - Success
 *
  ******************************************************************************/
 sl_status_t sl_si91x_efuse_memory_mapped_read_word(uint16_t address, uint16_t *read_word, uint32_t soc_clk);
 
 /***************************************************************************/ /**
- * @brief This API is used to read the data from 32x8 byte eFUSE memory(OTP) in
+ * @brief This API is used to read a 1 byte of data from 32x8 byte eFUSE memory(OTP) in
  *        memory mapped mode.
  * @pre   \ref sl_si91x_efuse_init() 
 *
@@ -219,21 +233,22 @@ sl_status_t sl_si91x_efuse_memory_mapped_read_word(uint16_t address, uint16_t *r
 *
  * @param[in] address - Holds the address from where we are reading the 1 byte
  *                      of data
- * @param[in] read_byte - Pointer that points to the 8 bit data which is stored
+ * @param[out] read_byte - Pointer that points to the 8 bit data which is stored
  *                        in the efuse
  * @param[in] soc_clk  - It is input clock frequency
  * @return returns status 0 if successful,
  *                 else error code as follow.
- *       - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid
+ *       - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid
  *                                                   argument 
 *-
- *       - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *       - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ *       - SL_STATUS _OK - Success
 *
  ******************************************************************************/
 sl_status_t sl_si91x_efuse_memory_mapped_read_byte(uint16_t address, uint8_t *read_byte, uint32_t soc_clk);
 
 /***************************************************************************/ /**
- * @brief This API is used to read the data from 32x8 byte eFUSE memory(OTP) in
+ * @brief This API is used to read a 1 byte of data from 32x8 byte eFUSE memory (OTP) in
  *        fsm mode.
  * @pre   \ref sl_si91x_efuse_init() 
 *
@@ -243,15 +258,16 @@ sl_status_t sl_si91x_efuse_memory_mapped_read_byte(uint16_t address, uint8_t *re
 *
  * @param[in] address - Holds the address from where we are reading the 1 byte
  *                      of data
- * @param[in] read_byte - Pointer that points to the 8 bit data which is stored
+ * @param[out] read_byte - Pointer that points to the 8 bit data which is stored
  *                        in the efuse
  * @param[in] soc_clk  - It is input clock frequency
  * @return returns status 0 if successful,
  *                 else error code as follow.
- *       - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid
+ *       - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid
  *                                                   argument 
 *-
- *       - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ *       - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ *       - SL_STATUS _OK - Success
 *
  ******************************************************************************/
 sl_status_t sl_si91x_efuse_fsm_read_byte(uint16_t address, uint8_t *read_byte, uint32_t soc_clk);

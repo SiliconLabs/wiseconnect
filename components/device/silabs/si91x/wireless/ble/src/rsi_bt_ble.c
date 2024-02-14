@@ -26,7 +26,9 @@ sl_status_t sl_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
                                              void **buffer,
                                              uint32_t requested_buffer_size,
                                              uint32_t wait_duration_ms);
-
+void rsi_bt_clear_wait_bitmap(uint16_t protocol_type, uint8_t sem_type);
+void rsi_bt_set_wait_bitmap(uint16_t protocol_type, uint8_t sem_type);
+uint32_t rsi_get_bt_state(rsi_bt_cb_t *bt_cb);
 /*
   Include files
   */

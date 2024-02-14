@@ -43,7 +43,7 @@
 #define SL_SENSOR_ID_MASK            0XF0
 #define SL_SENSOR_ID_OFFSET          4
 #define SL_SENSOR_DATA_GROUP_MAX_NUM 6
-#define SL_MAX_NUM_SENSORS           5 ///< Max number of sensors used in the sensor hub
+#define SL_MAX_NUM_SENSORS           1 ///< Max number of sensors used in the sensor hub
 
 typedef enum { SL_SH_I2C = 1, SL_SH_SPI, SL_SH_UART, SL_SH_ADC, SL_SH_GPIO } sl_sensor_bus_t;
 //Type of sensors

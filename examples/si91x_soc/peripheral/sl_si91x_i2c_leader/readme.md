@@ -116,6 +116,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   ```
 - For getting proper speeds with fast and fast plus modes, please use external pullup of around 1.8K
 - For high speed mode data transfer external pullup is must.
+- If the I2C leader application is being tested as a standalone example (i.e., without interfacing the Si917 follower device to the leader), external pullup resistors should be used. For initiating the I2C data transfer, the state of SDA and SCL lines should be high (either at the I2C leader or the I2C follower side). As per the current implementaion of the I2C follower and leader examples, The default state of SDA and SCL lines is high in case of I2C follower and low in case of I2C leader. Therefore, to observe I2C signals, we either have to connect the follower device/external pull up.
 
 ### Pin Configuration
 

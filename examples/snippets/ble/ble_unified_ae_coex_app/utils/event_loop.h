@@ -28,7 +28,6 @@
 
 #ifndef __EVENT_LOOP_H__
 #define __EVENT_LOOP_H__
-#include "rsi_driver.h"
 #include "rsi_common_utils.h"
 
 //! defines

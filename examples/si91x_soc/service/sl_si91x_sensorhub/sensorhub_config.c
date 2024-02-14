@@ -139,6 +139,7 @@ sl_bus_intf_config_t bus_intf_info = {
   .spi_config.spi_cs_number    = SPI_CHIP_SELECT,
   .spi_config.spi_cs_misc_mode = ARM_SPI_CONTROL_SS,
   .spi_config.spi_sec_sel_sig  = ARM_SPI_SS_ACTIVE,
+#ifdef SH_ADC_ENABLE
 #ifdef SL_SH_ADC_CHANNEL0
   .adc_config.adc_cfg.operation_mode        = SL_ADC_STATIC_MODE,
   .adc_config.adc_cfg.num_of_channel_enable = SL_SH_ADC_NUM_CHANNELS_ENABLE,
@@ -177,5 +178,34 @@ sl_bus_intf_config_t bus_intf_info = {
   .adc_config.adc_ch_cfg.num_of_samples[3]    = SL_SH_ADC_CH3_NUM_SAMPLES,
   .adc_config.adc_ch_cfg.chnl_ping_address[3] = ADC_PING_BUFFER3,
   .adc_config.adc_ch_cfg.chnl_pong_address[3] = ADC_PING_BUFFER3 + SL_SH_ADC_CH3_NUM_SAMPLES,
+#endif
+#endif
+#ifdef SH_SDC_ENABLE
+
+  .sh_sdc_config.sh_sdc_p_channel_sel[0]       = 0x04,
+  .sh_sdc_config.sh_sdc_n_channel_sel[0]       = 0x00,
+  .sh_sdc_config.sh_sdc_auxadc_diff_mode_ch[0] = 0,
+
+#ifdef SDC_MUTI_CHANNEL_ENABLE
+#ifdef SDC_CHANNEL_2
+  .sh_sdc_config.sh_sdc_p_channel_sel[1]       = 0x05,
+  .sh_sdc_config.sh_sdc_n_channel_sel[1]       = 0x00,
+  .sh_sdc_config.sh_sdc_auxadc_diff_mode_ch[1] = 0,
+#endif
+#ifdef SDC_CHANNEL_3
+  .sh_sdc_config.sh_sdc_p_channel_sel[2]       = 0x05,
+  .sh_sdc_config.sh_sdc_n_channel_sel[2]       = 0x00,
+  .sh_sdc_config.sh_sdc_auxadc_diff_mode_ch[2] = 0,
+#endif
+#ifdef SDC_CHANNEL_4
+  .sh_sdc_config.sh_sdc_p_channel_sel[3]       = 0x05,
+  .sh_sdc_config.sh_sdc_n_channel_sel[3]       = 0x00,
+  .sh_sdc_config.sh_sdc_auxadc_diff_mode_ch[3] = 0,
+#endif
+#endif
+  .sh_sdc_config.sh_sdc_sample_ther        = SDC_SAMP_THRESH,   // Number of samples to read from SDC register
+  .sh_sdc_config.sh_sdc_no_channel_sel     = SDC_NUM_CH_SEL,    // Number of channel sel
+  .sh_sdc_config.sh_sdc_sample_trigger_sel = SDC_SAMP_TRIG_SEL, // RTC trigger Sel(1-1ms 0-1sec)
+  .sh_sdc_config.sh_sdc_cnt_trig_evnt      = SDC_CNT_TRIG_EVNT, // in which trigger event AUX-ADC Data will sampled
 #endif
 };

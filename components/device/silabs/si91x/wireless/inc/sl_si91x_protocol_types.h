@@ -34,6 +34,7 @@
 #include "sl_ip_types.h"
 #include "sl_wifi_constants.h"
 #include "sl_si91x_constants.h"
+#include "sl_common.h"
 
 // below defines and structure for CFG_GET: Getting user store configuration.
 #define IP_ADDRESS_SZ            4
@@ -80,8 +81,6 @@
 #define SI91X_DNS_RESPONSE_MAX_ENTRIES 10
 
 #define SI91X_MAX_CERT_SEND_SIZE 1400
-
-#define SI91X_HTTP_BUFFER_LEN 1200
 
 /** NOTE: For power save related info
  * https://confluence.silabs.com/pages/viewpage.action?spaceKey=RPD&title=Master+++Power+Save+modes
@@ -168,9 +167,10 @@
 /** @} */
 
 //**************************** Macros for FEATURE frame Method request START *********************************/
-#define SI91X_FEAT_FRAME_PREAMBLE_DUTY_CYCLE  (1 << 0)
-#define SI91X_FEAT_FRAME_LP_CHAIN             (1 << 4)
-#define SI91X_FEAT_FRAME_IN_PACKET_DUTY_CYCLE (1 << 5)
+#define SI91X_FEAT_FRAME_PREAMBLE_DUTY_CYCLE       (1 << 0)
+#define SI91X_FEAT_FRAME_PERMIT_UNDESTINED_PACKETS (1 << 1)
+#define SI91X_FEAT_FRAME_LP_CHAIN                  (1 << 4)
+#define SI91X_FEAT_FRAME_IN_PACKET_DUTY_CYCLE      (1 << 5)
 
 #define PLL_MODE      0
 #define RF_TYPE       1 // 0 - External RF 1- Internal RF
@@ -186,7 +186,12 @@
 
 //**************************** Macros for HTTP Client START *********************************/
 
-#define SI91X_HTTP_BUFFER_LEN 1200
+#define SI91X_HTTP_BUFFER_LEN     2400
+#define SI91X_MAX_HTTP_URL_SIZE   2048
+#define SI91X_MAX_HTTP_CHUNK_SIZE 900
+#define HTTP_GET_FIRST_PKT        BIT(0)
+#define HTTP_GET_MIDDLE_PKT       BIT(1)
+#define HTTP_GET_LAST_PKT         BIT(2)
 
 #define SI91X_HTTP_CLIENT_MAX_WRITE_BUFFER_LENGTH 900
 #define SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH   900
@@ -465,6 +470,9 @@ typedef struct {
 
   // address of gateway
   uint8_t gateway6[16];
+
+  // vap id, 0 - station and 1 - AP
+  uint8_t vap_id;
 } sl_si91x_req_ipv6_params_t;
 
 // IPV6 ipconfig command response structure
@@ -1356,12 +1364,12 @@ typedef struct {
 
   //! HTTP Content Length
   uint32_t content_length;
-} __attribute__((__packed__)) sl_si91x_http_client_put_start_t;
+} SL_ATTRIBUTE_PACKED sl_si91x_http_client_put_start_t;
 
 typedef struct {
   //! Current chunk length
   uint16_t current_length;
-} __attribute__((__packed__)) sl_si91x_http_client_put_data_request_t;
+} SL_ATTRIBUTE_PACKED sl_si91x_http_client_put_data_request_t;
 
 //! HTTP client PUT request structure
 typedef struct {
@@ -1375,11 +1383,11 @@ typedef struct {
     //! HTTP PUT PACKET command structure
     sl_si91x_http_client_put_data_request_t http_client_put_data_req;
 
-  } __attribute__((__packed__)) http_client_put_struct;
+  } SL_ATTRIBUTE_PACKED http_client_put_struct;
 
   //! HTTP PUT buffer
   uint8_t http_put_buffer[SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH];
-} __attribute__((__packed__)) sl_si91x_http_client_put_request_t;
+} SL_ATTRIBUTE_PACKED sl_si91x_http_client_put_request_t;
 
 //! HTTP Client POST DATA PKT request structure
 typedef struct {
@@ -1471,6 +1479,9 @@ typedef enum {
 #ifdef SLI_SI917
   SL_SI91X_WRITE_TO_COMMON_FLASH = 6,
 #endif
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  SL_SI91X_ENABLE_SIDE_BAND = 7,
+#endif
 } sl_si91x_ta_m4_commands_t;
 
 //  M4 and TA secure handshake request structure.
@@ -1501,7 +1512,7 @@ typedef struct {
 
   //data
   uint8_t input_data[MAX_CHUNK_SIZE];
-} __attribute__((__packed__)) sl_si91x_request_ta2m4_t;
+} SL_ATTRIBUTE_PACKED sl_si91x_request_ta2m4_t;
 #endif // SLI_SI917
 
 #endif // SLI_SI91X_MCU_INTERFACE
@@ -1733,6 +1744,191 @@ typedef struct {
 } sl_si91x_advance_stats_response_t;
 /** @} */
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+typedef struct crypto_key_s {
+  uint32_t key_slot;      ///< For built-in key
+  uint32_t wrap_iv_mode;  ///< IV mode 0-> ECB; 1-> CBC
+  uint8_t wrap_iv[16];    ///< IV for CBC mode
+  uint8_t key_buffer[32]; ///< Key data wrapped/ Plain text
+} sl_si91x_crypto_key_t;
+
+typedef struct {
+  uint32_t key_size;
+  sl_si91x_crypto_key_t key_spec;
+} sl_si91x_key_info_t;
+
+typedef struct {
+  uint32_t key_type;
+  uint32_t reserved;
+  sl_si91x_key_info_t key_detail;
+} sl_si91x_key_descriptor_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint16_t total_msg_length;
+  uint16_t encrypt_decryption;
+  uint16_t output_length;
+  sl_si91x_key_descriptor_t key_info;
+  uint8_t *IV;
+  uint8_t *msg;
+  uint8_t *output;
+} sl_si91x_aes_request_t;
+
+typedef struct {
+  uint32_t key_type;
+  uint32_t reserved;
+  uint32_t key_size;
+  uint32_t wrap_iv_mode;
+  uint8_t *wrap_iv;
+  uint8_t *key_buffer;
+} sl_si91x_wrap_key_descriptor_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint16_t output_length;
+  sl_si91x_wrap_key_descriptor_t key_info;
+  uint8_t *output;
+} sl_si91x_wrap_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint16_t algorithm_sub_type;
+  uint16_t total_length;
+  uint16_t output_length;
+  sl_si91x_key_descriptor_t key_info;
+  uint8_t *hmac_data;
+  uint8_t *output;
+} sl_si91x_hmac_sha_request_t;
+
+typedef struct {
+  uint16_t algorithm_type;
+  uint16_t algorithm_sub_type;
+  uint16_t total_msg_length;
+  uint16_t output_length;
+  uint8_t *msg;
+  uint8_t *output;
+} sl_si91x_sha_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t nonce_length;
+  uint16_t encrypt_decryption;
+  uint16_t total_msg_length;
+  uint16_t ad_length;
+  uint16_t tag_length;
+  uint16_t output_length;
+  sl_si91x_key_descriptor_t key_info;
+  uint8_t *nonce;
+  uint8_t *ad;
+  uint8_t *tag; // tag size = 16
+  uint8_t *msg;
+  uint8_t *output;
+} sl_si91x_ccm_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t dma_use;
+  uint8_t gcm_mode;
+  uint8_t encrypt_decryption;
+  uint16_t total_msg_length;
+  uint16_t ad_length;
+  uint32_t output_length;
+  sl_si91x_key_descriptor_t key_info;
+  uint8_t *nonce; // iv length = 12 bytes
+  uint8_t *ad;
+  uint8_t *msg;
+  uint8_t *output;
+} sl_si91x_gcm_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint8_t encrypt_decryption;
+  uint8_t dma_use;
+  uint16_t total_msg_length;
+  uint16_t header_length;
+  uint32_t output_length;
+  uint8_t *nonce;
+  sl_si91x_key_descriptor_t key_info;
+  uint8_t *header_input;
+  uint8_t *msg;
+  uint8_t *output;
+} sl_si91x_chachapoly_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t *sx;
+  uint8_t *sy;
+  uint8_t *sz;
+  uint8_t *tx;
+  uint8_t *ty;
+  uint8_t *tz;
+  uint8_t *rx;
+  uint8_t *ry;
+  uint8_t *rz;
+} sl_si91x_ecdh_add_sub_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t ecdh_curve_type;
+  uint32_t affinity;
+  uint8_t *d;
+  uint8_t *sx;
+  uint8_t *sy;
+  uint8_t *sz;
+  uint8_t *rx;
+  uint8_t *ry;
+  uint8_t *rz;
+} sl_si91x_ecdh_mul_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t *sx;
+  uint8_t *sy;
+  uint8_t *sz;
+  uint8_t *rx;
+  uint8_t *ry;
+  uint8_t *rz;
+} sl_si91x_ecdh_double_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t ecdh_mode;
+  uint8_t ecdh_sub_mode;
+  uint8_t ecdh_curve_type;
+  uint8_t *sx;
+  uint8_t *sy;
+  uint8_t *sz;
+  uint8_t *rx;
+  uint8_t *ry;
+  uint8_t *rz;
+} sl_si91x_ecdh_affine_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint16_t total_msg_length;
+  uint8_t *trng_key;
+  uint8_t *msg;
+  uint8_t *output;
+} sl_si91x_trng_request_t;
+
+// Attestation token Request Frames Structures
+typedef struct {
+  uint16_t algorithm_type;
+  uint16_t total_msg_length;
+  uint32_t *msg;
+  uint8_t *token_buf;
+} sl_si91x_rsi_token_req_t;
+
+#else
 typedef struct crypto_key_s {
   uint32_t key_slot;      ///< For built-in key
   uint32_t wrap_iv_mode;  ///< IV mode 0-> ECB; 1-> CBC
@@ -1927,8 +2123,16 @@ typedef struct {
   uint32_t msg[NONCE_DATA_SIZE];
 } sl_si91x_rsi_token_req_t;
 
+#endif
+
 // Request timeout Structure
 typedef struct {
   uint32_t timeout_bitmap;
   uint16_t timeout_value;
 } sl_si91x_request_timeout_t;
+
+// High throughputs enable command
+typedef struct {
+  uint16_t mode_11n_enable;
+  uint16_t ht_caps_bitmap;
+} sl_si91x_request_ap_high_throughput_capability_t;

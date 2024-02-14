@@ -334,3 +334,8 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface);
 sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
 sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface);
+sl_status_t sl_net_wifi_btr_init(sl_net_interface_t interface,
+                                 const void *configuration,
+                                 void *context,
+                                 sl_net_event_handler_t event_handler);
+sl_status_t sl_net_wifi_btr_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);

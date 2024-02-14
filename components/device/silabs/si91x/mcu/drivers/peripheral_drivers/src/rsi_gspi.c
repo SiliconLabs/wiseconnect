@@ -646,7 +646,7 @@ int32_t GSPI_Send(const void *data,
       dma_transfer_tx.transfer_count = num;
       dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
       dma_transfer_tx.dma_mode       = control.transferType;
-      dma_transfer_tx.signal         = gspi->tx_dma->chnl_cfg.periAck;
+      dma_transfer_tx.signal         = (uint8_t)gspi->tx_dma->chnl_cfg.periAck;
 
       //Allocate DMA channel for Tx
       status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
@@ -835,7 +835,7 @@ int32_t GSPI_Receive(void *data,
         dma_transfer_tx.transfer_count = num;
         dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
         dma_transfer_tx.dma_mode       = control.transferType;
-        dma_transfer_tx.signal         = gspi->tx_dma->chnl_cfg.periAck;
+        dma_transfer_tx.signal         = (uint8_t)gspi->tx_dma->chnl_cfg.periAck;
 
         //Allocate DMA channel for Tx
         status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
@@ -912,7 +912,7 @@ int32_t GSPI_Receive(void *data,
         dma_transfer_rx.transfer_count = num;
         dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
         dma_transfer_rx.dma_mode       = control.transferType;
-        dma_transfer_rx.signal         = gspi->rx_dma->chnl_cfg.periAck;
+        dma_transfer_rx.signal         = (uint8_t)gspi->rx_dma->chnl_cfg.periAck;
 
         //Allocate DMA channel for Rx
         status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
@@ -1091,7 +1091,7 @@ int32_t GSPI_Transfer(const void *data_out,
         dma_transfer_tx.transfer_count = num;
         dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
         dma_transfer_tx.dma_mode       = control.transferType;
-        dma_transfer_tx.signal         = gspi->tx_dma->chnl_cfg.periAck;
+        dma_transfer_tx.signal         = (uint8_t)gspi->tx_dma->chnl_cfg.periAck;
 
         //Allocate DMA channel for Tx
         status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
@@ -1166,7 +1166,7 @@ int32_t GSPI_Transfer(const void *data_out,
         dma_transfer_rx.transfer_count = num;
         dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
         dma_transfer_rx.dma_mode       = control.transferType;
-        dma_transfer_rx.signal         = gspi->rx_dma->chnl_cfg.periAck;
+        dma_transfer_rx.signal         = (uint8_t)gspi->rx_dma->chnl_cfg.periAck;
 
         //Allocate DMA channel for Rx
         status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);

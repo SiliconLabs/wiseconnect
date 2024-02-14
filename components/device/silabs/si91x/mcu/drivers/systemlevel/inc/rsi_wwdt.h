@@ -21,8 +21,6 @@
 #ifndef __RSI_WDT_H__
 #define __RSI_WDT_H__
 
-#define UNUSED_PARAMETER(x) (void)(x)
-
 #ifdef __cplusplus
 extern "C" {
 #endif

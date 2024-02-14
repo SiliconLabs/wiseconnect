@@ -43,25 +43,20 @@ void test_psa_sha_1()
                          sizeof(hash_buf),
                          &hash_len);
 
-  printf("\n\r SHA 1 STATUS - %d", ret);
+  printf("\n\r SHA 1 STATUS - %ld", ret);
   printf("\n\r SHA 1 Val - ");
 
   for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
-  if (ret == 0) {
-    printf("\n SHA 1 Operation Success Status 0x%x \n", ret);
+  // Compare with the expected result
+  if (ret != 0) {
+    printf("\n SHA 1 Operation Failed Status 0x%lx \n", ret);
+  } else if (ret == 0 && memcmp(hash_buf, expect_sha1_hash, sizeof(expect_sha1_hash)) == 0) {
+    printf("\n SHA 1 Operation Success Status 0x%lx \n", ret);
   } else {
-    printf("\n SHA 1 Operation Failed Status 0x%x \n", ret);
-    return ret;
-  }
-
-  // COmpare with the expected result
-  if (memcmp(hash_buf, expect_sha1_hash, sizeof(expect_sha1_hash))) {
-    printf("SHA 1 Compare with expected value failed ");
-  } else {
-    printf("SHA 1 Compare with expected value is Successful!\n");
+    printf("\n SHA 1 Compare with expected value failed \n");
   }
 }
 #endif
@@ -91,25 +86,20 @@ void test_psa_sha_224()
                          sizeof(hash_buf),
                          &hash_len);
 
-  printf("\n\r SHA 224 STATUS - %d", ret);
+  printf("\n\r SHA 224 STATUS - %ld", ret);
   printf("\n\r SHA 224 Val - ");
 
   for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
-  if (ret == 0) {
-    printf("\n SHA 224 Operation Success Status 0x%x \n", ret);
+  // Compare with the expected result
+  if (ret != 0) {
+    printf("\n SHA 224 Operation Failed Status 0x%lx \n", ret);
+  } else if (ret == 0 && memcmp(hash_buf, expect_sha224_hash, sizeof(expect_sha224_hash)) == 0) {
+    printf("\n SHA 224 Operation Success Status 0x%lx \n", ret);
   } else {
-    printf("\n SHA 224 Operation Failed Status 0x%x \n", ret);
-    return ret;
-  }
-
-  // COmpare with the expected result
-  if (memcmp(hash_buf, expect_sha224_hash, sizeof(expect_sha224_hash))) {
-    printf("SHA 224 Compare with expected value failed ");
-  } else {
-    printf("SHA 224 Compare with expected value is Successful!\n");
+    printf("\n SHA 224 Compare with expected value failed \n");
   }
 }
 #endif
@@ -141,23 +131,19 @@ void test_psa_sha_256()
                          &hash_len);
 
   printf("\n\r SHA 256 STATUS - %ld", ret);
-  printf("\n\r SHA 256 Val - ");
+  printf("\n\r SHA 256 Val -");
 
   for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
-  if (ret == 0) {
+  // Compare with the expected result
+  if (ret != 0) {
+    printf("\n SHA 256 Operation Failed Status 0x%lx \n", ret);
+  } else if (ret == 0 && memcmp(hash_buf, expect_sha256_hash, sizeof(expect_sha256_hash)) == 0) {
     printf("\n SHA 256 Operation Success Status 0x%lx \n", ret);
   } else {
-    printf("\n SHA 256 Operation Failed Status 0x%lx \n", ret);
-  }
-
-  // COmpare with the expected result
-  if (memcmp(hash_buf, expect_sha256_hash, sizeof(expect_sha256_hash))) {
-    printf("SHA 256 Compare with expected value failed ");
-  } else {
-    printf("SHA 256 Compare with expected value is Successful!\n");
+    printf("\n SHA 256 Compare with expected value failed \n");
   }
 }
 #endif
@@ -189,25 +175,20 @@ void test_psa_sha_384()
                          sizeof(hash_buf),
                          &hash_len);
 
-  printf("\n\r SHA 384 STATUS - %d", ret);
+  printf("\n\r SHA 384 STATUS - %ld", ret);
   printf("\n\r SHA 384 Val - ");
 
   for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
-  if (ret == 0) {
-    printf("\n SHA 384 Operation Success Status 0x%x \n", ret);
+  // Compare with the expected result
+  if (ret != 0) {
+    printf("\n SHA 384 Operation Failed Status 0x%lx \n", ret);
+  } else if (ret == 0 && memcmp(hash_buf, expect_sha384_hash, sizeof(expect_sha384_hash)) == 0) {
+    printf("\n SHA 384 Operation Success Status 0x%lx \n", ret);
   } else {
-    printf("\n SHA 384 Operation Failed Status 0x%x \n", ret);
-    return ret;
-  }
-
-  // COmpare with the expected result
-  if (memcmp(hash_buf, expect_sha384_hash, sizeof(expect_sha384_hash))) {
-    printf("SHA 384 Compare with expected value failed ");
-  } else {
-    printf("SHA 384 Compare with expected value is Successful!\n");
+    printf("\n SHA 384 Compare with expected value failed \n");
   }
 }
 #endif
@@ -240,25 +221,20 @@ void test_psa_sha_512()
                          sizeof(hash_buf),
                          &hash_len);
 
-  printf("\n\r SHA 512 STATUS - %d", ret);
+  printf("\n\r SHA 512 STATUS - %ld", ret);
   printf("\n\r SHA 512 Val - ");
 
   for (int i = 0; i < (int)hash_len; i++) {
     printf(" 0x%x", hash_buf[i]);
   }
 
-  if (ret == 0) {
-    printf("\n SHA 512 Operation Success Status 0x%x \n", ret);
+  // Compare with the expected result
+  if (ret != 0) {
+    printf("\n SHA 512 Operation Failed Status 0x%lx \n", ret);
+  } else if (ret == 0 && memcmp(hash_buf, expect_sha512_hash, sizeof(expect_sha512_hash)) == 0) {
+    printf("\n SHA 512 Operation Success Status 0x%lx \n", ret);
   } else {
-    printf("\n SHA 512 Operation Failed Status 0x%x \n", ret);
-    return ret;
-  }
-
-  // COmpare with the expected result
-  if (memcmp(hash_buf, expect_sha512_hash, sizeof(expect_sha512_hash))) {
-    printf("SHA 512 Compare with expected value failed ");
-  } else {
-    printf("SHA 512 Compare with expected value is Successful!\n");
+    printf("\n SHA 512 Compare with expected value failed \n");
   }
 }
 #endif

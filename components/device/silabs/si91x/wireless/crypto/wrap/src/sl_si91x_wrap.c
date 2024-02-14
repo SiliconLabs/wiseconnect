@@ -36,6 +36,7 @@
 #include "sl_si91x_driver.h"
 #include "string.h"
 
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t wrap_pending(sl_si91x_wrap_config_t *config,
                                 uint8_t wrap_flags,
                                 uint16_t chunk_length,
@@ -44,6 +45,7 @@ static sl_status_t wrap_pending(sl_si91x_wrap_config_t *config,
   sl_status_t status               = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer         = NULL;
   sl_si91x_packet_t *packet        = NULL;
+  size_t output_size               = 0;
   sl_si91x_wrap_request_t *request = (sl_si91x_wrap_request_t *)malloc(sizeof(sl_si91x_wrap_request_t));
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
@@ -78,11 +80,47 @@ static sl_status_t wrap_pending(sl_si91x_wrap_config_t *config,
   VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  memcpy(output, packet->data, config->key_size);
+
+  // Allign size to 16 bytes
+  output_size = (config->key_size + 15) & (~15);
+  memcpy(output, packet->data, output_size);
+
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(request);
   return status;
 }
+
+#else
+
+static sl_status_t wrap_side_band(sl_si91x_wrap_config_t *config, uint8_t *output)
+{
+
+  sl_status_t status               = SL_STATUS_FAIL;
+  sl_si91x_wrap_request_t *request = (sl_si91x_wrap_request_t *)malloc(sizeof(sl_si91x_wrap_request_t));
+  SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
+
+  memset(request, 0, sizeof(sl_si91x_wrap_request_t));
+
+  request->algorithm_type        = WRAP;
+  request->key_info.key_size     = config->key_size;
+  request->key_info.key_type     = config->key_type;
+  request->key_info.reserved     = config->reserved;
+  request->key_info.wrap_iv_mode = config->wrap_iv_mode;
+  request->key_info.key_buffer   = config->key_buffer;
+  request->key_info.wrap_iv      = config->wrap_iv;
+
+  request->output = output;
+
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_wrap_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  free(request);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+
+#endif
 
 sl_status_t sl_si91x_wrap(sl_si91x_wrap_config_t *config, uint8_t *output)
 {
@@ -94,6 +132,11 @@ sl_status_t sl_si91x_wrap(sl_si91x_wrap_config_t *config, uint8_t *output)
 
   SL_VERIFY_POINTER_OR_RETURN(config->key_buffer, SL_STATUS_NULL_POINTER);
   uint8_t *key_buffer = config->key_buffer;
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = wrap_side_band(config, output);
+  return status;
+#else
 
   while (total_length) {
     // Check total length
@@ -130,4 +173,5 @@ sl_status_t sl_si91x_wrap(sl_si91x_wrap_config_t *config, uint8_t *output)
   }
 
   return status;
+#endif
 }

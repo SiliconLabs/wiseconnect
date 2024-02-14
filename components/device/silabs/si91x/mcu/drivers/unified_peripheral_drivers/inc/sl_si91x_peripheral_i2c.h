@@ -38,6 +38,10 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_ccp_common.h"
 
+#ifndef UNUSED_VARIABLE
+#define UNUSED_VARIABLE(x) (void)(x)
+#endif // UNUSED_VARIABLE
+
 /***************************************************************************/ /**
  * @addtogroup I2C-PERIPHERAL-DRIVER I2C Peripheral Driver
  * @ingroup SI91X_PERIPHERAL_APIS
@@ -49,8 +53,7 @@ extern "C" {
 #define SL_I2C_ASSERT(expr) ((void)(expr)) ///< Macro function to assert the I2C instance
 #define I2C_NUM(ref) \
   (((ref) == I2C0) ? 0 : ((ref) == I2C1) ? 1 : ((ref) == I2C2) ? 2 : -1) ///< Macro to validate I2C instance number
-#define I2C_REF_VALID(ref)   (I2C_NUM(ref) != -1) ///< Macro function to validate the user input and I2C instance
-#define UNUSED_VARIABLE(var) ((void)(var))
+#define I2C_REF_VALID(ref) (I2C_NUM(ref) != -1) ///< Macro function to validate the user input and I2C instance
 
 #define SL_I2C_ENABLE_MASK       0x01   ///< I2C enable mask
 #define SL_I2C_WRITE_MASK        0x00   ///< I2C write mask
@@ -178,8 +181,6 @@ typedef struct {
  *  - mode (Leader/Follower) \ref sl_i2c_mode_t.
  *  - freq_scl (I2C SCL frequency).
  *  - chlr (Bus Speed) \ref sl_i2c_clock_hlr_t.
- *  - address (Follower address).
- *  - is_10bit_addr (pass true if address is of 10 bit).
  * 
  * @param[in] i2c (I2C_TypeDef) Pointer to the I2C instance base address.
  * @param[in] p_config (sl_i2c_init_params_t) Pointer to the 

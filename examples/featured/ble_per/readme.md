@@ -30,7 +30,9 @@ Before running the application, the user will need the following things to setup
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+      - BRD4339B [SiWx917-RB4339B]
   	  - BRD4340A [SiWx917-RB4340A]
+      - BRD4342A [SiWx917-RB4342A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -42,8 +44,6 @@ Before running the application, the user will need the following things to setup
     - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
-- **PSRAM Mode**:
-  - Silicon Labs [BRD4340A](https://www.silabs.com/)
 
 - Spectrum Analyzer
 
@@ -369,57 +369,4 @@ Follow the steps as mentioned for the successful execution of the application:
 
   ![output](resources/readme/output_2.png)
 
-### Troubleshooting
-The region is set to FCC by default. To change region to Worldwide or TELEC or KCC, required to call sl_si91x_set_device_region() and sl_si91x_disable_radio() API's. 
-Refer below code snippet to change region:  
 
- - Open `components/device/silabs/si91x/wireless/threading/sli_si91x_multithreaded.c` file 
-
-   - Go to `void si91x_bus_thread(void *args)` function and add `case RSI_WLAN_RSP_RADIO: ` line next to `case RSI_WLAN_RSP_INIT:` as shown below 
-
-  ```c
-    case RSI_WLAN_RSP_BAND:
-    case RSI_WLAN_RSP_INIT:
-    case RSI_WLAN_RSP_RADIO:
-    case RSI_WLAN_RSP_EAP_CONFIG:
-  ```
-  
- - Open `featured/ble_per/app.c` file 
-
-   - Go to `ble_per(void *unused)` function and add 
-
-     Set region_code to worldwide( or any other region) as shown below in `sl_wifi_device_configuration_t` structure
-
-        ```c
-           static const sl_wifi_device_configuration_t config = {
-                            .region_code = WORLD_DOMAIN,
-        ``` 
-      
-     Set coex_mode to `SL_SI91X_WLAN_BLE_MODE` as shown below in `sl_wifi_device_configuration_t` structure    
-
-        ```c
-           .boot_config = {.oper_mode = SL_SI91X_CLIENT_MODE,
-                           .coex_mode = SL_SI91X_WLAN_BLE_MODE,
-        ```  
-     Add `sl_si91x_set_device_region( )` & `sl_si91x_disable_radio( )` functions as shown below after  `sl_wifi_get_firmware_version(&version)` API is successful 
-      
-      ```c
-        //! set region support
-        status = sl_si91x_set_device_region(config.boot_config.oper_mode, config.band, config.region_code);
-        if (status != RSI_SUCCESS) {
-           LOG_PRINT("\r\nSet Region Failed, Error Code : %ld\r\n", status);
-        } else {
-           LOG_PRINT("\r\nSet Region Success\r\n");
-        }
-        //! WLAN radio deinit
-        status = sl_si91x_disable_radio();
-        if (status != RSI_SUCCESS) {
-           LOG_PRINT("\r\nsl_si91x_radio_deinit failed , Error Code : %ld\r\n", status);
-        } else {
-           LOG_PRINT("\r\n sl_si91x_radio_deinit Success\r\n");
-        }
-
-      ```
-  
-###  Important Notes: 
- The maximum power that BLE can support is 16 dBm. It is not permitted for users to program more than 16dBm. 127 power_index is not supported in this release. 

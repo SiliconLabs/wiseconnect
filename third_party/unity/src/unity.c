@@ -1178,7 +1178,7 @@ int UnityEnd(void)
 
   UnityPrintNumber(UnityGet()->TestIgnores);
   UnityPrint(" Ignored : ");
-  //  UNITY_PRINT_EOL;
+  UNITY_PRINT_EOL;
   if (UnityGet()->TestFailures == 0U) {
     UnityPrint("OK : ");
   } else {
@@ -1187,7 +1187,7 @@ int UnityEnd(void)
     print_error("Error detected in test suite");
 #endif
   }
-  //  UNITY_PRINT_EOL;
+  UNITY_PRINT_EOL;
   UnityPrintRegionExit();
   return UnityGet()->TestFailures;
 }

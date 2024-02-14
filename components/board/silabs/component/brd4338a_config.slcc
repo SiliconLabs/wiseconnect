@@ -5,12 +5,13 @@
 - package: platform
 - category: Board|Configuration
 - quality: production
-- ui_hints:
-    visibility: never
 - root_path: "components/board/silabs/config/brd4338a"
 - provides:
   - name: brd4338a_config
-- config_file: 
+- requires:
+  - name: freertos_config
+    condition: [freertos]
+- config_file:
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: RTE_Device_917
@@ -137,13 +138,13 @@
     path: sl_si91x_i2c_init_i2c2_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
-      file_id: freertos_config
-    path: FreeRTOSConfig.h
-  - override:
-      component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: sl_board_configuration
     path: sl_board_configuration.h
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: sl_board_control
     path: sl_board_control.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%board_configuration_headers"
+      file_id: pin_config
+    path: pin_config.h

@@ -534,7 +534,7 @@ void rsi_ble_peripheral(void)
   rsi_ble_ae_data_t ble_ae_data = { 0 };
   ble_ae_data.type              = BLE_AE_PERIODIC_ADV_DATA_TYPE;
   ble_ae_data.adv_handle        = 0x00;
-  ble_ae_data.operation         = 0x00;
+  ble_ae_data.operation         = 0x03;
   ble_ae_data.frag_pref         = 0x00;
   ble_ae_data.data_len          = BLE_AE_ADV_DATA_LEN;
   memcpy(ble_ae_data.data, data, ble_ae_data.data_len);
@@ -741,7 +741,7 @@ void rsi_ble_peripheral(void)
 
         ble_ae_adv.enable        = RSI_BLE_START_ADV;
         ble_ae_adv.no_of_sets    = 1;
-        ble_ae_adv.adv_handle    = 0x01; //BLE_ADV_HNDL1;
+        ble_ae_adv.adv_handle    = adv_set_terminated.adv_handle;
         ble_ae_adv.duration      = 0;
         ble_ae_adv.max_ae_events = BLE_MAX_AE_EVNTS;
 

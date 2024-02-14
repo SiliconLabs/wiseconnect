@@ -39,6 +39,7 @@
 #endif
 #include <string.h>
 
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t gcm_pending(sl_si91x_gcm_config_t *config, uint16_t chunk_length, uint8_t gcm_flags, uint8_t *output)
 {
   sl_status_t status              = SL_STATUS_FAIL;
@@ -107,19 +108,80 @@ static sl_status_t gcm_pending(sl_si91x_gcm_config_t *config, uint16_t chunk_len
                                  NULL,
                                  &buffer);
 
-  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  if ((status != SL_STATUS_OK)) {
+    free(request);
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+
+  SL_ASSERT(packet->length == config->msg_length + SL_SI91X_TAG_SIZE);
   memcpy(output, packet->data, packet->length);
 
   free(request);
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  if (buffer != NULL)
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
 
   return status;
 }
+
+#else
+static sl_status_t gcm_side_band(sl_si91x_gcm_config_t *config, uint8_t *output)
+{
+  sl_status_t status              = SL_STATUS_FAIL;
+  sl_si91x_gcm_request_t *request = (sl_si91x_gcm_request_t *)malloc(sizeof(sl_si91x_gcm_request_t));
+
+  SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
+
+  // Only 32 bytes M4 OTA built-in key support is present
+  if (config->key_config.b0.key_type == SL_SI91X_BUILT_IN_KEY) {
+    if ((int)(config->key_config.b0.key_size != (int)SL_SI91X_KEY_SIZE_1)
+        || (config->key_config.b0.key_slot != SL_SI91X_KEY_SLOT_1))
+      return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if ((config->gcm_mode == SL_SI91X_GCM_MODE) && config->nonce_length != SL_SI91X_GCM_IV_SIZE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  memset(request, 0, sizeof(sl_si91x_gcm_request_t));
+
+  request->algorithm_type     = GCM;
+  request->dma_use            = config->dma_use;
+  request->total_msg_length   = config->msg_length;
+  request->encrypt_decryption = config->encrypt_decrypt;
+  request->ad_length          = config->ad_length;
+
+  request->ad     = config->ad;
+  request->nonce  = config->nonce;
+  request->msg    = config->msg;
+  request->output = output;
+
+  request->gcm_mode                                  = config->gcm_mode;
+  request->key_info.key_type                         = config->key_config.b0.key_type;
+  request->key_info.key_detail.key_size              = (config->key_config.b0.key_size) * 8;
+  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
+  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
+  request->key_info.reserved                         = config->key_config.b0.reserved;
+  if (config->key_config.b0.wrap_iv_mode) {
+    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
+  }
+  memcpy(request->key_info.key_detail.key_spec.key_buffer,
+         config->key_config.b0.key_buffer,
+         config->key_config.b0.key_size);
+
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_gcm_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  free(request);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+
+#endif
 
 sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
 {
@@ -142,11 +204,16 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
 
   uint16_t total_length = config->msg_length;
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = gcm_side_band(config, output);
+  return status;
+#else
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_gcm_mutex == NULL) {
     crypto_gcm_mutex = sl_si91x_crypto_threadsafety_init(crypto_gcm_mutex);
   }
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_gcm_mutex);
+
 #endif
 
   while (total_length) {
@@ -190,4 +257,5 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_gcm_mutex);
 #endif
   return status;
+#endif
 }

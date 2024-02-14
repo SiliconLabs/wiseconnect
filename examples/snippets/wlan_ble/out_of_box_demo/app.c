@@ -57,9 +57,7 @@
 extern void sl_wifi_app_task(void);
 extern void rsi_ble_configurator_task(void *argument);
 void rsi_ble_configurator_init(void);
-extern int32_t rsi_wlan_mqtt_certs_init(void);
 extern void memlcd_app_init(void);
-int I2C_Transfer(void);
 
 uint8_t magic_word;
 

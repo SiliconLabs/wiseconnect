@@ -37,9 +37,10 @@
 #define SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CCM \
   1200 ///< Maximum length of the CCM message in bytes that can be handled in one go
 #define SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY \
-  1200                              ///< Maximum length of the CHACHAPOLY message in bytes that can be handled in one go
-#define SL_SI91X_IV_SIZE         16 ///< Length of the initialization vector in bytes
-#define SL_SI91X_KEY_BUFFER_SIZE 32 ///< Key size in bytes
+  1200 ///< Maximum length of the CHACHAPOLY message in bytes that can be handled in one go
+#define SL_SI91X_IV_SIZE              16   ///< Length of the initialization vector in bytes
+#define SL_SI91X_KEY_BUFFER_SIZE      32   ///< Key size in bytes
+#define SL_SI91X_WRAP_KEY_BUFFER_SIZE 1400 ///< Wrap Key size in bytes
 
 /// Flags to determine the chunk being handled in the API
 #define FIRST_CHUNK  BIT(0)

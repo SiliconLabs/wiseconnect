@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "rsi_driver.h"
+#include <stdint.h>
 //#include "gap_cmd_hdlr_auto_gen.h"
 
 #define MAX_NO_OF_LENGTH 25

@@ -1,0 +1,22 @@
+id: sl_power_manager_debug
+label: Power Manager Debug (Si91x)
+package: platform
+description: >
+  Power Manager Debug
+category: Device|Si91x|MCU|Service|Power Manager
+quality: production
+component_root_path: "components/device/silabs/si91x/mcu/drivers/service/power_manager"
+source:
+  - path: src/sl_si91x_power_manager_debug.c
+include:
+  - path: inc
+    file_list:
+      - path: sl_si91x_power_manager_debug.h
+config_file:
+  - path: config/sl_si91x_power_manager_debug_config.h
+define:
+  - name: SL_SI91X_POWER_MANAGER_DEBUG_COMPONENT 
+requires:
+  - name: sl_power_manager
+provides:
+  - name: sl_power_manager_debug

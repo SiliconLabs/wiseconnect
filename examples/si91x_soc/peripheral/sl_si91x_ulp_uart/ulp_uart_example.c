@@ -126,7 +126,7 @@ void usart_example_init(void)
     sl_gpio_driver_set_pin_mode(&ulp_gpio_rx, EGPIO_PIN_MUX_MODE3, OUTPUT_VALUE);
 #endif
     // Register user callback function
-    status = sl_si91x_usart_register_event_callback(ulp_uart_callback_event);
+    status = sl_si91x_usart_multiple_instance_register_event_callback(ULPUART, ulp_uart_callback_event);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_usart_register_event_callback: Error Code : %lu \n", status);
       break;

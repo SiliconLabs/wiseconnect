@@ -60,6 +60,8 @@ uint8_t rx_char;
 
 void ARM_UART_SignalEvent(uint32_t event)
 {
+  // Get the USART Event
+  event &= (USART_EVENT_MASK);
   switch (event) {
     case ARM_USART_EVENT_SEND_COMPLETE:
       send_done++;

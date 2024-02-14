@@ -39,6 +39,7 @@
 #include "apds9960Sensor_hal.h"
 #include "accelerometerSensor_hal.h"
 #include "adc_sensor_hal.h"
+#include "sl_si91x_sdc.h"
 
 /*******************************************************************************
  ******************** Sensor HUB Operations Structure  *************************

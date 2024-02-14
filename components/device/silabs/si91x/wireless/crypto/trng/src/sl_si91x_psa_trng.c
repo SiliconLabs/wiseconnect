@@ -36,7 +36,7 @@ psa_status_t sli_si91x_crypto_trng_init()
   status = convert_si91x_error_code_to_psa_status(sl_status);
 
   if (status != PSA_SUCCESS) {
-    printf("\r\n Improper entropy source of TRNG \r\n");
+    SL_PRINTF(SL_TRNG_EXIT, CRYPTO, LOG_INFO, "status: %4x", status);
     return status;
   }
 
@@ -46,7 +46,7 @@ psa_status_t sli_si91x_crypto_trng_init()
   status = convert_si91x_error_code_to_psa_status(sl_status);
 
   if (status != PSA_SUCCESS) {
-    printf("\r\n TRNG Key Programming Failed \r\n");
+    SL_PRINTF(SL_TRNG_EXIT, CRYPTO, LOG_INFO, "status: %4x", status);
     return status;
   }
 
@@ -70,7 +70,7 @@ psa_status_t sl_si91x_psa_get_random(uint8_t *output, size_t len, size_t *out_le
   status = convert_si91x_error_code_to_psa_status(sl_status);
 
   if (status != PSA_SUCCESS) {
-    printf("\r\n Random number generation Failed - Error Code : %ld \r\n", status);
+    SL_PRINTF(SL_TRNG_EXIT, CRYPTO, LOG_INFO, "status: %4x", status);
     return status;
   }
 

@@ -17,6 +17,7 @@
 
 #pragma once
 #include "stdint.h"
+#include "sl_common.h"
 
 //Note: Please go through http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
 
@@ -36,6 +37,10 @@
 #define SI91X_MQTT_CLIENT_DISCONNECT_COMMMAND  8
 #define SI91X_MQTT_CLIENT_DEINIT_COMMAND       9
 
+#define SL_SI91X_MQTT_CLIENT_TOPIC_DELIMITER        "/"
+#define SL_SI91X_MQTT_CLIENT_SINGLE_LEVEL_WILD_CARD "+"
+#define SL_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD  "#"
+
 typedef struct {
   // IP version
   uint32_t ip_version;
@@ -45,7 +50,7 @@ typedef struct {
   } server_ip_address;
 } si91x_mqtt_client_ip_address_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
   // MQTT server IP address
   si91x_mqtt_client_ip_address_t server_ip;
@@ -79,7 +84,7 @@ typedef struct __attribute__((__packed__)) {
   uint16_t keep_alive_retries;
 } si91x_mqtt_client_init_request_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
   // whether to use username (0-1)
   uint8_t is_username_present;
@@ -102,7 +107,7 @@ typedef struct __attribute__((__packed__)) {
 
 } si91x_mqtt_client_connect_request_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
   // length of TOPIC
   uint8_t topic_len;
@@ -113,7 +118,7 @@ typedef struct __attribute__((__packed__)) {
 
 } si91x_mqtt_client_subscribe_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
   // length of TOPIC
   uint8_t topic_len;
@@ -134,7 +139,7 @@ typedef struct __attribute__((__packed__)) {
 
 } si91x_mqtt_client_publish_request_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct SL_ATTRIBUTE_PACKED {
   uint32_t command_type;
   // length of TOPIC
   uint8_t topic_len;
@@ -148,7 +153,7 @@ typedef struct {
 
 } si91x_mqtt_client_command_request_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct SL_ATTRIBUTE_PACKED {
   uint16_t mqtt_flags;
   uint16_t current_chunk_length;
   uint16_t topic_length;

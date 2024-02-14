@@ -33,6 +33,7 @@ extern osEventFlagsId_t si91x_events;
 extern osEventFlagsId_t si91x_bus_events;
 extern osEventFlagsId_t si91x_async_events;
 extern uint32_t frontend_switch_control;
+extern osMutexId_t side_band_crypto_mutex;
 
 /** @addtogroup SOC2
 * @{
@@ -224,7 +225,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
                             uint32_t mode)
 {
   // rsi_driver_cb_t *rsi_driver_cb = global_cb_p->rsi_driver_cb;
-  rsi_p2p_intr_status_bkp_t p2p_intr_status_bkp;
+  volatile uint8_t delay;
 
   // Turn on the ULPSS RAM domains and retain ULPSS RAMs
   if ((mode != RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM) || (mode != RSI_WAKEUP_WO_RETENTION_WO_ULPSS_RAM)) {
@@ -249,20 +250,44 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
   }
-  // Indicate M4 is Inactive
-  P2P_STATUS_REG &= ~M4_is_active;
 
-  if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
-      || (osEventFlagsGet(si91x_events) | osEventFlagsGet(si91x_bus_events) | osEventFlagsGet(si91x_async_events))
+  if ((osEventFlagsGet(si91x_events) | osEventFlagsGet(si91x_bus_events) | osEventFlagsGet(si91x_async_events))
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+      || (osMutexGetOwner(side_band_crypto_mutex) != NULL)
+#endif
       || ((sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
            | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
            | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
            | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
            | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_BT_CMD)))) {
-    P2P_STATUS_REG |= M4_is_active;
-
     return;
   }
+  // Disabling the interrupts & clearing m4_is_active as m4 is going to sleep
+  __disable_irq();
+
+  // Indicate M4 is Inactive
+  P2P_STATUS_REG &= ~M4_is_active;
+  P2P_STATUS_REG;
+  // Adding delay to sync m4 with TA
+  for (delay = 0; delay < 10; delay++) {
+    __ASM("NOP");
+  }
+
+  // Checking if already TA have triggered the packet to M4
+  // RX_BUFFER_VALID will be cleared by TA if any packet is triggered
+  if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
+      || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
+    P2P_STATUS_REG |= M4_is_active;
+    __enable_irq();
+    return;
+  }
+
+  //Disbling systick & clearing interrupt as systick is non-maskable interrupt
+  SysTick->CTRL = DISABLE;
+  NVIC_ClearPendingIRQ(SysTick_IRQn);
+
+  M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
+  M4SS_P2P_INTR_CLR_REG;
 #ifndef ENABLE_DEBUG_MODULE
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
 #endif // ENABLE_DEBUG_MODULE
@@ -278,10 +303,6 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     printf("RSI_CLK_M4SocClkConfig failed\n");
   }
 
-  // Take backup before going to PowerSave
-  p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp = TASS_P2P_INTR_MASK_CLR;
-  p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp  = M4SS_P2P_INTR_SET_REG;
-
   // Configure sleep parameters required by bootloader upon Wake-up
   RSI_PS_RetentionSleepConfig(stack_address, (uint32_t)jump_cb_address, vector_offset, mode);
 
@@ -294,16 +315,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     sli_si91x_configure_wireless_frontend_controls(frontend_switch_control);
   }
 #endif
-
-  // Systick configuration upon Wake-up
-  SysTick_Config(SystemCoreClock / 1000);
-
-  // Indicate M4 is active
-  P2P_STATUS_REG |= M4_is_active;
-
-  // Restore values from backup
-  TASS_P2P_INTR_MASK_CLR = ~p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp;
-  M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
+  __enable_irq();
 }
 
 /**

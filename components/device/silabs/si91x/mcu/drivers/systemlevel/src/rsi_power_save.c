@@ -298,45 +298,6 @@ void ps_wireless_shutdown(void)
 }
 #endif
 
-#ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-/**
- * @fn     void RSI_Set_Cntrls_To_M4(void)
- * @brief  This API is used to set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl, AON domain power supply controls 
- *         form TA to M4
- *          
- *
- * @return none
- */
-void RSI_Set_Cntrls_To_M4(void)
-{
-#ifdef SLI_SI917B0
-  //!take TASS ref clock control to M4
-  MCUAON_CONTROL_REG4 &= ~(MCU_TASS_REF_CLK_SEL_MUX_CTRL);
-#else
-  /* m4ss_ref_clk_mux_ctrl and tass_ref_clk_mux_ctr in M4 Control */
-  NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR_1 = (M4SS_REF_CLK_MUX_CTRL | TASS_REF_CLK_MUX_CTRL);
-#endif
-  /* M4SS controlling Power supply for TASS AON domain */
-  BATT_FF->M4SS_TASS_CTRL_SET_REG_b.M4SS_CTRL_TASS_AON_PWRGATE_EN = ENABLE;
-  /* M4SS controlling Power supply for TASS AON domains isolation enable in bypass mode*/
-  BATT_FF->M4SS_TASS_CTRL_SET_REG_b.M4SS_CTRL_TASS_AON_DISABLE_ISOLATION_BYPASS = ENABLE;
-  /* M4SS controlling Power supply for TASS AON domains reset pin in bypass mode. */
-  M4SS_TASS_CTRL_CLR_REG = M4SS_CTRL_TASS_AON_PWR_DMN_RST_BYPASS_BIT;
-}
-/**
- * @fn     void RSI_Set_Cntrls_To_TA(void)
- * @brief  This API is used to set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls 
- *         form M4 to TA
- *          
- *
- * @return none
- */
-void RSI_Set_Cntrls_To_TA(void)
-{
-  /* tass_ref_clk_mux_ctr in TA Control */
-  NWPAON_MEM_HOST_ACCESS_CTRL_SET_1 = TASS_REF_CLK_MUX_CTRL;
-}
-#endif
 /** @} */
 
 /*ROM API Structure

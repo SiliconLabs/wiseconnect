@@ -27,8 +27,11 @@
 #endif
 
 #include "cmsis_os2.h"
-static osEventFlagsId_t ta_events = NULL;
+osEventFlagsId_t ta_events = NULL;
 #define TA_PKT_TX_DONE (1 << 1)
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+#define SIDE_BAND_DONE (1 << 2)
+#endif
 #ifdef SLI_SI91X_MCU_INTERFACE
 uint8_t rx_packet_pending_flag = 0x00;
 #endif
@@ -48,6 +51,20 @@ void sli_si91x_raise_pkt_pending_interrupt_to_ta(void)
   M4SS_P2P_INTR_SET_REG = TX_PKT_PENDING_INTERRUPT;
   osEventFlagsWait(ta_events, TA_PKT_TX_DONE, (osFlagsWaitAny), osWaitForever);
 }
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+/**
+ * @fn           void sli_si91x_raise_side_band_interrupt_to_ta(void)
+ * @brief        Raise the side band interrupt to TA
+ * @param[in]    void  
+ * @return       void
+ */
+void sli_si91x_raise_side_band_interrupt_to_ta(void)
+{
+  // Write the packet pending interrupt to TA register
+  M4SS_P2P_INTR_SET_REG = SIDE_BAND_CRYPTO_INTR;
+}
+#endif
 
 /**
  * @fn          void raise_m4_to_ta_interrupt(uint32_t interrupt_no)
@@ -115,6 +132,11 @@ sl_status_t sli_m4_interrupt_isr(void)
     sl_mv_m4_app_from_flash_to_ram(TA_WRITES_ON_COMM_FLASH);
     // Clear the interrupt
     clear_ta_to_m4_interrupt(TA_WRITING_ON_COMM_FLASH);
+  } else if (TASS_P2P_INTR_CLEAR & NWP_DEINIT_IN_COMM_FLASH) {
+    //! moves m4 app to RAM and polls for TA done
+    sl_mv_m4_app_from_flash_to_ram(M4_WAIT_FOR_NWP_DEINIT);
+    // Clear the interrupt
+    clear_ta_to_m4_interrupt(NWP_DEINIT_IN_COMM_FLASH);
   }
   //! Below changes are requried for M4 Image upgration in dual flash config
   else if (TASS_P2P_INTR_CLEAR & M4_IMAGE_UPGRADATION_PENDING_INTERRUPT) {
@@ -122,6 +144,14 @@ sl_status_t sli_m4_interrupt_isr(void)
     sl_mv_m4_app_from_flash_to_ram(UPGRADE_M4_IMAGE_OTA);
     // Clear the interrupt
     clear_ta_to_m4_interrupt(M4_IMAGE_UPGRADATION_PENDING_INTERRUPT);
+  }
+#endif
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  //! Below changes are requried for SIDE BAND CRYPTO
+  else if (TASS_P2P_INTR_CLEAR & SIDE_BAND_CRYPTO_DONE) {
+    osEventFlagsSet(ta_events, SIDE_BAND_DONE);
+    // Clear the interrupt
+    clear_ta_to_m4_interrupt(SIDE_BAND_CRYPTO_DONE);
   }
 #endif
   else {

@@ -55,6 +55,7 @@ typedef enum {
   PS1,        // PS1 state
   PS2_TO_PS3, // PS2 to PS3 state change
   PS3_TO_PS4, // PS3 to PS4 state change
+  PS0,        // PS0 State (Sleep without retention)
   TERMINATED, // Last state change
 } ps_transition;
 
@@ -78,7 +79,8 @@ const osThreadAttr_t thread_attributes = {
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 static void application_start(void *argument);
-static sl_status_t initialize_wireless();
+static sl_status_t initialize_wireless(void);
+static void wireless_sleep(boolean_t sleep_with_retention);
 static void transition_callback(sl_power_state_t from, sl_power_state_t to);
 static void on_sec_callback(void);
 static void set_ram_retention(void);
@@ -109,31 +111,31 @@ void power_manager_example_init(void)
  * - All the activities are performed in this function.
  * - The wireless interface is initialized first and then the power manager service is initialized.
  * - Events are subscribed to get the callbacks.
- * - If SWITCH_TO_PS0 is enabled, it transits its state from PS4 (default High Power State)
- * to PS0 (Sleep without retention) and when the wakeup source is triggered, it restarts
- * the controller.
- * - If SWITCH_TO_PS0 is disabled, it transits different power states and sleeps upon the button press.
- * - The soc transits the power state in the following pattern: 
- *    - By default the power state is PS4. After the button is pressed, it transits to PS2 and waits for the button trigger.
- *    - When the button trigger is detected, it transits to PS4 and waits for the button trigger.
+ * - This function transits between different power states and sleep upon the button press.
+ * - The soc transits the power state in the following patter: 
+ *    - By default the power state is PS4. After button press it transits to PS2 and waits for button trigger.
+ *    - When button trigger is detected, it transits to PS4 and waits for button trigger.
  *    - When button trigger is detected, it transits to PS4-Sleep with calendar one-second trigger as a wakeup
- *      source and wait for the calendar one-second trigger, it triggers after one second. When calendar trigger is detected, it wakes up the
+ *      source and wait for the calendar one second trigger, it triggers after one second. When calendar trigger is detected, it wakes up the
  *      soc and the current power state is PS4. Now it waits for the button trigger.
- *    - When the button trigger is detected, it transits to PS3 and waits for the button trigger.
+ *    - When button trigger is detected, it transits to PS3 and waits for button trigger.
  *    - When button trigger is detected, it transits to PS3-Sleep with calendar one-second trigger as a wakeup
- *      source and wait for the calendar one-second trigger, it triggers after one second. When calendar trigger is detected, it wakes up the
+ *      source and wait for the calendar one second trigger, it triggers after one second. When calendar trigger is detected, it wakes up the
  *      soc and the current power state is PS3. Now it waits for the button trigger.
- *    - When the button trigger is detected, it transits to PS2 and waits for the button trigger.
+ *    - When button trigger is detected, it transits to PS2 and waits for button trigger.
  *    - When button trigger is detected, it transits to PS2-Sleep with calendar one-second trigger as a wakeup
- *      source and wait for the calendar one-second trigger, it triggers after one second. When calendar trigger is detected, it wakes up the
+ *      source and wait for the calendar one second trigger, it triggers after one second. When calendar trigger is detected, it wakes up the
  *      soc and the current power state is PS2. Now it waits for the button trigger.
  *    - When button trigger is detected, it transits to PS1 with ulp timer trigger as a wakeup
  *      source and wait for the ulp timer trigger, it triggers after two seconds. When calendar trigger is detected, it wakes up the
  *      soc and the current power state is PS2. Now it waits for the button trigger.
- *    - When the button trigger is detected, it transits to PS3 and waits for the button trigger.
- *    - When the button trigger is detected, it transits to PS4.
+ *    - When button trigger is detected, it transits to PS3 and waits for button trigger.
+ *    - When button trigger is detected, it transits to PS4.
+ *    - When button trigger is detected, it transits to PS0 deepsleep without retention with calendar one-second trigger as a wakeup
+ *      source and wait for the calendar one second trigger, it triggers after one second. When calendar trigger is detected, it wakes up the
+ *      soc and resets the controller and starts the execution from main(). Now it waits for the button trigger.
  *    - The transition summary is PS4 -> PS2 -> PS4 -> PS4 Sleep -> PS4 -> PS3 -> PS3 Sleep -> PS3
- *      -> PS2 -> PS2 Sleep -> PS2 -> PS1 -> PS2 -> PS3 -> PS4.
+ *      -> PS2 -> PS2 Sleep -> PS2 -> PS1 -> PS2 -> PS3 -> PS4 -> PS0 -> resets the controller.
  ******************************************************************************/
 static void application_start(void *argument)
 {
@@ -150,15 +152,6 @@ static void application_start(void *argument)
   }
   DEBUGOUT("Wireless is successfully initialized and TA is in Sleep \n");
 
-  // Initialize the power manager service. It sets the mcu in PS4 active state with 100 MHz system clock.
-  status = sl_si91x_power_manager_init();
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    DEBUGOUT("Power Manager initialization failed, Error Code: 0x%lX \n", status);
-    return;
-  }
-  DEBUGOUT("Power Manager is initialized \n");
-
   // Subscribe the state transition callback events, the ored value of flag and function pointer is passed in this API.
   status = sl_si91x_power_manager_subscribe_ps_transition_event(&handle, &info);
   if (status != SL_STATUS_OK) {
@@ -171,13 +164,9 @@ static void application_start(void *argument)
   // Configuring the RAM retention used for sleep-wakeup.
   set_ram_retention();
 
-#if (SWITCH_TO_PS0 == ENABLE)
-  power_control(SL_SI91X_POWER_MANAGER_PS4, SL_SI91X_POWER_MANAGER_PS0);
-#else
   while (true) {
     power_manager_example_process_action();
   }
-#endif
 }
 
 /*******************************************************************************
@@ -233,23 +222,82 @@ static sl_status_t initialize_wireless(void)
     DEBUGOUT("sl_si91x_m4_ta_secure_handshake failed, Error Code: 0x%lX \n", status);
     return status;
   }
+  // Wireless Sleep with ram retention
+  wireless_sleep(true);
+  // If reaches here, returns SL_STATUS_OK.
+  return SL_STATUS_OK;
+}
 
-#if (SWITCH_TO_PS0 == ENABLE)
-  // Wifi Profile (TA Mode) is set to standby power save without RAM retention.
-  sl_wifi_performance_profile_t ta_performance_profile = { .profile = STANDBY_POWER_SAVE };
-#else
-  // Wifi Profile (TA Mode) is set to standby power save with RAM retention.
-  sl_wifi_performance_profile_t ta_performance_profile = { .profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION };
-#endif
+/*******************************************************************************
+ * After PS2 to PS4 transition, flash is initialized and to initialize flash
+ * wireless processor is set to active mode.
+ * This function sends the wireless processor to sleep with retention.
+ ******************************************************************************/
+static void wireless_sleep(boolean_t sleep_with_retention)
+{
+  sl_status_t status;
+  // Wifi Profile (TA Mode) is set to High Performance.
+  sl_wifi_performance_profile_t ta_performance_profile = { .profile = HIGH_PERFORMANCE };
 
   status = sl_wifi_set_performance_profile(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with error code.
     DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
-    return status;
+    return;
   }
-  // If reaches here, returns SL_STATUS_OK.
-  return SL_STATUS_OK;
+  if (sleep_with_retention) {
+    // Wifi Profile (TA Mode) is set to standby power save with RAM retention.
+    ta_performance_profile.profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION;
+  } else {
+    ta_performance_profile.profile = STANDBY_POWER_SAVE;
+  }
+  // Wifi Profile (TA Mode) is set to standby power save with RAM retention.
+  status = sl_wifi_set_performance_profile(&ta_performance_profile);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, return with error code.
+    DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
+    return;
+  }
+}
+
+/***************************************************************************/ /**
+ * Check if the MCU can sleep at that time. This function is called when the system
+ * is about to go sleeping, with the interrupts disabled. It allows the software to
+ * cancel going to sleep in case of a last-minute event occurred (window between the
+ * function call and interrupt disable).
+ *
+ * @return  True, if the system can go to sleep.
+ *          False, otherwise.
+ *
+ * @note  This function is called with the interrupt disabled and it MUST NOT be
+ *        re-enabled.
+ ******************************************************************************/
+boolean_t app_is_ok_to_sleep(void)
+{
+  return true;
+}
+
+/***************************************************************************/ /**
+ * Check if the MCU can sleep after an interrupt. This function is called after an
+ * interrupt occured and was processed. It allows the power manger to know if it must
+ * go back to sleep or wakeup.
+ *
+ * @return  SL_SI91X_POWER_MANAGER_IGNORE, if the module did not trigger an ISR and it
+ *          won't to contribute to the decision.
+ *
+ *          SL_SI91X_POWER_MANAGER_SLEEP, The module was the one that caused the system
+ *          wakeup and the system SHOULD go back to sleep.
+ *
+ *          SL_SI91X_POWER_MANAGER_WAKEUP, The module was the one that caused the system
+ *          wakeup and the system MUST NOT go back to sleep.
+ *
+ * @note  This function must not have any side effects. It is not guaranteed to be
+ *        called for every ISR. If a prior hook function requires to wakeup, such
+ *        as a wireless stack, the application hook function won't be called.
+ ******************************************************************************/
+sl_si91x_power_manager_on_isr_exit_t app_sleep_on_isr_exit(void)
+{
+  return SL_SI91X_POWER_MANAGER_ISR_WAKEUP;
 }
 
 /*******************************************************************************
@@ -274,6 +322,8 @@ void power_manager_example_process_action(void)
         DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
         // If button is pressed, change to PS4 state.
         power_control(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_PS4);
+        // Wireless deepsleep with ram retention
+        wireless_sleep(true);
         change_state = false;
         // Next transition is from PS4 to PS4 sleep.
         transition = PS4_SLEEP;
@@ -336,6 +386,8 @@ void power_manager_example_process_action(void)
         DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
         // If button is pressed, change to PS3 state.
         power_control(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_PS3);
+        // Wireless deepsleep with ram retention
+        wireless_sleep(true);
         change_state = false;
         // Next transition is from PS3 to PS4 state.
         transition = PS3_TO_PS4;
@@ -346,6 +398,18 @@ void power_manager_example_process_action(void)
         DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
         // If button is pressed, change to PS4 state.
         power_control(SL_SI91X_POWER_MANAGER_PS3, SL_SI91X_POWER_MANAGER_PS4);
+        change_state = false;
+        // All state transitions are completed.
+        transition = PS0;
+      }
+      break;
+    case PS0:
+      if (change_state) {
+        DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
+        // Wireless deepsleep without ram retention
+        wireless_sleep(false);
+        // If button is pressed, change to PS0 state.
+        power_control(SL_SI91X_POWER_MANAGER_PS4, SL_SI91X_POWER_MANAGER_PS0);
         change_state = false;
         // All state transitions are completed.
         transition = TERMINATED;
@@ -553,7 +617,6 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
       DEBUGOUT("sl_si91x_power_manager_sleep failed, Error Code: 0x%lX \n", status);
       return;
     }
-    *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x174) = 2;
 
     clear_npss_wakeup_source(SL_SI91X_POWER_MANAGER_SEC_WAKEUP);
   }
@@ -607,10 +670,10 @@ static void set_ram_retention(void)
 {
   sl_status_t status;
   sl_power_ram_retention_config_t config;
-  config.configure_ram_retention = true;
-  config.ram_retention_mode      = SL_SI91X_POWER_MANAGER_M4ULP_RAM16K_RETENTION_ENABLE
-                              | SL_SI91X_POWER_MANAGER_ULPSS_RAM_RETENTION_ENABLE
-                              | SL_SI91X_POWER_MANAGER_M4ULP_RAM_RETENTION_ENABLE;
+  config.configure_ram_banks = true;
+  config.m4ss_ram_banks      = SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9
+                          | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10;
+  config.ulpss_ram_banks = SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_2 | SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_3;
 
   // RAM retention modes are configured and passed into this API.
   status = sl_si91x_power_manager_configure_ram_retention(&config);
@@ -629,6 +692,8 @@ static void set_npss_wakeup_source(uint32_t wakeup_source)
   sl_status_t status;
   switch (wakeup_source) {
     case SL_SI91X_POWER_MANAGER_SEC_WAKEUP:
+      // Calendar clock is stopped to reset the configurations.
+      sl_si91x_calendar_rtc_stop();
       // Calendar configuration is set, i.e. clock is set to RC clock.
       status = sl_si91x_calendar_set_configuration(2);
       if (status != SL_STATUS_OK) {

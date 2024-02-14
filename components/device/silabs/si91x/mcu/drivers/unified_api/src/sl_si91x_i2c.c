@@ -167,7 +167,7 @@ sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_
       break;
     }
     // Updating i2c structure as per inputs
-    config.clhr = p_user_config->operating_mode;
+    config.clhr = (sl_i2c_clock_hlr_t)(p_user_config->operating_mode);
     config.mode = p_user_config->mode;
     // Updating members of respective instance structure variables
     if (i2c_instance == SL_I2C0) {
@@ -495,6 +495,8 @@ sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instan
     if (i2c0_instance.mode || i2c1_instance.mode || i2c2_instance.mode) {
       wait_for_i2c_follower_ready(i2c);
     }
+    // to avoid unused variable warning
+    (void)clear;
   } while (false);
   return i2c_status;
 }
@@ -631,7 +633,6 @@ sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_in
   uint32_t channel_priority = ZERO;
   uint32_t dma_number       = DMA_NUMBER;
   sl_dma_callback_t i2c_rx_callback;
-  sl_dma_callback_t i2c_tx_callback;
   do {
     // Validating for NULL pointers and I2C instance number
     if ((rx_buffer == NULL) || (p_dma_config == NULL) || (i2c_instance >= SL_I2C_LAST)
@@ -715,9 +716,6 @@ sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_in
       sl_dma_xfer_t dma_transfer_tx = { ZERO };
       channel                       = p_dma_config->dma_tx_channel + ONE;
       channel_priority              = 0;
-      // Initialize sl_dma callback structure
-      i2c_tx_callback.transfer_complete_cb = i2c_dma_transfer_complete_callback;
-      i2c_tx_callback.error_cb             = i2c_dma_error_callback;
       // Initialize sl_dma transfer structure
       dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(write_ack));
       dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (i2c->IC_DATA_CMD));
@@ -1533,6 +1531,8 @@ static void i2c_handler(I2C_TypeDef *i2c)
     sl_si91x_i2c_clear_interrupts(i2c, SL_I2C_EVENT_RESTART_DET);
     return;
   }
+  // to avoid unused variable warning
+  (void)clear;
 }
 /*******************************************************************************
  * IRQ handler for I2C 0.
@@ -1564,11 +1564,13 @@ void I2C2_IRQHandler(void)
 static void i2c_dma_transfer_complete_callback(uint32_t channel, void *data)
 {
   uint32_t driver_status;
+  // to avoid unused variable warning
+  (void)data;
   driver_status = SL_I2C_DATA_TRANSFER_COMPLETE;
   switch (channel) {
     case SL_I2C0_DMA_TX_CHANNEL:
       if (!i2c_read_ack) {
-        *i2c_tx_last_byte_addr &= ~(BIT_SET << STOP_BIT);
+        *i2c_tx_last_byte_addr &= ~((uint32_t)BIT_SET << STOP_BIT);
         i2c_tx_last_byte_addr = ZERO;
       }
       if (i2c_read_ack) {
@@ -1583,7 +1585,7 @@ static void i2c_dma_transfer_complete_callback(uint32_t channel, void *data)
       break;
     case SL_I2C1_DMA_TX_CHANNEL:
       if (!i2c_read_ack) {
-        *i2c_tx_last_byte_addr &= ~(BIT_SET << STOP_BIT);
+        *i2c_tx_last_byte_addr &= ~((uint32_t)BIT_SET << STOP_BIT);
         i2c_tx_last_byte_addr = 0;
       }
       if (i2c_read_ack) {
@@ -1598,7 +1600,7 @@ static void i2c_dma_transfer_complete_callback(uint32_t channel, void *data)
       break;
     case SL_I2C2_DMA_TX_CHANNEL:
       if (!i2c_read_ack) {
-        *i2c_tx_last_byte_addr &= ~(BIT_SET << STOP_BIT);
+        *i2c_tx_last_byte_addr &= ~((uint32_t)BIT_SET << STOP_BIT);
         i2c_tx_last_byte_addr = 0;
       }
       if (i2c_read_ack) {
@@ -1622,6 +1624,8 @@ static void i2c_dma_transfer_complete_callback(uint32_t channel, void *data)
 static void i2c_dma_error_callback(uint32_t channel, void *data)
 {
   uint32_t driver_status;
+  // to avoid unused variable warning
+  (void)data;
   driver_status = SL_I2C_DMA_TRANSFER_ERROR;
   // Calling i2c callback
   if (channel == 31) {

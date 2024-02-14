@@ -6,6 +6,8 @@ description: >
 category: Device|Si91x|MCU|Service
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/service/sensorhub"
+template_file:
+  - path: linker_file/linkerfile_SoC.ld
 source:
   - path: "src/sensor_hub.c"
 include:
@@ -15,5 +17,9 @@ include:
     - path: "sensorhub_error_codes.h"
 provides:
   - name: sensor_hub
+  - name: wiseconnect_toolchain_custom_linker
 requires:
   - name: cmsis_i2c
+toolchain_settings:
+  - option: linkerfile
+    value: autogen/linkerfile_SoC.ld

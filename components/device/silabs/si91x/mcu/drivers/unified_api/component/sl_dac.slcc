@@ -1,0 +1,24 @@
+id: sl_dac
+label: DAC
+package: platform
+description: >
+  Si91x Digital to Analog Converter (DAC) API, DAC sample the digital word and convert it to analog output.
+category: Device|Si91x|MCU|Peripheral
+quality: production
+root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+config_file:
+  - path: config/sl_si91x_dac_config.h
+source:
+  - path: "src/sl_si91x_dac.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_si91x_dac.h"
+provides:
+  - name: sl_dac
+define:
+  - name: DAC_FIFO_MODE_EN
+requires:
+  - name: rsilib_dac
+  - name: rsilib_adc
+  - name: rsilib_opamp

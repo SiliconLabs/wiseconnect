@@ -23,12 +23,9 @@
 /*=======================================================================*/
 //   ! INCLUDES
 /*=======================================================================*/
-#include <rsi_common_app.h>
-#include <rsi_data_types.h>
-#include "rsi_driver.h"
-#include <rsi_common_apis.h>
-#include <rsi_error.h>
-#include <rsi_os.h>
+
+#include "stdint.h"
+#include "cmsis_os2.h"
 
 /*=======================================================================*/
 //   ! Defines

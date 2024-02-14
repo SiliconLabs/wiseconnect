@@ -252,6 +252,50 @@ void RSI_PS_RestoreCpuContext(void)
 }
 #endif /*------------------ IAR Compiler ---------------------*/
 
+#ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
+/**
+ * @fn     void RSI_Set_Cntrls_To_M4(void)
+ * @brief  This API is used to set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl, AON domain power supply controls
+ *         form TA to M4
+ *
+ *
+ * @return none
+ */
+void RSI_Set_Cntrls_To_M4(void)
+{
+  volatile uint8_t delay;
+#ifdef SLI_SI917B0
+  //!take TASS ref clock control to M4
+  MCUAON_CONTROL_REG4 &= ~(MCU_TASS_REF_CLK_SEL_MUX_CTRL);
+#else
+  /* m4ss_ref_clk_mux_ctrl and tass_ref_clk_mux_ctr in M4 Control */
+  NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR_1 = (M4SS_REF_CLK_MUX_CTRL | TASS_REF_CLK_MUX_CTRL);
+#endif
+  /* M4SS controlling Power supply for TASS AON domain */
+  BATT_FF->M4SS_TASS_CTRL_SET_REG_b.M4SS_CTRL_TASS_AON_PWRGATE_EN = ENABLE;
+  /* M4SS controlling Power supply for TASS AON domains isolation enable in bypass mode*/
+  BATT_FF->M4SS_TASS_CTRL_SET_REG_b.M4SS_CTRL_TASS_AON_DISABLE_ISOLATION_BYPASS = ENABLE;
+  /* M4SS controlling Power supply for TASS AON domains reset pin in bypass mode. */
+  M4SS_TASS_CTRL_CLR_REG = M4SS_CTRL_TASS_AON_PWR_DMN_RST_BYPASS_BIT;
+  for (delay = 0; delay < 10; delay++) {
+    __ASM("NOP");
+  }
+}
+/**
+ * @fn     void RSI_Set_Cntrls_To_TA(void)
+ * @brief  This API is used to set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls
+ *         form M4 to TA
+ *
+ *
+ * @return none
+ */
+void RSI_Set_Cntrls_To_TA(void)
+{
+  /* tass_ref_clk_mux_ctr in TA Control */
+  NWPAON_MEM_HOST_ACCESS_CTRL_SET_1 = TASS_REF_CLK_MUX_CTRL;
+}
+#endif
+
 /**
  * @fn          rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType , uint8_t lf_clk_mode)
  * @brief	    This is the common API to keep the system in sleep state. from all possible active states.
@@ -272,6 +316,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   uint32_t ipmuDummyRead = 0, m4ulp_ram_core_status = 0, m4ulp_ram_peri_status = 0, disable_pads_ctrl = 0,
            ulp_proc_clk         = 0;
   volatile uint8_t in_ps2_state = 0, x = 0;
+  sl_p2p_intr_status_bkp_t p2p_intr_status_bkp;
 
   /*Save the NVIC registers */
   for (var = 0; var < MAX_NVIC_REGS; ++var) {
@@ -423,6 +468,9 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   /* Save Stack pointer value and Control registers */
   RSI_Save_Context();
 #endif
+  // Take backup before going to PowerSave
+  p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp = TASS_P2P_INTR_MASK_CLR;
+  p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp  = M4SS_P2P_INTR_SET_REG;
 
 #if ((defined SLI_SI91X_MCU_COMMON_FLASH_MODE) && (!(defined(RAM_COMPILATION))))
   /* Reset M4_USING_FLASH bit before going to sleep */
@@ -430,6 +478,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   /*Before M4 is going to deep sleep , set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctr, AON domain power supply controls form M4 to TA */
 #ifdef SLI_SI917B0
   MCUAON_CONTROL_REG4 |= (MCU_TASS_REF_CLK_SEL_MUX_CTRL);
+  MCUAON_CONTROL_REG4;
 #else
   NWPAON_MEM_HOST_ACCESS_CTRL_SET_1 = TASS_REF_CLK_MUX_CTRL;
 #endif
@@ -461,12 +510,18 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   if ((in_ps2_state)) {
     ULPCLK->ULP_TA_CLK_GEN_REG_b.ULP_PROC_CLK_SEL = (unsigned int)(ulp_proc_clk & 0xF);
   }
-  /* After wake-up, Set the SCDC voltage to the actual value*/
-  set_scdc(SL_SCDC_ACTIVE);
+
 #if ((defined SLI_SI91X_MCU_COMMON_FLASH_MODE) && (!(defined(RAM_COMPILATION))))
   /* Before TA is going to power save mode, set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls form TA to M4 */
   RSI_Set_Cntrls_To_M4();
 #endif
+  /* After wake-up, Set the SCDC voltage to the actual value*/
+  /* As this function is located in flash accessing this fucntion only after getting controls*/
+  set_scdc(SL_SCDC_ACTIVE);
+
+  // Restore values from backup
+  TASS_P2P_INTR_MASK_CLR = ~p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp;
+  M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
   /*Update the REG Access SPI division factor to increase the SPI read/write speed*/
   if (lf_clk_mode == HF_MHZ_RO) {
     RSI_SetRegSpiDivision(0U);
@@ -550,6 +605,15 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   for (x = 0; x < 200; x++) {
     __ASM("NOP");
   }
+
+  // Systick configuration upon Wake-up
+  SysTick_Config(SystemCoreClock / 1000);
+
+  // Indicate M4 is active
+  P2P_STATUS_REG |= M4_is_active;
+
+  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
+
   /*Start of M4 init after wake up  */
 #ifdef IOSTREAM_USART
   fpuInit();

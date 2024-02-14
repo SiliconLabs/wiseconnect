@@ -43,6 +43,9 @@ extern "C" {
 #include "RTE_Components.h"
 #include "UDMA.h"
 
+#define USART_INSTANCE_BIT 30          // USART Instance bit postion stored in event variable
+#define USART_EVENT_MASK   0x3FFFFFFF  // USART Event Mask
+
 // USART Transfer Information (Run-Time)
 typedef struct _USART_TRANSFER_INFO {
   uint32_t                rx_num;        // Total number of data to be received

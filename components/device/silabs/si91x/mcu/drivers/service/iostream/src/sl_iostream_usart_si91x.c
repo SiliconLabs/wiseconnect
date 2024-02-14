@@ -177,7 +177,7 @@ sl_status_t sl_iostream_usart_init(sl_iostream_uart_t *iostream_uart,
   }
 
   // Register user callback function
-  status = sl_si91x_usart_register_event_callback(callback_event);
+  status = sl_si91x_usart_multiple_instance_register_event_callback(init->usart_module, callback_event);
   if (status != SL_STATUS_OK) {
     return status;
   }

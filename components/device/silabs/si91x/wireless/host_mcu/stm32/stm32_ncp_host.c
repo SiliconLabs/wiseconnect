@@ -164,8 +164,9 @@ void sl_si91x_host_release_from_reset(void)
   HAL_GPIO_WritePin(RESET_PIN_GPIO_Port, RESET_PIN_Pin, GPIO_PIN_SET);
 }
 
-sl_status_t sl_si91x_host_init(void)
+sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
 {
+  UNUSED_PARAMETER(config);
   uint32_t status = 0;
 
   //! Initialize the host platform GPIOs

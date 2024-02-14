@@ -19,7 +19,5 @@
 
 #include <stddef.h>
 
-#warning "sl_board_configuration.h is not configured. Please configure the defines here.\n"
-
-// #define DEFAULT_UART            NULL
-// #define DEFAULT_UART_PIN_CONFIG NULL
+#define DEFAULT_UART            NULL
+#define DEFAULT_UART_PIN_CONFIG NULL

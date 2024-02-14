@@ -36,6 +36,12 @@ uint8_t pwr_index_to_db_array[] = { 11, 13, 17, 23, 31, 44, 45, 47, 49, 52, 55, 
 uint8_t wms_pwr_index_to_db_array[] = { 8,  10, 13, 18, 29, 39, 40, 41, 42, 44, 45, 48,
                                         50, 54, 61, 70, 71, 72, 73, 74, 75, 76, 77, 78 };
 
+/******************************************************
+ *               Function Declarations
+ ******************************************************/
+int32_t rsi_ble_write_rf_path_compensation(uint16_t tx_path_value, uint16_t rx_path_value);
+int32_t rsi_ble_read_rf_path_compensation(void *resp);
+
 /**
  * @fn         uint8_t rsi_convert_db_to_powindex(int8_t tx_power_in_dBm)
  * @brief      Convert power from dBm to power index.
@@ -639,6 +645,9 @@ int32_t rsi_ble_disconnect(int8_t *remote_dev_address)
  *             BIT(1)    Scanning state \n
  *             BIT(2)    Initiating state \n
  *             BIT(3)    Connected state \n
+ *             BIT(4)    Extended Advertising state \n
+ *             BIT(5)    Extended Scanning state \n
+ *             BIT(6)    Extended Initiating state \n
  * @return     0 - Success \n
  *             Non-Zero Value - Failure \n
  *             If the return value is less than 0 \n
@@ -1566,7 +1575,7 @@ int32_t rsi_ble_per_receive(struct rsi_ble_per_receive_s *rsi_ble_per_rx)
  *               -4 - Buffer not available to serve the command
  * @note       Refer Error Codes section for above error codes \ref error-codes .
  */
-
+int32_t rsi_ble_vendor_rf_type(uint8_t ble_power_index);
 int32_t rsi_ble_vendor_rf_type(uint8_t ble_power_index)
 {
 

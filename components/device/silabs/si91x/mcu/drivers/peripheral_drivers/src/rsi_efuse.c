@@ -165,7 +165,7 @@ rsi_error_t efuse_fsm_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint8_t
   float read_time;
   uint8_t read_parameter;
   read_time      = ((1 / SocClk) * (1000));
-  read_parameter = 42 / read_time;
+  read_parameter = 42 / (uint8_t)read_time;
   /* Check for valid parameters */
   if (pstcEfuse == NULL) {
     return ERROR_EFUSE_INVALID_PARAMETERS;
@@ -211,7 +211,7 @@ rsi_error_t efuse_mem_map_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uin
   float read_time;
   uint8_t read_parameter;
   read_time      = ((1 / SocClk) * (1000));
-  read_parameter = 42 / read_time;
+  read_parameter = 42 / (uint8_t)read_time;
   // Check for valid parameters
   if (pstcEfuse == NULL) {
     return ERROR_EFUSE_INVALID_PARAMETERS;
@@ -250,7 +250,7 @@ rsi_error_t efuse_mem_map_read_word(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uin
   float read_time;
   uint8_t read_parameter;
   read_time      = ((1 / SocClk) * (1000));
-  read_parameter = 42 / read_time;
+  read_parameter = 42 / (uint8_t)read_time;
   // Check for valid parameters
   if (pstcEfuse == NULL) {
     return ERROR_EFUSE_INVALID_PARAMETERS;

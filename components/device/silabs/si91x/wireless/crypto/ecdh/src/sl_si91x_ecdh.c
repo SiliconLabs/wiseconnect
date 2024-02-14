@@ -101,12 +101,25 @@ static sl_status_t ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   request->algorithm_type = ECDH;
   request->ecdh_mode      = ecdh_mode;
   request->ecdh_sub_mode  = ecdh_sub_mode;
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+
+  request->sx = sx;
+  request->sy = sy;
+  request->sz = sz;
+  request->tx = tx;
+  request->ty = ty;
+  request->tz = tz;
+  request->rx = rx;
+  request->ry = ry;
+  request->rz = rz;
+#else
   memcpy(request->sx, sx, size);
   memcpy(request->sy, sy, size);
   memcpy(request->sz, sz, size);
   memcpy(request->tx, tx, size);
   memcpy(request->ty, ty, size);
   memcpy(request->tz, tz, size);
+#endif
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_ecdh_mutex == NULL) {
@@ -115,6 +128,18 @@ static sl_status_t ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ecdh_mutex);
 #endif
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 sizeof(sl_si91x_ecdh_add_sub_request_t),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  if (status != SL_STATUS_OK) {
+    free(request);
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+#else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         request,
@@ -139,6 +164,8 @@ static sl_status_t ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
   offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+#endif
+
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -217,11 +244,20 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   request->ecdh_sub_mode   = SL_SI91X_ECDH_MUL;
   request->ecdh_curve_type = SL_SI91X_ECDH_CURVE_P;
   request->affinity        = affinity;
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  request->d  = d;
+  request->sx = sx;
+  request->sy = sy;
+  request->sz = sz;
+  request->rx = rx;
+  request->ry = ry;
+  request->rz = rz;
+#else
   memcpy(request->d, d, size);
   memcpy(request->sx, sx, size);
   memcpy(request->sy, sy, size);
   memcpy(request->sz, sz, size);
-
+#endif
   if (reverse) {
     reverse_digits(request->sx, size);
     reverse_digits(request->sy, size);
@@ -236,6 +272,18 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ecdh_mutex);
 #endif
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_ecdh_mul_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  if (status != SL_STATUS_OK) {
+    free(request);
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+#else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         request,
@@ -260,6 +308,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
   offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+#endif
 
   if (reverse) {
     reverse_digits(rx, size);
@@ -312,9 +361,19 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   request->algorithm_type = ECDH;
   request->ecdh_mode      = ecdh_mode;
   request->ecdh_sub_mode  = SL_SI91X_ECDH_DOUBLE;
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  request->sx = sx;
+  request->sy = sy;
+  request->sz = sz;
+  request->rx = rx;
+  request->ry = ry;
+  request->rz = rz;
+#else
   memcpy(request->sx, sx, size);
   memcpy(request->sy, sy, size);
   memcpy(request->sz, sz, size);
+#endif
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_ecdh_mutex == NULL) {
@@ -323,6 +382,19 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ecdh_mutex);
 #endif
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_ecdh_double_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  if (status != SL_STATUS_OK) {
+    free(request);
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+#else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         request,
@@ -347,6 +419,8 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
   offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+#endif
+
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -393,9 +467,21 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   request->ecdh_mode       = ecdh_mode;
   request->ecdh_sub_mode   = SL_SI91X_ECDH_AFFINITY;
   request->ecdh_curve_type = SL_SI91X_ECDH_CURVE_P;
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  memcpy(rx, sx, size);
+  memcpy(ry, sy, size);
+  memcpy(rz, sz, size);
+  request->sx = rx;
+  request->sy = ry;
+  request->sz = rz;
+  request->rx = rx;
+  request->ry = ry;
+  request->rz = rz;
+#else
   memcpy(request->sx, sx, size);
   memcpy(request->sy, sy, size);
   memcpy(request->sz, sz, size);
+#endif
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_ecdh_mutex == NULL) {
@@ -404,6 +490,18 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_ecdh_mutex);
 #endif
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_ecdh_affine_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  if (status != SL_STATUS_OK) {
+    free(request);
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+#else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         request,
@@ -428,6 +526,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
   offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+#endif
 
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(request);

@@ -184,6 +184,7 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
     memset(&ipv6_request, 0, sizeof(ipv6_request));
     uint16_t prefix_length = 64;
     memcpy(&ipv6_request.prefixLength, &prefix_length, 2);
+    ipv6_request.vap_id = virtual_ap_id;
 
     if (SL_IP_MANAGEMENT_STATIC_IP == address->mode) {
       // Set IPv6 mode to static

@@ -290,9 +290,15 @@ extern "C" {
 #define RETEN_RAM_CONTENT_END_LOCATION              (*(volatile uint32_t *)(0x24061FCC))
 #define RETEN_RAM_CONTENT_WAKEUP_FLASH_BIT_LOCATION (*(volatile uint32_t *)(0x24061FC8))
 
-#define ICACHE2_ADDR_TRANSLATE_1_REG  *(volatile uint32_t *)(0x20280000 + 0x24) // ICACHE address register
+#define ICACHE2_ADDR_TRANSLATE_1_REG *(volatile uint32_t *)(0x20280000 + 0x24) // ICACHE address register
+#ifndef MISC_CFG_SRAM_REDUNDANCY_CTRL
 #define MISC_CFG_SRAM_REDUNDANCY_CTRL *(volatile uint32_t *)(0x46008000 + 0x18) // Misc config register
-#define MISC_CONFIG_MISC_CTRL1        *(volatile uint32_t *)(0x46008000 + 0x44) // Misc control register
+#endif
+#ifndef MISC_CONFIG_MISC_CTRL1
+#define MISC_CONFIG_MISC_CTRL1 *(volatile uint32_t *)(0x46008000 + 0x44) // Misc control register
+#endif
+#define P2P_STATUS_REGISTER        *(volatile uint32_t *)(0x46008000 + 0x174) // P2P status register
+#define M4SS_P2P_INTR_SET_REGISTER *(volatile uint32_t *)(0x46008000 + 0x16C) // P2P interrupt set register
 
 typedef enum FSM_CLK { FSM_NO_CLOCK = 0, FSM_20MHZ_RO = 1, FSM_32MHZ_RC = 2, FSM_40MHZ_XTAL = 4 } FSM_CLK_T;
 
@@ -1590,6 +1596,39 @@ STATIC INLINE void RSI_PS_PS2UpdateClockVariable(void)
   system_clocks.rc_32mhz_clock = 20000000;
   // Updating the systemcoreclock variable.
   SystemCoreClock = 20000000;
+}
+
+/**
+ *@fn         void RSI_PS_WakeupTAandProgramFlash(void)
+ *@brief      This API is used wakeup the TA and program the flash
+ *@return     none
+ */
+STATIC INLINE void RSI_PS_WakeupTAandProgramFlash(void)
+{
+  if (!(P2P_STATUS_REGISTER & BIT(3))) {
+    //!wakeup TA
+    P2P_STATUS_REGISTER |= BIT(0);
+    //!wait for TA active
+    while (!(P2P_STATUS_REGISTER & BIT(3)))
+      ;
+  }
+  //! Request TA to program flash
+  //! raise an interrupt to TA register
+  M4SS_P2P_INTR_SET_REGISTER = BIT(4);
+  P2P_STATUS_REGISTER        = BIT(0);
+
+  while (!(P2P_STATUS_REGISTER & BIT(3)))
+    ;
+}
+
+/**
+ *@fn         void RSI_PS_SetMCUActiveStatus(void)
+ *@brief      This API is used set the active status of mcu after wakeup
+ *@return     none
+ */
+STATIC INLINE void RSI_PS_SetMCUActiveStatus(void)
+{
+  P2P_STATUS_REGISTER = BIT(1);
 }
 /** @} */
 

@@ -1,4 +1,4 @@
-# PSA Sha for SI91X
+# PSA Crypto SHA for SI91X
 
 ## Table of Contents
 

@@ -92,7 +92,7 @@ volatile uint8_t powersave_given = 0;
 /******************************************************
 *               Function Declarations
 ******************************************************/
-//static void application_start(void *argument);
+void sl_si91x_aws_task(void);
 sl_status_t load_certificates_in_flash(void);
 sl_status_t start_aws_mqtt(void);
 void subscribe_handler(struct _Client *pClient,
@@ -190,7 +190,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
-                      | MEMORY_CONFIG
+                      | SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
 #ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
@@ -253,12 +253,6 @@ void subscribe_handler(struct _Client *pClient,
   UNUSED_PARAMETER(data);
   printf("\rData received on the Subscribed Topic: %.*s \r\n", pParams->payloadLen, (char *)pParams->payload);
 }
-//
-//void app_init(void)
-//{
-//  osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
-//}
-
 void sl_si91x_aws_task(void)
 {
   sl_net_wifi_client_profile_t profile = { 0 };
@@ -479,6 +473,16 @@ sl_status_t start_aws_mqtt(void)
 
       case AWS_SELECT_CONNECT_STATE: {
         {
+#if SH_AWS_ENABLE
+          sl_semawstaskacq_status = osSemaphoreRelease(sl_semaphore_app_task_id_2);
+          if (sl_semawstaskacq_status != osOK) {
+            DEBUGOUT("\r\n  osSemaphoreRelease failed :%d \r\n", sl_semawstaskacq_status);
+          }
+          sl_semawstaskacq_status = osSemaphoreAcquire(sl_semaphore_aws_task_id, osWaitForever);
+          if (sl_semawstaskacq_status != osOK) {
+            DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_semawstaskacq_status);
+          }
+#endif
           if (!select_given) {
             select_given = 1;
             memset(&read_fds, 0, sizeof(fd_set));
@@ -491,18 +495,8 @@ sl_status_t start_aws_mqtt(void)
 
             printf("\rSelect status: 0x%lX\r\n", status);
           }
-#if SH_AWS_ENABLE
-          sl_semawstaskacq_status = osSemaphoreRelease(sl_semaphore_app_task_id_2);
-          if (sl_semawstaskacq_status != osOK) {
-            DEBUGOUT("\r\n  osSemaphoreRelease failed :%d \r\n", sl_semawstaskacq_status);
-          }
 
           // waiting for the semaphore release
-          sl_semawstaskacq_status = osSemaphoreAcquire(sl_semaphore_aws_task_id, osWaitForever);
-          if (sl_semawstaskacq_status != osOK) {
-            DEBUGOUT("\r\n osSemaphoreAcquire failed :%d \r\n", sl_semawstaskacq_status);
-          }
-#endif
 
           if (check_for_recv_data) {
             check_for_recv_data = 0;

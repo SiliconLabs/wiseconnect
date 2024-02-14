@@ -174,8 +174,8 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
 *******************************************************************************/
 sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_handle)
 {
-  sl_status_t status = 0;
-  int32_t error_status;
+  sl_status_t status              = 0;
+  int32_t error_status            = 0;
   sl_ssi_handle_t ssi_temp_handle = NULL;
   /* SSI_UC is defined by default. when this macro (SSI_UC) is defined, peripheral
    * configuration is directly taken from the configuration set in the universal configuration (UC).
@@ -192,6 +192,7 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
     }
     status = get_ssi_handle(instance, &ssi_temp_handle);
     if (status != SL_STATUS_OK) {
+      status = SL_STATUS_FAIL;
       break;
     }
     if (ssi_handle == NULL) {
@@ -292,6 +293,7 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
                                            sl_ssi_control_config_t *control_configuration,
                                            sl_ssi_slave_number_t slave_number)
 {
+  UNUSED_PARAMETER(slave_number);
   sl_status_t status;
   int32_t error_status;
   uint32_t input_mode = 0;
@@ -978,7 +980,7 @@ static sl_status_t validate_clock_parameters(sl_ssi_clock_config_t *clock_config
  ******************************************************************************/
 static sl_status_t get_ssi_handle(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_handle)
 {
-  sl_status_t status;
+  sl_status_t status = SL_STATUS_OK;
   do {
     if (instance >= SL_SSI_INSTANCE_LAST) {
       status = SL_STATUS_INVALID_PARAMETER;

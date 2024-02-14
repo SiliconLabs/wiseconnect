@@ -330,10 +330,25 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_longrange_2mbps/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="ble_multiconnection_gatt_test" label="BLE - Multiconnection GATT Test" description="The Application demonstrates how to configure SiWx91x EVK in central/peripheral modes and then connect with multiple peripherals/centrals.">
+<descriptors name="ble_multiconnection_gatt_test_ncp" label="BLE - Multiconnection GATT Test (NCP)" description="The Application demonstrates how to configure SiWx91x EVK in central/peripheral modes and then connect with multiple peripherals/centrals.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/snippets/ble/ble_multiconnection_gatt_test/ble_multiconnection_gatt_test.slcp"/>
+    <properties key="projectFilePaths" value="examples/snippets/ble/ble_multiconnection_gatt_test/ble_multiconnection_gatt_test_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/ble/ble_multiconnection_gatt_test/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="ble_multiconnection_gatt_test_soc" label="BLE - Multiconnection GATT Test(SOC)" description="The Application demonstrates how to configure SiWx91x EVK in central/peripheral modes and then connect with multiple peripherals/centrals.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/ble/ble_multiconnection_gatt_test/ble_multiconnection_gatt_test_soc.slcp"/>
     <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4343a brd4343b brd4339b brd4340b"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
@@ -389,6 +404,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/featured/ble_per/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="ble_per_uart_ncp" label="BLE - PER (UART NCP)" description="This application demonstrates how to configure the necessary parameters to start transmitting or receiving BLE PER packets.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/featured/ble_per/ble_per_uart_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/featured/ble_per/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="ble_power_save_ncp" label="BLE - Power Save (NCP)" description="This application demonstrates how to configure/connects BLE device as Central and can be used to update the PHY rates.">
     <properties key="namespace" value="template.uc"/>
@@ -570,11 +600,26 @@
     <properties key="readmeFiles" value="examples/snippets/ble/ble_throughput_app/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Bluetooth Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="ble_unified_ae_coex_app" label="BLE - Unified AE Coex App" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral).">
+<descriptors name="ble_unified_ae_coex_app_ncp" label="BLE - Unified AE Coex App (NCP)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral).">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
-    <properties key="projectFilePaths" value="examples/snippets/ble/ble_unified_ae_coex_app/ble_unified_ae_coex_app.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a brd4343a brd4343b"/>
+    <properties key="projectFilePaths" value="examples/snippets/ble/ble_unified_ae_coex_app/ble_unified_ae_coex_app_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/ble/ble_unified_ae_coex_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Bluetooth Project\ Difficulty|Advanced"/>
+  </descriptors>
+<descriptors name="ble_unified_ae_coex_app_soc" label="BLE - Unified AE Coex App (SOC)" description="Bluetooth Low Energy Extended Advertising features(Central/Peripheral).">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/ble/ble_unified_ae_coex_app/ble_unified_ae_coex_app_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a brd4339b brd4343a brd4343b"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -604,7 +649,7 @@
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/ble/ble_update_gain_table/ble_update_gain_table_soc.slcp"/>
-    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a brd4343a brd4343b"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325g brd4338a brd4339b brd4343a brd4343b"/>
     <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -915,7 +960,7 @@
     <properties key="readmeFiles" value="examples/si91x_soc/crypto/si91x_psa_multithread/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
-<descriptors name="si91x_psa_sha" label="Si91x - SoC PSA SHA" description="DDemonstrates hashing using SHA.">
+<descriptors name="si91x_psa_sha" label="Si91x - SoC PSA SHA" description="Demonstrates hashing using SHA.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/si91x_soc/crypto/si91x_psa_sha/si91x_psa_sha.slcp"/>
@@ -975,6 +1020,36 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_adc_multichannel/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
+<descriptors name="sl_si91x_analog_comparator" label="Si91x - SL_ANALOG_COMPARATOR" description="Demonstrates how to use analog comparator.'">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_analog_comparator/sl_si91x_analog_comparator.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4343a brd4343b brd4339b brd4340b"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_analog_comparator/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
+  </descriptors>
+<descriptors name="sl_si91x_bjt_temperature_sensor" label="Si91x - SL_BJT_TEMPERATURE_SENSOR" description="Demonstrates the how to configure and use the BJT Temperature peripheral on the the SiWx917 SoC device.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_bjt_temperature_sensor/sl_si91x_bjt_temperature_sensor.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_bjt_temperature_sensor/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
+  </descriptors>
 <descriptors name="sl_si91x_blinky" label="Si91x - Blinky" description="Demonstrates how to blink an LED.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1020,6 +1095,21 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_calendar/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
+<descriptors name="sl_si91x_combo_app" label="Si91x - SL_COMBO_APPLICATION" description="Demonstrates how to use RTOS based combo application.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_combo_app/sl_si91x_combo_app.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4339b brd4340b"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_combo_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
 <descriptors name="sl_si91x_config_timer" label="Si91x - SL_Config_Timer" description="Demonstrates how to to use Config Timer.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1034,6 +1124,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_config_timer/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_dac" label="Si91x - SL_DAC" description="Demonstrates the how to configure and use the DAC peripheral on the the SiWx917 SoC device.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_dac/sl_si91x_dac.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_dac/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
 <descriptors name="sl_si91x_dma" label="Si91x - SL_DMA" description="Demonstrates how to to use UDMA.">
     <properties key="namespace" value="template.uc"/>
@@ -1275,6 +1380,36 @@
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_joystick/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
+<descriptors name="sl_si91x_msg_queue" label="Si91x - SL_RTOS_MSG_QUEUE" description="Demonstrates how to use RTOS concept Message Queue in an application.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/cmsis-rtos/sl_si91x_msg_queue/sl_si91x_msg_queue.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4339b brd4340b"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/cmsis-rtos/sl_si91x_msg_queue/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_mutex" label="Si91x - SL_RTOS_MUTEX" description="Demonstrates how to use RTOS concept Mutex in an application.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/cmsis-rtos/sl_si91x_mutex/sl_si91x_mutex.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4339b brd4340b"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/cmsis-rtos/sl_si91x_mutex/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
 <descriptors name="sl_si91x_nvm3_common_flash" label="sl_si91x_nvm3_common_flash" description="Testing NVM3 in Si91x common flash">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1333,6 +1468,21 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_pwm/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_ro_temperature_sensor" label="Si91x - SL_RO_SENSOR" description="Demonstrates how to to use RO temperature sensor.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ro_temperature_sensor/sl_si91x_ro_temperature_sensor.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4343a brd4343b brd4339b brd4340b"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ro_temperature_sensor/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
   </descriptors>
 <descriptors name="sl_si91x_sdio_secondary" label="Si91x - SDIO Secondary" description="Demonstrates how to to use SDIO Secondary">
@@ -1499,6 +1649,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_calendar/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC"/>
+  </descriptors>
+<descriptors name="sl_si91x_ulp_dac" label="Si91x - SL ULP DAC" description="Demonstrates the how to configure and use the ULP DAC peripheral on the the SiWx917 SoC device.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/si91x_soc/peripheral/sl_si91x_ulp_dac/sl_si91x_ulp_dac.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4343a brd4343b brd4339b brd4340b brd4342a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/si91x_soc/peripheral/sl_si91x_ulp_dac/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Basic"/>
   </descriptors>
 <descriptors name="sl_si91x_ulp_dma" label="Si91x - SL_ULP_DMA" description="Demonstrates how to to use ULP Dma.">
     <properties key="namespace" value="template.uc"/>
@@ -1740,6 +1905,21 @@
     <properties key="readmeFiles" value="examples/featured/aws_device_shadow/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
+<descriptors name="wifi_aws_device_shadow_psram" label="Wi-Fi - AWS Device Shadow (PSRAM)" description="Creates an AWS IoT thing that connects to the AWS IoT device shadow service using the MQTT protocol">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/featured/aws_device_shadow/aws_device_shadow_psram.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/featured/aws_device_shadow/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
 <descriptors name="wifi_aws_device_shadow_soc" label="Wi-Fi - AWS Device Shadow (SoC)" description="Creates an AWS IoT thing that connects to the AWS IoT device shadow service using the MQTT protocol">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1754,6 +1934,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/featured/aws_device_shadow/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_aws_device_shadow_uart_ncp" label="Wi-Fi - AWS Device Shadow (UART NCP)" description="Creates an AWS IoT thing that connects to the AWS IoT device shadow service using the MQTT protocol">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/featured/aws_device_shadow/aws_device_shadow_uart_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/featured/aws_device_shadow/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_aws_mqtt_ncp" label="Wi-Fi - AWS IoT MQTT Client (NCP)" description="Create an AWS IoT thing that interacts with AWS IoT Core using MQTT publish/subscribe">
     <properties key="namespace" value="template.uc"/>
@@ -1785,6 +1980,36 @@
     <properties key="readmeFiles" value="examples/snippets/wlan/cloud_apps/aws/mqtt/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
+<descriptors name="wifi_azure_iot_ncp" label="Wi-Fi - Azure IoT MQTT Client (NCP)" description="Application connects to azure cloud.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/cloud_apps/azure/azure_iot_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/cloud_apps/azure/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_azure_iot_soc" label="Wi-Fi - Azure IoT MQTT Client (SoC)" description="Application connects to azure cloud.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/cloud_apps/azure/azure_iot_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4343a brd4343b brd4339b brd4340b"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/cloud_apps/azure/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
 <descriptors name="wifi_calibration_app_ncp" label="Wi-Fi - Calibration App (NCP)" description="Calibrates carrier frequency offset and Tx gain offset and update that to the Flash/Efuse.">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1813,6 +2038,36 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/wlan/calibration_app/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_concurrent_mode_dual_ip_ncp" label="Wi-Fi - Concurrent Mode Dual IP (NCP)" description="Start Wi-Fi Client and Wi-Fi Access Point in IPv4 and IPv6 simultaneously with WPA2 security">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/concurrent_mode_dual_ip/concurrent_mode_dual_ip_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/concurrent_mode_dual_ip/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_concurrent_mode_dual_ip_soc" label="Wi-Fi - Concurrent Mode Dual IP (SoC)" description="Start Wi-Fi Client and Wi-Fi Access Point in IPv4 and IPv6 simultaneously with WPA2 security">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/concurrent_mode_dual_ip/concurrent_mode_dual_ip_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4339a brd4339b brd4340a brd4340b brd4341a brd4342a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/concurrent_mode_dual_ip/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_concurrent_mode_ncp" label="Wi-Fi - Concurrent Mode (NCP)" description="Start Wi-Fi Client and Wi-Fi Access Point with WPA2 security">
@@ -1935,6 +2190,21 @@
     <properties key="readmeFiles" value="examples/snippets/wlan/sntp_client/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
+<descriptors name="wifi_embedded_sntp_client_uart_ncp" label="Wi-Fi - SNTP Client (UART NCP)" description="Demonstrates how to build an SNTP client and fetch network time.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/sntp_client/sntp_client_uart_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/sntp_client/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
 <descriptors name="wifi_enterprise_client_ncp" label="Wi-Fi - Enterprise Client Mode (NCP)" description="Connects as a Wi-Fi client to an Access Point and RADIUS server using Enterprise Security">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1980,6 +2250,21 @@
     <properties key="readmeFiles" value="examples/featured/firmware_update/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
+<descriptors name="wifi_firmware_update_psram" label="Wi-Fi - Firmware Update (PSRAM)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/featured/firmware_update/firmware_update_psram.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4340a brd4342a"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/featured/firmware_update/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
 <descriptors name="wifi_firmware_update_soc" label="Wi-Fi - Firmware Update (SoC)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -1994,6 +2279,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/featured/firmware_update/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_firmware_update_uart_ncp" label="Wi-Fi - Firmware Update (UART NCP)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/featured/firmware_update/firmware_update_uart_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/featured/firmware_update/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_http_client_ncp" label="Wi-Fi - HTTP Client (NCP)" description="Demonstrates how to create HTTP client and do PUT, GET and POST operations with the server opened on remote peer">
     <properties key="namespace" value="template.uc"/>
@@ -2053,6 +2353,36 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/snippets/wlan/http_otaf/readme.md"/>
+	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_http_otaf_twt_ncp" label="Wi-Fi - HTTP OTAF TWT Update (NCP)" description="Demonstrates how to perform firmware upgrade using an HTTP(S) server or a cloud storage server with TWT">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/http_otaf_twt/http_otaf_twt_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/http_otaf_twt/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_http_otaf_twt_soc" label="Wi-Fi - HTTP OTAF TWT Update (SoC)" description="Demonstrates how to perform firmware upgrade using an HTTP(S) server or a cloud storage server with TWT">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/snippets/wlan/http_otaf_twt/http_otaf_twt_soc.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4325a brd4325b brd4325c brd4325e brd4325f brd4325g brd4338a brd4339b brd4340b"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/snippets/wlan/http_otaf_twt/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_lwip_tcp_client_ncp" label="Wi-Fi -LwIP TCP Client (NCP)" description="Start a Wi-Fi client and transfer data using LWIP stack to TCP Server">
@@ -2174,6 +2504,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/featured/powersave_standby_associated/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_powersave_standby_associated_uart_ncp" label="Wi-Fi - Powersave Standby Associated (UART NCP)" description="Start a Wi-Fi client in ASSOCIATED_POWER_SAVE mode and connects to AP and send data to UDP server ">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/featured/powersave_standby_associated/powersave_standby_associated_uart_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/featured/powersave_standby_associated/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_select_app_ncp" label="Wi-Fi - Select App (NCP)" description="Demonstrates how to create the multiple sockets and monitor multiple sockets for incoming events.">
     <properties key="namespace" value="template.uc"/>
@@ -2489,6 +2834,21 @@
     <properties key="sdkAndProtocolTags" value=""/>
     <properties key="readmeFiles" value="examples/featured/wlan_throughput/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
+  </descriptors>
+<descriptors name="wifi_wlan_throughput_uart_ncp" label="Wi-Fi - Throughput (UART NCP)" description="Start a Wi-Fi client and transmits/receives data to measure Wi-Fi UDP/TCP/TLS throughput performance using a remote iPerf client/server">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="examples/featured/wlan_throughput/wlan_throughput_uart_ncp.slcp"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none brd4180a brd4180b brd4186c"/>
+    <properties key="partCompatibility" value="mcu.arm.efr32.mg21.* mcu.arm.efr32.mg21.*  mcu.arm.efr32.mg24.* .*si917.* .*si917.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917m111mgtba.* .*siwg917y111mgab.* .*siwg917y111mgnb.*"/>
+    <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code generic-template"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
+    <properties key="quality" value="production"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sdkAndProtocolTags" value=""/>
+    <properties key="readmeFiles" value="examples/featured/wlan_throughput/readme.md"/>
+	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
 <descriptors name="wifi_wlan_throughput_v6_ncp" label="Wi-Fi - Throughput IPv6 (NCP)" description="Start a Wi-Fi Access Point with WPA2 security and perform throughput tests using IPv6 address.">
     <properties key="namespace" value="template.uc"/>

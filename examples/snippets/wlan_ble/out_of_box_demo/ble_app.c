@@ -147,8 +147,18 @@ extern uint16_t scanbuf_size;
 extern volatile int currentLine;
 extern GLIB_Context_t glibContext;
 
+/******************************************************
+ *               Function Declarations
+ ******************************************************/
 extern void sl_wifi_app_set_event(uint32_t event_num);
-
+void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *resp_enh_conn);
+void rsi_ble_on_conn_update_complete_event(rsi_ble_event_conn_update_t *rsi_ble_event_conn_update_complete,
+                                           uint16_t resp_status);
+void rsi_ble_on_remote_features_event(rsi_ble_event_remote_features_t *rsi_ble_event_remote_features);
+void rsi_ble_data_length_change_event(rsi_ble_event_data_length_update_t *rsi_ble_data_length_update);
+void rsi_ble_configurator_init(void);
+void rsi_ble_configurator_task(void *argument);
+void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
 /*==============================================*/
 /**
  * @fn         rsi_ble_add_char_serv_att

@@ -119,7 +119,7 @@ static const sl_wifi_device_configuration_t config = {
 #else
                      SL_SI91X_EXT_TCP_IP_WINDOW_DIV
 #endif
-#ifdef USE_SELECT_FEATURE
+#if USE_SELECT_FEATURE
                      | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1)
 #endif
                      | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),

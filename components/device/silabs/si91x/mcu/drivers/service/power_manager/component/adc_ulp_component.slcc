@@ -19,4 +19,18 @@ template_contribution:
     value: sl_si91x_adc.o
   - name: adc_ps2
     value: rsi_adc.o
+  - name: adc_ps2
+    value: rsi_bod.o
+  - name: adc_ps2
+    value: aux_reference_volt_config.o
+  - name: adc_ps2
+    value: memcpy-stub.o
+  - name: adc_ps2
+    value: s_ceil.o
+  - name: adc_ps2
+    value: addsubdf3.o
+  - name: adc_ps2
+    value: fixunsdfsi.o
+  - name: adc_ps2
+    value: cmpdf2.o
 

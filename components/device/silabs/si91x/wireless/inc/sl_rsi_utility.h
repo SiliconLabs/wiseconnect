@@ -27,6 +27,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#pragma once
+
 #ifndef _SL_RSI_UTILITY_H_
 #define _SL_RSI_UTILITY_H_
 
@@ -41,6 +43,7 @@
 #include "sl_utility.h"
 #include "sl_si91x_driver.h"
 #include "sl_wifi_device.h"
+#include "sl_si91x_types.h"
 
 #define NCP_HOST_DATA_TX_EVENT           (1 << 1) // Notify there is something to transmit
 #define NCP_HOST_BUS_RX_EVENT            (1 << 2) // Triggered by IRQ to indicate something to read
@@ -71,6 +74,18 @@ typedef struct {
 typedef struct {
   uint8_t mfg_sw_version; ///< Manufacturing PTE software version
 } sl_si91x_efuse_data_t;
+
+/// \details Mutex ID identifies the mutex.
+typedef void *osMutexId_t;
+
+// Structure to represent a packet queue
+typedef struct {
+  sl_wifi_buffer_t *head;
+  sl_wifi_buffer_t *tail;
+  osMutexId_t mutex;
+  uint32_t flag;
+  uint32_t queued_packet_count;
+} si91x_packet_queue_t;
 
 typedef uint32_t sl_si91x_host_timestamp_t;
 
@@ -109,9 +124,10 @@ bool is_tcp_auto_close_enabled();  /*Function used to check whether tcp auto clo
 void set_card_ready_required(bool card_ready_required); /*Function used to set whether card ready is required or not*/
 bool get_card_ready_required();                         /*Function used to check whether card ready is required or not*/
 
-void save_max_tx_power(uint8_t max_tx_power); /*Function used to set the maximum transmission power*/
-sl_wifi_max_tx_power_t get_max_tx_power();    /*Function used to get maximum transmission power*/
-void reset_max_tx_power();                    /*Function used to set maximum transmission power to 0 */
+void save_max_tx_power(uint8_t max_scan_tx_power,
+                       uint8_t max_join_tx_power); /*Function used to set the maximum transmission power*/
+sl_wifi_max_tx_power_t get_max_tx_power();         /*Function used to get maximum transmission power*/
+void reset_max_tx_power(); /*Function used to set maximum transmission power to default value(31dBm) */
 
 void save_wifi_current_performance_profile(
   const sl_wifi_performance_profile_t *profile); /*Function used to set the current performance profile*/
@@ -261,6 +277,8 @@ uint32_t si91x_host_clear_events(uint32_t event_mask);       /*Function used to 
 uint32_t si91x_host_clear_bus_events(uint32_t event_mask);   /*Function used to clear flags for specific event*/
 uint32_t si91x_host_clear_async_events(uint32_t event_mask); /*Function used to clear flags for specific event*/
 
+sl_status_t sl_si91x_host_init_buffer_manager(void);
+sl_status_t sl_si91x_host_deinit_buffer_manager(void);
 sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
                                           sl_wifi_buffer_type_t type,
                                           uint32_t buffer_size,
@@ -323,7 +341,9 @@ sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet,
                                      const uint8_t *payloadparam,
                                      uint16_t size_param); /*Function used to write frames*/
 
-sl_status_t sl_si91x_bus_init(); /*Function used to check the bus availability */
+sl_status_t sl_si91x_bus_init();               /*Function used to check the bus availability */
+sl_status_t sl_si91x_bus_rx_irq_handler(void); /*Function used to check the bus availability */
+void sl_si91x_bus_rx_done_handler(void);       /*Function used to check the bus availability */
 
 /***************************************************************************/ /**
  * @brief

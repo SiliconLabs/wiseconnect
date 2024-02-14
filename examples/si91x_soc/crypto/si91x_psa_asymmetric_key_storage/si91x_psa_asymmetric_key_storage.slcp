@@ -3,7 +3,7 @@ label: SI91x - SoC Asymmetric Key Storage
 description: >
   This example project demonstrates the asymmetric Key storage API
   for SI91x devices.
-category: example|peripheral
+category: example|crypto
 package: platform
 quality: production
 filter:
@@ -26,10 +26,10 @@ include:
       - path: app.h
 sdk:
   id: gecko_sdk
-  version: 4.4.0
+  version: 4.4.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.2
+    version: 3.1.3
 component:
   - id: sl_system
   - id: freertos
@@ -37,17 +37,31 @@ component:
   - id: psa_driver
   - id: psa_its
   - id: psa_crypto_trng
-  - id: psa_crypto_ecc
+  - id: psa_crypto_ecdh
   - id: mbedtls_ecc
   - id: psa_crypto_ecc_secp192r1
   - id: psa_crypto_ecc_secp256r1
   - id: psa_crypto_ecc_curve25519
+  - id: slist
+  - id: nvm3_lib
   - id: syscalls
     from: wiseconnect3_sdk
-  - id: slist
   - id: si917_memory_default_config
     from: wiseconnect3_sdk
-  - id: nvm3_lib
+  - id: wiseconnect3_common
+    from: wiseconnect3_sdk
+  - id: wifi
+    from: wiseconnect3_sdk
+  - id: sl_si91x_internal_stack
+    from: wiseconnect3_sdk
+  - id: wifi_resources
+    from: wiseconnect3_sdk
+  - id: network_manager
+    from: wiseconnect3_sdk
+  - id: basic_network_config_manager
+    from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers
+    from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/image508a.png
   - path: resources/readme/image508c.png

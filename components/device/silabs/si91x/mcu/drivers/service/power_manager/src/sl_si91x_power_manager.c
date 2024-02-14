@@ -33,6 +33,7 @@
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
+
 #define POWER_STATE_TABLE_SIZE 5 // Power State Requirement Table size
 #define PS_MIN_COUNTER         0 // Minimum Power State count
 #define PS_MAX_COUNTER         5 // Maximum Power State count
@@ -58,9 +59,19 @@ static uint8_t requirement_ps_table[POWER_STATE_TABLE_SIZE] = {
  ******************************************************************************/
 
 /*******************************************************************************
+ ***************************  Hook References ********************************
+ ******************************************************************************/
+boolean_t sl_si91x_power_manager_sleep_on_isr_exit(void);
+
+/*******************************************************************************
+ ********  Mandatory callback that allows to cancel sleeping action. ********
+ ******************************************************************************/
+boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
+
+/*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
-static sl_status_t update_ps_requirements(sl_power_state_t state, boolean_t add);
+
 static void notify_power_state_transition(sl_power_state_t from, sl_power_state_t to);
 
 /*******************************************************************************
@@ -84,56 +95,13 @@ sl_status_t sl_si91x_power_manager_init(void)
     // Configures the clock to 100 MHz
     sli_si91x_power_manager_init_hardware();
     is_initialized = true;
+
+#if defined(SL_SI91X_POWER_MANAGER_DEBUG) && (SL_SI91X_POWER_MANAGER_DEBUG == ENABLE)
+    sli_si91x_power_manager_init_debug();
+#endif
     return SL_STATUS_OK;
   }
   return SL_STATUS_ALREADY_INITIALIZED;
-}
-
-/*******************************************************************************
- * Adds requirement on power states and changes the power state.
- * Validates the transition and returns error code if invalid transition.
- * Calls the update_ps_requirement static function which updates the requirement
- * table, changes the power state and notify the power state transition.
- ******************************************************************************/
-sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_state_t state)
-{
-  if (!is_initialized) {
-    // Validate the status of power manager service, if not initialized
-    // returns error code.
-    return SL_STATUS_NOT_INITIALIZED;
-  }
-  if (state >= LAST_ENUM_POWER_STATE) {
-    // Validate the power state, if not in range returns error code.
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if (!sli_si91x_power_manager_is_valid_transition(current_state, state)) {
-    // Validates the transition, if incorrect returns error code.
-    return SL_STATUS_INVALID_STATE;
-  }
-  // returns the error code of state transition, if conditions are fulfilled,
-  // updated the current power state.
-  return update_ps_requirements(state, true);
-}
-
-/*******************************************************************************
- * Removes requirement on power states.
- * Calls the update_ps_requirement static function which updates the requirement
- * table.
- ******************************************************************************/
-sl_status_t sl_si91x_power_manager_remove_ps_requirement(sl_power_state_t state)
-{
-  if (!is_initialized) {
-    // Validate the status of power manager service, if not initialized
-    // returns error code.
-    return SL_STATUS_NOT_INITIALIZED;
-  }
-  if (state >= LAST_ENUM_POWER_STATE) {
-    // Validate the power state, if not in range returns error code.
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  // returns the error code of state transition, if conditions are fulfilled,
-  // updated the current power state.
-  return update_ps_requirements(state, false);
 }
 
 /*******************************************************************************
@@ -143,6 +111,7 @@ sl_status_t sl_si91x_power_manager_remove_ps_requirement(sl_power_state_t state)
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_add_peripheral_requirement(sl_power_peripheral_t *peripheral)
 {
+  sl_status_t status;
   if (!is_initialized) {
     // Validate the status of power manager service, if not initialized
     // returns error code.
@@ -154,7 +123,8 @@ sl_status_t sl_si91x_power_manager_add_peripheral_requirement(sl_power_periphera
   }
   // returns the error code for peripheral update, if conditions are fulfilled,
   // updated the peripheral requirements.
-  return sli_power_manager_update_peripheral(peripheral, true);
+  status = sli_power_manager_update_peripheral(peripheral, true);
+  return status;
 }
 
 /*******************************************************************************
@@ -164,6 +134,7 @@ sl_status_t sl_si91x_power_manager_add_peripheral_requirement(sl_power_periphera
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_remove_peripheral_requirement(sl_power_peripheral_t *peripheral)
 {
+  sl_status_t status;
   if (!is_initialized) {
     // Validate the status of power manager service, if not initialized
     // returns error code.
@@ -175,7 +146,8 @@ sl_status_t sl_si91x_power_manager_remove_peripheral_requirement(sl_power_periph
   }
   // returns the error code for peripheral update, if conditions are fulfilled,
   // updated the peripheral requirements.
-  return sli_power_manager_update_peripheral(peripheral, false);
+  status = sli_power_manager_update_peripheral(peripheral, false);
+  return status;
 }
 
 /*******************************************************************************
@@ -243,14 +215,19 @@ sl_status_t sl_si91x_power_manager_sleep(void)
     // returns error code.
     return SL_STATUS_NOT_INITIALIZED;
   }
-  // Internal function to change active mode to sleep mode is called.
-  // It sets the required configurations and goes into sleep mode.
-  status = sli_si91x_power_manager_set_sleep_configuration(current_state);
-  if (status != SL_STATUS_OK) {
-    return status;
+  if (!sl_si91x_power_manager_is_ok_to_sleep()) {
+    return SL_STATUS_BUSY;
   }
-  // Notifies the state transition who has subscribed to it.
-  notify_power_state_transition(SL_SI91X_POWER_MANAGER_SLEEP, current_state);
+  do {
+    // Internal function to change active mode to sleep mode is called.
+    // It sets the required configurations and goes into sleep mode.
+    status = sli_si91x_power_manager_set_sleep_configuration(current_state);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Notifies the state transition who has subscribed to it.
+    notify_power_state_transition(SL_SI91X_POWER_MANAGER_SLEEP, current_state);
+  } while (sl_si91x_power_manager_sleep_on_isr_exit());
 
   // After wakeup, clock is set to the particular PS4/PS3/PS2 mode.
   status = sl_si91x_power_manager_set_clock_scaling(SL_SI91X_POWER_MANAGER_POWERSAVE);
@@ -280,13 +257,15 @@ void sl_si91x_power_manager_standby(void)
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_set_wakeup_sources(uint32_t source, boolean_t add)
 {
+  sl_status_t status;
   if (!is_initialized) {
     // Validate the status of power manager service, if not initialized
     // returns error code.
     return SL_STATUS_NOT_INITIALIZED;
   }
 
-  return sli_si91x_power_configure_wakeup_resource(source, add);
+  status = sli_si91x_power_configure_wakeup_resource(source, add);
+  return status;
 }
 
 /*******************************************************************************
@@ -295,6 +274,7 @@ sl_status_t sl_si91x_power_manager_set_wakeup_sources(uint32_t source, boolean_t
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_configure_ram_retention(sl_power_ram_retention_config_t *config)
 {
+  sl_status_t status;
   if (!is_initialized) {
     // Validate the status of power manager service, if not initialized
     // returns error code.
@@ -305,7 +285,8 @@ sl_status_t sl_si91x_power_manager_configure_ram_retention(sl_power_ram_retentio
     // Validates the config, if null pointer, returns error code.
     return SL_STATUS_NULL_POINTER;
   }
-  return sli_si91x_power_manager_set_ram_retention_configuration(config);
+  status = sli_si91x_power_manager_set_ram_retention_configuration(config);
+  return status;
 }
 
 /*******************************************************************************
@@ -316,6 +297,7 @@ sl_status_t sl_si91x_power_manager_configure_ram_retention(sl_power_ram_retentio
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_set_clock_scaling(sl_clock_scaling_t mode)
 {
+  sl_status_t status;
   if (!is_initialized) {
     // Validate the status of power manager service, if not initialized
     // returns error code.
@@ -329,12 +311,14 @@ sl_status_t sl_si91x_power_manager_set_clock_scaling(sl_clock_scaling_t mode)
   if (mode == SL_SI91X_POWER_MANAGER_POWERSAVE) {
     // For powersave current state with false flag is passed as parameter
     // to the internal function.
-    return sli_si91x_power_manager_configure_clock(current_state, false);
+    status = sli_si91x_power_manager_configure_clock(current_state, false);
+    return status;
   }
   if (mode == SL_SI91X_POWER_MANAGER_PERFORMANCE) {
     // For performance current state with true flag is passed as parameter
     // to the internal function.
-    return sli_si91x_power_manager_configure_clock(current_state, true);
+    status = sli_si91x_power_manager_configure_clock(current_state, true);
+    return status;
   }
   // If it reaches here, then the entered mode is invalid.
   return SL_STATUS_INVALID_PARAMETER;
@@ -369,13 +353,22 @@ void sl_si91x_power_manager_deinit(void)
 
 /*******************************************************************************
  * Updates the power state requirement, requirement table and current state variable.
- * 
- * @param[in] state Power state requirement that 
- * @param[in] add  Flag indicating if requirement is added (true) or removed
- *                 (false).
  ******************************************************************************/
-static sl_status_t update_ps_requirements(sl_power_state_t state, boolean_t add)
+sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state, boolean_t add)
 {
+  if (!is_initialized) {
+    // Validate the status of power manager service, if not initialized
+    // returns error code.
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  if (state >= LAST_ENUM_POWER_STATE) {
+    // Validate the power state, if not in range returns error code.
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  if (add && !sli_si91x_power_manager_is_valid_transition(current_state, state)) {
+    // Validates the transition, if incorrect returns error code.
+    return SL_STATUS_INVALID_STATE;
+  }
   if ((requirement_ps_table[state] == PS_MIN_COUNTER) && !add) {
     // If requirement is to remove when it 0, i.e., user tries to
     // make the requirement less than 0 (wrap around not allowed), returns error code.
@@ -485,4 +478,32 @@ static void notify_power_state_transition(sl_power_state_t from, sl_power_state_
       handle->info->on_event(from, to);
     }
   }
+}
+
+/***************************************************************************/ /**
+ * Last-chance check before sleep.
+ *
+ * @return  True, if the system should actually sleep.
+ *          False, if not.
+ *
+ * @note This is the fallback implementation of the callback, it can be
+ *       overridden by the application or other components.
+ ******************************************************************************/
+__WEAK boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
+{
+  return true;
+}
+
+/***************************************************************************/ /**
+ * Check if the MCU can sleep after an interrupt.
+ *
+ * @return  True, if the system can sleep after the interrupt.
+ *          False, otherwise.
+ *
+ * @note This is the fallback implementation of the callback, it can be
+ *       overridden by the application or other components.
+ ******************************************************************************/
+__WEAK boolean_t sl_si91x_power_manager_sleep_on_isr_exit(void)
+{
+  return false;
 }

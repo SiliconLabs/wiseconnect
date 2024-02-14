@@ -72,12 +72,17 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   // Update the length
   attest->total_msg_length = length;
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  attest->msg       = nonce;
+  attest->token_buf = token;
+#else
   // Send 32 byte nonce
   //! Memset before filling
   memset(&attest->msg[0], 0, NONCE_DATA_SIZE);
 
   //! Copy Data
   memcpy(&attest->msg[0], nonce, NONCE_DATA_SIZE);
+#endif
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_attestation_mutex == NULL) {
@@ -86,6 +91,18 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_attestation_mutex);
 #endif
 
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 attest,
+                                                 (sizeof(sl_si91x_rsi_token_req_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(600000));
+  if (status != SL_STATUS_OK) {
+    free(attest);
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+#else
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                         SI91X_COMMON_CMD_QUEUE,
                                         attest,
@@ -105,6 +122,8 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
   memcpy(token, packet->data, packet->length);
+#endif
+
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   free(attest);
 

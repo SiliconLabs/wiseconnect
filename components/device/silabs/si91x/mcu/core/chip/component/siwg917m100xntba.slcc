@@ -39,7 +39,6 @@
 - requires:
   - name: rsilib_chip
   - name: si917_mem_config
-  - name: external_flash_implementation
   - name: sl_si91x_mcu
   - name: board_configuration_headers
   - name: wiseconnect_toolchain_plugin

@@ -123,7 +123,7 @@ sl_apds_err_t sl_si91x_apds9960_delete(sl_apds9960_handle_t *sensor)
     return RSI_OK;
   }
   free(sensor);
-  *sensor = NULL;
+  sensor = NULL;
   return RSI_OK;
 }
 

@@ -68,8 +68,14 @@
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 static void sysrtc_callback(void *callback_flag);
+#if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 1) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 1) \
+     || (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 1))
 static uint32_t counter_value1 = COUNTER_VALUE1;
+#endif
+#if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 0) && (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 0) \
+     && (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 0))
 static uint32_t counter_value2 = COUNTER_VALUE2;
+#endif
 /*******************************************************************************
  **********************  Local variables   *************************************
  ******************************************************************************/
@@ -134,7 +140,6 @@ void sysrtc_example_init(void)
   interrupt_enabled.group1_overflow_interrupt_is_enabled = false;
 #endif
   do {
-    uint32_t compare_value = COMPARE_VALUE_32KHZ;
     // Configuring SYSRTC clock source
     status = sl_si91x_sysrtc_configure_clock(&sl_sysrtc_clk_config_handle);
     if (status != SL_STATUS_OK) {
@@ -150,6 +155,7 @@ void sysrtc_example_init(void)
     }
     DEBUGOUT("SYSRTC initialization is done successfully \n");
 #if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 1) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 1))
+    uint32_t compare_value = COMPARE_VALUE_32KHZ;
     // Configuring sysrtc group0, enabling its compare channel
     status = sl_si91x_sysrtc_configure_group(SL_SYSRTC_GROUP, &sysrtc_group_config_handle);
     if (status != SL_STATUS_OK) {
@@ -176,6 +182,7 @@ void sysrtc_example_init(void)
 #endif
 #if (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 1)
     uint32_t current_count = 0;
+    uint32_t compare_value = COMPARE_VALUE_32KHZ;
     const sl_sysrtc_group_capture_channel_input_edge_config_t group_capture_channel_config =
       SYSRTC_GROUP_CHANNEL_CAPTURE_CONFIG_DEFAULT;
     // configuring input edge for capture channel
@@ -245,15 +252,17 @@ void sysrtc_example_process_action(void)
 void sysrtc_callback(void *callback_flags)
 {
   DEBUGOUT("In handler... \n");
+  // to avoid unused variable warning
+  (void)callback_flags;
+  // To toggle LED1
+  state = !state;
+  sl_si91x_led_toggle(RTE_LED1_PIN);
+#if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE))
   static uint8_t interrupt_count = 0;
   uint32_t compare_value         = COMPARE_VALUE_32KHZ;
   uint32_t current_count         = 0;
   // Incrementing interrupt count
   interrupt_count++;
-  // To toggle LED1
-  state = !state;
-  sl_si91x_led_toggle(RTE_LED1_PIN);
-#if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE))
   // Reading current count
   status = sl_si91x_sysrtc_get_count(&current_count);
   // Setting compare value again after every interrupt, to get next interrupt

@@ -20,3 +20,12 @@ template_contribution:
     value: sl_si91x_watchdog_timer.o
   - name: wdt_ps2
     value: rsi_wwdt.o
+  - name: wakeup
+    value: 
+      event: wakeup_init
+      function:
+        name: sli_si91x_power_manager_wdt_init
+        return: sl_status_t
+      include:
+        name: sl_si91x_watchdog_timer.h
+    priority: -5000

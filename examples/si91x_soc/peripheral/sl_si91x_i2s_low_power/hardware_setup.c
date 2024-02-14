@@ -23,6 +23,8 @@
 #include "rsi_chip.h"
 #include "rsi_ps_ram_func.h"
 #include "rsi_ds_timer.h"
+#include "i2s_lowpower_example.h"
+void hardware_setup(void);
 
 void hardware_setup(void)
 {

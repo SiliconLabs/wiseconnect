@@ -41,6 +41,11 @@ static int sli_si91x_accept_async(int socket,
                                   accept_callback callback);
 static int sli_si91x_socket(int family, int type, int protocol, receive_data_callback callback);
 
+void sl_si91x_set_remote_termination_callback(remote_socket_termination_callback callback)
+{
+  sli_si91x_set_remote_socket_termination_callback(callback);
+}
+
 // Create a new socket
 int sl_si91x_socket(int family, int type, int protocol)
 {
@@ -595,7 +600,7 @@ int sl_si91x_sendto_async(int socket,
         ? socket_address->sin6_addr.__u6_addr.__u6_addr8
         : si91x_socket->remote_address.sin6_addr.__u6_addr.__u6_addr8;
 
-    memcpy(request.dest_ip_addr.ipv6_address, destination_ip, SL_IPV6_ADDRESS_LENGTH);
+    memcpy(&request.dest_ip_addr.ipv6_address[0], destination_ip, SL_IPV6_ADDRESS_LENGTH);
   } else {
     // If the socket uses IPv4, set the IP version and destination IPv4 address
     struct sockaddr_in *socket_address = (struct sockaddr_in *)to_addr;
@@ -605,7 +610,7 @@ int sl_si91x_sendto_async(int socket,
         ? &socket_address->sin_addr.s_addr
         : &((struct sockaddr_in *)&si91x_socket->remote_address)->sin_addr.s_addr;
 
-    memcpy(request.dest_ip_addr.ipv4_address, destination_ip, SL_IPV4_ADDRESS_LENGTH);
+    memcpy(&request.dest_ip_addr.ipv4_address[0], destination_ip, SL_IPV4_ADDRESS_LENGTH);
   }
   // Set other parameters in the send request
   request.socket_id   = si91x_socket->id;
@@ -763,14 +768,18 @@ int sl_si91x_select(int nfds,
 
   // Loop through file descriptor sets and populate the select request structure
   for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
+
+    // Retrieve the si91x_socket associated with the host socket index
+    si91x_socket_t *socket = get_si91x_socket(host_socket_index);
+
+    //Verifying socket existence
+    if (socket == NULL) {
+      continue;
+    }
+
     if (readfds != NULL) {
       // Check if the socket is set for read operations in the readfds set
       if (FD_ISSET(host_socket_index, readfds)) {
-        // Retrieve the si91x_socket associated with the host socket index
-        si91x_socket_t *socket = get_si91x_socket(host_socket_index);
-        //Verifying socket existence
-        if (socket == NULL)
-          continue;
         // Set the corresponding bit in the read file descriptor set
         request.read_fds.fd_array[0] |= (1U << socket->id);
       }
@@ -779,19 +788,14 @@ int sl_si91x_select(int nfds,
     if (writefds != NULL) {
       // Check if the socket is set for write operations in the writefds set
       if (FD_ISSET(host_socket_index, writefds)) {
-        // Retrieve the si91x_socket associated with the host socket index
-        si91x_socket_t *socket = get_si91x_socket(host_socket_index);
-        //Verifying socket existence
-        if (socket == NULL)
-          continue;
         // Set the corresponding bit in the write file descriptor set
         request.write_fds.fd_array[0] |= (1U << socket->id);
       }
     }
 
     // Update the maximum file descriptor number encountered
-    if (request.num_fd <= get_si91x_socket(host_socket_index)->id) {
-      request.num_fd = get_si91x_socket(host_socket_index)->id + 1;
+    if (request.num_fd <= socket->id) {
+      request.num_fd = socket->id + 1;
     }
   }
 

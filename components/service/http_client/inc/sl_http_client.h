@@ -125,8 +125,8 @@ typedef sl_status_t (*sl_http_client_event_handler_t)(const sl_http_client_t *cl
  ******************************************************/
 /// HTTP client credentials
 typedef struct {
-  uint16_t username_length; ///< Length of username.
-  uint16_t password_length; ///< Length of password.
+  uint16_t username_length; ///< Length of username. Maximum supported length of username is 139 bytes
+  uint16_t password_length; ///< Length of password. Maximum supported length of password is 139 bytes
   uint8_t data[];           ///< A flexible array to store both username and password.
 } sl_http_client_credentials_t;
 
@@ -143,17 +143,19 @@ typedef struct {
 } sl_http_client_configuration_t;
 
 /// Structure of HTTP client extended header node.
-typedef struct {
-  struct sl_http_client_header_t *next; ///< Link to the next client header.
+typedef struct sl_http_client_header_s {
+  struct sl_http_client_header_s *next; ///< Link to the next client header.
   char *key;                            ///< Header key name.
   char *value;                          ///< Header value.
 } sl_http_client_header_t;
 
 /// HTTP client request configurations
 typedef struct {
-  sl_http_client_method_type_t http_method_type;   ///< HTTP request method. @ref sl_http_client_method_type_t
-  uint8_t *ip_address;                             ///< HTTP server IP address.
-  uint8_t *resource;                               ///< URL string for requested resource.
+  sl_http_client_method_type_t http_method_type; ///< HTTP request method. @ref sl_http_client_method_type_t
+  uint8_t *ip_address;                           ///< HTTP server IP address.
+  uint8_t *
+    resource; ///< URL string for requested resource. The maximum supported HTTP URL is 2048 bytes, when the SL_SI91X_FEAT_LONG_HTTP_URL Bit is enabled in the feature_bit_map. If the SL_SI91X_FEAT_LONG_HTTP_URL Bit is disabled then the maximum supported length for HTTP URL is
+  ///< (872-(length of User_name + length of Password) - length of hostname - length of IP address) bytes excluding delimiters.
   uint16_t port;                                   ///< HTTP server port number.
   si91x_socket_type_length_value_t *sni_extension; ///< SNI extension address. @ref si91x_socket_type_length_value_t
   uint8_t

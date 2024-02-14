@@ -451,8 +451,15 @@ int32_t SPI_Transfer(const void *data_out,
     }
   } else {
     // Interrupt mode
-    // Buffer not empty interrupt enable
-    spi->reg->IMR |= TXEIM | RXFIM;
+    /* spi->reg->IMR |= TXEIM | RXFIM; */
+    /*enabled below bits 
+    Transmit FIFO Empty Interrupt Mask
+    Transmit FIFO Overflow Interrupt Mask
+    Receive FIFO Underflow Interrupt Mask
+    Receive FIFO Overflow Interrupt Mask
+    Receive FIFO Full Interrupt Mask
+    */
+    spi->reg->IMR |= (TXEIM | TXOIM | RXUIM | RXOIM | RXFIM);
   }
   return ARM_DRIVER_OK;
 }
@@ -808,14 +815,19 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
 
   if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
     data_width = spi->reg->CTRLR0_b.DFS_32;
+    if (spi->reg->SER == 0x00) {
+      event |= ARM_SPI_EVENT_MODE_FAULT;
+    }
   } else {
     data_width = spi->reg->CTRLR0_b.DFS;
   }
-  if ((isr & BIT(1)) || (isr & BIT(3))) { // Read overrun
+  if ((isr & SPI_ISR_TX_FIFO_OVERFLOW) || (isr & SPI_ISR_RX_FIFO_OVERFLOW)
+      || (isr & SPI_ISR_RX_FIFO_UNDERFLOW)) { // checking Tx FIFO Over Flow, Rx Overflow and Rx FIFO underflow
     // Overrun flag is set
-    // Clear Overrun flag
-    ovrrunclr = spi->reg->TXOICR;
-    ovrrunclr = spi->reg->RXOICR;
+    // Clear Overrun flag,
+    ovrrunclr = spi->reg->TXOICR; /* Clear Transmit FIFO Overflow */
+    ovrrunclr = spi->reg->RXOICR; /* Clear Receive FIFO Overflow Interrupt */
+    ovrrunclr = spi->reg->RXUICR; /* Clear Receive FIFO Underflow Interrupt */
     (void)ovrrunclr;
     spi->info->status.data_lost = 1U;
     event |= ARM_SPI_EVENT_DATA_LOST;
@@ -1067,7 +1079,15 @@ int32_t SPI_Send(const void *data,
       UDMAx_DMAEnable(udma, udmaHandle);
     }
   } else {
-    spi->reg->IMR |= (TXEIM | RXFIM);
+    /* spi->reg->IMR |= (TXEIM | RXFIM); */
+    /*enabled below bits 
+    Transmit FIFO Empty Interrupt Mask
+    Transmit FIFO Overflow Interrupt Mask
+    Receive FIFO Underflow Interrupt Mask
+    Receive FIFO Overflow Interrupt Mask
+    Receive FIFO Full Interrupt Mask
+    */
+    spi->reg->IMR |= (TXEIM | TXOIM | RXUIM | RXOIM | RXFIM);
   }
   return ARM_DRIVER_OK;
 }
@@ -1223,7 +1243,15 @@ int32_t SPI_Receive(void *data,
   } else {
     // Interrupt mode
     // RX Buffer not empty interrupt enable
-    spi->reg->IMR |= (TXEIM | RXFIM);
+    /* spi->reg->IMR |= (TXEIM | RXFIM); */
+    /*enabled below bits 
+    Transmit FIFO Empty Interrupt Mask
+    Transmit FIFO Overflow Interrupt Mask
+    Receive FIFO Underflow Interrupt Mask
+    Receive FIFO Overflow Interrupt Mask
+    Receive FIFO Full Interrupt Mask
+    */
+    spi->reg->IMR |= (TXEIM | TXOIM | RXUIM | RXOIM | RXFIM);
   }
   return ARM_DRIVER_OK;
 }

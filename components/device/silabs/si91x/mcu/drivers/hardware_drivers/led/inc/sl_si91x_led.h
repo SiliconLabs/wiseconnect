@@ -21,12 +21,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct {
-  uint8_t pin;
-  uint8_t port;
-  uint8_t led_number;
-} sl_led_t;
-
 /** @addtogroup LED LED
  *  @ingroup SI91X_HARDWARE_DRIVER_APIS
  *  @brief  Sample API funtions for controlling LEDs.
@@ -34,43 +28,68 @@ typedef struct {
  * See sl_si91x_led.c for source code.
  *@{
  */
+typedef struct {
+  uint8_t pin;
+  uint8_t port;
+  uint8_t led_number;
+} sl_led_t;
 
-/** @brief Configures GPIOs pertaining to the control of LEDs.
+/***************************************************************************/ /**
+ * Configures GPIOs pertaining to the control of LEDs.
  *
- * @param[in] handle  The pointer to led structure that has the specific led information.
- */
+ * @param[in] handle  The pointer to led structure that has the specific 
+ * led information.
+ *
+ * @return none
+ *
+ ******************************************************************************/
 void sl_si91x_led_init(const sl_led_t *handle);
 
-/** @brief Atomically wraps an XOR or similar operation for a single GPIO
- *  pin attached to an LED.
+/***************************************************************************/ /**
+ * Atomically wraps an XOR or similar operation for a single GPIO pin 
+ * attached to an LED.
  *
- *  @param[in] pin  LED pin for the LED to be toggled.
- */
+ * @param[in] pin  LED pin for the LED to be toggled.
+ *
+ * @return none
+ *
+ ******************************************************************************/
 void sl_si91x_led_toggle(uint8_t pin);
 
-/** @brief Turns on (sets) a GPIO pin connected to an LED so that the LED
- *  turns on.
+/***************************************************************************/ /**
+ * Turns on (sets) a GPIO pin connected to an LED so that the LED turns on.
  *
- *  @param[in] pin  LED pin for the LED to turn on.
- */
+ * @param[in] pin  LED pin for the LED to turn on.
+ *
+ * @return none
+ *
+ ******************************************************************************/
 void sl_si91x_led_set(uint8_t pin);
 
-/** @brief Turns off (clears) a GPIO pin connected to an LED, which turns
- *  off the LED.
+/***************************************************************************/ /**
+ * Turns off (clears) a GPIO pin connected to an LED, which turns 
+ * off the LED.
  *
- *  @param[in] pin  LED pin for the LED to turn off.
- */
+ * @param[in] pin  LED pin for the LED to turn off.
+ *
+ * @return none
+ *
+ ******************************************************************************/
 void sl_si91x_led_clear(uint8_t pin);
 
-/** @brief Called by the stack to indicate activity over the radio (for
- *  both transmission and reception). It is called once with \c turnOn true and
- *  shortly thereafter with \c turnOn false.
+/***************************************************************************/ /**
+ * Called by the stack to indicate activity over the radio (for 
+ * both transmission and reception). It is called once with \c turnOn true and 
+ * shortly thereafter with \c turnOn false.
+ * 
+ * Typically does something interesting, such as change the state of
+ * an LED.
+ * 
+ * @param turnOn  See Usage.
  *
- *  Typically does something interesting, such as change the state of
- *  an LED.
+ * @return none
  *
- *  @param turnOn  See Usage.
- */
+ ******************************************************************************/
 void sl_si91x_led_StackIndicateActivity(bool turnOn);
 
 /** @} END addtogroup

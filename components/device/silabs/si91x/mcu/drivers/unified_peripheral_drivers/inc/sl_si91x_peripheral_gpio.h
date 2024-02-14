@@ -223,7 +223,8 @@ typedef enum {
  ******************************************************************************/
 
 /***************************************************************************/ /**
- * @brief     Configure the GPIO pin interrupt.
+ * @brief     Configure the MCU HP instance pin interrupts with trigger type(level/edge)
+ *            and register the callback function for interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -243,7 +244,7 @@ typedef enum {
 void sl_gpio_configure_interrupt(sl_gpio_port_t port, uint8_t pin, uint32_t int_no, sl_gpio_interrupt_flag_t flags);
 
 /***************************************************************************/ /**
- * @brief      Set the pin mode for a GPIO pin.
+ * @brief      Set the pin mode (alternate function) of a GPIO for either HP instance (or) ULP instance as per the port number.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -264,7 +265,7 @@ void sl_gpio_configure_interrupt(sl_gpio_port_t port, uint8_t pin, uint32_t int_
 void sl_gpio_set_pin_mode(sl_gpio_port_t port, uint8_t pin, sl_gpio_mode_t mode, uint32_t output_value);
 
 /***************************************************************************/ /**
- * @brief      Get the GPIO pin mode.
+ * @brief      Get the pin mode (alternate function) of a GPIO for either HP instance or ULP instance as per the port number.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -285,7 +286,7 @@ void sl_gpio_set_pin_mode(sl_gpio_port_t port, uint8_t pin, sl_gpio_mode_t mode,
 sl_gpio_mode_t sl_gpio_get_pin_mode(sl_gpio_port_t port, uint8_t pin);
 
 /***************************************************************************/ /**
- * @brief Set a single pin in GPIO configuration register to 1. 
+ * @brief Set a single GPIO pin of a GPIO port with 1.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -315,7 +316,7 @@ static __INLINE void sl_gpio_set_pin_output(sl_gpio_port_t port, uint8_t pin)
 }
 
 /***************************************************************************/ /**
- * @brief  Set bits GPIO data out register to 1.
+ * @brief  Set the selected bits value of GPIO data out register to 1.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -340,7 +341,7 @@ static __INLINE void sl_gpio_set_port_output(sl_gpio_port_t port, uint32_t pins)
 }
 
 /***************************************************************************/ /**
- * @brief  Set GPIO port configuration register.
+ * @brief  Set GPIO port value with the selected mask bits.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -377,7 +378,7 @@ static __INLINE void sl_gpio_set_port_output_value(sl_gpio_port_t port, uint32_t
  ******************************************************************************/
 static __INLINE void sl_gpio_set_slew_rate(sl_gpio_port_t port, uint32_t slewrate, uint32_t slewrate_alt)
 {
-  UNUSED_VARIABLE(slewrate_alt);
+  UNUSED_VAR(slewrate_alt);
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   for (uint8_t i = (port * MAX_GPIO_PORT_PIN); i < (MAX_GPIO_PORT_PIN * (port + 1)); i++) {
     PAD_REG(i)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_SR = (sl_si91x_gpio_slew_rate_t)slewrate;
@@ -469,7 +470,7 @@ static __INLINE uint8_t sl_gpio_get_pin_input(sl_gpio_port_t port, uint8_t pin)
 }
 
 /***************************************************************************/ /**
- * @brief  Get the current setting for a pin in a GPIO configuration register.
+ * @brief  Get the current pin value of selected pin in a GPIO port.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -509,7 +510,7 @@ static __INLINE uint8_t sl_gpio_get_pin_output(sl_gpio_port_t port, uint8_t pin)
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
  *                  ULP instance - PORT 4
- * @return The pad values for the GPIO port.
+ * @return The pin values of the GPIO port.
  ******************************************************************************/
 static __INLINE uint32_t sl_gpio_get_port_input(sl_gpio_port_t port)
 {
@@ -522,7 +523,7 @@ static __INLINE uint32_t sl_gpio_get_port_input(sl_gpio_port_t port)
 }
 
 /***************************************************************************/ /**
- * @brief Get the current setting for a GPIO configuration register.
+ * @brief Get the current pin values of a selected GPIO Port register.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -546,7 +547,7 @@ static __INLINE uint32_t sl_gpio_get_port_output(sl_gpio_port_t port)
 }
 
 /***************************************************************************/ /**
- * @brief  Toggle a single pin in GPIO port register.
+ * @brief  Toggle a single pin in selected GPIO port register.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -576,7 +577,7 @@ static __INLINE void sl_gpio_toggle_pin_output(sl_gpio_port_t port, uint8_t pin)
 }
 
 /***************************************************************************/ /**
- * @brief  Toggle pins in GPIO port register.
+ * @brief  Toggle selected pins in GPIO port register.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -601,7 +602,7 @@ static __INLINE void sl_gpio_toggle_port_output(sl_gpio_port_t port, uint32_t pi
 }
 
 /***************************************************************************/ /**
- * @brief  Enable one or more GPIO interrupts.
+ * @brief  Enable MCU HP instance GPIO pin interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -630,7 +631,7 @@ static __INLINE void sl_gpio_enable_interrupts(uint32_t flags)
 }
 
 /***************************************************************************/ /**
- * @brief  Disable one or more GPIO interrupts.
+ * @brief  Disable MCU HP Instance GPIO pin interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -659,7 +660,7 @@ static __INLINE void sl_gpio_disable_interrupts(uint32_t flags)
 }
 
 /***************************************************************************/ /**
- * @brief   Clear one or more pending GPIO interrupts.
+ * @brief   Clear MCU HP Instance GPIO pin interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -676,7 +677,7 @@ static __INLINE void sl_gpio_clear_interrupts(uint32_t flags)
 }
 
 /**************************************************************************/ /**
- * @brief  Set one or more pending GPIO interrupts from SW.
+ * @brief  Set MCU HP Instance GPIO pin interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -694,7 +695,7 @@ static __INLINE void sl_gpio_set_interrupts(uint32_t flags)
 }
 
 /***************************************************************************/ /**
- * @brief  Get pending GPIO interrupts.
+ * @brief  Get pending MCU HP Instance GPIO pin interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
@@ -714,14 +715,14 @@ static __INLINE uint32_t sl_gpio_get_pending_interrupts(void)
 }
 
 /***************************************************************************/ /**
- * @brief  Get enabled GPIO interrupts.
+ * @brief  Get enabled MCU HP Instance GPIO pin interrupts.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
  * @pre   \ref sl_si91x_gpio_enable_pad_receiver(), for HP instance \n
  * @pre   \ref sl_gpio_set_pin_mode() \n
  * @pre   \ref sl_si91x_gpio_set_pin_direction() \n
  * @param[in]  None
- * @return Enabled GPIO interrupt sources.
+ * @return Returns enabled GPIO interrupt sources.
  ******************************************************************************/
 static __INLINE uint32_t sl_gpio_get_enabled_interrupts(void)
 {
@@ -734,7 +735,7 @@ static __INLINE uint32_t sl_gpio_get_enabled_interrupts(void)
 }
 
 /***************************************************************************/ /**
- * @brief  Get enabled and pending GPIO interrupt flags.
+ * @brief  Get enabled and pending GPIO pin interrupt of MCU HP Instance.
  *     Useful for handling more interrupt sources in the same interrupt handler.
  * @pre   \ref sl_si91x_gpio_enable_clock() \n
  * @pre   \ref sl_si91x_gpio_enable_pad_selection(), for HP instance \n
@@ -742,7 +743,7 @@ static __INLINE uint32_t sl_gpio_get_enabled_interrupts(void)
  * @pre   \ref sl_gpio_set_pin_mode() \n
  * @pre   \ref sl_si91x_gpio_set_pin_direction() \n
  * @param[in]  None
- * @return     None
+ * @return     Returns pending GPIO interrupt sources
  ******************************************************************************/
 static __INLINE uint32_t sl_gpio_get_enabled_pending_interrupts(void)
 {

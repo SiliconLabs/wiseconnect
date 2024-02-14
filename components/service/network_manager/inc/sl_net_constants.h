@@ -51,6 +51,7 @@ typedef enum {
   SL_NET_THREAD_INTERFACE      = (4 << 3), ///< Thread Interface (not currently supported)
   SL_NET_BLUETOOTH_INTERFACE   = (5 << 3), ///< Bluetooth Interface (not currently supported)
   SL_NET_ZWAVE_INTERFACE       = (6 << 3), ///< Z-Wave Interface (not currently supported)
+  SL_NET_WIFI_BTR_INTERFACE    = (7 << 3), ///< Wi-Fi Basic Transceiver Mode
 } sl_net_interface_t;
 
 /** @} */
@@ -72,6 +73,9 @@ typedef enum {
 
 /// Zwave Interface
 #define SL_NET_ZWAVE_INTERFACE (6 << 3)
+
+/// Wi-Fi Basic Transceiver Mode
+#define SL_NET_WIFI_BTR_INTERFACE (7 << 3)
 
 /** \addtogroup SL_NET_CONSTANTS Constants
  * @{ */
@@ -134,6 +138,7 @@ typedef enum {
   SL_NET_DEFAULT_ETHERNET_PROFILE_ID    = SL_NET_PROFILE_ID_0, ///< Ethernet Default Profile (not currently supported)
   SL_NET_DEFAULT_THREAD_PROFILE_ID      = SL_NET_PROFILE_ID_0, ///< Thread Default Profile  (not currently supported)
   SL_NET_DEFAULT_ZWAVE_PROFILE_ID       = SL_NET_PROFILE_ID_0, ///< Zwave Default Profile  (not currently supported)
+  SL_NET_DEFAULT_WIFI_BTR_PROFILE_ID    = SL_NET_PROFILE_ID_0, ///< Wi-Fi BTR Default Profile
 } sl_net_profile_id_t;
 
 /// Enumeration of network credential types.

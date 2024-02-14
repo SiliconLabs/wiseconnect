@@ -403,7 +403,7 @@ void RSI_PS_Restore(void)
   RSI_PS_RestoreCpuContext();
   return;
 }
-#if (defined(RAM_COMPILATION) && defined(SLI_SI91X_MCU_COMMON_FLASH_MODE))
+#if defined(SLI_SI91X_MCU_COMMON_FLASH_MODE)
 /**
 * @fn           void GetQspiConfig(spi_config_t *spi_config)
 * @brief        This function is used to get the QSPI configuration structure of selected flash.

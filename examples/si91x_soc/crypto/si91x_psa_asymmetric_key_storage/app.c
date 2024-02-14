@@ -44,11 +44,10 @@
 #include "sl_utility.h"
 #include "sl_si91x_constants.h"
 #include "sl_si91x_types.h"
-
+#include "nvm3_lock.h"
 /******************************************************
  *               Variable Definitions
  ******************************************************/
-static osSemaphoreId_t nvm3_Sem;
 
 const osThreadAttr_t thread_attributes = {
   .name       = "app",
@@ -125,19 +124,4 @@ static void application_start(void *argument)
 void app_process_action(void)
 {
   test_psa_asymmetric_key_storage();
-}
-
-void nvm3_lockBegin(void)
-{
-
-  if (nvm3_Sem == NULL) {
-    nvm3_Sem = osSemaphoreNew(1, 0, NULL);
-    osSemaphoreRelease(nvm3_Sem);
-  }
-  osSemaphoreAcquire(nvm3_Sem, osWaitForever);
-}
-
-void nvm3_lockEnd(void)
-{
-  osSemaphoreRelease(nvm3_Sem);
 }

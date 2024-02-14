@@ -39,9 +39,6 @@ source:
 - path: host_mcu/efx32/efx32_ncp_host.c
   condition: ["device_efx"]
   unless: ["efx_ncp_custom_host_mcu"]
-- path: spi_interface/sl_si91x_spi_driver.c
-  condition: ["device_efx"]
-  unless: ["siwx917_ncp_custom_spi_driver"]
 define:
 - name: SLI_SI917
 - {"condition":["device_si91x"],"name":"SLI_SI91X_MCU_INTERFACE"}
@@ -68,7 +65,11 @@ requires:
 - condition: ["device_efx"]
   name: gpiointerrupt
 - condition: ["device_efx"]
+  name: emlib
+- condition: ["device_efx"]
   name: dmadrv
+- condition: ["device_efx"]
+  name: sl_si91x_ncp_bus
 - name: sl_si91x_errno
 
 recommends:

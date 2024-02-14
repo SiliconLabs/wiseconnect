@@ -49,6 +49,7 @@ void RSI_SIO_ClockEnable(void)
  */
 rsi_error_t RSI_SIO_Init(volatile SIO_Type *pstcSio)
 {
+  (void)pstcSio;
   // SIO_0
   if (RTE_SIO_0_PIN > (GPIO_MAX_PIN - 1)) {
     RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(RTE_SIO_0_PIN - GPIO_MAX_PIN));
@@ -875,6 +876,7 @@ uint16_t RSI_SIO_UARTSend(SIO_Type *pstcSio, const void *u16ptr, uint16_t u16Len
  */
 uint16_t RSI_SIO_UartFrameExtract(uint8_t u8StopBits, uint16_t u16UartDataFrame, uint8_t u8ParitySet, uint8_t u8DataLen)
 {
+  (void)u8StopBits;
   uint16_t u16Data = 0;
   uint8_t u8Parity = 0;
   if (u8ParitySet == 1) {
@@ -887,9 +889,7 @@ uint16_t RSI_SIO_UartFrameExtract(uint8_t u8StopBits, uint16_t u16UartDataFrame,
     }
     u8Parity = RSI_SIO_UartGetParity(u16Data);
 
-    if (u8Parity == u16UartDataFrame >> (u8DataLen + 1))
-      ;
-    {
+    if (u8Parity == u16UartDataFrame >> (u8DataLen + 1)) {
       return u16Data;
     }
   } else if (u8ParitySet == 2) {
@@ -946,6 +946,7 @@ int RSI_SIO_UARTSendBlocking(SIO_Type *pstcSio, const void *data, int numBytes)
  */
 int RSI_SIO_UARTRead(volatile SIO_Type *pstcSio, void *data, int numBytes)
 {
+  (void)pstcSio;
   gstcSioCb.uart_sio.enRxStatus    = SioUartIdle;
   gstcSioCb.uart_sio.u16UartRxDone = 0;
   // As per bit configuration typecast the pointer
@@ -970,6 +971,7 @@ int RSI_SIO_UARTRead(volatile SIO_Type *pstcSio, void *data, int numBytes)
  */
 int RSI_SIO_UARTReadBlocking(volatile SIO_Type *pstcSio, void *data, int numBytes)
 {
+  (void)pstcSio;
   gstcSioCb.uart_sio.enRxStatus    = SioUartIdle;
   gstcSioCb.uart_sio.u16UartRxDone = 0;
   // As per bit configuration typecast the pointer
@@ -1279,6 +1281,7 @@ rsi_error_t RSI_SIO_I2cRead(volatile SIO_Type *pstcSio,
                             uint8_t *u8Data,
                             uint16_t u16Len)
 {
+  (void)pstcConfig;
   uint32_t u32Enable = 0, u32Sdat = 0, u32Slav = 0;
   volatile uint32_t u32RecvDat = 0;
   int cnt;
@@ -1387,6 +1390,8 @@ rsi_error_t RSI_SIO_I2cTransfer(volatile SIO_Type *pstcSio,
                                 uint8_t *u8PtrRxDat,
                                 uint16_t u16RxLen)
 {
+  (void)u8PtrRxDat;
+  (void)u16RxLen;
   uint32_t u32Enable  = 0;
   uint32_t u32RecvDat = 0, u32I2cClok = 0;
   uint32_t u32Sdat = 0, u32Slav = 0;

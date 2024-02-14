@@ -237,11 +237,11 @@ static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t t
   printf("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 
-uint8_t has_data_received = 0;
-uint32_t bytes_read       = 0;
-uint32_t start            = 0;
-uint32_t now              = 0;
-uint8_t first_data_frame  = 1;
+volatile uint8_t has_data_received = 0;
+volatile uint32_t bytes_read       = 0;
+uint32_t start                     = 0;
+uint32_t now                       = 0;
+uint8_t first_data_frame           = 1;
 
 void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)
 {

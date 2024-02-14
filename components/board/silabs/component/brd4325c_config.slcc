@@ -10,6 +10,9 @@
 - root_path: "components/board/silabs/config/brd4325c"
 - provides:
   - name: brd4325c_config
+- requires:
+  - name: freertos_config
+    condition: [freertos]
 - config_file: 
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
@@ -135,10 +138,6 @@
       file_id: i2c_config
       instance: i2c2
     path: sl_si91x_i2c_init_i2c2_config.h
-  - override:
-      component: "%extension-wiseconnect3_sdk%board_configuration_headers"
-      file_id: freertos_config
-    path: FreeRTOSConfig.h
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: sl_board_configuration

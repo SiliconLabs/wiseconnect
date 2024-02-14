@@ -333,4 +333,11 @@ int sl_si91x_select(int nfds,
                     struct timeval *timeout,
                     select_callback callback);
 
+/**
+ * @brief
+ * A function to register callback for remote socket termination event.
+ * @param[in] callback
+ * A valid function pointer that will be called when remote socket is terminated.
+ */
+void sl_si91x_set_remote_termination_callback(remote_socket_termination_callback callback);
 /** @} */

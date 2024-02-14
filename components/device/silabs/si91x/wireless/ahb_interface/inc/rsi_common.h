@@ -27,6 +27,7 @@
 //#include "rsi_timers.h"
 #include "sli_siwx917_timer.h"
 #include "rsi_pkt_mgmt.h"
+#include "sl_common.h"
 
 /******************************************************
  * *                      Macros
@@ -411,7 +412,7 @@ typedef struct rsi_req_ta2m4_s {
 
   //data
   uint8_t input_data[RSI_MAX_CHUNK_SIZE];
-} __attribute__((__packed__)) rsi_req_ta2m4_t;
+} SL_ATTRIBUTE_PACKED rsi_req_ta2m4_t;
 #endif
 #endif
 

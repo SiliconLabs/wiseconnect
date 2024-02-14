@@ -1,0 +1,21 @@
+id: wireless_wakeup_ulp_component
+label: Wireless Wakeup
+package: platform
+description: >
+  Install this component to enable execution of "Wireless Wakeup" peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+provides:
+  - name: wireless_wakeup_ulp_component
+
+template_contribution:
+  - name: wakeup
+    value: 
+      event: wakeup_init
+      function:
+        name: sli_si91x_power_manager_wireless_wakeup_init
+        return: sl_status_t
+      include:
+        name: sl_si91x_power_manager.h
+    priority: -5000

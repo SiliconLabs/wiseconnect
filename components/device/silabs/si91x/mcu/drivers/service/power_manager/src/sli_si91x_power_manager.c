@@ -30,46 +30,73 @@
 
 #include "sli_si91x_power_manager.h"
 #include "sli_si91x_power_manager_board_config.h"
-#include "sl_si91x_types.h"
-#include "sl_rsi_utility.h"
 #include "clock_update.h"
-#include "rsi_m4.h"
 #include "rsi_pll.h"
 #include "rsi_power_save.h"
 #include "rsi_rom_clks.h"
 #include "rsi_rom_power_save.h"
 #include "rsi_rom_ulpss_clk.h"
+#include "rsi_ps_ram_func.h"
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+#include "rsi_m4.h"
+#include "sl_si91x_types.h"
+#include "sl_rsi_utility.h"
+#endif
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
-#define P2P_STATUS_REG           *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x174) // P2P status register
-#define JUMP_CB_ADDRESS          (uint32_t) RSI_PS_RestoreCpuContext // Callback Address to restore CPU context
-#define MAX_M4SS_RAM_SIZE        320                                 // Maximum m4ss RAM size
-#define MAX_ULPSS_RAM_SIZE       8                                   // Maximum ulpss RAM size
-#define SOC_PLL_REF_FREQUENCY    32000000                            // SOC Pll reference frequency
-#define PS4_HP_FREQUENCY         180000000                           // PS4 high power clock frequency
-#define PS4_LP_FREQUENCY         100000000                           // PS4 low power clock frequency
-#define PS3_HP_FREQUENCY         80000000                            // PS3 high power clock frequency
-#define PS3_LP_FREQUENCY         32000000                            // PS3 low power clock frequency
-#define DIVISION_FACTOR          0                                   // Division Factor for clock
-#define PMU_WAIT_TIME            15                                  // Max PMU turn on wait time
-#define LDO_WAIT_TIME            15                                  // Max LDO turn on wait time
-#define PMU_GOOD_TIME            31                                  // PMU good duration count
-#define XTAL_GOOD_TIME           31                                  // XTAL good duration count
-#define VALID_M4SS_PERIPHERAL    0x466A10                            // Valid bits for M4SS peripheral
-#define VALID_ULPSS_PERIPHERAL   0x1FEC0000                          // Valid bits for ULPSS peripheral
-#define VALID_NPSS_PERIPHERAL    0x107FE                             // Valid bits for NPSS peripheral
-#define VALID_WAKEUP_SOURCES     0x3F7F0000                          // Valid bits for Wakeup sources
-#define VALID_RAM_RETENTION_MODE 0xFC                                // Valid bits for RAM retention mode
-#define VALID_M4SS_RAM           0x3FF                               // Valid bits for M4SS RAM Banks
-#define VALID_ULPSS_RAM          0xF                                 // Valid bits for ULPSS RAM Banks
-#define VALID                    1                                   // Valid
-#define INVALID                  0                                   // Invalid
-#define NO_OF_ACTIVE_STATES      3                                   // Number of active states
-#define PS_OFFSET                2                                   // Power State offset
-#define NO_OF_TRANSITIONS        7 // Number of all possible transitions, i.e., PS0, PS1, PS2, PS3, PS4, Sleep and Standby
-#define NO_OF_STATE_TRANSITIONS  5 // Number of all state transitions, i.e., PS0, PS1, PS2, PS3, PS4.
+#define P2P_STATUS_REG  *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x174) // P2P status register
+#define JUMP_CB_ADDRESS (uint32_t) RSI_PS_RestoreCpuContext // Callback Address to restore CPU context
+#if (SL_SI91X_SI917_RAM_MEM_CONFIG == 1)
+#define MAX_M4SS_RAM_SIZE 192 // Maximum m4ss RAM size
+#elif (SL_SI91X_SI917_RAM_MEM_CONFIG == 2)
+#define MAX_M4SS_RAM_SIZE 256 // Maximum m4ss RAM size
+#elif (SL_SI91X_SI917_RAM_MEM_CONFIG == 3)
+#define MAX_M4SS_RAM_SIZE 320 // Maximum m4ss RAM size
+#endif
+#define MAX_ULPSS_RAM_SIZE       8          // Maximum ulpss RAM size
+#define SOC_PLL_REF_FREQUENCY    40000000   // SOC Pll reference frequency
+#define PS4_HP_FREQUENCY         180000000  // PS4 high power clock frequency
+#define PS4_LP_FREQUENCY         100000000  // PS4 low power clock frequency
+#define PS3_HP_FREQUENCY         80000000   // PS3 high power clock frequency
+#define PS3_LP_FREQUENCY         32000000   // PS3 low power clock frequency
+#define DIVISION_FACTOR          0          // Division Factor for clock
+#define PMU_WAIT_TIME            15         // Max PMU turn on wait time
+#define LDO_WAIT_TIME            15         // Max LDO turn on wait time
+#define PMU_GOOD_TIME            31         // PMU good duration count
+#define XTAL_GOOD_TIME           31         // XTAL good duration count
+#define VALID_M4SS_PERIPHERAL    0x466A10   // Valid bits for M4SS peripheral
+#define VALID_ULPSS_PERIPHERAL   0x1FEC0000 // Valid bits for ULPSS peripheral
+#define VALID_NPSS_PERIPHERAL    0x107FE    // Valid bits for NPSS peripheral
+#define VALID_WAKEUP_SOURCES     0x3F7F0000 // Valid bits for Wakeup sources
+#define VALID_RAM_RETENTION_MODE 0xFC       // Valid bits for RAM retention mode
+#if (SL_SI91X_SI917_RAM_MEM_CONFIG == 1)
+#define VALID_M4SS_RAM 0xFF // Valid bits for M4SS RAM Banks
+#elif (SL_SI91X_SI917_RAM_MEM_CONFIG == 2)
+#define VALID_M4SS_RAM 0x1FF // Valid bits for M4SS RAM Banks
+#elif (SL_SI91X_SI917_RAM_MEM_CONFIG == 3)
+#define VALID_M4SS_RAM 0x3FF // Valid bits for M4SS RAM Banks
+#endif
+#define VALID_ULPSS_RAM         0xF // Valid bits for ULPSS RAM Banks
+#define VALID                   1   // Valid
+#define INVALID                 0   // Invalid
+#define NO_OF_ACTIVE_STATES     3   // Number of active states
+#define PS_OFFSET               2   // Power State offset
+#define NO_OF_TRANSITIONS       7 // Number of all possible transitions, i.e., PS0, PS1, PS2, PS3, PS4, Sleep and Standby
+#define NO_OF_STATE_TRANSITIONS 5   // Number of all state transitions, i.e., PS0, PS1, PS2, PS3, PS4.
+#define RAM_2_KB                2   // Validation for 2 KB RAM
+#define RAM_4_KB                4   // Validation for 4 KB RAM
+#define RAM_6_KB                6   // Validation for 6 KB RAM
+#define RAM_8_KB                8   // Validation for 8 KB RAM
+#define RAM_12_KB               12  // Validation for 12 KB RAM
+#define RAM_16_KB               16  // Validation for 16 KB RAM
+#define RAM_32_KB               32  // Validation for 32 KB RAM
+#define RAM_64_KB               64  // Validation for 64 KB RAM
+#define RAM_128_KB              128 // Validation for 128 KB RAM
+#define RAM_192_KB              192 // Validation for 192 KB RAM
+#define RAM_256_KB              256 // Validation for 256 KB RAM
+#define RAM_320_KB              320 // Validation for 320 KB RAM
 
 /*******************************************************************************
  ***************************  Local Types  ********************************
@@ -88,13 +115,17 @@ static void ps3_to_ps0_state_change(void);
 static void ps2_to_ps4_state_change(void);
 static void ps2_to_ps3_state_change(void);
 static void ps2_to_ps1_state_change(void);
-static void low_power_hardware_configuration(void);
+static void initialize_flash(void);
+static void low_power_hardware_configuration(boolean_t is_sleep);
+static void get_ram_retention_mode(uint32_t m4ss_ram, uint32_t *m4ss_ram_retention);
 static sl_status_t configure_ram_memory(sl_power_ram_retention_config_t *config,
                                         uint32_t *m4ss_ram,
                                         uint32_t *ulpss_ram);
 static sl_status_t trigger_sleep(sli_power_sleep_config_t *config, uint8_t sleep_type);
 static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
-
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+__WEAK sl_status_t sli_si91x_submit_rx_pkt(void);
+#endif
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -184,6 +215,7 @@ sl_status_t sli_si91x_power_manager_change_power_state(sl_power_state_t from, sl
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t state)
 {
+  sl_status_t status;
   if ((state < SL_SI91X_POWER_MANAGER_PS2) || (state > SL_SI91X_POWER_MANAGER_PS4)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
@@ -197,20 +229,32 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   } else {
     config.mode = SLI_SI91X_POWER_MANAGER_WAKEUP_FROM_FLASH_MODE;
     // Low power hardware configuration to switch off the components which are not required.
-    low_power_hardware_configuration();
+    low_power_hardware_configuration(true);
   }
-  P2P_STATUS_REG &= ~M4_is_active;
 
-  if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
-      || ((sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_BT_CMD)))) {
-    P2P_STATUS_REG |= M4_is_active;
-  }
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  rsi_p2p_intr_status_bkp_t p2p_intr_status_bkp;
+  p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp = TASS_P2P_INTR_MASK_CLR;
+  p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp  = M4SS_P2P_INTR_SET_REG;
+  P2P_STATUS_REG &= ~M4_is_active;
+#endif
+
   // If any error code, it returns it otherwise goes to sleep with retention.
-  return trigger_sleep(&config, SLEEP_WITH_RETENTION);
+  status = trigger_sleep(&config, SLEEP_WITH_RETENTION);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // After waking up, setting the mcu status as active in P2P registers
+  RSI_PS_SetMCUActiveStatus();
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  SysTick_Config(SystemCoreClock / 1000);
+  // Indicate M4 is active
+  P2P_STATUS_REG |= M4_is_active;
+  // Restore values from backup
+  TASS_P2P_INTR_MASK_CLR = ~p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp;
+  M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
+#endif
+  return SL_STATUS_OK;
 }
 
 /*******************************************************************************
@@ -312,25 +356,21 @@ sl_status_t sli_si91x_power_configure_wakeup_resource(uint32_t source, boolean_t
  * Validation of all the parameters is performed, if invalid then error code is returned.
  * If configure_ram_banks is enabled, user can configure RAM_BANKS using bank number.
  * If configure_ram_banks is disabled, user can enter the size of RAM to be retained.
- * If configure_ram_retention is enabled, user can set the RAM retention mode using ram_retention_mode.
- * If configure_ram_retention is disabled, user can clear the RAM retention using ram_retention_mode.
+ * It configures ram retention based on the selected ram banks.
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_set_ram_retention_configuration(sl_power_ram_retention_config_t *config)
 {
   sl_status_t status;
-  uint32_t m4ss_ram, ulpss_ram;
-  m4ss_ram = ulpss_ram = 0;
+  uint32_t m4ss_ram, ulpss_ram, m4ss_ram_retention;
+  m4ss_ram = ulpss_ram = m4ss_ram_retention = 0;
   if (config == NULL) {
     // Validates config, if null, returns error code
     return SL_STATUS_NULL_POINTER;
   }
-  if ((config->m4ss_ram_size_kb > MAX_M4SS_RAM_SIZE) || (config->ulpss_ram_size_kb > MAX_ULPSS_RAM_SIZE)) {
+  if ((!config->configure_ram_banks)
+      && ((config->m4ss_ram_size_kb > MAX_M4SS_RAM_SIZE) || (config->ulpss_ram_size_kb > MAX_ULPSS_RAM_SIZE))) {
     // If m4ss ram size is more than 320KB or
     // If ulp4ss ram size is more than 8KB or , returns error code.
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  if ((config->ram_retention_mode) && !(config->ram_retention_mode & VALID_RAM_RETENTION_MODE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
@@ -350,28 +390,29 @@ sl_status_t sli_si91x_power_manager_set_ram_retention_configuration(sl_power_ram
       // If status is not OK, returns error code.
       return status;
     }
+    get_ram_retention_mode(~m4ss_ram, &m4ss_ram_retention);
     // power down the ulpss RAM banks
-    RSI_PS_UlpssRamBanksPeriPowerDown(~ulpss_ram);
+    RSI_PS_UlpssRamBanksPeriPowerDown(ulpss_ram);
+    RSI_PS_UlpssRamBanksPowerDown(ulpss_ram);
     // power down the m4ss RAM banks
-    RSI_PS_M4ssRamBanksPeriPowerDown(~m4ss_ram);
+    RSI_PS_M4ssRamBanksPeriPowerDown(m4ss_ram);
+    RSI_PS_M4ssRamBanksPowerDown(m4ss_ram);
   } else {
+    get_ram_retention_mode(~(config->m4ss_ram_banks), &m4ss_ram_retention);
     // configure_ram_banks flag is true, i.e., RAM bank number is provided.
     // power down the m4ss RAM banks
     if (config->m4ss_ram_banks != 0) {
       RSI_PS_M4ssRamBanksPeriPowerDown(config->m4ss_ram_banks);
+      RSI_PS_M4ssRamBanksPowerDown(config->m4ss_ram_banks);
     }
     // power down the ulpss RAM banks
     if (config->ulpss_ram_banks != 0) {
       RSI_PS_UlpssRamBanksPeriPowerDown(config->ulpss_ram_banks);
+      RSI_PS_UlpssRamBanksPowerDown(config->ulpss_ram_banks);
     }
   }
-  if (config->configure_ram_retention) {
-    // configure_ram_retention flag is true, i.e., RAM retention mode is provided, it sets the RAM retention.
-    RSI_PS_SetRamRetention(config->ram_retention_mode);
-  } else {
-    // configure_ram_retention flag is false, i.e., RAM retention mode is not provided, it clears the RAM retention.
-    RSI_PS_ClrRamRetention(config->ram_retention_mode);
-  }
+  m4ss_ram_retention |= ULPSS_RAM_RETENTION_MODE_EN;
+  RSI_PS_SetRamRetention(m4ss_ram_retention);
   return SL_STATUS_OK;
 }
 
@@ -464,20 +505,21 @@ void sli_si91x_power_manager_init_hardware(void)
  * Configures the hardware for low power mode.
  * Disables the components and clocks which are not required.
  ******************************************************************************/
-static void low_power_hardware_configuration(void)
+static void low_power_hardware_configuration(boolean_t is_sleep)
 {
   // Disable OTHER_CLK which is enabled at Start-up
   RSI_CLK_PeripheralClkDisable3(M4CLK, M4_SOC_CLK_FOR_OTHER_ENABLE);
-  // Disable Timer clock which is enabled in Bootloader
+#if defined(SL_ADVANCE_POWERSAVE_CONFIG) && (SL_ADVANCE_POWERSAVE_CONFIG == ENABLE)
   RSI_ULPSS_TimerClkDisable(ULPCLK);
-  // Disabling LF_RC Clocks
   RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RC_CLK_EN);
-
-  // Disable PTAT for Analog Peripherals
-  RSI_IPMU_ProgramConfigData(ana_perif_ptat_common_config2);
-  // Disable PTAT for Brown-Out Detection Clocks
-  RSI_IPMU_ProgramConfigData(ipmu_bod_clks_common_config2);
-
+#endif
+  if (is_sleep) {
+    RSI_PS_AnalogPeriPtatDisable();
+    RSI_PS_BodClksPtatDisable();
+  } else {
+    RSI_IPMU_ProgramConfigData(ana_perif_ptat_common_config2);
+    RSI_IPMU_ProgramConfigData(ipmu_bod_clks_common_config2);
+  }
   RSI_PS_PowerSupplyDisable(POWER_ENABLE_TIMESTAMPING);
   // Power-Down High-Frequency PLL Domain
   RSI_PS_SocPllSpiDisable();
@@ -506,7 +548,7 @@ static void low_power_hardware_configuration(void)
 static void ps4_to_ps2_state_change(void)
 {
   // Low power hardware configuration to switch off the components which are not required.
-  low_power_hardware_configuration();
+  low_power_hardware_configuration(false);
 
   // Change to 20MHz-RC to be used as Processor Clock in PS2 state
   sli_si91x_power_manager_configure_clock(SL_SI91X_POWER_MANAGER_PS2, true);
@@ -551,7 +593,7 @@ static void ps4_to_ps0_state_change(void)
   config.vector_offset           = SL_SLEEP_VECTOR_OFFSET;
   config.wakeup_callback_address = SL_SLEEP_WAKEUP_CALLBACK_ADDRESS;
   // Low power hardware configuration to switch off the components which are not required.
-  low_power_hardware_configuration();
+  low_power_hardware_configuration(true);
   // If any error code, it returns it otherwise goes to sleep without retention.
   trigger_sleep(&config, SLEEP_WITHOUT_RETENTION);
 }
@@ -575,7 +617,7 @@ static void ps3_to_ps4_state_change(void)
 static void ps3_to_ps2_state_change(void)
 {
   // Low power hardware configuration to switch off the components which are not required.
-  low_power_hardware_configuration();
+  low_power_hardware_configuration(false);
 
   // Change to 20MHz-RC to be used as Processor Clock in PS2 state
   sli_si91x_power_manager_configure_clock(SL_SI91X_POWER_MANAGER_PS2, true);
@@ -610,7 +652,7 @@ static void ps3_to_ps0_state_change(void)
   config.stack_address           = SL_SLEEP_STACK_USAGE_ADDRESS;
   config.vector_offset           = SL_SLEEP_VECTOR_OFFSET;
   config.wakeup_callback_address = SL_SLEEP_WAKEUP_CALLBACK_ADDRESS;
-  low_power_hardware_configuration();
+  low_power_hardware_configuration(true);
   trigger_sleep(&config, SLEEP_WITHOUT_RETENTION);
 }
 
@@ -623,6 +665,8 @@ static void ps2_to_ps4_state_change(void)
 {
   ps_power_state_change_ps2_to_Ps4(PMU_WAIT_TIME, LDO_WAIT_TIME);
   sli_si91x_power_manager_configure_clock(SL_SI91X_POWER_MANAGER_PS4, false);
+  // To initialize the flash
+  initialize_flash();
 }
 
 /*******************************************************************************
@@ -634,6 +678,8 @@ static void ps2_to_ps3_state_change(void)
 {
   ps_power_state_change_ps2_to_Ps4(PMU_WAIT_TIME, LDO_WAIT_TIME);
   sli_si91x_power_manager_configure_clock(SL_SI91X_POWER_MANAGER_PS3, false);
+  // To initialize the flash
+  initialize_flash();
 }
 
 /*******************************************************************************
@@ -659,15 +705,6 @@ static void ps2_to_ps1_state_change(void)
     config.wakeup_callback_address = JUMP_CB_ADDRESS;
     config.mode                    = SLI_SI91X_POWER_MANAGER_WAKEUP_WITH_RETENTION;
 
-    P2P_STATUS_REG &= ~M4_is_active;
-    if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
-        || ((sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
-             | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
-             | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
-             | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
-             | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_BT_CMD)))) {
-      P2P_STATUS_REG |= M4_is_active;
-    }
     // If any error code, it returns it otherwise goes to sleep with retention.
     trigger_sleep(&config, SLEEP_WITH_RETENTION);
   }
@@ -710,63 +747,94 @@ static sl_status_t configure_ram_memory(sl_power_ram_retention_config_t *config,
     // Validates config, m4ss_ram and ulpss_ram, if null pointer returns error code.
     return SL_STATUS_NULL_POINTER;
   }
-  if (config->m4ss_ram_size_kb <= 4) {
+  if (config->m4ss_ram_size_kb < RAM_4_KB) {
     // If M4SS RAM Size is less than 4 KB, bit 0 is set.
     *m4ss_ram |= RAM_BANK_0;
   }
-  if (config->m4ss_ram_size_kb <= 8) {
+  if (config->m4ss_ram_size_kb < RAM_8_KB) {
     // If M4SS RAM Size is less than 8 KB, bit 1 is set.
     *m4ss_ram |= RAM_BANK_1;
   }
-  if (config->m4ss_ram_size_kb <= 12) {
+  if (config->m4ss_ram_size_kb < RAM_12_KB) {
     // If M4SS RAM Size is less than 12 KB, bit 2 is set.
     *m4ss_ram |= RAM_BANK_2;
   }
-  if (config->m4ss_ram_size_kb <= 16) {
+  if (config->m4ss_ram_size_kb < RAM_16_KB) {
     // If M4SS RAM Size is less than 16 KB, bit 3 is set.
     *m4ss_ram |= RAM_BANK_3;
   }
-  if (config->m4ss_ram_size_kb <= 32) {
+  if (config->m4ss_ram_size_kb < RAM_32_KB) {
     // If M4SS RAM Size is less than 32 KB, bit 4 is set.
     *m4ss_ram |= RAM_BANK_4;
   }
-  if (config->m4ss_ram_size_kb <= 64) {
+  if (config->m4ss_ram_size_kb < RAM_64_KB) {
     // If M4SS RAM Size is less than 64 KB, bit 5 is set.
     *m4ss_ram |= RAM_BANK_5;
   }
-  if (config->m4ss_ram_size_kb <= 128) {
+  if (config->m4ss_ram_size_kb < RAM_128_KB) {
     // If M4SS RAM Size is less than 128 KB, bit 6 is set.
     *m4ss_ram |= RAM_BANK_6;
   }
-  if (config->m4ss_ram_size_kb <= 192) {
+  if (config->m4ss_ram_size_kb < RAM_192_KB) {
     // If M4SS RAM Size is less than 192 KB, bit 7 is set.
     *m4ss_ram |= RAM_BANK_7;
   }
-  if (config->m4ss_ram_size_kb <= 256) {
+  if (config->m4ss_ram_size_kb < RAM_256_KB) {
     // If M4SS RAM Size is less than 256 KB, bit 8 is set.
     *m4ss_ram |= RAM_BANK_8;
   }
-  if (config->m4ss_ram_size_kb <= 320) {
+  if (config->m4ss_ram_size_kb < RAM_320_KB) {
     // If M4SS RAM Size is less than 320 KB, bit 9 is set.
     *m4ss_ram |= RAM_BANK_9;
   }
-  if (config->ulpss_ram_size_kb <= 2) {
+  if (config->ulpss_ram_size_kb < RAM_2_KB) {
     // If ULPSS RAM Size is less than 2 KB, bit 0 is set.
     *ulpss_ram |= ULPSS_2K_BANK_0;
   }
-  if (config->ulpss_ram_size_kb <= 4) {
+  if (config->ulpss_ram_size_kb < RAM_4_KB) {
     // If ULPSS RAM Size is less than 4 KB, bit 1 is set.
     *ulpss_ram |= ULPSS_2K_BANK_1;
   }
-  if (config->ulpss_ram_size_kb <= 6) {
+  if (config->ulpss_ram_size_kb < RAM_6_KB) {
     // If ULPSS RAM Size is less than 6 KB, bit 2 is set.
     *ulpss_ram |= ULPSS_2K_BANK_2;
   }
-  if (config->ulpss_ram_size_kb <= 8) {
+  if (config->ulpss_ram_size_kb < RAM_8_KB) {
     // If ULPSS RAM Size is less than 8 KB, bit 3 is set.
     *ulpss_ram |= ULPSS_2K_BANK_3;
   }
   return SL_STATUS_OK;
+}
+
+static void initialize_flash(void)
+{
+  RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_QSPI_ICACHE | M4SS_PWRGATE_ULP_EFUSE_PERI);
+  RSI_PS_QspiDllDomainEnable();
+  RSI_PS_FlashLdoEnable();
+
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  RSI_PS_WakeupTAandProgramFlash();
+#endif
+
+#ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
+  RSI_FLASH_Initialize();
+#endif
+
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  sli_m4_ta_interrupt_init();
+  sli_si91x_submit_rx_pkt();
+#endif
+}
+
+static void get_ram_retention_mode(uint32_t m4ss_ram, uint32_t *m4ss_ram_retention)
+{
+  if ((m4ss_ram & RAM_BANK_0) || (m4ss_ram & RAM_BANK_1) || (m4ss_ram & RAM_BANK_2) || (m4ss_ram & RAM_BANK_3)) {
+    *m4ss_ram_retention |= M4ULP_RAM16K_RETENTION_MODE_EN;
+  }
+  if ((m4ss_ram & RAM_BANK_4) || (m4ss_ram & RAM_BANK_5) || (m4ss_ram & RAM_BANK_6) || (m4ss_ram & RAM_BANK_7)
+      || (m4ss_ram & RAM_BANK_8) || (m4ss_ram & RAM_BANK_9)) {
+    *m4ss_ram_retention |= M4ULP_RAM_RETENTION_MODE_EN;
+  }
 }
 
 /*******************************************************************************

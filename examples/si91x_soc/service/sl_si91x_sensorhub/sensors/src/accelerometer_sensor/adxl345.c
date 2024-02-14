@@ -95,7 +95,7 @@ sl_adxl_err_t sl_si91x_adxl345_delete(sl_adxl345_handle_t *sensor)
     return RSI_OK;
   }
   free(sensor);
-  *sensor = NULL;
+  sensor = NULL;
   return RSI_OK;
 }
 

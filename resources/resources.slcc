@@ -33,6 +33,11 @@ include:
     - path: servercert.pem.h
     - path: serverkey.pem.h
     - path: wifiuser.pem.h
+    - path: silabs_client_cert.pem.h
+    - path: silabs_client_key.pem.h
+    - path: mydevkitcertificate.pem.h
+    - path: mydevkitkey.pem.h
+    - path: silabs_dgcert_ca.pem.h
 - path: other
   file_list:
     - path: index.html.h

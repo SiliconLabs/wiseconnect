@@ -116,6 +116,7 @@ static sl_net_wifi_ap_profile_t wifi_ap_profile = {
         .client_idle_timeout = 0xFF,
         .dtim_beacon_count = 3,           
         .maximum_clients = 3,              
+        .beacon_stop = 0,
     },
     .ip = {
         .mode = SL_IP_MANAGEMENT_STATIC_IP,

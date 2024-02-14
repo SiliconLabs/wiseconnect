@@ -84,6 +84,7 @@ void ipmu_init_mcu(void);
 #else
 void ipmu_init_mcu(void) __attribute__((section(".common_non_tcm_code")));
 #endif
+void set_scdc(uint32 Deepsleep);
 void ipmu_init_mcu(void)
 {
 #ifdef IPMU_DOTC_PROG
@@ -229,7 +230,7 @@ void update_ipmu_calib_data(efuse_ipmu_t *ipmu_calib_data)
   mask |= MASK_BITS(3, 10) | MASK_BITS(3, 7);
   update_ipmu_data(BG_SCDC_PROG_REG_1_OFFSET, ULP_SPI, data, mask);
 
-  scdc_active = data;
+  scdc_active = (uint16)data;
 
   calibratedtrim      = ((data >> 7) & 7);
   calibratedtrim_scdc = ((data >> 10) & 7);
@@ -260,7 +261,7 @@ void update_ipmu_calib_data(efuse_ipmu_t *ipmu_calib_data)
     calibratedtrim = calibratedtrim + 1;
   }
 #endif
-  scdc_sleep = (calibratedtrim << 7) | (calibratedtrim_scdc << 10);
+  scdc_sleep = (uint16)((calibratedtrim << 7) | (calibratedtrim_scdc << 10));
   //ROW 2
   data = ipmu_calib_data->bg_r_vdd_ulp;
   mask = MASK_BITS(5, 0);

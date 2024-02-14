@@ -81,3 +81,4 @@ void little_to_big_endian(unsigned int *source, unsigned char *result, unsigned 
 int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, unsigned int *ptr_result);
 void reverse_digits(unsigned char *xx, int no_digits);
 void print_firmware_version(sl_wifi_firmware_version_t *firmware_version);
+void dump_80211_pkt(uint8_t *pkt, uint32_t pkt_len, uint16_t req_dump_bytes);

@@ -50,7 +50,7 @@
 #define CONTINUOUS_MODE 1
 
 #define MAX_CALIB_COMMAND_LENGTH 200
-#define MIN_CALIB_COMMAND_LENGTH (strlen("rsi_evm_write=") + 2 /*atleast one char of input data and CR/LF */)
+#define MIN_CALIB_COMMAND_LENGTH (strlen("sl_evm_write=") + 2 /*atleast one char of input data and CR/LF */)
 #define NO_OF_CALIB_COMMANDS     5
 
 #define PARSE_1_BYTE  1

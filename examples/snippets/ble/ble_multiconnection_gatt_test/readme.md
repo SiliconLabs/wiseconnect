@@ -28,8 +28,9 @@ This also displays all the remote GATT profiles and service characteristics logs
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
-  	  - BRD4338A [SiWx917-RB4338A]
-  	  - BRD4340A [SiWx917-RB4340A]
+      - BRD4338A [SiWx917-RB4338A]
+      - BRD4339B [SiWx917-RB4339B]
+      - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]

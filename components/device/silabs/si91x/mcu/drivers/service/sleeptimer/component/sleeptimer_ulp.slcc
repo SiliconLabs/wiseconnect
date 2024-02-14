@@ -19,8 +19,6 @@ define:
     value: "__attribute__((weak))"
   - name: ULPTIMER_COUNT
     value: "1"
-  - name: EXT_IRQ_COUNT
-    value: "75"
   - name: ULPTIMER_PRESENT
     value: 1
   - name: RS_PLATFORM

@@ -842,7 +842,6 @@ static bool is_valid_date(sl_calendar_datetime_config_t *date)
 {
   bool valid_date      = true;
   uint8_t maximum_days = 0;
-  uint8_t February     = 2;
 
   do {
     if (date == NULL) {

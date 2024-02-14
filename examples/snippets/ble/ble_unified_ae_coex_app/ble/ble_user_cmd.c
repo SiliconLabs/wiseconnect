@@ -33,6 +33,7 @@
 #include "event_loop.h"
 #include "ble_private.h"
 #include "ble_config.h"
+#include "rsi_common_apis.h"
 /*=======================================================================*/
 //   ! function protoypes
 /*=======================================================================*/

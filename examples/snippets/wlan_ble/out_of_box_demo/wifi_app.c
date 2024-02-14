@@ -118,7 +118,6 @@
 #define ONE_MSEC 32 // Ticks required for every one millisecond
 
 #include "Driver_SPI.h"
-extern ARM_DRIVER_SPI Driver_SSI_ULP_MASTER;
 
 //MQTT related defines
 #define DHCP_HOST_NAME    NULL
@@ -148,7 +147,6 @@ extern ARM_DRIVER_SPI Driver_SSI_ULP_MASTER;
 #define MAX_DNS_RETRY_COUNT    5
 
 char *mqtt_hostname = "test.mosquitto.org";
-extern rsi_ble_event_conn_status_t conn_event_to_app;
 
 sl_mqtt_client_t client                                  = { 0 };
 uint8_t is_execution_completed                           = 0;
@@ -195,6 +193,17 @@ void mqtt_client_cleanup();
 void print_char_buffer(char *buffer, uint32_t buffer_length);
 sl_status_t mqtt_example();
 void memlcd_app_init(void);
+void sl_wifi_app_set_event(uint32_t event_num);
+void sl_wifi_app_clear_event(uint32_t event_num);
+int32_t sl_wifi_app_get_event(void);
+sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg);
+void rsi_wlan_app_call_backs_init(void);
+sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_wifi_scan_result_t *result,
+                                           uint32_t result_length,
+                                           void *arg);
+void ping_silabs();
+void test_mosquitto_pub();
 /*
  *********************************************************************************************************
  *                                         LOCAL GLOBAL VARIABLES
@@ -700,10 +709,9 @@ sl_status_t mqtt_example()
   mqtt_broker_configuration.ip.ip.v4.value = dns_query_rsp.ip.v4.value;
 
   sl_mac_address_t mac_addr = { 0 };
-  char mac_id[18];
-  char client_id[25];
+  uint8_t mac_id[18];
   sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
-  sprintf(mac_id,
+  sprintf((char *)mac_id,
           "%x:%x:%x:%x:%x:%x",
           mac_addr.octet[0],
           mac_addr.octet[1],
@@ -711,9 +719,10 @@ sl_status_t mqtt_example()
           mac_addr.octet[3],
           mac_addr.octet[4],
           mac_addr.octet[5]);
-  int mac_id_len                             = strlen(mac_id);
+  /* The MQTT client ID is set to device MAC ID, to ensure that a unique client ID is selected, 
+  as the remote MQTT server rejects multiple simultaneous connections with same MQTT ID*/
   mqtt_client_configuration.client_id        = mac_id;
-  mqtt_client_configuration.client_id_length = strlen(mqtt_client_configuration.client_id);
+  mqtt_client_configuration.client_id_length = strlen((char *)mqtt_client_configuration.client_id);
 
   status =
     sl_mqtt_client_connect(&client, &mqtt_broker_configuration, &last_will_message, &mqtt_client_configuration, 0);
@@ -1185,17 +1194,6 @@ void wakeup_source_config(void)
   NVIC_EnableIRQ(NPSS_TO_MCU_GPIO_INTR_IRQn);
 }
 
-/**
- * @brief  GPIO based wake up IRQ
- * @param  none
- * @return none
- */
-void IRQ021_Handler(void)
-{
-  /* clear NPSS GPIO interrupt*/
-  RSI_NPSSGPIO_ClrIntr(NPSS_GPIO_2_INTR);
-  //  button_pressed = 1;
-}
 #endif
 
 void memlcd_app_init(void)

@@ -137,6 +137,8 @@ int handle_select_response(sl_si91x_socket_select_rsp_t *response,
 
 void set_select_callback(select_callback callback);
 
+void sli_si91x_set_remote_socket_termination_callback(remote_socket_termination_callback callback);
+
 /**
  * A utility function to send BSD management commands.
  * @param  command 				Command which needs to be sent to module.

@@ -47,6 +47,8 @@ osSemaphoreId_t select_sem;
 ******************************************************/
 static int32_t get_aws_error(int32_t status);
 static int32_t ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port);
+int32_t _iot_tls_verify_cert(void *data, int *crt, int depth, uint32_t *flags);
+
 
 /******************************************************
 *               Function Definitions

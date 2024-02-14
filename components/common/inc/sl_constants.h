@@ -26,8 +26,12 @@
 #define SL_IPV4_ADDRESS_LENGTH 4
 #define SL_IPV6_ADDRESS_LENGTH 16
 
-#define UNUSED_VARIABLE(x)  (void)(x)
+#ifndef UNUSED_VARIABLE
+#define UNUSED_VARIABLE(x) (void)(x)
+#endif // UNUSED_VARIABLE
+#ifndef UNUSED_PARAMETER
 #define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
 
 #define ARRAY_COUNT(x) (sizeof(x) / sizeof *(x))
 

@@ -164,6 +164,9 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
           http_response.data_buffer = &packet->data[SI91X_HTTP_OFFSET];
           http_response.data_length = packet->length - SI91X_HTTP_OFFSET;
         }
+      } else if (status == SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS) {
+        // Don't trigger the callback, If the HTTP GET execution is in progress
+        return status;
       }
       break;
     }

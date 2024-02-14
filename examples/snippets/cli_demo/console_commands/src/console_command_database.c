@@ -1155,13 +1155,15 @@ static const console_descriptive_command_t _wifi_set_transmit_rate_command = {
 extern sl_status_t wifi_set_tx_power_command_handler(console_args_t *arguments);
 static const char *_wifi_set_tx_power_arg_help[] = {
   0,
+  0,
 };
 
-static const console_descriptive_command_t _wifi_set_tx_power_command = { .description   = "Set module TX power",
-                                                                          .argument_help = _wifi_set_tx_power_arg_help,
-                                                                          .handler = wifi_set_tx_power_command_handler,
-                                                                          .argument_list = { CONSOLE_ARG_UINT,
-                                                                                             CONSOLE_ARG_END } };
+static const console_descriptive_command_t _wifi_set_tx_power_command = {
+  .description   = "Set module TX power",
+  .argument_help = _wifi_set_tx_power_arg_help,
+  .handler       = wifi_set_tx_power_command_handler,
+  .argument_list = { CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_END }
+};
 
 extern sl_status_t wifi_start_ap_command_handler(console_args_t *arguments);
 static const char *_wifi_start_ap_arg_help[] = {
@@ -1284,6 +1286,23 @@ static const console_descriptive_command_t _wifi_transmit_test_start_command = {
                      CONSOLE_ARG_END }
 };
 
+extern sl_status_t sl_wifi_ax_transmit_test_start_command_handler(console_args_t *arguments);
+static const char *_wifi_ax_transmit_test_start_arg_help[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+static const console_descriptive_command_t _wifi_ax_transmit_test_start_command = {
+  .description   = "Start the transmit test for Wi-Fi 6. This is a blocking API",
+  .argument_help = _wifi_ax_transmit_test_start_arg_help,
+  .handler       = sl_wifi_ax_transmit_test_start_command_handler,
+  .argument_list = { CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_UINT,
+                     CONSOLE_ARG_UINT, CONSOLE_ARG_UINT, CONSOLE_ARG_END }
+};
+
 extern sl_status_t sl_wifi_transmit_test_stop_command_handler(console_args_t *arguments);
 static const char *_wifi_transmit_test_stop_arg_help[] = {};
 
@@ -1402,5 +1421,6 @@ const console_database_t console_command_database = { CONSOLE_DATABASE_ENTRIES(
   { "wifi_stop_statistic_report", &_wifi_stop_statistic_report_command },
   { "wifi_test_client_configuration", &_wifi_test_client_configuration_command },
   { "wifi_transmit_test_start", &_wifi_transmit_test_start_command },
+  { "wifi_ax_transmit_test_start", &_wifi_ax_transmit_test_start_command },
   { "wifi_transmit_test_stop", &_wifi_transmit_test_stop_command },
   { "wifi_update_gain_table", &_wifi_update_gain_table_command }, ) };

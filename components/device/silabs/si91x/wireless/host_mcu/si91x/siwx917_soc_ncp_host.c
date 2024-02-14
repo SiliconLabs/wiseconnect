@@ -32,11 +32,26 @@
 
 extern int16_t rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf);
 void sl_si91x_ta_events_init(void);
+sl_status_t sl_si91x_bus_init(void);
+sl_status_t sl_si91x_bus_set_interrupt_mask(uint32_t mask);
+sl_status_t sl_si91x_bus_enable_high_speed(void);
+sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer);
 
 void sl_si91x_host_enable_high_speed_bus()
 {
   //! Sets specific control register bits
   //! Sets the baud rate
+}
+
+sl_status_t sl_si91x_bus_rx_irq_handler(void)
+{
+  return SL_STATUS_OK;
+}
+
+void sl_si91x_bus_rx_done_handler(void)
+{
+  return;
 }
 
 sl_status_t sl_si91x_bus_init(void)
@@ -65,8 +80,9 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
   return 1;
 }
 
-sl_status_t sl_si91x_host_init(void)
+sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
 {
+  UNUSED_PARAMETER(config);
   // Initialize SI91X TA events
   sl_si91x_ta_events_init();
   return SL_STATUS_OK;

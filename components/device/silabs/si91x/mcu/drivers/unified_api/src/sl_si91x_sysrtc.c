@@ -326,7 +326,7 @@ sl_status_t sl_si91x_sysrtc_get_compare_value(sl_sysrtc_group_number_t group_num
       break;
     }
     // reading group compare value
-    *compare_value = si_sysrtc_get_group_compare_channel_value((uint8_t)group_number, (uint8_t)channel);
+    *compare_value = rsi_sysrtc_get_group_compare_channel_value((uint8_t)group_number, (uint8_t)channel);
   } while (false);
   return status;
 }

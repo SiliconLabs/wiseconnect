@@ -39,6 +39,7 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t aes_pending(sl_si91x_aes_config_t *config, uint16_t chunk_length, uint8_t aes_flags, uint8_t *output)
 {
   sl_status_t status              = SL_STATUS_FAIL;
@@ -94,6 +95,43 @@ static sl_status_t aes_pending(sl_si91x_aes_config_t *config, uint16_t chunk_len
   return status;
 }
 
+#else
+static sl_status_t aes_side_band(sl_si91x_aes_config_t *config, uint8_t *output)
+{
+
+  sl_status_t status              = SL_STATUS_FAIL;
+  sl_si91x_aes_request_t *request = (sl_si91x_aes_request_t *)malloc(sizeof(sl_si91x_aes_request_t));
+  SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
+
+  memset(request, 0, sizeof(sl_si91x_aes_request_t));
+
+  request->algorithm_type     = AES;
+  request->algorithm_sub_type = config->aes_mode;
+  request->total_msg_length   = config->msg_length;
+  request->encrypt_decryption = config->encrypt_decrypt;
+  if (config->iv != NULL) {
+    request->IV = config->iv;
+  }
+  request->msg    = config->msg;
+  request->output = output;
+
+  request->key_info.key_type                         = config->key_config.b0.key_type;
+  request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
+  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
+  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
+  memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
+  memcpy(request->key_info.key_detail.key_spec.key_buffer, config->key_config.b0.key_buffer, SL_SI91X_KEY_BUFFER_SIZE);
+
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_aes_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  free(request);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+#endif
+
 sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
 {
   uint16_t chunk_len = 0;
@@ -112,6 +150,11 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
   }
 
   uint16_t total_length = config->msg_length;
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = aes_side_band(config, output);
+  return status;
+#else
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_aes_mutex == NULL) {
@@ -162,4 +205,5 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
 #endif
 
   return status;
+#endif
 }

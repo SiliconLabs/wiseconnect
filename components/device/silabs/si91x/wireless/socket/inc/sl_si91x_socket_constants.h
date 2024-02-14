@@ -31,7 +31,7 @@
 #define SI91X_UNDEFINED_ERROR \
   0 // This value is set to errno global variable when a socket API failed due to unknown error.
 
-#define NUMBER_OF_SOCKETS 10
+#define NUMBER_OF_SOCKETS 20
 
 #define SI91X_HOST_WAIT_FOR_SELECT_RSP 1000
 

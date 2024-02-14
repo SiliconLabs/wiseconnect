@@ -48,7 +48,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Application Configuration Parameters
 
- * To use CTR/CBC algorithms, pass the respective PSA_ALG macro as a parameter to `test_psa_aes()` in `app.c`
+ * To use CTR/CBC algorithms, pass the respective PSA_ALG macro (PSA_ALG_CTR or PSA_ALG_CBC_NO_PADDING) as a parameter to `test_psa_aes()` in `app.c`
  * To use CTR/CBC algorithms, change encryption_output size to CIPHER_TEXT_SIZE
  * To use software fallback instead of hardware accelerators:
   - Add mbedtls_aes and mbedtls_cipher_xxx in component section of slcp file

@@ -45,7 +45,7 @@
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static void pwm_callback(uint16_t event);
+static void pwm_callback_function(uint16_t event);
 /*******************************************************************************
  **********************  Local variables   *************************************
  ******************************************************************************/
@@ -88,8 +88,9 @@ void pwm_example_init(void)
       break;
     }
     DEBUGOUT("PWM set duty cycle control parameters is successful \n");
+    sl_si91x_pwm_callback_t pwm_callback = { .cbFunc = pwm_callback_function };
     // Enables PWM interrupt flags
-    status = sl_si91x_pwm_register_callback(pwm_callback, INTR_EVENT);
+    status = sl_si91x_pwm_register_callback(&pwm_callback, INTR_EVENT);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_pwm_enable_interrupt, Error code: %lu", status);
       break;
@@ -214,8 +215,8 @@ void pwm_example_process_action(void)
         DEBUGOUT("event %d raised\n", i);
       }
     }
+    event_flag = FALSE;
   }
-  event_flag = FALSE;
 }
 
 /*******************************************************************************
@@ -223,7 +224,7 @@ void pwm_example_process_action(void)
  * @param[in]    event : PWM interrupt events
  * @return       none
  ******************************************************************************/
-static void pwm_callback(uint16_t event)
+static void pwm_callback_function(uint16_t event)
 {
   switch (event) {
     case RISE_TIME_PERIOD_MATCH_CH0: // Event for 0th channel without considering post scaler

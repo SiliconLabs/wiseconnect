@@ -1,0 +1,52 @@
+project_name: sl_si91x_ulp_dac
+label: Si91x - SL ULP DAC
+description: >
+  Demonstrates the how to configure and use the ULP DAC peripheral on the
+  the SiWx917 SoC device.
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: gecko_sdk
+  version: 4.4.1
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.1.3
+source:
+  - path: sl_ulp_dac_example.c
+  - path: app.c
+  - path: main.c
+  - path: app.h
+  - path: hardware_setup.c
+  - path: sl_ulp_dac_example.h
+toolchain_settings: []
+component:
+  - id: sl_system
+  - id: status
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sl_dac
+    from: wiseconnect3_sdk
+requires:
+  - name: ulp_mode_execution
+template_contribution:
+  - name: ulp_platform
+    priority: 0
+    value: 1
+other_file:
+  - path: resources/readme/setupdiagram.png
+  - path: resources/readme/dac_static_console_output.png
+  - path: resources/readme/dac_static_analyzer_output.png
+  - path: resources/readme/dac_fifo_console_output.png
+  - path: resources/readme/dac_fifo_analyzer_output.png
+  - path: resources/uc_screen/sl_dac_uc_screen.png
+readme:
+  - path: readme.md
+ui_hints:
+  highlight: 
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

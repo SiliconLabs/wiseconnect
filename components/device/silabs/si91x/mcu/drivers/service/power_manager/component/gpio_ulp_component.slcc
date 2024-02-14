@@ -5,7 +5,7 @@ description: >
   Install this component to enable execution of GPIO peripheral from RAM
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
-
+component_root_path: "components/device/silabs/si91x/mcu/drivers/service/power_manager"
 requires:
   - name: sl_gpio
 
@@ -19,4 +19,12 @@ template_contribution:
     value: sl_si91x_peripheral_gpio.o
   - name: gpio_ps2
     value: sl_si91x_driver_gpio.o
+  - name: wakeup
+    value: 
+      event: wakeup_init
+      function:
+        name: sli_si91x_power_manager_gpio_init
+        return: sl_status_t
+      include:
+        name: sl_si91x_driver_gpio.h
 

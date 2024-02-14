@@ -37,6 +37,8 @@
 #include "sl_si91x_adc.h"
 #include "adc_sensor_driver.h"
 
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 // For unused parameter
 #define UNUSED_PARAM __attribute__((unused))
 
@@ -68,7 +70,8 @@ uint16_t *adc_data_ptrs[] = {
 #endif
 };
 #endif
-
+void update_adc_sensor_multi_channel_data(sl_sensor_data_group_t *data_group, uint8_t ch_no);
+bool is_sdc = false;
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -106,11 +109,14 @@ static sl_status_t adc_stop(sl_adc_config_t *adc_cfg)
 *******************************************************************************/
 sl_sensor_adc_handle_t sl_si91x_adc_sensor_create(UNUSED_PARAM sl_sensor_bus_t bus, int channel)
 {
+#ifdef SH_SDC_ENABLE
+  is_channel_init = true;
+  is_sdc          = true;
+#endif
   if (!is_channel_init) {
     /* All other adc sensor handles will be called only after sensor_create, so we are storing the pointer to adc bus interface info here */
     adc_config = sl_si91x_fetch_adc_bus_intf_info();
   }
-
   sl_adc_sensor_data_t *p_sensor = (sl_adc_sensor_data_t *)pvPortMalloc(sizeof(sl_adc_sensor_data_t));
   if (p_sensor == NULL) {
     DEBUGOUT("\r\n ADC sensor create failed while memory allocation:%u \r\n", sizeof(sl_adc_sensor_data_t));
@@ -222,6 +228,7 @@ sl_adc_error_t sl_si91x_adc_sensor_delete(sl_sensor_adc_handle_t *sensor)
   }
   sl_adc_sensor_data_t *p_sensor = (sl_adc_sensor_data_t *)(*sensor);
 
+#if SH_ADC_ENABLE
   if (!p_sensor->is_init) {
     free(p_sensor);
     return SL_STATUS_OK;
@@ -241,7 +248,7 @@ sl_adc_error_t sl_si91x_adc_sensor_delete(sl_sensor_adc_handle_t *sensor)
     DEBUGOUT("\r\n ADC sensor stop failed while deinitialization \r\n");
     return ret;
   }
-
+#endif
   free(p_sensor);
   sensor = NULL;
   return SL_STATUS_OK;
@@ -348,10 +355,17 @@ sl_status_t sl_si91x_adc_sensor_set_power(sl_sensor_adc_handle_t sensor, sl_sens
 sl_adc_error_t sl_si91x_sensor_channel_sample(uint8_t channel)
 {
   sl_status_t status;
+#ifdef SH_ADC_ENABLE
   status = sl_si91x_adc_channel_read_sample(&adc_config->adc_ch_cfg, channel);
+
   if (status != SL_STATUS_OK) {
     return status;
   }
+#endif
+#ifdef SH_SDC_ENABLE
+  (void)status;
+  (void)channel;
+#endif
   return SL_STATUS_OK;
 }
 
@@ -388,15 +402,18 @@ sl_adc_error_t sl_si91x_adc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sens
   sl_adc_sensor_data_t *p_sensor = (sl_adc_sensor_data_t *)(sensor);
   sl_status_t ret                = 0;
   uint8_t ch_no                  = p_sensor->channel;
-
   if (p_sensor == NULL) {
     return SL_STATUS_NULL_POINTER;
   } else if (p_sensor->is_init == false) {
     return SL_STATUS_NOT_INITIALIZED;
   }
 
-  if (adc_config->adc_cfg.operation_mode == SL_ADC_STATIC_MODE) {
+  if (is_sdc || adc_config->adc_cfg.operation_mode == SL_ADC_STATIC_MODE) {
+    //   if ( adc_config->adc_cfg.operation_mode == SL_ADC_STATIC_MODE || is_sdc ) {
+#ifdef SH_ADC_ENABLE
     ret = sl_si91x_adc_sensor_sample_static((uint16_t *)&adc_data_ptrs[0][data_group->number]);
+#endif
+
     data_group->sensor_data[0].adc = (uint16_t *)adc_data_ptrs[0];
     if (SL_STATUS_OK != ret) {
       return ret;
@@ -439,6 +456,89 @@ sl_adc_error_t sl_si91x_adc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sens
     data_group->sensor_data[0].adc = adc_data_ptrs[channel];
   }
 
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * @fn        sl_status_t sl_si91x_adc_sensor_sample(sl_sensor_adc_handle_t *sensor, sl_sensor_data_group_t *data_group)
+ * @brief     ADC sensor sample
+ *            This function will sample the respective channel ADC data.
+ *
+ * @param[in] sensor: ADC sensor pointer which contains implementations, bus, etc.
+ * @param[in] data_group: contains memory to store ADC data and handle
+ *            number of samples
+ *
+ * @return    respective sl error code (SL_STATUS_OK, SL_STATUS_FAIL, ETC)
+*******************************************************************************/
+sl_adc_error_t sl_si91x_sdc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sensor_data_group_t *data_group)
+{
+  sl_adc_sensor_data_t *p_sensor = (sl_adc_sensor_data_t *)(sensor);
+  sl_status_t ret                = 0;
+  uint8_t ch_no                  = p_sensor->channel;
+  (void)ch_no;
+  if (p_sensor == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  } else if (p_sensor->is_init == false) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+//  if (is_sdc || adc_config->adc_cfg.operation_mode == SL_ADC_STATIC_MODE) {
+//   if ( adc_config->adc_cfg.operation_mode == SL_ADC_STATIC_MODE || is_sdc ) {
+#ifdef SH_ADC_ENABLE
+  ret = sl_si91x_adc_sensor_sample_static((uint16_t *)&adc_data_ptrs[0][data_group->number]);
+#endif
+
+#ifdef SH_SDC_ENABLE
+#ifdef SDC_MUTI_CHANNEL_ENABLE
+  ret = sl_si91x_read_sdc_multi_channel_data(data_group->sensor_data[0].sh_sdc_data);
+#else
+  ret = sl_si91x_read_sdc_data(data_group->sensor_data[0].sh_sdc_data);
+#endif
+#endif
+  //data_group->sensor_data[0].adc = (uint16_t *)adc_data_ptrs[0];
+  if (SL_STATUS_OK != ret) {
+    return ret;
+  }
+  data_group->number++;
+
+#if 0
+  } else if (IS_MULTI_CHANNEL(ch_no)) {
+    update_adc_sensor_multi_channel_data(data_group, ch_no);
+    for (uint8_t channel = 0; channel < MAX_CHNL_NO; channel++) {
+      if (BIT(channel) & ch_no) {
+        sl_si91x_sensor_channel_sample(channel);
+        for (uint16_t sample_length = 0; sample_length < adc_config->adc_ch_cfg.num_of_samples[channel];
+             sample_length++) {
+          if (adc_config->adc_ch_cfg.rx_buf[channel][sample_length] & BIT(11)) {
+            adc_config->adc_ch_cfg.rx_buf[channel][sample_length] =
+              (adc_config->adc_ch_cfg.rx_buf[channel][sample_length] & (ADC_MASK_VALUE));
+          } else {
+            adc_config->adc_ch_cfg.rx_buf[channel][sample_length] =
+              adc_config->adc_ch_cfg.rx_buf[channel][sample_length] | BIT(11);
+          }
+        }
+        ch_no &= ~(BIT(channel));
+      }
+      if (ch_no == 0) { // sampled all the channels
+        break;
+      }
+    }
+  } else {
+    // Channel is set as BIT(channel_number) as per design, so to get the actual channel number check which bit is set
+    uint8_t channel = log2(ch_no);
+    sl_si91x_sensor_channel_sample(channel);
+    for (uint16_t sample_length = 0; sample_length < adc_config->adc_ch_cfg.num_of_samples[channel]; sample_length++) {
+      if (adc_config->adc_ch_cfg.rx_buf[channel][sample_length] & BIT(11)) {
+        adc_config->adc_ch_cfg.rx_buf[channel][sample_length] =
+          (adc_config->adc_ch_cfg.rx_buf[channel][sample_length] & (ADC_MASK_VALUE));
+      } else {
+        adc_config->adc_ch_cfg.rx_buf[channel][sample_length] = adc_config->adc_ch_cfg.rx_buf[channel][sample_length]
+                                                                | BIT(11);
+      }
+    }
+    data_group->sensor_data[0].adc = adc_data_ptrs[channel];
+  }
+#endif
   return SL_STATUS_OK;
 }
 

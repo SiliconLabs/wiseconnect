@@ -29,6 +29,7 @@
  ******************************************************************************/
 #include "rsi_wwdt.h"
 #include "cmsis_os2.h"
+#include "sl_si91x_hal_soc_soft_reset.h"
 #define M4_BBFF_STORAGE1 *(volatile uint32 *)0x24048580
 /*
  *
@@ -36,12 +37,13 @@
  * @param  None
  * @return None
  */
+#ifndef MATTER_WDT_IRQ
 void WDT_IRQHandler(void)
 {
   /*Clear interrupt */
   RSI_WWDT_IntrClear();
 }
-
+#endif
 /*
  *
  * @brief  This API is used to config WDT

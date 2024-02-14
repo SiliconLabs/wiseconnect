@@ -32,6 +32,7 @@
 #include "sl_si91x_driver.h"
 #include "sl_net_constants.h"
 #include "sl_net_rsi_utility.h"
+#include "sl_net_si91x_integration_handler.h"
 
 #ifdef SLI_SI91X_SOCKETS
 #include "sl_si91x_socket_utility.h"

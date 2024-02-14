@@ -83,7 +83,7 @@ void usart_example_init(void)
     }
     DEBUGOUT("USART configuration is successful \n");
     // Register user callback function
-    status = sl_si91x_usart_register_event_callback(usart_callback_event);
+    status = sl_si91x_usart_multiple_instance_register_event_callback(USART_0, usart_callback_event);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_usart_register_event_callback: Error Code : %lu \n", status);
       break;

@@ -137,8 +137,13 @@ extern sl_net_ip_configuration_t ip_address;
 extern osSemaphoreId_t ble_thread_sem;
 extern uint16_t scanbuf_size;
 
+/******************************************************
+ *               Function Declarations
+ ******************************************************/
 extern void sl_wifi_app_set_event(uint32_t event_num);
-
+void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *resp_enh_conn);
+void rsi_ble_configurator_init(void);
+void rsi_ble_configurator_task(void *argument);
 /*==============================================*/
 /**
  * @fn         rsi_ble_add_char_serv_att

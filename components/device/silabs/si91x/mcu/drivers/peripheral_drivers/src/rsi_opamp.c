@@ -45,6 +45,9 @@ void RSI_OPAMP1_UGB(uint8_t vin_p_sel,
                     uint8_t channel)
 {
 
+  UNUSED_PARAMETER(out_mux_en);
+  UNUSED_PARAMETER(out_mux_sel);
+
 #ifdef SLI_SI917B0
   OPAMP_CONFIG_T Config;
 

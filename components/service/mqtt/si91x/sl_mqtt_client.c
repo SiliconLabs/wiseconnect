@@ -58,6 +58,9 @@
 	^ -> firmware events
 **/
 
+// Declaring strtok_r as extern to suppress implicit declaration warning.
+extern char *strtok_r(char *, const char *, char **);
+
 #define SI91X_MQTT_CLIENT_INIT_TIMEOUT       5000
 #define SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT 5000
 
@@ -72,7 +75,7 @@
   }
 
 static sl_mqtt_client_t *mqtt_client;
-
+sl_mqtt_client_error_status_t sli_si91x_get_event_error_status(sl_mqtt_client_event_t event);
 /**
  * A internal helper function to get node of list which matches the given topic.
  * @param client 		Pointer to client object whose subscription list needs to be searched.
@@ -87,13 +90,59 @@ static void get_subscription(const sl_mqtt_client_t *client,
 {
   sl_mqtt_client_topic_subscription_info_t *subscription = client->subscription_list_head;
 
-  *required_subscription = NULL;
+  uint8_t subscribed_topic[SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH] = { 0 };
+  uint8_t received_topic[SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH]   = { 0 };
+  *required_subscription                                           = NULL;
 
   while (subscription != NULL) {
-    if (topic_length == subscription->topic_length
-        && memcmp(subscription->topic, topic, subscription->topic_length) == 0) {
-      *required_subscription = subscription;
-      return;
+    memcpy(subscribed_topic, subscription->topic, subscription->topic_length);
+    memcpy(received_topic, topic, topic_length);
+
+    char *subscribed_topic_save_ptr = NULL;
+    char *received_topic_save_ptr   = NULL;
+
+    char *subscribed_topic_token = NULL;
+    char *received_topic_token   = NULL;
+
+    subscribed_topic_token =
+      strtok_r((char *)subscribed_topic, SL_SI91X_MQTT_CLIENT_TOPIC_DELIMITER, &subscribed_topic_save_ptr);
+    received_topic_token =
+      strtok_r((char *)received_topic, SL_SI91X_MQTT_CLIENT_TOPIC_DELIMITER, &received_topic_save_ptr);
+
+    while (subscribed_topic_token != NULL && received_topic_token != NULL) {
+      uint8_t subscribe_topic_length = strlen(subscribed_topic_token);
+
+      // This boolean stores whether the subscribed_topic_token is wildcard or not by checking the length of the token and character stored in it.
+      uint8_t is_wild_card =
+        (subscribe_topic_length == 1)
+        && (((strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD, 1) == 0))
+            || ((strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_SINGLE_LEVEL_WILD_CARD, 1) == 0)));
+
+      uint8_t is_multi_level_wild_card =
+        (is_wild_card) && (strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD, 1) == 0);
+
+      // if subscribed_topic_token isn't wildcard and tokens does not match, break the loop and continue searching with other subscriptions.
+      if (!is_wild_card
+          && ((subscribe_topic_length != strlen(received_topic_token))
+              || memcmp(subscribed_topic_token, received_topic_token, subscribe_topic_length) != 0)) {
+        break;
+      } else if (is_multi_level_wild_card) {
+        // if the subscribed_topic_token is "#", the assign the current subscription as required_subscription and return.
+        *required_subscription = subscription;
+        return;
+      } else {
+        // The execution enters the else block either in case of single level wildcard or successful comparison of current token
+        subscribed_topic_token = strtok_r(NULL, SL_SI91X_MQTT_CLIENT_TOPIC_DELIMITER, &subscribed_topic_save_ptr);
+        received_topic_token   = strtok_r(NULL, SL_SI91X_MQTT_CLIENT_TOPIC_DELIMITER, &received_topic_save_ptr);
+      }
+
+      // If both strings reach end of token, assign this subscription as required_subscription
+      // Example: subscription Topic: Home/+/TemperatureSensor
+      //          Received Topic:     Home/Garden/TemperatureSensor
+      if (subscribed_topic_token == NULL && received_topic_token == NULL) {
+        *required_subscription = subscription;
+        return;
+      }
     }
 
     subscription = (sl_mqtt_client_topic_subscription_info_t *)subscription->next_subscription.node;

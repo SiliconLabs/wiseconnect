@@ -92,6 +92,14 @@ extern "C" {
 #include "rsi_rom_power_save.h"
 #include "rsi_system_config.h"
 
+#ifndef UNUSED_VARIABLE
+#define UNUSED_VARIABLE(x) (void)(x)
+#endif // UNUSED_VARIABLE
+
+#ifndef UNUSED_PARAMETER
+#define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
+
 #ifdef __cplusplus
 }
 #endif

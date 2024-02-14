@@ -58,7 +58,8 @@
 #define SYSRTC_IRQ_PRIORITY 6
 
 static bool cc_disabled = true;
-
+uint32_t sleeptimer_hal_get_capture(void);
+void sleeptimer_hal_reset_prs_signal(void);
 /*******************************************************************************
  * Computes difference between two times taking into account timer wrap-around.
  *

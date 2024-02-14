@@ -33,6 +33,7 @@ If a message is published onto the topic from a MQTT client application [https:/
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards
       - BRD4338A [SiWx917-RB4338A]
+      - BRD4339B [SiWx917-RB4339B]
   - Kits
     - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
 - Android Phone or iPhone with EFR Connect App, which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.

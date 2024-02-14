@@ -162,7 +162,7 @@ void ssi_master_example_process_action(void)
     case SSI_MASTER_TRANSFER_DATA:
       if (ssi_master_begin_transmission == true) {
         // Validation for executing the API only once
-        sl_si91x_ssi_set_slave_number(ssi_slave_number);
+        sl_si91x_ssi_set_slave_number((uint8_t)ssi_slave_number);
         status = sl_si91x_ssi_transfer_data(ssi_driver_handle,
                                             ssi_master_tx_buffer,
                                             ssi_master_rx_buffer,
@@ -201,7 +201,7 @@ void ssi_master_example_process_action(void)
     case SSI_MASTER_SEND_DATA:
       if (ssi_master_begin_transmission) {
         // Validation for executing the API only once
-        sl_si91x_ssi_set_slave_number(ssi_slave_number);
+        sl_si91x_ssi_set_slave_number((uint8_t)ssi_slave_number);
         status =
           sl_si91x_ssi_send_data(ssi_driver_handle, ssi_master_tx_buffer, sizeof(ssi_master_tx_buffer) / size_factor);
         if (status != SL_STATUS_OK) {
@@ -232,7 +232,7 @@ void ssi_master_example_process_action(void)
     case SSI_MASTER_RECEIVE_DATA:
       if (ssi_master_begin_transmission == true) {
         // Validation for executing the API only once
-        sl_si91x_ssi_set_slave_number(ssi_slave_number);
+        sl_si91x_ssi_set_slave_number((uint8_t)ssi_slave_number);
         status = sl_si91x_ssi_receive_data(ssi_driver_handle, ssi_master_rx_buffer, sizeof(ssi_master_rx_buffer));
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
@@ -271,13 +271,13 @@ static void ssi_master_compare_loopback_data(void)
   // For example, if bit width is 7, then from 8-15 all bits should be zero in a 16 bit integer.
   // So mask has value according to the data width and it is applied to the data.
   uint16_t ssi_data_index;
-  uint8_t ssi_frame_length = 0;
-  uint16_t ssi_mask        = (uint16_t)~0;
-  ssi_frame_length         = sl_si91x_ssi_get_frame_length(ssi_driver_handle);
-  ssi_mask                 = ssi_mask >> (SSI_MASTER_MAX_BIT_WIDTH - ssi_frame_length);
+  uint32_t ssi_frame_length = 0;
+  uint16_t ssi_mask         = (uint16_t)~0;
+  ssi_frame_length          = sl_si91x_ssi_get_frame_length(ssi_driver_handle);
+  ssi_mask                  = ssi_mask >> (SSI_MASTER_MAX_BIT_WIDTH - ssi_frame_length);
   for (ssi_data_index = 0; ssi_data_index < SSI_MASTER_BUFFER_SIZE; ssi_data_index++) {
-    ssi_master_rx_buffer[ssi_data_index] &= ssi_mask;
-    ssi_master_tx_buffer[ssi_data_index] &= ssi_mask;
+    ssi_master_rx_buffer[ssi_data_index] &= (uint8_t)ssi_mask;
+    ssi_master_tx_buffer[ssi_data_index] &= (uint8_t)ssi_mask;
     if (ssi_master_tx_buffer[ssi_data_index] != ssi_master_rx_buffer[ssi_data_index]) {
       break;
     }

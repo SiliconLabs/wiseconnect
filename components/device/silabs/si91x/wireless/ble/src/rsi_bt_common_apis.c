@@ -23,6 +23,26 @@
 #include <sl_si91x_ble.h>
 #include <sl_status.h>
 
+/******************************************************
+ *               Function Declarations
+ ******************************************************/
+int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr);
+int32_t rsi_bt_set_local_name(uint8_t *local_name);
+int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
+                                                       uint8_t payload_len,
+                                                       uint8_t *payload,
+                                                       uint8_t req_type);
+int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_name);
+int32_t rsi_bt_get_rssi(uint8_t *dev_addr, int8_t *resp);
+int32_t rsi_bt_get_local_device_address(uint8_t *resp);
+int32_t rsi_bt_get_bt_stack_version(rsi_bt_resp_get_bt_stack_version_t *bt_resp_get_bt_stack_version);
+int32_t rsi_bt_init(void);
+int32_t rsi_bt_deinit(void);
+int32_t rsi_bt_set_antenna(uint8_t antenna_value);
+int32_t rsi_bt_set_feature_bitmap(uint32_t feature_bit_map);
+int32_t rsi_bt_set_antenna_tx_power_level(uint8_t protocol_mode, int8_t tx_power);
+int32_t rsi_bt_power_save_profile(uint8_t psp_mode, uint8_t psp_type);
+int32_t rsi_bt_per_stats(uint8_t cmd_type, struct rsi_bt_per_stats_s *per_stats);
 /** @addtogroup BT-BLE 
 * @{
 */

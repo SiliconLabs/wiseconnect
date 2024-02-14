@@ -239,7 +239,7 @@ void uDMAx_IRQHandler(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Ch
     }
   }
 
-#if (SL_SI91X_DMA == 0)
+#ifndef SL_SI91X_DMA
 void IRQ033_Handler(void)
 {
 #ifdef SOFTWARE_TRIGGER
@@ -302,4 +302,4 @@ void IRQ010_Handler (void)
 	
 #endif			
 }
-#endif // SL_SI91X_USART_DMA
+#endif // SL_SI91X_DMA

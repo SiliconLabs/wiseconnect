@@ -1,4 +1,4 @@
-# SL PWM
+  # SL PWM
 
 ## Table of Contents
 
@@ -162,8 +162,8 @@ Tested on WPK Base board - 4002A and Radio board - BRD4338A.
 
 - PWM channel-3 pin configuration.
 
-  | Description   | GPIO    | Connector    |
-  | ------------- | ------- | ------------ |
+  | Description   | GPIO        | Connector   |
+  | ------------- | -------     | ----------- |
   | PWM_H         | ULP_GPIO_7  | P12         |
   | PWM_L         | ULP_GPIO_6  | P13         |
 

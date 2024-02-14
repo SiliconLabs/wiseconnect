@@ -23,7 +23,7 @@
 #include "rsi_chip.h"
 #include "rsi_ds_timer.h"
 #include "rsi_ps_ram_func.h"
-
+void hardware_setup(void);
 void hardware_setup(void)
 {
   RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);

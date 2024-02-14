@@ -35,7 +35,9 @@
 extern "C" {
 #endif
 
+#ifndef UNUSED_PARAMETER
 #define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
 
 typedef struct {
   uint32_t SrcAddr;

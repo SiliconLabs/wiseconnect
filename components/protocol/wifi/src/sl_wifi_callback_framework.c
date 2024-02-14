@@ -70,6 +70,29 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
 
     return entry->function(event, &status, 0, entry->arg);
   }
+
+  if (event == SL_WIFI_BTR_TX_DATA_STATUS_CB) {
+    sl_wifi_btr_tx_cfm_cb_data_t tx_cfm_cb_data = { 0 };
+    tx_cfm_cb_data.status                       = packet->desc[15];
+    tx_cfm_cb_data.rate                         = packet->data[0]; //Extended descriptor in data[] for rate
+    tx_cfm_cb_data.priority                     = packet->data[4]; //Extended descriptor in data[] for priority
+    memcpy(&tx_cfm_cb_data.token, &packet->data[8], 4);            //Extended descriptor in data[] for token
+
+    return entry->function(event, &tx_cfm_cb_data, 0, entry->arg);
+  } else if (event == SL_WIFI_BTR_RX_DATA_RECEIVE_CB) {
+    sl_wifi_btr_rx_cb_data_t rx_cb_data = { 0 };
+    uint16_t payload_offset             = packet->desc[4];
+    uint16_t payload_length             = packet->length & 0xFFF;
+
+    rx_cb_data.status = 0;
+    rx_cb_data.length = payload_length - payload_offset;
+    rx_cb_data.rssi   = packet->data[0]; //Extended descriptor in data[] for rssi
+    rx_cb_data.rate   = packet->data[2]; //Extended descriptor in data[] for rate
+    rx_cb_data.buffer = packet->data + payload_offset;
+
+    return entry->function(event, &rx_cb_data, 0, entry->arg);
+  }
+
   return entry->function(event, packet->data, packet->length, entry->arg);
 }
 
@@ -97,6 +120,8 @@ static sl_wifi_event_group_t get_event_group_from_event(sl_wifi_event_t event)
   else if (event == SL_WIFI_STATS_EVENT || event == SL_WIFI_STATS_AYSNC_EVENT || event == SL_WIFI_STATS_ADVANCE_EVENT
            || event == SL_WIFI_STATS_TEST_MODE_EVENT || event == SL_WIFI_STATS_MODULE_STATE_EVENT) {
     return SL_WIFI_STATS_RESPONSE_EVENTS;
+  } else if (event == SL_WIFI_BTR_RX_DATA_RECEIVE_CB || event == SL_WIFI_BTR_TX_DATA_STATUS_CB) {
+    return SL_WIFI_BTR_EVENTS;
   } else
     event = SL_WIFI_INVALID_EVENT;
   return (sl_wifi_event_group_t)event;

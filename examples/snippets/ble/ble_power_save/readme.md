@@ -22,7 +22,7 @@ This application demonstrates how to configure SiWx91x in power save profile in 
 - Windows PC.
 - SiWx91x Wi-Fi Evaluation Kit.
 - SoC Mode
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4338A ](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4338A, BRD4339B ](https://www.silabs.com/)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
   - Host MCU Eval Kit. This example has been tested with:

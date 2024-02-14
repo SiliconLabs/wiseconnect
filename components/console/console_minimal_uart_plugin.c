@@ -219,37 +219,36 @@ void console_print_command_args(const console_descriptive_command_t *command)
   for (int a = 0; command->argument_list[a] != CONSOLE_ARG_END; ++a) {
     if (command->argument_list[a] & CONSOLE_ARG_OPTIONAL) {
       char option_char[2] = { (char)command->argument_list[a] & CONSOLE_ARG_OPTIONAL_CHARACTER_MASK, 0 };
-      sl_uart_print(DEFAULT_UART, "[-");
-      sl_uart_print(DEFAULT_UART, option_char);
-      sl_uart_print(DEFAULT_UART, " ");
+      printf("[-");
+      printf(option_char);
+      printf(" ");
       ++argument_help_offset;
       is_optional = true;
       continue;
     } else if (command->argument_list[a] & CONSOLE_ARG_ENUM) {
-      sl_uart_print(DEFAULT_UART, "{");
+      printf("{");
       uint8_t enum_index = command->argument_list[a] & CONSOLE_ARG_ENUM_INDEX_MASK;
       for (int b = 0; console_argument_types[enum_index][b] != NULL;) {
-        sl_uart_print(DEFAULT_UART, console_argument_types[enum_index][b]);
+        printf(console_argument_types[enum_index][b]);
         if (console_argument_types[enum_index][++b]) {
-          sl_uart_print(DEFAULT_UART, "|");
+          printf("|");
         }
       }
-      sl_uart_print(DEFAULT_UART, "}");
+      printf("}");
     } else {
-      sl_uart_print(DEFAULT_UART, "<");
+      printf("<");
       if (command->argument_help && command->argument_help[a - argument_help_offset]) {
-        sl_uart_print(DEFAULT_UART, command->argument_help[a - argument_help_offset]);
+        printf(command->argument_help[a - argument_help_offset]);
       } else {
-        sl_uart_print(DEFAULT_UART,
-                      console_argument_type_strings[command->argument_list[a] & CONSOLE_ARG_ENUM_INDEX_MASK]);
+        printf(console_argument_type_strings[command->argument_list[a] & CONSOLE_ARG_ENUM_INDEX_MASK]);
       }
-      sl_uart_print(DEFAULT_UART, ">");
+      printf(">");
     }
     if (is_optional) {
-      sl_uart_print(DEFAULT_UART, "] ");
+      printf("] ");
       is_optional = false;
     } else {
-      sl_uart_print(DEFAULT_UART, " ");
+      printf(" ");
     }
   }
 }
@@ -282,37 +281,37 @@ static void print_command_database(const console_database_t *database, const cha
   for (uint8_t a = 0; a < database->length; ++a) {
     const console_descriptive_command_t *command = database->entries[a].value;
 
-    sl_uart_print(DEFAULT_UART, "\r\n");
+    printf("\r\n");
     if (prefix != NULL) {
-      sl_uart_print(DEFAULT_UART, prefix);
-      sl_uart_print(DEFAULT_UART, ".");
+      printf(prefix);
+      printf(".");
     }
-    sl_uart_print(DEFAULT_UART, database->entries[a].key);
+    printf(database->entries[a].key);
 
     // Check if this is a sub-command
     if (command->argument_list[0] == CONSOLE_ARG_SUB_COMMAND) {
       const console_database_t *temp = (const console_database_t *)command->sub_command_database;
-      sl_uart_print(DEFAULT_UART, ".");
+      printf(".");
       if (command->description) {
-        sl_uart_print(DEFAULT_UART, " : ");
-        sl_uart_print(DEFAULT_UART, command->description);
+        printf(" : ");
+        printf(command->description);
       }
-      sl_uart_print(DEFAULT_UART, "\r\n");
+      printf("\r\n");
       for (uint32_t b = 0; b < temp->length; b++) {
-        sl_uart_print(DEFAULT_UART, "  - ");
-        sl_uart_print(DEFAULT_UART, temp->entries[b].key);
-        sl_uart_print(DEFAULT_UART, " : ");
+        printf("  - ");
+        printf(temp->entries[b].key);
+        printf(" : ");
         const console_descriptive_command_t *sub_command = temp->entries[b].value;
-        sl_uart_print(DEFAULT_UART, sub_command->description);
-        sl_uart_print(DEFAULT_UART, "\r\n");
+        printf(sub_command->description);
+        printf("\r\n");
       }
     } else {
-      sl_uart_print(DEFAULT_UART, "  ");
+      printf("  ");
       console_print_command_args((console_descriptive_command_t *)database->entries[a].value);
-      sl_uart_print(DEFAULT_UART, "\r\n   ");
-      sl_uart_print(DEFAULT_UART, ((console_descriptive_command_t *)database->entries[a].value)->description);
+      printf("\r\n   ");
+      printf(((console_descriptive_command_t *)database->entries[a].value)->description);
     }
-    sl_uart_print(DEFAULT_UART, "\r\n");
+    printf("\r\n");
   }
 }
 

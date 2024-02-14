@@ -15558,6 +15558,255 @@ typedef struct {
   __IOM uint32_t MCUSYSRTC_REG1;     /**< input and output configuration     */
 
 } SYSRTC_TypeDef;
+
+/* =========================================================================================================================== */
+/* ================                                            SDC                                            ================ */
+/* =========================================================================================================================== */
+
+/**
+  * @brief SDC_SDC_DATA_REG [SDC_DATA_REG] (SDC Data registers (0-15))
+  */
+typedef struct {
+  union {
+    __IM uint32_t DATA_REG; /*!< (@ 0x00000000) SDC Data register                                          */
+
+    struct {
+      __IM uint32_t
+        SDC_DATA_SAMPLE : 12;       /*!< [11..0] Sample 0 collected from Sensor through Aux ADC.                   */
+      __IM uint32_t SMP_ID_CH : 2;  /*!< [13..12] Channel iD for sample                                            */
+      __IM uint32_t RESERVED1 : 18; /*!< [31..14] reserved1                                                        */
+    } DATA_REG_b;
+  };
+} SDC_SDC_DATA_REG_Type;
+
+/**
+  * @brief Sensor Data Collector Register structure (SDC)
+  */
+
+typedef struct { /*!< (@ 0x24042400) SDC Structure                                              */
+
+  union {
+    __IOM uint32_t SDC_GEN_CONFIG_0; /*!< (@ 0x00000000) SDC general configuration 0                                */
+
+    struct {
+      __IOM uint32_t INTR_STATUS_CLEAR : 1; /*!< [0..0] Writing 1 clears interrupt, reading gives SDC Interrupt
+                                                     status                                                                    */
+      __IOM uint32_t RESERVED1 : 31; /*!< [31..1] Reserevd                                                          */
+    } SDC_GEN_CONFIG_0_b;
+  };
+
+  union {
+    __IOM uint32_t SDC_GEN_CONFIG_1; /*!< (@ 0x00000004) SDC general configuration 1                                */
+
+    struct {
+      __IOM uint32_t RST_WRT_PTR : 1; /*!< [0..0] Writing 1 will resets the write pointer so that new samples
+                                                     can be filled in Buffer.                                                  */
+      __IM uint32_t WRT_PTR : 4;      /*!< [4..1] Write pointer Value                                                */
+      __IOM uint32_t SAMP_THRESH : 4; /*!< [8..5] Number of data sampled to be collected from Aux-ADC and
+                                                     stored in Buffer before interrupt is raised/wakeup is initialed           */
+      __IOM uint32_t RESERVED1 : 23;  /*!< [31..9] Reserevd                                                          */
+    } SDC_GEN_CONFIG_1_b;
+  };
+
+  union {
+    __IOM uint32_t SDC_GEN_CONFIG_2; /*!< (@ 0x00000008) SDC general configuration 2                                */
+
+    struct {
+      __IOM uint32_t SDC_SAMP_EN : 1; /*!< [0..0] SDC Data Sampling mode                                             */
+      __IOM uint32_t NUM_CH_SEL : 3;  /*!< [3..1] Number of Channels to be used                                      */
+      __IOM uint32_t RESERVED1 : 28;  /*!< [31..4] Reserevd                                                          */
+    } SDC_GEN_CONFIG_2_b;
+  };
+
+  union {
+    __IOM uint32_t SDC_GEN_CONFIG_3; /*!< (@ 0x00000014) SDC general configuration 3                                */
+
+    struct {
+      __IOM uint32_t
+        SAMP_TRIG_SEL : 1; /*!< [0..0] select the trigger event on which AUX-ADC Data is sampled          */
+      __IOM uint32_t
+        CNT_TRIG_EVNT : 10;            /*!< [10..1] which trigger event AUX-ADC Data will sampled                     */
+      __IOM uint32_t SDC_CLK_DIV : 10; /*!< [20..11] SDCSS clock division factor                                      */
+      __IOM uint32_t RESERVED1 : 11;   /*!< [31..21] Reserevd                                                         */
+    } SDC_GEN_CONFIG_3_b;
+  };
+  __IM uint32_t RESERVED[2];
+  union {
+    __IOM uint32_t
+      SDC_AUXADC_CONFIG_1; /*!< (@ 0x00000018) SDC AUX ADC configuration 1                                */
+
+    struct {
+      __IOM uint32_t
+        SDC_AUXADC_INPUT_P_SEL_CH1 : 5; /*!< [4..0] AUXADC's Positive Input Mux Select for Channel-1               */
+      __IOM uint32_t
+        SDC_AUXADC_INPUT_N_SEL_CH1 : 4; /*!< [8..5] AUXADC's Negative Input Mux Select for Channel-1               */
+      __IOM uint32_t
+        SDC_AUXADC_DIFF_MODE_CH1 : 1; /*!< [9..9] Enable Differential Mode in AUX ADC for Channel -1               */
+      __IOM uint32_t
+        SDC_AUXADC_EN : 1; /*!< [10..10] AUXADC Enable from SDC Block                                     */
+      __IOM uint32_t SDC_ADC_CONFIG_EN : 1; /*!< [11..11] On Enabling this register, SDC ADC Configuration will
+                                                     be Applied.                                                               */
+      __IOM uint32_t RESERVED1 : 20; /*!< [31..12] Reserevd                                                         */
+    } SDC_AUXADC_CONFIG_1_b;
+  };
+
+  union {
+    __IOM uint32_t
+      SDC_AUXDAC_CONFIG_1; /*!< (@ 0x0000001C) SDC AUX DAC configuration 1                                */
+
+    struct {
+      __IOM uint32_t SDC_DAC_EN : 1; /*!< [0..0] Enable signal DAC                                                  */
+      __IOM uint32_t
+        SDC_DAC_OUT_MUX_EN : 1; /*!< [1..1] Enable signal for Connecting DAC Output to GPIO                    */
+      __IOM uint32_t SDC_DAC_OUT_MUX_SEL : 1; /*!< [2..2] Programming register for choosing GPIO in which DAC Output
+                                                     is connected                                                              */
+      __IOM uint32_t RESERVED1 : 1; /*!< [3..3] Reserved                                                           */
+      __IOM uint32_t
+        SDC_DAC_DATA : 10; /*!< [13..4] SDC Aux DAC Data                                                  */
+      __IOM uint32_t SDC_DAC_CONFIG_EN : 1; /*!< [14..14] On Enabling this register, SDC DAC Configuration will
+                                                     be Applied.                                                               */
+      __IOM uint32_t RESERVED2 : 17; /*!< [31..15] Reserevd                                                         */
+    } SDC_AUXDAC_CONFIG_1_b;
+  };
+
+  union {
+    __IOM uint32_t SDC_AUXLDO_CONFIG; /*!< (@ 0x00000020) SDC AUX LDO configuration                                  */
+
+    struct {
+      __IOM uint32_t
+        SDC_AUXLDO_VOLT_CTRL : 4;   /*!< [3..0] SDC AUX LDO Voltage Control Selection                              */
+      __IOM uint32_t RESERVED1 : 1; /*!< [4..4] RESERVED                                                           */
+      __IOM uint32_t SDC_AUXLDO_BYP_EB : 1; /*!< [5..5] Configure AUXLDO in Buypass mode.When Enabled, Ouput
+                                                     supply of LDO will be same as Input supply.                               */
+      __IOM uint32_t
+        SDC_AUXLDO_EN : 1; /*!< [6..6] Turn-On AUX LDO                                                    */
+      __IOM uint32_t
+        SDC_AUXLDO_CONFIG_EN : 1;    /*!< [7..7] SDC Aux LDO Configuration Control Enable                           */
+      __IOM uint32_t RESERVED2 : 24; /*!< [31..8] Reserved                                                          */
+    } SDC_AUXLDO_CONFIG_b;
+  };
+
+  union {
+    __IOM uint32_t
+      SDC_AUXOPAMP_CONFIG_1; /*!< (@ 0x00000024) SDC AUX OPAMP configuration 1                              */
+
+    struct {
+      __IOM uint32_t SDC_OPAMP_EN_CH1 : 1; /*!< [0..0] Enable signal for turning OPAMP to used for Channel-1
+                                                     Operation                                                                 */
+      __IOM uint32_t
+        SDC_OPAMP_LP_MODE : 1; /*!< [1..1] Configuration of OPAMP1 Operation mode                             */
+      __IOM uint32_t SDC_OPAMP_R1_SEL : 2; /*!< [3..2] Configuration for Resistor Ladder R1 of OPAMP1 for controlling
+                                                     it gain.                                                                  */
+      __IOM uint32_t SDC_OPAMP_R2_SEL : 3; /*!< [6..4] Configuration for Resistor Ladder R2 of OPAMP1 for controlling
+                                                     it gain.                                                                  */
+      __IOM uint32_t SDC_OPAMP_RES_BACK_EN : 1; /*!< [7..7] Configuration register for controlling Resistor Bank
+                                                     of OPAMP                                                                  */
+      __IOM uint32_t SDC_OPAMP_RES_MUX_SEL : 3; /*!< [10..8] Configuration register for Connecting R1 Resistor Ladder
+                                                     input                                                                     */
+      __IOM uint32_t
+        SDC_OPAMP_RES_TO_OUT_VDD : 1;          /*!< [11..11] Configuration register for Connecting R2 Resistor Ladder
+                                                     input                                                                     */
+      __IOM uint32_t SDC_OPAMP_OUT_MUX_EN : 1; /*!< [12..12] Configur this register to OPAMP1 Output will be connected
+                                                     to GPIO                                                                   */
+      __IOM uint32_t
+        SDC_OPAMP_IN_N_SEL : 3; /*!< [15..13] Configuration register for selecting N Input of OPAMP1.          */
+      __IOM uint32_t
+        SDC_OPAMP_IN_P_SEL_CH1 : 4; /*!< [19..16] Configuration register for selecting P Input of OPAMP1.,for
+                                                     CH1                                                                       */
+      __IOM uint32_t SDC_OPAMP_OUT_MUX_SEL : 1; /*!< [20..20] Configuration register for connecting OPAMP1 output
+                                                     to GPIO                                                                   */
+      __IM uint32_t RESERVED1 : 1; /*!< [21..21] Reserved                                                         */
+      __IOM uint32_t SDC_VREF_MUX_1_EN : 1; /*!< [22..22] Connect Low Drive Strength voltage reference for ULP
+                                                     GPIO 1 For external use                                                   */
+      __IOM uint32_t SDC_VREF_MUX_2_EN : 1; /*!< [23..23] Connect Low Drive Strength voltage reference for ULP
+                                                     GPIO 3 For external use                                                   */
+      __IOM uint32_t SDC_VREF_MUX_3_EN : 1; /*!< [24..24] Connect Low Drive Strength voltage reference for ULP
+                                                     GPIO 4 For external use                                                   */
+      __IOM uint32_t SDC_VREF_MUX_4_EN : 1; /*!< [25..25] Connect Low Drive Strength voltage reference for ULP
+                                                     GPIO 15 For external use                                                  */
+      __IOM uint32_t RESERVED2 : 1; /*!< [26..26] Reserved                                                         */
+      __IOM uint32_t SDC_VREF_MUX_1_SEL : 1;  /*!< [27..27] Selection register for choosing Voltage reference to
+                                                     external use on ULP_GPIO_1                                                */
+      __IOM uint32_t SDC_VREF_MUX_2_SEL : 1;  /*!< [28..28] Selection register for choosing Voltage reference to
+                                                     external use on ULP_GPIO_3                                                */
+      __IOM uint32_t SDC_VREF_MUX_3_SEL : 1;  /*!< [29..29] Selection register for choosing Voltage reference to
+                                                     external use on ULP_GPIO_4                                                */
+      __IOM uint32_t SDC_VREF_MUX_4_SEL : 1;  /*!< [30..30] Selection register for choosing Voltage reference to
+                                                     external use on ULP_GPIO_15                                               */
+      __IOM uint32_t SDC_OPAMP_CONFIG_EN : 1; /*!< [31..31] On Enabling this register, SDC OPAMP Configuration
+                                                     will be Applied.                                                          */
+    } SDC_AUXOPAMP_CONFIG_1_b;
+  };
+
+  union {
+    __IOM uint32_t
+      SDC_AUXADC_CONFIG_2; /*!< (@ 0x00000028) SDC AUX ADC configuration 2                                */
+
+    struct {
+      __IOM uint32_t
+        SDC_AUXADC_INPUT_P_SEL_CH2 : 5; /*!< [4..0] AUXADC's Positive Input Mux Select for Channel-2               */
+      __IOM uint32_t
+        SDC_AUXADC_INPUT_N_SEL_CH2 : 4; /*!< [8..5] AUXADC's Negative Input Mux Select for Channel-2               */
+      __IOM uint32_t
+        SDC_AUXADC_DIFF_MODE_CH2 : 1; /*!< [9..9] 1-AUX ADC Differencial mode, 0 - Single Ended Mode               */
+      __IOM uint32_t RESERVED1 : 22;  /*!< [31..10] Reserevd                                                         */
+    } SDC_AUXADC_CONFIG_2_b;
+  };
+
+  union {
+    __IOM uint32_t
+      SDC_AUXADC_CONFIG_3; /*!< (@ 0x0000002C) SDC AUX ADC configuration 3                                */
+
+    struct {
+      __IOM uint32_t
+        SDC_AUXADC_INPUT_P_SEL_CH3 : 5; /*!< [4..0] AUXADC's Positive Input Mux Select for Channel-3               */
+      __IOM uint32_t
+        SDC_AUXADC_INPUT_N_SEL_CH3 : 4; /*!< [8..5] AUXADC's Negative Input Mux Select for Channel-3               */
+      __IOM uint32_t
+        SDC_AUXADC_DIFF_MODE_CH3 : 1; /*!< [9..9] 1-AUX ADC Differencial mode, 0 - Single Ended Mode               */
+      __IOM uint32_t RESERVED1 : 22;  /*!< [31..10] Reserved                                                         */
+    } SDC_AUXADC_CONFIG_3_b;
+  };
+
+  union {
+    __IOM uint32_t
+      SDC_AUXADC_CONFIG_4; /*!< (@ 0x00000030) SDC AUX ADC configuration 4                                */
+
+    struct {
+      __IOM uint32_t
+        SDC_AUXADC_INPUT_P_SEL_CH4 : 5; /*!< [4..0] AUXADC's Positive Input Mux Select for Channel-4               */
+      __IOM uint32_t
+        SDC_AUXADC_INPUT_N_SEL_CH4 : 4; /*!< [8..5] AUXADC's Negative Input Mux Select for Channel-4               */
+      __IOM uint32_t
+        SDC_AUXADC_DIFF_MODE_CH4 : 1; /*!< [9..9] 1-AUX ADC Differencial mode, 0 - Single Ended Mode               */
+      __IOM uint32_t RESERVED1 : 22;  /*!< [31..10] Reserved                                                         */
+    } SDC_AUXADC_CONFIG_4_b;
+  };
+
+  union {
+    __IOM uint32_t
+      SDC_AUXOPAMP_CONFIG_2; /*!< (@ 0x00000034) SDC AUX OPAMP Configuration 2                              */
+
+    struct {
+      __IOM uint32_t SDC_OPAMP_EN_CH2 : 1;       /*!< [0..0] Enable signal for turning OPAMP to used for Channel-2
+                                                     Operation                                                                 */
+      __IOM uint32_t SDC_OPAMP_IN_P_SEL_CH2 : 4; /*!< [4..1] Configuration register for selecting P Input of OPAMP1
+                                                     for Channel-2                                                             */
+      __IOM uint32_t SDC_OPAMP_EN_CH3 : 1;       /*!< [5..5] Enable signal for turning OPAMP to used for Channel-4
+                                                     Operation                                                                 */
+      __IOM uint32_t SDC_OPAMP_IN_P_SEL_CH3 : 4; /*!< [9..6] Configuration register for selecting P Input of OPAMP1
+                                                     for Channel-3                                                             */
+      __IOM uint32_t SDC_OPAMP_EN_CH4 : 1;       /*!< [10..10] Enable signal for turning OPAMP to used for Channel-4
+                                                     Operation                                                                 */
+      __IOM uint32_t SDC_OPAMP_IN_P_SEL_CH4 : 1; /*!< [11..11] Configuration register for selecting P Input of OPAMP1
+                                                     for Channel-4                                                             */
+      uint32_t : 3;
+      __IOM uint32_t RESERVED1 : 17; /*!< [31..15] Reserved                                                         */
+    } SDC_AUXOPAMP_CONFIG_2_b;
+  };
+  __IOM SDC_SDC_DATA_REG_Type
+    SDC_DATA_REG[16]; /*!< (@ 0x00000038) SDC Data registers (0-15)                                  */
+} SDC_Type;
 /** @} End of group RSI_DEVICE_SYSRTC */
 
 #include "si91x_mvp.h"
@@ -15625,6 +15874,8 @@ typedef struct {
 #define MCU_TEMP_BASE          0x24048500UL
 #define MCU_AON_BASE           0x24048000UL
 #define ULPCLK_BASE            0x24041400UL
+#define SDC_BASE               0x24042400UL
+
 #ifdef SLI_SI917B0
 #define SYSRTC_BASE 0x24048C00UL
 
@@ -15720,6 +15971,7 @@ typedef struct {
 #define IR                ((IR_Type *)IR_BASE)
 #define CTS               ((CTS_Type *)CTS_BASE)
 #define MISC_CONFIG       ((MISC_CONFIG_Type *)MISC_CONFIG_BASE)
+#define SDC               ((SDC_Type *)SDC_BASE)
 #ifdef SLI_SI917B0
 #define SYSRTC0 ((SYSRTC_TypeDef *)SYSRTC_BASE)
 #define MVP     ((MVP_TypeDef *)MVP_BASE) /**< MVP base pointer */

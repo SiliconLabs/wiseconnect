@@ -134,7 +134,7 @@ SECTIONS
     {% if psram_present and psram_linker_config_enabled and psram_powersave_handle %}	
 			*(EXCLUDE_FILE(*rsi_deepsleep_soc.o *sl_si91x_psram.o *rsi_qspi.o *rsi_pll.o *rsi_egpio.o *sl_rsi_utility.o) .text*)
 		{% elif power_manager_ps2 %}
-		  *(EXCLUDE_FILE(*cmsis_os2.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *power_manager_m4_wireless_example.o *sl_si91x_button.o *sl_si91x_button_instances.o *app.o *main.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in uart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}}{% endfor %}) .text*)
+		  *(EXCLUDE_FILE(*cmsis_os2.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_ps_ram_func.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_slist.o *strcmp.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
 		{% elif ulp_mode_execution %}	
 			*(.copysection*) 
 	    	*(.zerosection*)
@@ -347,17 +347,17 @@ SECTIONS
 		*ipmu_apis.o(.text*)
 		*rsi_pll.o(.text*)
 		*rsi_power_save.o(.text*)
+		*rsi_ps_ram_func.o(.text*)
 		*rsi_system_config.o(.text*)
 		*rsi_time_period.o(.text*)
 		*rsi_ulpss_clk.o(.text*)
 		*system_si91x.o(.text*)
+		*sl_slist.o(.text*)
+		*strcmp.o(.text*)
 		*sl_si91x_power_manager.o(.text*)
-		*sl_si91x_button.o(.text*)
-		*sl_si91x_button_instances.o(.text*)
 		*sli_si91x_power_manager.o(.text*)
-		*power_manager_m4_wireless_example.o(.text*)
-		*app.o(.text*)
-		*main.o(.text*)
+		*sl_si91x_power_manager_handler.o(.text*)
+		*sl_si91x_power_manager_debug.o(.text*)
 		{% for c in debug_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in calendar_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in ulp_timer_ps2 %}*{{c}}(.text*)
@@ -374,7 +374,7 @@ SECTIONS
 		{% endfor %}{% for c in ir_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in ssi_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in sysrtc_ps2 %}*{{c}}(.text*)
-		{% endfor %}{% for c in uart_ps2 %}*{{c}}(.text*)
+		{% endfor %}{% for c in usart_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in user_files_ps2 %}*{{c}}(.text*)
 		{% endfor %}
 		{% endif %}
@@ -459,7 +459,7 @@ SECTIONS
 
 	/* Modify the below value to change the stack size */
 	StackSize = 0x3000;
-	.stack ALIGN(8) (NOLOAD):
+	.stack (NOLOAD):
 	{
 		__StackLimit = .;
 		KEEP(*(.stack*))

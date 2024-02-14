@@ -33,6 +33,7 @@ rsi_m4ta_desc_t rx_desc[2];
  * *               Function Declarations
  * ******************************************************/
 sl_status_t sli_si91x_submit_rx_pkt(void);
+void sli_submit_rx_buffer(void);
 void sli_si91x_raise_pkt_pending_interrupt_to_ta(void);
 
 /**
@@ -172,19 +173,16 @@ void rsi_update_rx_dma_desc(void)
   M4_RX_DMA_DESC_REG = (uint32_t)&rx_desc;
 }
 
-void sli_config_m4_dma_desc_on_reset(void)
+void sli_si91x_config_m4_dma_desc_on_reset(void)
 {
-  //! Wait for TA to go to sleep
-  while (P2P_STATUS_REG & TA_is_active)
-    ;
-  SL_DEBUG_LOG("\r\nTA is not in active state\n");
+
   //! Wait for TA to wakeup and should be in bootloader
   while (!(P2P_STATUS_REG & TA_is_active))
     ;
   SL_DEBUG_LOG("\r\nTA is in active state\r\n");
   //! TBD Need to address why soft reset expecting delay
   osDelay(100);
-  //! UPdate M4 TX and RX dma descriptors
+  //! Update M4 Tx and Rx DMA descriptors
   M4_TX_DMA_DESC_REG = (uint32_t)&tx_desc;
   M4_RX_DMA_DESC_REG = (uint32_t)&rx_desc;
 }

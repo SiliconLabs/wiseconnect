@@ -176,7 +176,7 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
 
   sl_status_t si91x_status;
   switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
-#if defined(PSA_WANT_ALG_CCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):;
       sl_si91x_ccm_config_t config_ccm;
       config_ccm.encrypt_decrypt = SL_SI91X_CCM_ENCRYPT;
@@ -231,8 +231,8 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       status = convert_si91x_error_code_to_psa_status(si91x_status);
 
       break;
-#endif /* PSA_WANT_ALG_CCM */
-#if defined(PSA_WANT_ALG_GCM)
+#endif /* SLI_PSA_DRIVER_FEATURE_CCM */
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):;
       sl_si91x_gcm_config_t config_gcm;
       config_gcm.encrypt_decrypt = SL_SI91X_GCM_ENCRYPT;
@@ -287,8 +287,8 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       status = convert_si91x_error_code_to_psa_status(si91x_status);
 
       break;
-#endif /* PSA_WANT_ALG_GCM */
-#if defined(PSA_WANT_ALG_CHACHA20_POLY1305)
+#endif /* SLI_PSA_DRIVER_FEATURE_GCM */
+#if defined(SLI_PSA_DRIVER_FEATURE_CHACHAPOLY)
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):;
       sl_si91x_chachapoly_config_t config_chachapoly;
       config_chachapoly.encrypt_decrypt = SL_SI91X_CHACHAPOLY_ENCRYPT;
@@ -327,7 +327,7 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       status = convert_si91x_error_code_to_psa_status(si91x_status);
 
       break;
-#endif /* PSA_WANT_ALG_CHACHAPOLY */
+#endif /* SLI_PSA_DRIVER_FEATURE_CHACHAPOLY */
     default:
       (void)status;
       (void)key_buffer;
@@ -384,7 +384,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
 
   int32_t si91x_status;
   switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
-#if defined(PSA_WANT_ALG_CCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):;
       sl_si91x_ccm_config_t config_ccm = { 0 };
       config_ccm.encrypt_decrypt       = SL_SI91X_CCM_DECRYPT;
@@ -437,8 +437,8 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
 #endif
       status = convert_si91x_error_code_to_psa_status(si91x_status);
       break;
-#endif /* PSA_WANT_ALG_CCM */
-#if defined(PSA_WANT_ALG_GCM)
+#endif /* SLI_PSA_DRIVER_FEATURE_CCM */
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):;
       sl_si91x_gcm_config_t config_gcm = { 0 };
       config_gcm.encrypt_decrypt       = SL_SI91X_GCM_DECRYPT;
@@ -491,8 +491,8 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
 #endif
       status = convert_si91x_error_code_to_psa_status(si91x_status);
       break;
-#endif /* PSA_WANT_ALG_GCM */
-#if defined(PSA_WANT_ALG_CHACHA20_POLY1305)
+#endif /* SLI_PSA_DRIVER_FEATURE_GCM */
+#if defined(SLI_PSA_DRIVER_FEATURE_CHACHAPOLY)
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):;
       sl_si91x_chachapoly_config_t config_chachapoly;
       config_chachapoly.encrypt_decrypt = SL_SI91X_CHACHAPOLY_DECRYPT;
@@ -531,7 +531,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       status = convert_si91x_error_code_to_psa_status(si91x_status);
 
       break;
-#endif /* PSA_WANT_ALG_CHACHAPOLY */
+#endif /* SLI_PSA_DRIVER_FEATURE_CHACHAPOLY */
     default:
       (void)status;
       (void)key_buffer;

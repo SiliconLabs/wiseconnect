@@ -8,6 +8,8 @@
 #include "rsi_common_utils.h"
 #include "rsi_ble.h"
 #include "rsi_ble_common_config.h"
+#include "sl_si91x_status.h"
+#include "rsi_common_apis.h"
 
 extern rsi_parsed_conf_t rsi_parsed_conf;
 
@@ -647,7 +649,7 @@ void rsi_ble_event_adv_report(uint16_t status, void *event_data)
 
   //! get conn_id
 #if (CONNECT_OPTION == CONN_BY_NAME)
-  ble_conn_id = rsi_get_ble_conn_id(remote_dev_addr_conn, remote_name, rsi_strlen(remote_name));
+  ble_conn_id = rsi_get_ble_conn_id(remote_dev_addr_conn, remote_name, strlen((const char *)remote_name));
 #else
   ble_conn_id              = rsi_get_ble_conn_id(remote_dev_addr_conn);
 #endif
@@ -4227,7 +4229,7 @@ void rsi_ble_event_ext_adv_report(uint16_t status, void *event_data)
 
   //! get conn_id
 #if (CONNECT_OPTION == CONN_BY_NAME)
-  ble_conn_id = rsi_get_ble_conn_id(remote_dev_addr_conn, remote_name, rsi_strlen(remote_name));
+  ble_conn_id = rsi_get_ble_conn_id(remote_dev_addr_conn, remote_name, strlen((const char *)remote_name));
 #else
   ble_conn_id              = rsi_get_ble_conn_id(remote_dev_addr_conn);
 #endif

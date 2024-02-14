@@ -100,6 +100,9 @@
 /// @note bit 11 & bits 13 - 29 are reserved
 #define SL_SI91X_FEAT_LONG_ICMP_PACKET BIT(12)
 
+/// To enable support for the Long HTTP GET URL. Maximum URL supported is 2048 bytes.
+#define SL_SI91X_FEAT_LONG_HTTP_URL BIT(14)
+
 /// Secure Attestation
 /// @note bit 31 is reserved
 #define SL_SI91X_FEAT_SECURE_ATTESTATION BIT(30)
@@ -175,7 +178,7 @@
 /// Enable SMTP client
 #define SL_SI91X_TCP_IP_FEAT_SMTP_CLIENT BIT(20)
 
-/// Select no of sockets
+/// Select number of sockets
 /// @note Max of 10 sockets are allowed
 /// @note Bits 21- 24 are used to set TOTAL_SOCKETS
 #define SL_SI91X_TCP_IP_TOTAL_SOCKETS(total_sockets) (total_sockets << 21)
@@ -214,7 +217,7 @@
 #define SL_SI91X_CUSTOM_FEAT_DISABLE_GATEWAY_IN_RSI_AP BIT(2)
 
 /// To configure the clock for NWP SOC 160Mhz
-/// If higher performance is needed(like High throughput)
+/// If higher performance is needed (like High throughput)
 /// then this configuration is needed
 /// @note Need to set pll_mode to 1 in feature frame command
 #define SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ BIT(4)
@@ -229,7 +232,7 @@
 
 /// Support for scanning in DFS channels() in 5GHZ band
 /// This bit is valid in WiFi client mode
-/// @note it's mandatory to set region before scanning DFS channel.
+/// @note It's mandatory to set the region before scanning DFS channel.
 #define SL_SI91X_CUSTOM_FEAT_DFS_CHANNEL_SUPPORT BIT(8)
 
 /// If this bit is set, it enables the LED blinking feature
@@ -239,7 +242,7 @@
 #define SL_SI91X_CUSTOM_FEAT_LED_FEATURE BIT(9)
 
 /// If this bit is enabled, module indicates the host
-/// the wlan connection status asynchronously
+/// the WLAN connection status asynchronously
 /// This bit is valid in case of Wi-Fi client mode
 #define SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS BIT(10)
 
@@ -282,7 +285,7 @@
 #define SL_SI91X_CUSTOM_FEAT_HTTP_SERVER_CRED_TO_HOST BIT(25)
 
 /// For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will be rejected immediately
-/// @note By default this bit value is zero. When BIT[26] = 0: For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will not be rejected. Instead device will maintain this connection request in LTCP pending list. This request will be served when any of the connected client is disconnected. When BIT[26] = 1: For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will be rejected immediately. Device will not maintain this connection request in LTCP pending list.
+/// @note By default, this bit value is zero. When BIT[26] = 0: For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will not be rejected. Instead device will maintain this connection request in LTCP pending list. This request will be served when any of the connected client is disconnected. When BIT[26] = 1: For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will be rejected immediately. Device will not maintain this connection request in LTCP pending list.
 #define SL_SI91X_CUSTOM_FEAT_REJECT_CONNECT_REQ_IMMEDIATELY BIT(26)
 
 /// Enables Dual band roaming and vcsafd feature
@@ -359,7 +362,10 @@
 /// @note 1. Resource Request Support is not Present. 2. If both BIT[11] and BIT[16] are not enabled then it will select as Legacy Roaming.
 #define SL_SI91X_EXT_FEAT_ENABLE_11R_ODS BIT(16)
 
-/// @note Bit 17, 18 are reserved
+/// To disable WoWLAN feature
+#define SL_SI91X_EXT_FEAT_WOWLAN_DISABLE BIT(17)
+
+/// @note Bit 18 is reserved
 
 /// To enable low power mode in Wlan
 /// @note EXT_FEAT_LOW_POWER_MODE is not supported for 1.3 version chipset.
@@ -852,6 +858,7 @@ typedef enum {
   SL_SI91X_CLIENT_MODE            = 0, ///< WiFi personal client mode
   SL_SI91X_ENTERPRISE_CLIENT_MODE = 2, ///< WiFi enterprise client mode
   SL_SI91X_ACCESS_POINT_MODE      = 6, ///< WiFi access point mode
+  SL_SI91X_WLAN_BTR_MODE          = 7, ///< WiFi basic transceiver mode
   SL_SI91X_TRANSMIT_TEST_MODE     = 8, ///< WiFi transit test mode
   SL_SI91X_CONCURRENT_MODE        = 9, ///< WiFi concurrent mode
   __FORCE_OPERATION_ENUM_16BIT    = 0xFFFF
@@ -979,12 +986,12 @@ static const sl_wifi_device_configuration_t sl_wifi_default_client_configuration
 #else
                      (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION),
 #endif
-                   .tcp_ip_feature_bit_map =
-                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+                                              | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_MDNSD
 #ifdef SLI_SI91X_ENABLE_IPV6
-                      | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
+                                              | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
 #endif
-                      | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                                              | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
@@ -1032,11 +1039,11 @@ static const sl_wifi_device_configuration_t sl_wifi_default_ap_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode       = SL_SI91X_ACCESS_POINT_MODE,
-                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = SL_SI91X_FEAT_SECURITY_OPEN,
-                   .tcp_ip_feature_bit_map =
-                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+  .boot_config = { .oper_mode                  = SL_SI91X_ACCESS_POINT_MODE,
+                   .coex_mode                  = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map            = SL_SI91X_FEAT_SECURITY_OPEN,
+                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER | SL_SI91X_TCP_IP_FEAT_MDNSD
+                                              | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map     = 0,
                    .ext_custom_feature_bit_map = 0,
                    .bt_feature_bit_map         = 0,
@@ -1058,6 +1065,32 @@ static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_configura
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER
                                               | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
+                                                  ),
+                   .bt_feature_bit_map         = 0,
+                   .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
+                   .ble_feature_bit_map        = 0,
+                   .ble_ext_feature_bit_map    = 0,
+                   .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+};
+
+/// Default Wi-Fi concurrent (AP + STATION) configuration
+static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_v6_configuration = {
+  .boot_option = LOAD_NWP_FW,
+  .mac_address = NULL,
+  .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
+  .region_code = US,
+  .boot_config = { .oper_mode       = SL_SI91X_CONCURRENT_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map = SL_SI91X_FEAT_AGGREGATION,
+                   .tcp_ip_feature_bit_map =
+                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER
+                      | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV6_SERVER
+                      | SL_SI91X_TCP_IP_FEAT_IPV6 | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                   .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
 #ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
@@ -1098,4 +1131,34 @@ static const sl_wifi_device_configuration_t sl_wifi_transmit_test_configuration 
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
+
+/*! @cond SL_SI91X_WIFI_BTR_MODE */
+static const sl_wifi_device_configuration_t sl_wifi_default_btr_configuration = {
+  .boot_option = LOAD_NWP_FW,
+  .mac_address = NULL,
+  .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
+  .region_code = JP,
+  .boot_config = { .oper_mode = SL_SI91X_WLAN_BTR_MODE,
+                   .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
+#if MAC_PEER_DS_SUPPORT
+                   .feature_bit_map = (FEAT_BTR_MAC_PEER_DS_SUPPORT | SL_SI91X_FEAT_SECURITY_OPEN),
+#else
+                   .feature_bit_map = SL_SI91X_FEAT_SECURITY_OPEN,
+#endif
+                   .tcp_ip_feature_bit_map = SL_SI91X_TCP_IP_FEAT_BYPASS,
+                   .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
+                   .ext_custom_feature_bit_map =
+                     (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
+#ifdef SLI_SI917
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
+                      ),
+                   .bt_feature_bit_map         = 0,
+                   .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
+                   .ble_feature_bit_map        = 0,
+                   .ble_ext_feature_bit_map    = 0,
+                   .config_feature_bit_map     = 0 }
+};
+/*! @endcond SL_SI91X_WIFI_BTR_MODE */
+
 /** @} */

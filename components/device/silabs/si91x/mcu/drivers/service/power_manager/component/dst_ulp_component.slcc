@@ -1,0 +1,21 @@
+id: dst_ulp_component
+label: Deep Sleep Timer
+package: platform
+description: >
+  Install this component to enable execution of "Deep Sleep Timer" peripheral from RAM
+category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+quality: production
+
+provides:
+  - name: dst_ulp_component
+
+template_contribution:
+  - name: wakeup
+    value: 
+      event: wakeup_init
+      function:
+        name: sli_si91x_power_manager_dst_init
+        return: sl_status_t
+      include:
+        name: rsi_ds_timer.h
+    priority: -5000

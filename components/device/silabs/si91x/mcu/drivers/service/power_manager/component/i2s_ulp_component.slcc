@@ -22,4 +22,12 @@ template_contribution:
     value: rsi_i2s.o
   - name: i2s_ps2
     value: SAI.o
+  - name: i2s_ps2
+    value: memcpy*.o
+  - name: i2s_ps2
+    value: UDMA.o
+  - name: i2s_ps2
+    value: rsi_udma.o
+  - name: i2s_ps2
+    value: rsi_udma_wrapper.o
 

@@ -45,6 +45,19 @@ typedef enum {
   SL_SI91X_EAP_CA_CERTIFICATE     = 49, ///< SL_SI91X_EAP_CA_CERTIFICATE
 } sl_si91x_cert_type_t;
 
+/******************************************************
+ *               Function Declarations
+ ******************************************************/
+sl_status_t sl_si91x_set_credential(sl_net_credential_id_t id,
+                                    sl_net_credential_type_t type,
+                                    const void *credential,
+                                    uint32_t credential_length);
+sl_status_t sl_si91x_get_credential(sl_net_credential_id_t id,
+                                    sl_net_credential_type_t *type,
+                                    void *credential,
+                                    uint32_t *credential_length);
+sl_status_t sl_si91x_delete_credential(sl_net_credential_id_t id, sl_net_credential_type_t type);
+
 static sl_si91x_cert_type_t convert_to_si91x_cert_type(sl_net_credential_id_t id, sl_net_credential_type_t type)
 {
   if (id == SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID) {

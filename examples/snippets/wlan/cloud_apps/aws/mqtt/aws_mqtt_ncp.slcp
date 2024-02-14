@@ -14,15 +14,14 @@ filter:
    - Beginner
 sdk:
    id: gecko_sdk
-   version: 4.4.0
+   version: 4.4.1
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.1.2
+   version: 3.1.3
 source:
 -  path: app.c
 -  path: main.c
 include:
-
 -  path: .
    file_list:
    -  path: app.h
@@ -41,6 +40,8 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_internal_stack
     from: wiseconnect3_sdk
+  - id: sl_si91x_spi_bus
+    from: wiseconnect3_sdk
   - id: wifi_resources
     from: wiseconnect3_sdk
   - id: network_manager
@@ -50,6 +51,8 @@ component:
   - id: sl_si91x_asynchronous_socket
     from: wiseconnect3_sdk
   - id: aws_sdk
+    from: wiseconnect3_sdk
+  - id: sl_si91x_basic_buffers
     from: wiseconnect3_sdk
 toolchain_settings:
   - option: gcc_compiler_option

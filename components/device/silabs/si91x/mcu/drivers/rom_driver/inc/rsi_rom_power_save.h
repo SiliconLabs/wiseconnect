@@ -35,7 +35,9 @@
 extern "C" {
 #endif
 
+#ifndef UNUSED_PARAMETER
 #define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS
@@ -309,8 +311,6 @@ STATIC INLINE void RSI_PS_WirelessShutdown(void)
 #endif
   }
 }
-void RSI_Set_Cntrls_To_M4(void);
-void RSI_Set_Cntrls_To_TA(void);
 
 /*end of file*/
 

@@ -34,8 +34,6 @@ template_contribution:
       include: sl_iostream_init_si91x_uart.h
       handler: "sl_iostream_instance_vcom_info"
 define:
-  - name: EXT_IRQ_COUNT
-    value: "75"
   - name: SRAM_BASE
     value: "0x0C000000UL"
   - name: SRAM_SIZE

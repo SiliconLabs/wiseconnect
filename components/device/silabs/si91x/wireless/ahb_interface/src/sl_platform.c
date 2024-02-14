@@ -29,6 +29,8 @@
 #include "cmsis_os2.h"
 #endif
 sl_status_t sli_si91x_submit_rx_pkt(void);
+void sl_board_enable_vcom(void);
+sl_status_t si91x_bootup_firmware(const uint8_t select_option);
 
 void sli_si91x_platform_init(void)
 {

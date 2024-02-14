@@ -22,4 +22,12 @@ template_contribution:
     value: rsi_spi.o
   - name: ssi_ps2
     value: SPI.o
+  - name: ssi_ps2
+    value: memcpy*.o
+  - name: ssi_ps2
+    value: UDMA.o
+  - name: ssi_ps2
+    value: rsi_udma.o
+  - name: ssi_ps2
+    value: rsi_udma_wrapper.o
 

@@ -23,9 +23,9 @@
 
 - This application demonstrates the SensorHub service using the following sensors,
   * 3- I2C-based sensors namely a BH1750(Light Sensor), LM75(Temperature Sensor) and APDS9960(RGB Proximity Gesture sensor)
-  * 2- ADC-based Sensors(Joystick and GUVA_12D_UV)
+  * 2- ADC and SDC -based Sensors(Joystick and GUVA_12D_UV)
   * 1- GPIO-based Push Button-0 as sensor
-  * 1- SPI-based sensor ADXL345(Accelorometer Sensor)
+  * 1- SPI-based sensor ADXL345(Accelerometer Sensor)
 
 - The application starts in PS4 mode, initializes peripherals, and configures sensors on the corresponding peripheral interfaces. Sensor data will be sampled and shown on the serial console based on the sensor configurations.
 
@@ -199,19 +199,15 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
             ```
 3. **PowerSave Configurations:**
     * The SensorHub utilizes the **Tickles Idle low-power mode** provided by the RTOS.
-    * To configure the PS2, please update the below macro in the preprocessor settings:
+    * To configure the power save transitions from PS2 to PS4 and vice-versa, please update the below macro in the  preprocessor settings:
       ```c
-      SL_SENSORHUB_PS2_STATE=1
+      SL_SH_POWER_STATE_TRANSITIONS=1
       //Enabling this macro will move the application from PS4 state to PS2 state. 
       //In PS2 state the sensor data will be sampled and collected.
       ```
-    * To configure the power states to PS4 sleep or PS2 Sleep, please update the defines in ***\gecko_sdk_4.3.2\util\third_party\freertos\kernel\include\FreeRTOS.h** file as below:
+    * To configure the power states to PS4 sleep or PS2 Sleep, please update the defines in ***\gecko_sdk_4.4.0\util\third_party\freertos\kernel\include\FreeRTOS.h** file as below:
 
       ```c
-      #ifndef configUSE_TICKLESS_IDLE
-      #define configUSE_TICKLESS_IDLE 1 // 1 is to Enable the tickless Idle mode 
-      #endif
-
       #ifndef configPRE_SLEEP_PROCESSING
       #define configPRE_SLEEP_PROCESSING(x) sli_si91x_sleep_wakeup(x) // Here x is idle time, 
       #endif
@@ -222,11 +218,11 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
       #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP    70
       #endif
       ```
-    
-    * To configure the power save transitions from PS2 to PS4 and vice-versa, please update the below macro in the  preprocessor settings:
-      ```c
-      SL_SH_POWER_STATE_TRANSITIONS = 1
-      ```
+    * To configure Tickless IDLE mode update below macro in ***config/FreeRTOSConfig.h**
+     ```c
+     #define configUSE_TICKLESS_IDLE 1 // 1 is to Enable the tickless Idle mode
+
+     ```
 
 4. **ADC Configurations**:
     - Configure the following parameters in the ***sensorhub_config.c*** file to change the ADC's mode from FIFO to STATIC and vice versa.
@@ -293,11 +289,60 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
           SL_SH_ADC_PS1=1 
           //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
 
-          //PATH:\gecko_sdk_4.3 2\util\third_party\freertos\kernel\include\FreeRTOS.h
+          //PATH:***config/FreeRTOSConfig.h**
           #ifndef configUSE_TICKLESS_IDLE
           #define configUSE_TICKLESS_IDLE 0 // 0 is to Disable the tickless Idle mode 
           #endif
           ```
+5. **SDC Configurations**:
+    - Disable the ADC **SH_ADC_ENABLE** macro in the preprocessor settings and enable the **SH_SDC_ENABLE** macro for the sdc
+    - For SDC Multichannel enable the **SDC_MUTI_CHANNEL_ENABLE** macro in the preprocessor settings
+    - Disable the remining sensor configurations.
+    - one sensor hub configuration structure is enough for the all connected sensors.
+    - we can use the ADC gpio pins for SDC also.
+    - Configure the following parameters in the ***sensorhub_config.c***  
+
+      ```c
+      .sh_sdc_config.sh_sdc_sample_ther        = SDC_SAMP_THRESH,   // Number of samples to read from SDC register
+      .sh_sdc_config.sh_sdc_no_channel_sel     = SDC_NUM_CH_SEL,    // Number of channel sel
+      .sh_sdc_config.sh_sdc_sample_trigger_sel = SDC_SAMP_TRIG_SEL, // RTC trigger Sel(1-1ms 0-1sec)
+      .sh_sdc_config.sh_sdc_cnt_trig_evnt      = SDC_CNT_TRIG_EVNT, // in which trigger event AUX-ADC Data will sampled
+      ```
+    - The Joystick emulator and the GUVA sensor are compatible with both ADC. 
+    
+    - **SDC Configuration settings:-**
+        - SensorHub interrupt mode is supported
+          
+          ```c
+            .sensor_name              = "ADC_JOYSTICK",
+            .sensor_id                 = SL_SENSOR_ADC_JOYSTICK_ID,
+            .channel                   = SL_SH_ADC_CH0_CHANNEL,
+            .sensor_bus                = SL_SH_ADC,
+            .sensor_mode               = SL_SH_INTERRUPT_MODE,
+            .data_deliver.data_mode    = SL_SH_NO_DATA_MODE,
+        ```
+    - **SDC Power Save(PS-1)**
+      - The SensorHUB interrupt mode configurations are utilized in conjunction with **SDC mode**.
+          ```C
+          SL_SH_ADC_PS1=1 
+          //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
+
+          //PATH:***config/FreeRTOSConfig.h**
+          #ifndef configUSE_TICKLESS_IDLE
+          #define configUSE_TICKLESS_IDLE 0 // 0 is to Disable the tickless Idle mode 
+          #endif
+          ```
+### AWS Configuration
+AWS will ONLY begin by implementing the modifications and settings listed below.
+
+>Note: AWS will work ONLY in PS4 Active power state.
+
+1. After creating the project add **SH_AWS_ENABLE=1** macro in the preprocessor settings.
+
+2. Now refer to ***Wi-Fi - AWS IoT MQTT Client (SoC)*** example readme.
+3. Make the relevant changes according to the above example readme in ***sl_net_default_values.h***,  ***aws_iot_config.h*** present in *config* folder 
+4. Modify the relevant changes in ***sensorhub_aws_app.c*** also. 
+
 
 ## Sensor Pins Setup
 
@@ -334,7 +379,7 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 ## Test the Application
 
 - Compile and run the application.
-- Connect the I2C, SPI and ADC sensors, based on the above pin configuration.
+- Connect the I2C, SPI and (ADC or SDC) sensors, based on the above pin configuration.
 
 ## Expected Results
 
@@ -343,8 +388,9 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 >### Note:
 >#### General
   >
-  >- The GPIO bsed Interrupt Sensor Mode won't function in Sleep mode.
+  >- The GPIO based Interrupt Sensor Mode won't function in Sleep mode.
   >- SPI sensor will only work in PS4 state
+  >- Disable ADC is using SPI sensor
   >
 >#### ADC
   >

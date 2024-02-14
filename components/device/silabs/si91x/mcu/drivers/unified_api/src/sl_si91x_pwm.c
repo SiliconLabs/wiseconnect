@@ -601,7 +601,7 @@ sl_status_t sl_si91x_pwm_register_callback(sl_si91x_pwm_callback_t *callback_eve
     }
     callback.cbFunc = NULL;
     NVIC_EnableIRQ(MCPWM_IRQn);
-    callback.cbFunc = callback_event;
+    callback.cbFunc = callback_event->cbFunc;
     RSI_MCPWM_InterruptHandler(MCPWM, callback_event);
     // Enabling timer interrupt
     RSI_MCPWM_InterruptEnable(MCPWM, flag);

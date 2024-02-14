@@ -209,7 +209,7 @@ void Copy_Table(void)
   for (pulDest = &_sdata; pulDest < &_edata;) {
     *(pulDest++) = *(pulSrc++);
   }
-#if SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
+#if defined(SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE) && (SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE == ENABLE)
   /* Copy the sleep PSRAM driver segment to SRAM */
   pulSrc = &_slpcode;
   for (pulDest = &_scode; pulDest < &_ecode;) {
@@ -231,12 +231,12 @@ void Zero_Table(void)
   }
 }
 
-#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION) || defined(POWER_MANAGER_RAM_EXECUTION)
+#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
 __attribute__((section(".ramVector"))) char ram_vector[sizeof(__VECTOR_TABLE)];
 __attribute__((section(".reset_handler")))
 #endif
 
-#if defined(ULP_MODE_EXECUTION) && !defined(POWER_MANAGER_RAM_EXECUTION)
+#if defined(ULP_MODE_EXECUTION)
 char ram_vector[sizeof(__VECTOR_TABLE)] __attribute__((aligned(256)));
 __attribute__((section(".reset_handler")))
 #endif

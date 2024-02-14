@@ -47,11 +47,12 @@
 #include "errno.h"
 #include "socket.h"
 #include "sl_si91x_socket_support.h"
+#include "sl_si91x_core_utilities.h"
 
 #include "cmsis_os2.h"
 #include <rsi_common_apis.h>
 #include <string.h>
-#ifdef USE_SELECT_FEATURE
+#if USE_SELECT_FEATURE
 #include "select.h"
 #endif
 
@@ -313,13 +314,14 @@ void receive_data_from_tcp_client(void)
   uint32_t start                    = 0;
   uint32_t now                      = 0;
   int read_bytes                    = 1;
-#ifdef USE_SELECT_FEATURE
+#if USE_SELECT_FEATURE
   fd_set read_fds;
   int highest_socket_number = 1;
   int total_set_fds_count   = 0;
   struct timeval timeout    = { 0 };
   timeout.tv_sec            = 30;
 #endif
+  sl_status_t status = SL_STATUS_FAIL;
 
   server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (server_socket < 0) {
@@ -366,15 +368,23 @@ void receive_data_from_tcp_client(void)
 
   LOG_PRINT("\r\nTCP_RX Throughput test start\r\n");
 
-#ifndef USE_SELECT_FEATURE
+#if !(USE_SELECT_FEATURE)
   start = osKernelGetTickCount();
   while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      if (errno == ENOTCONN) {
-        LOG_PRINT("\nRemote server terminated\n");
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_si91x_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          LOG_PRINT("\r\nTCP recv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else if (errno == ENOTCONN) {
+        LOG_PRINT("\r\nRemote server terminated\r\n");
       } else {
-        LOG_PRINT("\nTCP recv failed with BSD error : %d\n", errno);
+        LOG_PRINT("\r\nTCP recv failed with BSD error = %d\r\n", errno);
       }
       close(server_socket);
       close(client_socket);
@@ -416,10 +426,18 @@ void receive_data_from_tcp_client(void)
       while (1) {
         read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
         if (read_bytes < 0) {
-          if (errno == ENOTCONN) {
-            LOG_PRINT("\nRemote server terminated\n");
+          if (errno == 0) {
+            // get the error code returned by the firmware
+            status = sl_si91x_get_saved_firmware_status();
+            if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+              continue;
+            } else {
+              LOG_PRINT("\r\nTCP recv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+            }
+          } else if (errno == ENOTCONN) {
+            LOG_PRINT("\r\nRemote server terminated\r\n");
           } else {
-            LOG_PRINT("\nTCP recv failed with BSD error : %d\n", errno);
+            LOG_PRINT("\r\nTCP recv failed with BSD error = %d\r\n", errno);
           }
           close(server_socket);
           close(client_socket);
@@ -541,6 +559,7 @@ void receive_data_from_ssl_client(void)
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  sl_status_t status                = SL_STATUS_FAIL;
 
   client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (client_socket < 0) {
@@ -586,18 +605,24 @@ void receive_data_from_ssl_client(void)
   while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      if (errno == ENOTCONN) {
-        LOG_PRINT("\nRemote server terminated\n");
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_si91x_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          LOG_PRINT("\r\nSSL recv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else if (errno == ENOTCONN) {
+        LOG_PRINT("\r\nRemote server terminated\r\n");
       } else {
-        LOG_PRINT("\nSSL recv failed with BSD error : %d\n", errno);
+        LOG_PRINT("\r\nSSL recv failed with BSD error = %d\r\n", errno);
       }
       close(client_socket);
       return;
     }
-    if (read_bytes > 0) {
-      total_bytes_received = total_bytes_received + read_bytes;
-    }
-    now = osKernelGetTickCount();
+    total_bytes_received = total_bytes_received + read_bytes;
+    now                  = osKernelGetTickCount();
     if ((now - start) > THROUGHPUT_AVG_TIME) {
       LOG_PRINT("\r\nTotal bytes received : %ld\r\n", total_bytes_received);
       measure_and_print_throughput(total_bytes_received, (now - start));

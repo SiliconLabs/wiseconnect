@@ -1,7 +1,6 @@
 //- defined under BLE_PRIVATE_H macro
 #ifndef BLE_PRIVATE_H
 #define BLE_PRIVATE_H
-#include "rsi_driver.h"
 #include "rsi_common_app.h"
 #include "event_loop.h"
 #include "stdint.h"

@@ -25,6 +25,7 @@ This application demonstrates how to transfer the TCP data using LWIP stack by c
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+      - BRD4339B [SiWx917-RB4339B]
   	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
@@ -115,7 +116,7 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
   - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
 - Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
   - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
-  
+
 ### Note
   - Enable `SL_SI91X_TCP_IP_FEAT_BYPASS` bitmap in tcp_ip_feature_bitmap to use the lwip stack.
   - Refer [sl_net_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-init) API for using the lwip stack.

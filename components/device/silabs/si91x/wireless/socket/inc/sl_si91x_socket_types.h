@@ -27,6 +27,7 @@ typedef void (*accept_callback)(int32_t sock_id, struct sockaddr *addr, uint8_t 
 typedef void (*data_transfer_complete_handler)(int32_t sockID, uint16_t length);
 typedef void (*sl_si91x_sock_data_tx_done_cb)(int32_t sockID, int16_t status, uint16_t total_data_sent);
 typedef void (*select_callback)(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status);
+typedef void (*remote_socket_termination_callback)(int socket_id, uint16_t port, uint32_t bytes_sent);
 
 typedef enum {
   RESET = 0,   // State of unallocated socket.

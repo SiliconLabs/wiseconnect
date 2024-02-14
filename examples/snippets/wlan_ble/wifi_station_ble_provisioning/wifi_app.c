@@ -83,6 +83,7 @@ static uint32_t wlan_app_event_map;
 
 extern void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
 static sl_status_t show_scan_results();
+void sl_wifi_app_set_event(uint32_t event_num);
 extern uint8_t coex_ssid[50], pwd[34], sec_type;
 uint8_t retry = 1;
 

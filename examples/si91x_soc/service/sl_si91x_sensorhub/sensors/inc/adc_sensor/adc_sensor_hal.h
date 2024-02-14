@@ -268,6 +268,22 @@ sl_status_t sl_si91x_adc_sensor_set_power(sl_sensor_adc_handle_t sensor, sl_sens
 sl_adc_error_t sl_si91x_adc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sensor_data_group_t *data_group);
 
 /***************************************************************************/ /**
+ * @fn        sl_adc_error_t sl_si91x_sdc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sensor_data_group_t *data_group);
+ * @brief     SDC sensor sample
+ *
+ * @param[in] sensor : SDC sensor handle
+ * @param[in] data_group : sensor hub data group structure that contains
+ *            memory to store ADC data and number of samples
+ * @return status 0 if successful, else error code
+ *         \ref SL_STATUS_OK (0x0000) - Success
+ *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
+ *         \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
+ *         \ref SL_STATUS_FAIL (0x0001) - The function is failed
+ *         \ref SL_STATUS_NOT_INITIALIZED (0x0011) - Clock is not initialized
+ ******************************************************************************/
+sl_adc_error_t sl_si91x_sdc_sensor_sample(sl_sensor_adc_handle_t sensor, sl_sensor_data_group_t *data_group);
+
+/***************************************************************************/ /**
  * @fn        sl_status_t sl_si91x_adc_sensor_control(sl_sensor_adc_handle_t sensor, sl_sensor_command_t cmd, UNUSED_PARAM void *args)
  * @brief     ADC sensor control
  *

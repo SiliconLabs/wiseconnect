@@ -52,6 +52,13 @@
 #define  SPI_SLAVE_MODE												2U
 #define  SPI_ULP_MASTER_MODE									3U
 
+#define  SPI_ISR_TX_FIFO_EMPTY								BIT(0)
+#define  SPI_ISR_TX_FIFO_OVERFLOW							BIT(1)
+#define  SPI_ISR_RX_FIFO_UNDERFLOW						BIT(2)
+#define  SPI_ISR_RX_FIFO_OVERFLOW							BIT(3)
+#define  SPI_ISR_RX_FIFO_FULL									BIT(4)
+
+
 ARM_DRIVER_VERSION SPI_GetVersion(void);
 ARM_SPI_CAPABILITIES SPI_GetCapabilities(void);
 void IRQ047_Handler(void) ;
@@ -72,17 +79,17 @@ void mySPI_callback(uint32_t event);
 #if defined(RTE_SSI_MASTER) && (RTE_SSI_MASTER == 1)
 #define  SSI_MASTER						 1U
 
-#if SL_SSI_MASTER_DMA_CONFIG_ENABLE
+#if defined (SL_SSI_MASTER_DMA_CONFIG_ENABLE) && (SL_SSI_MASTER_DMA_CONFIG_ENABLE == ENABLE)
 #define RTE_SSI_MASTER_RX_DMA 1
 #define RTE_SSI_MASTER_TX_DMA 1
 #endif
 
-#if SL_SSI_SLAVE_DMA_CONFIG_ENABLE
+#if defined (SL_SSI_SLAVE_DMA_CONFIG_ENABLE) && (SL_SSI_SLAVE_DMA_CONFIG_ENABLE == ENABLE)
 #define RTE_SSI_SLAVE_RX_DMA 1
 #define RTE_SSI_SLAVE_TX_DMA 1
 #endif
 
-#if SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE
+#if defined (SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE) && (SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE == ENABLE)
 #define RTE_SSI_ULP_MASTER_RX_DMA 1
 #define RTE_SSI_ULP_MASTER_TX_DMA 1
 #endif
@@ -395,4 +402,5 @@ typedef struct {
 
 void RSI_SPI_SetSlaveSelectNumber(uint8_t slavenumber);
 void RSI_SPI_Slave_Disable(void);
+void RSI_SPI_Slave_Set_CS_Init_State(void);
 #endif /* __SPI_H */

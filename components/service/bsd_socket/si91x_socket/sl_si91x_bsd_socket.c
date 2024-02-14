@@ -76,6 +76,21 @@ static struct hostent host_ent;
 static sl_ip_address_t host_ip_address;
 
 /******************************************************
+ *               Function Declarations
+ ******************************************************/
+
+int sl_si91x_set_custom_sync_sockopt(int socket_id,
+                                     int option_level,
+                                     int option_name,
+                                     const void *option_value,
+                                     socklen_t option_length);
+int sl_si91x_get_custom_sync_sockopt(int socket_id,
+                                     int option_level,
+                                     int option_name,
+                                     void *option_value,
+                                     socklen_t *option_length);
+
+/******************************************************
  *               Function Definitions
  ******************************************************/
 
@@ -536,7 +551,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
   }
 
   // Prepare the request structure with socket and buffer information
-  request.socket_id = si91x_socket->id;
+  request.socket_id = (uint8_t)si91x_socket->id;
   sdk_context       = &(request.socket_id);
   memcpy(request.requested_bytes, &buf_len, sizeof(buf_len));
   memcpy(request.read_timeout, &si91x_socket->read_timeout, sizeof(request.read_timeout));
@@ -563,9 +578,9 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
   // Determine the number of bytes to copy
-  bytes_read = (response->length <= buf_len) ? response->length : buf_len;
+  bytes_read = (ssize_t)((response->length <= buf_len) ? response->length : buf_len);
 
-  memcpy(buf, ((uint8_t *)response + response->offset), bytes_read);
+  memcpy(buf, ((uint8_t *)response + response->offset), (size_t)bytes_read);
 
   // If an address structure is provided, fill it with destination address information
   if (addr != NULL) {

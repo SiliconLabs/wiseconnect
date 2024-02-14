@@ -14,8 +14,3 @@ source:
   - path: src/sl_si91x_errno.c
 provides:
   - name: sl_si91x_errno
-define:
-  - name: configUSE_POSIX_ERRNO
-    value: 1
-    condition:
-    - freertos

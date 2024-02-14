@@ -255,7 +255,7 @@ int32_t I2S_Control(uint32_t control,
       // Slave mode
       if (i2s->reg == I2S0) {
         // sets master mode for I2S0(M4SS)
-        MISC_CFG_MISC_CTRL1 &= ~(1 << 23);
+        MISC_CFG_MISC_CTRL1 &= ~((uint32_t)(1 << 23));
       }
       if (i2s->reg == I2S1) {
 /* sets master mode for I2S1(ULPSS)*/

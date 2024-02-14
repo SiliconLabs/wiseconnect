@@ -42,7 +42,7 @@ extern "C" {
 #include "sl_pwm_board.h"
 
 /***************************************************************************/ /**
- * @addtogroup PWM PWM
+ * @addtogroup PWM Pulse Width Modulation 
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
  *
@@ -282,9 +282,9 @@ typedef struct {
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
-/***************************************************************************/
-/**
- * @brief This API is used to de-initialize the PWM peripheral
+/***************************************************************************/ /**
+ * @brief This API is used to de-initialize the PWM peripheral. It disables
+ *        PWM module clock.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -293,17 +293,18 @@ typedef struct {
 ******************************************************************************/
 void sl_si91x_pwm_deinit(void);
 
-/***************************************************************************/
-/**
- * @brief This API is used to get the PWM version
+/***************************************************************************/ /**
+ * @brief This API is used to get the PWM version which includes Release, 
+ *      SQA and DEV version numbers of PWM
  * @param[in] none
  * @return returns structure of type \ref sl_pwm_version_t
 ******************************************************************************/
 sl_pwm_version_t sl_si91x_pwm_get_version(void);
 
-/***************************************************************************/
-/**
- * @brief This API is used to set the PWM configuration parameters
+/***************************************************************************/ /**
+ * @brief This API is used to set the PWM configuration parameters. It configures 
+ *     output polarity, set time period, output mode, set duty cycle set base timer 
+ *     mode, and base timer selection for each channel.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  * @param[in] pwm_config: pointer to configuration parameters of type \ref sl_pwm_config_t
@@ -315,9 +316,10 @@ sl_pwm_version_t sl_si91x_pwm_get_version(void);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_set_configuration(sl_pwm_config_t *pwm_config);
 
-/***************************************************************************/
-/**
- * @brief This API is used to set output polarity for MCPWM
+/***************************************************************************/ /**
+ * @brief This API is used to set output polarity for MCPWM. Setting polarity 
+ *      positive sets the digital pulse ON for the duty cycle and off for remainder
+ *      of the period. Setting polarity negative is vice-versa of positive polarity set.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  * @param[in] polarity_low: Output polarity for low side (L3, L2, L1, L0)
@@ -330,9 +332,10 @@ sl_status_t sl_si91x_pwm_set_configuration(sl_pwm_config_t *pwm_config);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_set_output_polarity(boolean_t polarity_low, boolean_t polarity_high);
 
-/***************************************************************************/
-/**
- * @brief This API is used to start the MCPWM operation for the required channel
+/***************************************************************************/ /**
+ * @brief This API is used to start the MCPWM operation for required channel,
+ * 		based on duty cycle set, polarity and all other configurations done for 
+ *		respective channel.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -348,8 +351,7 @@ sl_status_t sl_si91x_pwm_set_output_polarity(boolean_t polarity_low, boolean_t p
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_start(sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to stop the MCPWM operation for the required channel
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -367,10 +369,9 @@ sl_status_t sl_si91x_pwm_start(sl_pwm_channel_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_stop(sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
- * @brief This API is used to select the number of base timers as four base timers for
- *        four channels or one base timer for all channels of MCPWM
+/***************************************************************************/ /**
+ * @brief This API is used to select number of base timers as four base timers for
+ *                  four channels or one base timer for all channels of MCPWM
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -383,9 +384,9 @@ sl_status_t sl_si91x_pwm_stop(sl_pwm_channel_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_control_base_timer(sl_pwm_timer_t base_timer);
 
-/***************************************************************************/
-/**
- * @brief This API is used to set time period and counter initial value for the required MCPWM channel.
+/***************************************************************************/ /**
+ * @brief This API is used to set time period and counter initial value for the 
+ *      required MCPWM channel.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -400,10 +401,9 @@ sl_status_t sl_si91x_pwm_control_base_timer(sl_pwm_timer_t base_timer);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_set_time_period(sl_pwm_channel_t channel, uint32_t period, uint32_t init_val);
 
-/***************************************************************************/
-/**
- * @brief This API is used to configure special event trigger generation for the required MCPWM channel,
- *        which allows the A/D converter to be synchronized to the PWM time base.
+/***************************************************************************/ /**
+ * @brief This API is used to configure special event trigger generation for required MCPWM channel which
+ *                allows the A/D converter to be synchronized to the PWM time base.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -420,9 +420,10 @@ sl_status_t sl_si91x_pwm_set_time_period(sl_pwm_channel_t channel, uint32_t peri
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_trigger_special_event(sl_pwm_svt_t direction, sl_si91x_pwm_svt_config_t *pwm_config);
 
-/***************************************************************************/
-/**
- * @brief This API is used to configure Dead time insertion parameters for MCPWM
+/***************************************************************************/ /**
+ * @brief This API is used to configure Dead time insertion parameters for MCPWM.
+ *      Dead time is a small amount of time inserted between the switching edges of 
+ *      PWM signals.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -439,8 +440,7 @@ sl_status_t sl_si91x_pwm_trigger_special_event(sl_pwm_svt_t direction, sl_si91x_
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_configure_dead_time(sl_si91x_pwm_dt_config_t *dead_time, sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to reset the required channel of MCPWM.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -457,8 +457,7 @@ sl_status_t sl_si91x_pwm_configure_dead_time(sl_si91x_pwm_dt_config_t *dead_time
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_reset_channel(sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to reset the counter from the required channel of MCPWM
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -475,8 +474,7 @@ sl_status_t sl_si91x_pwm_reset_channel(sl_pwm_channel_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_reset_counter(sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to set base time period control for the required MCPWM channel.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -493,9 +491,10 @@ sl_status_t sl_si91x_pwm_reset_counter(sl_pwm_channel_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_control_period(sl_pwm_post_t post_scale, sl_pwm_pre_t pre_scale, sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
- * @brief This API is used to control fault A/B pin output value to be overridden when a fault condition occurs.
+/***************************************************************************/ /**
+ * @brief This API is used to control fault A/B pin output value to be overridden 
+ *      when fault condition occurs. When it is asserted, these pins can optionally drive
+ *      each of the PWM I/O pins to a defined state.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -513,9 +512,9 @@ sl_status_t sl_si91x_pwm_control_period(sl_pwm_post_t post_scale, sl_pwm_pre_t p
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_control_fault(sl_pwm_fault_t fault, sl_pwm_output_t pwm_output, sl_pwm_override_value_t value);
 
-/***************************************************************************/
-/**
- * @brief This API is used to set the mode of the base timer for the required channel
+/***************************************************************************/ /**
+ * @brief This API is used to set the mode of base timer for required channel.
+ *      There are different modes set like free running mode, single event mode etc.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -529,9 +528,9 @@ sl_status_t sl_si91x_pwm_control_fault(sl_pwm_fault_t fault, sl_pwm_output_t pwm
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_set_base_timer_mode(sl_pwm_base_timer_mode_t mode, sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
- * @brief This API is used to set output mode for the MCPWM
+/***************************************************************************/ /**
+ * @brief This API is used to set output mode for the MCPWM. There are two modes
+ *  we can configure i.e., independent mode (or) complementary mode.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -545,9 +544,9 @@ sl_status_t sl_si91x_pwm_set_base_timer_mode(sl_pwm_base_timer_mode_t mode, sl_p
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_set_output_mode(sl_pwm_mode_t mode, sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
- * @brief Handles all interrupt flags of MCPWM.
+/***************************************************************************/ /**
+ * @brief Handles all interrupt flags of MCPWM. It handles IRQ handler, Timer
+ *       interrupt and callback event which handles different events.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -563,8 +562,7 @@ sl_status_t sl_si91x_pwm_set_output_mode(sl_pwm_mode_t mode, sl_pwm_channel_t ch
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_register_callback(sl_si91x_pwm_callback_t *callback_event, uint16_t flag);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Unregisters the PWM event
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -581,8 +579,7 @@ sl_status_t sl_si91x_pwm_register_callback(sl_si91x_pwm_callback_t *callback_eve
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_unregister_callback(uint16_t flag);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to read the counter current value
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -591,7 +588,7 @@ sl_status_t sl_si91x_pwm_unregister_callback(uint16_t flag);
  *      - \ref sl_si91x_pwm_control_period
  *      - \ref sl_si91x_pwm_register_callback
  *      - \ref sl_si91x_pwm_start
- * @param[in] counter_value: Counter value
+ * @param[out] counter_value: Counter value
  * @param[in] channel: Channel number (1 to 4) of type \ref sl_pwm_channel_t
  * @return returns status 0 if successful,
  *         else error code as follows:
@@ -601,9 +598,9 @@ sl_status_t sl_si91x_pwm_unregister_callback(uint16_t flag);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_read_counter(uint16_t *counter_value, sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
- * @brief This API is used to get time period counter direction status of the required MCPWM channel
+/***************************************************************************/ /**
+ * @brief This API is used to get time period counter direction status of 
+ *       required MCPWM channel whether counter up / down.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -621,9 +618,9 @@ sl_status_t sl_si91x_pwm_read_counter(uint16_t *counter_value, sl_pwm_channel_t 
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_get_counter_direction(uint8_t *counter_direction, sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
- * @brief Controls dead time insertion at the rising edge or falling edge of any four channels
+/***************************************************************************/ /**
+ * @brief Controls dead time insertion at rise edge (or) fall edge of any four channels.
+ *     Dead time applies only to PWM output pair, which are in complementary mode.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -642,8 +639,7 @@ sl_status_t sl_si91x_pwm_get_counter_direction(uint8_t *counter_direction, sl_pw
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_control_dead_time(sl_pwm_dead_time_t dead_time, uint32_t flag);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to clear the interrupts of MCPWM
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -660,9 +656,9 @@ sl_status_t sl_si91x_pwm_control_dead_time(sl_pwm_dead_time_t dead_time, uint32_
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_clear_interrupt(uint32_t flag);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to get the interrupt status of interrupt flags of MCPWM.
+ *       Events which are raised can be identified by checking the status.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -676,9 +672,9 @@ sl_status_t sl_si91x_pwm_clear_interrupt(uint32_t flag);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_get_interrupt_status(uint32_t flag, uint16_t *intr_status);
 
-/***************************************************************************/
-/**
- * @brief This API is used to control duty cycle control parameters for the required MCPWM channel
+/***************************************************************************/ /**
+ * @brief This API is used to control duty cycle control parameters for the 
+ *     required MCPWM channel. It can enable (or) disable duty cycle updation.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -696,9 +692,9 @@ sl_status_t sl_si91x_pwm_get_interrupt_status(uint32_t flag, uint16_t *intr_stat
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_configure_duty_cycle(sl_pwm_duty_cycle_t duty_cycle, uint32_t value, sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
- * @brief This API is used to control the output override operation of MCPWM
+/***************************************************************************/ /**
+ * @brief  This API is used to control the output override operation of MCPWM.
+ *     It is used to set / reset the PWM output override enable.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
  *      - \ref sl_si91x_pwm_set_configuration
@@ -713,8 +709,7 @@ sl_status_t sl_si91x_pwm_configure_duty_cycle(sl_pwm_duty_cycle_t duty_cycle, ui
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_output_override(sl_pwm_override_t override, sl_pwm_output_t pwm_output);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to control the override control parameter, output is in sync with PWM time period
  *        depending on operating mode
  * @pre Pre-conditions:
@@ -731,8 +726,7 @@ sl_status_t sl_si91x_pwm_output_override(sl_pwm_override_t override, sl_pwm_outp
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_control_override(sl_pwm_override_t override, sl_pwm_output_override_t value);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to control override value for the required output of MCPWM
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -751,8 +745,7 @@ sl_status_t sl_si91x_pwm_control_override_value(sl_pwm_override_t override,
                                                 sl_pwm_output_t pwm_output,
                                                 sl_pwm_override_value_t value);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to control output fault override control parameters for the required PWM output
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -781,8 +774,7 @@ sl_status_t sl_si91x_pwm_control_override_value(sl_pwm_override_t override,
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_control_output_fault(sl_pwm_output_fault_t output_fault, uint32_t value);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to control the generation of a special event trigger for the required channel of MCPWM
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -796,8 +788,7 @@ sl_status_t sl_si91x_pwm_control_output_fault(sl_pwm_output_fault_t output_fault
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_control_special_event_trigger(sl_pwm_event_t event);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to control dead time control parameters for the required channel.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -816,8 +807,7 @@ sl_status_t sl_si91x_pwm_control_special_event_trigger(sl_pwm_event_t event);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_select_dead_time(sl_pwm_dead_time_t dead_time, uint32_t value);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to select duty cycle for the required MCPWM channel.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -832,8 +822,7 @@ sl_status_t sl_si91x_pwm_select_dead_time(sl_pwm_dead_time_t dead_time, uint32_t
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_set_duty_cycle(uint32_t duty_cycle, sl_pwm_channel_t channel);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to get duty cycle for the required MCPWM channel.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -848,8 +837,7 @@ sl_status_t sl_si91x_pwm_set_duty_cycle(uint32_t duty_cycle, sl_pwm_channel_t ch
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_get_duty_cycle(sl_pwm_channel_t channel, uint32_t *duty_cycle);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to enable the use of an external trigger for base time counter
  *        increment or decrement of MCPWM
  * @pre Pre-conditions:
@@ -865,8 +853,7 @@ sl_status_t sl_si91x_pwm_get_duty_cycle(sl_pwm_channel_t channel, uint32_t *duty
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_enable_external_trigger(sl_pwm_trigger_t enable);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief Get time period for the required channel.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_pwm_init
@@ -881,8 +868,7 @@ sl_status_t sl_si91x_pwm_enable_external_trigger(sl_pwm_trigger_t enable);
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_get_time_period(sl_pwm_channel_t channel, uint16_t *time_period);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to initialize PWM pins and clock.
  * @param[in] pwm_init: Pointer to the structure of type \ref sl_pwm_init_t
  * @return returns status 0 if successful,
@@ -892,8 +878,7 @@ sl_status_t sl_si91x_pwm_get_time_period(sl_pwm_channel_t channel, uint16_t *tim
 ******************************************************************************/
 sl_status_t sl_si91x_pwm_init(sl_pwm_init_t *pwm_init);
 
-/***************************************************************************/
-/**
+/***************************************************************************/ /**
  * @brief This API is used to initialize PWM event pins.
  * @param[in] pwm_fault: Pointer to the structure of type \ref sl_pwm_fault_init_t
  * @return returns status 0 if successful,

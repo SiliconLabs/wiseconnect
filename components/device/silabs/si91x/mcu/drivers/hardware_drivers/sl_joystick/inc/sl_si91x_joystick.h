@@ -54,7 +54,7 @@ extern "C" {
 /*******************************************************************************
  *****************************   DATA TYPES   *********************************
  ******************************************************************************/
-/// @brief Enumeration for finding the position of Joystick.
+/// @brief Enumeration for finding the position of the Joystick.
 typedef enum {
   SL_JOYSTICK_NONE, ///< Not pressed
   SL_JOYSTICK_C,    ///< Center
@@ -64,7 +64,7 @@ typedef enum {
   SL_JOYSTICK_W,    ///< West
 } sl_joystick_position_t;
 
-/// @brief Enumeration for Joystick state (ENABLE / DISABLE) enum.
+/// @brief Enumeration for the Joystick state (ENABLE/DISABLE) enum.
 typedef enum {
   SL_JOYSTICK_DISABLED, ///< Joystick data acquisition is disabled
   SL_JOYSTICK_ENABLED,  ///< Joystick data acquisition is enabled
@@ -74,8 +74,8 @@ typedef enum {
 // Prototypes
 
 /***************************************************************************/ /**
- * sl_status_t sl_si91x_joystick_init(void)
- * Initialize Joystick.
+ * Initialize the Joystick. ADC will configure here to read the different 
+ * voltage based on different Joystick position.
  *
  * @param[in]  None.
  * @return status 0 if successful,
@@ -85,8 +85,7 @@ typedef enum {
 sl_status_t sl_si91x_joystick_init(void);
 
 /***************************************************************************/ /**
- * sl_status_t sl_si91x_joystick_get_position(sl_joystick_state_t state, sl_joystick_position_t *pos)
- * Getting the direction of Joystick.
+ * Getting the direction/position of the Joystick.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_joystick_init 
@@ -95,7 +94,9 @@ sl_status_t sl_si91x_joystick_init(void);
 *
  *
  * @param[in]  state  : Joystick enable/disable
+ *                ( \ref sl_joystick_state_t )
  * @param[in]  pos    : position of joystick.
+ *                ( \ref sl_joystick_position_t)
  * @return status 0 if successful, else error code as follow:
  * -        \ref SL_STATUS_OK (0x0000) - Success 
 *-
@@ -104,7 +105,6 @@ sl_status_t sl_si91x_joystick_init(void);
 sl_status_t sl_si91x_joystick_get_position(sl_joystick_state_t state, sl_joystick_position_t *pos);
 
 /***************************************************************************/ /**
- * sl_status_t sl_si91x_joystick_start(sl_joystick_state_t state)
  * Start/Enable the Joystick.
  *
  * @pre Pre-conditions:
@@ -112,16 +112,14 @@ sl_status_t sl_si91x_joystick_get_position(sl_joystick_state_t state, sl_joystic
 *
  *
  * @param[in]  state    : Joystick enable/disable.
- *
- * @return status 0 if successful, else error code as follow:
- *-         \ref SL_STATUS_OK (0x0000) - Success 
-*-
+ *                ( \ref sl_joystick_state_t )
+ * @return status 0 if successful, else error code
+ *         \ref SL_STATUS_OK (0x0000) - Success \n
  *         \ref SL_STATUS_ABORT (0x0006) - Operation aborted.
  ******************************************************************************/
 sl_status_t sl_si91x_joystick_start(sl_joystick_state_t state);
 
 /***************************************************************************/ /**
- * sl_status_t sl_si91x_joystick_stop(sl_joystick_state_t state)
  * Stop/Disable the Joystick.
  *
  * @pre Pre-conditions:
@@ -131,7 +129,7 @@ sl_status_t sl_si91x_joystick_start(sl_joystick_state_t state);
 *
  *
  * @param[in]  state    : Joystick enable/disable.
- *
+ *                ( \ref sl_joystick_state_t )
  * @return status 0 if successful, else error code
  *         \ref SL_STATUS_OK (0x0000) - Success 
 *-

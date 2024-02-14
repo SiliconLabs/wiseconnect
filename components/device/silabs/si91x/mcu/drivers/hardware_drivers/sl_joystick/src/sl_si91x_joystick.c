@@ -40,9 +40,7 @@
 #define DVISION_FACTOR        0         // Division factor
 #define ADC_MAX_OP_VALUE      4096      // ADC maximum output value
 #define DIVISION_MULTIPLIER \
-  1000                              // For changing reference voltage as     \
-                                    // float value and again change as whole \
-                                    // value to compare the int value.
+  1000 // For changing reference voltage as float value and again change as whole value to compare the int value.
 #define AUXADC_DATA_TWELFTH BIT(11) // Reading twelfth bit of AUXADC_DATA register.
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************

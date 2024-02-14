@@ -44,12 +44,15 @@
 #include "sl_si91x_core_utilities.h"
 #include <stdbool.h>
 #include <string.h>
-
-extern sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_t *buffer);
+#include "sl_wifi_callback_framework.h"
 
 static sl_status_t send_multicast_request(sl_wifi_interface_t interface,
                                           const sl_ip_address_t *ip_address,
                                           uint8_t command_type);
+sl_status_t sl_net_host_get_by_name(const char *host_name,
+                                    const uint32_t timeout,
+                                    const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
+                                    sl_ip_address_t *sl_ip_address);
 
 extern bool device_initialized;
 
@@ -170,6 +173,41 @@ sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
   return sl_wifi_stop_ap(SL_WIFI_AP_INTERFACE);
+}
+
+sl_status_t sl_net_wifi_btr_init(sl_net_interface_t interface,
+                                 const void *configuration,
+                                 void *context,
+                                 sl_net_event_handler_t event_handler)
+{
+  UNUSED_PARAMETER(interface);
+  UNUSED_PARAMETER(context);
+  sl_status_t status = SL_STATUS_FAIL;
+
+  // Set the user-defined event handler for BTR mode
+  sl_si91x_register_event_handler(event_handler);
+
+  status = sl_wifi_init(configuration, NULL, sl_wifi_default_event_handler);
+
+  return status;
+}
+
+sl_status_t sl_net_wifi_btr_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id)
+{
+  UNUSED_PARAMETER(interface);
+  sl_status_t status;
+  sl_net_wifi_btr_profile_t profile;
+
+  // Get the BTR profile using the provided profile_id
+  status = sl_net_get_profile(SL_NET_WIFI_BTR_INTERFACE, profile_id, &profile);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  status = sl_wifi_btr_up(SL_WIFI_BTR_INTERFACE, &profile.config);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  // Set the BTR profile
+  status = sl_net_set_profile(SL_NET_WIFI_BTR_INTERFACE, profile_id, &profile);
+  return status;
 }
 
 sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)

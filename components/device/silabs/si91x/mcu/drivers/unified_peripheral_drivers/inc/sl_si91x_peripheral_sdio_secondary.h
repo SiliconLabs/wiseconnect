@@ -87,6 +87,7 @@ extern "C" {
 #define SL_SDIO_TOUT_INT_UNMSK    BIT(7) // This bit is used to unmask "read FIFO wait time over" interrupt
 
 /***************************************************************************/ /**
+ * Initializes the SDIO Secondary at peripheral layer.
  * This API initializes the SDIO secondary, by default SDIO pin access with TA
  * this API gives the pin access to M4, selects the SDIO mode and enable the sdio
  * primary interrupts
@@ -228,7 +229,7 @@ __INLINE uint32_t sl_si91x_sdio_secondary_get_enabled_pending_interrupts(void)
  *
  * @return No of block counts
  ******************************************************************************/
-__INLINE uint16_t sl_si91x_sdio_secondary_get_block_cnt(void)
+__INLINE uint32_t sl_si91x_sdio_secondary_get_block_cnt(void)
 {
   // return the block count for last received command 53
   return SDIO->SDIO_BLK_CNT_REG;
@@ -241,7 +242,7 @@ __INLINE uint16_t sl_si91x_sdio_secondary_get_block_cnt(void)
  *
  * @return Length of each block
  ******************************************************************************/
-__INLINE uint16_t sl_si91x_sdio_secondary_get_block_len(void)
+__INLINE uint32_t sl_si91x_sdio_secondary_get_block_len(void)
 {
   // return the length of each block for last received command 53
   return SDIO->SDIO_BLK_LEN_REG;

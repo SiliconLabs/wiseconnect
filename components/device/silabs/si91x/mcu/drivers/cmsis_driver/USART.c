@@ -221,8 +221,8 @@ static  USART_PIN uart1_rx     = { RTE_UART1_RX_PORT ,RTE_UART1_RX_PIN ,RTE_UART
 static  USART_PIN uart1_cts    = { RTE_UART1_CTS_PORT ,RTE_UART1_CTS_PIN ,RTE_UART1_CTS_MUX ,RTE_UART1_CTS_PAD };
 static  USART_PIN uart1_rts    = { RTE_UART1_RTS_PORT ,RTE_UART1_RTS_PIN ,RTE_UART1_RTS_MUX ,RTE_UART1_RTS_PAD };
 
-#if (RTE_UART1_CHNL_UDMA_TX_EN == 1)
-void UART1_UDMA_Tx_Event (uint32_t event ,uint8_t dmaCh);
+#if defined(RTE_UART1_CHNL_UDMA_TX_EN) && (RTE_UART1_CHNL_UDMA_TX_EN == 1)
+void UART1_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
 
 static USART_DMA UART1_UDMA_TX_CHNL = {
 		{
@@ -241,8 +241,8 @@ static USART_DMA UART1_UDMA_TX_CHNL = {
 		UART1_UDMA_Tx_Event
 };
 #endif
-#if (RTE_UART1_CHNL_UDMA_RX_EN == 1)
-void UART1_UDMA_Rx_Event (uint32_t event ,uint8_t dmaCh);
+#if defined(RTE_UART1_CHNL_UDMA_RX_EN) && (RTE_UART1_CHNL_UDMA_RX_EN == 1)
+void UART1_UDMA_Rx_Event (uint32_t event ,uint32_t dmaCh);
 static USART_DMA UART1_UDMA_RX_CHNL = {
 		{
 				UDMA_MODE_BASIC,
@@ -290,12 +290,12 @@ static  USART_RESOURCES UART1_Resources = {
 
 		UART1,             // ADDRESS
 		UART1_IRQn,       // IRQn
-#if (RTE_UART1_CHNL_UDMA_TX_EN == 1)
+#if defined(RTE_UART1_CHNL_UDMA_TX_EN) && (RTE_UART1_CHNL_UDMA_TX_EN == 1)
 		&UART1_UDMA_TX_CHNL,
 #else
 		NULL,
 #endif
-#if (RTE_UART1_CHNL_UDMA_RX_EN == 1)
+#if defined(RTE_UART1_CHNL_UDMA_RX_EN) && (RTE_UART1_CHNL_UDMA_RX_EN == 1)
 		&UART1_UDMA_RX_CHNL,
 #else
 		NULL,
@@ -336,8 +336,8 @@ static  USART_PIN ulp_uart_rx     = { RTE_ULP_UART_RX_PORT ,RTE_ULP_UART_RX_PIN 
 static  USART_PIN ulp_uart_cts    = { RTE_ULP_UART_CTS_PORT ,RTE_ULP_UART_CTS_PIN ,RTE_ULP_UART_CTS_MUX ,0 };
 static  USART_PIN ulp_uart_rts    = { RTE_ULP_UART_RTS_PORT ,RTE_ULP_UART_RTS_PIN ,RTE_ULP_UART_RTS_MUX ,0 };
 
-#if (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
-void ULPUART_UDMA_Tx_Event (uint32_t event ,uint8_t dmaCh);
+#if defined(RTE_ULPUART_CHNL_UDMA_TX_EN) && (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
+void ULPUART_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
 static USART_DMA ULPUART_UDMA_TX_CHNL = {
 		{
 				UDMA_MODE_BASIC,
@@ -355,8 +355,8 @@ static USART_DMA ULPUART_UDMA_TX_CHNL = {
 		ULPUART_UDMA_Tx_Event
 };
 #endif
-#if (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
-void ULPUART_UDMA_Rx_Event (uint32_t event ,uint8_t dmaCh);
+#if defined(RTE_ULPUART_CHNL_UDMA_RX_EN) && (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
+void ULPUART_UDMA_Rx_Event (uint32_t event ,uint32_t dmaCh);
 static USART_DMA ULPUART_UDMA_RX_CHNL = {
 		{
 				UDMA_MODE_BASIC,
@@ -404,13 +404,13 @@ static  USART_RESOURCES ULP_UART_Resources = {
 
 		ULP_UART,           // ADDRESS
 		ULPSS_UART_IRQn,    // IRQn
-#if (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
-		{&ULPUART_UDMA_TX_CHNL},
+#if defined(RTE_ULPUART_CHNL_UDMA_TX_EN) && (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
+		&ULPUART_UDMA_TX_CHNL,
 #else
 		NULL,
 #endif
-#if (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
-		{&ULPUART_UDMA_RX_CHNL},
+#if defined(RTE_ULPUART_CHNL_UDMA_RX_EN) && (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
+		&ULPUART_UDMA_RX_CHNL,
 #else
 		NULL,
 #endif
@@ -817,7 +817,7 @@ void RSI_M4SSUart1Handler(void)
 #endif
 }
 
-#if (RTE_UART1_CHNL_UDMA_TX_EN == 1)
+#if defined(RTE_UART1_CHNL_UDMA_TX_EN) && (RTE_UART1_CHNL_UDMA_TX_EN == 1)
 void UART1_UDMA_Tx_Event (uint32_t event,uint8_t dmaCh)
 {
 #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
@@ -828,7 +828,7 @@ void UART1_UDMA_Tx_Event (uint32_t event,uint8_t dmaCh)
 }
 #endif
 
-#if (RTE_UART1_CHNL_UDMA_RX_EN == 1)
+#if defined(RTE_UART1_CHNL_UDMA_RX_EN) && (RTE_UART1_CHNL_UDMA_RX_EN == 1)
 void UART1_UDMA_Rx_Event (uint32_t event,uint8_t dmaCh)
 {
 #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
@@ -1016,7 +1016,7 @@ void RSI_ULPUartHandler(void)
 #endif	
 }
 
-#if (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
+#if defined(RTE_ULPUART_CHNL_UDMA_TX_EN) && (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
 void ULPUART_UDMA_Tx_Event (uint32_t event,uint8_t dmaCh)
 {
 #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
@@ -1027,7 +1027,7 @@ void ULPUART_UDMA_Tx_Event (uint32_t event,uint8_t dmaCh)
 }
 #endif
 
-#if (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
+#if defined(RTE_ULPUART_CHNL_UDMA_RX_EN) && (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
 void ULPUART_UDMA_Rx_Event (uint32_t event,uint8_t dmaCh)
 {	
 #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
@@ -1142,26 +1142,26 @@ void usart_transfer_complete_callback(uint32_t channel, void *data) {
   (void)(&data);
 #if (SL_USART0_DMA_CONFIG_ENABLE == 1)
   if(channel == RTE_USART0_CHNL_UDMA_TX_CH) {
-    USART_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, channel, &USART0_Resources);
+    USART_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &USART0_Resources);
   }
   if(channel == RTE_USART0_CHNL_UDMA_RX_CH) {
-    USART_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, channel, &USART0_Resources);
+    USART_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &USART0_Resources);
   }
 #endif
 #if (SL_UART1_DMA_CONFIG_ENABLE == 1)
   if(channel == RTE_UART1_CHNL_UDMA_TX_CH) {
-    USART_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, channel, &UART1_Resources);
+    USART_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &UART1_Resources);
   }
   if(channel == RTE_UART1_CHNL_UDMA_RX_CH) {
-    USART_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, channel, &UART1_Resources);
+    USART_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &UART1_Resources);
   }
 #endif
 #if (SL_ULPUART_DMA_CONFIG_ENABLE == 1)
   if(channel == RTE_ULPUART_CHNL_UDMA_TX_CH) {
-    USART_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, channel, &ULP_UART_Resources);
+    USART_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &ULP_UART_Resources);
   }
   if(channel == RTE_ULPUART_CHNL_UDMA_RX_CH) {
-    USART_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, channel, &ULP_UART_Resources);
+    USART_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &ULP_UART_Resources);
   }
 #endif
 }
@@ -1175,26 +1175,26 @@ void usart_error_callback(uint32_t channel, void *data) {
   (void)(&data);
 #if (SL_USART0_DMA_CONFIG_ENABLE == 1)
   if(channel == RTE_USART0_CHNL_UDMA_TX_CH) {
-    USART_UDMA_Tx_Event(UDMA_EVENT_ERROR, channel, &USART0_Resources);
+    USART_UDMA_Tx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &USART0_Resources);
   }
   if(channel == RTE_USART0_CHNL_UDMA_RX_CH) {
-    USART_UDMA_Rx_Event(UDMA_EVENT_ERROR, channel, &USART0_Resources);
+    USART_UDMA_Rx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &USART0_Resources);
   }
 #endif
 #if (SL_UART1_DMA_CONFIG_ENABLE == 1)
   if(channel == RTE_UART1_CHNL_UDMA_TX_CH) {
-    USART_UDMA_Tx_Event(UDMA_EVENT_ERROR, channel, &UART1_Resources);
+    USART_UDMA_Tx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &UART1_Resources);
   }
   if(channel == RTE_UART1_CHNL_UDMA_RX_CH) {
-    USART_UDMA_Rx_Event(UDMA_EVENT_ERROR, channel, &UART1_Resources);
+    USART_UDMA_Rx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &UART1_Resources);
   }
 #endif
 #if (SL_ULPUART_DMA_CONFIG_ENABLE == 1)
   if(channel == RTE_ULPUART_CHNL_UDMA_TX_CH) {
-    USART_UDMA_Tx_Event(UDMA_EVENT_ERROR, channel, &ULP_UART_Resources);
+    USART_UDMA_Tx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &ULP_UART_Resources);
   }
   if(channel == RTE_ULPUART_CHNL_UDMA_RX_CH) {
-    USART_UDMA_Rx_Event(UDMA_EVENT_ERROR, channel, &ULP_UART_Resources);
+    USART_UDMA_Rx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &ULP_UART_Resources);
   }
 #endif
 }

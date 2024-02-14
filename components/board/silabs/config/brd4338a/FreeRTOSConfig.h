@@ -42,50 +42,152 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "si91x_device.h"
 
+//-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
+
+//  <o>Minimal stack size [words] <0-65535>
+//  <i> Stack for idle task and default task stack in words.
+//  <i> Default: 256
+#define configMINIMAL_STACK_SIZE 256
+
+//  <o>Total heap size [bytes] <0-0xFFFFFFFF>
+//  <i> Heap memory size in bytes.
+//  <i> Default: 51200
+#define configTOTAL_HEAP_SIZE 51200
+
+//  <o>Kernel tick frequency [Hz] <0-0xFFFFFFFF>
+//  <i> Kernel tick rate in Hz.
+//  <i> Default: 1000
+#define configTICK_RATE_HZ 1000
+
+//  <o>Timer task stack depth [words] <0-65535>
+//  <i> Stack for timer task in words.
+//  <i> Default: 512
+#define configTIMER_TASK_STACK_DEPTH (configMINIMAL_STACK_SIZE * 2)
+
+//  <o>Timer task priority <0-56>
+//  <i> Timer task priority.
+//  <i> Default: 55 (High)
+#define configTIMER_TASK_PRIORITY 55
+
+//  <o>Timer queue length <0-1024>
+//  <i> Timer command queue length.
+//  <i> Default: 5
+#define configTIMER_QUEUE_LENGTH 5
+
+//  <q>Use time slicing
+//  <i> Enable setting to use timeslicing.
+//  <i> Default: 1
+#define configUSE_TIME_SLICING 1
+
+//  <q>Use TICKLESS IDLE for Energy Management
+//  <i> Enable setting to use Tickless Idle.
+//  <i> Default: 0
+#define configUSE_TICKLESS_IDLE 0
+
+//  <q>Idle should yield
+//  <i> Control Yield behaviour of the idle task.
+//  <i> Default: 1
+#define configIDLE_SHOULD_YIELD 1
+
+//  <o>Check for stack overflow
+//    <0=>Disable <1=>Method one <2=>Method two
+//  <i> Enable or disable stack overflow checking.
+//  <i> Callback function vApplicationStackOverflowHook implementation is required when stack checking is enabled.
+//  <i> Not applicable to the Win32 port.
+//  <i> Default: 0
+#define configCHECK_FOR_STACK_OVERFLOW 0
+
+//  <q>Use idle hook
+//  <i> Enable callback function call on each idle task iteration.
+//  <i> Callback function vApplicationIdleHook implementation is required when idle hook is enabled.
+//  <i> Default: 0
+#define configUSE_IDLE_HOOK 0
+
+//  <q>Use tick hook
+//  <i> Enable callback function call during each tick interrupt.
+//  <i> Callback function vApplicationTickHook implementation is required when tick hook is enabled.
+//  <i> Default: 0
+#define configUSE_TICK_HOOK 0
+
+//  <q>Use deamon task startup hook
+//  <i> Enable callback function call when timer service starts.
+//  <i> Callback function vApplicationDaemonTaskStartupHook implementation is required when deamon task startup hook is enabled.
+//  <i> Default: 0
+#define configUSE_DAEMON_TASK_STARTUP_HOOK 0
+
+//  <q>Use malloc failed hook
+//  <i> Enable callback function call when out of dynamic memory.
+//  <i> Callback function vApplicationMallocFailedHook implementation is required when malloc failed hook is enabled.
+//  <i> Default: 0
+#define configUSE_MALLOC_FAILED_HOOK 0
+
+//  <o>Queue registry size
+//  <i> Define maximum number of queue objects registered for debug purposes.
+//  <i> The queue registry is used by kernel aware debuggers to locate queue and semaphore structures and display associated text names.
+//  <i> Default: 8
+#define configQUEUE_REGISTRY_SIZE 8
+
+// <h> Port Specific Features
+// <i> Enable and configure port specific features.
+// <i> Check FreeRTOS documentation for definitions that apply for the used port.
+
+//  <q>Use Floating Point Unit
+//  <i> Using Floating Point Unit (FPU) affects context handling.
+//  <i> Enable FPU when application uses floating point operations.
+//  <i> Default: 1
+#define configENABLE_FPU 1
+
+//  <q>Use Memory Protection Unit
+//  <i> Using Memory Protection Unit (MPU) requires detailed memory map definition.
+//  <i> This setting is only releavant for MPU enabled ports.
+//  <i> Default: 0
+#define configENABLE_MPU 0
+
+// </h>
+
+// <h> Thread Local Storage Settings
+//  <o>Thread local storage pointers
+//  <i> Thread local storage (or TLS) allows the application writer to store
+//  <i> values inside a task's control block, making the value specific to
+//  <i> (local to) the task itself.
+//  <i> Default: 0
+#define configNUM_USER_THREAD_LOCAL_STORAGE_POINTERS 0
+// </h>
+
+//  <q> Use Threadsafe Errno
+//  <i> Enable Threadsafe Errno support.
+//  <i> Default: 0
+#define configUSE_POSIX_ERRNO 1
+
+//------------- <<< end of configuration section >>> ---------------------------
+
 extern uint32_t SystemCoreClock;
-/* FIX ME: Uncomment and set to the specifications for your MCU. */
+
 #define configCPU_CLOCK_HZ                      SystemCoreClock
-#define configUSE_DAEMON_TASK_STARTUP_HOOK      0
 #define configENABLE_BACKWARD_COMPATIBILITY     1
 #define configUSE_PREEMPTION                    1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
 #define configMAX_PRIORITIES                    (56)
-#define configTICK_RATE_HZ                      ((TickType_t)1000)
-#define configMINIMAL_STACK_SIZE                ((unsigned short)256)
-#define configTOTAL_HEAP_SIZE                   ((size_t)(50 * 1024))
 #define configMAX_TASK_NAME_LEN                 (15)
 #define configUSE_TRACE_FACILITY                1
 #define configUSE_16_BIT_TICKS                  0
-#define configIDLE_SHOULD_YIELD                 1
 #define configUSE_CO_ROUTINES                   0
 #define configUSE_MUTEXES                       1
 #define configUSE_RECURSIVE_MUTEXES             1
-#define configQUEUE_REGISTRY_SIZE               8
 #define configUSE_APPLICATION_TASK_TAG          0
 #define configUSE_COUNTING_SEMAPHORES           1
 #define configUSE_ALTERNATIVE_API               0
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS 5 /* FreeRTOS+FAT requires 2 pointers if a CWD is supported. */
 #define configRECORD_STACK_HIGH_ADDRESS         1
 
-/* Hook function related definitions. */
-#define configUSE_TICK_HOOK            0
-#define configUSE_IDLE_HOOK            0
-#define configUSE_MALLOC_FAILED_HOOK   0
-#define configCHECK_FOR_STACK_OVERFLOW 0 /* Not applicable to the Win32 port. */
-
 /* Software timer related definitions. */
-#define configUSE_TIMERS             1
-#define configTIMER_TASK_PRIORITY    (configMAX_PRIORITIES - 1)
-#define configTIMER_QUEUE_LENGTH     5
-#define configTIMER_TASK_STACK_DEPTH (configMINIMAL_STACK_SIZE * 2)
+#define configUSE_TIMERS 1
 
 /* Event group related definitions. */
 #define configUSE_EVENT_GROUPS 1
 
-#define configUSE_TIME_SLICING 1
-
 /* Run time stats gathering definitions. */
-/* FIX ME: Uncomment if you plan to use Tracealyzer.*/
+
 unsigned long ulGetRunTimeCounterValue(void);
 void vConfigureTimerForRunTimeStats(void);
 #define configGENERATE_RUN_TIME_STATS 0
@@ -167,7 +269,7 @@ extern void vLoggingPrint(const char *pcMessage);
 
 /* Map the logging task's printf to the board specific output function. */
 #include <stdio.h>
-#define configPRINT_STRING(X) printf(X); /* FIX ME: Change to your devices console print acceptance function. */
+#define configPRINT_STRING(X) printf(X); /* : Change to your devices console print acceptance function. */
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
 #define configLOGGING_MAX_MESSAGE_LENGTH 100
@@ -196,15 +298,6 @@ to all Cortex-M ports, and do not rely on any particular library functions. */
 See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS))
-
-// <h> Thread Local Storage Settings
-//  <o>Thread local storage pointers
-//  <i> Thread local storage (or TLS) allows the application writer to store
-//  <i> values inside a task's control block, making the value specific to
-//  <i> (local to) the task itself.
-//  <i> Default: 0
-#define configNUM_USER_THREAD_LOCAL_STORAGE_POINTERS 0
-// </h>
 
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME "Si917_SoC"

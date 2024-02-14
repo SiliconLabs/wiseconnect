@@ -42,6 +42,8 @@
 - When send data is received by receiver channel, it compares the data received with transferred data
 - Loopback test will be pass after successful data comparison.
 
+**Note!** Make sure to use non-ROM I2S APIs for this application and SL_I2S driver.
+
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements

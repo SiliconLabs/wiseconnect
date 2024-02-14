@@ -11,10 +11,10 @@ package: platform
 quality: production
 sdk:
   id: gecko_sdk
-  version: 4.4.0
+  version: 4.4.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.2
+    version: 3.1.3
 readme:
   - path: readme.md
 source:
@@ -28,6 +28,7 @@ component:
   - id: sl_system
   - id: stdio
   - id: atomic
+  - id: sl_common
   - id: iostream_retarget_stdio
   - id: iostream_uart_si91x
     instance:

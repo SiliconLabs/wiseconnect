@@ -206,7 +206,7 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
     NVIC_EnableIRQ(ULP_PININT0_NVIC_NAME);
     NVIC_SetPriority(ULP_PININT0_NVIC_NAME, ULP_GPIO_INTERRUPT_PRIORITY);
     gpio_ulp_pin_int_callback_fptr[int_no] = gpio_callback;
-    sl_si91x_gpio_configure_ulp_pin_interrupt(int_no, (sl_si91x_gpio_interrupt_config_flag_t)flags, gpio->pin);
+    sl_si91x_gpio_configure_ulp_pin_interrupt((uint8_t)int_no, (sl_si91x_gpio_interrupt_config_flag_t)flags, gpio->pin);
   }
   if (gpio->port == PORTF) {
     if (gpio->pin > PORTF_PIN_MAX_VALUE) {
@@ -221,7 +221,7 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
       return SL_STATUS_INVALID_PARAMETER;
     }
     gpio_uulp_pin_int_callback_fptr[int_no] = gpio_callback;
-    sl_si91x_gpio_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)flags, int_no);
+    sl_si91x_gpio_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)flags, (uint8_t)int_no);
   }
   return SL_STATUS_OK;
 }

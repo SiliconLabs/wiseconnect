@@ -20,6 +20,7 @@
 #include "system_si91x.h"
 #include "sl_si91x_driver.h"
 #include "em_core_generic.h"
+#include "cmsis_os2.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
@@ -28,6 +29,11 @@
 #define SECTOR_SIZE 4096 //Sector size of Si9117 common flash
 #define FLASH_ERASE 1    //flash_sector_erase_enable value for erase operation
 #define FLASH_WRITE 0    //flash_sector_erase_enable value for write operation
+
+/******************************************************
+ *               Variable Definitions
+ ******************************************************/
+static osSemaphoreId_t nvm3_Sem;
 
 /*******************************************************************************
  ***************************  Local VARIABLES  ********************************
@@ -78,7 +84,7 @@ bool rsi_flash_erase_sector(uint32_t *sector_address)
   //Obtain actual TA flash access address
   uint32_t address_ta = (uint32_t)sector_address - TA_M4_ADDRESS_OFFSET;
   //Erase sector
-  status = sl_si91x_command_to_write_common_flash(address_ta, dummy_buff, SECTOR_SIZE, FLASH_ERASE);
+  status = (int)sl_si91x_command_to_write_common_flash(address_ta, dummy_buff, SECTOR_SIZE, FLASH_ERASE);
   return status;
 }
 
@@ -91,7 +97,7 @@ bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
   int status          = 0;
   uint32_t address_ta = (uint32_t)address - TA_M4_ADDRESS_OFFSET;
   //Write to flash
-  status = sl_si91x_command_to_write_common_flash(address_ta, data, length, FLASH_WRITE);
+  status = (int)sl_si91x_command_to_write_common_flash(address_ta, data, (uint16_t)length, FLASH_WRITE);
   return status;
 }
 
@@ -107,4 +113,30 @@ bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uin
   //Read data from flash
   memcpy((uint8_t *)data, (uint8_t *)address_ta, length * 4);
   return 1;
+}
+
+/***************************************************************************/ /**
+ * @details
+ * The implementation of lock-begin based on free RTOs.
+ * @note
+ * The default NVM3 protection functions can be substituted by the application
+ * if other syncronization functions are available and disabling interrupts for
+ * extended periods is not desired.
+ ******************************************************************************/
+void nvm3_lockBegin(void)
+{
+
+  if (nvm3_Sem == NULL) {
+    nvm3_Sem = osSemaphoreNew(1, 0, NULL);
+    osSemaphoreRelease(nvm3_Sem);
+  }
+  osSemaphoreAcquire(nvm3_Sem, osWaitForever);
+}
+/***************************************************************************/ /**
+ * @details
+ * The implementation of lock-end based on free RTOs.
+ ******************************************************************************/
+void nvm3_lockEnd(void)
+{
+  osSemaphoreRelease(nvm3_Sem);
 }

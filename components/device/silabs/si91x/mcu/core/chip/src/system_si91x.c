@@ -99,6 +99,9 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   RSI_CLK_M4ssRefClkConfig(M4CLK, ULP_32MHZ_RC_CLK);
   RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
 
+  /* As TA is configuring RFref clock as reference clock, so to avoid switching b/w RC & RF clocks, TA clock is selected as RF ref clock from MCU*/
+  MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = 3;
+
   /* Configuring RO-32KHz Clock for BG_PMU */
   RSI_IPMU_ClockMuxSel(1);
   /* Configuring RO-32KHz Clock for LF-FSM */

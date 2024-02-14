@@ -52,7 +52,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 -  Default ecc curve is SEP256R1. 
 -  Default key size is 256
--  To change the ecc curve and key size, change the corresponding curve define and set secpr1_key_size_select variable to the correct key_size in app.c
+-  To change the ecc curve and key size, set secpr1_key_size_select variable to the correct key_size in app.c
 
 ## Test the Application
 

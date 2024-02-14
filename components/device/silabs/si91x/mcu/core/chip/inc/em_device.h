@@ -42,16 +42,7 @@
 #ifndef EM_DEVICE_H
 #define EM_DEVICE_H
 
-#if defined(CONNECTIVITY_PLATFORM)
-#ifndef SL_NVM3_PRESENT
-#include "rsi_m4.h"
-#endif
-
-#define EXT_IRQ_COUNT 96 // 98
-
-#define SRAM_BASE 0x0
-#define SRAM_SIZE 0x2FC00
-#endif // CONNECTIVITY_PLATFORM
+#define EXT_IRQ_COUNT SI91X_EXT_IRQ_COUNT
 
 #if defined(SLI_SI917)
 #include "si91x_device.h"

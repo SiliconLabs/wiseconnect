@@ -64,14 +64,14 @@
 
 #define DMA_DESC_REG_VALID (0xA0 << 8)
 
-#define TA_wakeup_M4 BIT(2)
-#define TA_is_active BIT(3)
-#define M4_wakeup_TA BIT(0)
-#define M4_is_active BIT(1)
-
-#define ARM_MASK_1 0xE000E100
-#define ARM_MASK_1 0xE000E100
-#define ARM_MASK_1 0xE000E100
+#define TA_wakeup_M4             BIT(2)
+#define TA_is_active             BIT(3)
+#define M4_wakeup_TA             BIT(0)
+#define M4_is_active             BIT(1)
+#define NWP_DEINIT_IN_COMM_FLASH BIT(7)
+#define ARM_MASK_1               0xE000E100
+#define ARM_MASK_1               0xE000E100
+#define ARM_MASK_1               0xE000E100
 
 #ifndef BIT
 #define BIT(x) (1 << (x))

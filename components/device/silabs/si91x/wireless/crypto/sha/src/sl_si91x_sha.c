@@ -24,8 +24,16 @@
 #include "sl_si91x_crypto_thread.h"
 #endif
 #include "sl_si91x_driver.h"
+#include "sl_si91x_sha.h"
 #include <string.h>
 
+static const uint8_t sha_digest_len_table[] = { [SL_SI91x_SHA_1]   = SL_SI91x_SHA_1_DIGEST_LEN,
+                                                [SL_SI91x_SHA_256] = SL_SI91x_SHA_256_DIGEST_LEN,
+                                                [SL_SI91x_SHA_384] = SL_SI91x_SHA_384_DIGEST_LEN,
+                                                [SL_SI91x_SHA_512] = SL_SI91x_SHA_512_DIGEST_LEN,
+                                                [SL_SI91x_SHA_224] = SL_SI91x_SHA_224_DIGEST_LEN };
+
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t sha_pending(uint8_t sha_mode,
                                uint8_t *msg,
                                uint16_t msg_length,
@@ -44,9 +52,7 @@ static sl_status_t sha_pending(uint8_t sha_mode,
   sl_si91x_packet_t *packet;
   sl_si91x_sha_request_t *request = (sl_si91x_sha_request_t *)malloc(sizeof(sl_si91x_sha_request_t));
 
-  if (request == NULL) {
-    return SL_STATUS_ALLOCATION_FAILED;
-  }
+  SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
   memset(request, 0, sizeof(sl_si91x_sha_request_t));
 
@@ -83,17 +89,60 @@ static sl_status_t sha_pending(uint8_t sha_mode,
     free(request);
     if (buffer != NULL)
       sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
-    return status;
   }
+  VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  memcpy(digest, packet->data, packet->length);
+
+  SL_ASSERT(packet->length == sha_digest_len_table[sha_mode]);
+  memcpy(digest, packet->data, sha_digest_len_table[sha_mode]);
 
   free(request);
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  if (buffer != NULL)
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
 
   return status;
 }
+
+#else
+static sl_status_t sha_side_band(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, uint8_t *digest)
+{
+  // Input pointer check
+  if (msg == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  sl_status_t status              = SL_STATUS_OK;
+  sl_si91x_sha_request_t *request = (sl_si91x_sha_request_t *)malloc(sizeof(sl_si91x_sha_request_t));
+
+  if (request == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  memset(request, 0, sizeof(sl_si91x_sha_request_t));
+
+  // Fill Algorithm type SHA - 4
+  request->algorithm_type = SHA;
+
+  request->algorithm_sub_type = sha_mode;
+
+  // Fill total msg length
+  request->total_msg_length = msg_length;
+
+  // Fill msg ptr
+  request->msg = msg;
+
+  // Fill msg ptr
+  request->output = digest;
+
+  status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                                 request,
+                                                 (sizeof(sl_si91x_sha_request_t)),
+                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+  free(request);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
+}
+#endif
 
 sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, uint8_t *digest)
 {
@@ -112,6 +161,11 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
   }
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_sha_mutex);
 #endif
+
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  status = sha_side_band(sha_mode, msg, msg_length, digest);
+  return status;
+#else
 
   while (total_len) {
     // Check total length
@@ -161,4 +215,5 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
 
   SL_PRINTF(SL_SHA_EXIT, CRYPTO, LOG_INFO, "status: %4x", status);
   return status;
+#endif
 }

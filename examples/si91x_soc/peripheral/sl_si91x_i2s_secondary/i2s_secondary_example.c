@@ -58,7 +58,7 @@ void i2s_example_init(void)
 
   // Filling the data out array with integer values
   for (uint32_t i = 0; i < I2S_SECONDARY_BUFFER_SIZE; i++) {
-    i2s_secondary_data_out[i] = i;
+    i2s_secondary_data_out[i] = (uint16_t)i;
   }
   do {
     //Fetch I2S driver version

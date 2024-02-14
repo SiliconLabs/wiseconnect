@@ -23,11 +23,11 @@
 #include "rsi_ccp_user_config.h"
 #include "rsi_chip.h"
 #include "rsi_board.h"
-
 #include "sl_sleeptimer.h"
 #include "sl_si91x_led_instances.h"
 #include "rsi_debug.h"
 #include "sl_si91x_led.h"
+#include "blinky.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************

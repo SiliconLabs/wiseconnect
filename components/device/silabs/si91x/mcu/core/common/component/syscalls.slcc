@@ -20,3 +20,4 @@ provides:
     condition: [sl_usart_iostream]
 requires:
   - name: si91x_debug
+  - name: sl_common

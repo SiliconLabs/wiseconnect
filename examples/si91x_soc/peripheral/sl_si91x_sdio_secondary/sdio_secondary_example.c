@@ -20,7 +20,7 @@
  * This example demonstrates data transfer through SDIO. The device acts as a
  * slave which interfaces with an external sdio host/master.
 ============================================================================**/
-
+#include "sdio_secondary_example.h"
 #include "UDMA.h"
 #include "clock_update.h"
 #include "sl_si91x_sdio_secondary_drv_config.h"
@@ -37,12 +37,16 @@
 #define SW_CORE_CLK 1
 
 #if SW_CORE_CLK
-#define ICACHE2_ADDR_TRANSLATE_1_REG  *(volatile uint32_t *)(0x20280000 + 0x24)
+#define ICACHE2_ADDR_TRANSLATE_1_REG *(volatile uint32_t *)(0x20280000 + 0x24)
+#ifndef MISC_CFG_SRAM_REDUNDANCY_CTRL
 #define MISC_CFG_SRAM_REDUNDANCY_CTRL *(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x18)
-#define MISC_CONFIG_MISC_CTRL1        *(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x44)
-#define MISC_QUASI_SYNC_MODE          *(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x84)
-#define SOC_PLL_REF_FREQUENCY         40000000  // PLL input REFERENCE clock 40MHZ
-#define PS4_SOC_FREQ                  150000000 // PLL out clock 150MHz
+#endif // MISC_CFG_SRAM_REDUNDANCY_CTRL
+#ifndef MISC_CONFIG_MISC_CTRL1
+#define MISC_CONFIG_MISC_CTRL1 *(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x44)
+#endif // MISC_CONFIG_MISC_CTRL1
+#define MISC_QUASI_SYNC_MODE  *(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x84)
+#define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock 40MHZ
+#define PS4_SOC_FREQ          150000000 // PLL out clock 150MHz
 
 void sl_si91x_switch_m4_frequency(void);
 #endif // SW_CORE_CLK
@@ -75,7 +79,8 @@ boolean_t receive_data_flag      = true;
 /*******************************************************************************
  ******************************   FUNCTIONS   **********************************
  ******************************************************************************/
-
+void gdpma_callbak(uint8_t dma_ch);
+void application_callback(uint8_t events);
 #if SW_CORE_CLK
 /***************************************************************************/ /**
  * @brief       
@@ -118,6 +123,7 @@ void application_callback(uint8_t events)
  ******************************************************************************/
 void gdpma_callbak(uint8_t dma_ch)
 {
+  UNUSED_PARAMETER(dma_ch);
   dmaDone = 1;
 }
 
@@ -203,7 +209,7 @@ void sdio_secondary_example_process_action(void)
 
         // Filled data in tx buffer
         for (int i = 0; i < XFER_BUFFER_SIZE; i++) {
-          xfer_buffer[i] = (i / 256) + 1;
+          xfer_buffer[i] = (uint8_t)(i / 256) + 1;
         }
 
         // Validation for executing the API only once.

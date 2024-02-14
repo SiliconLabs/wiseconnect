@@ -33,6 +33,7 @@
 #include "rsi_debug.h"
 #include "sl_status.h"
 #include "sl_common.h"
+#include "stdlib.h"
 
 #define SPI_BIT_WIDTH 8
 
@@ -122,7 +123,12 @@ sl_status_t sli_memlcd_spi_shutdown()
 sl_status_t sli_memlcd_spi_tx(const void *data, unsigned len)
 {
   const char *buffer = data;
-  char temp[len];
+  char *temp         = (char *)malloc(len);
+
+  if (temp == NULL) {
+    DEBUGOUT("\r\n Failed to allocate memory for temp buffer\r\n");
+    return SL_STATUS_FAIL;
+  }
 
   ARM_DRIVER_SPI *SPIdrv = &Driver_SSI_ULP_MASTER;
 
@@ -138,6 +144,9 @@ sl_status_t sli_memlcd_spi_tx(const void *data, unsigned len)
 
   // Trigger the SPI data transfer
   status_spi = SPIdrv->Send(temp, len);
+
+  // Free allocated memory
+  free(temp);
 
   return SL_STATUS_OK;
 }

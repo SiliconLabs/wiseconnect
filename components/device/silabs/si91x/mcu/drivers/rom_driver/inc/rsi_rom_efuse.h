@@ -26,6 +26,7 @@
  *  @{
  *
  */
+#include "rsi_efuse.h"
 #include "rsi_ccp_user_config.h"
 #include "rsi_packing.h"
 #if defined(A11_ROM)

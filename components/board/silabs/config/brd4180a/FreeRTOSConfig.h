@@ -178,7 +178,7 @@
 //  <q> Use Threadsafe Errno
 //  <i> Enable Threadsafe Errno support.
 //  <i> Default: 0
-#define configUSE_POSIX_ERRNO 0
+#define configUSE_POSIX_ERRNO 1
 
 //------------- <<< end of configuration section >>> ---------------------------
 

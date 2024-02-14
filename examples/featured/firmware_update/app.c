@@ -131,6 +131,7 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
+  printf("Application Started\n");
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
@@ -281,6 +282,12 @@ sl_status_t update_firmware()
         status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
         printf("\r\nWi-Fi Deinit status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);
+
+#ifdef SL_NCP_UART_INTERFACE
+        printf("Waiting for firmware upgrade to complete\n");
+        osDelay(40000);
+        printf("Waiting Done\n");
+#endif
 
         status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
         printf("\r\nWi-Fi Init status : %lx\r\n", status);

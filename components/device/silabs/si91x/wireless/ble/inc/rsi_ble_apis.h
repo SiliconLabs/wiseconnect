@@ -2071,6 +2071,12 @@ int32_t rsi_ble_disconnect(int8_t *remote_dev_address);
  * -
  *             BIT(3)    Connected state 
  * -
+ *             BIT(4)    Extended Advertising state 
+ * -
+ *             BIT(5)    Extended Scanning state
+ * -            
+ *             BIT(6)    Extended Initiating state
+ * -            
  * @return The following values are returned:
  * -     0 - Success 
  * -

@@ -23,7 +23,7 @@ This application demonstrates how Silicon Labs device gets info from SNTP server
 - WiFi Access point with internet
 - SiWx91x Wi-Fi Evaluation Kit
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A, BRD4339B](https://www.silabs.com/)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/)
   - Host MCU Eval Kit. This example has been tested with:
@@ -96,24 +96,25 @@ The application can be configured to suit your requirements and development envi
 
 ## Test the Application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+Before running the application, configure your access point (AP) in one of the following security modes in order for your Silicon Labs device to connect to it:
+- Open
+- WPA-PSK
+- WPA2-PSK
 
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 - Build the application.
 - Flash, run and debug the application.
 
-- Configure the Access point (internet AP) in OPEN / WPA-PSK / WPA2-PSK mode in order to connect Silicon Labs device in STA mode.
+When the application starts running, the following will take place:
 
-- Connect to SNTP server and request server for information.
-  Eg: SNTP server ip address 128.138.141.172
-  
-- After the program gets executed, Silicon Labs Device would be connected to Access point and gets IP.
+- The Silicon Labs device will connect to your AP and obtain an IP address.
 
-- After successful connection with access Point, Device starts connection with the SNTP server.
+- The device will initiate a connection to the SNTP server.
 
-- After successful connection, module will send request to the server for time,date and Server Details.
+- The device will send a request to the SNTP server for time, date, and server details.
 
-- Application gets  all the information requested.
+- The SNTP server will send back the information requested.
 
-- Analyze the sniffer capture for NTP server response which contains date and time.
+- The SNTP server response containing the date and time can be seen in sniffer logs.
 
- ![output_prints](resources/readme/output.png)
+![output_prints](resources/readme/output.png)

@@ -26,7 +26,6 @@
 #include "sl_system_process_action.h"
 #endif // SL_CATALOG_KERNEL_PRESENT
 #include <rsi_common_app.h>
-#include <rsi_driver.h>
 #include "rsi_common_utils.h"
 #include "cmsis_os2.h"
 
