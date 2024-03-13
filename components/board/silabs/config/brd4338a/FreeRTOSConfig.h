@@ -27,18 +27,18 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define FREERTOS_CONFIG_H
 
 /*-----------------------------------------------------------
-*
-* These definitions should be adjusted for your particular hardware and
-* application requirements.
-*
-* THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
-* FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
-* http://www.freertos.org/a00110.html
-*
-* The bottom of this file contains some constants specific to running the UDP
-* stack in this demo.  Constants specific to FreeRTOS+TCP itself (rather than
-* the demo) are contained in FreeRTOSIPConfig.h.
-*----------------------------------------------------------*/
+ *
+ * These definitions should be adjusted for your particular hardware and
+ * application requirements.
+ *
+ * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
+ * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
+ * http://www.freertos.org/a00110.html
+ *
+ * The bottom of this file contains some constants specific to running the UDP
+ * stack in this demo.  Constants specific to FreeRTOS+TCP itself (rather than
+ * the demo) are contained in FreeRTOSIPConfig.h.
+ *----------------------------------------------------------*/
 
 #include "si91x_device.h"
 
@@ -84,6 +84,27 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //  <i> Default: 0
 #define configUSE_TICKLESS_IDLE 0
 
+#if (configUSE_TICKLESS_IDLE == 1)
+
+//  At least "n" further complete tick periods will pass before the kernel is
+//  due to transition an application task out of the Blocked state,
+//  where "n" is set by the configEXPECTED_IDLE_TIME_BEFORE_SLEEP
+#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP 75
+
+//  Define the following macro to set xExpectedIdleTime to 0
+//  if the application prevents the device Sleep
+#define configPRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING(x) sl_si91x_pre_supress_ticks_and_sleep(&x)
+
+//  Activate SiWx917 MCU specific low power functionality
+#define configPRE_SLEEP_PROCESSING(x) sl_si91x_m4_sleep_wakeup(&x)
+
+//  It can be used to reverse the actions of configPRE_SLEEP_PROCESSING(),
+//  and in so doing, return the Micro-controller back to its fully operational
+//  state.
+#define configPOST_SLEEP_PROCESSING(x) sl_si91x_post_sleep_update_ticks(&x)
+
+#endif
+
 //  <q>Idle should yield
 //  <i> Control Yield behaviour of the idle task.
 //  <i> Default: 1
@@ -92,44 +113,57 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //  <o>Check for stack overflow
 //    <0=>Disable <1=>Method one <2=>Method two
 //  <i> Enable or disable stack overflow checking.
-//  <i> Callback function vApplicationStackOverflowHook implementation is required when stack checking is enabled.
-//  <i> Not applicable to the Win32 port.
-//  <i> Default: 0
+//  <i> Callback function vApplicationStackOverflowHook implementation is
+//  required when stack checking is enabled. <i> Not applicable to the Win32
+//  port. <i> Default: 0
 #define configCHECK_FOR_STACK_OVERFLOW 0
+
+#if (configUSE_TICKLESS_IDLE == 1)
 
 //  <q>Use idle hook
 //  <i> Enable callback function call on each idle task iteration.
-//  <i> Callback function vApplicationIdleHook implementation is required when idle hook is enabled.
-//  <i> Default: 0
+//  <i> Callback function vApplicationIdleHook implementation is required when
+//  idle hook is enabled. <i> Default: 0
+#define configUSE_IDLE_HOOK 1
+#endif
+
+#if (configUSE_TICKLESS_IDLE == 0)
+
+//  <q>Use idle hook
+//  <i> Enable callback function call on each idle task iteration.
+//  <i> Callback function vApplicationIdleHook implementation is required when
+//  idle hook is enabled. <i> Default: 0
 #define configUSE_IDLE_HOOK 0
+#endif
 
 //  <q>Use tick hook
 //  <i> Enable callback function call during each tick interrupt.
-//  <i> Callback function vApplicationTickHook implementation is required when tick hook is enabled.
-//  <i> Default: 0
+//  <i> Callback function vApplicationTickHook implementation is required when
+//  tick hook is enabled. <i> Default: 0
 #define configUSE_TICK_HOOK 0
 
 //  <q>Use deamon task startup hook
 //  <i> Enable callback function call when timer service starts.
-//  <i> Callback function vApplicationDaemonTaskStartupHook implementation is required when deamon task startup hook is enabled.
-//  <i> Default: 0
+//  <i> Callback function vApplicationDaemonTaskStartupHook implementation is
+//  required when deamon task startup hook is enabled. <i> Default: 0
 #define configUSE_DAEMON_TASK_STARTUP_HOOK 0
 
 //  <q>Use malloc failed hook
 //  <i> Enable callback function call when out of dynamic memory.
-//  <i> Callback function vApplicationMallocFailedHook implementation is required when malloc failed hook is enabled.
-//  <i> Default: 0
+//  <i> Callback function vApplicationMallocFailedHook implementation is
+//  required when malloc failed hook is enabled. <i> Default: 0
 #define configUSE_MALLOC_FAILED_HOOK 0
 
 //  <o>Queue registry size
 //  <i> Define maximum number of queue objects registered for debug purposes.
-//  <i> The queue registry is used by kernel aware debuggers to locate queue and semaphore structures and display associated text names.
-//  <i> Default: 8
+//  <i> The queue registry is used by kernel aware debuggers to locate queue and
+//  semaphore structures and display associated text names. <i> Default: 8
 #define configQUEUE_REGISTRY_SIZE 8
 
 // <h> Port Specific Features
 // <i> Enable and configure port specific features.
-// <i> Check FreeRTOS documentation for definitions that apply for the used port.
+// <i> Check FreeRTOS documentation for definitions that apply for the used
+// port.
 
 //  <q>Use Floating Point Unit
 //  <i> Using Floating Point Unit (FPU) affects context handling.
@@ -138,9 +172,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configENABLE_FPU 1
 
 //  <q>Use Memory Protection Unit
-//  <i> Using Memory Protection Unit (MPU) requires detailed memory map definition.
-//  <i> This setting is only releavant for MPU enabled ports.
-//  <i> Default: 0
+//  <i> Using Memory Protection Unit (MPU) requires detailed memory map
+//  definition. <i> This setting is only releavant for MPU enabled ports. <i>
+//  Default: 0
 #define configENABLE_MPU 0
 
 // </h>
@@ -191,8 +225,9 @@ extern uint32_t SystemCoreClock;
 unsigned long ulGetRunTimeCounterValue(void);
 void vConfigureTimerForRunTimeStats(void);
 #define configGENERATE_RUN_TIME_STATS 0
-//#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() 	vConfigureTimerForRunTimeStats()
-//#define portGET_RUN_TIME_COUNTER_VALUE()         	ulGetRunTimeCounterValue()
+// #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
+// vConfigureTimerForRunTimeStats() #define portGET_RUN_TIME_COUNTER_VALUE()
+// ulGetRunTimeCounterValue()
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES           0
@@ -201,7 +236,7 @@ void vConfigureTimerForRunTimeStats(void);
 /* Currently the TCP/IP stack is using dynamic allocation, and the MQTT task is
  * using static allocation. */
 #define configSUPPORT_DYNAMIC_ALLOCATION 1
-#define configSUPPORT_STATIC_ALLOCATION  0
+#define configSUPPORT_STATIC_ALLOCATION  1
 
 /* Set the following definitions to 1 to include the API function, or zero
  * to exclude the API function. */
@@ -230,12 +265,12 @@ void vConfigureTimerForRunTimeStats(void);
 #define configPRIO_BITS 6 /* 6 priority levels. */
 
 /* This demo makes use of one or more example stats formatting functions.  These
- * format the raw data provided by the uxTaskGetSystemState() function in to human
- * readable ASCII form.  See the notes in the implementation of vTaskList() within
- * FreeRTOS/Source/tasks.c for limitations.  configUSE_STATS_FORMATTING_FUNCTIONS
- * is set to 2 so the formatting functions are included without the stdio.h being
- * included in tasks.c.  That is because this project defines its own sprintf()
- * functions. */
+ * format the raw data provided by the uxTaskGetSystemState() function in to
+ * human readable ASCII form.  See the notes in the implementation of
+ * vTaskList() within FreeRTOS/Source/tasks.c for limitations.
+ * configUSE_STATS_FORMATTING_FUNCTIONS is set to 2 so the formatting functions
+ * are included without the stdio.h being included in tasks.c.  That is because
+ * this project defines its own sprintf() functions. */
 #define configUSE_STATS_FORMATTING_FUNCTIONS 0
 
 /* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
@@ -246,13 +281,21 @@ standard names. */
 
 /* Ensure Cortex-M port compatibility. */
 #define SysTick_Handler xPortSysTickHandler
-//#define xPortSysTickHandler 						SysTick_Handler
+// #define xPortSysTickHandler
+// SysTick_Handler
 
 /* Assert call defined for debug builds. */
 void vAssertCalled(const char *pcFile, uint32_t ulLine);
 
 #define configASSERT(x)       \
   if ((x) == 0) {             \
+    taskDISABLE_INTERRUPTS(); \
+    for (;;)                  \
+      ;                       \
+  }
+
+#define configASSERTNULL(x)   \
+  if ((x) == NULL) {          \
     taskDISABLE_INTERRUPTS(); \
     for (;;)                  \
       ;                       \
@@ -278,8 +321,9 @@ extern void vLoggingPrint(const char *pcMessage);
  * and a time stamp. */
 #define configLOGGING_INCLUDE_TIME_AND_TASK_NAME 1
 
-/* The priority at which the tick interrupt runs.  This should probably be kept at 1. */
-//#define configKERNEL_INTERRUPT_PRIORITY           1
+/* The priority at which the tick interrupt runs.  This should probably be kept
+ * at 1. */
+// #define configKERNEL_INTERRUPT_PRIORITY           1
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"
 function. */
@@ -302,4 +346,4 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME "Si917_SoC"
 
-#endif /* FREERTOS_CONFIG_H */
+#endif // FREERTOS_CONFIG_H

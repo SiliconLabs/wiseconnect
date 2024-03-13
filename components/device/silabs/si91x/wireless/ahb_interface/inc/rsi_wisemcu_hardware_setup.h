@@ -102,5 +102,6 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
                             uint32_t vector_offset,
                             uint32_t mode);
 void sl_si91x_configure_ram_retention(uint32_t rams_in_use, uint32_t rams_retention_during_sleep);
+uint32_t sli_si91x_is_sleep_ready();
 
 /*End of file not truncated*/

@@ -15,6 +15,7 @@ typedef enum sl_ble_event {
   GATT_PROFILE,
   GET_ATT_VALUE,
   GET_ATT_DESC,
+  GATT_CHAR_SERV,
 } sl_ble_event_t;
 
 typedef enum sl_async_wifi_event {

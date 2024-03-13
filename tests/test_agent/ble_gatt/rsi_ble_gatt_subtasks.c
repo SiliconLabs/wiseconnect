@@ -729,6 +729,7 @@ void rsi_ble_task_on_conn(void *parameters)
       } break;
 
       case RSI_BLE_GATT_CHAR_SERVICES: {
+        PRINT_EVENT_START(GATT_CHAR_SERV, BLE);
         LOG_EVENT("\nRSI_BLE_GATT_CHAR_SERVICES\n");
         LOG_PRINT("in gatt test:RSI_BLE_GATT_CHAR_SERVICES -conn%d \n", l_conn_id);
         if (!service_char_mem_init) {
@@ -790,6 +791,7 @@ void rsi_ble_task_on_conn(void *parameters)
         }
         LOG_EVENT("RSI_BLE_GATT_CHAR_SERVICES - resolved, -conn%d\n", l_conn_id);
         rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_BLE_GATT_CHAR_SERVICES);
+        PRINT_EVENT_END();
       } break;
 
       case RSI_BLE_GATT_DESC_SERVICES: {
