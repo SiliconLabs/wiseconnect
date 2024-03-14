@@ -215,6 +215,7 @@ static sl_net_wifi_ap_profile_t wifi_ap_profile_4 = {
         .client_idle_timeout = 0xFF,
         .dtim_beacon_count = 3,
         .maximum_clients = 3,
+        .is_11n_enabled = 0,
     },
     .ip = {
         .mode = SL_IP_MANAGEMENT_STATIC_IP,
@@ -245,6 +246,7 @@ static sl_net_wifi_ap_profile_t wifi_ap_profile_6 = {
         .client_idle_timeout = 0xFF,
         .dtim_beacon_count = 3,
         .maximum_clients = 3,
+        .is_11n_enabled = 0,
     },
     .ip = {
         .mode = SL_IP_MANAGEMENT_STATIC_IP,

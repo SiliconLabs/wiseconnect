@@ -40,10 +40,10 @@
 #include <string.h>
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t chachapoly_pending(sl_si91x_chachapoly_config_t *config,
-                                      uint16_t chunk_length,
-                                      uint8_t chachapoly_flags,
-                                      uint8_t *output)
+static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *config,
+                                                uint16_t chunk_length,
+                                                uint8_t chachapoly_flags,
+                                                uint8_t *output)
 {
   sl_status_t status        = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer  = NULL;
@@ -144,7 +144,7 @@ static sl_status_t chachapoly_pending(sl_si91x_chachapoly_config_t *config,
 }
 
 #else
-static sl_status_t chachapoly_side_band(sl_si91x_chachapoly_config_t *config, uint8_t *output)
+static sl_status_t sli_si91x_chachapoly_side_band(sl_si91x_chachapoly_config_t *config, uint8_t *output)
 {
 
   sl_status_t status = SL_STATUS_FAIL;
@@ -216,7 +216,7 @@ sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *o
   uint16_t total_length = config->msg_length;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = chachapoly_side_band(config, output);
+  status = sli_si91x_chachapoly_side_band(config, output);
   return status;
 #endif
 
@@ -248,7 +248,7 @@ sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *o
     }
 
     // Send the current chunk length message
-    status = chachapoly_pending(config, chunk_len, chachapoly_flags, output);
+    status = sli_si91x_chachapoly_pending(config, chunk_len, chachapoly_flags, output);
     if (status != SL_STATUS_OK) {
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
       mutex_result = sl_si91x_crypto_mutex_release(crypto_chachapoly_mutex);

@@ -2,7 +2,14 @@ id: sl_ulp_timer
 label: ULP Timer
 package: platform
 description: >
-  Si91x Ultra Low Power (ULP) Timer API
+  ULP Timer will works in ultra low power mode and is designed to consume very little power in comparison
+  to regular timers. It allows a microcontroller to wake up periodically, perform a task, and then return 
+  to a low-power state to conserve energy.
+  Configurable parameters in ULP Timer:  
+    - Timer Instance 
+    - Timer Type
+    - Timer Mode
+    - Timer Direction
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -16,5 +23,10 @@ include:
     - path: "sl_si91x_ulp_timer.h"
 provides:
   - name: sl_ulp_timer
+define:
+  - name: SL_ULP_TIMER
 requires:
   - name: romdriver_timer
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/ulp-timer

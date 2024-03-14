@@ -92,17 +92,18 @@ extern rsi_m4ta_desc_t crypto_desc[2];
 /*========================================================================*/
 // 11ax params
 /*========================================================================*/
-#define NOMINAL_PE                   2
-#define DCM_ENABLE                   0
-#define LDPC_ENABLE                  0
-#define NG_CB_ENABLE                 0
-#define NG_CB_VALUES                 0
-#define UORA_ENABLE                  0
-#define TRIGGER_RESP_IND             0xF
-#define IPPS_VALID_VALUE             0
-#define TX_ONLY_ON_AP_TRIG           0
-#define CONFIG_ER_SU                 0 // 0 - NO ER_SU support, 1 - Use ER_SU rates along with Non_ER_SU rates, 2 - Use ER_SU rates only
-#define SLI_SI91X_ENABLE_TWT_FEATURE 1
+#define NOMINAL_PE                              2
+#define DCM_ENABLE                              0
+#define LDPC_ENABLE                             0
+#define NG_CB_ENABLE                            0
+#define NG_CB_VALUES                            0
+#define UORA_ENABLE                             0
+#define TRIGGER_RESP_IND                        0xF
+#define IPPS_VALID_VALUE                        0
+#define TX_ONLY_ON_AP_TRIG                      0
+#define CONFIG_ER_SU                            0 // 0 - NO ER_SU support, 1 - Use ER_SU rates along with Non_ER_SU rates, 2 - Use ER_SU rates only
+#define SLI_SI91X_ENABLE_TWT_FEATURE            1
+#define SLI_SI91X_DISABLE_SU_BEAMFORMEE_SUPPORT 0
 /*=======================================================================*/
 extern bool device_initialized;
 extern bool bg_enabled;
@@ -135,7 +136,9 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
     join_request->security_type = client_configuration->security;
     if (join_request->security_type == SL_WIFI_WPA3) { //check for WPA3 security
       join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
-    } else if (join_request->security_type == SL_WIFI_WPA3_TRANSITION) { //check for WPA3 Tranisition security
+    } else if (join_request->security_type == SL_WIFI_WPA3_TRANSITION || join_request->security_type == SL_WIFI_WPA2
+               || join_request->security_type
+                    == SL_WIFI_WPA_WPA2_MIXED) { //check for WPA3 Tranisition security,WPA2 and WPA/WPA2 Mixed Mode
       join_request->join_feature_bitmap &= ~(SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED);
       join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY;
     }
@@ -156,6 +159,13 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
     join_request->ssid_len      = ap_configuration->ssid.length;
     join_request->security_type = ap_configuration->security;
     join_request->vap_id        = 0;
+    if (join_request->security_type == SL_WIFI_WPA3) { //check for WPA3 security
+      join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
+    } else if (join_request->security_type == SL_WIFI_WPA3_TRANSITION) { //check for WPA3 Tranisition security
+      join_request->join_feature_bitmap &= ~(SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED);
+      join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY;
+    }
+
     if (get_opermode() == SL_SI91X_CONCURRENT_MODE) {
       join_request->vap_id = SL_SI91X_WIFI_AP_VAP_ID; // For Concurrent mode AP vap_id should be 1 else 0.
     }
@@ -1220,6 +1230,50 @@ sl_status_t sl_wifi_get_statistics(sl_wifi_interface_t interface, sl_wifi_statis
   return status;
 }
 
+sl_status_t sl_wifi_get_operational_statistics(sl_wifi_interface_t interface,
+                                               sl_wifi_operational_statistics_t *operational_statistics)
+{
+  sl_status_t status       = SL_STATUS_OK;
+  sl_wifi_buffer_t *buffer = NULL;
+  sl_si91x_packet_t *packet;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  if (!sl_wifi_is_interface_up(interface)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
+
+  SL_WIFI_ARGS_CHECK_INVALID_INTERFACE(interface);
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(operational_statistics);
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_GET_STATS,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        NULL,
+                                        0,
+                                        SL_SI91X_WAIT_FOR_RESPONSE(30500),
+                                        NULL,
+                                        &buffer);
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  if (packet->length != sizeof(sl_wifi_operational_statistics_t)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    return SL_STATUS_FAIL;
+  }
+
+  if (packet->length > 0) {
+    memcpy(operational_statistics, packet->data, packet->length);
+  }
+
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  return status;
+}
+
 sl_status_t sl_wifi_start_statistic_report(sl_wifi_interface_t interface, sl_wifi_channel_t channel)
 {
   if (!device_initialized) {
@@ -1974,6 +2028,7 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval)
   config_11ax_params.tx_only_on_ap_trig            = TX_ONLY_ON_AP_TRIG;
   config_11ax_params.twt_support                   = SLI_SI91X_ENABLE_TWT_FEATURE;
   config_11ax_params.config_er_su                  = CONFIG_ER_SU;
+  config_11ax_params.disable_su_beamformee_support = SLI_SI91X_DISABLE_SU_BEAMFORMEE_SUPPORT;
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_11AX_PARAMS,
                                         SI91X_WLAN_CMD_QUEUE,

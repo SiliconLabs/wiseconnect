@@ -627,9 +627,12 @@ typedef enum CLK_PRESENT {
   I2S_PLL_CLK_PRESENT,   /*!< I2S PLL clock present   */
   MODEM_PLL_CLK_PRESENT, /*!< Modem PLL clock present */
 } CLK_PRESENT_T;
+
 STATIC INLINE void _usdelay(uint32_t delayUs, cdDelay delayCb)
 {
-  delayCb(delayUs);
+  if (delayCb != NULL) {
+    delayCb(delayUs);
+  }
 }
 
 rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK);

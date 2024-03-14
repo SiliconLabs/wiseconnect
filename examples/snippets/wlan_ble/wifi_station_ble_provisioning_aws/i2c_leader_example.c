@@ -87,9 +87,8 @@ static uint8_t *read_data;
 
 extern uint8_t I2C0_TRANSFER;
 
-void I2C_Init(void)
+void i2c_init(void)
 {
-
   /*I2C Initialization */
   i2c_leader_example_init();
 }

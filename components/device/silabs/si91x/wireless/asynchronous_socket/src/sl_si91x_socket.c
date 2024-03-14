@@ -117,10 +117,10 @@ int sl_si91x_bind(int socket, const struct sockaddr *addr, socklen_t addr_len)
 
   si91x_socket->state = BOUND;
 
-  // For UDP sockets with a data reception callback, create and send a socket request.
-  if (si91x_socket->recv_data_callback != NULL && si91x_socket->type == SOCK_DGRAM) {
-    int si91x_status = create_and_send_socket_request(socket, SI91X_SOCKET_LUDP, NULL);
-    SOCKET_VERIFY_STATUS_AND_RETURN(si91x_status, SI91X_NO_ERROR, SI91X_UNDEFINED_ERROR);
+  // For UDP sockets, create and send a socket request.
+  if (si91x_socket->type == SOCK_DGRAM) {
+    sl_status_t socket_create_request_status = create_and_send_socket_request(socket, SI91X_SOCKET_LUDP, NULL);
+    SOCKET_VERIFY_STATUS_AND_RETURN(socket_create_request_status, SI91X_NO_ERROR, SI91X_UNDEFINED_ERROR);
 
     si91x_socket->state = UDP_UNCONNECTED_READY;
   }
@@ -311,10 +311,6 @@ static int sli_si91x_accept_async(int socket, const struct sockaddr *addr, sockl
   memcpy((struct sockaddr *)&addr,
          &si91x_client_socket->remote_address,
          (addr_len > sizeof(struct sockaddr_in6)) ? sizeof(struct sockaddr_in6) : addr_len);
-
-  // Update addr_len based on the address family
-  addr_len = si91x_client_socket->local_address.sin6_family == AF_INET ? sizeof(struct sockaddr_in)
-                                                                       : sizeof(struct sockaddr_in6);
 
   return client_socket_id;
 }
@@ -556,6 +552,7 @@ int sl_si91x_sendto_async(int socket,
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_STREAM && si91x_socket->state != CONNECTED, ENOTCONN);
   SET_ERRNO_AND_RETURN_IF_TRUE(buffer == NULL, EFAULT);
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->state != CONNECTED && to_addr == NULL, EFAULT);
 
   // Set the data transfer callback for this socket
   si91x_socket->data_transfer_callback = callback;
@@ -744,13 +741,16 @@ int sl_si91x_select(int nfds,
                     struct timeval *timeout,
                     select_callback callback)
 {
+  UNUSED_PARAMETER(exceptfds);
+
   sl_status_t status = SL_STATUS_OK;
 
   // Define a structure to hold the select request parameters
   sl_si91x_socket_select_req_t request = { 0 };
 
   // Check if all file descriptor sets are NULL
-  if ((readfds == NULL) && (writefds == NULL) && (exceptfds == NULL)) {
+  // exceptfds are not being checked as firmware doesn't support it.
+  if ((readfds == NULL) && (writefds == NULL)) {
     SET_ERROR_AND_RETURN(EINVAL); // Invalid argument, no sets specified
   }
   // Check if the number of file descriptors (nfds) is within a valid range
@@ -772,7 +772,15 @@ int sl_si91x_select(int nfds,
     // Retrieve the si91x_socket associated with the host socket index
     si91x_socket_t *socket = get_si91x_socket(host_socket_index);
 
-    //Verifying socket existence
+    // Throw error if the socket file descriptor set by developer is not valid
+    if (socket == NULL
+        && ((readfds != NULL && FD_ISSET(host_socket_index, readfds))
+            || (writefds != NULL && FD_ISSET(host_socket_index, writefds)))) {
+      SET_ERROR_AND_RETURN(EBADF);
+    }
+
+    // If the socket is NULL, continue to iterate through other sockets.
+    // The code will reach this if clause in the case of a socket being NULL and the socket being neither set in readfds nor writefds.
     if (socket == NULL) {
       continue;
     }

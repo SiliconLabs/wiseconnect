@@ -26,7 +26,7 @@
 #define DEFAULT_ETHERNET_TX_BUFFER_COUNT  30
 #define DEFAULT_ETHERNET_RX_BUFFER_COUNT  10
 
-static void ethernet_driver_thread_main(uint32_t arg);
+static void sli_si91x_ethernet_driver_thread_main(uint32_t arg);
 
 sl_status_t sli_net_ethernet_init(const sl_ethernet_config_t *configuration,
                                   sl_ethernet_context_t *workspace,
@@ -42,9 +42,9 @@ sl_net_ethernet_api_t ethernet_interface = {
   .down   = sli_net_ethernet_down,
 };
 
-static sl_status_t sli_ethernet_init_context(sl_ethernet_context_t *workspace,
-                                             uint32_t tx_buffer_count,
-                                             uint32_t rx_buffer_count)
+static sl_status_t sli_si91x_sli_ethernet_init_context(sl_ethernet_context_t *workspace,
+                                                       uint32_t tx_buffer_count,
+                                                       uint32_t rx_buffer_count)
 {
   sl_status_t status;
 
@@ -130,7 +130,7 @@ sl_status_t sli_net_ethernet_down(void)
 {
 }
 
-static void ethernet_driver_thread_main(uint32_t arg)
+static void sli_si91x_ethernet_driver_thread_main(uint32_t arg)
 {
   sl_ethernet_context_t *workspace = (sl_ethernet_context_t *)arg;
 

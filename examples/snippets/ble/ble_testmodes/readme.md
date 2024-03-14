@@ -39,6 +39,8 @@ This application demonstrates how to test the BLE GAP peripheral role.
     - BRD4001A/BRD4002A Wireless Starter Kit Mainboard
     - BRD4325A Radio Board
   - USB TO UART converter / TTL cable
+- PSRAM Mode:  
+  - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
 - NCP
   - Silicon Labs BRD8036A Si917 QMS SB Expansion Board
   - [Silicon Labs SLWSTK6006A EFR32xG21 Wireless Starter Kit](https://www.silabs.com/development-tools/wireless/efr32xg21-wireless-starter-kit) which includes

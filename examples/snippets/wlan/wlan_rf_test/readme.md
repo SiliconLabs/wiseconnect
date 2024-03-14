@@ -71,13 +71,13 @@ The application can be configured to suit user requirements and development envi
 ```c
   sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
   sl_si91x_request_tx_test_info_t tx_test_info = {
-    .enable      = 1,          // Enable/disable tx test mode
-    .power       = 4,         // Tx RF power in the range [2:18] dBm
-    .rate        = rate,      // WLAN data rate of 6Mbps
-    .length      = 30,        // Tx packet length in the range [24:1500] bytes in burst mode, 
-    .mode        = 0,         // Selects burst mode or continuous mode
-    .channel     = 1,         // Channel number in 2.4 or 5 GHz
-    // Other configurable parameters
+  .enable    = 1,    // Enable/disable tx test mode
+    .power   = 4,    // Tx RF power in the range [2:18] dBm
+    .rate    = rate, // WLAN data rate of 6Mbps
+    .length  = 30,   // Tx packet length in the range [24:1500] bytes in burst mode,
+    .mode    = 0,    // Selects burst mode or continuous mode
+    .channel = 1,    // Channel number in 2.4 or 5 GHz
+  // Other configurable parameters
   }
 ```
 
@@ -90,13 +90,13 @@ The application can be configured to suit user requirements and development envi
 
   Receive stats pre-processor macro:
 
-    #define RECEIVE_STATS           0 // Enable/Disable receive stats testing
-    #define MAX_RECEIVE_STATS_COUNT 5 // Number of iterations for which the receive stats would be displayed
+#define RECEIVE_STATS           0 // Enable/Disable receive stats testing
+#define MAX_RECEIVE_STATS_COUNT 5 // Number of iterations for which the receive stats would be displayed
 
 **NOTE**:
     Receive stats testing should be done in a controlled environment (RF shield box or chamber).
 
-- In the Project explorer pane, expand as follows **wiseconnect3_sdk_xxx** > **components** > **si91x** > **inc** folder and open **sl_wifi_device.h** file. Change the region_code to the respective region in sl_wifi_transmit_test_configuration.
+- In app.c file change the region_code to the respective region in transmit_test_configuration.
 
         region_code - US, EU, JP, WORLD_DOMAIN, KR
 
@@ -127,13 +127,10 @@ Follow the steps below for successful execution of the application:
 ```c
   sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
   sl_si91x_request_tx_test_info_t tx_test_info = {
-    .enable      = 1,
-    .power       = 127,
-    .rate        = rate,
-    .length      = 100,
-    .mode        = 1,     // Continuous Mode
-    .channel     = 6,
-    // Other configurable parameters
+  .enable = 1, .power = 127, .rate = rate, .length = 100,
+  .mode      = 1, // Continuous Mode
+    .channel = 6,
+  // Other configurable parameters
   }                  
 ```
 
@@ -142,11 +139,7 @@ The below result is for PER Mode with Channel '6' with 6 Mbps data rate and max 
 ![Figure: Spectrum Analyzer speed 6Mbps](resources/readme/continuous_mode_spectrum_analyser.png)
 
     NOTE:
-    A) Before starting CW mode, it is required to start Continuous mode with power and channel values which is intended to be used in CW mode as follows:
-      - Start Continuous mode with intended power value and channel value; pass any valid values for rate and length
-      - Stop Continuous mode
-      - Start CW mode.
-    B) Receive stats testing should be done in a controlled environment (RF shield box or chamber).
+    A) Receive stats testing should be done in a controlled environment (RF shield box or chamber).
 
 ### RF Test with wifi 6
 
@@ -162,12 +155,12 @@ The below result is for PER Mode with Channel '6' with 6 Mbps data rate and max 
     .mode        = 1,     // Continuous Mode
     .channel     = 1,
     .aggr_enable = 0,
-  #ifdef SLI_SI917
+#ifdef SLI_SI917
     .enable_11ax            = 1, // 11AX_ENABLE 0-disable, 1-enable
     ....
-    // Other configurable parameters
-    // The description of the configurable parameters can be found in sl_si91x_request_tx_test_info_t structure
-  #endif
+// Other configurable parameters
+// The description of the configurable parameters can be found in sl_si91x_request_tx_test_info_t structure
+#endif
   }
 
   osDelay(100000); //add delay as per the requirement

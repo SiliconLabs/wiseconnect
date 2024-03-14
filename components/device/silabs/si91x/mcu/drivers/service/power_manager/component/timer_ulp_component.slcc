@@ -2,7 +2,9 @@ id: timer_ulp_component
 label: ULP Timer
 package: platform
 description: >
-  Install this component to enable execution of ULP Timer peripheral from RAM
+  ULP TIMER component will enable  Timer in the low-power mode. It moves all the peripheral dependencies to RAM. 
+  It also installs the peripheral component if already not installed. If an instantiable component then the user
+  needs to install the instance manually."
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
 
@@ -20,4 +22,3 @@ template_contribution:
     value: sl_si91x_ulp_timer.o
   - name: ulp_timer_ps2
     value: rsi_timers.o
-

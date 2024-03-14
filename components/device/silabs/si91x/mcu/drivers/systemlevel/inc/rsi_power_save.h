@@ -1630,6 +1630,17 @@ STATIC INLINE void RSI_PS_SetMCUActiveStatus(void)
 {
   P2P_STATUS_REGISTER = BIT(1);
 }
+
+/**
+ *@fn         void RSI_PS_IsPS2State(void)
+ *@brief      This API is used to check is current state is PS2 or not
+ *@return     true if PS2 state false if not
+ */
+STATIC INLINE boolean_t RSI_PS_IsPS2State(void)
+{
+  return (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS);
+}
+
 /** @} */
 
 /* @} end of RSI_POWER_SAVE */

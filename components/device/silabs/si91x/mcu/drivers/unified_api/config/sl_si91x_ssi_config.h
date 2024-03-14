@@ -38,6 +38,12 @@ extern "C" {
 // <<< Use Configuration Wizard in Context Menu >>>
 //<h> SSI Configuration
 
+//  <e>SSI UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_ssi_set_configuration API to modify the peripheral configuration.
+//  <i> Default: 1
+#define SSI_UC 1
+
 // <o SL_SSI_CLOCK_MODE> Frame Format
 //   <SL_SSI_PERIPHERAL_CPOL0_CPHA0=> Mode 0
 //   <SL_SSI_PERIPHERAL_CPOL0_CPHA1=> Mode 1
@@ -66,6 +72,8 @@ extern "C" {
 // <o SL_SSI_RECEIVE_SAMPLE_DELAY> Rx Sample Delay <0-63>
 // <i> Default: 0
 #define SL_SSI_RECEIVE_SAMPLE_DELAY 0
+
+// </e>
 
 // </h>
 // <<< end of configuration section >>>

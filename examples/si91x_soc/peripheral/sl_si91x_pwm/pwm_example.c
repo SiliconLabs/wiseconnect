@@ -28,6 +28,7 @@
 #include "rsi_chip.h"
 #include "sl_si91x_pwm.h"
 #include "sl_pwm_instances.h"
+#include "sl_si91x_peripheral_gpio.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -39,6 +40,8 @@
 #define DT_ENABLE         0x01  // Dead time enable for channel 0
 #define INTR_EVENT        0x01  // Rise PWM time period match channel 0 event
 #define DUTY_CYCLE_UPDATE 0x01  // Enable duty cycle updating bit in register
+#define OUTPUT_VALUE      1     // Output value set
+#define SL_ULP_PORT       4     // GPIO ULP port
 /*******************************************************************************
  **********************  GLOBAL variables   ************************************
  ******************************************************************************/
@@ -192,6 +195,35 @@ void pwm_example_init(void)
       break;
     }
     DEBUGOUT("PWM Control fault A/B is successful \n");
+#endif
+#ifdef SVT
+    sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(SL_SI91X_PWM_SLP_EVENT_TRIG_PIN - GPIO_MAX_PIN));
+    sl_gpio_set_pin_mode(SL_ULP_PORT,
+                         (uint8_t)(SL_SI91X_PWM_SLP_EVENT_TRIG_PIN - GPIO_MAX_PIN),
+                         ULP_GPIO_MODE_6,
+                         OUTPUT_VALUE);
+    sl_si91x_gpio_enable_pad_selection(SL_SI91X_PWM_SLP_EVENT_TRIG_PAD);
+    sl_gpio_set_pin_mode(SL_SI91X_PWM_SLP_EVENT_TRIG_PORT,
+                         SL_SI91X_PWM_SLP_EVENT_TRIG_PIN,
+                         SL_SI91X_PWM_SLP_EVENT_TRIG_MUX,
+                         OUTPUT_VALUE);
+    sl_si91x_pwm_svt_config_t svt_config = { SL_TIME_PERIOD_POSTSCALE_1_7,
+                                             PRESCALE_A,
+                                             sl_pwm_channel_0_config.channel };
+    // enable special event trigger
+    status = sl_si91x_pwm_control_special_event_trigger(SL_EVENT_ENABLE);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_pwm_control_special_event_trigger, Error code: %lu", status);
+      break;
+    }
+    DEBUGOUT("PWM enable SVT is successful \n");
+    // special trigger configuration
+    status = sl_si91x_pwm_trigger_special_event(COUNTDOWN, &svt_config);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_pwm_trigger_special_event, Error code: %lu", status);
+      break;
+    }
+    DEBUGOUT("PWM special trigger event is successful \n");
 #endif
     // Starts timer for channel
     status = sl_si91x_pwm_start(sl_pwm_channel_0_config.channel);

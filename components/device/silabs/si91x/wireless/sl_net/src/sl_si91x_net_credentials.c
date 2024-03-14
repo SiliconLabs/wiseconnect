@@ -60,12 +60,9 @@ sl_status_t sl_si91x_delete_credential(sl_net_credential_id_t id, sl_net_credent
 
 static sl_si91x_cert_type_t convert_to_si91x_cert_type(sl_net_credential_id_t id, sl_net_credential_type_t type)
 {
-  if (id == SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID) {
-    return SL_SI91X_EAP_CLIENT;
-  }
   switch (type) {
     case SL_NET_SIGNING_CERTIFICATE:
-      if (id == SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID) {
+      if ((id == SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID) || (id == SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID)) {
         return SL_SI91X_EAP_CA_CERTIFICATE;
       }
       switch (id & SL_NET_CREDENTIAL_GROUP_MASK) {
@@ -77,6 +74,10 @@ static sl_si91x_cert_type_t convert_to_si91x_cert_type(sl_net_credential_id_t id
       break;
 
     case SL_NET_CERTIFICATE:
+      if (id == SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID) {
+        return SL_SI91X_EAP_CLIENT;
+      }
+
       switch (id & SL_NET_CREDENTIAL_GROUP_MASK) {
         case SL_NET_TLS_CLIENT_CREDENTIAL_START:
           return SL_SI91X_TLS_CLIENT;
@@ -109,7 +110,11 @@ static sl_si91x_cert_type_t convert_to_si91x_cert_type(sl_net_credential_id_t id
           break;
       }
       break;
-
+    case SL_NET_PACK_FILE:
+      if (id == SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID) {
+        return SL_SI91X_FAST_PAC_FILE;
+      }
+      break;
     default:
       return 0;
   }

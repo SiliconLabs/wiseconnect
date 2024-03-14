@@ -206,6 +206,7 @@ sl_status_t sl_si91x_dac_set_configuration(sl_dac_config_t dac_config, float vre
     }
     // Configure the DAC peripheral for Static/FIFO mode.
     DAC_Init(dac_config.operating_mode, dac_config.dac_sample_rate, dac_callback_event_handler);
+    DAC_PinMux_config(dac_config.dac_pin, dac_config.dac_port);
     if (dac_config.operating_mode != SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC) {
 #ifdef SLI_SI917B0
       // Setting up the DAC output to be an input for OPAMP1.

@@ -155,7 +155,7 @@ sl_status_t sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_
  * Initialize example.
  ******************************************************************************/
 
-static const sl_wifi_device_configuration_t sl_wifi_calibration_configuration = {
+static const sl_wifi_device_configuration_t calibration_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
@@ -215,7 +215,7 @@ static void application_start(void *argument)
   iostream_usart_init();
   printf("\r\n initialised usart \r\n");
 
-  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_calibration_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &calibration_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
@@ -559,7 +559,7 @@ sl_status_t sl_process_dpd_calibration(sl_si91x_get_dpd_calib_data_t *dpd_power_
   for (i = 0; i < MAX_DPD_TRAINING_CHANNELS; i++) {
     //! Checking the region code if the channel number is above 11
     //!
-    if (!((channel_sel[i] > 11) && (sl_wifi_calibration_configuration.region_code < 2))) {
+    if (!((channel_sel[i] > 11) && (calibration_configuration.region_code < 2))) {
       tx_test_info.channel = channel_sel[i];
       status               = sl_si91x_transmit_test_start(&tx_test_info);
       if (status != SL_STATUS_OK) {

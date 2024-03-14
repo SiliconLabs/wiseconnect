@@ -41,13 +41,19 @@ extern "C" {
 
 //<h>GSPI Configuration
 
+//  <e>GSPI UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_gspi_set_configuration API to modify the peripheral configuration.
+//  <i> Default: 1
+#define GSPI_UC 1
+
 // <o SL_GSPI_CLOCK_MODE> Mode
 //   <SL_GSPI_MODE_0=> Mode 0
 //   <SL_GSPI_MODE_3=> Mode 3
 // <i> Selection of the GSPI Mode.
 #define SL_GSPI_CLOCK_MODE SL_GSPI_MODE_0
 
-// <o SL_GSPI_BITRATE> Bit Rate (Bits/Second) <1-40000000>
+// <o SL_GSPI_BITRATE> Bit Rate (Bits/Second) <1-116000000>
 // <i> Default: 10000000
 #define SL_GSPI_BITRATE 10000000
 
@@ -62,6 +68,8 @@ extern "C" {
 // <q SL_GSPI_SWAP_WRITE_DATA> Byte-wise Swapping Write
 // <i> Default: 0
 #define SL_GSPI_SWAP_WRITE_DATA 0
+
+// </e>
 
 // </h>
 // <<< end of configuration section >>>

@@ -76,6 +76,11 @@ sl_status_t sl_mqtt_client_deinit(sl_mqtt_client_t *client);
  *   In case of last_will_message parameter, values given in each connect() call would be considered. If value of last_will_message parameter is given as null, then no will message would be sent to the broker parameter.
  * @note
  *   Only is_clean_session, credential_id, client_id, client_id_length of sl_mqtt_client_configuration_t are considered.
+ *   If sl_mqtt_client_connect() fails, sl_mqtt_client_disconnect() should be called before calling connect again.
+ *   Topic length of last_will_message should be less than SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH.
+ *   Client ID length should be less than SI91X_MQTT_CLIENT_CLIENT_ID_MAXIMUM_LENGTH.
+ *   Username length should be less than SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH.
+ *   Password length should be less than SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH.
  ******************************************************************************/
 sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
                                    const sl_mqtt_broker_t *broker,
@@ -114,6 +119,8 @@ sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout
  *   Context which would be returned in event handler if the API is called asynchronously. The caller must ensure that the lifecycle of context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
  * @return			
  *   sl_status_t. If called asynchronously, SL_STATUS_IN_PROGRESS will be returned as status.
+ * @note
+ *  The maximum length of the topic should be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
  ******************************************************************************/
 sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
                                    const sl_mqtt_client_message_t *message,
@@ -143,7 +150,7 @@ sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
  * @return					
  *   sl_status_t. If called asynchronously, SL_STATUS_IN_PROGRESS will be returned as status.
  * @note
- *   The maximum length of the topic cannot be greater than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
+ *   The maximum length of the topic should be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
  ******************************************************************************/
 sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
                                      const uint8_t *topic,
@@ -171,6 +178,8 @@ sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
  *   Context that returns in event handler if the API is called asynchronously. The caller must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
  * @return					
  *   sl_status_t. If called asynchronously, SL_STATUS_IN_PROGRESS will be returned as status.
+ * @note
+ *   The maximum length of the topic should be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH
  ******************************************************************************/
 sl_status_t sl_mqtt_client_unsubscribe(sl_mqtt_client_t *client,
                                        const uint8_t *topic,

@@ -286,7 +286,7 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
         2. The PS1 state transition only applies to ADC FIFO Mode. Before entering this mode, kindly turn off any other sensors.
 
           ```C
-          SL_SH_ADC_PS1=1 
+          SL_SH_PS1_STATE=1 
           //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
 
           //PATH:***config/FreeRTOSConfig.h**
@@ -297,10 +297,10 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 5. **SDC Configurations**:
     - Disable the ADC **SH_ADC_ENABLE** macro in the preprocessor settings and enable the **SH_SDC_ENABLE** macro for the sdc
     - For SDC Multichannel enable the **SDC_MUTI_CHANNEL_ENABLE** macro in the preprocessor settings
-    - Disable the remining sensor configurations.
+    - Disable the remaining sensor configurations.
     - one sensor hub configuration structure is enough for the all connected sensors.
-    - we can use the ADC gpio pins for SDC also.
-    - Configure the following parameters in the ***sensorhub_config.c***  
+    - Configure the following parameters in the ***sensorhub_config.c*** 
+    - SDC will support only for the JoyStick 
 
       ```c
       .sh_sdc_config.sh_sdc_sample_ther        = SDC_SAMP_THRESH,   // Number of samples to read from SDC register
@@ -308,7 +308,6 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
       .sh_sdc_config.sh_sdc_sample_trigger_sel = SDC_SAMP_TRIG_SEL, // RTC trigger Sel(1-1ms 0-1sec)
       .sh_sdc_config.sh_sdc_cnt_trig_evnt      = SDC_CNT_TRIG_EVNT, // in which trigger event AUX-ADC Data will sampled
       ```
-    - The Joystick emulator and the GUVA sensor are compatible with both ADC. 
     
     - **SDC Configuration settings:-**
         - SensorHub interrupt mode is supported
@@ -324,7 +323,7 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
     - **SDC Power Save(PS-1)**
       - The SensorHUB interrupt mode configurations are utilized in conjunction with **SDC mode**.
           ```C
-          SL_SH_ADC_PS1=1 
+          SL_SH_PS1_STATE=1 
           //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
 
           //PATH:***config/FreeRTOSConfig.h**
@@ -342,6 +341,7 @@ AWS will ONLY begin by implementing the modifications and settings listed below.
 2. Now refer to ***Wi-Fi - AWS IoT MQTT Client (SoC)*** example readme.
 3. Make the relevant changes according to the above example readme in ***sl_net_default_values.h***,  ***aws_iot_config.h*** present in *config* folder 
 4. Modify the relevant changes in ***sensorhub_aws_app.c*** also. 
+5. Increase the buffer size AWS_IOT_MQTT_TX_BUF_LEN to 1024 in config/aws_iot_config.h
 
 
 ## Sensor Pins Setup
@@ -376,6 +376,13 @@ AWS will ONLY begin by implementing the modifications and settings listed below.
 | ADC Input | ULP_GPIO_1 [ P16 ] | Connect to ADXL335 GY61 Z axis analog output
 | 
 
+### SDC Sensor Pin Configurations
+
+| Sensor PIN | ULP GPIO PIN | Description |
+| --- | --- | --- |
+| ADC Input | ULP_GPIO_8 [ P15 ] | Connect to Joystick output (P36)
+| 
+
 ## Test the Application
 
 - Compile and run the application.
@@ -390,7 +397,7 @@ AWS will ONLY begin by implementing the modifications and settings listed below.
   >
   >- The GPIO based Interrupt Sensor Mode won't function in Sleep mode.
   >- SPI sensor will only work in PS4 state
-  >- Disable ADC is using SPI sensor
+  >- Disable ADC if using SPI sensor
   >
 >#### ADC
   >

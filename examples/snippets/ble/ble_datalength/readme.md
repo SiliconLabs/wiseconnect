@@ -26,12 +26,13 @@ After connecting, both the central and peripheral devices can initiate this proc
   - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
   - SoC Mode:
     - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B](https://www.silabs.com/)
+  - PSRAM Mode:  
+    - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
   - NCP Mode:
     - Silicon Labs [BRD4180B](https://www.silabs.com/);
     - Host MCU Eval Kit. This example has been tested with:
       - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
-
-- BLE peripheral device
+  - BLE peripheral device
 
 ### Software Requirements
 

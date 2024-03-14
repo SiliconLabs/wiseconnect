@@ -99,7 +99,7 @@ int *__h_errno_location(void)
   return &herrno;
 }
 
-int16_t si91x_get_socket_mss(int32_t socketIndex)
+int16_t sl_si91x_get_socket_mss(int32_t socketIndex)
 {
   // Retrieve the SI91X socket associated with the given socket index
   si91x_socket_t *si91x_socket = get_si91x_socket(socketIndex);
@@ -129,7 +129,10 @@ int16_t si91x_get_socket_mss(int32_t socketIndex)
  * @param required_address_type Whether peer data or local data to be copied to buffer.
  * @return						0 when successes, otherwise -1.
  */
-static int get_sock_address(int socket_id, struct sockaddr *name, socklen_t *name_len, uint8_t required_address_type)
+static int sli_si91x_get_sock_address(int socket_id,
+                                      struct sockaddr *name,
+                                      socklen_t *name_len,
+                                      uint8_t required_address_type)
 {
   // Retrieve the SI91X socket associated with the given socket ID
   si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
@@ -219,6 +222,15 @@ int bind(int socket_id, const struct sockaddr *addr, socklen_t addr_len)
          (addr_len > sizeof(struct sockaddr_in6)) ? sizeof(struct sockaddr_in6) : addr_len);
 
   si91x_socket->state = BOUND;
+
+  // For UDP sockets, create and send a socket request.
+  if (si91x_socket->type == SOCK_DGRAM) {
+    sl_status_t socket_create_request_status = create_and_send_socket_request(socket_id, SI91X_SOCKET_LUDP, NULL);
+    SOCKET_VERIFY_STATUS_AND_RETURN(socket_create_request_status, SI91X_NO_ERROR, SI91X_UNDEFINED_ERROR);
+
+    si91x_socket->state = UDP_UNCONNECTED_READY;
+  }
+
   return SI91X_NO_ERROR;
 }
 
@@ -615,12 +627,12 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
 
 int getsockname(int socket_id, struct sockaddr *name, socklen_t *name_len)
 {
-  return get_sock_address(socket_id, name, name_len, SI91X_BSD_SOCKET_LOCAL_ADDRESS);
+  return sli_si91x_get_sock_address(socket_id, name, name_len, SI91X_BSD_SOCKET_LOCAL_ADDRESS);
 }
 
 int getpeername(int socket_id, struct sockaddr *name, socklen_t *name_len)
 {
-  return get_sock_address(socket_id, name, name_len, SI91X_BSD_SOCKET_PEER_ADDRESS);
+  return sli_si91x_get_sock_address(socket_id, name, name_len, SI91X_BSD_SOCKET_PEER_ADDRESS);
 }
 
 int setsockopt(int socket_id, int option_level, int option_name, const void *option_value, socklen_t option_length)
@@ -781,6 +793,7 @@ int sl_si91x_set_custom_sync_sockopt(int socket_id,
 
 int getsockopt(int socket_id, int option_level, int option_name, void *option_value, socklen_t *option_length)
 {
+  int16_t mss                  = 0;
   si91x_socket_t *si91x_socket = get_si91x_socket(socket_id);
 
   // Check if the socket is valid
@@ -792,6 +805,13 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
 
   // Determine the requested socket option and handle it accordingly
   switch (option_name) {
+    case SO_SNDBUF: {
+      mss            = sl_si91x_get_socket_mss(socket_id);
+      *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(mss));
+      memcpy(option_value, &mss, *option_length);
+      break;
+    }
+
     case SO_RCVTIMEO: {
       // Get receive timeout
       *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->read_timeout));
@@ -974,7 +994,8 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
   sl_si91x_wait_period_t wait_time       = 0;
 
   // Validate input parameters
-  if ((readfds == NULL) && (writefds == NULL) && (exceptfds == NULL)) {
+  // exceptfds are not being checked as firmware doesn't support it.
+  if ((readfds == NULL) && (writefds == NULL)) {
     // No file descriptor sets provided
     SET_ERROR_AND_RETURN(EINVAL);
   }
@@ -990,7 +1011,16 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
   // Iterate through the file descriptor sets and populate the request
   for (uint8_t host_socket_index = 0; host_socket_index < nfds; host_socket_index++) {
     si91x_socket_t *socket = get_si91x_socket(host_socket_index);
-    //Verifying socket existence
+
+    // Throw error if the socket file descriptor set by developer is not valid
+    if (socket == NULL
+        && ((readfds != NULL && FD_ISSET(host_socket_index, readfds))
+            || (writefds != NULL && FD_ISSET(host_socket_index, writefds)))) {
+      SET_ERROR_AND_RETURN(EBADF);
+    }
+
+    // If the socket is NULL, continue to iterate through other sockets.
+    // The code will reach this if clause in the case of a socket being NULL and the socket being neither set in readfds nor writefds.
     if (socket == NULL) {
       continue;
     }

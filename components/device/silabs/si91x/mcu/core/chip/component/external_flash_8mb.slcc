@@ -1,7 +1,7 @@
 id: external_flash_8mb
 label: 8MB Flash (External)
 package: platform
-description: Adds a 8MB external flash to the SiWG91x part.
+description: It is necessary to initialize this component, if the external flash connected to the SiWG91x part is of size 8MB.
 category: Device|Si91x|MCU|Flash
 quality: production
 provides:
@@ -17,6 +17,8 @@ template_contribution:
       value: 8388608
     - name: external_flash_page_size
       value: 256
+    - name: flash_present
+      value: 1
 
 metadata:
     device:

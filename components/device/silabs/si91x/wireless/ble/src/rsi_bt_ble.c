@@ -1705,15 +1705,15 @@ uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_si91x_pac
     } break;
 
     case RSI_BLE_REQ_HCI_RAW: {
-      payload_size = *(uint8_t *)(cmd_struct + 3);
+      payload_size = *((uint8_t *)cmd_struct + 3);
       pkt_type     = *(uint8_t *)cmd_struct;
       if (pkt_type == 0x01) {
         payload_size += 3;
       } else {
-        payload_size |= ((uint16_t)(*(uint8_t *)(cmd_struct + 4)) << 8);
+        payload_size |= ((uint16_t)(*((uint8_t *)cmd_struct + 4)) << 8);
         payload_size += 4;
       }
-      memcpy(pkt->data, (uint8_t *)(cmd_struct + 1), payload_size);
+      memcpy(pkt->data, ((uint8_t *)cmd_struct + 1), payload_size);
       le_cb->sync_rsp = 0;
     } break;
 

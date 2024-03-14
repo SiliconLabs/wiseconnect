@@ -38,6 +38,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+//  <e>SIO UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_sio_spi_init API to modify the peripheral configuration.
+//  <i> Default: 1
+#define SIO_UC 1
+
 // <h>SPI Configuration
 
 // <o SL_SIO_SPI_CLK_FREQUENCY> Clock <9600-7372800>
@@ -158,7 +165,10 @@ extern "C" {
 // <SL_SIO_UART_STOP_BIT_2=> Stop Bit 2
 // <i> Default: SL_SIO_UART_STOP_BIT_1
 #define SL_SIO_UART_STOP_BIT SL_SIO_UART_STOP_BIT_1
+
 // </h>
+
+// </e>
 
 #define SL_SIO_I2C_SAMPLE_RATE 100000
 

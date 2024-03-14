@@ -1504,9 +1504,9 @@ sl_psram_return_type_t sl_si91x_psram_manual_write_in_dma_mode(uint32_t addr,
   }
 
 #if PSRAM_ROW_BOUNDARY_CROSSING_SUPPORTED
-  uint32_t rbxOffset;
+  static uint32_t rbxOffset;
 
-  if (TX_RUNNING != ctx.xferStatus) {
+  if (PSRAM_Device.defaultBurstWrapSize && TX_RUNNING != ctx.xferStatus) {
     rbxOffset = addr % PSRAM_Device.defaultBurstWrapSize;
   }
 
@@ -1754,9 +1754,9 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_dma_mode(uint32_t addr,
   }
 
 #if PSRAM_ROW_BOUNDARY_CROSSING_SUPPORTED
-  uint32_t rbxOffset;
+  static uint32_t rbxOffset;
 
-  if (RX_RUNNING != ctx.xferStatus) {
+  if (PSRAM_Device.defaultBurstWrapSize && RX_RUNNING != ctx.xferStatus) {
     rbxOffset = addr % PSRAM_Device.defaultBurstWrapSize;
   }
 

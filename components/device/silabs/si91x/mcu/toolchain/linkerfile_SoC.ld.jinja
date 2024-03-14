@@ -33,8 +33,10 @@
 #}
 {%- set sram_addr = device_ram_addr | first %}
 {%- set sram_size = device_ram_size | first %}
-{%- set flash_addr = device_flash_addr | first %}
-{%- set flash_size = device_flash_size | first %}
+{%- if flash_present %}
+	{%- set flash_addr = device_flash_addr | first %}
+	{%- set flash_size = device_flash_size | first %}
+{%- endif %}
 {%- set flash_page_size = device_flash_page_size | first %}
 
 
@@ -54,8 +56,10 @@
   Application specific sizes. Here we start to calculate the application view
   of the physical memory.
 #}
-{%- set app_flash_start = flash_addr %}
-{%- set app_flash_end = flash_addr + flash_size %}
+{%- if flash_present %}
+	{%- set app_flash_start = flash_addr %}
+	{%- set app_flash_end = flash_addr + flash_size %}
+{%- endif %}
 {%- set app_ram_start = sram_addr %}
 {%- set app_ram_end = sram_addr + sram_size %}
 
@@ -72,7 +76,9 @@
 {#-
   Calculate application flash and ram size based on start and end address.
 #}
+{%- if flash_present %}
 {%- set app_flash_size = app_flash_end - app_flash_start %}
+{%- endif %}
 {%- set app_ram_size = app_ram_end - app_ram_start %}
 
 {%- if udma_enable %}
@@ -98,7 +104,9 @@
 
  MEMORY
  {
+{%- if flash_present %}
    rom   (rx)  : ORIGIN = 0x{{ '%0x' % app_flash_start }}, LENGTH = 0x{{ '%0x' % app_flash_size }}
+{% endif %}
    ram   (rwx) : ORIGIN = 0x{{ '%0x' % app_ram_start }}, LENGTH = 0x{{ '%0x' % app_ram_size }}
    {%- if psram_present %}
    psram (rwx) : ORIGIN = 0x{{ '%0x' % app_psram_start }}, LENGTH = 0x{{ '%0x' % app_psram_size }}
@@ -123,13 +131,12 @@ ENTRY(Reset_Handler)
  
 SECTIONS
 {
-
 	.text :
 	{
 		KEEP(*(.isr_vector))
 		{%- if ram_execution %}
      	  KEEP(*(.reset_handler))
-			*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *sl_rsi_utility.o *port.o *heap_*.o) .text*)
+			*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *sl_rsi_utility.o *port.o *heap_*.o) .text*)
 		{% endif %}
     {% if psram_present and psram_linker_config_enabled and psram_powersave_handle %}	
 			*(EXCLUDE_FILE(*rsi_deepsleep_soc.o *sl_si91x_psram.o *rsi_qspi.o *rsi_pll.o *rsi_egpio.o *sl_rsi_utility.o) .text*)
@@ -159,11 +166,9 @@ SECTIONS
 		*(SORT(.dtors.*))
 		*(.dtors)
 		
-		{%- if not ram_execution %}
 		{%- if not ulp_mode_execution %}
 		{%- if not power_manager_ps2 %}
 		*(.rodata*)
-		{%- endif %}
 		{%- endif %}
 		{%- endif %}
 		
@@ -171,8 +176,10 @@ SECTIONS
 	{%- if psram_present and text_segment_in_psram %}
 		_last_psram_location = .;
 	} > psram	
-	{%- else %}			
+	{%- elif flash_present %}			
 	} > rom 
+	{%- else %}			
+	} > ram 
 	{% endif %}	
 	
 	.ARM.extab : 
@@ -181,8 +188,10 @@ SECTIONS
 	{%- if psram_present and text_segment_in_psram %}
 		_last_psram_location = .;
 	} > psram	
-	{%- else %}			
+	{%- elif flash_present %}			
 	} > rom 
+	{%- else %}			
+	} > ram 
 	{% endif %}
 	
 	__exidx_start = .;
@@ -192,12 +201,15 @@ SECTIONS
 	{%- if psram_present and text_segment_in_psram %}
 		_last_psram_location = .;
 	} > psram	
-	{%- else %}			
+	{%- elif flash_present %}			
 	} > rom 
+	{%- else %}			
+	} > ram
 	{% endif %} 
 	__exidx_end = .;
 	__etext = .;
 	
+	{%- if flash_present %}
 	{% if ulp_mode_execution %}
 	.copysection :
 	{
@@ -215,7 +227,7 @@ SECTIONS
     __zerosection_end__ = .;
 	} > rom
 	{% endif %}
-
+	{% endif %}
 
 	{% if psram_present and psram_linker_config_enabled and psram_powersave_handle %}
 		_slpcode = __etext;
@@ -247,12 +259,14 @@ SECTIONS
 	    	_last_ram_location = .;
 	  	{%- if text_segment_in_psram %}
 		} > ram AT> psram
-
+    
 	  	/* _sidata is used in code startup code */
 		_sidata = __etext + (__sleep_code_end__ - __sleep_code_start__);
 		_last_psram_location = _sidata;
-	  	{%- else %}
+	  	{%- elif flash_present %}
 	  	} > ram AT> rom
+			{%- else %}
+	  	} > ram
 
 	  	/* _sidata is used in code startup code */
 		_sidata = __etext + (__sleep_code_end__ - __sleep_code_start__);
@@ -285,7 +299,6 @@ SECTIONS
 		KEEP(*(.ramVector))	
 		KEEP(*(.init))
 		KEEP(*(.fini))
-		*(.rodata*)
 		*(.data*)
 		{% endif %}
 		{%- if ulp_mode_execution %}
@@ -297,6 +310,7 @@ SECTIONS
 		{%- if ram_execution %}
 		{%- if not ulp_mode_execution %}
 		*rsi_hal_mcu_m4_ram.o(.text*)
+		*rsi_hal_mcu_m4_rom.o(.text*)
 		*sl_si91x_driver.o(.text*)
 		*sl_si91x_bus.o(.text*)
 		*sli_si91x_multithreaded.o(.text*)
@@ -407,7 +421,7 @@ SECTIONS
 		
 		/* _edata is used in startup code */
 		_edata = __data_end__;
-	{%- if psram_present and data_segment_in_psram and not text_segment_in_psram %}
+	{%- if psram_present and data_segment_in_psram and not text_segment_in_psram and flash_present %}
 		_last_psram_location = .;
 	} > psram	AT> rom
 	{%- elif psram_present and data_segment_in_psram and text_segment_in_psram %}
@@ -416,11 +430,13 @@ SECTIONS
 	{%- elif psram_present and text_segment_in_psram %}	
 		_last_ram_location = .;	
 	} > ram AT> psram
-	{%- elif psram_present and psram_linker_config_enabled %}	
+	{%- elif psram_present and psram_linker_config_enabled and flash_present %}
 		_last_ram_location = .;	
 	} > ram AT> rom
-	{%- else %} 
+	{%- elif flash_present %} 
 	} > ram AT> rom
+	{%- else %} 
+	} > ram
 	{% endif %}
 
 	{%- if psram_present and psram_linker_config_enabled %}
@@ -456,15 +472,12 @@ SECTIONS
 	. = _last_ram_location;
 			{% endif %}
 	{% endif %}
-
-	/* Modify the below value to change the stack size */
-	StackSize = 0x3000;
+	
 	.stack (NOLOAD):
 	{
 		__StackLimit = .;
 		KEEP(*(.stack*))
 		. = ALIGN(4);
-		. += StackSize;
 		__StackTop = .;
 		PROVIDE(__stack = __StackTop);
 	{%- if psram_present and stack_segment_in_psram %}
@@ -505,6 +518,8 @@ SECTIONS
   {% endif %}
 	__heap_size = __HeapLimit - __HeapBase;
 
+
+{%- if flash_present %}
 {%- if udma_enable %}
 	.udma_addr0 :
 	{
@@ -524,6 +539,7 @@ SECTIONS
 	} > udma1 AT> rom 
 	{%- endif %}
 {%- endif %}	
+{% endif %}
 
 {%- if nvm3_enable %}
   __ram_end__ = 0x{{ '%0x' % app_ram_start }} + 0x{{ '%0x' % app_ram_size }};

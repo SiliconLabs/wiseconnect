@@ -38,12 +38,12 @@
 #include <string.h>
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t hmac_pending(sl_si91x_hmac_config_t *config,
-                                uint8_t *data,
-                                uint16_t chunk_length,
-                                uint32_t total_length,
-                                uint8_t hmac_sha_flags,
-                                uint8_t *output)
+static sl_status_t sli_si91x_hmac_pending(sl_si91x_hmac_config_t *config,
+                                          uint8_t *data,
+                                          uint16_t chunk_length,
+                                          uint32_t total_length,
+                                          uint8_t hmac_sha_flags,
+                                          uint8_t *output)
 {
   sl_status_t status                   = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer             = NULL;
@@ -100,7 +100,10 @@ static sl_status_t hmac_pending(sl_si91x_hmac_config_t *config,
 }
 
 #else
-static sl_status_t hmac_side_band(uint16_t total_length, uint8_t *data, sl_si91x_hmac_config_t *config, uint8_t *output)
+static sl_status_t sli_si91x_hmac_side_band(uint16_t total_length,
+                                            uint8_t *data,
+                                            sl_si91x_hmac_config_t *config,
+                                            uint8_t *output)
 {
   sl_status_t status                   = SL_STATUS_FAIL;
   sl_si91x_hmac_sha_request_t *request = (sl_si91x_hmac_sha_request_t *)malloc(sizeof(sl_si91x_hmac_sha_request_t));
@@ -170,7 +173,7 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
   memcpy((data + key_length), config->msg, config->msg_length); // Copy message into data
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = hmac_side_band(total_length, data, config, output);
+  status = sli_si91x_hmac_side_band(total_length, data, config, output);
   return status;
 #else
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -203,7 +206,7 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
       }
     }
 
-    status = hmac_pending(config, data, chunk_len, (config->msg_length + key_length), hmac_sha_flags, output);
+    status = sli_si91x_hmac_pending(config, data, chunk_len, (config->msg_length + key_length), hmac_sha_flags, output);
     if (status != SL_STATUS_OK) {
       free(data);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)

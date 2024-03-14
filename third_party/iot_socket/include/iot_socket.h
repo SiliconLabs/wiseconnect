@@ -253,7 +253,7 @@ extern int32_t iotSocketSend (int32_t socket, const void *buf, uint32_t len);
  * @param[in]     ip_len   length of 'ip' address in bytes.
  * @param[in]     port     remote destination port number.
  * @note          If number of bytes to be send exceeds the MSS size specified by remote node then API will return IOT_SOCKET_ERROR.
-                  To know the MSS size for the socket use si91x_get_socket_mss() utility, In case of TCP this should be called after the connect()
+                  To know the MSS size for the socket use sl_si91x_get_socket_mss() utility, In case of TCP this should be called after the connect()
  * @return        status information:
                   - number of bytes sent (>=0), if len != 0.
                   - 0                             = Data can be sent (len = 0).

@@ -6,6 +6,8 @@
 - category: Board|Radio Board
 - quality: production
 - root_path: components/board/silabs/config/brd4343a
+- ui_hints:
+    visibility: never
 - requires:
   - name: siwg917y111mgnb
   - name: brd4343a_config

@@ -91,7 +91,7 @@
 #define AUTH_ASSOCIATION_TIMEOUT SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT
 #define ACTIVE_CHANNEL_SCAN_TIME SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME
 
-static const sl_wifi_device_configuration_t sl_wifi_twt_client_configuration = {
+static const sl_wifi_device_configuration_t twt_client_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
@@ -262,7 +262,7 @@ void application_start()
   data_semaphore                                    = osSemaphoreNew(1, 0, NULL);
 
   sl_si91x_set_timeout(&timeout_configuration);
-  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_twt_client_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &twt_client_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;

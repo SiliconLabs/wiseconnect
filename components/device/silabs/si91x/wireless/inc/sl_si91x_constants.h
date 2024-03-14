@@ -115,6 +115,11 @@
 
 #define RSI_OPERMODE_RESPONSE_WAIT_TIME      (1000) // Milliseconds
 #define RSI_SEND_RAW_DATA_RESPONSE_WAIT_TIME (1000) // Milliseconds
+
+#ifndef SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME
+#define SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME 1000 // 1 second to wait for a command buffer
+#endif
+
 //STM 32 Init Sequence
 #define SL_SI91X_INIT_CMD 0x005c4a12
 
@@ -137,6 +142,21 @@
 #define RSI_RX_PKT_PENDING 0x08
 // Assertion Interrupt indication from module
 #define RSI_ASSERT_INTR 0x80
+
+//Bootloader defines
+#define SL_SI91X_SAFE_UPGRADE_ADDR        0x1d408
+#define SL_SI91X_SAFE_UPGRADE             BIT(12)
+#define SL_SI91X_FW_START_OF_FILE         BIT(0)
+#define SL_SI91X_FW_END_OF_FILE           BIT(1)
+#define SL_SI91X_MIN_CHUNK_SIZE           4096
+#define SL_SI91X_LOOP_COUNT_UPGRADE_IMAGE 0xFFFF
+#define SL_SI91X_RESET_LOOP_COUNTER(X)    X = 0;
+#define SL_SI91X_WHILE_LOOP(X, Y)         while ((X++) < (int32_t)Y)
+#define SL_SI91X_CHECK_LOOP_COUNTER(X, Y) \
+  {                                       \
+    if (X >= Y)                           \
+      return -1;                          \
+  }
 
 //***************************** Macros for Crypto Start **********************************/
 

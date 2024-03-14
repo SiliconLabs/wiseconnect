@@ -44,10 +44,10 @@ static sl_net_basic_credential_entry_t *credentials[MAX_CREDENTIAL_COUNT] = {
   [SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID]     = (sl_net_basic_credential_entry_t *)&default_wifi_ap_credential,
 };
 
-static int check_cred_type(sl_net_credential_type_t type)
+static int sli_si91x_check_cred_type(sl_net_credential_type_t type)
 {
   if ((SL_NET_CERTIFICATE == type) || (SL_NET_PUBLIC_KEY == type) || (SL_NET_PRIVATE_KEY == type)
-      || (SL_NET_SIGNING_CERTIFICATE == type)) {
+      || (SL_NET_SIGNING_CERTIFICATE == type) || (SL_NET_PACK_FILE == type)) {
     return CRED_TYPE_CERT;
   }
 
@@ -63,7 +63,7 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
   int group_id                           = 0;
   int cred_id                            = 0;
 
-  if (CRED_TYPE_CERT == check_cred_type(type)) {
+  if (CRED_TYPE_CERT == sli_si91x_check_cred_type(type)) {
 #ifdef SLI_SI917
     return sl_si91x_set_credential(id, type, credential, credential_length);
 #else
@@ -172,7 +172,6 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
         *credential_length = entry->data_length;
         memcpy(credential, entry->data, entry->data_length);
         return SL_STATUS_OK;
-        break;
 
       default:
         return SL_STATUS_FAIL;
@@ -183,7 +182,7 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
 
 sl_status_t sl_net_delete_credential(sl_net_credential_id_t id, sl_net_credential_type_t type)
 {
-  if (CRED_TYPE_CERT == check_cred_type(type)) {
+  if (CRED_TYPE_CERT == sli_si91x_check_cred_type(type)) {
 #ifdef SLI_SI917
     return sl_si91x_delete_credential(id, type);
 #else

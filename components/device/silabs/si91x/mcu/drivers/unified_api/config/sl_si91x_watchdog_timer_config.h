@@ -33,6 +33,13 @@
 #include "sl_si91x_watchdog_timer.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>
+
+// <e>WatchDog Timer UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_watchdog_set_configuration API to modify the peripheral configuration.
+//  <i> Default: 1
+#define WDT_TIMER_UC 1
+
 // <h>Clock Configuration
 #define KHZ_RO_CLK_SEL   1
 #define KHZ_RC_CLK_SEL   2
@@ -139,7 +146,9 @@
 //   <TIME_DELAY_15=> 1024 ms
 // <i> Selection of Window Time
 #define SL_WDT_WINDOW_TIME TIME_DELAY_0
+
 // </h>
+// </e>
 // <<< end of configuration section >>>
 
 // WDT clock sources and parameters initialization

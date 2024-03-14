@@ -2,7 +2,12 @@ id: sl_i2s
 label: I2S
 package: platform
 description: >
-   Si91x I2S API.
+  I2S, which stands for Inter-IC Sound or Integrated Interchip Sound, is a 
+  serial bus interface standard used for connecting digital audio devices. 
+  Unlike I2C or SPI, I2S is specifically designed for transferring audio data 
+  between integrated circuits (ICs).
+  The pins like CLK, FRAME, DIN, DOUT are used for transmitting and receiving the data 
+  in full duplex communication from master to target .
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -22,3 +27,6 @@ requires:
   - name: udma_linker_config
   - name: rsilib_i2s
   - name: cmsis_sai
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/i2-s

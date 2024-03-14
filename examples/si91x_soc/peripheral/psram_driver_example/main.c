@@ -29,7 +29,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "rsi_board.h"
 #include "rsi_debug.h"
 #include "rsi_rom_clks.h"
 #include "clock_update.h"
@@ -72,7 +71,9 @@ int main()
 
   /* Enable the DEBUG UART port for debug prints and Set up and initialize all required
     blocks and functions related to the board hardware. */
+#if defined(SL_SI91X_BOARD_INIT)
   RSI_Board_Init();
+#endif // SL_SI91X_BOARD_INIT
 
   /* Initialize debug UART */
   DEBUGINIT();

@@ -2,7 +2,9 @@ id: sl_power_manager_debug
 label: Power Manager Debug (Si91x)
 package: platform
 description: >
-  Power Manager Debug
+  Provides the debugging mechanism in the power manager service.
+  It maintains the requirement for all the power states and provides
+  the power state requirement owner and power state requirement.
 category: Device|Si91x|MCU|Service|Power Manager
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/service/power_manager"

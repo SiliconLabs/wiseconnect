@@ -77,7 +77,7 @@ typedef sl_status_t (*sl_wifi_scan_callback_t)(sl_wifi_event_t event,
  * |:-------------------------------------|:--------------------------------------------|
  * | SL_WIFI_STATS_EVENT                  | Not supported in current release            |
  * | SL_WIFI_STATS_AYSNC_EVENT            | [sl_si91x_async_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-async-stats-response-t)        |
- * | SL_WIFI_STATS_ADVANCE_EVENT          | [sl_si91x_advance_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-advance-stats-response-t)      |
+ * | SL_WIFI_STATS_ADVANCE_EVENT          | Not supported in current release            |
  * | SL_WIFI_STATS_TEST_MODE_EVENT        | Not supported in current release            |
  * | SL_WIFI_STATS_MODULE_STATE_EVENT     | [sl_si91x_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t) |
  * @param data

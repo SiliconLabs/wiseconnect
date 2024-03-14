@@ -38,6 +38,7 @@
 
 sl_adc_channel_config_t sl_adc_channel_config = {
 {% for inst in adc_instances %}
+  .channel                                   = SL_ADC_{{ inst | upper }},
   .input_type[SL_ADC_{{ inst | upper }}]     = SL_ADC_{{ inst | upper }}_INPUT_TYPE,
   .pos_inp_sel[SL_ADC_{{ inst | upper }}]    = SL_ADC_{{ inst | upper }}_POS_INPUT_CHNL_SEL,
   .neg_inp_sel[SL_ADC_{{ inst | upper }}]    = SL_ADC_{{ inst | upper }}_NEG_INPUT_CHNL_SEL,

@@ -39,35 +39,8 @@ static remote_socket_termination_callback user_remote_socket_termination_callbac
 static bool is_configured = false;
 
 /******************************************************
- *               Static Function Declarations
- ******************************************************/
-
-/**
- * A static utility function to check whether a server socket is associated with the given firmware @param socket_id.
- * @param socket_id Firmware socket ID which needs to be checked for server socket.
- * @return
- */
-static bool has_associated_server_socket(uint8_t firmware_socket_id);
-
-/******************************************************
  *               Function Definitions
  ******************************************************/
-
-static bool has_associated_server_socket(uint8_t firmware_socket_id)
-{
-  for (uint8_t socket_index = 0; socket_index < NUMBER_OF_SOCKETS; socket_index++) {
-    si91x_socket_t *socket = get_si91x_socket(socket_index);
-
-    if (socket == NULL) {
-      continue;
-    }
-
-    if (socket->id == firmware_socket_id && socket->state == LISTEN) {
-      return true;
-    }
-  }
-  return false;
-}
 
 void handle_accept_response(int client_socket_id, sl_si91x_rsp_ltcp_est_t *accept_response)
 {
@@ -513,8 +486,7 @@ int sli_si91x_shutdown(int socket, int how)
 
   // The firmware maps server socket and first client socket connected to the server would be assigned same firmware socket ID.
   // Therefore, if Dev attempts to close either first client or server, close request type needs to be set to SHUTDOWN_BY_PORT.
-  int close_request_type =
-    (si91x_socket->state == LISTEN || has_associated_server_socket(si91x_socket->id)) ? SHUTDOWN_BY_PORT : how;
+  int close_request_type = (si91x_socket->state == LISTEN) ? SHUTDOWN_BY_PORT : how;
 
   // If the socket is in an initial state or marked for auto-close, reset it and return
   if (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED
@@ -545,7 +517,11 @@ int sli_si91x_shutdown(int socket, int how)
     sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
-
+  if (close_request_type == SHUTDOWN_BY_ID && si91x_socket->id == socket_close_response->socket_id) {
+    reset_socket_state(socket);
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    return SI91X_NO_ERROR;
+  }
   // Reset sockets that match the close request
   for (uint8_t index = 0; index < NUMBER_OF_SOCKETS; index++) {
     si91x_socket_t *socket = get_si91x_socket(index);
@@ -596,30 +572,26 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
   else if (rx_packet->command == RSI_WLAN_RSP_REMOTE_TERMINATE) {
 
     sl_si91x_socket_close_response_t *remote_socket_closure = (sl_si91x_socket_close_response_t *)rx_packet->data;
-
-    for (uint8_t socket_index = 0; socket_index < NUMBER_OF_SOCKETS; socket_index++) {
-      si91x_socket_t *socket = get_si91x_socket(socket_index);
-
-      if (socket == NULL) {
+    // Reset sockets that match the close request
+    for (uint8_t index = 0; index < NUMBER_OF_SOCKETS; index++) {
+      si91x_socket_t *socket = get_si91x_socket(index);
+      //Verifying socket existence
+      if (socket == NULL || remote_socket_closure->socket_id != socket->id || socket->state == LISTEN)
         continue;
-      }
 
-      if (socket->id == remote_socket_closure->socket_id) {
-        // The break statement is not issued as there is a case where one firmware socket might be mapped with multiple host ID.
-        socket->state = DISCONNECTED;
-
-        /* Flush the pending tx request packets from the socket command queue */
-        sl_si91x_host_flush_nodes_from_queue(SI91X_SOCKET_CMD_QUEUE,
-                                             remote_socket_closure,
-                                             si91x_socket_identification_function,
-                                             si91x_socket_node_free_function);
-      }
+      socket->state = DISCONNECTED;
+      /* Flush the pending tx request packets from the socket command queue */
+      sl_si91x_host_flush_nodes_from_queue(SI91X_SOCKET_CMD_QUEUE,
+                                           remote_socket_closure,
+                                           si91x_socket_identification_function,
+                                           si91x_socket_node_free_function);
 
       if (user_remote_socket_termination_callback != NULL) {
         user_remote_socket_termination_callback(socket->id,
                                                 socket->local_address.sin6_port,
                                                 remote_socket_closure->sent_bytes_count);
       }
+      break;
     }
   } else if (rx_packet->command == RSI_RECEIVE_RAW_DATA) {
     // Handle the case when raw data is received
@@ -725,7 +697,48 @@ sl_status_t sl_si91x_socket_driver_send_command(rsi_wlan_cmd_request_t command,
     return status;
   }
 
-  packet    = sl_si91x_host_get_buffer_data(*buffer, 0, NULL);
-  *response = packet->data;
+  packet = sl_si91x_host_get_buffer_data(*buffer, 0, NULL);
+  if (packet != NULL) {
+    *response = packet->data;
+  } else {
+    return SL_STATUS_FAIL;
+  }
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_info_response)
+{
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(socket_info_response);
+
+  sl_status_t status                           = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer                     = NULL;
+  sl_si91x_network_params_response_t *response = NULL;
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_QUERY_NETWORK_PARAMS,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        NULL,
+                                        0,
+                                        SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_GET_CHANNEL_TIMEOUT),
+                                        NULL,
+                                        &buffer);
+
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  }
+
+  VERIFY_STATUS_AND_RETURN(status);
+
+  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  response                  = (sl_si91x_network_params_response_t *)packet->data;
+
+  memcpy(&socket_info_response->number_of_opened_sockets,
+         response->num_open_socks,
+         sizeof(socket_info_response->number_of_opened_sockets));
+  memcpy(socket_info_response->socket_info,
+         response->socket_info,
+         (sizeof(sl_si91x_sock_info_query_t) * socket_info_response->number_of_opened_sockets));
+
+  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   return SL_STATUS_OK;
 }

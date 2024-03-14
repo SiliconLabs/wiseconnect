@@ -38,12 +38,20 @@
 #define CALENDAR_RC_CLOCK   2
 #define CALENDAR_XTAL_CLOCK 4
 
+// <e>CALENDAR UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_calendar_set_configuration API to modify the peripheral configuration.
+//  <i> Default: 1
+#define CALENDAR_UC 1
+
 // <o CALENDAR_CLOCK_TYPE> Clock Source
 //   <CALENDAR_RC_CLOCK=> RC Clock
 //   <CALENDAR_RO_CLOCK=> RO Clock
 //   <CALENDAR_XTAL_CLOCK=> XTAL Clock
 // <i> Selection of the Calendar CLK Type.
 #define CALENDAR_CLOCK_TYPE CALENDAR_RC_CLOCK
+
+// </e>
 
 // </h>
 // <<< end of configuration section >>>

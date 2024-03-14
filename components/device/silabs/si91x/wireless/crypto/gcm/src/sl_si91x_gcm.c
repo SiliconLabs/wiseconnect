@@ -40,7 +40,10 @@
 #include <string.h>
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t gcm_pending(sl_si91x_gcm_config_t *config, uint16_t chunk_length, uint8_t gcm_flags, uint8_t *output)
+static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
+                                         uint16_t chunk_length,
+                                         uint8_t gcm_flags,
+                                         uint8_t *output)
 {
   sl_status_t status              = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer        = NULL;
@@ -118,8 +121,11 @@ static sl_status_t gcm_pending(sl_si91x_gcm_config_t *config, uint16_t chunk_len
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
   SL_ASSERT(packet->length == config->msg_length + SL_SI91X_TAG_SIZE);
-  memcpy(output, packet->data, packet->length);
-
+  if (config->gcm_mode == SL_SI91X_GCM_MODE) {
+    memcpy(output, packet->data, packet->length);
+  } else { // CMAC mode
+    memcpy(output, packet->data, SL_SI91X_TAG_SIZE);
+  }
   free(request);
   if (buffer != NULL)
     sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
@@ -128,7 +134,7 @@ static sl_status_t gcm_pending(sl_si91x_gcm_config_t *config, uint16_t chunk_len
 }
 
 #else
-static sl_status_t gcm_side_band(sl_si91x_gcm_config_t *config, uint8_t *output)
+static sl_status_t sli_si91x_gcm_side_band(sl_si91x_gcm_config_t *config, uint8_t *output)
 {
   sl_status_t status              = SL_STATUS_FAIL;
   sl_si91x_gcm_request_t *request = (sl_si91x_gcm_request_t *)malloc(sizeof(sl_si91x_gcm_request_t));
@@ -205,7 +211,7 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
   uint16_t total_length = config->msg_length;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = gcm_side_band(config, output);
+  status = sli_si91x_gcm_side_band(config, output);
   return status;
 #else
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -237,7 +243,7 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
     }
 
     // Send the current chunk length message
-    status = gcm_pending(config, chunk_len, gcm_flags, output);
+    status = sli_si91x_gcm_pending(config, chunk_len, gcm_flags, output);
     if (status != SL_STATUS_OK) {
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
       mutex_result = sl_si91x_crypto_mutex_release(crypto_gcm_mutex);

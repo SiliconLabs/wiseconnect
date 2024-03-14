@@ -284,15 +284,31 @@ static void application_start(void *argument)
   }
   printf("\r\nGetting client profile is successful\r\n");
 
+#ifdef SLI_SI91X_ENABLE_IPV6
+  ip_address.type = SL_IPV6;
+  memcpy(&ip_address.ip.v6.bytes, &profile.ip.ip.v6.link_local_address, sizeof(sl_ipv6_address_t));
+  printf("\r\nLink Local Address: ");
+  print_sl_ip_address(&ip_address);
+
+  memcpy(&ip_address.ip.v6.bytes, &profile.ip.ip.v6.global_address, sizeof(sl_ipv6_address_t));
+  printf("\r\nGlobal Address: ");
+  print_sl_ip_address(&ip_address);
+
+  memcpy(&ip_address.ip.v6.bytes, &profile.ip.ip.v6.gateway, sizeof(sl_ipv6_address_t));
+  printf("\r\nGateway Address: ");
+  print_sl_ip_address(&ip_address);
+  printf("\r\n");
+#else
   ip_address.type = SL_IPV4;
   memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
   printf("\r\nIP address is ");
   print_sl_ip_address(&ip_address);
   printf("\r\n");
+#endif
 
   status = load_certificates_in_flash();
   if (status != SL_STATUS_OK) {
-    printf("\r\Error while loading certificates: 0x%lx\r\n", status);
+    printf("\r\nError while loading certificates: 0x%lx\r\n", status);
     return;
   }
   printf("\r\nLoaded certificates\r\n");

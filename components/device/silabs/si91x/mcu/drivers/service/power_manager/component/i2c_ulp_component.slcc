@@ -1,8 +1,10 @@
 id: i2c_ulp_component
-label: I2C
+label: ULP I2C
 package: platform
 description: >
-  Install this component to enable execution of I2C peripheral from RAM
+  ULP I2C component will enable I2C in the low-power mode. It moves all the peripheral dependencies to RAM. 
+  It also installs the peripheral component if already not installed. 
+  If an instantiable component then the user needs to install the instance manually.
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
 

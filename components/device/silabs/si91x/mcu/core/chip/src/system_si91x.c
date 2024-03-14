@@ -105,7 +105,7 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   /* Configuring RO-32KHz Clock for BG_PMU */
   RSI_IPMU_ClockMuxSel(1);
   /* Configuring RO-32KHz Clock for LF-FSM */
-  RSI_PS_FsmLfClkSel(KHZ_RO_CLK_SEL);
+  RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
   /* Configuring RC-32MHz Clock for HF-FSM */
   RSI_PS_FsmHfClkSel(FSM_32MHZ_RC);
 

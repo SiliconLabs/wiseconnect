@@ -2,9 +2,14 @@ id: psram_core
 label: PSRAM Core
 package: platform
 description: >
-  PSRAM is an additonal random access memory.
-  This component includes the PSRAM driver core. To configure 
-  this driver, the PSRAM component should be included in the project.
+  PSRAM (Pseudo Static Random Access Memory) is a random-access memory whose
+  internal structure is based on dynamic memory with refresh control signals
+  generated internally, in the standby mode, so that it can mimic the functionality
+  of a static memory. It combines the high density of DRAM with the ease-of-use
+  of true SRAM. The M4 core communicates with the PSRAM via Quad SPI interface.
+
+  The text segment, data segment, bss, heap and stack can be placed in PSRAM by
+  installing the respective components present under "PSRAM Linker Configurations".
 category: Device|Si91x|MCU|Peripheral|PSRAM Driver
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -29,3 +34,6 @@ include:
 config_file:
   - path: config/sl_si91x_psram_pin_config.h
     file_id: psram_pin_config
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/psram

@@ -10,6 +10,8 @@ include:
   - path: "inc"
     file_list:
     - path: "rsi_rom_gpdma.h"
+ui_hints:
+  visibility: never
 provides:
   - name: romdriver_gpdma
 requires:

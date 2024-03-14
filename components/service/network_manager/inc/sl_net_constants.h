@@ -150,6 +150,7 @@ typedef enum {
   SL_NET_CERTIFICATE,             ///< TLS Client Certificate
   SL_NET_PUBLIC_KEY,              ///< TLS Certificate Public key
   SL_NET_PRIVATE_KEY,             ///< TLS Certificate Private key
+  SL_NET_PACK_FILE,               ///< EAP FAST PACK FILE
   SL_NET_SIGNING_CERTIFICATE,     ///< TLS CA Certificate
   SL_NET_HTTP_CLIENT_CREDENTIAL,  ///< HTTP Client Credential
   SL_NET_EAP_CLIENT_CREDENTIAL,   ///< Wi-Fi EAP Credential

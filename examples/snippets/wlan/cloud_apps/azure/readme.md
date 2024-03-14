@@ -96,7 +96,7 @@ In the Project explorer pane, expand the **config** folder and open the ``sl_net
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
 Open the ``demo_config.h`` file. Configure the following parameters.
-
+- Refer to connection string from [Appendix](#appendix) 1.3.1 step 5 to define below macros:
   - IoTHub hostname.
   	```c
   	#define democonfigHOSTNAME              YOUR IOT HUB HOSTNAME HERE 
@@ -282,11 +282,18 @@ We have IoT Hub ready, now we can proceed with creating a device identity in the
 
   ![Primary connection string](resources/readme/azurecopyconnstring.png)
 
-  **Step 5:** The primary connection string is used in application to connect device to IoT Hub.
-
+  **Step 5:** For symmetric key authentication the primary connection string has to be referred.
+ For example, consider below sample connection string
+ HostName=example.azure-devices.net;DeviceId=example_Device_SymKey;SharedAccessKey=xxxxxx";
+ then configure macros as below
+ ```c
+#define democonfigHOSTNAME "example.azure-devices.net"
+#define democonfigDEVICE_ID "example_Device_SymKey"
+#define democonfigDEVICE_SYMMETRIC_KEY "xxxxxx"
+ ```
 Device is now successfully registered to IoT Hub with Symmetric key authentication type.
 
-### 1.3.2 - ***Register IoT Deivice with X.509 Authenticated Device with IoT Hub***
+### 1.3.2 - ***Register IoT Device with X.509 Authenticated Device with IoT Hub***
 
  For X.509 self-signed authentication, sometimes referred to as thumbprint authentication, you need to create certificates to place on your device. These certificates have a thumbprint in them that you share with IoT Hub for authentication.
 
@@ -342,10 +349,11 @@ Device is now successfully registered to IoT Hub with Symmetric key authenticati
 
   The files "azure_client_cert.pem.h" and "azure_client_key.pem.h" are over-written with the contents of the certificate and keyfiles which we have generated earlier.
 
-  **Step 5:** Connection string to be given in the application should be as follows (In case of the X509 authentication, the connection string is not obtained from the Azure portal, but has to be written manually)
-
-  ```democonfigHOSTNAME "<YOUR IOT HUB HOSTNAME HERE>";democonfigDEVICE_ID "<YOUR DEVICE ID HERE>";```
-
+  **Step 5:** For X.509 self-signed authentication, there is no connection string available. We can configure as below
+  ```c
+  #define democonfigHOSTNAME "example.azure-devices.net"
+  #define democonfigDEVICE_ID "example_Device_x509_Key"
+   ```
    Device is now successfully registered with the IoT Hub with X509 self signed authentication type.
 
 ### ***Appendix-2*** : **Steps to check Telemetry message on Azure cloud**

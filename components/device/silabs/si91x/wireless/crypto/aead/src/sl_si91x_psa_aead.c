@@ -57,10 +57,10 @@
  *         \p alg is not supported.
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  */
-static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes,
-                                          psa_algorithm_t alg,
-                                          size_t nonce_length,
-                                          size_t additional_data_length)
+static psa_status_t sli_si91x_check_aead_parameters(const psa_key_attributes_t *attributes,
+                                                    psa_algorithm_t alg,
+                                                    size_t nonce_length,
+                                                    size_t additional_data_length)
 {
   (void)additional_data_length;
   size_t tag_length = PSA_AEAD_TAG_LENGTH(psa_get_key_type(attributes), psa_get_key_bits(attributes), alg);
@@ -159,7 +159,7 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
   }
 
   // Verify that the driver supports the given parameters
-  status = check_aead_parameters(attributes, alg, nonce_length, additional_data_length);
+  status = sli_si91x_check_aead_parameters(attributes, alg, nonce_length, additional_data_length);
   if (status != PSA_SUCCESS) {
     return status;
   }
@@ -367,7 +367,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
   }
 
   // Verify that the driver supports the given parameters
-  status = check_aead_parameters(attributes, alg, nonce_length, additional_data_length);
+  status = sli_si91x_check_aead_parameters(attributes, alg, nonce_length, additional_data_length);
   if (status != PSA_SUCCESS) {
     return status;
   }

@@ -2,7 +2,13 @@ id: sl_ssi
 label: SSI
 package: platform
 description: >
-  Si91x Serial Syncronous Interface (SSI) API
+  This application demonstrates the use of SSI for data transfer in full duplex in master mode.
+  SSI (Synchronous Serial Interface) is a synchronous, point-to-point, 
+  serial communication channel for digital data transmission.
+  Configurable parameters in SSI:
+    - Set the different Modes types
+    - configuring the Bit Rate
+    - Data width 
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -25,3 +31,6 @@ requires:
   - name: udma_linker_config
   - name: cmsis_spi
   - name: rsilib_spi
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/ssi

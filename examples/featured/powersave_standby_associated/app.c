@@ -48,7 +48,7 @@
 /******************************************************
  *                      Macros
  ******************************************************/
-#define SERVER_IP_ADDRESS               "192.168.0.102"
+#define SERVER_IP_ADDRESS               "192.168.50.40"
 #define DATA                            "HellofromUDPclient!!!"
 #define SERVER_PORT                     5001
 #define NUMBER_OF_PACKETS               1000

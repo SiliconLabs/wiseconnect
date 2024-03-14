@@ -71,7 +71,7 @@
 #define RSI_MAX_TCP_RETRIES  10
 #define RECEIVE_DATA_TIMEOUT 20000 // command interval in milli seconds
 
-static const sl_wifi_device_configuration_t sl_wifi_twt_client_configuration = {
+static const sl_wifi_device_configuration_t twt_client_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
@@ -167,7 +167,7 @@ void application_start()
 {
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_twt_client_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &twt_client_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;

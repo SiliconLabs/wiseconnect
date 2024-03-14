@@ -249,6 +249,9 @@
   ((sl_status_t)0x10069) ///< SAE failure due to multiple confirm frames from AP.
 #define SL_STATUS_SI91X_EC_GROUP_STATION_UNSUPPORTED_BY_AP \
   ((sl_status_t)0x1006A) ///< AP does not support the EC-group set by station.
+#define SL_STATUS_SI91X_NO_11AX_SUPPORT_IN_AP ((sl_status_t)0x1006C) ///< 11AX is not supported in AP mode.
+#define SL_STATUS_SI91X_NON_PREF_CHAN_CONFIG_FAILED \
+  ((sl_status_t)0x1006D) ///< Non-preferred channel configuration failed.
 #define SL_STATUS_TWT_SUPPORT_NOT_ENABLED_ERR \
   ((sl_status_t)0x10070) ///< Occurs when HE_PARAMS_SUPPORT and SLI_SI91X_ENABLE_TWT_FEATURE macros are not enabled.
 #define SL_STATUS_TWT_SETUP_ERR_SESSION_ACTIVE \
@@ -498,6 +501,7 @@
   ((sl_status_t)0x1FF2C) ///< Memory limit exceeded in a given operating mode.
 #define SL_STATUS_SI91X_MEMORY_LIMIT_EXCEEDED_DURING_AUTO_JOIN \
   ((sl_status_t)0x1FF2A) ///< Memory limit exceeded in an operating mode during auto join/create.
+#define SL_STATUS_SI91X_MDNS_COMMAND_NOT_SUPPORTED   ((sl_status_t)0x1FF2B) ///< MDNS command type is invalid.
 #define SL_STATUS_SI91X_PUF_OPERATION_BLOCKED        ((sl_status_t)0x1CC2F) ///< PUF operation is blocked.
 #define SL_STATUS_SI91X_PUF_ACTIVATION_CODE_INVALID  ((sl_status_t)0x1CC31) ///< PUF activation code invalid.
 #define SL_STATUS_SI91X_PUF_INPUT_PARAMETERS_INVALID ((sl_status_t)0x1CC32) ///< PUF input parameters invalid.
@@ -511,5 +515,170 @@
 #define SL_STATUS_SI91X_FREQUENCY_OFFSET_ZER0     ((sl_status_t)0x100FC) ///< Frequency offset sent is zero.
 #define SL_STATUS_SI91X_FREQUENCY_OFFSET_OUT_OF_LIMITS \
   ((sl_status_t)0x100FB) ///< Frequency offset specified goes beyond upper or lower limits and indicates that frequency offset cannot be changed further.
+
+//Bluetooth Generic Error Codes
+#define SL_STATUS_SI91X_UNKNOWN_HCI_COMMAND           (0x4E01) ///< Unknown HCI command .
+#define SL_STATUS_SI91X_UNKNOWN_CONNECTION_IDENTIFIER (0x4E02) ///< Unknown Connection Identifier .
+#define SL_STATUS_SI91X_HARDWARE_FAILURE              (0x4E03) ///< Hardware failure .
+#define SL_STATUS_SI91X_PAGE_TIMEOUT                  (0x4E04) ///< Page timeout .
+#define SL_STATUS_SI91X_AUTHENTICATION_FAILURE        (0x4E05) ///< Authentication failure .
+#define SL_STATUS_SI91X_PIN_MISSING                   (0x4E06) ///< Pin missing .
+#define SL_STATUS_SI91X_MEMORY_CAPACITY_EXCEED        (0x4E07) ///< Memory capacity exceeded .
+#define SL_STATUS_SI91X_CONNECTION_TIMEOUT            (0x4E08) ///< Connection timeout .
+#define SL_STATUS_SI91X_CONNECTION_LIMIT_EXCEED       (0x4E09) ///< Connection limit exceeded .
+#define SL_STATUS_SI91X_SCO_LIMIT_EXCEED              (0x4E0A) ///< SCO limit exceeded .
+#define SL_STATUS_SI91X_ACL_CONNECTION_ALREADY_EXIST  (0x4E0B) ///< ACL Connection already exists .
+#define SL_STATUS_SI91X_COMMAND_DISALLOWED            (0x4E0C) ///< Command disallowed .
+#define SL_STATUS_SI91X_CONNECTION_REJECTED_LIMITED_RESOURCES \
+  (0x4E0D) ///< Connection rejected due to limited resources .
+#define SL_STATUS_SI91X_CONNECTION_REJECTED_SECURITY_REASONS (0x4E0E) ///< Connection rejected due to security reasons .
+#define SL_STATUS_SI91X_CONNECTION_REJECTED_FOR_BD_ADDR      (0x4E0F) ///< Connection rejected for BD address .
+#define SL_STATUS_SI91X_CONNECTION_ACCEPT_TIMEOUT            (0x4E10) ///< Connection accept timeout .
+#define SL_STATUS_SI91X_UNSUPPORTED_FEATURE_OR_PARAMETER     (0x4E11) ///< Unsupported feature or parameter .
+#define SL_STATUS_SI91X_INVALID_HCI_COMMAND_PARAMETER        (0x4E12) ///< Invalid HCI command parameter .
+#define SL_STATUS_SI91X_REMOTE_USER_TERMINATED_CONNECTION    (0x4E13) ///< Remote user terminated connection .
+#define SL_STATUS_SI91X_REMOTE_DEVICE_TERMINATED_CONNECTION_LOW_RESOURCES \
+  (0x4E14) ///< Remote device terminated connection due to low resources .
+#define SL_STATUS_SI91X_REMOTE_DEVICE_TERMINATED_CONNECTION_POWER_OFF \
+  (0x4E15) ///< Remote device terminated connection due to power off .
+#define SL_STATUS_SI91X_LOCAL_DEVICE_TERMINATED_CONNECTION           (0x4E16) ///< Local device terminated connection .
+#define SL_STATUS_SI91X_REPEATED_ATTEMPTS                            (0x4E17) ///< Repeated attempts .
+#define SL_STATUS_SI91X_PAIRING_NOT_ALLOWED                          (0x4E18) ///< Pairing not allowed .
+#define SL_STATUS_SI91X_UNKNOWN_LMP_PDU                              (0x4E19) ///< Unknown LMP PDU .
+#define SL_STATUS_SI91X_UNSUPPORTED_REMOTE_FEATURE                   (0x4E1A) ///< Unsupported remote feature .
+#define SL_STATUS_SI91X_SCO_OFFSET_REJECTED                          (0x4E1B) ///< SCO offset rejected .
+#define SL_STATUS_SI91X_SCO_INTERVAL_REJECTED                        (0x4E1C) ///< SCO interval rejected .
+#define SL_STATUS_SI91X_SCO_AIR_MODE_REJECTED                        (0x4E1D) ///< SCO Air mode rejected .
+#define SL_STATUS_SI91X_INVALID_LMP_PARAMETERS                       (0x4E1E) ///< Invalid LMP parameters .
+#define SL_STATUS_SI91X_UNSPECIFIED                                  (0x4E1F) ///< Unspecified .
+#define SL_STATUS_SI91X_UNSUPPORTED_LMP_PARAMETER                    (0x4E20) ///< Unsupported LMP Parameter .
+#define SL_STATUS_SI91X_ROLE_CHANGE_NOT_ALLOWED                      (0x4E21) ///< Role change not allowed .
+#define SL_STATUS_SI91X_LMP_RESPONSE_TIMEOUT                         (0x4E22) ///< LMP response timeout .
+#define SL_STATUS_SI91X_LMP_TRANSACTION_COLLISION                    (0x4E23) ///< LMP transaction collision .
+#define SL_STATUS_SI91X_LMP_PDU_NOT_ALLOWED                          (0x4E24) ///< LMP PDU not allowed .
+#define SL_STATUS_SI91X_ENCRYPTION_MODE_NOT_ACCEPTABLE               (0x4E25) ///< Encryption mode not acceptable .
+#define SL_STATUS_SI91X_LINK_KEY_CANNOT_CHANGE                       (0x4E26) ///< Link key cannot change .
+#define SL_STATUS_SI91X_REQUESTED_QOS_NOT_SUPPORTED                  (0x4E27) ///< Requested QOS not supported .
+#define SL_STATUS_SI91X_INSTANT_PASSED                               (0x4E28) ///< Instant passed .
+#define SL_STATUS_SI91X_PAIRING_WITH_UNIT_KEY_NOT_SUPPORTED          (0x4E29) ///< Pairing with unit key not supported .
+#define SL_STATUS_SI91X_DIFFERENT_TRANSACTION_COLLISION              (0x4E2A) ///< Different transaction collision .
+#define SL_STATUS_SI91X_RESERVED_1                                   (0x4E2B) ///< Reserved 1 .
+#define SL_STATUS_SI91X_QOS_PARAMETER_NOT_ACCEPTABLE                 (0x4E2C) ///< QOS parameter not acceptable .
+#define SL_STATUS_SI91X_QOS_REJECTED                                 (0x4E2D) ///< QOS rejected .
+#define SL_STATUS_SI91X_CHANNEL_CLASSIFICATION_NOT_SUPPORTED         (0x4E2E) ///< Channel classification not supported .
+#define SL_STATUS_SI91X_INSUFFICIENT_SECURITY                        (0x4E2F) ///< Insufficient security .
+#define SL_STATUS_SI91X_PARAMETER_OUT_OF_MANDATORY_RANGE             (0x4E30) ///< Parameter out of mandatory range .
+#define SL_STATUS_SI91X_RESERVED_2                                   (0x4E31) ///< Reserved 2 .
+#define SL_STATUS_SI91X_ROLE_SWITCH_PENDING                          (0x4E32) ///< Role switch pending .
+#define SL_STATUS_SI91X_RESERVED_3                                   (0x4E33) ///< Reserved 3 .
+#define SL_STATUS_SI91X_RESERVED_SLOT_VIOLATION                      (0x4E34) ///< Reserved slot violation .
+#define SL_STATUS_SI91X_ROLE_SWITCH_FAILED                           (0x4E35) ///< Role switch failed .
+#define SL_STATUS_SI91X_EXTENDED_INQUIRY_RESPONSE_TOO_LARGE          (0x4E36) ///< Extended Inquiry Response too large .
+#define SL_STATUS_SI91X_EXTENDED_SECURE_SIMPLE_PAIRING_NOT_SUPPORTED (0x4E37) ///< Extended SSP not supported .
+#define SL_STATUS_SI91X_HOST_BUSY_PAIRING                            (0X4E38) ///< Host busy pairing .
+#define SL_STATUS_SI91X_PINCODE_REPLY_FOR_WRONG_BD_ADDRESS           (0x4E39) ///< Wrong BD Address .
+#define SL_STATUS_SI91X_CONNECTION_FAILED_ESTABLISHED                (0x4E3E) ///< Connection Failed to be Established .
+#define SL_STATUS_SI91X_INVALID_GAIN_TABLE_PAYLOAD_LENGTH            (0x4F01) ///< Invalid Gain table payload length .
+#define SL_STATUS_SI91X_INVALID_REGION                               (0x4F02) ///< Invalid Region .
+#define SL_STATUS_SI91X_INVALID_GAIN_TABLE_OFFSET_REQUEST_TYPE       (0x4F03) ///< Invalid Gain Table offset request type .
+#define SL_STATUS_SI91X_INVALID_NODE_ID                              (0x4F04) ///< Invalid Node ID .
+#define SL_STATUS_SI91X_BT_INVALID_COMMAND                           (0x4FF8) ///< BT Invalid Command .
+#define SL_STATUS_SI91X_INVALID_ARGS                                 (0x0101) ///< Invalid Args .
+#define SL_STATUS_SI91X_UNKNOWN                                      (0x0102) ///< Unknown .
+#define SL_STATUS_SI91X_FIRMWARE_TIMEOUT                             (0x0103) ///< Firmware Timeout .
+#define SL_STATUS_SI91X_MEMORY_ALLOC_FAIL                            (0x0104) ///< Memory alloc fail .
+#define SL_STATUS_SI91X_IO_FAIL                                      (0x0106) ///< I/O fail .
+#define SL_STATUS_SI91X_UNSUPPORTED                                  (0x0108) ///< Unsupported .
+#define SL_STATUS_SI91X_SHORT_BUF                                    (0x0109) ///< Short buf .
+#define SL_STATUS_SI91X_BUF_OVERFLOW                                 (0x010A) ///< Buf overflow .
+#define SL_STATUS_SI91X_TOO_LARGE_BUF                                (0x010B) ///< Too large buf .
+#define SL_STATUS_SI91X_I_O_ABORT                                    (0x010C) ///< I/O abort .
+#define SL_STATUS_SI91X_OPEN_FAIL                                    (0x010D) ///< File open fail .
+#define SL_STATUS_SI91X_OS_TASK_INVALID_PRIORITY                     (0x1010) ///< OS task invalid priority .
+#define SL_STATUS_SI91X_OS_TASK_PRIO_EXISTS                          (0x1011) ///< OS task prio exists .
+#define SL_STATUS_SI91X_OS_TASK_NOT_STOPPED                          (0x1012) ///< OS task not stopped .
+#define SL_STATUS_SI91X_OS_SEM_MAX_VALUE                             (0x1020) ///< OS sem max value .
+#define SL_STATUS_SI91X_OS_SEM_NOT_AVAILABLE                         (0x1021) ///< OS sem not available .
+#define SL_STATUS_SI91X_OS_SEM_RESET                                 (0x1022) ///< OS sem reset .
+#define SL_STATUS_SI91X_OS_MUTEX_NOT_OWNER                           (0x1030) ///< OS mutex not owner .
+#define SL_STATUS_SI91X_OS_MUTEX_NOT_LOCKED                          (0x1031) ///< OS mutex not locked .
+#define SL_STATUS_SI91X_OS_MUTEX_LOCK_FAILED                         (0x1032) ///< OS mutex lock failed .
+#define SL_STATUS_SI91X_OS_MUTEX_TRY_LOCK_FAILED                     (0x1033) ///< OS mutex try lock failed .
+#define SL_STATUS_SI91X_OS_MSG_QUEUE_FULL                            (0x1040) ///< OS msg queue full .
+#define SL_STATUS_SI91X_OS_MESSAGE_QUEUE_EMPTY                       (0x1041) ///< OS message queue empty .
+#define SL_STATUS_SI91X_PIPE_EMPTY                                   (0x1050) ///< Pipe empty .
+#define SL_STATUS_SI91X_PIPE_FULL                                    (0x1051) ///< Pipe full .
+#define SL_STATUS_SI91X_INVALID_LEN                                  (0x1052) ///< Invalid len .
+#define SL_STATUS_SI91X_PIPE_READ_IN_USE                             (0x1053) ///< Pipe read in use .
+#define SL_STATUS_SI91X_PIPE_WRITE_IN_USE                            (0x1054) ///< Pipe write in use .
+#define SL_STATUS_SI91X_OS_TIMER_EXPIRED                             (0x1060) ///< OS timer expired .
+#define SL_STATUS_SI91X_OS_TIMER_STATE_RUNNING                       (0x1061) ///< OS timer state running .
+#define SL_STATUS_SI91X_OS_CANNOT_WAIT                               (0x1070) ///< OS cannot wait .
+#define SL_STATUS_SI91X_OS_MEM_POOL_EMPTY                            (0x1080) ///< OS mem pool empty .
+#define SL_STATUS_SI91X_OS_MEM_POOL_SIZE_SHORT                       (0x1081) ///< OS mem pool size short .
+
+//BLE Generic Error Codes
+#define SL_STATUS_SI91X_DIRECTED_ADVERTISING_TIMEOUT (0x4E3C) ///<  Directed Advertising Timeout .
+#define SL_STATUS_SI91X_CONNECTION_TERMINATED_DUE_TO_MIC_FAILURE \
+  (0x4E3D)                                                 ///<  Connection terminated due to MIC failure .
+#define SL_STATUS_SI91X_INVALID_HANDLE_RANGE      (0x4E60) ///<  Invalid Handle Range .
+#define SL_STATUS_SI91X_MEMORY_IS_NOT_SUFFICIENT  (0x4E61) ///<  Memory is not sufficient .
+#define SL_STATUS_SI91X_INVALID_PARAMETERS        (0x4E62) ///<  Invalid Parameters .
+#define SL_STATUS_SI91X_BLE_BUFFER_COUNT_EXCEEDED (0x4E63) ///<  BLE Buffer Count Exceeded .
+#define SL_STATUS_SI91X_BLE_BUFFER_ALREADY_IN_USE (0x4E64) ///<  BLE Buffer already in use .
+#define SL_STATUS_SI91X_INVALID_ATTRIBUTE_LENGTH \
+  (0x4E65) ///<  Invalid Attribute Length When Small Buffer Mode is Configured .
+#define SL_STATUS_SI91X_INVALID_NAME_LENGTH (0x4E66) ///<  Invalid Name length when set to more than 16 bytes .
+
+//BLE Mode Error Codes
+#define SL_STATUS_SI91X_INVALID_HANDLE                       (0x4A01) ///< Invalid Handle .
+#define SL_STATUS_SI91X_READ_NOT_PERMITTED                   (0x4A02) ///< Read not permitted .
+#define SL_STATUS_SI91X_WRITE_NOT_PERMITTED                  (0x4A03) ///< Write not permitted .
+#define SL_STATUS_SI91X_INVALID_PDU                          (0x4A04) ///< Invalid PDU .
+#define SL_STATUS_SI91X_INSUFFICIENT_AUTHENTICATION          (0x4A05) ///< Insufficient authentication .
+#define SL_STATUS_SI91X_REQUEST_NOT_SUPPORTED                (0x4A06) ///< Request not supported .
+#define SL_STATUS_SI91X_INVALID_OFFSET                       (0x4A07) ///< Invalid offset .
+#define SL_STATUS_SI91X_INSUFFICIENTA_UTHORIZATION           (0x4A08) ///< Insufficient authorization .
+#define SL_STATUS_SI91X_PREPARE_QUEUE_FULL                   (0x4A09) ///< Prepare queue full .
+#define SL_STATUS_SI91X_ATTRIBUTE_NOT_FOUND                  (0x4A0A) ///< Attribute not found .
+#define SL_STATUS_SI91X_ATTRIBUTE_NOT_LONG                   (0x4A0B) ///< Attribute not Long .
+#define SL_STATUS_SI91X_INSUFFICIENT_ENCRYPTION_KEY_SIZE     (0x4A0C) ///< Insufficient encryption key size .
+#define SL_STATUS_SI91X_INVALID_ATTRIBUTE_VALUE_LENGTH       (0x4A0D) ///< Invalid attribute value length .
+#define SL_STATUS_SI91X_UNLIKELY_ERROR                       (0x4A0E) ///< Unlikely error .
+#define SL_STATUS_SI91X_INSUFFICIENT_ENCRYPTION              (0x4A0F) ///< Insufficient encryption .
+#define SL_STATUS_SI91X_UNSUPPORTED_GROUP_TYPE               (0x4A10) ///< Unsupported group type .
+#define SL_STATUS_SI91X_INSUFFICIENT_RESOURCES               (0x4A11) ///< Insufficient resources .
+#define SL_STATUS_SI91X_GATT_TIMEOUT                         (0x4A80) ///< GATT Timeout .
+#define SL_STATUS_SI91X_DATA_MAINTAINED_IN_HOST              (0x4AFF) ///< Data Maintained in Host .
+#define SL_STATUS_SI91X_SMP_PASSKEY_ENTRY_FAILED             (0x4B01) ///< SMP Passkey entry failed .
+#define SL_STATUS_SI91X_SMP_OOB_NOT_AVAILABLE                (0x4B02) ///< SMP OOB not available .
+#define SL_STATUS_SI91X_SMP_AUTHENTICATION_REQUIREMENTS      (0x4B03) ///< SMP Authentication Requirements .
+#define SL_STATUS_SI91X_SMP_CONFIRM_VALUE_FAILED             (0x4B04) ///< SMP confirm value failed .
+#define SL_STATUS_SI91X_SMP_PAIRING_NOT_SUPPORTED            (0x4B05) ///< SMP Pairing not supported .
+#define SL_STATUS_SI91X_SMP_ENCRYPTION_KEY_SIZE_INSUFFICIENT (0x4B06) ///< SMP Encryption key size insufficient .
+#define SL_STATUS_SI91X_SMP_COMMAND_NOT_SUPPORTED            (0x4B07) ///< SMP command not supported .
+#define SL_STATUS_SI91X_SMP_PAIRING_FAILED                   (0x4B08) ///< SMP pairing failed .
+#define SL_STATUS_SI91X_SMP_REPEATED_ATTEMPTS                (0x4B09) ///< SMP repeated attempts .
+#define SL_STATUS_SI91X_SMP_INVALID_PARAMETERS               (0x4B0A) ///< SMP Invalid parameters .
+#define SL_STATUS_SI91X_SMP_DH_KEY_CHECK_FAILED              (0x4B0B) ///< SMP DH Key check failed .
+#define SL_STATUS_SI91X_SMP_NUMERIC_COMPARISON_FAILED        (0x4B0C) ///< SMP Numeric Comparison Failed .
+#define SL_STATUS_SI91X_SMP_INVALID_KEYS_GENERATED           (0x4BFD) ///< SMP Invalid Keys Generated .
+#define SL_STATUS_SI91X_SMP_IDENTICAL_PUBLIC_KEY             (0x4BFE) ///< SMP Identical Public Key .
+#define SL_STATUS_SI91X_PSM_CONN_FAILED                      (0x4C02) ///< PSM Conn Failed .
+#define SL_STATUS_SI91X_BLE_REMOTE_DEVICE_FOUND              (0x4D00) ///< BLE Remote device found .
+#define SL_STATUS_SI91X_BLE_REMOTE_DEVICE_NOT_FOUND          (0x4D01) ///< BLE Remote device not found .
+#define SL_STATUS_SI91X_BLE_REMOTE_DEVICE_STRUCTURE_FULL     (0x4D02) ///< BLE Remote device structure full .
+#define SL_STATUS_SI91X_UNABLE_TO_CHANGE_STATE               (0x4D03) ///< Unable to change state .
+#define SL_STATUS_SI91X_BLE_NOT_CONNECTED                    (0x4D04) ///< BLE not Connected .
+#define SL_STATUS_SI91X_BLE_SOCKET_NOT_AVAILABLE             (0x4D05) ///< BLE socket not available. .
+#define SL_STATUS_SI91X_ATTRIBUTE_RECORD_NOT_FOUND           (0x4D06) ///< Attribute record not found .
+#define SL_STATUS_SI91X_ATTRIBUTE_ENTRY_NOT_FOUND            (0x4D07) ///< Attribute entry not found .
+#define SL_STATUS_SI91X_PROFILE_RECORD_FULL                  (0x4D08) ///< Profile record full .
+#define SL_STATUS_SI91X_ATTRIBUTE_RECORD_FULL                (0x4D09) ///< Attribute record full .
+#define SL_STATUS_SI91X_BLE_PROFILE_HANDLER_INVALID          (0x4D0A) ///< BLE profile not found(profile handler invalid) .
+#define SL_STATUS_SI91X_BLE_ATTRIBUTE_BUFFER_FULL            (0x4D0B) ///< BLE Attribute Buffer Full .
+#define SL_STATUS_SI91X_BLE_CONNECTION_SOCK_NOT_AVAILABLE    (0x4D10) ///< BLE Connection Sock not Available .
+#define SL_STATUS_SI91X_BLE_REMOTE_CREDITS_NOT_AVAILABLE     (0x4D11) ///< BLE Remote Credits not Available .
+#define SL_STATUS_SI91X_PARAMETER_OUTOFF_MANADATORY_RANGE    (0x4D14) ///< Parameter is outoff the manadatory range .
 
 /** @} */

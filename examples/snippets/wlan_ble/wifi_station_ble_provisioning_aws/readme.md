@@ -30,13 +30,9 @@ Si917 connected to LM75 Temperature Sensor via I2C interface, collects real time
 
 If macro **ENABLE_POWER_SAVE** enabled, Then M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
-- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
-  - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
-  - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
+- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically as configured in the Universal Configurator in 'Wakeup Source Configuration'.
 - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
-  - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
-- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
-  - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example. To receive the message published remotely, Si917 subscribes to **MQTT_TOPIC1** topic.
+- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up. To receive the message published remotely, Si917 subscribes to **MQTT_TOPIC1** topic.
 
 After M4 processor wakes up via any of the above processes, the application publishes **MQTT_publish_QOS0_PAYLOAD** message on **MQTT_TOPIC2** topic.
 
@@ -142,12 +138,15 @@ For SoC Mode only:
 
 ```c
 #define ENABLE_POWER_SAVE         1                 //! Enable this macro to run application with power save mode.
-#define SL_SI91X_MCU_ALARM_BASED_WAKEUP  1                 //! Enable this macro for M4 processor to wake up based on alarm time period
-#define SL_SI91X_MCU_BUTTON_BASED_WAKEUP       1                 //! Enable this macro for M4 processor to wake up when button (BTN0) is pressed
-#define ALARM_PERIODIC_TIME       30                //! periodic alarm configuration in seconds
 
 #define PUBLISH_PERIODICITY       (30000)          // Configure this macro to publish data every 30 seconds (this works only in NCP with and without POWERSAVE and in SOC without POWERSAVE).
 ```
+
+The alarm timer can be configured in Universal Configurator in 'Wakeup Source Configuration' under `WiseConnect 3 SDK v3.1.3 -> Device -> MCU -> Service -> Power Manager -> ULP Peripheral -> Wakeup Source Configuration` as shown below,
+
+  ![Wakeup Source Configuration](resources/readme/wakeup_configure.png)
+
+  ![Alarm timer Configuration](resources/readme/alarm_timer_configure.png)
 
 Open `ble_app.c` file and update/modify following macros
 

@@ -1150,6 +1150,22 @@ sl_status_t sl_wifi_get_statistics(sl_wifi_interface_t interface, sl_wifi_statis
 
 /***************************************************************************/ /**
  * @brief
+ *   Return Wi-Fi operational statistics.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] interface
+ *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
+ * @param[out] statistics
+ *   @ref sl_wifi_operational_statistics_t object that contains Wi-Fi statistics.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_operational_statistics(sl_wifi_interface_t interface,
+                                               sl_wifi_operational_statistics_t *operational_statistics);
+
+/***************************************************************************/ /**
+ * @brief
  *   Start collecting statistical data.
  * @pre Pre-conditions:
  * - 

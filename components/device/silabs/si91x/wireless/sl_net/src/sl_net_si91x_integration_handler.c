@@ -97,7 +97,7 @@ static void handle_mqtt_client_asynch_events(sl_si91x_queue_packet_t *mqtt_asyn_
   sl_status_t event_status    = convert_and_save_firmware_status(si91x_event_status);
 
   // Handle MQTT events
-  si91x_mqtt_event_handler(event_status, sdk_context, raw_rx_packet);
+  sli_si91x_mqtt_event_handler(event_status, sdk_context, raw_rx_packet);
 }
 #endif
 
@@ -127,7 +127,7 @@ void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x
 #ifdef SLI_SI91X_INTERNAL_SNTP_CLIENT
   // Handle SNTP client events
   if (packet->command == RSI_WLAN_RSP_SNTP_CLIENT) {
-    si91x_sntp_event_handler(data);
+    sli_si91x_sntp_event_handler(data);
     return;
   }
 #endif

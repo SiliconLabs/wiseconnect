@@ -79,7 +79,6 @@
 #include "sl_sleeptimer.h"
 #include "sl_sleeptimer_config.h"
 #include "app.h"
-#include "rsi_board.h"
 #include "glib.h"
 #include "dmd.h"
 #include "RTE_Device_917.h"

@@ -2,10 +2,13 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Gecko SDK
-version: "3.1.3"
+version: "3.1.4"
 sdk:
   id: gecko_sdk
   version: "4.4.1"
+documentation:
+  - docset: wiseconnect
+    version: "3.1.3"
 component_path:
   - path: resources
   - path: components/board
@@ -29,12 +32,14 @@ component_path:
   - path: components/device/silabs/si91x/wireless/crypto/hmac
   - path: components/device/silabs/si91x/wireless/crypto/ecdh
   - path: components/device/silabs/si91x/wireless/crypto/trng
+  - path: components/device/silabs/si91x/wireless/crypto/mac
   - path: components/device/silabs/si91x/wireless/crypto/attestation
   - path: components/device/silabs/si91x/wireless/crypto/multithread
   - path: components/device/silabs/si91x/wireless/errno/component
   - path: components/service/bsd_socket
   - path: components/service/network_manager
   - path: components/service/http_client
+  - path: components/service/sl_http_server
   - path: components/service/mqtt
   - path: components/service/sntp
   - path: components/service/mdns
@@ -71,9 +76,9 @@ component_path:
   - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/hal/component
   - path: components/segger_sysview
-  - path: components/si91x_support
   - path: tests/test_agent
   - path: third_party/aws_sdk
+  - path: third_party/json_parser
   - path: third_party/azure_freertos_middleware
   - path: third_party/azure_freertos_middleware/libraries/coreMQTT
   - path: third_party/iot_socket

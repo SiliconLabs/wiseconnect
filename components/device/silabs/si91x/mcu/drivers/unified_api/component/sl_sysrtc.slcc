@@ -2,7 +2,15 @@ id: sl_sysrtc
 label: SysRTC
 package: platform
 description: >
-  Si91x System RTC (SysRTC) API
+  The System Real-Time Clock (SYSRTC) offers precise timekeeping and timer
+  functionality essential for various applications. It serves as a cornerstone for tasks requiring accurate time measurement,
+  event scheduling, and power management. This SYSRTC driver provides a robust set of
+  functions to configure and use this peripheral effectively, ensuring optimal performance and reliability in time critical applications.
+  Configurable parameters in SYSRTC:
+    - Enable SYSRTC run during debug
+    - Select SYSRTC group 
+    - Enable group compare channel
+    - Enable group capture channel
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -19,3 +27,6 @@ provides:
 requires:
   - name: udma_linker_config
   - name: rsilib_sysrtc
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/sysrtc

@@ -135,7 +135,10 @@ sl_status_t sl_create_generic_rx_packet_from_params(sl_si91x_queue_packet_t **qu
   sl_status_t status              = SL_STATUS_OK;
   uint16_t temp                   = 0;
 
-  status = sl_si91x_host_allocate_buffer(&buffer, SL_WIFI_CONTROL_BUFFER, sizeof(sl_si91x_queue_packet_t), 1000);
+  status = sl_si91x_host_allocate_buffer(&buffer,
+                                         SL_WIFI_CONTROL_BUFFER,
+                                         sizeof(sl_si91x_queue_packet_t),
+                                         SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
     BREAKPOINT();
@@ -204,6 +207,38 @@ void handle_dhcp_and_rejoin_failure(sl_si91x_queue_packet_t *node,
     sl_si91x_host_add_to_queue(response_queue, temp_buffer);
     sl_si91x_host_set_event(response_event); // TODO: additonal checks for async queue, async event
   }
+
+  sl_wifi_buffer_t *mqtt_remote_terminate_packet_buffer = NULL;
+  sl_si91x_packet_t *mqtt_remote_terminate_packet       = NULL;
+
+  // generate dummy sl_si91x_queue_packet_t for MQTT remote terminate.
+  status = sl_create_generic_rx_packet_from_params(&node, &temp_buffer, 0, 0, NULL, SI91X_NETWORK_CMD);
+  if (status != SL_STATUS_OK) {
+    return;
+  }
+
+  // generate dummy MQTT remote terminate packet.
+  status = sl_si91x_host_allocate_buffer(&mqtt_remote_terminate_packet_buffer,
+                                         SL_WIFI_CONTROL_BUFFER,
+                                         sizeof(sl_si91x_packet_t),
+                                         SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
+  if (status != SL_STATUS_OK) {
+    sl_si91x_host_free_buffer(temp_buffer, SL_WIFI_RX_FRAME_BUFFER);
+    return;
+  }
+
+  mqtt_remote_terminate_packet = sl_si91x_host_get_buffer_data(mqtt_remote_terminate_packet_buffer, 0, NULL);
+
+  memset(mqtt_remote_terminate_packet->desc, 0, sizeof(mqtt_remote_terminate_packet->desc));
+
+  node->frame_status = SL_STATUS_OK;
+  node->host_packet  = mqtt_remote_terminate_packet_buffer;
+
+  mqtt_remote_terminate_packet->command = RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE;
+
+  // Enqueue the packet and set the async event.
+  sl_si91x_host_add_to_queue(SI91X_NETWORK_EVENT_QUEUE, temp_buffer);
+  sl_si91x_host_set_async_event(NCP_HOST_NETWORK_NOTIFICATION_EVENT);
 }
 
 // Weak implementation of the function to process data frames received from the SI91x module
@@ -490,6 +525,7 @@ void si91x_bus_thread(void *args)
             case RSI_WLAN_RSP_SET_REGION_AP:
             case RSI_WLAN_RSP_MAC_ADDRESS:
             case RSI_WLAN_RSP_EXT_STATS:
+            case RSI_WLAN_RSP_GET_STATS:
             case RSI_WLAN_RSP_RX_STATS:
             case RSI_WLAN_RSP_MODULE_STATE:
             case RSI_WLAN_RSP_QUERY_GO_PARAMS:

@@ -22,7 +22,7 @@
  * Includes
  */
 #include "rsi_ccp_user_config.h"
-#if !defined(A11_ROM) || !defined(ROMDRIVER_PRESENT)
+#if !defined(A11_ROM) || !defined(USART_ROMDRIVER_PRESENT)
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_egpio.h"
@@ -140,9 +140,10 @@ void UartIrqHandler(USART_RESOURCES *usart)
 
       // Clear TX busy flag
       usart->info->xfer.send_active = 0U;
-
-      event |= ARM_USART_EVENT_SEND_COMPLETE;
-      usart->info->cb_event(event);
+      if (usart->info->cb_event != NULL) {
+        event |= ARM_USART_EVENT_SEND_COMPLETE;
+        usart->info->cb_event(event);
+      }
     }
   }
   if ((int_status & USART_RX_DATA_AVAILABLE) == USART_RX_DATA_AVAILABLE) {
@@ -183,7 +184,7 @@ void UartIrqHandler(USART_RESOURCES *usart)
       }
     }
     //Check if requested amount of data is not received
-    if (usart->info->xfer.rx_cnt != usart->info->xfer.rx_num) {
+    if ((usart->info->cb_event != NULL) && (usart->info->xfer.rx_cnt != usart->info->xfer.rx_num)) {
       // Update the event with rx tiemout
       event |= ARM_USART_EVENT_RX_TIMEOUT;
       usart->info->cb_event(event);
@@ -1383,13 +1384,8 @@ int32_t USART_Control(uint32_t control,
       return ARM_DRIVER_OK;
 
     case ARM_USART_SET_IRDA_PULSE:
+      return ARM_USART_ERROR_MODE;
 
-      if (usart->capabilities.irda) {
-        return ARM_USART_ERROR_MODE;
-      } else {
-        return ARM_USART_ERROR_MODE;
-        break;
-      }
     case ARM_USART_SET_SMART_CARD_GUARD_TIME:
       if (usart->capabilities.smart_card) {
         return ARM_USART_ERROR_MODE;
@@ -1895,5 +1891,5 @@ const ROM_USART_API_T usart_api = {
 */
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif //A11_ROM || ROMDRIVER_PRESENT
+#endif //A11_ROM || USART_ROMDRIVER_PRESENT
        /*End of file not truncated */

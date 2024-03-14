@@ -110,6 +110,8 @@ typedef struct {
   uint8_t dac_fifo_threshold;
   uint8_t adc_channel;
   uint32_t dac_sample_rate;
+  uint8_t dac_pin;
+  uint8_t dac_port;
 } sl_dac_config_t;
 
 // -----------------------------------------------------------------------------

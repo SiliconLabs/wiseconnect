@@ -18,7 +18,7 @@ sdk:
   version: 4.4.1
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.1.3
+  version: 3.1.4
 source:
 - path: app.c
 - path: main.c
@@ -68,6 +68,8 @@ component:
 - id: sl_si91x_basic_buffers
   from: wiseconnect3_sdk
 toolchain_settings:
+  - option: gcc_linker_option
+    value: -u _printf_float
   - option: gcc_compiler_option
     value: -Wall -Werror
 configuration:

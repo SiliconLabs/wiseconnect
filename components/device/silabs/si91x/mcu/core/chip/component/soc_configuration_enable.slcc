@@ -1,0 +1,12 @@
+id: soc_configuration_enable
+label: ENABLE USER CONFIGURATION
+package: platform
+quality: production
+category: Device|Si91x|MCU|Core
+description: >
+  Si91x SoC enable user configuration MACROS.
+define:
+  - name: USER_CONFIGURATION_ENABLE
+    value: '1'
+provides:
+  - name: soc_configuration_enable

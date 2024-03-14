@@ -15,7 +15,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates the process for configuring the SiWx91x in ASSOCIATED_POWER_SAVE mode, also providing the steps to configure the SiWx91x EVK in station mode and initiate a connection to an Access Point. When the module is in deep sleep, it wakes up in periodic intervals based on DTIM or Listen Interval.
+This application demonstrates the process for configuring the SiWx91x in ASSOCIATED_POWER_SAVE mode, also providing the steps to configure the SiWx91x EVK in station mode and initiate a connection to an Access Point. When the module is in connected sleep, it wakes up in periodic intervals based on DTIM or Listen Interval.
 
 The application connects to a remote server to send UDP data and also enables the analysis of various performance profiles using a power analyzer during the ASSOCIATED_POWER_SAVE with data transfer via UDP.
 
@@ -55,7 +55,9 @@ The application connects to a remote server to send UDP data and also enables th
 
 ### Software Requirements
 
-- Simplicity Studio IDE
+- Simplicity Studio IDE (to be used with Silicon Labs MCU)
+- Keil IDE (to be used with STM32F411RE MCU)
+- Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
 - [iPerf Application](https://iperf.fr/iperf-download.php)
 - [Python Environment](https://www.python.org/downloads/)
 
@@ -65,12 +67,26 @@ The application connects to a remote server to send UDP data and also enables th
   
 ## Getting Started
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+  Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+  - Install Studio and WiSeConnect 3 extension
+  - Connect your device to the computer
+  - Upgrade your connectivity firmware
+  - Create a Studio project
+
+### Instructions for Keil IDE and STM32F411RE MCU
+
+  - Install the [Keil IDE](https://www.keil.com/).
+  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
+  - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
+   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
+   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
+   - After connecting all the boards, the setup should look like the image shown below:
+    ![Figure: Setup](resources/readme/stm32_setup.png)
+   - Connect the setup to the computer.
+  - Open the AWS DEVICE SHADOW µVision project - **powersave_standby_associated.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → powersave_standby_associated → keil_project**. 
 
 ## Application Build Environment
 
@@ -118,9 +134,17 @@ The application can be configured to suit your requirements and development envi
 
 ## Test the Application
 
+### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
+- Flash, run and debug the application.
+
+### Instructions for Keil IDE and STM32F411RE MCU
+
+- Build the application.
+- Set the Docklight up by connecting STM32's Serial COM port. This enables you to view the application prints.
 - Flash, run and debug the application.
 
     ![Application prints](resources/readme/output_soc.png)
@@ -163,15 +187,3 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > - The measured current may vary if the scenario is performed in open environment. AP to AP variation is also observed.
 > - To achieve the lowest power numbers in connected sleep, in SoC mode, one should configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to without RAM retention i.e. `sl_si91x_configure_ram_retention` should not be done.
 > - A flash erase is required to flash any other application after the user runs the powersave application(s). If not, the module will not allow any application to be flashed.
-
-**Soc Mode**:
-
-The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned in following points:
-
-- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
-  - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
-  - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
-- Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
-  - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
-- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
-  - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.

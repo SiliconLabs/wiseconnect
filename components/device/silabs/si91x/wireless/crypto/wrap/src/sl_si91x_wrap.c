@@ -37,10 +37,10 @@
 #include "string.h"
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t wrap_pending(sl_si91x_wrap_config_t *config,
-                                uint8_t wrap_flags,
-                                uint16_t chunk_length,
-                                uint8_t *output)
+static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
+                                          uint8_t wrap_flags,
+                                          uint16_t chunk_length,
+                                          uint8_t *output)
 {
   sl_status_t status               = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer         = NULL;
@@ -92,7 +92,7 @@ static sl_status_t wrap_pending(sl_si91x_wrap_config_t *config,
 
 #else
 
-static sl_status_t wrap_side_band(sl_si91x_wrap_config_t *config, uint8_t *output)
+static sl_status_t sli_si91x_wrap_side_band(sl_si91x_wrap_config_t *config, uint8_t *output)
 {
 
   sl_status_t status               = SL_STATUS_FAIL;
@@ -134,7 +134,7 @@ sl_status_t sl_si91x_wrap(sl_si91x_wrap_config_t *config, uint8_t *output)
   uint8_t *key_buffer = config->key_buffer;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = wrap_side_band(config, output);
+  status = sli_si91x_wrap_side_band(config, output);
   return status;
 #else
 
@@ -159,7 +159,7 @@ sl_status_t sl_si91x_wrap(sl_si91x_wrap_config_t *config, uint8_t *output)
     }
 
     // Send the current chunk length message
-    status = wrap_pending(config, wrap_flags, chunk_len, output);
+    status = sli_si91x_wrap_pending(config, wrap_flags, chunk_len, output);
     if (status != SL_STATUS_OK) {
       return status;
     }

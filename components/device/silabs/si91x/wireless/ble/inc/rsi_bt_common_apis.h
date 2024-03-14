@@ -72,7 +72,7 @@ extern "C" {
  *              Non-Zero Value - Failure 
 *-
  *              -3       - Command is given in wrong state(i.e not immediate after opermode)
- * @note       -This is a blocking API.Refer Error Codes section for above error codes \ref error-codes .
+ * @note       -This is a blocking API.Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr);
 
@@ -88,7 +88,7 @@ int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr);
  * -     0		-	Success 
 *-
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  *
  */
 int32_t rsi_bt_set_local_name(uint8_t *local_name);
@@ -122,7 +122,7 @@ int32_t rsi_bt_set_local_name(uint8_t *local_name);
 *-
  *             0x4F04           -       Invalid node id. 
 *
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  *
  */
 int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
@@ -141,7 +141,7 @@ int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
  * -     0		-	Success 
 *-
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
 int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_name);
 
@@ -157,7 +157,7 @@ int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_na
  * -     0		-	Success 
 *-
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
 int32_t rsi_bt_get_rssi(uint8_t *dev_addr, int8_t *resp);
 
@@ -172,7 +172,7 @@ int32_t rsi_bt_get_rssi(uint8_t *dev_addr, int8_t *resp);
  * -     0		-	Success 
 *-
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
 int32_t rsi_bt_get_local_device_address(uint8_t *resp);
 
@@ -185,7 +185,7 @@ int32_t rsi_bt_get_local_device_address(uint8_t *resp);
  * -     0		-	Success 
 *-
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
 int32_t rsi_bt_get_bt_stack_version(rsi_bt_resp_get_bt_stack_version_t *bt_resp_get_bt_stack_version);
 
@@ -202,7 +202,7 @@ int32_t rsi_bt_get_bt_stack_version(rsi_bt_resp_get_bt_stack_version_t *bt_resp_
  * -     0		-	Success 
 *-
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
 int32_t rsi_bt_init(void);
 
@@ -218,7 +218,7 @@ int32_t rsi_bt_init(void);
  * -     0		-	Success 
 *-
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
 int32_t rsi_bt_deinit(void);
 
@@ -237,7 +237,7 @@ int32_t rsi_bt_deinit(void);
  * -     0		-	Success 
 *-
  *             Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
 int32_t rsi_bt_set_antenna(uint8_t antenna_value);
 
@@ -282,7 +282,7 @@ int32_t rsi_bt_set_antenna(uint8_t antenna_value);
 *-
  * @note        The device will enter into power save if and only if both protocol (WLAN, BLE) power save modes are enabled. 
 *-
- * @note       Refer Error Codes section for above error codes \ref error-codes.
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  * @note        psp_type is only valid in psp_mode 2. 
 *-
  *              BT/BLE does not support in RSI_SLEEP_MODE_1. 

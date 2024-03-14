@@ -71,8 +71,9 @@ typedef struct {
 } sli_si91x_performance_profile_t;
 
 /// Efuse data information
-typedef struct {
+typedef union {
   uint8_t mfg_sw_version; ///< Manufacturing PTE software version
+  uint16_t pte_crc;       ///< PTE CRC value
 } sl_si91x_efuse_data_t;
 
 /// \details Mutex ID identifies the mutex.
@@ -178,12 +179,13 @@ sl_status_t sl_si91x_send_power_save_request(sl_si91x_performance_profile_t prof
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] efuse_data
  *   @ref sl_si91x_efuse_data_t object that contains the Manufacturing software version.
+ *   efuse_data_type which holds the type of efuse data to be read.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
  *   This API is not supported in the current release.
  ******************************************************************************/
-sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data);
+sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data, uint8_t efuse_data_type);
 
 /***************************************************************************/ /**
  * @brief
@@ -344,6 +346,21 @@ sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet,
 sl_status_t sl_si91x_bus_init();               /*Function used to check the bus availability */
 sl_status_t sl_si91x_bus_rx_irq_handler(void); /*Function used to check the bus availability */
 void sl_si91x_bus_rx_done_handler(void);       /*Function used to check the bus availability */
+
+/*==============================================*/
+/**
+ * @brief       Sends boot instructions to WiFi module
+ * @param[in]   uint8 type, type of the insruction to perform
+ * @param[in]   uint32 *data, pointer to data which is to be read/write
+ * @param[out]  none
+ * @return      errCode
+ *              < 0  = Command issued failure/Invalid command 
+ *                0  = SUCCESS
+ *              > 0  = Read value
+ * @section description 
+ * This API is used to send boot instructions to WiFi module.
+ **************************************************/
+int16_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data);
 
 /***************************************************************************/ /**
  * @brief

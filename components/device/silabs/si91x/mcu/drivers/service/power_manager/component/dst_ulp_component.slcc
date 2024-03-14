@@ -1,8 +1,10 @@
 id: dst_ulp_component
-label: Deep Sleep Timer
+label: NPSS Deep Sleep Timer
 package: platform
 description: >
-  Install this component to enable execution of "Deep Sleep Timer" peripheral from RAM
+  ULP DST component will enable DST in the low-power mode. 
+  It moves all the peripheral dependencies to RAM. 
+  It also installs the peripheral component if already not installed.
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
 

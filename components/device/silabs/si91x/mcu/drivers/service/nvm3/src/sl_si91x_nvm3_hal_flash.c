@@ -209,11 +209,7 @@ static Ecode_t nvm3_halFlashWriteWords(nvm3_HalPtr_t nvmAdr, void const *src, si
 
   /* Check if the data  written */
 #if CHECK_DATA
-#ifndef SLI_SI91X_MCU_COMMON_FLASH_MODE
   uint32_t data = (uint32_t)nvmAdr;
-#else
-  uint32_t data = (uint32_t)nvmAdr - TA_M4_ADDRESS_OFFSET;
-#endif
   if (halSta == ECODE_NVM3_OK) {
     if (memcmp((uint32_t *)data, pSrc, byteCnt) != 0) {
       halSta = ECODE_NVM3_ERR_WRITE_FAILED;
@@ -243,11 +239,7 @@ static Ecode_t nvm3_halFlashPageErase(nvm3_HalPtr_t nvmAdr)
   /* Check if the page is erased */
 #if CHECK_DATA
   if (halSta == ECODE_NVM3_OK) {
-#ifndef SLI_SI91X_MCU_COMMON_FLASH_MODE
     if (!isErased((nvmAdr), PAGE_SIZE)) {
-#else
-    if (!isErased((nvmAdr - TA_M4_ADDRESS_OFFSET), PAGE_SIZE)) {
-#endif
       halSta = ECODE_NVM3_ERR_ERASE_FAILED;
     }
   }

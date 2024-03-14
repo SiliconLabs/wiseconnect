@@ -45,15 +45,15 @@ osSemaphoreId_t select_sem;
 /******************************************************
 *               Variable Declarations
 ******************************************************/
-static int32_t get_aws_error(int32_t status);
-static int32_t ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port);
+static int32_t sli_si91x_get_aws_error(int32_t status);
+static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port);
 int32_t _iot_tls_verify_cert(void *data, int *crt, int depth, uint32_t *flags);
 
 
 /******************************************************
 *               Function Definitions
 ******************************************************/
-static int32_t get_aws_error(int32_t status)
+static int32_t sli_si91x_get_aws_error(int32_t status)
 {
   switch (status) {
     case EBADF:
@@ -119,56 +119,57 @@ IoT_Error_t iot_tls_is_connected(Network *pNetwork)
   return NETWORK_PHYSICAL_LAYER_CONNECTED;
 }
 
-static int32_t ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port)
+static int32_t sli_si91x_ConnecttoNetwork(Network *n, uint8_t flags, sl_ip_address_t *addr, int dst_port, int src_port)
 {
   int32_t status  =0;
+#ifdef SLI_SI91X_ENABLE_IPV6
+  struct sockaddr_in6 client_addr = { 0 };
+  struct sockaddr_in6 server_addr = { 0 };
+  uint32_t socket_length = sizeof(struct sockaddr_in6);
+  client_addr.sin6_family = AF_INET6;
+  client_addr.sin6_port   = src_port;
+  server_addr.sin6_family = AF_INET6;
+  server_addr.sin6_port   = dst_port;
+  memcpy(&server_addr.sin6_addr.__u6_addr.__u6_addr8, &addr->ip.v6.value, SL_IPV6_ADDRESS_LENGTH);
+  n->socket_id = socket( AF_INET6 , SOCK_STREAM, IPPROTO_TCP);
+#else
   struct sockaddr_in client_addr   = { 0 };
   struct sockaddr_in server_addr   = { 0 };
-//  struct sockaddr_in6 client_addr6 = { 0 };
-  struct sockaddr_in6 server_addr6 = { 0 };
-
-  n->socket_id = socket(((flags & IPV6) ? AF_INET6 : AF_INET), SOCK_STREAM, IPPROTO_TCP);
+  uint32_t socket_length = sizeof(struct sockaddr_in);
+  client_addr.sin_family = AF_INET;
+  client_addr.sin_port   = src_port;
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_port   = dst_port;
+  memcpy(&server_addr.sin_addr.s_addr, &addr->ip.v4.value, SL_IPV4_ADDRESS_LENGTH);
+  n->socket_id = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
+ 
   if (n->socket_id < 0) {
-    return get_aws_error(errno);
+    return sli_si91x_get_aws_error(errno);
   }
 
   if (flags & TLS_SOCKET) {
     if (setsockopt(n->socket_id, SOL_TCP, TCP_ULP, TLS, sizeof(TLS))) {
-      return get_aws_error(errno);
+      return sli_si91x_get_aws_error(errno);
     }
 
     uint8_t certificate_index = SL_CERT_INDEX_0;
     if (sl_si91x_set_custom_sync_sockopt(n->socket_id, SOL_SOCKET, SO_CERT_INDEX, &certificate_index, sizeof(certificate_index))) {
-      return get_aws_error(errno);
+      return sli_si91x_get_aws_error(errno);
     }
   }
-
-  if (flags & IPV6) {
-//    client_addr6.sin6_family = AF_INET6;
-//    client_addr6.sin6_port   = src_port;
-    server_addr6.sin6_family = AF_INET6;
-    server_addr6.sin6_port   = dst_port;
-    memcpy(&server_addr6.sin6_addr.__u6_addr.__u6_addr8, &addr->ip.v6.value, SL_IPV6_ADDRESS_LENGTH);
-  } else {
-    client_addr.sin_family = AF_INET;
-    client_addr.sin_port   = src_port;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port   = dst_port;
-    memcpy(&server_addr.sin_addr.s_addr, &addr->ip.v4.value, SL_IPV4_ADDRESS_LENGTH);
-  }
-
-  status = bind( n->socket_id, (struct sockaddr *)&client_addr, sizeof(client_addr));
+  
+  status = bind( n->socket_id, (struct sockaddr *)&client_addr, socket_length);
   if (status < 0) {
     close( n->socket_id);
-    return get_aws_error(errno);
+    return sli_si91x_get_aws_error(errno);
   }
 
-  status = connect( n->socket_id, (struct sockaddr *)&server_addr, sizeof(server_addr));
+  status = connect( n->socket_id, (struct sockaddr *)&server_addr, socket_length);
   if (status < 0) {
     close( n->socket_id);
-    return get_aws_error(errno);
+    return sli_si91x_get_aws_error(errno);
   }
-
   return SUCCESS;
 }
 
@@ -180,10 +181,17 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
   sl_ip_address_t dns_query_response = { 0 };
 
   do {
+#ifdef SLI_SI91X_ENABLE_IPV6
+	  status = sl_net_host_get_by_name((char *)pNetwork->tlsConnectParams.pDestinationURL,
+	                                        SL_SI91X_WAIT_FOR_DNS_RESOLUTION,
+	  									                    SL_NET_DNS_TYPE_IPV6, 
+	                                        &dns_query_response);
+#else
     status = sl_net_host_get_by_name((char *)pNetwork->tlsConnectParams.pDestinationURL,
-                                     SL_SI91X_WAIT_FOR_DNS_RESOLUTION,
-                                     SL_NET_DNS_TYPE_IPV4, // TODO: handle ipv6
-                                     &dns_query_response);
+                                       SL_SI91X_WAIT_FOR_DNS_RESOLUTION,
+                                       SL_NET_DNS_TYPE_IPV4, 
+                                       &dns_query_response);
+#endif
     if (status == SL_STATUS_OK) {
       break;
     }
@@ -194,8 +202,8 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
     return NETWORK_ERR_NET_UNKNOWN_HOST;
   }
 
-  status = ConnecttoNetwork(pNetwork,
-                            TLS_SOCKET,
+  status = sli_si91x_ConnecttoNetwork(pNetwork,
+						               	(TLS_SOCKET),
                             &dns_query_response,
                             pNetwork->tlsConnectParams.DestinationPort,
                             CLIENT_PORT);
@@ -240,7 +248,7 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
 
   status = setsockopt(pNetwork->socket_id, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
   if (status) {
-    return get_aws_error(errno);
+    return sli_si91x_get_aws_error(errno);
   }
 
     if(pub_state == 1){    //This check is for handling PUBACK in QOS1
@@ -254,7 +262,7 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
     if (bytes_read == 0) {
       return NETWORK_SSL_READ_ERROR;
     } else if (bytes_read < 0) {
-      return get_aws_error(sl_si91x_get_saved_firmware_status());
+      return sli_si91x_get_aws_error(sl_si91x_get_saved_firmware_status());
     }
 
     total_bytes_read += bytes_read;
@@ -271,7 +279,7 @@ IoT_Error_t iot_tls_disconnect(Network *pNetwork)
 {
   int32_t status = close(pNetwork->socket_id);
   if (status) {
-    return get_aws_error(status);
+    return sli_si91x_get_aws_error(status);
   }
   return SUCCESS;
 }

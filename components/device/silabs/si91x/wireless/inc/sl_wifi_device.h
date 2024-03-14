@@ -476,23 +476,22 @@
 /// If this bit is enabled,NWP disables Debug prints support
 #define SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS BIT(28)
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917B0) || defined(DOXYGEN)
 /// @brief To Configure Frontend with selection BIT[30:29]
-/// @note VC1, VC2 and VC3 are control voltage pins of RF Switch
-#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_GPIO_46_47_48 0
-
-#ifdef SLI_SI917B0
-/** @brief For 917B0
+/// @brief For 917B0
+/** 
  * 
- * | Bit[30] | BIT[29] | ANT_SEL_1(VC3) | ANT_SEL_2(VC2) | ANT_SEL_3(VC1) |                        
- * |:--------|:--------|:---------------|:---------------|:---------------|
- * | 0       |   0     | Reserved       | Reserved       | Reserved       |
- * | 0       |   1     | UILP_GPIO 4    | ULP_GPIO 5     | ULP_GPIO 0     |
- * | 1       |   0     | Virtual Switch |                |                |
- * | 1       |   1     | Reserved       | Reserved       | Reserved       |
+ * | Bit[30] | BIT[29] | ANT_SEL_1(VC3)  | ANT_SEL_2(VC2)  | ANT_SEL_3(VC1)  |                        
+ * |:--------|:--------|:----------------|:----------------|:----------------|
+ * | 0       |   0     | Reserved        | Reserved        | Reserved        |
+ * | 0       |   1     | UILP_GPIO 4     | ULP_GPIO 5      | ULP_GPIO 0      |
+ * | 1       |   0     | Internal Switch | Internal Switch | Internal Switch |                                
+ * | 1       |   1     | Reserved        | Reserved        | Reserved        |
  */
+/// @note SiWx917 has an integrated on-chip transmit/receive (T/R) switch. This Internal RF Switch configuration uses internal logic present in the IC, and GPIOs are not needed. RF_BLE_TX (8dbm) mode is not supported in this configuration.
+/// @note VC1, VC2 and VC3 are control voltage pins of RF Switch
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 BIT(29)
-#define SL_SI91X_EXT_FEAT_FRONT_END_VIRTUAL_SWITCH             BIT(30)
+#define SL_SI91X_EXT_FEAT_FRONT_END_INTERNAL_SWITCH            BIT(30)
 #else
 /** 
  * @brief For 917A0
@@ -504,11 +503,9 @@
  * | 1       |   0     | UILP_GPIO 4    | ULP_GPIO 5     | ULP_GPIO 0     |
  * | 1       |   1     | UILP_GPIO 4    | ULP_GPIO 5     | ULP_GPIO 7     |
  */
+#define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_GPIO_46_47_48  0
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 BIT(30)
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_7 (BIT(30) | BIT(29))
-#endif
-#else
-/// @note Bit 29 - 30 is reserved
 #endif
 
 /// Enable BT Custom Features
@@ -879,6 +876,12 @@ typedef enum {
   SL_SI91X_WLAN_BLE_MODE       = 13, ///< WLAN and BLE mode
   __FORCE_COEX_ENUM_16BIT      = 0xFFFF
 } sl_si91x_coex_mode_t;
+
+///SiW91x efuse data index
+typedef enum {
+  SL_SI91X_EFUSE_MFG_SW_VERSION = 0, ///<Efuse data index for MFG SW Version
+  SL_SI91X_EFUSE_PTE_CRC        = 1, ///<Efuse data index for PTE CRC
+} sl_si91x_efuse_data_type_t;
 /** @} */
 
 /** \addtogroup SI91X_BURN_TARGET_OPTIONS
@@ -922,6 +925,7 @@ typedef struct {
   sl_si91x_region_code_t region_code;        ///< Si91x region code of type @ref sl_si91x_region_code_t
   sl_si91x_boot_configuration_t boot_config; ///< Si91x boot configuration, Refer @ref SL_SI91X_BOOT_CONFIGURATION
   sl_si91x_dynamic_pool ta_pool; ///< TA buffer allocation command parameters of tyoe @ref sl_si91x_dynamic_pool
+  uint8_t efuse_data_type; ///<Type of efuse data need to be read from flash, Refer @ref sl_si91x_efuse_data_type_t
 } sl_wifi_device_configuration_t;
 
 /// SL Wi-Fi device context
@@ -1104,7 +1108,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_v6_config
 };
 
 /// Default Wi-Fi transmit configuration
-static const sl_wifi_device_configuration_t sl_wifi_transmit_test_configuration = {
+static const sl_wifi_device_configuration_t sl_wifi_default_transmit_test_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,

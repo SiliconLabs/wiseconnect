@@ -10,15 +10,16 @@ instantiable:
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
   - path: config/sl_si91x_analog_comparator_{{instance}}_config.h
+    file_id: analog_comparator_config
 provides:
   - name: analog_comparator_instance
     allow_multiple: true
 template_file:
   - path: init/sl_si91x_analog_comparator_init.h.jinja
 template_contribution:
-  - name: temp_analog_comparator_instance
-    value: "{{instance}}"
   - name: component_catalog
+    value: "{{instance}}"
+  - name: temp_analog_comparator_instance
     value: "{{instance}}"
   - name: component_catalog
     value: "analog_comparator_instance"

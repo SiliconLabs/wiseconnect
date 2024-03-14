@@ -81,7 +81,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   - **ADC Channel Configuration**
 
     - Input Type: ADC input type can be configured to either single ended or differential.
-    - Sampling rate: We can set sampling rate of ADC, i.e. bits/second to minimum of 1sps and maximum to 5Msps.
+    - Sampling rate: Sample rate can be configurable to ADC channel, sample rate unit is samples/second. The configuration range from 1sps to 2.5 Msps.
     - Sample length: Set the length of ADC samples, i.e. number of ADC samples collected for operation, it should be minimum value set to 1 and maximum of 1023.
 
       ![Figure: Introduction](resources/uc_screen/sl_adc_channel_uc_screen.png)

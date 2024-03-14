@@ -39,7 +39,7 @@
 #endif
 #include <string.h>
 
-static sl_status_t get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_mode, uint8_t *size)
+static sl_status_t sli_si91x_get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_mode, uint8_t *size)
 {
   switch (ecdh_mode) {
     case SL_SI91X_ECDH_192:
@@ -57,17 +57,17 @@ static sl_status_t get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_mode, uint8
   return SL_STATUS_OK;
 }
 
-static sl_status_t ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
-                                sl_si91x_ecdh_sub_mode_t ecdh_sub_mode,
-                                uint8_t *sx,
-                                uint8_t *sy,
-                                uint8_t *sz,
-                                uint8_t *tx,
-                                uint8_t *ty,
-                                uint8_t *tz,
-                                uint8_t *rx,
-                                uint8_t *ry,
-                                uint8_t *rz)
+static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
+                                          sl_si91x_ecdh_sub_mode_t ecdh_sub_mode,
+                                          uint8_t *sx,
+                                          uint8_t *sy,
+                                          uint8_t *sz,
+                                          uint8_t *tx,
+                                          uint8_t *ty,
+                                          uint8_t *tz,
+                                          uint8_t *rx,
+                                          uint8_t *ry,
+                                          uint8_t *rz)
 {
   uint8_t size              = 0;
   uint16_t offset           = 0;
@@ -92,7 +92,7 @@ static sl_status_t ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
 
   memset(request, 0, sizeof(sl_si91x_ecdh_add_sub_request_t));
 
-  status = get_size_from_ecdh_mode(ecdh_mode, &size);
+  status = sli_si91x_get_size_from_ecdh_mode(ecdh_mode, &size);
   if (status != SL_STATUS_OK) {
     free(request);
     return status;
@@ -185,7 +185,7 @@ sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
                                          uint8_t *ry,
                                          uint8_t *rz)
 {
-  return ecdh_add_sub(ecdh_mode, SL_SI91X_ECDH_ADD, sx, sy, sz, tx, ty, tz, rx, ry, rz);
+  return sli_si91x_ecdh_add_sub(ecdh_mode, SL_SI91X_ECDH_ADD, sx, sy, sz, tx, ty, tz, rx, ry, rz);
 }
 
 sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
@@ -199,7 +199,7 @@ sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
                                             uint8_t *ry,
                                             uint8_t *rz)
 {
-  return ecdh_add_sub(ecdh_mode, SL_SI91X_ECDH_SUB, sx, sy, sz, tx, ty, tz, rx, ry, rz);
+  return sli_si91x_ecdh_add_sub(ecdh_mode, SL_SI91X_ECDH_SUB, sx, sy, sz, tx, ty, tz, rx, ry, rz);
 }
 
 sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
@@ -233,7 +233,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
 
   memset(request, 0, sizeof(sl_si91x_ecdh_mul_request_t));
 
-  status = get_size_from_ecdh_mode(ecdh_mode, &size);
+  status = sli_si91x_get_size_from_ecdh_mode(ecdh_mode, &size);
   if (status != SL_STATUS_OK) {
     free(request);
     return status;
@@ -352,7 +352,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
 
   memset(request, 0, sizeof(sl_si91x_ecdh_double_request_t));
 
-  status = get_size_from_ecdh_mode(ecdh_mode, &size);
+  status = sli_si91x_get_size_from_ecdh_mode(ecdh_mode, &size);
   if (status != SL_STATUS_OK) {
     free(request);
     return status;
@@ -457,7 +457,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
 
   memset(request, 0, sizeof(sl_si91x_ecdh_affine_request_t));
 
-  status = get_size_from_ecdh_mode(ecdh_mode, &size);
+  status = sli_si91x_get_size_from_ecdh_mode(ecdh_mode, &size);
   if (status != SL_STATUS_OK) {
     free(request);
     return status;

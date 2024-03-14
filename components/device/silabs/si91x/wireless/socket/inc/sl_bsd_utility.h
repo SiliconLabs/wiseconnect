@@ -31,4 +31,12 @@
 
 #include <stdint.h>
 
-int16_t si91x_get_socket_mss(int32_t socketIndex);
+/***************************************************************************
+ * @brief
+ *  Get the maximum segment size (MSS) of a socket.
+ * @param[in] socketIndex
+ *  The index of the socket.
+ * @return
+ *  int16_t. The maximum segment size (MSS) of the socket.
+ ******************************************************************************/
+int16_t sl_si91x_get_socket_mss(int32_t socketIndex);

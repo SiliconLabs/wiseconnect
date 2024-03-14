@@ -25,7 +25,7 @@
 
 - The I2C will be configured in follower mode. The SCL and SDA lines of leader controller are connected to Follower's SCL and SDA pins.
 - Here the SCL and SDA lines of follower are configured as internal pull-up.
-- There are three configurable I2C Leader/Follower controllers in M4 - two in the MCU HP peripherals (I2C1, I2C2) and one in the MCU ULP subsystem (ULP_I2C).
+- There are three configurable I2C controllers in M4 - two in the MCU HP peripherals (I2C1, I2C2) and one in the MCU ULP subsystem (ULP_I2C). For I2C follower all instances will in MCU HP mode.
 - The I2C interface allows the processor to serve as a leader or follower on the I2C bus.
 - I2C can be configured with following features
   - I2C standard compliant bus interface with open-drain pins
@@ -51,10 +51,12 @@
 - Now write_buffer is filled with some data which needs to be sent to the leader.
 - Current_mode enum is set to I2C_RECEIVE_DATA, it receives data from leader through \ref sl_i2c_driver_receive_data_blocking (for blocking Application) or through \ref sl_i2c_driver_receive_data_non_blocking (for Non-blocking Application).
 - After that it will wait till all the data is received by leader.
-- Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_SEND_DATA.
+- For Blocking usecase : When all bytes are received then mode changes to I2C_SEND_DATA (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are received).
+- For Non-blocking usecase : Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_SEND_DATA.
 - Then it calls send_data API to send data to leader through \ref sl_i2c_driver_send_data_blocking (for blocking Application) or through \ref sl_i2c_driver_send_data_non_blocking (for Non-blocking Application).
 - After calling send_data, it will wait till all the data is transmitted to leader device.
-- Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
+- For Blocking usecase : When all bytes are sent then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are sent).
+- For Non-blocking usecase :Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
 - Now it compares the data which is received from the leader device to the data which it has sent.
 - If the send & receive data is same, it will print 'Test Case Passed' on the console.
 
@@ -103,7 +105,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - After creation of instances separate configuration files are get generated in **config folder**.
 - If project built without selecting configurations, it will take default values from UC.
 - Configure mode, operating-mode and transfer-type of I2C instance using respective instance UC.
-- Change 'Mode' to 'Follower mode' on UC.
 - Change 'Operating Mode' as per bus-speed requirement.
 - Change 'Transfer Type' to 'Using Interrupt' for Blocking Application or to 'Using DMA' for NON-Blocking Application.
 - After above UC configurations also configure following macros in i2c_follower_example.c file and update/modify following macros if required.
@@ -113,7 +114,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     #define BLOCKING_APPLICATION     // Enable it for enabling I2C transfer using interrupt Application
     #define NON_BLOCKING_APPLICATION // Enable it for enabling I2C transfer using interrupt Application
     #define OWN_I2C_ADDR             // Update I2C own address
-    #define I2C_SIZE_BUFFERS             // To change the number of bytes to send and receive.Its value should be less than maximum buffer size macro value.
+    #define I2C_SIZE_BUFFERS         // To change the number of bytes to send and receive.Its value should be less than maximum buffer size macro value.
   ```
 
 > **Note:** Enable either BLOCKING application or NON-BLOCKING application macro, at a time. For I2C0 instance change the value of following macros in path: /$project/config/RTE_Device_917.h

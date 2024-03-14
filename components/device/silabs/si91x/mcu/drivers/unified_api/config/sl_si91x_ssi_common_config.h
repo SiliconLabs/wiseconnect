@@ -38,7 +38,7 @@ extern "C" {
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>DMA Configuration
 
-// <q SL_SSI_MASTER_DMA_CONFIG_ENABLE> MAster DMA
+// <q SL_SSI_MASTER_DMA_CONFIG_ENABLE> Master DMA
 // <i> Default: 0
 #define SL_SSI_MASTER_DMA_CONFIG_ENABLE 0
 

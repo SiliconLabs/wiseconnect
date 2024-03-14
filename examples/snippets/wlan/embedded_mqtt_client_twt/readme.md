@@ -103,134 +103,134 @@ The application can be configured to suit user requirements and development envi
       #define ENABLE_MQTT_SUBSCRIBE_PUBLISH 0
       ```
 
->Note:
- > ENABLE_MQTT_SUBSCRIBE_PUBLISH is disabled by default because the purpose of this application is to demonstrate power performance with TWT and without MQTT connection loss.
+> Note:
+> ENABLE_MQTT_SUBSCRIBE_PUBLISH is disabled by default because the purpose of this application is to demonstrate power performance with TWT and without MQTT connection loss.
  
-     - MQTT_BROKER_PORT port refers to the port number on which the remote MQTT broker/server is running.
+- MQTT_BROKER_PORT port refers to the port number on which the remote MQTT broker/server is running.
 
-          ```c
-          #define MQTT_BROKER_PORT                                8886
-          ```
+     ```c
+     #define MQTT_BROKER_PORT                                8886
+     ```
 
-     - MQTT_BROKER_IP refers remote peer IP address (Windows PC1) on which MQTT server is running. This needs to be configured at mqtt_broker_configuration variable declaration.
+- MQTT_BROKER_IP refers remote peer IP address (Windows PC1) on which MQTT server is running. This needs to be configured at mqtt_broker_configuration variable declaration.
 
-          ```c
-          .ip         = SL_IPV4_ADDRESS(192, 168, 1, 0)
-          ```
+     ```c
+     .ip         = SL_IPV4_ADDRESS(192, 168, 1, 0)
+     ```
 
-     - CLIENT_PORT port refers to the device MQTT client port number.
+- CLIENT_PORT port refers to the device MQTT client port number.
 
-          ```c
-          #define CLIENT_PORT                                1
-          ```
+     ```c
+     #define CLIENT_PORT                                1
+     ```
 
-     - CLIENT_ID refers to the unique ID with which the MQTT client connects to MQTT broker/server.
+- CLIENT_ID refers to the unique ID with which the MQTT client connects to MQTT broker/server.
 
-          ```c
-          #define clientID "WIFI-SDK-MQTT-CLIENT"
-          ```
+     ```c
+     #define clientID "WIFI-SDK-MQTT-CLIENT"
+     ```
 
-     - TOPIC_TO_BE_SUBSCRIBED refers to the topic to which MQTT client is supposed to subscribe to.
+- TOPIC_TO_BE_SUBSCRIBED refers to the topic to which MQTT client is supposed to subscribe to.
 
-          ```c
-          #define TOPIC_TO_BE_SUBSCRIBED  "THERMOSTAT-DATA"
-          ```
+     ```c
+     #define TOPIC_TO_BE_SUBSCRIBED  "THERMOSTAT-DATA"
+     ```
 
-     - PUBLISH_TOPIC refers to the topic to which MQTT client is supposed to publish on.
+- PUBLISH_TOPIC refers to the topic to which MQTT client is supposed to publish on.
 
-          ```c
-          #define PUBLISH_TOPIC  "THERMOSTAT-DATA"
-          ```
+     ```c
+     #define PUBLISH_TOPIC  "THERMOSTAT-DATA"
+     ```
 
-     - PUBLISH_MESSAGE refers to message that would be published by MQTT client.
+- PUBLISH_MESSAGE refers to message that would be published by MQTT client.
 
-          ```c
-          #define PUBLISH_MESSAGE    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
-          ```
+     ```c
+     #define PUBLISH_MESSAGE    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
+     ```
 
-     - QOS_OF_PUBLISH_MESSAGE indicates quality of service using which MQTT client publishes message.
+- QOS_OF_PUBLISH_MESSAGE indicates quality of service using which MQTT client publishes message.
 
-          ```c
-          #define QOS_OF_PUBLISH_MESSAGE 0
-          ```
+     ```c
+     #define QOS_OF_PUBLISH_MESSAGE 0
+     ```
 
-     - IS_DUPLICATE_MESSAGE indicates whether message sent by MQTT client is a duplicated message.
+- IS_DUPLICATE_MESSAGE indicates whether message sent by MQTT client is a duplicated message.
 
-          ```c
-          #define IS_DUPLICATE_MESSAGE 0
-          ```
+     ```c
+     #define IS_DUPLICATE_MESSAGE 0
+     ```
 
-     - IS_MESSAGE_RETAINED whether broker need to retain message published by MQTT client.
+- IS_MESSAGE_RETAINED whether broker need to retain message published by MQTT client.
 
-          ```c
-          #define IS_MESSAGE_RETAINED 0
-          ```
+     ```c
+     #define IS_MESSAGE_RETAINED 0
+     ```
 
-     - IS_CLEAN_SESSION indicates whether this connection is new one or continuation of last session
+- IS_CLEAN_SESSION indicates whether this connection is new one or continuation of last session
 
-          ```c
-          #define IS_CLEAN_SESSION 0
-          ```
+     ```c
+     #define IS_CLEAN_SESSION 0
+     ```
 
-     - LAST_WILL_TOPIC Topic of last will message
+- LAST_WILL_TOPIC Topic of last will message
 
-          ```c
-          #define LAST_WILL_TOPIC  "WiFiSDK-MQTT-CLIENT-LAST-WILL"
-          ```
+     ```c
+     #define LAST_WILL_TOPIC  "WiFiSDK-MQTT-CLIENT-LAST-WILL"
+     ```
 
-     - LAST_WILL_MESSAGE Message that would be published by broker if MQTT client disconnect abruptly.
+- LAST_WILL_MESSAGE Message that would be published by broker if MQTT client disconnect abruptly.
 
-          ```c
-          #define LAST_WILL_MESSAGE  "WiFiSDK-MQTT-CLIENT has been disconnect from network"
-          ```
+     ```c
+     #define LAST_WILL_MESSAGE  "WiFiSDK-MQTT-CLIENT has been disconnect from network"
+     ```
 
-     - QOS_OF_LAST_WILL Quality of service for last will message
+- QOS_OF_LAST_WILL Quality of service for last will message
 
-          ```c
-          #define QOS_OF_LAST_WILL  1
-          ```
+     ```c
+     #define QOS_OF_LAST_WILL  1
+     ```
 
-     - IS_LAST_WILL_RETAINED Whether broker needs to retail last will message of client
+- IS_LAST_WILL_RETAINED Whether broker needs to retail last will message of client
 
-          ```c
-          #define IS_LAST_WILL_RETAINED 1
-          ```
+     ```c
+     #define IS_LAST_WILL_RETAINED 1
+     ```
 
-     - ENCRYPT_CONNECTION Whether the connection between client and broker should be encrypted using SSL. 
+- ENCRYPT_CONNECTION Whether the connection between client and broker should be encrypted using SSL. 
 
-          ```c
-          #define ENCRYPT_CONNECTION  0
-          ```
+     ```c
+     #define ENCRYPT_CONNECTION  0
+     ```
 
-     - KEEP_ALIVE_INTERVAL client keep alive period in milliseconds
+- KEEP_ALIVE_INTERVAL client keep alive period in milliseconds
 
-          ```c
-          #define KEEP_ALIVE_INTERVAL                       100
-          ```
+     ```c
+     #define KEEP_ALIVE_INTERVAL                       100
+     ```
 
-     - MQTT_CONNECT_TIMEOUT Timeout for broker connection in milliseconds
+- MQTT_CONNECT_TIMEOUT Timeout for broker connection in milliseconds
 
-          ```c
-          #define MQTT_CONNECT_TIMEOUT                      5000
-          ```
+     ```c
+     #define MQTT_CONNECT_TIMEOUT                      5000
+     ```
 
-     - SEND_CREDENTIALS Whether to send username and password in connect request.
+- SEND_CREDENTIALS Whether to send username and password in connect request.
 
-          ```c
-          #define SEND_CREDENTIALS 0
-          ```
+     ```c
+     #define SEND_CREDENTIALS 0
+     ```
 
-     - USERNAME for login credentials
+- USERNAME for login credentials
 
-          ```c
-          #define USERNAME "WIFISDK"
-          ```
+     ```c
+     #define USERNAME "WIFISDK"
+     ```
 
-     - PASSWORD for login credentials
+- PASSWORD for login credentials
 
-          ```c
-          #define PASSWORD "password"
-          ```
+     ```c
+     #define PASSWORD "password"
+     ```
 
 - Power save configuration
 
@@ -256,11 +256,13 @@ The application can be configured to suit user requirements and development envi
 
 - iTWT Configuration
 
+     To configure iTWT parameters open **app.c**.
      There are three TWT configuration APIs. 
+     >
+     > - **sl_wifi_target_wake_time_auto_selection** - This API calculates and automatically configures suitable TWT parameters based on the given inputs. Enables or disables a TWT session. Recommended for user applications. 
+     > - **sl_wifi_enable_target_wake_time** - This API allows users to manually configure iTWT session parameters and enables the iTWT session. This API is not recommended for users. It is for internal certification purposes only.
+     > - **sl_wifi_disable_target_wake_time** - Disables a TWT session.
 
-     > - sl_wifi_target_wake_time_auto_selection - This API calculates and automatically configures TWT parameters based on the given inputs. Enables or disables a TWT session.
-     > - sl_wifi_enable_target_wake_time - This API allows users to manually configure iTWT session parameters and enables the iTWT session.
-     > - sl_wifi_disable_target_wake_time - Disables a TWT session.
 
      **sl_wifi_target_wake_time_auto_selection API:**
 
@@ -268,39 +270,44 @@ The application can be configured to suit user requirements and development envi
      sl_status_t sl_wifi_target_wake_time_auto_selection(sl_wifi_twt_selection_t *twt_auto_request)
      ```
 
-     Enable TWT_AUTO_CONFIG MACRO in the app.c file.
+     This TWT API is recommended because it's designed for maintaining connections, improving throughput, and enhancing power performance.
 
+     Input parameter descriptions are as follows:
+
+     - **twt_enable** : TWT enable. 0 - TWT session teardown; 1 - TWT session setup.
+     - **average_tx_throughput** : This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20Mbps by default).
+     - **tx_latency** : The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200ms - 6hrs].
+     - **rx_latency** : The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
+
+     For more information on input parameters, refer [sl_wifi_twt_selection_t](https://docs.silabs.com/wiseconnect/3.1.4/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t).
+
+     Enable TWT_AUTO_CONFIG MACRO in the app.c file to enable usage of this API.
+
+     ```c
+     #define TWT_AUTO_CONFIG         1
+     ```
      Given below are sample configurations.
 
      ```c
-     sl_wifi_twt_selection_t default_twt_selection_configuration = {
-     .twt_enable                            = 1,
-     .average_tx_throughput                 = 1000,
-     .tx_latency                            = 0,
-     .rx_latency                            = 5000,
-     .device_average_throughput             = DEVICE_AVERAGE_THROUGHPUT,
-     .estimated_extra_wake_duration_percent = ESTIMATE_EXTRA_WAKE_DURATION_PERCENT,
-     .twt_tolerable_deviation               = TWT_TOLERABLE_DEVIATION,
-     .default_wake_interval_ms              = TWT_DEFAULT_WAKE_INTERVAL_MS,
-     .default_minimum_wake_duration_ms      = TWT_DEFAULT_WAKE_DURATION_MS,
-     .beacon_wake_up_count_after_sp         = MAX_BEACON_WAKE_UP_AFTER_SP
-     };
+          sl_wifi_twt_selection_t default_twt_selection_configuration = {
+          .twt_enable                            = 1,
+          .average_tx_throughput                 = 1000,
+          .tx_latency                            = 0,
+          .rx_latency                            = 5000,
+          .device_average_throughput             = DEVICE_AVERAGE_THROUGHPUT,
+          .estimated_extra_wake_duration_percent = ESTIMATE_EXTRA_WAKE_DURATION_PERCENT,
+          .twt_tolerable_deviation               = TWT_TOLERABLE_DEVIATION,
+          .default_wake_interval_ms              = TWT_DEFAULT_WAKE_INTERVAL_MS,
+          .default_minimum_wake_duration_ms      = TWT_DEFAULT_WAKE_DURATION_MS,
+          .beacon_wake_up_count_after_sp         = MAX_BEACON_WAKE_UP_AFTER_SP
+          };
      ```
-
-     Sample API call is given as below : 
+     - The following are the default macro settings. User should not change these values as it may affect the working of the algorithm. 
 
      ```c
-     status                            = sl_wifi_target_wake_time_auto_selection(&performance_profile.twt_selection);
-     ```
-
-     There are default macro settings that are used for calculating the iTWT parameters. 
-
-     Sample Macro Settings : 
-
-     ```c
-     #define DEVICE_AVERAGE_THROUGHPUT            20000 \\ KBPS
-     #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0 \\ in percentage
-     #define TWT_TOLERABLE_DEVIATION              10 \\ in percentage
+     #define DEVICE_AVG_THROUGHPUT                20000    // Kbps
+     #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0        // in percentage
+     #define TWT_TOLERABLE_DEVIATION              10       // in percentage
      #define TWT_DEFAULT_WAKE_INTERVAL_MS         1024     // in milli seconds
      #define TWT_DEFAULT_WAKE_DURATION_MS         16       // in milli seconds
      #define MAX_TX_AND_RX_LATENCY_LIMIT          22118400 // 6hrs in milli seconds
@@ -312,9 +319,10 @@ The application can be configured to suit user requirements and development envi
      >
      > WLAN Keep Alive should not be disabled while using this API.
 
-     
-     **sl_wifi_enable_target_wake_time API:**
+          
+     **sl_wifi_enable_target_wake_time API**
 
+     Usage of this API requires knowledge of individual TWT setup negotiation. This API doesn't take care of network disconnections.
      ```c
      sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req)
      ```
@@ -347,7 +355,32 @@ The application can be configured to suit user requirements and development envi
      };
      ```
 
-     Below is the sample TWT setup API call.
+    These parameters with their limits are defined as below.
+
+    - **twt_enable**:  1- Setup ; 0 - teardown
+    - **twt_flow_id**: range 0-7 or 0xFF
+    - **twt_req_params**: Structure with parameters in case of setup and NULL in case of teardown.
+    - **wake_duration**: This is the nominal minimum wake duration of TWT. This is the time for which DUT will be in wake state for Transmission or reception of data. Allowed values range is  0-255.
+    - **wake_duration_unit**: This parameter defines unit for wake_duration. Allowed values are  0 (256uS) and 1 (1024uS).
+    - **wake_duration_tol**: This is the tolerance allowed for wake duration in case of suggest TWT. Received TWT wake duration from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-255.
+    - **wake_int_exp**: TWT Wake interval exponent. It is exponent to base 2. Allowed values are 0 - 31.
+    - **wake_int_exp_tol**: This is the allowed tolerance for wake_int_exp in case of suggest TWT request. Received TWT wake interval exponent from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0 - 31.
+    - **wake_int_mantissa**: This is the TWT wake interval mantissa. Allowed values are 0-65535.
+    - **wake_int_mantissa_tol**: This is tolerance allowed for wake_int_mantissa in case of suggest TWT. Received TWT wake interval mantissa from AP will be validated against tolerance limits and decided if TWT config received is in acceptable range. Allowed values are 0-65535.
+    - **implicit_twt**: If enabled (1), the TWT requesting STA calculates the Next TWT by adding a fixed value to the current TWT value. Explicit TWT is currently not allowed.
+    - **un_announced_twt**: If enabled (1), TWT requesting STA does not announce its wake up to AP through PS-POLLs or UAPSD Trigger frames.
+    - **triggered_twt**: If enabled(1), at least one trigger frame is included in the TWT Service Period(TSP).
+    - **twt_channel**: Currently this configuration is not supported. Allowed values are 0-7.
+    - **twt_protection**:  If enabled (1), TSP is protected. This is negotiable with AP. Currently not supported. Only zero is allowed.
+    - **restrict_tx_outside_tsp**: If enabled (1), any Tx outside the TSP is restricted. Else, TX can happen outside the TSP also.
+    - **twt_retry_limit**: This is the maximum number of retries allowed, if the TWT response frame is not received for the sent TWT request frame. Allowed values are 0 - 15.
+    - **twt_retry_interval**: The interval, in seconds, between two twt request retries. Allowed values are 5 - 255.
+    - **req_type**: This is the TWT request type.
+      - 0 - Request TWT
+      - 1 - Suggest TWT
+      - 2 - Demand TWT
+
+    Below is the sample TWT setup API call.
 
      ```c
      status                          = sl_wifi_enable_target_wake_time(&twt_request);
@@ -407,10 +440,10 @@ User can get asynchronous TWT session updates if *twt_response_handler* is defin
 
 ## TWT Recommendations 
 
-1. Use sl_wifi_target_wake_time_auto_selection with appropriate Rx Latency input according to the user scenario as it has improved  design over sl_wifi_enable_target_wake_time, handles Embedded MQTT level disconnections and has better user interface. 
+1. Use sl_wifi_target_wake_time_auto_selection with appropriate Rx Latency input according to the use case as it has improved design over sl_wifi_enable_target_wake_time. Also, it handles network level disconnections such as ARP, Embedded MQTT and TCP connections. It has better user interface and simplifies TWT usage.
 2. iTWT setup is recommended after IP assignment/TCP connection/application connection.
-3. When using sl_wifi_target_wake_time_auto_selection API, Rx Latency  should be less than TCP / ARP Timeouts at the remote side.
-4. When using sl_wifi_enable_target_wake_time, TWT interval configured should be less than TCP / ARP Timeouts at the remote side.
+3. When using sl_wifi_target_wake_time_auto_selection API, Rx Latency should be less than TCP / ARP Timeouts at the remote side.
+4. When using sl_wifi_enable_target_wake_time API, TWT interval configured should be less than TCP / ARP Timeouts at the remote side.
 5. For iTWT, GTK Interval Should be kept maximum possible value or zero. If GTK interval is not configurable, recommended TWT interval (in case of sl_wifi_enable_target_wake_time) / RX Latency (in case of sl_wifi_target_wake_time_auto_selection API) is less than 4sec.
 6. When sl_wifi_enable_target_wake_time API is used, configuring TWT Wake interval beyond 1 min might lead to disconnections from the AP. Recommended to use TWT wakeup interval less than or equal to 1 min.
 7. WLAN Keep Alive timeout should **not** be disabled when sl_wifi_target_wake_time_auto_selection API is used or when unannounced TWT session is set up using sl_wifi_enable_target_wake_time API. It is recommended to use WLAN Keep Alive timeout of 30 sec which is the default timeout even if not configured specifically by the user.

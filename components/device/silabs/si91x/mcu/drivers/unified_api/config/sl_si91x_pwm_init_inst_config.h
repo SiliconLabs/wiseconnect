@@ -98,8 +98,12 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // PWM channel number is passed to this macro
-#warning "PWM INSTANCE not configured"
-// #define SL_PWM_INSTANCE_OUTPUT_CHANNEL 0
+#warning \
+  "PWM INSTANCE not configured, Please Configure by installing the [ENABLE USER CONFIGURATION] Component / define USER_CONFIGURATION_ENABLE to 1 and define SL_PWM_INSTANCE_OUTPUT_CHANNEL."
+
+#if USER_CONFIGURATION_ENABLE
+#define SL_PWM_INSTANCE_OUTPUT_CHANNEL 0
+#endif // USER_CONFIGURATION_ENABLE
 
 #define SL_PWM_INSTANCE_PIN_L SL_SI91X_PWM_1L_PIN
 #define SL_PWM_INSTANCE_PIN_H SL_SI91X_PWM_1H_PIN

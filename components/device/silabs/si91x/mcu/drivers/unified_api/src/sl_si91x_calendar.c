@@ -62,12 +62,6 @@
 #define CALENDAR_SQA_VERSION     (0u) // CALENDAR SQA version
 #define CALENDAR_DEV_VERSION     (2u) // CALENDAR Developer version
 
-#define CALENDAR_UC \
-  (1u) /*!< CALENDAR_UC is defined by default. when this macro (CALENDAR_UC) is defined, peripheral
-                                                                  configuration is directly taken from the configuration set in the universal configuration (UC).
-                                                                  if the application requires the configuration to be changed in run-time, undefined this macro
-                                                                  and change the peripheral configuration through the \ref sl_si91x_calendar_set_configuration API. */
-
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/

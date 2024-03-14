@@ -41,6 +41,7 @@
 #include <string.h>
 #include "sl_si91x_core_utilities.h"
 #ifdef SLI_SI91X_MCU_INTERFACE
+#include "sli_siwx917_soc.h"
 #include "rsi_rom_clks.h"
 #include "rsi_m4.h"
 #include "rsi_wisemcu_hardware_setup.h"
@@ -68,10 +69,6 @@ extern osMutexId_t side_band_crypto_mutex;
 
 #define htole16(x) (x)
 #define htole32(x) (x)
-
-#ifndef SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME
-#define SL_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME 1000 // 1 second to wait for a command buffer
-#endif
 
 #ifndef SL_WIFI_SET_MAC_COMMAND_TIME_OUT
 #define SL_WIFI_SET_MAC_COMMAND_TIME_OUT 30100 // Retrieved from SAPI 1.0
@@ -643,7 +640,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
   // Save the coexistence mode in the driver
   save_coex_mode(config->boot_config.coex_mode);
 #ifdef SL_SI91X_GET_EFUSE_DATA
-  status = sl_si91x_get_flash_efuse_data(&si91x_efuse_data);
+  status = sl_si91x_get_flash_efuse_data(&si91x_efuse_data, config->efuse_data_type);
 #endif
   return status;
 }
@@ -660,7 +657,7 @@ sl_status_t sl_si91x_driver_deinit(void)
 #ifdef SLI_SI91X_MCU_INTERFACE
   // If the SLI_SI91X_MCU_INTERFACE is defined, perform a soft reset
   status = sl_si91x_soft_reset();
-  VERIFY_STATUS(status);
+  VERIFY_STATUS_AND_RETURN(status);
 
   // Mask specific interrupts related to packet transfer
   mask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT);
@@ -678,23 +675,27 @@ sl_status_t sl_si91x_driver_deinit(void)
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
   // Free all allocated sockets
   status = sl_si91x_vap_shutdown(SL_SI91X_WIFI_CLIENT_VAP_ID);
-  VERIFY_STATUS(status);
+  VERIFY_STATUS_AND_RETURN(status);
   status = sl_si91x_vap_shutdown(SL_SI91X_WIFI_AP_VAP_ID);
-  VERIFY_STATUS(status);
+  VERIFY_STATUS_AND_RETURN(status);
 #endif
 
   // Deinitialize the SI91x platform
   status = sl_si91x_platform_deinit();
-  VERIFY_STATUS(status);
+  VERIFY_STATUS_AND_RETURN(status);
 
   // Deinitialize the SI91x host
   status = sl_si91x_host_deinit();
-  VERIFY_STATUS(status);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  // Deinitialize the buffer manager
+  status = sl_si91x_host_deinit_buffer_manager();
+  VERIFY_STATUS_AND_RETURN(status);
 
   sl_si91x_host_disable_bus_interrupt();
 
   status = sl_si91x_host_power_cycle();
-  VERIFY_STATUS(status);
+  VERIFY_STATUS_AND_RETURN(status);
 
   // Clear the event handler and reset initialization status
   si91x_event_handler  = NULL;
@@ -707,11 +708,10 @@ sl_status_t sl_si91x_driver_deinit(void)
   return status;
 }
 
-sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data)
+sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data, uint8_t efuse_data_type)
 {
   sl_status_t status;
   sl_wifi_buffer_t *buffer = NULL;
-
   SL_WIFI_ARGS_CHECK_NULL_POINTER(efuse_data);
 
   if (!device_initialized) {
@@ -720,8 +720,8 @@ sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data)
 
   status = sl_si91x_driver_send_command(RSI_COMMON_REQ_GET_EFUSE_DATA,
                                         SI91X_COMMON_CMD_QUEUE,
-                                        NULL,
-                                        0,
+                                        &efuse_data_type,
+                                        sizeof(efuse_data_type),
                                         SL_SI91X_WAIT_FOR_RESPONSE(15000),
                                         NULL,
                                         &buffer);
@@ -732,8 +732,16 @@ sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data)
 
   sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   if (packet->length > 0) {
-    sl_si91x_efuse_data_t *response = (sl_si91x_efuse_data_t *)packet->data;
-    efuse_data->mfg_sw_version      = response->mfg_sw_version;
+    switch (efuse_data_type) {
+      case SL_SI91X_EFUSE_MFG_SW_VERSION:
+        memcpy(&efuse_data->mfg_sw_version, packet->data, packet->length);
+        break;
+      case SL_SI91X_EFUSE_PTE_CRC:
+        memcpy(&efuse_data->pte_crc, packet->data, packet->length);
+        break;
+      default:
+        break;
+    }
   }
   sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
   return SL_STATUS_OK;
@@ -1753,45 +1761,143 @@ sl_status_t sl_si91x_set_device_region(sl_si91x_operation_mode_t operation_mode,
 }
 
 #ifdef SLI_SI91X_MCU_INTERFACE
-#ifdef SLI_SI917
+
 sl_status_t sl_si91x_command_to_write_common_flash(uint32_t write_address,
                                                    uint8_t *write_data,
                                                    uint16_t write_data_length,
                                                    uint8_t flash_sector_erase_enable)
-
 {
-  sl_si91x_request_ta2m4_t ta_to_m4_request = { 0 };
-  sl_status_t status                        = SL_STATUS_OK;
-  uint32_t send_size                        = 0;
-  SL_VERIFY_POINTER_OR_RETURN(write_data, SL_STATUS_INVALID_PARAMETER);
-
-  memset(&ta_to_m4_request, 0, sizeof(sl_si91x_request_ta2m4_t));
-  ta_to_m4_request.sub_cmd                   = SL_SI91X_WRITE_TO_COMMON_FLASH;
-  ta_to_m4_request.addr                      = write_address;
-  ta_to_m4_request.input_buffer_length       = write_data_length;
-  ta_to_m4_request.flash_sector_erase_enable = flash_sector_erase_enable;
-
-  // If flash_sector_erase_enable is 0, copy write_data into the request structure
-  if (flash_sector_erase_enable == 0) {
-    if (write_data_length > MAX_CHUNK_SIZE)
-      return SL_STATUS_INVALID_PARAMETER;
-    memcpy(&ta_to_m4_request.input_data, write_data, write_data_length);
+  // Check if write_data_length is non-zero
+  if (write_data_length == 0) {
+    return SL_STATUS_INVALID_PARAMETER;
   }
 
-  // Calculate the send size and send the command to write to common flash
-  send_size = ta_to_m4_request.input_buffer_length + (sizeof(sl_si91x_request_ta2m4_t) - MAX_CHUNK_SIZE);
-  status    = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
-                                        SI91X_WLAN_CMD_QUEUE,
-                                        &ta_to_m4_request,
-                                        send_size,
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
-                                        NULL,
-                                        NULL);
-  VERIFY_STATUS_AND_RETURN(status);
+  sl_status_t status                        = SL_STATUS_OK;
+  sl_si91x_request_ta2m4_t ta_to_m4_request = { 0 };
+  uint32_t send_size                        = 0;
+  uint16_t remaining_length                 = write_data_length;
+
+  // If flash_sector_erase_enable is 1, Send request to NWP in chunks of 4k
+  if (flash_sector_erase_enable == 1) {
+    while (remaining_length > 0) {
+      // Calculate the chunk size, capped at 4k
+      size_t chunkSize = (remaining_length < FLASH_SECTOR_SIZE) ? remaining_length : FLASH_SECTOR_SIZE;
+
+      // Fill the request structure
+      memset(&ta_to_m4_request, 0, sizeof(sl_si91x_request_ta2m4_t));
+      ta_to_m4_request.sub_cmd                   = SL_SI91X_WRITE_TO_COMMON_FLASH;
+      ta_to_m4_request.addr                      = write_address;
+      ta_to_m4_request.input_buffer_length       = chunkSize;
+      ta_to_m4_request.flash_sector_erase_enable = flash_sector_erase_enable;
+
+      send_size = sizeof(sl_si91x_request_ta2m4_t);
+
+      status = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
+                                            SI91X_WLAN_CMD_QUEUE,
+                                            &ta_to_m4_request,
+                                            send_size,
+                                            SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                            NULL,
+                                            NULL);
+      VERIFY_STATUS_AND_RETURN(status);
+
+      // Adjust write_address for the next chunk
+      write_address += chunkSize;
+
+      // Adjust remaining_length for the next chunk
+      remaining_length -= chunkSize;
+    }
+  }
+
+  else {
+    // Check if write_data pointer is valid
+    SL_VERIFY_POINTER_OR_RETURN(write_data, SL_STATUS_INVALID_PARAMETER);
+
+    // Write in chunks of MAX_CHUNK_SIZE for flash_sector_erase_enable != 1
+    while (write_data_length > 0) {
+      size_t chunkSize = (write_data_length < MAX_CHUNK_SIZE) ? write_data_length : MAX_CHUNK_SIZE;
+
+      // Fill the request structure
+      memset(&ta_to_m4_request, 0, sizeof(sl_si91x_request_ta2m4_t));
+      ta_to_m4_request.sub_cmd                   = SL_SI91X_WRITE_TO_COMMON_FLASH;
+      ta_to_m4_request.addr                      = write_address;
+      ta_to_m4_request.input_buffer_length       = chunkSize;
+      ta_to_m4_request.flash_sector_erase_enable = flash_sector_erase_enable;
+
+      // Copy write_data into the request structure
+      memcpy(&ta_to_m4_request.input_data, write_data, chunkSize);
+
+      // Calculate the send size and send the command to write to common flash
+      send_size = sizeof(sl_si91x_request_ta2m4_t) - MAX_CHUNK_SIZE + chunkSize;
+      status    = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
+                                            SI91X_WLAN_CMD_QUEUE,
+                                            &ta_to_m4_request,
+                                            send_size,
+                                            SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                            NULL,
+                                            NULL);
+      VERIFY_STATUS_AND_RETURN(status);
+
+      // Adjust pointers and counters
+      write_address += chunkSize;
+      write_data += chunkSize;
+      write_data_length -= chunkSize;
+    }
+  }
+  return status;
+}
+
+sl_status_t sl_si91x_command_to_read_common_flash(uint32_t read_address, size_t length, uint8_t *output_buffer)
+{
+  // Check if output_buffer pointer is valid
+  SL_VERIFY_POINTER_OR_RETURN(output_buffer, SL_STATUS_INVALID_PARAMETER);
+
+  // Check if length is non-zero
+  if (length == 0) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  sl_status_t status        = SL_STATUS_OK;
+  sl_wifi_buffer_t *buffer  = NULL;
+  sl_si91x_packet_t *packet = NULL;
+
+  while (length > 0) {
+    size_t chunkSize = (length < MAX_CHUNK_SIZE) ? length : MAX_CHUNK_SIZE;
+
+    sl_si91x_read_flash_request_t m4_to_ta_read_request = { 0 };
+    memset(&m4_to_ta_read_request, 0, sizeof(sl_si91x_read_flash_request_t));
+    m4_to_ta_read_request.sub_cmd              = SL_SI91X_READ_FROM_COMMON_FLASH;
+    m4_to_ta_read_request.nwp_address          = read_address;
+    m4_to_ta_read_request.output_buffer_length = chunkSize;
+
+    uint32_t send_size = sizeof(sl_si91x_read_flash_request_t);
+
+    status = sl_si91x_driver_send_command(RSI_COMMON_REQ_TA_M4_COMMANDS,
+                                          SI91X_WLAN_CMD_QUEUE,
+                                          &m4_to_ta_read_request,
+                                          send_size,
+                                          SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                          NULL,
+                                          &buffer);
+    if (status != SL_STATUS_OK) {
+      if (buffer != NULL)
+        sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      return status;
+    }
+    VERIFY_STATUS_AND_RETURN(status);
+
+    packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+    memcpy(output_buffer, packet->data, packet->length);
+    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+
+    // Adjust pointers and counters
+    read_address += chunkSize;
+    output_buffer += chunkSize;
+    length -= chunkSize;
+  }
 
   return status;
 }
-#endif
 
 sl_status_t sl_si91x_m4_ta_secure_handshake(uint8_t sub_cmd_type,
                                             uint8_t input_len,
@@ -2353,4 +2459,96 @@ sl_status_t sl_si91x_driver_btr_send_data(sl_wifi_btr_data_ctrlblk_t *data_ctrlb
 
   // Send command packet to the SI91x WLAN queue and await a response
   return sl_si91x_driver_send_data_packet(SI91X_WLAN_CMD_QUEUE, buffer, wait_time);
+}
+
+int16_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_image_size, uint8_t flags)
+{
+  static uint16_t boot_cmd = 0;
+  uint16_t read_value      = 0;
+  uint32_t offset          = 0;
+  int16_t retval           = 0;
+  uint32_t boot_insn = 0, poll_resp = 0;
+
+  //! If it is a start of file set the boot cmd to pong valid
+  if (flags & SL_SI91X_FW_START_OF_FILE) {
+    boot_cmd = RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID;
+  }
+
+  //! check for invalid packet
+  if ((fw_image_size % (SL_SI91X_MIN_CHUNK_SIZE) != 0) && (!(flags & SL_SI91X_FW_END_OF_FILE))) {
+    return -1;
+  }
+
+  //! loop to execute multiple of 4K chunks
+  while (offset < fw_image_size) {
+    switch (boot_cmd) {
+      case (RSI_HOST_INTERACT_REG_VALID | RSI_PING_VALID):
+        boot_insn = RSI_PONG_WRITE;
+        poll_resp = RSI_PING_AVAIL;
+        boot_cmd  = RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID;
+        break;
+
+      case (RSI_HOST_INTERACT_REG_VALID | RSI_PONG_VALID):
+        boot_insn = RSI_PING_WRITE;
+        poll_resp = RSI_PONG_AVAIL;
+        boot_cmd  = RSI_HOST_INTERACT_REG_VALID | RSI_PING_VALID;
+        break;
+    }
+
+    retval = sl_si91x_boot_instruction(boot_insn, (uint16_t *)((uint8_t *)firmware_image + offset));
+    if (retval < 0) {
+      return retval;
+    }
+
+    while (1) {
+      retval = sl_si91x_boot_instruction(RSI_REG_READ, &read_value);
+      if (retval < 0) {
+        return retval;
+      }
+
+      if (read_value == (RSI_HOST_INTERACT_REG_VALID | poll_resp)) {
+        break;
+      }
+    }
+    offset += SL_SI91X_MIN_CHUNK_SIZE;
+  }
+
+  //! For last chunk set boot cmd as End of file reached
+  if (flags & SL_SI91X_FW_END_OF_FILE) {
+    boot_cmd = RSI_HOST_INTERACT_REG_VALID | RSI_EOF_REACHED;
+
+    retval = sl_si91x_boot_instruction(RSI_REG_WRITE, &boot_cmd);
+    if (retval < 0) {
+      return retval;
+    }
+
+    //! check for successful firmware upgrade
+    do {
+      retval = sl_si91x_boot_instruction(RSI_REG_READ, &read_value);
+      if (retval < 0) {
+        return retval;
+      }
+
+    } while (read_value != (RSI_HOST_INTERACT_REG_VALID | RSI_FWUP_SUCCESSFUL));
+  }
+  return retval;
+}
+
+sl_status_t sl_si91x_set_fast_fw_up(void)
+{
+  uint32_t read_data = 0;
+  sl_status_t retval = 0;
+  retval             = sl_si91x_bus_read_memory(SL_SI91X_SAFE_UPGRADE_ADDR, 4, (uint8_t *)&read_data);
+  if (retval == SL_STATUS_FAIL) {
+    return retval;
+  }
+  //disabling safe upgradation bit
+  if ((read_data & SL_SI91X_SAFE_UPGRADE)) {
+    read_data &= ~(SL_SI91X_SAFE_UPGRADE);
+    retval = sl_si91x_bus_write_memory(SL_SI91X_SAFE_UPGRADE_ADDR, 4, (uint8_t *)&read_data);
+    if (retval == SL_STATUS_FAIL) {
+      return retval;
+    }
+  }
+  return retval;
 }

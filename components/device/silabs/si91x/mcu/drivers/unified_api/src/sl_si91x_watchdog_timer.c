@@ -40,11 +40,6 @@
 #define WATCHDOG_TIMER_RELEASE_VERSION 0                         // Watchdog-timer Release version
 #define WATCHDOG_TIMER_MAJOR_VERSION   0                         // Watchdog-timer SQA version
 #define WATCHDOG_TIMER_MINOR_VERSION   2                         // Watchdog-timer Developer version
-#define WDT_TIMER_UC \
-  1 /*!< WDT_TIMER_UC is defined by default. when this macro (WDT_TIMER_UC) is defined, peripheral
-                                                                        configuration is directly taken from the configuration set in the universal configuration (UC).
-                                                                        if the application requires the configuration to be changed in run-time, undefined this macro
-                                                                        and change the peripheral configuration through the \ref sl_si91x_watchdog_set_configuration API. */
 
 /*******************************************************************************
  ***************************  Local TYPES  ********************************

@@ -33,7 +33,6 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
                                sl_net_profile_id_t profile_id,
                                const sl_net_profile_t *profile)
 {
-  sl_status_t status;
 
   switch (interface) {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
@@ -45,7 +44,6 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
              (sl_net_wifi_client_profile_t *)profile,
              sizeof(sl_net_wifi_client_profile_t));
       return SL_STATUS_OK;
-      break;
 
     case SL_NET_WIFI_AP_INTERFACE:
       if (profile_id >= MAX_WIFI_AP_PROFILES) {
@@ -53,24 +51,22 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
       }
       memcpy(&wifi_ap_profiles[profile_id], (sl_net_wifi_ap_profile_t *)profile, sizeof(sl_net_wifi_ap_profile_t));
       return SL_STATUS_OK;
-      break;
+
     case SL_NET_WIFI_BTR_INTERFACE:
       if (profile_id >= MAX_WIFI_BTR_PROFILES) {
         return SL_STATUS_INVALID_INDEX;
       }
       memcpy(&wifi_btr_profiles[profile_id], (sl_net_wifi_btr_profile_t *)profile, sizeof(sl_net_wifi_btr_profile_t));
       return SL_STATUS_OK;
-      break;
 #endif
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }
-  return status;
 }
 
 sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t profile_id, sl_net_profile_t *profile)
 {
-  sl_status_t status;
+
   SL_WIFI_ARGS_CHECK_NULL_POINTER(profile);
 
   switch (interface) {
@@ -81,7 +77,6 @@ sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t
       }
       memcpy(profile, &wifi_client_profiles[profile_id], sizeof(sl_net_wifi_client_profile_t));
       return SL_STATUS_OK;
-      break;
 
     case SL_NET_WIFI_AP_INTERFACE:
       if (profile_id >= MAX_WIFI_AP_PROFILES) {
@@ -89,26 +84,22 @@ sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t
       }
       memcpy(profile, &wifi_ap_profiles[profile_id], sizeof(sl_net_wifi_ap_profile_t));
       return SL_STATUS_OK;
-      break;
+
     case SL_NET_WIFI_BTR_INTERFACE:
       if (profile_id >= MAX_WIFI_BTR_PROFILES) {
         return SL_STATUS_INVALID_INDEX;
       }
       memcpy(profile, &wifi_btr_profiles[profile_id], sizeof(sl_net_wifi_btr_profile_t));
       return SL_STATUS_OK;
-      break;
 #endif
 
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }
-
-  return status;
 }
 
 sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_id_t profile_id)
 {
-  sl_status_t status;
 
   switch (interface) {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
@@ -118,7 +109,6 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
       }
       memset(&wifi_client_profiles[profile_id], 0, sizeof(sl_net_wifi_client_profile_t));
       return SL_STATUS_OK;
-      break;
 
     case SL_NET_WIFI_AP_INTERFACE:
       if (profile_id >= MAX_WIFI_AP_PROFILES) {
@@ -126,11 +116,9 @@ sl_status_t sl_net_delete_profile(sl_net_interface_t interface, sl_net_profile_i
       }
       memset(&wifi_ap_profiles[profile_id], 0, sizeof(sl_net_wifi_ap_profile_t));
       return SL_STATUS_OK;
-      break;
 #endif
 
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }
-  return status;
 }

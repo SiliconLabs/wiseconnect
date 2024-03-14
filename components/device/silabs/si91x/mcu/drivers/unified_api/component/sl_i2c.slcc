@@ -2,7 +2,17 @@ id: sl_i2c
 label: I2C
 package: platform
 description: >
-   Si91x I2C API.
+  I2C (Inter-Integrated Circuit) is another serial communication protocol. 
+  It facilitates communication between multiple devices over just two wires: a data line (SDA - Serial Data) 
+  and a clock line (SCL - Serial Clock).
+  The I2C will be configured in leader mode. The SCL and SDA lines of leader controller are
+  connected to Follower's SCL and SDA pins.
+  There are three configurable I2C Master/Slave controllers in M4 - two in the MCU HP peripherals (I2C0, I2C1) 
+  and I2C2 in the MCU ULP subsystem (ULP_I2C).
+  Configurable Parameters of I2C:
+    - Instance Mode
+    - Instance Operating Mode
+    - Instance Transfer Type
 category: Device|Si91x|MCU|Peripheral
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -21,3 +31,6 @@ requires:
   - name: sl_i2c_peripheral
   - name: sl_gpio_peripheral
   - name: sl_dma
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/i2-c

@@ -20,6 +20,7 @@
 #include "rsi_debug.h"
 #include "rsi_rom_clks.h"
 #include "ulp_ssi_master_example.h"
+#include "sl_si91x_ulp_timer_init.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -32,12 +33,17 @@
 #define ULP_SSI_MASTER_BANK_OFFSET          0x800    // ULP Memory bank offset value.
 #define ULP_SSI_MASTER_TX_BUF_MEMORY        (ULP_SRAM_START_ADDR + (1 * ULP_SSI_MASTER_BANK_OFFSET))
 #define ULP_SSI_MASTER_RX_BUF_MEMORY        (ULP_SRAM_START_ADDR + (2 * ULP_SSI_MASTER_BANK_OFFSET))
+#define TIMER_FREQUENCY                     20000 // Timer frequency for delay
+#define INITIAL_COUNT                       7000  // Count configured at timer init
+#define SYNC_TIME                           5000  // Delay to sync master and slave
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 static void ulp_ssi_master_callback_event_handler(uint32_t event);
 static void ulp_ssi_master_compare_loopback_data(void);
+static void init_timer_for_sync(void);
+static void wait_for_sync(uint16_t time_ms);
 
 /*******************************************************************************
  **********************  Local variables   *************************************
@@ -108,6 +114,8 @@ void ssi_master_example_init(void)
     // To use timer in high power mode, don't call hardware_setup()
     hardware_setup();
     DEBUGINIT();
+    // Initialzing the timer
+    init_timer_for_sync();
     // Initialize the SSI driver
     sl_status = sl_si91x_ssi_init(ulp_ssi_master_config.device_mode, &ssi_driver_handle);
     if (sl_status != SL_STATUS_OK) {
@@ -133,6 +141,8 @@ void ssi_master_example_init(void)
     DEBUGOUT("Current Clock division factor is %lu \n", sl_si91x_ssi_get_clock_division_factor(ssi_driver_handle));
     // Fetching and printing the current frame length
     DEBUGOUT("Current Frame Length is %lu \n", sl_si91x_ssi_get_frame_length(ssi_driver_handle));
+    // Syncing master and slave
+    wait_for_sync(SYNC_TIME);
     // As per the macros enabled in the header file, it will configure the current mode.
     if (ULP_SSI_MASTER_TRANSFER) {
       ulp_ssi_master_current_mode = ULP_SSI_MASTER_TRANSFER_DATA;
@@ -319,4 +329,54 @@ static void ulp_ssi_master_callback_event_handler(uint32_t event)
       // indicates Master Mode Fault.
       break;
   }
+}
+
+/*******************************************************************************
+ * @brief  Initialization of timer for sync
+ * @param[in] None
+ * @return   None
+*******************************************************************************/
+static void init_timer_for_sync(void)
+{
+  sl_status_t status;
+  status = sl_si91x_ulp_timer_configure_clock(&sl_timer_clk_handle);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_configure_clock failed, error code: %ld", status);
+  }
+  status = sl_si91x_ulp_timer_set_configuration(&sl_timer_handle_timer0);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_set_configuration failed, error code: %ld", status);
+  }
+  status = sl_si91x_ulp_timer_set_count(TIMER_0, TIMER_FREQUENCY * INITIAL_COUNT);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_set_count failed, error code: %ld", status);
+  }
+}
+
+/*******************************************************************************
+ * @brief  Waits till the master and slave application is synced by creating delay
+ * @param[in] time_ms Sync time in milliseconds
+ * @return   None
+*******************************************************************************/
+static void wait_for_sync(uint16_t time_ms)
+{
+  sl_status_t status;
+  uint32_t start_time, current_time;
+  uint32_t end_time = time_ms * TIMER_FREQUENCY;
+
+  status = sl_si91x_ulp_timer_start(TIMER_0);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_start failed, error code: %ld", status);
+  }
+  status = sl_si91x_ulp_timer_get_count(TIMER_0, &start_time);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_get_count failed, error code: %ld", status);
+  }
+  do {
+    status = sl_si91x_ulp_timer_get_count(TIMER_0, &current_time);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_ulp_timer_get_count failed, error code: %ld", status);
+    }
+  } while (!((current_time - start_time) > end_time));
+  sl_si91x_ulp_timer_stop(TIMER_0);
 }

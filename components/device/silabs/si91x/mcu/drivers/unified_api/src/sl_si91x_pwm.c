@@ -296,6 +296,12 @@ sl_status_t sl_si91x_pwm_stop(sl_pwm_channel_t channel)
     // Returns invalid parameter status code if channel >= 4
     status = SL_STATUS_INVALID_PARAMETER;
   } else {
+    error_status = sl_si91x_pwm_reset_channel(channel);
+    if (error_status != RSI_OK) {
+      status = SL_STATUS_FAIL; //  Returns status error code
+    } else {
+      status = SL_STATUS_OK; // Returns status OK if no error occurs
+    }
     error_status = RSI_MCPWM_Stop(MCPWM, channel);
     if (error_status != RSI_OK) {
       status = SL_STATUS_FAIL; // Returns status OK if no error occurs

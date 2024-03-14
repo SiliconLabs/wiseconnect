@@ -37,7 +37,7 @@
 #include "sl_si91x_driver.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
-#include "sl_si91x_m4_ps.h"
+#include "sl_si91x_power_manager.h"
 #endif // SLI_SI91X_MCU_INTERFACE
 
 /******************************************************
@@ -76,13 +76,12 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                                        ),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG
 #ifdef SLI_SI917
-                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
-                      ),
+                                                  ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
                    .ble_feature_bit_map        = 0,
@@ -126,8 +125,14 @@ static void application_start(void *argument)
 
 #ifdef SLI_SI91X_MCU_INTERFACE
   printf("\r\nM4 in Sleep\r\n");
-  sl_si91x_m4_sleep_wakeup();
-  printf("\r\nM4 wake up\r\n");
+  status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS0);
+  if (status != SL_STATUS_OK) {
+    // If status is not OK, return with the error code.
+    printf("sl_si91x_power_manager_add_ps_requirement failed, Error Code: 0x%lX \n", status);
+  } else {
+    printf("\r\nM4 wake up\r\n");
+  }
+
 #else
   osDelay(10000);
 #endif
@@ -139,7 +144,7 @@ static void application_start(void *argument)
 
 static void enable_standby(void)
 {
-  sl_wifi_performance_profile_t performance_profile = { .profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION };
+  sl_wifi_performance_profile_t performance_profile = { .profile = STANDBY_POWER_SAVE };
 
   sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {

@@ -43,7 +43,7 @@
 #define MISC_CONFIG_MISC_CTRL1 *(volatile uint32_t *)(0x46008000 + 0x44)
 #endif                                       // MISC_CONFIG_MISC_CTRL1
 #define SOC_PLL_LIMIT             120000000  // Limit for soc pll clock.
-#define MAX_SAMPLE_RATE           5000000    // Maximum sampling rate 5 Msps.
+#define MAX_SAMPLE_RATE           2500000    // Maximum sampling rate 2.5 Msps.
 #define MINIMUM_NUMBER_OF_CHANNEL 1          // Minimum number of channel enable
 #define MAXIMUM_NUMBER_OF_CHANNEL 16         // Maximum number of channel enable
 #define MAXIMUM_CHANNEL_ID        16         // Maximum adc dma support channel id.
@@ -173,7 +173,7 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
 {
   sl_status_t status;
   rsi_error_t error_status;
-  uint8_t ch_num;
+  uint8_t ch_num       = 0;
   float battery_status = 0;
   number_of_channel    = adc_config.num_of_channel_enable;
   do {
@@ -189,21 +189,19 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
     if (status != SL_STATUS_OK) {
       break;
     }
-    for (ch_num = 0; ch_num < adc_config.num_of_channel_enable; ch_num++) {
-      //Validate sampling length is proper or not
-      if ((adc_config.operation_mode == SL_ADC_STATIC_MODE)
-          && (adc_channel_config.num_of_samples[0] > MINIMUM_SAMPLING_LENGTH)) {
-        status = SL_STATUS_INVALID_COUNT;
-        break;
-      }
-      // validate sample length, if it above 1023 it will return error code.
-      if ((adc_channel_config.num_of_samples[ch_num] > MAXIMUM_SAMPLING_LENGTH)
-          || (adc_channel_config.num_of_samples[ch_num] < MINIMUM_SAMPLING_LENGTH)) {
-        status = SL_STATUS_INVALID_COUNT;
-        break;
-      }
+    if (adc_config.num_of_channel_enable == MINIMUM_NUMBER_OF_CHANNEL) {
+      ch_num = adc_channel_config.channel;
     }
-    if (status != SL_STATUS_OK) {
+    //Validate sampling length is proper or not
+    if ((adc_config.operation_mode == SL_ADC_STATIC_MODE)
+        && (adc_channel_config.num_of_samples[ch_num] > MINIMUM_SAMPLING_LENGTH)) {
+      status = SL_STATUS_INVALID_COUNT;
+      break;
+    }
+    // validate sample length, if it above 1023 it will return error code.
+    if ((adc_channel_config.num_of_samples[ch_num] > MAXIMUM_SAMPLING_LENGTH)
+        || (adc_channel_config.num_of_samples[ch_num] < MINIMUM_SAMPLING_LENGTH)) {
+      status = SL_STATUS_INVALID_COUNT;
       break;
     }
 #if defined(ULP_MODE_EXECUTION) || defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
@@ -218,8 +216,12 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
     RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
 #endif
     // Initialize ADC.
-    error_status = ADC_Init(adc_channel_config, adc_config, callback_event_handler);
-    status       = convert_rsi_to_sl_error_code(error_status);
+    if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
+      error_status = ADC_Init(adc_channel_config, adc_config, callback_event_handler);
+    } else {
+      error_status = ADC_Per_Channel_Init(adc_channel_config, adc_config, callback_event_handler);
+    }
+    status = convert_rsi_to_sl_error_code(error_status);
     if (status != SL_STATUS_OK) {
       break;
     }
@@ -322,8 +324,12 @@ sl_status_t sl_si91x_adc_set_channel_configuration(sl_adc_channel_config_t adc_c
       break;
     }
     // set the configuration for ADC channel.
-    error_status = ADC_ChannelConfig(adc_channel_config, adc_config);
-    status       = convert_rsi_to_sl_error_code(error_status);
+    if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
+      error_status = ADC_ChannelConfig(adc_channel_config, adc_config);
+    } else {
+      error_status = ADC_Per_ChannelConfig(adc_channel_config, adc_config);
+    }
+    status = convert_rsi_to_sl_error_code(error_status);
   } while (false);
   return status;
 }
@@ -580,7 +586,7 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
 {
   sl_status_t status;
   uint8_t data_process     = 1;
-  uint8_t chnl_num         = 0;
+  uint8_t chnl_num         = adc_channel_config.channel;
   int16_t read_static_data = 0;
   do {
     // Validate ADC parameters, if the parameters are incorrect
@@ -590,7 +596,7 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
       break;
     }
     // Enable the gain and calculation on output samples.
-    read_static_data = RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, data_process, adc_channel_config.input_type[0]);
+    read_static_data = RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, data_process, adc_channel_config.input_type[chnl_num]);
     *adc_value       = (uint16_t)read_static_data;
     status           = sl_si91x_adc_channel_interrupt_clear(adc_config, chnl_num);
   } while (false);
@@ -1034,27 +1040,31 @@ static sl_status_t validate_adc_parameters(sl_adc_config_t *adc_config)
 static sl_status_t validate_adc_channel_parameters(sl_adc_channel_config_t *adc_channel_config)
 {
   sl_status_t status;
+  uint8_t channel = 0;
   do {
+    if (number_of_channel == MINIMUM_NUMBER_OF_CHANNEL) {
+      channel = adc_channel_config->channel;
+    }
     // Validate input type
-    if (adc_channel_config->input_type[0] >= SL_ADC_INPUT_TYPE_LAST) {
+    if (adc_channel_config->input_type[channel] >= SL_ADC_INPUT_TYPE_LAST) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
     // Verify the user given sampling rate is proper or not
-    if (adc_channel_config->sampling_rate[0] > MAX_SAMPLE_RATE) {
+    if (adc_channel_config->sampling_rate[channel] > MAX_SAMPLE_RATE) {
       status = SL_STATUS_INVALID_RANGE;
       break;
     }
     // Validate ping and pong address maximum value.
-    if (adc_channel_config->chnl_ping_address[0] >= START_PING_ADDR) {
-      if ((adc_channel_config->chnl_ping_address[0] < ((uint32_t)START_PING_ADDR))
-          || (adc_channel_config->chnl_pong_address[0] > ((uint32_t)END_PONG_ADDR))) {
+    if (adc_channel_config->chnl_ping_address[channel] >= START_PING_ADDR) {
+      if ((adc_channel_config->chnl_ping_address[channel] < ((uint32_t)START_PING_ADDR))
+          || (adc_channel_config->chnl_pong_address[channel] > ((uint32_t)END_PONG_ADDR))) {
         status = SL_STATUS_INVALID_PARAMETER;
         break;
       }
     } else {
-      if ((adc_channel_config->chnl_ping_address[0] > ((uint32_t)MAXIMUM_PING_ADDR))
-          || (adc_channel_config->chnl_pong_address[0] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
+      if ((adc_channel_config->chnl_ping_address[channel] > ((uint32_t)MAXIMUM_PING_ADDR))
+          || (adc_channel_config->chnl_pong_address[channel] > ((uint32_t)MAXIMUM_PONG_ADDR))) {
         status = SL_STATUS_INVALID_PARAMETER;
         break;
       }

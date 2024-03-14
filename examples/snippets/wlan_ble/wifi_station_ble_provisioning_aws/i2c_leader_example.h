@@ -36,6 +36,7 @@ void i2c_leader_example_init(void);
  * @return none
  ******************************************************************************/
 void i2c_leader_example_process_action(void);
+void i2c_init(void);
 
 extern float sensor_data;
 

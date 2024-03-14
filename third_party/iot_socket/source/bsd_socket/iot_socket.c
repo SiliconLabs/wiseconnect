@@ -69,7 +69,7 @@
 /******************************************************
  *               Function Definitions
  ******************************************************/
-static int32_t errno_to_rc(void)
+static int32_t sli_si91x_errno_to_rc(void)
 {
   int32_t status;
 
@@ -142,7 +142,7 @@ static int32_t errno_to_rc(void)
   return status;
 }
 
-static int32_t construct_remote_host_address(sockaddr_storage_t *addr,
+static int32_t sli_si91x_construct_remote_host_address(sockaddr_storage_t *addr,
                                              const uint8_t *ip,
                                              uint32_t ip_len,
                                              uint16_t port)
@@ -186,7 +186,7 @@ static int32_t construct_remote_host_address(sockaddr_storage_t *addr,
   return IOT_SOCKET_NO_ERROR;
 }
 
-static int32_t copy_ip_address_and_port(sockaddr_storage_t addr, uint8_t *ip, uint32_t *ip_len, uint16_t *port)
+static int32_t sli_si91x_copy_ip_address_and_port(sockaddr_storage_t addr, uint8_t *ip, uint32_t *ip_len, uint16_t *port)
 {
   if ((ip != NULL) && (ip_len != NULL) && (port != NULL)) {
     if (addr.socket_family == AF_INET) {
@@ -243,7 +243,7 @@ int32_t iotSocketCreate(int32_t af, int32_t type, int32_t protocol)
   // Create the socket
   status = socket(af, type, protocol);
 
-  return (status < 0) ? errno_to_rc() : status;
+  return (status < 0) ? sli_si91x_errno_to_rc() : status;
 }
 
 int32_t iotSocketClose(int32_t socket)
@@ -251,7 +251,7 @@ int32_t iotSocketClose(int32_t socket)
   int32_t status = 0;
   status         = close(socket);
 
-  return (status < 0) ? errno_to_rc() : status;
+  return (status < 0) ? sli_si91x_errno_to_rc() : status;
 }
 
 int32_t iotSocketBind(int32_t socket, const uint8_t *ip, uint32_t ip_len, uint16_t port)
@@ -260,7 +260,7 @@ int32_t iotSocketBind(int32_t socket, const uint8_t *ip, uint32_t ip_len, uint16
   sockaddr_storage_t addr = { 0 };
 
   // Construct remote host address
-  status = construct_remote_host_address(&addr, ip, ip_len, port);
+  status = sli_si91x_construct_remote_host_address(&addr, ip, ip_len, port);
 
   if (status < 0) {
     return status; // Return an error code if address construction fails
@@ -269,7 +269,7 @@ int32_t iotSocketBind(int32_t socket, const uint8_t *ip, uint32_t ip_len, uint16
   // Bind the socket to the constructed address
   status = bind(socket, (struct sockaddr *)&addr, addr.socket_length);
 
-  return (status < 0) ? errno_to_rc() : status; // Return an error code if bind fails
+  return (status < 0) ? sli_si91x_errno_to_rc() : status; // Return an error code if bind fails
 }
 
 int32_t iotSocketListen(int32_t socket, int32_t backlog)
@@ -279,7 +279,7 @@ int32_t iotSocketListen(int32_t socket, int32_t backlog)
   // Start listening for incoming connections on the socket with a specified backlog
   status = listen(socket, backlog);
 
-  return (status < 0) ? errno_to_rc() : status; // Return an error code if listen fails
+  return (status < 0) ? sli_si91x_errno_to_rc() : status; // Return an error code if listen fails
 }
 
 int32_t iotSocketAccept(int32_t socket, uint8_t *ip, uint32_t *ip_len, uint16_t *port)
@@ -303,11 +303,11 @@ int32_t iotSocketAccept(int32_t socket, uint8_t *ip, uint32_t *ip_len, uint16_t 
   client_socket_id = accept(socket, (struct sockaddr *)&addr, &addr_len);
 
   if (client_socket_id < 0) {
-    return errno_to_rc(); // Return an error code if accept fails
+    return sli_si91x_errno_to_rc(); // Return an error code if accept fails
   }
 
   // Copy remote IP address and port
-  status = copy_ip_address_and_port(addr, ip, ip_len, port);
+  status = sli_si91x_copy_ip_address_and_port(addr, ip, ip_len, port);
 
   if (status < 0) {
     return status; // Return an error if copying fails
@@ -322,7 +322,7 @@ int32_t iotSocketConnect(int32_t socket, const uint8_t *ip, uint32_t ip_len, uin
   sockaddr_storage_t addr = { 0 };
 
   // Construct remote host address
-  status = construct_remote_host_address(&addr, ip, ip_len, port);
+  status = sli_si91x_construct_remote_host_address(&addr, ip, ip_len, port);
 
   if (status < 0) {
     return status; // Return an error if address construction fails
@@ -333,7 +333,7 @@ int32_t iotSocketConnect(int32_t socket, const uint8_t *ip, uint32_t ip_len, uin
 
   if (status < 0) {
     // Translate specific connection reset error to a more common one
-    status = errno_to_rc();
+    status = sli_si91x_errno_to_rc();
     if (status == IOT_SOCKET_ECONNRESET) {
       return IOT_SOCKET_ECONNREFUSED;
     }
@@ -356,7 +356,7 @@ int32_t iotSocketSend(int32_t socket, const void *buf, uint32_t len)
   status = send(socket, buf, len, NO_FLAGS);
 
   if (status < 0) {
-    status = errno_to_rc();
+    status = sli_si91x_errno_to_rc();
     if (status == IOT_SOCKET_EINPROGRESS) {
       return IOT_SOCKET_EAGAIN; // Operation would block
     }
@@ -381,7 +381,7 @@ int32_t iotSocketSendTo(int32_t socket,
   }
 
   // Construct remote host address
-  status = construct_remote_host_address(&addr, ip, ip_len, port);
+  status = sli_si91x_construct_remote_host_address(&addr, ip, ip_len, port);
 
   if (status < 0) {
     return status; // Return the error code if construction fails
@@ -389,7 +389,7 @@ int32_t iotSocketSendTo(int32_t socket,
 
   status = sendto(socket, buf, len, NO_FLAGS, (struct sockaddr *)&addr, addr_len);
 
-  return (status < 0) ? errno_to_rc() : status; // Return the status or error code
+  return (status < 0) ? sli_si91x_errno_to_rc() : status; // Return the status or error code
 }
 
 int32_t iotSocketGetSockName(int32_t socket, uint8_t *ip, uint32_t *ip_len, uint16_t *port)
@@ -409,11 +409,11 @@ int32_t iotSocketGetSockName(int32_t socket, uint8_t *ip, uint32_t *ip_len, uint
   status = getsockname(socket, (struct sockaddr *)&addr, &addr_len);
 
   if (status < 0) {
-    return errno_to_rc(); // Return the error code on failure
+    return sli_si91x_errno_to_rc(); // Return the error code on failure
   }
 
   // Copy IP address and port and return status
-  return copy_ip_address_and_port(addr, ip, ip_len, port);
+  return sli_si91x_copy_ip_address_and_port(addr, ip, ip_len, port);
 }
 
 int32_t iotSocketGetPeerName(int32_t socket, uint8_t *ip, uint32_t *ip_len, uint16_t *port)
@@ -433,10 +433,10 @@ int32_t iotSocketGetPeerName(int32_t socket, uint8_t *ip, uint32_t *ip_len, uint
   status = getpeername(socket, (struct sockaddr *)&addr, &addr_len);
 
   if (status < 0) {
-    return errno_to_rc(); // Return the error code on failure
+    return sli_si91x_errno_to_rc(); // Return the error code on failure
   }
 
-  return copy_ip_address_and_port(addr, ip, ip_len, port);
+  return sli_si91x_copy_ip_address_and_port(addr, ip, ip_len, port);
 }
 
 int32_t iotSocketSetOpt(int32_t socket, int32_t opt_id, const void *opt_val, uint32_t opt_len)
@@ -471,7 +471,7 @@ int32_t iotSocketSetOpt(int32_t socket, int32_t opt_id, const void *opt_val, uin
   }
 
   if (status < 0) {
-    return errno_to_rc(); // failure
+    return sli_si91x_errno_to_rc(); // failure
   }
 
   return status;
@@ -510,7 +510,7 @@ int32_t iotSocketGetOpt(int32_t socket, int32_t opt_id, void *opt_val, uint32_t 
   }
 
   if (status < 0) {
-    return errno_to_rc(); // Failure
+    return sli_si91x_errno_to_rc(); // Failure
   }
 
   if (*opt_len > 4) {
@@ -530,7 +530,7 @@ int32_t iotSocketRecv(int32_t socket, void *buf, uint32_t len)
 
   bytes_received = recv(socket, buf, len, NO_FLAGS);
 
-  return (bytes_received < 0) ? errno_to_rc() : bytes_received; // Return received bytes or error code
+  return (bytes_received < 0) ? sli_si91x_errno_to_rc() : bytes_received; // Return received bytes or error code
 }
 
 int32_t iotSocketRecvFrom(int32_t socket, void *buf, uint32_t len, uint8_t *ip, uint32_t *ip_len, uint16_t *port)
@@ -554,10 +554,10 @@ int32_t iotSocketRecvFrom(int32_t socket, void *buf, uint32_t len, uint8_t *ip, 
   bytes_received = recvfrom(socket, buf, len, NO_FLAGS, (struct sockaddr *)&addr, (socklen_t *)&addr_len);
 
   if (bytes_received < 0) {
-    return errno_to_rc(); // Return the error code on failure
+    return sli_si91x_errno_to_rc(); // Return the error code on failure
   }
   // Copy remote IP address and port
-  status = copy_ip_address_and_port(addr, ip, ip_len, port);
+  status = sli_si91x_copy_ip_address_and_port(addr, ip, ip_len, port);
 
   if (status < 0) {
     return status; // Return any copy error

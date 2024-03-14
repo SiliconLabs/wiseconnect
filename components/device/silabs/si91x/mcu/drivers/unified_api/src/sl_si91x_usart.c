@@ -40,11 +40,6 @@
 #define USART_SQA_VERSION     0       // USART SQA version
 #define USART_DEV_VERSION     2       // USART Developer version
 #define NO_OF_UART_INSTANCES  3       // No of usart instances, 3 uart instances in 91x
-#define USART_UC \
-  1 /*!< USART_UC is defined by default. when this macro (USART_UC) is defined, peripheral
-                                             configuration is directly taken from the configuration set in the universal configuration (UC).
-                                             if the application requires the configuration to be changed in run-time, undefined this macro
-                                             and change the peripheral configuration through the \ref sl_si91x_usart_set_configuration API. */
 
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************

@@ -105,7 +105,7 @@ void uDMAx_IRQHandler(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Ch
       if (intr & (1U << ch)) {
         // Clear interrupt flag
         udma->reg->UDMA_DONE_STATUS_REG = (1U << ch);
-        if ((chnl_info[ch].Cnt != chnl_info[ch].Size) || (chnl_info[ch].Cnt != chnl_info[ch].Size)) {
+        if (chnl_info[ch].Cnt != chnl_info[ch].Size) {
           if (udma->reg == UDMA0) {
             // Data waiting to transfer
             size = chnl_info[ch].Size - (chnl_info[ch].Cnt);

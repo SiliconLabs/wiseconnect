@@ -2,7 +2,15 @@ id: sl_gspi
 label: GSPI
 package: platform
 description: >
-   Si91x Generic Serial Peripheral Interface (GSPI) API
+  The Generic SPI Master is available in MCU HP peripherals.
+  It provides an I/O interface for a large range of SPI-compatible peripheral devices.
+  SPI is a synchronous four-wire interface made up of two data pins (MOSI and MISO),
+  a device select pin (CSN), and a gated clock pin (SCLK). With two data pins,
+  it supports full-duplex operation with other SPI-compatible devices.
+  Configurable parameters in GSPI:
+    - Set the different Modes type
+    - configuring the Bit Rate
+    - Data width 
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -27,3 +35,6 @@ requires:
   - name: rsilib_gspi
   - name: cmsis_gspi
   - name: sl_dma
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/gspi

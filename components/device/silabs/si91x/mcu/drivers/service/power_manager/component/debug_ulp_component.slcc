@@ -1,8 +1,9 @@
 id: debug_ulp_component
-label: Low-Power Debug
+label: ULP Debug
 package: platform
 description: >
-  Install this component to enable debug in low power mode
+  ULP DEBUG component will enable Debug in the low-power mode. 
+  It moves all the peripheral dependencies to RAM.
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
 

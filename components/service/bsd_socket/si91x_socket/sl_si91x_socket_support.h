@@ -31,6 +31,8 @@
 #include <stdint.h>
 
 #include "socket.h"
+#include "sl_status.h"
+#include "sl_si91x_protocol_types.h"
 
 /**
  * @brief      Set SI91X specific socket options like:
@@ -67,3 +69,14 @@ int sl_si91x_get_custom_sync_sockopt(int socket_id,
                                      int option_name,
                                      void *option_value,
                                      socklen_t *option_length);
+
+/**
+ * @brief
+ * Get information of currently opened sockets in the firmware's network stack.
+ * @param[out] socket_info_response
+ *    A pointer to a sl_si91x_socket_info_response_t which shall hold the response from the firmware.
+ * @return sl_status_t
+ * 
+ * @note The ID's in the response are firmware specific and shall not be given as file descriptor to the socket API's
+*/
+sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_info_response);

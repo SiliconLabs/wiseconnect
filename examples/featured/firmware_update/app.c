@@ -84,7 +84,7 @@ const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
-static const sl_wifi_device_configuration_t sl_wifi_firmware_update_configuration = {
+static const sl_wifi_device_configuration_t firmware_update_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
@@ -132,7 +132,7 @@ static void application_start(void *argument)
   sl_status_t status;
 
   printf("Application Started\n");
-  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &firmware_update_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
@@ -289,7 +289,7 @@ sl_status_t update_firmware()
         printf("Waiting Done\n");
 #endif
 
-        status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_firmware_update_configuration, NULL, NULL);
+        status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &firmware_update_configuration, NULL, NULL);
         printf("\r\nWi-Fi Init status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);
 

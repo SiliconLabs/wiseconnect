@@ -12,6 +12,8 @@ include:
   - path: "inc"
     file_list:
     - path: "rsi_adc.h"
+ui_hints:
+  visibility: never
 provides:
   - name: rsilib_adc
 requires:

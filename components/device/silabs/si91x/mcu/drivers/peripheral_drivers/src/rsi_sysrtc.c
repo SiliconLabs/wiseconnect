@@ -30,6 +30,7 @@
 
 #include "rsi_sysrtc.h"
 #include "sl_sysrtc_board.h"
+#define SET_ULP_MCUAPB_TA_CTRL (*(volatile uint32_t *)(0x41300008))
 #if defined(SI91X_SYSRTC_COUNT) && (SI91X_SYSRTC_COUNT > 0)
 
 // SYSRTC Default pins for compare group is taken as Mode 3
@@ -90,7 +91,7 @@ void rsi_sysrtc_init(const rsi_sysrtc_config_t *p_config)
     // Wait to be ready
     rsi_sysrtc_wait_ready();
   }
-
+  SET_ULP_MCUAPB_TA_CTRL |= BIT(16);
   // Set configuration
   SYSRTC0->CFG = (p_config->enable_debug_run ? 1UL : 0UL) << _SYSRTC_CFG_DEBUGRUN_SHIFT;
 }

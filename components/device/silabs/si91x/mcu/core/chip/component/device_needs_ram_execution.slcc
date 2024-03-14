@@ -1,8 +1,9 @@
 id: device_needs_ram_execution
 package: platform
 description: >
-  Enables a pre-determined selection of components to execute from RAM. 
-  It is mandatory for a project that requires writing into Flash.
+  RAM Execution Component is used to enable a pre-determined selection of components to execute from RAM.
+  Note:
+  For an Application that requires writing into Flash, Including this component is a Mandatory.
 category: Device|Si91x|MCU|Core
 label: RAM Execution
 quality: production

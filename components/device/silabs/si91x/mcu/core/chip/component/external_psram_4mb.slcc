@@ -1,7 +1,7 @@
 id: external_psram_4mb
 label: 4MB PSRAM (External)
 package: platform
-description: Adds a 4MB external PSRAM to the SiWG91x part.
+description: It is necessary to initialize this component, if the external flash connected to the SiWG91x part is of size 4MB.
 category: Device|Si91x|MCU|PSRAM
 quality: production
 provides:

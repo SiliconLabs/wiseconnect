@@ -35,43 +35,7 @@
 extern "C" {
 #endif
 
-#include "sli_si91x_crypto_driver_functions.h"
-#include "string.h"
-#include "sl_status.h"
-#include "sl_si91x_crypto.h"
-
-/***************************************************************************/ /**
- * @brief This API will calculate the MAC (message authentication code) of a message.
- * @param[in] attributes 
- *   The attributes of the key to use for the operation.
- * @param[in] key_buffer
- *   The buffer containing the key to use for computing the MAC.
- * @param[in] key_buffer_size
- *   Size of the \p key_buffer buffer in bytes.
- * @param[in] alg
- *   The MAC algorithm to use (\c PSA_ALG_XXX value such that #PSA_ALG_IS_MAC(\p alg) is true).
- * @param[in] input
- *   Buffer containing the input message.
- * @param[in] input_length
- *   Size of the \p input buffer in bytes.
- * @param[out] mac 
- *   Buffer where the MAC value is to be written.
- * @param[in] mac_size
- *   Size of the \p mac buffer in bytes.
- * @param[out] mac_length
- *   On success, the number of bytes that make up the MAC value.
- * @return 
- *   psa_status_t. See https://docs.silabs.com/gecko-platform/4.1/service/api/group-error for details.
-******************************************************************************/
-psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes,
-                                          const uint8_t *key_buffer,
-                                          size_t key_buffer_size,
-                                          psa_algorithm_t alg,
-                                          const uint8_t *input,
-                                          size_t input_length,
-                                          uint8_t *mac,
-                                          size_t mac_size,
-                                          size_t *mac_length);
+#include "sl_si91x_psa_mac.h"
 
 #ifdef __cplusplus
 }

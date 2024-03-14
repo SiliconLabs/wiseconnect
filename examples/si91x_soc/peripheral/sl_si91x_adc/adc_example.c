@@ -20,7 +20,10 @@
 #include "rsi_chip.h"
 #include "sl_adc_instances.h"
 #include "sl_si91x_adc_common_config.h"
-
+#ifdef DAC_FIFO_MODE_EN
+#include "sl_si91x_dac.h"
+#include "sl_si91x_dac_config.h"
+#endif
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -37,14 +40,20 @@
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static float vref_value              = (float)VREF_VALUE;
-static boolean_t chnl0_complete_flag = false;
+static float vref_value                    = (float)VREF_VALUE;
+static boolean_t data_sample_complete_flag = false;
 static int16_t adc_output[CHANNEL_SAMPLE_LENGTH];
+static uint8_t channel = 0;
+#ifdef DAC_FIFO_MODE_EN
+static boolean_t dac_fifo_intr_flag = false;
+#endif
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 static void callback_event(uint8_t channel_no, uint8_t event);
-
+#ifdef DAC_FIFO_MODE_EN
+static void dac_callback_event(uint8_t event);
+#endif
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
@@ -56,15 +65,23 @@ void adc_example_init(void)
 {
   sl_adc_version_t version;
   sl_status_t status;
-  sl_adc_clock_config_t clock_config;
-  clock_config.soc_pll_clock           = PS4_SOC_FREQ;
-  clock_config.soc_pll_reference_clock = SOC_PLL_REF_FREQUENCY;
-  clock_config.division_factor         = DVISION_FACTOR;
+  sl_adc_clock_config_t adc_clock_config;
+  adc_clock_config.soc_pll_clock           = PS4_SOC_FREQ;
+  adc_clock_config.soc_pll_reference_clock = SOC_PLL_REF_FREQUENCY;
+  adc_clock_config.division_factor         = DVISION_FACTOR;
+  channel                                  = sl_adc_channel_config.channel;
 
-  sl_adc_channel_config.rx_buf[0]            = adc_output;
-  sl_adc_channel_config.chnl_ping_address[0] = ADC_PING_BUFFER; /* ADC Ping address */
-  sl_adc_channel_config.chnl_pong_address[0] =
-    ADC_PING_BUFFER + (sl_adc_channel_config.num_of_samples[0]); /* ADC Pong address */
+#ifdef DAC_FIFO_MODE_EN
+  sl_dac_clock_config_t dac_clock_config;
+  dac_clock_config.soc_pll_clock           = PS4_SOC_FREQ;
+  dac_clock_config.soc_pll_reference_clock = SOC_PLL_REF_FREQUENCY;
+  dac_clock_config.division_factor         = DVISION_FACTOR;
+#endif
+
+  sl_adc_channel_config.rx_buf[channel]            = adc_output;
+  sl_adc_channel_config.chnl_ping_address[channel] = ADC_PING_BUFFER; /* ADC Ping address */
+  sl_adc_channel_config.chnl_pong_address[channel] =
+    ADC_PING_BUFFER + (sl_adc_channel_config.num_of_samples[channel]); /* ADC Pong address */
   do {
     // Version information of ADC driver
     version = sl_si91x_adc_get_version();
@@ -72,7 +89,7 @@ void adc_example_init(void)
     DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
     if (sl_adc_config.operation_mode == 0) {
       // Configure ADC clock
-      status = sl_si91x_adc_configure_clock(&clock_config);
+      status = sl_si91x_adc_configure_clock(&adc_clock_config);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_adc_clock_configuration: Error Code : %lu \n", status);
         break;
@@ -102,6 +119,32 @@ void adc_example_init(void)
       break;
     }
     DEBUGOUT("ADC user event callback registered successfully \n");
+#ifdef DAC_FIFO_MODE_EN
+    //Initializing DAC peripheral
+    status = sl_si91x_dac_init(&dac_clock_config);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_dac_init: Error Code : %lu \n", status);
+      break;
+    }
+    DEBUGOUT("SL_DAC initialization is successful \n");
+    // DAC configuration
+    status = sl_si91x_dac_set_configuration(sl_dac_config, vref_value);
+    /* Due to calling trim_efuse API on DAC configuration in driver it will change the clock frequency,
+      if we are not initialize the debug again it will print the garbage data in console output. */
+    DEBUGINIT();
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_dac_set_configuration: Error Code : %lu \n", status);
+      break;
+    }
+    DEBUGOUT("SL_DAC set configuration is successful \n");
+    // Register user callback function
+    status = sl_si91x_dac_register_event_callback(dac_callback_event);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_dac_register_event_callback: Error Code : %lu \n", status);
+      break;
+    }
+    DEBUGOUT("SL_DAC register event callback is successful \n");
+#endif
     status = sl_si91x_adc_start(sl_adc_config);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_adc_start: Error Code : %lu \n", status);
@@ -119,33 +162,53 @@ void adc_example_process_action(void)
   sl_status_t status;
   uint32_t sample_length;
   uint16_t adc_value;
-  uint8_t chnl_num = 0;
-  float vout       = 0;
-  if (chnl0_complete_flag) {
-    chnl0_complete_flag = false;
+  float vout = 0;
+  if (data_sample_complete_flag) {
+    data_sample_complete_flag = false;
     // ADC operation mode if FIFO then it will execute, here it will give equivalent voltage of 12 bit adc output.
     if (!sl_adc_config.operation_mode) {
-      for (chnl_num = 0; chnl_num < sl_adc_config.num_of_channel_enable; chnl_num++) {
-        status = sl_si91x_adc_read_data(sl_adc_channel_config, chnl_num);
+      status = sl_si91x_adc_read_data(sl_adc_channel_config, channel);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_adc_read_data: Error Code : %lu \n", status);
+      }
+#ifdef DAC_FIFO_MODE_EN
+      if (dac_fifo_intr_flag == false) {
+        // DAC input sample data writing
+        status = sl_si91x_dac_write_data((int16_t *)adc_output, sl_adc_channel_config.num_of_samples[0]);
         if (status != SL_STATUS_OK) {
-          DEBUGOUT("sl_si91x_adc_read_data: Error Code : %lu \n", status);
+          DEBUGOUT("sl_si91x_dac_write_data: Error Code : %lu \n", status);
         }
-        for (sample_length = 0; sample_length < sl_adc_channel_config.num_of_samples[chnl_num]; sample_length++) {
-          /* In two’s complement format, the MSb (11th bit) of the conversion result determines the polarity,
+        // Start DAC peripheral
+        status = sl_si91x_dac_start();
+        if (status != SL_STATUS_OK) {
+          DEBUGOUT("sl_si91x_dac_start: Error Code : %lu \n", status);
+        }
+      } else {
+        if (dac_fifo_intr_flag == true) {
+          dac_fifo_intr_flag = false;
+          // DAC input sample data re-writing
+          status = sl_si91x_dac_rewrite_data((int16_t *)adc_output, sl_adc_channel_config.num_of_samples[0]);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("sl_si91x_dac_rewrite_data: Error Code : %lu \n", status);
+          }
+        }
+      }
+#endif
+      for (sample_length = 0; sample_length < sl_adc_channel_config.num_of_samples[channel]; sample_length++) {
+        /* In two’s complement format, the MSb (11th bit) of the conversion result determines the polarity,
              when the MSb = ‘0’, the result is positive, and when the MSb = ‘1’, the result is negative*/
-          if (adc_output[sample_length] & SIGN_BIT) {
-            // Full-scale would be represented by a hexadecimal value, full-scale range of ADC result values in two’s complement.
-            adc_output[sample_length] = (int16_t)(adc_output[sample_length] & (ADC_DATA_CLEAR));
-          } else { // set the MSb bit.
-            adc_output[sample_length] = adc_output[sample_length] | SIGN_BIT;
-          }
-          vout = (((float)adc_output[sample_length] / (float)ADC_MAX_OP_VALUE) * vref_value);
-          //For differential type it will give vout.
-          if (sl_adc_channel_config.input_type[chnl_num]) {
-            vout = vout - (vref_value / 2);
-          }
-          DEBUGOUT("ADC Measured input[%ld] :%0.2fV \n", sample_length, (double)vout);
+        if (adc_output[sample_length] & SIGN_BIT) {
+          // Full-scale would be represented by a hexadecimal value, full-scale range of ADC result values in two’s complement.
+          adc_output[sample_length] = (int16_t)(adc_output[sample_length] & (ADC_DATA_CLEAR));
+        } else { // set the MSb bit.
+          adc_output[sample_length] = adc_output[sample_length] | SIGN_BIT;
         }
+        vout = (((float)adc_output[sample_length] / (float)ADC_MAX_OP_VALUE) * vref_value);
+        //For differential type it will give vout.
+        if (sl_adc_channel_config.input_type[channel]) {
+          vout = vout - (vref_value / 2);
+        }
+        DEBUGOUT("ADC Measured input[%ld] :%0.2fV \n", sample_length, (double)vout);
       }
     } else {
       status = sl_si91x_adc_read_data_static(sl_adc_channel_config, sl_adc_config, &adc_value);
@@ -164,7 +227,7 @@ void adc_example_process_action(void)
       }
       vout = (((float)adc_output[0] / (float)ADC_MAX_OP_VALUE) * vref_value);
       //For differential type it will give vout.
-      if (sl_adc_channel_config.input_type[0]) {
+      if (sl_adc_channel_config.input_type[channel]) {
         vout = vout - (vref_value / 2);
         DEBUGOUT("Differential ended input  :%lf\n", (double)vout);
       } else {
@@ -184,11 +247,26 @@ void adc_example_process_action(void)
 static void callback_event(uint8_t channel_no, uint8_t event)
 {
   if (event == SL_INTERNAL_DMA) {
-    if (channel_no == 0) {
-      chnl0_complete_flag = true;
+    if (channel_no == channel) {
+      data_sample_complete_flag = true;
     }
-
   } else if (event == SL_ADC_STATIC_MODE_EVENT) {
-    chnl0_complete_flag = true;
+    data_sample_complete_flag = true;
   }
 }
+#ifdef DAC_FIFO_MODE_EN
+/*******************************************************************************
+* Callback event function
+* It is responsible for the event which are triggered by DAC interface
+* @param  event       : SL_DAC_FIFO_MODE_EVENT => DAC input sample for
+*                                 standard sine wave data acquisition done.
+*                       SL_DAC_STATIC_MODE_EVENT => Static mode DAC data
+*                                                      acquisition done.
+******************************************************************************/
+static void dac_callback_event(uint8_t event)
+{
+  if (event == SL_DAC_FIFO_MODE_EVENT) {
+    dac_fifo_intr_flag = true;
+  }
+}
+#endif

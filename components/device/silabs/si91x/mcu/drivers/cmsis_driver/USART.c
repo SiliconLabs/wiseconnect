@@ -462,7 +462,7 @@ static ARM_USART_CAPABILITIES ARM_USART0_GetCapabilities (void)
 }
 static int32_t ARM_USART0_Initialize (ARM_USART_SignalEvent_t cb_event)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Initialize (cb_event, &USART0_Resources,&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);
 #else
 	return USART_Initialize (cb_event, &USART0_Resources,&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);	    
@@ -476,7 +476,7 @@ static int32_t ARM_USART0_Uninitialize (void)
 	#else
 	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI1);
 	#endif
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Uninitialize(&USART0_Resources,&UDMA0_Resources);
 #else
 	return USART_Uninitialize(&USART0_Resources,&UDMA0_Resources);
@@ -485,7 +485,7 @@ static int32_t ARM_USART0_Uninitialize (void)
 
 static int32_t ARM_USART0_PowerControl (ARM_POWER_STATE state)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_PowerControl (state, &USART0_Resources,&UDMA0_Resources,udmaHandle0);
 #else
 	return USART_PowerControl (state, &USART0_Resources,&UDMA0_Resources,udmaHandle0);
@@ -501,7 +501,7 @@ static int32_t ARM_USART0_Send (const void *data, uint32_t num)
     {
       USART0_Resources.dma_tx->control.totalNumOfDMATrans=RTE_USART0_DMA_TX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Send_Data (data, num, &USART0_Resources ,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
 #else
 	return USART_Send_Data (data, num, &USART0_Resources ,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
@@ -517,7 +517,7 @@ static int32_t ARM_USART0_Receive (void *data, uint32_t num)
     {
       USART0_Resources.dma_rx->control.totalNumOfDMATrans=RTE_USART0_DMA_RX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Receive_Data ( data, num,&USART0_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
 #else
 	return USART_Receive_Data ( data, num,&USART0_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
@@ -536,7 +536,7 @@ static int32_t ARM_USART0_Transfer (const void *data_out, void *data_in, uint32_
       USART0_Resources.dma_tx->control.totalNumOfDMATrans=RTE_USART0_DMA_TX_LEN_PER_DES-1;
       USART0_Resources.dma_rx->control.totalNumOfDMATrans=RTE_USART0_DMA_RX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Transfer (data_out, data_in, num, &USART0_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
 #else
 	return USART_Transfer (data_out, data_in, num, &USART0_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
@@ -545,7 +545,7 @@ static int32_t ARM_USART0_Transfer (const void *data_out, void *data_in, uint32_
 
 static uint32_t ARM_USART0_GetTxCount (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetTxCount (&USART0_Resources);
 #else
 	return USART_GetTxCount(&USART0_Resources);
@@ -554,7 +554,7 @@ static uint32_t ARM_USART0_GetTxCount (void)
 
 static uint32_t ARM_USART0_GetRxCount (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetRxCount(&USART0_Resources);
 #else
 	return USART_GetRxCount(&USART0_Resources);
@@ -569,7 +569,7 @@ static int32_t ARM_USART0_Control (uint32_t control, uint32_t arg)
 #endif
 	uint32_t usart0_get_clock=0;
 	usart0_get_clock = RSI_CLK_GetBaseClock(M4_USART0);
-#if  defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if  defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Control (control, arg, usart0_get_clock, &USART0_Resources,&UDMA0_Resources,udmaHandle0);	
 #else
 	return USART_Control (control, arg, usart0_get_clock, &USART0_Resources,&UDMA0_Resources,udmaHandle0);
@@ -578,7 +578,7 @@ static int32_t ARM_USART0_Control (uint32_t control, uint32_t arg)
 
 static ARM_USART_STATUS ARM_USART0_GetStatus (void)
 {
-#if  defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if  defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetStatus(&USART0_Resources);
 #else
 	return USART_GetStatus(&USART0_Resources);
@@ -587,7 +587,7 @@ static ARM_USART_STATUS ARM_USART0_GetStatus (void)
 
 static int32_t ARM_USART0_SetModemControl (ARM_USART_MODEM_CONTROL control)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_SetModemControl (control, &USART0_Resources);
 #else
 	return USART_SetModemControl(control, &USART0_Resources);
@@ -596,7 +596,7 @@ static int32_t ARM_USART0_SetModemControl (ARM_USART_MODEM_CONTROL control)
 
 static ARM_USART_MODEM_STATUS ARM_USART0_GetModemStatus (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetModemStatus (&USART0_Resources);
 #else
 	return USART_GetModemStatus(&USART0_Resources);
@@ -605,7 +605,7 @@ static ARM_USART_MODEM_STATUS ARM_USART0_GetModemStatus (void)
 
 void RSI_M4SSUsart0Handler(void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->UartIrqHandler(&USART0_Resources);
 #else
 	UartIrqHandler(&USART0_Resources);
@@ -614,7 +614,7 @@ void RSI_M4SSUsart0Handler(void)
 #if defined(RTE_USART0_CHNL_UDMA_TX_EN) && (RTE_USART0_CHNL_UDMA_TX_EN == 1)
 void USART0_UDMA_Tx_Event (uint32_t event, uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->USART_UDMA_Tx_Event (event,dmaCh, &USART0_Resources);
 #else
 	USART_UDMA_Tx_Event (event,(uint8_t)dmaCh, &USART0_Resources);
@@ -624,7 +624,7 @@ void USART0_UDMA_Tx_Event (uint32_t event, uint32_t dmaCh)
 #if defined(RTE_USART0_CHNL_UDMA_RX_EN) && (RTE_USART0_CHNL_UDMA_RX_EN == 1)
 void USART0_UDMA_Rx_Event (uint32_t event,uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->USART_UDMA_Rx_Event (event,dmaCh, &USART0_Resources);	
 #else
 	USART_UDMA_Rx_Event (event,(uint8_t)dmaCh, &USART0_Resources);
@@ -653,7 +653,7 @@ ARM_DRIVER_USART Driver_USART0 =
 // USART_IRQ_HANDLER
 void USART0_IRQ_HANDLER (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->UartIrqHandler(&USART0_Resources);
 #else
 	UartIrqHandler(&USART0_Resources);
@@ -672,7 +672,7 @@ static ARM_USART_CAPABILITIES ARM_UART1_GetCapabilities (void)
 
 static int32_t ARM_UART1_Initialize (ARM_USART_SignalEvent_t cb_event)
 {
-#if  defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if  defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return  ROMAPI_USART_API->USART_Initialize (cb_event, &UART1_Resources,&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);
 #else
 	return  USART_Initialize (cb_event, &UART1_Resources,&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);
@@ -686,7 +686,7 @@ static int32_t ARM_UART1_Uninitialize (void)
 	#else
 	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI1);
 	#endif
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Uninitialize(&UART1_Resources,&UDMA0_Resources);
 #else
 	return USART_Uninitialize(&UART1_Resources,&UDMA0_Resources);
@@ -695,7 +695,7 @@ static int32_t ARM_UART1_Uninitialize (void)
 
 static int32_t ARM_UART1_PowerControl (ARM_POWER_STATE state)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_PowerControl (state, &UART1_Resources,&UDMA0_Resources,udmaHandle0);	
 #else
 	return USART_PowerControl (state, &UART1_Resources,&UDMA0_Resources,udmaHandle0);
@@ -711,7 +711,7 @@ static int32_t ARM_UART1_Send (const void *data, uint32_t num)
     {
       UART1_Resources.dma_tx->control.totalNumOfDMATrans = RTE_UART1_DMA_TX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Send_Data (data, num, &UART1_Resources ,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);	
 #else
 	return USART_Send_Data (data, num, &UART1_Resources ,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
@@ -727,7 +727,7 @@ static int32_t ARM_UART1_Receive (void *data, uint32_t num)
     {
       UART1_Resources.dma_rx->control.totalNumOfDMATrans = RTE_UART1_DMA_RX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Receive_Data ( data, num,&UART1_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
 #else
 	return USART_Receive_Data ( data, num,&UART1_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
@@ -745,7 +745,7 @@ static int32_t ARM_UART1_Transfer (const void *data_out,void *data_in,uint32_t n
       UART1_Resources.dma_tx->control.totalNumOfDMATrans = RTE_UART1_DMA_TX_LEN_PER_DES-1;
       UART1_Resources.dma_rx->control.totalNumOfDMATrans = RTE_UART1_DMA_RX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Transfer (data_out, data_in, num, &UART1_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);	
 #else
 	return USART_Transfer (data_out, data_in, num, &UART1_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);
@@ -754,7 +754,7 @@ static int32_t ARM_UART1_Transfer (const void *data_out,void *data_in,uint32_t n
 
 static uint32_t ARM_UART1_GetTxCount (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetTxCount (&UART1_Resources);	
 #else
 	return USART_GetTxCount(&UART1_Resources);
@@ -763,7 +763,7 @@ static uint32_t ARM_UART1_GetTxCount (void)
 
 static uint32_t ARM_UART1_GetRxCount (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetRxCount(&UART1_Resources);	
 #else
 	return USART_GetRxCount(&UART1_Resources);
@@ -774,7 +774,7 @@ static int32_t ARM_UART1_Control (uint32_t control, uint32_t arg)
 {
 	uint32_t uart1_get_clock;
 	uart1_get_clock = RSI_CLK_GetBaseClock(M4_UART1);
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Control (control, arg, uart1_get_clock, &UART1_Resources,&UDMA0_Resources,udmaHandle0);
 #else
 	return USART_Control (control, arg, uart1_get_clock, &UART1_Resources,&UDMA0_Resources,udmaHandle0);
@@ -783,7 +783,7 @@ static int32_t ARM_UART1_Control (uint32_t control, uint32_t arg)
 
 static ARM_USART_STATUS ARM_UART1_GetStatus (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetStatus(&UART1_Resources);
 #else
 	return USART_GetStatus(&UART1_Resources);
@@ -792,7 +792,7 @@ static ARM_USART_STATUS ARM_UART1_GetStatus (void)
 
 static int32_t ARM_UART1_SetModemControl (ARM_USART_MODEM_CONTROL control)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_SetModemControl (control, &UART1_Resources);
 #else
 	return USART_SetModemControl(control, &UART1_Resources);
@@ -801,7 +801,7 @@ static int32_t ARM_UART1_SetModemControl (ARM_USART_MODEM_CONTROL control)
 
 static ARM_USART_MODEM_STATUS ARM_UART1_GetModemStatus (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetModemStatus (&UART1_Resources);
 #else
 	return USART_GetModemStatus(&UART1_Resources);
@@ -810,7 +810,7 @@ static ARM_USART_MODEM_STATUS ARM_UART1_GetModemStatus (void)
 
 void RSI_M4SSUart1Handler(void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->UartIrqHandler(&UART1_Resources);	
 #else
 	UartIrqHandler(&UART1_Resources);
@@ -818,23 +818,23 @@ void RSI_M4SSUart1Handler(void)
 }
 
 #if defined(RTE_UART1_CHNL_UDMA_TX_EN) && (RTE_UART1_CHNL_UDMA_TX_EN == 1)
-void UART1_UDMA_Tx_Event (uint32_t event,uint8_t dmaCh)
+void UART1_UDMA_Tx_Event (uint32_t event,uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->USART_UDMA_Tx_Event (event,dmaCh, &UART1_Resources);	
 #else
-	USART_UDMA_Tx_Event (event,dmaCh, &UART1_Resources);
+	USART_UDMA_Tx_Event (event,(uint8_t)dmaCh, &UART1_Resources);
 #endif
 }
 #endif
 
 #if defined(RTE_UART1_CHNL_UDMA_RX_EN) && (RTE_UART1_CHNL_UDMA_RX_EN == 1)
-void UART1_UDMA_Rx_Event (uint32_t event,uint8_t dmaCh)
+void UART1_UDMA_Rx_Event (uint32_t event,uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->USART_UDMA_Rx_Event (event,dmaCh, &UART1_Resources);
 #else
-	USART_UDMA_Rx_Event (event,dmaCh, &UART1_Resources);
+	USART_UDMA_Rx_Event (event,(uint8_t)dmaCh, &UART1_Resources);
 #endif
 }
 #endif
@@ -859,7 +859,7 @@ ARM_DRIVER_USART Driver_UART1 = {
 // USART_IRQ_HANDLER
 void UART1_IRQ_HANDLER (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->UartIrqHandler(&UART1_Resources);
 #else
 	UartIrqHandler(&UART1_Resources);
@@ -875,7 +875,7 @@ static ARM_USART_CAPABILITIES ARM_ULP_UART_GetCapabilities (void)
 }
 static int32_t ARM_ULP_UART_Initialize (ARM_USART_SignalEvent_t cb_event)
 {
-#if  defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if  defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return  ROMAPI_USART_API->USART_Initialize (cb_event, &ULP_UART_Resources,&UDMA1_Resources,UDMA1_Table,&udmaHandle1,dma_rom_buff1);	
 #else
 	return  USART_Initialize (cb_event, &ULP_UART_Resources,&UDMA1_Resources,UDMA1_Table,&udmaHandle1,dma_rom_buff1);
@@ -885,7 +885,7 @@ static int32_t ARM_ULP_UART_Initialize (ARM_USART_SignalEvent_t cb_event)
 static int32_t ARM_ULP_UART_Uninitialize (void)
 {
 	RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_UART);
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Uninitialize(&ULP_UART_Resources ,&UDMA1_Resources);
 #else
 	return USART_Uninitialize(&ULP_UART_Resources ,&UDMA1_Resources);
@@ -894,7 +894,7 @@ static int32_t ARM_ULP_UART_Uninitialize (void)
 
 static int32_t ARM_ULP_UART_PowerControl (ARM_POWER_STATE state)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_PowerControl (state, &ULP_UART_Resources ,&UDMA1_Resources,udmaHandle1);
 #else
 	return USART_PowerControl (state, &ULP_UART_Resources ,&UDMA1_Resources,udmaHandle1);
@@ -910,7 +910,7 @@ static int32_t ARM_ULP_UART_Send (const void *data, uint32_t num)
     {
       ULP_UART_Resources.dma_tx->control.totalNumOfDMATrans = RTE_ULP_UART_DMA_TX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Send_Data (data, num, &ULP_UART_Resources ,&UDMA1_Resources,udma1_chnl_info,udmaHandle1);	
 #else
 	return USART_Send_Data (data, num, &ULP_UART_Resources ,&UDMA1_Resources,udma1_chnl_info,udmaHandle1);
@@ -926,7 +926,7 @@ static int32_t ARM_ULP_UART_Receive (void *data, uint32_t num)
     {
       ULP_UART_Resources.dma_rx->control.totalNumOfDMATrans = RTE_ULP_UART_DMA_RX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Receive_Data ( data, num,&ULP_UART_Resources,&UDMA1_Resources,udma1_chnl_info,udmaHandle1);
 #else
 	return USART_Receive_Data ( data, num,&ULP_UART_Resources,&UDMA1_Resources,udma1_chnl_info,udmaHandle1);
@@ -935,7 +935,7 @@ static int32_t ARM_ULP_UART_Receive (void *data, uint32_t num)
 
 static int32_t ARM_ULP_UART_Transfer (const void *data_out,void *data_in,uint32_t num)
 {
-  if((num < RTE_ULP_UART_DMA_TX_LEN_PER_DES) && (num < RTE_ULP_UART_DMA_TX_LEN_PER_DES)) {
+  if((num < RTE_ULP_UART_DMA_TX_LEN_PER_DES) && (num < RTE_ULP_UART_DMA_RX_LEN_PER_DES)) {
       ULP_UART_Resources.dma_tx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
       ULP_UART_Resources.dma_rx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
   }
@@ -944,7 +944,7 @@ static int32_t ARM_ULP_UART_Transfer (const void *data_out,void *data_in,uint32_
       ULP_UART_Resources.dma_tx->control.totalNumOfDMATrans = RTE_ULP_UART_DMA_TX_LEN_PER_DES-1;
       ULP_UART_Resources.dma_rx->control.totalNumOfDMATrans = RTE_ULP_UART_DMA_RX_LEN_PER_DES-1;
     }
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Transfer (data_out, data_in, num, &ULP_UART_Resources ,&UDMA1_Resources,udma1_chnl_info,udmaHandle1);	
 #else
 	return USART_Transfer (data_out, data_in, num, &ULP_UART_Resources ,&UDMA1_Resources,udma1_chnl_info,udmaHandle1);
@@ -953,7 +953,7 @@ static int32_t ARM_ULP_UART_Transfer (const void *data_out,void *data_in,uint32_
 
 static uint32_t ARM_ULP_UART_GetTxCount (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetTxCount (&ULP_UART_Resources);
 #else
 	return USART_GetTxCount(&ULP_UART_Resources);
@@ -962,7 +962,7 @@ static uint32_t ARM_ULP_UART_GetTxCount (void)
 
 static uint32_t ARM_ULP_UART_GetRxCount (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetRxCount(&ULP_UART_Resources);	
 #else
 	return USART_GetRxCount(&ULP_UART_Resources);
@@ -973,7 +973,7 @@ static int32_t ARM_ULP_UART_Control (uint32_t control, uint32_t arg)
 {
 	uint32_t ulp_uart_get_clock;
 	ulp_uart_get_clock = RSI_CLK_GetBaseClock(ULPSS_UART);
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Control (control, arg, ulp_uart_get_clock, &ULP_UART_Resources ,&UDMA1_Resources,udmaHandle1);
 #else
 	return USART_Control (control, arg, ulp_uart_get_clock, &ULP_UART_Resources ,&UDMA1_Resources,udmaHandle1);
@@ -982,7 +982,7 @@ static int32_t ARM_ULP_UART_Control (uint32_t control, uint32_t arg)
 
 static ARM_USART_STATUS ARM_ULP_UART_GetStatus (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetStatus(&ULP_UART_Resources);
 #else
 	return USART_GetStatus(&ULP_UART_Resources);
@@ -991,7 +991,7 @@ static ARM_USART_STATUS ARM_ULP_UART_GetStatus (void)
 
 static int32_t ARM_ULP_UART_SetModemControl (ARM_USART_MODEM_CONTROL control)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_SetModemControl (control, &ULP_UART_Resources);	
 #else
 	return USART_SetModemControl(control, &ULP_UART_Resources);
@@ -1000,7 +1000,7 @@ static int32_t ARM_ULP_UART_SetModemControl (ARM_USART_MODEM_CONTROL control)
 
 static ARM_USART_MODEM_STATUS ARM_ULP_UART_GetModemStatus (void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_GetModemStatus (&ULP_UART_Resources);
 #else
 	return USART_GetModemStatus(&ULP_UART_Resources);
@@ -1009,7 +1009,7 @@ static ARM_USART_MODEM_STATUS ARM_ULP_UART_GetModemStatus (void)
 
 void RSI_ULPUartHandler(void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->UartIrqHandler(&ULP_UART_Resources);
 #else
 	UartIrqHandler(&ULP_UART_Resources);
@@ -1017,23 +1017,23 @@ void RSI_ULPUartHandler(void)
 }
 
 #if defined(RTE_ULPUART_CHNL_UDMA_TX_EN) && (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
-void ULPUART_UDMA_Tx_Event (uint32_t event,uint8_t dmaCh)
+void ULPUART_UDMA_Tx_Event (uint32_t event,uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->USART_UDMA_Tx_Event (event,dmaCh, &ULP_UART_Resources);
 #else
-	USART_UDMA_Tx_Event (event,dmaCh, &ULP_UART_Resources);
+	USART_UDMA_Tx_Event (event,(uint8_t)dmaCh, &ULP_UART_Resources);
 #endif
 }
 #endif
 
 #if defined(RTE_ULPUART_CHNL_UDMA_RX_EN) && (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
-void ULPUART_UDMA_Rx_Event (uint32_t event,uint8_t dmaCh)
+void ULPUART_UDMA_Rx_Event (uint32_t event,uint32_t dmaCh)
 {	
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->USART_UDMA_Rx_Event (event,dmaCh, &ULP_UART_Resources);
 #else
-	USART_UDMA_Rx_Event (event,dmaCh, &ULP_UART_Resources);
+	USART_UDMA_Rx_Event (event,(uint8_t)dmaCh, &ULP_UART_Resources);
 #endif
 }
 #endif
@@ -1058,7 +1058,7 @@ ARM_DRIVER_USART Driver_ULP_UART = {
 // USART_IRQ_HANDLER
 void ULP_UART_IRQ_HANDLER (void)
 { 
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	ROMAPI_USART_API->UartIrqHandler(&ULP_UART_Resources);
 #else
 	UartIrqHandler(&ULP_UART_Resources);

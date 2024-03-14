@@ -50,7 +50,7 @@ static sl_status_t load_credential_table(void);
 static sl_status_t save_credential_table(void);
 static sl_status_t find_entry(sl_net_credential_id_t id, sl_net_credential_entry_t **entry);
 
-static int check_cred_type(sl_net_credential_type_t type)
+static int sli_si91x_check_cred_type(sl_net_credential_type_t type)
 {
   if ((SL_NET_CERTIFICATE == type) || (SL_NET_PUBLIC_KEY == type) || (SL_NET_PRIVATE_KEY == type)
       || (SL_NET_SIGNING_CERTIFICATE == type)) {
@@ -74,7 +74,7 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if (CRED_TYPE_CERT == check_cred_type(type)) {
+  if (CRED_TYPE_CERT == sli_si91x_check_cred_type(type)) {
 #ifdef SLI_SI917
     return sl_si91x_set_credential(id, type, credential, credential_length);
 #else
@@ -183,7 +183,7 @@ sl_status_t sl_net_delete_credential(sl_net_credential_id_t id, sl_net_credentia
   int group_id = 0;
   int cred_id  = 0;
 
-  if (CRED_TYPE_CERT == check_cred_type(type)) {
+  if (CRED_TYPE_CERT == sli_si91x_check_cred_type(type)) {
 #ifdef SLI_SI917
     return sl_si91x_delete_credential(id, type);
 #else

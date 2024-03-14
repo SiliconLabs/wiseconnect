@@ -52,7 +52,7 @@ typedef struct {
 /**********************************************************************************************************************
  *                                                Static Functions                                                    *
 **********************************************************************************************************************/
-static void clean_service_handle(sl_wifi_buffer_t *service_handle)
+static void sli_si91x_clean_service_handle(sl_wifi_buffer_t *service_handle)
 {
   sl_mdns_service_t *service = NULL;
   uint16_t buffer_length     = 0;
@@ -66,7 +66,7 @@ static void clean_service_handle(sl_wifi_buffer_t *service_handle)
   return;
 }
 
-static void clean_service_list(sl_mdns_interface_t *interface)
+static void sli_si91x_clean_service_list(sl_mdns_interface_t *interface)
 {
   sl_wifi_buffer_t *service = NULL;
   sl_wifi_buffer_t *block   = NULL;
@@ -76,13 +76,13 @@ static void clean_service_list(sl_mdns_interface_t *interface)
   while (service != NULL) {
     block   = service;
     service = service->node.node;
-    clean_service_handle(block);
+    sli_si91x_clean_service_handle(block);
   }
 
   return;
 }
 
-static void clean_mdns_handle(sl_mdns_t *mdns)
+static void sli_si91x_clean_mdns_handle(sl_mdns_t *mdns)
 {
   sl_wifi_buffer_t *interface = NULL;
   sl_wifi_buffer_t *block     = NULL;
@@ -277,7 +277,7 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
                                         NULL,
                                         NULL);
   if (SL_STATUS_OK != status) {
-    clean_service_handle(new_service);
+    sli_si91x_clean_service_handle(new_service);
     VERIFY_STATUS_AND_RETURN(status);
   }
 

@@ -1,8 +1,9 @@
 id: comparator_ulp_component
-label: Comparator
+label: ULP Comparator
 package: platform
 description: >
-  Install this component to enable execution of Comparator peripheral from RAM
+  ULP COMPARATOR component will enable Comparator in the low-power mode. It moves all the peripheral dependencies to RAM. 
+  It also installs the peripheral component if already not installed.
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
 

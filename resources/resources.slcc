@@ -38,6 +38,12 @@ include:
     - path: mydevkitcertificate.pem.h
     - path: mydevkitkey.pem.h
     - path: silabs_dgcert_ca.pem.h
+    - path: eap.pem.h
+- path: html
+  file_list:
+    - path: login.h
+    - path: helloworld.h
+    - path: provisioning.h
 - path: other
   file_list:
     - path: index.html.h

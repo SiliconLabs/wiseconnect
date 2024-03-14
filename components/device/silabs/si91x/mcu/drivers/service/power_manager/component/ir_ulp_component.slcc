@@ -1,8 +1,9 @@
 id: ir_ulp_component
-label: IR
+label: ULP IR
 package: platform
 description: >
-  Install this component to enable execution of IR peripheral from RAM
+  ULP IR component will enable IR in the low-power mode. It moves all the peripheral dependencies to RAM. 
+  It also installs the peripheral component if already not installed.
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
 

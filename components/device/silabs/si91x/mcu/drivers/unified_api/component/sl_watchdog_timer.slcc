@@ -2,7 +2,18 @@ id: sl_watchdog_timer
 label: WDT
 package: platform
 description: >
-  Si91x Watchdog Timer API
+  WDT stands for Watchdog Timer/Window Watchdog Timer. WDT is used to enhance system reliability by monitoring the operation of a program and
+  resetting the system in case of malfunctions or failures.
+  And it will works on open mode and closed mode. 
+  As well as it will restarts and resets the system/device depending on the interrupts.
+  Features or configurations supported by watchdog timer
+    - Independent window watchdog timer.    
+    - Interrupt is generated before the system reset which can be used as a wakeup source.   
+    - Individually controllable power domain for low-power applications.    
+    - APB Interface for accesses from CPU.   
+    - Able to operate when CPU is in SLEEP state during power-save applications    
+    - Configurable timeout period.    
+    - Option to clocked using a low power internal RC (32 KHz) or external 32KHz XTAL.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -16,3 +27,6 @@ include:
     - path: "sl_si91x_watchdog_timer.h"
 provides:
   - name: sl_watchdog_timer
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer

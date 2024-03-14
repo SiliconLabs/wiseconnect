@@ -69,12 +69,13 @@ extern "C" {
 
 // -----------------------------------------------------------------------------
 // Macros for i2c parameters
-#define SL_I2C0_DMA_TX_CHANNEL 31 // I2C0 DMA TX channel number
-#define SL_I2C0_DMA_RX_CHANNEL 30 // I2C0 DMA RX channel number
-#define SL_I2C1_DMA_TX_CHANNEL 3  // I2C1 DMA TX channel number
-#define SL_I2C1_DMA_RX_CHANNEL 2  // I2C1 DMA RX channel number
-#define SL_I2C2_DMA_TX_CHANNEL 5  // I2C2 DMA TX channel number
-#define SL_I2C2_DMA_RX_CHANNEL 4  // I2C2 DMA RX channel number
+#define SL_I2C0_DMA_TX_CHANNEL 31      // I2C0 DMA TX channel number
+#define SL_I2C0_DMA_RX_CHANNEL 30      // I2C0 DMA RX channel number
+#define SL_I2C1_DMA_TX_CHANNEL 3       // I2C1 DMA TX channel number
+#define SL_I2C1_DMA_RX_CHANNEL 2       // I2C1 DMA RX channel number
+#define SL_I2C2_DMA_TX_CHANNEL 5       // I2C2 DMA TX channel number
+#define SL_I2C2_DMA_RX_CHANNEL 4       // I2C2 DMA RX channel number
+#define ULP_I2C                SL_I2C2 // defining ULP_I2C instance
 // -----------------------------------------------------------------------------
 // Data Types
 
@@ -121,6 +122,13 @@ typedef enum {
   SL_I2C_FAST_PLUS_MODE,      ///< Fast-mode Plus, bidirectional data transfers up to 1 Mbit/s.
   SL_I2C_OPERATING_MODE_LAST, ///< Last member of enum for validation
 } sl_i2c_operating_mode_t;
+
+/// @brief Enumeration to represent I2C power modes
+typedef enum {
+  SL_I2C_ULP_MODE,        ///< The driver leader ULP mode
+  SL_I2C_HP_MODE,         ///< The driver leader HP mode
+  SL_I2C_POWER_MODE_LAST, ///< For Validation
+} sl_i2c_power_modes_t;
 
 typedef void (*sl_i2c_callback_t)(sl_i2c_instance_t i2c_instance, uint32_t status); ///< Callback for I2C Driver
 
@@ -393,6 +401,24 @@ sl_i2c_status_t sl_i2c_driver_deinit(sl_i2c_instance_t i2c_instance);
  *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
  ******************************************************************************/
 sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init);
+
+/***************************************************************************/
+/**
+ * Re-Config the I2C driver leader instance (I2C2) for ULP/HP mode.
+ * It will re-config I2C clock frequency required for I2C operating(speed) mode to run in ULP/HP mode.
+ *
+ * @pre Pre-conditions:
+ *      - \ref sl_i2c_driver_init
+ *      - Instance should be ULP mode when new mode is HP
+ *      - Instance should be HP mode when new mode is ULP
+ *      - Instance used should be ULP-I2C instance
+ *
+ * @param[in] power_mode , new power state to switch to \ref sl_i2c_power_modes_t
+ * @return status 0 if successful, else error code as follow
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Success
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid
+ ******************************************************************************/
+sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_modes_t new_power_mode);
 
 /** @} (end addtogroup I2C) */
 

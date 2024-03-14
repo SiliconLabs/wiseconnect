@@ -53,13 +53,6 @@
 #define SIO_SQA_VERSION     0        ///< SIO SQA version
 #define SIO_DEV_VERSION     2        ///< SIO Developer version
 #define SLI_SIO_INTERRUPT   SIO_IRQn ///< SIO interrupt handler
-#define SIO_UC \
-  1 /*!< SIO_UC is defined by default. when this macro (SIO_UC) is defined,    \
-       peripheral configuration is directly taken from the configuration set   \
-       in the universal configuration (UC). if the application requires the    \
-       configuration to be changed in run-time, undefined this macro and       \
-       change the peripheral configuration through the \ref                    \
-       sl_si91x_sio_spi_init API. */
 
 /*******************************************************************************
  ***************************  Global  VARIABLES ********************************

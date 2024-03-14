@@ -301,8 +301,8 @@ The application can be configured to suit user requirements and development envi
 - iTWT Configuration
 
     There are three TWT configuration APIs. 
-    - sl_wifi_target_wake_time_auto_selection - This API calculates and automatically configures TWT session parameters based on the given inputs. Enables or disables a TWT session.
-    - sl_wifi_enable_target_wake_time - This API allows users to manually configure iTWT session parameters and enables the iTWT session.
+    - sl_wifi_target_wake_time_auto_selection - This API calculates and automatically configures TWT session parameters based on the given inputs. Enables or disables a TWT session. Recommended for user applications.
+    - sl_wifi_enable_target_wake_time - This API allows users to manually configure iTWT session parameters and enables the iTWT session. This API is not recommended for users. It is for internal certification purposes only.
     - sl_wifi_disable_target_wake_time - Disables a TWT session.
 
     **sl_wifi_target_wake_time_auto_selection API**
@@ -311,12 +311,16 @@ The application can be configured to suit user requirements and development envi
       sl_status_t sl_wifi_target_wake_time_auto_selection(sl_wifi_twt_selection_t *twt_auto_request)
     ```
     Parameters of this API can be configured in *sl_wifi_twt_selection_t* structure. 
+    This TWT API is recommended because it's designed for maintaining connections, improving throughput, and enhancing power performance.
+
     
     Below given are the parameter descriptions:
     - twt_enable  :  1- Setup ; 0 - teardown
     - tx_latency  :  The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200ms - 6hrs].
-    - rx_latency  :  The maximum allowed receive latency, in milliseconds, when an Rx packet is buffered at the AP. If rx_latency is less than <= 2 sec, session creation is not possible. If configured as 0, then by default 2sec is considered.
-    - avg_tx_throughput  :  The expected average Tx throughput in Kbps should be between 0 and half of device average throughput.
+    - rx_latency : The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
+    - avg_tx_throughput  :  This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20Mbps by default).
+
+    For more information on parameters, refer [sl_wifi_twt_selection_t](https://docs.silabs.com/wiseconnect/3.1.4/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t).
 
     Enable TWT_AUTO_CONFIG MACRO in the app.c file.
 
@@ -341,11 +345,11 @@ The application can be configured to suit user requirements and development envi
       status                            = sl_wifi_target_wake_time_auto_selection(&performance_profile.twt_selection);
     ```
 
-    There are default macro settings that are used for calculating the iTWT parameters. 
+    The following are the default macro settings. User should not change these values as it may affect the working of the algorithm. 
 
     Sample Macro Settings : 
     ```c
-      #define DEVICE_AVG_THROUGHPUT                20000 \\ KBPS
+      #define DEVICE_AVG_THROUGHPUT                20000 \\ Kbps
       #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0 \\ in percentage
       #define TWT_TOLERABLE_DEVIATION              10 \\ in percentage
       #define TWT_DEFAULT_WAKE_INTERVAL_MS         1024     // in milli   seconds
@@ -361,6 +365,8 @@ The application can be configured to suit user requirements and development envi
     ```c
       sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req)
     ```
+    
+    Usage of this API requires knowledge of individual TWT setup negotiation. This API doesn't take care of network disconnections.
 
     iTWT parameters should be configured and filled into the structure type *sl_wifi_twt_request_t*  in app.c and passed as a parameter to *sl_wifi_enable_target_wake_time()* API.
 
@@ -418,7 +424,7 @@ The application can be configured to suit user requirements and development envi
   ```c
     status                          = sl_wifi_enable_target_wake_time(&twt_request);
   ```
-
+    
     >**Note:**
     >- TWT Wake duration depends on the wake duration unit. For example, for the above configuration, wake duration value is  (0xE0 * 256 = 57.3 msec).
     >- TWT Wake interval is calculated as mantissa *2 ^ exp.  For example, for the above configuration, wake interval value is (0x1B00* 2^13  = 55.2 sec).
@@ -473,7 +479,7 @@ The application can be configured to suit user requirements and development envi
 
 ## TWT Recommendations
 
-  1. Use sl_wifi_target_wake_time_auto_selection with appropriate Rx Latency input according to the user scenario as it has improved  design over sl_wifi_enable_target_wake_time, handles TCP level disconnections and has better user interface. 
+  1. Use sl_wifi_target_wake_time_auto_selection with appropriate Rx Latency input according to the use case as it has improved design over sl_wifi_enable_target_wake_time. Also, it handles network level disconnections such as ARP, Embedded MQTT and TCP connections. It has better user interface and simplifies TWT usage.
   2. iTWT setup is recommended after IP assignment/TCP connection/application connection.
   3. When using sl_wifi_target_wake_time_auto_selection API, Rx Latency  should be less than TCP / ARP Timeouts at the remote side.
   4. When using sl_wifi_enable_target_wake_time, TWT interval configured should be less than TCP / ARP Timeouts at the remote side.

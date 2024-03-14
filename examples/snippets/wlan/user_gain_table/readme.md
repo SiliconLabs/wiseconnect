@@ -45,7 +45,9 @@ While measuring the performance of 802.11 Wireless Devices, packet error test ha
 
 ### Software Requirements
 
-- Simplicity Studio
+- Simplicity Studio IDE (to be used with Silicon Labs MCU)
+- Keil IDE (to be used with STM32F411RE MCU)
+- Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
 
 ### Setup Diagram
 
@@ -53,12 +55,27 @@ While measuring the performance of 802.11 Wireless Devices, packet error test ha
 
 ## Getting Started
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+  Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+  - Install Studio and WiSeConnect 3 extension
+  - Connect your device to the computer
+  - Upgrade your connectivity firmware
+  - Create a Studio project
+
+### Instructions for Keil IDE and STM32F411RE MCU
+
+  - Install the [Keil IDE](https://www.keil.com/).
+  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
+  - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
+   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
+   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
+   - After connecting all the boards, the setup should look like the image shown below:
+    ![Figure: Setup](resources/readme/stm32_setup.png)
+   - Connect the setup to the computer.
+  - Open the AWS DEVICE SHADOW µVision project - **user_gain_table.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → user_gain_table → keil_project**. 
 
 ## Application Build Environment
 
@@ -173,9 +190,17 @@ The application can be configured to suit user requirements and development envi
 
 ## Test the application
 
+### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
+- Flash, run and debug the application.
+
+### Instructions for Keil IDE and STM32F411RE MCU
+
+- Build the application.
+- Set the Docklight up by connecting STM32's Serial COM port. This enables you to view the application prints.
 - Flash, run and debug the application.
 
 - When the application runs, the SiWx91x starts transmitting using the configuration settings. A power meter or spectrum analyzer may be used to monitor the RF output power and spectrum.

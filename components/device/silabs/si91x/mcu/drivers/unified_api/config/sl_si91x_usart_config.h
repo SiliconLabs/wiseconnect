@@ -38,6 +38,13 @@ extern "C" {
 #include "sl_si91x_usart.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>
+
+//  <e>USART UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_usart_set_configuration API to modify the peripheral configuration.
+//  <i> Default: 1
+#define USART_UC 1
+
 // <h>USART Configuration
 #define ENABLE  1
 #define DISABLE 0
@@ -95,11 +102,12 @@ extern "C" {
 // <i> Default: USART_FLOW_CONTROL_NONE
 #define SL_USART_FLOW_CONTROL_TYPE SL_USART_FLOW_CONTROL_NONE
 #endif
+
 // </h>  USART Configuration
 
 // <h>UART1 Configuration
 // <q SL_UART1_MODULE> UART_1
-// <i> Default: 0
+// <i> Default: 1
 #define SL_UART1_MODULE 1
 
 #if (SL_UART1_MODULE)
@@ -147,11 +155,12 @@ extern "C" {
 // <i> Default: USART_FLOW_CONTROL_NONE
 #define SL_UART1_FLOW_CONTROL_TYPE SL_USART_FLOW_CONTROL_NONE
 #endif
+
 // </h>  UART1 Configuration
 
 // <h>ULP UART Configuration
 // <q SL_ULP_UART_MODULE> ULP UART
-// <i> Default: 0
+// <i> Default: 1
 #define SL_ULP_UART_MODULE 1
 
 #if (SL_ULP_UART_MODULE)
@@ -201,6 +210,9 @@ extern "C" {
 #endif
 
 // </h> ULP UART Configuration
+
+// </e>
+
 #ifdef __cplusplus
 }
 #endif

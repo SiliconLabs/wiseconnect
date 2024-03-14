@@ -2,7 +2,17 @@ id: sl_adc
 label: ADC
 package: platform
 description: >
-  Si91x ADC API.
+   ADC stands for Analog-to-Digital Converter.
+   An ADC is a peripheral or component of a controller that transforms analog signals (continuous voltage levels)
+   into digital data (discrete binary values) that the controller can handle.
+   Here are some common parameters one can configure:
+     - Resolution
+     - Sampling Rate
+     - Input Voltage Range
+     - Reference Voltage
+     - Triggering and Conversion Modes
+     - Channel Selection
+     - Interrupts and DMA
 category: Device|Si91x|MCU|Peripheral
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -18,3 +28,6 @@ provides:
   - name: sl_adc
 requires:
   - name: rsilib_adc
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/adc

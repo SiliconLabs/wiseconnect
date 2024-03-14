@@ -68,6 +68,9 @@ rsi_error_t DAC_PingPongReconfig(int16_t *wr_buf, uint16_t length);
 
 // New internal API
 rsi_error_t DAC_PinMux(uint8_t pin_sel);
+#ifdef SL_SI91X_DAC
+rsi_error_t DAC_PinMux_config(uint8_t pin, uint8_t port);
+#endif
 
 uint32_t dac_set_clock(uint32_t sampl_rate);
 

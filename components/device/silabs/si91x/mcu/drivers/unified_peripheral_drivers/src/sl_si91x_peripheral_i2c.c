@@ -31,23 +31,26 @@
 #include "rsi_power_save.h"
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
+#include "rsi_power_save.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
-#define SS_MIN_SCL_HIGH             5200 // Standard Speed minimum SCL high
-#define SS_MIN_SCL_LOW              4700 // Standard Speed minimum SCL low
-#define FS_MIN_SCL_HIGH             1160 // Fast Speed minimum SCL high
-#define FS_MIN_SCL_LOW              1300 // Fast Speed minimum SCL low
-#define FPS_MIN_SCL_HIGH_400PF      274  // Fast Plus Speed minimum SCL high
-#define FPS_MIN_SCL_LOW_400PF       333  // Fast Plus Speed minimum SCL low
-#define HS_MIN_SCL_HIGH_100PF       60   // High Speed minimum SCL high
-#define HS_MIN_SCL_LOW_100PF        120  // High Speed minimum SCL low
-#define I2C_RELEASE_VERSION         0    // I2C Release version
-#define I2C_SQA_VERSION             0    // I2C SQA version
-#define I2C_DEV_VERSION             2    // I2C Developer version
-#define HIGH_SPEED_HIGH_COUNT_VALUE 8    // High speed mode clock high count value
-#define HIGH_SPEED_LOW_COUNT_VALUE  14   // High speed mode clock high count value
+#define SS_MIN_SCL_HIGH                 5200 // Standard Speed minimum SCL high
+#define SS_MIN_SCL_LOW                  4700 // Standard Speed minimum SCL low
+#define FS_MIN_SCL_HIGH                 1160 // Fast Speed minimum SCL high
+#define FS_MIN_SCL_LOW                  1300 // Fast Speed minimum SCL low
+#define FPS_MIN_SCL_HIGH_400PF          274  // Fast Plus Speed minimum SCL high
+#define FPS_MIN_SCL_LOW_400PF           333  // Fast Plus Speed minimum SCL low
+#define HS_MIN_SCL_HIGH_100PF           60   // High Speed minimum SCL high
+#define HS_MIN_SCL_LOW_100PF            120  // High Speed minimum SCL low
+#define I2C_RELEASE_VERSION             0    // I2C Release version
+#define I2C_SQA_VERSION                 0    // I2C SQA version
+#define I2C_DEV_VERSION                 2    // I2C Developer version
+#define HIGH_SPEED_HIGH_COUNT_VALUE     8    // High speed mode clock high count value
+#define HIGH_SPEED_LOW_COUNT_VALUE      14   // High speed mode clock high count value
+#define ULP_HIGH_SPEED_HIGH_COUNT_VALUE 14   // High speed mode clock high count value in ulp mode
+#define ULP_HIGH_SPEED_LOW_COUNT_VALUE  43   // High speed mode clock low count value in ulp mode
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -239,18 +242,20 @@ static void set_i2c_clock_rate(I2C_TypeDef *i2c, uint8_t speed, uint32_t i2c_Clk
   // DW_apb_i2c device.  The correct clock count values are determined
   // by using this inconjunction with the minimum high and low signal
   // hold times as per the I2C bus specification.
-
-  time_p = (uint32_t)((1 / (float)i2c_Clk) * 1000);
-
+  time_p       = (uint32_t)((1 / (float)i2c_Clk) * 1000);
   ss_scl_high  = (uint16_t)((SS_MIN_SCL_HIGH / time_p) - 8);
   ss_scl_low   = (uint16_t)((SS_MIN_SCL_LOW / time_p) - 1);
   fs_scl_high  = (uint16_t)((FS_MIN_SCL_HIGH / time_p) - 8);
   fs_scl_low   = (uint16_t)((FS_MIN_SCL_LOW / time_p) - 1);
   fps_scl_high = (uint16_t)((HS_MIN_SCL_HIGH_400PF / time_p) - 8);
   fps_scl_low  = (uint16_t)((HS_MIN_SCL_LOW_400PF / time_p) - 1);
-  hs_scl_high  = HIGH_SPEED_HIGH_COUNT_VALUE;
-  hs_scl_low   = HIGH_SPEED_LOW_COUNT_VALUE;
-
+  if (!RSI_PS_IsPS2State()) {
+    hs_scl_high = HIGH_SPEED_HIGH_COUNT_VALUE;
+    hs_scl_low  = HIGH_SPEED_LOW_COUNT_VALUE;
+  } else {
+    hs_scl_high = ULP_HIGH_SPEED_HIGH_COUNT_VALUE;
+    hs_scl_low  = ULP_HIGH_SPEED_LOW_COUNT_VALUE;
+  }
   switch (speed) {
     case SL_I2C_STANDARD_BUS_SPEED:
       // Calculated values are update in the corresponding registers.

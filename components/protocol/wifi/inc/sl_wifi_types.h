@@ -132,7 +132,7 @@ typedef struct {
  */
 typedef struct {
   sl_wifi_scan_type_t type;        ///< Scan type to be configured
-  uint32_t flags;                  ///< Flags for the scan configuration
+  uint32_t flags;                  ///< Reserved for future use.
   uint32_t periodic_scan_interval; ///< Duration in milliseconds between periodic scans
   uint16_t channel_bitmap_2g4;     ///< Bitmap of selected 2.4GHz channels
   uint32_t channel_bitmap_5g[8];   ///< Bitmap of selected 5GHz channels
@@ -296,20 +296,23 @@ typedef struct {
 typedef struct {
   uint8_t twt_enable; ///< TWT enable. 0 - TWT session teardown; 1 - TWT session setup.
   uint16_t
-    average_tx_throughput; ///< The expected average Tx throughput in Kbps. The value configured should be between 0 and half of device average throughput.
+    average_tx_throughput; ///< This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20Mbps by default).
   uint32_t
     tx_latency; ///< The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200ms - 6hrs].
   uint32_t
-    rx_latency; ///< The maximum latency for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours.
-  uint16_t device_average_throughput; ///< Refers to the average Tx throughput that the device is capable of achieving.
+    rx_latency; ///< The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
+  uint16_t
+    device_average_throughput; ///< Refers to the average Tx throughput that the device is capable of achieving in Kbps. The default value is 20Mbps. Internal SDK use only: do not use.
   uint8_t
-    estimated_extra_wake_duration_percent; ///< The percentage by which wake duration is supposed to be overestimated to compensate for bss congestion. Valid input range is 0 - 50%.
+    estimated_extra_wake_duration_percent; ///< The percentage by which wake duration is supposed to be overestimated to compensate for bss congestion. Recommended input range is 0 - 50%. The default value is 0. Internal SDK use only: do not use.
   uint8_t
-    twt_tolerable_deviation; ///< The allowed deviation percentage of wake duration TWT response. Valid input range is 0 - 50%.
-  uint32_t default_wake_interval_ms;         ///< Default minimum wake interval. Recommended Range: 512 to 1024ms
-  uint32_t default_minimum_wake_duration_ms; ///< Default minimum wake interval. Recommended Range: 8 - 16ms
+    twt_tolerable_deviation; ///< The allowed deviation percentage of wake duration TWT response. Recommended input range is 0 - 50%. The default value is 10. Internal SDK use only: do not use.
+  uint32_t
+    default_wake_interval_ms; ///< Default minimum wake interval. Recommended Range: 512ms to 1024ms. The default value is 1024msec. Internal SDK use only: do not use.
+  uint32_t
+    default_minimum_wake_duration_ms; ///< Default minimum wake interval. Recommended Range: 8ms - 16ms. The default value is 8ms. Internal SDK use only: do not use.
   uint8_t
-    beacon_wake_up_count_after_sp; ///< The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
+    beacon_wake_up_count_after_sp; ///< The number of beacons after the service period completion for which the module wakes up and listens for any pending RX. The default value is 2. Internal SDK use only: do not use.
 } sl_wifi_twt_selection_t;
 
 /// TWT reschedule structure
@@ -344,6 +347,15 @@ typedef struct {
   uint32_t
     overrun_count; ///< Number of packets dropped either at ingress or egress, due to lack of buffer memory to retain all packets.
 } sl_wifi_statistics_t;
+
+/// Wi-Fi Operational Statistics
+typedef struct {
+  uint8_t operating_mode;       ///< Opermode mode
+  uint8_t dtim_period;          ///< DTIM period
+  uint8_t ideal_beacon_info[2]; ///< Ideal beacon info
+  uint8_t busy_beacon_info[2];  ///< Busy beacon info
+  uint8_t beacon_interval[2];   ///< Beacon Interval
+} sl_wifi_operational_statistics_t;
 
 /// Wi-Fi Direct (P2P) configuration
 typedef struct {

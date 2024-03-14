@@ -14,7 +14,7 @@ sdk:
   version: 4.4.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.3
+    version: 3.1.4
 readme:
   - path: readme.md
 source:
@@ -48,7 +48,6 @@ other_file:
   - path: resources/readme/studio_admin_console.png
   - path: resources/readme/ttl_module_connection.png
 define:
-  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
   - name: IOSTREAM_SI91X_USART
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
   - name: USART_CONFIG

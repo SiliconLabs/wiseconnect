@@ -77,12 +77,17 @@ extern "C" {
 
 // </h>
 
+// <<< end of configuration section >>>
+#define SL_DAC_IN1_PORT 0
+
+#define SL_DAC_IN1_PIN 30
+
 sl_dac_config_t sl_dac_config = { .operating_mode     = SL_DAC_OPERATION_MODE,
                                   .dac_fifo_threshold = SL_DAC_FIFO_THRESHOLD,
                                   .dac_sample_rate    = SL_DAC_SAMPLE_RATE,
-                                  .adc_channel        = SL_DAC_ADC_CHANNEL };
-
-// <<< end of configuration section >>>
+                                  .adc_channel        = SL_DAC_ADC_CHANNEL,
+                                  .dac_pin            = SL_DAC_IN1_PIN,
+                                  .dac_port           = SL_DAC_IN1_PORT };
 
 #ifdef __cplusplus
 }

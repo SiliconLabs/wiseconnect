@@ -4,6 +4,8 @@
 - description: Silicon Labs CMSIS-Device part headers for SI917-SB00.
 - category: Device|Si91x|MCU|Device Part|SIWG917
 - quality: production
+- ui_hints:
+    visibility: never
 - define:
   - name: SI917-SB00
     unless:
@@ -12,6 +14,14 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
+  - name: SRAM_BASE
+    value: "0x0cUL"
+    unless: [rsilib_board]
+  - name: SRAM_SIZE
+    value: "0x2fc00UL"
+    unless: [rsilib_board]
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+    unless: [rsilib_board]
 - source:
   - path: components/device/silabs/si91x/mcu/core/chip/src/system_si91x.c
   - path: components/device/silabs/si91x/mcu/core/chip/src/startup_si91x.c
@@ -37,6 +47,8 @@
   - name: sl_si91x_mcu
   - name: board_configuration_headers
   - name: wiseconnect_toolchain_plugin
+  - name: freertos_config
+    condition: [freertos]
 - template_contribution:
   - name: device_opn
     value: si917-sb00

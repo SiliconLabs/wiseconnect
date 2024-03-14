@@ -335,10 +335,8 @@ sl_wifi_event_t convert_si91x_event_to_sl_wifi_event(rsi_wlan_cmd_response_t com
       return SL_WIFI_HTTP_OTA_FW_UPDATE_EVENT | fail_indication;
     case RSI_WLAN_RSP_CLIENT_CONNECTED:
       return SL_WIFI_CLIENT_CONNECTED_EVENT | fail_indication;
-      break;
     case RSI_WLAN_RSP_CLIENT_DISCONNECTED:
       return SL_WIFI_CLIENT_DISCONNECTED_EVENT | fail_indication;
-      break;
     case RSI_WLAN_RSP_TWT_ASYNC:
       switch (frame_status) {
         case RSI_SUCCESS:
@@ -348,10 +346,8 @@ sl_wifi_event_t convert_si91x_event_to_sl_wifi_event(rsi_wlan_cmd_response_t com
       }
     case SL_SI91X_WIFI_BTR_TX_DATA_STATUS:
       return SL_WIFI_BTR_TX_DATA_STATUS_CB | fail_indication;
-      break;
     case SL_SI91X_WIFI_RX_DOT11_DATA:
       return SL_WIFI_BTR_RX_DATA_RECEIVE_CB | fail_indication;
-      break;
     default:
       return SL_WIFI_INVALID_EVENT;
   }

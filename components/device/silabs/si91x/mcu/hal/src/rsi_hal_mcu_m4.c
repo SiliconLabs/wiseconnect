@@ -92,6 +92,7 @@ void rsi_m4_ta_interrupt_init(void)
 #endif
   P2P_STATUS_REG |= M4_is_active;
 
+  //enable P2P interrupt(IRQ-74)
   *(volatile uint32_t *)0xE000E108 = 0x00000400;
 
 #ifdef SLI_SI91X_ENABLE_OS

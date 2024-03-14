@@ -40,7 +40,10 @@
 #include <string.h>
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t ccm_pending(sl_si91x_ccm_config_t *config, uint16_t chunk_length, uint8_t ccm_flags, uint8_t *output)
+static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
+                                         uint16_t chunk_length,
+                                         uint8_t ccm_flags,
+                                         uint8_t *output)
 {
   sl_status_t status              = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer        = NULL;
@@ -127,7 +130,7 @@ static sl_status_t ccm_pending(sl_si91x_ccm_config_t *config, uint16_t chunk_len
 }
 
 #else
-static sl_status_t ccm_side_band(sl_si91x_ccm_config_t *config, uint8_t *output)
+static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_t *output)
 {
 
   sl_status_t status              = SL_STATUS_FAIL;
@@ -209,7 +212,7 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
   uint16_t total_length = config->msg_length;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = ccm_side_band(config, output);
+  status = sli_si91x_ccm_side_band(config, output);
   return status
 #else
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -241,7 +244,7 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
       }
 
       // Send the current chunk length message
-      status = ccm_pending(config, chunk_len, ccm_flags, output);
+      status = sli_si91x_ccm_pending(config, chunk_len, ccm_flags, output);
       if (status != SL_STATUS_OK) {
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
         mutex_result = sl_si91x_crypto_mutex_release(crypto_ccm_mutex);
@@ -262,7 +265,7 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
     ccm_flags |= FIRST_CHUNK;
 
     // Send the current chunk length message
-    status = ccm_pending(config, chunk_len, ccm_flags, output);
+    status = sli_si91x_ccm_pending(config, chunk_len, ccm_flags, output);
     if (status != SL_STATUS_OK) {
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
       mutex_result = sl_si91x_crypto_mutex_release(crypto_ccm_mutex);

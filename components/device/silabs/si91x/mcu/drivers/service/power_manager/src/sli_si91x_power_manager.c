@@ -42,6 +42,9 @@
 #include "sl_si91x_types.h"
 #include "sl_rsi_utility.h"
 #endif
+#ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+#include "sl_si91x_power_manager_wakeup_handler.h"
+#endif
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
@@ -232,6 +235,11 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
     low_power_hardware_configuration(true);
   }
 
+#ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+  // Initializing and configuring the wakeup sources as per UC inputs, if available
+  sl_si91x_power_manager_wakeup_init();
+#endif
+
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
   rsi_p2p_intr_status_bkp_t p2p_intr_status_bkp;
   p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp = TASS_P2P_INTR_MASK_CLR;
@@ -374,11 +382,11 @@ sl_status_t sli_si91x_power_manager_set_ram_retention_configuration(sl_power_ram
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if ((config->m4ss_ram_banks) && !(config->m4ss_ram_banks & VALID_M4SS_RAM)) {
+  if ((config->configure_ram_banks) && (config->m4ss_ram_banks) && !(config->m4ss_ram_banks & VALID_M4SS_RAM)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if ((config->ulpss_ram_banks) && !(config->ulpss_ram_banks & VALID_ULPSS_RAM)) {
+  if ((config->configure_ram_banks) && (config->ulpss_ram_banks) && !(config->ulpss_ram_banks & VALID_ULPSS_RAM)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
@@ -511,7 +519,7 @@ static void low_power_hardware_configuration(boolean_t is_sleep)
   RSI_CLK_PeripheralClkDisable3(M4CLK, M4_SOC_CLK_FOR_OTHER_ENABLE);
 #if defined(SL_ADVANCE_POWERSAVE_CONFIG) && (SL_ADVANCE_POWERSAVE_CONFIG == ENABLE)
   RSI_ULPSS_TimerClkDisable(ULPCLK);
-  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RC_CLK_EN);
+  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RO_CLK_EN);
 #endif
   if (is_sleep) {
     RSI_PS_AnalogPeriPtatDisable();
@@ -594,6 +602,10 @@ static void ps4_to_ps0_state_change(void)
   config.wakeup_callback_address = SL_SLEEP_WAKEUP_CALLBACK_ADDRESS;
   // Low power hardware configuration to switch off the components which are not required.
   low_power_hardware_configuration(true);
+#ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+  // Initializing and configuring the wakeup sources as per UC inputs, if available
+  sl_si91x_power_manager_wakeup_init();
+#endif
   // If any error code, it returns it otherwise goes to sleep without retention.
   trigger_sleep(&config, SLEEP_WITHOUT_RETENTION);
 }
@@ -653,6 +665,10 @@ static void ps3_to_ps0_state_change(void)
   config.vector_offset           = SL_SLEEP_VECTOR_OFFSET;
   config.wakeup_callback_address = SL_SLEEP_WAKEUP_CALLBACK_ADDRESS;
   low_power_hardware_configuration(true);
+#ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
+  // Initializing and configuring the wakeup sources as per UC inputs, if available
+  sl_si91x_power_manager_wakeup_init();
+#endif
   trigger_sleep(&config, SLEEP_WITHOUT_RETENTION);
 }
 
@@ -779,29 +795,25 @@ static sl_status_t configure_ram_memory(sl_power_ram_retention_config_t *config,
     // If M4SS RAM Size is less than 192 KB, bit 7 is set.
     *m4ss_ram |= RAM_BANK_7;
   }
+#if (SL_SI91X_SI917_RAM_MEM_CONFIG == 2) || (SL_SI91X_SI917_RAM_MEM_CONFIG == 3)
   if (config->m4ss_ram_size_kb < RAM_256_KB) {
     // If M4SS RAM Size is less than 256 KB, bit 8 is set.
     *m4ss_ram |= RAM_BANK_8;
   }
+#endif
+#if (SL_SI91X_SI917_RAM_MEM_CONFIG == 3)
   if (config->m4ss_ram_size_kb < RAM_320_KB) {
     // If M4SS RAM Size is less than 320 KB, bit 9 is set.
     *m4ss_ram |= RAM_BANK_9;
   }
+#endif
   if (config->ulpss_ram_size_kb < RAM_2_KB) {
-    // If ULPSS RAM Size is less than 2 KB, bit 0 is set.
-    *ulpss_ram |= ULPSS_2K_BANK_0;
-  }
-  if (config->ulpss_ram_size_kb < RAM_4_KB) {
-    // If ULPSS RAM Size is less than 4 KB, bit 1 is set.
+    // If ULPSS RAM Size is less than 2 KB, bit 1 is set.
     *ulpss_ram |= ULPSS_2K_BANK_1;
   }
-  if (config->ulpss_ram_size_kb < RAM_6_KB) {
-    // If ULPSS RAM Size is less than 6 KB, bit 2 is set.
+  if (config->ulpss_ram_size_kb < RAM_4_KB) {
+    // If ULPSS RAM Size is less than 4 KB, bit 2 is set.
     *ulpss_ram |= ULPSS_2K_BANK_2;
-  }
-  if (config->ulpss_ram_size_kb < RAM_8_KB) {
-    // If ULPSS RAM Size is less than 8 KB, bit 3 is set.
-    *ulpss_ram |= ULPSS_2K_BANK_3;
   }
   return SL_STATUS_OK;
 }

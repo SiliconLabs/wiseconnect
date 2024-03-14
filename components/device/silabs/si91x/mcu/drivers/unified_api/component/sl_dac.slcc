@@ -2,7 +2,15 @@ id: sl_dac
 label: DAC
 package: platform
 description: >
-  Si91x Digital to Analog Converter (DAC) API, DAC sample the digital word and convert it to analog output.
+ DAC stands for Digital-to-Analog Converter.
+ A DAC's objective is to generate a continuous, accurate analog output signal that matches
+ the digital data entered. The number of unique analog output levels that
+ a DAC can generate is known as its resolution, and it is based on the number of bits in the digital input.
+ Configurable parameters in DAC:
+   - Sampling Rate
+   - Operation mode
+   - Reference Voltage
+   - Interrupts and DMA
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -18,7 +26,11 @@ provides:
   - name: sl_dac
 define:
   - name: DAC_FIFO_MODE_EN
+  - name: SL_SI91X_DAC
 requires:
   - name: rsilib_dac
   - name: rsilib_adc
   - name: rsilib_opamp
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/dac

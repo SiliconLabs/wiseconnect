@@ -3,6 +3,8 @@
 - package: platform-si91x
 - description: Silicon Labs CMSIS-Device part headers for SIWG917Y111MGNB.
 - category: Platform|Device|Si91x|MCU|Family|SIWG917Y
+- ui_hints:
+    visibility: never
 - quality: production
 - define:
   - name: SIWG917Y111MGNB
@@ -14,6 +16,14 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
+  - name: SRAM_BASE
+    value: "0x0cUL"
+    unless: [rsilib_board]
+  - name: SRAM_SIZE
+    value: "0x2fc00UL"
+    unless: [rsilib_board]
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+    unless: [rsilib_board]
 - source:
   - path: components/device/silabs/si91x/mcu/core/chip/src/system_si91x.c
   - path: components/device/silabs/si91x/mcu/core/chip/src/startup_si91x.c
@@ -39,6 +49,8 @@
   - name: sl_si91x_mcu
   - name: board_configuration_headers
   - name: wiseconnect_toolchain_plugin
+  - name: freertos_config
+    condition: [freertos]
 - template_contribution:
   - name: device_opn
     value: SIWG917Y111MGNB
@@ -58,6 +70,9 @@
     value: 7168
   - name: nvm3_size
     value: 65536
+
+  - name: flash_present
+    value: 1
 
   - name: device_flash_addr
     value: 136060928

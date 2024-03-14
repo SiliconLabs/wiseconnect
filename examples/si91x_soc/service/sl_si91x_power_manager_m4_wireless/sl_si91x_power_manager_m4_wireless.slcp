@@ -10,7 +10,7 @@ sdk:
   version: 4.4.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.3
+    version: 3.1.4
 readme:
   - path: readme.md
 source:
@@ -79,6 +79,7 @@ define:
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
+  - path: resources/power_manager_integration_guide/power_manager_integration.pdf
 ui_hints:
   highlight:
   - path: readme.md

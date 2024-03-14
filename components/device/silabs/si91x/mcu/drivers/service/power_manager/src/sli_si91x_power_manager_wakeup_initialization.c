@@ -45,7 +45,7 @@
 #define UULP_GPIO_3              3                  // UULP GPIO Pin 3
 #define POLARITY_LOW             0                  // low polarity
 #define CALENDAR_RC_CLOCK        2                  // RC clock value for Calendar RTC
-#define NO_OF_MSEC_IN_SEC        999                // Number of milliseconds in second
+#define NO_OF_MSEC_IN_SEC        1000               // Number of milliseconds in second
 #define NO_OF_SEC_IN_MIN         60                 // Number of seconds in a minute
 #define NO_OF_MIN_IN_HOUR        60                 // Number of minutes in an hour
 #define NO_OF_HOUR_IN_DAY        24                 // Number of hour in a day
@@ -153,7 +153,7 @@ sl_status_t sli_si91x_power_manager_calendar_init(void)
     }
   }
   // Periodic alarm setting API is called.
-  set_periodic_alarm(ALARM_TIME);
+  set_periodic_alarm(ALARM_TIME_MSEC);
 
   // Alarm callback is registered
   status = sl_si91x_calendar_register_alarm_trigger_callback(calendar_callback_function);
@@ -293,11 +293,13 @@ static void set_periodic_alarm(uint32_t alarm_time)
 
   set_alarm_config = get_datetime_config;
 
-  set_alarm_config.MilliSeconds = set_alarm_config.MilliSeconds + (ALARM_TIME_MSEC % NO_OF_MSEC_IN_SEC);
+  set_alarm_config.MilliSeconds = set_alarm_config.MilliSeconds + (alarm_time % NO_OF_MSEC_IN_SEC);
   if (set_alarm_config.MilliSeconds >= NO_OF_MSEC_IN_SEC) {
     set_alarm_config.MilliSeconds -= NO_OF_MSEC_IN_SEC;
     set_alarm_config.Second += NEXT_OCCURENECE;
   }
+
+  alarm_time /= NO_OF_MSEC_IN_SEC;
 
   set_alarm_config.Second = set_alarm_config.Second + (alarm_time % NO_OF_SEC_IN_MIN);
   if (set_alarm_config.Second >= NO_OF_SEC_IN_MIN) {
@@ -305,14 +307,17 @@ static void set_periodic_alarm(uint32_t alarm_time)
     set_alarm_config.Minute += NEXT_OCCURENECE;
   }
 
-  set_alarm_config.Minute = set_alarm_config.Minute + ((alarm_time / NO_OF_SEC_IN_MIN) % NO_OF_MIN_IN_HOUR);
+  alarm_time /= NO_OF_SEC_IN_MIN;
+
+  set_alarm_config.Minute = set_alarm_config.Minute + (alarm_time % NO_OF_MIN_IN_HOUR);
   if (set_alarm_config.Minute >= NO_OF_MIN_IN_HOUR) {
     set_alarm_config.Minute -= NO_OF_MIN_IN_HOUR;
     set_alarm_config.Hour += NEXT_OCCURENECE;
   }
 
-  set_alarm_config.Hour =
-    set_alarm_config.Hour + ((alarm_time / (NO_OF_SEC_IN_MIN * NO_OF_MIN_IN_HOUR)) % NO_OF_MIN_IN_HOUR);
+  alarm_time /= NO_OF_MIN_IN_HOUR;
+
+  set_alarm_config.Hour = set_alarm_config.Hour + alarm_time;
   if (set_alarm_config.Hour >= NO_OF_HOUR_IN_DAY) {
     set_alarm_config.Hour -= NO_OF_HOUR_IN_DAY;
     set_alarm_config.Day += NEXT_OCCURENECE;
@@ -362,7 +367,7 @@ static void set_periodic_alarm(uint32_t alarm_time)
 static void calendar_callback_function(void)
 {
 #if defined(ENABLE_ALARM) && (ENABLE_ALARM == ENABLE)
-  set_periodic_alarm(ALARM_TIME);
+  set_periodic_alarm(ALARM_TIME_MSEC);
 #endif // ENABLE_ALARM
 }
 #endif // SL_ENABLE_CALENDAR_WAKEUP_SOURCE

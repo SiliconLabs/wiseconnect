@@ -194,8 +194,6 @@ sl_status_t console_parse_command(char *command_line,
     ++arg_index;
     ++arg_count;
   }
-
-  return status;
 }
 
 void console_add_to_history(const char *line, uint8_t line_length)
@@ -204,18 +202,21 @@ void console_add_to_history(const char *line, uint8_t line_length)
   //    uint32_t end = (console_history_last == 0xFFFFFFFF) ? 0 : (console_history_last + console_history_buffer[console_history_last] + 1) % sizeof( console_history_buffer );
 
   // Ensure there is enough space between the end and the start
-  uint32_t available_space =
-    (console_history_first == 0xFFFFFFFF)
-      ? sizeof(console_history_buffer)
-      : (sizeof(console_history_buffer) + console_history_first - console_history_end) % sizeof(console_history_buffer);
+  if (console_history_first != 0xFFFFFFFF) {
+    uint32_t available_space = (console_history_first == 0xFFFFFFFF)
+                                 ? sizeof(console_history_buffer)
+                                 : (sizeof(console_history_buffer) + console_history_first - console_history_end)
+                                     % sizeof(console_history_buffer);
 
-  // Drop items from the start until there is enough available space
-  while (available_space <= entry_length) {
-    SL_ASSERT(console_history_first != 0xFFFFFFFF, "BAD");
-    available_space += console_history_buffer[console_history_first] + sizeof(console_history_entry_t) + 1;
-    console_history_first =
-      (console_history_first + console_history_buffer[console_history_first] + sizeof(console_history_entry_t) + 1)
-      % sizeof(console_history_buffer);
+    // Drop items from the start until there is enough available space
+    while (available_space <= entry_length) {
+      SL_ASSERT(((console_history_first < sizeof(console_history_first)) && (console_history_first != 0xFFFFFFFF)),
+                "BAD");
+      available_space += console_history_buffer[console_history_first] + sizeof(console_history_entry_t) + 1;
+      console_history_first =
+        (console_history_first + console_history_buffer[console_history_first] + sizeof(console_history_entry_t) + 1)
+        % sizeof(console_history_buffer);
+    }
   }
 
   // Write the entry header. There end should always point to the first available byte
@@ -338,14 +339,14 @@ sl_status_t console_parse_arg(console_argument_type_t type, char *line, uint32_t
       sl_mac_address_t *temp_mac = (sl_mac_address_t *)line; // Write the converted value back into the line
       *arg_result                = (uint32_t)temp_mac;
       return convert_string_to_mac_address(line, temp_mac);
-    } break;
+    }
 
     case CONSOLE_ARG_IP_ADDRESS: {
       sl_ipv4_address_t temp_ip = { 0 }; // Write the converted value back into the line
       sl_status_t status        = convert_string_to_sl_ipv4_address(line, &temp_ip);
       *arg_result               = temp_ip.value;
       return status;
-    } break;
+    }
 
     case CONSOLE_ARG_HEX: {
       if (line[0] == '0' && line[1] == 'x') {

@@ -95,6 +95,12 @@ typedef enum SLEEP_TYPE {
 #define M4_is_active    BIT(1)
 #define RX_BUFFER_VALID BIT(1)
 
+#define TA_USING_FLASH          BIT(3)
+#define PROGRAM_COMMON_FLASH    BIT(4)
+#define M4_WAKEUP_TA            BIT(0)
+#define TA_IS_ACTIVE            BIT(3)
+#define TASS_P2P_INTR_CLEAR_REG *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x180)
+
 /* Flash offset to read Silicon revision */
 #define TA_FLASH_BASE 0x04000000
 #ifdef CHIP_9118

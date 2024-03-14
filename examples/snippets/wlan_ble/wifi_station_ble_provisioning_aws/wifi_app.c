@@ -49,11 +49,10 @@
 #include "socket.h"
 #include "sl_si91x_socket.h"
 #include "sl_wifi_device.h"
-#include "sl_event_handler.h"
 #include "sl_si91x_driver.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
-#include "sl_si91x_m4_ps.h"
+#include "sl_si91x_power_manager.h"
 #include "rsi_rom_power_save.h"
 
 //! I2C related files
@@ -842,17 +841,16 @@ void sl_wifi_mqtt_task(void)
           publish_QOS0.payloadLen = strlen(MQTT_publish_QOS0_PAYLOAD);
 
 #if (defined(SLI_SI91X_MCU_INTERFACE) && I2C_SENSOR_PERI_ENABLE)
-          char temp_data[11];
+          char temp_string[48] = { 0 };
+
           // Initialize I2C
-          I2C_Init();
+          i2c_init();
           i2c_leader_example_process_action();
-          gcvt(sensor_data, 9, temp_data);
-          char temp_string[] = "Current Temperature in Celsius: ";
-          strcat(temp_string, temp_data);
+
+          snprintf(temp_string, sizeof(temp_string) - 1, "Current Temperature in Celsius: %.2f", sensor_data);
 
           publish_QOS0.payload    = temp_string;
           publish_QOS0.payloadLen = strlen(temp_string);
-
 #endif
 
           // mqtt publish with QOS0
@@ -901,7 +899,7 @@ void sl_wifi_mqtt_task(void)
 
         if (select_given == 1 && (check_for_recv_data != 1)) {
           printf("M4 in sleep\r\n");
-          sl_si91x_m4_sleep_wakeup();
+          sl_si91x_power_manager_sleep();
           printf("M4 Wake up\r\n");
         }
 

@@ -897,6 +897,23 @@ sl_status_t wifi_get_statistics_command_handler(console_args_t *arguments)
   return status;
 }
 
+sl_status_t wifi_get_operational_statistics_command_handler(console_args_t *arguments)
+{
+  UNUSED_PARAMETER(arguments);
+  sl_status_t status                                      = SL_STATUS_OK;
+  sl_wifi_operational_statistics_t operational_statistics = { 0 };
+
+  status = sl_wifi_get_operational_statistics(SL_WIFI_CLIENT_INTERFACE, &operational_statistics);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  printf("Operating mode: %d\r\n", operational_statistics.operating_mode);
+  printf("Dtim period: %d\r\n", operational_statistics.dtim_period);
+  printf("Ideal beacon info: %d\r\n", operational_statistics.ideal_beacon_info[0]);
+  printf("Busy beacon info: %d\r\n", operational_statistics.busy_beacon_info[0]);
+  printf("Busy interval: %d\r\n", operational_statistics.beacon_interval[0]);
+  return status;
+}
+
 void wifi_statistic_thread(const void *arg)
 {
   console_args_t *arguments = (console_args_t *)arg;

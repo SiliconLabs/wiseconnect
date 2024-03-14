@@ -452,7 +452,7 @@ void sli_si91x_sensorhub_ps4tops2_state(void)
                                 M4_SOC_CLK_FOR_OTHER_ENABLE); /* Disable OTHER_CLK which is enabled at Start-up */
   RSI_ULPSS_TimerClkDisable(ULPCLK);                          /* Disable Timer clock which is enabled in Bootloader */
 
-  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RC_CLK_EN); /* Disabling LF_RC Clocks */
+  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RO_CLK_EN); /* Disabling LF_RC Clocks */
 
   RSI_IPMU_ProgramConfigData(ana_perif_ptat_common_config2); /* Disable PTAT for Analog Peripherals */
 

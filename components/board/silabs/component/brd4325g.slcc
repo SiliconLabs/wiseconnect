@@ -6,6 +6,8 @@
 - category: Board|Radio Board
 - quality: production
 - root_path: components/board/silabs/config/brd4325g
+- ui_hints:
+    visibility: never
 - requires:
   - name: siwg917m111mgtba
   - name: brd4325g_config

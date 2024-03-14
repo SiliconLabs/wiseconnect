@@ -6,6 +6,8 @@ description: >
 category: Device|Si91x|MCU|Core
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/core"
+ui_hints:
+  visibility: never
 include:
   - path: "cmsis"
     unless: [cmsis_core]

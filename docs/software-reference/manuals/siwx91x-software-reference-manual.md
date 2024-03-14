@@ -507,15 +507,16 @@ The wake-up mode defines the bootloader sequence the SiWx917 will undergo once i
 
 The following table describes the font-end switch selection for the SiWx917.
 
-|**BIT[30] |**BIT[29]** | **ANT_SEL_0(VC3)** | **ANT_SEL_1(VC2)** | **ANT_SEL_2(VC1)**|
+|**BIT[30]** |**BIT[29]** | **ANT_SEL_0(VC3)** | **ANT_SEL_1(VC2)** | **ANT_SEL_2(VC1)**|
 |---------|---------|--------|-------|------|
-|0|0|Reserved|
+|0|0|Reserved|Reserved|Reserved|
 |0|1|ULP GPIO 4|ULP GPIO 5|ULP GPIO 0|
-|1|0|Virtual Switch|
-|1|1|Reserved|
+|1|0|Internal Switch|Internal Switch|Internal Switch|
+|1|1|Reserved|Reserved|Reserved|
 
-> **Note:** VC1, VC2, and VC3 are control voltage pins of the radio frequency (RF) switch. Please see the Reference Schematics for details.
-
+> **Note:**
+>* SiWx917 has an integrated on-chip transmit/receive (T/R) switch. This Internal RF Switch configuration uses internal logic present in the IC, and GPIOs are not needed. RF_BLE_TX (8dbm) mode is not supported in this configuration.
+>* VC1, VC2, and VC3 are control voltage pins of the radio frequency (RF) switch. Please see the Reference Schematics for details.
 ### Preprocessor Macros
 
 #### SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION

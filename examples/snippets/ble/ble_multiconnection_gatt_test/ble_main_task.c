@@ -278,7 +278,8 @@ uint8_t rsi_check_dev_list(uint8_t *remote_dev_name, uint8_t *adv_dev_addr)
   //! check if remote device already connected or advertise report received- TODO .  Can check efficiently?
   if (peripheral_device_found == DEV_FOUND) {
     for (i = 0; i < TOTAL_CONNECTIONS; i++) {
-      if (!(strcmp((const char *)rsi_ble_conn_info[i].rsi_remote_name, (const char *)remote_dev_name))) {
+      if ((rsi_ble_conn_info[i].rsi_remote_name != NULL)
+          && !(strcmp((const char *)rsi_ble_conn_info[i].rsi_remote_name, (const char *)remote_dev_name))) {
         peripheral_device_found = DEV_CONNECTED;
 #if RSI_DEBUG_EN
         LOG_PRINT("\r\n Device %s already connected!!!\r\n", adv_dev_addr);
@@ -287,6 +288,7 @@ uint8_t rsi_check_dev_list(uint8_t *remote_dev_name, uint8_t *adv_dev_addr)
       }
     }
   }
+
 #else
   if ((!strcmp(RSI_BLE_DEV_1_ADDR, (char *)adv_dev_addr)) || (!strcmp(RSI_BLE_DEV_2_ADDR, (char *)adv_dev_addr))
       || (!strcmp(RSI_BLE_DEV_3_ADDR, (char *)adv_dev_addr))) {

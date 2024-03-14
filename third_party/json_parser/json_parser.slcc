@@ -1,0 +1,17 @@
+id: json_parser
+package: wiseconnect3_sdk
+description: >
+  JSON Parser for Embedded C
+label: JSON Parser
+category: Third Party
+quality: production
+component_root_path: ./third_party/json_parser
+provides:
+- name: json_parser
+source:
+- path: src/jsmn.c
+include:
+- path: include
+  file_list:
+    - path: jsmn.h
+

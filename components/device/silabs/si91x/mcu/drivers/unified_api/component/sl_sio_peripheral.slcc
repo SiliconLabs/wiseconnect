@@ -2,7 +2,16 @@ id: sl_sio_peripheral
 label: SIO
 package: platform
 description: >
-  Si91x Serial Input/Output (SIO) API
+  SIO (Serial Input Output) is used for data transfer between sensors and
+  Micro controllers by using SPI and UART protocols.
+  In SIO SPI transfer of data will be between MOSI and MISO that is master/slave communication.
+  As well as demonstrates SIO UART send and receive data
+   Configurable parameters in SIO:
+     - Frequency
+     - Select the Mode
+     - Baud Rate
+     - Channel Number
+     - Data width
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers"
@@ -25,3 +34,6 @@ provides:
 requires:
   - name: udma_linker_config
   - name: rsilib_sio
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/sio

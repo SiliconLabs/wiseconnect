@@ -35,6 +35,13 @@
 extern "C" {
 #endif
 
+/* NOTE: User should configure all macros defined below, while creating an
+ * instance other than pre-defined one */
+#warning \
+  "sl_si91x_i2c_init_INSTANCE_config.h will have the INSTANCE specified for the user-defined I2C instance. Installing the [ENABLE USER CONFIGURATION] component or setting USER_CONFIGURATION_ENABLE to 1 is the first step for configuration, and the second thing is, MACROS must be defined in sl_si91x_i2c_init_INSTANCE_config.h in accordance with the board."
+
+#if USER_CONFIGURATION_ENABLE
+
 #include "sl_si91x_i2c.h"
 /******************************************************************************/
 /******************************* I2C Configuration **************************/
@@ -45,7 +52,7 @@ extern "C" {
 //   <SL_I2C_LEADER_MODE=> Leader mode
 //   <SL_I2C_FOLLOWER_MODE=> Follower mode
 // <i> Selection of the I2C Mode.
-// #define SL_I2C_INSTANCE_MODE SL_I2C_LEADER_MODE
+#define SL_I2C_INSTANCE_MODE SL_I2C_LEADER_MODE
 
 // <o SL_I2C_INSTANCE_OPERATING_MODE> Operating Mode
 //   <SL_I2C_STANDARD_MODE=> Standard mode
@@ -53,33 +60,31 @@ extern "C" {
 //   <SL_I2C_FAST_PLUS_MODE=> Fast plus mode
 //   <SL_I2C_HIGH_SPEED_MODE=> High speed mode
 // <i> Selection of the I2C Mode.
-// #define SL_I2C_INSTANCE_OPERATING_MODE SL_I2C_STANDARD_MODE
+#define SL_I2C_INSTANCE_OPERATING_MODE SL_I2C_STANDARD_MODE
 
 // <o SL_I2C_INSTANCE_TRANSFER_TYPE> Transfer Type
 //   <SL_I2C_USING_INTERRUPT=> Using Interrupt
 //   <SL_I2C_USING_DMA=> Using DMA
 // <i> Selection of the I2C Mode.
-// #define SL_I2C_INSTANCE_TRANSFER_TYPE SL_I2C_USING_INTERRUPT
+#define SL_I2C_INSTANCE_TRANSFER_TYPE SL_I2C_USING_INTERRUPT
 
 // </h>
 /******************************************************************************/
 // <<< end of configuration section >>>
 
-/* NOTE: User should configure all macros defined below, while creating an
- * instance other than pre-defined one */
-#warning "User defined I2C insatnce INSTANCE needs to be configure in sl_si91x_i2c_init_INSTANCE_config.h"
+#define SL_I2C_INSTANCE_SCL_PORT SL_SI91X_I2C0_SCL_PORT
+#define SL_I2C_INSTANCE_SCL_PIN  SL_SI91X_I2C0_SCL_PIN
+#define SL_I2C_INSTANCE_SCL_MUX  SL_SI91X_I2C0_SCL_MUX
+#define SL_I2C_INSTANCE_SCL_PAD  SL_SI91X_I2C0_SCL_PAD
+#define SL_I2C_INSTANCE_SCL_REN  SL_SI91X_I2C0_SCL_REN
 
-// #define SL_I2C_INSTANCE_SCL_PORT SL_SI91X_I2C0_SCL_PORT
-// #define SL_I2C_INSTANCE_SCL_PIN  SL_SI91X_I2C0_SCL_PIN
-// #define SL_I2C_INSTANCE_SCL_MUX  SL_SI91X_I2C0_SCL_MUX
-// #define SL_I2C_INSTANCE_SCL_PAD  SL_SI91X_I2C0_SCL_PAD
-// #define SL_I2C_INSTANCE_SCL_REN  SL_SI91X_I2C0_SCL_REN
+#define SL_I2C_INSTANCE_SDA_PORT SL_SI91X_I2C0_SDA_PORT
+#define SL_I2C_INSTANCE_SDA_PIN  SL_SI91X_I2C0_SDA_PIN
+#define SL_I2C_INSTANCE_SDA_MUX  SL_SI91X_I2C0_SDA_MUX
+#define SL_I2C_INSTANCE_SDA_PAD  SL_SI91X_I2C0_SDA_PAD
+#define SL_I2C_INSTANCE_SDA_REN  SL_SI91X_I2C0_SDA_REN
 
-// #define SL_I2C_INSTANCE_SDA_PORT SL_SI91X_I2C0_SDA_PORT
-// #define SL_I2C_INSTANCE_SDA_PIN  SL_SI91X_I2C0_SDA_PIN
-// #define SL_I2C_INSTANCE_SDA_MUX  SL_SI91X_I2C0_SDA_MUX
-// #define SL_I2C_INSTANCE_SDA_PAD  SL_SI91X_I2C0_SDA_PAD
-// #define SL_I2C_INSTANCE_SDA_REN  SL_SI91X_I2C0_SDA_REN
+#endif // USER_CONFIGURATION_ENABLE
 
 #ifdef __cplusplus
 }

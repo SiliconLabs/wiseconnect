@@ -44,7 +44,6 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
                          SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID,
                          &DEFAULT_WIFI_CLIENT_PROFILE);
       return sl_net_wifi_client_init(interface, configuration, network_context, event_handler);
-      break;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_AP_INTERFACE)
     case SL_NET_WIFI_AP_INTERFACE:
@@ -56,7 +55,6 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
                          SL_NET_DEFAULT_WIFI_AP_PROFILE_ID,
                          &DEFAULT_WIFI_ACCESS_POINT_PROFILE);
       return sl_net_wifi_ap_init(interface, configuration, network_context, event_handler);
-      break;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_ETHERNET_INTERFACE)
     case SL_NET_ETHERNET_INTERFACE:
@@ -74,7 +72,6 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
       }
       sl_net_set_profile(SL_NET_WIFI_BTR_INTERFACE, SL_NET_DEFAULT_WIFI_BTR_PROFILE_ID, &DEFAULT_WIFI_BTR_PROFILE);
       return sl_net_wifi_btr_init(interface, configuration, network_context, event_handler);
-      break;
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }
@@ -86,12 +83,10 @@ sl_status_t sl_net_deinit(sl_net_interface_t interface)
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_CLIENT_INTERFACE)
     case SL_NET_WIFI_CLIENT_INTERFACE:
       return sl_net_wifi_client_deinit(interface);
-      break;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_AP_INTERFACE)
     case SL_NET_WIFI_AP_INTERFACE:
       return sl_net_wifi_ap_deinit(interface);
-      break;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_ETHERNET_INTERFACE)
     case SL_NET_ETHERNET_INTERFACE:
@@ -114,12 +109,10 @@ sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_CLIENT_INTERFACE)
     case SL_NET_WIFI_CLIENT_INTERFACE:
       return sl_net_wifi_client_up(interface, profile_id);
-      break;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_AP_INTERFACE)
     case SL_NET_WIFI_AP_INTERFACE:
       return sl_net_wifi_ap_up(interface, profile_id);
-      break;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_ETHERNET_INTERFACE)
     case SL_NET_ETHERNET_INTERFACE:
@@ -133,7 +126,6 @@ sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_
 #endif
     case SL_NET_WIFI_BTR_INTERFACE:
       return sl_net_wifi_btr_up(interface, profile_id);
-      break;
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }
@@ -145,12 +137,10 @@ sl_status_t sl_net_down(sl_net_interface_t interface)
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_CLIENT_INTERFACE)
     case SL_NET_WIFI_CLIENT_INTERFACE:
       return sl_net_wifi_client_down(interface);
-      break;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_WIFI_AP_INTERFACE)
     case SL_NET_WIFI_AP_INTERFACE:
       return sl_net_wifi_ap_down(interface);
-      break;
 #endif
 #if NETWORK_INTERFACE_VALID(SL_NET_ETHERNET_INTERFACE)
     case SL_NET_ETHERNET_INTERFACE:

@@ -111,10 +111,12 @@ The application can be configured to suit your requirements and development envi
 
 - iTWT Configuration
 
-    There are three TWT configuration APIs. 
-    > * sl_wifi_target_wake_time_auto_selection - This API calculates and automatically configures TWT session parameters based on the given inputs. Enables or disables a TWT session.
-    > * sl_wifi_enable_target_wake_time - This API allows users to manually configure iTWT session parameters and enables the iTWT session.
-    > * sl_wifi_disable_target_wake_time - Disables a TWT session.
+     To configure iTWT parameters open **app.c**.
+     There are three TWT configuration APIs. 
+     >
+     > - **sl_wifi_target_wake_time_auto_selection** - This API calculates and automatically configures suitable TWT parameters based on the given inputs. Enables or disables a TWT session. Recommended for user applications.
+     > - **sl_wifi_enable_target_wake_time** - This API allows users to manually configure iTWT session parameters and enables the iTWT session. This API is not recommended for users. It is for internal certification purposes only.
+     > - **sl_wifi_disable_target_wake_time** - Disables a TWT session.
 
     **sl_wifi_target_wake_time_auto_selection API**
 
@@ -122,16 +124,22 @@ The application can be configured to suit your requirements and development envi
       sl_status_t sl_wifi_target_wake_time_auto_selection(sl_wifi_twt_selection_t *twt_auto_request)
     ```
 
-    Parameters of this API can be configured in *sl_wifi_twt_selection_t* structure. Below given are the parameter descriptions:
+     This TWT API is recommended because it's designed for maintaining connections, improving throughput, and enhancing power performance.
+     Input parameter descriptions are as follows:
 
-    - twt_enable  :  1- Setup ; 0 - teardown
-    - tx_latency  :  The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200ms - 6hrs].
-    - rx_latency  :  The maximum allowed receive latency, in milliseconds, when an Rx packet is buffered at the AP. If rx_latency is less than <= 2 sec, session creation is not possible. If configured as 0, then by default 2sec is considered.
-    - avg_tx_throughput  :  The expected average Tx throughput in Kbps should be between 0 and half of device average throughput.
+     - **twt_enable** : TWT enable. 0 - TWT session teardown; 1 - TWT session setup.
+     - **average_tx_throughput** : This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20Mbps by default).
+     - **tx_latency** : The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200ms - 6hrs].
+     - **rx_latency** : The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
 
-    Enable TWT_AUTO_CONFIG MACRO in the app.c file.
+     For more information on input parameters, refer [sl_wifi_twt_selection_t](https://docs.silabs.com/wiseconnect/3.1.4/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t).
 
-    Given below are sample configurations.
+     Enable TWT_AUTO_CONFIG MACRO in the app.c file to enable usage of this API.
+
+     ```c
+     #define TWT_AUTO_CONFIG         1
+     ```
+     Given below are sample configurations.
 
     ```c
     sl_wifi_twt_selection_t default_twt_selection_configuration = {
@@ -147,34 +155,27 @@ The application can be configured to suit your requirements and development envi
       .beacon_wake_up_count_after_sp         = MAX_BEACON_WAKE_UP_AFTER_SP
     };
     ```
+     - The following are the default macro settings. User should not change these values as it may affect the working of the algorithm. 
 
-    Sample API call is given as below : 
+     ```c
+     #define DEVICE_AVG_THROUGHPUT                20000    // Kbps
+     #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0        // in percentage
+     #define TWT_TOLERABLE_DEVIATION              10       // in percentage
+     #define TWT_DEFAULT_WAKE_INTERVAL_MS         1024     // in milli seconds
+     #define TWT_DEFAULT_WAKE_DURATION_MS         16       // in milli seconds
+     #define MAX_TX_AND_RX_LATENCY_LIMIT          22118400 // 6hrs in milli seconds
+     #define MAX_BEACON_WAKE_UP_AFTER_SP \
+     2 // The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
+     ```
 
-    ```c
-      status                            = sl_wifi_target_wake_time_auto_selection(&performance_profile.twt_selection);
-    ```
-
-    There are default macro settings that are used for calculating the iTWT parameters. 
-
-    Sample Macro Settings : 
-
-    ```c
-      #define DEVICE_AVG_THROUGHPUT                20000 \\ KBPS
-      #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0 \\ in percentage
-      #define TWT_TOLERABLE_DEVIATION              10 \\ in percentage
-      #define TWT_DEFAULT_WAKE_INTERVAL_MS         1024     // in milli seconds
-      #define TWT_DEFAULT_WAKE_DURATION_MS         16       // in milli seconds
-      #define MAX_TX_AND_RX_LATENCY_LIMIT          22118400 // 6hrs in milli seconds
-      #define MAX_BEACON_WAKE_UP_AFTER_SP \
-        2 // The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
-    ```
-
->Note :  WLAN Keep Alive should not be disabled while using this API.
+    > Note :  WLAN Keep Alive should not be disabled while using this API.
 
     **sl_wifi_enable_target_wake_time API**
 
+    Usage of this API requires knowledge of individual TWT setup negotiation. This API doesn't take care of network disconnections.
+
     ```c
-    sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req)
+    sl_status_t sl_wifi_enable_target_wake_time(sl_wifi_twt_request_t *twt_req);
     ```
 
     iTWT parameters should be configured and filled into the structure type *sl_wifi_twt_request_t*  in app.c and passed as a parameter to *sl_wifi_enable_target_wake_time()* API.
@@ -291,10 +292,10 @@ User can get asynchronous TWT session updates if *twt_response_handler* is defin
 
 ## TWT Recommendations
 
-1. Use sl_wifi_target_wake_time_auto_selection with appropriate Rx Latency input according to the user scenario as it has improved  design over sl_wifi_enable_target_wake_time, handles TCP level disconnections and has better user interface. 
+1. Use sl_wifi_target_wake_time_auto_selection with appropriate Rx Latency input according to the use case as it has improved design over sl_wifi_enable_target_wake_time. Also, it handles network level disconnections such as ARP, Embedded MQTT and TCP connections. It has better user interface and simplifies TWT usage.
 2. iTWT setup is recommended after IP assignment/TCP connection/application connection.
-3. When using sl_wifi_target_wake_time_auto_selection API, Rx Latency  should be less than TCP / ARP Timeouts at the remote side.
-4. When using sl_wifi_enable_target_wake_time, TWT interval configured should be less than TCP / ARP Timeouts at the remote side.
+3. When using sl_wifi_target_wake_time_auto_selection API, Rx Latency should be less than TCP / ARP Timeouts at the remote side.
+4. When using sl_wifi_enable_target_wake_time API, TWT interval configured should be less than TCP / ARP Timeouts at the remote side.
 5. For iTWT, GTK Interval Should be kept maximum possible value or zero. If GTK interval is not configurable, recommended TWT interval (in case of sl_wifi_enable_target_wake_time) / RX Latency (in case of sl_wifi_target_wake_time_auto_selection API) is less than 4sec.
 6. When sl_wifi_enable_target_wake_time API is used, configuring TWT Wake interval beyond 1 min might lead to disconnections from the AP. Recommended to use TWT wakeup interval less than or equal to 1 min.
 7. WLAN Keep Alive timeout should **not** be disabled when sl_wifi_target_wake_time_auto_selection API is used or when unannounced TWT session is set up using sl_wifi_enable_target_wake_time API. It is recommended to use WLAN Keep Alive timeout of 30 sec which is the default timeout even if not configured specifically by the user.

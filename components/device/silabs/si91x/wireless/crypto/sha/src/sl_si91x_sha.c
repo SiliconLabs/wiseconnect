@@ -34,12 +34,12 @@ static const uint8_t sha_digest_len_table[] = { [SL_SI91x_SHA_1]   = SL_SI91x_SH
                                                 [SL_SI91x_SHA_224] = SL_SI91x_SHA_224_DIGEST_LEN };
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
-static sl_status_t sha_pending(uint8_t sha_mode,
-                               uint8_t *msg,
-                               uint16_t msg_length,
-                               uint16_t chunk_len,
-                               uint8_t pending_flag,
-                               uint8_t *digest)
+static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
+                                         uint8_t *msg,
+                                         uint16_t msg_length,
+                                         uint16_t chunk_len,
+                                         uint8_t pending_flag,
+                                         uint8_t *digest)
 {
   // Input pointer check
   if (msg == NULL) {
@@ -105,7 +105,7 @@ static sl_status_t sha_pending(uint8_t sha_mode,
 }
 
 #else
-static sl_status_t sha_side_band(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, uint8_t *digest)
+static sl_status_t sli_si91x_sha_side_band(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, uint8_t *digest)
 {
   // Input pointer check
   if (msg == NULL) {
@@ -163,7 +163,7 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
 #endif
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-  status = sha_side_band(sha_mode, msg, msg_length, digest);
+  status = sli_si91x_sha_side_band(sha_mode, msg, msg_length, digest);
   return status;
 #else
 
@@ -191,7 +191,7 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
     }
 
     // Send the current chunk length message
-    status = sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
+    status = sli_si91x_sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
 
     if (status != SL_STATUS_OK) {
       SL_PRINTF(SL_SHA_CHUNK_LENGTH_MSG_ERROR, CRYPTO, LOG_ERROR, "status: %4x", status);

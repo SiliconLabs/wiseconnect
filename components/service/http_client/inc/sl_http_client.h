@@ -30,7 +30,7 @@
  ******************************************************/
 
 /**
- *  @addtogroup SERVICE_HTTP_CONSTANTS 
+ *  @addtogroup SERVICE_HTTP_CLIENT_CONSTANTS 
  *  @{
  */
 
@@ -93,7 +93,7 @@ typedef enum {
  ******************************************************/
 
 /**
- * @addtogroup SERVICE_HTTP_TYPES
+ * @addtogroup SERVICE_HTTP_CLIENT_TYPES
  * @{
  */
 
@@ -195,7 +195,7 @@ typedef struct {
  ******************************************************/
 
 /**
- * @addtogroup SERVICE_HTTP_FUNCTIONS
+ * @addtogroup SERVICE_HTTP_CLIENT_FUNCTIONS
  * @{
  */
 
@@ -308,10 +308,12 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
  *   HTTP client request configuration of type @ref sl_http_client_request_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   This status only indicates the library status.
  * @note
  *   1. HTTP HEAD and DELETE methods are not supported in Si91x specific chipsets.
  *   2. body_length header in request by default internally in Si91x specific chipsets.
  *   3. HTTP PUT does not support sending body through this API, it is mandatory to call sl_http_client_write_chunked_data() in Si91x specific chipsets.
+ *   4. HTTP response status and response code e.g., 200, 201, 404, etc will be returned in the corresponding event_handler registered during sl_http_client_request_init().
  ******************************************************************************/
 sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl_http_client_request_t *request);
 

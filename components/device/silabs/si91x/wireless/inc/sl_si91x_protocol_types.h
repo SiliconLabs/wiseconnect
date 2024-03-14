@@ -45,6 +45,9 @@
 #define RSI_PSK_LEN              64
 #define RSI_MAC_ADDR_LEN         6
 
+// A macro to define the size of array in sl_si91x_socket_info_response_t to hold socket data.
+#define SL_SI91X_SOCKET_INFO_RESPONSE_SOCKETS_COUNT 10
+
 // Maximum Access points that can be scanned
 #define RSI_AP_SCANNED_MAX 11
 
@@ -895,6 +898,15 @@ typedef struct {
   } dest_ip_address;
 } sl_si91x_sock_info_query_t;
 
+// Response for sl_si91x_get_socket_info().
+typedef struct {
+
+  uint16_t number_of_opened_sockets; ///< Number of opened sockets
+
+  sl_si91x_sock_info_query_t socket_info[SL_SI91X_SOCKET_INFO_RESPONSE_SOCKETS_COUNT]; ///< Socket information array
+
+} sl_si91x_socket_info_response_t;
+
 // Network params command response structure
 typedef struct {
   // uint8, 0=NOT Connected, 1=Connected
@@ -1461,6 +1473,8 @@ typedef struct {
   uint8_t twt_support;        ///< Enable or Disable TWT. 0 - Disable TWT, 1 - Enable TWT
   uint8_t
     config_er_su; ///< Extended Range Single User. 0 - NO ER_SU support, 1 - Use ER_SU rates along with Non_ER_SU rates, 2 - Use ER_SU rates only
+  uint8_t disable_su_beamformee_support; ///< Flag indicating whether Single User Beamformee support is disabled.
+                                         /// *        0: Enabled, 1: Disabled.
 } sl_si91x_11ax_config_params_t;
 
 typedef struct {
@@ -1475,13 +1489,12 @@ typedef enum {
   SL_SI91X_READ_TA_REGISTER            = 3,
   SL_SI91X_WRITE_TA_REGISTER           = 4,
   // This enum varibale added for M4 has to give indication to TA, for Configure the Clock switching between 1.3V to 3.3 .For more details check Jira Ticket RSC-3802.
-  SL_SI91X_ENABLE_XTAL = 5,
-#ifdef SLI_SI917
+  SL_SI91X_ENABLE_XTAL           = 5,
   SL_SI91X_WRITE_TO_COMMON_FLASH = 6,
-#endif
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   SL_SI91X_ENABLE_SIDE_BAND = 7,
 #endif
+  SL_SI91X_READ_FROM_COMMON_FLASH = 8,
 } sl_si91x_ta_m4_commands_t;
 
 //  M4 and TA secure handshake request structure.
@@ -1494,8 +1507,8 @@ typedef struct {
   uint8_t input_data[];
 } sl_si91x_ta_m4_handshake_parameters_t;
 
-#ifdef SLI_SI917
-#define MAX_CHUNK_SIZE 1400
+#define MAX_CHUNK_SIZE    1400
+#define FLASH_SECTOR_SIZE 4096
 // TA2M4 handshake request structure.
 typedef struct {
   // sub_cmd
@@ -1513,7 +1526,18 @@ typedef struct {
   //data
   uint8_t input_data[MAX_CHUNK_SIZE];
 } SL_ATTRIBUTE_PACKED sl_si91x_request_ta2m4_t;
-#endif // SLI_SI917
+
+typedef struct {
+  // sub_cmd
+  uint8_t sub_cmd;
+
+  // nwp flash location
+  uint32_t nwp_address;
+
+  // total length of output data
+  uint16_t output_buffer_length;
+
+} SL_ATTRIBUTE_PACKED sl_si91x_read_flash_request_t;
 
 #endif // SLI_SI91X_MCU_INTERFACE
 

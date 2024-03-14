@@ -2,7 +2,17 @@ id: sl_dma
 label: DMA
 package: platform
 description: >
-  Si91x DMA API.
+ Direct Memory Access (DMA) is a process of transferring data from  memory to memory, 
+ peripehral to memory, memory to peripheral to another without the direct involvement 
+ of the processor (CPU). The main benefit of using DMA is more efficient data movement 
+ in the embedded system.
+ Configurable parameters in DAC:
+   - Initialization of DMA Controller
+   - Selection of DMA Channels
+   - Configuration of DMA Channel
+   - Peripheral Configuration
+   - Start Data Transfer
+   - Handle Completion and Errors
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -25,3 +35,6 @@ define:
 template_contribution:
   - name: udma_enable
     value: true
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/dma

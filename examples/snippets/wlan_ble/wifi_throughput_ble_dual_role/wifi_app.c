@@ -148,7 +148,7 @@ sl_status_t clear_and_load_certificates_in_flash(void)
     sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
-    return;
+    return status;
   }
   LOG_PRINT("\r\nLoad TLS CA certificate at index %d Success\r\n", 0);
 

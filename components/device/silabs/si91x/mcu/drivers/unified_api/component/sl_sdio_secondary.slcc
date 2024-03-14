@@ -2,7 +2,9 @@ id: sl_sdio_secondary
 label: SDIO Secondary 
 package: platform
 description: >
-  Si91x SDIO Secondary Driver API
+  The SDIO Secondary application shows how to read and write data between SDIO Secondary
+  external device which is going to act as Primary and demonstrates about soc clock setting, 
+  sdio secondary  initialization, transmitting and receiving the data to and from the sdio primary and secondary. 
 category: Device|Si91x|MCU|Peripheral|SDIO Slave Driver
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -19,3 +21,6 @@ include:
 config_file:
   - path: config/sl_si91x_sdio_secondary_drv_config.h
     file_id: sdio_secondary_drv_config
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/sdio

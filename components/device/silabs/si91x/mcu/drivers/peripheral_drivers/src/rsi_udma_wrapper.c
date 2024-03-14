@@ -164,6 +164,9 @@ int32_t uDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
   if ((udma->reg == UDMA0) || (udma->reg == UDMA1)) {
     chnl_info[ch].cb_event = cb_event;
   }
+// Added below macro to avoid ULP memory validations when using SL_DMA with I2C in ULP mode,
+// as I2C data register does not belong to ULP memory section
+#if !(defined SL_SI91X_I2C_DMA)
   if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) { //PS2 state
     if (control.dstInc == UDMA_DST_INC_NONE) {
       if ((src_addr >= ULP_SRAM_START_ADDR) && (src_addr <= ULP_SRAM_END_ADDR)) {
@@ -180,6 +183,7 @@ int32_t uDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
       }
     }
   }
+#endif
   if ((udma->reg == UDMA0) || (udma->reg == UDMA1)) {
     // Clear DMA interrupts
     RSI_UDMA_InterruptClear(udmaHandle, ch);

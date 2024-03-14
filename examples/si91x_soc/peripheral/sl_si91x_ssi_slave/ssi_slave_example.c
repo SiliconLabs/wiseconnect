@@ -20,6 +20,7 @@
 #include "rsi_debug.h"
 #include "rsi_rom_clks.h"
 #include "ssi_slave_example.h"
+#include "sl_si91x_ulp_timer_init.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -35,6 +36,9 @@
 #define SSI_SLAVE_BIT_WIDTH               8         // SSI bit width
 #define SSI_SLAVE_BAUDRATE                10000000  // SSI baudrate
 #define SSI_SLAVE_MAX_BIT_WIDTH           16        // Maximum Bit width
+#define TIMER_FREQUENCY                   32000     // Timer frequency for delay
+#define INITIAL_COUNT                     7000      // Count configured at timer init
+#define SYNC_TIME                         5000      // Delay to sync master and slave
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -42,6 +46,8 @@
 static sl_status_t ssi_slave_init_clock_configuration_structure(sl_ssi_clock_config_t *clock_config);
 static void ssi_slave_callback_event_handler(uint32_t event);
 static void ssi_slave_compare_loopback_data(void);
+static void init_timer_for_sync(void);
+static void wait_for_sync(uint16_t time_ms);
 
 /*******************************************************************************
  **********************  Local variables   *************************************
@@ -49,8 +55,7 @@ static void ssi_slave_compare_loopback_data(void);
 static uint8_t ssi_slave_tx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' };
 static uint8_t ssi_slave_rx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' };
 static sl_ssi_handle_t ssi_driver_handle                  = NULL;
-boolean_t ssi_slave_transfer_complete                     = false;
-boolean_t ssi_slave_begin_transmission                    = true;
+static boolean_t ssi_slave_transfer_complete              = false;
 static uint16_t size_factor                               = 1;
 static uint32_t ssi_slave_number                          = SSI_SLAVE_0;
 
@@ -89,6 +94,8 @@ void ssi_slave_example_init(void)
     ssi_slave_tx_buffer[i] = (uint8_t)(i + 1);
   }
   do {
+    // Initialzing the timer
+    init_timer_for_sync();
     // Version information of SSI driver
     ssi_version = sl_si91x_ssi_get_version();
     DEBUGOUT("SSI version is fetched successfully \n");
@@ -134,6 +141,8 @@ void ssi_slave_example_init(void)
     if (sl_si91x_ssi_get_frame_length(ssi_driver_handle) >= SSI_SLAVE_BIT_WIDTH) {
       size_factor = sizeof(ssi_slave_tx_buffer[0]);
     }
+    // Syncing master and slave
+    wait_for_sync(SYNC_TIME);
     // As per the macros enabled in the header file, it will configure the current mode.
     if (SSI_SLAVE_TRANSFER) {
       ssi_slave_current_mode = SSI_SLAVE_TRANSFER_DATA;
@@ -152,7 +161,8 @@ void ssi_slave_example_init(void)
  ******************************************************************************/
 void ssi_slave_example_process_action(void)
 {
-  sl_status_t status;
+  static sl_status_t status;
+  static boolean_t ssi_slave_begin_transmission = true;
   // In this switch case, according to the macros enabled in header file, it starts to execute the APIs
   // Assuming all the macros are enabled, after transfer, receive will be executed and after receive
   // send will be executed.
@@ -198,7 +208,8 @@ void ssi_slave_example_process_action(void)
     case SSI_SLAVE_RECEIVE_DATA:
       if (ssi_slave_begin_transmission == true) {
         // Validation for executing the API only once
-        status = sl_si91x_ssi_receive_data(ssi_driver_handle, ssi_slave_rx_buffer, sizeof(ssi_slave_rx_buffer));
+        status =
+          sl_si91x_ssi_receive_data(ssi_driver_handle, ssi_slave_rx_buffer, sizeof(ssi_slave_rx_buffer) / size_factor);
         if (status != SL_STATUS_OK) {
           // If it fails to execute the API, it will not execute rest of the things
           DEBUGOUT("sl_si91x_ssi_receive_data: Error Code : %lu \n", status);
@@ -332,4 +343,54 @@ static void ssi_slave_callback_event_handler(uint32_t event)
       // indicates Master Mode Fault.
       break;
   }
+}
+
+/*******************************************************************************
+ * @brief  Initialization of timer for sync
+ * @param[in] None
+ * @return   None
+*******************************************************************************/
+static void init_timer_for_sync(void)
+{
+  sl_status_t status;
+  status = sl_si91x_ulp_timer_configure_clock(&sl_timer_clk_handle);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_configure_clock failed, error code: %ld", status);
+  }
+  status = sl_si91x_ulp_timer_set_configuration(&sl_timer_handle_timer0);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_set_configuration failed, error code: %ld", status);
+  }
+  status = sl_si91x_ulp_timer_set_count(TIMER_0, TIMER_FREQUENCY * INITIAL_COUNT);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_set_count failed, error code: %ld", status);
+  }
+}
+
+/*******************************************************************************
+ * @brief  Waits till the master and slave application is synced by creating delay
+ * @param[in] time_ms Sync time in milliseconds
+ * @return   None
+*******************************************************************************/
+static void wait_for_sync(uint16_t time_ms)
+{
+  sl_status_t status;
+  uint32_t start_time, current_time;
+  uint32_t end_time = time_ms * TIMER_FREQUENCY;
+
+  status = sl_si91x_ulp_timer_start(TIMER_0);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_start failed, error code: %ld", status);
+  }
+  status = sl_si91x_ulp_timer_get_count(TIMER_0, &start_time);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("sl_si91x_ulp_timer_get_count failed, error code: %ld", status);
+  }
+  do {
+    status = sl_si91x_ulp_timer_get_count(TIMER_0, &current_time);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_ulp_timer_get_count failed, error code: %ld", status);
+    }
+  } while (!((current_time - start_time) > end_time));
+  sl_si91x_ulp_timer_stop(TIMER_0);
 }

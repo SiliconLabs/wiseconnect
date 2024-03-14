@@ -52,13 +52,9 @@ extern "C" {
 // <i> Default: 0
 #define ENABLE_MSEC 0
 
-// <o ALARM_TIME> Alarm Time (in seconds)
-// <i> Default: 5
-#define ALARM_TIME 5
-
-// <o ALARM_TIME_MSEC> Alarm Time (in milliseconds) <0-999>
-// <i> Default: 5
-#define ALARM_TIME_MSEC 5
+// <o ALARM_TIME_MSEC> Alarm Time (in milliseconds)
+// <i> Default: 5000
+#define ALARM_TIME_MSEC 5000
 
 // </e>
 
@@ -89,7 +85,7 @@ extern "C" {
 // <e>Deep Sleep Timer Wakeup
 #define SL_ENABLE_DST_WAKEUP_SOURCE 0
 
-// <o DST_WAKEUP_TIME> Sleep Time
+// <o DST_WAKEUP_TIME> Sleep Time (in microseconds)
 // <i> Default: 500
 #define DST_WAKEUP_TIME 500
 

@@ -19,14 +19,15 @@
  * @addtogroup DISABLE_UC_CONFIG Disable UC Config
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
- * @brief For the below listed peripherals, peripheral configuration is by default taken from the Universal Configurator (UC). For disabling this behavior, undefine the respective peripheral  "PERIPHERAL_UC" macro mentioned below.
- * - Calendar: CALENDAR_UC
- * - Config Timer: CONFIG_TIMER_UC
- * - Generic SPIC: GSPI_UC
- * - Serial Input-Output: SIO_UC
- * - Synchronous Serial Interface: SSI_UC
- * - USART: USART_UC 
- * - Watchdog Timer: WDT_TIMER_UC
+ * @brief Peripheral Configurations for the peripherals listed below are automatically obtained from the Universal Configurator (UC). For the Disabling Configurations of the Peripherals through UC, launch the Configuration Wizard, and select the Disable button.
+ * Peripherals and corresponding UC Names are listed below.
+ * - Calendar: Calendar UC Configuration
+ * - Config Timer: Config Timer UC Configuration
+ * - Generic SPIC: GSPI UC Configuration
+ * - Serial Input-Output: SIO UC Configuration
+ * - Synchronous Serial Interface: SSI UC Configuration
+ * - USART: USART UC Configuration
+ * - Watchdog Timer: WatchDog Timer UC Configuration
  ******************************************************************************/
 
 /** @} (end addtogroup DISABLE UC CONFIG) */

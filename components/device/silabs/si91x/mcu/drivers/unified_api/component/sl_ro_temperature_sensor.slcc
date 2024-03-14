@@ -2,7 +2,12 @@ id: sl_ro_temperature_sensor
 label: RO Temperature Sensor
 package: platform
 description: >
-  Provides an API for the Si91x MCU to read RO temperature sensor
+  A Ring Oscillator Temperature Sensor (RO Temperature Sensor) is a type of temperature sensor that utilizes
+  a ring oscillator circuit to measure temperature variations. 
+  A ring oscillator is a circuit configuration that consists of an odd number of inverters connected in a loop. 
+  The frequency of oscillation of the ring oscillator is influenced by various factors, including temperature.
+  It is dependent on some of the parameters like:
+  Ring Oscillator, Temperature Sensitivity, Frequency measurement, Temperature Calibration.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -16,3 +21,6 @@ provides:
   - name: sl_ro_temperature_sensor
 requires:
   - name: systemlevel_temp_sensor
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/rotempsensor

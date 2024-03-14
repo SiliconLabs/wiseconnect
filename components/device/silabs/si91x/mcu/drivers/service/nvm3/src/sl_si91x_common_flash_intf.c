@@ -81,10 +81,8 @@ bool rsi_flash_erase_sector(uint32_t *sector_address)
 
   int status             = 0;
   uint8_t dummy_buff[10] = { 0 };
-  //Obtain actual TA flash access address
-  uint32_t address_ta = (uint32_t)sector_address - TA_M4_ADDRESS_OFFSET;
   //Erase sector
-  status = (int)sl_si91x_command_to_write_common_flash(address_ta, dummy_buff, SECTOR_SIZE, FLASH_ERASE);
+  status = (int)sl_si91x_command_to_write_common_flash((uint32_t)sector_address, dummy_buff, SECTOR_SIZE, FLASH_ERASE);
   return status;
 }
 
@@ -94,10 +92,9 @@ bool rsi_flash_erase_sector(uint32_t *sector_address)
 bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 {
 
-  int status          = 0;
-  uint32_t address_ta = (uint32_t)address - TA_M4_ADDRESS_OFFSET;
+  int status = 0;
   //Write to flash
-  status = (int)sl_si91x_command_to_write_common_flash(address_ta, data, (uint16_t)length, FLASH_WRITE);
+  status = (int)sl_si91x_command_to_write_common_flash((uint32_t)address, data, (uint16_t)length, FLASH_WRITE);
   return status;
 }
 
@@ -109,12 +106,12 @@ bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode)
 {
   (void)auto_mode;
-  uint32_t address_ta = (uint32_t)address - TA_M4_ADDRESS_OFFSET;
   //Read data from flash
-  memcpy((uint8_t *)data, (uint8_t *)address_ta, length * 4);
+  memcpy((uint8_t *)data, (uint8_t *)address, length * 4);
   return 1;
 }
 
+#ifndef NVM3_LOCK_OVERRIDE
 /***************************************************************************/ /**
  * @details
  * The implementation of lock-begin based on free RTOs.
@@ -140,3 +137,4 @@ void nvm3_lockEnd(void)
 {
   osSemaphoreRelease(nvm3_Sem);
 }
+#endif // NVM3_LOCK_OVERRIDE

@@ -48,11 +48,6 @@
 #define MAX_SLAVE_BIT_WIDTH 16       // Maximum Slave Bit width
 #define MAX_BIT_WIDTH       16       // Maximum Bit width
 #define DOUBLE              2        // Double the baudrate
-#define SSI_UC \
-  1 /*!< SSI_UC is defined by default. when this macro (SSI_UC) is defined, peripheral
-                                            configuration is directly taken from the configuration set in the universal configuration (UC).
-                                            if the application requires the configuration to be changed in run-time, undefined this macro
-                                            and change the peripheral configuration through the \ref sl_si91x_ssi_set_configuration API. */
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************

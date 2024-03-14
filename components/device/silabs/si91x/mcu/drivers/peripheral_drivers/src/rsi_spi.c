@@ -26,6 +26,19 @@
 #include "SPI.h"
 #include "rsi_rom_egpio.h"
 #include "rsi_rom_udma_wrapper.h"
+
+#define BYTES_FOR_8_DATA_WIDTH  1    // Number of bytes for 8 bit data frame
+#define BYTES_FOR_16_DATA_WIDTH 2    // Number of bytes for 16 bit data frame
+#define BYTES_FOR_32_DATA_WIDTH 4    // Number of bytes for 32 bit data frame
+#define DUMMY_DATA              0xA5 // Dummy data to be written in receive only mode by master
+#if (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
+#define ULP_SSI_MASTER_BANK_OFFSET 0x800 // ULP Memory bank offset value.
+#define ULP_SSI_MASTER_BUF_MEMORY  (ULP_SRAM_START_ADDR + (1 * ULP_SSI_MASTER_BANK_OFFSET))
+#endif
+static uint8_t data_width_in_bytes = 0; // variable to store data width in bytes for current transfer
+static uint8_t ssi_slave_number    = 0; // variable to store current slave number
+static void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width);
+
 #ifndef ROMDRIVER_PRESENT
 #include "rsi_rom_clks.h"
 #include "rsi_spi.h"
@@ -334,10 +347,8 @@ int32_t SPI_Transfer(const void *data_out,
   spi->info->status.mode_fault = 0U;
 
   spi->xfer->rx_buf = (uint8_t *)data_in;
-  ;
   spi->xfer->tx_buf = (uint8_t *)data_out;
 
-  spi->xfer->num    = num;
   spi->xfer->rx_cnt = 0U;
   spi->xfer->tx_cnt = 0U;
 
@@ -350,6 +361,11 @@ int32_t SPI_Transfer(const void *data_out,
   } else {
     data_width = spi->reg->CTRLR0_b.DFS;
   }
+  // Converts the data width into number of bytes to send/receive at once
+  SPI_Convert_Data_Width_To_Bytes(data_width);
+  // Total number of transfers according to the configured data width
+  spi->xfer->num = num * data_width_in_bytes;
+
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
     if (spi->rx_dma != NULL) {
       control.transferType = UDMA_MODE_BASIC;
@@ -496,6 +512,7 @@ int32_t SPI_Control(uint32_t control, uint32_t arg, const SPI_RESOURCES *spi, ui
   uint32_t val   = 0;
   uint8_t cs_pin = 0;
   volatile uint32_t icr;
+  ssi_slave_number = slavenumber;
   if (!(spi->info->state & SPI_POWERED)) {
     return ARM_DRIVER_ERROR;
   }
@@ -797,11 +814,8 @@ ARM_SPI_STATUS SPI_GetStatus(const SPI_RESOURCES *spi)
  */
 void SPI_IRQHandler(const SPI_RESOURCES *spi)
 {
-  uint8_t data_8bit, i;
-  uint32_t data_16bit;
-  uint32_t data_32bit;
+  uint32_t data = 0U;
   uint32_t event;
-  uint16_t data_width;
   uint32_t isr;
   uint32_t sr;
   volatile uint32_t ovrrunclr;
@@ -813,14 +827,6 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
   icr = spi->reg->ICR;
   (void)icr;
 
-  if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
-    data_width = spi->reg->CTRLR0_b.DFS_32;
-    if (spi->reg->SER == 0x00) {
-      event |= ARM_SPI_EVENT_MODE_FAULT;
-    }
-  } else {
-    data_width = spi->reg->CTRLR0_b.DFS;
-  }
   if ((isr & SPI_ISR_TX_FIFO_OVERFLOW) || (isr & SPI_ISR_RX_FIFO_OVERFLOW)
       || (isr & SPI_ISR_RX_FIFO_UNDERFLOW)) { // checking Tx FIFO Over Flow, Rx Overflow and Rx FIFO underflow
     // Overrun flag is set
@@ -831,87 +837,93 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
     (void)ovrrunclr;
     spi->info->status.data_lost = 1U;
     event |= ARM_SPI_EVENT_DATA_LOST;
-  }
-  if ((((sr & BIT(3))) != 0U) && (((isr & BIT(4))) != 0U)) {
+  } else if ((sr & BIT(3)) && (isr & BIT(4))) {
+    // FIFO contains one or more entries and receive full interrupt is triggered
     // Receive Buffer Not Empty
-    if (spi->xfer->rx_cnt < spi->xfer->num) {
-      if (spi->xfer->rx_buf) {
-        if (data_width <= (8U - 1U)) {
-          // 8-bit data frame
-          data_8bit              = *(volatile uint8_t *)(&spi->reg->DR);
-          *(spi->xfer->rx_buf++) = data_8bit;
-        } else if (data_width <= (16U - 1U)) {
-          // 16-bit data frame
-          data_16bit             = *(volatile uint32_t *)(&spi->reg->DR);
-          *(spi->xfer->rx_buf++) = (uint8_t)data_16bit;
-          *(spi->xfer->rx_buf++) = (uint8_t)(data_16bit >> 8U);
-        } else {
-          // 32-bit data frame
-          data_32bit             = *(volatile uint32_t *)(&spi->reg->DR);
-          *(spi->xfer->rx_buf++) = (uint8_t)data_32bit;
-          *(spi->xfer->rx_buf++) = (uint8_t)(data_32bit >> 8U);
-          *(spi->xfer->rx_buf++) = (uint8_t)(data_32bit >> 16U);
-          *(spi->xfer->rx_buf++) = (uint8_t)(data_32bit >> 24U);
+    if (spi->xfer->rx_buf) {
+      // If rx_buf should not be null when receive full interrupt is triggered
+      if (spi->xfer->rx_cnt < spi->xfer->num) {
+        // If rx count is less than num transmission is still pending
+        if (data_width_in_bytes == 1) {
+          // For data width less than 8
+          data                                       = *(volatile uint8_t *)(&spi->reg->DR);
+          *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data);
+        } else if (data_width_in_bytes == 2) {
+          // For data width 8-16
+          data                                       = *(volatile uint32_t *)(&spi->reg->DR);
+          *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data);
+          *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data >> 8);
+        } else if (data_width_in_bytes == 4) {
+          // For data width 16-32
+          data                                       = *(volatile uint32_t *)(&spi->reg->DR);
+          *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data);
+          *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data >> 8);
+          *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data >> 16);
+          *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data >> 24);
         }
-      }
-      spi->xfer->rx_cnt++;
-      if (spi->xfer->rx_cnt == spi->xfer->num) {
-        // Disable RX Buffer Not Empty Interrupt
-        spi->reg->IMR &= (uint32_t)(~RXFIM);
-
-        // Clear busy flag
-        spi->info->status.busy = 0U;
-
-        // Transfer completed
-        event |= ARM_SPI_EVENT_TRANSFER_COMPLETE;
-      }
-    } else {
-      // Unexpected transfer, data lost
-      event |= ARM_SPI_EVENT_DATA_LOST;
-    }
-  }
-  if ((((sr & BIT(2))) != 0U) && (((isr & BIT(0))) != 0U)) {
-    if (spi->xfer->tx_cnt < spi->xfer->num) {
-      if (data_width <= (8U - 1U)) {
-        if (spi->xfer->tx_buf) {
-          data_8bit                            = *(spi->xfer->tx_buf++);
-          *(volatile uint8_t *)(&spi->reg->DR) = data_8bit;
+        if (spi->xfer->rx_cnt >= spi->xfer->num) {
+          // Disable RX Buffer Not Empty Interrupt
+          spi->reg->IMR &= (uint32_t)(~RXFIM);
+          // Clear busy flag
+          spi->info->status.busy = 0U;
+          // Transfer completed
+          event |= ARM_SPI_EVENT_TRANSFER_COMPLETE;
         } else {
-          *(volatile uint8_t *)(&spi->reg->DR) = 0x0; //dummy data
-        }
-      } else if (data_width <= (16U - 1U)) {
-        if (spi->xfer->tx_buf != NULL) {
-          data_16bit = *(spi->xfer->tx_buf++);
-          data_16bit |= (uint16_t)(*(spi->xfer->tx_buf++) << 8U);
-          *(volatile uint32_t *)(&spi->reg->DR) = data_16bit;
-        } else {
-          *(volatile uint32_t *)(&spi->reg->DR) = 0x0; //dummy data
+          // Only meant for master to write dummy byte in case of half duplex mode
+          if (((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE))
+              && (spi->xfer->tx_buf == NULL)) {
+            // If master mode or ulp master mode and tx buffer is null means receive only conditon where dummy byte needs to be generated
+            *(volatile uint32_t *)(&spi->reg->DR) = DUMMY_DATA; // dummy data
+                                                                // Waiting till the busy flag is cleared
+            while (spi->reg->SR & BIT(0))
+              ;
+          }
         }
       } else {
-        if (spi->xfer->tx_buf != NULL) {
-          data_32bit = *(spi->xfer->tx_buf++);
-          data_32bit |= *(spi->xfer->tx_buf++) << 8U;
-          data_32bit |= *(spi->xfer->tx_buf++) << 16U;
-          data_32bit |= *(spi->xfer->tx_buf++) << 24U;
-          *(volatile uint32_t *)(&spi->reg->DR) = data_32bit;
-        } else {
-          *(volatile uint32_t *)(&spi->reg->DR) = 0x0; //dummy data
+        // Unexpected transfer, data lost
+        event |= ARM_SPI_EVENT_DATA_LOST;
+      }
+    }
+  } else if ((sr & BIT(2)) && (isr & BIT(0))) {
+    // Transmit fifo contains one or more empty locations and transmit empty fifo interrupt is triggered
+    if (spi->xfer->tx_buf) {
+      // If tx_buf should not be null when transmit empty interrupt is triggered
+      if (spi->xfer->tx_cnt < spi->xfer->num) {
+        // If tx count is less than num transmission is still pending
+        if (data_width_in_bytes == 1) {
+          // For data width less than 8
+          data                                 = *(spi->xfer->tx_buf + spi->xfer->tx_cnt++);
+          *(volatile uint8_t *)(&spi->reg->DR) = data;
+        } else if (data_width_in_bytes == 2) {
+          // For data width 8-16
+          data = *(spi->xfer->tx_buf + spi->xfer->tx_cnt++);
+          data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 8;
+          *(volatile uint32_t *)(&spi->reg->DR) = (uint16_t)data;
+        } else if (data_width_in_bytes == 4) {
+          // For data width 16-32
+          data = *(spi->xfer->tx_buf + spi->xfer->tx_cnt++);
+          data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 8;
+          data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 16;
+          data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 24;
+          *(volatile uint32_t *)(&spi->reg->DR) = data;
         }
+        // Waiting till the busy flag is cleared
+        while (spi->reg->SR & BIT(0))
+          ;
+        if (spi->xfer->tx_cnt >= spi->xfer->num) {
+          // All data sent, disable TX Buffer Empty Interrupt
+          spi->reg->IMR &= (uint32_t)(~TXEIM);
+          // Clear busy flag
+          if (spi->reg->CTRLR0_b.TMOD == TRANSMIT_ONLY) {
+            spi->info->status.busy = 0U;
+            // Transfer completed
+            event |= ARM_SPI_EVENT_TRANSFER_COMPLETE;
+          }
+        }
+      } else {
+        // Unexpected transfer, data lost
+        event |= ARM_SPI_EVENT_DATA_LOST;
       }
-      do {
-        sr = spi->reg->SR;
-      } while (sr & BIT(0));
-
-      for (i = 0; i < 1; i++)
-        ;
-      spi->xfer->tx_cnt++;
-      if (spi->xfer->tx_cnt == spi->xfer->num) {
-        // All data sent, disable TX Buffer Empty Interrupt
-        spi->reg->IMR &= (uint32_t)(~TXEIM);
-      }
-    } else {
-      // Unexpected transfer, data lost
-      event |= ARM_SPI_EVENT_DATA_LOST;
     }
   }
 
@@ -967,11 +979,10 @@ int32_t SPI_Send(const void *data,
 
   spi->xfer->tx_buf = (uint8_t *)data;
   spi->xfer->rx_buf = NULL;
-  spi->xfer->num    = num;
   spi->xfer->rx_cnt = 0U;
   spi->xfer->tx_cnt = 0U;
 
-  spi->reg->CTRLR0_b.TMOD = TRANSMIT_AND_RECEIVE;
+  spi->reg->CTRLR0_b.TMOD = TRANSMIT_ONLY;
 
   spi->reg->SSIENR = SSI_ENABLE;
 
@@ -980,6 +991,12 @@ int32_t SPI_Send(const void *data,
   } else {
     data_width = spi->reg->CTRLR0_b.DFS;
   }
+
+  // Converts the data width into number of bytes to send/receive at once
+  SPI_Convert_Data_Width_To_Bytes(data_width);
+  // Total number of transfers according to the configured data width
+  spi->xfer->num = num * data_width_in_bytes;
+
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
     if (spi->rx_dma != NULL) {
       control.transferType = UDMA_MODE_BASIC;
@@ -1087,7 +1104,7 @@ int32_t SPI_Send(const void *data,
     Receive FIFO Overflow Interrupt Mask
     Receive FIFO Full Interrupt Mask
     */
-    spi->reg->IMR |= (TXEIM | TXOIM | RXUIM | RXOIM | RXFIM);
+    spi->reg->IMR |= (TXEIM | TXOIM);
   }
   return ARM_DRIVER_OK;
 }
@@ -1128,12 +1145,16 @@ int32_t SPI_Receive(void *data,
   spi->info->status.data_lost  = 0U;
   spi->info->status.mode_fault = 0U;
 
-  spi->xfer->rx_buf       = NULL;
-  spi->xfer->num          = num;
+  spi->xfer->tx_buf       = NULL;
   spi->xfer->rx_buf       = (uint8_t *)data;
   spi->xfer->rx_cnt       = 0U;
   spi->xfer->tx_cnt       = 0U;
   spi->reg->CTRLR0_b.TMOD = RECEIVE_ONLY;
+
+#if (defined(SSI_MASTER_RX_DMA_Instance) && (SSI_MASTER_RX_DMA_Instance == 1)) \
+  || (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
+  spi->reg->CTRLR1_b.NDF = (num - 1);
+#endif
 
   spi->reg->SSIENR = SSI_ENABLE;
 
@@ -1142,6 +1163,12 @@ int32_t SPI_Receive(void *data,
   } else {
     data_width = spi->reg->CTRLR0_b.DFS;
   }
+
+  // Converts the data width into number of bytes to send/receive at once
+  SPI_Convert_Data_Width_To_Bytes(data_width);
+  // Total number of transfers according to the configured data width
+  spi->xfer->num = num * data_width_in_bytes;
+
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
     if (spi->rx_dma != NULL) {
       control.transferType = UDMA_MODE_BASIC;
@@ -1225,7 +1252,11 @@ int32_t SPI_Receive(void *data,
       // Initialize and start SPI TX DMA Stream
       stat = UDMAx_ChannelConfigure(udma,
                                     spi->tx_dma->channel,
+#if (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
+                                    (uint32_t)(ULP_SSI_MASTER_BUF_MEMORY),
+#else
                                     (uint32_t) & (dummy_data),
+#endif
                                     (uint32_t) & (spi->reg->DR),
                                     num,
                                     control,
@@ -1251,7 +1282,12 @@ int32_t SPI_Receive(void *data,
     Receive FIFO Overflow Interrupt Mask
     Receive FIFO Full Interrupt Mask
     */
-    spi->reg->IMR |= (TXEIM | TXOIM | RXUIM | RXOIM | RXFIM);
+    spi->reg->IMR |= (RXUIM | RXOIM | RXFIM);
+    if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
+      *(volatile uint8_t *)(&spi->reg->DR) = DUMMY_DATA; // dummy data
+      while (spi->reg->SR & BIT(0))
+        ;
+    }
   }
   return ARM_DRIVER_OK;
 }
@@ -1272,12 +1308,11 @@ void SPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
       // Update TX buffer info
       spi->xfer->tx_cnt = spi->xfer->num;
       // Clear error status by reading the register
-      status_reg = spi->reg->SR;
+      status_reg             = spi->reg->SR;
+      spi->info->status.busy = 0U;
       (void)status_reg;
-      if (spi->xfer->rx_buf == NULL) {
-        if (spi->info->cb_event != NULL) {
-          spi->info->cb_event(ARM_SPI_EVENT_SEND_COMPLETE);
-        }
+      if (spi->info->cb_event != NULL) {
+        spi->info->cb_event(ARM_SPI_EVENT_TRANSFER_COMPLETE);
       }
       break;
     case UDMA_EVENT_ERROR:
@@ -1298,8 +1333,12 @@ void SPI_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
   uint32_t status_reg = 0;
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
-      //spi->xfer->rx_cnt    = spi->xfer->num;
+      spi->xfer->rx_cnt      = spi->xfer->num;
       spi->info->status.busy = 0U;
+      if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
+        // Disables the slave after the transfer is completed
+        spi->reg->SER_b.SER &= ~(1 << ssi_slave_number);
+      }
       // Clear error status by reading the register
       status_reg = spi->reg->SR;
       (void)status_reg;
@@ -1334,5 +1373,25 @@ void SPI_Slave_Set_CS_Init_State(const SPI_RESOURCES *spi)
 {
   // CS0 pin shall be pulled up.
   RSI_EGPIO_PadDriverDisableState(spi->io.cs0->pin, Pullup);
+}
+
+/**
+ * @fn          void SPI_Convert_Data_Width_To_Bytes(const SPI_RESOURCES *spi)
+ * @brief       Update the data width and number of bytes in static variable
+ * @param[in]   spi        : Pointer to the SPI resources
+ * @return      none
+ */
+static void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width)
+{
+  if (data_width <= (8U - 1U)) {
+    // For 8-bit data frame number of bytes is 1
+    data_width_in_bytes = BYTES_FOR_8_DATA_WIDTH;
+  } else if (data_width <= (16U - 1U)) {
+    // For 16-bit data frame number of bytes is 2
+    data_width_in_bytes = BYTES_FOR_16_DATA_WIDTH;
+  } else {
+    // For 32-bit data frame number of bytes is 4
+    data_width_in_bytes = BYTES_FOR_32_DATA_WIDTH;
+  }
 }
 /** @} */

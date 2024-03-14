@@ -45,10 +45,40 @@
 #include "rsi_rom_clks.h"
 #endif
 
-const sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
+const sl_wifi_data_rate_t rate    = SL_WIFI_DATA_RATE_6;
+const sl_wifi_tx_test_mode_t mode = SL_WIFI_TEST_BURST_MODE;
 
 #define RECEIVE_STATS           0
 #define MAX_RECEIVE_STATS_COUNT 5
+
+static const sl_wifi_device_configuration_t transmit_test_configuration = {
+  .boot_option = LOAD_NWP_FW,
+  .mac_address = NULL,
+  .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
+  .region_code = WORLD_DOMAIN,
+  .boot_config = { .oper_mode = SL_SI91X_TRANSMIT_TEST_MODE,
+                   .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map =
+#ifdef SLI_SI91X_MCU_INTERFACE
+                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE),
+#else
+                     (SL_SI91X_FEAT_SECURITY_OPEN),
+#endif
+                   .tcp_ip_feature_bit_map =
+                     (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                   .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
+                   .ext_custom_feature_bit_map = (MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
+                                                  ),
+                   .bt_feature_bit_map         = SL_SI91X_BT_RF_TYPE,
+                   .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
+                   .ble_feature_bit_map        = 0,
+                   .ble_ext_feature_bit_map    = 0,
+                   .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+};
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -75,9 +105,10 @@ sl_si91x_request_tx_test_info_t tx_test_info = {
   .power       = 127,
   .rate        = rate,
   .length      = 100,
-  .mode        = 0,
+  .mode        = mode,
   .channel     = 1,
   .aggr_enable = 0,
+  .no_of_pkts  = 0,
 #ifdef SLI_SI917
   .enable_11ax            = 0,
   .coding_type            = 0,
@@ -137,7 +168,7 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &sl_wifi_transmit_test_configuration, NULL, NULL);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &transmit_test_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
@@ -156,7 +187,31 @@ static void application_start(void *argument)
   }
   printf("\r\nAntenna Command Frame Success \r\n");
 
-  status = sl_si91x_transmit_test_start(&tx_test_info);
+  if ((mode == SL_WIFI_TEST_CONTINOUS_WAVE_MODE) || (mode == SL_WIFI_TEST_CONTINOUS_WAVE_MODE_OFF_CENTER_LOW)
+      || (mode == SL_WIFI_TEST_CONTINOUS_WAVE_MODE_OFF_CENTER_HIGH)) {
+    tx_test_info.mode = SL_WIFI_TEST_CONTINOUS_MODE;
+    status            = sl_si91x_transmit_test_start(&tx_test_info);
+    if (status != SL_STATUS_OK) {
+      printf("\r\nTransmit test start Failed, Error Code : 0x%lX\r\n", status);
+      return;
+    }
+    printf("\r\nTransmit test start Success\r\n");
+
+    // Add delay here to see the TX packets on AIR
+    osDelay(1000);
+
+    status = sl_si91x_transmit_test_stop();
+    if (status != SL_STATUS_OK) {
+      printf("\r\nTransmit test stop Failed, Error Code : 0x%lX\r\n", status);
+      return;
+    }
+    printf("\r\nTransmit test stop Success\r\n");
+
+    osDelay(1000);
+  }
+
+  tx_test_info.mode = mode;
+  status            = sl_si91x_transmit_test_start(&tx_test_info);
   if (status != SL_STATUS_OK) {
     printf("\r\nTransmit test start Failed, Error Code : 0x%lX\r\n", status);
     return;

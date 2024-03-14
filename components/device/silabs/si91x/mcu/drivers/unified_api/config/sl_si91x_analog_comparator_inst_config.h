@@ -45,8 +45,8 @@
 //   <SL_COMPARATOR_GPIO_INPUT_0=> External Input-0
 //   <SL_COMPARATOR_GPIO_INPUT_1=> External Input-1
 //   <SL_COMPARATOR_DAC_OUTPUT=> DAC OUTPUT as comparator input
-//   <SL_COMPARATOR_REFERRENCE_BUFFER_OUTPUT=> Reference buffer output as comparator input
-//   <SL_COMPARATOR_REFERRENCE_SCALER_OUTPUT=> Reference scaler output as comparator input
+//   <SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT=> Reference buffer output as comparator input
+//   <SL_COMPARATOR_REFERENCE_SCALER_OUTPUT=> Reference scaler output as comparator input
 //   <SL_COMPARATOR_RESISTOR_BANK_OUTPUT=> Resistor bank output as comparator input
 //   <SL_COMPARATOR_OPAMP1_OUTPUT=> OPAMP1 output as comparator input
 // <i> Selection of Comparator Non-inverting input
@@ -56,8 +56,8 @@
 //   <SL_COMPARATOR_GPIO_INPUT_0=> External Input-0
 //   <SL_COMPARATOR_GPIO_INPUT_1=> External Input-1
 //   <SL_COMPARATOR_DAC_OUTPUT=> DAC OUTPUT as comparator input
-//   <SL_COMPARATOR_REFERRENCE_BUFFER_OUTPUT=> Reference buffer output as comparator input
-//   <SL_COMPARATOR_REFERRENCE_SCALER_OUTPUT=> Reference scaler output as comparator input
+//   <SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT=> Reference buffer output as comparator input
+//   <SL_COMPARATOR_REFERENCE_SCALER_OUTPUT=> Reference scaler output as comparator input
 //   <SL_COMPARATOR_RESISTOR_BANK_OUTPUT=> Resistor bank output as comparator input
 //   <SL_COMPARATOR_OPAMP1_OUTPUT=> OPAMP1 output as comparator input
 // <i> Selection of Comparator Inverting input

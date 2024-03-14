@@ -6,6 +6,8 @@ description: >
 category: Device|Si91x|MCU
 quality: production
 root_path: components/device/silabs/si91x/mcu
+ui_hints:
+  visibility: never
 provides:
   - name: sl_si91x_mcu
   - name: sli_si91x_mcu_interface

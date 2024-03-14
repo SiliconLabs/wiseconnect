@@ -1,8 +1,9 @@
 id: dac_ulp_component
-label: DAC
+label: ULP DAC
 package: platform
 description: >
-  Install this component to enable execution of DAC peripheral from RAM
+  ULP DAC component will enable DAC in the low-power mode. It moves all the peripheral dependencies to RAM. 
+  It also installs the peripheral component if already not installed.
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
 

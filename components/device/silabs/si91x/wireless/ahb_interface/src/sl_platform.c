@@ -71,12 +71,13 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
   if (!skip_bootload_sequence) {
     do {
       retval = rsi_waitfor_boardready();
-      if (retval == RSI_ERROR_IN_OS_OPERATION) {
+      if (retval == RSI_ERROR_NONE) {
+        break;
       }
       if ((retval < 0) && (retval != RSI_ERROR_WAITING_FOR_BOARD_READY) && (retval != RSI_ERROR_IN_OS_OPERATION)) {
         return convert_si91x_status_to_sl_status(retval);
       }
-    } while ((retval == RSI_ERROR_WAITING_FOR_BOARD_READY) && (retval == RSI_ERROR_IN_OS_OPERATION));
+    } while ((retval == RSI_ERROR_WAITING_FOR_BOARD_READY) || (retval == RSI_ERROR_IN_OS_OPERATION));
     retval = rsi_select_option(select_option);
     VERIFY_STATUS_AND_RETURN(convert_si91x_status_to_sl_status(retval));
   }

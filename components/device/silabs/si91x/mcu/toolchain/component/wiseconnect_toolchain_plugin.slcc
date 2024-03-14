@@ -15,6 +15,7 @@ template_file:
 requires:
   - name: toolchain_gcc
   - name: toolchain_variant_arm
+  - name: si91x_stack_size_configuration
 library:
   - system: gcc
     unless:
@@ -28,3 +29,5 @@ toolchain_settings:
     unless: [wiseconnect_toolchain_gcc_override, wiseconnect_toolchain_custom_linker]
   - option: gcc_linker_option
     value: "-u _printf_float"
+  - option: gcc_compiler_option
+    value: "-mcpu=cortex-m4"

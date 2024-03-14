@@ -152,6 +152,16 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     #define SSI_SLAVE_RECEIVE  DISABLE   // To use the receive API
   ```
 
+- By default 8 bit unsigned integer is declared for data buffer. If using data-width more than 8 bit, update the variable to 16 bit unsigned integer.
+  ```C
+  // For data-width less than equal to 8
+  static uint8_t ssi_slave_tx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' }; 
+  static uint8_t ssi_slave_rx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' };
+  // For data-width greater than 8
+  static uint16_t ssi_slave_tx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' }; 
+  static uint16_t ssi_slave_rx_buffer[SSI_SLAVE_BUFFER_SIZE] = { '\0' };
+  ```
+
 ### Pin Configuration
 
 | GPIO pin      | Description             |
@@ -171,8 +181,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. Compile and run the application.
 2. Connect master ssi pins to slave ssi pins on WPK board.
-3. Console output of successful configuration of clock, power mode and SSI configuration.
-4. Post transfer the data with master, slave should print the console output as test case passed.
-5. After successful program execution the prints in serial console looks as shown below.
+3. First reset the slave board and then reset the master board. The time difference between these resets is expected upto 5 seconds. 
+4. Console output of successful configuration of clock, power mode and SSI configuration.
+5. Post transfer the data with master, slave should print the console output as test case passed.
+6. After successful program execution the prints in serial console looks as shown below.
 
     ![Figure: Introduction](resources/readme/output.png)

@@ -33,6 +33,11 @@
 #endif
 #include "rsi_gspi.h"
 
+#define MAX_BAUDRATE_FOR_DYNAMIC_CLOCK   110000000 // Maximum baudrate for dynamic clock division factor
+#define MAX_BAUDRATE_FOR_POS_EDGE_SAMPLE 40000000  // Maximum baudrate for positive edge sample
+#define STATIC_CLOCK_DIV_FACTOR          1         // Static clock divison factor
+#define HALF_CLOCK_DIV_FACTOR            2         // To make the clock division factor half
+
 /*==============================================*/
 /**
  * @fn          int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
@@ -368,15 +373,23 @@ int32_t GSPI_Control(uint32_t control,
 
     case ARM_SPI_SET_BUS_SPEED:
 set_speed:
-      clk_div_factor = (base_clock / arg);
-
-      // NOTE : division factor is multiples of 2
-      clk_div_factor = (clk_div_factor / 2);
+      if (arg > MAX_BAUDRATE_FOR_DYNAMIC_CLOCK) {
+        // Clock division factor should be 1 for baudrate more than 110 MHz
+        clk_div_factor = STATIC_CLOCK_DIV_FACTOR;
+      } else {
+        clk_div_factor = (base_clock / arg);
+        // NOTE : division factor is multiples of 2
+        clk_div_factor = (clk_div_factor / HALF_CLOCK_DIV_FACTOR);
+      }
 
       if (clk_div_factor < 1) {
         gspi->reg->GSPI_CLK_CONFIG_b.GSPI_CLK_EN = 0x1;
 
         gspi->reg->GSPI_CLK_CONFIG_b.GSPI_CLK_SYNC = 0x1;
+      }
+      if (arg > MAX_BAUDRATE_FOR_POS_EDGE_SAMPLE) {
+        // Enabling negative edge sampling for baudrate more than 40 MHz
+        gspi->reg->GSPI_BUS_MODE_b.GSPI_DATA_SAMPLE_EDGE = ENABLE;
       }
       // Update the clock rate to hardware
       gspi->reg->GSPI_CLK_DIV_b.GSPI_CLK_DIV_FACTOR = (uint8_t)clk_div_factor;
@@ -1275,7 +1288,7 @@ void GSPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, GSPI_RESOURCES *gspi)
   (void)dmaCh;
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
-      //gspi->info->status.busy       = 0U;
+      gspi->info->status.busy = 0U;
       // Update TX buffer info
       gspi->xfer->tx_cnt = gspi->xfer->num;
       if (gspi->xfer->rx_buf == NULL) {
@@ -1395,6 +1408,11 @@ void GSPI_IRQHandler(const GSPI_RESOURCES *gspi)
         }
       }
     }
+  }
+  if (gspi->xfer->tx_cnt == gspi->xfer->num && gspi->xfer->rx_buf == NULL) {
+    gspi->info->status.busy = 0U;
+    event |= ARM_SPI_EVENT_TRANSFER_COMPLETE;
+    gspi->info->cb_event(event);
   }
   if (gspi->xfer->num == gspi->xfer->rx_cnt) {
     // Transfer completed

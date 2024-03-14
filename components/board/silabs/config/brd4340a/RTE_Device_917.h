@@ -1738,7 +1738,7 @@
 //   <i> CS0 of GSPI0
 //   </e>
 
-#define RTE_GSPI_MASTER_CS0_PORT_ID 2
+#define RTE_GSPI_MASTER_CS0_PORT_ID 1
 
 #if (RTE_GSPI_MASTER_CS0_PORT_ID == 0)
 #define RTE_GSPI_MASTER_CS0      1
@@ -1772,7 +1772,7 @@
 //   <o>  <0=>P0_10 <1=>P0_29 <2=>P0_50 <3=>P0_54
 //   <i> CS1 of GSPI0
 //   </e>
-#define RTE_GSPI_MASTER_CS1_PORT_ID 2
+#define RTE_GSPI_MASTER_CS1_PORT_ID 1
 #if (RTE_GSPI_MASTER_CS1_PORT_ID == 0)
 #define RTE_GSPI_MASTER_CS1      1
 #define RTE_GSPI_MASTER_CS1_PORT 0

@@ -2,7 +2,18 @@ id: sl_pwm
 label: PWM
 package: platform
 description: >
-  Si91x PWM API
+ The Motor Control Pulse Width Modulation (MCPWM) controller is used to generate a periodic pulse waveform, which is useful in
+ motor control and power control applications.
+ The MCPWM controller acts as a timer to count up to a period count value.
+ The time period and the duty cycle of the pulses are both programmable.
+  Configurable parameters in PWM:
+    - Frequency 
+    - Output Polarity
+    - PWM Mode
+    - Timer counter
+    - Duty cycle
+    - Base Timer Mode and Selection
+    - External Trigger
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers"
@@ -22,3 +33,6 @@ provides:
   - name: sl_pwm
 requires:
   - name: rsilib_pwm
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/pwm

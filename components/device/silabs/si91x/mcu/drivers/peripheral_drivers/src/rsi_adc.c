@@ -20,11 +20,20 @@
 #include "rsi_chip.h"
 #include "UDMA.h"
 #include <math.h>
-
+//---------------------- Macros -----------------//
+#define ADC_CLK_SOURCE_32KHZ   32000
+#define ADC_CLK_SOURCE_20MHZ   20000000
+#define ADC_CLK_SOURCE_32MHZ   32000000
+#define ADC_CLK_SOURCE_40MHZ   40000000
+#define MAX_ADC_SAMPLE_LEN     1023
+#define MINIMUM_ADC_SAMPLE_LEN 1023
+#define SAMPLE_RATE_32KSPS     32000
+#define SAMPLE_RATE_120KSPS    120000
 // ADC internal structure
 adc_inter_config_t adcInterConfig;
 adc_commn_config_t adc_commn_config;
-
+// ADC channel number.
+uint8_t adc_channel = 0;
 // ADC calibration related variables
 uint32_t auxadcCalibValueLoad = 0, auxadcCalibValue = 0;
 uint32_t calib_done = 0;
@@ -103,11 +112,11 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   // Verify the user given sample length is proper or not
   if (adcConfig.num_of_channel_enable == 1) {
     if (adcConfig.operation_mode) {
-      if (adcChConfig.num_of_samples[0] > 1) {
+      if (adcChConfig.num_of_samples[0] > MINIMUM_ADC_SAMPLE_LEN) {
         return INVALID_SAMPLE_LENGTH;
       }
     }
-    if (adcChConfig.num_of_samples[0] > 1023) {
+    if (adcChConfig.num_of_samples[0] > MAX_ADC_SAMPLE_LEN) {
       return INVALID_SAMPLE_LENGTH;
     }
   }
@@ -138,25 +147,144 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   }
 
   // Configure 32Khz RC clock to ADC
-  if (clk_sel < 32000) {
+  if (clk_sel < SAMPLE_RATE_32KSPS) {
     // Select 32KHZ RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
 
-    adc_commn_config.adc_clk_src = 32000;
+    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
   }
-  // Configure 64Khz RC clock to ADC
-  else if (clk_sel >= 32000 && clk_sel <= 120000) {
-    RSI_IPMU_RC64khz_TrimEfuse();
-    // Select 32KHZ RC clock for ADC
-    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
+  // Configure 20MHZ RC clock to ADC
+  else if (clk_sel >= SAMPLE_RATE_32KSPS && clk_sel <= SAMPLE_RATE_120KSPS) {
+    RSI_IPMU_M20rcOsc_TrimEfuse();
+    // Select 32MHZ RC clock for ADC
+    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
 
-    adc_commn_config.adc_clk_src = 64000;
+    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
   } else {
     // Configure the 40Mhz XTAL clock to ADC
     if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
 #ifdef SIMULATION
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-      adc_commn_config.adc_clk_src = 32000000;
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
+#else
+      // Select 40MHZ XTAL ULP reference clock
+      RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
+
+      // Select 40MHZ XTAL clock for ADC
+      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
+
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_40MHZ;
+#endif
+    } else {
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
+    }
+  }
+
+#ifdef SIMULATION
+  adc_commn_config.adc_sing_offset = 0x0;
+  adc_commn_config.adc_diff_offset = 0x0;
+  adc_commn_config.adc_diff_gain   = 0x0;
+  adc_commn_config.adc_sing_gain   = 0x0;
+#else
+  // Trim 32Mhz rc clock to 20Mhz rc clock in PS2 state
+  if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) {
+    // Trim Mhz RC clock to 20Mhz
+    RSI_IPMU_M20rcOsc_TrimEfuse();
+  }
+
+  // Offset value and gain value read from efuse
+  adc_commn_config.adc_sing_offset = (uint16_t)RSI_IPMU_Auxadcoff_SeEfuse();
+  adc_commn_config.adc_diff_offset = (uint16_t)RSI_IPMU_Auxadcoff_DiffEfuse();
+
+  // Single ended gain
+  integer_val = RSI_IPMU_Auxadcgain_SeEfuse();
+  frac = (float)((integer_val) & (0x3FFF));
+  frac /= 1000;
+  adc_commn_config.adc_sing_gain = ((float)(integer_val >> 14) + frac);
+
+  // Differential ended gain
+  integer_val = RSI_IPMU_Auxadcgain_DiffEfuse();
+  frac = (float)((integer_val) & (0x3FFF));
+  frac /= 1000;
+  adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
+#endif
+  return RSI_OK;
+}
+
+// Revisit for optimization To do
+rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccallbacFunc event)
+{
+#ifndef SIMULATION
+  uint32_t integer_val = 0;
+  float frac           = 0;
+#endif
+  uint32_t ch_num = 0;
+
+  adc_channel = adcChConfig.channel;
+
+  // Register callback event
+  adc_commn_config.call_back_event = event;
+
+  // Configure receive buffer
+  adc_commn_config.num_of_channel_enable = adcConfig.num_of_channel_enable;
+
+  // Verify the user given sampling rate is proper or not
+  if ((adcChConfig.sampling_rate[adc_channel] > MAX_SINGCH_SAMPLING_RATE)
+      || (adcChConfig.sampling_rate[adc_channel] == 0)) {
+    return INVALID_SAMPLING_RATE;
+  }
+
+  // Verify the user given sample length is proper or not
+  if (adcConfig.num_of_channel_enable == 1) {
+    if (adcConfig.operation_mode) {
+      if (adcChConfig.num_of_samples[adc_channel] > 1) {
+        return INVALID_SAMPLE_LENGTH;
+      }
+    }
+    if (adcChConfig.num_of_samples[adc_channel] > 1023) {
+      return INVALID_SAMPLE_LENGTH;
+    }
+  }
+
+  if ((adcConfig.num_of_channel_enable < 1) || (adcConfig.num_of_channel_enable > 16)) {
+    return INVALID_ADC_CHANNEL_ENABLE;
+  }
+  // Power up of ADC block
+  RSI_ADC_PowerControl(ADC_POWER_ON);
+
+  // Select 32MHZ RC clock for ADC
+  RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+
+  // Clock division factor for calibration,Calibrate ADC on 4MHZ clock
+  RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
+
+  // Set analog reference voltage
+  RSI_AUX_RefVoltageConfig((float)2.8, (float)3.2);
+
+  // ADC Calibration
+  RSI_ADC_Calibration();
+
+  // Configure 32Khz RC clock to ADC
+  if (adcChConfig.sampling_rate[adc_channel] <= SAMPLE_RATE_32KSPS) {
+    // Select 32KHZ RC clock for ADC
+    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
+
+    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
+  }
+  // Configure 64Khz RC clock to ADC
+  else if (adcChConfig.sampling_rate[adc_channel] > SAMPLE_RATE_32KSPS
+           && adcChConfig.sampling_rate[adc_channel] < SAMPLE_RATE_120KSPS) {
+    RSI_IPMU_M20rcOsc_TrimEfuse();
+    // Select 32KHZ RC clock for ADC
+    RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+
+    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
+  } else {
+    // Configure the 40Mhz XTAL clock to ADC
+    if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+#ifdef SIMULATION
+      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
 #else
       // Select 40MHZ XTAL ULP reference clock
       RSI_ULPSS_RefClkConfig(ULPSS_RF_REF_CLK);
@@ -164,10 +292,10 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
       // Select 40MHZ XTAL clock for ADC
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
 
-      adc_commn_config.adc_clk_src = 40000000;
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_40MHZ;
 #endif
     } else {
-      adc_commn_config.adc_clk_src = 20000000;
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
     }
   }
 
@@ -402,6 +530,209 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
       adcInterConfig.rx_buf[ch_num] = adcChConfig.rx_buf[ch_num];
 
       adcInterConfig.input_type[ch_num] = adcChConfig.input_type[ch_num];
+    }
+  }
+  return RSI_OK;
+}
+
+// Revisit for optimization Todo
+rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig)
+{
+  uint8_t ch_num                = 0;
+  uint32_t fs_adc               = 0;
+  uint32_t f_sample_rate_achive = 0;
+  uint16_t total_clk            = 0;
+  uint16_t on_clk               = 0;
+  uint16_t i                    = 0;
+  float inverse_sampl_val       = 0;
+  float min_sampl_time          = 0;
+
+  // Get minimum sampling time form given configuration
+  min_sampl_time = get_min_sampling_time(adcConfig.num_of_channel_enable, adcChConfig);
+
+  // Find out the maximum sampling rate of ADC can achieved from given configuration
+  f_sample_rate_achive = max_sample_rate_achive(min_sampl_time); // Need to implement   Step2
+
+  // Find out total number of ADC cycle
+  total_clk = (uint16_t)(ceil(((1 / (float)f_sample_rate_achive) / (1 / (float)adc_commn_config.adc_clk_src))));
+
+  // Find out number of ON cycles in total ADC cycle
+  on_clk = (uint16_t)(ceil((min_sampl_time / (1 / (float)adc_commn_config.adc_clk_src))));
+
+  if (total_clk == on_clk) {
+    total_clk = total_clk + 1;
+  }
+
+  // modify the total cycle number for ADC static mode operation
+  if (adcConfig.operation_mode) {
+    if (total_clk < ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[adc_channel])) {
+      total_clk = (uint16_t)(ceil(adc_commn_config.adc_clk_src / adcChConfig.sampling_rate[adc_channel]));
+    }
+  }
+
+  adc_commn_config.on_clk = on_clk;
+
+  adc_commn_config.total_clk = total_clk;
+
+  if (!(adcConfig.operation_mode)) {
+    // find out initial sampling rate
+    fs_adc = (adc_commn_config.adc_clk_src / total_clk);
+
+    // Configure channel frequency value for channel1 to number of channel enable
+    for (ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
+      inverse_sampl_val = 0;
+
+      if (ch_num == 0) {
+        // Configure channel frequency value for channel0
+        adcInterConfig.ch_sampling_factor[adc_channel] =
+          (uint16_t)((ceil(fs_adc / adcChConfig.sampling_rate[adc_channel])));
+
+        if (adcInterConfig.ch_sampling_factor[adc_channel] < 2) {
+          adcInterConfig.ch_sampling_factor[adc_channel] = 2;
+        }
+      } else {
+        // Get channel frequency value
+        // Configure channel frequency value
+        adcInterConfig.ch_sampling_factor[ch_num] =
+          (adcInterConfig.ch_sampling_factor[ch_num - 1]
+           * (uint16_t)((ceil(adcChConfig.sampling_rate[ch_num - 1] / adcChConfig.sampling_rate[ch_num]))));
+      }
+
+      /* Check configured channel frequency value is power of 2 or not,
+         If configured channel frequency value is not power of 2 then round of value with nearest power of 2 value */
+      if (!(adcConfig.num_of_channel_enable == 1)) {
+        if (!(check_power_two(adcInterConfig.ch_sampling_factor[ch_num]))) {
+          adcInterConfig.ch_sampling_factor[ch_num] =
+            (uint16_t)(roundupto_pwr2(adcInterConfig.ch_sampling_factor[ch_num]));
+        }
+      }
+
+      // Sum of enabled channels channel frequency inverse
+      for (i = 0; i <= ch_num; i++) {
+        inverse_sampl_val += (1 / (float)adcInterConfig.ch_sampling_factor[adc_channel]);
+      }
+
+      // Check sum of enabled channels channel frequency inverse is grater than 1
+      if (inverse_sampl_val > 1) {
+        for (i = 0; i <= ch_num; i++) {
+          adcInterConfig.ch_sampling_factor[adc_channel] *= 2;
+        }
+      }
+    }
+    cal_adc_channel_offset();
+
+#ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
+    if (adcConfig.num_of_channel_enable > 1) {
+      UDMA_ADC_Init();
+    }
+#endif
+  }
+
+  // Configure ADC clock division factor
+  RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, adc_commn_config.on_clk, adc_commn_config.total_clk); //Need to review
+
+  // Enable noise average mode
+  RSI_ADC_NoiseAvgMode(AUX_ADC_DAC_COMP, ENABLE);
+
+  if (adcConfig.operation_mode) /* If ADC is working on static mode */
+  {
+#ifdef CHIP_9118
+    // Configure the ADC in static mode
+    RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_DI, adcConfig.operation_mode, 0, 0);
+#endif
+#ifdef SLI_SI917
+    RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_DI, adcConfig.operation_mode, 0, 0, 0);
+#endif
+
+    // Configure the input pin selection in static mode
+    RSI_ADC_StaticMode(AUX_ADC_DAC_COMP,
+                       adcChConfig.pos_inp_sel[adc_channel],
+                       adcChConfig.neg_inp_sel[adc_channel],
+                       adcChConfig.input_type[adc_channel]);
+
+    // configures user given pins in analog mode
+    ADC_PinMux(adcChConfig.pos_inp_sel[adc_channel],
+               adcChConfig.neg_inp_sel[adc_channel],
+               adcChConfig.input_type[adc_channel]);
+
+#ifdef SLI_SI917
+    RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, adc_channel, adcConfig.operation_mode);
+#endif
+    adcInterConfig.achived_sampling_rate[adc_channel] = ((adc_commn_config.adc_clk_src / adc_commn_config.total_clk));
+  } else {
+#ifdef CHIP_9118
+    // Configure ADC in FIFO mode operation
+    if ((adcConfig.num_of_channel_enable) != 1) {
+      RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_EN, ADC_FIFOMODE_ENABLE, ADC_FIFO_THR, EXTERNAL_DMA_EN);
+    } else {
+      RSI_ADC_Config(AUX_ADC_DAC_COMP, DYNAMIC_MODE_EN, ADC_FIFOMODE_ENABLE, ADC_FIFO_THR, INTERNAL_DMA_EN);
+    }
+#endif
+#ifdef SLI_SI917
+#ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
+    RSI_ADC_Config(AUX_ADC_DAC_COMP,
+                   DYNAMIC_MODE_EN,
+                   ADC_FIFOMODE_ENABLE,
+                   AEMPTY_THRSHOLD,
+                   AFULL_THRSHOLD,
+                   EXTERNAL_DMA_EN);
+#else
+    RSI_ADC_Config(AUX_ADC_DAC_COMP,
+                   DYNAMIC_MODE_EN,
+                   ADC_FIFOMODE_ENABLE,
+                   AEMPTY_THRSHOLD,
+                   AFULL_THRSHOLD,
+                   INTERNAL_DMA_EN);
+#endif
+#endif
+
+    for (ch_num = 0; ch_num < adcConfig.num_of_channel_enable; ch_num++) {
+      RSI_ADC_ChannelConfig(AUX_ADC_DAC_COMP,
+                            adc_channel,
+                            adcChConfig.pos_inp_sel[adc_channel],
+                            adcChConfig.neg_inp_sel[adc_channel],
+                            adcChConfig.input_type[adc_channel]);
+
+      // Configure the sampling rate of ADC
+      RSI_ADC_ChannelSamplingRate(AUX_ADC_DAC_COMP,
+                                  adc_channel,
+                                  adcInterConfig.ch_offset_val[adc_channel],
+                                  adcInterConfig.ch_sampling_factor[adc_channel]);
+
+      // ADC channel enable
+      RSI_ADC_ChnlEnable(AUX_ADC_DAC_COMP, adc_channel);
+
+      ADC_PinMux(adcChConfig.pos_inp_sel[adc_channel],
+                 adcChConfig.neg_inp_sel[adc_channel],
+                 adcChConfig.input_type[adc_channel]);
+
+#ifndef ADC_MULTICHANNEL_WITH_EXT_DMA
+      RSI_ADC_InternalPerChnlDmaEnable(AUX_ADC_DAC_COMP, adc_channel);
+      RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP,
+                                      adc_channel,
+                                      adcChConfig.chnl_ping_address[adc_channel],
+                                      (adcChConfig.chnl_pong_address[adc_channel]),
+                                      adcChConfig.num_of_samples[adc_channel],
+                                      adcChConfig.num_of_samples[adc_channel],
+                                      ADC_PING_EN,
+                                      ADC_PONG_EN);
+      RSI_ADC_PingpongEnable(AUX_ADC_DAC_COMP, adc_channel);
+#ifdef CHIP_9118
+      RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, ch_num);
+#endif
+#ifdef SLI_SI917
+      RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, adc_channel, adcConfig.operation_mode);
+#endif
+#endif
+      adcInterConfig.achived_sampling_rate[adc_channel] =
+        ((adc_commn_config.adc_clk_src / adc_commn_config.total_clk)
+         / adcInterConfig.ch_sampling_factor[adc_channel]); // Need to review
+
+      adcInterConfig.num_of_samples[adc_channel] = adcChConfig.num_of_samples[adc_channel];
+
+      adcInterConfig.rx_buf[adc_channel] = adcChConfig.rx_buf[adc_channel];
+
+      adcInterConfig.input_type[adc_channel] = adcChConfig.input_type[adc_channel];
     }
   }
   return RSI_OK;
@@ -761,14 +1092,14 @@ rsi_error_t cal_adc_channel_offset(void)
 
   // Find out max number of channel frequency value
   for (ch_num = 0; ch_num < adc_commn_config.num_of_channel_enable; ch_num++) {
-    if (max_chan_swallo_fac < adcInterConfig.ch_sampling_factor[ch_num]) {
-      max_chan_swallo_fac = adcInterConfig.ch_sampling_factor[ch_num];
+    if (max_chan_swallo_fac < adcInterConfig.ch_sampling_factor[adc_channel]) {
+      max_chan_swallo_fac = adcInterConfig.ch_sampling_factor[adc_channel];
     }
   }
   // Find out channels offset based on channels frequency value
   for (ch_num = 0; ch_num < adc_commn_config.num_of_channel_enable; ch_num++) {
     if (ch_num == 0) {
-      adcInterConfig.ch_offset_val[ch_num] = ch_num;
+      adcInterConfig.ch_offset_val[adc_channel] = ch_num;
     } else {
       for (i = 0; i < max_chan_swallo_fac; i++) {
         cnt = 0;
@@ -1036,9 +1367,9 @@ rsi_error_t ADC_PinMux(uint8_t pos_input_pinsel, uint8_t neg_input_pinsel, uint8
 /**
  * @fn           rsi_error_t RSI_ADC_PingPongMemoryAdrConfig(AUX_ADC_DAC_COMP_Type *pstcADC, 
  *                                                       uint32_t channel ,uint32_t ping_addr,
- *											             uint32_t pong_addr,uint16_t ping_length,
- *														 uint16_t pong_length,uint8_t ping_enable,
- *														 uint8_t pong_enable )
+ *                                   uint32_t pong_addr,uint16_t ping_length,
+ *                             uint16_t pong_length,uint8_t ping_enable,
+ *                             uint8_t pong_enable )
  * @brief        This API is used to configure Ping and pong memory location along with 
  *               length of ping memory and pong memory.
  * @param[in]    pstcADC     : Pointer to the AUX_ADC_DAC_COMP_Type structure.

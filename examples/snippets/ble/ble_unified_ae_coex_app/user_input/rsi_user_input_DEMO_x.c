@@ -4,7 +4,6 @@
 #include <string.h>
 #ifdef M4_UART
 #include "USART.h"
-#include "rsi_board.h"
 #endif
 #include "cmsis_os2.h"
 #ifdef MXRT_595s

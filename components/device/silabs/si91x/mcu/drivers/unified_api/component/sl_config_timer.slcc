@@ -2,7 +2,18 @@ id: sl_config_timer
 label: Config Timer
 package: platform
 description: >
-   Si91x Config Timer (CT) API.
+  Configurable timers can be used for modulated signal output, event capture on
+  the GPIOs in input mode, and clock and event counting.
+  They can be configured to operate in the Pulse Width Modulation (PWM) mode,
+  which drives a pulse width modulated wave on the outputs in accordance with
+  the ON and OFF periods that are programmed.
+  Configurable Parameters in Configurable Timers:
+    - timer mode
+    - counter direction
+    - counter buffer
+    - soft reset trigger
+    - counter trigger  
+    - counter sync trigger
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -19,3 +30,6 @@ provides:
 requires:
   - name: udma_linker_config
   - name: rsilib_ct
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/config-timer

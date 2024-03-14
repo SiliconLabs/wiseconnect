@@ -495,6 +495,32 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     __asm("WFI");
   }
 
+#ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
+  //if flash is not initialised ,then raise a request to TA
+  if (!(in_ps2_state) && !(M4SS_P2P_INTR_SET_REG & M4_USING_FLASH)) {
+    //!check TA wokeup or not
+    if (!(P2P_STATUS_REG & TA_IS_ACTIVE)) {
+      //!wakeup TA
+      P2P_STATUS_REG |= M4_WAKEUP_TA;
+
+      //!wait for TA active
+      while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
+        ;
+    }
+    //!Check for TA_USING flash bit
+    if (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH)) {
+      //! Request TA to program flash
+      //! raise an interrupt to TA register
+      M4SS_P2P_INTR_SET_REG = PROGRAM_COMMON_FLASH;
+
+      //!Wait for TA using flash bit
+      while (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH))
+        ;
+    }
+    M4SS_P2P_INTR_SET_REG = M4_USING_FLASH;
+  }
+#endif
+
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
 #ifdef PSRAM_HALF_SLEEP_SUPPORTED
   /* Exit PSRAM device from sleep */
@@ -605,21 +631,16 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   for (x = 0; x < 200; x++) {
     __ASM("NOP");
   }
-
-  // Systick configuration upon Wake-up
-  SysTick_Config(SystemCoreClock / 1000);
+  /*Start of M4 init after wake up  */
+  fpuInit();
 
   // Indicate M4 is active
   P2P_STATUS_REG |= M4_is_active;
 
   M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
 
-  /*Start of M4 init after wake up  */
-#ifdef IOSTREAM_USART
-  fpuInit();
-#endif
+/*Start of M4 init after wake up  */
 #ifdef DEBUG_UART
-  fpuInit();
   /*Initialize UART after wake up*/
   DEBUGINIT();
 #endif

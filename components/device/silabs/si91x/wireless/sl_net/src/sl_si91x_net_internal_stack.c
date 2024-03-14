@@ -149,7 +149,7 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
     if (NULL != address->host_name) {
       // Enable DHCP hostname option and copy the hostname
       ip_req.dhcp_mode |= SL_SI91X_DHCP_HOSTNAME;
-      memcpy(ip_req.hostname, address->host_name, strlen(address->host_name));
+      memcpy(ip_req.hostname, address->host_name, sizeof(ip_req.hostname));
     }
 
     status = sl_si91x_driver_send_command(RSI_WLAN_REQ_IPCONFV4,

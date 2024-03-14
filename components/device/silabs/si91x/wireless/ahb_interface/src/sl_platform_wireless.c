@@ -50,15 +50,18 @@ void sl_si91x_hardware_setup(void)
   /* Disable OTHER_CLK that was enabled at Start-up*/
   RSI_CLK_PeripheralClkDisable3(M4CLK, M4_SOC_CLK_FOR_OTHER_ENABLE);
 
+#ifndef SL_ULP_TIMER
   /* Disable Timer clock that was enabled in Bootloader*/
   RSI_ULPSS_TimerClkDisable(ULPCLK);
+#endif
+
 #if !(defined(SLI_SI917) || defined(SLI_SI917B0))
   /* Disable 40MHz Clocks*/
   RSI_ULPSS_DisableRefClks(MCU_ULP_40MHZ_CLK_EN);
 #endif
 
   /* Disable RC_32KHZ Clocks*/
-  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RC_CLK_EN);
+  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RO_CLK_EN);
 
   /* Power-Down Button Calibration*/
   RSI_PS_BodPwrGateButtonCalibDisable();
@@ -75,7 +78,11 @@ void sl_si91x_hardware_setup(void)
 
   /* Power-Down unused NPSS Domain peripherals*/
   RSI_PS_NpssPeriPowerDown(SLPSS_PWRGATE_ULP_MCUWDT | SLPSS_PWRGATE_ULP_MCUPS | SLPSS_PWRGATE_ULP_MCUTS
-                           | SLPSS_PWRGATE_ULP_MCUSTORE2 | SLPSS_PWRGATE_ULP_MCUSTORE3 | SLPSS_PWRGATE_ULP_MCURTC);
+                           | SLPSS_PWRGATE_ULP_MCUSTORE2 | SLPSS_PWRGATE_ULP_MCUSTORE3
+#ifndef SL_SLEEP_TIMER
+                           | SLPSS_PWRGATE_ULP_MCURTC
+#endif
+  );
 
 #ifndef DS_BASED_WKP
   RSI_PS_NpssPeriPowerDown(SLPSS_PWRGATE_ULP_TIMEPERIOD);
@@ -98,13 +105,16 @@ void sl_si91x_hardware_setup(void)
 #endif
     | M4SS_PWRGATE_ULP_PERI2 | M4SS_PWRGATE_ULP_PERI3 | M4SS_PWRGATE_ULP_CCI | M4SS_PWRGATE_ULP_SD_MEM);
   /* Power-Down unused ULPSS Domain peripherals*/
-  RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_MISC | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_CAP
-                            | ULPSS_PWRGATE_ULP_VAD
-#ifndef DEBUG_UART
-                            | ULPSS_PWRGATE_ULP_UART
+  RSI_PS_UlpssPeriPowerDown(
+#ifndef SL_ULP_TIMER
+    ULPSS_PWRGATE_ULP_MISC |
 #endif
-                            | ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C
-                            | ULPSS_PWRGATE_ULP_IR | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
+    ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_CAP | ULPSS_PWRGATE_ULP_VAD
+#ifndef DEBUG_UART
+    | ULPSS_PWRGATE_ULP_UART
+#endif
+    | ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C | ULPSS_PWRGATE_ULP_IR
+    | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
 
   /* Turn off ULPSS SRAM domains*/
   RSI_PS_UlpssRamBanksPowerDown(ULPSS_2K_BANK_0 | ULPSS_2K_BANK_1 | ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3 | ULPSS_2K_BANK_4
@@ -126,12 +136,16 @@ void sl_si91x_hardware_setup(void)
     M4SS_PWRGATE_ULP_SDIO_SPI | M4SS_PWRGATE_ULP_RPDMA);
 
   /* Power-Down Unused ULPSS Domain peripherals  */
-  RSI_PS_UlpssPeriPowerDown(ULPSS_PWRGATE_ULP_MISC | ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_CAP
-#ifndef DEBUG_UART
-                            | ULPSS_PWRGATE_ULP_UART
+  RSI_PS_UlpssPeriPowerDown(
+#ifndef SL_ULP_TIMER
+    ULPSS_PWRGATE_ULP_MISC |
 #endif
-                            | ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C
-                            | ULPSS_PWRGATE_ULP_IR | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
+    ULPSS_PWRGATE_ULP_AUX | ULPSS_PWRGATE_ULP_CAP
+#ifndef DEBUG_UART
+    | ULPSS_PWRGATE_ULP_UART
+#endif
+    | ULPSS_PWRGATE_ULP_SSI | ULPSS_PWRGATE_ULP_I2S | ULPSS_PWRGATE_ULP_I2C | ULPSS_PWRGATE_ULP_IR
+    | ULPSS_PWRGATE_ULP_UDMA | ULPSS_PWRGATE_ULP_FIM);
 #endif
   /* Power-Down High-Frequency PLL Domain */
   RSI_PS_SocPllSpiDisable();
@@ -316,6 +330,9 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   }
 #endif
   __enable_irq();
+
+  // Systick configuration upon Wake-up
+  SysTick_Config(SystemCoreClock / 1000);
 }
 
 /**

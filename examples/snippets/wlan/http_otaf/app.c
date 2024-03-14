@@ -384,6 +384,12 @@ sl_status_t http_otaf_app()
   }
   printf("\r\nWi-Fi Deinit is successful\r\n");
 
+#if SL_NCP_UART_INTERFACE
+  printf("Waiting for firmware upgrade to complete\n");
+  osDelay(40000);
+  printf("Waiting Done\n");
+#endif
+
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lX\r\n", status);

@@ -88,11 +88,13 @@ uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc
 #endif
   }
 
+#ifndef SL_SI91X_DAC
 #ifndef SLI_SI917B0
   //Configure DAC output on AGPIO4
   DAC_PinMux(0);
 #else
   DAC_PinMux(1);
+#endif
 #endif
 
   return achived_sample_freq;
@@ -302,6 +304,24 @@ rsi_error_t DAC_PinMux(uint8_t pin_sel)
   }
   return RSI_OK;
 }
+
+#ifdef SL_SI91X_DAC
+/*==============================================*/
+/**
+ * @fn           rsi_error_t DAC_PinMux_config(uint8_t pin, uint8_t port)
+ * @brief        This API use for configure the DAC output pin in analog mode for B0 boards using sl_dac driver.
+ * @param[in]    pin      : Pin number
+ *               port     : Port number
+ */
+rsi_error_t DAC_PinMux_config(uint8_t pin, uint8_t port)
+{
+  RSI_EGPIO_PadReceiverDisable(pin);
+  RSI_EGPIO_HostPadsGpioModeDisable(pin);
+  RSI_EGPIO_PadSdioConnected();
+  RSI_EGPIO_SetPinMux(EGPIO, port, pin, TGPIO_MODE);
+  return RSI_OK;
+}
+#endif
 
 /*==============================================*/
 /**

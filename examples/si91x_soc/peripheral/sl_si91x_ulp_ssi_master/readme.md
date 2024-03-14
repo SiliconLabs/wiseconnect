@@ -165,9 +165,10 @@ Follow the steps below for successful execution of the application:
 
 1. Connect ULP SSI Master SCK, CS0, MOSI, MISO pins with the SSI Slave device.
 2. When the application runs, it receives and send data.
-3. After the transfer is completed, it validates the data and prints "Test Case Passed" on the console.
-3. If ULP_SSI_MASTER_RECEIVE or ULP_SSI_MASTER_SEND is enabled, SSI slave will receive and send data respectively.
-4. After successful program execution the prints in serial console looks as shown below.
+3. First reset the slave board and then reset the master board. The time difference between these resets is expected upto 5 seconds. 
+4. After the transfer is completed, it validates the data and prints "Test Case Passed" on the console.
+5. If ULP_SSI_MASTER_RECEIVE or ULP_SSI_MASTER_SEND is enabled, SSI slave will receive and send data respectively.
+6. After successful program execution the prints in serial console looks as shown below.
 
 - Master output:
 

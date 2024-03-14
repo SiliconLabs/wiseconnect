@@ -117,6 +117,7 @@ static sl_net_wifi_ap_profile_t wifi_ap_profile = {
         .dtim_beacon_count = 3,           
         .maximum_clients = 3,              
         .beacon_stop = 0,
+        .is_11n_enabled = 0,
     },
     .ip = {
         .mode = SL_IP_MANAGEMENT_STATIC_IP,

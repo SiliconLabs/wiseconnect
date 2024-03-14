@@ -428,6 +428,15 @@ typedef enum {
   SL_WIFI_DATA_RATE_MCS7_SG = 775,
 } sl_wifi_data_rate_t;
 
+/// tx test mode
+typedef enum {
+  SL_WIFI_TEST_BURST_MODE                          = 0, ///< Burst Mode
+  SL_WIFI_TEST_CONTINOUS_MODE                      = 1, ///< Continuous Mode
+  SL_WIFI_TEST_CONTINOUS_WAVE_MODE                 = 2, ///< CW Mode
+  SL_WIFI_TEST_CONTINOUS_WAVE_MODE_OFF_CENTER_LOW  = 3, ///< CW Mode center frequency - 2.5MHZ Mode
+  SL_WIFI_TEST_CONTINOUS_WAVE_MODE_OFF_CENTER_HIGH = 4, ///< CW Mode center frequency + 5MHZ Mode
+} sl_wifi_tx_test_mode_t;
+
 /// HT caps supported
 typedef enum {
   SL_WIFI_HT_CAPS_NUM_RX_STBC      = (1 << 8),

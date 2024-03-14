@@ -46,9 +46,9 @@
 #include <string.h>
 #include "sl_wifi_callback_framework.h"
 
-static sl_status_t send_multicast_request(sl_wifi_interface_t interface,
-                                          const sl_ip_address_t *ip_address,
-                                          uint8_t command_type);
+static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interface,
+                                                    const sl_ip_address_t *ip_address,
+                                                    uint8_t command_type);
 sl_status_t sl_net_host_get_by_name(const char *host_name,
                                     const uint32_t timeout,
                                     const sl_net_dns_resolution_ip_type_t dns_resolution_ip,
@@ -212,17 +212,17 @@ sl_status_t sl_net_wifi_btr_up(sl_net_interface_t interface, sl_net_profile_id_t
 
 sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)
 {
-  return send_multicast_request((sl_wifi_interface_t)interface, ip_address, SL_WIFI_MULTICAST_JOIN);
+  return sli_si91x_send_multicast_request((sl_wifi_interface_t)interface, ip_address, SL_WIFI_MULTICAST_JOIN);
 }
 
 sl_status_t sl_net_leave_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)
 {
-  return send_multicast_request((sl_wifi_interface_t)interface, ip_address, SL_WIFI_MULTICAST_LEAVE);
+  return sli_si91x_send_multicast_request((sl_wifi_interface_t)interface, ip_address, SL_WIFI_MULTICAST_LEAVE);
 }
 
-static sl_status_t send_multicast_request(sl_wifi_interface_t interface,
-                                          const sl_ip_address_t *ip_address,
-                                          uint8_t command_type)
+static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interface,
+                                                    const sl_ip_address_t *ip_address,
+                                                    uint8_t command_type)
 {
   UNUSED_PARAMETER(interface);
   si91x_req_multicast_t multicast = { 0 };
@@ -273,7 +273,7 @@ sl_status_t sl_net_host_get_by_name(const char *host_name,
   sl_si91x_wait_period_t wait_period = timeout == 0 ? SL_SI91X_RETURN_IMMEDIATELY : SL_SI91X_WAIT_FOR_RESPONSE(timeout);
   // Determine the IP version to be used (IPv4 or IPv6)
   dns_query_request.ip_version[0] = (dns_resolution_ip == SL_NET_DNS_TYPE_IPV4) ? 4 : 6;
-  memcpy(dns_query_request.url_name, host_name, strlen(host_name));
+  memcpy(dns_query_request.url_name, host_name, sizeof(dns_query_request.url_name));
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_DNS_QUERY,
                                         SI91X_NETWORK_CMD_QUEUE,

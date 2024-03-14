@@ -420,7 +420,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
   VERIFY_STATUS_AND_RETURN(status);
 
 #if RSI_FAST_FW_UP
-  status = rsi_set_fast_fw_up();
+  status = sl_si91x_set_fast_fw_up();
   VERIFY_STATUS_AND_RETURN(status);
 #endif
 

@@ -10,5 +10,7 @@ include:
   - path: "Include"
     file_list:
     - path: "Driver_USART.h"
+ui_hints:
+  visibility: never
 provides:
   - name: cmsis_usart_driver

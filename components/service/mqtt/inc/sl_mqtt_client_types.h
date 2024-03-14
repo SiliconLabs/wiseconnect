@@ -53,10 +53,11 @@ typedef enum {
 
 /// MQTT Client connection states
 typedef enum {
-  SL_MQTT_CLIENT_DISCONNECTED, ///< Initial state.
-  SL_MQTT_CLIENT_CONNECTING,   ///< Attains this state when the connect is called and await for results.
-  SL_MQTT_CLIENT_CONNECTED,    ///< Connection established with MQTT broker
-  SL_MQTT_CLIENT_DISCONNECTING ///< Moves to this state when the disconnect is called and await for results.
+  SL_MQTT_CLIENT_DISCONNECTED,      ///< Initial state.
+  SL_MQTT_CLIENT_TA_INIT,           ///< Attains this state when TA MQTT is initialized successfully.
+  SL_MQTT_CLIENT_CONNECTION_FAILED, ///< Attains this state when the connection to MQTT broker failed.
+  SL_MQTT_CLIENT_CONNECTED,         ///< Connection established with MQTT broker
+  SL_MQTT_CLIENT_TA_DISCONNECTED, // Attains this state when TA is disconnected from broker but TA deinit is not yet called.
 } sl_mqtt_client_connection_state_t;
 
 /// MQTT Protocol version
@@ -107,11 +108,11 @@ typedef struct {
 
 /// MQTT Client Message structure
 typedef struct {
-  sl_mqtt_qos_t qos_level;   ///< Quality of subscription.
-  uint16_t pakcet_identifer; ///< Packed id of the received message.
-  bool is_retained;          ///< Retained flag of message as sent by the broker.
-  bool is_duplicate_message; ///< Whether this is a duplicate message.
-  uint8_t *topic;            ///< Pointer to topic name.
+  sl_mqtt_qos_t qos_level;    ///< Quality of subscription.
+  uint16_t packet_identifier; ///< Packed id of the received message.
+  bool is_retained;           ///< Retained flag of message as sent by the broker.
+  bool is_duplicate_message;  ///< Whether this is a duplicate message.
+  uint8_t *topic;             ///< Pointer to topic name.
   uint16_t
     topic_length;   ///< Length of the topic. Length should not exceed 202 bytes including NULL termination character.
   uint8_t *content; ///< Pointer to content.
@@ -142,7 +143,7 @@ typedef struct {
   bool auto_reconnect;                  ///< Whether to automatically connect back to broker in case of disconnection.
   uint8_t retry_count;                  ///< Maximum retry count of auto reconnect.
   uint16_t minimum_back_off_time;       ///< Minimum back off time between two successive reconnect attempts.
-  uint16_t maximun_back_off_time;       ///< Maximum back off time between two successive reconnect attempts.
+  uint16_t maximum_back_off_time;       ///< Maximum back off time between two successive reconnect attempts.
   bool is_clean_session;                ///< Clean session flag to send to broker in connect request.
   sl_mqtt_version_t mqt_version;        ///< Version of client MQTT.
   uint16_t client_port;                 ///< Port number of client.
@@ -181,7 +182,7 @@ typedef void (*sl_mqtt_client_event_handler_t)(void *client,
  * @param context	
  *    Context provided by user at the time of Subscribe API call. The caller must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
  * @note
- * 	  Due to the constraints from the firmware, is_retained, qos_level, packet_identifer, duplicate_message of sl_mqtt_client_message_t are not populated and shall be ignored while processing the message.
+ * 	  Due to the constraints from the firmware, is_retained, qos_level, packet_identifier, duplicate_message of sl_mqtt_client_message_t are not populated and shall be ignored while processing the message.
  */
 typedef void (*sl_mqtt_client_message_received_t)(void *client,
                                                   sl_mqtt_client_message_t *message_to_be_published,

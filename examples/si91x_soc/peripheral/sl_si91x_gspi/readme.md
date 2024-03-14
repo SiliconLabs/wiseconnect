@@ -30,7 +30,7 @@
 - With the two data pins, it allows for full-duplex operation to other SPI compatible devices.
 - It supports full duplex Single-bit SPI master mode.
 - It has support for Mode-0 and Mode-3 (Motorola). Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 3: Clock Polarity is one, Clock Phase is one.
-- It supports both Full speed and High speed modes.
+- It supports both Full speed (upto 58 MHz) and High speed modes (upto 116 MHz).
 - The SPI clock is programmable to meet required baud rates.
 - It can generates interrupt for different events like transfer complete, data lost, mode fault.
 - It supports up to 32K bytes of read data from a SPI device in a single read operation.
@@ -142,7 +142,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 |   GPIO Pin    |      Description        |
 | ------------- | ----------------------- |
 | GPIO_25 [P25] | RTE_GSPI_MASTER_CLK_PIN  |
-| GPIO_49 [P30] | RTE_GSPI_MASTER_CS0_PIN  |
+| GPIO_28 [P31] | RTE_GSPI_MASTER_CS0_PIN  |
 | GPIO_27 [P29] | RTE_GSPI_MASTER_MOSI_PIN |
 | GPIO_26 [P27] | RTE_GSPI_MASTER_MISO_PIN |
 

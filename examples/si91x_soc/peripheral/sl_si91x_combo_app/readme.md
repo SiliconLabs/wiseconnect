@@ -154,9 +154,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Test the Application
 1. Compile and run the application.
-2. Connect SCL(ULP_GPIO_7) and SDA(ULP_GPIO_6) pins with the follower device.
+2. Connect SCL(ULP_GPIO_7) and SDA(ULP_GPIO_6) pins with the I2C Driver follower device.
 3. When the application runs, it triggers 3 threads (I2C, PWM, Button).
-4. After timer interrupt sets the event flag, I2C threads unblocks from that event flag read, and write data to I2C Follower and read back from it.
+4. After timer interrupt sets the event flag, I2C threads unblocks from that event flag read, and write data to I2C Driver Follower and read back from it.
 5. After the transfer is completed, it validates the data and prints "Test Case Passed" on the console.
 6. Press push button BTN0 on WSTK board and check PWM output on PWM pins
  as mentioned above.

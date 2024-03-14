@@ -2,7 +2,14 @@ id: sl_usart
 label: USART
 package: platform
 description: >
-  Si91x Universal Synchronous/Asynchronous Receiver/Transmitter (USART) API
+  USART stands for Universal Synchronous Asynchronous Receiver/Transmitter. It is a communication protocol 
+  used for serial communication between devices. It is used to exchange data between microcontrollers,
+  sensors, and other peripherals. It supports half and full duplex communicationwith TX(transmitter) and 
+  RX(Receiving) lines. 
+  Configurable parameters in Analog comparator:
+    - Baud Rate
+    - Select the Asynchronous/Synchronous Modes 
+    - Data Width
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
@@ -24,3 +31,6 @@ define:
 requires:
   - name: udma_linker_config
   - name: sl_dma
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/usart

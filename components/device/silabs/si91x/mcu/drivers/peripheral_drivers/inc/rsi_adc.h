@@ -118,7 +118,7 @@ extern "C" {
 #define MAX_TOL_DUR_TIME    1023
 #define MAX_ON_DUR_TIME     511
 
-#define MAX_SINGCH_SAMPLING_RATE 5000000
+#define MAX_SINGCH_SAMPLING_RATE 2500000
 #define ADC_MASK_VALUE           0xF7FF
 #define ADC_FIFO_THR             3
 #define SDIO_HOST_CONTROL_IN_M4  0x41300004
@@ -221,6 +221,7 @@ typedef enum { ADC_POWER_ON = 0, ADC_POWER_OFF } POWER_STATE;
 // brief ADC channel Configuration structure
 
 typedef struct {
+  uint8_t channel;
   uint8_t input_type[16];
   uint32_t sampling_rate[16];
   uint8_t pos_inp_sel[16];
@@ -281,7 +282,11 @@ typedef struct {
 // Function Declarations
 rsi_error_t ADC_Init(adc_ch_config_t adcChnfig, adc_config_t adcConfig, adccallbacFunc event);
 
+rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccallbacFunc event);
+
 rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig);
+
+rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfig);
 
 #ifdef CHIP_9118
 rsi_error_t ADC_Start(void);

@@ -170,7 +170,7 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
     printf("\r\n Error \r\n");
     return NULL;
   }
-  return strcpy(dst, tmp);
+  return memcpy(dst, tmp, size);
 }
 
 static int hex_digit_value(char ch)
