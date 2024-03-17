@@ -4,10 +4,10 @@
 
 |**Item**|**Details**|
 | :- | :- |
-|Release date|Mar 13th, 2024|
+|Release date|Mar 17th, 2024|
 |SDK Version|3\.1.3|
 |Firmware Version|1711\.2.10.1.2.6.6|
-|Release Package Name|WiSeConnect3\_SDK\_3.1.3/matter-hotfix.1|
+|Release Package Name|WiSeConnect3\_SDK\_3.1.3/matter-hotfix.2|
 |Supported RTOS|FreeRTOS|
 |Operating Modes Supported|Wi-Fi STA, Wi-Fi AP, Wi-Fi STA+BLE, Wi-Fi STA+AP|
 Build Quality|GA|
@@ -156,7 +156,7 @@ Build Quality|GA|
 - 3 wire coex acting as Wi-Fi with external Bluetooth
 - 3 wire coex acting as Wi-Fi with external Zigbee/OT
 
-## **Changes in this release compared to v3.1.3 Release**
+## **Changes in this release compared to v3.1.3-matter-hotfix.1 Release**
 
 ### **System**
 
@@ -170,8 +170,7 @@ Build Quality|GA|
 - **Enhancements**
   - None
 - **Fixed Issues**
-  - Enabled TICKLESS IDLE mode in MCU
-  - Configured 32KHz RC Clock as Low Power FSM Clock
+  - Added ota fix
 
 ### **SDK**
 

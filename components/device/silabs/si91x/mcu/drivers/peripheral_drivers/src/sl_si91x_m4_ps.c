@@ -338,18 +338,6 @@ uint32_t sli_si91x_is_sleep_ready()
            | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_BT_CMD)))) {
     return 0;
   }
-
-  // Indicate M4 is Inactive
-  P2P_STATUS_REG &= ~M4_is_active;
-  P2P_STATUS_REG;
-
-  // Checking if already TA have triggered the packet to M4
-  // RX_BUFFER_VALID will be cleared by TA if any packet is triggered
-  if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
-      || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
-    P2P_STATUS_REG |= M4_is_active;
-    return 0;
-  }
   return 1;
 }
 

@@ -1,0 +1,30 @@
+id: wakeup_source_config
+label: Wakeup Source Configuration
+package: platform
+description: >
+  Power Manager wakeup source configurations. It can initialize and configure Calendar, NPSS GPIO, WDT, Deep Sleep Timer and Wireless Wakeup as wakeup sources as per the user selection.
+category: Device|Si91x|MCU|Service|Power Manager
+quality: production
+component_root_path: "components/device/silabs/si91x/mcu/drivers/service/power_manager"
+source:
+  - path: src/sli_si91x_power_manager_wakeup_initialization.c
+config_file:
+  - path: config/sl_si91x_power_manager_wakeup_source_config.h
+requires:
+  - name: sl_power_manager
+template_file:
+  - path: init/sl_si91x_power_manager_wakeup_handler.h.jinja
+  - path: init/sl_si91x_power_manager_wakeup_handler.c.jinja
+template_contribution:
+  - name: event_handler
+    value:
+      event: service_init
+      include: sl_si91x_power_manager_wakeup_handler.h
+      handler: sl_si91x_power_manager_wakeup_init
+    priority: -9980
+  - name: wakeup_config
+    value:
+      include:
+        name: sl_si91x_power_manager_wakeup_source_config.h
+provides:
+  - name: wakeup_source_config
