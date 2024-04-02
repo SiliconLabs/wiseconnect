@@ -761,6 +761,8 @@ sl_status_t sl_si91x_host_add_to_queue(sl_si91x_queue_type_t queue, sl_wifi_buff
     cmd_queues[queue].tail            = packet;
   }
 
+  cmd_queues[queue].queued_packet_count++;
+
   osMutexRelease(cmd_queues[queue].mutex);
   return SL_STATUS_OK;
 }

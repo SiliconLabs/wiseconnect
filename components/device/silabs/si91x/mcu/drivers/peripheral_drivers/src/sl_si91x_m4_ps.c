@@ -21,6 +21,12 @@
 #ifdef SL_WIFI_COMPONENT_INCLUDED
 #include "sl_si91x_host_interface.h"
 #endif
+#define SL_SI91X_MCU_WATCHDOG_TIMER 0
+
+#if SL_SI91X_MCU_WATCHDOG_TIMER
+#include "rsi_wwdt.h"
+volatile uint32_t wdt_count = 0;
+#endif
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 
@@ -88,6 +94,52 @@ extern osEventFlagsId_t si91x_bus_events;
 extern osEventFlagsId_t si91x_async_events;
 
 bool is_sleep_ready = false;
+extern volatile uint8_t sl_si91x_packet_status;
+#if (configUSE_TICKLESS_IDLE == 1)
+uint32_t xMaximumPossibleSuppressedTicks = 0;
+uint32_t ulTimerCountsForOneTick         = 0;
+uint32_t ulStoppedTimerCompensation      = 0;
+uint32_t sl_idle_sleep_time              = 0;
+
+/**************************SYStick Registers***********************************/
+
+/* Possible return values for eTaskConfirmSleepModeStatus(). */
+typedef enum {
+  eAbortSleep =
+    0, /* A task has been made ready or a context switch pended since portSUPPORESS_TICKS_AND_SLEEP() was called - abort entering a sleep mode. */
+  eStandardSleep,        /* Enter a sleep mode that will not last any longer than the expected idle time. */
+  eNoTasksWaitingTimeout /* No tasks are waiting for a timeout so it is safe to enter a sleep mode that can only be exited by an external interrupt. */
+} eSleepModeStatus;
+
+#define portNVIC_SYSTICK_CTRL_REG          (*((volatile uint32_t *)0xe000e010))
+#define portNVIC_SYSTICK_LOAD_REG          (*((volatile uint32_t *)0xe000e014))
+#define portNVIC_SYSTICK_CURRENT_VALUE_REG (*((volatile uint32_t *)0xe000e018))
+
+/* ...then bits in the registers. */
+#define portNVIC_SYSTICK_INT_BIT        (1UL << 1UL)
+#define portNVIC_SYSTICK_ENABLE_BIT     (1UL << 0UL)
+#define portNVIC_SYSTICK_COUNT_FLAG_BIT (1UL << 16UL)
+#define portNVIC_PENDSVCLEAR_BIT        (1UL << 27UL)
+#define portNVIC_PEND_SYSTICK_CLEAR_BIT (1UL << 25UL)
+
+/* Ensure the SysTick is clocked at the same frequency as the core. */
+#define portNVIC_SYSTICK_CLK_BIT (1UL << 2UL)
+#define configSYSTICK_CLOCK_HZ   configCPU_CLOCK_HZ
+
+/* The systick is a 24-bit counter. */
+#define portMAX_24_BIT_NUMBER 0xffffffUL
+
+/* A fiddle factor to estimate the number of SysTick counts that would have
+ * occurred while the SysTick counter is stopped during tickless idle
+ * calculations. */
+#define portMISSED_COUNTS_FACTOR (45UL)
+/*It can be utilized to correct the timer drift between sleep and wake cycles*/
+#define DRIFT_VALUE (96)
+/******************************************************************************/
+eSleepModeStatus eTaskConfirmSleepModeStatus(void);
+void vTaskStepTick(const uint32_t xTicksToJump);
+uint16_t sli_si91x_apply_time_drift(uint16_t idle_ticks);
+#endif
 
 #if SL_SI91X_MCU_BUTTON_BASED_WAKEUP
 /**
@@ -131,24 +183,31 @@ __attribute__((weak)) void IRQ021_Handler(void)
 {
   /* clear NPSS GPIO interrupt*/
   RSI_NPSSGPIO_ClrIntr(NPSS_GPIO_2_INTR);
-  // LOG_PRINT("BUTTON_PRESSED");
 }
 #endif /* SL_SI91X_MCU_BUTTON_BASED_WAKEUP */
 #ifdef SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
 void IRQ026_Handler()
 {
-  // volatile uint32_t wakeUpSrc = 0;
-
   /*Get the wake up source */
-  // wakeUpSrc = RSI_PS_GetWkpUpStatus();
   RSI_PS_GetWkpUpStatus();
 
   /*Clear interrupt */
   RSI_PS_ClrWkpUpStatus(NPSS_TO_MCU_WIRELESS_INTR);
-  // LOG_PRINT("\r\n received packet from sleep \r\n");
+
   return;
 }
 #endif /* SL_SI91X_MCU_WIRELESS_BASED_WAKEUP */
+#if SL_SI91X_MCU_WATCHDOG_TIMER
+
+void IRQ020_Handler(void)
+{
+  wdt_count++;
+  // Clears interrupt
+  RSI_WWDT_IntrClear();
+  RSI_WWDT_ReStart(MCU_WDT);
+}
+
+#endif
 
 #if SL_SI91X_MCU_ALARM_BASED_WAKEUP
 void set_alarm_interrupt_timer(uint16_t interval)
@@ -256,18 +315,18 @@ void initialize_m4_alarm(void)
   RSI_RTC_SetDateTime(RTC, &rtc_configuration);
   /*Enable Alarm feature*/
   RSI_RTC_AlamEnable(RTC, ENABLE);
-  /*Enable RTC ALARM interrupts*/
-  RSI_RTC_IntrUnMask(RTC_ALARM_INTR);
+
   /*Initialization of RTC CALIBRATION*/
   RSI_RTC_CalibInitilization();
+#ifndef XTAL_OFF
+  /*when RO clock calibration is enabled HW has a dependency on XTAl clock,in case of XTAL OFF, to avoid this dependency this part of code should be disabled */
   /*To calibrate rc and ro */
   RSI_RTC_ROCLK_Calib(TIME_PERIOD, ENABLE, ENABLE, RC_TRIGGER_TIME, ENABLE, ENABLE, RO_TRIGGER_TIME);
+#endif
   /*Set Alarm as a  wake up source to wake up from deep sleep */
   RSI_PS_SetWkpSources(ALARM_BASED_WAKEUP);
   /*Enable the RTC alarm interrupts */
-  RSI_RTC_IntrUnMask(RTC_ALARM_INTR);
-  /*Enable NVIC for RTC */
-  NVIC_EnableIRQ(NVIC_RTC_ALARM);
+
   m4_alarm_initialization_done = 1;
 }
 /*RTC Alarm interrupt*/
@@ -327,18 +386,8 @@ void sl_si91x_post_sleep_update_ticks(uint32_t *xExpectedIdleTime)
  *******************************************************************************/
 uint32_t sli_si91x_is_sleep_ready()
 {
-  if ((osEventFlagsGet(si91x_events) | osEventFlagsGet(si91x_bus_events) | osEventFlagsGet(si91x_async_events))
-#ifdef SL_SI91X_SIDE_BAND_CRYPTO
-      || (osMutexGetOwner(side_band_crypto_mutex) != NULL)
-#endif // SL_SI91X_SIDE_BAND_CRYPTO
-      || ((sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_BT_CMD)))) {
-    return 0;
-  }
-  return 1;
+  /*verifying common flash write progress before triggering sleep*/
+  return !(sl_si91x_packet_status);
 }
 
 /**************************************************************************
@@ -404,7 +453,7 @@ void sl_si91x_m4_sleep_wakeup(void)
 
   /* Update the alarm time interval, when to get next interrupt  */
 #if (configUSE_TICKLESS_IDLE == 1) // configUSE_TICKLESS_IDLE == 1
-  set_alarm_interrupt_timer(*idle_sleep_time);
+  set_alarm_interrupt_timer(sli_si91x_apply_time_drift(*idle_sleep_time));
 #else
   set_alarm_interrupt_timer(ALARM_PERIODIC_TIME);
 #endif
@@ -413,15 +462,23 @@ void sl_si91x_m4_sleep_wakeup(void)
 #ifdef SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
   /* Configure Wakeup-Source */
   RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
-
-  /* sets the priority of an Wireless wakeup interrupt. */
-  NVIC_SetPriority(WIRELESS_WAKEUP_IRQHandler, WIRELESS_WAKEUP_IRQ_PRI);
-
-  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
 #endif
 #if SL_SI91X_MCU_BUTTON_BASED_WAKEUP
   /*Configure the UULP GPIO 2 as wakeup source */
   wakeup_source_config();
+#endif
+
+#if SL_SI91X_MCU_WATCHDOG_TIMER
+  // Un-masking WDT interrupt
+  RSI_WWDT_IntrUnMask();
+  // Initializing watchdog-timer (powering up WDT and enabling it to run during CPU sleep mode)
+  RSI_WWDT_Init(MCU_WDT);
+  // Configure the WDT system reset value
+  RSI_WWDT_ConfigSysRstTimer(MCU_WDT, 19);
+  // configure the WDT timeout interrupt time
+  RSI_WWDT_ConfigIntrTimer(MCU_WDT, 18);
+  NVIC_EnableIRQ(NVIC_WDT);
+  RSI_WWDT_Start(MCU_WDT);
 #endif
 
 #ifndef SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
@@ -468,8 +525,6 @@ void sl_si91x_m4_sleep_wakeup(void)
                          RSI_WAKEUP_FROM_FLASH_MODE);
 
 #if (configUSE_TICKLESS_IDLE == 1)
-  NVIC_SetPriority(SVCall_IRQn, 0);
-  NVIC_SetPriority(SysTick_IRQn, SYSTICK_INTR_PRI);
 
   sl_af_rtc_ticks = sl_si91x_get_rtc_ticks();
   if (sl_af_rtc_ticks > sl_bf_rtc_ticks) {
@@ -480,17 +535,220 @@ void sl_si91x_m4_sleep_wakeup(void)
 
 #endif
 
-  /* Enable M4_TA interrupt */
-  sli_m4_ta_interrupt_init();
-
   /* Clear M4_wakeup_TA bit so that TA will go to sleep after M4 wakeup*/
   sl_si91x_host_clear_sleep_indicator();
 
 #if (configUSE_TICKLESS_IDLE == 0)
+  P2P_STATUS_REG |= M4_is_active;
+  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
+
   osDelay(100);
 #endif // configUSE_TICKLESS_IDLE == 0
   /*  Setup the systick timer */
   vPortSetupTimerInterrupt();
 }
+
+#if (configUSE_TICKLESS_IDLE == 1)
+
+void vPortSuppressTicksAndSleep(uint32_t xExpectedIdleTime)
+{
+  uint32_t ulReloadValue, ulCompleteTickPeriods, ulCompletedSysTickDecrements;
+  uint32_t xModifiableIdleTime;
+
+  /* Make sure the SysTick reload value does not overflow the counter. */
+  if (xExpectedIdleTime > xMaximumPossibleSuppressedTicks) {
+    xExpectedIdleTime = xMaximumPossibleSuppressedTicks;
+  }
+
+  /* Stop the SysTick momentarily.  The time the SysTick is stopped for
+         * is accounted for as best it can be, but using the tickless mode will
+         * inevitably result in some tiny drift of the time maintained by the
+         * kernel with respect to calendar time. */
+  portNVIC_SYSTICK_CTRL_REG &= ~portNVIC_SYSTICK_ENABLE_BIT;
+
+  /* Calculate the reload value required to wait xExpectedIdleTime
+         * tick periods.  -1 is used because this code will execute part way
+         * through one of the tick periods. */
+  ulReloadValue = portNVIC_SYSTICK_CURRENT_VALUE_REG + (ulTimerCountsForOneTick * (xExpectedIdleTime - 1UL));
+
+  if (ulReloadValue > ulStoppedTimerCompensation) {
+    ulReloadValue -= ulStoppedTimerCompensation;
+  }
+
+  /* Enter a critical section but don't use the taskENTER_CRITICAL()
+         * method as that will mask interrupts that should exit sleep mode. */
+  __asm volatile("cpsid i" ::: "memory");
+  __asm volatile("dsb");
+  __asm volatile("isb");
+
+  /* If a context switch is pending or a task is waiting for the scheduler
+         * to be unsuspended then abandon the low power entry. */
+  if (eTaskConfirmSleepModeStatus() == eAbortSleep) {
+    /* Restart from whatever is left in the count register to complete
+             * this tick period. */
+    portNVIC_SYSTICK_LOAD_REG = portNVIC_SYSTICK_CURRENT_VALUE_REG;
+
+    /* Restart SysTick. */
+    portNVIC_SYSTICK_CTRL_REG |= portNVIC_SYSTICK_ENABLE_BIT;
+
+    /* Reset the reload register to the value required for normal tick
+             * periods. */
+    portNVIC_SYSTICK_LOAD_REG = ulTimerCountsForOneTick - 1UL;
+
+    /* Re-enable interrupts - see comments above the cpsid instruction()
+             * above. */
+    __asm volatile("cpsie i" ::: "memory");
+  } else {
+    /* Set the new reload value. */
+    portNVIC_SYSTICK_LOAD_REG = ulReloadValue;
+
+    /* Clear the SysTick count flag and set the count value back to
+             * zero. */
+    portNVIC_SYSTICK_CURRENT_VALUE_REG = 0UL;
+
+    /* Restart SysTick. */
+    portNVIC_SYSTICK_CTRL_REG |= portNVIC_SYSTICK_ENABLE_BIT;
+
+    /* Sleep until something happens.  configPRE_SLEEP_PROCESSING() can
+             * set its parameter to 0 to indicate that its implementation contains
+             * its own wait for interrupt or wait for event instruction, and so wfi
+             * should not be executed again.  However, the original expected idle
+             * time variable must remain unmodified, so a copy is taken. */
+    xModifiableIdleTime = xExpectedIdleTime;
+    configPRE_SLEEP_PROCESSING(xModifiableIdleTime);
+
+    if (xModifiableIdleTime > 0) {
+      __asm volatile("dsb" ::: "memory");
+      __asm volatile("wfi");
+      __asm volatile("isb");
+    }
+
+    configPOST_SLEEP_PROCESSING(xExpectedIdleTime);
+
+    /* Re-enable interrupts to allow the interrupt that brought the MCU
+             * out of sleep mode to execute immediately.  see comments above
+             * __disable_interrupt() call above. */
+    __asm volatile("cpsie i" ::: "memory");
+    __asm volatile("dsb");
+    __asm volatile("isb");
+
+    /* Disable interrupts again because the clock is about to be stopped
+             * and interrupts that execute while the clock is stopped will increase
+             * any slippage between the time maintained by the RTOS and calendar
+             * time. */
+    __asm volatile("cpsid i" ::: "memory");
+    __asm volatile("dsb");
+    __asm volatile("isb");
+
+    /* Disable the SysTick clock without reading the
+             * portNVIC_SYSTICK_CTRL_REG register to ensure the
+             * portNVIC_SYSTICK_COUNT_FLAG_BIT is not cleared if it is set.  Again,
+             * the time the SysTick is stopped for is accounted for as best it can
+             * be, but using the tickless mode will inevitably result in some tiny
+             * drift of the time maintained by the kernel with respect to calendar
+             * time*/
+    portNVIC_SYSTICK_CTRL_REG = (portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT);
+
+    /* Determine if the SysTick clock has already counted to zero and
+             * been set back to the current reload value (the reload back being
+             * correct for the entire expected idle time) or if the SysTick is yet
+             * to count to zero (in which case an interrupt other than the SysTick
+             * must have brought the system out of sleep mode). */
+    if ((portNVIC_SYSTICK_CTRL_REG & portNVIC_SYSTICK_COUNT_FLAG_BIT) != 0) {
+      uint32_t ulCalculatedLoadValue;
+
+      /* The tick interrupt is already pending, and the SysTick count
+                 * reloaded with ulReloadValue.  Reset the
+                 * portNVIC_SYSTICK_LOAD_REG with whatever remains of this tick
+                 * period. */
+      ulCalculatedLoadValue = (ulTimerCountsForOneTick - 1UL) - (ulReloadValue - portNVIC_SYSTICK_CURRENT_VALUE_REG);
+
+      /* Don't allow a tiny value, or values that have somehow
+                 * underflowed because the post sleep hook did something
+                 * that took too long. */
+      if ((ulCalculatedLoadValue < ulStoppedTimerCompensation) || (ulCalculatedLoadValue > ulTimerCountsForOneTick)) {
+        ulCalculatedLoadValue = (ulTimerCountsForOneTick - 1UL);
+      }
+
+      portNVIC_SYSTICK_LOAD_REG = ulCalculatedLoadValue;
+
+      /* As the pending tick will be processed as soon as this
+                 * function exits, the tick value maintained by the tick is stepped
+                 * forward by one less than the time spent waiting. */
+      ulCompleteTickPeriods = xExpectedIdleTime - 1UL;
+    } else {
+      /* Something other than the tick interrupt ended the sleep.
+                 * Work out how long the sleep lasted rounded to complete tick
+                 * periods (not the ulReload value which accounted for part
+                 * ticks). */
+      ulCompletedSysTickDecrements = (xExpectedIdleTime * ulTimerCountsForOneTick) - portNVIC_SYSTICK_CURRENT_VALUE_REG;
+
+      /* How many complete tick periods passed while the processor
+                 * was waiting? */
+      ulCompleteTickPeriods = ulCompletedSysTickDecrements / ulTimerCountsForOneTick;
+
+      /* The reload value is set to whatever fraction of a single tick
+                 * period remains. */
+      portNVIC_SYSTICK_LOAD_REG =
+        ((ulCompleteTickPeriods + 1UL) * ulTimerCountsForOneTick) - ulCompletedSysTickDecrements;
+    }
+
+    /* Restart SysTick so it runs from portNVIC_SYSTICK_LOAD_REG
+             * again, then set portNVIC_SYSTICK_LOAD_REG back to its standard
+             * value. */
+    portNVIC_SYSTICK_CURRENT_VALUE_REG = 0UL;
+    portNVIC_SYSTICK_CTRL_REG |= portNVIC_SYSTICK_ENABLE_BIT;
+    vTaskStepTick(ulCompleteTickPeriods);
+    portNVIC_SYSTICK_LOAD_REG = ulTimerCountsForOneTick - 1UL;
+
+    /* Exit with interrupts enabled. */
+    __asm volatile("cpsie i" ::: "memory");
+  }
+  // Indicate M4 is active
+  P2P_STATUS_REG |= M4_is_active;
+
+  //indicate M4 buffer availability to TA
+  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
+
+#ifdef SLI_SI917
+  //! Unmask the P2P interrupts
+  unmask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
+                      | NWP_DEINIT_IN_COMM_FLASH
+#ifdef SLI_SI91X_MCU_FW_UPGRADE_OTA_DUAL_FLASH
+                      | M4_IMAGE_UPGRADATION_PENDING_INTERRUPT
+#endif
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+                      | SIDE_BAND_CRYPTO_DONE
+#endif
+  );
+#endif
+}
+
+void vPortSetupTimerInterrupt(void)
+{
+
+  /* Calculate the constants required to configure the tick interrupt. */
+#if (configUSE_TICKLESS_IDLE == 1)
+  {
+    ulTimerCountsForOneTick         = (configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ);
+    xMaximumPossibleSuppressedTicks = portMAX_24_BIT_NUMBER / ulTimerCountsForOneTick;
+    ulStoppedTimerCompensation      = portMISSED_COUNTS_FACTOR / (configCPU_CLOCK_HZ / configSYSTICK_CLOCK_HZ);
+  }
+#endif /* configUSE_TICKLESS_IDLE */
+
+  /* Stop and clear the SysTick. */
+  portNVIC_SYSTICK_CTRL_REG          = 0UL;
+  portNVIC_SYSTICK_CURRENT_VALUE_REG = 0UL;
+
+  /* Configure SysTick to interrupt at the requested rate. */
+  portNVIC_SYSTICK_LOAD_REG = (configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ) - 1UL;
+  portNVIC_SYSTICK_CTRL_REG = (portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT);
+}
+
+uint16_t sli_si91x_apply_time_drift(uint16_t idle_ticks)
+{
+  return ((idle_ticks * DRIFT_VALUE) / 100);
+}
+#endif /* #if configUSE_TICKLESS_IDLE */
 
 #endif

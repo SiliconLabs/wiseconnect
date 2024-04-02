@@ -38,7 +38,7 @@
  * @return None
  */
 #ifndef MATTER_WDT_IRQ
-void WDT_IRQHandler(void)
+__attribute__((weak)) void WDT_IRQHandler(void)
 {
   /*Clear interrupt */
   RSI_WWDT_IntrClear();

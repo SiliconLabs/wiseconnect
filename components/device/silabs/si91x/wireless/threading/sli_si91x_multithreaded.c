@@ -94,6 +94,9 @@ extern si91x_packet_queue_t cmd_queues[SI91X_QUEUE_MAX];
 // Declaration of a semaphore handle used for command locking
 extern osSemaphoreId_t cmd_lock;
 #endif
+
+volatile uint8_t sl_si91x_packet_status;
+
 /******************************************************
  *               Function Declarations
  ******************************************************/
@@ -395,6 +398,10 @@ void si91x_bus_thread(void *args)
                    frame_status,
                    length);
 
+      if ((frame_type == RSI_COMMON_RSP_TA_M4_COMMANDS) || (frame_type == RSI_WLAN_REQ_SET_CERTIFICATE)) {
+        // clear flag
+        sl_si91x_packet_status = 0;
+      }
       switch (queue_id) {
         case RSI_WLAN_MGMT_Q: {
           // Erase queue ID as it overlays with the length field which is only 24-bit
@@ -1202,6 +1209,11 @@ static sl_status_t bus_write_frame(sl_si91x_queue_type_t queue_type,
   }
 
   trace->sdk_context = node->sdk_context;
+
+  if ((trace->frame_type == RSI_COMMON_RSP_TA_M4_COMMANDS) || (trace->frame_type == RSI_WLAN_REQ_SET_CERTIFICATE)) {
+    // set flag
+    sl_si91x_packet_status = 1;
+  }
 
   // Write the frame to the bus using packet data and length
   status = sl_si91x_bus_write_frame(packet, packet->data, length);

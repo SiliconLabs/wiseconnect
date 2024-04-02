@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file  rsi_wisemcu_hardware_setup.c
+ * @file  sl_platform_wireless.c
  * @brief
  *******************************************************************************
  * # License
@@ -313,10 +313,12 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   // Disbling systick & clearing interrupt as systick is non-maskable interrupt
   SysTick->CTRL = DISABLE;
   NVIC_ClearPendingIRQ(SysTick_IRQn);
-#endif // configUSE_TICKLESS_IDLE == 0
 
+  //!Clear RX_BUFFER_VALID
   M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
   M4SS_P2P_INTR_CLR_REG;
+#endif // configUSE_TICKLESS_IDLE == 0
+
 #ifndef ENABLE_DEBUG_MODULE
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
 #endif // ENABLE_DEBUG_MODULE

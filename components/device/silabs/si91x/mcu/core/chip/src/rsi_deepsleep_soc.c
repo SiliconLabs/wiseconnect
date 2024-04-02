@@ -34,6 +34,8 @@ void fpuInit(void);
 #define MAX_IPS                             240 // Max Interrupt Priority registers
 #define MAX_SHP                             12  //Max System Handlers Priority registers
 
+#define MBR_MAGIC_WORD (*(volatile uint32_t *)(0x81F0000))
+
 #define SL_SCDC_SLEEP  1
 #define SL_SCDC_ACTIVE 0
 
@@ -57,6 +59,8 @@ uint32_t nvic_enable[MAX_NVIC_REGS] = { 0 };
 uint8_t nvic_ip_reg[MAX_IPS]        = { 0 };
 uint8_t scs_shp_reg[MAX_SHP]        = { 0 };
 volatile uint32_t msp_value, psp_value, control_reg_val;
+
+volatile uint32_t sl_magic_word_value = 0;
 
 #if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION) || defined(ULP_MODE_EXECUTION)
 extern char ram_vector[SI91X_VECTOR_TABLE_ENTRIES];
@@ -295,16 +299,6 @@ void RSI_Set_Cntrls_To_TA(void)
   NWPAON_MEM_HOST_ACCESS_CTRL_SET_1 = TASS_REF_CLK_MUX_CTRL;
 }
 #endif
-void rsi_raise_m4_to_ta_interrupt(uint32 intr)
-{
-
-  //! raise an interrupt to TA register
-  M4SS_P2P_INTR_SET_REG = intr;
-  P2P_STATUS_REG        = M4_WAKEUP_TA;
-
-  while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
-    ;
-}
 
 /**
  * @fn          rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType , uint8_t lf_clk_mode)
@@ -493,6 +487,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   NWPAON_MEM_HOST_ACCESS_CTRL_SET_1 = TASS_REF_CLK_MUX_CTRL;
 #endif
 #endif
+
   /*Enter sleep with retention*/
   if (sleepType == SLEEP_WITH_RETENTION) {
     /*If retention mode is enabled save the CPU context*/
@@ -520,7 +515,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     //!Check for TA_USING flash bit
     if (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH)) {
       //! Request TA to program flash
-      rsi_raise_m4_to_ta_interrupt(PROGRAM_COMMON_FLASH);
+      M4SS_P2P_INTR_SET_REG = PROGRAM_COMMON_FLASH;
 
       //!Wait for TA using flash bit
       while (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH))
@@ -550,13 +545,15 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   /* Before TA is going to power save mode, set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls form TA to M4 */
   RSI_Set_Cntrls_To_M4();
 #endif
+
+  //!Poll for flash magic word
+  while (MBR_MAGIC_WORD != 0x5A5A) {
+    sl_magic_word_value++;
+  }
   /* After wake-up, Set the SCDC voltage to the actual value*/
   /* As this function is located in flash accessing this fucntion only after getting controls*/
   set_scdc(SL_SCDC_ACTIVE);
 
-  // Restore values from backup
-  TASS_P2P_INTR_MASK_CLR = ~p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp;
-  M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
   /*Update the REG Access SPI division factor to increase the SPI read/write speed*/
   if (lf_clk_mode == HF_MHZ_RO) {
     RSI_SetRegSpiDivision(0U);
@@ -640,15 +637,14 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   for (x = 0; x < 200; x++) {
     __ASM("NOP");
   }
+
+  /* powerup FPU domain*/
+  RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
+
   /*Start of M4 init after wake up  */
   fpuInit();
 
-  // Indicate M4 is active
-  P2P_STATUS_REG |= M4_is_active;
-
-  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
-
-/*Start of M4 init after wake up  */
+  /*Start of M4 init after wake up  */
 #ifdef DEBUG_UART
   /*Initialize UART after wake up*/
   DEBUGINIT();
@@ -659,6 +655,13 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   SCB->VTOR = (uint32_t)ram_vector;
 #endif
 
+  /*Restore NPSS INTERRUPTS*/
+  NPSS_INTR_MASK_CLR_REG = ~npssIntrState;
+
+  // Restore values from backup
+  TASS_P2P_INTR_MASK_CLR = ~p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp;
+  M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
+
   /*Restore the Interrupt Priority Register  */
   for (var = 0; var < MAX_IPS; ++var) {
     NVIC->IP[var] = nvic_ip_reg[var];
@@ -667,9 +670,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   for (var = 0; var < MAX_SHP; ++var) {
     SCB->SHP[var] = scs_shp_reg[var];
   }
-  /*Restore NPSS INTERRUPTS*/
-  NPSS_INTR_MASK_CLR_REG = ~npssIntrState;
-
   /*Restore the NVIC registers */
   for (var = 0; var < MAX_NVIC_REGS; ++var) {
     NVIC->ISER[var] = nvic_enable[var];

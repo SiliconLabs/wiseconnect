@@ -41,6 +41,9 @@
 #define SIMULATION_SILICON_REV  0x14
 #define SIMULATION_PACKAGE_TYPE 0x1
 
+/*Dynamic Reference Clock Mux select of TASS controlled by M4*/
+#define ULP_32MHz_RC_CLK 2
+
 /* Constants required to manipulate the NVIC. */
 /*----------------------------------------------------------------------------
   Clock Variable definitions
@@ -100,12 +103,11 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
 
   /* As TA is configuring RFref clock as reference clock, so to avoid switching b/w RC & RF clocks, TA clock is selected as RF ref clock from MCU*/
-  MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = 3;
-
+  MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = ULP_32MHz_RC_CLK;
   /* Configuring RO-32KHz Clock for BG_PMU */
   RSI_IPMU_ClockMuxSel(1);
-  /* Configuring RC-32KHz Clock for LF-FSM */
-  RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
+  /* Configuring XTAL 32KHz Clock for LF-FSM */
+  RSI_PS_FsmLfClkSel(KHZ_XTAL_CLK_SEL);
   /* Configuring RC-32MHz Clock for HF-FSM */
   RSI_PS_FsmHfClkSel(FSM_32MHZ_RC);
 

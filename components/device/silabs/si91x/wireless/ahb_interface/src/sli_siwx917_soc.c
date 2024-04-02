@@ -502,7 +502,6 @@ void unmask_ta_interrupt(uint32_t interrupt_no)
 {
   TASS_P2P_INTR_MASK_CLR = interrupt_no;
 }
-
 void sli_m4_ta_interrupt_init(void)
 {
 #ifdef SLI_SI917

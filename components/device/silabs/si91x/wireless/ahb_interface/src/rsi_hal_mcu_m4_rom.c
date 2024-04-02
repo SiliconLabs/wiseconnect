@@ -169,20 +169,19 @@ sl_status_t sli_m4_interrupt_isr(void)
  */
 sl_status_t sli_receive_from_ta_done_isr(void)
 {
+#ifdef SLI_SI91X_MCU_INTERFACE
+  // By Setting this flag, make sure that BUS_THREAD will get a chance to read the status of Events when multiple TX Packets are being queued.
+  rx_packet_pending_flag = 1;
+#endif
 #ifdef SL_WIFI_COMPONENT_INCLUDED
   extern sl_wifi_buffer_t *rx_pkt_buffer;
   // Add to rx packet to CCP queue
   sl_status_t status = sl_si91x_host_add_to_queue(CCP_M4_TA_RX_QUEUE, rx_pkt_buffer);
   VERIFY_STATUS_AND_RETURN(status);
-
   //! Set event RX pending event to host
   sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
 #endif
 
-#ifdef SLI_SI91X_MCU_INTERFACE
-  // By Setting this flag, make sure that BUS_THREAD will get a chance to read the status of Events when multiple TX Packets are being queued.
-  rx_packet_pending_flag = 1;
-#endif
   return SL_STATUS_OK;
 }
 
