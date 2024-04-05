@@ -1475,13 +1475,12 @@ typedef enum {
   SL_SI91X_READ_TA_REGISTER            = 3,
   SL_SI91X_WRITE_TA_REGISTER           = 4,
   // This enum varibale added for M4 has to give indication to TA, for Configure the Clock switching between 1.3V to 3.3 .For more details check Jira Ticket RSC-3802.
-  SL_SI91X_ENABLE_XTAL = 5,
-#ifdef SLI_SI917
+  SL_SI91X_ENABLE_XTAL           = 5,
   SL_SI91X_WRITE_TO_COMMON_FLASH = 6,
-#endif
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   SL_SI91X_ENABLE_SIDE_BAND = 7,
 #endif
+  SL_SI91X_READ_FROM_COMMON_FLASH = 8,
 } sl_si91x_ta_m4_commands_t;
 
 //  M4 and TA secure handshake request structure.
@@ -1494,8 +1493,8 @@ typedef struct {
   uint8_t input_data[];
 } sl_si91x_ta_m4_handshake_parameters_t;
 
-#ifdef SLI_SI917
-#define MAX_CHUNK_SIZE 1400
+#define MAX_CHUNK_SIZE    1400
+#define FLASH_SECTOR_SIZE 4096
 // TA2M4 handshake request structure.
 typedef struct {
   // sub_cmd
@@ -1513,7 +1512,18 @@ typedef struct {
   //data
   uint8_t input_data[MAX_CHUNK_SIZE];
 } SL_ATTRIBUTE_PACKED sl_si91x_request_ta2m4_t;
-#endif // SLI_SI917
+
+typedef struct {
+  // sub_cmd
+  uint8_t sub_cmd;
+
+  // nwp flash location
+  uint32_t nwp_address;
+
+  // total length of output data
+  uint16_t output_buffer_length;
+
+} SL_ATTRIBUTE_PACKED sl_si91x_read_flash_request_t;
 
 #endif // SLI_SI91X_MCU_INTERFACE
 

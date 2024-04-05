@@ -667,22 +667,36 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
 /** @} */
 
 /***************************************************************************/ /**
- * @brief      Write content on TA flash from M4. This is a blocking API.
- * @param[in]  write_address                 - address at which data will be written on TA flash memory from M4 image end address to M4 region end address
- * @param[in]  write_data                    - Input data
- * @param[in]  write_data_length             - total length, should be multiples of 4K in case of sector erase
- * @param[in]  flash_sector_erase_enable     - Enable or Disable sector erase 
- -
- *                                             1 - Erases multiples of 4 KB of data from M4 Image end address to M4 region end address. 
- -
- *                                             0 - Disable, allows to write data onto flash 
- -
- * @return       sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @brief      This function allows the Network Processor (NWP) to write content to the common flash from M4. It's a blocking API.
+ * @param[in]  write_address                 - The address in the common flash memory where the write operation should begin.
+ *                                             For the M4 region, the write address should start from 0x8000000. Possible values range from the M4 image end address to the M4 region end address.
+ *                                             For the NWP region, the write address should range from 0 to (20K-1).
+ * @param[in]  write_data                    - The data to be written. For sector erase it should be multiples of 4K.
+ * @param[in]  write_data_length             - The total length of the data, which should be multiples of 4K for sector erase.
+ * @param[in]  flash_sector_erase_enable     - Enable or disable sector erase.
+ *                                             1 - Erases multiples of 4 KB of data.
+ *                                             0 - Disable, allows to write data onto flash.
+ * 
+ * @return       sl_status_t. Refer to https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_command_to_write_common_flash(uint32_t write_address,
                                                    uint8_t *write_data,
                                                    uint16_t write_data_length,
                                                    uint8_t flash_sector_erase_enable);
+
+/***************************************************************************/ /**
+ * @brief      Sends a command to read data from the NWP flash memory of the SI91x wireless device. This is a blocking .
+ * 
+ * This function s a command to the SI91x wireless device to read data from the NWP flash memory
+ * at the specified address. The read data is stored in the providre output_data buffer.
+ * 
+ * @param[in]   read_address                  - The address in the NWP flash memory to read from. The address should range from 0 to (20K-1).
+ * @param[in]   length                        - The number of bytes to read from the NWP flash memory.
+ * @param[out]  output_buffer                 - Pointer to the buffer where the  data will be.
+ * 
+ * @return       sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_command_to_read_common_flash(uint32_t read_address, size_t length, uint8_t *output_buffer);
 
 /***************************************************************************/ /**
  * @brief
