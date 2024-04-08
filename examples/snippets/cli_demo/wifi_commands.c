@@ -1080,12 +1080,12 @@ sl_status_t wifi_get_ap_client_info_command_handler(console_args_t *argument)
     sl_wifi_client_info_t *station_info = &client_info.client_info[station_info_index];
     printf("%d) MAC Address is %x:%x:%x:%x:%x:%x",
            station_info_index + 1,
-           station_info->mac_adddress.octet[0],
-           station_info->mac_adddress.octet[1],
-           station_info->mac_adddress.octet[2],
-           station_info->mac_adddress.octet[3],
-           station_info->mac_adddress.octet[4],
-           station_info->mac_adddress.octet[5]);
+           station_info->mac_address.octet[0],
+           station_info->mac_address.octet[1],
+           station_info->mac_address.octet[2],
+           station_info->mac_address.octet[3],
+           station_info->mac_address.octet[4],
+           station_info->mac_address.octet[5]);
 
     print_sl_ip_address(&station_info->ip_address);
   }

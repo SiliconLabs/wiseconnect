@@ -1557,7 +1557,7 @@ sl_status_t sl_wifi_get_ap_client_list(sl_wifi_interface_t interface,
          station_info_index < client_info.client_count && station_info_index < client_list_count;
          station_info_index++) {
       memcpy(client_list[station_info_index].octet,
-             client_info.client_info[station_info_index].mac_adddress.octet,
+             client_info.client_info[station_info_index].mac_address.octet,
              sizeof(sl_mac_address_t));
     }
   }
