@@ -28,9 +28,28 @@ psa_status_t sli_si91x_psa_generate_key_ecdh(const psa_key_attributes_t *attribu
 
 #if defined(SLI_PSA_DRIVER_FEATURE_ECDH) || defined(SLI_PSA_DRIVER_FEATURE_ECDSA)
 
-  size_t key_bits     = psa_get_key_bits(attributes);
-  psa_status_t status = PSA_ERROR_GENERIC_ERROR;
-  *key_buffer_length  = 0;
+  // Argument check.
+  if (attributes == NULL || key_buffer == NULL || key_buffer_size == 0 || key_buffer_length == NULL) {
+    return PSA_ERROR_INVALID_ARGUMENT;
+  }
+
+  psa_key_type_t key_type     = psa_get_key_type(attributes);
+  psa_ecc_family_t curve_type = PSA_KEY_TYPE_ECC_GET_FAMILY(key_type);
+  size_t key_bits             = psa_get_key_bits(attributes);
+  psa_status_t status         = PSA_ERROR_GENERIC_ERROR;
+  *key_buffer_length          = 0;
+
+  // Check key type. PSA Crypto defines generate_key to be an invalid call with a key type
+  // of public key.
+  if (!PSA_KEY_TYPE_IS_ECC_KEY_PAIR(key_type)) {
+    return PSA_ERROR_NOT_SUPPORTED;
+  }
+
+  // We currently only support R1
+  if (curve_type != PSA_ECC_FAMILY_SECP_R1) {
+    return PSA_ERROR_NOT_SUPPORTED;
+  }
+
   switch (key_bits) {
 
 #if defined(SLI_PSA_DRIVER_FEATURE_P192R1)
@@ -82,14 +101,44 @@ psa_status_t sli_si91x_psa_export_public_key_ecdh(const psa_key_attributes_t *at
 
 #if defined(SLI_PSA_DRIVER_FEATURE_ECDH) || defined(SLI_PSA_DRIVER_FEATURE_ECDSA)
 
-  size_t key_bits     = psa_get_key_bits(attributes);
-  psa_status_t status = PSA_ERROR_GENERIC_ERROR;
+  // Argument check.
+  if (attributes == NULL || key_buffer == NULL || key_buffer_size == 0 || data == NULL || data_size == 0
+      || data_length == NULL) {
+    return PSA_ERROR_INVALID_ARGUMENT;
+  }
+
+  size_t key_bits             = psa_get_key_bits(attributes);
+  psa_status_t status         = PSA_ERROR_GENERIC_ERROR;
+  psa_key_type_t key_type     = psa_get_key_type(attributes);
+  psa_ecc_family_t curve_type = PSA_KEY_TYPE_ECC_GET_FAMILY(key_type);
+
+  // If the key is stored transparently and is already a public key,
+  // let the core handle it.
+  if (PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY(key_type)) {
+    return PSA_ERROR_NOT_SUPPORTED;
+  }
+
+  if (!PSA_KEY_TYPE_IS_ECC(key_type)) {
+    return PSA_ERROR_NOT_SUPPORTED;
+  }
+
+  // We currently only support R1
+  if (curve_type != PSA_ECC_FAMILY_SECP_R1) {
+    return PSA_ERROR_NOT_SUPPORTED;
+  }
+
+  if (key_buffer_size < PSA_BITS_TO_BYTES(key_bits)) {
+    return PSA_ERROR_INVALID_ARGUMENT;
+  }
+
+  // Check sufficient output buffer size.
+  if (data_size < PSA_BITS_TO_BYTES(key_bits) * 2 + 1) {
+    return PSA_ERROR_BUFFER_TOO_SMALL;
+  }
 
   switch (key_bits) {
 #if defined(SLI_PSA_DRIVER_FEATURE_P192R1)
     case ECC_P192_BITS_LEN:
-      if (key_buffer_size > ECC_P192_LEN)
-        return PSA_ERROR_INVALID_ARGUMENT;
 
       uint8_t ecc_p192_gx[ECC_P192_LEN] = { 0x18, 0x8D, 0xA8, 0x0E, 0xB0, 0x30, 0x90, 0xF6, 0x7C, 0xBF, 0x20, 0xEB,
                                             0x43, 0xA1, 0x88, 0x00, 0xF4, 0xFF, 0x0A, 0xFD, 0x82, 0xFF, 0x10, 0x12 };
@@ -122,10 +171,7 @@ psa_status_t sli_si91x_psa_export_public_key_ecdh(const psa_key_attributes_t *at
         return status;
       }
 
-      if (data_size < PSA_BITS_TO_BYTES(key_bits) * 2 + 1)
-        return PSA_ERROR_BUFFER_TOO_SMALL;
-
-      *data_length = data_size;
+      *data_length = PSA_BITS_TO_BYTES(key_bits) * 2 + 1;
       data[0]      = 0x04;
       memcpy(data + 1, ecc_p192_rx, ECC_P192_LEN);
       memcpy(data + 1 + ECC_P192_LEN, ecc_p192_ry, ECC_P192_LEN);
@@ -135,9 +181,6 @@ psa_status_t sli_si91x_psa_export_public_key_ecdh(const psa_key_attributes_t *at
 
 #if defined(SLI_PSA_DRIVER_FEATURE_P256R1)
     case ECC_P256_BITS_LEN:
-
-      if (key_buffer_size > ECC_P256_LEN)
-        return PSA_ERROR_INVALID_ARGUMENT;
 
       uint8_t ecc_p256_gx[ECC_P256_LEN] = { 0x6B, 0x17, 0xD1, 0xF2, 0xE1, 0x2C, 0x42, 0x47, 0xF8, 0xBC, 0xE6,
                                             0xE5, 0x63, 0xA4, 0x40, 0xF2, 0x77, 0x03, 0x7D, 0x81, 0x2D, 0xEB,
@@ -172,7 +215,7 @@ psa_status_t sli_si91x_psa_export_public_key_ecdh(const psa_key_attributes_t *at
         return status;
       }
 
-      *data_length = data_size;
+      *data_length = PSA_BITS_TO_BYTES(key_bits) * 2 + 1;
       data[0]      = 0x04;
 
       memcpy(data + 1, ecc_p256_rx, ECC_P256_LEN);
@@ -211,6 +254,12 @@ psa_status_t sli_si91x_psa_ecdh_key_agreement(psa_algorithm_t alg,
 {
 
 #if defined(SLI_PSA_DRIVER_FEATURE_ECDH)
+
+  // Argument check.
+  if (attributes == NULL || private_key == NULL || peer_key == NULL || shared_secret == NULL
+      || shared_secret_length == NULL) {
+    return PSA_ERROR_INVALID_ARGUMENT;
+  }
 
   (void)alg;
   (void)peer_key_length;

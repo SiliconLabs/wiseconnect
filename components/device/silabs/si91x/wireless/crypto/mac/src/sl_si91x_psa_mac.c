@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
- * @file  sl_si91x_psa_hmac.c
- * @brief SL SI91X PSA HMAC source file
+ * @file  sl_si91x_psa_mac.c
+ * @brief SL SI91X PSA MAC source file
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -32,7 +32,16 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "sli_si91x_crypto_driver_functions.h"
+
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
 #include "sl_si91x_hmac.h"
+#endif
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
+#include "sl_si91x_gcm.h"
+#endif
+#if defined(SLI_SECURE_KEY_STORAGE_DEVICE_SI91X)
+#include "sl_si91x_psa_wrap.h"
+#endif
 #include "sl_si91x_crypto.h"
 #include "sl_status.h"
 #include "sl_constants.h"
@@ -40,7 +49,7 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 
-#if defined(PSA_WANT_ALG_HMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
 static psa_status_t sli_si91x_set_hash_type(const psa_key_attributes_t *attributes,
                                             psa_algorithm_t alg,
                                             uint8_t *hmac_sha_mode,
@@ -76,7 +85,7 @@ static psa_status_t sli_si91x_set_hash_type(const psa_key_attributes_t *attribut
 
   return PSA_SUCCESS;
 }
-#endif // PSA_WANT_ALG_HMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC
 
 /*****************************************************************************
 * Compute mac using HMAC/CMAC.
@@ -100,9 +109,8 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
 
   psa_status_t status;
   int32_t si91x_status;
-  sl_si91x_hmac_config_t config = { 0 };
 
-#if defined(PSA_WANT_ALG_HMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
   if (PSA_ALG_IS_HMAC(alg)) {
     size_t digest_length;
     uint8_t hmac_sha_mode;
@@ -118,10 +126,10 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
     if (mac_size < digest_length) {
       return PSA_ERROR_BUFFER_TOO_SMALL;
     }
-
-    config.msg_length = input_length;
-    config.msg        = input;
-    config.hmac_mode  = hmac_sha_mode;
+    sl_si91x_hmac_config_t config = { 0 };
+    config.msg_length             = input_length;
+    config.msg                    = input;
+    config.hmac_mode              = hmac_sha_mode;
 #ifdef SLI_SI917B0
     /* Fetch key type from attributes */
     psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
@@ -140,7 +148,7 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
     config.key_config.A0.key        = (uint8_t *)malloc(key_buffer_size);
     config.key_config.A0.key_length = key_buffer_size;
     memcpy(config.key_config.A0.key, key_buffer, key_buffer_size);
-#endif
+#endif // SLI_SI917B0
 
     si91x_status = sl_si91x_hmac(&config, mac);
 
@@ -161,9 +169,72 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
     *mac_length = digest_length;
     return PSA_SUCCESS;
   }
-#endif // PSA_WANT_ALG_HMAC
 
-#else // PSA_WANT_ALG_CMAC
+#endif                                   // SLI_PSA_DRIVER_FEATURE_HMAC
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC) // SLI_PSA_DRIVER_FEATURE_CMAC
+#ifdef SLI_SI917B0
+  if (PSA_ALG_FULL_LENGTH_MAC(alg) == PSA_ALG_CMAC) {
+    size_t digest_length = PSA_MAC_TRUNCATED_LENGTH(alg);
+    if (digest_length == 0) {
+      digest_length = PSA_BLOCK_CIPHER_BLOCK_LENGTH(PSA_KEY_TYPE_AES);
+    }
+
+    if (mac_size < digest_length) {
+      return PSA_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    sl_si91x_gcm_config_t config_cmac = { 0 };
+    config_cmac.gcm_mode              = SL_SI91X_CMAC_MODE;
+    config_cmac.dma_use               = SL_SI91X_DMA_ENABLE;
+    config_cmac.msg                   = input;
+    config_cmac.msg_length            = input_length;
+    config_cmac.nonce                 = NULL;
+    config_cmac.nonce_length          = 0;
+    config_cmac.ad                    = NULL;
+    config_cmac.ad_length             = 0;
+    switch (key_buffer_size) {
+      case SL_SI91X_GCM_KEY_SIZE_128:
+        config_cmac.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_128;
+        break;
+      case SL_SI91X_GCM_KEY_SIZE_192:
+        config_cmac.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_192;
+        break;
+      case SL_SI91X_GCM_KEY_SIZE_256:
+        config_cmac.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_256;
+        break;
+      default:
+        return PSA_ERROR_INVALID_ARGUMENT;
+        break;
+    }
+    config_cmac.key_config.b0.key_slot = 0;
+    /* Fetch key type from attributes */
+    psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+    if (location == 0) {
+      config_cmac.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+    } else {
+      config_cmac.key_config.b0.key_type     = SL_SI91X_WRAPPED_KEY;
+      config_cmac.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+      if (config_cmac.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+        memcpy(config_cmac.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+      }
+    }
+    memcpy(config_cmac.key_config.b0.key_buffer, key_buffer, config_cmac.key_config.b0.key_size);
+    si91x_status = sl_si91x_gcm(&config_cmac, mac);
+    status       = convert_si91x_error_code_to_psa_status(si91x_status);
+    if (status != PSA_SUCCESS) {
+      *mac_length = 0;
+      return status;
+    }
+
+    // Report generated cmac length
+    *mac_length = digest_length;
+    return PSA_SUCCESS;
+  }
+#else
+  status = PSA_ERROR_NOT_SUPPORTED;
+#endif // SLI_SI917B0
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 
   (void)attributes;
   (void)key_buffer;
@@ -176,8 +247,4 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
   (void)mac_length;
 
   return PSA_ERROR_NOT_SUPPORTED;
-
-#endif // PSA_WANT_ALG_HMAC || PSA_WANT_ALG_CMAC
-
-  return PSA_ERROR_INVALID_ARGUMENT;
 }

@@ -4,20 +4,20 @@
 
 |**Item**|**Details**|
 | :- | :- |
-|Release date|Apr 5th, 2024|
+|Release date|Apr 10th, 2024|
 |SDK Version|3\.1.3|
 |Firmware Version|1711\.2.10.1.2.6.8|
-|Release Package Name|WiSeConnect3\_SDK\_3.1.3/matter-hotfix.4.test|
+|Release Package Name|WiSeConnect3\_SDK\_3.1.3/matter-hotfix.4|
 |Supported RTOS|FreeRTOS|
 |Operating Modes Supported|Wi-Fi STA, Wi-Fi AP, Wi-Fi STA+BLE, Wi-Fi STA+AP|
 Build Quality|GA|
 
 - SiWx917 release consists of two components:
-  - Wireless Firmware - SiWx917 Firmware Binary available as SiWG917-B.2.10.1.2.6.6.rps
+  - Wireless Firmware - SiWx917 Firmware Binary available as SiWG917-B.2.10.1.2.6.8.rps
   - Wiseconnect3 Library - Wiseconnect3 SDK library runs on internal Cortex M4
 
 **NOTE:** Mandatory to upgrade the earlier version of boards (Si917-6031A Prokit or BRD4338A boards) or 917 Silicon ICs with instructions as outlined in this document "SiWG917–TA\_Flash\_Memory\_Map\_ChangeGuide\_v1.3.pdf" for more details.  
-**Disclaimer:** This release is intended only for Allegion
+
 
 ## **Supported Hardware**
 
@@ -157,7 +157,7 @@ Build Quality|GA|
 - 3 wire coex acting as Wi-Fi with external Bluetooth
 - 3 wire coex acting as Wi-Fi with external Zigbee/OT
 
-## **Changes in this release compared to v3.1.3-matter-hotfix.4.test Release**
+## **Changes in this release compared to v3.1.3-matter-hotfix.4 Release**
 
 ### **System**
 
@@ -169,11 +169,9 @@ Build Quality|GA|
 ### **MCU**
 
 - **Enhancements**
-  - None
+  - Added ECDSA feature with wrapped key support
 - **Fixed Issues**
-  - Provided resolution for TA sub-system hangon wakeup
-  - Provided resolution for hardfaults while M4 waking-up from sleep
-  - Provided resolution for deadlock issue in M4
+  - None
 
 ### **SDK**
 

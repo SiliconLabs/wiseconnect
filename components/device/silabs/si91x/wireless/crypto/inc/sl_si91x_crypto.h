@@ -41,6 +41,8 @@
 #define SL_SI91X_IV_SIZE              16   ///< Length of the initialization vector in bytes
 #define SL_SI91X_KEY_BUFFER_SIZE      32   ///< Key size in bytes
 #define SL_SI91X_WRAP_KEY_BUFFER_SIZE 1400 ///< Wrap Key size in bytes
+#define SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_ECDSA \
+  1000 ///< Maximum length of the ECDSA message in bytes that can be handled in one go
 
 /// Flags to determine the chunk being handled in the API
 #define FIRST_CHUNK  BIT(0)
@@ -84,5 +86,6 @@ typedef enum {
   GCM        = 18, ///< GCM
   WRAP       = 20, ///< WRAP
   TRNG       = 21, ///< TRNG
-  CCM        = 31  ///< CCM
+  CCM        = 31, ///< CCM
+  ECDSA      = 32  ///< ECDSA
 } sl_si91x_crypto_algorithm_type_t;

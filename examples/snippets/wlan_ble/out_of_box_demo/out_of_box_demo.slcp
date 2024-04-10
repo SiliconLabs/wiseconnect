@@ -10,7 +10,7 @@ filter:
     value: ["WiFi BLE"]
   - name: "Project Difficulty"
     value: ["Intermediate"]
-sdk: {id: gecko_sdk, version: 4.4.1}
+sdk: {id: gecko_sdk, version: 4.4.2}
 sdk_extension: 
 - {id: wiseconnect3_sdk, version: 3.1.3}
 source:

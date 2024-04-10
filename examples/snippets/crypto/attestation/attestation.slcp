@@ -6,7 +6,7 @@ description: |
 category: example|crypto
 package: platform
 quality: production
-sdk: {id: gecko_sdk, version: 4.4.1}
+sdk: {id: gecko_sdk, version: 4.4.2}
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.1.3

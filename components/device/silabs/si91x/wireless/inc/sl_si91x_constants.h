@@ -175,6 +175,12 @@
 #define SL_SI91X_CHACHAPOLY_IV_SIZE      12
 #define SL_SI91X_CHACHAPOLY_MSG_MAX_SIZE 1200
 
+//ECDSA defines
+#define SL_SI91X_PRIVATE_KEY_MAX_SIZE 64
+#define SL_SI91X_PUBLIC_KEY_MAX_SIZE  136
+#define SL_SI91X_SIGNATURE_MAX_SIZE   128
+#define SL_SI91X_ECDSA_MSG_MAX_SIZE   1000
+
 //***************************** Macros for Crypto End **********************************/
 
 typedef struct {

@@ -28,6 +28,7 @@ osSemaphoreId_t crypto_gcm_mutex         = 0;
 osSemaphoreId_t crypto_chachapoly_mutex  = 0;
 osSemaphoreId_t crypto_attestation_mutex = 0;
 osSemaphoreId_t crypto_ecdh_mutex        = 0;
+osSemaphoreId_t crypto_ecdsa_mutex       = 0;
 osSemaphoreId_t crypto_hmac_mutex        = 0;
 osSemaphoreId_t crypto_trng_mutex        = 0;
 osStatus_t mutex_result                  = osOK;

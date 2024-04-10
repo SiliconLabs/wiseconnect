@@ -25,7 +25,7 @@ include:
       - path: psa_chachapoly_app.h
 sdk:
   id: gecko_sdk
-  version: 4.4.1
+  version: 4.4.2
 sdk_extension:
   - id: wiseconnect3_sdk
     version: 3.1.3

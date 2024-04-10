@@ -15,7 +15,7 @@ source:
   - path: si70xx_example.h
 sdk:
   id: gecko_sdk
-  version: 4.4.1
+  version: 4.4.2
 toolchain_settings: []
 component:
   - id: sl_system

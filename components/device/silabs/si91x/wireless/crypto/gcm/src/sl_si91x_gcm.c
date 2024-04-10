@@ -118,8 +118,12 @@ static sl_status_t gcm_pending(sl_si91x_gcm_config_t *config, uint16_t chunk_len
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
   SL_ASSERT(packet->length == config->msg_length + SL_SI91X_TAG_SIZE);
-  memcpy(output, packet->data, packet->length);
 
+  if (config->gcm_mode == SL_SI91X_GCM_MODE) {
+    memcpy(output, packet->data, packet->length);
+  } else { // CMAC mode
+    memcpy(output, packet->data, SL_SI91X_TAG_SIZE);
+  }
   free(request);
   if (buffer != NULL)
     sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);

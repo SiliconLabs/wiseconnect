@@ -1,4 +1,4 @@
-# PSA symmetric Key storage for SI91X
+# PSA Symmetric Key Storage for SI91X
 
 ## Table of Contents
 
@@ -13,9 +13,7 @@
 
 ## Purpose/Scope
 
-- This application contains an example code to demonstrate the PSA asymmetric key storage functionality.
-- This application uses mbedtls fallback for key generation using ecc curve.
-- Only TRNG generation is done using hardware accelerator.
+- This application contains an example code to demonstrate PSA ITS write, read and erase functions for PERSISTENT PLAINTEXT and VOLATILE PLAINTEXT.
 
 ## Prerequisites/Setup Requirements
 
@@ -45,21 +43,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Application Build Environment
 
-### Application Configuration Parameters
-
 - The user can run the application to verify import, generate and export of Volatile and Persistent plain keys.
 
- * PERSISTENT_KEY_ID in psa_asymmetric_key_storage_app.c file denotes key uid which will be stored in NVM3.
- * KEY_SIZE_BITS macro in psa_asymmetric_key_storage_app.c file is size of plain private key in bits.
- * KEY_MAX_SIZE is the max size of the key buffer used to store the generated public key. 
- * Private_key in psa_asymmetric_key_storage_app.c file is the private key to be imported.
- * The public key generated will replace the private key in key_attributes.
- * Public_key in psa_asymmetric_key_storage_app.c is the public key generated and exported.
- * Default algo for asymmetric key generation is ECDH.
- * Default ecc curve is SEP256R1 - can choose between SECPxxxR1 and MONTGOMERY
- * Default key size is 256 bits - can choose among 192, 256, 384 or 521 bits for SECPxxxR1 and 255 or 448 bits for MONTGOMERY
- * To change the ecc curve and key size, change the corresponding macro in psa_asymmetric_key_storage_app.c - psa_set_key_type() and change the KEY_MAX_SIZE to the corresponding length of public key generated. 
+### Application Configuration Parameters
 
+The following key storages are supported in this example:
+* Volatile plain key in RAM
+* Persistent plain key in [NVM3](https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3)
 
 ## Test the Application
 

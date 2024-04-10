@@ -2077,6 +2077,28 @@ typedef struct {
 
 typedef struct {
   uint8_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint8_t ecdsa_flags;
+  uint8_t curve_id;
+  uint8_t sha_mode;
+  uint8_t private_key_length;
+  uint8_t public_key_length;
+  uint8_t signature_length;
+  uint16_t current_chunk_length;
+  uint16_t msg_len;
+#ifdef SLI_SI917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+#endif
+  uint8_t private_key[SL_SI91X_PRIVATE_KEY_MAX_SIZE];
+  uint8_t public_key[SL_SI91X_PUBLIC_KEY_MAX_SIZE];
+  uint8_t signature[SL_SI91X_SIGNATURE_MAX_SIZE];
+  uint8_t msg[SL_SI91X_ECDSA_MSG_MAX_SIZE];
+} sl_si91x_ecdsa_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
   uint8_t ecdh_mode;
   uint8_t ecdh_sub_mode;
   uint8_t sx[ECDH_BUFFER_SIZE];
