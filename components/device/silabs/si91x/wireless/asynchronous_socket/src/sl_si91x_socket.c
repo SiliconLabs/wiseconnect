@@ -270,7 +270,7 @@ static int sli_si91x_accept_async(int socket, const struct sockaddr *addr, sockl
     }
 
     *client_socket          = client_socket_id;
-    context->user_context   = callback;
+    context->user_context   = &callback;
     context->socket_context = client_socket;
   }
 
