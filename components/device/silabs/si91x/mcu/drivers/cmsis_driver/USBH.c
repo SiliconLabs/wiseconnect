@@ -42,7 +42,7 @@
 #include "rsi_chip.h"
 #include "USB.h"
 #include "RTE_Device.h"
-#include "RTE_Components.h"
+
 
 extern uint8_t USB_role;
 extern uint8_t USB_state;

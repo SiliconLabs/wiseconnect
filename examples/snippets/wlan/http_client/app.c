@@ -81,6 +81,9 @@
 //! Set HTTP Server IP Address
 #define HTTP_SERVER_IP "192.168.0.100"
 
+//! Set HTTP hostname
+#define HTTP_HOSTNAME "192.168.0.100"
+
 //! Server port number
 #if HTTPS_ENABLE
 //! Set default HTTPS port
@@ -283,6 +286,7 @@ sl_status_t http_client_application(void)
 
   //! Fill HTTP client_request configurations
   client_request.ip_address      = (uint8_t *)HTTP_SERVER_IP;
+  client_request.host_name       = (uint8_t *)HTTP_HOSTNAME;
   client_request.port            = HTTP_PORT;
   client_request.resource        = (uint8_t *)HTTP_URL;
   client_request.extended_header = NULL;
@@ -290,16 +294,6 @@ sl_status_t http_client_application(void)
   status = sl_http_client_init(&client_configuration, &client_handle);
   VERIFY_STATUS_AND_RETURN(status);
   printf("\r\nHTTP Client init success\r\n");
-
-  //! Configure HTTP PUT request
-  client_request.http_method_type = SL_HTTP_PUT;
-  client_request.body             = NULL;
-  client_request.body_length      = total_put_data_len;
-
-  //! Initialize callback method for HTTP PUT request
-  status = sl_http_client_request_init(&client_request, http_put_response_callback_handler, "This is HTTP client");
-  CLEAN_HTTP_CLIENT_IF_FAILED(status, &client_handle, HTTP_SYNC_RESPONSE);
-  printf("\r\nHTTP PUT request init success\r\n");
 
 #if EXTENDED_HEADER_ENABLE
   //! Add extended headers
@@ -315,6 +309,16 @@ sl_status_t http_client_application(void)
   status = sl_http_client_add_header(&client_request, KEY4, VAL4);
   CLEAN_HTTP_CLIENT_IF_FAILED(status, &client_handle, HTTP_SYNC_RESPONSE);
 #endif
+
+  //! Configure HTTP PUT request
+  client_request.http_method_type = SL_HTTP_PUT;
+  client_request.body             = NULL;
+  client_request.body_length      = total_put_data_len;
+
+  //! Initialize callback method for HTTP PUT request
+  status = sl_http_client_request_init(&client_request, http_put_response_callback_handler, "This is HTTP client");
+  CLEAN_HTTP_CLIENT_IF_FAILED(status, &client_handle, HTTP_SYNC_RESPONSE);
+  printf("\r\nHTTP PUT request init success\r\n");
 
   //! Send HTTP PUT request
   status = sl_http_client_send_request(&client_handle, &client_request);

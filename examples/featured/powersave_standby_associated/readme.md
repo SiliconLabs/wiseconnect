@@ -47,19 +47,16 @@ The application connects to a remote server to send UDP data and also enables th
     - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
-  - Current consumption measurement pins for using power-meter (NCP mode):
-
-    ![Figure: Setup Diagram for NCP mode Power Save Standby Example](resources/readme/power_save_current_measurement_pins.png)
-
-    Negative probe of power meter is used for pin-1 and positive probe is used for pin-2
+  - STM32F411RE MCU
+    - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
+    - NCP Radio Board (BRD4346A + BRD8045C)
 
 ### Software Requirements
 
 - Simplicity Studio IDE (to be used with Silicon Labs MCU)
 - Keil IDE (to be used with STM32F411RE MCU)
-- Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
+- Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en)
 - [iPerf Application](https://iperf.fr/iperf-download.php)
-- [Python Environment](https://www.python.org/downloads/)
 
 ### Setup Diagram
 
@@ -74,29 +71,39 @@ The application connects to a remote server to send UDP data and also enables th
   - Connect your device to the computer
   - Upgrade your connectivity firmware
   - Create a Studio project
+  
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ### Instructions for Keil IDE and STM32F411RE MCU
 
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
-  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
+  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
    - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
    - After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    - Connect the setup to the computer.
-  - Open the AWS DEVICE SHADOW µVision project - **powersave_standby_associated.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → powersave_standby_associated → keil_project**. 
+  - Open the Powersave standby associated µVision project - **powersave_standby_associated.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → powersave_standby_associated → keil_project**. 
 
 ## Application Build Environment
 
-The application can be configured to suit your requirements and development environment.
+The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-- In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
+### Configure sl_net_default_values.h
 
-- STA instance related parameters:
+**File path for Simplicity Studio IDE:**
+- In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. 
 
-    - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+**File path for Keil IDE:**
+- In the Project pane, expand the **resources/defaults** folder and open the **sl_net_default_values.h** file. 
+
+Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
 
     ```c
     #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      

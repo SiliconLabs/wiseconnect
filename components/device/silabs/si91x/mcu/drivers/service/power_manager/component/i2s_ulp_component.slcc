@@ -31,4 +31,3 @@ template_contribution:
     value: rsi_udma.o
   - name: i2s_ps2
     value: rsi_udma_wrapper.o
-

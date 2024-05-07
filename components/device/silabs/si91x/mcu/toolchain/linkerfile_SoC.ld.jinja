@@ -61,7 +61,7 @@
 	{%- set app_flash_end = flash_addr + flash_size %}
 {%- endif %}
 {%- set app_ram_start = sram_addr %}
-{%- set app_ram_end = sram_addr + sram_size %}
+{%- set app_ram_end = sram_size %}
 
 {%- if psram_present %}	
 	{%- set app_psram_start = psram_addr %}
@@ -84,7 +84,7 @@
 {%- if udma_enable %}
   {%- set udma_buffer = udma_buffer | sum %}
   {%- set app_ram_size = app_ram_size - udma_buffer %}
-  {%- set udma0_start_addr = app_ram_size %}
+  {%- set udma0_start_addr = app_ram_size + app_ram_start %}
   {%- set udma1_start_addr = udma1_start_addr -  udma_buffer%}
 {%- endif %}
 

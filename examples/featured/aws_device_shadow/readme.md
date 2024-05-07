@@ -23,27 +23,17 @@ This application demonstrates how to securely connect a Silicon Labs Si91x Wi-Fi
 To successfully use this application, developer should be familiar with the operation of [AWS IoT Core](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) and the [AWS IoT Device Shadow Service](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html). If you are new to AWS IoT Core, we recommend running through the [AWS IoT Core Tutorial](https://docs.aws.amazon.com/iot/latest/developerguide/iot-tutorials.html) before proceeding.
 In the following text, 'AWS IoT Core' is referred to as 'AWS' for brevity.
 
-AWS refer 'Device Shadow' as a persistent, virtual representation of a device that can be accessed even if the physical device is offline. The device state is captured in its 'shadow' and is represented as a JSON document. The physical device can send commands using the MQTT protocol to get, update and delete the state of the shadow as well as receive notifications via MQTT about changes in the state of the shadow.
+AWS refer 'Device Shadow' as a persistent, virtual representation of a device that can be accessed even if the physical device is offline. The device state is captured in its 'shadow' and is represented in a JSON format. The physical device can send commands using the MQTT protocol to get, update and delete the state of the shadow as well as receive notifications via MQTT about changes in the state of the shadow.
 
 The AWS IoT Device Shadow application publishes temperature and window open/close status on the topic `$aws/things/thingname/shadow/update`.
 The room temperature and the window open/close status is available on the AWS cloud.
 
 Additionally, the application subscribes to the shadow update topics:
-
 ```sh
-  $aws/things/thingName/shadow/name/shadowName/update/accepted
-  $aws/things/thingName/shadow/name/shadowName/update/rejected
-  $aws/things/thingName/shadow/name/shadowName/update/delta
+$aws/things/thingName/shadow/name/shadowName/update/accepted
+$aws/things/thingName/shadow/name/shadowName/update/rejected
+$aws/things/thingName/shadow/name/shadowName/update/delta
 ```
-
-## Overview of AWS SDK
-
-AWS IoT Core is a cloud platform which connects devices across AWS cloud services. AWS IoT provides a interface which allows the devices to communicate securely and reliably in bi-directional ways to the AWS touch-points, even when the devices are offline.
-
-The AWS IoT Device SDK allow applications to securely connect to the AWS IoT platform.
-
-![Figure: Setup Diagram for Device Shadow Example](resources/readme/image431a.png)
-
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
@@ -56,6 +46,9 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
   - Silicon Labs [BRD4180B](https://www.silabs.com/)
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+- STM32F411RE MCU
+    - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
+    - NCP Radio Board (BRD4346A + BRD8045C)
 
 ### Software Requirements
 
@@ -78,10 +71,11 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
   - Create a Studio project
 
 ### Instructions for Keil IDE and STM32F411RE MCU
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32) to:
 
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
-  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
+  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
    - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
@@ -92,11 +86,17 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
 
 ## Application Build Environment
 
-The application can be configured to suit your requirements and development environment.
+The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-- In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+### Configure sl_net_default_values.h
 
-- **STA instance related parameters**
+**File path for Simplicity Studio IDE:**
+- In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. 
+
+**File path for Keil IDE:**
+- In the Project pane, expand the **resources/defaults** folder and open the **sl_net_default_values.h** file. 
+
+### STA instance related parameters
 
   - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
 
@@ -160,15 +160,10 @@ After successful execution, the device updates are written to the AWS cloud and 
 
 ## Additional Information
 
-- AWS_IOT_MQTT_HOST parameter can be found as follows:
-
-  ![AWS_IOT_MQTT_HOST_PAGE_1](resources/readme/aws_iot_mqtt_host_url_1.png)
-
-  ![AWS_IOT_MQTT_HOST_PAGE_2](resources/readme/aws_iot_mqtt_host_url_2.png)
-
 ### Setting up Security Certificates
 
-- The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/).
+- The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script, [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/)
+is provided in the SDK at `<SDK>/resources/scripts` directory.
 
 - Copy the downloaded device certificate, private key from AWS and also the certificate_to_array.py to the `<SDK>/resources/certificates`.
 
@@ -245,14 +240,14 @@ Create a thing in the AWS IoT registry to represent your IoT device.
 
   ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
-- To attach an existing policy choose the policy and click on create thing, if policy is not yet created Choose Create policy and fill the fields as mentioned in the following images.
+- Attach the policy to the thing created
 
-- choosing an existing policy.
+  - If you have any existing policy, attach it and click on create thing
 
   ![Attach policy](resources/readme/aws_choosing_policy.png)
 
-- creating a policy. 
-  - Click on create policy. 
+- If policy is not yet created, follow the below steps.  
+  - Choose **Create policy** and fill the fields as per your requrements.
   ![Create policy](resources/readme/aws_create_thing_attach_policy.png)
 
   - Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**.

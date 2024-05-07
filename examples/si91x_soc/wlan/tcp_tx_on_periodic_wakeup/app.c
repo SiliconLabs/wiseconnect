@@ -43,6 +43,7 @@
 #include "socket.h"
 #include "sl_net_si91x.h"
 #include "sl_wifi_callback_framework.h"
+#include "sl_si91x_core_utilities.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
@@ -123,6 +124,9 @@ volatile uint8_t powersave_given;
 #define PS4_SOC_FREQ          119000000 /*<! PLL out clock 100MHz            */
 #endif
 
+#define TX_POOL_RATIO     1
+#define RX_POOL_RATIO     1
+#define GLOBAL_POOL_RATIO 1
 /******************************************************
  *               Function Declarations
  ******************************************************/
@@ -182,7 +186,7 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                    .bt_feature_bit_map = 0,
                    .ext_tcp_ip_feature_bit_map =
                      (SL_SI91X_EXT_TCP_IP_WINDOW_SCALING | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(1)
-                      | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
+                      | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_IP_BI_DIR_ACK_UPDATE),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
 #ifdef SLI_SI91X_MCU_INTERFACE
@@ -194,7 +198,10 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                    .config_feature_bit_map = 0
 #endif
 #endif
-  }
+  },
+  .ta_pool = { .tx_ratio_in_buffer_pool     = TX_POOL_RATIO,
+               .rx_ratio_in_buffer_pool     = RX_POOL_RATIO,
+               .global_ratio_in_buffer_pool = GLOBAL_POOL_RATIO }
 };
 
 uint32_t tick_count_s = 1;
@@ -273,6 +280,7 @@ void send_data_to_tcp_server(void)
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   sl_status_t rc                    = SL_STATUS_FAIL;
+  sl_status_t status                = SL_STATUS_OK;
 
   server_address.sin_family = AF_INET;
   server_address.sin_port   = SERVER_PORT;
@@ -317,7 +325,24 @@ void send_data_to_tcp_server(void)
     start = osKernelGetTickCount();
     while (total_bytes_sent < BYTES_TO_SEND) {
       sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
-      now        = osKernelGetTickCount();
+      if (sent_bytes < 0) {
+        if (errno == 0) {
+          // get the error code returned by the firmware
+          status = sl_si91x_get_saved_firmware_status();
+          if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+            continue;
+          } else {
+            printf("\r\nTCP recv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+          }
+        } else if (errno == ENOTCONN) {
+          printf("\r\nRemote server terminated\r\n");
+        } else {
+          printf("\r\nTCP recv failed with BSD error = %d\r\n", errno);
+        }
+        close(client_socket);
+        return;
+      }
+      now = osKernelGetTickCount();
       if (sent_bytes > 0)
         total_bytes_sent = total_bytes_sent + sent_bytes;
 
@@ -326,6 +351,7 @@ void send_data_to_tcp_server(void)
         break;
       }
     }
+    total_bytes_sent = 0;
 
 #if ENABLE_POWER_SAVE
     performance_profile.profile = ASSOCIATED_POWER_SAVE;

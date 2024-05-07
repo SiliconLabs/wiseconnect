@@ -619,6 +619,8 @@ struct qspi_reg_s {
 #define HSIZE_IN_BITS  ((hsize + 1) * 8)
 
 // QSPI AES Decryption Defines
+#define KEY_LEN_128 16
+#define KEY_LEN_256 32
 #ifdef SLI_SI917
 #define CTR_MODE 0x04
 #define XTS_MODE 0x80

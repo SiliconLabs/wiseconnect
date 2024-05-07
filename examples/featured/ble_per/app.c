@@ -115,7 +115,8 @@
 
 #define DUTY_CYCLING_DISABLE 0
 #define DUTY_CYCLING_ENABLE  1
-#define ENABLE_POWER_SAVE    0 //! Set to 1 for powersave mode
+#define ENABLE_POWER_SAVE    0  //! Set to 1 for powersave mode
+#define LOCAL_DEV_ADDR_LEN   18 // Length of the local device address
 
 #define GAIN_TABLE_AND_MAX_POWER_UPDATE_ENABLE 0 //! To update gain table and max tx power and offsets
 
@@ -351,7 +352,8 @@ void ble_per(void *unused)
 {
   UNUSED_PARAMETER(unused);
   sl_status_t status;
-  sl_wifi_firmware_version_t version = { 0 };
+  sl_wifi_firmware_version_t version         = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN] = { 0 };
 
 #ifdef SLI_SI91X_MCU_INTERFACE
   sl_si91x_hardware_setup();
@@ -388,17 +390,14 @@ void ble_per(void *unused)
     print_firmware_version(&version);
   }
 
-  //! get the local device address(MAC address).
+  //! get the local device MAC address.
   status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
   if (status != RSI_SUCCESS) {
-    LOG_PRINT("\r\n Get Local Device Address Failed = %lx\r\n", status);
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
   } else {
-
-    LOG_PRINT("Get local device address: %x:%x:%x:%x\n",
-              rsi_app_resp_get_dev_addr[3],
-              rsi_app_resp_get_dev_addr[2],
-              rsi_app_resp_get_dev_addr[1],
-              rsi_app_resp_get_dev_addr[0]);
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address : %s \r\n ", local_dev_addr);
   }
 
   //! set the local device name
@@ -605,6 +604,10 @@ void ble_per(void *unused)
       LOG_PRINT("\r\n M4 sleep");
       sl_si91x_m4_sleep_wakeup();
     }
+#else
+    //To get tx_done logs properly and to avoid application hang issue due to continuous stats added 1sec delay.
+    //It is applicable for both sdk 2.9 and 3.0
+    osDelay(1000);
 #endif
   }
   return;

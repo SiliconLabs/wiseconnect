@@ -31,7 +31,7 @@
 #include "rsi_ulpss_clk.h"
 #include "Driver_I2C.h"
 #include "rsi_ccp_common.h"
-#include "RTE_Components.h"
+
 
 /* I2C Interrupt Events */
 #define 	RSI_I2C_EVENT_RECEIVE_UNDER       		(1UL << 0)  /*!< read the receive buffer when it is empty inerrupt  */ 

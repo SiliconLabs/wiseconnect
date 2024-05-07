@@ -10,9 +10,9 @@ filter:
     value: ["WiFi BLE"]
   - name: "Project Difficulty"
     value: ["Intermediate"]
-sdk: {id: gecko_sdk, version: 4.4.1}
+sdk: {id: gecko_sdk, version: 4.4.3}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.4}
+- {id: wiseconnect3_sdk, version: 3.2.0}
 source:
   - path: app.c
   - path: main.c
@@ -112,10 +112,11 @@ other_file:
   - path: resources/readme/MQTT_testclient3.png
   - path: resources/readme/MQTT_testclient4.png
   - path: resources/readme/oobdemo_soc.png
-  - path: resources/readme/output_1.png
-  - path: resources/readme/output_2.png
+  - path: resources/readme/output.png
   - path: resources/readme/status_lcd1.png
   - path: resources/readme/status_lcd2.png
+  - path: resources/readme/status_lcd3.png
+  - path: resources/readme/status_lcd4.png
   - path: resources/readme/oob_energy_profiler_quick_access.png
   - path: resources/readme/oob_energy_profiler_start.png
   - path: resources/readme/oob_tools_dialog_box.png

@@ -50,7 +50,7 @@
 //! Remote Device Name to connect
 #define RSI_REMOTE_DEVICE_NAME "SILABS_DEV"
 
-#define RSI_REM_DEV_ADDR_LEN 18
+#define DEV_ADDR_LEN 18 // Length of the device address
 
 //! Application supported events list
 #define RSI_APP_EVENT_ADV_REPORT          0
@@ -80,7 +80,7 @@ static uint8_t remote_dev_bd_addr[6] = { 0 };
 static rsi_ble_event_conn_status_t rsi_app_connected_device;
 static rsi_ble_event_disconnect_t rsi_app_disconnected_device;
 static rsi_ble_event_phy_update_t rsi_app_phy_update_complete;
-uint8_t str_remote_address[RSI_REM_DEV_ADDR_LEN] = { '\0' };
+uint8_t str_remote_address[DEV_ADDR_LEN] = { '\0' };
 osSemaphoreId_t ble_main_task_sem;
 static volatile uint32_t ble_app_event_map;
 static volatile uint32_t ble_app_event_map1;
@@ -351,8 +351,10 @@ void ble_central(void *argument)
 
   int32_t status = 0;
   rsi_ble_resp_read_phy_t read_phy_resp;
-  int32_t temp_event_map             = 0;
-  sl_wifi_firmware_version_t version = { 0 };
+  int32_t temp_event_map                                     = 0;
+  sl_wifi_firmware_version_t version                         = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[DEV_ADDR_LEN]                       = { 0 };
 
 #if (RSI_DEVICE_DATA_RATE == LONG_RANGE)
   uint8_t tx_phy_rate    = BLE_CODED_TX_PHY;
@@ -383,6 +385,16 @@ void ble_central(void *argument)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   //! BLE register GAP callbacks

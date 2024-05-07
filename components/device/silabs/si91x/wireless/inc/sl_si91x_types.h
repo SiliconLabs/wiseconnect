@@ -51,6 +51,7 @@ typedef enum {
   SI91X_NETWORK_CMD = 2, ///< SI91X Network Command
   SI91X_SOCKET_CMD  = 3, ///< SI91X Socket Command
   SI91X_BT_CMD      = 4, ///< SI91X Bluetooth Command
+  SI91X_SOCKET_DATA = 5, ///< SI91X Socket Data Command
   SI91X_CMD_MAX          ///< SI91X Maximum Command value
 } sl_si91x_command_type_t;
 
@@ -64,23 +65,24 @@ typedef enum {
   SI91X_NETWORK_CMD_QUEUE = 2, ///< SI91X Network Command queue
   SI91X_SOCKET_CMD_QUEUE  = 3, ///< SI91X Socket Command queue
   SI91X_BT_CMD_QUEUE      = 4, ///< SI91X Bluetooth Command queue
+  SI91X_SOCKET_DATA_QUEUE = 5, ///< SI91X Socket Command queue
 
   // SI91X response queue types
-  SI91X_COMMON_RESPONSE_QUEUE  = 5, ///< SI91X common Command response queue
-  SI91X_WLAN_RESPONSE_QUEUE    = 6, ///< SI91X Wireless LAN Command response queue
-  SI91X_NETWORK_RESPONSE_QUEUE = 7, ///< SI91X Network Command response queue
-  SI91X_SOCKET_RESPONSE_QUEUE  = 8, ///< SI91X Socket Command response queue
-  SI91X_BT_RESPONSE_QUEUE      = 9, ///< SI91X Bluetooth Command response queue
+  SI91X_COMMON_RESPONSE_QUEUE  = 6,  ///< SI91X common Command response queue
+  SI91X_WLAN_RESPONSE_QUEUE    = 7,  ///< SI91X Wireless LAN Command response queue
+  SI91X_NETWORK_RESPONSE_QUEUE = 8,  ///< SI91X Network Command response queue
+  SI91X_SOCKET_RESPONSE_QUEUE  = 9,  ///< SI91X Socket Command response queue
+  SI91X_BT_RESPONSE_QUEUE      = 10, ///< SI91X Bluetooth Command response queue
 
   // All SI91X WLAN Async Events use this queue
-  SI91X_WLAN_EVENT_QUEUE = 10, ///< SI91X Wireless LAN Asynchronous response queue
+  SI91X_WLAN_EVENT_QUEUE = 11, ///< SI91X Wireless LAN Asynchronous response queue
   // All SI91X Network Async Events use this queue
-  SI91X_NETWORK_EVENT_QUEUE = 11, ///< SI91X Network Asynchronous response queue
+  SI91X_NETWORK_EVENT_QUEUE = 12, ///< SI91X Network Asynchronous response queue
 
-  SI91X_SOCKET_EVENT_QUEUE = 12, ///< SI91X Asynchronous Sockets events queue
+  SI91X_SOCKET_EVENT_QUEUE = 13, ///< SI91X Asynchronous Sockets events queue
 
   // ALL SOC rx packets use this queue
-  CCP_M4_TA_RX_QUEUE = 13, ///< SI91X M4 Receive queue
+  CCP_M4_TA_RX_QUEUE = 14, ///< SI91X M4 Receive queue
 
   SI91X_QUEUE_MAX ///< SI91X Maximum queue type
 } sl_si91x_queue_type_t;
@@ -196,6 +198,11 @@ typedef struct {
   int32_t
     sl_si91x_socket_id; ///< socket_id, used only for SI91X_SOCKET_CMD queue to update socket_id in command trace of bus thread.
 } sl_si91x_queue_packet_t;
+
+typedef struct {
+  sl_wifi_buffer_t *head;
+  sl_wifi_buffer_t *tail;
+} sl_si91x_buffer_queue_t;
 
 /// TA buffer allocation command parameters
 /// The summation of the all three ratios should max 10 and the ratio should be in decimal value

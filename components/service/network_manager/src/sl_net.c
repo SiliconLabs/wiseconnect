@@ -66,12 +66,6 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
       return sl_net_thread_init(interface, configuration, network_context, event_handler);
       break;
 #endif
-    case SL_NET_WIFI_BTR_INTERFACE:
-      if (configuration == NULL) {
-        configuration = (const void *)&sl_wifi_default_btr_configuration;
-      }
-      sl_net_set_profile(SL_NET_WIFI_BTR_INTERFACE, SL_NET_DEFAULT_WIFI_BTR_PROFILE_ID, &DEFAULT_WIFI_BTR_PROFILE);
-      return sl_net_wifi_btr_init(interface, configuration, network_context, event_handler);
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }
@@ -124,8 +118,6 @@ sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_
       return sl_net_thread_up(interface, profile_id);
       break;
 #endif
-    case SL_NET_WIFI_BTR_INTERFACE:
-      return sl_net_wifi_btr_up(interface, profile_id);
     default:
       return SL_STATUS_NOT_SUPPORTED;
   }

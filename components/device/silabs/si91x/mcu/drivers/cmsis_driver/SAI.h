@@ -36,7 +36,7 @@
 #include "rsi_ulpss_clk.h"
 #include "Driver_SAI.h"
 #include "rsi_ccp_common.h"
-#include "RTE_Components.h"
+
 #include "UDMA.h"
 
 

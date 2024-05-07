@@ -70,63 +70,69 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - The status of the application can be observed on the TFT-LCD display on the WPK baseboard.
 - Following is the image of LCD display indicating the application status.
 
-![Here is the image of LCD with the status prints](resources/readme/status_lcd2.png)
+  ![Here is the image of LCD with the status prints](resources/readme/status_lcd1.png)
 
 - Open the EFR connect app on your mobile phone.
 
-![EFR Connect App](resources/readme/EFRConnect_app.png)
+  ![EFR Connect App](resources/readme/EFRConnect_app.png)
 
 - Go to 'Demo' tab.
 
-![Demo tab](resources/readme/EFRConnect_demo.png)
+  ![Demo tab](resources/readme/EFRConnect_demo.png)
 
 - Choose the Wi-Fi commissioning option.
 
-![WiFi Commisioning option](resources/readme/EFRConnect_wificommisioning.png)
+  ![WiFi Commisioning option](resources/readme/EFRConnect_wificommisioning.png)
 
 - Click on the device name "BLE_CONFIGURATOR".
 
-![BLE configurator device list](resources/readme/EFRConnect_bleconfigurator.png)
+  ![BLE configurator device list](resources/readme/EFRConnect_bleconfigurator.png)
 
-**NOTE:** For the Wi-Fi commissioning demo, EFR connect mobile app displays the devices which advertise as "BLE_CONFIGURATOR" only. This is to filter out the other Bluetooth devices in the vicinity and if the device name is modified, it won't be detected in the EFR connect mobile app for Wi-Fi commissioning demo.
+  **NOTE:** For the Wi-Fi commissioning demo, EFR connect mobile app displays the devices which advertise as "BLE_CONFIGURATOR" only. This is to filter out the other Bluetooth devices in the vicinity and if the device name is modified, it won't be detected in the EFR connect mobile app for Wi-Fi commissioning demo.
 
 - A list of the available Access points is displayed in the mobile app.
 
-![AP list](resources/readme/EFRConnect_APlist.png)
+  ![AP list](resources/readme/EFRConnect_APlist.png)
 
 - Choose the desired access point and enter the password.
 
-![Enter PSK](resources/readme/EFRConnect_enterpsk.png)
+  ![Enter PSK](resources/readme/EFRConnect_enterpsk.png)
 
 - The module is now commissioned into the Wi-Fi network.
 
-![Provisioning done](resources/readme/EFRConnect_done.png)
+  ![Provisioning done](resources/readme/EFRConnect_done.png)
 
 - The module starts to ping www.silabs.com.
 - After pinging, the module now establishes connectivity with test.mosquitto.org.
 - Here is the image of LCD with the status prints.
 
-![Here is the image of LCD with the status prints](resources/readme/status_lcd1.png)
+  ![Here is the image of LCD with the status prints](resources/readme/status_lcd2.png)
+
+  ![Here is the image of LCD with the status prints](resources/readme/status_lcd3.png)
+  
 
 - NWP (network processor of SiWG917) enters connected sleep.  
 
 - Go to the browser and open the [online mqtt client](https://testclient-cloud.mqtt.cool/).
 
-![MQTT test client image-1](resources/readme/MQTT_testclient1.png)
+  ![MQTT test client image-1](resources/readme/MQTT_testclient1.png)
 
 - Click on the dropdown option and select 'tcp://test.mosquitto.org:1883'
 
-![MQTT test client image-2](resources/readme/MQTT_testclient2.png)
+  ![MQTT test client image-2](resources/readme/MQTT_testclient2.png)
 
 - Click on "connect" to connect to the mosquitto broker
 
-![MQTT test client image-3](resources/readme/MQTT_testclient3.png)
+  ![MQTT test client image-3](resources/readme/MQTT_testclient3.png)
 
 - Enter "Si917_MQTT_RECEIVE" in the Publish section.
 
-![MQTT test client image-4](resources/readme/MQTT_testclient4.png)
+  ![MQTT test client image-4](resources/readme/MQTT_testclient4.png)
 
-- Enter the data to be sent to the SiWG917 (can be any random text) in the publish section and click on the publish button, the online client then publishes data on the "Si917_MQTT_RECEIVE" topic which can be observed in the application prints.
+- Enter the data to be sent to the SiWG917 (can be any random text) in the publish section and click on the publish button, the online client then publishes data on the "Si917_MQTT_RECEIVE" topic which can be observed on the LCD display on the baseboard or in the application prints on the serial console.
+
+  ![Here is the image of LCD with the status prints](resources/readme/status_lcd4.png)
+
 
 - The current consumption of SiWG917 can observed using the energy profiler tool integrated within the Simplicity Studio. Refer the [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler) section for using the energy profiler ti measure the current consumption of the module.
 
@@ -145,7 +151,7 @@ Refer the following ouput image:
 
 The application prints would be as follows:
 
-![Application prints](resources/readme/output_2.png)
+![Application prints](resources/readme/output.png)
 
 ### Measuring the current consumption using Simplicity Studio Energy Profiler
 

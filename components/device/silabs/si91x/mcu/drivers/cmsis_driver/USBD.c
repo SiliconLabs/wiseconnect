@@ -56,7 +56,7 @@
 #include "rsi_chip.h"
 #include "USB.h"
 #include "RTE_Device.h"
-#include "RTE_Components.h"
+
 
 #ifndef USBD_MAX_ENDPOINT_NUM
 #define USBD_MAX_ENDPOINT_NUM           5U

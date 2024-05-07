@@ -108,12 +108,10 @@ typedef struct {
 // Prototypes
 
 /***************************************************************************/ /**
- * Initializes SYSRTC and enables the peripheral.
- * Also configures that SYSRTC should run during debug halt, as per user input.
- *
- * @pre Pre-conditions:
+ * @brief Initializes SYSRTC and enables the peripheral.
+ * @details Also configures that SYSRTC should run during debug halt, as per user input.
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sysrtc_configure_clock
- *
  * @param[in] config_ptr Pointer to SYSRTC config structure \ref sl_sysrtc_config_t.
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
@@ -122,11 +120,12 @@ typedef struct {
 sl_status_t sl_si91x_sysrtc_init(const sl_sysrtc_config_t *config_ptr);
 
 /***************************************************************************/ /**
- * Configures the SYSRTC input clock source frequency
- * It configures clock source as 32khz RC, 32khz RO or 1Khz RO clock source as per user input.
+ * @brief Configures the SYSRTC input clock source frequency
+ * @details It configures clock source as 32khz RC, 32khz RO or 1Khz RO clock source as per user input.
  * For using 1KHz clock source, pass division factor value as '16' else pass '0'.
  *
  * @param[in] clk_ptr Pointer to clock configuration structure \ref sl_sysrtc_clock_config_t.
+ *
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Clock source parameter has an invalid value.
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
@@ -135,14 +134,12 @@ sl_status_t sl_si91x_sysrtc_init(const sl_sysrtc_config_t *config_ptr);
 sl_status_t sl_si91x_sysrtc_configure_clock(sl_sysrtc_clock_config_t *clk_ptr);
 
 /***************************************************************************/ /**
- * To configure the SYSRTC groups of compare and capture channels
- * Configures group number and enables its compare & capture channels.
+ * @brief To configure the SYSRTC groups of compare and capture channels
+ * @details Configures group number and enables its compare & capture channels.
  * Also configures match out actions for respective compare channel and input events for capture
- *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sysrtc_configure_clock
  *      - \ref sl_si91x_sysrtc_init
- *
  * @param[in] group_number SYSRTC group number to be used.
  * @param[in] config_ptr (const *) Pointer to group configuration structure \ref sl_sysrtc_group_config_t.
  * @return status 0 if successful, else error code as follows:
@@ -154,15 +151,13 @@ sl_status_t sl_si91x_sysrtc_configure_group(sl_sysrtc_group_number_t group_numbe
                                             sl_sysrtc_group_config_t const *config_ptr);
 
 /***************************************************************************/ /**
- * To register the callback of the timer interrupt.
- * Also enables the respective interrupts as per selected interrupt flags.
- *
+ * @brief To register the callback of the timer interrupt.
+ * @details Also enables the respective interrupts as per selected interrupt flags.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sysrtc_init
  *      - \ref sl_si91x_sysrtc_configure_clock
  *      - \ref sl_si91x_sysrtc_configure_group(), keep respective interrupt channel enable
  *      - \ref sl_si91x_sysrtc_unregister_timeout_callback(), if already registered for any interrupt
- *
  * @param[in]  on_sysrtc_callback (function pointer) Callback function pointer
  *             to be called when timer interrupt occurred.
  * @param[in]  callback_flag (void *) pointer to interrupt flag value variable \ref sl_sysrtc_callback_t.
@@ -181,12 +176,10 @@ sl_status_t sl_si91x_sysrtc_register_callback(sl_sysrtc_callback_t on_sysrtc_cal
                                               sl_sysrtc_interrupt_enables_t *interrupt_enable_ptr);
 
 /***************************************************************************/ /**
- * Unregisters timer interrupt callback and disables interrupts as per
+ * @brief Unregisters timer interrupt callback and disables interrupts as per
  * selected interrupt flag.
- *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sysrtc_register_callback(), first register a particular interrupt flag.
- *
  * @param[in]  interrupt_enable_ptr pointer to interrupts enable structure \ref sl_sysrtc_interrupt_enables_t.
  * @param[in] group_number SYSRTC group number whose interrupts needs to be enabled.
  * @return status 0 if successful, else error code as follows:
@@ -198,12 +191,10 @@ sl_status_t sl_si91x_sysrtc_unregister_callback(sl_sysrtc_group_number_t group_n
                                                 sl_sysrtc_interrupt_enables_t *interrupt_enabled_handle);
 
 /***************************************************************************/ /**
- * Sets SYSRTC compare value for the selected channel of the given group.
- *
+ * @brief Sets SYSRTC compare value for the selected channel of the given group.
  * @pre Pre-conditions:
  *      - First enable the compare channel of the respective group through
  *        \ref sl_si91x_sysrtc_configure_group.
- *
  * @param[in] group_number SYSRTC group number to use.
  * @param[in] channel Channel number to use.
  * @param[in] value Compare register value.
@@ -216,8 +207,7 @@ sl_status_t sl_si91x_sysrtc_set_compare_value(sl_sysrtc_group_number_t group_num
                                               uint32_t compare_value);
 
 /***************************************************************************/ /**
- * Gets SYSRTC current compare register value for selected channel of selected group.
- *
+ * @brief Gets SYSRTC current compare register value for selected channel of selected group.
  * @param[in] group_number SYSRTC group number to use.
  * @param[in] channel Channel number to use.
  * @param[in] compare_value Pointer to the variable to store compare value read.
@@ -231,15 +221,13 @@ sl_status_t sl_si91x_sysrtc_get_compare_value(sl_sysrtc_group_number_t group_num
                                               uint32_t *compare_value);
 
 /***************************************************************************/ /**
- * Sets register-input for the capture channel of the selected group of SYSRTC.
- * In other words, configures the SYSRTC Input (Capture) from register.
- *
+ * @brief Sets register-input for the capture channel of the selected group of SYSRTC.
+ * @details In other words, configures the SYSRTC Input (Capture) from register.
  * @pre Pre-conditions:
  *      - First, enable and configure the capture channel of the respective group through
  *        \ref sl_si91x_sysrtc_configure_group.
  *      - Disable GPIO input through \ref sl_si91x_sysrtc_enable_input_output_gpio, by
  *        passing false.
- *
  * @param[in] group_number SYSRTC group number to use.
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - group_number parameter has an invalid value.
@@ -248,17 +236,15 @@ sl_status_t sl_si91x_sysrtc_get_compare_value(sl_sysrtc_group_number_t group_num
 sl_status_t sl_si91x_sysrtc_sets_register_capture_input(sl_sysrtc_group_number_t group_number);
 
 /***************************************************************************/ /**
- * Configures input pins for the SYSRTC capture channel of selected group.
- * Configures gpio-0 and gpio-1 as input pins for the capture channel of group0 & group-1 
+ * @brief Configures input pins for the SYSRTC capture channel of selected group.
+ * @details Configures gpio-0 and gpio-1 as input pins for the capture channel of group0 & group-1 
  * respectively.
  * Sets pins mode, mux and direction.
- *
  * @pre Pre-conditions:
  *      - First, enable and configure the capture channel of the respective group through
  *        \ref sl_si91x_sysrtc_configure_group.
  *      - Enable GPIO IO through \ref sl_si91x_sysrtc_enable_input_output_gpio, by
  *        passing true.
- *
  * @param[in] group_number SYSRTC group number to use.
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - group_number parameter has an invalid value.
@@ -267,15 +253,14 @@ sl_status_t sl_si91x_sysrtc_sets_register_capture_input(sl_sysrtc_group_number_t
 sl_status_t sl_si91x_sysrtc_set_gpio_as_capture_input(sl_sysrtc_group_number_t group_number);
 
 /***************************************************************************/ /**
- * Configures the output pins of the selected compare channel of given group.
- * Configures gpio-3 and gpio-4 as output pins for compare channel 0 & 1 of group0 respectively. 
+ * @brief Configures the output pins of the selected compare channel of given group.
+ * @details Configures gpio-3 and gpio-4 as output pins for compare channel 0 & 1 of group0 respectively. 
  * Configures gpio-1 and gpio-2 as output pins for compare channel 0 & 1 of group1 respectively..
  * Sets pins mode, mux and direction.
  * Also enables pins input buffer.
- *
  * @pre Pre-conditions:
  *      - First, enable and configure the output action of the compare channel of the respective group through
- *        \ref sl_si91x_sysrtc_configure_group.
+ *      - \ref sl_si91x_sysrtc_configure_group.
  *
  * @param[in] group_number SYSRTC group number to use.
  * @param[in] channel Channel number to use.
@@ -287,8 +272,8 @@ sl_status_t sl_si91x_sysrtc_set_compare_output_gpio(sl_sysrtc_group_number_t gro
                                                     sl_sysrtc_channel_number_t channel);
 
 /***************************************************************************/ /**
- * Gets the SYSRTC current counter register value.
- * Updates the current count of the timer to count_value input parameter.
+ * @brief Gets the SYSRTC current counter register value.
+ * @details Updates the current count of the timer to count_value input parameter.
  * @param[in] count_value Pointer to the variable to store count value read.
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - count_value parameter is a null pointer.
@@ -297,9 +282,8 @@ sl_status_t sl_si91x_sysrtc_set_compare_output_gpio(sl_sysrtc_group_number_t gro
 sl_status_t sl_si91x_sysrtc_get_count(uint32_t *count_value);
 
 /***************************************************************************/ /**
- * Gets the SYSRTC capture register value of a given group.
- * Updates the capture count value of timer to capture_value input parameter.
- *
+ * @brief Gets the SYSRTC capture register value of a given group.
+ * @details Updates the capture count value of timer to capture_value input parameter.
  * @param[in] group_number SYSRTC group number to use.
  * @param[in] capture_value Pointer to the variable to store capture value read.
  * @return status 0 if successful, else error code as follows:
@@ -310,12 +294,15 @@ sl_status_t sl_si91x_sysrtc_get_count(uint32_t *count_value);
 sl_status_t sl_si91x_sysrtc_get_capture_value(sl_sysrtc_group_number_t group_number, uint32_t *capture_value);
 
 /***************************************************************************/ /**
- * Reads the SYSRTC compare channel output bit value of a given group.
- * Updates the bit value to compare_output_bit input parameter.
+ * @brief Reads the SYSRTC compare channel output bit value of a given group.
+ * @details Updates the bit value to compare_output_bit input parameter.
  *
  * @param[in] group_number SYSRTC group number to use.
+ *
  * @param[in] channel Channel number to use.
+ *
  * @param[in] compare_output Pointer to the variable to store compare output.
+ *
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - compare_output parameter is a null pointer.
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - group_number or channel parameter has an invalid value.
@@ -326,11 +313,12 @@ sl_status_t sl_si91x_sysrtc_get_compare_output(sl_sysrtc_group_number_t group_nu
                                                uint32_t *compare_output_bit);
 
 /***************************************************************************/ /**
- * Gets the SYSRTC running status, status is true if running, false if stopped.
- * Updates 'true' if SYSRTC is running else 'false' if not running, to the running_status 
+ * @brief Gets the SYSRTC running status, status is true if running, false if stopped.
+ * @details Updates 'true' if SYSRTC is running else 'false' if not running, to the running_status 
  * input parameter.
  *
  * @param[in] running_status Pointer to the variable to store the SYSRTC running status.
+ *
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - running_status parameter is a null pointer.
  *         - \ref SL_STATUS_OK (0x0000) - Success, parameters configured properly.
@@ -338,11 +326,12 @@ sl_status_t sl_si91x_sysrtc_get_compare_output(sl_sysrtc_group_number_t group_nu
 sl_status_t sl_si91x_sysrtc_is_running(boolean_t *running_status);
 
 /***************************************************************************/ /**
- * Gets the SYSRTC lock status.
- * Updates 'true' if SYSRTC is locked, 'false' if unlocked, to the lock_status 
+ * @brief Gets the SYSRTC lock status.
+ * @details Updates 'true' if SYSRTC is locked, 'false' if unlocked, to the lock_status 
  * input parameter.
  *
  * @param[in] lock_status Pointer to the variable to store SYSRTC lock status.
+ *
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - lock_status parameter is a null pointer.
  *         - \ref SL_STATUS_OK (0x0000) - Success, parameters configured properly.
@@ -350,35 +339,32 @@ sl_status_t sl_si91x_sysrtc_is_running(boolean_t *running_status);
 sl_status_t sl_si91x_sysrtc_is_locked(boolean_t *lock_status);
 
 /***************************************************************************/ /**
- * Sets the SYSRTC input output mode for the capture and compare channels.
- * If passed true, then input to capture channel and output of compare channel will
+ * @brief Sets the SYSRTC input output mode for the capture and compare channels.
+ * @details If passed true, then input to capture channel and output of compare channel will
  * be through GPIO, else disabled.
  *
  * @param[in] is_gpio_enabled Bool to enable or disable IO through GPIO.
+ *
  * @return none
  ******************************************************************************/
 void sl_si91x_sysrtc_enable_input_output_gpio(bool is_gpio_enabled);
 
 /***************************************************************************/ /**
- * Starts the SYSRTC counter.
- * This function will send a start command to the SYSRTC peripheral.
+ * @brief Starts the SYSRTC counter.
+ * @details This function will send a start command to the SYSRTC peripheral.
  * It waits till the start command to be executed.
- *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_sysrtc_init
  *      - \ref sl_si91x_sysrtc_configure_clock(), keep software trigger disable here
  *      - \ref sl_si91x_sysrtc_configure_group(), keep respective interrupt channel enable
  *      - \ref sl_si91x_sysrtc_register_callback, keep respective interrupt enabled
  *      - \ref sl_si91x_sysrtc_set_count
- *
- * @note
- * This function will send a start command to the SYSRTC peripheral. The SYSRTC
- * peripheral will use some LF clock ticks before the command is executed.
- * The rsi_sysrtc_wait_sync() function is used to wait for the start
- * command to be executed.
- *
  * @param none
  * @return none
+ * @note This function will send a start command to the SYSRTC peripheral. 
+ * @note The SYSRTC peripheral will use some LF clock ticks before the command is executed.
+ * @note The rsi_sysrtc_wait_sync() function is used to wait for the start
+ * command to be executed.
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_sysrtc_start(void)
 {
@@ -386,14 +372,15 @@ __STATIC_INLINE void sl_si91x_sysrtc_start(void)
 }
 
 /***************************************************************************/ /**
- * Stops the SYSRTC counter.
- * This function will send a stop command to the SYSRTC peripheral.
+ * @brief Stops the SYSRTC counter.
+ * @details This function will send a stop command to the SYSRTC peripheral.
  * It waits till the stop command to be executed.
  *
- * @note  This function requires the SYSRTC to be enabled.
- *
  * @param    none
+ *
  * @return   none
+ *
+ * @note  This function requires the SYSRTC to be enabled.
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_sysrtc_stop(void)
 {
@@ -401,9 +388,10 @@ __STATIC_INLINE void sl_si91x_sysrtc_stop(void)
 }
 
 /***************************************************************************/ /**
- * Restores the SYSRTC to its reset state.
+ * @brief Restores the SYSRTC to its reset state.
  *
  * @param    none
+ *
  * @return   none
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_sysrtc_reset(void)
@@ -412,10 +400,9 @@ __STATIC_INLINE void sl_si91x_sysrtc_reset(void)
 }
 
 /***************************************************************************/ /**
- * Locks the SYSRTC registers.
- * When SYSRTC registers are locked SYSRTC_EN, SYSRTC_CFG, SYSRTC_CMD,
+ * @brief Locks the SYSRTC registers.
+ * @details When SYSRTC registers are locked SYSRTC_EN, SYSRTC_CFG, SYSRTC_CMD,
  * SYSRTC_SWRST, SYSRTC_CNT and SYSRTC_TOPCNT registers cannot be written to.
- * 
  * @param    none
  * @return   none
  ******************************************************************************/
@@ -425,13 +412,11 @@ __STATIC_INLINE void sl_si91x_sysrtc_lock(void)
 }
 
 /***************************************************************************/ /**
- * Unlocks the SYSRTC registers.
- * When SYSRTC registers are locked SYSRTC_EN, SYSRTC_CFG, SYSRTC_CMD,
+ * @brief Unlocks the SYSRTC registers.
+ * @details When SYSRTC registers are locked SYSRTC_EN, SYSRTC_CFG, SYSRTC_CMD,
  * SYSRTC_SWRST, SYSRTC_CNT and SYSRTC_TOPCNT registers cannot be written to.
- *
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sysrtc_lock
- *
  * @param    none
  * @return   none
  ******************************************************************************/
@@ -441,13 +426,11 @@ __STATIC_INLINE void sl_si91x_sysrtc_unlock(void)
 }
 
 /***************************************************************************/ /**
- * Sets the SYSRTC counter register value of counter
+ * @brief Sets the SYSRTC counter register value of counter
  * This can be used to change the count of SYSRTC, when it is stopped.
  * After calling this API user should start SYSRTC.
- *
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sysrtc_stop
- *
  * @param[in] value   The new SYSRTC counter value.
  * @return   none
  ******************************************************************************/
@@ -457,17 +440,15 @@ __STATIC_INLINE void sl_si91x_sysrtc_set_count(uint32_t value)
 }
 
 /***************************************************************************/ /**
- * Gets the SYSRTC version
+ * @brief Gets the SYSRTC version
  * It returns API version of SYSRTC
- *
  * @param[in] none
  * @return (sl_sysrtc_version_t) type structure.
- *
  ******************************************************************************/
 sl_sysrtc_version_t sl_si91x_sysrtc_get_version(void);
 
 /***************************************************************************/ /**
-* De-initializes the SYSRTC by disabling its clock.
+* @brief De-initializes the SYSRTC by disabling its clock.
 * @param[in]   none
 * @return      none
 * @note Unregisters the SYSRTC callback and disables all interrupts.
@@ -475,6 +456,56 @@ sl_sysrtc_version_t sl_si91x_sysrtc_get_version(void);
 void sl_si91x_sysrtc_deinit(void);
 
 /** @} (end addtogroup SYSRTC) */
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup SYSRTC System RTC
+/// @{
+///
+///   @details
+///
+///   @n @section SYSRTC_Intro Introduction
+///   The System Real-Time Clock (SYSRTC) offers precise timekeeping and timer
+///   functionality essential for various applications. It serves as a cornerstone for tasks requiring accurate time measurement,
+///   event scheduling, and power management. This SYSRTC driver provides a robust set of
+///   functions to configure and use this peripheral effectively, ensuring optimal performance and reliability in time-critical applications.
+///
+///   @n @section SYSRTC_Config Configuration
+///   The @ref sl_si91x_sysrtc_configure_clock function allows setting the clock source frequency,
+///   choosing between 32kHz RC, 1kHz RO clock sources. Initialization of the SYSRTC is achieved through
+///   the @ref sl_si91x_sysrtc_init function, which not only initializes the peripheral but also enables it. Additionally,
+///   SYSRTC can be configured to run during debug halt by specifying the appropriate setting in the initialization function.
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
+///
+///   @n @section SYSRTC_Usage Usage
+///
+///   @li SYSRTC has to be initialised by calling the @ref sl_si91x_sysrtc_configure_clock and @ref sl_si91x_sysrtc_init.
+///   @li Once configured, the SYSRTC can be tailored to specific application requirements using the functions in the driver.
+///   The @ref sl_si91x_sysrtc_configure_group configures group number and enables its compare & capture channels.
+///   To handle timer interrupts and execute actions accordingly, users can register callback functions using the @ref sl_si91x_sysrtc_register_callback function.
+///   Furthermore, functions such as @ref sl_si91x_sysrtc_set_compare_value and @ref sl_si91x_sysrtc_get_count facilitate setting compare values and retrieving the
+///   current counter value, respectively, allowing for fine-grained control over time-sensitive operations.
+///   Functions such as @ref sl_si91x_sysrtc_start and @ref sl_si91x_sysrtc_stop
+///   enable starting and stopping the timer, while the @ref sl_si91x_sysrtc_lock locks the SYSRTC registers.
+///
+///   @li Below functions will initiate and configure the SYSRTC, which is the general flow for implementation:
+///
+///   1. @ref sl_si91x_sysrtc_configure_clock
+///   2. @ref sl_si91x_sysrtc_init
+///   3. @ref sl_si91x_sysrtc_configure_group
+///   4. @ref sl_si91x_sysrtc_register_callback
+///   5. @ref sl_si91x_sysrtc_set_count
+///   6. @ref sl_si91x_sysrtc_set_compare_value (If compare channel is enabled)
+///   7. @ref sl_si91x_sysrtc_is_running (If required to check timer running status)
+///   8. @ref sl_si91x_sysrtc_start
+///   9. @ref sl_si91x_sysrtc_get_count (If required to check timer current count)
+///   10. @ref sl_si91x_sysrtc_stop
+///   11. @ref sl_si91x_sysrtc_deinit
+///
+
+///
+/// @} end group SYSRTC ********************************************************/
+
 #ifdef __cplusplus
 }
 #endif

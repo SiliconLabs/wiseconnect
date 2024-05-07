@@ -1554,7 +1554,6 @@ typedef struct rsi_ble_ae_extended_create_connect_s {
   uint8_t remote_addr[RSI_DEV_ADDR_LEN];
   /** uint8_t, Initiating PHYs, this parameter indicates the PHY(s) on which the advertising packets should be received on the
    primary advertising physical channel and the PHYs for which connection parameters have been specified
-   *
    *         Bit number                         Parameter Description
    *            0                   Scan connectable advertisements on the LE 1M PHY. Connection parameters for the LE 1M PHY are provided.
    *            1                  Connection parameters for the LE 2M PHY are provided.

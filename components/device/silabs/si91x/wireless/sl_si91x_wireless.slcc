@@ -9,6 +9,8 @@ component_root_path: ./components/device/silabs/si91x/wireless
 provides:
 - name: sl_si91x_wireless
 - name: wifi_driver
+- condition: ["brd4271a"]
+  name: efx_ncp_custom_host_mcu
 source:
 - path: src/sl_si91x_driver.c
 - path: src/sl_rsi_utility.c
@@ -39,6 +41,8 @@ source:
 - path: host_mcu/efx32/efx32_ncp_host.c
   condition: ["device_efx"]
   unless: ["efx_ncp_custom_host_mcu"]
+- path: host_mcu/efr32fg25/efx32_ncp_host.c
+  condition: ["brd4271a"]
 define:
 - name: SLI_SI917
 - {"condition":["device_si91x"],"name":"SLI_SI91X_MCU_INTERFACE"}
@@ -71,6 +75,7 @@ requires:
 - condition: ["device_efx"]
   name: sl_si91x_ncp_bus
 - name: sl_si91x_errno
+- name: emlib_core
 
 recommends:
 - id: "%extension-wiseconnect3_sdk%sl_si91x_internal_stack"

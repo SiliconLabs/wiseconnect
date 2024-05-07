@@ -11,7 +11,6 @@ component_root_path: "components/device/silabs/si91x/mcu/drivers/cmsis_driver"
 include:
   - path: "config"
     file_list:
-    - path: "RTE_Components.h"
     - path: "RTE_Device_917.h"
 provides:
   - name: cmsis_device_config_917

@@ -34,7 +34,7 @@
 
 - \ref ulp_timer_example.c this example file demonstrates how to use an ULP-timer instance to toggle onboard
   LED at 1sec periodic rate.
-- In this example, first clock and timer are configured with default configurations values from UC through \ref sl_si91x_ulp_timer_init and \ref sl_si91x_ulp_timer_set_configuration APIs respectively
+- In this example, first clock and timer are configured with default high power  configurations values from UC through \ref sl_si91x_ulp_timer_init and \ref sl_si91x_ulp_timer_set_configuration APIs respectively
 - Then registers callback for the timer instance through sl_si91x_ulp_timer_register_timeout_callback API
 - Then timer instance is started through \ref sl_si91x_ulp_timer_start API
 - Then onboard LED-0 is toggled on every interrupt(timeout value 1 second), after five times LED toggle, timer is stopped through \ref sl_si91x_ulp_timer_stop API
@@ -42,7 +42,10 @@
   \ref sl_si91x_ulp_timer_set_type to change to timer-type to 256US type (time in microseconds/256)
   \ref sl_si91x_ulp_timer_set_direction to change timer direction to up-counting
   \ref sl_si91x_ulp_timer_set_count to change match-value equal to number of ticks required for 1 second timeout in 256US type
-- Then started timer again and after 5 interrupts it has stopped and callback is unregistered through \ref sl_si91x_ulp_timer_stop API
+- Then started timer again and after 5 interrupts and it will stop and switches to ultra low power state by calling the api \ref sl_si91x_power_manager_add_ps_requirement.
+- As the interrupt is initialized with 5 it will configure the set type, direction, count and toggles the LED-0 5 times.
+- similarly after toggling the LED-0 for 5 times it will stop the timer and switches back to high power mode by calling \ref sl_si91x_power_manager_add_ps_requirement and configures the set type, direction, count and toggles the LED-0 5 times and stops the timer. 
+callback is unregistered through \ref sl_si91x_ulp_timer_stop API
 - At last timer is de-initialized through \ref sl_si91x_ulp_timer_deinit API
 - Before above steps first timer power state is changed to ULP, through \ref hardware_setup, for using timers in ULP mode
 
@@ -73,6 +76,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
@@ -124,19 +129,17 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Evaluation kit board's LED0 will be toggled five times at 1sec periodic rate.
 - After toggling LED0 for five times, timer stops and configured with new parameters and toggles LED0 five more times.
 - If timer-mode is 'one-shot' mode then LED0 will toggle only one time and then timer will stop.
+- After that timer is stopped and and switches the power state from High power to Ultra low power and configured with new parameters and toggles LED again five times.
+- similarly timer is stopped and switches the power state from Ultra Low Power
+to High power and configured with new parameters and toggles LED again five times.
 - At the end of this example "Unregistered timer timeout callback, on timer operation completion" serial console print can be noticed.
 - After successful program execution the prints in serial console looks as shown below.
 
   ![output](resources/readme/output_ulp_timer.png)
-
-> **Note:**
->
->- This application is executed from RAM.
->- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
->- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
->- To check Prints for ULP Peripheral examples, connect the USB to TTL uart connector's RX_pin, to the F06 of the WPK[BRD4002A] Base Board.
->- To Erase the chip follow the below procedure :
->- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.
+  
+**Note:**
+>- The required files for low power state are moved to RAM rest of the application is executed from flash.
+>- In this application we are changing the power state from PS4 to PS2 and vice - versa. 
 
 
 

@@ -19,4 +19,17 @@ template_contribution:
     value: 1
   - name: i2c_ps2
     value: sl_si91x_peripheral_i2c.o
-
+  - name: i2c_ps2
+    value: sl_si91x_i2c.o
+  - name: i2c_ps2
+    value: memcpy*.o
+  - name: i2c_ps2
+    value: UDMA.o
+  - name: i2c_ps2
+    value: rsi_udma.o
+  - name: i2c_ps2
+    value: rsi_udma_wrapper.o
+  - name: i2c_ps2
+    value: sl_si91x_dma.o
+  - name: i2c_ps2
+    value: rsi_i2c.o

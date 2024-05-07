@@ -63,6 +63,8 @@ While measuring the performance of 802.11 Wireless Devices, packet error test ha
   - Connect your device to the computer
   - Upgrade your connectivity firmware
   - Create a Studio project
+  
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ### Instructions for Keil IDE and STM32F411RE MCU
 

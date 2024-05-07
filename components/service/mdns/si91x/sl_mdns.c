@@ -61,7 +61,7 @@ static void sli_si91x_clean_service_handle(sl_wifi_buffer_t *service_handle)
   free(service->instance_name);
   free(service->service_type);
   free(service->service_message);
-  sl_si91x_host_free_buffer(service_handle, SL_WIFI_CONTROL_BUFFER);
+  sl_si91x_host_free_buffer(service_handle);
 
   return;
 }
@@ -92,7 +92,7 @@ static void sli_si91x_clean_mdns_handle(sl_mdns_t *mdns)
   while (interface != NULL) {
     block     = interface;
     interface = interface->node.node;
-    sl_si91x_host_free_buffer(block, SL_WIFI_CONTROL_BUFFER);
+    sl_si91x_host_free_buffer(block);
   }
 
   return;
@@ -154,7 +154,7 @@ sl_status_t sl_mdns_deinit(sl_mdns_t *mdns)
                                         NULL,
                                         NULL);
 
-  clean_mdns_handle(mdns);
+  sli_si91x_clean_mdns_handle(mdns);
   memset(mdns, 0, sizeof(sl_mdns_t));
   return SL_STATUS_OK;
 }

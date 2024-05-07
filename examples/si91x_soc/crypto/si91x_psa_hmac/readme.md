@@ -41,6 +41,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 - To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio

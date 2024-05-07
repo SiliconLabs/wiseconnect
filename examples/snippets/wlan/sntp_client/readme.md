@@ -46,6 +46,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Configuration Parameters
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
@@ -56,7 +58,7 @@ The application can be configured to suit your requirements and development envi
 #define DEFAULT_WIFI_CLIENT_PROFILE_SSID    "YOUR_AP_SSID"          // Wi-Fi Network Name
 #define DEFAULT_WIFI_CLIENT_CREDENTIAL      "YOUR_AP_PASSPHRASE"    // Wi-Fi Password
 #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE   SL_WIFI_WPA2            // Wi-Fi Security Type
-#define DEFAULT_WIFI_CLIENT_ENCRYPTION_TYPE SL_WIFI_CCMP_ENCRYPTION
+#define DEFAULT_WIFI_CLIENT_ENCRYPTION_TYPE SL_WIFI_DEFAULT_ENCRYPTION
 ```
 
 - To select IPv6, FLAGS should be set to 1, by default it supports IPv4

@@ -59,33 +59,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed. 
 
-1. In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
-
-- DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which the SiWx91x SoftAP's Wi-Fi network shall be advertised.
-
-  ```c
-  #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
-  ```
-
-- DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
-
-  ```c
-  #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
-  ```
-
-- DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type of the Access point. The supported security modes are mentioned in `sl_wifi_security_t`.
-
-  ```c
-  #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE SL_WIFI_WPA_WPA2_MIXED
-  ```
-
-- Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure. 
-
-2. Configure the following parameters in **app.c** to test calibration app as per requirements
+1. Configure the following parameters in **app.c** to test calibration app as per requirements
 
 ```c
   sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_1;
@@ -120,13 +100,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 3. Refer the below image which shows when SiWx91x device transmits packets in Burst mode with different Tx power and different transmission rates in channel 1 with length 30bytes.
 
-   ```sh 
+ ```sh
     sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_1;
     sl_si91x_request_tx_test_info_t tx_test_info = {
       .enable      = 1,          // Enable/disable tx test mode
       .power       = 18,         // Tx RF power in the range [2:18] dBm
       .rate        = rate,      // WLAN data rate of 6Mbps
-      .length      = 30,        // Tx packet length in the range [24:1500] bytes in burst mode, 
+      .length      = 30,        // Tx packet length in the range [24:1500] bytes in burst mode and TX packet length in the range  [24:260 ] in continuous mode, 
       .mode        = 0,         // Selects burst mode or continuous mode
       .channel     = 1,         // Channel number in 2.4 or 5 GHz
       // Other configurable parameters
@@ -137,40 +117,47 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    
     ![Avg Freq Error (highlighted) on the screen](resources/readme/image_c7.png)
 
-### Frequency Offset Correction
+    ### Frequency Offset Correction
 
-Frequency offset correction will be done by using the sl_si91x_frequency_offset command. This command is used during the RF calibration process and requires PER mode transmissions to be initiated prior. This command sends freq_offset (deviation) as observed on the signal analyzer against the expected channel frequency.
+    Frequency offset correction will be done by using the sl_si91x_frequency_offset command. This command is used during the RF calibration process and requires PER mode transmissions to be initiated prior. This command sends freq_offset (deviation) as observed on the signal analyzer against the expected channel frequency.
+ 
+    Frequency offset correction command syntax :  
+      > `sl_freq_offset = freq_offset_in_khz <CR><LF>`  
+      >
+      > Here freq_offset_in_khz means Frequency deviation in KHz
+ 
+    Examples:
+ 
+      If an error of 10KHz is observed on the instrument the command should be used as follows:
+      > `sl_freq_offset=10<CR><LF>`
+ 
+      If an error of -10KHz is observed on the instrument the command should be used as follows:
+      > `sl_freq_offset=-10<CR><LF>`
+ 
+  > **Note:** User can use the above command for any number of times till it gets tuned to desired frequency offset.
 
-Prototype :  
-> `frequency_offset_in_khz = freq_offset_in_khz <CR><LF>`  
-> 
-> Here freq_offset_in_khz means Frequency deviation in KHz or ppm
-   
-Examples :
-> `frequency_offset_in_khz=10<CR><LF>`
->
-> `frequency_offset_in_khz=-10<CR><LF>` 
 
-> **Note:** User can use the above command for any number of times till it gets tuned to desired frequency offset.
+  Open the serial terminal (Docklight/TeraTerm tool) and enter the following commands. User can provide input to correct frequency offset by sending the commands on console. This should lead towards a correction in the frequency offset as observed earlier and repeat till the error is within the tolerance limits (+/- 2 KHz tolerance limits).
 
-Open the serial terminal (Docklight/TeraTerm tool) and enter the following commands. User can provide input to correct frequency offset by sending the commands on console. This should lead towards a correction in the frequency offset as observed earlier and repeat till the error is within the tolerance limits (+/- 2 KHz tolerance limits).
-
-See the below picture after frequency offset correction.
+  See the below picture after frequency offset correction.
 
   ![After frequency offset correction](resources/readme/image_c9.png)
 
-> **Note:** freq_offset_in_khz can be either +ve or -ve. When user enters the freq offset as observed on signal analyzer (+ve/-ve), a small freq offset correction is done. User needs to iterate this till the freq offset is within tolerance limits.
+  > **Note:** freq_offset_in_khz can be either +ve or -ve. When user enters the freq offset as observed on signal analyzer (+ve/-ve), a small freq offset correction is done. User needs to iterate this till the freq offset is within tolerance limits.
+
+  The corrected value of frequency offset is stored within a hardware register the sl_freq_offset command is given, for the correction to reflect upon reset, it is required that we copy the corrected value to flash. The value can be written to flash using the sl_calib_write command. The command should be used as follows: sl_calib_write = 1,2,0,0,0. Further details regarding the syntax of the sl_calib_write command are provided in the subsequent sections.
 
 ### Gain Offset Correction
 
 #### Update XO Ctune and Gain Offset
 
-Using sl_si91x_calibration_write command the calibrated XO Ctune and calculated gain offset can be updated to target memory (Flash/Efuse).
-
-   ```sh
-   Prototype :
-   sl_si91x_calibration_write = <sl_si91x_calib_write_t calib_write> 
-   ```
+Using sl_calib_write command the calibrated XO Ctune and calculated gain offset can be updated to target memory (Flash/Efuse).
+```
+ Prototype :
+ sl_calib_write = <target>,<flags>,<gain_offset_low>,<gain_offset_mid>,<gain_offset_high><CR><LF>
+ OR
+ sl_calib_write= <target>,<flags>,<gain_offset_low>,<gain_offset_mid>,<gain_offset_high>,<xo_ctune><CR><LF>
+ ```
 
 **Structure Members**
 
@@ -206,7 +193,7 @@ Using sl_si91x_calibration_write command the calibrated XO Ctune and calculated 
 > **Note:** For SiWx917, the user needs to calibrate gain-offset for low sub-band (channel-1), mid sub-band (channel-6), and high sub-band (channel-11) and input the three gain-offsets to this API and set the corresponding flags to validate it. 
 
 > **Precondition:** 
-sl_si91x_frequency_offset command needs to be called before this command when xo ctune value from hardware register is to be used. 
+sl_freq_offset command needs to be called before this command when xo ctune value from hardware register is to be used. 
 
 Gain offset can be calculated using the following equation :
 
@@ -218,13 +205,26 @@ Example :
 
   gain_offset = 14.3 + 1.7 (assuming) - 18 = -2 dBm
 
-For 2 GHz band, the gain offset has to calibrated for three channels, viz. channel-1, channel-6, channel-11. After the three gain offsets are calculated these can be written to Flash using the `sl_si91x_calibration_write` command.
+The corresponding value to be passed via the command would be -4 (2*calculated value).
+
+Example usage:
+
+sl_calib_write=1,16,-4,0,0
+```
+Target = 1 (data to be written to flash)
+Flags  = BIT(4) => 2^4 = 16 (BURN_GAIN_OFFSET_LOW => Gain offset in channel 1 is to be updated in the flash)
+gain_offset_low  = -4 (Updates the channel 1 gain offset such that the average tx power in channel 1 is incremented by 2dbm)
+gain_offset_mid  = 0 (Not updating the gain offsets of channel 6, the corresponding bit is disabled in the flags)
+gain_offset_high = 0 (Not updating the gain offsets of channel 11, the corresponding bit is disabled in the flags)
+```
+
+For 2 GHz band, the gain offset has to calibrated for three channels, viz. channel-1, channel-6, channel-11. After the three gain offsets are calculated these can be written to Flash using the `sl_calib_write` command.
 
 > NOTE : 
 > The gain_offset can be negative but not a floating value.
-> Once the frequency offset is corrected after multiple tries, sl_si91x_calibration_write commands has to be given once for all to write the values to flash.
+> Once the frequency offset is corrected after multiple tries, sl_calib_write commands has to be given once for all to write the values to flash.
 
-The application reads the updated calibration values for verification by using `sl_si91x_calibration_read` command and displays.
+The application reads the updated calibration values for verification by using `sl_calib_read` command and displays.
 
 ### Spectrum Analyzer Settings
 
@@ -238,7 +238,7 @@ The application reads the updated calibration values for verification by using `
 
 4. Trigger → RF Burst
 
-The frequency error section shows the error that needs to be adjusted. Using `sl_si91x_frequency_offset` and `sl_si91x_calibration_write` command user should be able to adjust the frequency error.
+The frequency error section shows the error that needs to be adjusted. Using `sl_si91x_frequency_offset` and `sl_calib_write` command user should be able to adjust the frequency error.
 
 ### Acronyms and Abbreviations
 

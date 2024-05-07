@@ -16,7 +16,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates the procedure to setup TWT session and configure the SiWx91x in TCP client role.
+This application demonstrates the procedure to setup iTWT(individual Target Wake Time) session and configure the SiWx91x in TCP client role.
 
 In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP address, connects to Iperf server running on a remote PC and maintains  TCP Socket connection and periodically wakes up as per the configured TWT wakeup interval in powersave.
 
@@ -66,6 +66,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 The application can be configured to suit your requirements and development environment.
@@ -103,10 +105,10 @@ The application can be configured to suit your requirements and development envi
     #define SERVER_PORT         5001
     ```
 
-- In the Project explorer pane, expand as follows **wiseconnect3_sdk_xxx** > **components** > **si91x** > **socket_utility** > **inc** folder and open **sl_si91x_socket_constants.h** file. Configure TCP Keep Alive timeout, in seconds, in sl_si91x_socket_constants.h 
+- Configure TCP Keep Alive timeout in **app.c**, timeout in seconds.
 
     ```c
-    #define DEFAULT_TCP_KEEP_ALIVE_TIME 60
+    #define TCP_KEEP_ALIVE_TIME 60
     ```    
 
 - iTWT Configuration
@@ -132,7 +134,7 @@ The application can be configured to suit your requirements and development envi
      - **tx_latency** : The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200ms - 6hrs].
      - **rx_latency** : The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
 
-     For more information on input parameters, refer [sl_wifi_twt_selection_t](https://docs.silabs.com/wiseconnect/3.1.4/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t).
+     For more information on input parameters, refer [sl_wifi_twt_selection_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t).
 
      Enable TWT_AUTO_CONFIG MACRO in the app.c file to enable usage of this API.
 
@@ -163,12 +165,11 @@ The application can be configured to suit your requirements and development envi
      #define TWT_TOLERABLE_DEVIATION              10       // in percentage
      #define TWT_DEFAULT_WAKE_INTERVAL_MS         1024     // in milli seconds
      #define TWT_DEFAULT_WAKE_DURATION_MS         16       // in milli seconds
-     #define MAX_TX_AND_RX_LATENCY_LIMIT          22118400 // 6hrs in milli seconds
      #define MAX_BEACON_WAKE_UP_AFTER_SP \
      2 // The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
      ```
 
-    > Note :  WLAN Keep Alive should not be disabled while using this API.
+    > Note :  WLAN Keep-Alive timeout should not be disabled while using this API as there may be interoperability disconnection issues. It is recommended to use WLAN Keep Alive timeout of 30 sec which is the default configurtion.
 
     **sl_wifi_enable_target_wake_time API**
 
@@ -186,13 +187,13 @@ The application can be configured to suit your requirements and development envi
     sl_wifi_twt_request_t default_twt_setup_configuration = {
       .twt_enable              = 1,
       .twt_flow_id             = 1,
-      .wake_duration           = 0x80,
+      .wake_duration           = 0x60,
       .wake_duration_unit      = 0,
-      .wake_duration_tol       = 0x80,
+      .wake_duration_tol       = 0x60,
       .wake_int_exp            = 13,
       .wake_int_exp_tol        = 13,
-      .wake_int_mantissa       = 0x1B00,
-      .wake_int_mantissa_tol   = 0x1B00,
+      .wake_int_mantissa       = 0x1D4C,
+      .wake_int_mantissa_tol   = 0x1D4C,
       .implicit_twt            = 1,
       .un_announced_twt        = 1,
       .triggered_twt           = 0,
@@ -239,8 +240,8 @@ The application can be configured to suit your requirements and development envi
 
     > Note:
     >
-    > - TWT Wake duration depends on the wake duration unit. For example, for the above configuration, wake duration value is  (0xE0 * 256 = 57.3 msec).
-    > - TWT Wake interval is calculated as mantissa *2 ^ exp.  For example, for the above configuration, wake interval value is (0x1B00* 2^13  = 55.2 sec).
+    > - TWT Wake duration depends on the wake duration unit. For example, for the above configuration, wake duration value is  (0x60 * 256 = 24.5 msec).
+    > - TWT Wake interval is calculated as mantissa *2 ^ exp.  For example, for the above configuration, wake interval value is (0x1D4C * 2^13  = 61.4 sec).
     > - Configuring TWT Wake interval beyond 1 min might lead to disconnections from the AP.
     > - There might be disconnections while using TWT with wake interval > 4sec when connected to an AP with non-zero GTK key renewal time.
     > - Keep Alive timeout should be non-zero when negotiated TWT setup is **unannounced**, otherwise there might be disconnections.
@@ -335,9 +336,3 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - From Quick Access, choose Start Energy Capture option
 
   ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_7.png)
-
-- Expected output in Energy Profiler
-
-  ![Figure: Energy Profiler Output](resources/readme/outputs_2.png)
-
->**NOTE:** The average current consumption may vary based on the environment, the above image is for reference.

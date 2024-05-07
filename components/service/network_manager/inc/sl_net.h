@@ -34,6 +34,16 @@
 
 /** 
  * \addtogroup NET_INTERFACE_FUNCTIONS Network Interface
+ * 
+ * @note Stack overflows may occur when invoking functions or using your own variables or data structures while handling callbacks.
+ *       Configure the stack size by modifying the pre-processor macro `SL_SI91X_EVENT_HANDLER_STACK_SIZE` as 
+ *       per your application's requirements. See [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-preprocessor-build-settings/list-of-preprocessor-build-settings) 
+ *       for the instructions in modifying a pre-processor macro.
+ * @note Event/Callback handlers must not contain function calls or code which can block or delay the execution of 
+ *       the event/callback handler as it will cause all the other events to queue up and delay the execution of 
+ *       other events since all the events are invoked and handled from a single thread.
+ * @note Do not call any synchronous SDK APIs from within the Event/Callback handlers.
+ * 
  * \ingroup SL_NET_FUNCTIONS
  * @{ */
 
@@ -295,7 +305,7 @@ sl_status_t sl_net_inet_addr(const char *addr, uint32_t *value);
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
  * @param[in] ip_address
- *   Multicast IP address of type @ref sl_ip_address_t
+ *   Multicast IP address of type [sl_ip_address_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-address-t)
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -310,7 +320,7 @@ sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl
  * @param[in] interface
  *   Interface identified by @ref sl_net_interface_t
  * @param[in] ip_address
- *   Multicast IP address of type @ref sl_ip_address_t
+ *   Multicast IP address of type [sl_ip_address_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-address-t)
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -334,8 +344,3 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface);
 sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
 sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface);
-sl_status_t sl_net_wifi_btr_init(sl_net_interface_t interface,
-                                 const void *configuration,
-                                 void *context,
-                                 sl_net_event_handler_t event_handler);
-sl_status_t sl_net_wifi_btr_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);

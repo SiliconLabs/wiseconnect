@@ -30,9 +30,13 @@
 /******************************************************
  *               Variable Definitions
  ******************************************************/
-static si91x_socket_t sockets[NUMBER_OF_SOCKETS];
+si91x_socket_t *sli_si91x_sockets[NUMBER_OF_SOCKETS];
 
 static select_callback user_select_callback = NULL;
+
+static accept_callback user_accept_callback = NULL;
+
+static int32_t client_socket_accept_id = -1;
 
 static remote_socket_termination_callback user_remote_socket_termination_callback = NULL;
 
@@ -111,6 +115,13 @@ void set_select_callback(select_callback callback)
   user_select_callback = callback;
 }
 
+void sli_si91x_set_accept_callback(accept_callback callback, int32_t client_socket_id)
+{
+  // Set the user-defined accept callback function and the client socket ID
+  user_accept_callback    = callback;
+  client_socket_accept_id = client_socket_id;
+}
+
 void sli_si91x_set_remote_socket_termination_callback(remote_socket_termination_callback callback)
 {
   user_remote_socket_termination_callback = callback;
@@ -129,7 +140,7 @@ sl_status_t sl_si91x_vap_shutdown(uint8_t vap_id)
 
   // Iterate through all BSD sockets and reset those associated with the given VAP ID
   for (uint8_t socket_index = 0; socket_index < NUMBER_OF_BSD_SOCKETS; socket_index++) {
-    if ((sockets[socket_index].vap_id == vap_id)) {
+    if ((sli_si91x_sockets[socket_index] != NULL) && (sli_si91x_sockets[socket_index]->vap_id == vap_id)) {
       reset_socket_state(socket_index);
     }
   }
@@ -158,13 +169,16 @@ sl_status_t sl_si91x_config_socket(sl_si91x_socket_config_t socket_config)
 
 void reset_socket_state(int socket)
 {
-  memset(&sockets[socket], 0, sizeof(si91x_socket_t));
+  if (sli_si91x_sockets[socket] != NULL) {
+    free(sli_si91x_sockets[socket]);
+    sli_si91x_sockets[socket] = NULL;
+  }
 }
 
 // Get the SI91X socket with the specified index, if it is valid and not in RESET state
 si91x_socket_t *get_si91x_socket(int socket)
 {
-  return (((socket >= 0) && (socket < NUMBER_OF_SOCKETS)) && sockets[socket].state != RESET) ? &sockets[socket] : NULL;
+  return sli_si91x_sockets[socket];
 }
 
 // Find and return an available socket and its index
@@ -184,13 +198,21 @@ void get_free_socket(si91x_socket_t **socket, int *socket_fd)
   // Iterate through all available sockets to find a free one
   for (uint8_t socket_index = 0; socket_index < NUMBER_OF_SOCKETS; socket_index++) {
 
-    // If the socket's state is not RESET, it is in use, so skip it
-    if (sockets[socket_index].state != RESET) {
+    // If the socket is in use skip it
+    if (sli_si91x_sockets[socket_index] != NULL) {
       continue;
     }
 
+    // Allocate new socket
+    sli_si91x_sockets[socket_index] = malloc(sizeof(si91x_socket_t));
+    if (sli_si91x_sockets[socket_index] == NULL) {
+      return;
+    }
+    memset(sli_si91x_sockets[socket_index], 0, sizeof(si91x_socket_t));
+    sli_si91x_sockets[socket_index]->id = -1;
+
     // If a free socket is found, set the socket pointer to point to it
-    *socket = &sockets[socket_index];
+    *socket = sli_si91x_sockets[socket_index];
     // Set the socket_fd to the index of the free socket, which can be used as a file descriptor
     *socket_fd = socket_index;
     // Exit the loop because a free socket has been found.
@@ -202,7 +224,8 @@ bool is_port_available(uint16_t port_number)
 {
   // Check whether local port is already used or not
   for (uint8_t socket_index = 0; socket_index < NUMBER_OF_SOCKETS; socket_index++) {
-    if (sockets[socket_index].local_address.sin6_port == port_number) {
+    if (sli_si91x_sockets[socket_index] != NULL
+        && sli_si91x_sockets[socket_index]->local_address.sin6_port == port_number) {
       return false;
     }
   }
@@ -260,7 +283,7 @@ static uint16_t get_socket_id_from_socket_command(sl_si91x_packet_t *packet)
 
 static void si91x_socket_node_free_function(sl_wifi_buffer_t *buffer)
 {
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_CONTROL_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
 }
 
 static uint8_t si91x_socket_identification_function(sl_wifi_buffer_t *buffer, void *user_data)
@@ -428,7 +451,7 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
 
   // If the status is not OK and there's a buffer, free the buffer
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
   // Extract socket creation response information
@@ -448,7 +471,7 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
 
   // If socket is already bound to an local address and port, there is no need to copy it again.
   if (si91x_bsd_socket->state == BOUND) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
     return SL_STATUS_OK;
   }
 
@@ -464,7 +487,7 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
   }
 
   // Free the buffer
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
 
   return SL_STATUS_OK;
 }
@@ -514,12 +537,12 @@ int sli_si91x_shutdown(int socket, int how)
 
   // If the status is not OK and there's a buffer, free the buffer
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
   if (close_request_type == SHUTDOWN_BY_ID && si91x_socket->id == socket_close_response->socket_id) {
     reset_socket_state(socket);
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
     return SI91X_NO_ERROR;
   }
   // Reset sockets that match the close request
@@ -536,7 +559,7 @@ int sli_si91x_shutdown(int socket, int how)
     }
   }
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
 
   return SI91X_NO_ERROR;
 }
@@ -550,23 +573,17 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
   // Handle connection establishment response
   if (rx_packet->command == RSI_WLAN_RSP_CONN_ESTABLISH) {
     sl_si91x_rsp_ltcp_est_t *accept_response = (sl_si91x_rsp_ltcp_est_t *)rx_packet->data;
-    int *client_socket_id                    = (int *)sdk_context->socket_context;
+    int32_t *client_socket_id                = &client_socket_accept_id;
 
     handle_accept_response(*client_socket_id, accept_response);
-
-    accept_callback callback = (accept_callback)sdk_context->user_context;
 
     si91x_socket_t *client_socket = get_si91x_socket(*client_socket_id);
     //Verifying socket existence
     if (client_socket == NULL) {
-      SL_CLEANUP_MALLOC(sdk_context);
       return -1;
     }
     // Call the accept callback function with relevant socket information
-    callback(*client_socket_id, (struct sockaddr *)&client_socket->remote_address, client_socket->type);
-
-    free(sdk_context->socket_context);
-
+    user_accept_callback(*client_socket_id, (struct sockaddr *)&client_socket->remote_address, client_socket->type);
   }
   // Handle remote socket termination response
   else if (rx_packet->command == RSI_WLAN_RSP_REMOTE_TERMINATE) {
@@ -598,11 +615,12 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
     si91x_rsp_socket_recv_t *firmware_socket_response = (si91x_rsp_socket_recv_t *)rx_packet->data;
     uint8_t *data                                     = (uint8_t *)(rx_packet->data + firmware_socket_response->offset);
 
-    uint8_t host_socket = 0;
+    int8_t host_socket = -1;
 
     // Find the host socket corresponding to the received data
     for (uint8_t host_socket_index = 0; host_socket_index < NUMBER_OF_SOCKETS; host_socket_index++) {
-      if (firmware_socket_response->socket_id == sockets[host_socket_index].id) {
+      if ((sli_si91x_sockets[host_socket_index] != NULL)
+          && (firmware_socket_response->socket_id == sli_si91x_sockets[host_socket_index]->id)) {
         host_socket = host_socket_index;
       }
     }
@@ -630,11 +648,12 @@ sl_status_t si91x_socket_event_handler(sl_status_t status,
     sl_si91x_rsp_tcp_ack_t *tcp_ack = (sl_si91x_rsp_tcp_ack_t *)rx_packet->data;
 
     // Initialize a variable to store the host socket ID
-    uint8_t host_socket = 0;
+    int8_t host_socket = -1;
 
     // Iterate through all host sockets to find a matching socket ID
     for (uint8_t host_socket_index = 0; host_socket_index < NUMBER_OF_SOCKETS; host_socket_index++) {
-      if (tcp_ack->socket_id == sockets[host_socket_index].id) {
+      if ((sli_si91x_sockets[host_socket_index] != NULL)
+          && (tcp_ack->socket_id == sli_si91x_sockets[host_socket_index]->id)) {
         host_socket = host_socket_index;
         break;
       }
@@ -724,7 +743,7 @@ sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_inf
                                         &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
 
   VERIFY_STATUS_AND_RETURN(status);
@@ -739,6 +758,6 @@ sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_inf
          response->socket_info,
          (sizeof(sl_si91x_sock_info_query_t) * socket_info_response->number_of_opened_sockets));
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   return SL_STATUS_OK;
 }

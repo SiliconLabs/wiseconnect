@@ -1097,15 +1097,13 @@ typedef struct rsi_ble_per_transmit_s {
   uint8_t payload_type;
   /** Transmit Power 
 - 
-       Transmit power value for the rf_chain parameter set to the HP chain the values for the TX power indexes are 0 - 20. 
+       Default Value for BLE TX Power Index is 31, The range for the BLE TX Power Index is 1 to 127 (0, 32 indexes are invalid). 
 -
-       Transmit power value for the rf chain parameter set to LP chain and values are: 
+       TX power index for the BLE LP Chain : 1 to 31 (0dBm Mode), 33 to 63 ( 10dBm Mode) 
 -
-       TX power for the BLE LP Chain :1 to 31 (0dBm Mode), 33 to 63 ( 10dBm Mode) 
+       TX power index for the BLE HP Chain : 1 to 127 
 -
-       TX power for the BLE HP chain : 64 to 127 
--
-     @note For the LP Chain - Power index vs Outpt power in dBm
+     @note  For the LP Chain - Power index vs Outpt power in dBm.
 
  *    -----------------------------------------------------------------------------------------
  *   |       Power Index   |                  Output Power in dBm                              |
@@ -1173,9 +1171,9 @@ typedef struct rsi_ble_per_transmit_s {
  *   |      61             |                     6.661428559	  		               |
  *   |      62             |                     7.073964236	  		               |
  *   |      63             |                     7.546029076	  		               |
- *   ----------------------|-------------------------------------------------------------------
+ *   -----------------------------------------------------------------------------------------
 -
-     @note For the HP Chain - Power index vs Outpt power in dBm
+     @note  For the HP Chain - Power index vs Outpt power in dBm.
 
  *    -----------------------------------------------------------------------------------------
  *   |       Power Index   |                  Output Power in dBm                              |
@@ -1208,7 +1206,6 @@ typedef struct rsi_ble_per_transmit_s {
  *   |         -           |      		    -	                                       |
  *   |         127         |   		(Max Power Supported by Country region)                |
  *   ----------------------|-------------------------------------------------------------------
-
  */
 
   uint8_t tx_power;
@@ -1336,13 +1333,13 @@ typedef struct rsi_ble_ae_adv_report_s {
  *   |      3              |                    Scan Response                                  |
  *   |      4              |                 Legacy Advertising PDUs used                      |
  *   |    5 to 6           |                       Data status : 
- * -                            |
+ *                            |
  *   |                     |             0b00  = complete 
- * -                                   |
+ *                                   |
  *   |                     |             0b01  = Incomplete, more data to come 
- * -              |
+ *              |
  *   |                     |             0b10  = Incomplete, data truncated, no more to come 
- * -|
+ *|
  *   |                     |             0b11  = Reserved for future use                       |
  */
   uint16_t event_type;
@@ -1375,7 +1372,7 @@ typedef struct rsi_ble_ae_adv_report_s {
    *   |           Value     |                    Parameter Description                                                                                                                                         |
    *   ----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    *   |       0x00 to 0x0F  |  Value of the Advertising SID subfield in the ADI field of the PDU or, 
- * -  for  scan responses, in the ADI field of the original scannable advertisement                         |
+ *  for  scan responses, in the ADI field of the original scannable advertisement                         |
    *   |           0xFF      |                   No ADI field provided                                                                                                                                          |
    *
    */
@@ -1555,15 +1552,15 @@ uint8_t rsi_convert_db_to_powindex(int8_t tx_power_in_dBm);
  * @fn         int32_t rsi_ble_set_random_address(void)
  * @brief      Request the local device to set a random address. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  void
  * @return The following values are returned:
- * -     0 - Success 
- * -
+ *     *             - 0 - Success 
+ *
  *             Non-Zero Value - Failure 
- * -
+ *
  *             If the return value is less than 0 
- * -
+ *
  *             -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
@@ -1573,17 +1570,14 @@ int32_t rsi_ble_set_random_address(void);
 /**
  * @fn         int32_t rsi_ble_set_random_address_with_value(uint8_t *random_addr)
  * @brief      Request the local device to set a given random address. This is a Blocking API
- * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ * @pre Pre-condition:
+ *      - Device should be initialized before calling this API.
  * @param[in]  random_addr - random address of the device to be set
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ *           *             - 0 - Success 
+ *           Non-Zero Value - Failure 
+ *           If the return value is less than 0 
+ *           -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_set_random_address_with_value(uint8_t *random_addr);
@@ -1592,23 +1586,17 @@ int32_t rsi_ble_set_random_address_with_value(uint8_t *random_addr);
 /**
  * @fn         int32_t rsi_ble_start_advertising(void)
  * @brief      Request the local device to start advertising. This is a Blocking API 
- * -
  *             A received event \ref rsi_ble_on_enhance_connect_t/ \ref rsi_ble_on_connect_t indicates remote device given ble connect command and got connected
- * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ * @pre Pre-condition:
+ *        Device should be initialized before calling this API.
  * @param[in]  void
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments
+ *     *             - 0 - Success 
+ *     Non-Zero Value - Failure 
+ *     If the return value is less than 0 
+ *     -4 - Buffer not available to serve the command 
+ *     0x4E0C - Command disallowed 
+ *     0x4046 - Invalid Arguments
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 
@@ -1618,25 +1606,18 @@ int32_t rsi_ble_start_advertising(void);
 /**
  * @fn         int32_t rsi_ble_start_advertising_with_values(void *rsi_ble_adv)
  * @brief      Request the local device to start advertising with specified values. This is a Blocking API 
- * -
- *             A received event \ref rsi_ble_on_enhance_connect_t/ \ref rsi_ble_on_connect_t indicates remote device given ble connect command and got connected
- * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *     A received event \ref rsi_ble_on_enhance_connect_t/ \ref rsi_ble_on_connect_t indicates remote device given ble connect command and got connected
+ * @pre Pre-condition:
+ *        Device should be initialized before calling this API.
  * @param[in]  rsi_ble_adv - This structure pointer holds the information of advertising values 
- * -
- *                           This variable is the pointer of the \ref rsi_ble_req_adv_s structure
+ * This variable is the pointer of the \ref rsi_ble_req_adv_s structure
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments
+ *     *             - 0 - Success 
+ *     Non-Zero Value - Failure 
+ *     If the return value is less than 0 
+ *     -4 - Buffer not available to serve the command 
+ *     0x4E0C - Command disallowed 
+ *     0x4046 - Invalid Arguments
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_start_advertising_with_values(void *rsi_ble_adv);
@@ -1645,21 +1626,18 @@ int32_t rsi_ble_start_advertising_with_values(void *rsi_ble_adv);
 /**
  * @fn         int32_t rsi_ble_encrypt(uint8_t *key, uint8_t *data, uint8_t *resp)
  * @brief      Encrypt the plain text data fed by the user using the key provided.
- * -
- *             It uses the AES-128 bit block cypher a logo to generate encrypted data. Refer to Bluetooth Spec 5.0 for further details.
+ *       It uses the AES-128 bit block cypher a logo to generate encrypted data. 
+ *       Refer to Bluetooth Spec 5.0 for further details.
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API. This is a Blocking API
+ *        Device should be initialized before calling this API. This is a Blocking API
  * @param[in]  key - 16 Bytes key for Encryption of data.
  * @param[in]  data - 16 Bytes of Data request to encrypt.
  * @param[out] resp - Encrypted data
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ *     *             - 0 - Success 
+ * Non-Zero Value - Failure 
+ * If the return value is less than 0 
+ * -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_encrypt(uint8_t *key, uint8_t *data, uint8_t *resp);
@@ -1669,20 +1647,15 @@ int32_t rsi_ble_encrypt(uint8_t *key, uint8_t *data, uint8_t *resp);
  * @fn         int32_t rsi_ble_stop_advertising(void)
  * @brief      Stop advertising. This is a Blocking API
  * @pre Pre-conditions:
- * -        Call \ref rsi_ble_start_advertising() before calling this API.
+ *        Call \ref rsi_ble_start_advertising() before calling this API.
  * @param[in]  void
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments
+ *     *             - 0 - Success 
+ *     Non-Zero Value - Failure 
+ *     If the return value is less than 0 
+ *     -4 - Buffer not available to serve the command 
+ *     0x4E0C - Command disallowed 
+ *     0x4046 - Invalid Arguments
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_stop_advertising(void);
@@ -1691,23 +1664,18 @@ int32_t rsi_ble_stop_advertising(void);
 /**
  * @fn         int32_t rsi_ble_set_advertise_data(uint8_t *data, uint16_t data_len)
  * @brief      Set the advertising data. This is a Blocking API
- * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ * @pre Pre-condition:
+ *        Device should be initialized before calling this API.
  * @param[in]  data - Advertising data.
  * @param[in]  data_len - Total length of advertising data.
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ *     *             - 0 - Success 
+ *     Non-Zero Value - Failure 
+ *     If the return value is less than 0 
+ *     -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- * @note       1. The maximum length of advertising data payload is 31 bytes. 
- * -
- *             2. The basic format of advertising payload record contains length and data. 
- * -
+ * @note       The maximum length of advertising data payload is 31 bytes. 
+ * @note       The basic format of advertising payload record contains length and data.
  */
 int32_t rsi_ble_set_advertise_data(uint8_t *data, uint16_t data_len);
 
@@ -1715,19 +1683,15 @@ int32_t rsi_ble_set_advertise_data(uint8_t *data, uint16_t data_len);
 /**
  * @fn         int32_t rsi_ble_set_scan_response_data(uint8_t *data, uint16_t data_len)
  * @brief      Request the local device to set the scan response data. This is a Blocking API 
- * -
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  data - Data about to be sent
  * @param[in]  data_len - Length of data, which is about to be sent
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ *     *             - 0 - Success 
+ *     Non-Zero Value - Failure 
+ *     If the return value is less than 0 
+ *     -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_set_scan_response_data(uint8_t *data, uint16_t data_len);
@@ -1737,21 +1701,16 @@ int32_t rsi_ble_set_scan_response_data(uint8_t *data, uint16_t data_len);
  * @fn         int32_t rsi_ble_start_scanning(void)
  * @brief      Start scanning. This is a Blocking API
  *             A received event \ref rsi_ble_on_adv_report_event_t indicates advertise report of remote device received.
- * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ * @pre Pre-condition:
+ *        Device should be initialized before calling this API.
  * @param[in]  void
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments
+ *     *             - 0 - Success 
+ *     Non-Zero Value - Failure 
+ *     If the return value is less than 0 
+ *     -4 - Buffer not available to serve the command 
+ *     0x4E0C - Command disallowed 
+ *     0x4046 - Invalid Arguments
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_start_scanning(void);
@@ -1760,20 +1719,16 @@ int32_t rsi_ble_start_scanning(void);
 /**
  * @fn         int32_t rsi_ble_start_scanning_with_values(void *rsi_ble_scan_params)
  * @brief      Start scanning with values. This is a Blocking API 
- * -
- *             A received event \ref rsi_ble_on_adv_report_event_t indicates advertise report of remote device received.
- * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ * A received event \ref rsi_ble_on_adv_report_event_t indicates advertise report of remote device received.
+ * @pre Pre-condition:
+ *      - Device should be initialized before calling this API.
  * @param[in]  rsi_ble_scan_params - BLE scan parameters structure
  *             please refer rsi_ble_req_scan_s structure for more info
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments
+ *     *             - 0 - Success 
+ *     Non-Zero Value - Failure 
+ *     0x4E0C - Command disallowed 
+ *     0x4046 - Invalid Arguments
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_start_scanning_with_values(void *rsi_ble_scan_params);
@@ -1783,17 +1738,14 @@ int32_t rsi_ble_start_scanning_with_values(void *rsi_ble_scan_params);
  * @fn         int32_t rsi_ble_stop_scanning(void)
  * @brief      Stop scanning. This is a Blocking API
  * @pre Pre-conditions:
- * -        \ref rsi_ble_start_scanning() API needs to be called before this API.
+ *      - \ref rsi_ble_start_scanning() API needs to be called before this API.
  * @param[in]  void
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
- *             0x4E0C - Command disallowed
+ *     *             - 0 - Success 
+ *     Non-Zero Value - Failure 
+ *     If the return value is less than 0 
+ *     -4 - Buffer not available to serve the command
+ *     0x4E0C - Command disallowed
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_stop_scanning(void);
@@ -1809,96 +1761,58 @@ int32_t rsi_ble_stop_scanning(void);
  *                                              uint16_t conn_latency,
  *                                              uint16_t supervision_tout)
  * @brief      Connect to the remote BLE device with the user configured parameters. This is a blocking API. 
- * -
- *             A received event \ref rsi_ble_on_enhance_connect_t / \ref rsi_ble_on_connect_t indicates that the connection successful and 
- * -
- *             a received event \ref rsi_ble_on_disconnect_t indicates that connection failures have occurred.
- * @note       If a connection can't be established, for example, the remote device has gone out of range, has entered into deep sleep, or is not advertising, 
- * -
- *             the stack will try to connect forever. In this case, the application will not get an event related to the connection request. 
- * -
- *             To recover from this situation, the application can implement a timeout and call rsi_ble_connect_cancel() to cancel the connection request. 
- * -
- *             Subsequent calls of this command have to wait for the ongoing command to complete.
+ * A received event \ref rsi_ble_on_enhance_connect_t / \ref rsi_ble_on_connect_t indicates that the connection successful and 
+ * a received event \ref rsi_ble_on_disconnect_t indicates that connection failures have occurred.
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  remote_dev_addr_type - AddressType - Specifies the type of the address mentioned in BD Address 
- * -
- *                                  0 - Public Address 
- * -
- *                                  1 - Random Address
+ *                                  - 0 - Public Address 
+ *                                  - 1 - Random Address
  * @param[in]  remote_dev_addr - This parameter describes the device address of remote device
  * @param[in]  scan_interval - LE Scan Interval : N=0xXXXX 
- * -
- *                             It is defined as the time interval from when the Controller
- *                             started its last LE scan until it 
- * -
- *                             begins the subsequent LE scan. 
- * -
- *                             Range: 0x0004 to 0x4000 
- * -
- *                             Time = N * 0.625 msec 
- * -
- *                             Time Range: 2.5 msec to 10 . 24 seconds
+ *                           - It is defined as the time interval from when the Controller started its last LE scan until it 
+ *                               begins the subsequent LE scan. 
+ *                           - Range: 0x0004 to 0x4000 
+ *                           - Time = N * 0.625 msec 
+ *                           - Time Range: 2.5 msec to 10 . 24 seconds
  * @param[in]  scan_window - LE Scan Window : N=0xXXXX 
- * -
- *                           Amount of time for the duration of the LE scan. LE_Scan_Window
+ *                         - Amount of time for the duration of the LE scan. LE_Scan_Window
  *                           must be less than or equal to LE_Scan_Interval 
- * -
- *                           Range: 0x0004 to 0x4000 
- * -
- *                           Time = N * 0.625 msec 
- * -
- *                           Time Range: 2.5 msec to 10 . 24 seconds
+ *                         - Range: 0x0004 to 0x4000 
+ *                         - Time = N * 0.625 msec 
+ *                         - Time Range: 2.5 msec to 10 . 24 seconds
  * @param[in]  conn_interval_max - Max Connection Interval : N=0xXXXX 
- * -
- *                                 Minimum value for the connection event interval, which must 
- * -
+ *                               - Minimum value for the connection event interval, which must 
  *                                 be greater than or equal to Conn_Interval_Min. 
- * -
- *                                 Range: 0x0006 to 0x0C80 
- * -
- *                                 Time = N * 1.25 msec 
- * -
- *                                 Time Range: 7.5 msec to 4 seconds. 
- * -
- *                                 0x0000 - 0x0005 and 0x0C81 - 0xFFFF - Reserved for future use
+ *                               - Range: 0x0006 to 0x0C80 
+ *                               - Time = N * 1.25 msec 
+ *                               - Time Range: 7.5 msec to 4 seconds. 
+ *                               - 0x0000 - 0x0005 and 0x0C81 - 0xFFFF - Reserved for future use
  * @param[in]  conn_interval_min - Min Connection Interval : N=0xXXXX 
- * -
- *                                 Minimum value for the connection event interval, which must
+ *                               - Minimum value for the connection event interval, which must
  *                                 be greater than or equal to Conn_Interval_Max. 
- * -
- *                                 Range: 0x0006 to 0x0C80 
- * -
- *                                 Time = N * 1.25 msec 
- * -
- *                                 Time Range: 7.5 msec to 4 seconds. 
- * -
- *                                 0x0000 - 0x0005 and 0x0C81 - 0xFFFF - Reserved for future use
+ *                               - Range: 0x0006 to 0x0C80 
+ *                               - Time = N * 1.25 msec 
+ *                               - Time Range: 7.5 msec to 4 seconds. 
+ *                               - 0x0000 - 0x0005 and 0x0C81 - 0xFFFF - Reserved for future use
  * @param[in]  conn_latency - Connection Latency : N = 0xXXXX 
- * -
- *                            Peripheral latency for the connection in number of connection events. 
- * -
- *                            Range: 0x0000 to 0x01F4
+ *                          - Peripheral latency for the connection in number of connection events. 
+ *                          - Range: 0x0000 to 0x01F4
  * @param[in]  supervision_tout - Supervision Timeout : N = 0xXXXX 
- * -
- *                                Supervision timeout for the LE Link. 
- * -
- *                                Range: 0x000A to 0x0C80 
- * -
- *                                Time = N * 10 msec 
- * -
- *                                Time Range: 100 msec to 32 seconds 
- * -
- *                                0x0000 - 0x0009 and 0x0C81 - 0xFFFF - Reserved for future use
+ *                              - Supervision timeout for the LE Link. 
+ *                              - Range: 0x000A to 0x0C80 
+ *                              - Time = N * 10 msec 
+ *                              - Time Range: 100 msec to 32 seconds 
+ *                              - 0x0000 - 0x0009 and 0x0C81 - 0xFFFF - Reserved for future use
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments
+ *                              -     0 - Success 
+ *                              -     Non-Zero Value - Failure 
+ *                              -     0x4E0C - Command disallowed 
+ *                              -     0x4046 - Invalid Arguments
+ * @note       If a connection can't be established, for example, the remote device has gone out of range, has entered into deep sleep, or is not advertising, 
+ *             the stack will try to connect forever. In this case, the application will not get an event related to the connection request. 
+ * @note       To recover from this situation, the application can implement a timeout and call rsi_ble_connect_cancel() to cancel the connection request. 
+ *             Subsequent calls of this command have to wait for the ongoing command to complete.
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_connect_with_params(uint8_t remote_dev_addr_type,
@@ -1914,30 +1828,22 @@ int32_t rsi_ble_connect_with_params(uint8_t remote_dev_addr_type,
 /**
  * @fn         int32_t rsi_ble_connect(uint8_t remote_dev_addr_type, int8_t *remote_dev_addr)
  * @brief      Connect to the remote BLE device. This is a blocking API. 
- * -
- *             A received event \ref rsi_ble_on_enhance_connect_t/ \ref rsi_ble_on_connect_t indicates that the connection successful and 
- * -
- *             a received event \ref rsi_ble_on_disconnect_t indicates that connection failures have occurred.
- * @note       If a connection can't be established, for example, the remote device has gone out of range, has entered into deep sleep, or is not advertising, 
- * -
- *             the stack will try to connect forever. In this case, the application will not get an event related to the connection request. 
- * -
- *             To recover from this situation, the application can implement a timeout and call rsi_ble_connect_cancel() to cancel the connection request. 
- * -
- *             Subsequent calls of this command have to wait for the ongoing command to complete.
+ * A received event \ref rsi_ble_on_enhance_connect_t/ \ref rsi_ble_on_connect_t indicates that the connection successful and 
+ * a received event \ref rsi_ble_on_disconnect_t indicates that connection failures have occurred.
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  remote_dev_addr_type - This parameter describes the address type of the remote device
  * @param[in]  remote_dev_addr - This parameter describes the device address of the remote device
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments
+ * *             - 0 - Success 
+ * Non-Zero Value - Failure 
+ * 0x4E0C - Command disallowed 
+ * 0x4046 - Invalid Arguments
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * @note If a connection can't be established, for example, the remote device has gone out of range, has entered into deep sleep, or is not advertising, 
+ * @note The stack will try to connect forever. In this case, the application will not get an event related to the connection request. 
+ * @note To recover from this situation, the application can implement a timeout and call rsi_ble_connect_cancel() to cancel the connection request. 
+ * @note Subsequent calls of this command have to wait for the ongoing command to complete.
  */
 int32_t rsi_ble_connect(uint8_t remote_dev_addr_type, int8_t *remote_dev_addr);
 
@@ -1946,21 +1852,15 @@ int32_t rsi_ble_connect(uint8_t remote_dev_addr_type, int8_t *remote_dev_addr);
  * @fn         int32_t rsi_ble_enhance_connect_with_params(void* ble_enhance_conn_params)
  * @brief      Connect to the remote BLE device with the user configured parameters.
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  ble_enhance_conn_params - BLE enhance connection parameter structure. See notes for the fields in this structure.
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments 
- * -
+ * *             - 0 - Success 
+ * Non-Zero Value - Failure 
+ * If the return value is less than 0 
+ * -4 - Buffer not available to serve the command 
+ * 0x4E0C - Command disallowed 
+ * 0x4046 - Invalid Arguments 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  * @note       The following fields are included in the ble_enhance_conn_params parameter structure:
  *               - dev_addr_type - Address type of the device to connect.
@@ -2009,22 +1909,16 @@ int32_t rsi_ble_enhance_connect_with_params(void *ble_enhance_conn_params);
 /**
  * @fn         int32_t rsi_ble_connect_cancel(int8_t *remote_dev_address)
  * @brief      Cancel the connection to the remote BLE device. This is a blocking API. 
- * -
- *             A received event \ref rsi_ble_on_disconnect_t indicates disconnect complete.
+ * A received event \ref rsi_ble_on_disconnect_t indicates disconnect complete.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address - This parameter describes the device address of the remote device
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments 
- * -
- *             0x4E02 - Unknown Connection Identifier 
- * -
+ *                             - 0 - Success 
+ *                             - Non-Zero Value - Failure 
+ *                             - 0x4E0C - Command disallowed 
+ *                             - 0x4046 - Invalid Arguments 
+ *                             - 0x4E02 - Unknown Connection Identifier 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_connect_cancel(int8_t *remote_dev_address);
@@ -2034,21 +1928,15 @@ int32_t rsi_ble_connect_cancel(int8_t *remote_dev_address);
  * @fn         int32_t rsi_ble_disconnect(int8_t *remote_dev_address)
  * @brief      Disconnect with the remote BLE device. This is a Blocking API
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address - This parameter describes the device address of the remote device
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             0x4E0C - Command disallowed 
- * -
- *             0x4D05  BLE socket not available 
- * -
- *             0x4E62 	Invalid Parameters 
- * -
- *             0x4D04	BLE not connected 
- * -
+ * 0 - Success 
+ * Non-Zero Value - Failure 
+ * 0x4E0C - Command disallowed 
+ * 0x4D05  BLE socket not available 
+ * 0x4E62 	Invalid Parameters 
+ * 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_disconnect(int8_t *remote_dev_address);
@@ -2058,33 +1946,21 @@ int32_t rsi_ble_disconnect(int8_t *remote_dev_address);
  * @fn         int32_t rsi_ble_get_device_state(uint8_t *resp)
  * @brief      Get the local device state. This is a Blocking API. The state value is filled in "resp".
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        - Device should be initialized before calling this API.
  * @param[out] resp - This is an output parameter which consists of local device state. 
- * -
- *                    This is a 1-byte value. The possible states are described below 
- * -
- *             BIT(0)    Advertising state 
- * -
- *             BIT(1)    Scanning state 
- * -
- *             BIT(2)    Initiating state 
- * -
- *             BIT(3)    Connected state 
- * -
- *             BIT(4)    Extended Advertising state 
- * -
- *             BIT(5)    Extended Scanning state
- * -            
- *             BIT(6)    Extended Initiating state
- * -            
+ * This is a 1-byte value. The possible states are described below: 
+ * BIT(0)    Advertising state 
+ * BIT(1)    Scanning state 
+ * BIT(2)    Initiating state 
+ * BIT(3)    Connected state 
+ * BIT(4)    Extended Advertising state 
+ * BIT(5)    Extended Scanning state
+ * BIT(6)    Extended Initiating state         
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ *                                   - 0 - Success 
+ *                                   - Non-Zero Value - Failure 
+ *                                   - If the return value is less than 0 
+ *                                   - -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_device_state(uint8_t *resp);
@@ -2094,18 +1970,14 @@ int32_t rsi_ble_get_device_state(uint8_t *resp);
  * @fn         int32_t rsi_ble_set_smp_pairing_cap_data(rsi_ble_set_smp_pairing_capabilty_data_t *smp_pair_cap_data)
  * @brief      Set the SMP Pairing Capability of local device. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  smp_pair_cap_data - This structure pointer holds the information of the SMP capability data values 
- * -
- *             please refer rsi_ble_set_smp_pairing_capabilty_data structure for more info
+ * please refer rsi_ble_set_smp_pairing_capabilty_data structure for more info
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_set_smp_pairing_cap_data(rsi_ble_set_smp_pairing_capabilty_data_t *smp_pair_cap_data);
@@ -2115,12 +1987,11 @@ int32_t rsi_ble_set_smp_pairing_cap_data(rsi_ble_set_smp_pairing_capabilty_data_
  * @fn         int32_t rsi_ble_set_local_irk_value(uint8_t *l_irk)
  * @brief      Set the IRK value to the local device. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        - Device should be initialized before calling this API.
  * @param[in]  l_irk -  l_irk  Pointer to local_irk
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure
+ * - 0 - Success 
+ * - Non-Zero Value - Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_set_local_irk_value(uint8_t *l_irk);
@@ -2129,28 +2000,20 @@ int32_t rsi_ble_set_local_irk_value(uint8_t *l_irk);
 /**
  * @fn         int32_t rsi_ble_conn_param_resp(uint8_t *remote_dev_address, uint8_t status)
  * @brief      Give the response for the remote device connection parameter request. This is a Blocking API 
- * -
- *             A received event \ref rsi_ble_on_conn_update_complete_t indicates connection update procedure is successful.
+ * A received event \ref rsi_ble_on_conn_update_complete_t indicates connection update procedure is successful.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address 	- remote device address
  * @param[in]  status 			- accept or reject the connection parameters update request 
- * -
- *                    			0 - ACCEPT, 
- * -
-					1 - REJECT 
- * -
+ *                          -	0 - ACCEPT, 
+ *                          - 1 - REJECT 
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure
- *             0x4E0C - Command disallowed 
- * -
- *             0x4046 - Invalid Arguments 
- * -
- *             0x4E02 - Unknown Connection Identifier
+ * - 0 - Success 
+ * - Non-Zero Value - Failure
+ * - 0x4E0C - Command disallowed 
+ * - 0x4046 - Invalid Arguments 
+ * - 0x4E02 - Unknown Connection Identifier
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_conn_param_resp(uint8_t *remote_dev_address, uint8_t status);
 
@@ -2158,44 +2021,28 @@ int32_t rsi_ble_conn_param_resp(uint8_t *remote_dev_address, uint8_t status);
 /**
  * @fn         int32_t rsi_ble_smp_pair_request(uint8_t *remote_dev_address, uint8_t io_capability, uint8_t mitm_req)
  * @brief      Request the SMP pairing process with the remote device. This is a Blocking API 
- * -
- *             A received event \ref rsi_ble_on_smp_request_t indicated remote device is given Security Request  and need to respond back with \ref rsi_ble_smp_pair_request 
- * -
- *             A received event \ref rsi_ble_on_smp_response_t indicated remote device is given SMP Pair Request and need to respond back with \ref rsi_ble_smp_pair_response 
- * -
- *             A received event \ref rsi_ble_on_smp_failed_t indicated SMP procedure have failed
+ * - A received event \ref rsi_ble_on_smp_request_t indicated remote device is given Security Request  and need to respond back with \ref rsi_ble_smp_pair_request 
+ * - A received event \ref rsi_ble_on_smp_response_t indicated remote device is given SMP Pair Request and need to respond back with \ref rsi_ble_smp_pair_response 
+ * - A received event \ref rsi_ble_on_smp_failed_t indicated SMP procedure have failed
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address -  This is the remote device address
  * @param[in]  io_capability - This is the device input output capability 
- * -
- *                            0x00 - Display Only 
- * -
- *                            0x01 - Display Yes/No 
- * -
- *                            0x02 - Keyboard Only 
- * -
- *                            0x03 - No Input No Output
+ * - 0x00 - Display Only 
+ * - 0x01 - Display Yes/No 
+ * - 0x02 - Keyboard Only 
+ * - 0x03 - No Input No Output
  * @param[in]  mitm_req - MITM enable/disable 
- * -
- *                       0 - Disable 
- * -
- *                       1 - Enable
+ *                      - 0 - Disable 
+ *                      - 1 - Enable
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command 
+ * - 0x4D05  BLE socket not available 
+ * - 0x4E62 	Invalid Parameters 
+ * - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_smp_pair_request(uint8_t *remote_dev_address, uint8_t io_capability, uint8_t mitm_req);
@@ -2205,24 +2052,17 @@ int32_t rsi_ble_smp_pair_request(uint8_t *remote_dev_address, uint8_t io_capabil
  * @fn         int32_t rsi_ble_smp_pair_failed(uint8_t *remote_dev_address, uint8_t reason)
  * @brief      Send SMP pairing failure reason to the remote device.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address -  This is the remote device address
  * @param[in]  reason - This is the reason for SMP Pairing Failure 
- * -
- *                            0x05 - Pairing Not Supported 
- * -
- *                            0x08 - Unspecified Reason 
- * -
- *                            0x09 - Repeated Attempts 
- * -
+ * - 0x05 - Pairing Not Supported 
+ * - 0x08 - Unspecified Reason 
+ * - 0x09 - Repeated Attempts 
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command
  */
 int32_t rsi_ble_smp_pair_failed(uint8_t *remote_dev_address, uint8_t reason);
 
@@ -2231,41 +2071,25 @@ int32_t rsi_ble_smp_pair_failed(uint8_t *remote_dev_address, uint8_t reason);
  * @fn         int32_t rsi_ble_ltk_req_reply(uint8_t *remote_dev_address,
  *                                           uint8_t reply_type, uint8_t *ltk)
  * @brief      Send the local long term key of its associated local EDIV and local Rand. This is a Blocking API 
- * -
- *             A received event \ref rsi_ble_on_encrypt_started_t indicated encrypted event is received from module 
- * -
- *             A received event \ref rsi_ble_on_smp_failed_t indicated SMP procedure have failed
+ * - A received event \ref rsi_ble_on_encrypt_started_t indicated encrypted event is received from module 
+ * - A received event \ref rsi_ble_on_smp_failed_t indicated SMP procedure have failed
  * @param[in]  remote_dev_address - remote device address
  * @param[in]  reply_type  - 0 - Negative reply 
- * -
- *                      BIT(0) - Positive Reply (Encryption Enabled)
- * -
-			BIT(1) - Un authenticated LTK or STK-based Encryption Enabled 
- * -
-			BIT(2) - Authenticated LTK or STK-based Encryption Enabled 
- * -
-			BIT(3) - Authenticated LTK with LE Secure Connections based Encryption Enabled 
- * -
-			BIT(4) to BIT(6) - Reserved for Future use 
- * -
-			BIT(7) - LE Secure Connection Enabled 
- * -
+ *                         - BIT(0) - Positive Reply (Encryption Enabled)
+ *                         - BIT(1) - Un authenticated LTK or STK-based Encryption Enabled 
+ *                         - BIT(2) - Authenticated LTK or STK-based Encryption Enabled 
+ *                         - BIT(3) - Authenticated LTK with LE Secure Connections based Encryption Enabled 
+ *                         - BIT(4) to BIT(6) - Reserved for Future use 
+ *                         - BIT(7) - LE Secure Connection Enabled 
  * @param[in]  ltk - Long Term Key 16 bytes
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command 
+ * - 0x4D05  BLE socket not available 
+ * - 0x4E62 	Invalid Parameters 
+ * - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_ltk_req_reply(uint8_t *remote_dev_address, uint8_t reply_type, uint8_t *ltk);
@@ -2274,46 +2098,29 @@ int32_t rsi_ble_ltk_req_reply(uint8_t *remote_dev_address, uint8_t reply_type, u
 /**
  * @fn         int32_t rsi_ble_smp_pair_response(uint8_t *remote_dev_address, uint8_t io_capability, uint8_t mitm_req)
  * @brief      Send SMP pairing response during the process of pairing with the remote device. This is a Blocking API 
- * -
- *             A received event \ref rsi_ble_on_smp_passkey_t indicated Legacy SMP passkey is received and need to respond back with \ref rsi_ble_smp_passkey() 
- * -
- *             A received event \ref rsi_ble_on_sc_passkey_t indicated BLE SC passkey is received and need to respond back with \ref rsi_ble_smp_passkey() 
- * -
- *             A received event \ref rsi_ble_on_smp_passkey_display_t indicates SMP passkey display is received from the module 
- * -
- *             A received event \ref rsi_ble_on_smp_failed_t indicated SMP Failed event is received
- * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ * - A received event \ref rsi_ble_on_smp_passkey_t indicated Legacy SMP passkey is received and need to respond back with \ref rsi_ble_smp_passkey() 
+ * - A received event \ref rsi_ble_on_sc_passkey_t indicated BLE SC passkey is received and need to respond back with \ref rsi_ble_smp_passkey() 
+ * - A received event \ref rsi_ble_on_smp_passkey_display_t indicates SMP passkey display is received from the module 
+ * - A received event \ref rsi_ble_on_smp_failed_t indicated SMP Failed event is received
+ * @pre Pre-condition:
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address -  This is the remote device address
  * @param[in]  io_capability - This is the device input output capability 
- * -
- *                            0x00 - Display Only 
- * -
- *                            0x01 - Display Yes/No 
- * -
- *                            0x02 - Keyboard Only 
- * -
- *                            0x03 - No Input No Output
+ * 0x00 - Display Only 
+ * 0x01 - Display Yes/No 
+ * 0x02 - Keyboard Only 
+ * 0x03 - No Input No Output
  * @param[in]  mitm_req -  MITM Request info 
- * -
- *                        0 - Disable 
- * -
- *                        1 - Enable
+ *                      - 0 - Disable 
+ *                      - 1 - Enable
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ *  - 0 - Success 
+ *  - Non-Zero Value - Failure 
+ *  - If the return value is less than 0 
+ *  - -4 - Buffer not available to serve the command 
+ *  - 0x4D05  BLE socket not available 
+ *  - 0x4E62 	Invalid Parameters 
+ *  - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_smp_pair_response(uint8_t *remote_dev_address, uint8_t io_capability, uint8_t mitm_req);
@@ -2322,32 +2129,22 @@ int32_t rsi_ble_smp_pair_response(uint8_t *remote_dev_address, uint8_t io_capabi
 /**
  * @fn         int32_t rsi_ble_smp_passkey(uint8_t *remote_dev_address, uint32_t passkey)
  * @brief      Send SMP passkey during SMP pairing process with the remote device. This is a Blocking API 
- * -
- *             A received event \ref rsi_ble_on_encrypt_started_t indicated encrypted event is received from module 
- * -
- *             A received event \ref rsi_ble_on_le_security_keys_t indicates exchange of security keys completed after encryption 
- * -
- *             A received event \ref rsi_ble_on_smp_failed_t indicated SMP procedure have failed
+ * A received event \ref rsi_ble_on_encrypt_started_t indicated encrypted event is received from module 
+ * A received event \ref rsi_ble_on_le_security_keys_t indicates exchange of security keys completed after encryption 
+ * A received event \ref rsi_ble_on_smp_failed_t indicated SMP procedure have failed
  * @pre Pre-conditions:
- * -        Call \ref rsi_ble_smp_pair_request and \ref rsi_ble_smp_pair_response
+ *        Call \ref rsi_ble_smp_pair_request and \ref rsi_ble_smp_pair_response
  *             before calling this API.
  * @param[in]  remote_dev_address -  This is the remote device address
  * @param[in]  passkey - This is the key required in pairing process
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ * -  0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command 
+ * - 0x4D05  BLE socket not available 
+ * - 0x4E62 	Invalid Parameters 
+ * - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_smp_passkey(uint8_t *remote_dev_address, uint32_t passkey);
@@ -2357,26 +2154,18 @@ int32_t rsi_ble_smp_passkey(uint8_t *remote_dev_address, uint32_t passkey);
  * @fn         int32_t rsi_ble_get_le_ping_timeout(uint8_t *remote_dev_address, uint16_t *time_out)
  * @brief      Get the timeout value of the LE ping. This is a Blocking API
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address - This is the remote device address
  * @param[out] time_out - This a response parameter which holds timeout value for 
- * -
  *                        authentication payload command.
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command 
+ * - 0x4D05  BLE socket not available 
+ * - 0x4E62 	Invalid Parameters 
+ * - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  * @note       Currently Get ping is not supported.
  */
@@ -2386,29 +2175,20 @@ int32_t rsi_ble_get_le_ping_timeout(uint8_t *remote_dev_address, uint16_t *time_
 /**
  * @fn         int32_t rsi_ble_set_le_ping_timeout(uint8_t *remote_dev_address, uint16_t time_out)
  * @brief      Set the timeout value of the LE ping. This is a Blocking API 
- * -
- *             A received event of \ref rsi_ble_on_le_ping_payload_timeout_t indicates LE ping payload timeout expired
+ * A received event of \ref rsi_ble_on_le_ping_payload_timeout_t indicates LE ping payload timeout expired
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *       - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address -  This is the remote device address
  * @param[out] timeout - This input parameter sets timeout value for authentication 
- * -
  *                       payload command.(in milliseconds)
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command 
+ * - 0x4D05  BLE socket not available 
+ * - 0x4E62 	Invalid Parameters 
+ * - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_set_le_ping_timeout(uint8_t *remote_dev_address, uint16_t time_out);
@@ -2418,16 +2198,13 @@ int32_t rsi_ble_set_le_ping_timeout(uint8_t *remote_dev_address, uint16_t time_o
  * @fn         int32_t rsi_ble_clear_acceptlist(void)
  * @brief      Clear all the BD address present in accept list. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  void
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_clear_acceptlist(void);
@@ -2437,19 +2214,16 @@ int32_t rsi_ble_clear_acceptlist(void);
  * @fn         int32_t rsi_ble_addto_acceptlist(int8_t *dev_address, uint8_t dev_addr_type)
  * @brief      Add BD address to accept list. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        - Device should be initialized before calling this API.
  * @param[in]  dev_address - Address of the device which is going to add in accept list
  * @param[in]  dev_addr_type - address type of BD address
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command
  * @note       Maximum number of device address that firmware can store is 10. 
- * - Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
+ * Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_addto_acceptlist(int8_t *dev_address, uint8_t dev_addr_type);
 
@@ -2458,22 +2232,17 @@ int32_t rsi_ble_addto_acceptlist(int8_t *dev_address, uint8_t dev_addr_type);
  * @fn         int32_t rsi_ble_deletefrom_acceptlist(int8_t *dev_address, uint8_t dev_addr_type)
  * @brief      Delete particular BD address from accept list. This is a Blocking API
  * @pre Pre-conditions:
- * -        \ref rsi_ble_addto_acceptlist() API needs to be called before this API.
+ *        - \ref rsi_ble_addto_acceptlist() API needs to be called before this API.
  * @param[in]  dev_address - Address of the device which is going to delete from accept list
  * @param[in]  dev_addr_type - address type of BD address
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ * - 0 - Success 
+ * - Non-Zero Value - Failure 
+ * - If the return value is less than 0 
+ * - -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-
 int32_t rsi_ble_deletefrom_acceptlist(int8_t *dev_address, uint8_t dev_addr_type);
-
 /*==============================================*/
 /**
  * @fn        int32_t rsi_ble_resolvlist(uint8_t process_type,
@@ -2483,31 +2252,22 @@ int32_t rsi_ble_deletefrom_acceptlist(int8_t *dev_address, uint8_t dev_addr_type
  *                                      uint8_t *local_irk)
  * @brief     resolvlist API used for multiple purpose based on the process type. It will be used to add/remove/clear a device to/from the list. This is a Blocking API
  * @pre Pre-conditions:
- * -       Device should be initialized before calling this API.
+ *       Device should be initialized before calling this API.
  * @param[in] process_type - Indicates which type of process this is, as follows: 
- * -
  *                          1 - add a device to the resolve list 
- * -
  *                          2 - remove a device from the resolve list 
- * -
  *                          3 - clear the entire resolve list
  * @param[in] remote_dev_addr_type 	- typr of the remote device address
  * @param[in] remote_dev_address 	- remote device address 
- * -
-					0 - Public identity address 
- * -
-					1 - Random (static) identity address 
- * -
+ *				0 - Public identity address 
+ * 				1 - Random (static) identity address 
  * @param[in] peer_irk 			- 16-byte IRK of the peer device
  * @param[in] local_irk 		- 16-byte IRK of the local device
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
+ *             - 0 - Success 
+ *             - Non-Zero Value - Failure 
+ *             - If the return value is less than 0 
+ *             - -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_resolvlist(uint8_t process_type,
@@ -2521,88 +2281,67 @@ int32_t rsi_ble_resolvlist(uint8_t process_type,
  * @fn         int32_t rsi_ble_get_resolving_list_size(uint8_t *resp)
  * @brief      Request to get resolving list size. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *       - Device should be initialized before calling this API.
  * @param[out] resp - output parameter which consists of supported resolving the list size.
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 : Buffer not available to serve the command
+ *            - 0 - Success 
+ *            - Non-Zero Value - Failure 
+ *            - If the return value is less than 0 
+ *            - -4 : Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-
 int32_t rsi_ble_get_resolving_list_size(uint8_t *resp);
-
 /*==============================================*/
 /**
  * @fn         int32_t rsi_ble_set_addr_resolution_enable(uint8_t enable, uint16_t tout)
  * @brief      Request to enable address resolution, and to set resolvable private address timeout. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        - Device should be initialized before calling this API.
  * @param[in]  enable - value to enable/disable address resolution 
- * -
-			1 - enables address resolution 
- * -
- *                      0 - disables address resolution
+ *		- 1 - enables address resolution 
+ *    - 0 - disables address resolution
  * @param[in]  tout -  the period for changing address of our local device in seconds 
- * -
-			Value ranges from 0x0001 to 0xA1B8 (1 s to approximately 11.5 hours)
+ *		Value ranges from 0x0001 to 0xA1B8 (1 s to approximately 11.5 hours)
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 : Buffer not available to serve the command
+ *             - 0 - Success 
+ *             - Non-Zero Value - Failure 
+ *             - If the return value is less than 0 
+ *             - -4 : Buffer not available to serve the command
  */
 int32_t rsi_ble_set_addr_resolution_enable(uint8_t enable, uint16_t tout);
-
 /*==============================================*/
 /**
  * @fn         int32_t rsi_ble_set_privacy_mode(uint8_t remote_dev_addr_type,
  *                                              uint8_t *remote_dev_address, uint8_t privacy_mode)
  * @brief      Request to set privacy mode for particular device. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  remote_dev_addr_type - type of the remote device address 
- * -
  *                                    0 - Public Identity Address 
- * -
  *                                    1 - Random (static) Identity Address
  * @param[in]  remote_dev_address   - remote device address
  * @param[in]  privacy_mode 	    - type of the privacy mode 
- * -
-					0 - Network privacy mode 
- * -
- *                            		1 - Device privacy mode
+ *				0 - Network privacy mode 
+ *        1 - Device privacy mode
  * @return The following values are returned:
- * -     0 - Success 
- * -
+ *             0 - Success 
  *             Non-Zero Value - Failure 
- * -
  *             If the return value is less than 0 
- * -
  *             -4 : Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_set_privacy_mode(uint8_t remote_dev_addr_type, uint8_t *remote_dev_address, uint8_t privacy_mode);
-
 /*==============================================*/
 /**
  * @fn         int32_t rsi_ble_readphy(int8_t *remote_dev_address, rsi_ble_resp_read_phy_t *resp)
  * @brief      Reads the TX and RX PHY rates of the Connection. This is a Blocking API
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address - remote device address
  * @param[out] resp - pointer to store the response
 		please refer \ref rsi_ble_resp_read_phy_s structure for more info.
  * @return The following values are returned:
- * -     0 - Success 
- * -
+ *             0 - Success 
  *             Non-Zero Value - Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
@@ -2613,53 +2352,31 @@ int32_t rsi_ble_readphy(int8_t *remote_dev_address, rsi_ble_resp_read_phy_t *res
  * @fn         int32_t rsi_ble_setphy(int8_t *remote_dev_address, uint8_t tx_phy, uint8_t rx_phy,
  *                                    uint16_t coded_phy)
  * @brief      Set TX and RX PHY. This is a Blocking API 
- * -
  *             A received event \ref rsi_ble_on_phy_update_complete_t indicates PHY rate update complete.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address - remote device address 
- * -
  * @param[in]  tx_phy - transmit PHY rate 
- * -
-			BIT(0) - Host prefers to use the LE 1M transmitter PHY (possibly among others) 
- * -
- *                      BIT(1) - Host prefers to use the LE 2M transmitter PHY (possibly among others) 
- * -
- *                      BIT(2) - Host prefers to use the LE Coded transmitter PHY (possibly among others) 
- * -
- *                      BIT(3) - BIT(7) Reserved for future use 
- * -
+ *		BIT(0) - Host prefers to use the LE 1M transmitter PHY (possibly among others)
+ *                      - BIT(1) - Host prefers to use the LE 2M transmitter PHY (possibly among others) 
+ *                      - BIT(2) - Host prefers to use the LE Coded transmitter PHY (possibly among others) 
+ *                      - BIT(3) - BIT(7) Reserved for future use 
  * @param[in]  rx_phy - receive PHY rate 
- * -
-			BIT(0) - Host prefers to use the LE 1M receiver PHY (possibly among others) 
- * -
- *                      BIT(1) - Host prefers to use the LE 2M receiver PHY (possibly among others) 
- * -
- *                      BIT(2) - Host prefers to use the LE Coded receiver PHY (possibly among others) 
- * -
- *                      BIT(3) - BIT(7) Reserved for future use 
- * -
+ *		BIT(0) - Host prefers to use the LE 1M receiver PHY (possibly among others) 
+ *                      - BIT(1) - Host prefers to use the LE 2M receiver PHY (possibly among others) 
+ *                      - BIT(2) - Host prefers to use the LE Coded receiver PHY (possibly among others) 
+ *                      - BIT(3) - BIT(7) Reserved for future use 
  * @param[in]  coded_phy - TX/RX coded PHY rate 
- * -
-			   0 = Host has no preferred coding when transmitting on the LE Coded PHY 
- * -
- *                         1 = Host prefers that S=2 coding be used when transmitting on the LE Coded PHY 
- * -
- *                         2 = Host prefers that S=8 coding be used when transmitting on the LE Coded PHY 
- * -
- *                         3 = Reserved for future use 
- * -
+ *		                     - 0 = Host has no preferred coding when transmitting on the LE Coded PHY 
+ *                         - 1 = Host prefers that S=2 coding be used when transmitting on the LE Coded PHY 
+ *                         - 2 = Host prefers that S=8 coding be used when transmitting on the LE Coded PHY 
+ *                         - 3 = Reserved for future use 
  * @return The following values are returned:
- * -     0   -  Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ *              - 0   -  Success 
+ *              - Non-Zero Value - Failure 
+ *              - 0x4D05  BLE socket not available 
+ *              - 0x4E62 	Invalid Parameters 
+ *              - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_setphy(int8_t *remote_dev_address, uint8_t tx_phy, uint8_t rx_phy, uint16_t coded_phy);
@@ -2672,43 +2389,29 @@ int32_t rsi_ble_setphy(int8_t *remote_dev_address, uint8_t tx_phy, uint8_t rx_ph
  *                                             uint16_t latency,
  *                                             uint16_t timeout)
  * @brief      	Requests the connection parameters change with the remote device.
- * -
  *				When the Silicon Labs device acts as a central, this API is used to update the connection parameters. 
- * -
  * 				When the Silicon Labs device acts as a peripheral, this API is used to request the central to initiate the connection update procedure. This is a Blocking API 
- * -
- *              A received event \ref rsi_ble_on_conn_update_complete_t indicates connection parameters update complete.
+ *        A received event \ref rsi_ble_on_conn_update_complete_t indicates connection parameters update complete.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address 	- remote device address
  * @param[in]  min_int 			- minimum value for the connection interval. 
- * -
  *                       		  this shall be less than or equal to max_int .
  * @param[in]  max_int 			- maximum value for the connection interval. 
- * -
  *                       		  this shall be greater than or equal to min_int.
  * @param[in]  latency 			- peripheral latency for the connection in number of connection events.
- * -
  *					  Ranges from 0 to 499
  * @param[in]  timeout 			- supervision timeout for the LE Link. 
- * -
  *                       		  Ranges from 10 to 3200 (Time = N * 10 ms, Time Range: 100 ms to 32 s)
  * @return The following values are returned:
- * -     0   -  Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ *              - 0   -  Success 
+ *              - Non-Zero Value - Failure 
+ *              - 0x4D05  BLE socket not available 
+ *              - 0x4E62 	Invalid Parameters 
+ *              - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  * @note       min_int and max_int values ranges from 6 to 3200 (Time = N * 1.25 ms, Time Range: 7.5 ms to 4 s)
- * -
 		latency : If latency value is greater than 32 ,Limiting the peripheral latency value to 32
- * -
 		Max supported peripheral latency is 32 when Device is in peripheral Role.
  *
  */
@@ -2722,31 +2425,21 @@ int32_t rsi_ble_conn_params_update(uint8_t *remote_dev_address,
 /**
  * @fn         int32_t rsi_ble_set_data_len(uint8_t *remote_dev_address, uint16_t tx_octets, uint16_t tx_time)
  * @brief      Sets the TX octets and the TX time of specified link (remote device connection). This is a Blocking API. 
- * -
  *             A received event \ref rsi_ble_on_data_length_update_t indicates data length update complete.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  remote_dev_address 	- remote device device 
- * -
  * @param[in]  tx_octets 		- preferred maximum number of payload octets that the local Controller 
- * -
  *                         		  should include in a single Link Layer packet on this connection.
  * @param[in]  tx_time 			- preferred maximum number of microseconds that the local Controller 
- * -
  *                       		  should use to transmit a single Link Layer packet on this connection.
  * @return The following values are returned:
- * -     0 - LE_Set_Data_Length command succeeded. 
- * -
- *             Non-Zero Value - Failure 
- * -
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ *              - 0 - LE_Set_Data_Length command succeeded. 
+ *              - Non-Zero Value - Failure 
+ *              - 0x4D05  BLE socket not available 
+ *              - 0x4E62 	Invalid Parameters 
+ *              - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_set_data_len(uint8_t *remote_dev_address, uint16_t tx_octets, uint16_t tx_time);
 
@@ -2755,13 +2448,12 @@ int32_t rsi_ble_set_data_len(uint8_t *remote_dev_address, uint16_t tx_octets, ui
  * @fn         int32_t rsi_ble_read_max_data_len(rsi_ble_read_max_data_length_t *blereaddatalen)
  * @brief      reads the max supported values of TX octets, TX time, RX octets and Rx time. This is a Blocking API
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[out]  blereaddatalen - pointer to structure variable,
 		 Please refer rsi_ble_resp_read_max_data_length_s structure for more info.
  * @return The following values are returned:
- * -     0 - command success 
- * -
- *             Non-Zero Value - Failure
+ *             - 0 - command success 
+ *             - Non-Zero Value - Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_read_max_data_len(rsi_ble_read_max_data_length_t *blereaddatalen);
@@ -2777,23 +2469,16 @@ int32_t rsi_ble_read_max_data_len(rsi_ble_read_max_data_length_t *blereaddatalen
  * @brief      Start the BLE RX test mode in controller. This is a Blocking API
  * @param[in]  rx_channel - Channel in which packet have to be received (0 - 39)
  * @param[in]  phy - 0x00  Reserved for future use 
- * -
  *                   0x01  Receiver set to use the LE 1M PHY 
- * -
  *                   0x02  Receiver set to use the LE 2M PHY 
- * -
  *                   0x03  Receiver set to use the LE Coded PHY 
- * -
  *                   (0x04 - 0xFF)   Reserved for future use.
  * @param[in]  modulation - 0x00  Assume transmitter will have a standard standard modulation index 
- * -
  *                          0x01  Assume transmitter will have a stable modulation index 
- * -
  *                          (0x02 - 0xFF)  Reserved for future use
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure
+ *             - 0 - Success 
+ *             - Non-Zero Value - Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_rx_test_mode(uint8_t rx_channel, uint8_t phy, uint8_t modulation);
@@ -2804,41 +2489,25 @@ int32_t rsi_ble_rx_test_mode(uint8_t rx_channel, uint8_t phy, uint8_t modulation
  *                                          uint8_t tx_len, uint8_t mode)
  * @brief      Start the BLE TX test mode in controller. This is a Blocking API
  * @param[in]  tx_channel -  RF Channel (0-39). 
- * -
  * @param[in]  phy - 0x00  Reserved for future use 
- * -
- *                   0x01  Transmitter set to use the LE 1M PHY 
- * -
- *                   0x02  Transmitter set to use the LE 2M PHY 
- * -
- *                   0x03  Transmitter set to use the LE Coded PHY with S=8 data coding 
- * -
- *                   0x04  Transmitter set to use the LE Coded PHY with S=2 data coding 
- * -
- *                   (0x05 - 0xFF)  Reserved for future use.
+ *                  - 0x01  Transmitter set to use the LE 1M PHY 
+ *                  - 0x02  Transmitter set to use the LE 2M PHY 
+ *                  - 0x03  Transmitter set to use the LE Coded PHY with S=8 data coding 
+ *                  - 0x04  Transmitter set to use the LE Coded PHY with S=2 data coding 
+ *                  - (0x05 - 0xFF)  Reserved for future use.
  * @param[in] tx_len - Length in bytes of payload data in each packet ( 1 - 251 bytes).
  * @param[in] mode - 0x00  PRBS9 sequence '11111111100000111101...' 
- * -
- *                   0x01  Repeated '11110000' 
- * -
- *                   0x02  Repeated '10101010' 
- * -
- *                   0x03  PRBS15 
- * -
- *                   0x04  Repeated '11111111' 
- * -
- *                   0x05  Repeated '00000000' 
- * -
- *		     0x06  Repeated '00001111' 
- * -
- *		     0x07  Repeated '01010101' 
- * -
- *                   0x08 - 0xFF Reserved for future use 
- * -
+ *                 - 0x01  Repeated '11110000' 
+ *                 - 0x02  Repeated '10101010' 
+ *                 - 0x03  PRBS15 
+ *                 - 0x04  Repeated '11111111' 
+ *                 - 0x05  Repeated '00000000' 
+ *		             - 0x06  Repeated '00001111' 
+ *		             - 0x07  Repeated '01010101' 
+ *                 - 0x08 - 0xFF Reserved for future use 
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure
+ *               - 0 - Success 
+ *               - Non-Zero Value - Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_tx_test_mode(uint8_t tx_channel, uint8_t phy, uint8_t tx_len, uint8_t mode);
@@ -2848,11 +2517,9 @@ int32_t rsi_ble_tx_test_mode(uint8_t tx_channel, uint8_t phy, uint8_t tx_len, ui
  * @fn        int32_t rsi_ble_end_test_mode(uint16_t *num_of_pkts)
  * @brief     Stop the BLE TX / RX test mode in controller. This is a Blocking API
  * @param[out] num_of_pkts - Number of RX packets received are displayed when RX test is stopped 
- * -
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure
+ *             - 0 - Success 
+ *             - Non-Zero Value - Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_end_test_mode(uint16_t *num_of_pkts);
@@ -2862,14 +2529,12 @@ int32_t rsi_ble_end_test_mode(uint16_t *num_of_pkts);
  * @fn         int32_t rsi_ble_per_transmit(struct rsi_ble_per_transmit_s *rsi_ble_per_tx)
  * @brief      Initiate the BLE transmit PER mode in the controller. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  rsi_ble_per_tx - This parameter is the buffer to hold the structure values 
- * -
  *                            This is a structure variable of struct \ref rsi_ble_per_transmit_s
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure
+ *             - 0 - Success 
+ *             - Non-Zero Value - Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_per_transmit(struct rsi_ble_per_transmit_s *rsi_ble_per_tx);
@@ -2879,14 +2544,12 @@ int32_t rsi_ble_per_transmit(struct rsi_ble_per_transmit_s *rsi_ble_per_tx);
  * @fn         int32_t rsi_ble_per_receive(struct rsi_ble_per_receive_s *rsi_ble_per_rx)
  * @brief      Initiate the BLE receive PER mode in the controller. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  rsi_ble_per_rx - This parameter is the buffer to hold the structure values 
- * -
  *             This is a structure variable of struct \ref rsi_ble_per_receive_s
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure
+ *             - 0 - Success 
+ *             - Non-Zero Value - Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_per_receive(struct rsi_ble_per_receive_s *rsi_ble_per_rx);
@@ -2904,21 +2567,17 @@ int32_t rsi_ble_per_receive(struct rsi_ble_per_receive_s *rsi_ble_per_rx);
  * @brief      Give vendor-specific command to set the acceptlist feature based on
  *             the advertisers advertising payload. This is a Blocking API
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  enable - enable/disable
  * @param[in]  data_compare_index - the starting index of the data to compare
  * @param[in]  len_for_compare_data - total length of data to compare
  * @param[in]  payload - Payload
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *               -4 - Buffer not available to serve the command
- *              0x4E62 	Invalid Parameters 
- * -
+ *             - 0 - Success 
+ *             - Non-Zero Value - Failure 
+ *             - If the return value is less than 0 
+ *             - -4 - Buffer not available to serve the command
+ *             - 0x4E62 	Invalid Parameters 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
@@ -2931,12 +2590,12 @@ int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
  * @fn         void BT_LE_ADPacketExtract(uint8_t *remote_name, uint8_t *pbuf, uint8_t buf_len)
  * @brief      Used to extract remote Bluetooth device name from the received advertising report.
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  remote_name - device name
  * @param[in]  pbuf -  advertise data packet buffer pointer
  * @param[in]  buf_len - buffer length
  * @return The following values are returned:
- * -     void
+ *     void
  */
 void BT_LE_ADPacketExtract(uint8_t *remote_name, uint8_t *pbuf, uint8_t buf_len);
 
@@ -2945,32 +2604,23 @@ void BT_LE_ADPacketExtract(uint8_t *remote_name, uint8_t *pbuf, uint8_t buf_len)
  * @fn         int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv,
  *                                              uint8_t *rand, uint8_t *ltk)
  * @brief      Start the encryption process with the remote device. This is a Blocking API 
- * -
  *             A received event \ref rsi_ble_on_encrypt_started_t indicated encrypted event is received from module 
- * -
  *             A received event \ref rsi_ble_on_le_security_keys_t indicates exchange of security keys completed after encryption. 
- * -
  *             A received event \ref rsi_ble_on_smp_failed_t indicated SMP procedure have failed
  * @pre Pre-conditions:
- * -        Encryption enabled event should come before calling this API for second time SMP connection.
+ *       - Encryption enabled event should come before calling this API for second time SMP connection.
  * @param[in]  remote_dev_address - Remote BD address in string format
  * @param[in]  ediv - remote device ediv value.
  * @param[in]  rand - remote device rand value.
  * @param[in]  ltk  - remote device ltk value.
  * @return The following values are returned:
- * -     0 - Success 
- * -
- *             Non-Zero Value - Failure 
- * -
- *             If the return value is less than 0 
- * -
- *             -4 - Buffer not available to serve the command
- *              0x4D05  BLE socket not available 
- * -
- *              0x4E62 	Invalid Parameters 
- * -
- *              0x4D04	BLE not connected 
- * -
+ *             - 0 - Success 
+ *             - Non-Zero Value - Failure 
+ *             - If the return value is less than 0 
+ *             - -4 - Buffer not available to serve the command
+ *             - 0x4D05  BLE socket not available 
+ *             - 0x4E62 	Invalid Parameters 
+ *             - 0x4D04	BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
 int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, uint8_t *rand, uint8_t *ltk);
@@ -2981,20 +2631,20 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, uin
  * @brief       Set TX power
  * @param[in]   tx_power Power value
  * @return The following values are returned:
- * - 0 - Success 
- * - Non-zero value - Failure
- * - 0x4E02 - Unknown connection identifier
- * - 0x4E01	- Unknown HCI command
- * - 0x4E0C	- Command disallowed 
- * - 0x4046 - Invalid arguments
- * - 0x4D04	- BLE not connected 
- * - 0x4D14	- BLE parameter out of mandatory range
+ *              - 0 - Success 
+ *              - Non-zero value - Failure
+ *              - 0x4E02 - Unknown connection identifier
+ *              - 0x4E01	- Unknown HCI command
+ *              - 0x4E0C	- Command disallowed 
+ *              - 0x4046 - Invalid arguments
+ *              - 0x4D04	- BLE not connected 
+ *              - 0x4D14	- BLE parameter out of mandatory range
  * @note        This is a Blocking API.
  * @note        Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  * @note        The higher power will be backed off based on country region.
  * @note        Use the following setting to indicate tx_power as an index: `#define RSI_BLE_PWR_INX_DBM  0`
- * - Default value for power index is 31. 
- * - Valid values for power index range from 1 to 31 and 33 to 127:
+ * Default value for power index is 31. 
+ * Valid values for power index range from 1 to 31 and 33 to 127:
  *   - 1 to 31: BLE - 0dBm mode.  
  *   - 33 to 63: BLE - 10dBm mode. 
  *   - 64 to 82: BLE - 1dBm - 18dBm HP mode in the resolution of 1dBm.
@@ -3123,20 +2773,17 @@ int32_t rsi_ble_set_ble_tx_power(int8_t tx_power);
  *                 Still user need to wait until the callback \ref rsi_ble_on_profiles_list_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[out] p_profile_list 	- profiles/services information will be filled in this structure after retrieving from the remote device,
 				  please refer rsi_ble_resp_profiles_list_s structure for more info.
- * -
- * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
+ * @return The following values are returned:
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_profiles(uint8_t *dev_addr,
                              uint16_t start_handle,
@@ -3153,20 +2800,17 @@ int32_t rsi_ble_get_profiles(uint8_t *dev_addr,
  *                 Still user need to wait until the callback \ref rsi_ble_on_profile_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  profile_uuid 	- services/profiles which are searched using profile_uuid 
- * -
+ *
  * @param[out] p_profile 	- profile / service information filled in this structure after retrieving from the remote device,
 				  please refer profile_descriptor_s structure for more info. 
- * -
- * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
+ * @return The following values are returned:
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_profile(uint8_t *dev_addr, uuid_t profile_uuid, profile_descriptors_t *p_profile);
 
@@ -3182,19 +2826,16 @@ int32_t rsi_ble_get_profile(uint8_t *dev_addr, uuid_t profile_uuid, profile_desc
  *                 Still user need to wait until the callback \ref rsi_ble_on_char_services_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[out] p_char_services_list - service characteristics details are filled in this structure, please refer rsi_ble_resp_char_serv_s structure for more info. 
- * -
- * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
+ * @return The following values are returned:
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_char_services(uint8_t *dev_addr,
                                   uint16_t start_handle,
@@ -3213,19 +2854,16 @@ int32_t rsi_ble_get_char_services(uint8_t *dev_addr,
  *                 Still user need to wait until the callback \ref rsi_ble_on_inc_services_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[out] p_inc_serv_list 	- include service characteristics details are filled in this structure, please refer rsi_ble_resp_inc_serv structure for more info.
- * -
- * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
+ * @return The following values are returned:
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_inc_services(uint8_t *dev_addr,
                                  uint16_t start_handle,
@@ -3244,22 +2882,18 @@ int32_t rsi_ble_get_inc_services(uint8_t *dev_addr,
  *                 Still user need to wait until the callback \ref rsi_ble_on_read_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
   * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[in]  char_uuid 	- UUID of the characteristic
  * @param[out] p_char_value 	- characteristic value is filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
- * -
- * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             If the return value is less than 0 
- * -
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
+ * @return The following values are returned:
+ *             -  0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - If the return value is less than 0 
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_char_value_by_uuid(uint8_t *dev_addr,
                                        uint16_t start_handle,
@@ -3279,18 +2913,15 @@ int32_t rsi_ble_get_char_value_by_uuid(uint8_t *dev_addr,
  *                 Still user need to wait until the callback \ref rsi_ble_on_att_desc_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  start_handle - start handle (index) of the remote device's service records
  * @param[in]  end_handle - end handle (index) of the remote device's service records
  * @param[out] p_att_desc - pointer to characteristic descriptor structure, Please refer rsi_ble_resp_att_descs_s structure for more info.
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
+ *     - 0		-	Success 
+ *     - Non-Zero Value	-	Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_get_att_descriptors(uint8_t *dev_addr,
                                     uint16_t start_handle,
@@ -3305,16 +2936,13 @@ int32_t rsi_ble_get_att_descriptors(uint8_t *dev_addr,
  *                 Still user need to wait until the callback \ref rsi_ble_on_read_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr	 - remote device address
  * @param[in]  handle	 - handle value of the attribute
  * @param[out] p_att_val - attribute value is filled in this structure, Please refer rsi_ble_resp_att_value_s structure for more info.
- * -
  * @return The following values are returned:
- * -     0  		-  Success 
- * -
- *             Non-Zero Value - Failure 
- * -
+ *     - 0  		-  Success 
+ *     - Non-Zero Value - Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
  */
@@ -3331,18 +2959,15 @@ int32_t rsi_ble_get_att_value(uint8_t *dev_addr, uint16_t handle, rsi_ble_resp_a
  *                 Still user need to wait until the callback \ref rsi_ble_on_read_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  num_of_handlers 	- number of handles in the list
  * @param[in]  handles 		- list of attribute handles
  * @param[out] p_att_vals 	- attribute values filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
+ *     - 0		-	Success 
+ *     - Non-Zero Value	-	Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_get_multiple_att_values(uint8_t *dev_addr,
                                         uint8_t num_of_handlers,
@@ -3360,18 +2985,15 @@ int32_t rsi_ble_get_multiple_att_values(uint8_t *dev_addr,
  *                 Still user need to wait until the callback \ref rsi_ble_on_read_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute handle
  * @param[in]  offset 	- offset within the attribute value
  * @param[out] p_att_vals - attribute value filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
+ *     - 0		-	Success 
+ *     - Non-Zero Value	-	Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_get_long_att_value(uint8_t *dev_addr,
                                    uint16_t handle,
@@ -3387,18 +3009,15 @@ int32_t rsi_ble_get_long_att_value(uint8_t *dev_addr,
  *                 Still user need to wait until the callback \ref rsi_ble_on_write_resp_t is received from the device,
  *                 to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute value handle
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
+ *     - 0		-	Success 
+ *     - Non-Zero Value	-	Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, uint8_t *p_data);
 
@@ -3409,28 +3028,20 @@ int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_l
  * @brief      Set the attribute value without waiting for an ACK from the remote device. This is a Blocking API.
  *             If the API returns RSI_ERROR_BLE_DEV_BUF_FULL  (-31) error then wait until the \ref rsi_ble_on_le_more_data_req_t event gets received from the module.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute value handle
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
- *             0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured 
- * -
+ *     - 0		-	Success 
+ *     - Non-Zero Value	-	Failure 
+ *     - 0x4E60  -  Invalid Handle range 
+ *     - 0x4E62  -  Invalid Parameters 
+ *     - 0x4D04  -  BLE not connected 
+ *     - 0x4D05  -  BLE Socket not available 
+ *     - 0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, uint8_t *p_data);
 
@@ -3446,19 +3057,16 @@ int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len
  *             Still user need to wait until the callback \ref rsi_ble_on_write_resp_t is received from the device,
  *             to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute handle
  * @param[in]  offset 	- attribute value offset
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
+ *    - 0		-	Success 
+ *    - Non-Zero Value	-	Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_set_long_att_value(uint8_t *dev_addr,
                                    uint16_t handle,
@@ -3475,17 +3083,15 @@ int32_t rsi_ble_set_long_att_value(uint8_t *dev_addr,
  *             Still user need to wait until the callback \ref rsi_ble_on_write_resp_t is received from the device,
  *             to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *       - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute handle
  * @param[in]  offset 	- attribute value offset
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
+ *       - 0		-	Success 
+ *       - Non-Zero Value	-	Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
  */
@@ -3499,21 +3105,15 @@ int32_t rsi_ble_prepare_write(uint8_t *dev_addr, uint16_t handle, uint16_t offse
  *             Still user need to wait until the callback \ref rsi_ble_on_write_resp_t is received from the device,
  *             to initiate further attribute related transactions on this remote device address.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  exe_flag - execute flag to write, possible values mentioned below
- * -
-			0 - BLE_ATT_EXECUTE_WRITE_CANCEL 
- * -
-		 	1 - BLE_ATT_EXECUTE_PENDING_WRITES_IMMEDIATELY 
- * -
+ * - 0 - BLE_ATT_EXECUTE_WRITE_CANCEL 
+ * - 1 - BLE_ATT_EXECUTE_PENDING_WRITES_IMMEDIATELY 
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
+ *     - 0		-	Success 
+ *     - Non-Zero Value	-	Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_execute_write(uint8_t *dev_addr, uint8_t exe_flag);
 /** @} */
@@ -3530,20 +3130,15 @@ int32_t rsi_ble_execute_write(uint8_t *dev_addr, uint8_t exe_flag);
  * @fn         int32_t rsi_ble_add_service(uuid_t service_uuid, rsi_ble_resp_add_serv_t *p_resp_serv)
  * @brief      Add a new service to the local GATT Server. This is a Blocking API.
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        - Device should be initialized before calling this API.
  * @param[in]  service_uuid 	- new service UUID value, please refer uuid_s structure for more info.
  * @param[out] p_resp_serv 	- new service handler filled in this structure, please refer rsi_ble_resp_add_serv_s structure for more info.
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4046  -  Invalid Arguments 
- * -
- *             0x4D08  -  Profile record full 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4046  -  Invalid Arguments 
+ *             - 0x4D08  -  Profile record full 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_add_service(uuid_t service_uuid, rsi_ble_resp_add_serv_t *p_resp_serv);
 
@@ -3552,20 +3147,14 @@ int32_t rsi_ble_add_service(uuid_t service_uuid, rsi_ble_resp_add_serv_t *p_resp
  * @fn         int32_t rsi_ble_add_attribute(rsi_ble_req_add_att_t *p_attribute)
  * @brief      Add a new attribute to a specific service. This is a Blocking API.
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  p_attribute - add a new attribute to the service, please refer rsi_ble_req_add_att_s structure for more info. 
- * -
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4046  -  Invalid Arguments 
- * -
- *             0x4D09  -  Attribute record full  
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4046  -  Invalid Arguments 
+ *             - 0x4D09  -  Attribute record full  
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_add_attribute(rsi_ble_req_add_att_t *p_attribute);
 
@@ -3575,41 +3164,26 @@ int32_t rsi_ble_add_attribute(rsi_ble_req_add_att_t *p_attribute);
  *                                                 uint8_t *p_data)
  * @brief      Change the local attribute value. This is a Blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  handle 	- attribute value handle
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4046  -  Invalid Arguments 
- * -
- *             0x4D06  -  Attribute record not found 
- * -
- *             0x4E60  -  Invalid Handle Range 
- * -
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4046  -  Invalid Arguments 
+ *             - 0x4D06  -  Attribute record not found 
+ *             - 0x4E60  -  Invalid Handle Range 
+ * @note      Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  * @note      This API can only be used if the service is maintained inside the firmware. 
- * -
- *            The services which are maintained by firmware must follow the below rules. 
- * -
- *            Rule 1: The attribute_data_size is less than 20 bytes during the service_creation 
- * -
- *            Rule 2: while creating the service, don't use the RSI_BLE_ATT_MAINTAIN_IN_HOST bit 
- * -
+ * @note      The services which are maintained by firmware must follow the below rules. 
+ * @note      Rule 1: The attribute_data_size is less than 20 bytes during the service_creation 
+ * @note      Rule 2: while creating the service, don't use the RSI_BLE_ATT_MAINTAIN_IN_HOST bit 
  *                    in the RSI_BLE_ATT_CONFIG_BITMAP macro. 
- * -
- *            Rule 3: The data_len must be less than or equal to the dat_length mentioned while 
- * -
+ * @note      Rule 3: The data_len must be less than or equal to the dat_length mentioned while 
  *                    creating the service/attribute 
- * -
- *		      Rule 4: If the services are maintained in the Application/Host,
- * -
- *		      then need to use \ref rsi_ble_notify_value() API to send the notifications to the remote devices.
- * -
+ * @note		  Rule 4: If the services are maintained in the Application/Host,
+ *		        then need to use \ref rsi_ble_notify_value() API to send the notifications to the remote devices.
  */
 int32_t rsi_ble_set_local_att_value(uint16_t handle, uint16_t data_len, uint8_t *p_data);
 
@@ -3620,39 +3194,24 @@ int32_t rsi_ble_set_local_att_value(uint16_t handle, uint16_t data_len, uint8_t 
  * @brief      Configure the buf mode for Notify and WO response commands for the remote device. This is a Blocking API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  buf_mode - buffer mode configuration
- * -
-			 0 - BLE_SMALL_BUFF_MODE 
- * -
-			 1 - BLE_BIG_BUFF_MODE 
- * -
+ *     - 0 - BLE_SMALL_BUFF_MODE 
+ *     - 1 - BLE_BIG_BUFF_MODE 
  * @param[in]  buf_count - no of buffers to be configured 
- * -
-			only value 1 and 2 are supported in BLE_SMALL_BUFF_MODE  
- * -
-
+ *    only value 1 and 2 are supported in BLE_SMALL_BUFF_MODE  
 			in BLE_BIG_BUFF_MODE, buffers allocated based on the below notations.
 			intial available_buf_cnt = RSI_BLE_NUM_CONN_EVENTS,
 			a) When connection 1 is formed, the possible range of buffers is (available_buf_cnt - remaining possible number of connections)
 			b) After allocating X buffers using \ref rsi_ble_set_wo_resp_notify_buf_info to the 1st connection remaining available_buf_cnt = (available_buf_cnt - X ) 
- * -
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure
- *             0x4046  -  Invalid Arguments 
- * -
- *             0x4D05  -  BLE socket not available 
- * -
- *             0x4D06  -  Attribute record not found 
- * -
- *             0x4E60  -  Invalid Handle Range 
- * -
- *             0x4E63  -  BLE Buffer Count Exceeded 
- * -
- *             0x4E64  -  BLE Buffer already in use  
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure
+ *             - 0x4046  -  Invalid Arguments 
+ *             - 0x4D05  -  BLE socket not available 
+ *             - 0x4D06  -  Attribute record not found 
+ *             - 0x4E60  -  Invalid Handle Range 
+ *             - 0x4E63  -  BLE Buffer Count Exceeded 
+ *             - 0x4E64  -  BLE Buffer already in use  
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_set_wo_resp_notify_buf_info(uint8_t *dev_addr, uint8_t buf_mode, uint8_t buf_cnt);
 
@@ -3663,35 +3222,23 @@ int32_t rsi_ble_set_wo_resp_notify_buf_info(uint8_t *dev_addr, uint8_t buf_mode,
  * @brief      Notify the local value to the remote device. This is a Blocking API.
  *             If the API returns RSI_ERROR_BLE_DEV_BUF_FULL  (-31) error then wait until the \ref rsi_ble_on_le_more_data_req_t event gets received from the module.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- local attribute handle
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4046  -  Invalid Arguments 
- * -
- *             0x4A0D  -  Invalid attribute value length 
- * -
- *             0x4D05  -  BLE socket not available 
- * -
- *             0x4D06  -  Attribute record not found 
- * -
- *             0x4E60  -  Invalid Handle Range 
- * -
- *             0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured  
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4046  -  Invalid Arguments 
+ *             - 0x4A0D  -  Invalid attribute value length 
+ *             - 0x4D05  -  BLE socket not available 
+ *             - 0x4D06  -  Attribute record not found 
+ *             - 0x4E60  -  Invalid Handle Range 
+ *             - 0x4E65  -  Invalid Attribute Length When Small Buffer Mode is Configured  
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
- *
  * @note	If the services are maintained in the Application/Host,
- * -
  * 			then need to use \ref rsi_ble_notify_value() API instead of using \ref rsi_ble_set_local_att_value() API
- * -
  *			to send the notifications to the remote devices.
  */
 int32_t rsi_ble_notify_value(uint8_t *dev_addr, uint16_t handle, uint16_t data_len, uint8_t *p_data);
@@ -3703,23 +3250,17 @@ int32_t rsi_ble_notify_value(uint8_t *dev_addr, uint16_t handle, uint16_t data_l
  * @brief      Indicate the local value to the remote device. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_indicate_confirmation_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- local attribute handle
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4D05  -  BLE socket not available 
- * -
- *             0x4E60  -  Invalid Handle Range 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4D05  -  BLE socket not available 
+ *             - 0x4E60  -  Invalid Handle Range 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
- *
  */
 int32_t rsi_ble_indicate_value(uint8_t *dev_addr, uint16_t handle, uint16_t data_len, uint8_t *p_data);
 /** @} */
@@ -3733,28 +3274,22 @@ int32_t rsi_ble_indicate_value(uint8_t *dev_addr, uint16_t handle, uint16_t data
  * @fn         int32_t rsi_ble_indicate_value_sync(uint8_t *dev_addr, uint16_t handle,
  *                                            uint16_t data_len, uint8_t *p_data)
  * @brief      Indicate the local value to the remote device. This is a blocking API. 
- * -
+ *
  *             This will not send any confirmation event to the application instead  
- * -
+ *
  *             send the status as success on receiving confirmation from remote side.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- local attribute handle
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4D05  -  BLE socket not available 
- * -
- *             0x4E60  -  Invalid Handle Range 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4D05  -  BLE socket not available 
+ *             - 0x4E60  -  Invalid Handle Range 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
- *
  */
 int32_t rsi_ble_indicate_value_sync(uint8_t *dev_addr, uint16_t handle, uint16_t data_len, uint8_t *p_data);
 
@@ -3763,17 +3298,13 @@ int32_t rsi_ble_indicate_value_sync(uint8_t *dev_addr, uint16_t handle, uint16_t
  * @fn        int32_t rsi_ble_indicate_confirm(uint8_t *dev_addr)
  * @brief     Send indicate confirmation to the remote device. This is a blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in] dev_addr - remote device address
  * @return The following values are returned:
- * -    0			-	Success 
- * -
- *            Non-Zero Value	-	Failure
- *            0x4D05  -  BLE socket not available 
- * -
+ *            - 0			-	Success 
+ *            - Non-Zero Value	-	Failure
+ *            - 0x4D05  -  BLE socket not available 
  * @note      Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
- *
  */
 int32_t rsi_ble_indicate_confirm(uint8_t *dev_addr);
 /** @} */
@@ -3788,27 +3319,19 @@ int32_t rsi_ble_indicate_confirm(uint8_t *dev_addr);
  *                                                 rsi_ble_resp_local_att_value_t *p_resp_local_att_val)
  * @brief      Get the local attribute value. This is a Blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  handle 			- local attribute handle
  * @param[out] p_resp_local_att_val 	- local attribute value filled in this structure, see rsi_ble_resp_local_att_value_s structure for more info.
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4046  -  Invalid Arguments 
- * -
- *             0x4D06  -  Attribute record not found 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4046  -  Invalid Arguments 
+ *             - 0x4D06  -  Attribute record not found 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
- * @note      This API can only be used if the service is maintained inside the firmware. The services which are maintained by firmware must
- * follow the below rules.
- * -
- * Rule 1: The attribute_data_size is less than 20 bytes during the service_creation 
- * -
- * Rule 2: While creating the service, don't use the RSI_BLE_ATT_MAINTAIN_IN_HOST bit in the RSI_BLE_ATT_CONFIG_BITMAP macro.
- *
+ * @note       This API can only be used if the service is maintained inside the firmware. The services which are maintained by firmware must
+ *             follow the below rules.
+ * @note       Rule 1: The attribute_data_size is less than 20 bytes during the service_creation 
+ * @note       Rule 2: While creating the service, don't use the RSI_BLE_ATT_MAINTAIN_IN_HOST bit in the RSI_BLE_ATT_CONFIG_BITMAP macro.
  */
 int32_t rsi_ble_get_local_att_value(uint16_t handle, rsi_ble_resp_local_att_value_t *p_resp_local_att_val);
 
@@ -3822,26 +3345,20 @@ int32_t rsi_ble_get_local_att_value(uint16_t handle, rsi_ble_resp_local_att_valu
  *                                                uint8_t *p_data)
  * @brief      Send the response for the read request received from the remote device. This is a Blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device Address
  * @param[in]  read_type 	- read value type 
- * -
-				0 - Read response 
- * -
-				1 - Read blob response
+ *        - 0 - Read response 
+ *        - 1 - Read blob response
  * @param[in]  handle 		- attribute value handle
  * @param[in]  offset 		- attribute value offset
  * @param[in]  length 		- attribute value length
  * @param[in]  p_data 		- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4D04  -  BLE not connected 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4D04  -  BLE not connected 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
  */
 int32_t rsi_ble_gatt_read_response(uint8_t *dev_addr,
                                    uint8_t read_type,
@@ -3855,17 +3372,13 @@ int32_t rsi_ble_gatt_read_response(uint8_t *dev_addr,
  * @fn         int32_t rsi_ble_remove_gatt_service(uint32_t service_handler)
  * @brief      Remove the GATT service record. This is a Blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  service_handle - GATT service record handle
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4D0A  -  BLE profile not found (profile handler invalid) 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4D0A  -  BLE profile not found (profile handler invalid) 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
  */
 int32_t rsi_ble_remove_gatt_service(uint32_t service_handler);
 
@@ -3874,18 +3387,14 @@ int32_t rsi_ble_remove_gatt_service(uint32_t service_handler);
  * @fn         int32_t rsi_ble_remove_gatt_attibute(uint32_t service_handler, uint16_t att_hndl)
  * @brief      Remove the GATT attribute record. This is a Blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  service_handle - GATT service record handle
  * @param[in]  att_hndl - attribute handle
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4D06  -  Attribute record not found  
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4D06  -  Attribute record not found  
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
  */
 int32_t rsi_ble_remove_gatt_attibute(uint32_t service_handler, uint16_t att_hndl);
 
@@ -3895,21 +3404,17 @@ int32_t rsi_ble_remove_gatt_attibute(uint32_t service_handler, uint16_t att_hndl
  *												  uint8_t opcode, uint8_t err)
  * @brief      Send attribute error response for any of the att request. This is a Blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute handle
  * @param[in]  opcode 	- error response opcode
  * @param[in]  error_code - specific error related Gatt
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure
- *             0x4D04  -  BLE not Connected  
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure
+ *             - 0x4D04  -  BLE not Connected  
+ *             - 0x4E62  -  Invalid Parameters 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
  */
 int32_t rsi_ble_att_error_response(uint8_t *dev_addr, uint16_t handle, uint8_t opcode, uint8_t err);
 /** @} */
@@ -3922,22 +3427,17 @@ int32_t rsi_ble_att_error_response(uint8_t *dev_addr, uint16_t handle, uint8_t o
 /**
  * @fn         int32_t rsi_ble_mtu_exchange_event(uint8_t *dev_addr, uint8_t mtu_size)
  * @brief      Initiates the MTU exchange request with the remote device.  
- * -
  *             This is a Blocking API and will receive a callback event \ref rsi_ble_on_mtu_event_t as the response for this API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  mtu_size - requested MTU value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure
- *             0x4D04  -  BLE not Connected  
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure
+ *             - 0x4D04  -  BLE not Connected  
+ *             - 0x4E62  -  Invalid Parameters 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
  */
 int32_t rsi_ble_mtu_exchange_event(uint8_t *dev_addr, uint8_t mtu_size);
 
@@ -3946,17 +3446,15 @@ int32_t rsi_ble_mtu_exchange_event(uint8_t *dev_addr, uint8_t mtu_size);
  * @fn         int32_t rsi_ble_mtu_exchange_resp(uint8_t *dev_addr, uint8_t mtu_size)
  * @brief      This function (Exchange MTU Response) is sent in reply to a received Exchange MTU Request.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - Remote Device Address
  * @param[in]  mtu_size - requested MTU value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             0x4D0C   -   When RSI_BLE_MTU_EXCHANGE_FROM_HOST BIT is not SET.
- *             0x4D05   -   BLE Socket Not Available.
- *             Non-Zero Value	-	Failure
- *             Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors)
- *
+ *             - 0		-	Success 
+ *             - 0x4D0C   -   When RSI_BLE_MTU_EXCHANGE_FROM_HOST BIT is not SET.
+ *             - 0x4D05   -   BLE Socket Not Available.
+ *             - Non-Zero Value	-	Failure
+ * @note   Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors)
  */
 int32_t rsi_ble_mtu_exchange_resp(uint8_t *dev_addr, uint8_t mtu_size);
 /** @} */
@@ -3970,23 +3468,17 @@ int32_t rsi_ble_mtu_exchange_resp(uint8_t *dev_addr, uint8_t mtu_size);
  * @fn         int32_t rsi_ble_gatt_write_response(uint8_t *dev_addr, uint8_t type)
  * @brief      Send the response to the write request received from the remote device. This is a Blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  type 	- response type 
- * -
-			0 - write response, 
- * -
-			1 - execute write response.
+ *	- 0 - write response, 
+ *  - 1 - execute write response.
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure
- *             0x4046  -  Invalid Arguments  
- * -
- *             0x4D04  -  BLE not Connected  
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure
+ *             - 0x4046  -  Invalid Arguments  
+ *             - 0x4D04  -  BLE not Connected  
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
  */
 int32_t rsi_ble_gatt_write_response(uint8_t *dev_addr, uint8_t type);
 
@@ -3999,22 +3491,18 @@ int32_t rsi_ble_gatt_write_response(uint8_t *dev_addr, uint8_t type);
  *                                                         uint8_t *data)
  * @brief      Send the response for the prepare write requests received from the remote device. This is a Blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute value handle
  * @param[in]  offset 	- attribute value offset
  * @param[in]  data_len - attribute value length
  * @param[in]  data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure
- *             0x4046  -  Invalid Arguments  
- * -
- *             0x4D04  -  BLE not Connected  
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure
+ *             - 0x4046  -  Invalid Arguments  
+ *             - 0x4D04  -  BLE not Connected  
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) 
- * -
  */
 int32_t rsi_ble_gatt_prepare_write_response(uint8_t *dev_addr,
                                             uint16_t handle,
@@ -4031,11 +3519,10 @@ int32_t rsi_ble_gatt_prepare_write_response(uint8_t *dev_addr,
  * @brief      Get maximum advertising data length
  * @param[out] resp Maximum supported advertising data length returned by the controller. Possible values range from 0x001F to 0x0672.
  * @return The following values are returned:
- * -     0   =  success
+ *     - 0   =  success
  * @return The following values are returned:
- * -     !0  = failure
- * @note
- * This function requests the controller to return the maximum supported advertising data length.
+ *     - !0  = failure
+ * @note  This function requests the controller to return the maximum supported advertising data length.
  */
 int32_t rsi_ble_get_max_adv_data_len(uint8_t *resp);
 
@@ -4045,13 +3532,11 @@ int32_t rsi_ble_get_max_adv_data_len(uint8_t *resp);
  * @brief      Get maximum number of advertising sets
  * @param[out] resp Number of supported advertising sets returned by the controller. Possible values range from 0x01 to 0xF0.
  * @return The following values are returned:
- * -     0   =  success
+ *     0   =  success
  * @return The following values are returned:
- * -     !0 = failure
- * @note
- * This function requests the controller to return the maximum number of supporting advertising sets.
- * @note
- * The number of supported advertising sets can be configured through the operating modes.
+ *     !0 = failure
+ * @note This function requests the controller to return the maximum number of supporting advertising sets.
+ * @note The number of supported advertising sets can be configured through the operating modes.
  */
 int32_t rsi_ble_get_max_no_of_supp_adv_sets(uint8_t *resp);
 
@@ -4062,9 +3547,9 @@ int32_t rsi_ble_get_max_no_of_supp_adv_sets(uint8_t *resp);
  * @param[in]  handle  The advertising handle used to identify an advertising set
  * @param[in]  rand_addr Random device address set to either a static or private address
  * @return The following values are returned:
- * -     0   =  success
+ *     - 0   =  success
  * @return The following values are returned:
- * -     !0  = failure
+ *     - !0  = failure
  */
 int32_t rsi_ble_set_ae_set_random_address(uint8_t handle, uint8_t *rand_addr);
 
@@ -4074,12 +3559,11 @@ int32_t rsi_ble_set_ae_set_random_address(uint8_t handle, uint8_t *rand_addr);
  * @brief      Update AE advertiser data
  * @param[in]  ble_ae_data Extended Advertising data to be updated
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
- * @note
- * This function sets the AE advertiser data used in advertising PDUs.
- * @note       Refer to Bluetooth specification 5.3 for possible combinations ae_adv/scanresp data can be set for .
+ *     !0 = failure
+ * @note  This function sets the AE advertiser data used in advertising PDUs.
+ * @note  Refer to Bluetooth specification 5.3 for possible combinations ae_adv/scanresp data can be set for .
  */
 int32_t rsi_ble_set_ae_data(void *ble_ae_data);
 
@@ -4090,9 +3574,9 @@ int32_t rsi_ble_set_ae_data(void *ble_ae_data);
  * @param[in]  ble_ae_params Extended Advertising parameters to be updated
  * @param[out] sel_tx_power Output transmit power in dBm, ranging from -127 to +20.
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
+ *     !0 = failure
  */
 int32_t rsi_ble_set_ae_params(void *ble_ae_params, int8_t *sel_tx_pwr);
 
@@ -4102,9 +3586,9 @@ int32_t rsi_ble_set_ae_params(void *ble_ae_params, int8_t *sel_tx_pwr);
  * @brief      Enable or disable AE advertising
  * @param[in]  adv_enable Parameters to enable or disable specific advertising sets identified by advertising handle
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0  = failure
+ *     !0  = failure
  */
 int32_t rsi_ble_start_ae_advertising(void *adv_enable);
 
@@ -4115,9 +3599,9 @@ int32_t rsi_ble_start_ae_advertising(void *adv_enable);
  * @param[in]  type Set to 1 to clear, or 2 to remove an advertising set
  * @param[in]  handle Advertising handle identifying the advertising set to remove or clear. Possible values range from 0x00 to 0xEF.
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
+ *     !0 = failure
  */
 int32_t rsi_ble_app_adv_set_clear_or_remove(uint8_t type, uint8_t handle);
 
@@ -4127,9 +3611,9 @@ int32_t rsi_ble_app_adv_set_clear_or_remove(uint8_t type, uint8_t handle);
  * @brief      Update periodic AE parameters
  * @param[in]  periodic_adv_params Periodic advertising parameters to be updated
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0  = failure
+ *     !0  = failure
  */
 int32_t rsi_ble_app_set_periodic_ae_params(void *periodic_adv_params);
 
@@ -4140,9 +3624,9 @@ int32_t rsi_ble_app_set_periodic_ae_params(void *periodic_adv_params);
  * @param[in]  enable Set to 0 to enable, or 1 to include the ADI field in AUX_SYNC_IND PDUs
  * @param[in]  handle Advertising handle of the advertising set to enable or disable
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
+ *     !0 = failure
  * @note
  * This function requests the controller to enable or disable periodic advertising for the specified advertising set.
  */
@@ -4154,9 +3638,9 @@ int32_t rsi_ble_app_set_periodic_ae_enable(uint8_t enable, uint8_t handle);
  * @brief      Update AE scan parameters
  * @param[in]  ae_scan_params Extended scan parameters to be updated
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
+ *     !0 = failure
  * @note
  * This function sets the extended scan parameters to be used on the physical advertising channels.
  */
@@ -4168,9 +3652,9 @@ int32_t rsi_ble_ae_set_scan_params(void *ae_scan_params);
  * @brief      Enable or disable legacy and extended scanning
  * @param[in]  ae_scan_enable Parameters specify whether to enable or disable both legacy and extended advertising PDUs
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
+ *     !0 = failure
  */
 int32_t rsi_ble_ae_set_scan_enable(void *ae_scan_enable);
 
@@ -4181,11 +3665,11 @@ int32_t rsi_ble_ae_set_scan_enable(void *ae_scan_enable);
  * @param[in]  type Set to 1 to begin, 2 to cancel, or 3 to terminate the periodic advertising sync
  * @param[in]  periodic_sync_data Parameters for starting a perodic advertising sync operation
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     0x4E42 = unknown advertising identifier
+ *     0x4E42 = unknown advertising identifier
  * @return The following values are returned:
- * -     0x4E0C = command not permitted
+ *     0x4E0C = command not permitted
  * @note
  * This function performs an operation to synchronize with a periodic advertising train from an advertiser and begin receiving periodic advertising packets. 
  * @note
@@ -4199,9 +3683,9 @@ int32_t rsi_ble_ae_set_periodic_sync(uint8_t type, void *periodic_sync_data);
  * @brief      Manage a device in the periodic advertiser list
  * @param[in]  dev_to_list Details of a device to be added to the periodic advertiser list
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0  = failure
+ *     !0  = failure
  * @note
  * This function adds, removes, or clears a device from the periodic advertiser list.
  */
@@ -4213,9 +3697,9 @@ int32_t rsi_ble_ae_dev_to_periodic_list(void *dev_to_list);
  * @brief      Get periodic advertiser list size
  * @param[out] resp Periodic advertiser list size returned by the controller
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
+ *     !0 = failure
  */
 int32_t rsi_ble_ae_read_periodic_adv_list_size(uint8_t *resp);
 
@@ -4225,9 +3709,9 @@ int32_t rsi_ble_ae_read_periodic_adv_list_size(uint8_t *resp);
  * @brief      Establish ACL connection to advertiser
  * @param[in]  ble_extended_conn_params Connection parameters
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
+ *     !0 = failure
  * @note
  * This function establishes an ACL connection to an advertiser, with the local device in the BLE central role.
  */
@@ -4239,9 +3723,9 @@ int32_t rsi_ble_extended_connect_with_params(void *ext_create_conn);
  * @brief      Get supported transmit power range
  * @param[out] resp Minimum and maximum supported transmit power, returned by the controller. Power ranges from -127 dBm to +20 dBm.
  * @return The following values are returned:
- * -     0  =  success
+ *     0  =  success
  * @return The following values are returned:
- * -     !0 = failure
+ *     !0 = failure
  * @note
  * This function requests the controller to return the minimum and maximum supported transmit power.
  */
@@ -4270,28 +3754,22 @@ int32_t rsi_ble_read_transmit_power(void *resp);
  *             called after the profiles list event is received. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_profiles_list_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[out] p_profile_list 	- profiles/services information will be filled in this structure after retrieving from the remote device,
 				  please refer rsi_ble_resp_profiles_list_s structure for more info.
- * -
- * 		@note	p_prof_list structure should be passed as NULL because nothing will be filled in this structure 
- * -
- * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
+ * 		@note	p_prof_list structure should be passed as NULL because nothing will be filled in this structure 
+ *
+ * @return The following values are returned:
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 
 int32_t rsi_ble_get_profiles_async(uint8_t *dev_addr,
@@ -4308,28 +3786,19 @@ int32_t rsi_ble_get_profiles_async(uint8_t *dev_addr,
  *             the service characteristics response is received. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_one_event_profile_by_uuid_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  profile_uuid 	- services/profiles which are searched using profile_uuid 
- * -
  * @param[out] p_profile 	- profile / service information filled in this structure after retrieving from the remote device,
-				  please refer profile_descriptor_s structure for more info. 
- * -
+ *			  please refer profile_descriptor_s structure for more info. 
  * 		@note	p_profile structure should be passed as NULL because nothing will be filled in this structure 
- * -
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
- *
  */
 int32_t rsi_ble_get_profile_async(uint8_t *dev_addr, uuid_t profile_uuid, profile_descriptors_t *p_profile);
 
@@ -4344,29 +3813,22 @@ int32_t rsi_ble_get_profile_async(uint8_t *dev_addr, uuid_t profile_uuid, profil
  *             the included service characteristics response is received. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_read_by_char_services_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[out] p_char_services_list - service characteristics details are filled in this structure, please refer rsi_ble_resp_char_serv_s structure for more info. 
- * -
- * 		@note	p_char_services_list structure should be passed as NULL because nothing will be filled in this structure 
- * -
- * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
- * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
+ * @note	p_char_services_list structure should be passed as NULL because nothing will be filled in this structure 
+ *
+ * @return The following values are returned:
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
+ * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_char_services_async(uint8_t *dev_addr,
                                         uint16_t start_handle,
@@ -4384,27 +3846,20 @@ int32_t rsi_ble_get_char_services_async(uint8_t *dev_addr,
  * 			       the service characteristics response is received. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_read_by_inc_services_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[out] p_inc_serv_list 	- include service characteristics details are filled in this structure, please refer rsi_ble_resp_inc_serv structure for more info.
- * -
- * 		@note	p_inc_serv_list structure should be passed as NULL because nothing will be filled in this structure 
- * -
+ *
+ * @note	p_inc_serv_list structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_inc_services_async(uint8_t *dev_addr,
@@ -4424,28 +3879,20 @@ int32_t rsi_ble_get_inc_services_async(uint8_t *dev_addr,
  *			       after the attribute value is received. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_read_att_value_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        - \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  start_handle 	- start handle (index) of the remote device's service records
  * @param[in]  end_handle 	- end handle (index) of the remote device's service records
  * @param[in]  char_uuid 	- UUID of the characteristic
  * @param[out] p_char_value 	- characteristic value is filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
- * -
- * 		@note	p_char_value structure should be passed as NULL because nothing will be filled in this structure 
- * -
+ * @note	p_char_value structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_char_value_by_uuid_async(uint8_t *dev_addr,
@@ -4464,26 +3911,21 @@ int32_t rsi_ble_get_char_value_by_uuid_async(uint8_t *dev_addr,
  *  	         callback function is called after the attribute descriptors response is received. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_gatt_desc_val_event_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  start_handle - start handle (index) of the remote device's service records
  * @param[in]  end_handle - end handle (index) of the remote device's service records
  * @param[out] p_att_desc - pointer to characteristic descriptor structure, Please refer rsi_ble_resp_att_descs_s strcuture for more info.
- * -
+ *
  * 		@note	p_att_desc structure should be passed as NULL because nothing will be filled in this structure 
- * -
+ *
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_att_descriptors_async(uint8_t *dev_addr,
@@ -4499,26 +3941,18 @@ int32_t rsi_ble_get_att_descriptors_async(uint8_t *dev_addr,
  * 			       \ref rsi_ble_on_event_read_resp_t callback function is called upon receiving the attribute value. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_read_resp_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- handle value of the attribute
  * @param[out] p_att_val - attribute value is filled in this structure, Please refer rsi_ble_resp_att_value_s structure for more info.
- * -
- * 		@note	p_att_val structure should be passed as NULL because nothing will be filled in this structure 
- * -
+ * @note	p_att_val structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_att_value_async(uint8_t *dev_addr, uint16_t handle, rsi_ble_resp_att_value_t *p_att_val);
@@ -4533,26 +3967,18 @@ int32_t rsi_ble_get_att_value_async(uint8_t *dev_addr, uint16_t handle, rsi_ble_
  *             \ref rsi_ble_on_event_read_resp_t callback function is called after the attribute value is received. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_read_resp_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr 	- remote device address
  * @param[in]  num_of_handlers 	- number of handles in the list
  * @param[in]  handles 		- list of attribute handles
  * @param[out] p_att_vals 	- attribute values filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
- * -
- * 		@note	p_att_vals structure should be passed as NULL because nothing will be filled in this structure 
- * -
-
+ * @note	p_att_vals structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_multiple_att_values_async(uint8_t *dev_addr,
@@ -4570,27 +3996,19 @@ int32_t rsi_ble_get_multiple_att_values_async(uint8_t *dev_addr,
  *             \ref rsi_ble_on_event_read_resp_t callback function is called after the attribute value is received. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_read_resp_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute handle
  * @param[in]  offset 	- offset within the attribute value
  * @param[out] p_att_vals - attribute value filled in this structure, please refer rsi_ble_resp_att_value_s structure for more info.
- * -
- * 		@note	p_att_vals structure should be passed as NULL because nothing will be filled in this structure 
- * -
+ * @note	p_att_vals structure should be passed as NULL because nothing will be filled in this structure 
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_get_long_att_value_async(uint8_t *dev_addr,
@@ -4606,24 +4024,18 @@ int32_t rsi_ble_get_long_att_value_async(uint8_t *dev_addr,
  *   		       callback function is called after the attribute set action is completed. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_write_resp_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute value handle
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_set_att_value_async(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, uint8_t *p_data);
@@ -4639,23 +4051,18 @@ int32_t rsi_ble_set_att_value_async(uint8_t *dev_addr, uint16_t handle, uint8_t 
  * 			       callback function is called after the prepare attribute write action is completed. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_prepare_write_resp_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API
+ *        \ref rsi_ble_connect() API needs to be called before this API
  * @param[in]  dev_addr - remote device address
  * @param[in]  handle 	- attribute handle
  * @param[in]  offset 	- attribute value offset
  * @param[in]  data_len - attribute value length
  * @param[in]  p_data 	- attribute value
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             0x4E60  -  Invalid Handle range 
- * -
- *             0x4E62  -  Invalid Parameters 
- * -
- *             0x4D04  -  BLE not connected 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - 0x4E60  -  Invalid Handle range 
+ *             - 0x4E62  -  Invalid Parameters 
+ *             - 0x4D04  -  BLE not connected 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_prepare_write_async(uint8_t *dev_addr,
@@ -4671,22 +4078,15 @@ int32_t rsi_ble_prepare_write_async(uint8_t *dev_addr,
  * 			       callback function is called after the execute attribute write action is completed. This is a blocking API and can unblock the application
  *             on the reception of the callback functions either \ref rsi_ble_on_event_write_resp_t or \ref rsi_ble_on_gatt_error_resp_t.
  * @pre Pre-conditions:
- * -        \ref rsi_ble_connect() API needs to be called before this API.
+ *        \ref rsi_ble_connect() API needs to be called before this API.
  * @param[in]  dev_addr - remote device address
  * @param[in]  exe_flag - execute flag to write, possible values mentioned below
- * -
-			0 - BLE_ATT_EXECUTE_WRITE_CANCEL 
- * -
-		 	1 - BLE_ATT_EXECUTE_PENDING_WRITES_IMMEDIATELY 
- * -
-
+ *   - 0 - BLE_ATT_EXECUTE_WRITE_CANCEL 
+ *   - 1 - BLE_ATT_EXECUTE_PENDING_WRITES_IMMEDIATELY 
  * @return The following values are returned:
- * -     0		-	Success 
- * -
- *             Non-Zero Value	-	Failure 
- * -
- *             0x4D05  -  BLE Socket not available 
- * -
+ *             - 0		-	Success 
+ *             - Non-Zero Value	-	Failure 
+ *             - 0x4D05  -  BLE Socket not available 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 int32_t rsi_ble_execute_write_async(uint8_t *dev_addr, uint8_t exe_flag);
@@ -4727,10 +4127,10 @@ uint32_t rsi_ble_cbfc_disconnect(uint8_t *dev_addr, uint16_t lcid);
  * @brief      The callback function will be called if advertise report event is received
  * @param[out]  rsi_ble_event_adv contains the advertise report information. Please refer rsi_ble_event_adv_report_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the advertise event report is received from the module 
- * -
+ *
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_adv_report_event_t)(rsi_ble_event_adv_report_t *rsi_ble_event_adv);
@@ -4740,10 +4140,9 @@ typedef void (*rsi_ble_on_adv_report_event_t)(rsi_ble_event_adv_report_t *rsi_bl
  * @brief      The callback function will be called if BLE connection status is received
  * @param[out]  rsi_ble_event_conn contains the BLE connection status. Please refer rsi_ble_event_conn_status_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the BLE connection status is received from the module. For BLE 4.1 and lower version this callback will be called 
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_connect_t)(rsi_ble_event_conn_status_t *rsi_ble_event_conn);
@@ -4753,10 +4152,9 @@ typedef void (*rsi_ble_on_connect_t)(rsi_ble_event_conn_status_t *rsi_ble_event_
  * @brief      The callback function will be called if BLE connection status is received
  * @param[out]  rsi_ble_event_conn contains the BLE connection status. Please refer rsi_ble_event_enhance_conn_status_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the BLE connection status is received from the module. For BLE 4.2 and above version this callback will be called  
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_enhance_connect_t)(rsi_ble_event_enhance_conn_status_t *rsi_ble_event_enhance_conn);
@@ -4766,25 +4164,17 @@ typedef void (*rsi_ble_on_enhance_connect_t)(rsi_ble_event_enhance_conn_status_t
  * @brief      The callback function will be called if disconnect event is received
  * @param[out]  rsi_ble_event_disconnect contains the disconnect status. Please refer rsi_ble_event_disconnect_s for more info.
  * @param[out]  reason contains reason for failure. 
- * -
  * @note        Few reason for failure are given below 
- * -
  *              0x4E13	Remote user terminated connection 
- * -
  *              0x4E14	Remote device terminated connection due to low resources 
- * -
  *              0x4E15	Remote device terminated connection due to power off 
- * -
  *              0x4E3D	Connection terminated due to MIC failure 
- * -
  *              0x4E3E  Connection Failed to be Established 
- * -
  *              0x4E60  Invalid Handle Range
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the disconnect status event is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_disconnect_t)(rsi_ble_event_disconnect_t *rsi_ble_event_disconnect, uint16_t reason);
@@ -4794,10 +4184,9 @@ typedef void (*rsi_ble_on_disconnect_t)(rsi_ble_event_disconnect_t *rsi_ble_even
  * @brief      The callback function will be called if le ping payload timeout expired event is received
  * @param[out]  rsi_ble_event_disconnect contains the disconnect status. Please refer rsi_ble_event_le_ping_time_expired_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the le ping time expired event is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_le_ping_payload_timeout_t)(
@@ -4808,10 +4197,9 @@ typedef void (*rsi_ble_on_le_ping_payload_timeout_t)(
  * @brief      The callback function will be called if LE LTK request event is received
  * @param[out]  rsi_ble_event_le_ltk_request contains the LTK request info. Please refer  rsi_bt_event_le_ltk_request_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if LE LTK request event is received from the module 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_le_ltk_req_event_t)(rsi_bt_event_le_ltk_request_t *rsi_ble_event_le_ltk_request);
@@ -4821,10 +4209,9 @@ typedef void (*rsi_ble_on_le_ltk_req_event_t)(rsi_bt_event_le_ltk_request_t *rsi
  * @brief      The callback function will be called if LE security keys event is received
  * @param[out]  rsi_bt_event_le_security_keys_t contains security keys. Please refer rsi_bt_event_le_security_keys_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if LE security keys event is received from the module 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_le_security_keys_t)(rsi_bt_event_le_security_keys_t *rsi_ble_event_le_security_keys);
@@ -4842,10 +4229,9 @@ typedef void (*rsi_ble_on_le_security_keys_t)(rsi_bt_event_le_security_keys_t *r
  * @param[out] resp_status contains the response status (Success or Error code)
  * @param[out] remote_dev_address contains the smp requested device address. Please refer rsi_bt_event_smp_req_s for more info.
  * @return The following values are returned:
- * -     void
+ *     void
  * @section description
  * This callback function will be called if the  smp request is received from the remote device 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_smp_request_t)(rsi_bt_event_smp_req_t *remote_dev_address);
@@ -4856,10 +4242,9 @@ typedef void (*rsi_ble_on_smp_request_t)(rsi_bt_event_smp_req_t *remote_dev_addr
  * @brief      The callback function will be called if smp request is received in peripheral mode
  * @param[out] remote_dev_address contains the smp resp information. please refer rsi_bt_event_smp_resp_s for more info
  * @return The following values are returned:
- * -     void
+ *     void
  * @section description
  * This callback function will be called if the  smp request is received from the remote device 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_smp_response_t)(rsi_bt_event_smp_resp_t *remote_dev_address);
@@ -4871,10 +4256,9 @@ typedef void (*rsi_ble_on_smp_response_t)(rsi_bt_event_smp_resp_t *remote_dev_ad
  * @param[out] resp_status, contains the response status (Success or Error code)
  * @param[out] remote_dev_address contains the remote device address. please refer rsi_bt_event_smp_passkey_s for more info
  * @return The following values are returned:
- * -     void
+ *     void
  * @section description
  * This callback function will be called if the  smp passkey is received from the module 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_smp_passkey_t)(rsi_bt_event_smp_passkey_t *remote_dev_address);
@@ -4886,10 +4270,9 @@ typedef void (*rsi_ble_on_smp_passkey_t)(rsi_bt_event_smp_passkey_t *remote_dev_
  * @param[out] resp_status contains the response status (Success or Error code)
  * @param[out] smp_passkey_display contains the smp passkey display information. Please refer rsi_bt_event_smp_passkey_display_s for more info.
  * @return The following values are returned:
- * -     void
+ *     void
  * @section description
  * This callback function will be called if the  smp passkey display is received from the module 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_smp_passkey_display_t)(rsi_bt_event_smp_passkey_display_t *smp_passkey_display);
@@ -4899,36 +4282,23 @@ typedef void (*rsi_ble_on_smp_passkey_display_t)(rsi_bt_event_smp_passkey_displa
  * @typedef    void (*rsi_ble_on_smp_failed_t)(uint16_t resp_status, rsi_bt_event_smp_failed_t *remote_dev_address);
  * @brief      The callback function will be called if smp failed event is received from module
  * @param[out] resp_status contains the response status (Success or Error code) 
- * -
- * @note       Error codes for SMP FAILED are given below 
- * -
+ * @note       Error codes for SMP FAILED are given below: 
  *              0x4B01	SMP Passkey entry failed  
- * -
  *              0x4B02	SMP OOB not available 
- * -
  *              0x4B03	SMP Authentication Requirements 
- * -
  *              0x4B04	SMP confirm value failed 
- * -
  *              0x4B05	SMP Pairing not supported 
- * -
  *              0x4B06	SMP Encryption key size insufficient 
- * -
  *              0x4B07	SMP command not supported 
- * -
  *              0x4B08	SMP Unspecified Reason 
- * -
  *              0x4B09	SMP repeated attempts 
- * -
  *              0x4B0C	SMP Numeric Comparison Failed 
- * -
  *              0x4B0B DHKEY Check Failed
  * @param[out] remote_dev_address contains the remote device address. Please refer rsi_bt_event_smp_failed_s for more info.
  * @return The following values are returned:
- * -     void
+ *     void
  * @section description
  * This callback function will be called if the  smp process is failed with remote device 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_smp_failed_t)(uint16_t resp_status, rsi_bt_event_smp_failed_t *remote_dev_address);
@@ -4939,10 +4309,9 @@ typedef void (*rsi_ble_on_smp_failed_t)(uint16_t resp_status, rsi_bt_event_smp_f
  * @brief      The callback function will be called if security method event is received from module
  * @param[out] scmethod contains Security Method 1 means Just works or 2 means Passkey. Please refer rsi_bt_event_sc_method_s for more info.
  * @return The following values are returned:
- * -     void
+ *     void
  * @section description
  * This callback function will be called if the  SC method is done with remote device 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_sc_method_t)(rsi_bt_event_sc_method_t *scmethod);
@@ -4954,10 +4323,9 @@ typedef void (*rsi_ble_on_sc_method_t)(rsi_bt_event_sc_method_t *scmethod);
  * @param[out] resp_status contains the response status (Success or Error code)
  * @param[out] enc_enabled contains encryption information. Please refer rsi_bt_event_encryption_enabled_s for more info. 
  * @return The following values are returned:
- * -     void
+ *     void
  * @section description
  * This callback function will be called if the  encryption process is started with remote device 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_encrypt_started_t)(uint16_t resp_status, rsi_bt_event_encryption_enabled_t *enc_enabled);
@@ -4968,10 +4336,9 @@ typedef void (*rsi_ble_on_encrypt_started_t)(uint16_t resp_status, rsi_bt_event_
  * @brief      The callback function will be called if BLE Secure connection passkey event received from module
  * @param[out] sc_passkey contains LE SC Passkey information. Please refer rsi_bt_event_encryption_enabled_s for more info.
  * @return The following values are returned:
- * -     void
+ *     void
  * @section description
  * This callback function will be called if the  BLE Secure connection passkey event received 
- * -
  * This callback has to be registered using rsi_ble_smp_register_callbacks API
  */
 typedef void (*rsi_ble_on_sc_passkey_t)(rsi_bt_event_sc_passkey_t *sc_passkey);
@@ -4981,10 +4348,9 @@ typedef void (*rsi_ble_on_sc_passkey_t)(rsi_bt_event_sc_passkey_t *sc_passkey);
  * @brief      The callback function will be called when PHY update complete event is received
  * @param[out] rsi_ble_event_phy_update_complete  contains the controller support PHY information. Please refer rsi_ble_event_phy_update_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when PHY update complete event is received 
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_phy_update_complete_t)(rsi_ble_event_phy_update_t *rsi_ble_event_phy_update_complete);
@@ -4996,10 +4362,9 @@ typedef void (*rsi_ble_on_phy_update_complete_t)(rsi_ble_event_phy_update_t *rsi
  * @param[out] rsi_ble_event_conn_update_complete contains the controller support conn information. Please refer rsi_ble_event_conn_update_s for more info.
  * @param[out] resp_status contains the response status (Success or Error code)
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when conn update complete event is received 
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_conn_update_complete_t)(rsi_ble_event_conn_update_t *rsi_ble_event_conn_update_complete,
@@ -5012,10 +4377,9 @@ typedef void (*rsi_ble_on_conn_update_complete_t)(rsi_ble_event_conn_update_t *r
  * @param[out] resp_status contains the response status (Success or Error code)
  * @param[out] rsi_ble_event_remote_features contains the remote device supported features. Please refer rsi_ble_event_remote_features_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when remote conn params request is received 
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_remote_conn_params_request_t)(
@@ -5027,10 +4391,9 @@ typedef void (*rsi_ble_on_remote_conn_params_request_t)(
  * @brief      Callback function to peer device supported features.
  * @param[out] rsi_ble_event_remote_features contains the remote device supported features. Please refer rsi_ble_event_remote_features_s for more info.
  * @return The following values are returned:
- * -     void
+ *     void
  * @section    description
  * This callback function will be called when conn update complete event is received 
- * -
  * This callback has to be registered using rsi_ble_gap_extended_register_callbacks API
  */
 typedef void (*rsi_ble_on_remote_features_t)(rsi_ble_event_remote_features_t *rsi_ble_event_remote_features);
@@ -5040,10 +4403,9 @@ typedef void (*rsi_ble_on_remote_features_t)(rsi_ble_event_remote_features_t *rs
  * @brief      Callback function to LE more data request
  * @param[out] rsi_ble_more_data_evt contains the LE Device Buffer Indication information. Please refer rsi_ble_event_le_dev_buf_ind_s for more info.
  * @return The following values are returned:
- * -     void
+ *     void
  * @section    description
  * This callback function will be called when LE more data event is received 
- * -
  * This callback has to be registered using rsi_ble_gap_extended_register_callbacks API
  */
 typedef void (*rsi_ble_on_le_more_data_req_t)(rsi_ble_event_le_dev_buf_ind_t *rsi_ble_more_data_evt);
@@ -5054,10 +4416,9 @@ typedef void (*rsi_ble_on_le_more_data_req_t)(rsi_ble_event_le_dev_buf_ind_t *rs
  * @brief      This event is raised when data length is update in controller
  * @param[out] remote_dev_address contains the controller support TX and RX length information. Please refer rsi_ble_event_data_length_update_s for more info.
  * @return The following values are returned:
- * -     void
+ *     void
  * @section    description
  * This callback function will be called when data length update complete event is received 
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_data_length_update_t)(rsi_ble_event_data_length_update_t *remote_dev_address);
@@ -5067,10 +4428,9 @@ typedef void (*rsi_ble_on_data_length_update_t)(rsi_ble_event_data_length_update
  * @brief      The callback function will be called if directed advertise report event is received
  * @param[in]  rsi_ble_event_directed, contains the advertise report information
  * @return The following values are returned:
- * -     void
+ *     void
  * @section    description
  * This callback function will be called if the advertise event report is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gap_register_callbacks API
  */
 typedef void (*rsi_ble_on_directed_adv_report_event_t)(rsi_ble_event_directedadv_report_t *rsi_ble_event_directed);
@@ -5093,7 +4453,7 @@ typedef void (*rsi_ble_on_directed_adv_report_event_t)(rsi_ble_event_directedadv
  * @param[in]  ble_on_conn_update_complete_event        - Callback function for conn update complete events
  * @param[in]  ble_on_remote_conn_params_request_event  - Callback function to remote conn params request events
  * @return The following values are returned:
- * -      void
+ *      void
  */
 void rsi_ble_gap_register_callbacks(rsi_ble_on_adv_report_event_t ble_on_adv_report_event,
                                     rsi_ble_on_connect_t ble_on_conn_status_event,
@@ -5110,12 +4470,12 @@ void rsi_ble_gap_register_callbacks(rsi_ble_on_adv_report_event_t ble_on_adv_rep
 /**
  * @brief      Register GAP Extended responses/events callbacks.
  * @pre Pre-conditions:
- * -        Device should be initialized before calling this API.
+ *        Device should be initialized before calling this API.
  * @param[in]  ble_on_remote_features_event  - Call back function for Remote feature request
  * @param[in]  ble_on_le_more_data_req_event - Call back function for LE More data request
  * @note        For more information about each callback, please refer to GAP Extended callbacks description section.
  * @return The following values are returned:
- * -      void
+ *      void
  */
 
 void rsi_ble_gap_extended_register_callbacks(rsi_ble_on_remote_features_t ble_on_remote_features_event,
@@ -5146,7 +4506,7 @@ int32_t rsi_ble_adv_ext_events_register_callbacks(uint16_t callback_id,
  * @param[in]     ble_on_le_security_keys_event      -  This is the SMP security keys callback
  * @param[in]	  ble_on_sc_method_event             - sc method display callback
  * @return The following values are returned:
- * -      void
+ *      void
  */
 void rsi_ble_smp_register_callbacks(rsi_ble_on_smp_request_t ble_on_smp_request_event,
                                     rsi_ble_on_smp_response_t ble_on_smp_response_event,
@@ -5172,39 +4532,24 @@ void rsi_ble_smp_register_callbacks(rsi_ble_on_smp_request_t ble_on_smp_request_
  * @typedef    void (*rsi_ble_on_gatt_error_resp_t)(uint16_t event_status, rsi_ble_event_error_resp_t *rsi_ble_gatt_error);
  * @brief      The callback function will be called if GATT error event is received
  * @param[out]  event_status contains the error response  
- * -
  *              Non-Zero Value	-	Failure 
- * -
- * @note        Attribute protocol error codes 
- * - 
+ *              Attribute protocol error codes 
  *              0x4A01  -  Invalid Handle 
- * -
  *              0x4A06  -  Request not supported 
- * -
  *              0x4A0A  -  Attribute not found 
- * -
  *              0x4A05  -  Insufficient authentication 
- * -
  *              0x4A08  -  Insufficient authorization 
- * -
  *              0x4A0C  -  Insufficient encryption key size 
- * -
  *              0x4A0F  -  Insufficient encryption 
- * -
- * 				0x4A02  -  Read not permitted 
- * - 
+ * 				      0x4A02  -  Read not permitted 
  *              0x4A03  -  Write not permitted 
- * -
  *              0x4A07  -  Invalid offset 
- * -
  *              0x4A0B  -  Attribute not Long 
- * -
  * @param[out]  rsi_ble_gatt_error contains the GATT error information. Please refer rsi_ble_event_error_resp_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the GATT error event is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_gatt_error_resp_t)(uint16_t event_status, rsi_ble_event_error_resp_t *rsi_ble_gatt_error);
@@ -5213,17 +4558,14 @@ typedef void (*rsi_ble_on_gatt_error_resp_t)(uint16_t event_status, rsi_ble_even
                                                  rsi_ble_event_gatt_desc_t *rsi_ble_gatt_desc_val);
  * @brief      The callback function will be called if attribute descriptors event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
+ *
  * @param[out]  rsi_ble_gatt_desc_val contains the profiles list event information. Please refer rsi_ble_event_gatt_desc_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the attribute descriptors event is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_gatt_desc_val_event_t)(uint16_t event_status,
@@ -5234,17 +4576,15 @@ typedef void (*rsi_ble_on_gatt_desc_val_event_t)(uint16_t event_status,
                                                  rsi_ble_event_profiles_list_t *rsi_ble_event_profiles);
  * @brief      The callback function will be called if profiles list event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
+ *
  * @param[out]  rsi_ble_event_profiles contains the profiles list event information. Please refer rsi_ble_event_profiles_list_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  profiles list response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_profiles_list_t)(uint16_t event_status,
@@ -5255,17 +4595,15 @@ typedef void (*rsi_ble_on_event_profiles_list_t)(uint16_t event_status,
                                                    rsi_ble_event_profile_by_uuid_t *rsi_ble_event_profile);
  * @brief      The callback function will be called if profile event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
+ *
  * @param[out]  rsi_ble_event_profile contains the profile response information. Please refer rsi_ble_event_profile_by_uuid_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  profile response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_profile_by_uuid_t)(uint16_t event_status,
@@ -5275,17 +4613,15 @@ typedef void (*rsi_ble_on_event_profile_by_uuid_t)(uint16_t event_status,
                                                          rsi_ble_event_read_by_type1_t *rsi_ble_event_read_type1);
  * @brief      The callback function will be called if characteristic services list event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @param[out]  rsi_ble_event_read_type1 contains the char services event information. Please refer rsi_ble_event_read_by_type1_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the characteristic services list response is received from the module 
- * - 
+ * 
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_read_by_char_services_t)(uint16_t event_status,
@@ -5296,17 +4632,15 @@ typedef void (*rsi_ble_on_event_read_by_char_services_t)(uint16_t event_status,
                                                         rsi_ble_event_read_by_type2_t *rsi_ble_event_read_type2);
  * @brief      The callback function will be called if include services list event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @param[out]  rsi_ble_event_read_type2 contains the inc services information. Please refer rsi_ble_event_read_by_type2_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  include services list response is received from the module 
- * -
+ *
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_read_by_inc_services_t)(uint16_t event_status,
@@ -5316,17 +4650,14 @@ typedef void (*rsi_ble_on_event_read_by_inc_services_t)(uint16_t event_status,
                                                   rsi_ble_event_read_by_type3_t *rsi_ble_event_read_type3);
  * @brief      The callback function will be called if attribute value event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @param[out]  rsi_ble_event_read_type3 contains the char services event information. Please refer rsi_ble_event_read_by_type3_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  attribute value response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_read_att_value_t)(uint16_t event_status,
@@ -5336,17 +4667,14 @@ typedef void (*rsi_ble_on_event_read_att_value_t)(uint16_t event_status,
  * @typedef void (*rsi_ble_on_event_read_resp_t)(uint16_t event_status, rsi_ble_event_att_value_t *rsi_ble_event_att_val);
  * @brief      The callback function will be called if attribute value event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @param[out]  rsi_ble_event_att_val contains the profile response information. Please refer rsi_ble_event_att_value_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  attribute value is received from the module 
- * - 
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_read_resp_t)(uint16_t event_status, rsi_ble_event_att_value_t *rsi_ble_event_att_val);
@@ -5355,17 +4683,15 @@ typedef void (*rsi_ble_on_event_read_resp_t)(uint16_t event_status, rsi_ble_even
  * @typedef    void (*rsi_ble_on_event_write_resp_t)(uint16_t event_status, rsi_ble_set_att_resp_t *rsi_ble_event_set_att_rsp);
  * @brief      The callback function will be called if GATT write event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
+ *
  * @param[out]  rsi_ble_event_set_att_rsp contains the profile response information. Please refer rsi_ble_set_att_resp_t for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  GATT write response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_write_resp_t)(uint16_t event_status, rsi_ble_set_att_resp_t *rsi_ble_event_set_att_rsp);
@@ -5374,17 +4700,14 @@ typedef void (*rsi_ble_on_event_write_resp_t)(uint16_t event_status, rsi_ble_set
                                                          rsi_ble_set_att_resp_t *rsi_ble_event_set_att_rsp);
  * @brief      Callback function to be called if indication confirmation event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @param[out]  rsi_ble_event_set_att_rsp contains the profile response information. Please refer rsi_ble_set_att_resp_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  indication confirmation response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_indicate_confirmation_t)(uint16_t event_status,
@@ -5394,17 +4717,13 @@ typedef void (*rsi_ble_on_event_indicate_confirmation_t)(uint16_t event_status,
                                                       rsi_ble_prepare_write_resp_t *rsi_ble_event_prepare_write);
  * @brief      The callback function will be called if indication confirmation event is received
  * @param[out]  event_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @param[out]  rsi_ble_event_prepare_write contains the char services event information. Please refer rsi_ble_prepare_write_resp_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  GATT prepare response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_event_prepare_write_resp_t)(uint16_t event_status,
@@ -5415,23 +4734,16 @@ typedef void (*rsi_ble_on_event_prepare_write_resp_t)(uint16_t event_status,
                                                 rsi_ble_resp_profiles_list_t *rsi_ble_resp_profiles);
  * @brief      The callback function will be called if profiles list response is received
  * @param[out]  resp_status contains the response status 
- * -
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * - 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @note        Attribute protocol error codes 
- * -
  *              0x4A01  -  Invalid Handle 
- * -
  *              0x4A0A  -  Attribute not found 
- * -
  * @param[out]  rsi_ble_resp_profiles contains the profiles list response information. Please refer rsi_ble_resp_profiles_list_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  profiles list response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_profiles_list_resp_t)(uint16_t resp_status,
@@ -5441,25 +4753,17 @@ typedef void (*rsi_ble_on_profiles_list_resp_t)(uint16_t resp_status,
  * @typedef void (*rsi_ble_on_profile_resp_t)(uint16_t resp_status, profile_descriptors_t *rsi_ble_resp_profile);
  * @brief      The callback function will be called if profile response is received
  * @param[out]  resp_status contains the response status 
- * -
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @note        Attribute protocol error codes 
- * - 
  *              0x4A01  -  Invalid Handle 
- * -
  *              0x4A06  -  Request not supported 
- * -
  *              0x4A0A  -  Attribute not found 
- * -
  * @param[out]  rsi_ble_resp_profile contains the profile response information. Please refer profile_descriptors_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  profile response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_profile_resp_t)(uint16_t resp_status, profile_descriptors_t *rsi_ble_resp_profile);
@@ -5469,35 +4773,23 @@ typedef void (*rsi_ble_on_profile_resp_t)(uint16_t resp_status, profile_descript
                                                 rsi_ble_resp_char_services_t *rsi_ble_resp_char_serv);
  * @brief      The callback function will be called if service characteristics response is received
  * @param[out]  resp_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @note        Attribute protocol error codes 
- * - 
  *              0x4A01  -  Invalid Handle 
- * -
  *              0x4A06  -  Request not supported 
- * -
  *              0x4A0A  -  Attribute not found 
- * -
  *              0x4A05  -  Insufficient authentication 
- * -
  *              0x4A08  -  Insufficient authorization 
- * -
  *              0x4A0C  -  Insufficient encryption key size 
- * -
  *              0x4A0F  -  Insufficient encryption 
- * -
- * 				0x4A02  -  Read not permitted 
- * - 
+ * 				      0x4A02  -  Read not permitted 
  * @param[out]  rsi_ble_resp_char_serv contains the service characteristics response information. Please refer rsi_ble_resp_char_services_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  service characteristics response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_char_services_resp_t)(uint16_t resp_status,
@@ -5508,35 +4800,23 @@ typedef void (*rsi_ble_on_char_services_resp_t)(uint16_t resp_status,
                                                rsi_ble_resp_inc_services_t *rsi_ble_resp_inc_serv);
  * @brief      The callback function will be called if include services response is received
  * @param[out]  resp_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @note        Attribute protocol error codes 
- * - 
  *              0x4A01  -  Invalid Handle 
- * -
  *              0x4A06  -  Request not supported 
- * -
  *              0x4A0A  -  Attribute not found 
- * -
  *              0x4A05  -  Insufficient authentication 
- * -
  *              0x4A08  -  Insufficient authorization 
- * -
  *              0x4A0C  -  Insufficient encryption key size 
- * -
  *              0x4A0F  -  Insufficient encryption 
- * -
- * 				0x4A02  -  Read not permitted 
- * - 
+ * 				      0x4A02  -  Read not permitted 
  * @param[out]  rsi_ble_resp_inc_serv contains the include services response information. Please refer rsi_ble_resp_inc_services_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the  include service response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_inc_services_resp_t)(uint16_t resp_status,
@@ -5546,33 +4826,21 @@ typedef void (*rsi_ble_on_inc_services_resp_t)(uint16_t resp_status,
  * @typedef     void (*rsi_ble_on_att_desc_resp_t)(uint16_t resp_status, rsi_ble_resp_att_descs_t *rsi_ble_resp_att_desc);
  * @brief      The callback function will be called if attribute descriptors response is received
  * @param[out]  resp_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @note        Attribute protocol error codes 
- * - 
  *              0x4A01  -  Invalid Handle 
- * -
  *              0x4A0A  -  Attribute not found 
- * -
  *              0x4A05  -  Insufficient authentication 
- * -
  *              0x4A08  -  Insufficient authorization 
- * -
  *              0x4A0C  -  Insufficient encryption key size 
- * -
  *              0x4A0F  -  Insufficient encryption 
- * -
- * 				0x4A02  -  Read not permitted 
- * - 
+ * 				      0x4A02  -  Read not permitted 
  * @param[out]  rsi_ble_resp_att_desc contains the attribute descriptors response information. Please refer rsi_ble_resp_att_descs_s for more info 
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the attribute descriptors  response is received from the module 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_att_desc_resp_t)(uint16_t resp_status, rsi_ble_resp_att_descs_t *rsi_ble_resp_att_desc);
@@ -5583,41 +4851,26 @@ typedef void (*rsi_ble_on_att_desc_resp_t)(uint16_t resp_status, rsi_ble_resp_at
                                        rsi_ble_resp_att_value_t *rsi_ble_resp_att_val);
  * @brief      The callback function will be called upon receiving the attribute value
  * @param[out]  resp_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @note        Attribute protocol error codes 
- * - 
  *              0x4A01  -  Invalid Handle 
- * -
  *              0x4A0A  -  Attribute not found 
- * -
  *              0x4A05  -  Insufficient authentication 
- * -
  *              0x4A08  -  Insufficient authorization 
- * -
  *              0x4A0C  -  Insufficient encryption key size 
- * -
  *              0x4A0F  -  Insufficient encryption 
- * -
- * 				0x4A02  -  Read not permitted 
- * - 
+ * 				      0x4A02  -  Read not permitted 
  *              0x4A06  -  Request not supported 
- * -
  *              0x4A07  -  Invalid offset 
- * -
  *              0x4A0B  -  Attribute not Long 
- * -
  * @param[out]  resp_id contains the response id because of which, this callback is called
  *                      response ids: (RSI_BLE_RSP_READ_VAL, RSI_BLE_RSP_READ_BY_UUID, RSI_BLE_RSP_LONG_READ, RSI_BLE_RSP_MULTIPLE_READ)
  * @param[out]  rsi_ble_resp_att_val contains the attribute value. Please refer rsi_ble_resp_att_value_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called upon receiving the attribute value 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_read_resp_t)(uint16_t resp_status,
@@ -5628,38 +4881,25 @@ typedef void (*rsi_ble_on_read_resp_t)(uint16_t resp_status,
  * @typedef void (*rsi_ble_on_write_resp_t)(uint16_t resp_status, uint16_t resp_id);
  * @brief      The callback function will be called if the attribute set/prepare/execute action is completed
  * @param[out]  resp_status contains the response status 
- * - 
- *              0 - Success 
- * - 
- *              Non-Zero Value	-	Failure 
- * -
+ * 
+ *              - 0 - Success 
+ *              - Non-Zero Value	-	Failure 
  * @note        Attribute protocol error codes 
- * - 
- *              0x4A01  -  Invalid Handle 
- * -
+ *              0x4A01  -  Invalid Handle
  *              0x4A0A  -  Attribute not found 
- * -
  *              0x4A05  -  Insufficient authentication 
- * -
  *              0x4A08  -  Insufficient authorization 
- * -
  *              0x4A0C  -  Insufficient encryption key size 
- * -
  *              0x4A0F  -  Insufficient encryption 
- * -
- * 				0x4A03  -  Write not permitted 
- * -
+ * 				      0x4A03  -  Write not permitted 
  *              0x4A07  -  Invalid offset  
- * -
  *              0x4A0D  -  Invalid attribute value length 
- * -
  * @param[out]  resp_id contains the response id because of which, this callback is called
  *                      response ids: (RSI_BLE_RSP_WRITE, RSI_BLE_RSP_WRITE_NO_ACK, RSI_BLE_RSP_LONG_WRITE, RSI_BLE_RSP_EXECUTE_WRITE)
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the attribute set/prepare/execute action is completed 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_write_resp_t)(uint16_t resp_status, uint16_t resp_id);
@@ -5675,13 +4915,11 @@ typedef void (*rsi_ble_on_write_resp_t)(uint16_t resp_status, uint16_t resp_id);
  * @typedef void (*rsi_ble_on_gatt_write_event_t)(uint16_t event_id, rsi_ble_event_write_t *rsi_ble_write);
  * @brief       The callback function will be called if the GATT write/notify/indicate events are received
  * @param[out]  event_id contains the gatt_write event id (RSI_BLE_EVENT_GATT_WRITE) 
- * -
  * @param[out]  rsi_ble_write  contains the GATT event information. Please refer rsi_ble_event_write_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the GATT write/notify/indicate events are received 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_gatt_write_event_t)(uint16_t event_id, rsi_ble_event_write_t *rsi_ble_write);
@@ -5690,13 +4928,11 @@ typedef void (*rsi_ble_on_gatt_write_event_t)(uint16_t event_id, rsi_ble_event_w
  * @typedef void (*rsi_ble_on_gatt_prepare_write_event_t)(uint16_t event_id, rsi_ble_event_prepare_write_t *rsi_ble_write);
  * @brief      The callback function will be called if the GATT prepare events are received
  * @param[out]  event_id contains the gatt_prepare_write event id (RSI_BLE_EVENT_PREPARE_WRITE) 
- * -
  * @param[out]  rsi_ble_write  contains the GATT prepare event information. Please refer rsi_ble_event_prepare_write_s for more info
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the GATT prepare event is received 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_gatt_prepare_write_event_t)(uint16_t event_id, rsi_ble_event_prepare_write_t *rsi_ble_write);
@@ -5705,13 +4941,12 @@ typedef void (*rsi_ble_on_gatt_prepare_write_event_t)(uint16_t event_id, rsi_ble
  * @typedef void (*rsi_ble_on_execute_write_event_t)(uint16_t event_id, rsi_ble_execute_write_t *rsi_ble_execute_write);
  * @brief      The callback function will be called if the GATT execute events are received
  * @param[out]  event_id contains the gatt_execute_write event id (RSI_BLE_EVENT_EXECUTE_WRITE) 
- * -
+ *
  * @param[out]  rsi_ble_write  contains the GATT event information. Please refer rsi_ble_execute_write_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the GATT execute event is received 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_execute_write_event_t)(uint16_t event_id, rsi_ble_execute_write_t *rsi_ble_execute_write);
@@ -5720,13 +4955,11 @@ typedef void (*rsi_ble_on_execute_write_event_t)(uint16_t event_id, rsi_ble_exec
  * @typedef    void (*rsi_ble_on_read_req_event_t)(uint16_t event_id, rsi_ble_read_req_t *rsi_ble_read_req);
  * @brief      The callback function will be called if the GATT read request events are received
  * @param[out]  event_id contains the gatt_read_req_event id (RSI_BLE_EVENT_READ_REQ) 
- * -
  * @param[out]  rsi_ble_write contains the GATT event information. Please refer rsi_ble_read_req_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called if the GATT read request event is received 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_read_req_event_t)(uint16_t event_id, rsi_ble_read_req_t *rsi_ble_read_req);
@@ -5736,10 +4969,9 @@ typedef void (*rsi_ble_on_read_req_event_t)(uint16_t event_id, rsi_ble_read_req_
  * @brief      The callback function will be called if MTU size request is received.
  * @param[out]  rsi_ble_event_mtu  contains the MTU size information. Please refer rsi_ble_event_mtu_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when connected to indicate MTU size 
- * -
  * This callback has to be registered using rsi_ble_gatt_register_callbacks API
  */
 typedef void (*rsi_ble_on_mtu_event_t)(rsi_ble_event_mtu_t *rsi_ble_event_mtu);
@@ -5749,10 +4981,9 @@ typedef void (*rsi_ble_on_mtu_event_t)(rsi_ble_event_mtu_t *rsi_ble_event_mtu);
  * @brief      Callback function to indicate MTU size and who initiated MTU Exchange Request
  * @param[out]  rsi_ble_event_mtu_exchange_info contains the MTU exchange information. Please refer rsi_ble_event_mtu_exchange_information_s for more info.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when connected, this event will contain MTU Exchange Information 
- * -
  * This callback has to be registered using rsi_ble_gatt_extended_register_callbacks API
  */
 typedef void (*rsi_ble_on_mtu_exchange_info_t)(
@@ -5762,14 +4993,12 @@ typedef void (*rsi_ble_on_mtu_exchange_info_t)(
  * @callback   rsi_ble_on_remote_device_info_t
  * @brief      Callback function to peer device information.
  * @param[out]  resp_status, contains the response status (Success or Error code) 
- * -
- *               0              - SUCCESS 
- * -
- *               Non-Zero Value - ErrorCodes
+ *               - 0 - SUCCESS 
+ *               - Non-Zero Value - ErrorCodes
  * @note        Refer Bluetooth Generic Error Codes section  up to 0x4FF8 from \ref error-codes.
  * @param[out] resp_buffer, contains the remote device version information.
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when conn update complete event is received
  * This callback has to be registered using rsi_ble_enhanced_gap_extended_register_callbacks API
@@ -5789,7 +5018,7 @@ typedef void (*rsi_ble_on_rcp_resp_rcvd_t)(uint16_t status, rsi_ble_event_rcp_rc
  * @param[in]  
  * @param[in]  rsi_ble_cbfc_conn_req,  contains the connection request information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when connected to indicate connection request
  * This callback has to be registered using rsi_ble_l2cap_cbfc_callbacks API
@@ -5803,7 +5032,7 @@ typedef void (*rsi_ble_on_cbfc_conn_req_event_t)(rsi_ble_event_cbfc_conn_req_t *
  * @param[in]  
  * @param[in]  rsi_ble_cbfc_conn_complete,  contains the connection completed information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when connected to indicate connection complete status
  * This callback has to be registered using rsi_ble_l2cap_cbfc_callbacks API
@@ -5817,7 +5046,7 @@ typedef void (*rsi_ble_on_cbfc_conn_complete_event_t)(rsi_ble_event_cbfc_conn_co
  * @param[in]  
  * @param[in]  rsi_ble_cbfc_rx_data,  contains the received data information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when connected to indicate received data
  * This callback has to be registered using rsi_ble_l2cap_cbfc_callbacks API
@@ -5830,7 +5059,7 @@ typedef void (*rsi_ble_on_cbfc_rx_data_event_t)(rsi_ble_event_cbfc_rx_data_t *rs
  * @param[in]  
  * @param[in]  rsi_ble_cbfc_disconn,  contains the disconnect device information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when connected to indicate disconnect l2cap connection
  * This callback has to be registered using rsi_ble_l2cap_cbfc_callbacks API
@@ -5853,7 +5082,7 @@ typedef void (*chip_ble_buffers_stats_handler_t)(chip_ble_buffers_stats_t *chip_
  * @brief      Callback function to report the AE Advertisements
  * @param[out] rsi_ble_event_ae_report,  contains the controller support AE Adv packets information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when AE adv report event is received
  * This callback has to be registered using rsi_ble_ae_events_register_callbacks API
@@ -5865,7 +5094,7 @@ typedef void (*rsi_ble_ae_report_complete_t)(uint16_t resp_status, rsi_ble_ae_ad
  * @brief      Callback function to report the AE periodic sync established event
  * @param[out] rsi_ble_event_per_adv_sync_estbl,  contains the controller support AE periodic sync established information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when AE periodic sync established event is received
  * This callback has to be registered using rsi_ble_ae_events_register_callbacks API
@@ -5878,7 +5107,7 @@ typedef void (*rsi_ble_ae_per_adv_sync_estbl_t)(uint16_t resp_status,
  * @brief      Callback function to report the AE periodic advertisement event
  * @param[out] rsi_ble_event_per_adv_report,  contains the controller support AE periodic advertisement information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when AE periodic advertisement event is received
  * This callback has to be registered using rsi_ble_ae_events_register_callbacks API
@@ -5891,7 +5120,7 @@ typedef void (*rsi_ble_ae_per_adv_report_t)(uint16_t resp_status,
  * @brief      Callback function to report the AE periodic sync lost event
  * @param[out] rsi_ble_event_per_adv_sync_lost,  contains the controller support AE periodic sync lost information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when AE periodic sync lost event is received
  * This callback has to be registered using rsi_ble_ae_events_register_callbacks API
@@ -5904,7 +5133,7 @@ typedef void (*rsi_ble_ae_per_adv_sync_lost_t)(uint16_t resp_status,
  * @brief      Callback function to report the AE scan timeout event
  * @param[out] rsi_ble_event_scan_timeout,  contains the controller support AE scan timeout information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when AE scan timeout is received
  * This callback has to be registered using rsi_ble_ae_events_register_callbacks API
@@ -5916,7 +5145,7 @@ typedef void (*rsi_ble_ae_scan_timeout_t)(uint16_t resp_status, rsi_ble_scan_tim
  * @brief      Callback function to report the AE advertising set terminated event
  * @param[out] rsi_ble_event_adv_set_terminated,  contains the controller support AE advertising set terminated information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when AE advertising set terminated is received
  * This callback has to be registered using rsi_ble_ae_events_register_callbacks API
@@ -5929,7 +5158,7 @@ typedef void (*rsi_ble_ae_adv_set_terminated_t)(uint16_t resp_status,
  * @brief      Callback function to report the AE scan request received event
  * @param[out] rsi_ble_event_scan_req_recvd,  contains the controller support AE scan request received information
  * @return The following values are returned:
- * -      void
+ *      void
  * @section description
  * This callback function will be called when AE scan request received is received
  * This callback has to be registered using rsi_ble_ae_events_register_callbacks API
@@ -5966,7 +5195,7 @@ typedef void (*rsi_ble_ae_scan_req_recvd_t)(uint16_t resp_status,
  * @param[in]  rsi_ble_on_event_indicate_confirmation_t ble_on_indicate_confirmation_event- Callback function for indicate confirmation event
  * @param[in]  rsi_ble_on_event_prepare_write_resp_t    ble_on_prepare_write_resp_event   - Callback function for prepare write event
  * @return The following values are returned:
- * -  void
+ *  void
  *
  */
 void rsi_ble_gatt_register_callbacks(rsi_ble_on_profiles_list_resp_t ble_on_profiles_list_resp,
@@ -5998,7 +5227,7 @@ void rsi_ble_gatt_register_callbacks(rsi_ble_on_profiles_list_resp_t ble_on_prof
  * @brief       Register the GATT Extended responses/events callbacks.
  * @param[in]   rsi_ble_on_mtu_exchange_info_t         ble_on_mtu_exchange_info_event         - Call back function for MTU Exchange information Event
  * @return The following values are returned:
- * -      void
+ *      void
  *
  */
 void rsi_ble_gatt_extended_register_callbacks(rsi_ble_on_mtu_exchange_info_t ble_on_mtu_exchange_info_event);

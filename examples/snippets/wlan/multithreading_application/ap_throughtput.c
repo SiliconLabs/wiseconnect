@@ -41,6 +41,7 @@
 #include "sl_net_wifi_types.h"
 #include "sl_si91x_socket_utility.h"
 #include "sl_si91x_socket_constants.h"
+#include "sl_si91x_socket.h"
 #include "app.h"
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
@@ -60,9 +61,6 @@
 
 // Type of Socket used. Synchronous = 0, Asynchronous = 1
 #define SOCKET_ASYNC_FEATURE 1
-#if SOCKET_ASYNC_FEATURE
-#include "sl_si91x_socket.h"
-#endif
 
 // Memory length for send buffer
 #define TCP_BUFFER_SIZE 1460
@@ -92,6 +90,8 @@ uint32_t tick_count_s = 1;
 #define BYTES_TO_SEND    (1 << 29)              //512MB
 #define BYTES_TO_RECEIVE (1 << 28)              //256MB
 #define TEST_TIMEOUT     (10000 * tick_count_s) //10sec
+
+#define AP_VAP 1
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 #define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
@@ -296,8 +296,8 @@ void receive_data_from_tcp_client(void)
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
-
-  sl_status_t status = sl_si91x_config_socket(socket_config);
+  uint8_t ap_vap                    = AP_VAP;
+  sl_status_t status                = sl_si91x_config_socket(socket_config);
   if (status != SL_STATUS_OK) {
     LOG_PRINT("Socket config failed: %ld\r\n", status);
   }
@@ -321,6 +321,10 @@ void receive_data_from_tcp_client(void)
     close(client_socket);
     return;
   }
+
+  socket_return_value =
+    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+
   server_address.sin_family = AF_INET;
   server_address.sin_port   = LISTENING_PORT;
 
@@ -379,6 +383,10 @@ void receive_data_from_tcp_client(void)
     close(client_socket);
     return;
   }
+
+  socket_return_value =
+    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+
   server_address.sin_family = AF_INET;
   server_address.sin_port   = LISTENING_PORT;
 

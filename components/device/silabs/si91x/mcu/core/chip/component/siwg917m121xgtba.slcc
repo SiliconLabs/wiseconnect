@@ -24,6 +24,8 @@
     unless: [rsilib_board]
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     unless: [rsilib_board]
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
+    unless: [rsilib_board]
 - source:
   - path: components/device/silabs/si91x/mcu/core/chip/src/system_si91x.c
   - path: components/device/silabs/si91x/mcu/core/chip/src/startup_si91x.c
@@ -78,7 +80,6 @@
     value: 7168
   - name: nvm3_size
     value: 65536
-
   - name: psram_present
     value: 1
   - name: device_psram_addr

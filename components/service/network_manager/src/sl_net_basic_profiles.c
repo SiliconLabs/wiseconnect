@@ -23,11 +23,9 @@
 
 #define MAX_WIFI_CLIENT_PROFILES 2
 #define MAX_WIFI_AP_PROFILES     2
-#define MAX_WIFI_BTR_PROFILES    2
 
 static sl_net_wifi_client_profile_t wifi_client_profiles[MAX_WIFI_CLIENT_PROFILES] = { 0 };
 static sl_net_wifi_ap_profile_t wifi_ap_profiles[MAX_WIFI_AP_PROFILES]             = { 0 };
-static sl_net_wifi_btr_profile_t wifi_btr_profiles[MAX_WIFI_BTR_PROFILES]          = { 0 };
 
 sl_status_t sl_net_set_profile(sl_net_interface_t interface,
                                sl_net_profile_id_t profile_id,
@@ -50,13 +48,6 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
         return SL_STATUS_INVALID_INDEX;
       }
       memcpy(&wifi_ap_profiles[profile_id], (sl_net_wifi_ap_profile_t *)profile, sizeof(sl_net_wifi_ap_profile_t));
-      return SL_STATUS_OK;
-
-    case SL_NET_WIFI_BTR_INTERFACE:
-      if (profile_id >= MAX_WIFI_BTR_PROFILES) {
-        return SL_STATUS_INVALID_INDEX;
-      }
-      memcpy(&wifi_btr_profiles[profile_id], (sl_net_wifi_btr_profile_t *)profile, sizeof(sl_net_wifi_btr_profile_t));
       return SL_STATUS_OK;
 #endif
     default:
@@ -83,13 +74,6 @@ sl_status_t sl_net_get_profile(sl_net_interface_t interface, sl_net_profile_id_t
         return SL_STATUS_INVALID_INDEX;
       }
       memcpy(profile, &wifi_ap_profiles[profile_id], sizeof(sl_net_wifi_ap_profile_t));
-      return SL_STATUS_OK;
-
-    case SL_NET_WIFI_BTR_INTERFACE:
-      if (profile_id >= MAX_WIFI_BTR_PROFILES) {
-        return SL_STATUS_INVALID_INDEX;
-      }
-      memcpy(profile, &wifi_btr_profiles[profile_id], sizeof(sl_net_wifi_btr_profile_t));
       return SL_STATUS_OK;
 #endif
 

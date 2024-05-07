@@ -87,14 +87,14 @@ static sl_status_t sli_si91x_hmac_pending(sl_si91x_hmac_config_t *config,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   memcpy(output, packet->data, packet->length);
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   free(request);
   return status;
 }

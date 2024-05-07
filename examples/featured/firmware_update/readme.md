@@ -18,7 +18,7 @@
 
 This application demonstrates how to update the SiWx91x firmware via Wi-Fi by downloading an image from a remote TCP server. The TCP server may be hosted on a local PC (as demonstrated in this example), or alternately on a cloud service such as Amazon AWS or Microsoft Azure. The update process works as follows:
 
-- The SiWx91x connects via Wi-Fi as a TCP client to a TCP update server.
+- The SiWx91x acts as a TCP client and connects to a TCP server via Wi-Fi.
 - The SiWx91x OTA application sends a firmware file request to the server and server responds with the firmware file.
 - The OTA application programs the firmware into the SiWx91x flash memory and reboots.
 
@@ -48,6 +48,9 @@ This application demonstrates how to update the SiWx91x firmware via Wi-Fi by do
     - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - STM32F411RE MCU
+    - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
+    - NCP Radio Board (BRD4346A + BRD8045C)
 
 ### Software Requirements
 
@@ -71,10 +74,11 @@ This application demonstrates how to update the SiWx91x firmware via Wi-Fi by do
   - Create a Studio project
 
 ### Instructions for Keil IDE and STM32F411RE MCU
+  Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32) to:
 
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
-  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
+  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
    - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
@@ -85,13 +89,18 @@ This application demonstrates how to update the SiWx91x firmware via Wi-Fi by do
 
 ## Application Build Environment
 
-The application can be configured to suit your requirements and development environment.
+The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-### Wi-Fi Client Profile Configuration
+### Configure sl_net_default_values.h
 
-In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network
+**File path for Simplicity Studio IDE:**
+- In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. 
 
-- **STA instance related parameters**
+**File path for Keil IDE:**
+- In the Project pane, expand the **resources/defaults** folder and open the **sl_net_default_values.h** file.
+
+
+### STA instance related parameters
 
 - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
 
@@ -151,10 +160,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
   2. Compile the application
-
-    ```c
-	  user@linux:~$ gcc firmware_update_tcp_server.c -o ota_server.bin
-	 ```
+  
+     ```c
+	  user@linux:~$ gcc firmware_update_tcp_server_9117.c -o ota_server.bin
+	  ```
 
   3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/firmware) is the firmware image to be sent to SiWx91x.
 

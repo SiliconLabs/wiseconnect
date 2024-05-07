@@ -93,8 +93,7 @@ extern "C" {
 /** @brief Macros for handling packed structures. */
 #define SL_PACK_START(X) _Pragma(STRINGIZE(pack(X)))
 #define SL_PACK_END()    _Pragma("pack()")
-#define SL_ATTRIBUTE_PACKED
-
+#define SL_ATTRIBUTE_PACKED  __attribute__ ((packed))
 #if defined(__CC_ARM)
 /** @brief MDK-ARM compiler: Macros for handling aligned structures. */
 #define SL_ALIGN(X) __align(X)

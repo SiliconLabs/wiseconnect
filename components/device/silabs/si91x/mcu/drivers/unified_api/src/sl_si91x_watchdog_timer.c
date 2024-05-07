@@ -94,7 +94,7 @@ sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *tim
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_watchdog_configure_clock API.
    */
-#ifdef WDT_TIMER_UC
+#if (WDT_TIMER_UC == 1)
   timer_clk_config_ptr = &sl_watchdog_timer_clk_config_handle;
 #endif
   do {
@@ -148,7 +148,7 @@ sl_status_t sl_si91x_watchdog_set_configuration(watchdog_timer_config_t *timer_c
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_watchdog_set_configuration API.
    */
-#ifdef WDT_TIMER_UC
+#if (WDT_TIMER_UC == 1)
   timer_config_ptr = &sl_watchdog_timer_config_handle;
 #endif
   do {
@@ -305,7 +305,7 @@ sl_status_t sl_si91x_watchdog_set_window_time(time_delays_t window_time)
 }
 
 /*******************************************************************************
-* @brief: Sets watchdog-timer system-reset time duration
+* @brief: Sets watchdog-timer system-reset time duration.
 *
 * @details:
 * This API sets the time by which watchdog-timer resets system, by updating

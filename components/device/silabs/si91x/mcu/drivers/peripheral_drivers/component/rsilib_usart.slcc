@@ -13,6 +13,6 @@ source:
 include:
   - path: "inc"
     file_list:
-  - path: "rsi_usart.h"
+    - path: "rsi_usart.h"
 provides:
   - name: rsilib_usart

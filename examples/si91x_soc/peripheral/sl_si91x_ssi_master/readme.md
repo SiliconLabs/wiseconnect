@@ -42,6 +42,7 @@
 - It also supports send and receive data with any SSI slave, additionally it also supports DMA and non-DMA transfer.
 - For half duplex communication, i.e., send and receive, master / slave connection is required.
 - The SSI Master in MCU HP peripherals provides an option to connect up to four slaves and supports Single, Dual and Quad modes.
+**Note!** Make sure to use non-ROM SSI APIs for this application and SL_SSI driver.
 
 ## About Example Code
 
@@ -112,6 +113,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 

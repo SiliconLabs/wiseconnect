@@ -60,6 +60,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes if needed.
@@ -113,8 +115,21 @@ Application has the feasibility to configure the TX Testmodes (or) RX Testmodes.
 
    - `hcitool -i hcix cmd 0x08 0x001D 0x10` 
 
-   (Replace hcix with the interface of the third-party dongle, and 0x10 with the received channel.)
+    Replace hcix with the interface of the third-party dongle, 
 
+    **opcode:**
+
+     - 0x08 refers to OGF for LE controller commands,
+     - 0x001D refers to OCF for LE Receiver Test command,
+
+    **parameter:**
+    
+     - 0x10 with received channel which refers to parameters passed for Receiver command
+     
+  >  **Note:**
+  >  - For HCI command format refer to section 5.4.1 | Vol 4, Part E in Core Specification 5.4
+  >  - For LE receiver test command format refer to section 7.8.28 | Vol 4, Part E in Core Specification 5.4
+  
 4. The received channel of the third-party dongle should match the transmit channel of the Silicon Labs module.
 5. To cease receiving, execute the following command using the third-party dongle.
  hcitool -i hcix cmd 0x08 0x001F
@@ -137,9 +152,21 @@ Application has the feasibility to configure the TX Testmodes (or) RX Testmodes.
 2. Utilize the following command with the third-party dongle to transmit packets to the Silicon Labs module.
 3. Execute the following command using the third-party dongle to send packets to the Silicon Labs module:
 
-   - hcitool -i hcix cmd 0x08 0x001E 0x10 0x20 0x01 
+   - `hcitool -i hcix cmd 0x08 0x001E 0x10 0x20 0x01` 
     
-   (Replace hcix with the interface of the third-pa rty dongle, 0x10 with the received channel, 0x20 with the payload length, and 0x01 with the payload type.)
+   Replace hcix with the interface of the third-party dongle, 
+   
+   **opcode:**
+    - 0x08 refers to OGF for LE controller commands,
+    - 0x001E refers to OCF for LE Receiver Test command,
+   
+   **parameter:**
+    - 0x10 transmitted channel which refers to parameter passed for transmitter command
+    - 0x20 payload length
+    - 0x01 payload type
+
+  > **Note:**
+  > - For LE transmitter test command format refer to section 7.8.29 | Vol 4, Part E in Core Specification 5.4
 
 4. Received channel of Silicon Labs module should be same as transmit channel of third party dongle.
 
@@ -155,4 +182,6 @@ Application has the feasibility to configure the TX Testmodes (or) RX Testmodes.
 
 6. Refer the following images for console prints:
 
-    ![Application prints](resources/readme/bletestmodeserialteriminalsocprints.png)
+   ![Application prints](resources/readme/bletestmodeserialteriminalsocprints.png)
+
+

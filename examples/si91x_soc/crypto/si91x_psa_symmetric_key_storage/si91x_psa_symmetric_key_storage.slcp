@@ -26,10 +26,10 @@ include:
       - path: psa_symmetric_key_storage_app.h
 sdk:
   id: gecko_sdk
-  version: 4.4.1
+  version: 4.4.3
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.4
+    version: 3.2.0
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
 component:

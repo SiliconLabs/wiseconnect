@@ -2,15 +2,14 @@ id: sl_sysrtc
 label: SysRTC
 package: platform
 description: >
-  The System Real-Time Clock (SYSRTC) offers precise timekeeping and timer
-  functionality essential for various applications. It serves as a cornerstone for tasks requiring accurate time measurement,
-  event scheduling, and power management. This SYSRTC driver provides a robust set of
-  functions to configure and use this peripheral effectively, ensuring optimal performance and reliability in time critical applications.
-  Configurable parameters in SYSRTC:
-    - Enable SYSRTC run during debug
-    - Select SYSRTC group 
-    - Enable group compare channel
-    - Enable group capture channel
+  The System Real-Time Clock (SYSRTC) driver provides precise timekeeping and timer capabilities required by a variety of applications. 
+  It is required for activities such as accurate time measurement and scheduling an event. 
+  The SYSRTC driver provides complete features for setting and running the peripheral, 
+  ensuring high performance and reliability in time-critical applications.
+  It supports two groups and each group have two compare channels and one capture channel. 
+  It saves power by letting all groups share a single counter. And this also supports ULP and UULP power domain.
+  When you select this component, it will also be installing the  SYSRTC  dependency component, 
+  which is the SYSRTC driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

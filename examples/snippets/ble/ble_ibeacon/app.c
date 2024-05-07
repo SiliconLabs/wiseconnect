@@ -45,6 +45,8 @@
 #define RSI_APP_EVENT_CONNECTED    1
 #define RSI_APP_EVENT_DISCONNECTED 2
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 //! Application global parameters.
 static rsi_bt_resp_get_local_name_t rsi_app_resp_get_local_name = { 0 };
 static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN]      = { 0 };
@@ -300,7 +302,9 @@ void ble_ibeacon(void *argument)
   uint8_t minor_num[2] = { 0x33, 0x44 };
   uint8_t tx_power     = 0x33;
   sl_status_t status;
-  sl_wifi_firmware_version_t version = { 0 };
+  sl_wifi_firmware_version_t version         = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN] = { 0 };
+
 #ifdef SLI_SI91X_MCU_INTERFACE
   sl_si91x_hardware_setup();
 #endif /* SLI_SI91X_MCU_INTERFACE */
@@ -339,17 +343,15 @@ void ble_ibeacon(void *argument)
   //! initialize the event map
   rsi_ble_app_init_events();
 
-  //! get the local device address(MAC address).
+  //! get the local device MAC address.
   status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
   if (status != RSI_SUCCESS) {
-    LOG_PRINT("\r\n ble get local device address cmd failed with reason code : %lX \n", status);
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
     return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
-  LOG_PRINT(" Get local device address: %x:%x:%x:%x\n",
-            rsi_app_resp_get_dev_addr[3],
-            rsi_app_resp_get_dev_addr[2],
-            rsi_app_resp_get_dev_addr[1],
-            rsi_app_resp_get_dev_addr[0]);
 
   //! set the local device name
   status = rsi_bt_set_local_name((uint8_t *)RSI_BLE_LOCAL_NAME);

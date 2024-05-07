@@ -32,6 +32,8 @@ extern "C" {
 /******************************************************
    * *                      Macros
    * ******************************************************/
+#define RET_LDO_VOL_DECREASE     1
+#define RET_LDO_TRIM_VALUE_CHECK 2
 
 #define REG_GSPI_BASE           0x24050000
 #define NPSS_BASE_ADDR          0x24048000
@@ -229,20 +231,21 @@ extern "C" {
 #define POWERGATE_REG_READ_OFFSET           0x342
 
 //! PMU SPI (0x24058000)
-#define PMU_1P3_CTRL_REG_OFFSET     0x1D0
-#define PMU_PFM_REG_OFFSET          0x1D1
-#define PMU_ADC_REG_OFFSET          0x1D2
-#define PMU_PID_REG1_OFFSET         0x1D3
-#define PMU_PTAT_REG_OFFSET         0x1D5
-#define PMU_LDO_REG_OFFSET          0x1D6
-#define PMU_PWRTRAIN_REG_OFFSET     0x1D8
-#define PMU_TESTMUX_REG1_OFFSET     0x1D9
-#define PMU_TEST_MODES_OFFSET       0x1DA
-#define SPARE_REG_1_OFFSET          0x1DC
-#define SPARE_REG_2_OFFSET          0x1DD
-#define BYPASS_CURR_CTRL_REG_OFFSET 0x1DE
-#define SPARE_REG_3_OFFSET          0x1DF
-
+#define PMU_1P3_CTRL_REG_OFFSET                 0x1D0
+#define PMU_PFM_REG_OFFSET                      0x1D1
+#define PMU_ADC_REG_OFFSET                      0x1D2
+#define PMU_PID_REG1_OFFSET                     0x1D3
+#define PMU_PTAT_REG_OFFSET                     0x1D5
+#define PMU_LDO_REG_OFFSET                      0x1D6
+#define PMU_PWRTRAIN_REG_OFFSET                 0x1D8
+#define PMU_TESTMUX_REG1_OFFSET                 0x1D9
+#define PMU_TEST_MODES_OFFSET                   0x1DA
+#define SPARE_REG_1_OFFSET                      0x1DC
+#define SPARE_REG_2_OFFSET                      0x1DD
+#define BYPASS_CURR_CTRL_REG_OFFSET             0x1DE
+#define SPARE_REG_3_OFFSET                      0x1DF
+#define PMU_FREQ_MODE_REG                       0x1CE
+#define LOW_FREQ_PWM                            BIT(2)
 #define MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_OFFSET 0x20
 #define MCU_FSM_PMU_STATUS_REG_OFFSET           0x40
 
@@ -773,6 +776,9 @@ rsi_error_t RSI_IPMU_RetnHP_Volttrim_Efuse(void);
 rsi_error_t RSI_IPMU_PocbiasCurrent(void);
 void RSI_IPMU_RetnLdoHpmode(void);
 void RSI_IPMU_RetnLdoLpmode(void);
+void RSI_IPMU_Retn_Voltage_Reduction(void);
+void RSI_IPMU_Retn_Voltage_To_Default(void);
+void RSI_IPMU_Set_Higher_Pwm_Ro_Frequency_Mode_to_PMU(void);
 rsi_error_t RSI_IPMU_RetnLdo0p75(void);
 rsi_error_t RSI_IPMU_RetnLdoVoltsel(void);
 void RSI_IPMU_64KHZ_RCClktrim(void);

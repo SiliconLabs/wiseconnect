@@ -87,13 +87,13 @@ static sl_status_t sli_si91x_aes_pending(sl_si91x_aes_config_t *config,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   memcpy(output, packet->data, packet->length);
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   free(request);
   return status;
 }
@@ -113,9 +113,9 @@ static sl_status_t sli_si91x_aes_side_band(sl_si91x_aes_config_t *config, uint8_
   request->total_msg_length   = config->msg_length;
   request->encrypt_decryption = config->encrypt_decrypt;
   if (config->iv != NULL) {
-    request->IV = config->iv;
+    request->IV = (uint8_t *)config->iv;
   }
-  request->msg    = config->msg;
+  request->msg    = (uint8_t *)config->msg;
   request->output = output;
 
   request->key_info.key_type                         = config->key_config.b0.key_type;
@@ -155,6 +155,11 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output)
   uint16_t total_length = config->msg_length;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  (void)chunk_len;
+  (void)offset;
+  (void)aes_flags;
+  (void)total_length;
+
   status = sli_si91x_aes_side_band(config, output);
   return status;
 #else

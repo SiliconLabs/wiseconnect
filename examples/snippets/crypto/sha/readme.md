@@ -21,8 +21,7 @@ SHA forms part of several widely used security applications and protocols, inclu
 
 - This application explains how to configure and use the SHA crypto engine using Silabs SDK.
 - This Application demonstrates the various SHA operations like
-  - SHA 160
-  - SHA 224
+  - SHA 1
   - SHA 256
   - SHA 384
   - SHA 512
@@ -55,6 +54,8 @@ Refer the instructions [here](https://docs.silabs.com/wiseconnect/latest/wisecon
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 

@@ -2,17 +2,12 @@ id: sl_calendar
 label: Calendar
 package: platform
 description: >
-  Calendar will configure the date and time for the RTC. when configured it can also be configured to trigger interrupts 
-  on seconds and milliseconds timeouts Once the date and time is configured then the RTC will retain the date-time till the power cycle.
-  Configurable parameters for calendar:
-    - Choose a Real-Time Clock (RTC) Module
-    - Connect RTC to Microcontroller
-    - Configure RTC Clock Source  
-    - Set Initial Date and Time  
-    - Enable RTC Interrupts  
-    - Configure Calendar Settings 
-    - Test RTC Functionality    
-    - Implement Calendar Features
+  The calendar driver will set the day and time for the RTC. 
+  When activated, it can also generate triggers for second and millisecond timeouts. 
+  Once the date and time have been set, the RTC will maintain them until the next power cycle.
+  It also supports ULP and  UULP power domain.
+  When you install this component, it will also be installing the  Calendar dependency component, 
+  which is the calendar driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

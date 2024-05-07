@@ -51,8 +51,8 @@
 #define CONCURRENT_MODE RSI_DISABLE
 #endif
 
-#ifndef RSI_FAST_FW_UP
-#define RSI_FAST_FW_UP RSI_DISABLE
+#ifndef SL_SI91X_FAST_FW_UP
+#define SL_SI91X_FAST_FW_UP RSI_DISABLE
 #endif
 // opermode command paramaters
 /*=======================================================================*/

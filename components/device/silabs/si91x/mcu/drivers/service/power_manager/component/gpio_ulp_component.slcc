@@ -19,8 +19,6 @@ template_contribution:
     value: 1
   - name: gpio_ps2
     value: sl_si91x_peripheral_gpio.o
-  - name: gpio_ps2
-    value: sl_si91x_driver_gpio.o
   - name: wakeup
     value: 
       event: wakeup_init
@@ -29,4 +27,7 @@ template_contribution:
         return: sl_status_t
       include:
         name: sl_si91x_driver_gpio.h
-
+  - name: gpio_ps2
+    value: rsi_egpio.o  
+  - name: gpio_ps2
+    value: sl_si91x_driver_gpio.o 

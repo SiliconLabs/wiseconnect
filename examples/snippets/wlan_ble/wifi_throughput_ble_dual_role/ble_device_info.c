@@ -64,6 +64,8 @@ rsi_ble_conn_info_t rsi_ble_conn_info[TOTAL_CONNECTIONS] = { 0 };
 
 uint8_t rsi_get_ble_conn_id(uint8_t *remote_dev_addr, uint8_t *remote_name, uint8_t size)
 {
+  UNUSED_PARAMETER(remote_name);
+  UNUSED_PARAMETER(size);
   uint8_t conn_id = 0xFF; //! Max connections (0xFF -1)
   uint8_t i       = 0;
 
@@ -124,6 +126,8 @@ uint8_t rsi_get_remote_device_role(uint8_t *remote_dev_addr)
 
 uint8_t rsi_add_ble_conn_id(uint8_t *remote_dev_addr, uint8_t *remote_name, uint8_t size)
 {
+  UNUSED_PARAMETER(remote_name);
+  UNUSED_PARAMETER(size);
   uint8_t conn_id = 0xFF; //! Max connections (0xFF -1)
   uint8_t i       = 0;
 

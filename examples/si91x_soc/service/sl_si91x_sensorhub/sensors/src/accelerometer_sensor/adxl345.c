@@ -49,6 +49,7 @@
  ************************ APDS Defines / Macros  ******************************
  ******************************************************************************/
 extern ARM_DRIVER_SPI *SPIdrv;
+extern sl_bus_intf_config_t bus_intf_info;
 #define SL_ADXL345_DEVICE  (0x53) // Device Address for SL_ADXL345
 #define SL_ADXL345_TO_READ (6)    // Number of Bytes Read - Two Bytes Per Axis
 #define SL_BUFFER_SIZE     10     // Number of data to be sent through SPI
@@ -336,9 +337,14 @@ void write(uint8_t address, uint8_t value)
   address = address | 0x40;
   data[0] = address;
   data[1] = value;
-  status  = SPIdrv->Send(data, 2);
-  (void)status;
+  // Assert the slave select line for the connected slave
+  SPIdrv->Control(bus_intf_info.spi_config.spi_cs_misc_mode, bus_intf_info.spi_config.spi_sec_sel_sig);
+
+  status = SPIdrv->Send(data, 2);
   /*TODO: add the failure case */
+  if (status != RSI_OK) {
+    DEBUGOUT("\r\n SPI Send FAIL \r\n");
+  }
 }
 
 /*******************************************************************************
@@ -360,6 +366,8 @@ void read(uint8_t address, uint32_t len, uint8_t buffer[])
   data[0] = address;
   for (uint32_t i = 1; i < len + 1; ++i)
     data[i] = 0;
+  // Assert the slave select line for the connected slave
+  SPIdrv->Control(bus_intf_info.spi_config.spi_cs_misc_mode, bus_intf_info.spi_config.spi_sec_sel_sig);
   status = SPIdrv->Transfer(data, buffer, len + 1);
 
   if (status != RSI_OK) {

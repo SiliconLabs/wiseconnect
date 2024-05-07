@@ -71,24 +71,33 @@ sl_status_t sl_wifi_default_event_handler(sl_wifi_event_t event, sl_wifi_buffer_
     return entry->function(event, &status, 0, entry->arg);
   }
 
-  if (event == SL_WIFI_BTR_TX_DATA_STATUS_CB) {
-    sl_wifi_btr_tx_cfm_cb_data_t tx_cfm_cb_data = { 0 };
-    tx_cfm_cb_data.status                       = packet->desc[15];
-    tx_cfm_cb_data.rate                         = packet->data[0]; //Extended descriptor in data[] for rate
-    tx_cfm_cb_data.priority                     = packet->data[4]; //Extended descriptor in data[] for priority
-    memcpy(&tx_cfm_cb_data.token, &packet->data[8], 4);            //Extended descriptor in data[] for token
+  if (event == SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB) {
+    sl_wifi_transceiver_tx_data_confirmation_t tx_cfm_cb_data = { 0 };
+    tx_cfm_cb_data.status                                     = packet->desc[15];
+    tx_cfm_cb_data.rate     = packet->data[0];          //Extended descriptor in data[] for rate
+    tx_cfm_cb_data.priority = packet->data[4];          //Extended descriptor in data[] for priority
+    memcpy(&tx_cfm_cb_data.token, &packet->data[8], 4); //Extended descriptor in data[] for token
 
     return entry->function(event, &tx_cfm_cb_data, 0, entry->arg);
-  } else if (event == SL_WIFI_BTR_RX_DATA_RECEIVE_CB) {
-    sl_wifi_btr_rx_cb_data_t rx_cb_data = { 0 };
-    uint16_t payload_offset             = packet->desc[4];
-    uint16_t payload_length             = packet->length & 0xFFF;
+  } else if (event == SL_WIFI_TRANSCEIVER_RX_DATA_RECEIVE_CB) {
+    sl_wifi_transceiver_rx_data_t rx_cb_data = { 0 };
+    uint16_t payload_offset                  = packet->desc[4];
+    uint16_t payload_length                  = packet->length & 0xFFF;
+    uint32_t status                          = *(uint32_t *)(&packet->data[12]);
 
-    rx_cb_data.status = 0;
     rx_cb_data.length = payload_length - payload_offset;
-    rx_cb_data.rssi   = packet->data[0]; //Extended descriptor in data[] for rssi
-    rx_cb_data.rate   = packet->data[2]; //Extended descriptor in data[] for rate
     rx_cb_data.buffer = packet->data + payload_offset;
+    rx_cb_data.rssi   = *(uint16_t *)(&packet->data[0]); //Extended descriptor in data[] for rssi
+    rx_cb_data.rate   = *(uint16_t *)(&packet->data[2]); //Extended descriptor in data[] for rate
+
+    /*
+     * SL_STATUS_UNKNOWN_PEER - If SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT is enabled but
+     * data packet is received from a peer not present in MAC layer.
+     */
+    if ((status & TRANSCEIVER_RX_PKT_TA_MATCH_BIT) || IS_BCAST_MCAST_MAC(rx_cb_data.buffer[4]))
+      rx_cb_data.status = SL_STATUS_OK;
+    else
+      rx_cb_data.status = SL_STATUS_UNKNOWN_PEER;
 
     return entry->function(event, &rx_cb_data, 0, entry->arg);
   }
@@ -120,9 +129,10 @@ static sl_wifi_event_group_t get_event_group_from_event(sl_wifi_event_t event)
   else if (event == SL_WIFI_STATS_EVENT || event == SL_WIFI_STATS_AYSNC_EVENT || event == SL_WIFI_STATS_ADVANCE_EVENT
            || event == SL_WIFI_STATS_TEST_MODE_EVENT || event == SL_WIFI_STATS_MODULE_STATE_EVENT) {
     return SL_WIFI_STATS_RESPONSE_EVENTS;
-  } else if (event == SL_WIFI_BTR_RX_DATA_RECEIVE_CB || event == SL_WIFI_BTR_TX_DATA_STATUS_CB) {
-    return SL_WIFI_BTR_EVENTS;
-  } else
+  } else if (event == SL_WIFI_TRANSCEIVER_RX_DATA_RECEIVE_CB || event == SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB) {
+    return SL_WIFI_TRANSCEIVER_EVENTS;
+  } else {
     event = SL_WIFI_INVALID_EVENT;
+  }
   return (sl_wifi_event_group_t)event;
 }

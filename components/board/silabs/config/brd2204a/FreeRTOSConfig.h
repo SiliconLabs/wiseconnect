@@ -84,7 +84,7 @@
 //  <o>Timer task priority <0-56>
 //  <i> Timer task priority.
 //  <i> Default: 40 (High)
-#define configTIMER_TASK_PRIORITY 40
+#define configTIMER_TASK_PRIORITY 55
 
 //  <o>Timer queue length <0-1024>
 //  <i> Timer command queue length.

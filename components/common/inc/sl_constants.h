@@ -63,7 +63,7 @@
 #define PRINT_ERROR_LOGS 0
 #define PRINT_DEBUG_LOG  0
 
-#define PRINT_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%lx \r\n", tag, __FILE__, __LINE__, status);
+#define PRINT_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%lu \r\n", tag, __FILE__, __LINE__, status);
 
 #define SL_CHECK_STATUS(x)    \
   do {                        \

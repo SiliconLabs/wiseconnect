@@ -87,18 +87,14 @@ typedef void (*sl_gpio_irq_callback_t)(uint32_t flag);
  * @brief  Clear one or more pending GPIO interrupts.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  flags  -  Bitwise logic OR of GPIO interrupt sources to clear.
  * @return returns status 0
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_clear_interrupts(uint32_t flags)
@@ -111,13 +107,9 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_interrupts(uint32_t flags)
  * @brief     Configure the GPIO pin interrupt.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock, for HP instance
- * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
  * -   \ref sl_gpio_driver_set_pin_mode()
- * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_set_pin_direction()
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
  * @param[in] int_no - Specifies the interrupt number to trigger (0 to 7).
@@ -126,14 +118,10 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_interrupts(uint32_t flags)
  * @param[out] avl_intr_no - Pointer to the available interrupt number.
           SL_GPIO_INTERRUPT_UNAVAILABLE (0xFF) no available interrupt
  * @return The following values are returned:
- * -
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
-*- 
-*         \ref SL_STATUS_BUSY (0x0004) - Interrupt is busy and cannot carry out the requested operation
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
+ * -   \ref SL_STATUS_BUSY (0x0004) - Interrupt is busy and cannot carry out the requested operation
  ******************************************************************************/
 sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
                                                uint32_t int_no,
@@ -145,86 +133,66 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
  * @brief      Set the pin mode for a GPIO pin.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock, for HP instance
- * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for corresponding GPIO instance.
- * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
+ * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t.
  * @param[in]  mode - The desired pin mode.
  * @param[in]  output_value - A value to set for the pin in the GPIO register.
  *                The GPIO setting is important for some input mode configurations.
  * @return The following values are returned:
- * -
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
- *
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  ******************************************************************************/
 sl_status_t sl_gpio_driver_set_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t mode, uint32_t output_value);
 
 /***************************************************************************/ /**
  * @brief      Get the pin mode (alternate function) of a GPIO for either HP instance (or) ULP instance as per the port number.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock, for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for the corresponding GPIO instance.
- *        \ref sl_gpio_driver_set_pin_mode();
+ *     \ref sl_gpio_driver_set_pin_mode();
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
  * @param[out]  mode - The desired pin mode.
  * @return The following values are returned:
- * -
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
- * -
- *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
+ * -   \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 sl_status_t sl_gpio_driver_get_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t *mode);
 
 /*******************************************************************************
  * @brief Initializes the GPIO driver by clearing all the interrupts (HP, ULP, and NPSS instance) and callback function pointers with NULL.
- * @param[in] none
+ * @param none
  * @return returns status 0,
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 sl_status_t sl_gpio_driver_init(void);
 
 /*******************************************************************************
  * @brief De-Initializes the GPIO driver by disabling clocks (HP and ULP instance) and callback function pointers.
- * @param[in] none
+ * @param none
  * @return returns status 0,
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 sl_status_t sl_gpio_driver_deinit(void);
 
 /*******************************************************************************/ /**
  * @brief Unregister GPIO driver.
- *
  * @param[in] gpio_instance - Instances of type \ref sl_si91x_gpio_instances_t
  * @param[in] gpio_intr - GPIO interrupts of type \ref sl_si91x_gpio_intr_t
- * @param[in] flag - GPIO interrupt flag
+ * @param[in] flag - GPIO interrupt flag Max range is 8.
  * @return The following values are returned:
- * -
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 sl_status_t sl_gpio_driver_unregister(sl_si91x_gpio_instances_t gpio_instance,
@@ -234,31 +202,19 @@ sl_status_t sl_gpio_driver_unregister(sl_si91x_gpio_instances_t gpio_instance,
 /***************************************************************************/ /**
  * @brief Set a single pin in GPIO configuration register to 1. 
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode(); 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction(); 
+ * -   \ref sl_gpio_driver_set_pin_mode(); 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction(); 
  *
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
  * @return The following values are returned:
- * -
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_pin(sl_gpio_t *gpio)
@@ -297,31 +253,20 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_pin(sl_gpio_t *gpio)
 /***************************************************************************/ /**
  * @brief  Clear a single pin in the GPIO configuration register to 0.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(); for ULP instance
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode(); 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction(); 
+ * -   \ref sl_gpio_driver_set_pin_mode(); 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction(); 
  *
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_clear_pin(sl_gpio_t *gpio)
@@ -360,31 +305,20 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_pin(sl_gpio_t *gpio)
 /***************************************************************************/ /**
  * @brief  Toggle a single pin in GPIO port register.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_toggle_pin(sl_gpio_t *gpio)
@@ -423,32 +357,21 @@ STATIC __INLINE sl_status_t sl_gpio_driver_toggle_pin(sl_gpio_t *gpio)
 /***************************************************************************/ /**
  * @brief  Read the pin value for a single pin in a GPIO port.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
  * @param[out] pin_value - Gets the gpio pin value
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_get_pin(sl_gpio_t *gpio, uint8_t *pin_value)
@@ -487,22 +410,13 @@ STATIC __INLINE sl_status_t sl_gpio_driver_get_pin(sl_gpio_t *gpio, uint8_t *pin
 /***************************************************************************/ /**
  * @brief  Set bits GPIO data out register to 1.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode(); 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction(); 
+ * -   \ref sl_gpio_driver_set_pin_mode(); 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction(); 
  *
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
@@ -510,9 +424,8 @@ STATIC __INLINE sl_status_t sl_gpio_driver_get_pin(sl_gpio_t *gpio, uint8_t *pin
  * @param[in] pins - The GPIO pins in a Port that are set to 1 (1 to 65535).
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_port(sl_gpio_port_t port, uint32_t pins)
@@ -529,22 +442,13 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_port(sl_gpio_port_t port, uint32_
 /***************************************************************************/ /**
  * @brief  Set bits in configuration register for a port to 0.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
@@ -552,9 +456,8 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_port(sl_gpio_port_t port, uint32_
  * @param[in]  pins - The GPIO pins in a Port that are set to 0 (1 to 65535).
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_clear_port(sl_gpio_port_t port, uint32_t pins)
@@ -571,22 +474,13 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_port(sl_gpio_port_t port, uint3
 /***************************************************************************/ /**
  * @brief  Get the current setting for a GPIO configuration register.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
@@ -594,9 +488,8 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_port(sl_gpio_port_t port, uint3
  * @param[out] port_value - Gets the gpio port value
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_get_port_output(sl_gpio_port_t port, uint32_t *port_value)
@@ -613,22 +506,13 @@ STATIC __INLINE sl_status_t sl_gpio_driver_get_port_output(sl_gpio_port_t port, 
 /***************************************************************************/ /**
  * @brief  Get the current setting for a pin in a GPIO configuration register.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
  * @return The GPIO pin value
@@ -672,20 +556,14 @@ STATIC __INLINE uint8_t sl_gpio_driver_get_pin_output(sl_gpio_t *gpio)
 /*******************************************************************************/ /**
  * @brief  Set the GPIO port configuration register.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance 
  * -
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode(); 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction(); 
+ * -   \ref sl_gpio_driver_set_pin_mode(); 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction(); 
  *
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
@@ -694,9 +572,8 @@ STATIC __INLINE uint8_t sl_gpio_driver_get_pin_output(sl_gpio_t *gpio)
  * @param[in]  mask - Mask indicating which bits to modify.
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_port_output_value(sl_gpio_port_t port, uint32_t val, uint32_t mask)
@@ -713,21 +590,17 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_port_output_value(sl_gpio_port_t 
 /*******************************************************************************
  * @brief  Set slewrate for pins on an HP instance GPIO port.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
  *
  * @param[in]  port - The GPIO port to configure.
  * @param[in]  slewrate - The slewrate to configure for the pins on this GPIO port.
  * @param[in]  slewrate_alt - The slewrate to configure for the pins using alternate modes on this GPIO port.
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_slew_rate(sl_gpio_port_t port, uint32_t slewrate, uint32_t slewrate_alt)
@@ -744,20 +617,14 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_slew_rate(sl_gpio_port_t port, ui
 /*******************************************************************************/ /**
  * @brief  Read the port value for GPIO.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance 
  * -
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
@@ -781,20 +648,13 @@ STATIC __INLINE uint32_t sl_gpio_driver_get_port_input(sl_gpio_port_t port)
 /*******************************************************************************
  * @brief  Toggle the selected pin values in the GPIO port register.
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance 
- * -
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance 
  *  Use the corresponding pad receiver API for the corresponding GPIO instance. 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
@@ -802,9 +662,8 @@ STATIC __INLINE uint32_t sl_gpio_driver_get_port_input(sl_gpio_port_t port)
  * @param[in]  pins - Port pins to toggle.
  * @return returns status 0 if successful,
  *               else error code as follow.
- *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
- * -
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_toggle_port_output(sl_gpio_port_t port, uint32_t pins)
@@ -821,20 +680,15 @@ STATIC __INLINE sl_status_t sl_gpio_driver_toggle_port_output(sl_gpio_port_t por
 /*******************************************************************************
  * @brief  Enable the selected GPIO pin interrupt with the configured interrupt type (Level or Edge).
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  flags  - GPIO interrupt sources to enable.
  * @return returns status 0
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_enable_interrupts(uint32_t flags)
@@ -846,20 +700,15 @@ STATIC __INLINE sl_status_t sl_gpio_driver_enable_interrupts(uint32_t flags)
 /*******************************************************************************
  * @brief  Disable the selected GPIO pin interrupt with the configured interrupt type (Level or Edge).
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  flags  -  GPIO interrupt sources to disable.
  * @return returns status 0
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_disable_interrupts(uint32_t flags)
@@ -871,20 +720,15 @@ STATIC __INLINE sl_status_t sl_gpio_driver_disable_interrupts(uint32_t flags)
 /*******************************************************************************
  * @brief  Set the selected GPIO pin interrupt with the configured interrupt type (Level or Edge).
  * @pre Pre-conditions:
- * - Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  flags  -  GPIO interrupt sources to set to pending.
  * @return returns status 0
- *        \ref SL_STATUS _OK (0X000)  - Success 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
  *
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_interrupts(uint32_t flags)
@@ -897,16 +741,12 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_interrupts(uint32_t flags)
  * @brief  Get the pending GPIO interrupts.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
- * @param[in]  None
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
+ *
+ * @param  none
  * @return Pending GPIO Pin interrupt numbers.
  ******************************************************************************/
 STATIC __INLINE uint32_t sl_gpio_driver_get_pending_interrupts(void)
@@ -920,16 +760,12 @@ STATIC __INLINE uint32_t sl_gpio_driver_get_pending_interrupts(void)
  * @brief  Get the enabled GPIO interrupts.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
-*
- * @param[in]  None
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
+ *
+ * @param  none
  * @return Enabled GPIO pin interrupt numbers.
  ******************************************************************************/
 STATIC __INLINE uint32_t sl_gpio_driver_get_enabled_interrupts(void)
@@ -943,15 +779,11 @@ STATIC __INLINE uint32_t sl_gpio_driver_get_enabled_interrupts(void)
  * @brief  Get the enabled and pending GPIO interrupt flags.
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock() 
- * -
- *        \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
- * - 
- *        \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
- * -
- *        \ref sl_gpio_driver_set_pin_mode() 
- * -
- *        \ref sl_si91x_gpio_driver_set_pin_direction() 
- * @param[in]  None
+ * -   \ref sl_si91x_gpio_driver_enable_pad_selection(), for HP instance 
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance 
+ * -   \ref sl_gpio_driver_set_pin_mode() 
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
+ * @param  none
  * @return Enabled GPIO pending interrupts.
  ******************************************************************************/
 STATIC __INLINE uint32_t sl_gpio_driver_get_enabled_pending_interrupts(void)

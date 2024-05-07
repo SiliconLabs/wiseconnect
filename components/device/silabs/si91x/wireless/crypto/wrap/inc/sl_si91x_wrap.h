@@ -60,9 +60,9 @@ typedef struct {
 /***************************************************************************/ /**
  * @brief
  *   This API is used to get wrap version of the plain key.
- * @param config 
+ * @param[in] config 
  *   Configuration object of type @ref sl_si91x_wrap_config_t
- * @param output 
+ * @param[out] output 
  *   Buffer to store the output.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.

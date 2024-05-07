@@ -138,3 +138,25 @@ static inline sl_status_t convert_si91x_status_to_sl_status(si91x_status_t si91x
       return SL_STATUS_FAIL;
   }
 }
+
+/******************************************************************************
+ * @brief
+ *   Atomically append given buffer to the end of a buffer queue
+ * @param[in] queue
+ *   Destination buffer queue
+ * @param[in] buffer
+ *   Buffer
+ *****************************************************************************/
+void sli_si91x_append_to_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
+
+/******************************************************************************
+ * @brief
+ *   Atomically remove the head from a buffer queue
+ * @param[in] queue
+ *   Source buffer queue
+ * @param[in] buffer
+ *   Destination buffer
+  * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *****************************************************************************/
+sl_status_t sli_si91x_pop_from_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);

@@ -78,6 +78,8 @@
 #define FRONT_END_SWITCH_SEL3 (BIT(29) | BIT(30))
 void RSI_Wireless_GPIO_Frontend_Switch_Controls(void);
 #endif
+/*Macro used to define the PTE CRC value of the Firmware 17 Boards*/
+#define FIRMWARE_17_PTE_CRC_VALUE 0
 
 /*Macro to be used for configuring the 'rams_retention_during_sleep' parameter in 'sl_si91x_configure_ram_retention()' function*/
 #define WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP (1)

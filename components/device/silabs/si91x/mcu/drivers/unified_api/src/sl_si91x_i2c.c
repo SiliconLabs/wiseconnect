@@ -70,6 +70,7 @@
 #define I2C_FAST_MODE_CLOCK_FREQUENCY        (32000000u)  // clock frequency for i2c fast mode
 #define I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY   (80000000u)  // clock frequency for i2c fast plus mode
 #define I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY  (180000000u) // clock frequency for i2c high speed mode
+#define I2C_TWENTY_MHZ_CLOCK_FREQUENCY       (20000000u)  // clock frequency for i2c for speed modes
 #define ULP_PORT                             4            // GPIO ULP port
 #define ULP_MODE                             6            // ULP GPIO mode
 #define MAX_GPIO                             64           // maximum GPIO pins
@@ -98,6 +99,7 @@ typedef struct {
   uint32_t read_buffer_length;            // read-buffer length
   uint32_t write_buffer_current_index;    // write buffer current index
   uint32_t read_buffer_current_index;     // read buffer current index
+  boolean_t repeated_start_enable;        // restart status
 } sl_i2c_instance_state_t;
 
 /*******************************************************************************
@@ -427,8 +429,12 @@ sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instan
     }
     // Enables the I2C peripheral.
     sl_si91x_i2c_enable(i2c);
-    // Sets the direction to read.
-    sl_si91x_i2c_control_direction(i2c, SL_I2C_READ_MASK);
+    // Sets the control direction to read. Also sets stop bit, if data length is one byte.
+    if ((rx_len == ONE) && (i2c_instance_state[i2c_instance].mode == SL_I2C_LEADER_MODE)) {
+      sl_si91x_i2c_set_read_direction_and_stop_bit(i2c);
+    } else {
+      sl_si91x_i2c_control_direction(i2c, SL_I2C_READ_MASK);
+    }
     // Configures the receive full interrupt.
     sl_si91x_i2c_set_interrupts(i2c, SL_I2C_EVENT_RECEIVE_FULL);
     // Enables the interrupt.
@@ -437,8 +443,6 @@ sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instan
     while (i2c_instance_state[i2c_instance].read_buffer_current_index
            < i2c_instance_state[i2c_instance].read_buffer_length)
       ;
-    // to avoid unused variable warning
-    //    (void)clear;
   } while (false);
   return i2c_status;
 }
@@ -488,8 +492,10 @@ sl_i2c_status_t sl_i2c_driver_send_data_non_blocking(sl_i2c_instance_t i2c_insta
       // Setting the follower address received in parameter structure.
       sl_si91x_i2c_set_follower_address(i2c, address, is_10bit_addr);
     }
-    // Add stop bit to last data byte
-    tx_buffer[tx_len - ONE] |= (BIT_SET << STOP_BIT);
+    // Add stop bit to last data byte, if repeated start is not enabled
+    if (!(i2c_instance_state[i2c_instance].repeated_start_enable)) {
+      tx_buffer[tx_len - ONE] |= (BIT_SET << STOP_BIT);
+    }
     i2c_tx_last_byte_addr = (uint32_t *)(tx_buffer + (tx_len - ONE));
     // Enabling  transmit FIFO DMA channel and setting transmit data Level
     i2c_dma_tx_config(i2c);
@@ -528,7 +534,9 @@ sl_i2c_status_t sl_i2c_driver_send_data_non_blocking(sl_i2c_instance_t i2c_insta
       break;
     }
     status = sl_si91x_dma_transfer(dma_number, channel, &dma_transfer_tx);
-    if (status == -1) {
+    if (status
+        == (SL_STATUS_INVALID_PARAMETER || SL_STATUS_NULL_POINTER || SL_STATUS_NOT_INITIALIZED
+            || SL_STATUS_DMA_CHANNEL_UNALLOCATED)) {
       i2c_status = SL_I2C_DMA_TRANSFER_ERROR;
       break;
     }
@@ -630,14 +638,15 @@ sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_in
       channel_priority              = 0;
       // Initialize sl_dma transfer structure
       dma_transfer_tx.src_addr  = (uint32_t *)((uint32_t)(write_ack));
-      dma_transfer_tx.dest_addr = (uint32_t *)((uint32_t) & (i2c->IC_DATA_CMD)); //(uint32_t *)(&(i2c->IC_DATA_CMD_b));
+      dma_transfer_tx.dest_addr = (uint32_t *)((uint32_t) & (i2c->IC_DATA_CMD));
       dma_transfer_tx.src_inc   = SL_TRANSFER_SRC_INC_NONE;
       dma_transfer_tx.dst_inc   = SL_TRANSFER_DST_INC_NONE;
       dma_transfer_tx.xfer_size = SL_TRANSFER_SIZE_32;
-      if (i2c_instance_state[i2c_instance].operating_mode == SL_I2C_STANDARD_MODE) {
+      if ((i2c_instance_state[i2c_instance].operating_mode == SL_I2C_STANDARD_MODE)
+          || (i2c_instance_state[i2c_instance].operating_mode == SL_I2C_FAST_MODE)) {
         dma_transfer_tx.transfer_count = rx_len + TWO;
       } else {
-        dma_transfer_tx.transfer_count = rx_len + ONE;
+        dma_transfer_tx.transfer_count = rx_len;
       }
       dma_transfer_tx.transfer_type = SL_DMA_MEMORY_TO_PERIPHERAL;
       dma_transfer_tx.dma_mode      = SL_DMA_BASIC_MODE;
@@ -651,7 +660,9 @@ sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_in
       }
       // Configure the channel for DMA transfer
       status = sl_si91x_dma_transfer(dma_number, channel, &dma_transfer_tx);
-      if (status == -1) {
+      if (status
+          == (SL_STATUS_INVALID_PARAMETER || SL_STATUS_NULL_POINTER || SL_STATUS_NOT_INITIALIZED
+              || SL_STATUS_DMA_CHANNEL_UNALLOCATED)) {
         i2c_status = SL_I2C_DMA_TRANSFER_ERROR;
         break;
       }
@@ -720,7 +731,7 @@ sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_
     if (new_power_mode == SL_I2C_ULP_MODE) {
       if ((i2c_instance_state[ULP_I2C].operating_mode == SL_I2C_STANDARD_MODE)
           || (i2c_instance_state[ULP_I2C].operating_mode == SL_I2C_FAST_MODE)) {
-        i2c_config.freq = I2C_STANDARD_MODE_CLOCK_FREQUENCY;
+        i2c_config.freq = I2C_TWENTY_MHZ_CLOCK_FREQUENCY;
       }
       if (i2c_instance_state[ULP_I2C].operating_mode == SL_I2C_FAST_PLUS_MODE) {
         i2c_config.freq = I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY;
@@ -738,7 +749,7 @@ sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_
         RSI_CLK_SetSocPllFreq(M4CLK, I2C_STANDARD_MODE_CLOCK_FREQUENCY, REFERENCE_CLOCK_FREQUENCY);
         // Assigning SOC PLL clock to M4 SOC clock
         RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-        i2c_config.freq = I2C_STANDARD_MODE_CLOCK_FREQUENCY;
+        i2c_config.freq = I2C_TWENTY_MHZ_CLOCK_FREQUENCY;
       }
       if (i2c_instance_state[ULP_I2C].operating_mode == SL_I2C_FAST_MODE) {
         // Changing M4SOC clock to M4_ULPREFCLK
@@ -747,7 +758,7 @@ sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_
         RSI_CLK_SetSocPllFreq(M4CLK, I2C_FAST_MODE_CLOCK_FREQUENCY, REFERENCE_CLOCK_FREQUENCY);
         // Assigning SOC PLL clock to M4 SOC clock
         RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-        i2c_config.freq = I2C_FAST_MODE_CLOCK_FREQUENCY;
+        i2c_config.freq = I2C_TWENTY_MHZ_CLOCK_FREQUENCY;
       }
       if (i2c_instance_state[ULP_I2C].operating_mode == SL_I2C_FAST_PLUS_MODE) {
         // Changing M4SOC clock to M4_ULPREFCLK
@@ -777,6 +788,24 @@ sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_
     // Initializing I2C with new clock frequency, as per power mode.
     sl_si91x_i2c_init(i2c, &i2c_config);
   } while (false);
+  return i2c_status;
+}
+
+/*****************************************************************************
+ * To enable or disable repeated start to enable or disable combined format transfer
+ * It should be called by leader application, before transferring data.
+ * By enabling this user can change direction of transfer, slave address, speed of transfer without releasing line.
+ ******************************************************************************/
+sl_i2c_status_t sl_i2c_driver_enable_repeated_start(sl_i2c_instance_t i2c_instance, boolean_t enable_rep_start)
+{
+  sl_i2c_status_t i2c_status;
+  // Validating I2C instance
+  if (i2c_instance >= SL_I2C_LAST) {
+    i2c_status = SL_I2C_INVALID_PARAMETER;
+  } else {
+    i2c_instance_state[i2c_instance].repeated_start_enable = enable_rep_start;
+    i2c_status                                             = SL_I2C_SUCCESS;
+  }
   return i2c_status;
 }
 
@@ -1059,6 +1088,7 @@ static void i2c_handler(I2C_TypeDef *i2c)
   // Checking interrupt status
   status = i2c->IC_INTR_STAT;
   if (status & SL_I2C_EVENT_RECEIVE_FULL) {
+    // For leader receive
     if (i2c_instance_state[i2c_instance].mode == SL_I2C_LEADER_MODE) {
       uint32_t temp_data_cmd;
       if (i2c_instance_state[i2c_instance].read_buffer_current_index
@@ -1071,16 +1101,20 @@ static void i2c_handler(I2C_TypeDef *i2c)
           sl_si91x_i2c_clear_interrupts(i2c, SL_I2C_EVENT_RECEIVE_FULL);
         } else {
           temp_data_cmd = (BIT_SET << MASK_READ_BIT);
-          if (i2c_instance_state[i2c_instance].read_buffer_current_index
-              == (i2c_instance_state[i2c_instance].read_buffer_length) - 1) {
-            // If the last byte is there to receive, and in leader mode, it needs
-            // tosend the stop byte.
-            temp_data_cmd |= (BIT_SET << STOP_BIT);
+          // Checking for last data byte and repeated start enable
+          if (!(i2c_instance_state[i2c_instance].repeated_start_enable)) {
+            if (i2c_instance_state[i2c_instance].read_buffer_current_index
+                == (i2c_instance_state[i2c_instance].read_buffer_length) - 1) {
+              // If the last byte is there to receive, and in leader mode, it needs
+              // tosend the stop byte.
+              temp_data_cmd |= (BIT_SET << STOP_BIT);
+            }
           }
           i2c->IC_DATA_CMD = temp_data_cmd;
         }
       }
     } else {
+      // For follower receive
       if (i2c_instance_state[i2c_instance].read_buffer_current_index
           < i2c_instance_state[i2c_instance].read_buffer_length) {
         i2c_instance_state[i2c_instance].read_buffer[(i2c_instance_state[i2c_instance].read_buffer_current_index++)] =
@@ -1094,12 +1128,15 @@ static void i2c_handler(I2C_TypeDef *i2c)
     }
     return;
   }
+  // For leader transmit
   if (status & SL_I2C_EVENT_TRANSMIT_EMPTY) {
     if (i2c_instance_state[i2c_instance].mode == SL_I2C_LEADER_MODE) {
       if (i2c_instance_state[i2c_instance].write_buffer_current_index
           < i2c_instance_state[i2c_instance].write_buffer_length) {
-        if (i2c_instance_state[i2c_instance].write_buffer_current_index
-            == (i2c_instance_state[i2c_instance].write_buffer_length) - 1) {
+        // Checking for last data byte and repeated start enable
+        if ((i2c_instance_state[i2c_instance].write_buffer_current_index
+             == (i2c_instance_state[i2c_instance].write_buffer_length) - 1)
+            && (!(i2c_instance_state[i2c_instance].repeated_start_enable))) {
           i2c->IC_DATA_CMD = (BIT_SET << STOP_BIT)
                              | i2c_instance_state[i2c_instance]
                                  .write_buffer[(i2c_instance_state[i2c_instance].write_buffer_current_index++)];
@@ -1115,6 +1152,7 @@ static void i2c_handler(I2C_TypeDef *i2c)
         }
       }
     } else {
+      // For follower transmit
       if (i2c_instance_state[i2c_instance].write_buffer_current_index
           < i2c_instance_state[i2c_instance].write_buffer_length) {
         sl_si91x_i2c_tx(i2c,
@@ -1308,8 +1346,11 @@ static void i2c_dma_transfer_complete_callback(uint32_t channel, void *data)
         i2c_tx_last_byte_addr = ZERO;
       }
       if (i2c_read_ack) {
-        i2c_read_ack            = CLEAR;
-        I2C0->IC_ENABLE_b.ABORT = SET;
+        i2c_read_ack = CLEAR;
+        // Disabling Stop bit if repeated start is enabled
+        if (!(i2c_instance_state[SL_I2C0].repeated_start_enable)) {
+          I2C0->IC_ENABLE_b.ABORT = SET;
+        }
       } else {
         i2c_callback_function_ptr[ZERO](SL_I2C0, driver_status);
       }
@@ -1323,8 +1364,11 @@ static void i2c_dma_transfer_complete_callback(uint32_t channel, void *data)
         i2c_tx_last_byte_addr = 0;
       }
       if (i2c_read_ack) {
-        i2c_read_ack            = CLEAR;
-        I2C1->IC_ENABLE_b.ABORT = SET;
+        i2c_read_ack = CLEAR;
+        // Disabling Stop bit if repeated start is enabled
+        if (!(i2c_instance_state[SL_I2C1].repeated_start_enable)) {
+          I2C1->IC_ENABLE_b.ABORT = SET;
+        }
       } else {
         i2c_callback_function_ptr[ONE](SL_I2C1, driver_status);
       }
@@ -1333,13 +1377,16 @@ static void i2c_dma_transfer_complete_callback(uint32_t channel, void *data)
       i2c_callback_function_ptr[ONE](SL_I2C1, driver_status);
       break;
     case SL_I2C2_DMA_TX_CHANNEL:
-      if (!i2c_read_ack) {
+      if ((!i2c_read_ack)) {
         *i2c_tx_last_byte_addr &= ~((uint32_t)BIT_SET << STOP_BIT);
         i2c_tx_last_byte_addr = 0;
       }
       if (i2c_read_ack) {
-        i2c_read_ack            = CLEAR;
-        I2C2->IC_ENABLE_b.ABORT = SET;
+        i2c_read_ack = CLEAR;
+        // Disabling Stop bit if repeated start is enabled
+        if (!(i2c_instance_state[SL_I2C2].repeated_start_enable)) {
+          I2C2->IC_ENABLE_b.ABORT = SET;
+        }
       } else {
         i2c_callback_function_ptr[TWO](SL_I2C2, driver_status);
       }

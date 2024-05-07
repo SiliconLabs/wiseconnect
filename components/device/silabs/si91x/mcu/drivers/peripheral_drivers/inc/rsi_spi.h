@@ -82,6 +82,10 @@ uint32_t SSI_GetRxFifoThreshold(uint8_t ssi_instance);
 uint8_t RSI_SPI_GetSlaveSelectNumber(void);
 void SPI_Clear_SSI_Enable_State(const SPI_RESOURCES *spi);
 void SPI_Slave_Set_CS_Init_State(const SPI_RESOURCES *spi);
+#ifdef SL_SI91X_SSI_DMA
+void ssi_transfer_complete_callback(uint32_t channel, void *data);
+void ssi_error_callback(uint32_t channel, void *data);
+#endif
 
 // Static Inline function to set the spi memory map pll
 static inline void SSI_SetMemoryMapPll(uint16_t value)

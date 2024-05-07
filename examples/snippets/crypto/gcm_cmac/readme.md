@@ -44,6 +44,8 @@ Refer the instructions [here](https://docs.silabs.com/wiseconnect/latest/wisecon
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.

@@ -180,7 +180,7 @@ sl_status_t aes_encryption(void)
 #endif
 
 #if PKCS_7_PADDING
-  padded_data = pkcs7_padding(config.msg, config.msg_length, SL_SI91X_AES_BLOCK_SIZE, &padded_data_length);
+  padded_data = pkcs7_padding((uint8_t *)config.msg, config.msg_length, SL_SI91X_AES_BLOCK_SIZE, &padded_data_length);
   SL_VERIFY_POINTER_OR_RETURN(padded_data, SL_STATUS_NULL_POINTER);
 
   config.msg        = padded_data;

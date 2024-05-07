@@ -2,9 +2,13 @@ id: sl_power_manager
 label: Power Manager
 package: platform
 description: >
-  Power Manager (PM) will be managing the power consumption of the MCU.
-  The PM will shut down the high-frequency clock and put the system in 
-  lower Energy Modes (EM) as per user request.
+  Initiates the Power Manager (PM) component to manage the MCU's power usage. 
+  As per the user's request, the PM will turn off the high-frequency clock and 
+  place the system in a reduced Power State (PS). The PM also allows the user to 
+  specify callbacks that will be executed when entering or exiting specific Power States. 
+  This enables the user to perform any accounting after PS transition occurrences. 
+  It also exposes a set of events that other components may utilize to register 
+  handlers for the power manager hooks function. 
 category: Device|Si91x|MCU|Service|Power Manager
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/service/power_manager"

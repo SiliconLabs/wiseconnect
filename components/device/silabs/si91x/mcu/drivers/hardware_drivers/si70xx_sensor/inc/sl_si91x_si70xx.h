@@ -100,218 +100,223 @@ typedef enum sl_si70xx_registers {
 // -----------------------------------------------------------------------------
 // Prototypes
 
-/**************************************************************************/ /**
- * @brief  Initialize the Si70xx sensor.
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /**
+* Initialize the Si70xx sensor.
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[in] eid : electronic ID of type \ref sl_si70xx_eid_type_t.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INITIALIZATION (0x0010) - no Si70xx device present 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[in] eid : electronic ID of type \ref sl_si70xx_eid_type_t.
- * @return The following values are returned:
- * - \ref SL_STATUS_OK on success 
-*-
- *                 \ref SL_STATUS_INITIALIZATION (0x0010) - no Si70xx device present 
-*-
- *                 \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_init(sl_i2c_instance_t i2c_instance, uint8_t addr, sl_si70xx_eid_type_t eid);
 
-/**************************************************************************/ /**
- * @brief  Check whether an Si7006/13/20/21 is present on the I2C bus (or) not.
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /**
+*  Check whether an Si7006/13/20/21 is present on the I2C bus (or) not.
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[in] eid : electronic ID of type \ref sl_si70xx_eid_type_t. If SL_EID_FIRST_BYTE is selected,
+*                    then EID 1st byte is considered. If SL_EID_SECOND_BYTE is selected, then
+*                    EID 2nd byte is considered. For EID 1st byte, EID 2nd byte commands please
+*                    look into datasheet.
+*   Write device ID from SNB_3 if device responds. Pass in NULL to discard.
+*   Should be 0x0D for Si7013, 0x14 for Si7020 or 0x15 for Si7021
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[in] eid : electronic ID of type \ref sl_si70xx_eid_type_t. If SL_EID_FIRST_BYTE is selected,
- *                    then EID 1st byte is considered. If SL_EID_SECOND_BYTE is selected, then
- *                    EID 2nd byte is considered. For EID 1st byte, EID 2nd byte commands please
- *                    look into datasheet.
- *   Write device ID from SNB_3 if device responds. Pass in NULL to discard.
- *   Should be 0x0D for Si7013, 0x14 for Si7020 or 0x15 for Si7021
- * @return The following values are returned:
- * - \ref SL_STATUS_OK on success 
-*-
- *                 \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_is_present(sl_i2c_instance_t i2c_instance, uint8_t addr, sl_si70xx_eid_type_t eid);
 
-/**************************************************************************/ /**
- * @brief  Measure relative humidity and temperature from Si7006/13/20/21 sensor.
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /**
+*  Measure relative humidity and temperature from Si7006/13/20/21 sensor.
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[out] humid_data : The relative humidity in percentage obtained after doing conversion as per formula
+*     						mentioned in datasheet.
+*  @param[out] temp_data : The temperature in milliCelsius.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
+*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[out] humid_data : The relative humidity in percentage obtained after doing conversion as per formula
- *     						mentioned in datasheet.
- * @param[out] temp_data : The temperature in milliCelsius.
- * @return The following values are returned:
- * -  \ref SL_STATUS_OK on success 
-*-
- *                  \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
- *                  \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_measure_rh_and_temp(sl_i2c_instance_t i2c_instance,
                                                 uint8_t addr,
                                                 uint32_t *humid_data,
                                                 int32_t *temp_data);
 
-/**************************************************************************/ /**
- * @brief  Read Firmware Revision from Si7006/13/20/21 sensor.
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /**
+*  Read Firmware Revision from Si7006/13/20/21 sensor.
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[out] firmware_revision : Internal firmware revision.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
+*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[out] firmware_revision : Internal firmware revision.
- * @return The following values are returned:
- * -  \ref SL_STATUS_OK on success 
-*-
- *                  \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
- *                  \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_get_firmware_revision(sl_i2c_instance_t i2c_instance,
                                                   uint8_t addr,
                                                   uint8_t *firmware_revision);
 
-/**************************************************************************/ /**
- * @brief Reads temperature value from previous relative humidity measurement from Si7006/13/20/21 sensor.
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /**
+*  Reads temperature value from previous relative humidity measurement from Si7006/13/20/21 sensor.
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[out] humid_data : The relative humidity in percent (multiplied by 1000).
+*  @param[out] temp_data : The temperature in milliCelsius.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
+*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[out] humid_data : The relative humidity in percent (multiplied by 1000).
- * @param[out] temp_data : The temperature in milliCelsius.
- * @return The following values are returned:
- * -  \ref SL_STATUS_OK on success 
-*-
- *                  \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
- *                  \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_read_temp_from_rh(sl_i2c_instance_t i2c_instance,
                                               uint8_t addr,
                                               uint32_t *humid_data,
                                               int32_t *temp_data);
 
-/**************************************************************************/ /**
- * @brief  Start a no hold measurement of relative humidity (or) temperature from Si7006/13/20/21 sensor.
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /**
+*  Start a no hold measurement of relative humidity (or) temperature from Si7006/13/20/21 sensor.
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[in] type : measurement value of type \ref sl_si70xx_measurement_type_t.
+*  @param[out] data : The data read from the sensor.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[in] type : measurement value of type \ref sl_si70xx_measurement_type_t.
- * @param[out] data : The data read from the sensor.
- * @return The following values are returned:
- * -  \ref SL_STATUS_OK on success 
-*-
- *                  \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i2c_instance,
                                                              uint8_t addr,
                                                              sl_si70xx_measurement_type_t type,
                                                              uint32_t *data);
 
-/**************************************************************************/ /**
- * @brief  Measure relative humidity from Si7006/13/20/21 sensor.
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /**
+*  Measure relative humidity from Si7006/13/20/21 sensor.
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[out] humid_data : The relative humidity measurement.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
+*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[out] humid_data : The relative humidity measurement.
- * @return The following values are returned:
- * -  \ref SL_STATUS_OK on success 
-*-
- *                  \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
- *                  \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_measure_humidity(sl_i2c_instance_t i2c_instance, uint8_t addr, uint32_t *humid_data);
 
-/**************************************************************************/ /**
- * @brief  Measure temperature from Si7006/13/20/21 sensor.
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /**
+*  Measure temperature from Si7006/13/20/21 sensor.
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[out] temp_data : The temperature measurement.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
+*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[out] temp_data : The temperature measurement.
- * @return The following values are returned:
- * -  \ref SL_STATUS_OK on success 
-*-
- *                  \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
- *                  \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_measure_temperature(sl_i2c_instance_t i2c_instance, uint8_t addr, int32_t *temp_data);
 
-/**************************************************************************/ /**
- * @brief  Initiates a si70xx software reset by the appropriate command.
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @return The following values are returned:
- * -  \ref SL_STATUS_OK on success 
-*-
- *                  \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
+/***************************************************************************/ /**
+*  Initiates a si70xx software reset by the appropriate command.
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
 *
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_reset(sl_i2c_instance_t i2c_instance, uint8_t addr);
 
-/**************************************************************************/ /**
- * @brief  Reads the user register 1 and heater control register data
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
-*
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[in] reg : Register of type \ref sl_si70xx_registers_t.
- * @param[out] data : The data read from the sensor.
- * @return The following values are returned:
- * -  \ref SL_STATUS_OK on success 
-*-
- *                  \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*-
- *                  \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
- *****************************************************************************/
+/***************************************************************************/ /**
+*  Reads the user register 1 and heater control register data
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[in] reg : Register of type \ref sl_si70xx_registers_t.
+*  @param[out] data : The data read from the sensor.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
+*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_read_control_register(sl_i2c_instance_t i2c_instance,
                                                   uint8_t addr,
                                                   sl_si70xx_registers_t reg,
                                                   uint8_t *data);
 
-/**************************************************************************/ /**
- * @brief  Writes data to user register 1 and heater control register
- * @pre Pre-conditions:
- * -   \ref sl_si91x_si70xx_reset() 
+/***************************************************************************/ /** 
+*  Writes data to user register 1 and heater control register
+*  @pre Pre-conditions:
+*  - \ref sl_si91x_si70xx_reset() 
+*  @param[in] i2c_instance : I2C peripheral to use.
+*  @param[in] addr : I2C address to probe.
+*  @param[in] reg : Register of type \ref sl_si70xx_registers_t.
+*  @param[out] value : The value written into the register.
+*  @return The following values are returned:
+*  - \ref SL_STATUS_OK on success 
+*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
 *
- * @param[in] i2c_instance : I2C peripheral to use.
- * @param[in] addr : I2C address to probe.
- * @param[in] reg : Register of type \ref sl_si70xx_registers_t.
- * @param[out] value : The value written into the register.
- * @return The following values are returned:
- *-  \ref SL_STATUS_OK on success 
-*-    \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
- *****************************************************************************/
+******************************************************************************/
 sl_status_t sl_si91x_si70xx_write_control_register(sl_i2c_instance_t i2c_instance,
                                                    uint8_t addr,
                                                    sl_si70xx_registers_t reg,
                                                    uint8_t value);
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup SI70XX - RHT sensor
+/// @{
+///
+///   @details
+///
+///   @n @section si70xx Introduction.
+///
+///   The Si70xx sensor driver provides a set of functions to interact with the Si70xx sensor series over the I2C bus. It allows
+///   for easy integration of the sensor, providing access to features such as temperature and humidity measurements,
+///   firmware revision retrieval, and device presence detection. All Si70xx functions are called through the generic driver.
+///
+///   @n @section si70xx Usage
+///
+///   Once I2C peripheral is initialised and configured, Si70xx sensor will be ready to be use. The common functions include the following:
+///
+///   @li @ref sl_si91x_si70xx_init
+///   @li @ref sl_si91x_si70xx_is_present
+///   @li @ref sl_si91x_si70xx_measure_rh_and_temp
+///   @li @ref sl_si91x_si70xx_get_firmware_revision
+///   @li @ref sl_si91x_si70xx_reset
+///
+///   @ref sl_si91x_si70xx_init initialises the Si70xx sensor. This function is called before using the other functions.
+///
+///   @ref sl_si91x_si70xx_is_present can be implemented by the application if required. This function will check if an Si70xx sensor
+///   is present on the I2C bus. @ref sl_si91x_si70xx_measure_rh_and_temp will measure relative humidity and temperature from the sensor.
+///   @ref sl_si91x_si70xx_get_firmware_revision will read the firmware revision from the sensor. @ref sl_si91x_si70xx_reset will
+///   initiate a software reset of the sensor.
+///
+///   Kindly refer to the Function Documentation to see the usage of all the APIs in detail.
+///
+/// @} end group SI70XX - RHT sensor ********************************************************/
 
 /** @} (end addtogroup SI70XX - RHT sensor) */
 

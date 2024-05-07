@@ -173,6 +173,8 @@ typedef struct {
     tcp_connection_reuse; ///< Flag to use same TCP socket for connection. (Si91x chipsets does not support this feature).
   void *context;          ///< User defined context.
   sl_http_client_event_handler_t event_handler; ///< Callback method. @ref sl_http_client_event_handler_t
+  uint8_t *
+    host_name; ///< The hostname of the HTTP server, as specified in the request header. If the hostname is NULL, then the ip_address is used instead of the hostname.
 } sl_http_client_request_t;
 
 /// HTTP client response structure

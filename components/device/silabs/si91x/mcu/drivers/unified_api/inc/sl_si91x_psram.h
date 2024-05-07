@@ -219,34 +219,23 @@ sl_psram_return_type_t sl_si91x_psram_init(void);
 sl_psram_return_type_t sl_si91x_psram_uninit(void);
 
 /***************************************************************************/ /**
- * @brief       
- *   Reset the PSRAM Device
- * 
+ * @brief       Reset the PSRAM Device
  * @param none
- *
- * @return      
- *   Status Code of the operation
+ * @return      Status Code of the operation
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_reset(void);
 
 /***************************************************************************/ /**
- * @brief       
- *   Write data to PSRAM in manual mode 
- *
+ * @brief       Write data to PSRAM in manual mode 
  * @param[in] addr
  *   PSRAM address for write operation                     
- * 
  * @param[in] SourceBuf
  *   Reference of the Source buffer
- * 
  * @param[in] hSize
  *   Size of each element
- *
  * @param[in] num_of_elements
  *   Number of elements for write operation                        
- *
- * @return      
- *   Status Code of the operation
+ * @return      Status Code of the operation
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_manual_write_in_blocking_mode(uint32_t addr,
                                                                     void *SourceBuf,
@@ -254,23 +243,16 @@ sl_psram_return_type_t sl_si91x_psram_manual_write_in_blocking_mode(uint32_t add
                                                                     uint32_t length);
 
 /***************************************************************************/ /**
- * @brief       
- *   Read data from PSRAM in manual mode 
- *
+ * @brief       Read data from PSRAM in manual mode 
  * @param[in] addr
  *   PSRAM address for read operation
- * 
  * @param[in] hSize
  *   Size of each element
- *
  * @param[in] num_of_elements
  *   Number of elements for read operation                     
- * 
  * @param[out] DestBuf
  *   Reference of the Destination buffer                       
- *
- * @return      
- *   Status Code of the operation
+ * @return      Status Code of the operation
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_manual_read_in_blocking_mode(uint32_t addr,
                                                                    void *DestBuf,
@@ -278,26 +260,18 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_blocking_mode(uint32_t addr
                                                                    uint32_t length);
 
 /***************************************************************************/ /**
- * @brief       
- *   Write data to PSRAM in manual mode using DMA
- *
+ * @brief       Write data to PSRAM in manual mode using DMA
  * @param[in] addr
  *   PSRAM address for write operation                     
- * 
  * @param[in] SourceBuf
  *   Reference of the Source buffer
- * 
  * @param[in] hSize
  *   Size of each element
- *
  * @param[in] length
  *   Number of elements for write operation
- * 
  * @param[out] dmastatus
  *   DMA operation completion status           
- *
- * @return      
- *   Status Code of the operation
+ * @return      Status Code of the operation
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_manual_write_in_dma_mode(uint32_t addr,
                                                                void *SourceBuf,
@@ -306,26 +280,18 @@ sl_psram_return_type_t sl_si91x_psram_manual_write_in_dma_mode(uint32_t addr,
                                                                sl_psram_dma_status_type_t *dmastatus);
 
 /***************************************************************************/ /**
- * @brief       
- *   Read data from PSRAM in manual mode using DMA
- *
+ * @brief       Read data from PSRAM in manual mode using DMA
  * @param[in] addr
  *   PSRAM address for read operation
- * 
  * @param[in] hSize
  *   Size of each element
- *
  * @param[in] length
  *   Number of elements for read operation                     
- * 
  * @param[out] DestBuf
  *   Reference of the Destination buffer
- * 
  * @param[out] dmastatus
  *   DMA operation completion status                            
- *
- * @return      
- *   Status Code of the operation
+ * @return      Status Code of the operation
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_manual_read_in_dma_mode(uint32_t addr,
                                                               void *DestBuf,
@@ -335,102 +301,94 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_dma_mode(uint32_t addr,
 
 #if PSRAM_HALF_SLEEP_SUPPORTED
 /***************************************************************************/ /**
- * @brief       
- *   Put PSRAM Device in sleep 
- * 
- * Sleep mode is a feature which puts the PSRAM device in an ultra-low power state, 
+ * @brief       Put PSRAM Device in sleep 
+ * @details Sleep mode is a feature which puts the PSRAM device in an ultra-low power state, 
  * while the stored data is retained.
- * 
  * @param none         
- *
- * @return      
- *   Status Code of the operation
+ * @return      Status Code of the operation
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_sleep(void);
 
 /***************************************************************************/ /**
- * @brief       
- *   Exit PSRAM device from sleep               
- *
+ * @brief       Exit PSRAM device from sleep               
  * @param none
- * 
- * @return      
- *   Status Code of the operation
- * 
+ * @return      Status Code of the operation
  * @note This function call re-initializes the PSRAM device after wakeup sequence.
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_wakeup(void);
 #endif
 
 /***************************************************************************/ /**
- * @brief       
- *   Enable CTR encryption-decryption on PSRAM
- *
+ * @brief       Enable CTR encryption-decryption on PSRAM
  * @param[in] keySize
  *   Pass 128/256-Bit size                                           
- *
- * @return      
- *   Status Code of the operation
+ * @return      Status Code of the operation
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_enable_encry_decry(uint16_t keySize);
 
-/** @} (end addtogroup PSRAM) */
-
-/* *INDENT-OFF* */
-/************ THIS SECTION IS FOR DOCUMENTATION ONLY !**********************/ /**
- * @addtogroup PSRAM PSRAM Driver
- * @brief PSRAM Memory Management driver
- * @{
-
-   # Introduction {#psram_intro}
-   PSRAM (Pseudo Static Random Access Memory) is a random-access memory whose 
-   internal structure is based on dynamic memory with refresh control signals 
-   generated internally, in the standby mode, so that it can mimic the functionality
-   of a static memory. It combines the high density of DRAM with the ease-of-use 
-   of true SRAM. The M4 core communicates with the PSRAM via Quad SPI interface.
-
-   # PSRAM Device Configuration {#psram_device_configuration}
-   The PSRAM Driver offers configuring the following:
-   - Read-Write type 
-     - Normal: This supported only in SPI interface mode. Supports maximum 
-     frequency of 33MHz. Uses normal read and normal write command.
-     - Fast: Supported in SPI and QPI mode. Uses fast read and normal write.
-     - Quad IO: Supported in SPI and QPI mode. Uses fast quad read and write.
-   - Interface mode
-     - SPI Mode (Serial IO)
-     - QPI Mode (Quad IO)
-   - Operation frequency Source
-     - Interface PLL Clock
-     - ULP Reference Clock 
-     - SoC PLL Clock
-     - M4_SOCCLKNOSWLSYNCCLKTREEGATED Clock
-
-   # Linker configurations {#psram_linker_configuration}
-   The text segment, data segment, bss, heap and stack can be placed in PSRAM by 
-   installing the respective components present under "PSRAM Linker Configurations" 
-   from "SOFTWARE COMPONENTS" GUI. Since PSRAM is already initiliazed in bootloader,
-   these components can be installed and the respective segments can be placed in 
-   PSRAM without installing "PSRAM Core" component and without initializing psram 
-   from application.
-
-   # Usage {#psram_usage}
-   PSRAM Driver and QSPI are initiliazed by bootloader with Quad IO read-write type
-   and QPI interface. The application is not required to reinitialize PSRAM device 
-   and QSPI unless the configurations required are different from the default set 
-   by the bootloader.
-
-   The PSRAM device handle "PSRAM_Device" of type @ref sl_psram_info_type_t is defined
-   "in sl_si91x_psram_handle.c". 
-
-   @ref sl_si91x_psram_uninit assumes that PSRAM was initialized with QPI mode and exits
-   QPI mode within definition. If the PSRAM configuration in bootcode has SPI mode enabled,
-   user is expected to comment the exit QPI mode function call in @ref sl_si91x_psram_uninit.
-
-   To reconfigure and initliaze PSRAM, set required configurations from PSRAM Core component 
-   and call @ref sl_si91x_psram_init within application.
-  
- * @} end group PSRAM ****************************************************/
-
-/** @} (end addtogroup PSRAM) */
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup PSRAM PSRAM Driver
+/// @{
+///
+///   @details
+///
+///
+///   @n @section PSRAM_Intro Introduction
+///
+///    PSRAM (Pseudo Static Random Access Memory) is a random-access memory whose
+///    internal structure is based on dynamic memory with refresh control signals
+///    generated internally, in the standby mode, so that it can mimic the functionality
+///    of a static memory. It combines the high density of DRAM with the ease-of-use
+///    of true SRAM. The M4 core communicates with the PSRAM via Quad SPI interface.
+///
+///   @n @section PSRAM_Config Configuration
+///
+///    # PSRAM Device Configuration
+///
+///    The PSRAM Driver offers configuring the following:
+///    - Read-Write type
+///     - Normal: This supported only in SPI interface mode. Supports maximum
+///       frequency of 33MHz. Uses normal read and normal write command.
+///     - Fast: Supported in SPI and QPI mode. Uses fast read and normal write.
+///     - Quad IO: Supported in SPI and QPI mode. Uses fast quad read and write.
+///    - Interface mode
+///     - SPI Mode (Serial IO)
+///     - QPI Mode (Quad IO)
+///    - Operation frequency Source
+///     - Interface PLL Clock
+///     - ULP Reference Clock
+///     - SoC PLL Clock
+///     - M4_SOCCLKNOSWLSYNCCLKTREEGATED Clock
+///
+///    # Linker configurations
+///
+///    The text segment, data segment, bss, heap and stack can be placed in PSRAM by
+///    installing the respective components present under "PSRAM Linker Configurations"
+///    from "SOFTWARE COMPONENTS" GUI. Since PSRAM is already initialized in bootloader,
+///    these components can be installed and the respective segments can be placed in
+///    PSRAM without installing "PSRAM Core" component and without initializing psram
+///    from application.
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
+///
+///   @n @section PSRAM_Usage Usage
+///
+///    PSRAM Driver and QSPI are initialized by bootloader with Quad IO read-write type
+///    and QPI interface. The application is not required to reinitialize PSRAM device
+///    and QSPI unless the configurations required are different from the default set
+///    by the bootloader.
+///
+///    The PSRAM device handle "PSRAM_Device" of type @ref sl_psram_info_type_t is defined
+///    "in sl_si91x_psram_handle.c".
+///
+///    @ref sl_si91x_psram_uninit assumes that PSRAM was initialized with QPI mode and exits
+///    QPI mode within definition. If the PSRAM configuration in bootcode has SPI mode enabled,
+///    user is expected to comment the exit QPI mode function call in @ref sl_si91x_psram_uninit.
+///
+///    To reconfigure and initliaze PSRAM, set required configurations from PSRAM Core component
+///    and call @ref sl_si91x_psram_init within application.
+///
+///
+/// @} end group PSRAM ********************************************************/
 
 #endif //__SL_SI91X_PSRAM_H_

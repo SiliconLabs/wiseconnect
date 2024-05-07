@@ -100,6 +100,8 @@
 #define IDLE       0x00
 #define RUNNING    0x01
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 static uint8_t phy_value              = BLE_2M_PHY;
 static uint8_t phy_update_in_progress = IDLE;
 #define SERVER    0
@@ -785,8 +787,11 @@ void ble_heart_rate_gatt_server(void *argument)
   int32_t event_id;
   int8_t data[8] = { 0 };
   uint8_t len;
-  uint8_t connected                  = false;
-  sl_wifi_firmware_version_t version = { 0 };
+  uint8_t connected                                          = false;
+  sl_wifi_firmware_version_t version                         = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
+
 #if (GATT_ROLE == CLIENT)
   uuid_t service_uuid = { 0 };
   uint8_t ix;
@@ -814,6 +819,16 @@ void ble_heart_rate_gatt_server(void *argument)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   //! adding simple BLE chat service

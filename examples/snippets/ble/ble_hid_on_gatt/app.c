@@ -1424,13 +1424,15 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   //! Set local name
   rsi_bt_set_local_name((uint8_t *)RSI_BLE_APP_HIDS);
 
-  //! get the local device address(MAC address).
+  //! get the local device MAC address.
   status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
   if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
     return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
-  rsi_6byte_dev_address_to_ascii(local_dev_addr, (uint8_t *)rsi_app_resp_get_dev_addr);
-  LOG_PRINT("\n local device addr: %s \n", local_dev_addr);
 
 #if (GATT_ROLE == SERVER)
   //! set advertise data

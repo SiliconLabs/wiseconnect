@@ -846,6 +846,68 @@ STATIC INLINE void RSI_MCPWM_ExternalTriggerControl(RSI_MCPWM_T *pMCPWM, boolean
   pMCPWM->PWM_TIME_PRD_COMMON_REG_b.USE_EXT_TIMER_TRIG_FRM_REG = (unsigned int)(enable & 0x01);
 }
 
+/*==============================================*/
+/**
+ * @fn          rsi_error_t RSI_PWM_Channel_Reset_Disable(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+ * @brief   This API is used to disable the reset for required channel of MCPWM.
+ * @param[in] pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in] chnlNum :  Channel number(0 to 3)
+ * @return    \ref ERROR_PWM_INVALID_CHNLNUM : If channel is invalid
+ *               \n \ref RSI_OK            : If process is done successfully.
+ */
+STATIC INLINE rsi_error_t RSI_PWM_Channel_Reset_Disable(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+{
+  // Resets operation of MCPWM channel
+  switch (chnlNum) {
+    case PWM_CHNL_0:
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH0_b.PWM_SFT_RST = DISABLE;
+      break;
+    case PWM_CHNL_1:
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH1_b.PWM_SFT_RST = DISABLE;
+      break;
+    case PWM_CHNL_2:
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH2_b.PWM_SFT_RST = DISABLE;
+      break;
+    case PWM_CHNL_3:
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH3_b.PWM_SFT_RST = DISABLE;
+      break;
+    default:
+      return ERROR_PWM_INVALID_CHNLNUM;
+  }
+  return RSI_OK;
+}
+
+/*==============================================*/
+/**
+ * @fn          rsi_error_t RSI_PWM_Counter_Reset_Disable(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+ * @brief   This API is used to disable the counter reset for required channel of MCPWM
+ * @param[in] pMCPWM  :  Pointer to the MCPWM instance register area
+ * @param[in] chnlNum :  Channel number(0 to 3)
+ * @return      \ref ERROR_PWM_INVALID_CHNLNUM : If channel number is invalid
+ *               \n \ref RSI_OK            : If process is done successfully
+ */
+STATIC INLINE rsi_error_t RSI_PWM_Counter_Reset_Disable(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
+{
+  // resets counter operations
+  switch (chnlNum) {
+    case PWM_CHNL_0:
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH0_b.PWM_TIME_PRD_CNTR_RST_FRM_REG = DISABLE;
+      break;
+    case PWM_CHNL_1:
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH1_b.PWM_TIME_PRD_CNTR_RST_FRM_REG = DISABLE;
+      break;
+    case PWM_CHNL_2:
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH2_b.PWM_TIME_PRD_CNTR_RST_FRM_REG = DISABLE;
+      break;
+    case PWM_CHNL_3:
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH3_b.PWM_TIME_PRD_CNTR_RST_FRM_REG = DISABLE;
+      break;
+    default:
+      return ERROR_PWM_INVALID_CHNLNUM;
+  }
+  return RSI_OK;
+}
+
 /*===================================================*/
 /**
  * @fn            void RSI_MCPWM_BaseTimerSelect(RSI_MCPWM_T *pMCPWM,uint8_t baseTime)

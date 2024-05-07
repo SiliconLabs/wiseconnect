@@ -69,12 +69,14 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
                                           uint8_t *ry,
                                           uint8_t *rz)
 {
-  uint8_t size              = 0;
-  uint16_t offset           = 0;
-  sl_status_t status        = SL_STATUS_FAIL;
+  uint8_t size             = 0;
+  sl_status_t status       = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer = NULL;
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
   uint8_t *result           = NULL;
-  sl_wifi_buffer_t *buffer  = NULL;
+  uint16_t offset           = 0;
   sl_si91x_packet_t *packet = NULL;
+#endif
 
   SL_VERIFY_POINTER_OR_RETURN(sx, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(sy, SL_STATUS_NULL_POINTER);
@@ -102,7 +104,6 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   request->ecdh_mode      = ecdh_mode;
   request->ecdh_sub_mode  = ecdh_sub_mode;
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
-
   request->sx = sx;
   request->sy = sy;
   request->sz = sz;
@@ -136,7 +137,7 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
@@ -150,7 +151,7 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
 #endif
@@ -166,7 +167,7 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
 #endif
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
@@ -213,12 +214,15 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
                                                uint8_t *rz,
                                                uint8_t reverse)
 {
-  uint8_t size              = 0;
-  uint16_t offset           = 0;
-  sl_status_t status        = SL_STATUS_FAIL;
+
+  uint8_t size             = 0;
+  sl_status_t status       = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer = NULL;
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
   uint8_t *result           = NULL;
-  sl_wifi_buffer_t *buffer  = NULL;
+  uint16_t offset           = 0;
   sl_si91x_packet_t *packet = NULL;
+#endif
 
   SL_VERIFY_POINTER_OR_RETURN(d, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(sx, SL_STATUS_NULL_POINTER);
@@ -280,7 +284,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
@@ -294,7 +298,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
 #endif
@@ -316,7 +320,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
     reverse_digits(rz, size);
   }
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
@@ -332,12 +336,14 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
                                        uint8_t *ry,
                                        uint8_t *rz)
 {
-  uint8_t size              = 0;
-  uint16_t offset           = 0;
-  sl_status_t status        = SL_STATUS_FAIL;
+  uint8_t size             = 0;
+  sl_status_t status       = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer = NULL;
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
   uint8_t *result           = NULL;
-  sl_wifi_buffer_t *buffer  = NULL;
+  uint16_t offset           = 0;
   sl_si91x_packet_t *packet = NULL;
+#endif
 
   SL_VERIFY_POINTER_OR_RETURN(sx, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(sy, SL_STATUS_NULL_POINTER);
@@ -391,7 +397,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
@@ -405,7 +411,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
 #endif
@@ -421,7 +427,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
 #endif
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
@@ -437,12 +443,14 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
                                        uint8_t *ry,
                                        uint8_t *rz)
 {
-  uint8_t size              = 0;
-  uint16_t offset           = 0;
-  sl_status_t status        = SL_STATUS_FAIL;
+  uint8_t size             = 0;
+  sl_status_t status       = SL_STATUS_FAIL;
+  sl_wifi_buffer_t *buffer = NULL;
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
   uint8_t *result           = NULL;
-  sl_wifi_buffer_t *buffer  = NULL;
+  uint16_t offset           = 0;
   sl_si91x_packet_t *packet = NULL;
+#endif
 
   SL_VERIFY_POINTER_OR_RETURN(sx, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(sy, SL_STATUS_NULL_POINTER);
@@ -498,7 +506,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
@@ -512,7 +520,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);
 #endif
@@ -528,7 +536,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
 #endif
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   free(request);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ecdh_mutex);

@@ -18,8 +18,10 @@
 #ifndef __PACKING_H_
 #define __PACKING_H_
 
-#define PRE_PACK   /* Nothing */
-#define POST_PACK  /* Nothing */
+#define PRE_PACK  /* Nothing */
+#define POST_PACK /* Nothing */
+#ifndef ALIGNED
 #define ALIGNED(n) /* Nothing */
+#endif
 
 #endif /* __PACKING_H_ */

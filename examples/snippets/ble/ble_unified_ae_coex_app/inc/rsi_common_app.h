@@ -28,11 +28,11 @@ int32_t ble_ext_scan_enable(void);
 
 //#define LOG_PRINT PRINTF
 #if RSI_DEBUG_EN
-#define LOG_PRINT_D(...)                                          \
-  {                                                               \
-    osMutexAcquire(rsi_driver_cb_non_rom->debug_prints_mutex, 0); \
-    printf(__VA_ARGS__);                                          \
-    osMutexRelease(rsi_driver_cb_non_rom->debug_prints_mutex);    \
+#define LOG_PRINT_D(...)                                  \
+  {                                                       \
+    osMutexAcquire(rsi_driver_cb->debug_prints_mutex, 0); \
+    printf(__VA_ARGS__);                                  \
+    osMutexRelease(rsi_driver_cb->debug_prints_mutex);    \
   }
 #else
 #define LOG_PRINT_D(...) \

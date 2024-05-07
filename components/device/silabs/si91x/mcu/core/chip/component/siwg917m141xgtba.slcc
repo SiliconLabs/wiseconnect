@@ -24,6 +24,8 @@
     unless: [rsilib_board]
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     unless: [rsilib_board]
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
+    unless: [rsilib_board]
 - source:
   - path: components/device/silabs/si91x/mcu/core/chip/src/system_si91x.c
   - path: components/device/silabs/si91x/mcu/core/chip/src/startup_si91x.c

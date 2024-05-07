@@ -14,8 +14,8 @@
 - [Test the Application](#test-the-application)
   - [Expected Results](#expected-results)
 
-
 ## Purpose/Scope
+
 - The purpose of this application is to demonstrate the use of CMSIS-RTOS concepts embedded with multiple peripherals. The following concepts are demonstrated:
   - Semaphores
   - Event Flags
@@ -28,31 +28,33 @@
 - These threads run in parallel but are synchronized by using above mentioned CMSIS-RTOS concepts
 
 ## Overview 
-**1. I2C**
- - I2C initialization includes creation of an OS Event flag
- - I2C thread will try keep on waiting for event flag to occur. On the other hand, timer interrupt is responsible for setting this event flag.
- - I2C thread will initiate once timer interrupt occurs after default timeout (5sec)
- - I2C instances will be configured in Leader mode. The SCL and SDA lines of Leader controller are connected to another I2C Follower's SCL and SDA pins.
 
-  - From Leader the Follower address is sent after START on bus and waits till it gets the ACK respose from the Follower
-  - The write data to other Follower applicaction and send back same data once received it compares and produce the results.
-  - I2C can be configured with following features
-    - I2C standard compliant bus interface with open-drain pins
-	- Configurable as Leader or Follower
-	- Four speed modes: Standard Mode (100 kbps), Fast Mode (400 kbps), Fast Mode Plus (1Mbps) and High-Speed Mode (3.4 Mbps)
-	- 7 or 10-bit addressing and combined format transfers.	
-	
+**1. I2C**
+
+- I2C initialization includes creation of an OS Event flag
+- I2C thread will try keep on waiting for event flag to occur. On the other hand, timer interrupt is responsible for setting this event flag.
+- I2C thread will initiate once timer interrupt occurs after default timeout (5sec)
+- I2C instances will be configured in Leader mode. The SCL and SDA lines of Leader controller are connected to another I2C Follower's SCL and SDA pins.
+
+- From Leader the Follower address is sent after START on bus and waits till it gets the ACK respose from the Follower
+- The write data to other Follower applicaction and send back same data once received it compares and produce the results.
+- I2C can be configured with following features
+  - I2C standard compliant bus interface with open-drain pins
+    - Configurable as Leader or Follower
+    - Four speed modes: Standard Mode (100 kbps), Fast Mode (400 kbps), Fast Mode Plus (1Mbps) and High-Speed Mode (3.4 Mbps)
+    - 7 or 10-bit addressing and combined format transfers. 
+ 
 **2. PWM**
- - PWM initialization includes creation of an OS Semaphore
- - PWM thread will try to acquire this semaphore. On the other hand, button task is responsible for releasing this semaphore.
- - Button releases the semaphore on every GPIO interrupt (as soon as it is pressed)
- - PWM thread toggles the state of PWM generation upon acquiring semaphore
- - The Motor Control PWM (MCPWM) controller is used to generate a periodic pulse waveform, which is useful in motor control and power control applications 
- - The MCPWM controller acts as a timer to count up to a period count value,the time period and the duty cycle of the pulses are both programmable
- - This application uses the MCPWM driver to create 4 independent PWMs (running at the same frequency),square wave will be generated on 
+
+- PWM initialization includes creation of an OS Semaphore
+- PWM thread will try to acquire this semaphore. On the other hand, button task is responsible for releasing this semaphore.
+- Button releases the semaphore on every GPIO interrupt (as soon as it is pressed)
+- PWM thread toggles the state of PWM generation upon acquiring semaphore
+- The Motor Control PWM (MCPWM) controller is used to generate a periodic pulse waveform, which is useful in motor control and power control applications 
+- The MCPWM controller acts as a timer to count up to a period count value,the time period and the duty cycle of the pulses are both programmable
+- This application uses the MCPWM driver to create 4 independent PWMs (running at the same frequency),square wave will be generated on 
   PWM_1L,PWM_1H.
 
-  
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
@@ -79,6 +81,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
@@ -118,6 +122,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Configure the UC as mentioned below.
 
   ![Figure: Introduction](resources/uc_screen/i2c_uc_screen.png)
+
 ## Pin Configuration
 
 **I2C0:**
@@ -151,8 +156,36 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 | ---       |       ---             | 
 | Button 0  | UULP_VBAT_GPIO_2[F12] |
 
+**PWM Channel0**
 
+  | Description   | GPIO    | Connector    |
+  | ------------- | ------- | ------------ |
+  | PWM_H         | GPIO_7  | P20          |
+  | PWM_L         | GPIO_6  | P19          |
+
+**PWM Channel1**
+
+  | Description   | GPIO    | Connector    |
+  | ------------- | ------- | ------------ |
+  | PWM_H         | GPIO_9  | F9           |
+  | PWM_L         | GPIO_8  | F8           |
+
+**PWM Channel2**
+
+  | Description   | GPIO    | Connector    |
+  | ------------- | ------- | ------------ |
+  | PWM_H         | GPIO_11 | F13          |
+  | PWM_L         | GPIO_10 | F11          |
+
+**PWM Channel3**
+
+  | Description   | GPIO        | Connector   |
+  | ------------- | -------     | ----------- |
+  | PWM_H         | ULP_GPIO_7  | P12         |
+  | PWM_L         | ULP_GPIO_6  | P13         |
+  
 ## Test the Application
+
 1. Compile and run the application.
 2. Connect SCL(ULP_GPIO_7) and SDA(ULP_GPIO_6) pins with the I2C Driver follower device.
 3. When the application runs, it triggers 3 threads (I2C, PWM, Button).
@@ -162,10 +195,14 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
  as mentioned above.
 
 ## Expected Results 
+
 **I2C**
- - Will get "Leader-Follower read-write Data comparison is successful, Test Case Passed" print on console when I2C instance data send and receive are success.
+
+- Will get "Leader-Follower read-write Data comparison is successful, Test Case Passed" print on console when I2C instance data send and receive are success.
 
 **PWM**
- - PWM signal toggling can be observed whenever the button BTN0 is pressed.
- - Check PWM output on PWM GPIOs by connecting logic analyser.
+
+- PWM signal toggling can be observed whenever the button BTN0 is pressed.
+- Check PWM output on PWM GPIOs by connecting logic analyser.
+
  > ![Figure: expected result](resources/readme/output.png)

@@ -27,7 +27,7 @@
 #include "rsi_pll.h"
 #include "Driver_SPI.h"
 #include "rsi_ccp_common.h"
-#include "RTE_Components.h"
+
 #include "UDMA.h"     
 #include "rsi_ulpss_clk.h"
 #ifdef SSI_CONFIG

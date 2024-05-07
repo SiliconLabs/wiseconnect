@@ -47,7 +47,7 @@
 #include "adc_sensor_driver.h"
 #include "sensorhub_error_codes.h"
 #include "rsi_ps_ram_func.h"
-
+#include "rsi_m4.h"
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -476,7 +476,9 @@ void sli_si91x_sensorhub_ps4tops2_state(void)
     Ex: 32Khz clock = 31.25us ==> 31.25*2^17 = 4096000 = 0x3E8000*/
   /* Time Period Programming */
   RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
-
+  /* tass_ref_clk_mux_ctr in TA Control */
+  RSI_Set_Cntrls_To_TA();
+  __disable_irq();
   /* Switching from PS4 to PS2 state */
   RSI_PS_PowerStateChangePs4toPs2(ULP_MCU_MODE,
                                   PWR_MUX_SEL_ULPSSRAM_SCDC_0_9,
@@ -490,15 +492,41 @@ void sli_si91x_sensorhub_ps4tops2_state(void)
                                   DISABLE_STANDBYDC,
                                   DISABLE_TA192K_RAM_RET,
                                   ENABLE_M464K_RAM_RET);
+  __enable_irq();
 }
 void sli_si91x_sensorhub_ps2tops4_state(void)
 {
-  RSI_PS_PowerStateChangePs2toPs4(SL_SH_PMUBUCKTURNONWAITTIME, SL_SH_SOCLDOTURNONWAITTIME);
   __disable_irq();
+  /* change the power state from PS2 to PS4 */
+  RSI_PS_PowerStateChangePs2toPs4(SL_SH_PMUBUCKTURNONWAITTIME, SL_SH_SOCLDOTURNONWAITTIME);
+  /* power_On the M4SS Flash and peripherals*/
+  RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_QSPI_ICACHE | M4SS_PWRGATE_ULP_EFUSE_PERI);
+  /* enable the power to the QSPI-DLL module */
+  RSI_PS_QspiDllDomainEnable();
   /* Initialize the QSPI after moving to PS4 state because it was powered down in PS2 mode. */
   RSI_PS_FlashLdoEnable();
+  if (!(P2P_STATUS_REG & TA_is_active)) {
+    //!wakeup TA
+    P2P_STATUS_REG |= M4_wakeup_TA;
+    //!wait for TA active
+    while (!(P2P_STATUS_REG & TA_is_active))
+      ;
+  }
+  //! Request TA to program flash
+  //! raise an interrupt to TA register
+  M4SS_P2P_INTR_SET_REG = BIT(4);
+  P2P_STATUS_REG        = BIT(0);
+
+  while (!(P2P_STATUS_REG & BIT(3)))
+    ;
+  /*  Initialize the QSPI  */
   RSI_FLASH_Initialize();
   __enable_irq();
+  // Initialize TA interrupt and submit RX packets
+  sli_m4_ta_interrupt_init();
+  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
+  /* AON domain power supply controls form TA to M4 */
+  RSI_Set_Cntrls_To_M4();
 }
 
 /**************************************************************************/ /**

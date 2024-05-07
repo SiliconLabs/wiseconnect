@@ -28,10 +28,13 @@
 
 /**
  * Resolve given host name to IP address.
+ * @pre Pre-conditions:
+ * -
+ *   Before calling this API, [SL_SI91X_TCP_IP_FEAT_DNS_CLIENT](../wiseconnect-api-reference-guide-si91x-driver/si91-x-tcp-ip-feature-bitmap#sl-si91-x-tcp-ip-feat-dns-client) bit should be enabled in TCP/IP feature bitmap.
  * @param[in] host_name 			Host name which needs to be resolved.
  * @param[in] timeout 				timeout in millisecs.
  * @param[in] dns_resolution_ip 	DNS resolution by IP of type @ref sl_net_dns_resolution_ip_type_t
- * @param[out] ip_address 			IP address object to store resolved IP address of type @ref sl_ip_address_t
+ * @param[out] ip_address 			IP address object to store resolved IP address of type [sl_ip_address_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-address-t)
  * @return
  *  sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note If timeout value is greater than zero, caller would be blocked till timeout milliseconds to get the response.

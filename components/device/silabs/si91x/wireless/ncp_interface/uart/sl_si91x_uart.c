@@ -253,7 +253,7 @@ sl_status_t sl_si91x_bus_rx_irq_handler(void)
     BREAKPOINT();
   }
 
-  sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
+  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
   return SL_STATUS_OK;
 }
 
@@ -271,7 +271,7 @@ void sl_si91x_bus_rx_done_handler(void)
       BREAKPOINT();
     }
 
-    sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
+    sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
     sl_si91x_host_enable_bus_interrupt();
   }
   return;

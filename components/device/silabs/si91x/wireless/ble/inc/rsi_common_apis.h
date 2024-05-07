@@ -29,11 +29,11 @@
  * ******************************************************/
 #if !(defined(FRDM_K28F) || defined(MXRT_595s))
 #if defined(SL_SI91X_PRINT_DBG_LOG)
-#define LOG_PRINT(...)                                                       \
-  {                                                                          \
-    osMutexAcquire(rsi_driver_cb_non_rom->debug_prints_mutex, 0xFFFFFFFFUL); \
-    printf(__VA_ARGS__);                                                     \
-    osMutexRelease(rsi_driver_cb_non_rom->debug_prints_mutex);               \
+#define LOG_PRINT(...)                                               \
+  {                                                                  \
+    osMutexAcquire(rsi_driver_cb->debug_prints_mutex, 0xFFFFFFFFUL); \
+    printf(__VA_ARGS__);                                             \
+    osMutexRelease(rsi_driver_cb->debug_prints_mutex);               \
   }
 #elif defined(DEBUGOUT)
 #define LOG_PRINT(...) DEBUGOUT(__VA_ARGS__)

@@ -50,6 +50,7 @@ typedef enum {
   I2C_SEND_DATA,              // Send mode
   I2C_RECEIVE_DATA,           // Receive mode
   I2C_TRANSMISSION_COMPLETED, // Transmission completed mode
+  I2C_IDLE_MODE               // Idle mode
 } i2c_action_enum_t;
 
 /*******************************************************************************
@@ -201,6 +202,7 @@ void i2c_follower_example_process_action(void)
       }
 #endif
       break;
+
     case I2C_SEND_DATA:
       if (i2c_send_data_flag) {
         // Validation for executing the API only once.
@@ -251,6 +253,7 @@ void i2c_follower_example_process_action(void)
       }
 #endif
       break;
+
     case I2C_TRANSMISSION_COMPLETED:
       // De-initializing i2c instance and unregistering callback
       i2c_status = sl_i2c_driver_deinit(i2c_instance);
@@ -258,8 +261,12 @@ void i2c_follower_example_process_action(void)
         DEBUGOUT("sl_i2c_driver_deinit : Invalid Parameters, "
                  "Error Code : %u \n",
                  i2c_status);
+      } else {
+        current_mode = I2C_IDLE_MODE;
       }
       break;
+
+    case I2C_IDLE_MODE:
     default:
       break;
   }
@@ -294,6 +301,9 @@ static void compare_data(void)
  ******************************************************************************/
 void i2c_follower_callback(sl_i2c_instance_t instance, uint32_t status)
 {
+  // to avoid unused variable warning
+  (void)instance;
+
   switch (status) {
     case SL_I2C_DATA_TRANSFER_COMPLETE:
       i2c_transfer_complete = true;
@@ -304,6 +314,4 @@ void i2c_follower_callback(sl_i2c_instance_t instance, uint32_t status)
     default:
       break;
   }
-  // to avoid unused variable warning
-  (void)instance;
 }

@@ -22,9 +22,24 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 #include "firmware_upgradation.h"
+#include <sl_string.h>
+
+/******************************************************
+ *                      Macros
+ ******************************************************/
+// Macro to check if malloc failed
+#define VERIFY_MALLOC_AND_RETURN(ptr)     \
+  {                                       \
+    if (ptr == NULL) {                    \
+      return SL_STATUS_ALLOCATION_FAILED; \
+    }                                     \
+  }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+/******************************************************
+ *                 Global Variables
+ ******************************************************/
 extern bool device_initialized;
 
 /***************************************************************************/ /**
@@ -95,12 +110,15 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
                                uint8_t *post_data,
                                uint32_t post_data_length)
 {
-  sl_status_t status                         = SL_STATUS_FAIL;
-  sl_si91x_http_client_request_t http_client = { 0 };
-  uint32_t send_size                         = 0;
-  uint16_t http_length                       = 0;
-  uint16_t length                            = 0;
-  uint8_t https_enable                       = 0;
+  sl_status_t status                            = SL_STATUS_FAIL;
+  sl_si91x_http_client_request_t http_client    = { 0 };
+  uint32_t send_size                            = 0;
+  uint16_t http_length                          = 0;
+  uint16_t length                               = 0;
+  uint8_t https_enable                          = 0;
+  uint8_t packet_identifier                     = 0;
+  sl_si91x_http_client_request_t *packet_buffer = NULL;
+  uint16_t offset = 0, rem_length = 0, chunk_size = 0;
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
@@ -182,16 +200,62 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
     http_length += (post_data_length + 1);
   }
 
+  // Check if request buffer is overflowed or resource length is overflowed
+  if (http_length > SI91X_HTTP_BUFFER_LEN
+      || sl_strnlen(((char *)resource), SI91X_MAX_HTTP_URL_SIZE + 1) > SI91X_MAX_HTTP_URL_SIZE)
+    return SL_STATUS_HAS_OVERFLOWED;
+
   send_size = sizeof(sl_si91x_http_client_request_t) - SI91X_HTTP_BUFFER_LEN + http_length;
   send_size &= 0xFFF;
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_OTAF,
-                                        SI91X_WLAN_CMD_QUEUE,
-                                        &http_client,
-                                        send_size,
-                                        SL_SI91X_WAIT_FOR_RESPONSE(600000),
-                                        NULL,
-                                        NULL);
+  rem_length = http_length;
+  if (http_length <= SI91X_MAX_HTTP_CHUNK_SIZE) {
+    status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_OTAF,
+                                          SI91X_WLAN_CMD_QUEUE,
+                                          &http_client,
+                                          send_size,
+                                          SL_SI91X_WAIT_FOR_RESPONSE(600000),
+                                          NULL,
+                                          NULL);
+  } else {
+    packet_buffer = malloc(sizeof(sl_si91x_http_client_request_t));
+    VERIFY_MALLOC_AND_RETURN(packet_buffer);
+
+    while (rem_length) {
+      if (rem_length > SI91X_MAX_HTTP_CHUNK_SIZE) {
+        packet_identifier = (offset == 0) ? HTTP_GET_FIRST_PKT : HTTP_GET_MIDDLE_PKT;
+        chunk_size        = SI91X_MAX_HTTP_CHUNK_SIZE;
+      } else {
+        packet_identifier = HTTP_GET_LAST_PKT;
+        chunk_size        = rem_length;
+      }
+
+      packet_buffer->ip_version   = http_client.ip_version;
+      packet_buffer->https_enable = http_client.https_enable;
+      packet_buffer->port_number  = http_client.port_number;
+
+      memcpy(packet_buffer->buffer, (http_client.buffer + offset), chunk_size);
+
+      status = sl_si91x_custom_driver_send_command(
+        RSI_WLAN_REQ_HTTP_OTAF,
+        SI91X_WLAN_CMD_QUEUE,
+        packet_buffer,
+        (sizeof(sl_si91x_http_client_request_t) - SI91X_HTTP_BUFFER_LEN + chunk_size),
+        (rem_length == chunk_size) ? SL_SI91X_WAIT_FOR_RESPONSE(600000) : SL_SI91X_WAIT_FOR_COMMAND_RESPONSE,
+        NULL,
+        NULL,
+        packet_identifier);
+
+      if ((status != SL_STATUS_OK) && (status != SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS))
+        break;
+
+      offset += chunk_size;
+      rem_length -= chunk_size;
+    }
+
+    // Free packet buffer structure memory
+    free(packet_buffer);
+  }
   VERIFY_STATUS_AND_RETURN(status);
   return status;
 }

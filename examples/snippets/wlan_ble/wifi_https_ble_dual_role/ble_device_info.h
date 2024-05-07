@@ -132,10 +132,10 @@ typedef struct rsi_ble_dev_ltk_list_s {
 } rsi_ble_dev_ltk_list_t;
 #endif
 
-uint8_t rsi_get_ble_conn_id(uint8_t remote_dev_addr[RSI_REM_DEV_ADDR_LEN], uint8_t *remote_name, uint8_t size);
-uint8_t rsi_add_ble_conn_id(uint8_t remote_dev_addr[RSI_REM_DEV_ADDR_LEN], uint8_t *remote_name, uint8_t size);
-uint8_t rsi_get_remote_device_role(uint8_t remote_dev_addr[RSI_REM_DEV_ADDR_LEN]);
-uint8_t rsi_remove_ble_conn_id(uint8_t remote_dev_addr[RSI_REM_DEV_ADDR_LEN]);
+uint8_t rsi_get_ble_conn_id(uint8_t *remote_dev_addr, uint8_t *remote_name, uint8_t size);
+uint8_t rsi_add_ble_conn_id(uint8_t *remote_dev_addr, uint8_t *remote_name, uint8_t size);
+uint8_t rsi_get_remote_device_role(uint8_t *remote_dev_addr);
+uint8_t rsi_remove_ble_conn_id(uint8_t *remote_dev_addr);
 uint8_t rsi_check_ble_conn_status(uint8_t connection_id);
 
 #endif

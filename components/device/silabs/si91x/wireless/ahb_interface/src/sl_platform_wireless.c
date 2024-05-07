@@ -3,7 +3,7 @@
 * @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -269,11 +269,12 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
       || (osMutexGetOwner(side_band_crypto_mutex) != NULL)
 #endif
-      || ((sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
-           | sl_si91x_host_queue_status((sl_si91x_queue_type_t)SI91X_BT_CMD)))) {
+      || ((sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
+           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
+           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
+           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
+           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_BT_CMD)
+           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_DATA)))) {
     return;
   }
   // Disabling the interrupts & clearing m4_is_active as m4 is going to sleep

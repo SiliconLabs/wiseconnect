@@ -45,7 +45,7 @@ typedef int32_t sl_adc_error_t;
 #define SL_SH_ADC_CHANNEL0
 #define SL_SH_ADC_CHANNEL1
 #define SL_SH_ADC_CHANNEL2
-#define SL_SH_ADC_CHANNEL3
+//#define SL_SH_ADC_CHANNEL3
 
 #ifdef SL_SH_ADC_CHANNEL0
 #include "adc_sensor_hal.h"
@@ -53,11 +53,11 @@ typedef int32_t sl_adc_error_t;
 
 /* ADC peripheral configurations */
 #define SL_SH_ADC_SAMPLING_RATE       1000 ///< ADC sampling rate, 10sps, 20 milliseconds per sample */
-#define SL_SH_ADC_NUM_CHANNELS_ENABLE 1    ///< ADC number of channels enabled */
+#define SL_SH_ADC_NUM_CHANNELS_ENABLE 3    ///< ADC number of channels enabled */
 
 /* ADC channel 0 configurations */
 #ifdef SL_SH_ADC_CHANNEL0
-#define SL_SH_ADC_CH0_P_INPUT     1          ///< ADC channel 0 positive input selection ULP_GPIO_2 */
+#define SL_SH_ADC_CH0_P_INPUT     4          ///< ADC channel 0 positive input selection ULP_GPIO_2 */
 #define SL_SH_ADC_CH0_CHANNEL     0          ///< ADC channel 0 channel number */
 #define SL_SH_ADC_CH0_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
 #define SL_SH_ADC_CH0_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
@@ -66,7 +66,7 @@ typedef int32_t sl_adc_error_t;
 
 /* ADC channel 1 configurations */
 #ifdef SL_SH_ADC_CHANNEL1
-#define SL_SH_ADC_CH1_P_INPUT     4          ///< ADC channel 0 positive input selection ULP_GPIO_8 */
+#define SL_SH_ADC_CH1_P_INPUT     5          ///< ADC channel 0 positive input selection ULP_GPIO_8 */
 #define SL_SH_ADC_CH1_CHANNEL     1          ///< ADC channel 0 channel number */
 #define SL_SH_ADC_CH1_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
 #define SL_SH_ADC_CH1_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
@@ -75,7 +75,7 @@ typedef int32_t sl_adc_error_t;
 
 /* ADC channel 2 configurations */
 #ifdef SL_SH_ADC_CHANNEL2
-#define SL_SH_ADC_CH2_P_INPUT     5          ///< ADC channel 0 positive input selection ULP_GPIO_10 */
+#define SL_SH_ADC_CH2_P_INPUT     10         ///< ADC channel 0 positive input selection ULP_GPIO_10 */
 #define SL_SH_ADC_CH2_CHANNEL     2          ///< ADC channel 0 channel number */
 #define SL_SH_ADC_CH2_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
 #define SL_SH_ADC_CH2_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
@@ -103,9 +103,9 @@ typedef int32_t sl_adc_error_t;
 #define JS_ADC_CHANNEL   0
 #define GUVA_ADC_CHANNEL 0
 #ifdef GY61_ADC_SENSOR
-#define GY61_X_AXIS_ADC_CHANNEL 1
-#define GY61_Y_AXIS_ADC_CHANNEL 2
-#define GY61_Z_AXIS_ADC_CHANNEL 3
+#define GY61_X_AXIS_ADC_CHANNEL 0
+#define GY61_Y_AXIS_ADC_CHANNEL 1
+#define GY61_Z_AXIS_ADC_CHANNEL 2
 #define GY61_ADC_SENSOR_CHANNELS \
   (BIT(GY61_X_AXIS_ADC_CHANNEL) | BIT(GY61_Y_AXIS_ADC_CHANNEL) | BIT(GY61_Z_AXIS_ADC_CHANNEL))
 

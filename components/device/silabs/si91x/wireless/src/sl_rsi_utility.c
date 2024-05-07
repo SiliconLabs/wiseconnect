@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -344,10 +344,10 @@ sl_wifi_event_t convert_si91x_event_to_sl_wifi_event(rsi_wlan_cmd_response_t com
         default:
           return SL_WIFI_TWT_RESPONSE_EVENT | (frame_status << 16);
       }
-    case SL_SI91X_WIFI_BTR_TX_DATA_STATUS:
-      return SL_WIFI_BTR_TX_DATA_STATUS_CB | fail_indication;
+    case RSI_WLAN_RSP_TRANSCEIVER_TX_DATA_STATUS:
+      return SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB | fail_indication;
     case SL_SI91X_WIFI_RX_DOT11_DATA:
-      return SL_WIFI_BTR_RX_DATA_RECEIVE_CB | fail_indication;
+      return SL_WIFI_TRANSCEIVER_RX_DATA_RECEIVE_CB | fail_indication;
     default:
       return SL_WIFI_INVALID_EVENT;
   }
@@ -564,7 +564,7 @@ sl_status_t sl_si91x_send_power_save_request(sl_si91x_performance_profile_t prof
                                         SI91X_COMMON_CMD_QUEUE,
                                         &power_save_request,
                                         sizeof(sl_si91x_power_save_request_t),
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                        SL_SI91X_WAIT_FOR_RESPONSE(3000),
                                         NULL,
                                         NULL);
   VERIFY_STATUS_AND_RETURN(status);
@@ -619,7 +619,7 @@ sl_status_t sl_si91x_platform_init(void)
       .name       = "si91x_bus",
       .priority   = osPriorityRealtime,
       .stack_mem  = 0,
-      .stack_size = 1536,
+      .stack_size = 1636,
       .cb_mem     = 0,
       .cb_size    = 0,
       .attr_bits  = 0u,
@@ -756,7 +756,7 @@ sl_status_t sl_si91x_host_add_to_queue(sl_si91x_queue_type_t queue, sl_wifi_buff
     cmd_queues[queue].tail->node.node = (sl_slist_node_t *)packet;
     cmd_queues[queue].tail            = packet;
   }
-
+  cmd_queues[queue].queued_packet_count++;
   osMutexRelease(cmd_queues[queue].mutex);
   return SL_STATUS_OK;
 }
@@ -1019,6 +1019,11 @@ uint32_t sl_si91x_host_queue_status(sl_si91x_queue_type_t queue)
   return status;
 }
 
+uint32_t sl_si91x_host_get_queue_packet_count(sl_si91x_queue_type_t queue)
+{
+  return (uint32_t)(cmd_queues[queue].queued_packet_count);
+}
+
 uint32_t si91x_host_wait_for_event(uint32_t event_mask, uint32_t timeout)
 {
   uint32_t result = osEventFlagsWait(si91x_events, event_mask, (osFlagsWaitAny | osFlagsNoClear), timeout);
@@ -1033,9 +1038,7 @@ uint32_t si91x_host_wait_for_event(uint32_t event_mask, uint32_t timeout)
 
 uint32_t si91x_host_wait_for_bus_event(uint32_t event_mask, uint32_t timeout)
 {
-  uint32_t result = osEventFlagsWait(si91x_bus_events, event_mask, (osFlagsWaitAny | osFlagsNoClear), timeout);
-  // Clear the received event flags
-  osEventFlagsClear(si91x_bus_events, event_mask);
+  uint32_t result = osEventFlagsWait(si91x_bus_events, event_mask, (osFlagsWaitAny), timeout);
   if (result == (uint32_t)osErrorTimeout || result == (uint32_t)osErrorResource) {
     return 0;
   }
@@ -1090,4 +1093,54 @@ sl_status_t sl_si91x_host_power_cycle(void)
   sl_si91x_host_delay_ms(100);
 
   return SL_STATUS_OK;
+}
+
+void print_80211_packet(uint8_t *packet, uint32_t packet_length, uint16_t max_payload_length)
+{
+  uint32_t dump_bytes    = 0;
+  uint32_t header_length = MAC80211_HDR_MIN_LEN;
+
+  header_length += (packet[0] & BIT(7)) ? 2 : 0;                           /* 2 bytes QoS control */
+  header_length += ((packet[1] & BIT(0)) && (packet[1] & BIT(1))) ? 6 : 0; /* 6 byte Addr4 */
+
+  printf("%02x %02x | ", packet[0], packet[1]); /* FC */
+  printf("%02x %02x | ", packet[2], packet[3]); /* Dur */
+  printf("%02x:%02x:%02x:%02x:%02x:%02x | ",
+         packet[4],
+         packet[5],
+         packet[6],
+         packet[7],
+         packet[8],
+         packet[9]); /* Addr1/RA */
+  printf("%02x:%02x:%02x:%02x:%02x:%02x | ",
+         packet[10],
+         packet[11],
+         packet[12],
+         packet[13],
+         packet[14],
+         packet[15]); /* Addr2/TA */
+  printf("%02x:%02x:%02x:%02x:%02x:%02x | ",
+         packet[16],
+         packet[17],
+         packet[18],
+         packet[19],
+         packet[20],
+         packet[21]);                                 /* Addr3/DA */
+  printf("%02x %02x | ", packet[22], packet[23]);     /* Seq control */
+  if ((packet[1] & BIT(0)) && (packet[1] & BIT(1))) { /* Addr4 */
+    printf("%02x:%02x:%02x:%02x:%02x:%02x | ", packet[24], packet[25], packet[26], packet[27], packet[28], packet[29]);
+  }
+  if (packet[0] & BIT(7)) {
+    printf("%02x %02x | ", packet[30], packet[31]); /* QoS control */
+  }
+
+  // Determine number of payload bytes to print
+  dump_bytes = packet_length - header_length;
+  dump_bytes = max_payload_length > dump_bytes ? dump_bytes : max_payload_length;
+
+  for (uint32_t i = header_length; i < header_length + dump_bytes; i++) {
+    printf("%02x ", packet[i]);
+  }
+
+  printf("|\r\n");
 }

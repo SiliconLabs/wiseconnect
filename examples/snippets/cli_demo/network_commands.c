@@ -229,7 +229,7 @@ sl_status_t set_nvm_profile_command_handler(console_args_t *arguments)
               .bssid = {{0}},
               .bss_type = SL_WIFI_BSS_TYPE_INFRASTRUCTURE,
               .security = SL_WIFI_WPA_WPA2_MIXED,
-              .encryption = SL_WIFI_CCMP_ENCRYPTION,
+              .encryption = SL_WIFI_DEFAULT_ENCRYPTION,
               .client_options = 0,
               .credential_id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
           },

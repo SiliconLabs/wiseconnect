@@ -24,6 +24,8 @@
     unless: [rsilib_board]
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     unless: [rsilib_board]
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
+    unless: [rsilib_board]
 - source:
   - path: components/device/silabs/si91x/mcu/core/chip/src/system_si91x.c
   - path: components/device/silabs/si91x/mcu/core/chip/src/startup_si91x.c
@@ -80,10 +82,40 @@
   - name: flash_present
     value: 1
 
+ # Default Memory configuration
   - name: device_flash_addr
-    value: 136060928
+    value: 136323072 # 0x0820 2000
+    priority: -1
+    condition:
+      - si917_mem_config_1
   - name: device_flash_size
-    value: 4194304
+    value: 2088960 # 0x001F E000
+    priority: -1
+    condition:
+      - si917_mem_config_1
+  # Medium Memory configuration
+  - name: device_flash_addr
+    value: 136323072 # 0x0820 2000
+    priority: -1
+    condition:
+      - si917_mem_config_2
+  - name: device_flash_size
+    value: 2088960 # 0x001F E000
+    priority: -1
+    condition:
+      - si917_mem_config_2
+  # Advanced Memory configuration
+  - name: device_flash_addr
+    value: 136323072 # 0x0820 2000
+    priority: -1
+    condition:
+      - si917_mem_config_3
+  - name: device_flash_size
+    value: 2088960 # 0x001F E000
+    priority: -1
+    condition:
+      - si917_mem_config_3
+
 
   - name: device_flash_page_size
     value: 256

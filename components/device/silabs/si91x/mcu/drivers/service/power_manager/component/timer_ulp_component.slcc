@@ -22,3 +22,14 @@ template_contribution:
     value: sl_si91x_ulp_timer.o
   - name: ulp_timer_ps2
     value: rsi_timers.o
+  - name: ulp_timer_ps2
+    value: memcpy*.o
+  - name: ulp_timer_ps2
+    value: UDMA.o
+  - name: ulp_timer_ps2
+    value: rsi_udma.o
+  - name: ulp_timer_ps2
+    value: rsi_udma_wrapper.o
+  - name: ulp_timer_ps2
+    value: sl_si91x_led.o
+

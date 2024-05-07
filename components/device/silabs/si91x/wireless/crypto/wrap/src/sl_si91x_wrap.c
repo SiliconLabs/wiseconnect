@@ -75,7 +75,7 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -85,7 +85,7 @@ static sl_status_t sli_si91x_wrap_pending(sl_si91x_wrap_config_t *config,
   output_size = (config->key_size + 15) & (~15);
   memcpy(output, packet->data, output_size);
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   free(request);
   return status;
 }
@@ -124,20 +124,22 @@ static sl_status_t sli_si91x_wrap_side_band(sl_si91x_wrap_config_t *config, uint
 
 sl_status_t sl_si91x_wrap(sl_si91x_wrap_config_t *config, uint8_t *output)
 {
-  sl_status_t status    = SL_STATUS_FAIL;
+  sl_status_t status = SL_STATUS_FAIL;
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
   uint16_t chunk_len    = 0;
   uint16_t offset       = 0;
   uint8_t wrap_flags    = 0;
   uint32_t total_length = config->key_size;
+  uint8_t *key_buffer   = NULL;
+#endif
 
   SL_VERIFY_POINTER_OR_RETURN(config->key_buffer, SL_STATUS_NULL_POINTER);
-  uint8_t *key_buffer = config->key_buffer;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   status = sli_si91x_wrap_side_band(config, output);
   return status;
 #else
-
+  key_buffer = config->key_buffer;
   while (total_length) {
     // Check total length
     if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {

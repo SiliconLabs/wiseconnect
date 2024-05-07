@@ -167,6 +167,60 @@ sl_status_t sl_si91x_get_bjt_temperature_sensor_conversion(double *temp_data,
 ******************************************************************************/
 sl_status_t sl_si91x_bjt_temperature_sensor_deinit(adc_config_t sl_bjt_temperature_sensor_config);
 
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup BJTTEMPSENSOR BJT Temperature Sensor
+/// @{
+///
+///   @details
+///
+///
+///   @n @section BJTTEMPSENSOR_intro Introduction
+///
+///   @li By taking use of its temperature-dependent characteristics, a Bipolar Junction Transistor (BJT)
+///   can be utilized as a temperature sensor.
+///
+///   @li BJT temperature sensor peripheral will be used to transform a digital output into a temperature in degrees Celsius.
+///
+///   @li BJT Temperature Sensor first reads the Band-gap and then reads the BJT value after the successful calibration
+///   it just computes the temperature value by taking the difference between BJT output and Band-gap output value.
+///
+///   @li By switching the current temperature mode, one can also obtain the temperature value in kelvin and fahrenheit.
+///
+///   @n @section BJTTEMPSENSOR_Config Configuration
+///
+///   @li By altering the macros in the mode below, one can change the temperature from
+///   Celsius to Kelvin and from Celsius to Fahrenheit.
+///
+///   @li @ref sl_bjt_temperature_sensor_enum_t
+///
+///   @li By using the structured macros below, you can enable and disable the Bjt temperature sensor.
+///
+///   @li @ref sl_bjt_temperature_sensor_state_t
+///
+///   @n @section BJTTEMPSENSOR_Use Usage
+///
+///   The Bjt temperature sensor will first call the callback event after initializing
+///   and configuring the channel settings and operating mode. It will enable, configure,
+///   and read the BJT temperature value in the read data along with configuring and reading the band gap value.
+///   Once the values are successfully read, the temperature in Celsius will be computed.
+///
+///		1. @ref sl_si91x_bjt_temperature_sensor_init
+///
+///		2. @ref sl_si91x_bjt_temperature_sensor_read_data
+///
+///		3. @ref sl_si91x_bjt_temperature_sensor_state
+///
+///		4. @ref sl_si91x_bjt_temperature_sensor_set_channel_configuration
+///
+///		5. @ref sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration
+///
+///   @li In addition to the above mentioned apis, users can additionally modify the temperature mode
+///   and deinitialize the callback event by using the conversion and deinit apis.
+///
+///   1. @ref sl_si91x_bjt_temperature_sensor_deinit
+///
+///   2. @ref sl_si91x_get_bjt_temperature_sensor_conversion
+///
 /** @} (end addtogroup BJTtemp) */
 
 #ifdef __cplusplus

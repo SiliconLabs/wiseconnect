@@ -108,6 +108,9 @@
 
 #define MITM_REQ          0x01
 #define RSI_MAX_LIST_SIZE 0x05
+
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/
@@ -851,9 +854,11 @@ void ble_privacy_app(void *unused)
   UNUSED_PARAMETER(unused);
   int32_t ix;
   int32_t event_id;
-  uint8_t first_connect               = 0;
-  rsi_ble_dev_ltk_list_t *ble_dev_ltk = NULL;
-  sl_wifi_firmware_version_t version  = { 0 };
+  uint8_t first_connect                                      = 0;
+  rsi_ble_dev_ltk_list_t *ble_dev_ltk                        = NULL;
+  sl_wifi_firmware_version_t version                         = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
 
 #if (RSI_DEVICE_ROLE == PERIPHERAL_ROLE)
   uint8_t adv[31] = { 2, 1, 6 };
@@ -876,6 +881,16 @@ void ble_privacy_app(void *unused)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   //! registering the GAP callback functions
@@ -951,7 +966,8 @@ void ble_privacy_app(void *unused)
     LOG_PRINT("\r\n Start Advertising Success\r\n");
   }
 #else
-  status = rsi_ble_start_scanning();
+  uint8_t Resolve_list_updated = 0; // Variable to check if reslove_key is updated or not.
+  status                       = rsi_ble_start_scanning();
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\r\nStart Scanning Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -1046,13 +1062,23 @@ void ble_privacy_app(void *unused)
         first_connect = 0;
 #if (RSI_DEVICE_ROLE == CENTRAL_ROLE)
 
-        status = rsi_ble_connect(
-          resolve_key.Identity_addr_type + 2,
-          (int8_t *)rsi_ascii_dev_address_to_6bytes_rev(remote_dev_bd_addr, (int8_t *)resolve_key.Identity_addr));
-        if (status != RSI_SUCCESS) {
-          LOG_PRINT("\n Connect status: 0x%lX\r\n", status);
-        }
+        if (Resolve_list_updated == 0) {
+          status = rsi_ble_start_scanning();
+          if (status != RSI_SUCCESS) {
+            LOG_PRINT("\r\nStart Scanning Failed, Error Code : 0x%lX\r\n", status);
+            return;
+          } else {
+            LOG_PRINT("\r\n Scanning Success\r\n");
+          }
 
+        } else {
+          status = rsi_ble_connect(
+            resolve_key.Identity_addr_type + 2,
+            (int8_t *)rsi_ascii_dev_address_to_6bytes_rev(remote_dev_bd_addr, (int8_t *)resolve_key.Identity_addr));
+          if (status != RSI_SUCCESS) {
+            LOG_PRINT("\n Connect status: 0x%lX\r\n", status);
+          }
+        }
 #else
         //! start the advertising
         LOG_PRINT("\n Start Advertising\n");
@@ -1176,6 +1202,12 @@ void ble_privacy_app(void *unused)
         rsi_6byte_dev_address_to_ascii(resolve_key.Identity_addr, temp_le_sec_keys.Identity_addr);
 
         update_resolvlist((rsi_ble_resolvlist_group_t *)&resolvlist, &resolve_key);
+#if (RSI_DEVICE_ROLE == CENTRAL_ROLE)
+
+        if (Resolve_list_updated == 0) {
+          Resolve_list_updated = 1;
+        }
+#endif
 
         //get resolvlist size
         status = rsi_ble_get_resolving_list_size(&rsi_app_resp_resolvlist_size);

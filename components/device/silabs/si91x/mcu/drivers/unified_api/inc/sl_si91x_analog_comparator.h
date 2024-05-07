@@ -64,16 +64,16 @@ typedef enum {
 
 /// @brief Enumeration to represent analog comparator inputs
 typedef enum {
-  SL_COMPARATOR_GPIO_INPUT_0,             ///< Select GPIO input for comparator non-inverting input
-  SL_COMPARATOR_GPIO_INPUT_1,             ///< Select GPIO input for comparator non-inverting input
-  SL_COMPARATOR_DAC_OUTPUT,               ///< Selects DAC output as comparator input
-  SL_COMPARATOR_REFERRENCE_BUFFER_OUTPUT, ///< Selects reference buffer output as comparator input
-  SL_COMPARATOR_REFERRENCE_SCALER_OUTPUT, ///< Selects reference scaler output as comparator input
-  SL_COMPARATOR_RESISTOR_BANK_OUTPUT,     ///< Selects resistor bank output as comparator input
-  SL_COMPARATOR_OPAMP1_OUTPUT,            ///< Selects OPAMP1 output as comparator input
-  SL_COMPARATOR_OPAMP2_OUTPUT,            ///< Selects OPAMP2 output as comparator input
-  SL_COMPARATOR_OPAMP3_OUTPUT,            ///< Selects OPAMP3 output as comparator input
-  SL_COMPARATOR_INPUT_LAST,               ///< Last member of enum for validation
+  SL_COMPARATOR_GPIO_INPUT_0,            ///< Select GPIO input for comparator non-inverting input
+  SL_COMPARATOR_GPIO_INPUT_1,            ///< Select GPIO input for comparator non-inverting input
+  SL_COMPARATOR_DAC_OUTPUT,              ///< Selects DAC output as comparator input
+  SL_COMPARATOR_REFERENCE_BUFFER_OUTPUT, ///< Selects reference buffer output as comparator input
+  SL_COMPARATOR_REFERENCE_SCALER_OUTPUT, ///< Selects reference scaler output as comparator input
+  SL_COMPARATOR_RESISTOR_BANK_OUTPUT,    ///< Selects resistor bank output as comparator input
+  SL_COMPARATOR_OPAMP1_OUTPUT,           ///< Selects OPAMP1 output as comparator input
+  SL_COMPARATOR_OPAMP2_OUTPUT,           ///< Selects OPAMP2 output as comparator input
+  SL_COMPARATOR_OPAMP3_OUTPUT,           ///< Selects OPAMP3 output as comparator input
+  SL_COMPARATOR_INPUT_LAST,              ///< Last member of enum for validation
 } sl_analog_comparator_inputs_t;
 
 /// @brief Enumeration to represent the hysteresis control values
@@ -206,11 +206,9 @@ void sl_si91x_analog_comparator_init(void);
  * @details Use this function to configure analog comparator number, select non-inverting and inverting inputs, 
  * enable or disable hysteresis, and enable or disable filter for comparator outputs.
  * Also configure input pins.
- * 
- * @pre  Pre-condition: \ref sl_si91x_analog_comparator_init()
- * 
+ * @pre  Pre-condition: 
+ *  - \ref sl_si91x_analog_comparator_init()
  * @param[in] comparator_config_ptr Pointer to analog comparator configuration structure \ref sl_analog_comparator_config_t
- * 
  * @return    Status 0 if successful, else error code:
  *            - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Analog comparator configuration structure member has invalid value.
  *            - \ref SL_STATUS_OK (0x0000) - Success, analog comparator parameters configured properly.
@@ -220,15 +218,12 @@ sl_status_t sl_si91x_analog_comparator_set_configurations(sl_analog_comparator_c
 /***************************************************************************/ /**
  * @brief Register Analog Comparator interrupt callback
  * @details Enables its interrupts as per comparator number
- * 
  * @pre  Pre-conditions:
  *       - \ref sl_si91x_analog_comparator_init()
  *       - \ref sl_si91x_analog_comparator_set_configurations()
  *       - \ref sl_si91x_analog_comparator_unregister_callback(), if already registered for any interrupt
- *
  * @param[in]  comparator_number For comparator Number, see \ref sl_analog_comparator_number_t for possible values.
  * @param[in]  on_comparator_callback Callback function pointer, to be invoked when a comparator interrupt occurs.
- * 
  * @return Status 0 if successful, else error code:
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - on_comparator_callback parameter is a null pointer.
  *         - \ref SL_STATUS_BUSY (0x0004) - The callback is already registered, unregister
@@ -242,12 +237,10 @@ sl_status_t sl_si91x_analog_comparator_register_callback(sl_analog_comparator_nu
 /***************************************************************************/ /**
  * @brief Unregister Analog Comparator interrupt callback
  * @details Disables its interrupts as per comparator number
- * 
  * @pre  Pre-conditions:
  *       - \ref sl_si91x_analog_comparator_init()
  *       - \ref sl_si91x_analog_comparator_set_configurations()
  *       - \ref sl_si91x_analog_comparator_register_callback()
- *
  * @param[in]  comparator_number For comparator Number, see \ref sl_analog_comparator_number_t for possible values.
  * 
  * @return Status 0 if successful, else error code:
@@ -260,14 +253,11 @@ sl_status_t sl_si91x_analog_comparator_unregister_callback(sl_analog_comparator_
  * @brief Configure Analog Comparator resistor bank threshold
  * @details As per the threshold value, resistor bank output voltage will be configured.
  * Use this API when any GPIO or external input needs to compare with internal input (resistor bank).
- * 
  * @pre  Pre-conditions:
  *       - \ref sl_si91x_analog_comparator_init()
  *       - \ref sl_si91x_analog_comparator_set_configurations()
  *       - \ref sl_si91x_analog_comparator_register_callback()
- *
  * @param[in]  threshold_value For comparator resistor bank, see \ref sl_analog_comparator_threshold_values_t for possible values.
- * 
  * @return Status 0 if successful, else error code:
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - threshold_value parameter has invalid value.
  *         - \ref SL_STATUS_OK (0x0000) - Successfully registered timer timer-out callback.
@@ -280,14 +270,11 @@ sl_status_t sl_si91x_analog_comparator_set_resistor_bank_threshold(
  * @details Sets the scale factor for the analog comparator module's reference scaler.
  * As per this scale factor, reference scalar output voltage will be set.
  * Use this API when any GPIO or external input needs to compare with internal input (reference scaler).
- * 
  * @pre  Pre-conditions:
  *       - \ref sl_si91x_analog_comparator_init()
  *       - \ref sl_si91x_analog_comparator_set_configurations()
  *       - \ref sl_si91x_analog_comparator_register_callback()
- *
  * @param[in]  scale_factor_value For comparator's reference scale, see \ref sl_analog_comparator_scale_factor_values_t for possible values.
- * 
  * @return Status 0 if successful, else error code:
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - scale_factor_value parameter has invalid value.
  *         - \ref SL_STATUS_OK (0x0000) - Successfully registered timer timer-out callback.
@@ -298,12 +285,73 @@ sl_status_t sl_si91x_analog_comparator_set_reference_scaler_output(
 /***************************************************************************/ /**
 * @brief De-Initialize Analog Comparator
 * @details Disables Peripheral clock and interrupts
-*
 * @return    None
 *******************************************************************************/
 void sl_si91x_analog_comparator_deinit(void);
 
 /** @} (end addtogroup Analog Comparator) */
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
+/// @addtogroup ANALOGCOMP Analog Comparator
+/// @{
+///
+///   @details
+///
+///   @n @section ANALOGCOMP_Intro Introduction
+///
+///   An analog comparator in a micro-controller is a peripheral that compares two analog input voltages
+///   and generates a digital output based on the comparison result. It typically has two input pins
+///   for comparing analog voltages and an output pin for displaying the result of the comparison.
+///
+///   @li Analog comparators typically work in one of two modes:
+///
+///   @li **Voltage Comparison Mode**: In this mode, the comparator compares the voltages across its two input pins.
+///   If the voltage at the non-inverting input (+) exceeds the voltage at the inverting input (-),
+///   the output becomes high and interrupt occurs. The output becomes low if the voltage at the inverting input (-) is higher.
+///
+///   @li If the voltage at the inverting input (-) is higher, the output becomes low.
+///
+///   @li  **External and Internal Voltage comparison**: This mode lets you compare the external input voltage to internal voltage
+///    generated using resister bank or reference scaler.
+///
+///   @li The comparator's output can be used to initiate interrupts, wake up the micro-controller from low-power mode,
+///   or control other system components using analog voltage levels.
+///
+///  @li Analog comparators are commonly employed in applications such as battery monitoring,
+///   threshold detection, sensor interface, and many more where analog signals must be compared
+///   and acted on digitally by the micro-controller.
+///
+///   @li It can compare DAC and OPAMP outputs with external or Internal voltages.
+///
+///   @n @section ANALOGCOMP_Config Configuration
+///
+///   It sets the reference LDO voltage, set the non-inverting and inverting inputs,
+///   configures the pins in case of external inputs.
+///   Set the value of the scaler factor, if the input is a ref scaler.
+///   Set the threshold value, if the input consists of a bank of resistors.
+///   Once everything is configured, we will activate interrupts and registers callback.
+///
+///   @li  To configure the non-inverting-input or inverting -input, hysteresis value and set filter enable or disable
+///   use the structure @ref sl_analog_comparator_config_t to update the required configuration
+///   and call the API @ref sl_si91x_analog_comparator_set_configurations().
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
+///
+///   @n @section ANALOGCOMP_Usage Usage
+///
+///   The common Analog Comparator functions can be used after the Analog Comparator Structures are specified,
+///   passing an instance of   @ref sl_analog_comparator_config_t
+///   These functions will initiate and configure the Analog Comparator below, which is the flow for implementation.
+///
+///  1.  @ref sl_si91x_analog_comparator_init
+///  2.  @ref sl_si91x_analog_comparator_set_configurations
+///  3.  @ref sl_si91x_analog_comparator_set_reference_scaler_output (If input is Reference scaler)
+///  4.  @ref sl_si91x_analog_comparator_set_resistor_bank_threshold ( If input is Resistor bank)
+///  5.  @ref sl_si91x_analog_comparator_register_callback
+///  6.  @ref sl_si91x_analog_comparator_deinit
+///
+/// @} end group ANALOGCOMP ********************************************************/
+
 #ifdef __cplusplus
 }
 #endif

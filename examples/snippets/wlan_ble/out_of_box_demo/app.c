@@ -33,22 +33,11 @@
  * Include files
  **/
 //! SL Wi-Fi SDK includes
-#include "sl_net.h"
-#include "sl_board_configuration.h"
-#include "sl_wifi.h"
-#include "sl_wifi_callback_framework.h"
-#include "cmsis_os2.h"
 #include "sl_si91x_driver.h"
-//BLE Specific inclusions
-#include <rsi_ble_apis.h>
-#include "ble_config.h"
 #include "wifi_config.h"
 #include "rsi_ble_common_config.h"
 #include <rsi_common_apis.h>
 #include "glib.h"
-
-// APP version
-#define APP_FW_VERSION "0.4"
 
 // TCP IP BYPASS feature check
 #define RSI_TCP_IP_BYPASS RSI_DISABLE
@@ -183,13 +172,13 @@ void rsi_wlan_ble_app_init(void *argument)
 
   wlan_thread_sem = osSemaphoreNew(1, 0, NULL);
   if (wlan_thread_sem == NULL) {
-    LOG_PRINT("Failed to create wlan_thread_sem\n");
+    LOG_PRINT("\r\nFailed to create wlan_thread_sem\r\n");
     return;
   }
 
   ble_thread_sem = osSemaphoreNew(1, 0, NULL);
   if (ble_thread_sem == NULL) {
-    LOG_PRINT("Failed to create ble_thread_sem\n");
+    LOG_PRINT("\r\nFailed to create ble_thread_sem\r\n");
     return;
   }
 
@@ -203,7 +192,7 @@ void rsi_wlan_ble_app_init(void *argument)
 #endif
 
   if (osThreadNew((osThreadFunc_t)rsi_ble_configurator_task, NULL, &ble_thread_attributes) == NULL) {
-    LOG_PRINT("Failed to create BLE thread\n");
+    LOG_PRINT("\r\nFailed to create BLE thread\r\n");
   }
 
   // BLE initialization

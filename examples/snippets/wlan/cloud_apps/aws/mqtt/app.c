@@ -429,7 +429,7 @@ sl_status_t start_aws_mqtt(void)
         rc = aws_iot_mqtt_init(&mqtt_client, &mqtt_init_params);
         if (SUCCESS != rc) {
           application_state = AWS_MQTT_INIT_STATE;
-          printf("\r\nMQTT Initialization failed with error: 0x%x\r\n", rc);
+          printf("\r\nMQTT Initialization failed with error: %d\r\n", rc);
         } else {
           application_state = AWS_MQTT_CONNECT_STATE;
         }
@@ -442,7 +442,7 @@ sl_status_t start_aws_mqtt(void)
             printf("\r\nNetwork is already connected\r\n");
 
           } else {
-            printf("\r\nMQTT connect failed with error: 0x%x\r\n", rc);
+            printf("\r\nMQTT connect failed with error: %d\r\n", rc);
             application_state = AWS_MQTT_INIT_STATE;
           }
         } else {
@@ -461,7 +461,7 @@ sl_status_t start_aws_mqtt(void)
 
         if (SUCCESS != rc) {
           if (NETWORK_DISCONNECTED_ERROR == rc) {
-            printf("\r\nSubscription failed with error: 0x%x\r\n", rc);
+            printf("\r\nSubscription failed with error: %d\r\n", rc);
             application_state = AWS_MQTT_CONNECT_STATE;
           } else if (NETWORK_ATTEMPTING_RECONNECT == rc) {
             // If the client is attempting to reconnect skip the rest of the loop
@@ -541,7 +541,7 @@ sl_status_t start_aws_mqtt(void)
           rc = aws_iot_mqtt_publish(&mqtt_client, PUBLISH_ON_TOPIC, strlen(PUBLISH_ON_TOPIC), &publish_iot_msg);
 
           if (rc != SUCCESS) {
-            printf("\r\nMQTT Publish with QoS%d failed with error: 0x%x\n", PUBLISH_QOS, rc);
+            printf("\r\nMQTT Publish with QoS%d failed with error: %d\n", PUBLISH_QOS, rc);
             application_state = AWS_MQTT_DISCONNECT;
             break;
           }
@@ -576,7 +576,7 @@ sl_status_t start_aws_mqtt(void)
         if (!powersave_given) {
           rc = sl_wifi_set_performance_profile(&performance_profile);
           if (rc != SL_STATUS_OK) {
-            printf("\r\nPower save configuration Failed, Error Code : 0x%X\r\n", rc);
+            printf("\r\nPower save configuration Failed, Error Code : %d\r\n", rc);
           }
           printf("\r\nAssociated Power Save is enabled\r\n");
           powersave_given = 1;

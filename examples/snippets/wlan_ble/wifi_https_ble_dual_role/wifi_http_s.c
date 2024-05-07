@@ -301,12 +301,14 @@ int32_t rsi_app_wlan_socket_create()
  *=====================================================*/
 int32_t rsi_wlan_app_task(void)
 {
-  int32_t status                      = RSI_SUCCESS;
-  uint8_t stop_download               = 0;
-  uint32_t bytes_cnt                  = 0;
+  int32_t status        = RSI_SUCCESS;
+  uint8_t stop_download = 0;
+  uint32_t bytes_cnt    = 0;
+#if !SOCKET_ASYNC_FEATURE
   static uint32_t download_inprogress = 0;
   int read_bytes                      = 0;
-  uint32_t total_read_bytes           = 0;
+#endif
+  uint32_t total_read_bytes = 0;
 
   while (1) {
     switch (rsi_wlan_app_cb.state) {
@@ -391,7 +393,7 @@ int32_t rsi_wlan_app_task(void)
           access_point.ssid.length = strlen((char *)SSID);
           memcpy(access_point.ssid.value, SSID, access_point.ssid.length);
           access_point.security      = SECURITY_TYPE;
-          access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
+          access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
           access_point.credential_id = id;
 
           LOG_PRINT("\nSSID %s\n", access_point.ssid.value);
@@ -527,7 +529,7 @@ int32_t rsi_wlan_app_task(void)
             LOG_PRINT("send failed\n");
             status = close(client_socket);
             if (status != 0) {
-              LOG_PRINT("\r\nsocket close failed with status = %d and BSD error: %d\r\n", status, errno);
+              LOG_PRINT("\r\nsocket close failed with status = %ld and BSD error: %d\r\n", status, errno);
             } else {
               LOG_PRINT("\r\nsocket close success\r\n");
             }

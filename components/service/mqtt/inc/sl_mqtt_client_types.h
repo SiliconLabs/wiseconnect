@@ -48,7 +48,7 @@ typedef enum MQTTStatus {
 typedef enum {
   SL_MQTT_QOS_LEVEL_0, ///< MQTT QoS level 0
   SL_MQTT_QOS_LEVEL_1, ///< MQTT QoS level 1
-  SL_MQTT_QOS_LEVEL_2, ///< MQTT QoS level 2 (not currently supported)
+  SL_MQTT_QOS_LEVEL_2  ///< MQTT QoS level 2 (not currently supported)
 } sl_mqtt_qos_t;
 
 /// MQTT Client connection states
@@ -56,8 +56,9 @@ typedef enum {
   SL_MQTT_CLIENT_DISCONNECTED,      ///< Initial state.
   SL_MQTT_CLIENT_TA_INIT,           ///< Attains this state when TA MQTT is initialized successfully.
   SL_MQTT_CLIENT_CONNECTION_FAILED, ///< Attains this state when the connection to MQTT broker failed.
-  SL_MQTT_CLIENT_CONNECTED,         ///< Connection established with MQTT broker
-  SL_MQTT_CLIENT_TA_DISCONNECTED, // Attains this state when TA is disconnected from broker but TA deinit is not yet called.
+  SL_MQTT_CLIENT_CONNECTED,         ///< Connection established with MQTT broker.
+  SL_MQTT_CLIENT_REMOTE_TERMINATE,  ///< Attains this state when the connection is terminated by the broker.
+  SL_MQTT_CLIENT_TA_DISCONNECTED // Attains this state when TA is disconnected from broker but TA deinit is not yet called.
 } sl_mqtt_client_connection_state_t;
 
 /// MQTT Protocol version
@@ -74,7 +75,7 @@ typedef enum {
   SL_MQTT_CLIENT_MESSAGED_RECEIVED_EVENT, ///< MQTT client message received event.
   SL_MQTT_CLIENT_SUBSCRIBED_EVENT,        ///< MQTT client subscribed event.
   SL_MQTT_CLIENT_UNSUBSCRIBED_EVENT,      ///< MQTT client unsubscribed event.
-  SL_MQTT_CLIENT_ERROR_EVENT,             ///< MQTT client error event.
+  SL_MQTT_CLIENT_ERROR_EVENT              ///< MQTT client error event.
 } sl_mqtt_client_event_t;
 
 /// MQTT Client error status
@@ -84,8 +85,15 @@ typedef enum {
   SL_MQTT_CLIENT_SUBSCRIBE_FAILED,    ///< MQTT client subscribe failed status.
   SL_MQTT_CLIENT_UNSUBSCRIBED_FAILED, ///< MQTT client unsubscribe failed status.
   SL_MQTT_CLIENT_DISCONNECT_FAILED,   ///< MQTT client disconnect failed status.
-  SL_MQTT_CLIENT_UNKNKOWN_ERROR,      ///< MQTT client unknown error status.
+  SL_MQTT_CLIENT_UNKNKOWN_ERROR       ///< MQTT client unknown error status.
 } sl_mqtt_client_error_status_t;
+
+/// MQTT Client disconnection reason
+typedef enum {
+  SL_MQTT_CLIENT_REMOTE_TERMINATE_DISCONNECTION, ///< Disconnection due to remote termination.
+  SL_MQTT_CLIENT_WLAN_DISCONNECTION,             ///< Disconnection due to WLAN disconnection.
+  SL_MQTT_CLIENT_USER_INITIATED_DISCONNECTION    ///< User initiated disconnection.
+} sl_mqtt_client_disconnection_reason_t;
 
 /** @} */
 

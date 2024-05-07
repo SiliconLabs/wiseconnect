@@ -24,6 +24,8 @@
     unless: [rsilib_board]
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     unless: [rsilib_board]
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
+    unless: [rsilib_board]
 - source:
   - path: components/device/silabs/si91x/mcu/core/chip/src/system_si91x.c
   - path: components/device/silabs/si91x/mcu/core/chip/src/startup_si91x.c
@@ -89,18 +91,41 @@
 
   - name: device_ram_addr
     value: 12
-  # Default Memory configuration
-  - name: device_ram_size
-    value: 196608 # 0x0003 0000
-    condition: si917_mem_config_1
+
+ # Default Memory configuration
+  - name: device_flash_addr
+    value: 136323072 # 0x0820 2000
+    priority: -1
+    condition:
+      - si917_mem_config_1
+  - name: device_flash_size
+    value: 2088960 # 0x001F E000
+    priority: -1
+    condition:
+      - si917_mem_config_1
   # Medium Memory configuration
-  - name: device_ram_size
-    value: 262144 # 0x0004 0000
-    condition: si917_mem_config_2
+  - name: device_flash_addr
+    value: 136323072 # 0x0820 2000
+    priority: -1
+    condition:
+      - si917_mem_config_2
+  - name: device_flash_size
+    value: 2088960 # 0x001F E000
+    priority: -1
+    condition:
+      - si917_mem_config_2
   # Advanced Memory configuration
-  - name: device_ram_size
-    value: 327680 # 0x0005 0000
-    condition: si917_mem_config_3
+  - name: device_flash_addr
+    value: 136323072 # 0x0820 2000
+    priority: -1
+    condition:
+      - si917_mem_config_3
+  - name: device_flash_size
+    value: 2088960 # 0x001F E000
+    priority: -1
+    condition:
+      - si917_mem_config_3
+
 - tag:
   - device:opn:siwg917m111xgtba
 - toolchain_settings:

@@ -58,7 +58,7 @@ sl_status_t sli_si91x_sntp_event_handler(sl_si91x_queue_packet_t *data)
   }
   osMutexRelease(sntp_mutex);
 
-  sl_si91x_host_free_buffer(sdk_context, SL_WIFI_CONTROL_BUFFER);
+  sl_si91x_host_free_buffer(sdk_context);
   return SL_STATUS_OK;
 }
 
@@ -171,7 +171,7 @@ sl_status_t sl_sntp_client_get_time(uint8_t *data, uint16_t data_length, uint32_
                                         (void *)sdk_context,
                                         &buffer);
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -184,7 +184,7 @@ sl_status_t sl_sntp_client_get_time(uint8_t *data, uint16_t data_length, uint32_
   memcpy(data, packet->data, length);
   status = SL_STATUS_OK;
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   return status;
 }
 
@@ -229,7 +229,7 @@ sl_status_t sl_sntp_client_get_time_date(uint8_t *data, uint16_t data_length, ui
                                         (void *)sdk_context,
                                         &buffer);
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -242,7 +242,7 @@ sl_status_t sl_sntp_client_get_time_date(uint8_t *data, uint16_t data_length, ui
   memcpy(data, packet->data, length);
   status = SL_STATUS_OK;
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   return status;
 }
 
@@ -287,7 +287,7 @@ sl_status_t sl_sntp_client_get_server_info(sl_sntp_server_info_t *data, uint32_t
                                         (void *)sdk_context,
                                         &buffer);
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
 
   VERIFY_STATUS_AND_RETURN(status);
@@ -300,7 +300,7 @@ sl_status_t sl_sntp_client_get_server_info(sl_sntp_server_info_t *data, uint32_t
   memcpy(data, packet->data, length);
   status = SL_STATUS_OK;
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   return status;
 }
 

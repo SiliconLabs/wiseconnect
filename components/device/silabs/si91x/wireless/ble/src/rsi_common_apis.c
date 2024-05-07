@@ -16,7 +16,6 @@
 ******************************************************************************/
 
 #include "rsi_common.h"
-#include "rsi_timer.h"
 
 #include "rsi_ble.h"
 
@@ -28,8 +27,6 @@
 rsi_driver_cb_t *rsi_driver_cb = NULL;
 
 int32_t rsi_driver_memory_estimate(void);
-
-rsi_driver_cb_non_rom_t *rsi_driver_cb_non_rom = NULL;
 
 /** @addtogroup COMMON 
 * @{
@@ -106,13 +103,9 @@ int32_t rsi_ble_driver_init(uint8_t *buffer, uint32_t length)
   rsi_driver_cb->endian = IS_BIG_ENDIAN;
 #endif
 
-  // Designate memory for common_cb
-  rsi_driver_cb_non_rom = (rsi_driver_cb_non_rom_t *)buffer;
-  buffer += sizeof(rsi_driver_cb_non_rom_t);
-
-#if defined(SL_SI91X_PRINT_DBG_LOG) || defined(FW_LOGGING_ENABLE)
+#if defined(SL_SI91X_PRINT_DBG_LOG)
   // Creates debug prints mutex
-  rsi_driver_cb_non_rom->debug_prints_mutex = osMutexNew(NULL);
+  rsi_driver_cb->debug_prints_mutex = osMutexNew(NULL);
 #endif
 
   // Designate memory for bt_common_cb
@@ -146,7 +139,7 @@ int32_t rsi_ble_driver_init(uint8_t *buffer, uint32_t length)
   }
 
   // Update state
-  rsi_driver_cb_non_rom->device_state = RSI_DRIVER_INIT_DONE;
+  rsi_driver_cb->device_state = RSI_DRIVER_INIT_DONE;
 
   SL_PRINTF(SL_DRIVER_INIT_EXIT, COMMON, LOG_INFO, "actual_length=%4x", actual_length);
   return actual_length;
@@ -170,7 +163,7 @@ int32_t rsi_ble_driver_deinit(void)
   SL_PRINTF(SL_DRIVER_DEINIT_ENTRY, COMMON, LOG_INFO);
   uint32_t actual_length = 0;
 
-  if ((rsi_driver_cb_non_rom->device_state < RSI_DRIVER_INIT_DONE)) {
+  if ((rsi_driver_cb->device_state < RSI_DRIVER_INIT_DONE)) {
     // Command given in wrong state
     return RSI_ERROR_COMMAND_GIVEN_IN_WRONG_STATE;
   }
@@ -180,28 +173,13 @@ int32_t rsi_ble_driver_deinit(void)
     return RSI_FAILURE;
   }
 
-  if (rsi_driver_cb_non_rom->tx_mutex) {
-    osMutexDelete(rsi_driver_cb_non_rom->tx_mutex);
-  }
-
-#ifdef FW_LOGGING_ENABLE
-  sl_fw_log_deinit();
-#endif
-#if defined(SL_SI91X_PRINT_DBG_LOG) || defined(FW_LOGGING_ENABLE)
-  if (rsi_driver_cb_non_rom->debug_prints_mutex) {
-    osMutexDelete(rsi_driver_cb_non_rom->debug_prints_mutex);
+#if defined(SL_SI91X_PRINT_DBG_LOG)
+  if (rsi_driver_cb->debug_prints_mutex) {
+    osMutexDelete(rsi_driver_cb->debug_prints_mutex);
   }
 #endif
 
-  if (rsi_driver_cb_non_rom->common_cmd_send_sem) {
-    osSemaphoreDelete(rsi_driver_cb_non_rom->common_cmd_send_sem);
-  }
-
-  if (rsi_driver_cb_non_rom->common_cmd_sem) {
-    osSemaphoreDelete(rsi_driver_cb_non_rom->common_cmd_sem);
-  }
-
-  // Create BT semaphore
+  // Delete BT semaphore
   if (rsi_driver_cb->bt_common_cb->bt_cmd_sem) {
     osSemaphoreDelete(rsi_driver_cb->bt_common_cb->bt_cmd_sem);
   }
@@ -217,9 +195,8 @@ int32_t rsi_ble_driver_deinit(void)
   if (rsi_driver_cb->ble_cb->bt_sem) {
     osSemaphoreDelete(rsi_driver_cb->ble_cb->bt_sem);
   }
-  //  rsi_vport_exit_critical();
 
-  rsi_driver_cb_non_rom->device_state = RSI_DEVICE_STATE_NONE;
+  rsi_driver_cb->device_state = RSI_DEVICE_STATE_NONE;
   SL_PRINTF(SL_DRIVER_DEINIT_SEMAPHORE_DESTROY_FAILED_26, COMMON, LOG_INFO);
   return RSI_SUCCESS;
 }

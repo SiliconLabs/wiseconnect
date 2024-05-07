@@ -29,6 +29,7 @@
  ******************************************************************************/
 
 #include "sl_si91x_pwm.h"
+#include "sl_si91x_pwm_common_config.h"
 {% for inst in pwm_instances %}
 #include "sl_si91x_pwm_init_{{ inst }}_config.h"
 {% endfor %}
@@ -45,7 +46,7 @@ sl_pwm_config_t sl_pwm_{{ inst }}_config = {
   .base_time_counter_initial_value = SL_PWM_{{ inst | upper }}_TIMER_COUNTER,
   .duty_cycle = SL_PWM_{{ inst | upper }}_DUTY_CYCLE,
   .base_timer_mode = SL_PWM_{{ inst | upper }}_TIMER_MODE,
-  .channel_timer_selection = SL_PWM_{{ inst | upper }}_TIMER_SELECTION,
+  .channel_timer_selection = SL_PWM_COMMON_TIMER_SELECTION,
 };
 {% endfor %}
 
@@ -77,8 +78,6 @@ void sl_pwm_init_instances(void)
 {% for inst in pwm_instances %}
 
   sl_si91x_pwm_init(&sl_pwm_{{ inst }}_init);
-  
-  sl_si91x_pwm_set_configuration(&sl_pwm_{{ inst }}_config);
 
   {% endfor %}
 }

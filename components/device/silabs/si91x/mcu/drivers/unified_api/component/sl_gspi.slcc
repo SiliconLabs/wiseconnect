@@ -2,15 +2,14 @@ id: sl_gspi
 label: GSPI
 package: platform
 description: >
-  The Generic SPI Master is available in MCU HP peripherals.
-  It provides an I/O interface for a large range of SPI-compatible peripheral devices.
-  SPI is a synchronous four-wire interface made up of two data pins (MOSI and MISO),
-  a device select pin (CSN), and a gated clock pin (SCLK). With two data pins,
-  it supports full-duplex operation with other SPI-compatible devices.
-  Configurable parameters in GSPI:
-    - Set the different Modes type
-    - configuring the Bit Rate
-    - Data width 
+  The GSPI Master driver supports sending, receiving, and transferring data at 116 MHz. 
+  It enables full duplex and half duplex communication modes. 
+  Offering both blocking and non-blocking data transfer functions. 
+  The non-blocking functions utilize DMA to transfer data asynchronously, 
+  signaling transfer completion via callback functions.
+  
+  When you install this component, it will also be installing the  GSPI dependency component, 
+  which is the GSPI driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

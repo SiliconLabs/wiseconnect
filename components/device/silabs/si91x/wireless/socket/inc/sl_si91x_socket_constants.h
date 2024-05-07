@@ -35,7 +35,7 @@
 
 #define SI91X_HOST_WAIT_FOR_SELECT_RSP 1000
 
-#define TCP_RX_WINDOW_SIZE            10
+#define TCP_RX_WINDOW_SIZE 10
 
 #define DEFAULT_STREAM_MSS_SIZE   1460
 #define DEFAULT_DATAGRAM_MSS_SIZE 1472
@@ -79,8 +79,8 @@
 #define SL_SI91X_SO_SOCK_VAP_ID                      25 /* To Configure the socket VAP iD */
 #define SL_SI91X_SO_TLS_SNI                          47 /* To Configure the TLS SNI extension */
 
-#define SHUTDOWN_BY_ID								 0
-#define SHUTDOWN_BY_PORT							 1
+#define SHUTDOWN_BY_ID   0
+#define SHUTDOWN_BY_PORT 1
 /******************************************************
  *                 SSL features
  ******************************************************/

@@ -1,14 +1,16 @@
 ﻿# Properties file for Simplicity Studio metadata
 id=uc.extension.wiseconnect3_sdk
 
-version=3.1.4
+version=3.2.0
 
 label=WiSeConnect 3
 description=WiSeConnect 3 SDK
 
-prop.subLabel=Wi-Fi\\ SDK\\ 3.1.4
+prop.subLabel=Wi-Fi\\ SDK\\ 3.2.0
 
 prop.file.templatesFile=wifi_templates.xml wifi_internal_templates.xml
+
+prop.file.docsFile=wiseconnect3_docs.xml
 
 prop.boardCompatibility=.*
 prop.partCompatibility=.*si917.* .*siwg917m111mgtba.* .*siwg917m141xgtba.* .*siwg917m100xntba.* .*siwg917y111mgab.* .*siwg917y111mgnb.* .*siwg917m121xgtba.* .*siwg917m111xgtba.* .*siwg917m100mgtba.* .*siwg917m110lgtba.*

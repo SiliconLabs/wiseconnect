@@ -97,11 +97,19 @@
 #define SL_SI91X_FEAT_SSL_HIGH_STREAMING_BIT BIT(10)
 
 ///To enable support for long sized ICMP packets. Max 1472 Bytes for IPv4 and Max 1452 Bytes for IPv6.
-/// @note bit 11 & bits 13 - 29 are reserved
+/// @note bit 11 & bits 16 - 29 are reserved
 #define SL_SI91X_FEAT_LONG_ICMP_PACKET BIT(12)
+
+/*! @cond WIFI_TRANSCEIVER_MODE */
+/// Enable support to store peer information in the MAC layer.
+#define SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT BIT(13)
+/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /// To enable support for the Long HTTP GET URL. Maximum URL supported is 2048 bytes.
 #define SL_SI91X_FEAT_LONG_HTTP_URL BIT(14)
+
+/// To disable 11ax connections, i.e. force connection in 11ac or lower
+#define SL_SI91X_FEAT_DISABLE_11AX_SUPPORT BIT(15)
 
 /// Secure Attestation
 /// @note bit 31 is reserved
@@ -855,7 +863,7 @@ typedef enum {
   SL_SI91X_CLIENT_MODE            = 0, ///< WiFi personal client mode
   SL_SI91X_ENTERPRISE_CLIENT_MODE = 2, ///< WiFi enterprise client mode
   SL_SI91X_ACCESS_POINT_MODE      = 6, ///< WiFi access point mode
-  SL_SI91X_WLAN_BTR_MODE          = 7, ///< WiFi basic transceiver mode
+  SL_SI91X_TRANSCEIVER_MODE       = 7, ///< WiFi transceiver mode
   SL_SI91X_TRANSMIT_TEST_MODE     = 8, ///< WiFi transit test mode
   SL_SI91X_CONCURRENT_MODE        = 9, ///< WiFi concurrent mode
   __FORCE_OPERATION_ENUM_16BIT    = 0xFFFF
@@ -1136,16 +1144,16 @@ static const sl_wifi_device_configuration_t sl_wifi_default_transmit_test_config
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
 
-/*! @cond SL_SI91X_WIFI_BTR_MODE */
-static const sl_wifi_device_configuration_t sl_wifi_default_btr_configuration = {
+/*! @cond WIFI_TRANSCEIVER_MODE */
+static const sl_wifi_device_configuration_t sl_wifi_default_transceiver_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = JP,
-  .boot_config = { .oper_mode = SL_SI91X_WLAN_BTR_MODE,
+  .boot_config = { .oper_mode = SL_SI91X_TRANSCEIVER_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
-#if MAC_PEER_DS_SUPPORT
-                   .feature_bit_map = (FEAT_BTR_MAC_PEER_DS_SUPPORT | SL_SI91X_FEAT_SECURITY_OPEN),
+#ifdef TRANSCEIVER_MAC_PEER_DS_SUPPORT
+                   .feature_bit_map = (SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT | SL_SI91X_FEAT_SECURITY_OPEN),
 #else
                    .feature_bit_map = SL_SI91X_FEAT_SECURITY_OPEN,
 #endif
@@ -1163,6 +1171,6 @@ static const sl_wifi_device_configuration_t sl_wifi_default_btr_configuration = 
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = 0 }
 };
-/*! @endcond SL_SI91X_WIFI_BTR_MODE */
+/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /** @} */

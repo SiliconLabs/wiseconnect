@@ -419,7 +419,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-#if RSI_FAST_FW_UP
+#if SL_SI91X_FAST_FW_UP
   status = sl_si91x_set_fast_fw_up();
   VERIFY_STATUS_AND_RETURN(status);
 #endif
@@ -432,7 +432,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
 
 sl_status_t sl_si91x_bus_rx_irq_handler(void)
 {
-  sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
+  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
   return SL_STATUS_OK;
 }
 

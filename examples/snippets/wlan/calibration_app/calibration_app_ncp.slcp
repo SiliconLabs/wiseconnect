@@ -10,9 +10,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.4.1}
+sdk: {id: gecko_sdk, version: 4.4.3}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.4}
+- {id: wiseconnect3_sdk, version: 3.2.0}
 source:
   - path: app.c
   - path: main.c
@@ -57,6 +57,7 @@ configuration:
 - {name: SL_BOARD_ENABLE_VCOM, value: '1'}
 - {name: configTOTAL_HEAP_SIZE, value: '51200'}
 - {name: configUSE_POSIX_ERRNO, value: '1'}
+- {name: configTIMER_TASK_PRIORITY, value: '55'}
 readme:
   - path: readme.md
 other_file:

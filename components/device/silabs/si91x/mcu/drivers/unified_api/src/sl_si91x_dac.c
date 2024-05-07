@@ -32,8 +32,9 @@
 #include "aux_reference_volt_config.h"
 #include "rsi_bod.h"
 #include "rsi_dac.h"
-#include "rsi_debug.h"
-
+#if defined(SL_SI91X_DMA)
+#include "sl_si91x_dma.h"
+#endif
 /*******************************************************************************
  ***************************  DEFINES / MACROS   *******************************
  ******************************************************************************/
@@ -54,6 +55,8 @@
 #define CHANNEL_BITMAP_28             1                                         // Enable DAC to dynamic mode.
 #define MINIMUM_DATA_LEN              1                                         // Minimum data length.
 #define MAXIMUM_DATA_LEN              1024                                      // Maximum data length.
+#define DAC_DMA_INSTANCE              1                                         // DMA instance number.
+#define DAC_UDMA_CHANNEL              10                                        // DMA channel for DAC.
 #define STATIC_MAX_LEN                1 // DAC static mode maximum sample length.
 #define DAC_RELEASE_VERSION           0 // DAC Release version
 #define DAC_SQA_VERSION               0 // DAC SQA version
@@ -75,12 +78,17 @@ static sl_dac_callback_t user_callback = NULL;
 static sl_dac_operation_mode_t dac_operation_mode;
 static sl_channel_id_for_adc_t adc_channel;
 static boolean_t static_flag = false;
+#if defined(SL_SI91X_DMA)
+static sl_dma_xfer_t dma_transfer_tx = { 0 };
+static uint32_t dac_dma_channel      = DAC_UDMA_CHANNEL + 1;
+#endif
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
 static sl_status_t validate_dac_configuration_parameters(sl_dac_config_t dac_config);
 static void dac_callback_event_handler(uint8_t event);
+static void dac_sample_complete_callback(uint32_t channel, void *data);
 /*******************************************************************************
  * To get the driver version
  *
@@ -232,6 +240,14 @@ sl_status_t sl_si91x_dac_set_configuration(sl_dac_config_t dac_config, float vre
       if (status != SL_STATUS_OK) {
         break;
       }
+#if defined(SL_SI91X_DMA)
+      sl_dma_init_t dma_init;
+      dma_init.dma_number = DAC_DMA_INSTANCE;
+      status              = sl_si91x_dma_init(&dma_init);
+      if (status != SL_STATUS_OK) {
+        break;
+      }
+#endif
     }
     // These parameters are taken from UC for configuring operating mode and channel.
     dac_operation_mode = dac_config.operating_mode;
@@ -279,9 +295,52 @@ sl_status_t sl_si91x_dac_write_data(int16_t *data, uint16_t length)
       }
     }
     // Write data in DAC input register for Static and FIFO mode.
-    if (dac_operation_mode != SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC) {
+    if (dac_operation_mode == SL_DAC_STATIC_MODE) {
       error_status = DAC_WriteData(dac_operation_mode, data, length);
       status       = convert_rsi_to_sl_error_code(error_status);
+    } else if (dac_operation_mode == SL_DAC_FIFO_MODE) {
+#ifndef SL_SI91X_DMA
+      error_status = DAC_WriteData(dac_operation_mode, data, length);
+      status       = convert_rsi_to_sl_error_code(error_status);
+#else
+      uint32_t dma_channel_priority = 0;
+      sl_dma_callback_t dac_dma_callback;
+      //Initialize sl_dma callback structure
+      dac_dma_callback.transfer_complete_cb = dac_sample_complete_callback;
+      //Initialize sl_dma transfer structure
+      dma_transfer_tx.src_addr       = (uint32_t *)(data);
+      dma_transfer_tx.dest_addr      = (uint32_t *)(DAC_INPUT_REG_ADDR);
+      dma_transfer_tx.src_inc        = SRC_INC_16;
+      dma_transfer_tx.dst_inc        = DST_INC_NONE;
+      dma_transfer_tx.xfer_size      = DST_SIZE_16;
+      dma_transfer_tx.transfer_count = length;
+      dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+      dma_transfer_tx.dma_mode       = SL_DMA_BASIC_MODE;
+      dma_transfer_tx.signal         = 0;
+
+      //Allocate DMA channel for Tx
+      status = sl_si91x_dma_allocate_channel(DAC_DMA_INSTANCE, &dac_dma_channel, dma_channel_priority);
+      if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+        break;
+      }
+      //Register transfer complete and error callback
+      status = sl_si91x_dma_register_callbacks(DAC_DMA_INSTANCE, dac_dma_channel, &dac_dma_callback);
+      if (status != SL_STATUS_OK) {
+        break;
+      }
+      //Configure the channel for DMA transfer
+      status = sl_si91x_dma_transfer(DAC_DMA_INSTANCE, dac_dma_channel, &dma_transfer_tx);
+      if (status != SL_STATUS_OK) {
+        break;
+      }
+      //Change the mode as ping pong to change the value of alter structure for pong operation.
+      dma_transfer_tx.dma_mode = SL_DMA_PINGPONG_MODE;
+      //Configure the channel for DMA transfer
+      status = sl_si91x_dma_transfer(DAC_DMA_INSTANCE, dac_dma_channel, &dma_transfer_tx);
+      if (status != SL_STATUS_OK) {
+        break;
+      }
+#endif
     } else {
       error_status = RSI_DAC_DynamicModeWriteData(AUX_ADC_DAC_COMP, adc_channel, (uint16_t *)data, length);
       status       = convert_rsi_to_sl_error_code(error_status);
@@ -338,8 +397,7 @@ sl_status_t sl_si91x_dac_read_data(uint16_t *dac_output_data)
  ******************************************************************************/
 sl_status_t sl_si91x_dac_rewrite_data(int16_t *data, uint16_t length)
 {
-  sl_status_t status;
-  rsi_error_t error_status;
+  sl_status_t status = 0;
   do {
     // Validate the data is NULL or not.
     if (data == NULL) {
@@ -351,9 +409,25 @@ sl_status_t sl_si91x_dac_rewrite_data(int16_t *data, uint16_t length)
       status = SL_STATUS_INVALID_RANGE;
       break;
     }
+#ifndef SL_SI91X_DMA
+    rsi_error_t error_status;
     //Reconfigure the UDMA ping or pong decriptor.
     error_status = DAC_PingPongReconfig(data, length);
     status       = convert_rsi_to_sl_error_code(error_status);
+#else
+    static uint8_t ping_config = 0;
+    if (ping_config) {
+      ping_config              = 0;
+      dma_transfer_tx.dma_mode = UDMA_MODE_BASIC;
+    } else {
+      ping_config              = 1;
+      dma_transfer_tx.dma_mode = UDMA_MODE_PINGPONG;
+    }
+    //Configure the channel for DMA transfer
+    sl_si91x_dma_transfer(DAC_DMA_INSTANCE, dac_dma_channel, &dma_transfer_tx);
+    sl_si91x_dma_channel_enable(DAC_DMA_INSTANCE, dac_dma_channel);
+    sl_si91x_dma_enable(DAC_DMA_INSTANCE);
+#endif
   } while (false);
   return status;
 }
@@ -421,6 +495,12 @@ sl_status_t sl_si91x_dac_start(void)
   if (dac_operation_mode != SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC) {
     error_status = DAC_Start(dac_operation_mode);
     status       = convert_rsi_to_sl_error_code(error_status);
+#ifdef SL_SI91X_DMA
+    if (dac_operation_mode == SL_DAC_FIFO_MODE) {
+      sl_si91x_dma_channel_enable(DAC_DMA_INSTANCE, dac_dma_channel);
+      sl_si91x_dma_enable(DAC_DMA_INSTANCE);
+    }
+#endif
   } else { // Start the DAC operation for dynamic mode.
     error_status = RSI_DAC_DynamicModeStart(AUX_ADC_DAC_COMP, adc_channel, CHANNEL_BITMAP_28);
     status       = convert_rsi_to_sl_error_code(error_status);
@@ -503,6 +583,9 @@ static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error)
     case ERROR_PS_INVALID_STATE:
       status = SL_STATUS_INVALID_PARAMETER;
       break;
+    case ERROR_UDMA_INVALID_ARG:
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
     default:
       status = SL_STATUS_FAIL;
       break;
@@ -558,4 +641,9 @@ static void dac_callback_event_handler(uint8_t event)
       user_callback(SL_DAC_FIFO_MODE_EVENT);
       break;
   }
+}
+
+static void dac_sample_complete_callback(uint32_t channel, void *data)
+{
+  user_callback(SL_DAC_FIFO_MODE_EVENT);
 }

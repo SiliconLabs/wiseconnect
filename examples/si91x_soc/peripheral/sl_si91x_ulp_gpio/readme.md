@@ -48,6 +48,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 - Details for the example code are described in the following sub-sections.
@@ -133,10 +135,7 @@ NOTE: These pin configurations are specific to BRD4338A board.
 
   >![output](resources/readme/output_ulp_gpio.png)
 
-> **Note:**
->- This application is executed from RAM.
->- In this application while changing the MCU mode from PS4 to PS2, M4 flash will be turned off.
->- The debug feature of Simplicity Studio will not work after M4 flash is turned off.
->- To Erase the chip follow the below procedure
->- Press ISP and RESET button at same time and then release, now perform Chip erase through commander.  
+**Note:**
+>- The required files for low power state are moved to RAM rest of the application is executed from flash.
+>- In this application we are changing the power state from PS4 to PS2 and vice - versa. 
 

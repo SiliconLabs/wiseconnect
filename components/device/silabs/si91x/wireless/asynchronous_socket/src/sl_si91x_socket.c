@@ -256,34 +256,23 @@ static int sli_si91x_accept_async(int socket, const struct sockaddr *addr, sockl
   wait_time =
     (callback == NULL ? (SL_SI91X_WAIT_FOR_EVER | SL_SI91X_WAIT_FOR_RESPONSE_BIT) : SL_SI91X_RETURN_IMMEDIATELY);
 
-  // If a callback is provided, allocate memory for context and client socket.
   if (callback != NULL) {
-    context       = calloc(sizeof(sl_si91x_socket_context_t), 1);
-    client_socket = malloc(sizeof(int));
-
-    // Check if memory allocation was successful
-    if (context == NULL || client_socket == NULL) {
-      SL_CLEANUP_MALLOC(context);
-      SL_CLEANUP_MALLOC(client_socket);
-
-      return SL_STATUS_ALLOCATION_FAILED;
-    }
-
-    *client_socket          = client_socket_id;
-    context->user_context   = callback;
-    context->socket_context = client_socket;
-  }
-
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SOCKET_ACCEPT,
-                                        SI91X_SOCKET_CMD_QUEUE,
-                                        &accept_request,
-                                        sizeof(accept_request),
-                                        wait_time,
-                                        context,
-                                        &buffer);
-
-  if (callback != NULL && status == SL_STATUS_IN_PROGRESS) {
-    return SL_STATUS_IN_PROGRESS;
+    // Set the callback and client socket ID.
+    sli_si91x_set_accept_callback(callback, client_socket_id);
+    status = sl_si91x_driver_send_async_command(RSI_WLAN_REQ_SOCKET_ACCEPT,
+                                                SI91X_SOCKET_CMD_QUEUE,
+                                                &accept_request,
+                                                sizeof(accept_request));
+    SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
+    return SI91X_NO_ERROR;
+  } else {
+    status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SOCKET_ACCEPT,
+                                          SI91X_SOCKET_CMD_QUEUE,
+                                          &accept_request,
+                                          sizeof(accept_request),
+                                          wait_time,
+                                          context,
+                                          &buffer);
   }
 
   // If the accept request fails, clean up allocated memory and return an error
@@ -292,7 +281,7 @@ static int sli_si91x_accept_async(int socket, const struct sockaddr *addr, sockl
     SL_CLEANUP_MALLOC(context);
     close(client_socket_id);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
     SET_ERROR_AND_RETURN(SI91X_UNDEFINED_ERROR);
   }
 
@@ -302,7 +291,7 @@ static int sli_si91x_accept_async(int socket, const struct sockaddr *addr, sockl
 
   // Handle the accept response and update the client socket's state
   handle_accept_response(client_socket_id, ltcp);
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
 
   if (addr_len <= 0) {
     return client_socket_id;
@@ -695,7 +684,7 @@ int sl_si91x_recvfrom(int socket,
 
   // If the command failed and a buffer was allocated, free the buffer
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
 
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR)
@@ -729,7 +718,7 @@ int sl_si91x_recvfrom(int socket,
     }
   }
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
 
   return bytes_read;
 }

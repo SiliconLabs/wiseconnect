@@ -189,7 +189,7 @@ static int32_t rsi_ble_app_get_event(void)
 void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *resp_enh_conn)
 {
   memcpy(remote_dev_address, resp_enh_conn->dev_addr, 6);
-
+  rsi_6byte_dev_address_to_ascii(str_remote_address, resp_enh_conn->dev_addr);
   rsi_ble_app_set_event(RSI_BLE_CONN_EVENT);
 }
 

@@ -740,10 +740,31 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
 {
   sl_mqtt_client_error_status_t error_status = sli_si91x_get_event_error_status(sdk_context->event);
 
+  bool is_error_event                          = false;
+  uint8_t *event_data                          = NULL;
+  sl_mqtt_client_disconnection_reason_t reason = { 0 };
+
   switch (sdk_context->event) {
     case SL_MQTT_CLIENT_CONNECTED_EVENT: {
-      sdk_context->client->state = (status == SL_STATUS_OK) ? SL_MQTT_CLIENT_CONNECTED
-                                                            : SL_MQTT_CLIENT_CONNECTION_FAILED;
+
+      if (status == SL_STATUS_OK) {
+        sdk_context->client->state = SL_MQTT_CLIENT_CONNECTED;
+        break;
+      }
+
+      is_error_event = true;
+      // This state updates is necessary as we need to send TA disconnect even in case of connection failure.
+      sdk_context->client->state = SL_MQTT_CLIENT_CONNECTION_FAILED;
+      // TA BUG: TA requires disconnection call if connection fails for any reason. Please remove the below code once TA fixed the issue.
+      sl_status_t status = sl_mqtt_client_disconnect(sdk_context->client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
+
+      if (status != SL_STATUS_OK) {
+        SL_DEBUG_LOG(
+          "Failed to disconnect the client after failed connection attempt. User need to call disconnect explicitly");
+      } else {
+        sdk_context->client->state = SL_MQTT_CLIENT_DISCONNECTED;
+      }
+
       break;
     }
 
@@ -751,6 +772,7 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
       if (status != SL_STATUS_OK) {
         // Free subscription passed in subscribe() call if subscription call failed.
         free(sdk_context->sdk_data);
+        is_error_event = true;
         break;
       }
 
@@ -762,6 +784,7 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
 
     case SL_MQTT_CLIENT_UNSUBSCRIBED_EVENT: {
       if (status != SL_STATUS_OK) {
+        is_error_event = true;
         break;
       }
 
@@ -801,10 +824,37 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
     }
 
     case SL_MQTT_CLIENT_DISCONNECTED_EVENT: {
-      sdk_context->client->state = (status == SL_STATUS_OK) ? SL_MQTT_CLIENT_DISCONNECTED : sdk_context->client->state;
+      // If it is a disconnect packet and status is not success, it shall be user initiated disconnect failure.
+      if (rx_packet->command == RSI_WLAN_REQ_EMB_MQTT_CLIENT && status != SL_STATUS_OK) {
+        is_error_event = true;
+        break;
+      }
 
-      // Free all subscriptions as we have disconnected from mqtt broker
-      if (status == SL_STATUS_OK) {
+      sl_status_t disconnection_status = SL_STATUS_FAIL;
+
+      if (rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE) {
+        disconnection_status = sl_mqtt_client_disconnect(sdk_context->client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
+
+        // TA BUG: TA requires disconnection call if remote termination is received. Please remove the below code once TA fixed the issue.
+        // If the disconnect call fails, we can't set the state to disconnected.
+        if (disconnection_status != SL_STATUS_OK) {
+          SL_DEBUG_LOG(
+            "Failed to disconnect the client after remote termination. User need to call disconnect explicitly");
+          break;
+        }
+
+        reason     = SL_MQTT_CLIENT_REMOTE_TERMINATE_DISCONNECTION;
+        event_data = &reason;
+      } else {
+        reason     = (rx_packet->command == RSI_WLAN_RSP_JOIN) ? SL_MQTT_CLIENT_WLAN_DISCONNECTION
+                                                               : SL_MQTT_CLIENT_USER_INITIATED_DISCONNECTION;
+        event_data = &reason;
+      }
+
+      if (rx_packet->command == RSI_WLAN_RSP_JOIN || rx_packet->command == RSI_WLAN_REQ_EMB_MQTT_CLIENT
+          || (rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE && disconnection_status == SL_STATUS_OK)) {
+        sdk_context->client->state = SL_MQTT_CLIENT_DISCONNECTED;
+        // Free all subscriptions as we have disconnected from mqtt broker
         sli_si91x_remove_and_free_all_subscriptions(sdk_context->client);
       }
 
@@ -816,8 +866,8 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
   }
 
   sdk_context->client->client_event_handler(sdk_context->client,
-                                            status != SL_STATUS_OK ? SL_MQTT_CLIENT_ERROR_EVENT : sdk_context->event,
-                                            status != SL_STATUS_OK ? &error_status : NULL,
+                                            is_error_event ? SL_MQTT_CLIENT_ERROR_EVENT : sdk_context->event,
+                                            is_error_event ? &error_status : event_data,
                                             sdk_context->user_context);
 
   // Free the sdk_context after event handler is triggered.

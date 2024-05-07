@@ -201,7 +201,7 @@ static  USART_RESOURCES USART0_Resources = {
 				RTE_USART0_CLK_SRC,
 				ULP_UART_REF_CLK,
 				RTE_USART0_CLK_DIV_FACT,
-				RTE_USART0_FRAC_DIV_EN , 
+				RTE_USART0_FRAC_DIV_SEL , 
 		} , //clocks end
 		{  //sync mode
 				RTE_USART_MODE,
@@ -315,7 +315,7 @@ static  USART_RESOURCES UART1_Resources = {
 				RTE_UART1_CLK_SRC,
 				ULP_UART_REF_CLK,
 				RTE_UART1_CLK_DIV_FACT,
-				RTE_UART1_FRAC_DIV_EN , 
+				RTE_UART1_FRAC_DIV_SEL , 
 		} ,
 
 		{  //sync mode

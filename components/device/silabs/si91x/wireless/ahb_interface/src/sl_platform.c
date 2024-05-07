@@ -86,7 +86,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
   rsi_update_tx_dma_desc(skip_bootload_sequence);
   rsi_update_rx_dma_desc();
 
-#if RSI_FAST_FW_UP
+#if SL_SI91X_FAST_FW_UP
   status = rsi_set_fast_fw_up();
   if (status != RSI_SUCCESS) {
     SL_PRINTF(SL_DEVICE_INIT_SET_FAST_FIRMWARE_UP_ERROR, COMMON, LOG_ERROR, "status: %4x", status);

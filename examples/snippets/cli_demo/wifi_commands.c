@@ -791,7 +791,7 @@ sl_status_t wifi_connect_command_handler(console_args_t *arguments)
   sl_wifi_security_t security_type  = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_WIFI_WPA2, sl_wifi_security_t);
   const char *user_name             = GET_OPTIONAL_COMMAND_ARG(arguments, 3, NULL, const char *);
   sl_wifi_encryption_t encryption_type =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 4, SL_WIFI_CCMP_ENCRYPTION, sl_wifi_encryption_t);
+    GET_OPTIONAL_COMMAND_ARG(arguments, 4, SL_WIFI_DEFAULT_ENCRYPTION, sl_wifi_encryption_t);
   uint32_t timeout_ms  = GET_OPTIONAL_COMMAND_ARG(arguments, 5, 0, uint32_t);
   ap.ssid.length       = GET_OPTIONAL_COMMAND_ARG(arguments, 6, strlen(ssid), uint8_t);
   ap.channel.channel   = GET_OPTIONAL_COMMAND_ARG(arguments, 7, 0, uint8_t);
@@ -1496,12 +1496,13 @@ sl_status_t wifi_test_client_configuration_command_handler(console_args_t *argum
   char *password                    = (char *)arguments->arg[1];
   sl_wifi_security_t secType        = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_WIFI_WPA2, sl_wifi_security_t);
   const char *user_name             = GET_OPTIONAL_COMMAND_ARG(arguments, 3, NULL, const char *);
-  sl_wifi_encryption_t encType = GET_OPTIONAL_COMMAND_ARG(arguments, 4, SL_WIFI_CCMP_ENCRYPTION, sl_wifi_encryption_t);
-  uint32_t timeout_ms          = GET_OPTIONAL_COMMAND_ARG(arguments, 5, 0, uint32_t);
-  ap.ssid.length               = GET_OPTIONAL_COMMAND_ARG(arguments, 6, strlen(ssid), uint8_t);
-  ap.channel.channel           = GET_OPTIONAL_COMMAND_ARG(arguments, 7, 0, uint8_t);
-  ap.channel.band              = GET_OPTIONAL_COMMAND_ARG(arguments, 8, SL_WIFI_AUTO_BAND, sl_wifi_band_t);
-  ap.channel.bandwidth         = GET_OPTIONAL_COMMAND_ARG(arguments, 9, SL_WIFI_BANDWIDTH_10MHz, sl_wifi_bandwidth_t);
+  sl_wifi_encryption_t encType =
+    GET_OPTIONAL_COMMAND_ARG(arguments, 4, SL_WIFI_DEFAULT_ENCRYPTION, sl_wifi_encryption_t);
+  uint32_t timeout_ms  = GET_OPTIONAL_COMMAND_ARG(arguments, 5, 0, uint32_t);
+  ap.ssid.length       = GET_OPTIONAL_COMMAND_ARG(arguments, 6, strlen(ssid), uint8_t);
+  ap.channel.channel   = GET_OPTIONAL_COMMAND_ARG(arguments, 7, 0, uint8_t);
+  ap.channel.band      = GET_OPTIONAL_COMMAND_ARG(arguments, 8, SL_WIFI_AUTO_BAND, sl_wifi_band_t);
+  ap.channel.bandwidth = GET_OPTIONAL_COMMAND_ARG(arguments, 9, SL_WIFI_BANDWIDTH_10MHz, sl_wifi_bandwidth_t);
 
   UNUSED_PARAMETER(user_name);
 

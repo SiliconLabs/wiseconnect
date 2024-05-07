@@ -18,12 +18,24 @@
 // Include Files
 
 #include "rsi_ccp_user_config.h"
-
-#ifndef ROMDRIVER_PRESENT
 #include "rsi_chip.h"
 #include "rsi_rom_table_si91x.h"
 #include "rsi_qspi.h"
 
+// static function prototype
+static void qspi_aes_encrypt_decrypt_standalone(qspi_reg_t *qspi_reg,
+                                                uint8_t aes_mode,
+                                                bool encrypt,
+                                                uint32_t *in_data,
+                                                uint32_t *out_data,
+                                                uint32_t *key1,
+                                                uint32_t *key2,
+                                                uint32_t key_len,
+                                                uint32_t *iv,
+                                                bool kh_enable,
+                                                uint32_t data_length,
+                                                uint32_t flip_data);
+#ifndef ROMDRIVER_PRESENT
 /*==============================================*/
 /**
  * @fn           void initialise_m4_efuse_in_io_mode()
@@ -1097,7 +1109,7 @@ void qspi_manual_read(qspi_reg_t *qspi_reg,
       addr &= 0x3FFFFFF;
     }
   } else {
-    addr &= (uint16_t)((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
+    addr &= (uint32_t)((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
   }
   hsize &= ~BIT(31);
 
@@ -2332,7 +2344,7 @@ uint32_t qspi_spi_write(qspi_reg_t *qspi_reg,
       addr &= 0x3FFFFFF;
     }
   } else {
-    addr &= (uint16_t)((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
+    addr &= (uint32_t)((1 << (spi_config->spi_config_2.addr_width * 8)) - 1);
   }
   dis_hw_ctrl &= ~BIT(31);
 
@@ -3032,3 +3044,177 @@ const ROM_QSPI_API_T qspi_api =
 #else
 typedef int dummy; // To remove empty translation unit warning.
 #endif // ROMDRIVER_PRESENT
+
+static void qspi_aes_encrypt_decrypt_standalone(qspi_reg_t *qspi_reg,
+                                                uint8_t aes_mode,
+                                                bool encrypt,
+                                                uint32_t *in_data,
+                                                uint32_t *out_data,
+                                                uint32_t *key1,
+                                                uint32_t *key2,
+                                                uint32_t key_len,
+                                                uint32_t *iv,
+                                                bool kh_enable,
+                                                uint32_t data_length,
+                                                uint32_t flip_data)
+{
+  // Read the QSPI aes config data
+  uint32_t aes_config_data = qspi_reg->QSPI_AES_CONFIG;
+  //! Configuring mode, key flipping and enabling standalone aes with mode of encryption or decryption.
+  qspi_reg->QSPI_AES_CONFIG = aes_mode | KEY_FLIP_FOR_REG_INTF | KEY_FLIP_FOR_KH_INTF;
+  qspi_reg->QSPI_AES_CONFIG |= ((encrypt << 14) | EN_STANDALONE_AES | (flip_data ? FLIP_IN_LB : 0));
+  ;
+  if (key_len == KEY_LEN_256) {
+    qspi_reg->QSPI_AES_CONFIG |= QSPI_KEY_SIZE_256;
+  }
+  //! If XTS mode is enabled with decryptiong, setting DECREYPT KEY CAL bit.
+  if ((aes_mode == XTS_MODE) && encrypt)
+    qspi_reg->QSPI_AES_CONFIG |= DECRYPT_KEY_CAL;
+
+  //! If Key is present in keyholder, then configure qspi to fetch from keyholder.
+  if (kh_enable) {
+    qspi_reg->QSPI_AES_SEC_KEY_FRM_KH |= LOAD_SEC_KEY_FRM_KH;
+    while (qspi_reg->QSPI_AES_SEC_KEY_FRM_KH & LOAD_SEC_KEY_FRM_KH)
+      ;
+    qspi_reg->OCTA_SPI_BUS_CONTROLLER2 |= EN_KH_KEY; // enabling security ;
+  } else {
+    qspi_reg->QSPI_AES_KEY1_10_13 = key1[3];
+    qspi_reg->QSPI_AES_KEY1_14_17 = key1[2];
+    qspi_reg->QSPI_AES_KEY1_18_1B = key1[1];
+    qspi_reg->QSPI_AES_KEY1_1C_1F = key1[0];
+    if (key_len == KEY_LEN_256) {
+      qspi_reg->QSPI_AES_KEY1_0_3 = key1[7];
+      qspi_reg->QSPI_AES_KEY1_4_7 = key1[6];
+      qspi_reg->QSPI_AES_KEY1_8_B = key1[5];
+      qspi_reg->QSPI_AES_KEY1_C_F = key1[4];
+    }
+    if (aes_mode == XTS_MODE) {
+      qspi_reg->QSPI_AES_KEY2_10_13 = key2[3];
+      qspi_reg->QSPI_AES_KEY2_14_17 = key2[2];
+      qspi_reg->QSPI_AES_KEY2_18_1B = key2[1];
+      qspi_reg->QSPI_AES_KEY2_1C_1F = key2[0];
+      if (key_len == KEY_LEN_256) {
+        qspi_reg->QSPI_AES_KEY2_0_3 = key2[7];
+        qspi_reg->QSPI_AES_KEY2_4_7 = key2[6];
+        qspi_reg->QSPI_AES_KEY2_8_B = key2[5];
+        qspi_reg->QSPI_AES_KEY2_C_F = key2[4];
+      }
+    }
+  }
+  //! Loading Key valids to AES.
+  if (key_len == KEY_LEN_256) {
+    qspi_reg->QSPI_AES_KEY_IV_VALID = (LB_IV_VALID | KEY1_VALID_256);
+  } else {
+    qspi_reg->QSPI_AES_KEY_IV_VALID = (LB_IV_VALID | KEY1_VALID_128);
+  }
+  if (key_len == KEY_LEN_256) {
+    qspi_reg->QSPI_AES_KEY_IV_VALID = (LB_IV_VALID | KEY1_VALID_256);
+  }
+  if (aes_mode == XTS_MODE) {
+    if (key_len == KEY_LEN_256) {
+      qspi_reg->QSPI_AES_KEY_IV_VALID |= (KEY2_VALID_256);
+    } else {
+      qspi_reg->QSPI_AES_KEY_IV_VALID |= (KEY2_VALID_128);
+    }
+    if (encrypt) {
+      //! Resetting KEY valids to QSPI in XTS mode sothat pre key calculation doesn't happen for every block.
+      qspi_reg->QSPI_AES_KEY_IV_VALID = LB_IV_VALID;
+    }
+  }
+
+  if (data_length % 16 != 0)
+    return;
+
+  while (data_length != 0) {
+    //! Feeding IV(address of flash ) for every block as we do decryption with address of flash
+    qspi_reg->QSPI_AES_IV1_0_3 = iv[0];
+    //! Feeding data to AES after DIN ready is high
+    while (!(qspi_reg->QSPI_LB_STATUS & QSPI_AES_DIN_READY))
+      ;
+    qspi_reg->QSPI_AES_LB_DATA_C_F = in_data[0];
+    qspi_reg->QSPI_AES_LB_DATA_8_B = in_data[1];
+    qspi_reg->QSPI_AES_LB_DATA_4_7 = in_data[2];
+    qspi_reg->QSPI_AES_LB_DATA_0_3 = in_data[3];
+
+    //! RESETTING DECRYPT KEY CAL to avoid pre key calculation for every block.
+    qspi_reg->QSPI_AES_CONFIG &= ~DECRYPT_KEY_CAL;
+    //! SETTING this bit to indicate QSPI that FW is ready to take data from QSPI AES.
+    qspi_reg->QSPI_LB_STATUS |= BIT(0);
+    //! Fetching data from AES after checking for DATA VALID.
+    while (!(qspi_reg->QSPI_LB_STATUS & QSPI_AES_DOUT_VALID))
+      ;
+    out_data[0] = qspi_reg->QSPI_AES_LB_DATA_C_F;
+    out_data[1] = qspi_reg->QSPI_AES_LB_DATA_8_B;
+    out_data[2] = qspi_reg->QSPI_AES_LB_DATA_4_7;
+    out_data[3] = qspi_reg->QSPI_AES_LB_DATA_0_3;
+    //! Incrementing the IV by 16 for every read of 128bit from AES as IV is used as address for QSPI INLINE DECRYPTION.
+    iv[0] += 16;
+    in_data += 4;
+    out_data += 4;
+    data_length -= 16;
+  }
+  // Program the QSPI AES default config data back to read data back in auto mode
+  qspi_reg->QSPI_AES_CONFIG = aes_config_data;
+}
+
+/*==============================================*/
+/**
+ * @fn           void RSI_QSPI_Aes_Encrypt_Decrypt_Standalone()
+ * @brief        This api is used to encrypt or decrypt the input data with QSPI standalone AES
+ * @param[in]    qspi_reg pointer for QSPI controller reg address space
+ * @param[in]    configs pointer for QSPI standalone encrypt/decrypt configs
+ * @param[in]    in_data is a pointer contains the address of input data
+ * @param[out]   out_data is a pointer updated after encryption or decryption
+ * @param[in]    data_length is size of the image to be encrypted/decrypted, it should be multiple of 16 byptes,
+ *                           if not have to pad the data with 0's and send
+ * @return       error code if invalid parameter else RSI_OK
+ *
+ * @section description
+ * This api is used to encrypt or decrypt the input data with QSPI standalone AES
+ */
+uint32_t RSI_QSPI_Aes_Encrypt_Decrypt_Standalone(qspi_reg_t *qspi_reg,
+                                                 qspi_standalone_config_t *configs,
+                                                 uint32_t *in_data,
+                                                 uint32_t *out_data,
+                                                 uint32_t data_length)
+{
+  uint32_t status = RSI_OK;
+  // Check for valid aes mode
+  if ((configs->aes_mode != CTR_MODE) && (configs->aes_mode != XTS_MODE)) {
+    return INVALID_PARAMETERS;
+  }
+  // Check in_data and out_data buffers are valids
+  if ((in_data == NULL) || (out_data == NULL)) {
+    return INVALID_PARAMETERS;
+  }
+  // if kh_enable i.e key from keyholder then key1, key2 and key lenth are not required else validate those are proper
+  if (!configs->kh_enable) {
+    // Check key1 is valid
+    if (configs->key1 == NULL)
+      return INVALID_PARAMETERS;
+    // Check key2 is valid only when key size is 32 bit
+    if ((configs->key_len == KEY_LEN_256) && (configs->key2 == NULL))
+      return INVALID_PARAMETERS;
+    // Check for key length is proper or not
+    if ((configs->key_len != KEY_LEN_128) && (configs->key_len != KEY_LEN_256))
+      return INVALID_PARAMETERS;
+  }
+
+  if ((data_length % 16) != 0)
+    return INVALID_PARAMETERS;
+
+  // QSPI standalone aes encryption/decryption api
+  qspi_aes_encrypt_decrypt_standalone(qspi_reg,
+                                      configs->aes_mode,
+                                      configs->encrypt,
+                                      in_data,
+                                      out_data,
+                                      configs->key1,
+                                      configs->key2,
+                                      configs->key_len,
+                                      configs->iv,
+                                      configs->kh_enable,
+                                      data_length,
+                                      configs->flip_data);
+  return status;
+}

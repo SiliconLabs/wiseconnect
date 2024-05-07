@@ -30,9 +30,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define BACK_LOG                      10
+#define BACK_LOG                      1 ///< As we are processing one request at a time, the backlog is set to one.
 #define SL_HIGH_PERFORMANCE_SOCKET    BIT(7)
-#define MAX_CONNECTIONS               10
 #define HTTP_MAX_HEADER_LENGTH        (MAX_HEADER_BUFFER_LENGTH - 1)
 #define HTTP_CONNECTION_STATUS_HEADER "Connection: close\r\n"
 
@@ -350,10 +349,9 @@ static void sli_http_server(const void *arg)
   SL_DEBUG_LOG("\r\nListening on Local Port : %d\r\n", server_address.sin_port);
 
   while (1) {
-    client_socket = sl_si91x_accept_async(server_socket, client_accept_callback);
-    if (client_socket != SL_STATUS_IN_PROGRESS) {
+    socket_return_value = sl_si91x_accept_async(server_socket, client_accept_callback);
+    if (socket_return_value != SI91X_NO_ERROR) {
       SL_DEBUG_LOG("\r\nSocket accept failed with bsd error: %d\r\n", errno);
-      return;
     }
 
     // Wait for small amount of time to check if HTTP server stop is called
@@ -366,8 +364,8 @@ static void sli_http_server(const void *arg)
         // HTTP_SERVER_STOP_CMD flag is set
         server_handle->server_socket = -1;
         SL_DEBUG_LOG("\r\nIn http server thread: Got Stop Command\r\n");
-        osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_EXIT);
         close(server_socket);
+        osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_EXIT);
         break;
       }
       if (result & HTTP_SERVER_CONNECT_SUCCESS) {

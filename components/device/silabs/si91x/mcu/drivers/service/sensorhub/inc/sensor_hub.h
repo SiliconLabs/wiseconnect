@@ -871,4 +871,154 @@ sl_status_t sli_si91x_sdc_init(void);
 void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p);
 #endif
 
-/** @} (end addtogroup SENSOR-HUB) */
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup SENSOR-HUB Sensor Hub
+/// @{
+///
+///   @details
+///
+///
+///   @n @section SENSOR-HUB_Intro Introduction
+///
+///    * Sensor Hub products are primarily intended to address consumer, industrial, and medical applications that require wireless connectivity, extremely low power, and high performance for sensor fusion algorithms. The MCU core, wireless connectivity, and peripherals are identical to the SI917 CCP Radio board.
+///    * Sensor Hub functions as a sensor management system, facilitating hardware abstraction layer, peripheral drivers, and sensor driver layer integration to collect and distribute desired sensor data.
+///    * It enables users to collect sensor data based on time interval or number of samples or when a specific data requirement are met.
+///    * Sensor Hub serves as a framework that can be seamlessly integrated into any application requiring sensor management.
+///    * The Sensor HUB works with sensors as per configurations provided by the application and notifies the necessary events throughout the application.
+///    * The configuration for the sensors must be provided through the sensor hub config file on which the sensor hub should act.
+///    * Sensor Hub relies on FreeRTOS using CMSIS RTOS version 2 wrapper.
+///
+///
+///   @n @section SENSOR-HUB_Config Configuration
+///
+///    * Sensor Hub has 2 Sensor Mode:
+///    * **SL_SH_POLLING_MODE**: This mode is Timer based.
+///    * **SL_SH_INTERRUPT_MODE**: This mode is NPSS Button 0 GPIO Interrupt based.
+///    * There are 3 types of data_deliver.mode in Polling Sensor Mode and they are **SL_SH_THRESHOLD**, **SL_SH_TIMEOUT** and **SL_SH_NUM_OF_SAMPLES**.
+///    * **SL_SH_NO_DATA** data_deliver.mode is used when Interrupt Sensor Mode is selected.
+///    * If the user wants a value that sets a limit or boundary, above which the sensor data should be shown then SL_SH_THRESHOLD mode should be chosen
+///    * SL_SH_TIMEOUT mode is used when user wants to get the data at some intervals of time for some sampling time
+///    * SL_SH_NUM_OF_SAMPLES mode is used when user wants to get the particular number of sensor data 
+///    * SL_SH_NO_DATA mode is used when .
+///    * Here data_deliver.timeout is the time for which the sensor should keep collecting the data for.
+///    * sampling_interval is the the amount of time between two sensor data read is sampled or collected.
+///    * sampling_intr_req_pin is the GPIO pin for sampling the sensor data
+///
+///    * Configure the number of sensors info in the **\sensors\inc\sensors_config.h** file
+///    ```C
+///    #define SL_MAX_NUM_SENSORS              5   // Maximum sensors present in the system
+///     ```
+///    * Modes: Using the configuration structure, one can configure the following parameters in the ***sensorhub_config.c*** file:
+///
+///     * For **POLLING Sensor Mode** configure the below parameters:
+///    ```C
+///    .sensor_mode                = SL_SH_POLLING_MODE,
+///    .sampling_interval          = 100,
+///    ```
+///      * If sensor_mode is selected as ***SL_SH_POLLING_MODE***, then data_deliver.mode should be configured as **one** of the following for a sensor configuration structure:
+///        * For **TIMEOUT Data Mode** configure the below parameters:
+///    ```C
+///    .data_deliver.mode          = SL_SH_TIMEOUT,
+///    .data_deliver.timeout       = 1000,
+///    ```
+///        * For **THRESHOLD Data Mode** configure the below parameters:
+///    ```C
+///    .data_deliver.mode          = SL_SH_THRESHOLD,
+///    .data_deliver.threshold     = 1000,
+///    ```
+///        * For **SAMPLING Data Mode** configure the below parameters:
+///    ```C
+///    .data_deliver.mode          = SL_SH_NUM_OF_SAMPLES,
+///    .data_deliver.numOfSamples  = 5,
+///    ```
+///     * For **INTERRUPT Sensor Mode** configure the below parameters:
+///    ```C
+///    .sensor_mode                = SL_SH_INTERRUPT_MODE,
+///    .sampling_intr_req_pin      = BUTTON_0_GPIO_PIN,
+///    .sensor_intr_type           = SL_SH_FALL_EDGE,
+///    .data_deliver.data_mode     = SL_SH_NO_DATA_MODE,
+///    ```
+///    * To configure the PS2, please update the below macro in the preprocessor settings:
+///    ```C
+///    SL_SENSORHUB_POWERSAVE=1
+///    Enabling this macro will move the application from PS4 state to PS2 state. In PS2 state the sensor data will be sampled and collected.
+///    ```
+///
+///    * To configure the power states to PS4 sleep or PS2 Sleep, please update the defines in ***\gecko_sdk_4.3.2\util\third_party\freertos\kernel\include\FreeRTOS.h** file as below:
+///    ```C
+///    #ifndef configUSE_TICKLESS_IDLE
+///    #define configUSE_TICKLESS_IDLE 1           // 1 is to Enable the tickless Idle mode
+///    #endif
+///
+///    #ifndef configPRE_SLEEP_PROCESSING
+///    #define configPRE_SLEEP_PROCESSING(x) sli_si91x_sleep_wakeup(x)               // Here x is idle time,
+///    #endif
+///
+///    // Configure the sleep time by using the below macro.
+///    // If the number of Ideal task ticks exceeds this value, the system is allowed to sleep.
+///    #ifndef configEXPECTED_IDLE_TIME_BEFORE_SLEEP
+///       #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP    70
+///    #endif
+///    ```
+///    ***Note***:
+///    * By using above sleep configuration, sensor hub is going to sleep by using the idle task and idle time.
+///    * If the Ideal time exceeds the expected sleep time value, the system is allowed to sleep.
+///    * The above idle time is fed to the Alarm timer, which we are using as a wake-up source.
+///
+///
+///    **ADC Configurations**:
+///    Configure only below parameters for ADC to change its mode from FIFO to STATIC and vice versa
+///
+///     * For ADC FIFO mode, configure as shown below:
+///    ```C
+///    .adc_config.adc_cfg.operation_mode        = SL_ADC_FIFO_MODE,
+///    .adc_config.adc_ch_cfg.sampling_rate[0]   = SL_SH_ADC_SAMPLING_RATE, // Use 100 for FIFO Mode
+///    ```
+///     * For ADC Static mode, configure as shown below:
+///    ```C
+///    .adc_config.adc_cfg.operation_mode        = SL_ADC_STATIC_MODE,
+///    .adc_config.adc_ch_cfg.sampling_rate[0]   = SL_SH_ADC_SAMPLING_RATE, // Use 1000 for Static Mode
+///    ```
+///     * To configure the PS1 power state from PS2 State, please update the below macro in the preprocessor settings:
+///    ```C
+///    SL_SH_ADC_PS1=1
+///     Enabling this macro will move the core from PS2 Active state to PS1 state
+///    ```
+///      * Please update the defines in ***\gecko_sdk_4.3.2\util\third_party\freertos\kernel\include\FreeRTOS.h** file as below:
+///    ```C
+///    #ifndef configUSE_TICKLESS_IDLE
+///    #define configUSE_TICKLESS_IDLE 1           // 1 is to Enable the tickless Idle mode
+///    #endif
+///
+///    #ifndef configPRE_SLEEP_PROCESSING
+///    #define configPRE_SLEEP_PROCESSING(x) sli_si91x_sleep_wakeup(x)               // Here x is idle time,
+///    #endif
+///       ```
+///    ***Note***:
+///      * The PS1 state transition only applies to ADC FIFO Mode. Before entering this mode, kindly turn off any other sensors.
+///
+///
+///
+///   @n @section SENSOR-HUB_Usage Usage
+///
+///   Sensorhub provides two apis which user can use for intergrating into any application
+///   - @ref sl_si91x_sensorhub_app_task(void);
+///   - @ref sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event);
+///
+///   @ref sl_si91x_sensorhub_app_task(void): initialises and starts sensor data collection. it achieves this by calling the following apis
+///
+///   @ref sl_si91x_sensorhub_notify_cb_register(sl_sensor_signalEvent_t cb_event, sl_sensor_id_t *cb_ack): links the event handler provided by the user as a callback function in the event task
+///
+///   @ref sl_si91x_sensorhub_init(): initializes the peripherals I2C, SPI, ADC, SDC
+///
+///   @ref sl_si91x_sensorhub_detect_sensors(sl_sensor_id_t *sensor_id_info, uint8_t num_of_sensors): scans the i2c sensors provided in the sensorhub_config.c and returns the number of these sensors that are currently connected
+///
+///   @ref sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id): Initializes the sensor by calling the init function of the sensor provided by the user in the respective HAL, Assigs memory to it based on the data delivery mode, Creates a timer for this sensor if required
+///
+///   @ref sl_si91x_sensor_hub_start(): initializes the sensor task, event task and power task
+///
+///   @ref sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id): starts the timers of the sensors created in create sensor api
+///
+///   @ref sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event) is called by the event task after sensor data is collected ,in the sensorhub appilcation it prints the data based on the sensor id and uploads it to the cloud
+///
+/// @} end group SENSOR-HUB ********************************************************/

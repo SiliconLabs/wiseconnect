@@ -76,7 +76,6 @@ sl_status_t sl_mqtt_client_deinit(sl_mqtt_client_t *client);
  *   In case of last_will_message parameter, values given in each connect() call would be considered. If value of last_will_message parameter is given as null, then no will message would be sent to the broker parameter.
  * @note
  *   Only is_clean_session, credential_id, client_id, client_id_length of sl_mqtt_client_configuration_t are considered.
- *   If sl_mqtt_client_connect() fails, sl_mqtt_client_disconnect() should be called before calling connect again.
  *   Topic length of last_will_message should be less than SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH.
  *   Client ID length should be less than SI91X_MQTT_CLIENT_CLIENT_ID_MAXIMUM_LENGTH.
  *   Username length should be less than SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH.

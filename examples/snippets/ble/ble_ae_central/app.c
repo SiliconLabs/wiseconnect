@@ -62,6 +62,8 @@
 
 #define SET2_ENABLE 1
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 /*=======================================================================*/
 //!	Powersave configurations
 /*=======================================================================*/
@@ -491,10 +493,12 @@ void ble_extended_adv_callbacks_register(void)
  */
 void ble_ae_central(void)
 {
-  int32_t status                     = 0;
-  int32_t temp_event_map             = 0;
-  int32_t temp_event_map1            = 0;
-  sl_wifi_firmware_version_t version = { 0 };
+  int32_t status                                             = 0;
+  int32_t temp_event_map                                     = 0;
+  int32_t temp_event_map1                                    = 0;
+  sl_wifi_firmware_version_t version                         = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
 
   status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
@@ -510,6 +514,16 @@ void ble_ae_central(void)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
 #if ENABLE_POWER_SAVE

@@ -211,6 +211,7 @@ typedef struct {
   sl_power_manager_ps_transition_event_info_t *info; ///< Handle event info.
 } sl_power_manager_ps_transition_event_handle_t;
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 // -----------------------------------------------------------------------------
 // Internal API Prototypes
 /*******************************************************************************
@@ -235,6 +236,7 @@ typedef struct {
  * 
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state, boolean_t add);
+/** @endcond */
 
 // To make sure that we are able to optimize out the string argument when the
 // debug feature is disable, we use a pre-processor macro resulting in a no-op.
@@ -743,6 +745,187 @@ uint8_t *sl_si91x_power_manager_get_requirement_table(void);
 void sl_si91x_power_manager_deinit(void);
 
 /** @} (end addtogroup POWER-MANAGER) */
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup POWER-MANAGER Power Manager
+/// @{
+///
+///   @details
+///
+///
+///   @n @section POWER-MANAGER_Intro Introduction
+///   The power manager is a platform-level software module that manages the system's power states. The power state requirements are set by the different software modules (drivers, stacks, application code, etc...).
+///   Power manager also offers a notification mechanism through which any piece of software module can be notified of power state transitions through callbacks.
+///
+///   ***Initialization***
+///
+///   Power manager must be initialized before any call to power manager API.
+///   If sl_system is used, only sl_system_init() must be called, otherwise
+///   @ref sl_si91x_power_manager_init() must be called manually.
+///
+///   ***Add and remove requirements***
+///
+///   The driver/application can add and remove power state requirements, at runtime. Add requirement will change the power state, remove requirement function call will not have any effect for state transition.
+///   @ref sl_si91x_power_manager_add_peripheral_requirement()
+///
+///   @ref sl_si91x_power_manager_remove_peripheral_requirement()
+///
+///   ***Subscribe to events***
+///
+///   It is possible to get notified when the system transitions from a power state to
+///   another power state. This can allow to do some operations depending on which level
+///   the system goes, such as saving/restoring context.
+///   @ref sl_si91x_power_manager_subscribe_ps_transition_event()
+///
+///   @ref sl_si91x_power_manager_unsubscribe_ps_transition_event()
+///
+///   ***Sleep***
+///
+///   When the software has no more operation and only needs to wait for an event, the
+///   software must call @ref sl_si91x_power_manager_sleep().
+///
+///   Query callback functions
+///
+///   Is OK to sleep
+///
+///   Between the time @ref sl_si91x_power_manager_sleep() is called and the MCU goes to sleep, an ISR may occur and require the system to resume at that time instead of sleeping. So a callback is called in a critical section to validate that the MCU can go to sleep.
+///
+///   The function sl_si91x_power_manager_is_ok_to_sleep() will be generated automatically by Simplicity Studio's wizard.
+///   The function will look at multiple software modules from the SDK to make a decision.
+///   The application can contribute to the decision by defining the function `app_is_ok_to_sleep().
+///   If any of the software modules (including the application via app_is_ok_to_sleep()) return false,
+///   the process of entering in sleep will be aborted.
+///
+///   ***Sleep on ISR exit***
+///
+///   When the system enters sleep, the only way to wake it up is via an interrupt or
+///   exception. By default, power manager will assume that when an interrupt
+///   occurs and the corresponding ISR has been executed, the system must not go back
+///   to sleep. However, in the case where all the processing related to this interrupt
+///   is performed in the ISR, it is possible to go back to sleep by using this hook.
+///
+///   The function sl_si91x_power_manager_sleep_on_isr_exit() will be generated
+///   automatically by Simplicity Studio's wizard. The function will look at multiple software modules from the SDK
+///   to make a decision. The application can contribute to the decision by defining the
+///   function app_sleep_on_isr_exit().
+///   The generated function will make a decision based on the value returned by the different software modules
+///   (including the application via app_sleep_on_isr_exit()):
+///
+///   SL_SI91X_POWER_MANAGER_ISR_IGNORE: if the software module did not cause the system wakeup and/or doesn't want to contribute to the decision.
+///
+///   SL_SI91X_POWER_MANAGER_ISR_SLEEP: if the software module did cause the system wakeup, but the system should go back to sleep.
+///
+///   SL_SI91X_POWER_MANAGER_ISR_WAKEUP: if the software module did cause the system wakeup, and the system should not go back to sleep.
+///
+///   If any software module returned SL_SI91X_POWER_MANAGER_ISR_SLEEP and none returned SL_SI91X_POWER_MANAGER_ISR_WAKEUP,
+///   the system will go back to sleep. Any other combination will cause the system not to go back to sleep.
+///
+///   ***Debugging feature***
+///
+///   By installing power manager debug component and setting the configuration define SL_SI91X_POWER_MANAGER_DEBUG to 1, it is possible
+///   to record the requirements currently set and their owner. It is possible to print
+///   at any time a table that lists all the added requirements and their owner. This
+///   table can be printed by calling the function:
+///   @ref sl_power_manager_debug_print_em_requirements().
+///
+///   Make sure to add the following define
+///
+///  ```C
+///   #define CURRENT_MODULE_NAME // Module printable name here
+///  ```
+///   to any application code source file that adds and removes requirements.
+///
+///
+///   @n @section POWER-MANAGER_Config Configuration
+///
+///   Power manager allows configuration of RAM retention, peripheral states, wakeup sources, and clock scaling.
+///
+///   - Clock Scaling:
+///    - Clock can be configured as power-save or performance based on the user requirement. By default after the state change, the clock is configured as powersave. The below API is used to set the clock scaling.
+///      @ref sl_si91x_power_manager_set_clock_scaling(); where mode can be either power-save or performance.
+///   - Peripheral States:
+///    - High power, ULPSS, and NPSS peripherals can be configured using the below APIs. It can be powered on or off based on user requirements.
+///      @ref sl_si91x_power_manager_add_peripheral_requirement()
+///      @ref sl_si91x_power_manager_remove_peripheral_requirement();
+///   - RAM retention:
+///    - Retains the RAM in low power state either by using size or RAM bank as input parameter.
+///      @ref sl_si91x_power_manager_configure_ram_retention();
+///   - Wakeup source:
+///    - The wakeup sources can be configured using the below API.
+///       @ref sl_si91x_power_manager_set_wakeup_sources();
+///
+///   @n @section POWER-MANAGER_Usage Usage
+///
+///   - Initialization:
+///    - @ref sl_si91x_power_manager_init(): Initializes the power manager service and sets the initial power state.
+///   - Peripheral requirements:
+///    - @ref sl_si91x_power_manager_add_peripheral_requirement(): It turns on/off the peripheral power
+///    - @ref sl_si91x_power_manager_remove_peripheral_requirement(): Removes the peripheral requirement.
+///   - Power State Transitions:
+///    - @ref sl_si91x_power_manager_subscribe_ps_transition_event(): Registers a callback for a specific power state transition.
+///    - @ref sl_si91x_power_manager_sleep(): Puts the device into sleep mode.
+///    - @ref sl_si91x_power_manager_unsubscribe_ps_transition_event(): Unregisters the callback for the power state transition.
+///   - De-initialization:
+///    - @ref sl_si91x_power_manager_deinit(): De-initializes the power manager service.
+///
+///   ***Usage Example***
+///
+///   ```C
+///   #define EM_EVENT_MASK_ALL  (SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS4
+///                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS4
+///                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS3
+///                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS3
+///                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS2
+///                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS2
+///                               | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_SLEEP)
+///
+///   static void power_manager_app(void)
+///   {
+///   sl_status_t status;
+///   sl_power_manager_ps_transition_event_handle_t handle;
+///   sl_power_manager_ps_transition_event_info_t info = { .event_mask = PS_EVENT_MASK, .on_event = transition_callback };
+///
+///
+///   // Subscribe the state transition callback events, the ored value of flag and function pointer is passed in this API.
+///   status = sl_si91x_power_manager_subscribe_ps_transition_event(&handle, &info);
+///   if (status != SL_STATUS_OK) {
+///     // If status is not OK, return with the error code.
+///     return;
+///    }
+///   // Configuring the RAM retention used for sleep-wakeup.
+///   sl_power_ram_retention_config_t config;
+///    config.configure_ram_banks = true;
+///    config.m4ss_ram_banks      = SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10;
+///    config.ulpss_ram_banks     = SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_2 | SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_3;
+///    // RAM retention modes are configured and passed into this API.
+///    status = sl_si91x_power_manager_configure_ram_retention(&config);
+///    if (status != SL_STATUS_OK) {
+///    // If status is not OK, return with the error code.
+///     return;
+///    }
+///
+///   // Change state to PS2
+///   sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+///
+///   // CODE BLOCK //
+///
+///   // Change state to PS4
+///   // Removed PS2 requirement as it is no longer required.
+///   sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+///   sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+///
+///   // SLEEP_WAKEUP
+///
+///   // Initialize wakeup source
+///   // Replace the wakeup source peripheral macro defined in sl_si91x_power_manager.h file
+///   // It sets the below peripheral as wakeup source
+///   sl_si91x_power_manager_set_wakeup_source(WAKEUP_SOURCE, true);
+///   sl_si91x_power_manager_sleep();
+///   }
+///
+///   ```
+///
+/// @} end group POWER-MANAGER ********************************************************/
 
 #ifdef __cplusplus
 }

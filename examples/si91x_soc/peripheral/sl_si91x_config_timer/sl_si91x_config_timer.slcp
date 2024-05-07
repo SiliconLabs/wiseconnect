@@ -16,7 +16,7 @@ source:
   - path: config_timer_example.h
 sdk:
   id: gecko_sdk
-  version: 4.4.1
+  version: 4.4.3
 toolchain_settings: []
 component:
   - id: sl_system
@@ -39,6 +39,6 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.4
+    version: 3.2.0
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

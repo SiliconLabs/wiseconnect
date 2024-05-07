@@ -45,7 +45,7 @@ typedef enum {
   SL_SI91x_SHA_224
 } sl_si91x_crypto_sha_mode_t;
 
-/// SHA mode lenghts
+/// SHA mode lengths
 typedef enum {
   SL_SI91x_SHA_1_DIGEST_LEN   = 20,
   SL_SI91x_SHA_256_DIGEST_LEN = 32,
