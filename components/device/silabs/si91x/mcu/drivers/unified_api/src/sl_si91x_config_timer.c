@@ -105,7 +105,7 @@ sl_status_t sl_si91x_config_timer_set_configuration(sl_config_timer_config_t *ti
   * if the application requires the configuration to be changed in run-time, undefined this macro
   * and change the peripheral configuration.
   */
-#ifdef CONFIG_TIMER_UC
+#if (CONFIG_TIMER_UC == 1)
   timer_config_ptr = &ct_configuration;
 #endif
   uint32_t config_value;

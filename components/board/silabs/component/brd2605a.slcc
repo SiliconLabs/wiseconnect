@@ -1,0 +1,43 @@
+!!omap
+- id: brd2605a
+- label: BRD2605A
+- package: platform
+- description: Board support for BRD2605A.
+- category: Board|Radio Board
+- quality: production
+- root_path: components/board/silabs/config/brd2605a
+- requires:
+  - name: siwg917m111mgtba
+  - name: brd2605a_config
+  - name: external_flash_none
+  - name: external_psram_8mb
+  - name: rsilib_board
+  - name: si91x_common_flash
+- provides:
+  - name: brd2605a
+  - name: hardware_board
+  - name: hardware_board_rb
+  - name: hardware_board_supports_multi_slave
+  - name: si91x_b0_board
+- define:
+  - name: SL_BOARD_NAME
+    value: '"BRD2605A"'
+  - name: SL_BOARD_REV
+    value: '"A02"'
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+    value: '1'
+  - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
+    value: '1'
+  - name: SLI_SI91X_MCU_COMMON_FLASH_MODE
+    value: '1'
+  - name: SLI_SI91X_MCU_EXTERNAL_LDO_FOR_PSRAM
+    value: '1' 
+  - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
+    value: '1'
+- tag:
+  - board:pn:BRD2605
+  - board:variant:A
+  - board:revision:A02
+  - board:device:siwg917m111mgtba
+  - hardware:has:vcom
+  

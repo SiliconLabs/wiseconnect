@@ -13,6 +13,7 @@ source:
 define:
 - name: SLI_AEAD_DEVICE_SI91X
 requires:
+- name: sl_si91x_psa_crypto
 - condition: ["psa_crypto_ccm"]
   name: sl_si91x_ccm
 - condition: ["psa_crypto_gcm"]

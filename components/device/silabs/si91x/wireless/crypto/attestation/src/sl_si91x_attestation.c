@@ -99,7 +99,7 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   if (status != SL_STATUS_OK) {
     free(attest);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 #else
@@ -113,7 +113,7 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   if (status != SL_STATUS_OK) {
     free(attest);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
     mutex_result = sl_si91x_crypto_mutex_release(crypto_attestation_mutex);
 #endif
@@ -124,7 +124,7 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   memcpy(token, packet->data, packet->length);
 #endif
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   free(attest);
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)

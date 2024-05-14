@@ -65,6 +65,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
@@ -82,7 +84,7 @@ The application can be configured to suit your requirements and development envi
       - LE_RANDOM_ADDRESS
       - LE_PUBLIC_ADDRESS
 
-    > **Note:** Depends on the remote device, address type will be changed.
+    > **Note:** Depending on the remote device, the address type may need to be changed. If the remote device is a mobile phone (Android/IOS), RSI_BLE_DEV_ADDR_TYPE should be set to LE_RANDOM_ADDRESS.
 
   - `RSI_BLE_DEV_ADDR` refers address of the remote device to connect.
 
@@ -101,6 +103,8 @@ The application can be configured to suit your requirements and development envi
   ble_acceptlist_addr1[6] = { 0x48, 0x71, 0xDA, 0x7D, 0x1A, 0x00 };
   ble_acceptlist_addr2[6] = { 0xB9, 0x70, 0x80, 0xA7, 0x23, 0x00 };
    ```
+
+  > **Note:** Remote device address needs to be added to accept list, as the host will only receive advertising reports from devices that are present in the accept list.
 
   - `RSI_REMOTE_DEVICE_NAME` refers the name of remote device to which Silicon Labs device has to connect.
 
@@ -144,6 +148,7 @@ The application can be configured to suit your requirements and development envi
 
   > **Note:**
    ble_config.h files are already set with desired configuration in respective example folders user need not change for each example.
+
 
 ## Test the Application
 

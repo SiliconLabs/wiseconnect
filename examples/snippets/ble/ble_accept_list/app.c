@@ -64,7 +64,7 @@ uint8_t ble_acceptlist_addr2[6] = { 0xB9, 0x70, 0x80, 0xA7, 0x23, 0x00 };
 //! To clear acceptlist, If this define is enabled specify the bd address of the device which has to remove from acceptlist
 #define DELETE_ACCEPTLIST 0
 
-#define RSI_REM_DEV_ADDR_LEN 18
+#define DEV_ADDR_LEN 18 // Length of the device address
 
 //! Application supported events list
 #define RSI_APP_EVENT_ADV_REPORT   0
@@ -80,7 +80,7 @@ static uint8_t device_found          = 0;
 
 static rsi_ble_event_conn_status_t rsi_app_connected_device;
 static rsi_ble_event_disconnect_t rsi_app_disconnected_device;
-uint8_t str_remote_address[RSI_REM_DEV_ADDR_LEN] = { '\0' };
+uint8_t str_remote_address[DEV_ADDR_LEN] = { '\0' };
 
 osSemaphoreId_t ble_main_task_sem;
 static volatile uint32_t ble_app_event_map;
@@ -348,8 +348,10 @@ void rsi_ble_acceptlist_on_disconnect_event(rsi_ble_event_disconnect_t *resp_dis
 void ble_acceptlist(void *argument)
 {
   UNUSED_PARAMETER(argument);
-  int32_t status         = 0;
-  int32_t temp_event_map = 0;
+  int32_t status                                             = 0;
+  int32_t temp_event_map                                     = 0;
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[DEV_ADDR_LEN]                       = { 0 };
 
 #ifdef SLI_SI91X_MCU_INTERFACE
   sl_si91x_hardware_setup();
@@ -361,6 +363,16 @@ void ble_acceptlist(void *argument)
     return;
   } else {
     LOG_PRINT("\r\n Wi-Fi Initialization Success\n");
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   //! BLE register GAP callbacks

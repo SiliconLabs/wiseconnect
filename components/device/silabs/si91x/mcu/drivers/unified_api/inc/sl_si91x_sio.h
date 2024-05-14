@@ -191,9 +191,10 @@ typedef struct {
 /***************************************************************************/ /**
  * @brief Initialize the SIO module. It initializes the SIO
  *        GPIO's and enables the SIO module clock.
- * @param[in] none
- * @return    returns status 0 if successful,
- *           else error code as follows:
+ *
+ * @param none
+ *
+ * @return    returns status 0 if successful, else error code as follows:
  *           - \ref SL_STATUS_FAIL (0x0001) - Fail, SIO initialization failed
  *           - \ref SL_STATUS_OK (0x0000) - Success, SIO initialization successful
 ******************************************************************************/
@@ -203,7 +204,7 @@ sl_status_t sl_si91x_sio_init(void);
  * @brief Initialize the SIO-SPI module. It configures
  *        the SPI mode, bit length, bit order, SIO frequency, and the SIO channels for
  *        the SPI transfer lines.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] configuration - Pointer to SIO-SPI configuration structure
  *                            \ref sl_sio_spi_config_t
@@ -217,7 +218,7 @@ sl_status_t sl_si91x_sio_spi_init(sl_sio_spi_config_t *configuration);
 
 /***************************************************************************/ /**
  * @brief This API is used to De-initialize SIO module
- * @param[in] none
+ * @param none
  * @return none
  ******************************************************************************/
 void sl_si91x_sio_deinit(void);
@@ -235,7 +236,9 @@ sl_status_t sl_si91x_sio_spi_pin_initialization(sl_sio_spi_t *sio_spi_init);
 /***************************************************************************/ /**
  * @brief Initialize SIO UART pins and clock. This holds the UART Tx, Rx pins
  * 		configuration.
+ *
  * @param[in] sio_uart_init : Pointer to the structure of type \ref sl_sio_uart_t
+ *
  * @return    returns status 0 if successful,
  *           else error code as follows:
  *           - \ref SL_STATUS_OK - Success
@@ -246,7 +249,9 @@ sl_status_t sl_si91x_sio_uart_pin_initialization(sl_sio_uart_t *sio_uart_init);
 /***************************************************************************/ /**
  * @brief Initialize SIO I2C pins and clock. This holds the I2C SDA, SCL pins
  * 		configuration.
+ *
  * @param[in] sio_i2c_init : Pointer to the structure of type \ref sl_sio_i2c_t
+ *
  * @return    returns status 0 if successful,
  *           else error code as follows:
  *           - \ref SL_STATUS_OK - Success
@@ -255,7 +260,8 @@ sl_status_t sl_si91x_sio_uart_pin_initialization(sl_sio_uart_t *sio_uart_init);
 sl_status_t sl_si91x_sio_i2c_pin_initialization(sl_sio_i2c_t *sio_i2c_init);
 
 /***************************************************************************/ /**
- * @brief Assert the SIO SPI chip select. This tells peripheral that it should wake up 
+ * @brief Assert the SIO SPI chip select. 
+ * @details This tells peripheral that it should wake up 
  *     and receive / send data and is also used when multiple peripherals are present to 
  *	   select the one you'd like to communicate with.
  * @pre Pre-conditions:
@@ -314,7 +320,7 @@ sl_status_t sl_si91x_sio_spi_register_event_callback(sl_sio_spi_callback_t callb
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_spi_init()
  *      - \ref sl_si91x_sio_spi_register_event_callback()
- * @param[in] none
+ * @param none
  * @return none
 ******************************************************************************/
 void sl_si91x_sio_spi_unregister_event_callback(void);
@@ -326,10 +332,11 @@ void sl_si91x_sio_spi_unregister_event_callback(void);
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_spi_init()
  *      - \ref sl_si91x_sio_spi_cs_assert()
+ *
  * @param[in] xfer_config - Pointer to SIO-SPI transfer configuration structure
  *                         \ref sl_sio_spi_xfer_config_t
- * @return returns status 0 if successful,
- *         else error code as follows:
+ *
+ * @return returns status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer
  *         - \ref SL_STATUS_OK (0x0000) - Success
@@ -339,7 +346,7 @@ sl_status_t sl_si91x_sio_spi_transfer(sl_sio_spi_xfer_config_t *xfer_config);
 /***************************************************************************/ /**
  * @brief Get the SIO version. It is used to get the release, SQA and DEV version 
  *			of the SIO module.
- * @param[in] none
+ * @param none
  * @return returns structure of type \ref sl_sio_version_t
 ******************************************************************************/
 sl_sio_version_t sl_si91x_sio_get_version(void);
@@ -448,7 +455,7 @@ sl_status_t sl_si91x_sio_uart_register_event_callback(sl_sio_uart_callback_t cal
  *      - \ref sl_si91x_sio_i2c_generate_start()
  * @param[in] configuration - pointer to the I2C configuration structure
  *                           \ref stc_sio_i2c_config_t in SIO module
- * @param[in] address - slave address
+ * @param[in] address - slave address(1- 255).
  * @param[in] data - pointer to the data
  * @param[in] length - data length
  * @return returns status 0 if successful,
@@ -471,7 +478,7 @@ sl_status_t sl_si91x_sio_i2c_write(stc_sio_i2c_config_t *configuration,
  *      - \ref sl_si91x_sio_i2c_transfer()
  * @param[in] configuration - pointer to the I2C configuration structure
  *                           \ref stc_sio_i2c_config_t in SIO module
- * @param[in] address - slave address
+ * @param[in] address - slave address(1- 255).
  * @param[out] data - pointer to the data
  * @param[in] length - data length
  * @return returns status 0 if successful,
@@ -489,7 +496,7 @@ sl_status_t sl_si91x_sio_i2c_read(stc_sio_i2c_config_t *configuration, uint8_t a
  *      - \ref sl_si91x_sio_i2c_generate_start()
  * @param[in] configuration - Pointer to the I2C configuration structure
  *                            \ref stc_sio_i2c_config_t in SIO module
- * @param[in] address - Slave address
+ * @param[in] address - Slave address (1- 255).
  * @param[in] tx_buffer - Pointer to the data transmit buffer
  * @param[in] tx_length - TX data length
  * @param[out] rx_buffer - Pointer to the data receive buffer
@@ -509,9 +516,9 @@ sl_status_t sl_si91x_sio_i2c_transfer(stc_sio_i2c_config_t *configuration,
 
 /***************************************************************************/ /**
  * @brief Generate I2C start in SIO.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
- * @param[in] none
+ * @param none
  * @return none
 ******************************************************************************/
 void sl_si91x_sio_i2c_generate_start(void);
@@ -523,7 +530,7 @@ void sl_si91x_sio_i2c_generate_start(void);
  *      - \ref sl_si91x_sio_i2c_generate_start()
  *      - \ref sl_si91x_sio_i2c_write() (or)
  *      - \ref sl_si91x_sio_i2c_transfer()
- * @param[in] none
+ * @param none
  * @return none
 ******************************************************************************/
 void sl_si91x_sio_i2c_generate_stop(void);
@@ -535,7 +542,7 @@ void sl_si91x_sio_i2c_generate_stop(void);
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_uart_init()
  *      - \ref sl_si91x_sio_uart_register_event_callback()
- * @param[in] none
+ * @param none
  * @return none
 ******************************************************************************/
 void sl_si91x_sio_uart_unregister_event_callback(void);
@@ -547,7 +554,7 @@ void sl_si91x_sio_uart_unregister_event_callback(void);
  *      - \ref sl_si91x_sio_uart_init()
  *      - \ref sl_si91x_sio_uart_send()
  *      - \ref sl_si91x_sio_uart_read()
- * @param[in] none
+ * @param none
  * @return none
 ******************************************************************************/
 void sl_si91x_sio_uart_rx_done(void);
@@ -578,7 +585,7 @@ sl_status_t sl_si91x_sio_configure_interrupt(en_sio_channels_t channel, interrup
  * @param[in] pattern - Pattern match bit to be enabled for pattern match to take place \ref pattern_match_t
  *                    - Pattern match disable: 0
  *                    - Pattern match enable: 1
- * @param[in] slice - Slice number (0,1,2,8,9,10) to select
+ * @param[in] slice - Slice number (0,1,2,8,9,10) to select.
  * @param[in] slice_pattern - Pattern to match for selected slice
  * @return returns status 0 if successful,
  *         else error code as follows:
@@ -660,7 +667,7 @@ sl_status_t sl_si91x_sio_control_flow(en_sio_channels_t channel, flow_control_t 
 
 /***************************************************************************/ /**
  * @brief Load data to buffer in reverse order.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @param[in] reverse - If data to be shifted out MSB first, it is to be set \ref reverse_load_t
@@ -674,7 +681,7 @@ sl_status_t sl_si91x_sio_reverse_load(en_sio_channels_t channel, reverse_load_t 
 
 /***************************************************************************/ /**
  * @brief Enable the common swap interrupt.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @return returns status 0 if successful,
@@ -716,7 +723,7 @@ sl_status_t sl_si91x_sio_mask_interrupt(en_sio_channels_t channel);
 
 /***************************************************************************/ /**
  * @brief Unmask the common swap interrupt.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @return returns status 0 if successful,
@@ -729,16 +736,16 @@ sl_status_t sl_si91x_sio_unmask_interrupt(en_sio_channels_t channel);
 
 /***************************************************************************/ /**
  * @brief Read the common swap interrupt status.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
- * @param[in] none
+ * @param none
  * @return returns interrupt status
 ******************************************************************************/
 uint32_t sl_si91x_sio_get_interrupt_status(void);
 
 /***************************************************************************/ /**
  * @brief Enable the common shift interrupt.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @return returns status 0 if successful,
@@ -751,7 +758,7 @@ sl_status_t sl_si91x_sio_set_shift_interrupt(en_sio_channels_t channel);
 
 /***************************************************************************/ /**
  * @brief Disable the common shift interrupt.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @return returns status 0 if successful,
@@ -764,7 +771,7 @@ sl_status_t sl_si91x_sio_clear_shift_interrupt(en_sio_channels_t channel);
 
 /***************************************************************************/ /**
  * @brief Mask the common shift interrupt.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @return returns status 0 if successful,
@@ -777,7 +784,7 @@ sl_status_t sl_si91x_sio_mask_shift_interrupt(en_sio_channels_t channel);
 
 /***************************************************************************/ /**
  * @brief Unmask the common shift interrupt.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @return returns status 0 if successful,
@@ -790,7 +797,7 @@ sl_status_t sl_si91x_sio_unmask_shift_interrupt(en_sio_channels_t channel);
 
 /***************************************************************************/ /**
  * @brief Read the common shift interrupt status.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @return returns shift interrupt status
@@ -799,7 +806,7 @@ uint32_t sl_si91x_sio_shift_interrupt_status(void);
 
 /***************************************************************************/ /**
  * @brief Select edge of the clock cycle for sampling bits.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  * @param[in] channel - SIO channel to be selected \ref en_sio_channels_t
  * @param[in] edge_sel - Select the edge for bit sample to start \ref edge_select_t
@@ -815,7 +822,7 @@ sl_status_t sl_si91x_sio_edge_select(en_sio_channels_t channel, edge_select_t ed
 
 /***************************************************************************/ /**
  * @brief Read SIO buffer register.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_uart_init()
  *      - \ref sl_si91x_sio_uart_register_event_callback()
@@ -827,7 +834,7 @@ uint32_t sl_si91x_sio_read_buffer(en_sio_channels_t channel);
 
 /***************************************************************************/ /**
  * @brief Write into SIO buffer register.
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_sio_init()
  *      - \ref sl_si91x_sio_uart_init()
  *      - \ref sl_si91x_sio_uart_register_event_callback()
@@ -842,7 +849,95 @@ uint32_t sl_si91x_sio_read_buffer(en_sio_channels_t channel);
 ******************************************************************************/
 sl_status_t sl_si91x_sio_write_buffer(en_sio_channels_t channel, uint32_t data);
 
-/** @} (end addtogroup SIO) */
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
+/// @addtogroup SIO Serial Input-Output
+/// @{
+///
+///   @details
+///
+///
+///   @n @section SIO_Intro Introduction
+///
+///
+///   Serial Input/Output (SIO) refers to a method of data transfer where information is sent and received
+///   sequentially, one bit at a time, over a single communication channel. This communication can occur between
+///   different electronic devices, such as micro-controllers, sensors, or other components.
+///
+///   Key features of SIO include:
+///
+///   @li  SIO Functionality is supported by Eight GPIO pins.
+///
+///   @li  Detects a 32-bit pattern on the input pins.
+///
+///   @li  SIO will transmit or receive the MSB First.
+///
+///   @n @section SIO_Config Configuration
+///
+///   Various parameters SPI bit order, SPI clock, MOSI channel, MISO channel,
+///   SPI CS channel, bit length, SPI mode can be configured.
+///   Various parameters UART baud rate, bit length, parity, receive channel selection, transmit
+///   channel selection, stop bits can be configured with below given Enumerations.
+///
+///   1. @ref  sl_sio_spi_event_t
+///
+///   2. @ref  sl_sio_uart_event_t
+///
+///   3. @ref  sl_sio_spi_mode_t
+///
+///   4. @ref  sl_sio_spi_bit_width_t
+///
+///   5. @ref  sl_sio_spi_msb_lsb_t
+///
+///   6. @ref  sl_sio_spi_bit_length_t
+///
+///   7. @ref  sl_sio_spi_parity_t
+///
+///   8. @ref  sl_sio_spi_stop_bit_t
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
+///
+///   @n @section SIO_Use Usage
+///
+///   Data is transferred over SIO SPI after it has been initialized and configured. A callback
+///   API is then called to register the callback at the moment of the event.  Before transfer has
+///   begin, chip select assert is to be done.  In order to do this test, the MISO and MOSI pins must
+///   be connected in loopback mode.
+///
+///   After transfer completion, chip select de-assert is to be done using When the transfer complete event
+///   is generated, it compares the sent and received data.
+///
+///   1. @ref sl_si91x_sio_spi_pin_initialization
+///
+///   2. @ref sl_si91x_sio_spi_init
+///
+///   3. @ref sl_si91x_sio_spi_register_event_callback
+///
+///   4. @ref sl_si91x_sio_spi_cs_assert
+///
+///   5. @ref sl_si91x_sio_spi_transfer
+///
+///   6. @ref sl_si91x_sio_spi_cs_deassert
+///
+///   7. @ref sl_si91x_sio_deinit
+///
+///  Data is sent and received by SIO UART after it has been initiated and configured. A callback API is
+///  then called to register the callback at the moment of the event. Subsequently, the transfer buffer will
+///  transmit the required number of bytes, and the receive buffer will obtain the data bytes. It compares the
+///  sent and received data when the receive complete event is created.
+///
+///  1. @ref sl_si91x_sio_uart_pin_initialization
+///
+///  2. @ref sl_si91x_sio_uart_init
+///
+///  2. @ref sl_si91x_sio_uart_register_event_callback
+///
+///  3. @ref sl_si91x_sio_uart_send
+///
+///  4. @ref sl_si91x_sio_uart_read
+///
+///  5. @ref sl_si91x_sio_deinit
+///
+/** @} (end addtogroup PWM) */
 
 #ifdef __cplusplus
 }

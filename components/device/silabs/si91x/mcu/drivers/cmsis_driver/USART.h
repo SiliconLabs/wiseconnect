@@ -40,7 +40,7 @@ extern "C" {
 #include "rsi_ulpss_clk.h"
 #include "Driver_USART.h"
 #include "rsi_ccp_common.h"
-#include "RTE_Components.h"
+
 #include "UDMA.h"
 
 #define USART_INSTANCE_BIT 30          // USART Instance bit postion stored in event variable

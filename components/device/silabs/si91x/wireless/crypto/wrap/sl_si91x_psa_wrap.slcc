@@ -14,6 +14,7 @@ define:
 - name: SLI_SECURE_KEY_STORAGE_DEVICE_SI91X
 requires:
 - name: sl_si91x_wrap
+- name: sl_si91x_psa_crypto
 
 include:
 - path: inc

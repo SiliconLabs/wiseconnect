@@ -30,6 +30,11 @@
 #pragma once
 #include "stdint.h"
 
+/**
+ * @addtogroup IP_ADDRESSES
+ * @{
+ */
+
 /// Enumeration of IP version
 typedef enum { SL_IPV4_VERSION = 4, SL_IPV6_VERSION = 6 } sl_ip_version_t;
 
@@ -63,14 +68,19 @@ typedef union {
 } sl_ipv6_address_t;
 
 /// Generic IP Address Structure. Supports both IPv4 and IPv6 addresses
-typedef struct PACK {
+#pragma pack(1)
+typedef struct {
+  /// IP address object
   union {
-    sl_ipv4_address_t v4;
-    sl_ipv6_address_t v6;
+    sl_ipv4_address_t v4; ///< IPv4 address
+    sl_ipv6_address_t v6; ///< IPv6 address
   } ip;
 
   sl_ip_address_type_t type; ///< IP address type
 } sl_ip_address_t;
+#pragma pack()
+
+/** @} */
 
 /// Macro to assist initializing an IPv4 address
 #define SL_IPV4_ADDRESS(a, b, c, d)                \

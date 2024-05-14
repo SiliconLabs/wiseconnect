@@ -46,6 +46,8 @@ Refer the instructions [here](https://docs.silabs.com/wiseconnect/latest/wisecon
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 - Configure the following parameters in rsi_attestation_app.h file and update/modify following macros if required

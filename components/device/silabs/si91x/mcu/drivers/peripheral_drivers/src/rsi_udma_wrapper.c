@@ -160,25 +160,17 @@ int32_t uDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
                                UDMA_Channel_Info *chnl_info,
                                RSI_UDMA_HANDLE_T udmaHandle)
 {
-  uint32_t len0 = 0, len1 = 0;
-  if ((udma->reg == UDMA0) || (udma->reg == UDMA1)) {
-    chnl_info[ch].cb_event = cb_event;
-  }
-// Added below macro to avoid ULP memory validations when using SL_DMA with I2C in ULP mode,
-// as I2C data register does not belong to ULP memory section
-#if !(defined SL_SI91X_I2C_DMA)
+// Added below macro to avoid ULP memory validations when using SL_DMA with I2C and SSI in ULP mode,
+// as I2C and SSI data register does not belong to ULP memory section
+#if !(defined SL_SI91X_I2C_DMA) && !(defined SL_SI91X_SSI_DMA) && !(defined DAC_FIFO_MODE_EN)
   if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) { //PS2 state
-    if (control.dstInc == UDMA_DST_INC_NONE) {
-      if ((src_addr >= ULP_SRAM_START_ADDR) && (src_addr <= ULP_SRAM_END_ADDR)) {
-        chnl_info[ch].SrcAddr = (src_addr);
-      } else {
+    if (control.srcInc == UDMA_DST_INC_NONE) {
+      if (!((src_addr >= ULP_SRAM_START_ADDR) && (src_addr <= ULP_SRAM_END_ADDR))) {
         return ERROR_UDMA_SRC_ADDR;
       }
     }
-    if (control.srcInc == UDMA_SRC_INC_NONE) {
-      if ((dest_addr >= ULP_SRAM_START_ADDR) && (dest_addr <= ULP_SRAM_END_ADDR)) {
-        chnl_info[ch].DestAddr = (dest_addr);
-      } else {
+    if (control.dstInc == UDMA_SRC_INC_NONE) {
+      if (!((dest_addr >= ULP_SRAM_START_ADDR) && (dest_addr <= ULP_SRAM_END_ADDR))) {
         return ERROR_UDMA_DST_ADDR;
       }
     }
@@ -195,22 +187,15 @@ int32_t uDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
                                   control,
                                   (void *)src_addr,
                                   (void *)dest_addr);
-  }
-  // Save channel information
-  if (udma->reg == UDMA0) {
-    len0                   = control.totalNumOfDMATrans;
+
+    // Save channel information
+    chnl_info[ch].cb_event = cb_event;
     chnl_info[ch].SrcAddr  = (src_addr);
     chnl_info[ch].DestAddr = (dest_addr);
     chnl_info[ch].Size     = size;
-    chnl_info[ch].Cnt      = (++len0);
+    chnl_info[ch].Cnt      = control.totalNumOfDMATrans + 1;
   }
-  if (udma->reg == UDMA1) {
-    len1                   = control.totalNumOfDMATrans;
-    chnl_info[ch].SrcAddr  = (src_addr);
-    chnl_info[ch].DestAddr = (dest_addr);
-    chnl_info[ch].Size     = size;
-    chnl_info[ch].Cnt      = (++len1);
-  }
+
   return RSI_OK;
 }
 

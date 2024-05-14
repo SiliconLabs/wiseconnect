@@ -71,7 +71,7 @@ sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS] = {
     .data_deliver.numofsamples = 5,
   },*/
 
-  {
+  /*{
     .sensor_name               = "GUVA_12D_UV",
     .sensor_id                 = SL_SENSOR_ADC_GUVA_S12D_ID,
     .channel                   = BIT(SL_SH_ADC_CH0_CHANNEL),
@@ -80,16 +80,16 @@ sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS] = {
     .sampling_interval         = 100,
     .data_deliver.data_mode    = SL_SH_NUM_OF_SAMPLES,
     .data_deliver.numofsamples = SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES,
-  },
+  },*/
 
-  /*{
-    .sensor_name               = "GY61",
-    .sensor_id                 = SL_SENSOR_ADC_GY_61_ID,
-    .channel                   = BIT(SL_SH_ADC_CH1_CHANNEL) | BIT(SL_SH_ADC_CH2_CHANNEL) | BIT(SL_SH_ADC_CH3_CHANNEL),
-    .sensor_bus                = SL_SH_ADC,
+  {
+    .sensor_name            = "GY61",
+    .sensor_id              = SL_SENSOR_ADC_GY_61_ID,
+    .channel                = BIT(SL_SH_ADC_CH0_CHANNEL) | BIT(SL_SH_ADC_CH1_CHANNEL) | BIT(SL_SH_ADC_CH2_CHANNEL),
+    .sensor_bus             = SL_SH_ADC,
     .sensor_mode            = SL_SH_INTERRUPT_MODE,
     .data_deliver.data_mode = SL_SH_NO_DATA_MODE,
-  },*/
+  },
 
   {
     .sensor_name               = "LIGHT_SENSOR",

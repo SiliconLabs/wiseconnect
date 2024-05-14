@@ -111,7 +111,7 @@ void sl_si91x_sio_deinit(void)
  ******************************************************************************/
 sl_status_t sl_si91x_sio_spi_init(sl_sio_spi_config_t *configuration)
 {
-#ifdef SIO_UC
+#if (SIO_UC == 1)
   configuration = &pstcSpiConfigUc;
 #endif
   sl_status_t status;
@@ -310,7 +310,7 @@ void sl_si91x_sio_spi_unregister_event_callback(void)
  ******************************************************************************/
 sl_status_t sl_si91x_sio_spi_transfer(sl_sio_spi_xfer_config_t *xfer_config)
 {
-#ifdef SIO_UC
+#if (SIO_UC == 1)
   xfer_config->u8BitLen = pstcSpiConfigUc.u8BitLen;
 #endif
   sl_status_t status;
@@ -453,7 +453,7 @@ sl_status_t sl_si91x_sio_uart_pin_initialization(sl_sio_uart_t *sio_uart_init)
  ******************************************************************************/
 sl_status_t sl_si91x_sio_uart_init(sl_sio_uart_config_t *configuration)
 {
-#ifdef SIO_UC
+#if (SIO_UC == 1)
   configuration = &UartInitstcUc;
   UartInitstc   = UartInitstcUc;
 #endif
@@ -681,7 +681,7 @@ sl_status_t sl_si91x_sio_i2c_write(stc_sio_i2c_config_t *configuration, uint8_t 
 {
   sl_status_t status;
   rsi_error_t error_status;
-#ifdef SIO_UC
+#if (SIO_UC == 1)
   configuration = &i2cConfigUc;
 #endif
   do {
@@ -709,7 +709,7 @@ sl_status_t sl_si91x_sio_i2c_read(stc_sio_i2c_config_t *configuration, uint8_t a
 {
   sl_status_t status;
   rsi_error_t error_status;
-#ifdef SIO_UC
+#if (SIO_UC == 1)
   configuration = &i2cConfigUc;
 #endif
   do {
@@ -738,7 +738,7 @@ sl_status_t sl_si91x_sio_i2c_transfer(stc_sio_i2c_config_t *configuration,
                                       uint8_t *rx_buffer,
                                       uint16_t rx_length)
 {
-#ifdef SIO_UC
+#if (SIO_UC == 1)
   configuration = &i2cConfigUc;
 #endif
   sl_status_t status;

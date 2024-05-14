@@ -51,6 +51,10 @@
 #include "sl_si91x_psa_ecdh.h"
 #endif
 
+#ifdef SLI_ECDSA_DEVICE_SI91X
+#include "sl_si91x_psa_ecdsa.h"
+#endif
+
 #ifdef SLI_MAC_DEVICE_SI91X
 #include "sl_si91x_psa_mac.h"
 #endif

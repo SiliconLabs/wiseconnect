@@ -2,17 +2,15 @@ id: sl_dma
 label: DMA
 package: platform
 description: >
- Direct Memory Access (DMA) is a process of transferring data from  memory to memory, 
- peripehral to memory, memory to peripheral to another without the direct involvement 
- of the processor (CPU). The main benefit of using DMA is more efficient data movement 
- in the embedded system.
- Configurable parameters in DAC:
-   - Initialization of DMA Controller
-   - Selection of DMA Channels
-   - Configuration of DMA Channel
-   - Peripheral Configuration
-   - Start Data Transfer
-   - Handle Completion and Errors
+  Direct Memory Access (DMA) is a process of transferring data from  memory to memory, 
+  peripehral to memory, memory to peripheral to another without the direct involvement 
+  of the processor (CPU). The main benefit of using DMA is more efficient data movement 
+  in the embedded system.
+ 
+  Offering simple memory to memory transfer, peripheral to memory and memory to peripheral transfer functions.
+
+  When you install this component, it will also be installing the  DMA dependency component, 
+  which is the DMA driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

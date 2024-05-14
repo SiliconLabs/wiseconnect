@@ -77,12 +77,6 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_client_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-
-  // Check if the client interface is not up
-  if (!sl_wifi_is_interface_up(SL_WIFI_CLIENT_INTERFACE)) {
-    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
-  }
-
   return sl_wifi_deinit();
 }
 
@@ -97,7 +91,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
   VERIFY_STATUS_AND_RETURN(status);
 
   // Connect to the Wi-Fi network
-  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 15000);
+  status = sl_wifi_connect(SL_WIFI_CLIENT_INTERFACE, &profile.config, 18000);
   VERIFY_STATUS_AND_RETURN(status);
 
   // Configure the IP address settings
@@ -137,11 +131,6 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
 sl_status_t sl_net_wifi_ap_deinit(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
-
-  if (!sl_wifi_is_interface_up(SL_WIFI_AP_INTERFACE)) {
-    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
-  }
-
   return sl_wifi_deinit();
 }
 
@@ -173,41 +162,6 @@ sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface)
 {
   UNUSED_PARAMETER(interface);
   return sl_wifi_stop_ap(SL_WIFI_AP_INTERFACE);
-}
-
-sl_status_t sl_net_wifi_btr_init(sl_net_interface_t interface,
-                                 const void *configuration,
-                                 void *context,
-                                 sl_net_event_handler_t event_handler)
-{
-  UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(context);
-  sl_status_t status = SL_STATUS_FAIL;
-
-  // Set the user-defined event handler for BTR mode
-  sl_si91x_register_event_handler(event_handler);
-
-  status = sl_wifi_init(configuration, NULL, sl_wifi_default_event_handler);
-
-  return status;
-}
-
-sl_status_t sl_net_wifi_btr_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id)
-{
-  UNUSED_PARAMETER(interface);
-  sl_status_t status;
-  sl_net_wifi_btr_profile_t profile;
-
-  // Get the BTR profile using the provided profile_id
-  status = sl_net_get_profile(SL_NET_WIFI_BTR_INTERFACE, profile_id, &profile);
-  VERIFY_STATUS_AND_RETURN(status);
-
-  status = sl_wifi_btr_up(SL_WIFI_BTR_INTERFACE, &profile.config);
-  VERIFY_STATUS_AND_RETURN(status);
-
-  // Set the BTR profile
-  status = sl_net_set_profile(SL_NET_WIFI_BTR_INTERFACE, profile_id, &profile);
-  return status;
 }
 
 sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl_ip_address_t *ip_address)
@@ -285,7 +239,7 @@ sl_status_t sl_net_host_get_by_name(const char *host_name,
 
   // Check if the command failed and free the buffer if it was allocated
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -295,6 +249,6 @@ sl_status_t sl_net_host_get_by_name(const char *host_name,
 
   // Convert the SI91X DNS response to the sl_ip_address format
   convert_si91x_dns_response(sl_ip_address, dns_response);
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   return SL_STATUS_OK;
 }

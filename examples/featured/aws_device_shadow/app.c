@@ -320,7 +320,7 @@ sl_status_t start_aws_device_shadow()
     simulate_room_temperature(&temperature, &window_open_state);
     rc = aws_iot_shadow_init_json_document(json_document_buffer, size_of_json_document_buffer);
     if (rc != SUCCESS) {
-      printf("\r\nFailed to initialize JSON buffer with error:0x%x\r\n", rc);
+      printf("\r\nFailed to initialize JSON buffer with error: %d\r\n", rc);
       continue;
     }
 
@@ -330,14 +330,14 @@ sl_status_t start_aws_device_shadow()
                                      &temperature_handler,
                                      &window_actuator);
     if (rc != SUCCESS) {
-      printf("\r\nFailed to add reported value in JSON buffer with error:0x%x\r\n", rc);
+      printf("\r\nFailed to add reported value in JSON buffer with error: %d\r\n", rc);
       continue;
     }
     printf("\r\nAdding reported value in JSON buffer success\r\n");
 
     rc = aws_iot_finalize_json_document(json_document_buffer, size_of_json_document_buffer);
     if (rc != SUCCESS) {
-      printf("\r\nFailed to finalize JSON buffer with error:0x%x\r\n", rc);
+      printf("\r\nFailed to finalize JSON buffer with error: %d\r\n", rc);
       continue;
     }
     printf("\r\nJSON finalization buffer Success\r\n");
@@ -352,7 +352,7 @@ sl_status_t start_aws_device_shadow()
                                40,
                                true);
     if (rc != SUCCESS) {
-      printf("\r\nFailed to update JSON buffer with error:0x%x\r\n", rc);
+      printf("\r\nFailed to update JSON buffer with error: %d\r\n", rc);
       continue;
     }
   }

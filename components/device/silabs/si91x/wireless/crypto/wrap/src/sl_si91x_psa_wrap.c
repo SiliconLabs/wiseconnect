@@ -54,9 +54,9 @@ psa_status_t sli_si91x_crypto_wrap_key(uint8_t *key_buffer,
 
   status = convert_si91x_error_code_to_psa_status(si91x_status);
   if (status == PSA_SUCCESS) {
-    printf("\n Wrap success \n");
+    printf("\r\nWrap success\r\n");
   } else {
-    printf("\n Wrap failed, Error Code : %ld \n", status);
+    printf("\r\nWrap failed, Error Code : %ld \r\n", status);
   }
 
   return status;

@@ -61,6 +61,8 @@ This application demonstrates how to enable power save deep sleep profile with S
   - Connect your device to the computer
   - Upgrade your connectivity firmware
   - Create a Studio project
+  
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ### Instructions for Keil IDE and STM32F411RE MCU
 
@@ -76,34 +78,6 @@ This application demonstrates how to enable power save deep sleep profile with S
   - Open the AWS DEVICE SHADOW µVision project - **power_save_deep_sleep.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → snippets → wlan → power_save_deep_sleep → keil_project**. 
 
 ## Application Build Environment
-
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
-
-- In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
-
-- STA instance related parameters
-
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
- 
-   ```c
-   #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
-   ```
-
-  - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
-
-   ```c
-   #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
-   ```
-
-  - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
-
-   ```c
-   #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE SL_WIFI_WPA2 
-   ```
-  
-- Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
-
-- `sl_wifi_performance_profile_t` in **app.c** can be configured as per requirements to test Deep-Sleep Powersave application.
 
 **Soc Mode**:
 
@@ -133,3 +107,5 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Application Output
 
   ![Application Prints Soc](resources/readme/application_prints_soc_ncp.png)
+  
+  ![Energy profiler Soc](resources/readme/energy_profile.png)

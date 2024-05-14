@@ -41,6 +41,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Create a Studio project
 - Compile and run the application.
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 - Configure the following parameter in main.c file, update/modify following macro if required
@@ -62,10 +64,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Test the Application
 
 1. Compile and run the application.
-2. Toggles the state of LED0 at configured blink rate and then device goes to sleep.
+2. Toggles the state of LED0 at configured blink rate.
 3. LED0 should blink on WPK base board.
 
 > **Note!** 
 >
-> LED toggling and device sleep will be a continous process.
+> LED0 will continuously be turned on and off.
 

@@ -123,7 +123,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : PC7 */
   /* RESET Pin */
   GPIO_InitStruct.Pin   = GPIO_PIN_7;
-  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull  = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -259,7 +259,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 void gpio_interrupt(void)
 {
   // Trigger SiWx91x BUS Event
-  sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
+  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
 }
 bool sl_si91x_host_is_in_irq_context(void)
 {

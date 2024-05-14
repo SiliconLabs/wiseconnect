@@ -61,6 +61,8 @@ uint8_t adv_payload_for_compare[31] = { 0x6E, 0xC5, 0xFD, 0x05, 0x54, 0x9E, 0x68
 //! Address of the device to connect
 #define RSI_BLE_DEV_ADDR "04:D4:C4:9A:F3:CC"
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 //! Remote Device Name to connect
 #define RSI_REMOTE_DEVICE_NAME "SILABS_DEV"
 
@@ -358,10 +360,12 @@ void ble_central(void *argument)
 {
   UNUSED_PARAMETER(argument);
 
-  int32_t status                     = 0;
-  int32_t temp_event_map             = 0;
-  int32_t temp_event_map1            = 0;
-  sl_wifi_firmware_version_t version = { 0 };
+  int32_t status                                             = 0;
+  int32_t temp_event_map                                     = 0;
+  int32_t temp_event_map1                                    = 0;
+  sl_wifi_firmware_version_t version                         = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
 
 #ifdef RSI_BLE_ENABLE_ACCEPTLIST_BASEDON_ADV_PAYLOAD
   uint8_t compare[31];
@@ -385,6 +389,16 @@ void ble_central(void *argument)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   //! BLE register GAP callbacks

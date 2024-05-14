@@ -120,15 +120,11 @@ void IRQ021_Handler(void)
 #ifdef SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
 void IRQ026_Handler()
 {
-  //volatile uint32_t wakeUpSrc = 0;
-
-  /*Get the wake up source */
-  //wakeUpSrc = RSI_PS_GetWkpUpStatus();
-  RSI_PS_GetWkpUpStatus();
+  /*This is a dummy IRQ Handler which will not be triggered by default. Umask the interrupt to trigger this IRQ Handler upon receiving an interrupt*/
 
   /*Clear interrupt */
   RSI_PS_ClrWkpUpStatus(NPSS_TO_MCU_WIRELESS_INTR);
-  //LOG_PRINT("\r\n received packet from sleep \r\n");
+
   return;
 }
 #endif /* SL_SI91X_MCU_WIRELESS_BASED_WAKEUP */

@@ -102,7 +102,8 @@ void print_mac_address(sl_mac_address_t *mac_address)
 
 char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
 {
-  char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"], *tp;
+  char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"];
+  char *tp;
   struct {
     int base, len;
   } best, cur;

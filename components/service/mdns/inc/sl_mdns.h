@@ -82,7 +82,7 @@ typedef struct {
   sl_mdns_protocol_t protocol; ///< Protocol to use for MDNS from @ref sl_mdns_protocol_t
   sl_ip_version_t type;        ///< IP version to use for MDNS from @ref sl_ip_version_t
   char host_name
-    [32]; ///< Host Name to use for the MDNS Instance. The string length should not exceed 32 including NULL terminator
+    [32]; ///< Host Name to use for the MDNS Instance. The host name Should contain dot(.) at the end, For example "wiseconnect.local.". The string length should not exceed 32 including NULL terminator.
 } sl_mdns_configuration_t;
 
 /// MDNS interface

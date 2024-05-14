@@ -134,9 +134,9 @@ typedef struct {
 // Prototypes
 /***************************************************************************/
 /**
- * Set the clock for the GSPI peripheral, Configures the PLL clock and
+ * @brief This API will configure the clock for GSPI module.
+ * @details Set the clock for the GSPI peripheral, Configures the PLL clock and
  * SOC clock with the value set by the user in the clock configuration structure.
- * 
  * @param clock_configuration Pointer to the clock configuration structure \ref sl_gspi_clock_config_t
  * @return status
  *         - \ref SL_STATUS_OK (0x0000) - Success 
@@ -149,13 +149,12 @@ sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configur
 
 /***************************************************************************/
 /**
- * Initialize the GSPI. If the DMA is enabled, it also initializes the DMA.
- * Pass the address of the pointer for storing the GSPI master handle,
+ * @brief This API will initializes the GSPI. 
+ * @details as partof GSPI initialization if the DMA is enabled, it also initializes the DMA module.
+ * Passing the address of the pointer for storing the GSPI master handle,
  * which can be used in the future for other function calls.
- * 
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_gspi_configure_clock 
- * 
  * @param[in] instance GSPI Instance. \ref sl_gspi_instance_t
  * @param[in] gspi_handle Double Pointer to the GSPI driver handle \ref sl_gspi_handle_t
  * @return status
@@ -167,21 +166,33 @@ sl_status_t sl_si91x_gspi_init(sl_gspi_instance_t instance, sl_gspi_handle_t *gs
 
 /***************************************************************************/
 /**
- * Uninitialize the GSPI. If the DMA is enabled, it also uninitializes the DMA.
- * 
- * @pre Pre-conditions:
+ * @brief This API will Uninitialize the GSPI. 
+ * @details This will Uninitialize the GSPI and if the DMA is enabled, 
+ * it also uninitializes the DMA module.
+ * @pre Pre-condition:
  *      - \ref sl_si91x_gspi_init 
- * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t
  * @return status
  *         - \ref SL_STATUS_OK (0x0000) - Success 
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer
+ *
+ * @note
+ *   When the GSPI module is used in combination with other peripherals, while de-initializing in the application, refer to the notes below:
+ *   1. Whenever sl_si91x_gspi_deinit() gets called, it will power down the domain (PERI_EFUSE) which contains different peripherals mentioned below:
+ *      USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
+ *      Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM and EFUSE.
+ *      Since deinit power downs the PERI_EFUSE doamin, it's recommended to call the sl_si91x_gspi_deinit() API at the end of the application.
+ *   2. Few peripherlas (ULP Peripherals, UULP Peripherals, GPDMA and SDIO-SPI) have seperate domains that can be powered down indepedently. For additional details, refer to the Power architecture section in the Hardware Reference Manual
+ *      e.g., To power down ULP UART, use the API below:
+ *      RSI_PS_M4ssPeriPowerDown(ULPSS_PWRGATE_ULP_UART); 
+ *      Here, ULP_UART has seperate power domain ULPSS_PWRGATE_ULP_UART, which can be power down indepedently. Refer to the rsi_power_save.h file for all power gates definitions.
  ******************************************************************************/
 sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
 
 /***************************************************************************/
 /**
- * Control and configure the GSPI.
+ * @brief This API will be used to configure the GSPI module.
+ * @details The GSPI control and configuration options are listed below:
  * - The configurations are listed below:
  *   - swap_read (enable/disable)
  *   - swap_write (enable/disable)
@@ -189,11 +200,9 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
  *   - clock_mode (mode0/mode3)
  *   - slave_select_mode (hw_output/sw)
  *   - bitrate 
- * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
- * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t
  * @param[in] control_configuration pointer to the configuration structure \ref sl_gspi_control_config_t
  * @return status
@@ -212,17 +221,15 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
 
 /***************************************************************************/
 /**
- * Receive data from the secondary device.
- * If DMA is enabled, it configures the DMA channel and required parameters.
+ * @brief This API will receives data from the secondary device.
+ * @details If DMA is enabled, it configures the DMA channel and required parameters.
  * When the received data is equal to data_length passed in this function,
  * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback
- * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
  *      - \ref sl_si91x_gspi_set_slave_number
- * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t
  * @param[in] data pointer to the variable that will store the received data
  * @param[in] data_length (uint32_t) number of data items to receive
@@ -237,17 +244,15 @@ sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data,
 
 /***************************************************************************/
 /**
- * Send data to the secondary device.
- * If DMA is enabled, it configures the DMA channel and required parameters.
+ * @brief This API will Send data to the secondary device.
+ * @details If DMA is enabled, it configures the DMA channel and required parameters.
  * When the send data is equal to data_length passed in this function,
  * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback
- * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
- *      - \ref sl_si91x_gspi_set_slave_number
- * 
+ *      - \ref sl_si91x_gspi_set_slave_number 
  * @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
  * @param[in] data const pointer to the variable that has data which needs to be sent
  * @param[in] data_length (uint32_t) number of data items to send
@@ -262,17 +267,15 @@ sl_status_t sl_si91x_gspi_send_data(sl_gspi_handle_t gspi_handle, const void *da
 
 /***************************************************************************/
 /**
- * Send and receive data to the secondary device simultaneously.
- * If DMA is enabled, it configures the DMA channel and required parameters.
+ * @brief This API will Send and receive data to the secondary device simultaneously.
+ * @details If DMA is enabled, it configures the DMA channel and required parameters.
  * When the received data and send data is equal to data_length passed in this function,
- * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback
- * 
+ * a callback event is generated which can be registered using \ref sl_si91x_gspi_register_event_callback.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
- *      - \ref sl_si91x_gspi_set_slave_number
- * 
+ *      - \ref sl_si91x_gspi_set_slave_number 
  * @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
  * @param[in] data_out const pointer to the variable that has data which needs to be sent
  * @param[in] data pointer to the variable that will store the received data
@@ -291,30 +294,30 @@ sl_status_t sl_si91x_gspi_transfer_data(sl_gspi_handle_t gspi_handle,
 
 /***************************************************************************/
 /**
- * Set the main state, i.e., activate/de-activate the main.
- * 
- * @pre Pre-conditions:
- *      - \ref sl_si91x_gspi_configure_clock 
- *      - \ref sl_si91x_gspi_init 
- * 
- * @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
- * @param[in] value (boolean_t) Enable or Disable
- * @return status
- *         - \ref SL_STATUS_OK (0x0000) - Success 
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- *         - \ref SL_STATUS_BUSY (0x0004) - Driver is busy 
- *         - \ref SL_STATUS_INVALID_MODE (0x0024) - Mode is invalid (Fails to activate master) 
- ******************************************************************************/
+* @brief This API will set the master state as active or de-active.
+* @details Set the main state, i.e., activate/de-activate.
+* If the master is not required in the application for a specific time, 
+* it can be turned on/off in runtime by using this API.
+* @pre Pre-conditions:
+*      - \ref sl_si91x_gspi_configure_clock 
+*      - \ref sl_si91x_gspi_init 
+* @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
+* @param[in] value (boolean_t) Enable or Disable
+* @return status
+*         - \ref SL_STATUS_OK (0x0000) - Success 
+*         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+*         - \ref SL_STATUS_BUSY (0x0004) - Driver is busy 
+*         - \ref SL_STATUS_INVALID_MODE (0x0024) - Mode is invalid (Fails to activate master) 
+******************************************************************************/
 sl_status_t sl_si91x_gspi_set_master_state(sl_gspi_handle_t gspi_handle, boolean_t value);
 
 /***************************************************************************/
 /**
- * Register the user callback function.
- * At the time of events, the function passed in the parameter is called with the respective
+ * @brief This API will Register the user callback function.
+ * @details At the time of events, the function passed in the parameter is called with the respective
  * event as the parameter.
  * Before calling this function again, it is mandatory to call the \ref sl_si91x_gspi_unregister_event_callback
  * function to unregister the callback, otherwise it returns SL_STATUS_BUSY error code.
- * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
  * @param[in] callback_event Pointer to the function that needs to be called at the time of interrupt
  *            ( \ref sl_gspi_signal_event_t)
@@ -327,54 +330,48 @@ sl_status_t sl_si91x_gspi_register_event_callback(sl_gspi_handle_t gspi_handle, 
 
 /***************************************************************************/
 /**
- * Un-register the user callback function.
- * It is mandatory to call this function before registering the callback again.
- * 
- * @pre Pre-conditions:
+ * @brief This API will Un-register the user callback function.
+ * @note It is mandatory to call this function before registering the callback again.
+ * @pre Pre-condition:
  *      - \ref sl_si91x_gspi_register_event_callback 
- * 
  * @param[in] none
  * @return none
  ******************************************************************************/
 void sl_si91x_gspi_unregister_event_callback(void);
 
 /***************************************************************************/ /**
- * Get the GSPI version.
- * It returns the API version of GSPI.
- * 
+ * @brief This API will Gets the GSPI version.
+ * @details This will read the current API vesion of GSPI and 
+ * It returns same.
  * @param[in] none
- * @return (sl_gspi_version_t) type structure
+ * @return   \ref sl_gspi_version_t type structure
  ******************************************************************************/
 sl_gspi_version_t sl_si91x_gspi_get_version(void);
 
 /***************************************************************************/ /**
- * Get the transfer status GSPI.
- * It returns the \ref sl_gspi_status_t type structure. The members are:
+ * @brief This API will Get the transfer status GSPI.
+ * @details It returns the \ref sl_gspi_status_t type structure. The members are:
  * - Busy
  * - Data Lost
  * - Mode Fault
- * It is generally used to poll the busy status of GSPI Master.
- * 
+ * It is used to poll the busy status of GSPI Master.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
- * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
  * @return sl_gspi_status_t type structure
  ******************************************************************************/
 sl_gspi_status_t sl_si91x_gspi_get_status(sl_gspi_handle_t gspi_handle);
 
 /***************************************************************************/ /**
- * Get data receive count of the GSPI.
- * If a receive operation is started, this function can be used to get number 
+ * @brief This API will Get data receive count of the GSPI.
+ * @details If a receive operation is started, this function can be used to get number 
  * of data bytes received.
- * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
- * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
  * @return uint32_t value of the RX data count
  ******************************************************************************/
@@ -382,15 +379,13 @@ uint32_t sl_si91x_gspi_get_rx_data_count(sl_gspi_handle_t gspi_handle);
 
 /***************************************************************************/
 /**
- * Get the transmit data count of GSPI.
- * If a send operation is started, this function can be used to get number 
- * of data bytes send.
- * 
+ * @brief This API will Get the transmit data count of GSPI.
+ * @details If a send operation is started, this function can be used to get number 
+ * of data bytes sent.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 
  *      - \ref sl_si91x_gspi_set_configuration 
- * 
  * @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
  * @return uint32_t value of the tx data count
  ******************************************************************************/
@@ -398,31 +393,34 @@ uint32_t sl_si91x_gspi_get_tx_data_count(void);
 
 /***************************************************************************/
 /**
- * Fetch the clock division factor.
- * 
- * @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
- * @return factor (int32_t) The value of the clock division factor
- ******************************************************************************/
+* @brief  This API will fetch the clock division factor.
+* @details The clock division factor is calculated on the based of peripheral clock configured. 
+* It decides the baud rate of GSPI.
+* @param[in] gspi_handle Pointer to the GSPI driver handle ( \ref sl_gspi_handle_t)
+* @return  factor (int32_t) The value of the clock division factor
+******************************************************************************/
 int32_t sl_si91x_gspi_get_clock_division_factor(sl_gspi_handle_t gspi_handle);
 
 /***************************************************************************/
 /**
- * Fetch the frame length, i.e., bit width.
- * The frame length ranges between 1 and 15.
- * 
+ * @brief This API will Fetch the frame length, i.e., bit width.
+ * @details This will get the frame length and the frame length ranges between 1 and 15.
+ *
  * @param[in] none
- * @return frame_length (uint32_t) The value of the frame length
+ *
+ * @return  frame_length (uint32_t) The value of the frame length
  ******************************************************************************/
 uint32_t sl_si91x_gspi_get_frame_length(void);
 
 /***************************************************************************/
 /**
- * Set the secondary number in multi-secondary operation.
- * For a single secondary also, this API needs to be called before transferring the
- * data
- * 
+ * @brief This API will Set the secondary number in multi-secondary operation.
+ * @details For a single secondary also, this API needs to be called before transferring the
+ * data.
+ *
  * @param[in] number Secondary number ( \ref sl_gspi_slave_number_t)
- * @return none
+ *
+ * @return  none
  ******************************************************************************/
 __STATIC_INLINE sl_status_t sl_si91x_gspi_set_slave_number(uint8_t number)
 {
@@ -436,8 +434,67 @@ __STATIC_INLINE sl_status_t sl_si91x_gspi_set_slave_number(uint8_t number)
   return status;
 }
 
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup GSPI
+/// @{
+///   @details
+///
+///   @n @section GSPI_Intro Introduction
+///
+/// The Generic SPI Master is available in MCU HP peripherals.
+/// It provides an I/O interface for a large range of SPI-compatible peripheral devices.
+/// SPI is a synchronous four-wire interface made up of two data pins (MOSI and MISO),
+/// a device select pin (CSN), and a gated clock pin (SCLK). With two data pins,
+/// it supports full-duplex operation with other SPI-compatible devices.
+///
+/// @li Typical SPI-compatible peripheral devices that can be used to interface include:
+///  LCD displays, A/D converters, D/A converters, Codecs, Micro-controllers and Flashes.
+///
+/// @li GSPI (General Serial Peripheral Interface) can be used in various applications within embedded systems
+///  where high-speed, synchronous serial communication is required. Here are some common areas where GSPI can be employed in embedded systems:
+///
+/// 1. Test and Measurement Equipment
+///
+/// 2. Sensor Interfacing
+///
+/// 3. Display Interfaces
+///
+/// 4. Memory Devices
+///
+/// 5. Communication Interfaces
+///
+/// 6. Motor Control
+///
+/// 7. Audio Processing
+///
+/// 8. Wireless Communication
+///
+/// @n @section Configuration
+///
+///  Configuring GSPI (General Serial Peripheral Interface) in a micro-controller involves several steps,
+///  including setting up the peripheral registers, configuring GPIO pins,
+///  and selecting the appropriate operating mode and settings.
+///
+///   @li To configure the GSPI operating mode, modify @ref clock_mode_typedef_t (Mode-0 and Mode-3 can be configured),
+///   Bit Rate (Range 1 - 40000000), Data Width (Range 1- 15), and configure the GSPI slave select mode
+///   by configuring @ref slave_select_mode_typedef_t. All of these must be configured in the structure
+///   @ref sl_gspi_control_config_t and call the API @ref sl_si91x_gspi_set_configuration().
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
+///
+/// @n @section Usage
+///
+///  The common GSPI functions can be used after the GSPI Structures are specified, passing an instance of
+///   @ref sl_gspi_control_config_t. These functions will initiate and configure the GSPI below, which is the flow for implementation.
+///
+///   1. @ref sl_si91x_gspi_configure_clock
+///   2. @ref sl_si91x_gspi_init
+///   3. @ref sl_si91x_gspi_set_configuration
+///   4. @ref sl_si91x_gspi_register_event_callback
+///   5. @ref sl_si91x_gspi_send_data
+///   6. @ref sl_si91x_gspi_deinit
+///
 /** @} (end addtogroup GSPI) */
-
 #ifdef __cplusplus
 }
 #endif

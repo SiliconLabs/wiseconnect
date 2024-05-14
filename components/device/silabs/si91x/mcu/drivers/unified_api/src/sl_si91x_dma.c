@@ -50,8 +50,8 @@
 #define EXTRACT_LSB                1
 #define DMA_CHANNEL_12             12
 #define DMA_CHANNEL_PRIORITY_HIGH  1
-#define VALID_CALLBACK_RANGE_LOW   1
-#define VALID_CALLBACK_RANGE_HIGH  3
+#define VALID_CALLBACK_RANGE_LOW   1 // Validation of low range callback type
+#define VALID_CALLBACK_RANGE_HIGH  3 // Validation of high range callback type
 
 /*******************************************************************************
  ***************************  EXTERN VARIABLES  ********************************
@@ -113,7 +113,7 @@ static boolean_t channel_status(uint32_t dma_number, uint32_t channel);
  *
  * @return none
  ******************************************************************************/
-static void process_dma_irq(uint32_t dma_number, uint32_t channel, uint32_t irq_type);
+__STATIC_INLINE void process_dma_irq(uint32_t dma_number, uint32_t channel, uint32_t irq_type);
 
 /*******************************************************************************
  **********************  Local Function Definition****************************
@@ -136,7 +136,7 @@ static boolean_t channel_status(uint32_t dma_number, uint32_t channel)
  * triggered by updating DMA descriptors.
  * This function calls transfer and error callback functions if registered.
  ******************************************************************************/
-static void process_dma_irq(uint32_t dma_number, uint32_t channel, uint32_t irq_type)
+__STATIC_INLINE void process_dma_irq(uint32_t dma_number, uint32_t channel, uint32_t irq_type)
 {
 
   uint32_t remaining_data_size;
@@ -643,7 +643,7 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
       RSI_UDMA_CHA_CONFIG_DATA_T control;
       RSI_UDMA_CHA_CFG_T config;
 
-      // Upadte DMA mode
+      // Update DMA mode
       if (dma_transfer_t->dma_mode == SL_DMA_BASIC_MODE) {
         config.altStruct = ALTERNATE_DESCRIPTOR_DISABLE;
       } else {
@@ -672,20 +672,17 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
         config.periAck = PERIPHERAL_ACK_DISABLE;
       }
       config.dmaCh = (channel);
-#if (defined(SL_SI91X_GSPI_DMA) && (SL_SI91X_GSPI_DMA == ENABLE))
+#if ((defined(SL_SI91X_GSPI_DMA) && (SL_SI91X_GSPI_DMA == ENABLE)) \
+     || (defined(SL_SI91X_SSI_DMA) && (SL_SI91X_SSI_DMA == ENABLE)))
       config.burstReq = BURST_REQUEST_DISABLE;
 #else
       config.burstReq = BURST_REQUEST_ENABLE;
 #endif
       config.reqMask = REQUEST_MASK_DISABLE;
-      // Memory-meory transfer
-      if (dma_transfer_t->dma_mode == SL_DMA_BASIC_MODE) {
-        control.transferType = SL_DMA_BASIC_MODE;
-      } else {
-        control.transferType = SL_DMA_PINGPONG_MODE;
-      }
+      // Memory-memory transfer
+      control.transferType = dma_transfer_t->dma_mode;
+      control.nextBurst    = NEXT_BURST_DISABLE;
 
-      control.nextBurst = NEXT_BURST_DISABLE;
       if (dma_transfer_t->transfer_count >= DMA_MAX_TRANSFER_COUNT) {
         // Transfer size is more than maximum transfer size in one DMA cycle
         control.totalNumOfDMATrans = (DMA_MAX_TRANSFER_COUNT - 1);
@@ -716,6 +713,7 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
                                                    udma_driver_channel_info[dma_number],
                                                    udmaHandle[dma_number]);
       if (dma_transfer_t->transfer_type == SL_DMA_MEMORY_TO_MEMORY) {
+        //For memory-to-peripheral and peripheral-to-memory transfer types, below functions should be called explicitly by application
         // Enable DMA channel
         status =
           (sl_status_t)UDMAx_ChannelEnable((uint8_t)channel, UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
@@ -723,14 +721,6 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
         status = (sl_status_t)UDMAx_DMAEnable(UDMA_driver_resources[dma_number], udmaHandle[dma_number]);
         // Start transfer using software trigger
         status = (sl_status_t)RSI_UDMA_ChannelSoftwareTrigger(udmaHandle[dma_number], (uint8_t)channel);
-      }
-      if (config.periphReq == PERIPHERAL_REQUEST_DISABLE) {
-        //For memory to peripheral and peripheral to memory transfer types, below functions should be called explicitly by application
-
-        // Enable DMA channel
-        status = sl_si91x_dma_channel_enable(dma_number, channel);
-        // Enable DMA peripheral
-        status = sl_si91x_dma_enable(dma_number);
       }
     } else {
       // Channel is unallocated
@@ -910,9 +900,9 @@ sl_status_t sl_si91x_dma_enable(uint32_t dma_number)
  * If transfer size is greater than DMA max transfer size, process_dma_irq
  * will initiate the transfer again until all the bytes are transferred
  * *****************************************************************************/
-void DMA0_IRQ_HANDLER(void)
+void __attribute__((optimize("O0"))) DMA0_IRQ_HANDLER(void)
 {
-
+  // Removed optimization to support large chunk of data transfer as a temporary solution, maybe removed in future
   uint32_t channel;
   volatile uint32_t interrupt_status;
   volatile uint32_t error_status;
@@ -942,7 +932,6 @@ void DMA0_IRQ_HANDLER(void)
     }
   }
 }
-
 /*******************************************************************************
  * Interrupt handler for UDMA1 peripheral.
  * This function clears the interrupts
@@ -951,14 +940,13 @@ void DMA0_IRQ_HANDLER(void)
  * *****************************************************************************/
 void DMA1_IRQ_HANDLER(void)
 {
-
   uint32_t channel;
   volatile uint32_t interrupt_status;
   volatile uint32_t error_status;
   uint32_t irq_type = 0;
 
   // Scan the channel which triggered interrupt
-  for (channel = 0; channel < DMA_CHANNEL_32; channel++) {
+  for (channel = 0; channel < DMA_CHANNEL_12; channel++) {
     irq_type = 0;
     // Check for transfer complete interrupt
     interrupt_status = UDMA_driver_resources[1]->reg->UDMA_DONE_STATUS_REG;

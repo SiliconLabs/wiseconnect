@@ -6,8 +6,13 @@ description: >
   serial bus interface standard used for connecting digital audio devices. 
   Unlike I2C or SPI, I2S is specifically designed for transferring audio data 
   between integrated circuits (ICs).
+
   The pins like CLK, FRAME, DIN, DOUT are used for transmitting and receiving the data 
-  in full duplex communication from master to target .
+  in full duplex communication from master to target.
+  Offering non-blocking send and receive functions. 
+
+  When you install this component, it will also be installing the  I2S dependency component, 
+  which is the I2S driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

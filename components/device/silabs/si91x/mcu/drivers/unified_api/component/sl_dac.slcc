@@ -2,15 +2,13 @@ id: sl_dac
 label: DAC
 package: platform
 description: >
- DAC stands for Digital-to-Analog Converter.
- A DAC's objective is to generate a continuous, accurate analog output signal that matches
- the digital data entered. The number of unique analog output levels that
- a DAC can generate is known as its resolution, and it is based on the number of bits in the digital input.
- Configurable parameters in DAC:
-   - Sampling Rate
-   - Operation mode
-   - Reference Voltage
-   - Interrupts and DMA
+  The DAC Drivers can write at up to 5 Msps with a 10-Bit resolution. 
+  There are two types of data sampling functions: blocking and non-blocking.  
+  Non-blocking write data functions use DMA (FIFO mode) to write data 
+  and notify completion via callback functions.
+  DAC peripheral can also be run in ULP mode.
+  
+  When you install this component, it will also be installing the  DAC Core dependency, which is the DAC driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

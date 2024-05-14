@@ -46,6 +46,7 @@
 #include "select.h"
 #include "sl_bsd_utility.h"
 #include "sl_si91x_socket_constants.h"
+#include <sl_string.h>
 
 /******************************************************
 
@@ -309,7 +310,7 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len)
     // Close the client socket and free resources if the connection fails
     close(client_socket_id);
     if (buffer != NULL) {
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
     }
     SET_ERROR_AND_RETURN(SI91X_UNDEFINED_ERROR);
   }
@@ -337,7 +338,7 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len)
   // If addr_len is NULL or invalid value, just return the client socket ID
   if (addr_len == NULL || *addr_len <= 0) {
     if (buffer != NULL) {
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
     }
     return client_socket_id;
   }
@@ -353,7 +354,7 @@ int accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len)
 
   // Free resources and return the client socket ID
   if (buffer != NULL) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   return client_socket_id;
 }
@@ -585,7 +586,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
 
   // Free the buffer if there was an error
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
@@ -621,7 +622,7 @@ ssize_t recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
   }
 
   // Free the buffer
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   return bytes_read;
 }
 
@@ -801,7 +802,7 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
   // Check if option_value is valid
   SET_ERRNO_AND_RETURN_IF_TRUE(option_value == NULL, EFAULT);
   // Check if option_level is SOL_SOCKET
-  SET_ERRNO_AND_RETURN_IF_TRUE(option_level != SOL_SOCKET || option_length == NULL, EINVAL)
+  SET_ERRNO_AND_RETURN_IF_TRUE((option_level != SOL_SOCKET && option_level != SOL_TCP) || option_length == NULL, EINVAL)
 
   // Determine the requested socket option and handle it accordingly
   switch (option_name) {
@@ -855,6 +856,13 @@ int getsockopt(int socket_id, int option_level, int option_name, void *option_va
       break;
     }
 
+    case TCP_ULP: {
+      // Retrieve and copy the socket ssl_bitmap
+      *option_length = GET_SAFE_MEMCPY_LENGTH(*option_length, sizeof(si91x_socket->ssl_bitmap));
+      memcpy(option_value, &si91x_socket->ssl_bitmap, *option_length);
+      break;
+    }
+
     default: {
       SET_ERROR_AND_RETURN(ENOPROTOOPT);
     }
@@ -902,7 +910,8 @@ struct hostent *gethostbyname(const char *name)
 {
   sl_status_t status = SL_STATUS_OK;
 
-  if ((name == NULL) || (strlen(name) > SI91X_DNS_REQUEST_MAX_URL_LEN)) {
+  if ((name == NULL)
+      || (sl_strnlen((char *)(name), SI91X_DNS_REQUEST_MAX_URL_LEN + 1) > SI91X_DNS_REQUEST_MAX_URL_LEN)) {
     herrno = TRY_AGAIN;
     return NULL;
   }
@@ -943,7 +952,8 @@ struct hostent *gethostbyname2(const char *name, int af)
   sl_status_t status = SL_STATUS_OK;
 
   // Validate the 'name' argument
-  if ((name == NULL) || (strlen(name) > SI91X_DNS_REQUEST_MAX_URL_LEN)) {
+  if ((name == NULL)
+      || (sl_strnlen((char *)(name), SI91X_DNS_REQUEST_MAX_URL_LEN + 1) > SI91X_DNS_REQUEST_MAX_URL_LEN)) {
     herrno = TRY_AGAIN;
     return NULL;
   }
@@ -1063,7 +1073,7 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
                                         NULL,
                                         &buffer);
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
@@ -1074,7 +1084,7 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struc
   // Update the file descriptor sets
   total_fd_set_count = handle_select_response(response, readfds, writefds, exceptfds);
 
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
 
   return total_fd_set_count;
 }

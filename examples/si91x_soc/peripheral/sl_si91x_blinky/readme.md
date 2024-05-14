@@ -39,6 +39,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 - Configure the following parameter in blinky.c file, update/modify following macro if required.
@@ -49,10 +51,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ## Test the Application
 
-1. Sets the board state of LED0 to ON and OFF for configured blink rate and then device goes to sleep.
-2. LED0 should blink on WSTK/WPK base board.
+1. Compile and run the application.
+2. Sets the board state of LED0 to ON and OFF for configured blink rate.
+3. LED0 should blink on WSTK/WPK base board.
 
   > **Note:**
   >
-  > LED0 OFF, LED0 ON, device sleep will be a continous process.
+  > LED0 will continuously be turned on and off.
  

@@ -270,6 +270,16 @@ The following is an example code snippet illustrating the use of the above APIs:
    sl_si91x_gpio_set_pin_direction(0, 10, 0);
 ```
 
+##### SDIO Host Interfaces
+
+|GPIO    |  GPIO Default State SPI Mode|
+|GPIO_25 |  SDIO_CLK |
+|GPIO_26 |  SDIO_CMD |
+|GPIO_27 |  SDIO_D0 |
+|GPIO_28 |  SDIO_D1 |
+|GPIO_29 |  SDIO_D2 |
+|GPIO_30 |  SDIO_D3 |
+
 ##### Digital ULP GPIOs
 
 The SoC GPIOs configured for ULP Peripheral functionality (ULPPERH_ON_SOC_GPIO_0 to ULPPERH_ON_SOC_GPIO_11) are available only in the normal mode of operation (Power-states 4 and 3). For a description of power-states,For a description of power states, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
@@ -540,6 +550,10 @@ Enable this macro to execute the MCU in ultra low power (ULP) mode. In ULP mode,
 The `ULP_MODE_EXECUTION` macro will be enabled if the **ulp_mode_execution** component is present in the example slcp file. The slcp file can be edited in the example project in Simplicity Studio.
 
 >**Note:** We recommend you install this component when your application needs to run in the ultra low power mode or to use peripherals.
+
+For low power M4 sleep states such as PS2, PS3, and PS4, certain files must be run from RAM memory.. Please refer [Power manager integration guide](
+https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf
+) for more details
 
 ## Memory Organization
 

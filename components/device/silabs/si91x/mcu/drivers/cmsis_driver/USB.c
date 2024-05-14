@@ -34,7 +34,7 @@
 #include "Driver_USB.h"
 #include "USB.h"
 #include "RTE_Device.h"
-#include "RTE_Components.h"
+
 
 volatile uint8_t USB_role  = ARM_USB_ROLE_NONE;
 volatile uint8_t USB_state = 0U;

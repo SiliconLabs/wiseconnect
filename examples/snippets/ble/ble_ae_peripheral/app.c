@@ -60,6 +60,8 @@
 #define PERIODIC_ADV_EN 0
 #define BLE_ADV_HNDL1   0x00
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 uint8_t adv[BLE_AE_ADV_DATA_LEN] = { 2, 1, 6 };
 
 //! Address type of the device to connect
@@ -350,10 +352,11 @@ void ble_extended_scan_request_received_callback(uint16_t status, rsi_ble_scan_r
  */
 void rsi_ble_peripheral(void)
 {
-  int32_t status                      = 0;
-  int32_t temp_event_map              = 0;
-  uint8_t remote_dev_addr[18]         = { 0 };
-  uint8_t rand_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  int32_t status                             = 0;
+  int32_t temp_event_map                     = 0;
+  uint8_t remote_dev_addr[18]                = { 0 };
+  uint8_t rand_addr[RSI_DEV_ADDR_LEN]        = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN] = { 0 };
   rsi_ascii_dev_address_to_6bytes_rev((uint8_t *)rand_addr, (int8_t *)RSI_BLE_SET_RAND_ADDR);
   uint8_t data[BLE_AE_ADV_DATA_LEN] = { 0 };
   strncpy((char *)data, BLE_AE_ADV_DATA, BLE_AE_ADV_DATA_LEN);
@@ -401,10 +404,14 @@ void rsi_ble_peripheral(void)
     return;
   }
 
-  //! get the local device address(MAC address).
+  //! get the local device MAC address.
   status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
   if (status != RSI_SUCCESS) {
-    LOG_PRINT("\n rsi_bt_get_local_device_address failed with 0x%lX \n", status);
+    LOG_PRINT("\r\n rsi_bt_get_local_device_address failed with 0x%lX \r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   //! set the local device name

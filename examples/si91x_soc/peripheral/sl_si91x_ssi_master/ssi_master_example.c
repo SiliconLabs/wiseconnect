@@ -40,6 +40,7 @@
 #define TIMER_FREQUENCY                    32000     // Timer frequency for delay
 #define INITIAL_COUNT                      7000      // Count configured at timer init
 #define SYNC_TIME                          5000      // Delay to sync master and slave
+#define RECEIVE_SYNC_TIME                  500       // Delay to settle the slave after send
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
@@ -241,6 +242,7 @@ void ssi_master_example_process_action(void)
       break;
     case SSI_MASTER_RECEIVE_DATA:
       if (ssi_master_begin_transmission == true) {
+        wait_for_sync(RECEIVE_SYNC_TIME);
         // Validation for executing the API only once
         sl_si91x_ssi_set_slave_number((uint8_t)ssi_slave_number);
         status = sl_si91x_ssi_receive_data(ssi_driver_handle,

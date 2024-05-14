@@ -306,7 +306,7 @@ void rsi_wlan_app_thread(void *unused)
           access_point.ssid.length = strlen((char *)SSID);
           memcpy(access_point.ssid.value, SSID, access_point.ssid.length);
           access_point.security      = SECURITY_TYPE;
-          access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
+          access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
           access_point.credential_id = id;
 
           LOG_PRINT("SSID %s\n", access_point.ssid.value);

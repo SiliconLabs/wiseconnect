@@ -305,7 +305,7 @@ void sl_wifi_app_task()
           access_point.ssid.length = strlen((char *)coex_ssid);
           memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);
           access_point.security      = sec_type;
-          access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
+          access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
           access_point.credential_id = id;
 
           LOG_PRINT("SSID=%s\n", access_point.ssid.value);

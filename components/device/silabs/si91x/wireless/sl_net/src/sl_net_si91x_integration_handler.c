@@ -64,7 +64,7 @@ static void handle_mqtt_client_asynch_events(sl_si91x_queue_packet_t *mqtt_asyn_
 
   // Since these responses are unsolicited, We need to create a context for them.
   if (raw_rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE
-      || raw_rx_packet->command == RSI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT) {
+      || raw_rx_packet->command == RSI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT || raw_rx_packet->command == RSI_WLAN_RSP_JOIN) {
 
     sli_si91x_get_mqtt_client(&mqtt_client);
 
@@ -74,15 +74,23 @@ static void handle_mqtt_client_asynch_events(sl_si91x_queue_packet_t *mqtt_asyn_
       return;
     }
 
+    if (mqtt_client->state == SL_MQTT_CLIENT_DISCONNECTED) {
+      // Drop MQTT client event disconnect, if the client is already in disconnected
+      // This can happen if MQTT client is already disconnected state and TA sends a rejoin failure event.
+      SL_DEBUG_LOG("Dropping mqtt disconnect event: %hu", raw_rx_packet->command);
+      return;
+    }
+
     // Build MQTT SDK context for asynchronous MQTT events
-    sli_si91x_build_mqtt_sdk_context_if_async(raw_rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE
-                                                ? SL_MQTT_CLIENT_DISCONNECTED_EVENT
-                                                : SL_MQTT_CLIENT_MESSAGED_RECEIVED_EVENT,
-                                              mqtt_client,
-                                              NULL,
-                                              NULL,
-                                              0,
-                                              (sl_si91x_mqtt_client_context_t **)&mqtt_asyn_packet->sdk_context);
+    sli_si91x_build_mqtt_sdk_context_if_async(
+      (raw_rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE || raw_rx_packet->command == RSI_WLAN_RSP_JOIN)
+        ? SL_MQTT_CLIENT_DISCONNECTED_EVENT
+        : SL_MQTT_CLIENT_MESSAGED_RECEIVED_EVENT,
+      mqtt_client,
+      NULL,
+      NULL,
+      0,
+      (sl_si91x_mqtt_client_context_t **)&mqtt_asyn_packet->sdk_context);
   }
 
   sl_si91x_mqtt_client_context_t *sdk_context = (sl_si91x_mqtt_client_context_t *)mqtt_asyn_packet->sdk_context;
@@ -103,7 +111,7 @@ static void handle_mqtt_client_asynch_events(sl_si91x_queue_packet_t *mqtt_asyn_
 
 static void si91x_node_free_function(sl_wifi_buffer_t *buffer)
 {
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_CONTROL_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
 }
 
 void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x_packet_t *packet)
@@ -119,8 +127,11 @@ void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x
   if (packet->command == RSI_WLAN_REQ_EMB_MQTT_CLIENT || packet->command == RSI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT
       || packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE) {
     handle_mqtt_client_asynch_events(data);
-
     return;
+  }
+
+  if (packet->command == RSI_WLAN_RSP_JOIN) {
+    handle_mqtt_client_asynch_events(data);
   }
 #endif
 
@@ -146,7 +157,8 @@ void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x
 #endif
 
   if (packet->command == RSI_WLAN_RSP_JOIN || packet->command == RSI_WLAN_RSP_IPV4_CHANGE
-      || packet->command == RSI_WLAN_RSP_IPCONFV4 || packet->command == RSI_WLAN_RSP_IPCONFV6) {
+      || packet->command == RSI_WLAN_RSP_IPCONFV4
+      || ((packet->command == RSI_WLAN_RSP_IPCONFV6) && (data->frame_status))) {
     // free all TX queues except BT
     for (int queue_id = 0; queue_id < SI91X_BT_CMD; queue_id++) {
       sl_si91x_flush_queue_based_on_type(queue_id, si91x_node_free_function);

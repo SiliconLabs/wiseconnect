@@ -20,7 +20,7 @@ template_contribution:
   - name: usart_ps2
     value: sl_si91x_usart.o
   - name: usart_ps2
-    value: USART.o
+    value: rsi_udma.o
   - name: usart_ps2
-    value: rsi_usart.o
+    value: rsi_udma_wrapper.o
 

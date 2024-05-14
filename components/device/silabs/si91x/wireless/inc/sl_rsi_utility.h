@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -45,8 +45,6 @@
 #include "sl_wifi_device.h"
 #include "sl_si91x_types.h"
 
-#define NCP_HOST_DATA_TX_EVENT           (1 << 1) // Notify there is something to transmit
-#define NCP_HOST_BUS_RX_EVENT            (1 << 2) // Triggered by IRQ to indicate something to read
 #define NCP_HOST_COMMON_RESPONSE_EVENT   (1 << 3) // Indicates RX response received for COMMON command type
 #define NCP_HOST_WLAN_RESPONSE_EVENT     (1 << 4) // Indicates synchronous RX response received for WLAN command type
 #define NCP_HOST_WLAN_NOTIFICATION_EVENT (1 << 5) // Indicates asynchronous RX response received for WLAN command type
@@ -279,7 +277,7 @@ uint32_t si91x_host_clear_events(uint32_t event_mask);       /*Function used to 
 uint32_t si91x_host_clear_bus_events(uint32_t event_mask);   /*Function used to clear flags for specific event*/
 uint32_t si91x_host_clear_async_events(uint32_t event_mask); /*Function used to clear flags for specific event*/
 
-sl_status_t sl_si91x_host_init_buffer_manager(void);
+sl_status_t sl_si91x_host_init_buffer_manager(const sl_wifi_buffer_configuration_t *config);
 sl_status_t sl_si91x_host_deinit_buffer_manager(void);
 sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
                                           sl_wifi_buffer_type_t type,
@@ -290,8 +288,7 @@ void *sl_si91x_host_get_buffer_data(
   uint16_t offset,
   uint16_t *data_length); /*Function used to obtain pointer to a specified location in the buffer*/
 void sl_si91x_host_free_buffer(
-  sl_wifi_buffer_t *buffer,
-  sl_wifi_buffer_type_t type); /*Function used to deallocate the memory associated with buffer*/
+  sl_wifi_buffer_t *buffer); /*Function used to deallocate the memory associated with buffer*/
 // ---------------
 
 sl_status_t sl_si91x_host_add_to_queue(
@@ -323,6 +320,9 @@ sl_status_t sl_si91x_flush_queue_based_on_type(sl_si91x_queue_type_t queue,
 uint32_t sl_si91x_host_queue_status(
   sl_si91x_queue_type_t queue); /*Function used to check whether queue is empty or not*/
 
+uint32_t sl_si91x_host_get_queue_packet_count(
+  sl_si91x_queue_type_t queue); /*Function used to get the number of packets in the queue*/
+
 // These aren't host APIs. These should go into a wifi bus API header
 sl_status_t sl_si91x_bus_read_memory(
   uint32_t addr,
@@ -353,14 +353,12 @@ void sl_si91x_bus_rx_done_handler(void);       /*Function used to check the bus 
  * @param[in]   uint8 type, type of the insruction to perform
  * @param[in]   uint32 *data, pointer to data which is to be read/write
  * @param[out]  none
- * @return      errCode
- *              < 0  = Command issued failure/Invalid command 
- *                0  = SUCCESS
- *              > 0  = Read value
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @section description 
  * This API is used to send boot instructions to WiFi module.
  **************************************************/
-int16_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data);
+sl_status_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data);
 
 /***************************************************************************/ /**
  * @brief
@@ -384,7 +382,7 @@ void sl_si91x_ulp_wakeup_init(void); /*Function used to initialize SPI interface
  * @brief 
  *  Function used to obtain wifi credential type like EsAP,PMK,etc..
  * @param id 
- *  Credential ID as identified by [sl_wifi_credential_id_t](../wwiseconnect-api-reference-guide-wi-fi/sl-wifi-types#sl-wifi-credential-id-t).
+ *  Credential ID as identified by [sl_wifi_credential_id_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-types#sl-wifi-credential-id-t).
  * @param type 
  *  It specifies type of credential.
  * @param cred 

@@ -46,7 +46,7 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
 {
 }
 
-void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer, sl_si91x_buffer_type_t type)
+void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
 {
   pbuf_free((struct pbuf *)buffer);
 }

@@ -2,21 +2,29 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope) 
-- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Run the UDP Server](#run-the-udp-server)
-    - [UDP Tx Throughput](#udp-tx-throughput)
-    - [UDP Rx Throughput](#udp-rx-throughput)
-    - [TCP Tx Throughput](#tcp-tx-throughput)
-    - [TCP Rx Throughput](#tcp-rx-throughput)
-    - [TLS Tx Throughput](#tls-tx-throughput)
-    - [TLS Rx Throughput](#tls-rx-throughput)
+- [Wi-Fi - Throughput](#wi-fi---throughput)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+    - [Instructions for Keil IDE and STM32F411RE MCU](#instructions-for-keil-ide-and-stm32f411re-mcu)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes)
+  - [Application Build Environment](#application-build-environment)
+    - [Configure sl\_net\_default\_values.h](#configure-sl_net_default_valuesh)
+  - [Test the application](#test-the-application)
+    - [Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)](#instructions-for-simplicity-studio-ide-and-silicon-labs-devices-soc-and-ncp-modes-1)
+    - [Instructions for Keil IDE and STM32F411RE MCU](#instructions-for-keil-ide-and-stm32f411re-mcu-1)
+    - [Application Prints:](#application-prints)
+    - [To Run Server](#to-run-server)
+      - [UDP Tx Throughput](#udp-tx-throughput)
+      - [UDP Rx Throughput](#udp-rx-throughput)
+      - [TCP Tx Throughput](#tcp-tx-throughput)
+      - [TCP Rx Throughput](#tcp-rx-throughput)
+      - [TLS Tx Throughput](#tls-tx-throughput)
+      - [TLS Rx Throughput](#tls-rx-throughput)
   
 ## Purpose/Scope
 
@@ -68,9 +76,11 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 
 ### Instructions for Keil IDE and STM32F411RE MCU
 
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
 - Install the [Keil IDE](https://www.keil.com/).
 - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
-- Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
+- Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
 - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following steps:
   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
@@ -78,7 +88,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
   
   ![Figure: Setup](resources/readme/stm32_setup.png)
   - Connect the setup to the computer.
-- Open the Wi-Fi Throughput µVision project - **wlan_throughput.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → wlan_throughput → projects**.
+- Open the Wi-Fi Throughput µVision project - **wlan_throughput.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → wlan_throughput → Keil project**.
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
 
@@ -88,6 +98,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
@@ -125,14 +137,18 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-- Configure the following parameters in `app.c` to test throughput app as per requirements
+**Path for app.c in Keil IDE:**
+
+- Expand the **Application/User/Core** folder and open **app.c** file.
+
+Configure the following parameters in `app.c` to test throughput app as per requirements
 
   - Client/Server IP Settings
 
       ```c
       #define LISTENING_PORT     <local_port>       // Local port to use
       #define SERVER_PORT        <remote_port>      // Remote server port
-      #define SERVER_IP_ADDRESS  "192.168.0.100"    // Remote server IP address
+      #define SERVER_IP  "192.168.0.100"    // Remote server IP address
       #define SOCKET_ASYNC_FEATURE 1                // Type of Socket used. Synchronous = 0, Asynchronous = 1
       ```
 
@@ -161,11 +177,12 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
   -  Change the PLL_MODE to 1, in sl_si91x_protocol_types.h.
 
      **File path for Simplicity Studio IDE:**
-     - In the Project explorer pane, expand as follows **wiseconnect3_sdk_xxx** > **components** > **si91x** > **inc** folder and open **sl_si91x_protocol_types.h** file.
+
+     - In the Project explorer pane, expand as follows **wiseconnect3_sdk_xxx** > **components** > **device** > **silabs** > **si91x** > **wireless** > **inc** folder and open **sl_si91x_protocol_types.h** file.
 
      **File path for Keil IDE:**
-     - In the Project pane, expand the **components/si91x** folder, open the **sl_si91x_protocol_types.h** file.
 
+     - In the Project pane, expand the **components/device/silabs/si91x/wireless/inc** folder, open the **sl_si91x_protocol_types.h** file.
 
       ```c
       #define PLL_MODE      1
@@ -187,10 +204,8 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
       44  // TCP RX window division factor
     };
     ```  
-    **Path for app.c in Keil IDE:**
-    - Expand the **Application/User/Core** folder and open **app.c** file.
 
-### Test the application
+## Test the application
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
 
@@ -201,20 +216,20 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   > **Note:** The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the iPerf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the throughput numbers in serial console.
 
-  ![Application_Prints](resources/readme/output_soc.png)
-
 ### Instructions for Keil IDE and STM32F411RE MCU
 
 - Build the application.
 - Set the Tera Term up by connecting STM32's Serial COM port. This enables you to view the application prints.
 - Flash, run and debug the application.
 -  The application prints appear as follows in the serial terminal.
+  
+### Application Prints:
 
   ![STM32 Application_Prints](resources/readme/output_stm32.png)
 
-#### Run the UDP Server
+### To Run Server
 
-##### UDP Tx Throughput
+#### UDP Tx Throughput
 
 To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC.
 The iPerf command to start the UDP server on the PC is:
@@ -227,20 +242,20 @@ The iPerf command to start the UDP server on the PC is:
 
   ![Figure: UDP_TX](resources/readme/image217b.png)
 
-##### UDP Rx Throughput
+#### UDP Rx Throughput
 
 To measure UDP Rx throughput, configure the SiWx91x as a UDP server and start a UDP client on the remote PC.
 The iPerf command to start the UDP client is:
 
-  > `C:\> iperf.exe -c <Module_IP> -u -p <Module_Port> -i 1 -b <Bandwidth> -t <time interval in seconds>`
+  > `C:\> iperf.exe -c <Module_IP> -u -p <LISTENING_PORT> -i 1 -b <Bandwidth> -t <time interval in seconds>`
   >
   > For example ...
   >
-  > `C:\> iperf.exe -c 192.168.0.100 -u -p 5001 -i 1 -b70M -t 30`  
+  > `C:\> iperf.exe -c 192.168.0.100 -u -p 5001 -i 1 -b 70M -t 30`  
 
   ![Figure: UDP_RX](resources/readme/image217a.png)
 
-##### TCP Tx Throughput
+#### TCP Tx Throughput
 
 To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC.
 The iPerf command to start the TCP server is:
@@ -253,12 +268,12 @@ The iPerf command to start the TCP server is:
 
   ![Figure: TCP_TX](resources/readme/image217d.png)
 
-##### TCP Rx Throughput
+#### TCP Rx Throughput
 
 To measure TCP Rx throughput, configure the SiWx91x as TCP server and start a TCP client on the remote PC.
 The iPerf command to start the TCP client is:
 
-  > `C:\> iperf.exe -c <Module_IP> -p <module_PORT> -i 1 -t <time interval in sec>`
+  > `C:\> iperf.exe -c <Module_IP> -p <LISTENING_PORT> -i 1 -t <time interval in sec>`
   >
   > For example ...
   >
@@ -266,7 +281,7 @@ The iPerf command to start the TCP client is:
 
   ![Figure: TCP_RX](resources/readme/image217c.png)
 
-##### TLS Tx Throughput
+#### TLS Tx Throughput
 
 To measure TLS Tx throughput, configure the SiWx91x as a TLS client and start a TLS server on the remote PC as described in the following bullets:
 
@@ -280,7 +295,7 @@ To measure TLS Tx throughput, configure the SiWx91x as a TLS client and start a 
 
   ![Figure: TLS_TX](resources/readme/image217f.png)
 
-##### TLS Rx Throughput
+#### TLS Rx Throughput
 
 To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a TLS server on the remote PC as described in the following bullets:
 
@@ -292,4 +307,4 @@ To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a T
 
     >   The TLSv1_3 works for python version greater than 3.6.
 
-    ![Figure: TLS_RX](resources/readme/image217e.png)
+  ![Figure: TLS_RX](resources/readme/image217e.png)

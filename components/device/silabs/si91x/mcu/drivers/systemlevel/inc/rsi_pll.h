@@ -508,6 +508,15 @@ typedef enum USART_CLK_SRC_SEL {
   USART_INTFPLLCLK        = 3, /*!< USART_INTFPLLCLK selection*/
   M4_SOCCLKFOROTHERCLOCKS = 4, /*!< M4_SOCCLKFOROTHERCLOCKS selection*/
 } USART_CLK_SRC_SEL_T;
+
+/**
+ *@brief USART Fractional clock selection
+ **/
+typedef enum USART_SCLK_FRAC_SEL {
+  USART_FRACTIONAL_DIVIDER, /*!< Fractional Divider selected i.e  clk_out = clk_in/ (sclk_div_fac+0.5)*/
+  USART_CLOCK_SWALLOW,      /*!< Clock Swallow selected i.e  clk_out = clk_in/ sclk_div_fac*/
+} USART_SCLK_FRAC_SEL_T;
+
 /**
  *@brief SSI Input clock source selection
  **/

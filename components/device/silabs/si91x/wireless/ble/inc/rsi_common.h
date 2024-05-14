@@ -20,8 +20,6 @@
 
 #include "sl_constants.h"
 
-#include "rsi_timer.h"
-
 #include "cmsis_os2.h"
 #include "sl_si91x_status.h"
 
@@ -71,9 +69,7 @@
 #endif
 #define RSI_BLE_CMD_LEN (300 + SIZE_OF_HEADROOM)
 
-#define RSI_DRIVER_POOL_SIZE                                            \
-  sizeof(uint32_t) + ((((uint32_t)(sizeof(rsi_driver_cb_t))) + 3) & ~3) \
-    + ((((uint32_t)(sizeof(rsi_driver_cb_non_rom_t))) + 3) & ~3)
+#define RSI_DRIVER_POOL_SIZE sizeof(uint32_t) + ((((uint32_t)(sizeof(rsi_driver_cb_t))) + 3) & ~3)
 
 #define RSI_WAIT_TIME RSI_WAIT_FOREVER
 
@@ -279,41 +275,18 @@ typedef enum rsi_device_state_e {
 typedef struct rsi_driver_cb_s {
   uint8_t endian;
 
-  void (*rsi_tx_done_handler)(sl_si91x_packet_t *);
-
   rsi_bt_global_cb_t *bt_global_cb;
   rsi_bt_cb_t *bt_common_cb;
 
   rsi_bt_cb_t *ble_cb;
 
-  void (*unregistered_event_callback)(uint32_t event_num);
-
-#ifdef FW_LOGGING_ENABLE
-  sl_fw_log_cb_t *fw_log_cb;
-#endif
-} rsi_driver_cb_t;
-
-typedef struct rsi_driver_cb_non_rom {
-  osMutexId_t tx_mutex;
-#if defined(SL_SI91X_PRINT_DBG_LOG) || defined(FW_LOGGING_ENABLE)
+#if defined(SL_SI91X_PRINT_DBG_LOG)
   osMutexId_t debug_prints_mutex;
 #endif
-  osSemaphoreId_t common_cmd_sem;
-  osSemaphoreId_t common_cmd_send_sem;
-  uint8_t bt_wait_bitmap;
-  uint8_t bt_cmd_wait_bitmap;
-
-  volatile uint32_t driver_timer_start;
-  rsi_timer_instance_t timer_start;
 
   volatile rsi_device_state_t device_state;
-#ifndef RSI_WAIT_TIMEOUT_EVENT_HANDLE_TIMER_DISABLE
-  //error response handler pointer
-  void (*rsi_wait_timeout_handler_error_cb)(int32_t status, uint32_t cmd_type);
-#endif
-} rsi_driver_cb_non_rom_t;
+} rsi_driver_cb_t;
 
-extern rsi_driver_cb_non_rom_t *rsi_driver_cb_non_rom;
 extern rsi_driver_cb_t *rsi_driver_cb;
 
 /******************************************************

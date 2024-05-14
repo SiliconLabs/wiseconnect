@@ -93,6 +93,8 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 ### SensorHub Configuration Parameters
@@ -244,8 +246,8 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
           #define SL_SH_ADC_SENSOR0_NUM_OF_SAMPLES 5 
           ```  
 
-    - **ADC Power Save(PS-1)**
-      - The SensorHUB interrupt mode configurations are utilized in conjunction with **ADC FIFO mode**.
+    - **ADC FIFO mode:-**
+      - The SensorHUB interrupt mode configurations are utilized in conjunction with **ADC FIFO mode**.      
       - Configure the following parameter ***sensorhub_config.c*** file:
 
         ```c
@@ -269,19 +271,19 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
           #define SL_SH_ADC_CH1_NUM_SAMPLES     1
           #define SL_SH_ADC_CH2_NUM_SAMPLES     1
           #define SL_SH_ADC_SAMPLING_RATE       10
-          #define SL_SH_ADC_NUM_CHANNELS_ENABLE 4
-          #define GY61_ADC_SENSOR
-
+		  
           .sensor_name               = "GY61",
           .sensor_id                 = SL_SENSOR_ADC_GY_61_ID,
-          .channel                   = BIT(SL_SH_ADC_CH1_CHANNEL) | BIT(SL_SH_ADC_CH2_CHANNEL) | BIT(SL_SH_ADC_CH3_CHANNEL),
+          .channel                   = BIT(SL_SH_ADC_CH0_CHANNEL) | BIT(SL_SH_ADC_CH1_CHANNEL) | BIT(SL_SH_ADC_CH2_CHANNEL),
           .sensor_bus                = SL_SH_ADC,
           .sensor_mode               = SL_SH_INTERRUPT_MODE,
           .data_deliver.data_mode    = SL_SH_NO_DATA_MODE,
         ``` 
  
       * ADC can read between 1 and 1023 samples at a time and generates interrupts when operating in FIFO mode.
-      * To configure the PS1 power state from the PS2 State, please update the below macro in the preprocessor settings.
+
+    - **ADC Power Save(PS-1)**
+       * To configure the PS1 power state from the PS2 State, please update the below macro in the preprocessor settings.
         1. Disable the tickles mode in the FreeRTOS.h file.
         2. The PS1 state transition only applies to ADC FIFO Mode. Before entering this mode, kindly turn off any other sensors.
 
@@ -308,6 +310,7 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
       .sh_sdc_config.sh_sdc_sample_trigger_sel = SDC_SAMP_TRIG_SEL, // RTC trigger Sel(1-1ms 0-1sec)
       .sh_sdc_config.sh_sdc_cnt_trig_evnt      = SDC_CNT_TRIG_EVNT, // in which trigger event AUX-ADC Data will sampled
       ```
+    - The Joystick emulator and the GUVA sensor are compatible with both ADC. 
     
     - **SDC Configuration settings:-**
         - SensorHub interrupt mode is supported
@@ -367,14 +370,19 @@ AWS will ONLY begin by implementing the modifications and settings listed below.
 |
 
 ### ADC Sensor Pin Configurations
-
+GUVA sensor 
 | Sensor PIN | ULP GPIO PIN | Description |
 | --- | --- | --- |
-| ADC Input | ULP_GPIO_2 [ F10 ] | Connect to Joystick output (P36) / GUVA sensor output
+| ADC Input | ULP_GPIO_8 [ P15 ] | Connect to Joystick output (P36) / GUVA sensor output| 
+
+GY-61
+| Sensor PIN | ULP GPIO PIN | Description |
+| --- | --- | --- |
 | ADC Input | ULP_GPIO_8 [ P15 ] | Connect to ADXL335 GY61 X axis analog output
 | ADC Input | ULP_GPIO_10 [ P17 ] | Connect to ADXL335 GY61 Y axis analog output
-| ADC Input | ULP_GPIO_1 [ P16 ] | Connect to ADXL335 GY61 Z axis analog output
-| 
+| ADC Input | ULP_GPIO_1 [ P16 ] | Connect to ADXL335 GY61 Z axis analog output| 
+
+- **Note: Due to limitations with the number of available ULP GPIO pins (3 maximum),choose either the GUVA sensor or the GY-61 sensor.  Both sensors won't fit at the same time.**
 
 ### SDC Sensor Pin Configurations
 
@@ -404,3 +412,4 @@ AWS will ONLY begin by implementing the modifications and settings listed below.
   >- ADC static mode will read the data from the ADC registers and does not depends on ADC Interrupt.
   >- ADC static mode only supports SensorHub's Polling mode. And it will read 1 sample at a time based on the Sensor Hub Polling Sampling interval
   >- ADC FIFO mode will support SensorHub Interrupt Mode.
+  >- To use ADC with High sampling rate increase the number of samples

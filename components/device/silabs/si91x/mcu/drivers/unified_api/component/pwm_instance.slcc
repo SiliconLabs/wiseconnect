@@ -1,14 +1,30 @@
 id: pwm_instance
-label: PWM Instance
+label: PWM
 package: platform
 description: >
-  Adds a PWM instance.
+ The Motor Control Pulse Width Modulation (MCPWM) controller is used to generate a periodic pulse waveform, which is useful in
+ motor control and power control applications.
+ The MCPWM controller acts as a timer to count up to a period count value.
+ The time period and the duty cycle of the pulses are both programmable.
+
+ Note:
+  For Configuring, Configurable Parameters of PWM, Open the configuration wizard and configure, Below are the Configurable Parameters of PWM:
+    - Frequency
+    - Output Polarity
+    - PWM Mode
+    - Timer counter
+    - Duty cycle
+    - Base Timer Mode and Selection
+    - External Trigger
+
+ PWM Supports instances.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 instantiable:
   prefix: inst
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
+  - path: config/sl_si91x_pwm_common_config.h
   - path: config/sl_si91x_pwm_init_{{instance}}_config.h
     file_id: pwm_config
 provides:
@@ -32,3 +48,6 @@ template_contribution:
       handler: sl_pwm_init_instances
 requires:
   - name: sl_pwm
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/pwm

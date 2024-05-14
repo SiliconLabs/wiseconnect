@@ -101,11 +101,11 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
   // Check if the command was synchronous and free the buffer if it was allocated
   if (asynchronous == false) {
     if (status != SL_STATUS_OK && buffer != NULL) {
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
     }
     VERIFY_STATUS_AND_RETURN(status);
   }
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
   return status;
 }
 
@@ -162,7 +162,7 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
 
     // Check if the command failed and free the buffer if it was allocated
     if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
     }
 
     // Verify the status and return it
@@ -178,7 +178,7 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
     }
 
     // Free the buffer and return success status
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   } else if (SL_IPV6 == address->type) {
     // Initialize the IPv6 request structure
     memset(&ipv6_request, 0, sizeof(ipv6_request));
@@ -207,7 +207,7 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
 
     // Check if the command failed and free the buffer if it was allocated
     if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
     }
 
     VERIFY_STATUS_AND_RETURN(status);
@@ -224,7 +224,7 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
     memcpy(&address->ip.v6.gateway, ipv6_response->gateway_address, sizeof(ipv6_response->gateway_address));
 
     // Free the buffer and return success status
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
 
   } else {
     return SL_STATUS_INVALID_PARAMETER;

@@ -88,7 +88,12 @@ uint8_t data_buffer[BUFFER_SIZE];
 volatile uint8_t wlan_data_rcv;
 volatile uint8_t wlan_completed;
 
+#ifdef SLI_SI91X_MCU_INTERFACE
 uint32_t tick_count_s = 10;
+#else
+uint32_t tick_count_s = 1;
+#endif
+
 /*=======================================================================*/
 //   ! EXTERN VARIABLES
 /*=======================================================================*/
@@ -209,7 +214,7 @@ int32_t rsi_wlan_app_task()
     access_point.ssid.length = strlen((char *)SSID);
     memcpy(access_point.ssid.value, SSID, access_point.ssid.length);
     access_point.security      = SECURITY_TYPE;
-    access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
+    access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
     access_point.credential_id = id;
 
     LOG_PRINT("SSID %s\n", access_point.ssid.value);
@@ -339,14 +344,14 @@ void receive_data_from_udp_client(void)
 #else
 void receive_data_from_udp_client(void)
 {
-  int client_socket = -1;
-  uint32_t total_bytes_received = 0;
-  int socket_return_value = 0;
-  int read_bytes = 1;
-  uint32_t start = 0;
-  uint32_t now = 0;
+  int client_socket                 = -1;
+  uint32_t total_bytes_received     = 0;
+  int socket_return_value           = 0;
+  int read_bytes                    = 1;
+  uint32_t start                    = 0;
+  uint32_t now                      = 0;
   struct sockaddr_in server_address = { 0 };
-  socklen_t socket_length = sizeof(struct sockaddr_in);
+  socklen_t socket_length           = sizeof(struct sockaddr_in);
 
   client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (client_socket < 0) {
@@ -356,7 +361,7 @@ void receive_data_from_udp_client(void)
   LOG_PRINT("\r\nSocket ID : %d\r\n", client_socket);
 
   server_address.sin_family = AF_INET;
-  server_address.sin_port = DEVICE_PORT;
+  server_address.sin_port   = DEVICE_PORT;
 
   socket_return_value = bind(client_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
@@ -384,7 +389,7 @@ void receive_data_from_udp_client(void)
       measure_and_print_throughput(total_bytes_received, (now - start));
 #if CONTINUOUS_THROUGHPUT
       total_bytes_received = 0;
-      start = osKernelGetTickCount();
+      start                = osKernelGetTickCount();
 #else
       break;
 #endif
@@ -535,17 +540,17 @@ void receive_data_from_tcp_client(void)
 #else
 void receive_data_from_tcp_client(void)
 {
-  int server_socket = -1;
-  int client_socket = -1;
-  int socket_return_value = 0;
+  int server_socket                 = -1;
+  int client_socket                 = -1;
+  int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
-  socklen_t socket_length = sizeof(struct sockaddr_in);
-  uint8_t high_performance_socket = SL_HIGH_PERFORMANCE_SOCKET;
-  uint32_t total_bytes_received = 0;
-  uint32_t start = 0;
-  uint32_t now = 0;
-  int read_bytes = 1;
-  sl_status_t status = SL_STATUS_FAIL;
+  socklen_t socket_length           = sizeof(struct sockaddr_in);
+  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+  uint32_t total_bytes_received     = 0;
+  uint32_t start                    = 0;
+  uint32_t now                      = 0;
+  int read_bytes                    = 1;
+  sl_status_t status                = SL_STATUS_FAIL;
 
   server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (server_socket < 0) {
@@ -565,7 +570,7 @@ void receive_data_from_tcp_client(void)
     return;
   }
   server_address.sin_family = AF_INET;
-  server_address.sin_port = DEVICE_PORT;
+  server_address.sin_port   = DEVICE_PORT;
 
   socket_return_value = bind(server_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
@@ -614,13 +619,13 @@ void receive_data_from_tcp_client(void)
     }
 
     total_bytes_received = total_bytes_received + read_bytes;
-    now = osKernelGetTickCount();
+    now                  = osKernelGetTickCount();
     if ((now - start) > TEST_TIMEOUT) {
       LOG_PRINT("\r\nTotal bytes received : %ld\r\n", total_bytes_received);
       measure_and_print_throughput(total_bytes_received, (now - start));
 #if CONTINUOUS_THROUGHPUT
       total_bytes_received = 0;
-      start = osKernelGetTickCount();
+      start                = osKernelGetTickCount();
 #else
       break;
 #endif

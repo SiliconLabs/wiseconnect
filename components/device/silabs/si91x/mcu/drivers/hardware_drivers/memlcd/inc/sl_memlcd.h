@@ -32,21 +32,18 @@ extern "C" {
 #define SL_MEMLCD_COLOR_MODE_MONOCHROME 1
 #define SL_MEMLCD_COLOR_MODE_RGB_3BIT   2
 
-/***************************************************************************/ /**
- * @addtogroup memlcd MEMLCD - Memory LCD
- * @brief The memory liquid crystal display (LCD) driver provides the ability to render characters 
- * or monochrome pictures onto the display of the LCD peripheral on the SiWx91x™ device.
+/** @addtogroup MEMLCD
+ * @ingroup SI91X_HARDWARE_DRIVER_APIS
+ * @brief  Sample APIs for using the memory LCD
  *
  * The memory LCD interface is built to use SPI communication either with usart 
  * or eusart. Configurations for three standard display are already supported 
  * (lpm013m126a, ls013b7dh03 and ls013b7dh06), but the @ref sl_memlcd_t 
  * structure can also be configured with a custom LCD's specifications.
- * To implement a fully custom memory LCD interface, see @ref memlcd_custom.
- * 
- * Refer [MEMLCD API's](https://docs.silabs.com/gecko-platform/3.1/hardware-driver/api/group-memlcd) for more information.
+ * To implement a fully custom memory LCD interface, see @ref Custom-Memory-LCD.
  *
  * @{
- ******************************************************************************/
+ */
 
 /**
  * General memory LCD data structure.
@@ -62,172 +59,144 @@ typedef struct sl_memlcd_t {
   uint8_t hold_us;       ///< SPI CS hold time
   void *custom_data;     ///< Custom LCD's data
 } sl_memlcd_t;
-
 /// @brief Enumeration to represent ulp-timer instances
-///
 
-/**************************************************************************/ /**
- * @brief
- *   Configure the memory LCD device.
- *
- * @details
- *   This function must be called to configure the memory LCD device
- *   before starting to use the memory LCD.
+/***************************************************************************/ /**
+ * Configure the memory LCD device.
+ * 
+ * This API must be called to configure the memory LCD device
+ * before starting to use the memory LCD.
  *
  * @param[in] device
- *   Display device pointer.
+ * Display device pointer.
  *
  * @return
- *   status code of the operation.
- *****************************************************************************/
+ * status code of the operation.
+******************************************************************************/
 sl_status_t sl_memlcd_configure(struct sl_memlcd_t *device);
 
-/**************************************************************************/ /**
- * @brief
- *   Enable the memory LCD display.
+/***************************************************************************/ /**
+ * Enable the memory LCD display.
  *
  * @details
- *   This function must be called to enable MEMLCD display.
+ * This API must be called to enable MEMLCD display.
  *
- * @param[in] none.
+ * @param none.
  *
  * @return none.
- *****************************************************************************/
+******************************************************************************/
 void sl_memlcd_display_enable(void);
 
-/**************************************************************************/ /**
- * @brief
- *   Enable or disable the display.
+/***************************************************************************/ /**
+ * Enable or disable the display.
  *
- * @details
- *   This function enables or disables the display. Disabling the display does
- *   not make it lose its data. Note that this function will not control the
- *   DISP pin on the display. This pin is usually controlled by board specific
- *   code.
+ * This API enables or disables the display. Disabling the display 
+ * does not result in data loss. Note that this API does not control the 
+ * DISP pin on the display. This pin is managed by board-specific code.
  *
- * @param[in] device
- *   Display device pointer.
+ * @param[in] device Display device pointer.
  *
- * @param[in] on
- *   Set this parameter to 'true' to enable the display. Set to 'false' in
- *   order to disable the display.
+ * @param[in] on Set this parameter to 'true' to enable the display. Set to 'false' in
+ * order to disable the display.
  *
- * @return
- *   status code of the operation.
- *****************************************************************************/
+ * @return status code of the operation.
+******************************************************************************/
 sl_status_t sl_memlcd_power_on(const struct sl_memlcd_t *device, bool on);
 
-/**************************************************************************/ /**
- * @brief
- *   API to handle MEMLCD initialization after wakeup.
+/***************************************************************************/ /**
+ * PI to handle MEMLCD initialization after wakeup.
  *
- * @details
- *   This function handles the MEMLCD initialization after wakeup.
+ * This API handles the MEMLCD initialization after wakeup.
  *
- * @param[in] none
+ * @param none
  *
- * @return
- *   status code of the operation.
- *****************************************************************************/
+ * @return status code of the operation.
+******************************************************************************/
 sl_status_t sl_memlcd_post_wakeup_init(void);
 
-/**************************************************************************/ /**
- * @brief
- *   Clear the display.
+/***************************************************************************/ /**
+ * Clear the display.
  *
- * @param[in] device
- *   Memory LCD display device.
+ * @param[in] device Memory LCD display device.
  *
- * @return
- *   SL_STATUS_OK if there are no errors.
- *****************************************************************************/
+ * @return SL_STATUS_OK if there are no errors.
+******************************************************************************/
 sl_status_t sl_memlcd_clear(const struct sl_memlcd_t *device);
 
-/**************************************************************************/ /**
- * @brief
- *   Draw a number of rows to the memory LCD display.
+/***************************************************************************/ /**
+ * Draw a number of rows to the memory LCD display.
  *
- * @param[in] device
- *   Memory LCD display device.
+ * @param[in] device Memory LCD display device.
  *
- * @param[in] data
- *   Pointer to the pixel matrix buffer to draw. The format of the buffer
- *   depends on the color mode of the memory LCD display.
+ * @param[in] data Pointer to the pixel matrix buffer to draw. The format of the buffer
+ * depends on the color mode of the memory LCD display.
  *
- * @param[in] row_start
- *   Start row on the display where to start drawing. First row is 0.
+ * @param[in] row_start Start row on the display where to start drawing. First row is 0.
  *
- * @param[in] row_count
- *   Number of rows to draw.
+ * @param[in] row_count Number of rows to draw.
  *
- * @return
- *   SL_STATUS_OK if there are no errors.
- *****************************************************************************/
+ * @return SL_STATUS_OK if there are no errors.
+******************************************************************************/
 sl_status_t sl_memlcd_draw(const struct sl_memlcd_t *device,
                            const void *data,
                            unsigned int row_start,
                            unsigned int row_count);
 
-/**************************************************************************/ /**
- * @brief
- *   Refresh the display device.
+/***************************************************************************/ /**
+ * Refresh the display device.
  *
- * @details
- *   This function can be used when, for instance, the clock configuration was
- *   changed to re-initialize the SPI clock rate.
+ * This API can be used when, for instance, the clock configuration was
+ * changed to re-initialize the SPI clock rate.
  *
- * @param[in] device
- *   Display device pointer.
+ * @param[in] device Display device pointer.
  *
- * @return
- *   status code of the operation.
- *****************************************************************************/
+ * @return status code of the operation.
+******************************************************************************/
 sl_status_t sl_memlcd_refresh(const struct sl_memlcd_t *device);
 
-/**************************************************************************/ /**
- * @brief
- *   Get a handle to the memory LCD.
+/***************************************************************************/ /**
+ * Get a handle to the memory LCD.
  *
- * @return
- *   Pointer to a memory LCD structure or NULL if no memory LCD is initialized
- *   yet.
- *****************************************************************************/
+ * @return Pointer to a memory LCD structure or NULL if no memory LCD is initialized
+ * yet.
+******************************************************************************/
 const sl_memlcd_t *sl_memlcd_get(void);
 
-/** @} (end group memlcd) */
-
-/***************************************************************************/ /**
- * @addtogroup memlcd MEMLCD - Memory LCD
- * @{
- * 
- * @n @section memlcd_custom Custom Memory LCD
- *
- * The custom memory LCD is a module allowing the implementation of a LCD 
- * driver that can't use the already designed interface. To achieve this, 
- * conditions must be met.
- * 
- * The LCD driver and the communication need to be implemented manually.
- * However, some functions must be implemented and the @ref sl_memlcd_t
- * structure must be initialized for the GLIB library to work properly. 
- * The functions to implement are @ref sl_memlcd_init, @ref sl_memlcd_power_on,
- * @ref sl_memlcd_draw and @ref sl_memlcd_get and they must follow the same
- * declaration as shown in the documentation. 
- * 
- * In the @ref sl_memlcd_init function, it is important to initialize a 
- * @ref sl_memlcd_t type variable and fill in the "height" and "width" fields 
- * with the real specifications of the LCD display. This same variable must be
- * accessible from the @ref sl_memlcd_get function as the GLIB library will 
- * fetch the height and width of the display.
- * 
- * The @ref sl_memlcd_t structure contains a "custom_data" field to store any
- * custom structure needed for the implementation of the driver.
- * 
- ******************************************************************************/
+// ***************************************************************************/ /**
+/// @addtogroup MEMLCD
+/// @{
+///
+///  @details
+///
+///  @n @section MEMLCD_Custom Custom-Memory-LCD
+///
+///   The custom memory LCD is a module allowing the implementation of an LCD
+///   driver that can't use the already designed interface. To achieve this,
+///   the following conditions must be met.
+///
+///   The LCD driver and the communication needs to be implemented manually.
+///   However, some APIs must be implemented and the @ref sl_memlcd_t
+///   structure must be initialized for the GLIB library to work properly.
+///   The APIs to implement are @ref sl_memlcd_init, @ref sl_memlcd_power_on,
+///   @ref sl_memlcd_draw and @ref sl_memlcd_get and they must follow the same
+///   declaration as shown in the documentation.
+///
+///   In the @ref sl_memlcd_init API, it is important to initialize a
+///   @ref sl_memlcd_t type variable and fill in the "height" and "width" fields
+///   with the real specifications of the LCD display. This same variable must be
+///   accessible from the @ref sl_memlcd_get API as the GLIB library will
+///   fetch the height and width of the display.
+///
+///   The @ref sl_memlcd_t structure contains a "custom_data" field to store any
+///   custom structure needed for the implementation of the driver.
+///
+/// @} end group MEMLCD ********************************************************/
 
 #ifdef __cplusplus
 }
 #endif
 
-/** @} (end group memlcd) */
+/** @} END addtogroup 
+*/
 
 #endif

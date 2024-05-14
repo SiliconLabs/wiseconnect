@@ -57,6 +57,8 @@ extern volatile uint32_t ble_temp_event_map[TOTAL_CONNECTIONS];
 sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
 #endif
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 /*=======================================================================*/
 //   ! GLOBAL VARIABLES
 /*=======================================================================*/
@@ -361,9 +363,12 @@ int8_t rsi_fill_user_config()
  */
 void rsi_common_app_task(void)
 {
-  uint32_t status                    = RSI_SUCCESS;
-  powersave_cmd_given                = false;
-  sl_wifi_firmware_version_t version = { 0 };
+  uint32_t status                                            = RSI_SUCCESS;
+  powersave_cmd_given                                        = false;
+  sl_wifi_firmware_version_t version                         = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
+
 #ifdef SLI_SI91X_MCU_INTERFACE
   sl_si91x_hardware_setup();
 #endif /* SLI_SI91X_MCU_INTERFACE */
@@ -382,6 +387,16 @@ void rsi_common_app_task(void)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   //! fill the configurations in local structure based on compilation macros

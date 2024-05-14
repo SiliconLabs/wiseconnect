@@ -43,6 +43,30 @@
       return s;            \
   } while (0);
 
+/**
+ * All flags used in bus event mask
+ * There are three main groups of flags, each with SL_SI91X_COMMAND_TYPE_COUNT number of unique flags
+ *
+ */
+#define SL_SI91X_TX_PENDING_FLAG(x) (1 << (x))
+#define SL_SI91X_RESPONSE_FLAG(x)   (1 << (x))
+
+//! Tx Flags
+#define SL_SI91X_COMMON_TX_PENDING_EVENT      SL_SI91X_TX_PENDING_FLAG(SI91X_COMMON_CMD)
+#define SL_SI91X_WLAN_TX_PENDING_EVENT        SL_SI91X_TX_PENDING_FLAG(SI91X_WLAN_CMD)
+#define SL_SI91X_NETWORK_TX_PENDING_EVENT     SL_SI91X_TX_PENDING_FLAG(SI91X_NETWORK_CMD)
+#define SL_SI91X_BT_TX_PENDING_EVENT          SL_SI91X_TX_PENDING_FLAG(SI91X_BT_CMD)
+#define SL_SI91X_SOCKET_TX_PENDING_EVENT      SL_SI91X_TX_PENDING_FLAG(SI91X_SOCKET_CMD)
+#define SL_SI91X_SOCKET_DATA_TX_PENDING_EVENT SL_SI91X_TX_PENDING_FLAG(SI91X_SOCKET_DATA)
+
+//! Rx Flags
+#define SL_SI91X_NCP_HOST_BUS_RX_EVENT \
+  SL_SI91X_RESPONSE_FLAG(SI91X_CMD_MAX) //Triggered by IRQ to indicate something to read
+
+#define SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS                                                           \
+  (SL_SI91X_COMMON_TX_PENDING_EVENT | SL_SI91X_WLAN_TX_PENDING_EVENT | SL_SI91X_NETWORK_TX_PENDING_EVENT \
+   | SL_SI91X_BT_TX_PENDING_EVENT | SL_SI91X_SOCKET_TX_PENDING_EVENT)
+
 typedef enum { SL_NCP_NORMAL_POWER_MODE, SL_NCP_LOW_POWER_MODE, SL_NCP_ULTRA_LOW_POWER_MODE } sl_si91x_power_mode_t;
 
 typedef struct sl_si91x_power_configuration sl_si91x_power_configuration_t;
@@ -757,20 +781,20 @@ sl_status_t sl_si91x_get_ram_log(uint32_t address, uint32_t length);
 
 /** @} */
 
-/*! @cond SL_SI91X_WIFI_BTR_MODE */
+/*! @cond WIFI_TRANSCEIVER_MODE */
 /***************************************************************************/ /**
- * @brief     Si91X specific Wi-Fi BTR mode driver function to send Tx data
- * @param[in] data_ctrlblk - Meta data for the payload.
+ * @brief     Si91X specific Wi-Fi transceiver mode driver function to send Tx data
+ * @param[in] control - Meta data for the payload.
  * @param[in] payload      - Pointer to payload to be sent to LMAC.
  * @param[in] payload_len  - Length of the payload.
  * @param[in] wait_time    - Wait time for the command response.
  * @return    sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  *******************************************************************************/
-sl_status_t sl_si91x_driver_btr_send_data(sl_wifi_btr_data_ctrlblk_t *data_ctrlblk,
-                                          uint8_t *payload,
-                                          uint16_t payload_len,
-                                          uint32_t wait_time);
-/*! @endcond SL_SI91X_WIFI_BTR_MODE */
+sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_control_t *control,
+                                                  uint8_t *payload,
+                                                  uint16_t payload_len,
+                                                  uint32_t wait_time);
+/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /***************************************************************************/ /**
  * @brief
@@ -821,11 +845,10 @@ sl_status_t sl_si91x_custom_driver_send_command(uint32_t command,
  *   0 = Middle of file
  *   1 = Start of file
  *   2 = End of file 
- * @return     errCode
- *              1 = Command issue failed
- *              0 = Success
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-int16_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_image_size, uint8_t flags);
+sl_status_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_image_size, uint8_t flags);
 
 /***************************************************************************/ /**
  * @brief      

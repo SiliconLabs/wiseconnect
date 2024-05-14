@@ -62,6 +62,8 @@
 #define FOUR_ZEROS_FOUR_ONES 0x6
 #define ALT_ZERO_ALT_ONE     0x7
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 #define RSI_BLE_TX_PAYLOAD_TYPE PRBS9_SEQ
 
 #define RSI_BLE_TESTMODE_TRANSMIT 1
@@ -144,8 +146,10 @@ const osThreadAttr_t thread_attributes = {
  */
 void ble_testmodes(void)
 {
-  int32_t status                        = 0;
-  sl_wifi_firmware_version_t fw_version = { 0 };
+  int32_t status                                             = 0;
+  sl_wifi_firmware_version_t fw_version                      = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
 
   //! Wi-Fi initialization
   status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
@@ -161,6 +165,16 @@ void ble_testmodes(void)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&fw_version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   if (RSI_CONFIG_TEST_MODE == RSI_BLE_TESTMODE_TRANSMIT) {

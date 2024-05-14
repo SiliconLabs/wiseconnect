@@ -43,5 +43,13 @@ template_contribution:
     value: syscalls.o
   - name: debug_ps2
     value: USART.o
-
-
+  - name: debug_ps2
+    value: libm_a-s_ceil.o
+  - name: debug_ps2
+    value: '_arm_*.o'
+  - name: debug_ps2
+    value: 'libc_a*.o'
+  - name: debug_ps2
+    value: 'libm_a*.o'
+  - name: debug_ps2
+    value: 'sbrk.o*'

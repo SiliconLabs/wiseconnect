@@ -33,7 +33,7 @@
 #include "Driver_MCI.h"
 #include "rsi_chip.h"
 #include "RTE_Device.h"
-#include "RTE_Components.h"
+
 
 typedef void (*ARM_MCI_SignalEvent_t) (uint32_t event);  ///< Pointer to \ref ARM_MCI_SignalEvent : Signal MCI Event.
 

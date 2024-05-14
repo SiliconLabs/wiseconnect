@@ -113,7 +113,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -124,7 +124,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
             == config->msg_length + ((config->encrypt_decrypt == SL_SI91X_CCM_DECRYPT) ? 0 : config->tag_length));
   memcpy(output, packet->data, packet->length);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   free(request);
   return status;
 }
@@ -159,12 +159,12 @@ static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_
   request->nonce_length       = config->nonce_length;
 
   if (config->ad_length > 0) {
-    request->ad = config->ad;
+    request->ad = (uint8_t *)config->ad;
   }
-  if (chunk_length > 0) {
-    request->msg = config->msg;
+  if (config->msg_length > 0) {
+    request->msg = (uint8_t *)config->msg;
   }
-  request->nonce = config->nonce;
+  request->nonce = (uint8_t *)config->nonce;
   request->tag   = config->tag;
 
   request->key_info.key_type                         = config->key_config.b0.key_type;
@@ -193,10 +193,13 @@ static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_
 
 sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
 {
-  uint16_t chunk_len = 0;
-  uint16_t offset    = 0;
-  uint8_t ccm_flags  = 0;
   sl_status_t status = SL_STATUS_FAIL;
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
+  uint16_t chunk_len    = 0;
+  uint16_t offset       = 0;
+  uint8_t ccm_flags     = 0;
+  uint16_t total_length = 0;
+#endif
 
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
 
@@ -209,12 +212,11 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
     status = SL_STATUS_INVALID_PARAMETER;
   }
 
-  uint16_t total_length = config->msg_length;
-
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   status = sli_si91x_ccm_side_band(config, output);
-  return status
+  return status;
 #else
+  total_length = config->msg_length;
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_ccm_mutex == NULL) {
     crypto_ccm_mutex = sl_si91x_crypto_threadsafety_init(crypto_ccm_mutex);

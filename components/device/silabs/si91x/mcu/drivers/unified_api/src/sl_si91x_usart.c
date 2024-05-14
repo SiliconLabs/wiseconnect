@@ -668,7 +668,7 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
    * and change the peripheral configuration through the sl_si91x_usart_set_configuration API.
    */
   do {
-#ifdef USART_UC
+#if (USART_UC == 1)
     // Get the USART Instance
     uart_instance = get_usart_instance(usart_handle);
     // if usart intance is USART_0 , update usart config  from UC

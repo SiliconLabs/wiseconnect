@@ -3,15 +3,14 @@ label: Analog Comparator
 package: platform
 description: >
   An analog comparator in a microcontroller is a peripheral that compares two analog input voltages
-  and generates a digital output based on the comparison result. It typically has two input pins
-  for comparing analog voltages and an output pin for displaying the result of the comparison.
-  Configurable parameters in Analog comparator:
-    - Selecting Comparator Input Pins
-    - Setting Comparator Mode
-    - Setting Comparator Reference Voltage
-    - Configuring Hysteresis
-    - Enabling Interrupts
-    - Enabling Power and Comparator
+  and generates interrupt if non-inverting input is higher then inverting input.
+  It typically has two input pins for comparing analog voltages. There are 9 possible inputs for 
+  each pin of comparator, and 2 of the 9 are external pin inputs (GPIOs).
+  It can compare external pin inputs, external pin input to internal voltages and internal voltages.
+  It  supports 2 instances.
+  When create an instance by default, comparator-2 will get installed.
+  When you install this component, it will also be installing the  analog comparator dependency component, 
+  which is the analog comparator driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

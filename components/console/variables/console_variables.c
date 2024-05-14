@@ -15,6 +15,7 @@
 *
 ******************************************************************************/
 
+#define _DEFAULT_SOURCE
 //#include "console_variable_commands.h"
 #include "console.h"
 //#include "console_variables.h"
@@ -75,7 +76,8 @@ extern const uint32_t console_variable_table_size;
 
 static sl_status_t find_variable_node(char **key, const console_variable_node_t **node)
 {
-  const char *token                    = strtok(*key, KEY_SEPARATOR);
+  char *token_ptr                      = NULL;
+  const char *token                    = strtok_r(*key, KEY_SEPARATOR, &token_ptr);
   uint32_t iter                        = 0;
   const console_variable_node_t *table = console_variable_table;
   uint32_t table_size                  = console_variable_table_size;
@@ -91,7 +93,7 @@ static sl_status_t find_variable_node(char **key, const console_variable_node_t 
           break;
 
         default:
-          *key  = strtok(NULL, KEY_SEPARATOR);
+          *key  = strtok_r(NULL, KEY_SEPARATOR, &token_ptr);
           *node = &table[iter];
           return SL_STATUS_OK;
 
@@ -113,7 +115,7 @@ static sl_status_t find_variable_node(char **key, const console_variable_node_t 
       continue;
     }
 
-    token = strtok(NULL, KEY_SEPARATOR);
+    token = strtok_r(NULL, KEY_SEPARATOR, &token_ptr);
   }
 
   return SL_STATUS_ABORT;

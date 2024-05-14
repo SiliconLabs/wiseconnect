@@ -44,6 +44,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Upgrade your connectivity firmware
 - Create a Studio project
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
@@ -79,6 +81,7 @@ The application can be configured to suit user requirements and development envi
 NOTE:
 > 1. In concurrent mode, STA and AP should be configured on the same channel. 
 > 2. Valid values for CHANNEL_NO are 1 to 11 in 2.4GHz band and 36 to 48 & 149 to 165 in 5GHz. In this example, default configured band is 2.4GHz.
+> 3. The `sli_si91x_accept_async` function in sl_http_server_start is not thread-safe.
 
 NOTE:
 > Procedure to run the example
@@ -101,6 +104,9 @@ NOTE:
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
+>
+> Note: 
+> - The default SSID is "MY_AP_SSID" and passphrase is "MY_AP_PASSPHRASE". You may either use these or modify them as described in the [Application Build Environment](#application-build-environment) section.
 - Flash, run and debug the application.
 
    ![Webpage](resources/readme/webpage.png)

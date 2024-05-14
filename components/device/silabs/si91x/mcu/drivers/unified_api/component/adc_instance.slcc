@@ -1,8 +1,20 @@
 id: adc_instance
-label: ADC Instance
+label: ADC
 package: platform
 description: >
-  Adds an ADC instance 
+   ADC stands for Analog-to-Digital Converter.
+   An ADC is a peripheral or component of a controller that converts analog signals (continuous voltage levels)
+   into digital data (discrete binary values) that the controller can handle.
+   Note:
+   For Configuring, Configurable Parameters of ADC, Open the configuration wizard and configure, Below are the Configurable Parameters of ADC:
+     - Resolution
+     - Sampling Rate
+     - Input Voltage Range
+     - Reference Voltage
+     - Triggering and Conversion Modes
+     - Channel Selection
+     - Interrupts and DMA
+   ADC Supports instances.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 instantiable:
@@ -30,3 +42,6 @@ template_contribution:
       include: "sl_adc_instances.h"
 requires:
   - name: sl_adc
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/adc

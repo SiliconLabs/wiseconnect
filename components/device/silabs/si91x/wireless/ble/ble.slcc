@@ -33,7 +33,6 @@ include:
     - path: rsi_bt_common.h
     - path: rsi_common_apis.h
     - path: rsi_common.h
-    - path: rsi_timer.h
     - path: rsi_user.h
     - path: rsi_utils.h
     - path: sl_si91x_ble.h

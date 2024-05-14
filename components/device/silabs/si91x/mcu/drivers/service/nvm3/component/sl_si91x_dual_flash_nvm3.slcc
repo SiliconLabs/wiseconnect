@@ -15,6 +15,8 @@ define:
     value: 1
   - name: SL_NVM3_PRESENT
     value: 1
+ui_hints:
+  visibility: never
 source:
   - path: "src/sl_si91x_dual_flash_intf.c"
   - path: "src/sl_si91x_nvm3_hal_flash.c"

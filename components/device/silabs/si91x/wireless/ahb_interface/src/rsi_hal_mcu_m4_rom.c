@@ -3,7 +3,7 @@
 * @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -31,9 +31,6 @@ osEventFlagsId_t ta_events = NULL;
 #define TA_PKT_TX_DONE (1 << 1)
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
 #define SIDE_BAND_DONE (1 << 2)
-#endif
-#ifdef SLI_SI91X_MCU_INTERFACE
-uint8_t rx_packet_pending_flag = 0x00;
 #endif
 
 /** @addtogroup SOC4
@@ -176,13 +173,9 @@ sl_status_t sli_receive_from_ta_done_isr(void)
   VERIFY_STATUS_AND_RETURN(status);
 
   //! Set event RX pending event to host
-  sl_si91x_host_set_bus_event(NCP_HOST_BUS_RX_EVENT);
+  sl_si91x_host_set_bus_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
 #endif
 
-#ifdef SLI_SI91X_MCU_INTERFACE
-  // By Setting this flag, make sure that BUS_THREAD will get a chance to read the status of Events when multiple TX Packets are being queued.
-  rx_packet_pending_flag = 1;
-#endif
   return SL_STATUS_OK;
 }
 

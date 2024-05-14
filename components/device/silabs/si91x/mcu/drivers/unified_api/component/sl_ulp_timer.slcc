@@ -3,16 +3,16 @@ label: ULP Timer
 package: platform
 description: >
   ULP Timer will works in ultra low power mode and is designed to consume very little power in comparison
-  to regular timers. It allows a microcontroller to wake up periodically, perform a task, and then return 
-  to a low-power state to conserve energy.
-  Configurable parameters in ULP Timer:  
-    - Timer Instance 
-    - Timer Type
-    - Timer Mode
-    - Timer Direction
+  to regular timers. It allows a microcontroller to generate interrupt periodically or one time depending 
+  on timer mode and can be configured either as a microsecond timer or as a counter depending on timer type.
+  This driver has total 4 instances and by default it installs ULP-Timer-0.
+  When you install this component, it will also be installing the  ULP-timer dependency component, 
+  which is the ULP-timer driver's implementation.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
+ui_hints:
+  visibility: never
 config_file:
   - path: config/sl_si91x_ulp_timer_inst_config.h
 source:

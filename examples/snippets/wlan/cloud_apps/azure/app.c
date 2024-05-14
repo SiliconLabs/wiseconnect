@@ -71,16 +71,8 @@
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
-#if !defined(democonfigHOSTNAME) && !defined(democonfigENABLE_DPS_SAMPLE)
+#if !defined(democonfigHOSTNAME)
 #error "Define the config democonfigHOSTNAME by following the instructions in file demo_config.h."
-#endif
-
-#if !defined(democonfigENDPOINT) && defined(democonfigENABLE_DPS_SAMPLE)
-#error "Define the config dps endpoint by following the instructions in file demo_config.h."
-#endif
-
-#ifndef democonfigROOT_CA_PEM
-#error "Please define Root CA certificate of the IoT Hub(democonfigROOT_CA_PEM) in demo_config.h."
 #endif
 
 #if defined(democonfigDEVICE_SYMMETRIC_KEY) && defined(democonfigCLIENT_CERTIFICATE_PEM)
@@ -104,23 +96,6 @@
 #define DNS_TIMEOUT   20000
 // Server port number
 #define SERVER_PORT 8883
-
-/**
- * @brief The maximum number of retries for network operation with server.
- */
-#define sampleazureiotRETRY_MAX_ATTEMPTS (5U)
-
-/**
- * @brief The maximum back-off delay (in milliseconds) for retrying failed operation
- *  with server.
- */
-#define sampleazureiotRETRY_MAX_BACKOFF_DELAY_MS (5000U)
-
-/**
- * @brief The base back-off delay (in milliseconds) to use for network operation retry
- * attempts.
- */
-#define sampleazureiotRETRY_BACKOFF_BASE_MS (500U)
 
 /**
  * @brief Timeout for receiving CONNACK packet in milliseconds.
@@ -191,11 +166,10 @@
 ******************************************************/
 static void application_start(void *argument);
 sl_status_t load_certificates_in_flash(void);
-void create_tls_client(void);
+sl_status_t create_tls_client(void);
 static void azure_iot_mqtt_demo();
 int32_t TLS_Socket_Recv(NetworkContext_t *pNetworkContext, void *pBuffer, size_t bytesToRecv);
 int32_t TLS_Socket_Send(NetworkContext_t *pNetworkContext, const void *pBuffer, size_t bytesToSend);
-uint32_t Crypto_Init();
 uint32_t Crypto_HMAC(const uint8_t *pucKey,
                      uint32_t ulKeyLength,
                      const uint8_t *pucData,
@@ -217,6 +191,8 @@ static uint8_t ucScratchBuffer[128];
 struct NetworkContext {
   void *pParams;
 };
+
+sl_si91x_hmac_config_t config = { 0 };
 
 static AzureIoTHubClient_t xAzureIoTHubClient;
 
@@ -334,7 +310,12 @@ static void application_start(void *argument)
   printf("\r\nLoaded certificates\r\n");
 #endif
 
-  create_tls_client();
+  status = create_tls_client();
+  if (status != SL_STATUS_OK) {
+    printf("\r\n Error while creating TLS client: 0x%lx\r\n", status);
+    return;
+  }
+  printf("\r\nTLS client created \r\n");
 
   azure_iot_mqtt_demo();
 
@@ -407,7 +388,7 @@ sl_status_t load_certificates_in_flash(void)
   return SL_STATUS_OK;
 }
 
-void create_tls_client(void)
+sl_status_t create_tls_client(void)
 {
 
   sl_status_t status;
@@ -431,7 +412,7 @@ void create_tls_client(void)
 
   if (status != SL_STATUS_OK) {
     // Return if DNS resolution fails
-    return;
+    return status;
   }
 
   printf("Azure server port : %d, ip : ", SERVER_PORT);
@@ -440,7 +421,7 @@ void create_tls_client(void)
   client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (client_socket < 0) {
     printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
-    return;
+    return SL_STATUS_FAIL;
   }
   printf("\r\nSocket ID : %d\r\n", client_socket);
 
@@ -448,7 +429,7 @@ void create_tls_client(void)
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
-    return;
+    return SL_STATUS_FAIL;
   }
 
   sl_si91x_time_value timeout = { 0 };
@@ -457,7 +438,7 @@ void create_tls_client(void)
   if (socket_return_value < 0) {
     printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
     close(client_socket);
-    return;
+    return SL_STATUS_FAIL;
   }
 
   server_address.sin_family      = AF_INET;
@@ -468,18 +449,11 @@ void create_tls_client(void)
   if (socket_return_value < 0) {
     printf("\r\nSocket Connect failed with bsd error: %d\r\n", errno);
     close(client_socket);
-    return;
+    return SL_STATUS_FAIL;
   }
   printf("\r\nSocket : %d connected to TLS server \r\n", client_socket);
-  return;
+  return SL_STATUS_OK;
 }
-
-uint32_t Crypto_Init()
-{
-  return 0;
-}
-
-sl_si91x_hmac_config_t config = { 0 };
 
 uint32_t Crypto_HMAC(const uint8_t *pucKey,
                      uint32_t ulKeyLength,
@@ -525,23 +499,6 @@ uint32_t ullGetUnixTime(void)
   return (uint32_t)osKernelGetTickCount();
 }
 
-/**
- * @brief Connect to endpoint with reconnection retries.
- *
- * If connection fails, retry is attempted after a timeout.
- * Timeout value will exponentially increase until maximum
- * timeout value is reached or the number of attempts are exhausted.
- *
- * @param pcHostName Hostname of the endpoint to connect to.
- * @param ulPort Endpoint port.
- * @param pxNetworkCredentials Pointer to Network credentials.
- * @param pxNetworkContext Point to Network context created.
- * @return uint32_t The status of the final connection attempt.
- */
-static uint32_t prvConnectToServerWithBackoffRetries(const char *pcHostName,
-                                                     uint32_t ulPort,
-                                                     NetworkCredentials_t *pxNetworkCredentials,
-                                                     NetworkContext_t *pxNetworkContext);
 /*-----------------------------------------------------------*/
 /**
  * @brief Cloud message callback handler
@@ -603,26 +560,6 @@ static void prvHandlePropertiesMessage(AzureIoTHubClientPropertiesResponse_t *px
 }
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Setup transport credentials.
- */
-static uint32_t prvSetupNetworkCredentials(NetworkCredentials_t *pxNetworkCredentials)
-{
-  pxNetworkCredentials->xDisableSni = pdFALSE;
-  /* Set the credentials for establishing a TLS connection. */
-  pxNetworkCredentials->pucRootCa   = (const unsigned char *)democonfigROOT_CA_PEM;
-  pxNetworkCredentials->xRootCaSize = sizeof(democonfigROOT_CA_PEM);
-#ifdef democonfigCLIENT_CERTIFICATE_PEM
-  pxNetworkCredentials->pucClientCert   = (const unsigned char *)democonfigCLIENT_CERTIFICATE_PEM;
-  pxNetworkCredentials->xClientCertSize = sizeof(democonfigCLIENT_CERTIFICATE_PEM);
-  pxNetworkCredentials->pucPrivateKey   = (const unsigned char *)democonfigCLIENT_PRIVATE_KEY_PEM;
-  pxNetworkCredentials->xPrivateKeySize = sizeof(democonfigCLIENT_PRIVATE_KEY_PEM);
-#endif
-
-  return 0;
-}
-/*-----------------------------------------------------------*/
-
 bool xAzureSample_IsConnectedToInternet()
 {
   return true;
@@ -655,47 +592,26 @@ int32_t TLS_Socket_Send(NetworkContext_t *pNetworkContext, const void *pBuffer, 
  */
 static void azure_iot_mqtt_demo()
 {
-  int lPublishCount                        = 0;
-  uint32_t ulScratchBufferLength           = 0U;
-  const int lMaxPublishCount               = 5;
-  const int C2DMaxMessageCount             = 5;
-  NetworkCredentials_t xNetworkCredentials = { 0 };
+  int lPublishCount              = 0;
+  uint32_t ulScratchBufferLength = 0U;
+  const int lMaxPublishCount     = 5;
+  const int C2DMaxMessageCount   = 5;
   AzureIoTTransportInterface_t xTransport;
   NetworkContext_t xNetworkContext         = { 0 };
   TlsTransportParams_t xTlsTransportParams = { 0 };
   AzureIoTResult_t xResult;
-  uint32_t ulStatus;
   AzureIoTHubClientOptions_t xHubOptions = { 0 };
   AzureIoTMessageProperties_t xPropertyBag;
   bool xSessionPresent;
-
-#ifndef democonfigENABLE_DPS_SAMPLE
   uint8_t *pucIotHubHostname       = (uint8_t *)democonfigHOSTNAME;
   uint8_t *pucIotHubDeviceId       = (uint8_t *)democonfigDEVICE_ID;
   uint32_t pulIothubHostnameLength = sizeof(democonfigHOSTNAME) - 1;
   uint32_t pulIothubDeviceIdLength = sizeof(democonfigDEVICE_ID) - 1;
-#endif /* democonfigENABLE_DPS_SAMPLE */
-
-  /* Initialize Azure IoT Middleware.  */
-  //assert( AzureIoT_Init() == eAzureIoTSuccess );
-
-  ulStatus = prvSetupNetworkCredentials(&xNetworkCredentials);
-  assert(ulStatus == 0);
 
   xNetworkContext.pParams = &xTlsTransportParams;
 
   if (xAzureSample_IsConnectedToInternet()) {
-    /* Attempt to establish TLS session with IoT Hub. If connection fails,
-             * retry after a timeout. Timeout value will be exponentially increased
-             * until  the maximum number of attempts are reached or the maximum timeout
-             * value is reached. The function returns a failure status if the TCP
-             * connection cannot be established to the IoT Hub after the configured
-             * number of attempts. */
-    ulStatus = prvConnectToServerWithBackoffRetries((const char *)pucIotHubHostname,
-                                                    democonfigIOTHUB_PORT,
-                                                    &xNetworkCredentials,
-                                                    &xNetworkContext);
-    assert(ulStatus == 0);
+    /* Attempt to establish TLS session with IoT Hub. */
 
     /* Fill in Transport Interface send and receive function pointers. */
     xTransport.pxNetworkContext = &xNetworkContext;
@@ -808,7 +724,7 @@ static void azure_iot_mqtt_demo()
                                                 NULL);
       assert(xResult == eAzureIoTSuccess);
 
-      printf(("Attempt to send publish message from IoT Hub.\r\n"));
+      printf("Attempt to send publish message : %s, from IoT Hub.\r\n", ucScratchBuffer);
 
       if (lPublishCount % 2 == 0) {
         /* Send reported property every other cycle */
@@ -820,7 +736,7 @@ static void azure_iot_mqtt_demo()
       }
 
       /* Leave Connection Idle for some time. */
-      printf("\r\nKeeping Connection Idle..., lPublishCount : %d\r\n\r\n", lPublishCount);
+      printf("\r\nKeeping Connection Idle..., lPublishCount : %d\r\n", lPublishCount);
       osDelay(sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS);
     }
 
@@ -860,48 +776,8 @@ static void azure_iot_mqtt_demo()
       assert(xResult == eAzureIoTSuccess);
     }
 
-    /* Close the network connection.  */
-    //TLS_Socket_Disconnect( &xNetworkContext );
-
     /* Wait for some time between two iterations to ensure that we do not
              * bombard the IoT Hub. */
     printf("Demo completed successfully.\r\n");
   }
-}
-
-/**
- * @brief Connect to server with backoff retries.
- */
-static uint32_t prvConnectToServerWithBackoffRetries(const char *pcHostName,
-                                                     uint32_t port,
-                                                     NetworkCredentials_t *pxNetworkCredentials,
-                                                     NetworkContext_t *pxNetworkContext)
-{
-  TlsTransportStatus_t xNetworkStatus = eTLSTransportSuccess;
-
-  (void)pcHostName;
-  (void)port;
-  (void)pxNetworkCredentials;
-  (void)pxNetworkContext;
-
-#if 0
-    /* Attempt to connect to IoT Hub. */
-    do
-    {
-        printf( ( "Creating a TLS connection to %s:%lu.\r\n", pcHostName, port ) );
-        /* Attempt to create a mutually authenticated TLS connection. */
-        xNetworkStatus = TLS_Socket_Connect( pxNetworkContext,
-                                             pcHostName, port,
-                                             pxNetworkCredentials,
-                                             sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS,
-                                             sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS );
-
-        if( xNetworkStatus != eTLSTransportSuccess )
-        {
-            printf( ( "Connection to the IoT Hub failed [%d]. ", xNetworkStatus ) );
-            osDelay(5000);
-        }
-    } while( xNetworkStatus != eTLSTransportSuccess );
-#endif
-  return xNetworkStatus == eTLSTransportSuccess ? 0 : 1;
 }

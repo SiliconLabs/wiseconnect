@@ -23,10 +23,10 @@
 //#endif
 #define IPMU_DOTC_PROG
 #define IPMU_CALIB_DATA
-#define uint16  uint16_t
-#define uint32  uint32_t
-#define int32   int32_t
-#define uint8   uint8_t
+typedef uint16_t uint16;
+typedef uint32_t uint32;
+typedef int32_t int32;
+typedef uint8_t uint8;
 #define cmemcpy memcpy
 #endif
 #ifndef SLI_SI91X_MCU_INTERFACE

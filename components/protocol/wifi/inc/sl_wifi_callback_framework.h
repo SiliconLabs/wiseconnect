@@ -155,30 +155,34 @@ typedef sl_status_t (*sl_wifi_twt_config_callback_t)(sl_wifi_event_t event,
                                                      uint32_t data_length,
                                                      void *arg);
 
-/*! @cond SL_SI91X_WIFI_BTR_MODE */
+/*! @cond WIFI_TRANSCEIVER_MODE */
 /**
- * @typedef sl_wifi_btr_callback_t
- * @brief Callback for SL_WIFI_BTR_EVENTS group events
+ * @typedef sl_wifi_transceiver_callback_t
+ * @brief Callback for SL_WIFI_TRANSCEIVER_EVENTS group events
  * @param[out] event
- *  Wi-Fi event of type @ref sl_wifi_event_t. Individual Wi-Fi events related to SL_WIFI_BTR_EVENTS are as follows.
- * | @ref sl_wifi_event_t           |
- * |:-------------------------------|
- * | SL_WIFI_BTR_RX_DATA_RECEIVE_CB |
- * | SL_WIFI_BTR_TX_DATA_STATUS_CB  |
+ *  Wi-Fi event of type @ref sl_wifi_event_t. Individual Wi-Fi events related to SL_WIFI_TRANSCEIVER_EVENTS are as follows.
+ * | @ref sl_wifi_event_t                   |
+ * |:---------------------------------------|
+ * | SL_WIFI_TRANSCEIVER_RX_DATA_RECEIVE_CB |
+ * | SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB  |
  * @param[out] data
- *  - Data received is of type @ref sl_wifi_btr_rx_cb_data_t for SL_WIFI_BTR_RX_DATA_RECEIVE_CB event.
- *  - Data received is of type @ref sl_wifi_btr_tx_cfm_cb_data_t for SL_WIFI_BTR_TX_DATA_STATUS_CB event.
+ *  - Data received is of type @ref sl_wifi_transceiver_rx_data_t for SL_WIFI_TRANSCEIVER_RX_DATA_RECEIVE_CB event.
+ *  - Data received is of type @ref sl_wifi_transceiver_tx_data_confirmation_t for SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB event.
  * @param[out] data_length
- *  Reserved
+ *   Reserved
  * @param[out] optional_arg
- * Optional user provided argument passed in [sl_wifi_set_btr_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl_wifi_set_btr_callback)
+ *   Optional user provided argument passed in [sl_wifi_set_transceiver_callback](../pages/wifi-callback-framework#sl-wifi-set-transceiver-callback)
  * @return
- * sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See [Status Codes](../../wiseconnect-api-reference-guide-err-codes/pages/sl-additional-status-errors).
+ * @note This API is only supported in Wi-Fi Transceiver opermode (7).
  * @note
- * In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored.
+ *   In case of event failure, SL_WIFI_FAIL_EVENT_STATUS_INDICATION bit is set in event, data will be of type sl_status_t and data_length can be ignored.
  */
-typedef sl_status_t (*sl_wifi_btr_callback_t)(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
-/*! @endcond SL_SI91X_WIFI_BTR_MODE */
+typedef sl_status_t (*sl_wifi_transceiver_callback_t)(sl_wifi_event_t event,
+                                                      void *data,
+                                                      uint32_t data_length,
+                                                      void *arg);
+/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /***************************************************************************/ /**
  * @brief
@@ -301,24 +305,25 @@ static inline sl_status_t sl_wifi_set_stats_callback(sl_wifi_stats_callback_t fu
   return sl_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
 }
 
-/*! @cond SL_SI91X_WIFI_BTR_MODE */
+/*! @cond WIFI_TRANSCEIVER_MODE */
 /***************************************************************************/ /**
  * @brief
- *   Register callback for SL_WIFI_BTR_EVENTS group event from @ref sl_wifi_event_group_t.
+ *   Register callback for SL_WIFI_TRANSCEIVER_EVENTS group event from @ref sl_wifi_event_group_t.
  * @param[in] function
- *   Function pointer to callback. This will be passed back to callback handler of type @ref sl_wifi_btr_callback_t
+ *   Function pointer to callback. This will be passed back to callback handler of type @ref sl_wifi_transceiver_callback_t
  * @param[in] optional_arg
  *   Optional user provided argument. This will be passed back to callback handler.
  * @pre Pre-conditions:
  * - @ref sl_wifi_init should be called before this API.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See [Status Codes](../../wiseconnect-api-reference-guide-err-codes/pages/sl-additional-status-errors).
  * @note
  *   All the individual Wi-Fi events related to this group will be triggered via this callback.
  ******************************************************************************/
-static inline sl_status_t sl_wifi_set_btr_callback(sl_wifi_btr_callback_t function, void *optional_arg)
+static inline sl_status_t sl_wifi_set_transceiver_callback(sl_wifi_transceiver_callback_t function, void *optional_arg)
 {
-  return sl_wifi_set_callback(SL_WIFI_BTR_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
+  return sl_wifi_set_callback(SL_WIFI_TRANSCEIVER_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
 }
-/*! @endcond SL_SI91X_WIFI_BTR_MODE */
+/*! @endcond WIFI_TRANSCEIVER_MODE */
+
 /** @} */

@@ -54,6 +54,9 @@ This application explains to the user how to:
     - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - STM32F411RE MCU
+     - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
+     - NCP Radio Board (BRD4346A + BRD8045C)
     
 - **PSRAM Mode**:
     - Silicon Labs [BRD4340A](https://www.silabs.com/)
@@ -63,7 +66,9 @@ This application explains to the user how to:
 ### Software Requirements
 
 - Embedded Development Environment
-- Simplicity Studio IDE
+- Simplicity Studio IDE (to be used with Silicon Labs MCU)
+- Keil IDE (to be used with STM32F411RE MCU)
+- Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
 - Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 ### Setup Diagram
@@ -72,12 +77,29 @@ This application explains to the user how to:
 
 ## Getting Started
 
+### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Install Studio and WiSeConnect 3 extension
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
+### Instructions for Keil IDE and STM32F411RE MCU
+
+  - Install the [Keil IDE](https://www.keil.com/).
+  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
+  - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
+  - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
+  - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
+  - After connecting all the boards, the setup should look like the image shown below:
+    ![Figure: Setup](resources/readme/stm32_setup.png)
+  - Connect the setup to the computer.
+  - Open the BLE PER µVision project - **ble_throughput_app.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → snippets → ble → ble_throughput_app → keil_project**.
 
 ## Application Build Environment
 
@@ -185,9 +207,17 @@ The application can be configured to suit your requirements and development envi
 
 ## Test the Application
 
+### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
+
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application in Studio.
+- Flash, run and debug the application.
+
+### Instructions for Keil IDE and STM32F411RE MCU
+
+- Build the application.
+- Set the Docklight up by connecting STM32's Serial COM port. This enables you to view the application prints.
 - Flash, run and debug the application.
 
 Follow the steps for successful execution of the program:

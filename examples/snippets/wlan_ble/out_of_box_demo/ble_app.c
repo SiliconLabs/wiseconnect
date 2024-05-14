@@ -33,10 +33,10 @@
  * Include files
  * */
 
+#include <string.h>
+
 //! SL Wi-Fi SDK includes
 #include "sl_net_wifi_types.h"
-#include "sl_board_configuration.h"
-#include "sl_constants.h"
 #include "sl_wifi.h"
 #include "sl_net_ip_types.h"
 #include "cmsis_os2.h"
@@ -46,36 +46,35 @@
 #include <rsi_ble_apis.h>
 #include <rsi_bt_common_apis.h>
 #include <rsi_common_apis.h>
-#include <string.h>
+#include "rsi_ble.h"
 
 #include "ble_config.h"
 #include "wifi_config.h"
 
 #include "glib.h"
-#include "rsi_ble.h"
 
-// BLE attribute service types uuid values
+// BLE attribute service types UUID values
 #define RSI_BLE_CHAR_SERV_UUID   0x2803
 #define RSI_BLE_CLIENT_CHAR_UUID 0x2902
 
-// BLE characteristic service uuid
+// BLE characteristic service UUID
 #define RSI_BLE_NEW_SERVICE_UUID 0xAABB
 #define RSI_BLE_ATTRIBUTE_1_UUID 0x1AA1
 #define RSI_BLE_ATTRIBUTE_2_UUID 0x1BB1
 #define RSI_BLE_ATTRIBUTE_3_UUID 0x1CC1
 
-// max data length
+// Max data length
 #define RSI_BLE_MAX_DATA_LEN 66
 
-// local device name
+// Local device name
 #define RSI_BLE_APP_DEVICE_NAME "BLE_CONFIGURATOR"
 
-// attribute properties
+// Attribute properties
 #define RSI_BLE_ATT_PROPERTY_READ   0x02
 #define RSI_BLE_ATT_PROPERTY_WRITE  0x08
 #define RSI_BLE_ATT_PROPERTY_NOTIFY 0x10
 
-// application event list
+// Application event list
 #define RSI_BLE_ENH_CONN_EVENT 0x01
 #define RSI_BLE_DISCONN_EVENT  0x02
 #define RSI_BLE_WLAN_SCAN_RESP 0x03
@@ -100,10 +99,10 @@
 #define RSI_SSID_LEN 34
 // MAC address length
 #define RSI_MAC_ADDR_LEN 6
-// Maximum Acccess points that can be scanned
+// Maximum access points that can be scanned
 #define RSI_AP_SCANNED_MAX 11
 
-//! connection update param
+//! connection update parameters
 #define CONN_INTERVAL_MIN           0x320 //0x08
 #define CONN_INTERVAL_MAX           0x320 //0x08
 #define CONN_INTERVAL_DEFAULT_MIN   0x18
@@ -137,7 +136,7 @@ extern char fw[32];
 
 sl_wifi_scan_result_t *scanresult = NULL;
 
-extern uint8_t connected, disassosiated;
+extern uint8_t connected;
 extern uint8_t retry;
 extern sl_net_wifi_client_profile_t client_profile;
 
@@ -419,7 +418,7 @@ void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *r
 {
   conn_event_to_app.dev_addr_type = resp_enh_conn->dev_addr_type;
   memcpy(conn_event_to_app.dev_addr, resp_enh_conn->dev_addr, RSI_DEV_ADDR_LEN);
-  LOG_PRINT("\r\nConnected - remote_dev_addr : %s\r\n",
+  LOG_PRINT("\r\nRemote BLE device connected (address - %s)\r\n",
             rsi_6byte_dev_address_to_ascii(remote_dev_addr, resp_enh_conn->dev_addr));
   conn_event_to_app.status = resp_enh_conn->status;
   rsi_ble_app_set_event(RSI_BLE_ENH_CONN_EVENT);
@@ -437,7 +436,7 @@ void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *r
 static void rsi_ble_on_connect_event(rsi_ble_event_conn_status_t *resp_conn)
 {
   memcpy(&conn_event_to_app, resp_conn, sizeof(rsi_ble_event_conn_status_t));
-  LOG_PRINT("\r\nConnected - remote_dev_addr : %s\r\n",
+  LOG_PRINT("\r\nRemote BLE device connected (address - %s)\r\n",
             rsi_6byte_dev_address_to_ascii(remote_dev_addr, conn_event_to_app.dev_addr));
   rsi_ble_app_set_event(RSI_BLE_ENH_CONN_EVENT);
 }
@@ -456,7 +455,7 @@ static void rsi_ble_on_disconnect_event(rsi_ble_event_disconnect_t *resp_disconn
 {
   UNUSED_PARAMETER(reason);
   memcpy(&disconn_event_to_app, resp_disconnect, sizeof(rsi_ble_event_disconnect_t));
-  LOG_PRINT("\r\nDisconnected - remote_dev_addr : %s\r\n",
+  LOG_PRINT("\r\nRemote BLE device disconnected (address - %s)\r\n",
             rsi_6byte_dev_address_to_ascii(remote_dev_addr, disconn_event_to_app.dev_addr));
   rsi_ble_app_set_event(RSI_BLE_DISCONN_EVENT);
 }
@@ -626,7 +625,9 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
  */
 void rsi_ble_configurator_init(void)
 {
-  uint8_t adv[31] = { 2, 1, 6 };
+  uint8_t adv[31]                             = { 2, 1, 6 };
+  sl_wifi_firmware_version_t firmware_version = { 0 };
+  sl_status_t status                          = 0;
 
   //  initializing the application events map
   rsi_ble_app_init_events();
@@ -689,15 +690,34 @@ void rsi_ble_configurator_init(void)
   LOG_PRINT("\r\nDevice advertising as: ")
   LOG_PRINT(RSI_BLE_APP_DEVICE_NAME);
   LOG_PRINT("\r\n");
-  //memlcd_app_init();
-  GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, "BLE advertising", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, "started", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, "Device name:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, "BLE_CONFIGURATOR", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  DMD_updateDisplay();
-  osDelay(1000);
+
+  status = sl_wifi_get_firmware_version(&firmware_version);
+  if (status != SL_STATUS_OK) {
+    printf("\r\nFirmware version query failed, Error Code : 0x%lX\r\n", status);
+  } else {
+    GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    GLIB_drawStringOnLine(&glibContext, "BLE advertising", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    GLIB_drawStringOnLine(&glibContext, "started", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    GLIB_drawStringOnLine(&glibContext, "Device name:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    GLIB_drawStringOnLine(&glibContext, "BLE_CONFIGURATOR", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    sprintf(fw,
+            "%x%x.%d.%d.%d.%d.%d.%d",
+            firmware_version.chip_id,
+            firmware_version.rom_id,
+            firmware_version.major,
+            firmware_version.minor,
+            firmware_version.security_version,
+            firmware_version.patch_num,
+            firmware_version.customer_id,
+            firmware_version.build_num);
+    print_firmware_version(&firmware_version);
+    GLIB_drawStringOnLine(&glibContext, "NWP firmware version:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    GLIB_drawStringOnLine(&glibContext, fw, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    DMD_updateDisplay();
+    osDelay(1000);
+  }
 }
 
 /*==============================================*/
@@ -721,7 +741,7 @@ void rsi_ble_configurator_task(void *argument)
 
   scanresult = (sl_wifi_scan_result_t *)malloc(scanbuf_size);
   if (scanresult == NULL) {
-    LOG_PRINT("Failed to allocate memory for scan result\n");
+    LOG_PRINT("\r\nFailed to allocate memory for scan results\n");
     return;
   }
   memset(scanresult, 0, scanbuf_size);
@@ -769,16 +789,15 @@ void rsi_ble_configurator_task(void *argument)
 adv:
         status = rsi_ble_start_advertising();
         if (status != RSI_SUCCESS) {
-          LOG_PRINT("\r\nstart advertising cmd failed with error code = %lx \n", status);
+          LOG_PRINT("\r\nStart advertising command failed, Error code = %lx \n", status);
           goto adv;
         } else {
-          LOG_PRINT("\r\nStarted Advertising \n");
+          LOG_PRINT("\r\nBLE Advertising started\n");
         }
       } break;
 
       case RSI_APP_FW_VERSION: {
         sl_wifi_firmware_version_t firmware_version = { 0 };
-
         rsi_ble_app_clear_event(RSI_APP_FW_VERSION);
         memset(data, 0, RSI_BLE_MAX_DATA_LEN);
 
@@ -787,9 +806,6 @@ adv:
           data[0] = 0x08;
           data[1] = sizeof(sl_wifi_firmware_version_t);
 
-          memcpy(&data[2], &firmware_version, sizeof(sl_wifi_firmware_version_t));
-
-          rsi_ble_set_local_att_value(rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, data);
           sprintf(fw,
                   "%x%x.%d.%d.%d.%d.%d.%d",
                   firmware_version.chip_id,
@@ -800,13 +816,10 @@ adv:
                   firmware_version.patch_num,
                   firmware_version.customer_id,
                   firmware_version.build_num);
-
-          print_firmware_version(&firmware_version);
-          GLIB_drawStringOnLine(&glibContext, "Firmware version:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-          GLIB_drawStringOnLine(&glibContext, fw, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-
-          DMD_updateDisplay();
-          osDelay(1000);
+          memcpy(&data[2], &fw, sizeof(fw));
+          rsi_ble_set_local_att_value(rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, data);
+        } else {
+          LOG_PRINT("\r\nFirmware version query failed, Error Code : 0x%lX\r\n", status);
         }
       } break;
 

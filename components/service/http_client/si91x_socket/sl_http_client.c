@@ -23,6 +23,7 @@
 #include "sl_si91x_protocol_types.h"
 #include "sl_net_rsi_utility.h"
 #include "sl_si91x_http_client_callback_framework.h"
+#include <sl_string.h>
 
 /******************************************************
  *                      Macros
@@ -576,11 +577,17 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
   http_client_request->buffer[http_buffer_offset] = '\0';
   http_buffer_offset++;
 
+  // Check for HTTP_V_1.1 and Empty host name
+  if (client_internal->configuration.http_version == SL_HTTP_V_1_1
+      && (strlen((char *)request->host_name) == 0 || request->host_name == NULL)) {
+    strcpy((char *)request->host_name, (char *)request->ip_address);
+  }
+
   // Fill hostname
   http_buffer_offset += snprintf((char *)(http_client_request->buffer + http_buffer_offset),
                                  SI91X_HTTP_BUFFER_LEN - http_buffer_offset,
                                  "%s",
-                                 request->ip_address);
+                                 request->host_name);
   http_buffer_offset++;
 
   // Fill IP address
@@ -619,23 +626,19 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
       // Copy total data length into buffer
       uint8_t temp_str[7] = { 0 };
       convert_itoa(request->body_length, temp_str);
-      http_buffer_offset += snprintf((char *)(http_client_request->buffer + http_buffer_offset),
-                                     SI91X_HTTP_BUFFER_LEN - http_buffer_offset,
-                                     "%s",
-                                     temp_str);
-      http_buffer_offset++;
+      size_t temp_str_len = strlen((char *)temp_str);
+      memcpy(http_client_request->buffer + http_buffer_offset, temp_str, temp_str_len);
+      http_buffer_offset += temp_str_len;
     } else {
       // Fill HTTP post data
-      http_buffer_offset += snprintf((char *)(http_client_request->buffer + http_buffer_offset),
-                                     SI91X_HTTP_BUFFER_LEN - http_buffer_offset,
-                                     "%s",
-                                     request->body);
-      http_buffer_offset++;
+      memcpy(http_client_request->buffer + http_buffer_offset, request->body, request->body_length);
+      http_buffer_offset += request->body_length;
     }
   }
 
   // Check if request buffer is overflowed or resource length is overflowed
-  if (http_buffer_offset > SI91X_HTTP_BUFFER_LEN || strlen((char *)request->resource) > SI91X_MAX_HTTP_URL_SIZE) {
+  if (http_buffer_offset > SI91X_HTTP_BUFFER_LEN
+      || sl_strnlen((char *)request->resource, SI91X_MAX_HTTP_URL_SIZE + 1) > SI91X_MAX_HTTP_URL_SIZE) {
     free(http_client_request);
     return SL_STATUS_HAS_OVERFLOWED;
   }
@@ -893,11 +896,17 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
       http_put_request->http_put_buffer[http_buffer_offset] = '\0';
       http_buffer_offset++;
 
+      // Check for HTTP_V_1.1 and Empty host name
+      if (http_client_handle.configuration.http_version == SL_HTTP_V_1_1
+          && (strlen((char *)request->host_name) == 0 || request->host_name == NULL)) {
+        strcpy((char *)request->host_name, (char *)request->ip_address);
+      }
+
       // Fill hostname
       http_buffer_offset += snprintf((char *)(http_put_request->http_put_buffer + http_buffer_offset),
                                      SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH - http_buffer_offset,
                                      "%s",
-                                     request->ip_address);
+                                     request->host_name);
       http_buffer_offset++;
 
       // Fill IP address

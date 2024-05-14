@@ -1,8 +1,22 @@
 id: i2c_instance
-label: I2C Instance
+label: I2C
 package: platform
 description: >
-  Add a I2C instance. 
+  I2C (Inter-Integrated Circuit) is another serial communication protocol. 
+  It facilitates communication between multiple devices over just two lines: a data line (SDA - Serial Data) 
+  and a clock line (SCL - Serial Clock).
+  The I2C will be configured in leader mode. The SCL and SDA lines of leader controller are
+  connected to Follower's SCL and SDA pins.
+  There are three configurable I2C Master/Slave controllers in M4 - two in the MCU HP peripherals (I2C0, I2C1) 
+  and I2C2 in the MCU ULP subsystem (ULP_I2C).
+
+  Note:
+  For Configuring, Configurable Parameters of I2C, open the configuration wizard and configure, Below are the Configurable Parameters of I2C:
+    - Instance Mode
+    - Instance Operating Mode
+    - Instance Transfer Type
+
+  I2C Supports instances.
   Instances created must be named as I2C0, I2C1, I2C2. 
 category: Device|Si91x|MCU|Peripheral
 quality: production
@@ -33,3 +47,6 @@ template_contribution:
       handler: sl_i2c_init_instances
 requires:
   - name: sl_i2c
+documentation:
+    docset: wiseconnect
+    document: wiseconnect-api-reference-guide-si91x-peripherals/i2-c

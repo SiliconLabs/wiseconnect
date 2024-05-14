@@ -1085,7 +1085,8 @@ typedef struct {
 } sl_si91x_socket_connect_or_listen_parameters_t;
 
 typedef struct {
-  uint8_t pll_mode;
+  uint8_t
+    pll_mode; ///< PLL Mode. 0 - less than 120Mhz TA SoC clock; 1 - greater than 120Mhz TA SoC clock (Mode 1 is not currently supported for coex)
   uint8_t rf_type;
   uint8_t wireless_mode;
   uint8_t enable_ppp;
@@ -2088,6 +2089,28 @@ typedef struct {
   uint8_t header_input[SL_SI91X_GCM_AD_MAX_SIZE];
   uint8_t msg[SL_SI91X_CHACHAPOLY_MSG_MAX_SIZE];
 } sl_si91x_chachapoly_request_t;
+
+typedef struct {
+  uint8_t algorithm_type;
+  uint8_t algorithm_sub_type;
+  uint8_t ecdsa_flags;
+  uint8_t curve_id;
+  uint8_t sha_mode;
+  uint8_t private_key_length;
+  uint8_t public_key_length;
+  uint8_t signature_length;
+  uint16_t current_chunk_length;
+  uint16_t msg_len;
+#ifdef SLI_SI917B0
+  sl_si91x_key_descriptor_t key_info;
+#else
+  uint32_t key_length;
+#endif
+  uint8_t private_key[SL_SI91X_PRIVATE_KEY_MAX_SIZE];
+  uint8_t public_key[SL_SI91X_PUBLIC_KEY_MAX_SIZE];
+  uint8_t signature[SL_SI91X_SIGNATURE_MAX_SIZE];
+  uint8_t msg[SL_SI91X_ECDSA_MSG_MAX_SIZE];
+} sl_si91x_ecdsa_request_t;
 
 typedef struct {
   uint8_t algorithm_type;

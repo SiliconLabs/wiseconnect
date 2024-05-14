@@ -178,13 +178,11 @@ typedef struct {
 *****************************   PROTOTYPES   **********************************
 ******************************************************************************/
 /***************************************************************************/ /**
- * Initilize the USART/UART module.
+ * @brief Initilize the USART/UART module.
  * This function will configure the clocks for USART/UART module and also
  * initialization of the DMA for UART/USART, if DMA is enabled for data transfers.
- *
  * @details This function will configure the clocks for USART/UART module and also
  * initialize the DMA for UART/USART if DMA is enabled for data transfers.
- *
  * @param[in] usart_handle Pointer to the USART/UART driver
  * @param[in] callback_event Callback function which needs to be called on data transfer
  * @return status 0 if successful, else error code as follows:
@@ -195,27 +193,38 @@ typedef struct {
 sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_handle_t *usart_handle);
 
 /***************************************************************************/ /**
- * Uninitialize the USART/UART module.
- * This function will disable the clocks for USART/UART module and also
+ * @brief Uninitialize the USART/UART module.
+ * @details This function will disable the clocks for USART/UART module and also
  * Deinit the DMA for UART/USART if DMA is enabled for data transfers.
  *
  * @param[in] usart_handle Pointer to the USART/UART driver
+ *
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_FAIL (0x0001) - Fail, UART/USART Deinitialization failed 
  *         - \ref SL_STATUS_OK (0x0000) - Success, UART/USART Deinitialization done properly 
+ * @note
+ *   When the USART/UART module is used in combination with other peripherals, while de-initializing in the application, refer to the notes below:
+ *   1. Whenever sl_si91x_usart_deinit() gets called, it will power down the domain (PERI_EFUSE), which contains different peripherals as mentioned below:
+ *      USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
+ *      Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM and EFUSE.
+ *      Since deinit power downs the PERI_EFUSE domain, it's recommended to call the sl_si91x_usart_deinit() API at the end of the application.
+ *   2. Few peripherlas(ULP Peripherls, UULP Peripherlas, GPDMA and SDIO-SPI) have seperate domains those can be powered down indepedently. For additional details, refer to the Power architecture section in the Hardware Reference Manual
+ *      e.g., To power down ULP UART, use the API below:
+ *      RSI_PS_M4ssPeriPowerDown(ULPSS_PWRGATE_ULP_UART); 
+ *      Here, ULP_UART has seperate power domain ULPSS_PWRGATE_ULP_UART, which can be powered down indepedently. Refer to the rsi_power_save.h file for all power gates definitions.
 ******************************************************************************/
 sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle);
 
 /***************************************************************************/ /**
- * Register the user callback function.
- * If another callback is registered without unregistering previous callback then, 
+ * @brief Register the user callback function.
+ * @details If another callback is registered without unregistering previous callback then, 
  * it returns an error code, so it is mandatory 
  * to unregister the callback before registering to another callback.
- *
- * @pre Pre-conditions:
+ * @pre Pre-condition:
  *      - \ref sl_si91x_usart_set_configuration
  *
  * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt
+ *
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_OK (0x0000) - Success 
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
@@ -224,21 +233,21 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle);
 sl_status_t sl_si91x_usart_register_event_callback(sl_usart_signal_event_t callback_event);
 
 /***************************************************************************/ /**
-* Unregister the user callback function.
+* @brief Unregister the user callback function.
 * Unregister the user callback function before regsitering new callback function.
 *
 * @param[in] none
+*
 * @return none
 ******************************************************************************/
 void sl_si91x_usart_unregister_event_callback(void);
 
 /***************************************************************************/ /**
-* This function registers the user callback function for multiple usart instances i.e., to use different 
+* @brief This function registers the user callback function for multiple USART instances i.e., to use different 
 * instance (USART_O, UART_1, ULP_UART) this API need to use
-*
-* @pre sl_si91x_usart_set_configuration();
-*
-* @param[in] usart_instance Usart Instance
+* @pre Pre-condition:
+*         - \ref sl_si91x_usart_set_configuration();
+* @param[in] usart_instance USART Instance
 * @param[in] callback_event Pointer to the function which needs to be called at the time of interrupt
 * @return status 0 if successful, else error code
 *         \ref SL_STATUS_OK (0x0000) - Success \n
@@ -249,46 +258,40 @@ sl_status_t sl_si91x_usart_multiple_instance_register_event_callback(usart_perip
                                                                      sl_usart_signal_event_t callback_event);
 
 /***************************************************************************/ /**
-* Unregister the user callback function in case of multiple usart insatances.
-*
-* @param[in] usart_instance Usart Instance
+* @brief Unregister the user callback function in case of multiple USART instances.
+* @param[in] usart_instance USART Instance
 * @return none
 ******************************************************************************/
 void sl_si91x_usart_multiple_instance_unregister_event_callback(usart_peripheral_t usart_instance);
 
 /***************************************************************************/ /**
-* Send the USART data when USART/UART is configured.
-* if DMA mode is set this function will configure the DMA channel and enables the DMA channel ,
-* then transfer's the data pointed to it else it fill the data to the transfer FIFO and transfer the data
-*
-* @pre \ref sl_si91x_usart_init();
-*      \ref sl_si91x_usart_set_configuration();
-*
+* @brief Send the USART data when USART/UART is configured.
+* @details If DMA mode is set this function will configure the DMA channel and enables the DMA channel ,
+* then transfers the data pointed to it, else it fill the data to the transfer FIFO and transfer the data
+* @pre Pre-conditions:
+*      - \ref sl_si91x_usart_init();
+*      - \ref sl_si91x_usart_set_configuration();
 * @param[in] usart_handle Pointer to the USART/UART driver
 * @param[in] data Pointer to the variable which contains transfer data
 * @param[in] data_length Data_length to Send
-*
 * @return status 0 if successful, else error code
 *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument
 *        \ref SL_STATUS_FAIL (0x0001)   - Fail , Data transfer failed
 *        \ref SL_STATUS_BUSY (0x0004)   -  Busy ,already data transfer is going on
 *        \ref SL_STATUS _OK (0X000)     - Success ,UART/USART initialization done properly
-*
 ********************************************************************************/
 sl_status_t sl_si91x_usart_send_data(sl_usart_handle_t usart_handle, const void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
-* To Send the data in async mode when USART/UART is configured.
-* This function returns immediately(non blocking) and data transfer happens asyncronously. Once the data transfer compeletes ,
+* @brief To Send the data in async mode when USART/UART is configured.
+* @details This function returns immediately(non blocking) and data transfer happens asyncronously. Once the data transfer compeletes,
 * registered user callback get invoked
-*
-* @pre \ref sl_si91x_usart_init();
-*       \ref sl_si91x_usart_set_configuration();
-*
+* @pre  Pre-conditions:
+*       - \ref sl_si91x_usart_init();
+*       - \ref sl_si91x_usart_set_configuration();
 * @param[in] usart_handle Pointer to the USART/UART driver
 * @param[in] data Pointer to the variable which will store the transferred data
 * @param[in] data_length Data_length to transfer
-*
 * @return status 0 if successful, else error code
 *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument
 *        \ref SL_STATUS_FAIL (0x0001)   - Fail , Data transfer failed
@@ -299,14 +302,12 @@ sl_status_t sl_si91x_usart_send_data(sl_usart_handle_t usart_handle, const void 
 sl_status_t sl_si91x_usart_async_send_data(sl_usart_handle_t usart_handle, const void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
- * To receive the data when USART/UART is configured.
- * If DMA mode is set, it configures the DMA channel, enables the DMA channel,
+ * @brief To receive the data when USART/UART is configured.
+ * @details If DMA mode is set, it configures the DMA channel, enables the DMA channel,
  * and receives data via DMA. If DMA mode is not set, it receives the data from FIFO.
- *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_usart_init
  *      - \ref sl_si91x_usart_set_configuration
- *
  * @param[in] usart_handle Pointer to the USART/UART driver
  * @param[in] data Pointer to the variable which will store the received data
  * @param[in] data_length Data_length to receive
@@ -319,17 +320,15 @@ sl_status_t sl_si91x_usart_async_send_data(sl_usart_handle_t usart_handle, const
 sl_status_t sl_si91x_usart_receive_data(sl_usart_handle_t usart_handle, void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
-* To receive the data in async mode when USART/UART is configured.
-* This function returns immediately(Non blocking) and data reception happens asyncronously. Once the data reception compeletes,
+* @brief To receive the data in async mode when USART/UART is configured.
+* @details This function returns immediately(Non blocking) and data reception happens asyncronously. Once the data reception compeletes,
 * registered user callback get invoked
-*
-* @pre \ref sl_si91x_usart_init();
-*       \ref sl_si91x_usart_set_configuration();
-*
+* @pre Pre-conditions:
+*       - \ref sl_si91x_usart_init();
+*       - \ref sl_si91x_usart_set_configuration();
 * @param[in] usart_handle Pointer to the USART/UART driver
 * @param[in] data Pointer to the variable which will store the received data
 * @param[in] data_length Data_length to receive
-*
 * @return status 0 if successful, else error code
 *        \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument
 *        \ref SL_STATUS_FAIL (0x0001)   - Fail , Data transfer failed
@@ -340,16 +339,14 @@ sl_status_t sl_si91x_usart_receive_data(sl_usart_handle_t usart_handle, void *da
 sl_status_t sl_si91x_usart_async_receive_data(sl_usart_handle_t usart_handle, void *data, uint32_t data_length);
 
 /***************************************************************************/ /**
-* To send and receive the data when USART in Synchronous mode is enabled. 
- * This function sends and receives the data to and from usart transmitter and
+* @brief To send and receive the data when USART in Synchronous mode is enabled. 
+ * @details This function sends and receives the data to and from usart transmitter and
  * receiver in synchronous mode of operation.
  * Configure the DMA channel and enables the DMA channel, if DMA mode is set and 
  * transfer's the data pointed to it else transfer the data from fifo.
- *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_usart_init
  *      - \ref sl_si91x_usart_set_configuration
- *
  * @param[in] usart_handle Pointer to the USART/UART driver
  * @param[in] data_out Pointer to the variable which will store the data to be transferred
  * @param[in] data_in Pointer to the variable which will store the received data
@@ -369,30 +366,34 @@ sl_status_t sl_si91x_usart_transfer_data(sl_usart_handle_t usart_handle,
                                          uint32_t data_length);
 
 /***************************************************************************/ /**
- * To get the TX data count of USART/UART
- * This function will return the USART data transferred count.
+ * @brief To get the TX data count of USART/UART
+ * @details This function will return the USART data transferred count.
  *
  * @param[in] usart_handle Pointer to the USART/UART driver
+ *
  * @return return the no of bytes transferred
 ******************************************************************************/
 uint32_t sl_si91x_usart_get_tx_data_count(sl_usart_handle_t usart_handle);
 
 /***************************************************************************/ /**
-* To get the RX data count of USART/UART
-* This function will return the USART/UART data received count
+* @brief To get the RX data count of USART/UART
+* @details This function will return the USART/UART data received count
 *
 * @param[in] usart_handle Pointer to the USART/UART driver
+*
 * @return return the no of bytes received
 ******************************************************************************/
 uint32_t sl_si91x_usart_get_rx_data_count(sl_usart_handle_t usart_handle);
 
 /***************************************************************************/ /**
-* To control and configure the USART/UART module in different configurations.
-* This function configure the USART in different configurations such as USART mode,
+* @brief To control and configure the USART/UART module in different configurations.
+* @details This function configure the USART in different configurations such as USART mode,
 * Data Bits, Parity , stop bits, flow control and baud rate.
 *
 * @param[in] usart_handle Pointer to the USART/UART driver
+*
 * @param[in] control_configuration pointer to the USART configurations
+*
 * @return status 0 if successful, else error code
 *        - \ref SL_STATUS_BUSY (0x0004)         -  Busy ,already data transfer is going on 
 *        - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
@@ -404,13 +405,15 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
                                              sl_si91x_usart_control_config_t *control_configuration);
 
 /*******************************************************************************
-* This is internal function used to configure the different configurations of USART Interface, 
-* this API will not pick the configurations from USART UC.
+* @brief This is internal function used to configure the different configurations of USART Interface. 
+* @details This API will not pick the configurations from USART UC.
 * Configure the USART in different configurations such as USART mode,
 * Data Bits, Parity , stop bits, flow control and baud rate.
 *
 * @param[in] usart_handle Pointer to the USART/UART driver
+*
 * @param[in] control_configuration pointer to the USART configurations
+*
 * @return status 0 if successful, else error code
 *        - \ref SL_STATUS_BUSY (0x0004)         -  Busy ,already data transfer is going on 
 *        - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
@@ -422,9 +425,8 @@ sl_status_t sli_si91x_usart_set_non_uc_configuration(sl_usart_handle_t usart_han
                                                      sl_si91x_usart_control_config_t *control_configuration);
 
 /***************************************************************************/ /**
-* To get the USART/UART status.
-* This function will return USART/UART transfer and receive status
-*
+* @brief To get the USART/UART status.
+* @details This function will return USART/UART transfer and receive status
 * @param[in] usart_handle Pointer to the USART/UART driver
 * @return usart line status
 *       tx busy ,rx_busy, tx_underflow ,rx overflow, rx break, rx framing error
@@ -433,37 +435,32 @@ sl_status_t sli_si91x_usart_set_non_uc_configuration(sl_usart_handle_t usart_han
 sl_usart_status_t sl_si91x_usart_get_status(sl_usart_handle_t usart_handle);
 
 /***************************************************************************/ /**
-* This function will set the USART modem control line
-*
+* @brief This function will set the USART modem control line
 * @param[in] usart_handle Pointer to the USART/UART driver
 * @param[in] control  usart modem control
 * @return status 0 if successful, else error code
 *       - \ref SL_STATUS_NOT_SUPPORTED(0x000F) -  Feature not supported 
 *       - \ref SL_STATUS _OK (0x000)           - Success ,UART/USART initialization done properly
-*
 ******************************************************************************/
 sl_status_t sl_si91x_usart_set_modem_control(sl_usart_handle_t usart_handle, sl_usart_modem_control_t control);
 
 /***************************************************************************/ /**
-* This function return USART modem control status
-*
+* @brief This function return USART modem control status
 * @param[in] usart_handle Pointer to the USART/UART driver
 * @return \ref usart modem status states are active or not
 ******************************************************************************/
 sl_usart_modem_status_t sl_si91x_usart_get_modem_status(sl_usart_handle_t usart_handle);
 
 /***************************************************************************/ /**
-* This function is used to know the USART version
-*
+* @brief This function is used to know the USART version
 * @param[in] none
 * @return \ref sl_usart_version_t type version
 ******************************************************************************/
 sl_usart_version_t sl_si91x_usart_get_version(void);
 
 /***************************************************************************/ /**
-* Get the USART configurations set in the module such as baudrate, parity bit
+* @brief Get the USART configurations set in the module such as baudrate, parity bit
 * stop bits etc.
-*
 * @param[in] usart_module USART peripheral type
 *   -  0 - USART0
 *   -  1 - UART1
@@ -477,6 +474,74 @@ sl_usart_version_t sl_si91x_usart_get_version(void);
 sl_status_t sl_si91x_usart_get_configurations(uint8_t usart_module, sl_si91x_usart_control_config_t *usart_config);
 
 /** @} (end addtogroup USART) */
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup USART USART
+/// @{
+///
+///   @details
+///
+///
+///   @n @section USART_Intro Introduction
+///
+///   The USART/UART driver offers a robust set of functionalities to enable
+///   seamless communication over the USART/UART interface. This driver supports various features, including DMA (Direct Memory Access)
+///   for efficient data transfer, event callback mechanisms for interrupt handling, etc.
+///   The driver simplifies the implementation of serial communication protocols and enhances the overall performance and reliability of the system.
+///
+///   @n @section USART_Config Configuration
+///
+///   To configure the USART/UART driver, user can utilize a comprehensive set of parameters and functions
+///   tailored to their specific requirements. This configuration process involves setting up various aspects of the USART/UART module,
+///   such as baud rate, data bits, parity, stop bits, flow control, and DMA settings if DMA is enabled.
+///   Additionally, register callback functions can be used to handle events and interrupts, ensuring timely and efficient communication.
+///   The driver also supports multiple USART/UART instances, allowing for versatile usage across different peripherals.
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
+///
+///   @n @section USART_Usage Usage
+///
+///   USART has to be initialized and configured first by calling the @ref sl_si91x_usart_init. The DMA (Direct Memory Access) controller in the USART driver
+///   will enable efficient data transfer, thus reducing CPU overhead. Initialization of the DMA for UART/USART will also be done with the same USART init function,
+///   if DMA is enabled for data transfers. The other common functions include the following:
+///
+///   @li @ref sl_si91x_usart_init
+///   @li @ref sl_si91x_usart_set_configuration
+///   @li @ref sl_si91x_usart_register_event_callback
+///   @li @ref sl_si91x_usart_multiple_instance_register_event_callback
+///   @li @ref sl_si91x_usart_async_send_data
+///   @li @ref sl_si91x_usart_async_receive_data
+///   @li @ref sl_si91x_usart_transfer_data
+///   @li @ref sl_si91x_usart_get_status
+///   @li @ref sl_si91x_usart_get_tx_data_count
+///   @li @ref sl_si91x_usart_get_rx_data_count
+///   @li @ref sl_si91x_usart_set_modem_control
+///   @li @ref sl_si91x_usart_deinit
+///
+///   @li Once initialised, you can configure the module using @ref sl_si91x_usart_set_configuration. Here you can set appropriate configurations such as USART module
+///   Recieve-transfer configuration (flow control), data bits, parity and baud rate.
+///
+///   @li Once configured, you can register callback functions using @ref sl_si91x_usart_register_event_callback
+///   and @ref sl_si91x_usart_unregister_event_callback for event handling.
+///   For multiple USART instances, you can use @ref sl_si91x_usart_multiple_instance_register_event_callback and
+///   @ref sl_si91x_usart_multiple_instance_unregister_event_callback for the same.
+///
+///   There are a total of three instances of USART - USART, UART2, ULP UART. USART can be used synchronously as well as asynchronously.
+///   For USART in synchronous mode use the function @ref sl_si91x_usart_transfer_data. Here, data transfer is done with a shared clock signal
+///   between the sender and receiver. On the other hand, to use USART in asynchronous mode, for UART2, ULP UART use @ref sl_si91x_usart_async_send_data and
+///   @ref sl_si91x_usart_async_receive_data to send and receive data asynchronously. Here, data transfer will happen asynchronously i.e., in non-blocking.
+///   Once the data transfer is complete, user event callback function will be called.
+///
+///   User can also use @ref sl_si91x_usart_get_tx_data_count and
+///   @ref sl_si91x_usart_get_rx_data_count to get the number of bytes transferred and received, respectively.
+///
+///   @li Additionally, You can also check the status of the module with @ref sl_si91x_usart_get_status.
+///   you can control the modem lines using @ref sl_si91x_usart_set_modem_control.
+///
+///   @li @ref sl_si91x_usart_deinit can be used to deinitialize the module. Similar to initialization, de-initialization of the DMA for
+///   UART/USART will also be done with the USART de-init function, if DMA is enabled for data transfers.
+///
+/// @} end group SYSRTC ********************************************************/
 
 #ifdef __cplusplus
 }

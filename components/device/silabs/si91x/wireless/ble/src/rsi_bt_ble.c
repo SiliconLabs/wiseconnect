@@ -26,8 +26,6 @@ sl_status_t sl_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
                                              void **buffer,
                                              uint32_t requested_buffer_size,
                                              uint32_t wait_duration_ms);
-void rsi_bt_clear_wait_bitmap(uint16_t protocol_type, uint8_t sem_type);
-void rsi_bt_set_wait_bitmap(uint16_t protocol_type, uint8_t sem_type);
 uint32_t rsi_get_bt_state(rsi_bt_cb_t *bt_cb);
 /*
   Include files
@@ -41,83 +39,6 @@ uint32_t rsi_get_bt_state(rsi_bt_cb_t *bt_cb);
 
 #include "sl_si91x_host_interface.h"
 
-/** @addtogroup DRIVER14
-* @{
-*/
-/**
- * @brief       Clear the Bluetooth wait bitmap
- * @param[in]   protocol_type - Protocol type
- * @param[in]   sem_type - Type
- * @return      void
- *
- */
-
-void rsi_bt_clear_wait_bitmap(uint16_t protocol_type, uint8_t sem_type)
-{
-
-  SL_PRINTF(SL_RSI_BT_CLEAR_WAIT_BITMAP_TRIGGER,
-            BLUETOOTH,
-            LOG_INFO,
-            "PROTOCOL_TYPE: %2x, SEM_TYPE: %1x",
-            protocol_type,
-            sem_type);
-#ifndef RSI_BT_SEM_BITMAP
-  if (sem_type == BT_SEM) {
-    if (protocol_type == RSI_PROTO_BT_COMMON) {
-      rsi_driver_cb_non_rom->bt_wait_bitmap &= ~BIT(1);
-    } else if (protocol_type == RSI_PROTO_BT_CLASSIC) {
-      rsi_driver_cb_non_rom->bt_wait_bitmap &= ~BIT(2);
-    } else if (protocol_type == RSI_PROTO_BLE) {
-      rsi_driver_cb_non_rom->bt_wait_bitmap &= ~BIT(3);
-    }
-  } else if (sem_type == BT_CMD_SEM) {
-    if (protocol_type == RSI_PROTO_BT_COMMON) {
-      rsi_driver_cb_non_rom->bt_cmd_wait_bitmap &= ~BIT(1);
-    } else if (protocol_type == RSI_PROTO_BT_CLASSIC) {
-      rsi_driver_cb_non_rom->bt_cmd_wait_bitmap &= ~BIT(2);
-    } else if (protocol_type == RSI_PROTO_BLE) {
-      rsi_driver_cb_non_rom->bt_cmd_wait_bitmap &= ~BIT(3);
-    }
-  }
-#endif
-}
-/**
- * @brief       Set the bt wait bitmap
- * @param[in]   protocol_type - Protocol
- * @param[in]   sem_type - Type
- * @return      void
- *
- */
-void rsi_bt_set_wait_bitmap(uint16_t protocol_type, uint8_t sem_type)
-{
-
-  SL_PRINTF(SL_RSI_BT_SET_WAIT_BITMAP_TRIGGER,
-            BLUETOOTH,
-            LOG_INFO,
-            "PROTOCOL_TYPE: %2x, SEM_TYPE: %1x",
-            protocol_type,
-            sem_type);
-#ifndef RSI_BT_SEM_BITMAP
-  if (sem_type == BT_SEM) {
-    if (protocol_type == RSI_PROTO_BT_COMMON) {
-      rsi_driver_cb_non_rom->bt_wait_bitmap |= BIT(1);
-    } else if (protocol_type == RSI_PROTO_BT_CLASSIC) {
-      rsi_driver_cb_non_rom->bt_wait_bitmap |= BIT(2);
-    } else if (protocol_type == RSI_PROTO_BLE) {
-      rsi_driver_cb_non_rom->bt_wait_bitmap |= BIT(3);
-    }
-  } else if (sem_type == BT_CMD_SEM) {
-    if (protocol_type == RSI_PROTO_BT_COMMON) {
-      rsi_driver_cb_non_rom->bt_cmd_wait_bitmap |= BIT(1);
-    } else if (protocol_type == RSI_PROTO_BT_CLASSIC) {
-      rsi_driver_cb_non_rom->bt_cmd_wait_bitmap |= BIT(2);
-    } else if (protocol_type == RSI_PROTO_BLE) {
-      rsi_driver_cb_non_rom->bt_cmd_wait_bitmap |= BIT(3);
-    }
-  }
-#endif
-}
-/** @} */
 /*
  * Global Variables
  * */
@@ -312,7 +233,6 @@ void rsi_bt_common_tx_done(sl_si91x_packet_t *pkt)
     // Set bt_common status as success
     rsi_bt_set_status(bt_cb, RSI_SUCCESS);
 
-    rsi_bt_clear_wait_bitmap(protocol_type, BT_SEM);
     // Post the semaphore which is waiting on driver_send API
     osSemaphoreRelease(bt_cb->bt_sem);
   }
@@ -473,6 +393,7 @@ int32_t rsi_driver_process_bt_resp(
   void (*rsi_bt_async_callback_handler)(rsi_bt_cb_t *cb, uint16_t type, uint8_t *data, uint16_t length),
   uint16_t protocol_type)
 {
+  UNUSED_PARAMETER(protocol_type);
 
   SL_PRINTF(SL_RSI_DRIVER_PROCESS_BT_RESPONSE_TRIGGER, BLUETOOTH, LOG_INFO, "PROTOCOL_TYPE: %2x", protocol_type);
   uint16_t rsp_type  = 0;
@@ -548,7 +469,6 @@ int32_t rsi_driver_process_bt_resp(
           bt_cb->remote_ble_index = 0; /* assigning value to 0 after successful response */
         }
       }
-      rsi_bt_clear_wait_bitmap(protocol_type, BT_SEM);
       // Signal the bt semaphore
       osSemaphoreRelease(bt_cb->bt_sem);
     } else {
@@ -634,6 +554,7 @@ uint16_t rsi_driver_process_bt_resp_handler(void *rx_pkt)
 
 int8_t rsi_bt_cb_init(rsi_bt_cb_t *bt_cb, uint16_t protocol_type)
 {
+  UNUSED_PARAMETER(protocol_type);
 
   SL_PRINTF(SL_RSI_BT_CB_INIT_TRIGGER, BLUETOOTH, LOG_INFO, "PROTOCOL_TYPE: %2x", protocol_type);
 
@@ -664,7 +585,6 @@ int8_t rsi_bt_cb_init(rsi_bt_cb_t *bt_cb, uint16_t protocol_type)
     retval = RSI_ERROR_SEMAPHORE_CREATE_FAILED;
   }
 
-  rsi_bt_clear_wait_bitmap(protocol_type, BT_CMD_SEM);
   osSemaphoreRelease(bt_cb->bt_cmd_sem);
   bt_cb->app_buffer = 0;
 
@@ -708,7 +628,6 @@ void rsi_bt_common_init(void)
   // Get bt_common_cb structure pointer
   rsi_bt_cb_t *bt_common_cb = rsi_driver_cb->bt_common_cb;
 
-  rsi_bt_set_wait_bitmap(RSI_PROTO_BT_COMMON, BT_SEM);
   // Save expected response type
   bt_common_cb->expected_response_type = RSI_BT_EVENT_CARD_READY;
   bt_common_cb->sync_rsp               = 1;
@@ -2225,7 +2144,6 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   }
   // Get timeout based on cmd
   calculate_timeout_ms = rsi_bt_get_timeout(cmd, protocol_type);
-  rsi_bt_set_wait_bitmap(protocol_type, BT_CMD_SEM);
   if (bt_cb->bt_cmd_sem == NULL || (osSemaphoreAcquire(bt_cb->bt_cmd_sem, calculate_timeout_ms) != osOK)) {
     // LOG_PRINT("%s: Command ID:0x%x Command timed-out with:%d\n",__func__, cmd, calculate_timeout_ms);
     SL_PRINTF(SL_RSI_ERROR_BT_BLE_CMD_IN_PROGRESS,
@@ -2238,19 +2156,6 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
     return RSI_ERROR_BT_BLE_CMD_IN_PROGRESS;
   }
 
-#ifdef BT_STACK_IN_HOST
-  // If allocation of packet fails
-  if (!bt_stack_buf_avail) {
-    rsi_bt_clear_wait_bitmap(protocol_type, BT_CMD_SEM);
-    osSemaphoreRelease(bt_cb->bt_cmd_sem);
-
-    // Return packet allocation failure error
-
-    SL_PRINTF(SL_RSI_ERROR_PKT_ALLOCATION_FAILURE, BLUETOOTH, LOG_ERROR, "COMMAND: %2x", cmd);
-    return RSI_ERROR_PKT_ALLOCATION_FAILURE;
-  }
-#endif
-
   // Allocate command buffer from ble pool
   status = sl_si91x_allocate_command_buffer(&buffer,
                                             (void **)&pkt,
@@ -2258,7 +2163,6 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
                                             calculate_timeout_ms);
   // If allocation of packet fails
   if (pkt == NULL) {
-    rsi_bt_clear_wait_bitmap(protocol_type, BT_CMD_SEM);
     osSemaphoreRelease(bt_cb->bt_cmd_sem);
 
     // Return packet allocation failure error
@@ -2290,7 +2194,7 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   }
 
   if (bt_cb->buf_status || bt_cb->cmd_status || (bt_cb->state & RSI_BLE_CHECK_CMD)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_CONTROL_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
 
     if (bt_cb->buf_status == SI_LE_BUFFER_IN_PROGRESS) {
       status = RSI_ERROR_BLE_DEV_BUF_IS_IN_PROGRESS;
@@ -2310,7 +2214,6 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
 
     bt_cb->buf_status = SI_LE_BUFFER_AVL;
     bt_cb->cmd_status = 0;
-    rsi_bt_clear_wait_bitmap(protocol_type, BT_CMD_SEM);
     osSemaphoreRelease(bt_cb->bt_cmd_sem);
     SL_PRINTF(SL_RSI_BLE_ERROR, BLUETOOTH, LOG_ERROR, "Status: %4x", status);
 
@@ -2337,7 +2240,6 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
 
   sl_si91x_driver_send_bt_command(cmd, SI91X_BT_CMD_QUEUE, buffer, bt_cb->sync_rsp);
 
-  rsi_bt_set_wait_bitmap(protocol_type, BT_SEM);
   if (bt_cb->bt_sem == NULL || (osSemaphoreAcquire(bt_cb->bt_sem, calculate_timeout_ms) != osOK)) {
     rsi_bt_set_status(bt_cb, RSI_ERROR_RESPONSE_TIMEOUT);
     SL_PRINTF(SL_RSI_SEMAPHORE_TIMEOUT,
@@ -2346,13 +2248,6 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
               " Command: %2x , Calculate_timeout_ms: %4x",
               cmd,
               calculate_timeout_ms);
-
-#ifndef RSI_WAIT_TIMEOUT_EVENT_HANDLE_TIMER_DISABLE
-    if (rsi_driver_cb_non_rom->rsi_wait_timeout_handler_error_cb != NULL) {
-      rsi_driver_cb_non_rom->rsi_wait_timeout_handler_error_cb(RSI_ERROR_RESPONSE_TIMEOUT, BT_CMD);
-    }
-#endif
-    //LOG_PRINT("%s: Command ID:0x%x response timed-out with:%d\n",__func__, cmd, calculate_timeout_ms);
   }
   // Get command response status
   status = rsi_bt_get_status(bt_cb);
@@ -2361,7 +2256,6 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   // Clear sync rsp variable
   bt_cb->sync_rsp = 0;
 
-  rsi_bt_clear_wait_bitmap(protocol_type, BT_CMD_SEM);
   // Post the semaphore which is waiting on driver_send API
   osSemaphoreRelease(bt_cb->bt_cmd_sem);
 

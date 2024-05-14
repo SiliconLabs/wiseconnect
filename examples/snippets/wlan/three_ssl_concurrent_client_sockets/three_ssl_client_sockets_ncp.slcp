@@ -14,10 +14,10 @@ filter:
   - Beginner
 sdk:
   id: gecko_sdk
-  version: 4.4.1
+  version: 4.4.3
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.1.4
+  version: 3.2.0
 source:
 - path: app.c
 - path: main.c
@@ -64,6 +64,8 @@ configuration:
   value: '1'
 - name: configTOTAL_HEAP_SIZE
   value: '51200'
+- name: configTIMER_TASK_PRIORITY 
+  value: '55'
 readme:
 - path: readme.md
 other_file:

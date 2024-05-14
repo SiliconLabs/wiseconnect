@@ -220,18 +220,14 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(efuse_ipmu_t *ipmu_calib_data)
   vbg_tsbjt_efuse[2] = value;
 #endif
 
-#ifdef SL_SI91X_ENABLE_LOWPWR_RET_LDO
   /* retn_ldo_lptrim */
-  data = (ipmu_calib_data->retn_ldo_lptrim);
-  if (data < 2) {
-    data = data + 1;
-  }
+  data  = (ipmu_calib_data->retn_ldo_lptrim);
   mask  = MASK_BITS(22, 0);
   value = retnLP_volt_trim_efuse[2];
   value &= ~mask;
   value |= data;
   retnLP_volt_trim_efuse[2] = value;
-#endif
+
   /* auxadc_off_diff_efuse  */
   data  = (ipmu_calib_data->auxadc_offset_diff);
   mask  = MASK_BITS(22, 0);
@@ -813,6 +809,49 @@ void RSI_IPMU_RetnLdoLpmode(void)
   RSI_IPMU_ProgramConfigData(retnLP_volt_trim_efuse);
 }
 
+/*==============================================*/
+/**
+ * @fn          void RSI_IPMU_Retn_Voltage_Reduction(void)
+ * @brief     This API is used to reduce the RETN_LDO voltage by 0.05V.
+ * @return      none
+ */
+
+void RSI_IPMU_Retn_Voltage_Reduction(void)
+{
+  uint32_t value, mask;
+  value = retnLP_volt_trim_efuse[2];
+  mask  = MASK_BITS(3, 0);
+  value &= mask;
+  if (value < RET_LDO_TRIM_VALUE_CHECK) {
+    retnLP_volt_trim_efuse[2] += RET_LDO_VOL_DECREASE;
+  }
+}
+
+/*==============================================*/
+/**
+ * @fn          void RSI_IPMU_Retn_Voltage_To_Default(void)
+ * @brief     This API is used to change the RETN_LDO voltage to 0.8V.
+ * @return      none
+ */
+
+void RSI_IPMU_Retn_Voltage_To_Default(void)
+{
+  uint32_t mask;
+  mask = MASK_BITS(22, 0);
+  retnLP_volt_trim_efuse[2] &= ~mask;
+}
+
+/*==============================================*/
+/**
+ * @fn          void RSI_IPMU_Set_Higher_Pwm_Ro_Frequency_Mode_to_PMU(void)
+ * @brief     This API is used to enable Higher Pwm Ro Frequency Mode for PMU.
+ * @return      none
+ */
+
+void RSI_IPMU_Set_Higher_Pwm_Ro_Frequency_Mode_to_PMU(void)
+{
+  PMU_SPI_MEM_MAP(PMU_FREQ_MODE_REG) &= ~(LOW_FREQ_PWM);
+}
 /*==============================================*/
 /**
  * @fn          void RSI_IPMU_RetnLdoHpmode(void)

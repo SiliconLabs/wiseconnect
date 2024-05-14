@@ -77,16 +77,16 @@ rsi_error_t mcpwm_start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
   // starts base timer operation
   switch (chnlNum) {
     case PWM_CHNL_0:
-      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH0_b.PWM_TIME_BASE_EN_FRM_REG_CH0 = 0x1;
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH0_b.PWM_TIME_BASE_EN_FRM_REG_CH0 = ENABLE;
       break;
     case PWM_CHNL_1:
-      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH1_b.PWM_TIME_BASE_EN_FRM_REG_CH1 = 0x1;
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH1_b.PWM_TIME_BASE_EN_FRM_REG_CH1 = ENABLE;
       break;
     case PWM_CHNL_2:
-      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH2_b.PWM_TIME_BASE_EN_FRM_REG_CH2 = 0x1;
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH2_b.PWM_TIME_BASE_EN_FRM_REG_CH2 = ENABLE;
       break;
     case PWM_CHNL_3:
-      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH3_b.PWM_TIME_BASE_EN_FRM_REG_CH3 = 0x1;
+      pMCPWM->PWM_TIME_PRD_CTRL_REG_CH3_b.PWM_TIME_BASE_EN_FRM_REG_CH3 = ENABLE;
       break;
     default:
       return ERROR_PWM_INVALID_CHNLNUM;

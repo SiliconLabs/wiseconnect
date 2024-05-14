@@ -261,6 +261,7 @@ uint8_t rsi_check_dev_central_list(uint8_t *rem_dev_addr)
  */
 uint8_t rsi_check_dev_list(uint8_t *remote_dev_name, uint8_t *adv_dev_addr)
 {
+  UNUSED_PARAMETER(remote_dev_name);
   UNUSED_PARAMETER(adv_dev_addr); //This statement is added only to resolve compilation warning, value is unchanged
   uint8_t i                       = 0;
   uint8_t peripheral_device_found = NO_DEV_FOUND;
@@ -278,12 +279,14 @@ uint8_t rsi_check_dev_list(uint8_t *remote_dev_name, uint8_t *adv_dev_addr)
   //! check if remote device already connected or advertise report received- TODO .  Can check efficiently?
   if (peripheral_device_found == DEV_FOUND) {
     for (i = 0; i < TOTAL_CONNECTIONS; i++) {
-      if (!(strcmp((const char *)rsi_ble_conn_info[i].rsi_remote_name, (const char *)remote_dev_name))) {
-        peripheral_device_found = DEV_CONNECTED;
+      if ((const char *)rsi_ble_conn_info[i].rsi_remote_name != NULL) {
+        if (!(strcmp((const char *)rsi_ble_conn_info[i].rsi_remote_name, (const char *)remote_dev_name))) {
+          peripheral_device_found = DEV_CONNECTED;
 #if RSI_DEBUG_EN
-        LOG_PRINT("\r\n Device %s already connected!!!\r\n", adv_dev_addr);
+          LOG_PRINT("\r\n Device %s already connected!!!\r\n", adv_dev_addr);
 #endif
-        break;
+          break;
+        }
       }
     }
   }

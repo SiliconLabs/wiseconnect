@@ -67,6 +67,9 @@ extern "C" {
 #define SL_I2C_DMA_ENABLE        0x1    ///< DMA enable
 #define SL_I2C_DMA_DISABLE       0x0    ///< DMA disable
 #define SL_MAX_7_BIT_ADDRESS     127    ///< Max 7-bit address
+#define SL_BIT_SET               1      // Set bit
+#define SL_STOP_BIT              9      // Bit to send stop command
+#define SL_MASK_READ_BIT         8      // Bit to mask read and write
 
 // I2C Interrupt Events
 #define SL_I2C_EVENT_RECEIVE_UNDER (1UL << 0) ///< If processor attempts to read receive buffer when buffer is empty
@@ -800,6 +803,24 @@ __STATIC_INLINE void sl_si91x_i2c_send_ack(I2C_TypeDef *i2c)
   // not supported
 }
 
+/***************************************************************************/ /**
+ * Sets read direction and adds stop bit for I2C interface
+ * It updates the register with the read mask value & adds stop bit.
+ *
+ * @pre \ref sl_si91x_i2c_enable();
+ * @note I2C instance should be enabled before calling this API.
+ *
+ * @param[in] i2c (I2C_TypeDef) Pointer to the I2C instance base address.
+ *
+ * @return none
+ ******************************************************************************/
+__STATIC_INLINE void sl_si91x_i2c_set_read_direction_and_stop_bit(I2C_TypeDef *i2c)
+{
+  // Validates the I2C instance with the corresponding base address of instance.
+  SL_I2C_ASSERT(I2C_REF_VALID(i2c));
+  // It sets the register with the read mask / write mask value.
+  i2c->IC_DATA_CMD = (SL_BIT_SET << SL_STOP_BIT) | (SL_BIT_SET << SL_MASK_READ_BIT);
+}
 //----------------------------------------------------------------------------------------------
 // void sl_i2c_si91x_set_tx_fifo_watermark(I2C_TypeDef *i2c,sl_i2c_tx_fifo_watermark_t tx_fifo_watermark);
 // sl_i2c_tx_fifo_watermark_t sl_i2c_si91x_get_tx_fifo_watermark(I2C_TypeDef *i2c);

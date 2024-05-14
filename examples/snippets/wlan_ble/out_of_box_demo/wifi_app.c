@@ -34,41 +34,13 @@
  * */
 
 //! SL Wi-Fi SDK includes
-#include "sl_constants.h"
-#include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
-#include "sl_net.h"
-#include "sl_net_si91x.h"
-#include "sl_utility.h"
-#include "sl_status.h"
-#include "sl_wifi_device.h"
 #include "sl_net_wifi_types.h"
 #include "sl_si91x_driver.h"
-#include "sl_board_configuration.h"
-#include "errno.h"
-#include "socket.h"
-#include "sl_si91x_socket.h"
-#include "sl_wifi_device.h"
-#include "sl_event_handler.h"
 
-#include "sl_si91x_driver.h"
-#include "sl_ip_types.h"
-#include "rsi_ps_config.h"
-
-#ifdef SLI_SI91X_MCU_INTERFACE
-#include "rsi_rtc.h"
-#include "rsi_chip.h"
-#include "rsi_wisemcu_hardware_setup.h"
-#include "rsi_m4.h"
-#include "rsi_rom_power_save.h"
-
-#endif
-
-#include "cmsis_os2.h"
 #include <string.h>
 #include <stdio.h>
 
-#include "wifi_config.h"
 #include "rsi_common_apis.h"
 #include "rsi_bt_common_apis.h"
 
@@ -89,18 +61,11 @@
 
 #include <rsi_ble_apis.h>
 
-//#include "sl_si91x_ulp_timer_init.h"
 #include "sl_memlcd.h"
 
 //! MQTT related include files
-#include "sl_net.h"
-#include "sl_utility.h"
-#include "cmsis_os2.h"
-#include "sl_constants.h"
 #include "sl_mqtt_client.h"
-#include "cacert.pem.h"
 #include "sl_wifi.h"
-#include "string.h"
 #include "sl_net_dns.h"
 #include "sl_net_ping.h"
 
@@ -130,10 +95,10 @@
   "Si917_MQTT_RECEIVE" // 917 subscribes to this topic, any messages published on this will be received
 #define QOS_OF_SUBSCRIPTION    SL_MQTT_QOS_LEVEL_0
 #define PUBLISH_TOPIC          "Si917_APP_STATUS" // Publishing from the module to MQTT broker/server
-#define PUBLISH_MESSAGE        "MQTT publish from 917"
+#define PUBLISH_MESSAGE        "Button is pressed"
 #define QOS_OF_PUBLISH_MESSAGE 0
 #define IS_DUPLICATE_MESSAGE   0
-#define IS_MESSAGE_RETAINED    1
+#define IS_MESSAGE_RETAINED    0
 #define IS_CLEAN_SESSION       1
 #define LAST_WILL_TOPIC        "MQTT-CLIENT-LAST-WILL"
 #define LAST_WILL_MESSAGE      "MQTT-CLIENT has been disconnect from network"
@@ -218,7 +183,7 @@ sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE 
 
 //MQTT related variables
 uint8_t connected = 0, timeout = 0;
-uint8_t disconnected = 0, disassosiated = 0;
+uint8_t disconnected = 0, disassociated = 0;
 uint8_t a = 0;
 
 //MQTT disconnect flag
@@ -236,28 +201,7 @@ char *hostname          = "www.silabs.com";
 
 #define NO_OF_PINGS 5
 
-uint8_t mqtt_connected         = 0;
-uint8_t button_pressed         = 0;
-uint8_t wireless_wkp_triggered = 1;
-#ifdef SLI_SI91X_MCU_INTERFACE
-
-#define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-
-#define WIRELESS_WAKEUP_IRQHandler_Periority 8
-
-#define NPSS_GPIO_2            2
-#define NPSSGPIO_PIN_MUX_MODE2 2
-#define NPSS_GPIO_INTR_LOW     0
-#define NPSS_GPIO_DIR_INPUT    1
-#define NPSS_GPIO_2_INTR       BIT(2)
-
-/* Constants required to manipulate the NVIC. */
-#define portNVIC_SHPR3_REG   (*((volatile uint32_t *)0xe000ed20))
-#define portNVIC_PENDSV_PRI  (((uint32_t)(0x3f << 4)) << 16UL)
-#define portNVIC_SYSTICK_PRI (((uint32_t)(0x3f << 4)) << 24UL)
-#endif
-
-volatile uint8_t nvic_enable1[240];
+uint8_t mqtt_connected = 0;
 
 //LCD related variables
 GLIB_Context_t glibContext;
@@ -277,7 +221,7 @@ sl_ip_address_t ip = { 0 };
 uint8_t app_reconn_loop_ctr = 0;
 
 typedef struct sl_wlan_app_cb_s {
-  //! wlan application state
+  //! WLAN application state
   volatile sl_wifi_app_state_t state;
 
   //! length of buffer to copy
@@ -302,8 +246,6 @@ sl_wlan_app_cb_t sl_wlan_app_cb; //! application control block
  */
 extern void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
 extern uint8_t coex_ssid[50], pwd[34], sec_type;
-void m4_sleep_wakeup(void);
-void wakeup_source_config(void);
 void lcd_mac(void);
 
 uint8_t conn_status;
@@ -323,7 +265,7 @@ static sl_net_wifi_client_profile_t wifi_client_profile = {
         .bssid = {{0}},
         .bss_type = SL_WIFI_BSS_TYPE_INFRASTRUCTURE,
         .security = SL_WIFI_WPA2,
-        .encryption = SL_WIFI_CCMP_ENCRYPTION,
+        .encryption = SL_WIFI_DEFAULT_ENCRYPTION,
         .client_options = 0,
         .credential_id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
     },
@@ -401,7 +343,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
 
-  // update wlan application state
+  // Update WLAN application state
   disconnected = 1;
   connected    = 0;
 
@@ -464,7 +406,6 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
 
   callback_status = show_scan_results();
 
-  //  scan_complete = true;
   return SL_STATUS_OK;
 }
 
@@ -524,7 +465,7 @@ void ping_silabs()
           (server_address & 0x00ff0000) >> 16,
           (server_address & 0xff000000) >> 24);
 
-  printf("\nResolved DNS - www.silabs.com ip address = %s\n", server_ip);
+  printf("\r\nResolved DNS - www.silabs.com IP address = %s\n", server_ip);
   printf("\r\nPinging www.silabs.com");
 
   while (i < NO_OF_PINGS) {
@@ -551,11 +492,18 @@ void mqtt_client_message_handler(void *client, sl_mqtt_client_message_t *message
 {
   UNUSED_PARAMETER(context);
   UNUSED_PARAMETER(client);
-  wireless_wkp_triggered = 1;
   printf("Message Received on Topic: ");
   print_char_buffer((char *)message->topic, message->topic_length);
   print_char_buffer((char *)message->content, message->content_length);
   msg = (char *)message->content;
+  GLIB_clear(&glibContext);
+  currentLine = 0;
+  GLIB_drawStringOnLine(&glibContext, "Topic:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, TOPIC_TO_BE_SUBSCRIBED, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, "Message:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, (char *)message->content, currentLine, GLIB_ALIGN_LEFT, 5, 5, true);
+  DMD_updateDisplay();
 }
 
 void print_char_buffer(char *buffer, uint32_t buffer_length)
@@ -590,7 +538,7 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
                                         mqtt_client_message_handler,
                                         TOPIC_TO_BE_SUBSCRIBED);
       if (status != SL_STATUS_IN_PROGRESS) {
-        printf("Failed to subscribe : 0x%lx\r\n", status);
+        printf("\r\nFailed to subscribe : 0x%lx\r\n", status);
 
         mqtt_client_cleanup();
         return;
@@ -627,14 +575,14 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
     case SL_MQTT_CLIENT_UNSUBSCRIBED_EVENT: {
       char *unsubscribed_topic = (char *)context;
 
-      printf("Unsubscribed from topic: %s\r\n", unsubscribed_topic);
+      printf("\r\nUnsubscribed from topic: %s\r\n", unsubscribed_topic);
 
       sl_mqtt_client_disconnect(client, 0);
       break;
     }
 
     case SL_MQTT_CLIENT_DISCONNECTED_EVENT: {
-      printf("Disconnected from MQTT broker\r\n");
+      printf("\r\nDisconnected from MQTT broker\r\n");
       mqtt_disconnect_flag = 1;
       mqtt_client_cleanup();
       break;
@@ -654,8 +602,7 @@ void test_mosquitto_pub()
   sl_status_t status = 0;
   status             = sl_mqtt_client_publish(&client, &message_to_be_published, 0, &message_to_be_published);
   if (status != SL_STATUS_IN_PROGRESS) {
-    printf("Failed to publish message: 0x%lx\r\n", status);
-
+    printf("\r\nFailed to publish message: 0x%lx\r\n", status);
     mqtt_client_cleanup();
     return;
   }
@@ -667,12 +614,12 @@ sl_status_t mqtt_example()
 
   status = sl_mqtt_client_init(&client, mqtt_client_event_handler);
   if (status != SL_STATUS_OK) {
-    printf("Failed to init mqtt client: 0x%lx\r\n", status);
+    printf("\r\nFailed to initialize MQTT client: 0x%lx\r\n", status);
 
     mqtt_client_cleanup();
     return status;
   }
-  printf("Init mqtt client Success \r\n");
+  printf("\r\nMQTT client initialization successful\r\n");
 
   sl_ip_address_t remote_ip_address = { 0 };
 
@@ -692,7 +639,7 @@ sl_status_t mqtt_example()
   } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
 
   if (status != SL_STATUS_OK) {
-    printf("\r\nUnexpected error while resolving dns, Error 0x%lX\r\n", status);
+    printf("\r\nUnexpected error while resolving DNS, Error 0x%lX\r\n", status);
   }
 
   server_address = dns_query_rsp.ip.v4.value;
@@ -703,7 +650,7 @@ sl_status_t mqtt_example()
           (server_address & 0x00ff0000) >> 16,
           (server_address & 0xff000000) >> 24);
 
-  printf("\nResolved test.mosquitto.com ip address = %s\n", server_ip);
+  printf("\r\nResolved test.mosquitto.org's IP address = %s\n", server_ip);
 
   mqtt_broker_configuration.ip.ip.v4.value = dns_query_rsp.ip.v4.value;
 
@@ -726,7 +673,7 @@ sl_status_t mqtt_example()
   status =
     sl_mqtt_client_connect(&client, &mqtt_broker_configuration, &last_will_message, &mqtt_client_configuration, 0);
   if (status != SL_STATUS_IN_PROGRESS) {
-    printf("Failed to connect to mqtt broker: 0x%lx\r\n", status);
+    printf("Failed to connect to MQTT broker: 0x%lx\r\n", status);
 
     mqtt_client_cleanup();
     return status;
@@ -763,7 +710,7 @@ void sl_wifi_app_task(void)
       case SL_WIFI_INITIAL_STATE: {
         sl_wifi_app_clear_event(SL_WIFI_INITIAL_STATE);
 
-        // update wlan application state
+        // Update WLAN application state
         if (magic_word) {
           // clear the served event
           sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
@@ -809,7 +756,7 @@ void sl_wifi_app_task(void)
           sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
           osDelay(1000);
         } else {
-          // update wlan application state
+          // Update WLAN application state
           sl_wifi_app_send_to_ble(SL_WIFI_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
         }
       } break;
@@ -842,29 +789,29 @@ void sl_wifi_app_task(void)
           wifi_client_profile.config.security = sec_type;
 
           // Enabling required MFP bits in join feature bitmap for WPA3 Personal mode security type
-          if (wifi_client_profile.config.security == 7) {
+          if (wifi_client_profile.config.security == SL_WIFI_WPA3) {
             status = sl_si91x_set_join_configuration(
               SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
               SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED | SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
             if (status != SL_STATUS_OK) {
               printf("\r\n join configuration settings for WPA3 failed\r\n");
             }
-          } else if (wifi_client_profile.config.security == 8) {
+          } else if (wifi_client_profile.config.security == SL_WIFI_WPA3_TRANSITION) {
             status = sl_si91x_set_join_configuration(
               SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
               SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY | SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
             if (status != SL_STATUS_OK) {
-              printf("\r\n join configuration settings for WPA3 failed\r\n");
+              printf("\r\n Join configuration settings for WPA3 failed\r\n");
             }
           } else {
             status = sl_si91x_set_join_configuration(SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
                                                      SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
             if (status != SL_STATUS_OK) {
-              printf("\r\n join configuration settings for WPA3 failed\r\n");
+              printf("\r\n Join configuration settings for WPA3 failed\r\n");
             }
           }
 
-          printf("Selected SSID:");
+          printf("\r\nSelected SSID:");
           for (int i = 0; i < wifi_client_profile.config.ssid.length; i++) {
             printf("%c", wifi_client_profile.config.ssid.value[i]);
           }
@@ -884,19 +831,19 @@ void sl_wifi_app_task(void)
           DMD_updateDisplay();
           osDelay(1000);
 
-          // update wlan application state
+          // Update WLAN application state
           disconnected = 1;
           connected    = 0;
         } else {
 
-          LOG_PRINT("\nWLAN Connection Success\n");
+          LOG_PRINT("\r\nWLAN connection successful\r\n");
 
           GLIB_drawStringOnLine(&glibContext, "WLAN Connect Success", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
           GLIB_drawStringOnLine(&glibContext, "                     ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
           DMD_updateDisplay();
           osDelay(1000);
 
-          // update wlan application state
+          // Update WLAN application state
           sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
         }
 
@@ -908,7 +855,7 @@ void sl_wifi_app_task(void)
         if (retry) {
           status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
           if (status != RSI_SUCCESS) {
-            LOG_PRINT("\r\nWLAN Connect Failed, Error Code : 0x%lX\r\n", status);
+            LOG_PRINT("\r\nWLAN connection failed, Error Code : 0x%lX\r\n", status);
             break;
           } else {
             sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
@@ -931,19 +878,19 @@ void sl_wifi_app_task(void)
             status  = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
             if (status == RSI_SUCCESS) {
               connected     = 0;
-              disassosiated = 1;
+              disassociated = 1;
               sl_wifi_app_send_to_ble(SL_WIFI_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
               sl_wifi_app_set_event(IDLE_STATE);
             }
           }
-          LOG_PRINT("\r\nIP Config Failed, Error Code : 0x%lX\r\n", status);
+          LOG_PRINT("\r\nIP configuration failed, Error Code : 0x%lX\r\n", status);
           break;
         } else {
           a             = 0;
           connected     = 1;
           conn_status   = 1;
           disconnected  = 0;
-          disassosiated = 0;
+          disassociated = 0;
 
           fetch_ip = &client_profile.ip.ip.v4.ip_address;
           sprintf(ip_add,
@@ -958,7 +905,7 @@ void sl_wifi_app_task(void)
           DMD_updateDisplay();
           osDelay(1000);
 
-          // update wlan application state
+          // Update WLAN application state
           sl_wifi_app_send_to_ble(SL_WIFI_CONNECTION_STATUS, (uint8_t *)&connected, 1);
           sl_wifi_app_set_event(SL_WIFI_IPCONFIG_DONE_STATE);
           osDelay(1000);
@@ -990,13 +937,17 @@ void sl_wifi_app_task(void)
 
         ping_silabs();
 
+        GLIB_clear(&glibContext);
+        currentLine = 0;
+        GLIB_drawStringOnLine(&glibContext, "Ping success", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+        GLIB_drawStringOnLine(&glibContext, "www.silabs.com", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+        GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
         mqtt_example();
 
         while (mqtt_connected != 1)
           ;
 
         mqtt_connected = 0;
-
         osDelay(100);
         GLIB_drawStringOnLine(&glibContext, "MQTT connection done", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
         DMD_updateDisplay();
@@ -1005,7 +956,7 @@ void sl_wifi_app_task(void)
         //! initiating power save in BLE mode
         status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
         if (status != RSI_SUCCESS) {
-          LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
+          LOG_PRINT("\r\nFailed to initiate power save in BLE mode\r\n");
         }
         uint32_t rc                                       = SL_STATUS_FAIL;
         sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
@@ -1015,9 +966,9 @@ void sl_wifi_app_task(void)
         if (rc != SL_STATUS_OK) {
           printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", rc);
         }
-        printf("\r\nAssociated Power Save Enabled\n");
-
-        GLIB_drawStringOnLine(&glibContext, "NWP Powersave enabled", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+        printf("\r\nAssociated power save enabled\r\n");
+        GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+        GLIB_drawStringOnLine(&glibContext, "NWP Lowpower enabled", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
         DMD_updateDisplay();
         osDelay(1000);
         sl_wifi_app_set_event(IDLE_STATE);
@@ -1032,8 +983,6 @@ void sl_wifi_app_task(void)
         retry = 1;
         sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_STATUS, (uint8_t *)&disconnected, 1);
         sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
-
-        LOG_PRINT("SL_WIFI_DISCONNECTED_STATE\n");
       } break;
 
       case SL_WIFI_DISCONN_NOTIFY_STATE: {
@@ -1056,16 +1005,16 @@ void sl_wifi_app_task(void)
 #if RSI_WISE_MCU_ENABLE
           rsi_flash_erase((uint32_t)FLASH_ADDR_TO_STORE_AP_DETAILS);
 #endif
-          LOG_PRINT("\r\nWLAN Disconnected\r\n");
-          disassosiated   = 1;
+          LOG_PRINT("\r\nWLAN disconnected\r\n");
+          disassociated   = 1;
           connected       = 0;
           yield           = 0;
           disconnect_flag = 0; // reset flag to allow disconnecting again
 
-          sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_NOTIFY, (uint8_t *)&disassosiated, 1);
+          sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_NOTIFY, (uint8_t *)&disassociated, 1);
           sl_wifi_app_set_event(SL_WIFI_UNCONNECTED_STATE);
         } else {
-          LOG_PRINT("\r\nWIFI Disconnect Failed, Error Code : 0x%lX\r\n", status);
+          LOG_PRINT("\r\nWi-Fi disconnect failed, Error Code : 0x%lX\r\n", status);
         }
       } break;
       default:
@@ -1077,123 +1026,6 @@ void sl_wifi_app_task(void)
     free(scan_result);
   }
 }
-#ifdef SLI_SI91X_MCU_INTERFACE
-void m4_sleep_wakeup(void)
-{
-#ifndef SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
-  /* LDOSOC Default Mode needs to be disabled */
-  sl_si91x_disable_default_ldo_mode();
-
-  /* bypass_ldorf_ctrl needs to be enabled */
-  sl_si91x_enable_bypass_ldo_rf();
-
-  sl_si91x_disable_flash_ldo();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_48KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  /* Trigger M4 Sleep */
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         0,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         0,
-                         RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
-
-#else
-
-  /* Configure Wakeup-Source */
-  RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
-  NVIC_SetPriority(WIRELESS_WAKEUP_IRQHandler, WIRELESS_WAKEUP_IRQHandler_Periority);
-
-  /* Enable NVIC */
-  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
-
-  /*Configure the UULP GPIO 2 as wakeup source */
-  wakeup_source_config();
-
-  /* Configure RAM Usage and Retention Size */
-  sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
-
-  printf("\r\nM4 Sleep\r\n");
-
-  /* Trigger M4 Sleep*/
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         WKP_RAM_USAGE_LOCATION,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         IVT_OFFSET_ADDR,
-                         RSI_WAKEUP_FROM_FLASH_MODE);
-
-  /* Enable M4_TA interrupt */
-  sli_m4_ta_interrupt_init();
-
-  /* Clear M4_wakeup_TA bit so that TA will go to sleep after M4 wakeup*/
-  sl_si91x_host_clear_sleep_indicator();
-
-  sl_memlcd_post_wakeup_init();
-
-  //  /*Start of M4 init after wake up  */
-
-  printf("\r\nM4 Wake Up\r\n");
-
-  //Re-init of LCD
-  const struct sl_memlcd_t *device1;
-  device1 = sl_memlcd_get();
-  sl_memlcd_clear(device1);
-
-  /* Fill lcd with background color */
-  GLIB_clear(&glibContext);
-
-  currentLine = 0;
-  GLIB_drawStringOnLine(&glibContext, "M4 Wake-up", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-
-  DMD_updateDisplay();
-
-#endif
-}
-
-void IRQ026_Handler()
-{
-  RSI_PS_GetWkpUpStatus();
-  /*Clear interrupt */
-  RSI_PS_ClrWkpUpStatus(NPSS_TO_MCU_WIRELESS_INTR);
-  return;
-}
-
-/**
- * @brief  Configure the UULP GPIO 2 as wakeup source
- * @param  none
- * @return none
- */
-void wakeup_source_config(void)
-{
-  /*Configure the NPSS GPIO mode to wake up  */
-  RSI_NPSSGPIO_SetPinMux(NPSS_GPIO_2, NPSSGPIO_PIN_MUX_MODE2);
-
-  /*Configure the NPSS GPIO direction to input */
-  RSI_NPSSGPIO_SetDir(NPSS_GPIO_2, NPSS_GPIO_DIR_INPUT);
-
-  /*Configure the NPSS GPIO interrupt polarity */
-  RSI_NPSSGPIO_SetPolarity(NPSS_GPIO_2, NPSS_GPIO_INTR_LOW);
-
-  /*Enable the REN*/
-  RSI_NPSSGPIO_InputBufferEn(NPSS_GPIO_2, 1);
-
-  /* Set the GPIO to wake from deep sleep */
-  RSI_NPSSGPIO_SetWkpGpio(NPSS_GPIO_2_INTR);
-
-  /* Un mask the NPSS GPIO interrupt*/
-  RSI_NPSSGPIO_IntrUnMask(NPSS_GPIO_2_INTR);
-
-  /*Select wake up sources */
-  RSI_PS_SetWkpSources(GPIO_BASED_WAKEUP);
-
-  /*Enable the NPSS GPIO interrupt slot*/
-  NVIC_EnableIRQ(NPSS_TO_MCU_GPIO_INTR_IRQn);
-}
-
-#endif
 
 void memlcd_app_init(void)
 {

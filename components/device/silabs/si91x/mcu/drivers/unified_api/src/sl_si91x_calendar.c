@@ -113,7 +113,7 @@ sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type)
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_calendar_set_configuration API.
    */
-#ifdef CALENDAR_UC
+#if (CALENDAR_UC == 1)
   clock_type = configuration.calendar_clock_type;
 #endif
   do {

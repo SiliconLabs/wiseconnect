@@ -66,11 +66,11 @@
 #define DEVICE_AVERAGE_THROUGHPUT            20000
 #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0
 #define TWT_TOLERABLE_DEVIATION              10
-#define TWT_DEFAULT_WAKE_INTERVAL_MS         1024     // in milli seconds
-#define TWT_DEFAULT_WAKE_DURATION_MS         8        // in milli seconds
-#define MAX_TX_AND_RX_LATENCY_LIMIT          22118400 // 6hrs in milli seconds
+#define TWT_DEFAULT_WAKE_INTERVAL_MS         1024 // in milli seconds
+#define TWT_DEFAULT_WAKE_DURATION_MS         8    // in milli seconds
 #define MAX_BEACON_WAKE_UP_AFTER_SP \
   2 // The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
+#define TCP_KEEP_ALIVE_TIME 60
 
 static const sl_wifi_device_configuration_t twt_client_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -179,6 +179,7 @@ void application_start()
   int return_value                  = 0;
   sl_ipv4_address_t ip              = { 0 };
   struct sockaddr_in server_address = { 0 };
+  uint16_t tcp_keepalive_time       = TCP_KEEP_ALIVE_TIME;
 
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &twt_client_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
@@ -200,11 +201,19 @@ void application_start()
   server_address.sin_port        = SERVER_PORT;
   server_address.sin_addr.s_addr = ip.value;
 
-  //!Create socket
+  //! Create socket
   client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   printf("\n Client Socket: %d\n", client_socket);
   if (client_socket < 0) {
     printf("\r\nSocket Create failed with bsd error: %d\r\n", errno);
+    return;
+  }
+
+  //! Configure TCP keep alive timeout
+  return_value = setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &tcp_keepalive_time, sizeof(tcp_keepalive_time));
+  if (return_value < 0) {
+    printf("\r\nsetsockopt tcp_keepalive_time failed with bsd error: %d\r\n", errno);
+    close(client_socket);
     return;
   }
 

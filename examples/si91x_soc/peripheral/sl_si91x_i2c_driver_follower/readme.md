@@ -51,14 +51,15 @@
 - Now write_buffer is filled with some data which needs to be sent to the leader.
 - Current_mode enum is set to I2C_RECEIVE_DATA, it receives data from leader through \ref sl_i2c_driver_receive_data_blocking (for blocking Application) or through \ref sl_i2c_driver_receive_data_non_blocking (for Non-blocking Application).
 - After that it will wait till all the data is received by leader.
-- For Blocking usecase : When all bytes are received then mode changes to I2C_SEND_DATA (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are received).
-- For Non-blocking usecase : Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_SEND_DATA.
+- For Blocking usecase: When all bytes are received then mode changes to I2C_SEND_DATA (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are received).
+- For Non-blocking usecase: Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_SEND_DATA.
 - Then it calls send_data API to send data to leader through \ref sl_i2c_driver_send_data_blocking (for blocking Application) or through \ref sl_i2c_driver_send_data_non_blocking (for Non-blocking Application).
 - After calling send_data, it will wait till all the data is transmitted to leader device.
-- For Blocking usecase : When all bytes are sent then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are sent).
-- For Non-blocking usecase :Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
 - Now it compares the data which is received from the leader device to the data which it has sent.
 - If the send & receive data is same, it will print 'Test Case Passed' on the console.
+- For Blocking usecase: When all bytes are sent then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are sent).
+- For Non-blocking usecase: Once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
+- I2C driver gets in I2C_TRANSMISSION_COMPLETED mode and stays idle.
 
 > **Note:**
 >
@@ -93,6 +94,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
@@ -156,6 +159,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ![Figure: Pin Configuration I2C](resources/readme/image506d.png)
 
 ![Figure: Pin Configuration I2C](resources/readme/image506e.png)
+
+> **Note- In case of sleep-wakeup :**
+>- As GPIO configurations will be lost after going to sleep state, user has to initialize I2C pins and driver again after wakeup,by using 
+\ref sl_i2c_driver_init API for initializing driver and \ref sl_si91x_i2c_pin_init API for initializing pins.
 
 ## Test the Application
 

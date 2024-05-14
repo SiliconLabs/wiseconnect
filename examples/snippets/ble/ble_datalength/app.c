@@ -52,6 +52,8 @@
 #define TX_LEN  0x001e
 #define TX_TIME 0x01f4
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 //! Application supported events list
 #define RSI_APP_EVENT_ADV_REPORT         0
 #define RSI_APP_EVENT_CONNECTED          1
@@ -356,7 +358,10 @@ void ble_central(void *argument)
   UNUSED_PARAMETER(argument);
   int32_t temp_event_map = 0;
   sl_status_t status;
-  sl_wifi_firmware_version_t version = { 0 };
+  sl_wifi_firmware_version_t version                         = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
+
 #ifdef SLI_SI91X_MCU_INTERFACE
   sl_si91x_hardware_setup();
 #endif /* SLI_SI91X_MCU_INTERFACE */
@@ -375,6 +380,16 @@ void ble_central(void *argument)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
   //! BLE register GAP callbacks

@@ -54,6 +54,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Create a Studio project
 - Setup the console prints
 
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
 ## Application Build Environment
 
 - In the Project Explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network

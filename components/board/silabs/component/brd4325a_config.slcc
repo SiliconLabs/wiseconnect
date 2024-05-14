@@ -7,137 +7,134 @@
 - quality: production
 - ui_hints:
     visibility: never
-- root_path: "components/board/silabs/config/brd4325a"
+- root_path: "components/board/silabs/config"
 - provides:
   - name: brd4325a_config
-- requires:
-  - name: freertos_config
-    condition: [freertos]
-- config_file: 
+- config_file:
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: RTE_Device_917
-    path: RTE_Device_917.h
+    path: brd4325a/RTE_Device_917.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_0
-    path: sl_si91x_adc_init_channel_0_config.h
+    path: common_config/sl_si91x_adc_init_channel_0_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_1
-    path: sl_si91x_adc_init_channel_1_config.h
+    path: common_config/sl_si91x_adc_init_channel_1_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_2
-    path: sl_si91x_adc_init_channel_2_config.h
+    path: common_config/sl_si91x_adc_init_channel_2_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_3
-    path: sl_si91x_adc_init_channel_3_config.h
+    path: common_config/sl_si91x_adc_init_channel_3_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_4
-    path: sl_si91x_adc_init_channel_4_config.h
+    path: common_config/sl_si91x_adc_init_channel_4_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_5
-    path: sl_si91x_adc_init_channel_5_config.h
+    path: common_config/sl_si91x_adc_init_channel_5_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_6
-    path: sl_si91x_adc_init_channel_6_config.h
+    path: common_config/sl_si91x_adc_init_channel_6_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_7
-    path: sl_si91x_adc_init_channel_7_config.h
+    path: common_config/sl_si91x_adc_init_channel_7_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_8
-    path: sl_si91x_adc_init_channel_8_config.h
+    path: common_config/sl_si91x_adc_init_channel_8_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_9
-    path: sl_si91x_adc_init_channel_9_config.h
+    path: common_config/sl_si91x_adc_init_channel_9_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_10
-    path: sl_si91x_adc_init_channel_10_config.h
+    path: common_config/sl_si91x_adc_init_channel_10_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_11
-    path: sl_si91x_adc_init_channel_11_config.h
+    path: common_config/sl_si91x_adc_init_channel_11_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_12
-    path: sl_si91x_adc_init_channel_12_config.h
+    path: common_config/sl_si91x_adc_init_channel_12_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_13
-    path: sl_si91x_adc_init_channel_13_config.h
+    path: common_config/sl_si91x_adc_init_channel_13_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_14
-    path: sl_si91x_adc_init_channel_14_config.h
+    path: common_config/sl_si91x_adc_init_channel_14_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
       instance: channel_15
-    path: sl_si91x_adc_init_channel_15_config.h
+    path: common_config/sl_si91x_adc_init_channel_15_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
       instance: channel_0
-    path: sl_si91x_pwm_init_channel_0_config.h
+    path: common_config/sl_si91x_pwm_init_channel_0_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
       instance: channel_1
-    path: sl_si91x_pwm_init_channel_1_config.h
+    path: common_config/sl_si91x_pwm_init_channel_1_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
       instance: channel_2
-    path: sl_si91x_pwm_init_channel_2_config.h
+    path: common_config/sl_si91x_pwm_init_channel_2_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
       instance: channel_3
-    path: sl_si91x_pwm_init_channel_3_config.h
+    path: common_config/sl_si91x_pwm_init_channel_3_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%i2c_instance"
       file_id: i2c_config
       instance: i2c0
-    path: sl_si91x_i2c_init_i2c0_config.h
+    path: common_config/sl_si91x_i2c_init_i2c0_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%i2c_instance"
       file_id: i2c_config
       instance: i2c1
-    path: sl_si91x_i2c_init_i2c1_config.h
+    path: common_config/sl_si91x_i2c_init_i2c1_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%i2c_instance"
       file_id: i2c_config
       instance: i2c2
-    path: sl_si91x_i2c_init_i2c2_config.h
+    path: common_config/sl_si91x_i2c_init_i2c2_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: sl_board_configuration
-    path: sl_board_configuration.h
+    path: brd4325a/sl_board_configuration.h
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: sl_board_control
-    path: sl_board_control.h
+    path: brd4325a/sl_board_control.h

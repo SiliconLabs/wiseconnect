@@ -130,7 +130,7 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
     &buffer);
 
   if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -138,7 +138,7 @@ static sl_status_t sli_si91x_chachapoly_pending(sl_si91x_chachapoly_config_t *co
   memcpy(output, packet->data, packet->length);
 
   free(request);
-  sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+  sl_si91x_host_free_buffer(buffer);
 
   return status;
 }
@@ -163,9 +163,7 @@ static sl_status_t sli_si91x_chachapoly_side_band(sl_si91x_chachapoly_config_t *
   if (config->chachapoly_mode > 3)
     return SL_STATUS_INVALID_PARAMETER;
 
-  if (config->key_config.b0.key_buffer == NULL) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  SL_VERIFY_POINTER_OR_RETURN(config->key_config.b0.key_buffer, SL_STATUS_NULL_POINTER);
 
   memset(request, 0, sizeof(sl_si91x_chachapoly_request_t));
 
@@ -176,16 +174,16 @@ static sl_status_t sli_si91x_chachapoly_side_band(sl_si91x_chachapoly_config_t *
   request->total_msg_length   = config->msg_length;
   request->header_length      = config->ad_length;
 
-  request->header_input = config->ad;
-  request->msg          = config->msg;
-  request->output       = config->output;
+  request->header_input = (uint8_t *)config->ad;
+  request->msg          = (uint8_t *)config->msg;
+  request->output       = output;
 
   request->key_info.key_type                         = config->key_config.b0.key_type;
   request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
   request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
   request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
   request->key_info.reserved                         = config->key_config.b0.reserved;
-  memcpy(request->nonce, config->nonce, SL_SI91X_IV_SIZE);
+  request->nonce                                     = (uint8_t *)config->nonce;
   if (config->key_config.b0.wrap_iv_mode) {
     memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
   }
@@ -206,20 +204,22 @@ static sl_status_t sli_si91x_chachapoly_side_band(sl_si91x_chachapoly_config_t *
 
 sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *output)
 {
+  sl_status_t status = SL_STATUS_FAIL;
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
   uint16_t chunk_len       = 0;
   uint16_t offset          = 0;
   uint8_t chachapoly_flags = 0;
-  sl_status_t status       = SL_STATUS_FAIL;
+  uint16_t total_length    = 0;
+#endif
 
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
-
-  uint16_t total_length = config->msg_length;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   status = sli_si91x_chachapoly_side_band(config, output);
   return status;
-#endif
+#else
 
+  total_length = config->msg_length;
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_chachapoly_mutex == NULL) {
     crypto_chachapoly_mutex = sl_si91x_crypto_threadsafety_init(crypto_chachapoly_mutex);
@@ -269,4 +269,5 @@ sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *o
 #endif
 
   return status;
+#endif
 }

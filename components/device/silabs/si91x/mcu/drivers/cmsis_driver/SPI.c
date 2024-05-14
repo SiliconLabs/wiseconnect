@@ -123,7 +123,7 @@ static SPI_PIN SSI_MASTER_cs3  =  {SSI_MASTER_CS3_PORT,  SSI_MASTER_CS3_PIN, SSI
 #endif
 #endif
 #if defined(SSI_MASTER_TX_DMA_Instance) && (SSI_MASTER_TX_DMA_Instance == 1)
-void SSI_MASTER_UDMA_Tx_Event (uint32_t event ,uint8_t dmaCh);
+void SSI_MASTER_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
 static SPI_DMA SSI_MASTER_UDMA_TX_CHNL = {
 		{
 				0,
@@ -139,7 +139,7 @@ static SPI_DMA SSI_MASTER_UDMA_TX_CHNL = {
 };
 #endif
 #if defined(SSI_MASTER_RX_DMA_Instance) && (SSI_MASTER_RX_DMA_Instance == 1)
-void SSI_MASTER_UDMA_Rx_Event (uint32_t event ,uint8_t dmaCh);
+void SSI_MASTER_UDMA_Rx_Event (uint32_t event ,uint32_t dmaCh);
 static SPI_DMA SSI_MASTER_UDMA_RX_CHNL = {
 		{
 				0,
@@ -243,7 +243,7 @@ static SPI_PIN SSI_SLAVE_cs  = {SSI_SLAVE_CS0_PORT,  SSI_SLAVE_CS0_PIN, SSI_SLAV
 #endif
 
 #if defined(SSI_SLAVE_TX_DMA_Instance) && (SSI_SLAVE_TX_DMA_Instance == 1)
-void SSI_SLAVE_UDMA_Tx_Event (uint32_t event ,uint8_t dmaCh);
+void SSI_SLAVE_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
 static SPI_DMA SSI_SLAVE_UDMA_TX_CHNL = {
 		{
 				0,
@@ -259,7 +259,7 @@ static SPI_DMA SSI_SLAVE_UDMA_TX_CHNL = {
 };
 #endif
 #if defined(SSI_SLAVE_RX_DMA_Instance) && (SSI_SLAVE_RX_DMA_Instance == 1)
-void SSI_SLAVE_UDMA_Rx_Event (uint32_t event ,uint8_t dmaCh);
+void SSI_SLAVE_UDMA_Rx_Event (uint32_t event ,uint32_t dmaCh);
 static SPI_DMA SSI_SLAVE_UDMA_RX_CHNL = {
 		{
 				0,
@@ -643,22 +643,22 @@ SPI_IRQHandler (&SSI_MASTER_Resources);
 	#endif
 }
 #if defined(SSI_MASTER_TX_DMA_Instance) && (SSI_MASTER_TX_DMA_Instance == 1)
-void SSI_MASTER_UDMA_Tx_Event (uint32_t event, uint8_t dmaCh) 
+void SSI_MASTER_UDMA_Tx_Event (uint32_t event, uint32_t dmaCh) 
 {
 		 #if ( (defined(A11_ROM)) && (defined(ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
-        ROMAPI_SSI_API->SPI_UDMA_Tx_Event(event,dmaCh, &SSI_MASTER_Resources);
+        ROMAPI_SSI_API->SPI_UDMA_Tx_Event(event,(uint8_t)dmaCh, &SSI_MASTER_Resources);
 		 #else
-SPI_UDMA_Tx_Event (event,dmaCh, &SSI_MASTER_Resources);	
+SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_MASTER_Resources);	
 #endif
 }
 #endif
 #if defined(SSI_MASTER_RX_DMA_Instance) && (SSI_MASTER_RX_DMA_Instance == 1)
-void SSI_MASTER_UDMA_Rx_Event (uint32_t event, uint8_t dmaCh) 
+void SSI_MASTER_UDMA_Rx_Event (uint32_t event, uint32_t dmaCh) 
 {		 
 #if ( (defined(A11_ROM)) && (defined(ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
-        ROMAPI_SSI_API->SPI_UDMA_Rx_Event(event,dmaCh, &SSI_MASTER_Resources);
+        ROMAPI_SSI_API->SPI_UDMA_Rx_Event(event,(uint8_t)dmaCh, &SSI_MASTER_Resources);
 		 #else
-SPI_UDMA_Rx_Event (event,dmaCh, &SSI_MASTER_Resources);	
+SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_MASTER_Resources);	
 #endif
 }
 #endif
@@ -802,23 +802,23 @@ SPI_IRQHandler (&SSI_SLAVE_Resources);
 	#endif
 }
 #if defined(SSI_SLAVE_TX_DMA_Instance) && (SSI_SLAVE_TX_DMA_Instance == 1)
-void SSI_SLAVE_UDMA_Tx_Event  (uint32_t event, uint8_t dmaCh) 
+void SSI_SLAVE_UDMA_Tx_Event  (uint32_t event, uint32_t dmaCh) 
 {	
 	#if ( (defined(A11_ROM)) && (defined(ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
-        ROMAPI_SSI_API->SPI_UDMA_Tx_Event (event,dmaCh, &SSI_SLAVE_Resources);	
+        ROMAPI_SSI_API->SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);	
 #else
-SPI_UDMA_Tx_Event (event,dmaCh, &SSI_SLAVE_Resources);	
+SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);	
 #endif
 }
 #endif
 
 #if defined(SSI_SLAVE_RX_DMA_Instance) && (SSI_SLAVE_RX_DMA_Instance == 1)
-void  SSI_SLAVE_UDMA_Rx_Event (uint32_t event, uint8_t dmaCh)
+void  SSI_SLAVE_UDMA_Rx_Event (uint32_t event, uint32_t dmaCh)
 {
 	#if ( (defined(A11_ROM)) && (defined(ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
-        ROMAPI_SSI_API->SPI_UDMA_Rx_Event (event,dmaCh, &SSI_SLAVE_Resources);	
+        ROMAPI_SSI_API->SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);	
 #else
-SPI_UDMA_Rx_Event (event,dmaCh, &SSI_SLAVE_Resources);	
+SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_SLAVE_Resources);	
 #endif
 }
 #endif
@@ -960,7 +960,7 @@ SPI_IRQHandler (&SSI_ULP_MASTER_Resources);
 void          SSI_ULP_MASTER_UDMA_Tx_Event     (uint32_t event, uint32_t dmaCh)
 {
 			#if ( (defined(A11_ROM)) && (defined(ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
-        ROMAPI_SSI_API->SPI_UDMA_Tx_Event (event,dmaCh, &SSI_ULP_MASTER_Resources);
+        ROMAPI_SSI_API->SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
 #else
 SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
   #endif
@@ -971,7 +971,7 @@ SPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
 void SSI_ULP_MASTER_UDMA_Rx_Event (uint32_t event, uint32_t dmaCh)
 {
 			#if ( (defined(A11_ROM)) && (defined(ROMDRIVER_PRESENT)) && (defined(SLI_SI917)) )
-        ROMAPI_SSI_API->SPI_UDMA_Rx_Event (event,dmaCh, &SSI_ULP_MASTER_Resources);
+        ROMAPI_SSI_API->SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
 #else
 SPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &SSI_ULP_MASTER_Resources);
   #endif
@@ -1193,3 +1193,75 @@ uint32_t SSI_GetTxCount(uint8_t ssi_instance)
   } while (false);
   return count;
 }
+
+#ifdef SL_SI91X_SSI_DMA
+/*******************************************************************************
+ * Transfer complete callback function which is registered by SL_DMA driver
+ * for GSPI peripheral-memory and memory-peripheral transfers. This function calls
+ * GSPI Rx and Tx transfer complete event for respective channels.
+ * *****************************************************************************/
+void ssi_transfer_complete_callback(uint32_t channel, void *data)
+{
+  (void)(&data);
+#if defined(SSI_MASTER_TX_DMA_Instance) && (SSI_MASTER_TX_DMA_Instance == 1)
+  if (channel == SSI_MASTER_TX_DMA_Channel) {
+    SSI_MASTER_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+  if (channel == SSI_MASTER_RX_DMA_Channel) {
+    SSI_MASTER_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+#endif
+#if defined(SSI_SLAVE_TX_DMA_Instance) && (SSI_SLAVE_TX_DMA_Instance == 1)
+  if (channel == SSI_SLAVE_TX_DMA_Channel) {
+    SSI_SLAVE_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+  if (channel == SSI_SLAVE_RX_DMA_Channel) {
+    SSI_SLAVE_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+#endif
+#if defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1)
+  if (channel == SSI_ULP_MASTER_TX_DMA_Channel) {
+    SSI_ULP_MASTER_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+  if (channel == SSI_ULP_MASTER_RX_DMA_Channel) {
+    SSI_ULP_MASTER_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+#endif
+	(void)(&channel);
+}
+
+/*******************************************************************************
+ * Error callback function which is registered by SL_DMA driver for GSPI
+ * peripheral-memory and memory-peripheral transfers. This function calls
+ * GSPI Rx and Tx error event for respective channels.
+ * *****************************************************************************/
+void ssi_error_callback(uint32_t channel, void *data)
+{
+  (void)(&data);
+#if defined(SSI_MASTER_TX_DMA_Instance) && (SSI_MASTER_TX_DMA_Instance == 1)
+  if (channel == SSI_MASTER_TX_DMA_Channel) {
+    SSI_MASTER_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+  if (channel == SSI_MASTER_RX_DMA_Channel) {
+    SSI_MASTER_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+#endif
+#if defined(SSI_SLAVE_TX_DMA_Instance) && (SSI_SLAVE_TX_DMA_Instance == 1)
+  if (channel == SSI_SLAVE_TX_DMA_Channel) {
+    SSI_SLAVE_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+  if (channel == SSI_SLAVE_RX_DMA_Channel) {
+    SSI_SLAVE_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+#endif
+#if defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1)
+  if (channel == SSI_ULP_MASTER_TX_DMA_Channel) {
+    SSI_ULP_MASTER_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+  if (channel == SSI_ULP_MASTER_RX_DMA_Channel) {
+    SSI_ULP_MASTER_UDMA_Rx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel);
+  }
+#endif
+(void)(&channel);
+}
+#endif /* SL_SI91X_GSPI_DMA */

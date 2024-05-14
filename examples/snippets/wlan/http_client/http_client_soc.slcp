@@ -10,9 +10,9 @@ filter:
     value: ["Wi-Fi"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.4.1}
+sdk: {id: gecko_sdk, version: 4.4.3}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.1.4}
+- {id: wiseconnect3_sdk, version: 3.2.0}
 source:
   - path: app.c
   - path: main.c
@@ -26,7 +26,7 @@ component:
 - {from: wiseconnect3_sdk, id: si917_memory_default_config}
 - {from: wiseconnect3_sdk, id: si91x_debug}
 - {from: wiseconnect3_sdk, id: syscalls}
-- {from: wiseconnect3_sdk, id: sl_si91x_mem_pool_buffers}
+- {from: wiseconnect3_sdk, id: sl_si91x_mem_pool_buffers_with_quota}
 requires:
 - name: sl_system
 - name: http_client

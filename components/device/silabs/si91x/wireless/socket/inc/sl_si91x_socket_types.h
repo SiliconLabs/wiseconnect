@@ -43,16 +43,16 @@ typedef enum {
 
 #pragma pack()
 typedef struct {
-	uint8_t buffer[SI91X_MAX_SIZE_OF_EXTENSION_DATA];
-	uint16_t total_extensions;
-	uint16_t current_size_of_extensions;
+  uint8_t buffer[SI91X_MAX_SIZE_OF_EXTENSION_DATA];
+  uint16_t total_extensions;
+  uint16_t current_size_of_extensions;
 } si91x_server_name_indication_extensions_t;
 
 #pragma pack()
 typedef struct {
-	uint16_t type;
-	uint16_t length;
-	uint8_t value[];
+  uint16_t type;
+  uint16_t length;
+  uint8_t value[];
 } si91x_socket_type_length_value_t;
 
 typedef struct {

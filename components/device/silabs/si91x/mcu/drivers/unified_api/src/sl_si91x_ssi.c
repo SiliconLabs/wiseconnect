@@ -104,7 +104,7 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
      * if the application requires the configuration to be changed in run-time, undefined this macro
      * and change the peripheral configuration through the sl_si91x_ssi_set_configuration API.
      */
-#ifdef SSI_UC
+#if (SSI_UC == 1)
   baud_rate = ssi_configuration.baud_rate;
 #endif
 
@@ -135,7 +135,7 @@ sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
 /* The frequency of the SSI master bit-rate clock is one-half the frequency of SSI master input clock.
 	   * This allows the shift control logic to capture data on one clock edge of bit-rate clock and propagate data on the opposite edge.
 	   */
-#ifdef SSI_UC
+#if (SSI_UC == 1)
     clock_config->soc_pll_clock = (DOUBLE * baud_rate);
 #endif
     // RSI API to set SoC pll clock is called and the status is converted to the SL error code.
@@ -177,7 +177,7 @@ sl_status_t sl_si91x_ssi_init(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_h
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_ssi_set_configuration API.
    */
-#ifdef SSI_UC
+#if (SSI_UC == 1)
   instance = ssi_configuration.device_mode;
 #endif
   do {
@@ -297,7 +297,7 @@ sl_status_t sl_si91x_ssi_set_configuration(sl_ssi_handle_t ssi_handle,
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_ssi_set_configuration API.
    */
-#ifdef SSI_UC
+#if (SSI_UC == 1)
   control_configuration = &ssi_configuration;
 #endif
   do {

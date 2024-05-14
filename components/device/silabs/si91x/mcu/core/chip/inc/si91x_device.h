@@ -2598,7 +2598,7 @@ typedef struct { /*!< (@ 0x47070000) MCPWM Structure */
   union {
     __IOM uint32_t PWM_TIME_PRD_CNTR_WR_REG_CH2; /*!< (@ 0x0000011C) Base time
                                                     counter initial value
-                                                    register for channal2 */
+                                                    register for channel2 */
 
     struct {
       __IOM uint32_t PWM_TIME_PRD_CNTR_WR_REG_CH2 : 16; /*!< [15..0] To update the base

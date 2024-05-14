@@ -46,7 +46,7 @@
 #define WIFI_AP_CREDENTIAL   "MY_AP_PASSPHRASE"
 
 #define WIFI_CLIENT_SECURITY_TYPE   SL_WIFI_WPA_WPA2_MIXED
-#define WIFI_CLIENT_ENCRYPTION_TYPE SL_WIFI_CCMP_ENCRYPTION
+#define WIFI_CLIENT_ENCRYPTION_TYPE SL_WIFI_DEFAULT_ENCRYPTION
 
 //! IP address of the module
 //! E.g: 0x0A0AA8C0 == 192.168.10.10
@@ -114,8 +114,8 @@ static sl_net_wifi_ap_profile_t wifi_ap_profile = {
         .keepalive_type = SL_SI91X_AP_NULL_BASED_KEEP_ALIVE,
         .beacon_interval = 100,
         .client_idle_timeout = 0xFF,
-        .dtim_beacon_count = 3,           
-        .maximum_clients = 3,              
+        .dtim_beacon_count = 3,
+        .maximum_clients = 3,
         .beacon_stop = 0,
         .is_11n_enabled = 0,
     },

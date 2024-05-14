@@ -49,6 +49,7 @@ typedef enum {
   I2C_SEND_DATA,              // Send mode
   I2C_RECEIVE_DATA,           // Receive mode
   I2C_TRANSMISSION_COMPLETED, // Transmission completed mode
+  I2C_IDLE_MODE               // Idle mode
 } i2c_action_enum_t;
 
 /*******************************************************************************
@@ -114,6 +115,13 @@ void i2c_leader_example_init(void)
     DEBUGOUT("sl_i2c_driver_configure_fifo_threshold : Invalid Parameters, Error Code : %u \n", i2c_status);
   } else {
     DEBUGOUT("Successfully configured i2c TX & RX FIFO thresholds\n");
+  }
+  // Enabling combined format transfer, by enabling repeated start
+  i2c_status = sl_i2c_driver_enable_repeated_start(i2c_instance, true);
+  if (i2c_status != SL_I2C_SUCCESS) {
+    DEBUGOUT("sl_i2c_driver_enable_repeated_start : Invalid Parameters, Error Code : %u \n", i2c_status);
+  } else {
+    DEBUGOUT("Successfully enabled repeated start\n");
   }
   // Updating DMA RX and TX channel numbers as per I2C instance
 #if (NON_BLOCKING_APPLICATION)
@@ -193,10 +201,16 @@ void i2c_leader_example_process_action(void)
       }
 #endif
       break;
+
     case I2C_RECEIVE_DATA:
       if (i2c_receive_data_flag) {
         // Adding delay for synchronization before leader sends read request
         delay(5);
+        // Disabling repeated start before last cycle of transfer
+        i2c_status = sl_i2c_driver_enable_repeated_start(i2c_instance, false);
+        if (i2c_status != SL_I2C_SUCCESS) {
+          DEBUGOUT("sl_i2c_driver_enable_repeated_start : Invalid Parameters, Error Code : %u \n", i2c_status);
+        }
         // Validation for executing the API only once.
 #if (BLOCKING_APPLICATION)
         i2c_status =
@@ -245,6 +259,7 @@ void i2c_leader_example_process_action(void)
       }
 #endif
       break;
+
     case I2C_TRANSMISSION_COMPLETED:
       // De-initializing i2c instance and unregistering callback
       i2c_status = sl_i2c_driver_deinit(i2c_instance);
@@ -252,8 +267,12 @@ void i2c_leader_example_process_action(void)
         DEBUGOUT("sl_i2c_driver_deinit : Invalid Parameters, "
                  "Error Code : %u \n",
                  i2c_status);
+      } else {
+        current_mode = I2C_IDLE_MODE;
       }
       break;
+
+    case I2C_IDLE_MODE:
     default:
       break;
   }
@@ -298,6 +317,9 @@ static void compare_data(void)
  ******************************************************************************/
 void i2c_leader_callback(sl_i2c_instance_t instance, uint32_t status)
 {
+  // to avoid unused variable warning
+  (void)instance;
+
   switch (status) {
     case SL_I2C_DATA_TRANSFER_COMPLETE:
       i2c_transfer_complete = true;
@@ -308,6 +330,4 @@ void i2c_leader_callback(sl_i2c_instance_t instance, uint32_t status)
     default:
       break;
   }
-  // to avoid unused variable warning
-  (void)instance;
 }

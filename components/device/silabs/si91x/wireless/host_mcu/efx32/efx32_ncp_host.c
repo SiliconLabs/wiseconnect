@@ -33,6 +33,9 @@
 #include <string.h>
 #include "FreeRTOS.h"
 
+#define LDMA_MAX_TRANSFER_LENGTH     4096
+#define LDMA_DESCRIPTOR_ARRAY_LENGTH (LDMA_MAX_TRANSFER_LENGTH / 2048)
+
 static bool dma_callback(unsigned int channel, unsigned int sequenceNo, void *userParam);
 
 unsigned int rx_ldma_channel;
@@ -42,12 +45,14 @@ osMutexId_t ncp_transfer_mutex = 0;
 static uint32_t dummy_buffer;
 static sl_si91x_host_init_configuration init_config = { 0 };
 
+uint8_t dummy_buffer_test[2500];
+
 // LDMA descriptor and transfer configuration structures for USART TX channel
-LDMA_Descriptor_t ldmaTXDescriptor;
+LDMA_Descriptor_t ldmaTXDescriptor[LDMA_DESCRIPTOR_ARRAY_LENGTH];
 LDMA_TransferCfg_t ldmaTXConfig;
 
 // LDMA descriptor and transfer configuration structures for USART RX channel
-LDMA_Descriptor_t ldmaRXDescriptor;
+LDMA_Descriptor_t ldmaRXDescriptor[LDMA_DESCRIPTOR_ARRAY_LENGTH];
 LDMA_TransferCfg_t ldmaRXConfig;
 
 static osSemaphoreId_t transfer_done_semaphore = NULL;
@@ -91,7 +96,7 @@ static void efx32_ncp_uart_init(void)
   CMU_ClockEnable(NCP_USART_CMU_CLOCK, true);
 
   // UART Rx
-  GPIO_PinModeSet(NCP_UART_RX_PIN.port, NCP_UART_RX_PIN.pin, gpioModeInput, 0);
+  GPIO_PinModeSet(NCP_UART_RX_PIN.port, NCP_UART_RX_PIN.pin, gpioModeWiredAndPullUp, 0);
   // UART Tx
   GPIO_PinModeSet(NCP_UART_TX_PIN.port, NCP_UART_TX_PIN.pin, gpioModePushPull, 1);
 
@@ -262,6 +267,7 @@ void sl_si91x_host_enable_high_speed_bus()
  */
 sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, uint16_t buffer_length)
 {
+  int i;
   osMutexAcquire(ncp_transfer_mutex, 0xFFFFFFFFUL);
 
   if (buffer_length < 16) {
@@ -283,23 +289,44 @@ sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, u
       buffer_length--;
     }
   } else {
-    if (tx_buffer == NULL) {
-      dummy_buffer = 0;
-      ldmaTXDescriptor =
-        (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2P_BYTE(&dummy_buffer, &(SPI_USART->TXDATA), buffer_length);
-    } else {
-      ldmaTXDescriptor =
-        (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(tx_buffer, &(SPI_USART->TXDATA), buffer_length);
+    if (buffer_length <= 2048) {
+      if (tx_buffer == NULL) {
+        dummy_buffer = 0;
+        ldmaTXDescriptor[0] =
+          (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2P_BYTE(&dummy_buffer, &(SPI_USART->TXDATA), buffer_length);
+      } else {
+        ldmaTXDescriptor[0] =
+          (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(tx_buffer, &(SPI_USART->TXDATA), buffer_length);
+      }
+      if (rx_buffer == NULL) {
+        ldmaRXDescriptor[0] =
+          (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2P_BYTE(&(SPI_USART->RXDATA), &dummy_buffer, buffer_length);
+      } else {
+        ldmaRXDescriptor[0] =
+          (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(&(SPI_USART->RXDATA), rx_buffer, buffer_length);
+      }
     }
 
-    if (rx_buffer == NULL) {
-      ldmaRXDescriptor =
-        (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2P_BYTE(&(SPI_USART->RXDATA), &dummy_buffer, buffer_length);
-    } else {
-      ldmaRXDescriptor =
-        (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(&(SPI_USART->RXDATA), rx_buffer, buffer_length);
+    else {
+      if (tx_buffer == NULL) {
+        tx_buffer = (uint8_t *)&dummy_buffer_test;
+      } else if (rx_buffer == NULL) {
+        rx_buffer = (uint8_t *)&dummy_buffer_test;
+      }
+      //Transfer length is more than 2048 bytes. Initialize multiple LDMA Tx descriptor.
+      for (i = 0; i < (LDMA_DESCRIPTOR_ARRAY_LENGTH - 1); i++) {
+        ldmaRXDescriptor[i] =
+          (LDMA_Descriptor_t)LDMA_DESCRIPTOR_LINKREL_P2M_BYTE(&(SPI_USART->RXDATA), (rx_buffer + (2048 * i)), 2048, 1);
+        ldmaTXDescriptor[i] =
+          (LDMA_Descriptor_t)LDMA_DESCRIPTOR_LINKREL_M2P_BYTE((tx_buffer + (2048 * i)), &(SPI_USART->TXDATA), 2048, 1);
+      }
+      ldmaRXDescriptor[i] = (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(&(SPI_USART->RXDATA),
+                                                                               (rx_buffer + (2048 * i)),
+                                                                               (buffer_length - (2048 * i)));
+      ldmaTXDescriptor[i] = (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_M2P_BYTE((tx_buffer + (2048 * i)),
+                                                                               &(SPI_USART->TXDATA),
+                                                                               (buffer_length - (2048 * i)));
     }
-
     // Transfer a byte on free space in the USART buffer
     ldmaTXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(SPI_USART_LDMA_TX);
 
@@ -307,8 +334,8 @@ sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, u
     ldmaRXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(SPI_USART_LDMA_RX);
 
     // Start both channels
-    DMADRV_LdmaStartTransfer(rx_ldma_channel, &ldmaRXConfig, &ldmaRXDescriptor, dma_callback, NULL);
-    DMADRV_LdmaStartTransfer(tx_ldma_channel, &ldmaTXConfig, &ldmaTXDescriptor, NULL, NULL);
+    DMADRV_LdmaStartTransfer(rx_ldma_channel, &ldmaRXConfig, ldmaRXDescriptor, dma_callback, NULL);
+    DMADRV_LdmaStartTransfer(tx_ldma_channel, &ldmaTXConfig, ldmaTXDescriptor, NULL, NULL);
 
     if (osSemaphoreAcquire(transfer_done_semaphore, 1000) != osOK) {
       BREAKPOINT();

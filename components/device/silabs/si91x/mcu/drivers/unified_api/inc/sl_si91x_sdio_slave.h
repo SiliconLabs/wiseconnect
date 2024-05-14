@@ -81,30 +81,23 @@ typedef void (*sl_sdio_slave_callback_t)(uint8_t events);
  ******************************************************************************/
 
 /***************************************************************************/ /**
- * @brief       
- *   Initialize sdio slave peripheral for transfers 
- *
+ * @brief       Initialize sdio slave peripheral for transfers 
  * @param[in] event_callback
  *   Address of application callback function for host interrupt events 
  ******************************************************************************/
 void sl_si91x_sdio_slave_init(sl_sdio_slave_callback_t event_callback);
 
 /***************************************************************************/ /**
- * @brief       
- *   Trigger sequence to send data from sdio slave to host/master device 
- *
+ * @brief       Trigger sequence to send data from sdio slave to host/master device 
  * @param[in] num_of_blocks
  *   Number of blocks to be sent
- * 
  * @param[in] data_buf
  *   Reference of the Source buffer
  ******************************************************************************/
 void sl_si91x_sdio_slave_send(uint8_t num_of_blocks, uint8_t *data_buf);
 
 /***************************************************************************/ /**
- * @brief       
- *   Trigger sequence to receive data on sdio slave from host/master device  
- *
+ * @brief       Trigger sequence to receive data on sdio slave from host/master device  
  * @param[in] data_buf
  *   Reference of the Destination buffer
  ******************************************************************************/

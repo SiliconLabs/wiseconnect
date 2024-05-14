@@ -269,11 +269,17 @@ sl_status_t sl_si91x_pwm_start(sl_pwm_channel_t channel)
     // Returns invalid parameter status code if channel >=4
     status = SL_STATUS_INVALID_PARAMETER;
   } else {
+    error_status = sl_si91x_pwm_reset_counter_disable(channel);
+    if (error_status != RSI_OK) {
+      status = SL_STATUS_FAIL; // Returns status error code
+    } else {
+      status = SL_STATUS_OK; // Returns status OK if no error occurs
+    }
     error_status = RSI_MCPWM_Start(MCPWM, channel);
     if (error_status != RSI_OK) {
-      status = SL_STATUS_FAIL; // Returns status OK if no error occurs
+      status = SL_STATUS_FAIL; // Returns status error code
     } else {
-      status = SL_STATUS_OK; // Returns status error code
+      status = SL_STATUS_OK; // Returns status OK if no error occurs
     }
   }
   return status;
@@ -296,7 +302,7 @@ sl_status_t sl_si91x_pwm_stop(sl_pwm_channel_t channel)
     // Returns invalid parameter status code if channel >= 4
     status = SL_STATUS_INVALID_PARAMETER;
   } else {
-    error_status = sl_si91x_pwm_reset_channel(channel);
+    error_status = sl_si91x_pwm_reset_counter(channel);
     if (error_status != RSI_OK) {
       status = SL_STATUS_FAIL; //  Returns status error code
     } else {
@@ -1125,6 +1131,58 @@ sl_status_t sl_si91x_pwm_fault_init(sl_pwm_fault_init_t *pwm_fault)
     sl_gpio_set_pin_mode(pwm_fault->port, pwm_fault->pin, pwm_fault->mux, OUTPUT);
     status = SL_STATUS_OK;
   } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * This API is used to disable the reset for required channel of MCPWM.
+ * The actions to be performed are:
+ *      - Initialize PWM using @ref sl_si91x_pwm_init()\n
+ *      - Set configuration for PWM @ref sl_si91x_pwm_set_configuration()\n
+ *      - Set base timer mode using @ref sl_si91x_pwm_set_base_timer_mode()\n
+ *      - Start PWM using @ref sl_si91x_pwm_start()\n
+ ******************************************************************************/
+sl_status_t sl_si91x_pwm_reset_channel_disable(sl_pwm_channel_t channel)
+{
+  sl_status_t status;
+  rsi_error_t error_status;
+  if (channel >= SL_CHANNEL_LAST) {
+    // Returns invalid parameter status code if channel >= 4
+    status = SL_STATUS_INVALID_PARAMETER;
+  } else {
+    error_status = RSI_PWM_Channel_Reset_Disable(MCPWM, channel);
+    if (error_status != RSI_OK) {
+      status = SL_STATUS_FAIL; // Returns status error code
+    } else {
+      status = SL_STATUS_OK; // Returns status OK if no error occurs
+    }
+  }
+  return status;
+}
+
+/*******************************************************************************
+ * This API is used to disable the counter reset for required channel of MCPWM
+ * The actions to be performed are:
+ *      - Initialize PWM using @ref sl_si91x_pwm_init()\n
+ *      - Set configuration for PWM @ref sl_si91x_pwm_set_configuration()\n
+ *      - Set base timer mode using @ref sl_si91x_pwm_set_base_timer_mode()\n
+ *      - Start PWM using @ref sl_si91x_pwm_start()\n
+ ******************************************************************************/
+sl_status_t sl_si91x_pwm_reset_counter_disable(sl_pwm_channel_t channel)
+{
+  sl_status_t status;
+  rsi_error_t error_status;
+  if (channel >= SL_CHANNEL_LAST) {
+    // Returns invalid parameter status code if channel >= 4
+    status = SL_STATUS_INVALID_PARAMETER;
+  } else {
+    error_status = RSI_PWM_Counter_Reset_Disable(MCPWM, channel);
+    if (error_status != RSI_OK) {
+      status = SL_STATUS_FAIL; // Returns status error code
+    } else {
+      status = SL_STATUS_OK; // Returns status OK if no error occurs
+    }
+  }
   return status;
 }
 

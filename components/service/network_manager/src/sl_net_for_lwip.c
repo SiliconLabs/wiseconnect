@@ -69,25 +69,6 @@ sl_status_t sl_net_wifi_ap_down(sl_net_interface_t interface)
   return SL_STATUS_NOT_SUPPORTED;
 }
 
-sl_status_t sl_net_wifi_btr_init(sl_net_interface_t interface,
-                                 const void *configuration,
-                                 void *context,
-                                 sl_net_event_handler_t event_handler)
-{
-  UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(configuration);
-  UNUSED_PARAMETER(context);
-  UNUSED_PARAMETER(event_handler);
-  return SL_STATUS_NOT_SUPPORTED;
-}
-
-sl_status_t sl_net_wifi_btr_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id)
-{
-  UNUSED_PARAMETER(interface);
-  UNUSED_PARAMETER(profile_id);
-  return SL_STATUS_NOT_SUPPORTED;
-}
-
 sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
                                     const void *configuration,
                                     void *context,

@@ -67,6 +67,8 @@ Before running the application, the user will need the following things to setup
    - Upgrade your connectivity firmware
    - Create a Studio project
    
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.   
+   
 ### Instructions for Keil IDE and STM32F411RE MCU
 
   - Install the [Keil IDE](https://www.keil.com/).

@@ -72,14 +72,16 @@ typedef enum {
 /// Wi-Fi encryption method.
 /// @note Some encryption types not currently supported in station (STA) mode.
 typedef enum {
+  SL_WIFI_DEFAULT_ENCRYPTION,       ///< Wi-Fi with Default Encryption
   SL_WIFI_NO_ENCRYPTION,            ///< Wi-Fi with No Encryption (not currently supported in STA mode)
   SL_WIFI_WEP_ENCRYPTION,           ///< Wi-Fi with WEP Encryption (not currently supported in STA mode)
   SL_WIFI_TKIP_ENCRYPTION,          ///< Wi-Fi with TKIP Encryption (not currently supported in STA mode)
-  SL_WIFI_CCMP_ENCRYPTION,          ///< Wi-Fi with CCMP Encryption (not currently supported in STA mode)
+  SL_WIFI_CCMP_ENCRYPTION,          ///< Wi-Fi with CCMP Encryption
   SL_WIFI_EAP_TLS_ENCRYPTION,       ///< Wi-Fi with Enterprise TLS Encryption
   SL_WIFI_EAP_TTLS_ENCRYPTION,      ///< Wi-Fi with Enterprise TTLS Encryption
   SL_WIFI_EAP_FAST_ENCRYPTION,      ///< Wi-Fi with Enterprise FAST Encryption
   SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, ///< Wi-Fi with Enterprise PEAP Encryption
+  SL_WIFI_EAP_LEAP_ENCRYPTION       ///< Wi-Fi with Enterprise LEAP Encryption
 } sl_wifi_encryption_t;
 
 /// Wi-Fi Transition Disable Indication (TDI). Supported only in WPA3(Personal or Personal Transition) security in AP mode .
@@ -114,18 +116,23 @@ typedef enum {
   SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX,         ///< Wi-Fi access point on 2.4GHz interface
   SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX,       ///< Wi-Fi client on 5GHz interface (not currently supported)
   SL_WIFI_AP_5GHZ_INTERFACE_INDEX,           ///< Wi-Fi access point on 5GHz interface (not currently supported)
-  SL_WIFI_BTR_INTERFACE_INDEX,               ///< Wi-Fi Basic Transceiver Mode
+  SL_WIFI_TRANSCEIVER_INTERFACE_INDEX,       ///< Wi-Fi Transceiver Mode
   SL_WIFI_MAX_INTERFACE_INDEX                ///< Used for internally by SDK
 } sl_wifi_interface_index_t;
 
 /// Wi-Fi interface enumeration
 typedef enum {
-  SL_WIFI_INVALID_INTERFACE = 0,        ///< Invalid interface
-  SL_WIFI_CLIENT_INTERFACE  = (1 << 0), ///< Wi-Fi client interface
-  SL_WIFI_AP_INTERFACE      = (1 << 1), ///< Wi-Fi access point interface
+  SL_WIFI_INVALID_INTERFACE = 0, ///< Invalid interface
+
+  SL_WIFI_CLIENT_INTERFACE = (1 << 0), ///< Wi-Fi client interface
+  SL_WIFI_AP_INTERFACE     = (1 << 1), ///< Wi-Fi access point interface
 
   SL_WIFI_2_4GHZ_INTERFACE = (1 << 2), ///<  2.4GHz radio interface
   SL_WIFI_5GHZ_INTERFACE   = (1 << 3), ///< 5GHz radio interface
+
+  //BIT(4), BIT(5) - Reserved for 6GHz and Sub-GHz
+
+  SL_WIFI_TRANSCEIVER_INTERFACE = (1 << 7), ///< Wi-Fi Transceiver mode interface
 
   SL_WIFI_CLIENT_2_4GHZ_INTERFACE = SL_WIFI_CLIENT_INTERFACE
                                     | SL_WIFI_2_4GHZ_INTERFACE, ///< Wi-Fi client interface on 2.4GHz radio
@@ -140,7 +147,6 @@ typedef enum {
   SL_WIFI_ALL_INTERFACES = SL_WIFI_CLIENT_INTERFACE | SL_WIFI_AP_INTERFACE | SL_WIFI_2_4GHZ_INTERFACE
                            | SL_WIFI_5GHZ_INTERFACE, ///< All available Wi-Fi interfaces
 
-  SL_WIFI_BTR_INTERFACE = (1 << 4), ///< (1 << 4) Wi-Fi Basic Transceiver mode interface
 } sl_wifi_interface_t;
 
 /// Enumeration of de-authentication reasons from an access point
@@ -295,7 +301,7 @@ typedef enum {
   SL_WIFI_CLIENT_CONNECTED_EVENTS,    ///< Event group for Wi-Fi client connected status
   SL_WIFI_TWT_RESPONSE_EVENTS,        ///< Event group for Wi-Fi TWT response
   SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ///< Event group for Wi-Fi client disconnection status
-  SL_WIFI_BTR_EVENTS,                 ///< Event group for Wi-Fi BTR events
+  SL_WIFI_TRANSCEIVER_EVENTS,         ///< Event group for Wi-Fi transceiver events
   SL_WIFI_EVENT_GROUP_COUNT,          ///< Event group for Wi-Fi maximum default group count. Used internally by SDK
   SL_WIFI_EVENT_FAIL_INDICATION_EVENTS = (1 << 31), ///< Event group for Wi-Fi fail indication
 } sl_wifi_event_group_t;
@@ -324,8 +330,7 @@ typedef enum {
   SL_WIFI_TWT_RESPONSE_EVENT = SL_WIFI_TWT_RESPONSE_EVENTS, ///< Event for Wi-Fi TWT response. Data would be NULL
   SL_WIFI_CLIENT_DISCONNECTED_EVENT =
     SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ///< Event for Wi-Fi client disconnection status. Data would of type @ref sl_mac_address_t
-  SL_WIFI_BTR_EVENT = SL_WIFI_BTR_EVENTS, ///< Event for Wi-Fi BTR TX/RX events.
-
+  SL_WIFI_TRANSCEIVER_EVENT = SL_WIFI_TRANSCEIVER_EVENTS, ///< Event for Wi-Fi transceiver TX/RX events.
   // TWT specific events
   SL_WIFI_TWT_UNSOLICITED_SESSION_SUCCESS_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
@@ -389,8 +394,8 @@ typedef enum {
     | (5
        << 16), ///< Event for Wi-Fi module state statistics. Data would be of type [sl_si91x_module_state_stats_response_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-module-state-stats-response-t)
 
-  SL_WIFI_BTR_RX_DATA_RECEIVE_CB = SL_WIFI_BTR_EVENTS | (1 << 16),
-  SL_WIFI_BTR_TX_DATA_STATUS_CB  = SL_WIFI_BTR_EVENTS | (2 << 16),
+  SL_WIFI_TRANSCEIVER_RX_DATA_RECEIVE_CB = SL_WIFI_TRANSCEIVER_EVENTS | (1 << 16),
+  SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB  = SL_WIFI_TRANSCEIVER_EVENTS | (2 << 16),
 
   // Single bit to indicate relevant event is related to a failure condition
   SL_WIFI_EVENT_FAIL_INDICATION = (1 << 31),  ///< Event for Wi-Fi event failure indication

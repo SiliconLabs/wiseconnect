@@ -114,7 +114,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
   if ((status != SL_STATUS_OK)) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -128,7 +128,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
   }
   free(request);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
 
   return status;
 }
@@ -160,9 +160,9 @@ static sl_status_t sli_si91x_gcm_side_band(sl_si91x_gcm_config_t *config, uint8_
   request->encrypt_decryption = config->encrypt_decrypt;
   request->ad_length          = config->ad_length;
 
-  request->ad     = config->ad;
-  request->nonce  = config->nonce;
-  request->msg    = config->msg;
+  request->ad     = (uint8_t *)config->ad;
+  request->nonce  = (uint8_t *)config->nonce;
+  request->msg    = (uint8_t *)config->msg;
   request->output = output;
 
   request->gcm_mode                                  = config->gcm_mode;
@@ -191,10 +191,13 @@ static sl_status_t sli_si91x_gcm_side_band(sl_si91x_gcm_config_t *config, uint8_
 
 sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
 {
-  uint16_t chunk_len = 0;
-  uint16_t offset    = 0;
-  uint8_t gcm_flags  = 0;
   sl_status_t status = SL_STATUS_FAIL;
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
+  uint16_t chunk_len    = 0;
+  uint16_t offset       = 0;
+  uint8_t gcm_flags     = 0;
+  uint16_t total_length = 0;
+#endif
 
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
 
@@ -208,12 +211,11 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
     status = SL_STATUS_INVALID_PARAMETER;
   }
 
-  uint16_t total_length = config->msg_length;
-
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   status = sli_si91x_gcm_side_band(config, output);
   return status;
 #else
+  total_length = config->msg_length;
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_gcm_mutex == NULL) {
     crypto_gcm_mutex = sl_si91x_crypto_threadsafety_init(crypto_gcm_mutex);

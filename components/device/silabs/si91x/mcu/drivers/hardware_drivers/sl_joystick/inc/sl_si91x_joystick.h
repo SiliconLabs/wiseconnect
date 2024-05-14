@@ -74,68 +74,100 @@ typedef enum {
 // Prototypes
 
 /***************************************************************************/ /**
- * Initialize the Joystick. ADC will configure here to read the different 
- * voltage based on different Joystick position.
- *
- * @param[in]  None.
- * @return status 0 if successful,
- *         \ref SL_STATUS_OK (0x0000) - Success 
+* Initialize the Joystick. ADC will configure here to read the different 
+* voltage based on different Joystick position.
 *
- ******************************************************************************/
+* @param  None.
+* @return If successful
+* - \ref SL_STATUS_OK (0x0000) - Success 
+*
+******************************************************************************/
 sl_status_t sl_si91x_joystick_init(void);
 
 /***************************************************************************/ /**
- * Getting the direction/position of the Joystick.
- *
- * @pre Pre-conditions:
- * - \ref sl_si91x_joystick_init 
-*-
- *      \ref sl_si91x_joystick_start 
+* Getting the direction/position of Joystick.
 *
- *
- * @param[in]  state  : Joystick enable/disable
- *                ( \ref sl_joystick_state_t )
- * @param[in]  pos    : position of joystick.
- *                ( \ref sl_joystick_position_t)
- * @return status 0 if successful, else error code as follow:
- * -        \ref SL_STATUS_OK (0x0000) - Success 
-*-
- *         \ref SL_STATUS_NOT_READY (0x0003) - Module is not ready for requested operation.
- ******************************************************************************/
+* @pre Pre-conditions:
+* - \ref sl_si91x_joystick_init 
+* - \ref sl_si91x_joystick_start 
+* @param[in]  state  : Joystick enable/disable
+*                ( \ref sl_joystick_state_t )
+* @param[out]  pos    : position of joystick.
+*                ( \ref sl_joystick_position_t)
+*
+* @return Error code as follow:
+* - \ref SL_STATUS_OK (0x0000) - Success 
+* - \ref SL_STATUS_NOT_READY (0x0003) - Module is not ready for requested operation.
+******************************************************************************/
 sl_status_t sl_si91x_joystick_get_position(sl_joystick_state_t state, sl_joystick_position_t *pos);
 
 /***************************************************************************/ /**
- * Start/Enable the Joystick.
- *
- * @pre Pre-conditions:
- * - \ref sl_si91x_joystick_init 
+* Start/Enable the Joystick.
 *
- *
- * @param[in]  state    : Joystick enable/disable.
- *                ( \ref sl_joystick_state_t )
- * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success \n
- *         \ref SL_STATUS_ABORT (0x0006) - Operation aborted.
- ******************************************************************************/
+* @pre Pre-conditions:
+* - \ref sl_si91x_joystick_init 
+* @param[in]  state    : Joystick enable/disable.
+*                ( \ref sl_joystick_state_t )
+*
+* @return Error code as follow:
+* - \ref SL_STATUS_OK (0x0000) - Success \n
+* - \ref SL_STATUS_ABORT (0x0006) - Operation aborted.
+******************************************************************************/
 sl_status_t sl_si91x_joystick_start(sl_joystick_state_t state);
 
 /***************************************************************************/ /**
- * Stop/Disable the Joystick.
- *
- * @pre Pre-conditions:
- * - \ref sl_si91x_joystick_init 
-*-
- *      \ref sl_si91x_joystick_start 
+* Stop/Disable the Joystick.
 *
- *
- * @param[in]  state    : Joystick enable/disable.
- *                ( \ref sl_joystick_state_t )
- * @return status 0 if successful, else error code
- *         \ref SL_STATUS_OK (0x0000) - Success 
-*-
- *         \ref SL_STATUS_BUSY (0x0004) - Module is busy.
- ******************************************************************************/
+* @pre Pre-conditions:
+* - \ref sl_si91x_joystick_init 
+* - \ref sl_si91x_joystick_start 
+* @param[in]  state    : Joystick enable/disable.
+*                ( \ref sl_joystick_state_t )
+*
+* @return Error code as follow:
+* - \ref SL_STATUS_OK (0x0000) - Success 
+* - \ref SL_STATUS_BUSY (0x0004) - Module is busy.
+******************************************************************************/
 sl_status_t sl_si91x_joystick_stop(sl_joystick_state_t state);
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup JOYSTICK Joystick
+/// @{
+///
+///   @details
+///
+///   @n @section joystick_intro Introduction
+///
+///   The SI91x joystick driver is a platform-level software module responsible for managing the control of joystick.
+///   All joystick functions are called through the generic driver.
+///
+///   @n @section joystick_config Configuration
+///
+///   The @ref sl_joystick_state_t enumeration defines the states of the joystick data acquisition, either disabled or enabled. This allows for controlling when
+///   joystick input is actively monitored. The @ref sl_joystick_position_t This enumeration defines the possible positions
+///   of the joystick, including not pressed, center, north, east, south, and west. These positions correspond to the physical orientation
+///   of the joystick and can be used to determine the direction or action indicated by the joystick's current position.
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document and
+///   refer here https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/disable-uc-config.
+///
+///
+///   @n @section led_usage Usage
+///
+///   The common functions include the following:
+///
+///   @li @ref sl_si91x_joystick_init
+///   @li @ref sl_si91x_joystick_start
+///   @li @ref sl_si91x_joystick_get_position
+///   @li @ref sl_si91x_joystick_stop
+///
+///   @ref sl_si91x_joystick_init initialises the joystick. Sets the operation mode and initialises the ADC channel.
+///
+///   @ref sl_si91x_joystick_get_position can be implemented by the application if required. This function returns the position
+///   corresponding to the physical orientation of the joystick. @ref sl_si91x_joystick_start and @ref sl_si91x_joystick_stop both can be implemented by the application.
+///   These functions are used to start and stop the data acquisition from the joystick respectively.
+///
+/// @} end group JOYSTICK ********************************************************/
 
 /** @} (end addtogroup JOYSTICK) */
 

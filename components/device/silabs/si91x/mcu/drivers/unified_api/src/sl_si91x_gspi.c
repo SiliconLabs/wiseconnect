@@ -280,7 +280,7 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
    * if the application requires the configuration to be changed in run-time, undefined this macro
    * and change the peripheral configuration through the sl_si91x_gspi_set_configuration API.
    */
-#ifdef GSPI_UC
+#if (GSPI_UC == 1)
   control_configuration = &gspi_configuration;
 #endif
   do {

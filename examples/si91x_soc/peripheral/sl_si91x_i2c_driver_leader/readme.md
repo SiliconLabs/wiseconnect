@@ -46,15 +46,18 @@
 - It also initializes I2C clock and configures I2C SDA & SCL pins.
 - It also initializes DMA, if transfer type is 'Using DMA'.
 - Now transmit and receive FIFO threshold values are configured using \ref sl_i2c_driver_configure_fifo_threshold API.
+- Now repeated start is enabled for data transfer using \ref sl_i2c_driver_enable_repeated_start API. So that master continue read operation after write operation without releasing line.
 - Now write_buffer is filled with some data which needs to be sent to the follower.
 - Current_mode enum is set to I2C_SEND_DATA and it calls send_data API to send data to follower & configures follower address through \ref sl_i2c_driver_send_data_blocking (for blocking Application) or through \ref sl_i2c_driver_send_data_non_blocking (for Non-blocking Application).
-- For Blocking usecase : When all bytes are sent then mode changes to I2C_RECEIVE_DATA (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are sent).
-- For Non-Blocking usecase : After that it will wait till all the data is transferred to the follower device & once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_RECEIVE_DATA.
+- For Blocking usecase: When all bytes are sent then mode changes to I2C_RECEIVE_DATA (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are sent).
+- For Non-Blocking usecase: After that it will wait till all the data is transferred to the follower device & once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_RECEIVE_DATA.
+- Before receiving data from slave, disabled repeated start using \ref sl_i2c_driver_enable_repeated_start API. So that stop bit should be added at the end of data transfer.
 - Then it receives data from follower through \ref sl_i2c_driver_receive_data_blocking (for blocking Application) or through \ref sl_i2c_driver_receive_data_non_blocking (for Non-blocking Application).
-- For Blocking usecase : When all bytes are received then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are received).
-- For Non Blocking usecase : After calling receive_data, it will wait till all the data is received from the follower device & once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
 - Now it compares the data which is received from the follower device to the data which it has sent.
 - If the send & receive data is same, it will print Test Case Passed on the console.
+- For Blocking usecase: When all bytes are received then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are received).
+- For Non Blocking usecase: After calling receive_data, it will wait till all the data is received from the follower device & once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
+- I2C driver gets in I2C_TRANSMISSION_COMPLETED mode and stays idle.
 
 > **Note:**
 >
@@ -89,6 +92,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
@@ -155,6 +160,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ![Figure: Pin Configuration I2C](resources/readme/image507d.png)
 
 ![Figure: Pin Configuration I2C](resources/readme/image507e.png)
+
+> **Note- In case of sleep-wakeup :**
+>- As GPIO configurations will be lost after going to sleep state, user has to initialize I2C pins and driver again after wakeup,by using 
+\ref sl_i2c_driver_init API for initializing driver and \ref sl_si91x_i2c_pin_init API for initializing pins.
 
 ## Test the Application
 

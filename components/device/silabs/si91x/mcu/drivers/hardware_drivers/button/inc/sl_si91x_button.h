@@ -32,9 +32,8 @@ extern "C" {
  *@{
  */
 
-/** @name Button State Definitions
- * A set of numerical definitions for use with the button APIs indicating the
- * state of a button.
+/** @name Macros
+ * A set of numerical macros for use with the button APIs.
  *@{
  */
 
@@ -63,7 +62,7 @@ extern "C" {
 
 #define BUTTON_STATE_INVALID -1 ///< Button state is invalid
 
-/**@} END Button State Definitions */
+/**@} END Macros */
 
 typedef struct {
   uint8_t pin;
@@ -74,7 +73,7 @@ typedef struct {
 } sl_button_t;
 
 /***************************************************************************/ /**
-* Initializes the buttons. This function is automatically called when a button instance is created.
+* Initializes the button, a process automatically triggered upon the creation of a button instance, sets the mode of operation, and configures interrupts based on the selected mode.
 *
 * @param[in] handle  The pointer to button structure that has the specific button information.
 *
@@ -180,13 +179,56 @@ void sl_si91x_button_state_set(uint8_t pin, int8_t state);
 * as defined.
 *
 * @param[in] state   The new state of the button referenced by the button parameter,
-* either ::BUTTON_PRESSED if the button has been pressed or ::BUTTON_RELEASED if
-* the button has been released.
+* either ::BUTTON_PRESSED if the button is pressed or ::BUTTON_RELEASED if
+* the button is released.
 *
 * @return  none
 *
 ******************************************************************************/
 void sl_si91x_button_isr(uint8_t pin, int8_t state);
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup BUTTON Button
+/// @{
+///
+///   @details
+///
+///   @n @section buttondrv_intro Introduction
+///
+///   The SI91x button driver is a platform-level software module responsible for managing the initialization and reading buttons.
+///   It offers a comprehensive set of functions for button operations, including initialization, state monitoring,
+///   and callback handling for state changes. The driver supports flexible interrupt configurations,
+///   enabling detection based on button state, edge transitions, or both. All button functions are called through the generic driver,
+///   which internally triggers specific functions to the respective button.
+///
+///   @n @section buttondrv_config Configuration
+///
+///   All button instances are configured with an @ref sl_button_t struct. This struct is automatically generated after a button is set up
+///   using Simplicity Studio's wizard.
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document and
+///   refer here https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/disable-uc-config.
+///
+///
+///   @n @section buttondrv_usage Usage
+///
+///   Once the button structures are defined, the button functions can be invoked by passing an instance of sl_button_t,
+///   which will be redirected to call the type-specific version of that function. The common functions include the following:
+///
+///   @li @ref sl_si91x_button_init
+///   @li @ref sl_si91x_button_pin_state
+///   @li @ref sl_si91x_button_state_toggle
+///   @li @ref sl_si91x_button_isr
+///
+///   @ref sl_button_init is called automatically when the application is run.
+///
+///   The button driver can be used with interrupt mode, with or without debounce. @ref sl_si91x_button_pin_state can be implemented by the application if required. This function is used
+///   to determine the current state of the button. @ref sl_si91x_button_state_toggle can be implemented by the application.
+///   This function toggles the "soft" state so that it gives the interrupts and their callbacks. @ref sl_si91x_button_isr is a callback function
+///   that is called when the button state changes. This function can be implemented in the application to specify what the user wants to do
+///   when the button state changes.
+///
+/// @} end group button ********************************************************/
 
 /** @} END addtogroup
  */

@@ -88,7 +88,7 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+      sl_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -99,7 +99,7 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
 
   free(request);
   if (buffer != NULL)
-    sl_si91x_host_free_buffer(buffer, SL_WIFI_RX_FRAME_BUFFER);
+    sl_si91x_host_free_buffer(buffer);
 
   return status;
 }

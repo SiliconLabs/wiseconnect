@@ -2,19 +2,16 @@ id: sl_pwm
 label: PWM
 package: platform
 description: >
- The Motor Control Pulse Width Modulation (MCPWM) controller is used to generate a periodic pulse waveform, which is useful in
- motor control and power control applications.
- The MCPWM controller acts as a timer to count up to a period count value.
- The time period and the duty cycle of the pulses are both programmable.
-  Configurable parameters in PWM:
-    - Frequency 
-    - Output Polarity
-    - PWM Mode
-    - Timer counter
-    - Duty cycle
-    - Base Timer Mode and Selection
-    - External Trigger
+  The Motor Control Pulse Width Modulation (MCPWM) controller driver is used to generate a periodic pulse waveform, which is useful in
+  motor control and power control applications. It supports 4 channel instances.
+  The MCPWM controller acts as a timer to count up to a period count value.
+  The time period and the duty cycle of the pulses are both programmable.
+  This driver suports 4 channels and by default it installs channel_0.
+
+  When you install this component, it will also be installing the  PWM dependency component, which is the PWM driver's implementation.
 category: Device|Si91x|MCU|Peripheral
+ui_hints:
+  visibility: never
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers"
 source:

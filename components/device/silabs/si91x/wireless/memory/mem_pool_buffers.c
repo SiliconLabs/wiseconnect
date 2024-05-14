@@ -103,9 +103,8 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
   return &buffer->data[offset];
 }
 
-void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer, sl_wifi_buffer_type_t type)
+void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
 {
-  UNUSED_PARAMETER(type);
   ++freed_buffers;
   sli_mem_pool_free(&mem_pool, buffer);
 }

@@ -47,16 +47,16 @@ extern "C" {
 // -----------------------------------------------------------------------------
 // Macros
 #define SL_STATUS_DMA_CHANNEL_ALLOCATED \
-  (sl_status_t)0x45 //// Status code indicates that DMA channel already allocated for another transfer
+  (sl_status_t)0x45 //// Status code indicates that the DMA channel already allocated for another transfer
 #define SL_STATUS_DMA_NO_CHANNEL_AVAILABLE \
   (sl_status_t)0x46 //// Status code indicates that no DMA channel is available for allocation
 #define SL_STATUS_DMA_CHANNEL_ALREADY_UNALLOCATED \
-  (sl_status_t)0X47 //// Status code indicates that DMA channel is already unallocated
+  (sl_status_t)0X47 //// Status code indicates that the DMA channel is already unallocated
 #define SL_STATUS_DMA_CHANNEL_UNALLOCATED \
   (sl_status_t)0X48         //// Status code indicates that channel is not allocated for DMA transfer
 #define SL_CHANNEL_COUNT 32 //// DMA channel count
 
-#define ALTERNATE_DESCRIPTOR_DISABLE 0 // DMA doesn't use alternate descriptor
+#define ALTERNATE_DESCRIPTOR_DISABLE 0 // DMA doesn't use the alternate descriptor
 #define ALTERNATE_DESCRIPTOR_ENABLE  1 // DMA use alternate descriptor
 #define BURST_REQUEST_ENABLE         1 // DMA burst request enable
 #define BURST_REQUEST_DISABLE        0 // DMA burst request disable
@@ -81,7 +81,7 @@ extern "C" {
    */
 
 /***************************************************************************/ /**
-     * Typedef for user supplied callback function which is called when a DMA transfer completes
+     * Typedef for user-supplied callback function which is called when a DMA transfer completes
      *
      * @param[in]   channel_no      DMA channel number
      * @param[in]   *data           An extra parameter for user application
@@ -90,7 +90,7 @@ extern "C" {
 typedef void (*sl_dma_transfer_complete)(uint32_t channel, void *data);
 
 /***************************************************************************/ /**
-     * Typedef for user supplied callback function which is called when a DMA error occurs
+     * Typedef for user-supplied callback function which is called when a DMA error occurs
      *
      * @param[in]   channel_no      DMA channel number
      * @param[in]   *data           An extra parameter for user application
@@ -191,180 +191,159 @@ extern sl_channel_data_t sl_channel_allocation_data_t[2][SL_CHANNEL_COUNT]; ///<
    */
 
 /***************************************************************************/ /**
-   * This function initializes the DMA peripheral by enabling DMA clock and clearing DMA interrupts.
-   * Configure dma_init->dma_number to 0 for initializing UDMA0 and 1 for initializing UDMA1
-   *
-   * @pre Pre-conditions:
- * - \ref none 
-*
-   * @param[in]  *dma_init   dma initialization structure,
+   * @brief This API initializes the DMA peripheral.
+   * @details This API enables DMA clock and clears DMA interrupts. Configure 
+   * dma_init->dma_number to 0 for initializing UDMA0 and 1 for initializing UDMA1
+   * @pre Pre-condition:
+   * - \ref none 
+   * @param[in]  *dma_init   DMA initialization structure,
    *              dma_init->dma_number - 0->UDMA0, 1->UDMA1
    * @return      Initialization status
-                  SL_STATUS_OK - Initialization success
-                  SL_STATUS_NOT_INITIALIZED - Initialization fail
-
+   *              - SL_STATUS_OK - Initialization success
+   *              - SL_STATUS_NOT_INITIALIZED - Initialization fail
    ******************************************************************************/
 
 sl_status_t sl_si91x_dma_init(sl_dma_init_t *dma_init);
 
 /***************************************************************************/ /**
-   * This function deinitializes the DMA module by disabling peripheral clock and interrupts. 
+   * @brief This function de-initializes the DMA peripheral.
+   * @details This API disables the DMA peripheral clock and interrupts. 
    * DMA will be deinitialized only if there is no ongoing transfer.
-   *
-   * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*
+   * @pre Pre-condition:
+   * - \ref sl_si91x_dma_init 
    * @param[in]   dma_number  0->UDMA0, 1->UDMA1
    * @return      deinitialization status
-                  SL_STATUS_OK - Deinit success
-                  SL_STATUS_BUSY - Cannot deinit the peripheral due to an ongoing transfer
-                  SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
-
+   *              - SL_STATUS_OK - Deinit success
+   *              - SL_STATUS_BUSY - Cannot deinit the peripheral due to an ongoing transfer
+   *              - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
   ******************************************************************************/
 
 sl_status_t sl_si91x_dma_deinit(uint32_t dma_number);
 
 /***************************************************************************/ /**
-   * This function checks the available DMA channel and allocates the channel. This function also sets the priority of allocated channel
-   * and assigns the channel number to *channel_no variable. If no channel is available, it will return SL_DMA_NO_CHANNEL_AVAILABLE.
-   * Note: Users can also initialize the desired channel number and this API checks whether desired channel is available and allocates the
+   * @brief This API allocates DMA channel for the transfer
+   * @details This API checks the available DMA channel and allocates the channel. This function also sets the priority of the allocated channel
+   * and assigns the channel number to the *channel_no variable. If no channel is available, it will return SL_DMA_NO_CHANNEL_AVAILABLE.
+   * Note: Users can also initialize the desired channel number and this API checks whether the desired channel is available and allocates the
    * channel if available. If users want the driver to allocate the available channel, channel_no should be initialized to 0.
-   *
-   * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*
+   * @pre Pre-condition:
+   * - \ref sl_si91x_dma_init 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] *channel_no   0 -> Automatically allocates available channel for DMA transfer
 							  (1-32) -> Allocates given channel for UDMA0 transfer
 							  (1-12) -> Allocates given channel for UDMA1 transfer
    * @param[in] priority      0 -> low priority
 							  1 -> high priority
-   * @return channel allocation status
-             SL_STATUS_OK - Channel allocated
-             SL_STATUS_DMA_NO_CHANNEL_AVAILABLE - All DMA channels are allocated
-             SL_STATUS_DMA_CHANNEL_ALLOCATED - Desired channel is already allocated
-             SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
-             SL_STATUS_INVALID_PARAMETER - Channel no is invalid
+   * @return channel allocation status:
+   *         - SL_STATUS_OK - Channel allocated
+   *         - SL_STATUS_DMA_NO_CHANNEL_AVAILABLE - All DMA channels are allocated
+   *         - SL_STATUS_DMA_CHANNEL_ALLOCATED - The desired channel is already allocated
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   *         - SL_STATUS_INVALID_PARAMETER - Channel no is invalid
    ******************************************************************************/
 
 sl_status_t sl_si91x_dma_allocate_channel(uint32_t dma_number, uint32_t *channel_no, uint32_t priority);
 
 /***************************************************************************/ /**
-   * This function deallocates the DMA channel if there is no ongoing transfer on channel.
+   * @brief This API deallocates the DMA channel
+   * @details This API deallocates the DMA channel if there is no ongoing transfer on the channel.
    * Deallocating the channel will also unregister the callbacks for transfer complete
    * and error.
-   *
    * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*-
-   *	  \ref sl_si91x_dma_allocate_channel 
-*
+   * - \ref sl_si91x_dma_init 
+   * - \ref sl_si91x_dma_allocate_channel 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
 
-   * @return channel deallocation status
-             SL_STATUS_OK - Channel deallocated
-             SL_STATUS_BUSY - Cannot deallocate channel due to an ongoing transfer
-             SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
-             SL_STATUS_INVALID_PARAMETER - Channel no is invalid
+   * @return channel deallocation status:
+   *         - SL_STATUS_OK - Channel deallocated
+   *         - SL_STATUS_BUSY - Cannot deallocate channel due to an ongoing transfer
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   *         - SL_STATUS_INVALID_PARAMETER - Channel no is invalid
    ******************************************************************************/
 
 sl_status_t sl_si91x_dma_deallocate_channel(uint32_t dma_number, uint32_t channel_no);
 
 /***************************************************************************/ /**
-   * This function registers the DMA callbacks (transfer complete & error)
-   * Users must update the sl_dma_callback_t structure and pass its address to this function.
-   * Users can have seperate callbacks for transfer complete and error for each channel
-   *
+   * @brief This API registers the DMA callbacks (transfer complete & error).
+   * @details User must update the sl_dma_callback_t structure and pass its address to this function.
+   * A separate callback can be present for transfer complete and error for each channel.
    * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*-
-   *	  \ref sl_si91x_dma_allocate_channel 
-*
+   * - \ref sl_si91x_dma_init 
+   * - \ref sl_si91x_dma_allocate_channel 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
    * @param[in] callback_t    structure containing callback functions
    *
-   * @return channel deallocation status
-             SL_STATUS_OK - Callback registered successfully
-             SL_STATUS_INVALID_PARAMETER - Invalid channel number
-             SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   * @return channel deallocation status:
+   *         - SL_STATUS_OK - Callback registered successfully
+   *         - SL_STATUS_INVALID_PARAMETER - Invalid channel number
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
 
    ******************************************************************************/
 
 sl_status_t sl_si91x_dma_register_callbacks(uint32_t dma_number, uint32_t channel_no, sl_dma_callback_t *callback_t);
 
 /***************************************************************************/ /**
-   * This function unregisters the DMA callbacks (transfer complete & error)
-   * Users need to update the 8-bit variable callback_type and pass to the function
+   * @brief This API unregisters the DMA callbacks (transfer complete & error).
+   * @details Users need to update the 8-bit variable callback_type and pass to the function
    * Each bit is mapped to a specific callback.
-   *
    * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*-
-   *	  \ref sl_si91x_dma_allocate_channel 
-*-
-   *	  \ref sl_si91x_dma_register_callbacks 
-*
-   * @param[in] dma_number        dma_number  0->UDMA0, 1->UDMA1
+   * - \ref sl_si91x_dma_init 
+   * - \ref sl_si91x_dma_allocate_channel 
+   * - \ref sl_si91x_dma_register_callbacks 
+   * @param[in] dma_number    dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
-   * @param[in] callback_type     Unregister the DMA callbacks based on the callback type (bit mapped to callbacks),
+   * @param[in] callback_type     Unregister the DMA callbacks based on the callback type (bit-mapped to callbacks),
                                   (SL_DMA_TRANSFER_DONE_CB)  -> unregister transfer complete callback
                                   (SL_DMA_ERROR_CB) -> unregister error callback
                                   (SL_DMA_TRANSFER_DONE_CB | SL_DMA_ERROR_CB) -> unregister both transfer complete and error callback
-   * @return channel deallocation status
-             SL_STATUS_OK - Callback unregistered successfully
-             SL_STATUS_INVALID_PARAMETER - Invalid channel number
-             SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   * @return channel de-allocation status:
+   *         - SL_STATUS_OK - Callback unregistered successfully
+   *         - SL_STATUS_INVALID_PARAMETER - Invalid channel number
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
 
   ******************************************************************************/
 
 sl_status_t sl_si91x_dma_unregister_callbacks(uint32_t dma_number, uint32_t channel_no, uint8_t callback_type);
 
 /***************************************************************************/ /**
-   * This function configures the DMA channel descriptor and initiate DMA transfer
+   * @brief This API starts the DMA transfer
+   * @details This API configures the DMA channel descriptor and initiates the DMA transfer
    * DMA primary descriptor is updated in this function and based on transfer mode
    * alternate descriptor is updated (only for ping pong mode). Also other DMA parameters
-   * like peripheral ACK signal (for peripheral memory transfers), DMA priority etc. are
+   * like peripheral ACK signal (for peripheral memory transfers), DMA priority, etc. are
    * updated in this function.
-   *
    * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*-
-   *	  \ref sl_si91x_dma_allocate_channel 
-*-
-   *	  \ref sl_si91x_dma_register_callbacks 
-*
+   * - \ref sl_si91x_dma_init 
+   * - \ref sl_si91x_dma_allocate_channel 
+   * - \ref sl_si91x_dma_register_callbacks 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
    * @param[in] *dma_transfer_t      channel transfer data structure containing channel descriptor and other basic DMA parameters.
 
-   * @return DMA transfer status
-             SL_STATUS_OK  - Transfer started successfully
-             SL_STATUS_SUSPENDED - Transfer initialization fail
-             SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
-             SL_STATUS_INVALID_PARAMETER - Channel no is invalid
+   * @return DMA transfer status:
+   *         - SL_STATUS_OK  - Transfer started successfully
+   *         - SL_STATUS_SUSPENDED - Transfer initialization fails
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   *         - SL_STATUS_INVALID_PARAMETER - Channel no is invalid
    ******************************************************************************/
 
 sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_dma_xfer_t *dma_transfer_t);
 
 /***************************************************************************/ /**
-   * This function configures the DMA channel descriptor and initiate simple memory to memory
-   * DMA transfer. Users need to pass the source address and destination address of transfer
+   * @brief This API starts a simple memory to memory DMA transfer
+   * @details This API configures the DMA channel descriptor and initiates simple memory-to-memory
+   * DMA transfer. Users need to pass the source address and destination address of the transfer
    * along with transfer length in bytes.
-   *
    * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*-
-   *	  \ref sl_si91x_dma_allocate_channel 
-*-
-   *	  \ref sl_si91x_dma_register_callbacks 
-*
-   *
+   * - \ref sl_si91x_dma_init 
+   * - \ref sl_si91x_dma_allocate_channel 
+   * - \ref sl_si91x_dma_register_callbacks 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
@@ -372,11 +351,11 @@ sl_status_t sl_si91x_dma_transfer(uint32_t dma_number, uint32_t channel_no, sl_d
    * @param[in] *dst_addr     destination address.
    * @param[in] data_size     transfer size in bytes
 
-   * @return DMA transfer status
-             SL_STATUS_OK  - Transfer success
-             SL_STATUS_SUSPENDED - Transfer initialization fail
-             SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
-             SL_STATUS_INVALID_PARAMETER - Channel no is invalid
+   * @return DMA transfer status:
+   *         - SL_STATUS_OK  - Transfer success
+   *         - SL_STATUS_SUSPENDED - Transfer initialization fails
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   *         - SL_STATUS_INVALID_PARAMETER - Channel no is invalid
    ******************************************************************************/
 
 sl_status_t sl_si91x_dma_simple_transfer(uint32_t dma_number,
@@ -386,98 +365,90 @@ sl_status_t sl_si91x_dma_simple_transfer(uint32_t dma_number,
                                          uint32_t data_size);
 
 /***************************************************************************/ /**
-   * This function stops any active transfer on the channel. If there is no active transfer on the channel,
-   * this function returns SL_DMA_CHANNEL_IDLE
-   *
+   * @brief This API stops DMA transfer
+   * @details This API stops any active transfer on the channel by disabling the DMA channel.
+   * If there is no active transfer on the channel, this function returns SL_DMA_CHANNEL_IDLE
    * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*-
-   *	  \ref sl_si91x_dma_allocate_channel 
-*-
-   *	  \ref sl_si91x_dma_simple_transfer/sl_si91x_dma_transfer 
-*
+   * - \ref sl_si91x_dma_init 
+   * - \ref sl_si91x_dma_allocate_channel 
+   * - \ref sl_si91x_dma_simple_transfer/sl_si91x_dma_transfer 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
 
-   * @return DMA transfer status
-             SL_STATUS_OK         - Transfer stopped successfully
-             SL_STATUS_IDLE       - There is no active transfer on channel
-             SL_STATUS_INVALID_PARAMETER  - Invalid channel number
-             SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   * @return DMA transfer status:
+   *         - SL_STATUS_OK         - Transfer stopped successfully
+   *         - SL_STATUS_IDLE       - There is no active transfer on the channel
+   *         - SL_STATUS_INVALID_PARAMETER  - Invalid channel number
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
    ******************************************************************************/
 
 sl_status_t sl_si91x_dma_stop_transfer(uint32_t dma_number, uint32_t channel_no);
 
 /***************************************************************************/ /**
-   * This function returns the following channel status,
+   * @brief This API returns the DMA channel status
+   * @details This API returns the following channel status,
    * SL_STATUS_DMA_CHANNEL_ALREADY_ALLOCATED - DMA channel allocated but no active transfer in progress
    * SL_STATUS_BUSY - Channel is allocated and active transfer is in progress
    * SL_STATUS_IDLE - Channel is not allocated.
-   *
    * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*
+   * - \ref sl_si91x_dma_init 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
 
    * @return  channel status
-              SL_STATUS_IDLE - Channel is not allocated
-              SL_STATUS_DMA_CHANNEL_ALREADY_ALLOCATED - Channel is already allocated and idle
-              SL_STATUS_BUSY - Channel is allocated and busy
-              SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
-              SL_STATUS_INVALID_PARAMETER - Channel no is invalid
+   *         - SL_STATUS_IDLE - Channel is not allocated
+   *         - SL_STATUS_DMA_CHANNEL_ALREADY_ALLOCATED - Channel is already allocated and idle
+   *         - SL_STATUS_BUSY - Channel is allocated and busy
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   *         - SL_STATUS_INVALID_PARAMETER - Channel no is invalid
    ******************************************************************************/
 
 sl_status_t sl_si91x_dma_channel_status_get(uint32_t dma_number, uint32_t channel_no);
 
 /***************************************************************************/ /**
-   * This function enables the DMA channel. Enabling channel will trigger DMA transfer if DMA is
-   * already enabled. Also, the channel should be allocated and transfer parameters should be configured
+   * @brief This API enables the DMA channel
+   * @details Enabling channel will trigger DMA transfer if DMA is already enabled.
+   * Also, the channel should be allocated and transfer parameters should be configured
    * before enabling the channel.
-   *
    * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*
+   * - \ref sl_si91x_dma_init 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
 
    * @return  channel status
-              SL_STATUS_OK - Channel enable success
-              SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
-              SL_STATUS_INVALID_PARAMETER - Channel no is invalid
+   *         - SL_STATUS_OK - Channel enables success
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   *         - SL_STATUS_INVALID_PARAMETER - Channel no is invalid
    ******************************************************************************/
 sl_status_t sl_si91x_dma_channel_enable(uint32_t dma_number, uint32_t channel_no);
 
 /***************************************************************************/ /**
-   * This function disables the DMA channel. Disabling the DMA channel will abort any ongoing 
-   * active transfers on the channel. Enabling the channel back will not resume previous 
-   * transfer.
-   *
-   * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*
+   * @brief This API disables the DMA channel.
+   * @details Disabling the DMA channel will abort any ongoing active transfers 
+   * on the channel. Enabling the channel back will not resume the previous transfer.
+   * @pre Pre-condition:
+   * - \ref sl_si91x_dma_init 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
    * @param[in] channel_no    (1-32) -> UDMA0
                               (1-12) -> UDMA1
 
    * @return  channel status
-              SL_STATUS_OK - Channel disable success
-              SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
-              SL_STATUS_INVALID_PARAMETER - Channel no is invalid
+   *         - SL_STATUS_OK - Channel disable success
+   *         - SL_STATUS_NOT_INITIALIZED - DMA peripheral not initialized
+   *         - SL_STATUS_INVALID_PARAMETER - Channel no is invalid
    ******************************************************************************/
 sl_status_t sl_si91x_dma_channel_disable(uint32_t dma_number, uint32_t channel_no);
 
 /***************************************************************************/ /**
-   * This function enables the DMA peripheral. Enabling the DMA will trigger transfer if the channel is
-   * already enabled. Also, the channel should be allocated and transfer parameters should be configured
+   * @brief This API enables DMA peripheral. 
+   * @details Enabling the DMA will trigger transfer if the channel is already enabled. 
+   * Also, the channel should be allocated and transfer parameters should be configured
    * before enabling the DMA.
-   *
-   * @pre Pre-conditions:
- * - \ref sl_si91x_dma_init 
-*
+   * @pre Pre-condition:
+   * - \ref sl_si91x_dma_init 
    * @param[in] dma_number  dma_number  0->UDMA0, 1->UDMA1
 
    * @return  SL_STATUS_OK - Channel enable success
@@ -486,6 +457,68 @@ sl_status_t sl_si91x_dma_channel_disable(uint32_t dma_number, uint32_t channel_n
 sl_status_t sl_si91x_dma_enable(uint32_t dma_number);
 
 /** @} (end addtogroup DMA) */
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/// @addtogroup DMA Direct Memory Access
+/// @{
+///
+///   @details
+///
+///
+///   @n @section DMA_Intro Introduction
+///
+///   Direct Memory Access (DMA) is a process of transferring data from one memory location
+///   to another without the direct involvement of the processor (CPU). The main benefit of
+///   using DMA is more efficient data movement in the embedded system.
+///
+///   Here are some common applications of DMA in micro-controller systems:
+///
+///   @li **Data Transfer**: One of the primary uses of DMA is to facilitate data transfer between
+///   peripherals and memory
+///
+///   @li **Memory-to-Memory Transfer**: DMA can also be utilized for moving data between different memory locations,
+///   providing fast and efficient memory operations without CPU intervention.
+///   This is particularly useful for tasks like memory copying, memory clearing, or memory initialization.
+///
+///   @li **Peripheral Initialization**: DMA can assist in initializing peripheral registers or buffers by
+///   transferring predefined data patterns or configurations directly from memory to the peripheral
+///   registers, speeding up the initialization process.
+///
+///   @li **Data Processing**: DMA can be employed for offloading data processing tasks from
+///   the CPU to dedicated hardware peripherals.
+///
+///   @li **Real-Time Systems**: DMA is essential in real-time systems where predictable and
+///   deterministic data transfer is crucial. By minimizing CPU involvement in data
+///   transfer operations, DMA helps meet strict timing requirements and reduces the
+///   likelihood of missed deadlines in time-critical applications.
+///
+///   @li **Power Management**: DMA can contribute to power efficiency by reducing CPU
+///   wake-up times and allowing the CPU to enter low-power modes more frequently.
+///   By handling data transfer tasks autonomously, DMA can help optimize power
+///   consumption in battery-operated or energy-constrained systems.
+///
+///   @n @section DMA_Config Configuration
+///
+///   @li Configuring DMA has three parameters that can be configured in such,
+///   if DAM instance configuration to configured through @ref  and call th API @ref sl_si91x_dma_init(),
+///   DAM Channel can be configured in the range of 1-32 by passing the instance and
+///   channel in the API @ref sl_si91x_dma_allocate_channel(), and transfer size also can be configured in the range of (1-10000).
+///
+///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
+///
+///   @n @section DMA_Use Usage
+///
+///      The common DMA functions can be used after the DMA Structures are specified, passing an instance of
+///   @ref sl_dma_init_t. These functions will initiate and configure the DMA below, which is the flow for implementation.
+///
+/// 1. @ref sl_si91x_dma_init
+/// 2. @ref sl_si91x_dma_allocate_channel
+/// 3. @ref sl_si91x_dma_register_callbacks
+/// 4. @ref sl_si91x_dma_simple_transfer or
+/// 5. @ref sl_si91x_dma_transfer
+/// 6. @ref sl_si91x_dma_deinit
+///
+/// @} end group DMA ********************************************************/
 
 #ifdef __cplusplus
 }

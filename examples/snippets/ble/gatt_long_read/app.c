@@ -87,6 +87,8 @@
 
 #define RSI_BLE_MAX_DATA_LEN 20
 
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
+
 //! attribute properties
 #define RSI_BLE_ATT_PROPERTY_READ   0x02
 #define RSI_BLE_ATT_PROPERTY_WRITE  0x08
@@ -762,8 +764,11 @@ static void rsi_ble_on_mtu_event(rsi_ble_event_mtu_t *rsi_ble_mtu)
 void rsi_ble_simple_gatt_test(void *argument)
 {
   UNUSED_PARAMETER(argument);
-  sl_status_t status                    = 0;
-  sl_wifi_firmware_version_t fw_version = { 0 };
+  sl_status_t status                                         = 0;
+  sl_wifi_firmware_version_t fw_version                      = { 0 };
+  static uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
+  uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN]                 = { 0 };
+
 #if (GATT_ROLE == SERVER)
   uint8_t adv[31] = { 2, 1, 6 };
 #endif
@@ -795,6 +800,16 @@ void rsi_ble_simple_gatt_test(void *argument)
     LOG_PRINT("\r\nFirmware version Failed, Error Code : 0x%lX\r\n", status);
   } else {
     print_firmware_version(&fw_version);
+  }
+
+  //! get the local device MAC address.
+  status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
+  if (status != RSI_SUCCESS) {
+    LOG_PRINT("\r\n Get local device address failed = %lx\r\n", status);
+    return;
+  } else {
+    rsi_6byte_dev_address_to_ascii(local_dev_addr, rsi_app_resp_get_dev_addr);
+    LOG_PRINT("\r\n Local device address %s \r\n", local_dev_addr);
   }
 
 #if (GATT_ROLE == SERVER)

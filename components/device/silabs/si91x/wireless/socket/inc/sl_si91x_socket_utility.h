@@ -20,6 +20,7 @@
 #include "sl_si91x_types.h"
 #include "sl_si91x_socket_types.h"
 #include "sl_si91x_protocol_types.h"
+#include "sl_si91x_socket_constants.h"
 #include "errno.h"
 #include <stdbool.h>
 
@@ -59,15 +60,14 @@
       }                                                                       \
     } while (0);                                                              \
   }
-#define SLI_SI91X_NULL_SAFE_FD_ZERO(fd_set) 	\
-{									\
-	do {							\
-		if (NULL != fd_set) {		\
-		FD_ZERO(fd_set);			\
-		} 							\
-	} while(0);						\
-}
-
+#define SLI_SI91X_NULL_SAFE_FD_ZERO(fd_set) \
+  {                                         \
+    do {                                    \
+      if (NULL != fd_set) {                 \
+        FD_ZERO(fd_set);                    \
+      }                                     \
+    } while (0);                            \
+  }
 
 #define GET_SAFE_MEMCPY_LENGTH(destination_size, source_size) \
   source_size > destination_size ? destination_size : source_size
@@ -123,7 +123,8 @@ si91x_socket_t *get_si91x_socket(int socket_id);
  */
 bool is_port_available(uint16_t port_number);
 
-sl_status_t add_server_name_indication_extension(si91x_server_name_indication_extensions_t* socket_sni_extensions, const si91x_socket_type_length_value_t* sni_extension);
+sl_status_t add_server_name_indication_extension(si91x_server_name_indication_extensions_t *socket_sni_extensions,
+                                                 const si91x_socket_type_length_value_t *sni_extension);
 
 sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *backlog);
 
@@ -136,6 +137,8 @@ int handle_select_response(sl_si91x_socket_select_rsp_t *response,
                            fd_set *exception_fd);
 
 void set_select_callback(select_callback callback);
+
+void sli_si91x_set_accept_callback(accept_callback callback, int32_t client_socket_id);
 
 void sli_si91x_set_remote_socket_termination_callback(remote_socket_termination_callback callback);
 

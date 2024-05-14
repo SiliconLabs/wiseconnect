@@ -25,7 +25,18 @@
 #include "rsi_ccp_user_config.h"
 #include "SPI.h"
 #include "rsi_rom_egpio.h"
+#include "rsi_rom_ulpss_clk.h"
+#ifdef SL_SI91X_SSI_DMA
+#include "sl_si91x_dma.h"
+#include "rsi_spi.h"
+#if (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
+#define DMA_INSTANCE 1
+#else
+#define DMA_INSTANCE 0
+#endif
+#else
 #include "rsi_rom_udma_wrapper.h"
+#endif
 
 #define BYTES_FOR_8_DATA_WIDTH  1    // Number of bytes for 8 bit data frame
 #define BYTES_FOR_16_DATA_WIDTH 2    // Number of bytes for 16 bit data frame
@@ -65,6 +76,13 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
                        RSI_UDMA_HANDLE_T *udmaHandle,
                        uint32_t *mem)
 {
+#ifdef SL_SI91X_SSI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+  (void)udmaHandle;
+  (void)UDMA_Table;
+  (void)mem;
+#endif
   if (spi->info->state & SPI_INITIALIZED) {
     return ARM_DRIVER_OK;
   }
@@ -207,9 +225,17 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
     RSI_EGPIO_SetPinMux(EGPIO1, spi->io.miso->port, spi->io.miso->pin, spi->io.miso->mode);
   }
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
-    // Enable DMA instance
-    // DMA0 used for SSI_MASTER and SSI_SLAVE
+// Enable DMA instance
+// DMA0 used for SSI_MASTER and SSI_SLAVE
+#ifdef SL_SI91X_SSI_DMA
+    sl_dma_init_t dma_init;
+    dma_init.dma_number = DMA_INSTANCE;
+    if (sl_si91x_dma_init(&dma_init)) {
+      return ARM_DRIVER_ERROR;
+    }
+#else
     *udmaHandle = UDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
+#endif
   }
   spi->info->state = SPI_INITIALIZED;
 
@@ -225,13 +251,23 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
  */
 int32_t SPI_Uninitialize(const SPI_RESOURCES *spi, UDMA_RESOURCES *udma)
 {
+#ifdef SL_SI91X_SSI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+#endif
   spi->reg->SSIENR = SSI_DISABLE;
   // Clear SPI state
   spi->info->state = 0U;
 
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
-    // Diasable DMA instance
+// Diasable DMA instance
+#ifdef SL_SI91X_SSI_DMA
+    if (sl_si91x_dma_deinit(DMA_INSTANCE)) {
+      return ARM_DRIVER_ERROR;
+    }
+#else
     UDMAx_Uninitialize(udma);
+#endif
   }
 
   return ARM_DRIVER_OK;
@@ -329,9 +365,17 @@ int32_t SPI_Transfer(const void *data_out,
                      UDMA_Channel_Info *chnl_info,
                      RSI_UDMA_HANDLE_T udmaHandle)
 {
+#ifdef SL_SI91X_SSI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+  (void)udmaHandle;
+  (void)chnl_info;
+  sl_status_t status;
+#else
+  volatile int32_t stat;
+#endif
   RSI_UDMA_CHA_CONFIG_DATA_T control = { 0 };
   uint16_t data_width;
-  volatile int32_t stat;
 
   if ((data_out == NULL) || (data_in == NULL) || (num == 0U)) {
     return ARM_DRIVER_ERROR_PARAMETER;
@@ -399,6 +443,40 @@ int32_t SPI_Transfer(const void *data_out,
       }
       spi->reg->DMACR_b.RDMAE    = 1;
       spi->reg->DMARDLR_b.DMARDL = 0;
+#if SL_SI91X_SSI_DMA
+      sl_dma_xfer_t dma_transfer_rx = { 0 };
+      uint32_t channel              = spi->rx_dma->channel + 1;
+      uint32_t channel_priority     = spi->rx_dma->chnl_cfg.channelPrioHigh;
+      sl_dma_callback_t spi_rx_callback;
+      //Initialize sl_dma callback structure
+      spi_rx_callback.transfer_complete_cb = ssi_transfer_complete_callback;
+      spi_rx_callback.error_cb             = ssi_error_callback;
+      //Initialize sl_dma transfer structure
+      dma_transfer_rx.src_addr       = (uint32_t *)((uint32_t) & (spi->reg->DR));
+      dma_transfer_rx.dest_addr      = (uint32_t *)((uint32_t)(spi->xfer->rx_buf));
+      dma_transfer_rx.src_inc        = control.srcInc;
+      dma_transfer_rx.dst_inc        = control.dstInc;
+      dma_transfer_rx.xfer_size      = control.dstSize;
+      dma_transfer_rx.transfer_count = num;
+      dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
+      dma_transfer_rx.dma_mode       = control.transferType;
+      dma_transfer_rx.signal         = (uint8_t)spi->rx_dma->chnl_cfg.periAck;
+
+      //Allocate DMA channel for Tx
+      status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
+      if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Register transfer complete and error callback
+      if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, channel, &spi_rx_callback)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Configure the channel for DMA transfer
+      if (sl_si91x_dma_transfer(DMA_INSTANCE, channel, &dma_transfer_rx)) {
+        return ARM_DRIVER_ERROR;
+      }
+      sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->rx_dma->channel + 1);
+#else
       // Initialize and start SPI TX DMA Stream
       stat = UDMAx_ChannelConfigure(udma,
                                     spi->rx_dma->channel,
@@ -413,6 +491,8 @@ int32_t SPI_Transfer(const void *data_out,
       if (stat == -1) {
         return ARM_DRIVER_ERROR;
       }
+      UDMAx_ChannelEnable(spi->rx_dma->channel, udma, udmaHandle);
+#endif
     }
     if (spi->tx_dma != NULL) {
 
@@ -447,7 +527,41 @@ int32_t SPI_Transfer(const void *data_out,
       }
       spi->reg->DMACR_b.TDMAE    = 1;
       spi->reg->DMATDLR_b.DMATDL = 1;
-      // Initialize and start SPI TX DMA Stream
+// Initialize and start SPI TX DMA Stream
+#if SL_SI91X_SSI_DMA
+      sl_dma_xfer_t dma_transfer_tx = { 0 };
+      uint32_t channel              = spi->tx_dma->channel + 1;
+      uint32_t channel_priority     = spi->tx_dma->chnl_cfg.channelPrioHigh;
+      sl_dma_callback_t spi_tx_callback;
+      //Initialize sl_dma callback structure
+      spi_tx_callback.transfer_complete_cb = ssi_transfer_complete_callback;
+      spi_tx_callback.error_cb             = ssi_error_callback;
+      //Initialize sl_dma transfer structure
+      dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(spi->xfer->tx_buf));
+      dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (spi->reg->DR));
+      dma_transfer_tx.src_inc        = control.srcInc;
+      dma_transfer_tx.dst_inc        = control.dstInc;
+      dma_transfer_tx.xfer_size      = control.dstSize;
+      dma_transfer_tx.transfer_count = num;
+      dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+      dma_transfer_tx.dma_mode       = control.transferType;
+      dma_transfer_tx.signal         = (uint8_t)spi->tx_dma->chnl_cfg.periAck;
+
+      //Allocate DMA channel for Tx
+      status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
+      if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Register transfer complete and error callback
+      if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, channel, &spi_tx_callback)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Configure the channel for DMA transfer
+      if (sl_si91x_dma_transfer(DMA_INSTANCE, channel, &dma_transfer_tx)) {
+        return ARM_DRIVER_ERROR;
+      }
+      sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->tx_dma->channel + 1);
+#else
       stat = UDMAx_ChannelConfigure(udma,
                                     spi->tx_dma->channel,
                                     (uint32_t)(spi->xfer->tx_buf),
@@ -462,9 +576,13 @@ int32_t SPI_Transfer(const void *data_out,
         return ARM_DRIVER_ERROR;
       }
       UDMAx_ChannelEnable(spi->tx_dma->channel, udma, udmaHandle);
-      UDMAx_ChannelEnable(spi->rx_dma->channel, udma, udmaHandle);
-      UDMAx_DMAEnable(udma, udmaHandle);
+#endif
     }
+#if SL_SI91X_SSI_DMA
+    sl_si91x_dma_enable(DMA_INSTANCE);
+#else
+    UDMAx_DMAEnable(udma, udmaHandle);
+#endif
   } else {
     // Interrupt mode
     /* spi->reg->IMR |= TXEIM | RXFIM; */
@@ -957,10 +1075,18 @@ int32_t SPI_Send(const void *data,
                  UDMA_Channel_Info *chnl_info,
                  RSI_UDMA_HANDLE_T udmaHandle)
 {
+#ifdef SL_SI91X_SSI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+  (void)udmaHandle;
+  (void)chnl_info;
+  sl_status_t status;
+#else
+  volatile int32_t stat;
+#endif
   uint16_t data_width;
   RSI_UDMA_CHA_CONFIG_DATA_T control = { 0 };
-  volatile int32_t stat;
-  dummy_data = 0;
+  dummy_data                         = 0;
 
   spi->info->status.busy = 0U;
 
@@ -998,6 +1124,7 @@ int32_t SPI_Send(const void *data,
   spi->xfer->num = num * data_width_in_bytes;
 
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
+#ifndef SL_SI91X_SSI_DMA
     if (spi->rx_dma != NULL) {
       control.transferType = UDMA_MODE_BASIC;
       control.nextBurst    = 0;
@@ -1031,6 +1158,7 @@ int32_t SPI_Send(const void *data,
       spi->reg->DMACR_b.RDMAE    = 1;
       spi->reg->DMARDLR_b.DMARDL = 0;
       // Initialize and start SPI RX DMA Stream
+
       stat = UDMAx_ChannelConfigure(udma,
                                     spi->rx_dma->channel,
                                     (uint32_t) & (spi->reg->DR),
@@ -1045,6 +1173,7 @@ int32_t SPI_Send(const void *data,
         return ARM_DRIVER_ERROR;
       }
     }
+#endif
     if (spi->tx_dma != NULL) {
       control.transferType = UDMA_MODE_BASIC;
       control.nextBurst    = 0;
@@ -1077,6 +1206,41 @@ int32_t SPI_Send(const void *data,
       }
       spi->reg->DMACR_b.TDMAE    = 1;
       spi->reg->DMATDLR_b.DMATDL = 1;
+#if SL_SI91X_SSI_DMA
+      sl_dma_xfer_t dma_transfer_tx = { 0 };
+      uint32_t channel              = spi->tx_dma->channel + 1;
+      uint32_t channel_priority     = spi->tx_dma->chnl_cfg.channelPrioHigh;
+      sl_dma_callback_t spi_tx_callback;
+      //Initialize sl_dma callback structure
+      spi_tx_callback.transfer_complete_cb = ssi_transfer_complete_callback;
+      spi_tx_callback.error_cb             = ssi_error_callback;
+      //Initialize sl_dma transfer structure
+      dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(spi->xfer->tx_buf));
+      dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (spi->reg->DR));
+      dma_transfer_tx.src_inc        = control.srcInc;
+      dma_transfer_tx.dst_inc        = control.dstInc;
+      dma_transfer_tx.xfer_size      = control.dstSize;
+      dma_transfer_tx.transfer_count = num;
+      dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+      dma_transfer_tx.dma_mode       = control.transferType;
+      dma_transfer_tx.signal         = (uint8_t)spi->tx_dma->chnl_cfg.periAck;
+
+      //Allocate DMA channel for Tx
+      status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
+      if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Register transfer complete and error callback
+      if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, channel, &spi_tx_callback)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Configure the channel for DMA transfer
+      if (sl_si91x_dma_transfer(DMA_INSTANCE, channel, &dma_transfer_tx)) {
+        return ARM_DRIVER_ERROR;
+      }
+      sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->tx_dma->channel + 1);
+      sl_si91x_dma_enable(DMA_INSTANCE);
+#else
       // Initialize and start SPI TX DMA Stream
       stat = UDMAx_ChannelConfigure(udma,
                                     spi->tx_dma->channel,
@@ -1094,6 +1258,7 @@ int32_t SPI_Send(const void *data,
       UDMAx_ChannelEnable(spi->tx_dma->channel, udma, udmaHandle);
       UDMAx_ChannelEnable(spi->rx_dma->channel, udma, udmaHandle);
       UDMAx_DMAEnable(udma, udmaHandle);
+#endif
     }
   } else {
     /* spi->reg->IMR |= (TXEIM | RXFIM); */
@@ -1127,9 +1292,17 @@ int32_t SPI_Receive(void *data,
                     UDMA_Channel_Info *chnl_info,
                     RSI_UDMA_HANDLE_T udmaHandle)
 {
+#ifdef SL_SI91X_SSI_DMA
+  //Added to suppress unused variable warning
+  (void)udma;
+  (void)udmaHandle;
+  (void)chnl_info;
+  sl_status_t status;
+#else
+  volatile int32_t stat;
+#endif
   RSI_UDMA_CHA_CONFIG_DATA_T control = { 0 };
   uint16_t data_width;
-  volatile int32_t stat;
   dummy_data = 0;
 
   if ((data == NULL) || (num == 0U)) {
@@ -1145,15 +1318,15 @@ int32_t SPI_Receive(void *data,
   spi->info->status.data_lost  = 0U;
   spi->info->status.mode_fault = 0U;
 
-  spi->xfer->tx_buf       = NULL;
-  spi->xfer->rx_buf       = (uint8_t *)data;
-  spi->xfer->rx_cnt       = 0U;
-  spi->xfer->tx_cnt       = 0U;
-  spi->reg->CTRLR0_b.TMOD = RECEIVE_ONLY;
+  spi->xfer->tx_buf = NULL;
+  spi->xfer->rx_buf = (uint8_t *)data;
+  spi->xfer->rx_cnt = 0U;
+  spi->xfer->tx_cnt = 0U;
 
-#if (defined(SSI_MASTER_RX_DMA_Instance) && (SSI_MASTER_RX_DMA_Instance == 1)) \
-  || (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
-  spi->reg->CTRLR1_b.NDF = (num - 1);
+#if (SL_SSI_MASTER_DMA_CONFIG_ENABLE) || (SL_SSI_SLAVE_DMA_CONFIG_ENABLE) || (SL_SSI_ULP_MASTER_DMA_CONFIG_ENABLE)
+  spi->reg->CTRLR0_b.TMOD = TRANSMIT_AND_RECEIVE;
+#else
+  spi->reg->CTRLR0_b.TMOD = RECEIVE_ONLY;
 #endif
 
   spi->reg->SSIENR = SSI_ENABLE;
@@ -1202,6 +1375,39 @@ int32_t SPI_Receive(void *data,
       }
       spi->reg->DMACR_b.RDMAE    = 1;
       spi->reg->DMARDLR_b.DMARDL = 0;
+#if SL_SI91X_SSI_DMA
+      sl_dma_xfer_t dma_transfer_rx = { 0 };
+      uint32_t channel              = spi->rx_dma->channel + 1;
+      uint32_t channel_priority     = spi->rx_dma->chnl_cfg.channelPrioHigh;
+      sl_dma_callback_t spi_rx_callback;
+      //Initialize sl_dma callback structure
+      spi_rx_callback.transfer_complete_cb = ssi_transfer_complete_callback;
+      spi_rx_callback.error_cb             = ssi_error_callback;
+      //Initialize sl_dma transfer structure
+      dma_transfer_rx.src_addr       = (uint32_t *)((uint32_t) & (spi->reg->DR));
+      dma_transfer_rx.dest_addr      = (uint32_t *)((uint32_t)(spi->xfer->rx_buf));
+      dma_transfer_rx.src_inc        = control.srcInc;
+      dma_transfer_rx.dst_inc        = control.dstInc;
+      dma_transfer_rx.xfer_size      = control.dstSize;
+      dma_transfer_rx.transfer_count = num;
+      dma_transfer_rx.transfer_type  = SL_DMA_PERIPHERAL_TO_MEMORY;
+      dma_transfer_rx.dma_mode       = control.transferType;
+      dma_transfer_rx.signal         = (uint8_t)spi->rx_dma->chnl_cfg.periAck;
+
+      //Allocate DMA channel for Tx
+      status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
+      if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+        return ARM_DRIVER_ERROR;
+      }
+      //Register transfer complete and error callback
+      if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, channel, &spi_rx_callback)) {
+        return ARM_DRIVER_ERROR;
+      }
+      if (sl_si91x_dma_transfer(DMA_INSTANCE, channel, &dma_transfer_rx)) {
+        return ARM_DRIVER_ERROR;
+      }
+      sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->rx_dma->channel + 1);
+#else
       // Initialize and start SPI RX DMA Stream
       stat = UDMAx_ChannelConfigure(udma,
                                     spi->rx_dma->channel,
@@ -1216,61 +1422,103 @@ int32_t SPI_Receive(void *data,
       if (stat == -1) {
         return ARM_DRIVER_ERROR;
       }
-    }
-    if (spi->tx_dma != NULL) {
-      control.transferType = UDMA_MODE_BASIC;
-      control.nextBurst    = 0;
-      if (num < 1024) {
-        control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
-      } else {
-        control.totalNumOfDMATrans = 0x3FF;
-      }
-      control.rPower      = ARBSIZE_1;
-      control.srcProtCtrl = 0x0;
-      control.dstProtCtrl = 0x0;
-      if (data_width <= (8U - 1U)) {
-        // 8-bit data frame
-        control.srcSize = SRC_SIZE_8;
-        control.srcInc  = SRC_INC_NONE;
-        control.dstSize = DST_SIZE_8;
-        control.dstInc  = DST_INC_NONE;
-      } else if (data_width <= (16U - 1U)) {
-        // 16-bit data frame
-        control.srcSize = SRC_SIZE_16;
-        control.srcInc  = SRC_INC_NONE;
-        control.dstSize = DST_SIZE_16;
-        control.dstInc  = DST_INC_NONE;
-      } else {
-        // 32-bit data frame
-        control.srcSize = SRC_SIZE_32;
-        control.srcInc  = SRC_INC_NONE;
-        control.dstSize = DST_SIZE_32;
-        control.dstInc  = DST_INC_NONE;
-      }
-      spi->reg->DMACR_b.TDMAE    = 1;
-      spi->reg->DMATDLR_b.DMATDL = 1;
-      // Initialize and start SPI TX DMA Stream
-      stat = UDMAx_ChannelConfigure(udma,
-                                    spi->tx_dma->channel,
-#if (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
-                                    (uint32_t)(ULP_SSI_MASTER_BUF_MEMORY),
-#else
-                                    (uint32_t) & (dummy_data),
-#endif
-                                    (uint32_t) & (spi->reg->DR),
-                                    num,
-                                    control,
-                                    &spi->tx_dma->chnl_cfg,
-                                    spi->tx_dma->cb_event,
-                                    chnl_info,
-                                    udmaHandle);
-      if (stat == -1) {
-        return ARM_DRIVER_ERROR;
-      }
-      UDMAx_ChannelEnable(spi->tx_dma->channel, udma, udmaHandle);
       UDMAx_ChannelEnable(spi->rx_dma->channel, udma, udmaHandle);
-      UDMAx_DMAEnable(udma, udmaHandle);
+#endif
     }
+    if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
+      if (spi->tx_dma != NULL) {
+        control.transferType = UDMA_MODE_BASIC;
+        control.nextBurst    = 0;
+        if (num < 1024) {
+          control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
+        } else {
+          control.totalNumOfDMATrans = 0x3FF;
+        }
+        control.rPower      = ARBSIZE_1;
+        control.srcProtCtrl = 0x0;
+        control.dstProtCtrl = 0x0;
+        if (data_width <= (8U - 1U)) {
+          // 8-bit data frame
+          control.srcSize = SRC_SIZE_8;
+          control.srcInc  = SRC_INC_NONE;
+          control.dstSize = DST_SIZE_8;
+          control.dstInc  = DST_INC_NONE;
+        } else if (data_width <= (16U - 1U)) {
+          // 16-bit data frame
+          control.srcSize = SRC_SIZE_16;
+          control.srcInc  = SRC_INC_NONE;
+          control.dstSize = DST_SIZE_16;
+          control.dstInc  = DST_INC_NONE;
+        } else {
+          // 32-bit data frame
+          control.srcSize = SRC_SIZE_32;
+          control.srcInc  = SRC_INC_NONE;
+          control.dstSize = DST_SIZE_32;
+          control.dstInc  = DST_INC_NONE;
+        }
+        spi->reg->DMACR_b.TDMAE    = 1;
+        spi->reg->DMATDLR_b.DMATDL = 1;
+        // Initialize and start SPI TX DMA Stream
+#if SL_SI91X_SSI_DMA
+        sl_dma_xfer_t dma_transfer_tx = { 0 };
+        uint32_t channel              = spi->tx_dma->channel + 1;
+        uint32_t channel_priority     = spi->tx_dma->chnl_cfg.channelPrioHigh;
+        sl_dma_callback_t spi_tx_callback;
+        //Initialize sl_dma callback structure
+        spi_tx_callback.transfer_complete_cb = ssi_transfer_complete_callback;
+        spi_tx_callback.error_cb             = ssi_error_callback;
+        //Initialize sl_dma transfer structure
+        dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t) & (dummy_data));
+        dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (spi->reg->DR));
+        dma_transfer_tx.src_inc        = control.srcInc;
+        dma_transfer_tx.dst_inc        = control.dstInc;
+        dma_transfer_tx.xfer_size      = control.dstSize;
+        dma_transfer_tx.transfer_count = num;
+        dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+        dma_transfer_tx.dma_mode       = control.transferType;
+        dma_transfer_tx.signal         = (uint8_t)spi->tx_dma->chnl_cfg.periAck;
+
+        //Allocate DMA channel for Tx
+        status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
+        if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Register transfer complete and error callback
+        if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, channel, &spi_tx_callback)) {
+          return ARM_DRIVER_ERROR;
+        }
+        //Configure the channel for DMA transfer
+        if (sl_si91x_dma_transfer(DMA_INSTANCE, channel, &dma_transfer_tx)) {
+          return ARM_DRIVER_ERROR;
+        }
+        sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->tx_dma->channel + 1);
+#else
+        stat = UDMAx_ChannelConfigure(udma,
+                                      spi->tx_dma->channel,
+#if (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
+                                      (uint32_t)(ULP_SSI_MASTER_BUF_MEMORY),
+#else
+                                      (uint32_t) & (dummy_data),
+#endif
+                                      (uint32_t) & (spi->reg->DR),
+                                      num,
+                                      control,
+                                      &spi->tx_dma->chnl_cfg,
+                                      spi->tx_dma->cb_event,
+                                      chnl_info,
+                                      udmaHandle);
+        if (stat == -1) {
+          return ARM_DRIVER_ERROR;
+        }
+        UDMAx_ChannelEnable(spi->tx_dma->channel, udma, udmaHandle);
+#endif // SL_SI91X_SSI_DMA
+      }
+    }
+#if SL_SI91X_SSI_DMA
+    sl_si91x_dma_enable(DMA_INSTANCE);
+#else
+    UDMAx_DMAEnable(udma, udmaHandle);
+#endif
   } else {
     // Interrupt mode
     // RX Buffer not empty interrupt enable
@@ -1307,11 +1555,14 @@ void SPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
     case UDMA_EVENT_XFER_DONE:
       // Update TX buffer info
       spi->xfer->tx_cnt = spi->xfer->num;
+      // Waiting till the busy flag is cleared
+      while (spi->reg->SR & BIT(0))
+        ;
       // Clear error status by reading the register
       status_reg             = spi->reg->SR;
       spi->info->status.busy = 0U;
       (void)status_reg;
-      if (spi->info->cb_event != NULL) {
+      if ((spi->info->cb_event != NULL) && (spi->xfer->rx_buf == NULL)) {
         spi->info->cb_event(ARM_SPI_EVENT_TRANSFER_COMPLETE);
       }
       break;

@@ -309,4 +309,4 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME "Si917_SoC"
 
-#endif // FREERTOS_CONFIG_H
+#endif /* FREERTOS_CONFIG_H */

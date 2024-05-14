@@ -60,6 +60,18 @@ extern "C" {
 
 typedef enum qspi_mode_e { NONE = 0, READ_MODE, WRITE_MODE } qspi_mode_t;
 
+// Structure to qspi standalone encrypt/decrypt configs
+typedef struct qspi_standalone_config_s {
+  uint8_t aes_mode;   // AES mode
+  bool encrypt;       // 0 = Encrypt, 1 = Decrypt
+  bool kh_enable;     // 1 = Pick the key from keyholder, 0 = pass the key
+  uint32_t *iv;       // flash offset where data stored
+  uint32_t *key1;     // Pass key1 if kh_enable = 0
+  uint32_t *key2;     // Pass key1 if kh_enable = 0 and 32 byte key
+  uint32_t key_len;   // Key len i.e 16 or 32 bytes
+  uint32_t flip_data; // writing 1 to this Flips the 32-bit endian for data in standalone mode
+} qspi_standalone_config_t;
+
 extern qspi_mode_t qspi_mode_g;
 
 typedef struct qspi_reg_s qspi_reg_t;
@@ -565,6 +577,12 @@ void qspi_spi_read(qspi_reg_t *qspi_reg,
                    uint32_t dma_flags,
                    void *udmaHandle,
                    void *rpdmaHandle);
+
+uint32_t RSI_QSPI_Aes_Encrypt_Decrypt_Standalone(qspi_reg_t *qspi_reg,
+                                                 qspi_standalone_config_t *configs,
+                                                 uint32_t *in_data,
+                                                 uint32_t *out_data,
+                                                 uint32_t data_length);
 
 // ROM API Fuctions
 

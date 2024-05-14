@@ -43,7 +43,7 @@
 #include "Driver_CAN.h"
 #include "rsi_chip.h"
 #include "RTE_Device.h"
-#include "RTE_Components.h"
+
 
 #define ARM_CAN_ARBITRATION_LOST       (5U)            ///< Unit entered arbitration lost error FIXME: added by me
 

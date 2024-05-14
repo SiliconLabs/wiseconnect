@@ -109,11 +109,10 @@ void sli_submit_rx_buffer(void)
 {
 }
 
-int16_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data)
+sl_status_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data)
 {
   sl_status_t retval            = 0;
   uint16_t local                = 0;
-  uint32_t j                    = 0;
   uint32_t cmd                  = 0;
   uint16_t read_data            = 0;
   volatile int32_t loop_counter = 0;
@@ -132,26 +131,27 @@ int16_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data)
       break;
 
     case RSI_PING_WRITE:
+      // To Do: Recheck the number bytes to written into memory
+      retval = sl_si91x_bus_write_memory(0x51400, 2048, (uint8_t *)((uint32_t)data));
+      VERIFY_STATUS_AND_RETURN(retval);
 
-      for (j = 0; j < 2048; j++) {
-        retval = sl_si91x_bus_write_memory(0x51400 + (j * 2), 2, (uint8_t *)((uint32_t)data + (j * 2)));
-        if (retval == SL_STATUS_FAIL) {
-          return retval;
-        }
-      }
+      // To Do: Recheck the number bytes to written into memory
+      retval = sl_si91x_bus_write_memory(0x51400 + 2048, 2048, (uint8_t *)((uint32_t)data + 2048));
+      VERIFY_STATUS_AND_RETURN(retval);
 
       local  = (RSI_PING_AVAIL | RSI_HOST_INTERACT_REG_VALID);
       retval = sl_si91x_bus_write_memory(RSI_HOST_INTF_REG_IN, 2, (uint8_t *)&local);
       break;
 
     case RSI_PONG_WRITE:
+      // To Do: Recheck the number bytes to written into memory
+      retval = sl_si91x_bus_write_memory(0x52400, 2048, (uint8_t *)((uint32_t)data));
+      VERIFY_STATUS_AND_RETURN(retval);
 
-      for (j = 0; j < 2048; j++) {
-        retval = sl_si91x_bus_write_memory(0x52400 + (j * 2), 2, (uint8_t *)((uint32_t)data + (j * 2)));
-        if (retval == SL_STATUS_FAIL) {
-          return retval;
-        }
-      }
+      // To Do: Recheck the number bytes to written into memory
+      retval = sl_si91x_bus_write_memory(0x52400 + 2048, 2048, (uint8_t *)((uint32_t)data + 2048));
+      VERIFY_STATUS_AND_RETURN(retval);
+
       // Perform the write operation
       local  = (RSI_PONG_AVAIL | RSI_HOST_INTERACT_REG_VALID);
       retval = sl_si91x_bus_write_memory(RSI_HOST_INTF_REG_IN, 2, (uint8_t *)&local);
@@ -160,17 +160,13 @@ int16_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data)
     case BURN_NWP_FW:
       cmd    = BURN_NWP_FW | RSI_HOST_INTERACT_REG_VALID;
       retval = sl_si91x_bus_write_memory(RSI_HOST_INTF_REG_IN, 2, (uint8_t *)&cmd);
-      if (retval == SL_STATUS_FAIL) {
-        return retval;
-      }
+      VERIFY_STATUS_AND_RETURN(retval);
 
       SL_SI91X_RESET_LOOP_COUNTER(loop_counter);
       SL_SI91X_WHILE_LOOP(loop_counter, SL_SI91X_LOOP_COUNT_UPGRADE_IMAGE)
       {
         retval = sl_si91x_bus_read_memory(RSI_HOST_INTF_REG_OUT, 2, (uint8_t *)&read_data);
-        if (retval == SL_STATUS_FAIL) {
-          return retval;
-        }
+        VERIFY_STATUS_AND_RETURN(retval);
         if (read_data == (uint16_t)(RSI_SEND_RPS_FILE | RSI_HOST_INTERACT_REG_VALID)) {
           break;
         }

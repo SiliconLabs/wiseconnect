@@ -100,6 +100,14 @@
 // Si91X Crypto errors
 #define SL_STATUS_TRNG_DUPLICATE_ENTROPY ((sl_status_t)0x0B62) ///< TRNG duplicate elements error.
 
+// Si91X Wi-Fi transceiver error codes
+#define SL_STATUS_TRANSCEIVER_INVALID_MAC_ADDRESS  ((sl_status_t)0x0B63) ///< Invalid MAC address provided
+#define SL_STATUS_TRANSCEIVER_INVALID_QOS_PRIORITY ((sl_status_t)0x0B64) ///< Invalid QOS priority provided
+#define SL_STATUS_TRANSCEIVER_INVALID_CHANNEL      ((sl_status_t)0x0B65) ///< Invalid channel provided
+#define SL_STATUS_TRANSCEIVER_INVALID_DATA_RATE    ((sl_status_t)0x0B66) ///< Invalid data rate provided
+#define SL_STATUS_TRANSCEIVER_INVALID_CONFIG \
+  ((sl_status_t)0x0B67) ///< Invalid transceiver configuration parameters provided
+
 // Si91X Crypto Firmware Errors
 #define SL_STATUS_CRYPTO_INVALID_PARAMETER \
   ((sl_status_t)0x1CCFE) ///< Return when parameter passed to Crypto SAPI is invalid.
@@ -282,6 +290,12 @@
   ((sl_status_t)0x10084) ///< The data in the user name or password is malformed.
 #define SL_STATUS_SI91X_MQTT_ERROR_NOT_AUTHORIZED ((sl_status_t)0x10085) ///< The Client is not authorized to connect.
 #define SL_STATUS_SI91X_SA_QUERY_TIMEOUT          ((sl_status_t)0x10086) ///< Disconnection due to SA Query Timeout.
+#define SL_STATUS_SI91X_TRANSCEIVER_PEER_DS_FEAT_DISABLED \
+  ((sl_status_t)0x10096) ///< Feature to add peers in MAC layer is disabled
+#define SL_STATUS_SI91X_TRANSCEIVER_PEER_ALREADY_EXISTS ((sl_status_t)0x10097) ///< Peer already exists in MAC layer
+#define SL_STATUS_SI91X_TRANSCEIVER_MAX_PEER_LIMIT_REACHED \
+  ((sl_status_t)0x10098)                                                  ///< Max peer limit reached in MAC layer
+#define SL_STATUS_SI91X_TRANSCEIVER_PEER_NOT_FOUND ((sl_status_t)0x10099) ///< Peer not found in MAC layer
 #define SL_STATUS_SI91X_DUPLICATE_ENTRY_EXISTS_IN_DNS_SERVER_TABLE \
   ((sl_status_t)0x100AF) ///< Duplicate entry exists in DNS server table.
 #define SL_STATUS_SI91X_NO_MEM_AVAILABLE                  ((sl_status_t)0x100B1) ///< Memory error: No memory available.
@@ -353,10 +367,12 @@
   ((sl_status_t)0x1BB38) ///< Trying to connect non-existing TCP server socket.
 #define SL_STATUS_SI91X_ERROR_IN_LEN_OF_THE_COMMAND \
   ((sl_status_t)0x1BB3E) ///< Error in length of the command ('Exceeds number of characters' is mentioned in the PRM).
-#define SL_STATUS_SI91X_WRONG_PACKET_INFO   ((sl_status_t)0x1BB40) ///< Wrong packet info.
-#define SL_STATUS_SI91X_SOCKET_STILL_BOUND  ((sl_status_t)0x1BB42) ///< Socket is still bound.
-#define SL_STATUS_SI91X_NO_FREE_PORT        ((sl_status_t)0x1BB45) ///< No free port.
-#define SL_STATUS_SI91X_INVALID_PORT        ((sl_status_t)0x1BB46) ///< Invalid port.
+#define SL_STATUS_SI91X_WRONG_PACKET_INFO  ((sl_status_t)0x1BB40) ///< Wrong packet info.
+#define SL_STATUS_SI91X_SOCKET_STILL_BOUND ((sl_status_t)0x1BB42) ///< Socket is still bound.
+#define SL_STATUS_SI91X_NO_FREE_PORT       ((sl_status_t)0x1BB45) ///< No free port.
+#define SL_STATUS_SI91X_INVALID_PORT       ((sl_status_t)0x1BB46) ///< Invalid port.
+#define SL_STATUS_SI91X_CORRUPTED_RPS_HEADER \
+  ((sl_status_t)0x1BB49) ///< Corrupted RPS header encountered during firmware update.
 #define SL_STATUS_SI91X_FEATURE_UNSUPPORTED ((sl_status_t)0x1BB4B) ///< Feature not supported.
 #define SL_STATUS_SI91X_SOCKET_IN_UNCONNECTED_STATE \
   ((sl_status_t)0x1BB50) ///< Socket is not in connected state. Disconnected from server. In case of FTP, user need to give destroy command after receiving this error.

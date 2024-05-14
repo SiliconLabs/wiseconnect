@@ -26,10 +26,10 @@ include:
       - path: app.h
 sdk:
   id: gecko_sdk
-  version: 4.4.1
+  version: 4.4.3
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.1.4
+    version: 3.2.0
 component:
   - id: sl_system
   - id: freertos
