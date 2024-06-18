@@ -121,7 +121,7 @@ static void application_start(void *argument)
 #endif
 
   enable_standby();
-  printf("Device is in power save mode \n");
+  printf("NWP is in power save mode \n");
 
 #ifdef SLI_SI91X_MCU_INTERFACE
   printf("\r\nM4 in Sleep\r\n");
@@ -138,7 +138,7 @@ static void application_start(void *argument)
 #endif
 
   enable_high_performance();
-
+  printf("NWP comes out of power save mode \n");
   printf("\r\nExample Demonstration Completed\r\n");
 }
 

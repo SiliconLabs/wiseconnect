@@ -1833,11 +1833,10 @@ sl_status_t wifi_set_advanced_client_config_command_handler(console_args_t *argu
 {
   sl_status_t status;
   sl_wifi_advanced_client_configuration_t config = {
-    .eap_flags               = GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, uint32_t),
-    .max_retry_attempts      = GET_OPTIONAL_COMMAND_ARG(arguments, 1, REJOIN_MAX_RETRY, uint32_t),
-    .scan_interval           = GET_OPTIONAL_COMMAND_ARG(arguments, 2, REJOIN_SCAN_INTERVAL, uint32_t),
-    .beacon_missed_count     = GET_OPTIONAL_COMMAND_ARG(arguments, 3, REJOIN_BEACON_MISSED_COUNT, uint32_t),
-    .first_time_retry_enable = GET_OPTIONAL_COMMAND_ARG(arguments, 4, REJOIN_FIRST_TIME_RETRY, uint32_t)
+    .max_retry_attempts      = GET_OPTIONAL_COMMAND_ARG(arguments, 0, REJOIN_MAX_RETRY, uint32_t),
+    .scan_interval           = GET_OPTIONAL_COMMAND_ARG(arguments, 1, REJOIN_SCAN_INTERVAL, uint32_t),
+    .beacon_missed_count     = GET_OPTIONAL_COMMAND_ARG(arguments, 2, REJOIN_BEACON_MISSED_COUNT, uint32_t),
+    .first_time_retry_enable = GET_OPTIONAL_COMMAND_ARG(arguments, 3, REJOIN_FIRST_TIME_RETRY, uint32_t)
   };
   status = sl_wifi_set_advanced_client_configuration(SL_WIFI_CLIENT_INTERFACE, &config);
   VERIFY_STATUS_AND_RETURN(status);

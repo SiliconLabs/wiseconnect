@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
- * @file
- * @brief SL SI91X Common Config.
+ * @file sl_si91x_usart_common_config.h
+ * @brief SL SI91X USART Common Config.
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -37,14 +37,6 @@
 // <q SL_USART0_DMA_CONFIG_ENABLE> USART0 DMA
 // <i> Default: 1
 #define SL_USART0_DMA_CONFIG_ENABLE 1
-
-// <q SL_UART1_DMA_CONFIG_ENABLE> UART1 DMA
-// <i> Default: 0
-#define SL_UART1_DMA_CONFIG_ENABLE 0
-
-// <q SL_ULPUART_DMA_CONFIG_ENABLE> ULP UART DMA
-// <i> Default: 0
-#define SL_ULPUART_DMA_CONFIG_ENABLE 0
 
 // </h>
 // <<< end of configuration section >>>

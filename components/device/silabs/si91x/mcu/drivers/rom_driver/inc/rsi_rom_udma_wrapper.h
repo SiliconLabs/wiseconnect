@@ -29,8 +29,6 @@
  */
 #include "rsi_ccp_user_config.h"
 #include "rsi_packing.h"
-#include "rsi_chip.h"
-
 #include "rsi_udma_wrapper.h"
 #include "UDMA.h"
 #if defined(A11_ROM)
@@ -45,7 +43,7 @@ STATIC INLINE RSI_UDMA_HANDLE_T UDMAx_Initialize(UDMA_RESOURCES *udma,
                                                  RSI_UDMA_HANDLE_T udmaHandle,
                                                  uint32_t *mem)
 {
-#if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
+#if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
   return udmaHandle = ROMAPI_UDMA_WRAPPER_API->uDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
 #else
   return udmaHandle = uDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
@@ -54,7 +52,7 @@ STATIC INLINE RSI_UDMA_HANDLE_T UDMAx_Initialize(UDMA_RESOURCES *udma,
 
 STATIC INLINE int32_t UDMAx_Uninitialize(UDMA_RESOURCES *udma)
 {
-#if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
+#if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
   return ROMAPI_UDMA_WRAPPER_API->uDMAx_Uninitialize(udma);
 #else
   return uDMAx_Uninitialize(udma);
@@ -79,7 +77,7 @@ STATIC INLINE int32_t UDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
     control.totalNumOfDMATrans = (unsigned int)((size - 1) & 0x03FF);
   }
 
-#if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
+#if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
   return ROMAPI_UDMA_WRAPPER_API
     ->uDMAx_ChannelConfigure(udma, ch, src_addr, dest_addr, size, control, config, cb_event, chnl_info, udmaHandle);
 #else
@@ -89,7 +87,7 @@ STATIC INLINE int32_t UDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
 
 STATIC INLINE int32_t UDMAx_ChannelEnable(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
 {
-#if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
+#if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
 
   return ROMAPI_UDMA_WRAPPER_API->uDMAx_ChannelEnable(ch, udma, udmaHandle);
 #else
@@ -99,7 +97,7 @@ STATIC INLINE int32_t UDMAx_ChannelEnable(uint8_t ch, UDMA_RESOURCES *udma, RSI_
 
 STATIC INLINE int32_t UDMAx_DMAEnable(UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
 {
-#if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
+#if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
   return ROMAPI_UDMA_WRAPPER_API->uDMAx_DMAEnable(udma, udmaHandle);
 #else
   return uDMAx_DMAEnable(udma, udmaHandle);
@@ -108,7 +106,7 @@ STATIC INLINE int32_t UDMAx_DMAEnable(UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T ud
 
 STATIC INLINE int32_t UDMAx_ChannelDisable(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
 {
-#if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
+#if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
   return ROMAPI_UDMA_WRAPPER_API->uDMAx_ChannelDisable(ch, udma, udmaHandle);
 #else
   return uDMAx_ChannelDisable(ch, udma, udmaHandle);
@@ -121,7 +119,7 @@ STATIC INLINE uint32_t UDMAx_ChannelGetCount(uint8_t ch,
                                              UDMA_RESOURCES *udma,
                                              RSI_UDMA_HANDLE_T udmaHandle)
 {
-#if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
+#if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
   return ROMAPI_UDMA_WRAPPER_API->uDMAx_ChannelGetCount(ch, control, config, udma, udmaHandle);
 #else
   return uDMAx_ChannelGetCount(ch, control, config, udma, udmaHandle);
@@ -129,7 +127,7 @@ STATIC INLINE uint32_t UDMAx_ChannelGetCount(uint8_t ch,
 }
 STATIC INLINE void UDMAx_IRQHandler(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Channel_Info *chnl_info)
 {
-#if defined(ROMDRIVER_PRESENT) && defined(A11_ROM)
+#if defined(UDMA_ROMDRIVER_PRESENT) && defined(A11_ROM)
   ROMAPI_UDMA_WRAPPER_API->uDMAx_IRQHandler(udma, UDMA_Table, chnl_info);
 #else
   uDMAx_IRQHandler(udma, UDMA_Table, chnl_info);

@@ -40,6 +40,7 @@
 #include "sensor_hub.h"
 #include "rsi_debug.h"
 #include "math.h"
+#include "Driver_SPI.h"
 
 //TODO:We need to turn off the macros and test the sensor's operation.
 #pragma GCC diagnostic ignored "-Wconversion"

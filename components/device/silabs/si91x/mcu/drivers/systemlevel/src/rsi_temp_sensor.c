@@ -18,8 +18,9 @@
 /**
  * Includes
  */
-#include "rsi_chip.h"
-
+#include "base_types.h"
+#include "si91x_device.h"
+#include "rsi_ipmu.h"
 /*==============================================*/
 /** 
  * @fn          void RSI_TS_SetCntFreez(MCU_TEMP_Type *pstcTempSens, uint32_t u32CountFreez)

@@ -15,16 +15,21 @@
  *
  ******************************************************************************/
 
-#include "rsi_chip.h"
 #include "rsi_debug.h"
 #include "USART.h"
 #include "rsi_ccp_common.h"
+#include "sl_component_catalog.h"
+
+#ifdef SL_CATALOG_KERNEL_PRESENT
+#include "cmsis_os2.h"
+osMutexId_t si91x_prints_mutex = NULL;
+#endif
 
 void ARM_UART_SignalEvent(uint32_t event);
 extern void cache_uart_rx_data(const char character);
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 #define M4_UART1_INSTANCE 0U //!Select m4 uart1 for prints
-#if ((defined(ULP_MODE_EXECUTION)) || (defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2)))
+#if defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2)
 #define ULP_UART_INSTANCE 1U //!Select m4 uart2 for prints
 #else
 #define M4_UART2_INSTANCE 1U //!Select ulp uart for prints
@@ -122,6 +127,12 @@ void Board_Debug_Init(void)
   UARTdrv->Control(ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_8 | ARM_USART_PARITY_NONE | ARM_USART_STOP_BITS_1
                      | ARM_USART_FLOW_CONTROL_NONE,
                    BOARD_BAUD_VALUE);
+
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  if (si91x_prints_mutex == NULL) {
+    si91x_prints_mutex = osMutexNew(NULL);
+  }
+#endif
 
 #ifdef SLI_SI91X_MCU_INTR_BASED_RX_ON_UART
   UARTdrv->Receive((void *)&rx_char, 1);

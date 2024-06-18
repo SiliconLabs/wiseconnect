@@ -2,16 +2,20 @@
 
 ## Table of Contents
 
-- [Purpose/Scope](#purposescope)
-- [Prerequisites/Set up Requirements](#prerequisitesset-up-requirements)
-  - [Hardware Requirements](#hardware-requirements)
-  - [Software Requirements](#software-requirements)
-  - [Setup Diagram](#setup-diagram)
-- [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
-- [Test the Application](#test-the-application)
-  - [Build and Run the Server](#build-and-run-the-server)
-  - [Run the Application](#run-the-application)
+  - [Purpose/Scope](#purposescope)
+  - [Prerequisites/Set up Requirements](#prerequisitesset-up-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+    - [Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`](#configure-the-below-parameters-in-aws_iot_configh-file-present-at-projectconfig)
+  - [Test the Application](#test-the-application)
+    - [Build and Run the Server](#build-and-run-the-server)
+    - [Run the application](#run-the-application)
+  - [Additional Information](#additional-information)
+    - [Setting up Security Certificates](#setting-up-security-certificates)
+    - [Create an AWS Thing](#create-an-aws-thing)
 
 ## Purpose/Scope
 
@@ -22,23 +26,34 @@ This application demonstrates how SiWx91x will connect to three different SSL se
 ### Hardware Requirements
 
 - Windows PC
-- AWS server information like domain name running in the cloud which supports SSL connection.
-- Wireless Access Point
-- TCP server over SSL running in Windows PC (This application uses OpenSSL to create TCP server over SSL)
-- SiWx91x Wi-Fi Evaluation Kit
-- SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A, BRD4339B Radio Board](https://www.silabs.com/)
-  - [BRD4002A Wireless Pro Kit Mainboard (WPK)](https://www.silabs.com/)
-  
-- NCP Mode:
-  - [Silicon Labs SLWSTK6006A EFR32xG21 Wireless Starter Kit](https://www.silabs.com/development-tools/wireless/efr32xg21-wireless-starter-kit) which includes
-    - BRD4001A Wireless Starter Kit Mainboard (WSTK)/BRD4002A Wireless Pro Kit Mainboard (WPK)
-    - BRD4180A/BRD4180B Radio Board
+- USB-C cable
+- A Wireless Access point (which has an active internet access)
 
+- **SoC Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A]
+      - BRD4342A [SiWx917-RB4342A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+  	
+- **NCP Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+ 
+  - Kits
+  	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - NCP EFR Expansion Kit with NCP Radio board (BRD8045A + BRD4346A) [SiWx917-EB4346A] 
+  
 ### Software Requirements
 
 - Simplicity Studio.
-- TCP server over SSL running in Windows PC (This application uses OpenSSL to create TCP server over SSL).
+- [OpenSSL Application](http://ufpr.dl.sourceforge.net/project/gnuwin32/openssl/0.9.8h-1/openssl-0.9.8h-1-bin.zip) in Windows PC (Remote PC).
+-  Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en)
+-  AWS server information like domain name running in the cloud which supports SSL connection.
 
 ### Setup Diagram
 
@@ -93,32 +108,31 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - If certificates are not there in flash, then SSL handshake will fail.
   
-- AWS_DOMAIN_NAME refers to domain name of the AWS server:
+- AWS_DOMAIN_NAME refers to domain name of the AWS server. To get this refer to the [Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`](#configure-the-below-parameters-in-aws_iot_configh-file-present-at-projectconfig).
 
 ```c
-   #define AWS_DOMAIN_NAME   "a25jwtlmds8eip-ats.iot.us-east-2.amazonaws.com"
+   #define AWS_DOMAIN_NAME   "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com"
 ```
 
 ### Configure the below parameters in `aws_iot_config.h` file present at `<project>/config`
 
 > - Before configuring the parameters in `aws_iot_config.h`, register the SiWx917 device in the AWS IoT registry by following the steps mentioned in [Create an AWS Thing](#create-an-aws-thing) section.
-
+>
 > - Configure AWS_IOT_MQTT_HOST macro with the device data endpoint to connect to AWS. For getting the device data endpoint in the AWS IoT Console navigate to Settings and copy the Endpoint and define the AWS_IOT_MQTT_HOST macro with this value.
-
-  ![AWS_IOT_MQTT_HOST_NAME](resources/readme/aws_iot_mqtt_host_url_1.png)
+>
+>  ![AWS_IOT_MQTT_HOST_NAME](resources/readme/aws_iot_mqtt_host_url_1.png)
 
 ```c
-#define AWS_IOT_MQTT_HOST \
-  "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com"  ///< Customer specific MQTT HOST. The same will be used for Thing Shadow
+#define AWS_IOT_MQTT_HOST "a2m21kovu9tcsh-ats.iot.us-east-2.amazonaws.com"  ///< Customer specific MQTT HOST. The same will be used for Thing Shadow
 #define AWS_IOT_MQTT_PORT      8883                 ///< default port for MQTT/S
 #define AWS_IOT_MQTT_CLIENT_ID "silicon_labs_thing" ///< MQTT client ID should be unique for every device
 #define AWS_IOT_MY_THING_NAME  "silicon_labs_thing" 
 ```
 
 > - To authenticate and securely connect with AWS, the SiWx917 device requires a unique x.509 security certificate and private key, as well as a CA certificate. At this point, you must be having device certificate, private key and CA certificate which are downloaded during the creation/registration of AWS Thing.
-
+> 
 > - By default the certificate and private key that are downloaded from the AWS are in [.pem format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail). To load the certificate and private key to the SiWx917, the certificate and private key should be converted into a C-array. For converting the certificates and private key into C-array refer to [Setting up Security Certificates](#setting-up-security-certificates).
-
+>
 > - By default the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format. 
 
 ## Test the Application
@@ -127,17 +141,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 Copy the certificates server-cert and server-key into Openssl/bin folder in the Windows PC (Remote PC).
 
->**Note:**
- > All the certificates are given in the SDK. Path: `<SDK>/resources/certificates`
+>**NOTE:** All the certificates are given in the SDK. Path: `<SDK>/resources/certificates`
 
 - In Windows PC (Remote PC) which is connected to AP, run the Openssl server by giving the following command.
 
-```sh
-    > Openssl.exe s_server -accept<SERVER_PORT> -cert <server_certificate_file_path> -key <server_key_file_path> -tls<tls_version>
+```c
+    > Openssl.exe s_server -accept <SERVER_PORT> -cert <server_certificate_file_path> -key <server_key_file_path> -tls<tls_version>
 
    Example: openssl.exe s_server -accept 5001 -cert server-cert.pem -key server-key.pem -tls1
 ```
-
 ![Run the Openssl server](resources/readme/ssl_server.png)
 
 ### Run the application
@@ -155,8 +167,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   ![Multiple TLS_Output](resources/readme/three_ssl_socket_output_1.png)
   
-  ![Multiple TLS_Output](resources/readme/three_ssl_socket_output_2.png)
-
 ## Additional Information
 
 ### Setting up Security Certificates
@@ -213,8 +223,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Create an AWS Thing
 
- **Thing Note**: By default we are giving ThingName: silicon_labs_thing, these related configuration we set default If you want your own thing name you can follow the below procedure.
-
 Create a thing in the AWS IoT registry to represent your IoT device.
 
 - In the [AWS IoT console](https://console.aws.amazon.com/iot/home), in the navigation pane, under Manage, choose All devices, and then choose Things.
@@ -237,20 +245,22 @@ Create a thing in the AWS IoT registry to represent your IoT device.
 
   ![Add Device 2](resources/readme/aws_create_thing_step5.png)
 
-- To attach an existing policy choose the policy and click on create thing, if policy is not yet created Choose Create policy and fill the fields as mentioned in the following images.
+- Attach the policy to the thing created
+  -  If you have any existing policy, attach it and click on create thing
 
-- choosing an existing policy.
+     ![Attach policy](resources/readme/aws_choosing_policy.png)
 
-  ![Attach policy](resources/readme/aws_choosing_policy.png)
+  -  If policy is not yet created, follow the below steps.
+  
+     -   Choose **Create policy** and fill the fields as per your requirements.
+     
+         ![Create policy](resources/readme/aws_create_thing_attach_policy.png)
 
-- creating a policy. 
-  - Click on create policy. 
-  ![Create policy](resources/readme/aws_create_thing_attach_policy.png)
+     - Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**.
+    
+       ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
 
-  - Give the **Name** to your Policy, Fill **Action** and **Resource ARN** as shown in below image, Click on **Allow** under **Effect** and click **Create**.
-  ![Filling fields for policy](resources/readme/aws_create_thing_policy_create.png)
-
-  - choose the created policy and click on **Create thing**.
+     - Choose the created policy and click on **Create thing**.
 
 - Choose the **Download** links to download the device certificate and private key. Note that Root CA certificate is already present in SDK (aws_starfield_ca.pem.h), and can be directly used.
   > **Warning:** This is the only instance you can download your device certificate and private key. Make sure to save them safely.

@@ -29,6 +29,7 @@
  ******************************************************************************/
 #include "sl_si91x_driver_gpio.h"
 #include <stdio.h>
+#include "sl_status.h"
 /*******************************************************************************
  ***************************  DEFINES / MACROS ********************************
  ******************************************************************************/
@@ -67,6 +68,41 @@
 #define GPIO_INTERRUPT_PRIOPRITY6   58 // Priority 58 for m4 pin interrupt 6
 #define GPIO_INTERRUPT_PRIOPRITY7   59 // Priority 59 for m4 pin interrupt 7
 
+#define GPIO_PAD_SELECT_NO_PAD 0  // GPIO PAD selection number 0
+#define GPIO_PAD_SELECT_1      1  // GPIO PAD selection number 1
+#define GPIO_PAD_SELECT_2      2  // GPIO PAD selection number 2
+#define GPIO_PAD_SELECT_3      3  // GPIO PAD selection number 3
+#define GPIO_PAD_SELECT_4      4  // GPIO PAD selection number 4
+#define GPIO_PAD_SELECT_5      5  // GPIO PAD selection number 5
+#define GPIO_PAD_SELECT_6      6  // GPIO PAD selection number 6
+#define GPIO_PAD_SELECT_7      7  // GPIO PAD selection number 7
+#define GPIO_PAD_SELECT_8      8  // GPIO PAD selection number 8
+#define GPIO_PAD_SELECT_9      9  // GPIO PAD selection number 9
+#define GPIO_PAD_SELECT_10     10 // GPIO PAD selection number 10
+#define GPIO_PAD_SELECT_11     11 // GPIO PAD selection number 11
+#define GPIO_PAD_SELECT_12     12 // GPIO PAD selection number 12
+#define GPIO_PAD_SELECT_13     13 // GPIO PAD selection number 13
+#define GPIO_PAD_SELECT_14     14 // GPIO PAD selection number 14
+#define GPIO_PAD_SELECT_15     15 // GPIO PAD selection number 15
+#define GPIO_PAD_SELECT_16     16 // GPIO PAD selection number 16
+#define GPIO_PAD_SELECT_17     17 // GPIO PAD selection number 17
+#define GPIO_PAD_SELECT_18     18 // GPIO PAD selection number 18
+#define GPIO_PAD_SELECT_19     19 // GPIO PAD selection number 19
+#define GPIO_PAD_SELECT_20     20 // GPIO PAD selection number 20
+#define GPIO_PAD_SELECT_21     21 // GPIO PAD selection number 21
+#define GPIO_PAD_SELECT_22     22 // GPIO PAD selection number 22
+#define GPIO_PAD_SELECT_23     23 // GPIO PAD selection number 23
+#define GPIO_PAD_SELECT_24     24 // GPIO PAD selection number 24
+#define GPIO_PAD_SELECT_25     25 // GPIO PAD selection number 25
+#define GPIO_PAD_SELECT_26     26 // GPIO PAD selection number 26
+#define GPIO_PAD_SELECT_27     27 // GPIO PAD selection number 27
+#define GPIO_PAD_SELECT_28     28 // GPIO PAD selection number 28
+#define GPIO_PAD_SELECT_29     29 // GPIO PAD selection number 29
+#define GPIO_PAD_SELECT_30     30 // GPIO PAD selection number 30
+#define GPIO_PAD_SELECT_31     31 // GPIO PAD selection number 31
+#define GPIO_PAD_SELECT_32     32 // GPIO PAD selection number 32
+#define GPIO_PAD_SELECT_33     33 // GPIO PAD selection number 33
+#define OUTPUT_VALUE           1  // GPIO output value
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -97,7 +133,33 @@ const sl_gpio_intr_configure_t intr_config = { { GPIO_INTERRUPT_PRIOPRITY0,
                                                  PININT5_NVIC_NAME,
                                                  PININT6_NVIC_NAME,
                                                  PININT7_NVIC_NAME } };
+// The m4_gpio_pad array refers to PAD selected for particular GPIO pin. For example GPIO_0 selects GPIO_PAD_SELECT_NO_PAD.
+// GPIO_6 selects GPIO_PAD_SELECT_1, GPIO_7 selects GPIO_PAD_SELECT_2 and so on.
+static const uint8_t m4_gpio_pad[76] = {
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD,
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_1,      GPIO_PAD_SELECT_2,
+  GPIO_PAD_SELECT_3,      GPIO_PAD_SELECT_4,      GPIO_PAD_SELECT_5,      GPIO_PAD_SELECT_6,
+  GPIO_PAD_SELECT_7,      GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_8,
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD,
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD,
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_25,     GPIO_PAD_SELECT_26,     GPIO_PAD_SELECT_27,
+  GPIO_PAD_SELECT_28,     GPIO_PAD_SELECT_29,     GPIO_PAD_SELECT_30,     GPIO_PAD_SELECT_9,
+  GPIO_PAD_SELECT_9,      GPIO_PAD_SELECT_9,      GPIO_PAD_SELECT_9,      GPIO_PAD_SELECT_NO_PAD,
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD,
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD,
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_10,     GPIO_PAD_SELECT_11,
+  GPIO_PAD_SELECT_12,     GPIO_PAD_SELECT_13,     GPIO_PAD_SELECT_14,     GPIO_PAD_SELECT_15,
+  GPIO_PAD_SELECT_16,     GPIO_PAD_SELECT_17,     GPIO_PAD_SELECT_18,     GPIO_PAD_SELECT_19,
+  GPIO_PAD_SELECT_20,     GPIO_PAD_SELECT_21,     GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD,
+  GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD, GPIO_PAD_SELECT_NO_PAD,
+  GPIO_PAD_SELECT_22,     GPIO_PAD_SELECT_23,     GPIO_PAD_SELECT_24,     GPIO_PAD_SELECT_25,
+  GPIO_PAD_SELECT_26,     GPIO_PAD_SELECT_27,     GPIO_PAD_SELECT_28,     GPIO_PAD_SELECT_29,
+  GPIO_PAD_SELECT_30,     GPIO_PAD_SELECT_31,     GPIO_PAD_SELECT_32,     GPIO_PAD_SELECT_33
+};
 
+static uint8_t ulp_gpio_pad[12] = { GPIO_PAD_SELECT_22, GPIO_PAD_SELECT_23, GPIO_PAD_SELECT_24, GPIO_PAD_SELECT_25,
+                                    GPIO_PAD_SELECT_26, GPIO_PAD_SELECT_27, GPIO_PAD_SELECT_28, GPIO_PAD_SELECT_29,
+                                    GPIO_PAD_SELECT_30, GPIO_PAD_SELECT_31, GPIO_PAD_SELECT_32, GPIO_PAD_SELECT_33 };
 /*******************************************************************************
  ***********************  Global function Prototypes ***************************
  ******************************************************************************/
@@ -125,12 +187,109 @@ sl_gpio_irq_callback_t gpio_ulp_group_int_callback_fptr[MAX_GROUP_INT];
 sl_gpio_irq_callback_t gpio_uulp_pin_int_callback_fptr[MAX_UULP_INT];
 
 /*******************************************************************************
- * @brief This API is used to configure the pin interrupt in GPIO HP instance.
- * There are total 8 pin interrupts in this instance.
+ * @brief This API is used for GPIO pin configuration to set the direction, mode,
+ *  pin and port, clock.
+ ******************************************************************************/
+sl_status_t sl_gpio_set_configuration(sl_si91x_gpio_pin_config_t pin_config)
+{
+  sl_status_t status;
+  switch (pin_config.port_pin.port) {
+    case SL_GPIO_PORT_A:
+    case SL_GPIO_PORT_B:
+    case SL_GPIO_PORT_C:
+    case SL_GPIO_PORT_D:
+      // Check if the GPIO pad is selected and it's not NO PAD.
+      if (m4_gpio_pad[(pin_config.port_pin.port * MAX_GPIO_PORT_PIN) + pin_config.port_pin.pin]
+          != GPIO_PAD_SELECT_NO_PAD) {
+        // Check if the GPIO pad is selected and not PAD_SELECT_9.
+        if (m4_gpio_pad[(pin_config.port_pin.port * MAX_GPIO_PORT_PIN) + pin_config.port_pin.pin] != PAD_SELECT_9) {
+          if ((pin_config.port_pin.pin >= HOST_PAD_MIN && pin_config.port_pin.pin <= HOST_PAD_MAX)
+              || ((pin_config.port_pin.port == SL_GPIO_PORT_B && pin_config.port_pin.pin >= GPIO_PIN_NUMBER9)
+                  && (pin_config.port_pin.port == SL_GPIO_PORT_B && pin_config.port_pin.pin <= GPIO_PIN_NUMBER14))) {
+            status = sl_si91x_gpio_driver_enable_host_pad_selection(
+              m4_gpio_pad[(pin_config.port_pin.port * MAX_GPIO_PORT_PIN) + pin_config.port_pin.pin]);
+            if (status != SL_STATUS_OK) {
+              return status;
+            }
+          } else {
+            status = sl_si91x_gpio_driver_enable_pad_selection(
+              m4_gpio_pad[(pin_config.port_pin.port * MAX_GPIO_PORT_PIN) + pin_config.port_pin.pin]);
+            if (status != SL_STATUS_OK) {
+              return status;
+            }
+          }
+        }
+      }
+      // Enable the pad receiver for the pin. It will enable the pad for respective GPIO pin
+      if (pin_config.port_pin.port == SL_GPIO_PORT_A) {
+        status = sl_si91x_gpio_driver_enable_pad_receiver(pin_config.port_pin.pin);
+        if (status != SL_STATUS_OK) {
+          return status;
+        }
+      } else {
+        status = sl_si91x_gpio_driver_enable_pad_receiver((pin_config.port_pin.port * MAX_GPIO_PORT_PIN)
+                                                          + pin_config.port_pin.pin);
+        if (status != SL_STATUS_OK) {
+          return status;
+        }
+      }
+      // Set pin mode for the pin. By default mode 0 is set, which is a normal GPIO
+      status = sl_gpio_driver_set_pin_mode(&pin_config.port_pin, (sl_gpio_mode_t)SL_GPIO_MODE_0, OUTPUT_VALUE);
+      if (status != SL_STATUS_OK) {
+        return status;
+      }
+      sl_si91x_gpio_set_pin_direction(pin_config.port_pin.port,
+                                      pin_config.port_pin.pin,
+                                      (sl_si91x_gpio_direction_t)pin_config.direction);
+      break;
+    default:
+      break;
+  }
+  // Check if the GPIO port is the Ultra-Low Power GPIO port.
+  if (pin_config.port_pin.port == SL_GPIO_ULP_PORT) {
+    // Enable pad selection for the pin.
+    status = sl_si91x_gpio_driver_enable_pad_selection(ulp_gpio_pad[pin_config.port_pin.pin]);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Enable ulp pad receiver for the pin. It will enable the pad for respective GPIO pin
+    status = sl_si91x_gpio_driver_enable_ulp_pad_receiver(pin_config.port_pin.pin);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Set ulp pin mode for the pin. By default mode 0 is set, which is a normal GPIO
+    status = sl_gpio_driver_set_pin_mode(&pin_config.port_pin, (sl_gpio_mode_t)SL_GPIO_MODE_0, OUTPUT_VALUE);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    sl_si91x_gpio_set_pin_direction(pin_config.port_pin.port,
+                                    pin_config.port_pin.pin,
+                                    (sl_si91x_gpio_direction_t)pin_config.direction);
+  }
+  // Check if the GPIO port is the Ultra-Ultra Low Power GPIO port.
+  if (pin_config.port_pin.port == SL_GPIO_UULP_PORT) {
+    // Enable uulp pad receiver for the pin.
+    status = sl_si91x_gpio_driver_select_uulp_npss_receiver(pin_config.port_pin.pin, SET);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    // Set uulp pin mode for the pin. By default mode 0 is set, which is a normal GPIO
+    status = sl_si91x_gpio_driver_set_uulp_npss_pin_mux(pin_config.port_pin.pin,
+                                                        (sl_si91x_uulp_npss_mode_t)NPSS_GPIO_PIN_MUX_MODE0);
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    sl_si91x_gpio_set_uulp_npss_direction(pin_config.port_pin.pin, (sl_si91x_gpio_direction_t)pin_config.direction);
+  }
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * @brief This API is used to configure the pin interrupt in 3 instance.
  * To configure the interrupt, first GPIO initialization must be done.
  * The actions to be performed in GPIO initialization are:
- *  - Enable the M4 clock of GPIO HP instance.
- *  - Select PAD selection of the GPIO HP instance.
+ *  - Enable the M4/ULP clock based on GPIO instance.
+ *  - Select PAD selection for GPIO instance.
  *  - Enable PAD receiver for GPIO pin number, whether GPIO pin is selected as
  *    output/input.
  *  - Set pin mode and direction of the GPIO pin.
@@ -141,87 +300,128 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
                                                sl_gpio_irq_callback_t gpio_callback,
                                                uint32_t *avl_intr_no)
 {
+  sl_status_t status;
   (void)avl_intr_no;
-  // Check for valid parameters
-  if (gpio == NULL) {
-    // Returns null pointer status code if gpio == NULL
+  // Check if gpio pointer and gpio_callback pointer is NULL
+  if ((gpio == NULL) || (gpio_callback == NULL)) {
+    // Return error code for NULL pointer
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio_callback == NULL) {
-    // Returns null pointer status code if gpio_callback == NULL
-    return SL_STATUS_NULL_POINTER;
-  }
+  // Check if flags exceed maximum allowed value
   if (flags > GPIO_FLAGS_MAX_VALUE) {
-    // Returns invalid parameter status code if flags > GPIO_FLAGS_MAX_VALUE
+    // Return error code for invalid parameter
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (gpio->port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if gpio->port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
   switch (gpio->port) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      if ((gpio->port == SL_GPIO_PORT_A) || (gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
-        if (gpio->pin > PORT_PIN_MAX_VALUE) {
-          // Returns invalid parameter status code if gpio->pin > PORT_PIN_MAX_VALUE
-          return SL_STATUS_INVALID_PARAMETER;
-        }
-      }
-      if (gpio->port == SL_GPIO_PORT_D) {
-        if (gpio->pin > PORTD_PIN_MAX_VALUE) {
-          // Returns invalid parameter status code if gpio->pin > PORTD_PIN_MAX_VALUE
-          return SL_STATUS_INVALID_PARAMETER;
-        }
-      }
+    case SL_GPIO_PORT_A:
+    case SL_GPIO_PORT_B:
+    case SL_GPIO_PORT_C:
+    case SL_GPIO_PORT_D:
+      // Check if the interrupt number exceeds the maximum allowed value.
       if (int_no > GPIO_MAX_INTR_VALUE) {
-        // Returns invalid parameter status code if int_no > GPIO_MAX_INTR_VALUE
         return SL_STATUS_INVALID_PARAMETER;
       }
+      // Check if a callback function is already registered for the given interrupt number.
       if (gpio_callback_function_pointer[int_no] != NULL) {
         return SL_STATUS_BUSY;
       }
+      // Enable the NVIC for the GPIO interrupt and set its priority.
       NVIC_EnableIRQ(intr_config.gpio_nvic[int_no]);
       NVIC_SetPriority(intr_config.gpio_nvic[int_no], intr_config.gpio_priority[int_no]);
+      // Assign the callback function pointer for the specified interrupt number.
       gpio_callback_function_pointer[int_no] = gpio_callback;
+      // Configure the GPIO interrupt.
       sl_gpio_configure_interrupt(gpio->port, gpio->pin, int_no, flags);
       break;
     default:
       break;
   }
-  if (gpio->port == SL_ULP_GPIO_PORT) {
-    if (gpio->pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTE_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
+  // Check if the GPIO port is the Ultra-Low Power GPIO port.
+  if (gpio->port == SL_GPIO_ULP_PORT) {
+    // Check if the GPIO pin or interrupt number exceeds the maximum allowed values.
     if (int_no > GPIO_ULP_INTERRUPT_MAX_VALUE) {
-      // Returns invalid parameter status code if int_no > GPIO_INTERRUPT_MAX_VALUE
       return SL_STATUS_INVALID_PARAMETER;
     }
+    // Check if a callback function is already registered for the given Ultra-Low Power GPIO interrupt number.
     if (gpio_ulp_pin_int_callback_fptr[int_no] != NULL) {
       return SL_STATUS_BUSY;
     }
+    // Enable the NVIC for the Ultra-Low Power GPIO pin interrupt and set its priority.
     NVIC_EnableIRQ(ULP_PININT0_NVIC_NAME);
     NVIC_SetPriority(ULP_PININT0_NVIC_NAME, ULP_GPIO_INTERRUPT_PRIORITY);
+    // Assign the callback function pointer for the specified Ultra-Low Power GPIO interrupt number.
     gpio_ulp_pin_int_callback_fptr[int_no] = gpio_callback;
+    // Configure the Ultra-Low Power GPIO pin interrupt.
     sl_si91x_gpio_configure_ulp_pin_interrupt((uint8_t)int_no, (sl_si91x_gpio_interrupt_config_flag_t)flags, gpio->pin);
   }
-  if (gpio->port == PORTF) {
-    if (gpio->pin > PORTF_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTF_PIN_MAX_VALUE
+  // Check if the GPIO port is the Ultra-Ultra Low Power GPIO port.
+  if (gpio->port == SL_GPIO_UULP_PORT) {
+    // Check if the GPIO pin or interrupt number exceeds the maximum allowed values.
+    if (int_no > GPIO_NPSS_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
+    // Check if a callback function is already registered for the given Ultra-Ultra Low Power GPIO interrupt number.
     if (gpio_uulp_pin_int_callback_fptr[int_no] != NULL) {
       return SL_STATUS_BUSY;
     }
-    if (int_no > GPIO_NPSS_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
+    // Assign the callback function pointer for the specified Ultra-Ultra Low Power GPIO interrupt number.
     gpio_uulp_pin_int_callback_fptr[int_no] = gpio_callback;
+    // Configure the Ultra-Ultra Low Power GPIO interrupt.
     sl_si91x_gpio_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)flags, (uint8_t)int_no);
+  }
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * @brief This API is used to configure the group interrupts in 3 instance.
+ * To configure the interrupt, first GPIO initialization must be done.
+ * The actions to be performed in GPIO initialization are:
+ *  - Enable the M4/ULP clock based on GPIO instance.
+ *  - Select PAD selection for GPIO instance.
+ *  - Enable PAD receiver for GPIO pin number, whether GPIO pin is selected as
+ *    output/input.
+ *  - Set pin mode and direction of the GPIO pin.
+ ******************************************************************************/
+sl_status_t sl_gpio_configure_group_interrupt(sl_si91x_gpio_group_interrupt_config_t *configuration,
+                                              sl_gpio_irq_callback_t gpio_callback)
+{
+  // Check if configuration pointer and gpio_callback pointer is NULL.
+  if ((configuration == NULL) || (gpio_callback == NULL)) {
+    // Return error code for NULL pointer
+    return SL_STATUS_NULL_POINTER;
+  }
+  for (uint8_t i = 0; i < configuration->grp_interrupt_cnt; i++) {
+    switch (configuration->grp_interrupt_port[i]) {
+      case SL_GPIO_PORT_A:
+      case SL_GPIO_PORT_B:
+      case SL_GPIO_PORT_C:
+      case SL_GPIO_PORT_D:
+        // Check if a callback function is already registered for the given GPIO interrupt number.
+        if (gpio_group_int_callback_fptr[configuration->grp_interrupt] != NULL) {
+          return SL_STATUS_BUSY;
+        }
+        // Assign the callback function pointer for the specified GPIO interrupt number.
+        gpio_group_int_callback_fptr[configuration->grp_interrupt] = gpio_callback;
+        // Configure the GPIO group interrupt.
+        sl_si91x_gpio_configure_group_interrupt(configuration);
+        break;
+      default:
+        break;
+    }
+    if (configuration->grp_interrupt_port[i] == SL_GPIO_ULP_PORT) {
+      // Check if a callback function is already registered for the given GPIO interrupt number.
+      if (gpio_ulp_group_int_callback_fptr[configuration->grp_interrupt] != NULL) {
+        return SL_STATUS_BUSY;
+      }
+      // Assign the callback function pointer for the specified ULP GPIO interrupt number.
+      gpio_ulp_group_int_callback_fptr[configuration->grp_interrupt] = gpio_callback;
+      // Configure the GPIO ULP group interrupt.
+      sl_si91x_gpio_configure_ulp_group_interrupt(configuration);
+    }
   }
   return SL_STATUS_OK;
 }
@@ -250,45 +450,20 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
  ******************************************************************************/
 sl_status_t sl_gpio_driver_set_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t mode, uint32_t output_value)
 {
-  // Check for valid parameters
+  sl_status_t status;
+  // Check if the GPIO pointer is NULL.
   if (gpio == NULL) {
-    // Returns null pointer status code if gpio == NULL
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio->port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if gpio->port > GPIO_PORT_MAX_VALUE
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  // Check if the mode or output value exceeds the maximum allowed values.
+  if ((mode > MAX_MODE) || (output_value > GPIO_MAX_OUTPUT_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if ((gpio->port == SL_GPIO_PORT_A) || (gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
-    if (gpio->pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORT_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_GPIO_PORT_D) {
-    if (gpio->pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTD_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_ULP_GPIO_PORT) {
-    if (gpio->pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTE_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-    if (mode > ULP_MAX_MODE) {
-      // Returns invalid parameter status code if mode > ULP_MAX_MODE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (mode > MAX_MODE) {
-    // Returns invalid parameter status code if mode > MAX_MODE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if (output_value > GPIO_MAX_OUTPUT_VALUE) {
-    // Returns invalid parameter status code if output_value > GPIO_MAX_OUTPUT_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Set the mode for the GPIO pin.
   sl_gpio_set_pin_mode(gpio->port, gpio->pin, mode, output_value);
   return SL_STATUS_OK;
 }
@@ -323,37 +498,16 @@ sl_status_t sl_gpio_driver_set_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t mode, ui
  ******************************************************************************/
 sl_status_t sl_gpio_driver_get_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t *mode)
 {
-  // Check for valid parameters
-  if (gpio == NULL) {
-    // Returns null pointer status code if gpio == NULL
+  sl_status_t status;
+  // Check if the GPIO pointer and mode pointer is NULL.
+  if ((gpio == NULL) || (mode == NULL)) {
     return SL_STATUS_NULL_POINTER;
   }
-  if (mode == NULL) {
-    // Returns null pointer status code if mode == NULL
-    return SL_STATUS_NULL_POINTER;
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
-  if (gpio->port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if gpio->port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((gpio->port == SL_GPIO_PORT_A) || (gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
-    if (gpio->pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORT_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_GPIO_PORT_D) {
-    if (gpio->pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTD_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_ULP_GPIO_PORT) {
-    if (gpio->pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTE_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
+  // Get the mode for the GPIO pin.
   *mode = sl_gpio_get_pin_mode(gpio->port, gpio->pin);
   return SL_STATUS_OK;
 }
@@ -364,6 +518,8 @@ sl_status_t sl_gpio_driver_get_pin_mode(sl_gpio_t *gpio, sl_gpio_mode_t *mode)
 sl_status_t sl_gpio_driver_init(void)
 {
   uint32_t flag;
+  sl_status_t status;
+  GPIO_NPSS_GPIO_CONFIG_REG = CLR; //By default making all the interrupts zero.
   for (flag = 0; flag < GPIO_MAX_INTR_VALUE; flag++) {
     sl_gpio_driver_clear_interrupts(flag);
     gpio_callback_function_pointer[flag] = NULL;
@@ -384,6 +540,14 @@ sl_status_t sl_gpio_driver_init(void)
     sl_si91x_gpio_driver_clear_ulp_group_interrupt(flag);
     gpio_ulp_group_int_callback_fptr[flag] = NULL;
   }
+  status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO); // Enable GPIO M4_CLK
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO); // Enable GPIO ULP_CLK
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   return SL_STATUS_OK;
 }
 
@@ -402,10 +566,11 @@ sl_si91x_gpio_version_t sl_si91x_gpio_driver_get_version(void)
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_pad_configuration(uulp_pad_config_t *pad_config)
 {
+  // Check if the pad configuration pointer is NULL.
   if (pad_config == NULL) {
-    // Returns null pointer status code if pad_config == NULL
     return SL_STATUS_NULL_POINTER;
   }
+  // Set the UULP pad configuration.
   sl_si91x_gpio_set_uulp_pad_configuration(pad_config);
   return SL_STATUS_OK;
 }
@@ -437,37 +602,44 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_pad_configuration(uulp_pad_config_t *p
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_pin_direction(uint8_t port, uint8_t pin, sl_si91x_gpio_direction_t direction)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
+  // Check if the GPIO port and direction exceeds the maximum allowed value. Returns an invalid parameter if true
+  if ((port > GPIO_PORT_MAX_VALUE) || (direction > GPIO_DIRECTION_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
-    if (pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORT_PIN_MAX_VALUE
+  //  Checks if the port is Port A. If true, checks if the pin value exceeds
+  //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
+  if (port == SL_GPIO_PORT_A) {
+    if (pin > PORTA_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Checks if the port is either Port B or Port C. If true, checks if the pin value exceeds
+  // the maximum allowable value for these ports. Returns an invalid parameter status code if true.
+  if ((port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
+    if (pin > PORT_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Checks if the port is Port D. If true, checks if the pin value exceeds the maximum allowable
+  // value for Port D. Returns an invalid parameter status code if true.
   if (port == SL_GPIO_PORT_D) {
     if (pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTD_PIN_MAX_VALUE
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
-  if (port == SL_ULP_GPIO_PORT) {
-    if (pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTE_PIN_MAX_VALUE
+  // Check if the GPIO port is the Ultra-Low Power GPIO port and if the pin exceeds the maximum allowed values.
+  if (port == SL_GPIO_ULP_PORT) {
+    if (pin > ULP_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
-  if (direction > GPIO_DIRECTION_MAX_VALUE) {
-    // Returns invalid parameter status code if direction > GPIO_DIRECTION_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
+  // Check if the GPIO port is the Ultra Ultra-Low Power GPIO port and if the pin exceeds the maximum allowed values.
+  if (port == SL_GPIO_UULP_PORT) {
+    if (pin > UULP_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
   }
+  // Set GPIO pin direction
   sl_si91x_gpio_set_pin_direction(port, pin, direction);
   return SL_STATUS_OK;
 }
@@ -502,29 +674,38 @@ sl_status_t sl_si91x_gpio_driver_set_pin_direction(uint8_t port, uint8_t pin, sl
 uint8_t sl_si91x_gpio_driver_get_pin_direction(uint8_t port, uint8_t pin)
 {
   uint8_t direction;
-  // Check for valid parameters
+  // Check if the GPIO port exceeds the maximum allowed value. Returns an invalid parameter if true
   if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
-    if (pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORT_PIN_MAX_VALUE
+  //  Checks if the port is Port A. If true, checks if the pin value exceeds
+  //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
+  if (port == SL_GPIO_PORT_A) {
+    if (pin > PORTA_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Checks if the port is either Port B or Port C. If true, checks if the pin value exceeds
+  // the maximum allowable value for these ports. Returns an invalid parameter status code if true.
+  if ((port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
+    if (pin > PORT_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Checks if the port is Port D. If true, checks if the pin value exceeds the maximum allowable
+  // value for Port D. Returns an invalid parameter status code if true.
   if (port == SL_GPIO_PORT_D) {
     if (pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTD_PIN_MAX_VALUE
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
-  if (port == SL_ULP_GPIO_PORT) {
-    if (pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTE_PIN_MAX_VALUE
+  // Check if the GPIO port is the Ultra-Low Power GPIO port and if the pin exceeds the maximum allowed values.
+  if (port == SL_GPIO_ULP_PORT) {
+    if (pin > ULP_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Get pin direction for GPIO pin
   direction = sl_si91x_gpio_get_pin_direction(port, pin);
   return direction;
 }
@@ -542,11 +723,11 @@ uint8_t sl_si91x_gpio_driver_get_pin_direction(uint8_t port, uint8_t pin)
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_pad_receiver(uint8_t gpio_num)
 {
-  // Check for valid parameters
+  // Check if the GPIO pin number exceeds the maximum allowed value.
   if (gpio_num > GPIO_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_MAX_PIN_NUM
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Enable the pad receiver for the GPIO pin.
   sl_si91x_gpio_enable_pad_receiver(gpio_num);
   return SL_STATUS_OK;
 }
@@ -564,11 +745,11 @@ sl_status_t sl_si91x_gpio_driver_enable_pad_receiver(uint8_t gpio_num)
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_disable_pad_receiver(uint8_t gpio_num)
 {
-  // Check for valid parameters
+  // Check if the GPIO pin number exceeds the maximum allowed value.
   if (gpio_num > GPIO_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_MAX_PIN_NUM
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Disable the pad receiver for the GPIO pin.
   sl_si91x_gpio_disable_pad_receiver(gpio_num);
   return SL_STATUS_OK;
 }
@@ -586,12 +767,27 @@ sl_status_t sl_si91x_gpio_driver_disable_pad_receiver(uint8_t gpio_num)
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_pad_selection(uint8_t gpio_padnum)
 {
-  // Check for valid parameters
+  // Check if the GPIO pad number exceeds the maximum allowed value.
   if (gpio_padnum > GPIO_MAX_PAD_NUM) {
-    // Returns invalid parameter status code if gpio_padnum > GPIO_MAX_PAD_NUM
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Enable pad selection for the GPIO pad.
   sl_si91x_gpio_enable_pad_selection(gpio_padnum);
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * This API is used to enable HOST PAD selection in GPIO HP instance.
+ *  @note: GPIO pin number(25 to 30) are used for HOST PAD selection.
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_enable_host_pad_selection(uint8_t gpio_num)
+{
+  // Check if the GPIO pin number exceeds the maximum allowed value.
+  if (gpio_num >= HOST_PAD_MIN && gpio_num <= HOST_PAD_MAX) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Enable host pad selection for the GPIO pin.
+  sl_si91x_gpio_enable_host_pad_selection(gpio_num);
   return SL_STATUS_OK;
 }
 
@@ -613,15 +809,11 @@ sl_status_t sl_si91x_gpio_driver_enable_pad_selection(uint8_t gpio_padnum)
 sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
                                                             sl_si91x_gpio_driver_strength_select_t strength)
 {
-  // Check for valid parameters
-  if (gpio_num > GPIO_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_MAX_PIN_NUM
+  // Check if GPIO pin number or strength value exceeds the maximum allowed.
+  if ((gpio_num > GPIO_MAX_PIN_NUM) || (strength > GPIO_STRENGTH_MAX_VAL)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (strength > GPIO_STRENGTH_MAX_VAL) {
-    // Returns invalid parameter status code if strength > GPIO_STRENGTH_MAX_VAL
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select the pad driver strength for the GPIO pin.
   sl_si91x_gpio_select_pad_driver_strength(gpio_num, strength);
   return SL_STATUS_OK;
 }
@@ -644,15 +836,11 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
 sl_status_t sl_si91x_gpio_driver_select_pad_driver_disable_state(uint8_t gpio_num,
                                                                  sl_si91x_gpio_driver_disable_state_t disable_state)
 {
-  // Check for valid parameters
-  if (gpio_num > GPIO_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_MAX_PIN_NUM
+  // Check if GPIO pin number or disable state value exceeds the maximum allowed.
+  if ((gpio_num > GPIO_MAX_PIN_NUM) || (disable_state > GPIO_DISABLE_STATE_MAX_VAL)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (disable_state > GPIO_DISABLE_STATE_MAX_VAL) {
-    // Returns invalid parameter status code if disable_state > GPIO_DISABLE_STATE_MAX_VAL
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select the pad driver disable state for the GPIO pin.
   sl_si91x_gpio_select_pad_driver_disable_state(gpio_num, disable_state);
   return SL_STATUS_OK;
 }
@@ -666,11 +854,11 @@ sl_status_t sl_si91x_gpio_driver_select_pad_driver_disable_state(uint8_t gpio_nu
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_clock(sl_si91x_gpio_select_clock_t clock)
 {
-  // Check for valid parameters
+  // Check if clock value exceeds the maximum allowed.
   if (clock > GPIO_CLOCK_MAX_VAL) {
-    // Returns invalid parameter status code if clock > GPIO_CLOCK_MAX_VAL
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Enable the clock.
   sl_si91x_gpio_enable_clock(clock);
   return SL_STATUS_OK;
 }
@@ -684,11 +872,11 @@ sl_status_t sl_si91x_gpio_driver_enable_clock(sl_si91x_gpio_select_clock_t clock
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_disable_clock(sl_si91x_gpio_select_clock_t clock)
 {
-  // Check for valid parameters
+  // Check if clock value exceeds the maximum allowed.
   if (clock > GPIO_CLOCK_MAX_VAL) {
-    // Returns invalid parameter status code if clock > GPIO_CLOCK_MAX_VAL
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Disable the clock.
   sl_si91x_gpio_disable_clock(clock);
   return SL_STATUS_OK;
 }
@@ -711,33 +899,38 @@ sl_status_t sl_si91x_gpio_driver_enable_group_interrupt(sl_si91x_group_interrupt
                                                         uint8_t port,
                                                         uint8_t pin)
 {
-  // Check for valid parameters
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE
+  // Check if group interrupt or port value exceeds the maximum allowed.
+  if ((group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) || (port > GPIO_PORT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
-    if (pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORT_PIN_MAX_VALUE
+  //  Checks if the port is Port A. If true, checks if the pin value exceeds
+  //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
+  if (port == SL_GPIO_PORT_A) {
+    if (pin > PORTA_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Checks if the port is either Port B or Port C. If true, checks if the pin value exceeds
+  // the maximum allowable value for these ports. Returns an invalid parameter status code if true.
+  if ((port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
+    if (pin > PORT_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Checks if the port is Port D. If true, checks if the pin value exceeds the maximum allowable
+  // value for Port D. Returns an invalid parameter status code if true.
   if (port == SL_GPIO_PORT_D) {
     if (pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTD_PIN_MAX_VALUE
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
-  if (port == SL_ULP_GPIO_PORT) {
-    if (pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTE_PIN_MAX_VALUE
+  // Check if the GPIO port is the Ultra-Low Power GPIO port and if the pin exceeds the maximum allowed values.
+  if (port == SL_GPIO_ULP_PORT) {
+    if (pin > ULP_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Enable GPIO group interrupt for selected GPIO port pin
   sl_si91x_gpio_enable_group_interrupt(group_interrupt, port, pin);
   return SL_STATUS_OK;
 }
@@ -754,33 +947,38 @@ sl_status_t sl_si91x_gpio_driver_disable_group_interrupt(sl_si91x_group_interrup
                                                          uint8_t port,
                                                          uint8_t pin)
 {
-  // Check for valid parameters
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE
+  // Check if group interrupt or port value exceeds the maximum allowed.
+  if ((group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) || (port > GPIO_PORT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
-    if (pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORT_PIN_MAX_VALUE
+  //  Checks if the port is Port A. If true, checks if the pin value exceeds
+  //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
+  if (port == SL_GPIO_PORT_A) {
+    if (pin > PORTA_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Checks if the port is either Port B or Port C. If true, checks if the pin value exceeds
+  // the maximum allowable value for these ports. Returns an invalid parameter status code if true.
+  if ((port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
+    if (pin > PORT_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Checks if the port is Port D. If true, checks if the pin value exceeds the maximum allowable
+  // value for Port D. Returns an invalid parameter status code if true.
   if (port == SL_GPIO_PORT_D) {
     if (pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTD_PIN_MAX_VALUE
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
-  if (port == SL_ULP_GPIO_PORT) {
-    if (pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTE_PIN_MAX_VALUE
+  // Check if the GPIO port is the Ultra-Low Power GPIO port and if the pin exceeds the maximum allowed values.
+  if (port == SL_GPIO_ULP_PORT) {
+    if (pin > ULP_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Disable GPIO group interrupt for selected GPIO port pin
   sl_si91x_gpio_disable_group_interrupt(group_interrupt, port, pin);
   return SL_STATUS_OK;
 }
@@ -791,15 +989,11 @@ sl_status_t sl_si91x_gpio_driver_disable_group_interrupt(sl_si91x_group_interrup
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_mask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t group_interrupt)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
+  // Check if group interrupt or port value exceeds the maximum allowed.
+  if ((port > GPIO_PORT_MAX_VALUE) || (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Mask group interrupt for port
   sl_si91x_gpio_mask_group_interrupt(port, group_interrupt);
   return SL_STATUS_OK;
 }
@@ -816,17 +1010,11 @@ sl_status_t sl_si91x_gpio_driver_mask_group_interrupt(uint8_t port, sl_si91x_gro
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_unmask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t group_interrupt)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port >
-    // GPIO_PORT_MAX_VALUE
+  // Check if group interrupt or port value exceeds the maximum allowed.
+  if ((port > GPIO_PORT_MAX_VALUE) || (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt >
-    // GPIO_GROUP_INTERRUPT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Unmask group interrupt for port
   sl_si91x_gpio_unmask_group_interrupt(port, group_interrupt);
   return SL_STATUS_OK;
 }
@@ -845,22 +1033,12 @@ sl_status_t sl_si91x_gpio_driver_set_group_interrupt_level_edge(uint8_t port,
                                                                 sl_si91x_group_interrupt_t group_interrupt,
                                                                 sl_si91x_gpio_level_edge_t level_edge)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port >
-    // GPIO_PORT_MAX_VALUE
+  // Check if group interrupt or port value or level edge exceeds the maximum allowed.
+  if ((port > GPIO_PORT_MAX_VALUE) || (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE)
+      || (level_edge > GPIO_LEVEL_EDGE_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt >
-    // GPIO_GROUP_INTERRUPT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if (level_edge > GPIO_LEVEL_EDGE_MAX_VALUE) {
-    // Returns invalid parameter status code if level_edge >
-    // GPIO_LEVEL_EDGE_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Set group interrupt level/edge event
   sl_si91x_gpio_set_group_interrupt_level_edge(port, group_interrupt, level_edge);
   return SL_STATUS_OK;
 }
@@ -871,18 +1049,12 @@ sl_status_t sl_si91x_gpio_driver_set_group_interrupt_level_edge(uint8_t port,
  ******************************************************************************/
 uint8_t sl_si91x_gpio_driver_get_group_interrupt_level_edge(uint8_t port, sl_si91x_group_interrupt_t group_interrupt)
 {
+  // Check if group interrupt or port value exceeds the maximum allowed.
   uint8_t level_edge;
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port >
-    // GPIO_PORT_MAX_VALUE
+  if ((port > GPIO_PORT_MAX_VALUE) || (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt >
-    // GPIO_GROUP_INTERRUPT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Get group interrupt level/edge event
   level_edge = sl_si91x_gpio_get_group_interrupt_level_edge(port, group_interrupt);
   return level_edge;
 }
@@ -906,39 +1078,40 @@ sl_status_t sl_si91x_gpio_driver_set_group_interrupt_polarity(sl_si91x_group_int
                                                               uint8_t pin,
                                                               sl_si91x_gpio_polarity_t polarity)
 {
-  // Check for valid parameters
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt >
-    // GPIO_GROUP_INTERRUPT_MAX_VALUE
+  // Check if group interrupt or port value or polarity exceeds the maximum allowed.
+  if ((group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) || (polarity > GPIO_POLARITY_MAX_VALUE)
+      || (port > GPIO_PORT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (polarity > GPIO_POLARITY_MAX_VALUE) {
-    // Returns invalid parameter status code if polarity >
-    // GPIO_POLARITY_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
-    if (pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORT_PIN_MAX_VALUE
+  //  Checks if the port is Port A. If true, checks if the pin value exceeds
+  //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
+  if (port == SL_GPIO_PORT_A) {
+    if (pin > PORTA_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Checks if the port is either Port B or Port C. If true, checks if the pin value exceeds
+  // the maximum allowable value for these ports. Returns an invalid parameter status code if true.
+  if ((port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
+    if (pin > PORT_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Checks if the port is Port D. If true, checks if the pin value exceeds the maximum allowable
+  // value for Port D. Returns an invalid parameter status code if true.
   if (port == SL_GPIO_PORT_D) {
     if (pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTD_PIN_MAX_VALUE
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
-  if (port == SL_ULP_GPIO_PORT) {
-    if (pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTE_PIN_MAX_VALUE
+  // Check if the GPIO port is the Ultra-Low Power GPIO port and if the pin exceeds the maximum allowed values.
+  if (port == SL_GPIO_ULP_PORT) {
+    if (pin > ULP_PIN_MAX_VALUE) {
+      // Returns invalid parameter status code if pin > ULP_PIN_MAX_VALUE
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Set group interrupt polarity for GPIO port pin
   sl_si91x_gpio_set_group_interrupt_polarity(group_interrupt, port, pin, polarity);
   return SL_STATUS_OK;
 }
@@ -955,34 +1128,38 @@ uint8_t sl_si91x_gpio_driver_get_group_interrupt_polarity(sl_si91x_group_interru
                                                           uint8_t pin)
 {
   uint8_t polarity = 0;
-  // Check for valid parameters
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt >
-    // GPIO_GROUP_INTERRUPT_MAX_VALUE
+  // Check if group interrupt or port value exceeds the maximum allowed.
+  if ((group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) || (port > GPIO_PORT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
-    if (pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORT_PIN_MAX_VALUE
+  //  Checks if the port is Port A. If true, checks if the pin value exceeds
+  //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
+  if (port == SL_GPIO_PORT_A) {
+    if (pin > PORTA_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Checks if the port is either Port B or Port C. If true, checks if the pin value exceeds
+  // the maximum allowable value for these ports. Returns an invalid parameter status code if true.
+  if ((port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C)) {
+    if (pin > PORT_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Checks if the port is Port D. If true, checks if the pin value exceeds the maximum allowable
+  // value for Port D. Returns an invalid parameter status code if true.
   if (port == SL_GPIO_PORT_D) {
     if (pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTD_PIN_MAX_VALUE
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
-  if (port == SL_ULP_GPIO_PORT) {
-    if (pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if pin > PORTE_PIN_MAX_VALUE
+  // Check if the GPIO port is the Ultra-Low Power GPIO port and if the pin exceeds the maximum allowed values.
+  if (port == SL_GPIO_ULP_PORT) {
+    if (pin > ULP_PIN_MAX_VALUE) {
       return SL_STATUS_INVALID_PARAMETER;
     }
   }
+  // Get group interrupt polarity for GPIO port pin
   polarity = sl_si91x_gpio_get_group_interrupt_polarity(group_interrupt, port, pin);
   return polarity;
 }
@@ -1006,22 +1183,12 @@ sl_status_t sl_si91x_gpio_driver_select_group_interrupt_and_or(uint8_t port,
                                                                sl_si91x_group_interrupt_t group_interrupt,
                                                                sl_si91x_gpio_and_or_t and_or)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port >
-    // GPIO_PORT_MAX_VALUE
+  // Check if group interrupt or port value or and_or exceeds the maximum allowed.
+  if ((port > GPIO_PORT_MAX_VALUE) || (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE)
+      || (and_or > GPIO_AND_OR_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt >
-    // GPIO_GROUP_INTERRUPT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if (and_or > GPIO_AND_OR_MAX_VALUE) {
-    // Returns invalid parameter status code if and_or >
-    // GPIO_AND_OR_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select group interrupt AND/OR event
   sl_si91x_gpio_select_group_interrupt_and_or(port, group_interrupt, and_or);
   return SL_STATUS_OK;
 }
@@ -1030,7 +1197,7 @@ sl_status_t sl_si91x_gpio_driver_select_group_interrupt_and_or(uint8_t port,
  * This API is used in GPIO HP instance to configure group interrupts.
  * It has configuration pointer of type @ref
  * sl_si91x_gpio_group_interrupt_config_t structure. GPIO HP instance has
- * total 4 ports. Port-0, 1, 2 has 16 pins each. Port-3 has 9 pins. While
+ * total 4 ports. Port-A, B, C has 16 pins each. Port-D has 9 pins. While
  * configuring group interrupts, one can select random ports and pins for
  *  group interrupt.
  * @example 1:
@@ -1038,31 +1205,30 @@ sl_status_t sl_si91x_gpio_driver_select_group_interrupt_and_or(uint8_t port,
  * group interrupt.
  * - Same applied for other ports also.
  * @example 2:
- * - Once can select port 1, pin 7 and port 2, pin 3 as a group for
+ * - Once can select port B, pin 7 and port C, pin 3 as a group for
  * interrupt generation.
  * - One should assign group count of how many pins are passed.
  * For more clarification look into group interrupt configuration
  * structure
  *       @ref sl_si91x_gpio_driver_group_interrupt_config_t.
- *  @note: Do not use Port 0, GPIO pin number(0 to 5) in HP instance
+ *  @note: Do not use Port A, GPIO pin number(0 to 5) in HP instance
  *     as these are used for other functionality.
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_configure_group_interrupt(sl_si91x_gpio_group_interrupt_config_t *configuration,
                                                            sl_gpio_irq_callback_t gpio_callback)
 {
-  // Check for valid parameters
-  if (configuration == NULL) {
-    // Returns null pointer status code if configuration == NULL
+  // Check if configuration pointer and gpio_callback pointer is NULL.
+  if ((configuration == NULL) || (gpio_callback == NULL)) {
+    // Return error code for NULL pointer
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio_callback == NULL) {
-    // Returns null pointer status code if gpio_callback == NULL
-    return SL_STATUS_NULL_POINTER;
-  }
+  // Check if a callback function is already registered for the given GPIO interrupt number.
   if (gpio_group_int_callback_fptr[configuration->grp_interrupt] != NULL) {
     return SL_STATUS_BUSY;
   }
+  // Assign the callback function pointer for the specified GPIO interrupt number.
   gpio_group_int_callback_fptr[configuration->grp_interrupt] = gpio_callback;
+  // Configure the GPIO group interrupt.
   sl_si91x_gpio_configure_group_interrupt(configuration);
   return SL_STATUS_OK;
 }
@@ -1083,28 +1249,25 @@ sl_status_t sl_si91x_gpio_driver_configure_ulp_pin_interrupt(uint8_t int_no,
                                                              sl_si91x_gpio_pin_ulp_t pin,
                                                              sl_gpio_irq_callback_t gpio_callback)
 {
-  // Check for valid parameters
+  // Check if gpio_callback pointer is NULL.
   if (gpio_callback == NULL) {
+    // Return error code for NULL pointer
     return SL_STATUS_NULL_POINTER;
   }
-  if (int_no > GPIO_ULP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if int_no > GPIO_INTERRUPT_MAX_VALUE
+  // Check if interrupt number or flags or pin exceeds the maximum allowed.
+  if ((int_no > GPIO_ULP_INTERRUPT_MAX_VALUE) || (flags > GPIO_FLAGS_MAX_VALUE) || (pin > ULP_PIN_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (flags > GPIO_FLAGS_MAX_VALUE) {
-    // Returns invalid parameter status code if flags > GPIO_FLAGS_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if (pin > PORTE_PIN_MAX_VALUE) {
-    // Returns invalid parameter status code if pin > PORTE_PIN_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Check if a callback function is already registered for the given GPIO interrupt number.
   if (gpio_ulp_pin_int_callback_fptr[int_no] != NULL) {
     return SL_STATUS_BUSY;
   }
+  // Enable the NVIC for the GPIO interrupt and set its priority.
   NVIC_EnableIRQ(ULP_PININT0_NVIC_NAME);
   NVIC_SetPriority(ULP_PININT0_NVIC_NAME, ULP_GPIO_INTERRUPT_PRIORITY);
+  // Assign the callback function pointer for the specified ULP GPIO interrupt number.
   gpio_ulp_pin_int_callback_fptr[int_no] = gpio_callback;
+  // Configure the GPIO ULP pin interrupt.
   sl_si91x_gpio_configure_ulp_pin_interrupt(int_no, flags, pin);
   return SL_STATUS_OK;
 }
@@ -1124,19 +1287,18 @@ sl_status_t sl_si91x_gpio_driver_configure_ulp_pin_interrupt(uint8_t int_no,
 sl_status_t sl_si91x_gpio_driver_configure_ulp_group_interrupt(sl_si91x_gpio_group_interrupt_config_t *configuration,
                                                                sl_gpio_irq_callback_t gpio_callback)
 {
-  // Check for valid parameters
-  if (configuration == NULL) {
-    // Returns null pointer status code if configuration == NULL
+  // Check if configuration pointer and gpio_callback pointer is NULL.
+  if ((configuration == NULL) || (gpio_callback == NULL)) {
+    // Return error code for NULL pointer
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio_callback == NULL) {
-    // Returns null pointer status code if gpio_callback == NULL
-    return SL_STATUS_NULL_POINTER;
-  }
-  if (gpio_ulp_group_int_callback_fptr[configuration->grp_interrupt] != NULL) { //gpio_ulp_group_int_callback_fptr
+  // Check if a callback function is already registered for the given GPIO interrupt number.
+  if (gpio_ulp_group_int_callback_fptr[configuration->grp_interrupt] != NULL) {
     return SL_STATUS_BUSY;
   }
+  // Assign the callback function pointer for the specified ULP GPIO interrupt number.
   gpio_ulp_group_int_callback_fptr[configuration->grp_interrupt] = gpio_callback;
+  // Configure the GPIO ULP group interrupt.
   sl_si91x_gpio_configure_ulp_group_interrupt(configuration);
   return SL_STATUS_OK;
 }
@@ -1147,11 +1309,11 @@ sl_status_t sl_si91x_gpio_driver_configure_ulp_group_interrupt(sl_si91x_gpio_gro
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_group_interrupt(sl_si91x_group_interrupt_t group_interrupt)
 {
-  // Check for valid parameters
+  // Check if group_interrupt exceeds the maximum allowed.
   if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Clear GPIO group interrupt
   sl_si91x_gpio_clear_group_interrupt(group_interrupt);
   return SL_STATUS_OK;
 }
@@ -1163,15 +1325,11 @@ sl_status_t sl_si91x_gpio_driver_clear_group_interrupt(sl_si91x_group_interrupt_
 uint32_t sl_si91x_gpio_driver_get_group_interrupt_status(uint8_t port, sl_si91x_group_interrupt_t group_interrupt)
 {
   uint32_t status;
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
+  // Check if group_interrupt or port exceeds the maximum allowed.
+  if ((port > GPIO_PORT_MAX_VALUE) || (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Get GPIO group interrupt status
   status = sl_si91x_gpio_get_group_interrupt_status(port, group_interrupt);
   return status;
 }
@@ -1184,19 +1342,12 @@ sl_status_t sl_si91x_gpio_driver_select_group_interrupt_wakeup(uint8_t port,
                                                                sl_si91x_group_interrupt_t group_interrupt,
                                                                sl_si91x_gpio_wakeup_t flags)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
+  // Check if group_interrupt or port exceeds the maximum allowed.
+  if ((port > GPIO_PORT_MAX_VALUE) || (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE)
+      || (flags > GPIO_FLAGS_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if (flags > GPIO_FLAGS_MAX_VALUE) {
-    // Returns invalid parameter status code if flags > GPIO_FLAGS_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select GPIO group interrupt wakeup
   sl_si91x_gpio_select_group_interrupt_wakeup(port, group_interrupt, flags);
   return SL_STATUS_OK;
 }
@@ -1213,11 +1364,11 @@ sl_status_t sl_si91x_gpio_driver_select_group_interrupt_wakeup(uint8_t port,
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_enable_ulp_pad_receiver(uint8_t gpio_num)
 {
-  // Check for valid parameters
+  // Check if gpio_num exceeds the maximum allowed
   if (gpio_num > GPIO_ULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_ULP_MAX_PIN_NUM
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Enable ULP GPIO pad receiver
   sl_si91x_gpio_enable_ulp_pad_receiver(gpio_num);
   return SL_STATUS_OK;
 }
@@ -1229,11 +1380,11 @@ sl_status_t sl_si91x_gpio_driver_enable_ulp_pad_receiver(uint8_t gpio_num)
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_disable_ulp_pad_receiver(uint8_t gpio_num)
 {
-  // Check for valid parameters
+  // Check if gpio_num exceeds the maximum allowed
   if (gpio_num > GPIO_ULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_ULP_MAX_PIN_NUM
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Disable ULP GPIO pad receiver
   sl_si91x_gpio_disable_ulp_pad_receiver(gpio_num);
   return SL_STATUS_OK;
 }
@@ -1253,15 +1404,11 @@ sl_status_t sl_si91x_gpio_driver_disable_ulp_pad_receiver(uint8_t gpio_num)
 sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state(uint8_t gpio_num,
                                                                      sl_si91x_gpio_driver_disable_state_t disable_state)
 {
-  // Check for valid parameters
-  if (gpio_num > GPIO_ULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_ULP_MAX_PIN_NUM
+  // Check if gpio_num or disable_state exceeds the maximum allowed
+  if ((gpio_num > GPIO_ULP_MAX_PIN_NUM) || (disable_state > GPIO_DISABLE_STATE_MAX_VAL)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (disable_state > GPIO_DISABLE_STATE_MAX_VAL) {
-    // Returns invalid parameter status code if disable_state > GPIO_DISABLE_STATE_MAX_VAL
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select ULP GPIO pad driver disable state
   sl_si91x_gpio_select_ulp_pad_driver_disable_state(gpio_num, disable_state);
   return SL_STATUS_OK;
 }
@@ -1281,15 +1428,11 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_disable_state(uint8_t gpi
 sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num,
                                                                 sl_si91x_gpio_driver_strength_select_t strength)
 {
-  // Check for valid parameters
-  if (gpio_num > GPIO_ULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_ULP_MAX_PIN_NUM
+  // Check if gpio_num or strength exceeds the maximum allowed
+  if ((gpio_num > GPIO_ULP_MAX_PIN_NUM) || (strength > GPIO_STRENGTH_MAX_VAL)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (strength > GPIO_STRENGTH_MAX_VAL) {
-    // Returns invalid parameter status code if strength > GPIO_STRENGTH_MAX_VAL
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select ULP GPIO pad driver strength
   sl_si91x_gpio_select_ulp_pad_driver_strength(gpio_num, strength);
   return SL_STATUS_OK;
 }
@@ -1307,15 +1450,11 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_si91x_gpio_slew_rate_t slew_rate)
 {
-  // Check for valid parameters
-  if (gpio_num > GPIO_ULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if gpio_num > GPIO_ULP_MAX_PIN_NUM
+  // Check if gpio_num or slew_rate exceeds the maximum allowed
+  if ((gpio_num > GPIO_ULP_MAX_PIN_NUM) || (slew_rate > GPIO_SLEW_RATE_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (slew_rate > GPIO_SLEW_RATE_MAX_VALUE) {
-    // Returns invalid parameter status code if slew_rate > GPIO_SLEW_RATE_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select ULP GPIO pad slew rate
   sl_si91x_gpio_select_ulp_pad_slew_rate(gpio_num, slew_rate);
   return SL_STATUS_OK;
 }
@@ -1329,15 +1468,11 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_s
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uulp_npss_mode_t mode)
 {
-  // Check for valid parameters
-  if (pin > GPIO_UULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if pin > GPIO_UULP_MAX_PIN_NUM
+  // Check if pin or mode exceeds the maximum allowed
+  if ((pin > GPIO_UULP_MAX_PIN_NUM) || (mode > GPIO_MODE_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (mode > GPIO_MODE_MAX_VALUE) {
-    // Returns invalid parameter status code if mode > GPIO_MODE_MAX_VALUE)
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Set UULP GPIO pin mode
   sl_si91x_gpio_set_uulp_npss_pin_mux(pin, mode);
   return SL_STATUS_OK;
 }
@@ -1350,15 +1485,11 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_mux(uint8_t pin, sl_si91x_uul
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_uulp_npss_receiver(uint8_t pin, sl_si91x_gpio_receiver_t receiver)
 {
-  // Check for valid parameters
-  if (pin > GPIO_UULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if pin > GPIO_UULP_MAX_PIN_NUM
+  // Check if pin or receiver exceeds the maximum allowed
+  if ((pin > GPIO_UULP_MAX_PIN_NUM) || (receiver > GPIO_RECEIVER_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (receiver > GPIO_RECEIVER_MAX_VALUE) {
-    // Returns invalid parameter status code if receiver > GPIO_RECEIVER_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select UULP GPIO receiver
   sl_si91x_gpio_select_uulp_npss_receiver(pin, receiver);
   return SL_STATUS_OK;
 }
@@ -1375,15 +1506,11 @@ sl_status_t sl_si91x_gpio_driver_select_uulp_npss_receiver(uint8_t pin, sl_si91x
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_direction(uint8_t pin, sl_si91x_gpio_direction_t direction)
 {
-  // Check for valid parameters
-  if (pin > GPIO_UULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if pin > GPIO_UULP_MAX_PIN_NUM
+  // Check if pin or direction exceeds the maximum allowed
+  if ((pin > GPIO_UULP_MAX_PIN_NUM) || (direction > GPIO_DIRECTION_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (direction > GPIO_DIRECTION_MAX_VALUE) {
-    // Returns invalid parameter status code if direction > GPIO_DIRECTION_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Set UULP GPIO direction
   sl_si91x_gpio_set_uulp_npss_direction(pin, direction);
   return SL_STATUS_OK;
 }
@@ -1402,11 +1529,11 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_direction(uint8_t pin, sl_si91x_g
 uint8_t sl_si91x_gpio_driver_get_uulp_npss_direction(uint8_t pin)
 {
   uint8_t direction;
-  // Check for valid parameters
+  // Check if pin exceeds the maximum allowed
   if (pin > GPIO_UULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if pin > GPIO_UULP_MAX_PIN_NUM
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Get UULP GPIO direction
   direction = sl_si91x_gpio_get_uulp_npss_direction(pin);
   return direction;
 }
@@ -1424,15 +1551,11 @@ uint8_t sl_si91x_gpio_driver_get_uulp_npss_direction(uint8_t pin)
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_value(uint8_t pin, sl_si91x_gpio_pin_value_t pin_value)
 {
-  // Check for valid parameters
-  if (pin > GPIO_UULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if pin > GPIO_UULP_MAX_PIN_NUM
+  // Check if pin or pin_value exceeds the maximum allowed
+  if ((pin > GPIO_UULP_MAX_PIN_NUM) || (pin_value > GPIO_PIN_VALUE_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (pin_value > GPIO_PIN_VALUE_MAX_VALUE) {
-    // Returns invalid parameter status code if pin_value > GPIO_PIN_VALUE_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Set UULP GPIO pin value
   sl_si91x_gpio_set_uulp_npss_pin_value(pin, pin_value);
   return SL_STATUS_OK;
 }
@@ -1449,11 +1572,11 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_pin_value(uint8_t pin, sl_si91x_g
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_toggle_uulp_npss_pin(uint8_t pin)
 {
-  // Check for valid parameters
+  // Check if pin exceeds the maximum allowed
   if (pin > GPIO_UULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if pin > GPIO_UULP_MAX_PIN_NUM
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Toggle UULP GPIO pin
   sl_si91x_gpio_toggle_uulp_npss_pin(pin);
   return SL_STATUS_OK;
 }
@@ -1472,12 +1595,12 @@ sl_status_t sl_si91x_gpio_driver_toggle_uulp_npss_pin(uint8_t pin)
  ******************************************************************************/
 uint8_t sl_si91x_gpio_driver_get_uulp_npss_pin(uint8_t pin)
 {
-  // Check for valid parameters
   uint8_t uulp_pin;
+  // Check if pin exceeds the maximum allowed
   if (pin > GPIO_UULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if pin > GPIO_UULP_MAX_PIN_NUM
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Get UULP GPIO pin
   uulp_pin = sl_si91x_gpio_get_uulp_npss_pin(pin);
   return uulp_pin;
 }
@@ -1488,15 +1611,11 @@ uint8_t sl_si91x_gpio_driver_get_uulp_npss_pin(uint8_t pin)
  ******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_uulp_npss_polarity(uint8_t pin, sl_si91x_gpio_polarity_t polarity)
 {
-  // Check for valid parameters
-  if (pin > GPIO_UULP_MAX_PIN_NUM) {
-    // Returns invalid parameter status code if pin > GPIO_UULP_MAX_PIN_NUM
+  // Check if pin or polarity exceeds the maximum allowed
+  if ((pin > GPIO_UULP_MAX_PIN_NUM) || (polarity > GPIO_POLARITY_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (polarity > GPIO_POLARITY_MAX_VALUE) {
-    // Returns invalid parameter status code if polarity > GPIO_POLARITY_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Select UULP GPIO polarity
   sl_si91x_gpio_select_uulp_npss_polarity(pin, polarity);
   return SL_STATUS_OK;
 }
@@ -1506,11 +1625,11 @@ sl_status_t sl_si91x_gpio_driver_select_uulp_npss_polarity(uint8_t pin, sl_si91x
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
-  // Check for valid parameters
+  // Check if npssgpio_interrupt exceeds the maximum allowed
   if (npssgpio_interrupt > GPIO_NPSS_WAKEUP_MAX_VALUE) {
-    // Returns invalid parameter status code if npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Set UULP GPIO wakeup interrupt
   sl_si91x_gpio_set_uulp_npss_wakeup_interrupt(npssgpio_interrupt);
   return SL_STATUS_OK;
 }
@@ -1520,11 +1639,11 @@ sl_status_t sl_si91x_gpio_driver_set_uulp_npss_wakeup_interrupt(uint8_t npssgpio
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgpio_interrupt)
 {
-  // Check for valid parameters
+  // Check if npssgpio_interrupt exceeds the maximum allowed
   if (npssgpio_interrupt > GPIO_NPSS_WAKEUP_MAX_VALUE) {
-    // Returns invalid parameter status code if npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Clear UULP GPIO wakeup interrupt
   sl_si91x_gpio_clear_uulp_npss_wakeup_interrupt(npssgpio_interrupt);
   return SL_STATUS_OK;
 }
@@ -1539,11 +1658,11 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgp
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
-  // Check for valid parameters
+  // Check if npssgpio_interrupt exceeds the maximum allowed
   if (npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE) {
-    // Returns invalid parameter status code if npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Mask UULP GPIO interrupt
   sl_si91x_gpio_mask_uulp_npss_interrupt(npssgpio_interrupt);
   return SL_STATUS_OK;
 }
@@ -1582,11 +1701,11 @@ uint32_t sl_si91x_gpio_driver_get_ulp_interrupt_status(uint32_t flags)
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
 {
-  // Check for valid parameters
+  // Check if npssgpio_interrupt exceeds the maximum allowed
   if (npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE) {
-    // Returns invalid parameter status code if npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Unmask UULP GPIO interrupt
   sl_si91x_gpio_unmask_uulp_npss_interrupt(npssgpio_interrupt);
   return SL_STATUS_OK;
 }
@@ -1596,11 +1715,11 @@ sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_int
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt)
 {
-  // Check for valid parameters
+  // Check if npssgpio_interrupt exceeds the maximum allowed
   if (npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE) {
-    // Returns invalid parameter status code if npssgpio_interrupt > GPIO_NPSSGPIO_INTERRUPT_VALUE_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Clear UULP GPIO interrupt
   sl_si91x_gpio_clear_uulp_interrupt(npssgpio_interrupt);
   return SL_STATUS_OK;
 }
@@ -1622,22 +1741,21 @@ sl_status_t sl_si91x_gpio_driver_configure_uulp_interrupt(sl_si91x_gpio_interrup
                                                           uint8_t npssgpio_interrupt,
                                                           sl_gpio_irq_callback_t gpio_callback)
 {
-  // Check for valid parameters
+  // Check if gpio_callback pointer is NULL
   if (gpio_callback == NULL) {
     return SL_STATUS_NULL_POINTER;
   }
+  // Check if a callback function is already registered for the given interrupt number.
   if (gpio_uulp_pin_int_callback_fptr[npssgpio_interrupt] != NULL) {
     return SL_STATUS_BUSY;
   }
-  if (flags > GPIO_FLAGS_MAX_VALUE) {
-    // Returns invalid parameter status code if flags > GPIO_FLAGS_MAX_VALUE
+  // Check if npssgpio_interrupt or flags exceeds the maximum allowed
+  if ((flags > GPIO_FLAGS_MAX_VALUE) || (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE) {
-    // Returns invalid parameter status code if npssgpio_interrupt > GPIO_NPSS_PIN_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
-  }
+  // Assign the callback function pointer for the specified interrupt number.
   gpio_uulp_pin_int_callback_fptr[npssgpio_interrupt] = gpio_callback;
+  // Configure the UULP GPIO interrupt.
   sl_si91x_gpio_configure_uulp_interrupt(flags, npssgpio_interrupt);
   return SL_STATUS_OK;
 }
@@ -1647,11 +1765,11 @@ sl_status_t sl_si91x_gpio_driver_configure_uulp_interrupt(sl_si91x_gpio_interrup
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_ulp_interrupt(uint32_t flags)
 {
-  // Check for valid parameters
+  // Check if flags exceeds the maximum allowed.
   if (flags > GPIO_FLAGS_MAX_VALUE) {
-    // Returns invalid parameter status code if flags > GPIO_FLAGS_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Clears ULP GPIO pin interrupt
   sl_si91x_gpio_clear_ulp_interrupt(flags);
   return SL_STATUS_OK;
 }
@@ -1661,11 +1779,11 @@ sl_status_t sl_si91x_gpio_driver_clear_ulp_interrupt(uint32_t flags)
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_clear_ulp_group_interrupt(sl_si91x_group_interrupt_t group_interrupt)
 {
-  // Check for valid parameters
+  // Check if group interrupt exceeds the maximum allowed.
   if (group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE) {
-    // Returns invalid parameter status code if group_interrupt > GPIO_GROUP_INTERRUPT_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Clears ULP GPIO group interrupt
   sl_si91x_gpio_clear_ulp_group_interrupt(group_interrupt);
   return SL_STATUS_OK;
 }
@@ -1841,11 +1959,11 @@ void ULP_PIN_IRQ_Handler(void)
 void ULP_GROUP_IRQ_Handler(void)
 {
   uint32_t flag = 0;
-  if (sl_si91x_gpio_get_group_interrupt_status(SL_ULP_GPIO_PORT, GROUP_INT_1) == ULP_STATUS) {
+  if (sl_si91x_gpio_get_group_interrupt_status(SL_GPIO_ULP_PORT, GROUP_INT_1) == ULP_STATUS) {
     sl_si91x_gpio_driver_clear_ulp_group_interrupt(GROUP_INT_1);
     flag = GROUP_INT_1;
   }
-  if (sl_si91x_gpio_get_group_interrupt_status(SL_ULP_GPIO_PORT, GROUP_INT_2) == ULP_STATUS) {
+  if (sl_si91x_gpio_get_group_interrupt_status(SL_GPIO_ULP_PORT, GROUP_INT_2) == ULP_STATUS) {
     sl_si91x_gpio_driver_clear_ulp_group_interrupt(GROUP_INT_2);
     flag = GROUP_INT_2;
   }
@@ -1860,14 +1978,6 @@ sl_status_t sl_gpio_driver_deinit(void)
   sl_status_t status;
   uint8_t flag;
   do {
-    status = sl_si91x_gpio_driver_disable_clock(M4CLK_GPIO);
-    if (status != SL_STATUS_OK) {
-      return status;
-    }
-    status = sl_si91x_gpio_driver_disable_clock(ULPCLK_GPIO);
-    if (status != SL_STATUS_OK) {
-      return status;
-    }
     for (flag = 0; flag < GPIO_MAX_INTR_VALUE; flag++) {
       gpio_callback_function_pointer[flag] = NULL;
     }
@@ -1882,6 +1992,14 @@ sl_status_t sl_gpio_driver_deinit(void)
     }
     for (flag = 0; flag < MAX_GROUP_INT; flag++) {
       gpio_ulp_group_int_callback_fptr[flag] = NULL;
+    }
+    status = sl_si91x_gpio_driver_disable_clock(M4CLK_GPIO); // Disables M4 GPIO clock
+    if (status != SL_STATUS_OK) {
+      return status;
+    }
+    status = sl_si91x_gpio_driver_disable_clock(ULPCLK_GPIO); // Disables ULP GPIO clock
+    if (status != SL_STATUS_OK) {
+      return status;
     }
   } while (false);
   return SL_STATUS_OK;

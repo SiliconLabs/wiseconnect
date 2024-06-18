@@ -28,14 +28,14 @@ template_file:
   - path: "inst/sl_si91x_led_instances.c.jinja"
   - path: "inst/sl_si91x_led_instances.h.jinja"
 template_contribution:
-  - name: led_instance
+  - name: simple_led_instance
     value: "{{instance}}"
   - name: component_catalog
     value: "{{instance}}"
   - name: component_catalog
-    value: led
+    value: simple_led
   - name: component_catalog
-    value: "led_{{instance}}"
+    value: "simple_led_{{instance}}"
   - name: event_handler
     value:
       event: driver_init

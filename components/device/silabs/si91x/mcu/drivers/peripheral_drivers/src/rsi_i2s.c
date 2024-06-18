@@ -18,7 +18,7 @@
 // Include files
 
 #include "rsi_ccp_user_config.h"
-#if !defined(A11_ROM) || !defined(ROMDRIVER_PRESENT)
+#if !defined(A11_ROM) || !defined(I2S_ROMDRIVER_PRESENT)
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_egpio.h"
@@ -658,16 +658,14 @@ int32_t I2S_Initialize(ARM_SAI_SignalEvent_t cb_event,
  */
 int32_t I2S_Uninitialize(I2S_RESOURCES *i2s, UDMA_RESOURCES *udma)
 {
-  // DMA Uninitialize
-  if ((i2s->dma_tx != NULL) || (i2s->dma_rx != NULL)) {
-    if (i2s->reg == I2S0) {
-      UDMAx_Uninitialize(udma);
-    }
-    if (i2s->reg == I2S1) {
-      UDMAx_Uninitialize(udma);
-    }
+  UNUSED_PARAMETER(udma);
+  // Disable I2S peripheral clock
+  if (i2s->reg == I2S0) {
+    RSI_CLK_PeripheralClkDisable2(M4CLK, I2SM_INTF_SCLK_ENABLE | I2SM_PCLK_ENABLE);
   }
-  // Reset I2S status flags
+  if (i2s->reg == I2S1) {
+    RSI_ULPSS_UlpPeriClkDisable(ULPCLK, CLK_ENABLE_I2S);
+  }
   i2s->flags = 0U;
   return ARM_DRIVER_OK;
 }
@@ -813,6 +811,7 @@ int32_t I2S_Send(const void *data,
 {
   volatile int32_t stat       = 0;
   RSI_UDMA_CHA_CFG_T chnl_cfg = { 0 };
+  uint32_t resolution         = 0;
 
   if ((data == NULL) || (num == 0U)) {
     // Invalid parameters
@@ -896,7 +895,18 @@ int32_t I2S_Send(const void *data,
       chnl_cfg.periAck   = 0;
       chnl_cfg.periphReq = 0;
       chnl_cfg.reqMask   = 0;
-
+      resolution         = i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_TCR_b.WLEN;
+      if ((resolution == RES_12_BIT) || (resolution == RES_16_BIT)) {
+        i2s->dma_tx->control.srcSize = SRC_SIZE_16;
+        i2s->dma_tx->control.srcInc  = SRC_INC_16;
+        i2s->dma_tx->control.dstSize = DST_SIZE_16;
+        i2s->dma_tx->control.dstInc  = DST_INC_NONE;
+      } else {
+        i2s->dma_tx->control.srcSize = SRC_SIZE_32;
+        i2s->dma_tx->control.srcInc  = SRC_INC_32;
+        i2s->dma_tx->control.dstSize = DST_SIZE_32;
+        i2s->dma_tx->control.dstInc  = DST_INC_NONE;
+      }
       // Configure DMA channel
       if ((i2s->reg == I2S0) || (i2s->reg == I2S1)) {
         stat = UDMAx_ChannelConfigure(udma,
@@ -956,6 +966,7 @@ int32_t I2S_Receive(void *data,
 {
   volatile int32_t stat       = 0;
   RSI_UDMA_CHA_CFG_T chnl_cfg = { 0 };
+  uint32_t resolution         = 0;
 
   if ((data == NULL) || (num == 0U)) {
     // Invalid parameters
@@ -1029,7 +1040,18 @@ int32_t I2S_Receive(void *data,
     chnl_cfg.periAck   = 0;
     chnl_cfg.periphReq = 0;
     chnl_cfg.reqMask   = 0;
-
+    resolution         = i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RCR_b.WLEN;
+    if ((resolution == RES_12_BIT) || (resolution == RES_16_BIT)) {
+      i2s->dma_rx->control.srcSize = SRC_SIZE_16;
+      i2s->dma_rx->control.srcInc  = SRC_INC_NONE;
+      i2s->dma_rx->control.dstSize = DST_SIZE_16;
+      i2s->dma_rx->control.dstInc  = DST_INC_16;
+    } else {
+      i2s->dma_rx->control.srcSize = SRC_SIZE_32;
+      i2s->dma_rx->control.srcInc  = SRC_INC_NONE;
+      i2s->dma_rx->control.dstSize = DST_SIZE_32;
+      i2s->dma_rx->control.dstInc  = DST_INC_32;
+    }
     // Configure DMA channel
     if ((i2s->reg == I2S0) || (i2s->reg == I2S1)) {
       stat = UDMAx_ChannelConfigure(udma,
@@ -1054,9 +1076,7 @@ int32_t I2S_Receive(void *data,
       UDMAx_DMAEnable(udma, udmaHandle);
 #ifndef I2S_LOOP_BACK
       if (i2s->info->rx.master) {
-#ifndef SL_SI91X_I2S
         i2s->reg->I2S_CER_b.CLKEN = ENABLE; //RX_Clock is not required in Loopback connections.
-#endif
       }
 #endif
     }
@@ -1327,4 +1347,4 @@ void I2S_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, I2S_RESOURCES *i2s)
 }
 /** @} */
 
-#endif //A11_ROM || ROMDRIVER_PRESENT
+#endif //A11_ROM || I2S_ROMDRIVER_PRESENT

@@ -33,7 +33,9 @@ This application demonstrates how to connect SiWx91x with remote BLE device in c
 
 - Simplicity Studio IDE
 
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+
+   > **Note:** The provided mobile screenshots are from the 2.8.1 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 ### Setup Diagram
 
@@ -130,15 +132,17 @@ Follow the steps as mentioned for the successful execution of the application:
 
 3. Click on the **Resume** icon in the Simplicity Studio IDE toolbar to run the application.
 
-4. Configure the remote BLE device in peripheral mode and put it in advertising mode.For remote mobile ensure that the device is named same as the value mentioned in RSI_REMOTE_DEVICE_NAME macro also see to it that Complete local name record is added to advertising data and Scan response data and connectable is ticked in options.
+4. Configure the remote BLE device in peripheral mode and put it in advertising mode.For remote device ensure that the device is named same as the value mentioned in RSI_REMOTE_DEVICE_NAME macro also see to it that Complete local name record is added to advertising data and Scan response data and connectable is configured in options.
 
-    ![Advertiser](resources/readme/advertiser.png)
+   ![Advertiser](resources/readme/advertiser.png)
 
-   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
+   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the Simplicity Connect mobile App(formerly EFR Connect App) as advertiser.
 
 5. After the program gets executed, Silicon Labs device tries to connect with the remote device specified in `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` macro.
 
 6. Observe that the connection is established between the desired device and SiWx91x.  
+
+   ![](resources/readme/connection.png)
 
    > **Note:** Examples for BLE peripherals: Bluetooth Dongle, mobile application, TA sensor tag.
 

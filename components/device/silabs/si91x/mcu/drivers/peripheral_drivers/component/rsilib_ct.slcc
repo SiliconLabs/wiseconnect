@@ -16,3 +16,7 @@ include:
     - path: "rsi_ct.h"
 provides:
   - name: rsilib_ct
+requires:
+  - name: romdriver_ct
+define: 
+  - name: CT_ROMDRIVER_PRESENT

@@ -17,11 +17,11 @@
 #ifndef __SL_SI91X_PERIPHERAL_SDIO_SECONDARY_H_
 #define __SL_SI91X_PERIPHERAL_SDIO_SECONDARY_H_
 
+#include "si91x_device.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "rsi_chip.h"
 
 /***************************************************************************/ /**
  * @addtogroup SDIO

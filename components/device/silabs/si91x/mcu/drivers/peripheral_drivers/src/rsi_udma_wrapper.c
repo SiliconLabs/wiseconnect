@@ -17,7 +17,7 @@
 // Include Files
 
 #include "rsi_ccp_user_config.h"
-#if !defined(A11_ROM) || !defined(ROMDRIVER_PRESENT)
+#if !defined(A11_ROM) || !defined(UDMA_ROMDRIVER_PRESENT)
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_udma.h"
@@ -160,22 +160,25 @@ int32_t uDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
                                UDMA_Channel_Info *chnl_info,
                                RSI_UDMA_HANDLE_T udmaHandle)
 {
-// Added below macro to avoid ULP memory validations when using SL_DMA with I2C and SSI in ULP mode,
-// as I2C and SSI data register does not belong to ULP memory section
+  // Added below macro to avoid ULP memory validations when using SL_DMA with I2C and SSI in ULP mode,
+  // as I2C and SSI data register does not belong to ULP memory section
 #if !(defined SL_SI91X_I2C_DMA) && !(defined SL_SI91X_SSI_DMA) && !(defined DAC_FIFO_MODE_EN)
   if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) { //PS2 state
-    if (control.srcInc == UDMA_DST_INC_NONE) {
+    if (control.dstInc == UDMA_DST_INC_NONE) {
       if (!((src_addr >= ULP_SRAM_START_ADDR) && (src_addr <= ULP_SRAM_END_ADDR))) {
         return ERROR_UDMA_SRC_ADDR;
       }
     }
-    if (control.dstInc == UDMA_SRC_INC_NONE) {
+    if (control.srcInc == UDMA_SRC_INC_NONE) {
       if (!((dest_addr >= ULP_SRAM_START_ADDR) && (dest_addr <= ULP_SRAM_END_ADDR))) {
         return ERROR_UDMA_DST_ADDR;
       }
     }
   }
 #endif
+  if ((udma->reg == UDMA0) || (udma->reg == UDMA1)) {
+    chnl_info[ch].cb_event = cb_event;
+  }
   if ((udma->reg == UDMA0) || (udma->reg == UDMA1)) {
     // Clear DMA interrupts
     RSI_UDMA_InterruptClear(udmaHandle, ch);
@@ -187,15 +190,12 @@ int32_t uDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
                                   control,
                                   (void *)src_addr,
                                   (void *)dest_addr);
-
     // Save channel information
-    chnl_info[ch].cb_event = cb_event;
     chnl_info[ch].SrcAddr  = (src_addr);
     chnl_info[ch].DestAddr = (dest_addr);
     chnl_info[ch].Size     = size;
     chnl_info[ch].Cnt      = control.totalNumOfDMATrans + 1;
   }
-
   return RSI_OK;
 }
 
@@ -284,9 +284,9 @@ const ROM_UDMA_WRAPPER_API_T udma_wrapper_api = {
 		&uDMAx_ChannelConfigure,
 		&uDMAx_ChannelEnable,
 		&uDMAx_DMAEnable,
-		&uDMAx_ChannelDisable,	
+		&uDMAx_ChannelDisable,
 		&uDMAx_ChannelGetCount,
-		&uDMAx_IRQHandler,  
+		&uDMAx_IRQHandler,
 };
 */
 #ifdef __cplusplus
@@ -295,4 +295,4 @@ const ROM_UDMA_WRAPPER_API_T udma_wrapper_api = {
 
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif //  A11_ROM ||  ROMDRIVER_PRESENT
+#endif //  A11_ROM ||  UDMA_ROMDRIVER_PRESENT

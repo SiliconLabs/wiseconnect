@@ -48,7 +48,7 @@
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #include "rsi_rtc.h"
-#include "rsi_chip.h"
+
 #include "rsi_wisemcu_hardware_setup.h"
 #include "rsi_ps_config.h"
 #endif
@@ -113,15 +113,15 @@ volatile uint8_t powersave_given;
 #define LISTENING_PORT 5001
 #define BACK_LOG       1
 
-#define BYTES_TO_SEND    (1 << 29)              //512MB
-#define BYTES_TO_RECEIVE (1 << 20)              //1MB
-#define TEST_TIMEOUT     (10000 * tick_count_s) //10sec
+#define BYTES_TO_SEND    (1 << 29) //512MB
+#define BYTES_TO_RECEIVE (1 << 20) //1MB
+#define TEST_TIMEOUT     (10000)   //10sec
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 #define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
-#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 100MHz            */
+#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 119MHz            */
 #endif
 
 #define TX_POOL_RATIO     1
@@ -203,8 +203,6 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                .rx_ratio_in_buffer_pool     = RX_POOL_RATIO,
                .global_ratio_in_buffer_pool = GLOBAL_POOL_RATIO }
 };
-
-uint32_t tick_count_s = 1;
 
 #define WIRELESS_WAKEUP_IRQHandler          NPSS_TO_MCU_WIRELESS_INTR_IRQn
 #define WIRELESS_WAKEUP_IRQHandler_Priority 8

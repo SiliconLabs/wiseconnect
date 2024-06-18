@@ -43,13 +43,15 @@
  *                    Constants
  ******************************************************/
 
-#define SNTP_METHOD        SL_SNTP_UNICAST_MODE
-#define FLAGS              0
-#define NTP_SERVER_IP      "0.pool.ntp.org" // Mostly "162.159.200.123"
-#define DATA_BUFFER_LENGTH 50
-#define SNTP_TIMEOUT       50
-#define SNTP_API_TIMEOUT   0
-#define ASYNC_WAIT_TIMEOUT 2000
+#define SNTP_METHOD         SL_SNTP_UNICAST_MODE
+#define FLAGS               0
+#define NTP_SERVER_IP       "0.pool.ntp.org" // Mostly "162.159.200.123"
+#define DATA_BUFFER_LENGTH  50
+#define SNTP_TIMEOUT        50
+#define SNTP_API_TIMEOUT    0
+#define ASYNC_WAIT_TIMEOUT  60000
+#define DNS_TIMEOUT         20000
+#define MAX_DNS_RETRY_COUNT 5
 
 /******************************************************
  *               Variable Definitions
@@ -224,8 +226,13 @@ sl_status_t embedded_sntp_client(void)
   sl_sntp_client_config_t config   = { 0 };
   uint8_t data[DATA_BUFFER_LENGTH] = { 0 };
   sl_sntp_server_info_t serverInfo = { 0 };
+  int32_t dns_retry_count          = MAX_DNS_RETRY_COUNT;
 
-  sl_net_host_get_by_name(NTP_SERVER_IP, 10000, SL_NET_DNS_TYPE_IPV4, &address);
+  do {
+    status = sl_net_host_get_by_name(NTP_SERVER_IP, DNS_TIMEOUT, SL_NET_DNS_TYPE_IPV4, &address);
+    dns_retry_count--;
+  } while ((dns_retry_count != 0) && (status != SL_STATUS_OK));
+
   printf("Ip Address : %u.%u.%u.%u\n",
          address.ip.v4.bytes[0],
          address.ip.v4.bytes[1],

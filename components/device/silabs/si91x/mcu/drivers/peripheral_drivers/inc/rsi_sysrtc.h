@@ -73,11 +73,21 @@ extern "C" {
 #define SYSRTC_GROUP_VALID(group) ((unsigned)(group) < SYSRTC_GROUP_NUMBER)
 
 /*NPSS INTERRUPT */
-#define NPSS_INTR_BASE          0x12080000
-#define NPSS_INTR_MASK_SET_REG  (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x00))
-#define NPSS_INTR_MASK_CLR_REG  (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x04))
-#define NPSS_INTR_CLEAR_REG     (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x08))
+#ifndef NPSS_INTR_BASE
+#define NPSS_INTR_BASE 0x12080000
+#endif // NPSS_INTR_BASE
+#ifndef NPSS_INTR_MASK_SET_REG
+#define NPSS_INTR_MASK_SET_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x00))
+#endif // NPSS_INTR_MASK_SET_REG
+#ifndef NPSS_INTR_MASK_CLR_REG
+#define NPSS_INTR_MASK_CLR_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x04))
+#endif // NPSS_INTR_MASK_CLR_REG
+#ifndef NPSS_INTR_CLEAR_REG
+#define NPSS_INTR_CLEAR_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x08))
+#endif // NPSS_INTR_CLEAR_REG
+#ifndef NPSS_TO_MCU_SYSRTC_INTR
 #define NPSS_TO_MCU_SYSRTC_INTR BIT(10)
+#endif // NPSS_TO_MCU_SYSRTC_INTR
 
 /*******************************************************************************
  *********************************   ENUM   ************************************

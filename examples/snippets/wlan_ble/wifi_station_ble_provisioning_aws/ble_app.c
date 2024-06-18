@@ -3,7 +3,7 @@
 * @brief
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -140,7 +140,7 @@ extern uint16_t scanbuf_size;
 /******************************************************
  *               Function Declarations
  ******************************************************/
-extern void sl_wifi_app_set_event(uint32_t event_num);
+extern void wifi_app_set_event(uint32_t event_num);
 void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *resp_enh_conn);
 void rsi_ble_configurator_init(void);
 void rsi_ble_configurator_task(void *argument);
@@ -529,7 +529,7 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
         LOG_PRINT("Received scan request\r\n");
         retry = 0;
         memset(data, 0, sizeof(data));
-        sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
+        wifi_app_set_event(WIFI_APP_SCAN_STATE);
       } break;
 
       // Sending SSID
@@ -556,7 +556,7 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
         memset(data, 0, sizeof(data));
         strcpy((char *)pwd, (const char *)&rsi_ble_write->att_value[3]);
         LOG_PRINT("PWD from ble app\r\n");
-        sl_wifi_app_set_event(SL_WIFI_JOIN_STATE);
+        wifi_app_set_event(WIFI_APP_JOIN_STATE);
       } break;
 
       // WLAN Status Request
@@ -576,7 +576,7 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
       {
         LOG_PRINT("WLAN disconnect request received\r\n");
         memset(data, 0, sizeof(data));
-        sl_wifi_app_set_event(SL_WIFI_DISCONN_NOTIFY_STATE);
+        wifi_app_set_event(WIFI_APP_DISCONN_NOTIFY_STATE);
       } break;
 
       // FW version request
@@ -810,7 +810,7 @@ adv:
       case RSI_SECTYPE: {
         rsi_ble_app_clear_event(RSI_SECTYPE);
         if (sec_type == 0) {
-          sl_wifi_app_set_event(SL_WIFI_JOIN_STATE);
+          wifi_app_set_event(WIFI_APP_JOIN_STATE);
         }
       } break;
 
@@ -928,34 +928,33 @@ adv:
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_send_to_ble
+ * @fn         wifi_app_send_to_ble
  * @brief      this function is used to send data to ble app.
  * @param[in]   msg_type, it indicates write/notification event id.
  * @param[in]  data, raw data pointer.
  * @param[in]  data_len, raw data length.
  * @return     none.
  * @section description
- * This is a callback function
  */
-void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len)
+void wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len)
 {
   switch (msg_type) {
-    case SL_WIFI_SCAN_RESP:
+    case WIFI_APP_SCAN_RESP:
       memset(scanresult, 0, data_len);
       memcpy(scanresult, (sl_wifi_scan_result_t *)data, data_len);
 
       rsi_ble_app_set_event(RSI_BLE_WLAN_SCAN_RESP);
       break;
-    case SL_WIFI_CONNECTION_STATUS:
+    case WIFI_APP_CONNECTION_STATUS:
       rsi_ble_app_set_event(RSI_BLE_WLAN_JOIN_STATUS);
       break;
-    case SL_WIFI_DISCONNECTION_STATUS:
+    case WIFI_APP_DISCONNECTION_STATUS:
       rsi_ble_app_set_event(RSI_BLE_WLAN_DISCONNECT_STATUS);
       break;
-    case SL_WIFI_DISCONNECTION_NOTIFY:
+    case WIFI_APP_DISCONNECTION_NOTIFY:
       rsi_ble_app_set_event(RSI_BLE_WLAN_DISCONN_NOTIFY);
       break;
-    case SL_WIFI_TIMEOUT_NOTIFY:
+    case WIFI_APP_TIMEOUT_NOTIFY:
       rsi_ble_app_set_event(RSI_BLE_WLAN_TIMEOUT_NOTIFY);
       break;
     default:

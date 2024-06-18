@@ -177,15 +177,16 @@ sl_status_t sl_si91x_gspi_init(sl_gspi_instance_t instance, sl_gspi_handle_t *gs
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer
  *
  * @note
- *   When the GSPI module is used in combination with other peripherals, while de-initializing in the application, refer to the notes below:
- *   1. Whenever sl_si91x_gspi_deinit() gets called, it will power down the domain (PERI_EFUSE) which contains different peripherals mentioned below:
- *      USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
+ *   When GSPI module is used in combination with other peripherals, while deinitializing in the application, refer to the notes below:
+ *   1. Whenever sl_si91x_gspi_deinit() gets called, it will disable the clock for the peripheral. To power off the peripheral we have to power down the
+ *      power domain (PERI_EFUSE) which contains different peripherals mentioned below.
+ *      i.e USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
  *      Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM and EFUSE.
- *      Since deinit power downs the PERI_EFUSE doamin, it's recommended to call the sl_si91x_gspi_deinit() API at the end of the application.
- *   2. Few peripherlas (ULP Peripherals, UULP Peripherals, GPDMA and SDIO-SPI) have seperate domains that can be powered down indepedently. For additional details, refer to the Power architecture section in the Hardware Reference Manual
- *      e.g., To power down ULP UART, use the API below:
- *      RSI_PS_M4ssPeriPowerDown(ULPSS_PWRGATE_ULP_UART); 
- *      Here, ULP_UART has seperate power domain ULPSS_PWRGATE_ULP_UART, which can be power down indepedently. Refer to the rsi_power_save.h file for all power gates definitions.
+ *      Use below API to power down the particular power domain if other periherals are not being used:
+ *      sl_si91x_peri_efuse_power_down(power_down); 
+ * 
+ *   2. A few peripherals (ULP Peripherals, UULP Peripherals, GPDMA and SDIO-SPI) have separate domains; those can be powered down indepedently. For additional details, refer to the Power architecture section in the Hardware Reference Manual.
+ *      Here ULP_UART has a separate power domain ULPSS_PWRGATE_ULP_UART, which can be powered down independently. Refer to rsi_power_save.h file for all power gates definitions.
  ******************************************************************************/
 sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
 

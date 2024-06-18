@@ -155,7 +155,6 @@ typedef sl_status_t (*sl_wifi_twt_config_callback_t)(sl_wifi_event_t event,
                                                      uint32_t data_length,
                                                      void *arg);
 
-/*! @cond WIFI_TRANSCEIVER_MODE */
 /**
  * @typedef sl_wifi_transceiver_callback_t
  * @brief Callback for SL_WIFI_TRANSCEIVER_EVENTS group events
@@ -182,7 +181,6 @@ typedef sl_status_t (*sl_wifi_transceiver_callback_t)(sl_wifi_event_t event,
                                                       void *data,
                                                       uint32_t data_length,
                                                       void *arg);
-/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /***************************************************************************/ /**
  * @brief
@@ -305,7 +303,6 @@ static inline sl_status_t sl_wifi_set_stats_callback(sl_wifi_stats_callback_t fu
   return sl_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
 }
 
-/*! @cond WIFI_TRANSCEIVER_MODE */
 /***************************************************************************/ /**
  * @brief
  *   Register callback for SL_WIFI_TRANSCEIVER_EVENTS group event from @ref sl_wifi_event_group_t.
@@ -324,6 +321,5 @@ static inline sl_status_t sl_wifi_set_transceiver_callback(sl_wifi_transceiver_c
 {
   return sl_wifi_set_callback(SL_WIFI_TRANSCEIVER_EVENTS, (sl_wifi_callback_function_t)function, optional_arg);
 }
-/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /** @} */

@@ -19,6 +19,7 @@
 #include "sl_i2c_instances.h"
 #include "sl_si91x_i2c.h"
 #include "sl_si91x_peripheral_i2c.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -33,8 +34,6 @@
 #define I2C_SIZE_BUFFERS             1024    // Size of data buffer
 #define I2C_RX_LENGTH                I2C_SIZE_BUFFERS // Number of bytes to receive
 #define I2C_TX_LENGTH                I2C_SIZE_BUFFERS // Number of bytes to send
-#define I2C_OFFSET_LENGTH            1                // Offset length
-#define I2C_INTERNAL_PULLUP          1                // Internal Pull-up enable
 #define I2C_TX_FIFO_THRESHOLD        0                // FIFO threshold
 #define I2C_RX_FIFO_THRESHOLD        0                // FIFO threshold
 #define INITIAL_VALUE                0                // for 0 initial value
@@ -42,6 +41,14 @@
 #define INSTANCE_ZERO                0                // For 0 value
 #define INSTANCE_ONE                 1                // For 0 value
 #define INSTANCE_TWO                 2                // For 0 value
+#define MS_DELAY_COUNTER             4600             // Delay count
+#define SEND_DATA_SYNC               2                // Sync delay required for send
+
+#if ((I2C_INSTANCE_USED == INSTANCE_ZERO) || (I2C_INSTANCE_USED == INSTANCE_ONE))
+#define SOC_PLL_CLK ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
+#define SOC_PLL_CLK ((uint32_t)(32000000)) // 32MHz default SoC PLL Clock as source to Processor for ULP instance
+#endif
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -50,7 +57,6 @@ typedef enum {
   I2C_SEND_DATA,              // Send mode
   I2C_RECEIVE_DATA,           // Receive mode
   I2C_TRANSMISSION_COMPLETED, // Transmission completed mode
-  I2C_IDLE_MODE               // Idle mode
 } i2c_action_enum_t;
 
 /*******************************************************************************
@@ -75,17 +81,28 @@ sl_i2c_dma_config_t p_dma_config;
  ******************************************************************************/
 static void i2c_follower_callback(sl_i2c_instance_t instance, uint32_t status);
 static void compare_data(void);
+static void default_clock_configuration(void);
+static void delay(uint32_t idelay);
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+}
 /*******************************************************************************
  * I2C example initialization function
  ******************************************************************************/
 void i2c_follower_example_init(void)
 {
   sl_i2c_status_t i2c_status;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
 #if (I2C_INSTANCE_USED == INSTANCE_ZERO)
   // Update structure name as per instance used, to register I2C callback
   sl_i2c_i2c0_config.i2c_callback = i2c_follower_callback;
@@ -205,6 +222,7 @@ void i2c_follower_example_process_action(void)
 
     case I2C_SEND_DATA:
       if (i2c_send_data_flag) {
+        delay(SEND_DATA_SYNC);
         // Validation for executing the API only once.
 #if (BLOCKING_APPLICATION)
         i2c_status =
@@ -253,20 +271,8 @@ void i2c_follower_example_process_action(void)
       }
 #endif
       break;
-
     case I2C_TRANSMISSION_COMPLETED:
-      // De-initializing i2c instance and unregistering callback
-      i2c_status = sl_i2c_driver_deinit(i2c_instance);
-      if (i2c_status != SL_I2C_SUCCESS) {
-        DEBUGOUT("sl_i2c_driver_deinit : Invalid Parameters, "
-                 "Error Code : %u \n",
-                 i2c_status);
-      } else {
-        current_mode = I2C_IDLE_MODE;
-      }
-      break;
-
-    case I2C_IDLE_MODE:
+      // I2C will be Idle in this mode
     default:
       break;
   }
@@ -313,5 +319,12 @@ void i2c_follower_callback(sl_i2c_instance_t instance, uint32_t status)
       break;
     default:
       break;
+  }
+}
+
+static void delay(uint32_t idelay)
+{
+  for (uint32_t x = 0; x < MS_DELAY_COUNTER * idelay; x++) {
+    __NOP();
   }
 }

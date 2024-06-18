@@ -30,14 +30,14 @@ template_file:
   - path: "inst/sl_si91x_button_instances.c.jinja"
   - path: "inst/sl_si91x_button_instances.h.jinja"
 template_contribution:
-  - name: button_instance
+  - name: simple_button_instance
     value: "{{instance}}"
   - name: component_catalog
     value: "{{instance}}"
   - name: component_catalog
-    value: button
+    value: simple_button
   - name: component_catalog
-    value: "button_{{instance}}"
+    value: "simple_button_{{instance}}"
   - name: event_handler
     value:
       event: driver_init

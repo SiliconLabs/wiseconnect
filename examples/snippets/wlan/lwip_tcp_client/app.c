@@ -166,11 +166,22 @@ static void application_start(void *argument)
 
   send_data_to_tcp_server();
 
-  while (1) {
 #ifdef SLI_SI91X_MCU_INTERFACE
-    sl_si91x_m4_sleep_wakeup();
-#endif
+
+#if (SL_SI91X_TICKLESS_MODE == 0)
+  sl_si91x_m4_sleep_wakeup();
+#else
+  osSemaphoreId_t wait_semaphore;
+  wait_semaphore = osSemaphoreNew(1, 0, NULL);
+  if (wait_semaphore == NULL) {
+    printf("Failed to create semaphore\r\n");
+    return;
   }
+  // Waiting forever using semaphore to put M4 to sleep in tick less mode
+  osSemaphoreAcquire(wait_semaphore, osWaitForever);
+#endif
+
+#endif
 }
 
 void send_data_to_tcp_server()

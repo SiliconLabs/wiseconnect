@@ -54,15 +54,18 @@ extern "C" {
 #define ULP_MAX_MODE          10 // Maximum ULP mode
 
 #define GPIO_MAX_INTR_VALUE  8    // Maximum number of M4 GPIO pin interrupts
-#define PORTD_PIN_MAX_VALUE  8    // Port D maximum(0-8) number of GPIO pins
-#define PORTE_PIN_MAX_VALUE  11   // Port E maximum(0-11) number of GPIO pins
-#define PORTF_PIN_MAX_VALUE  5    // Port F maximum(0-4) number of GPIO pins
+#define PORTD_PIN_MAX_VALUE  9    // Port D maximum(0-9) number of GPIO pins
+#define ULP_PIN_MAX_VALUE    11   // Port E maximum(0-11) number of GPIO pins
+#define UULP_PIN_MAX_VALUE   5    // Port F maximum(0-4) number of GPIO pins
 #define MAX_ULP_INTR         8    // Maximum number of ULP interrupts
 #define MAX_MODE             15   // Maximum M4 GPIO mode
-#define PORT_PIN_MAX_VALUE   15   // GPIO pin maximum(0-15) value for ports
+#define PORTA_PIN_MAX_VALUE  57   // GPIO pin maximum(0-63) value for SL_GPIO_PORT_A of HP instance
+#define PORT_PIN_MAX_VALUE   15   // GPIO pin maximum(0-15) value for SL_GPIO_PORT_B, SL_GPIO_PORT_C of HP instance
 #define GPIO_FLAGS_MAX_VALUE 0x0F // GPIO flags maximum value
 
-#define PORTF 5 // Initializing port F value
+#define PAD_SELECT_9       9      // GPIO PAD selection number
+#define UULP_PORT          5      // Refers to port for UULP instance
+#define GPIO_MAX_PORT_PINS 0xFFFF // Refers to maximum no. of pins port can support
 
 /*******************************************************************************
  ********************************   ENUMS   ************************************
@@ -72,6 +75,11 @@ typedef struct {
   sl_gpio_port_t port;
   uint8_t pin;
 } sl_gpio_t;
+
+typedef struct {
+  sl_gpio_t port_pin;
+  sl_si91x_gpio_direction_t direction;
+} sl_si91x_gpio_pin_config_t;
 
 /*******************************************************************************
  ********************************   Local Variables   **************************
@@ -106,10 +114,7 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_interrupts(uint32_t flags)
 /***************************************************************************/ /**
  * @brief     Configure the GPIO pin interrupt.
  * @pre Pre-conditions:
- * -   \ref sl_si91x_gpio_driver_enable_clock()
- * -   \ref sl_si91x_gpio_driver_enable_clock, for HP instance
- * -   \ref sl_si91x_gpio_driver_enable_pad_receiver(), for HP instance
- * -   \ref sl_gpio_driver_set_pin_mode()
+ * -   \ref sl_si91x_gpio_set_configuration()
  * -   \ref sl_si91x_gpio_driver_set_pin_direction()
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
  * @param[in] int_no - Specifies the interrupt number to trigger (0 to 7).
@@ -130,7 +135,27 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
                                                uint32_t *avl_intr_no);
 
 /***************************************************************************/ /**
- * @brief      Set the pin mode for a GPIO pin.
+ * @brief     Configure the GPIO group interrupts for HP,ULP instances.
+ * @pre Pre-conditions:
+ * -   \ref sl_si91x_gpio_set_configuration()
+ * -   \ref sl_si91x_gpio_driver_set_pin_direction()
+ * @param[in] configuration - Pointer to the structure of type \ref sl_si91x_gpio_group_interrupt_config_t
+ * @param[in] gpio_callback  - IRQ callback function pointer \ref sl_gpio_irq_callback_t
+ * @return The following values are returned:
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
+ * -   \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
+ * -   \ref SL_STATUS_OK (0X000)  - Success 
+ * -   \ref SL_STATUS_BUSY (0x0004) - Interrupt is busy and cannot carry out the requested operation
+ ******************************************************************************/
+sl_status_t sl_gpio_configure_group_interrupt(sl_si91x_gpio_group_interrupt_config_t *configuration,
+                                              sl_gpio_irq_callback_t gpio_callback);
+
+/***************************************************************************/ /**
+ * @brief  Set the pin mode for a GPIO pin in HP (or) ULP instance. 
+ * @details By default mode-0 is set and GPIO pin acts as normal GPIO. 
+ *			If a GPIO pin to be used for some alternate modes, the respective  mode is to be 
+ *			selected. For more information about modes present for different
+ *          instances, please refer PIN MUX section in HRM. 
  * @pre Pre-conditions:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
  * -   \ref sl_si91x_gpio_driver_enable_clock, for HP instance
@@ -138,6 +163,20 @@ sl_status_t sl_gpio_driver_configure_interrupt(sl_gpio_t *gpio,
  * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver(), for ULP instance
  *  Use the corresponding pad receiver API for corresponding GPIO instance.
  * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t.
+ *					Please refer to below table for description of each port and pins available.
+ *					|  GPIO Instance                              |    GPIO Port          |  GPIO Pin Number  |
+ *          |---------------------------------------------|-----------------------|-------------------|
+ *          |                                             |  SL_GPIO_PORT_A       |   (0-15)          |
+ *          | HP (High Power) GPIO Instance               |  SL_GPIO_PORT_B       |   (16-31)         |
+ *          |                                             |  SL_GPIO_PORT_C       |   (32-47)         |
+ *          |                                             |  SL_GPIO_PORT_D       |   (48-57)         |
+ *          |---------------------------------------------|-----------------------|-------------------|
+ *          | ULP (Ultra Low Power) GPIO Instance         |  SL_GPIO_ULP_PORT     |   (0-11)          |
+ *          |---------------------------------------------|-----------------------|-------------------|
+ *          | UULP (Ultra Ultra Low Power) GPIO Instance  | SL_GPIO_UULP_PORT     |   (0-4)           |
+ *          |---------------------------------------------|-----------------------|-------------------|
+ *					PORT_A can also be a single port to access all GPIO (0-57) pins available in HP domain, instead
+ *					 of using PORT B,C,D. (57-63)pins are reserved.
  * @param[in]  mode - The desired pin mode.
  * @param[in]  output_value - A value to set for the pin in the GPIO register.
  *                The GPIO setting is important for some input mode configurations.
@@ -199,6 +238,58 @@ sl_status_t sl_gpio_driver_unregister(sl_si91x_gpio_instances_t gpio_instance,
                                       sl_si91x_gpio_intr_t gpio_intr,
                                       uint8_t flag);
 
+/*******************************************************************************/ /**
+ * @brief Validating port and pin of GPIO.
+ * @param[in] gpio - Pointer to the structure of type \ref sl_gpio_t
+ * @return The following values are returned:
+ * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument
+ * -   \ref SL_STATUS_OK (0X000)  - Success
+ *
+ ******************************************************************************/
+STATIC __INLINE sl_status_t sl_gpio_validation(sl_gpio_t *gpio)
+{
+  // Check if gpio port value exceeds maximum allowed value. Return error code for invalid parameter
+  if (gpio->port > GPIO_PORT_MAX_VALUE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  //  Checks if the port is Port A. If true, checks if the pin value exceeds
+  //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
+  if (gpio->port == SL_GPIO_PORT_A) {
+    if (gpio->pin > PORTA_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Checks if the port is either Port B or Port C. If true, checks if the pin value exceeds
+  // the maximum allowable value for these ports. Returns an invalid parameter status code if true.
+  if ((gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
+    if (gpio->pin > PORT_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Checks if the port is Port D. If true, checks if the pin value exceeds the maximum allowable
+  // value for Port D. Returns an invalid parameter status code if true.
+  if (gpio->port == SL_GPIO_PORT_D) {
+    if (gpio->pin > PORTD_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Check if the GPIO port is the Ultra-Low Power GPIO port.
+  if (gpio->port == SL_GPIO_ULP_PORT) {
+    // Check if the GPIO pin exceeds the maximum allowed values.
+    if (gpio->pin > ULP_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  // Check if the GPIO port is the Ultra-Ultra Low Power GPIO port.
+  if (gpio->port == SL_GPIO_UULP_PORT) {
+    // Check if the GPIO pin exceeds the maximum allowed values.
+    if (gpio->pin > UULP_PIN_MAX_VALUE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+  }
+  return SL_STATUS_OK;
+}
+
 /***************************************************************************/ /**
  * @brief Set a single pin in GPIO configuration register to 1. 
  * @pre Pre-conditions:
@@ -219,33 +310,16 @@ sl_status_t sl_gpio_driver_unregister(sl_si91x_gpio_instances_t gpio_instance,
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_pin(sl_gpio_t *gpio)
 {
-  // Check for valid parameters
+  sl_status_t status;
+  // Check if gpio pointer is NULL
   if (gpio == NULL) {
-    // Returns null pointer status code if gpio == NULL
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio->port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if gpio->port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
-  if ((gpio->port == SL_GPIO_PORT_A) || (gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
-    if (gpio->pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORT_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_GPIO_PORT_D) {
-    if (gpio->pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTD_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_ULP_GPIO_PORT) {
-    if (gpio->pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTE_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
+  // Set GPIO pin output
   sl_gpio_set_pin_output(gpio->port, gpio->pin);
   return SL_STATUS_OK;
 }
@@ -271,33 +345,16 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_pin(sl_gpio_t *gpio)
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_clear_pin(sl_gpio_t *gpio)
 {
-  // Check for valid parameters
+  sl_status_t status;
+  // Check if gpio pointer is NULL. Return error code for NULL pointer
   if (gpio == NULL) {
-    // Returns null pointer status code if gpio == NULL
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio->port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if gpio->port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
-  if ((gpio->port == SL_GPIO_PORT_A) || (gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
-    if (gpio->pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORT_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_GPIO_PORT_D) {
-    if (gpio->pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTD_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_ULP_GPIO_PORT) {
-    if (gpio->pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTE_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
+  // Clear GPIO pin output
   sl_gpio_clear_pin_output(gpio->port, gpio->pin);
   return SL_STATUS_OK;
 }
@@ -323,33 +380,16 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_pin(sl_gpio_t *gpio)
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_toggle_pin(sl_gpio_t *gpio)
 {
-  // Check for valid parameters
+  sl_status_t status;
+  // Check if gpio pointer is NULL. Return error code for NULL pointer
   if (gpio == NULL) {
-    // Returns null pointer status code if gpio == NULL
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio->port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if gpio->port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
-  if ((gpio->port == SL_GPIO_PORT_A) || (gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
-    if (gpio->pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORT_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_GPIO_PORT_D) {
-    if (gpio->pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTD_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_ULP_GPIO_PORT) {
-    if (gpio->pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTE_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
+  // Toggles GPIO pin
   sl_gpio_toggle_pin_output(gpio->port, gpio->pin);
   return SL_STATUS_OK;
 }
@@ -376,33 +416,16 @@ STATIC __INLINE sl_status_t sl_gpio_driver_toggle_pin(sl_gpio_t *gpio)
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_get_pin(sl_gpio_t *gpio, uint8_t *pin_value)
 {
-  // Check for valid parameters
+  sl_status_t status;
+  // Check if gpio pointer is NULL. Return error code for NULL pointer
   if (gpio == NULL) {
-    // Returns null pointer status code if gpio == NULL
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio->port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if gpio->port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
-  if ((gpio->port == SL_GPIO_PORT_A) || (gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
-    if (gpio->pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORT_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_GPIO_PORT_D) {
-    if (gpio->pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTD_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_ULP_GPIO_PORT) {
-    if (gpio->pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTE_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
+  // Get GPIO pin input
   *pin_value = sl_gpio_get_pin_input(gpio->port, gpio->pin);
   return SL_STATUS_OK;
 }
@@ -421,7 +444,8 @@ STATIC __INLINE sl_status_t sl_gpio_driver_get_pin(sl_gpio_t *gpio, uint8_t *pin
  * @param[in]  port - The port to associate with the pin.
  *                  HP instance - PORT 0,1,2,3
  *                  ULP instance - PORT 4
- * @param[in] pins - The GPIO pins in a Port that are set to 1 (1 to 65535).
+ * @param[in] pins - The GPIO pins in a Port that are set to 1 (1 to 65535 in decimal (or) 0xFFFF in hex).
+ *						If we want to set pins(maximum of (0-15)pins) in a port, it can set all pins at a time.
  * @return returns status 0 if successful,
  *               else error code as follow.
  * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
@@ -430,11 +454,11 @@ STATIC __INLINE sl_status_t sl_gpio_driver_get_pin(sl_gpio_t *gpio, uint8_t *pin
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_port(sl_gpio_port_t port, uint32_t pins)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
+  // Check if gpio port value exceeds maximum allowed value. Return error code for invalid parameter
+  if ((port > GPIO_PORT_MAX_VALUE) || (pins > GPIO_MAX_PORT_PINS)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Set GPIO port output
   sl_gpio_set_port_output(port, pins);
   return SL_STATUS_OK;
 }
@@ -451,9 +475,10 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_port(sl_gpio_port_t port, uint32_
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  port - The port to associate with the pin.
- *                  HP instance - PORT 0,1,2,3
+ *                  HP instance - PORT A,B,C,D
  *                  ULP instance - PORT 4
- * @param[in]  pins - The GPIO pins in a Port that are set to 0 (1 to 65535).
+ * @param[in]  pins - The GPIO pins in a Port that are set to 0 (1 to 65535 in decimal (or) 0xFFFF in hex).
+ *						If we want to clear pins(maximum of (0-15)pins) in a port, it can clear all pins at a time.
  * @return returns status 0 if successful,
  *               else error code as follow.
  * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
@@ -462,11 +487,11 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_port(sl_gpio_port_t port, uint32_
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_clear_port(sl_gpio_port_t port, uint32_t pins)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
+  // Check if gpio port value exceeds maximum allowed value. Return error code for invalid parameter
+  if ((port > GPIO_PORT_MAX_VALUE) || (pins > GPIO_MAX_PORT_PINS)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Clear GPIO port output
   sl_gpio_clear_port_output(port, pins);
   return SL_STATUS_OK;
 }
@@ -483,7 +508,7 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_port(sl_gpio_port_t port, uint3
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  port - The port to associate with the pin.
- *                  HP instance - PORT 0,1,2,3
+ *                  HP instance - PORT A,B,C,D
  *                  ULP instance - PORT 4
  * @param[out] port_value - Gets the gpio port value
  * @return returns status 0 if successful,
@@ -494,11 +519,11 @@ STATIC __INLINE sl_status_t sl_gpio_driver_clear_port(sl_gpio_port_t port, uint3
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_get_port_output(sl_gpio_port_t port, uint32_t *port_value)
 {
-  // Check for valid parameters
+  // Check if gpio port value exceeds maximum allowed value. Return error code for invalid parameter
   if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Get GPIO port output
   *port_value = sl_gpio_get_port_output(port);
   return SL_STATUS_OK;
 }
@@ -521,34 +546,17 @@ STATIC __INLINE sl_status_t sl_gpio_driver_get_port_output(sl_gpio_port_t port, 
  ******************************************************************************/
 STATIC __INLINE uint8_t sl_gpio_driver_get_pin_output(sl_gpio_t *gpio)
 {
+  sl_status_t status;
   uint8_t pin_output = 0;
-  // Check for valid parameters
+  // Check if gpio pointer is NULL. Return error code for NULL pointer
   if (gpio == NULL) {
-    // Returns null pointer status code if gpio == NULL
     return SL_STATUS_NULL_POINTER;
   }
-  if (gpio->port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if gpio->port > GPIO_PORT_MAX_VALUE
-    return SL_STATUS_INVALID_PARAMETER;
+  status = sl_gpio_validation(gpio);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
-  if ((gpio->port == SL_GPIO_PORT_A) || (gpio->port == SL_GPIO_PORT_B) || (gpio->port == SL_GPIO_PORT_C)) {
-    if (gpio->pin > PORT_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORT_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_GPIO_PORT_D) {
-    if (gpio->pin > PORTD_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTD_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
-  if (gpio->port == SL_ULP_GPIO_PORT) {
-    if (gpio->pin > PORTE_PIN_MAX_VALUE) {
-      // Returns invalid parameter status code if gpio->pin > PORTE_PIN_MAX_VALUE
-      return SL_STATUS_INVALID_PARAMETER;
-    }
-  }
+  // Get GPIO pin output
   pin_output = sl_gpio_get_pin_output(gpio->port, gpio->pin);
   return pin_output;
 }
@@ -566,7 +574,7 @@ STATIC __INLINE uint8_t sl_gpio_driver_get_pin_output(sl_gpio_t *gpio)
  * -   \ref sl_si91x_gpio_driver_set_pin_direction(); 
  *
  * @param[in]  port - The port to associate with the pin.
- *                  HP instance - PORT 0,1,2,3
+ *                  HP instance - PORT A,B,C,D
  *                  ULP instance - PORT 4
  * @param[in]  val -  Value to write to the port configuration  register.
  * @param[in]  mask - Mask indicating which bits to modify.
@@ -578,11 +586,11 @@ STATIC __INLINE uint8_t sl_gpio_driver_get_pin_output(sl_gpio_t *gpio)
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_port_output_value(sl_gpio_port_t port, uint32_t val, uint32_t mask)
 {
-  // Check for valid parameters
+  // Check if gpio port value exceeds maximum allowed value. Return error code for invalid parameter
   if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Set GPIO port output value
   sl_gpio_set_port_output_value(port, val, mask);
   return SL_STATUS_OK;
 }
@@ -605,11 +613,11 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_port_output_value(sl_gpio_port_t 
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_set_slew_rate(sl_gpio_port_t port, uint32_t slewrate, uint32_t slewrate_alt)
 {
-  // Check for valid parameters
+  // Check if gpio port value exceeds maximum allowed value. Return error code for invalid parameter
   if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Set GPIO slew rate
   sl_gpio_set_slew_rate(port, slewrate, slewrate_alt);
   return SL_STATUS_OK;
 }
@@ -627,7 +635,7 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_slew_rate(sl_gpio_port_t port, ui
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  port - The port to associate with the pin.
- *                  HP instance - PORT 0,1,2,3
+ *                  HP instance - PORT A,B,C,D
  *                  ULP instance - PORT 4
  * @return The GPIO pin value
  *             '0' - Low\n
@@ -636,11 +644,11 @@ STATIC __INLINE sl_status_t sl_gpio_driver_set_slew_rate(sl_gpio_port_t port, ui
 STATIC __INLINE uint32_t sl_gpio_driver_get_port_input(sl_gpio_port_t port)
 {
   uint32_t port_input = 0;
-  // Check for valid parameters
+  // Check if gpio port value exceeds maximum allowed value. Return error code for invalid parameter
   if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Get GPIO port input
   port_input = sl_gpio_get_port_input(port);
   return port_input;
 }
@@ -657,9 +665,9 @@ STATIC __INLINE uint32_t sl_gpio_driver_get_port_input(sl_gpio_port_t port)
  * -   \ref sl_si91x_gpio_driver_set_pin_direction() 
  *
  * @param[in]  port - The port to associate with the pin.
- *                  HP instance - PORT 0,1,2,3
+ *                  HP instance - PORT A,B,C,D
  *                  ULP instance - PORT 4
- * @param[in]  pins - Port pins to toggle.
+ * @param[in]  pins - Port pins to toggle. Ranges from (1 to 65535 in decimal (or) 0xFFFF in hex).
  * @return returns status 0 if successful,
  *               else error code as follow.
  * -   \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument 
@@ -668,11 +676,11 @@ STATIC __INLINE uint32_t sl_gpio_driver_get_port_input(sl_gpio_port_t port)
  ******************************************************************************/
 STATIC __INLINE sl_status_t sl_gpio_driver_toggle_port_output(sl_gpio_port_t port, uint32_t pins)
 {
-  // Check for valid parameters
-  if (port > GPIO_PORT_MAX_VALUE) {
-    // Returns invalid parameter status code if port > GPIO_PORT_MAX_VALUE
+  // Check if gpio port value exceeds maximum allowed value. Return error code for invalid parameter
+  if ((port > GPIO_PORT_MAX_VALUE) || (pins > GPIO_MAX_PORT_PINS)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
+  // Toggle GPIO port output
   sl_gpio_toggle_port_output(port, pins);
   return SL_STATUS_OK;
 }

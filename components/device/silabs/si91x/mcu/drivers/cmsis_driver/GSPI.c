@@ -71,17 +71,23 @@ extern UDMA_RESOURCES UDMA0_Resources ;
 #ifdef GSPI_CONFIG
 // GSPI DMA configuration
 #if (SL_GSPI_DMA_CONFIG_ENABLE == ENABLE)
+#undef RTE_GSPI_MASTER_CHNL_UDMA_TX_EN
+#undef RTE_GSPI_MASTER_CHNL_UDMA_RX_EN
 #define RTE_GSPI_MASTER_CHNL_UDMA_TX_EN 1
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_EN 1
 
 #if defined(SL_GSPI_AFULL_THRESHOLD)
+#undef RTE_FIFO_AFULL_THRLD
 #define RTE_FIFO_AFULL_THRLD SL_GSPI_AFULL_THRESHOLD
 #endif
 
 #if defined(SL_GSPI_AEMPTY_THRESHOLD)
+#undef RTE_FIFO_AEMPTY_THRLD
 #define RTE_FIFO_AEMPTY_THRLD SL_GSPI_AEMPTY_THRESHOLD
 #endif
 
+#undef TX_DMA_ARB_SIZE
+#undef RX_DMA_ARB_SIZE
 #define TX_DMA_ARB_SIZE ARBSIZE_4
 #define RX_DMA_ARB_SIZE ARBSIZE_4
 #endif
@@ -121,7 +127,7 @@ static GSPI_INFO          GSPI_MASTER_Info         = { 0U };
 static GSPI_TRANSFER_INFO GSPI_MASTER_TransferInfo = { 0U };
 
 #if (RTE_GSPI_MASTER_CHNL_UDMA_TX_EN == 1)
-void GSPI_MASTER_UDMA_Tx_Event (uint32_t event ,uint8_t dmaCh);
+void GSPI_MASTER_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
 static GSPI_DMA GSPI_MASTER_UDMA_TX_CHNL = {
 		{
 				0,  //channelPrioHigh
@@ -137,7 +143,7 @@ static GSPI_DMA GSPI_MASTER_UDMA_TX_CHNL = {
 };
 #endif
 #if (RTE_GSPI_MASTER_CHNL_UDMA_RX_EN == 1)
-void GSPI_MASTER_UDMA_Rx_Event (uint32_t event ,uint8_t dmaCh);
+void GSPI_MASTER_UDMA_Rx_Event (uint32_t event ,uint32_t dmaCh);
 static GSPI_DMA GSPI_MASTER_UDMA_RX_CHNL = {
 		{
 				0,
@@ -182,7 +188,7 @@ static const GSPI_RESOURCES GSPI_MASTER_Resources = {
 		&gspi_mosi,
 		&gspi_miso, //pins end 
     }, //pins end
-		RTE_GSPI_CLOCK_SOURCE,//clock  
+		GSPI_INTF_PLL_CLK,//clock  
 		//thresholds    
 		&gspi_threshold,    
 0 };
@@ -197,13 +203,6 @@ ARM_SPI_CAPABILITIES GSPI_MASTER_GetCapabilities(void)
 {
 	return DriverCapabilities;
 }
-ARM_SPI_STATUS GSPI_GetStatus(const GSPI_RESOURCES *gspi)
-{
-  (void)gspi;
-  ARM_SPI_STATUS status = { 0, 0, 0 };
-
-	return status;
-}
 
 uint8_t gspi_slavenumber=0xA5;
 
@@ -217,23 +216,23 @@ uint8_t RSI_GSPI_GetSlaveSelectNumber(void)
 }
 
 #if (RTE_GSPI_MASTER_CHNL_UDMA_TX_EN == 1)
-void GSPI_MASTER_UDMA_Tx_Event (uint32_t event, uint8_t dmaCh)
+void GSPI_MASTER_UDMA_Tx_Event (uint32_t event, uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
-	ROMAPI_GSPI_API->GSPI_UDMA_Tx_Event (event,dmaCh, &GSPI_MASTER_Resources);	
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
+	ROMAPI_GSPI_API->GSPI_UDMA_Tx_Event (event, (uint8_t)dmaCh, &GSPI_MASTER_Resources);	
 #else
-	GSPI_UDMA_Tx_Event (event,dmaCh, &GSPI_MASTER_Resources);
+	GSPI_UDMA_Tx_Event (event,(uint8_t)dmaCh, &GSPI_MASTER_Resources);
 #endif
 }
 #endif
 
 #if (RTE_GSPI_MASTER_CHNL_UDMA_RX_EN == 1)
-void GSPI_MASTER_UDMA_Rx_Event (uint32_t event,uint8_t dmaCh)
+void GSPI_MASTER_UDMA_Rx_Event (uint32_t event,uint32_t dmaCh)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
-	ROMAPI_GSPI_API->GSPI_UDMA_Rx_Event (event,dmaCh, &GSPI_MASTER_Resources);
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
+	ROMAPI_GSPI_API->GSPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &GSPI_MASTER_Resources);
 #else
-	GSPI_UDMA_Rx_Event (event,dmaCh, &GSPI_MASTER_Resources);
+	GSPI_UDMA_Rx_Event (event,(uint8_t)dmaCh, &GSPI_MASTER_Resources);
 #endif
 }
 #endif
@@ -241,7 +240,7 @@ void GSPI_MASTER_UDMA_Rx_Event (uint32_t event,uint8_t dmaCh)
 #if RTE_GSPI_MASTER
 static int32_t GSPI_MASTER_Initialize (ARM_SPI_SignalEvent_t pSignalEvent)                
 { 
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
 	return ROMAPI_GSPI_API->GSPI_Initialize (pSignalEvent, &GSPI_MASTER_Resources,&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);
 #else
 	return GSPI_Initialize (pSignalEvent, &GSPI_MASTER_Resources,&UDMA0_Resources,UDMA0_Table,&udmaHandle0,dma_rom_buff0);
@@ -250,12 +249,7 @@ static int32_t GSPI_MASTER_Initialize (ARM_SPI_SignalEvent_t pSignalEvent)
 
 static int32_t GSPI_MASTER_Uninitialize(void) 
 {
-	#if defined(CHIP_9118)
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI2);
-	#else
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
-  #endif	
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
 	return ROMAPI_GSPI_API->GSPI_Uninitialize (&GSPI_MASTER_Resources,&UDMA0_Resources);  		
 #else
 	return GSPI_Uninitialize (&GSPI_MASTER_Resources,&UDMA0_Resources);
@@ -264,7 +258,7 @@ static int32_t GSPI_MASTER_Uninitialize(void)
 
 static int32_t GSPI_MASTER_PowerControl(ARM_POWER_STATE state)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
 	return ROMAPI_GSPI_API->GSPI_PowerControl (state, &GSPI_MASTER_Resources);   	
 #else
 	return GSPI_PowerControl (state, &GSPI_MASTER_Resources); 
@@ -273,7 +267,7 @@ static int32_t GSPI_MASTER_PowerControl(ARM_POWER_STATE state)
 
 static int32_t GSPI_MASTER_Send(const void *data, uint32_t num)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
 	return ROMAPI_GSPI_API->GSPI_Send (data, num, &GSPI_MASTER_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0); 
 #else
 	return GSPI_Send (data, num, &GSPI_MASTER_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0); 
@@ -282,7 +276,7 @@ static int32_t GSPI_MASTER_Send(const void *data, uint32_t num)
 
 static int32_t GSPI_MASTER_Receive (void *data, uint32_t num)
 {
-#if  defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if  defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
 	return ROMAPI_GSPI_API->GSPI_Receive (data, num, &GSPI_MASTER_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0);  	
 #else
 	return GSPI_Receive (data, num, &GSPI_MASTER_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0); 
@@ -291,7 +285,7 @@ static int32_t GSPI_MASTER_Receive (void *data, uint32_t num)
 
 static int32_t GSPI_MASTER_Transfer (const void *data_out, void *data_in, uint32_t num) 
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
 	return ROMAPI_GSPI_API->GSPI_Transfer (data_out, data_in, num, &GSPI_MASTER_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0); 
 #else
 	return GSPI_Transfer (data_out, data_in, num, &GSPI_MASTER_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0); 
@@ -300,7 +294,7 @@ static int32_t GSPI_MASTER_Transfer (const void *data_out, void *data_in, uint32
 
 static uint32_t GSPI_MASTER_GetDataCount (void)                                              
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
 	return ROMAPI_GSPI_API->GSPI_GetDataCount (&GSPI_MASTER_Resources);	
 #else
 	return GSPI_GetDataCount (&GSPI_MASTER_Resources);
@@ -322,7 +316,7 @@ static int32_t GSPI_MASTER_Control(uint32_t control, uint32_t arg)
     }
   }
 #endif
-#if (defined(ROMDRIVER_PRESENT))
+#if (defined(GSPI_ROMDRIVER_PRESENT))
 #if ((defined(A11_ROM)) && (defined(SLI_SI917)) && (defined(SLI_SI917B0)))
   return ROMAPI_GSPI_API->GSPI_Control(control, arg, &GSPI_MASTER_Resources, gspi_get_clock, gspi_slavenumber);
 #else
@@ -341,7 +335,7 @@ static ARM_SPI_STATUS GSPI_MASTER_GetStatus (void)
 
 void GSPI_MASTER_IRQHandler(void)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
 	ROMAPI_GSPI_API->GSPI_IRQHandler (&GSPI_MASTER_Resources); 	
 #else
 	GSPI_IRQHandler (&GSPI_MASTER_Resources); 

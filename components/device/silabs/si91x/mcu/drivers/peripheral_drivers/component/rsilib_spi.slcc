@@ -16,3 +16,7 @@ include:
     - path: "rsi_spi.h"
 provides:
   - name: rsilib_spi
+requires:
+  - name: romdriver_udma_wrapper
+define: 
+  - name: SPI_MULTI_SLAVE

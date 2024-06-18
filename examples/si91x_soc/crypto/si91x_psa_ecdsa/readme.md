@@ -24,16 +24,16 @@
 
 - The board MBR should have "ta_secure_boot_enable" set to 1 for wrap functionality
 
-### Hardware Requirements	
+### Hardware Requirements
 
-  - Windows PC 
+  - Windows PC
   - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
 
 ### Software Requirements
 
 - Simplicity Studio
 
-### Setup Diagram 
+### Setup Diagram
 
   ![Figure: Introduction](resources/readme/image508a.png)
 
@@ -88,11 +88,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Flash, run and debug the application.
+- Application Output
+
+  ![ECDSA Output](resources/readme/output.png)
 
 Follow the steps as mentioned for the successful execution of the application:
 
-[AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)
-
-## Application Output
-
-  ![ECDSA Output](resources/readme/output.png)
+* [AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)

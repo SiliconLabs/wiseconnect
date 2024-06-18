@@ -60,7 +60,7 @@ typedef int32_t sl_adc_error_t;
 #define SL_SH_ADC_CH0_P_INPUT     4          ///< ADC channel 0 positive input selection ULP_GPIO_2 */
 #define SL_SH_ADC_CH0_CHANNEL     0          ///< ADC channel 0 channel number */
 #define SL_SH_ADC_CH0_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
-#define SL_SH_ADC_CH0_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
+#define SL_SH_ADC_CH0_NUM_SAMPLES 2          ///< ADC channel 0 number of samples */
 #define ADC_PING_BUFFER0          0x24060000 ///< ADC ping buffer starting address for channel 0.
 #endif
 
@@ -69,7 +69,7 @@ typedef int32_t sl_adc_error_t;
 #define SL_SH_ADC_CH1_P_INPUT     5          ///< ADC channel 0 positive input selection ULP_GPIO_8 */
 #define SL_SH_ADC_CH1_CHANNEL     1          ///< ADC channel 0 channel number */
 #define SL_SH_ADC_CH1_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
-#define SL_SH_ADC_CH1_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
+#define SL_SH_ADC_CH1_NUM_SAMPLES 2          ///< ADC channel 0 number of samples */
 #define ADC_PING_BUFFER1          0x24060800 ///< ADC ping buffer starting address for channel 1.
 #endif
 
@@ -78,7 +78,7 @@ typedef int32_t sl_adc_error_t;
 #define SL_SH_ADC_CH2_P_INPUT     10         ///< ADC channel 0 positive input selection ULP_GPIO_10 */
 #define SL_SH_ADC_CH2_CHANNEL     2          ///< ADC channel 0 channel number */
 #define SL_SH_ADC_CH2_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
-#define SL_SH_ADC_CH2_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
+#define SL_SH_ADC_CH2_NUM_SAMPLES 2          ///< ADC channel 0 number of samples */
 #define ADC_PING_BUFFER2          0x24061000 ///< ADC ping buffer starting address for channel 2.
 #endif
 
@@ -87,7 +87,7 @@ typedef int32_t sl_adc_error_t;
 #define SL_SH_ADC_CH3_P_INPUT     10         ///< ADC channel 0 positive input selection ULP_GPIO_1 */
 #define SL_SH_ADC_CH3_CHANNEL     3          ///< ADC channel 0 channel number */
 #define SL_SH_ADC_CH3_OPAMP_GAIN  2          ///< ADC channel 0 opamp gain */
-#define SL_SH_ADC_CH3_NUM_SAMPLES 1          ///< ADC channel 0 number of samples */
+#define SL_SH_ADC_CH3_NUM_SAMPLES 2          ///< ADC channel 0 number of samples */
 #define ADC_PING_BUFFER3          0x24061800 ///< ADC ping buffer starting address for channel 2.
 #endif
 

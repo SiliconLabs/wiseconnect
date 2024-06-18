@@ -17,8 +17,6 @@
 
 //Include Files
 
-#include "rsi_chip.h"
-
 #ifndef RSI_WURX_H
 #define RSI_WURX_H
 

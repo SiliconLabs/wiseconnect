@@ -1,5 +1,5 @@
 /*******************************************************************************
-* @file  rsi_wisemcu_hardware_setup.c
+ * @file  sl_platform_wireless.c
 * @brief 
 *******************************************************************************
 * # License
@@ -15,6 +15,7 @@
 *
 ******************************************************************************/
 
+#include "FreeRTOSConfig.h"
 #include "rsi_wisemcu_hardware_setup.h"
 #include "rsi_m4.h"
 #include "rsi_rom_egpio.h"
@@ -60,9 +61,6 @@ void sl_si91x_hardware_setup(void)
   RSI_ULPSS_DisableRefClks(MCU_ULP_40MHZ_CLK_EN);
 #endif
 
-  /* Disable RC_32KHZ Clocks*/
-  RSI_ULPSS_DisableRefClks(MCU_ULP_32KHZ_RO_CLK_EN);
-
   /* Power-Down Button Calibration*/
   RSI_PS_BodPwrGateButtonCalibDisable();
 
@@ -85,7 +83,6 @@ void sl_si91x_hardware_setup(void)
   );
 
 #ifndef DS_BASED_WKP
-  RSI_PS_NpssPeriPowerDown(SLPSS_PWRGATE_ULP_TIMEPERIOD);
   RSI_PS_PowerSupplyDisable(POWER_ENABLE_DEEPSLEEP_TIMER);
 #endif
   /* Power-Down unused NPSS Domain peripherals*/
@@ -238,9 +235,6 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
                             uint32_t vector_offset,
                             uint32_t mode)
 {
-  // rsi_driver_cb_t *rsi_driver_cb = global_cb_p->rsi_driver_cb;
-  volatile uint8_t delay;
-
   // Turn on the ULPSS RAM domains and retain ULPSS RAMs
   if ((mode != RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM) || (mode != RSI_WAKEUP_WO_RETENTION_WO_ULPSS_RAM)) {
     /* Turn on ULPSS SRAM domains*/
@@ -265,6 +259,9 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
   }
 
+#if (configUSE_TICKLESS_IDLE == 0)
+
+  volatile uint8_t delay;
   if ((osEventFlagsGet(si91x_events) | osEventFlagsGet(si91x_bus_events) | osEventFlagsGet(si91x_async_events))
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
       || (osMutexGetOwner(side_band_crypto_mutex) != NULL)
@@ -301,8 +298,11 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   SysTick->CTRL = DISABLE;
   NVIC_ClearPendingIRQ(SysTick_IRQn);
 
+  //!Clear RX_BUFFER_VALID
   M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
   M4SS_P2P_INTR_CLR_REG;
+#endif // configUSE_TICKLESS_IDLE == 0
+
 #ifndef ENABLE_DEBUG_MODULE
   RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
 #endif // ENABLE_DEBUG_MODULE
@@ -330,10 +330,16 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     sli_si91x_configure_wireless_frontend_controls(frontend_switch_control);
   }
 #endif
+
+#if (configUSE_TICKLESS_IDLE == 0)
+  //!Indicate M4 is active and rx buffer valid
+  P2P_STATUS_REG |= M4_is_active;
+  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
   __enable_irq();
 
   // Systick configuration upon Wake-up
-  SysTick_Config(SystemCoreClock / 1000);
+  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
+#endif // configUSE_TICKLESS_IDLE == 0
 }
 
 /**

@@ -1,5 +1,5 @@
 id: ssi_ulp_component
-label: ULP SSI
+label: PM ULP SSI
 package: platform
 description: >
   ULP SSI component will enable  SSI in the low-power mode. It moves all the peripheral dependencies to RAM. 

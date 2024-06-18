@@ -31,9 +31,12 @@
 /******************************************************
  *                      Macros
  ******************************************************/
-#define TCP_HEADER_LENGTH     56
-#define UDP_HEADER_LENGTH     44
-#define SI91X_SSL_HEADER_SIZE 90
+#define TCP_HEADER_LENGTH          56
+#define UDP_HEADER_LENGTH          44
+#define TCP_V6_HEADER_LENGTH       76
+#define UDP_V6_HEADER_LENGTH       64
+#define SI91X_SSL_HEADER_SIZE_IPV4 90
+#define SI91X_SSL_HEADER_SIZE_IPV6 110
 
 static int sli_si91x_accept_async(int socket,
                                   const struct sockaddr *addr,
@@ -130,49 +133,7 @@ int sl_si91x_bind(int socket, const struct sockaddr *addr, socklen_t addr_len)
 
 int sl_si91x_connect(int socket, const struct sockaddr *addr, socklen_t addr_len)
 {
-  // Retrieve the socket using the socket index
-  sl_status_t status           = SL_STATUS_FAIL;
-  si91x_socket_t *si91x_socket = get_si91x_socket(socket);
-
-  // Check if the socket is valid.
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_STREAM && si91x_socket->state == CONNECTED, EISCONN);
-
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_STREAM && si91x_socket->state > BOUND, EBADF);
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_DGRAM && si91x_socket->state != INITIALIZED
-                                 && si91x_socket->state != BOUND && si91x_socket->state != UDP_UNCONNECTED_READY,
-                               EBADF);
-
-  SET_ERRNO_AND_RETURN_IF_TRUE(
-    (si91x_socket->local_address.sin6_family == AF_INET && addr_len < sizeof(struct sockaddr_in))
-      || (si91x_socket->local_address.sin6_family == AF_INET6 && addr_len < sizeof(struct sockaddr_in6)),
-    EINVAL);
-
-  SET_ERRNO_AND_RETURN_IF_TRUE(addr == NULL, EFAULT);
-
-  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->local_address.sin6_family != addr->sa_family, EAFNOSUPPORT)
-
-  memcpy(&si91x_socket->remote_address,
-         addr,
-         (addr_len > sizeof(struct sockaddr_in6)) ? sizeof(struct sockaddr_in6) : addr_len);
-
-  // Since socket is already created, there is no need to send create request again.
-  if (si91x_socket->type == SOCK_DGRAM && si91x_socket->state == UDP_UNCONNECTED_READY) {
-    si91x_socket->state = CONNECTED;
-
-    return SI91X_NO_ERROR;
-  }
-
-  if (si91x_socket->type == SOCK_STREAM) {
-    status = create_and_send_socket_request(socket, SI91X_SOCKET_TCP_CLIENT, NULL);
-  } else if (si91x_socket->type == SOCK_DGRAM) {
-    status = create_and_send_socket_request(socket, SI91X_SOCKET_LUDP, NULL);
-  }
-
-  SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
-
-  si91x_socket->state = CONNECTED;
-  return SI91X_NO_ERROR;
+  return sli_si91x_connect(socket, addr, addr_len);
 }
 
 int sl_si91x_listen(int socket, int max_number_of_clients)
@@ -498,15 +459,15 @@ int sl_si91x_send_large_data(int socket, const uint8_t *buffer, size_t buffer_le
   SET_ERRNO_AND_RETURN_IF_TRUE(buffer == NULL, EFAULT);
 
   // Find maximum limit based on the protocol
-  if (si91x_socket->type == SOCK_DGRAM) {
-    // If it is a UDP socket
-    max_len = DEFAULT_DATAGRAM_MSS_SIZE;
-  } else if ((si91x_socket->type == SOCK_STREAM) && (si91x_socket->ssl_bitmap & SL_SI91X_ENABLE_TLS)) {
-    // If it is an SSL socket
-    max_len = si91x_socket->mss - SI91X_SSL_HEADER_SIZE;
+  if (si91x_socket->type == SOCK_STREAM && si91x_socket->ssl_bitmap & SL_SI91X_ENABLE_TLS) {
+    max_len = (si91x_socket->local_address.sin6_family == AF_INET) ? si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV4
+                                                                   : si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV6;
+  } else if (si91x_socket->type == SOCK_DGRAM) {
+    max_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
+                                                                   : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
   } else {
-    //TBD: Separate condition for Websocket
-    max_len = si91x_socket->mss;
+    max_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_STREAM_MSS_SIZE_IPV4
+                                                                   : DEFAULT_STREAM_MSS_SIZE_IPV6;
   }
 
   while (offset < buffer_length) {
@@ -548,15 +509,22 @@ int sl_si91x_sendto_async(int socket,
 
   // Check message size depending on socket type
   if (si91x_socket->type == SOCK_STREAM) {
-    // For SOCK_STREAM (TCP), consider SSL overhead if TLS is enabled
     if (si91x_socket->ssl_bitmap & SL_SI91X_ENABLE_TLS) {
-      SET_ERRNO_AND_RETURN_IF_TRUE((uint16_t)buffer_length > (si91x_socket->mss - SI91X_SSL_HEADER_SIZE), EMSGSIZE);
+      // For SOCK_STREAM (TCP), consider SSL overhead if TLS is enabled
+      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET)
+                          ? si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV4
+                          : si91x_socket->mss - SI91X_SSL_HEADER_SIZE_IPV6;
+      SET_ERRNO_AND_RETURN_IF_TRUE(buffer_length > max_size, EMSGSIZE);
     } else {
-      SET_ERRNO_AND_RETURN_IF_TRUE(buffer_length > si91x_socket->mss, EMSGSIZE);
+      size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_STREAM_MSS_SIZE_IPV4
+                                                                             : DEFAULT_STREAM_MSS_SIZE_IPV6;
+      SET_ERRNO_AND_RETURN_IF_TRUE(buffer_length > max_size, EMSGSIZE);
     }
   } else if (si91x_socket->type == SOCK_DGRAM) {
     // For SOCK_DGRAM (UDP), check the message size against the default maximum size
-    SET_ERRNO_AND_RETURN_IF_TRUE(buffer_length > DEFAULT_DATAGRAM_MSS_SIZE, EMSGSIZE);
+    size_t max_size = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
+                                                                           : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
+    SET_ERRNO_AND_RETURN_IF_TRUE(buffer_length > max_size, EMSGSIZE);
   }
 
   if (si91x_socket->type == SOCK_DGRAM && (si91x_socket->state == BOUND || si91x_socket->state == INITIALIZED)) {
@@ -581,6 +549,7 @@ int sl_si91x_sendto_async(int socket,
     // If the socket uses IPv6, set the IP version and destination IPv6 address
     struct sockaddr_in6 *socket_address = (struct sockaddr_in6 *)to_addr;
     request.ip_version                  = SL_IPV6_ADDRESS_LENGTH;
+    request.data_offset = (si91x_socket->type == SOCK_STREAM) ? TCP_V6_HEADER_LENGTH : UDP_V6_HEADER_LENGTH;
     uint8_t *destination_ip =
       (si91x_socket->state == UDP_UNCONNECTED_READY || to_addr_len >= sizeof(struct sockaddr_in6))
         ? socket_address->sin6_addr.__u6_addr.__u6_addr8
@@ -591,6 +560,7 @@ int sl_si91x_sendto_async(int socket,
     // If the socket uses IPv4, set the IP version and destination IPv4 address
     struct sockaddr_in *socket_address = (struct sockaddr_in *)to_addr;
     request.ip_version                 = SL_IPV4_ADDRESS_LENGTH;
+    request.data_offset                = (si91x_socket->type == SOCK_STREAM) ? TCP_HEADER_LENGTH : UDP_HEADER_LENGTH;
     uint32_t *destination_ip =
       (si91x_socket->state == UDP_UNCONNECTED_READY || to_addr_len >= sizeof(struct sockaddr_in))
         ? &socket_address->sin_addr.s_addr
@@ -599,12 +569,11 @@ int sl_si91x_sendto_async(int socket,
     memcpy(&request.dest_ip_addr.ipv4_address[0], destination_ip, SL_IPV4_ADDRESS_LENGTH);
   }
   // Set other parameters in the send request
-  request.socket_id   = si91x_socket->id;
-  request.dest_port   = ((si91x_socket->state == UDP_UNCONNECTED_READY || to_addr_len > 0))
-                          ? ((struct sockaddr_in *)to_addr)->sin_port
-                          : si91x_socket->remote_address.sin6_port;
-  request.data_offset = (si91x_socket->type == SOCK_STREAM) ? TCP_HEADER_LENGTH : UDP_HEADER_LENGTH;
-  request.length      = buffer_length;
+  request.socket_id = si91x_socket->id;
+  request.dest_port = ((si91x_socket->state == UDP_UNCONNECTED_READY || to_addr_len > 0))
+                        ? ((struct sockaddr_in *)to_addr)->sin_port
+                        : si91x_socket->remote_address.sin6_port;
+  request.length    = buffer_length;
 
   // Send the socket data
   status = sl_si91x_driver_send_socket_data(&request, buffer, 0);
@@ -659,10 +628,14 @@ int sl_si91x_recvfrom(int socket,
   SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->state != CONNECTED && si91x_socket->state != UDP_UNCONNECTED_READY, EBADF)
 
   // Limit the buffer length based on the socket type
-  if (si91x_socket->type == SOCK_STREAM && buf_len > DEFAULT_STREAM_MSS_SIZE) {
-    buf_len = DEFAULT_STREAM_MSS_SIZE;
-  } else if (si91x_socket->type == SOCK_DGRAM && buf_len > DEFAULT_DATAGRAM_MSS_SIZE) {
-    buf_len = DEFAULT_DATAGRAM_MSS_SIZE;
+  if (si91x_socket->type == SOCK_STREAM) {
+    if (buf_len > DEFAULT_STREAM_MSS_SIZE_IPV4 || buf_len > DEFAULT_STREAM_MSS_SIZE_IPV6)
+      buf_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
+                                                                     : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
+  } else if (si91x_socket->type == SOCK_DGRAM) {
+    if (buf_len > DEFAULT_STREAM_MSS_SIZE_IPV4 || buf_len > DEFAULT_STREAM_MSS_SIZE_IPV6)
+      buf_len = (si91x_socket->local_address.sin6_family == AF_INET) ? DEFAULT_DATAGRAM_MSS_SIZE_IPV4
+                                                                     : DEFAULT_DATAGRAM_MSS_SIZE_IPV6;
   }
 
   // Initialize the socket read request with the socket ID and requested buffer length

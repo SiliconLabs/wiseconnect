@@ -75,6 +75,7 @@ uint32_t GSPI_GetFrameLength(void);
 int32_t GSPI_SwapReadWriteByte(boolean_t read, boolean_t write);
 uint32_t GSPI_GetTxCount(void);
 uint8_t GSPI_GetInitState(void);
+ARM_SPI_STATUS GSPI_GetStatus(const GSPI_RESOURCES *gspi);
 // Static Inline function to set the spi memory map pll
 static inline void GSPI_SetMemoryMapPll(uint16_t value)
 {

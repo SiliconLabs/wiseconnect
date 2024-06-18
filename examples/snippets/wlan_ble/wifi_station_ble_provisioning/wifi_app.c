@@ -3,7 +3,7 @@
 * @brief
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -81,9 +81,9 @@ static uint32_t wlan_app_event_map;
  *********************************************************************************************************
  */
 
-extern void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
+extern void wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
 static sl_status_t show_scan_results();
-void sl_wifi_app_set_event(uint32_t event_num);
+void wifi_app_set_event(uint32_t event_num);
 extern uint8_t coex_ssid[50], pwd[34], sec_type;
 uint8_t retry = 1;
 
@@ -92,14 +92,14 @@ extern uint8_t magic_word;
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_set_event
+ * @fn         wifi_app_set_event
  * @brief      sets the specific event.
  * @param[in]  event_num, specific event number.
  * @return     none.
  * @section description
  * This function is used to set/raise the specific event.
  */
-void sl_wifi_app_set_event(uint32_t event_num)
+void wifi_app_set_event(uint32_t event_num)
 {
   wlan_app_event_map |= BIT(event_num);
 
@@ -110,14 +110,14 @@ void sl_wifi_app_set_event(uint32_t event_num)
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_clear_event
+ * @fn         wifi_app_clear_event
  * @brief      clears the specific event.
  * @param[in]  event_num, specific event number.
  * @return     none.
  * @section description
  * This function is used to clear the specific event.
  */
-void sl_wifi_app_clear_event(uint32_t event_num)
+void wifi_app_clear_event(uint32_t event_num)
 {
   wlan_app_event_map &= ~BIT(event_num);
   return;
@@ -125,7 +125,7 @@ void sl_wifi_app_clear_event(uint32_t event_num)
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_get_event
+ * @fn         wifi_app_get_event
  * @brief      returns the first set event based on priority
  * @param[in]  none.
  * @return     int32_t
@@ -134,7 +134,7 @@ void sl_wifi_app_clear_event(uint32_t event_num)
  * @section description
  * This function returns the highest priority event among all the set events
  */
-int32_t sl_wifi_app_get_event(void)
+int32_t wifi_app_get_event(void)
 {
   uint32_t ix;
 
@@ -147,18 +147,21 @@ int32_t sl_wifi_app_get_event(void)
   return (-1);
 }
 
-// rejoin failure call back handler in station mode
-void sl_wifi_join_fail_handler(uint16_t status, uint8_t *buffer, const uint32_t length)
+// rejoin failure callback handler in station mode
+sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
 {
-  UNUSED_PARAMETER(status);
-  UNUSED_PARAMETER(buffer);
-  UNUSED_PARAMETER(length);
+  UNUSED_PARAMETER(event);
+  UNUSED_PARAMETER(result);
+  UNUSED_PARAMETER(result_length);
+  UNUSED_PARAMETER(arg);
 
   // update wlan application state
   disconnected = 1;
   connected    = 0;
 
-  sl_wifi_app_set_event(SL_WIFI_DISCONNECTED_STATE);
+  wifi_app_set_event(WIFI_APP_DISCONNECTED_STATE);
+
+  return SL_STATUS_OK;
 }
 
 static sl_status_t show_scan_results()
@@ -216,7 +219,7 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   return SL_STATUS_OK;
 }
 
-void sl_wifi_app_task()
+void wifi_app_task()
 {
   int32_t status   = RSI_SUCCESS;
   int32_t event_id = 0;
@@ -230,7 +233,7 @@ void sl_wifi_app_task()
   memset(scan_result, 0, scanbuf_size);
   while (1) {
     // checking for events list
-    event_id = sl_wifi_app_get_event();
+    event_id = wifi_app_get_event();
     if (event_id == -1) {
       osSemaphoreAcquire(wlan_thread_sem, osWaitForever);
 
@@ -239,30 +242,33 @@ void sl_wifi_app_task()
     }
 
     switch (event_id) {
-      case SL_WIFI_INITIAL_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_INITIAL_STATE);
-        LOG_PRINT("SL_WIFI_INITIAL_STATE\n");
+      case WIFI_APP_INITIAL_STATE: {
+        wifi_app_clear_event(WIFI_APP_INITIAL_STATE);
+        LOG_PRINT("WIFI App Initial State\n");
+
+        //! Initialize join fail call back
+        sl_wifi_set_join_callback(join_callback_handler, NULL);
 
         // update wlan application state
         if (magic_word) {
           // clear the served event
-          sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
+          wifi_app_set_event(WIFI_APP_FLASH_STATE);
         } else {
-          sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
+          wifi_app_set_event(WIFI_APP_SCAN_STATE);
         }
       } break;
 
-      case SL_WIFI_UNCONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_UNCONNECTED_STATE);
-        LOG_PRINT("SL_WIFI_UNCONNECTED_STATE\n");
+      case WIFI_APP_UNCONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_UNCONNECTED_STATE);
+        LOG_PRINT("WIFI App Unconnected State\n");
 
         // Any additional code if required
 
         osSemaphoreRelease(wlan_thread_sem);
       } break;
 
-      case SL_WIFI_SCAN_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_SCAN_STATE);
+      case WIFI_APP_SCAN_STATE: {
+        wifi_app_clear_event(WIFI_APP_SCAN_STATE);
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
@@ -281,16 +287,16 @@ void sl_wifi_app_task()
         }
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nWLAN Scan Wait Failed, Error Code : 0x%lX\r\n", status);
-          sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
+          wifi_app_set_event(WIFI_APP_SCAN_STATE);
           osDelay(1000);
         } else {
           // update wlan application state
-          sl_wifi_app_send_to_ble(SL_WIFI_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
+          wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
         }
         osSemaphoreRelease(wlan_thread_sem);
       } break;
 
-      case SL_WIFI_JOIN_STATE: {
+      case WIFI_APP_JOIN_STATE: {
         sl_wifi_credential_t cred  = { 0 };
         sl_wifi_credential_id_t id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
         memset(&access_point, 0, sizeof(sl_wifi_client_configuration_t));
@@ -313,8 +319,8 @@ void sl_wifi_app_task()
         }
         if (status != RSI_SUCCESS) {
           timeout = 1;
-          sl_wifi_app_send_to_ble(SL_WIFI_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
-          sl_wifi_app_clear_event(SL_WIFI_JOIN_STATE);
+          wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
+          wifi_app_clear_event(WIFI_APP_JOIN_STATE);
           LOG_PRINT("\r\nWLAN Connect Failed, Error Code : 0x%lX\r\n", status);
 
           // update wlan application state
@@ -323,16 +329,16 @@ void sl_wifi_app_task()
         } else {
           LOG_PRINT("\n WLAN connection is successful\n");
           // update wlan application state
-          sl_wifi_app_clear_event(SL_WIFI_JOIN_STATE);
-          sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
+          wifi_app_clear_event(WIFI_APP_JOIN_STATE);
+          wifi_app_set_event(WIFI_APP_CONNECTED_STATE);
         }
         osSemaphoreRelease(wlan_thread_sem);
-        LOG_PRINT("RSI_WLAN_JOIN_STATE\n");
+        LOG_PRINT("WIFI App Join State\n");
 
       } break;
 
-      case SL_WIFI_FLASH_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_FLASH_STATE);
+      case WIFI_APP_FLASH_STATE: {
+        wifi_app_clear_event(WIFI_APP_FLASH_STATE);
 
         if (retry) {
           status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
@@ -340,15 +346,15 @@ void sl_wifi_app_task()
             LOG_PRINT("\r\nWLAN Connect Failed, Error Code : 0x%lX\r\n", status);
             break;
           } else {
-            sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
+            wifi_app_set_event(WIFI_APP_CONNECTED_STATE);
           }
         }
 
         osSemaphoreRelease(wlan_thread_sem);
       } break;
 
-      case SL_WIFI_CONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_CONNECTED_STATE);
+      case WIFI_APP_CONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_CONNECTED_STATE);
 
         ip_address.type      = SL_IPV4;
         ip_address.mode      = SL_IP_MANAGEMENT_DHCP;
@@ -365,8 +371,8 @@ void sl_wifi_app_task()
             if (status == RSI_SUCCESS) {
               connected     = 0;
               disassosiated = 1;
-              sl_wifi_app_send_to_ble(SL_WIFI_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
-              sl_wifi_app_set_event(SL_WIFI_ERROR_STATE);
+              wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
+              wifi_app_set_event(WIFI_APP_ERROR_STATE);
             }
           }
           LOG_PRINT("\r\nIP Config Failed, Error Code : 0x%lX\r\n", status);
@@ -386,40 +392,39 @@ void sl_wifi_app_task()
 #endif
 
           // update wlan application state
-          sl_wifi_app_set_event(SL_WIFI_IPCONFIG_DONE_STATE);
-
-          sl_wifi_app_send_to_ble(SL_WIFI_CONNECTION_STATUS, (uint8_t *)&connected, 1);
+          wifi_app_set_event(WIFI_APP_IPCONFIG_DONE_STATE);
+          wifi_app_send_to_ble(WIFI_APP_CONNECTION_STATUS, (uint8_t *)&connected, 1);
         }
 
         osSemaphoreRelease(wlan_thread_sem);
-        LOG_PRINT("SL_WIFI_CONNECTED_STATE\n");
+        LOG_PRINT("WIFI App Connected State\n");
 
       } break;
 
-      case SL_WIFI_IPCONFIG_DONE_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_IPCONFIG_DONE_STATE);
+      case WIFI_APP_IPCONFIG_DONE_STATE: {
+        wifi_app_clear_event(WIFI_APP_IPCONFIG_DONE_STATE);
 
         osSemaphoreRelease(wlan_thread_sem);
-        LOG_PRINT("SL_WIFI_IPCONFIG_DONE_STATE\n");
+        LOG_PRINT("WIFI App IPCONFIG Done State\n");
       } break;
 
-      case SL_WIFI_ERROR_STATE: {
+      case WIFI_APP_ERROR_STATE: {
 
       } break;
 
-      case SL_WIFI_DISCONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_DISCONNECTED_STATE);
+      case WIFI_APP_DISCONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_DISCONNECTED_STATE);
         retry = 1;
-        sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_STATUS, (uint8_t *)&disconnected, 1);
-        sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
+        wifi_app_send_to_ble(WIFI_APP_DISCONNECTION_STATUS, (uint8_t *)&disconnected, 1);
+        wifi_app_set_event(WIFI_APP_FLASH_STATE);
 
         osSemaphoreRelease(wlan_thread_sem);
-        LOG_PRINT("SL_WIFI_DISCONNECTED_STATE\n");
+        LOG_PRINT("WIFI App Disconnected State\n");
 
       } break;
 
-      case SL_WIFI_DISCONN_NOTIFY_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_DISCONN_NOTIFY_STATE);
+      case WIFI_APP_DISCONN_NOTIFY_STATE: {
+        wifi_app_clear_event(WIFI_APP_DISCONN_NOTIFY_STATE);
 
         status = sl_wifi_disconnect(SL_WIFI_CLIENT_INTERFACE);
         if (status == RSI_SUCCESS) {
@@ -429,28 +434,28 @@ void sl_wifi_app_task()
           LOG_PRINT("\r\nWLAN Disconnected\r\n");
           disassosiated = 1;
           connected     = 0;
-          sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_NOTIFY, (uint8_t *)&disassosiated, 1);
-          sl_wifi_app_set_event(SL_WIFI_UNCONNECTED_STATE);
+          wifi_app_send_to_ble(WIFI_APP_DISCONNECTION_NOTIFY, (uint8_t *)&disassosiated, 1);
+          wifi_app_set_event(WIFI_APP_UNCONNECTED_STATE);
         } else {
           LOG_PRINT("\r\nWIFI Disconnect Failed, Error Code : 0x%lX\r\n", status);
         }
 
         osSemaphoreRelease(wlan_thread_sem);
-        LOG_PRINT("SL_WIFI_DISCONN_NOTIFY_STATE\n");
+        LOG_PRINT("WIFI App Disconnect Notify State\n");
       } break;
-      case SL_WIFI_SOCKET_RECEIVE_STATE:
+      case WIFI_APP_SOCKET_RECEIVE_STATE:
         break;
-      case SL_WIFI_MQTT_INIT_DONE_STATE:
+      case WIFI_APP_MQTT_INIT_DONE_STATE:
         break;
-      case SL_WIFI_MQTT_SUBSCRIBE_DONE_STATE:
+      case WIFI_APP_MQTT_SUBSCRIBE_DONE_STATE:
         break;
-      case SL_BLE_GATT_WRITE_EVENT:
+      case BLE_APP_GATT_WRITE_EVENT:
         break;
-      case SL_WIFI_DATA_RECEIVE_STATE:
+      case WIFI_APP_DATA_RECEIVE_STATE:
         break;
-      case SL_SD_WRITE_STATE:
+      case WIFI_APP_SD_WRITE_STATE:
         break;
-      case SL_WIFI_DEMO_COMPLETE_STATE:
+      case WIFI_APP_DEMO_COMPLETE_STATE:
         break;
       default:
         break;

@@ -19,7 +19,7 @@
  * Includes
  */
 #include <stdint.h>
-#include "rsi_chip.h"
+
 #include "rsi_ccp_user_config.h"
 #include "rsi_rom_table_si91x.h"
 #if defined(A11_ROM)

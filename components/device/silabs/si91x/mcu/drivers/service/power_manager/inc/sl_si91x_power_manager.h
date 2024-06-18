@@ -137,6 +137,8 @@ extern "C" {
 #define SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_3 ULPSS_2K_BANK_2 ///< 2 KB
 #define SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_4 ULPSS_2K_BANK_3 ///< 2 KB
 
+#define SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL sl_si91x_power_manager_core_entercritical()
+#define SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL  sl_si91x_power_manager_core_exitcritical()
 // -----------------------------------------------------------------------------
 // Data Types
 
@@ -266,7 +268,27 @@ void sli_si91x_power_manager_debug_log_ps_requirement(sl_power_state_t ps, bool 
  * 
  ******************************************************************************/
 sl_status_t sl_si91x_power_manager_init(void);
-
+/***************************************************************************/ /**
+ * @brief
+ *   Disable interrupts.
+ *
+ *   Disable all interrupts by setting PRIMASK.
+ *   (Fault exception handlers will still be enabled).
+ ******************************************************************************/
+__STATIC_INLINE void sl_si91x_power_manager_core_entercritical(void)
+{
+  __disable_irq();
+}
+/***************************************************************************/ /**
+ * @brief
+ *   Enable interrupts.
+ *
+ *   Enable interrupts by clearing PRIMASK.
+ ******************************************************************************/
+__STATIC_INLINE void sl_si91x_power_manager_core_exitcritical(void)
+{
+  __enable_irq();
+}
 /***************************************************************************/ /**
  * Adds requirement on power states.
  * Default state for power manager is PS4.
@@ -303,13 +325,22 @@ sl_status_t sl_si91x_power_manager_init(void);
 __STATIC_INLINE sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_state_t state)
 {
   sl_status_t status = SL_STATUS_OK;
+
+  SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
+
   // updates the current power state.
   status = sli_si91x_power_manager_update_ps_requirement(state, true);
   if (status != SL_STATUS_OK) {
+    if (state != SL_SI91X_POWER_MANAGER_PS1) {
+      SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
+    }
     return status;
   }
   if ((state != SL_SI91X_POWER_MANAGER_PS1) && (state != SL_SI91X_POWER_MANAGER_PS0)) {
     sli_si91x_power_manager_debug_log_ps_requirement(state, true, (const char *)CURRENT_MODULE_NAME);
+  }
+  if (state != SL_SI91X_POWER_MANAGER_PS1) {
+    SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
   }
   return status;
 }
@@ -347,15 +378,18 @@ __STATIC_INLINE sl_status_t sl_si91x_power_manager_add_ps_requirement(sl_power_s
  ******************************************************************************/
 __STATIC_INLINE sl_status_t sl_si91x_power_manager_remove_ps_requirement(sl_power_state_t state)
 {
+  SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
   sl_status_t status = SL_STATUS_OK;
   // updated the current power state.
   status = sli_si91x_power_manager_update_ps_requirement(state, false);
   if (status != SL_STATUS_OK) {
+    SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
     return status;
   }
   if ((state != SL_SI91X_POWER_MANAGER_PS1) && (state != SL_SI91X_POWER_MANAGER_PS0)) {
     sli_si91x_power_manager_debug_log_ps_requirement(state, false, (const char *)CURRENT_MODULE_NAME);
   }
+  SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
   return status;
 }
 
@@ -743,6 +777,19 @@ uint8_t *sl_si91x_power_manager_get_requirement_table(void);
  * - none
  ******************************************************************************/
 void sl_si91x_power_manager_deinit(void);
+
+/*******************************************************************************
+* To get the lowest possible power state from the requirement table.
+* It runs a for loop and gets the lowest possible power state.
+* If all state requirement is 0, it is considered as default state i.e., PS4
+*Active.
+******************************************************************************/
+sl_power_state_t sl_si91x_get_lowest_ps(void);
+
+/*******************************************************************************
+ ********  Mandatory callback that allows to cancel sleeping action. ********
+ ******************************************************************************/
+boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
 
 /** @} (end addtogroup POWER-MANAGER) */
 

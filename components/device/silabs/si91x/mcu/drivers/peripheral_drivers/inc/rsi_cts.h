@@ -17,8 +17,6 @@
 
 // Includes Files
 
-#include "rsi_chip.h"
-
 #ifndef RSI_CTS_H
 #define RSI_CTS_H
 

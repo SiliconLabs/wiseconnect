@@ -33,6 +33,8 @@
  * and peripherals configuration structures
  ******************************************************************************/
 #include "sensor_hub.h"
+#include "Driver_SPI.h"
+#include "Driver_I2C.h"
 
 #define SPI_BAUD        1000000 //speed at which data transmitted through SPI
 #define SPI_BIT_WIDTH   8       //SPI bus width
@@ -53,7 +55,7 @@ sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS] = {
   /* {
     .sensor_name               = "ADC_JOYSTICK",
     .sensor_id                 = SL_SENSOR_ADC_JOYSTICK_ID,
-    .channel                   = BIT(SL_SH_ADC_CH1_CHANNEL),
+    .channel                   = BIT(SL_SH_ADC_CH0_CHANNEL),
     .sensor_bus                = SL_SH_ADC,
     .sensor_mode               = SL_SH_POLLING_MODE,
     .sampling_interval         = 100,
@@ -141,7 +143,7 @@ sl_bus_intf_config_t bus_intf_info = {
   .spi_config.spi_sec_sel_sig  = ARM_SPI_SS_ACTIVE,
 #ifdef SH_ADC_ENABLE
 #ifdef SL_SH_ADC_CHANNEL0
-  .adc_config.adc_cfg.operation_mode        = SL_ADC_STATIC_MODE,
+  .adc_config.adc_cfg.operation_mode        = SL_ADC_FIFO_MODE,
   .adc_config.adc_cfg.num_of_channel_enable = SL_SH_ADC_NUM_CHANNELS_ENABLE,
 
   .adc_config.adc_ch_cfg.input_type[0]        = SL_ADC_SINGLE_ENDED,

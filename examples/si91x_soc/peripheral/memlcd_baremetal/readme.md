@@ -63,3 +63,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 3. Renders "MEMLCD Sample App" and "Hello There!" strings on MEMLCD display.
  
    > ![Figure: Introduction](resources/readme/MEMLCD_OP_SCRN.png)
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

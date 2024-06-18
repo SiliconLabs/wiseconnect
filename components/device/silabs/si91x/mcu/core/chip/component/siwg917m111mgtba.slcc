@@ -16,6 +16,8 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
+  - name: SLI_SI91X_MCU_EXTERNAL_LDO_FOR_PSRAM
+    value: '1'     
   - name: SRAM_BASE
     value: "0x0cUL"
     unless: [rsilib_board]
@@ -45,6 +47,7 @@
   - name: device_has_mpu
 - requires:
   - name: rsilib_chip
+  - name: romdriver_clks
   - name: si917_mem_config
   - name: sl_si91x_mcu
   - name: board_configuration_headers
@@ -79,34 +82,34 @@
  # Default Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_1
   - name: device_flash_size
     value: 2088960 # 0x001F E000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_1
   # Medium Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_2
   - name: device_flash_size
     value: 2088960 # 0x001F E000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_2
   # Advanced Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_3
   - name: device_flash_size
     value: 2088960 # 0x001F E000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_3
   - name: device_flash_page_size

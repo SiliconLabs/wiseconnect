@@ -1,5 +1,5 @@
 id: i2s_ulp_component
-label: ULP I2S
+label: PM ULP I2S
 package: platform
 description: >
   ULP I2S component will enable I2S in the low-power mode. It moves all the peripheral dependencies to RAM. 

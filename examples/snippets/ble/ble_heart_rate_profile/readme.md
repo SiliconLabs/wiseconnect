@@ -35,13 +35,15 @@ When the connected remote device writes data to writable characteristic UUID, th
     - Silicon Labs [BRD4180B](https://www.silabs.com/);
     - Host MCU Eval Kit. This example has been tested with:
       - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
-  - BLE Smart Phone with GATT client
+  - BLE Smartphone
   
 ### Software Requirements
 
 - Embedded Development Environment.
 
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+
+> **Note:** The provided mobile screenshots are from the 2.5.2 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 ### Setup Diagram
 
@@ -204,7 +206,7 @@ Follow the steps below for successful execution of the application:
 
 2. Connect any serial console for prints.
 
-3. Open a EFR Connect App in the Smartphone and do the scan.
+3. Open a Simplicity Connect App(formerly EFR Connect App) in the Smartphone and do the scan.
 
 4. In the App, Silicon Labs module device will appear with the name configured in the macro `RSI_BLE_HEART_RATE_PROFILE (Ex: "BLE_HEART_RATE")` or sometimes observed as Silicon Labs device as internal name "**SimpleBLEPeripheral**".
 
@@ -212,7 +214,7 @@ Follow the steps below for successful execution of the application:
 
 5. Initiate connection from the App.
 
-6. After successful connection, EFR Connect APP displays the supported services of Silicon Labs module.
+6. After successful connection, Simplicity Connect App(formerly EFR Connect App) displays the supported services of Silicon Labs module.
 
     ![](resources/readme/bleheartratedeviceconnected.png)
 
@@ -232,34 +234,37 @@ Follow the steps below for successful execution of the application:
 
 2. Connect any serial console for prints.
 
-3. Open the EFR Connect APP and Create the **Heart rate service** to configure the Remote device as a GATT server.
+3. Open the Simplicity Connect App(formerly EFR Connect App) and Create the **Heart rate service** to configure the Remote device as a GATT server.
    - Name: Heart Rate
    - UUID: 0x180D
 
-   > **Note:** Refer the [Adding Services](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server the EFR connect mobile APP as advertiser.
+   > **Note:** Refer the [Adding Services](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server the Simplicity Connect mobile App(formerly EFR Connect App) as advertiser.
 
    ![](resources/readme/gattconfigurator1.png)
 
 4. Add the characteristic services and their coresponding properties as shown below:
+
    | S.No | Name | UUID | Property |
    |------|------|------|----------|
    |1|Heart Rate Measurement | 0x2A37 | Notify|
    |2|Body sensor Location | 0x2A38 | Read|
    |3|Heart Rate Control Point | 0x2A39 | Write|
 
-   > **Note:** Refer the [Adding Characteristics and Descriptors](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server in the EFR connect mobile APP.
+   > **Note:** Refer the [Adding Characteristics and Descriptors](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server in the Simplicity Connect mobile App(formerly EFR Connect App).
 
    ![](resources/readme/gattconfigurator2.png)
 
+   ![](resources/readme/gattconfigurator3.png)
+
 5. Enable the **Heart rate** service.
 
-    ![](resources/readme/gattconfigurator3.png)
+    ![](resources/readme/gattconfigurator4.png)
 
 6. Configure the advertiser.
 
     ![](resources/readme/bleheartrateadvertiser.png)   
 
-    > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
+    > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the Simplicity Connect mobile App(formerly EFR Connect App)as advertiser.
 
 7. When Silicon Labs device is configured as **CLIENT** specified in the macro ``GATT_ROLE``, scans for remote device and tries to connect with the remote device specified in `RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME` macro.
 
@@ -267,8 +272,8 @@ Follow the steps below for successful execution of the application:
 
 9. Observe notify property is enabled in the GATT server and indicates to the GATT client whenever the value is updated at server.
 
-    ![](resources/readme/bleheartratedevicegattserverconnection.png)
+  ![](resources/readme/bleheartratedevicegattserverconnection.png)  
 
-10. Observe the updated heart rate measurement value on the teraterm. Refer the below images for console prints:
+10. Observe the updated heart rate measurement value on the Docklight. Refer the below images for console prints:
 
    ![](resources/readme/output1.png)

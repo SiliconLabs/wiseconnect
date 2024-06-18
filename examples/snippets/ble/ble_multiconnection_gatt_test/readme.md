@@ -49,7 +49,9 @@ This also displays all the remote GATT profiles and service characteristics logs
 ### Software Requirements
 
 - Simplicity Studio
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+
+> **Note:** The provided mobile screenshots are from the 2.8.1 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 ### Setup Diagram
 
@@ -268,7 +270,7 @@ Follow the steps below for the successful execution of the program:
 
 1. Configure the remote ble devices in peripheral and put it in advertising mode and/or in central and put in scanning mode.
 
-   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
+   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the Simplicity Connect mobile App(formerly EFR Connect App) connect mobile APP as advertiser.
 
 2. Connect any serial console for prints.
 
@@ -306,11 +308,24 @@ Follow the steps below for the successful execution of the program:
 12. To check data transfer, enable Gatt notifications of Silicon Labs device on service characteristic having UUID 0x1AA1, where the Silicon Lab device as a peripheral device.
 
 13. If enabled, Silicon Labs device continuously transmits notifications which can be seen on remote device.
+   - Peripheral Role
 
-    ![](resources/readme/output_1.png)
+      ![](resources/readme/central_scan.png)
+ 
+      ![](resources/readme/central_connected.png)
 
-    ![](resources/readme/output_2.png)
+      ![](resources/readme/output_1.png)
 
-    ![](resources/readme/output_3.png)
-    
-    ![](resources/readme/output_4.png)
+      ![](resources/readme/output_2.png)
+
+      ![](resources/readme/output_3.png)
+
+   - Central Role
+   
+      ![](resources/readme/peripheral.png)
+
+      ![](resources/readme/peripheral_connected.png) 
+      
+      ![](resources/readme/output_4.png)
+
+      ![](resources/readme/output_5.png)

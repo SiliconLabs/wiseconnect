@@ -12,11 +12,11 @@ filter:
   value:
   - Beginner
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.2.0
+  version: 3.3.0
 source:
 - path: app.c
 - path: main.c
@@ -29,7 +29,10 @@ define:
 component:
 - id: sl_system
 - id: freertos
+- id: freertos_heap_4
 - id: device_init
+- id: spidrv
+  instance: [exp]
 - id: iostream_retarget_stdio
 - id: iostream_recommended_stream
 - id: iostream_stdlib_config
@@ -70,7 +73,8 @@ readme:
 other_file:
 
 - path: resources/readme/remoteapplicationprintssoc.png
-- path: resources/readme/twt_tcp_client_udp_client_soc_ncp.png
+- path: resources/readme/twt_tcpandudpclient_soc.png
+- path: resources/readme/twt_tcpclient_udp_client_ncp.png
 ui_hints:
   highlight:
   - path: readme.md

@@ -20,6 +20,7 @@ provides:
   - name: wiseconnect_toolchain_custom_linker
 requires:
   - name: cmsis_i2c
+  - name: systemlevel_rtc
 toolchain_settings:
   - option: linkerfile
     value: autogen/linkerfile_SoC.ld

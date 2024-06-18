@@ -39,6 +39,7 @@
 #include "apds9960.h"
 #include "sensor_hub.h"
 #include "rsi_debug.h"
+#include "Driver_I2C.h"
 
 #pragma GCC diagnostic ignored "-Wpedantic"
 

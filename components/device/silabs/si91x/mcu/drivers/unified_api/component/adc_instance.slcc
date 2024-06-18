@@ -21,6 +21,7 @@ instantiable:
   prefix: inst
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
+  - path: config/sl_si91x_adc_common_config.h
   - path: config/sl_si91x_adc_init_{{instance}}_config.h
     file_id: adc_config
 provides:

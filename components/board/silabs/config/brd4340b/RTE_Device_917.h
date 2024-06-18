@@ -62,7 +62,7 @@
 
 #define RTE_USART0 1
 
-#define RTE_USART0_CLK_SRC      USART_ULPREFCLK
+#define RTE_USART0_CLK_SRC      USART_INTFPLLCLK
 #define RTE_USART0_CLK_DIV_FACT 1
 #define RTE_USART0_FRAC_DIV_SEL USART_FRACTIONAL_DIVIDER
 
@@ -338,7 +338,7 @@
 // <i> Configuration settings for Driver_UART1 in component ::CMSIS Driver:USART
 #define RTE_UART1 1
 
-#define RTE_UART1_CLK_SRC      USART_ULPREFCLK
+#define RTE_UART1_CLK_SRC      USART_INTFPLLCLK
 #define RTE_UART1_CLK_DIV_FACT 1
 #define RTE_UART1_FRAC_DIV_SEL USART_FRACTIONAL_DIVIDER
 
@@ -360,7 +360,7 @@
 //     <i> TX of UART1
 
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-#define RTE_UART1_TX_PORT_ID 3
+#define RTE_UART1_TX_PORT_ID 0
 #else
 #define RTE_UART1_TX_PORT_ID 0
 
@@ -590,8 +590,6 @@
 // <e> SSI_MASTER (Serial Peripheral Interface 1) [Driver_SSI_MASTER]
 // <i> Configuration settings for Driver_SSI_MASTER in component ::CMSIS Driver:SPI
 #define RTE_SSI_MASTER 1
-
-#define RTE_SSI_MASTER_INPUT_CLOCK SSI_SOCPLLCLK
 
 // <o> SSI_MASTER_MISO Pin <0=>GPIO_12 <1=>GPIO_27 <2=>GPIO_57
 
@@ -920,8 +918,6 @@
 // <e> SSI_ULP_MASTER (Serial Peripheral Interface 3) [Driver_SSI_ULP_MASTER]
 // <i> Configuration settings for Driver_SSI_ULP_MASTER in component ::CMSIS Driver:SPI
 #define RTE_SSI_ULP_MASTER 1
-
-#define RTE_SSI_ULP_MASTER_INPUT_CLOCK ULP_SSI_ULP_32MHZ_RC_CLK
 
 // <e> Enable multiple CSN lines
 #define ULP_SSI_CS0 1
@@ -1282,10 +1278,6 @@
 #define RTE_I2S0_CHNL_UDMA_RX_EN 1
 #define RTE_I2S0_CHNL_UDMA_RX_CH 14
 
-#define RTE_I2S0_CLK_SRC      0
-#define RTE_I2S0_CLK_DIV_FACT 0
-#define RTE_I2S_PLL_FREQ      2000
-
 #define RTE_I2S0_DMA_TX_LEN_PER_DES 1024
 #define RTE_I2S0_DMA_RX_LEN_PER_DES 1024
 
@@ -1409,39 +1401,6 @@
 #define RTE_I2S1_CHNL_UDMA_RX_EN 1
 #define RTE_I2S1_CHNL_UDMA_RX_CH 6
 
-#define I2S1_CLK_DIV_FACT 0
-//   <o> I2S1_CLK_SRC        <0=>ULP_I2S_REF_CLK
-//                           <1=>ULP_I2S_ULP_32KHZ_RO_CLK
-//                           <2=>ULP_I2S_ULP_32KHZ_RC_CLK
-//                           <3=>ULP_I2S_ULP_32KHZ_XTAL_CLK
-//                           <4=>ULP_I2S_ULP_32MHZ_RC_CLK
-//                           <5=>ULP_I2S_ULP_20MHZ_RO_CLK
-//                           <6=>ULP_I2S_SOC_CLK
-//                           <7=>ULP_I2S_ULP_DOUBLER_CLK
-//                           <8=>ULP_I2S_PLL_CLK
-
-#define RTE_I2S1_CLK_SEL_ID 5
-#if (RTE_I2S1_CLK_SEL_ID == 0)
-#define RTE_I2S1_CLK_SRC ULP_I2S_REF_CLK
-#elif (RTE_I2S1_CLK_SEL_ID == 1)
-#define RTE_I2S1_CLK_SRC ULP_I2S_ULP_32KHZ_RO_CLK
-#elif (RTE_I2S1_CLK_SEL_ID == 2)
-#define RTE_I2S1_CLK_SRC ULP_I2S_ULP_32KHZ_RC_CLK
-#elif (RTE_I2S1_CLK_SEL_ID == 3)
-#define RTE_I2S1_CLK_SRC ULP_I2S_ULP_32KHZ_XTAL_CLK
-#elif (RTE_I2S1_CLK_SEL_ID == 4)
-#define RTE_I2S1_CLK_SRC ULP_I2S_ULP_32MHZ_RC_CLK
-#elif (RTE_I2S1_CLK_SEL_ID == 5)
-#define RTE_I2S1_CLK_SRC ULP_I2S_ULP_20MHZ_RO_CLK
-#elif (RTE_I2S1_CLK_SEL_ID == 6)
-#define RTE_I2S1_CLK_SRC ULP_I2S_SOC_CLK
-#elif (RTE_I2S1_CLK_SEL_ID == 7)
-#define RTE_I2S1_CLK_SRC ULP_I2S_ULP_DOUBLER_CLK
-#elif (RTE_I2S1_CLK_SEL_ID == 8)
-#define RTE_I2S1_CLK_SRC ULP_I2S_PLL_CLK
-#else
-#error "Invalid I2S1 Clock source selection!"
-#endif
 #define RTE_I2S1_DMA_TX_LEN_PER_DES 1024
 #define RTE_I2S1_DMA_RX_LEN_PER_DES 1024
 
@@ -1828,9 +1787,6 @@
 //     <i> MOSI of GSPI0
 
 #define RTE_GSPI_MASTER_MOSI_PORT_ID 1
-#if ((RTE_GSPI_MASTER_MOSI_PORT_ID == 4))
-#error "Invalid GSPI0 RTE_GSPI_MASTER_MOSI_PIN pin Configuration!"
-#endif
 
 #if (RTE_GSPI_MASTER_MOSI_PORT_ID == 0)
 #define RTE_GSPI_MASTER_MOSI_PORT 0
@@ -1897,8 +1853,6 @@
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_EN 1
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_CH 10
 
-#define RTE_GSPI_CLOCK_SOURCE GSPI_SOC_PLL_CLK
-
 #define RTE_FIFO_AFULL_THRLD  3
 #define RTE_FIFO_AEMPTY_THRLD 7
 
@@ -1910,8 +1864,6 @@
 
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_EN 0
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_CH 10
-
-#define RTE_GSPI_CLOCK_SOURCE GSPI_SOC_PLL_CLK
 
 #define RTE_FIFO_AFULL_THRLD  0
 #define RTE_FIFO_AEMPTY_THRLD 0
@@ -2742,106 +2694,106 @@
 #define RTE_GPIO_15_PIN  15
 #define RTE_GPIO_15_MODE 0
 
-#define RTE_GPIO_25_PORT 1
+#define RTE_GPIO_25_PORT 0
 #define RTE_GPIO_25_PIN  25
 #define RTE_GPIO_25_MODE 0
 
-#define RTE_GPIO_26_PORT 1
+#define RTE_GPIO_26_PORT 0
 #define RTE_GPIO_26_PIN  26
 #define RTE_GPIO_26_MODE 0
 
-#define RTE_GPIO_27_PORT 1
+#define RTE_GPIO_27_PORT 0
 #define RTE_GPIO_27_PIN  27
 #define RTE_GPIO_27_MODE 0
 
-#define RTE_GPIO_28_PORT 1
+#define RTE_GPIO_28_PORT 0
 #define RTE_GPIO_28_PIN  28
 #define RTE_GPIO_28_MODE 0
 
-#define RTE_GPIO_29_PORT 1
+#define RTE_GPIO_29_PORT 0
 #define RTE_GPIO_29_PIN  29
 #define RTE_GPIO_29_MODE 0
 
-#define RTE_GPIO_30_PORT 1
+#define RTE_GPIO_30_PORT 0
 #define RTE_GPIO_30_PIN  30
 #define RTE_GPIO_30_MODE 0
 
-#define RTE_GPIO_31_PORT 1
+#define RTE_GPIO_31_PORT 0
 #define RTE_GPIO_31_PAD  9
 #define RTE_GPIO_31_PIN  31
 #define RTE_GPIO_31_MODE 0
 
-#define RTE_GPIO_32_PORT 2
+#define RTE_GPIO_32_PORT 0
 #define RTE_GPIO_32_PAD  9
 #define RTE_GPIO_32_PIN  32
 #define RTE_GPIO_32_MODE 0
 
-#define RTE_GPIO_33_PORT 2
+#define RTE_GPIO_33_PORT 0
 #define RTE_GPIO_33_PAD  9
 #define RTE_GPIO_33_PIN  33
 #define RTE_GPIO_33_MODE 0
 
-#define RTE_GPIO_34_PORT 2
+#define RTE_GPIO_34_PORT 0
 #define RTE_GPIO_34_PAD  9
 #define RTE_GPIO_34_PIN  34
 #define RTE_GPIO_34_MODE 0
 
-#define RTE_GPIO_46_PORT 2
+#define RTE_GPIO_46_PORT 0
 #define RTE_GPIO_46_PAD  10
 #define RTE_GPIO_46_PIN  46
 #define RTE_GPIO_46_MODE 0
 
-#define RTE_GPIO_47_PORT 2
+#define RTE_GPIO_47_PORT 0
 #define RTE_GPIO_47_PAD  11
 #define RTE_GPIO_47_PIN  47
 #define RTE_GPIO_47_MODE 0
 
-#define RTE_GPIO_48_PORT 3
+#define RTE_GPIO_48_PORT 0
 #define RTE_GPIO_48_PAD  12
 #define RTE_GPIO_48_PIN  48
 #define RTE_GPIO_48_MODE 0
 
-#define RTE_GPIO_49_PORT 3
+#define RTE_GPIO_49_PORT 0
 #define RTE_GPIO_49_PAD  13
 #define RTE_GPIO_49_PIN  49
 #define RTE_GPIO_49_MODE 0
 
-#define RTE_GPIO_50_PORT 3
+#define RTE_GPIO_50_PORT 0
 #define RTE_GPIO_50_PAD  14
 #define RTE_GPIO_50_PIN  50
 #define RTE_GPIO_50_MODE 0
 
-#define RTE_GPIO_51_PORT 3
+#define RTE_GPIO_51_PORT 0
 #define RTE_GPIO_51_PAD  15
 #define RTE_GPIO_51_PIN  51
 #define RTE_GPIO_51_MODE 0
 
-#define RTE_GPIO_52_PORT 3
+#define RTE_GPIO_52_PORT 0
 #define RTE_GPIO_52_PAD  16
 #define RTE_GPIO_52_PIN  52
 #define RTE_GPIO_52_MODE 0
 
-#define RTE_GPIO_53_PORT 3
+#define RTE_GPIO_53_PORT 0
 #define RTE_GPIO_53_PAD  17
 #define RTE_GPIO_53_PIN  53
 #define RTE_GPIO_53_MODE 0
 
-#define RTE_GPIO_54_PORT 3
+#define RTE_GPIO_54_PORT 0
 #define RTE_GPIO_54_PAD  18
 #define RTE_GPIO_54_PIN  54
 #define RTE_GPIO_54_MODE 0
 
-#define RTE_GPIO_55_PORT 3
+#define RTE_GPIO_55_PORT 0
 #define RTE_GPIO_55_PAD  19
 #define RTE_GPIO_55_PIN  55
 #define RTE_GPIO_55_MODE 0
 
-#define RTE_GPIO_56_PORT 3
+#define RTE_GPIO_56_PORT 0
 #define RTE_GPIO_56_PAD  20
 #define RTE_GPIO_56_PIN  56
 #define RTE_GPIO_56_MODE 0
 
-#define RTE_GPIO_57_PORT 3
+#define RTE_GPIO_57_PORT 0
 #define RTE_GPIO_57_PAD  21
 #define RTE_GPIO_57_PIN  57
 #define RTE_GPIO_57_MODE 0
@@ -3074,20 +3026,30 @@
 #error "Invalid  RTE_ULP_GPIO_11_PIN Pin Configuration!"
 #endif
 
+// RTE_UULP_GPIO_x_PORT refers to port for UULP GPIO pin x
+#define RTE_UULP_GPIO_0_PORT 5
 #define RTE_UULP_GPIO_0_PIN  0
 #define RTE_UULP_GPIO_0_MODE 0
 
+#define RTE_UULP_GPIO_1_PORT 5
 #define RTE_UULP_GPIO_1_PIN  1
 #define RTE_UULP_GPIO_1_MODE 0
 
+#define RTE_UULP_GPIO_2_PORT 5
 #define RTE_UULP_GPIO_2_PIN  2
 #define RTE_UULP_GPIO_2_MODE 0
 
+#define RTE_UULP_GPIO_3_PORT 5
 #define RTE_UULP_GPIO_3_PIN  3
 #define RTE_UULP_GPIO_3_MODE 0
 
+#define RTE_UULP_GPIO_4_PORT 5
 #define RTE_UULP_GPIO_4_PIN  4
 #define RTE_UULP_GPIO_4_MODE 0
 
 #define RTE_UULP_GPIO_5_PIN  5
 #define RTE_UULP_GPIO_5_MODE 0
+
+// UULP GPIO as enable pin for sensors
+#define SENSOR_ENABLE_GPIO_MAPPED_TO_UULP
+#define SENSOR_ENABLE_GPIO_PIN RTE_UULP_GPIO_1_PIN

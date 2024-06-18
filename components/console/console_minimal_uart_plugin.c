@@ -132,13 +132,13 @@ static void post_uart_rx_handler(char character)
   static uint8_t escape_sequence = 0;
 
   // Support for CRLF
-  static uint8_t last_char_cr = false;
+  static uint8_t last_char_lf = false;
 
   if (escape_sequence == 0) {
     switch (character) {
       case DELETE_CHARACTER:
       case BACKSPACE_CHARACTER:
-        last_char_cr = false;
+        last_char_lf = false;
         if (user_rx_buffer_write_pointer > 0) {
           user_rx_buffer_write_pointer--;
           printf("%c", character);
@@ -149,15 +149,18 @@ static void post_uart_rx_handler(char character)
         // Do tab
         break;
 
-      case LINEFEED_CHARACTER:
-        if (last_char_cr != false) {
-          last_char_cr = false;
+      case CARRIAGE_RETURN_CHARACTER:
+        if (last_char_lf != false) {
+          last_char_lf = false;
           break;
         }
-        __attribute__((fallthrough));
-      case CARRIAGE_RETURN_CHARACTER:
-        if (character == '\r') {
-          last_char_cr = true;
+        break;
+        // __attribute__((fallthrough));
+
+      case LINEFEED_CHARACTER:
+        // check if the last character is a linefeed and set last_char_lf as true.
+        if (character == '\n') {
+          last_char_lf = true;
         }
         //        user_rx_buffer[current_buffer_index][user_rx_buffer_write_pointer] = 0;
         memset(&user_rx_buffer[current_buffer_index][user_rx_buffer_write_pointer],
@@ -174,12 +177,12 @@ static void post_uart_rx_handler(char character)
         break;
 
       case ESCAPE_CHARACTER:
-        last_char_cr    = false;
+        last_char_lf    = false;
         escape_sequence = 1;
         break;
 
       default:
-        last_char_cr                                                       = false;
+        last_char_lf                                                       = false;
         user_rx_buffer[current_buffer_index][user_rx_buffer_write_pointer] = character;
         user_rx_buffer_write_pointer++;
         printf("%c", character);

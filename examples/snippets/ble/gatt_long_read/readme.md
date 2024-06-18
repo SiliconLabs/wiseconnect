@@ -180,19 +180,19 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps below for successful execution of the application:
 
-> **Note:** The provided mobile screenshots are from the 2.5.2 version of the EFR Connect app, it is recommended to use the latest version.
+> **Note:** The provided mobile screenshots are from the 2.5.2 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 ### BLE GATT_long_read Application as a Server
 
 1. After the program gets executed, If Silicon Labs device is configured as `SERVER` specified in the macro `GATT_ROLE`, Silicon Labs will be in Advertising state.
 2. Connect any serial console for prints.
-3. Open the EFR Connect App in the Smartphone and do the scan.
+3. Open the Simplicity Connect App(formerly EFR Connect App) in the Smartphone and do the scan.
 4. In the App, Silicon Labs module device will appear with the name configured in the macro `RSI_BLE_APP_GATT_TEST (Ex: "LONG_READ_TEST")` or sometimes observed as Silicon Labs device as internal name "**SimpleBLEPeripheral**".
 
       ![](resources/readme/blegattlrdeviceadvertising.png)
 
 5. Initiate connection from the App.
-6. After successful connection, EFR Connect APP displays the supported services of Silicon Labs module.
+6. After successful connection, Simplicity Connect App(formerly EFR Connect App) displays the supported services of Silicon Labs module.
 
       ![](resources/readme/blegattlrdeviceconnected.png)
 
@@ -219,20 +219,20 @@ Follow the steps below for successful execution of the application:
 
 1. After the program gets executed, If Silicon Labs device is configured as `CLIENT` specified in the macro `GATT_ROLE`, Silicon Labs will be in Advertising state.
 2. Connect any serial console for prints.
-3. Open the EFR Connect APP and Create the **Battery service** to configure the Remote device as a GATT server.
+3. Open the Simplicity Connect App(formerly EFR Connect App) and Create the **Battery service** to configure the Remote device as a GATT server.
    - Name: Battery service
    - UUID: 0x180F
-   > **Note:** Refer the [Adding Services](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server the EFR connect mobile APP as advertiser.
+   > **Note:** Refer the [Adding Services](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server the Simplicity Connect mobile App(formerly EFR Connect App) as advertiser.
 4. Add the characteristic services and their coresponding properties as shown below:
    - Name: Battey level
    - UUID: 0x2A19
    - Property: Read & Write  
-   **Note:** Refer the [Adding Characteristics and Descriptors](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server in the EFR connect mobile APP.
+   **Note:** Refer the [Adding Characteristics and Descriptors](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for creating the GATT server in the Simplicity Connect mobile App(formerly EFR Connect App).
 
    ![](resources/readme/blegattleconfigurator.png)
 
 5. Configure the advertiser.
-   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser. 
+   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the Simplicity Connect mobile App(formerly EFR Connect App) as advertiser. 
 
    ![](resources/readme/blegattlradvertiser.png)
 

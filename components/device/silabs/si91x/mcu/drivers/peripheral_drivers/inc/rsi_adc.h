@@ -20,6 +20,10 @@
 #include "rsi_ccp_common.h"
 #include "base_types.h"
 
+#ifndef UNUSED_PARAMETER
+#define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
+
 #ifndef RSI_AUX_ADC_H
 #define RSI_AUX_ADC_H
 
@@ -445,9 +449,11 @@ void UDMA_ADC_Pong_Write(uint8_t reconfig);
 
 void UDMA_ADC_Ping_Write(uint8_t ping_reconfig);
 
+void ADC_DMA_Transfer_Complete(uint32_t channel, void *data);
+void ADC_DMA_Error_Callback(uint32_t channel, void *data);
+
 void UDMA_ADC_Init(void);
 void IRQ011_Handler(void);
-void callback_handler(uint8_t channel_no, uint8_t event);
 #ifdef __cplusplus
 }
 #endif

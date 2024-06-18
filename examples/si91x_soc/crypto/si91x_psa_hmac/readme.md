@@ -15,13 +15,13 @@
 
 - This example uses the PSA Crypto API to perform Message Authentication Code (HMAC) operations on the supported device.
 
-## Prerequisites/Setup Requirements 
+## Prerequisites/Setup Requirements
 
 Before running the application, the user will need the following things to setup.
 
-### Hardware Requirements	
+### Hardware Requirements
 
-  - Windows PC 
+  - Windows PC
   - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
 
 ### Software Requirements
@@ -29,7 +29,7 @@ Before running the application, the user will need the following things to setup
 - Simplicity Studio
 
 ### Setup Diagram
- 
+
   ![Figure: Introduction](resources/readme/image508a.png)
 
 ## Getting Started
@@ -50,7 +50,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 The following MAC algorithms are supported in this example:
 * `PSA_ALG_HMAC` (single-part)
 
-### Hash Algorithm (HMAC)
+### Application Configuration Parameters
 
 The following hash algorithms are supported in this example:
 
@@ -73,4 +73,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps as mentioned for the successful execution of the application:
 
-[AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)
+* [AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)

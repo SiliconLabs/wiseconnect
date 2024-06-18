@@ -12,17 +12,17 @@
   - [Application Configuration Parameters](#application-configuration-parameters)
 - [Test the Application](#test-the-application)
 
-## Purpose/Scope 
+## Purpose/Scope
 
-This application contains an example code to demonstrate the PSA ChachaPoly functionality.
+- This application contains an example code to demonstrate the PSA ChachaPoly functionality.
 
 ## Prerequisites/Setup Requirements
 
 Before running the application, the user will need the following things to setup.
 
-### Hardware Requirements	
+### Hardware Requirements
 
-  - Windows PC 
+  - Windows PC
   - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4338A]
 
 ### Software Requirements
@@ -31,7 +31,7 @@ Before running the application, the user will need the following things to setup
 
 ### Setup Diagram
 
-  ![Figure: Introduction](resources/readme/image508a.png)
+ ![Figure: Introduction](resources/readme/image508a.png)
 
 ## Getting Started
 
@@ -47,7 +47,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ## Application Build Environment
 
 - To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
- 
+
 ### Application Configuration Parameters
 
  * Wrapped key support is provided for AES,Chachapoly,HMAC,GCM with CBC/ECB mode. This example demonstrate the use of wrapped key with AES-ChachaPoly using wrap CBC mode.
@@ -65,4 +65,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps as mentioned for the successful execution of the application:
 
-[AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)
+* [AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)

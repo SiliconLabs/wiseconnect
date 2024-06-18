@@ -47,7 +47,7 @@
 #endif
 
 #include "EMAC.h"
-#include "rsi_chip.h"
+
 #include "clock_update.h"
 #include "RTE_Device.h"
 #include "PHY_LAN8742A.h"

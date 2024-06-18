@@ -1,5 +1,5 @@
 id: sysrtc_ulp_component
-label: ULP SysRTC
+label: PM ULP SysRTC
 package: platform
 description: >
   ULP SYSRTC component will enable  Sysrtc in the low-power mode. It moves all the peripheral dependencies to RAM. 

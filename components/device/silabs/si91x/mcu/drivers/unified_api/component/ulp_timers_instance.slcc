@@ -20,21 +20,26 @@ instantiable:
   prefix: inst
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
-  - path: config/sl_si91x_ulp_timer_{{instance}}_config.h
+  - path: config/sl_si91x_ulp_timer_common_config.h
+  - path: config/sl_si91x_ulp_timer_init_{{instance}}_config.h
+    file_id: ulp_timer_config
 provides:
-  - name: ulp_timer_instance
+  - name: ulp_timers_instance
     allow_multiple: true
 template_file:
-  - path: init/sl_si91x_ulp_timer_init.h.jinja
+  - path: init/sl_ulp_timer_instances.h.jinja
+  - path: init/sl_ulp_timer_init.c.jinja
 template_contribution:
-  - name: temp_ulp_timer_instance
+  - name: ulp_timer_instance
     value: "{{instance}}"
   - name: component_catalog
-    value: "{{instance}}"
+    value: ulp_timer
   - name: component_catalog
-    value: "ulp_timers_instance"
-  - name: component_catalog
-    value: "temp_ulp_timer_{{instance}}"
+    value: "ulp_timer_{{instance}}"
+  - name: event_handler
+    condition: [sl_ulp_timer]
+    value:
+      include: "sl_ulp_timer_instances.h"
 requires:
   - name: sl_ulp_timer
 documentation:

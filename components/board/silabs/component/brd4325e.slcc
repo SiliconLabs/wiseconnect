@@ -35,6 +35,41 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
+
+- template_contribution:
+  # Default Memory configuration
+  - name: device_flash_addr
+    value: 134291456 # 0x0801 2000
+    priority: -1
+    condition:
+      - si917_mem_config_1
+  - name: device_flash_size
+    value: 4059136 # 0x003D F000
+    priority: -1
+    condition:
+      - si917_mem_config_1
+  # Medium Memory configuration
+  - name: device_flash_addr
+    value: 134291456 # 0x0801 2000
+    priority: -1
+    condition:
+      - si917_mem_config_2
+  - name: device_flash_size
+    value: 4059136 # 0x003D F000
+    priority: -1
+    condition:
+      - si917_mem_config_2
+  # Advanced Memory configuration
+  - name: device_flash_addr
+    value: 134291456 # 0x0801 2000
+    priority: -1
+    condition:
+      - si917_mem_config_3
+  - name: device_flash_size
+    value: 4059136 # 0x003D F000
+    priority: -1
+    condition:
+      - si917_mem_config_3
 - tag:
   - board:pn:BRD4325
   - board:variant:E

@@ -13,7 +13,10 @@ provides:
 source:
 - path: sl_si91x_uart.c
 include:
-- path: .
 define:
 - name: SL_NCP_UART_INTERFACE
 - {"name":"SL_NCP_UART_INTERFACE","value":1}
+requires:
+- condition: ["device_efx"]
+  name: sli_si91x_ncp_uart_config
+

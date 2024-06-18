@@ -33,7 +33,7 @@
 
 #include "sl_si91x_led.h"
 
-{% for inst in led_instance -%}
+{% for inst in simple_led_instance -%}
 extern const sl_led_t led_{{ inst | lower }};
 {% endfor %}
 

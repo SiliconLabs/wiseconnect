@@ -22,18 +22,18 @@
 
 Before running the application, the user will need the following things to setup.
 
-### Hardware Requirements	
+### Hardware Requirements
 
-  - Windows PC 
+  - Windows PC
   - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
 
 ### Software Requirements
 
 - Simplicity Studio
 
-### Setup Diagram 
+### Setup Diagram
 
-  ![Figure: Introduction](resources/readme/image508a.png)
+ ![Figure: Introduction](resources/readme/image508a.png)
 
 ## Getting Started
 
@@ -52,7 +52,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
--  Default ecc curve is SEP256R1. 
+-  Default ecc curve is SEP256R1.
 -  Default key size is 256
 -  To change the ecc curve and key size, set secpr1_key_size_select variable to the correct key_size in app.c
 
@@ -65,4 +65,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps as mentioned for the successful execution of the application:
 
-[AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)
+* [AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)

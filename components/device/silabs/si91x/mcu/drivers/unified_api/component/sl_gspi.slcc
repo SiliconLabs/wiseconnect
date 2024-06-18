@@ -25,7 +25,6 @@ include:
 define:
   - name: GSPI_MULTI_SLAVE
   - name: GSPI_CONFIG
-  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
   - name: SL_SI91X_GSPI_DMA
 provides:
   - name: sl_gspi

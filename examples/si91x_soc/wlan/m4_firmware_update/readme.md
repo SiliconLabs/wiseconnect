@@ -13,12 +13,15 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to update the SiWx91x firmware via Wi-Fi by downloading an image from a remote TCP server. The TCP server may be hosted on a local PC (as demonstrated in this example), or alternately on a cloud service such as Amazon AWS or Microsoft Azure. The update process works as follows:
+This application shows how to update the M4 firmware of a device via Wi-Fi by downloading the firmware file from a remote TCP server. The server can be run on a local PC. Here's how the update process works:
 
-- The SiWx91x connects via Wi-Fi as a TCP client to a TCP update server
-- The SiWx91x OTA application sends a firmware file request to the server
-- The server responds with the firmware file
-- The OTA application programs the M4 firmware into the SiWx91x flash memory and reboots
+- **Connection**: The device connects to a Wi-Fi network and acts as a TCP client.
+- **Request**: The device sends a request to the TCP server for the firmware update file.
+- **Download**: The server sends the firmware file to the device.
+- **Update**: The device writes the new firmware to its memory and then restarts to complete the update.
+
+This process allows the device to update its software over the air (OTA) without needing a physical connection.
+
 
 ## Prerequisites/Setup Requirements
 

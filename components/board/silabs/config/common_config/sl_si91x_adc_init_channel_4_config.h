@@ -37,6 +37,8 @@ extern "C" {
 /******************************************************************************/
 /**************************** ADC Channel Configuration ***********************/
 
+#define P3_START_LOCATION_PINTOOL 57
+#define N3_START_LOCATION_PINTOOL 370
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -58,38 +60,37 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc signal=P4,N4> SL_ADC
-// $[ADC_SL_ADC]
-#ifndef SL_ADC_PERIPHERAL
-#define SL_ADC_PERIPHERAL ADC
+// <adc signal=P3,N3> SL_ADC_CH4
+// $[ADC_SL_ADC_CH4]
+#ifndef SL_ADC_CH4_PERIPHERAL
+#define SL_ADC_CH4_PERIPHERAL ADC
 #endif
 
-// ADC P4 on ULP_GPIO_8/GPIO_72
-#ifndef SL_ADC_P4_PORT
-#define SL_ADC_P4_PORT 1
+// ADC P3 on GPIO_25
+#ifndef SL_ADC_CH4_P3_PORT
+#define SL_ADC_CH4_P3_PORT 0
 #endif
-#ifndef SL_ADC_P4_PIN
-#define SL_ADC_P4_PIN 8
+#ifndef SL_ADC_CH4_P3_PIN
+#define SL_ADC_CH4_P3_PIN 25
 #endif
-#ifndef SL_ADC_P4_LOC
-#define SL_ADC_P4_LOC 4
+#ifndef SL_ADC_CH4_P3_LOC
+#define SL_ADC_CH4_P3_LOC 63
 #endif
 
-// ADC N4 on ULP_GPIO_1/GPIO_65
-#ifndef SL_ADC_N4_PORT
-#define SL_ADC_N4_PORT 1
+// ADC N3 on ULP_GPIO_7/GPIO_71
+#ifndef SL_ADC_CH4_N3_PORT
+#define SL_ADC_CH4_N3_PORT 0
 #endif
-#ifndef SL_ADC_N4_PIN
-#define SL_ADC_N4_PIN 1
+#ifndef SL_ADC_CH4_N3_PIN
+#define SL_ADC_CH4_N3_PIN 7
 #endif
-#ifndef SL_ADC_N4_LOC
-#define SL_ADC_N4_LOC 0
+#ifndef SL_ADC_CH4_N3_LOC
+#define SL_ADC_CH4_N3_LOC 375
 #endif
-// [ADC_SL_ADC]$
+// [ADC_SL_ADC_CH4]$
 // <<< sl:end pin_tool >>>
-
-#define SL_ADC_CHANNEL_4_POS_INPUT_CHNL_SEL SL_ADC_P4_LOC
-#define SL_ADC_CHANNEL_4_NEG_INPUT_CHNL_SEL SL_ADC_N4_LOC
+#define SL_ADC_CHANNEL_4_POS_INPUT_CHNL_SEL (SL_ADC_CH4_P3_LOC - P3_START_LOCATION_PINTOOL)
+#define SL_ADC_CHANNEL_4_NEG_INPUT_CHNL_SEL (SL_ADC_CH4_N3_LOC - N3_START_LOCATION_PINTOOL)
 
 #ifdef __cplusplus
 }

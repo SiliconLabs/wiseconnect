@@ -17,7 +17,8 @@
 #include "sl_si91x_dual_flash_intf.h"
 #include "si91x_device.h"
 #include "rsi_debug.h"
-#include "rsi_chip.h"
+#include "rsi_rom_qspi.h"
+
 #include "system_si91x.h"
 
 /*******************************************************************************
@@ -150,8 +151,7 @@ bool rsi_flash_erase_sector(uint32_t *sector_address)
 bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 {
   spi_config_t spi_configs_program;
-  uint32_t check_sum = 0;
-  uint32_t status    = ECODE_QSPI_OK;
+  uint32_t status = ECODE_QSPI_OK;
   get_qspi_config(&spi_configs_program);
 
   /* writes the data to required address using qspi */
@@ -182,8 +182,7 @@ bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 bool rsi_flash_read(uint32_t *address, unsigned char *data, uint32_t length, uint8_t auto_mode)
 {
   spi_config_t spi_configs_program;
-  uint32_t check_sum = 0;
-  uint32_t status    = ECODE_QSPI_OK;
+  uint32_t status = ECODE_QSPI_OK;
   get_qspi_config(&spi_configs_program);
 
   /* IO_READ - Manual Mode */

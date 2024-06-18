@@ -1,5 +1,5 @@
 id: wdt_ulp_component
-label: ULP Watchdog Timer
+label: PM UULP Watchdog Timer
 package: platform
 description: >
   ULP Watchdog Timer component will enable WDT in the low-power mode. It moves all the peripheral dependencies to RAM. 
@@ -7,7 +7,7 @@ description: >
   As this is a NPSS peripheral, it also contributes to the wakeup source handler if the wakeup source config component is installed. 
   It initializes the wakeup source as per the selection in Wakeup Source Configuration UC.
   This component can be used for ultra-low power state also.
-category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
+category: Device|Si91x|MCU|Service|Power Manager|UULP Wakeup Sources
 quality: production
 
 requires:

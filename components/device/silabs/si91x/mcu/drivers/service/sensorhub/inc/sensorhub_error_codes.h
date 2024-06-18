@@ -31,6 +31,8 @@
 #ifndef ERROR_CODES_H_
 #define ERROR_CODES_H_
 
+#include "Driver_Common.h"
+
 /**************************************************************************/ /**
  * @addtogroup SENSOR-HUB Sensor Hub
  * @ingroup SI91X_SERVICE_APIS

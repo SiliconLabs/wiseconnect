@@ -267,6 +267,7 @@ typedef struct rsi_bt_resp_get_local_name_s {
   uint8_t name_len;
   /** Array which consists name of the local device. The maximum size of this array is 50 */
   int8_t name[RSI_DEV_NAME_LEN];
+  uint8_t _reserved;
 } rsi_bt_resp_get_local_name_t;
 
 /** @addtogroup BT-BLE Common

@@ -1,5 +1,5 @@
 id: ir_ulp_component
-label: ULP IR
+label: PM ULP IR
 package: platform
 description: >
   ULP IR component will enable IR in the low-power mode. It moves all the peripheral dependencies to RAM. 

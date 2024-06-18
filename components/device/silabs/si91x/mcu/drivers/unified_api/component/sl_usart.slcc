@@ -6,7 +6,7 @@ description: >
   used for serial communication between devices. It is used to exchange data between microcontrollers,
   sensors, and other peripherals. It supports half and full duplex communicationwith TX(transmitter) and 
   RX(Receiving) lines. 
-  Configurable parameters in Analog comparator:
+  Configurable parameters in USART:
     - Baud Rate
     - Select the Asynchronous/Synchronous Modes 
     - Data Width
@@ -26,11 +26,11 @@ provides:
   - name: sl_usart
 define:
   - name: SL_SI91X_USART_DMA
-  - name: SL_SI91X_DMA
-  - name: USART_CONFIG
+  - name: USART_MODULE
 requires:
   - name: udma_linker_config
   - name: sl_dma
+  - name: cmsis_usart
 documentation:
     docset: wiseconnect
     document: wiseconnect-api-reference-guide-si91x-peripherals/usart

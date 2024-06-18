@@ -108,10 +108,12 @@ typedef enum {
 
 /// Enumeration of SL-Net Event.
 typedef enum {
-  SL_NET_PING_RESPONSE_EVENT, ///< Ping Response Event
-  SL_NET_DNS_RESOLVE_EVENT,   ///< DNS Address resolution Event
-  SL_NET_OTA_FW_UPDATE_EVENT, ///< OTA Firmware Update Event
-  SL_NET_EVENT_COUNT          ///< Maximum event count
+  SL_NET_PING_RESPONSE_EVENT,     ///< Ping Response Event
+  SL_NET_DNS_RESOLVE_EVENT,       ///< DNS Address resolution Event
+  SL_NET_OTA_FW_UPDATE_EVENT,     ///< OTA Firmware Update Event
+  SL_NET_DHCP_NOTIFICATION_EVENT, ///< DHCP Notification Event
+  SL_NET_IP_ADDRESS_CHANGE_EVENT, ///< IP Address change Notification Event
+  SL_NET_EVENT_COUNT              ///< Maximum event count
 } sl_net_event_t;
 
 /// SL Network profile ID.

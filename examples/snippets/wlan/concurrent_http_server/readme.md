@@ -23,7 +23,7 @@ In this example application, the SiWx91x's AP instance acts as HTTP Server and t
 
 - A Windows PC.
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A, BRD4339B](https://www.silabs.com/)
+  - Silicon Labs [BRD4388A](https://www.silabs.com/)
 - NCP Mode:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]

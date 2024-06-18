@@ -16,7 +16,7 @@
 ******************************************************************************/
 
 #include "rsi_ccp_user_config.h"
-#ifndef ROMDRIVER_PRESENT
+#ifndef UDMA_ROMDRIVER_PRESENT
 
 #include "rsi_rom_udma.h"
 #include "rsi_udma.h"
@@ -725,4 +725,4 @@ const ROM_UDMA_API_T udma_api = {
 #endif
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif //ROMDERIVER_PRESENT
+#endif //UDMA_ROMDRIVER_PRESENT

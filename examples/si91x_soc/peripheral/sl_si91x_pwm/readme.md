@@ -90,7 +90,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -193,3 +193,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    ![Figure: Introduction](resources/readme/output1.png)
 
    ![Figure: Introduction](resources/readme/output2.png)
+
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

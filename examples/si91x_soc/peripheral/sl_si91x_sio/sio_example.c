@@ -22,16 +22,17 @@
  ============================================================================**/
 #include "sio_example.h"
 #include "rsi_debug.h"
-#include "rsi_chip.h"
 #include "sl_si91x_sio.h"
 #include "string.h"
+#include "sl_si91x_clock_manager.h"
+#include "rsi_rom_clks.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SIO_BUFFER_SIZE 10        // Data buffer size
-#define CS_NUMBER       0         // Chip select number
-#define MSB_FIRST       1         // Select MSB first
-#define SYS_CLOCK       180000000 // System clock
+#define SIO_BUFFER_SIZE 10 // Data buffer size
+#define CS_NUMBER       0  // Chip select number
+#define MSB_FIRST       1  // Select MSB first
 
 // SIO-SPI Configuration parameters
 #define SIO_SPI_CLK_FREQUENCY 1000000 // SIO-SPI 1Mhz clock frequency
@@ -40,6 +41,11 @@
 // SIO-UART Configuration parameters
 #define SIO_UART_BAUD_RATE 115200 // SIO-UART baud rate
 
+#define SOC_PLL_CLK          ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK         ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
+#define QSPI_ODD_DIV_ENABLE  0                       // Odd division enable for QSPI clock
+#define QSPI_SWALLO_ENABLE   0                       // Swallo enable for QSPI clock
+#define QSPI_DIVISION_FACTOR 0                       // Division factor for QSPI clock
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -56,7 +62,6 @@ uint16_t sio_data_in[SIO_BUFFER_SIZE] = { 0 }, sio_buffer_out[SIO_BUFFER_SIZE];
 volatile boolean_t sio_send_complete = false, sio_receive_complete = false;
 static boolean_t sio_begin_transmission = true;
 extern sl_sio_spi_callback_t spi_user_callback;
-extern uint32_t SystemCoreClock;
 uint8_t tx_data[SIO_BUFFER_SIZE] = { 0 };
 uint8_t rx_data[SIO_BUFFER_SIZE] = { 0 };
 extern uint8_t bit_length;
@@ -67,6 +72,7 @@ void sio_spi_callback(en_sio_spi_events_t event);
 static void compare_loop_back_data(void);
 void sio_uart_callback(en_sio_Uart_events_t event, uint16_t rev_char);
 static void compare_uart_loop_back_data(void);
+static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
@@ -79,6 +85,26 @@ uint8_t rx_buffer[SIO_BUFFER_SIZE] = { 0 };
 extern sl_sio_spi_t sl_sio_spi_init;
 extern sl_sio_uart_t sl_sio_uart_init;
 /*******************************************************************************
+**************************   GLOBAL FUNCTIONS   *******************************
+******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+
+  // Configure QSPI clock as input source
+  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK,
+                                           QSPI_INTFPLLCLK,
+                                           QSPI_SWALLO_ENABLE,
+                                           QSPI_ODD_DIV_ENABLE,
+                                           QSPI_DIVISION_FACTOR);
+}
+/*******************************************************************************
  * SIO Example Initialization function for setting clock frequency, SIO
  *initialize, SPI initialize etc.
  ******************************************************************************/
@@ -86,7 +112,9 @@ void sio_example_init(void)
 {
   sl_status_t status;
   sl_sio_version_t version;
-  SystemCoreClock = SYS_CLOCK;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
 
   // Version information of sio
   version = sl_si91x_sio_get_version();

@@ -18,11 +18,6 @@
   - override:
       component: "%extension-wiseconnect3_sdk%adc_instance"
       file_id: adc_config
-      instance: channel_0
-    path: common_config/sl_si91x_adc_init_channel_0_config.h
-  - override:
-      component: "%extension-wiseconnect3_sdk%adc_instance"
-      file_id: adc_config
       instance: channel_1
     path: common_config/sl_si91x_adc_init_channel_1_config.h
   - override:
@@ -96,6 +91,16 @@
       instance: channel_15
     path: common_config/sl_si91x_adc_init_channel_15_config.h
   - override:
+      component: "%extension-wiseconnect3_sdk%adc_instance"
+      file_id: adc_config
+      instance: channel_16
+    path: common_config/sl_si91x_adc_init_channel_16_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%pwm_instance"
+      file_id: pwm_config
+      instance: led0
+    path: brd4338a/sl_si91x_pwm_init_led0_config.h
+  - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
       instance: channel_0
@@ -130,6 +135,26 @@
       file_id: i2c_config
       instance: i2c2
     path: common_config/sl_si91x_i2c_init_i2c2_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%ulp_timers_instance"
+      file_id: ulp_timer_config
+      instance: timer0
+    path: common_config/sl_si91x_ulp_timer_init_timer0_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%ulp_timers_instance"
+      file_id: ulp_timer_config
+      instance: timer1
+    path: common_config/sl_si91x_ulp_timer_init_timer1_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%ulp_timers_instance"
+      file_id: ulp_timer_config
+      instance: timer2
+    path: common_config/sl_si91x_ulp_timer_init_timer2_config.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%ulp_timers_instance"
+      file_id: ulp_timer_config
+      instance: timer3
+    path: common_config/sl_si91x_ulp_timer_init_timer3_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: sl_board_configuration

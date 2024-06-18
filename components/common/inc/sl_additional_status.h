@@ -447,7 +447,9 @@
 #define SL_STATUS_SI91X_HTTP_OTAF_INCOMPLETE_PACKET ((sl_status_t)0x1FFF4) ///< HTTP OTAF incomplete packet.
 #define SL_STATUS_SI91X_INVALID_STORE_CONFIGURATION_PROFILE \
   ((sl_status_t)0x1FFF5) ///< Store configuration profile type mismatch or invalid profile type.
-#define SL_STATUS_SI91X_MQTT_REMOTE_TERMINATE_ERROR    ((sl_status_t)0x1FFF6) ///< MQTT remote terminate error.
+#define SL_STATUS_SI91X_MQTT_REMOTE_TERMINATE_ERROR ((sl_status_t)0x1FFF6) ///< MQTT remote terminate error.
+#define SL_STATUS_SI91X_MQTT_KEEP_ALIVE_TERMINATE_ERROR \
+  ((sl_status_t)0x1BBF1) ///< MQTT remote terminate error due to keep alive response timeout.
 #define SL_STATUS_SI91X_BYTE_STUFFING_ERROR_IN_AT_MODE ((sl_status_t)0x1FFF7) ///< Byte stuffing error in AT mode.
 #define SL_STATUS_SI91X_INVALID_COMMAND_OR_OPERATION \
   ((sl_status_t)0x1FFF8) ///< Invalid command (e.g. parameters insufficient or invalid in the command). Invalid operation (e.g. power save command with the same mode given twice, accessing wrong socket, creating more than allowed sockets ).

@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#ifndef ROMDRIVER_PRESENT
+#ifndef CT_ROMDRIVER_PRESENT
 
 /*==============================================*/
 /**
@@ -209,7 +209,7 @@ rsi_error_t ct_wfg_comapre_value_set(RSI_CT_T *pCT, boolean_t counterNum, OCU_PA
   }
   return RSI_OK;
 }
-#endif //ROMDRIVER_PRESENT
+#endif //CT_ROMDRIVER_PRESENT
 
 /*==============================================*/
 /**

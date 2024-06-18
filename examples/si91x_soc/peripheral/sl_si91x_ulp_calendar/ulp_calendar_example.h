@@ -20,7 +20,7 @@
 
 // -----------------------------------------------------------------------------
 // Macros
-#define ALARM_EXAMPLE     DISABLE ///< To enable alarm trigger
+#define ALARM_EXAMPLE     ENABLE  ///< To enable alarm trigger
 #define CLOCK_CALIBRATION DISABLE ///< To enable clock calibration
 #define SEC_INTR          DISABLE ///< To enable one second trigger
 #define MILLI_SEC_INTR    DISABLE ///< To enable one millisecond trigger

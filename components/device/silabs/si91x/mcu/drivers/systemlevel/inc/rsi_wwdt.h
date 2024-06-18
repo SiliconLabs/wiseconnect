@@ -28,6 +28,10 @@ extern "C" {
 #include "base_types.h"
 #include "rsi_power_save.h"
 
+#ifndef UNUSED_PARAMETER
+#define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
+
 #define WDT_SYSTEM_RESET_TIMER 0x3
 #define WDT_INTERRUPT_TIMER    0x1
 #define WDT_IRQHandler         IRQ020_Handler            /*!<WDT IRQ Handler*/

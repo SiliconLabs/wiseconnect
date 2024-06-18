@@ -16,3 +16,5 @@ include:
     - path: "rsi_usart.h"
 provides:
   - name: rsilib_usart
+requires:
+  - name: romdriver_udma_wrapper

@@ -26,8 +26,6 @@ This application demonstrates the procedure to calibrate the carrier frequency o
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -154,9 +152,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 Using sl_calib_write command the calibrated XO Ctune and calculated gain offset can be updated to target memory (Flash/Efuse).
 ```
  Prototype :
- sl_calib_write = <target>,<flags>,<gain_offset_low>,<gain_offset_mid>,<gain_offset_high><CR><LF>
- OR
- sl_calib_write= <target>,<flags>,<gain_offset_low>,<gain_offset_mid>,<gain_offset_high>,<xo_ctune><CR><LF>
+ sl_calib_write= <target>,<flags>,<gain_offset_low>,<gain_offset_mid>,<gain_offset_high>,<xo_ctune>,<gain_offset_ch14><CR><LF>
  ```
 
 **Structure Members**
@@ -183,12 +179,15 @@ Using sl_calib_write command the calibrated XO Ctune and calculated gain offset 
    |||| 0 - Skip dpd coeffiecients calibration
    |            |   9         |  BURN_DPD_COEFFICIENTS | 1 - Burn dpd coefficients data   
    |||| 0 - Skip dpd coeffiecients calibration
+   |            |   10         |  BURN_GAIN_OFFSET_CHANNEL-14  | 1 - Update gain offset for low sub-band (2 GHz) 
+   |||| 0 - Skip channel-14 sub-band gain-offset update
    |            |   31-4      |                        | Reserved for future use
    |gain_offset_low | gain_offset as observed in dBm in channel-1 | |
    |gain_offset_mid | gain_offset as observed in dBm in channel-6 | |
    |gain_offset_high| gain_offset as observed in dBm in channel-11 | |
    | xo_ctune   | This field allows user to directly update xo_ctune value to calibration data bypassing the freq offset loop, valid only when BURN_FREQ_OFFSET & SW_XO_CTUNE_VALID of flags is set. |   | The range of xo_ctune is [0, 255], and the typical value is 80 |
    |
+   |gain_offset_ch14 | gain_offset as observed in dBm in channel-14 | |   
 
 > **Note:** For SiWx917, the user needs to calibrate gain-offset for low sub-band (channel-1), mid sub-band (channel-6), and high sub-band (channel-11) and input the three gain-offsets to this API and set the corresponding flags to validate it. 
 
@@ -209,13 +208,15 @@ The corresponding value to be passed via the command would be -4 (2*calculated v
 
 Example usage:
 
-sl_calib_write=1,16,-4,0,0
+sl_calib_write=1,16,-4,0,0,0,0
 ```
 Target = 1 (data to be written to flash)
 Flags  = BIT(4) => 2^4 = 16 (BURN_GAIN_OFFSET_LOW => Gain offset in channel 1 is to be updated in the flash)
 gain_offset_low  = -4 (Updates the channel 1 gain offset such that the average tx power in channel 1 is incremented by 2dbm)
 gain_offset_mid  = 0 (Not updating the gain offsets of channel 6, the corresponding bit is disabled in the flags)
 gain_offset_high = 0 (Not updating the gain offsets of channel 11, the corresponding bit is disabled in the flags)
+xo_ctune         = 0 (Not updating the xo_ctune, the corresponding bit is disabled in the flags)
+gain_offset_ch14 = 0 (Not updating the gain offsets of channel 14, the corresponding bit is disabled in the flags)
 ```
 
 For 2 GHz band, the gain offset has to calibrated for three channels, viz. channel-1, channel-6, channel-11. After the three gain offsets are calculated these can be written to Flash using the `sl_calib_write` command.

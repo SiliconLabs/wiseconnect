@@ -32,9 +32,9 @@ sl_analog_comparator_config_t sl_analog_{{ inst }}_config_handle = {
 		.non_inverting_input = SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT,
 #endif
 #if defined(SL_ANALOG_COMPARATOR_INVERTING_PIN_INPUT)
-        .inverting_input = SL_ANALOG_COMPARATOR_INVERTING_INPUT, // Pin tool inverting input
+        .inverting_input = SL_ANALOG_COMPARATOR_INVERTING_PIN_INPUT, // Pin tool inverting input
 #else
-        .inverting_input = SL_ANALOG_COMPARATOR_INVERTING_PIN_INPUT,
+        .inverting_input = SL_ANALOG_COMPARATOR_INVERTING_INPUT,
 #endif
         .hystersis_value   = SL_ANALOG_COMPARATOR_HYSTERSIS_VALUE,
         .is_filter_enabled = SL_ANALOG_COMPARATOR_FILTER_ENABLED,

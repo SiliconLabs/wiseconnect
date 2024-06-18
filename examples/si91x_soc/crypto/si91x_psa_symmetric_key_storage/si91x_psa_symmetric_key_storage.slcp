@@ -25,16 +25,17 @@ include:
       - path: app.h
       - path: psa_symmetric_key_storage_app.h
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
 component:
   - id: sl_system
   - id: freertos
+  - id: freertos_heap_4
   - id: psa_crypto
   - id: psa_driver
   - id: psa_crypto_aes

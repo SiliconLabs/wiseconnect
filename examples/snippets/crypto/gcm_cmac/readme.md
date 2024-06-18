@@ -23,7 +23,7 @@ This application demonstrates the following:
 
 - Windows PC
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A](https://www.silabs.com/)
+  - Silicon Labs [BRD4338A](https://www.silabs.com/)
 
 ### Software Requirements
 

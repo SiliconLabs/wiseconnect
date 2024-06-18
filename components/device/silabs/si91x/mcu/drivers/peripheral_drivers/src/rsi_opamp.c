@@ -16,8 +16,7 @@
 ******************************************************************************/
 
 // Include files
-
-#include "rsi_chip.h"
+#include "rsi_opamp.h"
 
 /** @addtogroup SOC24
 * @{

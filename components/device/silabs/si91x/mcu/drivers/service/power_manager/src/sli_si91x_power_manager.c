@@ -37,6 +37,7 @@
 #include "rsi_rom_power_save.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_ps_ram_func.h"
+#include "FreeRTOSConfig.h"
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
 #include "rsi_m4.h"
 #include "sl_si91x_types.h"
@@ -59,9 +60,9 @@
 #define MAX_M4SS_RAM_SIZE 320 // Maximum m4ss RAM size
 #endif
 #define MAX_ULPSS_RAM_SIZE       8          // Maximum ulpss RAM size
-#define SOC_PLL_REF_FREQUENCY    40000000   // SOC Pll reference frequency
-#define PS4_HP_FREQUENCY         180000000  // PS4 high power clock frequency
-#define PS4_LP_FREQUENCY         100000000  // PS4 low power clock frequency
+#define SOC_PLL_REF_FREQUENCY    32000000   // SOC Pll reference frequency
+#define PS4_HP_FREQUENCY         100000000  // PS4 high power clock frequency
+#define PS4_LP_FREQUENCY         32000000   // PS4 low power clock frequency
 #define PS3_HP_FREQUENCY         80000000   // PS3 high power clock frequency
 #define PS3_LP_FREQUENCY         32000000   // PS3 low power clock frequency
 #define DIVISION_FACTOR          0          // Division Factor for clock
@@ -196,7 +197,9 @@ sl_status_t sli_si91x_power_manager_change_power_state(sl_power_state_t from, sl
     status = SL_STATUS_INVALID_PARAMETER;
     return status;
   }
-
+  if ((to == SL_SI91X_POWER_MANAGER_PS1) || (to == SL_SI91X_POWER_MANAGER_PS0)) {
+    SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
+  }
   if (ps_transition[from - PS_OFFSET].to_ps[to].fptr != NULL) {
     // If the from and to state transition function pointer is not null,
     // then it calls the function and state change is performed.
@@ -240,19 +243,25 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   sl_si91x_power_manager_wakeup_init();
 #endif
 
+#if (configUSE_TICKLESS_IDLE == 0)
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
   rsi_p2p_intr_status_bkp_t p2p_intr_status_bkp;
   p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp = TASS_P2P_INTR_MASK_CLR;
   p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp  = M4SS_P2P_INTR_SET_REG;
   P2P_STATUS_REG &= ~M4_is_active;
 #endif
-
+#endif
+  if (state != SL_SI91X_POWER_MANAGER_PS2) {
+    //Changing the Core-Clock to ULP_REF clock before entering Sleep mode.
+    RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
+  }
   // If any error code, it returns it otherwise goes to sleep with retention.
   status = trigger_sleep(&config, SLEEP_WITH_RETENTION);
   if (status != SL_STATUS_OK) {
     return status;
   }
-  // After waking up, setting the mcu status as active in P2P registers
+// After waking up, setting the mcu status as active in P2P registers
+#if (configUSE_TICKLESS_IDLE == 0)
   RSI_PS_SetMCUActiveStatus();
 #if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
   SysTick_Config(SystemCoreClock / 1000);
@@ -261,6 +270,7 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
   // Restore values from backup
   TASS_P2P_INTR_MASK_CLR = ~p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp;
   M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
+#endif
 #endif
   return SL_STATUS_OK;
 }
@@ -426,17 +436,19 @@ sl_status_t sli_si91x_power_manager_set_ram_retention_configuration(sl_power_ram
 
 /*******************************************************************************
  * Configures the clock as per the input, i.e. powersave or performance.
- * PS4 PowerSave -> 100 MHz clock
- * PS4 Performance -> 180 MHz clock
+ * PS4 PowerSave -> 32 MHz clock
+ * PS4 Performance -> 100 MHz clock
  * PS3 PowerSave -> 32 MHz clock
  * PS3 Performance -> 80 MHz clock
  * PS2 -> 20 MHz clock
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_configure_clock(sl_power_state_t state, boolean_t mode)
 {
+  sl_status_t sli_status = SL_STATUS_OK;
   if (state >= LAST_ENUM_POWER_STATE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
+
   switch (state) {
     case SL_SI91X_POWER_MANAGER_PS4:
       if (mode) {
@@ -444,38 +456,53 @@ sl_status_t sli_si91x_power_manager_configure_clock(sl_power_state_t state, bool
         RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, DIVISION_FACTOR);
         // Configures the required registers for 180 Mhz clock in PS4
         RSI_PS_PS4SetRegisters();
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+        // XTAL is required for configuring the SOC-PLL
+        //wakeup TA
+        P2P_STATUS_REG |= M4_WAKEUP_TA;
+        //wait for TA active
+        while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
+          ;
+#endif
         // Configure the PLL frequency
         // Configure the SOC PLL to 180MHz
         RSI_CLK_SetSocPllFreq(M4CLK, PS4_HP_FREQUENCY, SOC_PLL_REF_FREQUENCY);
         // Switch M4 clock to PLL clock for speed operations
         RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, DIVISION_FACTOR);
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+        // Indicate TA that M4 does not have dependency on TA and TA can go to sleep
+        P2P_STATUS_REG &= ~M4_WAKEUP_TA;
+#endif
       } else {
         // Default keep M4 in reference clock
         RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, DIVISION_FACTOR);
-        // Configure the PLL frequency
-        // Configure the SOC PLL to 100MHz
-        RSI_CLK_SetSocPllFreq(M4CLK, PS4_LP_FREQUENCY, SOC_PLL_REF_FREQUENCY);
-        // Switch M4 clock to PLL clock for speed operations
-        RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, DIVISION_FACTOR);
       }
       break;
     case SL_SI91X_POWER_MANAGER_PS3:
       if (mode) {
         // Default keep M4 in reference clock
         RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, DIVISION_FACTOR);
+
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+        // XTAL is required for configuring the SOC-PLL
+        //wakeup TA
+        P2P_STATUS_REG |= M4_WAKEUP_TA;
+        //wait for TA active
+        while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
+          ;
+#endif
         // Configure the PLL frequency
         // Configure the SOC PLL to 80MHz
         RSI_CLK_SetSocPllFreq(M4CLK, PS3_HP_FREQUENCY, SOC_PLL_REF_FREQUENCY);
         // Switch M4 clock to PLL clock for speed operations
         RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, DIVISION_FACTOR);
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+        // Indicate TA that M4 does not have dependency on TA and TA can go to sleep
+        P2P_STATUS_REG &= ~M4_WAKEUP_TA;
+#endif
       } else {
         // Default keep M4 in reference clock
         RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, DIVISION_FACTOR);
-        // Configure the PLL frequency
-        // Configure the SOC PLL to 80MHz
-        RSI_CLK_SetSocPllFreq(M4CLK, PS3_LP_FREQUENCY, SOC_PLL_REF_FREQUENCY);
-        // Switch M4 clock to PLL clock for speed operations
-        RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, DIVISION_FACTOR);
       }
       break;
     case SL_SI91X_POWER_MANAGER_PS2:
@@ -488,10 +515,10 @@ sl_status_t sli_si91x_power_manager_configure_clock(sl_power_state_t state, bool
       break;
     default:
       // If reaches here, returns error code.
-      return SL_STATUS_INVALID_PARAMETER;
+      sli_status = SL_STATUS_INVALID_PARAMETER;
       break;
   }
-  return SL_STATUS_OK;
+  return sli_status;
 }
 
 /*******************************************************************************
@@ -503,7 +530,6 @@ void sli_si91x_power_manager_init_hardware(void)
 {
   // Sets PS4 Power save mode, 100 MHz.
   sli_si91x_power_manager_configure_clock(SL_SI91X_POWER_MANAGER_PS4, false);
-  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK, QSPI_SOCPLLCLK, 0, 0, DIVISION_FACTOR);
 }
 
 /*******************************************************************************
@@ -606,6 +632,9 @@ static void ps4_to_ps0_state_change(void)
   // Initializing and configuring the wakeup sources as per UC inputs, if available
   sl_si91x_power_manager_wakeup_init();
 #endif
+#if ((configUSE_TICKLESS_IDLE == 1) && (SL_SLEEP_TIMER == 1))
+  RSI_PS_ClrWkpSources(SYSRTC_BASED_WAKEUP);
+#endif
   // If any error code, it returns it otherwise goes to sleep without retention.
   trigger_sleep(&config, SLEEP_WITHOUT_RETENTION);
 }
@@ -617,7 +646,6 @@ static void ps4_to_ps0_state_change(void)
 static void ps3_to_ps4_state_change(void)
 {
   sli_si91x_power_manager_configure_clock(SL_SI91X_POWER_MANAGER_PS4, false);
-  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK, QSPI_SOCPLLCLK, 0, 0, DIVISION_FACTOR);
 }
 
 /*******************************************************************************
@@ -668,6 +696,9 @@ static void ps3_to_ps0_state_change(void)
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
   // Initializing and configuring the wakeup sources as per UC inputs, if available
   sl_si91x_power_manager_wakeup_init();
+#endif
+#if ((configUSE_TICKLESS_IDLE == 1) && (SL_SLEEP_TIMER == 1))
+  RSI_PS_ClrWkpSources(SYSRTC_BASED_WAKEUP);
 #endif
   trigger_sleep(&config, SLEEP_WITHOUT_RETENTION);
 }

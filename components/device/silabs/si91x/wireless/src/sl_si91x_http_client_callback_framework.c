@@ -156,7 +156,9 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
         http_response.http_response_code = http_server_response;
 
         // Check http server response and fill other callback response data
-        if (http_server_response == 0 || (http_server_response >= 200 && http_server_response <= 299)) {
+        // http server response - success codes 200 to 299, failure codes 300 to 499
+        // http_server_response will be zero, if FW returns error for any http client cmd
+        if (http_server_response == 0 || (http_server_response >= 200 && http_server_response <= 499)) {
           // Extract end of data indication from packet
           memcpy(&end_of_data, packet->data, sizeof(uint16_t));
 

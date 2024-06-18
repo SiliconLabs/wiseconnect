@@ -1,5 +1,5 @@
 id: gpio_ulp_component
-label: ULP GPIO
+label: PM ULP GPIO
 package: platform
 description: >
   ULP GPIO component will enable execution of GPIO in the low power state.

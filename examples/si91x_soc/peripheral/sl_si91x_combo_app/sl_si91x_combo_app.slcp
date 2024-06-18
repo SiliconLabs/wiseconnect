@@ -7,11 +7,11 @@ category: example|peripheral
 package: platform
 quality: production
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 readme:
   - path: readme.md
 source:
@@ -31,7 +31,9 @@ include:
       - path: pwm_app.h
       - path: i2c_app.h
       - path: timer_app.h
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: status
@@ -48,6 +50,7 @@ component:
       - channel_0
     from: wiseconnect3_sdk
   - id: freertos
+  - id: freertos_heap_4
   - id: sl_si91x_button_917
     instance:
       - btn0
@@ -70,6 +73,8 @@ component:
     from: wiseconnect3_sdk
     instance:
       - timer0
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
 configuration:
   - name: SL_BUTTON_CONFIG_BTN0_INTR
     value: RISE_EDGE_AND_FALL_EDGE_INTERRUPT

@@ -26,7 +26,7 @@
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
 #include "sl_utility.h"
-
+#include "FreeRTOSConfig.h"
 //! BLE include files to refer BLE APIs
 #include <string.h>
 
@@ -39,7 +39,7 @@
 #include "sl_si91x_driver.h"
 #include "app.h"
 
-#if (defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if ((SL_SI91X_TICKLESS_MODE == 0) && defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
 #include "sl_si91x_m4_ps.h"
 #endif
 
@@ -48,6 +48,8 @@
 /*=======================================================================*/
 //! Maximum number of advertise reports to hold
 #define NO_OF_ADV_REPORTS 10
+
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
 
 /*=======================================================================*/
 //!    Application powersave configurations
@@ -66,10 +68,10 @@ int32_t rsi_initiate_power_save(void);
 /*=======================================================================*/
 //! Memory to initialize driver
 uint8_t wlan_radio_initialized = 0, powersave_cmd_given = 0;
-uint8_t device_found          = false;
-uint8_t remote_dev_addr[18]   = { 0 };
-uint8_t local_dev_addr[18]    = { 0 };
-uint8_t remote_dev_bd_addr[6] = { 0 };
+uint8_t device_found                       = false;
+uint8_t remote_dev_addr[18]                = { 0 };
+uint8_t local_dev_addr[LOCAL_DEV_ADDR_LEN] = { 0 };
+uint8_t remote_dev_bd_addr[6]              = { 0 };
 static uint8_t remote_name[31];
 static uint8_t remote_addr_type                                 = 0;
 static rsi_bt_resp_get_local_name_t rsi_app_resp_get_local_name = { 0 };
@@ -434,7 +436,7 @@ void ble_app_task(void *argument)
   //! initialize the event map
   rsi_ble_app_init_events();
 
-  //! get the local device address(MAC address).
+  //! get the local device MAC address.
   status = rsi_bt_get_local_device_address(rsi_app_resp_get_dev_addr);
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\r\n ble get local device address cmd failed with reason code : %lX \n", status);
@@ -512,7 +514,7 @@ void ble_app_task(void *argument)
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
       //! if events are not received loop will be continued.
-#if (defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if ((SL_SI91X_TICKLESS_MODE == 0) && (defined SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE))
       //! if events are not received loop will be continued.
 
       if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (ble_app_event_map == 0) && (ble_app_event_map1 == 0)) {

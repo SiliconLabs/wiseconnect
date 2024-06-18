@@ -8,5 +8,7 @@ description: >
 define:
   - name: USER_CONFIGURATION_ENABLE
     value: '1'
+  - name: SLI_SI91X_MCU_COMMON_FLASH_MODE
+    value: '1'
 provides:
   - name: soc_configuration_enable

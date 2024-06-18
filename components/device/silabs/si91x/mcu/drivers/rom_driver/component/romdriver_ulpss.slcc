@@ -16,4 +16,5 @@ provides:
   - name: romdriver_ulpss
 requires:
   - name: romdriver_romtable
-  - name: systemlevel_ulpss_clk
+define:
+  - name: ULPSS_CLOCK_ROMDRIVER_PRESENT

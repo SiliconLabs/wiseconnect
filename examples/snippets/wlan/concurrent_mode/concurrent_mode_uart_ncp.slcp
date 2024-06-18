@@ -13,11 +13,11 @@ filter:
    value:
    - Beginner
 sdk:
-   id: gecko_sdk
-   version: 4.4.3
+   id: simplicity_sdk
+   version: 2024.6.0
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.2.0
+   version: 3.3.0
 source:
 -  path: app.c
 -  path: main.c
@@ -31,10 +31,13 @@ define:
 component:
   - id: sl_system
   - id: freertos
+  - id: freertos_heap_4
   - id: device_init
   - id: iostream_retarget_stdio
   - id: iostream_rtt
   - id: iostream_stdlib_config
+  - id: uartdrv_usart
+    instance: [exp]
   - id: wiseconnect3_common
     from: wiseconnect3_sdk
   - id: wifi

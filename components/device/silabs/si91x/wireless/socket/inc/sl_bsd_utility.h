@@ -31,12 +31,19 @@
 
 #include <stdint.h>
 
-/***************************************************************************
+/**
+ * @addtogroup SI91X_SOCKET_FUNCTIONS
+ * @{ 
+ */
+
+/***************************************************************************/ /**
  * @brief
- *  Get the maximum segment size (MSS) of a socket.
+ *  Retrieves the Maximum Segment Size (MSS) for a specific socket. The MSS is the largest amount of data, specified in bytes, that a computer or communications device can handle in a single, unfragmented piece.
  * @param[in] socketIndex
- *  The index of the socket.
+ *  The index of the socket for which the MSS is to be retrieved. This is an integer value that uniquely identifies the socket.
  * @return
- *  int16_t. The maximum segment size (MSS) of the socket.
+ *  Returns an int16_t value representing the MSS of the specified socket in bytes.
  ******************************************************************************/
 int16_t sl_si91x_get_socket_mss(int32_t socketIndex);
+
+/** @} */

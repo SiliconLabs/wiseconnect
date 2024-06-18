@@ -16,3 +16,5 @@ include:
     - path: "rsi_timers.h"
 provides:
   - name: rsilib_timers
+define: 
+  - name: TIMER_ROMDRIVER_PRESENT

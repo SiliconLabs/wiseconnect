@@ -25,14 +25,15 @@ include:
       - path: psa_asymmetric_key_storage_app.h
       - path: app.h
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 component:
   - id: sl_system
   - id: freertos
+  - id: freertos_heap_4
   - id: psa_crypto
   - id: psa_driver
   - id: psa_its
@@ -69,6 +70,8 @@ ui_hints:
   highlight:
     - path: readme.md
       focus: true
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

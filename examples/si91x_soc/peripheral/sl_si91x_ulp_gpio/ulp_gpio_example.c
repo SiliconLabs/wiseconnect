@@ -53,7 +53,7 @@
 #define FIVE_SECOND_DELAY 5000   // Delay for 5 sec
 #define MS_DELAY_COUNTER  4600   // Delay count
 #define UULP_GPIO_INTR_2  2      // UULP GPIO pin interrupt 2
-
+#define TOGGLE_COUNT      10     // Count for number of times to repeat
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -83,7 +83,7 @@ uint32_t i;
 static uulp_pad_config_t uulp_pad;
 typedef sl_gpio_t sl_si91x_gpio_t;
 typedef sl_gpio_mode_t sl_si91x_gpio_mode_t;
-
+uint8_t gpio_toggle_count;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -93,6 +93,7 @@ static void gpio_driver_uulp_initialization(void);
 static void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr);
 static void gpio_ulp_pin_interrupt_callback(uint32_t pin_intr);
 static void gpio_ulp_group_interrupt_callback(uint32_t pin_intr);
+static void configuring_ps2_power_state(void);
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -104,7 +105,7 @@ static void gpio_ulp_group_interrupt_callback(uint32_t pin_intr);
 void gpio_example_init(void)
 {
   sl_status_t status;
-  uint8_t get_pin_output, direction;
+  uint8_t direction;
   sl_si91x_gpio_version_t version;
 
   // Version information of gpio
@@ -233,126 +234,83 @@ void gpio_example_init(void)
 void gpio_example_process_action(void)
 {
   /*************************************************************************************************
- * This section manages power state transitions within the system, optimizing power consumption
- * while maintaining essential functionality. It transitions the system from a higher power state (PS4)
- * to a lower one (PS2) during specific operations to conserve power. This involves adjusting clock
- * references and shutting down unnecessary power supplies. After completing the operation,
- * the code transitions back to the higher power state (PS4) to ensure adequate resources for
- * subsequent tasks. This approach balances power efficiency with operational requirements
- * across various system functions.
- ***************************************************************************************************/
+   * This section manages power state transitions within the system, optimizing
+   *power consumption while maintaining essential functionality. It transitions
+   *the system from a higher power state (PS4) to a lower one (PS2) during
+   *specific operations to conserve power. This involves adjusting clock
+   * references and shutting down unnecessary power supplies. After completing
+   *the operation, the code transitions back to the higher power state (PS4) to
+   *ensure adequate resources for subsequent tasks. This approach balances power
+   *efficiency with operational requirements across various system functions.
+   ***************************************************************************************************/
   sl_status_t status;
-  sl_power_peripheral_t peri;
-  sl_power_ram_retention_config_t config;
-  // Clear the peripheral configuration
-  peri.m4ss_peripheral = 0;
-  // Configure RAM banks for retention during power management
-  config.configure_ram_banks = true; // Enable RAM bank configuration
-  config.m4ss_ram_banks =
-    SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9
-    | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10; // Specify the RAM banks to be retained during power management
-  // Ored value for ulpss peripheral.
-  peri.ulpss_peripheral =
-    SL_SI91X_POWER_MANAGER_ULPSS_PG_MISC | SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP | SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI
-    | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2C | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR
-    | SL_SI91X_POWER_MANAGER_ULPSS_PG_UDMA | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM | SL_SI91X_POWER_MANAGER_ULPSS_PG_AUX;
-  // Ored value for npss peripheral.
-  peri.npss_peripheral = SL_SI91X_POWER_MANAGER_NPSS_PG_MCURTC | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUWDT
-                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUPS | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUTS
-                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE2 | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE3
-                         | SL_SI91X_POWER_MANAGER_NPSS_PG_TIMEPERIOD;
   switch (ulp_gpio_current_state) {
     case SL_ULP_GPIO_PROCESS_ACTION:
-      // Initialize GPIO ULP instance
-      if (ULP_GPIO_PIN == SET) {
-        sl_si91x_gpio_t gpio_port_pin = { SL_SI91X_ULP_GPIO_1_PORT, SL_SI91X_ULP_GPIO_1_PIN };
-        sl_si91x_gpio_t port_pin      = { SL_SI91X_ULP_GPIO_2_PORT, SL_SI91X_ULP_GPIO_2_PIN };
-        uint8_t pin_value;
-        // Get GPIO pin input
-        status = sl_gpio_driver_get_pin(&gpio_port_pin, &pin_value);
-        if (status != SL_STATUS_OK) {
-          DEBUGOUT("sl_gpio_driver_get_pin, Error code: %lu", status);
-          break;
-        }
-        DEBUGOUT("GPIO driver get pin is successful \n");
-        if (pin_value == CLR) {
-          status = sl_gpio_driver_set_pin(&port_pin); // Set ULP GPIO pin
+      gpio_toggle_count = 0;
+      do {
+        // Initialize GPIO ULP instance
+        if (ULP_GPIO_PIN == SET) {
+          sl_si91x_gpio_t port_pin = { SL_SI91X_ULP_GPIO_2_PORT, SL_SI91X_ULP_GPIO_2_PIN };
+          status                   = sl_gpio_driver_toggle_pin(&port_pin); // Toggle ULP GPIO pin
           if (status != SL_STATUS_OK) {
-            DEBUGOUT("sl_gpio_driver_set_pin, Error code: %lu", status);
+            DEBUGOUT("sl_gpio_driver_toggle_pin, Error code: %lu", status);
             break;
           }
-          DEBUGOUT("GPIO driver set pin is successful \n");
-        } else {
-          status = sl_gpio_driver_clear_pin(&port_pin); // Clear ULP GPIO pin
+        }
+        // Initialize GPIO UULP instance
+        else if (UULP_GPIO_PIN == SET) {
+          // Set UULP GPIO pin
+          status = sl_si91x_gpio_driver_set_uulp_npss_pin_value(SL_SI91X_UULP_GPIO_0_PIN, SET);
           if (status != SL_STATUS_OK) {
-            DEBUGOUT("sl_gpio_driver_set_pin, Error code: %lu", status);
+            DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_pin_value, Error code: %lu", status);
             break;
           }
-          DEBUGOUT("GPIO driver set pin is successful \n");
+          // Clear UULP GPIO pin
+          status = sl_si91x_gpio_driver_set_uulp_npss_pin_value(SL_SI91X_UULP_GPIO_0_PIN, CLR);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_pin_value, Error code: %lu", status);
+            break;
+          }
         }
-      }
-      // Initialize GPIO UULP instance
-      else if (UULP_GPIO_PIN == SET) {
-        // Set UULP GPIO pin
-        status = sl_si91x_gpio_driver_set_uulp_npss_pin_value(SL_SI91X_UULP_GPIO_0_PIN, SET);
-        if (status != SL_STATUS_OK) {
-          DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_pin_value, Error code: %lu", status);
-          break;
-        }
-        DEBUGOUT("GPIO driver set uulp pin value is successful \n");
-        delay(DELAY); // Delay of 1sec
-                      // Clear UULP GPIO pin
-        status = sl_si91x_gpio_driver_set_uulp_npss_pin_value(SL_SI91X_UULP_GPIO_0_PIN, CLR);
-        if (status != SL_STATUS_OK) {
-          DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_pin_value, Error code: %lu", status);
-          break;
-        }
-        DEBUGOUT("GPIO driver clear uulp pin value is successful \n");
-        delay(DELAY); // Delay of 1sec
-      }
-      // current mode being updated with power state transition to change the power state mode
+      } while (gpio_toggle_count++ < TOGGLE_COUNT);
+      // current mode being updated with power state transition to change the
+      // power state mode
       ulp_gpio_current_state = SL_ULP_POWER_STATE_TRANSITION;
       break;
     case SL_ULP_POWER_STATE_TRANSITION:
       if (current_power_state == SL_SI91X_POWER_MANAGER_PS4) {
-        DEBUGOUT("Switching gpio from PS4->PS2 state \n");
-        // Control power management by adjusting clock references and shutting down the power supply
+        DEBUGOUT("Switching GPIO from PS4->PS2 state \n");
+        // Control power management by adjusting clock references and shutting down
+        // the power supply
         sl_si91x_wireless_shutdown();
         // switching the power state PS4 to PS2 mode.
         sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
-        /* Due to calling trim_efuse API om power manager it will change the clock frequency,
-      if we are not initialize the debug again it will print the garbage data or no data in console output. */
+        /* Due to calling trim_efuse API om power manager it will change the clock
+    frequency, if we are not initialize the debug again it will print the
+    garbage data or no data in console output. */
         DEBUGINIT();
-        // Peripherals passed in this API are powered off.
-        status = sl_si91x_power_manager_remove_peripheral_requirement(&peri);
-        if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
-          DEBUGOUT("sl_si91x_power_manager_remove_peripheral_requirement failed, Error Code: 0x%lX", status);
-          break;
-        }
-        // RAM retention modes are configured and passed into this API.
-        status = sl_si91x_power_manager_configure_ram_retention(&config);
-        if (status != SL_STATUS_OK) {
-          // If status is not OK, return with the error code.
-          DEBUGOUT("sl_si91x_power_manager_configure_ram_retention failed, Error Code: 0x%lX", status);
-          break;
-        }
+        // Configuring the ps2 power state by adjusting the clocks, configuring
+        // the ram retention and removing the unused peripherals
+        configuring_ps2_power_state();
         // giving 5 sec delay for current consumption verification
         delay(FIVE_SECOND_DELAY);
         // current power state is updated to PS2
         current_power_state = SL_SI91X_POWER_MANAGER_PS2;
-        // current mode is updated with process action for verifying the triggering and processing
+        // current mode is updated with process action for verifying the
+        // triggering and processing
         ulp_gpio_current_state = SL_ULP_GPIO_PROCESS_ACTION;
       } else if (current_power_state == SL_SI91X_POWER_MANAGER_PS2) {
-        DEBUGOUT("Switching adc from PS2 -> PS4  state \n");
+        DEBUGOUT("Switching GPIO from PS2 -> PS4  state \n");
         // switching the power state from PS2 to PS4 mode
         sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
         DEBUGINIT();
         // giving 5 sec delay for current consumption verification
         delay(FIVE_SECOND_DELAY);
-        // current power state is updated to last enum after the power state cycle is completed
+        // current power state is updated to last enum after the power state cycle
+        // is completed
         current_power_state = LAST_ENUM_POWER_STATE;
-        // current mode is updated with process action for verifying the triggering and processing
+        // current mode is updated with process action for verifying the
+        // triggering and processing
         ulp_gpio_current_state = SL_ULP_GPIO_PROCESS_ACTION;
       } else {
         //  de initializing the gpio
@@ -361,7 +319,7 @@ void gpio_example_process_action(void)
           DEBUGOUT("sl_gpio_driver_deinit, Error code: %lu", status);
           break;
         }
-        DEBUGOUT("GPIO driver de initialization is successful \n");
+        DEBUGOUT("GPIO driver de-initialization is successful \n");
         ulp_gpio_current_state = SL_ULP_GPIO_TERMINATED;
       }
       break;
@@ -586,4 +544,53 @@ static void gpio_ulp_group_interrupt_callback(uint32_t pin_intr)
     // sometimes.
     DEBUGOUT("gpio ulp group interrupt0\n");
   }
+}
+/*******************************************************************************
+ * powering off the peripherals not in use,
+ * Configuring power manager ram-retention
+ ******************************************************************************/
+static void configuring_ps2_power_state(void)
+{
+  sl_status_t status;
+  sl_power_peripheral_t peri;
+  sl_power_ram_retention_config_t config;
+  // Clear the peripheral configuration
+  peri.m4ss_peripheral = 0;
+  // Configure RAM banks for retention during power management
+  config.configure_ram_banks = true; // Enable RAM bank configuration
+  config.m4ss_ram_banks      = SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9
+                          | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10; // Specify the RAM banks to be
+                                                                     // retained during power
+                                                                     // management
+  config.ulpss_ram_banks = SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_2 | SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_3;
+  // Ored value for ulpss peripheral.
+  peri.ulpss_peripheral =
+    SL_SI91X_POWER_MANAGER_ULPSS_PG_MISC | SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP | SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI
+    | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2C | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR
+    | SL_SI91X_POWER_MANAGER_ULPSS_PG_UDMA | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM | SL_SI91X_POWER_MANAGER_ULPSS_PG_AUX;
+  // Ored value for npss peripheral.
+  peri.npss_peripheral = SL_SI91X_POWER_MANAGER_NPSS_PG_MCURTC | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUWDT
+                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUPS | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUTS
+                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE2 | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE3
+                         | SL_SI91X_POWER_MANAGER_NPSS_PG_TIMEPERIOD;
+  do {
+    // Peripherals passed in this API are powered off.
+    status = sl_si91x_power_manager_remove_peripheral_requirement(&peri);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      DEBUGOUT("sl_si91x_power_manager_remove_peripheral_requirement failed, "
+               "Error Code: 0x%lX",
+               status);
+      break;
+    }
+    // RAM retention modes are configured and passed into this API.
+    status = sl_si91x_power_manager_configure_ram_retention(&config);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      DEBUGOUT("sl_si91x_power_manager_configure_ram_retention failed, Error "
+               "Code: 0x%lX",
+               status);
+      break;
+    }
+  } while (false);
 }

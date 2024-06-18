@@ -20,9 +20,9 @@
 
 Before running the application, the user will need the following things to setup.
 
-### Hardware Requirements	
+### Hardware Requirements
 
-  - Windows PC 
+  - Windows PC
   - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
 
 ### Software Requirements

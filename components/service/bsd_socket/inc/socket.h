@@ -57,14 +57,20 @@ typedef long off_t;
 /*
  * Types
  */
-#define	SOCK_STREAM	1		/* stream socket */
-#define	SOCK_DGRAM	2		/* datagram socket */
-#define	SOCK_RAW	3		/* raw-protocol interface */
-#define	SOCK_RDM	4		/* reliably-delivered message */
-#define	SOCK_SEQPACKET	5		/* sequenced packet stream */
+/**
+ * @addtogroup BSD_SOCKET_TYPES Socket Type
+ * @ingroup BSD_SOCKET_FUNCTIONS
+ * @{ 
+ */
+#define	SOCK_STREAM	1		///< Stream socket. Provides sequenced, reliable, two-way, connection-based byte streams.
+#define	SOCK_DGRAM	2		///< Datagram socket. Supports datagrams (connectionless, unreliable messages of a fixed maximum length).
+#define	SOCK_RAW	3		///< Raw socket. Provides raw network protocol access.
+#define	SOCK_RDM	4		///< Reliably-delivered message. Provides a reliable datagram layer that does not guarantee ordering.
+#define	SOCK_SEQPACKET	5   ///< Sequenced packet stream. Provides a sequenced, reliable, two-way, connection-based data transmission path for datagrams of fixed maximum length.
 #ifdef _KERNEL
-#define	SOCK_TYPE_MASK	0x000F		/* mask that covers the above */
+#define	SOCK_TYPE_MASK	0x000F		///< Mask that covers all the above socket types.
 #endif
+/** @} */
 
 /*
  * Socket creation flags
@@ -81,44 +87,49 @@ typedef long off_t;
 /*
  * Option flags per-socket.
  */
-#define	SO_DEBUG	0x0001		/* turn on debugging info recording */
-#define	SO_ACCEPTCONN	0x0002		/* socket has had listen() */
-#define	SO_REUSEADDR	0x0004		/* allow local address reuse */
-#define	SO_KEEPALIVE	0x0008		/* keep connections alive */
-#define	SO_DONTROUTE	0x0010		/* just use interface addresses */
-#define	SO_BROADCAST	0x0020		/* permit sending of broadcast msgs */
-#define	SO_USELOOPBACK	0x0040		/* bypass hardware when possible */
-#define	SO_LINGER	0x0080		/* linger on close if data present */
-#define	SO_OOBINLINE	0x0100		/* leave received OOB data in line */
-#define	SO_REUSEPORT	0x0200		/* allow local address & port reuse */
-#define SO_TIMESTAMP	0x0800		/* timestamp received dgram traffic */
-#define SO_BINDANY	0x1000		/* allow bind to any address */
-#define SO_ZEROIZE	0x2000		/* zero out all mbufs sent over socket */
-#define SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 0x3012 /* to configure max retransmission timeout value*/ /*The option value associated with this option name should be a power of 2 between 1 and 32.*/
+/**
+ * @addtogroup BSD_SOCKET_OPTION_NAME Socket Option Name
+ * @ingroup BSD_SOCKET_FUNCTIONS
+ * @{ 
+ */
+#define	SO_DEBUG	0x0001		///< Enables recording of debugging information.
+#define	SO_ACCEPTCONN	0x0002		///< Indicates that the socket has had listen().
+#define	SO_REUSEADDR	0x0004		///< Allows local address reuse.
+#define	SO_KEEPALIVE	0x0008		///< Keeps connections alive.
+#define	SO_DONTROUTE	0x0010		///< Uses interface addresses only.
+#define	SO_BROADCAST	0x0020		///< Permits sending of broadcast messages.
+#define	SO_USELOOPBACK	0x0040		///< Bypasses hardware when possible.
+#define	SO_LINGER	0x0080		///< Lingers on close if data is present.
+#define	SO_OOBINLINE	0x0100		///< Leaves received out-of-band data in line.
+#define	SO_REUSEPORT	0x0200		///< Allows local address and port reuse.
+#define SO_TIMESTAMP	0x0800		///< Timestamps received datagram traffic.
+#define SO_BINDANY	0x1000		///< Allows binding to any address.
+#define SO_ZEROIZE	0x2000		///< Zeroes out all mbufs sent over the socket.
+#define SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 0x3012 ///< Configures max retransmission timeout value. The option value associated with this option name should be a power of 2 between 1 and 32.
 /*
  * Additional options, not kept in so_options.
  */
-#define	SO_SNDBUF	0x1001		/* send buffer size */
-#define	SO_RCVBUF	0x1002		/* receive buffer size */
-#define	SO_SNDLOWAT	0x1003		/* send low-water mark */
-#define	SO_RCVLOWAT	0x1004		/* receive low-water mark */
-#define	SO_SNDTIMEO	0x1005		/* send timeout */
-#define	SO_RCVTIMEO	0x1006		/* receive timeout */
-#define	SO_ERROR	0x1007		/* get error status and clear */
-#define	SO_TYPE		0x1008		/* get socket type */
-#define	SO_NETPROC	0x1020		/* multiplex; network processing */
-#define	SO_RTABLE	0x1021		/* routing table to be used */
-#define	SO_PEERCRED	0x1022		/* get connect-time credentials */
-#define	SO_SPLICE	0x1023		/* splice data to other socket */
-#define	SO_DOMAIN	0x1024		/* get socket domain */
-#define	SO_PROTOCOL	0x1025		/* get socket protocol */
-
+#define	SO_SNDBUF	0x1001		///< Sets send buffer size.
+#define	SO_RCVBUF	0x1002		///< Sets receive buffer size.
+#define	SO_SNDLOWAT	0x1003		///< Sets send low-water mark.
+#define	SO_RCVLOWAT	0x1004		///< Sets receive low-water mark.
+#define	SO_SNDTIMEO	0x1005		///< Sets send timeout.
+#define	SO_RCVTIMEO	0x1006		///< Sets receive timeout.
+#define	SO_ERROR	0x1007		///< Gets error status and clears.
+#define	SO_TYPE		0x1008		///< Gets socket type.
+#define	SO_NETPROC	0x1020		///< Multiplexes; network processing.
+#define	SO_RTABLE	0x1021		///< Sets routing table to be used.
+#define	SO_PEERCRED	0x1022		///< Gets connect-time credentials.
+#define	SO_SPLICE	0x1023		///< Splices data to another socket.
+#define	SO_DOMAIN	0x1024		///< Gets socket domain.
+#define	SO_PROTOCOL	0x1025		///< Gets socket protocol.
 /*
  * si91x socket options
  */
-#define	SO_CERT_INDEX				0x1026	/* set certificate index for ssl socket */
-#define	SO_HIGH_PERFORMANCE_SOCKET	0x1027	/* enable high performance socket */
-#define SO_TLS_SNI                  0x1028  /* pass SNI extension for ssl socket */
+#define	SO_CERT_INDEX				0x1026	///< Sets certificate index for SSL socket.
+#define	SO_HIGH_PERFORMANCE_SOCKET	0x1027	///< Enables high-performance socket.
+#define SO_TLS_SNI                  0x1028  ///< Passes SNI extension for SSL socket.
+/** @} */
 
 // From Linux include/uapi/linux/tcp.h
 // See https://www.kernel.org/doc/Documentation/networking/tls.txt for more details.
@@ -129,12 +140,13 @@ typedef long off_t;
 #define TLS_1_1	"tls_1_1"
 #define TLS_1_2	"tls_1_2"
 #define TLS_1_3 "tls_1_3"
-/*
+
+/**
  * Structure used for manipulating linger option.
  */
 struct	linger {
-	int	l_onoff;		/* option on/off */
-	int	l_linger;		/* linger time */
+	int	l_onoff;		///< Option on/off 
+	int	l_linger;		///< Linger time 
 };
 
 #if __BSD_VISIBLE
@@ -166,71 +178,91 @@ struct	splice {
 
 #endif /* __BSD_VISIBLE */
 
+/**
+ * @addtogroup BSD_SOCKET_OPTION_LEVEL Socket Option Level
+ * @ingroup BSD_SOCKET_FUNCTIONS
+ * @{ 
+ */
 /*
  * Level number for (get/set)sockopt() to apply to socket itself.
  */
-#define	SOL_SOCKET	0xffff		/* options for socket level */
+#define	SOL_SOCKET	0xffff		///< This is used to denote that the options are applicable at the socket level.
 
 //From Linux include/linux/socket.h
 /* Setsockoptions(2) level. Thanks to BSD these must match IPPROTO_xxx */
-#define SOL_TCP 0x0006
+#define SOL_TCP 0x0006  ///< This is used to denote that the options are applicable at the TCP level.
+/** @} */
 
 /*
  * Address families.
  */
-#define	AF_UNSPEC	0		/* unspecified */
-#define	AF_UNIX		1		/* local to host */
-#define	AF_LOCAL	AF_UNIX		/* draft POSIX compatibility */
-#define	AF_INET		2		/* internetwork: UDP, TCP, etc. */
-#define	AF_IMPLINK	3		/* arpanet imp addresses */
-#define	AF_PUP		4		/* pup protocols: e.g. BSP */
-#define	AF_CHAOS	5		/* mit CHAOS protocols */
-#define	AF_NS		6		/* XEROX NS protocols */
-#define	AF_ISO		7		/* ISO protocols */
-#define	AF_OSI		AF_ISO
-#define	AF_ECMA		8		/* european computer manufacturers */
-#define	AF_DATAKIT	9		/* datakit protocols */
-#define	AF_CCITT	10		/* CCITT protocols, X.25 etc */
-#define	AF_SNA		11		/* IBM SNA */
-#define AF_DECnet	12		/* DECnet */
-#define AF_DLI		13		/* DEC Direct data link interface */
-#define AF_LAT		14		/* LAT */
-#define	AF_HYLINK	15		/* NSC Hyperchannel */
-#define	AF_APPLETALK	16		/* Apple Talk */
-#define	AF_ROUTE	17		/* Internal Routing Protocol */
-#define	AF_LINK		18		/* Link layer interface */
-#define	pseudo_AF_XTP	19		/* eXpress Transfer Protocol (no AF) */
-#define	AF_COIP		20		/* connection-oriented IP, aka ST II */
-#define	AF_CNT		21		/* Computer Network Technology */
-#define pseudo_AF_RTIP	22		/* Help Identify RTIP packets */
-#define	AF_IPX		23		/* Novell Internet Protocol */
-#define	AF_INET6	24		/* IPv6 */
-#define pseudo_AF_PIP	25		/* Help Identify PIP packets */
-#define AF_ISDN		26		/* Integrated Services Digital Network*/
-#define AF_E164		AF_ISDN		/* CCITT E.164 recommendation */
-#define AF_NATM		27		/* native ATM access */
-#define	AF_ENCAP	28
-#define	AF_SIP		29		/* Simple Internet Protocol */
-#define AF_KEY		30
-#define pseudo_AF_HDRCMPLT 31		/* Used by BPF to not rewrite headers
-					   in interface output routine */
-#define	AF_BLUETOOTH	32		/* Bluetooth */
-#define AF_MPLS         33              /* MPLS */
-#define pseudo_AF_PFLOW 34		/* pflow */
-#define pseudo_AF_PIPEX 35		/* PIPEX */
-#define AF_MAX          36
+/**
+ * @addtogroup BSD_SOCKET_FAMILIY Socket Address Family
+ * @ingroup BSD_SOCKET_FUNCTIONS
+ * @{ 
+ */
+#define	AF_UNSPEC	0		///< Unspecified address family.
+#define	AF_UNIX		1		///< Local to host (UNIX domain) address family.
+#define	AF_LOCAL	AF_UNIX		///< POSIX compatibility alias for AF_UNIX.
+#define	AF_INET		2		///< Internet IP Protocol address family.
+#define	AF_IMPLINK	3		///< ARPANET IMP address family.
+#define	AF_PUP		4		///< PUP protocols (e.g., BSP) address family.
+#define	AF_CHAOS	5		///< MIT CHAOS protocols address family.
+#define	AF_NS		6		///< XEROX NS protocols address family.
+#define	AF_ISO		7		///< ISO protocols address family.
+#define	AF_OSI		AF_ISO  ///< OSI protocol family.
+#define	AF_ECMA		8		///< European Computer Manufacturers Association (ECMA) protocols address family.
+#define	AF_DATAKIT	9		///< Datakit protocols address family.
+#define	AF_CCITT	10		///< CCITT protocols (e.g., X.25) address family.
+#define	AF_SNA		11		///< IBM SNA address family.
+#define AF_DECnet	12		///< DECnet address family.
+#define AF_DLI		13		///< DEC Direct data link interface address family.
+#define AF_LAT		14		///< LAT address family.
+#define	AF_HYLINK	15		///< NSC Hyperchannel address family.
+#define	AF_APPLETALK	16		///< AppleTalk address family.
+#define	AF_ROUTE	17		///< Internal Routing Protocol address family.
+#define	AF_LINK		18		///< Link layer interface address family.
+#define	pseudo_AF_XTP	19		///< eXpress Transfer Protocol (no AF).
+#define	AF_COIP		20		///< Connection-oriented IP, aka ST II address family.
+#define	AF_CNT		21		///< Computer Network Technology address family.
+#define pseudo_AF_RTIP	22		///< Identifier for RTIP packets.
+#define	AF_IPX		23		///< Novell Internet Protocol address family.
+#define	AF_INET6	24		///< IPv6 address family.
+#define pseudo_AF_PIP	25		///< Identifier for PIP packets.
+#define AF_ISDN		26		///< Integrated Services Digital Network address family.
+#define AF_E164		AF_ISDN		///< CCITT E.164 recommendation address family.
+#define AF_NATM		27		///< Native ATM access address family.
+#define	AF_ENCAP	28      ///< Encapsulation address family.
+#define	AF_SIP		29		///< Simple Internet Protocol address family.
+#define AF_KEY		30      ///< Key management protocol address family (originally developed for usage with IPsec).
+#define pseudo_AF_HDRCMPLT 31		///< Used by BPF to not rewrite headers in interface output routine.
+#define	AF_BLUETOOTH	32		///< Bluetooth address family.
+#define AF_MPLS         33              ///< MPLS address family.
+#define pseudo_AF_PFLOW 34		///< Identifier for pflow packets.
+#define pseudo_AF_PIPEX 35		///< Identifier for PIPEX packets.
+#define AF_MAX          36      ///< Maximum address family value.
+/** @} */
 
 /*
  * Structure used by kernel to store most
  * addresses.
  */
+/**
+ * @addtogroup BSD_SOCKET_FUNCTIONS
+ * @{ 
+ */
+/**
+ * @struct sockaddr
+ * @brief This structure is used to store a generic socket address.
+ */
 struct sockaddr {
-	uint8_t    sa_len;		/* total length */
-	sa_family_t sa_family;		/* address family */
-	char	    sa_data[14];	/* actually longer; address value */
+	uint8_t    sa_len;		///< Total length of the structure.
+	sa_family_t sa_family;		///< Address family (e.g., AF_INET).
+	char	    sa_data[14];	///< Socket address data. The actual format is determined by the address family.
 };
+/** @} */
 
-/*
+/**
  * Sockaddr type which can hold any sockaddr type available
  * in the system.
  *
@@ -243,11 +275,11 @@ struct sockaddr {
  * occurrences (including header file) to __ss_len.
  */
 struct sockaddr_storage {
-	uint8_t	ss_len;		/* total length */
-	sa_family_t	ss_family;	/* address family */
-	unsigned char	__ss_pad1[6];	/* align to quad */
-	uint64_t	__ss_pad2;	/* force alignment for stupid compilers */
-	unsigned char	__ss_pad3[240];	/* pad to a total of 256 bytes */
+	uint8_t	ss_len;		///< Total length. 
+	sa_family_t	ss_family;	///< Address family.
+	unsigned char	__ss_pad1[6];	///< Align to quad. 
+	uint64_t	__ss_pad2;	///< Force alignment for stupid compilers. 
+	unsigned char	__ss_pad3[240];	///< Pad to a total of 256 bytes. 
 };
 
 #ifdef _KERNEL
@@ -487,23 +519,23 @@ struct sockproto {
  */
 #define	SOMAXCONN	128
 
-/*
+/**
  * Message header for recvmsg and sendmsg calls.
  * Used value-result for recvmsg, value only for sendmsg.
  */
 struct msghdr {
-	void		*msg_name;	/* optional address */
-	socklen_t	msg_namelen;	/* size of address */
-	struct		iovec *msg_iov;	/* scatter/gather array */
-	unsigned int	msg_iovlen;	/* # elements in msg_iov */
-	void		*msg_control;	/* ancillary data, see below */
-	socklen_t	msg_controllen;	/* ancillary data buffer len */
-	int		msg_flags;	/* flags on received message */
+	void		*msg_name;	///< Optional address. 
+	socklen_t	msg_namelen;	///< Size of address.
+	struct		iovec *msg_iov;	///< Scatter/gather array. 
+	unsigned int	msg_iovlen;	///< # elements in msg_iov. 
+	void		*msg_control;	///< Ancillary data, see below. 
+	socklen_t	msg_controllen;	///< Ancillary data buffer len. 
+	int		msg_flags;	///< Flags on received message. 
 };
-
+/// Message Header 
 struct mmsghdr {
-	struct msghdr msg_hdr;
-	unsigned int msg_len;
+	struct msghdr msg_hdr; ///< Message header
+	unsigned int msg_len; ///< Message len
 };
 
 struct timespec;
@@ -522,16 +554,16 @@ struct timespec;
 #define	MSG_CMSG_CLOEXEC	0x800	/* set FD_CLOEXEC on received fds */
 #define	MSG_WAITFORONE		0x1000	/* nonblocking but wait for one msg */
 
-/*
+/**
  * Header for ancillary data objects in msg_control buffer.
  * Used for additional information with/about a datagram
  * not expressible by flags.  The format is a sequence
  * of message elements headed by cmsghdr structures.
  */
 struct cmsghdr {
-	socklen_t	cmsg_len;	/* data byte count, including hdr */
-	int		cmsg_level;	/* originating protocol */
-	int		cmsg_type;	/* protocol-specific type */
+	socklen_t	cmsg_len;	///< Data byte count, including hdr. 
+	int		cmsg_level;	///< Originating protocol. 
+	int		cmsg_type;	///< Protocol-specific type. 
 /* followed by	u_char  cmsg_data[]; */
 };
 
@@ -582,141 +614,60 @@ struct cmsghdr {
 
 /***************************************************************************/ /**
  * @brief
- *   The argument socket_id is a socket that has been created with @ref socket(), bound to an address with @ref bind(), 
- *   and is listening for connections after a @ref listen(). The @ref accept() system call extracts the first connection 
- *   request on	the queue of pending connections, creates a new socket, and allocates a new file descriptor for
- *   the socket.
+ *  Create an endpoint for communication.
  * 
- *   If no pending connections are present on the queue, and the  original socket is not marked as non-blocking, 
- *   @ref accept() blocks the caller until a connection is present. If the original socket is marked non-blocking and 
- *   no pending connections are present on the queue, @ref accept() returns an error. The accepted socket may not be 
- *   used to accept more connections. The original socket socket_id remains open.
+ *  socket() creates an endpoint for communication and returns a file
+ *  descriptor that refers to that endpoint. The file descriptor
+ *  returned by a successful call will be the lowest-numbered file
+ *  descriptor not currently open for the process. 
  * 
- * @param[in] socket_id
- *   Socket identification number of the socket, which is to be accepted.
- * @param[in] addr
- *   The argument addr is a result argument that is filled-in with the address of the connecting entity, as known
- *   to the communications	layer. The exact format	of the addr argument is	determined by the domain in which the 
- *   communication is occurring. A null pointer may be specified for addr if the address information is	not desired;  
- *   in this case, addrlen is not used and should also be null.
- * @param[in] addr_len
- *   The addrlen argument is a value-result argument; it should initially contain the amount of  space pointed to by
- *   addr; on return it will contain the actual length (in bytes) of the address returned. This call is used with 
- *   connection-based socket types, currently with SOCK_STREAM.
- * @return
- *   These calls return -1 on error. If they succeed, they return a non-negative integer that is a descriptor for the accepted socket.
- * @note 
- *   The @ref accept() system call only supports blocking.
+ * @param[in] domain
+ *   The domain argument specifies a communication domain; this selects the protocol family that will be used for communication. 
+ *   One of values from @ref BSD_SOCKET_FAMILIY
+ * @param[in] type
+ *   The socket has the indicate type, which specifies the semantics of communication. 
+ *   One of values from @ref BSD_SOCKET_TYPES. 
+ *   Currently defined types are SOCK_STREAM, SOCK_DGRAM, SOCK_RAW, SOCK_RDM, and SOCK_SEQPACKET. 
+ * @param[in] protocol
+ *   The  protocol  argument specifies a particular protocol to be used with the socket. Normally, only a single protocol exists to 
+ *   support a particular socket type within a given protocol family. However, it is possible that many protocols may exist, in which 
+ *   case a particular protocol must be specified in this manner. The protocol number to use  is particular  to  the "communication 
+ *   domain" in which communication is to take place. One of values from @ref BSD_SOCKET_PROTOCOL.
+ * @return -1 is returned if an error occurs. Otherwise, the return value is a descriptor referencing the socket.
  ******************************************************************************/
-int	accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len);
+int	socket(int domain, int type, int protocol);
 
 /***************************************************************************/ /**
  * @brief
- *   The @ref bind() system call assigns the local protocol address to a socket. When a socket is created with @ref socket() 
- *   it exists in an address family space but has no protocol address assigned.  The @ref bind() system call requests that addr 
- *   be assigned to the socket.
+ *  Bind a name to a socket
+ * 
+ * When a socket is created with socket(), it exists in a name space (address family) but has no address assigned to it.  
+ * bind() assigns the address specified by addr to the socket referred to by the file descriptor socket_id.  
+ * addrlen specifies the size, in bytes, of the address structure pointed to by addr. 
+ * Traditionally, this operation is called “assigning a name to a socket”.
+ * 
+ * It is normally necessary to assign a local address using bind() before a SOCK_STREAM socket may receive connections
  * 
  * @param[in] socket_id
  *   Socket identification number.
- * @param[in] addr
- *   Address to be assigned to the socket.
- * @param[in] addr_len
- *   Size of the storage pointed to by addr.
+ * @param[in] addr 
+ *   Address to be assigned to the socket of type @ref sockaddr.
+ * @param[in] addr_len 
+ *   Size of the storage pointed to by addr of type @ref socklen_t. 
  * @return
- *   The @ref bind() function returns the value	0 if successful; otherwise the value -1	is returned and	the global variable errno is set to  indicate the error.
+ *   The value 0 if successful. Otherwise, the value -1	is returned and	the global variable errno is set to indicate the error.
  ******************************************************************************/
 int	bind(int socket_id, const struct sockaddr *addr, socklen_t addr_len);
 
 /***************************************************************************/ /**
  * @brief
- *   If socket_id is of type SOCK_DGRAM, @ref connect() system call specifies the peer with which the socket is to be associated;
- *   If the socket is of type SOCK_STREAM, @ref connect() system call attempts to make a connection to another socket. The other 
- *   socket is specified by addr, which is an address in the communications space of the socket. Each communications space interprets
- *   the addr argument in its own way. Generally, stream sockets may successfully @ref connect() only once; datagram sockets may use 
- *   @ref connect() multiple times to change their association.
+ *  Listen for connections on a socket.
+ *   
+ * listen() marks the socket referred to by socket_id as a passive socket, that is, 
+ * as a socket that will be used to accept incoming connection requests using accept.
  * 
- * @param[in] socket_id
- *   The socket_id argument is a socket.
- * @param[in] addr
- *   The addr argument is the address is that to which datagrams are to be sent.
- * @param[in] addr_len
- *   The addr_len argument indicates the amount of space pointed to by addr, in bytes.
- * @return
- *   The @ref connect() function returns the value 0 if successful; otherwise the value -1  is returned and the global variable errno is set to indicate the error.
- * @note
- *   Connecting to an invalid address, such as null address will result in EFAULT error.
- ******************************************************************************/
-int	connect(int socket_id, const struct sockaddr *addr, socklen_t addr_len);
-
-/***************************************************************************/ /**
- * @brief
- *   The @ref getpeername() system call returns the name of the peer connected to socket socket_id. The name is truncated if the buffer provided is too small.
+ * This applies only to sockets of type SOCK_STREAM or SOCK_SEQPACKET.
  * 
- * @param[in] socket_id
- *   Socket identification number.
- * @param[in] name
- *   Pointer to the peer name.
- * @param[in] name_len
- *   The name_len argument should be initialized to indicate the amount of space pointed to by name. On return it contains the actual 
- *   size of the name returned (in bytes).
- * @return
- *   The getpeername() function returns the value 0 if successful; otherwise the value -1 is returned and the global variable errno is set to indicate the error.
- ******************************************************************************/
-int	getpeername(int socket_id, struct sockaddr *name, socklen_t *name_len);
-
-/***************************************************************************/ /**
- * @brief
- *   The @ref getsockname() system call returns the current name for the specified socket.
- * @param[in] socket_id
- *   Socket identification number.
- * @param[in] name
- *   Pointer to the socket name.
- * @param[out] name_len
- *   The name_len argument should be initialized to indicate the amount of space pointed to by name. 
- *   On return it contains the actual size of the name returned (in bytes).
- * @return
- *   The @ref getsockname() function returns the value 0 if successful; otherwise the value -1 is returned and the global variable errno is set to indicate the	error.
- ******************************************************************************/
-int	getsockname(int socket_id, struct sockaddr *name, socklen_t *name_len);
-
-/***************************************************************************/ /**
- * @brief
- *   The @ref getsockopt() system call manipulate the options associated with a socket. Options may exist at multiple protocol levels; 
- *   they are always present at the uppermost "socket" level. When  manipulating socket options the level at which the	option resides 
- *   and the name of the option must be specified.  To manipulate options at the socket level, level is specified as SOL_SOCKET. 
- *   To manipulate options at any other level the protocol number of the appropriate protocol controlling the option is supplied.	
- *   For example, to indicate  that an option is to be interpreted by the TCP protocol, level should be set to the protocol number of 
- *   TCP; For @ref getsockopt() they identify a	buffer in  which  the value for the requested option(s) are to be returned. The include 
- *   file <sys/socket.h> contains definitions for socket level options. Options at other protocol levels vary in format and name. Most 
- *   socket-level options utilize an int argument for option_value.
- * 
- * @param[in] socket_id
- *   Socket identification number.
- * @param[in] option_level
- *   Level for which the option is set.
- * @param[in] option_name
- *   The option_name argument and any specified options are passed uninterpreted to the	appropriate protocol module for interpretation.
- * @param[in] option_value
- *   Pointer to option data.
- * @param[in] option_length
- *   The option_length is a value-result argument, initially containing the size of the buffer pointed to by option_value, and 
- *   modified on return to indicate	the actual size	of the value returned. If no option value is to be supplied or returned, optval 
- *   may be NULL.
- * @return
- *   Upon successful completion, the value 0 is returned; otherwise the value -1 is returned and the global variable errno is set 	to indicate the error.
- * @note 
- *   The following are the options, which are supported currently.
- *       - SO_RCVTIMEO
- *       - SO_KEEPALIVE
- *       - TCP_ULP
- *       - SO_MAX_RETRANSMISSION_TIMEOUT_VALUE
- *       - IP_TOS.
- ******************************************************************************/
-int	getsockopt(int socket_id, int option_level, int option_name, void *option_value, socklen_t *option_length);
-
-/***************************************************************************/ /**
- * @brief
- *   The @ref listen() sysytem call listen for socket connections. The @ref listen() system call applies only to sockets of type SOCK_STREAM or SOCK_SEQPACKET.
  * @pre Pre-conditions:
  * -
  *   To accept connections, a socket is first created with @ref socket(), a willingness to accept incoming connections and a queue 
@@ -726,14 +677,76 @@ int	getsockopt(int socket_id, int option_level, int option_name, void *option_va
  * @param[in] backlog
  *   The backlog argument defines the maximum number of the clients supported. 
  * @return
- *   The  @ref listen() function returns the value	0 if successful; otherwise the value -1	is returned and	the global variable errno is set to indicate the error.
+ *   The value 0 if successful. Otherwise, the value -1	is returned and	the global variable errno is set to indicate the error.
  ******************************************************************************/
 int	listen(int socket_id, int backlog);
 
 /***************************************************************************/ /**
  * @brief
- *   The @ref recv() function is normally used only on a connected socket. @ref recv() function Receive message(s) from a socket.
- *   The  @ref recv() return the length	of the message on successful completion. If a message is too long to fit in the supplied 
+ *  Accept a connection on a socket
+ *   
+ *  The accept() system call is used with connection-based socket types (SOCK_STREAM, SOCK_SEQPACKET).  
+ *  It extracts the first connection request on the queue of pending connections for the listening 
+ *  socket (socket_id), creates a new connected socket, and returns a new file descriptor referring to that socket.  
+ *  The newly created socket is not in the listening state. The original socket sockfd is unaffected by this call.
+ * 
+ *   If no pending connections are present on the queue and the  original socket is not marked as non-blocking, 
+ *   this function blocks the caller until a connection is present. If the original socket is marked non-blocking and 
+ *   no pending connections are present on the queue, @ref accept() returns an error. The accepted socket may not be 
+ *   used to accept more connections. The original socket socket_id remains open.
+ * 
+ * @param[in] socket_id
+ *   Socket identification number of the socket, which is to be accepted.The argument socket_id is a socket that has been created with @ref socket(), bound to an address with @ref bind(), 
+ *   and is listening for connections after a @ref listen().
+ * @param[in] addr 
+ *   The argument addr is a result argument of type @ref sockaddr that is filled-in with the address of the connecting entity, as known
+ *   to the communications layer. The exact format	of the addr argument is	determined by the domain in which the 
+ *   communication is occurring. A null pointer may be specified for addr if the address information is	not desired;  
+ *   in this case, addrlen is not used and should also be null.
+ * @param[in] addr_len 
+ *   The addrlen argument is a value-result argument of type @ref socklen_t. It should initially contain the amount of space pointed to by
+ *   addr. On return, it will contain the actual length (in bytes) of the address returned. This call is used with 
+ *   connection-based socket types, currently with SOCK_STREAM.
+ * @return
+ *   -1 on error. If they succeed, they return a non-negative integer that is a descriptor for the accepted socket.
+ * @note 
+ *   The @ref accept() system call only supports blocking.
+ ******************************************************************************/
+int	accept(int socket_id, struct sockaddr *addr, socklen_t *addr_len);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Initiate a connection on a socket.
+ *   
+ * 	 The connect() system call connects the socket referred to by the file descriptor sockfd to the address specified by addr.  
+ * 	 The addrlen argument specifies the size of addr.  The format of the address in addr is determined by 
+ * 	 the address space of the socket sockfd; see socket() for further details.
+ * 
+ *   If socket_id is of type SOCK_DGRAM, @ref connect() system call specifies the peer with which the socket is to be associated.
+ *   If the socket is of type SOCK_STREAM, @ref connect() system call attempts to make a connection to another socket. The other 
+ *   socket is specified by addr, which is an address in the communications space of the socket. Each communications space interprets
+ *   the addr argument in its own way. Generally, stream sockets may successfully @ref connect() only once; datagram sockets can use 
+ *   @ref connect() multiple times to change their association.
+ * 
+ * @param[in] socket_id
+ *   The socket_id argument is a socket.
+ * @param[in] addr 
+ *   The addr argument of type @ref sockaddr is the address is that to which datagrams are to be sent.
+ * @param[in] addr_len 
+ *   The addr_len argument of type @ref socklen_t indicates the amount of space pointed to by addr, in bytes.
+ * @return
+ *   The value 0 if successful. Otherwise, the value -1  is returned and the global variable errno is set to indicate the error.
+ * @note
+ *   Connecting to an invalid address, such as null address, will result in EFAULT error.
+ ******************************************************************************/
+int	connect(int socket_id, const struct sockaddr *addr, socklen_t addr_len);
+
+/***************************************************************************/ /**
+ * @brief
+ *  Receive a message from a socket.
+ *  
+ *   The @ref recv() function is normally used only on a connected socket. @ref recv() receives messages from a socket.
+ *   @ref recv() returns the length of the message on successful completion. If a message is too long to fit in the supplied 
  *   buffer, excess bytes may be discarded depending on the type of socket the message is received from.
  * 
  * @param[in] socket_id
@@ -753,7 +766,9 @@ ssize_t	recv(int socket_id, void *buf, size_t buf_len, int flags);
 
 /***************************************************************************/ /**
  * @brief
- *   The @ref recvfrom() system calls are used to receive messages from a socket, and may be used to receive data on a socket whether
+ * Receive a message from a socket.
+ * 
+ *   The @ref recvfrom() system calls are used to receive messages from a socket and can be used to receive data on a socket whether
  *   or not it is connection-oriented. If from_addr is not a null pointer and the socket is not connection-oriented, the source 
  *   address of the	message	is filled in. 
  * 
@@ -765,10 +780,10 @@ ssize_t	recv(int socket_id, void *buf, size_t buf_len, int flags);
  *   Length of the buffer pointed to by the buf parameter.
  * @param[in] flags
  *   Controls the reception of the data.
- * @param[in] from_addr
- *   Pointer to a socket address structure from which data is received.
- * @param[in] from_addr_len
- *   The from_addr_len argument is a value-result argument, initialized to the size of the buffer associated with from_addr, and 
+ * @param[in] from_addr 
+ *   Pointer to a socket address structure of type @ref sockaddr from which data is received.
+ * @param[in] from_addr_len 
+ *   The from_addr_len argument is a value-result argument of type @ref socklen_t, initialized to the size of the buffer associated with from_addr, and 
  *   modified on return to indicate the actual size of the address stored there. The @ref recvfrom() return the length of the message 
  *   on successful completion.
  * @return
@@ -777,13 +792,12 @@ ssize_t	recv(int socket_id, void *buf, size_t buf_len, int flags);
  *   The @ref recvfrom() system call doesn't support any flags.
  ******************************************************************************/
 ssize_t	recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct sockaddr *from_addr, socklen_t *from_addr_len);
-//ssize_t	recvmsg(int, struct msghdr *, int);
-//int	recvmmsg(int, struct mmsghdr *, unsigned int, int, struct timespec *);
 
 /***************************************************************************/ /**
  * @brief
- *   The  @ref send() system call is used to transmit one or more messages to another socket. The @ref send() function may be used 
- *   only when the socket  is in a connected state. If the socket is connection-mode, the protocol must support implied connect 
+ *   Send a message on a socket
+ * 
+ *   This may be used only when the socket  is in a connected state. If the socket is connection-mode, the protocol must support implied connect 
  *   or the socket must be in a connected state before use. No indication of failure to deliver is implicit in a send(). Locally 
  *   detected errors are indicated by a return value of -1. If no messages space is	available at the socket	to hold	the message to 
  *   be transmitted, then @ref send() normally blocks, unless the socket has been placed in non-blocking I/O mode.
@@ -797,10 +811,10 @@ ssize_t	recvfrom(int socket_id, void *buf, size_t buf_len, int flags, struct soc
  * @param[in] flags
  *   Controls the transmission of the data.
  * @return
- *   The send() call return the number of octets sent. If an error occurred a value of -1 is returned.
+ *   The number of octets sent. If an error occurred, a value of -1 is returned.
  * @note 
  *   Currently, send() system call supports only blocking. 
- *   The send() system call doesn't guarantees the packets are transmitted to remote note, which are enqueued in the queue. 
+ *   The send() system call doesn't guarantee the packets are transmitted to remote note, which are enqueued in the queue. 
  *   The @ref send() system call doesn't supports any flags.
  *   The @ref send() system call can only send max of 1460 bytes incase of plain TCP, UDP. Whereas incase of TLS, the max buffer length is 1370. 
  ******************************************************************************/
@@ -808,8 +822,9 @@ ssize_t	send(int socket_id, const void *buf, size_t buf_len, int flags);
 
 /***************************************************************************/ /**
  * @brief
- *   The @ref sendto() system calls are used to transmit one or more messages to another socket. The functions @ref sendto() may be 
- *   used at any time if the socket is connectionless-mode. If the socket is connection-mode, the protocol must support implied connect 
+ *   Send a message on a socket. 
+ * 
+ * 	 The function @ref sendto() can be used at any time if the socket is connectionless-mode. If the socket is connection-mode, the protocol must support implied connect 
  *   or the socket must be in a connected state before use. The address of the target is given by to with to_addr_len specifying its size. 
  *   If the socket is in a connected state, the target address passed to @ref sendto() is ignored. If the message is too long to pass 
  *   atomically through the protocol, the error EMSGSIZE is returned, and the message is not transmitted.
@@ -822,45 +837,43 @@ ssize_t	send(int socket_id, const void *buf, size_t buf_len, int flags);
  *   The length of the message is given	by buf_len.
  * @param[in] flags
  *   Controls the transmission of the data.
- * @param[in] to_addr
- *   Address of the target.
- * @param[in] to_addr_len
- *   Size of the address pointed by to_addr.
+ * @param[in] to_addr 
+ *   Address of the target of type @ref sockaddr
+ * @param[in] to_addr_len 
+ *   Size of the address pointed by to_addr of type @ref socklen_t
  * @return
- *   The @ref sendto() call return the number of octets sent. If an error occurred a value of -1 is returned.
+ *   The number of octets sent. If an error occurred, a value of -1 is returned.
  * @note 
  *   Due to firmware limitations, @ref sendto() system call doesn't support any flags.
  *   The @ref sendto() system call can only send max of 1460 bytes incase of plain TCP, UDP. Whereas incase of TLS, the max buffer length is 1370.
  ******************************************************************************/
 ssize_t	sendto(int socket_id, const void *buf, size_t buf_len, int flags, const struct sockaddr *to_addr, socklen_t to_addr_len);
 
-//ssize_t	sendmsg(int, const struct msghdr *, int);
-//int	sendmmsg(int, struct mmsghdr *, unsigned int, int);
-
 /***************************************************************************/ /**
  * @brief
- *   The @ref setsockopt() system call set options on sockets. The @ref setsockopt() system call manipulate the options associated with 
+ *   Set options on sockets. 
+ * 
+ *   The @ref setsockopt() system call manipulates the options associated with 
  *   a socket. Options may exist at multiple protocol levels; they are always present at the uppermost "socket" level. When manipulating 
  *   socket options the level at which the	option resides and the name of the option must be specified. To manipulate options at the 
  *   socket level, level is specified as SOL_SOCKET.  To manipulate options  at any other level the protocol number of	the appropriate	
  *   protocol controlling the option is supplied. For example, to indicate that an option is to be interpreted by the TCP protocol, 
  *   level should be set to the protocol number of TCP; The option_value and option_length arguments are used to access option values 
- *   for @ref setsockopt(). The include file <sys/socket.h> contains definitions for socket level options. Options at other protocol 
- *   levels vary in format and name. 
+ *   for @ref setsockopt(). 
  * 
  * @param[in] socket_id
  *   Socket identification number.
  * @param[in] option_level
- *   Level for which the option is being set.
+ *   Level for which the option is being set. One of the values from @ref BSD_SOCKET_OPTION_LEVEL.
  * @param[in] option_name
- *   The option_name argument and any specified options are passed uninterpreted to the	appropriate protocol module for interpretation.
+ *   The option_name argument and any specified options are passed uninterpreted to the	appropriate protocol module for interpretation. One of the values from @ref BSD_SOCKET_OPTION_NAME
  * @param[in] option_value
  *   Most socket-level options utilize an int argument  for option_value. For setsockopt(), the argument should be non-zero to 
  *   enable a boolean option, or zero if the option is to be disabled.
  * @param[in] option_length
- *   Pointer to the length of the option data.
+ *   Pointer to the length of the option data of type @ref socklen_t
  * @return
- *   Upon successful completion, the value 0 is returned; otherwise the value -1 is returned and the global variable errno is set to indicate the error.
+ *   Upon successful completion, the value 0 is returned. Otherwise, the value -1 is returned and the global variable errno is set to indicate the error.
  * @note 
  *   The following are the options, which are supported currently.
  *       - SO_RCVTIMEO
@@ -872,38 +885,92 @@ ssize_t	sendto(int socket_id, const void *buf, size_t buf_len, int flags, const 
 int	setsockopt(int socket_id, int option_level, int option_name, const void *option_value, socklen_t option_length);
 
 /***************************************************************************/ /**
- * @brief 
- *   The @ref close() system call deletes the file descriptor of the socket.
+ * @brief
+ *  Get options on sockets. 
+ * 
+ *   The @ref getsockopt() system call manipulates the options associated with a socket. Options may exist at multiple protocol levels; 
+ *   they are always present at the uppermost "socket" level. When  manipulating socket options, the level at which the	option resides 
+ *   and the name of the option must be specified.  To manipulate options at the socket level, level is specified as SOL_SOCKET. 
+ *   To manipulate options at any other level, the protocol number of the appropriate protocol controlling the option is supplied.	
+ *   For example, to indicate  that an option is to be interpreted by the TCP protocol, level should be set to the protocol number of 
+ *   TCP. For @ref getsockopt(), they identify a	buffer in  which  the value for the requested options are to be returned.
+ * 
  * @param[in] socket_id
  *   Socket identification number.
+ * @param[in] option_level
+ *   Level for which the option is set. One of the values from @ref BSD_SOCKET_OPTION_LEVEL.
+ * @param[in] option_name
+ *   The option_name argument and any specified options are passed uninterpreted to the	appropriate protocol module for interpretation. One of the values from @ref BSD_SOCKET_OPTION_NAME
+ * @param[in] option_value
+ *   Pointer to option data.
+ * @param[in] option_length 
+ *   The option_length is a value-result argument of type @ref socklen_t, initially containing the size of the buffer pointed to by option_value, and 
+ *   modified on return to indicate	the actual size	of the value returned. If no option value is to be supplied or returned, optval 
+ *   may be NULL.
  * @return
- *   The @ref close() function returns the value 0 if successful; otherwise the value -1 is returned and the global variable errno is set to indicate the error.
- * @note
- *   Calling close on server or first client socket would end up closing othet socket as well.
- *   Closing an non existing socket, error EBADF (Bad file descriptor) will be thrown.
+ *   Upon successful completion, the value 0 is returned. Otherwise, the value -1 is returned and the global variable errno is set 	to indicate the error.
+ * @note 
+ *   The following are the options, which are supported currently.
+ *       - SO_RCVTIMEO
+ *       - SO_KEEPALIVE
+ *       - TCP_ULP
+ *       - SO_MAX_RETRANSMISSION_TIMEOUT_VALUE
+ *       - IP_TOS.
  ******************************************************************************/
-int	close(int socket_id);
+int	getsockopt(int socket_id, int option_level, int option_name, void *option_value, socklen_t *option_length);
 
 /***************************************************************************/ /**
  * @brief
- *   The socket() system call creates an endpoint for communication and returns a descriptor.
- * @param[in] domain
- *   The domain argument specifies a communications domain within which communication will take place; this selects the protocol family	 
- *   which should be used. These families are defined in the include file <sys/socket.h>.
- * @param[in] type
- *   The socket has the indicate type, which specifies the semantics of communication. Currently defined types are SOCK_STREAM,
-     SOCK_DGRAM, SOCK_RAW, SOCK_RDM, and SOCK_SEQPACKET.
- * @param[in] protocol
- *   The  protocol  argument specifies a particular protocol to be used with the socket. Normally only a single protocol exists to 
- *   support a particular socket type within a given protocol family. However, it is possible that many protocols may exist, in which 
- *   case a particular protocol must be specified in this manner. The protocol number to use  is particular  to  the "communication 
- *   domain" in which communication is to take place. The protocol argument may be set	to zero	(0) to request the default implementation 
- *   of a socket type for the protocol, if any.
+ * 	Get name of connected peer socket.
+ * 
+ *  The @ref getpeername() system call returns the name of the peer connected to socket socket_id. The name is truncated if the buffer provided is too small.
+ * 
+ * @param[in] socket_id
+ *   Socket identification number.
+ * @param[in] name 
+ *   Pointer to the peer name of type @ref sockaddr
+ * @param[in] name_len
+ *   The name_len argument  of type @ref socklen_t should be initialized to indicate the amount of space pointed to by name. On return, it contains the actual 
+ *   size of the name returned (in bytes).
  * @return
- *   A -1 is returned if an error occurs, otherwise the return value is a descriptor referencing the socket.
-
+ *   The getpeername() function returns the value 0 if successful. Otherwise, the value -1 is returned and the global variable errno is set to indicate the error.
  ******************************************************************************/
-int	socket(int family, int type, int protocol);
+int	getpeername(int socket_id, struct sockaddr *name, socklen_t *name_len);
+
+/***************************************************************************/ /**
+ * @brief
+ *  Get socket name.
+ *  
+ * getsockname() system call returns the current name for the specified socket.
+ * 
+ * @param[in] socket_id
+ *   Socket identification number.
+ * @param[in] name 
+ *   Pointer to the socket name of type @ref sockaddr.
+ * @param[out] name_len
+ *   The name_len argument  of type @ref socklen_t should be initialized to indicate the amount of space pointed to by name. 
+ *   On return, it contains the actual size of the name returned (in bytes).
+ * @return
+ *   The @ref getsockname() function returns the value 0 if successful. Otherwise, the value -1 is returned and the global variable errno is set to indicate the	error.
+ ******************************************************************************/
+int	getsockname(int socket_id, struct sockaddr *name, socklen_t *name_len);
+
+/***************************************************************************/ /**
+ * @brief 
+ *  Close a file descriptor.
+ * 
+ * close() closes a file descriptor, so that it no longer refers to any file and can be reused.  
+ * 
+ * @param[in] socket_id
+ *   Socket identification number.
+ * @return
+ *   The @ref close() function returns the value 0 if successful. Otherwise, the value -1 is returned and the global variable errno is set to indicate the error.
+ * @note
+ *   Calling close on server or first client socket will close other sockets as well.
+ * @note
+ *   Closing an non existing socket, error EBADF (Bad file descriptor) will be thrown.
+ ******************************************************************************/
+int	close(int socket_id);
 
 /** @} */
 

@@ -31,8 +31,6 @@
 #include "rsi_comparator.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "aux_reference_volt_config.h"
-#include "rsi_board.h"
-#include "rsi_chip.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************

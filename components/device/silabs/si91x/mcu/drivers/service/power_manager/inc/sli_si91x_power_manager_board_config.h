@@ -42,7 +42,7 @@ extern "C" {
 #define SL_SLEEP_STACK_USAGE_ADDRESS          0x1b000    // STACK_USAGE_ADDRESS for Si917 B0 Common flash
 #define SL_SLEEP_RAM_USAGE_ADDRESS            0x24061EFC // RAM_USAGE_ADDRESS for Si917 B0 Common flash
 #define SL_SLEEP_VECTOR_OFFSET                0x0 // Vector offset: sleep without retention for Si917 B0 Common flash
-#define SL_SLEEP_VECTOR_OFFSET_WITH_RETENTION 0x81C2000 // Vector offset: sleep with retention for Si917 B0 Common flash
+#define SL_SLEEP_VECTOR_OFFSET_WITH_RETENTION 0x8202000 // Vector offset: sleep with retention for Si917 B0 Common flash
 #define SL_SLEEP_WAKEUP_CALLBACK_ADDRESS      0x1e000   // Wakeup callback address for Si917 B0 Common flash
 
 #else

@@ -133,7 +133,7 @@ extern "C" {
 #define SL_GPIO_VALIDATE_UULP_PIN(pin_num)            ((pin_num) > 5 ? 0 : 1)    ///< Validate UULP pins
 #define SL_GPIO_VALIDATE_MODE_PARAMETER(mode)         ((mode) > 10 ? 0 : 1)      ///< Validate UULP, ULP mode
 #define SL_GPIO_VALIDATE_UULP_INTR(interrupt)         ((interrupt) > 16 ? 0 : 1) ///< Validate UULP interrupt
-#define SL_GPIO_VALIDATE_PORT(port)                   ((port) > 4 ? 0 : 1)       ///< Validate GPIO port
+#define SL_GPIO_VALIDATE_PORT(port)                   ((port) > 5 ? 0 : 1)       ///< Validate GPIO port
 #define SL_GPIO_VALIDATE_MODE(mode)                   ((mode) > 15 ? 0 : 1)      ///< Validate GPIO mode
 #define SL_GPIO_VALIDATE_INTR(interrupt)              ((interrupt > 8) ? 0 : 1)  ///< Validate GPIO interrupt
 ///< Validate GPIO port and pin
@@ -144,7 +144,8 @@ extern "C" {
    : port == 3 ? ((pin > GPIO_PD_PIN_MAX_VALIDATE) ? 0 : 1) \
                : 0)
 
-#define SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin) (port == 4 ? ((pin > 11) ? 0 : 1) : 0) ///< Validate ULP port and pin
+#define SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin)  (port == 4 ? ((pin > 11) ? 0 : 1) : 0) ///< Validate ULP port and pin
+#define SL_GPIO_VALIDATE_UULP_PORT_PIN(port, pin) (port == 5 ? ((pin > 5) ? 0 : 1) : 0)  ///< Validate UULP port and pin
 
 #define GRP_IRQ0_Handler IRQ050_Handler ///<  GPIO Group Interrupt 0
 #define GRP_IRQ1_Handler IRQ051_Handler ///<  GPIO Group Interrupt 1
@@ -213,7 +214,9 @@ extern "C" {
 
 #define SL_GPIO_GROUP_INTERRUPT_OR     1 ///< GPIO group interrupt AND/OR
 #define SL_GPIO_GROUP_INTERRUPT_WAKEUP 4 ///< GPIO group interrupt wakeup
-#define SL_ULP_GPIO_PORT               4 ///< ULP GPIO port number
+#define SL_GPIO_ULP_PORT               4 ///< ULP GPIO port number
+#define SL_GPIO_UULP_PORT              5 ///< Initializing UULP GPIO port value
+#define SL_ULP_GPIO_PORT               4 ///< Refers to ULP Port
 
 #define _MODE0  0  ///< GPIO mode 0
 #define _MODE1  1  ///< GPIO mode 1

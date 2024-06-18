@@ -16,11 +16,15 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to update the SiWx91x firmware via Wi-Fi by downloading an image from a remote TCP server. The TCP server may be hosted on a local PC (as demonstrated in this example), or alternately on a cloud service such as Amazon AWS or Microsoft Azure. The update process works as follows:
+This application shows how to update the TA(NWP) firmware of a device via Wi-Fi by downloading the firmware file from a remote TCP server. The server can be run on a local PC. Here's how the update process works:
 
-- The SiWx91x acts as a TCP client and connects to a TCP server via Wi-Fi.
-- The SiWx91x OTA application sends a firmware file request to the server and server responds with the firmware file.
-- The OTA application programs the firmware into the SiWx91x flash memory and reboots.
+ - **Connection** : The device connects to a Wi-Fi network and acts as a TCP client.
+ - **Request**    : The device sends a request to the TCP server for the firmware update file.
+ - **Download**   : The server sends the firmware file to the device.
+ - **Update**     : The device writes the new firmware to its memory and then restarts to complete the update.
+
+This process allows the device to update its software over the air (OTA) without needing a physical connection.
+
 
 ## Prerequisites/Setup Requirements
 
@@ -34,8 +38,6 @@ This application demonstrates how to update the SiWx91x firmware via Wi-Fi by do
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
       - BRD4342A [SiWx917-RB4342A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
@@ -45,6 +47,7 @@ This application demonstrates how to update the SiWx91x firmware via Wi-Fi by do
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - EFR32FG25 863-876 MHz +16 dBm Radio Board [FG25-RB4271A](https://www.silabs.com/development-tools/wireless/proprietary/fg25-rb4271a-efr32fg25-radio-board?tab=overview)
     - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)

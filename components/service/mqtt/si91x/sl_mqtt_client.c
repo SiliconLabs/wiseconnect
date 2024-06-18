@@ -59,8 +59,11 @@
 // Declaring strtok_r as extern to suppress implicit declaration warning.
 extern char *strtok_r(char *, const char *, char **);
 
-#define SI91X_MQTT_CLIENT_INIT_TIMEOUT       5000
-#define SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT 5000
+#define SI91X_MQTT_CLIENT_INIT_TIMEOUT        5000
+#define SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT  5000
+#define SI91X_MQTT_CHECK_RETAIN_MESSAGE       BIT(0)
+#define SI91X_MQTT_CHECK_QOS_LEVEL            (BIT(1) | BIT(2))
+#define SI91X_MQTT_CHECK_IS_DUPLICATE_MESSAGE BIT(3)
 
 #define VERIFY_AND_RETURN_ERROR_IF_FALSE(condition, status) \
   {                                                         \
@@ -483,7 +486,10 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
 sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout)
 {
 
-  VERIFY_AND_RETURN_ERROR_IF_FALSE((client->state != SL_MQTT_CLIENT_DISCONNECTED), SL_STATUS_INVALID_STATE);
+  VERIFY_AND_RETURN_ERROR_IF_FALSE(
+    (client->state == SL_MQTT_CLIENT_CONNECTED || client->state == SL_MQTT_CLIENT_TA_DISCONNECTED
+     || client->state == SL_MQTT_CLIENT_CONNECTION_FAILED),
+    SL_STATUS_INVALID_STATE);
 
   SL_VERIFY_POINTER_OR_RETURN(client, SL_STATUS_WIFI_NULL_PTR_ARG);
 
@@ -492,7 +498,7 @@ sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout
 
   // As in connect, disconnect() call maps to disconnect and deinit in firmware
   // We need to call disconnect even if the previous connect call was failed.
-  if (client->state == SL_MQTT_CLIENT_CONNECTION_FAILED || client->state == SL_MQTT_CLIENT_CONNECTED) {
+  if (client->state == SL_MQTT_CLIENT_CONNECTED) {
     si91x_mqtt_client_command_request_t si91x_disconnect_request = { .command_type =
                                                                        SI91X_MQTT_CLIENT_DISCONNECT_COMMAND };
 
@@ -734,6 +740,75 @@ sl_status_t sl_mqtt_client_unsubscribe(sl_mqtt_client_t *client,
   return status;
 }
 
+static void sli_si91x_mqtt_node_free_function(sl_wifi_buffer_t *buffer)
+{
+  sl_si91x_host_free_buffer(buffer);
+}
+
+static uint8_t sli_si91x_mqtt_identification_function(sl_wifi_buffer_t *buffer, void *user_data)
+{
+  UNUSED_PARAMETER(user_data);
+
+  sl_status_t status;
+
+  sl_si91x_packet_t *packet     = NULL;
+  sl_si91x_queue_packet_t *node = NULL;
+
+  sl_wifi_buffer_t *response_buffer      = NULL;
+  sl_wifi_buffer_t *new_dummy_rx_buffer  = NULL;
+  sl_si91x_queue_packet_t *response_node = NULL;
+  sl_si91x_packet_t *dummy_raw_rx_packet = NULL;
+
+  bool is_async_request = false;
+
+  node   = (sl_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = sl_si91x_host_get_buffer_data(node->host_packet, 0, NULL);
+
+  if (RSI_WLAN_REQ_EMB_MQTT_CLIENT != packet->command) {
+    return false;
+  }
+
+  status =
+    sl_si91x_host_allocate_buffer(&response_buffer, SL_WIFI_CONTROL_BUFFER, sizeof(sl_si91x_queue_packet_t), 1000);
+
+  if (status != SL_STATUS_OK) {
+    return false;
+  }
+
+  status =
+    sl_si91x_host_allocate_buffer(&new_dummy_rx_buffer, SL_WIFI_CONTROL_BUFFER, sizeof(sl_si91x_queue_packet_t), 1000);
+
+  if (status != SL_STATUS_OK) {
+    free(response_buffer);
+    return false;
+  }
+
+  dummy_raw_rx_packet = sl_si91x_host_get_buffer_data(new_dummy_rx_buffer, 0, NULL);
+
+  response_node = sl_si91x_host_get_buffer_data(response_buffer, 0, NULL);
+  memcpy(response_node, node, sizeof(sl_si91x_queue_packet_t));
+
+  response_node->frame_status = SL_STATUS_FAIL;
+  response_node->host_packet  = new_dummy_rx_buffer;
+  response_node->flags        = 0;
+
+  memset(dummy_raw_rx_packet, 0, sizeof(sl_si91x_packet_t));
+
+  dummy_raw_rx_packet->command = RSI_WLAN_REQ_EMB_MQTT_CLIENT;
+
+  // Setting the frame_status of host descriptor to SL_STATUS_FAIL
+  dummy_raw_rx_packet->desc[12] = SL_STATUS_FAIL;
+
+  is_async_request = (node->flags == 0);
+
+  if (!is_async_request) {
+    sl_si91x_host_add_to_queue(SI91X_NETWORK_RESPONSE_QUEUE, response_buffer);
+    sl_si91x_host_set_event(NCP_HOST_NETWORK_RESPONSE_EVENT);
+  }
+
+  return true;
+}
+
 sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
                                          sl_si91x_mqtt_client_context_t *sdk_context,
                                          sl_si91x_packet_t *rx_packet)
@@ -755,7 +830,7 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
       is_error_event = true;
       // This state updates is necessary as we need to send TA disconnect even in case of connection failure.
       sdk_context->client->state = SL_MQTT_CLIENT_CONNECTION_FAILED;
-      // TA BUG: TA requires disconnection call if connection fails for any reason. Please remove the below code once TA fixed the issue.
+      // TA requires deinit call if connection fails for any reason.
       sl_status_t status = sl_mqtt_client_disconnect(sdk_context->client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
 
       if (status != SL_STATUS_OK) {
@@ -808,6 +883,18 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
       received_message.content_length = si91x_message->current_chunk_length;
       received_message.content        = (uint8_t *)&si91x_message->data[si91x_message->topic_length];
 
+      // Extract the MQTT flags from the received message
+      // The flags are stored in the first four bits of the mqtt_flags field
+
+      // Use the SI91X_MQTT_CHECK_RETAIN_MESSAGE macro to extract the zeroth bit and determine if the message is retained
+      received_message.is_retained = si91x_message->mqtt_flags & SI91X_MQTT_CHECK_RETAIN_MESSAGE;
+
+      // Use the SI91X_MQTT_CHECK_QOS_LEVEL macro to extract the first and second bits and determine the QoS level
+      received_message.qos_level = (si91x_message->mqtt_flags & SI91X_MQTT_CHECK_QOS_LEVEL) >> 1;
+
+      // Use the SI91X_MQTT_CHECK_IS_DUPLICATE_MESSAGE macro to extract the third bit and determine if the message is a duplicate
+      received_message.is_duplicate_message = si91x_message->mqtt_flags & SI91X_MQTT_CHECK_IS_DUPLICATE_MESSAGE;
+
       sli_si91x_get_subscription(sdk_context->client,
                                  received_message.topic,
                                  received_message.topic_length,
@@ -824,18 +911,32 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
     }
 
     case SL_MQTT_CLIENT_DISCONNECTED_EVENT: {
-      // If it is a disconnect packet and status is not success, it shall be user initiated disconnect failure.
-      if (rx_packet->command == RSI_WLAN_REQ_EMB_MQTT_CLIENT && status != SL_STATUS_OK) {
+      /* 
+         If the received packet is a disconnect packet and the status is not successful, 
+         it implies that the disconnect was initiated by the user and failed. 
+         However, if the status is SL_STATUS_SI91X_MQTT_KEEP_ALIVE_TERMINATE_ERROR, 
+         it indicates a keep-alive terminate error, not a user-initiated disconnect failure.
+      */
+      if (rx_packet->command == RSI_WLAN_REQ_EMB_MQTT_CLIENT && status != SL_STATUS_OK
+          && status != SL_STATUS_SI91X_MQTT_KEEP_ALIVE_TERMINATE_ERROR) {
         is_error_event = true;
         break;
       }
+      /* Flush the pending tx request packets from the network command queue */
+      sl_si91x_host_flush_nodes_from_queue(SI91X_NETWORK_CMD_QUEUE,
+                                           &rx_packet->command,
+                                           sli_si91x_mqtt_identification_function,
+                                           sli_si91x_mqtt_node_free_function);
 
-      sl_status_t disconnection_status = SL_STATUS_FAIL;
+      bool is_keep_alive_response_timeout_termination = (rx_packet->command == RSI_WLAN_REQ_EMB_MQTT_CLIENT
+                                                         && status == SL_STATUS_SI91X_MQTT_KEEP_ALIVE_TERMINATE_ERROR);
+      sl_status_t disconnection_status                = SL_STATUS_FAIL;
 
-      if (rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE) {
+      if (rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE || is_keep_alive_response_timeout_termination) {
+        sdk_context->client->state = SL_MQTT_CLIENT_TA_DISCONNECTED;
         disconnection_status = sl_mqtt_client_disconnect(sdk_context->client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
 
-        // TA BUG: TA requires disconnection call if remote termination is received. Please remove the below code once TA fixed the issue.
+        // TA requires deinit call if remote termination is received.
         // If the disconnect call fails, we can't set the state to disconnected.
         if (disconnection_status != SL_STATUS_OK) {
           SL_DEBUG_LOG(
@@ -843,16 +944,20 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
           break;
         }
 
-        reason     = SL_MQTT_CLIENT_REMOTE_TERMINATE_DISCONNECTION;
+        reason = is_keep_alive_response_timeout_termination ? SL_MQTT_CLIENT_KEEP_ALIVE_RESPONSE_TIMEOUT_DISCONNECTION
+                                                            : SL_MQTT_CLIENT_REMOTE_TERMINATE_DISCONNECTION;
         event_data = &reason;
       } else {
+        // As keep alive response timeout is already handled,
+        // we can safely assume that the disconnection is user initiated if the frame type is RSI_WLAN_REQ_EMB_MQTT_CLIENT.
         reason     = (rx_packet->command == RSI_WLAN_RSP_JOIN) ? SL_MQTT_CLIENT_WLAN_DISCONNECTION
                                                                : SL_MQTT_CLIENT_USER_INITIATED_DISCONNECTION;
         event_data = &reason;
       }
 
       if (rx_packet->command == RSI_WLAN_RSP_JOIN || rx_packet->command == RSI_WLAN_REQ_EMB_MQTT_CLIENT
-          || (rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE && disconnection_status == SL_STATUS_OK)) {
+          || ((rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE || is_keep_alive_response_timeout_termination)
+              && disconnection_status == SL_STATUS_OK)) {
         sdk_context->client->state = SL_MQTT_CLIENT_DISCONNECTED;
         // Free all subscriptions as we have disconnected from mqtt broker
         sli_si91x_remove_and_free_all_subscriptions(sdk_context->client);

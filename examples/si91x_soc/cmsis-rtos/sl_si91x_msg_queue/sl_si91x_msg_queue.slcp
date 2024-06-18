@@ -7,11 +7,11 @@ category: example|cmsis-rtos
 package: platform
 quality: production
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 readme:
   - path: readme.md
 source:
@@ -27,7 +27,9 @@ include:
     file_list:
       - path: i2c_follower_app.h
       - path: usart_app.h
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: status
@@ -36,24 +38,29 @@ component:
   - id: si917_memory_default_config
     from: wiseconnect3_sdk
   - id: freertos
+  - id: freertos_heap_4
   - id: sl_i2c_peripheral
     from: wiseconnect3_sdk
   - id: sl_usart
     from: wiseconnect3_sdk
   - id: sl_dma
     from: wiseconnect3_sdk
+  - id: sl_gpio
+    from: wiseconnect3_sdk
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
+configuration:
+  - name: SL_USART_MODE
+    value: SL_USART_MODE_ASYNCHRONOUS
 other_file:
 - {path: resources/readme/image506d.png}
 - {path: resources/readme/image506e.png}
 - {path: resources/readme/setupdiagram.png}
 - {path: resources/readme/output.png}
 define:
-  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
-  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
   - name: USART_CONFIG
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
   - name: SL_SI91X_USART_DMA
-  - name: SL_SI91X_DMA
 ui_hints:
   highlight:
     - path: readme.md

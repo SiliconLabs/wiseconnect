@@ -13,11 +13,11 @@ filter:
   value:
   - Beginner
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.2.0
+  version: 3.3.0
 source:
 - path: app.c
 - path: main.c
@@ -36,6 +36,7 @@ template_contribution:
 component:
 - id: sl_system
 - id: freertos
+- id: freertos_heap_4
 - id: syscalls
   from: wiseconnect3_sdk
 - id: si917_memory_default_config
@@ -80,6 +81,7 @@ other_file:
 - path: resources/readme/blecentral_soc_ncp.png
 - path: resources/readme/advertiser.png
 - path: resources/readme/output_1.png
+- path: resources/readme/connection.png
 ui_hints:
   highlight:
   - path: readme.md

@@ -77,7 +77,7 @@ static const sl_net_wifi_client_profile_t wifi_client_enterprise_eap_profile = {
         .bssid = {{0}},
         .bss_type = SL_WIFI_BSS_TYPE_INFRASTRUCTURE,
         .security = SL_WIFI_WPA2_ENTERPRISE,
-        .encryption = SL_WIFI_EAP_TLS_ENCRYPTION,
+        .encryption = SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION,
         .client_options = 0,
         .credential_id = SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID,
     },
@@ -95,7 +95,8 @@ static const sl_net_wifi_eap_credential_entry_t wifi_client_enterprise_eap_crede
   .data.username        = "user1",
   .data.password        = "12345678",
   .data.certificate_key = {},
-  .data.certificate_id  = WIFI_CLIENT_CERTIFICATE_ID
+  .data.certificate_id  = WIFI_CLIENT_CERTIFICATE_ID,
+  .data.eap_flags       = 0
 };
 
 /******************************************************

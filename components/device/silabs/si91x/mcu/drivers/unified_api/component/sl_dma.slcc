@@ -15,9 +15,10 @@ category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
-  - path: config/sl_si91x_dma_inst_config.h
+  - path: config/sl_si91x_dma_config.h
 requires:
   - name: udma_linker_config
+  - name: romdriver_udma_wrapper
 source:
   - path: "src/sl_si91x_dma.c"
 include:
@@ -29,7 +30,7 @@ provides:
 define:
   - name: __STATIC_INLINE
     value: "static inline"
-  - name: SL_SI91X_DMA
+  - name: UDMA_ROMDRIVER_PRESENT
 template_contribution:
   - name: udma_enable
     value: true

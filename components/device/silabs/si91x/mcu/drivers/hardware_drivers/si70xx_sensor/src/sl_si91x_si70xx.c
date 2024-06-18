@@ -32,10 +32,11 @@
 /*******************************************************************************
  ***************************   Defines / Macros   ******************************
  ******************************************************************************/
-#define RX_LEN 2 ///< Read buffer length 2 bytes
-#define TX_LEN 2 ///< Write buffer length 2 bytes
-#define RD_BUF 6 ///< Read buffer length 6 bytes
-#define WR_BUF 1 ///< Write buffer length 1 byte
+#define RX_LEN           2    ///< Read buffer length 2 bytes
+#define TX_LEN           2    ///< Write buffer length 2 bytes
+#define RD_BUF           6    ///< Read buffer length 6 bytes
+#define WR_BUF           1    ///< Write buffer length 1 byte
+#define MS_DELAY_COUNTER 4600 // Delay count
 
 /*******************************************************************************
  ***********************  Local function Prototypes ***************************
@@ -44,6 +45,17 @@ static sl_status_t si70xx_send_command(sl_i2c_instance_t i2c_instance, uint8_t a
 static float si70xx_get_celcius_temperature(int32_t temp_data);
 static float si70xx_get_percent_relative_humidity(uint32_t rh_data);
 static void wait_till_i2c_gets_idle(I2C_TypeDef *i2c);
+
+/*******************************************************************************
+ * Delay function for 1ms
+ ******************************************************************************/
+static void delay(uint32_t idelay)
+{
+  for (uint32_t x = 0; x < 4600 * idelay; x++) {
+    __NOP();
+  }
+}
+
 /*******************************************************************************
  * Initializes the Si70xx - RHT sensor by reading electronic ID 1st byte (or)
  *  2nd byte based on eid selected of type \ref sl_si70xx_eid_type_t
@@ -131,16 +143,15 @@ sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i
     return status;
   }
   wait_till_i2c_gets_idle(I2C_BASE);
-
-  while (*data == 0) {
-    // Receive no hold master mode response from sensor
-    status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, RX_LEN);
-    if (status != SL_STATUS_OK) {
-      return status;
-    }
-    wait_till_i2c_gets_idle(I2C_BASE);
-    *data = (uint32_t)((i2c_read_data[0] << 8) | (i2c_read_data[1]));
+  // Adding delay as No-Hold sensor command requires some time to respond to the command sent.
+  delay(20);
+  // Receive no hold master mode response from sensor
+  status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, RX_LEN);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
+  wait_till_i2c_gets_idle(I2C_BASE);
+  *data = (uint32_t)((i2c_read_data[0] << 8) | (i2c_read_data[1]));
   if (i2c_write_data[0] == SL_HUMIDITY_NHM) {
     // Convert relative humidity measurement to percent relative humidity
     *data = (uint32_t)si70xx_get_percent_relative_humidity(*data);

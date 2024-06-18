@@ -56,6 +56,9 @@ psa_status_t convert_si91x_error_code_to_psa_status(sl_status_t si91x_status)
     case SL_STATUS_CRYPTO_INVALID_SIGNATURE:
       status = PSA_ERROR_INVALID_SIGNATURE;
       break;
+    case SL_STATUS_TRANSMIT:
+      status = PSA_ERROR_COMMUNICATION_FAILURE;
+      break;
     default:
       status = PSA_ERROR_GENERIC_ERROR;
       break;

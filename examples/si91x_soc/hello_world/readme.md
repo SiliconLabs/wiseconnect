@@ -45,4 +45,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Test the Application
 
- 
+ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+- Compile and run the application.
+
+- Console Output:
+    
+    ![Figure: output](resources/readme/outputConsole.png)

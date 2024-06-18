@@ -6,10 +6,10 @@ description: |
 category: example|crypto
 package: platform
 quality: production
-sdk: {id: gecko_sdk, version: 4.4.3}
+sdk: {id: simplicity_sdk, version: 2024.6.0}
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 source:
   - path: app.c
   - path: main.c
@@ -35,6 +35,7 @@ component:
   - id: si917_memory_default_config
     from: wiseconnect3_sdk
   - id: freertos
+  - id: freertos_heap_4
   - id: wifi
     from: wiseconnect3_sdk
   - id: sl_si91x_wireless

@@ -34,6 +34,7 @@
 #include "clock_update.h"
 #include "sl_si91x_gspi.h"
 #include "sl_si91x_gspi_config.h"
+#include "rsi_rom_clks.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
@@ -49,10 +50,11 @@
 #define MIN_DATA_LENGTH           0         // Minimum data length
 #define MIN_BIT_WIDTH             0         // Minimum bit width
 #define MAX_BIT_WIDTH             16        // Maximum bit width
-#define DOUBLE                    2         // Macro used to double the value
 #define GSPI_RELEASE_VERSION      0         // GSPI Release version
 #define GSPI_SQA_VERSION          0         // GSPI SQA version
 #define GSPI_DEV_VERSION          2         // GSPI Developer version
+#define ODD_DIV_ENABLE            0         // Odd division enable for QSPI clock
+#define SWALLO_ENABLE             0         // Swallo enable for QSPI clock
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -69,9 +71,7 @@ extern sl_gspi_driver_t Driver_GSPI_MASTER;
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static sl_status_t convert_arm_to_sl_error_code(int32_t error);
-static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
 static sl_status_t validate_control_parameters(sl_gspi_control_config_t *control_configuration);
-static sl_status_t validate_clock_parameters(sl_gspi_clock_config_t *clock_configuration);
 static sl_status_t set_slave_gpio_state(sl_gspi_handle_t gspi_handle, boolean_t value);
 static sl_status_t get_gspi_handle(sl_gspi_instance_t instance, sl_gspi_handle_t *gspi_handle);
 static boolean_t validate_gspi_handle(sl_gspi_handle_t gspi_handle);
@@ -94,8 +94,7 @@ static void callback_event_handler(uint32_t event);
  ******************************************************************************/
 sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configuration)
 {
-  sl_status_t status;
-  rsi_error_t error_status;
+  sl_status_t status = SL_STATUS_OK;
   do {
     // To validate the structure pointer, if the parameters is NULL, it
     // returns an error code
@@ -103,27 +102,6 @@ sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configur
       status = SL_STATUS_NULL_POINTER;
       break;
     }
-    // Validate the clock parameters entered by user, if not in range returns error code
-    status = validate_clock_parameters(clock_configuration);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // To configure the memory map pll for GSPI
-    GSPI_SetMemoryMapPll(clock_configuration->intf_pll_500_control_value);
-    // RSI API to set INTF pll clock is called and the status is converted to the SL error code.
-    error_status =
-      RSI_CLK_SetIntfPllFreq(M4CLK, clock_configuration->intf_pll_clock, clock_configuration->intf_pll_reference_clock);
-    status = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // RSI API to set M4 SOC clock is called and the status is converted to the SL error code.
-    error_status = RSI_CLK_M4SocClkConfig(M4CLK, M4_INTFPLLCLK, clock_configuration->division_factor);
-    status       = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    RSI_CLK_SocPllLockConfig(MANUAL_LOCK, BYPASS_MANUAL_LOCK, clock_configuration->soc_pll_mm_count_value);
   } while (false);
   return status;
 }
@@ -205,11 +183,6 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    // Configuration of power mode
-    status = sli_si91x_gspi_configure_power_mode(gspi_handle, SL_GSPI_POWER_OFF);
-    if (status != SL_STATUS_OK) {
-      return status;
-    }
     // Unregistering the GSPI event callback.
     sl_si91x_gspi_unregister_event_callback();
     // CMSIS API for un-initialization is called and the arm error code returned from
@@ -274,7 +247,7 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
 {
   sl_status_t status;
   int32_t error_status;
-  uint32_t input_mode, baudrate;
+  uint32_t input_mode;
   /* GSPI_UC is defined by default. when this macro (GSPI_UC) is defined, peripheral
    * configuration is directly taken from the configuration set in the universal configuration (UC).
    * if the application requires the configuration to be changed in run-time, undefined this macro
@@ -303,22 +276,6 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
       break;
     }
 
-    // 1 MHz is the minimum frequency to configure SOC PLL, if the bitrate is lower than 500 KHz then
-    // SOC PLL frequency is set to 1MHz
-    if (control_configuration->bitrate >= MINIMUM_BITRATE) {
-      baudrate = control_configuration->bitrate * DOUBLE;
-    } else {
-      baudrate = MINIMUM_SOC_PLL_FREQUENCY;
-    }
-
-    // RSI API to set SOC pll clock is called and the status is converted to the SL error code.
-    // Setting the soc_pll clock to double of the bitrate so the spi clock provides proper output as the clock
-    // divider will be 1
-    error_status = RSI_CLK_SetSocPllFreq(M4CLK, baudrate, SOC_PLL_REF_FREQUENCY);
-    status       = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
     input_mode = (control_configuration->clock_mode | SL_GSPI_MASTER_ACTIVE | control_configuration->slave_select_mode
                   | ARM_SPI_DATA_BITS(control_configuration->bit_width));
     // CMSIS API for GSPI control is called and the arm error code returned from
@@ -720,38 +677,6 @@ static sl_status_t convert_arm_to_sl_error_code(int32_t error)
 }
 
 /*******************************************************************************
- * To validate the RSI error code
- * While calling the RSI APIs, it returns the RSI Error codes.
- * This function converts the RSI error codes into SL error codes.
- * It takes argument as RSI error type and returns the SL error type.
- * It has a single switch statement which is mapped with the SL error code and
- * after successful conversion it breaks the switch statement.
- * If the error code is not listed, by default is SL_STATUS_FAIL.
- ******************************************************************************/
-static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error)
-{
-  sl_status_t status;
-  switch (error) {
-    case RSI_OK:
-      status = SL_STATUS_OK;
-      break;
-    case INVALID_PARAMETERS:
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    case ERROR_INVALID_INPUT_FREQUENCY:
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    case ERROR_CLOCK_NOT_ENABLED:
-      status = SL_STATUS_NOT_INITIALIZED;
-      break;
-    default:
-      status = SL_STATUS_FAIL;
-      break;
-  }
-  return status;
-}
-
-/*******************************************************************************
  * To validate the control parameters and build a 32 bit integer
  * It takes pointer to control configuration structure and pointer to the uint32_t
  * as argument and builds the integer using the validations and 'OR' operation.
@@ -781,40 +706,6 @@ static sl_status_t validate_control_parameters(sl_gspi_control_config_t *control
     // If the slave select mode is greater than the slave select last enum, it
     // returns the error code.
     if (control_configuration->slave_select_mode >= SL_GSPI_SLAVE_SELECT_MODE_LAST) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
-  } while (false);
-  return status;
-}
-
-/*******************************************************************************
- * To validate the clock parameters and return status accordingly.
- * It takes pointer to clock configuration structure as argument.
- * If the values in clock_configuration is out of range, it returns error code
- ******************************************************************************/
-static sl_status_t validate_clock_parameters(sl_gspi_clock_config_t *clock_configuration)
-{
-  sl_status_t status;
-  do {
-    // To Validate different clock frequencies with its respective maximum and
-    // minimum frequencies, if not in range, returns error code.
-    if ((clock_configuration->intf_pll_clock < INTF_PLL_MIN_FREQUECY)
-        || (clock_configuration->intf_pll_clock > INTF_PLL_MAX_FREQUECY)
-        || (clock_configuration->intf_pll_reference_clock < INTF_PLL_MIN_FREQUECY)
-        || (clock_configuration->intf_pll_reference_clock > INTF_PLL_MAX_FREQUECY)
-        || (clock_configuration->soc_pll_clock < SOC_PLL_MIN_FREQUECY)
-        || (clock_configuration->soc_pll_clock > SOC_PLL_MAX_FREQUECY)
-        || (clock_configuration->soc_pll_reference_clock < SOC_PLL_MIN_FREQUECY)
-        || (clock_configuration->soc_pll_reference_clock > SOC_PLL_MAX_FREQUECY)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // To Validate the division factor, if not in range,
-    // returns error code.
-    if (clock_configuration->division_factor >= SOC_MAX_CLK_DIVISION_FACTOR) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }

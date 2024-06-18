@@ -15,19 +15,19 @@
 
 - This application contains an example code to demonstrate PSA SHA.
 
-## Prerequisites/Setup Requirements 
+## Prerequisites/Setup Requirements
 
 Before running the application, the user will need the following things to setup.
 
-### Hardware Requirements	
+### Hardware Requirements
 
-  - Windows PC 
+  - Windows PC
   - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
 
 ### Software Requirements
 
 - Simplicity Studio
- 
+
 ### Setup Diagram
 
   ![Figure: Introduction](resources/readme/image508a.png)
@@ -43,7 +43,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
-## Application Build Environment 
+## Application Build Environment
 
 - The user can run the application to verify the following SHA modes:
 - SHA 1

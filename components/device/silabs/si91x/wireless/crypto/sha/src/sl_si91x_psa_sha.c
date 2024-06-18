@@ -32,8 +32,8 @@ psa_status_t sli_si91x_crypto_hash_compute(psa_algorithm_t alg,
 #if defined(PSA_WANT_ALG_SHA_1) || defined(PSA_WANT_ALG_SHA_224) || defined(PSA_WANT_ALG_SHA_256) \
   || defined(PSA_WANT_ALG_SHA_384) || defined(PSA_WANT_ALG_SHA_512)
 
-  if ((input == NULL && input_length > 0) || (input_length == 0) || (hash == NULL && hash_size > 0)
-      || (hash_length == NULL && hash_size > 0)) {
+  if (((input == NULL) && (input_length > 0)) || ((hash == NULL) && (hash_size > 0))
+      || ((hash_length == NULL) && (hash_size > 0))) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 

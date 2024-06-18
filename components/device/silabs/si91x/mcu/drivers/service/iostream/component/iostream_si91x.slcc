@@ -43,4 +43,5 @@ provides:
   - name: iostream_si91x
 requires:
   - name: sl_usart_iostream
-  - name: iostream_retarget_stdio  
+  - name: iostream_retarget_stdio
+  - name: sl_clock_manager

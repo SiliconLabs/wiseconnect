@@ -29,8 +29,15 @@
  ******************************************************************************/
 
 #include "sl_si91x_usart.h"
+#ifdef USART_MODULE
 #include "sl_si91x_usart_config.h"
-
+#endif
+#ifdef UART_MODULE
+#include "sl_si91x_uart_config.h"
+#endif
+#ifdef ULP_UART_MODULE
+#include "sl_si91x_ulp_uart_config.h"
+#endif
 /*******************************************************************************
  ***************************  LOCAL MACROS   ********************************
  ******************************************************************************/
@@ -264,11 +271,6 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle)
     sl_si91x_usart_unregister_event_callback();
     // Unregister user callback for multiple instance
     sl_si91x_usart_multiple_instance_unregister_event_callback(usart_instance);
-    // Power off the USART module
-    status = sli_si91x_usart_set_power_mode(usart_handle, SL_POWER_OFF);
-    if (status != SL_STATUS_OK) {
-      return status;
-    }
     //Deinit the USART/UART
     error_status = ((sl_usart_driver_t *)usart_handle)->Uninitialize();
     status       = convert_arm_to_sl_error_code(error_status);
@@ -668,6 +670,7 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
    * and change the peripheral configuration through the sl_si91x_usart_set_configuration API.
    */
   do {
+
 #if (USART_UC == 1)
     // Get the USART Instance
     uart_instance = get_usart_instance(usart_handle);
@@ -675,17 +678,27 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
     if (uart_instance == USART_0) {
       control_config[uart_instance] = usart_configuration;
     }
+    *control_configuration = control_config[uart_instance];
+#endif
+#if (UART_UC == 1)
+    // Get the USART Instance
+    uart_instance = get_usart_instance(usart_handle);
     // if usart intance is UART_1 , update uart1 config  from UC
     if (uart_instance == UART_1) {
       control_config[uart_instance] = uart1_configuration;
     }
+    *control_configuration = control_config[uart_instance];
+#endif
+#if (ULP_UART_UC == 1)
+    // Get the USART Instance
+    uart_instance = get_usart_instance(usart_handle);
     // if usart intance is  ULPUART, update ulp uart config  from UC
     if (uart_instance == ULPUART) {
       control_config[uart_instance] = ulp_uart_configuration;
     }
-
     *control_configuration = control_config[uart_instance];
 #endif
+
     // Check USART handle and control_configuration parameter, if NULL return from here
     if ((usart_handle == NULL) || (control_configuration == NULL)) {
       status = SL_STATUS_NULL_POINTER;

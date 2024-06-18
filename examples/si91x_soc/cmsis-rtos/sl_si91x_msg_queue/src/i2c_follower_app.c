@@ -23,6 +23,9 @@
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "cmsis_os2.h"
+#include "sl_si91x_gpio.h"
+#include "sl_si91x_driver_gpio.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -53,6 +56,18 @@
 #define I2C_FAST_MODE_CLOCK_FREQUENCY        (32000000u) // clock frequency for i2c Fast mode
 #define I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY   (80000000u) // clock frequency for i2c fast plus mode
 #define I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY  (80000000u) // clock frequency for i2c high speed mode
+#define ULP_PORT                             4           // GPIO ULP port
+#define ULP_MODE                             6           // ULP GPIO mode
+#define MAX_GPIO                             64          // maximum GPIO pins
+#define OUTPUT                               1           // Output value set
+#define HOST_MIN                             24          // GPIO host pad minimum pin number
+#define HOST_MAX                             31          // GPIO host pad maximum pin number
+
+#if ((I2C_INSTANCE_USED == INSTANCE_ZERO) || (I2C_INSTANCE_USED == INSTANCE_ONE))
+#define SOC_PLL_CLK ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
+#define SOC_PLL_CLK ((uint32_t)(32000000)) // 32MHz default SoC PLL Clock as source to Processor for ULP instance
+#endif
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -119,6 +134,7 @@ static void i2c_clock_init(I2C_TypeDef *i2c);
 static void compare_data(void);
 static void handle_follower_transmit_irq(void);
 static void handle_follower_receive_irq(void);
+static void default_clock_configuration(void);
 
 /*******************************************************************************
  *************************** GLOBAL VARIABLES   *******************************
@@ -128,6 +144,12 @@ extern osMessageQueueId_t mid_usart_msg_queue; // message queue id
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+}
 /*******************************************************************************
  * I2C example initialization function
  ******************************************************************************/
@@ -135,32 +157,13 @@ void i2c_follower_example_init(void)
 {
   i2c_clock_init(I2C);
   sl_i2c_init_params_t config;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   // Filling the structure with default values.
   config.clhr = SL_I2C_STANDARD_BUS_SPEED;
-  if (config.clhr == SL_I2C_STANDARD_BUS_SPEED) {
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-    RSI_CLK_SetSocPllFreq(M4CLK, I2C_STANDARD_MODE_CLOCK_FREQUENCY, REFERENCE_CLOCK_FREQUENCY);
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-    config.freq = I2C_STANDARD_MODE_CLOCK_FREQUENCY;
-  }
-  if (config.clhr == SL_I2C_FAST_BUS_SPEED) {
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-    RSI_CLK_SetSocPllFreq(M4CLK, I2C_FAST_MODE_CLOCK_FREQUENCY, REFERENCE_CLOCK_FREQUENCY);
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-    config.freq = I2C_FAST_MODE_CLOCK_FREQUENCY;
-  }
-  if (config.clhr == SL_I2C_FAST_PLUS_BUS_SPEED) {
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-    RSI_CLK_SetSocPllFreq(M4CLK, I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY, REFERENCE_CLOCK_FREQUENCY);
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-    config.freq = I2C_FAST_PLUS_MODE_CLOCK_FREQUENCY;
-  }
-  if (config.clhr == SL_I2C_HIGH_BUS_SPEED) {
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-    RSI_CLK_SetSocPllFreq(M4CLK, I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY, HIGH_SPEED_REFERENCE_CLOCK_FREQUENCY);
-    RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-    config.freq = I2C_HIGH_SPEED_MODE_CLOCK_FREQUENCY;
-  }
+  sl_si91x_clock_manager_m4_get_core_clk_src_freq(&config.freq);
   config.mode = SL_I2C_FOLLOWER_MODE;
   // Passing the structure and i2c instance for the initialization.
   sl_si91x_i2c_init(I2C, &config);
@@ -386,75 +389,47 @@ static void i2c_clock_init(I2C_TypeDef *i2c)
  ******************************************************************************/
 static void pin_configurations(void)
 {
-#if (I2C_INSTANCE == 0)
-#ifndef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
-  //SCL
-  RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(scl.pin - HP_MAX_GPIO));
-  RSI_EGPIO_SetPinMux(EGPIO1, PORT_ZERO, (uint8_t)(scl.pin - HP_MAX_GPIO), PINMUX_MODE);
-  RSI_EGPIO_PadSelectionEnable(scl.pad_sel);
-  //configure DIN0 pin
-  RSI_EGPIO_SetPinMux(EGPIO, scl.port, scl.pin, scl.mode);
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-  // Configuring internal pullup for follower mode
-  egpio_ulp_pad_driver_disable_state(ULP_GPIO_SCL, INTERNAL_PULLUP);
+#if (I2C_INSTANCE == 0) || (I2C_INSTANCE == 1)
+  if (scl.pin >= MAX_GPIO) {
+    sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(scl.pin - MAX_GPIO));
+    sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(scl.pin - MAX_GPIO), ULP_MODE, OUTPUT);
+    sl_si91x_gpio_select_ulp_pad_driver_disable_state((scl.pin) - MAX_GPIO, GPIO_PULLUP);
+  } else {
+    sl_si91x_gpio_enable_pad_receiver(scl.pin);
+    sl_si91x_gpio_select_pad_driver_disable_state((uint8_t)(scl.pin), GPIO_PULLUP);
+  }
+  if (scl.pin >= HOST_MIN && scl.pin <= HOST_MAX) {
+    sl_si91x_gpio_enable_pad_selection(scl.pin);
+  } else {
+    sl_si91x_gpio_enable_pad_selection(scl.pad_sel);
+  }
+  sl_gpio_set_pin_mode(scl.port, scl.pin, scl.mode, OUTPUT);
+  // for sda
+  if (sda.pin >= MAX_GPIO) {
+    sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(sda.pin - MAX_GPIO));
+    sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(sda.pin - MAX_GPIO), ULP_MODE, OUTPUT);
+  } else {
+    sl_si91x_gpio_enable_pad_receiver(sda.pin);
+    sl_gpio_set_pin_mode(sda.port, sda.pin, sda.mode, OUTPUT);
+  }
+  if (sda.pin >= HOST_MIN && sda.pin <= HOST_MAX) {
+    sl_si91x_gpio_enable_pad_selection(sda.pin);
+  } else {
+    sl_si91x_gpio_enable_pad_selection(sda.pad_sel);
+  }
+  sl_si91x_gpio_select_pad_driver_disable_state((uint8_t)(sda.pin), GPIO_PULLUP);
 #endif
-  //SDA
-  RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(sda.pin - HP_MAX_GPIO));
-  RSI_EGPIO_SetPinMux(EGPIO1, PORT_ZERO, (uint8_t)(sda.pin - HP_MAX_GPIO), PINMUX_MODE);
-  RSI_EGPIO_PadSelectionEnable(sda.pad_sel);
-  //configure DIN0 pin
-  RSI_EGPIO_SetPinMux(EGPIO, sda.port, sda.pin, sda.mode);
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-  // Configuring internal pullup for follower mode
-  egpio_ulp_pad_driver_disable_state(ULP_GPIO_SDA, INTERNAL_PULLUP);
-#endif
-#else
-  RSI_EGPIO_PadSelectionEnable(scl.pad_sel);
-  RSI_EGPIO_PadReceiverEnable(scl.pin);
-  RSI_EGPIO_SetPinMux(EGPIO, scl.port, scl.pin, scl.mode);
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-  egpio_pad_driver_disable_state(scl.pin, INTERNAL_PULLUP);
-#endif
-  //SDA
-  RSI_EGPIO_PadSelectionEnable(sda.pad_sel);
-  RSI_EGPIO_PadReceiverEnable(sda.pin);
-  RSI_EGPIO_SetPinMux(EGPIO, sda.port, sda.pin, sda.mode);
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-  egpio_pad_driver_disable_state(sda.pin, INTERNAL_PULLUP);
-#endif
-#endif
-#endif // I2C_INSTANCE 0
-
-#if (I2C_INSTANCE == 1)
-  //SCL
-  RSI_EGPIO_PadSelectionEnable(scl.pad_sel);
-  RSI_EGPIO_PadReceiverEnable(scl.pin);
-  RSI_EGPIO_SetPinMux(EGPIO, scl.port, scl.pin, scl.mode);
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-  egpio_pad_driver_disable_state(scl.pin, INTERNAL_PULLUP);
-#endif
-  //SDA
-  RSI_EGPIO_PadSelectionEnable(sda.pad_sel);
-  RSI_EGPIO_PadReceiverEnable(sda.pin);
-  RSI_EGPIO_SetPinMux(EGPIO, sda.port, sda.pin, sda.mode);
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-  egpio_pad_driver_disable_state(sda.pin, INTERNAL_PULLUP);
-#endif
-#endif // I2C_INSTANCE 1
 
 #if (I2C_INSTANCE == 2)
   // SCL
-  RSI_EGPIO_UlpPadReceiverEnable(scl.pin);
-  RSI_EGPIO_SetPinMux(EGPIO1, scl.port, scl.pin, scl.mode);
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-  egpio_ulp_pad_driver_disable_state(scl.pin, INTERNAL_PULLUP);
-#endif
+  sl_si91x_gpio_enable_ulp_pad_receiver((uint8_t)(scl.pin));
+  sl_gpio_set_pin_mode(ULP_PORT, (uint8_t)(scl.pin), scl.mode, OUTPUT);
+  sl_si91x_gpio_select_ulp_pad_driver_disable_state((uint8_t)(scl.pin), GPIO_PULLUP);
   // SDA
   RSI_EGPIO_UlpPadReceiverEnable(sda.pin);
   RSI_EGPIO_SetPinMux(EGPIO1, sda.port, sda.pin, sda.mode);
-#if defined(SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH)
-  egpio_ulp_pad_driver_disable_state(sda.pin, INTERNAL_PULLUP);
-#endif
+  sl_si91x_gpio_select_ulp_pad_driver_disable_state((uint8_t)(sda.pin), GPIO_PULLUP);
+
 #endif // I2C_INSTANCE 2
 }
 

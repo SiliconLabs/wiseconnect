@@ -32,6 +32,7 @@
 #include "sl_si91x_watchdog_timer.h"
 #include "rsi_debug.h"
 #include "sl_si91x_led.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -46,10 +47,13 @@
 #define SL_WDT_SYSTEM_RESET_TIME 17            // WDT System Reset Time for 4 seconds
 #define SL_WDT_WINDOW_TIME       0             // WDT Window Time for 0.0325 milli-seconds
 
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 void on_timeout_callback(void);
+static void default_clock_configuration(void);
 
 /*******************************************************************************
  **********************  Local variables   *************************************
@@ -61,6 +65,16 @@ static bool wdt_stop_flag          = false;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 void watchdog_timer_example_init(void)
 {
   sl_status_t status;
@@ -75,6 +89,10 @@ void watchdog_timer_example_init(void)
   uint8_t new_interrupt_time;
   uint8_t new_sys_rst_time;
   uint8_t new_window_time;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   // Toggles LED0 once
   sl_si91x_led_toggle(RTE_LED0_PIN);
   DEBUGOUT("In Main..!\r\n");

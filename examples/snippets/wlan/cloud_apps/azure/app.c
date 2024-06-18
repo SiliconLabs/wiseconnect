@@ -59,10 +59,7 @@
 #include "transport_tls_socket.h"
 
 //! Certificates to be loaded
-#ifdef democonfigDEVICE_SYMMETRIC_KEY
-#include "silabs_client_cert.pem.h"
-#include "silabs_client_key.pem.h"
-#else
+#ifndef democonfigDEVICE_SYMMETRIC_KEY
 #include "mydevkitcertificate.pem.h"
 #include "mydevkitkey.pem.h"
 #endif
@@ -329,7 +326,7 @@ sl_status_t load_certificates_in_flash(void)
 {
   sl_status_t status;
 
-  // Load SSL CA certificate
+  // Load TLS CA Certificate
   status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(CERTIFICATE_INDEX),
                                  SL_NET_SIGNING_CERTIFICATE,
                                  silabs_dgcert_ca,
@@ -341,27 +338,21 @@ sl_status_t load_certificates_in_flash(void)
   printf("\r\nLoading TLS CA certificate at index %d Successful\r\n", CERTIFICATE_INDEX);
 
 #ifdef democonfigDEVICE_SYMMETRIC_KEY
-  // Load SSL Client certificate
-  status = sl_net_set_credential(SL_NET_TLS_CLIENT_CREDENTIAL_ID(CERTIFICATE_INDEX),
-                                 SL_NET_CERTIFICATE,
-                                 silabs_client_cert,
-                                 sizeof(silabs_client_cert) - 1);
+  // Clear TLS Client certificate
+  status = sl_si91x_delete_credential(SL_NET_TLS_CLIENT_CREDENTIAL_ID(CERTIFICATE_INDEX), SL_NET_CERTIFICATE);
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading TLS certificate in to FLASH failed, Error Code : 0x%lX\r\n", status);
+    printf("\r\nTLS client certificate location not cleared, Error Code : 0x%lX\r\n", status);
     return status;
   }
-  printf("\r\nLoading TLS Client certificate at index %d Successful\r\n", CERTIFICATE_INDEX);
+  printf("\r\nTLS Client certificate at index %d cleared successfully\r\n", CERTIFICATE_INDEX);
 
-  // Load SSL Client private key
-  status = sl_net_set_credential(SL_NET_TLS_CLIENT_CREDENTIAL_ID(CERTIFICATE_INDEX),
-                                 SL_NET_PRIVATE_KEY,
-                                 silabs_client_key,
-                                 sizeof(silabs_client_key) - 1);
+  // Clear TLS Client private key
+  status = sl_si91x_delete_credential(SL_NET_TLS_CLIENT_CREDENTIAL_ID(CERTIFICATE_INDEX), SL_NET_PRIVATE_KEY);
   if (status != SL_STATUS_OK) {
-    printf("\r\nLoading TLS Client private key in to FLASH Failed, Error Code : 0x%lX\r\n", status);
+    printf("\r\nTLS Client private key location not cleared, Error Code : 0x%lX\r\n", status);
     return status;
   }
-  printf("\r\nLoading TLS Client private key at index %d Successful\r\n", CERTIFICATE_INDEX);
+  printf("\r\nTLS Client private key at index %d cleared successfully\r\n", CERTIFICATE_INDEX);
 #else
   // Load SSL Client certificate
   status = sl_net_set_credential(SL_NET_TLS_CLIENT_CREDENTIAL_ID(CERTIFICATE_INDEX),

@@ -23,6 +23,8 @@ include:
 provides:
   - name: rsilib_board
   - name: wiseconnect_platform_soc_mode
+requires:
+  - name: romdriver_egpio
 define:
   - name: SRAM_BASE
     value: "0x0cUL"

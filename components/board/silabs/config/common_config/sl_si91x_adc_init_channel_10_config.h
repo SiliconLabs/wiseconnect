@@ -57,27 +57,7 @@ extern "C" {
 // </h>
 // <<< end of configuration section >>>
 
-// <<< sl:start pin_tool >>>
-// <adc signal=P10> SL_ADC
-// $[ADC_SL_ADC]
-#ifndef SL_ADC_PERIPHERAL
-#define SL_ADC_PERIPHERAL ADC
-#endif
-
-// ADC P10 on ULP_GPIO_1/GPIO_65
-#ifndef SL_ADC_P10_PORT
-#define SL_ADC_P10_PORT 1
-#endif
-#ifndef SL_ADC_P10_PIN
-#define SL_ADC_P10_PIN 1
-#endif
-#ifndef SL_ADC_P10_LOC
-#define SL_ADC_P10_LOC 10
-#endif
-// [ADC_SL_ADC]$
-// <<< sl:end pin_tool >>>
-
-#define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL SL_ADC_P10_LOC
+#define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL 0
 #define SL_ADC_CHANNEL_10_NEG_INPUT_CHNL_SEL 8
 
 #ifdef __cplusplus

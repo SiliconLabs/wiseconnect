@@ -21,3 +21,6 @@ requires:
   - name: rsilib_udma
   - name: romdriver_romtable_headers
   - name: udma_linker_config
+template_contribution:
+  - name: udma_in_ram
+    value: 1

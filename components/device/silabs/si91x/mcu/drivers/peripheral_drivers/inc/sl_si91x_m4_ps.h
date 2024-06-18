@@ -22,6 +22,7 @@
 #include "rsi_debug.h"
 #endif
 #ifdef SLI_SI91X_MCU_INTERFACE
+#include "FreeRTOSConfig.h"
 #include "rsi_rtc.h"
 #include "rsi_m4.h"
 #include "rsi_ds_timer.h"
@@ -37,9 +38,6 @@
 //! set handshake type of power mode
 #define RSI_HAND_SHAKE_TYPE     M4_BASED
 #define WIRELESS_WAKEUP_IRQ_PRI 8
-#define portNVIC_SHPR3_REG      (*((volatile uint32_t *)0xe000ed20))
-#define portNVIC_PENDSV_PRI     (((uint32_t)(0x3f << 4)) << 16UL)
-#define portNVIC_SYSTICK_PRI    (((uint32_t)(0x3f << 4)) << 24UL)
 
 // -----------------------------------------------------------------------------
 // Prototypes
@@ -49,11 +47,11 @@
  * @param[in]  none
  * @return    none.
  * @section description
- * This function is used to trigger sleep in the M4 and in the case of the retention submitting the buffer valid
- * to the TA for the rx packets.
+ * This function is used to trigger sleep in the M4 and in the case of the
+ * retention submitting the buffer valid to the TA for the rx packets.
  */
 void sl_si91x_m4_sleep_wakeup(void);
-
+void sl_si91x_pre_supress_ticks_and_sleep(uint32_t *xExpectedIdleTime);
 /**
  * @fn           initialize_m4_alarm.
  * @brief        This function is to initialize Alarm block .
@@ -62,6 +60,7 @@ void sl_si91x_m4_sleep_wakeup(void);
  */
 void initialize_m4_alarm(void);
 void IRQ026_Handler();
+void vPortSetupTimerInterrupt(void);
 
 void wakeup_source_config(void);
 #endif /* SLI_SI91X_MCU_INTERFACE */

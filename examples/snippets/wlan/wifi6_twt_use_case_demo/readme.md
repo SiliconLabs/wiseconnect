@@ -1,4 +1,4 @@
-# Wi-Fi - TWT Use case demo app
+# Wi-Fi - TWT Use Case Demo App
 
 - [Purpose/Scope](#purposescope)
 - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
@@ -30,14 +30,11 @@ This application is designed to be used in combination with **TWT Use Case Remot
 
 - Windows PC
 - Wi-Fi Access Point with 11ax and TWT responder mode support.
-- PC2 (Remote PC) with TCP server application (iperf)
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -57,7 +54,11 @@ This application is designed to be used in combination with **TWT Use Case Remot
 
 ### Setup Diagram
 
-  ![Figure: Setup Diagram for SoC mode TWT use_case demo Example](resources/readme/twt_tcp_client_udp_client_soc_ncp.png)
+**SoC**
+![Figure: Setup Diagram for TWT Use Case Remote AppExample: SoC](resources/readme/twt_tcpandudpclient_soc.png) 
+ 
+ **NCP**
+![Figure: Setup Diagram for TWT Use Case Remote AppExample: SoC](resources/readme/twt_tcpclient_udp_client_ncp.png) 
 
 ## Getting Started
 
@@ -75,6 +76,17 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 The application can be configured to suit your requirements and development environment.
 
 ### Configure the application
+
+- This application is designed to be used in combination with **TWT Use Case Remote App** Application. These two applications simulate Door lock and Camera like data transfer scenarios. It can be configured to suit your requirements and development environment.
+Read through the following sections and make any changes needed. 
+
+  - In the camera scenario, the remote app (Device A) sends a command to the Device Under Test (DUT, Device B). Device B responds with UDP data, simulating camera streaming.
+
+  - In the door lock scenario, upon receiving a command from Device A, Device B sends a TCP response, simulating a door lock status response.
+
+  - Device A operates as TCP server, periodically sending commands to Device B and awaiting a TCP/UDP response, depending on the scenario.
+
+  - Device B functions as a TCP client and, if the DOOR_LOCK_SIMULATION macro is disabled for the camera scenario, also as a UDP client.
 
 - Configure the SiWx91x as a TCP client and start a TCP server on the remote side APP. 
 In general, it is advisable to start the server before the client since the client will immediately begin to try to connect to the server.
@@ -102,17 +114,6 @@ In general, it is advisable to start the server before the client since the clie
     ```
 
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
-
-- This application is designed to be used in combination with **TWT Use Case Remote App** Application. These two applications simulate Door lock and Camera like data transfer scenarios. It can be configured to suit your requirements and development environment.
-Read through the following sections and make any changes needed. 
-
-  - In Camera scenario, remote application (say Device A) sends a command to the DUT (device where TWT Use Case Demo Application is running. Say Device B). Upon receiving the command (from Device A), DUT sends UDP data(equivalent to camera streaming) in response to the remote application's trigger.
-
-  - In Door Lock scenario, upon receiving the command (from Device A), DUT (Device B) sends a TCP response (equivalent to door lock status response) to the remote application (Device B).
-
-  - To support above scenarios, this app brings up Si91x module as a TCP client. It also brings up UDP client in addition to TCP client if SEND_TCP_DATA macro is disabled.
-
-  - Also on other end, device A creates TCP server to listen for connections and trigger command (to device B) periodically. After transmitting command, device A waits for TCP/UDP response based on the use case being executed. Device B remains in sleep until it receives a command from the Remote Application (device A). 
 
   - Number of packets to send or receive
 
@@ -144,12 +145,12 @@ Read through the following sections and make any changes needed.
     #define SERVER_IP_ADDRESS_UDP "192.168.50.136"
     ```
 
-  - For Doorlock scenario, enable **SEND_TCP_DATA** macro. In this mode, DUT is a TCP client that connects to the TCP server of the end user application and does TCP Tx on trigger.
+  - For Doorlock scenario, enable **DOOR_LOCK_SIMULATION** macro. In this mode, DUT is a TCP client that connects to the TCP server of the end user application and does TCP Tx on trigger.
 
-  - For Camera scenario, disable **SEND_TCP_DATA** macro. In this mode, DUT is a both a TCP client and a UDP client. TCP client, to receive command and a UDP client to send UDP data(camera streaming). 
+  - For Camera scenario, disable **DOOR_LOCK_SIMULATION** macro. In this mode, DUT is a both a TCP client and a UDP client. TCP client, to receive command and a UDP client to send UDP data(camera streaming). 
 
     ```c
-    #define SEND_TCP_DATA                             0
+    #define DOOR_LOCK_SIMULATION                             0
     ```
 
 - **Power save configuration**
@@ -346,7 +347,9 @@ To teardown TWT session use the matching TWT teardown API corresponding to the T
 
 - WLAN Keep Alive timeout should not be disabled when sl_wifi_target_wake_time_auto_selection API is used or when unannounced TWT session is set up using sl_wifi_enable_target_wake_time API. It is recommended to use WLAN Keep Alive timeout of 30 sec which is the default timeout even if not configured specifically by the user.
 
-**Soc Mode**:
+## Soc Mode:
+
+### Without Tickless Mode:
 
 The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
@@ -355,8 +358,17 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
   - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
 - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
   - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
+  - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
 - Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
   - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
+
+### Tickless Mode
+
+In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by two methods: SysRTC or a wireless signal.
+
+- **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
+
+- **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
 
 ## Test the application
 

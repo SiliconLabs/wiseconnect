@@ -32,8 +32,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "config_timer_example.h"
 #include "rsi_debug.h"
-#include "rsi_chip.h"
+
+#include "rsi_rom_egpio.h"
 #include "sl_si91x_config_timer.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -55,6 +57,8 @@
 #define CLEAR                 0            // for clearing any value
 #define DELAY_COUNT           10           // delay count value
 
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  GLOBAL variables   ***************************
  ******************************************************************************/
@@ -67,7 +71,7 @@ sl_config_timer_pwm_callback_t pwm_callback;
 static uint32_t CT_PercentageToTicks(uint8_t percent, uint32_t freq);
 #endif
 static void on_config_timer_callback(void *callback_flag);
-
+static void default_clock_configuration(void);
 /*******************************************************************************
  **********************  Local variables   ***************************
  ******************************************************************************/
@@ -86,6 +90,19 @@ sl_counter_number_t counter_used = CT_COUNTER_USED;
 static uint32_t interrupt_count  = INITIAL_VALUE;
 #endif
 /*******************************************************************************
+**************************   GLOBAL FUNCTIONS   *******************************
+******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
+/*******************************************************************************
  * Config-Timer example initialization function
  ******************************************************************************/
 void config_timer_example_init(void)
@@ -100,6 +117,10 @@ void config_timer_example_init(void)
   ct_config.counter1_direction               = SL_COUNTER0_UP;
   ct_config.is_counter1_periodic_enabled     = true;
   ct_config.is_counter1_sync_trigger_enabled = true;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   //Version information of watchdog-timer
   version = sl_si91x_config_timer_get_version();
   DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);

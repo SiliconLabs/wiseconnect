@@ -41,9 +41,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *----------------------------------------------------------*/
 
 #include "si91x_device.h"
-
+#if (SL_SI91X_TICKLESS_MODE == 1)
+#include "sl_si91x_m4_ps.h"
+#endif
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
-
 //  <o>Minimal stack size [words] <0-65535>
 //  <i> Stack for idle task and default task stack in words.
 //  <i> Default: 256
@@ -54,10 +55,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //  <i> Default: 51200
 #define configTOTAL_HEAP_SIZE 51200
 
+#if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
+#if !defined(SL_SI91X_LWIP_CONFIG)
+//  <o>Kernel tick frequency [Hz] <0-0xFFFFFFFF>
+//  <i> Kernel tick rate in Hz.
+//  <i> Default: 1024
+#define configTICK_RATE_HZ 1024
+#else
 //  <o>Kernel tick frequency [Hz] <0-0xFFFFFFFF>
 //  <i> Kernel tick rate in Hz.
 //  <i> Default: 1000
 #define configTICK_RATE_HZ 1000
+#endif // SL_SI91X_LWIP_CONFIG
+#else
+//  <o>Kernel tick frequency [Hz] <0-0xFFFFFFFF>
+//  <i> Kernel tick rate in Hz.
+//  <i> Default: 1000
+#define configTICK_RATE_HZ 1000
+#endif // SL_SI91X_TICKLESS_MODE
 
 //  <o>Timer task stack depth [words] <0-65535>
 //  <i> Stack for timer task in words.
@@ -79,10 +94,38 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //  <i> Default: 1
 #define configUSE_TIME_SLICING 1
 
+#if (SL_SI91X_TICKLESS_MODE == 1)
+//  <q>Use TICKLESS IDLE for Energy Management
+//  <i> Enable setting to use Tickless Idle.
+//  <i> Default: 0
+#define configUSE_TICKLESS_IDLE 1
+#else
 //  <q>Use TICKLESS IDLE for Energy Management
 //  <i> Enable setting to use Tickless Idle.
 //  <i> Default: 0
 #define configUSE_TICKLESS_IDLE 0
+#endif
+
+#if (configUSE_TICKLESS_IDLE == 1)
+
+//  At least "n" further complete tick periods will pass before the kernel is
+//  due to transition an application task out of the Blocked state,
+//  where "n" is set by the configEXPECTED_IDLE_TIME_BEFORE_SLEEP
+#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP 100
+
+//  Define the following macro to set xExpectedIdleTime to 0
+//  if the application prevents the device Sleep
+#define configPRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING(x) sl_si91x_pre_supress_ticks_and_sleep(&x)
+
+//  Activate SiWx917 MCU specific low power functionality
+#define configPRE_SLEEP_PROCESSING(x)
+
+//  It can be used to reverse the actions of configPRE_SLEEP_PROCESSING(),
+//  and in so doing, return the Micro-controller back to its fully operational
+//  state.
+#define configPOST_SLEEP_PROCESSING(x)
+
+#endif
 
 //  <q>Idle should yield
 //  <i> Control Yield behaviour of the idle task.
@@ -97,11 +140,23 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //  <i> Default: 0
 #define configCHECK_FOR_STACK_OVERFLOW 0
 
+#if (configUSE_TICKLESS_IDLE == 1)
+
 //  <q>Use idle hook
 //  <i> Enable callback function call on each idle task iteration.
-//  <i> Callback function vApplicationIdleHook implementation is required when idle hook is enabled.
-//  <i> Default: 0
+//  <i> Callback function vApplicationIdleHook implementation is required when
+//  idle hook is enabled. <i> Default: 0
+#define configUSE_IDLE_HOOK 1
+#endif
+
+#if (configUSE_TICKLESS_IDLE == 0)
+
+//  <q>Use idle hook
+//  <i> Enable callback function call on each idle task iteration.
+//  <i> Callback function vApplicationIdleHook implementation is required when
+//  idle hook is enabled. <i> Default: 0
 #define configUSE_IDLE_HOOK 0
+#endif
 
 //  <q>Use tick hook
 //  <i> Enable callback function call during each tick interrupt.
@@ -244,10 +299,10 @@ standard names. */
 #define xPortPendSVHandler PendSV_Handler
 #define vHardFault_Handler HardFault_Handler
 
+#if (configUSE_TICKLESS_IDLE == 0)
 /* Ensure Cortex-M port compatibility. */
 #define SysTick_Handler xPortSysTickHandler
-//#define xPortSysTickHandler 						SysTick_Handler
-
+#endif
 /* Assert call defined for debug builds. */
 void vAssertCalled(const char *pcFile, uint32_t ulLine);
 

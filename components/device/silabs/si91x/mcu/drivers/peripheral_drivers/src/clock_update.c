@@ -17,20 +17,12 @@
 
 // Include Files
 
-#include "rsi_chip.h"
 #include "clock_update.h"
+#include "rsi_pll.h"
+#include "rsi_power_save.h"
+#include "rsi_ulpss_clk.h"
 
 #ifdef __SYSTICK
-#ifdef SLI_SI91X_ENABLE_OS
-
-// FreeRTOS includes.
-#include "FreeRTOS.h"
-#include "task.h"
-#include "timers.h"
-#include "StackMacros.h"
-
-extern void xPortSysTickHandler(void);
-#endif
 volatile uint32_t _dwTickCount = 0;
 
 /** @addtogroup SOC2
@@ -45,11 +37,6 @@ volatile uint32_t _dwTickCount = 0;
 void SysTick_Handler(void)
 {
   _dwTickCount++;
-#ifdef SLI_SI91X_ENABLE_OS
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    xPortSysTickHandler();
-  }
-#endif
 }
 
 /*==============================================*/

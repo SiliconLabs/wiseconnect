@@ -18,7 +18,7 @@
 // Include files
 
 #include "rsi_ccp_user_config.h"
-#if (defined(ROMDRIVER_PRESENT)) || (defined(SLI_SI917B0))
+#if (defined(PWM_ROMDRIVER_PRESENT)) || (defined(SLI_SI917B0))
 #include "rsi_rom_pwm.h"
 
 #ifdef __cplusplus
@@ -705,4 +705,4 @@ void mcpwm_interrupt_handler(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_CALLBACK_T *pCallBac
 #endif
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif
+#endif // PWM_ROMDRIVER_PRESENT

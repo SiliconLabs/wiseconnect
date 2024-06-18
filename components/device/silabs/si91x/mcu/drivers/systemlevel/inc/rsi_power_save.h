@@ -190,15 +190,25 @@ extern "C" {
 #define ULP_M4_CORE_CLK_ENABLE BIT(2)
 
 /*NPSS INTERRUPT */
-#define NPSS_INTR_BASE         0x12080000
+#ifndef NPSS_INTR_BASE
+#define NPSS_INTR_BASE 0x12080000
+#endif // NPSS_INTR_BASE
+#ifndef NPSS_INTR_MASK_SET_REG
 #define NPSS_INTR_MASK_SET_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x00))
+#endif // NPSS_INTR_MASK_SET_REG
+#ifndef NPSS_INTR_MASK_CLR_REG
 #define NPSS_INTR_MASK_CLR_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x04))
-#define NPSS_INTR_CLEAR_REG    (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x08))
-#define NPSS_INTR_STATUS_REG   (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x0C))
-#define M4_ULP_SLP_STATUS_REG  (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x1C))
-#define MCU_ULP_WAKEUP         BIT(0) /*	To check whether it is first boot up or Wake up */
-#define NWPAON_POR_CTRL_BITS   *(volatile uint32_t *)(0x41300000 + 0x3C)
-#define POC_CNTRL_REG_0        BIT(0)
+#endif // NPSS_INTR_MASK_CLR_REG
+#ifndef NPSS_INTR_CLEAR_REG
+#define NPSS_INTR_CLEAR_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x08))
+#endif // NPSS_INTR_CLEAR_REG
+#ifndef NPSS_INTR_STATUS_REG
+#define NPSS_INTR_STATUS_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x0C))
+#endif // NPSS_INTR_STATUS_REG
+#define M4_ULP_SLP_STATUS_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x1C))
+#define MCU_ULP_WAKEUP        BIT(0) /*	To check whether it is first boot up or Wake up */
+#define NWPAON_POR_CTRL_BITS  *(volatile uint32_t *)(0x41300000 + 0x3C)
+#define POC_CNTRL_REG_0       BIT(0)
 
 /*NPSS interrupt numbers*/
 #define NPSS_TO_MCU_WDT_INTR    BIT(0)
@@ -311,6 +321,9 @@ typedef enum SHUT_DOWN_WKP_MODE {
   NPSS_GPIO_2_AND_3_BASED = 2,
   NPSS_GPIO_2_OR_3_BASED  = 3,
 } SHUT_DOWN_WKP_MODE_T;
+
+/// @brief Peri efuse power state
+typedef enum { POWER_DOWN, POWER_UP } peri_efuse_power_state_t;
 
 /*m4ss context switch top ULP mode selection */
 typedef enum ULP_MODE { ULP_MCU_MODE = 1, UULP_MCU_MODE = 3 } ULP_MODE_T;
@@ -761,6 +774,24 @@ STATIC INLINE void RSI_PS_M4ssPeriPowerDown(uint32_t mask)
 STATIC INLINE void RSI_PS_M4ssPeriPowerUp(uint32_t mask)
 {
   BATT_FF->M4SS_PWRCTRL_SET_REG = mask;
+}
+
+/**
+ * @fn            STATIC INLINE void sl_si91x_peri_efuse_power_control(bool power_up)
+ * @brief         This API is used to power gate the PERI_EFUSE power domain, This power domain contains the different M4SS peripherals those are
+ *                SPI/SSI Master, I2C, USART, Micro-DMA Controller,  UART, SPI/SSI Slave, Generic-SPI Master, Config Timer, Random-Number Generator,
+ *                CRC Accelerator, SIO, I2C, I2S Master/Slave, QEI, MCPWM ,EFUSE and MVP
+ * @param[in]     power_up   1 - Power Up the EFUSE Peri Power domain
+ *                           0 - Power Down the EFUSE Peri power domain
+ * @return    none
+ */
+STATIC INLINE void sl_si91x_peri_efuse_power_state_control(peri_efuse_power_state_t power_up)
+{
+  if (power_up) {
+    RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
+  } else {
+    RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
+  }
 }
 
 /**

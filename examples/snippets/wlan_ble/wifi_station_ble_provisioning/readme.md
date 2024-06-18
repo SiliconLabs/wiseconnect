@@ -45,18 +45,18 @@ SiWx91x is configured as a WiFi station and connects to an Access Point.
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 
 - Wireless Access point
-- Android Phone or iPhone with **EFR Connect** App, which is available in Play Store and App Store.
+- Android Phone or iPhone with **Simplicity Connect App(formerly EFR Connect App)** App, which is available in Play Store and App Store.
 - Windows PC with windows Silicon labs connect application.
 
 ### Software Requirements
 
 - Simplicity Studio
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 
 ### Setup Diagram
 
- - WLAN Station BLE Provisioning with Android EFR Connect App 
+ - WLAN Station BLE Provisioning with Android Simplicity Connect App(formerly EFR Connect App) 
   ![](resources/readme/image279wsbpa_soc_ncp.png)
 
 - WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
@@ -140,13 +140,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ###  Steps to verify the WLAN Station BLE Provisioning Example
 
- Steps to be followed to verify WLAN Station BLE Provisioning with Android **EFR Connect** App
+ Steps to be followed to verify WLAN Station BLE Provisioning with Android **Simplicity Connect App(formerly EFR Connect App)** App
 
 1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK/WPA3 mode to connect the SiWx91x in STA mode.
 
 2. Connect any serial console for prints.
 
-3. When SiWx91x EVK enters BLE advertising mode, launch the **EFR Connect** App.
+3. When SiWx91x EVK enters BLE advertising mode, launch the **Simplicity Connect App(formerly EFR Connect App)** App.
 
 4. Click on Demo and select Wifi-Commissioning tile.
 

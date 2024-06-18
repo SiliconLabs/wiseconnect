@@ -115,8 +115,9 @@ typedef enum {
 typedef enum {
   SL_SI91X_AUTHENTICATION_ASSOCIATION_TIMEOUT =
     0, ///< Used for setting association and authentication timeout request in millisecs
-  SL_SI91X_CHANNEL_ACTIVE_SCAN_TIMEOUT, ///< Used for setting active scan time for per channel in millisecs
-  SL_SI91X_KEEP_ALIVE_TIMEOUT           ///< Used for setting WLAN keep alive time in seconds
+  SL_SI91X_CHANNEL_ACTIVE_SCAN_TIMEOUT, ///< Used for setting dwell time per channel in milli seconds during active scan
+  SL_SI91X_KEEP_ALIVE_TIMEOUT,          ///< Used for setting WLAN keep alive time in seconds
+  SL_SI91X_CHANNEL_PASSIVE_SCAN_TIMEOUT ///< Used for setting dwell time per channel in milli seconds during passive scan
 } sl_si91x_timeout_type_t;
 
 /// Si91x Wi-Fi VAP ID
@@ -150,6 +151,8 @@ typedef struct {
     auth_assoc_timeout_value; ///< Authentication and association timeout value. Default value of 300 millisecs is used when SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT is passed.
   uint16_t
     keep_alive_timeout_value; ///< Keep Alive Timeout value. Default value of 30 secs is used when SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT is passed
+  uint16_t
+    passive_scan_timeout_value; ///<Time spent on each channel when performing passive scan (milliseconds). The minimum passive_scan_timeout_value is 5 millisecs and maximum is 1000 millisecs. Default value of 400 millisecs is used when SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME is passed.
 } sl_si91x_timeout_t;
 
 /// Si917 specific Wi-Fi module state statistics
@@ -163,6 +166,38 @@ typedef struct {
   uint8_t bssid[6];    ///< BSSID
 } sl_si91x_module_state_stats_response_t;
 #pragma pack()
+
+/// Firmware version information
+typedef struct {
+  uint8_t build_num;        ///< Build number
+  uint8_t security_version; ///< Security enabled or disabled
+  uint8_t minor;            ///< Minor version number
+  uint8_t major;            ///< Major version number
+} sl_si91x_fw_version_info_t;
+
+/// Firmware version extended information
+typedef struct {
+  uint8_t patch_num;                  ///< Patch number
+  uint8_t customer_id : 4;            ///< Customer ID
+  uint8_t build_number_extension : 4; ///< Build number extension
+  uint8_t rom_id;                     ///< ROM ID
+  uint8_t chip_id;                    ///< Chip ID
+} sl_si91x_fw_version_ext_info_t;
+
+/// Firmware header information
+typedef struct {
+  uint16_t control_flags;                             ///< Control flags
+  uint16_t sha_type;                                  ///< SHA type
+  uint32_t magic_no;                                  ///< Firmware image magic byte
+  uint32_t image_size;                                ///< Size of firmware image
+  sl_si91x_fw_version_info_t fw_version_info;         ///< Firmware version information
+  uint32_t flash_location;                            ///< Address location in flash to store the image
+  uint32_t crc;                                       ///< CRC of the image
+  uint32_t mic[4];                                    ///< MIC of the image
+  uint32_t reserved;                                  ///< Reserved
+  sl_si91x_fw_version_ext_info_t fw_version_ext_info; ///< Firmware version extended information
+  uint32_t reserved1[4];                              ///< Reserved
+} sl_si91x_firmware_header_t;
 
 /** @} */
 

@@ -35,8 +35,11 @@
 // <<< Use Configuration Wizard in Context Menu >>>
 
 // <e>WatchDog Timer UC Configuration
-//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
-//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_watchdog_set_configuration API to modify the peripheral configuration.
+//  <i> Enable: Peripheral configuration is taken straight from the
+//  configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the
+//  sl_si91x_watchdog_set_configuration API to modify the peripheral
+//  configuration.
 //  <i> Default: 1
 #define WDT_TIMER_UC 1
 
@@ -56,8 +59,6 @@
 // <h>Watchdog Timer Configuration
 
 // <o SL_WDT_SYSTEM_RESET_TIME> System-reset time
-//   <TIME_DELAY_0=> 0.03125 ms
-//   <TIME_DELAY_1=> 0.0625 ms
 //   <TIME_DELAY_2=> 0.125 ms
 //   <TIME_DELAY_3=> 0.25 ms
 //   <TIME_DELAY_4=> 0.5 ms
@@ -92,7 +93,6 @@
 #define SL_WDT_SYSTEM_RESET_TIME TIME_DELAY_17
 
 // <o SL_WDT_INTERRUPT_TIME> Interrupt Time
-//   <TIME_DELAY_0=> 0.03125 ms
 //   <TIME_DELAY_1=> 0.0625 ms
 //   <TIME_DELAY_2=> 0.125 ms
 //   <TIME_DELAY_3=> 0.25 ms

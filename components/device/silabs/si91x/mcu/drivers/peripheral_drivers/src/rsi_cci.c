@@ -18,7 +18,7 @@
 // Include Files
 
 #if defined(CHIP_9118)
-#include "rsi_chip.h"
+
 /*==============================================*/
 /** 
  * @fn      void RSI_CCI_AmsEnable() 

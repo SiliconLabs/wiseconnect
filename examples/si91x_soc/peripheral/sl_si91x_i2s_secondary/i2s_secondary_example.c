@@ -18,16 +18,18 @@
 #include "sl_si91x_i2s_config.h"
 #include "i2s_secondary_example.h"
 #include "rsi_debug.h"
-#include "rsi_chip.h"
+#include "rsi_rom_table_si91x.h"
+#include "rsi_rom_clks.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SOC_PLL_REF_FREQUENCY     40000000  // PLL input REFERENCE clock 40MHZ
-#define PS4_SOC_FREQ              180000000 // PLL out clock 180MHz
-#define I2S_SECONDARY_BUFFER_SIZE 1024      // Transmit/Receive buffer size
-#define I2S_INSTANCE              0         // I2S instance
+#define I2S_SECONDARY_BUFFER_SIZE 1024 // Transmit/Receive buffer size
+#define I2S_INSTANCE              0    // I2S instance
 
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -45,9 +47,20 @@ typedef enum { SEND_DATA, RECEIVE_DATA, WAIT_STATE, INVALID_STATE } transfer_sta
 static int32_t clock_configuration_pll(void);
 static void callback_event(uint32_t event);
 static void compare_loop_back_data(void);
+static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 /*******************************************************************************
  * I2S example initialization function
  ******************************************************************************/
@@ -55,6 +68,9 @@ void i2s_example_init(void)
 {
   sl_status_t status;
   sl_i2s_version_t i2s_version;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
 
   // Filling the data out array with integer values
   for (uint32_t i = 0; i < I2S_SECONDARY_BUFFER_SIZE; i++) {
@@ -103,17 +119,17 @@ void i2s_example_init(void)
  ******************************************************************************/
 void i2s_example_process_action(void)
 {
-  static transfer_state_t state = RECEIVE_DATA;
+  static transfer_state_t state = SEND_DATA;
   switch (state) {
     case SEND_DATA:
       //Initialize I2S transfer structure
-      i2s_xfer_config.mode          = SL_I2S_MASTER;
+      i2s_xfer_config.mode          = SL_I2S_SLAVE;
       i2s_xfer_config.protocol      = SL_I2S_PROTOCOL;
-      i2s_xfer_config.resolution    = SL_I2S_RESOLUTION;
-      i2s_xfer_config.sampling_rate = SL_I2S_SAMPLING_RATE;
+      i2s_xfer_config.resolution    = SL_I2S0_RESOLUTION;
+      i2s_xfer_config.sampling_rate = SL_I2S0_SAMPLING_RATE;
       i2s_xfer_config.sync          = SL_I2S_ASYNC;
-      i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE32;
       i2s_xfer_config.transfer_type = SL_I2S_TRANSMIT;
+      i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE16;
       do {
         //Configure transmitter parameters for i2s transfer
         if (sl_si91x_i2s_config_transmit_receive(i2s_driver_handle, &i2s_xfer_config)) {
@@ -139,11 +155,11 @@ void i2s_example_process_action(void)
       //Initialize I2S transfer structure
       i2s_xfer_config.mode          = SL_I2S_SLAVE;
       i2s_xfer_config.protocol      = SL_I2S_PROTOCOL;
-      i2s_xfer_config.resolution    = SL_I2S_RESOLUTION;
-      i2s_xfer_config.sampling_rate = SL_I2S_SAMPLING_RATE;
+      i2s_xfer_config.resolution    = SL_I2S0_RESOLUTION;
+      i2s_xfer_config.sampling_rate = SL_I2S0_SAMPLING_RATE;
       i2s_xfer_config.sync          = SL_I2S_ASYNC;
-      i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE32;
       i2s_xfer_config.transfer_type = SL_I2S_RECEIVE;
+      i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE16;
       do {
         //Configure receiver parameters for i2s transfer
         if (sl_si91x_i2s_config_transmit_receive(i2s_driver_handle, &i2s_xfer_config)) {
@@ -167,15 +183,12 @@ void i2s_example_process_action(void)
 
     case WAIT_STATE:
       if (i2s_secondary_send_complete) {
-        DEBUGOUT("Data send successfully\r\n");
         i2s_secondary_send_complete = 0;
-        sl_si91x_i2s_end_transfer(i2s_driver_handle, SL_I2S_SEND_ABORT);
+        state                       = RECEIVE_DATA;
       }
       if (i2s_secondary_receive_complete) {
-        DEBUGOUT("Data received successfully\r\n");
         compare_loop_back_data();
         i2s_secondary_receive_complete = 0;
-        state                          = SEND_DATA;
       }
       break;
 
@@ -192,25 +205,9 @@ void i2s_example_process_action(void)
  ******************************************************************************/
 static int32_t clock_configuration_pll(void)
 {
-  int32 status;
+  int32 status = 0;
   do {
-    // Configure the PLL frequency
-    status = RSI_CLK_SetSocPllFreq(M4CLK, PS4_SOC_FREQ, SOC_PLL_REF_FREQUENCY);
-    if (status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to configure SOC PLL Clock to 180Mhz,Error Code : %ld\r\n", status);
-      break;
-    }
-    // Switch M4 clock to PLL clock for speed operations
-    status = RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-    if (status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to Set M4 Clock as SOC PLL clock,Error Code : %ld\r\n", status);
-      break;
-    }
-    status = ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK, QSPI_SOCPLLCLK, 0, 0, 0);
-    if (status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to Set QSPI Clock as SOC PLL clock,Error Code : %ld\r\n", status);
-      break;
-    }
+
   } while (false);
   return status;
 }

@@ -42,8 +42,13 @@
 
 #ifndef	_SOCKLEN_T_DEFINED_
 #define	_SOCKLEN_T_DEFINED_
-typedef	uint32_t	__socklen_t;	/* length type for network syscalls */
-typedef	__socklen_t	socklen_t;	/* length type for network syscalls */
+/**
+ * @addtogroup BSD_SOCKET_FUNCTIONS
+ * @{ 
+ */
+typedef	uint32_t	__socklen_t;	///< Length type for network syscalls 
+typedef	__socklen_t	socklen_t;	///< Length type for network syscalls
+/** @} */
 #endif
 
 #ifndef _KERNEL
@@ -59,8 +64,14 @@ typedef	__socklen_t	socklen_t;	/* length type for network syscalls */
 
 #ifndef	_SA_FAMILY_T_DEFINED_
 #define	_SA_FAMILY_T_DEFINED_
-typedef	uint8_t	__sa_family_t;	/* sockaddr address family type */
-typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
+/**
+ * @addtogroup BSD_SOCKET_FUNCTIONS
+ * @{ 
+ */
+typedef	uint8_t	__sa_family_t;	///< sockaddr address family type 
+typedef	__sa_family_t	sa_family_t;	///< sockaddr address family type 
+/** @} */
+
 #endif /* _SA_FAMILY_T_DEFINED_ */
 
 #ifndef _IN_TYPES_DEFINED_
@@ -74,43 +85,48 @@ typedef __in_port_t	in_port_t;	/* IP port type */
 /*
  * Protocols
  */
-#define	IPPROTO_IP			0		/* dummy for IP */
-#define	IPPROTO_HOPOPTS		IPPROTO_IP	/* Hop-by-hop option header */
-#define	IPPROTO_ICMP		1		/* control message protocol */
-#define	IPPROTO_IGMP		2		/* group mgmt protocol */
-#define	IPPROTO_GGP			3		/* gateway^2 (deprecated) */
-#define	IPPROTO_IPIP		4		/* IP inside IP */
-#define	IPPROTO_IPV4		IPPROTO_IPIP	/* IP inside IP */
-#define	IPPROTO_TCP			6		/* tcp */
-#define	IPPROTO_EGP			8		/* exterior gateway protocol */
-#define	IPPROTO_PUP			12		/* pup */
-#define	IPPROTO_UDP			17		/* user datagram protocol */
-#define	IPPROTO_IDP			22		/* xns idp */
-#define	IPPROTO_TP			29		/* tp-4 w/ class negotiation */
-#define	IPPROTO_IPV6		41		/* IPv6 in IPv6 */
-#define	IPPROTO_ROUTING		43		/* Routing header */
-#define	IPPROTO_FRAGMENT	44		/* Fragmentation/reassembly header */
-#define	IPPROTO_RSVP		46		/* resource reservation */
-#define	IPPROTO_GRE			47		/* GRE encap, RFCs 1701/1702 */
-#define	IPPROTO_ESP			50		/* Encap. Security Payload */
-#define	IPPROTO_AH			51		/* Authentication header */
-#define	IPPROTO_MOBILE		55		/* IP Mobility, RFC 2004 */
-#define	IPPROTO_ICMPV6		58		/* ICMP for IPv6 */
-#define	IPPROTO_NONE		59		/* No next header */
-#define	IPPROTO_DSTOPTS		60		/* Destination options header */
-#define	IPPROTO_EON			80		/* ISO cnlp */
-#define	IPPROTO_ETHERIP		97		/* Ethernet in IPv4 */
-#define	IPPROTO_ENCAP		98		/* encapsulation header */
-#define	IPPROTO_PIM			103		/* Protocol indep. multicast */
-#define	IPPROTO_IPCOMP		108		/* IP Payload Comp. Protocol */
-#define	IPPROTO_CARP		112		/* CARP */
-#define	IPPROTO_SCTP		132		/* SCTP, RFC 4960 */
-#define	IPPROTO_UDPLITE		136		/* UDP-Lite, RFC 3828 */
-#define	IPPROTO_MPLS		137		/* unicast MPLS packet */
-#define	IPPROTO_PFSYNC		240		/* PFSYNC */
-#define	IPPROTO_RAW			255		/* raw IP packet */
-
-#define	IPPROTO_MAX			256
+/**
+ * @addtogroup BSD_SOCKET_PROTOCOL Socket Protocol
+ * @ingroup BSD_SOCKET_FUNCTIONS
+ * @{ 
+ */
+#define	IPPROTO_IP			0		///< Dummy for IP 
+#define	IPPROTO_HOPOPTS		IPPROTO_IP	///< Hop-by-hop option header 
+#define	IPPROTO_ICMP		1		///< Control message protocol 
+#define	IPPROTO_IGMP		2		///< Group mgmt protocol 
+#define	IPPROTO_GGP			3		///< Gateway^2 (deprecated) 
+#define	IPPROTO_IPIP		4		///< IP inside IP 
+#define	IPPROTO_IPV4		IPPROTO_IPIP	///< IP inside IP 
+#define	IPPROTO_TCP			6		///< TCP 
+#define	IPPROTO_EGP			8		///< Exterior gateway protocol 
+#define	IPPROTO_PUP			12		///< PUP 
+#define	IPPROTO_UDP			17		///< User datagram protocol 
+#define	IPPROTO_IDP			22		///< XNS IDP 
+#define	IPPROTO_TP			29		///< TP-4 w/ class negotiation 
+#define	IPPROTO_IPV6		41		///< IPv6 in IPv6 
+#define	IPPROTO_ROUTING		43		///< Routing header 
+#define	IPPROTO_FRAGMENT	44		///< Fragmentation/reassembly header 
+#define	IPPROTO_RSVP		46		///< Resource reservation 
+#define	IPPROTO_GRE			47		///< GRE encap, RFCs 1701/1702 
+#define	IPPROTO_ESP			50		///< Encap. Security Payload 
+#define	IPPROTO_AH			51		///< Authentication header 
+#define	IPPROTO_MOBILE		55		///< IP Mobility, RFC 2004 
+#define	IPPROTO_ICMPV6		58		///< ICMP for IPv6 
+#define	IPPROTO_NONE		59		///< No next header 
+#define	IPPROTO_DSTOPTS		60		///< Destination options header 
+#define	IPPROTO_EON			80		///< ISO cnlp 
+#define	IPPROTO_ETHERIP		97		///< Ethernet in IPv4 
+#define	IPPROTO_ENCAP		98		///< Encapsulation header 
+#define	IPPROTO_PIM			103		///< Protocol indep. multicast 
+#define	IPPROTO_IPCOMP		108		///< IP Payload comp. Protocol 
+#define	IPPROTO_CARP		112		///< CARP 
+#define	IPPROTO_SCTP		132		///< SCTP, RFC 4960 
+#define	IPPROTO_UDPLITE		136		///< UDP-Lite, RFC 3828 
+#define	IPPROTO_MPLS		137		///< Unicast MPLS packet 
+#define	IPPROTO_PFSYNC		240		///< PFSYNC 
+#define	IPPROTO_RAW			255		///< Raw IP packet 
+#define	IPPROTO_MAX			256     ///< Maximum protocol value
+/** @} */
 
 /* Only used internally, so it can be outside the range of valid IP protocols */
 #define	IPPROTO_DIVERT		258		/* Divert sockets */
@@ -168,11 +184,11 @@ typedef __in_port_t	in_port_t;	/* IP port type */
 
 #ifndef _IN_ADDR_DECLARED
 #define _IN_ADDR_DECLARED
-/*
+/**
  * IP Version 4 Internet address (a structure for historical reasons)
  */
 struct in_addr {
-	in_addr_t s_addr;
+	in_addr_t s_addr; ///< s_addr
 };
 #endif /* _IN_ADDR_DECLARED */
 
@@ -259,19 +275,18 @@ struct in_addr {
 
 #define	IN_LOOPBACKNET		127			/* official! */
 
-/*
+/**
  * IP Version 4 socket address.
  */
 struct sockaddr_in {
-//	u_int8_t    sin_len;
-	uint8_t	sin_len;
-	sa_family_t sin_family;
-	in_port_t   sin_port;
-	struct	    in_addr sin_addr;
-	int8_t	    sin_zero[8];
+	uint8_t	sin_len; ///< Length
+	sa_family_t sin_family; ///< Socket family
+	in_port_t   sin_port; ///< Socket port
+	struct	    in_addr sin_addr; ///< Socket Address
+	int8_t	    sin_zero[8]; ///< Zeros
 };
 
-/*
+/**
  * Structure used to describe IP options.
  * Used to store options internally, to pass them to a process,
  * or to restore options retrieved earlier.
@@ -279,11 +294,11 @@ struct sockaddr_in {
  * (this gets put into the header proper).
  */
 struct ip_opts {
-	struct in_addr	ip_dst;		/* first hop, 0 w/o src rt */
+	struct in_addr	ip_dst;		///< First hop, 0 w/o src rt 
 #if defined(__cplusplus)
-	int8_t		Ip_opts[40];	/* cannot have same name as class */
+	int8_t		Ip_opts[40];	///< Cannot have same name as class 
 #else
-	int8_t		ip_opts[40];	/* actually variable in size */
+	int8_t		ip_opts[40];	///< Actually variable in size 
 #endif /* defined(__cplusplus) */
 };
 
@@ -361,18 +376,19 @@ struct ip_opts {
 #define	IP_MIN_MEMBERSHIPS	15
 #define	IP_MAX_MEMBERSHIPS	4095
 
-/*
+/**
  * Argument structure for IP_ADD_MEMBERSHIP and IP_DROP_MEMBERSHIP.
  */
 struct ip_mreq {
-	struct	in_addr imr_multiaddr;	/* IP multicast address of group */
-	struct	in_addr imr_interface;	/* local IP address of interface */
+	struct	in_addr imr_multiaddr;	///< IP multicast address of group 
+	struct	in_addr imr_interface;	///< Local IP address of interface 
 };
 
+/// Argument structure for IP_ADD_MEMBERSHIP and IP_DROP_MEMBERSHIP.
 struct ip_mreqn {
-	struct	in_addr imr_multiaddr;	/* IP multicast address of group */
-	struct	in_addr imr_address;	/* local IP address of interface */
-	int		imr_ifindex;	/* interface index */
+	struct	in_addr imr_multiaddr;	///< IP multicast address of group 
+	struct	in_addr imr_address;	///< Local IP address of interface 
+	int		imr_ifindex;	///< Interface index 
 };
 
 /*

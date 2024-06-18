@@ -40,7 +40,7 @@
 //#include "em_gpio.h"
 //#include "em_usart.h"
 //#include "em_leuart.h"
-#include "rsi_board.h"
+#include "rsi_debug.h"
 
 #include "unity_conf.h"
 #include "unity_usart.h"

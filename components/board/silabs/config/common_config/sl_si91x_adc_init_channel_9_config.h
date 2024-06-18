@@ -37,6 +37,8 @@ extern "C" {
 /******************************************************************************/
 /******************************* ADC Channel Configuration **************************/
 
+#define P8_START_LOCATION_PINTOOL 152
+#define N8_START_LOCATION_PINTOOL 415
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -58,27 +60,38 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc signal=P9> SL_ADC
-// $[ADC_SL_ADC]
-#ifndef SL_ADC_PERIPHERAL
-#define SL_ADC_PERIPHERAL ADC
+// <adc signal=P8,N8> SL_ADC_CH9
+// $[ADC_SL_ADC_CH9]
+#ifndef SL_ADC_CH9_PERIPHERAL
+#define SL_ADC_CH9_PERIPHERAL ADC
 #endif
 
-// ADC P9 on GPIO_29
-#ifndef SL_ADC_P9_PORT
-#define SL_ADC_P9_PORT 0
+// ADC P8 on GPIO_29
+#ifndef SL_ADC_CH9_P8_PORT
+#define SL_ADC_CH9_P8_PORT 0
 #endif
-#ifndef SL_ADC_P9_PIN
-#define SL_ADC_P9_PIN 29
+#ifndef SL_ADC_CH9_P8_PIN
+#define SL_ADC_CH9_P8_PIN 29
 #endif
-#ifndef SL_ADC_P9_LOC
-#define SL_ADC_P9_LOC 8
+#ifndef SL_ADC_CH9_P8_LOC
+#define SL_ADC_CH9_P8_LOC 160
 #endif
-// [ADC_SL_ADC]$
+
+// ADC N8 on GPIO_30
+#ifndef SL_ADC_CH9_N8_PORT
+#define SL_ADC_CH9_N8_PORT 0
+#endif
+#ifndef SL_ADC_CH9_N8_PIN
+#define SL_ADC_CH9_N8_PIN 30
+#endif
+#ifndef SL_ADC_CH9_N8_LOC
+#define SL_ADC_CH9_N8_LOC 423
+#endif
+// [ADC_SL_ADC_CH9]$
 // <<< sl:end pin_tool >>>
 
-#define SL_ADC_CHANNEL_9_POS_INPUT_CHNL_SEL SL_ADC_P9_LOC
-#define SL_ADC_CHANNEL_9_NEG_INPUT_CHNL_SEL 8
+#define SL_ADC_CHANNEL_9_POS_INPUT_CHNL_SEL (SL_ADC_CH9_P8_LOC - P8_START_LOCATION_PINTOOL)
+#define SL_ADC_CHANNEL_9_NEG_INPUT_CHNL_SEL (SL_ADC_CH9_N8_LOC - N8_START_LOCATION_PINTOOL)
 
 #ifdef __cplusplus
 }

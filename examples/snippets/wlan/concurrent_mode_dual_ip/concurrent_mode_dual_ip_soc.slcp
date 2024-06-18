@@ -1,7 +1,7 @@
 project_name: wifi_concurrent_mode_dual_ip_soc
 package: wifi
 quality: production
-label: wifi_concurrent_mode_dual_ip(SCP)
+label: wifi_concurrent_mode_dual_ip(SoC)
 category: Example|Wi-Fi
 description: 
    Start a Wi-Fi Access Point in IPv4 and IPv6 simultaneously with WPA2 security
@@ -13,11 +13,11 @@ filter:
    value:
    - Beginner
 sdk:
-   id: gecko_sdk
-   version: 4.4.3
+   id: simplicity_sdk
+   version: 2024.6.0
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.2.0
+   version: 3.3.0
 source:
 -  path: app.c
 -  path: main.c
@@ -33,13 +33,8 @@ component:
   - id: sl_system
   - id: slist
   - id: freertos
-  - id: iostream_retarget_stdio
-  - id: iostream_uart_si91x
-    instance:
-      - vcom
-  - id: sl_usart_iostream
-    from: wiseconnect3_sdk
-  - id: iostream_si91x
+  - id: freertos_heap_4
+  - id: syscalls
     from: wiseconnect3_sdk
   - id: si917_memory_default_config
     from: wiseconnect3_sdk

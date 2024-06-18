@@ -13,11 +13,11 @@ filter:
   value:
   - Beginner
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.2.0
+  version: 3.3.0
 source:
 - path: app.c
 - path: main.c
@@ -30,10 +30,13 @@ define:
 component:
 - id: sl_system
 - id: freertos
+- id: freertos_heap_4
 - id: device_init
 - id: iostream_retarget_stdio
 - id: iostream_rtt
 - id: iostream_stdlib_config
+- id: uartdrv_usart
+  instance: [exp]
 - id: wiseconnect3_common
   from: wiseconnect3_sdk
 - id: wifi
@@ -68,7 +71,14 @@ readme:
 other_file:
 - path: resources/readme/setup_soc_ncp.png
 - path: resources/readme/application_prints_soc_ncp.png
-- path: resources/readme/energy_profile.png
+- path: resources/readme/energy_profiler_step_1.png
+- path: resources/readme/energy_profiler_step_2.png
+- path: resources/readme/energy_profiler_step_3.png
+- path: resources/readme/power_meter_avg_current_consumption.png
+- path: resources/readme/alarm_timer_configure.png
+- path: resources/readme/wakeup_configure.png
+- path: resources/readme/stm32_setup.png
+
 ui_hints:
   highlight:
   - path: readme.md

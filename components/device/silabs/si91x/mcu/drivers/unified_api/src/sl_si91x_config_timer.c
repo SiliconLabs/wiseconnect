@@ -29,8 +29,8 @@
  ******************************************************************************/
 #include "sl_si91x_config_timer.h"
 #include "sl_si91x_config_timer_config.h"
-#include "rsi_ct.h"
-#include "rsi_chip.h"
+#include "rsi_rom_ct.h"
+#include "rsi_rom_clks.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************

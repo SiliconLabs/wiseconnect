@@ -354,16 +354,14 @@ sl_status_t sl_si91x_adc_sensor_set_power(sl_sensor_adc_handle_t sensor, sl_sens
 *******************************************************************************/
 sl_adc_error_t sl_si91x_sensor_channel_sample(uint8_t channel)
 {
-  sl_status_t status;
 #ifdef SH_ADC_ENABLE
+  sl_status_t status;
   status = sl_si91x_adc_channel_read_sample(&adc_config->adc_ch_cfg, channel);
 
   if (status != SL_STATUS_OK) {
     return status;
   }
-#endif
-#ifdef SH_SDC_ENABLE
-  (void)status;
+#else
   (void)channel;
 #endif
   return SL_STATUS_OK;

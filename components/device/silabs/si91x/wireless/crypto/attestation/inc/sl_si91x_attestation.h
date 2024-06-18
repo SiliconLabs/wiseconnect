@@ -42,7 +42,7 @@
 
 /**
  * @fn    sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint32_t *nonce)
- * @brief \Process the nonce for attestation token
+ * @brief Process the nonce for attestation token
  * @param[in] length
  * @param[in] nonce
  * @param[out] token

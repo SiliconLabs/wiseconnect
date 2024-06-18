@@ -29,7 +29,10 @@
  ******************************************************************************/
 
 #include "sli_si91x_power_manager.h"
-
+#include "FreeRTOSConfig.h"
+#if (configUSE_TICKLESS_IDLE == 1)
+#include "sl_wifi.h"
+#endif
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -88,6 +91,7 @@ static void notify_power_state_transition(sl_power_state_t from, sl_power_state_
 sl_status_t sl_si91x_power_manager_init(void)
 {
   if (!is_initialized) {
+    SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
     // If power manager is not initialized, resets the linked list
     // and requirement table.
     sl_slist_init(&power_manager_ps_transition_event_list);
@@ -99,8 +103,10 @@ sl_status_t sl_si91x_power_manager_init(void)
 #if defined(SL_SI91X_POWER_MANAGER_DEBUG) && (SL_SI91X_POWER_MANAGER_DEBUG == ENABLE)
     sli_si91x_power_manager_init_debug();
 #endif
+    SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
     return SL_STATUS_OK;
   }
+  SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
   return SL_STATUS_ALREADY_INITIALIZED;
 }
 
@@ -167,9 +173,11 @@ sl_status_t sl_si91x_power_manager_subscribe_ps_transition_event(
     // returns error code.
     return SL_STATUS_NOT_INITIALIZED;
   }
+  SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
   event_handle->info = (sl_power_manager_ps_transition_event_info_t *)event_info;
   // Push the data into the linked list.
   sl_slist_push(&power_manager_ps_transition_event_list, &event_handle->node);
+  SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
   // If it reaches here, then returns SL_STATUS_OK
   return SL_STATUS_OK;
 }
@@ -191,8 +199,10 @@ sl_status_t sl_si91x_power_manager_unsubscribe_ps_transition_event(
     // returns error code.
     return SL_STATUS_NOT_INITIALIZED;
   }
+  SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
   // Pops out the data from the linked list.
   sl_slist_remove(&power_manager_ps_transition_event_list, &event_handle->node);
+  SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
   // If it reaches here, then returns SL_STATUS_OK
   return SL_STATUS_OK;
 }
@@ -206,6 +216,10 @@ sl_status_t sl_si91x_power_manager_unsubscribe_ps_transition_event(
 sl_status_t sl_si91x_power_manager_sleep(void)
 {
   sl_status_t status;
+
+#ifdef SL_SLEEP_TIMER
+  RSI_PS_SetWkpSources(SYSRTC_BASED_WAKEUP);
+#endif
   if (!sli_si91x_power_manager_is_valid_transition(current_state, SL_SI91X_POWER_MANAGER_SLEEP)) {
     // Validates the state transition for sleep, if invalid returns error code.
     return SL_STATUS_INVALID_STATE;
@@ -309,15 +323,19 @@ sl_status_t sl_si91x_power_manager_set_clock_scaling(sl_clock_scaling_t mode)
   }
 
   if (mode == SL_SI91X_POWER_MANAGER_POWERSAVE) {
+    SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
     // For powersave current state with false flag is passed as parameter
     // to the internal function.
     status = sli_si91x_power_manager_configure_clock(current_state, false);
+    SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
     return status;
   }
   if (mode == SL_SI91X_POWER_MANAGER_PERFORMANCE) {
+    SL_SI91X_POWER_MANAGER_CORE_ENTER_CRITICAL;
     // For performance current state with true flag is passed as parameter
     // to the internal function.
     status = sli_si91x_power_manager_configure_clock(current_state, true);
+    SL_SI91X_POWER_MANAGER_CORE_EXIT_CRITICAL;
     return status;
   }
   // If it reaches here, then the entered mode is invalid.
@@ -356,19 +374,20 @@ void sl_si91x_power_manager_deinit(void)
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state, boolean_t add)
 {
+#if (configUSE_TICKLESS_IDLE == 1)
+  sl_wifi_performance_profile_t pm_ta_performance_profile;
+  sl_wifi_get_performance_profile(&pm_ta_performance_profile);
+#endif
   if (!is_initialized) {
     // Validate the status of power manager service, if not initialized
     // returns error code.
     return SL_STATUS_NOT_INITIALIZED;
   }
-  if (state >= LAST_ENUM_POWER_STATE) {
+  if (state > SL_SI91X_POWER_MANAGER_PS4) {
     // Validate the power state, if not in range returns error code.
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (add && !sli_si91x_power_manager_is_valid_transition(current_state, state)) {
-    // Validates the transition, if incorrect returns error code.
-    return SL_STATUS_INVALID_STATE;
-  }
+  // Validates the transition, if incorrect returns error code.
   if ((requirement_ps_table[state] == PS_MIN_COUNTER) && !add) {
     // If requirement is to remove when it 0, i.e., user tries to
     // make the requirement less than 0 (wrap around not allowed), returns error code.
@@ -381,12 +400,20 @@ sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state
   }
   // Updates the requirement table.
   requirement_ps_table[state] += (uint8_t)((add) ? 1 : -1);
-  if (add) {
-    // Only add requirement effects the state transition.
-
+  state = sl_si91x_get_lowest_ps();
+  if ((current_state != state) && (state != SL_SI91X_POWER_MANAGER_SLEEP)) {
+#if (configUSE_TICKLESS_IDLE == 1)
+    if ((state == SL_SI91X_POWER_MANAGER_PS2)
+        && ((pm_ta_performance_profile.profile != STANDBY_POWER_SAVE)
+            && (pm_ta_performance_profile.profile != STANDBY_POWER_SAVE_WITH_RAM_RETENTION))) {
+      // Only add requirement effects the state transition.
+      return SL_STATUS_INVALID_STATE;
+    }
+#endif
     // It updates the power state using internal api.
-    sli_si91x_power_manager_change_power_state(current_state, state);
-
+    if (sli_si91x_power_manager_change_power_state(current_state, state) != SL_STATUS_OK) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
     if (current_state == SL_SI91X_POWER_MANAGER_PS2 && state == SL_SI91X_POWER_MANAGER_PS1) {
       // If transition is to PS1 state, its requirement needs to clear after wakeup.
       // It goes to sleep with retention with valid ULP peripheral based wakeup source.
@@ -394,6 +421,8 @@ sl_status_t sli_si91x_power_manager_update_ps_requirement(sl_power_state_t state
       notify_power_state_transition(SL_SI91X_POWER_MANAGER_PS1, SL_SI91X_POWER_MANAGER_PS2);
       // Clears the PS1 requirement
       requirement_ps_table[SL_SI91X_POWER_MANAGER_PS1] -= 1;
+      // Added the PS2 requirement
+      requirement_ps_table[SL_SI91X_POWER_MANAGER_PS2] += 1;
       return SL_STATUS_OK;
     }
 
@@ -489,9 +518,48 @@ static void notify_power_state_transition(sl_power_state_t from, sl_power_state_
  * @note This is the fallback implementation of the callback, it can be
  *       overridden by the application or other components.
  ******************************************************************************/
-__WEAK boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
+boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
 {
-  return true;
+  boolean_t is_sleep_ready = false;
+#if (configUSE_TICKLESS_IDLE == 1)
+  sl_wifi_performance_profile_t pm_ta_performance_profile;
+  sl_wifi_get_performance_profile(&pm_ta_performance_profile);
+  if (SL_SI91X_POWER_MANAGER_SLEEP == sl_si91x_get_lowest_ps()) {
+    if (pm_ta_performance_profile.profile != STANDBY_POWER_SAVE) {
+      is_sleep_ready = true;
+    } else {
+    }
+  }
+#else
+  is_sleep_ready = true;
+#endif
+  return is_sleep_ready;
+}
+/***************************************************************************/ /**
+* Returns the Lowest possible power state from the requirement table.
+* It validates all the power state requirements and return the lowest possible state transition.
+* If power manager service is not initialized then it returns SL_STATUS_NOT_INITIALIZED, to initialize call \ref sl_si91x_power_manager_init.
+*
+* @pre Pre-conditions:
+* - \ref sl_si91x_power_manager_init
+*
+*
+* @param[in] none
+* @return sl_power_state_t values are returned:
+* - none
+******************************************************************************/
+sl_power_state_t sl_si91x_get_lowest_ps(void)
+{
+  uint8_t ps_counter;
+  for (ps_counter = PS_MAX_COUNTER - 1;
+       (ps_counter > PS_MIN_COUNTER) && (requirement_ps_table[ps_counter] == PS_MIN_COUNTER);
+       ps_counter--) {
+  }
+  if ((ps_counter == PS_MIN_COUNTER) && (!requirement_ps_table[ps_counter])) {
+    return SL_SI91X_POWER_MANAGER_SLEEP;
+  } else {
+    return (sl_power_state_t)ps_counter;
+  }
 }
 
 /***************************************************************************/ /**

@@ -81,21 +81,15 @@
 #define LISTENING_PORT 5005
 #define BACK_LOG       1
 
-#ifdef SLI_SI91X_MCU_INTERFACE
-uint32_t tick_count_s = 1;
-#else
-uint32_t tick_count_s = 1;
-#endif
-
-#define BYTES_TO_SEND    (1 << 29)              //512MB
-#define BYTES_TO_RECEIVE (1 << 28)              //256MB
-#define TEST_TIMEOUT     (10000 * tick_count_s) //10sec
+#define BYTES_TO_SEND    (1 << 29) //512MB
+#define BYTES_TO_RECEIVE (1 << 28) //256MB
+#define TEST_TIMEOUT     (10000)   //10sec
 
 #define AP_VAP 1
 
 #ifdef SLI_SI91X_MCU_INTERFACE
-#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
-#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 100MHz            */
+#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHz */
+#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 119MHz            */
 #endif
 /*****************************************************
  *                      Socket configuration
@@ -153,9 +147,9 @@ void switch_m4_frequency(void);
  ******************************************************/
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout)
 {
-  float duration = ((test_timeout) / 1000) / tick_count_s; // ms to sec
-  float result   = (total_num_of_bytes * 8) / duration;    // bytes to bits
-  result         = (result / 1000000);                     // bps to Mbps
+  float duration = ((test_timeout) / 1000);             // ms to sec
+  float result   = (total_num_of_bytes * 8) / duration; // bytes to bits
+  result         = (result / 1000000);                  // bps to Mbps
   LOG_PRINT("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 

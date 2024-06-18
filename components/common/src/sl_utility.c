@@ -49,8 +49,8 @@ void convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer)
 
 sl_status_t convert_string_to_sl_ipv4_address(char *line, sl_ipv4_address_t *ip)
 {
-  char *lasts = NULL;
-  char *token = strtok_r(line, ".", &lasts);
+  char *lasts       = NULL;
+  const char *token = strtok_r(line, ".", &lasts);
 
   for (uint8_t i = 0; i < 4; i++, token = strtok_r(NULL, ".", &lasts)) {
     if (token == NULL) {
@@ -110,10 +110,10 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
   unsigned int words[SL_IPV6_ADDRESS_LENGTH / 2];
   int i;
   unsigned int ip_big_endian[4];
-  unsigned char *src;
+  const unsigned char *src;
   src = (unsigned char *)&ip_big_endian;
 
-  little_to_big_endian((unsigned int *)input, (unsigned char *)ip_big_endian, SL_IPV6_ADDRESS_LENGTH);
+  little_to_big_endian((const unsigned int *)input, (unsigned char *)ip_big_endian, SL_IPV6_ADDRESS_LENGTH);
 
   memset(words, '\0', sizeof words);
   for (i = 0; i < SL_IPV6_ADDRESS_LENGTH; i += 2) {
@@ -126,9 +126,10 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
   cur.len   = 0;
   for (i = 0; i < (SL_IPV6_ADDRESS_LENGTH / 2); i++) {
     if (words[i] == 0) {
-      if (cur.base == -1)
-        cur.base = i, cur.len = 1;
-      else
+      if (cur.base == -1) {
+        cur.base = i;
+        cur.len  = 1;
+      } else
         cur.len++;
     } else {
       if (cur.base != -1) {
@@ -138,10 +139,8 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
       }
     }
   }
-  if (cur.base != -1) {
-    if (best.base == -1 || cur.len > best.len)
-      best = cur;
-  }
+  if ((cur.base != -1) && (best.base == -1 || cur.len > best.len))
+    best = cur;
   if (best.base != -1 && best.len < 2)
     best.base = -1;
   /*
@@ -185,7 +184,7 @@ static int hex_digit_value(char ch)
   return -1;
 }
 
-void little_to_big_endian(unsigned int *source, unsigned char *result, unsigned int length)
+void little_to_big_endian(const unsigned int *source, unsigned char *result, unsigned int length)
 {
   unsigned char *temp;
   unsigned int curr = 0;
@@ -227,7 +226,7 @@ int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, uns
 
   while (src < src_endp) {
     ch        = *src++;
-    int digit = hex_digit_value(ch);
+    int digit = hex_digit_value((char)ch);
     //printf(" digit :%d ",digit);
     if (digit >= 0) {
       if (xdigits_seen == 4)
@@ -281,7 +280,7 @@ int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, uns
     return 0;
 
   memcpy(dst, tmp, SL_IPV6_ADDRESS_LENGTH);
-  little_to_big_endian((unsigned int *)dst, (unsigned char *)ptr_result, SL_IPV6_ADDRESS_LENGTH);
+  little_to_big_endian((const unsigned int *)dst, (unsigned char *)ptr_result, SL_IPV6_ADDRESS_LENGTH);
 
   return 1;
 }
@@ -335,6 +334,11 @@ void print_firmware_version(sl_wifi_firmware_version_t *firmware_version)
 }
 
 __WEAK void sl_debug_log(const char *format, ...)
+{
+  UNUSED_PARAMETER(format);
+}
+
+void sl_redirect_log(const char *format, ...)
 {
   UNUSED_PARAMETER(format);
 }

@@ -18,7 +18,10 @@
 // Include Files
 
 #include "rsi_ccp_common.h"
-#include "rsi_chip.h"
+#include "rsi_sio.h"
+#include "rsi_rom_clks.h"
+#include "rsi_rom_egpio.h"
+#include "rsi_adc.h"
 
 #define DATA 0xFFFFFFFF
 
@@ -819,26 +822,27 @@ uint16_t RSI_SIO_UARTSend(SIO_Type *pstcSio, const void *u16ptr, uint16_t u16Len
     gstcSioCb.uart_sio.pvUartTx = ((uint16_t *)u16ptr);
     u32Data                     = ((uint16_t *)u16ptr)[gstcSioCb.uart_sio.u16UartTxDone];
   }
-  gstcSioCb.uart_sio.u16UartTxCnt = u16Len;
 
   // prepare UART header
-  u16UartDataFrame = RSI_SIO_UartFramePrepare(gstcSioCb.uart_sio.pstcSioUart->u8StopBits,
-                                              u32Data,
-                                              gstcSioCb.uart_sio.pstcSioUart->u8Parity,
-                                              gstcSioCb.uart_sio.pstcSioUart->u8Bitlen);
-  gstcSioCb.uart_sio.u16UartTxDone++;
+  if (gstcSioCb.uart_sio.u16UartTxCnt != 0) {
+    u16UartDataFrame = RSI_SIO_UartFramePrepare(gstcSioCb.uart_sio.pstcSioUart->u8StopBits,
+                                                u32Data,
+                                                gstcSioCb.uart_sio.pstcSioUart->u8Parity,
+                                                gstcSioCb.uart_sio.pstcSioUart->u8Bitlen);
+    gstcSioCb.uart_sio.u16UartTxDone++;
 
-  // actual data
-  u32Data = 0xFFFFFE00;
-  u32Data |= u16UartDataFrame;
-  u32Data = (u32Data << 1);
-  u32Data |= 1;
-
+    // Before sending data to the SIO buffer register, the UART transmit frame is prepared and some
+    // bit wise and shift operations are performed on the data and actual data is sent to SIO buffer register
+    u32Data = 0xFFFFFE00;
+    u32Data |= u16UartDataFrame;
+    u32Data = (u32Data << 1);
+    u32Data |= 1;
+    // Write TX data to buffer
+    pstcSio->SIO_BUFFER_REG[gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel] = u32Data;
+  }
+  gstcSioCb.uart_sio.u16UartTxCnt = u16Len;
   // Update status to busy
   gstcSioCb.uart_sio.u8Status = SioUartsBusy;
-
-  // Write TX data to buffer
-  pstcSio->SIO_BUFFER_REG[gstcSioCb.uart_sio.pstcSioUart->u8SioUartTxChannel] = u32Data;
 
   pstcSio->SIO_SWAP_INTR_EN_SET_REG = BIT(gstcSioCb.uart_sio.u8UartTxCh);
 

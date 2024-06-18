@@ -29,7 +29,7 @@
 #define M4SS_TASS_CTRL_CLR_REG              (*(volatile uint32_t *)(0x24048400 + 0x38))
 #endif
 
-#ifndef ROMDRIVER_PRESENT
+#ifndef PS_ROMDRIVER_PRESENT
 #define FPGA_MODE 0
 
 /** @addtogroup SOC2
@@ -235,7 +235,7 @@ void ps_configure_trim_values(uint16_t lf_ro_trim,
 }
 #endif
 
-#if !defined(CHIP_9118) || !defined(A11_ROM) || !defined(ROMDRIVER_PRESENT)
+#if !defined(CHIP_9118) || !defined(A11_ROM) || !defined(PS_ROMDRIVER_PRESENT)
 
 /*==============================================*/
 /** 	  
@@ -288,7 +288,7 @@ void ps_wireless_shutdown(void)
   /* RTC timer clock period programmed by SOC */
   NWP_RTC_TIMER_CLOCK_PERIOD_SOC = RTC_TIMER_CLK_PERIOD_VALUE;
 
-  /* wait untill  Programmed period applied */
+  /* wait until  Programmed period applied */
   while ((!(NWP_RTC_TIMER_CLOCK_PERIOD_SOC)) & (SPI_RTC_TIMER_CLK_PERIOD_APPLIED))
     ;
 

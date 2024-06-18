@@ -17,7 +17,6 @@
 
 // Include Files
 
-#include "rsi_chip.h"
 #include "rsi_ccp_common.h"
 
 /** @addtogroup SOC25

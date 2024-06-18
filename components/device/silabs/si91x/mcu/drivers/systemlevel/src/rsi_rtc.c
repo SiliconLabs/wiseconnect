@@ -16,8 +16,11 @@
 ******************************************************************************/
 
 // Includes
+#include "si91x_device.h"
+#include "rsi_power_save.h"
+#include "rsi_rtc.h"
+#include "rsi_time_period.h"
 
-#include "rsi_chip.h"
 #define CENTURTY_START   0
 #define BYPASS_RESET_BIT 0x02
 /** @addtogroup SOC19

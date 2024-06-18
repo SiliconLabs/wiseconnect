@@ -43,9 +43,11 @@ sl_status_t sl_si91x_register_event_handler(sl_net_event_handler_t function)
 
 sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buffer)
 {
-  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  sl_status_t status        = convert_and_save_firmware_status(get_si91x_frame_status(packet));
-  sl_ip_address_t ip        = { 0 };
+  sl_si91x_packet_t *packet                   = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_status_t status                          = convert_and_save_firmware_status(get_si91x_frame_status(packet));
+  sl_ip_address_t ip                          = { 0 };
+  sl_net_ip_configuration_t ip_config         = { 0 };
+  sl_si91x_rsp_ipv4_params_t *ipv4_parameters = NULL;
   void *data;
 
   // Check if there's a valid event handler registered for this event
@@ -63,8 +65,24 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
       break;
     }
     case SL_NET_OTA_FW_UPDATE_EVENT:
-    case SL_NET_PING_RESPONSE_EVENT: {
+    case SL_NET_PING_RESPONSE_EVENT:
+    case SL_NET_DHCP_NOTIFICATION_EVENT: {
       data = &packet->data; // Use packet data directly for certain events
+      break;
+    }
+    case SL_NET_IP_ADDRESS_CHANGE_EVENT: {
+      data            = &ip_config;
+      ipv4_parameters = (sl_si91x_rsp_ipv4_params_t *)packet->data;
+
+      ip_config.host_name = NULL;
+      ip_config.mode      = SL_IP_MANAGEMENT_DHCP;
+      ip_config.type      = SL_IPV4;
+
+      if (NULL != ipv4_parameters) {
+        memcpy(ip_config.ip.v4.ip_address.bytes, ipv4_parameters->ipaddr, sizeof(ipv4_parameters->ipaddr));
+        memcpy(ip_config.ip.v4.netmask.bytes, ipv4_parameters->netmask, sizeof(ipv4_parameters->netmask));
+        memcpy(ip_config.ip.v4.gateway.bytes, ipv4_parameters->gateway, sizeof(ipv4_parameters->gateway));
+      }
       break;
     }
     default: {

@@ -28,7 +28,7 @@ extern adc_commn_config_t adc_commn_config;
 #ifdef DAC_FIFO_MODE_EN
 #include "rsi_dac.h"
 extern dac_config_t dac_callback_fun;
-#endif	
+#endif
 
 #if defined(A11_ROM)
 #include "rsi_rom_table_si91x.h"
@@ -74,9 +74,9 @@ UDMA_Channel_Info udma1_chnl_info[12] = { 0U } ;
 #ifdef RTE_UDMA0
 /* I2C0 Resources */
 UDMA_RESOURCES UDMA0_Resources = {
-		(UDMA0_Type *)UDMA0,
-		UDMA0_IRQn,
-		UDMA0_Table          // SRAM base address
+    (UDMA0_Type *)UDMA0,
+    UDMA0_IRQn,
+    UDMA0_Table          // SRAM base address
 };
 #endif /* RTE_UDMA0 */
 
@@ -84,9 +84,9 @@ UDMA_RESOURCES UDMA0_Resources = {
 
 /* I2C1 Resources */
 UDMA_RESOURCES UDMA1_Resources = {
-		(UDMA0_Type *)UDMA1,
-		UDMA1_IRQn,
-		UDMA1_Table          // SRAM base address
+    (UDMA0_Type *)UDMA1,
+    UDMA1_IRQn,
+    UDMA1_Table          // SRAM base address
 };
 #endif /* RTE_UDMA1 */
 
@@ -197,12 +197,6 @@ void uDMAx_IRQHandler(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Ch
           }
           // Enable DMA Channel
           udma->reg->CHNL_ENABLE_SET = (1U << ch);
-      #ifdef SOFTWARE_TRIGGER
-        if(!(udma->reg->UDMA_DONE_STATUS_REG && (1U << ch)))
-            {
-              udma->reg->CHNL_SW_REQUEST |=(1U << ch);
-            }
-      #endif
         } else {
           // All Data has been transferred
           // Clear Channel active flag
@@ -239,67 +233,91 @@ void uDMAx_IRQHandler(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Ch
     }
   }
 
-#ifndef SL_SI91X_DMA
 void IRQ033_Handler(void)
 {
-#ifdef SOFTWARE_TRIGGER
-     uDMAx_IRQHandler (&UDMA0_Resources,UDMA0_Table,udma0_chnl_info);
-#else
- #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+  NVIC_DisableIRQ(UDMA0_IRQn);
+ #if defined(A11_ROM) && defined(UDMA_ROMDRIVER_PRESENT)
+  uint8_t channel;
+  uint32_t int_status;
+  uint8_t soft_trig_flag = 0;
+  int_status = UDMA0->UDMA_DONE_STATUS_REG;
+  //Identify the interrupt channel
+  for (channel = 0; channel < UDMA_NUMBER_OF_CHANNELS; channel++) {
+    if (int_status & (1U << channel)) {
+       break;
+    }
+  }
+  //Check if the transfer type is memory-memory
+  if ((UDMA0_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) && \
+      (UDMA0_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE)) {
+      if(udma0_chnl_info[channel].Size != udma0_chnl_info[channel].Cnt) {
+          soft_trig_flag = 1;
+      }
+  }
  ROMAPI_UDMA_WRAPPER_API->uDMAx_IRQHandler (&UDMA0_Resources,UDMA0_Table,udma0_chnl_info);
+ if(soft_trig_flag) {
+   //Set the software trigger bit for starting next transfer
+   UDMA0->CHNL_SW_REQUEST |=(1U << channel);
+ }
  #else
  uDMAx_IRQHandler (&UDMA0_Resources,UDMA0_Table,udma0_chnl_info);
  #endif
-#endif
+ NVIC_EnableIRQ(UDMA0_IRQn);
 }
 
 void IRQ010_Handler (void) 
 {
-#if defined(DAC_FIFO_MODE_EN) || defined(ADC_MULTICHANNEL_WITH_EXT_DMA) 
-	volatile uint32_t intr = 0;
-	intr = UDMA1_Resources.reg->UDMA_DONE_STATUS_REG;	 
-		
-	if((intr & BIT(DAC_UDMA_CHANNEL)) || (intr & BIT(ADC_UDMA_CHANNEL)))
-	{
-		if(intr & BIT(DAC_UDMA_CHANNEL))
-		{
-#ifdef DAC_FIFO_MODE_EN 			
-			RSI_UDMA_InterruptClear(udmaHandle1, DAC_UDMA_CHANNEL);	
-			dac_callback_fun.callback_event(DAC_UDMA_PING_PONG_CONFIG);
-#endif			
-		}
-		else
-		{
-#ifdef ADC_MULTICHANNEL_WITH_EXT_DMA 				
-			RSI_UDMA_InterruptClear(udmaHandle1, ADC_UDMA_CHANNEL);	
-			adc_commn_config.call_back_event(ADC_CHNL0_INTR , EXTERNAL_DMA_RECONFIG);
-#endif			
-		}
-	}
-	else
-	{
-#ifdef SOFTWARE_TRIGGER
-          uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
-#else
-    #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
-      ROMAPI_UDMA_WRAPPER_API->uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
-    #else
-      uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
-    #endif
-#endif	
-		
-	}		
-#else
-#ifdef SOFTWARE_TRIGGER
-      uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
-#else
-  #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+  NVIC_DisableIRQ(UDMA1_IRQn);
+  do {
+#if defined(DAC_FIFO_MODE_EN) || defined(ADC_MULTICHANNEL_WITH_EXT_DMA)
+  volatile uint32_t intr = 0;
+  intr = UDMA1_Resources.reg->UDMA_DONE_STATUS_REG;
+
+  if((intr & BIT(DAC_UDMA_CHANNEL)) || (intr & BIT(ADC_UDMA_CHANNEL)))
+  {
+    if(intr & BIT(DAC_UDMA_CHANNEL))
+    {
+#ifdef DAC_FIFO_MODE_EN
+      RSI_UDMA_InterruptClear(udmaHandle1, DAC_UDMA_CHANNEL);
+      dac_callback_fun.callback_event(DAC_UDMA_PING_PONG_CONFIG);
+#endif
+    }
+    else
+    {
+#ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
+      RSI_UDMA_InterruptClear(udmaHandle1, ADC_UDMA_CHANNEL);
+      adc_commn_config.call_back_event(ADC_CHNL0_INTR , EXTERNAL_DMA_RECONFIG);
+#endif
+    }
+    break;
+  }
+#endif
+#if defined(A11_ROM) && defined(UDMA_ROMDRIVER_PRESENT)
+  uint8_t channel;
+  uint32_t int_status;
+  uint8_t soft_trig_flag = 0;
+  int_status = UDMA1->UDMA_DONE_STATUS_REG;
+  //Identify the interrupt channel
+  for (channel = 0; channel < 12; channel++) {
+    if (int_status & (1U << channel)) {
+       break;
+    }
+  }
+  //Check if the transfer type is memory-memory
+  if ((UDMA1_Table[channel].vsUDMAChaConfigData1.srcInc != UDMA_SRC_INC_NONE) && \
+      (UDMA1_Table[channel].vsUDMAChaConfigData1.dstInc != UDMA_DST_INC_NONE)) {
+      if(udma1_chnl_info[channel].Size != udma1_chnl_info[channel].Cnt) {
+          soft_trig_flag = 1;
+      }
+  }
   ROMAPI_UDMA_WRAPPER_API->uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
-  #else
+  if(soft_trig_flag) {
+	//Set the software trigger bit for starting next transfer
+    UDMA1->CHNL_SW_REQUEST |=(1U << channel);
+  }
+#else
   uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
-  #endif
-#endif	
-	
-#endif			
+#endif
+  } while(false);
+  NVIC_EnableIRQ(UDMA1_IRQn);
 }
-#endif // SL_SI91X_DMA

@@ -44,10 +44,12 @@
 #define SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_ECDSA \
   1000 ///< Maximum length of the ECDSA message in bytes that can be handled in one go
 
-/// Flags to determine the chunk being handled in the API
-#define FIRST_CHUNK  BIT(0)
+/// Indicators are utilized to pinpoint the particular data segment undergoing processing within the API.
+#define FIRST_CHUNK BIT(0)
+/// Indicators are utilized to pinpoint the particular data segment undergoing processing within the API.
 #define MIDDLE_CHUNK BIT(1)
-#define LAST_CHUNK   BIT(2)
+/// Indicators are utilized to pinpoint the particular data segment undergoing processing within the API.
+#define LAST_CHUNK BIT(2)
 
 /// Key slot for Built in keys
 typedef enum {

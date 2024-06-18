@@ -128,22 +128,22 @@ typedef enum {
 
 /// @brief Enumeration for ADC channel.
 typedef enum {
-  SL_ADC_CHANNEL_0,  ///< ADC channel 1
-  SL_ADC_CHANNEL_1,  ///< ADC channel 2
-  SL_ADC_CHANNEL_2,  ///< ADC channel 3
-  SL_ADC_CHANNEL_3,  ///< ADC channel 4
-  SL_ADC_CHANNEL_4,  ///< ADC channel 5
-  SL_ADC_CHANNEL_5,  ///< ADC channel 6
-  SL_ADC_CHANNEL_6,  ///< ADC channel 7
-  SL_ADC_CHANNEL_7,  ///< ADC channel 8
-  SL_ADC_CHANNEL_8,  ///< ADC channel 9
-  SL_ADC_CHANNEL_9,  ///< ADC channel 10
-  SL_ADC_CHANNEL_10, ///< ADC channel 11
-  SL_ADC_CHANNEL_11, ///< ADC channel 12
-  SL_ADC_CHANNEL_12, ///< ADC channel 13
-  SL_ADC_CHANNEL_13, ///< ADC channel 14
-  SL_ADC_CHANNEL_14, ///< ADC channel 15
-  SL_ADC_CHANNEL_15, ///< ADC channel 16
+  SL_ADC_CHANNEL_1,  ///< ADC channel 1
+  SL_ADC_CHANNEL_2,  ///< ADC channel 2
+  SL_ADC_CHANNEL_3,  ///< ADC channel 3
+  SL_ADC_CHANNEL_4,  ///< ADC channel 4
+  SL_ADC_CHANNEL_5,  ///< ADC channel 5
+  SL_ADC_CHANNEL_6,  ///< ADC channel 6
+  SL_ADC_CHANNEL_7,  ///< ADC channel 7
+  SL_ADC_CHANNEL_8,  ///< ADC channel 8
+  SL_ADC_CHANNEL_9,  ///< ADC channel 9
+  SL_ADC_CHANNEL_10, ///< ADC channel 10
+  SL_ADC_CHANNEL_11, ///< ADC channel 11
+  SL_ADC_CHANNEL_12, ///< ADC channel 12
+  SL_ADC_CHANNEL_13, ///< ADC channel 13
+  SL_ADC_CHANNEL_14, ///< ADC channel 14
+  SL_ADC_CHANNEL_15, ///< ADC channel 15
+  SL_ADC_CHANNEL_16, ///< ADC channel 16
 } sl_adc_channel_id_t;
 
 /// @brief Structure to hold the threshold detection configuration parameters

@@ -51,6 +51,8 @@ extern "C" {
 // Macros
 #define SL_TIMER_MATCH_VALUE_DEFAULT \
   20000000 ///< default 1-second timer match-value for down-counter timer-type with 20Mhz clock
+#define SL_ULP_TIMER_CLK_TYPE_STATIC  1
+#define SL_ULP_TIMER_CLK_TYPE_DYNAMIC 0
 // -----------------------------------------------------------------------------
 // Data Types
 /***************************************************************************/ /**

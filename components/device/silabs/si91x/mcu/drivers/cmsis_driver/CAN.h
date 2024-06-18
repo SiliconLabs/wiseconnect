@@ -41,7 +41,7 @@
 #define __CAN_H
 
 #include "Driver_CAN.h"
-#include "rsi_chip.h"
+
 #include "RTE_Device.h"
 
 

@@ -26,12 +26,12 @@ include:
 provides:
   - name: sl_i2c
 define:
-  - name: SL_SI91X_DMA
   - name: SL_SI91X_I2C_DMA
 requires:
   - name: sl_i2c_peripheral
   - name: sl_gpio_peripheral
   - name: sl_dma
+  - name: sl_clock_manager
 documentation:
     docset: wiseconnect
     document: wiseconnect-api-reference-guide-si91x-peripherals/i2-c

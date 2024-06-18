@@ -94,7 +94,7 @@ extern "C" {
 #define SL_DAC0_IN1_PORT 0
 #endif
 #ifndef SL_DAC0_IN1_PIN
-#define SL_DAC0_IN1_PIN 30
+#define SL_DAC0_IN1_PIN 4
 #endif
 #ifndef SL_DAC0_IN1_LOC
 #define SL_DAC0_IN1_LOC 0
@@ -102,12 +102,21 @@ extern "C" {
 // [DAC_SL_DAC0]$
 // <<< sl:end pin_tool >>>
 
+// Some boards do not have the DAC output pin ULP_GPIO_4. Therefore, the output is internally redirected to OPAMP pin GPIO_30.
+#ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+#define SL_DAC_OUTPUT_PORT 0
+#define SL_DAC_OUTPUT_PIN  30
+#else
+#define SL_DAC_OUTPUT_PORT SL_DAC0_IN1_PORT
+#define SL_DAC_OUTPUT_PIN  SL_DAC0_IN1_PIN
+#endif
+
 sl_dac_config_t sl_dac_config = { .operating_mode     = SL_DAC_OPERATION_MODE,
                                   .dac_fifo_threshold = SL_DAC_FIFO_THRESHOLD,
                                   .dac_sample_rate    = SL_DAC_SAMPLE_RATE,
                                   .adc_channel        = SL_DAC_ADC_CHANNEL,
-                                  .dac_pin            = SL_DAC0_IN1_PIN,
-                                  .dac_port           = SL_DAC0_IN1_PORT };
+                                  .dac_pin            = SL_DAC_OUTPUT_PIN,
+                                  .dac_port           = SL_DAC_OUTPUT_PORT };
 
 #ifdef __cplusplus
 }

@@ -51,8 +51,10 @@
   - name: device_has_mpu
 - requires:
   - name: rsilib_chip
+  - name: romdriver_clks
   - name: si917_mem_config
   - name: sl_si91x_mcu
+  - name: lite_image_for_4mb
   - name: board_configuration_headers
   - name: wiseconnect_toolchain_plugin
   - name: freertos_config
@@ -85,34 +87,34 @@
  # Default Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_1
   - name: device_flash_size
     value: 2088960 # 0x001F E000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_1
   # Medium Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_2
   - name: device_flash_size
     value: 2088960 # 0x001F E000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_2
   # Advanced Memory configuration
   - name: device_flash_addr
     value: 136323072 # 0x0820 2000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_3
   - name: device_flash_size
     value: 2088960 # 0x001F E000
-    priority: -1
+    priority: 1000
     condition:
       - si917_mem_config_3
 

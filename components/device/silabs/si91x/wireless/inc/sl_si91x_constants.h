@@ -94,6 +94,9 @@
 // Upgrade images
 #define BURN_NWP_FW 'B'
 
+// Bootloader selects default NWP FW image number
+#define SELECT_DEFAULT_NWP_FW_IMAGE_NUMBER '5'
+
 #define RSI_PING_PONG_CHUNK_SIZE 4096
 #define RSI_REG_READ             0xD1
 #define RSI_REG_WRITE            0xD2

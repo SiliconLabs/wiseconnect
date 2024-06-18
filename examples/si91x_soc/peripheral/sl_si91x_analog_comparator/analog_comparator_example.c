@@ -23,6 +23,7 @@
 #include "sl_si91x_analog_comparator.h"
 #include "sl_si91x_analog_comparator_init.h"
 #include <stdint.h>
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -91,6 +92,8 @@
 #define DAC_INPUT_SAMPLE_VALUE     1023
 #endif
 
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -108,6 +111,8 @@ static void opamp_init(uint8_t opamp_instance);
 static void dac_callback(uint8_t event);
 static void dac_init();
 #endif
+
+static void default_clock_configuration(void);
 /*******************************************************************************
  **********************  Local variables   *************************************
  ******************************************************************************/
@@ -118,12 +123,26 @@ sl_analog_comparator_threshold_values_t threshold_value;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 void analog_comparator_example_init(void)
 {
   // Updating scale factor variable as per SCALE_FACTOR_VALUE macro value
   scale_factor_value = SCALE_FACTOR_VALUE;
   // Updating threshold value variable as per THRESHOLD_VALUE macro value
   threshold_value = THRESHOLD_VALUE;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   do {
     // Initializing analog comparator module
     sl_si91x_analog_comparator_init();

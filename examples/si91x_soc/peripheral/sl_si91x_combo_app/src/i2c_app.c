@@ -22,6 +22,7 @@
 #include "sl_si91x_peripheral_i2c.h"
 #include "cmsis_os2.h"
 #include "sl_component_catalog.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -44,6 +45,12 @@
 #define INSTANCE_ONE                 1                // For 0 value
 #define INSTANCE_TWO                 2                // For 0 value
 #define MS_DELAY_COUNTER             4600             // Delay count
+
+#if ((I2C_INSTANCE_USED == INSTANCE_ZERO) || (I2C_INSTANCE_USED == INSTANCE_ONE))
+#define SOC_PLL_CLK ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
+#define SOC_PLL_CLK ((uint32_t)(32000000)) // 32MHz default SoC PLL Clock as source to Processor for ULP instance
+#endif
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -80,10 +87,17 @@ uint32_t event_flag;
 static void i2c_leader_callback(sl_i2c_instance_t instance, uint32_t status);
 static void delay(uint32_t idelay);
 static void compare_data(void);
+static void default_clock_configuration(void);
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+}
 /*******************************************************************************
  * I2C initialization function
  ******************************************************************************/
@@ -102,6 +116,10 @@ void i2c_app(void)
 void i2c_init(void)
 {
   sl_i2c_status_t i2c_status;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
 #if (I2C_INSTANCE_USED == INSTANCE_ZERO)
   // Update structure name as per instance used, to register I2C callback
   sl_i2c_i2c0_config.i2c_callback = i2c_leader_callback;

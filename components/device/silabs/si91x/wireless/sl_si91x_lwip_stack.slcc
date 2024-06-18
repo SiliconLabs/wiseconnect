@@ -12,6 +12,8 @@ provides:
 - name: sl_si91x_network_stack
 source:
 include:
+define:
+- name: SL_SI91X_LWIP_CONFIG
 requires:
 - name: sl_si91x_wireless
 - name: lwip_port_freertos

@@ -37,10 +37,14 @@
 #include "rsi_ccp_user_config.h"
 #include "sensor_hub.h"
 #include <stdio.h>
-#include "rsi_chip.h"
+
 #include "rsi_os.h"
 #include "rsi_debug.h"
 #include "cmsis_os2.h"
+#include "rsi_ipmu.h"
+#include "rsi_power_save.h"
+#include "rsi_rom_clks.h"
+#include "rsi_pll.h"
 
 /*******************************************************************************
  **************  Sensor app Task Attributes structure for thread   *************
@@ -132,7 +136,6 @@ static long gy61_adc_raw_data_map(long x, long in_min, long in_max, long out_min
 void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 {
 #if SH_AWS_ENABLE
-  osStatus_t sl_semapptaskacq_status;
 
   strcpy(mqtt_publish_payload, "");
 #endif
@@ -489,7 +492,10 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
       }
 
       if (SL_SENSOR_ADC_JOYSTICK_ID == sensor_id) {
+
+#if ((defined SH_ADC_ENABLE) || (defined SH_SDC_ENABLE))
         float vout = 0;
+#endif
         if (sensor_hub_info_t[sens_ind].sensor_mode == SL_SH_INTERRUPT_MODE) {
 #ifdef SH_ADC_ENABLE
           for (uint32_t i = 0; i < bus_intf_info.adc_config.adc_ch_cfg.num_of_samples[JS_ADC_CHANNEL]; i++) {
@@ -505,7 +511,9 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
 #endif
 
 #ifdef SH_SDC_ENABLE
+#if ((defined SDC_MUTI_CHANNEL_ENABLE) || (SH_AWS_ENABLE))
           uint16_t sdc_channel_id = 0;
+#endif
 #ifdef SDC_MUTI_CHANNEL_ENABLE
 
           for (uint32_t i = 0; i <= bus_intf_info.sh_sdc_config.sh_sdc_sample_ther; i++) {
@@ -577,14 +585,14 @@ void sl_si91x_sensor_event_handler(uint8_t sensor_id, uint8_t event)
         vout =
           (((float)(sensor_hub_info_t[sens_ind].sensor_data_ptr->sensor_data[0].adc[0]) / (float)SL_SH_ADC_MAX_OP_VALUE)
            * SL_SH_ADC_VREF_VALUE);
-#endif
+
 #if SH_AWS_ENABLE
         snprintf(mqtt_publish_payload + strlen(mqtt_publish_payload),
                  sizeof(mqtt_publish_payload) - strlen(mqtt_publish_payload),
                  "Single-ended output: %lfV    ",
                  (double)vout);
 #endif
-
+#endif
 #ifdef SH_ADC_ENABLE
         DEBUGOUT("Single ended input: %lfV \t", (double)vout);
 #endif

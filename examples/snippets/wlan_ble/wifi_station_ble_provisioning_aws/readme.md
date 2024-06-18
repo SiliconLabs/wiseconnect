@@ -22,17 +22,31 @@
   
 ## Purpose / Scope
 
-In this application, the Bluetooth Low Energy (BLE) and EFR connect application are used for provisioning the SiWx917 to a Wi-Fi Network. The SiWx917 acts as a Wi-Fi station and connects to the AWS cloud via MQTT. After the connection is established, it subscribes to MQTT_TOPIC1. The application then publishes a message to the cloud on MQTT_TOPIC2, and thereafter the SiWx917 is put into Associated Power Save mode.
+In this application, the Bluetooth Low Energy (BLE) and Simplicity Connect App(formerly EFR Connect App)lication are used for provisioning the SiWx917 to a Wi-Fi Network. The SiWx917 acts as a Wi-Fi station and connects to the AWS cloud via MQTT. After the connection is established, it subscribes to MQTT_TOPIC1. The application then publishes a message to the cloud on MQTT_TOPIC2, and thereafter the SiWx917 is put into Associated Power Save mode.
 
-**Soc Mode**:
+## Soc Mode:
 
 Si917 connected to LM75 Temperature Sensor via I2C interface, collects real time temperature data publishes to the cloud until the device is disconnected from the access point. After publish, the NWP processor is set in to associated power save.  Next, the application works differently in NCP and SoC modes as defined below.  
 
 If macro **ENABLE_POWER_SAVE** enabled, Then M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
+### Without Tickless Mode:
+
 - ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically as configured in the Universal Configurator in 'Wakeup Source Configuration'.
 - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
 - Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up. To receive the message published remotely, Si917 subscribes to **MQTT_TOPIC1** topic.
+
+### Tickless Mode
+
+In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by these methods: SysRTC, a wireless signal, Button press-based (GPIO) and Alarm based wakeup.
+
+- **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
+
+- **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
+
+- **Button Based Wakeup**:The device can also be awakened by a button signal.
+
+- **Alarm Based Wakeup**:The device can also be awakened by setting the timeout to the appropriate duration in the osSemaphoreAcquire function.
 
 After M4 processor wakes up via any of the above processes, the application publishes **MQTT_publish_QOS0_PAYLOAD** message on **MQTT_TOPIC2** topic.
 
@@ -58,7 +72,7 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
 - A Windows PC 
 - USB-C cable
 - A Wireless Access point (which has an active internet access)
-- Android Phone or iPhone with **EFR Connect** App, which is available in Play Store and App Store.
+- Android Phone or iPhone with **Simplicity Connect App(formerly EFR Connect App)** App, which is available in Play Store and App Store.
 - LM75 Temperature Sensor (inbuilt sensor available on WSDK/WPK board)
 - **SoC Mode**:
   - Standalone
@@ -90,7 +104,7 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
 
 - Simplicity Studio 
 - Serial terminal for viewing the print [Tera term](https://tera-term.en.softonic.com/)
-- Download and install the Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app),
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app ),
 which is available in Play store/App store or `Silabs_connect.apk`, which is available in the path `\wiseconnect\utilities\ble_provisioning_apps\android_based_provisioning_app.`
 
 ### Setup Diagram
@@ -117,11 +131,11 @@ The application can be configured to suit your requirements and development envi
 ```c
 For SoC Mode only:
 
- Open <wiseconnect3/components/siwx917_soc/drivers/cmsis_driver/config/RTE_Device_917.h> and set the following parameters
+ Below is the default configuration for I2C2 instance define in <wiseconnect3/config/RTE_Device_917.h>.
 
-#define RTE_I2C2_SCL_PORT_ID 2
+#define RTE_I2C2_SCL_PORT_ID 0
 
-#define RTE_I2C2_SDA_PORT_ID 2
+#define RTE_I2C2_SDA_PORT_ID 0
 ```
 
  Open `wifi_app.c` file and update/modify following macros
@@ -143,12 +157,20 @@ For SoC Mode only:
 
 #define PUBLISH_PERIODICITY       (30000)          // Configure this macro to publish data every 30 seconds (this works only in NCP with and without POWERSAVE and in SOC without POWERSAVE).
 ```
+### For Without Tickless Mode:
 
-The alarm timer can be configured in Universal Configurator in 'Wakeup Source Configuration' under `WiseConnect 3 SDK v3.1.3 -> Device -> MCU -> Service -> Power Manager -> ULP Peripheral -> Wakeup Source Configuration` as shown below,
+Disable tickless mode by adding the preprocessor macro "SL_SI91X_TICKLESS_MODE" for the example.
 
-  ![Wakeup Source Configuration](resources/readme/wakeup_configure.png)
+The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
-  ![Alarm timer Configuration](resources/readme/alarm_timer_configure.png)
+- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
+  - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
+  - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
+- Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
+  - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
+  - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
+- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
+  - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
 
 Open `ble_app.c` file and update/modify following macros
 
@@ -195,8 +217,6 @@ Open `ble_app.c` file and update/modify following macros
 ```c
 #define RSI_BLE_MAX_DATA_LEN                               20
 ```
-
-
 
   **The following are the **non-configurable** macros in the application.**
 
@@ -263,7 +283,7 @@ Follow the steps below for successful execution of the application:
 
 2. Connect any serial console for prints.
 
-3. When SiWx917 EVK enters BLE advertising mode, launch the **EFR Connect** App.
+3. When SiWx917 EVK enters BLE advertising mode, launch the **Simplicity Connect App(formerly EFR Connect App)** App.
 
 4. Click on Demo and select Wi-Fi Commissioning over BLE.
 
@@ -296,6 +316,8 @@ Follow the steps below for successful execution of the application:
 ### Application Output
 
   ![](resources/readme/output5.png)
+
+  ![](resources/readme/output4.png)
 
 #### When I2C_SENSOR_PERI_ENABLE macro enabled
 

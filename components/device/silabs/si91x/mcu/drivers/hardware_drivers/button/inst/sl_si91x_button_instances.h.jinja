@@ -33,7 +33,7 @@
 
 #include "sl_si91x_button.h"
 
-{% for inst in button_instance -%}
+{% for inst in simple_button_instance -%}
 extern const sl_button_t button_{{ inst | lower }};
 {% endfor %}
 

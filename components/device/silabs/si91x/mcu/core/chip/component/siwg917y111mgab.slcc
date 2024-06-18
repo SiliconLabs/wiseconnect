@@ -47,6 +47,7 @@
   - name: device_has_antenna
 - requires:
   - name: rsilib_chip
+  - name: romdriver_clks
   - name: si917_mem_config
   - name: sl_si91x_mcu
   - name: board_configuration_headers

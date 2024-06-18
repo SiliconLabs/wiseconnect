@@ -81,8 +81,6 @@
 #define LISTENING_PORT 5005
 #define BACK_LOG       1
 
-uint32_t tick_count_s = 1;
-
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 /******************************************************
  *                    Constants

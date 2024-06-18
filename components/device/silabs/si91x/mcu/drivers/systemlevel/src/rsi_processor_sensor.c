@@ -18,8 +18,8 @@
 /**
  * Includes
  */
-
-#include "rsi_chip.h"
+#include "rsi_error.h"
+#include "si91x_device.h"
 
 /*==============================================*/
 /** 

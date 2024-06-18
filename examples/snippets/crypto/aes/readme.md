@@ -21,7 +21,7 @@ This application demonstrates how to encrypt and decrypt the data using AES APIs
 
 - Windows PC
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B](https://www.silabs.com/)
+  - Silicon Labs [BRD4338A](https://www.silabs.com/)
 
 ### Software Requirements
 
@@ -64,6 +64,13 @@ Open `app.c` file and configure the following parameters accordingly
 
 ```c
 #define USE_WRAPPED_KEYS 0
+```
+- According to NIST, the AES algorithm is capable of using cryptographic keys of 128, 192, and 256 bits to encrypt and decrypt data in block sizes of 128 bits (16 bytes). This means that each block of data processed by the AES algorithm should be aligned to 16-byte boundaries. 
+
+- The input message can be aligned to 16 bytes by enabling below macro.
+
+```c
+#define PKCS_7_PADDING 1
 ```
 
 - After filling the appropriate **sl_si91x_aes_config_t** configuration, `sl_si91x_aes()` stores the output in the provided encrypted_buffer/decrypted_buffer. 

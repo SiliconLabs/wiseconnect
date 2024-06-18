@@ -159,7 +159,7 @@ static const sl_wifi_device_configuration_t calibration_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .region_code = US,
+  .region_code = WORLD_DOMAIN,
   .boot_config = { .oper_mode              = SL_SI91X_TRANSMIT_TEST_MODE,
                    .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
@@ -266,9 +266,8 @@ void display_calib_cmd_usage()
   printf("*************************************************************************************************************"
          "**************************************************************\r\n");
   printf("sl_freq_offset=<freq_offset_in_KHz>\r\n");
-  printf("sl_calib_write=<target>,<flags>,<gain_offset_low>,<gain_offset_mid>,<gain_offset_high>\r\n");
-  printf("OR\r\n");
-  printf("sl_calib_write=<target>,<flags>,<gain_offset_low>,<gain_offset_mid>,<gain_offset_high>,<xo_ctune>\r\n");
+  printf("sl_calib_write=<target>,<flags>,<gain_offset_low>,<gain_offset_mid>,<gain_offset_high>,<xo_ctune>,<gain_"
+         "offset_ch14>\r\n");
   printf("sl_evm_offset=<index>,<evm_offset>\r\n");
   printf("sl_evm_write=<target>,<flags>,<evm_offset_11B>,<evm_offset_11G_36M_54M_11N_MCS3_MCS7>,<evm_offset_11G_6M_24M_"
          "11N_MCS0_MCS2>,<evm_offset_11N_MCS0>,<evm_offset_11N_MCS7>\r\n");
@@ -425,6 +424,10 @@ sl_status_t calibration_app()
             offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
             calib_pkt.xo_ctune = temp1B;
           }
+          if (buffer[offset] != '\0') {
+            offset += parse_cmd(&temp1B, PARSE_1_BYTE, (uint8_t *)&buffer[offset]);
+            calib_pkt.gain_offset_ch14 = temp1B;
+          }
           status = sl_si91x_calibration_write(calib_pkt);
           if (status != SL_STATUS_OK) {
             printf("Calibration data write failed: 0x%lx\r\n", status);
@@ -432,18 +435,21 @@ sl_status_t calibration_app()
           } else {
             printf("Calibration data write successful\r\n");
           }
-          status = sl_si91x_calibration_read(target, &calib_read_pkt);
+          target.target = calib_pkt.target;
+          status        = sl_si91x_calibration_read(target, &calib_read_pkt);
           if (status != SL_STATUS_OK) {
             printf("Calibration data read failed: 0x%lx\r\n", status);
             return status;
           } else {
             printf("Calibration data read successful\r\n");
-            printf("target %d, gain_offset_low:%d, gain_offset_2:%d, gain_offset_3:%d,xo_tune:%d\r\n",
-                   calib_read_pkt.target,
-                   calib_read_pkt.gain_offset[0],
-                   calib_read_pkt.gain_offset[1],
-                   calib_read_pkt.gain_offset[2],
-                   calib_read_pkt.xo_ctune);
+            printf(
+              "target %d, gain_offset_low:%d, gain_offset_2:%d, gain_offset_3:%d,xo_tune:%d,gain_offset_ch14:%d\r\n",
+              calib_read_pkt.target,
+              calib_read_pkt.gain_offset[0],
+              calib_read_pkt.gain_offset[1],
+              calib_read_pkt.gain_offset[2],
+              calib_read_pkt.xo_ctune,
+              calib_read_pkt.gain_offset_ch14);
           }
           offset = 0;
           temp1B = 0;

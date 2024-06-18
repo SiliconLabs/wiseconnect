@@ -37,6 +37,8 @@ extern "C" {
 /******************************************************************************/
 /**************************** ADC Channel Configuration ***********************/
 
+#define P6_START_LOCATION_PINTOOL 114
+#define N6_START_LOCATION_PINTOOL 397
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -58,38 +60,38 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc signal=P7,N7> SL_ADC
-// $[ADC_SL_ADC]
-#ifndef SL_ADC_PERIPHERAL
-#define SL_ADC_PERIPHERAL ADC
+// <adc signal=P6,N6> SL_ADC_CH7
+// $[ADC_SL_ADC_CH7]
+#ifndef SL_ADC_CH7_PERIPHERAL
+#define SL_ADC_CH7_PERIPHERAL ADC
 #endif
 
-// ADC P7 on GPIO_27
-#ifndef SL_ADC_P7_PORT
-#define SL_ADC_P7_PORT 0
+// ADC P6 on GPIO_25
+#ifndef SL_ADC_CH7_P6_PORT
+#define SL_ADC_CH7_P6_PORT 0
 #endif
-#ifndef SL_ADC_P7_PIN
-#define SL_ADC_P7_PIN 27
+#ifndef SL_ADC_CH7_P6_PIN
+#define SL_ADC_CH7_P6_PIN 25
 #endif
-#ifndef SL_ADC_P7_LOC
-#define SL_ADC_P7_LOC 7
+#ifndef SL_ADC_CH7_P6_LOC
+#define SL_ADC_CH7_P6_LOC 120
 #endif
 
-// ADC N7 on GPIO_28
-#ifndef SL_ADC_N7_PORT
-#define SL_ADC_N7_PORT 0
+// ADC N6 on GPIO_26
+#ifndef SL_ADC_CH7_N6_PORT
+#define SL_ADC_CH7_N6_PORT 0
 #endif
-#ifndef SL_ADC_N7_PIN
-#define SL_ADC_N7_PIN 28
+#ifndef SL_ADC_CH7_N6_PIN
+#define SL_ADC_CH7_N6_PIN 26
 #endif
-#ifndef SL_ADC_N7_LOC
-#define SL_ADC_N7_LOC 7
+#ifndef SL_ADC_CH7_N6_LOC
+#define SL_ADC_CH7_N6_LOC 403
 #endif
-// [ADC_SL_ADC]$
+// [ADC_SL_ADC_CH7]$
 // <<< sl:end pin_tool >>>
 
-#define SL_ADC_CHANNEL_7_POS_INPUT_CHNL_SEL SL_ADC_P7_LOC
-#define SL_ADC_CHANNEL_7_NEG_INPUT_CHNL_SEL SL_ADC_N7_LOC
+#define SL_ADC_CHANNEL_7_POS_INPUT_CHNL_SEL (SL_ADC_CH7_P6_LOC - P6_START_LOCATION_PINTOOL)
+#define SL_ADC_CHANNEL_7_NEG_INPUT_CHNL_SEL (SL_ADC_CH7_N6_LOC - N6_START_LOCATION_PINTOOL)
 
 #ifdef __cplusplus
 }

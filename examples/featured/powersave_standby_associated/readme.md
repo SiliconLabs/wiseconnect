@@ -15,7 +15,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates the process for configuring the SiWx91x in ASSOCIATED_POWER_SAVE mode, also providing the steps to configure the SiWx91x EVK in station mode and initiate a connection to an Access Point. When the module is in connected sleep, it wakes up in periodic intervals based on DTIM or Listen Interval.
+This application demonstrates SiWx91x to enable UDP data transfer in low power mode, with NWP is in associated power save mode with retention and keeping M4 in sleep with retention after data transfer. NWP wakes up periodically based on the DTIM or listen interval configured by the user.
 
 The application connects to a remote server to send UDP data and also enables the analysis of various performance profiles using a power analyzer during the ASSOCIATED_POWER_SAVE with data transfer via UDP.
 
@@ -33,8 +33,6 @@ The application connects to a remote server to send UDP data and also enables th
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
       - BRD4342A [SiWx917-RB4342A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
@@ -154,7 +152,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Set the Docklight up by connecting STM32's Serial COM port. This enables you to view the application prints.
 - Flash, run and debug the application.
 
-    ![Application prints](resources/readme/output_soc.png)
+- Application prints
+    ![Application prints](resources/readme/wifi_powersave_standby_associated_soc.png)
 
 ### Run the iPerf Server
 
@@ -191,6 +190,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     ![output_prints](resources/readme/power_meter_avg_current_consumption.png)
 
 > **Note:**
-> - The measured current may vary if the scenario is performed in open environment. AP to AP variation is also observed.
-> - To achieve the lowest power numbers in connected sleep, in SoC mode, one should configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to without RAM retention i.e. `sl_si91x_configure_ram_retention` should not be done.
+> - The reference images which are captured are measured in isolated chamber, might vary in open environment and sometimes there might be slight variation observed with some APs..
+> - The measured current also varies with the different Protocols used, Here UDP protocol is used. Please refer Datasheet for current consumption value for Standby associated for TCP protocol.  
+> - To achieve the lowest power numbers in connected sleep, in SoC mode, one should configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to sleep without RAM retention i.e. `sl_si91x_configure_ram_retention` should not be done.
 > - A flash erase is required to flash any other application after the user runs the powersave application(s). If not, the module will not allow any application to be flashed.

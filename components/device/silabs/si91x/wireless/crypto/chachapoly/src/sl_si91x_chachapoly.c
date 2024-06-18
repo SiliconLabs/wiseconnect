@@ -226,42 +226,52 @@ sl_status_t sl_si91x_chachapoly(sl_si91x_chachapoly_config_t *config, uint8_t *o
   }
   mutex_result = sl_si91x_crypto_mutex_acquire(crypto_chachapoly_mutex);
 #endif
-
-  while (total_length) {
-    // Check total length
-    if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY) {
-      chunk_len = SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY;
-      if (offset == 0) {
-        // Make chachapoly_flags as first chunk
-        chachapoly_flags |= FIRST_CHUNK;
+  if (total_length != 0) {
+    while (total_length) {
+      // Check total length
+      if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY) {
+        chunk_len = SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CHACHAPOLY;
+        if (offset == 0) {
+          // Make chachapoly_flags as first chunk
+          chachapoly_flags |= FIRST_CHUNK;
+        } else {
+          // Make chachapoly_flags as middle chunk
+          chachapoly_flags = MIDDLE_CHUNK;
+        }
       } else {
-        // Make chachapoly_flags as middle chunk
-        chachapoly_flags = MIDDLE_CHUNK;
+        chunk_len        = total_length;
+        chachapoly_flags = LAST_CHUNK;
+        if (offset == 0) {
+          // If the total length is less than 1200 and offset is zero, make chachapoly_flags as both first chunk as well as last chunk
+          chachapoly_flags |= FIRST_CHUNK;
+        }
       }
-    } else {
-      chunk_len        = total_length;
-      chachapoly_flags = LAST_CHUNK;
-      if (offset == 0) {
-        // If the total length is less than 1200 and offset is zero, make chachapoly_flags as both first chunk as well as last chunk
-        chachapoly_flags |= FIRST_CHUNK;
-      }
-    }
 
-    // Send the current chunk length message
-    status = sli_si91x_chachapoly_pending(config, chunk_len, chachapoly_flags, output);
+      // Send the current chunk length message
+      status = sli_si91x_chachapoly_pending(config, chunk_len, chachapoly_flags, output);
+      if (status != SL_STATUS_OK) {
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+        mutex_result = sl_si91x_crypto_mutex_release(crypto_chachapoly_mutex);
+#endif
+        return status;
+      }
+
+      // Increment the offset value
+      offset += chunk_len;
+      config->msg += chunk_len;
+
+      // Decrement the total message length
+      total_length -= chunk_len;
+    }
+  } else {
+    chachapoly_flags = FIRST_CHUNK | LAST_CHUNK;
+    status           = sli_si91x_chachapoly_pending(config, chunk_len, chachapoly_flags, output);
     if (status != SL_STATUS_OK) {
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
       mutex_result = sl_si91x_crypto_mutex_release(crypto_chachapoly_mutex);
 #endif
       return status;
     }
-
-    // Increment the offset value
-    offset += chunk_len;
-    config->msg += chunk_len;
-
-    // Decrement the total message length
-    total_length -= chunk_len;
   }
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)

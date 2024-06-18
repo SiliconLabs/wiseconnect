@@ -17,7 +17,6 @@
 
 // Include files
 
-#include "rsi_chip.h"
 #ifdef ENHANCED_FIM
 #include "rsi_enhanced_fim.h"
 #endif

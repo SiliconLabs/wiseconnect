@@ -24,7 +24,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
-
+#include "FreeRTOSConfig.h"
 //! BLE include file to refer BLE APIs
 #include "rsi_ble_apis.h"
 #include "ble_config.h"
@@ -40,7 +40,7 @@
 #include "rsi_common_apis.h"
 
 #include <string.h>
-#ifdef SLI_SI91X_MCU_INTERFACE
+#if SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE)
 #include "sl_si91x_m4_ps.h"
 #endif
 
@@ -598,7 +598,7 @@ void ble_per(void *unused)
                 per_stats.rssi,
                 per_stats.id_pkts_rcvd);
     }
-#if (SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
     if (!(P2P_STATUS_REG & TA_wakeup_M4)) {
       P2P_STATUS_REG &= ~M4_wakeup_TA;
       LOG_PRINT("\r\n M4 sleep");

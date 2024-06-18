@@ -18,21 +18,22 @@
 #include "sl_si91x_i2s_config.h"
 #include "i2s_loopback_example.h"
 #include "rsi_debug.h"
-#include "rsi_chip.h"
-
+#include "rsi_rom_table_si91x.h"
+#include "rsi_rom_clks.h"
+#include "sl_si91x_clock_manager.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock 40MHZ
-#define PS4_SOC_FREQ          180000000 // PLL out clock 180MHz
-#define I2S_BUFFER_SIZE       1024      // Transmit/Receive buffer size
-#define I2S_INSTANCE          0         // I2S instance
+#define I2S_BUFFER_SIZE 1024 // Transmit/Receive buffer size
+#define I2S_INSTANCE    0    // I2S instance
 
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-uint16_t i2s_data_in[I2S_BUFFER_SIZE];
-uint16_t i2s_data_out[I2S_BUFFER_SIZE];
+uint8_t i2s_data_in[I2S_BUFFER_SIZE];
+uint8_t i2s_data_out[I2S_BUFFER_SIZE];
 static sl_i2s_handle_t i2s_driver_handle    = NULL;
 static uint8_t i2s_send_complete            = 0;
 static uint8_t i2s_receive_complete         = 0;
@@ -44,9 +45,20 @@ static sl_i2s_xfer_config_t i2s_xfer_config = { 0 };
 static int32_t clock_configuration_pll(void);
 static void callback_event(uint32_t event);
 static void compare_loop_back_data(void);
+static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 /*******************************************************************************
  * I2S example initialization function
  ******************************************************************************/
@@ -57,10 +69,13 @@ void i2s_example_init(void)
   sl_i2s_status_t i2s_status; //Initialize I2S transfer structure
   i2s_xfer_config.mode          = SL_I2S_MASTER;
   i2s_xfer_config.protocol      = SL_I2S_PROTOCOL;
-  i2s_xfer_config.resolution    = SL_I2S_RESOLUTION;
-  i2s_xfer_config.sampling_rate = SL_I2S_SAMPLING_RATE;
+  i2s_xfer_config.resolution    = SL_I2S0_RESOLUTION;
+  i2s_xfer_config.sampling_rate = SL_I2S0_SAMPLING_RATE;
   i2s_xfer_config.sync          = SL_I2S_ASYNC;
-  i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE32;
+  i2s_xfer_config.data_size     = SL_I2S_DATA_SIZE8;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
 
   // Filling the data out array with integer values
   for (uint32_t i = 0; i < I2S_BUFFER_SIZE; i++) {
@@ -121,13 +136,17 @@ void i2s_example_init(void)
     }
     DEBUGOUT("I2S receive config success\r\n");
     //Configure I2S receive DMA channel
-    if (sl_si91x_i2s_receive_data(i2s_driver_handle, i2s_data_in, I2S_BUFFER_SIZE)) {
+    //Since 8-bit resolution is not supported in Si91x I2S module, configure receive data as 16-bit
+    //chunks which contains two bytes of 8-bit data.
+    if (sl_si91x_i2s_receive_data(i2s_driver_handle, (uint16_t *)i2s_data_in, I2S_BUFFER_SIZE / 2)) {
       DEBUGOUT("I2S receive start fail\r\n");
       break;
     }
     DEBUGOUT("I2S receive start success\r\n");
     //Configure I2S transmit DMA channel
-    if (sl_si91x_i2s_transmit_data(i2s_driver_handle, i2s_data_out, I2S_BUFFER_SIZE)) {
+    //Since 8-bit resolution is not supported in Si91x I2S module, configure transmit data as 16-bit
+    //chunks which contains two bytes of 8-bit data.
+    if (sl_si91x_i2s_transmit_data(i2s_driver_handle, (uint16_t *)i2s_data_out, I2S_BUFFER_SIZE / 2)) {
       DEBUGOUT("I2S transmit start fail\r\n");
       break;
     }
@@ -142,8 +161,8 @@ void i2s_example_process_action(void)
   if ((i2s_send_complete && i2s_receive_complete)) {
     //Data has been transferred and received successfully
     //Validate the transmit and receive data count
-    if ((sl_si91x_i2s_get_transmit_data_count(i2s_driver_handle) == I2S_BUFFER_SIZE)
-        && (sl_si91x_i2s_get_receive_data_count(i2s_driver_handle) == I2S_BUFFER_SIZE)) {
+    if ((sl_si91x_i2s_get_transmit_data_count(i2s_driver_handle) == I2S_BUFFER_SIZE / 2)
+        && (sl_si91x_i2s_get_receive_data_count(i2s_driver_handle) == I2S_BUFFER_SIZE / 2)) {
       //I2S transfer completed
       DEBUGOUT("I2S transfer complete\r\n");
       //Compare transmit data and receive data
@@ -163,25 +182,9 @@ void i2s_example_process_action(void)
  ******************************************************************************/
 static int32_t clock_configuration_pll(void)
 {
-  int32 status;
+  int32 status = 0;
   do {
-    // Configure the PLL frequency
-    status = RSI_CLK_SetSocPllFreq(M4CLK, PS4_SOC_FREQ, SOC_PLL_REF_FREQUENCY);
-    if (status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to configure SOC PLL Clock to 180Mhz,Error Code : %ld\r\n", status);
-      break;
-    }
-    // Switch M4 clock to PLL clock for speed operations
-    status = RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-    if (status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to Set M4 Clock as SOC PLL clock,Error Code : %ld\r\n", status);
-      break;
-    }
-    status = ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK, QSPI_SOCPLLCLK, 0, 0, 0);
-    if (status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to Set QSPI Clock as SOC PLL clock,Error Code : %ld\r\n", status);
-      break;
-    }
+
   } while (false);
   return status;
 }

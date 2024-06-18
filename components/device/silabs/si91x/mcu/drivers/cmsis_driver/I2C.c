@@ -133,11 +133,6 @@ static int32_t I2C0_Initialize (ARM_I2C_SignalEvent_t cb_event)
 
 static int32_t I2C0_Uninitialize (void) 
 {
-	#if defined(CHIP_9118)
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI1);
-	#else
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
-	#endif
 #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
 	return ROMAPI_I2C_API->I2Cx_Uninitialize (&I2C0_Resources);
 #else
@@ -257,11 +252,6 @@ static int32_t I2C1_Initialize (ARM_I2C_SignalEvent_t cb_event)
 
 static int32_t I2C1_Uninitialize (void) 
 {
-  #ifdef CHIP_9118
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI3);
-  #else
-  RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
-  #endif
 #if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
 	return ROMAPI_I2C_API->I2Cx_Uninitialize (&I2C1_Resources);
 #else

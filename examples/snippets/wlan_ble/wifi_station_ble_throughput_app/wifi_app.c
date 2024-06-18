@@ -70,8 +70,8 @@
 #define BACK_LOG                   1
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 #ifdef SLI_SI91X_MCU_INTERFACE
-#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
-#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 100MHz            */
+#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHz */
+#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 119MHz            */
 #endif
 
 #if SSL

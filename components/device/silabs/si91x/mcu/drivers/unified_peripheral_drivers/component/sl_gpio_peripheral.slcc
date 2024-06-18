@@ -20,3 +20,5 @@ include:
     - path: "sl_si91x_gpio_common.h"
 provides:
   - name: sl_gpio_peripheral
+ui_hints:
+  visibility: never

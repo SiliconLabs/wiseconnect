@@ -32,9 +32,18 @@
  * @brief: This file contains all the Sensor data collector operations.
  * This file will contains the configuration and initializations of SDC.
  ******************************************************************************/
-#include "rsi_chip.h"
+
+#include "si91x_device.h"
 #include "sl_si91x_sdc.h"
 #include "rsi_debug.h"
+#include "rsi_adc.h"
+#include "aux_reference_volt_config.h"
+#include "rsi_ulpss_clk.h"
+#include "rsi_ipmu.h"
+#include "rsi_reg_spi.h"
+#include "rsi_rom_egpio.h"
+#include "rsi_rom_ulpss_clk.h"
+#include "rsi_rtc.h"
 
 #define NVIC_SEC_MSEC_RTC MCU_CAL_RTC_IRQn
 volatile uint32_t sdc_calib_done      = 0;

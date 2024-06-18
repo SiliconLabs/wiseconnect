@@ -13,8 +13,8 @@ filter:
     value:
       - Beginner
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 readme:
   - path: readme.md
 source:
@@ -29,6 +29,7 @@ include:
 component:
   - id: sl_system
   - id: freertos
+  - id: freertos_heap_4
   - id: mbedtls_slcrypto
   - id: psa_crypto
   - id: psa_driver
@@ -68,7 +69,9 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
-toolchain_settings: []
+    version: 3.3.0
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

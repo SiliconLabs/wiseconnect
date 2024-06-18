@@ -51,8 +51,8 @@ typedef enum {
 } sl_si91x_gcm_mode_t;
 
 typedef enum {
-  SL_SI91X_DMA_DISABLE = 0, ///< Disable DMA
-  SL_SI91X_DMA_ENABLE       ///< Enable DMA
+  SL_SI91X_GCM_DMA_DISABLE = 0, ///< Disable DMA
+  SL_SI91X_GCM_DMA_ENABLE       ///< Enable DMA
 } sl_si91x_gcm_dma_use_t;
 
 typedef enum {

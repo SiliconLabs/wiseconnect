@@ -47,7 +47,6 @@
 #define MIN_BIT_WIDTH       4        // Minimum Bit width
 #define MAX_SLAVE_BIT_WIDTH 16       // Maximum Slave Bit width
 #define MAX_BIT_WIDTH       16       // Maximum Bit width
-#define DOUBLE              2        // Double the baudrate
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -66,10 +65,8 @@ extern sl_ssi_driver_t Driver_SSI_ULP_MASTER;
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 static sl_status_t convert_arm_to_sl_error_code(int32_t error);
-static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
 static sl_status_t get_ssi_handle(sl_ssi_instance_t instance, sl_ssi_handle_t *ssi_handle);
 static sl_status_t validate_control_parameters(sl_ssi_control_config_t *control_configuration);
-static sl_status_t validate_clock_parameters(sl_ssi_clock_config_t *clock_configuration);
 static void sl_si91x_ssi_set_fifo_threshold(sl_ssi_handle_t ssi_handle);
 static void callback_event_handler(uint32_t event);
 static void sl_ssi_set_receive_sample_delay(sl_ssi_handle_t ssi_handle, uint32_t sample_delay);
@@ -96,62 +93,13 @@ static sl_status_t sli_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle
 *******************************************************************************/
 sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config)
 {
-  int32_t error_status;
-  sl_status_t status;
-  uint32_t baud_rate;
-/* SSI_UC is defined by default. when this macro (SSI_UC) is defined, peripheral
-     * configuration is directly taken from the configuration set in the universal configuration (UC).
-     * if the application requires the configuration to be changed in run-time, undefined this macro
-     * and change the peripheral configuration through the sl_si91x_ssi_set_configuration API.
-     */
-#if (SSI_UC == 1)
-  baud_rate = ssi_configuration.baud_rate;
-#endif
+  sl_status_t status = SL_STATUS_OK;
 
   do {
     if (clock_config == NULL) {
       status = SL_STATUS_NULL_POINTER;
       break;
     }
-    // validate the clock parameters entered by user, if not in range returns error code
-    status = validate_clock_parameters(clock_config);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // to configure the memory map pll for SSI
-    SSI_SetMemoryMapPll(clock_config->intf_pll_500_control_value);
-    // RSI API to set INTF pll clock is called and the status is converted to the SL error code.
-    error_status = RSI_CLK_SetIntfPllFreq(M4CLK, clock_config->intf_pll_clock, clock_config->intf_pll_reference_clock);
-    status       = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // RSI API to set M4 clock is called and the status is converted to the SL error code.
-    error_status = RSI_CLK_M4SocClkConfig(M4CLK, M4_INTFPLLCLK, clock_config->division_factor);
-    status       = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-/* The frequency of the SSI master bit-rate clock is one-half the frequency of SSI master input clock.
-	   * This allows the shift control logic to capture data on one clock edge of bit-rate clock and propagate data on the opposite edge.
-	   */
-#if (SSI_UC == 1)
-    clock_config->soc_pll_clock = (DOUBLE * baud_rate);
-#endif
-    // RSI API to set SoC pll clock is called and the status is converted to the SL error code.
-    RSI_CLK_SocPllLockConfig(MANUAL_LOCK, BYPASS_MANUAL_LOCK, clock_config->soc_pll_mm_count_value);
-    error_status = RSI_CLK_SetSocPllFreq(M4CLK, clock_config->soc_pll_clock, clock_config->soc_pll_reference_clock);
-    status       = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    // Configure QSPI clock as input source.
-    error_status = ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK,
-                                                            QSPI_INTFPLLCLK,
-                                                            SWALLO_ENABLE,
-                                                            ODD_DIV_ENABLE,
-                                                            clock_config->division_factor);
-    status       = convert_rsi_to_sl_error_code(error_status);
   } while (false);
   return status;
 }
@@ -230,11 +178,7 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle)
     }
     // Unregister the user callback function.
     user_callback = NULL;
-    // Power gate off to ssi peripheral.
-    status = sli_si91x_ssi_configure_power_mode(ssi_handle, ARM_POWER_OFF);
-    if (status != SL_STATUS_OK) {
-      return status;
-    }
+
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Uninitialize();
     status       = convert_arm_to_sl_error_code(error_status);
   } while (false);
@@ -865,37 +809,6 @@ static sl_status_t convert_arm_to_sl_error_code(int32_t error)
 }
 
 /*******************************************************************************
- * To validate RSI error code and map to sl_status_t type errors.
- *
- * RSI errors are converted to the SL_STATUS errors via this function.
- * @param[in] int error code
- * @return
- * *         returns SL_STATUS type errors.
-*******************************************************************************/
-static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error)
-{
-  sl_status_t status;
-  switch (error) {
-    case RSI_OK:
-      status = SL_STATUS_OK;
-      break;
-    case INVALID_PARAMETERS:
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    case ERROR_INVALID_INPUT_FREQUENCY:
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    case ERROR_CLOCK_NOT_ENABLED:
-      status = SL_STATUS_NOT_INITIALIZED;
-      break;
-    default:
-      status = SL_STATUS_FAIL;
-      break;
-  }
-  return status;
-}
-
-/*******************************************************************************
  * internal function which validates the control structure passed into master
  * control function below
  *
@@ -930,40 +843,6 @@ static sl_status_t validate_control_parameters(sl_ssi_control_config_t *control_
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-  } while (false);
-  return status;
-}
-
-/*******************************************************************************
- * To validate the clock parameters and return status accordingly.
- * It takes pointer to clock configuration structure as argument.
- * If the values in clock_configuration is out of range, it returns error code
- ******************************************************************************/
-static sl_status_t validate_clock_parameters(sl_ssi_clock_config_t *clock_configuration)
-{
-  sl_status_t status;
-  do {
-    // To Validate different clock frequencies with its respective maximum and
-    // minimum frequencies, if not in range, returns error code.
-    if ((clock_configuration->intf_pll_clock < INTF_PLL_MIN_FREQUECY)
-        || (clock_configuration->intf_pll_clock > INTF_PLL_MAX_FREQUECY)
-        || (clock_configuration->intf_pll_reference_clock < INTF_PLL_MIN_FREQUECY)
-        || (clock_configuration->intf_pll_reference_clock > INTF_PLL_MAX_FREQUECY)
-        || (clock_configuration->soc_pll_clock < SOC_PLL_MIN_FREQUECY)
-        || (clock_configuration->soc_pll_clock > SOC_PLL_MAX_FREQUECY)
-        || (clock_configuration->soc_pll_reference_clock < SOC_PLL_MIN_FREQUECY)
-        || (clock_configuration->soc_pll_reference_clock > SOC_PLL_MAX_FREQUECY)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // To Validate the division factor, if not in range,
-    // returns error code.
-    if (clock_configuration->division_factor >= SOC_MAX_CLK_DIVISION_FACTOR) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
   } while (false);
   return status;
 }

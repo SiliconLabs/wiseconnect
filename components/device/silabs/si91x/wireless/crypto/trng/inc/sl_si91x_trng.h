@@ -25,6 +25,7 @@
 #endif //SLI_TRNG_DEVICE_SI91X
 
 #ifndef SLI_SI91X_TRNG_DUPLICATE_CHECK
+// Enables duplicate check for TRNG
 #define SLI_SI91X_TRNG_DUPLICATE_CHECK 1
 #endif // SLI_SI91X_TRNG_DUPLICATE_CHECK
 
@@ -84,8 +85,7 @@ sl_status_t sl_si91x_trng_entropy(void);
 sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length);
 
 /***************************************************************************/ /**
- * @brief
- *   This API generates random number of desired length.
+ * @brief This API generates random number of desired length.
  * @param[in]   random_number - Address for Random number
  * @param[in]   length - length of random number in bytes
  * @return
@@ -95,11 +95,12 @@ sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t lengt
 
 #if SLI_SI91X_TRNG_DUPLICATE_CHECK
 /***************************************************************************/ /**
- * @brief
- *   This API checks if there are any repeating elements in the Array.
- * @param[in]   a, Array
- * @param[in]   key_length, length of the Array
- * @return
+ * @brief This API checks if there are any repeating elements in the Array.
+ * @param[in,out]  dword            Pointer to the array of elements.
+ * @param[in]      length_in_dwords Length of the array in dwords.
+ * @param[in]      index            Index of the element to be duplicated.
+ * 
+ * @return     None
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
 ******************************************************************************/
 sl_status_t sl_si91x_duplicate_element(uint32_t *dword, uint32_t length_in_dwords);

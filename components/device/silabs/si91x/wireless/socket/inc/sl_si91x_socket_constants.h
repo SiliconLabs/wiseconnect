@@ -37,8 +37,11 @@
 
 #define TCP_RX_WINDOW_SIZE 10
 
-#define DEFAULT_STREAM_MSS_SIZE   1460
-#define DEFAULT_DATAGRAM_MSS_SIZE 1472
+#define DEFAULT_STREAM_MSS_SIZE_IPV4   1460
+#define DEFAULT_DATAGRAM_MSS_SIZE_IPV4 1472
+
+#define DEFAULT_STREAM_MSS_SIZE_IPV6   1440
+#define DEFAULT_DATAGRAM_MSS_SIZE_IPV6 1452
 
 #define MAX_TCP_RETRY_COUNT         10
 #define DEFAULT_TCP_KEEP_ALIVE_TIME 1200
@@ -62,22 +65,28 @@
 
 #define MAX_RETRANSMISSION_TIME_VALUE 32
 
-#define SL_SI91X_SO_RCVTIME                          20 /* Enable receive timeout */
-#define SL_SI91X_SO_TCP_KEEPALIVE                    26 /* To Configure the tcp keep alive  */
-#define SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET          38 /* To Configure the high performance socket */
-#define SL_SI91X_SO_CERT_INDEX                       46 /* To enable set certificate index*/
-#define SL_SI91X_SO_SSL_ENABLE                       37 /* To enable ssl */
-#define SL_SI91X_SO_SSL_V_1_0_ENABLE                 42 /* To enable ssl 1.0 */
-#define SL_SI91X_SO_SSL_V_1_1_ENABLE                 43 /* To enable ssl 1.1*/
-#define SL_SI91X_SO_SSL_V_1_2_ENABLE                 44 /* To enable ssl 1.2*/
-#define sl_si91x_SO_TCP_ACK_INDICATION               45 /* To enable tcp ack indication feature*/
-#define SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 48 /* to configure max retransmission timeout value*/
-#define sl_si91x_IP_TOS                              48 /* To configure TOS */
-#define SL_SI91X_SO_SSL_V_1_3_ENABLE                 49 /* To enable ssl 1.3*/
-#define SL_SI91X_SO_MAXRETRY                         24 /* To Enable max tcp retry count */
-#define SL_SI91X_SO_MSS                              40 /* To Configure the tcp mss  */
-#define SL_SI91X_SO_SOCK_VAP_ID                      25 /* To Configure the socket VAP iD */
-#define SL_SI91X_SO_TLS_SNI                          47 /* To Configure the TLS SNI extension */
+/**
+ * @addtogroup SI91X_SOCKET_OPTION_NAME SiWx91x Socket Option Name
+ * @ingroup SI91X_SOCKET_FUNCTIONS
+ * @{ 
+ */
+#define SL_SI91X_SO_RCVTIME                          20 ///< Enable receive timeout
+#define SL_SI91X_SO_TCP_KEEPALIVE                    26 ///< To configure the TCP keep alive
+#define SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET          38 ///< To configure the high performance socket
+#define SL_SI91X_SO_CERT_INDEX                       46 ///< To enable set certificate index
+#define SL_SI91X_SO_SSL_ENABLE                       37 ///< To enable SSL
+#define SL_SI91X_SO_SSL_V_1_0_ENABLE                 42 ///< To enable SSL 1.0
+#define SL_SI91X_SO_SSL_V_1_1_ENABLE                 43 ///< To enable SSL 1.1
+#define SL_SI91X_SO_SSL_V_1_2_ENABLE                 44 ///< To enable SSL 1.2
+#define SL_SI91x_SO_TCP_ACK_INDICATION               45 ///< To enable TCP ACK indication feature
+#define SL_SI91X_SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 48 ///< to configure max retransmission timeout value
+#define SL_SI91X_IP_TOS                              48 ///< To configure TOS
+#define SL_SI91X_SO_SSL_V_1_3_ENABLE                 49 ///< To enable SSL 1.3
+#define SL_SI91X_SO_MAXRETRY                         24 ///< To enable max TCP retry count
+#define SL_SI91X_SO_MSS                              40 ///< To configure the TCP MSS
+#define SL_SI91X_SO_SOCK_VAP_ID                      25 ///< To configure the socket VAP ID
+#define SL_SI91X_SO_TLS_SNI                          47 ///< To configure the TLS SNI extension
+/** @} */
 
 #define SHUTDOWN_BY_ID   0
 #define SHUTDOWN_BY_PORT 1
@@ -113,31 +122,38 @@
    | BIT_TLS13_AES_128_CCM_SHA256 | BIT_TLS13_AES_128_CCM_8_SHA256)
 #endif
 
-#define BIT_TLS_RSA_WITH_AES_256_CBC_SHA256         BIT(0)
-#define BIT_TLS_RSA_WITH_AES_128_CBC_SHA256         BIT(1)
-#define BIT_TLS_RSA_WITH_AES_256_CBC_SHA            BIT(2)
-#define BIT_TLS_RSA_WITH_AES_128_CBC_SHA            BIT(3)
-#define BIT_TLS_RSA_WITH_AES_128_CCM_8              BIT(4)
-#define BIT_TLS_RSA_WITH_AES_256_CCM_8              BIT(5)
-#define BIT_TLS_DHE_RSA_WITH_AES_128_GCM_SHA256     BIT(8)
-#define BIT_TLS_DHE_RSA_WITH_AES_256_GCM_SHA384     BIT(9)
-#define BIT_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256   BIT(10)
-#define BIT_TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384   BIT(11)
-#define BIT_TLS_DHE_RSA_WITH_AES_256_CBC_SHA256     BIT(14)
-#define BIT_TLS_DHE_RSA_WITH_AES_128_CBC_SHA256     BIT(15)
-#define BIT_TLS_DHE_RSA_WITH_AES_256_CBC_SHA        BIT(16)
-#define BIT_TLS_DHE_RSA_WITH_AES_128_CBC_SHA        BIT(17)
-#define BIT_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384   BIT(18)
-#define BIT_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256   BIT(19)
-#define BIT_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA      BIT(20)
-#define BIT_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA      BIT(21)
-#define BIT_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 BIT(22)
-#define BIT_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 BIT(23)
-#define BIT_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA    BIT(24)
-#define BIT_TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA       BIT(25)
-#define BIT_TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA     BIT(26)
-#define BIT_TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA   BIT(27)
-#define SSL_NEW_CIPHERS                             BIT(31)
+#define BIT_TLS_RSA_WITH_AES_256_CBC_SHA256               BIT(0)
+#define BIT_TLS_RSA_WITH_AES_128_CBC_SHA256               BIT(1)
+#define BIT_TLS_RSA_WITH_AES_256_CBC_SHA                  BIT(2)
+#define BIT_TLS_RSA_WITH_AES_128_CBC_SHA                  BIT(3)
+#define BIT_TLS_RSA_WITH_AES_128_CCM_8                    BIT(4)
+#define BIT_TLS_RSA_WITH_AES_256_CCM_8                    BIT(5)
+#define BIT_TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8            BIT(6)
+#define BIT_TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8            BIT(7)
+#define BIT_TLS_DHE_RSA_WITH_AES_128_GCM_SHA256           BIT(8)
+#define BIT_TLS_DHE_RSA_WITH_AES_256_GCM_SHA384           BIT(9)
+#define BIT_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256         BIT(10)
+#define BIT_TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384         BIT(11)
+#define BIT_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256       BIT(12)
+#define BIT_TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384       BIT(13)
+#define BIT_TLS_DHE_RSA_WITH_AES_256_CBC_SHA256           BIT(14)
+#define BIT_TLS_DHE_RSA_WITH_AES_128_CBC_SHA256           BIT(15)
+#define BIT_TLS_DHE_RSA_WITH_AES_256_CBC_SHA              BIT(16)
+#define BIT_TLS_DHE_RSA_WITH_AES_128_CBC_SHA              BIT(17)
+#define BIT_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384         BIT(18)
+#define BIT_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256         BIT(19)
+#define BIT_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA            BIT(20)
+#define BIT_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA            BIT(21)
+#define BIT_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384       BIT(22)
+#define BIT_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256       BIT(23)
+#define BIT_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA          BIT(24)
+#define BIT_TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA             BIT(25)
+#define BIT_TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA           BIT(26)
+#define BIT_TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA         BIT(27)
+#define BIT_TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256   BIT(28)
+#define BIT_TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 BIT(29)
+#define BIT_TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256     BIT(30)
+#define SSL_NEW_CIPHERS                                   BIT(31)
 
 // TLSv1.3 supported ciphers
 #ifdef SLI_SI917

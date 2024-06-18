@@ -37,7 +37,9 @@ In this application, module connects with remote device and initiates SMP pairin
 ### Software Requirements
 
 - Embedded Development Environment
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+
+> **Note:** The provided mobile screenshots are from the 2.8.1 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 ### Setup Diagram
 
@@ -119,21 +121,34 @@ Follow the steps for successful execution of the program:
 
 2. Connect any serial console for prints.
 
-3. Open a EFR Connect mobile App in the Smartphone and do the scan.Ensure that the device is not bonded prior . Open the bonded tab and if the application name appears then click on the three dots beside the name and select delete bond information.
+3. Open a Simplicity Connect App(formerly EFR Connect App) in the Smartphone and do the scan.Ensure that the device is not bonded prior . Open the bonded tab and if the application name appears then click on the three dots beside the name and select delete bond information.
 
 4. In the App, Silicon Labs  will appear with the name configured in the macro "BLE_SMP_SC" or sometimes observed as Silicon Labs device as internal name "SimpleBLEPeripheral".
 
+ ![](resources/readme/Scan.png)
+
 5. Initiate connection from the App.
+
+ ![](resources/readme/Connect.png)
 
 6. Observe that the connection is established between the desired device and Silicon Labs device.When application sends a smp request accept it on remote side by clicking ok(pair) and after smp passkey display event .
 
-7. Enter the passkey displayed on the console (host logs) on the remote mobile side.  
+ ![](resources/readme/Pairing_Request.png)
+
+ ![](resources/readme/Pair.png)
+
+7. Enter the passkey displayed on the console (host logs) on the remote mobile side.
+
+ ![](resources/readme/output_1.png)
+
+ ![](resources/readme/passkey.png)
 
 8. SiWx91x will initiate SMP Procedure by giving a security request . The remote device will give a SMP Pair request and SiWx91x responds with a SMP pair response . SMP Passkey event , encryption event and security keys exchange event follow after it .
 
+ ![](resources/readme/DUT_Passkey.png)
+ 
 9. If SMP is successful, device sends SMP encrypt started event to host. If not success, device sends SMP failure event to host.
 
 10. Refer the following images for console prints:
  
     ![](resources/readme/output.png)
-    ![](resources/readme/output_1.png)

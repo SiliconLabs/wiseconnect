@@ -24,6 +24,10 @@
 extern "C" {
 #endif
 
+#ifndef UNUSED_VARIABLE
+#define UNUSED_VARIABLE(x) (void)(x)
+#endif // UNUSED_VARIABLE
+
 /** @addtogroup BUTTON Button
  * @ingroup SI91X_HARDWARE_DRIVER_APIS
  * @brief Sample API functions for using push-buttons.

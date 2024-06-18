@@ -1,19 +1,19 @@
 /*******************************************************************************
-* @file  syscalls.c
-* @brief 
-*******************************************************************************
-* # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
-*******************************************************************************
-*
-* The licensor of this software is Silicon Laboratories Inc. Your use of this
-* software is governed by the terms of Silicon Labs Master Software License
-* Agreement (MSLA) available at
-* www.silabs.com/about-us/legal/master-software-license-agreement. This
-* software is distributed to you in Source Code format and is governed by the
-* sections of the MSLA applicable to Source Code.
-*
-******************************************************************************/
+ * @file  syscalls.c
+ * @brief
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ ******************************************************************************/
 
 /*
  *
@@ -36,10 +36,13 @@
 #include <sys/times.h>
 #include "syscalls.h"
 #include "rsi_debug.h"
+#include "sl_component_catalog.h"
 #if defined SL_UART
 #include "sl_uart.h"
 #endif
-
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#include "cmsis_os2.h"
+#endif
 #define IO_MAXLINE 20U //maximun read length
 typedef int (*PUTCHAR_FUNC)(int a);
 char *stack_ptr __asm("sp");
@@ -89,11 +92,18 @@ void _exit(int status)
 }
 
 #if !defined SL_UART
+#ifdef SL_CATALOG_KERNEL_PRESENT
+extern osMutexId_t si91x_prints_mutex;
+#endif
 int _write(int file, char *ptr, int len)
 {
   int todo;
   (void)file;
-
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  if (osKernelGetState() == osKernelRunning) {
+    osMutexAcquire(si91x_prints_mutex, osWaitForever);
+  }
+#endif
   for (todo = 0; todo < len; todo++) {
 #ifdef DEBUG_SERIAL
     Serial_send(*ptr++);
@@ -104,6 +114,11 @@ int _write(int file, char *ptr, int len)
 
 #endif
   }
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  if (osKernelGetState() == osKernelRunning) {
+    osMutexRelease(si91x_prints_mutex);
+  }
+#endif
   return len;
 }
 #endif // SL_UART
@@ -209,7 +224,7 @@ static int scanf_data_format(const char *line_ptr, char *format, va_list args_pt
         c++;
       } else {
         /* Match failure. Misalignment with C99, the unmatched characters need to be pushed back to stream.
-         * However, it is deserted now. */
+               * However, it is deserted now. */
         break;
       }
     } else {

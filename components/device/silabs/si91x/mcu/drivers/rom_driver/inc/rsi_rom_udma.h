@@ -116,7 +116,7 @@ STATIC INLINE rsi_error_t RSI_UDMA_SetupChannelTransfer(RSI_UDMA_HANDLE_T pHandl
                                                         void *pSrcAddr,
                                                         void *pDstAddr)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_setup_channel_transfer(pHandle, pCfg, vsUdmaChaConfigData, pSrcAddr, pDstAddr);
 #else
   return udma_setup_channel_transfer(pHandle, pCfg, vsUdmaChaConfigData, pSrcAddr, pDstAddr);
@@ -142,7 +142,7 @@ STATIC INLINE rsi_error_t RSI_UDMA_SetChannelScatterGatherTransfer(RSI_UDMA_HAND
                                                                    uint32_t transferType)
 
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_set_channel_scatter_gather_transfer(pHandle, dmaCh, taskCount, pTaskList, transferType);
 
 #else
@@ -169,7 +169,7 @@ STATIC INLINE uint32_t RSI_UDMA_GetChannelTransferLength(RSI_UDMA_HANDLE_T pHand
                                                          RSI_UDMA_CHA_CFG_T *pCfg,
                                                          RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_get_channel_transfer_length(pHandle, pCfg, vsUDMAChaConfigData);
 #else
   return udma_get_channel_transfer_length(pHandle, pCfg, vsUDMAChaConfigData);
@@ -200,7 +200,7 @@ STATIC INLINE uint32_t RSI_UDMA_GetChannelTransferLength(RSI_UDMA_HANDLE_T pHand
 
 STATIC INLINE uint32_t RSI_UDMA_GetChannelTransferMode(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_get_channel_transfer_mode(pHandle, pCfg);
 #else
   return udma_get_channel_transfer_mode(pHandle, pCfg);
@@ -216,7 +216,7 @@ STATIC INLINE uint32_t RSI_UDMA_GetChannelTransferMode(RSI_UDMA_HANDLE_T pHandle
  */
 STATIC INLINE RSI_UDMA_HANDLE_T RSI_UDMA_Init(void *mem, const RSI_UDMA_INIT_T *pInit)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_init(mem, pInit);
 #else
   return udma_init(mem, pInit);
@@ -241,7 +241,7 @@ STATIC INLINE RSI_UDMA_HANDLE_T RSI_UDMA_Init(void *mem, const RSI_UDMA_INIT_T *
  */
 STATIC INLINE rsi_error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_setup_channel(pHandle, pCfg);
 #else
   return udma_setup_channel(pHandle, pCfg);
@@ -256,7 +256,7 @@ STATIC INLINE rsi_error_t RSI_UDMA_SetupChannel(RSI_UDMA_HANDLE_T pHandle, RSI_U
  */
 STATIC INLINE void RSI_UDMA_DeInit(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   ROMAPI_UDMA_API->udma_deInit(pHandle, pCfg);
 #else
   udma_deInit(pHandle, pCfg);
@@ -272,7 +272,7 @@ STATIC INLINE void RSI_UDMA_DeInit(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T
 
 STATIC INLINE void RSI_UDMA_Interrupthandler(RSI_UDMA_HANDLE_T pHandle)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   ROMAPI_UDMA_API->udma_interrupt_handler(pHandle);
 #else
   udma_interrupt_handler(pHandle);
@@ -288,7 +288,7 @@ STATIC INLINE void RSI_UDMA_Interrupthandler(RSI_UDMA_HANDLE_T pHandle)
  */
 STATIC INLINE rsi_error_t RSI_UDMA_InterruptEnable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(UDMA_ROMDRIVER_PRESENT)
   return ROMAPI_UDMA_API->udma_interrupt_enable(pHandle, dmaCh);
 #else
   return udma_interrupt_enable(pHandle, dmaCh);

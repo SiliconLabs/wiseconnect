@@ -8,6 +8,7 @@ quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/service/nvm3"
 define:
   - name: FLASH_PAGE_SIZE
+    value: 4096
   - name: __STATIC_INLINE
     value: "static inline"
 ui_hints:
@@ -34,7 +35,6 @@ requires:
 include:
   - path: "inc"
     file_list:
-    - path: "nvm3_default_config.h"
     - path: "sl_si91x_common_flash_intf.h"
 template_contribution:
   - name: nvm3_enable

@@ -49,7 +49,7 @@ extern "C" {
  */
 STATIC INLINE rsi_error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_start(pMCPWM, chnlNum);
 #else
   return mcpwm_start(pMCPWM, chnlNum);
@@ -66,7 +66,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_Start(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
  */
 STATIC INLINE rsi_error_t RSI_MCPWM_Stop(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_stop(pMCPWM, chnlNum);
 #else
   return mcpwm_stop(pMCPWM, chnlNum);
@@ -89,7 +89,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_SetTimePeriod(RSI_MCPWM_T *pMCPWM,
                                                   uint16_t period,
                                                   uint16_t initVal)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_set_time_period(pMCPWM, chnlNum, period, initVal);
 #else
   return mcpwm_set_time_period(pMCPWM, chnlNum, period, initVal);
@@ -122,7 +122,7 @@ STATIC INLINE void RSI_MCPWM_SpecialEventTriggerConfig(RSI_MCPWM_T *pMCPWM,
                                                        boolean_t svtDir,
                                                        RSI_MCPWM_SVT_CONFIG_T *pMCPWMSVTConfig)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   ROMAPI_MCPWM_API->mcpwm_special_event_trigger_config(pMCPWM, svtDir, pMCPWMSVTConfig);
 #else
   mcpwm_special_event_trigger_config(pMCPWM, svtDir, pMCPWMSVTConfig);
@@ -157,7 +157,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM,
                                                      RSI_MCPWM_DT_CONFIG_T *pMCPWMDeadTimeConfig,
                                                      uint8_t chnlNum)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_dead_time_value_set(pMCPWM, pMCPWMDeadTimeConfig, chnlNum);
 #else
   return mcpwm_dead_time_value_set(pMCPWM, pMCPWMDeadTimeConfig, chnlNum);
@@ -174,7 +174,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_DeadTimeValueSet(RSI_MCPWM_T *pMCPWM,
  */
 STATIC INLINE rsi_error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_channel_reset(pMCPWM, chnlNum);
 #else
   return mcpwm_channel_reset(pMCPWM, chnlNum);
@@ -191,7 +191,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_ChannelReset(RSI_MCPWM_T *pMCPWM, uint8_t ch
  */
 STATIC INLINE rsi_error_t RSI_MCPWM_CounterReset(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_counter_reset(pMCPWM, chnlNum);
 #else
   return mcpwm_counter_reset(pMCPWM, chnlNum);
@@ -225,7 +225,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM,
                                                         uint32_t preScale,
                                                         uint8_t chnlNum)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_period_control_config(pMCPWM, postScale, preScale, chnlNum);
 #else
   return mcpwm_period_control_config(pMCPWM, postScale, preScale, chnlNum);
@@ -254,7 +254,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_PeriodControlConfig(RSI_MCPWM_T *pMCPWM,
  */
 STATIC INLINE rsi_error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_fault_avalue_set(pMCPWM, pwmOutput, value);
 #else
   return mcpwm_fault_avalue_set(pMCPWM, pwmOutput, value);
@@ -284,7 +284,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_FaultAValueSet(RSI_MCPWM_T *pMCPWM, uint8_t 
  */
 STATIC INLINE rsi_error_t RSI_MCPWM_FaultBValueSet(RSI_MCPWM_T *pMCPWM, uint8_t pwmOutput, uint8_t value)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_fault_bvalue_set(pMCPWM, pwmOutput, value);
 #else
   return mcpwm_fault_bvalue_set(pMCPWM, pwmOutput, value);
@@ -309,7 +309,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_FaultBValueSet(RSI_MCPWM_T *pMCPWM, uint8_t 
  */
 STATIC INLINE rsi_error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM, uint8_t mode, uint8_t chnlNum)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_set_base_timer_mode(pMCPWM, mode, chnlNum);
 #else
   return mcpwm_set_base_timer_mode(pMCPWM, mode, chnlNum);
@@ -328,7 +328,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_SetBaseTimerMode(RSI_MCPWM_T *pMCPWM, uint8_
  */
 STATIC INLINE rsi_error_t RSI_MCPWM_SetOutputMode(RSI_MCPWM_T *pMCPWM, boolean_t mode, uint8_t chnlNum)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_MCPWM_API->mcpwm_set_output_mode(pMCPWM, mode, chnlNum);
 #else
   return mcpwm_set_output_mode(pMCPWM, mode, chnlNum);
@@ -346,7 +346,7 @@ STATIC INLINE rsi_error_t RSI_MCPWM_SetOutputMode(RSI_MCPWM_T *pMCPWM, boolean_t
  */
 STATIC INLINE void RSI_MCPWM_SetOutputPolarity(RSI_MCPWM_T *pMCPWM, boolean_t polL, boolean_t polH)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   ROMAPI_MCPWM_API->mcpwm_set_output_polarity(pMCPWM, polL, polH);
 #else
   mcpwm_set_output_polarity(pMCPWM, polL, polH);
@@ -363,7 +363,7 @@ STATIC INLINE void RSI_MCPWM_SetOutputPolarity(RSI_MCPWM_T *pMCPWM, boolean_t po
  */
 STATIC INLINE void RSI_MCPWM_InterruptHandler(RSI_MCPWM_T *pMCPWM, RSI_MCPWM_CALLBACK_T *pCallBack)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(PWM_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   ROMAPI_MCPWM_API->mcpwm_interrupt_handler(pMCPWM, pCallBack);
 #else
   mcpwm_interrupt_handler(pMCPWM, pCallBack);

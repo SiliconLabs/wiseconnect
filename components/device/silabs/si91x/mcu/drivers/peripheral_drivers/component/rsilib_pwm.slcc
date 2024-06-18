@@ -16,3 +16,5 @@ include:
     - path: "rsi_pwm.h"
 provides:
   - name: rsilib_pwm
+define:
+  - name: PWM_ROMDRIVER_PRESENT

@@ -17,10 +17,16 @@
 
 // Include Files
 
-#include "rsi_chip.h"
 #include "clock_update.h"
 #include "math.h"
 #include "UDMA.h"
+#include "rsi_dac.h"
+#include "rsi_power_save.h"
+#include "rsi_egpio.h"
+#include "rsi_opamp.h"
+#include "rsi_ulpss_clk.h"
+#include "rsi_rom_ulpss_clk.h"
+#include "rsi_rom_udma.h"
 
 // UDMA config
 // DMA descriptors must be aligned to 16 bytes
@@ -263,7 +269,7 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
           RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
           return (uint32_t)((clk_div_fac * sampl_rate) / 2);
         } else {
-          RSI_ULPSS_RefClkConfig(ULPSS_RF_REF_CLK);
+          RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
           // Configured DAC clock as 40Mhz XTAL
           RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
           clk_div_fac = (uint16_t)ceil((2 * 40000000) / sampl_rate);

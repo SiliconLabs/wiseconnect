@@ -23,3 +23,6 @@ template_contribution:
   priority: -9995
 provides:
   - name: sllib_m4_power_save
+requires:
+  - name: systemlevel_rtc
+  - name: romdriver_power_save

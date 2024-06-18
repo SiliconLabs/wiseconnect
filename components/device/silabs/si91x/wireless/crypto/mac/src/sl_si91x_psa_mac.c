@@ -100,10 +100,10 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
                                           size_t mac_size,
                                           size_t *mac_length)
 {
-#if defined(PSA_WANT_ALG_HMAC) || defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC) || defined(SLI_PSA_DRIVER_FEATURE_CMAC)
 
-  if (key_buffer == NULL || attributes == NULL || mac == NULL || mac_length == NULL || input == NULL
-      || input_length <= 0) {
+  if (key_buffer == NULL || attributes == NULL || mac == NULL || mac_length == NULL
+      || (input == NULL && input_length != 0)) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
@@ -185,7 +185,7 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
 
     sl_si91x_gcm_config_t config_cmac = { 0 };
     config_cmac.gcm_mode              = SL_SI91X_CMAC_MODE;
-    config_cmac.dma_use               = SL_SI91X_DMA_ENABLE;
+    config_cmac.dma_use               = SL_SI91X_GCM_DMA_ENABLE;
     config_cmac.msg                   = input;
     config_cmac.msg_length            = input_length;
     config_cmac.nonce                 = NULL;

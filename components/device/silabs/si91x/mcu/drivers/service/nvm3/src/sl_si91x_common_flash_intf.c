@@ -16,10 +16,10 @@
  ******************************************************************************/
 #include "sl_si91x_common_flash_intf.h"
 #include "si91x_device.h"
-#include "rsi_chip.h"
+
 #include "system_si91x.h"
 #include "sl_si91x_driver.h"
-#include "em_core_generic.h"
+#include "sl_core.h"
 #include "cmsis_os2.h"
 
 /*******************************************************************************

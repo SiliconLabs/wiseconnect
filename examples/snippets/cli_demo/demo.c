@@ -105,13 +105,12 @@ void iostream_rx()
   static uint8_t index = 0;
   sl_iostream_getchar(SL_IOSTREAM_STDIN, &c);
   if (c > 0) {
+    cache_uart_rx_data(c);
     if ((c == '\n')) {
       index      = 0;
       end_of_cmd = true;
     } else {
       if (index < BUFFER_SIZE - 1) {
-        cache_uart_rx_data(c);
-        ;
         index++;
       }
     }

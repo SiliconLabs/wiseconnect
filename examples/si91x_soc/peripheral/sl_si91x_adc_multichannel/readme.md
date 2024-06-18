@@ -5,6 +5,7 @@
 
 - [Purpose/Scope](#purposescope)
 - [Overview](#overview)
+- [About Example Code](#about-example-code)
 - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
   - [Hardware Requirements](#hardware-requirements)
   - [Software Requirements](#software-requirements)
@@ -36,6 +37,20 @@
 - The AUXADC can take analog inputs in single ended or differential. The output is 12-bit digital which can be given out with (or) without noise averaging.
 - The Aux VRef can be connected directly to Vbat (Aux LDO bypass mode) or to the Aux LDO output.
 
+## About Example Code
+
+- This example demonstrates ADC in fifo mode of operation with four channel configurations. It reads the sampled data from respective channel buffer of ADC and convert it into equivalent input voltage.
+- Various parameters like Number of channel, ADC operation mode, Input Type, Sampling Rate and Sample Length can be configured using UC.
+- sl_si91x_adc_common_config.h file contains the common configurations for ADC and sl_si91x_adc_init_inst_config.h contains channel instance configuration.
+- This example will work only on FIFO mode of operation.
+- Firmware version of API is fetched using \ref sl_si91x_adc_get_version which includes release version, major version and minor version \ref sl_adc_version_t.
+- ADC initialize should call \ref sl_si91x_adc_init API and passing parameters \ref sl_adc_channel_config_t, \ref sl_adc_config_t and reference voltage value.
+- All the necessary parameters are configured using \ref sl_si91x_adc_set_channel_configuration API, it expects a structure with required parameters \ref sl_adc_channel_config_t and
+  \ref sl_adc_config_t.
+- After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_adc_register_event_callback.
+- Then start the ADC to sample the data using \ref sl_si91x_adc_start API.
+- Once sampling is done callback will hit and set the true "data_sample_complete_flag" flag to read the sampled data using \ref sl_si91x_adc_read_data API in sequential order. This process will run continuously.
+
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
@@ -48,7 +63,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -99,22 +114,22 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   | CHANNEL | PIN TO ADCP | PIN TO ADCN |
   | --- | --- | --- |
-  | 0 | ULP_GPIO_1 [P16] | ULP_GPIO_7 [EXP_HEADER-15] |
-  | 1 | ULP_GPIO_10 [P17] | GPIO_30 [P35] |
-  | 2 | GPIO_25 [P25] | GPIO_26 [P27] |
-  | 3 | GPIO_27 [P29] | GPIO_28 [P31] |
-  | 4 | ULP_GPIO_8 [P15] | ULP_GPIO_1 [P16] |
-  | 5 | ULP_GPIO_10 [P17] | ULP_GPIO_7 [EXP_HEADER-15] |
-  | 6 | GPIO_25 [P25] | GPIO_26 [P27] |
-  | 7 | GPIO_27 [P29] | GPIO_28 [P31] |
-  | 8 | GPIO_29 [P33] | GPIO_30 [P35] |
+  | 1 | ULP_GPIO_1 [P16] | GPIO_28 [P31]  |
+  | 2 | ULP_GPIO_10 [P17] | GPIO_30 [P35] |
+  | 3 | ULP_GPIO_8 [P15] | GPIO_26 [P27] |
+  | 4 | GPIO_25 [P25] | ULP_GPIO_7 [EXP_HEADER-15] |
+  | 5 | ULP_GPIO_8 [P15] | ULP_GPIO_1 [P16] |
+  | 6 | ULP_GPIO_10 [P17] | ULP_GPIO_7 [EXP_HEADER-15] |
+  | 7 | GPIO_25 [P25] | GPIO_26 [P27] |
+  | 8 | GPIO_27 [P29] | GPIO_28 [P31] |
   | 9 | GPIO_29 [P33] | GPIO_30 [P35] |
-  | 10 | ULP_GPIO_1 [P16] | GPIO_30 [P35] |
-  | 11 | ULP_GPIO_1 [P16] | GPIO_28 [P31] |
-  | 12 | ULP_GPIO_7 [EXP_HEADER-15] | GPIO_26 [P27] |
-  | 13 | GPIO_26 [P27] | ULP_GPIO_7 [EXP_HEADER-15] |
-  | 14 | GPIO_28 [P31] | GPIO_26 [P27] |
-  | 15 | GPIO_30 [P35] | ULP_GPIO_7 [EXP_HEADER-15] |
+  | 10 | GPIO_29 [P33] | GPIO_30 [P35] |
+  | 11 | ULP_GPIO_1 [P16] | GPIO_30 [P35] |
+  | 12 | ULP_GPIO_1 [P16] | GPIO_28 [P31] |
+  | 13 | ULP_GPIO_7 [EXP_HEADER-15] | GPIO_26 [P27] |
+  | 14 | GPIO_26 [P27] | ULP_GPIO_7 [EXP_HEADER-15] |
+  | 15 | GPIO_28 [P31] | GPIO_26 [P27] |
+  | 16 | GPIO_30 [P35] | ULP_GPIO_7 [EXP_HEADER-15] |
 
   | OTHER INPUT SELECTION | VALUE TO ADCP | VALUE TO ADCN |
   | --- | --- | --- |
@@ -132,27 +147,27 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 2. When the application runs, it starts ADC conversion.
 3. After completion of conversion ADC input, it will print all the captured samples data in console by connecting vcom.
 
-   - **Channel 0 pin connections**
-     - When configured Single ended mode connect the positive analog input to ULP_GPIO_1 and GND to ULP_GPIO_7
-     - When configured Differential mode connect the positive analog input to ULP_GPIO_1 and negative input to ULP_GPIO_7
    - **Channel 1 pin connections**
+     - When configured Single ended mode connect the positive analog input to ULP_GPIO_1 and GND to GPIO_28
+     - When configured Differential mode connect the positive analog input to ULP_GPIO_1 and negative input to GPIO_28
+   - **Channel 2 pin connections**
      - When configured Single ended mode connect the positive analog input to ULP_GPIO_10 and GND to GPIO_30
      - When configured Differential mode connect the positive analog input to ULP_GPIO_10 and negative input to GPIO_30
-   - **Channel 2 pin connections**
-     - When configured Single ended mode connect the positive analog input to GPIO_25 and GND to GPIO_26
-     - When configured Differential mode connect the positive analog input to GPIO_25 and negative input to GPIO_26
    - **Channel 3 pin connections**
-     - When configured Single ended mode connect the positive analog input to GPIO_27 and GND to GPIO_28
-     - When configured Differential mode connect the positive analog input to GPIO_27 and negative input to GPIO_28
+     - When configured Single ended mode connect the positive analog input to ULP_GPIO_8 and GND to GPIO_26
+     - When configured Differential mode connect the positive analog input to ULP_GPIO_8 and negative input to GPIO_26
+   - **Channel 4 pin connections**
+     - When configured Single ended mode connect the positive analog input to GPIO_25 and GND to ULP_GPIO_7
+     - When configured Differential mode connect the positive analog input to GPIO_25 and negative input to ULP_GPIO_7
 
 > **Note:**
 >
 - Users who only want to utilize two channels can uninstall channels two and three from the software components on sl_si91x_adc_multichannel.slcp. By default, four channels instances will be created.
 - This application only applicable for FIFO mode.
-- Sample rate should be either same for all channels or 1/2, 1/4, 1/16.(for example if channel_0 sample rate is 10000sps, then channel_1 = 10000/2 sps, channel_2 = 10000/4 sps, channel_3 = 10000/16 sps)
+- Sample rate should be either same for all channels or 1/2, 1/4, 1/8.(for example if channel_1 sample rate is 10000sps, then channel_2 = 10000/2 sps, channel_3 = 10000/4 sps, channel_4 = 10000/8 sps)
 - User can configure input selection GPIO in channel configuration file ($path: $project/config/specific channel config file) if default GPIO is work around.
 - ADC input selection rather than GPIO (like OPAMP, DAC and Temperature sensor) user can create their own instances and configure them as per other input selection.
-- **The sample rate for this example application is currently limited to 15 Ksps, 500 sampling lengths, and a maximum of 4 channels.**
+- **The sample rate for this example application is limited to 50 Ksps, 500 sampling length and a maximum of 4 channels.**
 
 ### Formula Reference
 
@@ -174,5 +189,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Expected Results
 
 - After successful program execution the prints in serial console looks as shown below.
+- Here, the output is the average of the sampled data for each channel.
 
    ![output](resources/readme/sl_adc_output.png)
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

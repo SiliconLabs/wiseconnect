@@ -271,17 +271,21 @@ static void application_start(void *argument)
   mqtt_example();
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+
+#if (SL_SI91X_TICKLESS_MODE == 0)
   sl_si91x_m4_sleep_wakeup();
+#else
+  osSemaphoreId_t wait_semaphore;
+  wait_semaphore = osSemaphoreNew(1, 0, NULL);
+  if (wait_semaphore == NULL) {
+    printf("Failed to create semaphore\r\n");
+    return;
+  }
+  // Waiting forever using semaphore to put M4 to sleep in tick less mode
+  osSemaphoreAcquire(wait_semaphore, osWaitForever);
 #endif
 
-  while (1) {
-#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
-    // Let the CPU go to sleep if the system allows it.
-    sl_power_manager_sleep();
-#else
-    osDelay(osWaitForever);
 #endif
-  }
 }
 
 sl_status_t twt_callback_handler(sl_wifi_event_t event,

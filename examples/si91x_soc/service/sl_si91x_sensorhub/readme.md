@@ -78,7 +78,7 @@
 - Simplicity Studio
 - Serial console-setup
   - The Serial console setup instructions are provided below, 
-refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -200,31 +200,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
             .data_deliver.data_mode     = SL_SH_NO_DATA_MODE,
             ```
 3. **PowerSave Configurations:**
-    * The SensorHub utilizes the **Tickles Idle low-power mode** provided by the RTOS.
     * To configure the power save transitions from PS2 to PS4 and vice-versa, please update the below macro in the  preprocessor settings:
       ```c
       SL_SH_POWER_STATE_TRANSITIONS=1
       //Enabling this macro will move the application from PS4 state to PS2 state. 
       //In PS2 state the sensor data will be sampled and collected.
       ```
-    * To configure the power states to PS4 sleep or PS2 Sleep, please update the defines in ***\gecko_sdk_4.4.0\util\third_party\freertos\kernel\include\FreeRTOS.h** file as below:
-
-      ```c
-      #ifndef configPRE_SLEEP_PROCESSING
-      #define configPRE_SLEEP_PROCESSING(x) sli_si91x_sleep_wakeup(x) // Here x is idle time, 
-      #endif
-
-      // Configure the sleep time by using the below macro. 
-      // If the number of Ideal task ticks exceeds this value, the system is allowed to sleep.
-      #ifndef configEXPECTED_IDLE_TIME_BEFORE_SLEEP
-      #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP    70
-      #endif
-      ```
-    * To configure Tickless IDLE mode update below macro in ***config/FreeRTOSConfig.h**
-     ```c
-     #define configUSE_TICKLESS_IDLE 1 // 1 is to Enable the tickless Idle mode
-
-     ```
 
 4. **ADC Configurations**:
     - Configure the following parameters in the ***sensorhub_config.c*** file to change the ADC's mode from FIFO to STATIC and vice versa.
@@ -290,11 +271,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
           ```C
           SL_SH_PS1_STATE=1 
           //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
-
-          //PATH:***config/FreeRTOSConfig.h**
-          #ifndef configUSE_TICKLESS_IDLE
-          #define configUSE_TICKLESS_IDLE 0 // 0 is to Disable the tickless Idle mode 
-          #endif
           ```
 5. **SDC Configurations**:
     - Disable the ADC **SH_ADC_ENABLE** macro in the preprocessor settings and enable the **SH_SDC_ENABLE** macro for the sdc
@@ -328,11 +304,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
           ```C
           SL_SH_PS1_STATE=1 
           //Enabling this macro will move the core from PS2 Active state to PS1 state by using the Power_Task 
-
-          //PATH:***config/FreeRTOSConfig.h**
-          #ifndef configUSE_TICKLESS_IDLE
-          #define configUSE_TICKLESS_IDLE 0 // 0 is to Disable the tickless Idle mode 
-          #endif
           ```
 ### AWS Configuration
 AWS will ONLY begin by implementing the modifications and settings listed below.

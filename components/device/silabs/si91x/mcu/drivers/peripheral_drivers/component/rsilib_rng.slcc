@@ -16,3 +16,5 @@ include:
     - path: "rsi_rng.h"
 provides:
   - name: rsilib_rng
+define:
+  - name: RNG_ROMDRIVER_PRESENT

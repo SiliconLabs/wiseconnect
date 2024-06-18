@@ -177,7 +177,7 @@ static void application_start(void *argument)
     printf("\r\nUnexpected error while creating SSL sockets: 0x%lX\r\n", status);
     return;
   }
-  printf("\r\nCreating three SSL sockets Success\r\n");
+  printf("\r\nExample Demonstration Completed\r\n");
 }
 
 sl_status_t clear_and_load_certificates_in_flash(void)

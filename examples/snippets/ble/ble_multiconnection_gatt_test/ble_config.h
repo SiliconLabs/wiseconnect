@@ -32,7 +32,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "rsi_ble_apis.h"
-#ifdef SLI_SI91X_MCU_INTERFACE
+#if SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE)
 #include "sl_si91x_m4_ps.h"
 #endif
 

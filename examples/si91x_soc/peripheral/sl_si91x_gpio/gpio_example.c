@@ -24,6 +24,8 @@
 #include "sl_si91x_peripheral_gpio.h"
 #include "gpio_example.h"
 
+#include "sl_si91x_clock_manager.h"
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -71,6 +73,8 @@
 #define UULP_MASK        0x00
 #define UULP_GPIO_INTR_2 2 // UULP GPIO pin interrupt 2
 
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -114,9 +118,20 @@ void UULP_PIN_IRQ_Handler(void);
 void ULP_PIN_IRQ_Handler(void);
 void ULP_GROUP_IRQ_Handler(void);
 
+static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 /*******************************************************************************
  * GPIO example initialization function. It initializes HP/ULP clock, pin mode,
  * direction and configure pin and group interrupts
@@ -126,6 +141,9 @@ void gpio_example_init(void)
   uint8_t get_pin, direction;
   uint32_t get_port;
   sl_si91x_gpio_version_t version;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
 
   //Version information of gpio
   version = sl_si91x_gpio_get_version();
@@ -213,15 +231,15 @@ void gpio_example_init(void)
     // GPIO initialization function for ULP instance
     sl_gpio_ulp_initialization();
     // Get the pin direction for ULP GPIO pin
-    direction = sl_si91x_gpio_get_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_2);
+    direction = sl_si91x_gpio_get_pin_direction(SL_GPIO_ULP_PORT, ULP_PIN_2);
     DEBUGOUT("get_pin_direction = %d\n", direction);
-    direction = sl_si91x_gpio_get_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_1);
+    direction = sl_si91x_gpio_get_pin_direction(SL_GPIO_ULP_PORT, ULP_PIN_1);
     DEBUGOUT("get_pin_direction = %d\n", direction);
 
     // Get the pin mode for ULP GPIO pin
-    get_pin = sl_gpio_get_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_2);
+    get_pin = sl_gpio_get_pin_mode(SL_GPIO_ULP_PORT, ULP_PIN_2);
     DEBUGOUT("get_pin_mode = %d\n", get_pin);
-    get_pin = sl_gpio_get_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_1);
+    get_pin = sl_gpio_get_pin_mode(SL_GPIO_ULP_PORT, ULP_PIN_1);
     DEBUGOUT("get_pin_mode = %d\n", get_pin);
   }
 
@@ -297,11 +315,11 @@ void gpio_example_process_action(void)
   if (ULP_GPIO_PIN == SET) {
     uint8_t input;
     // Get GPIO pin input
-    input = sl_gpio_get_pin_input(SL_ULP_GPIO_PORT, ULP_PIN_1);
+    input = sl_gpio_get_pin_input(SL_GPIO_ULP_PORT, ULP_PIN_1);
     if (input == CLR) {
-      sl_gpio_set_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_2); // Set ULP GPIO pin
+      sl_gpio_set_pin_output(SL_GPIO_ULP_PORT, ULP_PIN_2); // Set ULP GPIO pin
     } else {
-      sl_gpio_clear_pin_output(SL_ULP_GPIO_PORT, ULP_PIN_2); // Clear ULP GPIO pin
+      sl_gpio_clear_pin_output(SL_GPIO_ULP_PORT, ULP_PIN_2); // Clear ULP GPIO pin
     }
   }
 
@@ -384,12 +402,12 @@ static void sl_gpio_ulp_initialization(void)
   sl_si91x_gpio_select_ulp_pad_driver_disable_state(ULP_PIN_1, (sl_si91x_gpio_driver_disable_state_t)GPIO_HZ);
 
   // Set the pin mode for ULP GPIO pins.
-  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_2, _MODE0, OUTPUT_VALUE);
-  sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, ULP_PIN_1, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, ULP_PIN_2, _MODE0, OUTPUT_VALUE);
+  sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, ULP_PIN_1, _MODE0, OUTPUT_VALUE);
 
   // Set the pin direction for ULP GPIO pins.
-  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_2, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
-  sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, ULP_PIN_1, (sl_si91x_gpio_direction_t)GPIO_INPUT);
+  sl_si91x_gpio_set_pin_direction(SL_GPIO_ULP_PORT, ULP_PIN_2, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+  sl_si91x_gpio_set_pin_direction(SL_GPIO_ULP_PORT, ULP_PIN_1, (sl_si91x_gpio_direction_t)GPIO_INPUT);
 }
 
 /*******************************************************************************

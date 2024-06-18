@@ -6,7 +6,7 @@ description: >
   configure and control the GPIO pins. The GPIO pins can be used for various purposes such as reading
   digital signals, controlling external devices, generating interrupts, etc. The GPIO driver simplifies the process of interacting
   with GPIO pins, making it easier to integrate GPIO functionality into the application.
-  In GPIO one can use High power, Ultra Low Power or NPSS pins.
+  In GPIO one can use HP (High power), ULP (Ultra Low Power) or UULP (Ultra Ultra Low Power) pins.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers"

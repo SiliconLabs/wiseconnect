@@ -3,7 +3,7 @@
 * @brief
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -38,12 +38,16 @@
 #include "rsi_ble_common_config.h"
 #include <rsi_common_apis.h>
 #include "glib.h"
+#include "logo_bitmaps.h"
 
 // TCP IP BYPASS feature check
 #define RSI_TCP_IP_BYPASS RSI_DISABLE
 
+// Out of box demo application binary version
+#define OOB_APP_VERSION "v2.0"
+
 // Function prototypes
-extern void sl_wifi_app_task(void);
+extern void wifi_app_task(void);
 extern void rsi_ble_configurator_task(void *argument);
 void rsi_ble_configurator_init(void);
 extern void memlcd_app_init(void);
@@ -153,6 +157,14 @@ void rsi_wlan_ble_app_init(void *argument)
   int32_t status = RSI_SUCCESS;
 
   memlcd_app_init();
+  GLIB_clear(&glibContext);
+  GLIB_drawBitmap(&glibContext,
+                  SILABS_LOGO_POSITION_X,
+                  SILABS_LOGO_POSITION_Y,
+                  SILABS_LOGO_WIDTH,
+                  SILABS_LOGO_HEIGHT,
+                  silabsLogo);
+  currentLine = 2;
   GLIB_drawStringOnLine(&glibContext, "Demo Started", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   DMD_updateDisplay();
 
@@ -163,11 +175,24 @@ void rsi_wlan_ble_app_init(void *argument)
     DMD_updateDisplay();
     return;
   }
-  LOG_PRINT("\r\nWireless Initialization Success\n");
+  LOG_PRINT("\r\nSi917 OOB Demo " OOB_APP_VERSION "\r\n");
+  LOG_PRINT("\r\nWireless Initialization Success\r\n");
   currentLine = 0;
-  GLIB_drawStringOnLine(&glibContext, "Wireless interface", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, "initialized", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-  GLIB_drawStringOnLine(&glibContext, "successfully", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_clear(&glibContext);
+  GLIB_drawBitmap(&glibContext,
+                  SILABS_LOGO_POSITION_X,
+                  SILABS_LOGO_POSITION_Y,
+                  SILABS_LOGO_WIDTH,
+                  SILABS_LOGO_HEIGHT,
+                  silabsLogo);
+  GLIB_drawBitmap(&glibContext,
+                  BLE_ICON_POSITION_X,
+                  BLE_ICON_POSITION_Y,
+                  BLUETOOTH_ICON_SIZE,
+                  BLUETOOTH_ICON_SIZE,
+                  bleLogo);
+  currentLine += 2;
+  GLIB_drawStringOnLine(&glibContext, "Si917 OOB Demo " OOB_APP_VERSION, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   DMD_updateDisplay();
 
   wlan_thread_sem = osSemaphoreNew(1, 0, NULL);
@@ -198,7 +223,7 @@ void rsi_wlan_ble_app_init(void *argument)
   // BLE initialization
   rsi_ble_configurator_init();
 
-  sl_wifi_app_task();
+  wifi_app_task();
 
   return;
 }

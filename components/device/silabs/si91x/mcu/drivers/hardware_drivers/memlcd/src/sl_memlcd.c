@@ -31,8 +31,9 @@
 #include "sl_memlcd.h"
 #include "sl_sleeptimer.h"
 #include "RTE_Device_917.h"
-#include "rsi_chip.h"
-#include "sl_si91x_ulp_timer_init.h"
+#include "sl_ulp_timer_instances.h"
+#include "sl_si91x_ulp_timer_common_config.h"
+#include "rsi_power_save.h"
 #include "sl_si91x_peripheral_gpio.h"
 
 /*******************************************************************************
@@ -150,10 +151,10 @@ sl_status_t sl_memlcd_power_on(const struct sl_memlcd_t *device, bool on)
   (void)on;
 
   sl_status_t status = SL_STATUS_OK;
-  status             = sl_sleeptimer_init();
 
 #if defined(SL_MEMLCD_EXTCOMIN_PORT)
   if (on) {
+    status        = sl_sleeptimer_init();
     uint32_t freq = sl_sleeptimer_get_timer_frequency();
     status        = sl_sleeptimer_restart_periodic_timer(&extcomin_timer,
                                                   freq / (device->extcomin_freq * 2),

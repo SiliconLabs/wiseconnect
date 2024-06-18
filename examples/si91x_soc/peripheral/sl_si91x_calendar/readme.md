@@ -22,24 +22,24 @@
 
 ## Overview
 
-- Calendar calculates milliseconds, seconds, minutes, hours, days, months and years up to 4 centuries.
-- It also calculates days of week and takes care of number of days in month as well as leap year.
-- It can also configure alarm for desired time as a one-shot trigger.
-- It can generate triggers on one second and one millisecond time interval.
-- It uses APB for read and write operations in real time.
-- RC clock and RO clock are configurable, and it can also be calibrated using the APIs.
+-	Calendar calculates milliseconds, seconds, minutes, hours, days, months and years up to 4 centuries. 
+-	It also calculates days of week and takes care of number of days in month as well as leap year. 
+-	It can also configure alarm for desired time as a one-shot trigger. 
+-	It can generate triggers on one second and one millisecond time interval. 
+-	It uses APB for read and write operations in real time. 
+-	RC clock and RO clock are configurable, and it can also be calibrated using the APIs. 
 
 ## About Example Code
 
-- This example demonstrates clock configuration, set calendar date-time, calendar get date-time, set alarm date-time, get alarm date-time, alarm trigger, one millisecond trigger, one second trigger and clock calibration.
-- To configure the calendar clock, select the clock from UC. \ref sl_si91x_calendar_config is used to set the calendar clock.
-- A structure is created which contains default values for calendar date-time. It is created using \ref sl_si91x_calendar_build_datetime_struct, After entering all the parameters, it returns a structure filled with all the parameters.
-- Calendar date-time is configured using \ref sl_si91x_calendar_set_date_time API. It configures the date time and the calendar blocks starts counting from that time.
-- To verify if the desired time is set, \ref sl_si91x_calendar_get_date_time API is used, It returns a structure which has current date-time.
+- This example demonstrates clock configuration, setting calendar date-time, retrieving calendar date-time, setting alarm date-time, retrieving alarm date-time, handling alarm triggers, one-millisecond triggers, one-second triggers, and clock calibration. 
+- To configure the calendar clock, select the clock from UC. The \ref sl_si91x_calendar_config function is used to set the calendar clock. 
+- A structure is created containing default values for calendar date-time. It is created using \ref sl_si91x_calendar_build_datetime_struct. After entering all the parameters, it returns a structure filled with all the parameters. 
+- Calendar date-time is configured using the \ref sl_si91x_calendar_set_date_time API. It configures the date-time, and the calendar blocks start counting from that time. 
+- To verify if the desired time is set, the \ref sl_si91x_calendar_get_date_time API is used. It returns a structure with the current date-time. 
 
 - If **ALARM_EXAMPLE** macro is enabled:
 
-  - A date-time structure is created using \ref sl_si91x_calendar_build_datetime_struct for configuring the Alarm.
+  - A date-time structure is created using \ref sl_si91x_calendar_build_datetime_struct for configuring the alarm.  
   - Alarm is configured using \ref sl_si91x_calendar_set_alarm API.
   - Now callback is registered to perform action at the time of trigger using \ref sl_si91x_calendar_register_alarm_trigger_callback API.
   - To verify if the desired alarm is set, \ref sl_si91x_calendar_get_alarm API is used, It returns a structure which has configured alarm date-time.
@@ -90,7 +90,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -155,7 +155,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. By default time and date is configured and prints are observed on serial console.
-3. After successful program execution the prints in serial console looks as shown below.
+2. By default, time and date is configured and prints are observed on serial console.
+3. After successful program execution, the prints in serial console looks as shown below.
 
     ![Figure: Introduction](resources/readme/output.png)
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

@@ -9,16 +9,14 @@ provides:
   - name: external_flash_implementation
 
 template_contribution:
-    - name: external_flash_present
-      value: 1
-    - name: external_flash_addr
-      value: 136323072 # 0x0820 2000
-    - name: external_flash_size
-      value: 4194304
-    - name: external_flash_page_size
-      value: 256
     - name: flash_present
       value: 1
+    - name: device_flash_addr
+      value: 136323072 # 0x0820 2000
+    - name: device_flash_size
+      value: 4194304
+    - name: device_flash_page_size
+      value: 256
 
 metadata:
     device:

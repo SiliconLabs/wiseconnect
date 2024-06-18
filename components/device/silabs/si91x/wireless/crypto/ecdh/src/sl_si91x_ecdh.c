@@ -57,6 +57,23 @@ static sl_status_t sli_si91x_get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_m
   return SL_STATUS_OK;
 }
 
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
+static void sli_si91x_ecdh_get_data_from_buffer(sl_wifi_buffer_t *buffer, uint8_t *rx, uint8_t *ry, uint8_t *rz)
+{
+  uint8_t *result           = NULL;
+  uint16_t offset           = 0;
+  sl_si91x_packet_t *packet = NULL;
+
+  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  result = packet->data;
+  memcpy(rx, result, SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
+  memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
+  memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+}
+#endif
+
 static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
                                           sl_si91x_ecdh_sub_mode_t ecdh_sub_mode,
                                           uint8_t *sx,
@@ -72,11 +89,6 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   uint8_t size             = 0;
   sl_status_t status       = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer = NULL;
-#ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  uint8_t *result           = NULL;
-  uint16_t offset           = 0;
-  sl_si91x_packet_t *packet = NULL;
-#endif
 
   SL_VERIFY_POINTER_OR_RETURN(sx, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(sy, SL_STATUS_NULL_POINTER);
@@ -158,13 +170,7 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  result = packet->data;
-  memcpy(rx, result, SL_SI91X_ECDH_MAX_VECTOR_SIZE);
-  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
-  memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
-  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
-  memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+  sli_si91x_ecdh_get_data_from_buffer(buffer, rx, ry, rz);
 #endif
 
   sl_si91x_host_free_buffer(buffer);
@@ -218,11 +224,6 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   uint8_t size             = 0;
   sl_status_t status       = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer = NULL;
-#ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  uint8_t *result           = NULL;
-  uint16_t offset           = 0;
-  sl_si91x_packet_t *packet = NULL;
-#endif
 
   SL_VERIFY_POINTER_OR_RETURN(d, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(sx, SL_STATUS_NULL_POINTER);
@@ -305,13 +306,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  result = packet->data;
-  memcpy(rx, result, SL_SI91X_ECDH_MAX_VECTOR_SIZE);
-  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
-  memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
-  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
-  memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+  sli_si91x_ecdh_get_data_from_buffer(buffer, rx, ry, rz);
 #endif
 
   if (reverse) {
@@ -339,11 +334,6 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   uint8_t size             = 0;
   sl_status_t status       = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer = NULL;
-#ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  uint8_t *result           = NULL;
-  uint16_t offset           = 0;
-  sl_si91x_packet_t *packet = NULL;
-#endif
 
   SL_VERIFY_POINTER_OR_RETURN(sx, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(sy, SL_STATUS_NULL_POINTER);
@@ -418,13 +408,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  result = packet->data;
-  memcpy(rx, result, SL_SI91X_ECDH_MAX_VECTOR_SIZE);
-  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
-  memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
-  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
-  memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+  sli_si91x_ecdh_get_data_from_buffer(buffer, rx, ry, rz);
 #endif
 
   sl_si91x_host_free_buffer(buffer);
@@ -446,11 +430,6 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   uint8_t size             = 0;
   sl_status_t status       = SL_STATUS_FAIL;
   sl_wifi_buffer_t *buffer = NULL;
-#ifndef SL_SI91X_SIDE_BAND_CRYPTO
-  uint8_t *result           = NULL;
-  uint16_t offset           = 0;
-  sl_si91x_packet_t *packet = NULL;
-#endif
 
   SL_VERIFY_POINTER_OR_RETURN(sx, SL_STATUS_NULL_POINTER);
   SL_VERIFY_POINTER_OR_RETURN(sy, SL_STATUS_NULL_POINTER);
@@ -527,13 +506,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  result = packet->data;
-  memcpy(rx, result, SL_SI91X_ECDH_MAX_VECTOR_SIZE);
-  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
-  memcpy(ry, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
-  offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
-  memcpy(rz, (result + offset), SL_SI91X_ECDH_MAX_VECTOR_SIZE);
+  sli_si91x_ecdh_get_data_from_buffer(buffer, rx, ry, rz);
 #endif
 
   sl_si91x_host_free_buffer(buffer);

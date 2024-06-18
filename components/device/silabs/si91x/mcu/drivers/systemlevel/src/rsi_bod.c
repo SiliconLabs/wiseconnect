@@ -18,8 +18,9 @@
 /**
  * Includes
  */
-#include "rsi_chip.h"
+
 #include "rsi_bod.h"
+#include "rsi_power_save.h"
 
 volatile uint32_t batt_status_check;
 /**

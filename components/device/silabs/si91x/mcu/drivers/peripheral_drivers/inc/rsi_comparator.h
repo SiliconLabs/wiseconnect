@@ -17,10 +17,11 @@
 
 // Includes Files
 
-#include "rsi_chip.h"
-
 #ifndef RSI_COMPARATOR_H
 #define RSI_COMPARATOR_H
+
+#include "rsi_error.h"
+#include "si91x_device.h"
 
 #ifdef __cplusplus
 extern "C" {

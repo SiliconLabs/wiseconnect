@@ -15,7 +15,9 @@
 *
 ******************************************************************************/
 
-#include "rsi_chip.h"
+#include "rsi_comparator.h"
+#include "rsi_reg_spi.h"
+#include "rsi_rom_egpio.h"
 
 /** @addtogroup SOC20
 * @{

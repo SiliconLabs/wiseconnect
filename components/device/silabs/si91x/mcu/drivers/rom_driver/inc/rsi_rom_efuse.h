@@ -47,7 +47,7 @@ extern "C" {
  */
 STATIC INLINE void RSI_EFUSE_Enable(EFUSE_Type *pstcEfuse)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   ROMAPI_EFUSE_API->efuse_enable(pstcEfuse);
 #else
   efuse_enable(pstcEfuse);
@@ -62,7 +62,7 @@ STATIC INLINE void RSI_EFUSE_Enable(EFUSE_Type *pstcEfuse)
  */
 STATIC INLINE void RSI_EFUSE_Disable(EFUSE_Type *pstcEfuse)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   ROMAPI_EFUSE_API->efuse_Disable(pstcEfuse);
 #else
   efuse_Disable(pstcEfuse);
@@ -77,7 +77,7 @@ STATIC INLINE void RSI_EFUSE_Disable(EFUSE_Type *pstcEfuse)
  */
 STATIC INLINE uint8_t RSI_EFUSE_ReadData(EFUSE_Type *pstcEfuse)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_EFUSE_API->efuse_read_data(pstcEfuse);
 #else
   return efuse_read_data(pstcEfuse);
@@ -93,7 +93,7 @@ STATIC INLINE uint8_t RSI_EFUSE_ReadData(EFUSE_Type *pstcEfuse)
  */
 STATIC INLINE void RSI_EFUSE_WriteAddr(EFUSE_Type *pstcEfuse, uint16_t u16Addr)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   ROMAPI_EFUSE_API->efuse_write_addr(pstcEfuse, u16Addr);
 #else
   efuse_write_addr(pstcEfuse, u16Addr);
@@ -118,7 +118,7 @@ STATIC INLINE rsi_error_t RSI_EFUSE_WriteBit(EFUSE_Type *pstcEfuse,
                                              uint8_t u8BitPos,
                                              uint32_t hold_time)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_EFUSE_API->efuse_write_bit(pstcEfuse, u16Addr, u8BitPos, hold_time);
 #else
   return efuse_write_bit(pstcEfuse, u16Addr, u8BitPos, hold_time);
@@ -141,7 +141,7 @@ STATIC INLINE rsi_error_t RSI_EFUSE_FsmReadByte(EFUSE_Type *pstcEfuse,
                                                 uint8_t *pu8Byte,
                                                 uint32_t SocClk)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_EFUSE_API->efuse_fsm_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
 #else
   return efuse_fsm_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
@@ -164,7 +164,7 @@ STATIC INLINE rsi_error_t RSI_EFUSE_MemMapReadByte(EFUSE_Type *pstcEfuse,
                                                    uint8_t *pu8Byte,
                                                    uint32_t SocClk)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_EFUSE_API->efuse_mem_map_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
 #else
   return efuse_mem_map_read_byte(pstcEfuse, u16Addr, pu8Byte, SocClk);
@@ -187,7 +187,7 @@ STATIC INLINE rsi_error_t RSI_EFUSE_MemMapReadWord(EFUSE_Type *pstcEfuse,
                                                    uint16_t *pu16Word,
                                                    uint32_t SocClk)
 {
-#if defined(ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
+#if defined(EFUSE_ROMDRIVER_PRESENT) && !defined(SLI_SI917B0)
   return ROMAPI_EFUSE_API->efuse_mem_map_read_word(pstcEfuse, u16Addr, pu16Word, SocClk);
 #else
   return efuse_mem_map_read_word(pstcEfuse, u16Addr, pu16Word, SocClk);

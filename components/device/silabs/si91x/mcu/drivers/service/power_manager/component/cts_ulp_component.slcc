@@ -1,5 +1,5 @@
 id: cts_ulp_component
-label: ULP CTS
+label: PM ULP CTS
 package: platform
 description: >
   ULP CTS component will enable Capacitive Touch Sensor in the low-power mode. 

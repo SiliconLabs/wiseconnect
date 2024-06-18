@@ -41,18 +41,33 @@
  */
 
 #define SL_SI91X_AES_BLOCK_SIZE 16 ///< AES BLOCK SIZE of 16 bytes or 128 bits
-
+/**
+ * @brief Enumeration defining AES modes supported by the SI91X device.
+ *
+ * This enumeration defines different AES modes supported by the SI91X device,
+ * such as AES CBC, AES ECB, and AES CTR modes.
+ */
 typedef enum {
   SL_SI91X_AES_CBC = 1, ///< AES CBC mode
   SL_SI91X_AES_ECB,     ///< AES ECB mode
   SL_SI91X_AES_CTR      ///< AES CTR mode
 } sl_si91x_aes_mode_t;
-
+/**
+ * @brief Enumeration defining AES encryption and decryption types.
+ *
+ * This enumeration defines the types of AES operations supported, including
+ * encryption and decryption.
+ */
 typedef enum {
   SL_SI91X_AES_ENCRYPT = 1, ///< AES Encryption
   SL_SI91X_AES_DECRYPT      ///< AES Decryption
 } sl_si91x_aes_type_t;
-
+/**
+ * @brief Enumeration defining AES key sizes supported by the SI91X device.
+ *
+ * This enumeration defines the key sizes supported by the AES encryption
+ * algorithm on the SI91X device, including 128-bit, 192-bit, and 256-bit key sizes.
+ */
 typedef enum {
   SL_SI91X_AES_KEY_SIZE_128 = 16, ///< key size of 128 bits
   SL_SI91X_AES_KEY_SIZE_192 = 24, ///< key size of 192 bits
@@ -112,8 +127,10 @@ typedef struct {
  *   Configuration object of type @ref sl_si91x_aes_config_t
  * @param[out] output 
  *   Buffer to store the output.
+ *
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *
 ******************************************************************************/
 sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output);
 

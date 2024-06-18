@@ -19,7 +19,8 @@
  * Includes
  */
 #include "rsi_ccp_common.h"
-#include "rsi_chip.h"
+#include "rsi_power_save.h"
+#include "rsi_temp_sensor.h"
 #ifdef DEBUG_UART
 #include "rsi_debug.h"
 #endif
@@ -34,6 +35,12 @@ void fpuInit(void);
 #define MAX_IPS                             240 // Max Interrupt Priority registers
 #define MAX_SHP                             12  //Max System Handlers Priority registers
 
+#ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
+#define MBR_MAGIC_WORD (*(volatile uint32_t *)(0x8160000))
+#else
+#define MBR_MAGIC_WORD (*(volatile uint32_t *)(0x81F0000))
+#endif
+
 #define SL_SCDC_SLEEP  1
 #define SL_SCDC_ACTIVE 0
 
@@ -43,13 +50,13 @@ void fpuInit(void);
 #define EXTERNAL_LDO_HANDLE
 #endif
 
-extern void set_scdc(uint32 Deepsleep);
+extern void set_scdc(uint32_t Deepsleep);
 
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
 #include "sl_si91x_psram_config.h"
-#ifdef PSRAM_HALF_SLEEP_SUPPORTED
-extern void sl_si91x_psram_sleep(void);
-extern void sl_si91x_psram_wakeup(void);
+#if PSRAM_HALF_SLEEP_SUPPORTED != FALSE
+extern sl_psram_return_type_t sl_si91x_psram_sleep(void);
+extern sl_psram_return_type_t sl_si91x_psram_wakeup(void);
 #endif
 #endif
 
@@ -58,7 +65,9 @@ uint8_t nvic_ip_reg[MAX_IPS]        = { 0 };
 uint8_t scs_shp_reg[MAX_SHP]        = { 0 };
 volatile uint32_t msp_value, psp_value, control_reg_val;
 
-#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION) || defined(ULP_MODE_EXECUTION)
+volatile uint32_t sl_magic_word_value = 0;
+
+#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
 extern char ram_vector[SI91X_VECTOR_TABLE_ENTRIES];
 #endif
 
@@ -375,7 +384,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
     RSI_IPMU_RetnLdoVoltsel();
   }
 
-  // Before Sleep
   if (!((in_ps2_state) && (MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_b.ULPSS_BASED_WAKEUP_b))) {
 #if (XTAL_CAP_MODE == POWER_TARN_CONDITIONAL_USE)
     if (lf_clk_mode & BIT(4)) {
@@ -441,18 +449,18 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   set_scdc(SL_SCDC_SLEEP);
 
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
-#if (defined INTERNAL_LDO_FOR_PSRAM)
+#if (defined SLI_SI91X_MCU_INTERNAL_LDO_FOR_PSRAM)
   RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
   if (sleepType == SLEEP_WITH_RETENTION) {
     //!enable flash LDO and PMU DCDC ON in M4 for PSRAM with retention
     MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_REG |= (LDO_FLASH_ON | PMU_DCDC_ON);
-#ifdef PSRAM_HALF_SLEEP_SUPPORTED
+#if PSRAM_HALF_SLEEP_SUPPORTED != FALSE
     /* Put PSRAM device to sleep */
     sl_si91x_psram_sleep();
 #endif
   }
 #elif (defined SLI_SI91X_MCU_EXTERNAL_LDO_FOR_PSRAM)
-#ifdef PSRAM_HALF_SLEEP_SUPPORTED
+#if PSRAM_HALF_SLEEP_SUPPORTED != FALSE
   if (sleepType == SLEEP_WITH_RETENTION) {
     /* Put PSRAM device to sleep */
     sl_si91x_psram_sleep();
@@ -468,7 +476,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   /* Save Stack pointer value and Control registers */
   RSI_Save_Context();
 #endif
-  // Take backup before going to PowerSave
+  /* Take backup before going to PowerSave */
   p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp = TASS_P2P_INTR_MASK_CLR;
   p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp  = M4SS_P2P_INTR_SET_REG;
 
@@ -496,7 +504,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   }
 
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-  //if flash is not initialised ,then raise a request to TA
+  /* if flash is not initialised ,then raise a request to TA */
   if (!(in_ps2_state) && !(M4SS_P2P_INTR_SET_REG & M4_USING_FLASH)) {
     //!check TA wokeup or not
     if (!(P2P_STATUS_REG & TA_IS_ACTIVE)) {
@@ -522,7 +530,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 #endif
 
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
-#ifdef PSRAM_HALF_SLEEP_SUPPORTED
+#if PSRAM_HALF_SLEEP_SUPPORTED != FALSE
   /* Exit PSRAM device from sleep */
   sl_si91x_psram_wakeup();
 #endif
@@ -541,13 +549,28 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   /* Before TA is going to power save mode, set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls form TA to M4 */
   RSI_Set_Cntrls_To_M4();
 #endif
+
+// READ_MBR_MAGIC_WORD_ON_WAKEUP
+#ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
+  if (!(in_ps2_state)) {
+    //!Poll for flash magic word
+    while (MBR_MAGIC_WORD != 0x5A5A) {
+      sl_magic_word_value++;
+    }
+  }
+#endif
+
+#ifndef SL_SI91X_NPSS_GPIO_BTN_HANDLER
+  //NPSS GPIO-2(Button) interrupt clr reg(GPIO_NPSS_INTERRUPT_CLEAR_REG)
+  (*(volatile uint32_t *)(0x12080000UL + 0x08)) = 0x08;
+
+  //NPSS GPIO-2(Button) low-level interrupt enable(GPIO_NPSS_GPIO_CONFIG_REG)
+  (*(volatile uint32_t *)(0x12080000UL + 0x10)) = BIT(18);
+#endif
   /* After wake-up, Set the SCDC voltage to the actual value*/
   /* As this function is located in flash accessing this fucntion only after getting controls*/
   set_scdc(SL_SCDC_ACTIVE);
 
-  // Restore values from backup
-  TASS_P2P_INTR_MASK_CLR = ~p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp;
-  M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
   /*Update the REG Access SPI division factor to increase the SPI read/write speed*/
   if (lf_clk_mode == HF_MHZ_RO) {
     RSI_SetRegSpiDivision(0U);
@@ -631,26 +654,31 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   for (x = 0; x < 200; x++) {
     __ASM("NOP");
   }
-  /*Start of M4 init after wake up  */
+
+  /* powerup FPU domain*/
+  RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
+
+  /*Initialize floating point unit  */
   fpuInit();
 
-  // Indicate M4 is active
-  P2P_STATUS_REG |= M4_is_active;
-
-  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
-
-/*Start of M4 init after wake up  */
 #ifdef DEBUG_UART
   /*Initialize UART after wake up*/
   DEBUGINIT();
 #endif
 
-#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION) || defined(ULP_MODE_EXECUTION)
+#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
   //passing the ram vector address to VTOR register
   SCB->VTOR = (uint32_t)ram_vector;
 #endif
 
-  /*Restore the Interrupt Priority Register  */
+  /* Restore NPSS INTERRUPTS*/
+  NPSS_INTR_MASK_CLR_REG = ~npssIntrState;
+
+  /* Restore P2P register values from backup */
+  TASS_P2P_INTR_MASK_CLR = ~p2p_intr_status_bkp.tass_p2p_intr_mask_clr_bkp;
+  M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
+
+  /* Restore the Interrupt Priority Register  */
   for (var = 0; var < MAX_IPS; ++var) {
     NVIC->IP[var] = nvic_ip_reg[var];
   }
@@ -658,10 +686,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   for (var = 0; var < MAX_SHP; ++var) {
     SCB->SHP[var] = scs_shp_reg[var];
   }
-  /*Restore NPSS INTERRUPTS*/
-  NPSS_INTR_MASK_CLR_REG = ~npssIntrState;
-
-  /*Restore the NVIC registers */
+  /* Restore the NVIC registers */
   for (var = 0; var < MAX_NVIC_REGS; ++var) {
     NVIC->ISER[var] = nvic_enable[var];
   }

@@ -103,6 +103,31 @@ sl_status_t sl_wifi_get_firmware_version(sl_wifi_firmware_version_t *version);
 
 /***************************************************************************/ /**
  * @brief
+ *   Gets wlan info in AP mode / Client mode.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[out] info
+ *   @ref sl_si91x_rsp_wireless_info_t object that contains the wlan info.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Return the firmware image size from firmware image.
+ * @param[in] buffer
+ *   Buffer pointing to firmware image file.
+ * @param[out] fw_image_size
+ *   Size of the firmware image. Valid only if failure is not returned in status.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_get_firmware_size(void *buffer, uint32_t *fw_image_size);
+
+/***************************************************************************/ /**
+ * @brief
  *   Set the default interface.
  *   Used by API when @ref SL_WIFI_DEFAULT_INTERFACE is provided.
  * @param[in] interface
@@ -146,7 +171,7 @@ sl_status_t sl_wifi_get_mac_address(sl_wifi_interface_t interface, sl_mac_addres
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This API is not supported by RS9116, Si917 when called directly due to firmware constraints.
+ *   This API is not supported by Si917 when called directly due to firmware constraints.
  *   Alternatively, @ref sl_wifi_init can be used to configure the MAC address. sl_wifi_init ensures the appropriate state of firmware and calls this API to set MAC address.
  ******************************************************************************/
 sl_status_t sl_wifi_set_mac_address(sl_wifi_interface_t interface, const sl_mac_address_t *mac);
@@ -400,7 +425,8 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
  * 	For 911x, Advanced scan results are not populated to user.
- *      Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called. If the scan_type is not ADV_SCAN then, the time is for foreground scan. Otherwise it is used for back ground scanning.
+ *      Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called. If the scan_type is not ADV_SCAN then, the time is for foreground scan. Otherwise, it is used for back ground scanning.
+ *      If the user needs to enable Passive Scanning, user should set the scan_type to SL_WIFI_SCAN_TYPE_PASSIVE. If the user needs to enable LP mode in Passive Scan, user needs to enable lp_mode in sl_wifi_scan_configuration_t. Default Passive Scan Channel time is 400 milliseconds. If the user needs to modify the time, sl_si91x_set_timeout can be called.
  ******************************************************************************/
 sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
                                const sl_wifi_ssid_t *optional_ssid,
@@ -417,7 +443,7 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- * 	For 911x, sl_wifi_stop_scan is ONLY supported for advanced scan
+ * 	For 911x, sl_wifi_stop_scan is ONLY supported for advanced scan.
  ******************************************************************************/
 sl_status_t sl_wifi_stop_scan(sl_wifi_interface_t interface);
 
@@ -492,7 +518,7 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  * @note
  *   If channel, band, and BSSID are provided, this API will attempt to connect without scanning.
  *   If security_type is SL_WIFI_WPA3 then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is enabled internally by SDK.
- *   If security_type is SL_WIFI_WPA3_TRANSITION then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is disabled and SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY join feature is enabled internally by SDK."
+ *   If security_type is SL_WIFI_WPA3_TRANSITION then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is disabled and SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY join feature is enabled internally by SDK.
  *   Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called.
  *   Default Auth Association timeout is 300 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
  *   Default Keep Alive timeout is 30 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
@@ -782,6 +808,19 @@ sl_status_t sl_wifi_get_pairwise_master_key(sl_wifi_interface_t interface,
                                             const char *pre_shared_key,
                                             uint8_t *pairwise_master_key);
 
+/***************************************************************************/ /**
+ * @brief
+ *   Configure multicast filter parameters. This is a blocking API.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] multicast_filter_info
+ *   Configurable multicast filter parameters specified in @ref sl_wifi_multicast_filter_info_t.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_wifi_configure_multicast_filter(sl_wifi_multicast_filter_info_t *multicast_filter_info);
+
 /** @} */
 
 /** \addtogroup WIFI_AP_API Access Point
@@ -1028,7 +1067,7 @@ sl_status_t sl_wifi_enable_monitor_mode(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Disable monitor mode on the Wi-Fi interface
+ *   Disable monitor mode on the Wi-Fi interface.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  * @return
@@ -1196,7 +1235,7 @@ sl_status_t sl_wifi_stop_statistic_report(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Return the status of the Wi-Fi device
+ *   Return the status of the Wi-Fi device.
  * @param[out] wifi_status
  *   @ref sl_wifi_status_t object that will contain the Wi-Fi status.
  * @return
@@ -1206,7 +1245,6 @@ sl_status_t sl_wifi_stop_statistic_report(sl_wifi_interface_t interface);
  ******************************************************************************/
 sl_status_t sl_wifi_get_status(sl_wifi_status_t *wifi_status);
 
-/*! @cond WIFI_TRANSCEIVER_MODE */
 /** \addtogroup WIFI_TRANSCEIVER_API Wi-Fi Transceiver
   * \ingroup SL_WIFI_FUNCTIONS
   * @{ */
@@ -1228,7 +1266,6 @@ sl_status_t sl_wifi_get_status(sl_wifi_status_t *wifi_status);
  *   - `0x0B65` - SL_STATUS_TRANSCEIVER_INVALID_CHANNEL
  *   - `0x0B67` - SL_STATUS_TRANSCEIVER_INVALID_CONFIG
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
- * @note `Wi-Fi Transceiver Mode` example can be used as reference for this API. This application is available at examples/snippets/wlan/sl_wifi_transceiver path.
  * @note `sl_wifi_transceiver_up` internally calls @ref sl_wifi_set_transceiver_parameters and @ref sl_wifi_transceiver_set_channel. Additionally, DUT MAC address is queried using @ref sl_wifi_get_mac_address and used as Addr2 for TX data packets.
  ******************************************************************************/
 sl_status_t sl_wifi_transceiver_up(sl_wifi_interface_t interface, sl_wifi_transceiver_configuration_t *config);
@@ -1258,7 +1295,6 @@ sl_status_t sl_wifi_transceiver_up(sl_wifi_interface_t interface, sl_wifi_transc
  *
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
  * @note This is a blocking API.
- * @note `Wi-Fi Transceiver Mode` example can be used as reference for this API. This application is available at examples/snippets/wlan/sl_wifi_transceiver path.
  *
  * Sample command usage:
  * @code
@@ -1297,7 +1333,6 @@ sl_status_t sl_wifi_transceiver_set_channel(sl_wifi_interface_t interface, sl_wi
  * @note Set is allowed only once before the first call to sl_wifi_transceiver_set_channel API.
  * @note This API is optional. Default configurations are used if API is not called.
  * @note This is a blocking API.
- * @note `Wi-Fi Transceiver Mode` example can be used as reference for this API. This application is available at examples/snippets/wlan/sl_wifi_transceiver path.
  *
  * Sample command usage:
  * @code
@@ -1340,7 +1375,6 @@ sl_status_t sl_wifi_set_transceiver_parameters(sl_wifi_interface_t interface, sl
  * @note This is a blocking API.
  * @note MAC layer supports storing upto 100 peers.
  * @note To add peers in MAC layer, it is mandatory to enable SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT/BIT(13) in @ref sl_wifi_device_configuration_t feature_bit_map passed in @ref sl_wifi_init.
- * @note `Wi-Fi Transceiver Mode` example can be used as reference for this API. This application is available at examples/snippets/wlan/sl_wifi_transceiver path.
  *
  * Sample command usage:
  * @code
@@ -1378,7 +1412,6 @@ sl_status_t sl_wifi_update_transceiver_peer_list(sl_wifi_interface_t interface, 
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
  * @note This API can be called dynamically.
  * @note Maximum of two multicast MAC addresses can be configured for filtering.
- * @note `Wi-Fi Transceiver Mode` example can be used as reference for this API. This application is available at examples/snippets/wlan/sl_wifi_transceiver path.
  *
  * Sample command usage:
  * @code
@@ -1412,7 +1445,6 @@ sl_status_t sl_wifi_set_transceiver_multicast_filter(sl_wifi_interface_t interfa
  *
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
  * @note All priority queues shall be flushed.
- * @note `Wi-Fi Transceiver Mode` example can be used as reference for this API. This application is available at examples/snippets/wlan/sl_wifi_transceiver path.
  *
  * Sample command usage:
  * @code
@@ -1458,7 +1490,6 @@ sl_status_t sl_wifi_flush_transceiver_data(sl_wifi_interface_t interface);
  * @note This is not a blocking API. Callback SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB can be registered to get the status report from firmware.
  * @note Only 11b/g rates shall be supported.
  * @note It is recommended to use basic rate for multicast/broadcast packets.
- * @note `Wi-Fi Transceiver Mode` example can be used as reference for this API. This application is available at examples/snippets/wlan/sl_wifi_transceiver path.
  * @note Sample command usage:
  * @code
  * // Prepare payload
@@ -1479,4 +1510,3 @@ sl_status_t sl_wifi_send_transceiver_data(sl_wifi_interface_t interface,
                                           uint8_t *payload,
                                           uint16_t payload_len);
 /** @} */
-/*! @endcond WIFI_TRANSCEIVER_MODE */

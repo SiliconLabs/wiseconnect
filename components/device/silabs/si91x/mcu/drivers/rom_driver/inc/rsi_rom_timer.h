@@ -60,7 +60,7 @@ STATIC INLINE rsi_error_t RSI_TIMERS_MicroSecTimerConfig(RSI_TIMERS_T *pTIMER,
                                                          uint8_t fractional,
                                                          uint8_t mode)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(TIMER_ROMDRIVER_PRESENT)
   return ROMAPI_TIMER_API->timers_microsec_timer_config(pTIMER, timerNum, integer, fractional, mode);
 #else
   return timers_microsec_timer_config(pTIMER, timerNum, integer, fractional, mode);
@@ -77,7 +77,7 @@ STATIC INLINE rsi_error_t RSI_TIMERS_MicroSecTimerConfig(RSI_TIMERS_T *pTIMER,
  */
 STATIC INLINE uint32_t RSI_TIMERS_ReadTimer(RSI_TIMERS_T *pTIMER, uint8_t timerNum, boolean_t countDir)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(TIMER_ROMDRIVER_PRESENT)
   return ROMAPI_TIMER_API->timers_read_timer(pTIMER, timerNum, countDir);
 #else
   return timers_read_timer(pTIMER, timerNum, countDir);

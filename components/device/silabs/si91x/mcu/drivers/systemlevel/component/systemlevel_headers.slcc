@@ -27,3 +27,5 @@ include:
       - path: rsi_wwdt.h
 provides:
   - name: systemlevel_headers
+requires:
+  - name: systemlevel_ulpss_clk

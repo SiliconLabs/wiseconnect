@@ -98,6 +98,12 @@ sl_status_t sl_si91x_fwup_load(uint8_t *content, uint16_t length)
   return status;
 }
 
+sl_status_t sl_si91x_fwup_abort()
+{
+  sl_status_t status = sl_si91x_fwup(SL_FWUP_ABORT, NULL, 0);
+  return status;
+}
+
 sl_status_t sl_si91x_http_otaf(uint8_t type,
                                uint8_t flags,
                                uint8_t *ip_address,

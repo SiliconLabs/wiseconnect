@@ -60,8 +60,8 @@ This application explains to the user how to:
     
 - **PSRAM Mode**:
     - Silicon Labs [BRD4340A](https://www.silabs.com/)
-- BLE peripheral device in case of Silicon Labs module as master.
-- BLE central device in case of Silicon Labs module as slave.
+- BLE peripheral device in case of Silicon Labs module as client.
+- BLE central device in case of Silicon Labs module as server.
 
 ### Software Requirements
 
@@ -69,7 +69,9 @@ This application explains to the user how to:
 - Simplicity Studio IDE (to be used with Silicon Labs MCU)
 - Keil IDE (to be used with STM32F411RE MCU)
 - Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+
+> **Note:** The provided mobile screenshots are from the 2.5.2 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 ### Setup Diagram
 
@@ -234,15 +236,15 @@ Follow the steps for successful execution of the program:
 
 5. Initiate a connection from the App.
 
-6. After successful connection, nRF connect APP displays the supported services of Silicon Labs module.
+6. After successful connection, Simplicity Connect App(formerly EFR Connect App) displays the supported services of Silicon Labs module.
 
     ![ble_throughput_device_connected](resources/readme/blethroughputdeviceconnected.png)
 
 7. Select the attribute service which is added **RSI_BLE_NEW_SERVICE_UUID**
    **(Ex: 0xAABB)**
    
-8. After Enable notifications for the read attribute **RSI_BLE_ATTRIBUTE_2_UUID**
-   **(Example: 0x1BB1) So that the GATT server notifies when value updated in that particular attribute.**
+8. Enable notifications for the read attribute **RSI_BLE_ATTRIBUTE_2_UUID**
+   **i.e 0x1BB1, it will start the data transfer for given attribute.**
 
    ![ble_throughput_notifications_enables](resources/readme/blethroughputnotificationsenabled.png)
 
@@ -252,14 +254,14 @@ Follow the steps for successful execution of the program:
 
 10. Refer the below image for console prints.
 
-Debugger prints for 2Mbps:
+    **Console prints for 2Mbps:**
 
-  ![](resources/readme/output_1.png)
+    ![](resources/readme/output_1.png)
 
-  ![](resources/readme/output_2.png)
+    ![](resources/readme/output_2.png)
 
-Debugger prints for 1Mbps
+    **Console prints for 1Mbps:**
 
-  ![](resources/readme/output_3.png)
+    ![](resources/readme/output_3.png)
 
-  ![](resources/readme/output_4.png)
+    ![](resources/readme/output_4.png)

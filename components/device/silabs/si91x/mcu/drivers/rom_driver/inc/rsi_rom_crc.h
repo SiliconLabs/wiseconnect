@@ -46,7 +46,7 @@ extern "C" {
  */
 STATIC INLINE void RSI_CRC_SetGenControl(CRC_Type *pCRC)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   ROMAPI_CRC_API->crc_set_gen_control(pCRC);
 #else
   crc_set_gen_control(pCRC);
@@ -61,7 +61,7 @@ STATIC INLINE void RSI_CRC_SetGenControl(CRC_Type *pCRC)
  */
 STATIC INLINE uint32_t RSI_CRC_GetGenStatus(CRC_Type *pCRC)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   return ROMAPI_CRC_API->crc_get_gen_status(pCRC);
 #else
   return crc_get_gen_status(pCRC);
@@ -78,7 +78,7 @@ STATIC INLINE uint32_t RSI_CRC_GetGenStatus(CRC_Type *pCRC)
  */
 STATIC INLINE void RSI_CRC_Polynomial(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   ROMAPI_CRC_API->crc_polynomial(pCRC, pCRCParams);
 #else
   crc_polynomial(pCRC, pCRCParams);
@@ -98,7 +98,7 @@ STATIC INLINE void RSI_CRC_Polynomial(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCPara
  */
 STATIC INLINE uint32_t RSI_CRC_Polynomial_Width(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   return ROMAPI_CRC_API->crc_polynomial_width(pCRC, pCRCParams);
 #else
   return crc_polynomial_width(pCRC, pCRCParams);
@@ -116,7 +116,7 @@ STATIC INLINE uint32_t RSI_CRC_Polynomial_Width(CRC_Type *pCRC, RSI_CRC_PARAMS_T
  */
 STATIC INLINE void RSI_CRC_LfsrInit(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   ROMAPI_CRC_API->crc_lfsr_init(pCRC, pCRCParams);
 #else
   crc_lfsr_init(pCRC, pCRCParams);
@@ -133,7 +133,7 @@ STATIC INLINE void RSI_CRC_LfsrInit(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams
  */
 STATIC INLINE uint32_t RSI_CRC_Use_Swapped_Init(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   return ROMAPI_CRC_API->crc_use_swapped_init(pCRC, pCRCParams);
 #else
   return crc_use_swapped_init(pCRC, pCRCParams);
@@ -151,7 +151,7 @@ STATIC INLINE uint32_t RSI_CRC_Use_Swapped_Init(CRC_Type *pCRC, RSI_CRC_PARAMS_T
  */
 STATIC INLINE uint32_t RSI_CRC_Set_DataWidthType(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   return ROMAPI_CRC_API->crc_set_data_width_type(pCRC, pCRCParams);
 #else
   return crc_set_data_width_type(pCRC, pCRCParams);
@@ -169,7 +169,7 @@ STATIC INLINE uint32_t RSI_CRC_Set_DataWidthType(CRC_Type *pCRC, RSI_CRC_PARAMS_
  */
 STATIC INLINE uint32_t RSI_CRC_SetFifoThresholds(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   return ROMAPI_CRC_API->crc_set_fifo_thresholds(pCRC, pCRCParams);
 #else
   return crc_set_fifo_thresholds(pCRC, pCRCParams);
@@ -186,7 +186,7 @@ STATIC INLINE uint32_t RSI_CRC_SetFifoThresholds(CRC_Type *pCRC, RSI_CRC_PARAMS_
  */
 STATIC INLINE uint32_t RSI_CRC_WriteData(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams, uint32_t data)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   return ROMAPI_CRC_API->crc_write_data(pCRC, pCRCParams, data);
 #else
   return crc_write_data(pCRC, pCRCParams, data);
@@ -204,7 +204,7 @@ STATIC INLINE uint32_t RSI_CRC_WriteData(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCP
  */
 STATIC INLINE uint32_t RSI_Monitor_CRCcalc(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   return ROMAPI_CRC_API->monitor_crc_calc(pCRC, pCRCParams);
 #else
   return monitor_crc_calc(pCRC, pCRCParams);
@@ -221,7 +221,7 @@ STATIC INLINE uint32_t RSI_Monitor_CRCcalc(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCR
  */
 STATIC INLINE void RSI_CRC_LfsrDynamicWrite(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pCRCParams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   ROMAPI_CRC_API->crc_lfsr_dynamic_write(pCRC, pCRCParams);
 #else
   crc_lfsr_dynamic_write(pCRC, pCRCParams);
@@ -236,7 +236,7 @@ STATIC INLINE void RSI_CRC_LfsrDynamicWrite(CRC_Type *pCRC, RSI_CRC_PARAMS_T *pC
  */
 STATIC INLINE void RSI_CRC_ResetFifo(CRC_Type *pCRC)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   ROMAPI_CRC_API->crc_reset_fifo(pCRC);
 #else
   crc_reset_fifo(pCRC);
@@ -251,7 +251,7 @@ STATIC INLINE void RSI_CRC_ResetFifo(CRC_Type *pCRC)
  */
 STATIC INLINE uint32_t RSI_CRC_GetFifoStatus(CRC_Type *pCRC)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CRC_ROMDRIVER_PRESENT)
   return ROMAPI_CRC_API->crc_get_fifo_status(pCRC);
 #else
   return crc_get_fifo_status(pCRC);

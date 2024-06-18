@@ -79,29 +79,6 @@ __WEAK sl_si91x_power_manager_on_isr_exit_t app_sleep_on_isr_exit(void)
 {
   return SL_SI91X_POWER_MANAGER_ISR_IGNORE;
 }
-
-/***************************************************************************//**
- * Mandatory callback that allows to cancel sleeping action. This function is called
- * when the system is about to go sleeping, with the interrupts disabled. It allows
- * the software to cancel going to sleep in case of a last-minute event occurred
- * (window between the function call and interrupt disable).
- ******************************************************************************/
-boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
-{
-  boolean_t ok_to_sleep = true;
-
-{%- for handler in power_manager_handler %}{%- if handler['event'] == "is_ok_to_sleep" %}
-  if ({{ handler['handler'] }}() == false) {
-    ok_to_sleep = false;
-  }{%- endif %}{% endfor %}
-  // Application hook
-  if (app_is_ok_to_sleep() == false) {
-    ok_to_sleep = false;
-  }
-
-  return ok_to_sleep;
-}
-
 /***************************************************************************//**
  * Mandatory callback that must validate if the MCU can sleep after having
  * processed an interrupt when the system was sleeping.

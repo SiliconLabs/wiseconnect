@@ -63,7 +63,9 @@
 
 #define SL_MAX_FWUP_CHUNK_SIZE 1024
 #define SL_RPS_HEADER_SIZE     64
+
 // Firmware upgrade packet types
+#define SL_FWUP_ABORT       2
 #define SL_FWUP_RPS_HEADER  1
 #define SL_FWUP_RPS_CONTENT 0
 
@@ -260,7 +262,8 @@ typedef struct {
 typedef struct {
   uint8_t channel[4];
   uint8_t ssid[RSI_SSID_LEN];
-  uint8_t _reserved[5];
+  uint8_t pscan_bitmap[4];
+  uint8_t _reserved;
   uint8_t scan_feature_bitmap;
   uint8_t channel_bit_map_2_4[2];
   uint8_t channel_bit_map_5[4];
@@ -875,39 +878,27 @@ typedef struct {
   uint8_t reserved2[2];
 } sl_si91x_wireless_info_t;
 
-// socket information structure
+/// Internal SiWx91x Socket information query
+/// @note: This is internal structure and should not be used by the applicatiom. This is identical to sl_si91x_sock_info_query_t, will be cleaned to have single structure in future.
 typedef struct {
-  // 2 bytes, socket id
-  uint8_t sock_id[2];
+  uint8_t sock_id[2]; ///< Identifier for the socket
 
-  // 2 bytes, socket type
-  uint8_t sock_type[2];
+  uint8_t sock_type[2]; ///< Type of the socket (TCP, UDP, etc.)
 
-  // 2 bytes, source port number
-  uint8_t source_port[2];
+  uint8_t source_port[2]; ///< Port number used by the source
 
-  // 2 bytes, remote port number
-  uint8_t dest_port[2];
+  uint8_t dest_port[2]; ///< Port number used by the destination
 
   union {
-    //  remote IPv4 Address
-    uint8_t ipv4_address[4];
+    uint8_t ipv4_address[4]; ///< IPv4 address of the remote host
 
-    //  remote IPv6 Address
-    uint8_t ipv6_address[16];
-  } dest_ip_address;
-} sl_si91x_sock_info_query_t;
+    uint8_t ipv6_address[16]; ///< IPv6 address of the remote host
 
-// Response for sl_si91x_get_socket_info().
-typedef struct {
-
-  uint16_t number_of_opened_sockets; ///< Number of opened sockets
-
-  sl_si91x_sock_info_query_t socket_info[SL_SI91X_SOCKET_INFO_RESPONSE_SOCKETS_COUNT]; ///< Socket information array
-
-} sl_si91x_socket_info_response_t;
+  } dest_ip_address; ///< IP address of the destination host
+} sli_sock_info_query_t;
 
 // Network params command response structure
+#pragma pack(1)
 typedef struct {
   // uint8, 0=NOT Connected, 1=Connected
   uint8_t wlan_state;
@@ -958,8 +949,9 @@ typedef struct {
   uint8_t tcp_stack_used;
 
   //sockets information array
-  sl_si91x_sock_info_query_t socket_info[10];
+  sli_sock_info_query_t socket_info[10];
 } sl_si91x_network_params_response_t;
+#pragma pack()
 
 typedef struct {
   // IP version if the connected client
@@ -977,6 +969,7 @@ typedef struct {
 } sl_si91x_station_info_t;
 
 // go paramas response structure
+#pragma pack(1)
 typedef struct {
   // SSID of the P2p GO
   uint8_t ssid[RSI_SSID_LEN];
@@ -1001,6 +994,7 @@ typedef struct {
 
   sl_si91x_station_info_t sta_info[SI91X_MAX_STATIONS];
 } sl_si91x_client_info_response;
+#pragma pack()
 
 typedef enum {
   START_STATISTICS_REPORT,
@@ -1196,30 +1190,6 @@ typedef struct {
     uint8_t ipv6_address[16];
   } dest_ip_addr;
 } si91x_rsp_socket_recv_t;
-
-typedef struct {
-  uint8_t total_sockets; ///< Total number of sockets (Which includes BSD, IoT, Si91x)
-
-  uint8_t total_tcp_sockets; ///< Total number of TCP sockets
-
-  uint8_t total_udp_sockets; ///< Total number of UDP sockets
-
-  uint8_t tcp_tx_only_sockets; ///< Number of TCP sockets which are intended for TX
-
-  uint8_t tcp_rx_only_sockets; ///< Number of TCP sockets which are intended for RX
-
-  uint8_t udp_tx_only_sockets; ///< Number of UDP sockets which are intended for TX
-
-  uint8_t udp_rx_only_sockets; ///< Number of UDP sockets which are intended for RX
-
-  uint8_t tcp_rx_high_performance_sockets; ///< Total TCP RX High Performance sockets
-
-  uint8_t
-    tcp_rx_window_size_cap; ///< TCP RX Window size - To scale the window size linearly according to the value (TCP MSS * TCP_RX_WINDOW_SIZE_CAP)
-
-  uint8_t
-    tcp_rx_window_div_factor; ///< TCP RX Window division factor - To increase the ACK frequency for asynchronous sockets
-} sl_si91x_socket_config_t;
 
 typedef struct {
   uint32_t tv_sec;  /* Seconds      */
@@ -1621,6 +1591,8 @@ typedef struct {
  - 0 - Skip dpd coefficients calibration 
  *  9   |  BURN_DPD_COEFFICIENTS | 1 - Burn dpd coefficients data 
  - 0 - Skip dpd coefficients calibration 
+ * 10  |  BURN_GAIN_OFFSET_CHANNEL-14  | 1 - Update gain offset for channel-14 sub-band (2 GHz)
+ -	0 - Skip channel-14 sub-band gain-offset update
  *  31-4 |                       |	Reserved
  **/
   uint32_t flags;
@@ -1634,6 +1606,8 @@ gain_offset_high - gain_offset as observed in dBm in channel-11
  *valid only when BURN_FREQ_OFFSET & SW_XO_CTUNE_VALID of flags is set. The range of xo_ctune is [0, 255], and the typical value is 80
  */
   int8_t xo_ctune;
+  /*gain_offset_channel-14 - gain_offset as observed in dBm in channel-14 */
+  int8_t gain_offset_ch14;
 } sl_si91x_calibration_write_t;
 
 typedef struct {
@@ -1654,6 +1628,8 @@ typedef struct {
 
   //xo_ctune - xo_ctune value as read from the target memory.
   int8_t xo_ctune;
+  /*gain_offset_channel-14 - gain_offset in dBm that will be applied for transmissions in channel-14.*/
+  int8_t gain_offset_ch14;
 #ifndef SLI_SI917
   struct rsi_evm_data_t {
     int8_t evm_offset[5];

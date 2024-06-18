@@ -59,13 +59,13 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#define SEND_TCP_DATA   1
-#define BACK_LOG        1
-#define TCP_SERVER_PORT 5001
-#define UDP_SERVER_PORT 5002
-#define SERVER_IP_UDP   "192.168.1.10"
-#define SERVER_IP_TCP   "192.168.1.112"
-#if SEND_TCP_DATA
+#define DOOR_LOCK_SIMULATION 1 // 1- for Door Lock Simulation and 0- for Camera Simulation
+#define BACK_LOG             1
+#define TCP_SERVER_PORT      5001
+#define UDP_SERVER_PORT      5002
+#define SERVER_IP_UDP        "192.168.1.10"
+#define SERVER_IP_TCP        "192.168.1.112"
+#if DOOR_LOCK_SIMULATION
 #define BUF_SIZE 1460
 #else
 #define BUF_SIZE 1470
@@ -78,6 +78,7 @@
 #define ENABLE_POWER_SAVE            1
 
 // Use case based TWT selection params
+#define TWT_RX_LATENCY                       5000
 #define DEVICE_AVG_THROUGHPUT                20000
 #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0
 #define TWT_TOLERABLE_DEVIATION              10
@@ -87,9 +88,10 @@
 #define MAX_BEACON_WAKE_UP_AFTER_SP \
   2 // The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
 
-#define KEEP_ALIVE_TIMEOUT       SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT
-#define AUTH_ASSOCIATION_TIMEOUT SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT
-#define ACTIVE_CHANNEL_SCAN_TIME SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME
+#define KEEP_ALIVE_TIMEOUT        SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT
+#define AUTH_ASSOCIATION_TIMEOUT  SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT
+#define ACTIVE_CHANNEL_SCAN_TIME  SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME
+#define PASSIVE_CHANNEL_SCAN_TIME SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME
 
 static const sl_wifi_device_configuration_t twt_client_configuration = {
   .boot_option = LOAD_NWP_FW,
@@ -148,7 +150,6 @@ int8_t send_buf[BUF_SIZE];
 
 osSemaphoreId_t data_semaphore;
 volatile bool data_received_flag = false;
-#define SEMAPHORE_TIMEOUT 100
 
 sl_wifi_twt_request_t default_twt_setup_configuration = {
   .twt_enable              = 1,
@@ -176,7 +177,7 @@ sl_wifi_twt_selection_t default_twt_selection_configuration = {
   .twt_enable                            = 1,
   .average_tx_throughput                 = EXCPECTED_TX_THROUGHPUT_KBPS,
   .tx_latency                            = 0,
-  .rx_latency                            = 5000,
+  .rx_latency                            = TWT_RX_LATENCY,
   .device_average_throughput             = DEVICE_AVG_THROUGHPUT,
   .estimated_extra_wake_duration_percent = ESTIMATE_EXTRA_WAKE_DURATION_PERCENT,
   .twt_tolerable_deviation               = TWT_TOLERABLE_DEVIATION,
@@ -187,19 +188,14 @@ sl_wifi_twt_selection_t default_twt_selection_configuration = {
 
 sl_si91x_timeout_t timeout_configuration = { .keep_alive_timeout_value       = KEEP_ALIVE_TIMEOUT,
                                              .auth_assoc_timeout_value       = AUTH_ASSOCIATION_TIMEOUT,
-                                             .active_chan_scan_timeout_value = ACTIVE_CHANNEL_SCAN_TIME };
+                                             .active_chan_scan_timeout_value = ACTIVE_CHANNEL_SCAN_TIME,
+                                             .passive_scan_timeout_value     = PASSIVE_CHANNEL_SCAN_TIME };
 
 volatile sl_status_t callback_status = SL_STATUS_OK;
 
 #ifdef SLI_SI91X_MCU_INTERFACE
-uint32_t tick_count_s = 10;
-#else
-uint32_t tick_count_s = 1;
-#endif
-
-#ifdef SLI_SI91X_MCU_INTERFACE
-#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHZ */
-#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 100MHz            */
+#define SOC_PLL_REF_FREQUENCY 40000000  /*<! PLL input REFERENCE clock 40MHz */
+#define PS4_SOC_FREQ          119000000 /*<! PLL out clock 119MHz            */
 #endif
 
 /******************************************************
@@ -296,7 +292,9 @@ void application_start()
 
 #ifdef SLI_SI91X_MCU_INTERFACE
   switch_m4_frequency();
-  SysTick_Config(SystemCoreClock / (1000 * tick_count_s));
+#if (SL_SI91X_TICKLESS_MODE == 0)
+  SysTick_Config(SystemCoreClock / (1000));
+#endif
 #endif
 
   status = sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
@@ -323,7 +321,7 @@ void application_start()
   memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
   print_sl_ip_address(&ip_address);
 
-#if !SEND_TCP_DATA
+#if !DOOR_LOCK_SIMULATION
   status = send_udp_data();
   if (status != SL_STATUS_OK) {
     printf("\r\nError while doing UDP TX: 0x%lx \r\n", status);
@@ -352,7 +350,7 @@ void application_start()
     return;
   }
   // A small delay is added so that the asynchronous response from TWT is printed in correct format.
-  osDelay(100 * tick_count_s);
+  osDelay(100);
 
   status = sl_wifi_filter_broadcast(5000, 1, 1);
   if (status != SL_STATUS_OK) {
@@ -541,9 +539,9 @@ sl_status_t receive_and_send_data(void)
   }
   printf("\r\nListening for command\r\n");
   while (1) {
-    if (osSemaphoreAcquire(data_semaphore, SEMAPHORE_TIMEOUT) == osOK) {
+    if (osSemaphoreAcquire(data_semaphore, osWaitForever) == osOK) {
       if (data_received_flag) {
-#if !SEND_TCP_DATA
+#if !DOOR_LOCK_SIMULATION
         struct sockaddr_in server_address = { 0 };
         server_address.sin_family         = AF_INET;
         server_address.sin_port           = UDP_SERVER_PORT;
@@ -578,13 +576,14 @@ sl_status_t receive_and_send_data(void)
 #endif
         data_received_flag = false;
       }
-    } else {
-#ifdef SLI_SI91X_MCU_INTERFACE
-      printf("M4 in Sleep\r\n");
-      sl_si91x_m4_sleep_wakeup();
-      printf("M4 wake up\r\n");
-#endif
     }
+#ifdef SLI_SI91X_MCU_INTERFACE
+#if (SL_SI91X_TICKLESS_MODE == 0)
+    printf("M4 in Sleep\r\n");
+    sl_si91x_m4_sleep_wakeup();
+    printf("M4 wake up\r\n");
+#endif
+#endif
   }
   return SL_STATUS_OK;
 }

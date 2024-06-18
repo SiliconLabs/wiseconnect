@@ -66,7 +66,7 @@ const osThreadAttr_t thread_attributes = {
  *               Function Declarations
  ******************************************************/
 static void application_start(void *argument);
-static sl_status_t ping_callback_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t data_length);
+static sl_status_t network_event_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t data_length);
 
 /******************************************************
  *               Function Definitions
@@ -82,7 +82,7 @@ static void application_start(void *argument)
   UNUSED_PARAMETER(argument);
   sl_status_t status;
 
-  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, NULL, NULL, ping_callback_handler);
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, NULL, NULL, network_event_handler);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi Client interface: 0x%lX\r\n", status);
     return;
@@ -162,7 +162,7 @@ static void application_start(void *argument)
   }
 }
 
-static sl_status_t ping_callback_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t data_length)
+static sl_status_t network_event_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t data_length)
 {
   UNUSED_PARAMETER(data_length);
   switch (event) {
@@ -178,6 +178,30 @@ static sl_status_t ping_callback_handler(sl_net_event_t event, sl_status_t statu
              response->ping_address.ipv4_address[1],
              response->ping_address.ipv4_address[2],
              response->ping_address.ipv4_address[3]);
+      break;
+    }
+    case SL_NET_DHCP_NOTIFICATION_EVENT: {
+      printf("\r\nReceived DHCP Notification event with status : 0x%lX\r\n", status);
+      break;
+    }
+    case SL_NET_IP_ADDRESS_CHANGE_EVENT: {
+      sl_net_ip_configuration_t *ip_config = (sl_net_ip_configuration_t *)data;
+      printf("\r\nReceived Ip Address Change Notification event with status : 0x%lX\r\n", status);
+      printf("\t Ip Address : %u.%u.%u.%u\r\n",
+             ip_config->ip.v4.ip_address.bytes[0],
+             ip_config->ip.v4.ip_address.bytes[1],
+             ip_config->ip.v4.ip_address.bytes[2],
+             ip_config->ip.v4.ip_address.bytes[3]);
+      printf("\t Netmask : %u.%u.%u.%u\r\n",
+             ip_config->ip.v4.netmask.bytes[0],
+             ip_config->ip.v4.netmask.bytes[1],
+             ip_config->ip.v4.netmask.bytes[2],
+             ip_config->ip.v4.netmask.bytes[3]);
+      printf("\t Gateway : %u.%u.%u.%u\r\n",
+             ip_config->ip.v4.gateway.bytes[0],
+             ip_config->ip.v4.gateway.bytes[1],
+             ip_config->ip.v4.gateway.bytes[2],
+             ip_config->ip.v4.gateway.bytes[3]);
       break;
     }
     default:

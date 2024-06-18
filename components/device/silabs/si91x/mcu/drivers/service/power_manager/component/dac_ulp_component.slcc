@@ -1,14 +1,11 @@
 id: dac_ulp_component
-label: ULP DAC
+label: PM ULP DAC
 package: platform
 description: >
   ULP DAC component will enable DAC in the low-power mode. It moves all the peripheral dependencies to RAM. 
   It also installs the peripheral component if already not installed.
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
 quality: production
-
-requires:
-  - name: rsilib_dac
 
 provides:
   - name: dac_ulp_component
@@ -18,3 +15,17 @@ template_contribution:
     value: 1
   - name: dac_ps2
     value: rsi_dac.o
+  - name: dac_ps2
+    value: rsi_adc.o
+  - name: dac_ps2
+    value: rsi_opamp.o
+  - name: dac_ps2
+    value: rsi_udma_wrapper.o
+  - name: dac_ps2
+    value: rsi_usart.o
+  - name: dac_ps2
+    value: rsi_bod.o
+  - name: dac_ps2
+    value: aux_reference_volt_config.o
+  - name: dac_ps2
+    value: sl_si91x_dac.o 

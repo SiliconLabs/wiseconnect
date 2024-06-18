@@ -11,10 +11,13 @@
 - [Application Build Environment](#application-build-environment)
 - [Test the Application](#test-the-application)
 - [Application Output](#application-output)
+- [Using Simplicity Studio Energy Profiler for Current Measurement](#using-simplicity-studio-energy-profiler-for-current-measurement)
 
 ## Purpose/Scope
 
-This application demonstrates how to enable power save deep sleep profile with SiWx91x. This application enables power save profile mode in STANDBY_POWER_SAVE and then wait in a scheduler for some time. Once it will come out of delay, the application starts from main().
+This application demonstrates how to enable power save deep sleep profile with SiWx91x. This application configures the SiWx91x in standby power save mode (Unassociated mode (NWP)) without RAM retention to reduce the current consumption.
+
+Please refer Datasheet for current consumption values without RAM retention.
 
 ## Prerequisites/Setup Requirements
 
@@ -27,8 +30,6 @@ This application demonstrates how to enable power save deep sleep profile with S
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -108,4 +109,29 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   ![Application Prints Soc](resources/readme/application_prints_soc_ncp.png)
   
-  ![Energy profiler Soc](resources/readme/energy_profile.png)
+  ![Energy profiler Soc](resources/readme/power_meter_avg_current_consumption.png)
+
+### Using Simplicity Studio Energy Profiler for Current Measurement
+  
+- After flashing the application code to the module. Energy profiler can be used for current consumption measurements.
+
+- From tools, choose Energy Profiler and click "OK".
+
+    ![Figure: Energy Profiler Step 1](resources/readme/energy_profiler_step_1.png)
+
+- From Quick Access, choose Start Energy Capture option
+
+    ![Figure: Energy Profiler Step 2](resources/readme/energy_profiler_step_2.png)
+
+    > **Note** The target part and board name have to be reverted to default to flash application binary.
+
+  ![Figure: Energy Profiler Step 3](resources/readme/energy_profiler_step_3.png)
+- Average current consumption measured in power-meter
+
+    ![output_prints](resources/readme/power_meter_avg_current_consumption.png)
+
+> **Note:**
+> - The reference images which are captured are measured in isolated chamber, might vary in open environment and sometimes there might be slight variation observed with some APs.
+> - To achieve the lowest power numbers in connected sleep, in SoC mode,one should configure both TA and M4 to sleep without RAM retention.
+> - To achieve the datasheet number for the deepsleep with 352k RAM retained one should configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to sleep without RAM retention.
+> - A flash erase is required to flash any other application after the user runs the powersave application(s). If not, the module will not allow any application to be flashed.

@@ -28,6 +28,7 @@
  *
  ******************************************************************************/
 #include "sl_si91x_peripheral_sdio_secondary.h"
+#include "rsi_egpio.h"
 
 /*******************************************************************************
  * This API initializes the SDIO secondary, by default SDIO pin access with TA

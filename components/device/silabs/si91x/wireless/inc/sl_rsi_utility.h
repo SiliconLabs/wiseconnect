@@ -209,7 +209,7 @@ void sl_si91x_get_efuse_data(sl_si91x_efuse_data_t *efuse_data);
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-void sl_si91x_set_efuse_data(sl_si91x_efuse_data_t *efuse_data);
+void sl_si91x_set_efuse_data(const sl_si91x_efuse_data_t *efuse_data);
 
 /**
  * An utility function to convert dBm value  to si91x specific power value
@@ -349,6 +349,26 @@ void sl_si91x_bus_rx_done_handler(void);       /*Function used to check the bus 
 
 /*==============================================*/
 /**
+ * @brief       Calculate crc for a given byte and accumulate crc.
+ * @param[in]   crc8_din   -  crc byte input  
+ * @param[in]   crc8_state - accumulated crc  
+ * @param[in]   end        - last byte crc  
+ * @return      crc value  
+ *
+ */
+uint8_t sli_lmac_crc8_c(uint8_t crc8_din, uint8_t crc8_state, uint8_t end);
+
+/*==============================================*/
+/**
+ * @brief      Calculate 6-bit hash value for given mac address. 
+ * @param[in]  mac - pointer to mac address  
+ * @return     6-bit Hash value
+ *
+ */
+uint8_t sli_multicast_mac_hash(uint8_t *mac);
+
+/*==============================================*/
+/**
  * @brief       Sends boot instructions to WiFi module
  * @param[in]   uint8 type, type of the insruction to perform
  * @param[in]   uint32 *data, pointer to data which is to be read/write
@@ -390,5 +410,11 @@ void sl_si91x_ulp_wakeup_init(void); /*Function used to initialize SPI interface
  * @return sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. 
  */
 sl_status_t sl_si91x_host_get_credentials(sl_wifi_credential_id_t id, uint8_t type, sl_wifi_credential_t *cred);
+
+bool sli_si91x_get_flash_command_status();
+
+void sli_si91x_update_flash_command_status(bool flag);
+
+bool sli_si91x_is_sdk_ok_to_sleep();
 
 #endif // _SL_RSI_UTILITY_H_

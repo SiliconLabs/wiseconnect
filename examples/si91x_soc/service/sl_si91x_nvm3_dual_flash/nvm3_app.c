@@ -16,11 +16,14 @@
  ******************************************************************************/
 #include <stdio.h>
 #include <string.h>
-
-#include "rsi_chip.h"
+#include "sl_component_catalog.h"
 #include "rsi_debug.h"
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#include "cmsis_os2.h"
+#endif
 
 #include "rsi_ccp_user_config.h"
+#include "rsi_rom_egpio.h"
 #include "nvm3.h"
 #include "nvm3_hal_flash.h"
 #include "nvm3_default.h"
@@ -59,6 +62,20 @@
 // Buffer for reading from NVM3
 static char buffer[NVM3_DEFAULT_MAX_OBJECT_SIZE];
 unsigned char newString[CMD_INPUT][NVM3_DEFAULT_MAX_OBJECT_SIZE];
+
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+const osThreadAttr_t thread_attributes = {
+  .name       = "app",
+  .attr_bits  = 0,
+  .cb_mem     = 0,
+  .cb_size    = 0,
+  .stack_mem  = 0,
+  .stack_size = 3072,
+  .priority   = osPriorityLow,
+  .tz_module  = 0,
+  .reserved   = 0,
+};
+#endif
 
 /*******************************************************************************
  **************************   LOCAL FUNCTIONS   ********************************
@@ -285,37 +302,37 @@ static void nvm3_app_reset(void)
  ******************************************************************************/
 static void get_data_from_uartconsole(void)
 {
-  uint32_t i   = NULL;
-  uint32_t j   = NULL;
-  uint32_t ctr = NULL;
+  uint32_t index_counter1 = 0;
+  uint32_t index_counter2 = 0;
+  uint32_t ctr            = 0;
   char str1[STRING_SIZE];
 
   // Get the input from uart console
-  while (i < STRING_SIZE) {
-    str1[i] = DEBUGIN();
-    if (str1[i] == 13) {
-      str1[i] = '\0';
+  while (index_counter1 < STRING_SIZE) {
+    str1[index_counter1] = DEBUGIN();
+    if (str1[index_counter1] == 13) {
+      str1[index_counter1] = '\0';
       break;
     }
-    i++;
+    index_counter1++;
   }
 
   // Get the command, key and data from uart input
-  for (i = 0; i <= (strlen(str1)); i++) {
+  for (index_counter1 = 0; index_counter1 <= (strlen(str1)); index_counter1++) {
     // if space or NULL found, assign NULL into newString[ctr]
-    if (str1[i] == ' ' || str1[i] == '\0') {
+    if (str1[index_counter1] == ' ' || str1[index_counter1] == '\0') {
       if (ctr == 2) {
 
-        newString[ctr][j] = str1[i];
-        j++;
+        newString[ctr][index_counter2] = str1[index_counter1];
+        index_counter2++;
       } else {
-        newString[ctr][j] = '\0';
-        ctr++; //for next word
-        j = 0; //for next word, init index to 0
+        newString[ctr][index_counter2] = '\0';
+        ctr++;              //for next word
+        index_counter2 = 0; //for next word, init index to 0
       }
     } else {
-      newString[ctr][j] = str1[i];
-      j++;
+      newString[ctr][index_counter2] = str1[index_counter1];
+      index_counter2++;
     }
   }
 }
@@ -328,9 +345,20 @@ static void get_data_from_uartconsole(void)
  ******************************************************************************/
 void nvm3_app_init(void)
 {
-  Ecode_t err;
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+  osThreadNew((osThreadFunc_t)nvm3_app_process_action, NULL, &thread_attributes);
+#endif
+}
+
+/***************************************************************************/ /**
+ * NVM3 ticking function.
+ ******************************************************************************/
+void nvm3_app_process_action(void)
+{
+  int err;
   RSI_EGPIO_HostPadsGpioModeEnable(29);
   RSI_EGPIO_HostPadsGpioModeEnable(30);
+
   // This will call nvm3_open() with default parameters for
   // memory base address and size, cache size, etc.
   err = nvm3_initDefault();
@@ -343,42 +371,35 @@ void nvm3_app_init(void)
   // printf is configured to output over IOStream
   printf("\r\nWelcome to the nvm3 sample application\r\n");
   printf("Type 'help' to see available commands\r\n");
-}
-
-/***************************************************************************/ /**
- * NVM3 ticking function.
- ******************************************************************************/
-void nvm3_app_process_action(void)
-{
 
   // Start of execution of the NVM3 sample application
   while (1) {
     get_data_from_uartconsole();
 
     printf("\n ");
-    if (strcmp(newString[0], "help") == 0) {
+    if (strcmp((char *)newString[0], "help") == 0) {
       DEBUGOUT("\r\nSelect any one option in below list: \r\n");
       DEBUGOUT("\r\n write \t\t:Write date to NVM3 memory\r\n");
       DEBUGOUT("\r\n read  \t\t:Read date from NVM3 memory\r\n");
       DEBUGOUT("\r\n delete \t\t:Delete key from NVM3 memory\r\n");
       DEBUGOUT("\r\n erase  \t\t:Erase NVM3 memory\r\n");
       DEBUGOUT("\r\n display  \t\t:Display all keys data in NVM3 memory\r\n");
-    } else if (strcmp(newString[0], "write") == 0) {
+    } else if (strcmp((char *)newString[0], "write") == 0) {
       // write data for object with key identifier
-      nvm3_app_write(atoi(newString[1]), &newString[2][0]);
-    } else if (strcmp(newString[0], "read") == 0) {
+      nvm3_app_write(atoi((char *)newString[1]), &newString[2][0]);
+    } else if (strcmp((char *)newString[0], "read") == 0) {
       // Find size of data for object with key identifier and read out
-      nvm3_app_read(atoi(newString[1]));
-    } else if (strcmp(newString[0], "delete") == 0) {
+      nvm3_app_read(atoi((char *)newString[1]));
+    } else if (strcmp((char *)newString[0], "delete") == 0) {
       // Find size of data for object with key identifier and delete data
-      nvm3_app_delete(atoi(newString[1]));
-    } else if (strcmp(newString[0], "erase") == 0) {
+      nvm3_app_delete(atoi((char *)newString[1]));
+    } else if (strcmp((char *)newString[0], "erase") == 0) {
       // Deleting all data stored in NVM3
       nvm3_app_reset();
-    } else if (strcmp(newString[0], "display") == 0) {
+    } else if (strcmp((char *)newString[0], "display") == 0) {
       // Find size of data for objects with key identifier and display data
       nvm3_app_display();
-    } else if (strcmp(newString[0], "repack") == 0) {
+    } else if (strcmp((char *)newString[0], "repack") == 0) {
       // Forced repacking
       printf("Repacking NVM...\r\n");
       nvm3_repack(NVM3_DEFAULT_HANDLE);

@@ -63,7 +63,6 @@ extern "C" {
     name, offsetof(struct_type, member), member_size(struct_type, member), var_type \
   }
 
-//#define SL_CONSOLE_VARIABLE_GROUP(keystring, group_object)          { .type=SL_CONSOLE_VARIABLE_GROUP_NODE,      .key=keystring, .group.next=group_object, .group.size=(sizeof(group_object)/sizeof(console_variable_node_t)) }
 #define SL_CONSOLE_VARIABLE_GROUP(keystring, _table)                                       \
   {                                                                                        \
     .type = SL_CONSOLE_VARIABLE_GROUP_NODE, .key = keystring, .data.group.table = &_table, \
@@ -91,7 +90,6 @@ extern "C" {
 /*
  * SL CLI compatible macros
  */
-//#define sl_cli_get_argument_type(a, n)      ((sl_cli_arg_t)(a->arg_type_list[n]))
 #define sl_cli_get_argument_int8(a, n)   ((int8_t)(a->arg[n]))
 #define sl_cli_get_argument_int16(a, n)  ((int16_t)(a->arg[n]))
 #define sl_cli_get_argument_int32(a, n)  ((int32_t)(a->arg[n]))
@@ -121,7 +119,7 @@ extern "C" {
  * e.g.
  */
 typedef enum {
-  CONSOLE_ARG_NONE, // Used for optional arguments that are just flags and don't need any further data
+  CONSOLE_ARG_NONE = 0, // Used for optional arguments that are just flags and don't need any further data
   CONSOLE_ARG_UINT,
   CONSOLE_ARG_INT,
   CONSOLE_ARG_STRING,
@@ -138,7 +136,7 @@ typedef enum {
 } console_argument_type_t;
 
 typedef enum {
-  CONSOLE_VARIABLE_NONE,
+  CONSOLE_VARIABLE_NONE = 0,
   CONSOLE_VARIABLE_UINT,
   CONSOLE_VARIABLE_INT,
   CONSOLE_VARIABLE_STRING,

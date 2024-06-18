@@ -15,8 +15,8 @@
  *
  ******************************************************************************/
 #include "sl_si91x_led.h"
-#include "rsi_chip.h"
 #include "si91x_device.h"
+#include "rsi_rom_egpio.h"
 
 void sl_si91x_led_init(const sl_led_t *handle)
 {
@@ -93,18 +93,3 @@ void sl_si91x_led_toggle(uint8_t pin)
     RSI_EGPIO_TogglePort(EGPIO1, SL_LED_LED1_PORT, (1 << pin));
 #endif
 }
-
-#ifndef MINIMAL_HAL
-void sl_si91x_led_StackIndicateActivity(bool turnOn)
-{
-#if defined(NO_LED)
-  // Don't touch LEDs when built with NO_LED
-#else  //!NO_LED
-  if (turnOn) {
-    sl_si91x_led_set(BOARD_ACTIVITY_LED);
-  } else {
-    sl_si91x_led_set(BOARD_ACTIVITY_LED);
-  }
-#endif //NO_LED
-}
-#endif //MINIMAL_HAL

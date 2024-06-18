@@ -62,9 +62,15 @@ static void handle_mqtt_client_asynch_events(sl_si91x_queue_packet_t *mqtt_asyn_
   sl_si91x_packet_t *raw_rx_packet = sl_si91x_host_get_buffer_data(mqtt_asyn_packet->host_packet, 0, NULL);
   sl_mqtt_client_t *mqtt_client;
 
+  //Variable to indicate whether a disconnect event is related to a keep-alive terminate error.
+  bool is_keep_alive_response_related_disconnect =
+    (raw_rx_packet->command == RSI_WLAN_RSP_EMB_MQTT_CLIENT
+     && mqtt_asyn_packet->frame_status == (SL_STATUS_SI91X_MQTT_KEEP_ALIVE_TERMINATE_ERROR & ~BIT(16)));
+
   // Since these responses are unsolicited, We need to create a context for them.
   if (raw_rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE
-      || raw_rx_packet->command == RSI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT || raw_rx_packet->command == RSI_WLAN_RSP_JOIN) {
+      || raw_rx_packet->command == RSI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT || raw_rx_packet->command == RSI_WLAN_RSP_JOIN
+      || is_keep_alive_response_related_disconnect) {
 
     sli_si91x_get_mqtt_client(&mqtt_client);
 
@@ -83,7 +89,8 @@ static void handle_mqtt_client_asynch_events(sl_si91x_queue_packet_t *mqtt_asyn_
 
     // Build MQTT SDK context for asynchronous MQTT events
     sli_si91x_build_mqtt_sdk_context_if_async(
-      (raw_rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE || raw_rx_packet->command == RSI_WLAN_RSP_JOIN)
+      (raw_rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE || raw_rx_packet->command == RSI_WLAN_RSP_JOIN
+       || is_keep_alive_response_related_disconnect)
         ? SL_MQTT_CLIENT_DISCONNECTED_EVENT
         : SL_MQTT_CLIENT_MESSAGED_RECEIVED_EVENT,
       mqtt_client,

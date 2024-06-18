@@ -32,7 +32,7 @@
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_power_save.h"
-
+#include <math.h>
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -52,6 +52,22 @@
 #define ULP_HIGH_SPEED_HIGH_COUNT_VALUE 14   // High speed mode clock high count value in ulp mode
 #define ULP_HIGH_SPEED_LOW_COUNT_VALUE  43   // High speed mode clock low count value in ulp mode
 
+#define IC_FS_SPKLEN              7    // Spike Length - same for SS, FS, FPS
+#define IC_HS_SPKLEN              2    // Spike Length for HS
+#define SS_DESIRED_SCL_FREQ       100  // 100 kHz
+#define FS_DESIRED_SCL_FREQ       400  // 400 kHz
+#define FPS_DESIRED_SCL_FREQ      1000 // 1 MHz
+#define HS_DESIRED_SCL_FREQ       3400 // 3.4 MHz
+#define SS_MIN_SCL_HIGHtime       4000 // 4000 ns for 100 kbps
+#define FS_MIN_SCL_HIGHtime       600  // 600 ns for 400 kbps
+#define FPS_MIN_SCL_HIGHtime      260  // 260 ns for 1000 kbps
+#define HS_MIN_SCL_HIGHtime_100PF 60   // 60 ns for 3.4 Mbps, bus loading = 100pF
+#define HS_MIN_SCL_HIGHtime_400PF 120  // 120 ns for 3.4 Mbps, bus loading = 400pF
+#define SS_MIN_SCL_LOWtime        4700 // 4700 ns for 100 kbps
+#define FS_MIN_SCL_LOWtime        1300 // 1300 ns for 400 kbps
+#define FPS_MIN_SCL_LOWtime       500  // 500 ns for 1000 kbps
+#define HS_MIN_SCL_LOWtime_100PF  160  // 160 ns for 3.4Mbps, bus loading = 100pF
+#define HS_MIN_SCL_LOWtime_400PF  320  //320 ns for 3.4Mbps, bus loading = 400pF
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -92,13 +108,12 @@ void sl_si91x_i2c_init(I2C_TypeDef *i2c, const sl_i2c_init_params_t *p_config)
   sl_si91x_i2c_disable(i2c);
   // Resetting the peripheral.
   sl_si91x_i2c_reset(i2c);
-  // Validating mode of the I2C recevied in parameter structure.
+  // Validating mode of the I2C received in parameter structure.
   if (p_config->mode == SL_I2C_LEADER_MODE) {
     // Enabling leader mode register.
     i2c->IC_CON_b.MASTER_MODE      = ENABLE;
     i2c->IC_CON_b.IC_SLAVE_DISABLE = ENABLE;
-  }
-  if (p_config->mode == SL_I2C_FOLLOWER_MODE) {
+  } else if (p_config->mode == SL_I2C_FOLLOWER_MODE) {
     // Setting slave mode
     i2c->IC_CON_b.MASTER_MODE      = DISABLE;
     i2c->IC_CON_b.IC_SLAVE_DISABLE = DISABLE;
@@ -178,37 +193,31 @@ void sl_si91x_i2c_set_frequency(I2C_TypeDef *i2c, uint32_t ref_freq, uint32_t fr
 {
   // Validates the I2C instance with the corresponding base address of instance.
   SL_I2C_ASSERT(I2C_REF_VALID(i2c));
-  uint32_t clock = 0;
-  clock          = freq_scl / 1000000;
+  UNUSED_VARIABLE(ref_freq);
+
+  uint32_t clock;
+  clock = freq_scl / 1000000;
+
   switch (clhr) {
-    case SL_I2C_STANDARD_BUS_SPEED:
-      // Standard Speed (100kHz)
+    case SL_I2C_STANDARD_BUS_SPEED: // Standard Speed (100kHz)
       i2c->IC_CON_b.SPEED = SL_I2C_STANDARD_BUS_SPEED;
-      // Setting the high-low count registers
-      set_i2c_clock_rate(i2c, (uint8_t)SL_I2C_STANDARD_BUS_SPEED, clock);
       break;
-    case SL_I2C_FAST_BUS_SPEED:
-      // Fast Speed     (400kHz)
+
+    case SL_I2C_FAST_BUS_SPEED:      // Fast Speed (400kHz)
+    case SL_I2C_FAST_PLUS_BUS_SPEED: // Fast Plus Speed (1MHz)
       i2c->IC_CON_b.SPEED = SL_I2C_FAST_BUS_SPEED;
-      // Setting the high-low count registers
-      set_i2c_clock_rate(i2c, SL_I2C_FAST_BUS_SPEED, clock);
       break;
-    case SL_I2C_FAST_PLUS_BUS_SPEED:
-      // Fast Plus speed (1 MHz)
-      i2c->IC_CON_b.SPEED = SL_I2C_FAST_BUS_SPEED;
-      // Setting the high-low count registers
-      set_i2c_clock_rate(i2c, SL_I2C_FAST_PLUS_BUS_SPEED, clock);
-      break;
-    case SL_I2C_HIGH_BUS_SPEED:
-      // High Speed    (3.4MHz)
+
+    case SL_I2C_HIGH_BUS_SPEED: // High Speed (3.4MHz)
       i2c->IC_CON_b.SPEED = SL_I2C_HIGH_BUS_SPEED;
-      // Setting the high-low count registers
-      set_i2c_clock_rate(i2c, SL_I2C_HIGH_BUS_SPEED, clock);
       break;
+
     default:
-      UNUSED_VARIABLE(ref_freq);
       break;
   }
+
+  // Setting the high-low count registers
+  set_i2c_clock_rate(i2c, (uint8_t)clhr, clock);
 }
 
 /*******************************************************************************
@@ -236,47 +245,73 @@ static void set_i2c_clock_rate(I2C_TypeDef *i2c, uint8_t speed, uint32_t i2c_Clk
   uint16_t fs_scl_high = 0, fs_scl_low = 0;
   uint16_t fps_scl_high = 0, fps_scl_low = 0;
   uint16_t hs_scl_high = 0, hs_scl_low = 0;
-  volatile uint32_t time_p = 0;
+  uint32_t total_scl_cnt = 0;
 
-  // i2c_Clk is the clock speed (in MHz) that is being supplied to the
-  // DW_apb_i2c device.  The correct clock count values are determined
-  // by using this inconjunction with the minimum high and low signal
-  // hold times as per the I2C bus specification.
-  time_p       = (uint32_t)((1 / (float)i2c_Clk) * 1000);
-  ss_scl_high  = (uint16_t)((SS_MIN_SCL_HIGH / time_p) - 8);
-  ss_scl_low   = (uint16_t)((SS_MIN_SCL_LOW / time_p) - 1);
-  fs_scl_high  = (uint16_t)((FS_MIN_SCL_HIGH / time_p) - 8);
-  fs_scl_low   = (uint16_t)((FS_MIN_SCL_LOW / time_p) - 1);
-  fps_scl_high = (uint16_t)((HS_MIN_SCL_HIGH_400PF / time_p) - 8);
-  fps_scl_low  = (uint16_t)((HS_MIN_SCL_LOW_400PF / time_p) - 1);
-  if (!RSI_PS_IsPS2State()) {
-    hs_scl_high = HIGH_SPEED_HIGH_COUNT_VALUE;
-    hs_scl_low  = HIGH_SPEED_LOW_COUNT_VALUE;
-  } else {
-    hs_scl_high = ULP_HIGH_SPEED_HIGH_COUNT_VALUE;
-    hs_scl_low  = ULP_HIGH_SPEED_LOW_COUNT_VALUE;
-  }
   switch (speed) {
     case SL_I2C_STANDARD_BUS_SPEED:
+      total_scl_cnt = ((i2c_Clk * 1000) / SS_DESIRED_SCL_FREQ) - IC_FS_SPKLEN - 8;
+
+      ss_scl_low  = (SS_MIN_SCL_LOWtime * i2c_Clk) / 1000;
+      ss_scl_high = total_scl_cnt - ss_scl_low;
+      if (total_scl_cnt > ss_scl_low) {
+        ss_scl_high = total_scl_cnt - ss_scl_low;
+      } else {
+        ss_scl_high = (SS_MIN_SCL_HIGHtime * i2c_Clk) / 1000;
+      }
+
       // Calculated values are update in the corresponding registers.
       i2c->IC_SS_SCL_LCNT_b.IC_SS_SCL_LCNT = ss_scl_low;
       i2c->IC_SS_SCL_HCNT_b.IC_SS_SCL_HCNT = ss_scl_high;
       break;
+
     case SL_I2C_FAST_BUS_SPEED:
+      total_scl_cnt = ((i2c_Clk * 1000) / FS_DESIRED_SCL_FREQ) - IC_FS_SPKLEN - 8;
+
+      fs_scl_low = (FS_MIN_SCL_LOWtime * i2c_Clk) / 1000;
+      if (total_scl_cnt > fs_scl_low) {
+        fs_scl_high = total_scl_cnt - fs_scl_low;
+      } else {
+        fs_scl_high = (FS_MIN_SCL_HIGHtime * i2c_Clk) / 1000;
+      }
       // Calculated values are update in the corresponding registers.
       i2c->IC_FS_SCL_LCNT_b.IC_FS_SCL_LCNT = fs_scl_low;
       i2c->IC_FS_SCL_HCNT_b.IC_FS_SCL_HCNT = fs_scl_high;
       break;
+
     case SL_I2C_FAST_PLUS_BUS_SPEED:
+      total_scl_cnt = ((i2c_Clk * 1000) / FPS_DESIRED_SCL_FREQ) - IC_FS_SPKLEN - 8;
+
+      fps_scl_low = (FPS_MIN_SCL_LOWtime * i2c_Clk) / 1000;
+      if (total_scl_cnt > fps_scl_low) {
+        fps_scl_high = total_scl_cnt - fps_scl_low;
+      } else {
+        fps_scl_high = (FPS_MIN_SCL_HIGHtime * i2c_Clk) / 1000;
+      }
+
       // Calculated values are update in the corresponding registers.
       i2c->IC_FS_SCL_LCNT_b.IC_FS_SCL_LCNT = fps_scl_low;
       i2c->IC_FS_SCL_HCNT_b.IC_FS_SCL_HCNT = fps_scl_high;
       break;
+
     case SL_I2C_HIGH_BUS_SPEED:
+      if (!RSI_PS_IsPS2State()) {
+        total_scl_cnt = ((i2c_Clk * 1000) / HS_DESIRED_SCL_FREQ) - IC_HS_SPKLEN - 8;
+
+        hs_scl_low = (HS_MIN_SCL_LOWtime_100PF * i2c_Clk) / 1000;
+        if (total_scl_cnt > hs_scl_low) {
+          hs_scl_high = total_scl_cnt - hs_scl_low;
+        } else {
+          hs_scl_high = (HS_MIN_SCL_HIGHtime_100PF * i2c_Clk) / 1000;
+        }
+      } else {
+        hs_scl_high = ULP_HIGH_SPEED_HIGH_COUNT_VALUE;
+        hs_scl_low  = ULP_HIGH_SPEED_LOW_COUNT_VALUE;
+      }
       // Calculated values are update in the corresponding registers.
       i2c->IC_HS_SCL_LCNT_b.IC_HS_SCL_LCNT = hs_scl_low;
       i2c->IC_HS_SCL_HCNT_b.IC_HS_SCL_HCNT = hs_scl_high;
       break;
+
     default:
       break;
   }

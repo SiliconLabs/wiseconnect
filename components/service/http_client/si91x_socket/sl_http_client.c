@@ -63,7 +63,7 @@ typedef enum {
 
 //! MAX supported length for Username and Password together
 #define SI91X_MAX_SUPPORTED_HTTP_CREDENTIAL_LENGTH 278
-
+#define TEMP_STR_SIZE                              7
 /******************************************************
  *                    Structures
  ******************************************************/
@@ -480,7 +480,6 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
   uint16_t http_buffer_offset                   = 0;
   sl_si91x_http_client_request_t *packet_buffer = NULL;
   uint16_t offset = 0, rem_length = 0, chunk_size = SI91X_MAX_HTTP_CHUNK_SIZE;
-
   // Allocate memory for request structure
   sl_si91x_http_client_request_t *http_client_request =
     (sl_si91x_http_client_request_t *)malloc(sizeof(sl_si91x_http_client_request_t));
@@ -624,9 +623,9 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
       http_client_request->https_enable |= SL_SI91X_SUPPORT_HTTP_POST_DATA;
 
       // Copy total data length into buffer
-      uint8_t temp_str[7] = { 0 };
+      uint8_t temp_str[TEMP_STR_SIZE] = { 0 };
       convert_itoa(request->body_length, temp_str);
-      size_t temp_str_len = strlen((char *)temp_str);
+      size_t temp_str_len = sl_strnlen((char *)temp_str, TEMP_STR_SIZE + 1);
       memcpy(http_client_request->buffer + http_buffer_offset, temp_str, temp_str_len);
       http_buffer_offset += temp_str_len;
     } else {
@@ -705,6 +704,17 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
         // HTTP Get request with custom driver command
         status = sl_si91x_custom_driver_send_command(
           RSI_WLAN_REQ_HTTP_CLIENT_GET,
+          SI91X_NETWORK_CMD_QUEUE,
+          packet_buffer,
+          (sizeof(sl_si91x_http_client_request_t) - SI91X_HTTP_BUFFER_LEN + chunk_size),
+          SL_SI91X_RETURN_IMMEDIATELY,
+          request->context,
+          NULL,
+          packet_identifier);
+      } else if (send_request == SL_HTTP_POST) {
+        // HTTP POST request with custom driver command
+        status = sl_si91x_custom_driver_send_command(
+          RSI_WLAN_REQ_HTTP_CLIENT_POST,
           SI91X_NETWORK_CMD_QUEUE,
           packet_buffer,
           (sizeof(sl_si91x_http_client_request_t) - SI91X_HTTP_BUFFER_LEN + chunk_size),

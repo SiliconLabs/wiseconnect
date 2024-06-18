@@ -31,7 +31,7 @@
 
 
 #include "Driver_MCI.h"
-#include "rsi_chip.h"
+
 #include "RTE_Device.h"
 
 

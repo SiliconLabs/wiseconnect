@@ -22,6 +22,7 @@
 #include "rsi_rom_clks.h"
 #include "rsi_rom_egpio.h"
 #include "rsi_rom_udma_wrapper.h"
+#include "rsi_rom_udma.h"
 #include "sl_si91x_psram_handle.h"
 #include "sl_si91x_psram.h"
 /*******************************************************************************
@@ -199,7 +200,7 @@ static sl_psram_return_type_t psram_enter_qpi_mode(void);
  ******************************************************************************/
 static sl_psram_return_type_t psram_exit_qpi_mode(void);
 
-#if PSRAM_BURST_LEN_TOGGLE_SUPPORTED
+#if (PSRAM_MODEL_WRAP == 1 && PSRAM_BURST_LEN_TOGGLE_SUPPORTED)
 
 /***************************************************************************/ /**
  * @brief       
@@ -833,7 +834,7 @@ sl_psram_id_type_t psram_read_id()
   return psram_id;
 }
 
-#if PSRAM_BURST_LEN_TOGGLE_SUPPORTED
+#if (PSRAM_MODEL_WRAP == 1 && PSRAM_BURST_LEN_TOGGLE_SUPPORTED)
 
 /* Toggles the device’s burst length wrap between 
    PSRAM_DEFAULT_BURST_WRAP_SIZE and PSRAM_TOGGLE_BURST_WRAP_SIZE */
@@ -843,12 +844,6 @@ sl_psram_return_type_t psram_toggle_burst_length(void)
   if (PSRAMStatus.state != initialised) {
     return PSRAM_NOT_INITIALIZED;
   }
-
-  if (&PSRAM_Device.spi_config == NULL) {
-    return PSRAM_NOT_INITIALIZED;
-  }
-
-  /*Reset the PSRAM device to SPI mode*/
 
   // switch QSPI to command mode
   RSI_QSPI_SwitchQspi2((qspi_reg_t *)M4_QSPI_2_BASE_ADDRESS,
@@ -879,10 +874,6 @@ sl_psram_return_type_t psram_set_wrap_size(sl_psram_burst_size_type_t PSRAMBurst
   uint8_t Response;
 
   if (PSRAMStatus.state != initialised) {
-    return PSRAM_NOT_INITIALIZED;
-  }
-
-  if (&PSRAM_Device.spi_config == NULL) {
     return PSRAM_NOT_INITIALIZED;
   }
 

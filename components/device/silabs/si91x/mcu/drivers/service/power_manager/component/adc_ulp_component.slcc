@@ -1,5 +1,5 @@
 id: adc_ulp_component
-label: ULP ADC
+label: PM ULP ADC
 package: platform
 description: >
   ULP ADC component will enable ADC in the low-power mode. It moves all the peripheral dependencies to RAM. 

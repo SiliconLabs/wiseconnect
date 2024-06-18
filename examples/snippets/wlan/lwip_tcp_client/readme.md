@@ -25,8 +25,6 @@ This application demonstrates how to transfer the TCP data using LWIP stack by c
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -107,7 +105,9 @@ The application can be configured to suit your requirements and development envi
     #define NUMBER_OF_PACKETS   1000
     ```
 
-**Soc Mode**:
+## Soc Mode:
+
+### Without Tickless Mode:
 
 The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
@@ -116,8 +116,17 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
   - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
 - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
   - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
+  - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
 - Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
   - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
+
+### Tickless Mode
+
+In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by two methods: SysRTC or a wireless signal.
+
+- **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
+
+- **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
 
 ### Note
   - Enable `SL_SI91X_TCP_IP_FEAT_BYPASS` bitmap in tcp_ip_feature_bitmap to use the lwip stack.
@@ -130,5 +139,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application.
 - Flash, run and debug the application.
 - After the application gets executed successfully, The device will connect to the remote and transfer the 1000 tcp packets.
+
+The Iperf command to start the TCP server is:
+  
+> `C:\> iperf.exe -s -p <SERVER_PORT> -i 1`
+>
+> For example ...
+>
+> `C:\> iperf.exe -s -p 5001 -i 1`
 
   **![LWIP_point_Output](resources/readme/lwip_output.png)**

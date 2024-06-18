@@ -29,12 +29,18 @@
  */
 #include "rsi_ccp_user_config.h"
 
-
+#include "UDMA.h"
 #include "USART.h"
 #include "clock_update.h"
 #include "rsi_usart.h"
-#ifdef USART_CONFIG
+#ifdef USART_MODULE
 #include "sl_si91x_usart_common_config.h"
+#endif
+#ifdef UART_MODULE
+#include "sl_si91x_uart_common_config.h"
+#endif
+#ifdef ULP_UART_MODULE
+#include "sl_si91x_ulp_uart_common_config.h"
 #endif
 #if defined(A11_ROM)
 #include "rsi_rom_table_si91x.h"
@@ -471,11 +477,6 @@ static int32_t ARM_USART0_Initialize (ARM_USART_SignalEvent_t cb_event)
 
 static int32_t ARM_USART0_Uninitialize (void)
 {
-	#if defined(SLI_SI917)
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
-	#else
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI1);
-	#endif
 #if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Uninitialize(&USART0_Resources,&UDMA0_Resources);
 #else
@@ -681,11 +682,6 @@ static int32_t ARM_UART1_Initialize (ARM_USART_SignalEvent_t cb_event)
 
 static int32_t ARM_UART1_Uninitialize (void)
 {
-	#if defined(SLI_SI917)
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
-	#else
-	RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI1);
-	#endif
 #if defined(A11_ROM) && defined(USART_ROMDRIVER_PRESENT)
 	return ROMAPI_USART_API->USART_Uninitialize(&UART1_Resources,&UDMA0_Resources);
 #else
@@ -1140,6 +1136,7 @@ uint8_t USART_GetInitState(uint8_t usart_peripheral)
  * *****************************************************************************/
 void usart_transfer_complete_callback(uint32_t channel, void *data) {
   (void)(&data);
+  (void)channel;
 #if (SL_USART0_DMA_CONFIG_ENABLE == 1)
   if(channel == RTE_USART0_CHNL_UDMA_TX_CH) {
     USART_UDMA_Tx_Event(UDMA_EVENT_XFER_DONE, (uint8_t)channel, &USART0_Resources);
@@ -1173,6 +1170,7 @@ void usart_transfer_complete_callback(uint32_t channel, void *data) {
  * *****************************************************************************/
 void usart_error_callback(uint32_t channel, void *data) {
   (void)(&data);
+  (void)channel;
 #if (SL_USART0_DMA_CONFIG_ENABLE == 1)
   if(channel == RTE_USART0_CHNL_UDMA_TX_CH) {
     USART_UDMA_Tx_Event(UDMA_EVENT_ERROR, (uint8_t)channel, &USART0_Resources);

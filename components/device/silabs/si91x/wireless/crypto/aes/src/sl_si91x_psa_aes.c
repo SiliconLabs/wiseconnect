@@ -28,6 +28,36 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 
+static void sli_si91x_set_input_config(const psa_key_attributes_t *attributes,
+                                       sl_si91x_aes_config_t *config,
+                                       const uint8_t *key_buffer,
+                                       size_t key_buffer_size)
+{
+#ifdef SLI_SI917B0
+  /* Fetch key type from attributes */
+  psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+  if (location == 0)
+    config->key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+  else
+    config->key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+
+  /* Set key_size from key_buffer_size */
+  if (key_buffer_size == 16)
+    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_128;
+  if (key_buffer_size == 24)
+    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_192;
+  if (key_buffer_size == 32)
+    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_256;
+
+  config->key_config.b0.key_slot = 0;
+  memcpy(config->key_config.b0.key_buffer, key_buffer, config->key_config.b0.key_size);
+#else
+  config->key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
+  config->key_config.a0.key_length = key_buffer_size;
+  memcpy(config->key_config.a0.key, key_buffer, config->key_config.a0.key_length);
+#endif
+}
+
 /*****************************************************************************
 * Encrypt a message using a AES cipher.
 *****************************************************************************/
@@ -96,29 +126,7 @@ psa_status_t sli_si91x_crypto_cipher_encrypt(const psa_key_attributes_t *attribu
   config.msg_length      = input_length;
   config.iv              = aes_iv;
 
-#ifdef SLI_SI917B0
-  /* Fetch key type from attributes */
-  psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-  if (location == 0)
-    config.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-  else
-    config.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-
-  /* Set key_size from key_buffer_size */
-  if (key_buffer_size == 16)
-    config.key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_128;
-  if (key_buffer_size == 24)
-    config.key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_192;
-  if (key_buffer_size == 32)
-    config.key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_256;
-
-  config.key_config.b0.key_slot = 0;
-  memcpy(config.key_config.b0.key_buffer, key_buffer, config.key_config.b0.key_size);
-#else
-  config.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
-  config.key_config.a0.key_length = key_buffer_size;
-  memcpy(config.key_config.a0.key, key_buffer, config.key_config.a0.key_length);
-#endif
+  sli_si91x_set_input_config(attributes, &config, key_buffer, key_buffer_size);
 
   /* Calling sl_si91x_aes() for AES encryption */
   si91x_status = sl_si91x_aes(&config, output);
@@ -200,29 +208,7 @@ psa_status_t sli_si91x_crypto_cipher_decrypt(const psa_key_attributes_t *attribu
   config.msg_length      = input_length;
   config.iv              = aes_iv;
 
-#ifdef SLI_SI917B0
-  /* Fetch key type from attributes */
-  psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-  if (location == 0)
-    config.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-  else
-    config.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-
-  /* Set key_size from key_buffer_size */
-  if (key_buffer_size == 16)
-    config.key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_128;
-  if (key_buffer_size == 24)
-    config.key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_192;
-  if (key_buffer_size == 32)
-    config.key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_256;
-
-  config.key_config.b0.key_slot = 0;
-  memcpy(config.key_config.b0.key_buffer, key_buffer, config.key_config.b0.key_size);
-#else
-  config.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
-  config.key_config.a0.key_length = key_buffer_size;
-  memcpy(config.key_config.a0.key, key_buffer, config.key_config.a0.key_length);
-#endif
+  sli_si91x_set_input_config(attributes, &config, key_buffer, key_buffer_size);
 
   /* Calling sl_si91x_aes() for AES decryption */
   si91x_status = sl_si91x_aes(&config, output);

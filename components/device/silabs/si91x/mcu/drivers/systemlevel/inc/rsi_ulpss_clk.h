@@ -25,6 +25,7 @@
 #include "rsi_ccp_common.h"
 #include "rsi_error.h"
 #include "rsi_pll.h"
+#include "rsi_ulpss_clk.h"
 #include "rsi_power_save.h"
 
 /*requied delays for turn on the clocks in micro seconds*/

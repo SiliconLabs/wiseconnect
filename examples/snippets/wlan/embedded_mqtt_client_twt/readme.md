@@ -35,8 +35,6 @@ The application configures the TWT session and enables associated power save mod
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-       - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -449,8 +447,12 @@ User can get asynchronous TWT session updates if *twt_response_handler* is defin
 5. For iTWT, GTK Interval Should be kept maximum possible value or zero. If GTK interval is not configurable, recommended TWT interval (in case of sl_wifi_enable_target_wake_time) / RX Latency (in case of sl_wifi_target_wake_time_auto_selection API) is less than 4sec.
 6. When sl_wifi_enable_target_wake_time API is used, configuring TWT Wake interval beyond 1 min might lead to disconnections from the AP. Recommended to use TWT wakeup interval less than or equal to 1 min.
 7. WLAN Keep Alive timeout should **not** be disabled when sl_wifi_target_wake_time_auto_selection API is used or when unannounced TWT session is set up using sl_wifi_enable_target_wake_time API. It is recommended to use WLAN Keep Alive timeout of 30 sec which is the default timeout even if not configured specifically by the user.
+8. Set keep_alive_retries to 4 in the sl_mqtt_broker_t structure and tcp_max_retransmission_cap_for_emb_mqtt to 128 in the si91x_mqtt_client_init_request_t structure when using the sl_mqtt_client_connect API to establish a stable MQTT connection. This adjustment is necessary in higher congestion environments and does not affect other cases.
+9. If OFDMA/MIMO is not needed, enable SLI_SI91X_DISABLE_SU_BEAMFORMEE_SUPPORT in sl_wifi.c. This action will reduce power consumption.
 
-**Soc Mode**:
+## Soc Mode:
+
+### Without Tickless Mode:
 
 The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
@@ -459,8 +461,17 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
   - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
 - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
   - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
+  - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
 - Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
   - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
+
+### Tickless Mode
+
+In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by two methods: SysRTC or a wireless signal.
+
+- **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
+
+- **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
 
 ## Test the Application
 

@@ -68,7 +68,7 @@ static int32_t sli_si91x_get_aws_error(int32_t status)
       return TCP_CONNECTION_ERROR;
     // TODO: Handle a mapping to convert Si91x firmware errors to AWS errors.
     case SL_STATUS_SI91X_SOCKET_READ_TIMEOUT:
-      return NETWORK_SSL_READ_TIMEOUT_ERROR;
+      return MQTT_NOTHING_TO_READ;
     default:
       return FAILURE;
   }

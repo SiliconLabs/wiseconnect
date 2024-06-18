@@ -26,3 +26,4 @@ requires:
   - name: component_catalog
   - name: status
   - name: sl_dma
+  - name: sl_common

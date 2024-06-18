@@ -21,11 +21,9 @@
 // Includes
 
 #include "rsi_ccp_user_config.h"
-
 #include <math.h>
-
 #include "rsi_rom_clks.h"
-#ifndef ROMDRIVER_PRESENT
+#ifndef PLL_ROMDRIVER_PRESENT
 /** @addtogroup SOC3
 * @{
 */
@@ -2716,9 +2714,9 @@ void clk_config_pll_ref_clk(uint8_t ref_clk_src)
   reg_read |= (ref_clk_src << 14U);
   SPI_MEM_MAP_PLL(SOCPLLMACROREG2) = (uint16_t)reg_read;
 }
-#endif //ROMDRIVER_PRESENT
+#endif //PLL_ROMDRIVER_PRESENT
 
-#if !defined(CHIP_9118) || !defined(A11_ROM) || !defined(ROMDRIVER_PRESENT)
+#if !defined(CHIP_9118) || !defined(A11_ROM) || !defined(PLL_ROMDRIVER_PRESENT)
 
 /*==============================================*/
 /**
@@ -2918,7 +2916,7 @@ rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSour
   switch (clkSource) {
     case M4_ULPREFCLK:
       /*Update the clock MUX*/
-      pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = 0x00;
+      pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       SystemCoreClock                        = system_clocks.m4ss_ref_clk;
       break;
 
@@ -2928,7 +2926,7 @@ rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSour
         return ERROR_CLOCK_NOT_ENABLED;
       }
       /*Update the clock MUX*/
-      pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = 0x02;
+      pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       SystemCoreClock                        = system_clocks.soc_pll_clock;
       break;
 
@@ -2938,7 +2936,7 @@ rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSour
         return ERROR_CLOCK_NOT_ENABLED;
       }
       /*Update the clock MUX*/
-      pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = 0x03;
+      pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       SystemCoreClock                        = system_clocks.modem_pll_clock;
       break;
 
@@ -2947,7 +2945,7 @@ rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSour
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       } /*Update the clock MUX*/
-      pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = 0x04;
+      pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       SystemCoreClock                        = system_clocks.intf_pll_clock;
       break;
 
@@ -2955,7 +2953,7 @@ rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSour
       /*Check clock is present is or not before switching*/
       if (ULPCLK->M4LP_CTRL_REG_b.ULP_M4_CORE_CLK_ENABLE_b == 1) {
         /*Update the clock MUX*/
-        pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = 0x05;
+        pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       } else {
         /*If clock is not presented return the error */
         return ERROR_CLOCK_NOT_ENABLED;
@@ -2972,13 +2970,13 @@ rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSour
   pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
 
   if (divFactor) {
-    SystemCoreClock = SystemCoreClock / divFactor;
+    SystemCoreClock /= divFactor;
   }
   system_clocks.soc_clock = SystemCoreClock;
   return RSI_OK;
 }
 
-#if defined(CHIP_9118) || !defined(A11_ROM) || !defined(ROMDRIVER_PRESENT)
+#if defined(CHIP_9118) || !defined(A11_ROM) || !defined(PLL_ROMDRIVER_PRESENT)
 
 /*==============================================*/
 /**

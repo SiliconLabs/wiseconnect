@@ -55,10 +55,11 @@
 - GPIO to work in HP Domain requires few steps to consider.
 - Call \ref gpio_initialization(). This API has some API's being called, which are discussed below.
   - Enable \ref sl_si91x_gpio_enable_clock(), passing enumerator M4CLK_GPIO of type > sl_si91x_gpio_select_clock_t as parameter.
-  - Enable PAD selection for GPIO pins using \ref sl_si91x_gpio_enable_pad_selection(), passing PAD > selection number as parameter.
+  - Enable PAD selection for GPIO pins using \ref sl_si91x_gpio_enable_pad_selection(), passing PAD selection number as parameter.
 
      > **Note:** Do not enable PAD selection number 9, as it is pre-configured for other function .
 
+  - To enable host PAD selection for GPIO pin numbers(25 - 30) refer to \ref sl_si91x_gpio_driver_enable_host_pad_selection().
   - Enable PAD receiver for GPIO pin to program it as either input (or) output toggling \ref > sl_si91x_gpio_enable_pad_receiver(), passing GPIO pin number as parameter.
   - Set mode of the GPIO pin using \ref sl_gpio_set_pin_mode() API. Pass port of type \ref > sl_gpio_port_t, pin, mode of type \ref sl_gpio_mode_t, output value as parameters.
   - Set direction of the GPIO pin using \ref sl_si91x_gpio_set_pin_direction() API. Pass port, pin , > direction of type \ref sl_si91x_gpio_direction_t as parameters.
@@ -104,7 +105,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -149,3 +150,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     ![Figure: Introduction](resources/readme/output.png)
 
 > **Note:** ALL enumerators defined below are of type \ref gpio_instance_type_t which are present in gpio_example.c. Make corresponding enumerator to '1', in order to enable the individual functionalities mentioned below.
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

@@ -19,13 +19,14 @@
  *
  ******************************************************************************/
 
-#include "rsi_chip.h"
 #include "sl_common.h"
 #include "sl_si91x_button.h"
 #include "sl_si91x_button_pin_config.h"
 #include "si91x_device.h"
 #include "sl_driver_gpio.h"
 #include "sl_si91x_driver_gpio.h"
+#include "rsi_retention.h"
+#include "rsi_rom_egpio.h"
 #if defined(DEBUG_UART)
 #include "rsi_debug.h"
 #endif // DEBUG_UART
@@ -135,7 +136,6 @@ void sl_si91x_button_init(const sl_button_t *handle)
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_gpio_driver_configure_interrupt, Error code: %lu", status);
     }
-    DEBUGOUT("GPIO interrupt configuration is successful \n");
   }
 #elif SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
   /*GPIO clock is enabled*/

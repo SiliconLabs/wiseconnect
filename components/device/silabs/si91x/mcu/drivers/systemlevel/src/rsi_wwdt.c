@@ -13,9 +13,13 @@
 * software is distributed to you in Source Code format and is governed by the
 * sections of the MSLA applicable to Source Code.
 *
+
 ******************************************************************************/
 
-#include "rsi_chip.h"
+#include "si91x_device.h"
+#include "rsi_power_save.h"
+#include "rsi_wwdt.h"
+
 /** @addtogroup SOC27
  * @{
  */

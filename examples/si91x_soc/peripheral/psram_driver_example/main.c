@@ -33,6 +33,9 @@
 #include "rsi_rom_clks.h"
 #include "clock_update.h"
 #include "sl_si91x_psram_handle.h"
+#if defined(SL_SI91X_BOARD_INIT)
+#include "rsi_board.h"
+#endif // SL_SI91X_BOARD_INIT
 
 /* Private macro -------------------------------------------------------------*/
 #define READ_WRITE_LENGTH       256

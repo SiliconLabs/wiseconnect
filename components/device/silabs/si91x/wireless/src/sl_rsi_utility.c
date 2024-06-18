@@ -45,7 +45,7 @@
   do {                     \
     if (s != SL_STATUS_OK) \
       return s;            \
-  } while (0);
+  } while (0)
 
 osThreadId_t si91x_thread           = 0;
 osThreadId_t si91x_event_thread     = 0;
@@ -59,6 +59,8 @@ osMutexId_t side_band_crypto_mutex = 0;
 
 si91x_packet_queue_t cmd_queues[SI91X_QUEUE_MAX];
 
+static bool sli_si91x_packet_status = 0;
+
 // Declaration of external functions
 extern void si91x_bus_thread(void *args);
 extern void si91x_event_handler_thread(void *args);
@@ -71,6 +73,7 @@ extern sl_status_t sl_create_generic_rx_packet_from_params(sl_si91x_queue_packet
                                                            uint8_t flags,
                                                            void *sdk_context,
                                                            sl_si91x_command_type_t command_type);
+void sl_debug_log(const char *format, ...);
 
 extern sli_si91x_performance_profile_t performance_profile;
 
@@ -853,7 +856,8 @@ sl_status_t sl_si91x_host_remove_node_from_queue(sl_si91x_queue_type_t queue,
 
       packet->node.node = NULL;
       data              = packet;
-      status            = SL_STATUS_OK;
+      cmd_queues[queue].queued_packet_count--;
+      status = SL_STATUS_OK;
       break;
     }
 
@@ -910,7 +914,8 @@ sl_status_t sl_si91x_host_flush_nodes_from_queue(sl_si91x_queue_type_t queue,
       }
 
       data->node.node = NULL;
-      status          = SL_STATUS_OK;
+      cmd_queues[queue].queued_packet_count--;
+      status = SL_STATUS_OK;
     } else {
       previous = packet;
       packet   = (sl_wifi_buffer_t *)packet->node.node;
@@ -996,10 +1001,12 @@ sl_status_t sl_si91x_flush_queue_based_on_type(sl_si91x_queue_type_t queue,
 
     cmd_queues[queue].head = (sl_wifi_buffer_t *)packet->node.node;
     packet                 = (sl_wifi_buffer_t *)packet->node.node;
+    cmd_queues[queue].queued_packet_count--;
   }
 
   if (NULL == cmd_queues[queue].head) {
-    cmd_queues[queue].tail = NULL;
+    cmd_queues[queue].tail                = NULL;
+    cmd_queues[queue].queued_packet_count = 0;
   }
 
   osMutexRelease(cmd_queues[queue].mutex);
@@ -1103,35 +1110,41 @@ void print_80211_packet(uint8_t *packet, uint32_t packet_length, uint16_t max_pa
   header_length += (packet[0] & BIT(7)) ? 2 : 0;                           /* 2 bytes QoS control */
   header_length += ((packet[1] & BIT(0)) && (packet[1] & BIT(1))) ? 6 : 0; /* 6 byte Addr4 */
 
-  printf("%02x %02x | ", packet[0], packet[1]); /* FC */
-  printf("%02x %02x | ", packet[2], packet[3]); /* Dur */
-  printf("%02x:%02x:%02x:%02x:%02x:%02x | ",
-         packet[4],
-         packet[5],
-         packet[6],
-         packet[7],
-         packet[8],
-         packet[9]); /* Addr1/RA */
-  printf("%02x:%02x:%02x:%02x:%02x:%02x | ",
-         packet[10],
-         packet[11],
-         packet[12],
-         packet[13],
-         packet[14],
-         packet[15]); /* Addr2/TA */
-  printf("%02x:%02x:%02x:%02x:%02x:%02x | ",
-         packet[16],
-         packet[17],
-         packet[18],
-         packet[19],
-         packet[20],
-         packet[21]);                                 /* Addr3/DA */
-  printf("%02x %02x | ", packet[22], packet[23]);     /* Seq control */
-  if ((packet[1] & BIT(0)) && (packet[1] & BIT(1))) { /* Addr4 */
-    printf("%02x:%02x:%02x:%02x:%02x:%02x | ", packet[24], packet[25], packet[26], packet[27], packet[28], packet[29]);
+  sl_debug_log("%02x %02x | ", packet[0], packet[1]); /* FC */
+  sl_debug_log("%02x %02x | ", packet[2], packet[3]); /* Dur */
+  sl_debug_log("%02x:%02x:%02x:%02x:%02x:%02x | ",
+               packet[4],
+               packet[5],
+               packet[6],
+               packet[7],
+               packet[8],
+               packet[9]); /* Addr1/RA */
+  sl_debug_log("%02x:%02x:%02x:%02x:%02x:%02x | ",
+               packet[10],
+               packet[11],
+               packet[12],
+               packet[13],
+               packet[14],
+               packet[15]); /* Addr2/TA */
+  sl_debug_log("%02x:%02x:%02x:%02x:%02x:%02x | ",
+               packet[16],
+               packet[17],
+               packet[18],
+               packet[19],
+               packet[20],
+               packet[21]);                             /* Addr3/DA */
+  sl_debug_log("%02x %02x | ", packet[22], packet[23]); /* Seq control */
+  if ((packet[1] & BIT(0)) && (packet[1] & BIT(1))) {   /* Addr4 */
+    sl_debug_log("%02x:%02x:%02x:%02x:%02x:%02x | ",
+                 packet[24],
+                 packet[25],
+                 packet[26],
+                 packet[27],
+                 packet[28],
+                 packet[29]);
   }
   if (packet[0] & BIT(7)) {
-    printf("%02x %02x | ", packet[30], packet[31]); /* QoS control */
+    sl_debug_log("%02x %02x | ", packet[30], packet[31]); /* QoS control */
   }
 
   // Determine number of payload bytes to print
@@ -1139,8 +1152,94 @@ void print_80211_packet(uint8_t *packet, uint32_t packet_length, uint16_t max_pa
   dump_bytes = max_payload_length > dump_bytes ? dump_bytes : max_payload_length;
 
   for (uint32_t i = header_length; i < header_length + dump_bytes; i++) {
-    printf("%02x ", packet[i]);
+    sl_debug_log("%02x ", packet[i]);
   }
 
-  printf("|\r\n");
+  sl_debug_log("|\r\n");
+}
+
+uint8_t sli_lmac_crc8_c(uint8_t crc8_din, uint8_t crc8_state, uint8_t end)
+{
+  uint8_t din[8];
+  uint8_t state[8];
+  uint8_t state_c[8];
+  uint8_t crc8_out;
+
+  din[0] = ((crc8_din & BIT(7)) >> 7);
+  din[1] = ((crc8_din & BIT(6)) >> 6);
+  din[2] = ((crc8_din & BIT(5)) >> 5);
+  din[3] = ((crc8_din & BIT(4)) >> 4);
+  din[4] = ((crc8_din & BIT(3)) >> 3);
+  din[5] = ((crc8_din & BIT(2)) >> 2);
+  din[6] = ((crc8_din & BIT(1)) >> 1);
+  din[7] = ((crc8_din & BIT(0)) >> 0);
+
+  state[0] = ((crc8_state & BIT(0)) >> 0);
+  state[1] = ((crc8_state & BIT(1)) >> 1);
+  state[2] = ((crc8_state & BIT(2)) >> 2);
+  state[3] = ((crc8_state & BIT(3)) >> 3);
+  state[4] = ((crc8_state & BIT(4)) >> 4);
+  state[5] = ((crc8_state & BIT(5)) >> 5);
+  state[6] = ((crc8_state & BIT(6)) >> 6);
+  state[7] = ((crc8_state & BIT(7)) >> 7);
+
+  state_c[7] = (state[7] ^ din[7]) ^ (state[6] ^ din[6]) ^ (state[5] ^ din[5]);
+
+  state_c[6] = (state[6] ^ din[6]) ^ (state[5] ^ din[5]) ^ (state[4] ^ din[4]);
+
+  state_c[5] = (state[5] ^ din[5]) ^ (state[4] ^ din[4]) ^ (state[3] ^ din[3]);
+
+  state_c[4] = (state[4] ^ din[4]) ^ (state[3] ^ din[3]) ^ (state[2] ^ din[2]);
+
+  state_c[3] = (state[1] ^ din[1]) ^ (state[2] ^ din[2]) ^ (state[3] ^ din[3]) ^ (state[7] ^ din[7]);
+
+  state_c[2] = (state[0] ^ din[0]) ^ (state[1] ^ din[1]) ^ (state[2] ^ din[2]) ^ (state[6] ^ din[6]);
+
+  state_c[1] = (state[0] ^ din[0]) ^ (state[1] ^ din[1]) ^ (state[6] ^ din[6]);
+
+  state_c[0] = (state[0] ^ din[0]) ^ (state[7] ^ din[7]) ^ (state[6] ^ din[6]);
+  if (!end) {
+    crc8_out = ((state_c[0] & BIT(0)) << 0) | ((state_c[1] & BIT(0)) << 1) | ((state_c[2] & BIT(0)) << 2)
+               | ((state_c[3] & BIT(0)) << 3) | ((state_c[4] & BIT(0)) << 4) | ((state_c[5] & BIT(0)) << 5)
+               | ((state_c[6] & BIT(0)) << 6) | ((state_c[7] & BIT(0)) << 7);
+  } else {
+    crc8_out = ((state_c[7] & BIT(0)) << 0) | ((state_c[6] & BIT(0)) << 1) | ((state_c[5] & BIT(0)) << 2)
+               | ((state_c[4] & BIT(0)) << 3) | ((state_c[3] & BIT(0)) << 4) | ((state_c[2] & BIT(0)) << 5);
+
+    crc8_out = ~crc8_out;
+    crc8_out &= 0x3f;
+  }
+  return (crc8_out);
+}
+
+uint8_t sli_multicast_mac_hash(uint8_t *mac)
+{
+  uint8_t i, crc = 0xff;
+  for (i = 0; i < 6; i++) {
+    crc = sli_lmac_crc8_c(mac[i], crc, ((i == 5) ? 1 : 0));
+  }
+  return (crc);
+}
+
+bool sli_si91x_get_flash_command_status()
+{
+  return sli_si91x_packet_status;
+}
+
+void sli_si91x_update_flash_command_status(bool flag)
+{
+  sli_si91x_packet_status = flag;
+}
+
+// This function is used to update the power manager to see whether the device is ready for sleep or not.
+// True indicates ready for sleep, and false indicates not ready for sleep.
+bool sli_si91x_is_sdk_ok_to_sleep()
+{
+  bool tx_queues_empty = (sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
+                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
+                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
+                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
+                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_BT_CMD)
+                          || sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_DATA));
+  return ((!sli_si91x_get_flash_command_status()) && (!tx_queues_empty));
 }

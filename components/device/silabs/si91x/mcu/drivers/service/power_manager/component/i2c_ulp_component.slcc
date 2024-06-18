@@ -1,5 +1,5 @@
 id: i2c_ulp_component
-label: ULP I2C
+label: PM ULP I2C
 package: platform
 description: >
   ULP I2C component will enable I2C in the low-power mode. It moves all the peripheral dependencies to RAM. 
@@ -33,3 +33,5 @@ template_contribution:
     value: sl_si91x_dma.o
   - name: i2c_ps2
     value: rsi_i2c.o
+  - name: i2c_ps2
+    value: sl_si91x_clock_manager.o

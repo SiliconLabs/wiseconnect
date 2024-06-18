@@ -14,12 +14,14 @@ source:
   - path: efuse_example.c
   - path: efuse_example.h
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
-toolchain_settings: []
+    version: 3.3.0
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: cmsis_common
   - id: sl_system
@@ -31,11 +33,12 @@ component:
     from: wiseconnect3_sdk
   - id: sl_efuse
     from: wiseconnect3_sdk
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
 define:
-  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
 ui_hints:
   highlight:

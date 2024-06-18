@@ -1,8 +1,8 @@
 id: si917_memory_default_config
-label: 'Default Configuration'
+label: 'Default RAM Memory Configuration'
 package: wiseconnect
 description: >
-  Provides default memory configuration for the Si91x.
+  Provides default RAM memory configuration for the Si91x.
 category: Device|Si91x|Memory Configuration
 quality: production
 requires:

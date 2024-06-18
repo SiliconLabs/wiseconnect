@@ -14,8 +14,12 @@ include:
       - path: rsi_debug.h
 provides:
 - name: si91x_debug
+requires:
+- name: cmsis_usart
 define:
-- {"name":"DEBUG_UART","value":1}
+- name: DEBUG_UART
+  value: "1"
+  unless: [sl_ulp_uart]
 - {"name":"ENABLE_DEBUG_MODULE","value":1}
 - {"name": "DEBUG_ENABLE","value":1}
 template_contribution:

@@ -25,7 +25,7 @@
 #include "sl_constants.h"
 #include "cmsis_os2.h"
 #include "sl_utility.h"
-
+#include "FreeRTOSConfig.h"
 //! BLE include file to refer BLE APIs
 #include <string.h>
 
@@ -36,7 +36,7 @@
 #include "rsi_bt_common.h"
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
-#ifdef SLI_SI91X_MCU_INTERFACE
+#if SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE)
 #include "sl_si91x_m4_ps.h"
 #endif
 
@@ -472,7 +472,7 @@ void ble_central(void *argument)
     //! checking for received events
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
-#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
       //! if events are not received loop will be continued.
       if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;

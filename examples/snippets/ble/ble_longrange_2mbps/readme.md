@@ -35,7 +35,7 @@ The procedure can be initiated either on a request by the host or autonomously b
 
 - Simplicity Studio IDE
   
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 ### Setup Diagram
 
@@ -92,7 +92,7 @@ Read through the following sections and make any changes needed.
   - `RSI_REMOTE_DEVICE_NAME` refers the name of remote device to which Silicon Labs device has to connect
 
     ```c
-    #define RSI_REMOTE_DEVICE_NAME                              "SILABS"
+    #define RSI_REMOTE_DEVICE_NAME                              "SILABS_DEV"
     ```
 
     >  **Note:** Silicon Labs module can connect to remote device by referring either RSI_BLE_DEV_ADDR or  RSI_REMOTE_DEVICE_NAME of the remote device.
@@ -133,28 +133,32 @@ Follow the steps for successful execution of the application:
 
 1. Configure the remote BLE device in peripheral mode, add the complete local name record,  Enable the Scan response data, and connectable options to the advertising data. And keep it in the Advertising mode. Ensure that the specified remote device name in the RSI_REMOTE_DEVICE_NAME macro is proper.
 
-  ![](resources/readme/blelradvertising.png)     
+    ![](resources/readme/blelradvertising.png)     
 
-   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser.
+   > **Note:** Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the Simplicity Connect mobile App(formerly EFR Connect App) connect mobile APP as advertiser.
 
 2. After the program gets executed, Silicon Labs device tries to connect with the remote device specified in **RSI_BLE_DEV_ADDR** **or RSI_REMOTE_DEVICE_NAME** macro.
 
 3. Clicks on "YES AND OPEN" button and Observe that the connection is established between the desired device and Silicon Labs device.
 
-  ![](resources/readme/blelrconnection.png) 
+    ![](resources/readme/blelrconnection.png) 
 
 4. After connection, Silicon Labs device will read PHY rate of the remote device and set PHY rate of the remote device.
 
-  ![](resources/readme/blelrconnection1.png)
+    ![](resources/readme/blelrconnection1.png)
 
 5. Observe PHY update complete event after setting PHY rate.
 
-6. When Silicon Labs module is configured as **LONG_RANGE** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 500kbps and prints in teraterm looks as shown below.
+    ![](resources/readme/output1.png)
 
-7. When Silicon Labs module is configured as **TWO_MBPS** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 1mbps and prints in teraterm looks as shown below.
+6. When Silicon Labs module is configured as **LONG_RANGE** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 500kbps and prints in docklight looks as shown below.
 
-    > **Note:**  The provided mobile screenshots are from the 2.5.2 version of the EFR Connect app, it is recommended to use the latest version.
+    ![](resources/readme/500kbps.png)
 
-8. Refer the following image for console prints:
+7. When Silicon Labs module is configured as **TWO_MBPS** PHY data rate, the Slicon Labs module and remote device updates its PHY data rate to 2mbps and prints in docklight looks as shown below.
 
-  ![](resources/readme/output1.png)
+    ![](resources/readme/2mbps.png)
+
+    > **Note:**  The provided mobile screenshots are from the 2.5.2 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
+
+

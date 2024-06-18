@@ -48,7 +48,7 @@ extern "C" {
  */
 STATIC INLINE uint32_t RSI_RNG_Start(HWRNG_Type *pRNG, uint8_t rngMode)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(RNG_ROMDRIVER_PRESENT)
   return ROMAPI_RNG_API->rng_start(pRNG, rngMode);
 #else
   return rng_start(pRNG, rngMode);
@@ -63,7 +63,7 @@ STATIC INLINE uint32_t RSI_RNG_Start(HWRNG_Type *pRNG, uint8_t rngMode)
  */
 STATIC INLINE void RSI_RNG_Stop(HWRNG_Type *pRNG)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(RNG_ROMDRIVER_PRESENT)
   ROMAPI_RNG_API->rng_stop(pRNG);
 #else
   rng_stop(pRNG);
@@ -80,7 +80,7 @@ STATIC INLINE void RSI_RNG_Stop(HWRNG_Type *pRNG)
  */
 STATIC INLINE void RSI_RNG_GetBytes(HWRNG_Type *pRNG, uint32_t *randomBytes, uint32_t numberOfBytes)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(RNG_ROMDRIVER_PRESENT)
   ROMAPI_RNG_API->rng_get_bytes(pRNG, randomBytes, numberOfBytes);
 #else
   rng_get_bytes(pRNG, randomBytes, numberOfBytes);

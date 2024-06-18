@@ -224,26 +224,45 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
 
 #endif
 
-  while (total_length) {
-    // Check total length
-    if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {
-      chunk_len = SL_SI91X_MAX_DATA_SIZE_IN_BYTES;
-      if (offset == 0) {
-        // Make gcm_flags as first chunk
-        gcm_flags |= FIRST_CHUNK;
+  if (total_length != 0) {
+    while (total_length) {
+      // Check total length
+      if (total_length > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {
+        chunk_len = SL_SI91X_MAX_DATA_SIZE_IN_BYTES;
+        if (offset == 0) {
+          // Make gcm_flags as first chunk
+          gcm_flags |= FIRST_CHUNK;
+        } else {
+          // Make gcm_flags as middle chunk
+          gcm_flags = MIDDLE_CHUNK;
+        }
       } else {
-        // Make gcm_flags as middle chunk
-        gcm_flags = MIDDLE_CHUNK;
+        chunk_len = total_length;
+        gcm_flags = LAST_CHUNK;
+        if (offset == 0) {
+          // If the total length is less than 1400 and offset is zero, make gcm_flags as both first chunk as well as last chunk
+          gcm_flags |= FIRST_CHUNK;
+        }
       }
-    } else {
-      chunk_len = total_length;
-      gcm_flags = LAST_CHUNK;
-      if (offset == 0) {
-        // If the total length is less than 1400 and offset is zero, make gcm_flags as both first chunk as well as last chunk
-        gcm_flags |= FIRST_CHUNK;
-      }
-    }
 
+      // Send the current chunk length message
+      status = sli_si91x_gcm_pending(config, chunk_len, gcm_flags, output);
+      if (status != SL_STATUS_OK) {
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+        mutex_result = sl_si91x_crypto_mutex_release(crypto_gcm_mutex);
+#endif
+        return status;
+      }
+
+      // Increment the offset value
+      offset += chunk_len;
+      config->msg += chunk_len;
+
+      // Decrement the total message length
+      total_length -= chunk_len;
+    }
+  } else {
+    gcm_flags = FIRST_CHUNK | LAST_CHUNK;
     // Send the current chunk length message
     status = sli_si91x_gcm_pending(config, chunk_len, gcm_flags, output);
     if (status != SL_STATUS_OK) {
@@ -252,13 +271,6 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
 #endif
       return status;
     }
-
-    // Increment the offset value
-    offset += chunk_len;
-    config->msg += chunk_len;
-
-    // Decrement the total message length
-    total_length -= chunk_len;
   }
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)

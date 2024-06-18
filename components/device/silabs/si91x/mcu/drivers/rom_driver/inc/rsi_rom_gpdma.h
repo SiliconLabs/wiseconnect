@@ -43,7 +43,7 @@ extern "C" {
  */
 STATIC INLINE uint32_t RSI_GPDMA_GetMemSize(void)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_get_mem_size();
 #else
   return gpdma_get_mem_size();
@@ -60,7 +60,7 @@ STATIC INLINE uint32_t RSI_GPDMA_GetMemSize(void)
  */
 STATIC INLINE RSI_GPDMA_HANDLE_T RSI_GPDMA_Init(void *mem, const RSI_GPDMA_INIT_T *pInit)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_init(mem, pInit);
 #else
   return gpdma_init(mem, pInit);
@@ -77,7 +77,7 @@ STATIC INLINE RSI_GPDMA_HANDLE_T RSI_GPDMA_Init(void *mem, const RSI_GPDMA_INIT_
  */
 STATIC INLINE void RSI_GPDMA_RegisterCallback(RSI_GPDMA_HANDLE_T pHandle, uint32_t cbIndex, gpdmaTransferCompleteCB pCB)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   ROMAPI_GPDMA_API->gpdma_register_callback(pHandle, cbIndex, pCB);
 #else
   gpdma_register_callback(pHandle, cbIndex, pCB);
@@ -93,7 +93,7 @@ STATIC INLINE void RSI_GPDMA_RegisterCallback(RSI_GPDMA_HANDLE_T pHandle, uint32
  */
 STATIC INLINE rsi_error_t RSI_GPDMA_AbortChannel(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_abort_channel(pHandle, dmaCh);
 #else
   return gpdma_abort_channel(pHandle, dmaCh);
@@ -112,7 +112,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_AbortChannel(RSI_GPDMA_HANDLE_T pHandle, uin
  */
 STATIC INLINE rsi_error_t RSI_GPDMA_SetupChannel(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_setup_channel(pHandle, pCfg);
 #else
   return gpdma_setup_channel(pHandle, pCfg);
@@ -135,7 +135,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_BuildDescriptors(RSI_GPDMA_HANDLE_T pHandle,
                                                      RSI_GPDMA_DESC_T *pDesc,
                                                      RSI_GPDMA_DESC_T *pDescPrev)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_build_descriptors(pHandle, pXferCfg, pDesc, pDescPrev);
 #else
   return gpdma_build_descriptors(pHandle, pXferCfg, pDesc, pDescPrev);
@@ -161,7 +161,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_SetupChannelTransfer(RSI_GPDMA_HANDLE_T pHan
                                                          uint8_t dmaCh,
                                                          RSI_GPDMA_DESC_T *pDesc)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_setup_channelTransfer(pHandle, dmaCh, pDesc);
 #else
   return gpdma_setup_channelTransfer(pHandle, dmaCh, pDesc);
@@ -176,7 +176,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_SetupChannelTransfer(RSI_GPDMA_HANDLE_T pHan
  */
 STATIC INLINE void RSI_GPDMA_InterruptHandler(RSI_GPDMA_HANDLE_T pHandle)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   ROMAPI_GPDMA_API->gpdma_interrupt_handler(pHandle);
 #else
   gpdma_interrupt_handler(pHandle);
@@ -193,7 +193,7 @@ STATIC INLINE void RSI_GPDMA_InterruptHandler(RSI_GPDMA_HANDLE_T pHandle)
  */
 STATIC INLINE void RSI_GPDMA_DeInit(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   ROMAPI_GPDMA_API->gpdma_deInit(pHandle, pCfg);
 #else
   gpdma_deInit(pHandle, pCfg);
@@ -210,7 +210,7 @@ STATIC INLINE void RSI_GPDMA_DeInit(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CF
  */
 STATIC INLINE rsi_error_t RSI_GPDMA_DMAChannelTrigger(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_dma_channel_trigger(pHandle, dmaCh);
 #else
   return gpdma_dma_channel_trigger(pHandle, dmaCh);
@@ -228,7 +228,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_DMAChannelTrigger(RSI_GPDMA_HANDLE_T pHandle
  */
 STATIC INLINE uint32_t RSI_GPDMA_ChannelIsEnabled(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_channel_is_enabled(pHandle, dmaCh);
 #else
   return gpdma_channel_is_enabled(pHandle, dmaCh);
@@ -245,7 +245,7 @@ STATIC INLINE uint32_t RSI_GPDMA_ChannelIsEnabled(RSI_GPDMA_HANDLE_T pHandle, ui
  */
 STATIC INLINE rsi_error_t RSI_GPDMA_InterruptDisable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_interrupt_disable(pHandle, pCfg);
 #else
   return gpdma_interrupt_disable(pHandle, pCfg);
@@ -262,7 +262,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_InterruptDisable(RSI_GPDMA_HANDLE_T pHandle,
  */
 STATIC INLINE rsi_error_t RSI_GPDMA_InterruptEnable(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_interrupt_enable(pHandle, pCfg);
 #else
   return gpdma_interrupt_enable(pHandle, pCfg);
@@ -280,7 +280,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_InterruptEnable(RSI_GPDMA_HANDLE_T pHandle, 
  */
 STATIC INLINE rsi_error_t RSI_GPDMA_ErrorStatusClear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_error_status_clear(pHandle, pCfg);
 #else
   return gpdma_error_status_clear(pHandle, pCfg);
@@ -297,7 +297,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_ErrorStatusClear(RSI_GPDMA_HANDLE_T pHandle,
  */
 STATIC INLINE uint32_t RSI_GPDMA_GetErrorStatus(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_get_error_status(pHandle, pCfg);
 #else
   return gpdma_get_error_status(pHandle, pCfg);
@@ -315,7 +315,7 @@ STATIC INLINE uint32_t RSI_GPDMA_GetErrorStatus(RSI_GPDMA_HANDLE_T pHandle, RSI_
  */
 STATIC INLINE rsi_error_t RSI_GPDMA_InterruptClear(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_interrupt_clear(pHandle, pCfg);
 #else
   return gpdma_interrupt_clear(pHandle, pCfg);
@@ -335,7 +335,7 @@ STATIC INLINE rsi_error_t RSI_GPDMA_InterruptClear(RSI_GPDMA_HANDLE_T pHandle, R
  */
 STATIC INLINE uint32_t RSI_GPDMA_InterruptStatus(RSI_GPDMA_HANDLE_T pHandle, RSI_GPDMA_CHA_CFG_T *pCfg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(GPDMA_ROMDRIVER_PRESENT)
   return ROMAPI_GPDMA_API->gpdma_interrupt_status(pHandle, pCfg);
 #else
   return gpdma_interrupt_status(pHandle, pCfg);

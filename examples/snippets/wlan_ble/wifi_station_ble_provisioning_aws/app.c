@@ -3,7 +3,7 @@
 * @brief
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -55,7 +55,7 @@
 #define RSI_TCP_IP_BYPASS RSI_DISABLE
 
 // Function prototypes
-extern void sl_wifi_app_task(void);
+extern void wifi_app_task(void);
 extern void rsi_ble_configurator_task(void *argument);
 void rsi_ble_configurator_init(void);
 extern int32_t rsi_wlan_mqtt_certs_init(void);
@@ -208,7 +208,7 @@ void rsi_wlan_ble_app_init(void *argument)
   // BLE initialization
   rsi_ble_configurator_init();
 
-  sl_wifi_app_task();
+  wifi_app_task();
 
   return;
 }

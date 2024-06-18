@@ -53,7 +53,7 @@
 
 #include "Driver_USBD.h"
 
-#include "rsi_chip.h"
+
 #include "USB.h"
 #include "RTE_Device.h"
 

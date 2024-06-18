@@ -31,18 +31,20 @@
  to
  * High power and configured with new parameters and toggles LED again five
  times.
- * At the end of this example "Unregistered timer timeout callback, on timer 
+ * At the end of this example "Unregistered timer timeout callback, on timer
  * operation completion"
  ===================================================================================*/
 #include "ulp_timer_example.h"
-#include "rsi_chip.h"
+
 #include "rsi_debug.h"
 #include "sl_si91x_led.h"
 #include "sl_si91x_power_manager.h"
 #include "sl_si91x_ulp_timer.h"
-#include "sl_si91x_ulp_timer_init.h"
+#include "sl_ulp_timer_instances.h"
+#include "sl_si91x_ulp_timer_common_config.h"
 #include <stdint.h>
 #include "sl_si91x_wireless_shutdown.h"
+#include <stdint.h>
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -60,23 +62,23 @@
  *microseconds * time in microseconds)
  ******************************************************************************/
 #define SL_TIMER_MATCH_VALUE \
-  ((CLOCKS_PER_MICROSECONDS_20MHZ) * (TIME_IN_MICROSECONDS)) // Timer match value for down-counter type with 20mhz \
-                                                             // clock
+  ((CLOCKS_PER_MICROSECONDS_20MHZ) * (TIME_IN_MICROSECONDS)) /* Timer match value for down-counter type with 20mhz
+                                                             clock */
 
 #define ONE_SEC_MATCH_VALUE_256US_TYPE 3906 // Timer match value for 1-sec, in 256us type
 
-#define ONE_SEC_MATCH_VALUE_1US_TYPE 20000000 // Timer match value for 1-sec, in 1us type
+#define ONE_SEC_MATCH_VALUE_1US_TYPE 1000000 // Timer match value for 1-sec, in 1us type
 
 #define SL_TIMER_MATCH_VALUE_32MHZ \
-  ((CLOCKS_PER_MICROSECONDS_32MHZ) * (TIME_IN_MICROSECONDS)) // Timer match value for down-counter type with 32mhz \
-                                                             // clock
+  ((CLOCKS_PER_MICROSECONDS_32MHZ) * (TIME_IN_MICROSECONDS)) /*Timer match value for down-counter type with 32mhz
+                                                              clock */
 
 #define ONE_SEC_MATCH_VALUE_256US_TYPE_32MHZ \
   3906 // Timer match value for 1-sec, in 256us type for 32 mhz clock frequency
 
 #define ONE_SEC_MATCH_VALUE_1US_TYPE_32MHZ \
-  32000000 //  Timer match value for 1-sec, in 1us type for 32 mhz clock \
-           //  frequency
+  1000000 /* Timer match value for 1-sec, in 1us type for 32 mhz clock
+           frequency */
 
 #define LED0 0 // For On-board LED-0
 
@@ -87,17 +89,17 @@
 #define TENTH_INTERRUPT_COUNT 10 // Count for tenth timeout interrupt
 
 // Macros used to construct ulp-timer instance
-#define ULP_TIMER_INSTANCE \
-  SL_ULP_TIMER_TIMER0 // ulp-timer instance to be used, user can pass selected \
-                      // timer-number in place of '0'
+#define ULP_TIMER_INSTANCE                   0 // timer insatnce used, pass selected timer instance number in place of '0'
 #define _CONCAT_TWO_TOKENS(token_1, token_2) token_1##token_2
 #define CONCAT_TWO_TOKENS(token_1, token_2)  _CONCAT_TWO_TOKENS(token_1, token_2)
 #define SL_ULP_TIMER_HANDLE                  CONCAT_TWO_TOKENS(sl_timer_handle_timer, ULP_TIMER_INSTANCE)
 #define SL_ULP_TIMER_CALLBACK                CONCAT_TWO_TOKENS(on_timeout_callback, ULP_TIMER_INSTANCE)
+
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 static void SL_ULP_TIMER_CALLBACK(void);
+static void configuring_ps2_power_state(void);
 /*******************************************************************************
  **********************  Local variables   ***************************
  ******************************************************************************/
@@ -195,33 +197,15 @@ void ulp_timer_example_init(void)
 void ulp_timer_example_process_action(void)
 {
   /*************************************************************************************************
- * This section manages power state transitions within the system, optimizing power consumption
- * while maintaining essential functionality. It transitions the system from a higher power state (PS4)
- * to a lower one (PS2) during specific operations to conserve power. This involves adjusting clock
- * references and shutting down unnecessary power supplies. After completing the operation,
- * the code transitions back to the higher power state (PS4) to ensure adequate resources for
- * subsequent tasks. This approach balances power efficiency with operational requirements
- * across various system functions.
- ***************************************************************************************************/
-  sl_power_peripheral_t peri;
-  sl_power_ram_retention_config_t config;
-  // Clear the peripheral configuration
-  peri.m4ss_peripheral = 0;
-  // Ored value for ulpss peripheral.
-  peri.ulpss_peripheral = SL_SI91X_POWER_MANAGER_ULPSS_PG_AUX | SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2C | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM;
-  // Ored value for npss peripheral.
-  peri.npss_peripheral = SL_SI91X_POWER_MANAGER_NPSS_PG_MCUWDT | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUPS
-                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUTS | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE2
-                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE3;
-  // Configure RAM banks for retention during power management
-  config.configure_ram_banks = true; // Enable RAM bank configuration
-  config.m4ss_ram_banks =
-    SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9
-    | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10; // Specify the RAM banks to be retained during power management
-  // Ored value for ulpss peripheral.
+   * This section manages power state transitions within the system, optimizing
+   *power consumption while maintaining essential functionality. It transitions
+   *the system from a higher power state (PS4) to a lower one (PS2) during
+   *specific operations to conserve power. This involves adjusting clock
+   * references and shutting down unnecessary power supplies. After completing
+   *the operation, the code transitions back to the higher power state (PS4) to
+   *ensure adequate resources for subsequent tasks. This approach balances power
+   *efficiency with operational requirements across various system functions.
+   ***************************************************************************************************/
   switch (ulp_timer_current_mode) {
     case SL_ULP_TIMER_PROCESS_ACTION:
       // Checking timer callback unregister flag value
@@ -312,7 +296,7 @@ void ulp_timer_example_process_action(void)
         // Checking counter direction
         status = sl_si91x_ulp_timer_get_direction(ULP_TIMER_INSTANCE, &timer_direction);
         if (status != SL_STATUS_OK) {
-          DEBUGOUT("sl_si91x_ulp_timer_get_count : Invalid Parameters Error Code "
+          DEBUGOUT("sl_si91x_ulp_timer_get_direction : Invalid Parameters Error Code "
                    ": %lu \n",
                    status);
         } else {
@@ -341,32 +325,22 @@ void ulp_timer_example_process_action(void)
         // Switching power state from PS4 to PS2 or vice versa
         else if (current_power_state == SL_SI91X_POWER_MANAGER_PS4) {
           DEBUGOUT("Switching power state from PS4 to PS2\n");
-          // Control power management by adjusting clock references and shutting down the power supply
+          // Control power management by adjusting clock references and shutting down
+          // the power supply
           sl_si91x_wireless_shutdown();
           // switching the power state PS4 to PS2 mode.
           status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
-          /* Due to calling trim_efuse API om power manager it will change the clock
-                           frequency, if we are not initialize the debug again it will print the
-                           garbage data or no data in console output. */
+          /* Due to calling trim_efuse API om power manager it will change the
+           clock frequency, if we are not initialize the debug again it will
+           print the garbage data or no data in console output. */
           DEBUGINIT();
           if (status != SL_STATUS_OK) {
             DEBUGOUT("sl_si91x_power_manager_add_ps_requirement: Error Code : %lu \n", status);
             break;
           }
-          // Peripherals passed in this API are powered off.
-          status = sl_si91x_power_manager_remove_peripheral_requirement(&peri);
-          if (status != SL_STATUS_OK) {
-            // If status is not OK, return with the error code.
-            DEBUGOUT("sl_si91x_power_manager_remove_peripheral_requirement failed, Error Code: 0x%lX", status);
-            break;
-          }
-          // RAM retention modes are configured and passed into this API.
-          status = sl_si91x_power_manager_configure_ram_retention(&config);
-          if (status != SL_STATUS_OK) {
-            // If status is not OK, return with the error code.
-            DEBUGOUT("sl_si91x_power_manager_configure_ram_retention failed, Error Code: 0x%lX", status);
-            break;
-          }
+          // Configuring the ps2 power state by configuring
+          // the ram retention and removing the unused peripherals
+          configuring_ps2_power_state();
           // Update flag
           ps4_to_ps2_transition_done = true;
           // current power state is updated to PS2
@@ -380,9 +354,9 @@ void ulp_timer_example_process_action(void)
             DEBUGOUT("sl_si91x_power_manager_add_ps_requirement: Error Code : %lu \n", status);
             break;
           }
-          /* Due to calling trim_efuse API om power manager it will change the clock
-                   frequency, if we are not initialize the debug again it will print the
-                   garbage data or no data in console output. */
+          /* Due to calling trim_efuse API om power manager it will change the
+           clock frequency, if we are not initialize the debug again it will
+           print the garbage data or no data in console output. */
           DEBUGINIT();
           // Update flag
           ps2_to_ps4_transition_done = true;
@@ -437,4 +411,52 @@ static void SL_ULP_TIMER_CALLBACK(void)
       return;
     }
   }
+}
+/*******************************************************************************
+ * powering off the peripherals not in use,
+ * Configuring power manager ram-retention
+ ******************************************************************************/
+static void configuring_ps2_power_state(void)
+{
+  sl_power_peripheral_t peri;
+  sl_power_ram_retention_config_t config;
+  // Clear the peripheral configuration
+  peri.m4ss_peripheral = 0;
+  // Ored value for ulpss peripheral.
+  peri.ulpss_peripheral = SL_SI91X_POWER_MANAGER_ULPSS_PG_AUX | SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2C | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM;
+  // Ored value for npss peripheral.
+  peri.npss_peripheral = SL_SI91X_POWER_MANAGER_NPSS_PG_MCUWDT | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUPS
+                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUTS | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE2
+                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE3;
+  // Configure RAM banks for retention during power management
+  config.configure_ram_banks = true; // Enable RAM bank configuration
+  config.m4ss_ram_banks      = SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9
+                          | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10; // Specify the RAM banks to be
+                                                                     // retained during power
+                                                                     // management
+  config.ulpss_ram_banks = SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_2 | SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_3;
+  // Ored value for ulpss peripheral.
+  do {
+    // Peripherals passed in this API are powered off.
+    status = sl_si91x_power_manager_remove_peripheral_requirement(&peri);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      DEBUGOUT("sl_si91x_power_manager_remove_peripheral_requirement failed, "
+               "Error Code: 0x%lX",
+               status);
+      break;
+    }
+    // RAM retention modes are configured and passed into this API.
+    status = sl_si91x_power_manager_configure_ram_retention(&config);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      DEBUGOUT("sl_si91x_power_manager_configure_ram_retention failed, Error "
+               "Code: 0x%lX",
+               status);
+      break;
+    }
+  } while (false);
 }

@@ -63,7 +63,7 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
 
   // Determine the wait period based on the 'asynchronous' flag
   if (asynchronous == false) {
-    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(70000);
+    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(600000);
   }
 
   // Check IP version

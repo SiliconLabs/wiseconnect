@@ -38,7 +38,7 @@ extern "C" {
 // <<< Use Configuration Wizard in Context Menu >>>
 
 // <e>Calendar Wakeup
-#define SL_ENABLE_CALENDAR_WAKEUP_SOURCE 1
+#define SL_ENABLE_CALENDAR_WAKEUP_SOURCE 0
 
 // <q ENABLE_SECOND> Enable Second Wakeup Source
 // <i> Default: 0
@@ -46,7 +46,7 @@ extern "C" {
 
 // <q ENABLE_ALARM> Enable Alarm Wakeup Source
 // <i> Default: 1
-#define ENABLE_ALARM 1
+#define ENABLE_ALARM 0
 
 // <q ENABLE_MSEC> Enable Milli Second Wakeup Source
 // <i> Default: 0

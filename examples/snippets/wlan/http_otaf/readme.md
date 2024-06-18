@@ -17,13 +17,16 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to update new firmware to SiWx91x using local HTTP/HTTPS server or cloud storage server.
+This application shows how to update the TA(NWP) or M4 firmware of a device via Wi-Fi by downloading an update from a remote HTTP/HTTPS server. The server can be run on a local PC(Apache server) or hosted on a cloud service like Amazon AWS or Microsoft Azure. Here's how the update process works:
 
-> **Note:** By enabling HTTPS_SUPPORT Flag in `app.c` file, the same HTTP_OTAF application is used for HTTPS_OTAF.
+> **Note:** By enabling the `HTTPS_SUPPORT` flag in the `app.c` file, the same HTTP OTA (Over-the-Air) application can be used for HTTPS OTA.
 
-In this application, the SiWx91x connects to an Access Point, configures as HTTP/HTTPS client and establishes connection with HTTP/HTTPS server (Apache server) or the cloud storage server (i.e., AWS S3 bucket/Azure Blob storage). After successful HTTP/HTTPS connection, SiWx91x sends firmware file request (HTTP GET Request) to remote server and server responds with Firmware file.
+- **Connection**: The device connects to a Wi-Fi network and acts as a HTTP/HTTPS client.
+- **Request**: The device sends a request to the HTTP/HTTPS server for the firmware update file.
+- **Download**: The server sends the firmware file to the device.
+- **Update**: The device writes the new firmware to its memory and then restarts to complete the update.
 
-The server transferred firmware file gets loaded/updated in the SiWx91x flash memory. After successful firmware update, the [sl_si91x_http_otaf()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-fw-upgrade/service-firmware-upgrade-functions#sl-si91x-http-otaf) API returns success response.
+This process allows the device to update its software over the air (OTA) without needing a physical connection.
 
 ## Prerequisites/Setup Requirements
 
@@ -37,8 +40,6 @@ The server transferred firmware file gets loaded/updated in the SiWx91x flash me
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -104,12 +105,13 @@ The application can be configured to suit user requirements and development envi
 
   - Select Firmware update type
 
-  - For TA firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE
+  - For TA firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE and for Combined firmware upgrade, set FW_UPDATE_TYPE to COMBINED_FW_UPDATE
 
     ```c
     //! Type of FW update
-    #define M4_FW_UPDATE 0
-    #define TA_FW_UPDATE 1
+    #define M4_FW_UPDATE       0
+    #define TA_FW_UPDATE       1
+    #define COMBINED_FW_UPDATE 2
 
     //! Set FW update type
     #define FW_UPDATE_TYPE TA_FW_UPDATE

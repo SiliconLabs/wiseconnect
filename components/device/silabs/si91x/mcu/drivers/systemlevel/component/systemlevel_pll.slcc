@@ -19,3 +19,5 @@ provides:
 requires:
   - name: systemlevel_reg_spi
   - name: romdriver_clks
+define:
+  - name: PLL_ROMDRIVER_PRESENT

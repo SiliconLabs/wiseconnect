@@ -16,9 +16,10 @@
 #include <stdint.h>
 
 // Default Timeout Configuration
-#define SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT 0xFFFF
-#define SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME 0xFFFF
-#define SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT       0xFFFF
+#define SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT  0xFFFF
+#define SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME  0xFFFF
+#define SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT        0xFFFF
+#define SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME 0
 
 /// Wi-Fi transceiver mode configurations
 #define MAX_PAYLOAD_LEN                     2020
@@ -61,7 +62,6 @@
 #define SL_STATUS_CS_BUSY                   0x2
 #define SL_STATUS_UNKNOWN_PEER              0x3
 #define TRANSCEIVER_RX_PKT_TA_MATCH_BIT     BIT(20)
-/*! @cond WIFI_TRANSCEIVER_MODE */
 /** @addtogroup SL_WIFI_CONSTANTS
   * @{ */
 #define SL_CHANNEL_NO            14  ///< Wi-Fi transceiver default channel
@@ -80,7 +80,6 @@
 #define DEFAULT_QOS_VO_CWMAX     3   ///< Wi-Fi transceiver default VO cwmax contention param value
 #define DEFAULT_QOS_VO_AIFSN     1   ///< Wi-Fi transceiver default VO aifsn contention param value
 /** @} */
-/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /** @addtogroup SL_WIFI_TYPES Types
   * @{ */
@@ -158,6 +157,7 @@ typedef struct {
   uint32_t periodic_scan_interval; ///< Duration in milliseconds between periodic scans
   uint16_t channel_bitmap_2g4;     ///< Bitmap of selected 2.4GHz channels
   uint32_t channel_bitmap_5g[8];   ///< Bitmap of selected 5GHz channels
+  uint8_t lp_mode;                 ///< Enable LP mode, 1 - Enable LP mode, 0 - Disable LP mode
 } sl_wifi_scan_configuration_t;
 
 /// Wi-Fi advanced scan configuration options
@@ -216,30 +216,8 @@ typedef struct {
 
 /// Wi-Fi Client interface advance configuration
 typedef struct {
-  /**
-	 * @note
-	 * - BIT[0] of OKC is used to enable or disable opportunistic key caching (OKC), –0 – disable –1 – enable – When this is enabled, module will use cached PMKID to get MSK(Master Session Key) which is need for generating PMK which is needed for 4-way handshake.
-	 * - BIT[1] of OKC is used to enable or disable CA certification for PEAP connection. –0 – CA certificate is not required. –1 – CA certificate is required.
-	 * - BIT[2-12] of OKC argument are used for Cipher list selection for EAP connection. All possible ciphers are listed below.
-	 *       | BIT position| Cipher selected       |
-	 *       |-------------|-----------------------|
-	 *       | 2           | DHE-RSA-AES256-SHA256 |
-	 *       | 3           | DHE-RSA-AES128-SHA256 |
-	 *       | 4           | DHE-RSA-AES256-SHA    |
-	 *       | 5           | DHE-RSA-AES128-SHA    |
-	 *       | 6           | AES256-SHA256         |
-	 *       | 7           | AES128-SHA256         |
-	 *       | 8           | AES256-SHA            |
-	 *       | 9           | AES128-SHA            |
-	 *       | 10          | RC4-SHA               |
-	 *       | 11          | DES-CBC3-SHA          |
-	 *       | 12          | RC4-MD5               |
-	 * - BIT[13-31] of OKC argument is reserved.
-	 * @note When user sets BIT[1] and does not provide the CA certificate for PEAP connection then error is thrown. If user provides invalid CA certificate then also error is thrown. User can set either one or multiple bits from BIT[2-12] to provide the cipher's list. When user does not provide any value in OKC's BIT[2-12] then by default all the ciphers are selected.
-	 */
-  uint32_t eap_flags;               ///< EAP Flags
   uint32_t max_retry_attempts;      ///< Maximum number of retries before indicating join failure
-  uint32_t scan_interval;           ///< Scan interval between each retry
+  uint32_t scan_interval;           ///< Scan interval in seconds between each retry
   uint32_t beacon_missed_count;     ///< Number of missed beacons that will trigger rejoin
   uint32_t first_time_retry_enable; ///< Retry enable or disable for first time joining
 } sl_wifi_advanced_client_configuration_t;
@@ -266,6 +244,28 @@ typedef struct {
   uint8_t password[SL_WIFI_EAP_PASSWORD_LENGTH];               ///< Enterprise password
   uint8_t certificate_key[SL_WIFI_EAP_CERTIFICATE_KEY_LENGTH]; ///< Certificate password
   uint32_t certificate_id;                                     ///< Certificate Id for Enterprise authentication
+  /**
+	   * @note
+	   * - BIT[0] of Opportunistic Key Caching (OKC) is used to enable or disable OKC: –0 – disable; –1 – enable. When this is enabled, module will use cached PMKID to get the Master Session Key (MSK), which is needed for generating PMK that is needed for 4-way handshake.
+	   * - BIT[1] of OKC is used to enable or disable CA certification for PEAP connection: –0 – CA certificate is not required; –1 – CA certificate is required.
+	   * - BIT[2-12] of OKC argument are used for cipher list selection for EAP connection. All possible ciphers are listed below.
+	   *       | BIT position| Cipher selected       |
+	   *       |-------------|-----------------------|
+	   *       | 2           | DHE-RSA-AES256-SHA256 |
+	   *       | 3           | DHE-RSA-AES128-SHA256 |
+	   *       | 4           | DHE-RSA-AES256-SHA    |
+	   *       | 5           | DHE-RSA-AES128-SHA    |
+	   *       | 6           | AES256-SHA256         |
+	   *       | 7           | AES128-SHA256         |
+	   *       | 8           | AES256-SHA            |
+	   *       | 9           | AES128-SHA            |
+	   *       | 10          | RC4-SHA               |
+	   *       | 11          | DES-CBC3-SHA          |
+	   *       | 12          | RC4-MD5               |
+	   * - BIT[13-31] of OKC argument is reserved.
+	   * @note If a user sets BIT[1] and does not provide the CA certificate for PEAP connection, an error is thrown. If a user provides an invalid CA certificate, an error is also thrown. A user can set either one or multiple bits from BIT[2-12] to provide the cipher list. If a user does not provide any values in OKC BIT[2-12], all ciphers are selected by default.
+	   */
+  uint32_t eap_flags; ///< EAP Flags of type @ref sl_wifi_eap_client_flag_t
 } sl_wifi_eap_credential_t;
 
 #if defined(__Keil)
@@ -416,10 +416,22 @@ typedef struct {
 } sl_wifi_client_info_response_t;
 
 /// Wi-Fi max transmit power
+/**
+ * @note
+ *   The effective transmit power is subject to regional and device limitations. If the specified transmit power exceeds the
+ *   maximum supported value for that region or if the specified transmit power exceeds the maximum supported value of the device, the transmission will occur at the maximum supported transmit power.
+*/
+
 typedef struct {
   uint8_t scan_tx_power; ///< Transmit power during scan. Valid input range: 1dBm to 31dBm.
   uint8_t join_tx_power; ///< Transmit power during join. Valid input range: 1dBm to 31dBm.
 } sl_wifi_max_tx_power_t;
+
+/// Wi-Fi Multicast filter info
+typedef struct {
+  sl_wifi_multicast_filter_command_t command_type; ///< Command type for multicast filter operation.
+  sl_mac_address_t mac_address;                    ///< MAC address to which the filter has to be applied.
+} sl_wifi_multicast_filter_info_t;
 
 /// Wi-Fi station TSF
 typedef struct {
@@ -427,7 +439,6 @@ typedef struct {
   uint32_t tsf_m; ///< Used to store MSB of TSF
 } sl_wifi_tsf64_t;
 
-/*! @cond WIFI_TRANSCEIVER_MODE */
 /// Control block structure used to hold meta data for the payload passed in @ref sl_wifi_send_transceiver_data
 typedef struct {
   ///       | Bit position | ctrl_flags bit description                                                                                                                     |
@@ -576,5 +587,4 @@ typedef struct {
   uint8_t *buffer;
 } sl_wifi_transceiver_rx_data_t;
 
-/*! @endcond WIFI_TRANSCEIVER_MODE */
 /** @} */

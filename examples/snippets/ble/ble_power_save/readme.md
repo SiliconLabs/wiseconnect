@@ -39,7 +39,7 @@ This application demonstrates how to configure SiWx91x in power save profile in 
 - Simplicity Studio (to be used with Silicon Labs MCU)
 - Keil IDE (to be used with STM32F411RE MCU)
 - Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 ### Setup Diagram
 
@@ -67,7 +67,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
   - After connecting all the boards, the setup should look like the image shown below:
-    ![Figure: Setup](resources/readme/stm32_setup.png)
+
+  ![Figure: Setup](resources/readme/stm32_setup.png)
+
   - Connect the setup to the computer.
   - Open the BLE PER µVision project - **ble_power_save.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → snippets → ble → ble_power_save → keil_project**.
 
@@ -133,6 +135,8 @@ The application can be configured to suit your requirements and development envi
 
 > **Note:** `ble_config.h` and `app.c` files are already set with desired configuration in respective example folders you need not change for each example.
 
+> **Note:** This application doesn't have provision to update the PHY
+
 ## Test the application
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
@@ -149,7 +153,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps for successful execution of the program:
 
-> **Note:** The provided mobile screenshots are from the 2.5.2 version of the EFR Connect app, it is recommended to use the latest version.
+> **Note:** The provided mobile screenshots are from the 2.5.2 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 1. After the program gets executed, the Silicon Labs device  would be in Advertising state with configured power save the profile.
 
@@ -157,24 +161,26 @@ Follow the steps for successful execution of the program:
 
 3. The Silicon Labs device will go to sleep and wakes up for every advertising interval and goes back to sleep after advertising. Refer the given following image for power save cycle in advertising mode.
 
-    ![Power Save Cycle in Advertising mode](resources/readme/blepowersavencpmeasurement.png)       
+    ![Power Save Cycle in Advertising mode](resources/readme/ble_ps_conn_adv_soc.png)       
 
-4. Open an EFR Connect App in the Smartphone and do Scan.
+4. Open an Simplicity Connect App(formerly EFR Connect App) in the Smartphone and do Scan.
 
-5. In the App, Silicon Labs device will appear with the name configured in the macro **RSI_BLE_LOCAL_NAME (Ex: "WLAN_BLE_SIMPLE")** or sometimes observed as the Silicon Labs device as the internal name **"SILABS_DEVICE".**
+5. In the App, Silicon Labs device will appear with the name configured in the macro RSI_BLE_LOCAL_NAME i.e. "SILABS_DEVICE".
 
     ![](resources/readme/blepowersaveadvertising.png) 
 
 6. Initiate connection from the mobile App.
 
-7. After successful connection, user can see the connected state in EFR connect app and also check the supported services by the Silicon Labs device. 
+7. After successful connection, user can see the connected state in Simplicity Connect App(formerly EFR Connect App) and also check the default services by the Silicon Labs device. 
 
-    ![](resources/readme/blepowersavedeviceconnection.png) 
+    ![](resources/readme/blepowersavedeviceconnection1.png) 
+
+    ![](resources/readme/blepowersavedeviceconnection2.png) 
 
 8. After successful connection, Silicon Labs device goes to sleep and wakes up for every connection interval. Check the following image for power save cycle after connection.
+> **Note:** : Here connection interval is 200ms
 
-
-   ![](resources/readme/blepwlog.png)    
+   ![](resources/readme/ble_ps_conn_soc.png)    
 
 9. After successful program execution, if the Silicon Labs device is configured in PERIPHERAL_ROLE , the prints in teraterm looks as shown below.
 
@@ -186,6 +192,7 @@ It will vary based on the traffic.
 10. Refer the following image for console prints:
 
     ![Application Prints Soc](resources/readme/output1.png)
+    ![Application Prints Soc](resources/readme/output2.png)
 
 ## **Current consumption measurement**
 
@@ -196,19 +203,19 @@ It will vary based on the traffic.
    - Negative probe of power meter should be connected to J2.1 pin and the positive probe should be connected to J2.2 pin.    
    -  Average current consumption of SiWx91x NCP module as measured with a power-meter.  
 
-      ![NCP current consumption as measured with power meter](resources/readme/blepowersavencpmeasurement.png)
+      ![NCP current consumption as measured with power meter](resources/readme/ble_ps_conn_adv_ncp.png)
 
 - **SoC**
 
    - Refer [AEM measurement](https://docs.silabs.com/) section in ***Getting Started with SiWx91x SoC*** guide for measuring current consumption of SiWx91x SoC module. 
 
-      ![SoC current consumption measured using energy profiler](resources/readme/blepwsocadv.png) 
+      ![SoC current consumption measured using energy profiler](resources/readme/ble_ps_conn_adv_soc.png) 
 
 - **PSRAM**
 
    - Refer [AEM measurement](https://docs.silabs.com/) section in ***Getting Started with SiWx91x PSRAM*** guide for measuring current consumption of SiWx91x PSRAM module.    
 
-      ![PSRAM current consumption measured using energy profiler](resources/readme/blepwsocadv.png) 
+      ![PSRAM current consumption measured using energy profiler](resources/readme/ble_ps_conn_adv_psram.png) 
  
 > **NOTE:** 
 > - The measured current may vary if the scenario is performed in open environment. 

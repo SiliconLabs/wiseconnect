@@ -165,7 +165,7 @@ STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs2toPs4(uint32_t PmuBuckTurnOn
  */
 STATIC INLINE void RSI_PS_ClrWkpUpStatus(uint32_t wakeUpIntrClear)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(PS_ROMDRIVER_PRESENT)
   ROMAPI_PWR_API->ps_clr_wkp_up_status(wakeUpIntrClear);
 #else
   ps_clr_wkp_up_status(wakeUpIntrClear);
@@ -263,7 +263,7 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
  */
 STATIC INLINE void RSI_PS_BgLdoConfig(uint8_t ldo_0p6_ctrl, uint8_t ldo_0p6_lp_mode)
 {
-#if defined(CHIP_9118) && defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(CHIP_9118) && defined(A11_ROM) && defined(PS_ROMDRIVER_PRESENT)
   ROMAPI_PWR_API->ps_bg_ldo_config(ldo_0p6_ctrl, ldo_0p6_lp_mode);
 #else
   ps_bg_ldo_config(ldo_0p6_ctrl, ldo_0p6_lp_mode);
@@ -288,7 +288,7 @@ STATIC INLINE void RSI_PS_ConfigurTrimValues(uint16_t lf_ro_trim,
                                              uint16_t bg_ptat_trim,
                                              uint16_t bg_trim)
 {
-#if defined(CHIP_9118) && defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(CHIP_9118) && defined(A11_ROM) && defined(PS_ROMDRIVER_PRESENT)
   ROMAPI_PWR_API->ps_configure_trim_values(lf_ro_trim, lf_rc_trim, hf_ro_trim, hf_rc_trim, bg_ptat_trim, bg_trim);
 #else
   ps_configure_trim_values(lf_ro_trim, lf_rc_trim, hf_ro_trim, hf_rc_trim, bg_ptat_trim, bg_trim);
@@ -304,7 +304,7 @@ STATIC INLINE void RSI_PS_WirelessShutdown(void)
 {
   // Wireless shutdown should be called only on First/Reset boot
   if (MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.FIRST_BOOTUP_MCU_N_b == 0) {
-#if defined(CHIP_9118) && defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(CHIP_9118) && defined(A11_ROM) && defined(PS_ROMDRIVER_PRESENT)
     ROMAPI_PWR_API->ps_wireless_shutdown();
 #else
     ps_wireless_shutdown();

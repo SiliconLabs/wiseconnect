@@ -450,7 +450,42 @@ typedef enum {
   SL_WIFI_HT_CAPS_SUPPORT_CH_WIDTH = (1 << 1),
 } sl_wifi_high_throughput_capability_types_t;
 
+/// Multicast filter command types
+typedef enum {
+  SL_WIFI_MULTICAST_MAC_ADD_BIT   = 0, ///< To set particular bit in multicast bitmap
+  SL_WIFI_MULTICAST_MAC_CLEAR_BIT = 1, ///< To reset particular bit in multicast bitmap
+  SL_WIFI_MULTICAST_MAC_CLEAR_ALL = 2, ///< To clear all the bits in multicast bitmap
+  SL_WIFI_MULTICAST_MAC_SET_ALL   = 3, ///< To set all the bits in multicast bitmap
+} sl_wifi_multicast_filter_command_t;
+
+/// Option flags for EAP client interfaces
+typedef enum {
+  SL_WIFI_EAP_ENABLE_OKC = (1 << 0), ///< Wi-Fi EAP Client flag to enable opportunistic key caching (OKC)
+  SL_WIFI_EAP_ENABLE_PEAP_CA =
+    (1 << 1), ///< Wi-Fi EAP Client flag to enable CA certificate requirement for PEAP connection
+  SL_WIFI_EAP_DHE_RSA_AES256_SHA256 =
+    (1 << 2), ///< Wi-Fi EAP Client flag to use DHE-RSA-AES256-SHA256 Cipher for EAP connection
+  SL_WIFI_EAP_DHE_RSA_AES128_SHA256 =
+    (1 << 3), ///< Wi-Fi EAP Client flag to use DHE-RSA-AES128-SHA256 Cipher for EAP connection
+  SL_WIFI_EAP_DHE_RSA_AES256_SHA =
+    (1 << 4), ///< Wi-Fi EAP Client flag to use DHE-RSA-AES256-SHA Cipher for EAP connection
+  SL_WIFI_EAP_DHE_RSA_AES128_SHA =
+    (1 << 5),                            ///< Wi-Fi EAP Client flag to use DHE-RSA-AES128-SHA Cipher for EAP connection
+  SL_WIFI_EAP_AES256_SHA256 = (1 << 6),  ///< Wi-Fi EAP Client flag to use AES256-SHA256 Cipher for EAP connection
+  SL_WIFI_EAP_AES128_SHA256 = (1 << 7),  ///< Wi-Fi EAP Client flag to use AES128-SHA256 Cipher for EAP connection
+  SL_WIFI_EAP_AES256_SHA    = (1 << 8),  ///< Wi-Fi EAP Client flag to use AES256-SHA Cipher for EAP connection
+  SL_WIFI_EAP_AES128_SHA    = (1 << 9),  ///< Wi-Fi EAP Client flag to use AES128-SHA Cipher for EAP connection
+  SL_WIFI_EAP_RC4_SHA       = (1 << 10), ///< Wi-Fi EAP Client flag to use RC4-SHA Cipher for EAP connection
+  SL_WIFI_EAP_DES_CBC3_SHA  = (1 << 11), ///< Wi-Fi EAP Client flag to use DES-CBC3-SHA Cipher for EAP connection
+  SL_WIFI_EAP_RC4_MD5       = (1 << 12)  ///< Wi-Fi EAP Client flag to use RC4-MD5 Cipher for EAP connection
+} sl_wifi_eap_client_flag_t;
+
 /// Auto detect channel
+/*
+**Note!**
+- The channel in which the AP operates. A value of zero enables the Auto Channel Selection (ACS) feature to automatically determine the operating channel.
+- If ACS is enabled, AP start may take ~9 seconds as the device scans all channels to select the best channel.
+*/
 #define SL_WIFI_AUTO_CHANNEL 0
 
 /// API input checks

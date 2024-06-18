@@ -334,15 +334,13 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
   sl_si91x_socket_create_request_t socket_create_request    = { 0 };
   sl_si91x_socket_create_response_t *socket_create_response = NULL;
   si91x_socket_t *si91x_bsd_socket                          = get_si91x_socket(socketIdIndex);
-  sl_si91x_wait_period_t wait_period                        = SL_SI91X_WAIT_FOR_COMMAND_RESPONSE;
+  sl_si91x_wait_period_t wait_period                        = SL_SI91X_WAIT_FOR_RESPONSE(5000);
   //Verifying socket existence
   if (si91x_bsd_socket == NULL) {
     return -1;
   }
   if (type == SI91X_SOCKET_TCP_CLIENT) {
-    //In wlan_throughput example the tick_count_s configured as 10, for that reason the connect was timed out.
-    //To avoid timeout, need to configure wait_period as 100000
-    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(100000);
+    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(100000); // timeout is 10 sec
   }
 
   sl_wifi_buffer_t *buffer  = NULL;
@@ -424,10 +422,7 @@ sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *bac
       socket_create_request.total_extension_length = si91x_bsd_socket->sni_extensions.current_size_of_extensions;
       socket_create_request.no_of_tls_extensions   = si91x_bsd_socket->sni_extensions.total_extensions;
     }
-
-    //In wlan_throughput example the tick_count_s configured as 10, for that reason the connect was timed out.
-    //To avoid timeout, need to configure wait_period as 150000
-    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(150000);
+    wait_period = SL_SI91X_WAIT_FOR_RESPONSE(150000); // timeout is 15 sec
   }
 
   // Check for HIGH_PERFORMANCE feature bit
@@ -726,38 +721,61 @@ sl_status_t sl_si91x_socket_driver_send_command(rsi_wlan_cmd_request_t command,
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_info_response)
+int sli_si91x_connect(int socket, const struct sockaddr *addr, socklen_t addr_len)
 {
-  SL_WIFI_ARGS_CHECK_NULL_POINTER(socket_info_response);
+  errno = 0;
 
-  sl_status_t status                           = SL_STATUS_FAIL;
-  sl_wifi_buffer_t *buffer                     = NULL;
-  sl_si91x_network_params_response_t *response = NULL;
+  sl_status_t status = SL_STATUS_FAIL;
+  si91x_socket_t *si91x_socket;
 
-  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_QUERY_NETWORK_PARAMS,
-                                        SI91X_WLAN_CMD_QUEUE,
-                                        NULL,
-                                        0,
-                                        SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_GET_CHANNEL_TIMEOUT),
-                                        NULL,
-                                        &buffer);
+  // Retrieve the socket using the socket index
+  si91x_socket = get_si91x_socket(socket);
 
-  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
-    sl_si91x_host_free_buffer(buffer);
+  // Check if the socket is valid.
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket == NULL, EBADF);
+
+  // Check if the socket is already connected
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_STREAM && si91x_socket->state == CONNECTED, EISCONN);
+
+  // Check the socket state based on its type
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_STREAM && si91x_socket->state > BOUND, EBADF);
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->type == SOCK_DGRAM && si91x_socket->state != INITIALIZED
+                                 && si91x_socket->state != BOUND && si91x_socket->state != UDP_UNCONNECTED_READY,
+                               EBADF);
+
+  // Check if the provided sockaddr length is sufficient
+  SET_ERRNO_AND_RETURN_IF_TRUE(
+    (si91x_socket->local_address.sin6_family == AF_INET && addr_len < sizeof(struct sockaddr_in))
+      || (si91x_socket->local_address.sin6_family == AF_INET6 && addr_len < sizeof(struct sockaddr_in6)),
+    EINVAL);
+
+  // Check if the provided sockaddr pointer is valid
+  SET_ERRNO_AND_RETURN_IF_TRUE(addr == NULL, EFAULT);
+
+  SET_ERRNO_AND_RETURN_IF_TRUE(si91x_socket->local_address.sin6_family != addr->sa_family, EAFNOSUPPORT)
+
+  memcpy(&si91x_socket->remote_address,
+         addr,
+         (addr_len > sizeof(struct sockaddr_in6)) ? sizeof(struct sockaddr_in6) : addr_len);
+
+  // Since socket is already created, there is no need to send create request again.
+  if (si91x_socket->type == SOCK_DGRAM && si91x_socket->state == UDP_UNCONNECTED_READY) {
+    si91x_socket->state = CONNECTED;
+
+    return SI91X_NO_ERROR;
   }
 
-  VERIFY_STATUS_AND_RETURN(status);
+  // Prepare socket request based on socket type and send the request to the bus driver
+  if (si91x_socket->type == SOCK_STREAM) {
+    status = create_and_send_socket_request(socket, SI91X_SOCKET_TCP_CLIENT, NULL);
+  } else if (si91x_socket->type == SOCK_DGRAM) {
+    status = create_and_send_socket_request(socket, SI91X_SOCKET_LUDP, NULL);
+  }
 
-  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  response                  = (sl_si91x_network_params_response_t *)packet->data;
+  // Verify the status of the socket operation and return errors if necessary
+  SOCKET_VERIFY_STATUS_AND_RETURN(status, SL_STATUS_OK, SI91X_UNDEFINED_ERROR);
 
-  memcpy(&socket_info_response->number_of_opened_sockets,
-         response->num_open_socks,
-         sizeof(socket_info_response->number_of_opened_sockets));
-  memcpy(socket_info_response->socket_info,
-         response->socket_info,
-         (sizeof(sl_si91x_sock_info_query_t) * socket_info_response->number_of_opened_sockets));
-
-  sl_si91x_host_free_buffer(buffer);
-  return SL_STATUS_OK;
+  // Update the socket state to "CONNECTED" and return success
+  si91x_socket->state = CONNECTED;
+  return SI91X_NO_ERROR;
 }

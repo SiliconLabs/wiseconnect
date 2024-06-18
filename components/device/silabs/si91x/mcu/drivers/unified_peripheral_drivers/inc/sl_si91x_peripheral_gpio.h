@@ -210,12 +210,13 @@ typedef enum {
 
 ///@brief GPIO Interrupt Configurations.
 typedef enum {
-  SL_GPIO_INTERRUPT_DISABLE      = 0,        ///< disable the interrupt
-  SL_GPIO_INTERRUPT_ENABLE       = (1 << 0), ///< enable the interrupt
-  SL_GPIO_INTERRUPT_HIGH         = (1 << 0), ///< interrupt when pin level is '1'
-  SL_GPIO_INTERRUPT_LOW          = (1 << 1), ///< interrupt when pin level is '0'
-  SL_GPIO_INTERRUPT_RISING_EDGE  = (1 << 2), ///< interrupt when rising edge is detected
-  SL_GPIO_INTERRUPT_FALLING_EDGE = (1 << 3), ///< interrupt when falling edge is detected
+  SL_GPIO_INTERRUPT_DISABLE        = 0,        ///< disable the interrupt
+  SL_GPIO_INTERRUPT_ENABLE         = (1 << 0), ///< enable the interrupt
+  SL_GPIO_INTERRUPT_HIGH           = (1 << 0), ///< interrupt when pin level is '1'
+  SL_GPIO_INTERRUPT_LOW            = (1 << 1), ///< interrupt when pin level is '0'
+  SL_GPIO_INTERRUPT_RISING_EDGE    = (1 << 2), ///< interrupt when rising edge is detected
+  SL_GPIO_INTERRUPT_FALLING_EDGE   = (1 << 3), ///< interrupt when falling edge is detected
+  SL_GPIO_INTERRUPT_RISE_FALL_EDGE = (1 << 4), ///< interrupt when rising and falling edge is detected
 } sl_gpio_interrupt_flag_t;
 
 /*******************************************************************************
@@ -306,12 +307,16 @@ sl_gpio_mode_t sl_gpio_get_pin_mode(sl_gpio_port_t port, uint8_t pin);
 static __INLINE void sl_gpio_set_pin_output(sl_gpio_port_t port, uint8_t pin)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
+  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C) || (port == SL_GPIO_PORT_D)) {
+    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
+    GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].BIT_LOAD_REG = SET;
+  } else if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     ULP_GPIO->PIN_CONFIG[pin].BIT_LOAD_REG = SET;
   } else {
-    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
-    GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].BIT_LOAD_REG = SET;
+    SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PORT_PIN(port, pin));
+    // Set pin in UULP GPIO instance by controlling pin value
+    UULP_GPIO->NPSS_GPIO_CNTRL[pin].NPSS_GPIO_CTRLS_b.NPSS_GPIO_OUT = SET;
   }
 }
 
@@ -333,8 +338,8 @@ static __INLINE void sl_gpio_set_pin_output(sl_gpio_port_t port, uint8_t pin)
 static __INLINE void sl_gpio_set_port_output(sl_gpio_port_t port, uint32_t pins)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
-    ULP_GPIO->PORT_CONFIG[port].PORT_SET_REG = (pins);
+  if (port == SL_GPIO_ULP_PORT) {
+    ULP_GPIO->PORT_CONFIG[SL_GPIO_PORT_A].PORT_SET_REG = (pins);
   } else {
     GPIO->PORT_CONFIG[port].PORT_SET_REG = (pins);
   }
@@ -359,8 +364,9 @@ static __INLINE void sl_gpio_set_port_output(sl_gpio_port_t port, uint32_t pins)
 static __INLINE void sl_gpio_set_port_output_value(sl_gpio_port_t port, uint32_t val, uint32_t mask)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
-    ULP_GPIO->PORT_CONFIG[port].PORT_SET_REG = (ULP_GPIO->PORT_CONFIG[port].PORT_SET_REG & ~mask) | (val & mask);
+  if (port == SL_GPIO_ULP_PORT) {
+    ULP_GPIO->PORT_CONFIG[SL_GPIO_PORT_A].PORT_SET_REG = (ULP_GPIO->PORT_CONFIG[port].PORT_SET_REG & ~mask)
+                                                         | (val & mask);
   } else {
     GPIO->PORT_CONFIG[port].PORT_SET_REG = (GPIO->PORT_CONFIG[port].PORT_SET_REG & ~mask) | (val & mask);
   }
@@ -403,12 +409,16 @@ static __INLINE void sl_gpio_set_slew_rate(sl_gpio_port_t port, uint32_t slewrat
 static __INLINE void sl_gpio_clear_pin_output(sl_gpio_port_t port, uint8_t pin)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
+  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C) || (port == SL_GPIO_PORT_D)) {
+    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
+    GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].BIT_LOAD_REG = CLR;
+  } else if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     ULP_GPIO->PIN_CONFIG[pin].BIT_LOAD_REG = CLR;
   } else {
-    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
-    GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].BIT_LOAD_REG = CLR;
+    SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PORT_PIN(port, pin));
+    // Set pin in UULP GPIO instance by controlling pin value
+    UULP_GPIO->NPSS_GPIO_CNTRL[pin].NPSS_GPIO_CTRLS_b.NPSS_GPIO_OUT = CLR;
   }
 }
 
@@ -430,8 +440,8 @@ static __INLINE void sl_gpio_clear_pin_output(sl_gpio_port_t port, uint8_t pin)
 static __INLINE void sl_gpio_clear_port_output(sl_gpio_port_t port, uint32_t pins)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
-    ULP_GPIO->PORT_CONFIG[port].PORT_CLEAR_REG = (pins);
+  if (port == SL_GPIO_ULP_PORT) {
+    ULP_GPIO->PORT_CONFIG[SL_GPIO_PORT_A].PORT_CLEAR_REG = (pins);
   } else {
     GPIO->PORT_CONFIG[port].PORT_CLEAR_REG = (pins);
   }
@@ -460,12 +470,16 @@ static __INLINE void sl_gpio_clear_port_output(sl_gpio_port_t port, uint32_t pin
 static __INLINE uint8_t sl_gpio_get_pin_input(sl_gpio_port_t port, uint8_t pin)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
+  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C) || (port == SL_GPIO_PORT_D)) {
+    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
+    return (uint8_t)GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].BIT_LOAD_REG;
+  } else if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     return (uint8_t)ULP_GPIO->PIN_CONFIG[pin].BIT_LOAD_REG;
   } else {
-    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
-    return (uint8_t)GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].BIT_LOAD_REG;
+    SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PORT_PIN(port, pin));
+    // Read pin status in UULP GPIO instance
+    return (UULP_GPIO_STATUS >> pin) & MASK_INTR;
   }
 }
 
@@ -489,7 +503,7 @@ static __INLINE uint8_t sl_gpio_get_pin_input(sl_gpio_port_t port, uint8_t pin)
 static __INLINE uint8_t sl_gpio_get_pin_output(sl_gpio_port_t port, uint8_t pin)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     return (uint8_t)ULP_GPIO->PIN_CONFIG[pin].BIT_LOAD_REG;
   } else {
@@ -515,8 +529,8 @@ static __INLINE uint8_t sl_gpio_get_pin_output(sl_gpio_port_t port, uint8_t pin)
 static __INLINE uint32_t sl_gpio_get_port_input(sl_gpio_port_t port)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
-    return ULP_GPIO->PORT_CONFIG[port].PORT_READ_REG & PORT_MASK;
+  if (port == SL_GPIO_ULP_PORT) {
+    return ULP_GPIO->PORT_CONFIG[SL_GPIO_PORT_A].PORT_READ_REG & PORT_MASK;
   } else {
     return GPIO->PORT_CONFIG[port].PORT_READ_REG & PORT_MASK;
   }
@@ -539,8 +553,8 @@ static __INLINE uint32_t sl_gpio_get_port_input(sl_gpio_port_t port)
 static __INLINE uint32_t sl_gpio_get_port_output(sl_gpio_port_t port)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
-    return (ULP_GPIO->PORT_CONFIG[port].PORT_READ_REG & PORT_MASK);
+  if (port == SL_GPIO_ULP_PORT) {
+    return (ULP_GPIO->PORT_CONFIG[SL_GPIO_PORT_A].PORT_READ_REG & PORT_MASK);
   } else {
     return (GPIO->PORT_CONFIG[port].PORT_READ_REG & PORT_MASK);
   }
@@ -567,12 +581,16 @@ static __INLINE uint32_t sl_gpio_get_port_output(sl_gpio_port_t port)
 static __INLINE void sl_gpio_toggle_pin_output(sl_gpio_port_t port, uint8_t pin)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
+  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C) || (port == SL_GPIO_PORT_D)) {
+    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
+    GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].BIT_LOAD_REG ^= SET;
+  } else if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     ULP_GPIO->PIN_CONFIG[pin].BIT_LOAD_REG ^= SET;
   } else {
-    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
-    GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].BIT_LOAD_REG ^= SET;
+    SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PORT_PIN(port, pin));
+    // Set or Clear pin in UULP GPIO instance by controlling pin value
+    UULP_GPIO->NPSS_GPIO_CNTRL[pin].NPSS_GPIO_CTRLS_b.NPSS_GPIO_OUT ^= SET;
   }
 }
 
@@ -594,8 +612,8 @@ static __INLINE void sl_gpio_toggle_pin_output(sl_gpio_port_t port, uint8_t pin)
 static __INLINE void sl_gpio_toggle_port_output(sl_gpio_port_t port, uint32_t pins)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
-    ULP_GPIO->PORT_CONFIG[port].PORT_TOGGLE_REG = pins;
+  if (port == SL_GPIO_ULP_PORT) {
+    ULP_GPIO->PORT_CONFIG[SL_GPIO_PORT_A].PORT_TOGGLE_REG = pins;
   } else {
     GPIO->PORT_CONFIG[port].PORT_TOGGLE_REG = pins;
   }

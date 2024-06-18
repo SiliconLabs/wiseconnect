@@ -120,8 +120,13 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
   // Verify the length from the firmware against the expected length
-  SL_ASSERT(packet->length
-            == config->msg_length + ((config->encrypt_decrypt == SL_SI91X_CCM_DECRYPT) ? 0 : config->tag_length));
+  if ((packet->length
+       != config->msg_length + ((config->encrypt_decrypt == SL_SI91X_CCM_DECRYPT) ? 0 : config->tag_length))) {
+    free(request);
+    if (buffer != NULL)
+      sl_si91x_host_free_buffer(buffer);
+    return SL_STATUS_TRANSMIT;
+  }
   memcpy(output, packet->data, packet->length);
   if (buffer != NULL)
     sl_si91x_host_free_buffer(buffer);
@@ -262,9 +267,7 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
       total_length -= chunk_len;
     }
   } else {
-    chunk_len = total_length;
-    ccm_flags = LAST_CHUNK;
-    ccm_flags |= FIRST_CHUNK;
+    ccm_flags = LAST_CHUNK | FIRST_CHUNK;
 
     // Send the current chunk length message
     status = sli_si91x_ccm_pending(config, chunk_len, ccm_flags, output);
@@ -277,7 +280,9 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
   }
 
   // Copy the tag to the tag_buffer
-  memcpy(config->tag, output + config->msg_length, config->tag_length);
+  if (config->encrypt_decrypt == SL_SI91X_CCM_ENCRYPT) {
+    memcpy(config->tag, output + config->msg_length, config->tag_length);
+  }
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   mutex_result = sl_si91x_crypto_mutex_release(crypto_ccm_mutex);

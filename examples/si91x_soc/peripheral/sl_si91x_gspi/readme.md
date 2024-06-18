@@ -17,17 +17,17 @@
 
 ## Purpose/Scope
 
-- This application demonstrate the GSPI for data transfer in full duplex as well as half duplex mode.
+- This application demonstrates the GSPI for data transfer in full-duplex as well as half-duplex mode.
 - This application can run in synchronous mode with full-duplex operation.
-  - Master transmits data on MOSI pin and receives the same data on MISO pin
-- This also supports send and receive data with any SPI slave, additionally it also supports DMA and non-DMA transfer.
-- For half duplex communication, i.e., send and receive, master / slave connection is required.
+  -     ○ The master transmits data on the MOSI pin and receives the same data on the MISO pin.
+- It also supports sending and receiving data with any SPI slave. Additionally, it supports both DMA and non-DMA transfer.
+- For half duplex communication, i.e., send and receive, a master / slave connection is required.
 
 ## Overview
 
-- It is a HP peripheral which can be used to drive a wide variety of SPI compatible peripheral devices.
-- SPI is a synchronous four-wire interface consisting of two data pins(MOSI, MISO), a device select pin (CSN) and a gated clock pin(SCLK).
-- With the two data pins, it allows for full-duplex operation to other SPI compatible devices.
+- It is an HP peripheral that can be used to drive a wide variety of SPI-compatible peripheral devices.
+- SPI is a synchronous four-wire interface consisting of two data pins (MOSI, MISO), a device select pin (CSN), and a gated clock pin (SCLK).
+- With the two data pins, it allows for full-duplex operation with other SPI-compatible devices.
 - It supports full duplex Single-bit SPI master mode.
 - It has support for Mode-0 and Mode-3 (Motorola). Mode 0: Clock Polarity is zero and Clock Phase is zero, Mode 3: Clock Polarity is one, Clock Phase is one.
 - It supports both Full speed (upto 58 MHz) and High speed modes (upto 116 MHz).
@@ -40,32 +40,32 @@
 
 ## About Example Code
 
-- This example demonstrates GSPI transfer i.e., full duplex communication and GSPI send - GSPI receive i.e., half duplex communication.
-- Various parameters like swap read and write data, data-width, mode, manual cs pin and bitrate can be configured using UC. \ref sl_gspi_control_config_t
+- This example demonstrates GSPI transfer, i.e., full-duplex communication, and GSPI send - GSPI receive, i.e., half-duplex communication.
+- Various parameters like swap read and write data, data width, mode, manual CS pin, and bitrate can be configured using \ref sl_gspi_control_config_t
 - DMA and FIFO Threshold can also be configured using UC.
-- sl_si91x_gspi_config.h file contains the control configurations and sl_si91x_gspi_common_config.h contains DMA and FIFO Threshold configuration.
-- In example code, firstly the output buffer is filled with some data which is transferred to the slave.
-- Firmware version of API is fetched using \ref sl_si91x_gspi_get_version which includes release version, major version and minor version \ref sl_gspi_version_t.
+- The file sl_si91x_gspi_config.h contains the control configurations, and sl_si91x_gspi_common_config.h contains DMA and FIFO Threshold configuration.
+- In the example code, firstly, the output buffer is filled with some data which is transferred to the slave.
+- The firmware version of the API is fetched using \ref sl_si91x_gspi_get_version which includes the release version, major version, and minor version \ref sl_gspi_version_t.
 - A static function is called to fill the \ref sl_gspi_clock_config_t structure, which is passed in \ref sl_si91x_gspi_configure_clock API to configure the clock.
-- \ref sl_si91x_gspi_init is used to initialize the peripheral, that includes pin configuration and also enables DMA if configured.
-- GSPI instance must be passed in init to get the respective instance handle \ref sl_gspi_instance_t, which is used in other APIs.
-- After initialization \ref sl_si91x_gspi_configure_power_mode is called to set the power mode \ref sl_gspi_power_state_t.
-- All the necessary parameters are configured using \ref sl_si91x_gspi_set_configuration API, it expects a structure with required parameters \ref sl_gspi_control_config_t.
+- \ref sl_si91x_gspi_init is used to initialize the peripheral, which includes pin configuration and also enables DMA if configured.
+- The GSPI instance must be passed in the init to get the respective instance handle \ref sl_gspi_instance_t, which is used in other APIs
+- After initialization, \ref sl_si91x_gspi_configure_power_mode is called to set the power mode \ref sl_gspi_power_state_t.
+- All the necessary parameters are configured using \ref sl_si91x_gspi_set_configuration API, which expects a structure with required parameters \ref sl_gspi_control_config_t.
 - After configuration, a callback register API is called to register the callback at the time of events \ref sl_si91x_gspi_register_event_callback.
-- Current frame length and clock division factor are printed on console, \ref sl_si91x_gspi_get_clock_division_factor \ref sl_si91x_gspi_get_frame_length.
-- State machine code is implemented for transfer, send and receive, the current mode is determined by gspi_mode_enum_t which is declared in example file.
-- According to the macro is enabled, the example code executes the transfer.
+- Current frame length and clock division factor are printed on the console, \ref sl_si91x_gspi_get_clock_division_factor \ref sl_si91x_gspi_get_frame_length.
+- State machine code is implemented for transfer, send and receive. The current mode is determined by gspi_mode_enum_t which is declared in the example file.
+- According to the macro enabled, the example code executes the transfer.
 
 - If **SL_USE_TRANSFER** macro is enabled, it will transfer the data, i.e. send and receive data in full duplex mode.
 
-  - The current_mode enum is set to SL_TRANSFER_DATA and calls the \ref sl_si91x_gspi_transfer_data API which expects data_out, data_in and number of data bytes to be transferred for sending and receiving data simultaneously.
-  - This test can also be performed in loopback condition, i.e. connect MISO and MOSI pins.
-  - It waits till the transfer is completed, when the transfer complete event is generated, it compares the sent and received data.
+  - The current_mode enum is set to SL_TRANSFER_DATA, and calls the \ref sl_si91x_gspi_transfer_data API which expects data_out, data_in, and the number of data bytes to be transferred for sending and receiving data simultaneously. 
+  - This test can also be performed in a loopback condition, i.e., connecting MISO and MOSI pins.
+  - It waits till the transfer is completed; when the transfer complete event is generated, it compares the sent and received data.
   - The result is printed on the console.
   - Now the current_mode enum is updated as per the macros enabled i.e., either SL_USE_SEND or SL_USE_RECEIVE.
   - If no other macros are enabled, the current_mode is updates as SL_TRANSMISSION_COMPLETED.
 
-- If **SL_USE_RECEIVE** macro is enabled, it only receives the data from slave, SPI slave must be connected, it cannot be tested in loopback mode.
+- If **SL_USE_RECEIVE** macro is enabled, it only receives the data from the slave, SPI slave must be connected, it cannot be tested in loopback mode.
 
   - The current_mode is set to the SL_RECEIVE_DATA and calls the \ref sl_si91x_gspi_receive_data API which expects data_in (empty buffer) and number of data bytes to be received.
   - If it is in DMA mode, it waits till the receive is completed i.e., transfer complete event is generated.
@@ -78,6 +78,10 @@
   - If it is in DMA mode, it waits till the send is completed i.e., transfer complete event is generated.
   - If it is not in DMA mode, it waits till the send is completed i.e., the send count is equal to the number of bytes entered by user \ref sl_si91x_gspi_get_tx_data_count.
   - Now the current_mode enum is updated as TRANSMISSION_COMPLETED.
+
+> **Note:**
+>
+>- If SSI Slave application is used with GSPI Master application, it is mandatory to enable DMA in SSI Slave application.
 
 ## Prerequisites/Setup Requirements
 
@@ -92,7 +96,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -170,3 +174,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 6. After successful program execution the prints in serial console looks as shown below.
 
    > ![output](resources/readme/output_gspi.png)
+
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

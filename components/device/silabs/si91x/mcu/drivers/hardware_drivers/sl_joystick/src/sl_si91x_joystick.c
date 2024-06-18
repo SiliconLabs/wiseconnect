@@ -29,7 +29,7 @@
  ******************************************************************************/
 #include "sl_si91x_joystick.h"
 #include "clock_update.h"
-#include "rsi_chip.h"
+
 #include "sl_adc_instances.h"
 
 /*******************************************************************************
@@ -62,11 +62,12 @@ static void callback_event(uint8_t channel_no, uint8_t event);
 sl_status_t sl_si91x_joystick_init(void)
 {
   sl_status_t status                  = 0;
+  uint8_t adc_channel                 = sl_adc_channel_config.channel;
   sl_adc_config.num_of_channel_enable = 1;
   sl_adc_config.operation_mode        = SL_ADC_STATIC_MODE;
 
-  sl_adc_channel_config.num_of_samples[0] = 1;
-  vref_value                              = (vref_value / DIVISION_MULTIPLIER);
+  sl_adc_channel_config.num_of_samples[adc_channel] = 1;
+  vref_value                                        = (vref_value / DIVISION_MULTIPLIER);
 
   do {
     //Initialize ADC

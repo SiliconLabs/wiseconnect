@@ -24,7 +24,7 @@ This application demonstrates how to configure the SiWx91x module as an Azure de
 - A Windows PC
 - A Wireless Access Point
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B](https://www.silabs.com/)
+  - Silicon Labs [BRD4342A, BRD4338A](https://www.silabs.com/)
   - For Soc Mode, Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
   - USB to UART converter
 - NCP Mode:
@@ -150,6 +150,16 @@ Open the ``demo_config.h`` file. Configure the following parameters.
     #include "silabs_client_key.pem.h"
     #include "silabs_dgcert_ca.pem.h"
     ```
+
+To publish more that 10 messages with QoS1 or QoS2, modify the following parameters.
+
+- Open the file core_mqtt_config_defaults.h in the path `wiseconnect3\third_party\azure_freertos_middleware\libraries\coreMQTT\source\include` and modify the following parameter to required value.
+
+    ```c
+    #define MQTT_STATE_ARRAY_MAX_COUNT    ( 10U )
+    ```
+
+- Open app.c and modify lMaxPublishCount variable to the required value.
 
 ## Test the Application
 

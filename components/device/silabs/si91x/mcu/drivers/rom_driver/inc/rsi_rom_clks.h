@@ -72,7 +72,7 @@ extern "C" {
  */
 STATIC INLINE boolean_t RSI_CLK_CheckPllLock(PLL_TYPE_T pllType)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_check_pll_lock(pllType);
 #else
   return clk_check_pll_lock(pllType);
@@ -81,7 +81,7 @@ STATIC INLINE boolean_t RSI_CLK_CheckPllLock(PLL_TYPE_T pllType)
 
 /**
  * @fn           STATIC INLINE rsi_error_t RSI_CLK_SocPllClkEnable(boolean_t clkEnable)
- * @brief		     This API is used to Enable the SoC-PLL output clock
+ * @brief		     This API is used to enable the SoC-PLL output clock
  * @param[in]	   clkEnable  : Enum value to enable or disable the clock
  *                            - Enable  : Enables clock
  *	                          - Disable : Disables clock
@@ -89,7 +89,7 @@ STATIC INLINE boolean_t RSI_CLK_CheckPllLock(PLL_TYPE_T pllType)
  */
 STATIC INLINE rsi_error_t RSI_CLK_SocPllClkEnable(boolean_t clkEnable)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_clk_enable(clkEnable);
 #else
   return clk_soc_pll_clk_enable(clkEnable);
@@ -110,10 +110,17 @@ STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(M4CLK_Type *pCLK, uint32_t socPl
   rsi_error_t ret             = (rsi_error_t)0;
   system_clocks.soc_pll_clock = socPllFreq;
 
+  if (pllRefClk == 32000000UL) {
+    /* Selecting the PLL reference clock */
+    /* 0 - XTAL_CLK, 1 - Reserved, 2 - RC_32MHZ_CLK, 3 - Reserved */
+    PLL_REF_CLK_CONFIG_REG |= (0x02 << 14); // Selecting the 32 MHz RC as SOC-PLL reference clock
+  }
+
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG9) = 0xD900;
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   ret = ROMAPI_M4SS_CLK_API->clk_set_soc_pll_freq(pCLK, socPllFreq, pllRefClk);
 #else
+
   ret = clk_set_soc_pll_freq(pCLK, socPllFreq, pllRefClk);
 #endif
   if (ret != RSI_OK) {
@@ -164,7 +171,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllSetFreqDiv(M4CLK_Type *pCLK,
                                                    uint16_t dcofixsel,
                                                    uint16_t ldoprog)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API
     ->clk_soc_pll_set_freq_div(pCLK, clk_en, divFactor, nFactor, mFactor, fCwf, dcofixsel, ldoprog);
 #else
@@ -180,7 +187,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllSetFreqDiv(M4CLK_Type *pCLK,
  */
 STATIC INLINE rsi_error_t RSI_CLK_SocPllClkSet(M4CLK_Type *pCLK)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_clk_set(pCLK);
 #else
   return clk_soc_pll_clk_set(pCLK);
@@ -189,7 +196,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllClkSet(M4CLK_Type *pCLK)
 
 /**
  * @fn          STATIC INLINE rsi_error_t RSI_CLK_SocPllClkBypassEnable(boolean_t clkEnable)
- * @brief		    This API is used to Enable bypass clock
+ * @brief		    This API is used to enable bypass clock
  * @param[in]	  clkEnable : Enum value to enable or disable the clock
  *                          - Enable (1) : Enables bypass clock
  *	                        - Disable (0) : Disables bypass clock
@@ -197,7 +204,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllClkSet(M4CLK_Type *pCLK)
  */
 STATIC INLINE rsi_error_t RSI_CLK_SocPllClkBypassEnable(boolean_t clkEnable)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_clk_bypass_enable(clkEnable);
 #else
   return clk_soc_pll_clk_bypass_enable(clkEnable);
@@ -211,7 +218,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllClkBypassEnable(boolean_t clkEnable)
  */
 STATIC INLINE rsi_error_t RSI_CLK_SocPllClkReset()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_clk_reset();
 #else
   return clk_soc_pll_clk_reset();
@@ -220,7 +227,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllClkReset()
 
 /**
  * @fn          STATIC INLINE rsi_error_t RSI_CLK_SocPllPdEnable(boolean_t en)
- * @brief		    This API is used to Enable the PdEnable(power down)
+ * @brief		    This API is used to enable the PdEnable(power down)
  * @param[in]   en : Enable or disable the PdEnable
  *                  -  Enable  : Enables bypass clock
  *	                - Disable : Disables bypass clock
@@ -228,7 +235,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllClkReset()
  */
 STATIC INLINE rsi_error_t RSI_CLK_SocPllPdEnable(boolean_t en)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_pd_enable(en);
 #else
   return clk_soc_pll_pd_enable(en);
@@ -242,7 +249,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllPdEnable(boolean_t en)
  */
 STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOff()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_turn_off();
 #else
   return clk_soc_pll_turn_off();
@@ -256,7 +263,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOff()
  */
 STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOn()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_turn_on();
 #else
   return clk_soc_pll_turn_on();
@@ -265,7 +272,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOn()
 
 /**
  * @fn  	       STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkEnable(boolean_t clkEnable)
- * @brief		     This API is used to Enable the I2s_PLL output clock
+ * @brief		     This API is used to enable the I2s_PLL output clock
  * @param[in]	   clkEnable    : Enum value to enable or disable the clock
  *                              - Enable(1)  : Enables clock for i2s
  *	                            - Disable(0) : Disables clock for i2s
@@ -273,7 +280,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOn()
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkEnable(boolean_t clkEnable)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_clk_enable(clkEnable);
 #else
   return clk_i2s_pll_clk_enable(clkEnable);
@@ -282,7 +289,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkEnable(boolean_t clkEnable)
 
 /**
  * @fn	     	  STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkBypassEnable(boolean_t clkEnable)
- * @brief		    This API is used to Enable bypass clock
+ * @brief		    This API is used to enable bypass clock
  * @param[in]	  clkEnable  : Enum value to enable or disable the clock
  *                          - Enable  : Enables bypass clock for i2s
  *	                        - Disable : Disables bypass clock for i2s
@@ -290,7 +297,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkEnable(boolean_t clkEnable)
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkBypassEnable(boolean_t clkEnable)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_clk_bypass_enable(clkEnable);
 #else
   return clk_i2s_pll_clk_bypass_enable(clkEnable);
@@ -299,13 +306,13 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkBypassEnable(boolean_t clkEnable)
 
 /**
  * @fn	        STATIC INLINE rsi_error_t RSI_CLK_I2sPllPdEnable(boolean_t en)
- * @brief		    This API is used to Enable the PdEnable(power down)
+ * @brief		    This API is used to enable the PdEnable(power down)
  * @param[in]   en : Enable or disable the PdEnable
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sPllPdEnable(boolean_t en)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_pd_enable(en);
 #else
   return clk_i2s_pll_pd_enable(en);
@@ -319,7 +326,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllPdEnable(boolean_t en)
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sPllTurnOff()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_turn_off();
 #else
   return clk_i2s_pll_turn_off();
@@ -333,7 +340,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllTurnOff()
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sPllTurnOn()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_turn_on();
 #else
   return clk_i2s_pll_turn_on();
@@ -352,7 +359,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(M4CLK_Type *pCLK, uint32_t i2sPl
 {
   system_clocks.i2s_pll_clock        = i2sPllFreq;
   SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG9) = 0xD900;
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_set_i2s_pll_freq(pCLK, i2sPllFreq, fXtal);
 #else
   return clk_set_i2s_pll_freq(pCLK, i2sPllFreq, fXtal);
@@ -379,7 +386,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllSetFreqDiv(M4CLK_Type *pCLK,
                                                    uint16_t mFactor,
                                                    uint16_t fcwF)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_set_freq_div(pCLK, u16DivFactor1, u16DivFactor2, nFactor, mFactor, fcwF);
 #else
   return clk_i2s_pll_set_freq_div(pCLK, u16DivFactor1, u16DivFactor2, nFactor, mFactor, fcwF);
@@ -394,7 +401,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllSetFreqDiv(M4CLK_Type *pCLK,
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkSet(M4CLK_Type *pCLK)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_clk_set(pCLK);
 #else
   return clk_i2s_pll_clk_set(pCLK);
@@ -409,7 +416,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkSet(M4CLK_Type *pCLK)
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkReset()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_clk_reset();
 #else
   return clk_i2s_pll_clk_reset();
@@ -418,7 +425,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkReset()
 
 /**
  * @fn   	       STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkEnable(boolean_t clkEnable)
- * @brief		     This API is used to Enable the Intf_PLL output clock
+ * @brief		     This API is used to enable the Intf_PLL output clock
  * @param[in]	   clkEnable  :  Enum value to enable or disable the clock
  *                            - Enable(1)  : Enables clock
  *	                          - Disable(0) : Disables clock
@@ -426,7 +433,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkReset()
  */
 STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkEnable(boolean_t clkEnable)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_intf_pll_clk_enable(clkEnable);
 #else
   return clk_intf_pll_clk_enable(clkEnable);
@@ -435,13 +442,13 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkEnable(boolean_t clkEnable)
 
 /**
  * @fn          STATIC INLINE rsi_error_t RSI_CLK_IntfPllPdEnable(boolean_t en)
- * @brief		    This API is used to Enable the PdEnable(power down)
+ * @brief		    This API is used to enable the PdEnable(power down)
  * @param[in]   en : Enable or disable the PdEnable
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  */
 STATIC INLINE rsi_error_t RSI_CLK_IntfPllPdEnable(boolean_t en)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_intf_pll_pd_enable(en);
 #else
   return clk_intf_pll_pd_enable(en);
@@ -455,7 +462,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllPdEnable(boolean_t en)
  */
 STATIC INLINE rsi_error_t RSI_CLK_IntfPLLTurnOff()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_intf_pll_turn_off();
 #else
   return clk_intf_pll_turn_off();
@@ -477,7 +484,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(M4CLK_Type *pCLK, uint32_t intf
   system_clocks.intf_pll_clock = intfPllFreq;
 
   SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG9) = 0xD900;
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   error = ROMAPI_M4SS_CLK_API->clk_set_intf_pll_freq(pCLK, intfPllFreq, pllRefClk);
 #else
   error = clk_set_intf_pll_freq(pCLK, intfPllFreq, pllRefClk);
@@ -529,7 +536,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllSetFreqDiv(M4CLK_Type *pCLK,
                                                     uint16_t dcoFixSel,
                                                     uint16_t ldoProg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API
     ->clk_intf_pll_set_freq_div(pCLK, clk_en, divFactor, nFactor, mFactor, fcwF, dcoFixSel, ldoProg);
 #else
@@ -539,7 +546,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllSetFreqDiv(M4CLK_Type *pCLK,
 
 /**
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_IntfPLLClkBypassEnable(boolean_t clkEnable)
- * @brief		    This API is used to Enable bypass clock
+ * @brief		    This API is used to enable bypass clock
  * @param[in]	  clkEnable : is enum value to enable or disable the clock
  *                          - Enable  : Enables bypass clock
  *	                        - Disable : Disables bypass clock
@@ -547,7 +554,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllSetFreqDiv(M4CLK_Type *pCLK,
  */
 STATIC INLINE rsi_error_t RSI_CLK_IntfPLLClkBypassEnable(boolean_t clkEnable)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_intf_pll_clk_bypass_enable(clkEnable);
 #else
   return clk_intf_pll_clk_bypass_enable(clkEnable);
@@ -561,7 +568,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPLLClkBypassEnable(boolean_t clkEnable)
  */
 STATIC INLINE rsi_error_t RSI_CLK_IntfPLLTurnOn()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_intf_pll_turn_on();
 #else
   return clk_intf_pll_turn_on();
@@ -575,7 +582,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPLLTurnOn()
  */
 STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkReset()
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_intf_pll_clk_reset();
 #else
   return clk_intf_pll_clk_reset();
@@ -590,7 +597,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkReset()
  */
 STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkSet(M4CLK_Type *pCLK)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_intf_pll_clk_set(pCLK);
 #else
   return clk_intf_pll_clk_set(pCLK);
@@ -599,9 +606,9 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkSet(M4CLK_Type *pCLK)
 
 /**
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_PeripheralClkEnable1(M4CLK_Type *pCLK ,uint32_t flags)
- * @brief		    This API is used to Enable the peripheral cloks for SET1 register
+ * @brief		    This API is used to enable the peripheral clocks for SET1 register
  * @param[in]	  pCLK     : Pointer to the pll register instance
- * @param[in]   flags : Ored values of peripheral bits to be enbled.
+ * @param[in]   flags : ORed values of peripheral bits to be enbled.
  *            	          - \ref USART1_PCLK_ENABLE
  *            	          - \ref USART1_SCLK_ENABLE
  *            	          - \ref USART2_PCLK_ENABLE
@@ -633,7 +640,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkSet(M4CLK_Type *pCLK)
  */
 STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable1(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_peripheral_clk_enable1(pCLK, flags);
 #else
   return clk_peripheral_clk_enable1(pCLK, flags);
@@ -642,9 +649,9 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable1(M4CLK_Type *pCLK, uint32_
 
 /**
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_PeripheralClkDisable1(M4CLK_Type *pCLK ,uint32_t flags)
- * @brief		    This API is used to disable the peripheral cloks for CLR1 register
+ * @brief		    This API is used to disable the peripheral clocks for CLR1 register
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]   flags : Ored values of peripheral bits to be enbled.
+ * @param[in]   flags : ORed values of peripheral bits to be enbled.
  *            	          - \ref USART1_PCLK_ENABLE
  *            	          - \ref USART1_SCLK_ENABLE
  *            	          - \ref USART2_PCLK_ENABLE
@@ -676,7 +683,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable1(M4CLK_Type *pCLK, uint32_
  */
 STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable1(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_peripheral_clk_disable1(pCLK, flags);
 #else
   return clk_peripheral_clk_disable1(pCLK, flags);
@@ -685,9 +692,9 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable1(M4CLK_Type *pCLK, uint32
 
 /**
  * @fn      	  STATIC INLINE rsi_error_t  RSI_CLK_PeripheralClkEnable2(M4CLK_Type *pCLK ,uint32_t flags)
- * @brief		    This API is used to enable the peripheral cloks for SET2 register
+ * @brief		    This API is used to enable the peripheral clocks for SET2 register
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]   flags : Ored values of peripheral bits to be enabled.
+ * @param[in]   flags : ORed values of peripheral bits to be enabled.
  *            	          - \ref GEN_SPI_MST1_HCLK_ENABLE
  *            	          - \ref CAN1_PCLK_ENABLE
  *            	          - \ref CAN1_CLK_ENABLE
@@ -721,7 +728,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable1(M4CLK_Type *pCLK, uint32
  */
 STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable2(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_peripheral_clk_enable2(pCLK, flags);
 #else
   return clk_peripheral_clk_enable2(pCLK, flags);
@@ -730,9 +737,9 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable2(M4CLK_Type *pCLK, uint32_
 
 /**
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_PeripheralClkDisable2(M4CLK_Type *pCLK ,uint32_t flags)
- * @brief		    This API is used to disable the peripheral cloks for CLR2 register
+ * @brief		    This API is used to disable the peripheral clocks for CLR2 register
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]   flags : Ored values of peripheral bits to be enabled.
+ * @param[in]   flags : ORed values of peripheral bits to be enabled.
  *            	          - \ref GEN_SPI_MST1_HCLK_ENABLE
  *            	          - \ref CAN1_PCLK_ENABLE
  *            	          - \ref CAN1_CLK_ENABLE
@@ -766,7 +773,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable2(M4CLK_Type *pCLK, uint32_
  */
 STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable2(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_peripheral_clk_disable2(pCLK, flags);
 #else
   return clk_peripheral_clk_disable2(pCLK, flags);
@@ -775,9 +782,9 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable2(M4CLK_Type *pCLK, uint32
 
 /**
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_PeripheralClkEnable3(M4CLK_Type *pCLK ,uint32_t flags)
- * @brief		    This API is used to enable the peripheral cloks for SET3 register
+ * @brief		    This API is used to enable the peripheral clocks for SET3 register
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]   flags : Ored values of peripheral bits to be enabled.
+ * @param[in]   flags : ORed values of peripheral bits to be enabled.
  *              	        - \ref BUS_CLK_ENABLE
  *              	        - \ref M4_CORE_CLK_ENABLE
  *              	        - \ref CM_BUS_CLK_ENABLE
@@ -808,7 +815,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable2(M4CLK_Type *pCLK, uint32
  */
 STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable3(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_peripheral_clk_enable3(pCLK, flags);
 #else
   return clk_peripheral_clk_enable3(pCLK, flags);
@@ -817,9 +824,9 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable3(M4CLK_Type *pCLK, uint32_
 
 /**
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_PeripheralClkDisable3(M4CLK_Type *pCLK ,uint32_t flags)
- * @brief		    This API is used to disable the peripheral cloks for CLR3 register
+ * @brief		    This API is used to disable the peripheral clocks for CLR3 register
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]   flags : Ored values of peripheral bits to be enbled.
+ * @param[in]   flags : ORed values of peripheral bits to be enbled.
  *              	        - \ref BUS_CLK_ENABLE
  *              	        - \ref M4_CORE_CLK_ENABLE
  *              	        - \ref CM_BUS_CLK_ENABLE
@@ -850,7 +857,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable3(M4CLK_Type *pCLK, uint32_
  */
 STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable3(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_peripheral_clk_disable3(pCLK, flags);
 #else
   return clk_peripheral_clk_disable3(pCLK, flags);
@@ -861,7 +868,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable3(M4CLK_Type *pCLK, uint32
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_DynamicClkGateDisable(M4CLK_Type *pCLK ,uint32_t  flags)
  * @brief		    This API is used to disable the dynamic clock gate for peripherals
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]	  flags : Ored value of the register bits
+ * @param[in]	  flags : ORed value of the register bits
  *                        - \ref SDIO_SYS_HCLK_DYN_CTRL_DISABLE
  *                        - \ref BUS_CLK_DYN_CTRL_DISABLE
  *                        - \ref GPDMA_HCLK_DYN_CTRL_DISABLE
@@ -894,7 +901,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable3(M4CLK_Type *pCLK, uint32
  */
 STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateDisable(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_dynamic_clk_gate_disable(pCLK, flags);
 #else
   return clk_dynamic_clk_gate_disable(pCLK, flags);
@@ -905,7 +912,7 @@ STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateDisable(M4CLK_Type *pCLK, uint32
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_DynamicClkGateDisable2(M4CLK_Type *pCLK ,uint32_t  flags)
  * @brief		    This API is used to disable the dynamic clock gate for peripherals
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]	  flags : Ored value of the register bits
+ * @param[in]	  flags : ORed value of the register bits
  *                     - \ref SOC_PLL_SPI_CLK_DYN_CTRL_DISABLE
  *                     - \ref I2C_BUS_DYN_CTRL_DISABLE
  *                     - \ref I2C_2_BUS_CLK_DYN_CTRL_DISABLE
@@ -921,7 +928,7 @@ STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateDisable(M4CLK_Type *pCLK, uint32
  */
 STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateDisable2(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_dynamic_clk_gate_disable2(pCLK, flags);
 #else
   return clk_dynamic_clk_gate_disable2(pCLK, flags);
@@ -932,7 +939,7 @@ STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateDisable2(M4CLK_Type *pCLK, uint3
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_DynamicClkGateEnable(M4CLK_Type *pCLK ,uint32_t  flags)
  * @brief		    This API is used to enable the dynamic clock gate for peripherals
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]	  flags : Ored value of the register bits
+ * @param[in]	  flags : ORed value of the register bits
  *                        - \ref SDIO_SYS_HCLK_DYN_CTRL_DISABLE
  *                        - \ref BUS_CLK_DYN_CTRL_DISABLE
  *                        - \ref GPDMA_HCLK_DYN_CTRL_DISABLE
@@ -965,7 +972,7 @@ STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateDisable2(M4CLK_Type *pCLK, uint3
  */
 STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateEnable(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_dynamic_clk_gate_enable(pCLK, flags);
 #else
   return clk_dynamic_clk_gate_enable(pCLK, flags);
@@ -976,7 +983,7 @@ STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateEnable(M4CLK_Type *pCLK, uint32_
  * @fn          STATIC INLINE rsi_error_t  RSI_CLK_DynamicClkGateEnable2(M4CLK_Type *pCLK ,uint32_t  flags)
  * @brief		    This API is used to enable the dynamic clock gate for peripherals
  * @param[in]	  pCLK : Pointer to the pll register instance
- * @param[in]	  flags : Ored value of the register bits
+ * @param[in]	  flags : ORed value of the register bits
  *                     - \ref SOC_PLL_SPI_CLK_DYN_CTRL_DISABLE
  *                     - \ref I2C_BUS_DYN_CTRL_DISABLE
  *                     - \ref I2C_2_BUS_CLK_DYN_CTRL_DISABLE
@@ -992,7 +999,7 @@ STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateEnable(M4CLK_Type *pCLK, uint32_
  */
 STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateEnable2(M4CLK_Type *pCLK, uint32_t flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_dynamic_clk_gate_enable2(pCLK, flags);
 #else
   return clk_dynamic_clk_gate_enable2(pCLK, flags);
@@ -1009,7 +1016,7 @@ STATIC INLINE rsi_error_t RSI_CLK_DynamicClkGateEnable2(M4CLK_Type *pCLK, uint32
  */
 STATIC INLINE rsi_error_t RSI_ULPSS_EnableRefClks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->ulpss_enable_ref_clks(enable, srcType, delayFn);
 #else
   return ulpss_enable_ref_clks(enable, srcType, delayFn);
@@ -1024,7 +1031,7 @@ STATIC INLINE rsi_error_t RSI_ULPSS_EnableRefClks(REF_CLK_ENABLE_T enable, SRC_T
  */
 STATIC INLINE rsi_error_t RSI_ULPSS_DisableRefClks(REF_CLK_ENABLE_T clk_type)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->ulpss_disable_ref_clks(clk_type);
 #else
   return ulpss_disable_ref_clks(clk_type);
@@ -1085,7 +1092,7 @@ STATIC INLINE rsi_error_t RSI_CLK_QspiClkConfig(M4CLK_Type *pCLK,
                                                 boolean_t OddDivEn,
                                                 uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(pCLK, clkSource, swalloEn, OddDivEn, divFactor);
 #else
   return clk_qspi_clk_config(pCLK, clkSource, swalloEn, OddDivEn, divFactor);
@@ -1117,7 +1124,7 @@ STATIC INLINE rsi_error_t RSI_CLK_Qspi2ClkConfig(M4CLK_Type *pCLK,
                                                  boolean_t OddDivEn,
                                                  uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_qspi_2_clk_config(pCLK, clkSource, swalloEn, OddDivEn, divFactor);
 #else
   return clk_qspi_2_clk_config(pCLK, clkSource, swalloEn, OddDivEn, divFactor);
@@ -1148,7 +1155,7 @@ STATIC INLINE rsi_error_t RSI_CLK_UsartClkConfig(M4CLK_Type *pCLK,
                                                  USART_CLK_SRC_SEL_T clkSource,
                                                  uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_usart_clk_config(pCLK, clkType, FracDivEn, enUsart, clkSource, divFactor);
 #else
   return clk_usart_clk_config(pCLK, clkType, FracDivEn, enUsart, clkSource, divFactor);
@@ -1170,7 +1177,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SsiMstClkConfig(M4CLK_Type *pCLK,
                                                   SSI_MST_CLK_SRC_SEL_T clkSource,
                                                   uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_ssi_mst_clk_config(pCLK, clkType, clkSource, divFactor);
 #else
   return clk_ssi_mst_clk_config(pCLK, clkType, clkSource, divFactor);
@@ -1195,7 +1202,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SdMemClkConfig(M4CLK_Type *pCLK,
                                                  SDMEM_CLK_SRC_SEL_T clkSource,
                                                  uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_sd_mem_clk_config(pCLK, swalloEn, clkSource, divFactor);
 #else
   return clk_sd_mem_clk_config(pCLK, swalloEn, clkSource, divFactor);
@@ -1219,7 +1226,7 @@ STATIC INLINE rsi_error_t RSI_CLK_CtClkConfig(M4CLK_Type *pCLK,
                                               uint32_t divFactor,
                                               CLK_ENABLE_T clkType)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_ct_clk_config(pCLK, clkSource, divFactor, clkType);
 #else
   return clk_ct_clk_config(pCLK, clkSource, divFactor, clkType);
@@ -1242,7 +1249,7 @@ STATIC INLINE rsi_error_t RSI_CLK_CciClkConfig(M4CLK_Type *pCLK,
                                                uint32_t divFactor,
                                                CLK_ENABLE_T clkType)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_cci_clk_config(pCLK, clkSource, divFactor, clkType);
 #else
   return clk_cci_clk_config(pCLK, clkSource, divFactor, clkType);
@@ -1261,7 +1268,7 @@ STATIC INLINE rsi_error_t RSI_CLK_CciClkConfig(M4CLK_Type *pCLK,
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sClkConfig(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_clk_config(pCLK, clkSource, divFactor);
 #else
   return clk_i2s_clk_config(pCLK, clkSource, divFactor);
@@ -1279,7 +1286,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sClkConfig(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL
  */
 STATIC INLINE rsi_error_t RSI_CLK_McuClkOutConfig(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_mcu_clk_cut_config(pCLK, clkSource, divFactor);
 #else
   return clk_mcu_clk_cut_config(pCLK, clkSource, divFactor);
@@ -1297,7 +1304,7 @@ STATIC INLINE rsi_error_t RSI_CLK_McuClkOutConfig(M4CLK_Type *pCLK, MCU_CLKOUT_S
  */
 STATIC INLINE rsi_error_t RSI_CLK_CanClkConfig(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_can_clk_config(pCLK, divFactor, clkType);
 #else
   return clk_can_clk_config(pCLK, divFactor, clkType);
@@ -1321,7 +1328,7 @@ STATIC INLINE rsi_error_t RSI_CLK_EthernetClkConfig(M4CLK_Type *pCLK,
                                                     ETHERNET_CLK_SRC_SEL_T clkSource,
                                                     uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_ethernet_clk_config(pCLK, swalloEn, clkSource, divFactor);
 #else
   return clk_ethernet_clk_config(pCLK, swalloEn, clkSource, divFactor);
@@ -1339,7 +1346,7 @@ STATIC INLINE rsi_error_t RSI_CLK_EthernetClkConfig(M4CLK_Type *pCLK,
  */
 STATIC INLINE rsi_error_t RSI_CLK_M4SocClkDiv(M4CLK_Type *pCLK, uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_m4_soc_clk_div(pCLK, divFactor);
 #else
   return clk_m4_soc_clk_div(pCLK, divFactor);
@@ -1365,7 +1372,7 @@ STATIC INLINE rsi_error_t RSI_CLK_QspiClkDiv(M4CLK_Type *pCLK,
                                              boolean_t u8OddDivEn,
                                              uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_qspi_clk_div(pCLK, u8SwallowEn, u8OddDivEn, divFactor);
 #else
   return clk_qspi_clk_div(pCLK, u8SwallowEn, u8OddDivEn, divFactor);
@@ -1382,7 +1389,7 @@ STATIC INLINE rsi_error_t RSI_CLK_QspiClkDiv(M4CLK_Type *pCLK,
  */
 STATIC INLINE rsi_error_t RSI_CLK_CtClkDiv(M4CLK_Type *pCLK, uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_ct_clk_div(pCLK, divFactor);
 #else
   return clk_ct_clk_div(pCLK, divFactor);
@@ -1399,7 +1406,7 @@ STATIC INLINE rsi_error_t RSI_CLK_CtClkDiv(M4CLK_Type *pCLK, uint32_t divFactor)
  */
 STATIC INLINE rsi_error_t RSI_CLK_SsiMstClkDiv(M4CLK_Type *pCLK, uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_ssi_mst_clk_div(pCLK, divFactor);
 #else
   return clk_ssi_mst_clk_div(pCLK, divFactor);
@@ -1417,7 +1424,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SsiMstClkDiv(M4CLK_Type *pCLK, uint32_t divFac
  */
 STATIC INLINE rsi_error_t RSI_CLK_CciClkDiv(M4CLK_Type *pCLK, uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_cci_clk_div(pCLK, divFactor);
 #else
   return clk_cci_clk_div(pCLK, divFactor);
@@ -1435,7 +1442,7 @@ STATIC INLINE rsi_error_t RSI_CLK_CciClkDiv(M4CLK_Type *pCLK, uint32_t divFactor
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2sClkDiv(M4CLK_Type *pCLK, uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_clk_div(pCLK, divFactor);
 #else
   return clk_i2s_clk_div(pCLK, divFactor);
@@ -1456,7 +1463,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sClkDiv(M4CLK_Type *pCLK, uint32_t divFactor
  */
 STATIC INLINE rsi_error_t RSI_CLK_SdmemClkDiv(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_sd_mem_clk_div(pCLK, u8SwallowEn, divFactor);
 #else
   return clk_sd_mem_clk_div(pCLK, u8SwallowEn, divFactor);
@@ -1481,7 +1488,7 @@ STATIC INLINE rsi_error_t RSI_CLK_UsartClkDiv(M4CLK_Type *pCLK,
                                               uint8_t u8FracDivEn,
                                               uint32_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_usart_clk_div(pCLK, EN_USART, u8FracDivEn, divFactor);
 #else
   return clk_usart_clk_div(pCLK, EN_USART, u8FracDivEn, divFactor);
@@ -1502,7 +1509,7 @@ STATIC INLINE rsi_error_t RSI_CLK_UsartClkDiv(M4CLK_Type *pCLK,
  */
 STATIC INLINE uint32_t RSI_CLK_SlpClkCalibConfig(M4CLK_Type *pCLK, uint8_t clkCycles)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_slp_clk_calib_config(pCLK, clkCycles);
 #else
   return clk_slp_clk_calib_config(pCLK, clkCycles);
@@ -1518,7 +1525,7 @@ STATIC INLINE uint32_t RSI_CLK_SlpClkCalibConfig(M4CLK_Type *pCLK, uint8_t clkCy
  */
 STATIC INLINE rsi_error_t RSI_CLK_GspiClkConfig(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_gspi_clk_config(pCLK, clkSel);
 #else
   return clk_gspi_clk_config(pCLK, clkSel);
@@ -1534,7 +1541,7 @@ STATIC INLINE rsi_error_t RSI_CLK_GspiClkConfig(M4CLK_Type *pCLK, GSPI_CLK_SRC_S
  */
 STATIC INLINE rsi_error_t RSI_CLK_SlpClkConfig(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_slp_clk_config(pCLK, clkSrc);
 #else
   return clk_slp_clk_config(pCLK, clkSrc);
@@ -1553,7 +1560,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SlpClkConfig(M4CLK_Type *pCLK, SLEEP_CLK_SRC_S
  */
 STATIC INLINE rsi_error_t RSI_CLK_I2CClkConfig(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2c_clk_config(pCLK, clkEnable, enI2C);
 #else
   return clk_i2c_clk_config(pCLK, clkEnable, enI2C);
@@ -1568,7 +1575,7 @@ STATIC INLINE rsi_error_t RSI_CLK_I2CClkConfig(M4CLK_Type *pCLK, boolean_t clkEn
  */
 STATIC INLINE rsi_error_t RSI_CLK_XtalClkConfig(uint8_t xtalPin)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_xtal_clk_config(xtalPin);
 #else
   return clk_xtal_clk_config(xtalPin);
@@ -1586,7 +1593,7 @@ STATIC INLINE rsi_error_t RSI_CLK_XtalClkConfig(uint8_t xtalPin)
  */
 STATIC INLINE rsi_error_t RSI_CLK_USBClkConfig(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_usb_clk_config(pCLK, clkSource, divFactor);
 #else
   return clk_usb_clk_config(pCLK, clkSource, divFactor);
@@ -1604,7 +1611,7 @@ STATIC INLINE rsi_error_t RSI_CLK_USBClkConfig(M4CLK_Type *pCLK, USB_CLK_SRC_SEL
  */
 STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_peripheral_clk_enable(pCLK, module, clkType);
 #else
   return clk_peripheral_clk_enable(pCLK, module, clkType);
@@ -1620,7 +1627,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkEnable(M4CLK_Type *pCLK, PERIPHER
  */
 STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_peripheral_clk_disable(pCLK, module);
 #else
   return clk_peripheral_clk_disable(pCLK, module);
@@ -1636,7 +1643,7 @@ STATIC INLINE rsi_error_t RSI_CLK_PeripheralClkDisable(M4CLK_Type *pCLK, PERIPHE
  */
 STATIC INLINE void RSI_CLK_SocPllLockConfig(boolean_t manual_lock, boolean_t bypass_manual_lock, uint8_t mm_count_limit)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(CLOCK_ROMDRIVER_PRESENT)
   ROMAPI_M4SS_CLK_API->clk_config_pll_lock(manual_lock, bypass_manual_lock, mm_count_limit);
 #else
   clk_config_pll_lock(manual_lock, bypass_manual_lock, mm_count_limit);
@@ -1650,7 +1657,7 @@ STATIC INLINE void RSI_CLK_SocPllLockConfig(boolean_t manual_lock, boolean_t byp
  */
 STATIC INLINE void RSI_CLK_SocPllRefClkConfig(uint8_t ref_clk_src)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(CLOCK_ROMDRIVER_PRESENT)
   ROMAPI_M4SS_CLK_API->clk_config_pll_ref_clk(ref_clk_src);
 #else
   clk_config_pll_ref_clk(ref_clk_src);

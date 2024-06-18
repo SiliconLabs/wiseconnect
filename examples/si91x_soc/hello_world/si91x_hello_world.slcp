@@ -6,11 +6,11 @@ category: example|peripheral
 package: platform
 quality: production
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 source:
   - path: app.c
   - path: main.c
@@ -18,7 +18,9 @@ include:
   - path: .
     file_list:
       - path: app.h
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: syscalls
@@ -27,6 +29,7 @@ component:
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png
+  - path: resources/readme/outputConsole.png
 readme:
   - path: readme.md
 ui_hints:

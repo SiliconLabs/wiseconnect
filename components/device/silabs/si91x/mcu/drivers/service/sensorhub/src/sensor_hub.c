@@ -48,6 +48,17 @@
 #include "sensorhub_error_codes.h"
 #include "rsi_ps_ram_func.h"
 #include "rsi_m4.h"
+#include "Driver_Common.h"
+#include "Driver_I2C.h"
+#include "Driver_SPI.h"
+#include "rsi_pll.h"
+#include "rsi_rom_power_save.h"
+#include "rsi_rom_ulpss_clk.h"
+#include "rsi_rom_clks.h"
+#include "SPI.h"
+#include "rsi_adc.h"
+#include "rsi_rtc.h"
+#include "aux_reference_volt_config.h"
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -88,7 +99,7 @@ extern sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS]; //< Sensor config
 extern sl_bus_intf_config_t bus_intf_info;                     //< Bus interface configuration structure
 osSemaphoreId_t sl_semaphore_power_task_id;                    //< Power task semaphore id
 osSemaphoreAttr_t sl_semaphore_attr_st;                        //< Power task semaphore attributes
-sl_power_state_t sl_power_state_enum;                          //< Power state structure
+sl_sh_power_state_t sl_power_state_enum;                       //< Power state structure
 extern osSemaphoreId_t sl_semaphore_aws_task_id;
 uint32_t sl_ps4_ps2_done;                   //< Variable to check power switch status
 uint32_t sl_ps2_ps4_done;                   //< Variable to check power switch status
@@ -102,10 +113,9 @@ extern uint8_t sdc_intr_done;
 /*******************************************************************************
  ************************  Global structures   *********************************
  ******************************************************************************/
-sl_sensor_list_t sensor_list;         //< Sensor List, to maintain info of sensors created
-sl_intr_list_map_t int_list_map;      //< Map table for interrupt vs sensor*/
-sl_power_state_t sl_power_state_enum; //< Power state structure
-sl_sensorhub_errors_t bus_errors;     //< structure to track the status of the sensor hub
+sl_sensor_list_t sensor_list;     //< Sensor List, to maintain info of sensors created
+sl_intr_list_map_t int_list_map;  //< Map table for interrupt vs sensor*/
+sl_sensorhub_errors_t bus_errors; //< structure to track the status of the sensor hub
 /*******************************************************************************
  **************************  Global variables   ***********************************
  ******************************************************************************/
@@ -959,12 +969,13 @@ sl_status_t sl_si91x_sensorhub_init()
     bus_errors.i2c = false;
     DEBUGOUT("\r\n I2C Init Fail \r\n");
   }
-
+#if !(SH_ADC_ENABLE || SH_SDC_ENABLE)
   status = sli_si91x_spi_init();
   if (status != SL_STATUS_OK) {
     bus_errors.spi = false;
     DEBUGOUT("\r\n SPI Init Fail \r\n");
   }
+#endif
 #ifdef SH_ADC_ENABLE
   status = sli_si91x_adc_init();
   if (status != SL_STATUS_OK) {

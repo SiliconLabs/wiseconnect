@@ -5,11 +5,26 @@ import sys
 from print_color import print  # For Debug prints
 
 # Constants
-COM_PORT = 'COM4'  # Update the actual COM port number
+COM_PORT = 'COM3'  # Update the actual COM port number
 BAUD_RATE = 115200  # Replace with your desired baud rate
 MAX_BYTES_TO_READ = 1024
 HEADER_SIZE = 64
 
+# Function to perform handshake with MCU
+def perform_handshake(ser):
+    
+    # Send acknowledgment to MCU
+    ser.write(b"Python Ready for firmware update process")
+    print(" >>>> Sent 'Python Ready for firmware update process' to MCU")
+
+    while True:
+        # Read any data sent by MCU
+        received_data = ser.readline().strip()
+        if received_data == b"Host is ready for Firmware update process":
+            print(" <<<< Received 'Host is ready for Firmware update process' from MCU")           
+            break
+        else:
+            print("Waiting for 'MCUReady' from MCU ...")
 
 # Function to send the firmware file in big-endian hex format
 def send_firmware(file_path, chunk_size_kb):
@@ -24,18 +39,22 @@ def send_firmware(file_path, chunk_size_kb):
         firmware_size = os.path.getsize(file_path)
 
         with open(file_path, 'rb') as firmware:
-            # Create a serial connection with no parity, 1 stop bit, and hardware flow control (CTS/RTS)
-            # This can be configurable based upon HOST MCU UART configuration
-            with serial.Serial(COM_PORT, BAUD_RATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, xonxoff=False, rtscts=True, dsrdtr=False, timeout=1) as ser:
+            # Create a serial connection with Micocontroller
+            with serial.Serial(COM_PORT, BAUD_RATE, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, xonxoff=False, rtscts=False, dsrdtr=False, timeout=1) as ser:
                 ser.flushInput()  # Clear input buffer
                 print(f"Serial port {COM_PORT} opened at {BAUD_RATE} baud with no parity, 1 stop bit, and hardware flow control (CTS/RTS).")
+
+                # Perform handshake with MCU
+                perform_handshake(ser)
 
                 # Convert chunk size from kilobytes to bytes
                 chunk_size = chunk_size_kb * 1024
 
                 while True:
                     received_data = ser.read(MAX_BYTES_TO_READ)
-
+                    
+                    print(f" >>>>Rx Data:",received_data)
+                    
                     if received_data:
                         if received_data == b"header":
                             start_time = time.time()  # Record the start time
@@ -85,17 +104,12 @@ def send_firmware(file_path, chunk_size_kb):
         print(e)
 
 if __name__ == "__main__":
-    # User Input for Firmware File and Chunk Size
-    if len(sys.argv) != 3:
-        print("Usage: python script.py <firmware_file_path> <chunk_size_kb>")
+    # User Input for Firmware File
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <firmware_file_path>")
         sys.exit(1)
 
     firmware_file = sys.argv[1]
-    chunk_size_kb = int(sys.argv[2])
-
-    # Check if the chunk size is within the valid range (1 to 16)
-    if not (1 <= chunk_size_kb <= 16):
-        print("Error: Chunk size must be between 1KB to 16KB.")
-        sys.exit(1)
+    chunk_size_kb = 1
 
     send_firmware(firmware_file, chunk_size_kb)

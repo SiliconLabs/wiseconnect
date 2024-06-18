@@ -17,7 +17,6 @@
 
 // Include Files
 
-#include "rsi_chip.h"
 #include "rsi_ccp_user_config.h"
 
 volatile static VAD_EVENT_T event;

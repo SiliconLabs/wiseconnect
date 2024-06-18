@@ -207,7 +207,7 @@ extern "C" {
 #define SL_SIO_SIO1_PIN 26
 #endif
 #ifndef SL_SIO_1_LOC
-#define SL_SIO_1_LOC 1
+#define SL_SIO_1_LOC 5
 #endif
 
 // SIO SIO2 on GPIO_27
@@ -218,7 +218,7 @@ extern "C" {
 #define SL_SIO_SIO2_PIN 27
 #endif
 #ifndef SL_SIO_2_LOC
-#define SL_SIO_2_LOC 1
+#define SL_SIO_2_LOC 9
 #endif
 
 // SIO SIO3 on GPIO_28
@@ -229,7 +229,7 @@ extern "C" {
 #define SL_SIO_SIO3_PIN 28
 #endif
 #ifndef SL_SIO_3_LOC
-#define SL_SIO_3_LOC 1
+#define SL_SIO_3_LOC 12
 #endif
 
 // SIO SIO4 on GPIO_29
@@ -240,7 +240,7 @@ extern "C" {
 #define SL_SIO_SIO4_PIN 29
 #endif
 #ifndef SL_SIO_4_LOC
-#define SL_SIO_4_LOC 1
+#define SL_SIO_4_LOC 15
 #endif
 
 // SIO SIO5 on GPIO_11
@@ -251,7 +251,7 @@ extern "C" {
 #define SL_SIO_SIO5_PIN 11
 #endif
 #ifndef SL_SIO_5_LOC
-#define SL_SIO_5_LOC 0
+#define SL_SIO_5_LOC 17
 #endif
 
 // SIO SIO6 on ULP_GPIO_6/GPIO_70
@@ -262,7 +262,7 @@ extern "C" {
 #define SL_SIO_SIO6_PIN 6
 #endif
 #ifndef SL_SIO_6_LOC
-#define SL_SIO_6_LOC 0
+#define SL_SIO_6_LOC 20
 #endif
 
 // SIO SIO7 on ULP_GPIO_7/GPIO_71
@@ -273,7 +273,7 @@ extern "C" {
 #define SL_SIO_SIO7_PIN 7
 #endif
 #ifndef SL_SIO_7_LOC
-#define SL_SIO_7_LOC 1
+#define SL_SIO_7_LOC 22
 #endif
 // [SIO_SL_SIO]$
 // <<< sl:end pin_tool >>>

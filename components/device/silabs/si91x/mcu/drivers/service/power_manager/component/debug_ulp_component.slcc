@@ -1,5 +1,5 @@
 id: debug_ulp_component
-label: ULP Debug
+label: PM ULP Debug
 package: platform
 description: >
   ULP DEBUG component will enable Debug in the low-power mode. 

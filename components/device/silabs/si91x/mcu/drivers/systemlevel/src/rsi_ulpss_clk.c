@@ -22,7 +22,7 @@
 
 #include "rsi_ccp_user_config.h"
 #include "rsi_rom_ulpss_clk.h"
-#ifndef ROMDRIVER_PRESENT
+#ifndef ULPSS_CLOCK_ROMDRIVER_PRESENT
 /** @addtogroup SOC3
 * @{
 */

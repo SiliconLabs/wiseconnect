@@ -14,11 +14,11 @@ filter:
   value:
   - Advanced
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.2.0
+  version: 3.3.0
 source:
 - path: ble_device_info.c
 - path: ble_main_task.c
@@ -32,11 +32,14 @@ include:
   - path: app.h
   - path: ble_config.h
 define:
-- name: RSI_DEBUG_PRINTS
+- name: SL_SI91X_PRINT_DBG_LOG
 component:
 - id: sl_system
 - id: freertos
+- id: freertos_heap_4
 - id: device_init
+- id: spidrv
+  instance: [exp]
 - id: iostream_retarget_stdio
 - id: iostream_recommended_stream
 - id: iostream_stdlib_config
@@ -76,6 +79,11 @@ other_file:
 - path: resources/readme/output_2.png
 - path: resources/readme/output_3.png
 - path: resources/readme/output_4.png
+- path: resources/readme/central_connected.png
+- path: resources/readme/central_scan.png
+- path: resources/readme/output_5.png
+- path: resources/readme/peripheral_connected.png
+- path: resources/readme/peripheral.png
 ui_hints:
   highlight:
   - path: readme.md

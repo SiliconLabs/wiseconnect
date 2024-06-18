@@ -128,13 +128,13 @@ sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
 
 void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length)
 {
-
   if (offset >= buffer->length) {
-    *data_length = 0;
     return NULL;
   }
-  *data_length = buffer->length - offset;
-  return &buffer->data[offset];
+  if (data_length) {
+    *data_length = (uint16_t)(buffer->length) - offset;
+  }
+  return (void *)&buffer->data[offset];
 }
 
 void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)
@@ -160,10 +160,10 @@ static sl_status_t sl_si91x_check_for_buffer_availability(sl_wifi_buffer_type_t 
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_CRITICAL();
   if (buffer_allocation[type] < quota[type]) {
-    CORE_EXIT_ATOMIC();
+    CORE_EXIT_CRITICAL();
     return SL_STATUS_OK;
   }
-  CORE_EXIT_ATOMIC();
+  CORE_EXIT_CRITICAL();
   return SL_STATUS_FULL;
 }
 
@@ -173,11 +173,11 @@ static sl_status_t sl_si91x_check_for_valid_config(const sl_wifi_buffer_configur
   CORE_ENTER_CRITICAL();
   if (config->control_buffer_quota < WATERMARKLEVEL || config->rx_buffer_quota < WATERMARKLEVEL
       || config->tx_buffer_quota < WATERMARKLEVEL) {
-    CORE_EXIT_ATOMIC();
+    CORE_EXIT_CRITICAL();
     SL_DEBUG_LOG("Quota for buffer types should be atleast 10");
     return SL_STATUS_INVALID_PARAMETER;
   }
-  CORE_EXIT_ATOMIC();
+  CORE_EXIT_CRITICAL();
   return SL_STATUS_OK;
 }
 
@@ -186,7 +186,7 @@ static void sl_si91x_buffer_type_allocation(sl_wifi_buffer_type_t type)
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_CRITICAL();
   buffer_allocation[type]++;
-  CORE_EXIT_ATOMIC();
+  CORE_EXIT_CRITICAL();
   return;
 }
 
@@ -195,7 +195,7 @@ static void sl_si91x_buffer_type_deallocation(sl_wifi_buffer_type_t type)
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_CRITICAL();
   buffer_allocation[type]--;
-  CORE_EXIT_ATOMIC();
+  CORE_EXIT_CRITICAL();
   return;
 }
 
@@ -205,10 +205,10 @@ static bool sl_si91x_check_for_buffer_empty(void)
   CORE_ENTER_CRITICAL();
   for (int i = 0; i < BUFFER_TYPE; i++) {
     if (buffer_allocation[i] != 0) {
-      CORE_EXIT_ATOMIC();
+      CORE_EXIT_CRITICAL();
       return false;
     }
   }
-  CORE_EXIT_ATOMIC();
+  CORE_EXIT_CRITICAL();
   return true;
 }

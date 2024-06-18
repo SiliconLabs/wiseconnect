@@ -15,12 +15,14 @@ source:
   - path: ulp_calendar_example.c
   - path: ulp_calendar_example.h
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
-toolchain_settings: []
+    version: 3.3.0
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: status
@@ -40,6 +42,8 @@ component:
     id: debug_ulp_component
   - from: wiseconnect3_sdk
     id: calendar_ulp_component
+define:
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/uc_screen/calendar_uc_screen.png

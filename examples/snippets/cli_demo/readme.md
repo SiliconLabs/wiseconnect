@@ -163,7 +163,8 @@ By default antenna type should be set to 0.
 
     e.g., wifi_transmit_test_start 127 0 100 1 1.
 
-- For Wi-Fi 6 or 802.11ax mode RF test, issue the below command. 
+- For Wi-Fi 6 or 802.11ax mode RF test, issue the below command.
+
 4. wifi_ax_transmit_test_start **power** **data rate** **length** **mode** **channel** **enable_11ax** **coding_type** **nominal_pe** **ul_dl** **he_ppdu_type** **beam_change** **bw** **stbc** **tx_bf** **gi_ltf** **dcm** **nsts_midamble** **spatial_reuse** **bss_color** **he_siga2_reserved** **ru_allocation** **n_heltf_tot** **sigb_dcm** **sigb_mcs** **user_sta_id** **user_idx** **sigb_compression_field**
     e.g., wifi_ax_transmit_test_start 127 0 100 1 1 1 0 1 1 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 1 1 1
   **power**: Set transmit power in dbm. Valid values are from 2dBm to 18dBm.
@@ -228,6 +229,21 @@ For example, for 2412 MHz the output will be seen at 2417 MHz.
 - The wifi 6 parameter descriptions are mentioned in the sl_si91x_protocol_types.h file of the SDK.
 >
 >5. **wifi_transmit_test_stop** is used for stopping the Transmit test.
+
+- Configure below parameter in **wifi_commands.c** to enable AGGREGATION support
+  .feature_bit_map = SL_SI91X_FEAT_AGGREGATION
+
+**Additional sample commands for Wi-Fi 6 RF Test**
+
+  |  **Test case**                   | **PPDU**  | **LTF Size**| **GI** | **DCM/nDCM** | **RU Tone** | **RU Number** | **User Index** | **Rate** | **Pkt Len** | **Command** |
+  |--------------------------------- |-----------|-------------|--------|--------------|-------------|---------------|----------------|----------|-------------|----------------------------------------------------------------------------|
+  | SU PPDU 4x HE-LTF + 3.2us nDCM   | SU PPDU   |   4x        |  3.2us |  nDCM        | 242Tone     |   RU1         |     0          | MCS0     |  1500   | wifi_ax_transmit_test_start 10 256 1500 0 1 1 0 2 1 0 0 0 0 0 3 0 0 0 0 0 192 1 0 0 0 0 0
+  | SU PPDU 1x HE-LTF + 0.8us DCM    | SU PPDU   |   1x        |  0.8us |   DCM        | 242Tone     |   RU1         |     0          | MCS1     |  1500   | wifi_ax_transmit_test_start 10 257 1500 0 1 1 0 2 1 0 0 0 0 0 0 1 0 0 0 0 192 1 0 0 0 0 0
+  | ERSU PPDU 4x HE-LTF + 3.2us nDCM | ERSU PPDU |   4x        |  3.2us |  nDCM        | 242Tone     |   RU1         |     0          | MCS0     |  1500   | wifi_ax_transmit_test_start 10 256 1500 0 1 1 0 2 1 1 0 0 0 0 3 0 0 0 0 0 192 1 0 0 0 0 0
+  | ERSU PPDU 4x HE-LTF + 0.8us nDCM | ERSU PPDU |   4x        |  0.8us |  nDCM        | 242Tone     |   RU1         |     0          | MCS2     |  1500   | wifi_ax_transmit_test_start 10 258 1500 0 1 1 0 2 1 1 0 0 1 0 1 1 0 0 0 0 192 1 0 0 0 0 0
+  | TB PPDU 4x HE-LTF + 3.2us nDCM   | TB PPDUDU |   4x        |  3.2us |  nDCM        | 106Tone     |   RU1         |     0          | MCS7     |  1500   | wifi_ax_transmit_test_start 10 263 1500 0 1 1 0 2 1 2 0 0 0 0 2 0 0 0 0 0 53 1 0 0 0 0 0
+  | TB PPDU 2x HE-LTF + 1.6us nDCM   | TB PPDUDU |   2x        |  1.6us |  nDCM        | 26Tone      |   RU8         |     7          | MCS6     |  1500   | wifi_ax_transmit_test_start 10 262 1500 0 1 1 0 2 1 2 0 0 0 0 1 0 0 0 0 0 7 1 0 0 0 7 0
+  | TB PPDU 2x HE-LTF + 1.6us nDCM   | TB PPDUDU |   2x        |  1.6us |  nDCM        | 26Tone      |   RU9         |     8          | MCS6     |  1500   | wifi_ax_transmit_test_start 10 262 1500 0 1 1 0 2 1 2 0 0 0 0 1 0 0 0 0 0 8 1 0 0 0 8 0
 
 **Receive test Commands**
 

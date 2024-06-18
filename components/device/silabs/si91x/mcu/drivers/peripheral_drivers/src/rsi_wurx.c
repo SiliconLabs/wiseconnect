@@ -17,7 +17,6 @@
 
 // Include Files
 
-#include "rsi_chip.h"
 /*==============================================*/
 /**
  * @fn           void RSI_WURX_Init(uint16_t bypass_l1_enable, uint16_t l1_freq_div, uint16_t l2_freq_div)

@@ -67,7 +67,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -206,3 +206,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Check PWM output on PWM GPIOs by connecting logic analyser.
 
  > ![Figure: expected result](resources/readme/output.png)
+
+ **Note:**
+
+- Recommending to adjust sync delay according to i2c follower
+- Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If user needs to implement their own interrupt handler instead of using the default one, it is recommeneded to make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

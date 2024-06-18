@@ -36,7 +36,7 @@
 #include <semphr.h>
 #include <event_groups.h>
 #include <timers.h>
-#include "rsi_chip.h"
+
 #include "rsi_os.h"
 #include "hub_hal_intf.h"
 #include "sl_status.h"
@@ -142,7 +142,7 @@ typedef enum {
 } sl_sensor_status_t;
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /// @brief Enumeration for Sensor HUB Power states.
-typedef enum { SL_SH_PS4TOPS2, SL_SH_PS2TOPS4, SL_SH_SLEEP_WAKEUP, SL_SH_DUMMY } sl_power_state_t;
+typedef enum { SL_SH_PS4TOPS2, SL_SH_PS2TOPS4, SL_SH_SLEEP_WAKEUP, SL_SH_DUMMY } sl_sh_power_state_t;
 /** @endcond */
 /*******************************************************************************
  *************************** Structures for sensor HUB  ************************

@@ -24,7 +24,7 @@
 #include "RTE_Device_917.h"
 #include "sl_status.h"
 #include "rsi_ccp_user_config.h"
-#include "rsi_chip.h"
+
 #include "sl_assert.h"
 
 #define SL_BOARD_ENABLE_DISPLAY_PIN  0

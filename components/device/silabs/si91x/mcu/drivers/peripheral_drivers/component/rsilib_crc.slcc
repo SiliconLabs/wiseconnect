@@ -16,3 +16,7 @@ include:
     - path: "rsi_crc.h"
 provides:
   - name: rsilib_crc
+requires:
+  - name: romdriver_crc
+define:
+  - name: CRC_ROMDRIVER_PRESENT

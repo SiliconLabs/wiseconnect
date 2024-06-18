@@ -47,6 +47,7 @@
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "sl_si91x_m4_ps.h"
+#include "sl_si91x_driver_gpio.h"
 #endif
 
 //! Certificates to be loaded
@@ -73,8 +74,7 @@
 #define PUBLISH_PERIODICITY  30000             //! Publish periodicity in milliseconds
 #define MQTT_USERNAME        "username"
 #define MQTT_PASSWORD        "password"
-
-#define ENABLE_POWER_SAVE 1
+#define ENABLE_POWER_SAVE    1
 
 #if ENABLE_POWER_SAVE
 volatile uint8_t powersave_given = 0;
@@ -120,6 +120,9 @@ volatile app_state_t application_state;
 IoT_Publish_Message_Params publish_iot_msg = { 0 };
 
 fd_set read_fds;
+
+osSemaphoreId_t data_received_semaphore;
+
 AWS_IoT_Client mqtt_client = { 0 };
 #define RSI_FD_ISSET(x, y) rsi_fd_isset(x, y)
 volatile uint8_t check_for_recv_data;
@@ -202,6 +205,18 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
 *               Function Definitions
 ******************************************************/
 
+#if defined(SLI_SI91X_MCU_INTERFACE) && (SL_SI91X_TICKLESS_MODE == ENABLE)
+void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
+{
+  (void)(pin_intr);
+  //NPSS GPIO-2 interrupt clr
+  (*(volatile uint32_t *)(0x12080000UL + 0x08)) = 0x08;
+
+  while (sl_si91x_gpio_get_uulp_npss_pin(2) == 0)
+    ; // waiting for the button release
+  osSemaphoreRelease(data_received_semaphore);
+}
+#endif
 void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status)
 {
   UNUSED_PARAMETER(fd_except);
@@ -212,7 +227,8 @@ void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, i
   if (FD_ISSET(mqtt_client.networkStack.socket_id, fd_read)) {
     if (pub_state != 1) { //This check is for handling PUBACK in QOS1
       check_for_recv_data = 1;
-      application_state   = AWS_SELECT_CONNECT_STATE;
+      osSemaphoreRelease(data_received_semaphore);
+      application_state = AWS_SELECT_CONNECT_STATE;
     } else if (pub_state == 1) { //This check is for handling PUBACK in QOS1
       osSemaphoreRelease(select_sem);
     }
@@ -251,7 +267,8 @@ static void application_start(void *argument)
   sl_net_wifi_client_profile_t profile = { 0 };
   sl_ip_address_t ip_address           = { 0 };
 
-  select_sem = osSemaphoreNew(1, 0, NULL);
+  select_sem              = osSemaphoreNew(1, 0, NULL);
+  data_received_semaphore = osSemaphoreNew(1, 0, NULL);
 
   sl_status_t status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &client_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
@@ -528,8 +545,6 @@ sl_status_t start_aws_mqtt(void)
 #if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_POWER_SAVE)
         if ((!publish_timer_start) || publish_msg) {
 #endif
-          printf("\rData to be published: %s\n", MQTT_PUBLISH_PAYLOAD);
-
           publish_iot_msg.qos        = PUBLISH_QOS;
           publish_iot_msg.payload    = MQTT_PUBLISH_PAYLOAD;
           publish_iot_msg.isRetained = 0;
@@ -538,6 +553,7 @@ sl_status_t start_aws_mqtt(void)
           if (SUBSCRIBE_QOS == QOS1 || PUBLISH_QOS == QOS1) {
             pub_state = 1;
           }
+          printf("\rData to be published: %s\n", MQTT_PUBLISH_PAYLOAD);
           rc = aws_iot_mqtt_publish(&mqtt_client, PUBLISH_ON_TOPIC, strlen(PUBLISH_ON_TOPIC), &publish_iot_msg);
 
           if (rc != SUCCESS) {
@@ -597,9 +613,15 @@ sl_status_t start_aws_mqtt(void)
         if (select_given == 1 && (check_for_recv_data != 1)) {
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+#if (SL_SI91X_TICKLESS_MODE == 0)
+          sl_si91x_m4_sleep_wakeup();
+#else
           printf("\rM4 going to power save state..\r\n");
           printf("\rselect_given before sleep: %d\r\n", select_given);
-          sl_si91x_m4_sleep_wakeup();
+          if (osSemaphoreAcquire(data_received_semaphore, PUBLISH_PERIODICITY) == osOK) {
+            printf("\rM4 woke up from power save state..\r\n");
+          }
+#endif
 #endif
         }
         application_state = AWS_SELECT_CONNECT_STATE;

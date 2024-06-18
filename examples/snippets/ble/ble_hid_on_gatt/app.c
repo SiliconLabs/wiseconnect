@@ -26,7 +26,7 @@
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
 #include "sl_utility.h"
-
+#include "FreeRTOSConfig.h"
 //! BLE include file to refer BLE APIs
 #include "ble_config.h"
 #include "rsi_ble_apis.h"
@@ -36,7 +36,7 @@
 //! Common include file
 #include "rsi_common_apis.h"
 #include <string.h>
-#ifdef SLI_SI91X_MCU_INTERFACE
+#if SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE)
 #include "sl_si91x_m4_ps.h"
 #endif
 //! [ble_gls] is a tag for every print
@@ -1317,6 +1317,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
   uint8_t local_dev_addr[BD_ADDR_ARRAY_LEN]           = { 0 };
   uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
   sl_wifi_firmware_version_t fw_version               = { 0 };
+
 #if (GATT_ROLE == SERVER)
   uint8_t scan_data_len = 0;
   uint8_t scan_data[32] = { 0 };
@@ -1494,7 +1495,7 @@ void ble_hids_gatt_application(rsi_ble_hid_info_t *p_hid_info)
     //! checking for events list
     event_id = rsi_ble_app_get_event();
     if (event_id == -1) {
-#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
       //! if events are not received loop will be continued.
       if ((!(P2P_STATUS_REG & TA_wakeup_M4)) && (ble_app_event_map == 0) && (ble_app_event_map1 == 0)) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;

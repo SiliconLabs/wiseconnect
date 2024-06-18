@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -54,9 +54,10 @@
 #include "glib.h"
 #include "dmd.h"
 #include "RTE_Device_917.h"
+#include "rsi_retention.h"
 #include "sl_status.h"
 #include "rsi_ccp_user_config.h"
-#include "rsi_chip.h"
+
 #include "em_assert.h"
 
 #include <rsi_ble_apis.h>
@@ -69,6 +70,11 @@
 #include "sl_net_dns.h"
 #include "sl_net_ping.h"
 
+#include "sl_si91x_button.h"
+#include "sl_si91x_button_pin_config.h"
+#include "sl_si91x_button_instances.h"
+
+#include "logo_bitmaps.h"
 /******************************************************
  *                    Constants
  ******************************************************/
@@ -81,11 +87,7 @@
 #define TIMER_0  0  // Timer 0
 #define ONE_MSEC 32 // Ticks required for every one millisecond
 
-#include "Driver_SPI.h"
-
 //MQTT related defines
-#define DHCP_HOST_NAME    NULL
-#define TIMEOUT_MS        5000
 #define WIFI_SCAN_TIMEOUT 10000
 #define PING_PACKET_SIZE  64
 #define MQTT_BROKER_PORT  1883
@@ -110,14 +112,20 @@
 #define DNS_TIMEOUT            20000
 #define MAX_DNS_RETRY_COUNT    5
 
+#define DHCP_HOST_NAME NULL
+#define TIMEOUT_MS     5000
+#define NO_OF_PINGS    5
+
+#ifndef BUTTON_INSTANCE_1
+#define BUTTON_INSTANCE_1 button_btn1
+#endif
+
 char *mqtt_hostname = "test.mosquitto.org";
 
 sl_mqtt_client_t client                                  = { 0 };
 uint8_t is_execution_completed                           = 0;
 sl_mqtt_client_credentials_t *client_credentails         = NULL;
 sl_mqtt_client_configuration_t mqtt_client_configuration = { .is_clean_session = IS_CLEAN_SESSION,
-                                                             .client_id        = (uint8_t *)CLIENT_ID,
-                                                             .client_id_length = strlen(CLIENT_ID),
                                                              .client_port      = CLIENT_PORT };
 
 sl_mqtt_broker_t mqtt_broker_configuration = {
@@ -157,9 +165,9 @@ void mqtt_client_cleanup();
 void print_char_buffer(char *buffer, uint32_t buffer_length);
 sl_status_t mqtt_example();
 void memlcd_app_init(void);
-void sl_wifi_app_set_event(uint32_t event_num);
-void sl_wifi_app_clear_event(uint32_t event_num);
-int32_t sl_wifi_app_get_event(void);
+void wifi_app_set_event(uint32_t event_num);
+void wifi_app_clear_event(uint32_t event_num);
+int32_t wifi_app_get_event(void);
 sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg);
 void rsi_wlan_app_call_backs_init(void);
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
@@ -167,7 +175,7 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
                                            uint32_t result_length,
                                            void *arg);
 void ping_silabs();
-void test_mosquitto_pub();
+void test_mosquitto_org_pub();
 /*
  *********************************************************************************************************
  *                                         LOCAL GLOBAL VARIABLES
@@ -199,8 +207,6 @@ uint8_t yield;
 uint8_t disconnect_flag = 0;
 char *hostname          = "www.silabs.com";
 
-#define NO_OF_PINGS 5
-
 uint8_t mqtt_connected = 0;
 
 //LCD related variables
@@ -209,7 +215,7 @@ volatile int currentLine = 0;
 
 sl_mac_address_t mac_addr = { 0 };
 sl_ipv4_address_t *fetch_ip;
-char *msg;
+char msg[100];
 
 char mac_id[18];
 char fw[32];
@@ -220,9 +226,9 @@ sl_ip_address_t ip = { 0 };
 #define APP_RECONN_LOOP_CTR_LIM 3
 uint8_t app_reconn_loop_ctr = 0;
 
-typedef struct sl_wlan_app_cb_s {
+typedef struct wlan_app_cb_s {
   //! WLAN application state
-  volatile sl_wifi_app_state_t state;
+  volatile wifi_app_state_t state;
 
   //! length of buffer to copy
   uint32_t length;
@@ -236,15 +242,15 @@ typedef struct sl_wlan_app_cb_s {
   //! application events bit map
   uint32_t event_map;
 
-} sl_wlan_app_cb_t;
-sl_wlan_app_cb_t sl_wlan_app_cb; //! application control block
+} wlan_app_cb_t;
+wlan_app_cb_t wlan_app_cb; //! application control block
 
 /*
  *********************************************************************************************************
  *                                               DATA TYPES
  *********************************************************************************************************
  */
-extern void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
+extern void wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
 extern uint8_t coex_ssid[50], pwd[34], sec_type;
 void lcd_mac(void);
 
@@ -280,14 +286,14 @@ static sl_net_wifi_client_profile_t wifi_client_profile = {
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_set_event
+ * @fn         wifi_app_set_event
  * @brief      sets the specific event.
  * @param[in]  event_num, specific event number.
  * @return     none.
  * @section description
  * This function is used to set/raise the specific event.
  */
-void sl_wifi_app_set_event(uint32_t event_num)
+void wifi_app_set_event(uint32_t event_num)
 {
   wlan_app_event_map |= BIT(event_num);
 
@@ -298,14 +304,14 @@ void sl_wifi_app_set_event(uint32_t event_num)
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_clear_event
+ * @fn         wifi_app_clear_event
  * @brief      clears the specific event.
  * @param[in]  event_num, specific event number.
  * @return     none.
  * @section description
  * This function is used to clear the specific event.
  */
-void sl_wifi_app_clear_event(uint32_t event_num)
+void wifi_app_clear_event(uint32_t event_num)
 {
   wlan_app_event_map &= ~BIT(event_num);
   return;
@@ -313,7 +319,7 @@ void sl_wifi_app_clear_event(uint32_t event_num)
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_get_event
+ * @fn         wifi_app_get_event
  * @brief      returns the first set event based on priority
  * @param[in]  none.
  * @return     int32_t
@@ -322,7 +328,7 @@ void sl_wifi_app_clear_event(uint32_t event_num)
  * @section description
  * This function returns the highest priority event among all the set events
  */
-int32_t sl_wifi_app_get_event(void)
+int32_t wifi_app_get_event(void)
 {
   uint32_t ix;
 
@@ -347,7 +353,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
   disconnected = 1;
   connected    = 0;
 
-  sl_wifi_app_set_event(SL_WIFI_DISCONNECTED_STATE);
+  wifi_app_set_event(WIFI_APP_DISCONNECTED_STATE);
 
   return SL_STATUS_OK;
 }
@@ -357,6 +363,7 @@ void rsi_wlan_app_call_backs_init(void)
   //! Initialize join fail call back
   sl_wifi_set_join_callback(join_callback_handler, NULL);
 }
+
 static sl_status_t show_scan_results()
 {
   printf("%lu Scan results:\n", scan_result->scan_count);
@@ -494,10 +501,34 @@ void mqtt_client_message_handler(void *client, sl_mqtt_client_message_t *message
   UNUSED_PARAMETER(client);
   printf("Message Received on Topic: ");
   print_char_buffer((char *)message->topic, message->topic_length);
+  printf("\r\n");
   print_char_buffer((char *)message->content, message->content_length);
-  msg = (char *)message->content;
+  printf("\r\n");
+  strncpy(msg, (char *)message->content, message->content_length);
+  msg[message->content_length] = '\0';
   GLIB_clear(&glibContext);
-  currentLine = 0;
+  GLIB_drawBitmap(&glibContext,
+                  SILABS_LOGO_POSITION_X,
+                  SILABS_LOGO_POSITION_Y + 5,
+                  SILABS_LOGO_WIDTH,
+                  SILABS_LOGO_HEIGHT,
+                  silabsLogo);
+  GLIB_drawBitmap(&glibContext,
+                  BLE_ICON_POSITION_X,
+                  BLE_ICON_POSITION_Y + 5,
+                  BLUETOOTH_ICON_SIZE,
+                  BLUETOOTH_ICON_SIZE,
+                  bleLogo);
+  GLIB_drawBitmap(&glibContext,
+                  WIFI_ICON_POSITION_X,
+                  WIFI_ICON_POSITION_Y + 5,
+                  WIFI_BITMAP_HEIGHT,
+                  WIFI_BITMAP_HEIGHT,
+                  wifiLogo);
+  currentLine = 3;
+  GLIB_drawStringOnLine(&glibContext, "MQTT message", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, "received", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+  GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   GLIB_drawStringOnLine(&glibContext, "Topic:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   GLIB_drawStringOnLine(&glibContext, TOPIC_TO_BE_SUBSCRIBED, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
@@ -508,11 +539,11 @@ void mqtt_client_message_handler(void *client, sl_mqtt_client_message_t *message
 
 void print_char_buffer(char *buffer, uint32_t buffer_length)
 {
+  printf("\r\n");
+
   for (uint32_t index = 0; index < buffer_length; index++) {
     printf("%c", buffer[index]);
   }
-
-  printf("\r\n");
 }
 
 void mqtt_client_error_event_handler(void *client, sl_mqtt_client_error_status_t *error)
@@ -549,16 +580,44 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
 
     case SL_MQTT_CLIENT_MESSAGE_PUBLISHED_EVENT: {
       sl_mqtt_client_message_t *published_message = (sl_mqtt_client_message_t *)context;
-
       printf("Published message successfully on topic: ");
       print_char_buffer((char *)published_message->topic, published_message->topic_length);
-
-      GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-      GLIB_drawStringOnLine(&glibContext, "Button is pressed", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-      GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-      GLIB_drawStringOnLine(&glibContext, "Published message", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+      print_char_buffer((char *)published_message->content, published_message->content_length);
+      printf("\r\n");
+      GLIB_clear(&glibContext);
+      GLIB_drawBitmap(&glibContext,
+                      SILABS_LOGO_POSITION_X,
+                      SILABS_LOGO_POSITION_Y + 5,
+                      SILABS_LOGO_WIDTH,
+                      SILABS_LOGO_HEIGHT,
+                      silabsLogo);
+      GLIB_drawBitmap(&glibContext,
+                      BLE_ICON_POSITION_X,
+                      BLE_ICON_POSITION_Y + 5,
+                      BLUETOOTH_ICON_SIZE,
+                      BLUETOOTH_ICON_SIZE,
+                      bleLogo);
+      GLIB_drawBitmap(&glibContext,
+                      WIFI_ICON_POSITION_X,
+                      WIFI_ICON_POSITION_Y + 5,
+                      WIFI_BITMAP_HEIGHT,
+                      WIFI_BITMAP_HEIGHT,
+                      wifiLogo);
+      currentLine = 3;
+      GLIB_drawStringOnLine(&glibContext, "Message published", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
       GLIB_drawStringOnLine(&glibContext, "to MQTT broker", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-
+      GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+      GLIB_drawStringOnLine(&glibContext, "Topic: ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+      GLIB_drawStringOnLine(&glibContext, PUBLISH_TOPIC, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+      GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+      GLIB_drawStringOnLine(&glibContext, "Message: ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+      GLIB_drawStringOnLine(&glibContext,
+                            (char *)published_message->content,
+                            currentLine++,
+                            GLIB_ALIGN_LEFT,
+                            5,
+                            5,
+                            true);
       DMD_updateDisplay();
 
       break;
@@ -597,7 +656,7 @@ void mqtt_client_event_handler(void *client, sl_mqtt_client_event_t event, void 
   }
 }
 
-void test_mosquitto_pub()
+void test_mosquitto_org_pub()
 {
   sl_status_t status = 0;
   status             = sl_mqtt_client_publish(&client, &message_to_be_published, 0, &message_to_be_published);
@@ -684,7 +743,7 @@ sl_status_t mqtt_example()
   return SL_STATUS_OK;
 }
 
-void sl_wifi_app_task(void)
+void wifi_app_task(void)
 {
   int32_t status   = RSI_SUCCESS;
   int32_t event_id = 0;
@@ -698,7 +757,7 @@ void sl_wifi_app_task(void)
   memset(scan_result, 0, scanbuf_size);
   while (1) {
     // checking for events list
-    event_id = sl_wifi_app_get_event();
+    event_id = wifi_app_get_event();
     if (event_id == -1) {
       osSemaphoreAcquire(wlan_thread_sem, osWaitForever);
 
@@ -707,37 +766,30 @@ void sl_wifi_app_task(void)
     }
 
     switch (event_id) {
-      case SL_WIFI_INITIAL_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_INITIAL_STATE);
+      case WIFI_APP_INITIAL_STATE: {
+        wifi_app_clear_event(WIFI_APP_INITIAL_STATE);
 
         // Update WLAN application state
         if (magic_word) {
-          // clear the served event
-          sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
+          wifi_app_set_event(WIFI_APP_FLASH_STATE);
         } else {
-          sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
+          wifi_app_set_event(WIFI_APP_SCAN_STATE);
         }
       } break;
 
-      case SL_WIFI_UNCONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_UNCONNECTED_STATE);
+      case WIFI_APP_UNCONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_UNCONNECTED_STATE);
 
         osSemaphoreRelease(wlan_thread_sem);
       } break;
 
-      case SL_WIFI_SCAN_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_SCAN_STATE);
+      case WIFI_APP_SCAN_STATE: {
+        wifi_app_clear_event(WIFI_APP_SCAN_STATE);
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
 
         sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
-
-        memlcd_app_init();
-        currentLine = 0;
-        GLIB_drawStringOnLine(&glibContext, "WLAN Scan Success", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-        DMD_updateDisplay();
-        osDelay(1000);
 
         status = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
         if (SL_STATUS_IN_PROGRESS == status) {
@@ -753,18 +805,18 @@ void sl_wifi_app_task(void)
           GLIB_drawStringOnLine(&glibContext, "WLAN Scan Failed", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
           DMD_updateDisplay();
           osDelay(1000);
-          sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
+          wifi_app_set_event(WIFI_APP_SCAN_STATE);
           osDelay(1000);
         } else {
           // Update WLAN application state
-          sl_wifi_app_send_to_ble(SL_WIFI_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
+          wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
         }
       } break;
 
-      case SL_WIFI_JOIN_STATE: {
+      case WIFI_APP_JOIN_STATE: {
         sl_wifi_credential_t cred = { 0 };
 
-        sl_wifi_app_clear_event(SL_WIFI_JOIN_STATE);
+        wifi_app_clear_event(WIFI_APP_JOIN_STATE);
 
         cred.type = SL_WIFI_PSK_CREDENTIAL;
         memcpy(cred.psk.value, pwd, strlen((char *)pwd));
@@ -824,7 +876,7 @@ void sl_wifi_app_task(void)
         }
         if (status != RSI_SUCCESS) {
           timeout = 1;
-          sl_wifi_app_send_to_ble(SL_WIFI_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
+          wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
           LOG_PRINT("\r\nWLAN Connect Failed, Error Code : 0x%lX\r\n", status);
 
           GLIB_drawStringOnLine(&glibContext, "WLAN Connect Failed", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
@@ -838,19 +890,14 @@ void sl_wifi_app_task(void)
 
           LOG_PRINT("\r\nWLAN connection successful\r\n");
 
-          GLIB_drawStringOnLine(&glibContext, "WLAN Connect Success", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-          GLIB_drawStringOnLine(&glibContext, "                     ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-          DMD_updateDisplay();
-          osDelay(1000);
-
           // Update WLAN application state
-          sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
+          wifi_app_set_event(WIFI_APP_CONNECTED_STATE);
         }
 
       } break;
 
-      case SL_WIFI_FLASH_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_FLASH_STATE);
+      case WIFI_APP_FLASH_STATE: {
+        wifi_app_clear_event(WIFI_APP_FLASH_STATE);
 
         if (retry) {
           status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
@@ -858,13 +905,13 @@ void sl_wifi_app_task(void)
             LOG_PRINT("\r\nWLAN connection failed, Error Code : 0x%lX\r\n", status);
             break;
           } else {
-            sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
+            wifi_app_set_event(WIFI_APP_CONNECTED_STATE);
           }
         }
       } break;
 
-      case SL_WIFI_CONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_CONNECTED_STATE);
+      case WIFI_APP_CONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_CONNECTED_STATE);
 
         // Configure IP
         status =
@@ -879,8 +926,8 @@ void sl_wifi_app_task(void)
             if (status == RSI_SUCCESS) {
               connected     = 0;
               disassociated = 1;
-              sl_wifi_app_send_to_ble(SL_WIFI_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
-              sl_wifi_app_set_event(IDLE_STATE);
+              wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
+              wifi_app_set_event(WIFI_APP_IDLE_STATE);
             }
           }
           LOG_PRINT("\r\nIP configuration failed, Error Code : 0x%lX\r\n", status);
@@ -900,25 +947,45 @@ void sl_wifi_app_task(void)
                   fetch_ip->bytes[2],
                   fetch_ip->bytes[3]);
           printf("\r\nIP Address:%s \r\n", ip_add);
-          GLIB_drawStringOnLine(&glibContext, "IP Address:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+          GLIB_clear(&glibContext);
+          GLIB_drawBitmap(&glibContext,
+                          SILABS_LOGO_POSITION_X,
+                          SILABS_LOGO_POSITION_Y + 5,
+                          SILABS_LOGO_WIDTH,
+                          SILABS_LOGO_HEIGHT,
+                          silabsLogo);
+          GLIB_drawBitmap(&glibContext,
+                          BLE_ICON_POSITION_X,
+                          BLE_ICON_POSITION_Y + 5,
+                          BLUETOOTH_ICON_SIZE,
+                          BLUETOOTH_ICON_SIZE,
+                          bleLogo);
+          GLIB_drawBitmap(&glibContext,
+                          WIFI_ICON_POSITION_X,
+                          WIFI_ICON_POSITION_Y + 5,
+                          WIFI_BITMAP_HEIGHT,
+                          WIFI_BITMAP_HEIGHT,
+                          wifiLogo);
+          currentLine = 3;
+          GLIB_drawStringOnLine(&glibContext, "WLAN connected (IP):", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
           GLIB_drawStringOnLine(&glibContext, ip_add, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
           DMD_updateDisplay();
           osDelay(1000);
 
           // Update WLAN application state
-          sl_wifi_app_send_to_ble(SL_WIFI_CONNECTION_STATUS, (uint8_t *)&connected, 1);
-          sl_wifi_app_set_event(SL_WIFI_IPCONFIG_DONE_STATE);
+          wifi_app_send_to_ble(WIFI_APP_CONNECTION_STATUS, (uint8_t *)&connected, 1);
+          wifi_app_set_event(WIFI_APP_IPCONFIG_DONE_STATE);
           osDelay(1000);
         }
       } break;
 
-      case SL_WIFI_IPCONFIG_DONE_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_IPCONFIG_DONE_STATE);
-        sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
+      case WIFI_APP_IPCONFIG_DONE_STATE: {
+        wifi_app_clear_event(WIFI_APP_IPCONFIG_DONE_STATE);
+        wlan_app_cb.state = WIFI_APP_MQTT_INIT_STATE;
 
         sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
         sprintf(mac_id,
-                "%x:%x:%x:%x:%x:%x",
+                "%.02X:%.02X:%.02X:%.02X:%.02X:%.02X",
                 mac_addr.octet[0],
                 mac_addr.octet[1],
                 mac_addr.octet[2],
@@ -926,6 +993,8 @@ void sl_wifi_app_task(void)
                 mac_addr.octet[4],
                 mac_addr.octet[5]);
         printf("\r\nMAC Address:%s \r\n", mac_id);
+
+        GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
 
         lcd_mac();
 
@@ -938,20 +1007,40 @@ void sl_wifi_app_task(void)
         ping_silabs();
 
         GLIB_clear(&glibContext);
-        currentLine = 0;
+        GLIB_drawBitmap(&glibContext,
+                        SILABS_LOGO_POSITION_X,
+                        SILABS_LOGO_POSITION_Y + 5,
+                        SILABS_LOGO_WIDTH,
+                        SILABS_LOGO_HEIGHT,
+                        silabsLogo);
+        GLIB_drawBitmap(&glibContext,
+                        BLE_ICON_POSITION_X,
+                        BLE_ICON_POSITION_Y + 5,
+                        BLUETOOTH_ICON_SIZE,
+                        BLUETOOTH_ICON_SIZE,
+                        bleLogo);
+        GLIB_drawBitmap(&glibContext,
+                        WIFI_ICON_POSITION_X,
+                        WIFI_ICON_POSITION_Y + 5,
+                        WIFI_BITMAP_HEIGHT,
+                        WIFI_BITMAP_HEIGHT,
+                        wifiLogo);
+        currentLine = 3;
+        GLIB_drawStringOnLine(&glibContext, "WLAN connected (IP):", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+        GLIB_drawStringOnLine(&glibContext, ip_add, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+        GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
         GLIB_drawStringOnLine(&glibContext, "Ping success", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
         GLIB_drawStringOnLine(&glibContext, "www.silabs.com", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
         GLIB_drawStringOnLine(&glibContext, "", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+        DMD_updateDisplay();
+
         mqtt_example();
 
         while (mqtt_connected != 1)
           ;
 
-        mqtt_connected = 0;
-        osDelay(100);
         GLIB_drawStringOnLine(&glibContext, "MQTT connection done", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
         DMD_updateDisplay();
-        osDelay(1000);
 
         //! initiating power save in BLE mode
         status = rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE);
@@ -971,22 +1060,22 @@ void sl_wifi_app_task(void)
         GLIB_drawStringOnLine(&glibContext, "NWP Lowpower enabled", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
         DMD_updateDisplay();
         osDelay(1000);
-        sl_wifi_app_set_event(IDLE_STATE);
+        wifi_app_set_event(WIFI_APP_IDLE_STATE);
       } break;
 
-      case IDLE_STATE: {
+      case WIFI_APP_IDLE_STATE: {
         osDelay(1000);
       } break;
 
-      case SL_WIFI_DISCONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_DISCONNECTED_STATE);
+      case WIFI_APP_DISCONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_DISCONNECTED_STATE);
         retry = 1;
-        sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_STATUS, (uint8_t *)&disconnected, 1);
-        sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
+        wifi_app_send_to_ble(WIFI_APP_DISCONNECTION_STATUS, (uint8_t *)&disconnected, 1);
+        wifi_app_set_event(WIFI_APP_FLASH_STATE);
       } break;
 
-      case SL_WIFI_DISCONN_NOTIFY_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_DISCONN_NOTIFY_STATE);
+      case WIFI_APP_DISCONN_NOTIFY_STATE: {
+        wifi_app_clear_event(WIFI_APP_DISCONN_NOTIFY_STATE);
 
         if (client.state == SL_MQTT_CLIENT_CONNECTED) {
           sl_mqtt_client_disconnect(&client, 0);
@@ -994,6 +1083,8 @@ void sl_wifi_app_task(void)
             osDelay(10);
           } while (mqtt_disconnect_flag == 0);
         }
+
+        mqtt_connected = 0;
 
         if (client.state == SL_MQTT_CLIENT_DISCONNECTED) {
           sl_mqtt_client_deinit(&client);
@@ -1011,8 +1102,8 @@ void sl_wifi_app_task(void)
           yield           = 0;
           disconnect_flag = 0; // reset flag to allow disconnecting again
 
-          sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_NOTIFY, (uint8_t *)&disassociated, 1);
-          sl_wifi_app_set_event(SL_WIFI_UNCONNECTED_STATE);
+          wifi_app_send_to_ble(WIFI_APP_DISCONNECTION_NOTIFY, (uint8_t *)&disassociated, 1);
+          wifi_app_set_event(WIFI_APP_UNCONNECTED_STATE);
         } else {
           LOG_PRINT("\r\nWi-Fi disconnect failed, Error Code : 0x%lX\r\n", status);
         }
@@ -1061,4 +1152,11 @@ void lcd_mac(void)
   GLIB_drawStringOnLine(&glibContext, mac_id, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   GLIB_drawStringOnLine(&glibContext, "                   ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
   DMD_updateDisplay();
+}
+
+void sl_si91x_button_isr(uint8_t pin, int8_t state)
+{
+  if ((mqtt_connected == 1) && (pin == BUTTON_INSTANCE_1.pin) && (state == BUTTON_PRESSED)) {
+    test_mosquitto_org_pub();
+  }
 }

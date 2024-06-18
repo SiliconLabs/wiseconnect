@@ -20,13 +20,12 @@ This application demonstrates how to configure the SiWx91x as a soft Access poin
 ### Hardware Requirements
 
 - A Windows PC.
+
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -35,13 +34,15 @@ This application demonstrates how to configure the SiWx91x as a soft Access poin
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+ 
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - NCP EFR Expansion Kit with NCP Radio board (BRD8045A + BRD4346A) [SiWx917-EB4346A]  
 
 ### Software Requirements
 
 - Simplicity Studio
+-  Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en)
 
 ### Setup Diagram
 
@@ -60,18 +61,31 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-The application can be configured to suit your requirements and development environment.
+- The application uses the default configurations as provided in the **default_wifi_ap_profile** in ``sl_net_default_values.h``. Users can choose to configure these parameters as needed.
 
-The application uses the default configurations as provided in the **default_wifi_ap_profile** in ``sl_net_default_values.h`` and user can choose to configure these parameters as needed.
+- In the Project Explorer pane, expand the **config** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters as you desired to enable the Silicon Labs Wi-Fi device as an access point.
+
+- AP instance related parameters :
+
+  - `DEFAULT_WIFI_AP_PROFILE_SSID` refers to the SSID of the WiSeConnect soft AP that will be created.
+ 
+    ```c
+    #define DEFAULT_WIFI_AP_PROFILE_SSID                   "MY_AP_SSID"     
+    ```
+
+  - `DEFAULT_WIFI_AP_CREDENTIAL` refers to the secret key of the WiSeConnect soft AP that will be created.
+
+    ```c
+    #define DEFAULT_WIFI_AP_CREDENTIAL                      "MY_AP_PASSPHRASE"
+    ```
+
+- Other AP instance configurations can be modified if required in `default_wifi_ap_profile` configuration structure.
 
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Build the application.
->
-> Note: 
-> - The default SSID is "MY_AP_SSID" and passphrase is "MY_AP_PASSPHRASE". You may either use these or modify them as described in the [Application Build Environment](#application-build-environment) section.
 - Flash, run and debug the application.
 - After the application gets executed successfully, the MAC addresses of the remote clients that gets connected or disconnected to the newly created Access point are printed on the console.
 

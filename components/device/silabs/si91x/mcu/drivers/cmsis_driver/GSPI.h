@@ -99,7 +99,6 @@ typedef struct _SPI_INFO {
 	GSPI_STATUS            status;        // Status flags
 	uint8_t               state;          // Current SPI state
 	uint32_t              mode;           // Current SPI mode
-  uint8_t               receive_function;
 } GSPI_INFO;
 
 /* SPI Transfer Information (Run-Time) */

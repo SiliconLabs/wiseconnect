@@ -64,12 +64,16 @@ typedef enum SLEEP_TYPE {
 #define DEFAULT_DOUBLER_CLOCK    (2 * DEFAULT_20MHZ_RO_CLOCK)
 #define DEFAULT_32KHZ_RC_CLOCK   32000
 #define DEFAULT_32KHZ_RO_CLOCK   32000
-#define DEFAULT_32KHZ_XTAL_CLOCK 32000
+#define DEFAULT_32KHZ_XTAL_CLOCK 32768
 #define DEFAULT_RF_REF_CLOCK     40000000
 #define DEFAULT_MEMS_REF_CLOCK   40000000
 #define DEFAULT_BYP_RC_CLOCK     32000000
 #define DEFAULT_I2S_PLL_CLOCK    6144000
 #define DEFAULT_REF_CLOCK        2
+
+/* Selecting the PLL reference clock */
+/* 0 - XTAL_CLK, 1 - Reserved, 2 - RC_32MHZ_CLK, 3 - Reserved */
+#define PLL_REF_CLK_CONFIG_REG (*(volatile uint32_t *)(0x46180000UL + 0x00008000 + 0x04))
 
 #define M4SS_P2P_INT_BASE_ADDRESS 0x46008000
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
@@ -192,6 +196,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode);
 
 void RSI_PS_SaveCpuContext(void);
 void RSI_PS_RestoreCpuContext(void);
+void SystemCoreClockUpdate(void);
 void fpuInit(void);
 void RSI_Save_Context(void);
 /* System exception vector handler */

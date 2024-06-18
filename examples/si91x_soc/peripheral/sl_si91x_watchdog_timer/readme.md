@@ -16,48 +16,46 @@
 
 ## Purpose/Scope
 
-- This examples demonstrates triggering of WDT warnings & LED toggling, in WDT interrupt handler continuously for 6 times. System restarts (kicks) WDT on every interrupt, on sixth interrupt system does not restart WDT then WDT resets the application.
-- Then WDT is started again with new parameters, toggled LED again for 6 times, after that timer is stopped & de-initialized.
+- This example demonstrates the triggering of WDT warnings and LED toggling in the WDT interrupt handler continuously for 6 times. The system restarts (kicks) the WDT on every interrupt. On the sixth interrupt, the system does not restart the WDT, and then the WDT resets the application.
+- Then, the WDT is started again with new parameters and the LED is toggled again for 6 times. Finally, the timer is stopped and de-initialized. 
 
 ## Overview
 
-- WatchDog-timer is used generate interrupt on timeout and a system-reset in case of system failure which can be caused by an external event like ESD pulse or due to a software failure. Also its interrupt can be used as a wake-up source for processor from SLEEP/STANDBY to ACTIVE states.
-- WatchDog Timer will generate interrupts and can restarts(kicked) by system every interrupt.There are two modes defined for the WatchDog Timer.
-  - Open Mode: This is a mode during which WatchDog-timer restart is allowed from CPU.
-  - Closed Mode: This is a mode during which WatchDog-timer restart is not allowed from CPU.
-- The Processor needs to restart the Timer upon on timeout interrupt, if the timer is not intended to hit the system-reset threshold. The timer will be in closed mode as defined above till the interrupt timer is reached. Once the interrupt timer is reached, it will be in open mode till the reset is generated.Also upon interrupt generation, the timer restarts for the Reset Duration.
-- It has independent window watchdog timer.
-- Interrupt is generated before the system reset is applied which can be used as a wakeup source.
-- Generates system-reset upon Lockup indication from Processor.
-- Configurable low and high frequency FSM clock.
-- Configurable interrupt (timeout) ,system-reset and window period.
-- Able to operate when CPU is in SLEEP state
-- Individually controllable power domain for low-power applications.
+- The Watch Dog timer is used to generate interrupts on timeout and initiate a system reset in case of system failure, which can be caused by an external event like an ESD pulse or due to a software failure. Its interrupt can also be utilized as a wake-up source for the processor from SLEEP/STANDBY to ACTIVE states. 
+- The Watchdog Timer generates interrupts and can be restarted (kicked) by the system upon every interrupt. There are two modes defined for the Watchdog Timer:  
+  - Open Mode, during which Watchdog timer restarts are allowed from the CPU 
+  - Closed Mode, during which Watchdog timer restarts are not allowed from the CPU. 
+- The Processor needs to restart the Timer upon a timeout interrupt if the timer is not intended to reach the system-reset threshold. The timer will be in Closed Mode, as defined above, until the interrupt timer is reached. Once the interrupt timer is reached, it will be in Open Mode until the reset is generated. Also, upon interrupt generation, the timer restarts for the Reset Duration. 
+- It has an independent window watchdog timer. 
+- Interrupts are generated before the system reset is applied, which can be used as a wakeup source. 
+- It generates a system reset upon Lockup indication from the Processor. 
+- Configurable low and high-frequency FSM clock. 
+- Configurable interrupt (timeout), system reset, and window period. 
+- Able to operate when the CPU is in SLEEP state. 
+- Individually controllable power domain for low-power applications. 
 
 ## About Example Code
 
-- \ref watchdog_timer_example.c this example file demonstrates how to use Watchdog-timer(WDT) to trigger WDT warnings and reset system after few warnings .
-  With every WDT timeout interrupt at every 1 seconds, WDT restarted (kicked) by application & onboard LED0 toggles. After 6 time toggles application does not restart WDT then timer loads system-reset time (kept 4 seconds), once that time is over WDT resets system. After that again WDT started with new parameters 
-  and toggles LED0 6 times and then WDT is stopped, callback unregistered and de-initialized.
-- In this example, first application toggles LED0 once and checks whether its a power-on reset or WDT system reset through \ref sl_si91x_watchdog_get_timer_system_reset_status API.
-- If its a power-on reset then initializes WDT by enabling peripheral power, enabling WDT to run during CPU sleep mode & unmasking its interrupt through \ref sl_si91x_watchdog_init_timer API.
-- Then clock and timer are configured with default configuration values from UC through \ref sl_si91x_watchdog_configure_clock and \ref sl_si91x_watchdog_set_configuration APIs respectively.
-- Then Registered timer timeout callback and enabling its interrupt using \ref sl_si91x_watchdog_register_timeout_callback API.
-- Then WDT is started using \ref sl_si91x_watchdog_start_timer API.
-- Then application toggles onboard LED0 & restarts (kicks) WDT, on every interrupt(every 1 seconds) through \ref sl_si91x_watchdog_restart_timer
-- At 6th WDT interrupt application not restarts WDT, so when timer count reaches system-reset time (4 seconds) it resets application.
-- After that application starts again, toggles LED0 once and checks WDT system reset status and on finding it true debugout "Watchdog-timer system-reset occurred"
-- Then timer is again initialized, registers callback and started with new parameters, configured using following APIs:
-  \ref sl_si91x_watchdog_set_system_reset_time to change WDT system-reset time to 8 seconds, for possible values refer \ref time_delays_t enum.
-  \ref sl_si91x_watchdog_set_interrupt_time to change WDT interrupt time to 2 seconds, for possible values refer \ref time_delays_t enum.
-  \ref sl_si91x_watchdog_set_window_time to change WDT window time to 32 milli seconds, for possible values refer \ref time_delays_t enum.
-- To read above time values following APIs are used:
-  \ref sl_si91x_watchdog_get_system_reset_time to read system-reset time.
-  \ref sl_si91x_watchdog_get_interrupt_time to read interrupt time.
-  \ref sl_si91x_watchdog_get_window_time to read window time.
-- Then application again toggles onboard LED0 6 times & restarts (kicks) WDT, on every interrupt(every 2 seconds) through \ref sl_si91x_watchdog_restart_timer
-- At sixth WDT interrupt application not restarts WDT and immediately application stops WDT through \ref sl_si91x_watchdog_stop_timer API
-- Then un-registers callback and de-initializes timer through \ref sl_si91x_watchdog_deinit_timer API.
+-	\ref watchdog_timer_example.c This example file demonstrates how to use the Watchdog timer (WDT) to trigger WDT warnings and reset the system after a few warnings. With a WDT timeout interrupt occurring every 1 second, the WDT is restarted (kicked) by the application, and the onboard LED0 toggles. After toggling the LED 6 times, the application does not restart the WDT, then the timer loads the system-reset time (set to 4 seconds). Once that time is over, the WDT resets the system. Afterward, the WDT is started again with new parameters, and LED0 is toggled 6 times. Finally, the WDT is stopped, the callback is unregistered, and the timer is de-initialized. 
+-	In this example, the application first toggles LED0 once and checks whether it's a power-on reset or a WDT system reset through the \ref sl_si91x_watchdog_get_timer_system_reset_status API.  
+-	If it's a power-on reset, then the WDT is initialized by enabling peripheral power, enabling WDT to run during CPU sleep mode, and unmasking its interrupt through the \ref sl_si91x_watchdog_init_timer API.  
+-	Then, the clock and timer are configured with default configuration values from UC through the \ref sl_si91x_watchdog_configure_clock and \ref sl_si91x_watchdog_set_configuration APIs, respectively.  
+-	Next, the timer timeout callback is registered, and its interrupt is enabled using the \ref sl_si91x_watchdog_register_timeout_callback API.  
+-	The WDT is then started using the \ref sl_si91x_watchdog_start_timer API. The application toggles onboard LED0 and restarts (kicks) the WDT on every interrupt (every 1 second) through the \ref sl_si91x_watchdog_restart_timer.  
+-	Upon the 6th WDT interrupt, the application does not restart the WDT. So when the timer count reaches the system-reset time (4 seconds), it resets the application.  
+-	After that, the application starts again, toggles LED0 once, checks WDT system reset status, and upon finding it true, debugs out "Watchdog-timer system-reset occurred".  
+-	Then, the timer is initialized again, the callback is registered, and it's started with new parameters, configured using the following APIs:  
+  - \ref sl_si91x_watchdog_set_system_reset_time to change the WDT system-reset time to 8 seconds. For possible values, refer to the \ref time_delays_t enum. 
+ 	- \ref sl_si91x_watchdog_set_interrupt_time to change the WDT interrupt time to 2 seconds. 
+ 	- \ref sl_si91x_watchdog_set_window_time to change the WDT window time to 32 milliseconds. 
+-	To read the above time values, the following APIs are used:  
+ 	- \ref sl_si91x_watchdog_get_system_reset_time to read the system-reset time. 
+ 	- \ref sl_si91x_watchdog_get_interrupt_time to read the interrupt time. 
+ 	- \ref sl_si91x_watchdog_get_window_time to read the window time. 
+-	Then, the application toggles onboard LED0 6 times and restarts (kicks) the WDT on every interrupt (every 2 seconds) through the \ref sl_si91x_watchdog_restart_timer. 
+-	Upon the 6th WDT interrupt, the application does not restart the WDT and immediately stops the WDT through the \ref sl_si91x_watchdog_stop_timer API.  
+-	Then, the callback is unregistered, and the timer is de-initialized through the \ref sl_si91x_watchdog_deinit_timer API. 
+
 
 ## Prerequisites/Setup Requirements
 
@@ -71,7 +69,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -100,25 +98,27 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Macros for Clock Configurations
 
-- \ref SL_LOW_FREQ_FSM_CLK_SRC, for configuring low frequency FSM clock refer \ref low_freq_fsm_clock_t
-- \ref SL_ULP_TIMER_CLK_ISL_BG_PMU_CLOCK_SRC, for configuring BG-PMU clock refer \ref bg_pmu_clock_t
-- \ref SL_ULP_TIMER_DIRECTION, true to enable waiting for switching timer clk & false to skip waiting for switching timer clk.
-- After configuring above macros, their values are passed to \ref watchdog_timer_clock_config_t structure type variable \ref sl_watchdog_timer_clk_config_handle which is used to configure clock through API-\ref sl_si91x_watchdog_configure_clock.
+-	\ref SL_LOW_FREQ_FSM_CLK_SRC is used for configuring the low-frequency FSM clock. Refer to \ref low_freq_fsm_clock_t for more information. 
+-	\ref SL_ULP_TIMER_CLK_ISL_BG_PMU_CLOCK_SRC is used for configuring the BG-PMU clock. Refer to \ref bg_pmu_clock_t for more information. 
+-	\ref SL_ULP_TIMER_DIRECTION is set to true to enable waiting for switching timer clk, and false to skip waiting for switching timer clk. 
+-	After configuring the above macros, their values are passed to the \ref watchdog_timer_clock_config_t structure type variable \ref sl_watchdog_timer_clk_config_handle, which is used to configure the clock through the API \ref sl_si91x_watchdog_configure_clock.
+
 
 ### Macros for Timer Configurations
 
-- \ref SL_WDT_SYSTEM_RESET_TIME , for possible values refer \ref time_delays_t
-- \ref SL_WDT_INTERRUPT_TIME (timeout time), for possible values refer \ref time_delays_t
-- \ref SL_WDT_WINDOW_TIME , for possible values refer \ref time_delays_t
-- After configuring above macros, their values are passed to \ref watchdog_timer_config_t structure type variable \ref sl_watchdog_timer_config_handle which is used to configure timer through API-\ref sl_si91x_watchdog_set_configuration.
+-	\ref SL_WDT_SYSTEM_RESET_TIME is used for setting the system reset time. For possible values, refer to \ref time_delays_t. 
+-	\ref SL_WDT_INTERRUPT_TIME (timeout time) is used for setting the timeout time. For possible values, refer to \ref time_delays_t. 
+-	\ref SL_WDT_WINDOW_TIME is used for setting the window time. For possible values, refer to \ref time_delays_t. 
+-	After configuring the above macros, their values are passed to the \ref watchdog_timer_config_t structure type variable \ref sl_watchdog_timer_config_handle, which is used to configure the timer through the API \ref sl_si91x_watchdog_set_configuration. 
+
 
 ## Test the Application
 
 1. Compile and run the application.
 2. The watchdog LED0 will be toggled, every 1 secs with WDT warning.
 3. At 6th toggle, timer will reset the application after 4 seconds.
-4. Then WDT started with new parameters and again toggles LED0 every 2 seconds.
-5. After 6 toggles, stop toggling LED as timer is stopped and de-initialized. Toggling of LED can be seen in below image.
+4. Then WDT starts with new parameters and toggles the LED0 again every 2 seconds.
+5. After 6 toggles, stop toggling LED as the timer is stopped and de-initialized. Toggling of the LED can be seen in the image below. 
 
     ![Figure: Onboard LED0](resources/readme/image514d.png)
 
@@ -127,3 +127,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - After successful program execution the prints in serial console looks as shown below.
 
   ![Figure: Introduction](resources/readme/output.png)
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

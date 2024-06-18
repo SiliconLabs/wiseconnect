@@ -19,8 +19,11 @@
  * Includes
  */
 
-#include "rsi_chip.h"
 #include "rsi_time_period.h"
+
+#ifndef UNUSED_PARAMETER
+#define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
 
 /**
  * \ingroup   RSI_SPECIFIC_DRIVERS

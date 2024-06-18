@@ -51,7 +51,7 @@ STATIC INLINE void RSI_CT_OCUHighLowToggleSelect(RSI_CT_T *pCT,
                                                  boolean_t counterNum,
                                                  uint8_t outputSel)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CT_ROMDRIVER_PRESENT)
   ROMAPI_CT_API->ct_ocu_high_Low_toggle_select(pCT, lowHigh, counterNum, outputSel);
 #else
   ct_ocu_high_Low_toggle_select(pCT, lowHigh, counterNum, outputSel);
@@ -67,7 +67,7 @@ STATIC INLINE void RSI_CT_OCUHighLowToggleSelect(RSI_CT_T *pCT,
  */
 STATIC INLINE rsi_error_t RSI_CT_WFGControlConfig(RSI_CT_T *pCT, WFG_PARAMS_T ctrlReg)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CT_ROMDRIVER_PRESENT)
   return ROMAPI_CT_API->ct_wfg_control_config(pCT, ctrlReg);
 #else
   return ct_wfg_control_config(pCT, ctrlReg);
@@ -104,7 +104,7 @@ STATIC INLINE rsi_error_t RSI_CT_OCUControl(RSI_CT_T *pCT,
                                             OCU_PARAMS_T *pOCUparams,
                                             RSI_CT_CALLBACK_T *pCB)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CT_ROMDRIVER_PRESENT)
   return ROMAPI_CT_API->ct_ocu_control(pCT, counterNum, dmaEn, pOCUparams, pCB);
 #else
   return ct_ocu_control(pCT, counterNum, dmaEn, pOCUparams, pCB);
@@ -130,7 +130,7 @@ STATIC INLINE rsi_error_t RSI_CT_OCUControl(RSI_CT_T *pCT,
  */
 STATIC INLINE rsi_error_t RSI_CT_WFGComapreValueSet(RSI_CT_T *pCT, boolean_t counterNum, OCU_PARAMS_T *pOCUparams)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(CT_ROMDRIVER_PRESENT)
   return ROMAPI_CT_API->ct_wfg_comapre_value_set(pCT, counterNum, pOCUparams);
 #else
   return ct_wfg_comapre_value_set(pCT, counterNum, pOCUparams);

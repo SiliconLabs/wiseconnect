@@ -39,7 +39,7 @@ extern "C" {
 
 /* NOTE: User should configure all macros defined below, while creating an instance other than pre-defined one */
 #warning \
-  "user defined ADC insatnce, INSTANCE needs to be configured in sl_si91x_adc_init_INSTANCE_config.h, For Configuring Install ENABLE USER CONFIGURATION MACRO / define USER_CONFIGURATION_ENABLE to 1 and define the MACROS in sl_si91x_adc_init_INSTANCE_config.h accordingly w.r.t board."
+  "user defined ADC instance, INSTANCE needs to be configured in sl_si91x_adc_init_INSTANCE_config.h, For Configuring Install ENABLE USER CONFIGURATION MACRO / define USER_CONFIGURATION_ENABLE to 1 and define the MACROS in sl_si91x_adc_init_INSTANCE_config.h accordingly w.r.t board."
 
 #if USER_CONFIGURATION_ENABLE
 

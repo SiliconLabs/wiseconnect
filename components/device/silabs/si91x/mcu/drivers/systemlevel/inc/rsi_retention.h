@@ -22,6 +22,7 @@
 #ifndef __RSI_RETENTION_H__
 #define __RSI_RETENTION_H__
 #include "rsi_ccp_common.h"
+#include "rsi_power_save.h"
 
 #ifdef __cplusplus
 extern "C" {

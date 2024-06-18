@@ -410,7 +410,10 @@ void si91x_bus_thread(void *args)
            )
         && (sl_si91x_bus_read_frame(&buffer) == SL_STATUS_OK)) { // Allocation from RX buffer type!
 
-      event &= ~SL_SI91X_NCP_HOST_BUS_RX_EVENT; // Reset the event flag
+      // Check if the rx queue is empty
+      if (0 == cmd_queues[((sl_si91x_queue_type_t)CCP_M4_TA_RX_QUEUE)].queued_packet_count) {
+        event &= ~SL_SI91X_NCP_HOST_BUS_RX_EVENT; // Reset the event flag
+      }
 
       if (current_performance_profile != HIGH_PERFORMANCE) {
         sl_si91x_host_clear_sleep_indicator();
@@ -421,6 +424,12 @@ void si91x_bus_thread(void *args)
       queue_id     = ((data[1] & 0xF0) >> 4);    // Extract the queue ID
       frame_type   = data[2] + (data[3] << 8);   // Extract the frame type
       frame_status = data[12] + (data[13] << 8); // Extract the frame status
+#ifdef SLI_SI91X_MCU_INTERFACE
+      if ((frame_type == RSI_COMMON_RSP_TA_M4_COMMANDS) || (frame_type == RSI_WLAN_REQ_SET_CERTIFICATE)) {
+        // clear flag
+        sli_si91x_update_flash_command_status(false);
+      }
+#endif
 
       SL_DEBUG_LOG("><<<< Rx -> queueId : %u, frameId : 0x%x, frameStatus: 0x%x, length : %u\n",
                    queue_id,
@@ -452,6 +461,7 @@ void si91x_bus_thread(void *args)
             case RSI_COMMON_RSP_ENCRYPT_CRYPTO:
             case RSI_COMMON_RSP_SET_RTC_TIMER:
             case RSI_COMMON_RSP_GET_RTC_TIMER:
+            case RSI_COMMON_RSP_TA_M4_COMMANDS:
             case RSI_COMMON_RSP_FEATURE_FRAME: {
               ++command_trace[SI91X_COMMON_CMD].rx_counter; // Increment the received counter for common commands
 
@@ -531,7 +541,6 @@ void si91x_bus_thread(void *args)
             case RSI_WLAN_RSP_QUERY_GO_PARAMS:
             case RSI_WLAN_RSP_ROAM_PARAMS:
             case RSI_WLAN_RSP_HTTP_OTAF:
-            case RSI_COMMON_RSP_TA_M4_COMMANDS:
             case RSI_WLAN_RSP_CLIENT_CONNECTED:
             case RSI_WLAN_RSP_CLIENT_DISCONNECTED:
             case RSI_WLAN_RSP_CALIB_WRITE:
@@ -559,7 +568,8 @@ void si91x_bus_thread(void *args)
             case RSI_WLAN_RSP_TRANSCEIVER_SET_MCAST_FILTER:
             case RSI_WLAN_RSP_TRANSCEIVER_FLUSH_DATA_Q:
             case RSI_WLAN_RSP_TRANSCEIVER_TX_DATA_STATUS:
-            case RSI_WLAN_RSP_HT_CAPABILITIES: {
+            case RSI_WLAN_RSP_HT_CAPABILITIES:
+            case RSI_WLAN_RSP_SET_MULTICAST_FILTER: {
               ++command_trace[SI91X_WLAN_CMD].rx_counter;
 
               // Marking a received frame as not in flight when it matches the expected type
@@ -780,6 +790,42 @@ void si91x_bus_thread(void *args)
               }
               // Set the host packet to the received buffer
               node->host_packet = buffer;
+
+              if (((frame_type == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE)
+                   || (frame_type == RSI_WLAN_RSP_EMB_MQTT_CLIENT
+                       && frame_status == (SL_STATUS_SI91X_MQTT_KEEP_ALIVE_TERMINATE_ERROR & ~BIT(16))))
+                  && (command_trace[SI91X_NETWORK_CMD].frame_type == RSI_WLAN_RSP_EMB_MQTT_CLIENT)) {
+                command_trace[SI91X_NETWORK_CMD].command_in_flight = false;
+                command_trace[SI91X_NETWORK_CMD].frame_type        = 0;
+
+                if (command_trace[SI91X_NETWORK_CMD].flags == 0) {
+                  sl_si91x_host_add_to_queue(SI91X_NETWORK_EVENT_QUEUE, packet);
+                  sl_si91x_host_set_async_event(NCP_HOST_NETWORK_NOTIFICATION_EVENT);
+                  break;
+                }
+
+                // if command present in command_trace, an error RX packet is enqueued to network queue and command in flight is set to false.
+
+                // Allocate a buffer for the error packet
+                status = sl_si91x_host_allocate_buffer(&error_packet,
+                                                       SL_WIFI_RX_FRAME_BUFFER,
+                                                       sizeof(sl_si91x_queue_packet_t),
+                                                       1000);
+                if (status != SL_STATUS_OK) {
+                  SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+                  BREAKPOINT();
+                }
+                error_node               = sl_si91x_host_get_buffer_data(error_packet, 0, NULL);
+                error_node->frame_status = (SL_STATUS_SI91X_MQTT_REMOTE_TERMINATE_ERROR
+                                            & 0xFFFF); // error given by firmware for remote terminate
+                error_node->host_packet  = NULL;
+                error_node->flags        = command_trace[SI91X_NETWORK_CMD].flags;
+                error_node->packet_id    = command_trace[SI91X_NETWORK_CMD].packet_id;
+
+                sl_si91x_host_add_to_queue(SI91X_NETWORK_RESPONSE_QUEUE, error_packet);
+                sl_si91x_host_set_event(NCP_HOST_NETWORK_RESPONSE_EVENT);
+                break;
+              }
 
               // Check if it's a response packet, and handle accordingly
               if (((command_trace[SI91X_NETWORK_CMD].flags & SI91X_PACKET_RESPONSE_STATUS)
@@ -1172,7 +1218,7 @@ void si91x_bus_thread(void *args)
       // This condition is checked before writing frames to the bus
       for (i = 0; i < SI91X_SOCKET_DATA; i++) {
         // Check if the current command queue is empty
-        if ((cmd_queues[((sl_si91x_queue_type_t)i)].queued_packet_count) && (event & (SL_SI91X_TX_PENDING_FLAG(i)))
+        if ((cmd_queues[((sl_si91x_queue_type_t)i)].queued_packet_count)
             && (command_trace[i].command_in_flight != true)) {
           // Read the interrupt status
           sl_si91x_bus_read_interrupt_status(&interrupt_status);
@@ -1186,6 +1232,12 @@ void si91x_bus_thread(void *args)
             }
           } else {
             break;
+          }
+        } else {
+          // Check if the current command queue is empty
+          if (0 == cmd_queues[((sl_si91x_queue_type_t)i)].queued_packet_count) {
+            // No more packets, clear the SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS for the processed queue
+            event &= ~SL_SI91X_TX_PENDING_FLAG(i);
           }
         }
       }
@@ -1267,6 +1319,12 @@ static sl_status_t bus_write_frame(sl_si91x_queue_type_t queue_type,
 
     trace->sdk_context = node->sdk_context;
   }
+#ifdef SLI_SI91X_MCU_INTERFACE
+  if ((trace->frame_type == RSI_COMMON_RSP_TA_M4_COMMANDS) || (trace->frame_type == RSI_WLAN_REQ_SET_CERTIFICATE)) {
+    // set flag
+    sli_si91x_update_flash_command_status(true);
+  }
+#endif
   // Write the frame to the bus using packet data and length
   status = sl_si91x_bus_write_frame(packet, packet->data, length);
 

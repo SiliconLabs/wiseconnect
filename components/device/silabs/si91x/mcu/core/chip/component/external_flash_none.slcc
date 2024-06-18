@@ -9,5 +9,5 @@ provides:
   - name: external_flash_implementation
 
 template_contribution:
-    - name: external_flash_present
+    - name: flash_present
       value: 0

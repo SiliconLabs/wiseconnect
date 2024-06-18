@@ -171,6 +171,9 @@ sl_status_t console_parse_command(char *command_line,
         status = console_tokenize(command_line, command_line_end, &token, &command_line, SL_CONSOLE_TOKENIZE_ON_SPACE);
         if (status == SL_STATUS_OK) {
           status = console_parse_arg(argument_list[a + 1], token, &args->arg[arg_number]);
+          if (status != SL_STATUS_OK) {
+            return status;
+          }
         }
         break;
       }
@@ -178,7 +181,7 @@ sl_status_t console_parse_command(char *command_line,
     }
 
     // Verify current ordered argument is not an optional argument
-    for (; (type & CONSOLE_ARG_OPTIONAL);) {
+    while (type & CONSOLE_ARG_OPTIONAL) {
       arg_index += 2;
       ++arg_count;
       type = argument_list[arg_index];
@@ -199,7 +202,6 @@ sl_status_t console_parse_command(char *command_line,
 void console_add_to_history(const char *line, uint8_t line_length)
 {
   const uint32_t entry_length = (line_length + sizeof(console_history_entry_t) + 1);
-  //    uint32_t end = (console_history_last == 0xFFFFFFFF) ? 0 : (console_history_last + console_history_buffer[console_history_last] + 1) % sizeof( console_history_buffer );
 
   // Ensure there is enough space between the end and the start
   if (console_history_first != 0xFFFFFFFF) {
@@ -259,43 +261,46 @@ sl_status_t console_find_command(char **string,
 
   char *iter = *string;
 
-temp_start_processing_command_from_new_database:
-  *entry = NULL;
+  do {
+    *entry = NULL;
 
-  // Find first token
-  status = console_tokenize(iter, string_end, &token, &iter, SL_CONSOLE_TOKENIZE_ON_SPACE | SL_CONSOLE_TOKENIZE_ON_DOT);
-  if (status != SL_STATUS_OK)
-    return SL_STATUS_FAIL;
+    // Find first token
+    status =
+      console_tokenize(iter, string_end, &token, &iter, SL_CONSOLE_TOKENIZE_ON_SPACE | SL_CONSOLE_TOKENIZE_ON_DOT);
+    if (status != SL_STATUS_OK)
+      return SL_STATUS_FAIL;
 
-  size_t token_length = strlen(token);
+    size_t token_length = strlen(token);
 
-  for (uint32_t i = 0; i < db->length; i++) {
-    if (strncmp(token, db->entries[i].key, token_length) == 0) {
-      *entry          = &(db->entries[i]);
-      *starting_index = i;
+    for (uint32_t i = 0; i < db->length; i++) {
+      if (strncmp(token, db->entries[i].key, token_length) == 0) {
+        *entry          = &(db->entries[i]);
+        *starting_index = i;
 
-      if (strlen(db->entries[i].key) == token_length) {
-        break;
-      } else {
-        return SL_STATUS_COMMAND_INCOMPLETE;
+        if (strlen(db->entries[i].key) == token_length) {
+          break;
+        } else {
+          return SL_STATUS_COMMAND_INCOMPLETE;
+        }
       }
     }
-  }
-  if (*entry == NULL) {
-    return SL_STATUS_FAIL;
-  }
-
-  output_command                               = (const console_descriptive_command_t *)(*entry)->value;
-  const console_argument_type_t *argument_list = &(output_command->argument_list[0]);
-  console_argument_type_t type;
-  type = argument_list[0];
-  if (type == CONSOLE_ARG_SUB_COMMAND) {
-    iter = iter + 1;
-    db   = output_command->sub_command_database;
-    if (strlen(iter) != 0) {
-      goto temp_start_processing_command_from_new_database;
+    if (*entry == NULL) {
+      return SL_STATUS_FAIL;
     }
-  }
+
+    output_command                               = (const console_descriptive_command_t *)(*entry)->value;
+    const console_argument_type_t *argument_list = &(output_command->argument_list[0]);
+    console_argument_type_t type;
+    type = argument_list[0];
+    if (type == CONSOLE_ARG_SUB_COMMAND) {
+      iter = iter + 1;
+      db   = output_command->sub_command_database;
+      if (strlen(iter) != 0) {
+        continue;
+      }
+    }
+    break;
+  } while (iter != NULL);
   *string = iter;
   return SL_STATUS_OK;
 }
@@ -354,6 +359,9 @@ sl_status_t console_parse_arg(console_argument_type_t type, char *line, uint32_t
       }
       *arg_result = strtoul(line, NULL, 16);
     } break;
+
+    default:
+      return SL_STATUS_COMMAND_IS_INVALID;
   }
   return SL_STATUS_OK;
 }
@@ -400,8 +408,6 @@ sl_status_t console_tokenize(char *start,
       return SL_STATUS_FAIL;
     }
   }
-  //  token_v[0] = input + i;
-  //  *token_c = 1;
   *token = i;
   while (i < end) {
     if (*i == '{' || *i == '"') {
@@ -414,7 +420,6 @@ sl_status_t console_tokenize(char *start,
         end_char = '"';
         // Token ignores " character
         *token = i + 1;
-        //        token_v[*token_c - 1] = input + i + 1;
       }
       // Verify that preceding character is space or end of string
       if (i > start && (i[-1] != ' ' && i[-1] != '\0')) {

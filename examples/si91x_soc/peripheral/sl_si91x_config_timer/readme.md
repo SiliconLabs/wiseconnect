@@ -11,7 +11,7 @@
   - [Setup Diagram](#setup-diagram)
 - [Getting Started](#getting-started)
 - [Application Build Environment](#application-build-environment)
-  - [Pin Configuration](#pin-configuration-for-pwm-mode-usecase)
+  - [Pin Configuration](#pin-configuration-for-pwm-mode-use-case)
   - [Macros for CT Configurations:](#macros-for-ct-configurations)
   - [Macros for CT Interrupt Flags](#macros-for-ct-interrupt-flags)
   - [Macros for OCU Configuration](#macros-for-ocu-configuration)
@@ -22,7 +22,7 @@
 
 ## Purpose/Scope
 
-- This Config Timer example demonstrates two usecases of timer :
+- This Config Timer example demonstrates two use cases of timer :
   - First as free running timer with GPIO toggle functionality. Counter-0 is configured to generate interrupts every millisecond and toggles GPIO.
   - Second as waveform generator producing two PWM outputs, counter-1 generates a square wave (50%-duty cycle) and counter-0 will produce a waveform whose duty cycle continuously varies from 100% to 0% then 0% to 100%, in steps of 1% at every 20 Milliseconds.
 
@@ -46,7 +46,7 @@
 
 - This example demonstrated Config Timer as a normal counter, toggling GPIO on every interrupt and as PWM output generator.
 - Two macros are present: CT_PWM_MODE_USECASE and CT_COUNTER_MODE_USECASE, by default normal counter use case is enabled.
-- Enable any one of the below usecase macro at a time.
+- Enable any one of the below use case macro at a time.
 - If **CT_PWM_MODE_USECASE** is enabled:
   - Config Timer is initialized using \ref sl_si91x_ct_init() API.
   - After intialization, the desired counter parameters are configured using \ref sl_si91x_ct_set_configuration() API, the parameters are set through UC.
@@ -84,7 +84,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -103,35 +103,43 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configure the following macros in config_timer_example.h file to change the application usecase(enable any one at a time).
+- Configure the following macros in config_timer_example.h file to change the application use case(enable any one at a time).
 
   ```C
     #define CT_PWM_MODE_USECASE           1      -  To run PWM output code
     #define CT_COUNTER_MODE_USECASE       1      -  To run normal counter code
   ```
 
-- Also enable CT-configuration for using PWM mode usecase.
-- Configure the following macros in config_timer_example.c file to change match value for counter-mode usecase, update/modify following macros if required.
+- Also enable CT-configuration for using PWM mode use case.
+- Configure the following macros in config_timer_example.c file to change match value for counter-mode use case, update/modify following macros if required.
 
   ```C
    #define CT_MATCH_VALUE             16000  -  For 1ms timer timeout
   ```
 
-- Use following CT configurations to run application in Normal counter mode usecase (using Counter-0 or Counter-1).
+   **Note:**
+  > As currently Config Timer is supporting only 16-bit mode, we can configure match value to a maximum of 65535.
+  > CT_MATCH_VALUE macro depends on the M4 SoC clock configured. Use the following formula for configuring match value against desired time period:
+   CT_MATCH_VALUE = (M4_SOC_CLK x time_period_in_us) / (2 x 1000000);
+
+   For example, if M4 SoC clock is configured at 180MHz, and desired time period is 200us then,
+      CT_MATCH_VALUE = (180000000 * 200) / (2 x 1000000) = 18000
+
+- Use following CT configurations to run application in Normal counter mode use case (using Counter-0 or Counter-1).
 
   > ![Figure: Pin configuration](resources/uc_screen/uc_screen.png)
 
-  - Change following macros in config_timer_example.c file to change counter-number used for counter-mode usecase, by default application is using counter-0 to use counter-1 change it to 'SL_COUNTER_1'.
+  - Change following macros in config_timer_example.c file to change counter-number used for counter-mode use case, by default application is using counter-0 to use counter-1 change it to 'SL_COUNTER_1'.
 
   ```C
     #define CT_COUNTER_USED            SL_COUNTER_0  -  For using counter-0
   ```
 
-- Use following CT Configuraions, to run the application in PWM mode usecase.
+- Use following CT Configuraions, to run the application in PWM mode use case.
 
   > ![Figure: Pin configuration](resources/uc_screen/uc_screen.png)
 
-### Pin Configuration for pwm-mode usecase
+### Pin Configuration for pwm-mode use case
 
 |  Discription  | GPIO    | Connector     |
 | ------------- | ------- | ------------- |
@@ -168,3 +176,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - Following prints will be observed on console:
 
   > ![Figure: Result](resources/readme/outputConsoleI_CT_OCU.png)
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

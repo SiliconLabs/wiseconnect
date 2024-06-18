@@ -18,9 +18,11 @@
 // Include Files
 
 #include "rsi_ccp_user_config.h"
-#include "rsi_chip.h"
+
 #include "rsi_rom_table_si91x.h"
 #include "rsi_qspi.h"
+#include "rsi_efuse.h"
+#include "rsi_rom_timer.h"
 
 // static function prototype
 static void qspi_aes_encrypt_decrypt_standalone(qspi_reg_t *qspi_reg,
@@ -35,7 +37,7 @@ static void qspi_aes_encrypt_decrypt_standalone(qspi_reg_t *qspi_reg,
                                                 bool kh_enable,
                                                 uint32_t data_length,
                                                 uint32_t flip_data);
-#ifndef ROMDRIVER_PRESENT
+#ifndef QSPI_ROMDRIVER_PRESENT
 /*==============================================*/
 /**
  * @fn           void initialise_m4_efuse_in_io_mode()
@@ -3043,7 +3045,7 @@ const ROM_QSPI_API_T qspi_api =
 */
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif // ROMDRIVER_PRESENT
+#endif // QSPI_ROMDRIVER_PRESENT
 
 static void qspi_aes_encrypt_decrypt_standalone(qspi_reg_t *qspi_reg,
                                                 uint8_t aes_mode,

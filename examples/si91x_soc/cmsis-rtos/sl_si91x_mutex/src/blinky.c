@@ -21,7 +21,6 @@
 
 // Include Files
 #include "rsi_ccp_user_config.h"
-#include "rsi_chip.h"
 
 #include "sl_sleeptimer.h"
 #include "sl_si91x_led_instances.h"

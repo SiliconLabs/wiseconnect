@@ -13,11 +13,11 @@ filter:
   value:
   - Beginner
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.2.0
+  version: 3.3.0
 source:
 - path: app.c
 - path: main.c
@@ -30,7 +30,10 @@ define:
 component:
 - id: sl_system
 - id: freertos
+- id: freertos_heap_4
 - id: device_init
+- id: spidrv
+  instance: [exp]
 - id: iostream_retarget_stdio
 - id: iostream_recommended_stream
 - id: iostream_stdlib_config
@@ -65,7 +68,6 @@ configuration:
 readme:
 - path: readme.md
 other_file:
-- path: resources/readme/application_configuration.png
 - path: resources/readme/application_prints.png
 - path: resources/readme/certs_path1.png
 - path: resources/readme/certs_path2.png

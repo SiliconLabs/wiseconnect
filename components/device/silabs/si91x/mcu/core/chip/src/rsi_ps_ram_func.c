@@ -20,7 +20,6 @@
  */
 
 #include "rsi_ccp_user_config.h"
-#include "rsi_chip.h"
 #include "rsi_ps_ram_func.h"
 #if defined(DEBUG_UART)
 #include "rsi_debug.h"

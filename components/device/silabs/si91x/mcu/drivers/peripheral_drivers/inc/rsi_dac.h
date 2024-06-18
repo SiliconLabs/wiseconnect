@@ -17,10 +17,12 @@
 
 // Includes Files
 
-#include "rsi_chip.h"
-
 #ifndef RSI_AUX_DAC_H
 #define RSI_AUX_DAC_H
+
+#include "rsi_error.h"
+#include "si91x_device.h"
+#include "rsi_udma.h"
 
 #ifdef __cplusplus
 extern "C" {

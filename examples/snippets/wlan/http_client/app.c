@@ -368,8 +368,6 @@ sl_status_t http_client_application(void)
     CLEAN_HTTP_CLIENT_IF_FAILED(status, &client_handle, HTTP_SYNC_RESPONSE);
   }
 
-  SL_DEBUG_LOG("\r\nGET Data response:\n%s \nOffset: %ld\r\n", app_buffer, app_buff_index);
-
   printf("\r\nHTTP GET request Success\r\n");
   reset_http_handles();
 
@@ -433,17 +431,16 @@ sl_status_t http_put_response_callback_handler(const sl_http_client_t *client,
     return put_response->status;
   }
 
-  if (put_response->end_of_data & HTTP_END_OF_DATA) {
-    if (put_response->data_length) {
+  if (put_response->data_length) {
+    if (APP_BUFFER_LENGTH > (app_buff_index + put_response->data_length)) {
       memcpy(app_buffer + app_buff_index, put_response->data_buffer, put_response->data_length);
-      app_buff_index += put_response->data_length;
     }
-    http_rsp_received = HTTP_SUCCESS_RESPONSE;
-    end_of_file       = HTTP_SUCCESS_RESPONSE;
-  } else {
-    memcpy(app_buffer + app_buff_index, put_response->data_buffer, put_response->data_length);
     app_buff_index += put_response->data_length;
-    http_rsp_received = HTTP_SUCCESS_RESPONSE;
+  }
+  http_rsp_received = HTTP_SUCCESS_RESPONSE;
+
+  if (put_response->end_of_data & HTTP_END_OF_DATA) {
+    end_of_file = HTTP_SUCCESS_RESPONSE;
   }
 
   return SL_STATUS_OK;
@@ -476,16 +473,19 @@ sl_status_t http_get_response_callback_handler(const sl_http_client_t *client,
     return get_response->status;
   }
 
-  if (!get_response->end_of_data) {
-    memcpy(app_buffer + app_buff_index, get_response->data_buffer, get_response->data_length);
-    app_buff_index += get_response->data_length;
-  } else {
-    if (get_response->data_length) {
+  if (get_response->data_length) {
+    if (APP_BUFFER_LENGTH > (app_buff_index + get_response->data_length)) {
       memcpy(app_buffer + app_buff_index, get_response->data_buffer, get_response->data_length);
-      app_buff_index += get_response->data_length;
     }
+    app_buff_index += get_response->data_length;
+  }
+
+  if (get_response->end_of_data) {
     http_rsp_received = HTTP_SUCCESS_RESPONSE;
   }
+
+  SL_DEBUG_LOG("\r\nGET Data response:\n%s \nOffset: %ld\r\n", app_buffer, app_buff_index);
+  app_buff_index = 0;
 
   return SL_STATUS_OK;
 }

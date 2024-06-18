@@ -16,6 +16,8 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
+  - name: SLI_SI91X_MCU_INTERNAL_LDO_FOR_PSRAM
+    value: '1'      
   - name: SRAM_BASE
     value: "0x0cUL"
     unless: [rsilib_board]
@@ -51,6 +53,7 @@
   - name: device_has_mpu
 - requires:
   - name: rsilib_chip
+  - name: romdriver_clks
   - name: si917_mem_config
   - name: sl_si91x_mcu
   - name: board_configuration_headers

@@ -30,11 +30,11 @@
 
 #include "sl_si91x_button_pin_config.h"
 #include "sl_si91x_button_instances.h"
-{% for inst in button_instance -%}
+{% for inst in simple_button_instance -%}
 #include "sl_si91x_button_{{ inst | lower }}_config.h"
 {% endfor %}
 
-{%- for inst in button_instance | sort %}
+{%- for inst in simple_button_instance | sort %}
 sl_button_t const button_{{ inst | lower }} = {
   .port = SL_BUTTON_{{ inst | upper }}_PORT,
   .pin = SL_BUTTON_{{ inst | upper }}_PIN,
@@ -48,7 +48,7 @@ sl_button_t const button_{{ inst | lower }} = {
 
 void button_init_instances(void)
 {
-  {%- for inst in button_instance %}
+  {%- for inst in simple_button_instance %}
   sl_si91x_button_init(&button_{{ inst | lower }});
   {%- endfor %}
 }

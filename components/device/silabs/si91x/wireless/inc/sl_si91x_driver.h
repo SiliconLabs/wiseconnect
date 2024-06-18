@@ -41,7 +41,7 @@
   do {                     \
     if (s != SL_STATUS_OK) \
       return s;            \
-  } while (0);
+  } while (0)
 
 /**
  * All flags used in bus event mask
@@ -194,7 +194,7 @@ sl_status_t sl_si91x_driver_wait_for_response(rsi_wlan_cmd_request_t command, sl
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_driver_send_socket_data(sl_si91x_socket_send_request_t *request,
+sl_status_t sl_si91x_driver_send_socket_data(const sl_si91x_socket_send_request_t *request,
                                              const void *data,
                                              uint32_t wait_time);
 
@@ -564,6 +564,14 @@ sl_status_t sl_si91x_fwup_start(uint8_t *rps_header);
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_fwup_load(uint8_t *content, uint16_t length);
+
+/***************************************************************************/ /**
+ * @brief      
+ *    This API is used to abort the firmware update process on the SI91x device. This is a blocking API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_fwup_abort();
 /** @} */
 
 /** \addtogroup SI91X_DRIVER_FUNCTIONS 
@@ -781,7 +789,6 @@ sl_status_t sl_si91x_get_ram_log(uint32_t address, uint32_t length);
 
 /** @} */
 
-/*! @cond WIFI_TRANSCEIVER_MODE */
 /***************************************************************************/ /**
  * @brief     Si91X specific Wi-Fi transceiver mode driver function to send Tx data
  * @param[in] control - Meta data for the payload.
@@ -794,7 +801,6 @@ sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_co
                                                   uint8_t *payload,
                                                   uint16_t payload_len,
                                                   uint32_t wait_time);
-/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /***************************************************************************/ /**
  * @brief

@@ -1,5 +1,5 @@
 id: bod_ulp_component
-label: ULP BOD
+label: PM ULP BOD
 package: platform
 description: >
   ULP BOD component will enable BOD in the low-power state. It moves all the peripheral dependencies in RAM. 

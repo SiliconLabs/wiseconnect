@@ -59,3 +59,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   >
   > LED0 will continuously be turned on and off.
  
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

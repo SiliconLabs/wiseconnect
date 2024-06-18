@@ -42,7 +42,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
-
+#include "FreeRTOSConfig.h"
 //! BLE include file to refer BLE APIs
 #include "ble_config.h"
 #include "rsi_ble.h"
@@ -1645,7 +1645,7 @@ void rsi_ble_on_sc_method(rsi_bt_event_sc_method_t *scmethod)
   }
 }
 #endif
-#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+#if (SL_SI91X_TICKLESS_MODE == 0 && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
 /*==============================================*/
 /**
  * @fn         check_pending_events
@@ -1884,7 +1884,7 @@ void rsi_ble_main_app_task()
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\n BLE dual role init failed\r\n");
   }
-#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+#if (SL_SI91X_TICKLESS_MODE == 0 && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
   const osThreadAttr_t sleep_thread_attributes = {
     .name       = "sleep_thread",
     .attr_bits  = 0,

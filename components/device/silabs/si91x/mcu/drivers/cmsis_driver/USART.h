@@ -186,17 +186,11 @@ typedef  struct _USART0_DMA
 #define USART_STOP_BIT_2                        2
 
 #define USART_TRIGGER_TX_EMPTY                  0
-#define USART_TRIGGER_TX_AEMPTY                 1
-#define USART_TRIGGER_TX_QUARTER_FULL           2
-#define USART_TRIGGER_TX_HALF_FULL              3
 
 #define  USART_DMA_MODE0_EN                    (0 << 3)
 #define  USART_DMA_MODE1_EN                    (1 << 3) 
 
 #define USART_TRIGGER_RX_AEMPTY                 0
-#define USART_TRIGGER_RX_QUARTER_FULL           1
-#define USART_TRIGGER_RX_HALF_FULL              2
-#define USART_TRIGGER_RX_AFULL                  3
 
 #define USART_ERROR_CALLBACK_INDEX              0
 #define USART_EVENT_CALLBACK_INDEX              1

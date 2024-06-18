@@ -132,6 +132,114 @@ static psa_status_t sli_si91x_check_aead_parameters(const psa_key_attributes_t *
   return PSA_SUCCESS;
 }
 
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+static void sli_si91x_set_input_config_ccm(const psa_key_attributes_t *attributes,
+                                           sl_si91x_ccm_config_t *config_ccm,
+                                           const uint8_t *key_buffer,
+                                           size_t key_buffer_size)
+{
+#ifdef SLI_SI917B0
+  /* Fetch key type from attributes */
+  psa_key_location_t location_ccm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+  if (location_ccm == 0) {
+    config_ccm->key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+  } else {
+    config_ccm->key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+  }
+
+  /* Set key_size from key_buffer_size */
+  if (key_buffer_size == 16) {
+    config_ccm->key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_128;
+  }
+  if (key_buffer_size == 24) {
+    config_ccm->key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_192;
+  }
+  if (key_buffer_size == 32) {
+    config_ccm->key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_256;
+  }
+
+  config_ccm->key_config.b0.key_slot     = 0;
+  config_ccm->key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+  if (config_ccm->key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+    memcpy(config_ccm->key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+  }
+  memcpy(config_ccm->key_config.b0.key_buffer, key_buffer, config_ccm->key_config.b0.key_size);
+#else
+  config_ccm->key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
+  config_ccm->key_config.a0.key_length = key_buffer_size;
+  memcpy(config_ccm->key_config.a0.key, key_buffer, config_ccm->key_config.a0.key_length);
+#endif
+}
+#endif
+
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
+static void sli_si91x_set_input_config_gcm(const psa_key_attributes_t *attributes,
+                                           sl_si91x_gcm_config_t *config_gcm,
+                                           const uint8_t *key_buffer,
+                                           size_t key_buffer_size)
+{
+#ifdef SLI_SI917B0
+  /* Fetch key type from attributes */
+  psa_key_location_t location_gcm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+  if (location_gcm == 0) {
+    config_gcm->key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+  } else {
+    config_gcm->key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+  }
+
+  /* Set key_size from key_buffer_size */
+  if (key_buffer_size == 16) {
+    config_gcm->key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_128;
+  }
+  if (key_buffer_size == 24) {
+    config_gcm->key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_192;
+  }
+  if (key_buffer_size == 32) {
+    config_gcm->key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_256;
+  }
+
+  config_gcm->gcm_mode                   = SL_SI91X_GCM_MODE;
+  config_gcm->key_config.b0.key_slot     = 0;
+  config_gcm->key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+  if (config_gcm->key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+    memcpy(config_gcm->key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+  }
+  memcpy(config_gcm->key_config.b0.key_buffer, key_buffer, config_gcm->key_config.b0.key_size);
+#else
+  config_gcm->key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
+  config_gcm->key_config.a0.key_length = key_buffer_size;
+  memcpy(config_gcm->key_config.a0.key, key_buffer, config_gcm->key_config.a0.key_length);
+#endif
+}
+#endif
+
+#if defined(SLI_PSA_DRIVER_FEATURE_CHACHAPOLY)
+static void sli_si91x_set_input_config_chachapoly(const psa_key_attributes_t *attributes,
+                                                  sl_si91x_chachapoly_config_t *config_chachapoly,
+                                                  const uint8_t *key_buffer)
+{
+#ifdef SLI_SI917B0
+  /* Fetch key type from attributes */
+  psa_key_location_t location_chachapoly = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+  if (location_chachapoly == 0) {
+    config_chachapoly->key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
+  } else {
+    config_chachapoly->key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+  }
+
+  config_chachapoly->key_config.b0.key_size     = SL_SI91X_CHACHAPOLY_KEY_SIZE_256;
+  config_chachapoly->key_config.b0.key_slot     = 0;
+  config_chachapoly->key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+  if (config_chachapoly->key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
+    memcpy(config_chachapoly->key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
+  }
+  memcpy(config_chachapoly->key_config.b0.key_buffer, key_buffer, config_chachapoly->key_config.b0.key_size);
+#else
+  memcpy(config_chachapoly->key_config.a0.key_chacha, key_buffer, SL_SI91X_CHACHAPOLY_KEY_SIZE_256);
+#endif
+}
+#endif
+
 /*****************************************************************************
  * Encrypto a message using AEAD algorithms.
 ******************************************************************************/
@@ -177,7 +285,7 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
   sl_status_t si91x_status;
   switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
 #if defined(SLI_PSA_DRIVER_FEATURE_CCM)
-    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):;
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
       sl_si91x_ccm_config_t config_ccm;
       config_ccm.encrypt_decrypt = SL_SI91X_CCM_ENCRYPT;
       config_ccm.msg             = plaintext;
@@ -189,37 +297,7 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       config_ccm.tag             = ciphertext + plaintext_length;
       config_ccm.tag_length      = tag_length;
 
-#ifdef SLI_SI917B0
-      /* Fetch key type from attributes */
-      psa_key_location_t location_ccm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-      if (location_ccm == 0) {
-        config_ccm.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-      } else {
-        config_ccm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-      }
-
-      /* Set key_size from key_buffer_size */
-      if (key_buffer_size == 16) {
-        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_128;
-      }
-      if (key_buffer_size == 24) {
-        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_192;
-      }
-      if (key_buffer_size == 32) {
-        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_256;
-      }
-
-      config_ccm.key_config.b0.key_slot     = 0;
-      config_ccm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-      if (config_ccm.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
-        memcpy(config_ccm.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
-      }
-      memcpy(config_ccm.key_config.b0.key_buffer, key_buffer, config_ccm.key_config.b0.key_size);
-#else
-      config_ccm.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
-      config_ccm.key_config.a0.key_length = key_buffer_size;
-      memcpy(config_ccm.key_config.a0.key, key_buffer, config_ccm.key_config.a0.key_length);
-#endif
+      sli_si91x_set_input_config_ccm(attributes, &config_ccm, key_buffer, key_buffer_size);
 
       /* Calling sl_si91x_ccm() for CCM encryption */
       si91x_status = sl_si91x_ccm(&config_ccm, ciphertext);
@@ -233,10 +311,10 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       break;
 #endif /* SLI_PSA_DRIVER_FEATURE_CCM */
 #if defined(SLI_PSA_DRIVER_FEATURE_GCM)
-    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):;
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
       sl_si91x_gcm_config_t config_gcm;
       config_gcm.encrypt_decrypt = SL_SI91X_GCM_ENCRYPT;
-      config_gcm.dma_use         = SL_SI91X_DMA_ENABLE;
+      config_gcm.dma_use         = SL_SI91X_GCM_DMA_ENABLE;
       config_gcm.msg             = plaintext;
       config_gcm.msg_length      = plaintext_length;
       config_gcm.nonce           = nonce;
@@ -244,38 +322,7 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       config_gcm.ad              = additional_data;
       config_gcm.ad_length       = additional_data_length;
 
-#ifdef SLI_SI917B0
-      /* Fetch key type from attributes */
-      psa_key_location_t location_gcm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-      if (location_gcm == 0) {
-        config_gcm.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-      } else {
-        config_gcm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-      }
-
-      /* Set key_size from key_buffer_size */
-      if (key_buffer_size == 16) {
-        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_128;
-      }
-      if (key_buffer_size == 24) {
-        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_192;
-      }
-      if (key_buffer_size == 32) {
-        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_256;
-      }
-
-      config_gcm.gcm_mode                   = SL_SI91X_GCM_MODE;
-      config_gcm.key_config.b0.key_slot     = 0;
-      config_gcm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-      if (config_gcm.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
-        memcpy(config_gcm.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
-      }
-      memcpy(config_gcm.key_config.b0.key_buffer, key_buffer, config_gcm.key_config.b0.key_size);
-#else
-      config_gcm.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
-      config_gcm.key_config.a0.key_length = key_buffer_size;
-      memcpy(config_gcm.key_config.a0.key, key_buffer, config_gcm.key_config.a0.key_length);
-#endif
+      sli_si91x_set_input_config_gcm(attributes, &config_gcm, key_buffer, key_buffer_size);
 
       /* Calling sl_si91x_gcm() for GCM encryption */
       si91x_status = sl_si91x_gcm(&config_gcm, ciphertext);
@@ -289,36 +336,21 @@ psa_status_t sli_si91x_crypto_aead_encrypt(const psa_key_attributes_t *attribute
       break;
 #endif /* SLI_PSA_DRIVER_FEATURE_GCM */
 #if defined(SLI_PSA_DRIVER_FEATURE_CHACHAPOLY)
-    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):;
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):
+      uint8_t temp_nonce[16] = { 0 };
+      temp_nonce[0]          = 0x01;
+      memcpy(temp_nonce + 4, nonce, 12);
       sl_si91x_chachapoly_config_t config_chachapoly;
       config_chachapoly.encrypt_decrypt = SL_SI91X_CHACHAPOLY_ENCRYPT;
-      config_chachapoly.dma_use         = SL_SI91X_DMA_ENABLE;
+      config_chachapoly.dma_use         = SL_SI91X_CHACHAPOLY_DMA_ENABLE;
       config_chachapoly.chachapoly_mode = SL_SI91X_CHACHA20POLY1305_MODE;
       config_chachapoly.msg             = plaintext;
       config_chachapoly.msg_length      = plaintext_length;
-      config_chachapoly.nonce           = nonce;
+      config_chachapoly.nonce           = temp_nonce;
       config_chachapoly.ad              = additional_data;
       config_chachapoly.ad_length       = additional_data_length;
 
-#ifdef SLI_SI917B0
-      /* Fetch key type from attributes */
-      psa_key_location_t location_chachapoly = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-      if (location_chachapoly == 0) {
-        config_chachapoly.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-      } else {
-        config_chachapoly.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-      }
-
-      config_chachapoly.key_config.b0.key_size     = SL_SI91X_CHACHAPOLY_KEY_SIZE_256;
-      config_chachapoly.key_config.b0.key_slot     = 0;
-      config_chachapoly.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-      if (config_chachapoly.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
-        memcpy(config_chachapoly.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
-      }
-      memcpy(config_chachapoly.key_config.b0.key_buffer, key_buffer, config_chachapoly.key_config.b0.key_size);
-#else
-      memcpy(config_chachapoly.key_config.a0.key_chacha, key_buffer, SL_SI91X_CHACHAPOLY_KEY_SIZE_256);
-#endif
+      sli_si91x_set_input_config_chachapoly(attributes, &config_chachapoly, key_buffer);
 
       /* Calling sl_si91x_chachapoly() for CHACHAPOLY encryption */
       si91x_status = sl_si91x_chachapoly(&config_chachapoly, ciphertext);
@@ -385,7 +417,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
   int32_t si91x_status;
   switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
 #if defined(SLI_PSA_DRIVER_FEATURE_CCM)
-    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):;
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
       sl_si91x_ccm_config_t config_ccm = { 0 };
       config_ccm.encrypt_decrypt       = SL_SI91X_CCM_DECRYPT;
       config_ccm.msg                   = ciphertext;
@@ -397,37 +429,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       config_ccm.tag                   = (uint8_t *)ciphertext + (ciphertext_length - tag_length);
       config_ccm.tag_length            = tag_length;
 
-#ifdef SLI_SI917B0
-      /* Fetch key type from attributes */
-      psa_key_location_t location_ccm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-      if (location_ccm == 0) {
-        config_ccm.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-      } else {
-        config_ccm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-      }
-
-      /* Set key_size from key_buffer_size */
-      if (key_buffer_size == 16) {
-        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_128;
-      }
-      if (key_buffer_size == 24) {
-        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_192;
-      }
-      if (key_buffer_size == 32) {
-        config_ccm.key_config.b0.key_size = SL_SI91X_CCM_KEY_SIZE_256;
-      }
-
-      config_ccm.key_config.b0.key_slot     = 0;
-      config_ccm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-      if (config_ccm.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
-        memcpy(config_ccm.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
-      }
-      memcpy(config_ccm.key_config.b0.key_buffer, key_buffer, config_ccm.key_config.b0.key_size);
-#else
-      config_ccm.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
-      config_ccm.key_config.a0.key_length = key_buffer_size;
-      memcpy(config_ccm.key_config.a0.key, key_buffer, config_ccm.key_config.a0.key_length);
-#endif
+      sli_si91x_set_input_config_ccm(attributes, &config_ccm, key_buffer, key_buffer_size);
 
       /* Calling sl_si91x_ccm() for CCM decryption */
       si91x_status = sl_si91x_ccm(&config_ccm, plaintext);
@@ -439,10 +441,10 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       break;
 #endif /* SLI_PSA_DRIVER_FEATURE_CCM */
 #if defined(SLI_PSA_DRIVER_FEATURE_GCM)
-    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):;
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
       sl_si91x_gcm_config_t config_gcm = { 0 };
       config_gcm.encrypt_decrypt       = SL_SI91X_GCM_DECRYPT;
-      config_gcm.dma_use               = SL_SI91X_DMA_ENABLE;
+      config_gcm.dma_use               = SL_SI91X_GCM_DMA_ENABLE;
       config_gcm.msg                   = ciphertext;
       config_gcm.msg_length            = ciphertext_length - tag_length;
       config_gcm.nonce                 = nonce;
@@ -450,38 +452,7 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       config_gcm.ad                    = additional_data;
       config_gcm.ad_length             = additional_data_length;
 
-#ifdef SLI_SI917B0
-      /* Fetch key type from attributes */
-      psa_key_location_t location_gcm = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-      if (location_gcm == 0) {
-        config_gcm.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-      } else {
-        config_gcm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-      }
-
-      /* Set key_size from key_buffer_size */
-      if (key_buffer_size == 16) {
-        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_128;
-      }
-      if (key_buffer_size == 24) {
-        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_192;
-      }
-      if (key_buffer_size == 32) {
-        config_gcm.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_256;
-      }
-
-      config_gcm.gcm_mode                   = SL_SI91X_GCM_MODE;
-      config_gcm.key_config.b0.key_slot     = 0;
-      config_gcm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-      if (config_gcm.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
-        memcpy(config_gcm.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
-      }
-      memcpy(config_gcm.key_config.b0.key_buffer, key_buffer, config_gcm.key_config.b0.key_size);
-#else
-      config_gcm.key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
-      config_gcm.key_config.a0.key_length = key_buffer_size;
-      memcpy(config_gcm.key_config.a0.key, key_buffer, config_gcm.key_config.a0.key_length);
-#endif
+      sli_si91x_set_input_config_gcm(attributes, &config_gcm, key_buffer, key_buffer_size);
 
       /* Calling sl_si91x_gcm() for GCM decryption */
       si91x_status = sl_si91x_gcm(&config_gcm, plaintext);
@@ -493,36 +464,21 @@ psa_status_t sli_si91x_crypto_aead_decrypt(const psa_key_attributes_t *attribute
       break;
 #endif /* SLI_PSA_DRIVER_FEATURE_GCM */
 #if defined(SLI_PSA_DRIVER_FEATURE_CHACHAPOLY)
-    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):;
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CHACHA20_POLY1305, 0):
+      uint8_t temp_nonce[16] = { 0 };
+      temp_nonce[0]          = 0x01;
+      memcpy(temp_nonce + 4, nonce, 12);
       sl_si91x_chachapoly_config_t config_chachapoly;
       config_chachapoly.encrypt_decrypt = SL_SI91X_CHACHAPOLY_DECRYPT;
-      config_chachapoly.dma_use         = SL_SI91X_DMA_ENABLE;
+      config_chachapoly.dma_use         = SL_SI91X_CHACHAPOLY_DMA_ENABLE;
       config_chachapoly.chachapoly_mode = SL_SI91X_CHACHA20POLY1305_MODE;
       config_chachapoly.msg             = ciphertext;
       config_chachapoly.msg_length      = ciphertext_length - tag_length;
-      config_chachapoly.nonce           = nonce;
+      config_chachapoly.nonce           = temp_nonce;
       config_chachapoly.ad              = additional_data;
       config_chachapoly.ad_length       = additional_data_length;
 
-#ifdef SLI_SI917B0
-      /* Fetch key type from attributes */
-      psa_key_location_t location_chachapoly = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-      if (location_chachapoly == 0) {
-        config_chachapoly.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-      } else {
-        config_chachapoly.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-      }
-
-      config_chachapoly.key_config.b0.key_size     = SL_SI91X_CHACHAPOLY_KEY_SIZE_256;
-      config_chachapoly.key_config.b0.key_slot     = 0;
-      config_chachapoly.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-      if (config_chachapoly.key_config.b0.wrap_iv_mode == SL_SI91X_WRAP_IV_CBC_MODE) {
-        memcpy(config_chachapoly.key_config.b0.wrap_iv, WRAP_IV, SL_SI91X_IV_SIZE);
-      }
-      memcpy(config_chachapoly.key_config.b0.key_buffer, key_buffer, config_chachapoly.key_config.b0.key_size);
-#else
-      memcpy(config_chachapoly.key_config.a0.key_chacha, key_buffer, SL_SI91X_CHACHAPOLY_KEY_SIZE_256);
-#endif
+      sli_si91x_set_input_config_chachapoly(attributes, &config_chachapoly, key_buffer);
 
       /* Calling sl_si91x_chachapoly() for CHACHAPOLY decryption */
       si91x_status = sl_si91x_chachapoly(&config_chachapoly, plaintext);

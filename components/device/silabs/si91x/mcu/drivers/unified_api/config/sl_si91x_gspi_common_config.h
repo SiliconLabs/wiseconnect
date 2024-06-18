@@ -38,17 +38,19 @@ extern "C" {
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>DMA Configuration
 
-// <q SL_GSPI_DMA_CONFIG_ENABLE> DMA
+// <e SL_GSPI_DMA_CONFIG_ENABLE> DMA
 // <i> Default: 0
 #define SL_GSPI_DMA_CONFIG_ENABLE 0
 
-// <o SL_GSPI_AFULL_THRESHOLD> FIFO Threshold - Almost Full <0-15>
-// <i> Default: 1
-#define SL_GSPI_AFULL_THRESHOLD 1
+// <o SL_GSPI_AFULL_THRESHOLD> FIFO Threshold - Almost Full <0-14>
+// <i> Default: 5
+#define SL_GSPI_AFULL_THRESHOLD 5
 
-// <o SL_GSPI_AEMPTY_THRESHOLD> FIFO Threshold - Almost Empty <0-15>
-// <i> Default: 1
-#define SL_GSPI_AEMPTY_THRESHOLD 1
+// <o SL_GSPI_AEMPTY_THRESHOLD> FIFO Threshold - Almost Empty <0-14>
+// <i> Default: 5
+#define SL_GSPI_AEMPTY_THRESHOLD 5
+
+// </e>
 
 // </h>
 // <<< end of configuration section >>>

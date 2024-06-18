@@ -173,7 +173,7 @@ sl_status_t gcm_encryption(void)
 
   sl_si91x_gcm_config_t config_gcm;
   config_gcm.encrypt_decrypt = SL_SI91X_GCM_ENCRYPT;
-  config_gcm.dma_use         = SL_SI91X_DMA_ENABLE;
+  config_gcm.dma_use         = SL_SI91X_GCM_DMA_ENABLE;
   config_gcm.msg             = plaintext;
   config_gcm.msg_length      = sizeof(plaintext);
   config_gcm.nonce           = nonce;
@@ -244,7 +244,7 @@ sl_status_t gcm_decryption(void)
 
   sl_si91x_gcm_config_t config_gcm = { 0 };
   config_gcm.encrypt_decrypt       = SL_SI91X_GCM_DECRYPT;
-  config_gcm.dma_use               = SL_SI91X_DMA_ENABLE;
+  config_gcm.dma_use               = SL_SI91X_GCM_DMA_ENABLE;
   config_gcm.msg                   = ciphertext;
   config_gcm.msg_length            = sizeof(ciphertext);
   config_gcm.nonce                 = nonce;
@@ -303,7 +303,7 @@ sl_status_t cmac_compute(void)
 #ifdef SLI_SI917B0
   sl_si91x_gcm_config_t config_cmac = { 0 };
   config_cmac.gcm_mode              = SL_SI91X_CMAC_MODE;
-  config_cmac.dma_use               = SL_SI91X_DMA_ENABLE;
+  config_cmac.dma_use               = SL_SI91X_GCM_DMA_ENABLE;
   config_cmac.msg                   = cmac_msg;
   config_cmac.msg_length            = sizeof(cmac_msg);
   config_cmac.nonce                 = NULL;

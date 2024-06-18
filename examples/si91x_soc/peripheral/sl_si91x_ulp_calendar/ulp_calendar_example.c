@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 #include "ulp_calendar_example.h"
-#include "rsi_chip.h"
+
 #include "rsi_debug.h"
 #include "sl_si91x_calendar.h"
 #include "sl_si91x_power_manager.h"
@@ -71,7 +71,7 @@ boolean_t is_sec_callback_triggered = false;
 static void on_msec_callback(void);
 boolean_t is_msec_callback_triggered = false;
 #endif
-
+static void configuring_ps2_power_state(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
@@ -261,37 +261,22 @@ void calendar_example_init(void)
 void calendar_example_process_action(void)
 {
   /*************************************************************************************************
- * This section manages power state transitions within the system, optimizing power consumption
- * while maintaining essential functionality. It transitions the system from a higher power state (PS4)
- * to a lower one (PS2) during specific operations to conserve power. This involves adjusting clock
- * references and shutting down unnecessary power supplies. After completing the operation,
- * the code transitions back to the higher power state (PS4) to ensure adequate resources for
- * subsequent tasks. This approach balances power efficiency with operational requirements
- * across various system functions.
- ***************************************************************************************************/
+   * This section manages power state transitions within the system, optimizing
+   *power consumption while maintaining essential functionality. It transitions
+   *the system from a higher power state (PS4) to a lower one (PS2) during
+   *specific operations to conserve power. This involves adjusting clock
+   * references and shutting down unnecessary power supplies. After completing
+   *the operation, the code transitions back to the higher power state (PS4) to
+   *ensure adequate resources for subsequent tasks. This approach balances power
+   *efficiency with operational requirements across various system functions.
+   ***************************************************************************************************/
   sl_status_t status;
-  sl_power_peripheral_t peri;
   sl_calendar_datetime_config_t get_datetime;
-  sl_power_ram_retention_config_t config;
-  peri.m4ss_peripheral = 0;
-  // Configure RAM banks for retention during power management
-  config.configure_ram_banks = true; // Enable RAM bank configuration
-  config.m4ss_ram_banks =
-    SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9
-    | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10; // Specify the RAM banks to be retained during power management
-  // Ored value for ulpss peripheral.
-  peri.ulpss_peripheral = SL_SI91X_POWER_MANAGER_ULPSS_PG_MISC | SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2C | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR
-                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM | SL_SI91X_POWER_MANAGER_ULPSS_PG_AUX;
-  // Ored value for npss peripheral.
-  peri.npss_peripheral = SL_SI91X_POWER_MANAGER_NPSS_PG_MCUWDT | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUPS
-                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUTS | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE2
-                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE3;
   if (current_power_state == SL_SI91X_POWER_MANAGER_PS4) {
     do {
       DEBUGOUT("Switching the Calendar from PS4 -> PS2 state\n");
-      // Control power management by adjusting clock references and shutting down the power supply
+      // Control power management by adjusting clock references and shutting down
+      // the power supply
       sl_si91x_wireless_shutdown();
       // switching the power state PS4 to PS2 mode.
       status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
@@ -299,23 +284,13 @@ void calendar_example_process_action(void)
         DEBUGOUT("sl_si91x_power_manager_add_ps_requirement: Error Code : %lu \n", status);
         break;
       }
-      /* Due to calling trim_efuse API om power manager it will change the clock frequency,
-      if we are not initialize the debug again it will print the garbage data or no data in console output. */
+      /* Due to calling trim_efuse API om power manager it will change the clock
+      frequency, if we are not initialize the debug again it will print the
+      garbage data or no data in console output. */
       DEBUGINIT();
-      // Peripherals passed in this API are powered off.
-      status = sl_si91x_power_manager_remove_peripheral_requirement(&peri);
-      if (status != SL_STATUS_OK) {
-        // If status is not OK, return with the error code.
-        DEBUGOUT("sl_si91x_power_manager_remove_peripheral_requirement failed, Error Code: 0x%lX", status);
-        break;
-      }
-      // RAM retention modes are configured and passed into this API.
-      status = sl_si91x_power_manager_configure_ram_retention(&config);
-      if (status != SL_STATUS_OK) {
-        // If status is not OK, return with the error code.
-        DEBUGOUT("sl_si91x_power_manager_configure_ram_retention failed, Error Code: 0x%lX", status);
-        break;
-      }
+      // Configuring the ps2 power state by configuring
+      // the ram retention and removing the unused peripherals
+      configuring_ps2_power_state();
       // get the datetime for Calendar
       status = sl_si91x_calendar_get_date_time(&get_datetime);
       if (status != SL_STATUS_OK) {
@@ -354,7 +329,8 @@ void calendar_example_process_action(void)
       DEBUGOUT("Successfully fetched the calendar datetime \n");
       // Printing datetime for Calendar
       calendar_print_datetime(get_datetime);
-      // current power state is updated to last enum after the power state cycle is completed
+      // current power state is updated to last enum after the power state cycle
+      // is completed
       current_power_state = LAST_ENUM_POWER_STATE;
       //  de initializing the calendar
       sl_si91x_calendar_deinit();
@@ -435,3 +411,50 @@ static void on_msec_callback(void)
   }
 }
 #endif
+/*******************************************************************************
+ * powering off the peripherals not in use,
+ * Configuring power manager ram-retention
+ ******************************************************************************/
+static void configuring_ps2_power_state(void)
+{
+  sl_status_t status;
+  sl_power_peripheral_t peri;
+  sl_power_ram_retention_config_t config;
+  peri.m4ss_peripheral = 0;
+  // Configure RAM banks for retention during power management
+  config.configure_ram_banks = true; // Enable RAM bank configuration
+  config.m4ss_ram_banks      = SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9
+                          | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10; // Specify the RAM banks to be
+                                                                     // retained during power
+                                                                     // management
+  config.ulpss_ram_banks = SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_2 | SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_3;
+  // Ored value for ulpss peripheral.
+  peri.ulpss_peripheral = SL_SI91X_POWER_MANAGER_ULPSS_PG_MISC | SL_SI91X_POWER_MANAGER_ULPSS_PG_CAP
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_SSI | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2S
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_I2C | SL_SI91X_POWER_MANAGER_ULPSS_PG_IR
+                          | SL_SI91X_POWER_MANAGER_ULPSS_PG_FIM | SL_SI91X_POWER_MANAGER_ULPSS_PG_AUX;
+  // Ored value for npss peripheral.
+  peri.npss_peripheral = SL_SI91X_POWER_MANAGER_NPSS_PG_MCUWDT | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUPS
+                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUTS | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE2
+                         | SL_SI91X_POWER_MANAGER_NPSS_PG_MCUSTORE3;
+  do {
+    // Peripherals passed in this API are powered off.
+    status = sl_si91x_power_manager_remove_peripheral_requirement(&peri);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      DEBUGOUT("sl_si91x_power_manager_remove_peripheral_requirement failed, "
+               "Error Code: 0x%lX",
+               status);
+      break;
+    }
+    // RAM retention modes are configured and passed into this API.
+    status = sl_si91x_power_manager_configure_ram_retention(&config);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      DEBUGOUT("sl_si91x_power_manager_configure_ram_retention failed, Error "
+               "Code: 0x%lX",
+               status);
+      break;
+    }
+  } while (false);
+}

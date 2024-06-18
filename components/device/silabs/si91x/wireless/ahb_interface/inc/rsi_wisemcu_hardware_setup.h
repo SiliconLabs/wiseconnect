@@ -15,9 +15,11 @@
 *
 ******************************************************************************/
 
+#ifndef __RSI_HW_SETUP_H__
+#define __RSI_HW_SETUP_H__
 /*Includes*/
 
-// #include "rsi_chip.h"
+//
 #include "rsi_power_save.h"
 #include "base_types.h"
 
@@ -106,3 +108,4 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 void sl_si91x_configure_ram_retention(uint32_t rams_in_use, uint32_t rams_retention_during_sleep);
 
 /*End of file not truncated*/
+#endif

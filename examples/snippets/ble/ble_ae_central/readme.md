@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to configure SiWx91x in Advertising Extended cental mode .
+This application demonstrates how to configure SiWx91x in Advertising Extended cental mode . It has 2 scan set and it is able scan both 1Mbps and coded PHY.
 
 ## Prerequisites/Setup Requirements
 
@@ -38,7 +38,7 @@ This application demonstrates how to configure SiWx91x in Advertising Extended c
 - Simplicity Studio IDE (to be used with Silicon Labs MCU)
 - Keil IDE (to be used with STM32F411RE MCU)
 - Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
 
 ### Setup Diagram
 
@@ -67,7 +67,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
   - After connecting all the boards, the setup should look like the image shown below:
-    ![Figure: Setup](resources/readme/stm32_setup.png)
+
+   ![Figure: Setup](resources/readme/stm32_setup.png)
+   
   - Connect the setup to the computer.
   - Open the BLE PER µVision project - **ble_ae_central.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → snippets → ble → ble_ae_central → keil_project**.
 
@@ -152,18 +154,17 @@ Follow the steps as mentioned for the successful execution of the application:
 
 1. Configure the remote BLE device in peripheral mode, add the complete local name record, enable the scan response data, and connectable options to the advertising data. And keep it in the advertising mode. Ensure that the specified remote device name in the RSI_REMOTE_DEVICE_NAME macro is proper.
 
-      ![](resources/readme/centraladvertiser.png)  
+   ![](resources/readme/centraladvertiser.png)
 
    > **Note:** 
-   > - Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the EFR connect mobile APP as advertiser. 
-   > - The provided mobile screenshots are from the 2.5.2 version of the EFR Connect app, it is recommended to use the latest version. 
+   > - Refer the [Creating New Advertisement Sets](https://docs.silabs.com/bluetooth/5.0/miscellaneous/mobile/efr-connect-mobile-app) for configuring the Simplicity Connect mobile App(formerly EFR Connect App) as advertiser. 
+   > - The provided mobile screenshots are from the 2.8.1 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version. 
 2. After the program gets executed, Silicon Labs device tries to connect with the remote device specified in `RSI_BLE_DEV_ADDR` or `RSI_REMOTE_DEVICE_NAME` macro.
 3. Observe that the connection is established between the desired device and SiWx91x module. 
 
-      ![](resources/readme/deviceconnected.png)   
-
+  ![](resources/readme/deviceconnected.png) 
    > **Note:** Examples for BLE peripherals: Bluetooth dongle, mobile application, TA sensor tag.
 
 4. Refer the following images for console prints.
 
-   ![Application Prints Soc](resources/readme/ae_central_logs.png) 
+   ![Application Prints Soc](resources/readme/ae_central_logs.png)

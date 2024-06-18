@@ -15,12 +15,14 @@ source:
   - path: ulp_timer_example.h
   - path: app.h
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
-toolchain_settings: []
+    version: 3.3.0
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: status
@@ -45,7 +47,9 @@ component:
   - id: debug_ulp_component
     from: wiseconnect3_sdk
   - id: timer_ulp_component
-    from: wiseconnect3_sdk 
+    from: wiseconnect3_sdk
+define:
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION 
 template_contribution:
   - name: user_files_ps2
     value: ulp_timer_example.o
@@ -60,9 +64,9 @@ template_contribution:
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/image512d.png
-  - path: resources/readme/image512e.png
   - path: resources/readme/image512f.png
   - path: resources/uc_screen/ulp_timer_uc_screen.png
+  - path: resources/uc_screen/ulp_timer_common_uc_screen.png
   - path: resources/readme/output_ulp_timer.png
 ui_hints:
   highlight:

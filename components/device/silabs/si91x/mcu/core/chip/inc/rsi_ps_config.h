@@ -26,7 +26,11 @@
 #else
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
 #ifdef SLI_SI917B0
+#ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
+#define IVT_OFFSET_ADDR 0x8172000 /*<!Application IVT location VTOR offset>        */
+#else
 #define IVT_OFFSET_ADDR 0x8202000 /*<!Application IVT location VTOR offset>        */
+#endif
 #else
 #define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset>        */
 #endif

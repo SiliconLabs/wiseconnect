@@ -22,7 +22,7 @@
 //Note: Please go through http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
 
 #define SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH      202 // This size is including the NULL terminating character.
-#define SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH 62  // This size is including the NULL terminating character.
+#define SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH 202 // This size is including the NULL terminating character.
 #define SI91X_MQTT_CLIENT_MESSAGE_MAXIMUM_LENGTH    100
 
 #define SI91X_MQTT_CLIENT_ID_MAXIMUM_LENGTH       62  // This size is including the NULL terminating character.

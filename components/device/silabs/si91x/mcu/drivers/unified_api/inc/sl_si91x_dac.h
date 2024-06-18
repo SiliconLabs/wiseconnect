@@ -38,6 +38,10 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_dac.h"
 
+#ifndef UNUSED_PARAMETER
+#define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
+
 /***************************************************************************/ /**
  * @addtogroup DAC Digital to Analog Converter
  * @ingroup SI91X_PERIPHERAL_APIS

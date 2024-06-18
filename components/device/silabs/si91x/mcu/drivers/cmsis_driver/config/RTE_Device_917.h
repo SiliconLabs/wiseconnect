@@ -35,7 +35,7 @@
 
 #define RTE_USART0                         1
 
-#define RTE_USART0_CLK_SRC                 USART_ULPREFCLK
+#define RTE_USART0_CLK_SRC                 USART_INTFPLLCLK
 #define RTE_USART0_CLK_DIV_FACT            1
 #define RTE_USART0_FRAC_DIV_SEL            USART_FRACTIONAL_DIVIDER
 
@@ -405,7 +405,7 @@
 // <i> Configuration settings for Driver_UART1 in component ::CMSIS Driver:USART
 #define RTE_UART1                          1
 
-#define RTE_UART1_CLK_SRC                  USART_ULPREFCLK
+#define RTE_UART1_CLK_SRC                  USART_INTFPLLCLK
 #define RTE_UART1_CLK_DIV_FACT             1
 #define RTE_UART1_FRAC_DIV_SEL             USART_FRACTIONAL_DIVIDER
 
@@ -767,9 +767,6 @@
 // <e> SSI_MASTER (Serial Peripheral Interface 1) [Driver_SSI_MASTER]
 // <i> Configuration settings for Driver_SSI_MASTER in component ::CMSIS Driver:SPI
 #define RTE_SSI_MASTER                  1
-
-
-#define RTE_SSI_MASTER_INPUT_CLOCK      SSI_SOCPLLCLK
 
 // <o> SSI_MASTER_MISO Pin <0=>GPIO_12 <1=>GPIO_27 <2=>GPIO_57  
 #ifndef CHIP_917_6x6
@@ -1155,8 +1152,6 @@
 // <e> SSI_ULP_MASTER (Serial Peripheral Interface 3) [Driver_SSI_ULP_MASTER]
 // <i> Configuration settings for Driver_SSI_ULP_MASTER in component ::CMSIS Driver:SPI
 #define RTE_SSI_ULP_MASTER                  1
-
-#define RTE_SSI_ULP_MASTER_INPUT_CLOCK            ULP_SSI_ULP_32MHZ_RC_CLK
 
 // <e> Enable multiple CSN lines
 #define ULP_SSI_CS0     1
@@ -1558,10 +1553,6 @@
 #define RTE_I2S0_CHNL_UDMA_RX_EN                1 
 #define RTE_I2S0_CHNL_UDMA_RX_CH                14
 
-#define RTE_I2S0_CLK_SRC                        0
-#define RTE_I2S0_CLK_DIV_FACT                   0
-#define RTE_I2S_PLL_FREQ                        2000
-
 #define RTE_I2S0_DMA_TX_LEN_PER_DES             1024
 #define RTE_I2S0_DMA_RX_LEN_PER_DES             1024
 
@@ -1693,39 +1684,6 @@
 #define RTE_I2S1_CHNL_UDMA_RX_EN                1 
 #define RTE_I2S1_CHNL_UDMA_RX_CH                6
 
-#define I2S1_CLK_DIV_FACT                       0
-//   <o> I2S1_CLK_SRC        <0=>ULP_I2S_REF_CLK 
-//                           <1=>ULP_I2S_ULP_32KHZ_RO_CLK 
-//                           <2=>ULP_I2S_ULP_32KHZ_RC_CLK 
-//                           <3=>ULP_I2S_ULP_32KHZ_XTAL_CLK
-//                           <4=>ULP_I2S_ULP_32MHZ_RC_CLK
-//                           <5=>ULP_I2S_ULP_20MHZ_RO_CLK
-//                           <6=>ULP_I2S_SOC_CLK
-//                           <7=>ULP_I2S_ULP_DOUBLER_CLK
-//                           <8=>ULP_I2S_PLL_CLK
-
-#define RTE_I2S1_CLK_SEL_ID                     5
-#if( RTE_I2S1_CLK_SEL_ID == 0)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_REF_CLK                                                   
-#elif(RTE_I2S1_CLK_SEL_ID == 1)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_ULP_32KHZ_RO_CLK   
-#elif(RTE_I2S1_CLK_SEL_ID == 2)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_ULP_32KHZ_RC_CLK  
-#elif(RTE_I2S1_CLK_SEL_ID == 3)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_ULP_32KHZ_XTAL_CLK
-#elif(RTE_I2S1_CLK_SEL_ID == 4)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_ULP_32MHZ_RC_CLK
-#elif(RTE_I2S1_CLK_SEL_ID == 5)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_ULP_20MHZ_RO_CLK
-#elif(RTE_I2S1_CLK_SEL_ID == 6)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_SOC_CLK
-#elif(RTE_I2S1_CLK_SEL_ID == 7)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_ULP_DOUBLER_CLK
-#elif(RTE_I2S1_CLK_SEL_ID == 8)
-#define RTE_I2S1_CLK_SRC                        ULP_I2S_PLL_CLK
-#else
-  #error "Invalid I2S1 Clock source selection!"
-#endif
 #define RTE_I2S1_DMA_TX_LEN_PER_DES             1024
 #define RTE_I2S1_DMA_RX_LEN_PER_DES             1024 
 
@@ -2310,8 +2268,6 @@
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_EN  1
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_CH  10
 
-#define RTE_GSPI_CLOCK_SOURCE            GSPI_SOC_PLL_CLK
-
 #define RTE_FIFO_AFULL_THRLD             3
 #define RTE_FIFO_AEMPTY_THRLD            7
 
@@ -2323,8 +2279,6 @@
 
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_EN  0
 #define RTE_GSPI_MASTER_CHNL_UDMA_RX_CH  10
-
-#define RTE_GSPI_CLOCK_SOURCE            GSPI_SOC_PLL_CLK
 
 #define RTE_FIFO_AFULL_THRLD             0
 #define RTE_FIFO_AEMPTY_THRLD            0

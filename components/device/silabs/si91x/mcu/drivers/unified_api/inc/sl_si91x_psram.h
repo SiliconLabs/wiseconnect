@@ -93,7 +93,6 @@ typedef enum {
   PSRAM_MAX_SEC_SEGMENT_REACH   ///< Maximum secure segment reached
 } sl_psram_return_type_t;
 
-#if PSRAM_BURST_LEN_TOGGLE_SUPPORTED
 /// Wrap burst size enum
 typedef enum {
   _WRAP16, ///< Burst wrap size 16 Bytes
@@ -101,7 +100,6 @@ typedef enum {
   _WRAP64, ///< Burst wrap size 64 Bytes
   _WRAP512 ///< Burst wrap size 512 Bytes
 } sl_psram_burst_size_type_t;
-#endif
 
 /// PSRAM DMA status enum
 typedef enum {
@@ -299,7 +297,6 @@ sl_psram_return_type_t sl_si91x_psram_manual_read_in_dma_mode(uint32_t addr,
                                                               uint32_t length,
                                                               sl_psram_dma_status_type_t *dmaStatus);
 
-#if PSRAM_HALF_SLEEP_SUPPORTED
 /***************************************************************************/ /**
  * @brief       Put PSRAM Device in sleep 
  * @details Sleep mode is a feature which puts the PSRAM device in an ultra-low power state, 
@@ -316,7 +313,6 @@ sl_psram_return_type_t sl_si91x_psram_sleep(void);
  * @note This function call re-initializes the PSRAM device after wakeup sequence.
  ******************************************************************************/
 sl_psram_return_type_t sl_si91x_psram_wakeup(void);
-#endif
 
 /***************************************************************************/ /**
  * @brief       Enable CTR encryption-decryption on PSRAM

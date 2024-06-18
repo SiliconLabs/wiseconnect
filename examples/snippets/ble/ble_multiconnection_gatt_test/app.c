@@ -47,6 +47,7 @@
 #include <string.h>
 #include "ble_config.h"
 #include "ble_device_info.h"
+#include "FreeRTOSConfig.h"
 
 #if ENABLE_POWER_SAVE
 #define PSP_MODE RSI_SLEEP_MODE_2

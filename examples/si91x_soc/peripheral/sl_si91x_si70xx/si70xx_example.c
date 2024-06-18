@@ -19,6 +19,7 @@
 #include "si70xx_example.h"
 #include "sl_sleeptimer.h"
 #include "sl_si91x_driver_gpio.h"
+#include "sl_si91x_clock_manager.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -27,7 +28,11 @@
 #define I2C                SL_I2C2 // I2C 2 instance
 #define USER_REG_1         0xBA    // writing data into user register
 #define DELAY_PERIODIC_MS1 2000    //sleeptimer1 periodic timeout in ms
-#define UULP_GPIO_1_PIN    1       // UULP GPIO pin number 1(sensor enable)
+#define MODE_0             0       // Initializing GPIO MODE_0 value
+#define OUTPUT_VALUE       1       // GPIO output value
+
+#define SOC_PLL_CLK  ((uint32_t)(32000000))  // 32MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -43,10 +48,21 @@ boolean_t delay_timeout = false;     //Indicates sleeptimer1 timeout
 static void i2c_leader_callback(sl_i2c_instance_t i2c_instance, uint32_t status);
 //Sleeptimer timeout callbacks
 static void on_timeout_timer1(sl_sleeptimer_timer_handle_t *handle, void *data);
+void delay(uint32_t idelay);
+static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 32MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
 
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 /*******************************************************************************
  * RHT example initialization function
  ******************************************************************************/
@@ -62,37 +78,93 @@ void si70xx_example_init(void)
   i2c_config.transfer_type  = SL_I2C_USING_INTERRUPT;
   i2c_config.operating_mode = SL_I2C_STANDARD_MODE;
   i2c_config.i2c_callback   = i2c_leader_callback;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   do {
-    if (sl_si91x_gpio_driver_get_uulp_npss_pin(UULP_GPIO_1_PIN) != 1) {
+#if defined(SENSOR_ENABLE_GPIO_MAPPED_TO_UULP)
+    if (sl_si91x_gpio_driver_get_uulp_npss_pin(SENSOR_ENABLE_GPIO_PIN) != 1) {
       // Enable GPIO ULP_CLK
-      status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO); // Enable GPIO ULP_CLK
+      status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_enable_clock, Error code: %lu", status);
         break;
       }
       DEBUGOUT("GPIO driver clock enable is successful \n");
       // Set NPSS GPIO pin MUX
-      status = sl_si91x_gpio_driver_set_uulp_npss_pin_mux(UULP_GPIO_1_PIN, NPSS_GPIO_PIN_MUX_MODE0);
+      status = sl_si91x_gpio_driver_set_uulp_npss_pin_mux(SENSOR_ENABLE_GPIO_PIN, NPSS_GPIO_PIN_MUX_MODE0);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_pin_mux, Error code: %lu", status);
         break;
       }
       DEBUGOUT("GPIO driver uulp pin mux selection is successful \n");
       // Set NPSS GPIO pin direction
-      status = sl_si91x_gpio_driver_set_uulp_npss_direction(UULP_GPIO_1_PIN, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+      status =
+        sl_si91x_gpio_driver_set_uulp_npss_direction(SENSOR_ENABLE_GPIO_PIN, (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_direction, Error code: %lu", status);
         break;
       }
       DEBUGOUT("GPIO driver uulp pin direction selection is successful \n");
       // Set UULP GPIO pin
-      status = sl_si91x_gpio_driver_set_uulp_npss_pin_value(UULP_GPIO_1_PIN, SET);
+      status = sl_si91x_gpio_driver_set_uulp_npss_pin_value(SENSOR_ENABLE_GPIO_PIN, SET);
       if (status != SL_STATUS_OK) {
         DEBUGOUT("sl_si91x_gpio_driver_set_uulp_npss_pin_value, Error code: %lu", status);
         break;
       }
       DEBUGOUT("GPIO driver set uulp pin value is successful \n");
     }
+#else
+    sl_gpio_t sensor_enable_port_pin = { SENSOR_ENABLE_GPIO_PORT, SENSOR_ENABLE_GPIO_PIN };
+    uint8_t pin_value;
+
+    status = sl_gpio_driver_get_pin(&sensor_enable_port_pin, &pin_value);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_gpio_driver_get_pin, Error code: %lu", status);
+      break;
+    }
+    if (pin_value != 1) {
+      // Enable GPIO CLK
+#ifdef SENSOR_ENABLE_GPIO_MAPPED_TO_ULP
+      status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
+#else
+      status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO);
+#endif
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_gpio_driver_enable_clock, Error code: %lu", status);
+        break;
+      }
+      DEBUGOUT("GPIO driver clock enable is successful \n");
+
+      // Set the pin mode for GPIO pins.
+      status = sl_gpio_driver_set_pin_mode(&sensor_enable_port_pin, MODE_0, OUTPUT_VALUE);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_gpio_driver_set_pin_mode, Error code: %lu", status);
+        break;
+      }
+      DEBUGOUT("GPIO driver pin mode select is successful \n");
+      // Select the direction of GPIO pin whether Input/ Output
+      status = sl_si91x_gpio_driver_set_pin_direction(SENSOR_ENABLE_GPIO_PORT,
+                                                      SENSOR_ENABLE_GPIO_PIN,
+                                                      (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_si91x_gpio_driver_set_pin_direction, Error code: %lu", status);
+        break;
+      }
+      // Set GPIO pin
+      status = sl_gpio_driver_set_pin(&sensor_enable_port_pin); // Set ULP GPIO pin
+      if (status != SL_STATUS_OK) {
+        DEBUGOUT("sl_gpio_driver_set_pin, Error code: %lu", status);
+        break;
+      }
+      DEBUGOUT("GPIO driver set pin value is successful \n");
+    }
+#endif
+
+    /* Wait for sensor to become ready */
+    delay(80);
+
     //Start 2000 ms periodic timer
     sl_sleeptimer_start_periodic_timer_ms(&timer1,
                                           DELAY_PERIODIC_MS1,
@@ -173,7 +245,7 @@ void si70xx_example_init(void)
     } else {
       DEBUGOUT("Sensor temperature read is successful\n");
     }
-    DEBUGOUT("sensor humdity :%ld\n", humidity);
+    DEBUGOUT("sensor humidity :%ld\n", humidity);
     DEBUGOUT("sensor temperature :%ld\n", temperature);
     // measure humidity data from sensor
     status = sl_si91x_si70xx_measure_humidity(I2C, SI7021_ADDR, &humidity);
@@ -183,7 +255,7 @@ void si70xx_example_init(void)
     } else {
       DEBUGOUT("Sensor humidity read is successful\n");
     }
-    DEBUGOUT("sensor humdity :%ld\n", humidity);
+    DEBUGOUT("sensor humidity :%ld\n", humidity);
     // measure temperature data from sensor
     status = sl_si91x_si70xx_measure_temperature(I2C, SI7021_ADDR, &temperature);
     if (status != SL_STATUS_OK) {
@@ -214,7 +286,7 @@ void si70xx_example_process_action(void)
     } else {
       DEBUGOUT("Sensor temperature read is successful\n");
     }
-    DEBUGOUT("sensor humdity :%ld\n", humidity);
+    DEBUGOUT("sensor humidity :%ld\n", humidity);
     DEBUGOUT("sensor temperature :%ld\n", temperature);
   }
 }
@@ -241,4 +313,14 @@ static void on_timeout_timer1(sl_sleeptimer_timer_handle_t *handle, void *data)
   (void)&handle;
   (void)&data;
   delay_timeout = true;
+}
+/*******************************************************************************
+* Function to provide 1 ms Delay
+*******************************************************************************/
+void delay(uint32_t idelay)
+{
+  for (uint32_t x = 0; x < 4600 * idelay; x++) //1.002ms delay
+  {
+    __NOP();
+  }
 }

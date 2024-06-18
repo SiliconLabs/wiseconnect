@@ -13,11 +13,11 @@ filter:
   value:
   - Beginner
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.2.0
+  version: 3.3.0
 source:
 - path: app.c
 - path: main.c
@@ -30,6 +30,7 @@ define:
 component:
 - id: sl_system
 - id: freertos
+- id: freertos_heap_4
 - id: sl_si91x_mem_pool_buffers_with_quota
   from: wiseconnect3_sdk
 - id: syscalls
@@ -65,7 +66,16 @@ other_file:
 - path: resources/readme/two_ssl_servers.png
 - path: resources/readme/threesslsocketsoc_ncp.png
 - path: resources/readme/three_ssl_socket_output_1.png
-- path: resources/readme/three_ssl_socket_output_2.png
+- path: resources/readme/aws_iot_mqtt_host_url_1.png
+- path: resources/readme/aws_create_thing_step1.png
+- path: resources/readme/aws_create_thing_step2.png
+- path: resources/readme/aws_create_thing_step3.png
+- path: resources/readme/aws_create_thing_step4.png
+- path: resources/readme/aws_create_thing_step5.png
+- path: resources/readme/aws_choosing_policy.png
+- path: resources/readme/aws_create_thing_attach_policy.png
+- path: resources/readme/aws_create_thing_policy_create.png
+- path: resources/readme/aws_thing_certificates_download.png
 ui_hints:
   highlight:
   - path: readme.md

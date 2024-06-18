@@ -3,7 +3,7 @@ package: wiseconnect3_sdk
 description: >
   Implementation of the ATTESTATION API
 label: ATTESTATION
-category: Device|Si91x|Wireless|Crypto
+category: Device|Si91x|MCU|Crypto
 quality: production
 component_root_path: ./components/device/silabs/si91x/wireless/crypto/attestation
 provides:

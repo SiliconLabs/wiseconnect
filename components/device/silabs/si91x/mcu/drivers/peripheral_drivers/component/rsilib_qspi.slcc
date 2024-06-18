@@ -17,3 +17,7 @@ include:
     - path: "rsi_qspi_proto.h"
 provides:
   - name: rsilib_qspi
+requires:
+  - name: romdriver_timer
+define: 
+  - name: QSPI_ROMDRIVER_PRESENT

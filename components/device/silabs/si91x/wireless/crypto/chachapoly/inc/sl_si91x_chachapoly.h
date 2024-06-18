@@ -53,8 +53,8 @@ typedef enum {
 } sl_si91x_chachapoly_mode_t;
 
 typedef enum {
-  SL_SI91X_DMA_DISABLE = 0, ///< Disable DMA
-  SL_SI91X_DMA_ENABLE       ///< Enable DMA
+  SL_SI91X_CHACHAPOLY_DMA_DISABLE = 0, ///< Disable DMA
+  SL_SI91X_CHACHAPOLY_DMA_ENABLE       ///< Enable DMA
 } sl_si91x_chachapoly_dma_use_t;
 
 typedef enum {

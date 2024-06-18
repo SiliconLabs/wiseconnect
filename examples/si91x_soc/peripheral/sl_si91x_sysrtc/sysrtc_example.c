@@ -34,6 +34,7 @@
 #include "sl_si91x_led.h"
 #include "rsi_debug.h"
 #include <stdint.h>
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -64,6 +65,8 @@
 #define TENTH_INTERRUPT  10        // for tenth interrupt count
 #define LED1             1         // For On-board LED-0
 
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
@@ -76,6 +79,7 @@ static uint32_t counter_value1 = COUNTER_VALUE1;
      && (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 0))
 static uint32_t counter_value2 = COUNTER_VALUE2;
 #endif
+static void default_clock_configuration(void);
 /*******************************************************************************
  **********************  Local variables   *************************************
  ******************************************************************************/
@@ -87,6 +91,19 @@ static sl_sysrtc_interrupt_enables_t interrupt_enabled;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
+/*******************************************************************************
+* SYSRTC example initialization function
+******************************************************************************/
 void sysrtc_example_init(void)
 {
 #if (SL_SYSRTC_GROUP == 0)
@@ -139,7 +156,12 @@ void sysrtc_example_init(void)
 #else
   interrupt_enabled.group1_overflow_interrupt_is_enabled = false;
 #endif
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   do {
+
     // Configuring SYSRTC clock source
     status = sl_si91x_sysrtc_configure_clock(&sl_sysrtc_clk_config_handle);
     if (status != SL_STATUS_OK) {

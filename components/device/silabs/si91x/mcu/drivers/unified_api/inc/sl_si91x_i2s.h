@@ -88,16 +88,15 @@ typedef enum {
 
 /// @brief Enumeration for I2S transfer type
 typedef enum {
-  SL_I2S_TRANSMIT         = ARM_SAI_CONFIGURE_TX,  ///< I2S transmit
-  SL_I2S_RECEIVE          = ARM_SAI_CONFIGURE_RX,  ///< I2S receive
-  SL_I2S_TRANSMIT_CONTROL = ARM_SAI_CONTROL_TX,    ///< I2S receive
-  SL_I2S_RECEIVE_CONTROL  = ARM_SAI_CONTROL_RX,    ///< I2S receive
-  SL_I2S_SEND_ABORT       = ARM_SAI_ABORT_SEND,    ///< I2S abort transmit
-  SL_I2S_RECEIVE_ABORT    = ARM_SAI_ABORT_RECEIVE, ///< I2S abort receive
+  SL_I2S_TRANSMIT      = ARM_SAI_CONFIGURE_TX,  ///< I2S transmit
+  SL_I2S_RECEIVE       = ARM_SAI_CONFIGURE_RX,  ///< I2S receive
+  SL_I2S_SEND_ABORT    = ARM_SAI_ABORT_SEND,    ///< I2S abort transmit
+  SL_I2S_RECEIVE_ABORT = ARM_SAI_ABORT_RECEIVE, ///< I2S abort receive
 } sl_i2s_xfer_type_t;
 
 /// @brief Enumeration for I2S transfer data size
 typedef enum {
+  SL_I2S_DATA_SIZE8  = 8,  ///< 8 bits
   SL_I2S_DATA_SIZE16 = 16, ///< 16 bits
   SL_I2S_DATA_SIZE32 = 32  ///< 32 bits
 } sl_i2s_xfer_size_t;
@@ -108,7 +107,6 @@ typedef enum {
   SL_I2S_RESOLUTION_16 = 16, ///< 16 bit resolution
   SL_I2S_RESOLUTION_20 = 20, ///< 20 bit resolution
   SL_I2S_RESOLUTION_24 = 24, ///< 24 bit resolution
-  SL_I2S_RESOLUTION_32 = 32  ///< 32 bit resolution
 } sl_i2s_data_resolution_t;
 
 /// @brief Enumeration for I2S sample rates
@@ -179,15 +177,16 @@ sl_status_t sl_si91x_i2s_init(uint32_t i2s_instance, sl_i2s_handle_t *i2s_handle
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - Invalid null pointer received as argument
  *
  * @note
- *   When the I2S module is used in combination with other peripherals, while de-initializing in the application, refer to the notes below:
- *   1. Whenever sl_si91x_i2s_deinit() gets called, it will power down the domain (PERI_EFUSE), which contains different peripherals, as mentioned below:
- *      USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
+ *   When I2S module is used in combination with other periperals, while deinitializing in the application, refer to the notes below:
+ *   1. Whenever sl_si91x_i2s_deinit() gets called, it will disable the clock for the peripheral. To power off the peripheral we have to power down the
+ *      power domain (PERI_EFUSE) which contains the different peripherals mentioned below.
+ *      i.e USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
  *      Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM and EFUSE.
- *      Since deinit power downs the PERI_EFUSE doamin, it's recommended to call the sl_si91x_i2s_deinit() API at the end of the application.
- *   2. Few peripherals (ULP Peripherals, UULP Peripherals, GPDMA and SDIO-SPI) have seperate domains that can be powered down indepedently. For additional details, refer to the Power architecture section in the Hardware Reference Manual
- *      e.g., To power down ULP I2S, use the API below:
- *      RSI_PS_M4ssPeriPowerDown(ULPSS_PWRGATE_ULP_I2S); 
- *      Here, ULP_I2S has seperate power domain ULPSS_PWRGATE_ULP_I2S, which can be power down indepedently. Refer to the rsi_power_save.h file for all power gates definitions.
+ *      Use below API to power down the particular power domain if other peripherals are not being used:
+ *      sl_si91x_peri_efuse_power_down(power_down); 
+ * 
+ *   2. A few peripherals (ULP Peripherals, UULP Peripherals, GPDMA and SDIO-SPI) have seperate domains; those can be powered down indepedently. For additional details, refer to the Power architecture section in the Hardware Reference Manual.
+ *      Here ULP_UART has a separate power domain ULPSS_PWRGATE_ULP_UART, which can be power down independently. Refer to rsi_power_save.h file for all power gates definitions.
  ******************************************************************************/
 sl_status_t sl_si91x_i2s_deinit(sl_i2s_handle_t *i2s_handle);
 

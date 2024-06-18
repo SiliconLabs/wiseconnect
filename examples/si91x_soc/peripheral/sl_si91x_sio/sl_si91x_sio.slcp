@@ -14,12 +14,14 @@ source:
   - path: sio_example.c
   - path: sio_example.h
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
-toolchain_settings: []
+    version: 3.3.0
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: status
@@ -28,6 +30,10 @@ component:
   - id: si917_memory_default_config
     from: wiseconnect3_sdk
   - id: sl_sio_peripheral
+    from: wiseconnect3_sdk
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
+  - id: sl_clock_manager
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png

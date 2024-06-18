@@ -63,6 +63,7 @@
 #define TWT_AUTO_CONFIG   1
 
 // Use case based TWT selection params
+#define TWT_RX_LATENCY                       5000
 #define DEVICE_AVERAGE_THROUGHPUT            20000
 #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0
 #define TWT_TOLERABLE_DEVIATION              10
@@ -141,7 +142,7 @@ sl_wifi_twt_selection_t default_twt_selection_configuration = {
   .twt_enable                            = 1,
   .average_tx_throughput                 = 1000,
   .tx_latency                            = 0,
-  .rx_latency                            = 5000,
+  .rx_latency                            = TWT_RX_LATENCY,
   .device_average_throughput             = DEVICE_AVERAGE_THROUGHPUT,
   .estimated_extra_wake_duration_percent = ESTIMATE_EXTRA_WAKE_DURATION_PERCENT,
   .twt_tolerable_deviation               = TWT_TOLERABLE_DEVIATION,
@@ -243,7 +244,20 @@ void application_start()
 #endif
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+
+#if (SL_SI91X_TICKLESS_MODE == 0)
   sl_si91x_m4_sleep_wakeup();
+#else
+  osSemaphoreId_t wait_semaphore;
+  wait_semaphore = osSemaphoreNew(1, 0, NULL);
+  if (wait_semaphore == NULL) {
+    printf("Failed to create semaphore\r\n");
+    return;
+  }
+  // Waiting forever using semaphore to put M4 to sleep in tick less mode
+  osSemaphoreAcquire(wait_semaphore, osWaitForever);
+#endif
+
 #endif
 }
 

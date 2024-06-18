@@ -46,43 +46,72 @@ extern "C"
 
 #include <stdint.h>
 
-
+/**
+ * @addtogroup IOT_SOCKET_ADDRESS_FAMILY Address Family
+ * @ingroup IOT_SOCKET_FUNCTIONS
+ * @{ 
+ */
 /**** Address Family definitions ****/
-#define IOT_SOCKET_AF_INET              1       ///< IPv4
-#define IOT_SOCKET_AF_INET6             2       ///< IPv6
+#define IOT_SOCKET_AF_INET              1       ///< Internet Protocol version 4 (IPv4) address family.
+#define IOT_SOCKET_AF_INET6             2       ///< Internet Protocol version 6 (IPv6) address family.
+/** @} */
 
+/**
+ * @addtogroup IOT_SOCKET_TYPE Socket Type
+ * @ingroup IOT_SOCKET_FUNCTIONS
+ * @{ 
+ */
 /**** Socket Type definitions ****/
-#define IOT_SOCKET_SOCK_STREAM          1       ///< Stream socket
-#define IOT_SOCKET_SOCK_DGRAM           2       ///< Datagram socket
+#define IOT_SOCKET_SOCK_STREAM          1       ///< Stream socket type. Provides sequenced, reliable, two-way, connection-based byte streams.
+#define IOT_SOCKET_SOCK_DGRAM           2       ///< Datagram socket type. Supports datagrams, which are connectionless, unreliable messages of a fixed maximum length.
+/** @} */
 
+/**
+ * @addtogroup IOT_SOCKET_PROTOCOL Socket Protocol
+ * @ingroup IOT_SOCKET_FUNCTIONS
+ * @{ 
+ */
 /**** Socket Protocol definitions ****/
-#define IOT_SOCKET_IPPROTO_TCP          1       ///< TCP
-#define IOT_SOCKET_IPPROTO_UDP          2       ///< UDP
+#define IOT_SOCKET_IPPROTO_TCP          1       ///< Transmission Control Protocol (TCP). This is a reliable, stream-oriented protocol.
+#define IOT_SOCKET_IPPROTO_UDP          2       ///< User Datagram Protocol (UDP). This is a connectionless, unreliable, datagram protocol.
+/** @} */
 
+/**
+ * @addtogroup IOT_SOCKET_OPTION_ID Socket Option Id
+ * @ingroup IOT_SOCKET_FUNCTIONS
+ * @{ 
+ */
 /**** Socket Option definitions ****/
 #define IOT_SOCKET_IO_FIONBIO           1       ///< Non-blocking I/O (Set only, default = 0); opt_val = &nbio, opt_len = sizeof(nbio), nbio (integer): 0=blocking, non-blocking otherwise
 #define IOT_SOCKET_SO_RCVTIMEO          2       ///< Receive timeout in ms (default = 0); opt_val = &timeout, opt_len = sizeof(timeout)
 #define IOT_SOCKET_SO_SNDTIMEO          3       ///< Send timeout in ms (default = 0); opt_val = &timeout, opt_len = sizeof(timeout)
 #define IOT_SOCKET_SO_KEEPALIVE         4       ///< Keep-alive messages (default = 0); opt_val = &keepalive, opt_len = sizeof(keepalive), keepalive (integer): 0=disabled, enabled otherwise
 #define IOT_SOCKET_SO_TYPE              5       ///< Socket Type (Get only); opt_val = &socket_type, opt_len = sizeof(socket_type), socket_type (integer): IOT_SOCKET_SOCK_xxx
+/** @} */
 
+/**
+ * @addtogroup IOT_SOCKET_RETURN_CODES Socket Return Codes
+ * @ingroup IOT_SOCKET_FUNCTIONS
+ * @{ 
+ */
 /**** Socket Return Codes ****/
-#define IOT_SOCKET_ERROR                (-1)    ///< Unspecified error
-#define IOT_SOCKET_ESOCK                (-2)    ///< Invalid socket
-#define IOT_SOCKET_EINVAL               (-3)    ///< Invalid argument
-#define IOT_SOCKET_ENOTSUP              (-4)    ///< Operation not supported
-#define IOT_SOCKET_ENOMEM               (-5)    ///< Not enough memory
-#define IOT_SOCKET_EAGAIN               (-6)    ///< Operation would block or timed out
-#define IOT_SOCKET_EINPROGRESS          (-7)    ///< Operation in progress
-#define IOT_SOCKET_ETIMEDOUT            (-8)    ///< Operation timed out
-#define IOT_SOCKET_EISCONN              (-9)    ///< Socket is connected
-#define IOT_SOCKET_ENOTCONN             (-10)   ///< Socket is not connected
-#define IOT_SOCKET_ECONNREFUSED         (-11)   ///< Connection rejected by the peer
-#define IOT_SOCKET_ECONNRESET           (-12)   ///< Connection reset by the peer
-#define IOT_SOCKET_ECONNABORTED         (-13)   ///< Connection aborted locally
-#define IOT_SOCKET_EALREADY             (-14)   ///< Connection already in progress
-#define IOT_SOCKET_EADDRINUSE           (-15)   ///< Address in use
-#define IOT_SOCKET_EHOSTNOTFOUND        (-16)   ///< Host not found
+#define IOT_SOCKET_ERROR                (-1)    ///< General error code for unspecified errors.
+#define IOT_SOCKET_ESOCK                (-2)    ///< Error code indicating an invalid socket.
+#define IOT_SOCKET_EINVAL               (-3)    ///< Error code indicating an invalid argument.
+#define IOT_SOCKET_ENOTSUP              (-4)    ///< Error code indicating that the requested operation is not supported.
+#define IOT_SOCKET_ENOMEM               (-5)    ///< Error code indicating that there is not enough memory to perform the requested operation.
+#define IOT_SOCKET_EAGAIN               (-6)    ///< Error code indicating that the operation would block or has timed out.
+#define IOT_SOCKET_EINPROGRESS          (-7)    ///< Error code indicating that the operation is in progress.
+#define IOT_SOCKET_ETIMEDOUT            (-8)    ///< Error code indicating that the operation has timed out.
+#define IOT_SOCKET_EISCONN              (-9)    ///< Error code indicating that the socket is already connected.
+#define IOT_SOCKET_ENOTCONN             (-10)   ///< Error code indicating that the socket is not connected.
+#define IOT_SOCKET_ECONNREFUSED         (-11)   ///< Error code indicating that the connection was refused by the peer.
+#define IOT_SOCKET_ECONNRESET           (-12)   ///< Error code indicating that the connection was reset by the peer.
+#define IOT_SOCKET_ECONNABORTED         (-13)   ///< Error code indicating that the connection was aborted locally.
+#define IOT_SOCKET_EALREADY             (-14)   ///< Error code indicating that a connection is already in progress.
+#define IOT_SOCKET_EADDRINUSE           (-15)   ///< Error code indicating that the address is already in use.
+#define IOT_SOCKET_EHOSTNOTFOUND        (-16)   ///< Error code indicating that the host was not found.
+/** @} */
 
 /**
  * @addtogroup IOT_SOCKET_FUNCTIONS
@@ -92,10 +121,10 @@ extern "C"
 /***************************************************************************/ /**
  * @brief
  *   Create a communication socket.
- * @param[in] af       address family.
- * @param[in] type     socket type.
- * @param[in] protocol socket protocol.
- * @return    status information:
+ * @param[in] af       Address family. One of the values from @ref IOT_SOCKET_ADDRESS_FAMILY.
+ * @param[in] type     Socket type. One of the values from @ref IOT_SOCKET_TYPE.
+ * @param[in] protocol Socket protocol. One of the values from @ref IOT_SOCKET_PROTOCOL.
+ * @return    int32_t. Status information:
  *            - Socket identification number (>=0).
               - @ref IOT_SOCKET_EINVAL        = Invalid argument.
               - @ref IOT_SOCKET_ENOTSUP       = Operation not supported.
@@ -107,11 +136,11 @@ extern int32_t iotSocketCreate (int32_t af, int32_t type, int32_t protocol);
 /***************************************************************************/ /**
  * @brief
  *   Assign a local address to a socket.
- * @param[in] socket   socket identification number.
- * @param[in] ip       pointer to local IP address.
- * @param[in] ip_len   length of 'ip' address in bytes.
- * @param[in] port     local port number.
- * @return    status information:
+ * @param[in] socket   Socket identification number.
+ * @param[in] ip       Pointer to local IP address.
+ * @param[in] ip_len   Length of 'ip' address in bytes.
+ * @param[in] port     Local port number.
+ * @return    int32_t. Status information:
  *            - 0                             = Operation successful.
               - @ref IOT_SOCKET_ESOCK         = Invalid socket.
               - @ref IOT_SOCKET_EINVAL        = Invalid argument (address or socket already bound).
@@ -123,9 +152,9 @@ extern int32_t iotSocketBind (int32_t socket, const uint8_t *ip, uint32_t ip_len
 /***************************************************************************/ /**
  * @brief
  *   Listen for socket connections.
- * @param[in] socket   socket identification number.
- * @param[in] backlog  maximum number of the clients supported. 
- * @return    status information:
+ * @param[in] socket   Socket identification number.
+ * @param[in] backlog  Maximum number of the clients supported. 
+ * @return    int32_t. Status information:
  *            - 0                             = Operation successful.
               - @ref IOT_SOCKET_ESOCK         = Invalid socket.
               - @ref IOT_SOCKET_EINVAL        = Invalid argument (socket not bound).
@@ -138,13 +167,13 @@ extern int32_t iotSocketListen (int32_t socket, int32_t backlog);
 /***************************************************************************/ /**
  * @brief
  *   Accept a new connection on a socket.
- * @param[in]     socket   socket identification number.
- * @param[out]    ip       pointer to buffer where address of connecting socket shall be returned (NULL for none).
+ * @param[in]     socket   Socket identification number.
+ * @param[out]    ip       Pointer to buffer where address of connecting socket shall be returned (NULL for none).
  * @param[in,out] ip_len   pointer to length of 'ip' (or NULL if 'ip' is NULL):
-                  - length of supplied 'ip' on input.
-                  - length of stored 'ip' on output.
- * @param[out]    port     pointer to buffer where port of connecting socket shall be returned (NULL for none).
- * @return       status information:
+                  - Length of supplied 'ip' on input.
+                  - Length of stored 'ip' on output.
+ * @param[out]    port     Pointer to buffer where port of connecting socket shall be returned (NULL for none).
+ * @return       int32_t. Status information:
                  - socket identification number of accepted socket (>=0).
                  - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                  - @ref IOT_SOCKET_EINVAL        = Invalid argument (socket not in listen mode).
@@ -159,11 +188,11 @@ extern int32_t iotSocketAccept (int32_t socket, uint8_t *ip, uint32_t *ip_len, u
 /***************************************************************************/ /**
  * @brief
  *   Connect a socket to a remote host.
- * @param[in]     socket   socket identification number.
- * @param[in]     ip       pointer to remote IP address.
- * @param[in]     ip_len   length of 'ip' address in bytes.
- * @param[in]     port     remote port number. 
- * @return        status information:          
+ * @param[in]     socket   Socket identification number.
+ * @param[in]     ip       Pointer to remote IP address.
+ * @param[in]     ip_len   Length of 'ip' address in bytes.
+ * @param[in]     port     Remote port number. 
+ * @return        int32_t. Status information:          
                   - 0                             = Operation successful.
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument.
@@ -181,11 +210,11 @@ extern int32_t iotSocketConnect (int32_t socket, const uint8_t *ip, uint32_t ip_
 /***************************************************************************/ /**
  * @brief
  *   Receives data from the socket.
- * @param[in]     socket   socket identification number.
- * @param[out]    buf      pointer to buffer where data should be stored.
- * @param[in]     len      length of buffer (in bytes).
- * @return        status information:          
-                  - number of bytes received (>=0), if len != 0.
+ * @param[in]     socket   Socket identification number.
+ * @param[out]    buf      Pointer to buffer where data should be stored.
+ * @param[in]     len      Length of buffer (in bytes).
+ * @return        int32_t. Status information:          
+                  - Number of bytes received (>=0), if len != 0.
                   - 0                             = Data is available (len = 0).
                   - \ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - \ref IOT_SOCKET_EINVAL        = Invalid argument (pointer to buffer or length).
@@ -199,17 +228,17 @@ extern int32_t iotSocketRecv (int32_t socket, void *buf, uint32_t len);
 
 /***************************************************************************/ /**
  * @brief
- *   Receives data from the socket..
- * @param[in]     socket   socket identification number.
- * @param[out]    buf      pointer to buffer where data should be stored.
- * @param[in]     len      length of buffer (in bytes).
- * @param[out]    ip       pointer to buffer where remote source address shall be returned (NULL for none).
- * @param[in,out] ip_len   pointer to length of 'ip' (or NULL if 'ip' is NULL):
-                  - length of supplied 'ip' on input.
-                  - length of stored 'ip' on output.
- * @param[out]    port     pointer to buffer where remote source port shall be returned (NULL for none).
- * @return        status information:          
-                  - number of bytes received (>=0), if len != 0.
+ *   Receives data from the socket.
+ * @param[in]     socket   Socket identification number.
+ * @param[out]    buf      Pointer to buffer where data should be stored.
+ * @param[in]     len      Length of buffer (in bytes).
+ * @param[out]    ip       Pointer to buffer where remote source address shall be returned (NULL for none).
+ * @param[in,out] ip_len   Pointer to length of 'ip' (or NULL if 'ip' is NULL):
+ *                 - Length of supplied 'ip' on input.
+ *                 - Length of stored 'ip' on output.
+ * @param[out]    port     Pointer to buffer where remote source port shall be returned (NULL for none).
+ * @return        int32_t. Status information:          
+                  - Number of bytes received (>=0), if len != 0.
                   - 0                             = Data is available (len = 0).
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument (pointer to buffer or length).
@@ -224,11 +253,11 @@ extern int32_t iotSocketRecvFrom (int32_t socket, void *buf, uint32_t len, uint8
 /***************************************************************************/ /**
  * @brief
  *   Send data or check if data can be sent on a connected socket.
- * @param[in]     socket   socket identification number.
- * @param[in]     buf      pointer to buffer containing data to send.
- * @param[in]     len      length of data (in bytes).
- * @return        status information:
-                  - number of bytes sent (>=0), if len != 0.
+ * @param[in]     socket   Socket identification number.
+ * @param[in]     buf      Pointer to buffer containing data to send.
+ * @param[in]     len      Length of data (in bytes).
+ * @return        int32_t. Status information:
+                  - Number of bytes sent (>=0), if len != 0.
                   - 0                             = Data can be sent (len = 0).
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument (pointer to buffer or length).
@@ -237,25 +266,22 @@ extern int32_t iotSocketRecvFrom (int32_t socket, void *buf, uint32_t len, uint8
                   - @ref IOT_SOCKET_ECONNABORTED  = Connection aborted locally.
                   - @ref IOT_SOCKET_EAGAIN        = Operation would block or timed out (may be called again).
                   - @ref IOT_SOCKET_ERROR         = Unspecified error.
- * @note 
- *   The @ref iotSocketSend() system call doesn't guarantees the packets are transmitted to remote note, which are enqueued in the queue. 
- *   The @ref iotSocketSend() system call can only send max of 1460 bytes incase of plain TCP, UDP. Whereas incase of TLS, the max buffer length is 1370.
+ * @note The function doesn't guarantees the packets are transmitted to remote note, which are enqueued in the queue. 
+ * @note The function can only send max of 1460 bytes in case of plain TCP and UDP. For TLS, the max buffer length is 1370.
  ******************************************************************************/
 extern int32_t iotSocketSend (int32_t socket, const void *buf, uint32_t len);
 
 /***************************************************************************/ /**
  * @brief
  *   Send data or check if data can be sent on a socket.
- * @param[in]     socket   socket identification number.
- * @param[in]     buf      pointer to buffer containing data to send.
- * @param[in]     len      length of data (in bytes).
- * @param[in]     ip       pointer to remote destination IP address.
- * @param[in]     ip_len   length of 'ip' address in bytes.
- * @param[in]     port     remote destination port number.
- * @note          If number of bytes to be send exceeds the MSS size specified by remote node then API will return IOT_SOCKET_ERROR.
-                  To know the MSS size for the socket use sl_si91x_get_socket_mss() utility, In case of TCP this should be called after the connect()
- * @return        status information:
-                  - number of bytes sent (>=0), if len != 0.
+ * @param[in]     socket   Socket identification number.
+ * @param[in]     buf      Pointer to buffer containing data to send.
+ * @param[in]     len      Length of data (in bytes).
+ * @param[in]     ip       Pointer to remote destination IP address.
+ * @param[in]     ip_len   Length of 'ip' address in bytes.
+ * @param[in]     port     Remote destination port number.
+ * @return        int32_t. Status information:
+                  - Number of bytes sent (>=0), if len != 0.
                   - 0                             = Data can be sent (len = 0).
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument (pointer to buffer or length).
@@ -264,22 +290,23 @@ extern int32_t iotSocketSend (int32_t socket, const void *buf, uint32_t len);
                   - @ref IOT_SOCKET_ECONNABORTED  = Connection aborted locally.
                   - @ref IOT_SOCKET_EAGAIN        = Operation would block or timed out (may be called again).
                   - @ref IOT_SOCKET_ERROR         = Unspecified error.
- * @note 
- *   The @ref iotSocketSendTo() system call doesn't guarantees the packets are transmitted to remote note, which are enqueued in the queue. 
- *   The @ref iotSocketSendTo() system call can only send max of 1460 bytes incase of plain TCP, UDP. Whereas incase of TLS, the max buffer length is 1370.
+ * @note          If number of bytes to be send exceeds the MSS size specified by remote node, the API will return IOT_SOCKET_ERROR.
+ *                To know the MSS size for the socket, use sl_si91x_get_socket_mss() utility, In the case of TCP, this should be called after iotSocketConnect().                 
+ * @note          The function doesn't guarantees the packets are transmitted to remote note, which are enqueued in the queue. 
+ * @note          The function can only send max of 1460 bytes in case of plain TCP or UDP. For TLS, the max buffer length is 1370.
  ******************************************************************************/
 extern int32_t iotSocketSendTo (int32_t socket, const void *buf, uint32_t len, const uint8_t *ip, uint32_t ip_len, uint16_t port);
 
 /***************************************************************************/ /**
  * @brief
  *   Retrieve local IP address and port of a socket.
- * @param[in]     socket   socket identification number.
- * @param[out]    ip       pointer to buffer where local address shall be returned (NULL for none).
- * @param[in,out] ip_len   pointer to length of 'ip' (or NULL if 'ip' is NULL):
-                  - length of supplied 'ip' on input.
-                  - length of stored 'ip' on output.
- * @param[out]    port     pointer to buffer where local port shall be returned (NULL for none).
- * @return        status information:
+ * @param[in]     socket   Socket identification number.
+ * @param[out]    ip       Pointer to buffer where local address shall be returned (NULL for none).
+ * @param[in,out] ip_len   Pointer to length of 'ip' (or NULL if 'ip' is NULL):
+                  - Length of supplied 'ip' on input.
+                  - Length of stored 'ip' on output.
+ * @param[out]    port     Pointer to buffer where local port shall be returned (NULL for none).
+ * @return        int32_t. Status information:
                   - 0                             = Operation successful.
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument (pointer to buffer or length).
@@ -290,13 +317,13 @@ extern int32_t iotSocketGetSockName (int32_t socket, uint8_t *ip, uint32_t *ip_l
 /***************************************************************************/ /**
  * @brief
  *   Retrieve remote IP address and port of a socket.
- * @param[in]     socket   socket identification number.
- * @param[out]    ip       pointer to buffer where remote address shall be returned (NULL for none).
- * @param[in,out] ip_len   pointer to length of 'ip' (or NULL if 'ip' is NULL):
-                  - length of supplied 'ip' on input.
-                  - length of stored 'ip' on output.
- * @param[out]    port     pointer to buffer where remote port shall be returned (NULL for none).
- * @return        status information:
+ * @param[in]     socket   Socket identification number.
+ * @param[out]    ip       Pointer to buffer where remote address shall be returned (NULL for none).
+ * @param[in,out] ip_len   Pointer to length of 'ip' (or NULL if 'ip' is NULL):
+                  - Length of supplied 'ip' on input.
+                  - Length of stored 'ip' on output.
+ * @param[out]    port     Pointer to buffer where remote port shall be returned (NULL for none).
+ * @return        int32_t. Status information:
                   - 0                             = Operation successful.
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument (pointer to buffer or length).
@@ -308,13 +335,13 @@ extern int32_t iotSocketGetPeerName (int32_t socket, uint8_t *ip, uint32_t *ip_l
 /***************************************************************************/ /**
  * @brief
  *   Get socket option.
- * @param[in]     socket   socket identification number.
- * @param[in]     opt_id   option identifier.
- * @param[out]    opt_val  pointer to the buffer that will receive the option value.
- * @param[in,out] opt_len  pointer to length of the option value:
-                  - length of buffer on input.
-                  - length of data on output.
- * @return        status information:
+ * @param[in]     socket   Socket identification number.
+ * @param[in]     opt_id   Option identifier. One of the values from @ref IOT_SOCKET_OPTION_ID
+ * @param[out]    opt_val  Pointer to the buffer that will receive the option value.
+ * @param[in,out] opt_len  Pointer to length of the option value:
+                  - Length of buffer on input.
+                  - Length of data on output.
+ * @return        int32_t. Satus information:
                   - 0                             = Operation successful.
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument.
@@ -322,22 +349,22 @@ extern int32_t iotSocketGetPeerName (int32_t socket, uint8_t *ip, uint32_t *ip_l
                   - @ref IOT_SOCKET_ERROR         = Unspecified error.
  * @note
  *    The following are the options, which are supported currently.
- *                - IOT_SOCKET_IO_FIONBIO
- *                - IOT_SOCKET_SO_RCVTIMEO
- *                - IOT_SOCKET_SO_SNDTIMEO
- *                - IOT_SOCKET_SO_KEEPALIVE
- *                - IOT_SOCKET_SO_TYPE.
+ *                - @ref IOT_SOCKET_IO_FIONBIO
+ *                - @ref IOT_SOCKET_SO_RCVTIMEO
+ *                - @ref IOT_SOCKET_SO_SNDTIMEO
+ *                - @ref IOT_SOCKET_SO_KEEPALIVE
+ *                - @ref IOT_SOCKET_SO_TYPE.
  ******************************************************************************/
 extern int32_t iotSocketGetOpt (int32_t socket, int32_t opt_id, void *opt_val, uint32_t *opt_len);
 
 /***************************************************************************/ /**
  * @brief
  *   Set socket option.
- * @param[in]     socket   socket identification number.
- * @param[in]     opt_id   option identifier.
- * @param[in]     opt_val  pointer to the option value.
- * @param[in]     opt_len  length of the option value in bytes.
- * @return        status information:
+ * @param[in]     socket   Socket identification number.
+ * @param[in]     opt_id   Option identifier. One of the values from @ref IOT_SOCKET_OPTION_ID.
+ * @param[in]     opt_val  Pointer to the option value.
+ * @param[in]     opt_len  Length of the option value in bytes.
+ * @return        int32_t. Status information:
                   - 0                             = Operation successful.
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument.
@@ -345,38 +372,38 @@ extern int32_t iotSocketGetOpt (int32_t socket, int32_t opt_id, void *opt_val, u
                   - @ref IOT_SOCKET_ERROR         = Unspecified error.
  * @note
  *   The following are the options, which are supported currently.
- *                - IOT_SOCKET_IO_FIONBIO
- *                - IOT_SOCKET_SO_RCVTIMEO
- *                - IOT_SOCKET_SO_SNDTIMEO
- *                - IOT_SOCKET_SO_KEEPALIVE
- *                - IOT_SOCKET_SO_TYPE.
+ *                - @ref IOT_SOCKET_IO_FIONBIO
+ *                - @ref IOT_SOCKET_SO_RCVTIMEO
+ *                - @ref IOT_SOCKET_SO_SNDTIMEO
+ *                - @ref IOT_SOCKET_SO_KEEPALIVE
+ *                - @ref IOT_SOCKET_SO_TYPE.
  ******************************************************************************/
 extern int32_t iotSocketSetOpt (int32_t socket, int32_t opt_id, const void *opt_val, uint32_t opt_len);
 
 /***************************************************************************/ /**
  * @brief
  *   Close and release a socket.
- * @param[in]     socket   socket identification number.
- * @return        status information:
+ * @param[in]     socket   Socket identification number.
+ * @return        int32_t. Status information:
                   - 0                             = Operation successful.
                   - @ref IOT_SOCKET_ESOCK         = Invalid socket.
                   - @ref IOT_SOCKET_EAGAIN        = Operation would block (may be called again).
                   - @ref IOT_SOCKET_ERROR         = Unspecified error.
  * @note
- *   Calling close on server or first client socket would end up closing othet socket as well.
+ *   Calling close on server or first client socket would end up closing other socket as well.
  ******************************************************************************/
 extern int32_t iotSocketClose (int32_t socket);
 
 /***************************************************************************/ /**
  * @brief
  *   Retrieve host IP address from host name.
- * @param[in]     name     host name.
- * @param[in]     af       address family.
- * @param[out]    ip       pointer to buffer where resolved IP address shall be returned.
- * @param[in,out] ip_len   pointer to length of 'ip':
+ * @param[in]     name     Host name.
+ * @param[in]     af       Address family. One of value from IOT_SOCKET_ADDRESS_FAMILY
+ * @param[out]    ip       Pointer to buffer where resolved IP address shall be returned.
+ * @param[in,out] ip_len   Pointer to length of 'ip':
                   - length of supplied 'ip' on input.
                   - length of stored 'ip' on output.
- * @return        status information:
+ * @return        int32_t. Status information:
                   - 0                             = Operation successful.
                   - @ref IOT_SOCKET_EINVAL        = Invalid argument.
                   - @ref IOT_SOCKET_ENOTSUP       = Operation not supported.

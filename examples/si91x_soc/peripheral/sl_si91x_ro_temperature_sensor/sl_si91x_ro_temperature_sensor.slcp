@@ -8,18 +8,20 @@ quality: production
 readme:
   - path: readme.md
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 source:
   - path: ro_temperature_sensor_example.c
   - path: app.c
   - path: main.c
   - path: app.h
   - path: ro_temperature_sensor_example.h
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: status
@@ -30,6 +32,8 @@ component:
   - id: sl_ro_temperature_sensor
     from: wiseconnect3_sdk
   - id: sleeptimer
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png

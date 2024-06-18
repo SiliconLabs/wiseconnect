@@ -100,10 +100,8 @@
 /// @note bit 11 & bits 16 - 29 are reserved
 #define SL_SI91X_FEAT_LONG_ICMP_PACKET BIT(12)
 
-/*! @cond WIFI_TRANSCEIVER_MODE */
 /// Enable support to store peer information in the MAC layer.
 #define SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT BIT(13)
-/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /// To enable support for the Long HTTP GET URL. Maximum URL supported is 2048 bytes.
 #define SL_SI91X_FEAT_LONG_HTTP_URL BIT(14)
@@ -124,8 +122,7 @@
 /// TCP/IP bypass feature
 #define SL_SI91X_TCP_IP_FEAT_BYPASS BIT(0)
 
-/// Enable HTTP server feature
-#define SL_SI91X_TCP_IP_FEAT_HTTP_SERVER BIT(1)
+/// @note Bit 1 is reserved
 
 /// Enable DHCPv4 client feature
 #define SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT BIT(2)
@@ -157,9 +154,7 @@
 /// Enable ICMP feature(ping)
 #define SL_SI91X_TCP_IP_FEAT_ICMP BIT(11)
 
-/// Enable HTTP server
-/// @note Only supported in opermode 0
-#define SL_SI91X_TCP_IP_FEAT_HTTPS_SERVER BIT(12)
+/// @note Bit 12 is reserved
 
 /// @note Bit 13 is reserved
 
@@ -289,8 +284,7 @@
 /// @note Need to set pll_mode to 1 in feature frame command
 #define SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ BIT(24)
 
-/// HTTP server credentials to host in get configuration command
-#define SL_SI91X_CUSTOM_FEAT_HTTP_SERVER_CRED_TO_HOST BIT(25)
+/// @note Bit 25 is reserved
 
 /// For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will be rejected immediately
 /// @note By default, this bit value is zero. When BIT[26] = 0: For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will not be rejected. Instead device will maintain this connection request in LTCP pending list. This request will be served when any of the connected client is disconnected. When BIT[26] = 1: For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will be rejected immediately. Device will not maintain this connection request in LTCP pending list.
@@ -321,8 +315,7 @@
 /// To support 4096 size RSA KEY certificate
 #define SL_SI91X_EXT_FEAT_RSA_KEY_WITH_4096_SUPPORT BIT(1)
 
-/// Extended custom bitmap to support TELEC
-#define SL_SI91X_EXT_FEAT_TELEC_SUPPORT BIT(2)
+/// @note Bit 2 is reserved
 
 /// To support 4096 size KEY SSL certificate
 #define SL_SI91X_EXT_FEAT_SSL_CERT_WITH_4096_KEY_SUPPORT BIT(3)
@@ -528,8 +521,8 @@
 /// DHCP USER CLASS
 /// @note bit 0 is reserved
 #define SL_SI91X_EXT_TCP_FEAT_DHCP_OPT77 BIT(1)
-/// Enable HTTP server root path (Default configuration page) bypass
-#define SL_SI91X_EXT_TCP_IP_HTTP_SERVER_BYPASS BIT(2)
+
+/// @note Bit 2 is reserved
 /// TCP bi-dir ack update
 /// @note Need to enable this bit if user wants to run the bi-directional data transfer.
 #define SL_SI91X_EXT_TCP_IP_BI_DIR_ACK_UPDATE BIT(3)
@@ -729,12 +722,14 @@
 /// Disable Coded PHY from APP
 /// @note Device will support the LE-coded phy feature (i.e LR - 125kbps and 500kbps) by default. If this bit is enabled, the device will not the support of the LE-coded phy rates.
 #define SL_SI91X_BLE_DISABLE_CODED_PHY_FROM_HOST BIT(17)
-// BIT 19 for enabling advertising extensions
+/// BIT 19 for enabling advertising extensions
+/// @note advertising extensions enable or disable
 #define SL_SI91X_BLE_ENABLE_ADV_EXTN BIT(19)
-// ble_custom_ext_feature_bit_map[20:23] for max AE adv sets
+/// (num_adv_sets) max number of AE adv sets
+/// @note Bits [20-23], To select the number of AE adv sets.
 #define SL_SI91X_BLE_AE_MAX_ADV_SETS(num_adv_sets) (num_adv_sets << 20)
 
-/// @note Bits 21 -31 are reserved
+/// @note Bits 24 -31 are reserved
 /** @} */
 
 /** \addtogroup SI91X_CONFIG_FEATURE_BITMAP
@@ -1097,11 +1092,12 @@ static const sl_wifi_device_configuration_t sl_wifi_default_concurrent_v6_config
   .region_code = US,
   .boot_config = { .oper_mode       = SL_SI91X_CONCURRENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = SL_SI91X_FEAT_AGGREGATION,
+                   .feature_bit_map = SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_DISABLE_11AX_SUPPORT,
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER
                       | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_DHCPV6_SERVER
-                      | SL_SI91X_TCP_IP_FEAT_IPV6 | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                      | SL_SI91X_TCP_IP_FEAT_IPV6 | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
+                      | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT),
                    .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
 #ifdef SLI_SI917
@@ -1144,7 +1140,6 @@ static const sl_wifi_device_configuration_t sl_wifi_default_transmit_test_config
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
 
-/*! @cond WIFI_TRANSCEIVER_MODE */
 static const sl_wifi_device_configuration_t sl_wifi_default_transceiver_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
@@ -1171,6 +1166,5 @@ static const sl_wifi_device_configuration_t sl_wifi_default_transceiver_configur
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = 0 }
 };
-/*! @endcond WIFI_TRANSCEIVER_MODE */
 
 /** @} */

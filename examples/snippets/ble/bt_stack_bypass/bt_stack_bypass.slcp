@@ -10,9 +10,9 @@ filter:
     value: ["BLE"]
   - name: "Project Difficulty"
     value: ["Beginner"]
-sdk: {id: gecko_sdk, version: 4.4.3}
+sdk: {id: simplicity_sdk, version: 2024.6.0}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.2.0}
+- {id: wiseconnect3_sdk, version: 3.3.0}
 source:
   - path: app.c
   - path: main.c
@@ -71,8 +71,8 @@ configuration:
 readme:
   - path: readme.md
 other_file:
-  - path: resources/readme/blenewappncp.png
   - path: resources/readme/blenewappsoc.png
+  - path: resources/readme/consoleprints.png
 ui_hints:
   highlight:
     - path: readme.md

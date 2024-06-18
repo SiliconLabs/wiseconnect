@@ -20,6 +20,8 @@ include:
     - path: "sl_si91x_watchdog_timer.h"
 provides:
   - name: sl_watchdog_timer
+requires:
+  - name: systemlevel_wwdt
 documentation:
     docset: wiseconnect
     document: wiseconnect-api-reference-guide-si91x-peripherals/watchdog-timer

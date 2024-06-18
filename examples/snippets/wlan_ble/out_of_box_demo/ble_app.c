@@ -52,6 +52,7 @@
 #include "wifi_config.h"
 
 #include "glib.h"
+#include "logo_bitmaps.h"
 
 // BLE attribute service types UUID values
 #define RSI_BLE_CHAR_SERV_UUID   0x2803
@@ -149,7 +150,7 @@ extern GLIB_Context_t glibContext;
 /******************************************************
  *               Function Declarations
  ******************************************************/
-extern void sl_wifi_app_set_event(uint32_t event_num);
+extern void wifi_app_set_event(uint32_t event_num);
 void rsi_ble_on_enhance_conn_status_event(rsi_ble_event_enhance_conn_status_t *resp_enh_conn);
 void rsi_ble_on_conn_update_complete_event(rsi_ble_event_conn_update_t *rsi_ble_event_conn_update_complete,
                                            uint16_t resp_status);
@@ -157,7 +158,7 @@ void rsi_ble_on_remote_features_event(rsi_ble_event_remote_features_t *rsi_ble_e
 void rsi_ble_data_length_change_event(rsi_ble_event_data_length_update_t *rsi_ble_data_length_update);
 void rsi_ble_configurator_init(void);
 void rsi_ble_configurator_task(void *argument);
-void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
+void wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
 /*==============================================*/
 /**
  * @fn         rsi_ble_add_char_serv_att
@@ -550,7 +551,7 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
         //LOG_PRINT("Received scan request\n");
         retry = 0;
         memset(data, 0, sizeof(data));
-        sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
+        wifi_app_set_event(WIFI_APP_SCAN_STATE);
       } break;
 
       // Sending SSID
@@ -577,7 +578,7 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
         memset(data, 0, sizeof(data));
         strcpy((char *)pwd, (const char *)&rsi_ble_write->att_value[3]);
         //LOG_PRINT("PWD from ble app\n");
-        sl_wifi_app_set_event(SL_WIFI_JOIN_STATE);
+        wifi_app_set_event(WIFI_APP_JOIN_STATE);
       } break;
 
       // WLAN Status Request
@@ -597,7 +598,7 @@ static void rsi_ble_on_gatt_write_event(uint16_t event_id, rsi_ble_event_write_t
       {
         LOG_PRINT("WLAN disconnect request received\n");
         memset(data, 0, sizeof(data));
-        sl_wifi_app_set_event(SL_WIFI_DISCONN_NOTIFY_STATE);
+        wifi_app_set_event(WIFI_APP_DISCONN_NOTIFY_STATE);
       } break;
 
       // FW version request
@@ -700,7 +701,7 @@ void rsi_ble_configurator_init(void)
     GLIB_drawStringOnLine(&glibContext, "started", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
     GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
     GLIB_drawStringOnLine(&glibContext, "Device name:", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
-    GLIB_drawStringOnLine(&glibContext, "BLE_CONFIGURATOR", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
+    GLIB_drawStringOnLine(&glibContext, RSI_BLE_APP_DEVICE_NAME, currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
     GLIB_drawStringOnLine(&glibContext, " ", currentLine++, GLIB_ALIGN_LEFT, 5, 5, true);
     sprintf(fw,
             "%x%x.%d.%d.%d.%d.%d.%d",
@@ -806,17 +807,7 @@ adv:
           data[0] = 0x08;
           data[1] = sizeof(sl_wifi_firmware_version_t);
 
-          sprintf(fw,
-                  "%x%x.%d.%d.%d.%d.%d.%d",
-                  firmware_version.chip_id,
-                  firmware_version.rom_id,
-                  firmware_version.major,
-                  firmware_version.minor,
-                  firmware_version.security_version,
-                  firmware_version.patch_num,
-                  firmware_version.customer_id,
-                  firmware_version.build_num);
-          memcpy(&data[2], &fw, sizeof(fw));
+          memcpy(&data[2], &firmware_version, sizeof(sl_wifi_firmware_version_t));
           rsi_ble_set_local_att_value(rsi_ble_att2_val_hndl, RSI_BLE_MAX_DATA_LEN, data);
         } else {
           LOG_PRINT("\r\nFirmware version query failed, Error Code : 0x%lX\r\n", status);
@@ -873,7 +864,7 @@ adv:
       case RSI_SECTYPE: {
         rsi_ble_app_clear_event(RSI_SECTYPE);
         if (sec_type == 0) {
-          sl_wifi_app_set_event(SL_WIFI_JOIN_STATE);
+          wifi_app_set_event(WIFI_APP_JOIN_STATE);
         }
       } break;
 
@@ -990,34 +981,33 @@ adv:
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_send_to_ble
+ * @fn         wifi_app_send_to_ble
  * @brief      this function is used to send data to ble app.
  * @param[in]   msg_type, it indicates write/notification event id.
  * @param[in]  data, raw data pointer.
  * @param[in]  data_len, raw data length.
  * @return     none.
  * @section description
- * This is a callback function
  */
-void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len)
+void wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len)
 {
   switch (msg_type) {
-    case SL_WIFI_SCAN_RESP:
+    case WIFI_APP_SCAN_RESP:
       memset(scanresult, 0, data_len);
       memcpy(scanresult, (sl_wifi_scan_result_t *)data, data_len);
 
       rsi_ble_app_set_event(RSI_BLE_WLAN_SCAN_RESP);
       break;
-    case SL_WIFI_CONNECTION_STATUS:
+    case WIFI_APP_CONNECTION_STATUS:
       rsi_ble_app_set_event(RSI_BLE_WLAN_JOIN_STATUS);
       break;
-    case SL_WIFI_DISCONNECTION_STATUS:
+    case WIFI_APP_DISCONNECTION_STATUS:
       rsi_ble_app_set_event(RSI_BLE_WLAN_DISCONNECT_STATUS);
       break;
-    case SL_WIFI_DISCONNECTION_NOTIFY:
+    case WIFI_APP_DISCONNECTION_NOTIFY:
       rsi_ble_app_set_event(RSI_BLE_WLAN_DISCONN_NOTIFY);
       break;
-    case SL_WIFI_TIMEOUT_NOTIFY:
+    case WIFI_APP_TIMEOUT_NOTIFY:
       rsi_ble_app_set_event(RSI_BLE_WLAN_TIMEOUT_NOTIFY);
       break;
     default:

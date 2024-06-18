@@ -40,7 +40,7 @@ def ssl_rx():
   while not finnished:  
 
     #data_in = ""
-    data_in=connection.recv(1370)
+    data_in=connection.recv(1300)
 
 
     #print "data_in is %s" %data_in

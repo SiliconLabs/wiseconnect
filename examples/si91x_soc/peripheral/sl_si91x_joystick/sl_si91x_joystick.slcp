@@ -7,18 +7,20 @@ category: example|peripheral
 package: platform
 quality: production
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 source:
   - path: joystick_example.c
   - path: app.c
   - path: main.c
   - path: app.h
   - path: joystick_example.h
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: status
@@ -33,7 +35,9 @@ component:
     from: wiseconnect3_sdk
   - id: adc_instance
     instance:
-      - channel_0
+      - channel_1
+    from: wiseconnect3_sdk
+  - id: sl_clock_manager
     from: wiseconnect3_sdk
 define:
   - name: GAIN_OFFSET_CAL_EN

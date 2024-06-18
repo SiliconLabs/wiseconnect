@@ -82,60 +82,22 @@ The SiWx917 clock subsystem facilitates changing the clock source and/or frequen
 * Configurable independent division factors for varying the frequencies of different functional blocks
 * Configurable independent clock gating for different functional blocks
 
-By deafult the MCU clock is configured to 32MHz using the **RC_32MHZ_CLK** clock source.
+By deafult the MCU clock is configured to 40MHz using the **XTAL_CLK** clock source.
 
-The following example code snippet illustrates setting the SOCPLL clock (1 Mhz to 180 Mhz) as MCUSOC-Clock:
-
-```C
-//!Default keep M4 in reference clock 
-RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);  
-
-//! Enable fre-fetch and register if SOC-PLL frequency is more than or equal to 120 
-#if (PLL_OUT_FREQUENCY >= 120000000)
-  //!Configure the prefetch and registering when SOC clock is more than 120Mhz
-  ICACHE2_ADDR_TRANSLATE_1_REG = BIT(21); //Icache registering when clk freq more than 120
- 
-  //!When set, enables registering in M4-TA AHB2AHB. This will have performance penalty. 
-  //!This has to be set above 100MHz
-  MISC_CFG_SRAM_REDUNDANCY_CTRL = BIT(4);
-  MISC_CONFIG_MISC_CTRL1 |= BIT(4);  
-  MISC_QUASI_SYNC_MODE |= BIT(6);
-
-  //!Enable Inter subsystem memory Registering as m4_soc_clk clock is going to tass
-  MISC_QUASI_SYNC_MODE |= (BIT(6) | BIT(7));
-#endif
-
-//! Program PLL_OUT_FREQUENCY as 180MHZ
-#define PLL_OUT_FREQUENCY   180000000
-
-//!PLL_REFERENCE_FREQUENCY should be 40MHZ. Not recommended to change
-#define PLL_REFERENCE_FREQUENCY 40000000
-
-//!Configure the PLL frequency
-RSI_CLK_SetSocPllFreq(M4CLK, PLL_OUT_FREQUENCY, PLL_REFERENCE_FREQUENCY);  
-
-//!Switch M4 Core clock to SOCPLL  
-RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);   
-```
-
-The following example code snippet illustrates measuring the clock frequency:
+The following example code snippet illustrates setting the SOCPLL clock (1 MHz to 180 MHz) as MCUSOC-Clock:
 
 ```C
-#define PLL_OUT_FREQUENCY   180000000
-//!pad selection
-sl_si91x_gpio_enable_pad_selection(3);
+#include "sl_si91x_clock_manager.h"
 
-//!Configure the GPIO pin mux to MCU clock Out ,and observe clock on GPIO 12
-sl_gpio_set_pin_mode(0, GPIO_12, EGPIO_PIN_MUX_MODE8, 0);  
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
 
-#if (PLL_OUT_FREQUENCY >= 120000000)   
-  //!Enable MCU clock OUT divide/2
-  RSI_CLK_McuClkOutConfig(M4CLK, MCUCLKOUT_SOC_PLL_CLK, 1);
-#else   
-  //!Enable MCU clock OUT divide/1 
-  RSI_CLK_McuClkOutConfig(M4CLK, MCUCLKOUT_SOC_PLL_CLK, 0);
-#endif
+// Core Clock runs at 180MHz SOC PLL Clock
+sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
 ```
+> **Note**
+1. **Clock Manager** component needs to be installed to use this function
+2. For reference, look into example applications where the MCU clock is reconfigured to 180MHz in the application using the function **default_clock_configuration();**
 
 ### GPIO Configuration
 
@@ -165,7 +127,7 @@ The SiWx917 provides multiplexing features on several pins. It is possible to co
 
 There are many digital and analog peripherals on the SiWx917 such as the I2C, I2S, UART, SPI, Ethernet, SDIO, SDMEM, PWM, QEI, CAN, etc. However, the number of pins is limited. 
 
-The pin multiplexing module makes it possbible to accommodate all of the peripherals in a small package without compromising on functionality. The module makes it possible to multiplex different functions on the same I/O pin. If a I/O pin is used for a peripheral function, it cannot be used as GPIO. The reset values for the GPIO mode for each of the GPIOs are provided in the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access) under **PAD Configuration and GPIO Mode Reset Values** section  .
+The pin multiplexing module makes it possible to accommodate all of the peripherals in a small package without compromising on functionality. The module makes it possible to multiplex different functions on the same I/O pin. If a I/O pin is used for a peripheral function, it cannot be used as GPIO. The reset values for the GPIO mode for each of the GPIOs are provided in the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access) under **PAD Configuration and GPIO Mode Reset Values** section  .
 
 Refer to the **SiWx917 Pin MUX** section in the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
@@ -303,7 +265,7 @@ Each of these GPIO pin functions is controlled by the Special Function ULP regis
 | 11 | ULPPERH_ON_SOC_GPIO_11 | ULP_EGPIO[11] | ULP_SPI_DOUT | ULP_I2S_DOUT | ULP_UART_TX | ULP_I2C_SDA | AUX_ULP_TRIG_0 |  |  |  |  |  |  |
 
 ```C
-/* Example for configuring GPIO6 in UART2_RX(mode 6) */
+/* Example for configuring GPIO10 in UART2_RX(mode 6) */
 #define PORT        0
 #define GPIO_PIN    PIN10
 #define PAD_NUM     2
@@ -399,6 +361,36 @@ sl_si91x_gpio_enable_pad_selection(30);​
 sl_gpio_set_pin_mode(PORT0, PIN72, MODE1, OUTPUT_VALUE);
 ```
 
+### User callback recommendation
+- In RTOS environment, prefer Signaling mechanisms (Semaphore/Mutex/EventFlag etc.) instead of "Variables/Flags" from user callbacks to detect "*Transfer Complete*" for high speed communication peripherals
+
+Refer below GSPI callback's sample code snippet demonstrating Mutex mechanism when RTOS is used:
+
+```C
+/*******************************************************************************
+ * Callback event function
+ * It is responsible for the event which are triggered by GSPI interface
+ * It updates the respective member of the structure as the event is triggered.
+ ******************************************************************************/
+static void user_callback(uint32_t event)
+{
+  switch (event) {
+    case SL_GSPI_TRANSFER_COMPLETE:
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+      osMutexRelease(mutex_id);
+#else
+      gspi_transfer_complete = true;
+#endif
+      break;
+
+    case SL_GSPI_DATA_LOST:
+      break;
+
+    case SL_GSPI_MODE_FAULT:
+      break;
+  }
+}
+```
 ### Power Save
 
 The SiWx917 SoC supports sleep on both the MCU and NWP with or without RAM retention.
@@ -543,13 +535,13 @@ The `SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION` macro will be enabled if the **de
 
 > **Note:** We recommend you install this component when your application implements one or more of the above scenarios.
 
-#### ULP_MODE_EXECUTION
 
-Enable this macro to execute the MCU in ultra low power (ULP) mode. In ULP mode, the flash memory is turned off and all text and code will be copied to RAM and executed from there.
+### SLI_SI91X_MCU_4MB_LITE_IMAGE
 
-The `ULP_MODE_EXECUTION` macro will be enabled if the **ulp_mode_execution** component is present in the example slcp file. The slcp file can be edited in the example project in Simplicity Studio.
+The current wireless flash image is 1.6MB. An lite image has been implemented to free up the space for MCU applications.
+Lite config is used for 4MB SoC OPN where 1.3 MB allocated for the TA image and ~1MB reserved for the M4 image
 
->**Note:** We recommend you install this component when your application needs to run in the ultra low power mode or to use peripherals.
+The `SLI_SI91X_MCU_4MB_LITE_IMAGE` macro will be enabled if the **lite_image_for_4mb** component is installed.
 
 For low power M4 sleep states such as PS2, PS3, and PS4, certain files must be run from RAM memory.. Please refer [Power manager integration guide](
 https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf

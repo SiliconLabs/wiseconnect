@@ -142,6 +142,8 @@ sl_status_t sl_si91x_host_uart_transfer(
 
 void sl_si91x_host_flush_uart_rx(void); /*Function used to flush all the old data in the uart/usart rx stream*/
 
+void sl_si91x_host_uart_enable_hardware_flow_control(void); /*Function to enable Hardware Flow Control on host*/
+
 /**
  * @brief Check whether the current CPU operation mode is handler mode
  * 

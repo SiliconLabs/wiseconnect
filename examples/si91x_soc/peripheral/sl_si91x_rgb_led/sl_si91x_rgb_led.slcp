@@ -1,0 +1,53 @@
+project_name: sl_si91x_rgb_led
+label: Si91x - RGB LED
+description: |
+  Demonstrates how to use RGB LED
+category: example|peripheral
+package: platform
+quality: production
+sdk:
+  id: simplicity_sdk
+  version: 2024.6.0
+sdk_extension:
+  - id: wiseconnect3_sdk
+    version: 3.3.0
+source:
+  - path: app.c
+  - path: main.c
+  - path: rgb_led.c
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: rgb_led.h
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
+component:
+  - id: sl_system
+  - id: syscalls
+    from: wiseconnect3_sdk
+  - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: sleeptimer
+  - id: sl_si91x_rgb_led_917
+    instance:
+      - red
+      - green
+      - blue
+    from: wiseconnect3_sdk
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
+other_file:
+  - path: resources/readme/setupdiagram.png
+define:
+  - name: SYSCALLS_WRITE
+readme:
+  - path: readme.md
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true
+post_build:
+  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+

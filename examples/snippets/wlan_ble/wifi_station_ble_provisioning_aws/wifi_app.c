@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -54,7 +54,7 @@
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "sl_si91x_power_manager.h"
 #include "rsi_rom_power_save.h"
-
+#include "sl_si91x_driver_gpio.h"
 //! I2C related files
 #include "i2c_leader_example.h"
 #include "rsi_ps_config.h"
@@ -82,6 +82,12 @@
 #include "aws_iot_version.h"
 #include "aws_iot_mqtt_client_interface.h"
 #include <rsi_ble_apis.h>
+
+#include "FreeRTOSConfig.h"
+
+#if (defined(SLI_SI91X_MCU_INTERFACE) && (SL_SI91X_TICKLESS_MODE == 0))
+#include "sl_si91x_m4_ps.h"
+#endif
 
 extern rsi_ble_event_conn_status_t conn_event_to_app;
 
@@ -113,6 +119,7 @@ static volatile sl_status_t callback_status = SL_STATUS_OK;
 uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
 sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+osSemaphoreId_t data_received_semaphore;
 
 uint8_t connected = 0, timeout = 0;
 uint8_t disconnected = 0, disassosiated = 0;
@@ -144,9 +151,9 @@ int32_t status1            = RSI_SUCCESS;
 AWS_IoT_Client mqtt_client = { 0 };
 #define RSI_FD_ISSET(x, y) rsi_fd_isset(x, y)
 
-typedef struct sl_wlan_app_cb_s {
-  //! wlan application state
-  volatile sl_wifi_app_state_t state;
+typedef struct wlan_app_cb_s {
+  //! wifi application state
+  volatile wifi_app_state_t state;
 
   //! length of buffer to copy
   uint32_t length;
@@ -160,21 +167,21 @@ typedef struct sl_wlan_app_cb_s {
   //! application events bit map
   uint32_t event_map;
 
-} sl_wlan_app_cb_t;
-sl_wlan_app_cb_t sl_wlan_app_cb; //! application control block
+} wlan_app_cb_t;
+wlan_app_cb_t wlan_app_cb; //! application control block
 
 /*
  *********************************************************************************************************
  *                                               DATA TYPES
  *********************************************************************************************************
  */
-extern void sl_wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
+extern void wifi_app_send_to_ble(uint16_t msg_type, uint8_t *data, uint16_t data_len);
 extern uint8_t coex_ssid[50], pwd[34], sec_type;
-void sl_wifi_mqtt_task(void);
+void wifi_app_mqtt_task(void);
 void m4_sleep_wakeup(void);
 void wakeup_source_config(void);
 static sl_status_t show_scan_results();
-void sl_wifi_app_set_event(uint32_t event_num);
+void wifi_app_set_event(uint32_t event_num);
 
 uint8_t conn_status;
 extern uint8_t magic_word;
@@ -182,16 +189,31 @@ extern uint8_t magic_word;
 // WLAN include file for configuration
 osSemaphoreId_t rsi_mqtt_sem;
 extern osSemaphoreId_t wlan_thread_sem;
+
+#ifdef SLI_SI91X_MCU_INTERFACE
+void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
+{
+  (void)(pin_intr);
+  //NPSS GPIO-2 interrupt clr
+  (*(volatile uint32_t *)(0x12080000UL + 0x08)) = 0x08; //NPSS GPIO-2 interrupt clr
+
+  while (sl_si91x_gpio_get_uulp_npss_pin(2) == 0)
+    ; // waiting for the button release
+#if (SL_SI91X_TICKLESS_MODE == ENABLE)
+  osSemaphoreRelease(data_received_semaphore);
+#endif
+}
+#endif
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_set_event
+ * @fn         wifi_app_set_event
  * @brief      sets the specific event.
  * @param[in]  event_num, specific event number.
  * @return     none.
  * @section description
  * This function is used to set/raise the specific event.
  */
-void sl_wifi_app_set_event(uint32_t event_num)
+void wifi_app_set_event(uint32_t event_num)
 {
   wlan_app_event_map |= BIT(event_num);
 
@@ -202,14 +224,14 @@ void sl_wifi_app_set_event(uint32_t event_num)
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_clear_event
+ * @fn         wifi_app_clear_event
  * @brief      clears the specific event.
  * @param[in]  event_num, specific event number.
  * @return     none.
  * @section description
  * This function is used to clear the specific event.
  */
-void sl_wifi_app_clear_event(uint32_t event_num)
+void wifi_app_clear_event(uint32_t event_num)
 {
   wlan_app_event_map &= ~BIT(event_num);
   return;
@@ -217,7 +239,7 @@ void sl_wifi_app_clear_event(uint32_t event_num)
 
 /*==============================================*/
 /**
- * @fn         sl_wifi_app_get_event
+ * @fn         wifi_app_get_event
  * @brief      returns the first set event based on priority
  * @param[in]  none.
  * @return     int32_t
@@ -226,7 +248,7 @@ void sl_wifi_app_clear_event(uint32_t event_num)
  * @section description
  * This function returns the highest priority event among all the set events
  */
-int32_t sl_wifi_app_get_event(void)
+int32_t wifi_app_get_event(void)
 {
   uint32_t ix;
 
@@ -251,7 +273,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
   disconnected = 1;
   connected    = 0;
 
-  sl_wifi_app_set_event(SL_WIFI_DISCONNECTED_STATE);
+  wifi_app_set_event(WIFI_APP_DISCONNECTED_STATE);
 
   return SL_STATUS_OK;
 }
@@ -269,9 +291,10 @@ void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, i
   UNUSED_PARAMETER(status1);
   //!Check the data pending on this particular socket descriptor
   if (FD_ISSET(mqtt_client.networkStack.socket_id, fd_read)) {
+    osSemaphoreRelease(data_received_semaphore);
     check_for_recv_data = 1;
   }
-  sl_wifi_app_set_event(RSI_AWS_SELECT_CONNECT_STATE);
+  wifi_app_set_event(WIFI_APP_AWS_SELECT_CONNECT_STATE);
 }
 
 /**
@@ -297,7 +320,7 @@ static void iot_subscribe_callback_handler(AWS_IoT_Client *pClient,
   publish_msg = 1;
 #endif
 
-  sl_wifi_app_set_event(RSI_AWS_SELECT_CONNECT_STATE);
+  wifi_app_set_event(WIFI_APP_AWS_SELECT_CONNECT_STATE);
 }
 
 static void disconnectCallbackHandler(AWS_IoT_Client *pClient, void *data)
@@ -431,10 +454,11 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   return SL_STATUS_OK;
 }
 
-void sl_wifi_app_task(void)
+void wifi_app_task(void)
 {
-  int32_t status   = RSI_SUCCESS;
-  int32_t event_id = 0;
+  int32_t status          = RSI_SUCCESS;
+  int32_t event_id        = 0;
+  data_received_semaphore = osSemaphoreNew(1, 0, NULL);
 
   // Allocate memory for scan buffer
   scan_result = (sl_wifi_scan_result_t *)malloc(scanbuf_size);
@@ -445,7 +469,7 @@ void sl_wifi_app_task(void)
   memset(scan_result, 0, scanbuf_size);
   while (1) {
     // checking for events list
-    event_id = sl_wifi_app_get_event();
+    event_id = wifi_app_get_event();
     if (event_id == -1) {
       osSemaphoreAcquire(wlan_thread_sem, osWaitForever);
 
@@ -454,26 +478,26 @@ void sl_wifi_app_task(void)
     }
 
     switch (event_id) {
-      case SL_WIFI_INITIAL_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_INITIAL_STATE);
+      case WIFI_APP_INITIAL_STATE: {
+        wifi_app_clear_event(WIFI_APP_INITIAL_STATE);
 
         // update wlan application state
         if (magic_word) {
           // clear the served event
-          sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
+          wifi_app_set_event(WIFI_APP_FLASH_STATE);
         } else {
-          sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
+          wifi_app_set_event(WIFI_APP_SCAN_STATE);
         }
       } break;
 
-      case SL_WIFI_UNCONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_UNCONNECTED_STATE);
+      case WIFI_APP_UNCONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_UNCONNECTED_STATE);
 
         osSemaphoreRelease(wlan_thread_sem);
       } break;
 
-      case SL_WIFI_SCAN_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_SCAN_STATE);
+      case WIFI_APP_SCAN_STATE: {
+        wifi_app_clear_event(WIFI_APP_SCAN_STATE);
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
@@ -491,20 +515,20 @@ void sl_wifi_app_task(void)
         }
         if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nWLAN Scan Wait Failed, Error Code : 0x%lX\r\n", status);
-          sl_wifi_app_set_event(SL_WIFI_SCAN_STATE);
+          wifi_app_set_event(WIFI_APP_SCAN_STATE);
           osDelay(1000);
         } else {
           // update wlan application state
-          sl_wifi_app_send_to_ble(SL_WIFI_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
+          wifi_app_send_to_ble(WIFI_APP_SCAN_RESP, (uint8_t *)scan_result, scanbuf_size);
         }
       } break;
 
-      case SL_WIFI_JOIN_STATE: {
+      case WIFI_APP_JOIN_STATE: {
         sl_wifi_credential_t cred  = { 0 };
         sl_wifi_credential_id_t id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
         memset(&access_point, 0, sizeof(sl_wifi_client_configuration_t));
 
-        sl_wifi_app_clear_event(SL_WIFI_JOIN_STATE);
+        wifi_app_clear_event(WIFI_APP_JOIN_STATE);
 
         cred.type = SL_WIFI_PSK_CREDENTIAL;
         memcpy(cred.psk.value, pwd, strlen((char *)pwd));
@@ -524,7 +548,7 @@ void sl_wifi_app_task(void)
         }
         if (status != RSI_SUCCESS) {
           timeout = 1;
-          sl_wifi_app_send_to_ble(SL_WIFI_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
+          wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
           LOG_PRINT("\r\nWLAN Connect Failed, Error Code : 0x%lX\r\n", status);
 
           // update wlan application state
@@ -533,13 +557,12 @@ void sl_wifi_app_task(void)
         } else {
           LOG_PRINT("\n WLAN Connection Success\r\n");
           // update wlan application state
-          sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
+          wifi_app_set_event(WIFI_APP_CONNECTED_STATE);
         }
-        //LOG_PRINT("RSI_WLAN_JOIN_STATE\n");
       } break;
 
-      case SL_WIFI_FLASH_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_FLASH_STATE);
+      case WIFI_APP_FLASH_STATE: {
+        wifi_app_clear_event(WIFI_APP_FLASH_STATE);
 
         if (retry) {
           status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
@@ -547,13 +570,13 @@ void sl_wifi_app_task(void)
             LOG_PRINT("\r\nWLAN Connect Failed, Error Code : 0x%lX\r\n", status);
             break;
           } else {
-            sl_wifi_app_set_event(SL_WIFI_CONNECTED_STATE);
+            wifi_app_set_event(WIFI_APP_CONNECTED_STATE);
           }
         }
       } break;
 
-      case SL_WIFI_CONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_CONNECTED_STATE);
+      case WIFI_APP_CONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_CONNECTED_STATE);
 
         ip_address.type      = SL_IPV4;
         ip_address.mode      = SL_IP_MANAGEMENT_DHCP;
@@ -570,8 +593,8 @@ void sl_wifi_app_task(void)
             if (status == RSI_SUCCESS) {
               connected     = 0;
               disassosiated = 1;
-              sl_wifi_app_send_to_ble(SL_WIFI_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
-              sl_wifi_app_set_event(SL_WIFI_ERROR_STATE);
+              wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
+              wifi_app_set_event(WIFI_APP_ERROR_STATE);
             }
           }
           LOG_PRINT("\r\nIP Config Failed, Error Code : 0x%lX\r\n", status);
@@ -591,35 +614,35 @@ void sl_wifi_app_task(void)
 #endif
 
           // update wlan application state
-          sl_wifi_app_set_event(SL_WIFI_IPCONFIG_DONE_STATE);
-          sl_wifi_app_send_to_ble(SL_WIFI_CONNECTION_STATUS, (uint8_t *)&connected, 1);
+          wifi_app_set_event(WIFI_APP_IPCONFIG_DONE_STATE);
+          wifi_app_send_to_ble(WIFI_APP_CONNECTION_STATUS, (uint8_t *)&connected, 1);
         }
       } break;
 
-      case SL_WIFI_IPCONFIG_DONE_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_IPCONFIG_DONE_STATE);
-        sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
+      case WIFI_APP_IPCONFIG_DONE_STATE: {
+        wifi_app_clear_event(WIFI_APP_IPCONFIG_DONE_STATE);
+        wlan_app_cb.state = WIFI_APP_MQTT_INIT_STATE;
 
-        sl_wifi_mqtt_task();
+        wifi_app_mqtt_task();
 
-        LOG_PRINT("SL_WIFI_IPCONFIG_DONE_STATE\r\n");
+        LOG_PRINT("WIFI App IPCONFIG Done State\r\n");
       } break;
 
-      case SL_WIFI_ERROR_STATE: {
+      case WIFI_APP_ERROR_STATE: {
 
       } break;
 
-      case SL_WIFI_DISCONNECTED_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_DISCONNECTED_STATE);
+      case WIFI_APP_DISCONNECTED_STATE: {
+        wifi_app_clear_event(WIFI_APP_DISCONNECTED_STATE);
         retry = 1;
-        sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_STATUS, (uint8_t *)&disconnected, 1);
-        sl_wifi_app_set_event(SL_WIFI_FLASH_STATE);
+        wifi_app_send_to_ble(WIFI_APP_DISCONNECTION_STATUS, (uint8_t *)&disconnected, 1);
+        wifi_app_set_event(WIFI_APP_FLASH_STATE);
 
-        LOG_PRINT("SL_WIFI_DISCONNECTED_STATE\r\n");
+        LOG_PRINT("WIFI App Disconnected State\r\n");
       } break;
 
-      case SL_WIFI_DISCONN_NOTIFY_STATE: {
-        sl_wifi_app_clear_event(SL_WIFI_DISCONN_NOTIFY_STATE);
+      case WIFI_APP_DISCONN_NOTIFY_STATE: {
+        wifi_app_clear_event(WIFI_APP_DISCONN_NOTIFY_STATE);
 
         status = sl_wifi_disconnect(SL_WIFI_CLIENT_INTERFACE);
         if (status == RSI_SUCCESS) {
@@ -632,8 +655,8 @@ void sl_wifi_app_task(void)
           yield           = 0;
           disconnect_flag = 0; // reset flag to allow disconnecting again
 
-          sl_wifi_app_send_to_ble(SL_WIFI_DISCONNECTION_NOTIFY, (uint8_t *)&disassosiated, 1);
-          sl_wifi_app_set_event(SL_WIFI_UNCONNECTED_STATE);
+          wifi_app_send_to_ble(WIFI_APP_DISCONNECTION_NOTIFY, (uint8_t *)&disassosiated, 1);
+          wifi_app_set_event(WIFI_APP_UNCONNECTED_STATE);
         } else {
           LOG_PRINT("\r\nWIFI Disconnect Failed, Error Code : 0x%lX\r\n", status);
         }
@@ -648,10 +671,9 @@ void sl_wifi_app_task(void)
   }
 }
 
-void sl_wifi_mqtt_task(void)
+void wifi_app_mqtt_task(void)
 {
-  IoT_Error_t rc     = FAILURE;
-  sl_status_t status = 0;
+  IoT_Error_t rc = FAILURE;
 
   IoT_Client_Init_Params mqttInitParams   = iotClientInitParamsDefault;
   IoT_Client_Connect_Params connectParams = iotClientConnectParamsDefault;
@@ -700,68 +722,68 @@ void sl_wifi_mqtt_task(void)
   connectParams.pPassword   = MQTT_PASSWORD;
   connectParams.passwordLen = strlen(MQTT_PASSWORD);
 
-  sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
+  wlan_app_cb.state = WIFI_APP_MQTT_INIT_STATE;
 
   osSemaphoreRelease(rsi_mqtt_sem);
 
   while (1) {
     osSemaphoreAcquire(rsi_mqtt_sem, osWaitForever);
 
-    if (sl_wifi_app_get_event() == SL_WIFI_DISCONN_NOTIFY_STATE) {
+    if (wifi_app_get_event() == WIFI_APP_DISCONN_NOTIFY_STATE) {
       LOG_PRINT("WLAN disconnect initiated\r\n");
       return;
     }
 
-    switch (sl_wlan_app_cb.state) {
+    switch (wlan_app_cb.state) {
 
-      case SL_WIFI_MQTT_INIT_STATE: {
+      case WIFI_APP_MQTT_INIT_STATE: {
         rc = aws_iot_mqtt_init(&mqtt_client, &mqttInitParams);
         if (SUCCESS != rc) {
-          sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
+          wlan_app_cb.state = WIFI_APP_MQTT_INIT_STATE;
           LOG_PRINT("\r\nMqtt Init failed with error: %d\r\n", rc);
         } else {
-          sl_wlan_app_cb.state = SL_WIFI_MQTT_CONNECT_STATE;
+          wlan_app_cb.state = WIFI_APP_MQTT_CONNECT_STATE;
         }
 
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
 
-      case SL_WIFI_MQTT_CONNECT_STATE: {
+      case WIFI_APP_MQTT_CONNECT_STATE: {
         LOG_PRINT("AWS IOT MQTT Connecting...\r\n");
         rc = aws_iot_mqtt_connect(&mqtt_client, &connectParams);
         if (SUCCESS != rc) {
           if (rc == NETWORK_ALREADY_CONNECTED_ERROR) {
             LOG_PRINT("Network is already connected\r\n");
-            //sl_wlan_app_cb.state = RSI_WLAN_MQTT_PUBLISH_STATE;
+            //wlan_app_cb.state = WIFI_APP_MQTT_PUBLISH_STATE;
           } else {
             LOG_PRINT("\r\nMqtt Connect failed with error: %d\r\n", rc);
-            sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
+            wlan_app_cb.state = WIFI_APP_MQTT_INIT_STATE;
           }
         } else {
-          sl_wlan_app_cb.state = SL_WIFI_MQTT_AUTO_RECONNECT_SET_STATE;
+          wlan_app_cb.state = WIFI_APP_MQTT_AUTO_RECONNECT_SET_STATE;
         }
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
 
-      case SL_WIFI_MQTT_AUTO_RECONNECT_SET_STATE: {
+      case WIFI_APP_MQTT_AUTO_RECONNECT_SET_STATE: {
         rc = aws_iot_mqtt_autoreconnect_set_status(&mqtt_client, false);
         if (SUCCESS != rc) {
           if (NETWORK_DISCONNECTED_ERROR == rc) {
             LOG_PRINT("MQTT auto reconnect error : %d\r\n", rc);
-            sl_wlan_app_cb.state = SL_WIFI_MQTT_CONNECT_STATE;
+            wlan_app_cb.state = WIFI_APP_MQTT_CONNECT_STATE;
           } else if (NETWORK_ATTEMPTING_RECONNECT == rc) {
             // If the client is attempting to reconnect we will skip the rest of the loop.
             continue;
           }
           LOG_PRINT("Unable to set Auto Reconnect to true\r\n ");
-          sl_wlan_app_cb.state = SL_WIFI_MQTT_AUTO_RECONNECT_SET_STATE;
+          wlan_app_cb.state = WIFI_APP_MQTT_AUTO_RECONNECT_SET_STATE;
         } else {
-          sl_wlan_app_cb.state = SL_WIFI_MQTT_SUBSCRIBE_STATE;
+          wlan_app_cb.state = WIFI_APP_MQTT_SUBSCRIBE_STATE;
         }
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
 
-      case SL_WIFI_MQTT_SUBSCRIBE_STATE: {
+      case WIFI_APP_MQTT_SUBSCRIBE_STATE: {
         LOG_PRINT("\r\nAWS IOT MQTT Subscribe...\r\n");
         rc = aws_iot_mqtt_subscribe(&mqtt_client,
                                     MQTT_TOPIC1,
@@ -773,14 +795,14 @@ void sl_wifi_mqtt_task(void)
         if (SUCCESS != rc) {
           if (NETWORK_DISCONNECTED_ERROR == rc) {
             LOG_PRINT("\r\nSubscribe error : %d\r\n", rc);
-            sl_wlan_app_cb.state = SL_WIFI_MQTT_CONNECT_STATE;
+            wlan_app_cb.state = WIFI_APP_MQTT_CONNECT_STATE;
           } else if (NETWORK_ATTEMPTING_RECONNECT == rc) {
             // If the client is attempting to reconnect we will skip the rest of the loop.
             continue;
           }
-          sl_wlan_app_cb.state = SL_WIFI_MQTT_SUBSCRIBE_STATE;
+          wlan_app_cb.state = WIFI_APP_MQTT_SUBSCRIBE_STATE;
         }
-        sl_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
+        wlan_app_cb.state = WIFI_APP_AWS_SELECT_CONNECT_STATE;
 #if ENABLE_POWER_SAVE
         //! initiating power save in BLE mode
         if (rsi_bt_power_save_profile(PSP_MODE, PSP_TYPE) != RSI_SUCCESS) {
@@ -790,8 +812,8 @@ void sl_wifi_mqtt_task(void)
         sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
                                                               .listen_interval = 1000 };
 
-        status = sl_wifi_set_performance_profile(&performance_profile);
-        if (rc != SL_STATUS_OK) {
+        sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);
+        if (status != SL_STATUS_OK) {
           LOG_PRINT("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
         }
         LOG_PRINT("\r\nAssociated Power Save Enabled\r\n");
@@ -800,7 +822,7 @@ void sl_wifi_mqtt_task(void)
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
 
-      case RSI_AWS_SELECT_CONNECT_STATE: {
+      case WIFI_APP_AWS_SELECT_CONNECT_STATE: {
         {
 
           if (!select_given) {
@@ -819,15 +841,15 @@ void sl_wifi_mqtt_task(void)
             select_given        = 0;
             status1             = aws_iot_shadow_yield(&mqtt_client, 1);
 
-            sl_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
+            wlan_app_cb.state = WIFI_APP_AWS_SELECT_CONNECT_STATE;
           } else {
-            sl_wlan_app_cb.state = SL_WIFI_MQTT_PUBLISH_STATE;
+            wlan_app_cb.state = WIFI_APP_MQTT_PUBLISH_STATE;
           }
         }
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
 
-      case SL_WIFI_MQTT_PUBLISH_STATE: {
+      case WIFI_APP_MQTT_PUBLISH_STATE: {
         if (NETWORK_ATTEMPTING_RECONNECT == rc) {
           // If the client is attempting to reconnect we will skip the rest of the loop.
           continue;
@@ -859,7 +881,7 @@ void sl_wifi_mqtt_task(void)
 
           if (rc != SUCCESS) {
             LOG_PRINT("\r\nMqtt Publish for QOS0 failed with error: %d\r\n", rc);
-            sl_wlan_app_cb.state = SL_WLAN_MQTT_DISCONNECT;
+            wlan_app_cb.state = WIFI_APP_MQTT_DISCONNECT;
           }
 
           if (rc == MQTT_REQUEST_TIMEOUT_ERROR) {
@@ -883,47 +905,52 @@ void sl_wifi_mqtt_task(void)
 
 #endif
 
-        sl_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
+        wlan_app_cb.state = WIFI_APP_AWS_SELECT_CONNECT_STATE;
 
 #if ENABLE_POWER_SAVE
-        sl_wlan_app_cb.state = RSI_SLEEP_STATE;
+        wlan_app_cb.state = WIFI_APP_SLEEP_STATE;
 #endif
 
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
 
 #if ENABLE_POWER_SAVE
-      case RSI_SLEEP_STATE: {
+      case WIFI_APP_SLEEP_STATE: {
         osDelay(200);
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 
         if (select_given == 1 && (check_for_recv_data != 1)) {
           printf("M4 in sleep\r\n");
-          sl_si91x_power_manager_sleep();
+#if (SL_SI91X_TICKLESS_MODE == 0)
+          sl_si91x_m4_sleep_wakeup();
+#else
+          if (osSemaphoreAcquire(data_received_semaphore, PUBLISH_PERIODICITY) == osOK) {
+          }
+#endif
           printf("M4 Wake up\r\n");
         }
 
 #endif
 
-        sl_wlan_app_cb.state = RSI_AWS_SELECT_CONNECT_STATE;
+        wlan_app_cb.state = WIFI_APP_AWS_SELECT_CONNECT_STATE;
 
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
 #endif
 
-      case SL_WLAN_MQTT_DISCONNECT: {
+      case WIFI_APP_MQTT_DISCONNECT: {
         rc = aws_iot_mqtt_disconnect(&mqtt_client);
         if (SUCCESS != rc) {
           LOG_PRINT("MQTT Disconnection error : %d\r\n", rc);
-          sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
+          wlan_app_cb.state = WIFI_APP_MQTT_INIT_STATE;
         } else {
           LOG_PRINT("MQTT Disconnection Successful\r\n");
-          sl_wlan_app_cb.state = SL_WIFI_MQTT_INIT_STATE;
+          wlan_app_cb.state = WIFI_APP_MQTT_INIT_STATE;
         }
         osSemaphoreRelease(rsi_mqtt_sem);
       } break;
-      case SL_WIFI_DISCONN_NOTIFY_STATE: {
+      case WIFI_APP_DISCONN_NOTIFY_STATE: {
         return;
       }
       default:

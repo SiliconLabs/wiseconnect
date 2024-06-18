@@ -27,10 +27,7 @@ include:
 provides:
   - name: sl_ssi
 define:
-  - name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
-  - name: SPI_MULTI_SLAVE
   - name: SSI_CONFIG
-  - name: SL_SI91X_DMA
   - name: SL_SI91X_SSI_DMA
 requires:
   - name: udma_linker_config

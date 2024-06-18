@@ -16,13 +16,14 @@
  ******************************************************************************/
 
 #include "button_baremetal.h"
-#include "rsi_chip.h"
+
 #include "sl_si91x_led.h"
 #include "sl_si91x_button.h"
 #include "sl_si91x_button_pin_config.h"
 #include "sl_si91x_led_config.h"
 #include "sl_si91x_button_instances.h"
 #include "sl_si91x_led_instances.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -35,14 +36,29 @@
 #define LED_INSTANCE_0 led_led0
 #endif
 
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
+
 /*******************************************************************************
  ***************************  LOCAL VARIABLES   ********************************
  ******************************************************************************/
-
+/*******************************************************************************
+**********************  Local Function prototypes   ***************************
+******************************************************************************/
+static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
 
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
@@ -52,6 +68,9 @@
  ******************************************************************************/
 void button_init(void)
 {
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   return;
 }
 

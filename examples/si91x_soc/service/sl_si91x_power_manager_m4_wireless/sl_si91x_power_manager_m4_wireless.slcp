@@ -6,11 +6,11 @@ category: example|service
 package: platform
 quality: production
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 readme:
   - path: readme.md
 source:
@@ -19,10 +19,13 @@ source:
   - path: app.h
   - path: power_manager_m4_wireless_example.c
   - path: power_manager_m4_wireless_example.h
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: freertos
+  - id: freertos_heap_4
   - id: syscalls
     from: wiseconnect3_sdk
   - id: si917_memory_default_config
@@ -74,8 +77,14 @@ template_contribution:
   - name: user_files_ps2
     value: main.o
 define:
+  - name: SL_SI91X_NPSS_GPIO_BTN_HANDLER
+    value: "1"
+  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+    value: "1"
   - name: SL_SI91X_ENABLE_LOWPWR_RET_LDO
     value: "1"
+provides:
+  - name: SL_SI91X_PM_STATE_TRANSITION
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png

@@ -14,9 +14,11 @@ source:
   - path: si70xx_example.c
   - path: si70xx_example.h
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
-toolchain_settings: []
+  id: simplicity_sdk
+  version: 2024.6.0
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: syscalls
@@ -33,7 +35,9 @@ component:
   - id: i2c_instance
     from: wiseconnect3_sdk
     instance:
-      - i2c2
+       - i2c2
+  - id: sl_clock_manager
+    from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output1.png
@@ -44,6 +48,6 @@ ui_hints:
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 post_build:
   path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb

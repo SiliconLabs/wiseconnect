@@ -16,7 +16,7 @@
 ******************************************************************************/
 
 #include "rsi_ccp_user_config.h"
-#ifndef ROMDRIVER_PRESENT
+#ifndef GPDMA_ROMDRIVER_PRESENT
 #include "rsi_rom_gpdma.h"
 
 #ifdef __cplusplus
@@ -1140,4 +1140,4 @@ uint32_t gpdma_channel_is_enabled(RSI_GPDMA_HANDLE_T pHandle, uint8_t dmaCh)
 #endif
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif //ROMDRIVER_PRESENT
+#endif //GPDMA_ROMDRIVER_PRESENT

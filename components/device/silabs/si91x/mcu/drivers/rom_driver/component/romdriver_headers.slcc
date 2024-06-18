@@ -31,3 +31,5 @@ include:
       - path: rsi_rom_ulpss_clk.h
 provides:
   - name: romdriver_headers
+requires:
+  - name: systemlevel_ulpss_clk

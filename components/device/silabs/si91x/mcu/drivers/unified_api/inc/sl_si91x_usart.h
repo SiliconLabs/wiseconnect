@@ -183,8 +183,8 @@ typedef struct {
  * initialization of the DMA for UART/USART, if DMA is enabled for data transfers.
  * @details This function will configure the clocks for USART/UART module and also
  * initialize the DMA for UART/USART if DMA is enabled for data transfers.
+ * @param[in] usart_instance USART Instance (USART_0, UART_1, ULPUART)
  * @param[in] usart_handle Pointer to the USART/UART driver
- * @param[in] callback_event Callback function which needs to be called on data transfer
  * @return status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
  *         - \ref SL_STATUS_FAIL (0x0001) - Fail, UART/USART initialization failed 
@@ -203,15 +203,16 @@ sl_status_t sl_si91x_usart_init(usart_peripheral_t usart_instance, sl_usart_hand
  *         - \ref SL_STATUS_FAIL (0x0001) - Fail, UART/USART Deinitialization failed 
  *         - \ref SL_STATUS_OK (0x0000) - Success, UART/USART Deinitialization done properly 
  * @note
- *   When the USART/UART module is used in combination with other peripherals, while de-initializing in the application, refer to the notes below:
- *   1. Whenever sl_si91x_usart_deinit() gets called, it will power down the domain (PERI_EFUSE), which contains different peripherals as mentioned below:
- *      USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
+ *   When USART/UART module is used in combination with other peripherals, while deinitializing in the application, refer to the notes below:
+ *   1. Whenever sl_si91x_usart_deinit() gets called, it will disable the clock for the peripheral. To power off the peripheral we have to power down the
+ *      power domain (PERI_EFUSE) which contains the different peripherals mentioned below.
+ *      i.e USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
  *      Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM and EFUSE.
- *      Since deinit power downs the PERI_EFUSE domain, it's recommended to call the sl_si91x_usart_deinit() API at the end of the application.
- *   2. Few peripherlas(ULP Peripherls, UULP Peripherlas, GPDMA and SDIO-SPI) have seperate domains those can be powered down indepedently. For additional details, refer to the Power architecture section in the Hardware Reference Manual
- *      e.g., To power down ULP UART, use the API below:
- *      RSI_PS_M4ssPeriPowerDown(ULPSS_PWRGATE_ULP_UART); 
- *      Here, ULP_UART has seperate power domain ULPSS_PWRGATE_ULP_UART, which can be powered down indepedently. Refer to the rsi_power_save.h file for all power gates definitions.
+ *      Use below API to power down the particular power doamin if other periherals are not being used:
+ *      sl_si91x_peri_efuse_power_down(power_down); 
+ 
+ *   2. A few peripherals(ULP Peripherals, UULP Peripherals, GPDMA and SDIO-SPI) have separate domains; those can be powered down independently. For additional details, refer to the Power architecture section in the Hardware Reference Manual.
+ *      Here ULP_UART has a separate power domain ULPSS_PWRGATE_ULP_UART, which can be powered down independently. Refer to rsi_power_save.h file for all power gates definitions.
 ******************************************************************************/
 sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle);
 

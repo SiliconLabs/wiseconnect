@@ -61,28 +61,6 @@ typedef enum {
   GROUP_INT_2 = 1, ///< GPIO group interrupt 2
 } sl_si91x_group_interrupt_t;
 
-///@brief UULP GPIO PAD configuration register fields
-typedef struct {
-  uint8_t gpio_padnum; ///< UULP GPIO pin number
-  uint8_t mode;        ///< UULP GPIO mode
-  uint8_t receiver;    ///< UULP GPIO PAD receiver
-  uint8_t direction;   ///< UULP GPIO direction of PAD
-  uint8_t output;      ///< UULP GPIO value driven on PAD
-  uint8_t pad_select;  ///< UULP GPIO PAD selection
-  uint8_t polarity;    ///< UULP GPIO Polarity
-} uulp_pad_config_t;
-
-///@brief GPIO Group Interrupt Configuration. It selects random ports and pins.
-typedef struct {
-  uint8_t grp_interrupt;                        ///< configure group interrupt
-  uint8_t grp_interrupt_cnt;                    ///< Count of group interrupt pins
-  uint8_t grp_interrupt_port[MAX_GPIO_PIN_INT]; ///< ports used for group interrupts
-  uint8_t grp_interrupt_pin[MAX_GPIO_PIN_INT];  ///< pins used for group interrupts
-  uint8_t grp_interrupt_pol[MAX_GPIO_PIN_INT];  ///< polarity used for interrupts
-  uint8_t level_edge;                           ///< configure level or edge trigger
-  uint8_t and_or;                               ///< AND/OR ing of interrupts
-} sl_si91x_gpio_group_interrupt_config_t;
-
 ///@brief GPIO Interrupt Configurations.
 typedef enum {
   SL_GPIO_INTERRUPT_LEVEL_HIGH = (1 << 0), ///< interrupt when pin level is '1'
@@ -167,6 +145,28 @@ typedef enum {
   GPIO_RECEIVER_EN = 1, ///< receiver enable
 } sl_si91x_gpio_receiver_t;
 
+///@brief UULP GPIO PAD configuration register fields
+typedef struct {
+  uint8_t gpio_padnum;                 ///< UULP GPIO pin number
+  sl_si91x_uulp_npss_mode_t mode;      ///< UULP GPIO mode
+  sl_si91x_gpio_receiver_t receiver;   ///< UULP GPIO PAD receiver
+  sl_si91x_gpio_direction_t direction; ///< UULP GPIO direction of PAD
+  sl_si91x_gpio_pin_value_t output;    ///< UULP GPIO value driven on PAD
+  sl_si91x_gpio_uulp_pad_t pad_select; ///< UULP GPIO PAD selection
+  sl_si91x_gpio_polarity_t polarity;   ///< UULP GPIO Polarity
+} uulp_pad_config_t;
+
+///@brief GPIO Group Interrupt Configuration. It selects random ports and pins.
+typedef struct {
+  sl_si91x_group_interrupt_t grp_interrupt;     ///< configure group interrupt
+  uint8_t grp_interrupt_cnt;                    ///< Count of group interrupt pins
+  uint8_t grp_interrupt_port[MAX_GPIO_PIN_INT]; ///< ports used for group interrupts
+  uint8_t grp_interrupt_pin[MAX_GPIO_PIN_INT];  ///< pins used for group interrupts
+  uint8_t grp_interrupt_pol[MAX_GPIO_PIN_INT];  ///< polarity used for interrupts
+  sl_si91x_gpio_level_edge_t level_edge;        ///< configure level or edge trigger
+  sl_si91x_gpio_and_or_t and_or;                ///< AND/OR ing of interrupts
+} sl_si91x_gpio_group_interrupt_config_t;
+
 ///@brief GPIO pin numbers
 typedef enum {
   GPIO_PIN_NUMBER0  = 0,  ///< GPIO pin number  0
@@ -223,6 +223,7 @@ typedef struct {
   uint8_t major;   ///< SQA version number
   uint8_t minor;   ///< Development version number
 } sl_si91x_gpio_version_t;
+
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**
@@ -293,6 +294,14 @@ void sl_si91x_gpio_disable_pad_receiver(uint8_t gpio_num);
  * @return      None
 *******************************************************************************/
 void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum);
+
+/***************************************************************************/ /**
+ * @brief   Select the host pad enable for HP instance of GPIO pins
+ * @pre   \ref sl_si91x_gpio_enable_clock() \n
+ * @param[in]   gpio_num - GPIO pin number(25 to 30).
+ * @return      None
+*******************************************************************************/
+void sl_si91x_gpio_enable_host_pad_selection(uint8_t gpio_num);
 
 /***************************************************************************/ /**
  * @brief     Select drive strength of a GPIO pin for selected port.

@@ -96,11 +96,12 @@ sl_status_t sl_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
 void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, uint16_t *data_length)
 {
   if (offset >= buffer->length) {
-    *data_length = 0;
     return NULL;
   }
-  *data_length = buffer->length - offset;
-  return &buffer->data[offset];
+  if (data_length) {
+    *data_length = (uint16_t)(buffer->length) - offset;
+  }
+  return (void *)&buffer->data[offset];
 }
 
 void sl_si91x_host_free_buffer(sl_wifi_buffer_t *buffer)

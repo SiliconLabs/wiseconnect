@@ -17,7 +17,6 @@
 
 // Include files
 
-#include "rsi_chip.h"
 #include "rsi_ir.h"
 
 /** @addtogroup SOC23

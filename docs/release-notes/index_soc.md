@@ -1,3 +1,676 @@
+# WiSeConnect3\_SDK\_3.3.0 SoC Release Notes
+
+## **Release Details**
+
+|**Item**|**Details**|
+| :- | :- |
+|Release date|June 18th, 2024|
+|SDK Version|3\.3.0|
+|Firmware Version|<p>Standard: 1711.2.12.1.0.0.10</p><p>Lite: 1711.2.12.1.0.2.10</p>|
+|GSDK/SiSDK Version|SiSDK 2024.6.0|
+|Studio Version| 5.9.1.0|
+|Release Package Name|WiSeConnect3\_SDK\_3.3.0|
+|Supported RTOS|FreeRTOS|
+|Operating Modes Supported|Wi-Fi STA, Wi-Fi AP, Wi-Fi STA+BLE, Wi-Fi STA+AP|
+
+- SiWx917 release consists of two components:
+  - Standard Wireless Firmware - SiWx917 Firmware Binary available as SiWG917-B.2.12.1.0.0.10.rps
+  - Lite Wireless Firmware - SiWx917 Firmware Binary available as SiWG917-B.2.12.1.0.2.10.rps, this image is with reduced features for parts with SiWG917M110LGTBA OPN. 
+  - Wiseconnect3 Library - Wiseconnect3 SDK library runs on internal Cortex M4
+
+> **Note:**
+>
+> - Mandatory to upgrade the earlier version of boards (Si917-6031A Prokit or BRD4338A boards) or 917 Silicon ICs with instructions as outlined in this document "SiWG917–TA\_Flash\_Memory\_Map\_ChangeGuide\_v1.3.pdf" for more details.  
+> - The latest releases will have bug-fixes, enhancements, and new features in both 'SDK' and 'Firmware'. Hence, it is recommended to update and use 'SDK' and 'Firmware' of same release package.
+> - It is recommended to update TA image first followed by M4 image.
+
+## **Supported Hardware**
+
+|**Hardware**|**OPN**|
+| :- | :- |
+|Silicon (IC OPN)|SiWG917M111MGTBA, SiWG917M100MGTBA, SIWG917M110LGTBA(lite image)|
+|Development Kits|<p>Pro Kit: SiWx917-PK6031A, Si917-PK6031A. </p><p>(Pro Kit includes Mother board "SI-MB4002A" + Radio board)</p><p>Radio boards: SiWx917-RB4338A, SiWx91x-RB4342A</p>|
+
+## **Supported Features** 
+
+<table><tr><th><b>Section</b></th><th><b>Sub-Section</b></th><th><b>Feature</b></th><th><p><b>Lite Wireless Firmware</b></p><p><b>(4MB flash OPN<br>OPN No: SiWG917M110LGTBA)</b></p></th><th><b>Standard Wireless Firmware (For other OPNs)</b></th></tr>
+<tr><td rowspan="8">System</td><td rowspan="4">Operating modes</td><td>Wi-Fi STA (802.11ax, 802.11n)</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi 802.11n AP</td><td>Not Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi STA (802.11ax, 802.11n) + 802.11n AP</td><td>Not Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi STA (802.11ax, 802.11n) + BLE</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Security </td><td>Secure Boot, Secure Key storage and HW device identity with PUF, Secure Zone, Secure XIP (Execution in place) from flash, Secure Attestation, Anti Rollback, Debug Lock, Flash Protection</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Secure firmware upgrade options</td><td><p>- Firmware loading support by Commander Tool through Jlink Debugger. Jlink connected to Serial Wire Debug (SWD) </p><p>- Firmware loading via ISP using UART (Commander or Serial terminal), SPI Interface</p><p>- Secure Over the Air (OTA) Upgrade</p><p>- Firmware update via Bootloader</p></td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Crypto Support</td><td><p>- Crypto API's for Hardware Accelerators: Advanced Encryption Standard (AES) 128/256/192, Secure Hash Algorithm (SHA) 256/384/512, Hash Message Authentication Code (HMAC), Random Number Generator (RNG), SHA3, AES-Galois Counter Mode (GCM)/ Cipher based Message Authentication Code (CMAC), ChaCha-poly, True Random Number Generator (TRNG)</p><p>- Software Accelerators: RSA, ECC</p><p>- PSA Crypto APIs support for all crypto operations.</p><p>- Wrapping Secret keys (Symmetric crypto). </p><p>- Added ECDSA Sign and Verify APIs</p></td><td>Supported</td><td>Supported</td></tr>
+<tr><td>System Power Save</td><td><p>- Deep Sleep with RAM retention and without RAM retention. </p><p>- Wireless Power Save: Connected Sleep (Wi-Fi Standby Associated), BLE Advertising with powersave, BLE Scan with powersave ,  BLE connection with powersave. Only Max PSP power save mode is supported in BLE. </p></td><td>Supported</td><td>Supported</td></tr>
+<tr><td rowspan="13">Wi-Fi</td><td>Wi-Fi Protocols</td><td>IEEE 802.11 b/g/n/ax (2.4GHz)</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Access Point (AP) Mode</td><td><p>- 4 Client Support, Hidden SSID Mode, Auto Channel Selection, Scan in AP mode (Alpha)</p><p>- Wi-Fi Security </p><p>&emsp;- WPA2 Personal, WPA3 Personal (H2E method only) (Alpha), WPA Mixed mode (WPA/WPA2) </p></td><td>Not Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi Scan</td><td>Selective Scan, Active/Passive Scan</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi STA (Security Modes)</td><td>Open Mode, WPA2 Personal, WPA2 Enhancements, WPA3 Personal, Mixed Mode (WPA/WPA2), WPA3 Personal Transition Mode (WPA2/WPA3)</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>WPA2 Enterprise security (STA)</td><td>Method: PEAP/TTLS/TLS 1.0/TLS 1.2/FAST/LEAP</td><td>Not Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi STA Rejoin</td><td></td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi STA Roaming </td><td>BG Scan, OKC (Opportunistic Key caching), PMK (Pairwise Master Key) caching, Pre-Authentication</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi Protocol Power Save </td><td>Deep sleep (unconnected state), Max PSP, Enhanced Max PSP, Fast PSP, TWT</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>QoS</td><td>WMM-QoS</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi 6 Feature</td><td>MUMIMO (DL), OFDMA (UL/DL), iTWT, TWT I-Frame & TWT Enhancements (Automatic TWT Configuration), BSS coloring, MBSSID</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi Concurrency </td><td>AP+STA (Same channel)</td><td>Not Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi Band/Channels</td><td>2\.4GHz CH1-11, 2.4GHz CH1-13, 2.4GHz CH1-14</td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Known Security Vulnerabilities Handled</td><td>WPA2 KRACK Attacks, Fragment and Forge Vulnerability</td><td>Supported</td><td>Supported</td></tr>
+<tr><td rowspan="6">Network stack</td><td rowspan="2">Core Networking Features</td><td><p>- IPv4/IPv6/UDP/TCP/ARP/ICMP/ICMPv6</p><p>- SSL client versions TLSV1.0, TLSV1.2, TLSV1.3 </p><p>- SSL server versions TLSV1.0 and TLSV1.2</p><p>- DHCPv4/DHCPv6 Client</p><p>- TCP/IP Bypass (LWIP as Hosted stack for reference)</p></td><td>Supported</td><td>Supported</td></tr>
+<tr><td>- DHCPv4 Server</td><td>Not Supported</td><td>Supported</td></tr>
+<tr><td rowspan="2">Advanced Network Features</td><td>HTTP Client/HTTPS Client/DNS Client, Embedded MQTT/MQTT on host (AWS and AZURE) </td><td>Supported</td><td>Supported</td></tr>
+<tr><td>SNTP Client, IGMP</td><td>Not Supported</td><td>Supported</td></tr>
+<tr><td>Wi-Fi IoT Cloud Integration</td><td><p>- AWS IOT Core</p><p>- Azure IoT</p></td><td>Supported</td><td>Supported</td></tr>
+<tr><td>BSD and IoT sockets application programming interface(API)</td><td></td><td>Supported</td><td>Supported</td></tr>
+<tr><td rowspan="2">BLE </td><td>Legacy features</td><td><p>- GAP(Advertising, Scanning, initiation, Connection and Bonding)</p><p>- Generic Attribute Protocol(GATT)</p><p>- Attribute protocol(ATT)</p><p>- Security</p><p>- LL Privacy 1.2</p><p>- Accept list</p><p>- Directed Advertising</p><p>- LE PHY(1Mbps, 2Mbps) & Coded PHY(125Kbps, 500kbps)</p><p>- Simultaneous scanning on 1Mbps and Coded PHY</p><p>- LE dual role topology</p><p>- LE data packet length extensions(DLE)</p><p>- Asymmetric PHYs</p><p>- LE channel selection algorithm 2 (CSA#2)</p><p>- LE Secure connections</p></td><td>Supported</td><td>Supported</td></tr>
+<tr><td>Advertising Extensions </td><td><p>- Extended Advertising</p><p>- Periodic Advertising</p><p>- Periodic Advertising scanning</p><p>- Extended Advertising scanning</p><p>- Periodic Advertising list</p><p>- LE periodic advertising synchronization</p></td><td>Not Supported </td><td>Supported</td></tr>
+</table>
+
+### **MCU**
+
+- **Memory**
+  - Common Flash: Single shared Flash for both Cortex-M4 and NWP (Wireless Processor)
+  - Common Flash + External PSRAM
+- **Power States**
+  - Active: PS4, PS3, PS2, and PS1 
+  - Standby: PS4, PS3, and PS2
+  - Sleep: PS4, PS3 and PS2
+  - Deep Sleep(Shutdown): PS0
+- **Peripherals**
+  - High Performance (HP) - ADC, Calendar, Config Timer (CT), eFuse, EGPIO, GSPI, I2C, I2S, MCPWM, SDIO Secondary, SIO, SSI, SYSRTC, UART, uDMA, USART, WDT, Analog Comparator, DAC, Temperature Sensors (RO and BJT), CTS, PSRAM, CRC and RTC
+  - Ultra Low Power (ULP) - ULP\_ADC, ULP\_CALENDAR, ULP\_DAC, ULP\_GPIO, ULP\_I2C, ULP\_I2S, ULP\_TIMER, ULP\_UDMA
+  - UC Supported Peripherals - CRC, I2C, Calendar, SPI, SSI, SIO, uDMA, UART/USART, WDT, Config Timers, ULP Timers, SDIO Secondary, PWM, ADC, DAC, I2S and Analog Comparator
+- **Services**
+  - Sleep Timer, IOSTREAM, Power Manager, SensorHub, NVM3
+  - The flash write feature has been enhanced to support the NWP area, providing a 20k allocation within the NWP flash memory for storing user data. Moreover, a Read API has been introduced to retrieve data from the NWP flash region.
+- **Development Pro-Kit Peripheral Support**
+  - LED, Button, MEMLCD, Joystick, RHT Sensor
+
+### **Development Environment**
+
+- Simplicity Studio IDE (SV5.9.1.0 version) and Debugger Integration. Refer to the latest version of the SoC "Getting-Started-with-SiWx917" guide for more details. 
+- Recommended to install and use Silicon labs Simplicity SDK (Previously known as Gecko SDK), Git hub based version 2024.6.0.
+- Simplicity Commander to supports Flash loading, provision of MBR programming, security key management, and calibration support for crystal and gain offsets. refer "siwx917-soc-manufacturing-utility-user-guide" for more details.** 
+- Advanced Energy Monitoring (AEM) to measure ultra-low power capability on Development boards (Pro Kit).
+- PinTool Supported peripherals - I2C, GSPI, SSI, SIO, UART/USART, Config Timers, PWM, I2S, ADC, DAC and Analog comparator
+
+### **BLE** 
+
+- GAP(Advertising, Scanning, initiation, Connection and Bonding)
+- Generic Attribute Protocol(GATT)
+- Attribute protocol(ATT)
+- Security
+- LL Privacy 1.2
+- Accept list
+- Directed Advertising
+- Extended Advertising
+- Periodic Advertising
+- Periodic Advertising scanning
+- Extended Advertising scanning
+- Periodic Advertising list
+- LE periodic advertising synchronization
+- LE PHY(1Mbps, 2Mbps) & Coded PHY(125Kbps, 500kbps)
+- Simultaneous scanning on 1Mbps and Coded PHY
+- LE dual role topology
+- LE data packet length extensions(DLE)
+- Asymmetric PHYs
+- LE channel selection algorithm 2 (CSA#2)
+- LE Secure connections
+- Bluetooth 5.4 Qualified
+
+### **SDK**
+
+- Simplified and Unified DX for Wi-Fi API and Platform APIs
+- Simplifies application development and presents clean and standardized APIs
+- UC (Universal Configurator) enables componentization, simplifying configuration of peripherals and examples
+- BSD and ARM IoT-compliant socket API
+- Available through Simplicity Studio and GitHub
+
+### **Multi-protocol**
+
+- Wi-Fi STA + BLE
+
+### **PTA/Coexistence**
+
+- 3 wire coex acting as Wi-Fi with external Bluetooth
+- 3 wire coex acting as Wi-Fi with external Zigbee/OT
+
+## **Changes in this release compared to v3.2.0 Release**
+
+### **System**
+
+- New API sl\_si91x\_fwup\_abort added to support aborting firmware upgrade
+- The stability issues related to system-level power saving have been resolved, leading to an approximate 25% increase in power consumption in the WiFi & BLE standby cases in a Shield Room environment compared to the 3.2.0 release. This increase will be addressed in the upcoming 3.3.1 patch release. There is no power impact for active use cases, neither in Wireless nor in the Peripherals use cases
+
+### **MCU**
+
+- **Enhancements / New features**
+  - New peripheral support -CRC
+  - Clock configuration
+    - Added APIs to configure M4 SoC and PLL clocks
+    - Default clock configurations for si91x\_soc peripheral examples are updated to run in high-performance mode
+  - Moved clock configurations from the driver layer to the application layer
+  - Changed LED and button macro names instances as below,
+    - button\_instance to simple\_button\_instance
+    - button to simple\_button
+    - led to simple led
+    - led\_instance to simple\_led\_instance
+  - Si917 Power Manager Enhancements
+    - Added support for FreeRTOS Tickless-idle mode
+    - Supports M4 PS4 and PS3 states with FreeRTOS Tickless-Idle
+  - SIWG917M110LGTBA(lite image) support
+  - For ease of use, the following peripheral examples have been separated as below:
+    - UART: UART and USART
+    - ADC: Static Mode and FIFO Mode
+    - GPIO: Simple IO, Interrupt-based and Detailed IO
+  - Added additional APIs for host pad selection in GPIO Driver
+
+- **Fixed Issues**
+  - Fix for timer drift with SYSRTC in tickless-idle mode
+  - Resolved SIO\_UART baud rate issues
+  - Resolved power state transitions issue when BTN0 is pressed
+  - On 917 Pro-Kit, fixed spurious interrupts for Button\_0 when used as a wakeup source for M4
+  - Resolved ULP\_ADC\_Multichannel pintool annotation issue
+  - Macro ROM\_DRIVER\_PRESENT is replaced with peripheral-specific macros
+  - Fixed GSPI performance issues
+  - De-coupled Power down of efuse peripherals(RSI\_PS\_M4ssPeriPowerDown) from deinit API
+  - Readme, API guide, and Software reference manual documentation have been updated
+
+### **SDK**
+
+- **Enhancements**
+  - Enhanced M4 power save with M4 Tick-less idle power manager and added support for WLAN power save demos and updated readme files accordingly.
+  - Added provision to few more ciphers support in the SDK.
+  - Restructured connectivity\_firmware folder with standard and lite firmwares.
+  - Added demo support for SIWG917M110LGTBA OPN.
+  - Enhanced sl\_si91x\_set\_rtc\_time(), sl\_si91x\_host\_get\_buffer\_data() APIs with additional error handling checks.
+  - Added support for parsing DHCP/IP notification events to Application.
+  - Added support for parsing HTTP error codes to Application.
+  - Moved eap\_flags from structure sl\_wifi\_advanced\_client\_configuration\_t to to sl\_net\_wifi\_client\_profile\_t
+  - Added new API sl\_wifi\_get\_wireless\_info().
+  - Updated documentation for SiSDK.
+  - References to internal boards have been removed from all WSDK application readme files.
+  - Enhanced socket API documentation and 'developing with sockets' guide.
+  - Enhanced support for upgrading TA FW from simplicity studio launcher.
+
+- **Fixed Issues**
+  - Addressed the issue in the AWS MQTT demo that occurred when receiving continuous publish messages.
+  - Fixed log prints issue in "Concurrent HTTP Server Provisioning" application.
+  - Fixed issues in M4 power save in Wi-Fi alone and coex modes.
+  - Fixed firmware upgrade failure issue in concurrent\_firmware\_update\_from\_host\_uart demo.
+  - Fixed issues in Azure connectivity issues with symmetric key authentication.
+  - Fixed issue with PLL mode in coex mode.
+  - Fixed issues in MQTT remote terminate handler scenarios.
+  - Fixed memory leak issues while performing continuous AES encryption and decryption 
+  - Fixed Readme corrections for certificate name in HTTP Client application
+  - Added Fix for FW upgrade failure due to invalid firmware.
+  - Added fix for 0xb44 error observed in AP mode for sl\_wifi\_get\_mac\_address API.
+
+### **Wi-Fi/Network Stack**
+
+- **Enhancements**
+  - WLAN transmit modulation performance improvements at 85C. ~~hot temperature.~~
+  - Minor improvements in FCC band edge performance for 11ax.
+  - Support added to trigger a passive and low power scan from host. Low power scan supports 1 mbps packets reception only.
+  - Added STA-RX aggregation support in concurrent mode.
+  - Added support to use user specific MAC address configured in EFUSE or flash.
+  - Added feature to support Gain offset calibration in channel 14.
+  - Added support to filter out multicast data packets.
+- **Fixed Issues**
+  - Fixed HTTP Post data 0xBBE2 error issue
+  - Resolved DHCP address assignment issues in concurrent mode.
+  - Enhanced the feature to skip the unicast global address assignment to stack if the static configuration is all f's
+  - Fixed instability issues with concurrent mode dual IP feature
+  - Added fix for CVE-2022-23303 (WPA3 SAE side channel attack)
+  - Fixed flash write race condition observed intermittently during STA join/rejoin.
+  - Added support to change sleep (listen) interval using power save command after join
+  - TWT information frame related fixes
+  - Fixed issues setting  TCP socket retry configuration through setsockopt()
+
+### **BLE**
+
+- **Enhancements**
+  - Added BLE HP chain FCC margin improvements across corners.
+  - Added BLE 2M receive max input power improvements.
+  - Added BLE power backoff offsets implementation similar to WLAN.
+  - Improved power vs index linearity in BLE HP chain.
+  - Added log prints for BLE advertising, scanning, SMP connection, profile query and data transfer in ble\_multiconn\_gatt\_test application.
+  - In the readme of the BLE and Multi protocol applications, the term 'EFR Connect App' has been replaced with 'Simplicity Connect App'.
+- **Fixed Issues**
+  - Added Power Manager Tickless changes in BLE applications.
+  - Updated readme for bt\_stack\_bypass demo
+  - Updated readme and images for ble\_throughput\_app, ble\_secureconnection, ble\_privacy, ble\_power\_save, ble\_multiconnection\_gatt\_test, ble\_longrange\_2mbps, ble\_ibeacon, ble\_heart\_rate\_profile, ble\_central, ble\_ae\_central and ble\_ae\_peripheral demos. 
+  - Added options field in "rsi\_ble\_ae\_set\_periodic\_sync" API as per specification. 
+
+### **Multi-protocol**
+
+- None
+
+## **Recommendations**
+
+### **System**
+
+- The current revision of SiWx917 has:
+  - RAM memory of 672k bytes which can be shared between TA and M4 processors in SoC mode. 
+  - The below configurations are applicable in SoC mode and can be configured based on the application requirement. EXT\_FEAT\_352K\_M4SS\_320K is the default configuration, based on requirement EXT\_FEAT\_480K\_M4SS\_192K configuration is selected for SoC mode multi-protocol examples.
+    - EXT\_FEAT\_480K\_M4SS\_192K - This mode configures TA with 480k and M4 with 192K bytes of memory
+    - EXT\_FEAT\_416K\_M4SS\_256K - This mode configures TA with 416k and M4 with 256K bytes of memory
+    - EXT\_FEAT\_352K\_M4SS\_320K - This mode configures TA with 352k and M4 with 320K bytes of memory
+  - SoC mode should not use 672k\_M4SS\_0K memory configuration.
+- Set the recommended Power Save Profile (PSP) type to Enhanced Max PSP.
+- There are 2 Versions of Pro-Kits/Radio boards. Si917-6031A based on Si917-4338A (Rev **A01 - A11**) and SiWx917-6031A based on SiWx917-4338A (Rev A12). To get optimal power numbers, enable macro "SL\_SI91X\_ENABLE\_LOWPWR\_RET\_LDO" pre-processor define for ICs or while using SiWx917-6031A Pro-kit, SiWx917-4338A version of boards. This macro should be disabled for earlier variant of board (Si917-6031A, Si917-4338A).
+- With RAM configuration (EXT\_FEAT\_352K\_M4SS\_320K), only 352K memory is available to TA  which limits the features supported, Recommended to enable EXT\_FEAT\_416K\_M4SS\_256K in Wi-Fi + BLE Multi protocol mode to enable more Network features.
+- For EXT\_FEAT\_416K\_M4SS\_256K  and EXT\_FEAT\_480K\_M4SS\_192K memory configurations, it is recommended to retain both TA and M4 RAMs in power save.
+- It is highly recommended to use connectivity firmware version 1711.2.12.1.0.0.10 with SDK v3.3.0 for improved stability in power save mode.
+
+### **Wi-Fi/Network Stack**
+
+- It is recommended to enable bit 16 of the 'Extended TCP IP Feature' bit map in the opermode command for all Wi-Fi Socket operations from the host to ensure graceful handling during asynchronous closures from the peer.
+- For high throughput applications, aggregation (bit 2 of feature\_bit\_map) is recommended to be enabled in opermode. 
+- Users can enable SL\_SI91X\_EXT\_TCP\_IP\_SSL\_16K\_RECORD in 'Extended TCP IP Feature' bit map in opermode for (HTTPS server) supporting 16k record.
+- **TWT**
+  - Recommendation is to use sl\_wifi\_target\_wake\_time\_auto\_selection() API for all TWT applications. 
+  - It is recommended to issue iTWT setup command once IP assignment, TCP connection, application specific socket connections are done.
+  - When using sl\_wifi\_enable\_target\_wake\_time API, increase TCP / ARP Timeouts at the remote side depending upon the configured TWT interval configured. It's highly recommended to use sl\_wifi\_target\_wake\_time\_auto\_selection() as an alternative.
+  - In case of TWT in coex mode, when using sl\_wifi\_enable\_target\_wake\_time API, use TWT wake duration <= 16 ms and TWT wake interval >= 1 sec. If wake duration > 16 ms or TWT wake interval < 1sec, there might be performance issues.
+  - For iTWT GTK interval in AP should be configured to max possible value or zero. If GTK interval is not configurable on AP side, recommended TWT interval (in case of sl\_wifi\_enable\_target\_wake\_time API) or RX Latency (in case of sl\_wifi\_target\_wake\_time\_auto\_selection API) is less than 4sec.
+  - When sl\_wifi\_enable\_target\_wake\_time API is used, configuring TWT Wake interval beyond 1 min might lead to disconnections from the AP. Recommended to use TWT wake interval of less than or equal to 1 min.
+  - When using sl\_wifi\_enable\_target\_wake\_time API, it is recommended to set missed\_beacon\_count of sl\_wifi\_set\_advanced\_client\_configuration API greater than 2 times of the configured TWT Interval.
+- Disable power save for high throughput applications or use FAST PSP power save mode as per application requirement.
+- The application needs to ensure that it sets RTC with the correct timestamp before establishing the SSL/EAP connection.
+- The minimum timeout value should not be less than 1 second for socket select and socket receive calls. 
+- Please refer Keep alive intervals supported by MQTT broker and configure keep alive interval values accordingly.
+- The minimum keep alive interval value recommended for embedded MQTT is 10 Seconds. 
+- Disable power save and suspend any active TWT sessions before triggering HTTP OTAF.
+- Randomize the client port if using rapid connect/disconnect of the MQTT session on the same client port with the power save.
+- Recommended to configure VAP\_ID properly for Si91x STA and AP using sl\_si91x\_setsockopt\_async(), in case of data transfer.
+- Recommended to use valid length(<= 202 bytes) for topic to be published while using Embedded MQTT, else it leads to return wrong error code(0x21).
+- In concurrent mode with dual IP, it is advised to bring up STA first (IP configuration) and AP later.
+- It is recommended to enable bit 3 of the 'Extended TCP IP Feature' bit map in the opermode command for all Wi-Fi Socket operations from the host.
+- It is recommended to configure Tx ,Rx , Global buffer pool ratio in the buffer config command based for all Wi-Fi Socket operations from the host
+
+### **BLE**
+
+- In BLE, the recommended range of Connection Interval in
+  - Power Save (BLE Only) - 100 ms to 1.28 s.
+- In BLE, during Connection, the configuration of Scan Interval and Scan Window with the same value is not recommended. The suggested ratio of Scan Window to Scan Interval is 3:4.
+- In BLE, if a device is acting as Central, the scan window (in set\_scan\_params and create\_connection commands) must be less than the existing Connection Interval. The suggested ratio of Scan Window to Connection Interval is 2:3.
+- In BLE mode, if scanning and advertising are in progress on the SiWx91x module and it subsequently gets connected and moves to the central role, scanning stops else if it moves to the peripheral role, advertising stops. To further establish a connection to another peripheral device or to a central device, the application should give a command for starting advertising and scanning again.
+
+### **Multi-protocol**
+
+- For concurrent Wi-Fi + BLE, and while a Wi-Fi connection is active, we recommend setting the ratio of the BLE scan window to BLE scan interval to 1:3 or 1:4.
+- Wi-Fi + BLE Advertising
+  - All standard advertising intervals are supported. As Wi-Fi throughput is increased, a slight difference in on-air advertisements compared to configured intervals may be observed.
+  - BLE advertising is skipped if the advertising interval collides with Wi-Fi activity.
+- Wi-Fi + BLE scanning
+  - All standard scan intervals are supported. For better scan results, we recommend setting the ratio of the BLE scan window to BLE scan interval to 1:3 or 1:4.
+  - BLE scanning will be stopped for intervals that collide with Wi-Fi activity.
+- Wi-Fi + BLE Central/Peripheral Connections
+  - All standard connection intervals are supported.
+  - For a stable connection, use optimal connection intervals and max supervision timeout in the presence of Wi-Fi activity.
+- Wi-Fi + BLE Central/Peripheral Data Transfer
+  - To achieve higher throughput for both Wi-Fi and BLE, use medium connection intervals, such as 45 to 80 ms with maximum supervision timeout.
+  - Ensure Wi-Fi activity consumes lower intervals.
+
+### **MCU**
+
+- It is not recommended to use switch\_m4\_frequency() for clock scaling. Refer to the migration guide for more details on this
+- It is not recommended to use the RO clock for any Clock Configurations in MCU
+- PSRAM examples are not supposed to be used with Non-PSRAM OPNs
+- In tickless idle mode, SYSRTC and wake on wireless are configured as default wakeup sources. Recommended not to reinstall them
+- It is recommended to enable DMA for supported peripherals to achieve better throughput
+- For I2C Fast-Plus and High-speed modes, it is recommended to use High power instances (I2C0, I2C1) for core clocks operating between 80MHz and 180MHz
+- For using GPIO-based wakeup, it is strongly recommended to install GPIO component in powersave applications
+- It is recommended to use both CTS and RTS for UART flow control
+
+## **Known Issues of WiSeConnect3\_SDK\_3.3.0 Release**
+
+### **MCU**
+
+**SensorHub**
+
+- Power transitions with AWS are not stable in SensorHub
+- Support for ADC FIFO Mode and Multi channel is open
+- PS1-state supports only ADC sensor
+- Tickless IDLE mode is not supported in sensor hub application
+
+**SSI**
+
+- SSI Dual and Quad mode are not functional as expected
+- Unable to use SSI Primary and SSI Secondary together in a single project
+
+**I2C**
+
+- ULP\_I2C in low power mode, when DMA is enabled will not function as expected
+
+**I2S**
+
+- FIFO threshold configurations are not working as expected
+
+**Config Timers**
+
+- PWM mode is not working as expected
+- Config timer features to trigger DMA and interrupts on events or counters are not supported
+- 32-bit mode is not working as expected
+
+**UART**
+
+- UART instances does not support different FIFO Thresholds
+- Character Timeout feature is not supported
+- UART does not support lower baud rates (110 and 115)
+- Multi-drop RS485 interface is not supported
+
+**ADC**
+
+- ADC Multichannel mode is not functioning as expected
+- ADC static mode sampling rate is supported up to 2.5Msps
+
+**Analog comparator**
+
+- Few configurable inputs (opamp2, opamp3 and BOD) are not working as expected
+
+**Temperature Sensors**
+
+- RO and BJT Temperature readings are not accurate
+
+**Power Manager**
+
+- Few wakeup sources (BOD and Comparator) are not working as expected
+- PS1-state is not supported
+
+**Miscellaneous**
+
+- Naming convention of a few peripherals (UART/USART, I2C, GSPI, SSI, ANALOG COMPARATOR, I2S) is not aligned between the HRM/Datasheet and Code
+- PAD Configuration address is wrongly mentioned in HRM and Peripherals tab of Studio
+
+### **SDK**
+
+- Observed Wi-Fi connection is successful even after deleting the stored network credentials using sl\_net\_delete\_credential and responding with SL\_NET\_INVALID\_CREDENTIAL\_TYPE for sl\_net\_get\_credential.
+- Enhanced sl\_wifi\_get\_firmware\_version() API to provide more details (ROM ID, chip ID, security version, etc) which is not backward compatible with firmware older than 1711.2.10.1.0.0.4. Firmware binary notation does not include the security version number.
+- In PSRAM enabled demos, moving of text, data and stack segments to PSRAM is allowed. BSS and Heap should still be in SRAM.
+- Asynchronous Azure MQTT is not supported, this will be addressed in upcoming release(s).
+- mDNS with IPV6 is not supported.
+- Observing DUT is getting stuck while running MQTT publish with 2 different topics
+- Observed MQTT RX is failing when continuous data sent every 1 second in aws\_mqtt application
+- Observed DUT Failed to connect to AP with timeout error 0x7(SL\_STATUS\_TIMEOUT)  while single MQTT subscribe and publish in loop with embedded MQTT application
+- Observing LAST\_WILL\_MESSAGE is random at every MQTT connection rather than the configured Message/Length with embedded MQTT application
+- Observed DUT is not initiating the AWS connection post-rejoin failure indication after publishing 10-15 packets, turning OFF AP and trying to rejoin the network with aws\_mqtt application
+- Observing MQTT disconnect API is getting failed with 0x7(SL\_STATUS\_TIMEOUT) error while doing publish & subscribe with embedded MQTT application
+- Bus thread stack may need to increase if local variables are used in user callback to avoid stack overflow.
+- Low Power examples usage and documentation still under scope of improvement.
+- Observed not being able to receive UDP Rx TPUT print at Teraterm with IPV6 Throughput example
+- Observed sl\_wifi\_get\_wireless\_info() API is giving wrong security type and PSK for WPA3 Transition supported client mode.
+- Observed socket close is not working as expected for TLS socket when socket connect, send data and socket close are performing in a continuous loop.
+- Observed MQTT Rx is not able to resume after rejoin in [wifi_station_ble_provisioning_aws](https://siliconlabsconnectivitysqa.testrail.io/index.php?/tests/view/863900) demo.
+- Below are the list of applications which are not working as expected:
+  - http\_otaf\_twt 
+
+### **Wi-Fi/Network Stack**
+
+**Wi-Fi STA**
+
+- STA Connection with the WPA3 Hunting and Pecking algorithm takes about 3-4 seconds.
+- Observed connection failures with some AP's in more channel congestion ~50-60% occupancy open lab environment.
+- Region selection based on country IE in the beacon is not supported
+- Observed intermittent beacon reception from Access Point ( beacon misses) when channel congestion > 85%.
+- While scanning with low power mode enable, sensitivity degradation of 3-6dB is observed. Due to this AP's that are at longer range might not be shown in scan results.
+- Observed TLS1.3 handshake failure with CHACHA20\_POLY1305\_SHA256 cipher
+
+**Access Point (AP) Mode**
+
+- Scan feature in AP mode not fully functional. 
+- Fixed rate configuration in AP mode using sl\_wifi\_set\_transmit\_rate API is not being set as expected. 
+
+**WPA2 Enterprise security (STA)**
+
+- Observed connection issue with configuring certificate key and programming 4096 bit key and SHA384/SHA512 certificates.
+- Observing DUT is throwing 0x1001c when configuring .data.certificate\_key as "123456789".
+- Issue observed with WPA2 Enterprise Connectivity using Microsoft RADIUS Server.
+
+**Wi-Fi Concurrency (AP + STA in same channel)**
+
+- Observed 3rd party STA association fail with 917 AP while 917 STA mode is connecting/reconnecting to configured 3rd party AP. Reconnect 3rd party STA to 917 AP in such scenarios. 
+
+**OFDMA (UL/DL)**
+
+- Less throughput observed in DL-OFDMA with some APs that enabled Low density parity check coding.
+
+**MUMIMO (DL)**
+
+- For Coex Scenario Wi-Fi + BLE, BLE Data transfer, MU retries (~50-60%) observed while running DL MU-MIMO test. 
+- Observed Performance, Interop issues with MU MIMO with certain APs. 
+- Less throughput observed in MU-MIMO with some APs that enabled LDPC.
+
+**MU-MIMO (UL)**
+
+- UL MU-MIMO is not supported.
+
+**TWT**
+
+- When sl\_wifi\_enable\_target\_wake\_time() API is used, occasional MQTT disconnections may be observed if TWT is configured with longer TWT intervals (>30secs) with embedded MQTT + TWT.  As an alternative, it's highly recommended to use sl\_wifi\_target\_wake\_time\_auto\_selection() API, where these dependencies are internally handled.
+
+**Wi-Fi STA Rejoin**
+
+- Observed Scanning (probe request) in all channels instead of the channels configured in selective channel(channel\_bitmap\_2g4) during rejoin process. 
+
+**IPv4/IPv6**
+
+- IP change notification is not indicated to the application. 
+- In concurrent mode with dual IP, if the STA starts after AP is up, the STA IP configuration may fail for DHCP stateless mode.
+
+**BSD Socket API**
+
+- Every server socket created consumes a socket (maximum of 10 sockets supported) and every subsequent connection to server socket consumes an additional socket (from the same pool of 10 sockets), which limits the number of server connections supported.
+- Observed socket shutdown is not happening and DUT is getting stuck at  "prvCheckTasksWaitingTermination" while doing socket connection-> data transfer ->  socket shut down for multiple iterations.
+
+**SSL Client/Server**
+
+- Sometimes during SSL Handshake, ECC curve parameters generated are wrong, resulting in connection failure with BBD2 error. However, this recovers in the next attempt.
+- Secure SSL renegotiation is not supported in the Embedded Networking Stack
+
+**HTTP Client/ HTTPS Client**
+
+- Observed occasional HTTPS continuous download failures when power save is enabled. Recommended to disable it before performing HTTPS continuous downloads
+
+**SNTP**
+
+- Unable to get SNTP async events when Coex mode and power save are enabled 
+
+**Throughputs & Performance**
+
+- Wi-Fi alone throughput is about SDK 3.x (42Mbps). SDK refinements are in progress to further improve Wi-Fi Standalone and Coex Throughputs. 
+
+**Wi-Fi IOT Cloud integration**
+
+- **AWS IOT Core**
+  - Observed AWS MQTT keepalive transmission is not happening at expected intervals with power save enabled.
+  - Observing LAST\_WILL\_MESSAGE is random at every MQTT connection rather than the configured Message/Length
+- **AZURE IOT Core**
+  - Observed DUT after sending the data, its not sending the MQTT keep alive packet due to this Azure HUB closing the connection when power save is enabled.
+
+**Wi-Fi Interoperability (IOP)**
+
+- Observed disconnections with Amplifi (AFI-INS-R) AP with powersave enable
+- TWT session is failing due to disconnections observed in DUT if rx\_latency is set to 55 seconds and receive data is also set to 55 seconds on MI Xiaomi RA72 and Tplink AX53 AP's
+- Observed less throughput(~1Mb) while running TCP RX with Max\_PSP powersave with DLink 810 AP
+- Observed interop issue (random disconnections) with few APs (EERO 6+, EERO PRO 6E, Cisco Catalyst 9120AXID)
+- Disconnections observed with Netgear RAX120 AP in WPA3 Security
+
+### **BLE**  
+
+**GAP** 
+
+- BLE reconnection is not working in ble\_multiconnection\_gatt demo when power save is enabled in SoC. 
+- When power save is enabled in the SoC, the DUT hangs with the ble\_multiconnection\_gatt demo while performing continuous Tx/Rx notifications.
+
+**DTM/PER**
+
+- Recommend to limit BLE Tx Maximum power to 18 dBm.  Please don't use for 127 power\_index for BLE HP chain with this release.
+
+**IOP**
+
+- BLE connection failure has been observed on a few mobile devices (Samsung S23& Oneplus 9pro) when the Si917 device is configured as central.
+
+**AE**
+
+- Device is not transmitting AUX\_SCAN\_REQ  packets, when remote device is configured with scannable extended advertising mode.
+- Device stopped transmitting AE advertising packets after sometime, when configured 'Two ADV sets one handle with public address and another with Random address and Primary PHY =1M and Sec PHY =1M/2M". 
+- Device is not able to receive periodic advertising reports when  "BLE\_AE\_PERIODIC\_LIST\_USED" bit is enabled in the AE option of the AE Periodic create sync API.
+- Device is not able to receive periodic advertising report when  "BLE\_AE\_PERODIC\_DUPLICATE\_FILTERING\_ENABLED" bit is enabled in AE option of the AE Periodic create sync API.
+
+**Power** 
+
+- BLE power numbers increased up to 25% compared to targeted power numbers. 
+
+### **Multi-protocol**
+
+- For Coex Scenario Wi-Fi + BLE, BLE Data transfer, MU retries (~50-60%) observed while running DL MU-MIMO test. 
+- Observed Wi-Fi + BLE intermittent connection failures, disconnections, and data transfer stalls in the long run when power save is enabled.
+- Observed "DUT is not disconnecting to the AP when initiating disconnection from EFR connect app screen using wifi\_station\_ble\_provisioning\_aws example
+- Observed DUT failed to load certificate with error "0x10026" (SL\_STATUS\_SI91X\_WRONG\_PARAMETERS) while running wifi\_https\_ble\_dual\_role\_v6 application
+- Observed BLE bonding failure during continuous HTTPS download.
+- Observed BLE and WLAN connection failure with SMP, when WLAN connect and HTTPS GET called in a loop.
+
+### **System**
+
+- Observed random hang issues with encrypted firmwares on some earlier variant of boards  (Si917-6031A, Si917-4338A) with powersave enable.
+
+### **Simplicity Studio and Commander** 
+
+- Simplicity commander does not support options under "Debug Lock tools".
+- All projects in the package are compatible with **GNU ARM V12.2.1** toolchain
+
+## **Planned Roadmap Features**
+
+### **SDK**
+
+- WPS 2.0 PIN/PUSH, Network Manager Enhancements
+- Websockets
+- Matter integration with Embedded TCP/IP stack 
+- Enhanced buffer management, Throughput optimization
+- TLS over LWIP, Network layer applications (MQTT, HTTP, etc.) over LWIP.
+- Debugging utilities, UC Configurator for Wireless configurations
+
+### **System**
+
+- Secure communication over CPC (UART & SDIO interfaces)
+
+### **MCU**
+
+- Pin Tool for MCU - Pin tool for Analog Peripherals (ADC, DAC. Analog Comparator)
+- Dual Flash: Separate flash for Cortex M4 and Wireless Processor
+- Peripherals: BOD, OPAMP, HSPI, GPDMA, QEI, RNG, IR decoder
+- Software-configurable MCU application memory options (192 or 256 or 320 kB)
+- RTOS support for MCU Peripheral examples
+- SensorHub: Support for SDC\_ADC
+- DMA flow control, self-loop mechanism and as a clock qualifier
+- Support for I2S PCM functionality
+- Stacked and external PSRAM: Pseudo Static RAM for storing application data and executing SoC applications. 
+- Power Manager service enhancements
+- Pintool GA quality and support to any upcoming peripheral
+
+### **Wi-Fi/Network Stack**
+
+- Spatial Re-Use, BSS Max Idle
+- Provisioning using Wi-Fi AP
+
+### **BLE**
+
+- Support for 8 Peripheral + 2 Central connections 
+- Support for BLE Mesh (4 nodes only) for limited Mesh use case
+
+## **Limitations and Unsupported Features**  
+
+### **System**
+
+- None
+
+### **SDK**
+
+- Baremetal mode is not supported.
+- WiSeConnect3\_SDK\_3.1.3 and later versions are not compatible with firmware versions prior to 1711.2.10.1.2.0.4, due to enhancements in max transmit power configuration during Wi-Fi join/connection, need to be cautious while doing OTA firmware upgrade.
+- Caller must memset/initialize the structure variable to 0 before calling the sl\_wifi\_get\_wireless\_info() API. This will be taken care in the next release.
+
+### **Wi-Fi/Network Stack**
+
+- TLS 1.3 Server is not supported.
+- 40 MHz bandwidth for 2.4 GHz band is not supported.
+- Max 3 SSL sockets are supported in Wi-Fi alone and CoEx modes. No.of  SSL Sockets in Wi-Fi + BLE based on RAM memory configuration selected. 
+- In SSL ECC Curve ID supported is 23. SSL handshake with 3rd party clients depends on the SSL ECC Curve ID.
+- The number of Non-Transmitting BSSIDs processed is limited by the beacon length that can be processed by the stack (which is 1024 bytes). Beacons greater than 1024 Bytes in length will not be processed.
+- Multiprotocol (STA +BLE) + EAP Security modes supported only with Memory configurations EXT\_FEAT\_416K\_M4SS\_256K and EXT\_FEAT\_480K\_M4SS\_192K.
+- UL MUMIMO is not supported.
+- WPA3 AP supports only H2E algorithm.
+- PMKSA caching is not supported in WPA3 AP mode.
+- Maximum embedded MQTT Publish payload is 1 kbyte.
+- Timeout value for socket select and socket receive calls of less than 1 second is not currently supported.
+- SA query procedure not supported in 11W AP mode.
+- WPA3 AP transition mode is not supported.
+- AP standalone mode does not support Tx aggregation. Rx aggregation is supported with limited number of BA sessions.
+- In concurrent AP mode, aggregation (Tx/Rx) is not supported.
+- Embedded HTTP Server is not supported.
+- mDNS with IPV6 is not supported.
+- Low power scan supports 1 mbps packets reception only.
+
+### **BLE**
+
+- For BLE, if the connection is established with a small connection interval (less than 15 ms), simultaneous roles (i.e., Central + Scanning and Peripheral + Advertising) are not supported.
+- BLE maximum two concurrent connections are supported, which can be either a connection to two peripheral devices, to one central and one peripheral device or two central devices.
+- BLE Slave latency value is valid up to 32 only.
+- Maximum supported AE data length is 200 bytes.
+- Supports only two ADV\_EXT sets.
+- Supports only two BLE connections (1 Central and 1 Peripheral) with AE.
+- Advertising Extension feature is not supported in Coexistence.
+- The  ae\_central & ae\_peripheral applications are not supported with TA\_352K\_M4\_320K RAM configuration.
+- Two BLE connections are not supported with M4 powersave. It only supports a single connection. 
+- Isochronous channels feature is not supported. 
+- Connection subrating feature is not supported. 
+- LE power controller feature is not supported.
+- EATT feature is not supported.
+- Periodic Advertising with a response feature is not supported. 
+- BLE Audio is not supported.
+- The feature of dynamically changing the TX power when extended advertising is active is not supported.
+- EFR Connect mobile application doesn't have support to differentiate the BLE configurators based on the Bluetooth Device address.
+- The maximum BLE power has been reduced by 2dB compared to the Datasheet Number, which will be addressed in the upcoming 3.3.1 patch release.
+
+### **MCU**
+
+- SensorHub supports PS1-power state with ADC sensor. In this mode, the other sensor's operation is not supported
+- Manual chip select option is not supported when using GSPI
+- Following peripherals/features are not functioning as intended
+  - ADC Multichannel, SSI Dual and Quad mode, SIO and Temp sensors
+- LittleFS support is intended to be used only with Dual flash
+- PS1 state is not supported in Power Manager
+- Power is same for PS4 and PS3 states with powersave mode of power manager
+- When using Button\_0 as wakeup source, it limits the button functionality at application layer. For using Button\_0 for application specific functionality, enable 'SL\_SI91X\_NPSS\_GPIO\_BTN\_HANDLER'
+- Sometimes TA processor hang occurs when M4 uses XTAL clock with sleep-enabled
+
+### **Multi-protocol**
+
+- Wi-Fi AP + BLE currently not supported. 
+- EXT\_FEAT\_352K\_M4SS\_320K RAM configuration is not supported for coex mode with SSL
+
+> **Note:** 
+> 
+> The following BLE Synchronous API's will be deprecated soon and the equivalent Asynchronous API's will be used instead in all BLE applications :
+>
+> |**S.NO**|**BLE Synchronous API's** |**BLE Asynchronous API's** |
+> | :- | :- | :- |
+> |1|rsi\_ble\_get\_profiles|rsi\_ble\_get\_profiles\_async|
+> |2|rsi\_ble\_get\_profile|rsi\_ble\_get\_profile\_async|
+> |3|rsi\_ble\_get\_char\_services|rsi\_ble\_get\_char\_services\_async|
+> |4|rsi\_ble\_get\_inc\_services|rsi\_ble\_get\_inc\_services\_async|
+> |5|rsi\_ble\_get\_char\_value\_by\_uuid|rsi\_ble\_get\_char\_value\_by\_uuid\_async|
+> |6|rsi\_ble\_get\_att\_descriptors|rsi\_ble\_get\_att\_descriptors\_async|
+> |7|rsi\_ble\_get\_att\_value|rsi\_ble\_get\_att\_value\_async|
+> |8|rsi\_ble\_get\_multiple\_att\_values|rsi\_ble\_get\_multiple\_att\_values\_async|
+> |9|rsi\_ble\_get\_long\_att\_value|rsi\_ble\_get\_long\_att\_value\_async|
+> |10|rsi\_ble\_set\_att\_value|rsi\_ble\_set\_att\_value\_async|
+> |11|rsi\_ble\_set\_long\_att\_value|NA|
+> |12|rsi\_ble\_prepare\_write|rsi\_ble\_prepare\_write\_async|
+> |13|rsi\_ble\_execute\_write|rsi\_ble\_execute\_write\_async|
+> |14|rsi\_ble\_indicate\_value\_sync|rsi\_ble\_indicate\_value|
+
 # **WiSeConnect3\_SDK\_3.2.0 SoC Release Notes**
 
 ## **Release Details**
@@ -72,7 +745,7 @@
 ### **Development Environment**
 
 - Simplicity Studio IDE (SV5.8.0 version) and Debugger Integration. Refer to the latest version of the SoC "Getting-Started-with-SiWx917" guide for more details.
-- Recommended to install and use Silicon labs Gecko SDK, Git hub based version 4.4.3.
+- Recommended to install and use Silicon labs Simplicity SDK(formerly Gecko SDK), Git hub based version 4.4.3.
 - Simplicity Commander to supports Flash loading, provision of MBR programming, security key management, and calibration support for crystal and gain offsets. refer "siwx917-soc-manufacturing-utility-user-guide" for more details.
 - Advanced Energy Monitoring (AEM) to measure ultra-low power capability on Development boards (Pro Kit).
 - PinTool  Supported peripherals - I2C, GSPI, SSI, SIO, UART/USART, Config Timers, PWM, I2S, ADC, DAC and Analog comparator
@@ -669,7 +1342,7 @@
 ### **Development Environment**
 
 - Simplicity Studio IDE (SV5.8.0 version) and Debugger Integration.   Refer to the latest version of the SoC "Getting-Started-with-SiWx917" guide for more details.
-- Recommended to install and use Silicon labs Gecko SDK, Git hub based version 4.4.1. 
+- Recommended to install and use Silicon labs Simplicity SDK(formerly Gecko SDK), Git hub based version 4.4.1. 
 - Simplicity Commander to supports Flash loading, provision of MBR programming, security key management, and calibration support for crystal and gain offsets. refer "siwx917-soc-manufacturing-utility-user-guide" for more details.** 
 - Advanced Energy Monitoring (AEM) to measure ultra-low power capability on Development boards (Pro Kit).
 - PinTool  Supported peripherals - I2C, GSPI, SSI, SIO, UART/USART, Config Timers, PWM, I2S

@@ -17,18 +17,35 @@
 
 // Include Files
 
-#include "rsi_chip.h"
 #include "UDMA.h"
+#include "rsi_adc.h"
+#include "rsi_ulpss_clk.h"
+#include "rsi_rom_ulpss_clk.h"
+#include "rsi_dac.h"
+#include "rsi_rom_egpio.h"
+#include "aux_reference_volt_config.h"
 #include <math.h>
+#include <string.h>
+#include "sl_si91x_dma.h"
 //---------------------- Macros -----------------//
-#define ADC_CLK_SOURCE_32KHZ   32000
-#define ADC_CLK_SOURCE_20MHZ   20000000
-#define ADC_CLK_SOURCE_32MHZ   32000000
-#define ADC_CLK_SOURCE_40MHZ   40000000
-#define MAX_ADC_SAMPLE_LEN     1023
-#define MINIMUM_ADC_SAMPLE_LEN 1023
-#define SAMPLE_RATE_32KSPS     32000
-#define SAMPLE_RATE_120KSPS    120000
+#define ADC_CLK_SOURCE_32KHZ      32000
+#define ADC_CLK_SOURCE_20MHZ      20000000
+#define ADC_CLK_SOURCE_32MHZ      32000000
+#define ADC_CLK_SOURCE_40MHZ      40000000
+#define MAXIMUM_ADC_SAMPLE_LEN    1023
+#define MINIMUM_ADC_SAMPLE_LEN    1
+#define SAMPLE_RATE_32KSPS        32000
+#define SAMPLE_RATE_9KSPS         9000
+#define SAMPLE_RATE_800KSPS       800000
+#define MAXIMUM_NUMBER_OF_CHANNEL 16
+#define MINIMUM_NUMBER_OF_CHANNEL 1
+#define FIRST_MEM_SWITCH_INTR_BIT 7
+#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
+#define DMA_INSTANCE 1
+#else
+#define DMA_INSTANCE 0
+#endif
+#define DMA_CHANNEL 1
 // ADC internal structure
 adc_inter_config_t adcInterConfig;
 adc_commn_config_t adc_commn_config;
@@ -37,9 +54,8 @@ uint8_t adc_channel = 0;
 // ADC calibration related variables
 uint32_t auxadcCalibValueLoad = 0, auxadcCalibValue = 0;
 uint32_t calib_done = 0;
-
 // ADC ping or pong interrupt selection variable
-uint8_t pong_enable_sel;
+uint8_t pong_enable_sel[MAXIMUM_NUMBER_OF_CHANNEL];
 #ifdef SLI_SI917
 extern dac_config_t dac_callback_fun;
 #endif
@@ -116,12 +132,13 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
         return INVALID_SAMPLE_LENGTH;
       }
     }
-    if (adcChConfig.num_of_samples[0] > MAX_ADC_SAMPLE_LEN) {
+    if (adcChConfig.num_of_samples[0] > MAXIMUM_ADC_SAMPLE_LEN) {
       return INVALID_SAMPLE_LENGTH;
     }
   }
 
-  if ((adcConfig.num_of_channel_enable < 1) || (adcConfig.num_of_channel_enable > 16)) {
+  if ((adcConfig.num_of_channel_enable < MINIMUM_NUMBER_OF_CHANNEL)
+      || (adcConfig.num_of_channel_enable > MAXIMUM_NUMBER_OF_CHANNEL)) {
     return INVALID_ADC_CHANNEL_ENABLE;
   }
   // Power up of ADC block
@@ -154,7 +171,7 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
     adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
   }
   // Configure 20MHZ RC clock to ADC
-  else if (clk_sel >= SAMPLE_RATE_32KSPS && clk_sel <= SAMPLE_RATE_120KSPS) {
+  else if (clk_sel >= SAMPLE_RATE_32KSPS && clk_sel <= SAMPLE_RATE_800KSPS) {
     RSI_IPMU_M20rcOsc_TrimEfuse();
     // Select 32MHZ RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
@@ -208,6 +225,11 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   frac /= 1000;
   adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
+  sl_dma_init_t dma_init;
+  dma_init.dma_number = DMA_INSTANCE;
+  if (sl_si91x_dma_init(&dma_init)) {
+    return ARM_DRIVER_ERROR;
+  }
   return RSI_OK;
 }
 
@@ -218,7 +240,6 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   uint32_t integer_val = 0;
   float frac           = 0;
 #endif
-  uint32_t ch_num = 0;
 
   adc_channel = adcChConfig.channel;
 
@@ -237,16 +258,17 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   // Verify the user given sample length is proper or not
   if (adcConfig.num_of_channel_enable == 1) {
     if (adcConfig.operation_mode) {
-      if (adcChConfig.num_of_samples[adc_channel] > 1) {
+      if (adcChConfig.num_of_samples[adc_channel] > MINIMUM_ADC_SAMPLE_LEN) {
         return INVALID_SAMPLE_LENGTH;
       }
     }
-    if (adcChConfig.num_of_samples[adc_channel] > 1023) {
+    if (adcChConfig.num_of_samples[adc_channel] > MAXIMUM_ADC_SAMPLE_LEN) {
       return INVALID_SAMPLE_LENGTH;
     }
   }
 
-  if ((adcConfig.num_of_channel_enable < 1) || (adcConfig.num_of_channel_enable > 16)) {
+  if ((adcConfig.num_of_channel_enable < MINIMUM_NUMBER_OF_CHANNEL)
+      || (adcConfig.num_of_channel_enable > MAXIMUM_NUMBER_OF_CHANNEL)) {
     return INVALID_ADC_CHANNEL_ENABLE;
   }
   // Power up of ADC block
@@ -265,15 +287,15 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   RSI_ADC_Calibration();
 
   // Configure 32Khz RC clock to ADC
-  if (adcChConfig.sampling_rate[adc_channel] <= SAMPLE_RATE_32KSPS) {
+  if (adcChConfig.sampling_rate[adc_channel] <= SAMPLE_RATE_9KSPS) {
     // Select 32KHZ RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
 
     adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
   }
   // Configure 64Khz RC clock to ADC
-  else if (adcChConfig.sampling_rate[adc_channel] > SAMPLE_RATE_32KSPS
-           && adcChConfig.sampling_rate[adc_channel] < SAMPLE_RATE_120KSPS) {
+  else if (adcChConfig.sampling_rate[adc_channel] > SAMPLE_RATE_9KSPS
+           && adcChConfig.sampling_rate[adc_channel] < SAMPLE_RATE_800KSPS) {
     RSI_IPMU_M20rcOsc_TrimEfuse();
     // Select 32KHZ RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
@@ -287,7 +309,7 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
 #else
       // Select 40MHZ XTAL ULP reference clock
-      RSI_ULPSS_RefClkConfig(ULPSS_RF_REF_CLK);
+      RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
 
       // Select 40MHZ XTAL clock for ADC
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
@@ -327,6 +349,11 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   frac /= 1000;
   adc_commn_config.adc_diff_gain = (((float)(integer_val >> 14)) + frac);
 #endif
+  sl_dma_init_t dma_init;
+  dma_init.dma_number = DMA_INSTANCE;
+  if (sl_si91x_dma_init(&dma_init)) {
+    return ARM_DRIVER_ERROR;
+  }
   return RSI_OK;
 }
 
@@ -347,8 +374,13 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
   uint16_t total_clk            = 0;
   uint16_t on_clk               = 0;
   uint16_t i                    = 0;
-  float inverse_sampl_val       = 0;
-  float min_sampl_time          = 0;
+  sl_status_t status;
+  uint32_t dma_channel      = DMA_CHANNEL;
+  uint32_t channel_priority = 0;
+  float inverse_sampl_val   = 0;
+  float min_sampl_time      = 0;
+
+  sl_dma_callback_t adc_dma_callback;
 
   // Get minimum sampling time form given configuration
   min_sampl_time = get_min_sampling_time(adcConfig.num_of_channel_enable, adcChConfig);
@@ -531,6 +563,18 @@ rsi_error_t ADC_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcConfi
 
       adcInterConfig.input_type[ch_num] = adcChConfig.input_type[ch_num];
     }
+
+    adc_dma_callback.transfer_complete_cb = ADC_DMA_Transfer_Complete;
+    adc_dma_callback.error_cb             = ADC_DMA_Error_Callback;
+    //Allocate DMA channel for Tx
+    status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &dma_channel, channel_priority);
+    if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+      return ARM_DRIVER_ERROR;
+    }
+    //Register transfer complete and error callback
+    if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, dma_channel, &adc_dma_callback)) {
+      return ARM_DRIVER_ERROR;
+    }
   }
   return RSI_OK;
 }
@@ -544,8 +588,14 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
   uint16_t total_clk            = 0;
   uint16_t on_clk               = 0;
   uint16_t i                    = 0;
-  float inverse_sampl_val       = 0;
-  float min_sampl_time          = 0;
+  sl_status_t status;
+  uint32_t dma_channel      = DMA_CHANNEL;
+  uint32_t channel_priority = 0;
+  float inverse_sampl_val   = 0;
+  float min_sampl_time      = 0;
+  adc_channel               = adcChConfig.channel;
+
+  sl_dma_callback_t adc_dma_callback;
 
   // Get minimum sampling time form given configuration
   min_sampl_time = get_min_sampling_time(adcConfig.num_of_channel_enable, adcChConfig);
@@ -606,7 +656,10 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
             (uint16_t)(roundupto_pwr2(adcInterConfig.ch_sampling_factor[ch_num]));
         }
       }
-
+      // if number of sample length is '1' it should divide by 4 for swallow factor.
+      if (adcChConfig.num_of_samples[adc_channel] == 1) {
+        adcInterConfig.ch_sampling_factor[adc_channel] /= 4;
+      }
       // Sum of enabled channels channel frequency inverse
       for (i = 0; i <= ch_num; i++) {
         inverse_sampl_val += (1 / (float)adcInterConfig.ch_sampling_factor[adc_channel]);
@@ -734,6 +787,18 @@ rsi_error_t ADC_Per_ChannelConfig(adc_ch_config_t adcChConfig, adc_config_t adcC
 
       adcInterConfig.input_type[adc_channel] = adcChConfig.input_type[adc_channel];
     }
+
+    adc_dma_callback.transfer_complete_cb = ADC_DMA_Transfer_Complete;
+    adc_dma_callback.error_cb             = ADC_DMA_Error_Callback;
+    //Allocate DMA channel for Tx
+    status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &dma_channel, channel_priority);
+    if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+      return ARM_DRIVER_ERROR;
+    }
+    //Register transfer complete and error callback
+    if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, dma_channel, &adc_dma_callback)) {
+      return ARM_DRIVER_ERROR;
+    }
   }
   return RSI_OK;
 }
@@ -847,6 +912,10 @@ rsi_error_t ADC_Deinit(void)
 #ifdef SLI_SI917
   RSI_ADC_Stop(AUX_ADC_DAC_COMP, adcConfig.operation_mode);
 #endif
+  if (sl_si91x_dma_unregister_callbacks(DMA_INSTANCE, DMA_CHANNEL, SL_DMA_TRANSFER_DONE_CB | SL_DMA_ERROR_CB)) {
+    return ARM_DRIVER_ERROR;
+  }
+
   return RSI_OK;
 }
 
@@ -895,7 +964,7 @@ rsi_error_t ADC_Stop(adc_config_t adcConfig)
  */
 rsi_error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num)
 {
-  if (pong_enable_sel) {
+  if (pong_enable_sel[channel_num]) {
     if (event == EXTERNAL_DMA_RECONFIG) {
 
 #ifdef ADC_MULTICHANNEL_WITH_EXT_DMA
@@ -909,10 +978,14 @@ rsi_error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num)
 #ifdef CHIP_9118
 #ifndef DONOT_READ_DATA_FROM_MEM
 #ifdef GAIN_OFFSET_CAL_EN
-      RSI_ADC_ReadData(adcInterConfig.rx_buf[0], pong_enable_sel, channel_num, 1, adcInterConfig.input_type[0]);
+      RSI_ADC_ReadData(adcInterConfig.rx_buf[0],
+                       pong_enable_sel[channel_num],
+                       channel_num,
+                       1,
+                       adcInterConfig.input_type[0]);
 #else
       RSI_ADC_ReadData(adcInterConfig.rx_buf[channel_num],
-                       pong_enable_sel,
+                       pong_enable_sel[channel_num],
                        channel_num,
                        0,
                        adcInterConfig.input_type[0]);
@@ -937,13 +1010,13 @@ rsi_error_t ADC_PingPongReconfig(uint8_t event, uint8_t channel_num)
 #ifndef DONOT_READ_DATA_FROM_MEM
 #ifdef GAIN_OFFSET_CAL_EN
       RSI_ADC_ReadData(adcInterConfig.rx_buf[channel_num],
-                       pong_enable_sel,
+                       pong_enable_sel[channel_num],
                        channel_num,
                        1,
                        adcInterConfig.input_type[0]);
 #else
       RSI_ADC_ReadData(adcInterConfig.rx_buf[channel_num],
-                       pong_enable_sel,
+                       pong_enable_sel[channel_num],
                        channel_num,
                        0,
                        adcInterConfig.input_type[0]);
@@ -1974,39 +2047,49 @@ rsi_error_t RSI_ADC_ReadData(int16_t *data,
                              uint8_t diff_en)
 {
   uint32_t i, addr_read = 0, sample_len = 0;
-  if (ping_pong) {
-    addr_read = adcInterConfig.ping_addr[channel];
+  sl_dma_xfer_t dma_transfer_tx = { 0 };
 
+  if (ping_pong) {
+    addr_read  = adcInterConfig.ping_addr[channel];
     sample_len = adcInterConfig.ping_length[channel];
   } else {
-    addr_read = adcInterConfig.pong_addr[channel] + adcInterConfig.ping_length[channel];
-
+    addr_read  = adcInterConfig.pong_addr[channel] + adcInterConfig.ping_length[channel];
     sample_len = adcInterConfig.pong_length[channel];
   }
 
-  for (i = 0; i < sample_len; i++) {
-    data[i] = *(volatile int16_t *)(addr_read + i * 2);
-    if (data_process_en) {
-      if (data[i] & BIT(11)) {
-        data[i] = (data[i] & ((int16_t)(ADC_MASK_VALUE)));
-      } else {
-        data[i] = data[i] | BIT(11);
-      }
+  // read all samples data from ping/pong address
+
+  uint32_t dma_channel           = DMA_CHANNEL;
+  dma_transfer_tx.src_addr       = (uint32_t *)addr_read;
+  dma_transfer_tx.dest_addr      = (uint32_t *)data;
+  dma_transfer_tx.src_inc        = SRC_INC_16;
+  dma_transfer_tx.dst_inc        = DST_INC_16;
+  dma_transfer_tx.xfer_size      = DST_SIZE_16;
+  dma_transfer_tx.transfer_count = sample_len * sizeof(*data);
+  dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_MEMORY;
+  dma_transfer_tx.dma_mode       = UDMA_MODE_PINGPONG;
+  dma_transfer_tx.signal         = 0;
+  sl_si91x_dma_transfer(DMA_INSTANCE, dma_channel, &dma_transfer_tx);
+
+  if (data_process_en) {
+    for (i = 0; i < sample_len; i++) {
+      data[i] ^= (int16_t)BIT(11);
+
       if (diff_en) {
         data[i] = (int16_t)((data[i] - adc_commn_config.adc_diff_offset) * adc_commn_config.adc_diff_gain);
       } else {
         data[i] = (int16_t)((data[i] - adc_commn_config.adc_sing_offset) * adc_commn_config.adc_sing_gain);
       }
+
       if (data[i] > 4095) {
         data[i] = 4095;
-      }
-      if (data[i] <= 0) {
+      } else if (data[i] <= 0) {
         data[i] = 0;
       }
       if (data[i] >= 2048) {
-        data[i] = data[i] - 2048;
+        data[i] -= 2048;
       } else {
-        data[i] = data[i] + 2048;
+        data[i] += 2048;
       }
     }
   }
@@ -2345,13 +2428,8 @@ rsi_error_t RSI_ADC_Bbp(AUX_ADC_DAC_COMP_Type *pstcADC, uint8_t adc_bbp_en, uint
  */
 rsi_error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
 {
-  uint32_t intr_status = 0;
+  volatile uint32_t intr_status;
   uint8_t ch_num;
-  if (adc_commn_config.num_of_channel_enable > 1) {
-    for (ch_num = 0; ch_num < adc_commn_config.num_of_channel_enable; ch_num++) {
-      RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP, ch_num, ADC_FIFOMODE_ENABLE);
-    }
-  }
   intr_status = RSI_ADC_ChnlIntrStatus(AUX_ADC_DAC_COMP);
 
   if ((intr_status & ADC_STATIC_MODE_INTR) && (pstcADC->INTR_MASK_REG_b.ADC_STATIC_MODE_DATA_INTR_MASK == 0)) {
@@ -2372,88 +2450,15 @@ rsi_error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
   else {
     if ((AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_MULTIPLE_CHAN_ACTIVE)
         || (AUX_ADC_DAC_COMP->INTERNAL_DMA_CH_ENABLE_b.INTERNAL_DMA_ENABLE)) {
-      if (intr_status != (int)NULL) {
-        if (intr_status & BIT(7)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL0_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL0_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL0_INTR, INTERNAL_DMA);
+      for (ch_num = 0; ch_num <= MAX_CHNL_NO; ch_num++) {
+        if (intr_status & BIT(ch_num + FIRST_MEM_SWITCH_INTR_BIT)) {
+          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ch_num);
+          RSI_ADC_PingPongReInit(AUX_ADC_DAC_COMP, ch_num, !pong_enable_sel[ch_num], pong_enable_sel[ch_num]);
+          if (adc_commn_config.call_back_event != NULL) {
+            adc_commn_config.call_back_event(ch_num, INTERNAL_DMA);
+          }
+          pong_enable_sel[ch_num] = !pong_enable_sel[ch_num];
         }
-        if (intr_status & BIT(8)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL1_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL1_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL1_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(9)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL2_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL2_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL2_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(10)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL3_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL3_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL3_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(11)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL4_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL4_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL4_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(12)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL5_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL5_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL5_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(13)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL6_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL6_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL6_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(14)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL7_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL7_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL7_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(15)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL8_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL8_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL8_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(16)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL9_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL9_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL9_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(17)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL10_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL10_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL10_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(18)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL11_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL11_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL11_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(19)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL12_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL12_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL12_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(20)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL13_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL13_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL13_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(21)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL14_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL14_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL14_INTR, INTERNAL_DMA);
-        }
-        if (intr_status & BIT(22)) {
-          RSI_ADC_ChnlIntrClr(AUX_ADC_DAC_COMP, ADC_CHNL15_INTR);
-          ADC_PingPongReconfig(INTERNAL_DMA, ADC_CHNL15_INTR);
-          adc_commn_config.call_back_event(ADC_CHNL15_INTR, INTERNAL_DMA);
-        }
-      } else {
       }
     }
     if ((!(AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_STATIC_MODE))
@@ -2461,15 +2466,24 @@ rsi_error_t RSI_ADC_InterruptHandler(AUX_ADC_DAC_COMP_Type *pstcADC)
       AUX_ADC_DAC_COMP->AUXADC_CTRL_1_b.ADC_FIFO_FLUSH = 1;
       adc_commn_config.call_back_event((uint8_t)intr_status, FIFO_MODE_EVENT);
     }
-    if (pong_enable_sel) {
-      pong_enable_sel = 0;
-    } else {
-      pong_enable_sel = 1;
-    }
   }
   return RSI_OK;
 }
 #endif
+
+void ADC_DMA_Transfer_Complete(uint32_t channel, void *data)
+{
+  (void)channel;
+  (void)&data;
+  adc_commn_config.call_back_event(channel, UDMA_EVENT_XFER_DONE);
+}
+
+void ADC_DMA_Error_Callback(uint32_t channel, void *data)
+{
+  (void)channel;
+  (void)&data;
+  adc_commn_config.call_back_event(channel, UDMA_EVENT_XFER_DONE);
+}
 
 /*==============================================*/
 /**

@@ -34,7 +34,7 @@
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
 #include "sl_utility.h"
-
+#include "FreeRTOSConfig.h"
 //! BLE include file to refer BLE APIs
 #include <string.h>
 
@@ -45,7 +45,7 @@
 #include "rsi_bt_common.h"
 #include "rsi_bt_common_apis.h"
 #include "rsi_common_apis.h"
-#ifdef SLI_SI91X_MCU_INTERFACE
+#if SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE)
 #include "sl_si91x_m4_ps.h"
 #endif
 
@@ -84,6 +84,8 @@ sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE 
 #define RSI_APP_EVENT_ADV_REPORT   0
 #define RSI_APP_EVENT_CONNECTED    1
 #define RSI_APP_EVENT_DISCONNECTED 2
+
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
 
 //! Application global parameters.
 // static uint8_t rsi_app_async_event_map = 0;
@@ -475,7 +477,7 @@ void ble_central(void *argument)
     //! checking for received events
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
-#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
       //! if events are not received loop will be continued.
       if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;

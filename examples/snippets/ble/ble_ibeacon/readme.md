@@ -89,14 +89,16 @@ The iBeacon advertise data format is as follows:
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 
-- Smart phone with ibeacon detector application
+- Smart phone with Simplicity Connect App(formerly EFR Connect App) mobile app
 
 ### Software Requirements
 
 - Simplicity Studio
 - Smartphone configured as BLE Peripheral
 
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+
+> **Note:** The provided mobile screenshots are from the 2.8.1 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 ### Setup Diagram
 
@@ -117,12 +119,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes needed.
 
-- Open `ble_ibeacon.c` file and update/modify following macros:
+- Open `app.c` file and update/modify following macros:
 
   - `RSI_BLE_LOCAL_NAME` refers name of the Silicon Labs device to appear during scanning by remote devices.
 
      ```c
-    #define RSI_BLE_LOCAL_NAME                     "ibeacon"
+    #define RSI_BLE_LOCAL_NAME                     "iBeacon"
     ```
 
   - Following are the event numbers for connection and Disconnection events,
@@ -144,7 +146,7 @@ The application can be configured to suit your requirements and development envi
 
   ```c
   #define RSI_BLE_PWR_INX                        30
-  #define RSI_BLE_PWR_SAVE_OPTIONS               0
+  #define RSI_BLE_PWR_SAVE_OPTIONS               BLE_DISABLE_DUTY_CYCLING
   ```  
 
   > **Note:** `rsi_ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example.
@@ -162,11 +164,26 @@ Follow the steps for the successful execution of the program:
 
 2. Connect any serial console for prints.
 
-3. Open iBeaconDetector app in the smartphone and do scan.
+3. Open Simplicity Connect App(formerly EFR Connect App) connect mobile app in the smartphone and do scan.
 
-4. In the App, Silicon Labs module device would appear with the name configured in the macro **RSI\_BLE\_LOCAL\_NAME** (Ex: "ibeacon") or sometimes observed as "SimpleBLEPeripheral".
+![](resources/readme/bleibeaconscanning1.png)
 
-5. After successful scan, user can see the Silicon Labs device advertised data i.e UUID, Maximum Number, Minimum Number and TX Power in iBeaconDetector application.  
+4. Filter the ibeacon devices in filter settings
+
+![](resources/readme/bleibeaconscanning2.png)
+
+![](resources/readme/bleibeaconscanfiler.png)
+
+![](resources/readme/bleibeaconscanfilerapply.png)
+
+
+5. In the App, Silicon Labs module device would appear with the name configured in the macro **RSI\_BLE\_LOCAL\_NAME** (Ex: "iBeacon")
+
+![](resources/readme/bleibeacondevice.png)
+
+5. After successful scan, user can see the Silicon Labs device advertised data i.e UUID, Maximum Number, Minimum Number and TX Power in Simplicity Connect App(formerly EFR Connect App).  
+
+![](resources/readme/bleibeaconscandata.png)
 
 6. Refer the following images for console prints:
 

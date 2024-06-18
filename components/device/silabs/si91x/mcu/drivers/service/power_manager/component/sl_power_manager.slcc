@@ -25,8 +25,14 @@ template_file:
   - path: init/sl_si91x_power_manager_handler.c.jinja
 requires:
   - name: slist
+  - name: wakeup_source_config
+  - name: power_manager_config
+  - name: si91x_tickless_mode
+    condition:
+      - freertos
+  - name: romdriver_power_save
+  - name: systemlevel_time_period
 define:
-  - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
   - name: SLI_WIRELESS_COMPONENT_PRESENT
     value: "1"
     condition:

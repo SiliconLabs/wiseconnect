@@ -29,7 +29,7 @@
 #include "rsi_ccp_user_config.h"
 #if defined(CHIP_9118)
 
-#include "rsi_chip.h"
+
 
 #include "Driver_USB.h"
 #include "USB.h"

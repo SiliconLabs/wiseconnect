@@ -55,8 +55,6 @@ void rsi_uint32_to_4bytes(uint8_t *dBuf, uint32_t val);
 void rsi_uint16_to_2bytes(uint8_t *dBuf, uint16_t val);
 uint16_t rsi_bytes2R_to_uint16(uint8_t *dBuf);
 uint32_t rsi_bytes4R_to_uint32(uint8_t *dBuf);
-uint8_t multicast_mac_hash(uint8_t *mac);
-uint8_t lmac_crc8_c(uint8_t crc8_din, uint8_t crc8_state, uint8_t end);
 uint8_t *rsi_ascii_dev_address_to_6bytes_rev(uint8_t *hex_addr, int8_t *ascii_mac_address);
 uint8_t *rsi_6byte_dev_address_to_ascii(uint8_t *ascii_mac_address, uint8_t *hex_addr);
 uint8_t convert_lower_case_to_upper_case(uint8_t lwrcase);

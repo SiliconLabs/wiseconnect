@@ -89,14 +89,13 @@ uint8_t data_buffer[BUFFER_SIZE];
 /*=======================================================================*/
 //   ! PROCEDURES
 /*=======================================================================*/
-uint32_t tick_count_s = 1;
-#define THROUGHPUT_AVG_TIME (20000 * tick_count_s) // 20sec
+#define THROUGHPUT_AVG_TIME (20000) // 20sec
 
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout)
 {
-  float duration = ((test_timeout) / 1000) / tick_count_s; // ms to sec
-  float result   = (total_num_of_bytes * 8) / duration;    // bytes to bits
-  result         = (result / 1000000);                     // bps to Mbps
+  float duration = ((test_timeout) / 1000);             // ms to sec
+  float result   = (total_num_of_bytes * 8) / duration; // bytes to bits
+  result         = (result / 1000000);                  // bps to Mbps
   LOG_PRINT("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
 }
 

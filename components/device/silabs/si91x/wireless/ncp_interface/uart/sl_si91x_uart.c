@@ -50,32 +50,30 @@
 
 static sl_wifi_buffer_t *resp_buffer = NULL;
 static sl_status_t resp_status       = SL_STATUS_OK;
+
 /************************************************************************************
  ******************************** Static Functions *********************************
 ************************************************************************************/
-static sl_status_t sli_si91x_uart_command_handler(uint8_t *cmd, uint16_t cmd_length, const char *expected_response)
+static sl_status_t sli_si91x_uart_command_handler(uint8_t *cmd,
+                                                  uint16_t cmd_length,
+                                                  const char *expected_response,
+                                                  uint32_t expected_data_count)
 {
   //sl_status_t status;
-  uint16_t temp                 = 0;
-  uint8_t *response             = NULL;
-  volatile uint32_t data_length = 0;
+  uint16_t temp     = 0;
+  uint8_t *response = NULL;
 
   response = (uint8_t *)sl_si91x_host_get_buffer_data(resp_buffer, 0, &temp);
 
   SL_DEBUG_LOG("Command : { %c }\n", *((char *)(cmd)));
   sl_si91x_host_uart_transfer((const void *)cmd, NULL, cmd_length);
-  while (1) {
-    sl_si91x_host_uart_transfer(NULL, (void *)(&response[data_length]), 1);
-    data_length++;
-
-    if (strstr((const char *)response, expected_response)) {
-      SL_DEBUG_LOG("Response(%lu bytes) %s\n", data_length, (char *)response);
-      // break the loop when "JTAG Selection" string is found
-      memset(response, 0, FRAME_SIZE);
-      break;
-    }
+  sl_si91x_host_uart_transfer(NULL, (void *)response, expected_data_count);
+  SL_DEBUG_LOG("Response(%lu bytes) %s\n", expected_data_count, (char *)response);
+  if (NULL == strstr((const char *)response, expected_response)) {
+    return SL_STATUS_FAIL;
   }
 
+  memset(response, 0, FRAME_SIZE);
   return SL_STATUS_OK;
 }
 
@@ -88,6 +86,7 @@ sl_status_t sl_si91x_bus_init(void)
   uint8_t *response   = NULL;
   sl_status_t status;
   uint16_t temp;
+  static uint32_t i = 0;
   SL_DEBUG_LOG("Bus Init startup\n");
 
   // Allocate a buffer for the frame using sl_si91x_host_allocate_buffer
@@ -100,22 +99,29 @@ sl_status_t sl_si91x_bus_init(void)
   response = (uint8_t *)sl_si91x_host_get_buffer_data(resp_buffer, 0, &temp);
   memset(response, 0, FRAME_SIZE);
 
-  status = sli_si91x_uart_command_handler(boot_cmd, 1, "Enter 'U'");
+  status = sli_si91x_uart_command_handler(boot_cmd, 1, "Enter 'U'", (12 - i));
   VERIFY_STATUS_AND_RETURN(status);
+  // During 1st init we receive one extra character which is not received in later init
+  i = ((i > 0) ? i : (i + 1));
 
-  status = sli_si91x_uart_command_handler(&boot_cmd[1], 1, "JTAG Selection");
+  status = sli_si91x_uart_command_handler(&boot_cmd[1], 1, "JTAG Selection", 485);
   VERIFY_STATUS_AND_RETURN(status);
 
 #ifdef SL_SI91X_UART_HIGH_SPEED_ENABLE
-  status = sli_si91x_uart_command_handler(&boot_cmd[2], 1, "5 115200");
+  status = sli_si91x_uart_command_handler(&boot_cmd[2], 1, "5 115200", 78);
   VERIFY_STATUS_AND_RETURN(status);
 
-  status = sli_si91x_uart_command_handler(&boot_cmd[3], 1, "4");
+  status = sli_si91x_uart_command_handler(&boot_cmd[3], 1, "4", 1);
   VERIFY_STATUS_AND_RETURN(status);
 
   sl_si91x_host_enable_high_speed_bus();
+  sl_si91x_host_uart_transfer(NULL, (void *)response, 1);
+  SL_DEBUG_LOG("Response(%u bytes) %s\n", 1, (char *)response);
+  if (NULL == strstr((const char *)response, "U")) {
+    return SL_STATUS_FAIL;
+  }
 
-  status = sli_si91x_uart_command_handler(&boot_cmd[1], 1, "Enter Next Command");
+  status = sli_si91x_uart_command_handler(&boot_cmd[1], 1, "Enter Next Command", 105);
   VERIFY_STATUS_AND_RETURN(status);
 #endif
 
@@ -201,15 +207,39 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
   UNUSED_PARAMETER(select_option);
   sl_status_t status     = SL_STATUS_OK;
   uint8_t load_binary[2] = { 'H', '1' };
+#ifdef SL_SI91X_UART_HFC_ENABLE
+  uint8_t i              = 0;
+  uint8_t hfc_command[]  = { 0x01, 0x40, 0xA4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03 };
+  uint8_t hfc_response[] = { 0x15, 0x00, 0x04, 0x00, 0x01, 0x40, 0xA4, 0x00, 0x00, 0x00, 0x00,
+                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
+  uint16_t temp          = 0;
+  uint8_t *response      = NULL;
+
+  response = (uint8_t *)sl_si91x_host_get_buffer_data(resp_buffer, 0, &temp);
+#endif
   SL_DEBUG_LOG("Bootup startup\n");
 
-  status = sli_si91x_uart_command_handler(load_binary, 1, "Enter Next Command");
+  status = sli_si91x_uart_command_handler(load_binary, 1, "Enter Next Command", 47);
   VERIFY_STATUS_AND_RETURN(status);
 
-  status = sli_si91x_uart_command_handler(&load_binary[1], 1, "Loading...");
+  status = sli_si91x_uart_command_handler(&load_binary[1], 1, "Loading...", 35);
   VERIFY_STATUS_AND_RETURN(status);
 
   sl_si91x_host_flush_uart_rx();
+
+#ifdef SL_SI91X_UART_HFC_ENABLE
+  sl_si91x_host_uart_transfer((const void *)hfc_command, NULL, 17);
+  sl_si91x_host_uart_transfer(NULL, (void *)response, 21);
+
+  for (i = 0; i < 21; i++) {
+    if (response[i] != hfc_response[i]) {
+      return SL_STATUS_FAIL;
+    }
+  }
+
+  sl_si91x_host_uart_enable_hardware_flow_control();
+#endif
   sl_si91x_host_set_event(NCP_HOST_COMMON_RESPONSE_EVENT);
 
   SL_DEBUG_LOG("Bootup Done\n");

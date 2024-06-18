@@ -17,9 +17,11 @@
 #include "sl_si91x_adc.h"
 #include "adc_multichannel_example.h"
 #include "rsi_debug.h"
-#include "rsi_chip.h"
+
 #include "sl_adc_instances.h"
 #include "sl_si91x_adc_common_config.h"
+#include "sl_si91x_clock_manager.h"
+#include "rsi_rom_clks.h"
 
 /*******************************************************************************
 ***************************  Defines / Macros  ********************************
@@ -37,6 +39,11 @@
 #define ADC_PING_BUFFER_3     0x0000C000 // Start address of Ping for channel_2
 #define ADC_PING_BUFFER_4     0x0000D000 // Start address of Ping for channel_3
 
+#define SOC_PLL_CLK          ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK         ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
+#define QSPI_ODD_DIV_ENABLE  0                       // Odd division enable for QSPI clock
+#define QSPI_SWALLO_ENABLE   0                       // Swallo enable for QSPI clock
+#define QSPI_DIVISION_FACTOR 0                       // Division factor for QSPI clock
 /*******************************************************************************
 *************************** LOCAL VARIABLES   *******************************
 ******************************************************************************/
@@ -46,12 +53,29 @@ static boolean_t ch_flags[NUMBER_OF_CHANNEL];
 /*******************************************************************************
 **********************  Local Function prototypes   ***************************
 ******************************************************************************/
-static void callback_event(uint8_t channel_no, uint8_t event);
+static void callback_event(uint8_t event_channel, uint8_t event);
+static void default_clock_configuration(void);
 
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
 ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
 
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+
+  // Configure QSPI clock as input source
+  ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK,
+                                           QSPI_INTFPLLCLK,
+                                           QSPI_SWALLO_ENABLE,
+                                           QSPI_ODD_DIV_ENABLE,
+                                           QSPI_DIVISION_FACTOR);
+}
 /*******************************************************************************
 * ADC example initialization function
 ******************************************************************************/
@@ -60,6 +84,10 @@ void adc_multichannel_example_init(void)
   sl_adc_version_t version;
   sl_status_t status;
   sl_adc_clock_config_t clock_config;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   clock_config.soc_pll_clock           = PS4_SOC_FREQ;
   clock_config.soc_pll_reference_clock = SOC_PLL_REF_FREQUENCY;
   clock_config.division_factor         = DVISION_FACTOR;
@@ -147,34 +175,38 @@ void adc_multichannel_example_process_action(void)
 {
   sl_status_t status;
   uint32_t sample_length;
-  uint8_t chnl_num = 0;
-  float vout       = 0;
+  static uint8_t chnl_num = 0;
+  float vout              = 0.0f;
+  int32_t avg_adc_output  = 0;
 
   // here we get the 12-bit value of ADC output in equivalent voltage.
-  for (chnl_num = 0; chnl_num < sl_adc_config.num_of_channel_enable; chnl_num++) {
-    if (ch_flags[chnl_num] == true) {
-      ch_flags[chnl_num] = false;
-      status             = sl_si91x_adc_read_data(sl_adc_channel_config, chnl_num);
-      if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_adc_read_data: Error Code : %lu \n", status);
+  if (ch_flags[chnl_num] == true) {
+    ch_flags[chnl_num] = false;
+    status             = sl_si91x_adc_read_data(sl_adc_channel_config, chnl_num);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_adc_read_data: Error Code : %lu \n", status);
+    }
+    for (sample_length = 0; sample_length < sl_adc_channel_config.num_of_samples[chnl_num]; sample_length++) {
+      /* In two’s complement format, the MSb (11th bit) of the conversion result determines the polarity,
+       when the MSb = ‘0’, the result is positive, and when the MSb = ‘1’, the result is negative*/
+      if (adc_output[sample_length] & SIGN_BIT) {
+        // Full-scale would be represented by a hexadecimal value, full-scale range of ADC result values in two’s complement.
+        adc_output[sample_length] &= (int16_t)(ADC_DATA_CLEAR);
+      } else { // set the MSb bit.
+        adc_output[sample_length] |= SIGN_BIT;
       }
-      for (sample_length = 0; sample_length < sl_adc_channel_config.num_of_samples[chnl_num]; sample_length++) {
-        /* In two’s complement format, the MSb (11th bit) of the conversion result determines the polarity,
-         when the MSb = ‘0’, the result is positive, and when the MSb = ‘1’, the result is negative*/
-        if (adc_output[sample_length] & SIGN_BIT) {
-          // Full-scale would be represented by a hexadecimal value, full-scale range of ADC result values in two’s complement.
-          adc_output[sample_length] = (int16_t)(adc_output[sample_length] & (ADC_DATA_CLEAR));
-        } else { // set the MSb bit.
-          adc_output[sample_length] = adc_output[sample_length] | SIGN_BIT;
-        }
-
-        vout = (((float)adc_output[sample_length] / (float)ADC_MAX_OP_VALUE) * vref_value);
-        //For differential type it will give vout.
-        if (sl_adc_channel_config.input_type[chnl_num]) {
-          vout = vout - (vref_value / 2);
-        }
-        DEBUGOUT("ADC channel_%d[%ld] :%0.2fV \n", chnl_num, sample_length, (float)vout);
-      }
+      avg_adc_output += adc_output[sample_length];
+    }
+    avg_adc_output /= sample_length;
+    vout = (((float)avg_adc_output / (float)ADC_MAX_OP_VALUE) * vref_value);
+    //For differential type it will give vout.
+    if (sl_adc_channel_config.input_type[chnl_num]) {
+      vout = vout - (vref_value / 2);
+    }
+    DEBUGOUT("ADC channel_%d[%ld] :%0.2fV \n", chnl_num, sample_length, (float)vout);
+    if (++chnl_num >= NUMBER_OF_CHANNEL) {
+      chnl_num = 0;
+      DEBUGOUT("\n\n");
     }
   }
 }
@@ -186,20 +218,19 @@ void adc_multichannel_example_process_action(void)
 *                       ADC_STATIC_MODE_CALLBACK => Static mode adc data
 *                       acquisition done.
 ******************************************************************************/
-static void callback_event(uint8_t channel_no, uint8_t event)
+static void callback_event(uint8_t event_channel, uint8_t event)
 {
   if (event == SL_INTERNAL_DMA) {
-    if (channel_no == 0) {
-      ch_flags[channel_no] = true;
-    }
-    if (channel_no == 1) {
-      ch_flags[channel_no] = true;
-    }
-    if (channel_no == 2) {
-      ch_flags[channel_no] = true;
-    }
-    if (channel_no == 3) {
-      ch_flags[channel_no] = true;
+    switch (event_channel) {
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+        ch_flags[event_channel] = true;
+        break;
+
+      default:
+        break;
     }
   }
 }

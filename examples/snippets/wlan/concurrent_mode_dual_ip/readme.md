@@ -28,8 +28,6 @@ The module opens a socket on STA VAP and sends the IPv6 UDP data to the Third-Pa
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -38,6 +36,7 @@ The module opens a socket on STA VAP and sends the IPv6 UDP data to the Third-Pa
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - EFR32FG25 863-876 MHz +16 dBm Radio Board [FG25-RB4271A](https://www.silabs.com/development-tools/wireless/proprietary/fg25-rb4271a-efr32fg25-radio-board?tab=overview)
     - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
@@ -48,7 +47,7 @@ The module opens a socket on STA VAP and sends the IPv6 UDP data to the Third-Pa
 
 ### Setup Diagram
 
-![Figure: Setup Diagram SoC and NCP Mode for Concurrent MOde Dual IP Example](resources/readme/concurrent_dual_ip_ncp.png)
+![Figure: Setup Diagram SoC and NCP Mode for Concurrent Mode Dual IP Example](resources/readme/concurrent_dual_ip_ncp.png)
 
 **NOTE**:
 
@@ -135,7 +134,7 @@ The application can be configured to suit user requirements and development envi
 - **Data Transfer Test options**
 
     ```c
-    #define BYTES_TO_SEND     (1 << 21)     // To measure TX throughput (Do not increase the bytes)
+    #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput
     #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
 
 ## Test the Application

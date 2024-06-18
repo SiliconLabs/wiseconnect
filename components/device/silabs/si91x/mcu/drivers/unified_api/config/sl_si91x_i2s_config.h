@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
- * @file sl_si91x_gspi_config.h
- * @brief GSPI API configuration
+ * @file sl_si91x_i2s_config.h
+ * @brief I2S API configuration
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -39,19 +39,28 @@ extern "C" {
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-//<h>I2S Configuration
+//  <e>I2S0 UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_i2s_config_transmit_receive API to modify the peripheral configuration.
+//  <i> Default: 0
+#define I2S0_UC 0
 
-// <o SL_I2S_RESOLUTION> I2S Resolution
-//   <SL_I2S_RESOLUTION_12=> 12 bit
-//   <SL_I2S_RESOLUTION_16=> 16 bit
-//   <SL_I2S_RESOLUTION_20=> 20 bit
-//   <SL_I2S_RESOLUTION_24=> 24 bit
-//   <SL_I2S_RESOLUTION_32=> 32 bit
-// <i> Default: SL_I2S_RESOLUTION_16
-#define SL_I2S_RESOLUTION SL_I2S_RESOLUTION_16
+// <o SL_I2S0_RESOLUTION> I2S0 Resolution
+//   <12=> 12 bit
+//   <16=> 16 bit
+//   <20=> 20 bit
+//   <24=> 24 bit
+// <i> Default: 16
+#define SL_I2S0_RESOLUTION 16
 
-// <o SL_I2S_SAMPLING_RATE> Sampling Rate
-//   <SL_I2S_SAMPLING_RATE_8000=>  	8kHz
+// <o SL_I2S0_CHANNEL> I2S0 Channel
+//   <0=> Channel 0
+//   <1=> Channel 1
+// <i> Default: 0
+#define SL_I2S0_CHANNEL 0
+
+// <o SL_I2S0_SAMPLING_RATE> I2S0 Sampling Rate
+//   <SL_I2S_SAMPLING_RATE_8000=>   8kHz
 //   <SL_I2S_SAMPLING_RATE_11025=>  11.025kHz
 //   <SL_I2S_SAMPLING_RATE_16000=>  16kHz
 //   <SL_I2S_SAMPLING_RATE_22050=>  22.05kHz
@@ -63,10 +72,40 @@ extern "C" {
 //   <SL_I2S_SAMPLING_RATE_96000=>  96kHz
 //   <SL_I2S_SAMPLING_RATE_192000=> 192kHz
 // <i> Default: SL_I2S_SAMPLING_RATE_8000
-#define SL_I2S_SAMPLING_RATE SL_I2S_SAMPLING_RATE_8000
+#define SL_I2S0_SAMPLING_RATE SL_I2S_SAMPLING_RATE_8000
 
-// </h>
-// <<< end of configuration section >>>
+// </e>
+
+//  <e>ULP I2S UC Configuration
+//  <i> Enable: Peripheral configuration is taken straight from the configuration set in the universal configuration (UC).
+//  <i> Disable: If the application demands it to be modified during runtime, use the sl_si91x_i2s_config_transmit_receive API to modify the peripheral configuration.
+//  <i> Default: 0
+#define ULP_I2S_UC 0
+
+// <o SL_ULP_I2S_RESOLUTION> ULP_I2S Resolution
+//   <12=> 12 bit
+//   <16=> 16 bit
+//   <20=> 20 bit
+//   <24=> 24 bit
+// <i> Default: 16
+#define SL_ULP_I2S_RESOLUTION 16
+
+// <o SL_ULP_I2S_SAMPLING_RATE> ULP_I2S Sampling Rate
+//   <SL_I2S_SAMPLING_RATE_8000=>   8kHz
+//   <SL_I2S_SAMPLING_RATE_11025=>  11.025kHz
+//   <SL_I2S_SAMPLING_RATE_16000=>  16kHz
+//   <SL_I2S_SAMPLING_RATE_22050=>  22.05kHz
+//   <SL_I2S_SAMPLING_RATE_24000=>  24kHz
+//   <SL_I2S_SAMPLING_RATE_32000=>  32kHz
+//   <SL_I2S_SAMPLING_RATE_44100=>  44.1kHz
+//   <SL_I2S_SAMPLING_RATE_48000=>  48kHz
+//   <SL_I2S_SAMPLING_RATE_88200=>  88.2kHz
+//   <SL_I2S_SAMPLING_RATE_96000=>  96kHz
+//   <SL_I2S_SAMPLING_RATE_192000=> 192kHz
+// <i> Default: SL_I2S_SAMPLING_RATE_8000
+#define SL_ULP_I2S_SAMPLING_RATE SL_I2S_SAMPLING_RATE_8000
+
+// </e>
 
 #ifdef __cplusplus
 }

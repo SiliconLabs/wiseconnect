@@ -37,6 +37,9 @@
 #include "bh1750fvi.h"
 #include "sensor_hub.h"
 #include "rsi_debug.h"
+#include "Driver_Common.h"
+#include "Driver_I2C.h"
+#include "sensorhub_error_codes.h"
 /*******************************************************************************
  ************************ BH170 Defines / Macros  ******************************
  ******************************************************************************/

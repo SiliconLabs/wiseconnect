@@ -22,7 +22,6 @@ include:
     - path: "data_types.h"
     - path: "RS1xxxx.h"
     - path: "rsi_ccp_common.h"
-    - path: "rsi_chip.h"
     - path: "rsi_error.h"
     - path: "rsi_ps_ram_func.h"
     - path: "rsi_system_config.h"
@@ -36,27 +35,12 @@ include:
 provides:
   - name: rsilib_chip
 requires:
-  - name: rsilib_headers
-  - name: romdriver_headers
-  - name: cmsis_driver_headers
-  - name: romdriver_romtable_headers
-  - name: cmsis_udma
-  - name: cmsis_usart
-  - name: cmsis_device_config_917
-  - name: systemlevel_pll
   - name: systemlevel_ipmu
   - name: systemlevel_temp_sensor
-  - name: systemlevel_time_period
-  - name: systemlevel_ulpss_clk
-  - name: systemlevel_power_save
-  - name: systemlevel_rtc
-  - name: systemlevel_wwdt
-  - name: rsilib_timers
-  - name: rsilib_cmsiscore
 template_contribution:
   - name: event_handler
     value:
       event: platform_init
-      include: rsi_chip.h
+      include: system_si91x.h
       handler: SystemCoreClockUpdate
     priority: -9999

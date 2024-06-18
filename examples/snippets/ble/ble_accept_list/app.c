@@ -25,7 +25,7 @@
 #include "sl_wifi.h"
 #include "sl_wifi_callback_framework.h"
 #include "cmsis_os2.h"
-
+#include "FreeRTOSConfig.h"
 //! BLE include file to refer BLE APIs
 #include <string.h>
 
@@ -37,7 +37,7 @@
 
 //! Common include file
 #include "rsi_common_apis.h"
-#ifdef SLI_SI91X_MCU_INTERFACE
+#if SL_SI91X_TICKLESS_MODE == 0 && defined(SLI_SI91X_MCU_INTERFACE)
 #include "sl_si91x_m4_ps.h"
 #endif
 //! Address type of the device to connect
@@ -457,7 +457,7 @@ void ble_acceptlist(void *argument)
     temp_event_map = rsi_ble_app_get_event();
     if (temp_event_map == RSI_FAILURE) {
       //! if events are not received, loop will be continued
-#if SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE
+#if ((SL_SI91X_TICKLESS_MODE == 0) && SLI_SI91X_MCU_INTERFACE && ENABLE_POWER_SAVE)
       //! if events are not received loop will be continued.
       if ((!(P2P_STATUS_REG & TA_wakeup_M4))) {
         P2P_STATUS_REG &= ~M4_wakeup_TA;

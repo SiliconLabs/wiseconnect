@@ -23,7 +23,6 @@ source:
 include:
   - path: "inc"
     file_list:
-    - path: "nvm3_default_config.h"
     - path: "sl_si91x_dual_flash_intf.h"
 requires:
   - name: romdriver_qspi

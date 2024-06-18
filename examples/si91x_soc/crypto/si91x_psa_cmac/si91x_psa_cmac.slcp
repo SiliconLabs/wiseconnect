@@ -6,11 +6,11 @@ category: example|crypto
 package: platform
 quality: production
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 source:
   - path: main.c
   - path: psa_cmac_app.c
@@ -20,10 +20,13 @@ include:
     file_list:
       - path: psa_cmac_app.h
       - path: app.h
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: freertos
+  - id: freertos_heap_4
   - id: psa_crypto
   - id: psa_driver
   - id: psa_crypto_cmac

@@ -7,11 +7,11 @@ category: example|cmsis-rtos
 package: platform
 quality: production
 sdk:
-  id: gecko_sdk
-  version: 4.4.3
+  id: simplicity_sdk
+  version: 2024.6.0
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.2.0
+    version: 3.3.0
 readme:
   - path: readme.md
 source:
@@ -25,7 +25,9 @@ include:
   - path: src/inc
     file_list:
       - path: blinky.h
-toolchain_settings: []
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: -Wall -Werror
 component:
   - id: sl_system
   - id: status
@@ -34,6 +36,7 @@ component:
   - id: si917_memory_default_config
     from: wiseconnect3_sdk
   - id: freertos
+  - id: freertos_heap_4
   - id: sleeptimer
   - id: sl_si91x_led_917
     instance:

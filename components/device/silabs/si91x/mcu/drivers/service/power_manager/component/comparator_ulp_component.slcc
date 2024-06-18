@@ -1,5 +1,5 @@
 id: comparator_ulp_component
-label: ULP Comparator
+label: PM ULP Comparator
 package: platform
 description: >
   ULP COMPARATOR component will enable Comparator in the low-power mode. It moves all the peripheral dependencies to RAM. 

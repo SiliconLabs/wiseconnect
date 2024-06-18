@@ -136,18 +136,18 @@ SECTIONS
 		KEEP(*(.isr_vector))
 		{%- if ram_execution %}
      	  KEEP(*(.reset_handler))
-			*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *sl_rsi_utility.o *port.o *heap_*.o) .text*)
+			*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_si91x_multithreaded.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *UDMA.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *sl_rsi_utility.o *port.o *heap_*.o) .text*)
 		{% endif %}
     {% if psram_present and psram_linker_config_enabled and psram_powersave_handle %}	
-			*(EXCLUDE_FILE(*rsi_deepsleep_soc.o *sl_si91x_psram.o *rsi_qspi.o *rsi_pll.o *rsi_egpio.o *sl_rsi_utility.o) .text*)
+			*(EXCLUDE_FILE(*rsi_deepsleep_soc.o *sl_si91x_psram.o *rsi_qspi.o *rsi_pll.o *rsi_egpio.o *UDMA.o *sl_rsi_utility.o) .text*)
 		{% elif power_manager_ps2 %}
-		  *(EXCLUDE_FILE(*cmsis_os2.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_ps_ram_func.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_slist.o *strcmp.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
+		  *(EXCLUDE_FILE(  *cmsis_gcc.o *cmsis_os2.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_ps_ram_func.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_slist.o *strcmp.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o *sli_si91x_power_manager_wakeup_init.o *sl_si91x_power_manager_wakeup_handler.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *sl_core_cortexm.o *UDMA.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
 		{% elif ulp_mode_execution %}	
-			*(.copysection*) 
+			  *(.copysection*) 
 	    	*(.zerosection*)
-
+    
 		{% elif not ram_execution %}
-            *(.text*)        
+            *(EXCLUDE_FILE(*UDMA.o).text*)        
 			KEEP(*(.init))
 			KEEP(*(.fini))
 		{%- endif %}
@@ -313,6 +313,11 @@ SECTIONS
 		*rsi_hal_mcu_m4_rom.o(.text*)
 		*sl_si91x_driver.o(.text*)
 		*sl_si91x_bus.o(.text*)
+        *UDMA.o(.text*)
+		*sl_sleeptimer.o(.text*)
+		*sl_sleeptimer_hal_si91x_sysrtc.o(.text*) 
+		*rsi_sysrtc.o(.text*)
+		*sl_si91x_low_power_tickless_mode.o(.text*)
 		*sli_si91x_multithreaded.o(.text*)
 		{%- if not psram_linker_config_enabled %}
 		*rsi_deepsleep_soc.o(.text*)
@@ -349,6 +354,7 @@ SECTIONS
 		*(.rodata*)
 		KEEP(*(.init))
 		KEEP(*(.fini))
+		*cmsis_gcc.o(.text*)
 		*cmsis_os2.o(.text*)
 		*port.o(.text*)
 		*queue.o(.text*)
@@ -372,6 +378,14 @@ SECTIONS
 		*sli_si91x_power_manager.o(.text*)
 		*sl_si91x_power_manager_handler.o(.text*)
 		*sl_si91x_power_manager_debug.o(.text*)
+		*sli_si91x_power_manager_wakeup_init.o(.text*)
+		*sl_si91x_power_manager_wakeup_handler.o(.text*)
+		*sl_sleeptimer.o(.text*)
+		*sl_sleeptimer_hal_si91x_sysrtc.o(.text*) 
+		*rsi_sysrtc.o(.text*)
+		*sl_si91x_low_power_tickless_mode.o(.text*)
+		*sl_core_cortexm.o(.text*)
+        *UDMA.o(.text*)
 		{% for c in debug_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in calendar_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in ulp_timer_ps2 %}*{{c}}(.text*)
@@ -392,6 +406,10 @@ SECTIONS
 		{% endfor %}{% for c in user_files_ps2 %}*{{c}}(.text*)
 		{% endfor %}
 		{% endif %}
+		{%- if udma_in_ram %}
+		*UDMA.o(.text*)
+		{% endif %}
+
 
 		. = ALIGN(4);
 		/* preinit data */
@@ -544,25 +562,49 @@ SECTIONS
 {%- if nvm3_enable %}
   __ram_end__ = 0x{{ '%0x' % app_ram_start }} + 0x{{ '%0x' % app_ram_size }};
   __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % app_flash_size }};
-  
 	   /* This is where we handle flash storage blocks. We use dummy sections for finding the configured
    * block sizes and then "place" them at the end of flash when the size is known. */
-  .internal_storage (DSECT) : {
-    KEEP(*(.internal_storage*))
+  .internal_storage1 (DSECT) : {
+    KEEP(*(.internal_storage1*))
   } > rom
-  
   .nvm (DSECT) : {
     KEEP(*(.simee*))
   } > rom
-
+ 
   linker_nvm_end = __main_flash_end__;
   linker_nvm_begin = linker_nvm_end - SIZEOF(.nvm);
   linker_nvm_size = SIZEOF(.nvm);
   linker_storage_end = linker_nvm_begin;
   __nvm3Base = linker_nvm_begin;	
-	
-  linker_storage_begin = linker_storage_end - SIZEOF(.internal_storage);
-  linker_storage_size = SIZEOF(.internal_storage);
+  linker_storage_begin = linker_storage_end - SIZEOF(.internal_storage1);
+  linker_storage_size = SIZEOF(.internal_storage1);
   ASSERT((linker_storage_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
+ 
+{%- endif %}
+ 
+{%- if littlefs_enable %}
+{%- if nvm3_enable %}
+  __main_flash_end__ = linker_nvm_begin;
+{%- else %}
+  __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % app_flash_size }};
+{%- endif %}
+	   /* This is where we handle littlefs flash storage blocks. We use dummy sections for finding the configured
+   * block sizes and then "place" them at the end of flash when the size is known. */
+  .internal_storage2 (DSECT) : {
+    KEEP(*(.internal_storage2*))
+  } > rom
+  .littlefs (DSECT) : {
+    KEEP(*(.ltfs*))
+  } > rom
+ 
+  linker_littlefs_end = __main_flash_end__;
+  linker_littlefs_begin = linker_littlefs_end - SIZEOF(.littlefs);
+  linker_littlefs_size = SIZEOF(.littlefs);
+  linker_storage2_end = linker_littlefs_begin;
+  __littlefsBase = linker_littlefs_begin;
+  linker_storage2_begin = linker_storage2_end - SIZEOF(.internal_storage2);
+  linker_storage2_size = SIZEOF(.internal_storage2);
+  ASSERT((linker_storage2_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
+ 
 {%- endif %}   
 }

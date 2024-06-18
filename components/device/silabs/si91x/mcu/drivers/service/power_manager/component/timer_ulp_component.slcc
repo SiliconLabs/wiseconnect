@@ -1,5 +1,5 @@
 id: timer_ulp_component
-label: ULP Timer
+label: PM ULP Timer
 package: platform
 description: >
   ULP TIMER component will enable  Timer in the low-power mode. It moves all the peripheral dependencies to RAM. 

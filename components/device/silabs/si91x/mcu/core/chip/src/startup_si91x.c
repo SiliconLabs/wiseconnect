@@ -197,9 +197,6 @@ void Default_Reset_Handler(void)
  *         supplied main() routine is called.
  */
 
-#ifdef ULP_MODE_EXECUTION
-__attribute__((__section__(".copysection")))
-#endif
 void Copy_Table(void)
 {
   /* Initialize data and bss */
@@ -218,9 +215,6 @@ void Copy_Table(void)
 #endif
 }
 
-#ifdef ULP_MODE_EXECUTION
-__attribute__((__section__(".zerosection")))
-#endif
 void Zero_Table(void)
 {
   uint32_t *pulDest;
@@ -233,11 +227,6 @@ void Zero_Table(void)
 
 #if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
 __attribute__((section(".ramVector"))) char ram_vector[sizeof(__VECTOR_TABLE)];
-__attribute__((section(".reset_handler")))
-#endif
-
-#if defined(ULP_MODE_EXECUTION)
-char ram_vector[sizeof(__VECTOR_TABLE)] __attribute__((aligned(256)));
 __attribute__((section(".reset_handler")))
 #endif
 
@@ -256,7 +245,7 @@ void RSI_Default_Reset_Handler(void)
   extern void __libc_init_array(void);
   __libc_init_array();
 #endif
-#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION) || defined(ULP_MODE_EXECUTION)
+#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
   //copying the vector table from flash to ram
   memcpy(ram_vector, (uint32_t *)SCB->VTOR, sizeof(__VECTOR_TABLE));
   //assing the ram vector address to VTOR register

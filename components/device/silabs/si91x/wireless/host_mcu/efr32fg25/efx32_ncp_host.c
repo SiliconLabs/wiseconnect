@@ -168,6 +168,10 @@ sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
 
 sl_status_t sl_si91x_host_deinit(void)
 {
+  if (spi_transfer_mutex != NULL) {
+    osMutexDelete(spi_transfer_mutex);
+    spi_transfer_mutex = NULL;
+  }
   return SL_STATUS_OK;
 }
 

@@ -398,15 +398,16 @@ sl_i2c_status_t sl_i2c_driver_transfer_data(sl_i2c_instance_t i2c_instance,
  *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
  *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
  * @note
- *   When the I2C module is used in combination with other peripherals, while de-initializing in the application, refer to the notes below:
- *   1. Whenever sl_i2c_driver_deinit() gets called, it will power down the domain (PERI_EFUSE), which contains different peripherals mentioned below:
- *      USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
+ *   When I2C module is used in combination with other periperals, while deinitializing in the application please refer below notes
+ *   1. Whenever sl_i2c_driver_deinit() gets called it will disable the clock for the peripheral. To power off the peripheral we have to power down the
+ *      power domain(PERI_EFUSE) which contains different peripherals mentioned below.
+ *      i.e USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
  *      Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM and EFUSE.
- *      Since deinit power downs the PERI_EFUSE doamin, it's recommended to call the sl_i2c_driver_deinit() API at the end of the application.
- *   2. Few peripherals (ULP Peripherals, UULP Peripherals, GPDMA and SDIO-SPI) have seperate domains that can be powered down indepedently. For additional details, refer to the Power architecture section in the Hardware Reference Manual
- *      e.g., To power down ULP I2C, use the API below:
- *      RSI_PS_M4ssPeriPowerDown(ULPSS_PWRGATE_ULP_I2C); 
- *      Here, ULP_I2C has seperate power domain ULPSS_PWRGATE_ULP_I2C, which can be powered down indepedently. Refer to the rsi_power_save.h file for all power gates definitions.
+ *      Use below API to power down the particular power doamin, if other periherals's not being used
+ *      sl_si91x_peri_efuse_power_down(power_down); 
+ * 
+ *   2. Few peripherlas(ULP Peripherls, UULP Peripherlas, GPDMA and SDIO-SPI) have seperate domains those can be powered down indepedently. For additional details refer Power architecture section in Hardware Reference Manual
+ *      Here ULP_UART has seperate power domain ULPSS_PWRGATE_ULP_UART, which can be power down indepedently.Refer rsi_power_save.h file for all power gates definations.
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_deinit(sl_i2c_instance_t i2c_instance);
 
@@ -461,6 +462,20 @@ sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_
  *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_enable_repeated_start(sl_i2c_instance_t i2c_instance, boolean_t enable_rep_start);
+
+/*******************************************************************************
+ * @brief API to wait till I2C gets idle
+ * @details Details :
+ *          - This API will poll for activity status bit of leader & follower.
+ *          - It can be used for synchronization
+ *
+ * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
+ *
+ * @return status 0 if successful, else error code as follows:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Success
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid
+ ******************************************************************************/
+sl_i2c_status_t sl_si91x_i2c_wait_till_i2c_is_idle(sl_i2c_instance_t i2c_instance);
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
 /// @addtogroup I2C

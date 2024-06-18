@@ -53,7 +53,7 @@ STATIC INLINE void RSI_QSPI_WriteToFlash(qspi_reg_t *qspi_reg,
                                          uint32_t cmd_addr_data,
                                          uint32_t cs_no)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_write_to_flash(qspi_reg, len_in_bits, cmd_addr_data, cs_no);
 #else
   qspi_write_to_flash(qspi_reg, len_in_bits, cmd_addr_data, cs_no);
@@ -72,7 +72,7 @@ STATIC INLINE void RSI_QSPI_WriteToFlash(qspi_reg_t *qspi_reg,
 
 STATIC INLINE void RSI_QSPI_SwitchQspi2(qspi_reg_t *qspi_reg, uint32_t mode, uint32_t cs_no)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_switch_qspi2(qspi_reg, mode, cs_no);
 #else
   qspi_switch_qspi2(qspi_reg, mode, cs_no);
@@ -92,7 +92,7 @@ STATIC INLINE uint32_t RSI_QSPI_WaitFlashStatusIdle(qspi_reg_t *qspi_reg,
                                                     spi_config_t *spi_config,
                                                     uint32_t wr_reg_delay_ms)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   return ROMAPI_QSPI_API->qspi_wait_flash_status_Idle(qspi_reg, spi_config, wr_reg_delay_ms);
 #else
   return qspi_wait_flash_status_Idle(qspi_reg, spi_config, wr_reg_delay_ms);
@@ -114,7 +114,7 @@ STATIC INLINE void RSI_QSPI_EnableStatusRegWrite(qspi_reg_t *qspi_reg,
                                                  spi_config_t *spi_config,
                                                  uint32_t cs_no)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_enable_status_reg_write(qspi_reg, flash_type, spi_config, cs_no);
 #else
   qspi_enable_status_reg_write(qspi_reg, flash_type, spi_config, cs_no);
@@ -136,7 +136,7 @@ STATIC INLINE void RSI_QSPI_StatusRegWrite(qspi_reg_t *qspi_reg,
                                            spi_config_t *spi_config,
                                            uint32_t wr_reg_delay_ms)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_status_reg_write(qspi_reg, write_value, spi_config, wr_reg_delay_ms);
 #else
   qspi_status_reg_write(qspi_reg, write_value, spi_config, wr_reg_delay_ms);
@@ -158,7 +158,7 @@ STATIC INLINE uint32_t RSI_QSPI_FlashRegRead(qspi_reg_t *qspi_reg,
                                              uint32_t cs_no,
                                              spi_config_t *spi_config)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   return ROMAPI_QSPI_API->qspi_flash_reg_read(qspi_reg, reg_read_cmd, cs_no, spi_config);
 #else
   return qspi_flash_reg_read(qspi_reg, reg_read_cmd, cs_no, spi_config);
@@ -182,7 +182,7 @@ STATIC INLINE void RSI_QSPI_FlashRegWrite(qspi_reg_t *qspi_reg,
                                           uint32_t cs_no,
                                           uint32_t wr_reg_delay_ms)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_flash_reg_write(qspi_reg, reg_write_cmd, reg_write_value, cs_no, wr_reg_delay_ms);
 #else
   qspi_flash_reg_write(qspi_reg, reg_write_cmd, reg_write_value, cs_no, wr_reg_delay_ms);
@@ -206,7 +206,7 @@ STATIC INLINE void RSI_QSPI_SetFlashMode(qspi_reg_t *qspi_reg,
                                          uint32_t ddr_en,
                                          uint32_t flash_type)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_set_flash_mode(qspi_reg, data_mode, cs_no, ddr_en, flash_type);
 #else
   qspi_set_flash_mode(qspi_reg, data_mode, cs_no, ddr_en, flash_type);
@@ -224,7 +224,7 @@ STATIC INLINE void RSI_QSPI_SetFlashMode(qspi_reg_t *qspi_reg,
  */
 STATIC INLINE void RSI_QSPI_ConfigQflash4Read(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t addr)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_config_qflash4_read(qspi_reg, spi_config, addr);
 #else
   qspi_config_qflash4_read(qspi_reg, spi_config, addr);
@@ -258,7 +258,7 @@ STATIC INLINE void RSI_QSPI_ManualRead(qspi_reg_t *qspi_reg,
                                        void *udmaHandle,
                                        void *rpdmaHandle)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_manual_read(qspi_reg,
                                     spi_config,
                                     addr,
@@ -282,7 +282,7 @@ STATIC INLINE void RSI_QSPI_ManualRead(qspi_reg_t *qspi_reg,
  */
 STATIC INLINE void RSI_QSPI_AutoInit(qspi_reg_t *qspi_reg, spi_config_t *spi_config)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_auto_init(qspi_reg, spi_config);
 #else
   qspi_auto_init(qspi_reg, spi_config);
@@ -310,7 +310,7 @@ STATIC INLINE void RSI_QSPI_AutoRead(uint32_t cs_no,
                                      spi_config_t *spi_config,
                                      uint32_t dma_flags)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_auto_read(cs_no, addr, data, hsize, len_in_bytes, spi_config, dma_flags);
 #else
   qspi_auto_read(cs_no, addr, data, hsize, len_in_bytes, spi_config, dma_flags);
@@ -327,7 +327,7 @@ STATIC INLINE void RSI_QSPI_AutoRead(uint32_t cs_no,
  */
 STATIC INLINE void RSI_QSPI_FlashInit(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr_reg_delay_ms)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_flash_init(qspi_reg, spi_config, wr_reg_delay_ms);
 #else
   qspi_flash_init(qspi_reg, spi_config, wr_reg_delay_ms);
@@ -353,7 +353,7 @@ STATIC INLINE void RSI_QSPI_SpiInit(qspi_reg_t *qspi_reg,
                                     uint32_t wr_reg_delay_ms,
                                     uint8_t fifo_thrsld)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_spi_init(qspi_reg, spi_config, flash_init_req, wr_reg_delay_ms, fifo_thrsld);
 #else
   qspi_spi_init(qspi_reg, spi_config, flash_init_req, wr_reg_delay_ms, fifo_thrsld);
@@ -379,7 +379,7 @@ STATIC INLINE void RSI_QSPI_SpiErase(qspi_reg_t *qspi_reg,
                                      uint32_t dis_hw_ctrl,
                                      uint32_t wr_reg_delay_ms)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_spi_erase(qspi_reg, spi_config, erase_cmd, blk_sec_addr, dis_hw_ctrl, wr_reg_delay_ms);
 #else
   qspi_spi_erase(qspi_reg, spi_config, erase_cmd, blk_sec_addr, dis_hw_ctrl, wr_reg_delay_ms);
@@ -423,7 +423,7 @@ STATIC INLINE uint32_t RSI_QSPI_SpiWrite(qspi_reg_t *qspi_reg,
                                          void *udmaHandle,
                                          void *rpdmaHandle)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   return ROMAPI_QSPI_API->qspi_spi_write(qspi_reg,
                                          spi_config,
                                          write_cmd,
@@ -482,7 +482,7 @@ STATIC INLINE void RSI_QSPI_SpiRead(qspi_reg_t *qspi_reg,
                                     void *udmaHandle,
                                     void *rpdmaHandle)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API
     ->qspi_spi_read(qspi_reg, spi_config, addr, data, hsize, len_in_bytes, manual_udma_read, udmaHandle, rpdmaHandle);
 #else
@@ -498,7 +498,7 @@ STATIC INLINE void RSI_QSPI_SpiRead(qspi_reg_t *qspi_reg,
  */
 STATIC INLINE void RSI_QSPI_Usleep(uint32_t delay_us)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_usleep(delay_us);
 #else
   qspi_usleep(delay_us);
@@ -524,7 +524,7 @@ STATIC INLINE void RSI_QSPI_WriteBlockProtect(qspi_reg_t *qspi_reg,
                                               uint32_t num_prot_bytes,
                                               uint32_t wr_reg_delay_ms)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_write_block_protect(qspi_reg, protect, cs_no, num_prot_bytes, wr_reg_delay_ms);
 #else
   qspi_write_block_protect(qspi_reg, protect, cs_no, num_prot_bytes, wr_reg_delay_ms);
@@ -544,7 +544,7 @@ STATIC INLINE void RSI_QSPI_WriteBlockProtect(qspi_reg_t *qspi_reg,
  */
 STATIC INLINE void RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg, uint32_t *key, uint32_t kh_enable)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_qspiload_key(qspi_reg, key, kh_enable);
 #else
   qspi_qspiload_key(qspi_reg, key, kh_enable);
@@ -571,7 +571,7 @@ STATIC INLINE void RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg,
                                         uint32_t key_len,
                                         uint32_t kh_enable)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_qspiload_key(qspi_reg, mode, key, key2, key_len, kh_enable);
 #else
   qspi_qspiload_key(qspi_reg, mode, key, key2, key_len, kh_enable);
@@ -580,7 +580,7 @@ STATIC INLINE void RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg,
 #else
 STATIC INLINE void RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg, uint8_t mode, uint32_t *key, uint32_t kh_enable)
 {
-#if defined(A11_ROM) && defined(ROMDRIVER_PRESENT)
+#if defined(A11_ROM) && defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_qspiload_key(qspi_reg, mode, key, kh_enable);
 #else
   qspi_qspiload_key(qspi_reg, mode, key, kh_enable);
@@ -600,7 +600,7 @@ STATIC INLINE void RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg, uint8_t mode, uint
  */
 STATIC INLINE void RSI_QSPI_QspiLoadNonce(qspi_reg_t *qspi_reg, uint32_t *nonce)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_qspiload_nonce(qspi_reg, nonce);
 #else
   qspi_qspiload_nonce(qspi_reg, nonce);
@@ -618,7 +618,7 @@ STATIC INLINE void RSI_QSPI_QspiLoadNonce(qspi_reg_t *qspi_reg, uint32_t *nonce)
  */
 STATIC INLINE void RSI_QSPI_SegSecEn(qspi_reg_t *qspi_reg, uint32_t seg_no, uint32_t start_addr, uint32_t end_addr)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_seg_sec_en(qspi_reg, seg_no, start_addr, end_addr);
 #else
   qspi_seg_sec_en(qspi_reg, seg_no, start_addr, end_addr);
@@ -646,7 +646,7 @@ STATIC INLINE void RSI_QSPI_StatusControlRegWrite(spi_config_t *spi_config,
                                                   uint32_t cs_no,
                                                   uint32_t wr_reg_delay_ms)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API
     ->qspi_status_control_reg_write(spi_config, qspi_reg, write_command, addr, write_value, cs_no, wr_reg_delay_ms);
 #else
@@ -668,7 +668,7 @@ STATIC INLINE void RSI_QSPI_FlashProtection(spi_config_t *spi_config,
                                             uint32_t protection,
                                             uint32_t wr_reg_delay_ms)
 {
-#if defined(ROMDRIVER_PRESENT)
+#if defined(QSPI_ROMDRIVER_PRESENT)
   ROMAPI_QSPI_API->qspi_flash_protection(spi_config, qspi_reg, protection, wr_reg_delay_ms);
 #else
   qspi_flash_protection(spi_config, qspi_reg, protection, wr_reg_delay_ms);

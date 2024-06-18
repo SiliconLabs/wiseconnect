@@ -71,30 +71,27 @@ extern "C" {
 #ifndef SL_I2C1_PERIPHERAL
 #define SL_I2C1_PERIPHERAL I2C1
 #endif
-#ifndef SL_I2C1_PERIPHERAL_NO
-#define SL_I2C1_PERIPHERAL_NO 1
-#endif
 
-// I2C1 SCL on GPIO_54
+// I2C1 SCL on GPIO_50
 #ifndef SL_I2C1_SCL_PORT
 #define SL_I2C1_SCL_PORT 0
 #endif
 #ifndef SL_I2C1_SCL_PIN
-#define SL_I2C1_SCL_PIN 54
+#define SL_I2C1_SCL_PIN 50
 #endif
 #ifndef SL_I2C1_SCL_LOC
-#define SL_I2C1_SCL_LOC 3
+#define SL_I2C1_SCL_LOC 2
 #endif
 
-// I2C1 SDA on GPIO_55
+// I2C1 SDA on GPIO_51
 #ifndef SL_I2C1_SDA_PORT
 #define SL_I2C1_SDA_PORT 0
 #endif
 #ifndef SL_I2C1_SDA_PIN
-#define SL_I2C1_SDA_PIN 55
+#define SL_I2C1_SDA_PIN 51
 #endif
 #ifndef SL_I2C1_SDA_LOC
-#define SL_I2C1_SDA_LOC 3
+#define SL_I2C1_SDA_LOC 8
 #endif
 // [I2C_SL_I2C1]$
 // <<< sl:end pin_tool >>>

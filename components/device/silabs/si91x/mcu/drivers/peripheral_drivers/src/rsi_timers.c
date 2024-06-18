@@ -17,7 +17,7 @@
 
 // Include Files
 #include "rsi_ccp_user_config.h"
-#ifndef ROMDRIVER_PRESENT
+#ifndef TIMER_ROMDRIVER_PRESENT
 #include "rsi_rom_timer.h"
 
 #ifdef __cplusplus
@@ -129,4 +129,4 @@ const ROM_TIMERS_API_T timer_api = {
 
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif //ROMDRIVER_PRESENT
+#endif //TIMER_ROMDRIVER_PRESENT

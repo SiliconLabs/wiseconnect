@@ -23,8 +23,13 @@
 #include "system_si91x.h"
 #include "rsi_error.h"
 #include "rsi_ccp_common.h"
-#include "rsi_chip.h"
 #include "rsi_ps_ram_func.h"
+#include "rsi_ipmu.h"
+#include "rsi_pll.h"
+#include "rsi_power_save.h"
+#include "rsi_ulpss_clk.h"
+#include "rsi_rom_ulpss_clk.h"
+#include "rsi_rom_clks.h"
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
@@ -99,22 +104,21 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   RSI_CLK_M4ssRefClkConfig(M4CLK, ULP_32MHZ_RC_CLK);
   RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
 
-  /* As TA is configuring RFref clock as reference clock, so to avoid switching b/w RC & RF clocks, TA clock is selected as RF ref clock from MCU*/
-  MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = 3;
-
+  /* TA clock is selected as RC32MHZ clock from MCU */
+  MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = ULP_32MHZ_RC_CLK;
+  /* Changing NPSS GPIO 0 mode to 0, to disable buck-boost enable mode*/
+  MCU_RET->NPSS_GPIO_CNTRL[0].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0;
   /* Configuring RO-32KHz Clock for BG_PMU */
   RSI_IPMU_ClockMuxSel(1);
-  /* Configuring RO-32KHz Clock for LF-FSM */
-  RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
+  /* Configuring XTAL 32KHz Clock for LF-FSM */
+  RSI_PS_FsmLfClkSel(KHZ_XTAL_CLK_SEL);
   /* Configuring RC-32MHz Clock for HF-FSM */
   RSI_PS_FsmHfClkSel(FSM_32MHZ_RC);
 
 #if ((defined SLI_SI91X_MCU_COMMON_FLASH_MODE) && (!(defined(RAM_COMPILATION))))
   /* Before TA is going to power save mode ,set m4ss_ref_clk_mux_ctrl ,
           tass_ref_clk_mux_ctrl, AON domain power supply controls form TA to M4 */
-#ifndef ULP_MODE_EXECUTION
   RSI_Set_Cntrls_To_M4();
-#endif
 
 #endif
   /*Update the system clock sources with source generating frequency*/
@@ -135,6 +139,7 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   system_clocks.mems_ref_clock   = DEFAULT_MEMS_REF_CLOCK;
   system_clocks.byp_rc_ref_clock = DEFAULT_32MHZ_RC_CLOCK;
   system_clocks.i2s_pll_clock    = DEFAULT_I2S_PLL_CLOCK;
+
   return;
 }
 

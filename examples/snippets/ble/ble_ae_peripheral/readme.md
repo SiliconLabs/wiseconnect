@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates how to configure SiWx91x in Advertising Extended peripheral mode.
+This application demonstrates how to configure SiWx91x in Advertising Extended peripheral mode. the application is designed with 2 adv sets and has the provision of periodic advertising for a set
 
 ## Prerequisites/Setup Requirements
 
@@ -39,7 +39,10 @@ This application demonstrates how to configure SiWx91x in Advertising Extended p
 - Keil IDE (to be used with STM32F411RE MCU)
 - Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
 
-- Download and install the Silicon Labs [EFR Connect App or other BLE Central/Peripheral app.](https://www.silabs.com/developers/efr-connect-mobile-app) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App) or other BLE Central/Peripheral app.](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+
+> **Note:** The provided mobile screenshots are from the 2.8.1 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
+
 
 ### Setup Diagram
 
@@ -67,7 +70,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
   - After connecting all the boards, the setup should look like the image shown below:
+
     ![Figure: Setup](resources/readme/stm32_setup.png)
+    
   - Connect the setup to the computer.
   - Open the BLE PER µVision project - **ble_ae_peripheral.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → snippets → ble → ble_ae_peripheral → keil_project**.
 
@@ -82,13 +87,16 @@ The application can be configured to suit your requirements and development envi
     ```c
     #define RSI_BLE_LOCAL_NAME             "AE_PERIPHERAL" 
     ```
-  - `AE_ADV_TYPE` defines the type of advertising . Possible values are :
-   ADVERTISING and PERIODIC_ADVERTISING
-   
+  - `ADV_SET2` is a configuration parameter that enables or disables SET2 functionality.
+    
     ```c
-    #define AE_ADV_TYPE  ADVERTISING
+    #define ADV_SET2            1
     ```
 
+  - `PERIODIC_ADV_EN` is a configuration parameter that enables or disables periodic advertisement.
+    ```c
+    #define PERIODIC_ADV_EN     0
+    ```    
   - The desired parameters are provided following. User can also modify the parameters as per their needs and requirements.
 
   - Following are the event numbers for advertising, connection and disconnection events
@@ -97,7 +105,7 @@ The application can be configured to suit your requirements and development envi
     #define RSI_APP_EVENT_CONNECTED                        0
     #define RSI_APP_EVENT_DISCONNECTED                     1
     ```
-
+ 
 - Open `ble_config.h` file and update/modify following macros,
 
   - The desired parameters are provided following steps. User can also modify the parameters as per their needs and requirements.
@@ -122,7 +130,7 @@ The application can be configured to suit your requirements and development envi
     #define  RSI_BLE_ADV_CHANNEL_MAP                       0x07 
     ```
 
-  - `BLE_AE_ADV_EVNT_PROP` defines the type of advertising 
+  - `BLE_AE_ADV_EVNT_PROP` defines the type of advertising for SET 1
 
     ```c
     #define BLE_CONNECTABLE_ADV        (1 << 0)
@@ -132,14 +140,31 @@ The application can be configured to suit your requirements and development envi
     #define BLE_LEGACY_ADV             (0 << 4)
     #define BLE_ANONYMOUS_ADV          (0 << 5)
     #define BLE_TX_WR_ADV              (0 << 6)
-    #define BLE_AE_ADV_EVNT_PROP                          (BLE_CONNECTABLE_ADV | BLE_SCANNABLE_ADV )
-    ```
-
+    #define BLE_AE_ADV_EVNT_PROP                                                \
+      (BLE_CONNECTABLE_ADV | BLE_SCANNABLE_ADV | BLE_LOW_DUTY_DIR_CONN_ADV | BLE_HIGH_DUTY_DIR_CONN_ADV | BLE_LEGACY_ADV | BLE_ANONYMOUS_ADV | BLE_TX_WR_ADV)
+      ```
     ```c
-    #define RSI_BLE_PWR_INX                                30
-    #define RSI_BLE_PWR_SAVE_OPTIONS                       BLE_DISABLE_DUTY_CYCLING
+        #define RSI_BLE_PWR_INX     30
+        #define RSI_BLE_PWR_SAVE_OPTIONS                   BLE_DISABLE_DUTY_CYCLING
     ```
-
+     > **Note:** To configure SET 2 properties below parameters should be modified in app.c 
+       ```c
+      ble_ae_params.adv_handle                = 0x01;
+      ble_ae_params.adv_event_prop            = 0x01; //Connectable;
+      ble_ae_params.primary_adv_intterval_min = 0x30; //140 only 3bytes are valid;
+      ble_ae_params.primary_adv_intterval_max = 0x30; //160 only 3bytes are valid;
+      ble_ae_params.primary_adv_chnl_map      = RSI_BLE_ADV_CHANNEL_MAP;
+    ```
+    ```c 
+    - To configure the periodic advertisement parameters, change below parameters in app.c
+    ```
+    ```c
+    rsi_ble_ae_periodic_adv_params_t ae_periodic_param = { 0 };
+    ae_periodic_param.max_interval                     = 0x190;
+    ae_periodic_param.min_interval                     = 0x90;
+    ae_periodic_param.properties                       = 0x40;
+    ae_periodic_param.adv_handle                       = BLE_ADV_HNDL1;
+    ``` 
   - Following are the non configurable macros
 
     - There are three advertising data types:
@@ -178,9 +203,13 @@ Follow the steps as mentioned for the successful execution of the application:
 
 1. Set the desired name Silicon Labs device needs to advertise in `RSI_BLE_LOCAL_NAME` and its random address in `RSI_BLE_SET_RAND_ADDR`. User needs to populate `RSI_BLE_ADV_INT_MIN` and `RSI_BLE_ADV_INT_MAX` with desired values for minimum advertsing interval and maximum advertsing interval.
 
-2. After the program gets executed, from remote device scan for Silicon Labs device which advertsises with the remote device specified in `RSI_BLE_LOCAL_NAME` macro.
+2. After the program gets executed, from remote device scan for Silicon Labs device which advertsises with the remote device specified in `RSI_BLE_LOCAL_NAME` macro or check for device address specified in `RSI_BLE_SET_RAND_ADDR` macro
+
+    ![](resources/readme/scan.png) 
 
 3. Observe that the connection is established between the desired device and SiWx91x. 
+
+    ![](resources/readme/connect.png) 
 
    > **Note:** Examples for BLE peripherals: Bluetooth Dongle, mobile application, TA sensor tag.
    

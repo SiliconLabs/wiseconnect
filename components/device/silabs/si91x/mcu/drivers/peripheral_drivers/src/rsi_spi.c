@@ -50,7 +50,7 @@ static uint8_t data_width_in_bytes = 0; // variable to store data width in bytes
 static uint8_t ssi_slave_number    = 0; // variable to store current slave number
 static void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width);
 
-#ifndef ROMDRIVER_PRESENT
+#ifndef SSI_ROMDRIVER_PRESENT
 #include "rsi_rom_clks.h"
 #include "rsi_spi.h"
 
@@ -96,7 +96,6 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
   // Clear transfer information
   memset(spi->xfer, 0, sizeof(SPI_TRANSFER_INFO));
   if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_SLAVE_MODE)) {
-
     //CLK
     if (spi->io.sck->pin > 64) {
       RSI_EGPIO_UlpPadReceiverEnable(spi->io.sck->pin - 64);
@@ -191,9 +190,7 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
     RSI_EGPIO_PadReceiverEnable(spi->io.miso->pin);
     if (spi->io.miso->pin >= 25 && spi->io.miso->pin <= 30)
       RSI_EGPIO_HostPadsGpioModeEnable(spi->io.miso->pin);
-  }
-  if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
-
+  } else if (spi->instance_mode == SPI_ULP_MASTER_MODE) {
     //clock
     RSI_EGPIO_UlpPadReceiverEnable(spi->io.sck->pin);
     RSI_EGPIO_SetPinMux(EGPIO1, spi->io.sck->port, spi->io.sck->pin, spi->io.sck->mode);
@@ -262,7 +259,14 @@ int32_t SPI_Uninitialize(const SPI_RESOURCES *spi, UDMA_RESOURCES *udma)
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
 // Diasable DMA instance
 #ifdef SL_SI91X_SSI_DMA
-    if (sl_si91x_dma_deinit(DMA_INSTANCE)) {
+    if (sl_si91x_dma_unregister_callbacks(DMA_INSTANCE,
+                                          (spi->tx_dma->channel + 1),
+                                          SL_DMA_TRANSFER_DONE_CB | SL_DMA_ERROR_CB)) {
+      return ARM_DRIVER_ERROR;
+    }
+    if (sl_si91x_dma_unregister_callbacks(DMA_INSTANCE,
+                                          (spi->tx_dma->channel + 1),
+                                          SL_DMA_TRANSFER_DONE_CB | SL_DMA_ERROR_CB)) {
       return ARM_DRIVER_ERROR;
     }
 #else
@@ -405,10 +409,6 @@ int32_t SPI_Transfer(const void *data_out,
   } else {
     data_width = spi->reg->CTRLR0_b.DFS;
   }
-  // Converts the data width into number of bytes to send/receive at once
-  SPI_Convert_Data_Width_To_Bytes(data_width);
-  // Total number of transfers according to the configured data width
-  spi->xfer->num = num * data_width_in_bytes;
 
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
     if (spi->rx_dma != NULL) {
@@ -422,22 +422,20 @@ int32_t SPI_Transfer(const void *data_out,
       control.rPower      = ARBSIZE_1;
       control.srcProtCtrl = 0x0;
       control.dstProtCtrl = 0x0;
+      control.srcInc      = SRC_INC_NONE;
       if (data_width <= (8U - 1U)) {
         // 8-bit data frame
         control.srcSize = SRC_SIZE_8;
-        control.srcInc  = SRC_INC_NONE;
         control.dstSize = DST_SIZE_8;
         control.dstInc  = DST_INC_8;
       } else if (data_width <= (16U - 1U)) {
         // 16-bit data frame
         control.srcSize = SRC_SIZE_16;
-        control.srcInc  = SRC_INC_NONE;
         control.dstSize = DST_SIZE_16;
         control.dstInc  = DST_INC_16;
       } else {
         // 32-bit data frame
         control.srcSize = SRC_SIZE_32;
-        control.srcInc  = SRC_INC_NONE;
         control.dstSize = DST_SIZE_32;
         control.dstInc  = DST_INC_32;
       }
@@ -495,7 +493,6 @@ int32_t SPI_Transfer(const void *data_out,
 #endif
     }
     if (spi->tx_dma != NULL) {
-
       control.transferType = UDMA_MODE_BASIC;
       control.nextBurst    = 0;
       if (num < 1024) {
@@ -506,24 +503,22 @@ int32_t SPI_Transfer(const void *data_out,
       control.rPower      = ARBSIZE_1;
       control.srcProtCtrl = 0x0;
       control.dstProtCtrl = 0x0;
+      control.dstInc      = DST_INC_NONE;
       if (data_width <= (8U - 1U)) {
         // 8-bit data frame
         control.srcSize = SRC_SIZE_8;
         control.srcInc  = SRC_INC_8;
         control.dstSize = DST_SIZE_8;
-        control.dstInc  = DST_INC_NONE;
       } else if (data_width <= (16U - 1U)) {
         // 16-bit data frame
         control.srcSize = SRC_SIZE_16;
         control.srcInc  = SRC_INC_16;
         control.dstSize = DST_SIZE_16;
-        control.dstInc  = DST_INC_NONE;
       } else {
         // 32-bit data frame
         control.srcSize = SRC_SIZE_32;
         control.srcInc  = SRC_INC_32;
         control.dstSize = DST_SIZE_32;
-        control.dstInc  = DST_INC_NONE;
       }
       spi->reg->DMACR_b.TDMAE    = 1;
       spi->reg->DMATDLR_b.DMATDL = 1;
@@ -584,6 +579,11 @@ int32_t SPI_Transfer(const void *data_out,
     UDMAx_DMAEnable(udma, udmaHandle);
 #endif
   } else {
+    // Converts the data width into number of bytes to send/receive at once
+    SPI_Convert_Data_Width_To_Bytes(data_width);
+    // Total number of transfers according to the configured data width
+    spi->xfer->num = num * data_width_in_bytes;
+
     // Interrupt mode
     /* spi->reg->IMR |= TXEIM | RXFIM; */
     /*enabled below bits 
@@ -700,8 +700,7 @@ set_speed:
           if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
             /*cs*/
             spi->reg->SER &= ~(BIT(slavenumber));
-          }
-          if (spi->instance_mode == SPI_SLAVE_MODE) {
+          } else if (spi->instance_mode == SPI_SLAVE_MODE) {
             spi->reg->SER = 0 << 0;
           }
         } else {
@@ -726,8 +725,7 @@ set_speed:
         if (val == ARM_SPI_SS_MASTER_HW_OUTPUT) {
           if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
             spi->reg->SER |= (BIT(slavenumber));
-          }
-          if (spi->instance_mode == SPI_SLAVE_MODE) {
+          } else if (spi->instance_mode == SPI_SLAVE_MODE) {
             spi->reg->SER = 0x1 << 0;
           }
         } else {
@@ -875,7 +873,7 @@ set_speed:
 
   // Configure Number of Data Bits
   data_bits = ((control & ARM_SPI_DATA_BITS_Msk) >> ARM_SPI_DATA_BITS_Pos);
-  if ((spi->instance_mode == 1) || (spi->instance_mode == 3)) {
+  if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
     if ((data_bits >= 4U) && (data_bits <= 32U)) {
       spi->reg->CTRLR0_b.DFS_32 = (unsigned int)((data_bits - 1U) & 0x1F);
     } else {
@@ -899,10 +897,11 @@ set_speed:
   spi->reg->TXFTLR_b.TFT     = 0;
   spi->reg->RXFTLR_b.RFT     = 0;
 
-  if ((spi->instance_mode == 1U) || (spi->instance_mode == 3U))
+  if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
     spi->reg->IMR &= (uint32_t)(~(0x3F)); // Disable SPI interrupts
-  else
+  } else {
     spi->reg->IMR &= (uint32_t)(~(0x1F)); // Disable SPI interrupts
+  }
 
   return ARM_DRIVER_OK;
 }
@@ -915,13 +914,13 @@ set_speed:
  */
 ARM_SPI_STATUS SPI_GetStatus(const SPI_RESOURCES *spi)
 {
-  ARM_SPI_STATUS status;
+  ARM_SPI_STATUS spi_status;
 
-  status.busy       = (unsigned int)(spi->info->status.busy & 0x01);
-  status.data_lost  = (unsigned int)(spi->info->status.data_lost & 0x01);
-  status.mode_fault = (unsigned int)(spi->info->status.mode_fault & 0x01);
+  spi_status.busy       = (uint32_t)(spi->info->status.busy & 0x01);
+  spi_status.data_lost  = (uint32_t)(spi->info->status.data_lost & 0x01);
+  spi_status.mode_fault = (uint32_t)(spi->info->status.mode_fault & 0x01);
 
-  return status;
+  return spi_status;
 }
 
 /**
@@ -1026,16 +1025,18 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
           *(volatile uint32_t *)(&spi->reg->DR) = data;
         }
         // Waiting till the busy flag is cleared
-        while (spi->reg->SR & BIT(0))
-          ;
+        if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
+          while (spi->reg->SR & BIT(0))
+            ;
+        }
         if (spi->xfer->tx_cnt >= spi->xfer->num) {
           // All data sent, disable TX Buffer Empty Interrupt
           spi->reg->IMR &= (uint32_t)(~TXEIM);
           // Clear busy flag
           if (spi->reg->CTRLR0_b.TMOD == TRANSMIT_ONLY) {
-            spi->info->status.busy = 0U;
             // Transfer completed
             event |= ARM_SPI_EVENT_TRANSFER_COMPLETE;
+            spi->info->status.busy = 0U;
           }
         }
       } else {
@@ -1046,13 +1047,16 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
   }
 
   // Send event
-  if ((event != 0U) && ((spi->info->cb_event != NULL))) {
+  if (event && spi->info->cb_event) {
     spi->info->cb_event(event);
+    if (spi->info->status.busy) {
+      spi->info->status.busy = 0U;
+    }
   }
 }
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif
+#endif // SSI_ROMDRIVER_PRESENT
 /// @cond PRIVATE
 static volatile uint32_t dummy_data = 0;
 /// @endcond
@@ -1088,8 +1092,6 @@ int32_t SPI_Send(const void *data,
   RSI_UDMA_CHA_CONFIG_DATA_T control = { 0 };
   dummy_data                         = 0;
 
-  spi->info->status.busy = 0U;
-
   if ((data == NULL) || (num == 0U)) {
     return ARM_DRIVER_ERROR_PARAMETER;
   }
@@ -1118,149 +1120,95 @@ int32_t SPI_Send(const void *data,
     data_width = spi->reg->CTRLR0_b.DFS;
   }
 
-  // Converts the data width into number of bytes to send/receive at once
-  SPI_Convert_Data_Width_To_Bytes(data_width);
-  // Total number of transfers according to the configured data width
-  spi->xfer->num = num * data_width_in_bytes;
-
-  if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
-#ifndef SL_SI91X_SSI_DMA
-    if (spi->rx_dma != NULL) {
-      control.transferType = UDMA_MODE_BASIC;
-      control.nextBurst    = 0;
-      if (num < 1024) {
-        control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
-      } else {
-        control.totalNumOfDMATrans = 0x3FF;
-      }
-      control.rPower      = ARBSIZE_1;
-      control.srcProtCtrl = 0x0;
-      control.dstProtCtrl = 0x0;
-      if (data_width <= (8U - 1U)) {
-        // 8-bit data frame
-        control.srcSize = SRC_SIZE_8;
-        control.srcInc  = SRC_INC_NONE;
-        control.dstSize = DST_SIZE_8;
-        control.dstInc  = DST_INC_NONE;
-      } else if (data_width <= (16U - 1U)) {
-        // 16-bit data frame
-        control.srcSize = SRC_SIZE_16;
-        control.srcInc  = SRC_INC_NONE;
-        control.dstSize = DST_SIZE_16;
-        control.dstInc  = DST_INC_NONE;
-      } else {
-        // 32-bit data frame
-        control.srcSize = SRC_SIZE_32;
-        control.srcInc  = SRC_INC_NONE;
-        control.dstSize = DST_SIZE_32;
-        control.dstInc  = DST_INC_NONE;
-      }
-      spi->reg->DMACR_b.RDMAE    = 1;
-      spi->reg->DMARDLR_b.DMARDL = 0;
-      // Initialize and start SPI RX DMA Stream
-
-      stat = UDMAx_ChannelConfigure(udma,
-                                    spi->rx_dma->channel,
-                                    (uint32_t) & (spi->reg->DR),
-                                    (uint32_t) & (dummy_data),
-                                    num,
-                                    control,
-                                    &spi->rx_dma->chnl_cfg,
-                                    spi->rx_dma->cb_event,
-                                    chnl_info,
-                                    udmaHandle);
-      if (stat == -1) {
-        return ARM_DRIVER_ERROR;
-      }
+  if (spi->tx_dma != NULL) {
+    control.transferType = UDMA_MODE_BASIC;
+    control.nextBurst    = 0;
+    if (num < 1024) {
+      control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
+    } else {
+      control.totalNumOfDMATrans = 0x3FF;
     }
-#endif
-    if (spi->tx_dma != NULL) {
-      control.transferType = UDMA_MODE_BASIC;
-      control.nextBurst    = 0;
-      if (num < 1024) {
-        control.totalNumOfDMATrans = (unsigned int)((num - 1) & 0x03FF);
-      } else {
-        control.totalNumOfDMATrans = 0x3FF;
-      }
-      control.rPower      = ARBSIZE_1;
-      control.srcProtCtrl = 0x0;
-      control.dstProtCtrl = 0x0;
-      if (data_width <= (8U - 1U)) {
-        // 8-bit data frame
-        control.srcSize = SRC_SIZE_8;
-        control.srcInc  = SRC_INC_8;
-        control.dstSize = DST_SIZE_8;
-        control.dstInc  = DST_INC_NONE;
-      } else if (data_width <= (16U - 1U)) {
-        // 16-bit data frame
-        control.srcSize = SRC_SIZE_16;
-        control.srcInc  = SRC_INC_16;
-        control.dstSize = DST_SIZE_16;
-        control.dstInc  = DST_INC_NONE;
-      } else {
-        // 32-bit data frame
-        control.srcSize = SRC_SIZE_32;
-        control.srcInc  = SRC_INC_32;
-        control.dstSize = DST_SIZE_32;
-        control.dstInc  = DST_INC_NONE;
-      }
-      spi->reg->DMACR_b.TDMAE    = 1;
-      spi->reg->DMATDLR_b.DMATDL = 1;
+    control.rPower      = ARBSIZE_1;
+    control.srcProtCtrl = 0x0;
+    control.dstProtCtrl = 0x0;
+    control.dstInc      = DST_INC_NONE;
+    if (data_width <= (8U - 1U)) {
+      // 8-bit data frame
+      control.srcSize = SRC_SIZE_8;
+      control.srcInc  = SRC_INC_8;
+      control.dstSize = DST_SIZE_8;
+    } else if (data_width <= (16U - 1U)) {
+      // 16-bit data frame
+      control.srcSize = SRC_SIZE_16;
+      control.srcInc  = SRC_INC_16;
+      control.dstSize = DST_SIZE_16;
+    } else {
+      // 32-bit data frame
+      control.srcSize = SRC_SIZE_32;
+      control.srcInc  = SRC_INC_32;
+      control.dstSize = DST_SIZE_32;
+    }
+    spi->reg->DMACR_b.TDMAE    = 1;
+    spi->reg->DMATDLR_b.DMATDL = 1;
 #if SL_SI91X_SSI_DMA
-      sl_dma_xfer_t dma_transfer_tx = { 0 };
-      uint32_t channel              = spi->tx_dma->channel + 1;
-      uint32_t channel_priority     = spi->tx_dma->chnl_cfg.channelPrioHigh;
-      sl_dma_callback_t spi_tx_callback;
-      //Initialize sl_dma callback structure
-      spi_tx_callback.transfer_complete_cb = ssi_transfer_complete_callback;
-      spi_tx_callback.error_cb             = ssi_error_callback;
-      //Initialize sl_dma transfer structure
-      dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(spi->xfer->tx_buf));
-      dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (spi->reg->DR));
-      dma_transfer_tx.src_inc        = control.srcInc;
-      dma_transfer_tx.dst_inc        = control.dstInc;
-      dma_transfer_tx.xfer_size      = control.dstSize;
-      dma_transfer_tx.transfer_count = num;
-      dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
-      dma_transfer_tx.dma_mode       = control.transferType;
-      dma_transfer_tx.signal         = (uint8_t)spi->tx_dma->chnl_cfg.periAck;
+    sl_dma_xfer_t dma_transfer_tx = { 0 };
+    uint32_t channel              = spi->tx_dma->channel + 1;
+    uint32_t channel_priority     = spi->tx_dma->chnl_cfg.channelPrioHigh;
+    sl_dma_callback_t spi_tx_callback;
+    //Initialize sl_dma callback structure
+    spi_tx_callback.transfer_complete_cb = ssi_transfer_complete_callback;
+    spi_tx_callback.error_cb             = ssi_error_callback;
+    //Initialize sl_dma transfer structure
+    dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t)(spi->xfer->tx_buf));
+    dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (spi->reg->DR));
+    dma_transfer_tx.src_inc        = control.srcInc;
+    dma_transfer_tx.dst_inc        = control.dstInc;
+    dma_transfer_tx.xfer_size      = control.dstSize;
+    dma_transfer_tx.transfer_count = num;
+    dma_transfer_tx.transfer_type  = SL_DMA_MEMORY_TO_PERIPHERAL;
+    dma_transfer_tx.dma_mode       = control.transferType;
+    dma_transfer_tx.signal         = (uint8_t)spi->tx_dma->chnl_cfg.periAck;
 
-      //Allocate DMA channel for Tx
-      status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
-      if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
-        return ARM_DRIVER_ERROR;
-      }
-      //Register transfer complete and error callback
-      if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, channel, &spi_tx_callback)) {
-        return ARM_DRIVER_ERROR;
-      }
-      //Configure the channel for DMA transfer
-      if (sl_si91x_dma_transfer(DMA_INSTANCE, channel, &dma_transfer_tx)) {
-        return ARM_DRIVER_ERROR;
-      }
-      sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->tx_dma->channel + 1);
-      sl_si91x_dma_enable(DMA_INSTANCE);
-#else
-      // Initialize and start SPI TX DMA Stream
-      stat = UDMAx_ChannelConfigure(udma,
-                                    spi->tx_dma->channel,
-                                    (uint32_t)(spi->xfer->tx_buf),
-                                    (uint32_t) & (spi->reg->DR),
-                                    num,
-                                    control,
-                                    &spi->tx_dma->chnl_cfg,
-                                    spi->tx_dma->cb_event,
-                                    chnl_info,
-                                    udmaHandle);
-      if (stat == -1) {
-        return ARM_DRIVER_ERROR;
-      }
-      UDMAx_ChannelEnable(spi->tx_dma->channel, udma, udmaHandle);
-      UDMAx_ChannelEnable(spi->rx_dma->channel, udma, udmaHandle);
-      UDMAx_DMAEnable(udma, udmaHandle);
-#endif
+    //Allocate DMA channel for Tx
+    status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, channel_priority);
+    if (status && (status != SL_STATUS_DMA_CHANNEL_ALLOCATED)) {
+      return ARM_DRIVER_ERROR;
     }
+    //Register transfer complete and error callback
+    if (sl_si91x_dma_register_callbacks(DMA_INSTANCE, channel, &spi_tx_callback)) {
+      return ARM_DRIVER_ERROR;
+    }
+    //Configure the channel for DMA transfer
+    if (sl_si91x_dma_transfer(DMA_INSTANCE, channel, &dma_transfer_tx)) {
+      return ARM_DRIVER_ERROR;
+    }
+    sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->tx_dma->channel + 1);
+    sl_si91x_dma_enable(DMA_INSTANCE);
+#else
+    // Initialize and start SPI TX DMA Stream
+    stat = UDMAx_ChannelConfigure(udma,
+                                  spi->tx_dma->channel,
+                                  (uint32_t)(spi->xfer->tx_buf),
+                                  (uint32_t) & (spi->reg->DR),
+                                  num,
+                                  control,
+                                  &spi->tx_dma->chnl_cfg,
+                                  spi->tx_dma->cb_event,
+                                  chnl_info,
+                                  udmaHandle);
+    if (stat == -1) {
+      return ARM_DRIVER_ERROR;
+    }
+    UDMAx_ChannelEnable(spi->tx_dma->channel, udma, udmaHandle);
+    UDMAx_ChannelEnable(spi->rx_dma->channel, udma, udmaHandle);
+    UDMAx_DMAEnable(udma, udmaHandle);
+#endif
   } else {
+    // Converts the data width into number of bytes to send/receive at once
+    SPI_Convert_Data_Width_To_Bytes(data_width);
+    // Total number of transfers according to the configured data width
+    spi->xfer->num = num * data_width_in_bytes;
+
     /* spi->reg->IMR |= (TXEIM | RXFIM); */
     /*enabled below bits 
     Transmit FIFO Empty Interrupt Mask
@@ -1337,11 +1285,6 @@ int32_t SPI_Receive(void *data,
     data_width = spi->reg->CTRLR0_b.DFS;
   }
 
-  // Converts the data width into number of bytes to send/receive at once
-  SPI_Convert_Data_Width_To_Bytes(data_width);
-  // Total number of transfers according to the configured data width
-  spi->xfer->num = num * data_width_in_bytes;
-
   if ((spi->rx_dma != NULL) || (spi->tx_dma != NULL)) {
     if (spi->rx_dma != NULL) {
       control.transferType = UDMA_MODE_BASIC;
@@ -1354,22 +1297,20 @@ int32_t SPI_Receive(void *data,
       control.rPower      = ARBSIZE_1;
       control.srcProtCtrl = 0x0;
       control.dstProtCtrl = 0x0;
+      control.srcInc      = SRC_INC_NONE;
       if (data_width <= (8U - 1U)) {
         // 8-bit data frame
         control.srcSize = SRC_SIZE_8;
-        control.srcInc  = SRC_INC_NONE;
         control.dstSize = DST_SIZE_8;
         control.dstInc  = DST_INC_8;
       } else if (data_width <= (16U - 1U)) {
         // 16-bit data frame
         control.srcSize = SRC_SIZE_16;
-        control.srcInc  = SRC_INC_NONE;
         control.dstSize = DST_SIZE_16;
         control.dstInc  = DST_INC_16;
       } else {
         // 32-bit data frame
         control.srcSize = SRC_SIZE_32;
-        control.srcInc  = SRC_INC_NONE;
         control.dstSize = DST_SIZE_32;
         control.dstInc  = DST_INC_32;
       }
@@ -1437,24 +1378,22 @@ int32_t SPI_Receive(void *data,
         control.rPower      = ARBSIZE_1;
         control.srcProtCtrl = 0x0;
         control.dstProtCtrl = 0x0;
+        control.dstInc      = DST_INC_NONE;
         if (data_width <= (8U - 1U)) {
           // 8-bit data frame
           control.srcSize = SRC_SIZE_8;
-          control.srcInc  = SRC_INC_NONE;
+          control.srcInc  = SRC_SIZE_8;
           control.dstSize = DST_SIZE_8;
-          control.dstInc  = DST_INC_NONE;
         } else if (data_width <= (16U - 1U)) {
           // 16-bit data frame
           control.srcSize = SRC_SIZE_16;
-          control.srcInc  = SRC_INC_NONE;
+          control.srcInc  = SRC_SIZE_16;
           control.dstSize = DST_SIZE_16;
-          control.dstInc  = DST_INC_NONE;
         } else {
           // 32-bit data frame
           control.srcSize = SRC_SIZE_32;
-          control.srcInc  = SRC_INC_NONE;
+          control.srcInc  = SRC_SIZE_32;
           control.dstSize = DST_SIZE_32;
-          control.dstInc  = DST_INC_NONE;
         }
         spi->reg->DMACR_b.TDMAE    = 1;
         spi->reg->DMATDLR_b.DMATDL = 1;
@@ -1520,6 +1459,11 @@ int32_t SPI_Receive(void *data,
     UDMAx_DMAEnable(udma, udmaHandle);
 #endif
   } else {
+    // Converts the data width into number of bytes to send/receive at once
+    SPI_Convert_Data_Width_To_Bytes(data_width);
+    // Total number of transfers according to the configured data width
+    spi->xfer->num = num * data_width_in_bytes;
+
     // Interrupt mode
     // RX Buffer not empty interrupt enable
     /* spi->reg->IMR |= (TXEIM | RXFIM); */
@@ -1627,9 +1571,9 @@ void SPI_Slave_Set_CS_Init_State(const SPI_RESOURCES *spi)
 }
 
 /**
- * @fn          void SPI_Convert_Data_Width_To_Bytes(const SPI_RESOURCES *spi)
- * @brief       Update the data width and number of bytes in static variable
- * @param[in]   spi        : Pointer to the SPI resources
+ * @fn          void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width)
+ * @brief       Update the data width and number of bytes in global static variable
+ * @param[in]   data_width        : Number of data-bits configured
  * @return      none
  */
 static void SPI_Convert_Data_Width_To_Bytes(uint16_t data_width)

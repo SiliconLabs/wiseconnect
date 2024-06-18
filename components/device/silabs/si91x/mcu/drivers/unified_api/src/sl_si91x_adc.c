@@ -29,8 +29,10 @@
  ******************************************************************************/
 #include "sl_si91x_adc.h"
 #include "clock_update.h"
-#include "rsi_chip.h"
+#include "rsi_rom_clks.h"
 #include "rsi_bod.h"
+#include "rsi_rom_ulpss_clk.h"
+#include "aux_reference_volt_config.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   *******************************
@@ -114,18 +116,10 @@ sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configurat
 {
   boolean_t adc_clock     = ENABLE;
   boolean_t odd_divfactor = 0;
-  boolean_t swallo_enable = 0;
-  sl_status_t status;
-  rsi_error_t error_status;
+  sl_status_t status      = SL_STATUS_OK;
   do {
     if (clock_configuration == NULL) {
       status = SL_STATUS_NULL_POINTER;
-      break;
-    }
-    /*Default keep M4 in reference clock*/
-    error_status = RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, clock_configuration->division_factor);
-    status       = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
       break;
     }
     if (clock_configuration->soc_pll_clock >= SOC_PLL_LIMIT) {
@@ -136,24 +130,6 @@ sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configurat
       MISC_CFG_SRAM_REDUNDANCY_CTRL = BIT(4);
       MISC_CONFIG_MISC_CTRL1 |= BIT(4); //Enable Register ROM as clock frequency is 200 Mhz
     }
-    /*Configure the PLL frequency*/
-    error_status =
-      RSI_CLK_SetSocPllFreq(M4CLK, clock_configuration->soc_pll_clock, clock_configuration->soc_pll_reference_clock);
-    status = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    /*Switch M4 clock to PLL clock for speed operations*/
-    error_status = RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, clock_configuration->division_factor);
-    status       = convert_rsi_to_sl_error_code(error_status);
-    if (status != SL_STATUS_OK) {
-      break;
-    }
-    ROMAPI_M4SS_CLK_API->clk_qspi_clk_config(M4CLK,
-                                             QSPI_SOCPLLCLK,
-                                             swallo_enable,
-                                             odd_divfactor,
-                                             clock_configuration->division_factor);
     clock_configuration->division_factor = 1;
     /* Switch ULP Pro clock to 90 MHZ */
     RSI_ULPSS_ClockConfig(M4CLK, adc_clock, clock_configuration->division_factor, odd_divfactor);
@@ -204,7 +180,7 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
       status = SL_STATUS_INVALID_COUNT;
       break;
     }
-#if defined(ULP_MODE_EXECUTION) || defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
+#if defined(SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION)
     /* Power-up Button Calibration*/
     RSI_PS_BodPwrGateButtonCalibEnable();
     /* Enable PTAT for Analog Peripherals*/
@@ -216,9 +192,13 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
     RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
 #endif
     // Initialize ADC.
-    if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
-      error_status = ADC_Init(adc_channel_config, adc_config, callback_event_handler);
-    } else {
+    if (adc_config.operation_mode == SL_ADC_FIFO_MODE) {
+      if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
+        error_status = ADC_Init(adc_channel_config, adc_config, callback_event_handler);
+      } else {
+        error_status = ADC_Per_Channel_Init(adc_channel_config, adc_config, callback_event_handler);
+      }
+    } else { // ADC init for Static mode.
       error_status = ADC_Per_Channel_Init(adc_channel_config, adc_config, callback_event_handler);
     }
     status = convert_rsi_to_sl_error_code(error_status);
@@ -324,9 +304,13 @@ sl_status_t sl_si91x_adc_set_channel_configuration(sl_adc_channel_config_t adc_c
       break;
     }
     // set the configuration for ADC channel.
-    if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
-      error_status = ADC_ChannelConfig(adc_channel_config, adc_config);
-    } else {
+    if (adc_config.operation_mode == SL_ADC_FIFO_MODE) {
+      if (adc_config.num_of_channel_enable > MINIMUM_NUMBER_OF_CHANNEL) {
+        error_status = ADC_ChannelConfig(adc_channel_config, adc_config);
+      } else {
+        error_status = ADC_Per_ChannelConfig(adc_channel_config, adc_config);
+      }
+    } else { // Static mode configuration
       error_status = ADC_Per_ChannelConfig(adc_channel_config, adc_config);
     }
     status = convert_rsi_to_sl_error_code(error_status);
@@ -585,8 +569,9 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
                                           uint16_t *adc_value)
 {
   sl_status_t status;
+  rsi_error_t error_status;
   uint8_t data_process     = 1;
-  uint8_t chnl_num         = adc_channel_config.channel;
+  static uint8_t chnl_num  = 0;
   int16_t read_static_data = 0;
   do {
     // Validate ADC parameters, if the parameters are incorrect
@@ -598,7 +583,17 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
     // Enable the gain and calculation on output samples.
     read_static_data = RSI_ADC_ReadDataStatic(AUX_ADC_DAC_COMP, data_process, adc_channel_config.input_type[chnl_num]);
     *adc_value       = (uint16_t)read_static_data;
-    status           = sl_si91x_adc_channel_interrupt_clear(adc_config, chnl_num);
+    if (adc_config.num_of_channel_enable == 1) {
+      // If adc using only one channel then it will clear the interrupt to sample the next data.
+      status = sl_si91x_adc_channel_interrupt_clear(adc_config, chnl_num);
+    } else { // If number of channel more than one it will reconfig the next channel and it will sample the data in a sequential order.
+      if (++chnl_num >= adc_config.num_of_channel_enable) {
+        chnl_num = 0;
+      }
+      adc_channel_config.channel = chnl_num;
+      error_status               = ADC_Per_ChannelConfig(adc_channel_config, adc_config);
+      status                     = convert_rsi_to_sl_error_code(error_status);
+    }
   } while (false);
   return status;
 }
@@ -1197,9 +1192,6 @@ static void callback_event_handler(uint8_t channel_no, uint8_t event)
   switch (event) {
     case SL_INTERNAL_DMA:
       user_callback(channel_no, SL_INTERNAL_DMA);
-      if (number_of_channel > 1) {
-        RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP, channel_no, ADC_FIFOMODE_ENABLE);
-      }
       break;
     case SL_ADC_STATIC_MODE_EVENT:
       user_callback(channel_no, SL_ADC_STATIC_MODE_EVENT);

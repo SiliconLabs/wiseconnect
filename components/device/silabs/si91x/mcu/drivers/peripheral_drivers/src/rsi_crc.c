@@ -19,7 +19,7 @@
 
 #include "rsi_ccp_user_config.h"
 
-#ifndef ROMDRIVER_PRESENT
+#ifndef CRC_ROMDRIVER_PRESENT
 #include "rsi_rom_crc.h"
 
 /*==============================================*/
@@ -311,7 +311,7 @@ uint32_t crc_get_fifo_status(CRC_Type *pCRC)
 }
 
 /*ROM API Structure
-#if defined( A11_ROM ) && !defined (ROMDRIVER_PRESENT)
+#if defined( A11_ROM ) && !defined (CRC_ROMDRIVER_PRESENT)
 const ROM_CRC_API_T crc_api = {
 		&crc_set_gen_control,
 		&crc_get_gen_status,
@@ -329,4 +329,4 @@ const ROM_CRC_API_T crc_api = {
 };
 #endif
 */
-#endif //ROMDRIVER_PRESENT
+#endif //CRC_ROMDRIVER_PRESENT

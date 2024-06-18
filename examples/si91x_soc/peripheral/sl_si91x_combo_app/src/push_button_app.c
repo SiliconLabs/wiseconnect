@@ -17,7 +17,7 @@
 
 #include "push_button_app.h"
 #include "cmsis_os2.h"
-#include "rsi_chip.h"
+
 #include "rsi_debug.h"
 #include "sl_component_catalog.h"
 #include "sl_si91x_button.h"

@@ -18,9 +18,10 @@
 /**
  * Includes
  */
-#include "rsi_chip.h"
 #include "rsi_system_config.h"
 #include "rsi_ipmu.h"
+#include "rsi_pll.h"
+#include "rsi_ulpss_clk.h"
 
 /**
  * @fn          void RSI_IPMU_UpdateIpmuCalibData_efuse(efuse_ipmu_t *ipmu_calib_data)

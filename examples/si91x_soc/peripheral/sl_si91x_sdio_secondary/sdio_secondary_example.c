@@ -26,6 +26,8 @@
 #include "sl_si91x_sdio_secondary_drv_config.h"
 #include "sl_si91x_peripheral_sdio_secondary.h"
 #include "rsi_debug.h"
+#include "rsi_rom_clks.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -47,10 +49,10 @@
 #define MISC_QUASI_SYNC_MODE  *(volatile uint32_t *)(M4_MISC_CONFIG_BASE + 0x84)
 #define SOC_PLL_REF_FREQUENCY 40000000  // PLL input REFERENCE clock 40MHZ
 #define PS4_SOC_FREQ          150000000 // PLL out clock 150MHz
+#endif                                  // SW_CORE_CLK
 
-void sl_si91x_switch_m4_frequency(void);
-#endif // SW_CORE_CLK
-
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -81,24 +83,7 @@ boolean_t receive_data_flag      = true;
  ******************************************************************************/
 void gdpma_callbak(uint8_t dma_ch);
 void application_callback(uint8_t events);
-#if SW_CORE_CLK
-/***************************************************************************/ /**
- * @brief       
- *   This API used to configure the M4 core clock                   
- ******************************************************************************/
-void sl_si91x_switch_m4_frequency(void)
-{
-  /*Switch M4 SOC clock to Reference clock*/
-  /*Default keep M4 in reference clock*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, 0);
-
-  /*Configure the PLL frequency*/
-  RSI_CLK_SetSocPllFreq(M4CLK, PS4_SOC_FREQ, SOC_PLL_REF_FREQUENCY);
-
-  /*Switch M4 clock to PLL clock for speed operations*/
-  RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, 0);
-}
-#endif // SW_CORE_CLK
+static void default_clock_configuration(void);
 
 /***************************************************************************/ /**
  * @brief       
@@ -134,6 +119,16 @@ uint32_t throughput   = 0;
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 /*******************************************************************************
  * SDIO Secondary initialization function
  ******************************************************************************/
@@ -141,10 +136,8 @@ void sdio_secondary_example_init(void)
 {
   sl_status_t status;
 
-#if SW_CORE_CLK
-  // Configure M4 core clock
-  sl_si91x_switch_m4_frequency();
-#endif
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
 
   SysTick_Config(SystemCoreClock / 1000);
 

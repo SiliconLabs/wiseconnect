@@ -17,3 +17,5 @@ provides:
 requires:
   - name: romdriver_romtable
   - name: systemlevel_pll
+define:
+  - name: CLOCK_ROMDRIVER_PRESENT

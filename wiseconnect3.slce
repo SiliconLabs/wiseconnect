@@ -1,14 +1,14 @@
 id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
-  WiSeConnect 3 extension for the Gecko SDK
-version: "3.2.0"
+  WiSeConnect 3 extension for the Simplicity SDK (formerly Gecko SDK)
+version: "3.3.0"
 sdk:
-  id: gecko_sdk
-  version: "4.4.3"
+  id: simplicity_sdk
+  version: "2024.6.0"
 documentation:
   - docset: wiseconnect
-    version: "3.2.0"
+    version: "3.3.0"
 component_path:
   - path: resources
   - path: components/board
@@ -54,8 +54,11 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/memlcd/component
   - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/button/component
   - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/led/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/rgb_led/component
   - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/sl_joystick/component
   - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/si70xx_sensor/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/icm40627/component
+  - path: components/device/silabs/si91x/mcu/drivers/hardware_drivers/veml6035/component
   - path: components/device/silabs/si91x/mcu/drivers/cmsis_driver/component
   - path: components/device/silabs/si91x/mcu/drivers/cmsis_driver/config/component
   - path: components/device/silabs/si91x/mcu/drivers/peripheral_drivers/component
@@ -70,6 +73,9 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/service/sleeptimer/component
   - path: components/device/silabs/si91x/mcu/drivers/service/iostream/component
   - path: components/device/silabs/si91x/mcu/drivers/service/power_manager/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/clock_manager/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/sl_si91x_etm/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/littlefs/component
   - path: components/device/silabs/si91x/mcu/core/chip/component
   - path: components/device/silabs/si91x/mcu/core/common/component
   - path: components/device/silabs/si91x/mcu/core/cmsis/component
@@ -84,8 +90,10 @@ component_path:
   - path: third_party/azure_freertos_middleware/libraries/coreMQTT
   - path: third_party/iot_socket
   - path: third_party/unity/component
+  - path: third_party/silicon_labs/freertos/component
   - path: utilities
   - path: components/console
   - path: components/console/variables
   - path: third_party/qcbor/component
   - path: third_party/tcose/component
+  - path: third_party/littlefs/component

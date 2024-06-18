@@ -9,16 +9,17 @@ This application demonstrates the WLAN, BLE, MCU peripheral features and NWP (ne
   - [Hardware Requirements](#hardware-requirements)
   - [Software Requirements](#software-requirements)
   - [Setup Diagram](#setup-diagram)
+- [Upgrade application binary](#upgrade-application-binary)
 - [Application Build Environment](#application-build-environment)
 - [Test the Application](#test-the-application)
   - [Run the Application](#run-the-application)
-  - [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler)
+- [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler)
 
 ## Purpose/Scope
 
-SiWG917 establishes WLAN connectivity via BLE provisioning. SiWG917 then proceeds to ping [www.silabs.com](https://www.silabs.com) for 5 times, after which MQTT connecitivity with a remote mosquitto broker [test.mosquitto.org](http://test.mosquitto.org) is established.
+SiWG917 establishes WLAN connectivity via BLE provisioning. SiWG917 then proceeds to ping [www.silabs.com](https://www.silabs.com) for 5 times, after which MQTT connectivity with a remote mosquitto broker [test.mosquitto.org](http://test.mosquitto.org) is established.
 Then Network processor of SiWG917 enters connected sleep state.
-If a message is published onto the topic from a MQTT client application [https://testclient-cloud.mqtt.cool/](https://testclient-cloud.mqtt.cool/) to which the module is subscribed (Si917_MQTT_RECEIVE), the NWP wakes up and displays the received data and goes back to sleep. The status of application is updated on the TFT-LCD display on the WPK baseboard, the same can be observed on the serial terminal prints as well.
+If a message is published onto the topic from a MQTT client application [https://testclient-cloud.mqtt.cool/](https://testclient-cloud.mqtt.cool/) to which the module is subscribed (Si917_MQTT_RECEIVE), the NWP wakes up and displays the received data and goes back to sleep. If BTN1 on the WPK baseboard is pressed, SiWG917 publishes a message onto a MQTT topic named Si917_APP_STATUS. The status of application is updated on the TFT-LCD display on the WPK baseboard, the same can be observed on the serial terminal prints as well.
 
 ## Prerequisites/Setup Requirements
 
@@ -36,45 +37,73 @@ If a message is published onto the topic from a MQTT client application [https:/
       - BRD4339B [SiWx917-RB4339B]
   - Kits
     - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
-- Android Phone or iPhone with EFR Connect App, which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
+- Android Phone or iPhone with Simplicity Connect App(formerly EFR Connect App), which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
 
 ### Software Requirements
 
 - [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
-- Silicon Labs [EFR Connect App](https://www.silabs.com/developers/efr-connect-mobile-app?tab=downloads), the app can be downloaded from Google Play store/Apple App store.
+- Silicon Labs [Simplicity Connect App (formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app?tab=downloads), the app can be downloaded from Google Play store/Apple App store.
 
 ### Setup Diagram
 
 ![Figure: Setup Diagram for OOB Demo](resources/readme/oobdemo_soc.png)
 
+## Upgrade application binary
+
+- Download the out-of-box demo binary from [the WiseConnect SDK GitHub repository](https://github.com/SiliconLabs/wiseconnect/blob/master/out_of_box_demo/out-of-box-demo-soc.rps)
+
+  Follow the instructions on the [Developing for SiWx91x Host page](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio) to:
+
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
+- [Connect the SiWx917 board to your computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
+- Flash the out-of-box demo binary (out-of-box-demo-soc.rps) as described in the [Flash an Application Binary](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#flash-an-application-binary) section.
+
+After upgrading the application binary, proceed with the demo by referring to the next steps under [run the application](#run-the-application) section.
+
 ## Application build environment
 
-It is highly recommended to set the CLIENT_ID parameter in the wifi_app.c file to a unique string. As the test MQTT server limits multiple devices with same CLIENT ID from connecting at the same time.
-In this version of the out of box demo example, the CLIENT_ID parameter is automatically set to a unique value.
+No additional application level changes are required to execute the OOB demo example.
 
 ## Test the Application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
-
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
-- Build the application.
-- Flash, run and debug the application
+The status of the application is updated in TFT-LCD display of the WPK baseboard. Additionally, to view the application prints on the console, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Run the application
 
-- Once the application is flashed, the Wireless interface is initialized.
+- If the messages being displayed on the LCD display on WPK do not indicate the application binary version (as shown in the following image):
+  
+    ![OOB initialization screen v1.0](resources/readme/status_lcd1_v1_0.png)
+
+    It implies that an older version of OOB demo binary (older than v2.0) is running on the SiWG917 board. 
+    
+    It is recommended to upgrade to the latest OOB demo binary (With the application binaries older than v2.0, there's a possibility of observing issues with MQTT data transfer, as the test MQTT server limits multiple devices with same CLIENT ID from connecting at the same time. This has been fixed in the application binary v2.0).
+
+    To upgrade to latest application binary, refer [upgrade application binary](#upgrade-application-binary) section.
+
+    Also, upgrade the connectivity firmware (NWP firmware) to the latest version to avoid compatibility issues with application binary. Download the latest connectivity firmware from [Wiseconnect github repository](https://github.com/SiliconLabs/wiseconnect/tree/master/connectivity_firmware) and refer [Upgrade SiWx91x Connectivity Firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#upgrade-si-wx91x-connectivity-firmware)  to upgrade the connectivity firmware.
+
+    If the messages being displayed on the LCD display on WPK indicate versioning information (Si917 OOB Demo v2.0 - as show in the following image)
+
+    ![OOB initialization screen v2.0](resources/readme/status_lcd1_v2_0.png)
+
+    It implies that OOB demo binary v2.0 (latest application binary) is running on the SiWG917 board. Proceed to the next steps of the demo.
+
+- Once the application is flashed or the SiWG917 board is powered up, the Wireless interface is initialized.
 - After the Wireless initialization, the module starts BLE advertising and advertises itself as "BLE_CONFIGURATOR"
 - The status of the application can be observed on the TFT-LCD display on the WPK baseboard.
 - Following is the image of LCD display indicating the application status.
 
-  ![Here is the image of LCD with the status prints](resources/readme/status_lcd1.png)
+  If application binary is older than v2.0:
 
-- Open the EFR connect app on your mobile phone.
+  ![Here is the image of LCD with the status prints](resources/readme/status_lcd1_v1_0.png)
 
-  ![EFR Connect App](resources/readme/EFRConnect_app.png)
+  If application binary version is v2.0 (latest):
+
+  ![Here is the image of LCD with the status prints](resources/readme/status_lcd1_v2_0.png)
+
+- Open the Simplicity Connect App (formerly EFR Connect App) on your mobile phone.
+
+  ![Simplicity Connect App(formerly EFR Connect App)](resources/readme/SimplicityConnect_app.png)
 
 - Go to 'Demo' tab.
 
@@ -82,7 +111,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Choose the Wi-Fi commissioning option.
 
-  ![WiFi Commisioning option](resources/readme/EFRConnect_wificommisioning.png)
+  ![Wi-Fi Commissioning option](resources/readme/EFRConnect_wificommisioning.png)
 
 - Click on the device name "BLE_CONFIGURATOR".
 
@@ -106,10 +135,15 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - After pinging, the module now establishes connectivity with test.mosquitto.org.
 - Here is the image of LCD with the status prints.
 
+  If Application binary is older than v2.0
+
+  ![Here is the image of LCD with the status prints](resources/readme/status_lcd2_v1_0.png)
+
+  If Application binary version is v2.0 (latest)
+
   ![Here is the image of LCD with the status prints](resources/readme/status_lcd2.png)
 
   ![Here is the image of LCD with the status prints](resources/readme/status_lcd3.png)
-  
 
 - NWP (network processor of SiWG917) enters connected sleep.  
 
@@ -129,29 +163,41 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   ![MQTT test client image-4](resources/readme/MQTT_testclient4.png)
 
-- Enter the data to be sent to the SiWG917 (can be any random text) in the publish section and click on the publish button, the online client then publishes data on the "Si917_MQTT_RECEIVE" topic which can be observed on the LCD display on the baseboard or in the application prints on the serial console.
+- Enter the data to be sent to the SiWG917 (can be any random text) in the publish section and click on the publish button, the online client then publishes data on the "Si917_MQTT_RECEIVE" topic.
+
+  If the application binary version is older than v2.0, the MQTT data received by SiWG917 will be displayed in the application prints on the serial console.
+
+  If the application binary version is v2.0, the MQTT data received by SiWG917 will be displayed on the TFT-LCD display of the WPK board and the application prints on the serial console.
 
   ![Here is the image of LCD with the status prints](resources/readme/status_lcd4.png)
 
+- If the application binary version is v2.0, please proceed with the following steps, if not please refer [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler) section for using the energy profiler tool to measure the current consumption of the SiWG917.
 
-- The current consumption of SiWG917 can observed using the energy profiler tool integrated within the Simplicity Studio. Refer the [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler) section for using the energy profiler ti measure the current consumption of the module.
+- Enter "Si917_APP_STATUS" in the Subscriptions sections as shown in the following image and click on Subscribe.
 
-The energy consumption plot would be as follows:
+  ![MQTT test client image-5](resources/readme/MQTT_testclient5.png)
 
-![AEM plot M4 sleep disabled](resources/readme/AEM_graph2.png)
+  After clicking the subscribe button, Si917_APP_STATUS can be observed under the subscribed topics section.
 
-Please note that
+  ![MQTT test client image-6](resources/readme/MQTT_testclient6.png)
 
-- Current consumption would be in the range of 8mA-9mA since M4 is in active state.
-- The above energy consumption plots are for reference and the power consumption number would vary based on the on air traffic, environment and the access point used.
+- Press BTN1 on the WPK baseboard. When BTN1 is pressed, SiWG917 publishes a MQTT message saying "Button is pressed" onto the topic "Si917_APP_STATUS". The same can be observed in the LCD display of the baseboard and the MQTT client page.
 
-Refer the following ouput image:
+  ![Here is the image of LCD with the published messages](resources/readme/status_lcd5.png)
+
+  ![MQTT test client image-7](resources/readme/MQTT_testclient7.png)
+
+- The current consumption of SiWG917 can observed using the energy profiler tool integrated within the Simplicity Studio. Refer the [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler) section for using the energy profiler to measure the current consumption of the module.
 
 - To view the prints on the console, follow the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
-The application prints would be as follows:
+    If application binary version is older than v2.0, the application prints would be as follows:
 
-![Application prints](resources/readme/output.png)
+    ![Application prints](resources/readme/output_v1_0.png)
+
+    If application binary version is v2.0, the application prints would be as follows:
+
+    ![Application prints](resources/readme/output_v2_0.png)
 
 ### Measuring the current consumption using Simplicity Studio Energy Profiler
 
@@ -174,3 +220,13 @@ To open the energy profiler:
   ![Studio tools section](resources/readme/oob_energy_profiler_start.png)
 
 - The energy profiler session begins and the current consumption plot can be observed.
+
+- The energy consumption plot would be as follows:
+
+  ![AEM plot M4 sleep disabled](resources/readme/AEM_graph2.png)
+
+- Please note that
+
+  - Current consumption would be in the range of 8mA-9mA since M4 is in active state.
+  - The above energy consumption plots are for reference and the power consumption number would vary based on the on air traffic, environment and the access point used.
+

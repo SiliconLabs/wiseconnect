@@ -18,6 +18,20 @@
 
 - This application demonstrates the use of Third Generation Non-Volatile Memory (NVM3) data storage in Si91x dual flash.
 
+## Overview
+
+The NVM3 provides a means to write and read data objects (key/value pairs) stored in Flash. Wear-leveling is applied to reduce erase and write cycles and maximize flash lifetime. The driver is resilient to power loss and reset events, ensuring that objects retrieved from the driver are always in a valid state. A single NVM3 instance can be shared among several wireless stacks and application code, making it well-suited for multiprotocol applications.
+
+For more detailed information about NVM3, refer to [Third Generation NonVolatile Memory (NVM3) Data Storage](https://www.silabs.com/documents/public/application-notes/an1135-using-third-generation-nonvolatile-memory.pdf).
+
+## About Example Code
+
+- This example performs NVM3 init using nvm3_initDefault() API.
+- Two counter objects are initialized using nvm3_writeCounter() API. One is used to track the number of writes and another is used for
+  tracking number of deleted objects.
+- After initializing counters, application indefinetly waits for user input.
+- Refer to Test the Application section for more information on how to give input to application.
+
 ## Prerequisites/Setup Requirements
 
 - To use this application following Hardware, Software and the Project Setup is required
@@ -25,23 +39,22 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4325B]
-  - The Serial Console setup instructions are provided below,
-refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4339B]
 
 ### Software Requirements
 
 - Simplicity Studio
-- Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+- Serial console Setup
+  - The Serial Console setup instructions are provided below:
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
-> ![Figure: Introduction](resources/readme/setupdiagram.png)
+![Figure: Introduction](resources/readme/setupdiagram.png)
 
 ## Getting Started
 
-Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) for the following tasks:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Install Studio and WiSeConnect 3 extension
 - Connect your device to the computer
@@ -52,19 +65,36 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
+- Configure UC from the slcp component.
+
+   ![Figure: Introduction](resources/uc_screen/si91x_nvm3_uc_screen.png)
+- Open **sl_si91x_nvm3_dual_flash.slcp** project file select **software component** tab and search for **NVM3 for Si91x** in search bar.
+- Using configuration wizard one can configure different parameters like:
+
+### General Configuration
+
+  Configure following macros from UC,
+- NVM3_DEFAULT_CACHE_SIZE: Number of NVM3 objects to cache. To reduce access times this number should be equal to or higher than the number 
+  of NVM3 objects in the default NVM3 instance.
+- NVM3_DEFAULT_MAX_OBJECT_SIZE: Max NVM3 object size that can be stored. This value should be greater than or equal to 204
+- NVM3_DEFAULT_REPACK_HEADROOM: NVM3 Default Instance User Repack Headroom, Headroom determining how many bytes below the forced repack limit 
+  the user repack limit should be placed. The default is 0, which means the user and forced repack limits are equal.
+- NVM3_DEFAULT_NVM_SIZE - Size of the NVM3 storage region in flash. This size should be aligned with the flash page size of the device.
+
 ### Code modifications for printing on the uart console
 
-- In rsi_board.c file make M4_UART1_INSTANCE as 1 and M4_UART2_INSTANCE as 0
+- In rsi_debug.c file make M4_UART1_INSTANCE as 1 and ULP_UART_INSTANCE as 0
 
 ### Pinout on WPK for uart console
 
 | GPIO pin                | Description             |
 | ----------------------- | ----------------------- |
-| GPIO_30 [EXP_HEADER-4] | UART Tx   |
-| GPIO_29 [EXP_HEADER-6] | UART Rx  |
-| [EXP_HEADER-1]  | GND    |
+| GPIO_30 [P-35]         | UART Tx   |
+| GPIO_29 [P-33]         | UART Rx  |
 
 ## Test the Application
+
+- Connect TX pin(GPIO_30) to RX pin of UART-TTL cable and RX pin(GPIO_29) to TX pin of UART-TTL cable
 
 - Users can give the following commands:
 
@@ -77,6 +107,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - For deleting key, type below syntax followed by enter
     delete key
     ex: delete 1
+  - For displaying content stored and keys deleted, type below syntax followed by enter
+    display
+    ex: display
+  - For deleting all data stored in NVM3, type below syntax followed by enter
+    erase
+    ex: erase
+  - For repacking NVM3, type below syntax followed by enter
+    repack
+    ex: repack
 
 - After successful program execution the prints in serial console looks as shown below.
 

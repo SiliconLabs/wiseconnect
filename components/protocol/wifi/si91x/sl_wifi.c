@@ -43,8 +43,10 @@
 #include <string.h>
 
 #ifndef SL_NCP_DEFAULT_COMMAND_WAIT_TIME
-#define SL_NCP_DEFAULT_COMMAND_WAIT_TIME 1000
+#define SL_NCP_DEFAULT_COMMAND_WAIT_TIME 3000
 #endif
+
+#define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
 #include "sl_si91x_driver.h"
@@ -92,6 +94,8 @@ extern rsi_m4ta_desc_t crypto_desc[2];
 #define MAX_TX_AND_RX_LATENCY_LIMIT          22118400
 #define MAX_TWT_SUSPEND_DURATION             0x5265c00
 #define ABSOLUTE_POWER_VALUE_TOGGLE          0x80
+#define PASSIVE_SCAN_ENABLE                  BIT(7)
+#define LP_CHAIN_ENABLE                      BIT(6)
 
 /*========================================================================*/
 // 11ax params
@@ -150,10 +154,10 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
     join_request->security_type = client_configuration->security;
     if (join_request->security_type == SL_WIFI_WPA3) { //check for WPA3 security
       join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED;
-    } else if (join_request->security_type == SL_WIFI_WPA3_TRANSITION || join_request->security_type == SL_WIFI_WPA2
-               || join_request->security_type
-                    == SL_WIFI_WPA_WPA2_MIXED) { //check for WPA3 Tranisition security,WPA2 and WPA/WPA2 Mixed Mode
+    } else if (join_request->security_type == SL_WIFI_WPA3_TRANSITION) {
       join_request->join_feature_bitmap &= ~(SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED);
+      join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY;
+    } else if (join_request->security_type == SL_WIFI_WPA2 || join_request->security_type == SL_WIFI_WPA_WPA2_MIXED) {
       join_request->join_feature_bitmap |= SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY;
     }
 
@@ -371,6 +375,12 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
              sizeof(scan_request.channel_bit_map_2_4));
     }
 
+    if (configuration->type == SL_WIFI_SCAN_TYPE_PASSIVE) {
+      scan_request.pscan_bitmap[3] |= PASSIVE_SCAN_ENABLE;
+    }
+    if (configuration->lp_mode) {
+      scan_request.pscan_bitmap[3] |= LP_CHAIN_ENABLE;
+    }
     sl_wifi_max_tx_power_t wifi_max_tx_power = get_max_tx_power();
     // Within the 1-byte scan_feature_bimap variable, last 5 bits(bit 3 through bit 7) are allocated for
     // encoding the transmit power during scan procedure.
@@ -464,7 +474,7 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
                                         SI91X_WLAN_CMD_QUEUE,
                                         &scan_request,
                                         sizeof(scan_request),
-                                        SL_SI91X_WAIT_FOR(6000),
+                                        SL_SI91X_WAIT_FOR(60000),
                                         NULL,
                                         NULL);
 
@@ -503,9 +513,7 @@ sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
     }
 
     strcpy((char *)eap_req.inner_method, SL_EAP_INNER_METHOD);
-    memcpy(eap_req.okc_enable,
-           &advanced_client_configuration.eap_flags,
-           sizeof(advanced_client_configuration.eap_flags));
+    memcpy(eap_req.okc_enable, &cred.eap.eap_flags, sizeof(cred.eap.eap_flags));
 
     key_len = strlen((const char *)cred.eap.certificate_key);
     if ((key_len > 0)) {
@@ -723,10 +731,6 @@ sl_status_t sl_wifi_get_mac_address(sl_wifi_interface_t interface, sl_mac_addres
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
-  }
-
-  if (!sl_wifi_is_interface_up(interface)) {
-    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_MAC_ADDRESS,
@@ -1136,6 +1140,85 @@ sl_status_t sl_wifi_get_firmware_version(sl_wifi_firmware_version_t *version)
 #endif
 }
 
+sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info)
+{
+  sl_status_t status       = 0;
+  sl_wifi_buffer_t *buffer = NULL;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(info);
+
+  if (get_opermode() == SL_SI91X_ACCESS_POINT_MODE) {
+    // Send cmd for wlan info in AP mode
+    status = sl_si91x_driver_send_command(RSI_WLAN_REQ_QUERY_GO_PARAMS,
+                                          SI91X_WLAN_CMD_QUEUE,
+                                          NULL,
+                                          0,
+                                          SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                          NULL,
+                                          &buffer);
+  } else if ((get_opermode() == SL_SI91X_CLIENT_MODE) || (get_opermode() == SL_SI91X_ENTERPRISE_CLIENT_MODE)) {
+    //! Send cmd for wlan info in client mode
+    status = sl_si91x_driver_send_command(RSI_WLAN_REQ_QUERY_NETWORK_PARAMS,
+                                          SI91X_WLAN_CMD_QUEUE,
+                                          NULL,
+                                          0,
+                                          SL_SI91X_WAIT_FOR_RESPONSE(1000),
+                                          NULL,
+                                          &buffer);
+  } else {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  if ((status != SL_STATUS_OK) && (buffer != NULL)) {
+    sl_si91x_host_free_buffer(buffer);
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  sl_si91x_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+
+  //In AP mode, receives a buffer equivalent to sl_si91x_client_info_response.
+  if (packet->length > 0 && get_opermode() == SL_SI91X_ACCESS_POINT_MODE) {
+    sl_si91x_client_info_response *response = (sl_si91x_client_info_response *)packet->data;
+    memcpy(&info->wlan_state, &response->sta_count, sizeof(uint16_t));
+    memcpy(&info->channel_number, &response->channel_number, sizeof(uint8_t));
+    memcpy(info->ssid, response->ssid, MIN(sizeof(info->ssid), sizeof(response->ssid)));
+    memcpy(info->mac_address, response->mac_address, 6);
+    memcpy(info->psk, response->psk, 64);
+    memcpy(info->ipv4_address, response->ipv4_address, 4);
+    memcpy(info->ipv6_address, response->ipv6_address, 16);
+  }
+  //In Client mode, receives a buffer equivalent to sl_si91x_network_params_response_t.
+  else if (packet->length > 0
+           && ((get_opermode() == SL_SI91X_CLIENT_MODE) || (get_opermode() == SL_SI91X_ENTERPRISE_CLIENT_MODE))) {
+    sl_si91x_network_params_response_t *response = (sl_si91x_network_params_response_t *)packet->data;
+    memcpy(&info->wlan_state, &response->wlan_state, sizeof(uint8_t));
+    memcpy(&info->channel_number, &response->channel_number, sizeof(uint8_t));
+    memcpy(info->ssid, response->ssid, MIN(sizeof(info->ssid), sizeof(response->ssid)));
+    memcpy(info->mac_address, response->mac_address, 6);
+    memcpy(&info->sec_type, &response->sec_type, sizeof(uint8_t));
+    memcpy(info->psk, response->psk, 64);
+    memcpy(info->ipv4_address, response->ipv4_address, 4);
+    memcpy(info->ipv6_address, response->ipv6_address, 16);
+  }
+
+  sl_si91x_host_free_buffer(buffer);
+  return status;
+}
+
+sl_status_t sl_wifi_get_firmware_size(void *buffer, uint32_t *fw_image_size)
+{
+  SL_WIFI_ARGS_CHECK_NULL_POINTER(buffer);
+
+  sl_si91x_firmware_header_t *fw = (sl_si91x_firmware_header_t *)buffer;
+
+  *fw_image_size = (fw->image_size + sizeof(sl_si91x_firmware_header_t));
+
+  return SL_STATUS_OK;
+}
+
 sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface)
 {
   if (!device_initialized) {
@@ -1176,7 +1259,7 @@ sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface)
                                         SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
                                         NULL,
                                         NULL);
-  VERIFY_STATUS_AND_RETURN(status)
+  VERIFY_STATUS_AND_RETURN(status);
 
   return status;
 }
@@ -2451,5 +2534,33 @@ sl_status_t sl_wifi_flush_transceiver_data(sl_wifi_interface_t interface)
                                         NULL,
                                         NULL);
 
+  return status;
+}
+
+sl_status_t sl_wifi_configure_multicast_filter(sl_wifi_multicast_filter_info_t *multicast_filter_info)
+{
+  uint16_t multicast_bitmap = 0;
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  multicast_bitmap = (uint16_t)multicast_filter_info->command_type;
+
+  if ((multicast_filter_info->command_type == SL_WIFI_MULTICAST_MAC_ADD_BIT)
+      || (multicast_filter_info->command_type == SL_WIFI_MULTICAST_MAC_CLEAR_BIT)) {
+    multicast_bitmap |= (sli_multicast_mac_hash((uint8_t *)&(multicast_filter_info->mac_address)) << 8);
+  }
+
+  sl_status_t status = SL_STATUS_OK;
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_SET_MULTICAST_FILTER,
+                                        SI91X_WLAN_CMD_QUEUE,
+                                        &multicast_bitmap,
+                                        sizeof(multicast_bitmap),
+                                        SL_SI91X_WAIT_FOR(30100),
+                                        NULL,
+                                        NULL);
+
+  VERIFY_STATUS_AND_RETURN(status);
   return status;
 }

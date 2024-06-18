@@ -502,7 +502,14 @@ int32_t USART_Uninitialize(USART_RESOURCES *usart, UDMA_RESOURCES *udma)
     if ((usart->pREGS == UART0) || (usart->pREGS == USART0) || (usart->pREGS == UART1) || (usart->pREGS == ULP_UART)) {
       //unintialise dma
 #ifdef SL_SI91X_USART_DMA
-      if (sl_si91x_dma_deinit(dma_init.dma_number)) {
+      if (sl_si91x_dma_unregister_callbacks(dma_init.dma_number,
+                                            (usart->dma_tx->channel + 1),
+                                            SL_DMA_TRANSFER_DONE_CB | SL_DMA_ERROR_CB)) {
+        return ARM_DRIVER_ERROR;
+      }
+      if (sl_si91x_dma_unregister_callbacks(dma_init.dma_number,
+                                            (usart->dma_rx->channel + 1),
+                                            SL_DMA_TRANSFER_DONE_CB | SL_DMA_ERROR_CB)) {
         return ARM_DRIVER_ERROR;
       }
 #else
@@ -1473,34 +1480,10 @@ int32_t USART_Control(uint32_t control,
       case USART_TRIGGER_TX_EMPTY:
         fcr |= USART_FIFO_TX_EMPTY;
         break;
-      case USART_TRIGGER_TX_AEMPTY:
-        fcr |= USART_FIFO_TX_AEMPTY;
-        break;
-      case USART_TRIGGER_TX_QUARTER_FULL:
-        fcr |= USART_FIFO_TX_QUARTER_FULL;
-        break;
-      case USART_TRIGGER_TX_HALF_FULL:
-        fcr |= USART_FIFO_TX_HALF_FULL;
-        break;
-      default:
-        fcr |= USART_FIFO_TX_EMPTY;
-        break;
     }
     switch (RTE_USART0_RX_FIFO_THRESHOLD) {
       // Set the RX FIFO threshold level
       case USART_TRIGGER_RX_AEMPTY:
-        fcr |= USART_FIFO_RX_AEMPTY;
-        break;
-      case USART_TRIGGER_RX_QUARTER_FULL:
-        fcr |= USART_FIFO_RX_QUARTER_FULL;
-        break;
-      case USART_TRIGGER_RX_HALF_FULL:
-        fcr |= USART_FIFO_RX_HALF_FULL;
-        break;
-      case USART_TRIGGER_RX_AFULL:
-        fcr |= USART_FIFO_RX_AFULL;
-        break;
-      default:
         fcr |= USART_FIFO_RX_AEMPTY;
         break;
     }
@@ -1510,34 +1493,10 @@ int32_t USART_Control(uint32_t control,
       case USART_TRIGGER_TX_EMPTY:
         fcr |= USART_FIFO_TX_EMPTY;
         break;
-      case USART_TRIGGER_TX_AEMPTY:
-        fcr |= USART_FIFO_TX_AEMPTY;
-        break;
-      case USART_TRIGGER_TX_QUARTER_FULL:
-        fcr |= USART_FIFO_TX_QUARTER_FULL;
-        break;
-      case USART_TRIGGER_TX_HALF_FULL:
-        fcr |= USART_FIFO_TX_HALF_FULL;
-        break;
-      default:
-        fcr |= USART_FIFO_TX_EMPTY;
-        break;
     }
     switch (RTE_UART1_RX_FIFO_THRESHOLD) {
       // Set the RX FIFO threshold level
       case USART_TRIGGER_RX_AEMPTY:
-        fcr |= USART_FIFO_RX_AEMPTY;
-        break;
-      case USART_TRIGGER_RX_QUARTER_FULL:
-        fcr |= USART_FIFO_RX_QUARTER_FULL;
-        break;
-      case USART_TRIGGER_RX_HALF_FULL:
-        fcr |= USART_FIFO_RX_HALF_FULL;
-        break;
-      case USART_TRIGGER_RX_AFULL:
-        fcr |= USART_FIFO_RX_AFULL;
-        break;
-      default:
         fcr |= USART_FIFO_RX_AEMPTY;
         break;
     }
@@ -1547,34 +1506,10 @@ int32_t USART_Control(uint32_t control,
       case USART_TRIGGER_TX_EMPTY:
         fcr |= USART_FIFO_TX_EMPTY;
         break;
-      case USART_TRIGGER_TX_AEMPTY:
-        fcr |= USART_FIFO_TX_AEMPTY;
-        break;
-      case USART_TRIGGER_TX_QUARTER_FULL:
-        fcr |= USART_FIFO_TX_QUARTER_FULL;
-        break;
-      case USART_TRIGGER_TX_HALF_FULL:
-        fcr |= USART_FIFO_TX_HALF_FULL;
-        break;
-      default:
-        fcr |= USART_FIFO_TX_EMPTY;
-        break;
     }
     switch (RTE_ULP_UART_RX_FIFO_THRESHOLD) {
       // Set the RX FIFO threshold level
       case USART_TRIGGER_RX_AEMPTY:
-        fcr |= USART_FIFO_RX_AEMPTY;
-        break;
-      case USART_TRIGGER_RX_QUARTER_FULL:
-        fcr |= USART_FIFO_RX_QUARTER_FULL;
-        break;
-      case USART_TRIGGER_RX_HALF_FULL:
-        fcr |= USART_FIFO_RX_HALF_FULL;
-        break;
-      case USART_TRIGGER_RX_AFULL:
-        fcr |= USART_FIFO_RX_AFULL;
-        break;
-      default:
         fcr |= USART_FIFO_RX_AEMPTY;
         break;
     }

@@ -3,7 +3,7 @@
 * @brief
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -50,7 +50,7 @@
 #define APP_FW_VERSION "0.4"
 
 // Function prototypes
-extern void sl_wifi_app_task(void);
+extern void wifi_app_task(void);
 extern void rsi_ble_configurator_task(void *argument);
 void rsi_ble_configurator_init(void);
 uint8_t magic_word;
@@ -181,7 +181,7 @@ void application(void *argument)
   // BLE initialization
   rsi_ble_configurator_init();
 
-  sl_wifi_app_task();
+  wifi_app_task();
 
   return;
 }

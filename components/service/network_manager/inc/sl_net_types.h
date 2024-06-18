@@ -50,6 +50,8 @@
  * | SL_NET_PING_RESPONSE_EVENT           | @ref sl_si91x_ping_response_t          |
  * | SL_NET_DNS_RESOLVE_EVENT             | @ref sl_ip_address_t                   |
  * | SL_NET_OTA_FW_UPDATE_EVENT           | NULL incase of success else uint16_t chunk number incase of failure |
+ * | SL_NET_DHCP_NOTIFICATION_EVENT       | NULL                                   |
+ * | SL_NET_IP_ADDRESS_CHANGE_EVENT       | @ref sl_net_ip_configuration_t         |
  * | SL_NET_EVENT_COUNT                   | Not Applicable, Internally used by SDK |
  * @param status
  * sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details

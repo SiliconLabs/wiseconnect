@@ -13,24 +13,37 @@
 
 ## Purpose/Scope
 
-Ping is used diagnostically to ensure that a host computer the user is trying to reach is actually operating. Ping works by sending an Internet Control Message Protocol (ICMP) Echo Request to a specified interface on the network and waiting for a reply. The application demonstrates how to configure SiWx91x module in client mode to send ping request to target IP address.
+Ping is used diagnostically to ensure that a host computer that the user is trying to reach is actually operating. Ping works by sending an Internet Control Message Protocol (ICMP) Echo Request to a specified interface on the network and waiting for a reply. The application demonstrates how to configure the SiWx91x module in client mode to send a ping request to a target IP address.
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - A Windows PC.
-- A Wi-Fi Access Point.
-- SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A, BRD4339B](https://www.silabs.com/)
-- NCP Mode:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/)
-  - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+- USB-C cable
+- A Wireless Access point (which has an active internet access)
+
+- **SoC Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+  	  - BRD4338A [SiWx917-RB4338A]
+      - BRD4342A [SiWx917-RB4342A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+  	
+- **NCP Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP EFR Expansion Kit with NCP Radio board (BRD8045A + BRD4346A) [SiWx917-EB4346A]
+
 
 ### Software Requirements
 
 - Simplicity Studio
+-  Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en)
 
 ### Setup Diagram
 
@@ -49,14 +62,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-The application can be configured to suit your requirements and development environment.
-
-The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
+- The application can be configured to suit your requirements and development environment. Read through the following sections and make any changes as needed.
 - In the Project Explorer pane, expand the **config/** folder and open the ``sl_net_default_values.h`` file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
 - STA instance related parameters
 
-  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and Si91X module is connected to it.
+  - DEFAULT_WIFI_CLIENT_PROFILE_SSID refers to the name with which Wi-Fi network that shall be advertised and SiWx91x module is connected to it.
   
      ```c
      #define DEFAULT_WIFI_CLIENT_PROFILE_SSID               "YOUR_AP_SSID"      
@@ -70,13 +81,13 @@ The application can be configured to suit user requirements and development envi
 
   - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
 
-   ```c
-   #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE                             SL_WIFI_WPA2 
-   ```
+    ```c
+    #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE                             SL_WIFI_WPA2 
+    ```
   
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-- Configure the following parameters in ``app.c`` to test Station Ping application
+- Configure the following parameters in ``app.c`` to test Station Ping application.
 
   - **Remote peer configurations**
 
@@ -91,6 +102,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Flash, run and debug the application.
-- After the application gets executed successfully, the MAC addresses of the remote clients that gets connected or disconnected to the newly created Station Ping are printed on the console.
+- After successful connection with the Access Point, the device starts sending ping requests to the given REMOTE_IP_ADDRESS with configured PING_PACKET_SIZE to check availability of target device.
+
+- In rsi_station_ping.c file, when ping response comes from the remote node, it is known from the status parameter of the callback function (ping_callback_handler) registered.
 
   ![Station_Ping_Output](resources/readme/station_ping_output.png)

@@ -18,6 +18,9 @@
 #include "sl_si91x_sdio_secondary.h"
 #include "sl_si91x_peripheral_sdio_secondary.h"
 #include "sl_si91x_sdio_secondary_drv_config.h"
+#include "rsi_rom_gpdma.h"
+#include "rsi_rom_clks.h"
+#include "si91x_device.h"
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************

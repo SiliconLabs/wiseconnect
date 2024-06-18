@@ -35,7 +35,7 @@
 
 /*******************************************************************************
  * @addtogroup status Status Codes
- * @details Status Codes contains error and status code definitions used by GSDK
+ * @details Status Codes contains error and status code definitions used by SiSDK(formerly GSDK)
  *          software components and stacks. This module also provides routines to
  *          read the string linked with the error and status codes.
  * @{

@@ -66,6 +66,14 @@ void sl_gpio_configure_interrupt(sl_gpio_port_t port, uint8_t pin, uint32_t int_
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_INTR(int_no));
   GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PORT_NUMBER = port;
   GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PIN_NUMBER  = (sl_si91x_gpio_pin_t)pin;
+  // Enable GPIO interrupt rising and falling edge
+  if ((flags & SL_GPIO_INTERRUPT_RISE_FALL_EDGE) == SL_GPIO_INTERRUPT_RISE_FALL_EDGE) {
+    GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
+    GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
+  } else {
+    GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
+    GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
+  }
   // Enable GPIO interrupt falling edge
   if ((flags & SL_GPIO_INTERRUPT_FALL_EDGE) == SL_GPIO_INTERRUPT_FALL_EDGE) {
     GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
@@ -134,7 +142,7 @@ void sl_gpio_set_pin_mode(sl_gpio_port_t port, uint8_t pin, sl_gpio_mode_t mode,
     }
   }
   // if condition is satisfied when ULP GPIO instance occurs
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_MODE_PARAMETER(mode));
     ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.MODE = mode; // Set mode in ULP GPIO instance
   }
@@ -179,7 +187,7 @@ void sl_gpio_set_pin_mode(sl_gpio_port_t port, uint8_t pin, sl_gpio_mode_t mode,
 sl_gpio_mode_t sl_gpio_get_pin_mode(sl_gpio_port_t port, uint8_t pin)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     // Read status of the pin in ULP GPIO instance
     return (sl_gpio_mode_t)(ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.MODE);
@@ -215,14 +223,19 @@ void sl_si91x_gpio_set_pin_direction(uint8_t port, uint8_t pin, sl_si91x_gpio_di
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(direction));
-  if (port == SL_ULP_GPIO_PORT) {
+  if ((port == SL_GPIO_PORT_A) || (port == SL_GPIO_PORT_B) || (port == SL_GPIO_PORT_C) || (port == SL_GPIO_PORT_D)) {
+    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
+    // Set the pin direction in HP GPIO instance
+    GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].GPIO_CONFIG_REG_b.DIRECTION = direction;
+  } else if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     // Set the pin direction in ULP GPIO instance
     ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.DIRECTION = direction;
   } else {
-    SL_GPIO_ASSERT(SL_GPIO_NDEBUG_PORT_PIN(port, pin));
-    // Set the pin direction in HP GPIO instance
-    GPIO->PIN_CONFIG[(port * MAX_GPIO_PORT_PIN) + pin].GPIO_CONFIG_REG_b.DIRECTION = direction;
+    SL_GPIO_ASSERT(SL_GPIO_VALIDATE_UULP_PIN(pin));
+    SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(direction));
+    // Set direction(input/output) in UULP GPIO instance
+    UULP_GPIO->NPSS_GPIO_CNTRL[pin].NPSS_GPIO_CTRLS_b.NPSS_GPIO_OEN = direction;
   }
 }
 
@@ -252,7 +265,7 @@ void sl_si91x_gpio_set_pin_direction(uint8_t port, uint8_t pin, sl_si91x_gpio_di
 uint8_t sl_si91x_gpio_get_pin_direction(uint8_t port, uint8_t pin)
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     // Get the pin direction in ULP GPIO instance
     return ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.DIRECTION;
@@ -315,17 +328,23 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum)
   A value of 1 on this gives control to M4SS(by default it is 0 means ta control) */
     PADSELECTION |= BIT(gpio_padnum);
   }
-  if (gpio_padnum >= HOST_PAD_MIN && gpio_padnum <= HOST_PAD_MAX) {
-    // (tass_m4ss_gpio_sel)PAD selection (25 to 30)
-    // A value of 1 on this gives control to M4SS(by default it is 0)
-    HOST_PADS_GPIO_MODE |= BIT(gpio_padnum - HOST_PAD_SELECT);
-    // (tass_m4ss_gpio_sel)PAD selection (22 to 33)
-    // A value of 1 on this gives control to M4SS(by default it is 0 means ta control)
-  }
   if (gpio_padnum >= PAD_SELECT) {
     /*(tass_m4ss_gpio_sel)PAD selection (22 to 33)
   A value of 1 on this gives control to M4SS(by default it is 0 means ta control) */
     PADSELECTION_1 |= BIT(gpio_padnum - PAD_SELECT);
+  }
+}
+
+/*******************************************************************************
+ * This API is used to enable PAD selection in GPIO HP instance.
+ *  @note: GPIO pin number(25 to 30) are used for HOST PAD selection.
+*******************************************************************************/
+void sl_si91x_gpio_enable_host_pad_selection(uint8_t gpio_num)
+{
+  if (gpio_num >= HOST_PAD_MIN && gpio_num <= HOST_PAD_MAX) {
+    // (tass_m4ss_gpio_sel)PAD selection (25 to 30)
+    // A value of 1 on this gives control to M4SS(by default it is 0)
+    HOST_PADS_GPIO_MODE |= BIT(gpio_num - HOST_PAD_SELECT);
   }
 }
 
@@ -428,7 +447,7 @@ void sl_si91x_gpio_enable_group_interrupt(sl_si91x_group_interrupt_t group_inter
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
   // Enable group interrupt in ULP GPIO instance
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_CTRL_REG_b.ENABLE_INTERRUPT = ENABLE;
     // Enable group interrupt 1 in ULP GPIO instance
@@ -464,7 +483,7 @@ void sl_si91x_gpio_disable_group_interrupt(sl_si91x_group_interrupt_t group_inte
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
   // Disable group interrupt in ULP GPIO instance
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_CTRL_REG_b.ENABLE_INTERRUPT = DISABLE;
     // Disable group interrupt 1 in ULP GPIO instance
@@ -491,7 +510,7 @@ void sl_si91x_gpio_mask_group_interrupt(uint8_t port, sl_si91x_group_interrupt_t
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     // Enable group interrupt mask in ULP GPIO instance
     ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_CTRL_REG_b.MASK = ENABLE;
   } else {
@@ -511,7 +530,7 @@ void sl_si91x_gpio_unmask_group_interrupt(uint8_t port, sl_si91x_group_interrupt
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     // Disable group interrupt mask in ULP GPIO instance
     ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_CTRL_REG_b.MASK = DISABLE;
   } else {
@@ -534,7 +553,7 @@ void sl_si91x_gpio_set_group_interrupt_level_edge(uint8_t port,
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(level_edge));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     // Enable group level edge interrupt in ULP GPIO instance
     ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_CTRL_REG_b.LEVEL_EDGE = level_edge;
   } else {
@@ -551,7 +570,7 @@ uint8_t sl_si91x_gpio_get_group_interrupt_level_edge(uint8_t port, sl_si91x_grou
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     // Get group level edge interrupt in ULP GPIO instance
     return ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_CTRL_REG_b.LEVEL_EDGE;
   } else {
@@ -578,7 +597,7 @@ void sl_si91x_gpio_set_group_interrupt_polarity(sl_si91x_group_interrupt_t group
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(polarity));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     // Set group interrupt polarity in ULP GPIO instance
     if (group_interrupt == GROUP_INT_1) {
@@ -610,7 +629,7 @@ uint8_t sl_si91x_gpio_get_group_interrupt_polarity(sl_si91x_group_interrupt_t gr
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin));
     // Get group interrupt polarity in ULP GPIO instance
     return ULP_GPIO->PIN_CONFIG[pin].GPIO_CONFIG_REG_b.GROUP_INTERRUPT1_POLARITY;
@@ -644,7 +663,7 @@ void sl_si91x_gpio_select_group_interrupt_and_or(uint8_t port,
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(and_or));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     // Set group interrupt OR in ULP GPIO instance
     if ((and_or & SL_GPIO_GROUP_INTERRUPT_OR) == (SL_GPIO_GROUP_INTERRUPT_OR)) {
       ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_CTRL_REG_b.AND_OR = SET;
@@ -748,6 +767,14 @@ void sl_si91x_gpio_configure_ulp_pin_interrupt(uint8_t int_no,
   // Pin interrupt configuration in ULP GPIO instance
   ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PORT_NUMBER = ULP_PORT_NUM;
   ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.PIN_NUMBER  = pin;
+  // Enable GPIO interrupt rising and falling edge
+  if ((flags & SL_GPIO_INTERRUPT_RISE_FALL_EDGE) == SL_GPIO_INTERRUPT_RISE_FALL_EDGE) {
+    ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
+    ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
+  } else {
+    ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.RISE_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
+    ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_DISABLE;
+  }
   // Enable or disable GPIO interrupt falling edge
   if ((flags & SL_GPIO_INTERRUPT_FALL_EDGE) == SL_GPIO_INTERRUPT_FALL_EDGE) {
     ULP_GPIO->INTR[int_no].GPIO_INTR_CTRL_b.FALL_EDGE_ENABLE = SL_GPIO_INTERRUPT_ENABLE;
@@ -792,21 +819,21 @@ void sl_si91x_gpio_configure_ulp_group_interrupt(sl_si91x_gpio_group_interrupt_c
   uint8_t int_pin_count;
   // Group interrupt pin configuration in ULP GPIO instance
   for (int_pin_count = 0; int_pin_count < configuration->grp_interrupt_cnt; int_pin_count++) {
-    sl_gpio_set_pin_mode(SL_ULP_GPIO_PORT, configuration->grp_interrupt_pin[int_pin_count], SL_GPIO_MODE_0, SET);
-    sl_si91x_gpio_set_pin_direction(SL_ULP_GPIO_PORT, configuration->grp_interrupt_pin[int_pin_count], GPIO_INPUT);
+    sl_gpio_set_pin_mode(SL_GPIO_ULP_PORT, configuration->grp_interrupt_pin[int_pin_count], SL_GPIO_MODE_0, SET);
+    sl_si91x_gpio_set_pin_direction(SL_GPIO_ULP_PORT, configuration->grp_interrupt_pin[int_pin_count], GPIO_INPUT);
     sl_si91x_gpio_enable_ulp_pad_receiver(configuration->grp_interrupt_pin[int_pin_count]);
     sl_si91x_gpio_set_group_interrupt_polarity(configuration->grp_interrupt,
-                                               SL_ULP_GPIO_PORT,
+                                               SL_GPIO_ULP_PORT,
                                                configuration->grp_interrupt_pin[int_pin_count],
                                                configuration->grp_interrupt_pol[int_pin_count]);
-    sl_si91x_gpio_set_group_interrupt_level_edge(SL_ULP_GPIO_PORT,
+    sl_si91x_gpio_set_group_interrupt_level_edge(SL_GPIO_ULP_PORT,
                                                  configuration->grp_interrupt,
                                                  configuration->level_edge);
-    sl_si91x_gpio_select_group_interrupt_and_or(SL_ULP_GPIO_PORT, configuration->grp_interrupt, configuration->and_or);
+    sl_si91x_gpio_select_group_interrupt_and_or(SL_GPIO_ULP_PORT, configuration->grp_interrupt, configuration->and_or);
     sl_si91x_gpio_enable_group_interrupt(configuration->grp_interrupt,
-                                         SL_ULP_GPIO_PORT,
+                                         SL_GPIO_ULP_PORT,
                                          configuration->grp_interrupt_pin[int_pin_count]);
-    sl_si91x_gpio_unmask_group_interrupt(SL_ULP_GPIO_PORT, configuration->grp_interrupt);
+    sl_si91x_gpio_unmask_group_interrupt(SL_GPIO_ULP_PORT, configuration->grp_interrupt);
   }
   // NVIC enable for ULP group interrupt
   NVIC_EnableIRQ(ULP_GROUP_INTERRUPT_NAME);
@@ -831,7 +858,7 @@ uint32_t sl_si91x_gpio_get_group_interrupt_status(uint8_t port, sl_si91x_group_i
 {
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     // Get group interrupt status in ULP GPIO instance
     return ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_STS;
   } else {
@@ -851,7 +878,7 @@ void sl_si91x_gpio_select_group_interrupt_wakeup(uint8_t port,
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PORT(port));
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(group_interrupt));
   // Enables or Disables wakeup group interrupt in ULP GPIO instance
-  if (port == SL_ULP_GPIO_PORT) {
+  if (port == SL_GPIO_ULP_PORT) {
     if ((flags & SL_GPIO_GROUP_INTERRUPT_WAKEUP) == (SL_GPIO_GROUP_INTERRUPT_WAKEUP)) {
       ULP_GPIO->GPIO_GRP_INTR[group_interrupt].GPIO_GRP_INTR_CTRL_REG_b.ENABLE_WAKEUP = SET;
     } else {
@@ -1186,6 +1213,14 @@ void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_
   npssgpio_interrupt = BIT(npssgpio_interrupt);
   // Unmask NPSS interrupt
   sl_si91x_gpio_unmask_uulp_npss_interrupt(npssgpio_interrupt);
+  // Enable GPIO interrupt rising and falling edge
+  if ((flags & SL_GPIO_INTERRUPT_RISE_FALL_EDGE) == SL_GPIO_INTERRUPT_RISE_FALL_EDGE) {
+    GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_0);
+    GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_8);
+  } else {
+    GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_0);
+    GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_8);
+  }
   // Enable or disable interrupt rising edge in UULP GPIO instance
   if ((flags & SL_GPIO_INTERRUPT_RISE_EDGE) == SL_GPIO_INTERRUPT_RISE_EDGE) {
     GPIO_NPSS_GPIO_CONFIG_REG |= (npssgpio_interrupt << BIT_0);
@@ -1211,7 +1246,6 @@ void sl_si91x_gpio_configure_uulp_interrupt(sl_si91x_gpio_interrupt_config_flag_
     GPIO_NPSS_GPIO_CONFIG_REG &= ~((uint32_t)npssgpio_interrupt << BIT_24);
   }
   NVIC_EnableIRQ(UULP_PININT_NVIC_NAME);
-  NVIC_SetPriority(UULP_PININT_NVIC_NAME, PRIORITY_21);
 }
 
 /*******************************************************************************

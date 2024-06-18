@@ -18,6 +18,8 @@ description: >
 category: Device|Si91x|MCU|Service
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/service/nvm3"
+config_file:
+  - path: config/nvm3_default_config.h
 requires:
   - name: nvm3_default
   - name: sl_si91x_common_flash_nvm3

@@ -1011,15 +1011,17 @@ static const console_descriptive_command_t _wifi_send_raw_data_command = {
 
 extern sl_status_t wifi_set_advanced_client_config_command_handler(console_args_t *arguments);
 static const char *_wifi_set_advanced_client_config_arg_help[] = {
-  0, 0, 0, 0, 0,
+  0,
+  0,
+  0,
+  0,
 };
 
 static const console_descriptive_command_t _wifi_set_advanced_client_config_command = {
   .description   = "Set advanced client config",
   .argument_help = _wifi_set_advanced_client_config_arg_help,
   .handler       = wifi_set_advanced_client_config_command_handler,
-  .argument_list = { CONSOLE_OPTIONAL_ARG('o', CONSOLE_ARG_UINT),
-                     CONSOLE_OPTIONAL_ARG('r', CONSOLE_ARG_UINT),
+  .argument_list = { CONSOLE_OPTIONAL_ARG('r', CONSOLE_ARG_UINT),
                      CONSOLE_OPTIONAL_ARG('i', CONSOLE_ARG_UINT),
                      CONSOLE_OPTIONAL_ARG('b', CONSOLE_ARG_UINT),
                      CONSOLE_OPTIONAL_ARG('f', CONSOLE_ARG_UINT),

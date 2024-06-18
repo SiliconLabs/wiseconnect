@@ -44,7 +44,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -93,6 +93,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   
 - Because of the GPIO workarounds described above, the DAC output in BRD4338a is read internally, supplied to OPAMP1, and allows the user to see the OPAMP1 output on the GPIO_30[P35] pin.
 
+> **Note:**
+>
+> - For BRD4338A, ULP GPIO_4 is not available, so the pintool annotation for DAC is bypassed.
+> - Some boards do not have the DAC output pin ULP_GPIO_4. Therefore, the output is internally redirected to OPAMP pin GPIO_30.
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
@@ -132,3 +137,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > DAC_output = ((input sample/1024(2^10)) * Vref Voltage);
 >
 > > **Note:** If input sample value is '0x33A' and voltage reference is 2.8v, then DAC_output = ((0x33A/1024) * 2.8).
+
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

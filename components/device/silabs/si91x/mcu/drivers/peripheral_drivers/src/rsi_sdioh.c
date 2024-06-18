@@ -19,7 +19,7 @@
 
 #include "rsi_ccp_user_config.h"
 #if defined(CHIP_9118)
-#include "rsi_chip.h"
+
 #include "clock_update.h"
 
 /*==============================================*/

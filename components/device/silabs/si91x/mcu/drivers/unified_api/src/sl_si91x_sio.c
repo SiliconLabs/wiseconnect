@@ -30,7 +30,8 @@
 #include "sl_si91x_sio.h"
 #include "sl_si91x_sio_config.h"
 #include "sl_si91x_peripheral_gpio.h"
-#include "rsi_chip.h"
+#include "rsi_rom_clks.h"
+#include "clock_update.h"
 /*******************************************************************************
  ***************************  LOCAL MACROS   ***********************************
  ******************************************************************************/

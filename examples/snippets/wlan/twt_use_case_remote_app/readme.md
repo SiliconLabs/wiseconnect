@@ -1,4 +1,4 @@
-# Wi-Fi - TWT Use case demo app
+# Wi-Fi - TWT Use Case Remote app
 
 - [Purpose/Scope](#purposescope) 
 - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
@@ -13,22 +13,22 @@
 
 ## Purpose/Scope
 
-The **TWT Use Case Remote App** is an application that utilizes both TCP and UDP server sockets. Once a TCP client is connected, a trigger is sent over the TCP socket. Following this, in the scenario of a door lock, TCP data is received, while UDP data is received in the case of a camera. This application does **not** include TWT sleep feature and is intended to be used in conjunction with the TWT Use Case Demo App.
+The **TWT Use Case Remote App** works in conjunction with the **TWT Use Case Demo App** (Path: SDK\examples\snippets\wlan\wifi6_twt_use_case_demo) to demonstrate the TWT feature for scenarios similar to door locks and cameras. This application sends a trigger over a TCP socket to the TWT Use Case Demo App at specific intervals after connection. In response, it receives TCP data in the door lock scenario and UDP data in the camera scenario. 
+
+This application does **not** include TWT sleep.
+
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements  
 
 - PC or Mac.
-- Linux PC or Cygwin on Windows (to build and run the TCP server source provided)
-- Wi-Fi Access point with a connection to the internet
+- Wi-Fi Access point with 11ax and TWT responder mode support.
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -48,7 +48,14 @@ The **TWT Use Case Remote App** is an application that utilizes both TCP and UDP
 
 ### Setup Diagram
 
-![Figure: Setup Diagram for TWT Use Case Remote AppExample: SoC](resources/readme/twt_tcp_client_udp_client_soc_ncp.png) 
+ **SoC**
+![Figure: Setup Diagram for TWT Use Case Remote AppExample: SoC](resources/readme/twt_tcpandudpclient_soc.png) 
+ 
+ **NCP**
+![Figure: Setup Diagram for TWT Use Case Remote AppExample: SoC](resources/readme/twt_tcpclient_udp_client_ncp.png) 
+
+**NOTE**: 
+- The Host MCU platform (EFR32xG21) and the SiWx91x interact with each other through the SPI interface. 
 
 ## Getting Started
 
@@ -69,17 +76,17 @@ The application can be configured to suit your requirements and development envi
 
 In the Project Explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
-This application is designed to be used alongside the TWT Use Case Demo Application. Together, these two applications simulate scenarios involving door locks and cameras. 
+This application, used with the TWT Use Case Demo Application, simulates door lock and camera scenarios.
 
-In the camera scenario, the remote application (Device A) sends a command to the DUT (Device B, where the TWT Use Case Application is running). Upon receiving the command, Device B responds by sending UDP data (equivalent to camera streaming) to the remote application. 
+In the camera scenario, the remote app (Device A) sends a command to the Device Under Test (DUT, Device B). Device B responds with UDP data, simulating camera streaming.
 
-In the door lock scenario, Device B sends a TCP response (equivalent to door lock status response) to the remote application (Device A) upon receiving the command from Device A. 
+In the door lock scenario, upon receiving a command from Device A, Device B sends a TCP response, simulating a door lock status response.
 
-To support these scenarios, this app creates a TCP server to listen for connections and trigger commands to Device B periodically. After transmitting the command, Device A waits for a TCP/UDP response based on the use case being executed. 
+The app operates a TCP server, periodically sending commands to Device B and awaiting a TCP/UDP response, depending on the scenario.
 
-On the other end, Device B is set up as a TCP client and, if the SEND_TCP_DATA macro is disabled in that application for the camera scenario, it also brings up a UDP client. 
+Device B functions as a TCP client and, if the DOOR_LOCK_SIMULATION macro is disabled for the camera scenario, also as a UDP client.
 
-This application also measures Round Trip Time (RTT) in milliseconds. RTT is calculated as the difference between the time the command is sent and the time the first response packet is received.
+The application measures Round Trip Time (RTT) in milliseconds, calculated from when the command is sent to when the first response packet is received.
 
 - **STA instance related parameters**
 
@@ -98,7 +105,7 @@ This application also measures Round Trip Time (RTT) in milliseconds. RTT is cal
   - For Doorlock use case, TCP_RECEIVE should be 1 and for camera streaming scenario TCP_RECEIVE should be 0.
 
 - **Configure the following parameters in app.c**
-  - Configure RECEIVE_DATA_TIMEOUT. It is the interval between two successive trigger commands from the application. It is in milli seconds.
+  - Configure RECEIVE_DATA_TIMEOUT. It is the interval between two successive trigger commands from the application. It is in milli seconds. It should be greater than [rx_latency](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#rx-latency) configured in **TWT Use Case Demo App** 
 
   - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
@@ -109,24 +116,6 @@ This application also measures Round Trip Time (RTT) in milliseconds. RTT is cal
       #define TCP_LISTENING_PORT 5001
       #define UDP_LISTENING_PORT 5002            
       ```
-
-  - IP address Configuration  
-    - DHCP_MODE refers to whether the IP address is configured through DHCP or STATIC.
-
-    ```c
-     //! Whether IP address is configured through DHCP or STATIC
-     #define DHCP_MODE               1           
-    ```
-  
-     >- If user wants to configure STA IP address through DHCP, then set DHCP_MODE to "1" and skip configuring the following DEVICE_IP, GATEWAY and NETMASK macros.
-                                          (Or)
-     >- If user wants to configure STA IP address through STATIC,  then set DHCP_MODE macro to "0" and configure following DEVICE_IP, GATEWAY and NETMASK macros.
-
-     ```c
-       #define DEVICE_IP              "192.168.10.1"
-       #define GATEWAY                "192.168.10.1"
-       #define NETMASK                "255.255.255.0"
-     ```
 
 ## Test the Application
 

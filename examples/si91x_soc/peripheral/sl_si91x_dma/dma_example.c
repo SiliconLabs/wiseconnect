@@ -25,23 +25,30 @@
 #include "sl_common.h"
 #include "sl_si91x_dma.h"
 #include "rsi_debug.h"
-#include "sl_si91x_dma_inst_config.h"
+#include "sl_si91x_dma_config.h"
 #include "dma_example.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SL_DMA_SIMPLE_TRANSFER 1 //Enable/Disable simple transfer
+#define DMA_SIMPLE_TRANSFER 1    //Enable/Disable simple transfer
+#define DMA_INSTANCE        0    //DMA0 instance
+#define DMA_CHANNEL         32   //DMA0 channel number
+#define DMA_TRANSFER_SIZE   2048 //DMA transfer size
+
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  Local variables   ***************************
  ******************************************************************************/
-volatile uint32_t transfer_done = 0;         //Transfer done flag
-uint32_t src0[SL_DMA_TRANSFER_SIZE];         //source buffer
-uint32_t dst0[SL_DMA_TRANSFER_SIZE] = { 0 }; //destination buffer
+volatile uint32_t transfer_done = 0;      //Transfer done flag
+uint32_t src0[DMA_TRANSFER_SIZE];         //source buffer
+uint32_t dst0[DMA_TRANSFER_SIZE] = { 0 }; //destination buffer
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-
+static void default_clock_configuration(void);
 /*******************************************************************************
  * Transfer callback function.
  ******************************************************************************/
@@ -64,6 +71,16 @@ void transfer_complete_callback_dmadrv(uint32_t channel, void *data)
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
 
 /*******************************************************************************
  * DMA example initialization function
@@ -72,9 +89,12 @@ void transfer_complete_callback_dmadrv(uint32_t channel, void *data)
 void dma_example_init(void)
 {
   sl_status_t status = SL_STATUS_OK;
-  uint32_t channel   = SL_DMA_CHANNEL;
+  uint32_t channel   = DMA_CHANNEL;
   sl_dma_callback_t callbacks;
-  sl_dma_init_t dma_init = { SL_DMA_INSTANCE };
+  sl_dma_init_t dma_init = { DMA_INSTANCE };
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
 
   do {
     //Initialize UDMA peripheral
@@ -88,7 +108,7 @@ void dma_example_init(void)
       DEBUGOUT("\r\nUDMA Initialization Success\r\n");
     }
     //Allocate channel for transfer
-    status = sl_si91x_dma_allocate_channel(SL_DMA_INSTANCE, &channel, 0);
+    status = sl_si91x_dma_allocate_channel(DMA_INSTANCE, &channel, 0);
     if (status) {
       //Channel allocation failed
       DEBUGOUT("\r\nChannel not allocated\r\n");
@@ -100,7 +120,7 @@ void dma_example_init(void)
     callbacks.transfer_complete_cb = transfer_complete_callback_dmadrv;
 
     //Register transfer complete callback
-    status = sl_si91x_dma_register_callbacks(SL_DMA_INSTANCE, channel, &callbacks);
+    status = sl_si91x_dma_register_callbacks(DMA_INSTANCE, channel, &callbacks);
     if (status) {
       //Callback registration success
       DEBUGOUT("\r\nCallbacks not registered\r\n");
@@ -111,12 +131,12 @@ void dma_example_init(void)
     }
 
     // Filled data in source buffer
-    for (int i = 0; i < SL_DMA_TRANSFER_SIZE; i++) {
+    for (int i = 0; i < DMA_TRANSFER_SIZE; i++) {
       src0[i] = (uint32_t)(i + 1);
     }
-#if SL_DMA_SIMPLE_TRANSFER
+#if DMA_SIMPLE_TRANSFER
     //Perform DMA transfer using simple dma transfer API
-    status = sl_si91x_dma_simple_transfer(SL_DMA_INSTANCE, channel, src0, dst0, SL_DMA_TRANSFER_SIZE);
+    status = sl_si91x_dma_simple_transfer(DMA_INSTANCE, channel, src0, dst0, DMA_TRANSFER_SIZE);
 #else
     sl_dma_xfer_t dma_transfer_t = { 0 };
     //Update source and destination address
@@ -128,12 +148,12 @@ void dma_example_init(void)
     //Update the single data transfer size
     dma_transfer_t.xfer_size = SL_TRANSFER_SIZE_32;
     //Update total DMA transfer size
-    dma_transfer_t.transfer_count = SL_DMA_TRANSFER_SIZE;
+    dma_transfer_t.transfer_count = DMA_TRANSFER_SIZE;
     //Update DMA transfer type and mode
     dma_transfer_t.dma_mode      = SL_DMA_BASIC_MODE;
     dma_transfer_t.transfer_type = SL_DMA_MEMORY_TO_MEMORY;
     //Perform DMA transfer using generic dma transfer API
-    status = sl_si91x_dma_transfer(SL_DMA_INSTANCE, channel, &dma_transfer_t);
+    status = sl_si91x_dma_transfer(DMA_INSTANCE, channel, &dma_transfer_t);
 #endif
     if (status) {
       //Transfer start failed
@@ -154,7 +174,7 @@ void dma_example_process_action(void)
     //DMA transfer done
     DEBUGOUT("\r\nTransfer completed successfully\r\n");
     //De-initialize DMA peripheral
-    if (sl_si91x_dma_deinit(SL_DMA_INSTANCE)) {
+    if (sl_si91x_dma_deinit(DMA_INSTANCE)) {
       DEBUGOUT("\r\nFailed to Uninitialize UDMA\r\n");
     } else {
       DEBUGOUT("\r\nUDMA Uninitialization Success\r\n");

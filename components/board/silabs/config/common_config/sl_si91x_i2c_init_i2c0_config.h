@@ -71,9 +71,6 @@ extern "C" {
 #ifndef SL_I2C0_PERIPHERAL
 #define SL_I2C0_PERIPHERAL I2C0
 #endif
-#ifndef SL_I2C0_PERIPHERAL_NO
-#define SL_I2C0_PERIPHERAL_NO 0
-#endif
 
 // I2C0 SCL on GPIO_7
 #ifndef SL_I2C0_SCL_PORT
@@ -94,7 +91,7 @@ extern "C" {
 #define SL_I2C0_SDA_PIN 6
 #endif
 #ifndef SL_I2C0_SDA_LOC
-#define SL_I2C0_SDA_LOC 0
+#define SL_I2C0_SDA_LOC 3
 #endif
 // [I2C_SL_I2C0]$
 // <<< sl:end pin_tool >>>

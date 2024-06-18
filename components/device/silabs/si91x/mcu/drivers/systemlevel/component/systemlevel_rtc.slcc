@@ -16,3 +16,5 @@ include:
     - path: "rsi_rtc.h"
 provides:
   - name: systemlevel_rtc
+requires:
+  - name: systemlevel_time_period

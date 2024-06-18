@@ -61,7 +61,6 @@
 
 // Defines for error logging
 #define PRINT_ERROR_LOGS 0
-#define PRINT_DEBUG_LOG  0
 
 #define PRINT_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%lu \r\n", tag, __FILE__, __LINE__, status);
 
@@ -149,7 +148,7 @@
       }                                  \
       return status;                     \
     }                                    \
-  } while (0);
+  } while (0)
 
 #define VERIFY_STATUS_AND_GOTO(status, goto_label) \
   do {                                             \
@@ -171,7 +170,11 @@ extern void sl_debug_log(const char *format, ...);
     sl_debug_log("%s:%s:%d:" format "\r\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
   } while (0)
 #else
-#define SL_DEBUG_LOG(format, ...)
+extern void sl_redirect_log(const char *format, ...);
+#define SL_DEBUG_LOG(format, ...)                                                            \
+  do {                                                                                       \
+    sl_redirect_log("%s:%s:%d:" format "\r\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+  } while (0)
 #endif
 
 #define SL_COMPILE_TIME_ASSERT(condition, comment) typedef char assertion_failed__##comment[2 * !!(condition)-1];

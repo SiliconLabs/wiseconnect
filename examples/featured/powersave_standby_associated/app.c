@@ -186,7 +186,20 @@ static void application_start(void *argument)
   printf("\r\nExample Demonstration Completed\r\n");
 
 #ifdef SLI_SI91X_MCU_INTERFACE
+
+#if (SL_SI91X_TICKLESS_MODE == 0)
   sl_si91x_m4_sleep_wakeup();
+#else
+  osSemaphoreId_t wait_semaphore;
+  wait_semaphore = osSemaphoreNew(1, 0, NULL);
+  if (wait_semaphore == NULL) {
+    printf("Failed to create semaphore\r\n");
+    return;
+  }
+  // Waiting forever using semaphore to put M4 to sleep in tick less mode
+  osSemaphoreAcquire(wait_semaphore, osWaitForever);
+#endif
+
 #endif
 }
 
@@ -204,7 +217,7 @@ sl_status_t send_data(void)
     printf("\r\nSocket Create failed with bsd error: %d\r\n", errno);
     return SL_STATUS_FAIL;
   }
-  printf("\r\nsocket creation success\r\n");
+  printf("\r\nUDP Client Socket Creation Success\r\n");
 
   sl_net_inet_addr((char *)SERVER_IP_ADDRESS, (uint32_t *)&server_ip);
 
@@ -224,7 +237,7 @@ sl_status_t send_data(void)
     packet_count++;
   }
 
-  printf("total number of bytes sent: %ld\n", total_num_of_bytes);
+  printf("\r\nTotal number of bytes sent: %ld\r\n", total_num_of_bytes);
   close(socket_fd);
 
   return SL_STATUS_OK;

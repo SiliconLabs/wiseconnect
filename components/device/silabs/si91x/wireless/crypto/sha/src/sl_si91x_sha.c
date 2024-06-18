@@ -42,7 +42,7 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
                                          uint8_t *digest)
 {
   // Input pointer check
-  if (msg == NULL) {
+  if ((msg == NULL) && (msg_length != 0)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   sl_status_t status = SL_STATUS_OK;
@@ -94,7 +94,6 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
-  SL_ASSERT(packet->length == sha_digest_len_table[sha_mode]);
   memcpy(digest, packet->data, sha_digest_len_table[sha_mode]);
 
   free(request);
@@ -167,32 +166,51 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
   return status;
 #else
 
-  while (total_len) {
-    // Check total length
-    if (total_len > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {
-      chunk_len = SL_SI91X_MAX_DATA_SIZE_IN_BYTES;
-      if (offset == 0) {
-        // Make sha_flag as first chunk
-        sha_flags |= FIRST_CHUNK;
+  if (total_len != 0) {
+    while (total_len) {
+      // Check total length
+      if (total_len > SL_SI91X_MAX_DATA_SIZE_IN_BYTES) {
+        chunk_len = SL_SI91X_MAX_DATA_SIZE_IN_BYTES;
+        if (offset == 0) {
+          // Make sha_flag as first chunk
+          sha_flags |= FIRST_CHUNK;
+        } else {
+          // Make sha_flag as Middle chunk
+          sha_flags = MIDDLE_CHUNK;
+        }
       } else {
-        // Make sha_flag as Middle chunk
-        sha_flags = MIDDLE_CHUNK;
-      }
-    } else {
-      chunk_len = total_len;
+        chunk_len = total_len;
 
-      // Make sha_flag as Last chunk
-      sha_flags = LAST_CHUNK;
-      if (offset == 0) {
-        /* If the total length is less than 1400 and offset is zero,
-           make sha_flag as both first chunk as well as last chunk*/
-        sha_flags |= FIRST_CHUNK;
+        // Make sha_flag as Last chunk
+        sha_flags = LAST_CHUNK;
+        if (offset == 0) {
+          /* If the total length is less than 1400 and offset is zero,
+             make sha_flag as both first chunk as well as last chunk*/
+          sha_flags |= FIRST_CHUNK;
+        }
       }
+
+      // Send the current chunk length message
+      status = sli_si91x_sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
+
+      if (status != SL_STATUS_OK) {
+        SL_PRINTF(SL_SHA_CHUNK_LENGTH_MSG_ERROR, CRYPTO, LOG_ERROR, "status: %4x", status);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+        mutex_result = sl_si91x_crypto_mutex_release(crypto_sha_mutex);
+#endif
+        return status;
+      }
+
+      // Increment the offset value
+      offset += chunk_len;
+      msg += chunk_len;
+
+      // Decrement the total message length
+      total_len -= chunk_len;
     }
-
-    // Send the current chunk length message
-    status = sli_si91x_sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
-
+  } else {
+    sha_flags = LAST_CHUNK | FIRST_CHUNK;
+    status    = sli_si91x_sha_pending(sha_mode, msg, msg_length, chunk_len, sha_flags, digest);
     if (status != SL_STATUS_OK) {
       SL_PRINTF(SL_SHA_CHUNK_LENGTH_MSG_ERROR, CRYPTO, LOG_ERROR, "status: %4x", status);
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
@@ -200,13 +218,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
 #endif
       return status;
     }
-
-    // Increment the offset value
-    offset += chunk_len;
-    msg += chunk_len;
-
-    // Decrement the total message lenth
-    total_len -= chunk_len;
   }
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)

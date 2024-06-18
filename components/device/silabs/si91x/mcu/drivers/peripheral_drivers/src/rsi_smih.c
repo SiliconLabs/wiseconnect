@@ -19,7 +19,6 @@
 
 #include "rsi_ccp_user_config.h"
 #if defined(CHIP_9118)
-#include "rsi_chip.h"
 
 static SMIH_TRANSFER_T *CommandInProgress = 0;
 static SMIH_CONFIG_MODES_T *modesConfig   = 0;

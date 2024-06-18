@@ -49,13 +49,13 @@
 - Now repeated start is enabled for data transfer using \ref sl_i2c_driver_enable_repeated_start API. So that master continue read operation after write operation without releasing line.
 - Now write_buffer is filled with some data which needs to be sent to the follower.
 - Current_mode enum is set to I2C_SEND_DATA and it calls send_data API to send data to follower & configures follower address through \ref sl_i2c_driver_send_data_blocking (for blocking Application) or through \ref sl_i2c_driver_send_data_non_blocking (for Non-blocking Application).
-- For Blocking usecase: When all bytes are sent then mode changes to I2C_RECEIVE_DATA (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are sent).
+- For Blocking usecase: When all bytes are sent then mode changes to I2C_RECEIVE_DATA (Blocking API won't update any transfer complete flag, as control will be blocked until all bytes are sent).
 - For Non-Blocking usecase: After that it will wait till all the data is transferred to the follower device & once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_RECEIVE_DATA.
 - Before receiving data from slave, disabled repeated start using \ref sl_i2c_driver_enable_repeated_start API. So that stop bit should be added at the end of data transfer.
 - Then it receives data from follower through \ref sl_i2c_driver_receive_data_blocking (for blocking Application) or through \ref sl_i2c_driver_receive_data_non_blocking (for Non-blocking Application).
 - Now it compares the data which is received from the follower device to the data which it has sent.
 - If the send & receive data is same, it will print Test Case Passed on the console.
-- For Blocking usecase: When all bytes are received then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked untill all bytes are received).
+- For Blocking usecase: When all bytes are received then mode changes to I2C_TRANSMISSION_COMPLETED (Blocking API won't update any transfer complete flag, as control will be blocked until all bytes are received).
 - For Non Blocking usecase: After calling receive_data, it will wait till all the data is received from the follower device & once the i2c callback function sets transfer_complete flag, it changes current_mode enum to I2C_TRANSMISSION_COMPLETED.
 - I2C driver gets in I2C_TRANSMISSION_COMPLETED mode and stays idle.
 
@@ -78,7 +78,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output)
 
 ### Setup Diagram
 
@@ -119,12 +119,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     #define I2C_SIZE_BUFFERS             // To change the number of bytes to send and receive.Its value should be less than maximum buffer size macro value.
   ```
 
-> **Note:** Enable either BLOCKING application or NON-BLOCKING application macro, at a time. For I2C0 instance change the value of following macros in path: /$project/config/RTE_Device_917.h
-
-```c
-  #define RTE_I2C0_SCL_PORT_ID 0   // SCL pin port id
-  #define RTE_I2C0_SDA_PORT_ID 0   //SDA pin port id
-```
+> **Note:** Enable either BLOCKING application or NON-BLOCKING application macro, at a time. 
 
 > **Note:** After above configurations connect SCL and SDA pins of Leader and follower then run the application and observe the results by connecting SDA and SCL pins to logic Analyzer(Also enable glitch filter for SCL channel with time period 100ns, to avoid glitches).
 
@@ -162,8 +157,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ![Figure: Pin Configuration I2C](resources/readme/image507e.png)
 
 > **Note- In case of sleep-wakeup :**
->- As GPIO configurations will be lost after going to sleep state, user has to initialize I2C pins and driver again after wakeup,by using 
-\ref sl_i2c_driver_init API for initializing driver and \ref sl_si91x_i2c_pin_init API for initializing pins.
+>- As GPIO configurations will be lost after going to sleep state, user has to initialize I2C pins and driver again after wakeup, by using \ref sl_i2c_driver_init API for initializing driver and \ref sl_si91x_i2c_pin_init API for initializing pins.
 
 ## Test the Application
 
@@ -178,3 +172,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 7. After successful program execution the prints in serial console looks as shown below.
 
    ![Figure: Output](resources/readme/output.png)
+
+
+> **Note:**
+>
+> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

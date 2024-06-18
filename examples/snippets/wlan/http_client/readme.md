@@ -22,7 +22,7 @@ This application demonstrates how to configure SiWx91x device as an HTTP client 
 
 - A Windows PC.
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4388A, BRD4339B](https://www.silabs.com/)
+  - Silicon Labs [BRD4388A](https://www.silabs.com/)
 - NCP Mode:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
@@ -87,13 +87,21 @@ The application can be configured to suit user requirements and development envi
     #define HTTP_SERVER_IP      "192.168.0.100"    // Remote http server IP address
     ```
 
+  - HTTPS Server Port and IP Settings
+
+    ```c
+    #define HTTPS_ENABLE        1                  // Enable for https server
+    #define HTTP_PORT           443                // Remote https server port
+    #define HTTP_SERVER_IP      "192.168.0.100"    // Remote https server IP address
+    ```
+
 - `sl_wifi_device_configuration_t` from `app.c` should be modified as per below requirements
 
-  **[sl_net_set_credential()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API expects the certificate in the form of linear array. Convert the pem certificate into linear array form using python script provided in the SDK `<SDK>/resources/scripts/certificate_script.py`.
+  **[sl_net_set_credential()](https://docs.silabs.com/wiseconnect/3.0.13/wiseconnect-api-reference-guide-nwk-mgmt/net-credential-functions#sl-net-set-credential)** API expects the certificate in the form of linear array. Convert the pem certificate into linear array form using python script provided in the SDK `<SDK>/resources/scripts/certificate_to_array.py`.
 
-   For example : If the certificate is ca-certificate.pem, enter the command in the following way:
-   python certificate_script.py ca-certificate.pem
-   The script will generate ca-certificate.pem in which one linear array named ca-certificate contains the certificate.
+   For example : If the certificate is ca-cert.pem, enter the command in the following way:
+   python certificate_script.py ca-cert.pem cacert.pem
+   The script will generate cacert.pem.h in which one linear array named cacert contains the certificate.
 
   Root CA certificate needs to be converted as mentioned above.
 
@@ -101,10 +109,10 @@ The application can be configured to suit user requirements and development envi
 
   ```c
   // Certificate includes
-  #include "ca-certificate.pem.h"
+  #include "cacert.pem.h"
   
   // Load Security Certificates
-  status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, ca-certificate, sizeof(ca-certificate) - 1);
+  status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   ```
 
 ## Test the Application
@@ -137,9 +145,18 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    `python simple_http_server.py 80`
 
    **NOTE:** If python command is not working replace the python with py.
-   
+
+## Steps to set up HTTPS server
+
+1. In a Windows PC, make sure python is installed.
+2. Navigate to **`/<SDK>/resources/scripts/`**. Run **simple_https_server.py** script on port number 443 using the following command.
+
+   `python simple_https_server.py 443`
+
+    **NOTE:** If python command is not working replace the python with py.
+
 ## Trouble shooting
 
-- If any permission errors are observed while setting up the Python HTTP server:
-  - Try running the python HTTP server script with admin privileges (Open command prompt or terminal in admin mode)
-  - Try using a different port like 8080 for the HTTP connection
+- If any permission errors are observed while setting up the Python HTTP/HTTPS server:
+  - Try running the python HTTP/HTTPS server script with admin privileges (Open command prompt or terminal in admin mode)
+  - Try using a different port like 8080 for the HTTP/HTTPS connection

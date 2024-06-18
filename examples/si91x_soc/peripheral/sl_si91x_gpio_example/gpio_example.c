@@ -1,0 +1,148 @@
+/*******************************************************************************
+ * @file  gpio_example.c
+ * @brief GPIO example
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ ******************************************************************************/
+/**============================================================================
+ * @brief : This file contains example application for GPIO example
+ * @section Description :
+ * This application demonstrates the HP pin interrupt and toggling of HP GPIO pin.
+ ============================================================================**/
+#include "gpio_example.h"
+#include "sl_si91x_driver_gpio.h"
+#include "sl_gpio_board.h"
+#include "rsi_debug.h"
+#include "sl_si91x_clock_manager.h"
+
+/*******************************************************************************
+ ***************************  Defines / Macros  ********************************
+ ******************************************************************************/
+#define AVL_INTR_NO 0 // available interrupt number
+#define INT_CH      0 // GPIO Pin interrupt 0
+
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
+/*******************************************************************************
+ ********************************   ENUMS   ************************************
+ ******************************************************************************/
+
+/*******************************************************************************
+ *************************** LOCAL VARIABLES   *********************************
+ ******************************************************************************/
+// Define GPIO port and pin for HP instance. Here SL_SI91X_GPIO_6_PORT corresponds to GPIO pin 6's port number : 0.
+// This is defined to '0' which is PORT_A and GPIO_PIN_NUMBER6 refers to GPIO pin number 6.
+// Same representation followed for other port and pins.
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_6_PORT, GPIO_PIN_NUMBER6 }, GPIO_OUTPUT };
+// Define GPIO port and pin for HP instance. Here SL_SI91X_GPIO_11_PORT corresponds to GPIO pin 11's port number : 0.
+// This is defined to '0' which is PORT_A and GPIO_PIN_NUMBER11 refers to GPIO pin number 11.
+// Same representation followed for other port and pins.
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config1 = { { SL_SI91X_GPIO_11_PORT, GPIO_PIN_NUMBER11 }, GPIO_INPUT };
+/*******************************************************************************
+ **********************  Local Function prototypes   ***************************
+ ******************************************************************************/
+static void gpio_pin_interrupt0_callback(uint32_t pin_intr);
+static void default_clock_configuration(void);
+/*******************************************************************************
+ **************************   GLOBAL FUNCTIONS   *******************************
+ ******************************************************************************/
+// Function to configure clock on powerup
+static void default_clock_configuration(void)
+{
+  // Core Clock runs at 180MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 180MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
+/*******************************************************************************
+ * GPIO example initialization function. It initializes clock, pin mode,
+ * direction and configures pin interrupt
+ ******************************************************************************/
+void gpio_example_init(void)
+{
+  sl_status_t status;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
+  do {
+    // Initialize the GPIOs by clearing all interrupts initially
+    status = sl_gpio_driver_init();
+    if (status != SL_STATUS_OK) {
+      // Prints GPIO initialization fails
+      DEBUGOUT("sl_gpio_driver_init, Error code: %lu", status);
+      break; // breaks if error occurs
+    }
+    DEBUGOUT("GPIO driver initialization is successful \n");
+    // Configure GPIO pin 6 using pin configuration API.
+    // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
+    // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
+    status = sl_gpio_set_configuration(sl_gpio_pin_config);
+    if (status != SL_STATUS_OK) {
+      // Prints if pin configuration fails
+      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu", status);
+      break; // breaks if error occurs
+    }
+    DEBUGOUT("GPIO driver set pin configuration is successful \n");
+    // Configure GPIO pin 11 using pin configuration API.
+    // Using this API by default GPIO mode is set as MODE 0. If any other mode is selected for any GPIO use
+    // corresponding API sl_gpio_driver_set_pin_mode() is for mode setting.
+    status = sl_gpio_set_configuration(sl_gpio_pin_config1);
+    if (status != SL_STATUS_OK) {
+      // Prints if pin configuration fails
+      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu", status);
+      break; // breaks if error occurs
+    }
+    DEBUGOUT("GPIO driver set pin configuration is successful \n");
+    // Configure pin interrupt for GPIO pin. The pin interrupt in this application is performed using external triggering from button.
+    // Press button1 for triggering HP GPIO instance pin interrupt
+    status = sl_gpio_driver_configure_interrupt(&sl_gpio_pin_config1.port_pin,
+                                                INT_CH,
+                                                (sl_gpio_interrupt_flag_t)SL_GPIO_INTERRUPT_RISE_EDGE,
+                                                (sl_gpio_irq_callback_t)&gpio_pin_interrupt0_callback,
+                                                AVL_INTR_NO);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_gpio_configure_pin_interrupt, Error code: %lu", status);
+      break;
+    }
+    DEBUGOUT("GPIO driver interrupt configure is successful \n");
+  } while (false);
+}
+/*******************************************************************************
+ * Function will run continuously in while loop and toggles GPIO pin 6
+ ******************************************************************************/
+void gpio_example_process_action(void)
+{
+  sl_status_t status;
+  status = sl_gpio_driver_toggle_pin(&sl_gpio_pin_config.port_pin); // Toggle HP GPIO pin 6
+  if (status != SL_STATUS_OK) {
+    // Prints if toggling pin fails
+    DEBUGOUT("sl_gpio_toggle_pin, Error code: %lu", status);
+    return;
+  }
+  // Prints indicating successful pin toggle
+  DEBUGOUT("HP GPIO driver toggle pin is successful \n");
+}
+
+/*******************************************************************************
+ *   This API handles GPIO pin interrupt 0 request
+ ******************************************************************************/
+static void gpio_pin_interrupt0_callback(uint32_t pin_intr)
+{
+  if (pin_intr == PIN_INTR_0) {
+    // This is with respect to ISR context. Debugout might cause issues sometimes.
+    DEBUGOUT("gpio pin interrupt0\n");
+  }
+}

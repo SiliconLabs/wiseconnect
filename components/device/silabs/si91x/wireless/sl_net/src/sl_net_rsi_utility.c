@@ -101,6 +101,14 @@ sl_status_t convert_si91x_event_to_sl_net_event(uint16_t *event, sl_net_event_t 
       *sl_net_event = SL_NET_OTA_FW_UPDATE_EVENT;
       return SL_STATUS_OK;
     }
+    case RSI_WLAN_RSP_IPCONFV4: {
+      *sl_net_event = SL_NET_DHCP_NOTIFICATION_EVENT;
+      return SL_STATUS_OK;
+    }
+    case RSI_WLAN_RSP_IPV4_CHANGE: {
+      *sl_net_event = SL_NET_IP_ADDRESS_CHANGE_EVENT;
+      return SL_STATUS_OK;
+    }
   }
 
   return SL_STATUS_FAIL;

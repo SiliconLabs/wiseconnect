@@ -17,10 +17,14 @@
 
 // Includes Files
 
-#include "rsi_chip.h"
-
 #ifndef RSI_OPAMP_H
 #define RSI_OPAMP_H
+
+#include "si91x_device.h"
+
+#ifndef UNUSED_PARAMETER
+#define UNUSED_PARAMETER(x) (void)(x)
+#endif // UNUSED_PARAMETER
 
 #ifdef __cplusplus
 extern "C" {

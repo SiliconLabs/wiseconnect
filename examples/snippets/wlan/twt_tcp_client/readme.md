@@ -16,7 +16,7 @@
 
 ## Purpose/Scope
 
-This application demonstrates the procedure to setup iTWT(individual Target Wake Time) session and configure the SiWx91x in TCP client role.
+This application demonstrates SiWx91x is configured in Associated Power save mode (NWP) with TWT and M4 in sleep with retention, also providing the procedure to setup iTWT(individual Target Wake Time) session and configure the SiWx91x in TCP client role. 
 
 In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP address, connects to Iperf server running on a remote PC and maintains  TCP Socket connection and periodically wakes up as per the configured TWT wakeup interval in powersave.
 
@@ -32,8 +32,6 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
-  	  - BRD4340A [SiWx917-RB4340A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -104,6 +102,10 @@ The application can be configured to suit your requirements and development envi
     #define SERVER_IP   "192.168.0.247"
     #define SERVER_PORT         5001
     ```
+    To enable the TCP data transfer 
+    ```c
+    #define SEND_TCP_DATA 1
+    ```    
 
 - Configure TCP Keep Alive timeout in **app.c**, timeout in seconds.
 
@@ -301,7 +303,9 @@ User can get asynchronous TWT session updates if *twt_response_handler* is defin
 6. When sl_wifi_enable_target_wake_time API is used, configuring TWT Wake interval beyond 1 min might lead to disconnections from the AP. Recommended to use TWT wakeup interval less than or equal to 1 min.
 7. WLAN Keep Alive timeout should **not** be disabled when sl_wifi_target_wake_time_auto_selection API is used or when unannounced TWT session is set up using sl_wifi_enable_target_wake_time API. It is recommended to use WLAN Keep Alive timeout of 30 sec which is the default timeout even if not configured specifically by the user.
 
-**Soc Mode**:
+## Soc Mode:
+
+### Without Tickless Mode:
 
 The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
@@ -310,8 +314,17 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
   - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
 - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
   - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
+  - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
 - Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
   - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
+
+### Tickless Mode
+
+In Tickless Mode, the device enters sleep based on the idle time set by the scheduler. The device can be awakened by two methods: SysRTC or a wireless signal.
+
+- **SysRTC (System Real-Time Clock)**: By default, the device uses SysRTC as the wakeup source. The device will enter sleep mode and then wake up when the SysRTC matches the idle time set by the scheduler.
+
+- **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
 
 ## Test the application
 
@@ -336,3 +349,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - From Quick Access, choose Start Energy Capture option
 
   ![Figure: Energy Profiler Step 7](resources/readme/energy_profiler_step_7.png)
+
+- Expected output in Energy Profiler
+
+  ![Figure: Energy Profiler Output](resources/readme/outputs_2.png)
+
+>**NOTE:**
+> - The reference images which are captured are measured in isolated chamber, might vary in open environment and sometimes there might be slight variation observed with some APs.

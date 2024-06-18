@@ -18,7 +18,7 @@
 // Include Files
 
 #include "rsi_ccp_user_config.h"
-#if !defined(ROMDRIVER_PRESENT)
+#if !defined(EFUSE_ROMDRIVER_PRESENT)
 #include "rsi_efuse.h"
 #include "rsi_rom_efuse.h"
 /*==============================================*/
@@ -344,4 +344,4 @@ const ROM_EFUSE_API_T efuse_api = {
 #endif
 #else
 typedef int dummy; // To remove empty translation unit warning.
-#endif
+#endif // EFUSE_ROMDRIVER_PRESENT

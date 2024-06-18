@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
-* @file sl_si91x_m4_ps.h
+* @file sl_si91x_m4_ps.c
 * @brief  M4 power save
 *******************************************************************************
 * # License
@@ -15,15 +15,28 @@
 *
 ******************************************************************************/
 #include "sl_si91x_m4_ps.h"
+#include "FreeRTOSConfig.h"
 #include "cmsis_os2.h"
+#include "sl_rsi_utility.h"
+#if (configUSE_TICKLESS_IDLE == 1)
+#include "sl_si91x_power_manager.h"
+#endif
 #ifdef SL_WIFI_COMPONENT_INCLUDED
 #include "sl_si91x_host_interface.h"
 #endif
+#define SL_SI91X_MCU_WATCHDOG_TIMER 0
+
+#if SL_SI91X_MCU_WATCHDOG_TIMER
+#include "rsi_wwdt.h"
+#endif
+
+#ifdef SL_SI91X_MCU_BUTTON_BASED_WAKEUP
+#include "sl_si91x_driver_gpio.h"
+#endif
+
 #ifdef SLI_SI91X_MCU_INTERFACE
 
 #define WIRELESS_WAKEUP_IRQHandler NPSS_TO_MCU_WIRELESS_INTR_IRQn
-
-#define ALARM_PERIODIC_TIME 30 /*<! periodic alarm configuration in SEC */
 
 #define RTC_ALARM_INTR         BIT(16)
 #define NPSS_GPIO_2            2
@@ -33,23 +46,33 @@
 #define NPSS_GPIO_2_INTR       BIT(2)
 
 /*Update time configurations for next boundary alarm*/
-#define RC_TRIGGER_TIME           5
-#define RO_TRIGGER_TIME           0
-#define NO_OF_HOURS_IN_A_DAY      24
-#define NO_OF_MINUTES_IN_AN_HOUR  60
-#define NO_OF_SECONDS_IN_A_MINUTE 60
-#define NO_OF_MONTHS_IN_A_YEAR    12
-#define BASE_YEAR                 2000
-#define NO_OF_DAYS_IN_A_MONTH_1   28
-#define NO_OF_DAYS_IN_A_MONTH_2   29
-#define NO_OF_DAYS_IN_A_MONTH_3   30
-#define NO_OF_DAYS_IN_A_MONTH_4   31
+#define RC_TRIGGER_TIME                5
+#define RO_TRIGGER_TIME                0
+#define NO_OF_HOURS_IN_A_DAY           24
+#define NO_OF_MINUTES_IN_AN_HOUR       60
+#define NO_OF_SECONDS_IN_A_MINUTE      60
+#define NO_OF_MONTHS_IN_A_YEAR         12
+#define BASE_YEAR                      2000
+#define NO_OF_DAYS_IN_A_MONTH_1        28
+#define NO_OF_DAYS_IN_A_MONTH_2        29
+#define NO_OF_DAYS_IN_A_MONTH_3        30
+#define NO_OF_DAYS_IN_A_MONTH_4        31
+#define NO_OF_MILLISECONDS_IN_A_SECOND 1000
 
-#define RTC_ALARM_IRQHandler IRQ028_Handler
-#define NVIC_RTC_ALARM       MCU_CAL_ALARM_IRQn
+#define ALARM_PERIODIC_TIME \
+  30 * NO_OF_MILLISECONDS_IN_A_SECOND /*<! periodic alarm configuration in     \
+                                         milliseconds */
+
+#define NVIC_RTC_ALARM                      MCU_CAL_ALARM_IRQn
+#define WIRELESS_WAKEUP_IRQHandler_Priority 8
+
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
 #ifdef SLI_SI917B0
+#ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
+#define IVT_OFFSET_ADDR 0x8172000 /*<!Application IVT location VTOR offset for B0>  */
+#else
 #define IVT_OFFSET_ADDR 0x8202000 /*<!Application IVT location VTOR offset for B0>  */
+#endif
 #else
 #define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset for A0>  */
 #endif
@@ -61,18 +84,31 @@
 #else
 #define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up for A0  */
 #endif
+
+#if (configUSE_TICKLESS_IDLE == 0)
 #if SL_SI91X_MCU_ALARM_BASED_WAKEUP
 static RTC_TIME_CONFIG_T rtc_configuration, alarm_configuration, rtc_get_time;
 static uint8_t m4_alarm_initialization_done;
 #endif
-#define WIRELESS_WAKEUP_IRQHandler_Periority 8
+#endif
+RTC_TIME_CONFIG_T sl_rtc_get_Time;
+uint32_t sl_bf_rtc_ticks, sl_af_rtc_ticks, sl_rtc_ticks;
+
 void sli_m4_ta_interrupt_init(void);
 void set_alarm_interrupt_timer(uint16_t interval);
 void m4_powersave_app(void);
 void wakeup_source_config(void);
-void vPortSetupTimerInterrupt(void);
+
+#if (configUSE_TICKLESS_IDLE == 1)
+static uint32_t sli_si91x_is_sleep_ready();
+#endif //
+
+#if (configUSE_TICKLESS_IDLE == 0)
 
 #if SL_SI91X_MCU_BUTTON_BASED_WAKEUP
+
+static void gpio_uulp_pin_callback(void);
+
 /**
  * @brief  Configure the UULP GPIO 2 as wakeup source
  * @param  none
@@ -102,7 +138,9 @@ void wakeup_source_config(void)
   RSI_PS_SetWkpSources(GPIO_BASED_WAKEUP);
 
   /*Enable the NPSS GPIO interrupt slot*/
-  NVIC_EnableIRQ(NPSS_TO_MCU_GPIO_INTR_IRQn);
+  sl_si91x_gpio_driver_configure_uulp_interrupt((sl_si91x_gpio_interrupt_config_flag_t)SL_GPIO_INTERRUPT_RISE_EDGE,
+                                                NPSS_GPIO_2,
+                                                (void *)&gpio_uulp_pin_callback);
 }
 
 /**
@@ -110,17 +148,20 @@ void wakeup_source_config(void)
  * @param  none
  * @return none
  */
-void IRQ021_Handler(void)
+static void gpio_uulp_pin_callback(void)
 {
   /* clear NPSS GPIO interrupt*/
   RSI_NPSSGPIO_ClrIntr(NPSS_GPIO_2_INTR);
-  //LOG_PRINT("BUTTON_PRESSED");
+  while (!sl_si91x_gpio_get_uulp_npss_pin(NPSS_GPIO_2))
+    ; // waiting for the button release
 }
 #endif /* SL_SI91X_MCU_BUTTON_BASED_WAKEUP */
+
 #ifdef SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
 void IRQ026_Handler()
 {
-  /*This is a dummy IRQ Handler which will not be triggered by default. Umask the interrupt to trigger this IRQ Handler upon receiving an interrupt*/
+  /*Get the wake up/NPSS interrupt status*/
+  RSI_PS_GetWkpUpStatus();
 
   /*Clear interrupt */
   RSI_PS_ClrWkpUpStatus(NPSS_TO_MCU_WIRELESS_INTR);
@@ -128,6 +169,17 @@ void IRQ026_Handler()
   return;
 }
 #endif /* SL_SI91X_MCU_WIRELESS_BASED_WAKEUP */
+#if SL_SI91X_MCU_WATCHDOG_TIMER
+
+void IRQ020_Handler(void)
+{
+  // Clears interrupt
+  RSI_WWDT_IntrClear();
+  RSI_WWDT_ReStart(MCU_WDT);
+}
+
+#endif
+
 #if SL_SI91X_MCU_ALARM_BASED_WAKEUP
 void set_alarm_interrupt_timer(uint16_t interval)
 {
@@ -145,22 +197,28 @@ void set_alarm_interrupt_timer(uint16_t interval)
   alarm_configuration.Hour         = rtc_get_time.Hour;
   alarm_configuration.Second       = rtc_get_time.Second;
 
+  alarm_configuration.MilliSeconds += (interval % 1000);
+  if (alarm_configuration.MilliSeconds >= (NO_OF_MILLISECONDS_IN_A_SECOND)) {
+    alarm_configuration.MilliSeconds -= NO_OF_MILLISECONDS_IN_A_SECOND;
+    alarm_configuration.Second += 1;
+  }
+
   /*Update seconds for next boundary alarm */
-  alarm_configuration.Second = alarm_configuration.Second + (interval % 60);
+  alarm_configuration.Second = alarm_configuration.Second + (interval / 1000 % 60);
   if (alarm_configuration.Second >= (NO_OF_SECONDS_IN_A_MINUTE)) {
     alarm_configuration.Second -= NO_OF_SECONDS_IN_A_MINUTE;
     alarm_configuration.Minute += 1;
   }
 
   /*Update minutes for next boundary alarm */
-  alarm_configuration.Minute = alarm_configuration.Minute + ((interval / 60) % 60);
+  alarm_configuration.Minute = alarm_configuration.Minute + ((interval / (1000 * 60)) % 60);
   if (alarm_configuration.Minute >= (NO_OF_MINUTES_IN_AN_HOUR)) {
     alarm_configuration.Minute -= NO_OF_MINUTES_IN_AN_HOUR;
     alarm_configuration.Hour += 1;
   }
 
   /*Update hour for next boundary alarm */
-  alarm_configuration.Hour = alarm_configuration.Hour + (interval / 3600) % 24;
+  alarm_configuration.Hour = alarm_configuration.Hour + (interval / (1000 * 3600)) % 24;
   if (alarm_configuration.Hour >= (NO_OF_HOURS_IN_A_DAY)) {
     alarm_configuration.Hour -= NO_OF_HOURS_IN_A_DAY;
     alarm_configuration.Day += 1;
@@ -229,49 +287,25 @@ void initialize_m4_alarm(void)
   RSI_RTC_SetDateTime(RTC, &rtc_configuration);
   /*Enable Alarm feature*/
   RSI_RTC_AlamEnable(RTC, ENABLE);
-  /*Enable RTC ALARM interrupts*/
-  RSI_RTC_IntrUnMask(RTC_ALARM_INTR);
+
   /*Initialization of RTC CALIBRATION*/
   RSI_RTC_CalibInitilization();
-  /*To calibrate rc and ro */
-  RSI_RTC_ROCLK_Calib(TIME_PERIOD, ENABLE, ENABLE, RC_TRIGGER_TIME, ENABLE, ENABLE, RO_TRIGGER_TIME);
   /*Set Alarm as a  wake up source to wake up from deep sleep */
   RSI_PS_SetWkpSources(ALARM_BASED_WAKEUP);
   /*Enable the RTC alarm interrupts */
-  RSI_RTC_IntrUnMask(RTC_ALARM_INTR);
-  /*Enable NVIC for RTC */
-  NVIC_EnableIRQ(NVIC_RTC_ALARM);
+
   m4_alarm_initialization_done = 1;
-}
-/*RTC Alarm interrupt*/
-void RTC_ALARM_IRQHandler(void)
-{
-  volatile uint32_t statusRead = 0;
-  /*Get the interrupt status */
-  statusRead = RSI_RTC_GetIntrStatus();
-
-  if (statusRead & NPSS_TO_MCU_ALARM_INTR) {
-
-    /* TRIGGER SLEEP STATE */
-    /*Clear wake up interrupt */
-    RSI_RTC_IntrClear(RTC_ALARM_INTR);
-  }
-  return;
 }
 #endif /* SL_SI91X_MCU_ALARM_BASED_WAKEUP */
 
-/**
- * @fn         sl_si91x_m4_sleep_wakeup
- * @brief      Keeps the M4 In the Sleep
- * @param[in]  none
- * @return    none.
- * @section description
- * This function is used to trigger sleep in the M4 and in the case of the retention submitting the buffer valid
- * to the TA for the rx packets.
- */
+/**************************************************************************
+ * @fn           void sl_si91x_m4_sleep_wakeup()
+ * @brief        Keeps the M4 In the Sleep
+ * @param[in]    None
+ * @param[out]   None
+ *******************************************************************************/
 void sl_si91x_m4_sleep_wakeup(void)
 {
-
 #if SL_SI91X_MCU_ALARM_BASED_WAKEUP
   /* Initialize the M4 alarm for the first time*/
   if (m4_alarm_initialization_done == false) {
@@ -284,15 +318,23 @@ void sl_si91x_m4_sleep_wakeup(void)
 #ifdef SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
   /* Configure Wakeup-Source */
   RSI_PS_SetWkpSources(WIRELESS_BASED_WAKEUP);
-
-  /* sets the priority of an Wireless wakeup interrupt. */
-  NVIC_SetPriority(WIRELESS_WAKEUP_IRQHandler, WIRELESS_WAKEUP_IRQ_PRI);
-
-  NVIC_EnableIRQ(WIRELESS_WAKEUP_IRQHandler);
 #endif
 #if SL_SI91X_MCU_BUTTON_BASED_WAKEUP
   /*Configure the UULP GPIO 2 as wakeup source */
   wakeup_source_config();
+#endif
+
+#if SL_SI91X_MCU_WATCHDOG_TIMER
+  // Un-masking WDT interrupt
+  RSI_WWDT_IntrUnMask();
+  // Initializing watchdog-timer (powering up WDT and enabling it to run during CPU sleep mode)
+  RSI_WWDT_Init(MCU_WDT);
+  // Configure the WDT system reset value
+  RSI_WWDT_ConfigSysRstTimer(MCU_WDT, 19);
+  // configure the WDT timeout interrupt time
+  RSI_WWDT_ConfigIntrTimer(MCU_WDT, 18);
+  NVIC_EnableIRQ(NVIC_WDT);
+  RSI_WWDT_Start(MCU_WDT);
 #endif
 
 #ifndef SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
@@ -316,6 +358,10 @@ void sl_si91x_m4_sleep_wakeup(void)
                          RSI_WAKEUP_WITH_RETENTION_WO_ULPSS_RAM);
 #else
 
+#if (configUSE_TICKLESS_IDLE == 1)
+  sl_bf_rtc_ticks = sl_si91x_get_rtc_ticks();
+#endif // configUSE_TICKLESS_IDLE == 1
+
 #if SL_SI91X_SI917_RAM_MEM_CONFIG == 1
   /* Configure 192K RAM Usage and Retention Size */
   sl_si91x_configure_ram_retention(WISEMCU_192KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
@@ -333,17 +379,158 @@ void sl_si91x_m4_sleep_wakeup(void)
                          (uint32_t)RSI_PS_RestoreCpuContext,
                          IVT_OFFSET_ADDR,
                          RSI_WAKEUP_FROM_FLASH_MODE);
-#endif
 
-  /* Enable M4_TA interrupt */
-  sli_m4_ta_interrupt_init();
+#if (configUSE_TICKLESS_IDLE == 1)
+
+  sl_af_rtc_ticks = sl_si91x_get_rtc_ticks();
+  if (sl_af_rtc_ticks > sl_bf_rtc_ticks) {
+    sl_rtc_ticks = sl_af_rtc_ticks - sl_bf_rtc_ticks;
+  }
+  *idle_sleep_time = 0;
+#endif // configUSE_TICKLESS_IDLE == 1
+
+#endif
 
   /* Clear M4_wakeup_TA bit so that TA will go to sleep after M4 wakeup*/
   sl_si91x_host_clear_sleep_indicator();
 
-  osDelay(100);
+#if (configUSE_TICKLESS_IDLE == 0)
+  P2P_STATUS_REG |= M4_is_active;
+  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
+#endif // configUSE_TICKLESS_IDLE == 0
   /*  Setup the systick timer */
   vPortSetupTimerInterrupt();
 }
+#endif // #if (configUSE_TICKLESS_IDLE == 0)
 
+#if (configUSE_TICKLESS_IDLE == 1)
+/**************************************************************************
+ * @fn           sl_si91x_get_rtc_ticks(void)
+ * @brief        In this function convert the RTC time into the Ticks
+ * @param[in]    None
+ * @param[out]   sl_ps_rtc_ticks :  RTC value in Ticks
+ *******************************************************************************/
+uint32_t sl_si91x_get_rtc_ticks(void)
+{
+  volatile uint32_t sl_ps_rtc_ticks = 0;
+  RSI_RTC_GetDateTime(RTC, &sl_rtc_get_Time);
+  sl_ps_rtc_ticks = sl_rtc_get_Time.MilliSeconds + sl_rtc_get_Time.Second * 1000 + sl_rtc_get_Time.Minute * 60 * 1000
+                    + sl_rtc_get_Time.Hour * 60 * 60 * 1000;
+  // TODO: Add 24 hour spill over logic later once the device is stable for 24 hours,
+  // here there will be one period which will give negative outcome at 24 hour mark
+  return sl_ps_rtc_ticks;
+}
+
+/**************************************************************************
+ * @fn           sl_si91x_post_sleep_update_ticks(uint32_t *xExpectedIdleTime)
+ * @brief        In this function xExpectedIdleTime > sl_rtc_ticks
+ *               appending the sl_rtc_ticks to the expected idle time
+ * @param[in]    None
+ * @param[out]   None
+ *******************************************************************************/
+void sl_si91x_post_sleep_update_ticks(uint32_t *xExpectedIdleTime)
+{
+  if ((sl_rtc_ticks > 0) && (*xExpectedIdleTime > sl_rtc_ticks)) {
+    *xExpectedIdleTime = sl_rtc_ticks;
+  }
+}
+/**************************************************************************
+ * @fn           sli_si91x_is_sleep_ready()
+ * @brief        This function checks the readiness of the SI91x device for
+ *sleep.
+ * @return        The status indicating whether the device is ready for sleep.
+ *                - Returns a non-zero value if the device is ready for sleep.
+ *                - Returns 0 if the device is not ready for sleep.
+ *******************************************************************************/
+__attribute__((weak)) uint32_t sl_app_sleep_ready()
+{
+  //This API is inadequate as it allows users to implement sleep-preventing checks at the user level.
+  return true;
+}
+static uint32_t sli_si91x_is_sleep_ready()
+{
+  /*verifying common flash write progress before triggering sleep*/
+  if ((sl_app_sleep_ready()) && (sl_si91x_power_manager_is_ok_to_sleep()) && (sli_si91x_is_sdk_ok_to_sleep())) {
+    return true;
+  }
+  return (false);
+}
+
+/**************************************************************************
+ * @fn           sli_si91x_m4_ta_wakeup_configurations(void)
+ * @brief        It is essential to properly configure the TA and M4 status registers 
+ *               to ensure the system resumes normal operation.   
+ * @param[in]    None
+ * @param[out]   None
+ *******************************************************************************/
+void sli_si91x_m4_ta_wakeup_configurations(void)
+{
+  // Indicate M4 is active
+  P2P_STATUS_REG |= M4_is_active;
+
+  //indicate M4 buffer availability to TA
+  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
+
+#ifdef SLI_SI917
+  //! Unmask the P2P interrupts
+  unmask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
+                      | NWP_DEINIT_IN_COMM_FLASH
+#ifdef SLI_SI91X_MCU_FW_UPGRADE_OTA_DUAL_FLASH
+                      | M4_IMAGE_UPGRADATION_PENDING_INTERRUPT
+#endif
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+                      | SIDE_BAND_CRYPTO_DONE
+#endif
+  );
+#endif
+}
+/**************************************************************************
+ * @fn           sl_si91x_pre_supress_ticks_and_sleep(uint16_t
+ **xExpectedIdleTime)
+ * @brief        set xExpectedIdleTime to 0 if the application prevents the
+ *device Sleep
+ * @param[in]    None
+ * @param[out]   None
+ *******************************************************************************/
+void sl_si91x_pre_supress_ticks_and_sleep(uint32_t *xExpectedIdleTime)
+{
+  // pointer check
+  if (xExpectedIdleTime != NULL) {
+
+    if (!sli_si91x_is_sleep_ready()) {
+      *xExpectedIdleTime = 0;
+    } else {
+      // a preliminary check of the expected idle time is performed without making M4 inactive
+      if (*xExpectedIdleTime >= configEXPECTED_IDLE_TIME_BEFORE_SLEEP) {
+        // Indicate M4 is Inactive
+        P2P_STATUS_REG &= ~M4_is_active;
+        // Waiting for one more clock cycle to make sure M4 H/W Register is updated
+        P2P_STATUS_REG;
+
+        // TODO: This delay is added to sync between M4 and TA. It should be removed once the logic is moved to wifi SDK
+        for (uint8_t delay = 0; delay < 10; delay++) {
+          __ASM("NOP");
+        }
+        // Checking if TA has already triggered a packet to M4
+        // RX_BUFFER_VALID will be cleared by TA if any packet is triggered
+        if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
+            || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
+          P2P_STATUS_REG |= M4_is_active;
+          *xExpectedIdleTime = 0;
+        } else {
+          M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
+          M4SS_P2P_INTR_CLR_REG;
+
+          TASS_P2P_INTR_MASK_SET = (TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT
+                                    | TA_WRITING_ON_COMM_FLASH | NWP_DEINIT_IN_COMM_FLASH
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+                                    | SIDE_BAND_CRYPTO_DONE
+#endif
+          );
+        }
+      }
+    }
+  }
+}
+#endif // #if (configUSE_TICKLESS_IDLE == 1)
 #endif

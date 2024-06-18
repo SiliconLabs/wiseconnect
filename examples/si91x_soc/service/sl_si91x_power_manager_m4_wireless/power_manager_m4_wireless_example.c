@@ -23,7 +23,8 @@
 #include "rsi_debug.h"
 #include "rsi_m4.h"
 #include "sl_si91x_calendar.h"
-#include "sl_si91x_ulp_timer_init.h"
+#include "sl_ulp_timer_instances.h"
+#include "sl_si91x_ulp_timer_common_config.h"
 #include "sl_si91x_button_instances.h"
 
 /*******************************************************************************
@@ -40,6 +41,7 @@
   SL_ULP_TIMER_TIMER0 // ulp-timer instance to be used, user can pass selected timer-number in place of '0'
 
 #define BUTTON_INSTANCE_0 button_btn0
+
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -369,14 +371,6 @@ void power_manager_example_process_action(void)
       if (change_state) {
         power_control(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_SLEEP);
         change_state = false;
-        // Next transition is from PS2 to PS1 state.
-        transition = PS1;
-      }
-      break;
-    case PS1:
-      if (change_state) {
-        power_control(SL_SI91X_POWER_MANAGER_PS2, SL_SI91X_POWER_MANAGER_PS1);
-        change_state = false;
         // Next transition is from PS2 to PS3 state.
         transition = PS2_TO_PS3;
       }
@@ -590,8 +584,13 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
 
       case SL_SI91X_POWER_MANAGER_PS1:
         set_ulp_timer_wakeup_source();
-
         DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
+        // PS2 state requirement is removed as it was previously added.
+        status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+        if (status != SL_STATUS_OK) {
+          // If status is not OK, return with the error code.
+          DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+        }
         // Add requirement for PS0 (sleep without retention), it transits to PS0 state.
         status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS1);
         if (status != SL_STATUS_OK) {
@@ -625,6 +624,13 @@ static void power_control(sl_power_state_t from, sl_power_state_t to)
     set_npss_wakeup_source(SL_SI91X_POWER_MANAGER_SEC_WAKEUP);
 
     DEBUGOUT("Current State: PS%d \n", sl_si91x_power_manager_get_current_state());
+
+    // PS4 state requirement is removed as it was previously added.
+    status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+    if (status != SL_STATUS_OK) {
+      // If status is not OK, return with the error code.
+      DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
+    }
     // Add requirement for PS0 (sleep without retention), it transits to PS0 state.
     status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS0);
     if (status != SL_STATUS_OK) {

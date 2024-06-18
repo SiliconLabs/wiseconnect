@@ -59,7 +59,7 @@
 #define MAX_MTU_SIZE      240
 #define MAX_SEND_DATA_LEN 232
 
-#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device addres
+#define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
 
 //! application event list
 #define RSI_BLE_ADV_REPORT_EVENT          0x01
