@@ -290,7 +290,7 @@ sl_status_t convert_si91x_wifi_client_info(sl_wifi_client_info_response_t *clien
 
     sl_client_info->ip_address.type = ip_address_size == SL_IPV4_ADDRESS_LENGTH ? SL_IPV4 : SL_IPV6;
 
-    memcpy(&sl_client_info->mac_adddress, si91x_client_info->mac, sizeof(sl_mac_address_t));
+    memcpy(&sl_client_info->mac_address, si91x_client_info->mac, sizeof(sl_mac_address_t));
     memcpy(sl_ip_address, si91x_ip_address, ip_address_size);
   }
 

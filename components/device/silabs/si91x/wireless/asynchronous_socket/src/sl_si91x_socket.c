@@ -584,7 +584,7 @@ int sl_si91x_sendto_async(int socket,
 
 int sl_si91x_recv(int socket, uint8_t *buf, size_t buf_len, int32_t flags)
 {
-  return recvfrom(socket, buf, buf_len, flags, NULL, NULL);
+  return sl_si91x_recvfrom(socket, buf, buf_len, flags, NULL, NULL);
 }
 
 int sl_si91x_recvfrom(int socket,

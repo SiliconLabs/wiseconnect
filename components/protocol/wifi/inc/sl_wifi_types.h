@@ -405,7 +405,7 @@ typedef struct {
 
 /// Wi-Fi client info
 typedef struct {
-  sl_mac_address_t mac_adddress; ///< MAC Address of the client
+  sl_mac_address_t mac_address; ///< MAC Address of the client
   sl_ip_address_t ip_address;    ///< IP address of client
 } sl_wifi_client_info_t;
 
