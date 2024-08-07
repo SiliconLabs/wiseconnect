@@ -50,6 +50,7 @@
 #include "rsi_debug.h"
 #include "sl_si91x_hal_soc_soft_reset.h"
 #include "sl_si91x_driver.h"
+#include "sl_si91x_clock_manager.h"
 #ifdef FW_LOGGING_ENABLE
 //! Firmware logging includes
 #include "sl_fw_logging.h"
@@ -67,6 +68,9 @@
 #define BUFFER_SIZE 1024
 
 #define BAUD_VALUE 115200
+
+#define INTF_PLL_CLK ((uint32_t)(80000000)) // 80MHz default Interface PLL Clock as source to UART
+#define SOC_PLL_CLK  ((uint32_t)(80000000)) // 80MHz default SoC PLL Clock as source to Processor
 
 #ifdef FW_LOGGING_ENABLE
 //! Memory length of driver updated for firmware logging
@@ -488,6 +492,17 @@ static void rsi_data_tx_send()
   rsi_bt_driver_send_cmd(RSI_BLE_REQ_HCI_RAW, &rsi_data_packet, NULL);
 }
 
+// Function to configure clock on powerup
+static void core_and_pll_clock_update(void)
+{
+  // Core Clock runs at 80MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 80MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
+
 /*******************************************************************************
  * USART Example Initialization function
  ******************************************************************************/
@@ -496,6 +511,8 @@ int32_t rsi_ble_app_init_uart(void)
   int32_t status = 0;
   // Configures the system default clock and power configurations
   SystemCoreClockUpdate();
+
+  core_and_pll_clock_update();
 
   // Read capabilities of UART
   Read_Capabilities();

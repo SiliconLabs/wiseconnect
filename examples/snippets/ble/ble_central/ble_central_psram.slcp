@@ -17,7 +17,7 @@ sdk:
   version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.0
+  version: 3.3.1
 source:
 - path: app.c
 - path: main.c
@@ -30,9 +30,6 @@ define:
 - name: SL_SI91X_PRINT_DBG_LOG
 - name: SL_SI91X_MCU_WIRELESS_BASED_WAKEUP
 - name: SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
-template_contribution:
-- name: psram_powersave_handle
-  value: true
 component:
 - id: sl_system
 - id: freertos
@@ -61,14 +58,16 @@ component:
   from: wiseconnect3_sdk
 - id: psram_aps6404l_sqh
   from: wiseconnect3_sdk
-- id: data_segment_in_psram
-  from: wiseconnect3_sdk
-- id: stack_segment_in_psram
-  from: wiseconnect3_sdk
 - id: text_segment_in_psram
   from: wiseconnect3_sdk
 - id: sl_si91x_basic_buffers
   from: wiseconnect3_sdk
+- id: sl_power_manager
+  from: wiseconnect3_sdk  
+requires:
+  - name: device_needs_ram_execution
+    condition:
+      - si91x_common_flash  
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

@@ -10,8 +10,10 @@ root_path: components/device/silabs/si91x/mcu/toolchain
 provides:
   - name: wiseconnect_toolchain_plugin
 template_file:
+  - path: linkerfile_psram_SoC.ld.jinja
+    condition: [wiseconnect_toolchain_psram_linker]
   - path: linkerfile_SoC.ld.jinja
-    unless: [wiseconnect_toolchain_gcc_override, wiseconnect_toolchain_custom_linker]
+    unless: [wiseconnect_toolchain_gcc_override, wiseconnect_toolchain_custom_linker, wiseconnect_toolchain_psram_linker]
 requires:
   - name: toolchain_gcc
   - name: toolchain_variant_arm
@@ -25,8 +27,11 @@ library:
       - wiseconnect_toolchain_gcc_override
 toolchain_settings:
   - option: linkerfile
+    value: autogen/linkerfile_psram_SoC.ld
+    condition: [wiseconnect_toolchain_psram_linker]
+  - option: linkerfile
     value: autogen/linkerfile_SoC.ld
-    unless: [wiseconnect_toolchain_gcc_override, wiseconnect_toolchain_custom_linker]
+    unless: [wiseconnect_toolchain_gcc_override, wiseconnect_toolchain_custom_linker, wiseconnect_toolchain_psram_linker]
   - option: gcc_linker_option
     value: "-u _printf_float"
   - option: gcc_compiler_option

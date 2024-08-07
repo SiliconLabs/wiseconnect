@@ -12,7 +12,7 @@ filter:
     value: ["Beginner"]
 sdk: {id: simplicity_sdk, version: 2024.6.0}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.3.0}
+- {id: wiseconnect3_sdk, version: 3.3.1}
 source:
   - path: app.c
   - path: main.c
@@ -36,6 +36,7 @@ component:
 - {from: wiseconnect3_sdk, id: udma_linker_config}
 - {from: wiseconnect3_sdk, id: syscalls}
 - {from: wiseconnect3_sdk, id: sl_usart}
+- {from: wiseconnect3_sdk, id: sl_clock_manager}
 requires:
 - name: sl_system
 - name: network_manager

@@ -17,7 +17,7 @@ sdk:
   version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.0
+  version: 3.3.1
 source:
   - path: app.c
   - path: main.c
@@ -27,8 +27,6 @@ include:
       - path: app.h
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
-provides:
-  - name: si91x_soc
 component:
   - id: sl_system
   - id: freertos
@@ -39,11 +37,7 @@ component:
     from: wiseconnect3_sdk
   - id: wiseconnect3_common
     from: wiseconnect3_sdk
-  - id: stack_segment_in_psram
-    from: wiseconnect3_sdk
-  - from: wiseconnect3_sdk
-    id: text_segment_in_psram
-  - id: data_segment_in_psram
+  - id: text_segment_in_psram
     from: wiseconnect3_sdk
   - id: udma_linker_config
     from: wiseconnect3_sdk
@@ -67,6 +61,10 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_mem_pool_buffers_with_quota
     from: wiseconnect3_sdk
+requires:
+  - name: device_needs_ram_execution
+    condition:
+      - si91x_common_flash    
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

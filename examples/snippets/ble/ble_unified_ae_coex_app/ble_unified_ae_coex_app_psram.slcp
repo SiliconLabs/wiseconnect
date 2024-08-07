@@ -17,7 +17,7 @@ sdk:
   version: 2024.6.0
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.0
+  version: 3.3.1
 source:
 - path: app.c
 - path: main.c
@@ -56,10 +56,6 @@ include:
   - path: event_loop.h
 define:
 - name: SL_SI91X_PRINT_DBG_LOG
-- name: SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
-template_contribution:
-- name: psram_powersave_handle
-  value: true
 component:
 - id: sl_system
 - id: freertos
@@ -85,10 +81,6 @@ component:
 - id: psram_core
   from: wiseconnect3_sdk
 - id: psram_aps6404l_sqh
-  from: wiseconnect3_sdk
-- id: data_segment_in_psram
-  from: wiseconnect3_sdk
-- id: stack_segment_in_psram
   from: wiseconnect3_sdk
 - id: text_segment_in_psram
   from: wiseconnect3_sdk

@@ -57,12 +57,15 @@ extern unsigned long _sidata;       /*!< Start address for the initialization
                                       values of the .data section.            */
 extern unsigned long _sdata;        /*!< Start address for the .data section     */
 extern unsigned long _edata;        /*!< End address for the .data section       */
-extern unsigned long _slpcode;      /*!< Start address for the initialization
-                                      values of the .sleep_psram_driver section.            */
-extern unsigned long _scode;        /*!< Start address for the .sleep_psram_driver section     */
-extern unsigned long _ecode;        /*!< End address for the .sleep_psram_driver section       */
 extern unsigned long __bss_start__; /*!< Start address for the .bss section     */
 extern unsigned long __bss_end__;   /*!< End address for the .bss section         */
+
+#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE == ENABLE)
+extern unsigned long _slpcode; /*!< Start address for the initialization
+                                      values of the .sleep_psram_driver section.            */
+extern unsigned long _scode;   /*!< Start address for the .sleep_psram_driver section     */
+extern unsigned long _ecode;   /*!< End address for the .sleep_psram_driver section       */
+#endif
 
 /*---------------------------------------------------------------------------
  * Internal References
@@ -206,7 +209,7 @@ void Copy_Table(void)
   for (pulDest = &_sdata; pulDest < &_edata;) {
     *(pulDest++) = *(pulSrc++);
   }
-#if defined(SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE) && (SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE == ENABLE)
+#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE == ENABLE)
   /* Copy the sleep PSRAM driver segment to SRAM */
   pulSrc = &_slpcode;
   for (pulDest = &_scode; pulDest < &_ecode;) {

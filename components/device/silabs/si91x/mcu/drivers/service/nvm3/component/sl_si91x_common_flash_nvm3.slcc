@@ -41,5 +41,7 @@ template_contribution:
     value: true
   - name: ram_execution
     value: true
+  - name: max_flash_size
+    value: 2088960 #0x1fe000     
 provides:
   - name: sl_si91x_common_flash_nvm3

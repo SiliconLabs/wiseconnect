@@ -17,6 +17,8 @@ requires:
   - name: romdriver_qspi
 template_contribution:
   - name: littlefs_enable
-    value: true  
+    value: true
+  - name: max_flash_size
+    value: 2088960 #0x1fe000        
 provides:
   - name: sl_si91x_littlefs

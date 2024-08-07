@@ -32,6 +32,7 @@
 #define PORT0 0 // GPIO Port 0
 
 #define PAD_SELECT_9   9  // GPIO PAD selection number
+#define PAD_SELECT_21  21 // GPIO PAD selection number
 #define MAX_PAD_SELECT 34 // Maximum GPIO PAD selection number
 
 #define PIN6  6  // Pin number 6 port 0
@@ -355,7 +356,11 @@ static void sl_gpio_initialization(void)
   // Enable pad selection for GPIO pins
   // PadSelection-9 related GPIOS are pre-configured for Other Functions
   for (pad_sel = 1; pad_sel < MAX_PAD_SELECT; pad_sel++) {
+#if defined(SLI_SI91X_MCU_INTERNAL_LDO_FOR_PSRAM)
+    if (pad_sel < PAD_SELECT_9 || pad_sel > PAD_SELECT_21) {
+#else
     if (pad_sel != PAD_SELECT_9) {
+#endif
       sl_si91x_gpio_enable_pad_selection(pad_sel);
     }
   }
