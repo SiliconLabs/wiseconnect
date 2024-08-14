@@ -887,11 +887,10 @@ int32_t I2S_Send(const void *data,
       }
       if (i2s->reg == I2S0) {
         chnl_cfg.channelPrioHigh = UDMA0_CHNL_PRIO_LVL;
-        chnl_cfg.dmaCh           = RTE_I2S0_CHNL_UDMA_TX_CH;
       } else {
         chnl_cfg.channelPrioHigh = UDMA1_CHNL_PRIO_LVL;
-        chnl_cfg.dmaCh           = RTE_I2S1_CHNL_UDMA_TX_CH;
       }
+      chnl_cfg.dmaCh     = i2s->dma_tx->channel;
       chnl_cfg.periAck   = 0;
       chnl_cfg.periphReq = 0;
       chnl_cfg.reqMask   = 0;
@@ -1032,11 +1031,10 @@ int32_t I2S_Receive(void *data,
     }
     if (i2s->reg == I2S0) {
       chnl_cfg.channelPrioHigh = UDMA0_CHNL_PRIO_LVL;
-      chnl_cfg.dmaCh           = RTE_I2S0_CHNL_UDMA_RX_CH;
     } else {
       chnl_cfg.channelPrioHigh = UDMA1_CHNL_PRIO_LVL;
-      chnl_cfg.dmaCh           = RTE_I2S1_CHNL_UDMA_RX_CH;
     }
+    chnl_cfg.dmaCh     = i2s->dma_rx->channel;
     chnl_cfg.periAck   = 0;
     chnl_cfg.periphReq = 0;
     chnl_cfg.reqMask   = 0;

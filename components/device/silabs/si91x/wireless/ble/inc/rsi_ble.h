@@ -48,7 +48,6 @@
 #define BLE_AE_REPORTING_ENABLED                    0x00
 #define BLE_AE_PERODIC_DUPLICATE_FILTERING_ENABLED  0x01
 #define BLE_AE_PERODIC_DUPLICATE_FILTERING_DISABLED 0x00
-#define BLE_AE_PERIODIC_LIST_NOT_USED               0x00
 #define BLE_AE_PERIODIC_LIST_USED                   0x01
 
 /******************************************************
@@ -1067,9 +1066,6 @@ typedef struct rsi_ble_get_local_att_value_s {
 typedef struct rsi_ble_gatt_read_response_s {
   //uint8[6], remote device address.
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
-  //uint8[2], attribute handle.
-  //	uint16_t      handle;
-  //	uint16_t      offset;
   uint8_t type;
   uint8_t reserved;
   //uint8[2], attribute value length.
@@ -1130,12 +1126,10 @@ typedef struct rsi_ble_att_error_response_s {
   uint8_t err_code;
 } rsi_ble_att_error_response_t;
 
-//accept list(cmd), cmd_ix = 0x00AB
 typedef struct rsi_ble_gatt_remove_serv_s {
   uint32_t serv_hndler;
 } rsi_ble_gatt_remove_serv_t;
 
-//accept list(cmd), cmd_ix = 0x00AC
 typedef struct rsi_ble_gatt_remove_att_s {
   uint32_t serv_hndler;
   uint16_t att_hndl;
@@ -1160,11 +1154,11 @@ typedef struct rsi_ble_mtu_exchange_resp_s {
 } rsi_ble_mtu_exchange_resp_t;
 
 typedef struct rsi_ble_ae_get_supported_no_of_adv_sets_s {
-  uint16_t reserved; //sets_cnt;
+  uint16_t reserved;
 } SL_ATTRIBUTE_PACKED rsi_ble_ae_get_supported_no_of_adv_sets_t;
 
 typedef struct rsi_ble_ae_read_supported_max_adv_data_s {
-  uint16_t reserved; //max_adv_data_len;
+  uint16_t reserved;
 } SL_ATTRIBUTE_PACKED rsi_ble_ae_read_supported_max_adv_data_t;
 
 // AE Set Random Address (cmd), cmd_ix =
@@ -1432,7 +1426,6 @@ typedef struct rsi_ble_ae_set_scan_enable_s {
   uint16_t period;
 } SL_ATTRIBUTE_PACKED rsi_ble_ae_set_scan_enable_t;
 
-//#pragma pack(push, 1)
 typedef struct rsi_ble_ae_set_periodic_adv_create_sync_s {
   /** uint8_t, Options field, The Options parameter is used to determine whether the Periodic Advertiser List is used
    
@@ -1630,7 +1623,6 @@ typedef struct rsi_ble_ae_pdu {
 
     rsi_ble_ae_extended_create_connect_t extended_create_conn;
 
-    //uint8_t data[1];
   } SL_ATTRIBUTE_PACKED pdu_type;
 } SL_ATTRIBUTE_PACKED rsi_ble_ae_pdu_t;
 

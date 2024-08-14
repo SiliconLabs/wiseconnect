@@ -28,13 +28,7 @@ In this application, the Bluetooth Low Energy (BLE) and Simplicity Connect App(f
 
 Si917 connected to LM75 Temperature Sensor via I2C interface, collects real time temperature data publishes to the cloud until the device is disconnected from the access point. After publish, the NWP processor is set in to associated power save.  Next, the application works differently in NCP and SoC modes as defined below.  
 
-If macro **ENABLE_POWER_SAVE** enabled, Then M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
-
-### Without Tickless Mode:
-
-- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically as configured in the Universal Configurator in 'Wakeup Source Configuration'.
-- Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
-- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up. To receive the message published remotely, Si917 subscribes to **MQTT_TOPIC1** topic.
+If macro **SL_SI91X_TICKLESS_MODE** enabled, Then M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
 ### Tickless Mode
 
@@ -50,7 +44,7 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 After M4 processor wakes up via any of the above processes, the application publishes **MQTT_publish_QOS0_PAYLOAD** message on **MQTT_TOPIC2** topic.
 
-If macro **ENABLE_POWER_SAVE** disabled, Then M4 processor is not in sleep mode. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds.The application publishes **MQTT_publish_QOS0_PAYLOAD** message on **MQTT_TOPIC2** topic in the following cases:
+If macro **SL_SI91X_TICKLESS_MODE** is disabled, then M4 processor does not go to sleep. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds.The application publishes **MQTT_publish_QOS0_PAYLOAD** message on **MQTT_TOPIC2** topic in the following cases:
 
 1. Once in every **PUBLISH_PERIODICITY** time period.
 2. When an incoming publish is received by the application.
@@ -81,6 +75,7 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
      - BRD4338A [SiWx917-RB4338A]
      - BRD4339B [SiWx917-RB4339B]
      - BRD4340A [SiWx917-RB4340A]
+  	 - BRD4343A [SiWx917-RB4343A]
   - Kits
    - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
    - SiWx917 Pro Kit [Si917-PK6032A]
@@ -89,11 +84,16 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD8045A + BRD4346A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+  - Interface and Host MCU Supported
+    - SPI - EFR32 & STM32 
+    - UART - EFR32
 
 #### Base Board Pin Configuration for I2C B0 Board(BRD4338A SOC Boards)
 
-#### I2C2
+#### I2C
 
 | PIN | ULP GPIO PIN               | Description                 |
 | --- | -------------------------- | --------------------------- |
@@ -104,8 +104,7 @@ A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The a
 
 - Simplicity Studio 
 - Serial terminal for viewing the print [Tera term](https://tera-term.en.softonic.com/)
-- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app ),
-which is available in Play store/App store or `Silabs_connect.apk`, which is available in the path `\wiseconnect\utilities\ble_provisioning_apps\android_based_provisioning_app.`
+- Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app ) from Play store/App store.
 
 ### Setup Diagram
 
@@ -150,28 +149,13 @@ For SoC Mode only:
 
    **NOTE:** You can change the topic names, which are `aws_status` and `si91x_status`.
 
-  The below parameters are only applicable for SoC with power save enabled  whereas **PUBLISH_PERIODICITY** and **ENABLE_POWER_SAVE** can be configured in NCP also.
+  
 
 ```c
-#define ENABLE_POWER_SAVE         1                 //! Enable this macro to run application with power save mode.
+#define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling TA power save.
 
 #define PUBLISH_PERIODICITY       (30000)          // Configure this macro to publish data every 30 seconds (this works only in NCP with and without POWERSAVE and in SOC without POWERSAVE).
 ```
-### For Without Tickless Mode:
-
-Disable tickless mode by adding the preprocessor macro "SL_SI91X_TICKLESS_MODE" for the example.
-
-The M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
-
-- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
-  - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
-  - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
-- Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
-  - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
-  - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
-- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
-  - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
-
 Open `ble_app.c` file and update/modify following macros
 
    **Configuring the BLE Application**
@@ -327,8 +311,9 @@ Follow the steps below for successful execution of the application:
 
   ![](resources/readme/output3.png)
 
- > **NOTE :**
-  - To know more about aws mqtt apis error codes. Please refer wiseconnect3\third_party\aws_sdk\include\aws_iot_error.h file.
+**Note:**
+- To know more about aws mqtt apis error codes. Please refer wiseconnect3\third_party\aws_sdk\include\aws_iot_error.h file.
+- As the user is calling select and waiting forever, if no data is received, it is the user's responsibility to manage sending the keepalive packets to maintain the connection.
   
 ### MQTT Connection
 

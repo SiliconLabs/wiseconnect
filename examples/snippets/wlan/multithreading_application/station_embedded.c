@@ -315,6 +315,8 @@ sl_status_t mqtt_example()
     return status;
   }
 
+  mqtt_broker_configuration.ip.type = SL_IPV4;
+
   status =
     sl_mqtt_client_connect(&client, &mqtt_broker_configuration, &last_will_message, &mqtt_client_configuration, 0);
   if (status != SL_STATUS_IN_PROGRESS) {

@@ -81,22 +81,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   the user repack limit should be placed. The default is 0, which means the user and forced repack limits are equal.
 - NVM3_DEFAULT_NVM_SIZE - Size of the NVM3 storage region in flash. This size should be aligned with the flash page size of the device.
 
-### Code modifications for printing on the uart console
-
-- In rsi_debug.c file make M4_UART1_INSTANCE as 1 and ULP_UART_INSTANCE as 0
-
-### Pinout on WPK for uart console
-
-| GPIO pin                | Description             |
-| ----------------------- | ----------------------- |
-| GPIO_30 [P-35]         | UART Tx   |
-| GPIO_29 [P-33]         | UART Rx  |
-
 ## Test the Application
 
-- Connect TX pin(GPIO_30) to RX pin of UART-TTL cable and RX pin(GPIO_29) to TX pin of UART-TTL cable
-
-- Users can give the following commands:
+- Users can give the following commands through VCOM:
 
   - For storing new key, type below syntax followed by enter
     write key string

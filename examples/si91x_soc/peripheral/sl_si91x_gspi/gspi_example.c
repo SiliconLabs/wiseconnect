@@ -265,10 +265,10 @@ void gspi_example_process_action(void)
         if (SL_USE_RECEIVE) {
           current_mode       = SL_GSPI_RECEIVE_DATA;
           begin_transmission = true;
-          DEBUGOUT("SSI send completed \n");
+          DEBUGOUT("GSPI send completed \n");
           break;
         }
-        DEBUGOUT("SSI send completed \n");
+        DEBUGOUT("GSPI send completed \n");
         // If receive macro is not enabled, current mode is set to completed.
         current_mode = SL_GSPI_TRANSMISSION_COMPLETED;
       }

@@ -38,6 +38,10 @@
 #define STATIC_CLOCK_DIV_FACTOR          1         // Static clock divison factor
 #define HALF_CLOCK_DIV_FACTOR            2         // To make the clock division factor half
 #define DUMMY_DATA                       (0x5AA5)
+#define MAX_DATA_WIDTH                   16 // Maximum data width gspi supports
+#define DATA_WIDTH_8                     8  // Data width 8 for differentiating DMA Transfers
+
+typedef uint32_t __attribute__((__may_alias__)) aliased_uint32_t;
 
 static uint8_t data_width_in_bytes = 0; // variable to store data width in bytes for current transfer
 static void GSPI_Convert_Data_Width_To_Bytes(uint16_t data_width);
@@ -558,7 +562,7 @@ set_speed:
 
   // Configure Number of Data Bits
   data_bits = ((control & ARM_SPI_DATA_BITS_Msk) >> ARM_SPI_DATA_BITS_Pos);
-  if ((data_bits == 0) || (data_bits > 16)) {
+  if (data_bits > MAX_DATA_WIDTH) {
     return ARM_SPI_ERROR_DATA_BITS;
   } else {
     // Update the number of Data Bits
@@ -643,7 +647,7 @@ int32_t GSPI_Send(const void *data,
     control.srcProtCtrl        = 0x0;
     control.dstProtCtrl        = 0x0;
     control.dstInc             = DST_INC_NONE;
-    if ((data_bits <= 8) && (data_bits != 0)) {
+    if (data_bits <= DATA_WIDTH_8) {
       //8-bit data frame
       control.srcSize = SRC_SIZE_8;
       control.srcInc  = SRC_INC_8;
@@ -719,11 +723,12 @@ int32_t GSPI_Send(const void *data,
 
     // write first index data
     if (data_width_in_bytes == 1) {
-      *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t) * (gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
+      *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) =
+        (uint32_t) * (gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
     } else if (data_width_in_bytes == 2) {
       data_16bit = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
       data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++) << 8U);
-      *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)data_16bit;
+      *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)data_16bit;
     }
     while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
       ;
@@ -809,7 +814,7 @@ int32_t GSPI_Receive(void *data,
       control.srcProtCtrl        = 0x0;
       control.dstProtCtrl        = 0x0;
       control.dstInc             = DST_INC_NONE;
-      if ((data_bits <= 8) && (data_bits != 0)) {
+      if (data_bits <= DATA_WIDTH_8) {
         //8-bit data frame
         control.srcSize = SRC_SIZE_8;
         control.srcInc  = SRC_INC_8;
@@ -884,7 +889,7 @@ int32_t GSPI_Receive(void *data,
       control.srcProtCtrl = 0x0;
       control.dstProtCtrl = 0x0;
       control.srcInc      = SRC_INC_NONE;
-      if ((data_bits <= 8) && (data_bits != 0)) {
+      if (data_bits <= DATA_WIDTH_8) {
         //8-bit data frame
         control.srcSize = SRC_SIZE_8;
         control.dstSize = DST_SIZE_8;
@@ -968,9 +973,9 @@ int32_t GSPI_Receive(void *data,
 
     // write dummy for reading first index data
     if (data_width_in_bytes == 1) {
-      *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)DUMMY_DATA;
+      *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)DUMMY_DATA;
     } else if (data_width_in_bytes == 2) {
-      *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)DUMMY_DATA;
+      *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)DUMMY_DATA;
     }
     while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
       ;
@@ -1058,7 +1063,7 @@ int32_t GSPI_Transfer(const void *data_out,
       control.srcProtCtrl        = 0x0;
       control.dstProtCtrl        = 0x0;
       control.dstInc             = DST_INC_NONE;
-      if ((data_bits <= 8) && (data_bits != 0)) {
+      if (data_bits <= DATA_WIDTH_8) {
         //8-bit data frame
         control.srcSize = SRC_SIZE_8;
         control.srcInc  = SRC_INC_8;
@@ -1127,7 +1132,7 @@ int32_t GSPI_Transfer(const void *data_out,
       control.srcProtCtrl        = 0x0;
       control.dstProtCtrl        = 0x0;
       control.srcInc             = SRC_INC_NONE;
-      if ((data_bits <= 8) && (data_bits != 0)) {
+      if (data_bits <= DATA_WIDTH_8) {
         //8-bit data frame
         control.srcSize = SRC_SIZE_8;
         control.dstSize = DST_SIZE_8;
@@ -1209,11 +1214,12 @@ int32_t GSPI_Transfer(const void *data_out,
 
     // write first index data
     if (data_width_in_bytes == 1) {
-      *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t) * (gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
+      *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) =
+        (uint32_t) * (gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
     } else if (data_width_in_bytes == 2) {
       data_16bit = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
       data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++) << 8U);
-      *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)data_16bit;
+      *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)data_16bit;
     }
     while (gspi->reg->GSPI_STATUS & GSPI_BUSY_F)
       ;
@@ -1313,11 +1319,11 @@ void GSPI_IRQHandler(const GSPI_RESOURCES *gspi)
         // read the next data available in the FIFO into rx_buf
         if (data_width_in_bytes == 1) {
           //8bit
-          data_8bit                                    = *(volatile uint32_t *)(gspi->reg->GSPI_READ_FIFO);
+          data_8bit                                    = *(volatile aliased_uint32_t *)(gspi->reg->GSPI_READ_FIFO);
           *(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = data_8bit;
         } else if (data_width_in_bytes == 2) {
           //16bit
-          data_16bit                                   = *(volatile uint32_t *)(gspi->reg->GSPI_READ_FIFO);
+          data_16bit                                   = *(volatile aliased_uint32_t *)(gspi->reg->GSPI_READ_FIFO);
           *(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = (uint8_t)data_16bit;
           *(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = (uint8_t)(data_16bit >> 8U);
         }
@@ -1330,16 +1336,16 @@ void GSPI_IRQHandler(const GSPI_RESOURCES *gspi)
           event |= ARM_SPI_EVENT_TRANSFER_COMPLETE;
         } else if (!(gspi->xfer->tx_buf)) { // Only meant to write dummy data in case of half-duplex mode "Receive-only"
           if (data_width_in_bytes == 1) {
-            *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)DUMMY_DATA;
+            *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)DUMMY_DATA;
           } else if (data_width_in_bytes == 2) {
-            *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)DUMMY_DATA;
+            *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)DUMMY_DATA;
           }
         }
       }
     } else {
       // Unanticipated receive, flush the fifo
       uint32_t flush_data;
-      flush_data = *(volatile uint32_t *)(gspi->reg->GSPI_READ_FIFO);
+      flush_data = *(volatile aliased_uint32_t *)(gspi->reg->GSPI_READ_FIFO);
       (void)flush_data;
     }
   }
@@ -1349,12 +1355,12 @@ void GSPI_IRQHandler(const GSPI_RESOURCES *gspi)
       // verify if there are still some bytes to transmit
       if (gspi->xfer->tx_cnt < gspi->xfer->num) {
         if (data_width_in_bytes == 1) {
-          data_8bit                                          = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
-          *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)data_8bit;
+          data_8bit                                                  = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
+          *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)data_8bit;
         } else if (data_width_in_bytes == 2) {
           data_16bit = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
           data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++) << 8);
-          *(volatile uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)data_16bit;
+          *(volatile aliased_uint32_t *)(gspi->reg->GSPI_WRITE_FIFO) = (uint32_t)data_16bit;
         }
         while (gspi->reg->GSPI_STATUS_b.GSPI_BUSY)
           ;

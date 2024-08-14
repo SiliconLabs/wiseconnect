@@ -180,7 +180,7 @@ sl_adxl_err_t sl_si91x_adxl345_init(sl_sensor_bus_t spi_bus)
 
   sl_si91x_adxl345_power_on();
 
-  if (adxl345 != NULL) {
+  if (adxl345 == NULL) {
     return RSI_FAIL;
   }
   is_accelerometer_init = true;

@@ -62,10 +62,10 @@
 /// Content type for PDF files.
 #define SL_HTTP_CONTENT_TYPE_APPLICATION_PDF "application/pdf"
 
-/// Maximum number of query parameters in a URI
+/// Maximum number of query parameters in a URI.
 #define MAX_QUERY_PARAMETERS 4
 
-/// Maximum length of the header buffer
+/// Maximum length of the header buffer.
 #define MAX_HEADER_BUFFER_LENGTH 1024
 
 /******************************************************
@@ -154,7 +154,7 @@ typedef struct {
   uint16_t header_count;                 ///< Length of header array
   uint8_t *data;                         ///< Pointer to the data buffer
   uint32_t current_data_length;          ///< Length of the data buffer
-  uint32_t expected_data_length;         ///< Total Length of the data to be sent in response
+  uint32_t expected_data_length;         ///< Total length of the data to be sent in response
 } sl_http_server_response_t;
 
 /// HTTP server uri query parametrs
@@ -167,7 +167,7 @@ typedef struct {
 typedef struct {
   char *path;                                                                  ///< URI path
   sl_http_server_uri_query_parameter_t query_parameters[MAX_QUERY_PARAMETERS]; ///< Array of query parameters
-  uint16_t query_parameter_count; ///< Number of query parametrs received in uri
+  uint16_t query_parameter_count; ///< Number of query parameters received in URI
 } sl_http_server_request_uri_t;
 
 /// HTTP server request parameters
@@ -188,9 +188,10 @@ typedef struct {
 /// HTTP server configuration
 typedef struct {
   uint16_t port;                             ///< Port number of the HTTP server
-  sl_http_server_handler_t *handlers_list;   ///< Array of request Handlers
-  uint16_t handlers_count;                   ///< Length of request handlers Array
+  sl_http_server_handler_t *handlers_list;   ///< Array of request handlers
+  uint16_t handlers_count;                   ///< Length of request handlers array
   sl_http_request_handler_t default_handler; ///< Default handler
+  uint16_t client_idle_time;                 ///< Idle duration in seconds before the client is considered inactive.
 } sl_http_server_config_t;
 
 /// HTTP server handle used to manage all HTTP server functions
@@ -205,7 +206,8 @@ typedef struct sl_http_server_s {
   uint8_t *req_data;                             ///< Pointer to the data of the HTTP request.
   uint32_t data_length;                          ///< Length of the request data.
   uint32_t rem_len;                              ///< Remaining length of data to be processed in the request.
-  bool response_sent; ///< Flag indicating whether the response has been sent for the current request.
+  bool response_sent;       ///< Flag indicating whether the response has been sent for the current request.
+  uint32_t rem_resp_length; ///< Remaining length of data to be sent in the response.
 } sl_http_server_t;
 
 /// HTTP read data parameters

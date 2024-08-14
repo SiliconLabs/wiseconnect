@@ -47,7 +47,7 @@ static void on_timeout_timer1(sl_sleeptimer_timer_handle_t *handle,
 void sleeptimer_init(void)
 {
   bool is_running = false;
-  sl_si91x_led_toggle(RTE_LED1_PIN);
+  sl_si91x_led_toggle(SL_LED_LED1_PIN);
   //Start a 5000ms oneshot timer
   sl_sleeptimer_start_timer(&timer1,
                             TOOGLE_DELAY_MS1_ONESHOT,
@@ -76,7 +76,7 @@ void sleeptimer_process_action(void)
 {
   if (toggle_timeout == true) {
     //  Toggles the current state of a board '1' number LED.
-    sl_si91x_led_toggle(RTE_LED1_PIN);
+    sl_si91x_led_toggle(SL_LED_LED1_PIN);
     toggle_timeout = false;
   }
 }

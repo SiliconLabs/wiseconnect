@@ -35,5 +35,7 @@ requires:
 template_contribution:
   - name: nvm3_enable
     value: true
+  - name: max_flash_size
+    value: 2088960 #0x1fe000     
 provides:
   - name: sl_si91x_dual_flash_nvm3

@@ -192,7 +192,7 @@ int32_t rsi_ble_start_advertising(void)
  *             0x4046 - Invalid Arguments  
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-int32_t rsi_ble_start_advertising_with_values(void *rsi_ble_adv)
+int32_t rsi_ble_start_advertising_with_values(const void *rsi_ble_adv)
 {
   SL_PRINTF(SL_RSI_BLE_START_ADV_WITH_VALUES_TRIGGER, BLE, LOG_INFO);
   rsi_ble_req_adv_t ble_adv = { 0 };
@@ -221,7 +221,7 @@ int32_t rsi_ble_start_advertising_with_values(void *rsi_ble_adv)
  *             -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-int32_t rsi_ble_encrypt(uint8_t *key, uint8_t *data, uint8_t *resp)
+int32_t rsi_ble_encrypt(const uint8_t *key, const uint8_t *data, uint8_t *resp)
 {
 
   SL_PRINTF(SL_RSI_BLE_ENCRYPT_TRIGGER, BLE, LOG_INFO);
@@ -274,13 +274,13 @@ int32_t rsi_ble_stop_advertising(void)
  * @note       1. The maximum length of advertising data payload is 31 bytes. \n
  *             2. The basic format of advertising payload record contains length and data. \n
  */
-int32_t rsi_ble_set_advertise_data(uint8_t *data, uint16_t data_len)
+int32_t rsi_ble_set_advertise_data(const uint8_t *data, uint16_t data_len)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_ADV_DATA_TRIGGER, BLE, LOG_INFO);
   rsi_ble_req_adv_data_t ble_adv_data = { 0 };
 
-  ble_adv_data.data_len = RSI_MIN(data_len, sizeof(ble_adv_data.adv_data));
+  ble_adv_data.data_len = (uint8_t)(RSI_MIN(data_len, sizeof(ble_adv_data.adv_data)));
   memcpy(ble_adv_data.adv_data, data, ble_adv_data.data_len);
 
   // Send stop advertise command
@@ -300,12 +300,12 @@ int32_t rsi_ble_set_advertise_data(uint8_t *data, uint16_t data_len)
  *             -4 - Buffer not available to serve the command
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-int32_t rsi_ble_set_scan_response_data(uint8_t *data, uint16_t data_len)
+int32_t rsi_ble_set_scan_response_data(const uint8_t *data, uint16_t data_len)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_SCAN_RESPONSE_DATA_TRIGGER, BLE, LOG_INFO);
   rsi_ble_req_scanrsp_data_t ble_scanrsp_data = { 0 };
-  ble_scanrsp_data.data_len                   = RSI_MIN(data_len, sizeof(ble_scanrsp_data.scanrsp_data));
+  ble_scanrsp_data.data_len                   = (uint8_t)(RSI_MIN(data_len, sizeof(ble_scanrsp_data.scanrsp_data)));
   memcpy(ble_scanrsp_data.scanrsp_data, data, ble_scanrsp_data.data_len);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_SET_SCAN_RESPONSE_DATA, &ble_scanrsp_data, NULL);
@@ -464,7 +464,7 @@ int32_t rsi_ble_stop_scanning(void)
  */
 
 int32_t rsi_ble_connect_with_params(uint8_t remote_dev_addr_type,
-                                    int8_t *remote_dev_addr,
+                                    const int8_t *remote_dev_addr,
                                     uint16_t scan_interval,
                                     uint16_t scan_window,
                                     uint16_t conn_interval_max,
@@ -530,7 +530,7 @@ int32_t rsi_ble_connect_with_params(uint8_t remote_dev_addr_type,
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .            
  */
 
-int32_t rsi_ble_connect(uint8_t remote_dev_addr_type, int8_t *remote_dev_addr)
+int32_t rsi_ble_connect(uint8_t remote_dev_addr_type, const int8_t *remote_dev_addr)
 {
 
   SL_PRINTF(SL_RSI_BLE_CONNECT, BLE, LOG_INFO, "ADDRESS_TYPE: %2x", remote_dev_addr_type);
@@ -590,7 +590,7 @@ int32_t rsi_ble_enhance_connect_with_params(void *ble_enhance_conn_params)
  *             0x4E02 - Unknown Connection Identifier \n
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-int32_t rsi_ble_connect_cancel(int8_t *remote_dev_address)
+int32_t rsi_ble_connect_cancel(const int8_t *remote_dev_address)
 {
 
   SL_PRINTF(SL_RSI_BLE_CONNECT_CANCEL, BLE, LOG_INFO);
@@ -621,7 +621,7 @@ int32_t rsi_ble_connect_cancel(int8_t *remote_dev_address)
  *             0x4D04	BLE not connected \n 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .  
  */
-int32_t rsi_ble_disconnect(int8_t *remote_dev_address)
+int32_t rsi_ble_disconnect(const int8_t *remote_dev_address)
 {
   SL_PRINTF(SL_RSI_BLE_DISCONNECT, BLE, LOG_INFO, "ADDRESS: %1x", *remote_dev_address);
   rsi_ble_req_disconnect_t ble_disconnect = { 0 };
@@ -692,7 +692,7 @@ int32_t rsi_ble_set_smp_pairing_cap_data(rsi_ble_set_smp_pairing_capabilty_data_
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 
-int32_t rsi_ble_set_local_irk_value(uint8_t *l_irk)
+int32_t rsi_ble_set_local_irk_value(const uint8_t *l_irk)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_LOCAL_IRK_VALUE, BLE, LOG_INFO);
@@ -722,7 +722,7 @@ int32_t rsi_ble_set_local_irk_value(uint8_t *l_irk)
  *
  */
 
-int32_t rsi_ble_conn_param_resp(uint8_t *remote_dev_address, uint8_t status)
+int32_t rsi_ble_conn_param_resp(const uint8_t *remote_dev_address, uint8_t status)
 {
 
   SL_PRINTF(SL_RSI_BLE_CONN_PARAM_RESPONSE, BLE, LOG_INFO, "STATUS: %1x", status);
@@ -844,7 +844,7 @@ int32_t rsi_ble_smp_pair_failed(uint8_t *remote_dev_address, uint8_t reason)
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 
-int32_t rsi_ble_ltk_req_reply(uint8_t *remote_dev_address, uint8_t reply_type, uint8_t *ltk)
+int32_t rsi_ble_ltk_req_reply(uint8_t *remote_dev_address, uint8_t reply_type, const uint8_t *ltk)
 {
 
   SL_PRINTF(SL_RSI_BLE_LTK_REQ_REPLY, BLE, LOG_INFO, "REPLY_TYPE: %1x", reply_type);
@@ -981,7 +981,7 @@ int32_t rsi_ble_get_le_ping_timeout(uint8_t *remote_dev_address, uint16_t *time_
 #else
   memcpy(leping_cmd.dev_addr, (int8_t *)remote_dev_address, 6);
 #endif
-  status = rsi_bt_driver_send_cmd(RSI_BLE_GET_LE_PING, &leping_cmd, &le_ping_rsp);
+  status = (uint16_t)(rsi_bt_driver_send_cmd(RSI_BLE_GET_LE_PING, &leping_cmd, &le_ping_rsp));
   if (status == 0) {
     *time_out = le_ping_rsp.time_out;
   }
@@ -1059,7 +1059,7 @@ int32_t rsi_ble_clear_acceptlist(void)
  * @note       Maximum number of device address that firmware can store is 10. \n Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 
-int32_t rsi_ble_addto_acceptlist(int8_t *dev_address, uint8_t dev_addr_type)
+int32_t rsi_ble_addto_acceptlist(const int8_t *dev_address, uint8_t dev_addr_type)
 {
 
   SL_PRINTF(SL_RSI_BLE_ADD_TO_ACCEPTLIST, BLE, LOG_INFO, "DEVICE_ADDRESS_TYPE: %1x", dev_addr_type);
@@ -1088,7 +1088,7 @@ int32_t rsi_ble_addto_acceptlist(int8_t *dev_address, uint8_t dev_addr_type)
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 
-int32_t rsi_ble_deletefrom_acceptlist(int8_t *dev_address, uint8_t dev_addr_type)
+int32_t rsi_ble_deletefrom_acceptlist(const int8_t *dev_address, uint8_t dev_addr_type)
 {
 
   SL_PRINTF(SL_RSI_BLE_DELETEFROM_ACCEPTLIST, BLE, LOG_INFO, "DEVICE_ADDRESS_TYPE: %1x", dev_addr_type);
@@ -1133,8 +1133,8 @@ int32_t rsi_ble_deletefrom_acceptlist(int8_t *dev_address, uint8_t dev_addr_type
 int32_t rsi_ble_resolvlist(uint8_t process_type,
                            uint8_t remote_dev_addr_type,
                            uint8_t *remote_dev_address,
-                           uint8_t *peer_irk,
-                           uint8_t *local_irk)
+                           const uint8_t *peer_irk,
+                           const uint8_t *local_irk)
 {
 
   SL_PRINTF(SL_RSI_BLE_RESOLVLIST,
@@ -1250,7 +1250,7 @@ int32_t rsi_ble_set_privacy_mode(uint8_t remote_dev_addr_type, uint8_t *remote_d
  *             Non-Zero Value - Failure 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-int32_t rsi_ble_readphy(int8_t *remote_dev_address, rsi_ble_resp_read_phy_t *resp)
+int32_t rsi_ble_readphy(const int8_t *remote_dev_address, rsi_ble_resp_read_phy_t *resp)
 {
 
   SL_PRINTF(SL_RSI_BLE_READPHY, BLE, LOG_INFO);
@@ -1295,7 +1295,7 @@ int32_t rsi_ble_readphy(int8_t *remote_dev_address, rsi_ble_resp_read_phy_t *res
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 
-int32_t rsi_ble_setphy(int8_t *remote_dev_address, uint8_t tx_phy, uint8_t rx_phy, uint16_t coded_phy)
+int32_t rsi_ble_setphy(const int8_t *remote_dev_address, uint8_t tx_phy, uint8_t rx_phy, uint16_t coded_phy)
 {
 
   SL_PRINTF(SL_RSI_SETPHY_TRIGGER, BLE, LOG_INFO);
@@ -1347,7 +1347,7 @@ int32_t rsi_ble_setphy(int8_t *remote_dev_address, uint8_t tx_phy, uint8_t rx_ph
 		Max supported peripheral latency is 32 when Device is in Peripheral Role.
  *
  */
-int32_t rsi_ble_conn_params_update(uint8_t *remote_dev_address,
+int32_t rsi_ble_conn_params_update(const uint8_t *remote_dev_address,
                                    uint16_t min_int,
                                    uint16_t max_int,
                                    uint16_t latency,
@@ -1614,7 +1614,7 @@ int32_t rsi_ble_vendor_rf_type(uint8_t ble_power_index)
 int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
                                            uint8_t data_compare_index,
                                            uint8_t len_for_compare_data,
-                                           uint8_t *payload)
+                                           const uint8_t *payload)
 {
 
   SL_PRINTF(SL_RSI_BLE_ACCEPTLIST_USING_ADV_DATA, BLE, LOG_INFO);
@@ -1645,7 +1645,7 @@ int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
  * @return     void
  */
 
-void BT_LE_ADPacketExtract(uint8_t *remote_name, uint8_t *pbuf, uint8_t buf_len)
+void BT_LE_ADPacketExtract(uint8_t *remote_name, const uint8_t *pbuf, uint8_t buf_len)
 {
 
   SL_PRINTF(SL_RSI_BLE_AD_PACKET_EXTRACT, BLE, LOG_INFO);
@@ -1706,7 +1706,7 @@ void BT_LE_ADPacketExtract(uint8_t *remote_name, uint8_t *pbuf, uint8_t buf_len)
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
 
-int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, uint8_t *rand, uint8_t *ltk)
+int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, const uint8_t *rand, const uint8_t *ltk)
 {
 
   SL_PRINTF(SL_RSI_BLE_ENCRYPTION_TRIGGER, BLE, LOG_INFO);
@@ -1830,7 +1830,7 @@ int32_t rsi_ble_get_max_adv_data_len(uint8_t *resp)
  * @section description
  * This function is used by the host to set the random device address specified by the Random_Address_parameter
  */
-int32_t rsi_ble_set_ae_set_random_address(uint8_t handle, uint8_t *rand_addr)
+int32_t rsi_ble_set_ae_set_random_address(uint8_t handle, const uint8_t *rand_addr)
 {
   rsi_ble_ae_pdu_t ae_pdu = { 0 };
 

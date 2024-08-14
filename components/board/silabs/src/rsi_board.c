@@ -48,10 +48,9 @@ static const uint32_t ledBitsCnt = sizeof(ledBits) / sizeof(PORT_PIN_T);
  */
 void RSI_Board_Init(void)
 {
-  uint32_t i;
 #if ((defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER) && (SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER == 1)) \
      && (defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2) && (SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2 == 1)))
-  for (i = 0; i < ledBitsCnt; i++) {
+  for (uint32_t i = 0; i < ledBitsCnt; i++) {
     if (i == 0) {
       /*Set the GPIO pin MUX */
       RSI_EGPIO_SetPinMux(EGPIO1, ledBits[i].port, ledBits[i].pin, 0);

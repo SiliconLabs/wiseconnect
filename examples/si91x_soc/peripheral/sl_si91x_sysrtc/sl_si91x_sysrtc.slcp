@@ -15,10 +15,10 @@ source:
   - path: sysrtc_example.h
 sdk:
   id: simplicity_sdk
-  version: 2024.6.0
+  version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.0
+    version: 3.3.1
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror
@@ -33,7 +33,7 @@ component:
     from: wiseconnect3_sdk
   - id: sl_si91x_led_917
     instance:
-      - led0
+      - led1
     from: wiseconnect3_sdk
   - id: sl_clock_manager
     from: wiseconnect3_sdk

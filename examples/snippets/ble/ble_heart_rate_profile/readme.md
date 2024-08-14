@@ -28,13 +28,18 @@ When the connected remote device writes data to writable characteristic UUID, th
 - Windows PC with Host interface(UART/ SPI/ SDIO).
   - SiWx91x Wi-Fi Evaluation Kit. The SiWx91x supports multiple operating modes. See [Operating Modes]() for details.
   - SoC Mode:
-    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4338A, BRD4339B](https://www.silabs.com/)
+    - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
   - PSRAM Mode:  
     - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
   - NCP Mode:
     - Silicon Labs [BRD4180B](https://www.silabs.com/);
     - Host MCU Eval Kit. This example has been tested with:
       - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
   - BLE Smartphone
   
 ### Software Requirements
@@ -227,7 +232,9 @@ Follow the steps below for successful execution of the application:
 9. Whenever the value is updated at server, it will be notified to the client which can be read at `Heart_Rate_Measurement` attribute.
 
     ![](resources/readme/bleheartratedevicegattserverreceiveddata.png)
+10. Observe the connection status of heart rate on the Docklight.
 
+    ![](resources/readme/heartrate_server_role.PNG)
 ### Verify BLE Heart Rate Profile Application as a Client
 
 1. Configure the **GATT_ROLE** macro as **CLIENT**

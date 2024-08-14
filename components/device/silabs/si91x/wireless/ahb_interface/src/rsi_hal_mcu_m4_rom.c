@@ -21,6 +21,7 @@
 #include "sl_device.h"
 #include "sl_rsi_utility.h"
 #include "rsi_m4.h"
+#include "rsi_ipmu.h"
 
 #ifdef SL_WIFI_COMPONENT_INCLUDED
 #include "sl_si91x_host_interface.h"
@@ -32,6 +33,9 @@ osEventFlagsId_t ta_events = NULL;
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
 #define SIDE_BAND_DONE (1 << 2)
 #endif
+
+static bool m4_is_using_xtal_without_ta_notification;
+static bool m4_using_xtal;
 
 /** @addtogroup SOC4
 * @{
@@ -46,7 +50,120 @@ void sli_si91x_raise_pkt_pending_interrupt_to_ta(void)
 {
   // Write the packet pending interrupt to TA register
   M4SS_P2P_INTR_SET_REG = TX_PKT_PENDING_INTERRUPT;
-  osEventFlagsWait(ta_events, TA_PKT_TX_DONE, (osFlagsWaitAny), osWaitForever);
+  osEventFlagsWait(ta_events, TA_PKT_TX_DONE, osFlagsWaitAny, osWaitForever);
+}
+/**
+ * @fn          bool sli_si91x_is_m4_using_xtal(void);
+ * @brief       This API is used to get the whether XTAL is enabled by M4 without notifying TA
+ * @return      true  : XTAL is enabled by M4 without notifying TA
+ *              false : XTAL is not enabled by M4
+ */
+bool sli_si91x_is_m4_using_xtal(void)
+{
+  return m4_is_using_xtal_without_ta_notification;
+}
+/**
+ * @fn          void sli_si91x_set_m4_is_using_xtal(void);
+ * @brief       This API is set  XTAL is enabled by M4 without notifying TA
+ */
+void sli_si91x_set_m4_is_using_xtal(void)
+{
+  m4_is_using_xtal_without_ta_notification = true;
+}
+
+/**
+ * @fn          bool sli_si91x_is_xtal_in_use_by_m4(void);
+ * @brief       This API is used to get the whether XTAL is used by M4 or any of HP peripherals
+ * @return      true  : XTAL is being used by M4 or HP peripherals
+ *              false : XTAL is not being used
+ */
+bool sli_si91x_is_xtal_in_use_by_m4(void)
+{
+  return m4_using_xtal;
+}
+
+/**
+ * @fn          void sli_si91x_set_xtal_in_use_by_m4(void);
+ * @brief       This API is used set XTAL is used by M4 or any of HP peripherals
+ */
+void sli_si91x_set_xtal_in_use_by_m4(void)
+{
+  m4_using_xtal = true;
+}
+
+/**
+ * @fn          void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void);
+ * @brief       This API is used to Notify TA that M4 requires XTAL clock source 
+ */
+void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void)
+{
+  if ((TASS_P2P_INTR_CLEAR_REG & TURN_ON_XTAL_REQUEST)) {
+    clear_ta_to_m4_interrupt(TURN_ON_XTAL_REQUEST);
+  } else {
+    /* Set M4 XTAL usage flag */
+    sli_si91x_set_xtal_in_use_by_m4();
+
+    /* Confirm if the TA has completed its initialization process */
+    if (sl_si91x_is_device_initialized()) {
+      /* Raise the turn ON xtal interrupt to TA */
+      sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
+      /* If M4 is using XTAL then notify TA to turn ON XTAL during programing common flash*/
+      sli_si91x_raise_xtal_interrupt_to_ta(M4_IS_USING_XTAL_REQUEST);
+    }
+    /*If the 'M4 Enabled XTAL without TA Notification,
+* then after net initialization (TA device initialization), a request to turn on the XTAL will be sent to the TA*/
+    else {
+      /* set  XTAL is enabled by M4 without notifying TA */
+      sli_si91x_set_m4_is_using_xtal();
+    }
+  }
+}
+
+/**
+ * @fn           void sli_si91x_raise_xtal_interrupt_to_ta(uint16_t interrupt_no)
+ * @brief        Raise the turn on/off xtal interrupt to TA
+ * @param[in]    xtal_enable - true to enable xtal, false to disable xtal
+ * @return       void
+ */
+void sli_si91x_raise_xtal_interrupt_to_ta(uint16_t interrupt_no)
+{
+  //! Wake up TA
+  P2P_STATUS_REG |= M4_WAKEUP_TA;
+
+  //!wait for TA active
+  while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
+    ;
+
+  // Write the turn_on_xtal interrupt to TA register
+  M4SS_P2P_INTR_SET_REG = interrupt_no;
+
+  //! Poll for bit to clear
+  //!Wait for TA using flash bit
+  while (!(TASS_P2P_INTR_CLEAR_REG & interrupt_no))
+    ;
+  clear_ta_to_m4_interrupt(interrupt_no);
+
+  sl_si91x_host_clear_sleep_indicator();
+}
+
+/**
+ * @fn          void sli_si91x_send_m4_xtal_usage_notification_to_ta(void);
+ * @brief        This API sends a notification to the TA indicating whether
+ *               the M4 core is currently utilizing the XTAL as its clock source.
+ */
+void sli_si91x_send_m4_xtal_usage_notification_to_ta(void)
+{
+
+#if !(SLI_SI91X_MCU_PSRAM_PRESENT)
+  /* Check whether M4 is using XTAL */
+  if (sli_si91x_is_m4_using_xtal() == true)
+#endif
+  {
+    /* If M4 is using XTAL then request TA to turn ON XTAL*/
+    sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
+    /* If M4 is using XTAL then notify TA to turn ON XTAL during programing common flash*/
+    sli_si91x_raise_xtal_interrupt_to_ta(M4_IS_USING_XTAL_REQUEST);
+  }
 }
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO

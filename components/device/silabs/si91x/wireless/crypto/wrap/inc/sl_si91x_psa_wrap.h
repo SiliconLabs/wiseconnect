@@ -25,6 +25,10 @@
 
 extern unsigned char WRAP_IV[];
 #define PSA_KEY_VOLATILE_PERSISTENT_WRAPPED ((psa_key_location_t)0x000001)
+// The PSA key is given in wrapped format to psa_import_key and other APIs
+
+#define PSA_KEY_VOLATILE_PERSISTENT_WRAP_IMPORT ((psa_key_location_t)0x800000)
+// The PSA key is given in plain format, to be wrapped in psa_import_key API and used in wrapped format with other APIs
 
 /**
  * @brief

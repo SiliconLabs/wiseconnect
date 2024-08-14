@@ -11,6 +11,9 @@ description: >
 
   When you install this component, it will also be installing the  DMA dependency component, 
   which is the DMA driver's implementation.
+
+  Note: When utilizing the UDMA1 instance in high power mode, it is advisable to allocate buffers in the ULP Memory block. 
+  For further details on buffer allocation, please refer to the ULP UDMA example.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

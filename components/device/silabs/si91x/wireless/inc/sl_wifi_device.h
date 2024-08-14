@@ -53,7 +53,7 @@
 #define MEMORY_CONFIG SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV
 #endif
 #else
-#define MEMORY_CONFIG SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
+#define MEMORY_CONFIG SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #endif
 
 /** \addtogroup SI91X_FEATURE_BITMAP
@@ -119,92 +119,285 @@
 /*=========================================================================*/
 // TCP/IP feature bit map parameters description !//
 /*=========================================================================*/
-/// TCP/IP bypass feature
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_BYPASS
+ * @brief Enables the TCP/IP bypass feature.
+ *
+ * @details
+ * When this feature is enabled, the TCP/IP stack processing is bypassed,
+ * allowing raw Ethernet frames to be sent and received. This is useful
+ * for applications that require direct control over Ethernet frames or
+ * for implementing custom network protocols.
+ *
+ * This is defined as a bit flag that can be set in the feature configuration
+ * to enable the TCP/IP bypass.
+ */
+
 #define SL_SI91X_TCP_IP_FEAT_BYPASS BIT(0)
 
 /// @note Bit 1 is reserved
 
-/// Enable DHCPv4 client feature
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT
+ * @brief Enables the DHCPv4 client feature.
+ *
+ * @details
+ * This feature allows the device to obtain an IPv4 address,
+ * subnet mask, default gateway, and DNS server from a DHCP server.
+ */
 #define SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT BIT(2)
 
-/// Enable DHCPv6 client feature
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT
+ * @brief Enables the DHCPv6 client feature.
+ *
+ * @details
+ * This feature allows the device to obtain an IPv6 address
+ * and other network configuration details from a DHCPv6 server.
+ */
 #define SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT BIT(3)
 
-/// Enable DHCPv4 server feature
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER
+ * @brief Enables the DHCPv4 server feature.
+ *
+ * @details
+ * This feature allows the device to act as a DHCPv4 server, providing IPv4
+ * addresses and network configuration to DHCPv4 clients on the network.
+ */
 #define SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER BIT(4)
 
-/// Enable DHCPv6 server feature
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_DHCPV6_SERVER
+ * @brief Enables the DHCPv6 server feature.
+ *
+ * @details
+ * This feature allows the device to act as a DHCPv6 server, providing IPv6
+ * addresses and network configuration to DHCPv6 clients on the network.
+ */
 #define SL_SI91X_TCP_IP_FEAT_DHCPV6_SERVER BIT(5)
 
-/// Enable JSON objects
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_JSON_OBJECTS
+ * @brief Enables support for JSON objects.
+ *
+ * @details
+ * This feature allows the device to handle JSON (JavaScript Object Notation)
+ * objects, which can be used for data interchange in web applications.
+ */
 #define SL_SI91X_TCP_IP_FEAT_JSON_OBJECTS BIT(6)
 
-/// Enable HTTP client
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT
+ * @brief Enables the HTTP client feature.
+ *
+ * @details
+ * This feature allows the device to send HTTP requests and receive HTTP
+ * responses from web servers, enabling web-based communication.
+ */
 #define SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT BIT(7)
 
-/// Enable DNS client
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+ * @brief Enables the DNS client feature.
+ *
+ * @details
+ * This feature allows the device to resolve domain names to IP addresses
+ * using the Domain Name System (DNS), enabling communication with servers
+ * by hostname.
+ */
 #define SL_SI91X_TCP_IP_FEAT_DNS_CLIENT BIT(8)
 
-/// Enable SNMP client
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_SNMP_AGENT
+ * @brief Enables the SNMP agent feature.
+ *
+ * @details
+ * This feature allows the device to act as an SNMP (Simple Network Management
+ * Protocol) agent, enabling network management and monitoring.
+ */
 #define SL_SI91X_TCP_IP_FEAT_SNMP_AGENT BIT(9)
 
-/// Enable SSL feature
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_SSL
+ * @brief Enables the SSL feature.
+ *
+ * @details
+ * This feature allows the device to use SSL (Secure Sockets Layer) for secure
+ * communication over the network, providing encryption and authentication.
+ */
 #define SL_SI91X_TCP_IP_FEAT_SSL BIT(10)
 
-/// Enable ICMP feature(ping)
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_ICMP
+ * @brief Enables the ICMP feature (ping).
+ *
+ * @details
+ * This feature allows the device to use ICMP (Internet Control Message
+ * Protocol) for network diagnostics, such as sending ping requests.
+ */
 #define SL_SI91X_TCP_IP_FEAT_ICMP BIT(11)
 
 /// @note Bit 12 is reserved
 
 /// @note Bit 13 is reserved
 
-/// Enable sending web page configuration to host from wireless config page
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_SEND_CONFIGS_TO_HOST
+ * @brief Enables sending configuration data to the host.
+ *
+ * @details
+ * This feature allows the device to send web page configuration data to the
+ * host system from the wireless configuration page.
+ */
 #define SL_SI91X_TCP_IP_FEAT_SEND_CONFIGS_TO_HOST BIT(14)
 
-/// Enable FTP client
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_FTP_CLIENT
+ * @brief Enables the FTP client feature.
+ *
+ * @details
+ * This feature allows the device to act as an FTP (File Transfer Protocol)
+ * client, enabling file transfers to and from FTP servers.
+ */
 #define SL_SI91X_TCP_IP_FEAT_FTP_CLIENT BIT(15)
 
-/// Enable SNTP client
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_SNTP_CLIENT
+ * @brief Enables the SNTP client feature.
+ *
+ * @details
+ * This feature allows the device to synchronize its clock with an SNTP
+ * (Simple Network Time Protocol) server, ensuring accurate timekeeping.
+ */
 #define SL_SI91X_TCP_IP_FEAT_SNTP_CLIENT BIT(16)
 
-/// Enable  IPV6 support
-/// @note IPv6 will also get enabled if DHCP v6 client/DHCP v6 server is enabled irrespective of tcp_ip_feature_bit_map[17]
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_IPV6
+ * @brief Enables IPv6 support.
+ *
+ * @details
+ * This feature allows the device to use IPv6 (Internet Protocol version 6),
+ * providing a larger address space and improved routing capabilities.
+ * 
+ * @note IPv6 will also be enabled if the DHCPv6 client or DHCPv6 server
+ * feature is enabled, regardless of the tcp_ip_feature_bit_map[17] setting.
+ */
 #define SL_SI91X_TCP_IP_FEAT_IPV6 BIT(17)
 
-/// Enable  Raw data support
-/// @note This feature is supported only in AP mode. TCP_BYPASS feature should be disabled for this feature to be supported. If any packet from host with frame type 0x1 is received by firmware, the packet will be sent on air without TCP/IP stack processing. ARP and broadcast packets (other than DHCP packets) which are coming on air will be sent to host
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_RAW_DATA
+ * @brief Enables raw data support.
+ *
+ * @details
+ * This feature allows the device to handle raw data frames, bypassing the
+ * TCP/IP stack. It is supported only in AP mode and requires the TCP_BYPASS
+ * feature to be disabled. If any packet from the host with frame type 0x1
+ * is received by the firmware, the packet will be sent on air without
+ * TCP/IP stack processing. ARP and broadcast packets (other than DHCP
+ * packets) received on air will be sent to the host.
+ */
 #define SL_SI91X_TCP_IP_FEAT_RAW_DATA BIT(18)
 
-/// Enable MDNSD
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_MDNSD
+ * @brief Enables the MDNSD feature.
+ *
+ * @details
+ * This feature allows the device to use Multicast DNS (mDNS) for local
+ * network service discovery, enabling devices to find each other without
+ * a central DNS server.
+ */
 #define SL_SI91X_TCP_IP_FEAT_MDNSD BIT(19)
 
-/// Enable SMTP client
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_SMTP_CLIENT
+ * @brief Enables the SMTP client feature.
+ *
+ * @details
+ * This feature allows the device to act as an SMTP (Simple Mail Transfer
+ * Protocol) client, enabling it to send emails.
+ */
 #define SL_SI91X_TCP_IP_FEAT_SMTP_CLIENT BIT(20)
 
-/// Select number of sockets
-/// @note Max of 10 sockets are allowed
-/// @note Bits 21- 24 are used to set TOTAL_SOCKETS
+/**
+ * @def SL_SI91X_TCP_IP_TOTAL_SOCKETS
+ * @brief Selects the number of sockets.
+ *
+ * @details
+ * This macro allows the configuration of the total number of sockets
+ * available. A maximum of 10 sockets are allowed. Bits 21-24 are used
+ * to set the TOTAL_SOCKETS.
+ * @param total_sockets The total number of sockets to be configured.
+ */
 #define SL_SI91X_TCP_IP_TOTAL_SOCKETS(total_sockets) (total_sockets << 21)
 
-/// Enable Single SSL socket
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_SINGLE_SSL_SOCKET
+ * @brief Enables a single SSL socket.
+ *
+ * @details
+ * This feature allows the device to use a single SSL socket for secure
+ * communication.
+ */
 #define SL_SI91X_TCP_IP_FEAT_SINGLE_SSL_SOCKET BIT(25)
 
-/// Enable to Load public and private keys for TLS and SSL handshake
-/// @note If Secure handshake is with CA-certificate alone , then disable loading private and public keys and erase these certificates from the flash using load_cert API. Or if Secure handshake is needed for verification of Private and Public keys , then enable loading of private and public keys.
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_LOAD_PUBLIC_PRIVATE_CERTS
+ * @brief Enables loading of public and private keys for TLS/SSL handshake.
+ *
+ * @details
+ * This feature allows the device to load public and private keys for use
+ * in TLS/SSL handshakes. 
+ * 
+ * @note If a secure handshake is to be done using only
+ * a CA-certificate, then loading of private and public keys can be
+ * disabled, and these certificates can be erased from the flash using
+ * the load_cert API. If secure handshake verification of private and
+ * public keys is needed, then loading of these keys must be enabled.
+ */
 #define SL_SI91X_TCP_IP_FEAT_LOAD_PUBLIC_PRIVATE_CERTS BIT(26)
 
-/// Enable to Load SSL certificates in to RAM
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_LOAD_CERTS_INTO_RAM
+ * @brief Enables loading of SSL certificates into RAM.
+ *
+ * @details
+ * This feature allows the device to load SSL certificates into RAM for
+ * faster access during secure communications.
+ */
 #define SL_SI91X_TCP_IP_FEAT_LOAD_CERTS_INTO_RAM BIT(27)
 
 /// @note Bit 28 is reserved
 
-/// Enable POP3 client
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_POP3_CLIENT
+ * @brief Enables the POP3 client feature.
+ *
+ * @details
+ * This feature allows the device to act as a POP3 (Post Office Protocol
+ * version 3) client, enabling it to retrieve emails from a POP3 server.
+ */
 #define SL_SI91X_TCP_IP_FEAT_POP3_CLIENT BIT(29)
 
-/// Enable OTAF client
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_OTAF
+ * @brief Enables the OTAF client feature.
+ *
+ * @details
+ * This feature allows the device to perform over-the-air firmware (OTAF)
+ * updates, enabling it to download and install firmware updates remotely.
+ */
 #define SL_SI91X_TCP_IP_FEAT_OTAF BIT(30)
 
-/// Enable TCP IP Extension
+/**
+ * @def SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
+ * @brief Enables TCP/IP extension support.
+ *
+ * @details
+ * This feature allows the device to use extended TCP/IP features, providing
+ * additional functionality and capabilities.
+ */
 #define SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID BIT(31)
 /** @} */
 
@@ -372,23 +565,49 @@
 /// @note EXT_FEAT_LOW_POWER_MODE is not supported for 1.3 version chipset.
 #define SL_SI91X_EXT_FEAT_LOW_POWER_MODE BIT(19)
 
-#ifdef SLI_SI917B0
+#if defined(SLI_SI917B0) || defined(DOXYGEN)
 
-#define SL_SI91X_EXT_FEAT_352K_M4SS_320K     0
+// For SoC
+#if defined(SLI_SI91X_MCU_INTERFACE) || defined(DOXYGEN)
+/// To enable 352K memory for NWP and 320K memory for M4
+#define SL_SI91X_EXT_FEAT_352K_M4SS_320K 0
+/// To enable basic NWP and advance MCU RAM level configuration
 #define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV SL_SI91X_EXT_FEAT_352K_M4SS_320K
 
-// To enable 416K memory for TA
-#define SL_SI91X_EXT_FEAT_416K_M4SS_256K         BIT(21)
+/// To enable 416K memory for NWP and 256K memory for M4
+#define SL_SI91X_EXT_FEAT_416K_M4SS_256K BIT(21)
+/// To enable medium NWP and medium MCU RAM level configuration
 #define SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM SL_SI91X_EXT_FEAT_416K_M4SS_256K
 
-// To enable 480K memory for TA
-#define SL_SI91X_EXT_FEAT_480K_M4SS_192K     BIT(20)
-#define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC SL_SI91X_EXT_FEAT_480K_M4SS_192K
+/// To enable 480K memory for NWP and 192K memory for M4
+#define SL_SI91X_EXT_FEAT_480K_M4SS_192K BIT(20)
 
-#ifndef SLI_SI91X_MCU_INTERFACE
-// To enable 672K memory for TA; only supported in WiSeConnect
-#define SL_SI91X_EXT_FEAT_672K_M4SS_0K      (BIT(20) | BIT(21))
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_672K_M4SS_0K
+/// To enable advance NWP and basic MCU RAM level configuration
+#define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC SL_SI91X_EXT_FEAT_480K_M4SS_192K
+#endif
+
+// For NCP
+#if (!defined(SLI_SI91X_MCU_INTERFACE)) || defined(DOXYGEN)
+/// To enable 352K memory for NWP
+#define SL_SI91X_EXT_FEAT_352K 0
+/// To enable basic NWP RAM level configuration
+#define SL_SI91X_RAM_LEVEL_NWP_BASIC SL_SI91X_EXT_FEAT_352K
+
+/// To enable 672K memory for NWP
+#define SL_SI91X_EXT_FEAT_672K (BIT(20) | BIT(21))
+/// To enable full NWP RAM level configuration
+#define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_EXT_FEAT_672K
+
+// Soon to be deprecated
+/// To enable 352K memory for NWP (For NCP mode ONLY, to be deprecated soon)
+#define SL_SI91X_EXT_FEAT_352K_M4SS_320K SL_SI91X_EXT_FEAT_352K
+/// To enable basic NWP RAM level configuration (For NCP mode ONLY, to be deprecated soon)
+#define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV SL_SI91X_EXT_FEAT_352K
+/// To enable 672K memory for NWP and 0K memory for M4 (For NCP mode ONLY, to be deprecated soon)
+#define SL_SI91X_EXT_FEAT_672K_M4SS_0K SL_SI91X_EXT_FEAT_672K
+/// To enable full NWP RAM level configuration (For NCP mode ONLY, to be deprecated soon)
+#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_672K
+
 #endif
 
 #elif defined SLI_SI917
@@ -406,12 +625,15 @@
 
 #ifndef SLI_SI91X_MCU_INTERFACE
 // To enable 704K memory for TA; only supported in NCP
-#define SL_SI91X_EXT_FEAT_704K_M4SS_0K      (BIT(20) | BIT(21))
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_704K_M4SS_0K
+#define SL_SI91X_EXT_FEAT_704K_M4SS_0K       (BIT(20) | BIT(21))
+#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO  SL_SI91X_EXT_FEAT_704K_M4SS_0K
+#define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
 
 #endif // SLI_SI917
+/** @} */
 
+/// For 9116 chipsets
 #if !(defined SLI_SI917) && !(defined SLI_SI917B0) // defaults
 /// @note Default memory configuration (RAM) is 192KB. User can set these bits to change the memory configuration as below:
 /** 
@@ -431,11 +653,14 @@
 #define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC SL_SI91X_EXT_FEAT_320K_MODE
 
 /// To enable 384K memory for TA
-#define SL_SI91X_EXT_FEAT_384K_MODE         (BIT(20) | BIT(21))
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_384K_MODE
+#define SL_SI91X_EXT_FEAT_384K_MODE          (BIT(20) | BIT(21))
+#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO  SL_SI91X_EXT_FEAT_384K_MODE
+#define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 
 #endif // defaults
 
+/** \addtogroup SI91X_EXTENDED_CUSTOM_FEATURE_BITMAP
+  * @{ */
 /// To enable crystal clock for TA
 ///
 /// Based on sleep clock source selection, User can choose one of the following
@@ -449,15 +674,16 @@
 */
 /// @note For 917 V2 radio boards set SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE to 1, for other variants 2 is recommended
 
+#ifdef SL_SI91X_MODULE_BOARD
+#define SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(xtal_clk_enable) (xtal_clk_enable << 23)
+#else
 #define SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(xtal_clk_enable) (xtal_clk_enable << 22)
+#endif
 
-#ifdef SLI_SI917
-#if (defined SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2)
+// Determine the XTAL clock enable value
+#if defined(SLI_SI917) && defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2)
 #define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1)
 #else
-#define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
-#endif
-#else // default : 9116
 #define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
 #endif
 
@@ -602,7 +828,7 @@
 #define SL_SI91X_BT_EDR_3MBPS_DISABLE BIT(8)
 
 /// BT EDR 2Mbps Feature Disable
-/// @note2Mbps Disable means using 3Mbps DataRate
+/// @note 2Mbps Disable means using 3Mbps DataRate
 #define SL_SI91X_BT_EDR_2MBPS_DISABLE BIT(9)
 
 /// BT 5 Slot Packet Feature Disable
@@ -1051,8 +1277,12 @@ static const sl_wifi_device_configuration_t sl_wifi_default_ap_configuration = {
                    .feature_bit_map            = SL_SI91X_FEAT_SECURITY_OPEN,
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER | SL_SI91X_TCP_IP_FEAT_MDNSD
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = 0,
-                   .ext_custom_feature_bit_map = 0,
+                   .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
+                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                  | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
+                                                  ),
                    .bt_feature_bit_map         = 0,
                    .ext_tcp_ip_feature_bit_map = 0,
                    .ble_feature_bit_map        = 0,
@@ -1140,6 +1370,7 @@ static const sl_wifi_device_configuration_t sl_wifi_default_transmit_test_config
                    .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
 };
 
+/// Default Wi-Fi transceiver mode configuration
 static const sl_wifi_device_configuration_t sl_wifi_default_transceiver_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,

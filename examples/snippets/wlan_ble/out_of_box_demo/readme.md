@@ -19,7 +19,7 @@ This application demonstrates the WLAN, BLE, MCU peripheral features and NWP (ne
 
 SiWG917 establishes WLAN connectivity via BLE provisioning. SiWG917 then proceeds to ping [www.silabs.com](https://www.silabs.com) for 5 times, after which MQTT connectivity with a remote mosquitto broker [test.mosquitto.org](http://test.mosquitto.org) is established.
 Then Network processor of SiWG917 enters connected sleep state.
-If a message is published onto the topic from a MQTT client application [https://testclient-cloud.mqtt.cool/](https://testclient-cloud.mqtt.cool/) to which the module is subscribed (Si917_MQTT_RECEIVE), the NWP wakes up and displays the received data and goes back to sleep. If BTN1 on the WPK baseboard is pressed, SiWG917 publishes a message onto a MQTT topic named Si917_APP_STATUS. The status of application is updated on the TFT-LCD display on the WPK baseboard, the same can be observed on the serial terminal prints as well.
+If a message is published onto the topic from a MQTT client application [https://testclient-cloud.mqtt.cool/](https://testclient-cloud.mqtt.cool/) to which the module is subscribed (Si917_MQTT_RECEIVE), the NWP wakes up and displays the received data and goes back to sleep. If BTN0 on the WPK baseboard is pressed, SiWG917 publishes a message onto a MQTT topic named Si917_APP_STATUS. The status of application is updated on the TFT-LCD display on the WPK baseboard, the same can be observed on the serial terminal prints as well.
 
 ## Prerequisites/Setup Requirements
 
@@ -35,7 +35,10 @@ If a message is published onto the topic from a MQTT client application [https:/
     - Radio Boards
       - BRD4338A [SiWx917-RB4338A]
       - BRD4339B [SiWx917-RB4339B]
+      - BRD4342A [SiWx917-RB4342A]
+      - BRD4343A [SiWx917-RB4343A]
   - Kits
+    - SiWG917 Dev Kit [BRD2605A]
     - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
 - Android Phone or iPhone with Simplicity Connect App(formerly EFR Connect App), which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
 
@@ -181,7 +184,7 @@ The status of the application is updated in TFT-LCD display of the WPK baseboard
 
   ![MQTT test client image-6](resources/readme/MQTT_testclient6.png)
 
-- Press BTN1 on the WPK baseboard. When BTN1 is pressed, SiWG917 publishes a MQTT message saying "Button is pressed" onto the topic "Si917_APP_STATUS". The same can be observed in the LCD display of the baseboard and the MQTT client page.
+- Press BTN0 on the WPK baseboard. When BTN0 is pressed, SiWG917 publishes a MQTT message saying "Button is pressed" onto the topic "Si917_APP_STATUS". The same can be observed in the LCD display of the baseboard and the MQTT client page.
 
   ![Here is the image of LCD with the published messages](resources/readme/status_lcd5.png)
 

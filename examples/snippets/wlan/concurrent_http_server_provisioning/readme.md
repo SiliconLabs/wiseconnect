@@ -13,11 +13,17 @@
 
 ## Purpose/Scope
 
-This application demonstrates the setting up of Access Point mode (SoftAP instance) and starting a HTTP server to obtain the SSID, PSK, and SECURITY_TYPE of a third-party AP through an HTTP webpage to configure the SiWx91x in both Wi-Fi Station mode (STA instance) and Access Point mode (SoftAP instance). It showcases support for both IPv4 and IPv6 addressing, along with data transfer capabilities in both modes. If STAUT disconnects, then we pull down the HTTP Server and APUT and restart the process again.
+*This application demonstrates how to configure the SiWx91x in concurrent mode, that is, in both Wi-Fi Station mode (STA instance) and Access Point mode (SoftAP instance) with HTTP Provisioning.*
 
-The module opens a socket on the STA VAP and sends the UDPv6 data to the third-party STA connected to the third-party AP. Another listening socket is opened on AP VAP to receive the TCPv4 data from a third-party STA connected to APUT. The HTTP server runs in the background, so the HTTP webpage will be alive throughout the application execution.
+In this example application, The SiWx91x is configured as Provisioning Access Point (SiWx91x Provisioning AP instance) which acts as a HTTP server (Provisioning HTTP server) to obtain the SSID, PSK, and SECURITY_TYPE of a third-party AP (where SiWx91x STA should be connected). A third-party station connects to the SiWx91x Provisiong AP and using the webpage serverd by the Provisioning HTTP server and provides the third-party AP cerdentials (to which SiWx91x STA should be connected). After obtaining the third-party AP credentials, the Provisioning HTTP server and the SiWx91x Provisioning AP will shutdown.
 
-![Figure: State Machine Diagram SoC and NCP Mode for Concurrent HTTP Server Provisioning Example] (resources/readme/state_machine_diagram.png)
+Now, the SiWx91x will bring-up as Wi-Fi Station mode (SiWx91x STA instance) with the obtained third-party AP credentials and Access Point mode (SoftAP instance). HTTP server is initialized again on SoftAP instance (SoftAP HTTP server).
+
+It showcases support for both IPv4 and IPv6 addressing, along with data tansfer capabilities i.e. UDPv6 TX data transfer in SiWx91x STA mode and TCPv4 RX data transfer in SoftAP mode. The SiWx91x opens a UDPv6 client socket on the SiWx91x STA instance and sends data to the UDPv6 server connected to the third-party AP. On the SoftAP instance a TCPv4 server socket is listening to receive data from a TCPv4 client connected to the SoftAP.
+
+If SiWx91x STA disconnects from third-party AP, then the SoftAP HTTP server and the SoftAP instance are shutdown the SiWx91x STA tries to reconnect to third-party AP for maximum 5 times. If SiWx91x STA is unable to connect to third-party AP then SiWx91x will deinitialize and starts the application from beginning (From the SoftAP being up as a Provisioning AP).
+
+![Figure: State Machine Diagram SoC and NCP Mode for Concurrent HTTP Server Provisioning Example](resources/readme/state_machine_diagram.png)
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
@@ -29,6 +35,7 @@ The module opens a socket on the STA VAP and sends the UDPv6 data to the third-p
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -38,9 +45,15 @@ The module opens a socket on the STA VAP and sends the UDPv6 data to the third-p
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
     - EFR32FG25 863-876 MHz +16 dBm Radio Board [FG25-RB4271A](https://www.silabs.com/development-tools/wireless/proprietary/fg25-rb4271a-efr32fg25-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+
+  **NOTE**:
+
+  - The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
 
 ### Software Requirements
 
@@ -48,11 +61,7 @@ The module opens a socket on the STA VAP and sends the UDPv6 data to the third-p
 
 ### Setup Diagram
 
-![Figure: Setup Diagram SoC and NCP Mode for Concurrent HTTP Server Provisioning Example] (resources/readme/concurrent_http_server_provisioning_soc_ncp.png)
-
-**NOTE**:
-
-- The Host MCU platform (EFR32MG21) and the SiWx91x interact with each other through the SPI interface.
+![Figure: Setup Diagram SoC and NCP Mode for Concurrent HTTP Server Provisioning Example](resources/readme/concurrent_http_server_provisioning_soc_ncp.png)
 
 ## Getting Started
 
@@ -67,53 +76,49 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed.
 
-- In the Project explorer pane, open the **app.c** file. Configure the following parameters based on your requirements
+1. *In the Project explorer pane, expand the **config** folder and open the **sl_net_default_values.h** file.*
+- **SiWx91x Provisioning AP instance related parameters**
 
-- Provisioning AP uses DEFAULT_WIFI_AP_PROFILE_SSID.
-
-- STA connected to Provisioning AP should pass the third-party AP credentials.
-
-- STA connected to Provisioning AP should access 192.168.10.10/login.
-
-- Input SSID, PASSWORD, and SECURITY_TYPE(from dropdown).
-
-![HTTP Webpage](resources/readme/HTTP_webpage.png)
-
-- **Provisioning AP instance related parameters**
-
-	- WIFI_AP_PROFILE_SSID refers to the SSID of the WiSeConnect concurrent softAP that would be created.
+	- DEFAULT_WIFI_AP_PROFILE_SSID refers to the SSID of the SiWx91x Provisioning AP that would be created.
 
   	```c
   	#define DEFAULT_WIFI_AP_PROFILE_SSID                   "MY_AP_SSID"
   	```
 
-	- WIFI_AP_CREDENTIAL refers to the secret key of the WiSeConnect concurrent softAP that would be created.
+	- DEFAULT_WIFI_AP_CREDENTIAL refers to the secret key of the SiWx91x Provisioning AP that would be created.
 
   	```c
   	#define DEFAULT_WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
+  	```
+
+	-  HTTP_SERVER_PORT refers to the port number of the SiWx91x Provisioning AP's HTTP server that would be created.
 
   	```c
   	#define HTTP_SERVER_PORT 80
   	```
+    
+2. *Configure the following parameters in **app.c** to test Concurrent HTTP Server Provisioning app as per requirements.*
 
-- **STA instance related parameters**
+- **SiWx91x STA instance related parameters**
 
-- STA instance configurations can be modified if required in the `wifi_client_profile_4` and `wifi_client_profile_6` configuration structures in app.c .
+    - SiWx91x STA instance configurations are obtained from HTTP Server.
 
-- **AP instance related parameters**
+    - Other SiWx91x STA instance configurations can be modified if required in the `wifi_client_profile_4` and `wifi_client_profile_6` configuration structures in app.c .
 
-	- WIFI_AP_PROFILE_SSID refers to the SSID of the WiSeConnect concurrent softAP that would be created.
+- **SiWx91x SoftAP instance related parameters**
+
+	- WIFI_AP_PROFILE_SSID refers to the SSID of the SiWx91x softAP that would be created.
 
   	```c
   	#define WIFI_AP_PROFILE_SSID                   "MY_DUAL_AP_SSID"
   	```
 
-	- WIFI_AP_CREDENTIAL refers to the secret key of the WiSeConnect concurrent softAP that would be created.
+	- WIFI_AP_CREDENTIAL refers to the secret key of the SiWx91x softAP that would be created.
 
   	```c
   	#define WIFI_AP_CREDENTIAL                     "MY_AP_PASSPHRASE"
     ```
-- Other AP instance configurations can be modified if required in the `wifi_ap_profile_4` and `wifi_ap_profile_6` configuration structures.
+  - Other AP instance configurations can be modified if required in the `wifi_ap_profile_4` and `wifi_ap_profile_6` configuration structures.
 
 > Note:
 >
@@ -124,7 +129,7 @@ The application can be configured to suit user requirements and development envi
 > Note:
 >
 > 1. This application provides the facility to configure the Access Point’s IP Parameters. The IPv4 address for the Silicon Labs Access point is **192.168.10.10** and the IPv6 address for the Silicon Labs Access point is **2001:db8:0:1::121**
-> 2. In concurrent mode, the IP networks of Silicon Labs STA and Silicon Labs Access Point should both be different. Configure Wireless Access Point IP network (Ex: 192.168.0.1) other than Silicon Labs Access point IP network.
+> 2. In concurrent mode, the IP networks of Silicon Labs STA and Silicon Labs Access Point should both be different. Configure Wireless Access Point IP network (Ex: IPv4:- 192.168.0.1 and IPv6:- 2401:4290:1245:11ed::121) other than Silicon Labs Access point IP network.
 
 #### Open **sl_wifi_device.h** file. User can also refer the `sl_wifi_default_concurrent_v6_configuration` and can modify/create configurations as per their needs and requirements
 >
@@ -137,15 +142,17 @@ The application can be configured to suit user requirements and development envi
 - **Client/Server IP Settings**
 
     ```c
-    #define LISTENING_PORT     <local_port>       // Local port to use
-    #define SERVER_PORT        <remote_port>      // Remote server port
-    #define SERVER_IP		   "2401:4290:1245:11ed::4"    // Remote 
+    #define LISTENING_PORT           5005             // Local port used for TCP_RX on AP VAP
+    #define SERVER_PORT              5000             // Remote server's port used for UDP_TX on STA VAP
+    #define SERVER_IP		   "2401:4290:1245:11ed::4"   // Remote server's IPv6 address used for UDP_TX on STA VAP
+    ```
 
 - **Data Transfer Test options**
 
     ```c
-    #define BYTES_TO_SEND     (1 << 29)     // To measure TX throughput
-    #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
+    #define BYTES_TO_SEND     (1 << 29)               // To measure TX throughput with 512MB data transfer
+    #define TEST_TIMEOUT      10000                   // Throughput test timeout in ms
+    ```
 
 ## Test the Application
 
@@ -154,24 +161,37 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application.
 - Flash, run, and debug the application.
 
-**Step 1** : Provisioning AP will be brought up.
+**Step 1** : Upon successful execution, the SiWx91x will act as Provisioning Access Point (SiWx91x Provisioning AP).
 
-**Step 2** : Users need to connect to APUT, open the 192.168.10.10/login webpage, and pass the third-party AP credentials.
+**Step 2** : The application will initialize a HTTP server in SiWx91x Provisioning AP mode (Provisioning HTTP server) and add default request handlers for the "/login" and "/connect" URIs.
 
-**Step 3** : Module will be brought up as STA + AP. Data transfer on STA VAP is performed on SERVER_PORT.
+![HTTP Webpage](resources/readme/HTTP_webpage.png)
 
-**Step 4** : Users need to connect to the AP and send data on the AP VAP.
+**Step 3** : Once the Provisioning HTTP server is started, connect a third-party station to the SiWx91x Provisioning AP. Open a web browser on the third-party station and navigate to the IP address of the SiWx91x with the URI set to /login. The default IP address is 192.168.10.10, so you can access it using 192.168.10.10/login.
 
-**Step 5** : Users can change the SSID, PSK, or CH_NO of the third-party AP to trigger rejoin failure.
+**Step 4** : On the webpage, enter the correct SSID, Password, and Security Type, of the third-party AP credentials, then click on Connect.
 
-When data transfer occurs, communication happens between the client-side and the server-side. Typically, it's recommended to initiate the server first, as the client immediately attempts to establish a connection to transmit data.
+**Step 5** : The credentials from the webpage will be retrieved through a "/connect" POST request. Provisioning HTTP server and the SiWx91x Provisioning AP will be shutdown.
 
-The following sections describe how to run the SiWx91x application together with examples for UDP and TCP Iperf configurations that run on the PC.
+**Step 6** : The SiWx91x STA will then connect to the third-party AP specified on the webpage in client mode and SiWx91x SoftAP will start advertising.
+
+**Step 7** : HTTP server is initialized again on SoftAP instance (SoftAP HTTP server).
+
+**Step 8** : IPv6 UDP_TX data transfer is performed on SiWx91x STA and IPv4 TCP_RX data transfer is performed on SiWx91x SoftAP. Client device should connect to the SiWx91x SoftAP to send IPv4 TCP data.
+
+**Step 9** : To trigger rejoin failure on SiWx91x STA, User can change the SSID, PSK, or CH_NO of the third-party AP by opening it's Admin/login page.
+
+>
+> Note:
+>
+> When data transfer occurs, communication happens between the client-side and the server-side. Typically, it's recommended to initiate the server first, as the client immediately attempts to establish a connection to transmit data.
+
+The following sections describe how to run the SiWx91x application together with examples for UDP and TCP iPerf configurations that run on the PC.
 
 ### UDP Tx on IPv6
 
-To use IPv6 UDP Tx, configure the SiWx91x as a UDP client and start a UDP server on the remote PC.
-The Iperf command to start the UDP server on the PC is:
+To use IPv6 UDP Tx, the SiWx91x STA is configured as a UDP client and start a UDP server on the remote PC. 
+The iPerf command to start the IPv6 UDP server on remote PC is:
 
 > `C:\> iperf.exe -s -u -V -p <SERVER_PORT> -i 1`
 >
@@ -181,8 +201,8 @@ The Iperf command to start the UDP server on the PC is:
 
 ### TCP Rx on IPv4
 
-To use TCPv4 Rx, configure the SiWx91x as a TCP server and start a TCP client on the remote PC.
-The Iperf command to start the TCP client is:
+To use TCPv4 Rx, the SiWx91x SoftAP is configured as a TCP server and start a TCP client on the remote PC.
+The iPerf command to start the IPv4 TCP client on remote PC is:
 
 > `C:\> iperf.exe -c <Module_IP>-p <module_PORT> -i 1 -t <time interval in sec>`
 >
@@ -190,7 +210,7 @@ The Iperf command to start the TCP client is:
 >
 > `C:\> iperf.exe -c 192.168.10.10 -p 5005 -i 1 -t 30`
 
-The SiWx91x, which is configured as a UDP/TCP server/client, connects to the iperf server/client and sends/receives data at configured intervals. While the module is transmitting/receiving the data, the application prints the total number of bytes sent/received on the serial console.
+The SiWx91x STA, which is configured as a UDP IPv6 client, connects to the iPerf server and sends data at configured intervals. While the SiWx91x SoftAP is configured as TCP IPv4 server awaits for connection, the application prints the total number of bytes sent/received on the serial console.
 
 ## Application Output
 

@@ -197,6 +197,8 @@ void sli_si91x_configure_wireless_frontend_controls(uint32_t switch_sel)
       RSI_EGPIO_SetPinMux(EGPIO1, 0, GPIO7, 6);
 #endif
       break;
+    default:
+      break;
   }
 #endif
 }
@@ -261,17 +263,16 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 
 #if (configUSE_TICKLESS_IDLE == 0)
 
-  volatile uint8_t delay;
   if ((osEventFlagsGet(si91x_events) | osEventFlagsGet(si91x_bus_events) | osEventFlagsGet(si91x_async_events))
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
       || (osMutexGetOwner(side_band_crypto_mutex) != NULL)
 #endif
-      || ((sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
-           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
-           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
-           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
-           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_BT_CMD)
-           | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_DATA)))) {
+      || (sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_COMMON_CMD)
+          | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_WLAN_CMD)
+          | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_NETWORK_CMD)
+          | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_CMD)
+          | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_BT_CMD)
+          | sl_si91x_host_get_queue_packet_count((sl_si91x_queue_type_t)SI91X_SOCKET_DATA))) {
     return;
   }
   // Disabling the interrupts & clearing m4_is_active as m4 is going to sleep
@@ -281,7 +282,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   P2P_STATUS_REG &= ~M4_is_active;
   P2P_STATUS_REG;
   // Adding delay to sync m4 with TA
-  for (delay = 0; delay < 10; delay++) {
+  for (volatile uint8_t delay = 0; delay < 10; delay++) {
     __ASM("NOP");
   }
 
@@ -318,11 +319,23 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     printf("RSI_CLK_M4SocClkConfig failed\n");
   }
 
+  /* Check whether M4 is using XTAL */
+  if (sli_si91x_is_xtal_in_use_by_m4() == true) {
+    /* If M4 is using XTAL then request TA to turn OFF XTAL as M4 is going to sleep */
+    sli_si91x_raise_xtal_interrupt_to_ta(TURN_OFF_XTAL_REQUEST);
+  }
+
   // Configure sleep parameters required by bootloader upon Wake-up
-  RSI_PS_RetentionSleepConfig(stack_address, (uint32_t)jump_cb_address, vector_offset, mode);
+  RSI_PS_RetentionSleepConfig(stack_address, jump_cb_address, vector_offset, mode);
 
   // Trigger M4 to sleep
   RSI_PS_EnterDeepSleep(sleepType, lf_clk_mode);
+
+  /* Check whether M4 is using XTAL */
+  if (sli_si91x_is_xtal_in_use_by_m4() == true) {
+    /* If M4 is using XTAL then request TA to turn ON XTAL as M4 is going to sleep */
+    sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
+  }
 
 #ifdef SLI_SI917
   // Upon wake up program wireless GPIO frontend switch controls
@@ -394,7 +407,7 @@ void sl_si91x_configure_ram_retention(uint32_t rams_in_use, uint32_t rams_retent
   RSI_PS_M4ssRamBanksPowerDown(rams_to_be_powered_down);
 
   /* Turn off Unused SRAM Core/Periphery domains*/
-  RSI_PS_M4ssRamBanksPeriPowerDown(rams_in_use);
+  RSI_PS_M4ssRamBanksPeriPowerDown(rams_to_be_powered_down);
 
   /* Clear all RAM retention control before configuring the user RAM retentions*/
   RSI_PS_ClrRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN | TA_RAM_RETENTION_MODE_EN | M4ULP_RAM_RETENTION_MODE_EN);

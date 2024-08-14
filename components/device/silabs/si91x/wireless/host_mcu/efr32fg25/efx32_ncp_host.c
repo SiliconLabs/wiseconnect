@@ -39,7 +39,7 @@ static bool dma_callback(unsigned int channel, unsigned int sequenceNo, void *us
 
 unsigned int rx_ldma_channel;
 unsigned int tx_ldma_channel;
-osMutexId_t spi_transfer_mutex = 0;
+osMutexId_t spi_transfer_mutex = NULL;
 
 static uint32_t dummy_buffer;
 static uint8_t host_initialized = 0;
@@ -141,7 +141,7 @@ sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
       transfer_done_semaphore = osSemaphoreNew(1, 0, NULL);
     }
 
-    if (spi_transfer_mutex == 0) {
+    if (spi_transfer_mutex == NULL) {
       spi_transfer_mutex = osMutexNew(NULL);
     }
 
@@ -150,7 +150,7 @@ sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
     DMADRV_AllocateChannel(&tx_ldma_channel, NULL);
 
     // Start reset line low
-    GPIO_PinModeSet(RESET_PIN.port, RESET_PIN.pin, gpioModePushPull, 0);
+    GPIO_PinModeSet(RESET_PIN.port, RESET_PIN.pin, gpioModeWiredAnd, 0);
 
     // configure packet pending interrupt priority
     NVIC_SetPriority(GPIO_ODD_IRQn, PACKET_PENDING_INT_PRI);
@@ -162,7 +162,12 @@ sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
     GPIO_PinModeSet(SLEEP_CONFIRM_PIN.port, SLEEP_CONFIRM_PIN.pin, gpioModeWiredOrPullDown, 1);
     GPIO_PinModeSet(WAKE_INDICATOR_PIN.port, WAKE_INDICATOR_PIN.pin, gpioModeWiredOrPullDown, 0);
     host_initialized = 1;
+  } else {
+    if (spi_transfer_mutex == NULL) {
+      spi_transfer_mutex = osMutexNew(NULL);
+    }
   }
+
   return SL_STATUS_OK;
 }
 
@@ -254,13 +259,12 @@ sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, u
 
 void sl_si91x_host_hold_in_reset(void)
 {
-  GPIO_PinModeSet(RESET_PIN.port, RESET_PIN.pin, gpioModePushPull, 1);
   GPIO_PinOutClear(RESET_PIN.port, RESET_PIN.pin);
 }
 
 void sl_si91x_host_release_from_reset(void)
 {
-  GPIO_PinModeSet(RESET_PIN.port, RESET_PIN.pin, gpioModeWiredOrPullDown, 1);
+  GPIO_PinOutSet(RESET_PIN.port, RESET_PIN.pin);
 }
 
 void sl_si91x_host_enable_bus_interrupt(void)

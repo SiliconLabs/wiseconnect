@@ -161,8 +161,7 @@ sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *tim
  * @brief This API configures watchdog timer parameters. 
  * @details The configurable parameters are interrupt time (WDT restart time),
  * system reset time & window time (lower time stamp for WDT restart, if required).
- * System reset time should be greater than interrupt time.
- * And Interrupt time should be greater than window time, else API will give an error.
+ * Interrupt time should be greater than window time, else API will give an error.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_watchdog_init_timer 
@@ -172,8 +171,8 @@ sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *tim
  * @return    status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Timer configuration structure members have invalid values,
  *                                                for members \ref watchdog_timer_config_t 
- *         - \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer configuration structure member 'system_reset_time' is less than or equal to 'interrupt_time'.
- *                                                    It should be greater than interrupt time of timer. 
+ *         - \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer configuration structure member 'interrupt_time' is less than or equal to 'window_time'.
+ *                                                    It should be greater than window time of timer.
  *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
  *         - \ref SL_STATUS_OK (0x0000) - Success, timer parameters configured properly
 *******************************************************************************/
@@ -199,7 +198,7 @@ sl_status_t sl_si91x_watchdog_register_timeout_callback(watchdog_timer_callback_
  * @details This also referred as upper time-stamp for WDT restart
  * Its maximum value is 31.
  * @li Number of clock pulses for timer timeout = 2^(interrupt_time)
- * @note The timeout value should be less than system-reset time and greater than window time.
+ * @note The 'interrupt time' value should be greater than window time.
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_watchdog_init_timer 
@@ -209,7 +208,7 @@ sl_status_t sl_si91x_watchdog_register_timeout_callback(watchdog_timer_callback_
  *             Number of clock pulses = 2^(interrupt_time), \ref time_delays_t
  * @return    status 0 if successful, else error code as follows:
  *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - 'interrupt_time' parameter has an invalid value. 
- *         - \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - 'interrupt_time' value is less than window time or greater than system reset time 
+ *         - \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - 'interrupt_time' value is less than window time.
  *         - \ref SL_STATUS_OK (0x0000) - Successfully set watchdog timer timeout time value
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_set_interrupt_time(time_delays_t interrupt_time);
@@ -230,7 +229,7 @@ uint8_t sl_si91x_watchdog_get_interrupt_time(void);
  * @brief This API will set the Watchdog timer system-reset time duration.
  * @details Number of clock pulses for system reset time = 2^(system_reset_time). 
  * Its maximum value is 31. 
- * This value should be greater than timer interrupt time & window time.
+ * This value should be greater than timer window time.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_watchdog_init_timer 
  *      - \ref sl_si91x_watchdog_configure_clock 
@@ -238,7 +237,7 @@ uint8_t sl_si91x_watchdog_get_interrupt_time(void);
  *            Number of clock pulses = 2^(system_reset_time), \ref time_delays_t
  * @return    status 0 if successful, else error code as follows:
  *          - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - 'system_reset_time' parameter has an invalid value. 
- *          - \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - 'system_reset_time' value is less than window time or interrupt time 
+ *          - \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - 'system_reset_time' value is less than window time.
  *          - \ref SL_STATUS_OK (0x0000) - Successfully set watchdog timer system-reset time value
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_set_system_reset_time(time_delays_t system_reset_time);

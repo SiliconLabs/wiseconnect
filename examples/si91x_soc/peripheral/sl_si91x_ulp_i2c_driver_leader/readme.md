@@ -64,6 +64,8 @@
 - Once Follower gets reset then whole data transfer cycle repeats once again and compares data again.
 - After third cycle of data tranfer I2c gets de-initialized.
 
+> **Note:** When utilizing the I2C2 instance in high power mode with DMA enabled, it is advisable to allocate buffers in the ULP Memory block.
+
 
 > **Note:**
 >
@@ -77,7 +79,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 

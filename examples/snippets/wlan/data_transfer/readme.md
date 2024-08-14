@@ -27,6 +27,7 @@ This application demonstrates how to configure the SiWx91x device in both Wi-Fi 
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -35,14 +36,18 @@ This application demonstrates how to configure the SiWx91x device in both Wi-Fi 
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
 
 ### Software Requirements
 
 - Simplicity Studio
-- [iPerf Application](https://iperf.fr/iperf-download.php)
+- [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
 
 ### Setup Diagram
 
@@ -148,7 +153,7 @@ When data transfer is performed, data is sent between the client and server. It 
 ### TCP RX
 
 To use TCP RX, configure the SiWx91x device client interface as TCP server and start a TCP client on the remote PC.
-The Iperf command to start the TCP client on remote PC:
+The iPerf command to start the TCP client on remote PC:
 
 > `C:\> iperf.exe -c <Module_IP> -p <module_PORT> -i 1 -t <time interval in sec>`
   >
@@ -158,7 +163,7 @@ The Iperf command to start the TCP client on remote PC:
 
 ### TCP TX
 
-To use TCP TX, configure the SiWx91x device AP interface as a TCP client and start a TCP server on the remote PC.
+To use TCP TX, configure the SiWx91x device AP interface as a TCP client and start a TCP server on the remote PC. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
 The iPerf command to start the TCP server on remote PC:
 
   > `C:\> iperf.exe -s -p <SERVER_PORT> -i 1`

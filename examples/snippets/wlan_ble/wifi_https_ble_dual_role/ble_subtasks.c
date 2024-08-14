@@ -73,14 +73,14 @@ extern osSemaphoreId_t ble_peripheral_conn_sem;
 /*=======================================================================*/
 //   ! EXTERN FUNCTIONS
 /*=======================================================================*/
-extern int32_t rsi_ble_start_advertising_with_values(void *rsi_ble_adv);
+extern int32_t rsi_ble_start_advertising_with_values(const void *rsi_ble_adv);
 extern rsi_ble_att_list_t *rsi_gatt_get_attribute_from_list(rsi_ble_t *p_val, uint16_t handle);
 extern void rsi_ble_app_set_task_event(uint8_t conn_id, uint32_t event_num);
 extern int32_t rsi_ble_gatt_prepare_write_response(uint8_t *dev_addr,
                                                    uint16_t handle,
                                                    uint16_t offset,
                                                    uint16_t length,
-                                                   uint8_t *data);
+                                                   const uint8_t *data);
 
 /*=======================================================================*/
 //   ! PROCEDURES

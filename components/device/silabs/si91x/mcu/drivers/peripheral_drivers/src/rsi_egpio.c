@@ -62,21 +62,21 @@ void egpio_set_pin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t val)
 
 /*==============================================*/
 /**
- * @fn           boolean_t egpio_get_pin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
+ * @fn           boolean_t egpio_get_pin(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
  * @brief        This API is used get the GPIO pin status.
  * @param[in]    pEGPIO  : Pointer to the EGPIO register instance
  * @param[in]    port    : GPIO port number
  * @param[in]    pin     : GPIO pin number
  * @return       returns Pin status
  */
-boolean_t egpio_get_pin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
+boolean_t egpio_get_pin(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
 {
   return ((boolean_t)(pEGPIO->PIN_CONFIG[(port * 16) + pin].BIT_LOAD_REG));
 }
 
 /*==============================================*/
 /**
- * @fn           boolean_t egpio_get_dir(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
+ * @fn           boolean_t egpio_get_dir(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
  * @brief        This API is used to Get the Direction GPIO(Direction of the GPIO pin.
  *               '1' for INPUT,and '0'for OUTPUT)
  * @param[in]    pEGPIO  : Pointer to the EGPIO register instance
@@ -84,7 +84,7 @@ boolean_t egpio_get_pin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
  * @param[in]    pin     : GPIO pin number
  * @return       returns the GPIO direction value
  */
-boolean_t egpio_get_dir(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
+boolean_t egpio_get_dir(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
 {
   return pEGPIO->PIN_CONFIG[(port * 16) + pin].GPIO_CONFIG_REG_b.DIRECTION;
 }
@@ -253,13 +253,13 @@ void egpio_set_int_high_level_disable(EGPIO_Type *pEGPIO, uint8_t intCh)
 
 /*==============================================*/
 /**
- * @fn           uint8_t egpio_get_int_stat(EGPIO_Type *pEGPIO, uint8_t intCh)
+ * @fn           uint8_t egpio_get_int_stat(const EGPIO_Type *pEGPIO, uint8_t intCh)
  * @brief        This API is used to get the pin interrupt status register
  * @param[in]    pEGPIO  : Pointer to the EGPIO register instance
  * @param[in]    intCh   : GPIO pin interrupt channel number (0 to 7)
  * @return       returns the interrupt status register
  */
-uint8_t egpio_get_int_stat(EGPIO_Type *pEGPIO, uint8_t intCh)
+uint8_t egpio_get_int_stat(const EGPIO_Type *pEGPIO, uint8_t intCh)
 {
   return (uint8_t)(pEGPIO->INTR[intCh].GPIO_INTR_STATUS);
 }
@@ -398,7 +398,7 @@ void egpio_port_masked_load(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val)
  */
 void egpio_set_port(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val)
 {
-  pEGPIO->PORT_CONFIG[port].PORT_SET_REG = (val);
+  pEGPIO->PORT_CONFIG[port].PORT_SET_REG = val;
 }
 
 /*==============================================*/
@@ -413,7 +413,7 @@ void egpio_set_port(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val)
  */
 void egpio_port_load(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val)
 {
-  pEGPIO->PORT_CONFIG[port].PORT_LOAD_REG = (val);
+  pEGPIO->PORT_CONFIG[port].PORT_LOAD_REG = val;
 }
 
 /*==============================================*/
@@ -428,7 +428,7 @@ void egpio_port_load(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val)
  */
 void egpio_word_load(EGPIO_Type *pEGPIO, uint8_t pin, uint16_t val)
 {
-  pEGPIO->PIN_CONFIG[pin].WORD_LOAD_REG_b.WORD_LOAD = (val);
+  pEGPIO->PIN_CONFIG[pin].WORD_LOAD_REG_b.WORD_LOAD = val;
 }
 
 /*==============================================*/
@@ -443,7 +443,7 @@ void egpio_word_load(EGPIO_Type *pEGPIO, uint8_t pin, uint16_t val)
  */
 void egpio_clr_port(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val)
 {
-  pEGPIO->PORT_CONFIG[port].PORT_CLEAR_REG = (val);
+  pEGPIO->PORT_CONFIG[port].PORT_CLEAR_REG = val;
 }
 
 /*==============================================*/
@@ -458,19 +458,19 @@ void egpio_clr_port(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val)
  */
 void egpio_toggle_port(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val)
 {
-  pEGPIO->PORT_CONFIG[port].PORT_TOGGLE_REG = (val);
+  pEGPIO->PORT_CONFIG[port].PORT_TOGGLE_REG = val;
 }
 
 /*==============================================*/
 /**
- * @fn           uint16_t egpio_get_port(EGPIO_Type *pEGPIO, uint8_t port)
+ * @fn           uint16_t egpio_get_port(const EGPIO_Type *pEGPIO, uint8_t port)
  * @brief        This API is used to used to get the EGPIO port value.
  *               Reads the value on GPIO pins irrespective of the pin mode.
  * @param[in]    pEGPIO  : Pointer to the EGPIO register instance
  * @param[in]    port    : Port number to be read
  * @return       port value
  */
-uint16_t egpio_get_port(EGPIO_Type *pEGPIO, uint8_t port)
+uint16_t egpio_get_port(const EGPIO_Type *pEGPIO, uint8_t port)
 {
   return (pEGPIO->PORT_CONFIG[port].PORT_READ_REG & 0XFFFF);
 }
@@ -625,13 +625,13 @@ void egpio_group_int_or(EGPIO_Type *pEGPIO, uint8_t grpInt)
 
 /*==============================================*/
 /**
- * @fn           uint32_t egpio_group_int_stat(EGPIO_Type *pEGPIO, uint8_t grpInt)
+ * @fn           uint32_t egpio_group_int_stat(const EGPIO_Type *pEGPIO, uint8_t grpInt)
  * @brief        This API to used to get the group interrupt status
  * @param[in]    pEGPIO   : Pointer to the EGPIO register instance
  * @param[in]    grpInt   : Group interrupt number
  * @return       returns the group interrupt status register
  */
-uint32_t egpio_group_int_stat(EGPIO_Type *pEGPIO, uint8_t grpInt)
+uint32_t egpio_group_int_stat(const EGPIO_Type *pEGPIO, uint8_t grpInt)
 {
   return pEGPIO->GPIO_GRP_INTR[grpInt].GPIO_GRP_INTR_STS;
 }
@@ -673,7 +673,7 @@ void egpio_group_int_wkeup_disable(EGPIO_Type *pEGPIO, uint8_t grpInt)
  */
 void egpio_group_int_clr(EGPIO_Type *pEGPIO, uint8_t grpInt, uint8_t u8ClrFlags)
 {
-  pEGPIO->GPIO_GRP_INTR[grpInt].GPIO_GRP_INTR_STS = (u8ClrFlags);
+  pEGPIO->GPIO_GRP_INTR[grpInt].GPIO_GRP_INTR_STS = u8ClrFlags;
 }
 
 /*==============================================*/
@@ -1036,6 +1036,8 @@ void egpio_ulp_pad_driver_disable_state(uint8_t u8GpioNum, en_ulp_driver_disable
       reg |= (uint32_t)(disablestate << 14);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
+    default:
+      break;
   }
 }
 
@@ -1092,6 +1094,8 @@ void egpio_ulp_pad_driver_strength_select(uint8_t u8GpioNum, en_ulp_driver_stren
       reg |= (uint32_t)(strength << 8);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
+    default:
+      break;
   }
 }
 
@@ -1146,6 +1150,8 @@ void egpio_ulp_pad_power_on_start_enable(uint8_t u8GpioNum, uint8_t val)
       reg |= (uint32_t)(val << 10);
       ULP_PAD_CONFIG_REG_1 = reg;
       break;
+    default:
+      break;
   }
 }
 
@@ -1196,6 +1202,8 @@ void egpio_ulp_pad_active_high_schmitt_trigger(uint8_t u8GpioNum, uint8_t val)
       reg &= (uint32_t)(~ULP_ST_MASK_SET_2_AND_4);
       reg |= (uint32_t)(val << 11);
       ULP_PAD_CONFIG_REG_1 = reg;
+      break;
+    default:
       break;
   }
 }
@@ -1248,6 +1256,8 @@ void egpio_ulp_pad_slew_rate_controll(uint8_t u8GpioNum, uint8_t val)
       reg &= (uint32_t)(~ULP_SR_MASK_SET_2_AND_4);
       reg |= (uint32_t)(val << 13);
       ULP_PAD_CONFIG_REG_1 = reg;
+      break;
+    default:
       break;
   }
 }

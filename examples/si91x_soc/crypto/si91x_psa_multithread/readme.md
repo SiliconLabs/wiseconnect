@@ -11,6 +11,7 @@
 - [Application Build Environment](#application-build-environment)
   - [Application Configuration Parameters](#application-configuration-parameters)
 - [Test the Application](#test-the-application)
+  - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -23,10 +24,10 @@
 ### Hardware Requirements
 
   - Windows PC
-  - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
+  - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
 
 ### Software Requirements
-  - Simplicity SDK version: 2024.6.0
+  - Simplicity SDK version: 2024.6.1
   - Si91x SDK
   - Embedded Development Environment
     - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
@@ -41,18 +42,14 @@
 
 ## Application Build Environment
 
-- Compile the application in Simplicity Studio using build icon
-
-![Figure: Build run and Debug](resources/readme/image508c.png)
-
 - To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
 ### Application Configuration Parameters
 
 - With default configuration, the application executes SHA and AES in two threads one after another.
+- Set the priority of threads (thread0, thread1, thread2) to low, low4, low4 respectively to execute task1 and task2 applications one after another.
+- Set the priority of threads (thread0, thread1, thread2) to low4, low, low respectively to execute the task1 and task2 application threads parallely in round-robin mode.
 - Uncomment SAME_CRYPTO_ACCELERATORS and comment DIFFERENT_CRYPTO_ACCELERATORS in app.c to execute sha operation in both threads.
-- Set the priority of threads (thread0, thread1, thread2) to low, low4, low4 respectively to execute sha and aes applications one after another.
-- Set the priority of threads (thread0, thread1, thread2) to low4, low, low respectively to execute the sha and aes application threads parallely in round-robin mode.
 
 ## Test the Application
 
@@ -65,6 +62,19 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - The Encryption/Decryption function should produce the expected results.
 - The SHA hashing should produce the expected result.
 - The two threads should use semaphores for crypto accelerator functionalities.
+
+### Expected output
+- Run two threads of same crypto accelerators one after another
+  ![output](resources/readme/same_acc_output.png)
+
+- Run two threads with same crypto accelerators parallely
+  ![output](resources/readme/same_acc_parallel_output.png)
+
+- Run two threads of different crypto accelerators one after another
+  ![output](resources/readme/diff_acc_output.png)
+
+- Run two threads of different crypto accelerators parallely
+  ![output](resources/readme/diff_acc_parallel_output.png)
 
 Follow the steps as mentioned for the successful execution of the application:
 

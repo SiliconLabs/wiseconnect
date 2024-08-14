@@ -69,7 +69,7 @@
  * @note 
  *   For Wi-Fi events, sl_net uses the wifi callback framework. Register the corresponding Wi-Fi event handlers using [sl_wifi_set_callback](../wiseconnect-api-reference-guide-wi-fi/wifi-callback-framework#sl-wifi-set-callback) API.
  * @note
- * 	 Parameter \p network_context is only being used when module is acting as station in external stack mode[lwIP].
+ * 	 Parameter \p network_context is only used when module is acting as station in external stack mode[lwIP].
  * 	 In such case, \p network_context is supposed to refer a valid @ref sl_net_wifi_lwip_context_t variable.
  *
  ******************************************************************************/
@@ -103,9 +103,10 @@ sl_status_t sl_net_deinit(sl_net_interface_t interface);
  *   Network profile identifier for specific interface of type @ref sl_net_profile_id_t
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
-   @note
- *   By default, profile and credential configurations in sl_net_defaults.h are used by SDK. 
- *   User can define their profile and credential configurations for an interface, by calling @ref sl_net_set_profile and @ref sl_net_set_credentials APIs before calling @ref sl_net_up API".
+@note
+ * - By default, profile and credential configurations in sl_net_defaults.h are used by SDK.
+ * - To enable support for both IPv4 and IPv6, the ip.type in the profile should be set to (SL_IPV4|SL_IPV6).
+ * - User can define their profile and credential configurations for an interface by calling @ref sl_net_set_profile and @ref sl_net_set_credentials APIs before calling @ref sl_net_up API.
  * ******************************************************************************/
 sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
 
@@ -224,6 +225,8 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
  *   out: Number of bytes written.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   Certificates cannot be retrieved using this API.
  ******************************************************************************/
 sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
                                   sl_net_credential_type_t *type,

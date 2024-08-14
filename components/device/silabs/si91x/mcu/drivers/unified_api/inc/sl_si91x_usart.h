@@ -95,7 +95,6 @@ typedef enum {
   SL_USART_DATA_BITS_6 = ARM_USART_DATA_BITS_6, ///< 6 data bits
   SL_USART_DATA_BITS_7 = ARM_USART_DATA_BITS_7, ///< 7 data bits
   SL_USART_DATA_BITS_8 = ARM_USART_DATA_BITS_8, ///< 8 data bits
-  SL_USART_DATA_BITS_9 = ARM_USART_DATA_BITS_9, ///< 9 data bits
 } usart_databits_typedef_t;
 
 /// @brief Parity selection
@@ -394,7 +393,10 @@ uint32_t sl_si91x_usart_get_rx_data_count(sl_usart_handle_t usart_handle);
 * @param[in] usart_handle Pointer to the USART/UART driver
 *
 * @param[in] control_configuration pointer to the USART configurations
-*
+* @note
+* control_configuration - This parameter is used to pass the respective  peripheral configuration when  
+* USART_UC, UART_UC, ULP_UART_UC macros are disabled for particular instance. When this macros are enabled 
+* configuration are taken directly from the UC and this parameter is not considered.
 * @return status 0 if successful, else error code
 *        - \ref SL_STATUS_BUSY (0x0004)         -  Busy ,already data transfer is going on 
 *        - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 

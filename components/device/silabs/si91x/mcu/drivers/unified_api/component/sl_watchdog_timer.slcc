@@ -12,6 +12,7 @@ quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"
 config_file:
   - path: "config/sl_si91x_watchdog_timer_config.h"
+    unless: [sl_wdt_manager]
 source:
   - path: "src/sl_si91x_watchdog_timer.c"
 include:

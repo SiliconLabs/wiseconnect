@@ -349,10 +349,11 @@ static void application_start(void *argument)
 
   sl_http_server_config_t server_config = { 0 };
 
-  server_config.port            = HTTP_SERVER_PORT;
-  server_config.default_handler = default_handler;
-  server_config.handlers_list   = request_handlers;
-  server_config.handlers_count  = 2;
+  server_config.port             = HTTP_SERVER_PORT;
+  server_config.default_handler  = default_handler;
+  server_config.handlers_list    = request_handlers;
+  server_config.handlers_count   = 2;
+  server_config.client_idle_time = 1;
 
   status = sl_http_server_init(&server_handle, &server_config);
   if (status != SL_STATUS_OK) {

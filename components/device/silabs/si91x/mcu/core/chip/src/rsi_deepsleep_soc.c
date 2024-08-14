@@ -21,6 +21,7 @@
 #include "rsi_ccp_common.h"
 #include "rsi_power_save.h"
 #include "rsi_temp_sensor.h"
+#include "rsi_retention.h"
 #ifdef DEBUG_UART
 #include "rsi_debug.h"
 #endif
@@ -31,9 +32,10 @@ void fpuInit(void);
 #define M4SS_TASS_CTRL_SET_REG              (*(volatile uint32_t *)(0x24048400 + 0x34))
 #define M4SS_TASS_CTRL_CLEAR_REG            (*(volatile uint32_t *)(0x24048400 + 0x38))
 #define M4SS_TASS_CTRL_CLR_REG              (*(volatile uint32_t *)(0x24048400 + 0x38))
-#define MAX_NVIC_REGS                       4   // Max Interrupts register
-#define MAX_IPS                             240 // Max Interrupt Priority registers
-#define MAX_SHP                             12  //Max System Handlers Priority registers
+#define MAX_NVIC_REGS                       4    // Max Interrupts register
+#define MAX_IPS                             240  // Max Interrupt Priority registers
+#define MAX_SHP                             12   // Max System Handlers Priority registers
+#define NPSS_GPIO_CLR_VALUE                 0x3E // NPSS GPIO rising edge interrupt clear value
 
 #ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
 #define MBR_MAGIC_WORD (*(volatile uint32_t *)(0x8160000))
@@ -63,7 +65,10 @@ extern sl_psram_return_type_t sl_si91x_psram_wakeup(void);
 uint32_t nvic_enable[MAX_NVIC_REGS] = { 0 };
 uint8_t nvic_ip_reg[MAX_IPS]        = { 0 };
 uint8_t scs_shp_reg[MAX_SHP]        = { 0 };
-volatile uint32_t msp_value, psp_value, control_reg_val;
+volatile uint32_t msp_value;
+volatile uint32_t psp_value;
+volatile uint32_t control_reg_val;
+uint32_t npss_gpio_config = 0;
 
 volatile uint32_t sl_magic_word_value = 0;
 
@@ -272,7 +277,6 @@ void RSI_PS_RestoreCpuContext(void)
  */
 void RSI_Set_Cntrls_To_M4(void)
 {
-  volatile uint8_t delay;
 #ifdef SLI_SI917B0
   //!take TASS ref clock control to M4
   MCUAON_CONTROL_REG4 &= ~(MCU_TASS_REF_CLK_SEL_MUX_CTRL);
@@ -286,7 +290,7 @@ void RSI_Set_Cntrls_To_M4(void)
   BATT_FF->M4SS_TASS_CTRL_SET_REG_b.M4SS_CTRL_TASS_AON_DISABLE_ISOLATION_BYPASS = ENABLE;
   /* M4SS controlling Power supply for TASS AON domains reset pin in bypass mode. */
   M4SS_TASS_CTRL_CLR_REG = M4SS_CTRL_TASS_AON_PWR_DMN_RST_BYPASS_BIT;
-  for (delay = 0; delay < 10; delay++) {
+  for (volatile uint8_t delay = 0; delay < 10; delay++) {
     __ASM("NOP");
   }
 }
@@ -321,10 +325,16 @@ void RSI_Set_Cntrls_To_TA(void)
  */
 rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 {
-  volatile int var = 0, enable_sdcss_based_wakeup = 0, enable_m4ulp_retention = 0, Temp;
-  uint32_t ipmuDummyRead = 0, m4ulp_ram_core_status = 0, m4ulp_ram_peri_status = 0, disable_pads_ctrl = 0,
-           ulp_proc_clk         = 0;
-  volatile uint8_t in_ps2_state = 0, x = 0;
+  volatile int var                       = 0;
+  volatile int enable_sdcss_based_wakeup = 0;
+  volatile int enable_m4ulp_retention    = 0;
+  volatile int Temp;
+  uint32_t ipmuDummyRead         = 0;
+  uint32_t m4ulp_ram_core_status = 0;
+  uint32_t m4ulp_ram_peri_status = 0;
+  uint32_t disable_pads_ctrl     = 0;
+  uint32_t ulp_proc_clk          = 0;
+  volatile uint8_t in_ps2_state  = 0;
   sl_p2p_intr_status_bkp_t p2p_intr_status_bkp;
 
   /*Save the NVIC registers */
@@ -341,6 +351,8 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   }
   /*store the NPSS interrupt mask clear status*/
   npssIntrState = NPSS_INTR_MASK_CLR_REG;
+  // Stores the NPSS GPIO interrupt configurations
+  npss_gpio_config = NPSS_GPIO_CONFIG_REG;
 
   /*Clear AUX and DAC pg enables */
   if (!((MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE_b.SDCSS_BASED_WAKEUP_b)
@@ -561,11 +573,11 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 #endif
 
 #ifndef SL_SI91X_NPSS_GPIO_BTN_HANDLER
-  //NPSS GPIO-2(Button) interrupt clr reg(GPIO_NPSS_INTERRUPT_CLEAR_REG)
-  (*(volatile uint32_t *)(0x12080000UL + 0x08)) = 0x08;
+  // Clearing NPSS GPIO rise edge interrupts to avoid false triggering after wakeup
+  NPSS_GPIO_CONFIG_CLR_REG = NPSS_GPIO_CLR_VALUE;
 
-  //NPSS GPIO-2(Button) low-level interrupt enable(GPIO_NPSS_GPIO_CONFIG_REG)
-  (*(volatile uint32_t *)(0x12080000UL + 0x10)) = BIT(18);
+  // Restoring the NPSS GPIO interrupt configurations after wakeup
+  NPSS_GPIO_CONFIG_REG = npss_gpio_config;
 #endif
   /* After wake-up, Set the SCDC voltage to the actual value*/
   /* As this function is located in flash accessing this fucntion only after getting controls*/
@@ -650,9 +662,6 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   if (disable_pads_ctrl) {
     ULP_SPI_MEM_MAP(0x141) |= (BIT(11)); // ULP PADS PDO ON
     disable_pads_ctrl = 0;
-  }
-  for (x = 0; x < 200; x++) {
-    __ASM("NOP");
   }
 
   /* powerup FPU domain*/

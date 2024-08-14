@@ -45,6 +45,7 @@ extern RSI_UDMA_HANDLE_T udmaHandle0;    //check
 extern uint32_t dma_rom_buff0[30];     //we can keep wrapeers
 
 #define CONTROL_STRUCT0   (UDMA_NUMBER_OF_CHANNELS * 2)
+#define MAX_FRAME_LENGTH  16
 
 /* IAR support */
 #if defined(__ICCARM__)
@@ -358,7 +359,11 @@ ARM_DRIVER_SPI Driver_GSPI_MASTER = {
 // To get the Frame length
 uint32_t GSPI_GetFrameLength(void)
 {
-  return GSPI_MASTER_Resources.reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2;
+	uint32_t frame_length = GSPI_MASTER_Resources.reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2;
+	if (!frame_length) {
+		frame_length = MAX_FRAME_LENGTH;
+	}
+  return frame_length;
 }
 
 // To enable/disable the swapping of byte for read and write operation
@@ -371,14 +376,14 @@ int32_t GSPI_SwapReadWriteByte(boolean_t read, boolean_t write)
     return ARM_DRIVER_ERROR_BUSY;
   }
   if (read) {
-    GSPI_MASTER_Resources.reg->GSPI_CONFIG2 &= ~BIT(4);
+    GSPI_MASTER_Resources.reg->GSPI_CONFIG2_b.GSPI_RD_DATA_SWAP_MNL_CSN0 = ENABLE;
   } else {
-    GSPI_MASTER_Resources.reg->GSPI_CONFIG2 |= BIT(4);
+    GSPI_MASTER_Resources.reg->GSPI_CONFIG2_b.GSPI_RD_DATA_SWAP_MNL_CSN0 = DISABLE;
   }
   if (write) {
-    GSPI_MASTER_Resources.reg->GSPI_CONFIG2 &= ~BIT(0);
+    GSPI_MASTER_Resources.reg->GSPI_CONFIG2_b.GSPI_WR_DATA_SWAP_MNL_CSN0 = ENABLE;
   } else {
-    GSPI_MASTER_Resources.reg->GSPI_CONFIG2 |= BIT(0);
+    GSPI_MASTER_Resources.reg->GSPI_CONFIG2_b.GSPI_WR_DATA_SWAP_MNL_CSN0 = DISABLE;
   }
   return ARM_DRIVER_OK;
 }

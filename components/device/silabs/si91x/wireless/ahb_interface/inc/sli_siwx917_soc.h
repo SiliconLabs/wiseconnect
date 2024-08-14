@@ -43,7 +43,7 @@
 #define HOST_INTERACT_REG_VALID_READ (0xAB << 8)
 #endif
 
-#define RSI_RESET_LOOP_COUNTER(X)     X = 0;
+#define RSI_RESET_LOOP_COUNTER(X)     X = 0
 #define RSI_WHILE_LOOP(X, Y)          while ((X++) < (uint32_t)Y)
 #define RSI_LOOP_COUNT_UPGRADE_IMAGE  0xFFFF
 #define RSI_LOOP_COUNT_WAKEUP_REQ     0xFFFFFFFF
@@ -53,10 +53,10 @@
 #define RSI_LOOP_COUNT_UPGRADE_STATUS 0xFFFF
 #define RSI_LOOP_COUNT_SELECT_OPTION  0xFFFF
 #define RSI_CHECK_LOOP_COUNTER(X, Y) \
-  {                                  \
+  do {                               \
     if (X >= Y)                      \
       return -1;                     \
-  }
+  } while (0)
 
 void sli_siwx917_update_system_core_clock(void);
 void RSI_Set_Cntrls_To_M4(void);

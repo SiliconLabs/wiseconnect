@@ -235,7 +235,6 @@ struct hostent	*gethostent(void);
 int             gethostent_r(struct hostent *, char *, int, int *, FILE **);
 struct hostent	*getipnodebyaddr(const void *, size_t, int, int *);
 struct hostent	*getipnodebyname(const char *, int, int, int *);
-/*struct netent	*getnetbyaddr(uint32_t, int);*/
 struct netent	*getnetbyname(const char *);
 struct netent	*getnetent(void);
 int		getnetgrent(char **, char **, char **);
@@ -250,7 +249,6 @@ const char	*hstrerror(int);
 int		innetgr(const char *, const char *, const char *, const char *);
 void		sethostent(int);
 void		sethostent_r(int, FILE **, int *);
-/* void		sethostfile(const char *); */
 void		setnetent(int);
 void		setprotoent(int);
 int		getaddrinfo(const char *__restrict, const char *__restrict,

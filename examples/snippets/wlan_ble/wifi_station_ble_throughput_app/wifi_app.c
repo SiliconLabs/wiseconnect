@@ -128,10 +128,14 @@ uint32_t bytes_read       = 0;
 uint32_t start            = 0;
 uint32_t now              = 0;
 
-void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)
+void data_callback(uint32_t sock_no,
+                   uint8_t *buffer,
+                   uint32_t length,
+                   const sl_si91x_socket_metadata_t *firmware_socket_response)
 {
   UNUSED_PARAMETER(sock_no);
   UNUSED_PARAMETER(buffer);
+  UNUSED_PARAMETER(firmware_socket_response);
 
   bytes_read += length;
   now = osKernelGetTickCount();

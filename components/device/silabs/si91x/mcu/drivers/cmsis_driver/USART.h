@@ -130,7 +130,6 @@ typedef  struct _USART0_DMA
 #define USART_RX_DATA_AVAILABLE        (0x01 << 2)   /*!< Received Data Available     */
 #define USART_RX_LINE_STATUS           (0x03 << 1)   /*!< Receiver line status        */ 
 #define USART_BUSY_DETECT              (0x07 << 0)   /*!< USART busy detect            */ 
-#define USART_RX_CHAR_TIMEOUT          (0x03 << 2)   /*!< Receive character timeout   */
 #define USART_IIR_FIFO_ENABLE          (0x03 << 6)   /*!< IIR FIFO enabled            */ 
 
 /*!< USART (Modem status registers)*/
@@ -261,7 +260,7 @@ typedef struct
   USART_CLOCK              clock;
   USART_SYNC_MODE          sync_mode;
 } USART_RESOURCES;
-ARM_USART_CAPABILITIES USART_GetCapabilities (USART_RESOURCES *usart);
+ARM_USART_CAPABILITIES USART_GetCapabilities (const USART_RESOURCES *usart);
 ARM_DRIVER_VERSION ARM_USARTx_GetVersion(void);
 void IRQ038_Handler(void);
 void IRQ039_Handler(void);

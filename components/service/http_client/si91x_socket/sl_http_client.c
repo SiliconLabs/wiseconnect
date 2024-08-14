@@ -30,14 +30,14 @@
  ******************************************************/
 // Macro to check if malloc failed
 #define VERIFY_MALLOC_AND_RETURN(ptr)     \
-  {                                       \
+  do {                                    \
     if (ptr == NULL) {                    \
       return SL_STATUS_ALLOCATION_FAILED; \
     }                                     \
-  }
+  } while (0)
 
 #define VERIFY_MALLOC_AND_FREE_IF_FAIL(ptr, ptr1, ptr2) \
-  {                                                     \
+  do {                                                  \
     if (ptr == NULL) {                                  \
       if (ptr1 != NULL)                                 \
         free(ptr1);                                     \
@@ -45,7 +45,7 @@
         free(ptr2);                                     \
       return SL_STATUS_ALLOCATION_FAILED;               \
     }                                                   \
-  }
+  } while (0)
 
 /******************************************************
  *                    Constants
@@ -95,14 +95,14 @@ static void sli_si91x_load_extended_headers_into_request_buffer(uint8_t *buffer,
 
 // Sends GET/POST request
 static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type_t send_request,
-                                                      sl_http_client_internal_t *client_internal,
+                                                      const sl_http_client_internal_t *client_internal,
                                                       const sl_http_client_request_t *request);
 
 // Abort ongoing HTTP client operation
 static sl_status_t sli_si91x_http_client_abort(void);
 
 // Send SNI parameters for the embedded socket
-static sl_status_t sli_si91x_set_sni_for_embedded_socket(si91x_socket_type_length_value_t *sni_extension);
+static sl_status_t sli_si91x_set_sni_for_embedded_socket(const si91x_socket_type_length_value_t *sni_extension);
 
 /******************************************************
  *               Function Definitions
@@ -183,7 +183,7 @@ sl_status_t sl_http_client_init(const sl_http_client_configuration_t *client_con
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_http_client_deinit(sl_http_client_t *client)
+sl_status_t sl_http_client_deinit(const sl_http_client_t *client)
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(client);
 
@@ -335,7 +335,7 @@ sl_status_t sl_http_client_delete_header(sl_http_client_request_t *request, cons
   SL_WIFI_ARGS_CHECK_NULL_POINTER(request);
   SL_WIFI_ARGS_CHECK_NULL_POINTER(key);
 
-  sl_http_client_header_t *current_header = request->extended_header;
+  sl_http_client_header_t *current_header = (sl_http_client_header_t *)request->extended_header;
 
   // Check if linked list is empty
   if (request->extended_header == NULL) {
@@ -344,7 +344,7 @@ sl_status_t sl_http_client_delete_header(sl_http_client_request_t *request, cons
 
   // Search key in linked list
   while ((current_header != NULL) && (strcmp(current_header->key, key) != 0)) {
-    current_header = (sl_http_client_header_t *)current_header->next;
+    current_header = current_header->next;
   }
 
   // If key not present in linked list
@@ -378,7 +378,7 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
 
   while (current_header != NULL) {
     // Store next header link
-    next_header = (sl_http_client_header_t *)current_header->next;
+    next_header = current_header->next;
 
     // Remove node from list
     sl_slist_remove((sl_slist_node_t **)&request->extended_header, (sl_slist_node_t *)current_header);
@@ -399,7 +399,7 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
   return SL_STATUS_OK;
 }
 
-static sl_status_t sli_si91x_set_sni_for_embedded_socket(si91x_socket_type_length_value_t *sni_extension)
+static sl_status_t sli_si91x_set_sni_for_embedded_socket(const si91x_socket_type_length_value_t *sni_extension)
 {
   sl_status_t status     = SL_STATUS_OK;
   uint32_t packet_length = 0;
@@ -465,13 +465,13 @@ static void sli_si91x_load_extended_headers_into_request_buffer(uint8_t *buffer,
       (*http_buffer_offset)++;
 
       // Point to next header
-      current_header = (sl_http_client_header_t *)current_header->next;
+      current_header = current_header->next;
     }
   }
 }
 
 static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type_t send_request,
-                                                      sl_http_client_internal_t *client_internal,
+                                                      const sl_http_client_internal_t *client_internal,
                                                       const sl_http_client_request_t *request)
 {
   sl_status_t status                            = SL_STATUS_OK;
@@ -479,7 +479,9 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
   uint8_t packet_identifier                     = 0;
   uint16_t http_buffer_offset                   = 0;
   sl_si91x_http_client_request_t *packet_buffer = NULL;
-  uint16_t offset = 0, rem_length = 0, chunk_size = SI91X_MAX_HTTP_CHUNK_SIZE;
+  uint16_t offset                               = 0;
+  uint16_t rem_length                           = 0;
+  uint16_t chunk_size                           = SI91X_MAX_HTTP_CHUNK_SIZE;
   // Allocate memory for request structure
   sl_si91x_http_client_request_t *http_client_request =
     (sl_si91x_http_client_request_t *)malloc(sizeof(sl_si91x_http_client_request_t));
@@ -537,7 +539,9 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
         http_client_request->https_enable |= SL_SI91X_HTTPS_CERTIFICATE_INDEX_2;
         break;
       }
-      case SL_HTTPS_CLIENT_DEFAULT_CERTIFICATE_INDEX:
+      case SL_HTTPS_CLIENT_DEFAULT_CERTIFICATE_INDEX: {
+        break;
+      }
       default:
         break;
     }
@@ -576,17 +580,20 @@ static sl_status_t sli_si91x_send_http_client_request(sl_http_client_method_type
   http_client_request->buffer[http_buffer_offset] = '\0';
   http_buffer_offset++;
 
-  // Check for HTTP_V_1.1 and Empty host name
+  // Check for HTTP_V_1.1 and Empty host name and fill IP address
   if (client_internal->configuration.http_version == SL_HTTP_V_1_1
       && (strlen((char *)request->host_name) == 0 || request->host_name == NULL)) {
-    strcpy((char *)request->host_name, (char *)request->ip_address);
+    http_buffer_offset += snprintf((char *)(http_client_request->buffer + http_buffer_offset),
+                                   SI91X_HTTP_BUFFER_LEN - http_buffer_offset,
+                                   "%s",
+                                   request->ip_address);
+  } else if (request->host_name != NULL) {
+    // Fill hostname
+    http_buffer_offset += snprintf((char *)(http_client_request->buffer + http_buffer_offset),
+                                   SI91X_HTTP_BUFFER_LEN - http_buffer_offset,
+                                   "%s",
+                                   request->host_name);
   }
-
-  // Fill hostname
-  http_buffer_offset += snprintf((char *)(http_client_request->buffer + http_buffer_offset),
-                                 SI91X_HTTP_BUFFER_LEN - http_buffer_offset,
-                                 "%s",
-                                 request->host_name);
   http_buffer_offset++;
 
   // Fill IP address
@@ -873,7 +880,9 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
             http_put_start->https_enable |= SL_SI91X_HTTPS_CERTIFICATE_INDEX_2;
             break;
           }
-          case SL_HTTPS_CLIENT_DEFAULT_CERTIFICATE_INDEX:
+          case SL_HTTPS_CLIENT_DEFAULT_CERTIFICATE_INDEX: {
+            break;
+          }
           default:
             break;
         }
@@ -988,7 +997,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
 }
 
 sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
-                                              uint8_t *data,
+                                              const uint8_t *data,
                                               uint32_t data_length,
                                               bool flush_now)
 {
@@ -1026,14 +1035,14 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
       VERIFY_MALLOC_AND_RETURN(http_post_data);
       memset(http_post_data, 0, sizeof(sl_si91x_http_client_post_data_request_t));
       // Fill HTTP Post data current chunk length
-      http_post_data->current_length = data_length;
+      http_post_data->current_length = (uint16_t)data_length;
 
       // Fill HTTP Post data
       memcpy(http_post_data->http_post_data_buffer, data, data_length);
 
       // Fill total packet length
-      packet_length =
-        sizeof(sl_si91x_http_client_post_data_request_t) - SI91X_HTTP_CLIENT_POST_MAX_BUFFER_LENGTH + data_length;
+      packet_length = (uint16_t)(sizeof(sl_si91x_http_client_post_data_request_t)
+                                 - SI91X_HTTP_CLIENT_POST_MAX_BUFFER_LENGTH + data_length);
 
       // Send HTTP Post Data request
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_POST_DATA,
@@ -1063,14 +1072,14 @@ sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
       http_put_pkt_request->command_type = SI91X_HTTP_CLIENT_PUT_PKT;
 
       // Fill HTTP Put packet current chunk length
-      http_put_data->current_length = data_length;
+      http_put_data->current_length = (uint16_t)data_length;
 
       // Fill HTTP Put data
       memcpy(http_put_pkt_request->http_put_buffer, data, data_length);
 
       // Fill total packet length
       packet_length =
-        sizeof(sl_si91x_http_client_put_request_t) - SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH + data_length;
+        (uint16_t)(sizeof(sl_si91x_http_client_put_request_t) - SI91X_HTTP_CLIENT_PUT_MAX_BUFFER_LENGTH + data_length);
 
       // Send HTTP Put Data request
       status = sl_si91x_driver_send_command(RSI_WLAN_REQ_HTTP_CLIENT_PUT,

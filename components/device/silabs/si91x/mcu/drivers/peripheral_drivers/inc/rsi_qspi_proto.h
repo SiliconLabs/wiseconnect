@@ -79,12 +79,12 @@ typedef struct qspi_reg_s qspi_reg_t;
 typedef struct spi_config_1_s {
   // QSPI operation modes, all modes are single, dual or quad
 
-  uint32_t inst_mode : 2;       // instruction will be sent in this mode
-  uint32_t addr_mode : 2;       // addr will be sent in this mode
-  uint32_t data_mode : 2;       // data will be sent/received in this mode
-  uint32_t dummy_mode : 2;      // dummy bytes will be sent/received in this mode
-  uint32_t extra_byte_mode : 2; // extra bytes will be sent in this mode
-                                // SPI mode
+  unsigned int inst_mode : 2;       // instruction will be sent in this mode
+  unsigned int addr_mode : 2;       // addr will be sent in this mode
+  unsigned int data_mode : 2;       // data will be sent/received in this mode
+  unsigned int dummy_mode : 2;      // dummy bytes will be sent/received in this mode
+  unsigned int extra_byte_mode : 2; // extra bytes will be sent in this mode
+                                    // SPI mode
 #define SINGLE_MODE 0
   // dual mode
 #define DUAL_MODE 1
@@ -92,36 +92,36 @@ typedef struct spi_config_1_s {
 #define QUAD_MODE 2
 #define OCTA_MODE 3
 
-  uint32_t prefetch_en : 1; // prefetch enable
+  unsigned int prefetch_en : 1; // prefetch enable
 // prefetch will be enabled
 #define EN_PREFETCH 1
 // prefetch will be disabled
 #define DIS_PREFETCH 0
 
-  uint32_t dummy_W_or_R : 1; // dummy writes or read select
+  unsigned int dummy_W_or_R : 1; // dummy writes or read select
 // dummy's are read
 #define DUMMY_READS 0
 // dummy's are written
 #define DUMMY_WRITES 1
 
-  uint32_t extra_byte_en : 1; // Enable extra byte
-                              // Extra byte will be enabled
+  unsigned int extra_byte_en : 1; // Enable extra byte
+                                  // Extra byte will be enabled
 #define EN_EXTRA_BYTE
   // Extra byte will be disabled
 #define DIS_EXTRA_BYTE
 
-  uint32_t d3d2_data : 2; // Data on D3 and D2 line in SPI or DUAL mode
+  unsigned int d3d2_data : 2; // Data on D3 and D2 line in SPI or DUAL mode
 
-  uint32_t continuous : 1; // continuous mode select
-                           // continuous mode is selected
+  unsigned int continuous : 1; // continuous mode select
+                               // continuous mode is selected
 #define CONTINUOUS 1
   // discontinuous mode is selected
 #define DIS_CONTINUOUS 0
 
-  uint32_t read_cmd : 8; // read cmd to be used
+  unsigned int read_cmd : 8; // read cmd to be used
 
-  uint32_t flash_type : 4; // flash defines
-                           // sst spi flash
+  unsigned int flash_type : 4; // flash defines
+                               // sst spi flash
 #define FREAD_QUAD_O 0x6B
 
 #define FREAD_QUAD_O_EB 0xEB
@@ -164,19 +164,19 @@ typedef struct spi_config_1_s {
 #define XMC_FLASH 13
 
 #endif
-  uint32_t no_of_dummy_bytes : 4; // no_of_dummy_bytes to be used for read operations
+  unsigned int no_of_dummy_bytes : 4; // no_of_dummy_bytes to be used for read operations
 } spi_config_1_t;
 
 // This structure members are used to configure qspi
 typedef struct spi_config_2_s {
 
-  uint32_t auto_mode : 1; // mode select
+  unsigned int auto_mode : 1; // mode select
 // Auto mode selection
 #define EN_AUTO_MODE 1
   // Manual mode selection
 #define EN_MANUAL_MODE 0
 
-  uint32_t cs_no : 2; //  QSPI chip_select
+  unsigned int cs_no : 2; //  QSPI chip_select
 // cs-0
 #define CHIP_ZERO 0
 // cs-1
@@ -186,25 +186,25 @@ typedef struct spi_config_2_s {
 // cs-3
 #define CHIP_THREE 3
 
-  uint32_t reserved1 : 1; // Jump Enable
+  unsigned int reserved1 : 1; // Jump Enable
 // Enables jump
 #define EN_JUMP 1
 // Disables jump
 #define DIS_JUMP 0
 
-  uint32_t neg_edge_sampling : 1; // For High speed mode, sample at neg edge
+  unsigned int neg_edge_sampling : 1; // For High speed mode, sample at neg edge
 // enables neg edge sampling
 #define NEG_EDGE_SAMPLING 1
 // enables pos edge sampling
 #define POS_EDGE_SAMPLING 0
 
-  uint32_t qspi_clk_en : 1; // qspi clk select
+  unsigned int qspi_clk_en : 1; // qspi clk select
 // full time clk will be provided
 #define QSPI_FULL_TIME_CLK 1
 // dynamic clk gating will be enabled
 #define QSPI_DYNAMIC_CLK 0
 
-  uint32_t protection : 2; // flash protection select
+  unsigned int protection : 2; // flash protection select
 // enable write protection
 #define EN_WR_PROT 2
 // remove write protection
@@ -212,19 +212,19 @@ typedef struct spi_config_2_s {
 // no change to wr protection
 #define DNT_REM_WR_PROT 0
 
-  uint32_t dma_mode : 1; // dma mode enable
+  unsigned int dma_mode : 1; // dma mode enable
 // use dma only in manaul mode
 #define DMA_MODE 1
 // dma will not be used
 #define NO_DMA 0
 
-  uint32_t swap_en : 1; // swap enable for w/r
+  unsigned int swap_en : 1; // swap enable for w/r
 // swap will be enabled
 #define SWAP 1
 // swap will be disabled
 #define NO_SWAP 0
 
-  uint32_t full_duplex : 2; // full duplex mode select
+  unsigned int full_duplex : 2; // full duplex mode select
 // do nothing for full duplex
 #define IGNORE_FULL_DUPLEX 2
 // enable full duplex
@@ -232,7 +232,7 @@ typedef struct spi_config_2_s {
 // disable full duplex
 #define DIS_FULL_DUPLEX 0
 
-  uint32_t wrap_len_in_bytes : 3; // wrap len to be used
+  unsigned int wrap_len_in_bytes : 3; // wrap len to be used
 // wrap is diabled
 #define NO_WRAP 7
 // 8 byte wrap will be used
@@ -251,11 +251,11 @@ typedef struct spi_config_2_s {
 // 64 byte wrap will be used
 #define MICRON_64BYTE_WRAP 2
 
-  uint32_t addr_width_valid : 1;
+  unsigned int addr_width_valid : 1;
   // mode 3 clk will be used
   // mode 0 clk will be used
 
-  uint32_t addr_width : 3; // addr width to used
+  unsigned int addr_width : 3; // addr width to used
 // 32 bit addr is configured
 #define _32BIT_ADDR 4
 // 24 bit addr is configured
@@ -269,14 +269,14 @@ typedef struct spi_config_2_s {
 
 #define MANUAL_DUMMY_BYTE_OR_BIT_MODE BIT(25)
 #define DUMMY_BYTE_OR_BIT_MODE        BIT(0)
-  uint32_t dummy_cycles_for_controller : 2;
+  unsigned int dummy_cycles_for_controller : 2;
 
-  uint32_t reserved2 : 6;
+  unsigned int reserved2 : 6;
   //  uint32 jump_inst : 8;  // Instruction to be used in case of jump
 
-  uint32_t pinset_valid : 1;
+  unsigned int pinset_valid : 1;
 
-  uint32_t flash_pinset : 4; // width of memory protection reg for sst flashes
+  unsigned int flash_pinset : 4; // width of memory protection reg for sst flashes
 
 } spi_config_2_t;
 
@@ -284,73 +284,73 @@ typedef struct spi_config_2_s {
 typedef struct spi_config_3_s {
 #define CONTINUE_FETCH_EN BIT(12)
 #define WORD_SWAP_EN      20
-  uint32_t en_word_swap : 1;
-  uint32_t _16bit_cmd_valid : 1;
-  uint32_t _16bit_rd_cmd_msb : 8;
-  uint32_t xip_mode : 1;
-  uint32_t no_of_dummy_bytes_wrap : 4; // no_of_dummy_bytes to be used for wrap operations
+  unsigned int en_word_swap : 1;
+  unsigned int _16bit_cmd_valid : 1;
+  unsigned int _16bit_rd_cmd_msb : 8;
+  unsigned int xip_mode : 1;
+  unsigned int no_of_dummy_bytes_wrap : 4; // no_of_dummy_bytes to be used for wrap operations
 #ifdef CHIP_9118
-  uint32_t ddr_mode_en : 1;
+  unsigned int ddr_mode_en : 1;
 #else
-  uint32_t reserved : 1;
+  unsigned int reserved : 1;
 #endif
-  uint32_t wr_cmd : 8;
-  uint32_t wr_inst_mode : 2;
-  uint32_t wr_addr_mode : 2;
-  uint32_t wr_data_mode : 2;
-  uint32_t dummys_4_jump : 2; // no_of_dummy_bytes in case of jump instruction
+  unsigned int wr_cmd : 8;
+  unsigned int wr_inst_mode : 2;
+  unsigned int wr_addr_mode : 2;
+  unsigned int wr_data_mode : 2;
+  unsigned int dummys_4_jump : 2; // no_of_dummy_bytes in case of jump instruction
 } spi_config_3_t;
 
 typedef struct spi_config_4_s {
-  uint32_t _16bit_wr_cmd_msb : 8;
-  uint32_t high_perf_mode_en : 1; //used for high performance mode not ddr
-  uint32_t qspi_loop_back_mode_en : 1;
+  unsigned int _16bit_wr_cmd_msb : 8;
+  unsigned int high_perf_mode_en : 1; //used for high performance mode not ddr
+  unsigned int qspi_loop_back_mode_en : 1;
 #ifdef CHIP_9118
-  uint32_t qspi_manual_ddr_phasse : 1;
-  uint32_t ddr_data_mode : 1;
-  uint32_t ddr_inst_mode : 1;
-  uint32_t ddr_addr_mode : 1;
-  uint32_t ddr_dummy_mode : 1;
-  uint32_t ddr_extra_byte : 1;
+  unsigned int qspi_manual_ddr_phasse : 1;
+  unsigned int ddr_data_mode : 1;
+  unsigned int ddr_inst_mode : 1;
+  unsigned int ddr_addr_mode : 1;
+  unsigned int ddr_dummy_mode : 1;
+  unsigned int ddr_extra_byte : 1;
 #else
-  uint32_t reserved : 1;
-  uint32_t reserved1 : 1;
-  uint32_t reserved2 : 1;
-  uint32_t reserved3 : 1;
-  uint32_t reserved4 : 1;
-  uint32_t reserved5 : 1;
+  unsigned int reserved : 1;
+  unsigned int reserved1 : 1;
+  unsigned int reserved2 : 1;
+  unsigned int reserved3 : 1;
+  unsigned int reserved4 : 1;
+  unsigned int reserved5 : 1;
 #endif
-  uint32_t dual_flash_mode : 1;
-  uint32_t secondary_csn : 1;
-  uint32_t polarity_mode : 1;
-  uint32_t valid_prot_bits : 4;
-  uint32_t no_of_ms_dummy_bytes : 4;
+  unsigned int dual_flash_mode : 1;
+  unsigned int secondary_csn : 1;
+  unsigned int polarity_mode : 1;
+  unsigned int valid_prot_bits : 4;
+  unsigned int no_of_ms_dummy_bytes : 4;
 #ifdef CHIP_9118
-  uint32_t ddr_dll_en : 1;
+  unsigned int ddr_dll_en : 1;
 #else
-  uint32_t reserved6 : 1;
+  unsigned int reserved6 : 1;
 #endif
-  uint32_t continue_fetch_en : 1;
-  uint32_t dma_write : 1;
-  uint32_t prot_top_bottom : 1;
-  uint32_t auto_csn_based_addr_en : 1;
+  unsigned int continue_fetch_en : 1;
+  unsigned int dma_write : 1;
+  unsigned int prot_top_bottom : 1;
+  unsigned int auto_csn_based_addr_en : 1;
 } spi_config_4_t;
 typedef struct spi_config_5_s {
-  uint32_t block_erase_cmd : 16;
-  uint32_t busy_bit_pos : 3;
-  uint32_t d7_d4_data : 4;
-  uint32_t dummy_bytes_for_rdsr : 4;
-  uint32_t reset_type : 5;
+  unsigned int block_erase_cmd : 16;
+  unsigned int busy_bit_pos : 3;
+  unsigned int d7_d4_data : 4;
+  unsigned int dummy_bytes_for_rdsr : 4;
+  unsigned int reset_type : 5;
 } spi_config_5_t;
 
 typedef struct spi_config_6_s {
-  uint32_t chip_erase_cmd : 16;
-  uint32_t sector_erase_cmd : 16;
+  unsigned int chip_erase_cmd : 16;
+  unsigned int sector_erase_cmd : 16;
 } spi_config_6_t;
 
 typedef struct spi_config_7_s {
-  uint32_t status_reg_write_cmd : 16;
-  uint32_t status_reg_read_cmd : 16;
+  unsigned int status_reg_write_cmd : 16;
+  unsigned int status_reg_read_cmd : 16;
 } spi_config_7_t;
 
 // This structure has two daughter structures to configure qspi

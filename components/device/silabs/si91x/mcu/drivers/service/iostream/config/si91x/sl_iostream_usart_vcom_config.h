@@ -64,7 +64,6 @@
 // <SL_USART_DATA_BITS_6=> 6 data bits
 // <SL_USART_DATA_BITS_7=> 7 data bits
 // <SL_USART_DATA_BITS_8=> 8 data bits
-// <SL_USART_DATA_BITS_9=> 9 data bits
 // <i> Default: SL_USART_DATA_BITS_8
 #define SL_IOSTREAM_USART_VCOM_DATA_BITS SL_USART_DATA_BITS_8
 

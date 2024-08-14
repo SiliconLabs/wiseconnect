@@ -14,10 +14,10 @@ filter:
    - Beginner
 sdk:
    id: simplicity_sdk
-   version: 2024.6.0
+   version: 2024.6.1
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.3.0
+   version: 3.3.1
 source:
 -  path: app.c
 -  path: main.c
@@ -31,12 +31,13 @@ define:
 -  name: SLI_SI91X_ENABLE_IPV6
 component:
   - id: sl_system
-  - id: slist
   - id: freertos
   - id: freertos_heap_4
   - id: syscalls
     from: wiseconnect3_sdk
   - id: si917_memory_default_config
+    from: wiseconnect3_sdk
+  - id: wiseconnect3_common
     from: wiseconnect3_sdk
   - id: wifi
     from: wiseconnect3_sdk

@@ -33,7 +33,6 @@
 - include:
   - file_list:
     - path: system_si91x.h
-    - path: si91x_mvp.h
     - path: si91x_device.h
     path: components/device/silabs/si91x/mcu/core/chip/inc/
 - provides:
@@ -46,8 +45,6 @@
   - name: armv7em
   - name: device_supports_psram
   - name: device_has_stacked_flash
-  - name: device_has_mvp
-  - name: device_compute_mvp
   - name: device_has_mpu
 - requires:
   - name: rsilib_chip
@@ -80,7 +77,6 @@
     value: 7168
   - name: nvm3_size
     value: 65536
-
   - name: flash_present
     value: 1
 
@@ -117,8 +113,6 @@
     priority: 1000
     condition:
       - si917_mem_config_3
-
-
   - name: device_flash_page_size
     value: 256
   - name: device_ram_addr

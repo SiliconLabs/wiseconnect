@@ -47,28 +47,28 @@ typedef struct {
   UDMA_SignalEvent_t cb_event;
 } UDMA_Channel_Info;
 
-RSI_UDMA_HANDLE_T uDMAx_Initialize(UDMA_RESOURCES *udma,
+RSI_UDMA_HANDLE_T uDMAx_Initialize(const UDMA_RESOURCES *udma,
                                    RSI_UDMA_DESC_T *UDMA_Table,
                                    RSI_UDMA_HANDLE_T udmaHandle,
                                    uint32_t *mem);
-int32_t uDMAx_Uninitialize(UDMA_RESOURCES *udma);
-int32_t uDMAx_ChannelConfigure(UDMA_RESOURCES *udma,
+int32_t uDMAx_Uninitialize(const UDMA_RESOURCES *udma);
+int32_t uDMAx_ChannelConfigure(const UDMA_RESOURCES *udma,
                                uint8_t ch,
                                uint32_t src_addr,
                                uint32_t dest_addr,
                                uint32_t size,
                                RSI_UDMA_CHA_CONFIG_DATA_T control,
-                               RSI_UDMA_CHA_CFG_T *config,
+                               const RSI_UDMA_CHA_CFG_T *config,
                                UDMA_SignalEvent_t cb_event,
                                UDMA_Channel_Info *chnl_info,
                                RSI_UDMA_HANDLE_T udmaHandle);
-int32_t uDMAx_ChannelEnable(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
-int32_t uDMAx_DMAEnable(UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
-int32_t uDMAx_ChannelDisable(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
+int32_t uDMAx_ChannelEnable(uint8_t ch, const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
+int32_t uDMAx_DMAEnable(const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
+int32_t uDMAx_ChannelDisable(uint8_t ch, const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
 uint32_t uDMAx_ChannelGetCount(uint8_t ch,
                                RSI_UDMA_CHA_CONFIG_DATA_T control,
                                RSI_UDMA_CHA_CFG_T config,
-                               UDMA_RESOURCES *udma,
+                               const UDMA_RESOURCES *udma,
                                RSI_UDMA_HANDLE_T udmaHandle);
 void uDMAx_IRQHandler(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Channel_Info *chnl_info);
 

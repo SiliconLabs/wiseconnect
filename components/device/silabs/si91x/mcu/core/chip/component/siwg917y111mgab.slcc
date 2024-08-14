@@ -16,6 +16,8 @@
     value: '1'
   - name: SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
     value: '1'
+  - name: SL_SI91X_MODULE_BOARD
+    value: '1'
   - name: SRAM_BASE
     value: "0x0cUL"
     unless: [rsilib_board]

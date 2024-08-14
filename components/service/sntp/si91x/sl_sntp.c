@@ -44,7 +44,7 @@ static sl_status_t sli_sntp_client_get_time_date(uint8_t *data,
   si91x_sntp_client_t client_req          = { 0 };
   sl_si91x_wait_period_t wait_time        = 0;
   sl_wifi_buffer_t *buffer                = NULL;
-  sl_si91x_packet_t *packet               = NULL;
+  const sl_si91x_packet_t *packet         = NULL;
   sl_wifi_buffer_t *sdk_context           = NULL;
   sl_internal_sntp_client_context_t *node = NULL;
   uint16_t length                         = 0;
@@ -54,7 +54,7 @@ static sl_status_t sli_sntp_client_get_time_date(uint8_t *data,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  client_req.command_type = cmd_type;
+  client_req.command_type = (uint8_t)cmd_type;
 
   if (timeout > 0) {
     wait_time = SL_SI91X_WAIT_FOR_RESPONSE(timeout);
@@ -100,7 +100,7 @@ static sl_status_t sli_sntp_client_get_time_date(uint8_t *data,
   return status;
 }
 
-sl_status_t sli_si91x_sntp_event_handler(sl_si91x_queue_packet_t *data)
+sl_status_t sli_si91x_sntp_event_handler(sli_si91x_queue_packet_t *data)
 {
   uint16_t status                         = 0;
   sl_sntp_client_response_t response      = { 0 };
@@ -161,7 +161,7 @@ sl_status_t sl_sntp_client_start(sl_sntp_client_config_t *config, uint32_t timeo
   *((uint16_t *)client_req.sntp_timeout) = config->sntp_timeout;
 
   // Check for IP version
-  if ((config->flags & 0x01)) {
+  if (config->flags & 0x01) {
     client_req.ip_version = 6;
     memcpy(client_req.server_ip_address.ipv6_address, config->server_host_name, 16);
   } else {
@@ -211,13 +211,13 @@ sl_status_t sl_sntp_client_get_server_info(sl_sntp_server_info_t *data, uint32_t
   si91x_sntp_client_t client_req          = { 0 };
   sl_si91x_wait_period_t wait_time        = 0;
   sl_wifi_buffer_t *buffer                = NULL;
-  sl_si91x_packet_t *packet               = NULL;
+  const sl_si91x_packet_t *packet         = NULL;
   uint16_t length                         = 0;
   sl_wifi_buffer_t *sdk_context           = NULL;
   sl_internal_sntp_client_context_t *node = NULL;
   uint16_t buffer_length                  = 0;
 
-  if ((timeout > 0) && ((data == NULL))) {
+  if ((timeout > 0) && (data == NULL)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 

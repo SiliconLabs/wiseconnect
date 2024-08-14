@@ -31,6 +31,7 @@ This also displays all the remote GATT profiles and service characteristics logs
       - BRD4338A [SiWx917-RB4338A]
       - BRD4339B [SiWx917-RB4339B]
       - BRD4340A [SiWx917-RB4340A]
+      - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -42,9 +43,13 @@ This also displays all the remote GATT profiles and service characteristics logs
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
 
 ### Software Requirements
 

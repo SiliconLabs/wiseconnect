@@ -8,10 +8,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.0
+  version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.0
+    version: 3.3.1
 source:
   - path: adc_static_mode_example.c
   - path: app.c
@@ -47,7 +47,6 @@ other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
   - path: resources/uc_screen/sl_adc_channel_uc_screen.png
-  - path: resources/uc_screen/sl_adc_common_uc_screen.png
 readme:
   - path: readme.md
 ui_hints:

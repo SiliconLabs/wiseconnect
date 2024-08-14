@@ -42,25 +42,15 @@ boolean_t clk_check_pll_lock(PLL_TYPE_T pllType)
 
   if (pllType == SOC_PLL) {
     lock = SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG13) >> 14;
-    if (lock & 1) {
-      return Enable;
-    } else {
-      return Disable;
-    }
   } else if (pllType == INFT_PLL) {
     lock = SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG13) >> 14;
-    if (lock & 1) {
-      return Enable;
-    } else {
-      return Disable;
-    }
   } else {
     lock = SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG13) >> 14;
-    if (lock & 1) {
-      return Enable;
-    } else {
-      return Disable;
-    }
+  }
+  if (lock & 1) {
+    return Enable;
+  } else {
+    return Disable;
   }
 }
 
@@ -86,7 +76,7 @@ rsi_error_t clk_soc_pll_clk_enable(boolean_t clkEnable)
 
 /*==============================================*/
 /**
- * @fn          rsi_error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
+ * @fn          rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
  * @brief       This API is used to set the Soc PLL clock to particular frequency
  * @param[in]   pCLK        : pointer to the processor clock source
  * @param[in]   socPllFreq  : SoC PLL frequency for Soc PLL clock to particular frequency
@@ -94,14 +84,16 @@ rsi_error_t clk_soc_pll_clk_enable(boolean_t clkEnable)
  * @return      RSI_OK on success
  */
 
-rsi_error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
+rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
 {
   uint16_t shiftFac     = 0;
   uint16_t socPllMulFac = 0;
   uint16_t dcoFreq      = 0;
   uint16_t reg          = 0;
   uint16_t socPllDivFac = 0;
-  uint16_t socreg1 = 0x31c9, socreg3 = 0, socPllTvRead = 0;
+  uint16_t socreg1      = 0x31c9;
+  uint16_t socreg3      = 0;
+  uint16_t socPllTvRead = 0;
 
   /*parameter validation*/
 
@@ -270,7 +262,7 @@ rsi_error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t
 
 /*==============================================*/
 /**
- * @fn          rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
+ * @fn          rsi_error_t clk_soc_pll_set_freq_div(const M4CLK_Type *pCLK,
  *                                boolean_t clk_en,
  *                                uint16_t divFactor,
  *                                uint16_t nFactor,
@@ -290,7 +282,7 @@ rsi_error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t
  * @return      RSI_OK on success
  */
 
-rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
+rsi_error_t clk_soc_pll_set_freq_div(const M4CLK_Type *pCLK,
                                      boolean_t clk_en,
                                      uint16_t divFactor,
                                      uint16_t nFactor,
@@ -299,7 +291,10 @@ rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
                                      uint16_t dcoFixSel,
                                      uint16_t ldoProg)
 {
-  uint16_t socreg1 = 0x31c9, socreg3 = 0, reg = 0, socPllTvRead = 0;
+  uint16_t socreg1      = 0x31c9;
+  uint16_t socreg3      = 0;
+  uint16_t reg          = 0;
+  uint16_t socPllTvRead = 0;
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
@@ -375,13 +370,13 @@ rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
 
 /*==============================================*/
 /**
- * @fn        rsi_error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK)
+ * @fn        rsi_error_t clk_soc_pll_clk_set(const M4CLK_Type *pCLK)
  * @brief     This API is used to Enables the SoC-PLL
  * @param[in] pCLK : pointer to the processor clock source
  * @return    RSI_OK on success
  */
 
-rsi_error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK)
+rsi_error_t clk_soc_pll_clk_set(const M4CLK_Type *pCLK)
 {
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG11) = 0xFFFF;
   /*Wait for lock*/
@@ -572,7 +567,7 @@ rsi_error_t clk_i2s_pll_turn_on(void)
 
 /*==============================================*/
 /**
- * @fn        rsi_error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
+ * @fn        rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
  * @brief     This API is used to set the I2s_pll clock to particular frequency 
  * @param[in] pCLK       : pointer to the processor clock source
  * @param[in] i2sPllFreq : PLL clock of I2S for particular frequency
@@ -580,13 +575,22 @@ rsi_error_t clk_i2s_pll_turn_on(void)
  * @return    RSI_OK on success
  */
 
-rsi_error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
+rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
 {
-  uint16_t p_div = 0, u16DivFactor1 = 0, u16DivFactor2 = 0, N = 0, M = 0, FCW_F = 0;
-  uint32_t fref = 0, Fdco;
+  uint16_t p_div         = 0;
+  uint16_t u16DivFactor1 = 0;
+  uint16_t u16DivFactor2 = 0;
+  uint16_t N             = 0;
+  uint16_t M             = 0;
+  uint16_t FCW_F         = 0;
+  uint32_t fref          = 0;
+  uint32_t Fdco;
   float g;
-  double FCW, frac;
-  uint16_t i2sreg1 = 0x1244, i2sreg2 = 0x5850, i2sreg3 = 0xba60;
+  double FCW;
+  double frac;
+  uint16_t i2sreg1 = 0x1244;
+  uint16_t i2sreg2 = 0x5850;
+  uint16_t i2sreg3 = 0xba60;
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
@@ -655,7 +659,7 @@ rsi_error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t
 
 /*==============================================*/
 /**
- * @fn        rsi_error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
+ * @fn        rsi_error_t clk_i2s_pll_set_freq_div(const M4CLK_Type *pCLK,
  *                               uint16_t u16DivFactor1,
  *                               uint16_t u16DivFactor2,
  *                               uint16_t nFactor,
@@ -671,14 +675,16 @@ rsi_error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t
  * @return    RSI_OK on success
  */
 
-rsi_error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
+rsi_error_t clk_i2s_pll_set_freq_div(const M4CLK_Type *pCLK,
                                      uint16_t u16DivFactor1,
                                      uint16_t u16DivFactor2,
                                      uint16_t nFactor,
                                      uint16_t mFactor,
                                      uint16_t fcwF)
 {
-  uint16_t i2sreg1 = 0x1244, i2sreg2 = 0x5850, i2sreg3 = 0xba60;
+  uint16_t i2sreg1 = 0x1244;
+  uint16_t i2sreg2 = 0x5850;
+  uint16_t i2sreg3 = 0xba60;
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
@@ -705,13 +711,13 @@ rsi_error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
 
 /*==============================================*/
 /**
- * @fn         rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK)
+ * @fn         rsi_error_t clk_i2s_pll_clk_set(const M4CLK_Type *pCLK)
  * @brief      This API is used to set the I2s_pll_clk
  * @param[in]  pCLK  : pointer to the processor clock source
  * @return     RSI_OK on success
  */
 
-rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK)
+rsi_error_t clk_i2s_pll_clk_set(const M4CLK_Type *pCLK)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -795,7 +801,7 @@ rsi_error_t clk_intf_pll_turn_off(void)
 
 /*==============================================*/
 /**
- * @fn         rsi_error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
+ * @fn         rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
  * @brief      This API is used to set the INTFPLL clock to particular frequency
  * @param[in]  pCLK        : pointer to the processor clock source
  * @param[in]  intfPllFreq : input frequency of PLL frequency
@@ -803,14 +809,16 @@ rsi_error_t clk_intf_pll_turn_off(void)
  * @return     RSI_OK on success
  */
 
-rsi_error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
+rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
 {
   uint16_t shiftFac      = 0;
   uint16_t intfPllMulFac = 0;
   uint16_t intfPllDivFac = 0;
   uint16_t reg           = 0;
   uint16_t dcoFreq       = 0;
-  uint16_t intfreg1 = 0x31c9, intfreg3 = 0, intfPllTvRead = 0;
+  uint16_t intfreg1      = 0x31c9;
+  uint16_t intfreg3      = 0;
+  uint16_t intfPllTvRead = 0;
 
   /*Parameter validation */
   if ((pCLK == NULL) || (intfPllFreq < INTF_PLL_MIN_FREQUECY) || (intfPllFreq > INTF_PLL_MAX_FREQUECY)) {
@@ -980,7 +988,7 @@ rsi_error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32
 
 /*==============================================*/
 /**
- * @fn          rsi_error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
+ * @fn          rsi_error_t clk_intf_pll_set_freq_div(const M4CLK_Type *pCLK,
  *                                boolean_t clk_en,
  *                                uint16_t divFactor,
  *                                uint16_t nFactor,
@@ -1000,7 +1008,7 @@ rsi_error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32
  * @return      RSI_OK on success  
  */
 
-rsi_error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
+rsi_error_t clk_intf_pll_set_freq_div(const M4CLK_Type *pCLK,
                                       boolean_t clk_en,
                                       uint16_t divFactor,
                                       uint16_t nFactor,
@@ -1009,7 +1017,10 @@ rsi_error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
                                       uint16_t dcoFixSel,
                                       uint16_t ldoProg)
 {
-  uint16_t intfreg1 = 0x31c9, intfreg3 = 0, reg = 0, intfPllTvRead = 0;
+  uint16_t intfreg1      = 0x31c9;
+  uint16_t intfreg3      = 0;
+  uint16_t reg           = 0;
+  uint16_t intfPllTvRead = 0;
 
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -1135,13 +1146,13 @@ rsi_error_t clk_intf_pll_clk_reset(void)
 
 /*==============================================*/
 /**
- * @fn        rsi_error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK)
+ * @fn        rsi_error_t clk_intf_pll_clk_set(const M4CLK_Type *pCLK)
  * @brief     This API is used to Enable the Intf_PLL
  * @param[in] pCLK  : pointer to the processor clock source
  * @return    RSI_OK on success
  */
 
-rsi_error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK)
+rsi_error_t clk_intf_pll_clk_set(const M4CLK_Type *pCLK)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
@@ -2740,7 +2751,7 @@ void clk_config_pll_lock(boolean_t manual_lock, boolean_t bypass_manual_lock, ui
 
 /*==============================================*/
 /**
- * @fn             uint32_t RSI_CLK_CheckPresent(M4CLK_Type *pCLK  ,CLK_PRESENT_T clkPresent)
+ * @fn             uint32_t RSI_CLK_CheckPresent(const M4CLK_Type *pCLK  ,CLK_PRESENT_T clkPresent)
  * @brief		   This API is used to enable the dynamic clock gate for peripherals
  * @param[in]	   pCLK       : Pointer to the pll register instance \ref M4CLK_Type
  * @param[in]	   clkPresent : structure variable of CLK_PRESENT_T , \ref CLK_PRESENT_T
@@ -2749,7 +2760,7 @@ void clk_config_pll_lock(boolean_t manual_lock, boolean_t bypass_manual_lock, ui
  *                 ERROR_CLOCK_NOT_ENABLED
  */
 
-uint32_t RSI_CLK_CheckPresent(M4CLK_Type *pCLK, CLK_PRESENT_T clkPresent)
+uint32_t RSI_CLK_CheckPresent(const M4CLK_Type *pCLK, CLK_PRESENT_T clkPresent)
 {
   uint32_t errorReturn = 0;
   switch (clkPresent) {
@@ -2787,14 +2798,14 @@ uint32_t RSI_CLK_CheckPresent(M4CLK_Type *pCLK, CLK_PRESENT_T clkPresent)
 
 /*==============================================*/
 /**
- * @fn         rsi_error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
+ * @fn         rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
  * @brief      This API is used to configure the m4ss_ref clocks
  * @param[in]  pCLK is pointer to the processor clock source
  * @param[in]  clkSource is source clock
  * @return     RSI_OK on success
  */
 
-rsi_error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
+rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
 {
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;

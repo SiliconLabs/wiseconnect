@@ -28,6 +28,7 @@ While measuring the performance of 802.11 Wireless Devices, packet error test ha
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -36,10 +37,15 @@ While measuring the performance of 802.11 Wireless Devices, packet error test ha
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - Spectrum Analyzer
+  - Interface and Host MCU Supported
+    - SPI - EFR32 & STM32
+    - UART - EFR32
 
 ### Software Requirements
 
@@ -64,14 +70,14 @@ While measuring the performance of 802.11 Wireless Devices, packet error test ha
   
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
-### Instructions for Keil IDE and STM32F411RE MCU
+### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
+   - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
    - After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    - Connect the setup to the computer.

@@ -64,6 +64,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application.
 - Flash, run and debug the application.
 
+## Application Output
+- Sample output
+![Output](resources/readme/output.png)
+
 Follow the steps as mentioned for the successful execution of the application:
 
 1. When the application runs,It sends a token request along with 32 byte nonce and receives the token. 

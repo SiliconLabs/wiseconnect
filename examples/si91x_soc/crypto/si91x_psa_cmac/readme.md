@@ -11,6 +11,7 @@
 - [Application Build Environment](#application-build-environment)
   - [Application Configuration Parameters](#application-configuration-parameters)
 - [Test the Application](#test-the-application)
+  - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -23,10 +24,10 @@ To use this application following Hardware, Software and the Project Setup is re
 ### Hardware Requirements
 
   - Windows PC
-  - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
+  - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
 
 ### Software Requirements
-  - Simplicity SDK version: 2024.6.0
+  - Simplicity SDK version: 2024.6.1
   - Si91x SDK
   - Embedded Development Environment
     - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
@@ -40,10 +41,6 @@ To use this application following Hardware, Software and the Project Setup is re
 - **Silicon Labs Si91x** refer **"Download SDKs"**, **"Add SDK to Simplicity Studio"**, **"Connect SiWx917"**, **"Open Example Project in Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
 ## Application Build Environment
-
-- Compile the application in Simplicity Studio using build icon
-
-![Figure: Build run and Debug](resources/readme/image508c.png)
 
 - To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
@@ -62,6 +59,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application.
 - Flash, run and debug the application.
 - The `psa_mac_compute()` and `psa_mac_verify()` functions should give the expected results.
+
+### Expected output
+
+  ![output](resources/readme/output.png)
 
 Follow the steps as mentioned for the successful execution of the application:
 

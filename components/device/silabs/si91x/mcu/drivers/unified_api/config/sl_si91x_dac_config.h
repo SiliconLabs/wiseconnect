@@ -43,7 +43,6 @@ extern "C" {
 // <o SL_DAC_OPERATION_MODE> DAC operation mode
 //   <SL_DAC_FIFO_MODE=> FIFO mode
 //   <SL_DAC_STATIC_MODE=> Static mode
-//   <SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC=> Reference voltage for ADC
 // <i> Selection of DAC operation mode.
 #define SL_DAC_OPERATION_MODE SL_DAC_STATIC_MODE
 
@@ -55,49 +54,26 @@ extern "C" {
 // <i> Default: 3
 #define SL_DAC_FIFO_THRESHOLD 3
 
-// <o SL_DAC_ADC_CHANNEL> ADC Channel
-//   <SL_DAC_ADC_CHANNEL_0=> Channel_0
-//   <SL_DAC_ADC_CHANNEL_1=> Channel_1
-//   <SL_DAC_ADC_CHANNEL_2=> Channel_2
-//   <SL_DAC_ADC_CHANNEL_3=> Channel_3
-//   <SL_DAC_ADC_CHANNEL_4=> Channel_4
-//   <SL_DAC_ADC_CHANNEL_5=> Channel_5
-//   <SL_DAC_ADC_CHANNEL_6=> Channel_6
-//   <SL_DAC_ADC_CHANNEL_7=> Channel_7
-//   <SL_DAC_ADC_CHANNEL_8=> Channel_8
-//   <SL_DAC_ADC_CHANNEL_9=> Channel_9
-//   <SL_DAC_ADC_CHANNEL_10=> Channel_10
-//   <SL_DAC_ADC_CHANNEL_11=> Channel_11
-//   <SL_DAC_ADC_CHANNEL_12=> Channel_12
-//   <SL_DAC_ADC_CHANNEL_13=> Channel_13
-//   <SL_DAC_ADC_CHANNEL_14=> Channel_14
-//   <SL_DAC_ADC_CHANNEL_15=> Channel_15
-// <i> Selection of ADC Channel.
-#define SL_DAC_ADC_CHANNEL SL_DAC_ADC_CHANNEL_0
-
 // </h>
 
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <dac signal=IN1> SL_DAC0
+// <dac signal=OUT> SL_DAC0
 // $[DAC_SL_DAC0]
 #ifndef SL_DAC0_PERIPHERAL
 #define SL_DAC0_PERIPHERAL DAC0
 #endif
-#ifndef SL_DAC0_PERIPHERAL_NO
-#define SL_DAC0_PERIPHERAL_NO 0
-#endif
 
-// DAC0 IN1 on GPIO_30
-#ifndef SL_DAC0_IN1_PORT
-#define SL_DAC0_IN1_PORT 0
+// DAC0 OUT on ULP_GPIO_4/GPIO_68
+#ifndef SL_DAC0_OUT_PORT
+#define SL_DAC0_OUT_PORT 0
 #endif
-#ifndef SL_DAC0_IN1_PIN
-#define SL_DAC0_IN1_PIN 4
+#ifndef SL_DAC0_OUT_PIN
+#define SL_DAC0_OUT_PIN 4
 #endif
-#ifndef SL_DAC0_IN1_LOC
-#define SL_DAC0_IN1_LOC 0
+#ifndef SL_DAC0_OUT_LOC
+#define SL_DAC0_OUT_LOC 0
 #endif
 // [DAC_SL_DAC0]$
 // <<< sl:end pin_tool >>>
@@ -107,14 +83,14 @@ extern "C" {
 #define SL_DAC_OUTPUT_PORT 0
 #define SL_DAC_OUTPUT_PIN  30
 #else
-#define SL_DAC_OUTPUT_PORT SL_DAC0_IN1_PORT
-#define SL_DAC_OUTPUT_PIN  SL_DAC0_IN1_PIN
+#define SL_DAC_OUTPUT_PORT SL_DAC0_OUT_PORT
+#define SL_DAC_OUTPUT_PIN  SL_DAC0_OUT_PIN
 #endif
 
 sl_dac_config_t sl_dac_config = { .operating_mode     = SL_DAC_OPERATION_MODE,
                                   .dac_fifo_threshold = SL_DAC_FIFO_THRESHOLD,
                                   .dac_sample_rate    = SL_DAC_SAMPLE_RATE,
-                                  .adc_channel        = SL_DAC_ADC_CHANNEL,
+                                  .adc_channel        = 0,
                                   .dac_pin            = SL_DAC_OUTPUT_PIN,
                                   .dac_port           = SL_DAC_OUTPUT_PORT };
 

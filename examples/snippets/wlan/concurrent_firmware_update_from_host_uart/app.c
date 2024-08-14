@@ -140,6 +140,8 @@ const osThreadAttr_t fw_up_thread_attributes = {
   .reserved   = 0,
 };
 
+osThreadId_t fw_up_thread_id = NULL;
+
 app_state_t app_cb; //! application control block
 
 //! IP address of the module as AP
@@ -414,6 +416,7 @@ static void application_start(void *argument)
   unsigned char hex_addr[SL_IPV6_ADDRESS_LENGTH] = { 0 };
   uint32_t ip_addr[4]                            = { 0 };
   uint32_t gateway[4]                            = { 0 };
+  uint8_t fw_up_thread_create                    = 1;
 
   static sl_http_server_handler_t request_handlers[2] = { { .uri = "/login", .handler = login_request_handler },
                                                           { .uri = "/connect", .handler = connect_data_handler } };
@@ -519,8 +522,11 @@ static void application_start(void *argument)
           return;
         }
         LOG_PRINT("\r\nWi-Fi Client interface init\r\n");
-        //! Create separate thread to handle firmware update
-        sl_fw_task_up();
+        if (fw_up_thread_create == 1) {
+          //! Create separate thread to handle firmware update
+          sl_fw_task_up();
+          fw_up_thread_create = 0;
+        }
 
         sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
         sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
@@ -576,6 +582,14 @@ static void application_start(void *argument)
             } else {
               retry = 5;
             }
+          }
+          //! Before resetting the module stop the python script
+          firmware_update_operation_complete();
+          //! Before resetting the module terminate the firmware update thread
+          status = osThreadTerminate(fw_up_thread_id);
+          if (status == SL_STATUS_OK) {
+            LOG_PRINT("\r\nthread terminated");
+            fw_up_thread_create = 1;
           }
           status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
           if (status != SL_STATUS_OK) {
@@ -1151,8 +1165,6 @@ void send_data_to_udp_server(void)
   int sent_bytes                      = 1;
   uint32_t start                      = 0;
   uint32_t now                        = 0;
-  uint32_t fail                       = 0;
-  uint32_t pass                       = 0;
 
   client_socket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
   if (client_socket < 0) {
@@ -1184,19 +1196,15 @@ void send_data_to_udp_server(void)
       LOG_PRINT("\r\nTime Out: %ld\r\n", (now - start));
       break;
     }
-
     if (sent_bytes < 0) {
-      fail++;
-    } else {
-      pass++;
+      LOG_PRINT("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      break;
     }
-
-    if (sent_bytes > 0)
-      total_bytes_sent = total_bytes_sent + sent_bytes;
+    total_bytes_sent = total_bytes_sent + sent_bytes;
   }
   LOG_PRINT("\r\nUDP_TX Throughput test finished\r\n");
   LOG_PRINT("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
-  LOG_PRINT("\r\nSend fail count : %ld, Send pass count : %ld\r\n", fail, pass);
 
   close(client_socket);
 }
@@ -1224,7 +1232,8 @@ void sl_fw_task_up()
   }
 
   //! Create separate thread to handle firmware update
-  if (osThreadNew((osThreadFunc_t)fw_up_configurator_task, NULL, &fw_up_thread_attributes) == NULL) {
+  fw_up_thread_id = osThreadNew((osThreadFunc_t)fw_up_configurator_task, NULL, &fw_up_thread_attributes);
+  if (fw_up_thread_id == NULL) {
     LOG_PRINT("Failed to create Firmware update thread\n");
     return;
   }

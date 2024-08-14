@@ -18,14 +18,35 @@
 #pragma once
 
 #include <stdint.h>
+#include "cmsis_os2.h" // CMSIS RTOS2
 
 #include "socket.h"
 #include "select.h"
+#include "sl_si91x_protocol_types.h"
 
 /**
  * @addtogroup SI91X_SOCKET_FUNCTIONS
  * @{ 
  */
+/// Structure for socket metadata associated with a read event.
+typedef struct {
+  uint16_t ip_version; ///< 2 bytes, the IP version of the IP address (4 for IPv4, 6 for IPv6).
+
+  uint16_t socket_id; ///< 2 bytes, the socket number associated with this read event.
+
+  uint32_t length; ///< 4 bytes, length of data received.
+
+  uint16_t offset; ///< 2 bytes, offset of data from the start of the buffer.
+
+  uint16_t dest_port; ///< 2 bytes, port number of the device sending the data to us.
+
+  union {
+    uint8_t ipv4_address[4]; ///< 4 bytes, IPv4 Address of the device sending the data to us. Used if ip_version is 4.
+
+    uint8_t ipv6_address[16]; ///< 16 bytes, IPv6 Address of the device sending the data to us. Used if ip_version is 6.
+  } dest_ip_addr;             ///< Union for IPv4 or IPv6 address, depending on ip_version.
+} sl_si91x_socket_metadata_t;
+
 /**
  * @typedef receive_data_callback
  * @brief This callback is used to read data asynchronously from a socket. It is registered when the sl_si91x_socket_async API is called.
@@ -35,10 +56,15 @@
  * Pointer to the buffer that will store the received data.
  * @param length
  * Size of the buffer.
+ * @param firmware_socket_response
+ * @ref sl_si91x_socket_metadata_t It contains the meta data of the received packet, like IPV4/V6 address and port number.
  * @return
  * N/A
  */
-typedef void (*receive_data_callback)(uint32_t socket, uint8_t *buffer, uint32_t length);
+typedef void (*receive_data_callback)(uint32_t socket,
+                                      uint8_t *buffer,
+                                      uint32_t length,
+                                      const sl_si91x_socket_metadata_t *firmware_socket_response);
 
 /**
  * @typedef accept_callback
@@ -131,6 +157,7 @@ typedef struct {
 typedef struct {
   int32_t id;                                               ///< Socket ID
   int32_t type;                                             ///< Socket type
+  int role;                                                 ///< Socket role
   int32_t protocol;                                         ///< Protocol
   uint16_t tcp_keepalive_initial_time;                      ///< TCP keepalive intial time
   uint8_t max_tcp_retries;                                  ///< MAX TCOP retries
@@ -142,6 +169,7 @@ typedef struct {
   struct sockaddr_in6 remote_address;                       ///< Using sockaddr_in6 to hold either IPV4 or IPV6.
   si91x_bsd_socket_state_t state;                           ///< BSD socket state (used for internal tracking)
   si91x_server_name_indication_extensions_t sni_extensions; ///< SNI Extension
+  bool is_waiting_on_ack;                                   ///< Boolean flag to check if socket is waiting for an ack.
 #ifdef SLI_SI917
   uint32_t ssl_bitmap;                       ///< SSL bitmap
   uint32_t max_retransmission_timeout_value; ///< Max retransmission timeout value
@@ -152,6 +180,10 @@ typedef struct {
 
   receive_data_callback recv_data_callback;              ///< Receive data callback
   data_transfer_complete_handler data_transfer_callback; ///< Data transfer callback
+  accept_callback user_accept_callback;                  ///< Async Accept callback
+  osEventFlagsId_t socket_events;                        ///< Event Flags for sockets
+  int32_t client_id;                                     ///< Client Socket Id for accept
+  uint8_t socket_bitmap;                                 ///< Socket Bitmap
 } si91x_socket_t;
 
 /// SiWx91x select context

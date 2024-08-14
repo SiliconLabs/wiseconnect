@@ -94,14 +94,8 @@ static uint8_t m4_alarm_initialization_done;
 RTC_TIME_CONFIG_T sl_rtc_get_Time;
 uint32_t sl_bf_rtc_ticks, sl_af_rtc_ticks, sl_rtc_ticks;
 
-void sli_m4_ta_interrupt_init(void);
 void set_alarm_interrupt_timer(uint16_t interval);
-void m4_powersave_app(void);
 void wakeup_source_config(void);
-
-#if (configUSE_TICKLESS_IDLE == 1)
-static uint32_t sli_si91x_is_sleep_ready();
-#endif //
 
 #if (configUSE_TICKLESS_IDLE == 0)
 
@@ -372,6 +366,8 @@ void sl_si91x_m4_sleep_wakeup(void)
   /* Configure 320K RAM Usage and Retention Size */
   sl_si91x_configure_ram_retention(WISEMCU_320KB_RAM_IN_USE, WISEMCU_RETAIN_DEFAULT_RAM_DURING_SLEEP);
 #endif
+  /*Enable first boot up*/
+  RSI_PS_EnableFirstBootUp(1);
   /* Trigger M4 Sleep*/
   sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
                          DISABLE_LF_MODE,
@@ -435,27 +431,47 @@ void sl_si91x_post_sleep_update_ticks(uint32_t *xExpectedIdleTime)
   }
 }
 /**************************************************************************
- * @fn           sli_si91x_is_sleep_ready()
- * @brief        This function checks the readiness of the SI91x device for
- *sleep.
- * @return        The status indicating whether the device is ready for sleep.
- *                - Returns a non-zero value if the device is ready for sleep.
- *                - Returns 0 if the device is not ready for sleep.
+ * @fn           bool sli_si91x_ta_packet_initiated_to_m4(void)
+ * @brief        This function will verify whether there are any pending packets in TA when m4 is inactive
+ * @param[in]    None
+ * @param[out]   true: allow to sleep
+ *               false: Not allow to the sleep
  *******************************************************************************/
-__attribute__((weak)) uint32_t sl_app_sleep_ready()
+bool sli_si91x_ta_packet_initiated_to_m4(void)
 {
-  //This API is inadequate as it allows users to implement sleep-preventing checks at the user level.
-  return true;
-}
-static uint32_t sli_si91x_is_sleep_ready()
-{
-  /*verifying common flash write progress before triggering sleep*/
-  if ((sl_app_sleep_ready()) && (sl_si91x_power_manager_is_ok_to_sleep()) && (sli_si91x_is_sdk_ok_to_sleep())) {
-    return true;
-  }
-  return (false);
-}
+  boolean_t sli_p2p_status = true;
 
+  // Indicate M4 is Inactive
+  P2P_STATUS_REG &= ~M4_is_active;
+
+  // Wait one more clock cycle to ensure the M4 hardware register is updated
+  P2P_STATUS_REG;
+
+  // This delay is introduced to synchronize between the M4 and the TA.
+  for (uint8_t delay = 0; delay < 10; delay++) {
+    __ASM("NOP");
+  }
+
+  // Verify if the TA has already initiated a packet to the M4
+  // The TA will clear RX_BUFFER_VALID if a packet has been triggered
+  if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
+      || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
+    P2P_STATUS_REG |= M4_is_active;
+    sli_p2p_status = false;
+  } else {
+    //Clearing the RX_Buffer valid bit
+    M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
+    M4SS_P2P_INTR_CLR_REG;
+
+    TASS_P2P_INTR_MASK_SET = (TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
+                              | NWP_DEINIT_IN_COMM_FLASH
+#ifdef SL_SI91X_SIDE_BAND_CRYPTO
+                              | SIDE_BAND_CRYPTO_DONE
+#endif
+    );
+  }
+  return sli_p2p_status;
+}
 /**************************************************************************
  * @fn           sli_si91x_m4_ta_wakeup_configurations(void)
  * @brief        It is essential to properly configure the TA and M4 status registers 
@@ -483,54 +499,6 @@ void sli_si91x_m4_ta_wakeup_configurations(void)
 #endif
   );
 #endif
-}
-/**************************************************************************
- * @fn           sl_si91x_pre_supress_ticks_and_sleep(uint16_t
- **xExpectedIdleTime)
- * @brief        set xExpectedIdleTime to 0 if the application prevents the
- *device Sleep
- * @param[in]    None
- * @param[out]   None
- *******************************************************************************/
-void sl_si91x_pre_supress_ticks_and_sleep(uint32_t *xExpectedIdleTime)
-{
-  // pointer check
-  if (xExpectedIdleTime != NULL) {
-
-    if (!sli_si91x_is_sleep_ready()) {
-      *xExpectedIdleTime = 0;
-    } else {
-      // a preliminary check of the expected idle time is performed without making M4 inactive
-      if (*xExpectedIdleTime >= configEXPECTED_IDLE_TIME_BEFORE_SLEEP) {
-        // Indicate M4 is Inactive
-        P2P_STATUS_REG &= ~M4_is_active;
-        // Waiting for one more clock cycle to make sure M4 H/W Register is updated
-        P2P_STATUS_REG;
-
-        // TODO: This delay is added to sync between M4 and TA. It should be removed once the logic is moved to wifi SDK
-        for (uint8_t delay = 0; delay < 10; delay++) {
-          __ASM("NOP");
-        }
-        // Checking if TA has already triggered a packet to M4
-        // RX_BUFFER_VALID will be cleared by TA if any packet is triggered
-        if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
-            || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
-          P2P_STATUS_REG |= M4_is_active;
-          *xExpectedIdleTime = 0;
-        } else {
-          M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
-          M4SS_P2P_INTR_CLR_REG;
-
-          TASS_P2P_INTR_MASK_SET = (TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT
-                                    | TA_WRITING_ON_COMM_FLASH | NWP_DEINIT_IN_COMM_FLASH
-#ifdef SL_SI91X_SIDE_BAND_CRYPTO
-                                    | SIDE_BAND_CRYPTO_DONE
-#endif
-          );
-        }
-      }
-    }
-  }
 }
 #endif // #if (configUSE_TICKLESS_IDLE == 1)
 #endif

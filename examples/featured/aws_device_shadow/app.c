@@ -79,7 +79,7 @@ const osThreadAttr_t thread_attributes = {
   .cb_mem     = 0,
   .cb_size    = 0,
   .stack_mem  = 0,
-  .stack_size = 3072,
+  .stack_size = 3584,
   .priority   = osPriorityLow,
   .tz_module  = 0,
   .reserved   = 0,
@@ -115,11 +115,11 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = (
 #if ENABLE_POWER_SAVE
-                     SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
+                     (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
 #else
                      0
 #endif
-                     ) }
+                       ) }
 };
 
 char json_document_buffer[JSON_DOC_BUFFER_LENGTH];
@@ -181,7 +181,7 @@ static void application_start(void *argument)
   printf("\r\nCertificate loading success\r\n");
 
 #if ENABLE_POWER_SAVE
-  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE };
+  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
   status                                            = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);

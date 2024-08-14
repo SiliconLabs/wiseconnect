@@ -110,6 +110,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
             case ULPSS_ULP_DOUBLER_CLK:
               src_clk = system_clocks.doubler_clock;
               break;
+            default:
+              break;
           }
           break;
         case USART_MODELPLLCLK2:
@@ -123,6 +125,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case M4_SOCCLKFOROTHERCLOCKS:
           src_clk = system_clocks.soc_clock;
+          break;
+        default:
           break;
       }
       div_fac     = M4CLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC;
@@ -165,6 +169,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
             case ULPSS_ULP_DOUBLER_CLK:
               src_clk = system_clocks.doubler_clock;
               break;
+            default:
+              break;
           }
           break;
         case USART_MODELPLLCLK2:
@@ -178,6 +184,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case M4_SOCCLKFOROTHERCLOCKS:
           src_clk = system_clocks.soc_clock;
+          break;
+        default:
           break;
       }
       div_fac     = M4CLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC;
@@ -220,6 +228,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
             case ULPSS_ULP_DOUBLER_CLK:
               src_clk = system_clocks.doubler_clock;
               break;
+            default:
+              break;
           }
           break;
         case SSI_SOCPLLCLK:
@@ -236,6 +246,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case M4_SOCCLKFOROTHERCLKS:
           src_clk = system_clocks.soc_clock;
+          break;
+        default:
           break;
       }
       div_fac = (M4CLK->CLK_CONFIG_REG1_b.SSI_MST_SCLK_DIV_FAC);
@@ -269,6 +281,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
             case ULPSS_ULP_DOUBLER_CLK:
               src_clk = system_clocks.doubler_clock;
               break;
+            default:
+              break;
           }
           break;
         case CT_INTFPLLCLK:
@@ -279,6 +293,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case M4_SOCCLKFOROTHERCLKSCT:
           src_clk = system_clocks.soc_clock;
+          break;
+        default:
           break;
       }
       div_fac = (M4CLK->CLK_CONFIG_REG5_b.CT_CLK_DIV_FAC);
@@ -303,6 +319,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case M4_SOCCLKFOROTHERCLKSSDMEM:
           src_clk = system_clocks.soc_clock;
+          break;
+        default:
           break;
       }
       swallow_val = M4CLK->SD_MEM_CLOCK_REG_b.SD_MEM_INTF_CLK_SWALLOW_SEL;
@@ -331,6 +349,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
         case CCI_INTF_PLL_CLK:
           src_clk = system_clocks.intf_pll_clock;
           break;
+        default:
+          break;
       }
       div_fac = (M4CLK->CLK_CONFIG_REG2_b.CCI_CLK_DIV_FAC);
       if (div_fac == 0) {
@@ -357,6 +377,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case M4_SOCCLKNOSWLSYNCCLKTREEGATED:
           //TODO:src_clk =system_clocks.
+          break;
+        default:
           break;
       }
       swallow_val = (M4CLK->CLK_CONFIG_REG1_b.QSPI_CLK_SWALLOW_SEL);
@@ -410,6 +432,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case M4_SOCCLKNOSWLSYNCCLKTREEGATED:
           //TODO:src_clk =system_clocks.
+          break;
+        default:
           break;
       }
       swallow_val = (M4CLK->CLK_CONFIG_REG1_b.QSPI_CLK_SWALLOW_SEL);
@@ -472,6 +496,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
             case ULPSS_ULP_DOUBLER_CLK:
               src_clk = system_clocks.doubler_clock;
               break;
+            default:
+              break;
           }
           break;
         case GSPI_SOC_PLL_CLK:
@@ -482,6 +508,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case GSPI_INTF_PLL_CLK:
           src_clk = system_clocks.intf_pll_clock;
+          break;
+        default:
           break;
       }
       break;
@@ -494,6 +522,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case ETH_SOC_PLL_CLK:
           src_clk = system_clocks.soc_pll_clock;
+          break;
+        default:
           break;
       }
 
@@ -522,6 +552,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case I2S_M4SOCCLKFOROTHERS:
           src_clk = system_clocks.soc_clock;
+          break;
+        default:
           break;
       }
       div_fac = (M4CLK->CLK_CONFIG_REG5_b.I2S_CLK_DIV_FAC);
@@ -556,6 +588,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
         case ULP_SSI_SOC_CLK:
           src_clk = system_clocks.soc_clock;
           break;
+        default:
+          break;
       }
       div_fac = (ULPCLK->ULP_I2C_SSI_CLK_GEN_REG_b.ULP_SSI_CLK_DIV_FACTOR);
       if (div_fac == 0) {
@@ -585,6 +619,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case ULP_I2S_ULP_20MHZ_RO_CLK:
           src_clk = system_clocks.ro_20mhz_clock;
+          break;
+        default:
           break;
       }
       div_fac = (ULPCLK->ULP_I2S_CLK_GEN_REG_b.ULP_I2S_CLKDIV_FACTOR);
@@ -622,6 +658,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
         case ULP_UART_ULP_DOUBLER_CLK:
           src_clk = system_clocks.doubler_clock;
           break;
+        default:
+          break;
       }
       div_fac = (ULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_CLKDIV_FACTOR);
       if (div_fac == 0) {
@@ -654,6 +692,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case ULP_TIMER_ULP_SOC_CLK:
           src_clk = system_clocks.soc_clock;
+          break;
+        default:
           break;
       }
       //no division factor
@@ -689,6 +729,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
         case ULP_AUX_I2S_PLL_CLK:
           src_clk = system_clocks.i2s_pll_clock;
           break;
+        default:
+          break;
       }
       //no division factor
       break;
@@ -716,6 +758,8 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
           break;
         case ULP_TOUCH_ULP_SOC_CLK:
           src_clk = system_clocks.soc_clock;
+          break;
+        default:
           break;
       }
       div_fac = (ULPCLK->ULP_TOUCH_CLK_GEN_REG_b.ULP_TOUCH_CLKDIV_FACTOR);

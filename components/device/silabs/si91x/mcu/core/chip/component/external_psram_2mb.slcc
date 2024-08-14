@@ -7,7 +7,8 @@ quality: production
 provides:
   - name: external_psram_2mb
   - name: external_psram_implementation
-
+define:
+  - name: SLI_SI91X_MCU_PSRAM_PRESENT
 template_contribution:
     - name: psram_present
       value: 1

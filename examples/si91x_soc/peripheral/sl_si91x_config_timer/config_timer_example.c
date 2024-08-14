@@ -32,7 +32,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "config_timer_example.h"
 #include "rsi_debug.h"
-
+#include "sl_si91x_pwm.h"
 #include "rsi_rom_egpio.h"
 #include "sl_si91x_config_timer.h"
 #include "sl_si91x_clock_manager.h"
@@ -44,7 +44,6 @@
 #define CT_RATE               1000         // value for dividing system core clock
 #define TICKS                 1000         // tick value
 #define TENTH_INTERRUPT_COUNT 10           // Count for tenth timeout interrupt
-#define CT_MATCH_VALUE        16000        // value for 1ms interrupt time
 #define INITIAL_MATCH_VALUE   0            // for match initial value
 #define INITIAL_VALUE         0            // for zero value
 #define PIN_1                 1            // for ulp-gpio-1
@@ -56,8 +55,9 @@
 #define SET                   1            // for setting any value high
 #define CLEAR                 0            // for clearing any value
 #define DELAY_COUNT           10           // delay count value
+#define TIME_PERIOD_VALUE     1000         // Time period in microseconds
 
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define SOC_PLL_CLK  ((uint32_t)(32000000))  // 32MHz default SoC PLL Clock as source to Processor
 #define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  **********************  GLOBAL variables   ***************************
@@ -95,7 +95,7 @@ static uint32_t interrupt_count  = INITIAL_VALUE;
 // Function to configure clock on powerup
 static void default_clock_configuration(void)
 {
-  // Core Clock runs at 180MHz SOC PLL Clock
+  // Core Clock runs at 32MHz SOC PLL Clock in this example
   sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
 
   // All peripherals' source to be set to Interface PLL Clock
@@ -109,6 +109,10 @@ void config_timer_example_init(void)
 {
   sl_config_timer_version_t version;
   sl_config_timer_config_t ct_config;
+
+  // default clock configuration by application common for whole system
+  default_clock_configuration();
+
   // Initializing ct configuration structure
   ct_config.is_counter_mode_32bit_enabled    = SL_COUNTER_16BIT;
   ct_config.counter0_direction               = SL_COUNTER0_UP;
@@ -117,9 +121,6 @@ void config_timer_example_init(void)
   ct_config.counter1_direction               = SL_COUNTER0_UP;
   ct_config.is_counter1_periodic_enabled     = true;
   ct_config.is_counter1_sync_trigger_enabled = true;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   //Version information of watchdog-timer
   version = sl_si91x_config_timer_get_version();
@@ -135,9 +136,8 @@ void config_timer_example_init(void)
   ct_ocu_config.is_counter1_toggle_output_high_enabled = true;
   ct_ocu_config.is_counter0_toggle_output_low_enabled  = true;
   ct_ocu_config.is_counter1_toggle_output_low_enabled  = true;
-  rsi_error_t error_status;
-  uint32_t match_value = INITIAL_MATCH_VALUE;
-  match_value          = (SystemCoreClock / CT_RATE);
+  uint32_t match_value                                 = INITIAL_MATCH_VALUE;
+  match_value                                          = (SystemCoreClock / CT_RATE);
   do {
     /*Initialize pins and clock */
     sl_si91x_config_timer_init();
@@ -145,34 +145,34 @@ void config_timer_example_init(void)
     // Configuring CT parameters
     status = sl_si91x_config_timer_set_configuration(&ct_config);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_configuration, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_configuration, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT configuration is set successfully \n");
     // Setting match value for counter 0
     status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, SL_COUNTER_0, match_value);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("Counter0 Match Count is set successfully \n");
     // Setting match value for counter 1
     status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, SL_COUNTER_1, match_value);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("Counter1 Match Count is set successfully \n");
     /* Set Duty cycle value for channel 0 and channel 1*/
-    error_status = RSI_MCPWM_SetDutyCycle(MCPWM, INITIAL_MATCH_VALUE, PWM_CHNL_0);
-    if (error_status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to Set Duty Cycle to PWM Channel0,Error Code : %u\r\n", error_status);
+    status = sl_si91x_pwm_set_duty_cycle(INITIAL_MATCH_VALUE, PWM_CHNL_0);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\nFailed to Set Duty Cycle to PWM Channel0,Error Code : %lu\r\n", status);
       break;
     }
     DEBUGOUT("\r\nSets Duty Cycle for PWM Channel0\r\n");
-    error_status = RSI_MCPWM_SetDutyCycle(MCPWM, match_value, PWM_CHNL_1);
-    if (error_status != RSI_OK) {
-      DEBUGOUT("\r\nFailed to Set Duty Cycle to PWM Channel1,Error Code : %u\r\n", error_status);
+    status = sl_si91x_pwm_set_duty_cycle(match_value, PWM_CHNL_1);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\nFailed to Set Duty Cycle to PWM Channel1,Error Code : %lu\r\n", status);
       break;
     }
     DEBUGOUT("\r\nSets Duty Cycle for PWM Channel1\r\n");
@@ -182,7 +182,7 @@ void config_timer_example_init(void)
     // Setting OCU configurations
     status = sl_si91x_config_timer_set_ocu_configuration(&ct_ocu_config);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_ocu_configuration, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_ocu_configuration, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT OCU configuration is set successfully \n");
@@ -192,7 +192,7 @@ void config_timer_example_init(void)
     ocu_params0.callback             = &pwm_callback;
     status                           = sl_si91x_config_timer_set_ocu_control(&ocu_params0);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_ocu_compare_values, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_ocu_compare_values, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT OCU configuration is set successfully \n");
@@ -202,7 +202,7 @@ void config_timer_example_init(void)
     ocu_params1.callback             = &pwm_callback;
     status                           = sl_si91x_config_timer_set_ocu_control(&ocu_params1);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_ocu_compare_values, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_ocu_compare_values, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT OCU configuration is set successfully \n");
@@ -211,21 +211,21 @@ void config_timer_example_init(void)
     // Registering callback
     status = sl_si91x_config_timer_register_callback(on_config_timer_callback, callback_flag_data, &ct_interrupt_flags);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_register_callback, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_register_callback, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT callback registered successfully \n");
     // Starting CT counter0 on software trigger
     status = sl_si91x_config_timer_start_on_software_trigger(SL_COUNTER_0);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT started successfully on software trigger \n");
     // Starting CT counter1 on software trigger
     status = sl_si91x_config_timer_start_on_software_trigger(SL_COUNTER_1);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT started successfully on software trigger \n");
@@ -233,7 +233,6 @@ void config_timer_example_init(void)
 #endif
 #if (CT_COUNTER_MODE_USECASE == SET)
   uint32_t match_value = INITIAL_MATCH_VALUE;
-  match_value          = CT_MATCH_VALUE; // for 1ms interrupt time
   // Setting ULP-GPIO-1 mode
   RSI_EGPIO_SetPinMux(EGPIO1, PORT_0, PIN_1, EGPIO_PIN_MUX_MODE0);
   // Setting ULP-GPIO-1 output direction
@@ -245,21 +244,28 @@ void config_timer_example_init(void)
     // Configuring CT parameters from UC values
     status = sl_si91x_config_timer_set_configuration(&ct_config);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_configuration, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_configuration, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT configuration is set successfully \n");
+    // Get the match value of the timer
+    status = sl_si91x_config_timer_get_match_value(TIME_PERIOD_VALUE, &match_value);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_config_timer_get_match_value, Error code: %lu", status);
+      break;
+    }
+    DEBUGOUT("CT match value get is successful \n");
     // Setting Initial count value
     status = sl_si91x_config_timer_set_initial_count(SL_COUNTER_16BIT, INITIAL_VALUE, INITIAL_VALUE);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_initial_count, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_initial_count, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT Initial Count is set successfully \n");
     // Setting match value
     status = sl_si91x_config_timer_set_match_count(SL_COUNTER_16BIT, counter_used, match_value);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_set_match_count, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT Match Count is set successfully\n");
@@ -273,14 +279,14 @@ void config_timer_example_init(void)
     status = sl_si91x_config_timer_unregister_callback(&ct_interrupt_flags);
     status = sl_si91x_config_timer_register_callback(on_config_timer_callback, callback_flag_data, &ct_interrupt_flags);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_register_callback, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_register_callback, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT callback registered successfully \n");
     // Starting CT counter0 on software trigger
     status = sl_si91x_config_timer_start_on_software_trigger(counter_used);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_config_timer_start_on_software_trigger, Error code: %lu\n", status);
       break;
     }
     DEBUGOUT("CT started successfully on software trigger \n");
@@ -311,12 +317,12 @@ void config_timer_example_process_action(void)
       // Setting OCU control parameters
       status = sl_si91x_config_timer_set_ocu_control(&ocu_params0);
       if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_config_timer_set_ocu_compare_values, Error code: %lu", status);
+        DEBUGOUT("sl_si91x_config_timer_set_ocu_compare_values, Error code: %lu\n", status);
         break;
       }
       status = sl_si91x_config_timer_set_ocu_control(&ocu_params1);
       if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_config_timer_set_ocu_compare_values, Error code: %lu", status);
+        DEBUGOUT("sl_si91x_config_timer_set_ocu_compare_values, Error code: %lu\n", status);
         break;
       }
       delay = INITIAL_VALUE;

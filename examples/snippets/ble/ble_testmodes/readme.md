@@ -21,11 +21,14 @@ This application demonstrates how to test the BLE GAP peripheral role.
 
 - Windows PC
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
 
 - A Linux PC
 
@@ -46,6 +49,8 @@ This application demonstrates how to test the BLE GAP peripheral role.
   - [Silicon Labs SLWSTK6006A EFR32xG21 Wireless Starter Kit](https://www.silabs.com/development-tools/wireless/efr32xg21-wireless-starter-kit) which includes
     - BRD4001A/BRD4002A Wireless Starter Kit Mainboard
     - BRD4180A/BRD4180B Radio Board
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
 
 ### Setup Diagram
 

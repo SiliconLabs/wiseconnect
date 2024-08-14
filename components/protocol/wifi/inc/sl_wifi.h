@@ -47,7 +47,10 @@ extern const sl_wifi_ap_configuration_t default_wifi_ap_configuration;
 
 /***************************************************************************/ /**
  * @brief
- *   Initialize the Wi-Fi device.
+ *   This function initializes the Wi-Fi module using the specified device configuration,
+ *   device context, and event handler. It configures the Wi-Fi device and establishes
+ *   the event handler for Wi-Fi events. This function must be called before using any
+ *   other Wi-Fi functions.
  * @param[in] configuration
  *   [sl_wifi_device_configuration_t](../wiseconnect-api-reference-guide-si91x-driver/sl-wifi-device-configuration-t) object that contains Wi-Fi device configuration.
  * @param[in] device_context
@@ -65,7 +68,8 @@ sl_status_t sl_wifi_init(const sl_wifi_device_configuration_t *configuration,
 
 /***************************************************************************/ /**
  * @brief
- *   De-initialize the Wi-Fi device.
+ *   This function ensures proper shutdown of the Wi-Fi driver, resetting configurations and releasing resources.
+ *   Call this API to deinitialize the Wi-Fi module to avoid resource leaks
  * @pre Pre-conditions:
  * - 
  *   @ref sl_wifi_init should be called before this API.
@@ -98,6 +102,8 @@ bool sl_wifi_is_interface_up(sl_wifi_interface_t interface);
  *   @ref sl_wifi_firmware_version_t object that contains the version string.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   Moving forward, this API will be deprecated. Instead, please use the [sl_si91x_get_firmware_version](../wiseconnect-api-reference-guide-si91x-driver/si91-x-driver-functions#sl-si91x-get-firmware-version) API.
  ******************************************************************************/
 sl_status_t sl_wifi_get_firmware_version(sl_wifi_firmware_version_t *version);
 
@@ -120,16 +126,17 @@ sl_status_t sl_wifi_get_wireless_info(sl_si91x_rsp_wireless_info_t *info);
  * @param[in] buffer
  *   Buffer pointing to firmware image file.
  * @param[out] fw_image_size
- *   Size of the firmware image. Valid only if failure is not returned in status.
+ *   Size of the firmware image passed in the input buffer param. The value returned in this param is valid only if this API returns SL_STATUS_OK(0).
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   Moving forward, this API will be deprecated. Instead, please use the [sl_si91x_get_firmware_size](../wiseconnect-api-reference-guide-si91x-driver/si91-x-driver-functions#sl-si91x-get-firmware-size) API.
  ******************************************************************************/
 sl_status_t sl_wifi_get_firmware_size(void *buffer, uint32_t *fw_image_size);
 
 /***************************************************************************/ /**
  * @brief
- *   Set the default interface.
- *   Used by API when @ref SL_WIFI_DEFAULT_INTERFACE is provided.
+ *   Set the default Wi-Fi interface as supported by @ref sl_wifi_interface_t.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  ******************************************************************************/
@@ -148,7 +155,10 @@ sl_wifi_interface_t sl_wifi_get_default_interface(void);
 
 /***************************************************************************/ /**
  * @brief
- *   Get the Wi-Fi interface MAC address.
+ *   Retrieves the MAC addresses of the specified Wi-Fi interface, in concurrent mode retrieves two MAC addresses.
+ * @details
+ *   MAC address of the module. In concurrent mode, two MAC addresses are returned, MAC_Address1 is the station MAC 
+ *   address and MAC_Address2 is the created AP MAC address. MAC address is returned in 6-bytes in hex format.
  * @pre Pre-conditions:
  * - 
  *   @ref sl_wifi_init should be called before this API.
@@ -197,7 +207,7 @@ sl_status_t sl_wifi_set_mac_address(sl_wifi_interface_t interface, const sl_mac_
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This function gets the transmit power for a particular radio interface: SL_WIFI_2_4GHZ_INTERFACE or SL_WIFI_5GHZ_INTERFACE.
+ *   This function gets the transmit power for a particular radio interface: SL_WIFI_2_4GHZ_INTERFACE.
  ******************************************************************************/
 sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_tx_power_t *max_tx_power);
 
@@ -211,8 +221,8 @@ sl_status_t sl_wifi_get_max_tx_power(sl_wifi_interface_t interface, sl_wifi_max_
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This function sets the transmit power for a particular radio interface: SL_WIFI_2_4GHZ_INTERFACE or SL_WIFI_5GHZ_INTERFACE.
- *   Eg: Setting transmit power for client interface at 2.4GHz will also set transmit power of the AP interface at 2.4GHz.
+ *   This function sets the transmit power for a particular radio interface: SL_WIFI_2_4GHZ_INTERFACE.
+ *   Eg: Setting transmit power for client interface at 2.4 GHz will also set transmit power of the AP interface at 2.4 GHz.
  * @note
  *   The effective transmit power is subject to regional and device limitations. If the specified transmit power exceeds the
  *   maximum supported value for that region, the transmission will occur at the maximum supported transmit power.
@@ -360,7 +370,7 @@ sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  *   This method is used for overwriting default gain tables that are present in firmware.
  * @pre Pre-conditions:
  * - 
- *   Customer can load all the three gain tables (i.e., 2.4GHz-20Mhz, 5GHz-20Mhz, 5GHz-40Mhz) one the after other by changing band and bandwidth values.
+ *   Customer can load all the three gain tables (i.e., 2.4 GHz-20 MHz, 5 GHz-20 MHz, 5 GHz-40 MHz) one after the other by changing band and bandwidth values.
  * @pre Pre-conditions:
  * -
  * This is a blocking API.
@@ -368,15 +378,15 @@ sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[in]  band 
- *    1 - 2.4GHz,
- *		2 - 5GHz
+ *    1 - 2.4 GHz,
+ *		2 - 5 GHz
  * @param[in]  bandwidth   
  *    0 - 20 MHz,
  *    1 - 40 MHz
  * @param[in]  payload
  *    Pass channel gain values for different regions in a given array format.
  * @param[in]  payload_len
- *    Max payload length (table size) in 2.4GHz is 128 bytes and in 5GHz is 64 bytes.
+ *    Max payload length (table size) in 2.4 GHz is 128 bytes and in 5 GHz is 64 bytes.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
@@ -385,18 +395,18 @@ sl_status_t sl_wifi_get_listen_interval(sl_wifi_interface_t interface, sl_wifi_l
  *   3. When certifying with user antenna, the Region has to be set to Worldwide and sweep the power from 0 to 21 dBm. Arrive at a max power level that will pass certifications, especially band-edge.
  *   4. The FCC/ETSI/TELEC/KCC max power level should be loaded in an end-to-end mode via WLAN User Gain table. This has to be called done for every boot-up as this information is not saved inside the flash. Region-based user gain table sent by the application is copied onto the Region-based table. SoC uses this table in FCC/ETSI/TELEC/KCC to limit the power and to not violate the allowed limits.
  *   5. For Worldwide region, the firmware uses the Worldwide table for Tx. For other regions (FCC/ETSI/TELEC/KCC), the firmware uses the min value out of the Worldwide & Region-based table for Tx.  Also, there will be part to part variation across the chips. Offsets that are estimated during the flow of manufacture will be applied as correction factor during normal mode of operation.
- *   6. In a 2.4 Ghz band, 40 Mhz is not supported.
+ *   6. In a 2.4 GHz band, 40 MHz is not supported.
  ******************************************************************************/
 sl_status_t sl_wifi_update_gain_table(uint8_t band, uint8_t bandwidth, uint8_t *payload, uint16_t payload_len);
 
 /***************************************************************************/ /**
  * @brief
- *   Configure the 11ax params.This is a blocking API.
+ *   Configure the 11ax params. This is a blocking API.
  * @pre Pre-conditions:
  * -
  *   This API should be called before @ref sl_wifi_connect
  * @param[in] guard_interval
- *   Period of time delta between two packets in wireless transmission. Valid values : 0 - 3 (0 = 8us, 1 = 16us, 2 = 32us, 3 = 64us).
+ *   Period of time delta between two packets in wireless transmission. Valid values : 0 - 3 (0 = 8 us, 1 = 16 us, 2 = 32 us, 3 = 64 us).
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -411,7 +421,7 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
 // Scanning functions
 /***************************************************************************/ /**
  * @brief
- *   Start scanning for Wi-Fi networks.
+ *   Initiates a Wi-Fi scan operation on the specified interface, supporting advanced and background scan types.
  * @pre Pre-conditions:
  * - 
  *   @ref sl_wifi_init should be called before this API.
@@ -424,9 +434,13 @@ sl_status_t sl_wifi_set_11ax_config(uint8_t guard_interval);
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- * 	For 911x, Advanced scan results are not populated to user.
- *      Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called. If the scan_type is not ADV_SCAN then, the time is for foreground scan. Otherwise, it is used for back ground scanning.
- *      If the user needs to enable Passive Scanning, user should set the scan_type to SL_WIFI_SCAN_TYPE_PASSIVE. If the user needs to enable LP mode in Passive Scan, user needs to enable lp_mode in sl_wifi_scan_configuration_t. Default Passive Scan Channel time is 400 milliseconds. If the user needs to modify the time, sl_si91x_set_timeout can be called.
+ * 	For 911x, advanced scan results are not populated to user.
+ *      Default Active Channel time is 100 milliseconds. If the user needs to modify the time, 
+ *      sl_wifi_set_advanced_scan_configuration can be called. If the scan_type is not ADV_SCAN, then
+ *      the time is for foreground scan. Otherwise, it is used for background scanning.
+ *      If the user needs to enable Passive Scanning, user should set the scan_type to SL_WIFI_SCAN_TYPE_PASSIVE.
+ *      If the user needs to enable Low Power (LP) mode in Passive Scan, user needs to enable lp_mode in sl_wifi_scan_configuration_t.
+ *      Default Passive Scan Channel time is 400 milliseconds. If the user needs to modify the time, sl_si91x_set_timeout can be called.
  ******************************************************************************/
 sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
                                const sl_wifi_ssid_t *optional_ssid,
@@ -434,9 +448,9 @@ sl_status_t sl_wifi_start_scan(sl_wifi_interface_t interface,
 
 /***************************************************************************/ /**
  * @brief
- *   Stop Wi-Fi scan.
+ *   Stops an ongoing Wi-Fi scan operation on the specified interface, including background scanning.
  * @pre Pre-conditions:
- * - 
+ *   This API is applicable only for client interface.
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] interface
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
@@ -449,7 +463,9 @@ sl_status_t sl_wifi_stop_scan(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Set advanced scan configuration.
+ *   Configures advanced scan settings for a Wi-Fi interface and enables instant scan capability.
+ * @details
+ *   @ref sl_wifi_advanced_scan_configuration_t object that will contain the advanced scan configuration.
  * @pre Pre-conditions:
  * - 
  *   @ref sl_wifi_init should be called before this API.
@@ -462,7 +478,9 @@ sl_status_t sl_wifi_set_advanced_scan_configuration(const sl_wifi_advanced_scan_
 
 /***************************************************************************/ /**
  * @brief
- *   Get advanced scan configuration.
+ *   Retrieves the current advanced scan configuration parameters from the Wi-Fi interface.
+ * @details
+ *   This function should be used after successful Wi-Fi connection.
  * @pre Pre-conditions:
  * - 
  *   @ref sl_wifi_init should be called before this API.
@@ -475,7 +493,7 @@ sl_status_t sl_wifi_get_advanced_scan_configuration(sl_wifi_advanced_scan_config
 
 /***************************************************************************/ /**
  * @brief
- *   Wait for current scan to complete and stores the results in the provided array.
+ *   Wait for current scan to complete and store the results in the provided array.
  * @pre Pre-conditions:
  * -
  *   This function also returns when the scan result array is full.
@@ -509,7 +527,7 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  * @param[in] interface
  *   Wi-Fi client interface as identified by @ref sl_wifi_interface_t
  * @param[in] access_point
- *   @ref sl_wifi_client_configuration_t object that contains the details of Access Point.
+ *   @ref sl_wifi_client_configuration_t object that contains the Access Point details.
  * @param[in] timeout_ms
  *   Timeout value in milliseconds. The function will abort and return when the timeout timer expires.
  *   A value of 0 indicates an asynchronous action. TBD: @ref asynchronous action page.
@@ -520,7 +538,7 @@ sl_status_t sl_wifi_wait_for_scan_results(sl_wifi_scan_result_t **scan_result_ar
  *   If security_type is SL_WIFI_WPA3 then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is enabled internally by SDK.
  *   If security_type is SL_WIFI_WPA3_TRANSITION then SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED join feature is disabled and SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY join feature is enabled internally by SDK.
  *   Default Active Channel time is 100 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_scan_configuration can be called.
- *   Default Auth Association timeout is 300 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
+ *   Default Authentication timeout and Association timeout is 300 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
  *   Default Keep Alive timeout is 30 milliseconds. If the user needs to modify the time, sl_wifi_set_advanced_client_configuration can be called.
  ******************************************************************************/
 sl_status_t sl_wifi_connect(sl_wifi_interface_t interface,
@@ -542,7 +560,7 @@ sl_status_t sl_wifi_disconnect(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   Get current Wi-Fi client's signal strength (RSSI).
+ *   Retrieve the RSSI value of the Access Point to which the Wi-Fi client is connected.
  * @pre Pre-conditions:
  * - 
  *   @ref sl_wifi_connect should be called before this API.
@@ -557,7 +575,7 @@ sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *
 
 /***************************************************************************/ /**
  * @brief
- *   Get the station TSF time which is synchronised with connected AP beacon TSF.
+ *   Get the station Timing Synchronization Function (TSF) time which is synchronised with connected AP beacon TSF. 
  * @pre
  *   Pre-condition: @ref sl_wifi_connect should be called before this API.
  * @param[in] interface
@@ -567,7 +585,7 @@ sl_status_t sl_wifi_get_signal_strength(sl_wifi_interface_t interface, int32_t *
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This API returns error if station is not connected or at least one beacon is not received.
+ *   This API returns an error if the station is not connected to an Access Point or at least one beacon is not received.
  ******************************************************************************/
 sl_status_t sl_wifi_get_sta_tsf(sl_wifi_interface_t interface, sl_wifi_tsf64_t *tsf);
 
@@ -618,7 +636,7 @@ sl_status_t sl_wifi_get_roam_configuration(sl_wifi_interface_t interface,
  *   @ref sl_wifi_client_configuration_t object that contains the details of Access Point.
  * @param[in] timeout_ms
  *   Timeout value in milliseconds. The function will abort and return when the timeout timer expires.
- *   A value of 0 indicates an asynchronous action.
+ *   A timeout value of 0 means the function will initiate the verification process and return immediately, without waiting for the process to complete. This indicates that the action will be handled asynchronously.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
@@ -736,10 +754,10 @@ sl_status_t sl_wifi_target_wake_time_auto_selection(sl_wifi_twt_selection_t *twt
 /***************************************************************************/ /**
  * @brief
  *   Suspends the TWT agreement corresponding to given flow id and resumes it when suspend duration expires.
- *   This API performs following actions on TWT agreement: SL_WIFI_SUSPEND_INDEFINITELY, SL_WIFI_RESUME_IMMEDIATELY, SL_WIFI_SUSPEND_FOR_DURATION.
+ *   This API performs the following actions on TWT agreement: SL_WIFI_SUSPEND_INDEFINITELY, SL_WIFI_RESUME_IMMEDIATELY, SL_WIFI_SUSPEND_FOR_DURATION.
  * @note
  *   The reschedule TWT actions are valid till the end of current TWT agreement. If the TWT agreement is terminated
- *   (TWT tear down or wlan disconnection), these actions are not retained.
+ *   (TWT tear down or WLAN disconnection), these actions are not retained.
  *   To reapply these actions upon new TWT agreement, the user must re-issue the command.
  * @pre Pre-conditions:
  * -
@@ -770,7 +788,7 @@ sl_status_t sl_wifi_reschedule_twt(uint8_t flow_id,
  * -
  *   @ref sl_wifi_init should be called before this API.
  * @param[in] beacon_drop_threshold
- *   The amount of time that FW waits to receive full beacon. Default value is 5000ms.
+ *   The amount of time that FW waits to receive full beacon. Default value is 5000 ms.
  * @param[in] filter_bcast_in_tim
  *   If this bit is set, then from the next dtim any broadcast data pending bit in TIM indicated will be ignored valid values: 0 - 1.
  * @param[in] filter_bcast_tim_till_next_cmd
@@ -841,7 +859,7 @@ sl_status_t sl_wifi_configure_multicast_filter(sl_wifi_multicast_filter_info_t *
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   For AP mode with WPA3 security, only SAE-H2E method is supported. SAE Hunting and pecking method is not supported.
+ *   For AP mode with WPA3 security, only SAE-H2E method is supported. SAE hunting and pecking method is not supported.
  *   TKIP encryption mode is not supported. Encryption mode is automatically configured to RSI_CCMP.
  *   PMKSA is not supported in WPA3 AP mode.
  ******************************************************************************/
@@ -939,7 +957,10 @@ sl_status_t sl_wifi_stop_ap(sl_wifi_interface_t interface);
 
 /***************************************************************************/ /**
  * @brief
- *   De-authenticate Wi-Fi client with the given MAC address.
+ *   Disconnects a client with the specified MAC address from Access Point (AP).
+ * @details
+ *   Use this function to disassociate (disconnect) a client from Access Point.
+ *   This API is used when the device is in AP mode.
  * @pre Pre-conditions:
  * - 
  *   @ref sl_wifi_start_ap should be called before this API.
@@ -952,7 +973,7 @@ sl_status_t sl_wifi_stop_ap(sl_wifi_interface_t interface);
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
- *   Client interfaces are not supported.
+ *   This API is supported only in AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_disconnect_ap_client(sl_wifi_interface_t interface,
                                          const sl_mac_address_t *mac,
@@ -971,7 +992,7 @@ sl_status_t sl_wifi_disconnect_ap_client(sl_wifi_interface_t interface,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
- *   Client interfaces are not supported.
+ *   This API is supported only in AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_get_ap_client_info(sl_wifi_interface_t interface, sl_wifi_client_info_response_t *client_info);
 
@@ -990,7 +1011,7 @@ sl_status_t sl_wifi_get_ap_client_info(sl_wifi_interface_t interface, sl_wifi_cl
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
- *   Client interfaces are not supported.
+ *   This API is supported only in AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_get_ap_client_list(sl_wifi_interface_t interface,
                                        uint16_t client_list_count,
@@ -1009,7 +1030,7 @@ sl_status_t sl_wifi_get_ap_client_list(sl_wifi_interface_t interface,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
- *   Client interfaces are not supported.
+ *   This API is supported only in AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_get_ap_client_count(sl_wifi_interface_t interface, uint32_t *client_count);
 
@@ -1144,7 +1165,7 @@ sl_status_t sl_wifi_generate_wps_pin(sl_wifi_wps_pin_t *response);
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
- *   Client interfaces are not supported.
+ *   This API is supported only in AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_start_wps(sl_wifi_interface_t interface,
                               sl_wifi_wps_mode_t mode,
@@ -1161,7 +1182,7 @@ sl_status_t sl_wifi_start_wps(sl_wifi_interface_t interface,
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note 
- *   Client interfaces are not supported.
+ *   This API is supported only in AP mode.
  ******************************************************************************/
 sl_status_t sl_wifi_stop_wps(sl_wifi_interface_t interface);
 
@@ -1285,7 +1306,7 @@ sl_status_t sl_wifi_transceiver_up(sl_wifi_interface_t interface, sl_wifi_transc
  *             |channel                 | Primary channel number. Valid channels are 1-14.
  *             |band                    | Reserved
  *             |bandwidth               | Reserved
- *             |tx_power                | Reserved
+ *             |tx_power                | Max transmission power
  *
  * @return
  *   sl_status_t. See [Status Codes](../../wiseconnect-api-reference-guide-err-codes/pages/sl-additional-status-errors). Possible Error Codes:
@@ -1295,6 +1316,7 @@ sl_status_t sl_wifi_transceiver_up(sl_wifi_interface_t interface, sl_wifi_transc
  *
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
  * @note This is a blocking API.
+ * @note The effective transmit power is subject to regional and device limitations. If the specified transmit power exceeds the maximum supported value for that region, the transmission will occur at the maximum supported transmit power.
  *
  * Sample command usage:
  * @code
@@ -1373,7 +1395,7 @@ sl_status_t sl_wifi_set_transceiver_parameters(sl_wifi_interface_t interface, sl
  *
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
  * @note This is a blocking API.
- * @note MAC layer supports storing upto 100 peers.
+ * @note MAC layer supports storing up to 100 peers.
  * @note To add peers in MAC layer, it is mandatory to enable SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT/BIT(13) in @ref sl_wifi_device_configuration_t feature_bit_map passed in @ref sl_wifi_init.
  *
  * Sample command usage:
@@ -1430,7 +1452,7 @@ sl_status_t sl_wifi_set_transceiver_multicast_filter(sl_wifi_interface_t interfa
                                                      sl_wifi_transceiver_mcast_filter_t mcast);
 
 /***************************************************************************/ /**
- * @brief This API shall flush the entire SW buffer pool.
+ * @brief This API shall flush the entire software buffer pool.
  *
  * @pre Pre-conditions:
  * - @ref sl_wifi_transceiver_set_channel shall be called before this API.
@@ -1463,7 +1485,7 @@ sl_status_t sl_wifi_flush_transceiver_data(sl_wifi_interface_t interface);
  *   Wi-Fi interface as identified by @ref sl_wifi_interface_t
  *
  * @param[in] control
- *   API uses meta data for preparing data packet along with MAC header for sending to MAC layer. See @ref sl_wifi_transceiver_tx_data_control_t. 
+ *   API uses metadata for preparing data packet along with MAC header for sending to MAC layer. See @ref sl_wifi_transceiver_tx_data_control_t. 
  * @param[in] payload
  *   Pointer to payload (encrypted by host) to be sent to LMAC.
  * @param[in] payload_len
@@ -1479,13 +1501,13 @@ sl_status_t sl_wifi_flush_transceiver_data(sl_wifi_interface_t interface);
  *   - `0x21` - SL_STATUS_INVALID_PARAMETER
  *   - `0x22` - SL_STATUS_NULL_POINTER
  * 
- * #### Format of encapsulated data sent to LMAC ####
+ * #### Format of encapsulated data sent to MAC ####
  * | Field name | Frame Control  | Duration | Addr1 | Addr2 | Adddr3 | Seq Ctrl | Addr4                  | QoS ctrl              | Payload (LLC + Data)  |
  * |:-----------|:---------------|:---------|:------|:------|:-------|:---------|:-----------------------|:----------------------|:----------------------|
  * | Size(bytes)| 2              | 2        | 6     | 6     | 6      | 2        | 6 (Optionally present) | 2 (Optionally present)| Variable              |
  *
  * @note This API is only supported in Wi-Fi Transceiver opermode (7).
- * @note Once this functions returns, the calling API is responsible for freeing control and payload.
+ * @note Once sl_wifi_send_transceiver_data() returns, the calling API is responsible for freeing control and payload. The calling API refers to the function that invoked sl_wifi_send_transceiver_data().
  * @note On chip MAC level encryption is not supported in transceiver mode.
  * @note This is not a blocking API. Callback SL_WIFI_TRANSCEIVER_TX_DATA_STATUS_CB can be registered to get the status report from firmware.
  * @note Only 11b/g rates shall be supported.

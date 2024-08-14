@@ -14,10 +14,10 @@ filter:
   - Beginner
 sdk:
   id: simplicity_sdk
-  version: 2024.6.0
+  version: 2024.6.1
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.0
+  version: 3.3.1
 source:
 - path: demo.c
 - path: main.c

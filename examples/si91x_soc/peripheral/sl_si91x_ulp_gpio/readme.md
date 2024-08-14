@@ -93,7 +93,7 @@ Please refer to the following APIs which are common for all 3 instances and are 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A/ BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -138,7 +138,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. By default, ULP GPIO 2(LED0) toggles during power transition from PS4 -> PS2 and PS2 -> PS4.
+2. By default, ULP GPIO 2 (LED0) toggles during power transition from PS4 -> PS2 and PS2 -> PS4.
 3. Connect logic analyzer to ULP GPIO 2(F10) on WPK board to observe toggle state.
 4. After successful program execution the prints in serial console looks as shown below.
 
@@ -152,3 +152,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+
+> **Note:**
+Header connection pin references mentioned here are all specific to BRD4338A (B0 2.0v boards). If user runs this application on a different board, it is recommended to refer the board specific schematic for GPIO-Header connection pin mapping.

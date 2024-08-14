@@ -75,9 +75,15 @@
 #include "sl_si91x_button_instances.h"
 
 #include "logo_bitmaps.h"
+#include "cmsis_os2.h"
 /******************************************************
  *                    Constants
  ******************************************************/
+
+typedef enum {
+  SENSOR_EVENT_BUTTON_PRESSED = (1 << 0),
+} sensor_event_t;
+
 #define WIFI_CLIENT_PROFILE_SSID "YOUR_INITIAL_AP_SSID"
 
 // LCD related defines
@@ -116,9 +122,11 @@
 #define TIMEOUT_MS     5000
 #define NO_OF_PINGS    5
 
-#ifndef BUTTON_INSTANCE_1
-#define BUTTON_INSTANCE_1 button_btn1
+#ifndef BUTTON_INSTANCE_0
+#define BUTTON_INSTANCE_0 button_btn0
 #endif
+
+static osEventFlagsId_t sensor_event_flags = 0;
 
 char *mqtt_hostname = "test.mosquitto.org";
 
@@ -187,7 +195,7 @@ static volatile bool scan_complete          = false;
 static volatile sl_status_t callback_status = SL_STATUS_OK;
 uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 
 //MQTT related variables
 uint8_t connected = 0, timeout = 0;
@@ -1048,7 +1056,7 @@ void wifi_app_task(void)
           LOG_PRINT("\r\nFailed to initiate power save in BLE mode\r\n");
         }
         uint32_t rc                                       = SL_STATUS_FAIL;
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
+        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
                                                               .listen_interval = 1000 };
 
         rc = sl_wifi_set_performance_profile(&performance_profile);
@@ -1154,9 +1162,47 @@ void lcd_mac(void)
   DMD_updateDisplay();
 }
 
+static osStatus_t set_sensor_event(uint32_t event)
+{
+  return osEventFlagsSet(sensor_event_flags, event);
+}
+
+static uint32_t wait_for_sensor_event(uint32_t event_mask)
+{
+  uint32_t event = osEventFlagsWait(sensor_event_flags, event_mask, (osFlagsWaitAny | osFlagsNoClear), osWaitForever);
+
+  // Clear the received event flags
+  osEventFlagsClear(sensor_event_flags, event_mask);
+  return event;
+}
+
+void sensor_event_thread(void *argument)
+{
+  UNUSED_PARAMETER(argument);
+  sensor_event_flags = osEventFlagsNew(NULL);
+
+  while (1) {
+    uint32_t event = wait_for_sensor_event(SENSOR_EVENT_BUTTON_PRESSED);
+
+    for (uint8_t a = 0; a < 32; a++) {
+      uint32_t current_event = event & (1 << a);
+      switch (current_event) {
+        case SENSOR_EVENT_BUTTON_PRESSED:
+          if (mqtt_connected == 1) {
+            test_mosquitto_org_pub();
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
+}
+
 void sl_si91x_button_isr(uint8_t pin, int8_t state)
 {
-  if ((mqtt_connected == 1) && (pin == BUTTON_INSTANCE_1.pin) && (state == BUTTON_PRESSED)) {
-    test_mosquitto_org_pub();
+  if ((pin == BUTTON_INSTANCE_0.pin) && (state == BUTTON_PRESSED)) {
+    set_sensor_event(SENSOR_EVENT_BUTTON_PRESSED);
   }
 }

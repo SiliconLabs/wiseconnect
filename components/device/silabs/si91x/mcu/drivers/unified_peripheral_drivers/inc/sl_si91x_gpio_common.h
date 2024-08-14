@@ -143,7 +143,11 @@ extern "C" {
    : port == 2 ? ((pin > GPIO_PC_PIN_MAX_VALIDATE) ? 0 : 1) \
    : port == 3 ? ((pin > GPIO_PD_PIN_MAX_VALIDATE) ? 0 : 1) \
                : 0)
-
+///< Validate GPIO host pad port and pin
+#define SL_GPIO_VALIDATE_HOST_PIN(port, pin)                                                             \
+  (port == SL_GPIO_PORT_A   ? (((pin >= HOST_PAD_MIN) && (pin <= HOST_PAD_MAX)) ? TRUE : FALSE)          \
+   : port == SL_GPIO_PORT_B ? (((pin >= GPIO_PIN_NUMBER9) && (pin <= GPIO_PIN_NUMBER14)) ? TRUE : FALSE) \
+                            : FALSE)
 #define SL_GPIO_VALIDATE_ULP_PORT_PIN(port, pin)  (port == 4 ? ((pin > 11) ? 0 : 1) : 0) ///< Validate ULP port and pin
 #define SL_GPIO_VALIDATE_UULP_PORT_PIN(port, pin) (port == 5 ? ((pin > 5) ? 0 : 1) : 0)  ///< Validate UULP port and pin
 

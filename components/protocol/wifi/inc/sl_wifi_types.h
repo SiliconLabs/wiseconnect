@@ -64,21 +64,21 @@
 #define TRANSCEIVER_RX_PKT_TA_MATCH_BIT     BIT(20)
 /** @addtogroup SL_WIFI_CONSTANTS
   * @{ */
-#define SL_CHANNEL_NO            14  ///< Wi-Fi transceiver default channel
-#define SL_TX_POWER              127 ///< Wi-Fi transceiver default TX power
-#define DEFAULT_RETRANSMIT_COUNT 15  ///< Wi-Fi transceiver default retransmit count
-#define DEFAULT_QOS_BE_CWMIN     4   ///< Wi-Fi transceiver default BE cwmin contention param value
-#define DEFAULT_QOS_BE_CWMAX     6   ///< Wi-Fi transceiver default BE cwmax contention param value
-#define DEFAULT_QOS_BE_AIFSN     3   ///< Wi-Fi transceiver default BE aifsn contention param value
-#define DEFAULT_QOS_BK_CWMIN     4   ///< Wi-Fi transceiver default BK cwmin contention param value
-#define DEFAULT_QOS_BK_CWMAX     10  ///< Wi-Fi transceiver default BK cwmax contention param value
-#define DEFAULT_QOS_BK_AIFSN     7   ///< Wi-Fi transceiver default BK aifsn contention param value
-#define DEFAULT_QOS_VI_CWMIN     3   ///< Wi-Fi transceiver default VI cwmin contention param value
-#define DEFAULT_QOS_VI_CWMAX     4   ///< Wi-Fi transceiver default VI cwmax contention param value
-#define DEFAULT_QOS_VI_AIFSN     1   ///< Wi-Fi transceiver default VI aifsn contention param value
-#define DEFAULT_QOS_VO_CWMIN     2   ///< Wi-Fi transceiver default VO cwmin contention param value
-#define DEFAULT_QOS_VO_CWMAX     3   ///< Wi-Fi transceiver default VO cwmax contention param value
-#define DEFAULT_QOS_VO_AIFSN     1   ///< Wi-Fi transceiver default VO aifsn contention param value
+#define SL_CHANNEL_NO            14 ///< Wi-Fi transceiver default channel
+#define SL_TX_POWER              20 ///< Wi-Fi transceiver default TX power
+#define DEFAULT_RETRANSMIT_COUNT 15 ///< Wi-Fi transceiver default retransmit count
+#define DEFAULT_QOS_BE_CWMIN     4  ///< Wi-Fi transceiver default BE cwmin contention param value
+#define DEFAULT_QOS_BE_CWMAX     6  ///< Wi-Fi transceiver default BE cwmax contention param value
+#define DEFAULT_QOS_BE_AIFSN     3  ///< Wi-Fi transceiver default BE aifsn contention param value
+#define DEFAULT_QOS_BK_CWMIN     4  ///< Wi-Fi transceiver default BK cwmin contention param value
+#define DEFAULT_QOS_BK_CWMAX     10 ///< Wi-Fi transceiver default BK cwmax contention param value
+#define DEFAULT_QOS_BK_AIFSN     7  ///< Wi-Fi transceiver default BK aifsn contention param value
+#define DEFAULT_QOS_VI_CWMIN     3  ///< Wi-Fi transceiver default VI cwmin contention param value
+#define DEFAULT_QOS_VI_CWMAX     4  ///< Wi-Fi transceiver default VI cwmax contention param value
+#define DEFAULT_QOS_VI_AIFSN     1  ///< Wi-Fi transceiver default VI aifsn contention param value
+#define DEFAULT_QOS_VO_CWMIN     2  ///< Wi-Fi transceiver default VO cwmin contention param value
+#define DEFAULT_QOS_VO_CWMAX     3  ///< Wi-Fi transceiver default VO cwmax contention param value
+#define DEFAULT_QOS_VO_AIFSN     1  ///< Wi-Fi transceiver default VO aifsn contention param value
 /** @} */
 
 /** @addtogroup SL_WIFI_TYPES Types
@@ -149,14 +149,34 @@ typedef struct {
 } sl_wifi_scan_result_t;
 
 /** Wi-Fi scan configuration.
+ *  @note The Quick Scan Feature is enabled if a specific channel and SSID to scan is given. SiWx91x scans for the AP given in scan API and posts the scan results immediately after finding the access point.
  *  @note channel_bitmap_2g4 uses the lower 14 bits to represent channels from 1 - 14 where channel 1 = (1 << 0), channel 2 = (1 << 1), etc
+ *  @note 5GHz is not supported.
+ *  -
+ *       | Channel Number 2.4 GHz| channel_bitmap_2g4    |
+ *       |-----------------------|-----------------------|
+ *       | 1                     | (1 << 0)              |
+ *       | 2                     | (1 << 1)              |
+ *       | 3                     | (1 << 2)              |
+ *       | 4                     | (1 << 3)              |
+ *       | 5                     | (1 << 4)              |
+ *       | 6                     | (1 << 5)              |
+ *       | 7                     | (1 << 6)              |
+ *       | 8                     | (1 << 7)              |
+ *       | 9                     | (1 << 8)              |
+ *       | 10                    | (1 << 9)              |
+ *       | 11                    | (1 << 10)             |
+ *       | 12                    | (1 << 11)             |
+ *       | 13                    | (1 << 12)             |
+ *       | 14                    | (1 << 13)             |
+ *
  */
 typedef struct {
   sl_wifi_scan_type_t type;        ///< Scan type to be configured
   uint32_t flags;                  ///< Reserved for future use.
   uint32_t periodic_scan_interval; ///< Duration in milliseconds between periodic scans
   uint16_t channel_bitmap_2g4;     ///< Bitmap of selected 2.4GHz channels
-  uint32_t channel_bitmap_5g[8];   ///< Bitmap of selected 5GHz channels
+  uint32_t channel_bitmap_5g[8];   ///< Bitmap of selected 5GHz channels (currently not supported)
   uint8_t lp_mode;                 ///< Enable LP mode, 1 - Enable LP mode, 0 - Disable LP mode
 } sl_wifi_scan_configuration_t;
 
@@ -168,7 +188,7 @@ typedef struct {
   uint16_t passive_channel_time; ///< Time spent on each channel when performing passive scan (milliseconds).
   uint8_t enable_instant_scan;   ///< Flag to start advanced scan immediately.
   uint8_t
-    enable_multi_probe; ///< Flag to indicate to send multiple probes to AP. If set. a probe request would be sent to all access points in addition to connected SSID.
+    enable_multi_probe; ///< Flag to indicate to send multiple probes to AP. If set, a probe request would be sent to all access points in addition to connected SSID.
 } sl_wifi_advanced_scan_configuration_t;
 
 /// Wi-Fi Access Point configuration
@@ -202,16 +222,26 @@ typedef struct {
   uint8_t beacon_stop; ///< Beaconing control when no clients are connected
 } sl_si91x_ap_reconfiguration_t;
 
+/** Channel bitmap for scanning in set of selective channels
+ * @note A 2.4GHz channel is enabled by setting the bit of the corresponding channel number minus 1. For example, for channel 1, set bit 0; for channel 2, set bit 1, and so on. @ref sl_wifi_scan_configuration_t
+ */
+typedef struct {
+  uint16_t channel_bitmap_2_4; ///< Channel bitmap for scanning in a set of selective channels in 2.4 GHz.
+  uint32_t
+    channel_bitmap_5; ///< Channel bitmap for scanning in a set of selective channels in 5 GHz. (Currently not supported.)
+} sl_wifi_channel_bitmap_t;
+
 /// Wi-Fi Client interface configuration
 typedef struct {
-  sl_wifi_ssid_t ssid;                   ///< SSID
-  sl_wifi_channel_t channel;             ///< Channel
-  sl_mac_address_t bssid;                ///< BSSID
-  sl_wifi_bss_type_t bss_type;           ///< BSS type
-  sl_wifi_security_t security;           ///< Security mode
-  sl_wifi_encryption_t encryption;       ///< Encryption mode
-  sl_wifi_client_flag_t client_options;  ///< Optional flags for client configuration
-  sl_wifi_credential_id_t credential_id; ///< ID of secure credentials
+  sl_wifi_ssid_t ssid;                     ///< SSID
+  sl_wifi_channel_t channel;               ///< Channel
+  sl_mac_address_t bssid;                  ///< BSSID
+  sl_wifi_bss_type_t bss_type;             ///< BSS type
+  sl_wifi_security_t security;             ///< Security mode
+  sl_wifi_encryption_t encryption;         ///< Encryption mode
+  sl_wifi_client_flag_t client_options;    ///< Optional flags for client configuration
+  sl_wifi_credential_id_t credential_id;   ///< ID of secure credentials
+  sl_wifi_channel_bitmap_t channel_bitmap; ///< Channel bitmap for scanning
 } sl_wifi_client_configuration_t;
 
 /// Wi-Fi Client interface advance configuration
@@ -491,10 +521,11 @@ typedef struct {
   sl_wifi_transceiver_cw_config_t cw_params[4];
 } sl_wifi_transceiver_parameters_t;
 
+/// Wi-Fi Transceiver channel information
 typedef struct {
   /// Channel information
   sl_wifi_channel_t chan_info;
-  /// TX power
+  /// Max transmission power
   uint8_t tx_power;
 } sl_wifi_transceiver_set_channel_t;
 

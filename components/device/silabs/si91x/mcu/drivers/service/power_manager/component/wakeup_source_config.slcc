@@ -4,6 +4,10 @@ package: platform
 description: >
   Wakeup Source Configuration component will enable the NPSS peripherals as wakeup source. 
   This also initializes the peripheral and configure as a wakeup source as per the selection in User Configuration.
+
+  Install the appropriate component based on the configured wakeup source.
+  
+  Note: The default sleep time for the deep sleep timer is 10 ms because reducing it further does not result in any decrease in sleep current.
 category: Device|Si91x|MCU|Service|Power Manager
 quality: production
 component_root_path: "components/device/silabs/si91x/mcu/drivers/service/power_manager"

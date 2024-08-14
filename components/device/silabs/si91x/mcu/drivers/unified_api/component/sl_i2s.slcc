@@ -13,6 +13,9 @@ description: >
 
   When you install this component, it will also be installing the  I2S dependency component, 
   which is the I2S driver's implementation.
+
+  Note: When utilizing the I2S1 instance in high power mode with DMA enabled, it is advisable to allocate buffers in the ULP Memory block. 
+  For further details on buffer allocation, please refer to the ULP I2S example.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 root_path: "components/device/silabs/si91x/mcu/drivers/unified_api"

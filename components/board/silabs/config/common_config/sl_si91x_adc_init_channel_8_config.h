@@ -37,8 +37,8 @@ extern "C" {
 /******************************************************************************/
 /******************************* ADC Channel Configuration **************************/
 
-#define P7_START_LOCATION_PINTOOL 133
-#define N7_START_LOCATION_PINTOOL 406
+#define P8_START_LOCATION_PINTOOL 133
+#define N8_START_LOCATION_PINTOOL 406
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -60,38 +60,46 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc signal=P7,N7> SL_ADC_CH8
-// $[ADC_SL_ADC_CH8]
+// <adc_ch8 signal=P8,N8> SL_ADC_CH8
+// $[ADC_CH8_SL_ADC_CH8]
 #ifndef SL_ADC_CH8_PERIPHERAL
-#define SL_ADC_CH8_PERIPHERAL ADC
+#define SL_ADC_CH8_PERIPHERAL ADC_CH8
 #endif
 
-// ADC P7 on GPIO_27
-#ifndef SL_ADC_CH8_P7_PORT
-#define SL_ADC_CH8_P7_PORT 0
+// ADC_CH8 P8 on GPIO_27
+#ifndef SL_ADC_CH8_P8_PORT
+#define SL_ADC_CH8_P8_PORT 0
 #endif
-#ifndef SL_ADC_CH8_P7_PIN
-#define SL_ADC_CH8_P7_PIN 27
+#ifndef SL_ADC_CH8_P8_PIN
+#define SL_ADC_CH8_P8_PIN 27
 #endif
-#ifndef SL_ADC_CH8_P7_LOC
-#define SL_ADC_CH8_P7_LOC 140
+#ifndef SL_ADC_CH8_P8_LOC
+#define SL_ADC_CH8_P8_LOC 140
 #endif
 
-// ADC N7 on GPIO_28
-#ifndef SL_ADC_CH8_N7_PORT
-#define SL_ADC_CH8_N7_PORT 0
+// ADC_CH8 N8 on GPIO_28
+#ifndef SL_ADC_CH8_N8_PORT
+#define SL_ADC_CH8_N8_PORT 0
 #endif
-#ifndef SL_ADC_CH8_N7_PIN
-#define SL_ADC_CH8_N7_PIN 28
+#ifndef SL_ADC_CH8_N8_PIN
+#define SL_ADC_CH8_N8_PIN 28
 #endif
-#ifndef SL_ADC_CH8_N7_LOC
-#define SL_ADC_CH8_N7_LOC 413
+#ifndef SL_ADC_CH8_N8_LOC
+#define SL_ADC_CH8_N8_LOC 413
 #endif
-// [ADC_SL_ADC_CH8]$
+// [ADC_CH8_SL_ADC_CH8]$
 // <<< sl:end pin_tool >>>
 
-#define SL_ADC_CHANNEL_8_POS_INPUT_CHNL_SEL (SL_ADC_CH8_P7_LOC - P7_START_LOCATION_PINTOOL)
-#define SL_ADC_CHANNEL_8_NEG_INPUT_CHNL_SEL (SL_ADC_CH8_N7_LOC - N7_START_LOCATION_PINTOOL)
+#ifdef SL_ADC_CH8_P8_LOC
+#define SL_ADC_CHANNEL_8_POS_INPUT_CHNL_SEL (SL_ADC_CH8_P8_LOC - P8_START_LOCATION_PINTOOL)
+#else
+#define SL_ADC_CHANNEL_8_POS_INPUT_CHNL_SEL 7
+#endif
+#ifdef SL_ADC_CH8_N8_LOC
+#define SL_ADC_CHANNEL_8_NEG_INPUT_CHNL_SEL (SL_ADC_CH8_N8_LOC - N8_START_LOCATION_PINTOOL)
+#else
+#define SL_ADC_CHANNEL_8_NEG_INPUT_CHNL_SEL 7
+#endif
 
 #ifdef __cplusplus
 }

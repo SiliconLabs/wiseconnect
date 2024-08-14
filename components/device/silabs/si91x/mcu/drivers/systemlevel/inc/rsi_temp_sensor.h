@@ -49,9 +49,9 @@ void RSI_TS_Config(MCU_TEMP_Type *pstcTempSens, uint32_t u32Nomial);
  *  @{
  *
  */
-uint32_t RSI_TS_ReadTemp(MCU_TEMP_Type *pstcTempSens);
-uint32_t RSI_TS_GetRefClkCnt(MCU_TEMP_Type *pstcTempSens);
-uint32_t RSI_TS_GetPtatClkCnt(MCU_TEMP_Type *pstcTempSens);
+uint32_t RSI_TS_ReadTemp(const MCU_TEMP_Type *pstcTempSens);
+uint32_t RSI_TS_GetRefClkCnt(const MCU_TEMP_Type *pstcTempSens);
+uint32_t RSI_TS_GetPtatClkCnt(const MCU_TEMP_Type *pstcTempSens);
 void RSI_TS_LoadBjt(MCU_TEMP_Type *pstcTempSens, uint8_t temp);
 void RSI_TS_RoBjtEnable(MCU_TEMP_Type *pstcTempSens, boolean_t enable);
 void RSI_Periodic_TempUpdate(TIME_PERIOD_Type *temp, uint8_t enable, uint8_t trigger_time);

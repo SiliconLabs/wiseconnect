@@ -25,7 +25,7 @@
  * @param client 						Client address that needs to be stored in context.
  * @param user_context					user_context provided by user while calling API.
  * @param timeout						timeout which determines if API needs to be executed in sync or async mode.
- * @param si91x_mqtt_client_context_t** A double pointer to client context.This function allocate memory and initializes members if timeout is greater than 0 else pointer is initialized with null
+ * @param si91x_mqtt_client_context_t** A double pointer to client context.This function allocates memory and initializes members if timeout is greater than 0 else pointer is initialized with null.
  * @return								return SL_STATUS_OK in case of success or appropriate status.
  */
 sl_status_t sli_si91x_build_mqtt_sdk_context_if_async(sl_mqtt_client_event_t event,
@@ -42,3 +42,15 @@ sl_status_t sli_si91x_build_mqtt_sdk_context_if_async(sl_mqtt_client_event_t eve
  * Note: client would be NULL if this function is called before sl_mqtt_client_init or after sl_mqtt_client_deint
  */
 void sli_si91x_get_mqtt_client(sl_mqtt_client_t **client);
+
+/**
+ * Cleans up resources used by the MQTT client.
+ *
+ * This function is responsible for releasing any resources allocated to the MQTT client,
+ * ensuring a clean shutdown of the client instance. It should be called when the MQTT
+ * client is no longer needed, typically at the end of the application or before a restart
+ * of the MQTT client.
+ *
+ * Note: It is important to call this function to prevent resource leaks.
+ */
+void sli_mqtt_client_cleanup();

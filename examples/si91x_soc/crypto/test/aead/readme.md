@@ -1,39 +1,61 @@
 # Test PSA AEAD algorithms for SI91X devices
 
-## Introduction 
-- This folder contains Application that are used to for Unit test code to test the Crypto functionality
+## Table of Contents
 
+- [Purpose/Scope](#purposescope)
+- [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+  - [Setup Diagram](#setup-diagram)
+- [Getting Started](#getting-started)
+- [Application Build Environment](#application-build-environment)
+- [Executing the Application](#executing-the-application)
+- [Expected output](#expected-output)
 
-## Setting Up 
- - To use this application following Hardware, Software and the Project Setup is required
+## Purpose/Scope
 
-### Hardware Requirements	
+- This application contains an example code to demonstrate the PSA AEAD functionality.
+
+## Prerequisites/Setup Requirements
+
+Before running the application, the user will need the following things to setup.
+
+### Hardware Requirements
+
   - Windows PC
-  - SiWx917 Radio Board
+  - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
 
 ### Software Requirements
-  - Simplicity SDK version: 2024.6.0
-  - Si91x SDK
-  - Embedded Development Environment
-    - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
- 
-## Project Setup
-- **Silicon Labs Si91x** refer **"Download SDKs"**, **"Add SDK to Simplicity Studio"**, **"Connect SiWx917"**, **"Open Example Project in Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
 
-## Build 
-- Compile the application in Simplicity Studio using build icon 
+- Simplicity Studio
 
-![Figure: Build run and Debug](resources/readme/image508c.png)
+### Setup Diagram
 
-## Device Programming
-- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio
+ ![Figure: Introduction](resources/readme/image508a.png)
+
+## Getting Started
+
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+
+- Install Studio and WiSeConnect 3 extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
+## Application Build Environment
+
+- To program the device ,refer **"Burn M4 Binary"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html** to work with Si91x and Simplicity Studio.
 
 ## Executing the Application
--  
- **Note!** Application tests the Following Crypto Algorithms: 
+
+- Application tests the Following Crypto Algorithms:
   - CCM
   - GCM
   - Chacha20Poly1305
 
-## Expected Results 
-- Every Test cases should PASS. 
+## Expected output
+
+- All Test cases should PASS.
+  ![output](resources/readme/output.png)

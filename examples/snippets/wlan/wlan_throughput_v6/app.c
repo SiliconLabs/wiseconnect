@@ -233,9 +233,13 @@ uint32_t start                     = 0;
 uint32_t now                       = 0;
 uint8_t first_data_frame           = 1;
 
-void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)
+void data_callback(uint32_t sock_no,
+                   uint8_t *buffer,
+                   uint32_t length,
+                   const sl_si91x_socket_metadata_t *firmware_socket_response)
 {
   UNUSED_PARAMETER(buffer);
+  UNUSED_PARAMETER(firmware_socket_response);
 
   if (first_data_frame) {
     start = osKernelGetTickCount();
@@ -404,8 +408,6 @@ void send_data_to_tcp_server(void)
   int sent_bytes                      = 1;
   uint32_t start                      = 0;
   uint32_t now                        = 0;
-  uint32_t pass                       = 0;
-  uint32_t fail                       = 0;
 
   client_socket = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
   if (client_socket < 0) {
@@ -439,23 +441,20 @@ void send_data_to_tcp_server(void)
   while (total_bytes_sent < BYTES_TO_SEND) {
     sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
     now        = osKernelGetTickCount();
-    if (sent_bytes > 0)
-      total_bytes_sent = total_bytes_sent + sent_bytes;
+    if (sent_bytes < 0) {
+      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      break;
+    }
+    total_bytes_sent = total_bytes_sent + sent_bytes;
 
     if ((now - start) > TEST_TIMEOUT) {
       printf("\r\nTime Out: %ld\r\n", (now - start));
       break;
     }
-
-    if (sent_bytes < 0) {
-      fail++;
-    } else {
-      pass++;
-    }
   }
   printf("\r\nTCP_TX Throughput test finished\r\n");
   printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
-  printf("\r\nSend fail count : %ld, Send pass count : %ld\r\n", fail, pass);
 
   measure_and_print_throughput(total_bytes_sent, (now - start));
 
@@ -620,8 +619,6 @@ void send_data_to_udp_server(void)
   int sent_bytes                      = 1;
   uint32_t start                      = 0;
   uint32_t now                        = 0;
-  uint32_t fail                       = 0;
-  uint32_t pass                       = 0;
 
   client_socket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
   if (client_socket < 0) {
@@ -649,23 +646,20 @@ void send_data_to_udp_server(void)
       sendto(client_socket, data_buffer, UDP_BUFFER_SIZE, 0, (struct sockaddr *)&server_address6, socket_length);
     now = osKernelGetTickCount();
 
+    if (sent_bytes < 0) {
+      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      break;
+    }
+
+    total_bytes_sent = total_bytes_sent + sent_bytes;
     if ((now - start) > TEST_TIMEOUT) {
       printf("\r\nTime Out: %ld\r\n", (now - start));
       break;
     }
-
-    if (sent_bytes < 0) {
-      fail++;
-    } else {
-      pass++;
-    }
-
-    if (sent_bytes > 0)
-      total_bytes_sent = total_bytes_sent + sent_bytes;
   }
   printf("\r\nUDP_TX Throughput test finished\r\n");
   printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
-  printf("\r\nSend fail count : %ld, Send pass count : %ld\r\n", fail, pass);
 
   measure_and_print_throughput(total_bytes_sent, (now - start));
 
@@ -915,8 +909,6 @@ void send_data_to_tls_server(void)
   socklen_t socket_length             = sizeof(struct sockaddr_in6);
   uint32_t start                      = 0;
   uint32_t now                        = 0;
-  uint32_t pass                       = 0;
-  uint32_t fail                       = 0;
   int sent_bytes                      = 0;
   uint32_t total_bytes_sent           = 0;
 
@@ -960,23 +952,20 @@ void send_data_to_tls_server(void)
     sent_bytes = send(client_socket, data_buffer, TLS_BUFFER_SIZE, 0);
     now        = osKernelGetTickCount();
 
-    if (sent_bytes > 0)
-      total_bytes_sent = total_bytes_sent + sent_bytes;
+    if (sent_bytes < 0) {
+      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      break;
+    }
+    total_bytes_sent = total_bytes_sent + sent_bytes;
 
     if ((now - start) > TEST_TIMEOUT) {
       printf("\r\nTime Out: %ld\r\n", (now - start));
       break;
     }
-
-    if (sent_bytes < 0) {
-      fail++;
-    } else {
-      pass++;
-    }
   }
   printf("\r\nTLS_TX Throughput test finished\r\n");
   printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
-  printf("\r\nSend fail count : %ld, Send pass count : %ld\r\n", fail, pass);
 
   measure_and_print_throughput(total_bytes_sent, (now - start));
 

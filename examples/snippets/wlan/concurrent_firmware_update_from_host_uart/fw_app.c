@@ -82,11 +82,7 @@ sl_status_t send_1k_chunks(uint8_t *buffer, size_t total_length);
 void com_port_send(char *buffer, uint16_t buffer_length);
 void com_port_receive(uint8_t *buffer, uint16_t buffer_length);
 void serial_com_handshake();
-void firmware_update_operation_complete();
 void release_update_semaphore();
-
-// Define states for firmware update process
-typedef enum { STATE_HANDSHAKE, STATE_UPDATE_FIRMWARE, STATE_COMPLETED, STATE_ERROR } firmware_state_t;
 
 // Global variable to hold the current state
 static firmware_state_t current_state = STATE_HANDSHAKE;

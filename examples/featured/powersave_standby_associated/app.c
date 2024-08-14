@@ -84,7 +84,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
                    .ble_feature_bit_map        = 0,
                    .ble_ext_feature_bit_map    = 0,
-                   .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 /******************************************************
@@ -131,7 +131,7 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
-  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE };
+  sl_wifi_performance_profile_t performance_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
   sl_wifi_firmware_version_t version                = { 0 };
   sl_mac_address_t mac_addr                         = { 0 };
 

@@ -27,13 +27,13 @@
 #include "sl_si91x_sha.h"
 #include <string.h>
 
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static const uint8_t sha_digest_len_table[] = { [SL_SI91x_SHA_1]   = SL_SI91x_SHA_1_DIGEST_LEN,
                                                 [SL_SI91x_SHA_256] = SL_SI91x_SHA_256_DIGEST_LEN,
                                                 [SL_SI91x_SHA_384] = SL_SI91x_SHA_384_DIGEST_LEN,
                                                 [SL_SI91x_SHA_512] = SL_SI91x_SHA_512_DIGEST_LEN,
                                                 [SL_SI91x_SHA_224] = SL_SI91x_SHA_224_DIGEST_LEN };
 
-#ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
                                          uint8_t *msg,
                                          uint16_t msg_length,
@@ -94,6 +94,9 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
 
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
 
+  if (pending_flag == (LAST_CHUNK | FIRST_CHUNK) || pending_flag == LAST_CHUNK) {
+    SL_ASSERT(packet->length == sha_digest_len_table[sha_mode]);
+  }
   memcpy(digest, packet->data, sha_digest_len_table[sha_mode]);
 
   free(request);
@@ -147,12 +150,6 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
 {
   sl_status_t status = SL_STATUS_OK;
   SL_PRINTF(SL_SHA_ENTRY, CRYPTO, LOG_INFO);
-  uint16_t total_len = 0;
-  uint16_t chunk_len = 0;
-  uint16_t offset    = 0;
-  uint8_t sha_flags  = 0;
-
-  total_len = msg_length;
 
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
   if (crypto_sha_mutex == NULL) {
@@ -165,7 +162,12 @@ sl_status_t sl_si91x_sha(uint8_t sha_mode, uint8_t *msg, uint16_t msg_length, ui
   status = sli_si91x_sha_side_band(sha_mode, msg, msg_length, digest);
   return status;
 #else
+  uint16_t total_len = 0;
+  uint16_t chunk_len = 0;
+  uint16_t offset    = 0;
+  uint8_t sha_flags  = 0;
 
+  total_len = msg_length;
   if (total_len != 0) {
     while (total_len) {
       // Check total length

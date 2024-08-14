@@ -26,6 +26,7 @@
 #include "SPI.h"
 #include "rsi_rom_egpio.h"
 #include "rsi_rom_ulpss_clk.h"
+#include "rsi_power_save.h"
 #ifdef SL_SI91X_SSI_DMA
 #include "sl_si91x_dma.h"
 #include "rsi_spi.h"
@@ -42,6 +43,9 @@
 #define BYTES_FOR_16_DATA_WIDTH 2    // Number of bytes for 16 bit data frame
 #define BYTES_FOR_32_DATA_WIDTH 4    // Number of bytes for 32 bit data frame
 #define DUMMY_DATA              0xA5 // Dummy data to be written in receive only mode by master
+/*When use the ULP Master instance with DMA enabled, it is advisable ulp memory used for low power modes */
+#define ULP_SSI_DUMMY_DATA \
+  (ULP_SRAM_START_ADDR + (1 * 800)) // Dummy data to be written in receive only mode by master while in PS2 state
 #if (defined(SSI_ULP_MASTER_RX_DMA_Instance) && (SSI_ULP_MASTER_RX_DMA_Instance == 1))
 #define ULP_SSI_MASTER_BANK_OFFSET 0x800 // ULP Memory bank offset value.
 #define ULP_SSI_MASTER_BUF_MEMORY  (ULP_SRAM_START_ADDR + (1 * ULP_SSI_MASTER_BANK_OFFSET))
@@ -931,6 +935,7 @@ ARM_SPI_STATUS SPI_GetStatus(const SPI_RESOURCES *spi)
  */
 void SPI_IRQHandler(const SPI_RESOURCES *spi)
 {
+  typedef volatile uint32_t vuint32_t __attribute__((may_alias));
   uint32_t data = 0U;
   uint32_t event;
   uint32_t isr;
@@ -967,12 +972,12 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
           *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data);
         } else if (data_width_in_bytes == 2) {
           // For data width 8-16
-          data                                       = *(volatile uint32_t *)(&spi->reg->DR);
+          data                                       = *(vuint32_t *)(&spi->reg->DR);
           *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data);
           *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data >> 8);
         } else if (data_width_in_bytes == 4) {
           // For data width 16-32
-          data                                       = *(volatile uint32_t *)(&spi->reg->DR);
+          data                                       = *(vuint32_t *)(&spi->reg->DR);
           *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data);
           *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data >> 8);
           *(spi->xfer->rx_buf + spi->xfer->rx_cnt++) = (uint8_t)(data >> 16);
@@ -990,8 +995,8 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
           if (((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE))
               && (spi->xfer->tx_buf == NULL)) {
             // If master mode or ulp master mode and tx buffer is null means receive only conditon where dummy byte needs to be generated
-            *(volatile uint32_t *)(&spi->reg->DR) = DUMMY_DATA; // dummy data
-                                                                // Waiting till the busy flag is cleared
+            *(vuint32_t *)(&spi->reg->DR) = DUMMY_DATA; // dummy data
+                                                        // Waiting till the busy flag is cleared
             while (spi->reg->SR & BIT(0))
               ;
           }
@@ -1015,14 +1020,14 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
           // For data width 8-16
           data = *(spi->xfer->tx_buf + spi->xfer->tx_cnt++);
           data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 8;
-          *(volatile uint32_t *)(&spi->reg->DR) = (uint16_t)data;
+          *(vuint32_t *)(&spi->reg->DR) = (uint16_t)data;
         } else if (data_width_in_bytes == 4) {
           // For data width 16-32
           data = *(spi->xfer->tx_buf + spi->xfer->tx_cnt++);
           data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 8;
           data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 16;
           data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 24;
-          *(volatile uint32_t *)(&spi->reg->DR) = data;
+          *(vuint32_t *)(&spi->reg->DR) = data;
         }
         // Waiting till the busy flag is cleared
         if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
@@ -1048,6 +1053,20 @@ void SPI_IRQHandler(const SPI_RESOURCES *spi)
 
   // Send event
   if (event && spi->info->cb_event) {
+    uint8_t ssi_instance = 0;
+    // Validate the SSI instance that triggered this event
+    if (spi->reg == SSI0) {
+      // Assigning instance number to the callback variable
+      ssi_instance = SSI_MASTER_INSTANCE;
+    } else if (spi->reg == SSISlave) {
+      // Assigning instance number to the callback variable
+      ssi_instance = SSI_SLAVE_INSTANCE;
+    } else if (spi->reg == SSI2) {
+      // Assigning instance number to the callback variable
+      ssi_instance = SSI_ULP_MASTER_INSTANCE;
+    }
+    // Appending the instance value in the callback event variable
+    event |= (ssi_instance << SSI_INSTANCE_BIT);
     spi->info->cb_event(event);
     if (spi->info->status.busy) {
       spi->info->status.busy = 0U;
@@ -1407,7 +1426,11 @@ int32_t SPI_Receive(void *data,
         spi_tx_callback.transfer_complete_cb = ssi_transfer_complete_callback;
         spi_tx_callback.error_cb             = ssi_error_callback;
         //Initialize sl_dma transfer structure
-        dma_transfer_tx.src_addr       = (uint32_t *)((uint32_t) & (dummy_data));
+        if (RSI_PS_IsPS2State()) {
+          dma_transfer_tx.src_addr = (uint32_t *)((uint32_t)(ULP_SSI_DUMMY_DATA));
+        } else {
+          dma_transfer_tx.src_addr = (uint32_t *)((uint32_t) & (dummy_data));
+        }
         dma_transfer_tx.dest_addr      = (uint32_t *)((uint32_t) & (spi->reg->DR));
         dma_transfer_tx.src_inc        = control.srcInc;
         dma_transfer_tx.dst_inc        = control.dstInc;
@@ -1494,7 +1517,20 @@ int32_t SPI_Receive(void *data,
 void SPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
 {
   (void)dmaCh;
-  uint32_t status_reg = 0;
+  uint32_t status_reg  = 0;
+  uint32_t ssi_event   = 0;
+  uint8_t ssi_instance = 0;
+  // Validate the SSI instance that triggered this event
+  if (spi->reg == SSI0) {
+    // Assigning instance number to the callback variable
+    ssi_instance = SSI_MASTER_INSTANCE;
+  } else if (spi->reg == SSISlave) {
+    // Assigning instance number to the callback variable
+    ssi_instance = SSI_SLAVE_INSTANCE;
+  } else if (spi->reg == SSI2) {
+    // Assigning instance number to the callback variable
+    ssi_instance = SSI_ULP_MASTER_INSTANCE;
+  }
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
       // Update TX buffer info
@@ -1506,8 +1542,10 @@ void SPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
       status_reg             = spi->reg->SR;
       spi->info->status.busy = 0U;
       (void)status_reg;
+      // Appending the instance value in the callback event variable
+      ssi_event = ARM_SPI_EVENT_TRANSFER_COMPLETE | (ssi_instance << SSI_INSTANCE_BIT);
       if ((spi->info->cb_event != NULL) && (spi->xfer->rx_buf == NULL)) {
-        spi->info->cb_event(ARM_SPI_EVENT_TRANSFER_COMPLETE);
+        spi->info->cb_event(ssi_event);
       }
       break;
     case UDMA_EVENT_ERROR:
@@ -1525,7 +1563,20 @@ void SPI_UDMA_Tx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
 void SPI_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
 {
   (void)dmaCh;
-  uint32_t status_reg = 0;
+  uint32_t status_reg  = 0;
+  uint32_t ssi_event   = 0;
+  uint8_t ssi_instance = 0;
+  // Validate the SSI instance that triggered this event
+  if (spi->reg == SSI0) {
+    // Assigning instance number to the callback variable
+    ssi_instance = SSI_MASTER_INSTANCE;
+  } else if (spi->reg == SSISlave) {
+    // Assigning instance number to the callback variable
+    ssi_instance = SSI_SLAVE_INSTANCE;
+  } else if (spi->reg == SSI2) {
+    // Assigning instance number to the callback variable
+    ssi_instance = SSI_ULP_MASTER_INSTANCE;
+  }
   switch (event) {
     case UDMA_EVENT_XFER_DONE:
       spi->xfer->rx_cnt      = spi->xfer->num;
@@ -1537,12 +1588,14 @@ void SPI_UDMA_Rx_Event(uint32_t event, uint8_t dmaCh, SPI_RESOURCES *spi)
       // Clear error status by reading the register
       status_reg = spi->reg->SR;
       (void)status_reg;
+      // Appending the instance value in the callback event variable
+      ssi_event = ARM_SPI_EVENT_TRANSFER_COMPLETE | (ssi_instance << SSI_INSTANCE_BIT);
       break;
     case UDMA_EVENT_ERROR:
       break;
   }
   if (spi->info->cb_event != NULL) {
-    spi->info->cb_event(ARM_SPI_EVENT_TRANSFER_COMPLETE);
+    spi->info->cb_event(ssi_event);
   }
 }
 

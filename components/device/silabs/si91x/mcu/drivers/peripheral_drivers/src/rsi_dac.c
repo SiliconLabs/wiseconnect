@@ -42,6 +42,11 @@ extern RSI_UDMA_DESC_T __attribute__((section(".udma_addr1"))) UDMA1_Table[32];
 extern RSI_UDMA_HANDLE_T udmaHandle1;
 #endif
 
+#define DAC_SAMPLE_RATE_32KSPS 32000
+#define DAC_SAMPLE_RATE_80KSPS 80000
+#define DAC_CLK_SRC_32KHZ      32000
+#define DAC_CLK_SRC_32MHZ      32000000
+
 dac_config_t dac_callback_fun;
 uint8_t dac_pong_enable_sel = 0;
 uint32_t devMem[30];
@@ -227,7 +232,7 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
   uint32_t clk_src_val = 0;
   uint16_t clk_div_fac = 0;
 
-  // Check the AUX-Clock is eable or not
+  // Check the AUX-Clock is enable or not
   if (ULPCLK->ULP_AUXADC_CLK_GEN_REG_b.ULP_AUX_CLK_EN_b) {
     clk_src_val = RSI_CLK_GetBaseClock(ULPSS_AUX);
 
@@ -238,30 +243,27 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
     }
     return clk_src_val;
   } else {
-    if (sampl_rate <= 32000) {
-      // Configured ADC clock as 20Khz RC
+    if (sampl_rate <= DAC_SAMPLE_RATE_32KSPS) {
+      // Configured DAC clock as 32Khz RC
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
-      clk_div_fac = (uint16_t)(ceil((2 * 32000) / sampl_rate));
+      clk_div_fac = (uint16_t)(ceil((2 * DAC_CLK_SRC_32KHZ) / sampl_rate));
       // Configure the DAC division factor for required sampling rate
       RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
       return (uint32_t)((clk_div_fac * sampl_rate) / 2);
     } else {
       if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) {
         // Program in PS2 state  Need to integrate
-        // Trim Mhz RC clock to 20Mhz
-        RSI_IPMU_M20rcOsc_TrimEfuse();
         // Configured DAC clock as 32Mhz RC
         RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-        clk_div_fac = (uint16_t)ceil((2 * 20000000) / sampl_rate);
+        clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_32MHZ) / sampl_rate);
         // Configure the DAC division factor for required sampling rate
         RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
         return (uint32_t)((clk_div_fac * sampl_rate) / 2);
       } else {
-        if (sampl_rate > 32000 && sampl_rate < 80000) {
-          RSI_IPMU_M20rcOsc_TrimEfuse();
+        if (sampl_rate > DAC_SAMPLE_RATE_32KSPS && sampl_rate < DAC_SAMPLE_RATE_80KSPS) {
           // Configured DAC clock as 32Mhz RC
           RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
-          clk_div_fac = (uint16_t)ceil((2 * 20000000) / sampl_rate);
+          clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_32MHZ) / sampl_rate);
           if (clk_div_fac > 0x03FF) {
             clk_div_fac = 0x03FF;
           }
@@ -270,9 +272,9 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
           return (uint32_t)((clk_div_fac * sampl_rate) / 2);
         } else {
           RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
-          // Configured DAC clock as 40Mhz XTAL
-          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
-          clk_div_fac = (uint16_t)ceil((2 * 40000000) / sampl_rate);
+          // Configured DAC clock as 32Mhz RC
+          RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
+          clk_div_fac = (uint16_t)ceil((2 * DAC_CLK_SRC_32MHZ) / sampl_rate);
           // Configure the DAC division factor for required sampling rate
           RSI_DAC_ClkDivFactor(AUX_ADC_DAC_COMP, clk_div_fac);
           return (uint32_t)((clk_div_fac * sampl_rate) / 2);

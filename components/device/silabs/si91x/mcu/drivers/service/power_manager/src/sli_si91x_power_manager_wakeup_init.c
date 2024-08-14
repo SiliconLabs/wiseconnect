@@ -381,8 +381,12 @@ static sl_status_t uulp_gpio_configuration(uint8_t pin)
     status = SL_STATUS_INVALID_PARAMETER;
     return status;
   }
-  GPIO_NPSS_GPIO_CONFIG_REG = CLR; //By default making all the interrupts zero.
-  status                    = sl_si91x_gpio_driver_select_uulp_npss_receiver(pin, SET);
+  // Unregister NPSS GPIO interrupts
+  status = sl_gpio_driver_unregister(UULP_GPIO_INSTANCE, pin, pin);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  status = sl_si91x_gpio_driver_select_uulp_npss_receiver(pin, SET);
   if (status != SL_STATUS_OK) {
     return status;
   }

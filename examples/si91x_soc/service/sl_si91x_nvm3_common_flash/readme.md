@@ -42,7 +42,7 @@ For more detailed information about NVM3, refer to [Third Generation NonVolatile
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 

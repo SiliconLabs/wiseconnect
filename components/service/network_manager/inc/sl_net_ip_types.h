@@ -34,7 +34,7 @@ typedef struct {
   sl_ip_management_t mode;   ///< IP Assignment Type of @ref sl_ip_management_t
   sl_ip_address_type_t type; ///< IP Address Type of @ref sl_ip_address_type_t
   char *host_name;           ///< Host name visible on network
-  union {
+  struct {
     sl_net_ipv4_setting_t
       v4; ///< IPv4 setting to be used in case of static IP address assignment of type @ref sl_net_ipv4_setting_t
     sl_net_ipv6_setting_t

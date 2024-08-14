@@ -24,12 +24,12 @@
 
 ## Overview
 
-- The ADC Controller works on a ADC with a resolution of 12bits at 10Mbps when ADC reference Voltage is greater than 2.8v or 5Msps when ADC reference Voltage is less than 2.8v.
+- The ADC Controller works on a ADC with a resolution of 12bits at 10Msps when ADC reference Voltage is greater than 2.8v or 5Msps when ADC reference Voltage is less than 2.8v.
 - Sample application will be 12 bit ADC Output in 2's complement representation.
 - There are two operating mode in AUX ADC controller:
   - Static Mode Operation: ADC data input will be sampled and written to a register in this mode.
   - FIFO Mode Operation: ADC data input will be sampled and written to the ADC FIFO in this mode.
-- There a dedicated ADC DMA to support 16 channels.
+- There is a dedicated ADC DMA to support 16 channels.
 - DMA mode supports dual buffer cyclic mode to avoid loss of data when buffer is full. In dual buffer cyclic mode, if buffer 1 is full for particular channel, incoming sampled
   data is written into buffer 2 such that, samples from buffer 1 are read back by controller during this time. That’s why there are two start addresses, two buffer lengths and
   two valid signals for each channel.
@@ -58,7 +58,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -88,14 +88,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Configure UC from the slcp component.
 - Open **sl_si91x_adc_fifo_mode.slcp** project file select **software component** tab and search for **ADC** in search bar.
-- Using configuration wizard one can configure different parameters. Below are the 2 configuration screens, where user can select as per requirement.
+- Using configuration wizard one can configure different parameters. The configuration screen is below, with options for the user to pick based on need.
 
   - **ADC Peripheral Common Configuration**
 
     - Number of channel: By default channel is set to '1'. When the channel number is changed, then care must be taken to create instance of that respective channel number. Otherwise, an error is thrown.
     - ADC operation mode: There are 2 modes, FIFO mode and Static mode. By default it is in FIFO mode. When static mode is set, sample length should be '1'.
-
-      ![Figure: Introduction](resources/uc_screen/sl_adc_common_uc_screen.png)
 
   - **ADC Channel Configuration**
 
@@ -147,7 +145,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. Compile and run the application.
 2. While generating the project by default channel_1 instance will create for this channel_1 follow below two sub-points on B0 board.
-   - Single ended mode give the positive analog input to ULP_GPIO_1 and GND to GPIO_28
+   - Single ended mode give the positive analog input to ULP_GPIO_1
    - Differential mode give positive analog input to ULP_GPIO_1 and negative input to GPIO_28
 3. When the application runs, the ADC configure the settings as per the user and start ADC conversion.
 4. After completion of conversion ADC input, it will print all the captured samples data in console by connecting serial console.

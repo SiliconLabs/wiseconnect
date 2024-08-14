@@ -100,7 +100,7 @@ typedef	struct fd_set {
 #if !defined (__INSIDE_CYGWIN_NET__)
 
 int select(int __n, fd_set *__readfds, fd_set *__writefds,
-		 fd_set *__exceptfds, struct timeval *__timeout);
+		 fd_set *__exceptfds, const struct timeval *__timeout);
 
 
 #endif /* !__INSIDE_CYGWIN_NET__ */

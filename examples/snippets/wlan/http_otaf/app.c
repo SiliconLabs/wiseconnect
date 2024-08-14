@@ -88,6 +88,8 @@
 // HTTP OTAF
 #define HTTP_OTAF 2
 
+#define CERTIFICATE_INDEX 0
+
 #define DNS_TIMEOUT         20000
 #define MAX_DNS_RETRY_COUNT 5
 #define OTAF_TIMEOUT        600000
@@ -219,25 +221,10 @@ static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
                                                    uint32_t data_length,
                                                    void *arg);
 static sl_status_t clear_and_load_certificates_in_flash(void);
-void soft_reset(void);
-void on_timeout_callback(void);
-void watchdog_timer_init(void);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
-
-void soft_reset(void)
-{
-  watchdog_timer_init();
-}
-
-void on_timeout_callback(void)
-{
-  SL_DEBUG_LOG("\r\nIn handler\r\n");
-  return;
-}
-
 void app_init(const void *unused)
 {
   UNUSED_PARAMETER(unused);
@@ -262,11 +249,14 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 #endif
 
   //! Load SSL CA certificate
-  status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cert, cert_length);
+  status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(CERTIFICATE_INDEX),
+                                 SL_NET_SIGNING_CERTIFICATE,
+                                 cert,
+                                 cert_length);
   if (status != SL_STATUS_OK) {
     printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
   } else {
-    printf("\r\nLoad TLS CA certificate at index %d Success\r\n", 0);
+    printf("\r\nLoad TLS CA certificate at index %d Success\r\n", CERTIFICATE_INDEX);
   }
 
   return status;
@@ -291,7 +281,7 @@ void application_start(const void *unused)
 {
   UNUSED_PARAMETER(unused);
   sl_status_t status = SL_STATUS_OK;
-  uint8_t flags      = FLAGS;
+  uint16_t flags     = FLAGS;
   char server_ip[16];
 #if FW_UPDATE_TYPE
   sl_wifi_firmware_version_t version = { 0 };
@@ -331,6 +321,7 @@ void application_start(const void *unused)
         status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
         if (status != SL_STATUS_OK) {
           printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
+          app_state = WLAN_UNCONNECTED_STATE;
         }
         printf("\r\nWi-Fi Client interface up\r\n");
         app_state = WLAN_FIRMWARE_UPDATE;
@@ -380,7 +371,7 @@ void application_start(const void *unused)
 
         //! OTAF firmware upgrade
         status = sl_si91x_http_otaf(HTTP_OTAF,
-                                    (uint8_t)flags,
+                                    (uint16_t)flags,
                                     (uint8_t *)server_ip,
                                     (uint16_t)HTTP_PORT,
                                     (uint8_t *)HTTP_URL,
@@ -429,7 +420,7 @@ void application_start(const void *unused)
         print_firmware_version(&version);
 #else
         printf("\r\nSoC Soft Reset initiated!\r\n");
-        sl_si91x_soc_soft_reset();
+        sl_si91x_soc_nvic_reset();
 #endif
         app_state = WLAN_OTA_UPDATE_DONE;
       } break;

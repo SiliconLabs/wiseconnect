@@ -74,7 +74,7 @@
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
 
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 #if defined(SL_SI91X_PRINT_DBG_LOG)
@@ -171,7 +171,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)
 #endif
                         ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 const osThreadAttr_t thread_attributes = {
@@ -566,11 +566,11 @@ void ble_ae_central(void)
   ble_slave_conn_sem = osSemaphoreNew(1, 0, NULL);
 
   // AE set scan params
-  rsi_ble_ae_set_scan_params_t ae_set_scan_params = { 0 };
-  ae_set_scan_params.own_addr_type                = LE_PUBLIC_ADDRESS;
-  ae_set_scan_params.scanning_filter_policy       = RSI_BLE_SCAN_FILTER_TYPE;
-  ae_set_scan_params.scanning_phys                = (PHY_1M | PHY_LE_CODED);
-
+  rsi_ble_ae_set_scan_params_t ae_set_scan_params          = { 0 };
+  ae_set_scan_params.own_addr_type                         = LE_PUBLIC_ADDRESS;
+  ae_set_scan_params.scanning_filter_policy                = RSI_BLE_SCAN_FILTER_TYPE;
+  ae_set_scan_params.scanning_phys                         = (PHY_1M | PHY_LE_CODED);
+  ae_set_scan_params.ScanParams[AE_SCAN_SET1].ScanType     = PRI_PHY_BLE_SCAN_TYPE;
   ae_set_scan_params.ScanParams[AE_SCAN_SET1].ScanInterval = LE_SCAN_INTERVAL;
   ae_set_scan_params.ScanParams[AE_SCAN_SET1].ScanWindow   = LE_SCAN_WINDOW;
 #if SET2_ENABLE
@@ -597,8 +597,9 @@ void ble_ae_central(void)
   } else {
     LOG_PRINT(" \n set ae scan enable success \n");
   }
+#if BLE_AE_PERIODIC_LIST_USED
   rsi_ble_ae_dev_to_periodic_list_t ae_add_dev = { 0 };
-  rsi_ascii_dev_address_to_6bytes_rev((uint8_t *)ae_add_dev.adv_addr, (int8_t *)REM_ADDR1);
+  rsi_ascii_dev_address_to_6bytes_rev((uint8_t *)ae_add_dev.adv_addr, (int8_t *)REM_ADDR);
   ae_add_dev.adv_addr_type = LE_RANDOM_ADDRESS;
   ae_add_dev.adv_sid       = 0x01;
   ae_add_dev.type          = BLE_AE_PER_ADD_DEV;
@@ -609,7 +610,7 @@ void ble_ae_central(void)
   } else {
     LOG_PRINT("\n successfully added remote device to Periodic Adv List \n");
   }
-
+#endif
   // AE Periodic create sync
   rsi_ble_ae_set_periodic_adv_create_sync_t ae_per_sync_create = { 0 };
   rsi_ascii_dev_address_to_6bytes_rev((uint8_t *)ae_per_sync_create.adv_addr, (int8_t *)REM_ADDR);

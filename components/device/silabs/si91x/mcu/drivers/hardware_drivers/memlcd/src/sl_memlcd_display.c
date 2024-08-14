@@ -33,6 +33,9 @@
 
 sl_status_t sl_memlcd_init(void)
 {
+#ifdef SI917_DEVKIT
+  return SL_STATUS_NOT_SUPPORTED;
+#else
   sl_memlcd_t memlcd = {
     .width         = SL_MEMLCD_DISPLAY_WIDTH,
     .height        = SL_MEMLCD_DISPLAY_HEIGHT,
@@ -46,4 +49,5 @@ sl_status_t sl_memlcd_init(void)
   };
 
   return sl_memlcd_configure(&memlcd);
+#endif
 }

@@ -175,9 +175,9 @@ void egpio_set_dir(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, boolean_t dir)
 
 void egpio_set_pin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t val);
 
-boolean_t egpio_get_pin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
+boolean_t egpio_get_pin(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
 
-boolean_t egpio_get_dir(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
+boolean_t egpio_get_dir(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
 
 void egpio_pin_int_sel(EGPIO_Type *pEGPIO, uint8_t intCh, uint8_t port, uint8_t pin);
 
@@ -201,7 +201,7 @@ void egpio_set_int_high_level_enable(EGPIO_Type *pEGPIO, uint8_t intCh);
 
 void egpio_set_int_high_level_disable(EGPIO_Type *pEGPIO, uint8_t intCh);
 
-uint8_t egpio_get_int_stat(EGPIO_Type *pEGPIO, uint8_t intCh);
+uint8_t egpio_get_int_stat(const EGPIO_Type *pEGPIO, uint8_t intCh);
 
 void egpio_int_clr(EGPIO_Type *pEGPIO, uint8_t intCh, uint8_t flags);
 
@@ -225,7 +225,7 @@ void egpio_clr_port(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val);
 
 void egpio_toggle_port(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val);
 
-uint16_t egpio_get_port(EGPIO_Type *pEGPIO, uint8_t port);
+uint16_t egpio_get_port(const EGPIO_Type *pEGPIO, uint8_t port);
 
 void egpio_group_int_one_enable(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
 
@@ -249,7 +249,7 @@ void egpio_group_int_and(EGPIO_Type *pEGPIO, uint8_t grpInt);
 
 void egpio_group_int_or(EGPIO_Type *pEGPIO, uint8_t grpInt);
 
-uint32_t egpio_group_int_stat(EGPIO_Type *pEGPIO, uint8_t grpInt);
+uint32_t egpio_group_int_stat(const EGPIO_Type *pEGPIO, uint8_t grpInt);
 
 void egpio_group_int_wkeup_Enable(EGPIO_Type *pEGPIO, uint8_t grpInt);
 

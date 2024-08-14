@@ -20,6 +20,7 @@
   - Conversion of analog input to 12-bit digital output.
   - Samples the data.
   - Convert data into equivalent input voltage based on operation mode.
+  - This application also switches between PS4 and PS2 power states, samples, collects, and displays ADC data.
 
 ## Overview
 
@@ -28,7 +29,7 @@
 - There are two operating mode in AUX ADC controller:
   - Static Mode Operation
   - FIFO Mode Operation
-- There a dedicated ADC DMA to support 16 channels.
+- There is a dedicated ADC DMA to support 16 channels.
 - DMA mode supports dual buffer cyclic mode to avoid loss of data when buffer is full. In dual buffer cyclic mode, if buffer 1 is full for particular channel, incoming sampled
   data is written into buffer 2 such that, samples from buffer 1 are read back by controller during this time. That’s why there are two start addresses, two buffer lengths and
   two valid signals for each channel.
@@ -60,7 +61,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -88,14 +89,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Configure UC from the slcp component.
 - Open **sl_si91x_ulp_adc.slcp** project file select **software component** tab and search for **ADC** in search bar.
-- Using configuration wizard one can configure different parameters. Below are the 2 configuration screens, where user can select as per requirement.
+- Using configuration wizard one can configure different parameters. The configuration screen is below, with options for the user to pick based on need.
 
   - **ADC Peripheral Common Configuration**
 
     - Number of channel: By default channel is set to '1'. When the channel number is changed, then care must be taken to create instance of that respective channel number. Otherwise, an error is thrown.
     - ADC operation mode: There are 2 modes, FIFO mode and Static mode. By default it is in FIFO mode. When static mode is set, sample length should be '1'.
-
-      ![Figure: Introduction](resources/uc_screen/sl_adc_common_uc_screen.png)
 
   - **ADC Channel Configuration**
 
@@ -113,6 +112,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Pin Configuration
 
 - Here mentioned pin numbers for BRD4338a (B0 2.0v boards), if user want to use different radio board, refer to board specific user guide.
+- The GPIO and ULP GPIO pins listed below are capable of supporting ULP ADC capability.
+- The below mentioned channels can be re-configured to any ADC supported pins.
 
   | CHANNEL | PIN TO ADCP | PIN TO ADCN |
   | --- | --- | --- |
@@ -147,7 +148,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 1. Compile and run the application.
 2. While generating the project by default channel_1 instance will create for this channel_1 follow below two sub-points on B0 board.
-   - Single ended mode give the positive analog input to ULP_GPIO_1 and GND to GPIO_28
+   - Single ended mode give the positive analog input to ULP_GPIO_1
    - Differential mode give positive analog input to ULP_GPIO_1 and negative input to GPIO_28
 3. When the application runs, the ADC configure the settings as per the user and start ADC conversion.
 4. After completion of conversion ADC input, it will print all the captured samples data in console by connecting serial console.

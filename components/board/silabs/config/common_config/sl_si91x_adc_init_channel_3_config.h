@@ -37,8 +37,8 @@ extern "C" {
 /******************************************************************************/
 /**************************** ADC Channel Configuration ***********************/
 
-#define P2_START_LOCATION_PINTOOL 38
-#define N2_START_LOCATION_PINTOOL 361
+#define P3_START_LOCATION_PINTOOL 38
+#define N3_START_LOCATION_PINTOOL 361
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -60,37 +60,45 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc signal=P2,N2> SL_ADC_CH3
-// $[ADC_SL_ADC_CH3]
+// <adc_ch3 signal=P3,N3> SL_ADC_CH3
+// $[ADC_CH3_SL_ADC_CH3]
 #ifndef SL_ADC_CH3_PERIPHERAL
-#define SL_ADC_CH3_PERIPHERAL ADC
+#define SL_ADC_CH3_PERIPHERAL ADC_CH3
 #endif
 
-// ADC P2 on ULP_GPIO_8/GPIO_72
-#ifndef SL_ADC_CH3_P2_PORT
-#define SL_ADC_CH3_P2_PORT 0
+// ADC_CH3 P3 on ULP_GPIO_8/GPIO_72
+#ifndef SL_ADC_CH3_P3_PORT
+#define SL_ADC_CH3_P3_PORT 0
 #endif
-#ifndef SL_ADC_CH3_P2_PIN
-#define SL_ADC_CH3_P2_PIN 8
+#ifndef SL_ADC_CH3_P3_PIN
+#define SL_ADC_CH3_P3_PIN 8
 #endif
-#ifndef SL_ADC_CH3_P2_LOC
-#define SL_ADC_CH3_P2_LOC 42
+#ifndef SL_ADC_CH3_P3_LOC
+#define SL_ADC_CH3_P3_LOC 42
 #endif
 
-// ADC N2 on GPIO_26
-#ifndef SL_ADC_CH3_N2_PORT
-#define SL_ADC_CH3_N2_PORT 0
+// ADC_CH3 N3 on GPIO_26
+#ifndef SL_ADC_CH3_N3_PORT
+#define SL_ADC_CH3_N3_PORT 0
 #endif
-#ifndef SL_ADC_CH3_N2_PIN
-#define SL_ADC_CH3_N2_PIN 26
+#ifndef SL_ADC_CH3_N3_PIN
+#define SL_ADC_CH3_N3_PIN 26
 #endif
-#ifndef SL_ADC_CH3_N2_LOC
-#define SL_ADC_CH3_N2_LOC 367
+#ifndef SL_ADC_CH3_N3_LOC
+#define SL_ADC_CH3_N3_LOC 367
 #endif
-// [ADC_SL_ADC_CH3]$
+// [ADC_CH3_SL_ADC_CH3]$
 // <<< sl:end pin_tool >>>
-#define SL_ADC_CHANNEL_3_POS_INPUT_CHNL_SEL (SL_ADC_CH3_P2_LOC - P2_START_LOCATION_PINTOOL)
-#define SL_ADC_CHANNEL_3_NEG_INPUT_CHNL_SEL (SL_ADC_CH3_N2_LOC - N2_START_LOCATION_PINTOOL)
+#ifdef SL_ADC_CH3_P3_LOC
+#define SL_ADC_CHANNEL_3_POS_INPUT_CHNL_SEL (SL_ADC_CH3_P3_LOC - P3_START_LOCATION_PINTOOL)
+#else
+#define SL_ADC_CHANNEL_3_POS_INPUT_CHNL_SEL 4
+#endif
+#ifdef SL_ADC_CH3_N3_LOC
+#define SL_ADC_CHANNEL_3_NEG_INPUT_CHNL_SEL (SL_ADC_CH3_N3_LOC - N3_START_LOCATION_PINTOOL)
+#else
+#define SL_ADC_CHANNEL_3_NEG_INPUT_CHNL_SEL 6
+#endif
 
 #ifdef __cplusplus
 }

@@ -46,6 +46,8 @@
 - Switch the power state from PS2 to PS4
 - Perform another loopback test
 
+> **Note:** When utilizing the I2S1 instance in high power mode with DMA enabled, it is advisable to allocate buffers in the ULP Memory block.
+
 **Note!** 
 1. Make sure to use non-ROM I2S APIs for this application and SL_I2S driver.
 2. sl_i2s_xfer_config_t has following parameters,
@@ -72,7 +74,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -123,6 +125,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 | ----------------------- | ----------------------- |
 | ULP_GPIO_1 [P16]           | I2S DOUT          |
 | ULP_GPIO_6 [EXP_HEADER-16]           | I2S DIN           |
+| | |
 
 ### Pin Description
 

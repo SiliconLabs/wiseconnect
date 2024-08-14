@@ -11,11 +11,11 @@ provides:
   - name: device_needs_ram_execution
 define:
   - name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+  - name: SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE
+    condition: [wiseconnect_toolchain_psram_linker]   
 template_contribution:
   - name: ram_execution
     value: true
   - name: device_ram_addr
     value: 1024
     priority: -2
-conflicts:
-  - name: text_segment_in_psram

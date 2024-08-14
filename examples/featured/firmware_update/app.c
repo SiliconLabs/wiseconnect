@@ -128,10 +128,11 @@ void app_init(const void *unused)
 
 static void application_start(void *argument)
 {
-  UNUSED_PARAMETER(argument);
+  UNUSED_PARAMETER(argument); // Avoid compiler warnings when parameter is not used
   sl_status_t status;
 
   printf("Application Started\n");
+  // Initialize the Wi-Fi client interface with the configuration specified by firmware_update_configuration
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &firmware_update_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
@@ -139,6 +140,7 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi Init Success\r\n");
 
+  // Bring up the Wi-Fi client interface
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, 0);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
@@ -146,6 +148,7 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi Client Connected\r\n");
 
+  // Update device firmware by downloading firmware file from remote TCP server
   status = update_firmware();
   if (status != SL_STATUS_OK) {
     printf("\r\n Update Firmware failed with status 0x%lx\r\n", status);
@@ -172,14 +175,17 @@ sl_status_t update_firmware()
 
   chunk_max_count += (FW_RPS_FILE_SIZE - FW_HEADER_SIZE) / CHUNK_SIZE;
 
+  // Gets firmware version from device
   status = sl_wifi_get_firmware_version(&version);
   VERIFY_STATUS_AND_RETURN(status);
   print_firmware_version(&version);
 
+  // Set up the server IP address and port number
   server_address.sin_family = AF_INET;
   server_address.sin_port   = SERVER_PORT;
   sl_net_inet_addr(SERVER_IP_ADDRESS, &server_address.sin_addr.s_addr);
 
+  // Create TCP client socket
   client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   printf("client_socket : %d\n", client_socket);
   if (client_socket < 0) {
@@ -187,6 +193,7 @@ sl_status_t update_firmware()
     return SL_STATUS_FAIL;
   }
 
+  // Connect to the TCP server
   socket_return_value = connect(client_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
     printf("\r\nSocket Connect failed with bsd error: %d\r\n", errno);
@@ -262,7 +269,7 @@ sl_status_t update_firmware()
       }
     }
 
-    if (status != SL_STATUS_OK) {
+    if (status != SL_STATUS_OK) { // Check if firmware update is completed
       if (status == SL_STATUS_FW_UPDATE_DONE) {
         end = osKernelGetTickCount();
         // Close the socket
@@ -275,10 +282,11 @@ sl_status_t update_firmware()
 //! Perform SOC soft reset for combined Image
 #if COMBINED_IMAGE
         printf("\r\nSoC Soft Reset initiated!\r\n");
-        sl_si91x_soc_soft_reset();
+        sl_si91x_soc_nvic_reset();
 #endif
 #endif
 
+        // De-initialize the client network interface
         status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
         printf("\r\nWi-Fi Deinit status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);
@@ -289,6 +297,7 @@ sl_status_t update_firmware()
         printf("Waiting Done\n");
 #endif
 
+        // Initialize the client interface again to check if firmware update is done properly
         status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &firmware_update_configuration, NULL, NULL);
         printf("\r\nWi-Fi Init status : %lx\r\n", status);
         VERIFY_STATUS_AND_RETURN(status);

@@ -244,7 +244,7 @@ static void sli_process_request(sl_http_server_t *handle, int client_socket)
       if (SL_STATUS_OK != sli_parse_http_headers(handle, length)) {
         break;
       }
-      SL_DEBUG_LOG("Got expected data length : %u\n", handle->request.request_data_length);
+      SL_DEBUG_LOG("Got expected data length : %lu\n", handle->request.request_data_length);
 
       if (handle->request.request_data_length > 0) {
         int header_length = (int)(sep_pos - handle->request_buffer);
@@ -257,7 +257,7 @@ static void sli_process_request(sl_http_server_t *handle, int client_socket)
         if (recv_length > (header_length + 4)) {
           length              = recv_length - (header_length + 4);
           handle->data_length = length;
-          SL_DEBUG_LOG("Got remaining data length : %u\n", handle->data_length);
+          SL_DEBUG_LOG("Got remaining data length : %lu\n", handle->data_length);
           handle->req_data = (uint8_t *)(handle->request_buffer + header_length + 4);
         }
         recv_length = 0;
@@ -348,6 +348,9 @@ static void sli_http_server(const void *arg)
   }
   SL_DEBUG_LOG("\r\nListening on Local Port : %d\r\n", server_address.sin_port);
 
+  sl_si91x_time_value timeout = { 0 };
+  timeout.tv_sec              = server_handle->config.client_idle_time;
+
   while (1) {
     socket_return_value = sl_si91x_accept_async(server_socket, client_accept_callback);
     if (socket_return_value != SI91X_NO_ERROR) {
@@ -374,11 +377,24 @@ static void sli_http_server(const void *arg)
         SL_DEBUG_LOG("\r\nClient Socket:%d----------------------------", client_socket);
         server_handle->server_socket = server_socket;
         server_handle->client_socket = client_socket;
+
+        if (server_handle->config.client_idle_time != 0) {
+          socket_return_value = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+          if (socket_return_value) {
+            SL_DEBUG_LOG("\r\n setsockopt fail\r\n");
+            close(client_socket);
+            continue;
+          } else {
+            SL_DEBUG_LOG("\r\n setsockopt done\r\n");
+          }
+        }
+
         sli_process_request(server_handle, client_socket);
       }
     }
     osDelay(100);
     close(client_socket);
+    server_handle->rem_resp_length = 0;
   }
 
   while (1) {
@@ -485,8 +501,9 @@ sl_status_t sl_http_server_init(sl_http_server_t *handle, const sl_http_server_c
   } else {
     handle->config.default_handler = unknown_request_handler;
   }
-  handle->config.handlers_list  = config->handlers_list;
-  handle->config.handlers_count = config->handlers_count;
+  handle->config.handlers_list    = config->handlers_list;
+  handle->config.handlers_count   = config->handlers_count;
+  handle->config.client_idle_time = config->client_idle_time;
 
   memset(handle->request_buffer, 0, sizeof(MAX_HEADER_BUFFER_LENGTH));
   handle->http_server_id = osEventFlagsNew(NULL);
@@ -701,7 +718,12 @@ sl_status_t sl_http_server_send_response(sl_http_server_t *handle, sl_http_serve
   // Check if the response is not NULL
   if (response == NULL) {
     // If the response is NULL, return an error
-    return SL_STATUS_FAIL;
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Current Data length cannot be greaer than expected data length
+  if (response->current_data_length > response->expected_data_length) {
+    return SL_STATUS_INVALID_PARAMETER;
   }
 
   // Check if the response is sent already
@@ -724,7 +746,9 @@ sl_status_t sl_http_server_send_response(sl_http_server_t *handle, sl_http_serve
       return SL_STATUS_FAIL;
     }
   }
-  handle->response_sent = true;
+
+  handle->rem_resp_length = response->expected_data_length - response->current_data_length;
+  handle->response_sent   = true;
 
   return SL_STATUS_OK;
 }
@@ -751,10 +775,17 @@ sl_status_t sl_http_server_write_data(sl_http_server_t *handle, uint8_t *data, u
     return SL_STATUS_FAIL;
   }
 
+  if (data_length > handle->rem_resp_length) {
+    return SL_STATUS_FAIL;
+  }
+
   getsockopt(handle->client_socket, SOL_SOCKET, SO_SNDBUF, (char *)&buffersize, &buffersize_length);
   if (sli_process_socket_buffered_data(handle->client_socket, (char *)data, data_length, buffersize) == -1) {
     SL_DEBUG_LOG("Failed to send buffer");
     return SL_STATUS_FAIL;
   }
+
+  handle->rem_resp_length -= data_length;
+
   return SL_STATUS_OK;
 }

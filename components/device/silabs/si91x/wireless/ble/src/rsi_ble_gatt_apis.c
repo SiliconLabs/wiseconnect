@@ -366,21 +366,20 @@ int32_t rsi_ble_get_att_value_async(uint8_t *dev_addr, uint16_t handle, rsi_ble_
 
 int32_t rsi_ble_get_multiple_att_values_async(uint8_t *dev_addr,
                                               uint8_t num_of_handlers,
-                                              uint16_t *handles,
+                                              const uint16_t *handles,
                                               rsi_ble_resp_att_value_t *p_att_vals)
 {
 
   SL_PRINTF(SL_RSI_BLE_GET_MULTIPLE_ATT_VALUES_ASYNC, BLE, LOG_INFO, "NUMBER_OF_HANDLERS: %1x", num_of_handlers);
   rsi_ble_req_multi_att_values_t req_att_vals;
   memset(&req_att_vals, 0, sizeof(req_att_vals));
-  uint8_t ix;
 #ifdef BD_ADDR_IN_ASCII
   rsi_ascii_dev_address_to_6bytes_rev(req_att_vals.dev_addr, dev_addr);
 #else
   memcpy((uint8_t *)req_att_vals.dev_addr, (int8_t *)dev_addr, 6);
 #endif
-  req_att_vals.num_of_handles = RSI_MIN(num_of_handlers, RSI_BLE_MAX_REQ_LIST);
-  for (ix = 0; ix < req_att_vals.num_of_handles; ix++) {
+  req_att_vals.num_of_handles = (uint8_t)(RSI_MIN(num_of_handlers, RSI_BLE_MAX_REQ_LIST));
+  for (uint8_t ix = 0; ix < req_att_vals.num_of_handles; ix++) {
     req_att_vals.handles[ix] = handles[ix];
   }
 
@@ -452,7 +451,7 @@ int32_t rsi_ble_get_long_att_value_async(uint8_t *dev_addr,
  *
  */
 
-int32_t rsi_ble_set_att_value_async(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, uint8_t *p_data)
+int32_t rsi_ble_set_att_value_async(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_ATT_VALUE_ASYNC, BLE, LOG_INFO, "HANDLE: %2x, DATA_LEN: %1x", handle, data_len);
@@ -464,7 +463,7 @@ int32_t rsi_ble_set_att_value_async(uint8_t *dev_addr, uint16_t handle, uint8_t 
   memcpy((uint8_t *)set_att_val.dev_addr, (int8_t *)dev_addr, 6);
 #endif
   rsi_uint16_to_2bytes(set_att_val.handle, handle);
-  set_att_val.length = RSI_MIN(sizeof(set_att_val.att_value), data_len);
+  set_att_val.length = (uint8_t)(RSI_MIN(sizeof(set_att_val.att_value), data_len));
   memcpy(set_att_val.att_value, p_data, set_att_val.length);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_SET_DESCVALUE_ASYNC, &set_att_val, NULL);
@@ -498,7 +497,7 @@ int32_t rsi_ble_prepare_write_async(uint8_t *dev_addr,
                                     uint16_t handle,
                                     uint16_t offset,
                                     uint8_t data_len,
-                                    uint8_t *p_data)
+                                    const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_PREPARE_WRITE_ASYNC,
@@ -518,7 +517,7 @@ int32_t rsi_ble_prepare_write_async(uint8_t *dev_addr,
 #endif
   rsi_uint16_to_2bytes(req_prepare_write.handle, handle);
   rsi_uint16_to_2bytes(req_prepare_write.offset, offset);
-  req_prepare_write.length = RSI_MIN(sizeof(req_prepare_write.att_value), data_len);
+  req_prepare_write.length = (uint8_t)(RSI_MIN(sizeof(req_prepare_write.att_value), data_len));
   memcpy(req_prepare_write.att_value, p_data, req_prepare_write.length);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_SET_PREPAREWRITE_ASYNC, &req_prepare_write, NULL);
@@ -870,20 +869,19 @@ int32_t rsi_ble_get_att_value(uint8_t *dev_addr, uint16_t handle, rsi_ble_resp_a
 
 int32_t rsi_ble_get_multiple_att_values(uint8_t *dev_addr,
                                         uint8_t num_of_handlers,
-                                        uint16_t *handles,
+                                        const uint16_t *handles,
                                         rsi_ble_resp_att_value_t *p_att_vals)
 {
   SL_PRINTF(SL_RSI_BLE_GET_MULTIPLE_ATT_VALUES, BLE, LOG_INFO, "NUMBER_OF_HANDLERS: %1x", num_of_handlers);
   rsi_ble_req_multi_att_values_t req_att_vals;
   memset(&req_att_vals, 0, sizeof(req_att_vals));
-  uint8_t ix;
 #ifdef BD_ADDR_IN_ASCII
   rsi_ascii_dev_address_to_6bytes_rev(req_att_vals.dev_addr, dev_addr);
 #else
   memcpy((uint8_t *)req_att_vals.dev_addr, (int8_t *)dev_addr, 6);
 #endif
-  req_att_vals.num_of_handles = RSI_MIN(num_of_handlers, RSI_BLE_MAX_REQ_LIST);
-  for (ix = 0; ix < req_att_vals.num_of_handles; ix++) {
+  req_att_vals.num_of_handles = (uint8_t)(RSI_MIN(num_of_handlers, RSI_BLE_MAX_REQ_LIST));
+  for (uint8_t ix = 0; ix < req_att_vals.num_of_handles; ix++) {
     req_att_vals.handles[ix] = handles[ix];
   }
 
@@ -949,7 +947,7 @@ int32_t rsi_ble_get_long_att_value(uint8_t *dev_addr,
  *
  */
 
-int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, uint8_t *p_data)
+int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_ATT_VALUE, BLE, LOG_INFO);
@@ -961,7 +959,7 @@ int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_l
   memcpy((uint8_t *)set_att_val.dev_addr, (int8_t *)dev_addr, 6);
 #endif
   rsi_uint16_to_2bytes(set_att_val.handle, handle);
-  set_att_val.length = RSI_MIN(sizeof(set_att_val.att_value), data_len);
+  set_att_val.length = (uint8_t)(RSI_MIN(sizeof(set_att_val.att_value), data_len));
   memcpy(set_att_val.att_value, p_data, set_att_val.length);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_REQ_WRITE, &set_att_val, NULL);
@@ -988,7 +986,7 @@ int32_t rsi_ble_set_att_value(uint8_t *dev_addr, uint16_t handle, uint8_t data_l
  *
  */
 
-int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, uint8_t *p_data)
+int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len, const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_ATT_COMMAND, BLE, LOG_INFO, "HANDLE: %2x, DATA_LEN: %1x", handle, data_len);
@@ -1000,7 +998,7 @@ int32_t rsi_ble_set_att_cmd(uint8_t *dev_addr, uint16_t handle, uint8_t data_len
   memcpy((uint8_t *)set_att_cmd.dev_addr, (int8_t *)dev_addr, 6);
 #endif
   rsi_uint16_to_2bytes(set_att_cmd.handle, handle);
-  set_att_cmd.length = RSI_MIN(sizeof(set_att_cmd.att_value), data_len);
+  set_att_cmd.length = (uint8_t)(RSI_MIN(sizeof(set_att_cmd.att_value), data_len));
   memcpy(set_att_cmd.att_value, p_data, set_att_cmd.length);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_REQ_WRITE_NO_ACK, &set_att_cmd, NULL);
@@ -1033,7 +1031,7 @@ int32_t rsi_ble_set_long_att_value(uint8_t *dev_addr,
                                    uint16_t handle,
                                    uint16_t offset,
                                    uint8_t data_len,
-                                   uint8_t *p_data)
+                                   const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_LONG_ATT_VALUE,
@@ -1052,7 +1050,7 @@ int32_t rsi_ble_set_long_att_value(uint8_t *dev_addr,
 #endif
   rsi_uint16_to_2bytes(set_long_att.handle, handle);
   rsi_uint16_to_2bytes(set_long_att.offset, offset);
-  set_long_att.length = RSI_MIN(sizeof(set_long_att.att_value), data_len);
+  set_long_att.length = (uint8_t)(RSI_MIN(sizeof(set_long_att.att_value), data_len));
   memcpy(set_long_att.att_value, p_data, set_long_att.length);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_REQ_LONG_WRITE, &set_long_att, NULL);
@@ -1078,7 +1076,11 @@ int32_t rsi_ble_set_long_att_value(uint8_t *dev_addr,
  *
  */
 
-int32_t rsi_ble_prepare_write(uint8_t *dev_addr, uint16_t handle, uint16_t offset, uint8_t data_len, uint8_t *p_data)
+int32_t rsi_ble_prepare_write(uint8_t *dev_addr,
+                              uint16_t handle,
+                              uint16_t offset,
+                              uint8_t data_len,
+                              const uint8_t *p_data)
 {
   SL_PRINTF(SL_RSI_BLE_PREPARE_WRITE,
             BLE,
@@ -1096,7 +1098,7 @@ int32_t rsi_ble_prepare_write(uint8_t *dev_addr, uint16_t handle, uint16_t offse
 #endif
   rsi_uint16_to_2bytes(req_prepare_write.handle, handle);
   rsi_uint16_to_2bytes(req_prepare_write.offset, offset);
-  req_prepare_write.length = RSI_MIN(sizeof(req_prepare_write.att_value), data_len);
+  req_prepare_write.length = (uint8_t)(RSI_MIN(sizeof(req_prepare_write.att_value), data_len));
   memcpy(req_prepare_write.att_value, p_data, req_prepare_write.length);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_REQ_PREPARE_WRITE, &req_prepare_write, NULL);
@@ -1217,14 +1219,14 @@ int32_t rsi_ble_add_attribute(rsi_ble_req_add_att_t *p_attribute)
  *		      then need to use \ref rsi_ble_notify_value() API to send the notifications to the remote devices.\n
  */
 
-int32_t rsi_ble_set_local_att_value(uint16_t handle, uint16_t data_len, uint8_t *p_data)
+int32_t rsi_ble_set_local_att_value(uint16_t handle, uint16_t data_len, const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_LOCAL_ATT_VALUE, BLE, LOG_INFO, "HANDLE: %2x", handle);
   rsi_ble_set_local_att_value_t rec_data = { 0 };
 
   rec_data.handle   = handle;
-  rec_data.data_len = RSI_MIN(data_len, sizeof(rec_data.data));
+  rec_data.data_len = (uint16_t)(RSI_MIN(data_len, sizeof(rec_data.data)));
   memcpy(rec_data.data, p_data, rec_data.data_len);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_SET_LOCAL_ATT_VALUE, &rec_data, NULL);
@@ -1257,7 +1259,7 @@ int32_t rsi_ble_set_local_att_value(uint16_t handle, uint16_t data_len, uint8_t 
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *
  */
-int32_t rsi_ble_set_wo_resp_notify_buf_info(uint8_t *dev_addr, uint8_t buf_mode, uint8_t buf_cnt)
+int32_t rsi_ble_set_wo_resp_notify_buf_info(const uint8_t *dev_addr, uint8_t buf_mode, uint8_t buf_cnt)
 {
 
   SL_PRINTF(SL_RSI_BLE_SET_WO_RESP_NOTIFY_BUF_INFO, BLE, LOG_INFO, "BUF_MODE: %1x, BUF_COUNT: %1x", buf_mode, buf_cnt);
@@ -1298,7 +1300,7 @@ int32_t rsi_ble_set_wo_resp_notify_buf_info(uint8_t *dev_addr, uint8_t buf_mode,
  * 			then need to use \ref rsi_ble_notify_value() API instead of using \ref rsi_ble_set_local_att_value() API\n
  *			to send the notifications to the remote devices.
  */
-int32_t rsi_ble_notify_value(uint8_t *dev_addr, uint16_t handle, uint16_t data_len, uint8_t *p_data)
+int32_t rsi_ble_notify_value(const uint8_t *dev_addr, uint16_t handle, uint16_t data_len, const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_NOTIFY_VALUE_TRIGGER, BLE, LOG_INFO, "HANDLE: %2x", handle);
@@ -1311,7 +1313,7 @@ int32_t rsi_ble_notify_value(uint8_t *dev_addr, uint16_t handle, uint16_t data_l
 #endif
 
   rec_data.handle   = handle;
-  rec_data.data_len = RSI_MIN(data_len, sizeof(rec_data.data));
+  rec_data.data_len = (uint16_t)(RSI_MIN(data_len, sizeof(rec_data.data)));
   memcpy(rec_data.data, p_data, rec_data.data_len);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_CMD_NOTIFY, &rec_data, NULL);
@@ -1336,7 +1338,7 @@ int32_t rsi_ble_notify_value(uint8_t *dev_addr, uint16_t handle, uint16_t data_l
  *
  */
 
-int32_t rsi_ble_indicate_value(uint8_t *dev_addr, uint16_t handle, uint16_t data_len, uint8_t *p_data)
+int32_t rsi_ble_indicate_value(const uint8_t *dev_addr, uint16_t handle, uint16_t data_len, const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_INDICATE_VOLUME_TRIGGER, BLE, LOG_INFO);
@@ -1349,7 +1351,7 @@ int32_t rsi_ble_indicate_value(uint8_t *dev_addr, uint16_t handle, uint16_t data
 #endif
 
   rec_data.handle   = handle;
-  rec_data.data_len = RSI_MIN(data_len, sizeof(rec_data.data));
+  rec_data.data_len = (uint16_t)(RSI_MIN(data_len, sizeof(rec_data.data)));
   memcpy(rec_data.data, p_data, rec_data.data_len);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_CMD_INDICATE, &rec_data, NULL);
@@ -1377,7 +1379,7 @@ int32_t rsi_ble_indicate_value(uint8_t *dev_addr, uint16_t handle, uint16_t data
  *
  */
 
-int32_t rsi_ble_indicate_value_sync(uint8_t *dev_addr, uint16_t handle, uint16_t data_len, uint8_t *p_data)
+int32_t rsi_ble_indicate_value_sync(const uint8_t *dev_addr, uint16_t handle, uint16_t data_len, const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_INDICATE_VALUE_SYNC, BLE, LOG_INFO);
@@ -1390,7 +1392,7 @@ int32_t rsi_ble_indicate_value_sync(uint8_t *dev_addr, uint16_t handle, uint16_t
 #endif
 
   rec_data.handle   = handle;
-  rec_data.data_len = RSI_MIN(data_len, sizeof(rec_data.data));
+  rec_data.data_len = (uint16_t)(RSI_MIN(data_len, sizeof(rec_data.data)));
   memcpy(rec_data.data, p_data, rec_data.data_len);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_CMD_INDICATE_SYNC, &rec_data, NULL);
@@ -1412,7 +1414,7 @@ int32_t rsi_ble_indicate_value_sync(uint8_t *dev_addr, uint16_t handle, uint16_t
  * @note      Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) \n 
  *
  */
-int32_t rsi_ble_indicate_confirm(uint8_t *dev_addr)
+int32_t rsi_ble_indicate_confirm(const uint8_t *dev_addr)
 {
 
   SL_PRINTF(SL_RSI_BLE_INDICATE_CONFIRM, BLE, LOG_INFO);
@@ -1489,7 +1491,7 @@ int32_t rsi_ble_gatt_read_response(uint8_t *dev_addr,
                                    uint16_t handle,
                                    uint16_t offset,
                                    uint16_t length,
-                                   uint8_t *p_data)
+                                   const uint8_t *p_data)
 {
 
   SL_PRINTF(SL_RSI_BLE_GATT_READ_RESPONSE, BLE, LOG_INFO);
@@ -1504,8 +1506,8 @@ int32_t rsi_ble_gatt_read_response(uint8_t *dev_addr,
   memcpy((uint8_t *)local_read_blob_resp.dev_addr, (int8_t *)dev_addr, 6);
 #endif
   local_read_blob_resp.type     = read_type;
-  local_read_blob_resp.data_len = RSI_MIN(length, sizeof(local_read_blob_resp.data));
-  memcpy(local_read_blob_resp.data, p_data, local_read_blob_resp.data_len); //local_read_blob_resp.data_len);
+  local_read_blob_resp.data_len = (uint16_t)(RSI_MIN(length, sizeof(local_read_blob_resp.data)));
+  memcpy(local_read_blob_resp.data, p_data, local_read_blob_resp.data_len);
 
   return rsi_bt_driver_send_cmd(RSI_BLE_CMD_READ_RESP, &local_read_blob_resp, NULL);
 }
@@ -1715,7 +1717,7 @@ int32_t rsi_ble_gatt_prepare_write_response(uint8_t *dev_addr,
                                             uint16_t handle,
                                             uint16_t offset,
                                             uint16_t length,
-                                            uint8_t *data)
+                                            const uint8_t *data)
 {
 
   SL_PRINTF(SL_RSI_BLE_GATT_PREPARE_WRITE_RESPONSE,

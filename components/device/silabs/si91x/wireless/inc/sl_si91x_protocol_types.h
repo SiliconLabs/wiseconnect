@@ -233,7 +233,7 @@ typedef struct {
   // Enable or disable set region from user: 1-take from user configuration,0-Take from Beacons
   uint8_t set_region_code_from_user_cmd;
 
-  // region code(1-US,2-EU,3-JP,4-World Domain,5-KR)*/
+  // region code(1-US,2-EU,3-JP,4-World Domain,5-KR)
   uint8_t region_code;
 
   // module type (0- Without on board antenna, 1- With on board antenna)
@@ -258,7 +258,7 @@ typedef struct {
 } sl_si91x_set_region_ap_request_t;
 
 // Scan command request structure
-// channel: RF channel to scan, 0=All, 1-14 for 2.5GHz channels 1-14
+// channel: RF channel to scan, 0=All, 1-14 for 2.4GHz channels 1-14
 typedef struct {
   uint8_t channel[4];
   uint8_t ssid[RSI_SSID_LEN];
@@ -515,22 +515,15 @@ typedef struct {
   uint8_t content[SL_MAX_FWUP_CHUNK_SIZE];
 } sl_si91x_req_fwup_t;
 
-// RTC time from host
+/// Si91x specific module RTC time
 typedef struct {
-  // seconds [0-59]
-  uint32_t tm_sec;
-  // minutes [0-59]
-  uint32_t tm_min;
-  // hours since midnight [0-23]
-  uint32_t tm_hour;
-  // day of the month [1-31]
-  uint32_t tm_mday;
-  // months since January [0-11]
-  uint32_t tm_mon;
-  // year since 1990
-  uint32_t tm_year;
-  // Weekday from Sunday to Saturday [1-7]
-  uint32_t tm_wday;
+  uint32_t tm_sec;  ///< Seconds [0-59]
+  uint32_t tm_min;  ///< Minutes [0-59]
+  uint32_t tm_hour; ///< Hours since midnight [0-23]
+  uint32_t tm_mday; ///< Day of the month [1-31]
+  uint32_t tm_mon;  ///< Months since January [0-11]
+  uint32_t tm_year; ///< Years since 1990
+  uint32_t tm_wday; ///< Weekday from Sunday to Saturday [1-7]
 } sl_si91x_module_rtc_time_t;
 
 // wireless information
@@ -551,8 +544,8 @@ typedef struct {
   // security type
   uint8_t sec_type;
 
-  // PSK
-  uint8_t psk[64];
+  // PSK for AP mode, PMK for Client mode
+  uint8_t psk_pmk[64];
 
   // uint8[4], Module IP Address
   uint8_t ipv4_address[4];
@@ -1135,6 +1128,27 @@ typedef struct {
     uint8_t ipv6_address[16];
   } ip_address[SI91X_DNS_RESPONSE_MAX_ENTRIES];
 } sl_si91x_dns_response_t;
+
+/**
+ * @brief DNS Server add request structure.
+ *
+ * This structure holds the information needed to add DNS servers, supporting both IPv4 and IPv6 addresses.
+ */
+typedef struct {
+  uint8_t ip_version[2]; ///< IP version value. The second byte is reserved for future use.
+  uint8_t dns_mode[2];   ///< DNS mode to use. The second byte is reserved for future use.
+
+  union {
+    uint8_t primary_dns_ipv4[4];  ///< Primary DNS address in IPv4 format.
+    uint8_t primary_dns_ipv6[16]; ///< Primary DNS address in IPv6 format.
+  } sli_ip_address1;              ///< Primary DNS address.
+
+  union {
+    uint8_t secondary_dns_ipv4[4];  ///< Secondary DNS address in IPv4 format.
+    uint8_t secondary_dns_ipv6[16]; ///< Secondary DNS address in IPv6 format.
+  } sli_ip_address2;                ///< Secondary DNS address.
+} sli_dns_server_add_request_t;
+
 // Structure for TCP ACK indication
 typedef struct {
   // Socket ID
@@ -1165,31 +1179,6 @@ typedef struct {
   // Timeout for read
   uint8_t read_timeout[2];
 } sl_si91x_req_socket_read_t;
-
-typedef struct {
-  // 2 bytes, the ip version of the ip address , 4 or 6
-  uint16_t ip_version;
-
-  // 2 bytes, the socket number associated with this read event
-  uint16_t socket_id;
-
-  // 4 bytes, length of data received
-  uint32_t length;
-
-  // 2 bytes, offset of data from start of buffer
-  uint16_t offset;
-
-  // 2 bytes, port number of the device sending the data to us
-  uint16_t dest_port;
-
-  union {
-    // 4 bytes, IPv4 Address of the device sending the data to us
-    uint8_t ipv4_address[4];
-
-    // 4 bytes, IPv6 Address of the device sending the data to us
-    uint8_t ipv6_address[16];
-  } dest_ip_addr;
-} si91x_rsp_socket_recv_t;
 
 typedef struct {
   uint32_t tv_sec;  /* Seconds      */
@@ -1698,10 +1687,11 @@ typedef struct {
 } sl_si91x_efuse_read_t;
 
 typedef struct {
-  uint32_t max_retry_attempts;      ///< Maximum number of retries before indicating join failure
-  uint32_t scan_interval;           ///< Scan interval between each retry
-  uint32_t beacon_missed_count;     ///< Number of missed beacons that will trigger rejoin
-  uint32_t first_time_retry_enable; ///< Retry enable or disable for first time joining
+  uint32_t max_retry_attempts; ///< Maximum number of retries before indicating join failure.
+  uint32_t scan_interval;      ///< Scan interval between each retry.
+  uint32_t
+    beacon_missed_count; ///< Number of missed beacons that will trigger rejoin. Minimum value of beacon_missed_count is 40.
+  uint32_t first_time_retry_enable; ///< Retry enable or disable for first time joining.
 } sl_si91x_rejoin_params_t;
 
 /** \addtogroup SL_SI91X_TYPES

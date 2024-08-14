@@ -58,12 +58,6 @@ typedef enum {
   sl_eNoTasksWaitingTimeout /* No tasks are waiting for a timeout so it is safe to enter a sleep mode that can only be exited by an external interrupt. */
 } eSleepModeStatus;
 
-void sli_si91x_m4_ta_wakeup_configurations(void);
-extern bool sl_si91x_packet_status;
-extern bool is_sleep_ready;
-extern bool device_initialized;
-extern uint32_t frontend_switch_control;
-sl_status_t sl_si91x_power_manager_sleep(void);
 /*******************************************************************************
  **************************** Local functions  *********************************
  ******************************************************************************/
@@ -111,6 +105,11 @@ eSleepModeStatus eTaskConfirmSleepModeStatus(void);
  *******************************************************************************/
 BaseType_t xTaskIncrementTick(void);
 
+void sli_si91x_m4_ta_wakeup_configurations(void);
+extern uint32_t frontend_switch_control;
+sl_status_t sl_si91x_power_manager_sleep(void);
+boolean_t sl_si91x_power_manager_is_ok_to_sleep(void);
+
 /***************************************************************************
  * Sets up sleeptimer timer for constant ticking.
  ******************************************************************************/
@@ -151,49 +150,54 @@ SL_WEAK void sli_iot_power_set_expected_idle(TickType_t expected_idle)
 
 void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
 {
-  sl_atomic_store(is_sleeping, true);
-
-  /* Schedule a wakeup for expected idle end time. */
-  sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
-  sli_os_schedule_wakeup(xExpectedIdleTime);
 
   __asm volatile("cpsid i" ::: "memory");
   __asm volatile("dsb");
   __asm volatile("isb");
 
-  configPRE_SLEEP_PROCESSING(xExpectedIdleTime);
+  // Checking the pre-sleep conditions. If these conditions are met, the core does not enter sleep mode.
+  if ((eTaskConfirmSleepModeStatus() == sl_eAbortSleep) || (sl_si91x_power_manager_is_ok_to_sleep() == false)) {
+    xExpectedIdleTime = 0;
+    __asm volatile("cpsie i" ::: "memory");
+  } else {
+    sl_atomic_store(is_sleeping, true);
 
-  MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE |= WIRELESS_BASED_WAKEUP;
+    /* Schedule a wakeup for expected idle end time. */
+    sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
+    sli_os_schedule_wakeup(xExpectedIdleTime);
 
-  sli_iot_power_set_expected_idle(xExpectedIdleTime);
+    configPRE_SLEEP_PROCESSING(xExpectedIdleTime);
 
-  expected_sleep_ticks = xExpectedIdleTime;
-  total_slept_os_ticks = 0;
+    sli_iot_power_set_expected_idle(xExpectedIdleTime);
 
-  sl_si91x_power_manager_sleep();
+    expected_sleep_ticks = xExpectedIdleTime;
+    total_slept_os_ticks = 0;
 
-  sl_atomic_store(is_sleeping, false);
-  sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
-  sli_os_schedule_wakeup(1);
+    sl_si91x_power_manager_sleep();
 
-  __asm volatile("cpsie i" ::: "memory");
+    sl_atomic_store(is_sleeping, false);
+    sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
+    sli_os_schedule_wakeup(1);
 
-  sl_power_manager_sleep_on_isr_exit();
+    __asm volatile("cpsie i" ::: "memory");
 
-  configPOST_SLEEP_PROCESSING(total_slept_os_ticks);
+    sl_power_manager_sleep_on_isr_exit();
 
-  sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
-  sli_os_schedule_wakeup(1);
+    configPOST_SLEEP_PROCESSING(total_slept_os_ticks);
 
-  if (frontend_switch_control != 0) {
-    sli_si91x_configure_wireless_frontend_controls(frontend_switch_control);
+    sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
+    sli_os_schedule_wakeup(1);
+
+    if (frontend_switch_control != 0) {
+      sli_si91x_configure_wireless_frontend_controls(frontend_switch_control);
+    }
+
+    sl_si91x_host_clear_sleep_indicator();
+
+    sli_si91x_m4_ta_wakeup_configurations();
+
+    MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE &= ~WIRELESS_BASED_WAKEUP;
   }
-
-  sl_si91x_host_clear_sleep_indicator();
-
-  sli_si91x_m4_ta_wakeup_configurations();
-
-  MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE &= ~WIRELESS_BASED_WAKEUP;
 }
 
 /***************************************************************************
@@ -236,13 +240,11 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
  ******************************************************************************/
 static void sli_os_schedule_wakeup(TickType_t os_ticks)
 {
-  CORE_DECLARE_IRQ_STATE;
   sl_status_t status;
   uint32_t lf_ticks_to_sleep;
   TickType_t os_ticks_to_sleep;
   uint32_t current_tick_count = sl_sleeptimer_get_tick_count();
 
-  CORE_ENTER_CRITICAL();
   /* Compute number of lfticks to sleep. */
   os_ticks_to_sleep = (os_ticks <= max_sleep_os_ticks) ? os_ticks : max_sleep_os_ticks;
 
@@ -266,7 +268,6 @@ static void sli_os_schedule_wakeup(TickType_t os_ticks)
 #if (configASSERT_DEFINED == 0)
   (void)status;
 #endif
-  CORE_EXIT_CRITICAL();
 }
 
 /***************************************************************************
@@ -290,9 +291,11 @@ bool sl_power_manager_is_ok_to_sleep()
  ******************************************************************************/
 void sl_power_manager_sleep_on_isr_exit()
 {
+  CORE_DECLARE_IRQ_STATE;
   uint32_t slept_lf_ticks;
   uint32_t slept_os_ticks;
 
+  CORE_ENTER_CRITICAL();
   /* Determine how long we slept. */
   slept_lf_ticks = sl_sleeptimer_get_tick_count() - last_update_lftick;
   slept_os_ticks = slept_lf_ticks / lfticks_per_os_ticks;
@@ -306,5 +309,6 @@ void sl_power_manager_sleep_on_isr_exit()
     vTaskStepTick(expected_sleep_ticks - total_slept_os_ticks);
     total_slept_os_ticks = expected_sleep_ticks;
   }
+  CORE_EXIT_CRITICAL();
 }
 #endif

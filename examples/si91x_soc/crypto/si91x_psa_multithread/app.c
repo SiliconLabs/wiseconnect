@@ -38,8 +38,8 @@
 #include "sl_wifi.h"
 #include "sl_status.h"
 
-#define SAME_CRYPTO_ACCELERATORS
-// #define DIFFERENT_CRYPTO_ACCELERATORS
+// #define SAME_CRYPTO_ACCELERATORS
+#define DIFFERENT_CRYPTO_ACCELERATORS
 
 /******************************************************
  *               Variable Definitions
@@ -50,8 +50,8 @@ static osThreadId_t threadId0;
 static osThreadId_t threadId1;
 static osThreadId_t threadId2;
 
-const osThreadAttr_t thread_attributes = {
-  .name       = "app",
+const osThreadAttr_t thread_attributes_0 = {
+  .name       = "thread0_app",
   .attr_bits  = 0,
   .cb_mem     = 0,
   .cb_size    = 0,
@@ -63,7 +63,7 @@ const osThreadAttr_t thread_attributes = {
 };
 
 const osThreadAttr_t thread_attributes_1 = {
-  .name       = "sha_app",
+  .name       = "thread1_sha_app",
   .attr_bits  = 0,
   .cb_mem     = 0,
   .cb_size    = 0,
@@ -75,7 +75,7 @@ const osThreadAttr_t thread_attributes_1 = {
 };
 
 const osThreadAttr_t thread_attributes_2 = {
-  .name       = "aes_app",
+  .name       = "thread2_aes_app",
   .attr_bits  = 0,
   .cb_mem     = 0,
   .cb_size    = 0,
@@ -86,8 +86,8 @@ const osThreadAttr_t thread_attributes_2 = {
   .reserved   = 0,
 };
 
-const osThreadAttr_t thread_attributes_3 = {
-  .name       = "sha_app_2",
+const osThreadAttr_t thread_attributes_2_same_acc = {
+  .name       = "thread2_sha_app",
   .attr_bits  = 0,
   .cb_mem     = 0,
   .cb_size    = 0,
@@ -116,7 +116,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
 #ifdef SLI_SI91X_MCU_INTERFACE
                      SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
-                     SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
+                     SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #endif
 #ifdef SLI_SI917
                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
@@ -139,7 +139,7 @@ static void application_start(void *argument);
  ******************************************************/
 void app_init(void)
 {
-  osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
+  osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes_0);
 }
 
 static void application_start(void *argument)
@@ -177,7 +177,7 @@ static void application_start(void *argument)
 #endif
 
 #if defined(SAME_CRYPTO_ACCELERATORS)
-  if (osThreadNew((osThreadFunc_t)sha_app_process_2, NULL, &thread_attributes_3) == NULL) {
+  if (osThreadNew((osThreadFunc_t)sha_app_process_2, NULL, &thread_attributes_2_same_acc) == NULL) {
     printf("\r\n SHA App2 fail \r\n");
     return;
   }

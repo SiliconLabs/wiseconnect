@@ -28,7 +28,7 @@
 - There are three operating mode in AUX DAC controller:
   - Static Mode Operation: DAC will give out constant voltage output for a programmed DAC.
   - FIFO Mode Operation: DAC controller can be kept in FIFO mode to play continuously digital word on DAC. This mode can be used for playing Single tone waveform in DAC.
-  - Reference voltage for ADC operation: DAC controller can be kept in a mode where DAC output will be used as reference voltage to ADC channel input.
+  - Reference voltage for ADC operation: This mode is currently not supported
 - DAC will work only in single ended.
 - Monotonic by design - based on input sample it will give equivalent output.
 
@@ -37,7 +37,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -71,10 +71,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   - **DAC Peripheral Configuration**
 
-    - DAC operation mode: There are 3 modes, Static mode, FIFO mode and Reference voltage for ADC. By default it is in Static mode.
+    - DAC operation mode: There are 3 modes, Static mode and FIFO mode. By default it is in Static mode.
     - Sample rate: Sample rate can be configurable to DAC, sample rate unit is samples/second. The configuration range from 63sps to 5Msps.
     - FIFO Threshold: This is applicable only for FIFO mode. There is no impact even configure for other modes. The configuration range from 0 to 7.
-    - ADC Channel: This is applicable only for Reference voltage for ADC mode. There is no impact even configure for other modes. The channel number can configure 0 to 15.
 
       ![Figure: Introduction](resources/uc_screen/sl_dac_uc_screen.png)
 
@@ -129,7 +128,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 >- In the sl_ulp_dac_example.c file, on #line26, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is    selected, substitute '0' for this macro.
->- It is possible to set the 'STATIC_MODE' macro value to either '0' or '1' for the reference voltage for the ADC mode of the DAC.
 >- Buffer length should be '1' for DAC static mode.
 >
  Use following formula to find equivalent output analog voltage of DAC

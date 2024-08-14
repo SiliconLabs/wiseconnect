@@ -204,6 +204,11 @@
 #define SL_SI91X_SIGNATURE_MAX_SIZE   128
 #define SL_SI91X_ECDSA_MSG_MAX_SIZE   1000
 
+// NWP Configuration defines
+#define SL_SI91X_XO_CTUNE_FROM_HOST        BIT(0)
+#define SL_SI91X_ENABLE_NWP_WDT_FROM_HOST  BIT(1)
+#define SL_SI91X_DISABLE_NWP_WDT_FROM_HOST BIT(2)
+
 //***************************** Macros for Crypto End **********************************/
 
 typedef struct {
@@ -234,17 +239,17 @@ typedef enum {
 
 typedef enum {
   SL_SI91X_RETURN_IMMEDIATELY              = 0,
-  SL_SI91X_WAIT_FOR_EVER                   = 1,
   SL_SI91X_WAIT_FOR_RESPONSE_BIT           = (1 << 30),
+  SL_SI91X_WAIT_FOR_EVER                   = (1 << 31),
   SL_SI91X_WAIT_FOR_SYNC_SCAN_RESULTS      = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 12000),
   SL_SI91X_WAIT_FOR_COMMAND_RESPONSE       = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 1000),
   SL_SI91X_WAIT_FOR_SOCKET_ACCEPT_RESPONSE = (SL_SI91X_WAIT_FOR_RESPONSE_BIT | 5000),
 #ifdef SLI_SI91X_MCU_INTERFACE
-  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS = (3000),
+  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS = 3000,
 #else
-  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS = (1000),
+  SL_SI91X_WAIT_FOR_COMMAND_SUCCESS = 1000,
 #endif
-  SL_SI91X_WAIT_FOR_DNS_RESOLUTION = (20000),
+  SL_SI91X_WAIT_FOR_DNS_RESOLUTION = 20000,
 } sl_si91x_wait_period_t;
 
 #define SL_SI91X_WAIT_FOR(x)          (sl_si91x_wait_period_t)(x)
@@ -265,11 +270,10 @@ typedef enum {
 /*====================================================*/
 // Constant Defines
 // SPI Status
-#define RSI_SPI_SUCCESS 0x58
-#define RSI_SPI_BUSY    0x54
-#define RSI_SPI_FAIL    0x52
-#define RSI_SUCCESS     0
-//#define RSI_ERROR_SPI_BUSY  (-1)
+#define RSI_SPI_SUCCESS       0x58
+#define RSI_SPI_BUSY          0x54
+#define RSI_SPI_FAIL          0x52
+#define RSI_SUCCESS           0
 #define RSI_ERROR_BUFFER_FULL -3 // module buffer full  error code
 #define RSI_ERROR_IN_SLEEP    -4 // module in sleep error code
 
@@ -430,7 +434,8 @@ typedef enum {
   RSI_COMMON_RSP_GET_RAM_DUMP   = 0x92,
   RSI_COMMON_RSP_ASSERT         = 0xE1,
   RSI_COMMON_RSP_SET_RTC_TIMER  = 0xE9,
-  RSI_COMMON_RSP_GET_RTC_TIMER  = 0xF2
+  RSI_COMMON_RSP_GET_RTC_TIMER  = 0xF2,
+  RSI_COMMON_RSP_SET_CONFIG     = 0xBA
 #ifdef CONFIGURE_GPIO_FROM_HOST
   ,
   RSI_COMMON_RSP_GPIO_CONFIG = 0x28

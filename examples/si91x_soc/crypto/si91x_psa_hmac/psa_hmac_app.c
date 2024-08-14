@@ -79,5 +79,6 @@ void test_psa_hmac(psa_algorithm_t hash_alg)
   }
   // Destroy a volatile plain key for HMAC
   ret = psa_destroy_key(key_id);
+  free(mac_buf);
   return;
 }

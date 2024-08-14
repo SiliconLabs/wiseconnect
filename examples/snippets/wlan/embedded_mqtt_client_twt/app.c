@@ -72,8 +72,8 @@
 #define IS_LAST_WILL_RETAINED 1
 
 #define ENCRYPT_CONNECTION   0
-#define KEEP_ALIVE_INTERVAL  2000
-#define MQTT_CONNECT_TIMEOUT 5000
+#define KEEP_ALIVE_INTERVAL  2000 // in seconds
+#define MQTT_CONNECT_TIMEOUT 5000 // in milli seconds
 
 #define SEND_CREDENTIALS 0
 
@@ -134,7 +134,7 @@ static sl_wifi_device_configuration_t wifi_mqtt_client_configuration = {
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_EMB_MQTT_ENABLE),
                    .ble_feature_bit_map        = 0,
                    .ble_ext_feature_bit_map    = 0,
-                   .config_feature_bit_map     = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 sl_wifi_twt_request_t default_twt_setup_configuration = {
@@ -591,7 +591,7 @@ sl_status_t mqtt_example()
   osDelay(100);
 
   //! Apply power save profile
-  performance_profile.profile = ASSOCIATED_POWER_SAVE;
+  performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
   status                      = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);

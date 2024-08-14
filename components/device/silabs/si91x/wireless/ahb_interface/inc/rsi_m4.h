@@ -73,6 +73,14 @@
 #define M4_wakeup_TA BIT(0)
 #define M4_is_active BIT(1)
 
+/*Macro used to define the PTE CRC value of the Firmware 17 Boards*/
+#define FIRMWARE_17_PTE_CRC_VALUE 0
+
+/*Macro used to notify TA about M4 XTAL usage*/
+#define TURN_ON_XTAL_REQUEST     BIT(9)
+#define TURN_OFF_XTAL_REQUEST    BIT(10)
+#define M4_IS_USING_XTAL_REQUEST BIT(11)
+
 #define ARM_MASK_1 0xE000E100
 #define ARM_MASK_1 0xE000E100
 #define ARM_MASK_1 0xE000E100
@@ -155,7 +163,6 @@ typedef struct rsi_m4ta_desc_s {
 
   uint16_t length;
   //! descriptor control fields
-  //rsi_m4ta_desc_dword1_t dword1;
 
 } rsi_m4ta_desc_t;
 
@@ -218,6 +225,12 @@ void rsi_update_tx_dma_desc(uint8_t skip_dma_valid);
 void rsi_update_rx_dma_desc(void);
 sl_status_t si91x_req_wakeup(void);
 void sl_si91x_ta_events_init(void); /*Function used to create and initialize event mechanism for TA related events */
-
+bool sli_si91x_is_m4_using_xtal(void);
+bool sli_si91x_is_xtal_in_use_by_m4(void);
+void sli_si91x_set_m4_is_using_xtal(void);
+void sli_si91x_set_xtal_in_use_by_m4(void);
+void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void);
+void sli_si91x_raise_xtal_interrupt_to_ta(uint16_t xtal_enable);
+void sli_si91x_send_m4_xtal_usage_notification_to_ta(void);
 #endif
 #endif

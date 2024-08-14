@@ -22,14 +22,20 @@ This application demonstrates how to configure SiWx91x in power save profile in 
 - Windows PC.
 - SiWx91x Wi-Fi Evaluation Kit.
 - SoC Mode
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4338A, BRD4339B ](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4338A, BRD4339B, BRD4343A ](https://www.silabs.com/)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/); **AND**
   - Host MCU Eval Kit. This example has been tested with:
   - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+  - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - STM32F411RE MCU
      - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
      - NCP Radio Board (BRD4346A + BRD8045C)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 & STM32
+    - UART - EFR32
 - **PSRAM Mode**:
     - Silicon Labs [BRD4340A](https://www.silabs.com/)
 - Power Analyzer
@@ -58,7 +64,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
-### Instructions for Keil IDE and STM32F411RE MCU
+### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
@@ -153,7 +159,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 Follow the steps for successful execution of the program:
 
-> **Note:** The provided mobile screenshots are from the 2.5.2 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
+> **Note:** The provided mobile screenshots are from the 2.8.1 version of the Simplicity Connect App(formerly EFR Connect App), it is recommended to use the latest version.
 
 1. After the program gets executed, the Silicon Labs device  would be in Advertising state with configured power save the profile.
 

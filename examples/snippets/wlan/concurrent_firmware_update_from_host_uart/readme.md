@@ -32,7 +32,9 @@ This application showcases a multithreaded program that simultaneously manages W
 - **NCP Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
     - EFR32FG25 863-876 MHz +16 dBm Radio Board [FG25-RB4271A](https://www.silabs.com/development-tools/wireless/proprietary/fg25-rb4271a-efr32fg25-radio-board?tab=overview)
 
 ### Software Requirements

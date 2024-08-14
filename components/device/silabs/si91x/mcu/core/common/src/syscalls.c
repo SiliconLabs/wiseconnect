@@ -46,9 +46,12 @@
 #define IO_MAXLINE 20U //maximun read length
 typedef int (*PUTCHAR_FUNC)(int a);
 char *stack_ptr __asm("sp");
-extern void Serial_send(uint8_t ch);
 extern char __HeapBase[];
 extern char __HeapLimit[];
+#ifdef DEBUG_SERIAL
+extern void Serial_send(uint8_t ch);
+extern char Serial_receive(void);
+#endif // DEBUG_SERIAL
 
 char *__env[1] = { 0 };
 char **environ = __env;
@@ -110,7 +113,6 @@ int _write(int file, char *ptr, int len)
 
 #else
     Board_UARTPutChar(*ptr++);
-    (void)Serial_send;
 
 #endif
   }
@@ -473,7 +475,7 @@ int _read(char *fmt_ptr, ...)
   return result;
 }
 
-int _open(char *path, int flags, ...)
+int _open(const char *path, int flags, ...)
 {
   (void)path;
   (void)flags;
@@ -481,34 +483,34 @@ int _open(char *path, int flags, ...)
   return -1;
 }
 
-int _wait(int *status)
+int _wait(const int *status)
 {
   (void)status;
   errno = ECHILD;
   return -1;
 }
 
-int _unlink(char *name)
+int _unlink(const char *name)
 {
   (void)name;
   errno = ENOENT;
   return -1;
 }
 
-int _times(struct tms *buff)
+int _times(const struct tms *buff)
 {
   (void)buff;
   return -1;
 }
 
-int _stat(char *file, struct stat *st)
+int _stat(const char *file, struct stat *st)
 {
   (void)file;
   st->st_mode = S_IFCHR;
   return 0;
 }
 
-int _link(char *old_link, char *new_link)
+int _link(const char *old_link, const char *new_link)
 {
   (void)old_link; //This statement is added only to resolve compilation warning, value is unchanged
   (void)new_link; //This statement is added only to resolve compilation warning, value is unchanged
@@ -522,7 +524,7 @@ int _fork(void)
   return -1;
 }
 
-int _execve(char *name, char **argv, char **env)
+int _execve(const char *name, char **argv, char **env)
 {
   (void)name;
   (void)argv;

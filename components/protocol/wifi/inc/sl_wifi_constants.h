@@ -84,12 +84,12 @@ typedef enum {
   SL_WIFI_EAP_LEAP_ENCRYPTION       ///< Wi-Fi with Enterprise LEAP Encryption
 } sl_wifi_encryption_t;
 
-/// Wi-Fi Transition Disable Indication (TDI). Supported only in WPA3(Personal or Personal Transition) security in AP mode .
+/// Wi-Fi Transition Disable Indication (TDI). Supported only in WPA3 (Personal or Personal Transition) security in AP mode.
 typedef enum {
   SL_WIFI_TDI_NONE = 0, ///< Allows stations to do transition in AP network.
   SL_WIFI_TDI_SAE =
     (1
-     << 4), ///< Disallow stations to do transition in AP network and allow to connect with only WPA3-SAE security mode.
+     << 4), ///< Disallows stations to do transition in AP network and allows connection with only WPA3-SAE security mode.
 } sl_wifi_tdi_t;
 
 /// Wi-Fi Credential
@@ -112,10 +112,10 @@ typedef enum {
 /// Wi-Fi interface index enumeration.
 /// @note 5 GHz interfaces not currently supported.
 typedef enum {
-  SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX = 0, ///< Wi-Fi client on 2.4GHz interface
-  SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX,         ///< Wi-Fi access point on 2.4GHz interface
-  SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX,       ///< Wi-Fi client on 5GHz interface (not currently supported)
-  SL_WIFI_AP_5GHZ_INTERFACE_INDEX,           ///< Wi-Fi access point on 5GHz interface (not currently supported)
+  SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX = 0, ///< Wi-Fi client on 2.4 GHz interface
+  SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX,         ///< Wi-Fi access point on 2.4 GHz interface
+  SL_WIFI_CLIENT_5GHZ_INTERFACE_INDEX,       ///< Wi-Fi client on 5 GHz interface (not currently supported)
+  SL_WIFI_AP_5GHZ_INTERFACE_INDEX,           ///< Wi-Fi access point on 5 GHz interface (not currently supported)
   SL_WIFI_TRANSCEIVER_INTERFACE_INDEX,       ///< Wi-Fi Transceiver Mode
   SL_WIFI_MAX_INTERFACE_INDEX                ///< Used for internally by SDK
 } sl_wifi_interface_index_t;
@@ -127,22 +127,22 @@ typedef enum {
   SL_WIFI_CLIENT_INTERFACE = (1 << 0), ///< Wi-Fi client interface
   SL_WIFI_AP_INTERFACE     = (1 << 1), ///< Wi-Fi access point interface
 
-  SL_WIFI_2_4GHZ_INTERFACE = (1 << 2), ///<  2.4GHz radio interface
-  SL_WIFI_5GHZ_INTERFACE   = (1 << 3), ///< 5GHz radio interface
+  SL_WIFI_2_4GHZ_INTERFACE = (1 << 2), ///<  2.4 GHz radio interface
+  SL_WIFI_5GHZ_INTERFACE   = (1 << 3), ///< 5 GHz radio interface
 
-  //BIT(4), BIT(5) - Reserved for 6GHz and Sub-GHz
+  //BIT(4), BIT(5) - Reserved for 6 GHz and Sub-GHz
 
   SL_WIFI_TRANSCEIVER_INTERFACE = (1 << 7), ///< Wi-Fi Transceiver mode interface
 
   SL_WIFI_CLIENT_2_4GHZ_INTERFACE = SL_WIFI_CLIENT_INTERFACE
-                                    | SL_WIFI_2_4GHZ_INTERFACE, ///< Wi-Fi client interface on 2.4GHz radio
+                                    | SL_WIFI_2_4GHZ_INTERFACE, ///< Wi-Fi client interface on 2.4 GHz radio
   SL_WIFI_AP_2_4GHZ_INTERFACE = SL_WIFI_AP_INTERFACE
-                                | SL_WIFI_2_4GHZ_INTERFACE, ///< Wi-Fi access point interface on 2.4GHz radio
+                                | SL_WIFI_2_4GHZ_INTERFACE, ///< Wi-Fi access point interface on 2.4 GHz radio
 
   SL_WIFI_CLIENT_5GHZ_INTERFACE = SL_WIFI_CLIENT_INTERFACE
-                                  | SL_WIFI_5GHZ_INTERFACE, ///< Wi-Fi client interface on 5GHz radio
+                                  | SL_WIFI_5GHZ_INTERFACE, ///< Wi-Fi client interface on 5 GHz radio
   SL_WIFI_AP_5GHZ_INTERFACE = SL_WIFI_AP_INTERFACE
-                              | SL_WIFI_5GHZ_INTERFACE, ///< Wi-Fi access point interface on 5GHz radio
+                              | SL_WIFI_5GHZ_INTERFACE, ///< Wi-Fi access point interface on 5 GHz radio
 
   SL_WIFI_ALL_INTERFACES = SL_WIFI_CLIENT_INTERFACE | SL_WIFI_AP_INTERFACE | SL_WIFI_2_4GHZ_INTERFACE
                            | SL_WIFI_5GHZ_INTERFACE, ///< All available Wi-Fi interfaces
@@ -247,21 +247,21 @@ typedef enum {
 /// @note Only 2.4 GHz currently supported.
 typedef enum {
   SL_WIFI_AUTO_BAND   = 0, ///< Wi-Fi Band Auto
-  SL_WIFI_BAND_900MHZ = 1, ///< Wi-Fi Band 900Mhz (not currently supported)
-  SL_WIFI_BAND_2_4GHZ = 2, ///< Wi-Fi Band 2.4Ghz
-  SL_WIFI_BAND_5GHZ   = 3, ///< Wi-Fi Band 5Ghz (not currently supported)
-  SL_WIFI_BAND_6GHZ   = 4, ///< Wi-Fi Band 6Ghz (not currently supported)
-  SL_WIFI_BAND_60GHZ  = 5, ///< Wi-Fi Band 60Ghz (not currently supported)
+  SL_WIFI_BAND_900MHZ = 1, ///< Wi-Fi Band 900 MHz (not currently supported)
+  SL_WIFI_BAND_2_4GHZ = 2, ///< Wi-Fi Band 2.4 GHz
+  SL_WIFI_BAND_5GHZ   = 3, ///< Wi-Fi Band 5 GHz (not currently supported)
+  SL_WIFI_BAND_6GHZ   = 4, ///< Wi-Fi Band 6 GHz (not currently supported)
+  SL_WIFI_BAND_60GHZ  = 5, ///< Wi-Fi Band 60 GHz (not currently supported)
 } sl_wifi_band_t;
 
 /// @note Only 20 MHz currently supported.
 typedef enum {
   SL_WIFI_AUTO_BANDWIDTH   = 0, ///< Wi-Fi Bandwidth Auto
-  SL_WIFI_BANDWIDTH_10MHz  = 0, ///< Wi-Fi Bandwidth 10Mhz (not currently supported)
-  SL_WIFI_BANDWIDTH_20MHz  = 1, ///< Wi-Fi Bandwidth 20Mhz
-  SL_WIFI_BANDWIDTH_40MHz  = 2, ///< Wi-Fi Bandwidth 40Mhz (not currently supported)
-  SL_WIFI_BANDWIDTH_80MHz  = 3, ///< Wi-Fi Bandwidth 80Mhz (not currently supported)
-  SL_WIFI_BANDWIDTH_160MHz = 4, ///< Wi-Fi Bandwidth 160Mhz (not currently supported)
+  SL_WIFI_BANDWIDTH_10MHz  = 0, ///< Wi-Fi Bandwidth 10 MHz (not currently supported)
+  SL_WIFI_BANDWIDTH_20MHz  = 1, ///< Wi-Fi Bandwidth 20 MHz
+  SL_WIFI_BANDWIDTH_40MHz  = 2, ///< Wi-Fi Bandwidth 40 MHz (not currently supported)
+  SL_WIFI_BANDWIDTH_80MHz  = 3, ///< Wi-Fi Bandwidth 80 MHz (not currently supported)
+  SL_WIFI_BANDWIDTH_160MHz = 4, ///< Wi-Fi Bandwidth 160 MHz (not currently supported)
 } sl_wifi_bandwidth_t;
 
 /// Option flags for client interfaces
@@ -311,7 +311,7 @@ typedef enum {
 /// @note Each event group may be a source of multiple different events.
 typedef enum {
   SL_WIFI_SCAN_RESULT_EVENT =
-    SL_WIFI_SCAN_RESULT_EVENTS, ///< Event for Wi-Fi scan result. Data would be of type of @ref sl_wifi_scan_result_t
+    SL_WIFI_SCAN_RESULT_EVENTS, ///< Event for Wi-Fi scan result. Data would be type of @ref sl_wifi_scan_result_t
   SL_WIFI_JOIN_EVENT = SL_WIFI_JOIN_EVENTS, ///< Event for Wi-Fi join status. Data would be of type string
   SL_WIFI_RX_PACKET_EVENT =
     SL_WIFI_RX_PACKET_EVENTS, ///< Event for Wi-Fi received packet. This feature is not supported in current release
@@ -438,8 +438,8 @@ typedef enum {
   SL_WIFI_TEST_BURST_MODE                          = 0, ///< Burst Mode
   SL_WIFI_TEST_CONTINOUS_MODE                      = 1, ///< Continuous Mode
   SL_WIFI_TEST_CONTINOUS_WAVE_MODE                 = 2, ///< CW Mode
-  SL_WIFI_TEST_CONTINOUS_WAVE_MODE_OFF_CENTER_LOW  = 3, ///< CW Mode center frequency - 2.5MHZ Mode
-  SL_WIFI_TEST_CONTINOUS_WAVE_MODE_OFF_CENTER_HIGH = 4, ///< CW Mode center frequency + 5MHZ Mode
+  SL_WIFI_TEST_CONTINOUS_WAVE_MODE_OFF_CENTER_LOW  = 3, ///< CW Mode center frequency - 2.5 MHZ Mode
+  SL_WIFI_TEST_CONTINOUS_WAVE_MODE_OFF_CENTER_HIGH = 4, ///< CW Mode center frequency + 5 MHZ Mode
 } sl_wifi_tx_test_mode_t;
 
 /// HT caps supported
@@ -488,13 +488,20 @@ typedef enum {
 */
 #define SL_WIFI_AUTO_CHANNEL 0
 
+/// Channel Bitmap
+/*
+**Note!**
+- The Selected or Preferred channels to be scanned before client connects to AP. A value of zero means to scan on all channels.
+*/
+#define SL_WIFI_DEFAULT_CHANNEL_BITMAP 0
+
 /// API input checks
 #define SL_WIFI_ARGS_CHECK_NULL_POINTER(ptr) \
-  {                                          \
+  do {                                       \
     if (ptr == NULL) {                       \
       return SL_STATUS_NULL_POINTER;         \
     }                                        \
-  }
+  } while (0)
 
 /// Interface input checks
 #define SL_WIFI_ARGS_CHECK_INVALID_INTERFACE(interface)                                         \

@@ -87,7 +87,7 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
         return SL_STATUS_ALLOCATION_FAILED;
       }
       memset(credentials[cred_id], 0, sizeof(sl_net_basic_credential_entry_t) + credential_length);
-      credentials[cred_id]->data_length = credential_length;
+      credentials[cred_id]->data_length = (uint16_t)credential_length;
     }
     entry = credentials[cred_id];
   }
@@ -98,7 +98,7 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
         return SL_STATUS_NOT_SUPPORTED;
       }
       entry->type        = type;
-      entry->data_length = SL_MIN(credential_length, sizeof(default_wifi_client_credential.data));
+      entry->data_length = (uint16_t)SL_MIN(credential_length, sizeof(default_wifi_client_credential.data));
       memcpy(entry->data, credential, entry->data_length);
       break;
 
@@ -107,7 +107,7 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
         return SL_STATUS_NOT_SUPPORTED;
       }
       entry->type        = type;
-      entry->data_length = SL_MIN(credential_length, sizeof(default_wifi_ap_credential.data));
+      entry->data_length = (uint16_t)SL_MIN(credential_length, sizeof(default_wifi_ap_credential.data));
       memcpy(entry->data, credential, entry->data_length);
       break;
     case SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID:
@@ -120,7 +120,7 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
     case SL_NET_HTTP_SERVER_CREDENTIAL_START:
     case SL_NET_HTTP_CLIENT_CREDENTIAL_START:
       entry->type        = type;
-      entry->data_length = credential_length;
+      entry->data_length = (uint16_t)credential_length;
       memcpy(entry->data, credential, entry->data_length);
       break;
 
@@ -136,9 +136,12 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
                                   void *credential,
                                   uint32_t *credential_length)
 {
-  sl_net_basic_credential_entry_t *entry = NULL;
-  int group_id                           = 0;
-  int cred_id                            = 0;
+  if (CRED_TYPE_CERT == sli_si91x_check_cred_type(*type)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  const sl_net_basic_credential_entry_t *entry = NULL;
+  int group_id                                 = 0;
+  int cred_id                                  = 0;
 
   group_id = (id & SL_NET_CREDENTIAL_GROUP_MASK);
 

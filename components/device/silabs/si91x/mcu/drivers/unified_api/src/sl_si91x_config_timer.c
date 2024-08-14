@@ -31,7 +31,7 @@
 #include "sl_si91x_config_timer_config.h"
 #include "rsi_rom_ct.h"
 #include "rsi_rom_clks.h"
-
+#include "clock_update.h"
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
@@ -299,6 +299,27 @@ sl_status_t sl_si91x_config_timer_set_match_count(sl_config_timer_mode_t mode,
 }
 
 /*******************************************************************************
+* @brief: API to calculate and return the match value of the timer for desired time period
+*******************************************************************************/
+sl_status_t sl_si91x_config_timer_get_match_value(uint32_t time_period_in_us, uint32_t *match_value)
+{
+  uint32_t ct_base_clock;
+  // Get CT base clock
+  ct_base_clock = RSI_CLK_GetBaseClock(M4_CT);
+  ct_base_clock /= 1000000;
+  // Validate the time period by comparing with maximum count of 16-bit counter and the CT base clock.
+  // For example, for a CT base clock of 32MHz, the maximum time period achieved is 2047us.
+  // For a CT base clock of 180MHz, the maximum time period achieved is 364us.
+  // The counter can be loaded multiple times if requires a higher time period.
+  if (time_period_in_us > (MAX_COUNT_VALUE_16BIT / ct_base_clock)) {
+    return SL_STATUS_INVALID_COUNT;
+  }
+  // Calculate match value
+  *match_value = ct_base_clock * time_period_in_us; // time period in microseconds
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
 * @brief:sets initial value for counter-0 or counter-1 ,as per ct MODE
 *
 * @details:
@@ -481,10 +502,10 @@ sl_status_t sl_si91x_config_timer_configure_action_event(sl_config_action_event_
       break;
     }
     // Validating event value
-    if ((event_config_handle->and_event_counter0 >= SL_EVENT_LAST)
-        || (event_config_handle->or_event_counter0 >= SL_EVENT_LAST)
-        || (event_config_handle->and_event_counter1 >= SL_EVENT_LAST)
-        || (event_config_handle->or_event_counter1 >= SL_EVENT_LAST)) {
+    if ((event_config_handle->and_event_counter0 >= SL_CT_EVENT_LAST)
+        || (event_config_handle->or_event_counter0 >= SL_CT_EVENT_LAST)
+        || (event_config_handle->and_event_counter1 >= SL_CT_EVENT_LAST)
+        || (event_config_handle->or_event_counter1 >= SL_CT_EVENT_LAST)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
@@ -569,7 +590,7 @@ sl_status_t sl_si91x_config_timer_select_action_event(sl_config_timer_action_t a
       break;
     }
     // Validating select-event value
-    if ((select_event_counter0 >= SL_EVENT_LAST) || (select_event_counter1 >= SL_EVENT_LAST)) {
+    if ((select_event_counter0 >= SL_CT_EVENT_LAST) || (select_event_counter1 >= SL_CT_EVENT_LAST)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }

@@ -144,15 +144,16 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   // Power up of ADC block
   RSI_ADC_PowerControl(ADC_POWER_ON);
 
-  // Select 32MHZ RC clock for ADC
+  // Select 32MHz RC clock for ADC
   RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
 
-  // Clock division factor for calibration,Calibrate ADC on 4MHZ clock
+  // Clock division factor for calibration,Calibrate ADC on 4MHz clock
   RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
 
   // Set analog reference voltage
   RSI_AUX_RefVoltageConfig((float)2.8, (float)3.2);
 
+  // TODO
   // ADC Calibration
   RSI_ADC_Calibration();
 
@@ -163,31 +164,30 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
     clk_sel = (adcChConfig.sampling_rate[0] * (adcConfig.num_of_channel_enable * 2));
   }
 
-  // Configure 32Khz RC clock to ADC
+  // Configure 32kHz RC clock to ADC
   if (clk_sel < SAMPLE_RATE_32KSPS) {
-    // Select 32KHZ RC clock for ADC
+    // Select 32KHz RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
 
     adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
   }
-  // Configure 20MHZ RC clock to ADC
+  // Configure 32MHz RC clock to ADC
   else if (clk_sel >= SAMPLE_RATE_32KSPS && clk_sel <= SAMPLE_RATE_800KSPS) {
-    RSI_IPMU_M20rcOsc_TrimEfuse();
-    // Select 32MHZ RC clock for ADC
+    // Select 32MHz RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
 
-    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
+    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
   } else {
-    // Configure the 40Mhz XTAL clock to ADC
+    // Configure the 32MHz RC clock to ADC
     if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
 #ifdef SIMULATION
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
 #else
-      // Select 40MHZ XTAL ULP reference clock
+      // Select 32MHz RC ULP reference clock
       RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
 
-      // Select 40MHZ XTAL clock for ADC
+      // Select 40MHz XTAL clock for ADC
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
 
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_40MHZ;
@@ -203,11 +203,6 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   adc_commn_config.adc_diff_gain   = 0x0;
   adc_commn_config.adc_sing_gain   = 0x0;
 #else
-  // Trim 32Mhz rc clock to 20Mhz rc clock in PS2 state
-  if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) {
-    // Trim Mhz RC clock to 20Mhz
-    RSI_IPMU_M20rcOsc_TrimEfuse();
-  }
 
   // Offset value and gain value read from efuse
   adc_commn_config.adc_sing_offset = (uint16_t)RSI_IPMU_Auxadcoff_SeEfuse();
@@ -233,7 +228,7 @@ rsi_error_t ADC_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccal
   return RSI_OK;
 }
 
-// Revisit for optimization To do
+// Revisit for optimization TODO
 rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcConfig, adccallbacFunc event)
 {
 #ifndef SIMULATION
@@ -274,10 +269,10 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   // Power up of ADC block
   RSI_ADC_PowerControl(ADC_POWER_ON);
 
-  // Select 32MHZ RC clock for ADC
+  // Select 32MHz RC clock for ADC
   RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
 
-  // Clock division factor for calibration,Calibrate ADC on 4MHZ clock
+  // Clock division factor for calibration,Calibrate ADC on 4MHz clock
   RSI_ADC_ClkDivfactor(AUX_ADC_DAC_COMP, 0, 4);
 
   // Set analog reference voltage
@@ -286,35 +281,32 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   // ADC Calibration
   RSI_ADC_Calibration();
 
-  // Configure 32Khz RC clock to ADC
+  // Configure clock source to ADC
   if (adcChConfig.sampling_rate[adc_channel] <= SAMPLE_RATE_9KSPS) {
-    // Select 32KHZ RC clock for ADC
+    // Select 32kHz RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32KHZ_RC_CLK);
 
     adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32KHZ;
-  }
-  // Configure 64Khz RC clock to ADC
-  else if (adcChConfig.sampling_rate[adc_channel] > SAMPLE_RATE_9KSPS
-           && adcChConfig.sampling_rate[adc_channel] < SAMPLE_RATE_800KSPS) {
-    RSI_IPMU_M20rcOsc_TrimEfuse();
-    // Select 32KHZ RC clock for ADC
+  } else if (adcChConfig.sampling_rate[adc_channel] > SAMPLE_RATE_9KSPS
+             && adcChConfig.sampling_rate[adc_channel] < SAMPLE_RATE_800KSPS) {
+    // Select 32MHz RC clock for ADC
     RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
 
-    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
+    adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
   } else {
-    // Configure the 40Mhz XTAL clock to ADC
+    // Configure the 32MHz RC clock to ADC
     if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
 #ifdef SIMULATION
       RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
 #else
-      // Select 40MHZ XTAL ULP reference clock
+      // Select 32MHz RC ULP reference clock
       RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
 
-      // Select 40MHZ XTAL clock for ADC
-      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_REF_CLK);
+      // Select 32MHz RC clock for ADC
+      RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
 
-      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_40MHZ;
+      adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_32MHZ;
 #endif
     } else {
       adc_commn_config.adc_clk_src = ADC_CLK_SOURCE_20MHZ;
@@ -327,12 +319,6 @@ rsi_error_t ADC_Per_Channel_Init(adc_ch_config_t adcChConfig, adc_config_t adcCo
   adc_commn_config.adc_diff_gain   = 0x0;
   adc_commn_config.adc_sing_gain   = 0x0;
 #else
-  // Trim 32Mhz rc clock to 20Mhz rc clock in PS2 state
-  if (M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS) {
-    // Trim Mhz RC clock to 20Mhz
-    RSI_IPMU_M20rcOsc_TrimEfuse();
-  }
-
   // Offset value and gain value read from efuse
   adc_commn_config.adc_sing_offset = (uint16_t)RSI_IPMU_Auxadcoff_SeEfuse();
   adc_commn_config.adc_diff_offset = (uint16_t)RSI_IPMU_Auxadcoff_DiffEfuse();
@@ -1561,7 +1547,7 @@ void RSI_ADC_Calibration(void)
     /*wait for 0*/
     while ((ULP_SPI_MEM_MAP(SPAREREG2) & BIT(0)))
       ;
-    /*150 clocks of 1 Mhz wait*/
+    /*150 clocks of 1MHz wait*/
     auxadcCalibValue = ULP_SPI_MEM_MAP(AUXADCREG2);
     auxadcCalibValueLoad |= BIT(0) | BIT(7);
     auxadcCalibValueLoad |= (auxadcCalibValue & 0x1F) << 2;

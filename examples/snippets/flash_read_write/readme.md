@@ -27,6 +27,7 @@ This application demonstrates the process of writing to and reading from SiWx91x
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4339B [SiWx917-RB4339B]
   	  - BRD4340A [SiWx917-RB4340A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]

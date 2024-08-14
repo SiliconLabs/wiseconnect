@@ -39,6 +39,39 @@
 #endif
 #include <string.h>
 
+static sl_status_t sli_si91x_ccm_config_check(sl_si91x_ccm_config_t *config)
+{
+  // Only 32 bytes M4 OTA built-in key support is present
+  if (config->key_config.b0.key_type == SL_SI91X_BUILT_IN_KEY) {
+    if (((int)config->key_config.b0.key_size != (int)SL_SI91X_KEY_SIZE_1)
+        || (config->key_config.b0.key_slot != SL_SI91X_KEY_SLOT_1))
+      return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if ((config->nonce_length < SL_SI91X_CCM_IV_MIN_SIZE) || (config->nonce_length > SL_SI91X_CCM_IV_MAX_SIZE)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  return SL_STATUS_OK;
+}
+
+#ifdef SLI_SI917B0
+static void sli_si91x_ccm_get_key_info(sl_si91x_ccm_request_t *request, const sl_si91x_ccm_config_t *config)
+{
+  request->key_info.key_type                         = config->key_config.b0.key_type;
+  request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
+  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
+  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
+  request->key_info.reserved                         = config->key_config.b0.reserved;
+  if (config->key_config.b0.wrap_iv_mode) {
+    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
+  }
+  memcpy(request->key_info.key_detail.key_spec.key_buffer,
+         config->key_config.b0.key_buffer,
+         config->key_config.b0.key_size);
+}
+#endif
+
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
                                          uint16_t chunk_length,
@@ -52,15 +85,9 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  // Only 32 bytes M4 OTA built-in key support is present
-  if (config->key_config.b0.key_type == SL_SI91X_BUILT_IN_KEY) {
-    if (((int)config->key_config.b0.key_size != (int)SL_SI91X_KEY_SIZE_1)
-        || (config->key_config.b0.key_slot != SL_SI91X_KEY_SLOT_1))
-      return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  if ((config->nonce_length < SL_SI91X_CCM_IV_MIN_SIZE) || (config->nonce_length > SL_SI91X_CCM_IV_MAX_SIZE)) {
-    return SL_STATUS_INVALID_PARAMETER;
+  status = sli_si91x_ccm_config_check(config);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
 
   memset(request, 0, sizeof(sl_si91x_ccm_request_t));
@@ -84,17 +111,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
   memcpy(request->tag, config->tag, config->tag_length);
 
 #ifdef SLI_SI917B0
-  request->key_info.key_type                         = config->key_config.b0.key_type;
-  request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
-  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
-  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
-  request->key_info.reserved                         = config->key_config.b0.reserved;
-  if (config->key_config.b0.wrap_iv_mode) {
-    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
-  }
-  memcpy(request->key_info.key_detail.key_spec.key_buffer,
-         config->key_config.b0.key_buffer,
-         config->key_config.b0.key_size);
+  sli_si91x_ccm_get_key_info(request, config);
 
 #else
   memcpy(request->key, config->key_config.a0.key, request->key_length);
@@ -143,15 +160,9 @@ static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_
 
   SL_VERIFY_POINTER_OR_RETURN(request, SL_STATUS_ALLOCATION_FAILED);
 
-  // Only 32 bytes M4 OTA built-in key support is present
-  if (config->key_config.b0.key_type == SL_SI91X_BUILT_IN_KEY) {
-    if (((int)config->key_config.b0.key_size != (int)SL_SI91X_KEY_SIZE_1)
-        || (config->key_config.b0.key_slot != SL_SI91X_KEY_SLOT_1))
-      return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  if ((config->nonce_length < SL_SI91X_CCM_IV_MIN_SIZE) || (config->nonce_length > SL_SI91X_CCM_IV_MAX_SIZE)) {
-    return SL_STATUS_INVALID_PARAMETER;
+  status = sli_si91x_ccm_config_check(config);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
 
   memset(request, 0, sizeof(sl_si91x_ccm_request_t));
@@ -172,18 +183,7 @@ static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_
   request->nonce = (uint8_t *)config->nonce;
   request->tag   = config->tag;
 
-  request->key_info.key_type                         = config->key_config.b0.key_type;
-  request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
-  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
-  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
-  request->key_info.reserved                         = config->key_config.b0.reserved;
-  if (config->key_config.b0.wrap_iv_mode) {
-    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
-  }
-  memcpy(request->key_info.key_detail.key_spec.key_buffer,
-         config->key_config.b0.key_buffer,
-         config->key_config.b0.key_size);
-
+  sli_si91x_ccm_get_key_info(request, config);
   request->output = output;
 
   status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,

@@ -43,6 +43,7 @@ typedef void (*sl_si91x_host_rx_done_handler)(void);
 typedef struct {
   sl_si91x_host_rx_irq_handler rx_irq;
   sl_si91x_host_rx_done_handler rx_done;
+  uint8_t boot_option;
 } sl_si91x_host_init_configuration;
 
 /**

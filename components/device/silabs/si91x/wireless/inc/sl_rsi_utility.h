@@ -126,7 +126,7 @@ bool get_card_ready_required();                         /*Function used to check
 void save_max_tx_power(uint8_t max_scan_tx_power,
                        uint8_t max_join_tx_power); /*Function used to set the maximum transmission power*/
 sl_wifi_max_tx_power_t get_max_tx_power();         /*Function used to get maximum transmission power*/
-void reset_max_tx_power(); /*Function used to set maximum transmission power to default value(31dBm) */
+void reset_max_tx_power(); /*Function used to set maximum transmission power to default value(31 dBm) */
 
 void save_wifi_current_performance_profile(
   const sl_wifi_performance_profile_t *profile); /*Function used to set the current performance profile*/
@@ -156,11 +156,11 @@ sl_status_t convert_sl_wifi_to_sl_si91x_encryption(
 
 /*********************************************************************************************
  * @brief
- * 	 An utility function computes coex performance profile internally and converts into sl_si91x_power_save_request_t.
+ * 	 A utility function computes coex performance profile internally and converts into sl_si91x_power_save_request_t.
  * @param profile
- *   performance profile which needs to be converted to its equivalent si91x_power_save_request structure.
+ *   Performance profile which needs to be converted to its equivalent si91x_power_save_request structure.
  * @param power_save_request
- *   si91x specific structure that holds required configuration for the given performance profile.
+ *   Si91x specific structure that holds required configuration for the given performance profile.
  *   This is optional parameter.
  * @return coex_profile
  *   Coex power profile
@@ -212,7 +212,7 @@ void sl_si91x_get_efuse_data(sl_si91x_efuse_data_t *efuse_data);
 void sl_si91x_set_efuse_data(const sl_si91x_efuse_data_t *efuse_data);
 
 /**
- * An utility function to convert dBm value  to si91x specific power value
+ * A utility function to convert dBm value  to si91x specific power value
  * @param wifi_max_tx_power which holds the join power value with dBm as units.
  * @return si91x power level
  */
@@ -314,8 +314,8 @@ sl_status_t sl_si91x_host_flush_nodes_from_queue(sl_si91x_queue_type_t queue,
                                                  sl_si91x_node_free_function_t node_free_function);
 
 /* Function used to flush all the pending TX packets from the specified queue */
-sl_status_t sl_si91x_flush_queue_based_on_type(sl_si91x_queue_type_t queue,
-                                               sl_si91x_node_free_function_t node_free_function);
+sl_status_t sli_si91x_flush_queue_based_on_type(sl_si91x_queue_type_t queue,
+                                                sl_si91x_node_free_function_t node_free_function);
 
 uint32_t sl_si91x_host_queue_status(
   sl_si91x_queue_type_t queue); /*Function used to check whether queue is empty or not*/
@@ -365,7 +365,7 @@ uint8_t sli_lmac_crc8_c(uint8_t crc8_din, uint8_t crc8_state, uint8_t end);
  * @return     6-bit Hash value
  *
  */
-uint8_t sli_multicast_mac_hash(uint8_t *mac);
+uint8_t sli_multicast_mac_hash(const uint8_t *mac);
 
 /*==============================================*/
 /**
@@ -385,7 +385,7 @@ sl_status_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data);
  *   The @ref sl_si91x_bus_enable_high_speed() should be called only if the SPI clock frequency is more than 25 MHz.
  * @note
  *   SPI initialization has to be done in low-speed mode only.
- *   After device SPI is configured this API is been used for high-speed mode (>25 MHz).
+ *   After device SPI is configured, this API is used for high-speed mode (>25 MHz).
  *   In addition to this API, the following API sl_si91x_host_enable_high_speed_bus has to be ported by the user to implement the host clock switch.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
@@ -406,7 +406,7 @@ void sl_si91x_ulp_wakeup_init(void); /*Function used to initialize SPI interface
  * @param type 
  *  It specifies type of credential.
  * @param cred 
- *  Pointer to store the WiFi credential information of type [sl_wifi_credential_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-credential-t)
+ *  Pointer to store the wifi credential information of type [sl_wifi_credential_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-credential-t)
  * @return sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. 
  */
 sl_status_t sl_si91x_host_get_credentials(sl_wifi_credential_id_t id, uint8_t type, sl_wifi_credential_t *cred);
@@ -416,5 +416,21 @@ bool sli_si91x_get_flash_command_status();
 void sli_si91x_update_flash_command_status(bool flag);
 
 bool sli_si91x_is_sdk_ok_to_sleep();
+
+/**
+* @addtogroup EXTERNAL_HOST_INTERFACE_FUNCTIONS
+* @{ 
+*/
+
+/**
+ * @brief Checks if the device is initialized.
+ *  
+ * This function is used to verify if the device has been properly initialized.
+ * 
+ * @return bool. Returns true if the device is initialized, false otherwise.
+ */
+bool sl_si91x_is_device_initialized(void);
+
+/** @} */
 
 #endif // _SL_RSI_UTILITY_H_

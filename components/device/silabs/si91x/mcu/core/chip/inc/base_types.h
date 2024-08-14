@@ -30,7 +30,7 @@ extern "C" {
 #include <stdbool.h>
 #include <string.h>
 /*****************************************************************************/
-/* Global pre-processor symbols/macros ('#define')                           */
+/* Global pre-processor symbols/macros                                       */
 /*****************************************************************************/
 #ifndef TRUE
 /** Value is true (boolean_t type) */

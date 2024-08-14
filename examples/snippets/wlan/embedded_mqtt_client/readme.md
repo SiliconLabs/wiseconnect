@@ -28,12 +28,15 @@ In this application, SiWx91x is configured as a Wi-Fi station and connects to an
 - Windows PC1 (for running MQTT broker)
 - Windows PC2 (for running MQTT client utility - MQTT Explorer)
 - SoC Mode:
-  - Silicon Labs [BRD4338A](https://www.silabs.com/)
+  - Silicon Labs [BRD4338A, BRD4343A](https://www.silabs.com/)
   - For Soc Mode, Simplicity Studio Energy Profiler can be used for the current consumption measurement - [Simplicity Studio Energy Profiler](#using-simplicity-studio-energy-profiler-for-current-measurement).
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+   - Interface and Host MCU Supported
+      - SPI - EFR32 
+      - UART - EFR32
 
 ### Software Requirements
 
@@ -297,3 +300,25 @@ Follow the steps below for successful execution of the application:
 4. Connect to MQTT broker by giving IP address and port number of Windows PC1 in HOST and PORT fields in MQTT Explorer respectively and click on **CONNECT** to connect to the MQTT broker. If you are running your MQTT broker on the same PC then the following configuration is made as shown in the below image.
 
    **![MQTT broker Configuration](resources/readme/connect.png)**
+
+>**Note:**
+> If we want to use IPv6 with the embedded MQTT client application, we will be using the Mosquitto command line to test the example, since the MQTT Explorer application doesn't support IPv6.
+
+> The following commands are used to test the MQTT client with IPv6 addresses using the Mosquitto command line:
+>
+> 1. `mosquitto_sub -h 2405:201:c013:61e3:faf7:fb6f:8d37:bca8 -p 1883 -t test/topic`
+>
+>    This command runs the Mosquitto client in subscriber mode.  It will connect to the MQTT broker and listen for messages published to a specific topic.
+>
+>    - `-h 2405:201:c013:61e3:faf7:fb6f:8d37:bca8`: Specifies the hostname or IP address of the MQTT broker to connect to. In this case, it's an IPv6 address.
+>    - `-p 1883`: Specifies the network port that the MQTT broker is listening on. The default MQTT port is 1883.
+>    - `-t test/topic`: Specifies the topic that the client should subscribe to. The client will receive any messages published to this topic.
+>
+> 2. `mosquitto_pub -h 2401:4901:1290:10de::1000 -p 1883 -t THERMOSTAT-DATA -m "hello"`
+>
+>    This command runs the Mosquitto client in publisher mode. It connects to the MQTT broker, publishes a message to a specific topic, and then automatically disconnects and closes the client.
+>
+>    - `-h 2401:4901:1290:10de::1000`: Like the `-h` option for `mosquitto_sub`, this specifies the hostname or IP address of the MQTT broker to connect to.
+>    - `-p 1883`: This is the same as the `-p` option for `mosquitto_sub`, specifying the network port of the MQTT broker.
+>    - `-t THERMOSTAT-DATA`: Specifies the topic that the client should publish the message to.
+>    - `-m "hello"`: Specifies the message to publish. In this case, the message is the string "hello".

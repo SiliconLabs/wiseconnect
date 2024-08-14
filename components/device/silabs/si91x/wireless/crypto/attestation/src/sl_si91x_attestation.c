@@ -54,8 +54,8 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
     return SL_STATUS_INVALID_PARAMETER;
   }
   sl_status_t status;
-  sl_wifi_buffer_t *buffer;
-  sl_si91x_packet_t *packet;
+  sl_wifi_buffer_t *buffer  = NULL;
+  sl_si91x_packet_t *packet = NULL;
 
   sl_si91x_rsi_token_req_t *attest = (sl_si91x_rsi_token_req_t *)malloc(sizeof(sl_si91x_rsi_token_req_t));
 
@@ -73,6 +73,7 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   attest->total_msg_length = length;
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  UNUSED_VARIABLE(packet); // to avoid unused variable warning
   attest->msg       = nonce;
   attest->token_buf = token;
 #else

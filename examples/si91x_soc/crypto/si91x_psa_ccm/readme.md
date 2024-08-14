@@ -11,6 +11,7 @@
 - [Application Build Environment](#application-build-environment)
   - [Application Configuration Parameters](#application-configuration-parameters)
 - [Test the Application](#test-the-application)
+  - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -23,7 +24,7 @@ Before running the application, the user will need the following things to setup
 ### Hardware Requirements
 
   - Windows PC
-  - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
+  - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
 
 ### Software Requirements
 
@@ -51,7 +52,8 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Application Configuration Parameters
 
  * Wrapped key support is provided for AES,Chachapoly,HMAC,GCM with CBC/ECB mode. This example demonstrate the use of wrapped key with AES-CCM using wrap CBC mode.
- * To use wrapped key, set USE_WRAPPED_KEYS macro to 1 in `psa_ccm_app.c`
+ * To wrap the input key and use it, set WRAP_INPUT_KEYS macro to 1 in `psa_ccm_app.c`
+ * To use a wrapped key directly, set IMPORT_WRAPPED_KEYS macro to 1 in `psa_ccm_app.c`
  * To use software fallback instead of hardware accelerators for plain key:
   - Add mbedtls_ccm in component section of slcp file
   - Undefine the macro SLI_AEAD_DEVICE_SI91X
@@ -62,6 +64,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Flash, run and debug the application.
+
+### Expected output
+
+  ![output](resources/readme/ccm_output.png)
 
 Follow the steps as mentioned for the successful execution of the application:
 

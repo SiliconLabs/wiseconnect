@@ -29,7 +29,9 @@ This application demonstrates how to open a TCP client socket on SiWx917 module 
   - Silicon Labs [BRD4180B](https://www.silabs.com/) **AND**
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
-
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
+    
 ### Software Requirements
 
 - Simplicity Studio

@@ -37,6 +37,7 @@
   1.  Using \ref sl_si91x_dma_simple_transfer, user can quickly perform DMA transfer using bare minimum configurations.
   2.  Using \ref sl_si91x_dma_transfer, user can configure more DMA parameters for transfer
 - User can either use any of above functions for performing DMA transfer.
+> **Note:** When utilizing the UDMA1 instance in high power mode, it is advisable to allocate buffers in the ULP Memory block.
 
 ## Prerequisites/Setup Requirements
 
@@ -45,7 +46,7 @@ Before running the application, the user will need the following things to setup
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 

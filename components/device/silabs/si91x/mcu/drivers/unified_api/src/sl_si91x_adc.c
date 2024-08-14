@@ -44,7 +44,6 @@
 #ifndef MISC_CONFIG_MISC_CTRL1
 #define MISC_CONFIG_MISC_CTRL1 *(volatile uint32_t *)(0x46008000 + 0x44)
 #endif                                       // MISC_CONFIG_MISC_CTRL1
-#define SOC_PLL_LIMIT             120000000  // Limit for soc pll clock.
 #define MAX_SAMPLE_RATE           2500000    // Maximum sampling rate 2.5 Msps.
 #define MINIMUM_NUMBER_OF_CHANNEL 1          // Minimum number of channel enable
 #define MAXIMUM_NUMBER_OF_CHANNEL 16         // Maximum number of channel enable
@@ -82,7 +81,6 @@ static sl_status_t convert_rsi_to_sl_error_code(rsi_error_t error);
 static sl_status_t validate_adc_parameters(sl_adc_config_t *adc_config);
 static sl_status_t validate_adc_channel_parameters(sl_adc_channel_config_t *adc_channel_config);
 static sl_status_t validate_adc_thrld_parameters(sl_adc_fifo_thrld_config_t *adc_fifo_threshold);
-static sl_status_t validate_adc_ext_trigger_parameters(sl_adc_external_config_t *adc_external_trigger);
 static sl_status_t validate_adc_internal_parameters(sl_adc_internal_config_t *adc_internal_config);
 static sl_status_t sl_si91x_adc_channel_interrupt_clear(sl_adc_config_t adc_config, uint8_t channel_num);
 static sl_status_t sl_si91x_adc_configure_reference_voltage(float vref_value, float chip_voltage);
@@ -122,16 +120,8 @@ sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configurat
       status = SL_STATUS_NULL_POINTER;
       break;
     }
-    if (clock_configuration->soc_pll_clock >= SOC_PLL_LIMIT) {
-      /*Configure the prefetch and registering when SOC clock is more than 120Mhz*/
-      /*Configure the SOC PLL to 220MHz*/
-      ICACHE2_ADDR_TRANSLATE_1_REG = BIT(21); //Icache registering when clk freq more than 120
-      /*When set, enables registering in M4-TA AHB2AHB. This will have performance penalty. This has to be set above 100MHz*/
-      MISC_CFG_SRAM_REDUNDANCY_CTRL = BIT(4);
-      MISC_CONFIG_MISC_CTRL1 |= BIT(4); //Enable Register ROM as clock frequency is 200 Mhz
-    }
     clock_configuration->division_factor = 1;
-    /* Switch ULP Pro clock to 90 MHZ */
+    /* Switch ULP Pro clock to 90MHz */
     RSI_ULPSS_ClockConfig(M4CLK, adc_clock, clock_configuration->division_factor, odd_divfactor);
   } while (false);
   return status;
@@ -362,25 +352,6 @@ void sl_si91x_adc_unregister_event_callback(void)
   // interrupt.
   // It is further validated in register callback API.
   user_callback = NULL;
-}
-
-/*******************************************************************************
- * To configure external trigger as ULP_timer, ULP_gpio,M4_CT based on this
- * it will detect edge and channel trigger selection will be happen.
- * RSI errors are converted to the SL errors via convert_rsi_to_sl_error_code
- * function.
- ******************************************************************************/
-sl_status_t sl_si91x_adc_configure_external_trigger(sl_adc_external_config_t adc_external_trigger)
-{
-  sl_status_t status;
-  rsi_error_t error_status;
-  // Validate adc_external_trigger parameters.
-  status = validate_adc_ext_trigger_parameters(&adc_external_trigger);
-  if (status == SL_STATUS_OK) {
-    error_status = RSI_ADC_ExtTrigConfig(AUX_ADC_DAC_COMP, adc_external_trigger);
-    status       = convert_rsi_to_sl_error_code(error_status);
-  }
-  return status;
 }
 
 /*******************************************************************************
@@ -864,42 +835,6 @@ sl_status_t sl_si91x_adc_channel_disable(uint8_t channel_num)
 }
 
 /*******************************************************************************
- * To read the external trigger status of ADC.
- * RSI errors are converted to the SL errors via convert_rsi_to_sl_error_code
- * function.
- ******************************************************************************/
-sl_status_t sl_si91x_adc_get_external_trigger_status(sl_adc_external_config_t adc_external_trigger,
-                                                     uint8_t *ext_trigger)
-{
-  sl_status_t status;
-  // Validate adc_external_trigger parameters.
-  status = validate_adc_ext_trigger_parameters(&adc_external_trigger);
-  if (status == SL_STATUS_OK) {
-    *ext_trigger = RSI_ADC_ExtTrigStatusRead(AUX_ADC_DAC_COMP, adc_external_trigger);
-    status       = SL_STATUS_OK;
-  }
-  return status;
-}
-
-/*******************************************************************************
- * To clear the external trigger status.
- * RSI errors are converted to the SL errors via convert_rsi_to_sl_error_code
- * function.
- ******************************************************************************/
-sl_status_t sl_si91x_adc_clear_external_trigger(sl_adc_external_config_t adc_external_trigger)
-{
-  sl_status_t status;
-  // Validate adc_external_trigger parameters.
-  status = validate_adc_ext_trigger_parameters(&adc_external_trigger);
-  if (status == SL_STATUS_OK) {
-    RSI_ADC_ExtTrigStatusClear(AUX_ADC_DAC_COMP, adc_external_trigger);
-    // In rsi not returning RSI_OK, so that we passing SL_STATUS_OK here.
-    status = SL_STATUS_OK;
-  }
-  return status;
-}
-
-/*******************************************************************************
  * To Unmask the ADC channel.
  * The interrupt will clear when static mode interrupt will detect, threshold
  * detection interrupt enable, fifo full interrupt enable.
@@ -1063,41 +998,6 @@ static sl_status_t validate_adc_channel_parameters(sl_adc_channel_config_t *adc_
         status = SL_STATUS_INVALID_PARAMETER;
         break;
       }
-    }
-    // Returns SL_STATUS_OK if the parameter are appropriate
-    status = SL_STATUS_OK;
-  } while (false);
-  return status;
-}
-
-/*******************************************************************************
- * To validate the parameters of ADC external trigger and build a 32 bit integer
- * It takes pointer to ADC external trigger configuration structure and pointer
- * to the uint32_t as argument and builds the integer using the validations and
- * 'OR' operation.
- * According to the values in external trigger configuration structure, it
- * performs the 'OR' operation of the values.
- ******************************************************************************/
-static sl_status_t validate_adc_ext_trigger_parameters(sl_adc_external_config_t *adc_external_trigger)
-{
-  sl_status_t status;
-  do {
-    //Validate ADC external trigger type.
-    if (adc_external_trigger->trigger_type >= SL_ADC_EXT_TRIGGER_TYPE_LAST) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validate ADC external trigger detection and edge trigger.
-    if ((adc_external_trigger->trigger_num >= SL_ADC_EXT_TRIGGER_LAST)
-        || (adc_external_trigger->detection_edge_sel >= SL_ADC_EXT_TRIGGER_EDGE_LAST)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validate ADC external trigger selection and channel_id.
-    if ((adc_external_trigger->trigger_sel_val >= MAXIMUM_CHANNEL_ID)
-        || (adc_external_trigger->trigger_sel >= SL_ADC_EXT_TRIGGER_SEL_LAST)) {
-      status = SL_STATUS_INVALID_PARAMETER;
-      break;
     }
     // Returns SL_STATUS_OK if the parameter are appropriate
     status = SL_STATUS_OK;

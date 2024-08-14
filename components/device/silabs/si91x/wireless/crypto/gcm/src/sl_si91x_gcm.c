@@ -39,6 +39,22 @@
 #endif
 #include <string.h>
 
+#ifdef SLI_SI917B0
+static void sli_si91x_gcm_get_key_info(sl_si91x_gcm_request_t *request, const sl_si91x_gcm_config_t *config)
+{
+  request->gcm_mode                                  = config->gcm_mode;
+  request->key_info.key_type                         = config->key_config.b0.key_type;
+  request->key_info.key_detail.key_size              = (config->key_config.b0.key_size) * 8;
+  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
+  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
+  request->key_info.reserved                         = config->key_config.b0.reserved;
+  if (config->key_config.b0.wrap_iv_mode) {
+    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
+  }
+  memcpy(request->key_info.key_detail.key_spec.key_buffer, config->key_config.b0.key_buffer, SL_SI91X_KEY_BUFFER_SIZE);
+}
+#endif
+
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
                                          uint16_t chunk_length,
@@ -84,18 +100,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
   memcpy(request->msg, config->msg, chunk_length);
 
 #ifdef SLI_SI917B0
-  request->gcm_mode                                  = config->gcm_mode;
-  request->key_info.key_type                         = config->key_config.b0.key_type;
-  request->key_info.key_detail.key_size              = (config->key_config.b0.key_size) * 8;
-  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
-  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
-  request->key_info.reserved                         = config->key_config.b0.reserved;
-  if (config->key_config.b0.wrap_iv_mode) {
-    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
-  }
-  memcpy(request->key_info.key_detail.key_spec.key_buffer,
-         config->key_config.b0.key_buffer,
-         config->key_config.b0.key_size);
+  sli_si91x_gcm_get_key_info(request, config);
 
 #else
   memcpy(request->key, config->key_config.a0.key, request->key_length);
@@ -165,18 +170,7 @@ static sl_status_t sli_si91x_gcm_side_band(sl_si91x_gcm_config_t *config, uint8_
   request->msg    = (uint8_t *)config->msg;
   request->output = output;
 
-  request->gcm_mode                                  = config->gcm_mode;
-  request->key_info.key_type                         = config->key_config.b0.key_type;
-  request->key_info.key_detail.key_size              = (config->key_config.b0.key_size) * 8;
-  request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
-  request->key_info.key_detail.key_spec.wrap_iv_mode = config->key_config.b0.wrap_iv_mode;
-  request->key_info.reserved                         = config->key_config.b0.reserved;
-  if (config->key_config.b0.wrap_iv_mode) {
-    memcpy(request->key_info.key_detail.key_spec.wrap_iv, config->key_config.b0.wrap_iv, SL_SI91X_IV_SIZE);
-  }
-  memcpy(request->key_info.key_detail.key_spec.key_buffer,
-         config->key_config.b0.key_buffer,
-         config->key_config.b0.key_size);
+  sli_si91x_gcm_get_key_info(request, config);
 
   status = sl_si91x_driver_send_side_band_crypto(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,

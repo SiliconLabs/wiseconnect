@@ -71,7 +71,7 @@ extern "C" {
  *              - 3       - Command is given in wrong state (i.e., not immediate after opermode)
  * @note       This is a blocking API. Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr);
+int32_t rsi_bt_set_bd_addr(const uint8_t *dev_addr);
 
 /*==============================================*/
 /**
@@ -86,7 +86,7 @@ int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr);
  *            - Non-Zero Value	-	Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors).
  */
-int32_t rsi_bt_set_local_name(uint8_t *local_name);
+int32_t rsi_bt_set_local_name(const uint8_t *local_name);
 
 /*==============================================*/
 /**

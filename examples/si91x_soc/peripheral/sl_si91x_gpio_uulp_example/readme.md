@@ -43,10 +43,9 @@
 | HP GPIO Instance               |  SL_GPIO_PORT_B   |   (16-31)         |
 |                                |  SL_GPIO_PORT_C   |   (32-47)         | 
 |                                |  SL_GPIO_PORT_D   |   (48-57)         |
-|--------------------------------|-------------------|-------------------|    
 | ULP GPIO Instance              |  SL_GPIO_ULP_PORT |   (0-11)          |
-|--------------------------------|-------------------|-------------------|    
 | UULP GPIO Instance             | SL_GPIO_UULP_PORT |   (0-4)           |
+| | | 
 
 **NOTE** : There is also option to select (0-57)pins with SL_GPIO_PORT_A. For example, to select HP GPIO pin number 49, one can select Port as SL_GPIO_PORT_A and pin number as 49. This option is given only when SL_GPIO_PORT_A GPIO port is selected. (57-63)pins are reserved.
 
@@ -74,9 +73,9 @@ Please refer to the following APIs which are common for all 3 instances and are 
 - When it is needed to explicitly configure GPIO to other mode use \ref sl_gpio_driver_set_pin_mode() - applicable to HP, ULP  instance.
 - Configure GPIO to another direction using \ref sl_si91x_gpio_driver_set_pin_direction() - applicable for all 3 instances, \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() for UULP  instance. To achieve other modes in GPIO, refer to pin MUX section in HRM.
 - There are also other APIs for increasing driver strength - \ref sl_si91x_gpio_driver_select_pad_driver_strength(), 
-                                            slew rate - \ref sl_gpio_driver_set_slew_rate() - for HP instance, 
-                                            slew rate - \ref sl_si91x_gpio_driver_select_ulp_pad_slew_rate() - for ULP  instance, 
-                                            disable state - \ref sl_si91x_gpio_driver_select_pad_driver_disable_state() for GPIO pin which can be used if necessary.
+slew rate - \ref sl_gpio_driver_set_slew_rate() - for HP instance, 
+slew rate - \ref sl_si91x_gpio_driver_select_ulp_pad_slew_rate() - for ULP  instance, 
+disable state - \ref sl_si91x_gpio_driver_select_pad_driver_disable_state() for GPIO pin which can be used if necessary.
 - The PAD for corresponding GPIO is taken care of implicitly, if explicitly want to use refer to \ref sl_si91x_gpio_driver_enable_pad_selection().
 - To enable host PAD selection for GPIO pin numbers(25 - 30) refer to \ref sl_si91x_gpio_driver_enable_host_pad_selection().
 **Note:** Do not enable PAD selection number 9, as it is pre-configured for other function .
@@ -85,20 +84,23 @@ Below are the list of GPIO examples available and it's functionality:
 
   |  GPIO Examples        |    GPIO Functionality                              |  
   |-----------------------|----------------------------------------------------|  
-  | gpio_detailed_example | Demonstrates GPIO toggle and supported APIs        |    
-  |-----------------------|----------------------------------------------------|   
-  | gpio_example          |  Demonstrates HP GPIO pin interrupt                |  
-  |-----------------------|----------------------------------------------------|    
+  | gpio_detailed_example | Demonstrates GPIO toggle and supported APIs        |       
+  | gpio_example          |  Demonstrates HP GPIO pin interrupt                |      
   | gpio_group_example    | Demonstrates HP, ULP  GPIO group interrupts        | 
-  |-----------------------|----------------------------------------------------|   
   | gpio_ulp_example      |  Demonstrates GPIO toggle and ULP  pin interrupt   |           
-  |-----------------------|----------------------------------------------------|    
   | gpio_uulp_example     | Demonstrates UULP  pin interrupt                   | 
-  |-----------------------|----------------------------------------------------|
-  
+  |||
 ## About Example Code
 
-- Press BTN0 for triggering UULP GPIO pin interrupt. 
+- Clear all GPIO interrupts and enable the clock.
+- Configure the GPIO using the `sl_gpio_set_configuration` API.
+- UULP GPIO pad configuration can be done using `sl_si91x_gpio_driver_set_uulp_pad_configuration`.
+- Configure UULP GPIO pin interrupt using `sl_gpio_driver_configure_interrupt`.
+- In default UULP GPIO example application UULP GPIO 2 (F12) used for GPIO UULP pin interrupt.
+- To check the UULP GPIO interrupt, press BTN0. You can observe console prints `gpio uulp pin interrupt2` upon pressing BTN0, pin interrupt will be triggered on the raising edge event.
+-To change the interrupt pin configuration, handle the following:
+  - `UULP_GPIO_INTR_2`
+  - `SL_SI91X_UULP_GPIO_2_PIN`
 
 ### Initialization of GPIO
 
@@ -110,14 +112,14 @@ Below are the list of GPIO examples available and it's functionality:
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 

@@ -19,7 +19,8 @@
 #include "sl_si91x_psa_wrap.h"
 #include <stdio.h>
 
-#define USE_WRAPPED_KEYS 0
+#define WRAP_INPUT_KEYS     0 // Enable this if the input key needs to be wrapped before use
+#define IMPORT_WRAPPED_KEYS 0 // Enable this if the input key is wrapped
 
 static const unsigned char key_test_data[] = { 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
                                                0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f };
@@ -79,7 +80,11 @@ void test_psa_ccm()
     psa_set_key_type(&key_attr, PSA_KEY_TYPE_AES);
     psa_set_key_usage_flags(&key_attr, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT | PSA_KEY_USAGE_EXPORT);
     psa_set_key_algorithm(&key_attr, PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, vector[i].tag_len));
-#if USE_WRAPPED_KEYS
+#if WRAP_INPUT_KEYS
+    psa_set_key_lifetime(&key_attr,
+                         PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(PSA_KEY_PERSISTENCE_VOLATILE,
+                                                                        PSA_KEY_VOLATILE_PERSISTENT_WRAP_IMPORT));
+#elif IMPORT_WRAPPED_KEYS
     psa_set_key_lifetime(&key_attr,
                          PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(PSA_KEY_PERSISTENCE_VOLATILE,
                                                                         PSA_KEY_VOLATILE_PERSISTENT_WRAPPED));

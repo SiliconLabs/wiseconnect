@@ -50,6 +50,7 @@
 #include "rsi_debug.h"
 #include "sl_si91x_hal_soc_soft_reset.h"
 #include "sl_si91x_driver.h"
+#include "sl_si91x_clock_manager.h"
 #ifdef FW_LOGGING_ENABLE
 //! Firmware logging includes
 #include "sl_fw_logging.h"
@@ -67,6 +68,9 @@
 #define BUFFER_SIZE 1024
 
 #define BAUD_VALUE 115200
+
+#define INTF_PLL_CLK ((uint32_t)(80000000)) // 80MHz default Interface PLL Clock as source to UART
+#define SOC_PLL_CLK  ((uint32_t)(80000000)) // 80MHz default SoC PLL Clock as source to Processor
 
 #ifdef FW_LOGGING_ENABLE
 //! Memory length of driver updated for firmware logging
@@ -99,7 +103,7 @@ void sl_fw_log_task(void);
 #define PSP_MODE RSI_SLEEP_MODE_2
 //! Power Save Profile type
 #define PSP_TYPE RSI_MAX_PSP
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 #define MAX_UART_RX_QUEUE_SIZE 30
@@ -241,7 +245,8 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)
 #endif
                         ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | RSI_CONFIG_FEATURE_BITMAP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP
+                                              | RSI_CONFIG_FEATURE_BITMAP) }
 };
 
 const osThreadAttr_t thread_attributes = {
@@ -411,7 +416,7 @@ void read_user_packet(void)
 #if RSI_BT_RESET
         /* checking the HCI-RESET command */
         if (*(uint32_t *)rx_buffer == HCI_RESET_COMMAND) {
-          sl_si91x_soc_soft_reset();
+          sl_si91x_soc_nvic_reset();
         } else
 #endif
         {
@@ -488,6 +493,17 @@ static void rsi_data_tx_send()
   rsi_bt_driver_send_cmd(RSI_BLE_REQ_HCI_RAW, &rsi_data_packet, NULL);
 }
 
+// Function to configure clock on powerup
+static void core_and_pll_clock_update(void)
+{
+  // Core Clock runs at 80MHz SOC PLL Clock
+  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+
+  // All peripherals' source to be set to Interface PLL Clock
+  // and it runs at 80MHz
+  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
+}
+
 /*******************************************************************************
  * USART Example Initialization function
  ******************************************************************************/
@@ -496,6 +512,8 @@ int32_t rsi_ble_app_init_uart(void)
   int32_t status = 0;
   // Configures the system default clock and power configurations
   SystemCoreClockUpdate();
+
+  core_and_pll_clock_update();
 
   // Read capabilities of UART
   Read_Capabilities();

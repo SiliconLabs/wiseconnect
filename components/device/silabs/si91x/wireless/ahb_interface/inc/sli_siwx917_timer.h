@@ -39,7 +39,7 @@ typedef struct {
 void sl_si91x_timer_expiry_interrupt_handler(void);
 uint32_t sl_si91x_timer_read_counter(void);
 void sl_si91x_timer_init(sl_si91x_timer_t *timer, uint32_t duration);
-int32_t sl_si91x_timer_expired(sl_si91x_timer_t *timer);
-uint32_t sl_si91x_timer_left(sl_si91x_timer_t *timer);
+int32_t sl_si91x_timer_expired(const sl_si91x_timer_t *timer);
+uint32_t sl_si91x_timer_left(const sl_si91x_timer_t *timer);
 
 uint32_t rsi_hal_gettickcount(void);

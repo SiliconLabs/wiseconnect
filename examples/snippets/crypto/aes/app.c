@@ -147,7 +147,8 @@ static void application_start(void *argument)
 sl_status_t aes_encryption(void)
 {
   sl_status_t status;
-  sl_si91x_aes_config_t config = { 0 };
+  sl_si91x_aes_config_t config;
+  memset(&config, 0, sizeof(sl_si91x_aes_config_t));
 
   config.aes_mode                   = SL_SI91X_AES_ECB;
   config.encrypt_decrypt            = SL_SI91X_AES_ENCRYPT;
@@ -174,7 +175,17 @@ sl_status_t aes_encryption(void)
   printf("\r\nWrap success\r\n");
 
   config.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-  memcpy(config.key_config.b0.key_buffer, &wrapped_key, config.key_config.b0.key_size);
+  //for 128 bits key, wrap key size is 128 bits,
+  //for 192 and 256 bits keys, wrap key size is 256 bits
+  if (config.key_config.b0.key_size == SL_SI91X_AES_KEY_SIZE_128) {
+    memcpy(config.key_config.b0.key_buffer, &wrapped_key, SL_SI91X_AES_KEY_SIZE_128);
+  } else if (config.key_config.b0.key_size == SL_SI91X_AES_KEY_SIZE_192
+             || config.key_config.b0.key_size == SL_SI91X_AES_KEY_SIZE_256) {
+    memcpy(config.key_config.b0.key_buffer, &wrapped_key, SL_SI91X_AES_KEY_SIZE_256);
+  } else {
+    printf("\r\n Invalid key length \r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
 #endif
 
 #if PKCS_7_PADDING
@@ -203,7 +214,8 @@ sl_status_t aes_encryption(void)
 sl_status_t aes_decryption(void)
 {
   sl_status_t status;
-  sl_si91x_aes_config_t config = { 0 };
+  sl_si91x_aes_config_t config;
+  memset(&config, 0, sizeof(sl_si91x_aes_config_t));
 
   config.aes_mode                   = SL_SI91X_AES_ECB;
   config.encrypt_decrypt            = SL_SI91X_AES_DECRYPT;
@@ -218,7 +230,17 @@ sl_status_t aes_decryption(void)
 
 #if USE_WRAPPED_KEYS
   config.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-  memcpy(config.key_config.b0.key_buffer, &wrapped_key, config.key_config.b0.key_size);
+  //for 128 bits key, wrap key size is 128 bits,
+  //for 192 and 256 bits keys, wrap key size is 256 bits
+  if (config.key_config.b0.key_size == SL_SI91X_AES_KEY_SIZE_128) {
+    memcpy(config.key_config.b0.key_buffer, &wrapped_key, SL_SI91X_AES_KEY_SIZE_128);
+  } else if (config.key_config.b0.key_size == SL_SI91X_AES_KEY_SIZE_192
+             || config.key_config.b0.key_size == SL_SI91X_AES_KEY_SIZE_256) {
+    memcpy(config.key_config.b0.key_buffer, &wrapped_key, SL_SI91X_AES_KEY_SIZE_256);
+  } else {
+    printf("\r\n Invalid key length \r\n");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
 #endif
 
 #if PKCS_7_PADDING

@@ -141,12 +141,12 @@
  * Note that the process loop also has a timeout, so the total time between
  * publishes is the sum of the two delays.
  */
-#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS (pdMS_TO_TICKS(2000U))
+#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS (pdMS_TO_TICKS(5000U))
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS (2000U)
+#define sampleazureiotTRANSPORT_SEND_RECV_TIMEOUT_MS (5000U)
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
@@ -157,6 +157,8 @@
  * @brief Wait timeout for subscribe to finish.
  */
 #define sampleazureiotSUBSCRIBE_TIMEOUT (10 * 1000U)
+
+#define ENABLE_POWER_SAVE 1
 
 /******************************************************
 *               Function Declarations
@@ -243,7 +245,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                       | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
-                   .config_feature_bit_map  = 0
+                   .config_feature_bit_map  = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
 
   }
 };
@@ -441,8 +443,20 @@ sl_status_t create_tls_client(void)
     printf("\r\nSocket Connect failed with bsd error: %d\r\n", errno);
     close(client_socket);
     return SL_STATUS_FAIL;
+  } else {
+    printf("\r\nSocket : %d connected to TLS server \r\n", client_socket);
+#if ENABLE_POWER_SAVE
+    sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                          .listen_interval = 1000 };
+
+    sl_status_t status = SL_STATUS_OK;
+    status             = sl_wifi_set_performance_profile(&performance_profile);
+    if (status != SL_STATUS_OK) {
+      printf("\r\nPower save configuration Failed, Error Code : 0x%ld\r\n", status);
+    }
+    printf("\r\nAssociated Power Save is enabled\r\n");
+#endif
   }
-  printf("\r\nSocket : %d connected to TLS server \r\n", client_socket);
   return SL_STATUS_OK;
 }
 
@@ -500,9 +514,10 @@ static void prvHandleCloudMessage(AzureIoTHubClientCloudToDeviceMessageRequest_t
   (void)pxMessage;
 
   C2DMessageCount++;
-  printf("Cloud message payload : %.*s \r\n",
+  printf("Cloud message payload : %.*s , C2DMessageCount : %d\r\n",
          (int)pxMessage->ulPayloadLength,
-         (const char *)pxMessage->pvMessagePayload);
+         (const char *)pxMessage->pvMessagePayload,
+         C2DMessageCount);
 }
 /*-----------------------------------------------------------*/
 
@@ -585,8 +600,6 @@ static void azure_iot_mqtt_demo()
 {
   int lPublishCount              = 0;
   uint32_t ulScratchBufferLength = 0U;
-  const int lMaxPublishCount     = 5;
-  const int C2DMaxMessageCount   = 5;
   AzureIoTTransportInterface_t xTransport;
   NetworkContext_t xNetworkContext         = { 0 };
   TlsTransportParams_t xTlsTransportParams = { 0 };
@@ -704,7 +717,12 @@ static void azure_iot_mqtt_demo()
     assert(xResult == eAzureIoTSuccess);
 
     /* Publish messages with QoS1, send and process Keep alive messages. */
-    for (lPublishCount = 0; lPublishCount < lMaxPublishCount && xAzureSample_IsConnectedToInternet(); lPublishCount++) {
+    while (true) {
+      lPublishCount++;
+      printf("Attempt to receive publish message from Cloud to IoT Hub.\r\n");
+      xResult = AzureIoTHubClient_ProcessLoop(&xAzureIoTHubClient, sampleazureiotPROCESS_LOOP_TIMEOUT_MS);
+      assert(xResult == eAzureIoTSuccess);
+
       ulScratchBufferLength =
         snprintf((char *)ucScratchBuffer, sizeof(ucScratchBuffer), sampleazureiotMESSAGE, lPublishCount);
       xResult = AzureIoTHubClient_SendTelemetry(&xAzureIoTHubClient,
@@ -728,24 +746,7 @@ static void azure_iot_mqtt_demo()
 
       /* Leave Connection Idle for some time. */
       printf("\r\nKeeping Connection Idle..., lPublishCount : %d\r\n", lPublishCount);
-      osDelay(sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS);
-    }
 
-    lPublishCount = 0;
-    while (true) {
-      printf(("Attempt to receive publish message from Cloud to IoT Hub.\r\n"));
-      xResult = AzureIoTHubClient_ProcessLoop(&xAzureIoTHubClient, sampleazureiotPROCESS_LOOP_TIMEOUT_MS);
-      assert(xResult == eAzureIoTSuccess);
-      if (xResult == eAzureIoTSuccess) {
-        lPublishCount++;
-        if (C2DMessageCount >= C2DMaxMessageCount) {
-          printf("Done with receive C2DMessageCount : %d\r\n", C2DMessageCount);
-          break;
-        }
-      }
-      printf("\r\nWaiting for data... C2DMessageCount : %d, lPublishCount : %d\r\n\r\n",
-             C2DMessageCount,
-             lPublishCount);
       osDelay(sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS);
     }
 

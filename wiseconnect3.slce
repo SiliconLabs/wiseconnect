@@ -2,13 +2,13 @@ id: wiseconnect3_sdk
 label: WiSeConnect 3 SDK
 description: >
   WiSeConnect 3 extension for the Simplicity SDK (formerly Gecko SDK)
-version: "3.3.0"
+version: "3.3.1"
 sdk:
   id: simplicity_sdk
-  version: "2024.6.0"
+  version: "2024.6.1"
 documentation:
   - docset: wiseconnect
-    version: "3.3.0"
+    version: "3.3.1"
 component_path:
   - path: resources
   - path: components/board
@@ -74,6 +74,7 @@ component_path:
   - path: components/device/silabs/si91x/mcu/drivers/service/iostream/component
   - path: components/device/silabs/si91x/mcu/drivers/service/power_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/clock_manager/component
+  - path: components/device/silabs/si91x/mcu/drivers/service/wdt_manager/component
   - path: components/device/silabs/si91x/mcu/drivers/service/sl_si91x_etm/component
   - path: components/device/silabs/si91x/mcu/drivers/service/littlefs/component
   - path: components/device/silabs/si91x/mcu/core/chip/component

@@ -82,7 +82,7 @@ sl_status_t sl_http_client_register_callback(sl_http_client_event_t event,
   return SL_STATUS_FAIL;
 }
 
-sl_status_t sl_si91x_http_client_put_delete(void)
+static sl_status_t sl_si91x_http_client_put_delete(void)
 {
   sl_status_t status = SL_STATUS_OK;
 
@@ -119,7 +119,7 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
                                                  sl_wifi_buffer_t *buffer,
                                                  void *sdk_context)
 {
-  sl_http_client_callback_entry_t *entry = get_http_client_callback_entry(event);
+  const sl_http_client_callback_entry_t *entry = get_http_client_callback_entry(event);
 
   // Get the packet data from the buffer
   sl_si91x_packet_t *packet = (sl_si91x_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
@@ -175,9 +175,9 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
 
     case RSI_WLAN_RSP_HTTP_CLIENT_PUT: {
       // Handle PUT responses
-      uint8_t http_cmd_type                          = *packet->data;
-      sl_si91x_http_client_put_pkt_rsp_t *response   = (sl_si91x_http_client_put_pkt_rsp_t *)&packet->data;
-      sl_si91x_http_put_pkt_server_rsp_t *server_rsp = (sl_si91x_http_put_pkt_server_rsp_t *)&packet->data;
+      uint8_t http_cmd_type                                = *packet->data;
+      const sl_si91x_http_client_put_pkt_rsp_t *response   = (sl_si91x_http_client_put_pkt_rsp_t *)&packet->data;
+      const sl_si91x_http_put_pkt_server_rsp_t *server_rsp = (sl_si91x_http_put_pkt_server_rsp_t *)&packet->data;
 
       // Delete HTTP PUT client if PUT request fails
       if (status != SL_STATUS_OK) {
@@ -192,7 +192,7 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
       }
       // Check for HTTP Client PUT response from server
       else if (http_cmd_type == SI91X_HTTP_CLIENT_PUT_OFFSET_PKT) {
-        http_response.data_length = server_rsp->data_len;
+        http_response.data_length = (uint16_t)server_rsp->data_len;
         http_response.end_of_data = server_rsp->more;
       }
 
@@ -208,6 +208,8 @@ sl_status_t sl_http_client_default_event_handler(sl_http_client_event_t event,
 
       break;
     }
+    default:
+      break;
   }
   return entry->callback_function(&entry->client_handle, event, &http_response, sdk_context);
 }

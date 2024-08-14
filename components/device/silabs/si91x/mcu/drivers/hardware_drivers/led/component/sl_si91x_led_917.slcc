@@ -21,7 +21,7 @@ include:
 source:
   - path: src/sl_si91x_led.c
 requires:
-  - name: rsilib_egpio
+  - name: sl_gpio
 provides:
   - name: sl_si91x_led_917
 template_file:

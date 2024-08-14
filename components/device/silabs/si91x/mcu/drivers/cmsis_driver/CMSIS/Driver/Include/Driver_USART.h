@@ -315,7 +315,7 @@ typedef struct _ARM_DRIVER_USART {
   int32_t                (*Uninitialize)    (void);                              ///< Pointer to \ref ARM_USART_Uninitialize : De-initialize USART Interface.
   int32_t                (*PowerControl)    (ARM_POWER_STATE state);             ///< Pointer to \ref ARM_USART_PowerControl : Control USART Interface Power.
   int32_t                (*Send)            (const void *data, uint32_t num);    ///< Pointer to \ref ARM_USART_Send : Start sending data to USART transmitter.
-  int32_t                (*Receive)         (      void *data, uint32_t num);    ///< Pointer to \ref ARM_USART_Receive : Start receiving data from USART receiver.
+  int32_t                (*Receive)         (const void *data, uint32_t num);    ///< Pointer to \ref ARM_USART_Receive : Start receiving data from USART receiver.
   int32_t                (*Transfer)        (const void *data_out,
                                                    void *data_in,
                                              uint32_t    num);                   ///< Pointer to \ref ARM_USART_Transfer : Start sending/receiving data to/from USART.

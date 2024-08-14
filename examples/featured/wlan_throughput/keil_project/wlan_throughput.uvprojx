@@ -688,9 +688,9 @@
               <FilePath>../../../../components/device/silabs/si91x/wireless/icmp/sl_net_ping.c</FilePath>
             </File>
             <File>
-              <FileName>malloc_buffers.c</FileName>
+              <FileName>mem_pool_buffer_quota.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../components/device/silabs/si91x/wireless/memory/malloc_buffers.c</FilePath>
+              <FilePath>../../../../components/device/silabs/si91x/wireless/memory/mem_pool_buffer_quota.c</FilePath>
             </File>
             <File>
               <FileName>sl_net_rsi_utility.c</FileName>
@@ -766,6 +766,11 @@
               <FileName>sli_cmsis_os2_ext_task_register.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../components/device/stm32/silabs_utility/common/src/sli_cmsis_os2_ext_task_register.c</FilePath>
+            </File>
+            <File>
+              <FileName>sl_mem_pool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../components/device/stm32/silabs_utility/common/src/sl_mem_pool.c</FilePath>
             </File>
           </Files>
         </Group>

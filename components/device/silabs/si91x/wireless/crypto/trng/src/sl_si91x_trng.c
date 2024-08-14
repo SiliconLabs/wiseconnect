@@ -31,6 +31,39 @@
 uint32_t trng_key[TRNG_KEY_SIZE] = { 0x16157E2B, 0xA6D2AE28, 0x8815F7AB, 0x3C4FCF09 };
 #endif //SLI_TRNG_DEVICE_SI91X
 
+#ifndef SL_SI91X_SIDE_BAND_CRYPTO
+static sl_status_t sli_si91x_trng_send_command(sl_si91x_trng_request_t *request, sl_wifi_buffer_t **buffer)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+  if (crypto_trng_mutex == NULL) {
+    crypto_trng_mutex = sl_si91x_crypto_threadsafety_init(crypto_trng_mutex);
+  }
+  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_trng_mutex);
+#endif
+
+  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
+                                        SI91X_COMMON_CMD_QUEUE,
+                                        request,
+                                        sizeof(sl_si91x_trng_request_t),
+                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                        NULL,
+                                        buffer);
+  if (status != SL_STATUS_OK) {
+    free(request);
+    if (*buffer != NULL)
+      sl_si91x_host_free_buffer(*buffer);
+#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
+    mutex_result = sl_si91x_crypto_mutex_release(crypto_trng_mutex);
+#endif
+  }
+  VERIFY_STATUS_AND_RETURN(status);
+
+  return status;
+}
+#endif
+
 sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output)
 {
   sl_wifi_buffer_t *buffer = NULL;
@@ -65,29 +98,11 @@ sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output)
   memcpy(request->trng_key, config->trng_key, TRNG_KEY_SIZE * 4);
   memcpy(request->msg, config->trng_test_data, config->input_length * 4);
 
-#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
-  if (crypto_trng_mutex == NULL) {
-    crypto_trng_mutex = sl_si91x_crypto_threadsafety_init(crypto_trng_mutex);
-  }
-  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_trng_mutex);
-#endif
+  status = sli_si91x_trng_send_command(request, &buffer);
 
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD_QUEUE,
-                                        request,
-                                        sizeof(sl_si91x_trng_request_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        &buffer);
   if (status != SL_STATUS_OK) {
-    free(request);
-    if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
-#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
-    mutex_result = sl_si91x_crypto_mutex_release(crypto_trng_mutex);
-#endif
+    return status;
   }
-  VERIFY_STATUS_AND_RETURN(status);
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   memcpy(output, packet->data, packet->length);
 #endif
@@ -172,30 +187,11 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
 #else
   memcpy(request->trng_key, trng_key, TRNG_KEY_SIZE * 4);
 
-#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
-  if (crypto_trng_mutex == NULL) {
-    crypto_trng_mutex = sl_si91x_crypto_threadsafety_init(crypto_trng_mutex);
-  }
-  mutex_result = sl_si91x_crypto_mutex_acquire(crypto_trng_mutex);
-#endif
+  status = sli_si91x_trng_send_command(request, &buffer);
 
-  status = sl_si91x_driver_send_command(RSI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                        SI91X_COMMON_CMD_QUEUE,
-                                        request,
-                                        sizeof(sl_si91x_trng_request_t),
-                                        SL_SI91X_WAIT_FOR_RESPONSE(32000),
-                                        NULL,
-                                        &buffer);
   if (status != SL_STATUS_OK) {
-    free(request);
-    if (buffer != NULL)
-      sl_si91x_host_free_buffer(buffer);
-#if defined(SLI_MULTITHREAD_DEVICE_SI91X)
-    mutex_result = sl_si91x_crypto_mutex_release(crypto_trng_mutex);
-#endif
+    return status;
   }
-  VERIFY_STATUS_AND_RETURN(status);
-
   packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   memcpy(trng_key, packet->data, packet->length);
 #endif

@@ -30,6 +30,9 @@
 #include "rsi_ulpss_clk.h"
 #include "rsi_rom_ulpss_clk.h"
 #include "rsi_rom_clks.h"
+#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE == ENABLE)
+#include "rsi_d_cache.h"
+#endif
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
@@ -91,7 +94,9 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
     SiliconRev   = SILICON_REV_WMCU;
     package_type = PACKAGE_TYPE_WMCU;
   }
-
+#endif
+#if defined(NO_DATA_SEGMENT_IN_PSRAM) && (SLI_SI91X_MCU_ENABLE_PSRAM_SECTION_FEATURE == ENABLE)
+  rsi_d_cache_invalidate_all();
 #endif
   /*Initialize IPMU and MCU FSM blocks */
   RSI_Ipmu_Init();
@@ -108,12 +113,22 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = ULP_32MHZ_RC_CLK;
   /* Changing NPSS GPIO 0 mode to 0, to disable buck-boost enable mode*/
   MCU_RET->NPSS_GPIO_CNTRL[0].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0;
-  /* Configuring RO-32KHz Clock for BG_PMU */
-  RSI_IPMU_ClockMuxSel(1);
-  /* Configuring XTAL 32KHz Clock for LF-FSM */
+  /* Configuring MCU FSM clock for BG_PMU */
+  RSI_IPMU_ClockMuxSel(2);
+
+#if defined(SL_SI91X_MODULE_BOARD)
+  /* Configuring RC 32KHz Clock for LF-FSM*/
+  RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL);
+#else
+  /* Configuring XTAL 32.768kHz Clock for LF-FSM */
   RSI_PS_FsmLfClkSel(KHZ_XTAL_CLK_SEL);
+#endif // SL_SI91X_MODULE_BOARD
+
   /* Configuring RC-32MHz Clock for HF-FSM */
   RSI_PS_FsmHfClkSel(FSM_32MHZ_RC);
+
+  /* XTAL control pointed to Software and  XTAL is Turned-Off from M4 */
+  RSI_ConfigXtal(XTAL_DISABLE_FROM_M4, XTAL_IS_IN_SW_CTRL_FROM_M4);
 
 #if ((defined SLI_SI91X_MCU_COMMON_FLASH_MODE) && (!(defined(RAM_COMPILATION))))
   /* Before TA is going to power save mode ,set m4ss_ref_clk_mux_ctrl ,

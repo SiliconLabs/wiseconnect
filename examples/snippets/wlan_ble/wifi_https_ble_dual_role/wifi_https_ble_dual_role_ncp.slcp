@@ -15,10 +15,10 @@ filter:
       - Advanced
 sdk:
   id: simplicity_sdk
-  version: 2024.6.0
+  version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.0
+    version: 3.3.1
 source:
   - path: app.c
   - path: main.c
@@ -88,6 +88,16 @@ other_file:
   - path: resources/readme/wifi_https_ble_dual_role_soc_ncp.png
   - path: resources/readme/htttp_dualrole_build.png
   - path: resources/readme/htttp_dualrole_run.png
+  - path: resources/readme/output1.png
+  - path: resources/readme/output2.png
+  - path: resources/readme/output3.png
+  - path: resources/readme/output4.png
+  - path: resources/readme/output4_1.png
+  - path: resources/readme/remote_screen1.png
+  - path: resources/readme/remote_screen2.png
+  - path: resources/readme/remote_screen3.png
+  - path: resources/readme/SSL_screen1.png
+  - path: resources/readme/http_server_1.png
 ui_hints:
   highlight:
     - path: readme.md

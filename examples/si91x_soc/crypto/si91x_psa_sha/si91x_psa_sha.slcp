@@ -16,10 +16,10 @@ readme:
   - path: readme.md
 sdk:
   id: simplicity_sdk
-  version: 2024.6.0
+  version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.0
+    version: 3.3.1
 source:
   - path: main.c
   - path: psa_sha_app.c
@@ -35,6 +35,7 @@ component:
   - id: freertos_heap_4
   - id: psa_crypto
   - id: psa_driver
+  - id: psa_driver_source
   - id: psa_crypto_trng
   - id: psa_crypto_sha1
   - id: psa_crypto_sha224
@@ -59,7 +60,7 @@ component:
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/image508a.png
-  - path: resources/readme/image508c.png
+  - path: resources/readme/output.png
 ui_hints:
   highlight:
     - path: readme.md

@@ -84,8 +84,8 @@ RSI_UDMA_HANDLE_T udma_init(void *mem, const RSI_UDMA_INIT_T *pInit)
   pDrv->base      = (RSI_UDMA_T *)pInit->base;
   pDrv->sramBase  = (RSI_UDMA_DESC_T *)pInit->sramBase;
 
-  if (((uint32_t)pInit->sramBase & ((uint32_t)(~0x3FF))) == (uint32_t)pInit->sramBase) {
-    pDrv->base->CTRL_BASE_PTR = (uint32_t)pInit->sramBase;
+  if ((pInit->sramBase & ((uint32_t)(~0x3FF))) == pInit->sramBase) {
+    pDrv->base->CTRL_BASE_PTR = pInit->sramBase;
   } else {
     return (RSI_UDMA_HANDLE_T)ERROR_UDMA_CTRL_BASE_INVALID;
   }
@@ -100,7 +100,7 @@ RSI_UDMA_HANDLE_T udma_init(void *mem, const RSI_UDMA_INIT_T *pInit)
  * @param[in]	pCfg	:  Pointer to channel configuration structure
  * @return 	    RSI_OK - if success
  */
-rsi_error_t RSI_UDMA_ChannelControlsDisable(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
+rsi_error_t RSI_UDMA_ChannelControlsDisable(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg)
 {
   RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
 
@@ -128,7 +128,7 @@ rsi_error_t RSI_UDMA_ChannelControlsDisable(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_
 }
 /*==============================================*/
 /**
- * @fn          rsi_error_t udma_setup_channel_transfer(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg, RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData, void *pSrcAddr, void *pDstAddr)
+ * @fn          rsi_error_t udma_setup_channel_transfer(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg, RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData, void *pSrcAddr, void *pDstAddr)
  * @brief		This API is used to control parameters for a UDMA channel control structure
  * @param[in]	pHandle	:  Pointer to driver context handle
  * @param[in]	pCfg	:  Pointer to channel configuration structure
@@ -140,10 +140,10 @@ rsi_error_t RSI_UDMA_ChannelControlsDisable(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_
  *         - RSI_OK - if success
  */
 rsi_error_t udma_setup_channel_transfer(RSI_UDMA_HANDLE_T pHandle,
-                                        RSI_UDMA_CHA_CFG_T *pCfg,
+                                        const RSI_UDMA_CHA_CFG_T *pCfg,
                                         RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
                                         void *pSrcAddr,
-                                        void *pDstAddr)
+                                        volatile void *pDstAddr)
 {
   uint32_t channelTableIndex = 0;
   uint32_t srcInc            = 0;
@@ -255,10 +255,10 @@ rsi_error_t udma_setup_channel_transfer(RSI_UDMA_HANDLE_T pHandle,
     if (dstInc != UDMA_DST_INC_NONE) {
       if ((vsUdmaChaConfigData.transferType == UDMA_MODE_MEM_SCATTER_GATHER)
           || (vsUdmaChaConfigData.transferType == UDMA_MODE_PER_SCATTER_GATHER)) {
-        pDstAddr = (void *)&pUDMAChaCtrlDataStruct[channelTableIndex | UDMA_ALT_SELECT].Spare;
+        pDstAddr = (volatile void *)&pUDMAChaCtrlDataStruct[channelTableIndex | UDMA_ALT_SELECT].Spare;
       } else {
         length   = (uint16_t)((vsUdmaChaConfigData.totalNumOfDMATrans + 1) << dstInc);
-        pDstAddr = (void *)((uint32_t)pDstAddr + length - 1);
+        pDstAddr = (volatile void *)((volatile uint8_t *)pDstAddr + length - 1);
       }
     }
 
@@ -334,7 +334,7 @@ rsi_error_t udma_set_channel_scatter_gather_transfer(RSI_UDMA_HANDLE_T pHandle,
 /*==============================================*/
 /**
  * @fn          uint32_t udma_get_channel_transfer_length(RSI_UDMA_HANDLE_T pHandle,
- *                                         RSI_UDMA_CHA_CFG_T *pCfg,
+ *                                         const RSI_UDMA_CHA_CFG_T *pCfg,
  *                                         RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData)
  * @brief		This API Gets the current transfer size for a UDMA channel control structure
  * @param[in]	pHandle	:  Pointer to driver context handle
@@ -343,15 +343,15 @@ rsi_error_t udma_set_channel_scatter_gather_transfer(RSI_UDMA_HANDLE_T pHandle,
  * @return 		RSI_OK - if success
  */
 uint32_t udma_get_channel_transfer_length(RSI_UDMA_HANDLE_T pHandle,
-                                          RSI_UDMA_CHA_CFG_T *pCfg,
+                                          const RSI_UDMA_CHA_CFG_T *pCfg,
                                           RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData)
 {
   UNUSED_PARAMETER(vsUDMAChaConfigData);
   uint32_t channelTableIndex = 0;
   uint32_t transferSize      = 0;
-  RSI_UDMA_DESC_T *pUDMAChaCtrlDataStruct;
+  const RSI_UDMA_DESC_T *pUDMAChaCtrlDataStruct;
 
-  RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
+  const RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
 
   /* checks Alternate Data structure */
   if (pCfg->altStruct == 1) {
@@ -376,19 +376,19 @@ uint32_t udma_get_channel_transfer_length(RSI_UDMA_HANDLE_T pHandle,
 
 /*==============================================*/
 /**
- * @fn          uint32_t udma_get_channel_transfer_mode(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
+ * @fn          uint32_t udma_get_channel_transfer_mode(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg)
  * @brief		This API Gets the current transfer size for a UDMA channel control structure
  * @param[in]	pHandle	:  Pointer to driver context handle
  * @param[in]	pCfg	:  Pointer to channel configuration structure
  * @return 		RSI_OK - if success
  */
-uint32_t udma_get_channel_transfer_mode(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
+uint32_t udma_get_channel_transfer_mode(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg)
 {
   uint32_t channelTableIndex = 0;
   uint32_t transferMode      = 0;
-  RSI_UDMA_DESC_T *pUDMAChaCtrlDataStruct;
+  const RSI_UDMA_DESC_T *pUDMAChaCtrlDataStruct;
 
-  RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
+  const RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
 
   // checks Alternate Data structure
   if (pCfg->altStruct == 1) {
@@ -407,7 +407,7 @@ uint32_t udma_get_channel_transfer_mode(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_
     // Get the transfer mode from the control memory data
     transferMode = pUDMAChaCtrlDataStruct[channelTableIndex].vsUDMAChaConfigData1.transferType;
 
-    return (transferMode);
+    return transferMode;
   }
   return RSI_OK;
 }
@@ -448,13 +448,13 @@ rsi_error_t udma_interrupt_enable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh)
 
 /*==============================================*/
 /**
- * @fn          void RSI_UDMA_AckEnable(RSI_UDMA_HANDLE_T pHandle, uint32_t peripheral)
+ * @fn          void RSI_UDMA_AckEnable(const void *pHandle, uint32_t peripheral)
  * @brief		This API is used to enable ACK from DMA to the peripheral while transfers . 
  * @param[in]	pHandle	   : Pointer to driver context handle
  * @param[in]   peripheral : ACK enable for required peripheral
  * @return 		none
  */
-void RSI_UDMA_AckEnable(RSI_UDMA_HANDLE_T pHandle, uint32_t peripheral)
+void RSI_UDMA_AckEnable(const void *pHandle, uint32_t peripheral)
 {
   UNUSED_PARAMETER(pHandle);
   switch (peripheral) {
@@ -485,6 +485,8 @@ void RSI_UDMA_AckEnable(RSI_UDMA_HANDLE_T pHandle, uint32_t peripheral)
     case I2C_ACK:
       PERIPHERAL_UDMA_DMA_SEL |= SET_BIT(7);
       break;
+    default:
+      break;
   }
 }
 
@@ -496,7 +498,7 @@ void RSI_UDMA_AckEnable(RSI_UDMA_HANDLE_T pHandle, uint32_t peripheral)
  * @param[in]	pCfg	:  Pointer to channel configuration structure
  * @return 		RSI_OK - if success
  */
-rsi_error_t udma_setup_channel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
+rsi_error_t udma_setup_channel(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg)
 {
   RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
 
@@ -538,13 +540,13 @@ rsi_error_t udma_setup_channel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pC
 
 /*==============================================*/
 /**
- * @fn          void udma_deInit(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
+ * @fn          void udma_deInit(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg)
  * @brief		This API is used to initialize driver context parameters
  * @param[in]   pHandle	: Pointer to driver context handle
  * @param[in]   pCfg	: Pointer to DMA channel configuration structure
  * @return 		none
  */
-void udma_deInit(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg)
+void udma_deInit(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg)
 {
   RSI_UDMA_InterruptClear(pHandle, ((uint8_t)(pCfg->dmaCh)));
 
@@ -567,7 +569,7 @@ void udma_interrupt_handler(RSI_UDMA_HANDLE_T pHandle)
 {
   uint32_t intr = 0;
   RSI_UDMA_DESC_T pDesc;
-  RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
+  const RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)pHandle;
 
   if (pDrv->udmaCompCB != NULL) {
     intr = pDrv->base->UDMA_DONE_STATUS_REG;
@@ -702,24 +704,10 @@ void udma_interrupt_handler(RSI_UDMA_HANDLE_T pHandle)
       }
     }
   } else {
+    return;
   }
 }
 
-/*ROM API Structure
-
-const ROM_UDMA_API_T udma_api = {
-		&udma_init,
-		&udma_get_channel_transfer_mode,
-		&udma_setup_channel_transfer,
-		&udma_set_channel_scatter_gather_transfer,
-		&udma_get_channel_transfer_length,
-		&udma_setup_channel,
-		&udma_deInit,
-		&udma_interrupt_handler,
-		&udma_interrupt_enable,
-};  
-
-*/
 #ifdef __cplusplus
 }
 #endif

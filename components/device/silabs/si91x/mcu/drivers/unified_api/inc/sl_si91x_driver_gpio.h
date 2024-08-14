@@ -156,9 +156,11 @@ sl_status_t sl_si91x_gpio_driver_enable_pad_selection(uint8_t gpio_padnum);
 
 /***************************************************************************/ /**
  * @brief    Enable the host pad selection bit in the PAD selection register.
+ *       GPIO pin number(25 to 30) are valid for HOST PAD selection, referring
+ *      to SL_GPIO_PORT_B, pins 9 to 14.
  * @pre Pre-condition:
  * -   \ref sl_si91x_gpio_driver_enable_clock()
- * @param[in]   gpio_num - GPIO pin number to be used
+ * @param[in]   gpio_num - GPIO pin number(25-30) to be used
  * @return returns status 0 if successful,
  *               else error code as follow.
  *  -      \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument

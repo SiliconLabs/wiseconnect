@@ -663,6 +663,8 @@ sl_status_t sl_si91x_usart_set_configuration(sl_usart_handle_t usart_handle,
   uint32_t input_mode = false;
   sl_si91x_usart_control_config_t control_config[NO_OF_UART_INSTANCES];
   usart_peripheral_t uart_instance;
+  (void)control_config;
+  (void)uart_instance;
 
   /* USART_UC is defined by default. when this macro (USART_UC) is defined, peripheral
    * configuration is directly taken from the configuration set in the universal configuration (UC).

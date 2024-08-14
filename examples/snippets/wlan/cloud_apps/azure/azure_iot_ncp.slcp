@@ -14,10 +14,10 @@ filter:
    - Beginner
 sdk:
    id: simplicity_sdk
-   version: 2024.6.0
+   version: 2024.6.1
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.3.0
+   version: 3.3.1
 source:
 -  path: app.c
 -  path: main.c
@@ -30,6 +30,8 @@ include:
    -  path: transport_tls_socket.h
 define:
 -  name: SL_SI91X_PRINT_DBG_LOG
+-  name: azureiotconfigKEEP_ALIVE_TIMEOUT_SECONDS
+   value: '600'
 component:
   - id: sl_system
   - id: freertos

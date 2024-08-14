@@ -16,80 +16,73 @@
  ******************************************************************************/
 #include "sl_si91x_led.h"
 #include "si91x_device.h"
-#include "rsi_rom_egpio.h"
+#include "sl_driver_gpio.h"
+#include "sl_si91x_driver_gpio.h"
 
 void sl_si91x_led_init(const sl_led_t *handle)
 {
-#if ((defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER)) && (defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2)))
+#ifndef SI917_DEVKIT
   if (handle->led_number == 0U) {
-    /*Set the GPIO pin MUX */
-    RSI_EGPIO_SetPinMux(EGPIO1, handle->port, handle->pin, 0);
-    /*Set GPIO direction*/
-    RSI_EGPIO_SetDir(EGPIO1, handle->port, handle->pin, 0);
+    /*Enable clock*/
+    sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
   } else {
-    RSI_EGPIO_PadSelectionEnable(5);
-    /*Set the GPIO pin MUX */
-    RSI_EGPIO_SetPinMux(EGPIO, handle->port, handle->pin, 0);
-    /*Set GPIO direction*/
-    RSI_EGPIO_SetDir(EGPIO, handle->port, handle->pin, 0);
+    /*Enable clock*/
+    sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO);
   }
-#elif SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  if (handle->led_number == 0U) {
-    RSI_EGPIO_PadSelectionEnable(5);
-    /*Set the GPIO pin MUX */
-    RSI_EGPIO_SetPinMux(EGPIO, handle->port, handle->pin, 0);
-    /*Set GPIO direction*/
-    RSI_EGPIO_SetDir(EGPIO, handle->port, handle->pin, 0);
-  } else {
-    /*Set the GPIO pin MUX */
-    RSI_EGPIO_SetPinMux(EGPIO1, handle->port, handle->pin, 0);
-    /*Set GPIO direction*/
-    RSI_EGPIO_SetDir(EGPIO1, handle->port, handle->pin, 0);
-  }
+#else
+  /*Enable clock*/
+  sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO);
 #endif
+  sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { handle->port, handle->pin }, GPIO_OUTPUT };
+  sl_gpio_set_configuration(sl_gpio_pin_config);
 }
 
 void sl_si91x_led_set(uint8_t pin)
 {
-#if ((SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER) && (SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2))
-  if (pin == SL_LED_LED0_PIN)
-    RSI_EGPIO_SetPin(EGPIO1, SL_LED_LED0_PORT, pin, 1);
-  else
-    RSI_EGPIO_SetPin(EGPIO, SL_LED_LED1_PORT, pin, 1);
-#elif SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  if (pin == SL_LED_LED0_PIN)
-    RSI_EGPIO_SetPin(EGPIO, SL_LED_LED0_PORT, pin, 1);
-  else
-    RSI_EGPIO_SetPin(EGPIO1, SL_LED_LED1_PORT, pin, 1);
+  sl_gpio_t led_gpio_port_pin;
+  led_gpio_port_pin.pin = pin;
+#ifndef SI917_DEVKIT
+  if (pin == SL_LED_LED0_PIN) {
+    led_gpio_port_pin.port = SL_LED_LED0_PORT;
+  } else {
+    led_gpio_port_pin.port = SL_LED_LED1_PORT;
+  }
+  sl_gpio_driver_set_pin(&led_gpio_port_pin);
+#else
+  led_gpio_port_pin.port = SL_LED_LEDB_PORT;
+  sl_gpio_driver_clear_pin(&led_gpio_port_pin);
 #endif
 }
 
 void sl_si91x_led_clear(uint8_t pin)
 {
-#if ((SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER) && (SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2))
-  if (pin == SL_LED_LED0_PIN)
-    RSI_EGPIO_SetPin(EGPIO1, SL_LED_LED0_PORT, pin, 0);
-  else
-    RSI_EGPIO_SetPin(EGPIO, SL_LED_LED1_PORT, pin, 0);
-#elif SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  if (pin == SL_LED_LED0_PIN)
-    RSI_EGPIO_SetPin(EGPIO, SL_LED_LED0_PORT, pin, 0);
-  else
-    RSI_EGPIO_SetPin(EGPIO1, SL_LED_LED1_PORT, pin, 0);
+  sl_gpio_t led_gpio_port_pin;
+  led_gpio_port_pin.pin = pin;
+#ifndef SI917_DEVKIT
+  if (pin == SL_LED_LED0_PIN) {
+    led_gpio_port_pin.port = SL_LED_LED0_PORT;
+  } else {
+    led_gpio_port_pin.port = SL_LED_LED1_PORT;
+  }
+  sl_gpio_driver_clear_pin(&led_gpio_port_pin);
+#else
+  led_gpio_port_pin.port = SL_LED_LEDB_PORT;
+  sl_gpio_driver_set_pin(&led_gpio_port_pin);
 #endif
 }
 
 void sl_si91x_led_toggle(uint8_t pin)
 {
-#if ((SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER) && (SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2))
-  if (pin == SL_LED_LED0_PIN)
-    RSI_EGPIO_TogglePort(EGPIO1, SL_LED_LED0_PORT, (1 << pin));
-  else
-    RSI_EGPIO_TogglePort(EGPIO, SL_LED_LED1_PORT, (1 << pin));
-#elif SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-  if (pin == SL_LED_LED0_PIN)
-    RSI_EGPIO_TogglePort(EGPIO, SL_LED_LED0_PORT, (1 << pin));
-  else
-    RSI_EGPIO_TogglePort(EGPIO1, SL_LED_LED1_PORT, (1 << pin));
+  sl_gpio_t led_gpio_port_pin;
+  led_gpio_port_pin.pin = pin;
+#ifndef SI917_DEVKIT
+  if (pin == SL_LED_LED0_PIN) {
+    led_gpio_port_pin.port = SL_LED_LED0_PORT;
+  } else {
+    led_gpio_port_pin.port = SL_LED_LED1_PORT;
+  }
+#else
+  led_gpio_port_pin.port = SL_LED_LEDB_PORT;
 #endif
+  sl_gpio_driver_toggle_pin(&led_gpio_port_pin);
 }

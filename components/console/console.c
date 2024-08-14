@@ -368,8 +368,7 @@ sl_status_t console_parse_arg(console_argument_type_t type, char *line, uint32_t
 
 static inline uint8_t parse_enum_arg(const char *line, const char *const *options)
 {
-  uint8_t a;
-  for (a = 0; options[a] != NULL; ++a) {
+  for (uint8_t a = 0; options[a] != NULL; ++a) {
     if (strcmp(line, options[a]) == 0) {
       return a;
     }

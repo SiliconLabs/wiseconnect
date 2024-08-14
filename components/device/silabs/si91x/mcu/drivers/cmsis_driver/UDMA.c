@@ -37,8 +37,10 @@ extern dac_config_t dac_callback_fun;
 #include "rsi_udma_wrapper.h"
 
 //UDMA Defines////
-RSI_UDMA_HANDLE_T udmaHandle0,udmaHandle1;
-uint32_t dma_rom_buff0[30], dma_rom_buff1[30];
+RSI_UDMA_HANDLE_T udmaHandle0;
+RSI_UDMA_HANDLE_T udmaHandle1;
+uint32_t dma_rom_buff0[30];
+uint32_t dma_rom_buff1[30];
 
 
 #if  ((UDMA0_SRAM_BASE & (~0x3FF)) != UDMA0_SRAM_BASE)
@@ -98,8 +100,12 @@ UDMA_RESOURCES UDMA1_Resources = {
  */
 void uDMAx_IRQHandler(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Channel_Info *chnl_info)
 {
- volatile uint32_t ch = 0, size = 0;
-    volatile uint32_t intr = 0, src_inc = 0, dst_inc = 0, dma_len = 0;
+    volatile uint32_t ch = 0;
+    volatile uint32_t size = 0;
+    volatile uint32_t intr = 0; 
+    volatile uint32_t src_inc = 0;
+    volatile uint32_t dst_inc = 0;
+    volatile uint32_t dma_len = 0;
     for (ch = 0; ch < UDMA_NUMBER_OF_CHANNELS; ch++) {
       intr = udma->reg->UDMA_DONE_STATUS_REG;
       if (intr & (1U << ch)) {
@@ -268,7 +274,6 @@ void IRQ033_Handler(void)
 void IRQ010_Handler (void) 
 {
   NVIC_DisableIRQ(UDMA1_IRQn);
-  do {
 #if defined(DAC_FIFO_MODE_EN) || defined(ADC_MULTICHANNEL_WITH_EXT_DMA)
   volatile uint32_t intr = 0;
   intr = UDMA1_Resources.reg->UDMA_DONE_STATUS_REG;
@@ -289,7 +294,8 @@ void IRQ010_Handler (void)
       adc_commn_config.call_back_event(ADC_CHNL0_INTR , EXTERNAL_DMA_RECONFIG);
 #endif
     }
-    break;
+    NVIC_EnableIRQ(UDMA1_IRQn);
+    return;
   }
 #endif
 #if defined(A11_ROM) && defined(UDMA_ROMDRIVER_PRESENT)
@@ -318,6 +324,5 @@ void IRQ010_Handler (void)
 #else
   uDMAx_IRQHandler (&UDMA1_Resources,UDMA1_Table,udma1_chnl_info);
 #endif
-  } while(false);
   NVIC_EnableIRQ(UDMA1_IRQn);
 }

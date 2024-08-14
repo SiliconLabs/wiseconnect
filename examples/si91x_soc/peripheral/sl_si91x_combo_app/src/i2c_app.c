@@ -45,6 +45,7 @@
 #define INSTANCE_ONE                 1                // For 0 value
 #define INSTANCE_TWO                 2                // For 0 value
 #define MS_DELAY_COUNTER             4600             // Delay count
+#define RECEIVE_DATA_SYNC            1                // Sync delay required for Receive
 
 #if ((I2C_INSTANCE_USED == INSTANCE_ZERO) || (I2C_INSTANCE_USED == INSTANCE_ONE))
 #define SOC_PLL_CLK ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
@@ -245,7 +246,7 @@ void i2c_leader_example_process_action(void)
     case I2C_RECEIVE_DATA:
       if (i2c_receive_data_flag) {
         // Adding delay for synchronization before leader sends read request
-        delay(5);
+        delay(RECEIVE_DATA_SYNC);
         // Disabling repeated start before last cycle of transfer
         i2c_status = sl_i2c_driver_enable_repeated_start(i2c_instance, false);
         if (i2c_status != SL_I2C_SUCCESS) {

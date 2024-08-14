@@ -22,9 +22,9 @@
 ## Overview
 
 - The GPIO functionality in the MCU consists of three instances:
-  - HP (High Power) Instance: Controls the SoC GPIOs (GPIO_n; n=0 to 57).
-  - ULP (Ultra Low Power) Instance: Controls the ULP GPIOs (ULP_GPIO_n; n=0 to 11).
-  - UULP (Ultra Ultra Low Power) Instance: Controls the UULP GPIOs (UULP_GPIO_n; n=0 to 4).
+  - **HP (High Power) Instance:** Controls the SoC GPIOs (GPIO_n; n=0 to 57).
+  - **ULP (Ultra Low Power) Instance:** Controls the ULP GPIOs (ULP_GPIO_n; n=0 to 11).
+  - **UULP (Ultra Ultra Low Power) Instance:** Controls the UULP GPIOs (UULP_GPIO_n; n=0 to 4).
 - HP and ULP Instance have same features and functionality except for different base address.
 - Each port in the HP domain supports a maximum of 16 GPIO pins, with a total of four ports (SL_GPIO_PORT_A, SL_GPIO_PORT_B, SL_GPIO_PORT_C, SL_GPIO_PORT_D).
 - The ULP GPIO domain has only one port (SL_GPIO_ULP_PORT) with a maximum of 12 pins.  
@@ -43,10 +43,9 @@
 | HP GPIO Instance               |  SL_GPIO_PORT_B   |   (16-31)         |
 |                                |  SL_GPIO_PORT_C   |   (32-47)         | 
 |                                |  SL_GPIO_PORT_D   |   (48-57)         |
-|--------------------------------|-------------------|-------------------|    
 | ULP GPIO Instance              |  SL_GPIO_ULP_PORT |   (0-11)          |
-|--------------------------------|-------------------|-------------------|    
 | UULP GPIO Instance             | SL_GPIO_UULP_PORT |   (0-4)           |
+| | |
 
 **NOTE** : There is also option to select (0-57)pins with SL_GPIO_PORT_A. For example, to select HP GPIO pin number 49, one can select Port as SL_GPIO_PORT_A and pin number as 49. This option is given only when SL_GPIO_PORT_A GPIO port is selected. (57-63)pins are reserved.
 
@@ -74,9 +73,9 @@ Please refer to the following APIs which are common for all 3 instances and are 
 - When it is needed to explicitly configure GPIO to other mode use \ref sl_gpio_driver_set_pin_mode() - applicable to HP, ULP  instance.
 - Configure GPIO to another direction using \ref sl_si91x_gpio_driver_set_pin_direction() - applicable for all 3 instances, \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() for UULP  instance. To achieve other modes in GPIO, refer to pin MUX section in HRM.
 - There are also other APIs for increasing driver strength - \ref sl_si91x_gpio_driver_select_pad_driver_strength(), 
-                                            slew rate - \ref sl_gpio_driver_set_slew_rate() - for HP instance, 
-                                            slew rate - \ref sl_si91x_gpio_driver_select_ulp_pad_slew_rate() - for ULP  instance, 
-                                            disable state - \ref sl_si91x_gpio_driver_select_pad_driver_disable_state() for GPIO pin which can be used if necessary.
+slew rate - \ref sl_gpio_driver_set_slew_rate() - for HP instance, 
+slew rate - \ref sl_si91x_gpio_driver_select_ulp_pad_slew_rate() - for ULP  instance, 
+disable state - \ref sl_si91x_gpio_driver_select_pad_driver_disable_state() for GPIO pin which can be used if necessary.
 - The PAD for corresponding GPIO is taken care of implicitly, if explicitly want to use refer to \ref sl_si91x_gpio_driver_enable_pad_selection().
 - To enable host PAD selection for GPIO pin numbers(25 - 30) refer to \ref sl_si91x_gpio_driver_enable_host_pad_selection().
 **Note:** Do not enable PAD selection number 9, as it is pre-configured for other function .
@@ -86,16 +85,11 @@ Below are the list of GPIO examples available and it's functionality:
   |  GPIO Examples        |    GPIO Functionality                              |  
   |-----------------------|----------------------------------------------------|  
   | gpio_detailed_example | Demonstrates GPIO toggle and supported APIs        |    
-  |-----------------------|----------------------------------------------------|   
   | gpio_example          |  Demonstrates HP GPIO pin interrupt                |  
-  |-----------------------|----------------------------------------------------|    
   | gpio_group_example    | Demonstrates HP, ULP  GPIO group interrupts        | 
-  |-----------------------|----------------------------------------------------|   
   | gpio_ulp_example      |  Demonstrates GPIO toggle and ULP  pin interrupt   |           
-  |-----------------------|----------------------------------------------------|    
   | gpio_uulp_example     | Demonstrates UULP  pin interrupt                   | 
-  |-----------------------|----------------------------------------------------| 
-
+  |                       |                                                    |
 ## About Example Code
 
 - The example shows the additional usage of APIs such as driver strength, disable state etc., along with toggling of GPIO. LED1 can be checked for toggling.
@@ -109,7 +103,7 @@ Below are the list of GPIO examples available and it's functionality:
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 

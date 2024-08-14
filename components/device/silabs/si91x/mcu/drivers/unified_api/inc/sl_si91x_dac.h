@@ -64,7 +64,7 @@ typedef void (*sl_dac_callback_t)(uint8_t event);                             //
 typedef enum {
   SL_DAC_FIFO_MODE,                  ///< operation mode as fifo mode
   SL_DAC_STATIC_MODE,                ///< operation mode as static mode
-  SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC, ///< operation mode as dac output reference voltage for ADC
+  SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC, ///< This mode is currently not supported
   SL_DAC_OPERATION_MODE_LAST,        ///< Last member of enum for validation
 } sl_dac_operation_mode_t;
 
@@ -75,6 +75,7 @@ typedef enum {
 } sl_dac_callback_event_t;
 
 /// @brief Enumeration for ADC channel this enum only used on Reference voltage for ADC mode of DAC.
+/// note: These enums are not used as SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC mode is not supported currently.
 typedef enum {
   SL_DAC_ADC_CHANNEL_0,  ///< ADC channel 0
   SL_DAC_ADC_CHANNEL_1,  ///< ADC channel 1

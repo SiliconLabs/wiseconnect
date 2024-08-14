@@ -18,9 +18,9 @@
 #define SL_STATUS_SHARED_ENUM(prefix, name) prefix##_##name = (SL_##name)
 
 #ifdef __CC_ARM
-#define BREAKPOINT() __asm__("bkpt #0");
+#define BREAKPOINT() __asm__("bkpt #0")
 #else
-#define BREAKPOINT() __asm__("bkpt");
+#define BREAKPOINT() __asm__("bkpt")
 #endif
 
 #define SL_IPV4_ADDRESS_LENGTH 4
@@ -37,13 +37,17 @@
 
 #ifndef FUZZING
 #define SL_ASSERT(condition, ...) \
-  if (!(condition)) {             \
-    BREAKPOINT();                 \
-  }
+  do {                            \
+    if (!(condition)) {           \
+      BREAKPOINT();               \
+    }                             \
+  } while (0)
 #else
 #define SL_ASSERT(condition, ...) \
-  if (!(condition)) {             \
-  }
+  do {                            \
+    if (!(condition)) {           \
+    }                             \
+  } while (0)
 #endif
 
 #ifndef ROUND_UP
@@ -160,8 +164,7 @@
     }                                              \
   } while (0)
 
-#define PRINT_ERROR_STATUS(tag, status) \
-  printf("\r\n%s %s:%d: 0x%x \r\n", tag, __FILE__, __LINE__, (unsigned int)status);
+#define PRINT_ERROR_STATUS(tag, status) printf("\r\n%s %s:%d: 0x%x \r\n", tag, __FILE__, __LINE__, (unsigned int)status)
 
 #ifdef PRINT_DEBUG_LOG
 extern void sl_debug_log(const char *format, ...);

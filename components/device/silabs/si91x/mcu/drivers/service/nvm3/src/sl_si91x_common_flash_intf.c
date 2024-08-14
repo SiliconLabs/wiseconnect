@@ -21,6 +21,9 @@
 #include "sl_si91x_driver.h"
 #include "sl_core.h"
 #include "cmsis_os2.h"
+#if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
+#include "sl_si91x_power_manager.h"
+#endif
 
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
@@ -81,8 +84,17 @@ bool rsi_flash_erase_sector(uint32_t *sector_address)
 
   int status             = 0;
   uint8_t dummy_buff[10] = { 0 };
+
+#if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
+  sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+#endif
+
   //Erase sector
   status = (int)sl_si91x_command_to_write_common_flash((uint32_t)sector_address, dummy_buff, SECTOR_SIZE, FLASH_ERASE);
+
+#if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
+  sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+#endif
   return status;
 }
 
@@ -93,8 +105,17 @@ bool rsi_flash_write(uint32_t *address, unsigned char *data, uint32_t length)
 {
 
   int status = 0;
+
+#if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
+  sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+#endif
+
   //Write to flash
   status = (int)sl_si91x_command_to_write_common_flash((uint32_t)address, data, (uint16_t)length, FLASH_WRITE);
+
+#if defined(SL_SI91X_TICKLESS_MODE) && (SL_SI91X_TICKLESS_MODE == 1)
+  sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+#endif
   return status;
 }
 

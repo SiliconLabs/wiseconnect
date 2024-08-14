@@ -31,7 +31,7 @@ This process allows the device to update its software over the air (OTA) without
 ### Hardware Requirements  
 
 - PC or Mac.
-- Linux PC or Cygwin on Windows (to build and run the TCP server source provided)
+- Linux PC or [Cygwin](https://www.cygwin.com/install.html) on Windows (to build and run the TCP server source provided)
 - Wi-Fi Access point with a connection to the internet
 - **SoC Mode**:
   - Standalone
@@ -39,6 +39,7 @@ This process allows the device to update its software over the air (OTA) without
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4342A [SiWx917-RB4342A]
+      - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -48,12 +49,19 @@ This process allows the device to update its software over the air (OTA) without
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
     - EFR32FG25 863-876 MHz +16 dBm Radio Board [FG25-RB4271A](https://www.silabs.com/development-tools/wireless/proprietary/fg25-rb4271a-efr32fg25-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - STM32F411RE MCU
     - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
-    - NCP Radio Board (BRD4346A + BRD8045C)
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045C)
+      - (BRD4357A + BRD8045C)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 & STM32
+    - UART - EFR32
 
 ### Software Requirements
 
@@ -76,7 +84,7 @@ This process allows the device to update its software over the air (OTA) without
   - Upgrade your connectivity firmware
   - Create a Studio project
 
-### Instructions for Keil IDE and STM32F411RE MCU
+### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32) to:
 
   - Install the [Keil IDE](https://www.keil.com/).
@@ -84,7 +92,7 @@ This process allows the device to update its software over the air (OTA) without
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
+   - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
    - After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    - Connect the setup to the computer.
@@ -159,7 +167,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - When the firmware update completes, the SiWx91x should be rebooted after which it may take a few minutes to overwrite the old firmware with the new firmware in flash memory.
 
-### Build and run the TCP Server
+### Build and run the TCP Server (Linux PC)
 
   1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
   2. Compile the application
@@ -172,4 +180,18 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
       ```c
       user@linux:~$ ./ota_server.bin 5001 SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps
+      ```
+
+### Build and run the TCP Server (Windows PC)
+
+  1. Open the FIRMWARE UPDATE project in cygwin terminal - by navigating to **WiSeConnect 3 SDK → examples → featured → firmware_update**.  
+  
+  2. Compile the application
+
+      ![Figure: cygwin server compilation](resources/readme/cygwin_server_compilation.png)
+  
+  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/firmware) is the firmware image to be sent to SiWx91x.
+
+      ```c
+      ./ota_server 5001 SiWx91x.NBZ.WC.GEN.OSI.x.x.x.rps
       ```

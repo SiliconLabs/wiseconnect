@@ -28,8 +28,9 @@
  *
  ******************************************************************************/
 #include "sl_si91x_watchdog_timer.h"
+#ifndef SL_WDT_MANAGER_PRESENT
 #include "sl_si91x_watchdog_timer_config.h"
-
+#endif
 #include "rsi_rtc.h"
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
@@ -136,9 +137,9 @@ sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *tim
 * @brief: Configures watchdog-timer parameters
 *
 * @details:
-*  Sets interrupt timeout time (with default value '15' for 1-secs delay)
-*  Sets system reset time (with default value '17' for 4-secs delay)
-*  Sets system window time (with default value 0)
+*  Sets interrupt timeout time
+*  Sets system reset time
+*  Sets system window time
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_set_configuration(watchdog_timer_config_t *timer_config_ptr)
 {
@@ -165,9 +166,8 @@ sl_status_t sl_si91x_watchdog_set_configuration(watchdog_timer_config_t *timer_c
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    // Comparing time values with each other
-    if ((timer_config_ptr->system_reset_time <= timer_config_ptr->interrupt_time)
-        || (timer_config_ptr->interrupt_time <= timer_config_ptr->window_time)) {
+    // Comparing interrupt time with window time
+    if (timer_config_ptr->interrupt_time <= timer_config_ptr->window_time) {
       status = SL_STATUS_INVALID_CONFIGURATION;
       break;
     }
@@ -230,8 +230,6 @@ sl_status_t sl_si91x_watchdog_register_timeout_callback(watchdog_timer_callback_
 * timer restart.
 *
 * Number of clock pulses for timer timeout = 2^(interrupt_time)
-*
-* This value should be less than system-reset time.
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_set_interrupt_time(time_delays_t interrupt_time)
 {
@@ -241,11 +239,6 @@ sl_status_t sl_si91x_watchdog_set_interrupt_time(time_delays_t interrupt_time)
     // Validating interrupt time value
     if (interrupt_time >= TIME_DELAY_LAST) {
       status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validating interrupt time as per system reset time value
-    if (RSI_WWDT_GetSysRstTime(MCU_WDT) <= interrupt_time) {
-      status = SL_STATUS_INVALID_CONFIGURATION;
       break;
     }
     // Validating interrupt time as per window time value
@@ -312,9 +305,8 @@ sl_status_t sl_si91x_watchdog_set_window_time(time_delays_t window_time)
 * 'WWD_SYSTEM_RESET_TIMER' register (5-bit), so its maximum value is 31.
 *
 * It is used to calculate clock pulse count of FSM clock, to reset the system
-*  Number of clock pulses for system reset delay = 2^(system_reset_time)
-*
-* This value should be greater than timer interrupt time.
+* Number of clock pulses for system reset delay = 2^(system_reset_time)
+* This value should be greater than timer window time.
 *******************************************************************************/
 sl_status_t sl_si91x_watchdog_set_system_reset_time(time_delays_t system_reset_time)
 {
@@ -324,11 +316,6 @@ sl_status_t sl_si91x_watchdog_set_system_reset_time(time_delays_t system_reset_t
     // Validating system-reset time value
     if (system_reset_time >= TIME_DELAY_LAST) {
       status = SL_STATUS_INVALID_PARAMETER;
-      break;
-    }
-    // Validating system-reset time as per interrupt time value
-    if (RSI_WWDT_GetIntrTime(MCU_WDT) >= system_reset_time) {
-      status = SL_STATUS_INVALID_CONFIGURATION;
       break;
     }
     // Validating system reset time as per window time value

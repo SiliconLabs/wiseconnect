@@ -205,7 +205,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                    .config_feature_bit_map = 0
 #else
 #if ENABLE_POWER_SAVE
-                   .config_feature_bit_map = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP)
 #else
                    .config_feature_bit_map = 0
 #endif

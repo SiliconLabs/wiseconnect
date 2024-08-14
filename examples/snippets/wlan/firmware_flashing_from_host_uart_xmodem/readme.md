@@ -29,13 +29,19 @@ This application demonstrates to flash the firmware on the Si91x Device from the
 ### Hardware Requirements  
 
 - Windows PC or Mac.
-- **NCP Mode**:
+- **NCP/SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+    - SoC
+      - Silicon Labs [BRD4338A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
 
 ### Software Requirements
 
@@ -44,7 +50,7 @@ This application demonstrates to flash the firmware on the Si91x Device from the
 
 ### Setup Diagram
 
-![Figure: Setup Diagram for Firmware Update Example](resources/readme/setup_ncp.png)
+![Figure: Setup Diagram for Firmware Update Example](resources/readme/setup_ncp_soc.png)
 
 ## Getting Started
 

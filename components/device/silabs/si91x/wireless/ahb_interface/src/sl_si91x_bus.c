@@ -69,13 +69,13 @@ sl_status_t sli_si91x_submit_rx_pkt(void)
   rx_desc[0].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)pkt_buffer);
 
   // Fill source address in the TX descriptors
-  rx_desc[0].length = (16);
+  rx_desc[0].length = 16;
 
   // Fill source address in the TX descriptors
   rx_desc[1].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)(pkt_buffer + 16));
 
   // Fill source address in the TX descriptors
-  rx_desc[1].length = (1600);
+  rx_desc[1].length = 1600;
 
   raise_m4_to_ta_interrupt(RX_BUFFER_VALID);
 
@@ -107,13 +107,13 @@ sl_status_t sl_si91x_bus_write_frame(sl_si91x_packet_t *packet, const uint8_t *p
   tx_desc[0].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)&packet->desc[0]);
 
   // Fill source address in the TX descriptors
-  tx_desc[0].length = (16);
+  tx_desc[0].length = 16;
 
   // Fill source address in the TX descriptors
   tx_desc[1].addr = (M4_MEMORY_OFFSET_ADDRESS + (uint32_t)payloadparam);
 
   // Fill source address in the TX descriptors
-  tx_desc[1].length = (size_param);
+  tx_desc[1].length = size_param;
 
   sli_si91x_raise_pkt_pending_interrupt_to_ta();
 

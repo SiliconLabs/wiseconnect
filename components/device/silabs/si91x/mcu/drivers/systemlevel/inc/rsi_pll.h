@@ -644,13 +644,13 @@ STATIC INLINE void _usdelay(uint32_t delayUs, cdDelay delayCb)
   }
 }
 
-rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK);
+rsi_error_t clk_i2s_pll_clk_set(const M4CLK_Type *pCLK);
 
 boolean_t clk_check_pll_lock(PLL_TYPE_T pllType);
 
 rsi_error_t clk_soc_pll_clk_enable(boolean_t clkEnable);
 
-rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
+rsi_error_t clk_soc_pll_set_freq_div(const M4CLK_Type *pCLK,
                                      boolean_t clk_en,
                                      uint16_t divFactor,
                                      uint16_t nFactor,
@@ -659,7 +659,7 @@ rsi_error_t clk_soc_pll_set_freq_div(M4CLK_Type *pCLK,
                                      uint16_t dcoFixSel,
                                      uint16_t ldoProg);
 
-rsi_error_t clk_soc_pll_clk_set(M4CLK_Type *pCLK);
+rsi_error_t clk_soc_pll_clk_set(const M4CLK_Type *pCLK);
 
 rsi_error_t clk_soc_pll_clk_bypass_enable(boolean_t clkEnable);
 
@@ -681,7 +681,7 @@ rsi_error_t clk_i2s_pll_turn_off(void);
 
 rsi_error_t clk_i2s_pll_turn_on(void);
 
-rsi_error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
+rsi_error_t clk_i2s_pll_set_freq_div(const M4CLK_Type *pCLK,
                                      uint16_t u16DivFactor1,
                                      uint16_t u16DivFactor2,
                                      uint16_t nFactor,
@@ -690,7 +690,7 @@ rsi_error_t clk_i2s_pll_set_freq_div(M4CLK_Type *pCLK,
 
 rsi_error_t clk_i2s_pll_clk_reset(void);
 
-rsi_error_t clk_i2s_pll_clk_set(M4CLK_Type *pCLK);
+rsi_error_t clk_i2s_pll_clk_set(const M4CLK_Type *pCLK);
 
 rsi_error_t clk_intf_pll_clk_enable(boolean_t clkEnable);
 
@@ -698,7 +698,7 @@ rsi_error_t clk_intf_pll_pd_enable(boolean_t en);
 
 rsi_error_t clk_intf_pll_turn_off(void);
 
-rsi_error_t clk_intf_pll_set_freq_div(M4CLK_Type *pCLK,
+rsi_error_t clk_intf_pll_set_freq_div(const M4CLK_Type *pCLK,
                                       boolean_t clk_en,
                                       uint16_t divFactor,
                                       uint16_t nFactor,
@@ -713,7 +713,7 @@ rsi_error_t clk_intf_pll_turn_on(void);
 
 rsi_error_t clk_intf_pll_clk_reset(void);
 
-rsi_error_t clk_intf_pll_clk_set(M4CLK_Type *pCLK);
+rsi_error_t clk_intf_pll_clk_set(const M4CLK_Type *pCLK);
 
 rsi_error_t clk_peripheral_clk_enable1(M4CLK_Type *pCLK, uint32_t flags);
 
@@ -813,15 +813,15 @@ rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module
 
 rsi_error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module);
 
-rsi_error_t clk_set_soc_pll_freq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
+rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
 
-rsi_error_t clk_set_intf_pll_freq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
+rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
 
 rsi_error_t ulpss_enable_ref_clks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn);
 
-rsi_error_t clk_set_i2s_pll_freq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
+rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
 
-void _usdelay(uint32_t delayUs, cdDelay delayCb);
+static void _usdelay(uint32_t delayUs, cdDelay delayCb);
 
 rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type);
 
@@ -829,8 +829,8 @@ void clk_config_pll_lock(boolean_t manual_lock, boolean_t bypass_manual_lock, ui
 
 void clk_config_pll_ref_clk(uint8_t ref_clk_src);
 rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
-uint32_t RSI_CLK_CheckPresent(M4CLK_Type *pCLK, CLK_PRESENT_T clkPresent);
-rsi_error_t clk_m4ss_ref_clk_config(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource);
+uint32_t RSI_CLK_CheckPresent(const M4CLK_Type *pCLK, CLK_PRESENT_T clkPresent);
+rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource);
 rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type);
 
 /*End of file not truncated*/

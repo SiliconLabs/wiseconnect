@@ -21,120 +21,114 @@
 #include "sl_net_constants.h"
 
 /**
- *  @addtogroup SERVICE_MDNS_CONSTANTS 
+ *  @addtogroup SERVICE_MDNS 
  *  @{
  */
 
-/// MDNS Asynchronous Events
+/// mDNS events
 typedef enum {
-  SL_MDNS_SERVICE_DISCOVERED_EVENT = 0 ///< Event for MDNS Service Discovery
+  SL_MDNS_SERVICE_DISCOVERED_EVENT = 0 ///< Event for mDNS service discovery. (Currently not supported.)
 } sl_mdns_event_t;
 
-/// MDNS
+/// mDNS protocol
 typedef enum {
-  SL_MDNS_PROTO_PHY = 0, ///< Run MDNS using Ethernet Frames (Not supported in offload mode)
-  SL_MDNS_PROTO_UDP      ///< Run MDNS Using UDP
+  SL_MDNS_PROTO_PHY = 0, ///< Run mDNS using ethernet frames. (Not supported in offload mode.)
+  SL_MDNS_PROTO_UDP      ///< Run mDNS using UDP.
 } sl_mdns_protocol_t;
-
-/** @} */
 
 /******************************************************
  *                   Type Definitions
  ******************************************************/
-
-/**
- * @addtogroup SERVICE_MDNS_TYPES
- * @{
- */
-/// MDNS service query
+/// mDNS service query
 typedef struct {
-  const char *instance_name;    ///< MDNS Instance service name
-  const char *service_type;     ///< MDNS service type
-  const char *service_sub_type; ///< MDNS service sub type
-  sl_net_interface_t interface; ///< Target Interface
+  const char *instance_name;    ///< mDNS instance service name
+  const char *service_type;     ///< mDNS service type
+  const char *service_sub_type; ///< mDNS service sub type
+  sl_net_interface_t interface; ///< Target interface
   uint16_t timeout;             ///< Time out for query
 } sl_mdns_service_query_t;
 
-/// MDNS service
-typedef struct sl_mdns_service_configuration_s {
-  const char *instance_name;   ///< MDNS Instance service name
-  const char *service_type;    ///< MDNS service type
-  const char *service_message; ///< MDNS service message
+/// mDNS service
+typedef struct {
+  const char *instance_name;   ///< mDNS instance service name
+  const char *service_type;    ///< mDNS service type
+  const char *service_message; ///< mDNS service message
   uint16_t port;               ///< Service port number
   uint16_t ttl;                ///< Service TTL
 
-  /* NOTE: Below parameters are not used in offload mode. */
+  /* NOTE: The following parameters are not used in offload mode. */
   sl_ipv4_address_t
-    ipv4; ///< IPv4 address of service (In case of offload mode, it is provided by embedded network stack)
+    ipv4; ///< IPv4 address of service. (In case of offload mode, it is provided by embedded network stack.)
   sl_ipv6_address_t
-    ipv6; ///< IPv6 address of service (In case of offload mode, it is provided by embedded network stack)
+    ipv6; ///< IPv6 address of service. (In case of offload mode, it is provided by embedded network stack.)
 } sl_mdns_service_t;
 
-/// MDNS service discovery request
+/// mDNS service discovery request
 typedef struct {
-  char *service_name;           ///< Target Service name for discovery
-  sl_net_interface_t interface; ///< Interface on which to discover the service from @ref sl_net_interface_t
-  uint16_t timeout;             ///< timeout for the discovery
+  char *service_name; ///< Target service name for discovery
+  sl_net_interface_t
+    interface; ///< Interface on which to discover the service from [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t).
+  uint16_t timeout; ///< timeout for the discovery
 } sl_mdns_discover_request_t;
 
 /// MDNS instance configuration
 typedef struct {
-  sl_mdns_protocol_t protocol; ///< Protocol to use for MDNS from @ref sl_mdns_protocol_t
-  sl_ip_version_t type;        ///< IP version to use for MDNS from @ref sl_ip_version_t
+  sl_mdns_protocol_t protocol; ///< Protocol to use for mDNS from @ref sl_mdns_protocol_t.
+  sl_ip_version_t
+    type; ///< IP version to use for mDNS from [sl_ip_version_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-version-t).
   char host_name
-    [32]; ///< Host Name to use for the MDNS Instance. The host name Should contain dot(.) at the end, For example "wiseconnect.local.". The string length should not exceed 32 including NULL terminator.
+    [32]; ///< Host Name to use for the mDNS Instance. The host name Should contain dot(.) at the end (for example, "wiseconnect.local."). The string length should not exceed 32 including NULL terminator.
 } sl_mdns_configuration_t;
 
-/// MDNS interface
+/// mDNS interface
 typedef struct {
-  sl_net_interface_t interface;   ///< Network Interface of type @ref sl_net_interface_t
-  sl_wifi_buffer_t *service_list; ///< Pointer to service list of Type @ref sl_wifi_buffer_t
+  sl_net_interface_t
+    interface; ///< Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t).
+  sl_wifi_buffer_t *
+    service_list; ///< Pointer to the service list of type [sl_wifi_buffer_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-buffer-t).
 } sl_mdns_interface_t;
 
-/// MDNS instance handle
+// Forward declaration of the structure to allow usage in the sl_mdns_event_handler_t definition.
+/// mDNS instance handle
 typedef struct sl_mdns_s sl_mdns_t;
 
 /**
  * @typedef sl_mdns_event_handler_t
- * @brief MDNS event handler
- * @param[in] mdns  MDNS instance handle of type @ref sl_mdns_t
- * @param[in] event MDNS event of type @ref sl_mdns_event_t.
- * @param[in] data  Data pointer containing data structure of corresponding to corresponding event of type @ref sl_mdns_event_t
+ * @brief mDNS event handler
+ * @param[in] mdns  mDNS instance handle of type @ref sl_mdns_t.
+ * @param[in] event mDNS event of type @ref sl_mdns_event_t.
+ * @param[in] data  Data pointer containing data structure of corresponding to corresponding event of type @ref sl_mdns_event_t.
  */
 typedef void (*sl_mdns_event_handler_t)(sl_mdns_t *mdns, sl_mdns_event_t event, void *data);
 
-/// MDNS instance handle
+/// mDNS instance handle
 struct sl_mdns_s {
-  sl_mdns_configuration_t configuration; ///< MDNS configuration of type @ref sl_mdns_configuration_t
-  sl_mdns_event_handler_t event_handler; ///< MDNS event handler of type @ref sl_mdns_event_handler_t
-  sl_wifi_buffer_t *interface_list;      ///< Pointer to interface list of Type @ref sl_wifi_buffer_t
-  uint8_t service_count;                 ///< Count of total number of services being registered on all interfaces
+  sl_mdns_configuration_t configuration; ///< mDNS configuration of type @ref sl_mdns_configuration_t
+  sl_mdns_event_handler_t event_handler; ///< mDNS event handler of type @ref sl_mdns_event_handler_t
+  sl_wifi_buffer_t *
+    interface_list; ///< Pointer to interface list of type [sl_wifi_buffer_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-buffer-t).
+  uint8_t service_count; ///< Count of the total number of services being registered on all interfaces.
 };
-
-/** @} */
-
-/**
- * @addtogroup SERVICE_MDNS_FUNCTIONS
- * @{
- */
 
 /**
  * @brief
- * Initialize MDNS Instance.
- * @param[in] mdns          MDNS instance handle of type @ref sl_mdns_t. This Shall not be modified by application after this API call.
- * @param[in] config		Valid pointer to mdns configuration structure of type @ref sl_mdns_configuration_t. This shall not be null.
+ * Initialize mDNS instance.
+ * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t. This cannot be modified by the application after this API call.
+ * @param[in] config		Valid pointer to mDNS configuration structure of type @ref sl_mdns_configuration_t. This value cannot be null.
  * @param[in] event_handler Event handler of type @ref sl_mdns_event_handler_t for receiving asynchronous events.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  * @note
- *   This API needs to be called before calling any other MDNS API
+ *   This API needs to be called before calling any other mDNS API
+ * @note
+ *   @ref sl_mdns_event_handler_t currently not supported. User should pass NULL for event_handler.
  */
 sl_status_t sl_mdns_init(sl_mdns_t *mdns, const sl_mdns_configuration_t *config, sl_mdns_event_handler_t event_handler);
 
 /**
  * @brief
- * De-initialize MDNS Instance.
- * @param[in] mdns          MDNS instance handle of type @ref sl_mdns_t
+ * De-initialize mDNS instance.
+ * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  */
@@ -142,9 +136,9 @@ sl_status_t sl_mdns_deinit(sl_mdns_t *mdns);
 
 /**
  * @brief
- * Add network interface to MDNS Instance.
- * @param[in] mdns          MDNS instance handle of type @ref sl_mdns_t
- * @param[in] interface     Network interface of type @ref sl_net_interface_t that needs to be added to MDNS instance
+ * Add network interface to mDNS instance.
+ * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t.
+ * @param[in] interface     Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t) that needs to be added to mDNS instance.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  */
@@ -152,9 +146,9 @@ sl_status_t sl_mdns_add_interface(sl_mdns_t *mdns, sl_net_interface_t interface)
 
 /**
  * @brief
- * Remove network interface to MDNS Instance.
- * @param[in] mdns          MDNS instance handle of type @ref sl_mdns_t
- * @param[in] interface     Network interface of type @ref sl_net_interface_t that needs to be removed from MDNS instance
+ * Remove network interface to mDNS instance. (Currently not supported.) 
+ * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t.
+ * @param[in] interface     Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t) that needs to be removed from mDNS instance.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  */
@@ -162,10 +156,10 @@ sl_status_t sl_mdns_remove_interface(sl_mdns_t *mdns, sl_net_interface_t interfa
 
 /**
  * @brief
- * Register a service in MDNS Instance.
- * @param[in] mdns          MDNS instance handle of type @ref sl_mdns_t
- * @param[in] interface     Network interface of type @ref sl_net_interface_t to which service needed to be added to MDNS instance
- * @param[in] service		Valid pointer to mdns service configuration structure of type @ref sl_mdns_service_t . This shall not be null.
+ * Register a service in mDNS instance.
+ * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t.
+ * @param[in] interface     Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t) to which service needed to be added to mDNS instance.
+ * @param[in] service		Valid pointer to mDNS service configuration structure of type @ref sl_mdns_service_t . This value cannot be null.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  */
@@ -173,9 +167,9 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
 
 /**
  * @brief
- * Unregister a service from MDNS Instance.
- * @param[in] mdns          MDNS instance handle of type @ref sl_mdns_t
- * @param[in] service_query Valid pointer to mdns service query structure of type @ref sl_mdns_service_query_t . This shall not be null.
+ * Unregister a service from mDNS instance. (Currently not supported.) 
+ * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t
+ * @param[in] service_query Valid pointer to mDNS service query structure of type @ref sl_mdns_service_query_t . This value cannot be null.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  */
@@ -183,28 +177,28 @@ sl_status_t sl_mdns_unregister_service(sl_mdns_t *mdns, sl_mdns_service_query_t 
 
 /**
  * @brief
- * Update service message of a service in MDNS Instance.
- * @param[in] mdns              MDNS instance handle of type @ref sl_mdns_t
- * @param[in] service_query     Valid pointer to mdns service query structure of type @ref sl_mdns_service_query_t . This shall not be null.
- * @param[in] message           Valid pointer to a buffer containing service message string . This shall not be null.
+ * Update service message of a service in mDNS instance. (Currently not supported.)
+ * @param[in] mdns              mDNS instance handle of type @ref sl_mdns_t.
+ * @param[in] service_query     Valid pointer to mDNS service query structure of type @ref sl_mdns_service_query_t. This value cannot be null.
+ * @param[in] message           Valid pointer to a buffer containing service message string . This value cannot be null.
  * @param[in] message_length    Length of the message buffer.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  */
 sl_status_t sl_mdns_update_service_message(sl_mdns_t *mdns,
-                                           sl_mdns_service_query_t *query,
+                                           sl_mdns_service_query_t *service_query,
                                            const char *message,
                                            uint32_t message_length);
 
 /**
  * @brief
- * Discover services using MDNS Instance.
- * @param[in] mdns          MDNS instance handle of type @ref sl_mdns_t
- * @param[in] service_query Valid pointer to mdns service query structure of type @ref sl_mdns_service_query_t . This shall not be null.
+ * Discover services using mDNS instance. (Currently not supported.)
+ * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t
+ * @param[in] service_query Valid pointer to mDNS service query structure of type @ref sl_mdns_service_query_t . This value cannot be null.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  */
-sl_status_t sl_mdns_discover_service(sl_mdns_t *mdns, sl_mdns_service_query_t *query);
+sl_status_t sl_mdns_discover_service(sl_mdns_t *mdns, sl_mdns_service_query_t *service_query);
 
 /** @} */
 

@@ -49,7 +49,6 @@
 /***********************************************************************************************************************************************/
 #define RSI_REMOTE_DEVICE_NAME1 "SILABS_BLE_DEV"
 #define RSI_REMOTE_DEVICE_NAME2 "SILABS_BLE_DEV2"
-#define RSI_REMOTE_DEVICE_NAME3 "SILABS_BLE_DEV3"
 #else
 
 #define RSI_BLE_DEV_ADDR_TYPE \
@@ -59,7 +58,6 @@
 /***********************************************************************************************************************************************/
 #define RSI_BLE_DEV_1_ADDR "00:1A:7D:DA:71:16"
 #define RSI_BLE_DEV_2_ADDR "00:1A:7D:DA:71:74"
-#define RSI_BLE_DEV_3_ADDR "00:1A:7D:DA:73:13"
 #endif
 
 #ifdef SLI_SI91X_MCU_INTERFACE
@@ -500,7 +498,7 @@ typedef struct rsi_ble_s {
 #define LE_SCAN_WINDOW_CONN   0x0050
 
 /***********************************************************************************************************************************************/
-//! Connection parameters for RSI as master to remote device as slave connection
+//! Connection parameters for RSI as central to remote device as peripheral connection
 /***********************************************************************************************************************************************/
 #define M2S12_CONNECTION_INTERVAL_MIN 0x00C8
 #define M2S12_CONNECTION_INTERVAL_MAX 0x00C8

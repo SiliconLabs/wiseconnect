@@ -189,7 +189,7 @@ sl_status_t sl_si91x_crc_write_data(sl_crc_params_t *pCRCParams, uint32_t data, 
  *                                         sl_crc_params_t *pCRCParams,
  *                                         uint32_t crc)
  * @brief        This API is used to monitor the CRC Calculation status and the
- *returns the CRC Value.
+ * returns the CRC Value.
  *******************************************************************************/
 sl_status_t sl_si91x_crc_monitor_crc_calc(sl_crc_params_t *pCRCParams, uint32_t *crc)
 {
@@ -259,7 +259,7 @@ sl_status_t sl_si91x_crc_enable(void)
 
 /*******************************************************************************
  * @fn sl_status_t sl_si91x_crc_disable(void)
- * @brief Enables the CRC peripheral.
+ * @brief Disables the CRC peripheral.
  *
  * This function disable the CRC peripheral by disabling its clock.
  ******************************************************************************/

@@ -51,7 +51,6 @@
  * retention submitting the buffer valid to the TA for the rx packets.
  */
 void sl_si91x_m4_sleep_wakeup(void);
-void sl_si91x_pre_supress_ticks_and_sleep(uint32_t *xExpectedIdleTime);
 /**
  * @fn           initialize_m4_alarm.
  * @brief        This function is to initialize Alarm block .

@@ -4,7 +4,7 @@
 
 This reference manual provides information about the software on the SiWx917™, the first chip in the SiWx91x™ chipset family. It is intended to provide all the details required for a smooth developer experience.
 
-The SiWx91x is the industry's first wireless microcontroller unit (MCU) family with a comprehensive multi-protocol wireless subsystem. It has an integrated ultra low power microcontroller, a built-in wireless subsystem, advanced security, high performance mixed-signal peripherals, and integrated power management.
+The SiWx91x is the industry's first wireless microcontroller unit (MCU) family with a comprehensive multiprotocol wireless subsystem. It has an integrated ultra-low-power microcontroller, a built-in wireless subsystem, advanced security, high-performance mixed-signal peripherals, and integrated power management.
 
 The SiWx917 system-on-chip (SoC) has two processing cores:
 - ThreadArch™ (TA) wireless connectivity processor, also known as the network processor (**NWP**)
@@ -14,7 +14,7 @@ The SiWx917 operates either with two flash memories, one for the MCU and the oth
 
 MCU applications can be developed, compiled, and run on the SiWx917 using the WiSeConnect SDK v3.x extension (or **WiSeconnect 3** extension) on Simplicity Studio. NWP firmware is available as a pre-built binary with the WiSeConnect SDK package. See the [Getting Started](http://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) documentation for more details.
 
->**Note:** RTOS support is available at Application and Service level. Applications developers should ensure to use right RTOS primitives when accessing MCU peripherals from multiple SW threads.When using RTOS, need to configure interrupt priorities for all MCU interrupts being used in the application.
+>**Note:** RTOS support is available at Application and Service level. Applications developers must use the correct RTOS primitives when accessing MCU peripherals from multiple SW threads. When using RTOS, developers need to configure interrupt priorities for all MCU interrupts being used in the application.
 
 ## Software Architecture
 
@@ -26,17 +26,19 @@ The following diagram illustrates the software architecture of the SiWx917:
 
 ### SiWx91x MCU
 
-The ARM Cortex M4 application processor (MCU) on the SiWx917 is a high performance, 32-bit processor which can operate up to 180 MHz. 
+The ARM Cortex M4 application processor (MCU) on the SiWx917 is a high-performance, 32-bit processor which can operate up to 180 MHz. 
 
 The MCU provides a rich set of core peripherals such as the systick timer, FPU, NVIC, etc.
 
 The WiSeConnect SDK provides CMSIS supported drivers for a few peripherals while the remaining are supported by non-CMSIS drivers.
 
-The following diagram shows CMSIS and non-CMSIS peripherals in different blocks. It also higlights the ultra low power (ULP) peripherals.
+The following diagram shows CMSIS and non-CMSIS peripherals in different blocks. It also higlights the ultra-low-power (ULP) peripherals.
 
 For more details on MCU Peripherals, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access). 
 
 ![SiWx917 MCU Architecture](./resources/SiWx917_mcu_architecture.PNG)
+
+- When using any low-power instance in high-power mode with DMA enabled, it is recommended to allocate buffers in the ULP Memory block. For more information on buffer allocation, please refer to the following examples: ULP_I2S, ULP_UDMA, ULP_SSI, and ULP_UART.
 
 ### Bootup Flow
 
@@ -48,7 +50,7 @@ On bootup, the security bootloader:
 - Configures the module hardware based on the configuration present in the e-fuse and flash memory. 
 - Authenticates the flash configuration settings.
 - Passes the required information from the e-fuse to the application bootloader.
-- Uses public and private key based digital signatures to authenticate the firmware images.
+- Uses public and private key-based digital signatures to authenticate the firmware images.
 - Invokes the application bootloader.
 
 ![TA and M4 bootloader flow](./resources/boot_up_flow.png)
@@ -59,58 +61,76 @@ On bootup, the security bootloader:
 
 The following diagram demonstrates the flow of code in an SiWx917 MCU application code created using the WiSeConnect SDK.
 
-Code blocks in green represent SiWx91x MCU APIs and code blocks on orange represent Wireless APIs. See the [WiSeConnect API Reference Guide](http://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary/) for more information.
+Code blocks in green represent SiWx91x MCU APIs and code blocks in orange represent Wireless APIs. See the [WiSeConnect API Reference Guide](http://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary/) for more information.
 
 ![Application Flow](./resources/application_flow.png)
 
 ### Clock Configuration
 
-The SiWx917 clock subsystem facilitates changing the clock source and/or frequency for different functionalities to fine tune the power usage and performance of a given application. The subsystems supports configuring on-chip clocks such as ULP clock oscillators and high-freqeuency PLLs, or clocks to processor, high speed interfaces, and peripherals (including MCU HP, MCU ULP and UULP Vbat).
+The SiWx917 clock subsystem facilitates changing the clock source and/or frequency for different functionalities to fine tune the power usage and performance of a given application. The subsystems supports configuring on-chip clocks such as ULP clock oscillators and high-freqeuency PLLs, or clocks to processor, high-speed interfaces, and peripherals (including MCU HP, MCU ULP and UULP Vbat).
 
-* Multiple high frequency clocks generated by PLLs
-  * High Frequency Clock from 1MHz - 180MHz (SOC_PLL_CLK)
-  * High Frequency Interface Clock from 1MHz - 180MHz (INTF_PLL_CLK)
+* Multiple high-frequency clocks generated by PLLs
+  * High-frequency Clock from 1 MHz - 180 MHz (SOC_PLL_CLK)
+  * High-frequency Interface Clock from 1 MHz - 180 MHz (INTF_PLL_CLK)
   * Defined frequencies for I2S Interface (I2S_PLL_CLK)
 * Multiple clocks generated by ULP Clock Oscillators. These are low-power clock oscillators
-  * External Crystal clock (XTAL_CLK)
-  * RC 32MHz Clock (RC_32MHZ_CLK)
-  * RO High-Frequency clock (RO_HF_CLK)
+  * External Crystal Clock (XTAL_CLK)
+  * RC 32 MHz Clock (RC_32MHZ_CLK)
+  * RO High-frequency Clock (RO_HF_CLK)
   * Doubler Clock (DOUBLER_CLK)
-  * RC 32kHz Clock (RC_32KHZ_CLK)
-  * RO 32kHz Clock (RO_32KHZ_CLK)
-  * XTAL 32kHz clock (XTAL_32KHZ_CLK)
+  * RC 32 kHz Clock (RC_32KHZ_CLK)
+  * RO 32 kHz Clock (RO_32KHZ_CLK)
+  * XTAL 32 kHz clock (XTAL_32KHZ_CLK)
 * Configurable independent division factors for varying the frequencies of different functional blocks
 * Configurable independent clock gating for different functional blocks
 
-By deafult the MCU clock is configured to 40MHz using the **XTAL_CLK** clock source.
+By default the MCU clock is configured to 40 MHz using the **XTAL_CLK** clock source.
 
 The following example code snippet illustrates setting the SOCPLL clock (1 MHz to 180 MHz) as MCUSOC-Clock:
 
 ```C
 #include "sl_si91x_clock_manager.h"
 
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
+#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180 MHz default SoC PLL Clock as source to Processor
 
-// Core Clock runs at 180MHz SOC PLL Clock
+// Core Clock runs at 180 MHz SOC PLL Clock
 sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
+```
+### External oscillator(32 kHz) on UULP GPIO-3
+Incorporate the following code snippet in the **SystemCoreClockUpdate()** function found in the **system_si91x.c** file when an external oscillator is connected to **UULP_GPIO_3**. Comment out the line **"RSI_PS_FsmLfClkSel(KHZ_XTAL_CLK_SEL)"** and replace it with the provided code snippet to avoid potential issues.
 
+File name : **system_si91x.c**
+
+Function Name : **SystemCoreClockUpdate()**
+```C
+  #define MCU_RETENTION_BASE_ADDRESS    0x24048600
+  #define NPSS_GPIO_CTRL                (MCU_RETENTION_BASE_ADDRESS + 0x1C)
+  #define UULP_GPIO_3                   3  
+```
+```C
+// Configuring the UULP_GPIO_3 for external oscillator
+  *(volatile uint32 *)(NPSS_GPIO_CTRL + (4 * UULP_GPIO_3)) = (BIT(3) | 0x5);
+  MCUAON_GEN_CTRLS_REG |= BIT(0);
+  MCUAON_GEN_CTRLS_REG;  
+// Configuring RC 32 kHz Clock for LF-FSM
+  RSI_PS_FsmLfClkSel(KHZ_RC_CLK_SEL); 
 ```
 > **Note**
-1. **Clock Manager** component needs to be installed to use this function
-2. For reference, look into example applications where the MCU clock is reconfigured to 180MHz in the application using the function **default_clock_configuration();**
+1. **Clock Manager** component needs to be installed to use this function.
+2. For reference, look into example applications where the MCU clock is reconfigured to 180 MHz in the application using the function **default_clock_configuration();**
 
 ### GPIO Configuration
 
-The SiWx917 has totally 53 general-purpose input-output (GPIO) ports. The number of GPIOs available varies between different packages. Please refer to the **GPIO available vs package** table in the product datasheet for more details. Registers for GPIO pins that are not available on the package are reserved.
+The SiWx917 has a total of 53 general-purpose input-output (GPIO) ports. The number of GPIOs available varies between different packages. Refer to the **GPIO available vs package** table in the product datasheet for more details. Registers for GPIO pins that are not available on the package are reserved.
 
-For configuring any GPIO on SiWx917 SoC, it is required to program the following:
+Configuring any GPIO on SiWx917 SoC requires programming the following:
 
 * Pad Configuration
 * Pin Muxing
 
 #### Pad Configuration
 
-There is a common set of GPIO pads shared by multiple processor subsystems containing the secure zone processor (SZP), MCU high performance (HP), and MCU ultra low power (ULP) subsystems. 
+There is a common set of GPIO pads shared by multiple processor subsystems containing the secure zone processor (SZP), MCU high-performance (HP), and MCU ultra-low-power (ULP) subsystems. 
 
 It is possible to control GPIO pads from either the SZP, MCU HP, or MCU ULP. The pad selection register has to be programmed to control the GPIOs between the subsystems. 
 
@@ -127,7 +147,7 @@ The SiWx917 provides multiplexing features on several pins. It is possible to co
 
 There are many digital and analog peripherals on the SiWx917 such as the I2C, I2S, UART, SPI, Ethernet, SDIO, SDMEM, PWM, QEI, CAN, etc. However, the number of pins is limited. 
 
-The pin multiplexing module makes it possible to accommodate all of the peripherals in a small package without compromising on functionality. The module makes it possible to multiplex different functions on the same I/O pin. If a I/O pin is used for a peripheral function, it cannot be used as GPIO. The reset values for the GPIO mode for each of the GPIOs are provided in the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access) under **PAD Configuration and GPIO Mode Reset Values** section  .
+The pin multiplexing module makes it possible to accommodate all of the peripherals in a small package without compromising on functionality. The module makes it possible to multiplex different functions on the same I/O pin. If a I/O pin is used for a peripheral function, it cannot be used as GPIO. The reset values for the GPIO mode for each of the GPIOs are provided in the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access) under **PAD Configuration and GPIO Mode Reset Values** section.
 
 Refer to the **SiWx917 Pin MUX** section in the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
@@ -154,7 +174,7 @@ sl_gpio_clear_pin_output(PORT, GPIO_PIN);
 sl_gpio_set_pin_output(PORT, GPIO_PIN);
 ```
 
-> **Note**: Please see the [Si91x - SL_GPIO](https://github.com/SiliconLabs/wiseconnect/tree/master/examples/si91x_soc/peripheral/sl_si91x_gpio) example for more information.
+> **Note**: See the [Si91x - SL_GPIO](https://github.com/SiliconLabs/wiseconnect/tree/master/examples/si91x_soc/peripheral/sl_si91x_gpio) example for more information.
 
 **Code Snippet - Configuring GPIO In Peripheral Mode**
 
@@ -178,7 +198,7 @@ sl_gpio_set_pin_mode(PORT, GPIO_PIN, EGPIO_PIN_MUX_MODE6,0);
 
 The SoC GPIOs below (GPIO_6 to GPIO_51) are available in the normal mode of operation (power states 3 and 4). For a description of power states, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access). 
 
-Each of these GPIO pin functions is controlled by the GPIO Mode register mentioned in **SoC GPIO's** section of the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access). 
+Each of these GPIO pin functions is controlled by the GPIO Mode register mentioned in **SoC GPIO's** section of the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access). 
 
 | **PIN** | **PAD NUMBER** | **GPIO** | **GPIO Mode= 0** | **GPIO Mode= 1** | **GPIO Mode= 2** | **GPIO Mode= 3** | **GPIO Mode= 4** | **GPIO Mode= 5** | **GPIO Mode= 6** | **GPIO Mode= 7** | **GPIO Mode= 8** | **GPIO Mode= 9** | **GPIO Mode= 10** | **GPIO Mode= 11** | **GPIO Mode= 12** | **GPIO Mode*= 13** | **GPIO Mode*= 14** | **GPIO Mode*= 15** |
 | ------- | -------------- | ---------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- |
@@ -244,11 +264,11 @@ The following is an example code snippet illustrating the use of the above APIs:
 
 ##### Digital ULP GPIOs
 
-The SoC GPIOs configured for ULP Peripheral functionality (ULPPERH_ON_SOC_GPIO_0 to ULPPERH_ON_SOC_GPIO_11) are available only in the normal mode of operation (Power-states 4 and 3). For a description of power-states,For a description of power states, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+The SoC GPIOs configured for ULP Peripheral functionality (ULPPERH_ON_SOC_GPIO_0 to ULPPERH_ON_SOC_GPIO_11) are available only in the normal mode of operation (Power-states 4 and 3). For a description of power-states, see the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 Each of these GPIO pin functions is controlled by the Special Function ULP register mentioned in **ULP GPIO's** section of the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
-> **Note:** These Digital functions are only available in normal mode of operation PS3 and PS4. For more details refer to powersave app note
+> **Note:** These digital functions are only available in normal mode of operation PS3 and PS4. For more details, refer to powersave app note.
 
 | PIN | ULP_GPIO | ULP_GPIO Mode 0 | ULP_GPIO Mode 1 | ULP_GPIO Mode 2 | ULP_GPIO Mode 3 | ULP_GPIO Mode 4 | ULP_GPIO Mode 5 | ULP_GPIO Mode 6 | ULP_GPIO Mode 7 | ULP_GPIO Mode 8 | ULP_GPIO Mode 9 | ULP_GPIO Mode 10 | ULP_GPIO Mode 11 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -288,9 +308,9 @@ sl_si91x_gpio_ulp_soc_mode((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO, ULP_GPIO_4
 
 ##### ULP GPIO's
 
-The ULP GPIOs listed in the table below (ULP_GPIO_0 to ULP_GPIO_11) are available in the normal mode of operation (power states 3 and 4) and also in the ultra low power mode of operation (power states 1 and 2). For a description of power states, refer the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+The ULP GPIOs listed in the table below (ULP_GPIO_0 to ULP_GPIO_11) are available in the normal mode of operation (power states 3 and 4) and also in the ultra-low-power mode of operation (power states 1 and 2). For a description of power states, refer to the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
-Each of these GPIO's Pin function is controlled by the Special ULP register mentioned in **ULP GPIO's** section of the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+Each of these GPIO pin functions is controlled by the Special ULP register mentioned in **ULP GPIO's** section of the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 | PIN | ULP_GPIO | ULP_GPIO Mode 0 | ULP_GPIO Mode 1 | ULP_GPIO Mode 2 | ULP_GPIO Mode 3 | ULP_GPIO Mode 4 | ULP_GPIO Mode 5 | ULP_GPIO Mode 6 | ULP_GPIO Mode 7 | ULP_GPIO Mode 8 | ULP_GPIO Mode 9 | ULP_GPIO Mode 10 | ULP_GPIO Mode 11 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -323,11 +343,11 @@ The following is an example code snippet illustrating the use of the above APIs:
 
 ##### Digital SoC GPIOs
 
-The ULP GPIOs configured for SoC Peripheral functionality (SOCPERH_ON_ULP_GPIO_0 to SOCPERH_ON_ULP_GPIO_11) are available only in the normal mode of operation (Power-states 4 and 3). For a description of power-states, refer the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+The ULP GPIOs configured for SoC Peripheral functionality (SOCPERH_ON_ULP_GPIO_0 to SOCPERH_ON_ULP_GPIO_11) are available only in the normal mode of operation (Power-states 4 and 3). For a description of power-states, refer to the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 Each of these GPIO pin functions is controlled by the GPIO Mode register mentioned in **SoC GPIO's** section of the **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
-> **Note:** These Digital functions are only available in normal mode of operation PS3 and PS4. For more details refer to powersave app note
+> **Note:** These digital functions are only available in normal mode of operation PS3 and PS4. For more details, refer to powersave app note.
 
 | **PIN** | **PAD NUMBER** | **GPIO** | **GPIO Mode= 0** | **GPIO Mode= 1** | **GPIO Mode= 2** | **GPIO Mode= 3** | **GPIO Mode= 4** | **GPIO Mode= 5** | **GPIO Mode= 6** | **GPIO Mode= 7** | **GPIO Mode= 8** | **GPIO Mode= 9** | **GPIO Mode= 10** | **GPIO Mode= 11** | **GPIO Mode= 12** | **GPIO Mode*= 13** |
 | ------- | -------------- | ---------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- |
@@ -362,9 +382,9 @@ sl_gpio_set_pin_mode(PORT0, PIN72, MODE1, OUTPUT_VALUE);
 ```
 
 ### User callback recommendation
-- In RTOS environment, prefer Signaling mechanisms (Semaphore/Mutex/EventFlag etc.) instead of "Variables/Flags" from user callbacks to detect "*Transfer Complete*" for high speed communication peripherals
+- In RTOS environment, Signaling mechanisms (Semaphore/Mutex/EventFlag etc.) are recommended instead of "Variables/Flags" from user callbacks to detect "*Transfer Complete*" for high-speed communication peripherals.
 
-Refer below GSPI callback's sample code snippet demonstrating Mutex mechanism when RTOS is used:
+Refer to the below GSPI callback's sample code snippet demonstrating Mutex mechanism when RTOS is used:
 
 ```C
 /*******************************************************************************
@@ -395,9 +415,9 @@ static void user_callback(uint32_t event)
 
 The SiWx917 SoC supports sleep on both the MCU and NWP with or without RAM retention.
 
-Sleep with RAM retention makes it possible for the configured SRAM banks to be retained across sleep and wake up. It is possible to select sleep without RAM retention if the retention of SRAM banks is not required.
+Sleep with RAM retention makes it possible for the configured SRAM banks to be retained across sleep and wakeup. It is possible to select sleep without RAM retention if the retention of SRAM banks is not required.
 
-Any peripherals (HP and ULP peripherals) that are initialized on powering up must be re-initialized at wake up.
+Any peripherals (HP and ULP peripherals) that are initialized on powering up must be re-initialized at wakeup.
 
 #### Sleep Wakeup Sequence
 
@@ -413,9 +433,9 @@ Any peripherals (HP and ULP peripherals) that are initialized on powering up mus
 
 ![ Wireless wakeup](./resources/wireless_wakeup.png)
 
-#### MCU Wake Up Modes
+#### MCU Wakeup Modes
 
-The wake-up mode defines the bootloader sequence the SiWx917 will undergo once it comes out of sleep. The table below lists the different types of wake up modes available.
+The wakeup mode defines the bootloader sequence the SiWx917 will undergo once it comes out of sleep. The table below lists the different types of wakeup modes available.
 
 ![ MCU wakeup modes](./resources/MCU_wakeup_modes.png)
 
@@ -423,7 +443,7 @@ The wake-up mode defines the bootloader sequence the SiWx917 will undergo once i
 
 1. Initialize the peripheral for the wakeup source.
     - Configure the wakeup source.
-    - For example if it is a button based wakeup, then configure the GPIO button interrupt
+    - For example, if it is a button based wakeup, then configure the GPIO button interrupt.
 
     ```C
     //!Configure Wakeup-Source as wireless based 
@@ -501,13 +521,13 @@ The wake-up mode defines the bootloader sequence the SiWx917 will undergo once i
 >
 >* Refer to the [Wi-Fi - TCP Tx on Periodic Wakeup (SoC)](https://github.com/SiliconLabs/wiseconnect/tree/master/examples/si91x_soc/wlan/tcp_tx_on_periodic_wakeup) example for a detailed >example of M4 sleep wakeup.
 >
->* Enable SL_SI91X_ENABLE_LOWPWR_RET_LDO macro to optimize the deepsleep >power number, by default it is disabled.
+>* Enable SL_SI91X_ENABLE_LOWPWR_RET_LDO macro to optimize the deepsleep >power number. By default, it is disabled.
 
-### Front End Switch Selection GPIOs
+### Front-End Switch Selection GPIOs
 
  It is possible to configure the front-end switch GPIO pin selection through opermode.
 
-The following table describes the font-end switch selection for the SiWx917.
+The following table describes the front-end switch selection for the SiWx917.
 
 |**BIT[30]** |**BIT[29]** | **ANT_SEL_0(VC3)** | **ANT_SEL_1(VC2)** | **ANT_SEL_2(VC1)**|
 |---------|---------|--------|-------|------|
@@ -518,12 +538,14 @@ The following table describes the font-end switch selection for the SiWx917.
 
 > **Note:**
 >* SiWx917 has an integrated on-chip transmit/receive (T/R) switch. This Internal RF Switch configuration uses internal logic present in the IC, and GPIOs are not needed. RF_BLE_TX (8dbm) mode is not supported in this configuration.
->* VC1, VC2, and VC3 are control voltage pins of the radio frequency (RF) switch. Please see the Reference Schematics for details.
+>* VC1, VC2, and VC3 are control voltage pins of the radio frequency (RF) switch. See the Reference Schematics for details.
+>* ULP_GPIO_0, ULP_GPIO_4, and ULP_GPIO_5 are reserved for TA when an external RF switch is used. Configuring these pins in the application may negatively impact RF performance. These GPIOs will be reserved only if the IC/Module has an onboard antenna.
+
 ### Preprocessor Macros
 
 #### SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
 
-Enable this macro in order to execute selected WiSeConnect SDK files from RAM. This is required to achieve atomicity during the simulataneous access of the flash by both the MCU and NWP.
+Enable this macro to execute selected WiSeConnect SDK files from RAM. This is required to achieve atomicity during the simulataneous access of the flash by both the MCU and NWP.
 
 This is necessary in the following scenarios:
 * Wireless de-initialization,
@@ -538,25 +560,25 @@ The `SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION` macro will be enabled if the **de
 
 ### SLI_SI91X_MCU_4MB_LITE_IMAGE
 
-The current wireless flash image is 1.6MB. An lite image has been implemented to free up the space for MCU applications.
-Lite config is used for 4MB SoC OPN where 1.3 MB allocated for the TA image and ~1MB reserved for the M4 image
+The current wireless flash image is 1.6 MB. A lite image has been implemented to free up the space for MCU applications.
+Lite config is used for 4 MB SoC OPN where 1.3 MB is allocated for the TA image and ~1MB reserved for the M4 image.
 
 The `SLI_SI91X_MCU_4MB_LITE_IMAGE` macro will be enabled if the **lite_image_for_4mb** component is installed.
 
-For low power M4 sleep states such as PS2, PS3, and PS4, certain files must be run from RAM memory.. Please refer [Power manager integration guide](
+For low-power M4 sleep states such as PS2, PS3, and PS4, certain files must be run from RAM memory. Refer to [Power manager integration guide](
 https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/service/sl_si91x_power_manager_m4_wireless/resources/power_manager_integration_guide/power_manager_integration.pdf
-) for more details
+) for more details.
 
 ## Memory Organization
 
 This section provides an overview of the different memory regions of the SiWx917.
 
 The SiWx917 SoC contains the following memory components:
-* On-chip SRAM of 192KB, 256KB, or 320KB depending on chip configuration
-* 8KB memory in the ultra low power (ULP) peripheral subsystem, primarily used by the ULP MCU peripherals
-* 64KB of ROM
-* Quad SPI flash memory up to 8MB depending on package configuration
-* Quad SPI PSRAM up to 8MB depending on package configuration
+* On-chip SRAM of 192 KB, 256 KB, or 320 KB depending on chip configuration
+* 8 KB memory in the ultra-low-power (ULP) peripheral subsystem, primarily used by the ULP MCU peripherals
+* 64 KB of ROM
+* Quad SPI flash memory up to 8 MB depending on package configuration
+* Quad SPI PSRAM up to 8 MB depending on package configuration
 * e-Fuse of 32 bytes
 
 Detailed information on the memory components above coming soon in the **SiWx917 SoC Memory Map Application Note**.
@@ -575,11 +597,11 @@ The PSRAM may be used for runtime data storage in addition to MCU application ex
 
 The PSRAM address space is mapped to 0x0A00_0000 - 0x0AFF_FFFF and 0x0B00_0000 - 0x0BFF_FFFF which is cached via D-cache and I-cache to improve the memory access performance for both data and instructions respectively. The address 0x0A00_0000 - 0x0AFF_FFFF drives the chip select CSN0 and 0x0B00_0000 - 0x0BFF_FFFF drives the chip select CSN1 of the PSRAM controller.
 
-There is a provision to modify the PSRAM configuration settings in addition to boot up and default settings, with the help of driver APIs which are part of the WiSeConnect SDK. These additional configurations include interface mode, read/write type, clock, pinset, and others. The WiSeConnect SDK offers various [examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/) to demonstrate the use of PSRAM memory and driver APIs.
+There is a provision to modify the PSRAM configuration settings in addition to boot up and default settings with the help of driver APIs which are part of the WiSeConnect SDK. These additional configurations include interface mode, read/write type, clock, pinset, and others. The WiSeConnect SDK offers various [examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/) to demonstrate the use of PSRAM memory and driver APIs.
 
 The PSRAM interface comes with security features which allow the user to protect the data stored in the PSRAM. It is possbile to configure up to 4 secure segments (start address and length) in the MBR. The inline AES engine in the Quad SPI controller encrypts and decrypts the data on the fly. It supports the CTR mode of encryption and decryption with a key size of 128 or 256 bits. The security configurations can only be written once during system boot up and cannot be modified later, which provides write protection to the security configuration.
 
-The WiSeConnect SDK provides a power save mechanism for the PSRAM which effectively utilizes the hardware power handles and sleep features of the PSRAM die across sleep and wake up to minimize power consumption.
+The WiSeConnect SDK provides a power save mechanism for the PSRAM which effectively utilizes the hardware power handles and sleep features of the PSRAM die across sleep and wakeup to minimize power consumption.
 
 For more information on the memory architecture and hardware interfaces of PSRAM, see the **SiWx917 Memory Architecture** and **SiWx917 SPI Flash/PSRAM Controller** sections of the **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
@@ -587,7 +609,7 @@ For more information on the memory architecture and hardware interfaces of PSRAM
 
 ### Flash and PSRAM Combinations
 
-This section describes the package combinations of Flash and PSRAM provided by the SiWx917. The combination may be selected by the user depending on the application being developed.
+This section describes the package combinations of flash and PSRAM provided by the SiWx917. The combination may be selected by the user depending on the application being developed.
 
 The available PSRAM options depend on the flash configuration of the SiWx917 package:
 * In the common flash configuration, both the NWP and MCU will use the same flash memory which is either stacked or external.
@@ -597,13 +619,13 @@ The following table shows the possible combinations and the available options to
 
 | **Modes**    | **Flash type**         | **Flash Size** | **PSRAM (optional)**              
 | -------------|------------------------|----------------|---------------------
-| Common Flash | **Stacked**            | 4MB            | 2MB (external) or 8MB (external)  
-|              | **External**           | 8MB            | 2MB (stacked)                     
-|              |                        | 16MB           | 8MB                               
-| Dual Flash   | **Stacked + External** | 4MB + 8MB      | 2MB                               
-|              |                        | 4MB + 16MB     | 8MB                               
+| Common Flash | **Stacked**            | 4MB            | 2 MB (external) or 8 MB (external)  
+|              | **External**           | 8MB            | 2 MB (stacked)                     
+|              |                        | 16MB           | 8 MB                               
+| Dual Flash   | **Stacked + External** | 4MB + 8MB      | 2 MB                               
+|              |                        | 4MB + 16MB     | 8 MB                               
 
-See the **OPN** section in the Datasheet for more information.
+See the **OPN** section in the datasheet for more information.
 
 ### NVM3
 
@@ -611,7 +633,7 @@ This section provides an overview of the NVM3 in SiWx917 SoC.
 
 **NVM3:**
 
-The NVM3 provides a means to write and read data objects (key/value pairs) stored in Flash. Wear-leveling is applied to reduce erase and write cycles and maximize flash lifetime. The driver is resilient to power loss and reset events, ensuring that objects retrieved from the driver are always in a valid state. A single NVM3 instance can be shared among several wireless stacks and application code, making it well-suited for multiprotocol applications.
+The NVM3 provides a means to write and read data objects (key/value pairs) stored in flash. Wear-leveling is applied to reduce erase and write cycles and maximize flash lifetime. The driver is resilient to power loss and reset events, ensuring that objects retrieved from the driver are always in a valid state. A single NVM3 instance can be shared among several wireless stacks and application code, making it well-suited for multiprotocol applications.
 
 For more detailed information about NVM3, refer to [Third Generation NonVolatile Memory (NVM3) Data Storage](https://www.silabs.com/documents/public/application-notes/an1135-using-third-generation-nonvolatile-memory.pdf).
 
@@ -621,31 +643,31 @@ For more detailed information about NVM3, refer to [Third Generation NonVolatile
 
 **NVM3 installation for Si91x:**
 
-NVM3 in Si91x can be installed in two methods,
+NVM3 in Si91x can be installed with two methods:
 
 Procedure 1:
 
-Installing from Simplicity Studio,
+Installing from Simplicity Studio.
 
-1. After launching the application, double click on application slcp in Project Explorer
+1. After launching the application, double click on application slcp in Project Explorer.
 
 ![application slcp](./resources/app_slcp.png)
 
-2. Select SOFTWARE COMPONENTS in slcp
+2. Select SOFTWARE COMPONENTS in slcp.
 
 ![software components](./resources/software_components.png)
 
-3. Type "nvm3 for si91x" in search and select NVM3 for Si91x
+3. Type "nvm3 for si91x" in search and select NVM3 for Si91x.
 
 ![searching nvm3](./resources/slcp_search.png)
 
-4. Click install
+4. Click install.
 
 ![install component](./resources/install_component.png)
 
 Procedure 2:
 
-Add the below lines in the application slcp and launch the project in Simplicity Studio,
+Add the below lines in the application slcp and launch the project in Simplicity Studio.
 
 requires:
 
@@ -666,26 +688,26 @@ For example, refer to the below section of the .map file for nvm3 memory allocat
 1. Open nvm3_default_config.h from wiseconnect3\components\device\silabs\si91x\mcu\drivers\service\nvm3\inc\
 2. Update NVM3_DEFAULT_NVM_SIZE
 
-For example, After updating NVM3_DEFAULT_NVM_SIZE to 51200, the nvm3 region in .map is updated as,
+For example, after updating NVM3_DEFAULT_NVM_SIZE to 51200, the nvm3 region in .map is updated as:
 
 ![NVM3 memory configuration example](./resources/NVM3_memory_config_example.png)
 
 **NVM3 usage in Si91x:**
 
-Wireless initialization needs to be done before using NVM3  APIs in common flash as TA M4 communication is required to perform Flash writes/erases.
+Wireless initialization needs to be done before using NVM3 APIs in common flash as TA M4 communication is required to perform flash writes/erases.
 
-1. After successful wireless initialization nvm3_initDefault() API will open nvm3 instance with default parameters.
-2. Any of the above default nvm3 parameters can be overridden by updating corresponding macros in nvm3_default_config.h
-3. In NVM3 data is stored in the form of objects, an object is a combination of (key + data)
+1. After successful wireless initialization, nvm3_initDefault() API will open nvm3 instance with default parameters.
+2. Any of the above default nvm3 parameters can be overridden by updating corresponding macros in nvm3_default_config.h.
+3. In NVM3 data is stored in the form of objects. An object is a combination of (key + data).
 4. A key can be an identifier of the data stored in NVM3.
-5. After successfully initializing NVM3, objects can be written in nvm3 using nvm3_writeData(),
+5. After successfully initializing NVM3, objects can be written in nvm3 using nvm3_writeData().
 6. Data can be read with nvm3_readData() using corresponding object key.
 7. Objects can also be deleted using nvm3_deleteObject().
 
 **Note:**
 
-1. Wireless initialization is only required for Si91x common flash. For Si91x dual flash, nvm3_initDefault() can be directly called without wireless init
-2. NVM3 APIs should not be called from an ISR
+1. Wireless initialization is only required for Si91x common flash. For Si91x dual flash, nvm3_initDefault() can be directly called without wireless init.
+2. NVM3 APIs should not be called from an ISR.
 3. For more information about NVM3 usage, refer to [NVM3 - NVM Data Manager](https://docs.silabs.com/gecko-platform/3.1/driver/api/group-nvm3).
 
 ## Chip/Module Programming
@@ -696,7 +718,7 @@ The SiWx917 SoC provides a configuration option to enter the in-system programmi
 
 ISP mode enables the programming or re-programming of the flash memory using the security bootloader. It is possible to direct the security bootloader to boot up in ISP mode by pulling down the GPIO_34 pin with a 4.7K ohms resistor. The security bootloader does not initiate the execution of the code when ISP mode is enabled. Also, when the application code uses JTAG pins for functionality, entering ISP mode causes the JTAG to be disabled so that the flash may be re-programmed.
 
-ISP mode is supported via following interfaces:
+ISP mode is supported via the following interfaces:
 
 | **Interface** |         **Pins**          |
 |---------------| --------------------------|
@@ -718,30 +740,33 @@ Trace and Debug functions are integrated into the MCU's ARM Cortex M4 processor,
 
 The SWV provides real-time data trace information from various sources within a Cortex-M4 device. It is transmitted via the **SWO** pin while your system processor continues to run at full speed. Information is available from the ITM and DWT units. SWV data trace is available via the SWO pin. 
 
-To setup the SWV, configure GPIO_12 pin in mode 8 (MCU_CLK_OUT) and connect to back to GPIO_15 pin configured in GPIO mode 6 (M4SS_TRACE_CLKIN). The MCU_CLK_OUT has programmable divider option from MCU clock. The MCU_CLK_OUT frequency must be less than 40Mhz to use the SWO function. After configuration, data traces can be observed with the supporting debug probes.
+To setup the SWV, configure GPIO_12 pin in mode 8 (MCU_CLK_OUT) and connect to back to GPIO_15 pin configured in GPIO mode 6 (M4SS_TRACE_CLKIN). The MCU_CLK_OUT has a programmable divider option from the MCU clock. The MCU_CLK_OUT frequency must be less than 40 MHz to use the SWO function. After configuration, data traces can be observed with the supporting debug probes.
 
-MCU_CLK_OUT register details are present in the **SiWx917 MCU HP Clock Architecture > MCUHP_CLK_CONFIG_REG3** section of the  **SiWx917 Reference Manual** for details (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
+MCU_CLK_OUT register details are present in the **SiWx917 MCU HP Clock Architecture > MCUHP_CLK_CONFIG_REG3** section of the  **SiWx917 Reference Manual** (contact [sales](https://www.silabs.com/about-us/contact-sales) for access).
 
 ### Embedded Trace Macrocell (ETM) Support
 
-The ETM provides high bandwidth instruction traces via four dedicated trace pins accessible on the 20-pin Cortex debug + ETM connector. The MCU_CLK_OUT frequency must be in the range of 40 Mhz to 90 MHz to trace instructions using ETM.
+The ETM provides high bandwidth instruction traces via four dedicated trace pins accessible on the 20-pin Cortex debug + ETM connector. The MCU_CLK_OUT frequency must be in the range of 40 MHz to 90 MHz to trace instructions using ETM.
 
 To setup ETM, configure the trace pins (GPIO_52 to GPIO_57) in mode 6 and GPIO_12 pin in mode 8 (MCU_CLK_OUT). By default, on power up these GPIO pins are mapped to the Cortex debug + ETM connector (20-pin). After configuration, instruction traces can be observed with the supporting debug probes.
 
-> **Note:** A free running clock must be present on MCU_CLK_OUT (GPIO_12) before programming the trace pins otherwise the IDE will display the **Trace HW not present** error.
+> **Note:** A free-running clock must be present on MCU_CLK_OUT (GPIO_12) before programming the trace pins, otherwise the IDE will display the **Trace HW not present** error.
 
 ### VCOM
 
 The virtual COM (VCOM) port is available on the wireless pro kit mainboard (BRD4002A) and supports the following features:
-* Flash, erase and debug over SWD
+* Flash, erase, and debug over SWD
   * If the ULP UART peripheral is configured, VCOM cannot be used for debug prints because the ULP UART is mapped to the VCOM.
   * To enable both the ULP UART and VCOM, configure UART1/UART2 instance for debug prints. In this case, a USB-to-TTL converter is required. See the [Console Input](https://docs.silabs.com/wiseconnect/3.1.0/wiseconnect-getting-started/getting-started-with-soc-mode#enter-the-console-input-for-other-boards) section for the BRD4325 series boards for instructions.
-  * If the ULP UART is functioning in the PS2 state, the UART1/UART2 cannot be used for debug prints
+  * If the ULP UART is functioning in the PS2 state, the UART1/UART2 cannot be used for debug prints.
 * UART RX and TX, for use in command line applications and debug prints
-  * In this mode, ULP_GPIO_9 (RX) and ULP_GPIO_11 (TX) will be mapped to the MCU UART
+  * In this mode, ULP_GPIO_9 (RX) and ULP_GPIO_11 (TX) will be mapped to the MCU UART.
 * Flash programming in ISP mode
-  * In this mode, GPIO_8 (RX) and GPIO_9 (TX) will be mapped to TA UART
-
+  * In this mode, GPIO_8 (RX) and GPIO_9 (TX) will be mapped to TA UART.
+* VCOM disable procedure-
+  * VCOM can be disabled by the following steps (this will reset (VCOM enabled) upon power cycle of BRD4002A):
+    * Step 1: Open "Tools" from Simplicity Studio. Search for "Device Console" and click on OK.
+    * Step 2: Switch to "Admin" tab and press Enter. Issue the command "serial vcom ctrl sense deassert". VCOM LED on the BRD4002A will be turned OFF.
 > **Note:** Debug logs from the NWP can be fetched via the NWP UART which is available on the EXP header's EXP14 (UART_RX) and EXP12 (UART_TX) pins.
 
 ## Firmware Upgrade
@@ -755,7 +780,7 @@ The RPS Format is a binary executable format understood by the Bootloader to con
 
 ### SiWx917 Firmware Load and Update Process
 
-The firmware load process  loads  firmware  onto  SiWx917  device  for  the  first  time  in  the  case  of  new  devices. The Firmware update process updates SiWx917 devices with the latest firmware by replacing the firmware already existing in the device. 
+The firmware load process  loads  firmware  onto  SiWx917  device  for  the  first  time  in  the  case  of  new  devices. The firmware update process updates SiWx917 devices with the latest firmware by replacing the firmware already existing in the device. 
 
 The steps are as follows: 
 1. To  update  existing  firmware  or  a  device  without  firmware,  download  the  new  firmware  file  to  the  device’s  flash memory from host (MCU/PC) through any host interface or through OTA process.
@@ -765,18 +790,18 @@ The steps are as follows:
 
 Firmware in the SiWx917 device can be updated using the following mechanisms:
 
-1. Firmware update via Over-The-Air (OTA): In this mechanism firmware in the device can be updated by the following methods.
+1. Firmware update via Over-The-Air (OTA): In this mechanism, firmware in the device can be updated by the following methods.
    * HTTP/S: Firmware is updated by downloading the firmware file from a remote HTTP/S or cloud server via Wi-Fi. The firmware file is directly downloaded to TA flash location.
    * M4  as  Host:  Using  host  interfaces  –  SPI/UART/SDIO  or  a  remote  TCP  server  via  Wi-Fi  or  BLE,  the firmware  is  reaching  in  chunks  to  M4.  The  user  can  choose  to  send  the  firmware  to  TA  Bootloader  for upgrade or save in the external flash as per their requirements.
 
 2. Firmware update via Bootloader: In this mechanism firmware in the device can be updated by the following methods.
-   * Kermit:  Firmware  is  updated  using  Kermit  protocol  in  a  serial  terminal  like  Tera  Term  running  in  a Windows/Linux PC The connected to the device through UART interface in ISP mode.
-   * Simplicity Commander Tool/ Command Line Interface (CLI): Using the Simplicity Commander tool or by using the CLI commands the firmware is updated.
+   * Kermit:  Firmware  is  updated  using  Kermit  protocol  in  a  serial  terminal  like  Tera  Term  running  in  a Windows/Linux PC connected to the device through UART interface in ISP mode.
+   * Simplicity Commander Tool/ Command Line Interface (CLI): Using the Simplicity Commander tool or by using the CLI commands, the firmware is updated.
 
-> **Note:** SiWx917  also  have  Secure  and  Non-Secure  Firmware  update.  The  above  mechanisms  are  same  for  both secure and non-secure except that the firmware does security related integrity checks before loading the device with the new firmware.
+> **Note:** SiWx917  also  has  Secure  and  Non-Secure  Firmware  updates.  The  above  mechanisms  are  same  for  both secure and non-secure updates, except that the firmware does security-related integrity checks before loading the device with the new firmware.
 
 ### Secure Firmware Update
 
-In  case  of  bootloader  and  OTA,  secure  firmware  update  can be carried out by  enabling   the  security  in  the  firmware  image using  the  SiWx917  Manufacturing  Utility  (Refer  to  the  SiWx917  Manufacturing  Utility  User  Guide).  The  process  of firmware  update  remains  same  for  Non-Secure  and  Secure  Firmware  update  except  that  in  the  case  of  secure firmware image the integrity checks are done.
+In  case  of  bootloader  and  OTA,  a secure  firmware  update  can be carried out by enabling the security  in  the  firmware  image using  the  SiWx917  Manufacturing  Utility  (refer  to  the  SiWx917  Manufacturing  Utility  User  Guide).  The  process  of firmware  update  remains the same  for  Non-Secure  and  Secure  Firmware  updates  except  that  in  the  case  of  secure firmware image, the integrity checks are done.
 
 > **Note:** For more information on the Firmware upgradation, see the Firmware Update App Note.

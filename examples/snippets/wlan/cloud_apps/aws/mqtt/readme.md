@@ -25,18 +25,7 @@ In this application, the SiWx91x, which is configured as a Wi-Fi client interfac
 
 ## Soc Mode:
 
-If macro **ENABLE_POWER_SAVE** enabled, Then M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
-
-### Without Tickless Mode:
-
-- ALARM timer-based - In this method, an ALARM timer is run that wakes the M4 processor up periodically every **ALARM_PERIODIC_TIME** time period.
-  - We can enable the ALARM timer-wakeup by adding the preprocessor macro "SL_SI91X_MCU_ALARM_BASED_WAKEUP" for the example.
-  - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
-- Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
-  - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
-  - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
-- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
-  - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
+If macro **SL_SI91X_TICKLESS_MODE** enabled, Then M4 processor is set in sleep mode. The M4 processor can be woken in several ways as mentioned below:
 
 ### Tickless Mode
 
@@ -52,7 +41,7 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 After M4 processor wakes up via any of the above processes, the application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic.
 
-If macro **ENABLE_POWER_SAVE** disabled, Then M4 processor is not in sleep mode. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds.The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
+If macro **SL_SI91X_TICKLESS_MODE** is disabled, then M4 processor does not go to sleep. A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds.The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
 
 1. Once in every **PUBLISH_PERIODICITY** time period.
 2. When an incoming publish is received by the application.
@@ -62,7 +51,7 @@ If macro **ENABLE_POWER_SAVE** disabled, Then M4 processor is not in sleep mode.
 A timer is run with a periodicity of **PUBLISH_PERIODICITY** milliseconds. The application publishes **MQTT_PUBLISH_PAYLOAD** message on **PUBLISH_ON_TOPIC** topic in the following cases:
 
 - Once in every **PUBLISH_PERIODICITY** time period.
-- When an incoming publish is received by the application.
+- When an incoming packet is received by the application.
 
 *Note*: The bold texts are the macros defined in the application. You can find more details about them in the upcoming section (#section 4).
 
@@ -85,6 +74,7 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -93,9 +83,13 @@ The AWS IoT Device SDK allow applications to securely connect to the AWS IoT pla
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
 
 ### Software Requirements
 
@@ -133,15 +127,7 @@ The application can be configured to suit your requirements and development envi
  #define SUBSCRIBE_QOS             QOS0              //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC"
  #define PUBLISH_QOS               QOS0              //! Quality of Service for publish topic "PUBLISH_ON_TOPIC"
  #define PUBLISH_PERIODICITY       30000             //! Publish periodicity in milliseconds
- #define ENABLE_POWER_SAVE         1                 //! Enable this macro to run application with power save enabled
- ```
-
-- The below parameters are only applicable for SoC with power save enabled.
-
- ```c
- #define SL_SI91X_MCU_ALARM_BASED_WAKEUP  1                 //! Enable this macro for M4 processor to wake up based on alarm time period
- #define SL_SI91X_MCU_BUTTON_BASED_WAKEUP       1                 //! Enable this macro for M4 processor to wake up when button (BTN0) is pressed
- #define ALARM_PERIODIC_TIME       30                //! periodic alarm configuration in seconds
+ #define ENABLE_POWER_SAVE         1                 //! Set this macro to 1 for enabling TA power save.
  ```
 
 - `SUBSCRIBE_TO_TOPIC` refers to the topic to which the device subscribes.
@@ -185,8 +171,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application.
 - Flash, run and debug the application.
 
-**Note :**
-To know more about aws mqtt apis error codes. Please refer wiseconnect3\third_party\aws_sdk\include\aws_iot_error.h file.
+**Note:**
+- To know more about aws mqtt apis error codes. Please refer wiseconnect3\third_party\aws_sdk\include\aws_iot_error.h file.
+- As the user is calling select and waiting forever, if no data is received, it is the user's responsibility to manage sending the keepalive packets to maintain the connection.
 
 ### Application Output
 

@@ -55,7 +55,7 @@
 extern volatile uint32_t ble_app_event_task_map[TOTAL_CONNECTIONS];
 extern volatile uint32_t ble_app_event_task_map1[TOTAL_CONNECTIONS];
 extern volatile uint32_t ble_temp_event_map[TOTAL_CONNECTIONS];
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 #endif
 
 #define LOCAL_DEV_ADDR_LEN 18 // Length of the local device address
@@ -120,7 +120,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_GATT_INIT
 #endif
                       ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 const osThreadAttr_t thread_attributes = {

@@ -62,6 +62,18 @@ a lot of data that needs to be copied, this should be set high. */
 /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
 #define PBUF_POOL_BUFSIZE 1524 + 16
 
+/* ---------- NETIF API Supoort ---------- */
+#define LWIP_NETIF_API 1
+
+/* ---------- IPV4 Supoort ---------- */
+#define LWIP_IPV4 1
+
+/* ---------- ARP Supoort ---------- */
+#define LWIP_ARP 1
+
+/* ---------- IGMP Supoort ---------- */
+#define LWIP_IGMP 1
+
 /* ---------- TCP options ---------- */
 #define LWIP_TCP 1
 #define TCP_TTL  255

@@ -36,6 +36,7 @@
 #include "em_gpio.h"
 #include "sl_board_configuration.h"
 #include "em_cmu.h"
+#include "em_eusart.h"
 #include "sl_wifi.h"
 #include "sl_si91x_driver.h"
 #include "em_msc.h"

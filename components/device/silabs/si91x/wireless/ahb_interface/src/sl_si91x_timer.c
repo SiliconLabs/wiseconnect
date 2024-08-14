@@ -18,12 +18,8 @@
 /*
  Include files
   */
-//#include "rsi_driver.h"
-//#include "rsi_timer.h"
-//#include "rsi_hal.h"
 #include "sli_siwx917_timer.h"
 #include "sl_device.h"
-//#include "cmsis_os2.h"
 
 /** @addtogroup DRIVER11
 * @{
@@ -36,11 +32,6 @@
  * @return      void
  *
  */
-
-//void rsi_timer_expiry_interrupt_handler(void)
-//{
-//  rsi_driver_cb_non_rom->timer_counter++;
-//}
 
 /*==============================================*/
 /**
@@ -56,7 +47,6 @@ uint32_t sl_si91x_timer_read_counter(void)
   extern uint32_t SystemCoreClock;
 #define CYCLES_PER_MILLISECOND (SystemCoreClock / 1000)
   return DWT->CYCCNT / CYCLES_PER_MILLISECOND;
-  //  return osKernelGetTickCount();
 }
 
 /*==============================================*/
@@ -85,7 +75,7 @@ void sl_si91x_timer_init(sl_si91x_timer_t *rsi_timer, uint32_t duration)
  *
  */
 
-int32_t sl_si91x_timer_expired(sl_si91x_timer_t *timer)
+int32_t sl_si91x_timer_expired(const sl_si91x_timer_t *timer)
 {
   if ((sl_si91x_timer_read_counter() - (timer->start_time)) > (timer->timeout))
     return 1;
@@ -103,7 +93,7 @@ int32_t sl_si91x_timer_expired(sl_si91x_timer_t *timer)
  *
  */
 
-uint32_t sl_si91x_timer_left(sl_si91x_timer_t *timer)
+uint32_t sl_si91x_timer_left(const sl_si91x_timer_t *timer)
 {
   int32_t left = (timer->timeout) - (sl_si91x_timer_read_counter() - (timer->start_time));
   return (left < 0) ? 0 : left;

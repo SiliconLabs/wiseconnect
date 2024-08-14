@@ -35,6 +35,7 @@ This application is designed to be used in combination with **TWT Use Case Remot
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -43,14 +44,19 @@ This application is designed to be used in combination with **TWT Use Case Remot
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview) 
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
+    - UART - EFR32
 
 ### Software Requirements
 
 - Simplicity Studio IDE
-- [Iperf Application](https://iperf.fr/iperf-download.php)
+- [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
 
 ### Setup Diagram
 
@@ -379,7 +385,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Flash, run and debug the application
 
   > **Note:**
-  > If using **app.c** and using an iperf server on remote side, to avoid loss of TCP connection due to ARP loss while the device is in sleep, it is suggested to add the device IP address to the Remote PC's ARP table.
+  > If using **app.c** and using an iPerf server on remote side, to avoid loss of TCP connection due to ARP loss while the device is in sleep, it is suggested to add the device IP address to the Remote PC's ARP table.
   > For example, for device IP "192.168.0.101", MAC address "80-C9-55-XX-XX-XX" and ethernet interface 7, following is the command used in a Windows system. The MAC address and IP of SiWx917 can be observed in the serial prints.  
 
 - For Ethernet:

@@ -28,6 +28,9 @@ This application demonstrates how Silicon Labs device gets info from SNTP server
   - Silicon Labs [BRD4180B](https://www.silabs.com/)
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
+    - UART - EFR32
 
 ### Software Requirements
 

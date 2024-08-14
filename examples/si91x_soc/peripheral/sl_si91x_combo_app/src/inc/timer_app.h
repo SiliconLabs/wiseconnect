@@ -12,10 +12,10 @@
  ******************************************************************************/
 #define ONE_SEC                       1000000 // 1 second in microseconds
 #define TIME_IN_MICROSECONDS          ONE_SEC // timer timeout in micro seconds
-#define TIME_ONE_MS                   5000    // timer timeout in milli seconds
+#define TIME_ONE_MS                   1000    // timer timeout in milli seconds
 #define CLOCKS_PER_MICROSECONDS_20MHZ 20      // clock cycles per microsecond for 20 mhz clock frequency
 #define CLOCKS_PER_MICROSECONDS_32MHZ 32
-#define MS_500                        500
+#define MS_5000                       5000 // 5 Sec delay in milliseconds
 /*****************************************************************************
  * ULP Timer-match value calculation :
  * For one microsecond type, match-value = number of microseconds

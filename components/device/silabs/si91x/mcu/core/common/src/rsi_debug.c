@@ -58,7 +58,8 @@ static ARM_DRIVER_USART *UARTdrv = &Driver_ULP_UART;
 
 ARM_USART_CAPABILITIES drv_ulp_capabilities;
 
-volatile uint32_t send_done = 0, recv_done = 0;
+volatile uint32_t send_done = 0;
+volatile uint32_t recv_done = 0;
 #ifdef SLI_SI91X_MCU_INTR_BASED_RX_ON_UART // Add this macro to receive data in interrupt based
 uint8_t rx_char;
 #endif
@@ -172,10 +173,12 @@ void Board_Debug_Init(void)
 #endif /* defined(DEBUG_ENABLE) */
 
 #if !defined(DEBUG_SEMIHOSTING)
-int WRITEFUNC(int iFileHandle, char *pcBuffer, int iLength);
-int WRITEFUNC(int iFileHandle, char *pcBuffer, int iLength)
+int WRITEFUNC(int iFileHandle, const char *pcBuffer, int iLength);
+int WRITEFUNC(int iFileHandle, const char *pcBuffer, int iLength)
 {
   (void)iFileHandle;
+  (void)pcBuffer; // Explicitly mark pcBuffer as unused to avoid warnings
+
 #if defined(DEBUG_ENABLE)
   int i;
   for (i = 0; i < iLength; i++) {
@@ -291,15 +294,14 @@ int ferror(FILE *f)
 * @{
 */
 /**
- * @fn           void Board_UARTPutSTR(uint8_t *ptr)
+ * @fn           void Board_UARTPutSTR(const uint8_t *ptr)
  * @brief        Prints a string to the UART.
  * @param[in]    ptr  : Terminated string to output
  * @return       none
  */
-void Board_UARTPutSTR(uint8_t *ptr)
+void Board_UARTPutSTR(const uint8_t *ptr)
 {
-  int i;
-  for (i = 0; ptr[i] != '\0'; i++) {
+  for (int i = 0; ptr[i] != '\0'; i++) {
     send_done = 0;
     UARTdrv->Send(&ptr[i], 1);
     while (send_done == 0)

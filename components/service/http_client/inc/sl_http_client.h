@@ -227,7 +227,7 @@ sl_status_t sl_http_client_init(const sl_http_client_configuration_t *configurat
  *   User must call this API to release the resources once the HTTP client is no longer needed. 
  *   This function deletes extended headers if any exists during deinitialization.
  ******************************************************************************/
-sl_status_t sl_http_client_deinit(sl_http_client_t *client);
+sl_status_t sl_http_client_deinit(const sl_http_client_t *client);
 
 /***************************************************************************/ /**
  * @brief
@@ -338,7 +338,7 @@ sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl
  * flush_now feature is not supported in Si91x specific chipsets.
  ******************************************************************************/
 sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
-                                              uint8_t *data,
+                                              const uint8_t *data,
                                               uint32_t data_length,
                                               bool flush_now);
 /** @} */

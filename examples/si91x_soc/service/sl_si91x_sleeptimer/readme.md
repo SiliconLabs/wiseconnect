@@ -23,9 +23,9 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A]
+- Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
   - The Serial Console setup instructions are provided below,
-refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Software Requirements
 
@@ -52,9 +52,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
-- Do not change any UC configuration. Si91x only uses si91x SYSRTC peripheral for sleeptimer and all the other peripherals/features listed in UC are not supported for Si91x.
-
-  ![Figure: Introduction](resources/uc_screen/sleeptimer_uc_screen.png)
+- Si91x only uses si91x SYSRTC peripheral for sleeptimer. No UC is present for si91x sleeptimer component.
 
 - Configure the following parameter in sleeptimer.c file, update/modify following macro if required
 

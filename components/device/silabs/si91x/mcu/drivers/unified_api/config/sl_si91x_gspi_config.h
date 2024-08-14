@@ -57,13 +57,13 @@ extern "C" {
 // <i> Default: 10000000
 #define SL_GSPI_BITRATE 10000000
 
-// <o SL_GSPI_BIT_WIDTH> Data Width <1-15>
+// <o SL_GSPI_BIT_WIDTH> Data Width <1-16>
 // <i> Default: 8
 #define SL_GSPI_BIT_WIDTH 8
 
 // <q SL_GSPI_SWAP_READ_DATA> Byte-wise Swapping Read
-// <i> Default: 1
-#define SL_GSPI_SWAP_READ_DATA 1
+// <i> Default: 0
+#define SL_GSPI_SWAP_READ_DATA 0
 
 // <q SL_GSPI_SWAP_WRITE_DATA> Byte-wise Swapping Write
 // <i> Default: 0

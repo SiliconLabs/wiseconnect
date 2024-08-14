@@ -26,14 +26,14 @@
 /******************************************************
  *               Function Declarations
  ******************************************************/
-int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr);
-int32_t rsi_bt_set_local_name(uint8_t *local_name);
+int32_t rsi_bt_set_bd_addr(const uint8_t *dev_addr);
+int32_t rsi_bt_set_local_name(const uint8_t *local_name);
 int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
                                                        uint8_t payload_len,
-                                                       uint8_t *payload,
+                                                       const uint8_t *payload,
                                                        uint8_t req_type);
 int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_name);
-int32_t rsi_bt_get_rssi(uint8_t *dev_addr, int8_t *resp);
+int32_t rsi_bt_get_rssi(const uint8_t *dev_addr, int8_t *resp);
 int32_t rsi_bt_get_local_device_address(uint8_t *resp);
 int32_t rsi_bt_get_bt_stack_version(rsi_bt_resp_get_bt_stack_version_t *bt_resp_get_bt_stack_version);
 int32_t rsi_bt_init(void);
@@ -57,7 +57,7 @@ int32_t rsi_bt_per_stats(uint8_t cmd_type, struct rsi_bt_per_stats_s *per_stats)
  *              -3       - Command is given in wrong state(i.e not immediate after opermode)
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr)
+int32_t rsi_bt_set_bd_addr(const uint8_t *dev_addr)
 {
   rsi_bt_set_local_bd_addr_t bd_addr;
 #ifdef BD_ADDR_IN_ASCII
@@ -86,11 +86,11 @@ int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr)
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  *             
  */
-int32_t rsi_bt_set_local_name(uint8_t *local_name)
+int32_t rsi_bt_set_local_name(const uint8_t *local_name)
 {
   uint8_t name_len;
   rsi_bt_req_set_local_name_t bt_req_set_local_name = { 0 };
-  name_len                                          = RSI_MIN(strlen((const char *)local_name), (RSI_DEV_NAME_LEN - 1));
+  name_len = (uint8_t)RSI_MIN(strlen((const char *)local_name), (RSI_DEV_NAME_LEN - 1));
 
   memcpy(bt_req_set_local_name.name, local_name, name_len);
   bt_req_set_local_name.name[name_len] = 0;
@@ -123,7 +123,7 @@ int32_t rsi_bt_set_local_name(uint8_t *local_name)
  */
 int32_t rsi_bt_cmd_update_gain_table_offset_or_max_pwr(uint8_t node_id,
                                                        uint8_t payload_len,
-                                                       uint8_t *payload,
+                                                       const uint8_t *payload,
                                                        uint8_t req_type)
 {
   rsi_bt_cmd_update_gain_table_offset_or_maxpower_t bt_gain_table_offset = { 0 };
@@ -163,7 +163,7 @@ int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_na
  *             Non-Zero Value	-	Failure
  * @note       Refer to the Status Codes section for the above error codes at [additional-status-codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) .
  */
-int32_t rsi_bt_get_rssi(uint8_t *dev_addr, int8_t *resp)
+int32_t rsi_bt_get_rssi(const uint8_t *dev_addr, int8_t *resp)
 {
   rsi_bt_get_rssi_t bt_rssi = { { 0 } };
 #ifdef BD_ADDR_IN_ASCII
@@ -382,7 +382,7 @@ int32_t rsi_bt_power_save_profile(uint8_t psp_mode, uint8_t psp_type)
     } break;
     case RSI_SLEEP_MODE_2: {
       if (psp_type == RSI_MAX_PSP) {
-        profile.profile = ASSOCIATED_POWER_SAVE;
+        profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
       } else {
         return RSI_FEATURE_NOT_SUPPORTED;
       }

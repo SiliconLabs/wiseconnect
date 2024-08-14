@@ -10,8 +10,6 @@
   - [Setup Diagram](#setup-diagram)
 - [Getting Started](#getting-started)
 - [Application Build Environment](#application-build-environment)
-  - [Pin Configuration](#pin-configuration)
-- [Pin Configuration](#pin-configuration)
 - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
@@ -33,8 +31,8 @@
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+  - The Serial Console setup instructions are provided 
+ [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -56,12 +54,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - `DELAY_PERIODIC_MS1`: Select the delay for data display. By default, the delay is kept as 2 seconds.
 
   ```C
-    #define DELAY_PERIODIC_MS1  2000      //sleeptimer1 periodic timeout in ms
+  #define DELAY_PERIODIC_MS1  2000      //sleeptimer1 periodic timeout in ms
   ```
 
 ## Test the Application
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/) to:
 
 1. Compile and run the application.
 2. When the application runs, it measures accelerometer, gyroscope and temperature data for every 2 seconds.

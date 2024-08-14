@@ -37,8 +37,8 @@ rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
                                          boolean_t bTemperatureCalibEn,
                                          uint8_t u8TemperatureVal,
                                          uint8_t u8AverageFactor);
-uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod);
-uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod);
+uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod);
+uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod);
 rsi_error_t RSI_TIMEPERIOD_XTAL32KHzCalibration(TIME_PERIOD_Type *pstcTimePeriod,
                                                 uint32_t u32TimePeriodRefClk,
                                                 uint32_t u32XtalSettle,

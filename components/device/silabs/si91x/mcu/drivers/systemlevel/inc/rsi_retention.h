@@ -29,8 +29,9 @@ extern "C" {
 #endif
 
 /*NPSS GPIO PIN MUX VALEUS*/
-#define NPSS_GPIO_STATUS     (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x14))
-#define NPSS_GPIO_CONFIG_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x10))
+#define NPSS_GPIO_STATUS         (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x14))
+#define NPSS_GPIO_CONFIG_REG     (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x10))
+#define NPSS_GPIO_CONFIG_CLR_REG (*(volatile uint32_t *)(NPSS_INTR_BASE + 0x8))
 
 /*NPSS GPIO PIN MUX VALEUS*/
 #define NPSSGPIO_PIN_MUX_MODE0 0

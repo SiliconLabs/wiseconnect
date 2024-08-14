@@ -47,8 +47,10 @@
 #endif
 
 #define ARM_USART_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(2,10) /* driver version */
-extern RSI_UDMA_HANDLE_T udmaHandle0,udmaHandle1;    //check
-extern uint32_t dma_rom_buff0[30], dma_rom_buff1[30];     //we can keep wrapeers
+extern RSI_UDMA_HANDLE_T udmaHandle0;
+extern RSI_UDMA_HANDLE_T udmaHandle1;    //check
+extern uint32_t dma_rom_buff0[30];
+extern uint32_t dma_rom_buff1[30];     //we can keep wrapeers
 
 #define CONTROL_STRUCT0   (UDMA_NUMBER_OF_CHANNELS * 2)
 #define CONTROL_STRUCT1   (ULP_UDMA_NUMBER_OF_CHANNELS * 2)
@@ -451,12 +453,12 @@ ARM_DRIVER_VERSION ARM_USARTx_GetVersion(void)
 	return UsartDriverVersion;
 }
 /**
-  @fn           ARM_USART_CAPABILITIES USART_GetCapabilities (USART_RESOURCES *usart)
+  @fn           ARM_USART_CAPABILITIES USART_GetCapabilities (const USART_RESOURCES *usart)
   @brief        Gets driver capabilities
   @param[in]    usart     Pointer to USART resources
   @return       \ref ARM_USART_CAPABILITIES
  */
-ARM_USART_CAPABILITIES USART_GetCapabilities (USART_RESOURCES *usart)
+ARM_USART_CAPABILITIES USART_GetCapabilities (const USART_RESOURCES *usart)
 {
 	return usart->capabilities;
 }
@@ -509,7 +511,7 @@ static int32_t ARM_USART0_Send (const void *data, uint32_t num)
 #endif	
 
 }
-static int32_t ARM_USART0_Receive (void *data, uint32_t num)
+static int32_t ARM_USART0_Receive (const void *data, uint32_t num)
 {
   if(num < RTE_USART0_DMA_RX_LEN_PER_DES) {
       USART0_Resources.dma_rx->control.totalNumOfDMATrans=(unsigned int)((num-1) & 0x03FF);
@@ -714,7 +716,7 @@ static int32_t ARM_UART1_Send (const void *data, uint32_t num)
 #endif
 }
 
-static int32_t ARM_UART1_Receive (void *data, uint32_t num)
+static int32_t ARM_UART1_Receive (const void *data, uint32_t num)
 {
   if(num < RTE_UART1_DMA_RX_LEN_PER_DES) {
       UART1_Resources.dma_rx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);
@@ -913,7 +915,7 @@ static int32_t ARM_ULP_UART_Send (const void *data, uint32_t num)
 #endif
 }
 
-static int32_t ARM_ULP_UART_Receive (void *data, uint32_t num)
+static int32_t ARM_ULP_UART_Receive (const void *data, uint32_t num)
 {
   if(num < RTE_ULP_UART_DMA_RX_LEN_PER_DES) {
       ULP_UART_Resources.dma_rx->control.totalNumOfDMATrans = (unsigned int)((num-1) & 0x03FF);

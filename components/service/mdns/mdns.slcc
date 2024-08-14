@@ -11,7 +11,7 @@ provides:
 source:
 - path: si91x/sl_mdns.c
 define:
-- name: SLI_SI91X_INTERNAL_MDNS_CLIENT
+- name: SLI_SI91X_INTERNAL_MDNS
 requires:
 - name: sl_si91x_internal_stack
 

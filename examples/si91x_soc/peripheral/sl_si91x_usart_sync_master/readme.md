@@ -15,17 +15,17 @@
 
 ## Purpose/Scope
 
-- Universal Synchronous Asynchronous Receiver-Transmitter (USART)
-- This application demonstrates how to configure USART In syncronous mode as a master, it will send and receive data in loopback mode
+- Universal Synchronous Asynchronous Receiver-Transmitter (USART).
+- This application demonstrates how to configure USART In Synchronous mode as a master, it will send and receive data from synch slave.
 
 ## Overview
 
-- USART is used in communication through wired medium in both Synchronous and Asynchronous fashion. It enables the device to
-  communicate using serail protocols
-- This application is configured with following configs
+- USART is used in communication through wired medium in Synchronous fashion. It enables the device to
+  communicate using serial protocols.
+- This application is configured with following configs:
   - Tx and Rx enabled
-  - Asynchronous mode
   - 8 Bit data transfer
+  - Synchronous Master
   - Stop bits 1
   - No Parity
   - No Auto Flow control
@@ -33,11 +33,11 @@
 
 ## About Example Code
 
-- \ref usart_example.c this example code demonstates how to configure the USART to send and receive data.
+- \ref usart_example.c this example code demonstrates how to configure the USART to send and receive data.
 - In this example, first USART get initialized if it's not initialized already with clock and dma configurations if dma is
-  enalbed using \ref sl_si91x_usart_init
-- After USART initialization, the UART power mode is set using \ref sl_si91x_usart_set_power_mode() and then USART configured with the default configurations from UC along with the USART transmit and receive lines using \ref sl_si91x_usart_set_configuration()
-- Then register's user event callback for send and recevie complete notification are set using
+  enabled using \ref sl_si91x_usart_init
+- After USART initialization, the USART power mode is set using \ref sl_si91x_usart_set_power_mode() and then USART configured with the default configurations from UC along with the USART transmit and receive lines using \ref sl_si91x_usart_set_configuration()
+- Then register's user event callback for send and receive complete notification are set using
   \ref sl_si91x_usart_register_event_callback()
 - After setting the user event callback, the data send and receive can happen through \ref sl_si91x_usart_transfer_data()
 - Once the receive data event is triggered, both transmit and receive buffer data is compared to confirm if the received data is
@@ -48,14 +48,14 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A]
-
+- Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A / BRD4342A / BRD4343A ]- Master
+- Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A / BRD4342A / BRD4343A ] - Slave
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -74,26 +74,30 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configuration of USART at UC.
+- Configuration of USART at UC(Universal Configuration).
+- Configure UC from the slcp component.
+- Open **sl_si91x_usart_sync_master.slcp** project file select **software component** tab and search for **USART** in search bar.
+- Using configuration wizard one can configure different parameters. Below configuration screens where user can select as per requirement.
+
   > ![Figure: Selecting UC](resources/uc_screen/usart_uc.png)
 
 - Enable RTE_USART_MODE and RTE_CONTINUOUS_CLOCK_MODE in RTE_Device_917.h(path: /$project/config/RTE_Device_917.h)
 - Connect Master and slave as per pin configurations i.e Connect USART master clock pin(GPIO_8) to USART slave clock pin, Master TX pin(GPIO_30) to Slave RX pin, Master RX pin(GPIO_29) to Slave TX pin
-- The Application has been conifgured to run in Synchronous Master mode.
+- The Application has been configured to run in Synchronous Master mode.
 
 ## Pin Configuration
-
-  | USART PINS     | GPIO    | Connector     | UART-TTL cable |
-  | -------------- | ------- | ------------- | -------------- |
-  | USART0_TX_PIN  | GPIO_30 |     P35       | RX pin         |
-  | USART0_RX_PIN  | GPIO_29 |     P33       | TX Pin         | 
+  | USART PINS              | GPIO    | Connector     | 
+  | ----------------------- | ------- | ------------- | 
+  | USART_MASTER_CLOCK_PIN  | GPIO_8  |     F8        |
+  | USART_MASTER_TX_PIN     | GPIO_30 |     P35       | 
+  | USART_MASTER_RX_PIN     | GPIO_29 |     P33       |  
 
 
  > ![Figure: Build run and Debug](resources/readme/image513d.png)
 
 ## Flow Control Configuration
 
-- Set the SL_USART_FLOW_CONTROL_TYPE parameter to SL_USART_FLOW_CONTROL_RTS_CTS to enable UART flow control.
+- Set the SL_USART_FLOW_CONTROL_TYPE parameter to SL_USART_FLOW_CONTROL_RTS_CTS to enable USART flow control.
 - Make the following two macros in RTE_Device_917.h to '1', to map RTS and CTS pins to WSTK/WPK Main Board EXP header or breakout pins.
   ```C
   #define RTE_USART0_CTS_PORT_ID    1
@@ -118,8 +122,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 >- Add data_in buffer to watch window for checking receive data.
 
 ## Configuring SOCPLL clock
+
 For Baudrates higher than 2 Million configure the SOCPLL clock by following the below steps
->- In usart_example.c (path: /$project/usart_example.c) add below lines of code 
+>- In usart_sync_example.c (path: /$project/usart_sync_example.c) **add below lines of code.** 
 ```c
 #include "rsi_rom_clks.h"
 
@@ -132,9 +137,8 @@ RSI_CLK_SetSocPllFreq(M4CLK, SOC_PLL_CLK, SOC_PLL_REF_CLK); //To configure SOCPL
 ```
 >- Change the clock source to USART_SOCPLLCLK in RTE_Device_917.h (/$project/config/RTE_Device_917.h)
 ```c
-#define RTE_USART0_CLK_SRC //for USART0
+#define RTE_USART0_CLK_SRC  // for UART1
 ```
-
 
 > **Note:**
 >

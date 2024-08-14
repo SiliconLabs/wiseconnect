@@ -57,11 +57,13 @@
 /**
  * A internal function to handle to asynchronous mqtt client events.
  */
-static void handle_mqtt_client_asynch_events(sl_si91x_queue_packet_t *mqtt_asyn_packet)
+static void handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_asyn_packet)
 {
   sl_si91x_packet_t *raw_rx_packet = sl_si91x_host_get_buffer_data(mqtt_asyn_packet->host_packet, 0, NULL);
   sl_mqtt_client_t *mqtt_client;
 
+  raw_rx_packet->desc[12] = mqtt_asyn_packet->frame_status & 0xFF;        // Lower 8 bits
+  raw_rx_packet->desc[13] = (mqtt_asyn_packet->frame_status >> 8) & 0xFF; // Upper 8 bits
   //Variable to indicate whether a disconnect event is related to a keep-alive terminate error.
   bool is_keep_alive_response_related_disconnect =
     (raw_rx_packet->command == RSI_WLAN_RSP_EMB_MQTT_CLIENT
@@ -87,17 +89,29 @@ static void handle_mqtt_client_asynch_events(sl_si91x_queue_packet_t *mqtt_asyn_
       return;
     }
 
-    // Build MQTT SDK context for asynchronous MQTT events
-    sli_si91x_build_mqtt_sdk_context_if_async(
-      (raw_rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE || raw_rx_packet->command == RSI_WLAN_RSP_JOIN
-       || is_keep_alive_response_related_disconnect)
-        ? SL_MQTT_CLIENT_DISCONNECTED_EVENT
-        : SL_MQTT_CLIENT_MESSAGED_RECEIVED_EVENT,
-      mqtt_client,
-      NULL,
-      NULL,
-      0,
-      (sl_si91x_mqtt_client_context_t **)&mqtt_asyn_packet->sdk_context);
+    // Send CONNECT_FAILED_EVENT if JOIN is received during TA_INIT state
+    if ((raw_rx_packet->command == RSI_WLAN_RSP_JOIN || raw_rx_packet->command == RSI_WLAN_RSP_DISCONNECT)
+        && mqtt_client->state == SL_MQTT_CLIENT_TA_INIT) {
+      // Build MQTT SDK context for asynchronous MQTT events
+      sli_si91x_build_mqtt_sdk_context_if_async(SL_MQTT_CLIENT_CONNECTED_EVENT,
+                                                mqtt_client,
+                                                NULL,
+                                                NULL,
+                                                0,
+                                                (sl_si91x_mqtt_client_context_t **)&mqtt_asyn_packet->sdk_context);
+    } else {
+      // Build MQTT SDK context for asynchronous MQTT events
+      sli_si91x_build_mqtt_sdk_context_if_async(
+        (raw_rx_packet->command == RSI_WLAN_RSP_MQTT_REMOTE_TERMINATE || raw_rx_packet->command == RSI_WLAN_RSP_JOIN
+         || is_keep_alive_response_related_disconnect)
+          ? SL_MQTT_CLIENT_DISCONNECTED_EVENT
+          : SL_MQTT_CLIENT_MESSAGED_RECEIVED_EVENT,
+        mqtt_client,
+        NULL,
+        NULL,
+        0,
+        (sl_si91x_mqtt_client_context_t **)&mqtt_asyn_packet->sdk_context);
+    }
   }
 
   sl_si91x_mqtt_client_context_t *sdk_context = (sl_si91x_mqtt_client_context_t *)mqtt_asyn_packet->sdk_context;
@@ -121,7 +135,7 @@ static void si91x_node_free_function(sl_wifi_buffer_t *buffer)
   sl_si91x_host_free_buffer(buffer);
 }
 
-void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x_packet_t *packet)
+void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_si91x_packet_t *packet)
 {
   sl_status_t status;
   sl_net_event_t service_event;
@@ -168,7 +182,7 @@ void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x
       || ((packet->command == RSI_WLAN_RSP_IPCONFV6) && (data->frame_status))) {
     // free all TX queues except BT
     for (int queue_id = 0; queue_id < SI91X_BT_CMD; queue_id++) {
-      sl_si91x_flush_queue_based_on_type(queue_id, si91x_node_free_function);
+      sli_si91x_flush_queue_based_on_type(queue_id, si91x_node_free_function);
     }
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && defined(SLI_SI91X_SOCKETS)
     // Free all allocated sockets
@@ -187,5 +201,12 @@ void sl_net_si91x_event_dispatch_handler(sl_si91x_queue_packet_t *data, sl_si91x
     SL_DEBUG_LOG("\r\n>>> HTTP Event received: %u <<<\r\n", http_event);
     sl_http_client_default_event_handler(http_event, data->host_packet, data->sdk_context);
   }
+#endif
+}
+
+void sli_si91x_network_cleanup_handler()
+{
+#ifdef SLI_SI91X_EMBEDDED_MQTT_CLIENT
+  sli_mqtt_client_cleanup();
 #endif
 }

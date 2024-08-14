@@ -10,9 +10,9 @@ filter:
     value: ["WiFi BLE"]
   - name: "Project Difficulty"
     value: ["Intermediate"]
-sdk: {id: simplicity_sdk, version: 2024.6.0}
+sdk: {id: simplicity_sdk, version: 2024.6.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.3.0}
+- {id: wiseconnect3_sdk, version: 3.3.1}
 source:
   - path: app.c
   - path: main.c
@@ -53,7 +53,7 @@ component:
 - instance: [timer0]
   from: wiseconnect3_sdk
   id: ulp_timers_instance
-- instance: [btn1]
+- instance: [btn0]
   from: wiseconnect3_sdk
   id: sl_si91x_button_917
 - id: sl_clock_manager

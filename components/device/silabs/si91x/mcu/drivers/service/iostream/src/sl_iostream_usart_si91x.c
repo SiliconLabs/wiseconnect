@@ -42,13 +42,11 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "sl_si91x_usart.h"
-#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
+
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
@@ -72,19 +70,6 @@ static size_t read_rx_buffer(sl_iostream_uart_context_t *uart_context, uint8_t *
 static sl_status_t usart_tx(void *context, char c);
 
 static sl_status_t usart_deinit(void *context);
-
-static void default_clock_configuration(void);
-
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -161,9 +146,6 @@ sl_status_t sl_iostream_usart_init(sl_iostream_uart_t *iostream_uart,
                                    sl_iostream_usart_context_t *usart_context)
 {
   sl_status_t status;
-
-  // default clock configuration
-  default_clock_configuration();
 
   status = sli_iostream_uart_context_init(iostream_uart,
                                           &usart_context->context,

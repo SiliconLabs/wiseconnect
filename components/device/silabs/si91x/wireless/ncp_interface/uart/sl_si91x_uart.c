@@ -40,6 +40,57 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifndef SL_SI91X_NCP_UART_BAUDRATE
+
+// ToDo: This Macro is depricated and should be removed in upcoming releases.
+//       Keeping this macro functionality intact due to backward compatability.
+#if SL_SI91X_UART_HIGH_SPEED_ENABLE == 1
+#define SL_SI91X_NCP_UART_BAUDRATE 921600
+#else
+#define SL_SI91X_NCP_UART_BAUDRATE 115200
+#endif
+#endif
+
+#if SL_SI91X_NCP_UART_BAUDRATE == 9600
+#define SLI_SI91X_UART_BAUDRATE_SELECTION 1
+#define SLI_SI91X_BAUDRATE                '0'
+#elif SL_SI91X_NCP_UART_BAUDRATE == 38400
+#define SLI_SI91X_UART_BAUDRATE_SELECTION 1
+#define SLI_SI91X_BAUDRATE                '1'
+#elif SL_SI91X_NCP_UART_BAUDRATE == 230400
+#define SLI_SI91X_UART_BAUDRATE_SELECTION 1
+#define SLI_SI91X_BAUDRATE                '2'
+#elif SL_SI91X_NCP_UART_BAUDRATE == 460800
+#define SLI_SI91X_UART_BAUDRATE_SELECTION 1
+#define SLI_SI91X_BAUDRATE                '3'
+#elif SL_SI91X_NCP_UART_BAUDRATE == 921600
+#define SLI_SI91X_UART_BAUDRATE_SELECTION 1
+#define SLI_SI91X_BAUDRATE                '4'
+#elif SL_SI91X_NCP_UART_BAUDRATE == 115200
+#define SLI_SI91X_UART_BAUDRATE_SELECTION 0
+#define SLI_SI91X_BAUDRATE                '5'
+#else
+#error "Invalid NCP UART Baudrate spedified"
+#endif
+
+#ifndef SL_SI91X_NCP_UART_HFC_MODE
+// ToDo: This Macro is depricated and should be removed in upcoming releases.
+//       Keeping this macro functionality intact due to backward compatability.
+#if SL_SI91X_UART_HFC_ENABLE
+#define SL_SI91X_NCP_UART_HFC_MODE 3
+#else
+#define SL_SI91X_NCP_UART_HFC_MODE 0
+#endif
+#endif
+
+#if SL_SI91X_NCP_UART_HFC_MODE == 0
+#define SLI_SI91X_HFC_MODE SL_SI91X_NCP_UART_HFC_MODE
+#elif SL_SI91X_NCP_UART_HFC_MODE == 3
+#define SLI_SI91X_HFC_MODE SL_SI91X_NCP_UART_HFC_MODE
+#else
+#error "Invalid NCP UART Hardware Flow Control mode Specified"
+#endif
+
 // This macro converts a 32-bit value from host to little-endian byte order
 #define htole32(x) (x)
 
@@ -82,7 +133,7 @@ static sl_status_t sli_si91x_uart_command_handler(uint8_t *cmd,
 ************************************************************************************/
 sl_status_t sl_si91x_bus_init(void)
 {
-  uint8_t boot_cmd[4] = { '|', 'U', 'b', '4' };
+  uint8_t boot_cmd[4] = { '|', 'U', 'b', SLI_SI91X_BAUDRATE };
   uint8_t *response   = NULL;
   sl_status_t status;
   uint16_t temp;
@@ -107,11 +158,11 @@ sl_status_t sl_si91x_bus_init(void)
   status = sli_si91x_uart_command_handler(&boot_cmd[1], 1, "JTAG Selection", 485);
   VERIFY_STATUS_AND_RETURN(status);
 
-#ifdef SL_SI91X_UART_HIGH_SPEED_ENABLE
+#if SLI_SI91X_UART_BAUDRATE_SELECTION
   status = sli_si91x_uart_command_handler(&boot_cmd[2], 1, "5 115200", 78);
   VERIFY_STATUS_AND_RETURN(status);
 
-  status = sli_si91x_uart_command_handler(&boot_cmd[3], 1, "4", 1);
+  status = sli_si91x_uart_command_handler(&boot_cmd[3], 1, (const char *)&boot_cmd[3], 1);
   VERIFY_STATUS_AND_RETURN(status);
 
   sl_si91x_host_enable_high_speed_bus();
@@ -207,10 +258,11 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
   UNUSED_PARAMETER(select_option);
   sl_status_t status     = SL_STATUS_OK;
   uint8_t load_binary[2] = { 'H', '1' };
-#ifdef SL_SI91X_UART_HFC_ENABLE
-  uint8_t i              = 0;
-  uint8_t hfc_command[]  = { 0x01, 0x40, 0xA4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03 };
+#if SLI_SI91X_HFC_MODE
+  uint8_t i             = 0;
+  uint8_t hfc_command[] = {
+    0x01, 0x40, 0xA4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, SLI_SI91X_HFC_MODE
+  };
   uint8_t hfc_response[] = { 0x15, 0x00, 0x04, 0x00, 0x01, 0x40, 0xA4, 0x00, 0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
   uint16_t temp          = 0;
@@ -228,7 +280,7 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option)
 
   sl_si91x_host_flush_uart_rx();
 
-#ifdef SL_SI91X_UART_HFC_ENABLE
+#if SLI_SI91X_HFC_MODE
   sl_si91x_host_uart_transfer((const void *)hfc_command, NULL, 17);
   sl_si91x_host_uart_transfer(NULL, (void *)response, 21);
 

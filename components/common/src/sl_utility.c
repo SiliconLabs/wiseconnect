@@ -86,7 +86,7 @@ void print_sl_ipv6_address(const sl_ipv6_address_t *ip_address)
   printf("%s\r\n", temp_buffer);
 }
 
-void print_mac_address(sl_mac_address_t *mac_address)
+void print_mac_address(const sl_mac_address_t *mac_address)
 {
   if (mac_address == NULL) {
     return;
@@ -105,7 +105,8 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size)
   char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"];
   char *tp;
   struct {
-    int base, len;
+    int base;
+    int len;
   } best, cur;
   unsigned int words[SL_IPV6_ADDRESS_LENGTH / 2];
   int i;
@@ -202,7 +203,10 @@ void little_to_big_endian(const unsigned int *source, unsigned char *result, uns
 
 int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, unsigned int *ptr_result)
 {
-  unsigned char tmp[SL_IPV6_ADDRESS_LENGTH], *tp, *endp, *colonp;
+  unsigned char tmp[SL_IPV6_ADDRESS_LENGTH];
+  unsigned char *tp;
+  unsigned char *endp;
+  unsigned char *colonp;
   const char *curtok __attribute__((__unused__));
   int ch;
   size_t xdigits_seen; /* Number of hex digits since colon.  */
@@ -311,16 +315,15 @@ sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *ma
 
 void reverse_digits(unsigned char *xx, int no_digits)
 {
-  int count;
   uint8_t temp;
-  for (count = 0; count < (no_digits / 2); count++) {
+  for (int count = 0; count < (no_digits / 2); count++) {
     temp                      = xx[count];
     xx[count]                 = xx[no_digits - count - 1];
     xx[no_digits - count - 1] = temp;
   }
 }
 
-void print_firmware_version(sl_wifi_firmware_version_t *firmware_version)
+void print_firmware_version(const sl_wifi_firmware_version_t *firmware_version)
 {
   printf("\r\nFirmware version is: %x%x.%d.%d.%d.%d.%d.%d\r\n",
          firmware_version->chip_id,

@@ -22,9 +22,9 @@
 ## Overview
 
 - The GPIO functionality in the MCU consists of three instances:
-  - HP (High Power) Instance: Controls the SoC GPIOs (GPIO_n; n=0 to 57).
-  - ULP (Ultra Low Power) Instance: Controls the ULP GPIOs (ULP_GPIO_n; n=0 to 11).
-  - UULP (Ultra Ultra Low Power) Instance: Controls the UULP GPIOs (UULP_GPIO_n; n=0 to 4).
+  - **HP (High Power) Instance:** Controls the SoC GPIOs (GPIO_n; n=0 to 57).
+  - **ULP (Ultra Low Power) Instance:** Controls the ULP GPIOs (ULP_GPIO_n; n=0 to 11).
+  - **UULP (Ultra Ultra Low Power) Instance:** Controls the UULP GPIOs (UULP_GPIO_n; n=0 to 4).
 - HP and ULP Instance have same features and functionality except for different base address.
 - Each port in the HP domain supports a maximum of 16 GPIO pins, with a total of four ports (SL_GPIO_PORT_A, SL_GPIO_PORT_B, SL_GPIO_PORT_C, SL_GPIO_PORT_D).
 - The ULP GPIO domain has only one port (SL_GPIO_ULP_PORT) with a maximum of 12 pins.  
@@ -43,10 +43,9 @@
 | HP GPIO Instance               |  SL_GPIO_PORT_B   |   (16-31)         |
 |                                |  SL_GPIO_PORT_C   |   (32-47)         | 
 |                                |  SL_GPIO_PORT_D   |   (48-57)         |
-|--------------------------------|-------------------|-------------------|    
 | ULP GPIO Instance              |  SL_GPIO_ULP_PORT |   (0-11)          |
-|--------------------------------|-------------------|-------------------|    
 | UULP GPIO Instance             | SL_GPIO_UULP_PORT |   (0-4)           |
+| | |
 
 **NOTE** : There is also option to select (0-57)pins with SL_GPIO_PORT_A. For example, to select HP GPIO pin number 49, one can select Port as SL_GPIO_PORT_A and pin number as 49. This option is given only when SL_GPIO_PORT_A GPIO port is selected. (57-63)pins are reserved.
 
@@ -85,17 +84,13 @@ Below are the list of GPIO examples available and it's functionality:
 
   |  GPIO Examples        |    GPIO Functionality                              |  
   |-----------------------|----------------------------------------------------|  
-  | gpio_detailed_example | Demonstrates GPIO toggle and supported APIs        |    
-  |-----------------------|----------------------------------------------------|   
+  | gpio_detailed_example | Demonstrates GPIO toggle and supported APIs        |       
   | gpio_example          |  Demonstrates HP GPIO pin interrupt                |  
-  |-----------------------|----------------------------------------------------|    
   | gpio_group_example    | Demonstrates HP, ULP  GPIO group interrupts        | 
-  |-----------------------|----------------------------------------------------|   
   | gpio_ulp_example      |  Demonstrates GPIO toggle and ULP  pin interrupt   |           
-  |-----------------------|----------------------------------------------------|    
   | gpio_uulp_example     | Demonstrates UULP  pin interrupt                   | 
-  |-----------------------|----------------------------------------------------|
- 
+  | | |
+
 ## About Example Code
 
 - The example shows configuring the pin interrupt. Press BTN1 for triggering HP GPIO pin interrupt. Connect to GPIO pin 6(P19) for toggles to observe. 
@@ -110,14 +105,14 @@ Below are the list of GPIO examples available and it's functionality:
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 

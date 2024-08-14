@@ -79,3 +79,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Flash, run and debug the application.
 - Based on the input data, key size and mode of encryption/decryption, the output from GCM engine can be observed in the provided output buffer.
 - In case of CMAC mode, the output from the CMAC engine can be observed in the provided mac output buffer.
+
+## Application Output
+
+![Output](resources/readme/output.png)

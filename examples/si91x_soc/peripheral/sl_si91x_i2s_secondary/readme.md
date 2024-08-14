@@ -67,7 +67,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -137,7 +137,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. Take two Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A]
+1. Take two Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 2. First compile and run i2s secondary device application in one board.
 3. Compile and run primary i2s application in another board.
 4. When the application runs. It sends data to primary device and after successful comparision,

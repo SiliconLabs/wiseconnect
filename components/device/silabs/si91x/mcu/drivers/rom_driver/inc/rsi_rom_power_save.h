@@ -110,7 +110,6 @@ STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
                                                           uint8_t taRamRetEnable,
                                                           uint8_t M4RamRetEnable)
 {
-  uint8_t x = 0;
   // TODO: Check  silicon rev from flash/efuse offset; for 1.4V do this programming
   if (SiliconRev >= 0x14) {
     if (taRamRetEnable) {
@@ -123,7 +122,7 @@ STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
 #ifndef SLI_SI917
       M4CLK->CLK_ENABLE_SET_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
-      for (x = 0; x < 10; x++) {
+      for (uint8_t x = 0; x < 10; x++) {
         __ASM("NOP");
       }
 #ifndef SLI_SI917

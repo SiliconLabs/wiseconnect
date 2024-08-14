@@ -172,7 +172,7 @@ typedef enum {
   SL_EVENT2_RISING_EDGE_REGISTERED_OR_EVENT,  ///< enum for input-2 rising edge registered or-event
   SL_EVENT3_RISING_EDGE_REGISTERED_AND_EVENT, ///< enum for input-3 rising edge registered and-event
   SL_EVENT3_RISING_EDGE_REGISTERED_OR_EVENT,  ///< enum for input-3 rising edge registered or-event
-  SL_EVENT_LAST,                              ///< Last member of enum for validation
+  SL_CT_EVENT_LAST,                           ///< Last member of enum for validation
 } sl_config_timer_event_t;
 
 /// @brief Enumeration to represent various timer actions
@@ -441,6 +441,17 @@ sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
 sl_status_t sl_si91x_config_timer_set_match_count(sl_config_timer_mode_t mode,
                                                   sl_counter_number_t counter_number,
                                                   uint32_t match_value);
+
+/***************************************************************************/ /**
+* @brief API to calculate and return the match value of the timer for desired time period
+*
+* @param[in]   time_period_in_us : Time period in microseconds
+* @param[out]  match_value : Gets match value of the timer for desired time period
+* @return   status 0 if successful, else error-code as follow
+*         - \ref SL_STATUS_INVALID_COUNT (0x002B) - Count is invalid.
+*         - \ref SL_STATUS_OK (0x0000) - Success.
+*******************************************************************************/
+sl_status_t sl_si91x_config_timer_get_match_value(uint32_t time_period_in_us, uint32_t *match_value);
 
 /***************************************************************************/ /**
  * @brief This API will get Config-timer current count.

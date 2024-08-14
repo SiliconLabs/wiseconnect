@@ -113,12 +113,12 @@ rsi_error_t RSI_TIMEPERIOD_RCCalibration(TIME_PERIOD_Type *pstcTimePeriod,
 
 /*==============================================*/
 /**
- * @fn        uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod)
+ * @fn        uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
  * @brief     This API is used to read calibrated timeperiod of RC
  * @param[in] pstcTimePeriod is pointer to the timperiod calibration registration instance
  * @return    Returns the time period on success
  */
-uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod)
+uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
 {
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;
@@ -132,13 +132,13 @@ uint32_t RSI_TIMEPERIOD_RCCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod)
 
 /*==============================================*/
 /**
- * @fn        uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod)
+ * @fn        uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
  * @brief     This API is used to read calibrated timeperiod of RO
  * @param[in] pstcTimePeriod : pointer to the timperiod calibration registration instance
  * @return    Returns the time period on success
  */
 
-uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(TIME_PERIOD_Type *pstcTimePeriod)
+uint32_t RSI_TIMEPERIOD_ROCalibTimePeriodRead(const TIME_PERIOD_Type *pstcTimePeriod)
 {
   if (pstcTimePeriod == NULL) {
     return ERROR_TIME_PERIOD_PARAMETERS;

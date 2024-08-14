@@ -68,14 +68,12 @@ int32_t rsi_ble_driver_init(uint8_t *buffer, uint32_t length)
 {
   uint32_t actual_length = 0;
 
-  // If (((uint32_t)buffer & 3) != 0)
   if (((uintptr_t)buffer & 3) != 0) // To avoid compiler warning, replace uint32_t with uintptr_t
   {
     // Making buffer 4 byte aligned
     // Length -= (4 - ((uint32_t)buffer & 3));
     // To avoid compiler warning, replace uint32_t with uintptr_t
     length -= (4 - ((uintptr_t)buffer & 3));
-    // Buffer = (uint8_t *)(((uint32_t)buffer + 3) & ~3);// To avoid compiler warning, replace uint32_t with uintptr_t
     buffer = (uint8_t *)(((uintptr_t)buffer + 3) & ~3);
   }
 
@@ -163,7 +161,7 @@ int32_t rsi_ble_driver_deinit(void)
   SL_PRINTF(SL_DRIVER_DEINIT_ENTRY, COMMON, LOG_INFO);
   uint32_t actual_length = 0;
 
-  if ((rsi_driver_cb->device_state < RSI_DRIVER_INIT_DONE)) {
+  if (rsi_driver_cb->device_state < RSI_DRIVER_INIT_DONE) {
     // Command given in wrong state
     return RSI_ERROR_COMMAND_GIVEN_IN_WRONG_STATE;
   }

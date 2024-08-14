@@ -363,6 +363,8 @@ void SPI_CS_GPIO_PIN_FINT_IRQ_HANDLER(void)
  */
 void sli_cpc_spi_drv_callback_slave(uint32_t event)
 {
+  // Clearing the instance number to evaluate the event
+  event &= SSI_INSTANCE_MASK;
   switch (event) {
     case ARM_SPI_EVENT_TRANSFER_COMPLETE: {
       // debug purpose

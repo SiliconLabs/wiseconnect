@@ -9,7 +9,7 @@
 - ui_hints:
     visibility: never
 - requires:
-  - name: siwg917y111mgnb
+  - name: siwg917y111mgnba
   - name: brd4343a_config
   - name: hardware_board_mainboard
   - name: external_flash_none
@@ -29,6 +29,8 @@
     value: '"BRD4343A"'
   - name: SL_BOARD_REV
     value: '"A02"'
+  - name: SL_SI91X_MODULE_BOARD
+    value: '1'
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
     value: '1'
   - name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
@@ -74,7 +76,7 @@
   - board:pn:BRD4343
   - board:variant:A
   - board:revision:A02
-  - board:device:siwg917y111mgnb
+  - board:device:siwg917y111mgnba
   - hardware:has:vcom
 #  - hardware:has:pti
 #  - hardware:has:led:2

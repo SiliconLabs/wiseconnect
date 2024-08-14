@@ -29,6 +29,7 @@ Ping is used diagnostically to ensure that a host computer that the user is tryi
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4342A [SiWx917-RB4342A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -37,7 +38,12 @@ Ping is used diagnostically to ensure that a host computer that the user is tryi
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD8045A + BRD4346A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
+    - UART - EFR32
 
 
 ### Software Requirements

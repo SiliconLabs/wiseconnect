@@ -76,3 +76,5 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ## Expected Results
 
  - User will get the digest value.
+
+![Output](resources/readme/output.png)

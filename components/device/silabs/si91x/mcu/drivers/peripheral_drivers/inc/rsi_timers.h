@@ -107,7 +107,7 @@ STATIC INLINE rsi_error_t RSI_TIMERS_SetDirection(RSI_TIMERS_T *pTIMER, uint8_t 
 
 /*===================================================*/
 /**
- * @fn          uint32_t RSI_TIMERS_getDirection(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+ * @fn          uint32_t RSI_TIMERS_getDirection(const RSI_TIMERS_T *pTIMER, uint8_t timerNum)
  * @brief   This API is used to get direction of the timer
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)
@@ -116,7 +116,7 @@ STATIC INLINE rsi_error_t RSI_TIMERS_SetDirection(RSI_TIMERS_T *pTIMER, uint8_t 
  *                        -  1 for UP_COUNTER
  *                        -  0 for DOWN_COUNTER
  */
-STATIC INLINE uint32_t RSI_TIMERS_getDirection(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE uint32_t RSI_TIMERS_getDirection(const RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   uint8_t counterDir;
   if (timerNum <= TIMER_3) {
@@ -129,13 +129,13 @@ STATIC INLINE uint32_t RSI_TIMERS_getDirection(RSI_TIMERS_T *pTIMER, uint8_t tim
 
 /*===================================================*/
 /**
- * @fn          uint32_t RSI_TIMERS_GetTimerMode(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+ * @fn          uint32_t RSI_TIMERS_GetTimerMode(const RSI_TIMERS_T *pTIMER, uint8_t timerNum)
  * @brief   This API is used to get the mode of timer
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)
  * @return    return the type of timer if valid timer else error code
  */
-STATIC INLINE uint32_t RSI_TIMERS_GetTimerMode(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE uint32_t RSI_TIMERS_GetTimerMode(const RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     return (pTIMER->MATCH_CTRL[timerNum].MCUULP_TMR_CNTRL_b.TMR_MODE);
@@ -254,13 +254,13 @@ STATIC INLINE rsi_error_t RSI_TIMERS_SetMatch(RSI_TIMERS_T *pTIMER, uint8_t time
 
 /*===================================================*/
 /**
- * @fn          rsi_error_t RSI_TIMERS_InterruptStatus(RSI_TIMERS_T *pTIMER , uint8_t timerNum)
+ * @fn          rsi_error_t RSI_TIMERS_InterruptStatus(const RSI_TIMERS_T *pTIMER , uint8_t timerNum)
  * @brief		This API is used to get the timer interrupt status 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the timer interrupt status if valid timer else 0. 
  */
-STATIC INLINE uint8_t RSI_TIMERS_InterruptStatus(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE uint8_t RSI_TIMERS_InterruptStatus(const RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     return (uint8_t)(pTIMER->MCUULP_TMR_INTR_STAT & (1 << timerNum));
@@ -322,13 +322,13 @@ STATIC INLINE rsi_error_t RSI_TIMERS_SetTimerMode(RSI_TIMERS_T *pTIMER, boolean_
 
 /*===================================================*/
 /**
- * @fn          uint32_t RSI_TIMERS_GetTimerType(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+ * @fn          uint32_t RSI_TIMERS_GetTimerType(const RSI_TIMERS_T *pTIMER, uint8_t timerNum)
  * @brief		This API is used to get the type of timer 
  * @param[in]   pTIMER     : Pointer to the TIMERS instance register area
  * @param[in]   timerNum   : Timer number(0 to 3)                          
  * @return 		return the type of timer if valid timer else error code 
  */
-STATIC INLINE uint32_t RSI_TIMERS_GetTimerType(RSI_TIMERS_T *pTIMER, uint8_t timerNum)
+STATIC INLINE uint32_t RSI_TIMERS_GetTimerType(const RSI_TIMERS_T *pTIMER, uint8_t timerNum)
 {
   if (timerNum <= TIMER_3) {
     return (pTIMER->MATCH_CTRL[timerNum].MCUULP_TMR_CNTRL_b.TMR_TYPE);

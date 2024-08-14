@@ -88,7 +88,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -115,33 +115,47 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
+### Application Configuration Parameters
+
 - Configure UC from the slcp component.
 - Open **sl_si91x_gspi.slcp** project file, select **Software Component** tab and search for **GSPI** in search bar.
 - Using configuration wizard one can configure different parameters like:
 
-### General Configuration
-
-- Mode: SPI mode can be configured, i.e. mode 0 and mode 3 (motorola). Mode 0: Clock Polarity 0 and Clock Phase 0, Mode 3: Clock Polarity 1 and Clock Phase 1.
-- Bitrate: The speed of transfer can be configured, i.e. bits/second.
-- Data Width: The size of data packet, it can be configured between 1 to 15.
-- Byte-wise swapping of read and write data, enable will swap the data and disable will not swap the data.
-
-### DMA Configuration
-
-- Enable/Disable the DMA configuration.
-- Configure the FIFO Thresholds, i.e. Almost Full and Almost Empty. It can be configured between 0 to 15.
-- It is recommended to have maximum depth for Fifo Threshold. Almost Full refers to the Rx Fifo and Almost Empty refers to Tx Fifo.
-- Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
-
   ![Figure: UC screen](resources/uc_screen/gspi_uc_screen.png)
+
+- **GSPI Configuration**
+
+  - Mode: SPI mode can be configured, i.e. mode 0 and mode 3 (motorola). Mode 0: Clock Polarity 0 and Clock Phase 0, Mode 3: Clock Polarity 1 and Clock Phase 1.
+  - Bitrate: The speed of transfer can be configured, i.e. bits/second.
+  - Data Width: The size of data packet, it can be configured between 1 to 16.
+  - Byte-wise swapping of read and write data, enable will swap the data and disable will not swap the data (Can be used only if data width is configured as 16).
+
+- **DMA Configuration**
+
+  - Enable/Disable the DMA configuration.
+  - Configure the FIFO Thresholds, i.e. Almost Full and Almost Empty. It can be configured between 0 to 15.
+  - It is recommended to have maximum depth for Fifo Threshold. Almost Full refers to the Rx Fifo and Almost Empty refers to Tx Fifo.
+  - Configuration files are generated in **config folder**, if not changed then the code will run on default UC values.
+
+
 
 - Configure the following macros in gspi_example.h file and update/modify following macros if required.
 
-```C
-#define SL_USE_TRANSFER ENABLE    ///< To use the transfer API
-#define SL_USE_SEND     DISABLE   ///< To use the send API
-#define SL_USE_RECEIVE  DISABLE   ///< To use the receive API
-```
+  ```C
+  #define SL_USE_TRANSFER ENABLE    ///< To use the transfer API
+  #define SL_USE_SEND     DISABLE   ///< To use the send API
+  #define SL_USE_RECEIVE  DISABLE   ///< To use the receive API
+  ```
+
+- By default 8 bit unsigned integer is declared for data buffer. If using data-width more than 8 bit, update the variable to 16 bit unsigned integer. If the data-width is 16, use 8 bit unsigned integer.
+  ```C
+  // For data-width less than equal to 8 and data-width 16
+  static uint8_t gspi_data_in[GSPI_BUFFER_SIZE];
+  static uint8_t gspi_data_out[GSPI_BUFFER_SIZE];
+  // For data-width greater than 8 and less than 16
+  static uint16_t gspi_data_in[GSPI_BUFFER_SIZE];
+  static uint16_t gspi_data_out[GSPI_BUFFER_SIZE];
+  ```
 
 ### Pin Configuration
 

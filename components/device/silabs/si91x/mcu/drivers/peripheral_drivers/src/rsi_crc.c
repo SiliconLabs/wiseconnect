@@ -21,6 +21,7 @@
 
 #ifndef CRC_ROMDRIVER_PRESENT
 #include "rsi_rom_crc.h"
+#include "si91x_device.h"
 
 /*==============================================*/
 /**

@@ -77,7 +77,7 @@ typedef uint8_t uint8;
 #include "bb_rf_calib.h"
 #include "wrappers_common.h"
 #endif
-void program_ipmu_data(uint32_t *src);
+void program_ipmu_data(const uint32_t *src);
 #ifndef BT_LE_ONLY_MODE
 #ifdef SLI_SI91X_MCU_INTERFACE
 void ipmu_init_mcu(void);
@@ -199,8 +199,8 @@ uint16 scdc_sleep;
  * @param   void
  * @return  void
  */
-void update_ipmu_calib_data(efuse_ipmu_t *ipmu_calib_data) __attribute__((section(".common_tcm_code")));
-void update_ipmu_calib_data(efuse_ipmu_t *ipmu_calib_data)
+void update_ipmu_calib_data(const efuse_ipmu_t *ipmu_calib_data) __attribute__((section(".common_tcm_code")));
+void update_ipmu_calib_data(const efuse_ipmu_t *ipmu_calib_data)
 {
   uint32_t data;
   uint32_t mask;
@@ -418,16 +418,22 @@ uint32_t init_ipmu_calib_data(uint32_t m4_present)
 #endif
 #ifdef IPMU_DOTC_PROG
 #ifdef SLI_SI91X_MCU_INTERFACE
-void program_ipmu_data(uint32_t *src);
+void program_ipmu_data(const uint32_t *src);
 #else
-void program_ipmu_data(uint32_t *src) __attribute__((section(".common_non_tcm_code")));
+void program_ipmu_data(const uint32_t *src) __attribute__((section(".common_non_tcm_code")));
 #endif
-void program_ipmu_data(uint32_t *src)
+void program_ipmu_data(const uint32_t *src)
 {
-  uint32_t write_data, num_of_reg, mask = 0, read_data;
+  uint32_t write_data;
+  uint32_t num_of_reg;
+  uint32_t mask = 0;
+  uint32_t read_data;
   uint32_t addr;
-  uint32_t ls_shift, ms_shift, mask_bits, inx = 0;
-  num_of_reg = src[inx];
+  uint32_t ls_shift;
+  uint32_t ms_shift;
+  uint32_t mask_bits;
+  uint32_t inx = 0;
+  num_of_reg   = src[inx];
   inx++;
 
   //Dummy Read
@@ -556,7 +562,8 @@ void ipmu_init(void)
 #ifndef IPMU_DOTC_PROG
   uint32_t pmu_1p3_ctrl_data;
 #endif
-  uint32_t pmu_1p2_ctrl_word, bypass_curr_ctrl_data;
+  uint32_t pmu_1p2_ctrl_word;
+  uint32_t bypass_curr_ctrl_data;
   retention_boot_status_word_t *retention_reg = (retention_boot_status_word_t *)MCURET_BOOTSTATUS;
 
   //! If M4 present and host interface with M4(M4 master) case, total IPMU and MCU FSM registers has to be initialised in M4.

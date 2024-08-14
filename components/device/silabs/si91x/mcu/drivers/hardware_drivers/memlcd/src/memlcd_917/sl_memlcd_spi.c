@@ -50,6 +50,8 @@ int32_t status_spi = 0;
  */
 void mySPI_callback_spi(uint32_t event)
 {
+  // Clearing the instance number to evaluate the event
+  event &= SSI_INSTANCE_MASK;
   switch (event) {
     case ARM_SPI_EVENT_TRANSFER_COMPLETE:
       spi_done_ok = 1;

@@ -95,13 +95,13 @@ void RSI_TS_Config(MCU_TEMP_Type *pstcTempSens, uint32_t u32Nomial)
 
 /*==============================================*/
 /**
- * @fn          uint32_t RSI_TS_ReadTemp(MCU_TEMP_Type *pstcTempSens)    
+ * @fn          uint32_t RSI_TS_ReadTemp(const MCU_TEMP_Type *pstcTempSens)    
  * @brief       This API is used to read the temperature value
  * @param[in]   pstcTempSens   : pointer to the temperature sensor register instance
  * @return      returns the temperature value
  */
 
-uint32_t RSI_TS_ReadTemp(MCU_TEMP_Type *pstcTempSens)
+uint32_t RSI_TS_ReadTemp(const MCU_TEMP_Type *pstcTempSens)
 {
   /*Wait for done */
   while (pstcTempSens->TS_ENABLE_AND_TEMPERATURE_DONE_b.TEMP_MEASUREMENT_DONE != 1)
@@ -123,7 +123,6 @@ uint32_t RSI_TS_ReadTemp(MCU_TEMP_Type *pstcTempSens)
 
 void RSI_TS_RoBjtEnable(MCU_TEMP_Type *pstcTempSens, boolean_t enable)
 {
-  uint32_t i;
 
   if (pstcTempSens->TS_SLOPE_SET_b.BJT_BASED_TEMP == 1U) {
     if (enable == 1U) {
@@ -135,7 +134,7 @@ void RSI_TS_RoBjtEnable(MCU_TEMP_Type *pstcTempSens, boolean_t enable)
     if (pstcTempSens->TS_SLOPE_SET_b.BJT_BASED_TEMP == 0U) {
       if (enable == 1U) {
         pstcTempSens->TS_SLOPE_SET_b.BJT_BASED_TEMP = 1;
-        for (i = 100; i; i--)
+        for (uint32_t i = 100; i; i--)
           ; // wait for 100 us
       } else {
         pstcTempSens->TS_SLOPE_SET_b.BJT_BASED_TEMP = (unsigned int)(enable & 0x01); //0
@@ -161,13 +160,13 @@ void RSI_TS_LoadBjt(MCU_TEMP_Type *pstcTempSens, uint8_t temp)
 
 /*==============================================*/
 /**
- * @fn         uint32_t RSI_TS_GetRefClkCnt(MCU_TEMP_Type *pstcTempSens)     
+ * @fn         uint32_t RSI_TS_GetRefClkCnt(const MCU_TEMP_Type *pstcTempSens)     
  * @brief      This API is used to read the reference clock count
  * @param[in]  pstcTempSens   : pointer to the temperature sensor register instance
  * @return     returns the reference clock count
  */
 
-uint32_t RSI_TS_GetRefClkCnt(MCU_TEMP_Type *pstcTempSens)
+uint32_t RSI_TS_GetRefClkCnt(const MCU_TEMP_Type *pstcTempSens)
 {
   /*Return the count value*/
   return pstcTempSens->TS_COUNTS_READ_b.COUNT_F1;
@@ -175,13 +174,13 @@ uint32_t RSI_TS_GetRefClkCnt(MCU_TEMP_Type *pstcTempSens)
 
 /*==============================================*/
 /**
- * @fn         uint32_t RSI_TS_GetPtatClkCnt(MCU_TEMP_Type *pstcTempSens)
+ * @fn         uint32_t RSI_TS_GetPtatClkCnt(const MCU_TEMP_Type *pstcTempSens)
  * @brief      This API is used to read the ptat clock count
  * @param[in]  pstcTempSens   : pointer to the temperature sensor register instance
  * @return     returns the ptat clock count
  */
 
-uint32_t RSI_TS_GetPtatClkCnt(MCU_TEMP_Type *pstcTempSens)
+uint32_t RSI_TS_GetPtatClkCnt(const MCU_TEMP_Type *pstcTempSens)
 {
   /*Return the count value*/
   return pstcTempSens->TS_COUNTS_READ_b.COUNT_F2;

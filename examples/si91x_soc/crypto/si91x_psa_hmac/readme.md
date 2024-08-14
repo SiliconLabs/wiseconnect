@@ -10,6 +10,7 @@
 - [Getting Started](#getting-started)
 - [Application Build Environment](#application-build-environment)
 - [Test the Application](#test-the-application)
+  - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -22,7 +23,7 @@ Before running the application, the user will need the following things to setup
 ### Hardware Requirements
 
   - Windows PC
-  - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
+  - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
 
 ### Software Requirements
 
@@ -70,6 +71,10 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - Build the application.
 - Flash, run and debug the application.
+
+### Expected output
+
+  ![output](resources/readme/output.png)
 
 Follow the steps as mentioned for the successful execution of the application:
 

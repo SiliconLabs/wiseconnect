@@ -30,6 +30,7 @@
 void app_init(void);
 extern osMutexId_t printf_mutex;
 void fw_update_status(bool status);
+void firmware_update_operation_complete();
 extern void sl_debug_log(const char *format, ...);
 void print_sl_client_ip_address(const sl_ip_address_t *sl_ip_address);
 void print_sl_client_ipv4_address(const sl_ipv4_address_t *ip_address);
@@ -39,6 +40,9 @@ void print_client_mac_address(sl_mac_address_t *mac_address);
 #define LOG_PRINT(format, ...) sl_debug_log(format, ##__VA_ARGS__)
 
 #define APP_BUF_SIZE 1600
+
+// Define states for firmware update process
+typedef enum { STATE_HANDSHAKE, STATE_UPDATE_FIRMWARE, STATE_COMPLETED, STATE_ERROR } firmware_state_t;
 
 //! Enumeration for states in application
 typedef enum app_state_e {

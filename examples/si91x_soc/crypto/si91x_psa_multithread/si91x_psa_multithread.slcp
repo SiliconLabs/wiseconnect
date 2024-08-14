@@ -14,7 +14,7 @@ filter:
       - Beginner
 sdk:
   id: simplicity_sdk
-  version: 2024.6.0
+  version: 2024.6.1
 readme:
   - path: readme.md
 source:
@@ -33,6 +33,7 @@ component:
   - id: mbedtls_slcrypto
   - id: psa_crypto
   - id: psa_driver
+  - id: psa_driver_source
   - id: psa_crypto_trng
   - id: psa_crypto_cipher_ecb
   - id: psa_crypto_cipher_cbc
@@ -62,14 +63,17 @@ component:
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/image508a.png
-  - path: resources/readme/image508c.png
+  - path: resources/readme/same_acc_output.png
+  - path: resources/readme/same_acc_parallel_output.png
+  - path: resources/readme/diff_acc_output.png
+  - path: resources/readme/diff_acc_parallel_output.png
 ui_hints:
   highlight:
     - path: readme.md
       focus: true
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.0
+    version: 3.3.1
 toolchain_settings:
   - option: gcc_compiler_option
     value: -Wall -Werror

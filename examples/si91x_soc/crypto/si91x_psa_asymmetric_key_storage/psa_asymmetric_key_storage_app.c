@@ -42,36 +42,40 @@ void test_import_and_export_volatile_plain_key()
   /* Import a private key */
   ret = psa_import_key(&key_attr, private_key, sizeof(private_key), &import_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Import Key failed with error: status %ld \n", ret);
+    printf("Import Private Key failed with error: status %ld\n", ret);
   } else {
-    printf("Import Key success status %ld\n", ret);
+    printf("Import Private Key success\n");
   }
 
   /* Export the private key */
   ret = psa_export_key(import_key_id, key_buffer, sizeof(key_buffer), &len);
   if (ret != PSA_SUCCESS || memcmp(key_buffer, private_key, len) != 0) {
-    printf("Export Key failed with error: status %ld \n", ret);
+    printf("Export Private Key failed with error: status %ld\n", ret);
   } else {
-    printf("Export Key success status %ld\n", ret);
+    printf("Export Private Key success\n");
   }
 
-  printf("The exported private key is\n");
-  for (int i = 0; i < (int)len; i++) {
-    printf("%x ", key_buffer[i]);
-  }
+  /* Uncomment below lines to print the private key */
+  //  printf("The exported private key is\n");
+  //  for (int i = 0; i < (int)len; i++) {
+  //    printf("%x ", key_buffer[i]);
+  //  }
+  //  printf("\n");
 
   /* Generate and export the asymmetric public key */
   ret = psa_export_public_key(import_key_id, key_buffer, sizeof(key_buffer), &len);
   if (ret != PSA_SUCCESS) {
-    printf("Export Public Key failed with error: status %ld \n", ret);
+    printf("Export Public Key failed with error: status %ld\n", ret);
   } else {
-    printf("Export Public Key success status %ld\n", ret);
+    printf("Export Public Key success\n");
   }
 
-  printf("The exported public key is\n");
-  for (int i = 0; i < (int)len; i++) {
-    printf("%x ", key_buffer[i]);
-  }
+  /* Uncomment below lines to print the public key */
+  //  printf("The exported public key is\n");
+  //  for (int i = 0; i < (int)len; i++) {
+  //    printf("%x ", key_buffer[i]);
+  //  }
+  //  printf("\n");
 
   // Destroy key
   ret = psa_destroy_key(import_key_id);
@@ -100,43 +104,47 @@ void test_generate_and_export_volatile_plain_key()
   /* Generate a private key */
   ret = psa_generate_key(&key_attr, &generate_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Generate Key failed with error: status %ld \n", ret);
+    printf("Generate Private Key failed with error: status %ld\n", ret);
   } else {
-    printf("Generate Key success status %ld \n", ret);
+    printf("Generate Private Key success\n");
   }
 
   /* Export the private key */
   ret = psa_export_key(generate_key_id, key_buffer, sizeof(key_buffer), &len);
   if (ret != PSA_SUCCESS) {
-    printf("Export Key failed with error: status %ld \n", ret);
+    printf("Export Private Key failed with error: status %ld\n", ret);
   } else {
-    printf("Export Key success status %ld \n", ret);
+    printf("Export Private Key success\n");
   }
 
-  printf("The exported private key is\n");
-  for (uint8_t i = 0; i < (int)len; i++) {
-    printf("%x ", key_buffer[i]);
-  }
+  /* Uncomment below lines to print the private key */
+  //  printf("The exported private key is\n");
+  //  for (uint8_t i = 0; i < (int)len; i++) {
+  //    printf("%x ", key_buffer[i]);
+  //  }
+  //  printf("\n");
 
   /* Generate and export the asymmetric public key */
   ret = psa_export_public_key(generate_key_id, key_buffer, sizeof(key_buffer), &len);
   if (ret != PSA_SUCCESS) {
-    printf("Export Public key failed with error: status %ld\n", ret);
+    printf("Export Public Key failed with error: status %ld\n", ret);
   } else {
-    printf("Export Public Key success status %ld\n", ret);
+    printf("Export Public Key success\n");
   }
 
-  printf("The exported public key is\n");
-  for (int i = 0; i < (int)len; i++) {
-    printf("%x ", key_buffer[i]);
-  }
+  /* Uncomment below lines to print the public key */
+  //  printf("The exported public key is\n");
+  //  for (int i = 0; i < (int)len; i++) {
+  //    printf("%x ", key_buffer[i]);
+  //  }
+  //  printf("\n");
 
   /* Destroy key */
   ret = psa_destroy_key(generate_key_id);
   if (ret != PSA_SUCCESS) {
     printf("Destroy Key failed with error: %ld\n", ret);
   } else {
-    printf("Destroy Key success status %ld\n", ret);
+    printf("Destroy Key success\n");
   }
 }
 
@@ -165,36 +173,40 @@ void test_import_and_export_persistent_plain_key()
   /* Import a private key */
   ret = psa_import_key(&key_attr, private_key, sizeof(private_key), &import_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Import Key failed with error: status %ld \n", ret);
+    printf("Import Private Key failed with error: status %ld\n", ret);
   } else {
-    printf("Import Key success status %ld \n", ret);
+    printf("Import Private Key success\n");
   }
 
   /* Export the private key */
   ret = psa_export_key(import_key_id, key_buffer, sizeof(key_buffer), &len);
   if (ret != PSA_SUCCESS || memcmp(key_buffer, private_key, len) != 0) {
-    printf("Export Key failed with error: status %ld \n", ret);
+    printf("Export Private Key failed with error: status %ld\n", ret);
   } else {
-    printf("Export Key success status %ld \n", ret);
+    printf("Export Private Key success\n");
   }
 
-  printf("The exported private key is\n");
-  for (int i = 0; i < (int)len; i++) {
-    printf("%x ", key_buffer[i]);
-  }
+  /* Uncomment below lines to print the private key */
+  //  printf("The exported private key is\n");
+  //  for (int i = 0; i < (int)len; i++) {
+  //    printf("%x ", key_buffer[i]);
+  //  }
+  //  printf("\n");
 
   /* Generate and export the asymmetric public key */
   ret = psa_export_public_key(import_key_id, key_buffer, sizeof(key_buffer), &len);
   if (ret != PSA_SUCCESS) {
-    printf("Export Public Key Failed Status %ld \n", ret);
+    printf("Export Public Key failed with error: status %ld\n", ret);
   } else {
-    printf("Export Public Key success status %ld \n", ret);
+    printf("Export Public Key success\n");
   }
 
-  printf("The exported public key is\n");
-  for (uint8_t i = 0; i < (int)len; i++) {
-    printf("%x ", key_buffer[i]);
-  }
+  /* Uncomment below lines to print the public key */
+  //  printf("The exported public key is\n");
+  //  for (uint8_t i = 0; i < (int)len; i++) {
+  //    printf("%x ", key_buffer[i]);
+  //  }
+  //  printf("\n");
 
   // Destroy key
   ret = psa_destroy_key(import_key_id);
@@ -225,43 +237,47 @@ void test_generate_and_export_persistent_plain_key()
   /* Generate a private key */
   ret = psa_generate_key(&key_attr, &generate_key_id);
   if (ret != PSA_SUCCESS) {
-    printf("Generate Key failed with error: status %ld \n", ret);
+    printf("Generate Private Key failed with error: status %ld\n", ret);
   } else {
-    printf("Generate Key success status %ld\n", ret);
+    printf("Generate Private Key success\n");
   }
 
   /* Export the private key */
   ret = psa_export_key(generate_key_id, key_buffer, sizeof(key_buffer), &len);
   if (ret != PSA_SUCCESS) {
-    printf("Export Key failed with error: status %ld\n", ret);
+    printf("Export Private Key failed with error: status %ld\n", ret);
   } else {
-    printf("Export Volatile Plain Key Success\n");
+    printf("Export Private Key success\n");
   }
 
-  printf("The exported private key is\n");
-  for (uint8_t i = 0; i < (int)len; i++) {
-    printf("%x ", key_buffer[i]);
-  }
+  /* Uncomment below lines to print the private key */
+  //  printf("The exported private key is\n");
+  //  for (uint8_t i = 0; i < (int)len; i++) {
+  //    printf("%x ", key_buffer[i]);
+  //  }
+  //  printf("\n");
 
   /* Generate and export the asymmetric public key */
   ret = psa_export_public_key(generate_key_id, key_buffer, sizeof(key_buffer), &len);
   if (ret != PSA_SUCCESS) {
-    printf("Export Public Key Failed Status %ld \n", ret);
+    printf("Export Public Key failed with error: status %ld\n", ret);
   } else {
-    printf("Export Public Key success status %ld\n", ret);
+    printf("Export Public Key success\n");
   }
 
-  printf("The exported public key is\n");
-  for (int i = 0; i < (int)len; i++) {
-    printf("%x ", key_buffer[i]);
-  }
+  /* Uncomment below lines to print the public key */
+  //  printf("The exported public key is\n");
+  //  for (int i = 0; i < (int)len; i++) {
+  //    printf("%x ", key_buffer[i]);
+  //  }
+  //  printf("\n");
 
   /* Destroy key */
   ret = psa_destroy_key(generate_key_id);
   if (ret != PSA_SUCCESS) {
     printf("Destroy Key failed with error: %ld\n", ret);
   } else {
-    printf("Destroy Key success status %ld\n", ret);
+    printf("Destroy Key success\n");
   }
 }
 

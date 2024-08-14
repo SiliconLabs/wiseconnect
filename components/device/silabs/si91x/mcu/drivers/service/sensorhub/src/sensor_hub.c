@@ -1840,6 +1840,8 @@ void sl_si91x_power_state_task(void)
 *******************************************************************************/
 void mySPI_callback(uint32_t event)
 {
+  // Clearing the instance number to evaluate the event
+  event &= SSI_INSTANCE_MASK;
   switch (event) {
     case ARM_SPI_EVENT_TRANSFER_COMPLETE:
       break;

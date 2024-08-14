@@ -262,8 +262,7 @@ uint8_t rsi_check_dev_list(uint8_t *remote_dev_name, uint8_t *adv_dev_addr)
 
 #if (CONNECT_OPTION == CONN_BY_NAME)
   if (((strcmp((const char *)remote_dev_name, RSI_REMOTE_DEVICE_NAME1)) == 0)
-      || ((strcmp((const char *)remote_dev_name, RSI_REMOTE_DEVICE_NAME2)) == 0)
-      || ((strcmp((const char *)remote_dev_name, RSI_REMOTE_DEVICE_NAME3)) == 0)) {
+      || ((strcmp((const char *)remote_dev_name, RSI_REMOTE_DEVICE_NAME2)) == 0)) {
     peripheral_device_found = DEV_FOUND;
   } else
     return peripheral_device_found;
@@ -283,8 +282,7 @@ uint8_t rsi_check_dev_list(uint8_t *remote_dev_name, uint8_t *adv_dev_addr)
     }
   }
 #else
-  if ((!strcmp(RSI_BLE_DEV_1_ADDR, (char *)adv_dev_addr)) || (!strcmp(RSI_BLE_DEV_2_ADDR, (char *)adv_dev_addr))
-      || (!strcmp(RSI_BLE_DEV_3_ADDR, (char *)adv_dev_addr))) {
+  if ((!strcmp(RSI_BLE_DEV_1_ADDR, (char *)adv_dev_addr)) || (!strcmp(RSI_BLE_DEV_2_ADDR, (char *)adv_dev_addr))) {
     peripheral_device_found = DEV_FOUND;
   } else {
     return peripheral_device_found;

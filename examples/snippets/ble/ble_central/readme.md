@@ -21,13 +21,18 @@ This application demonstrates how to connect SiWx91x with remote BLE device in c
 
 - Windows PC
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
 - PSRAM Mode:  
   - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/);
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
 - Smartphone configured as BLE peripheral
 ### Software Requirements
 
@@ -62,26 +67,26 @@ User must update the below parameters
    - `RSI_BLE_DEV_ADDR_TYPE` refers address type of the remote device to connect.
 
    ```c
-   #define RSI_BLE_DEV_ADDR_TYPE                          LE_PUBLIC_ADDRESS 
+       #define RSI_BLE_DEV_ADDR_TYPE                          LE_PUBLIC_ADDRESS 
    ```
 
    - Based on address type of remote device, valid configurations are
 
    ```c
-   LE_RANDOM_ADDRESS
-   LE_PUBLIC_ADDRESS
+       LE_RANDOM_ADDRESS
+       LE_PUBLIC_ADDRESS
    ```
 
    - `RSI_BLE_DEV_ADDR` refers address of the remote device to connect.
 
    ```c
-   #define RSI_BLE_DEV_ADDR                               "00:1E:7C:25:E9:4D"
+       #define RSI_BLE_DEV_ADDR                               "00:1E:7C:25:E9:4D"
    ```
 
    - `RSI_REMOTE_DEVICE_NAME` refers the name of remote device to which Silicon Labs device has to connect.
 
    ```c
-   #define RSI_REMOTE_DEVICE_NAME                         "SILABS_DEV" 
+       #define RSI_REMOTE_DEVICE_NAME                         "SILABS_DEV" 
    ```
 
    > **Note:** User can configure either RSI_BLE_DEV_ADDR or RSI_REMOTE_DEVICE_NAME of the remote device.
@@ -91,28 +96,47 @@ User must update the below parameters
       - By default, The Application is configured without power save.
 
    ```c
-   #define ENABLE_POWER_SAVE 0
+       #define ENABLE_POWER_SAVE 0
    ```
 
    - If user wants to run the application in power save, modify the below configuration.
 
    ```c
-   #define ENABLE_POWER_SAVE 1 
+       #define ENABLE_POWER_SAVE 1 
    ```
 
    - Following are the event numbers for advertising, connection and disconnection events
 
    ```c
-   #define RSI_APP_EVENT_ADV_REPORT                       0
-   #define RSI_APP_EVENT_CONNECTED                        1
-   #define RSI_APP_EVENT_DISCONNECTED                     2
+       #define RSI_APP_EVENT_ADV_REPORT                       0
+       #define RSI_APP_EVENT_CONNECTED                        1
+       #define RSI_APP_EVENT_DISCONNECTED                     2
    ```
+   - To configure Scan parameter below parameters should be modified.
+   ```c
+       ae_set_scan_params.own_addr_type               			 	= LE_PUBLIC_ADDRESS; //917 device address type
+       ae_set_scan_params.scanning_filter_policy       			= RSI_BLE_SCAN_FILTER_TYPE; //scan filter policy to be used  
+       ae_set_scan_params.scanning_phys                			= (PHY_1M | PHY_LE_CODED); //
+       ae_set_scan_params.ScanParams[AE_SCAN_SET1].ScanInterval 	= LE_SCAN_INTERVAL;
+       ae_set_scan_params.ScanParams[AE_SCAN_SET1].ScanWindow   	= LE_SCAN_WINDOW;
+    ```
+
+  - SET2_ENABLE is a configuration parameter that enables or disables SCAN SET2.
+
+  - Parameters to Configure scan enable
+
+  ```c
+	   ae_set_scan_enable.enable                       = RSI_BLE_START_SCAN;
+	   ae_set_scan_enable.filter_duplicates            = BLE_SCAN_ENABLE_FILTER_DUP;
+	   ae_set_scan_enable.duration                     = BLE_SCAN_DUR;
+	   ae_set_scan_enable.period                       = BLE_SCAN_PERIOD;
+  ```
 
 - Open `ble_config.h` file and update/modify following macros,
 
    ```c
-   #define RSI_BLE_PWR_INX                                30
-   #define RSI_BLE_PWR_SAVE_OPTIONS                       BLE_DISABLE_DUTY_CYCLING
+       #define RSI_BLE_PWR_INX                                30
+       #define RSI_BLE_PWR_SAVE_OPTIONS                       BLE_DISABLE_DUTY_CYCLING
    ```
 
    > **Note:** The configurations are already set with desired configuration in respective example folders you need not change for each example.

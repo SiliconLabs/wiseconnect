@@ -26,13 +26,16 @@ Both gain tables must be configured in the correct order to successfully apply c
 
 - Windows PC
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
 - PSRAM Mode:  
   - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/);
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
 - Smartphone 
 
 ### Software Requirements

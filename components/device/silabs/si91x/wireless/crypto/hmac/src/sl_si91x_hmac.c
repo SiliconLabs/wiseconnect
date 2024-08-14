@@ -173,6 +173,10 @@ sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output)
   memcpy((data + key_length), config->msg, config->msg_length); // Copy message into data
 
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
+  // to avoid unused variable warning
+  UNUSED_VARIABLE(chunk_len);
+  UNUSED_VARIABLE(offset);
+  UNUSED_VARIABLE(hmac_sha_flags);
   status = sli_si91x_hmac_side_band(total_length, data, config, output);
   return status;
 #else

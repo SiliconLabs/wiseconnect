@@ -61,6 +61,10 @@ uint8_t rsi_get_ble_conn_id(uint8_t *remote_dev_addr, uint8_t *remote_name, uint
 {
   uint8_t conn_id = 0xFF; //! Max connections (0xFF -1)
   uint8_t i       = 0;
+#if (CONNECT_OPTION == CONN_BY_ADDR)
+  UNUSED_PARAMETER(remote_name);
+  UNUSED_PARAMETER(size);
+#endif
 
   for (i = 0; i < TOTAL_CONNECTIONS; i++) {
     if (!memcmp(rsi_ble_conn_info[i].remote_dev_addr, remote_dev_addr, RSI_REM_DEV_ADDR_LEN)) {
@@ -122,6 +126,10 @@ uint8_t rsi_add_ble_conn_id(uint8_t *remote_dev_addr, uint8_t *remote_name, uint
 {
   uint8_t conn_id = 0xFF; //! Max connections (0xFF -1)
   uint8_t i       = 0;
+#if (CONNECT_OPTION == CONN_BY_ADDR)
+  UNUSED_PARAMETER(remote_name);
+  UNUSED_PARAMETER(size);
+#endif
 
   for (i = 0; i < TOTAL_CONNECTIONS; i++) {
     if (!memcmp(rsi_ble_conn_info[i].remote_dev_addr, RSI_NULL_BLE_ADDR, RSI_REM_DEV_ADDR_LEN)) {

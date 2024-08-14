@@ -65,15 +65,17 @@ sl_dma_init_t dma_init;
  */
 void UartIrqHandler(USART_RESOURCES *usart)
 {
-  volatile uint32_t int_status, line_status, modem_status;
-  uint32_t event, val;
+  volatile uint32_t int_status;
+  volatile uint32_t line_status;
+  volatile uint32_t modem_status;
+  uint32_t event;
+  uint32_t val;
   uint8_t usart_instance = 0U;
 
   int_status   = 0U;
   line_status  = 0U;
   modem_status = 0U;
   event        = 0U;
-  val          = 0U;
   // Check which uart instance irq got triggered and update the usart instance
   if ((usart->pREGS == UART0) || (usart->pREGS == USART0)) {
     usart_instance = USART_0;
@@ -93,24 +95,18 @@ void UartIrqHandler(USART_RESOURCES *usart)
   if ((int_status & USART_RX_LINE_STATUS) == USART_RX_LINE_STATUS) {
     line_status = usart->pREGS->LSR;
     // OverRun error
-    if ((line_status & USART_OVERRUN_ERR) == USART_OVERRUN_ERR) {
-      if (usart->info->cb_event) {
-        usart->info->rx_status.rx_overflow = 1U;
-        usart->info->cb_event(ARM_USART_EVENT_RX_OVERFLOW);
-      }
+    if (((line_status & USART_OVERRUN_ERR) == USART_OVERRUN_ERR) && (usart->info->cb_event)) {
+      usart->info->rx_status.rx_overflow = 1U;
+      usart->info->cb_event(ARM_USART_EVENT_RX_OVERFLOW);
       // Sync Slave mode: If Transmitter enabled, signal TX underflow
-      if (usart->info->mode == ARM_USART_MODE_SYNCHRONOUS_SLAVE) {
-        if (usart->info->xfer.send_active != 0U) {
-          event |= ARM_USART_EVENT_TX_UNDERFLOW;
-        }
+      if ((usart->info->mode == ARM_USART_MODE_SYNCHRONOUS_SLAVE) && (usart->info->xfer.send_active != 0U)) {
+        event |= ARM_USART_EVENT_TX_UNDERFLOW;
       }
     }
     // Parity error
-    if ((line_status & USART_PARITY_ERR) == USART_PARITY_ERR) {
-      if (usart->info->cb_event) {
-        usart->info->rx_status.rx_parity_error = 1U;
-        usart->info->cb_event(ARM_USART_EVENT_RX_PARITY_ERROR);
-      }
+    if (((line_status & USART_PARITY_ERR) == USART_PARITY_ERR) && (usart->info->cb_event)) {
+      usart->info->rx_status.rx_parity_error = 1U;
+      usart->info->cb_event(ARM_USART_EVENT_RX_PARITY_ERROR);
     }
     // Framing error
     if ((line_status & USART_FRAMING_ERR) == USART_FRAMING_ERR) {
@@ -120,11 +116,9 @@ void UartIrqHandler(USART_RESOURCES *usart)
       }
     }
     // Break detected
-    else if ((line_status & USART_BREAK_ERR) == USART_BREAK_ERR) {
-      if (usart->info->cb_event) {
-        usart->info->rx_status.rx_break = 1U;
-        usart->info->cb_event(ARM_USART_EVENT_RX_BREAK);
-      }
+    else if (((line_status & USART_BREAK_ERR) == USART_BREAK_ERR) && (usart->info->cb_event)) {
+      usart->info->rx_status.rx_break = 1U;
+      usart->info->cb_event(ARM_USART_EVENT_RX_BREAK);
     }
   }
   if ((int_status & USART_THR_EMPTY) == USART_THR_EMPTY) {
@@ -146,41 +140,39 @@ void UartIrqHandler(USART_RESOURCES *usart)
       }
     }
   }
-  if ((int_status & USART_RX_DATA_AVAILABLE) == USART_RX_DATA_AVAILABLE) {
-    if (usart->info->cb_event) {
-      //check if receiver contains atleast one char in RBR reg
-      if ((usart->pREGS->LSR_b.DR)) {
-        usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
-        usart->info->xfer.rx_cnt++;
+  if (((int_status & USART_RX_DATA_AVAILABLE) == USART_RX_DATA_AVAILABLE) && (usart->info->cb_event)) {
+    //check if receiver contains atleast one char in RBR reg
+    if ((usart->pREGS->LSR_b.DR)) {
+      usart->info->xfer.rx_buf[usart->info->xfer.rx_cnt] = (uint8_t)usart->pREGS->RBR;
+      usart->info->xfer.rx_cnt++;
 
-        // Check if requested amount of data is received
-        if (usart->info->xfer.rx_cnt == usart->info->xfer.rx_num) {
-          // Disable RDA)rx_data_available) interrupt
-          usart->pREGS->IER &= (uint32_t)(~USART_INTR_RX_DATA);
-          // Clear RX busy flag and set receive transfer complete event
-          usart->info->rx_status.rx_busy = 0U;
-          if ((usart->info->mode == ARM_USART_MODE_SYNCHRONOUS_MASTER)
-              || (usart->info->mode == ARM_USART_MODE_SYNCHRONOUS_SLAVE)) {
-            val                         = usart->info->xfer.sync_mode;
-            usart->info->xfer.sync_mode = 0U;
-            switch (val) {
-              case USART_SYNC_MODE_TX:
-                event |= ARM_USART_EVENT_SEND_COMPLETE;
-                break;
-              case USART_SYNC_MODE_RX:
-                event |= ARM_USART_EVENT_RECEIVE_COMPLETE;
-                break;
-              case USART_SYNC_MODE_TX_RX:
-                event |= ARM_USART_EVENT_TRANSFER_COMPLETE;
-                break;
-              default:
-                break;
-            }
-          } else {
-            event |= ARM_USART_EVENT_RECEIVE_COMPLETE;
+      // Check if requested amount of data is received
+      if (usart->info->xfer.rx_cnt == usart->info->xfer.rx_num) {
+        // Disable RDA)rx_data_available) interrupt
+        usart->pREGS->IER &= (uint32_t)(~USART_INTR_RX_DATA);
+        // Clear RX busy flag and set receive transfer complete event
+        usart->info->rx_status.rx_busy = 0U;
+        if ((usart->info->mode == ARM_USART_MODE_SYNCHRONOUS_MASTER)
+            || (usart->info->mode == ARM_USART_MODE_SYNCHRONOUS_SLAVE)) {
+          val                         = usart->info->xfer.sync_mode;
+          usart->info->xfer.sync_mode = 0U;
+          switch (val) {
+            case USART_SYNC_MODE_TX:
+              event |= ARM_USART_EVENT_SEND_COMPLETE;
+              break;
+            case USART_SYNC_MODE_RX:
+              event |= ARM_USART_EVENT_RECEIVE_COMPLETE;
+              break;
+            case USART_SYNC_MODE_TX_RX:
+              event |= ARM_USART_EVENT_TRANSFER_COMPLETE;
+              break;
+            default:
+              break;
           }
-          usart->info->cb_event(event);
+        } else {
+          event |= ARM_USART_EVENT_RECEIVE_COMPLETE;
         }
+        usart->info->cb_event(event);
       }
     }
     //Check if requested amount of data is not received
@@ -371,7 +363,7 @@ int32_t USART_SetBaudrate(uint32_t baudrate, uint32_t baseClk, USART_RESOURCES *
 /**
  * @fn          int32_t int32_t USART_Initialize( ARM_USART_SignalEvent_t cb_event,
  *                                                 USART_RESOURCES *usart,
- *                                                 UDMA_RESOURCES *udma,
+ *                                                 const UDMA_RESOURCES *udma,
  *                                                 RSI_UDMA_DESC_T *UDMA_Table,
  *                                                 RSI_UDMA_HANDLE_T *udmaHandle,
  *                                                 uint32_t *mem )
@@ -390,7 +382,7 @@ int32_t USART_SetBaudrate(uint32_t baudrate, uint32_t baseClk, USART_RESOURCES *
  */
 int32_t USART_Initialize(ARM_USART_SignalEvent_t cb_event,
                          USART_RESOURCES *usart,
-                         UDMA_RESOURCES *udma,
+                         const UDMA_RESOURCES *udma,
                          RSI_UDMA_DESC_T *UDMA_Table,
                          RSI_UDMA_HANDLE_T *udmaHandle,
                          uint32_t *mem)
@@ -476,13 +468,13 @@ int32_t USART_Initialize(ARM_USART_SignalEvent_t cb_event,
 }
 
 /**
- * @fn          int32_t USART_Uninitialize (USART_RESOURCES *usart, UDMA_RESOURCES *udma)
+ * @fn          int32_t USART_Uninitialize (const USART_RESOURCES *usart, const UDMA_RESOURCES *udma)
  * @brief       De-initialize USART Interface.
  * @param[in]   usart     Pointer to USART resources
  * @param[in]   udma      Pointer to UDMA resources
  * @return      \ref execution_status
  */
-int32_t USART_Uninitialize(USART_RESOURCES *usart, UDMA_RESOURCES *udma)
+int32_t USART_Uninitialize(const USART_RESOURCES *usart, const UDMA_RESOURCES *udma)
 {
 #ifdef SL_SI91X_USART_DMA
   //Added to suppress unused variable warning
@@ -526,7 +518,7 @@ int32_t USART_Uninitialize(USART_RESOURCES *usart, UDMA_RESOURCES *udma)
 }
 
 /**
- * @fn          int32_t USART_PowerControl ( ARM_POWER_STATE  state, USART_RESOURCES *usart, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle )
+ * @fn          int32_t USART_PowerControl ( ARM_POWER_STATE  state, USART_RESOURCES *usart, const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle )
  * @brief       Control USART Interface Power.
  * @param[in]   state      Power state
  * @param[in]   usart      Pointer to USART resources
@@ -536,7 +528,7 @@ int32_t USART_Uninitialize(USART_RESOURCES *usart, UDMA_RESOURCES *udma)
  */
 int32_t USART_PowerControl(ARM_POWER_STATE state,
                            USART_RESOURCES *usart,
-                           UDMA_RESOURCES *udma,
+                           const UDMA_RESOURCES *udma,
                            RSI_UDMA_HANDLE_T udmaHandle)
 {
 #ifdef SL_SI91X_USART_DMA
@@ -640,7 +632,7 @@ int32_t USART_PowerControl(ARM_POWER_STATE state,
 }
 
 /**
- * @fn          int32_t USART_Send_Data(const void *data, uint32_t num,USART_RESOURCES *usart, UDMA_RESOURCES *udma, UDMA_Channel_Info *chnl_info, RSI_UDMA_HANDLE_T udmaHandle)
+ * @fn          int32_t USART_Send_Data(const void *data, uint32_t num,USART_RESOURCES *usart, const UDMA_RESOURCES *udma, UDMA_Channel_Info *chnl_info, RSI_UDMA_HANDLE_T udmaHandle)
  * @brief       Start sending data to USART transmitter.
  * @param[in]   data  Pointer to buffer with data to send to USART transmitter
  * @param[in]   num   Number of data items to send
@@ -653,7 +645,7 @@ int32_t USART_PowerControl(ARM_POWER_STATE state,
 int32_t USART_Send_Data(const void *data,
                         uint32_t num,
                         USART_RESOURCES *usart,
-                        UDMA_RESOURCES *udma,
+                        const UDMA_RESOURCES *udma,
                         UDMA_Channel_Info *chnl_info,
                         RSI_UDMA_HANDLE_T udmaHandle)
 {
@@ -789,7 +781,7 @@ int32_t USART_Send_Data(const void *data,
 }
 
 /**
- * @fn           int32_t USART_Receive_Data( const void *data,uint32_t num,USART_RESOURCES *usart, UDMA_RESOURCES *udma, UDMA_Channel_Info *chnl_info, RSI_UDMA_HANDLE_T udmaHandle)
+ * @fn           int32_t USART_Receive_Data( const void *data,uint32_t num,USART_RESOURCES *usart, const UDMA_RESOURCES *udma, UDMA_Channel_Info *chnl_info, RSI_UDMA_HANDLE_T udmaHandle)
  * @brief       Start receiving data from USART receiver.
  * @param[out]  data       Pointer to buffer for data to receive from USART receiver
  * @param[in]   num        Number of data items to receive
@@ -802,7 +794,7 @@ int32_t USART_Send_Data(const void *data,
 int32_t USART_Receive_Data(const void *data,
                            uint32_t num,
                            USART_RESOURCES *usart,
-                           UDMA_RESOURCES *udma,
+                           const UDMA_RESOURCES *udma,
                            UDMA_Channel_Info *chnl_info,
                            RSI_UDMA_HANDLE_T udmaHandle)
 {
@@ -944,7 +936,7 @@ int32_t USART_Receive_Data(const void *data,
 }
 
 /**
- * @fn           int32_t USART_Transfer (const void *data_out, void *data_in, uint32_t num,USART_RESOURCES *usart,UDMA_RESOURCES *udma,UDMA_Channel_Info *chnl_info,RSI_UDMA_HANDLE_T udmaHandle)
+ * @fn           int32_t USART_Transfer (const void *data_out, void *data_in, uint32_t num,USART_RESOURCES *usart,const UDMA_RESOURCES *udma,UDMA_Channel_Info *chnl_info,RSI_UDMA_HANDLE_T udmaHandle)
  * @brief        Start sending/receiving data to/from USART transmitter/receiver.
  * @param[in]    data_out  Pointer to buffer with data to send to USART transmitter
  * @param[out]   data_in   Pointer to buffer for data to receive from USART receiver
@@ -959,7 +951,7 @@ int32_t USART_Transfer(const void *data_out,
                        void *data_in,
                        uint32_t num,
                        USART_RESOURCES *usart,
-                       UDMA_RESOURCES *udma,
+                       const UDMA_RESOURCES *udma,
                        UDMA_Channel_Info *chnl_info,
                        RSI_UDMA_HANDLE_T udmaHandle)
 {
@@ -1023,7 +1015,7 @@ uint32_t USART_GetRxCount(USART_RESOURCES *usart)
 }
 
 /**
- * @fn          int32_t USART_Control (uint32_t  control, uint32_t  arg,uint32_t baseClk, USART_RESOURCES  *usart, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
+ * @fn          int32_t USART_Control (uint32_t  control, uint32_t  arg,uint32_t baseClk, USART_RESOURCES  *usart, const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle)
  * @brief       Control USART Interface.
  * @param[in]   control  Operation
  * @param[in]   arg      Argument of operation (optional)
@@ -1037,7 +1029,7 @@ int32_t USART_Control(uint32_t control,
                       uint32_t arg,
                       uint32_t baseClk,
                       USART_RESOURCES *usart,
-                      UDMA_RESOURCES *udma,
+                      const UDMA_RESOURCES *udma,
                       RSI_UDMA_HANDLE_T udmaHandle)
 {
 #ifdef SL_SI91X_USART_DMA

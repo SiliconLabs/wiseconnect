@@ -235,7 +235,7 @@ static sl_status_t sli_si91x_gspi_configure_power_mode(sl_gspi_handle_t gspi_han
  * It configures GSPI mode, Bit width (frame length), master mode, bitrate, 
  * swap read, swap write and slave select mode.
  * - GSPI Mode, Value: GSPI_MODE_0 / GSPI_MODE_3
- * - Bit width (frame length), Value: 4 to 16
+ * - Bit width (frame length), Value: 1 to 16
  * - Master Mode, Value: GSPI_MASTER_ACTIVE / GSPI_MASTER_INACTIVE
  * - Bitrate, Value: Less than 40000000
  * - Swap Read, Value: ENABLE / DISABLE
@@ -275,7 +275,10 @@ sl_status_t sl_si91x_gspi_set_configuration(sl_gspi_handle_t gspi_handle,
     if (status != SL_STATUS_OK) {
       break;
     }
-
+    if (control_configuration->bit_width == MAX_BIT_WIDTH) {
+      // For 16 data width, it is required to set the data width as 0.
+      control_configuration->bit_width = 0;
+    }
     input_mode = (control_configuration->clock_mode | SL_GSPI_MASTER_ACTIVE | control_configuration->slave_select_mode
                   | ARM_SPI_DATA_BITS(control_configuration->bit_width));
     // CMSIS API for GSPI control is called and the arm error code returned from
@@ -699,7 +702,7 @@ static sl_status_t validate_control_parameters(sl_gspi_control_config_t *control
     }
     // If the bit width is not in range i.e., between 0 and 16,
     // returns the error code.
-    if ((control_configuration->bit_width == MIN_BIT_WIDTH) || (control_configuration->bit_width >= MAX_BIT_WIDTH)) {
+    if ((control_configuration->bit_width == MIN_BIT_WIDTH) || (control_configuration->bit_width > MAX_BIT_WIDTH)) {
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }

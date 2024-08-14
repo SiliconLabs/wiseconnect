@@ -51,6 +51,7 @@ extern void wifi_app_task(void);
 extern void rsi_ble_configurator_task(void *argument);
 void rsi_ble_configurator_init(void);
 extern void memlcd_app_init(void);
+extern void sensor_event_thread(void *argument);
 
 uint8_t magic_word;
 
@@ -124,7 +125,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_GATT_INIT
 #endif
                       ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 const osThreadAttr_t thread_attributes = {
@@ -147,6 +148,18 @@ const osThreadAttr_t ble_thread_attributes = {
   .stack_mem  = 0,
   .stack_size = 2048,
   .priority   = osPriorityNormal,
+  .tz_module  = 0,
+  .reserved   = 0,
+};
+
+const osThreadAttr_t sensor_event_thread_attributes = {
+  .name       = "sensor_event_thread",
+  .attr_bits  = 0,
+  .cb_mem     = 0,
+  .cb_size    = 0,
+  .stack_mem  = 0,
+  .stack_size = 2048,
+  .priority   = osPriorityNormal1,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -231,4 +244,5 @@ void rsi_wlan_ble_app_init(void *argument)
 void app_init(void)
 {
   osThreadNew((osThreadFunc_t)rsi_wlan_ble_app_init, NULL, &thread_attributes);
+  osThreadNew((osThreadFunc_t)sensor_event_thread, NULL, &sensor_event_thread_attributes);
 }

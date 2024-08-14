@@ -15,14 +15,12 @@
 
 ## Purpose/Scope
 
-- Universal Synchronous Asynchronous Receiver-Transmitter (USART)
-- This application demonstrates how to configure USART In asyncronous mode, it will send and receive data in loopback mode
-
+- Universal Synchronous Asynchronous Receiver-Transmitter (USART).
+- This application demonstrates how to configure USART In Asynchronous mode, it will send and receive data from serial console.
 ## Overview
 
-- USART is used in communication through wired medium in both Synchronous and Asynchronous fashion. It enables the device to
-  communicate using serail protocols
-- This application is configured with following configs
+- USART is used in communication through wired medium in both Synchronous and Asynchronous fashion. It enables the device to communicate using serial protocols.
+- This application is configured with following configurations:
   - Tx and Rx enabled
   - Asynchronous mode
   - 8 Bit data transfer
@@ -33,11 +31,11 @@
 
 ## About Example Code
 
-- \ref usart_example.c this example code demonstates how to configure the USART to send and receive data.
+- \ref usart_example.c this example code demonstrates how to configure the USART to send and receive data.
 - In this example, first USART get initialized if it's not initialized already with clock and dma configurations if dma is
   enalbed using \ref sl_si91x_usart_init
-- After USART initialization, the UART power mode is set using \ref sl_si91x_usart_set_power_mode() and then USART configured with the default configurations from UC along with the USART transmit and receive lines using \ref sl_si91x_usart_set_configuration()
-- Then register's user event callback for send and recevie complete notification are set using
+- After USART initialization, the USART power mode is set using \ref sl_si91x_usart_set_power_mode() and then USART configured with the default configurations from UC along with the USART transmit and receive lines using \ref sl_si91x_usart_set_configuration()
+- Then register's user event callback for send and receive complete notification are set using
   \ref sl_si91x_usart_register_event_callback()
 - After setting the user event callback, the data send and receive can happen through \ref sl_si91x_usart_send_data() and
   \ref sl_si91x_usart_receive_data() respectively.
@@ -49,7 +47,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(4002A) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -75,7 +73,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configuration of USART at UC.
+- Configuration of USART at UC(Universal Configuration).
+- Configure UC from the slcp component.
+- Open **sl_si91x_usart_async.slcp** project file select **software component** tab and search for **USART** in search bar.
+- Using configuration wizard one can configure different parameters. Below configuration screens where user can select as per requirement.
+
   > ![Figure: Selecting UC](resources/uc_screen/usart_uc.png)
 
 ## Pin Configuration
@@ -90,7 +92,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Flow Control Configuration
 
-- Set the SL_USART_FLOW_CONTROL_TYPE parameter to SL_USART_FLOW_CONTROL_RTS_CTS to enable UART flow control.
+- Set the SL_USART_FLOW_CONTROL_TYPE parameter to SL_USART_FLOW_CONTROL_RTS_CTS to enable USART flow control.
 - Make the following two macros in RTE_Device_917.h to '1', to map RTS and CTS pins to WSTK/WPK Main Board EXP header or breakout pins.
   ```C
   #define RTE_USART0_CTS_PORT_ID    1
@@ -105,7 +107,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 1. Connect TX pin(GPIO_30) to RX pin of UART to TTL cable and RX pin(GPIO_29) to TX pin of UART-TTL cable.
 2. When the application runs,USART sends and receives data in full duplex mode.
-3. Observe the UART transferred data on console and Send back the same 1024 bytes back.
+3.  Observe the USART transmission status upon data transmission from usart master to slave and vice-versa on usart pins.
 4. After running this application below console output can be observed.
 
     > ![Figure: expected result](resources/readme/output_console_usart_async.png)
@@ -116,7 +118,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Configuring SOCPLL clock
 For Baudrates higher than 2 Million configure the SOCPLL clock by following the below steps
->- In usart_example.c (path: /$project/usart_example.c) add below lines of code 
+>- In usart_async_example.c (path: /$project/usart_async_example.c) **add below lines of code.**
 ```c
 #include "rsi_rom_clks.h"
 
@@ -129,9 +131,8 @@ RSI_CLK_SetSocPllFreq(M4CLK, SOC_PLL_CLK, SOC_PLL_REF_CLK); //To configure SOCPL
 ```
 >- Change the clock source to USART_SOCPLLCLK in RTE_Device_917.h (/$project/config/RTE_Device_917.h)
 ```c
-#define RTE_USART0_CLK_SRC //For using USART0
+#define RTE_USART0_CLK_SRC  // for UART1
 ```
-
 
 > **Note:**
 >

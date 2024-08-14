@@ -41,7 +41,7 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-const char *message =
+char message[] =
   "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
 /******************************************************
  *               Variable Definitions

@@ -37,6 +37,7 @@ extern "C" {
 /******************************************************************************/
 /******************************* ADC Channel Configuration **************************/
 
+#define P10_START_LOCATION_PINTOOL 424
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -57,7 +58,31 @@ extern "C" {
 // </h>
 // <<< end of configuration section >>>
 
-#define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL 0
+// <<< sl:start pin_tool >>>
+// <adc_ch10 signal=P10> SL_ADC_CH10
+// $[ADC_CH10_SL_ADC_CH10]
+#ifndef SL_ADC_CH10_PERIPHERAL
+#define SL_ADC_CH10_PERIPHERAL ADC_CH10
+#endif
+
+// ADC_CH10 P10 on ULP_GPIO_9/GPIO_73
+#ifndef SL_ADC_CH10_P10_PORT
+#define SL_ADC_CH10_P10_PORT 0
+#endif
+#ifndef SL_ADC_CH10_P10_PIN
+#define SL_ADC_CH10_P10_PIN 9
+#endif
+#ifndef SL_ADC_CH10_P10_LOC
+#define SL_ADC_CH10_P10_LOC 438
+#endif
+// [ADC_CH10_SL_ADC_CH10]$
+// <<< sl:end pin_tool >>>
+
+#ifdef SL_ADC_CH10_P10_LOC
+#define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL (SL_ADC_CH10_P10_LOC - P10_START_LOCATION_PINTOOL)
+#else
+#define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL 14
+#endif
 #define SL_ADC_CHANNEL_10_NEG_INPUT_CHNL_SEL 8
 
 #ifdef __cplusplus

@@ -171,7 +171,7 @@ sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
  *   Topic from which client needs to unsubscribe.
  * @param[in] length			
  *   Length of the topic.
- * @param[in] connect_timeout	
+ * @param[in] timeout	
  *   Timeout for the API. If the value is zero, the API will be asynchronous.
  * @param[in] context			
  *   Context that returns in event handler if the API is called asynchronously. The caller must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.

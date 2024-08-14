@@ -140,7 +140,7 @@ typedef PRE_PACK struct POST_PACK {
   boolean_t (*clk_check_pll_lock)(PLL_TYPE_T pllType);
   rsi_error_t (*clk_soc_pll_clk_enable)(boolean_t clkEnable);
   rsi_error_t (*clk_set_soc_pll_freq)(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
-  rsi_error_t (*clk_soc_pll_set_freq_div)(M4CLK_Type *pCLK,
+  rsi_error_t (*clk_soc_pll_set_freq_div)(const M4CLK_Type *pCLK,
                                           boolean_t clk_en,
                                           uint16_t divFactor,
                                           uint16_t nFactor,
@@ -148,7 +148,7 @@ typedef PRE_PACK struct POST_PACK {
                                           uint16_t fcwF,
                                           uint16_t dcoFixSel,
                                           uint16_t ldoProg);
-  rsi_error_t (*clk_soc_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_soc_pll_clk_set)(const M4CLK_Type *pCLK);
   rsi_error_t (*clk_soc_pll_clk_bypass_enable)(boolean_t clkEnable);
   rsi_error_t (*clk_soc_pll_clk_reset)(void);
   rsi_error_t (*clk_soc_pll_pd_enable)(boolean_t en);
@@ -159,20 +159,20 @@ typedef PRE_PACK struct POST_PACK {
   rsi_error_t (*clk_i2s_pll_pd_enable)(boolean_t en);
   rsi_error_t (*clk_i2s_pll_turn_off)(void);
   rsi_error_t (*clk_i2s_pll_turn_on)(void);
-  rsi_error_t (*clk_set_i2s_pll_freq)(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
-  rsi_error_t (*clk_i2s_pll_set_freq_div)(M4CLK_Type *pCLK,
+  rsi_error_t (*clk_set_i2s_pll_freq)(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
+  rsi_error_t (*clk_i2s_pll_set_freq_div)(const M4CLK_Type *pCLK,
                                           uint16_t u16DivFactor1,
                                           uint16_t u16DivFactor2,
                                           uint16_t nFactor,
                                           uint16_t mFactor,
                                           uint16_t fcwF);
-  rsi_error_t (*clk_i2s_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_i2s_pll_clk_set)(const M4CLK_Type *pCLK);
   rsi_error_t (*clk_i2s_pll_clk_reset)(void);
   rsi_error_t (*clk_intf_pll_clk_enable)(boolean_t clkEnable);
   rsi_error_t (*clk_intf_pll_pd_enable)(boolean_t en);
   rsi_error_t (*clk_intf_pll_turn_off)(void);
   rsi_error_t (*clk_set_intf_pll_freq)(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
-  rsi_error_t (*clk_intf_pll_set_freq_div)(M4CLK_Type *pCLK,
+  rsi_error_t (*clk_intf_pll_set_freq_div)(const M4CLK_Type *pCLK,
                                            boolean_t clk_en,
                                            uint16_t divFactor,
                                            uint16_t nFactor,
@@ -183,7 +183,7 @@ typedef PRE_PACK struct POST_PACK {
   rsi_error_t (*clk_intf_pll_clk_bypass_enable)(boolean_t clkEnable);
   rsi_error_t (*clk_intf_pll_turn_on)(void);
   rsi_error_t (*clk_intf_pll_clk_reset)(void);
-  rsi_error_t (*clk_intf_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_intf_pll_clk_set)(const M4CLK_Type *pCLK);
   rsi_error_t (*clk_peripheral_clk_enable1)(M4CLK_Type *pCLK, uint32_t flags);
   rsi_error_t (*clk_peripheral_clk_disable1)(M4CLK_Type *pCLK, uint32_t flags);
   rsi_error_t (*clk_peripheral_clk_enable2)(M4CLK_Type *pCLK, uint32_t flags);
@@ -195,7 +195,7 @@ typedef PRE_PACK struct POST_PACK {
   rsi_error_t (*clk_dynamic_clk_gate_enable)(M4CLK_Type *pCLK, uint32_t flags);
   rsi_error_t (*clk_dynamic_clk_gate_enable2)(M4CLK_Type *pCLK, uint32_t flags);
   rsi_error_t (*ulpss_enable_ref_clks)(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn);
-  rsi_error_t (*clk_m4ss_ref_clk_config)(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource);
+  rsi_error_t (*clk_m4ss_ref_clk_config)(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource);
   rsi_error_t (*clk_m4_soc_clk_config)(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
   rsi_error_t (*clk_qspi_clk_config)(M4CLK_Type *pCLK,
                                      QSPI_CLK_SRC_SEL_T clkSource,
@@ -823,7 +823,7 @@ typedef PRE_PACK struct POST_PACK {
 typedef PRE_PACK struct POST_PACK {
   RSI_UDMA_HANDLE_T (*udma_init)(void *mem, const RSI_UDMA_INIT_T *pInit);
 
-  uint32_t (*udma_get_channel_transfer_mode)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+  uint32_t (*udma_get_channel_transfer_mode)(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
   rsi_error_t (*udma_setup_channel_transfer)(RSI_UDMA_HANDLE_T pHandle,
                                              RSI_UDMA_CHA_CFG_T *pCfg,
@@ -838,12 +838,12 @@ typedef PRE_PACK struct POST_PACK {
                                                           uint32_t transferType);
 
   uint32_t (*udma_get_channel_transfer_length)(RSI_UDMA_HANDLE_T pHandle,
-                                               RSI_UDMA_CHA_CFG_T *pCfg,
+                                               const RSI_UDMA_CHA_CFG_T *pCfg,
                                                RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData);
 
-  rsi_error_t (*udma_setup_channel)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+  rsi_error_t (*udma_setup_channel)(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
-  void (*udma_deInit)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+  void (*udma_deInit)(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
   void (*udma_interrupt_handler)(RSI_UDMA_HANDLE_T pHandle);
 

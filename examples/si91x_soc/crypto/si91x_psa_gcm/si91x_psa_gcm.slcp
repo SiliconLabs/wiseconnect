@@ -25,10 +25,10 @@ include:
       - path: psa_gcm_app.h
 sdk:
   id: simplicity_sdk
-  version: 2024.6.0
+  version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.0
+    version: 3.3.1
 component:
   - id: sl_system
   - id: freertos
@@ -55,7 +55,7 @@ component:
     from: wiseconnect3_sdk
 other_file:
   - path: resources/readme/image508a.png
-  - path: resources/readme/image508c.png
+  - path: resources/readme/gcm_output.png
 ui_hints:
   highlight:
     - path: readme.md

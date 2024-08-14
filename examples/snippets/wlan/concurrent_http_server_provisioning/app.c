@@ -321,10 +321,11 @@ static void application_start(void *argument)
 
       case PROVISION_STATE:
 
-        server_config.port            = HTTP_SERVER_PORT;
-        server_config.default_handler = default_handler;
-        server_config.handlers_list   = request_handlers;
-        server_config.handlers_count  = 2;
+        server_config.port             = HTTP_SERVER_PORT;
+        server_config.default_handler  = default_handler;
+        server_config.handlers_list    = request_handlers;
+        server_config.handlers_count   = 2;
+        server_config.client_idle_time = 1;
 
         status = sl_http_server_init(&server_handle, &server_config);
         if (status != SL_STATUS_OK) {
@@ -1021,8 +1022,6 @@ void send_data_to_udp_server(void)
   int sent_bytes                      = 1;
   uint32_t start                      = 0;
   uint32_t now                        = 0;
-  uint32_t fail                       = 0;
-  uint32_t pass                       = 0;
 
   client_socket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
   if (client_socket < 0) {
@@ -1056,17 +1055,15 @@ void send_data_to_udp_server(void)
     }
 
     if (sent_bytes < 0) {
-      fail++;
-    } else {
-      pass++;
+      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      break;
     }
+    total_bytes_sent = total_bytes_sent + sent_bytes;
 
-    if (sent_bytes > 0)
-      total_bytes_sent = total_bytes_sent + sent_bytes;
+    printf("\r\nUDP_TX Throughput test finished\r\n");
+    printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
+
+    close(client_socket);
   }
-  printf("\r\nUDP_TX Throughput test finished\r\n");
-  printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
-  printf("\r\nSend fail count : %ld, Send pass count : %ld\r\n", fail, pass);
-
-  close(client_socket);
 }

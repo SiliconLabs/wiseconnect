@@ -94,7 +94,7 @@ void RSI_RTC_Stop(RTC_Type *Cal)
 
 /*==============================================*/
 /**	
- * @fn           rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
+ * @fn           rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, const RTC_TIME_CONFIG_T *date)
  * @brief   	 This API is used to set the rtc configuration
  * @param[in]    Cal   : pointer to the rtc register instance
  * @param[in]    date  : pointer to the rtc configuration structure
@@ -103,7 +103,7 @@ void RSI_RTC_Stop(RTC_Type *Cal)
  * - Error code on failure
  */
 
-rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
+rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, const RTC_TIME_CONFIG_T *date)
 {
   if ((Cal == NULL) || (date == NULL)) {
     return ERROR_CAL_INVALID_PARAMETERS;
@@ -132,7 +132,7 @@ rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
 
 /*==============================================*/
 /**
- * @fn              rsi_error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
+ * @fn              rsi_error_t RSI_RTC_GetDateTime(const RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
  * @brief    	 	This API is used to Get the RTC time
  * @param[in]  	    Cal  : pointer to the rtc register instance
  * @param[in] 		date : pointer to the rtc structure to hold the current time parameters
@@ -141,7 +141,7 @@ rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
  * - Error code on failure
  */
 
-rsi_error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
+rsi_error_t RSI_RTC_GetDateTime(const RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
 {
   if ((Cal == NULL) || (date == NULL)) {
     return ERROR_CAL_INVALID_PARAMETERS;
@@ -161,7 +161,7 @@ rsi_error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
 
 /*==============================================*/
 /**	
- * @fn	             rsi_error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
+ * @fn	             rsi_error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, const RTC_TIME_CONFIG_T *alarm)
  * @brief    		 This API is used to Set the alarm for RTC module
  * @param[in]  		 Cal   : pointer to the rtc register instance
  * @param[in]  		 alarm : pointer to alarm configuration structure
@@ -170,7 +170,7 @@ rsi_error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date)
  * - Error code on failure
  */
 
-rsi_error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
+rsi_error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, const RTC_TIME_CONFIG_T *alarm)
 {
   if ((Cal == NULL) || (alarm == NULL)) {
     return ERROR_CAL_INVALID_PARAMETERS;
@@ -215,7 +215,7 @@ void RSI_RTC_AlamEnable(RTC_Type *Cal, boolean_t val)
 
 /*==============================================*/
 /**
- * @fn               rsi_error_t RSI_RTC_GetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
+ * @fn               rsi_error_t RSI_RTC_GetAlarmDateTime(const RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
  * @brief   		 This API is used to Get alarm configurations for RTC
  * @param[in]		 Cal 	 : pointer to the rtc register instance
  * @param[in]		 alarm : pointer to the rtc alarm configuration structure
@@ -224,7 +224,7 @@ void RSI_RTC_AlamEnable(RTC_Type *Cal, boolean_t val)
  * - Error code on failure
  */
 
-rsi_error_t RSI_RTC_GetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
+rsi_error_t RSI_RTC_GetAlarmDateTime(const RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm)
 {
   if ((Cal == NULL) || (alarm == NULL)) {
     return ERROR_CAL_INVALID_PARAMETERS;

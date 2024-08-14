@@ -75,6 +75,7 @@
 #define MQTT_USERNAME        "username"
 #define MQTT_PASSWORD        "password"
 #define ENABLE_POWER_SAVE    1
+#define LOW                  0
 
 #if ENABLE_POWER_SAVE
 volatile uint8_t powersave_given = 0;
@@ -95,19 +96,14 @@ void disconnect_notify_handler(AWS_IoT_Client *pClient, void *data);
 
 //! Enumeration for states in application
 typedef enum app_state {
-  WLAN_INITIAL_STATE = 0,
-  WLAN_SCAN_STATE,
-  WLAN_UNCONNECTED_STATE,
-  WLAN_CONNECTED_STATE,
-  WLAN_DISCONNECT,
   AWS_MQTT_INIT_STATE,
   AWS_MQTT_CONNECT_STATE,
   AWS_MQTT_SUBSCRIBE_STATE,
   AWS_MQTT_PUBLISH_STATE,
   AWS_MQTT_RECEIVE_STATE,
   AWS_MQTT_DISCONNECT,
-  AWS_SELECT_CONNECT_STATE,
-  SLEEP_STATE,
+  AWS_MQTT_SELECT_STATE,
+  AWS_MQTT_SLEEP_STATE,
   IDLE_STATE
 } app_state_t;
 
@@ -191,10 +187,10 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
 #ifdef SLI_SI91X_MCU_INTERFACE
-                   .config_feature_bit_map = 0
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
 #else
 #if ENABLE_POWER_SAVE
-                   .config_feature_bit_map = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
 #else
                    .config_feature_bit_map = 0
 #endif
@@ -208,15 +204,12 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
 #if defined(SLI_SI91X_MCU_INTERFACE) && (SL_SI91X_TICKLESS_MODE == ENABLE)
 void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
 {
-  (void)(pin_intr);
-  //NPSS GPIO-2 interrupt clr
-  (*(volatile uint32_t *)(0x12080000UL + 0x08)) = 0x08;
-
-  while (sl_si91x_gpio_get_uulp_npss_pin(2) == 0)
+  while (sl_si91x_gpio_get_uulp_npss_pin(pin_intr) == LOW)
     ; // waiting for the button release
   osSemaphoreRelease(data_received_semaphore);
 }
 #endif
+
 void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status)
 {
   UNUSED_PARAMETER(fd_except);
@@ -228,12 +221,12 @@ void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, i
     if (pub_state != 1) { //This check is for handling PUBACK in QOS1
       check_for_recv_data = 1;
       osSemaphoreRelease(data_received_semaphore);
-      application_state = AWS_SELECT_CONNECT_STATE;
+      application_state = AWS_MQTT_SELECT_STATE;
     } else if (pub_state == 1) { //This check is for handling PUBACK in QOS1
       osSemaphoreRelease(select_sem);
     }
   }
-  application_state = AWS_SELECT_CONNECT_STATE;
+  application_state = AWS_MQTT_SELECT_STATE;
 }
 
 void disconnect_notify_handler(AWS_IoT_Client *pClient, void *data)
@@ -457,7 +450,7 @@ sl_status_t start_aws_mqtt(void)
         if (SUCCESS != rc) {
           if (rc == NETWORK_ALREADY_CONNECTED_ERROR) {
             printf("\r\nNetwork is already connected\r\n");
-
+            application_state = AWS_MQTT_SUBSCRIBE_STATE;
           } else {
             printf("\r\nMQTT connect failed with error: %d\r\n", rc);
             application_state = AWS_MQTT_INIT_STATE;
@@ -483,16 +476,17 @@ sl_status_t start_aws_mqtt(void)
           } else if (NETWORK_ATTEMPTING_RECONNECT == rc) {
             // If the client is attempting to reconnect skip the rest of the loop
             continue;
+          } else {
+            application_state = AWS_MQTT_SUBSCRIBE_STATE;
           }
-          application_state = AWS_MQTT_SUBSCRIBE_STATE;
         } else {
           printf("\rSubscribed to the specified topic with QoS%d\n", SUBSCRIBE_QOS);
-          application_state = AWS_SELECT_CONNECT_STATE;
+          application_state = AWS_MQTT_SELECT_STATE;
         }
 
       } break;
 
-      case AWS_SELECT_CONNECT_STATE: {
+      case AWS_MQTT_SELECT_STATE: {
         {
           if (!select_given) {
             select_given = 1;
@@ -517,7 +511,7 @@ sl_status_t start_aws_mqtt(void)
             } else {
 #if ENABLE_POWER_SAVE
               qos1_publish_handle = 0;
-              application_state   = SLEEP_STATE;
+              application_state   = AWS_MQTT_SLEEP_STATE;
 #else
               application_state = AWS_MQTT_PUBLISH_STATE;
 #endif
@@ -537,7 +531,7 @@ sl_status_t start_aws_mqtt(void)
           publish_msg = 1;
 #endif
         }
-        application_state = AWS_SELECT_CONNECT_STATE;
+        application_state = AWS_MQTT_SELECT_STATE;
 
       } break;
 
@@ -557,13 +551,14 @@ sl_status_t start_aws_mqtt(void)
           rc = aws_iot_mqtt_publish(&mqtt_client, PUBLISH_ON_TOPIC, strlen(PUBLISH_ON_TOPIC), &publish_iot_msg);
 
           if (rc != SUCCESS) {
-            printf("\r\nMQTT Publish with QoS%d failed with error: %d\n", PUBLISH_QOS, rc);
+            if (rc == MQTT_REQUEST_TIMEOUT_ERROR) {
+              printf("\r\nACK not received for QoS%d publish\r\n", PUBLISH_QOS);
+            } else {
+              printf("\r\nMQTT Publish with QoS%d failed with error: %d\n", PUBLISH_QOS, rc);
+            }
+            osSemaphoreRelease(select_sem);
             application_state = AWS_MQTT_DISCONNECT;
             break;
-          }
-
-          else if (rc == MQTT_REQUEST_TIMEOUT_ERROR) {
-            printf("\r\nACK not received for QoS%d publish\r\n", PUBLISH_QOS);
           } else {
             printf("\rQoS%d publish is successful\r\n", PUBLISH_QOS);
           }
@@ -587,7 +582,7 @@ sl_status_t start_aws_mqtt(void)
 #endif
 
 #if ENABLE_POWER_SAVE
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
+        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
                                                               .listen_interval = 1000 };
         if (!powersave_given) {
           rc = sl_wifi_set_performance_profile(&performance_profile);
@@ -598,9 +593,9 @@ sl_status_t start_aws_mqtt(void)
           powersave_given = 1;
         }
         if (SUBSCRIBE_QOS == QOS1 || PUBLISH_QOS == QOS1) {
-          application_state = AWS_SELECT_CONNECT_STATE;
+          application_state = AWS_MQTT_SELECT_STATE;
         } else if (SUBSCRIBE_QOS == QOS0 || PUBLISH_QOS == QOS0) {
-          application_state = SLEEP_STATE;
+          application_state = AWS_MQTT_SLEEP_STATE;
         }
 #else
         application_state = IDLE_STATE;
@@ -608,8 +603,7 @@ sl_status_t start_aws_mqtt(void)
       } break;
 
 #if ENABLE_POWER_SAVE
-      case SLEEP_STATE: {
-        sl_si91x_host_delay_ms(200);
+      case AWS_MQTT_SLEEP_STATE: {
         if (select_given == 1 && (check_for_recv_data != 1)) {
 
 #ifdef SLI_SI91X_MCU_INTERFACE
@@ -624,7 +618,7 @@ sl_status_t start_aws_mqtt(void)
 #endif
 #endif
         }
-        application_state = AWS_SELECT_CONNECT_STATE;
+        application_state = AWS_MQTT_SELECT_STATE;
 
       } break;
 #endif
@@ -632,29 +626,16 @@ sl_status_t start_aws_mqtt(void)
         rc = aws_iot_mqtt_disconnect(&mqtt_client);
         if (SUCCESS != rc) {
           printf("\r\nMQTT disconnection error\r\n");
-          application_state = AWS_MQTT_INIT_STATE;
         }
         application_state = AWS_MQTT_INIT_STATE;
 
       } break;
       case IDLE_STATE: {
 
-        application_state = AWS_SELECT_CONNECT_STATE;
+        application_state = AWS_MQTT_SELECT_STATE;
 
       } break;
 
-#if 0
-        case RSI_WLAN_DISCONNECT: {
-          rc = sl_net_down();
-          if (SUCCESS != rc) {
-            printf("\r\nWLAN disconnection error\r\n");
-            application_state = WLAN_DISCONNECT;
-          }
-          sl_si91x_host_delay_ms(100);
-          application_state = WLAN_INITIAL_STATE;
-        }
-          break;
-#endif
       default:
         break;
     }

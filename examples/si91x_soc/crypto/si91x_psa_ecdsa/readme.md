@@ -11,6 +11,7 @@
 - [Application Build Environment](#application-build-environment)
   - [Application Configuration Parameters](#application-configuration-parameters)
 - [Test the Application](#test-the-application)
+  - [Expected output](#expected-output)
 
 ## Purpose/Scope
 
@@ -27,7 +28,7 @@
 ### Hardware Requirements
 
   - Windows PC
-  - Silicon Labs [Si917 Evaluation Kit WSTK + BRD4325A]
+  - Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A]
 
 ### Software Requirements
 
@@ -80,7 +81,8 @@ curve : SL_SI91X_ECC_SECP256R1
 - Default public key size is corresponding to 256 bits private key size
 - Default SHA hashing used is SHA256, can be changed to SHA384 or SHA512
 - To change the SHA algorithm, set the psa_key_algorithm to PSA_ALG_ECDSA(PSA_ALG_SHA_XXX) in psa_ecdsa_app.c
-- To use wrapped key instead of plain for private key, enable USE_WRAPPED_KEYS macro
+- To wrap the input private key and use it, set WRAP_INPUT_KEYS macro to 1 in `psa_ecdsa_app.c`
+- To use a wrapped private key directly, set IMPORT_WRAPPED_KEYS macro to 1 in `psa_ecdsa_app.c`
 
 ## Test the Application
 
@@ -90,7 +92,9 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Flash, run and debug the application.
 - Application Output
 
-  ![ECDSA Output](resources/readme/output.png)
+### Expected output
+
+  ![output](resources/readme/output.png)
 
 Follow the steps as mentioned for the successful execution of the application:
 

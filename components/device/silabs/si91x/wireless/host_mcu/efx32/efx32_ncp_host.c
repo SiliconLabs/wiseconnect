@@ -36,6 +36,16 @@
 #define LDMA_MAX_TRANSFER_LENGTH     4096
 #define LDMA_DESCRIPTOR_ARRAY_LENGTH (LDMA_MAX_TRANSFER_LENGTH / 2048)
 
+#ifndef SL_SI91X_NCP_UART_BAUDRATE
+// ToDo: This Macro is depricated and should be removed in upcoming releases.
+//       Keeping this macro functionality intact due to backward compatability.
+#if SL_SI91X_UART_HIGH_SPEED_ENABLE == 1
+#define SL_SI91X_NCP_UART_BAUDRATE 921600
+#else
+#define SL_SI91X_NCP_UART_BAUDRATE 115200
+#endif
+#endif
+
 #ifndef SL_NCP_UART_INTERFACE
 
 #include "spidrv.h"
@@ -220,7 +230,14 @@ static void efx32_spi_init(void)
   NVIC_SetPriority(NCP_RX_IRQ, PACKET_PENDING_INT_PRI);
   GPIOINT_CallbackRegister(SI91X_NCP_INTERRUPT_PIN, gpio_interrupt);
   GPIO_PinModeSet(SI91X_NCP_INTERRUPT_PORT, SI91X_NCP_INTERRUPT_PIN, gpioModeInputPullFilter, 0);
-  GPIO_ExtIntConfig(SI91X_NCP_INTERRUPT_PORT, SI91X_NCP_INTERRUPT_PIN, SI91X_NCP_INTERRUPT_PIN, true, false, true);
+
+  // Check if the boot option is set to LOAD_DEFAULT_NWP_FW_ACTIVE_LOW
+  if (init_config.boot_option == LOAD_DEFAULT_NWP_FW_ACTIVE_LOW)
+    // Configure the GPIO external interrupt for active low configuration
+    GPIO_ExtIntConfig(SI91X_NCP_INTERRUPT_PORT, SI91X_NCP_INTERRUPT_PIN, SI91X_NCP_INTERRUPT_PIN, false, true, true);
+  else
+    // Configure the GPIO external interrupt for active high configuration
+    GPIO_ExtIntConfig(SI91X_NCP_INTERRUPT_PORT, SI91X_NCP_INTERRUPT_PIN, SI91X_NCP_INTERRUPT_PIN, true, false, true);
 
   return;
 }
@@ -278,8 +295,9 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
 
 sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
 {
-  init_config.rx_irq  = config->rx_irq;
-  init_config.rx_done = config->rx_done;
+  init_config.rx_irq      = config->rx_irq;
+  init_config.rx_done     = config->rx_done;
+  init_config.boot_option = config->boot_option;
 
   // Enable clock (not needed on xG21)
   CMU_ClockEnable(cmuClock_GPIO, true);
@@ -299,7 +317,7 @@ sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
 #endif
 
   // Start reset line low
-  GPIO_PinModeSet(SI91X_NCP_RESET_PORT, SI91X_NCP_RESET_PIN, gpioModePushPull, 0);
+  GPIO_PinModeSet(SI91X_NCP_RESET_PORT, SI91X_NCP_RESET_PIN, gpioModeWiredAnd, 0);
 
   // Configure interrupt, sleep and wake confirmation pins
   GPIO_PinModeSet(SI91X_NCP_SLEEP_CONFIRM_PORT, SI91X_NCP_SLEEP_CONFIRM_PIN, gpioModeWiredOrPullDown, 1);
@@ -319,7 +337,7 @@ sl_status_t sl_si91x_host_deinit(void)
 void sl_si91x_host_enable_high_speed_bus()
 {
 #ifdef SL_NCP_UART_INTERFACE
-  efx32_ncp_uart_init(921600, false);
+  efx32_ncp_uart_init(SL_SI91X_NCP_UART_BAUDRATE, false);
 #else
   //SPI_USART->CTRL_SET |= USART_CTRL_SMSDELAY | USART_CTRL_SSSEARLY;
 #endif
@@ -445,7 +463,7 @@ void sl_si91x_host_flush_uart_rx(void)
 void sl_si91x_host_uart_enable_hardware_flow_control(void)
 {
 #ifdef SL_NCP_UART_INTERFACE
-  efx32_ncp_uart_init(921600, true);
+  efx32_ncp_uart_init(SL_SI91X_NCP_UART_BAUDRATE, true);
 #endif
 
   return;
@@ -453,13 +471,12 @@ void sl_si91x_host_uart_enable_hardware_flow_control(void)
 
 void sl_si91x_host_hold_in_reset(void)
 {
-  GPIO_PinModeSet(SI91X_NCP_RESET_PORT, SI91X_NCP_RESET_PIN, gpioModePushPull, 1);
   GPIO_PinOutClear(SI91X_NCP_RESET_PORT, SI91X_NCP_RESET_PIN);
 }
 
 void sl_si91x_host_release_from_reset(void)
 {
-  GPIO_PinModeSet(SI91X_NCP_RESET_PORT, SI91X_NCP_RESET_PIN, gpioModeWiredOrPullDown, 1);
+  GPIO_PinOutSet(SI91X_NCP_RESET_PORT, SI91X_NCP_RESET_PIN);
 }
 
 void sl_si91x_host_enable_bus_interrupt(void)

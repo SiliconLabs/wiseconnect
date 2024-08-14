@@ -67,7 +67,7 @@
 
 ### Hardware Requirements	
 
-- Silicon Labs Si917 Pro Kit [WPK + BRD4338A]
+- Silicon Labs Si917 Pro Kit [WPK + BRD4338A / BRD4342A / BRD4343A ]
 - BH1750 Light Sensor
 - LM75 Temperature Sensor
 - APDS9960 RGB-Gesture-Proximity Sensor

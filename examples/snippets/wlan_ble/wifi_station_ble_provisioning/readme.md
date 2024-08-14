@@ -32,6 +32,7 @@ SiWx91x is configured as a WiFi station and connects to an Access Point.
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4339B [SiWx917-RB4339B]
   	  - BRD4340A [SiWx917-RB4340A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -40,9 +41,13 @@ SiWx91x is configured as a WiFi station and connects to an Access Point.
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+   - Interface and Host MCU Supported
+     - SPI - EFR32 
 
 - Wireless Access point
 - Android Phone or iPhone with **Simplicity Connect App(formerly EFR Connect App)** App, which is available in Play Store and App Store.
@@ -55,9 +60,6 @@ SiWx91x is configured as a WiFi station and connects to an Access Point.
 
 
 ### Setup Diagram
-
- - WLAN Station BLE Provisioning with Android Simplicity Connect App(formerly EFR Connect App) 
-  ![](resources/readme/image279wsbpa_soc_ncp.png)
 
 - WLAN Station BLE Provisioning with windows based Silicon Labs Connect App
 
@@ -81,54 +83,76 @@ The application can be configured to suit your requirements and development envi
 
 > **Note:** `wlan_config.h`, `ble_config.h` files are already set with the above desired configuration for this example.
 
-Open `ble_app.c` file and update/modify following macros
+- Open `ble_app.c` file and update/modify following macros
 
-`RSI_BLE_CHAR_SERV_UUID` refers to the attribute type of the characteristics to be added in a service.
+    - `RSI_BLE_CHAR_SERV_UUID` refers to the attribute type of the characteristics to be added in a service.
+    
+        ``` c
+        #define  RSI_BLE_CHAR_SERV_UUID                         0x2803
+        ```
 
-    #define  RSI_BLE_CHAR_SERV_UUID                         0x2803
+    - `RSI_BLE_CLIENT_CHAR_UUID` refers to the attribute type of the client characteristics descriptor to be added in a service.
+    
+        ```c
+        #define RSI_BLE_CLIENT_CHAR_UUID                        0x2902
+        ```
 
-`RSI_BLE_CLIENT_CHAR_UUID` refers to the attribute type of the client characteristics descriptor to be added in a service.
+    - `RSI_BLE_NEW_SERVICE_UUID` refers to the attribute value of the newly created service.
+    
+        ```c
+        #define  RSI_BLE_NEW_SERVICE_UUID                       0xAABB
+        ```
 
-    #define RSI_BLE_CLIENT_CHAR_UUID                        0x2902
+    - `RSI_BLE_ATTRIBUTE_1_UUID` refers to the attribute type of the first attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+    
+        ```c
+        #define  RSI_BLE_ATTRIBUTE_1_UUID                        0x1AA1
+        ```
 
-`RSI_BLE_NEW_SERVICE_UUID` refers to the attribute value of the newly created service.
+    - `RSI_BLE_ATTRIBUTE_2_UUID` refers to the attribute type of the second attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+    
+        ```c
+        #define RSI_BLE_ATTRIBUTE_2_UUID                         0x1BB1
+        ```
 
-    #define  RSI_BLE_NEW_SERVICE_UUID                       0xAABB
+    - `RSI_BLE_ATTRIBUTE_3_UUID` refers to the attribute type of the third attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
 
-`RSI_BLE_ATTRIBUTE_1_UUID` refers to the attribute type of the first attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
+        ```c
+        #define RSI_BLE_ATTRIBUTE_3_UUID                         0x1CC1
+        ```
 
-    #define  RSI_BLE_ATTRIBUTE_1_UUID                        0x1AA1
+    - `RSI_BLE_MAX_DATA_LEN` refers to the Maximum length of the attribute data.
 
-`RSI_BLE_ATTRIBUTE_2_UUID` refers to the attribute type of the second attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
-
-    #define RSI_BLE_ATTRIBUTE_2_UUID                         0x1BB1
-
-`RSI_BLE_ATTRIBUTE_3_UUID` refers to the attribute type of the third attribute under this service (RSI_BLE_NEW_SERVICE_UUID).
-
-    #define RSI_BLE_ATTRIBUTE_3_UUID                         0x1CC1
-
-'RSI_BLE_MAX_DATA_LEN' refers to the Maximum length of the attribute data.
-
-    #define RSI_BLE_MAX_DATA_LEN                             66
+        ```c
+        #define RSI_BLE_MAX_DATA_LEN                             66
+        ```
 
 
-**The following are the **non-configurable** macros in the application.**
+        **The following are the **non-configurable** macros in the application.**
 
-`RSI_BLE_APP_DEVICE_NAME` refers to the name of the SiWx91x EVK to appear during scanning by remote devices.
+    - `RSI_BLE_APP_DEVICE_NAME` refers to the name of the SiWx91x EVK to appear during scanning by remote devices.
 
-    #define  RSI_BLE_APP_DEVICE_NAME                         "BLE_CONFIGURATOR"
+        ```c
+        #define  RSI_BLE_APP_DEVICE_NAME                         "BLE_CONFIGURATOR"
+        ```
 
-`RSI_BLE_ATT_PROPERTY_READ` is used to set the READ property to an attribute value.
+    - `RSI_BLE_ATT_PROPERTY_READ` is used to set the READ property to an attribute value.
 
-    #define  RSI_BLE_ATT_PROPERTY_READ                       0x02
+        ```c
+        #define  RSI_BLE_ATT_PROPERTY_READ                       0x02
+        ```
 
-`RSI_BLE_ATT_PROPERTY_WRITE` is used to set the WRITE property to an attribute value.
+    - `RSI_BLE_ATT_PROPERTY_WRITE` is used to set the WRITE property to an attribute value.
 
-    #define RSI_BLE_ATT_PROPERTY_WRITE                       0x08
+        ```c
+        #define RSI_BLE_ATT_PROPERTY_WRITE                       0x08
+        ```
 
-`RSI_BLE_ATT_PROPERTY_NOTIFY` is used to set the NOTIFY property to an attribute value.
+    - `RSI_BLE_ATT_PROPERTY_NOTIFY` is used to set the NOTIFY property to an attribute value.
 
-    #define  RSI_BLE_ATT_PROPERTY_NOTIFY                     0x10
+        ```c
+        #define  RSI_BLE_ATT_PROPERTY_NOTIFY                     0x10
+        ```
 
 ## Test the Application
 
@@ -141,6 +165,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 ###  Steps to verify the WLAN Station BLE Provisioning Example
 
  Steps to be followed to verify WLAN Station BLE Provisioning with Android **Simplicity Connect App(formerly EFR Connect App)** App
+ > **Note:** Version 2.9.0.
 
 1. Configure the Access point in OPEN/WPA-PSK/WPA2-PSK/WPA3 mode to connect the SiWx91x in STA mode.
 
@@ -153,6 +178,8 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
     ![](resources/readme/remote_screen1.png)
 
 5. The Si917 advertises as the "BLE_CONFIGURATOR". Click on "BLE_CONFIGURATOR".
+
+    ![](resources/readme/remote_screen6.png)
 
 6. Once the BLE got the connected, list of available Access Points in the vicinity, get displayed on the screen.
 

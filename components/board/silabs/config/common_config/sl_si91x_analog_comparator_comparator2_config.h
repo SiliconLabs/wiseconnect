@@ -102,10 +102,12 @@
 // <<< sl:end pin_tool >>>
 
 #if (SL_ANALOG_COMPARATOR_NON_INVERTING_INPUT == SL_COMPARATOR_GPIO_INPUT_1)
-#define SL_ANALOG_COMPARATOR_NON_INVERTING_PIN_INPUT SL_COMP2_P1_LOC
+// Converting location value to get desired pin for comparator2 non-inverting input
+#define SL_ANALOG_COMPARATOR_NON_INVERTING_PIN_INPUT SL_COMP2_P1_LOC - 1
 #endif
 #if (SL_ANALOG_COMPARATOR_INVERTING_INPUT == SL_COMPARATOR_GPIO_INPUT_1)
-#define SL_ANALOG_COMPARATOR_INVERTING_PIN_INPUT SL_COMP2_N1_LOC
+// Converting location value to get desired pin for comparator2 inverting input
+#define SL_ANALOG_COMPARATOR_INVERTING_PIN_INPUT SL_COMP2_N1_LOC - 2
 #endif
 
 #endif // SL_ANALOG_COMPARATOR_COMPARATOR2_CONFIG_H

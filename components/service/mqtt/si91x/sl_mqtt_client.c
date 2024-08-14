@@ -66,14 +66,12 @@ extern char *strtok_r(char *, const char *, char **);
 #define SI91X_MQTT_CHECK_IS_DUPLICATE_MESSAGE BIT(3)
 
 #define VERIFY_AND_RETURN_ERROR_IF_FALSE(condition, status) \
-  {                                                         \
-    do {                                                    \
-      if (!(condition)) {                                   \
-        PRINT_STATUS(INFO_TAG, status)                      \
-        return status;                                      \
-      }                                                     \
-    } while (0);                                            \
-  }
+  do {                                                      \
+    if (!(condition)) {                                     \
+      PRINT_STATUS(INFO_TAG, status)                        \
+      return status;                                        \
+    }                                                       \
+  } while (0)
 
 static sl_mqtt_client_t *mqtt_client;
 static sl_mqtt_client_error_status_t sli_si91x_get_event_error_status(sl_mqtt_client_event_t event);
@@ -111,8 +109,8 @@ static void sli_si91x_get_subscription(const sl_mqtt_client_t *client,
     char *subscribed_topic_save_ptr = NULL;
     char *received_topic_save_ptr   = NULL;
 
-    char *subscribed_topic_token = NULL;
-    char *received_topic_token   = NULL;
+    const char *subscribed_topic_token = NULL;
+    const char *received_topic_token   = NULL;
 
     subscribed_topic_token =
       strtok_r((char *)subscribed_topic, SL_SI91X_MQTT_CLIENT_TOPIC_DELIMITER, &subscribed_topic_save_ptr);
@@ -120,16 +118,16 @@ static void sli_si91x_get_subscription(const sl_mqtt_client_t *client,
       strtok_r((char *)received_topic, SL_SI91X_MQTT_CLIENT_TOPIC_DELIMITER, &received_topic_save_ptr);
 
     while (subscribed_topic_token != NULL && received_topic_token != NULL) {
-      uint8_t subscribe_topic_length = strlen(subscribed_topic_token);
+      uint8_t subscribe_topic_length = (uint8_t)(strlen(subscribed_topic_token));
 
       // This boolean stores whether the subscribed_topic_token is wildcard or not by checking the length of the token and character stored in it.
       uint8_t is_wild_card =
         (subscribe_topic_length == 1)
-        && (((strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD, 1) == 0))
-            || ((strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_SINGLE_LEVEL_WILD_CARD, 1) == 0)));
+        && ((strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD, 1) == 0)
+            || (strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_SINGLE_LEVEL_WILD_CARD, 1) == 0));
 
       uint8_t is_multi_level_wild_card =
-        (is_wild_card) && (strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD, 1) == 0);
+        is_wild_card && (strncmp(subscribed_topic_token, SL_SI91X_MQTT_CLIENT_MULTI_LEVEL_WILD_CARD, 1) == 0);
 
       // if subscribed_topic_token isn't wildcard and tokens does not match, break the loop and continue searching with other subscriptions.
       if (!is_wild_card
@@ -169,7 +167,7 @@ static void sli_si91x_remove_and_free_all_subscriptions(sl_mqtt_client_t *client
     free(node_to_be_freed);
   }
 }
-static inline bool is_connect_previously_called(sl_mqtt_client_t *client)
+static inline bool is_connect_previously_called(const sl_mqtt_client_t *client)
 {
   return (NULL != client->client_configuration);
 }
@@ -304,8 +302,8 @@ static sl_status_t sli_si91x_fetch_mqtt_client_credentials(sl_net_credential_id_
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  */
-static sl_status_t sli_si91x_send_firmware_mqtt_init(sl_mqtt_client_t *client,
-                                                     sl_mqtt_client_credentials_t *credentials)
+static sl_status_t sli_si91x_send_firmware_mqtt_init(const sl_mqtt_client_t *client,
+                                                     const sl_mqtt_client_credentials_t *credentials)
 {
 
   si91x_mqtt_client_init_request_t si91x_init_request = { 0 };
@@ -313,13 +311,20 @@ static sl_status_t sli_si91x_send_firmware_mqtt_init(sl_mqtt_client_t *client,
   memcpy(&si91x_init_request.server_ip.server_ip_address,
          &client->broker->ip.ip,
          client->broker->ip.type == SL_IPV4 ? SL_IPV4_ADDRESS_LENGTH : SL_IPV6_ADDRESS_LENGTH);
+  si91x_init_request.server_ip.ip_version = client->broker->ip.type == SL_IPV6 ? SL_IPV6_VERSION : SL_IPV4_VERSION;
 
   si91x_init_request.command_type = SI91X_MQTT_CLIENT_INIT_COMMAND;
 
   si91x_init_request.server_port = client->broker->port;
   si91x_init_request.clean       = client->client_configuration->is_clean_session;
-  si91x_init_request.encrypt     = client->broker->is_connection_encrypted;
   si91x_init_request.client_port = client->client_configuration->client_port;
+
+  // Maintain backward compatibility by checking if tls_flags are non-zero
+  if (client->client_configuration->tls_flags != 0) {
+    si91x_init_request.encrypt = client->client_configuration->tls_flags;
+  } else {
+    si91x_init_request.encrypt = client->broker->is_connection_encrypted;
+  }
 
   si91x_init_request.client_id_len = client->client_configuration->client_id_length;
   memcpy(si91x_init_request.client_id,
@@ -336,8 +341,8 @@ static sl_status_t sli_si91x_send_firmware_mqtt_init(sl_mqtt_client_t *client,
     // credentials.username_length is being used as offset as we store both user_name, password in same array.
     memcpy(si91x_init_request.password, &credentials->data[credentials->username_length], credentials->password_length);
 
-    si91x_init_request.username_len = credentials->username_length;
-    si91x_init_request.password_len = credentials->password_length;
+    si91x_init_request.username_len = (uint8_t)(credentials->username_length);
+    si91x_init_request.password_len = (uint8_t)(credentials->password_length);
   }
 
   return sl_si91x_driver_send_command(RSI_WLAN_REQ_EMB_MQTT_CLIENT,
@@ -439,10 +444,12 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
   }
 
   if (client->last_will_message != NULL) {
-    si91x_connect_request.will_retain      = client->last_will_message->is_retained;
-    si91x_connect_request.will_qos         = client->last_will_message->will_qos_level;
-    si91x_connect_request.will_topic_len   = client->last_will_message->will_topic_length;   // Narrowing of variable
-    si91x_connect_request.will_message_len = client->last_will_message->will_message_length; // Narrowing of variable
+    si91x_connect_request.will_retain = client->last_will_message->is_retained;
+    si91x_connect_request.will_qos    = (uint8_t)(client->last_will_message->will_qos_level);
+    si91x_connect_request.will_topic_len =
+      (uint8_t)(client->last_will_message->will_topic_length); // Narrowing of variable
+    si91x_connect_request.will_message_len =
+      (uint8_t)(client->last_will_message->will_message_length); // Narrowing of variable
 
     memcpy(si91x_connect_request.will_topic,
            client->last_will_message->will_topic,
@@ -475,6 +482,11 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
     return status;
   } else if (status != SL_STATUS_OK) {
     client->state = SL_MQTT_CLIENT_CONNECTION_FAILED;
+    status        = sl_mqtt_client_disconnect(client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
+    if (status != SL_STATUS_OK) {
+      SL_DEBUG_LOG(
+        "Failed to disconnect the client after failed connection attempt. User need to call disconnect explicitly");
+    }
     SL_CLEANUP_MALLOC(sdk_context);
     return status;
   }
@@ -582,11 +594,11 @@ sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
   si91x_publish_request->command_type = SI91X_MQTT_CLIENT_PUBLISH_COMMAND;
 
   si91x_publish_request->dup      = message->is_duplicate_message;
-  si91x_publish_request->qos      = message->qos_level;
+  si91x_publish_request->qos      = (uint8_t)(message->qos_level);
   si91x_publish_request->retained = message->is_retained;
 
-  si91x_publish_request->topic_len = message->topic_length;   // Narrowing of variable
-  si91x_publish_request->msg_len   = message->content_length; // Narrowing of variable
+  si91x_publish_request->topic_len = (uint8_t)(message->topic_length);    // Narrowing of variable
+  si91x_publish_request->msg_len   = (uint16_t)(message->content_length); // Narrowing of variable
 
   si91x_publish_request->msg = (int8_t *)si91x_publish_request + sizeof(si91x_mqtt_client_publish_request_t);
   memcpy(si91x_publish_request->topic, message->topic, message->topic_length);
@@ -652,8 +664,8 @@ sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
 
   si91x_subscribe_request.command_type = SI91X_MQTT_CLIENT_SUBSCRIBE_COMMAND;
 
-  si91x_subscribe_request.topic_len = topic_length;
-  si91x_subscribe_request.qos       = qos_level;
+  si91x_subscribe_request.topic_len = (uint8_t)topic_length;
+  si91x_subscribe_request.qos       = (int8_t)qos_level;
 
   subscription->topic_length          = topic_length;
   subscription->topic_message_handler = message_handler;
@@ -713,7 +725,7 @@ sl_status_t sl_mqtt_client_unsubscribe(sl_mqtt_client_t *client,
 
   VERIFY_STATUS_AND_RETURN(status);
   si91x_unsubscribe_request.command_type = SI91X_MQTT_CLIENT_UNSUBSCRIBE_COMMAND;
-  si91x_unsubscribe_request.topic_len    = topic_length;
+  si91x_unsubscribe_request.topic_len    = (uint8_t)topic_length;
   memcpy(si91x_unsubscribe_request.topic, topic, topic_length);
 
   status = sl_si91x_driver_send_command(RSI_WLAN_REQ_EMB_MQTT_CLIENT,
@@ -751,17 +763,17 @@ static uint8_t sli_si91x_mqtt_identification_function(sl_wifi_buffer_t *buffer, 
 
   sl_status_t status;
 
-  sl_si91x_packet_t *packet     = NULL;
-  sl_si91x_queue_packet_t *node = NULL;
+  const sl_si91x_packet_t *packet = NULL;
+  sli_si91x_queue_packet_t *node  = NULL;
 
-  sl_wifi_buffer_t *response_buffer      = NULL;
-  sl_wifi_buffer_t *new_dummy_rx_buffer  = NULL;
-  sl_si91x_queue_packet_t *response_node = NULL;
-  sl_si91x_packet_t *dummy_raw_rx_packet = NULL;
+  sl_wifi_buffer_t *response_buffer       = NULL;
+  sl_wifi_buffer_t *new_dummy_rx_buffer   = NULL;
+  sli_si91x_queue_packet_t *response_node = NULL;
+  sl_si91x_packet_t *dummy_raw_rx_packet  = NULL;
 
   bool is_async_request = false;
 
-  node   = (sl_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  node   = (sli_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
   packet = sl_si91x_host_get_buffer_data(node->host_packet, 0, NULL);
 
   if (RSI_WLAN_REQ_EMB_MQTT_CLIENT != packet->command) {
@@ -769,14 +781,14 @@ static uint8_t sli_si91x_mqtt_identification_function(sl_wifi_buffer_t *buffer, 
   }
 
   status =
-    sl_si91x_host_allocate_buffer(&response_buffer, SL_WIFI_CONTROL_BUFFER, sizeof(sl_si91x_queue_packet_t), 1000);
+    sl_si91x_host_allocate_buffer(&response_buffer, SL_WIFI_CONTROL_BUFFER, sizeof(sli_si91x_queue_packet_t), 1000);
 
   if (status != SL_STATUS_OK) {
     return false;
   }
 
   status =
-    sl_si91x_host_allocate_buffer(&new_dummy_rx_buffer, SL_WIFI_CONTROL_BUFFER, sizeof(sl_si91x_queue_packet_t), 1000);
+    sl_si91x_host_allocate_buffer(&new_dummy_rx_buffer, SL_WIFI_CONTROL_BUFFER, sizeof(sli_si91x_queue_packet_t), 1000);
 
   if (status != SL_STATUS_OK) {
     free(response_buffer);
@@ -786,7 +798,7 @@ static uint8_t sli_si91x_mqtt_identification_function(sl_wifi_buffer_t *buffer, 
   dummy_raw_rx_packet = sl_si91x_host_get_buffer_data(new_dummy_rx_buffer, 0, NULL);
 
   response_node = sl_si91x_host_get_buffer_data(response_buffer, 0, NULL);
-  memcpy(response_node, node, sizeof(sl_si91x_queue_packet_t));
+  memcpy(response_node, node, sizeof(sli_si91x_queue_packet_t));
 
   response_node->frame_status = SL_STATUS_FAIL;
   response_node->host_packet  = new_dummy_rx_buffer;
@@ -831,7 +843,7 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
       // This state updates is necessary as we need to send TA disconnect even in case of connection failure.
       sdk_context->client->state = SL_MQTT_CLIENT_CONNECTION_FAILED;
       // TA requires deinit call if connection fails for any reason.
-      sl_status_t status = sl_mqtt_client_disconnect(sdk_context->client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
+      status = sl_mqtt_client_disconnect(sdk_context->client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
 
       if (status != SL_STATUS_OK) {
         SL_DEBUG_LOG(
@@ -978,4 +990,11 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
   // Free the sdk_context after event handler is triggered.
   free(sdk_context);
   return SL_STATUS_OK;
+}
+
+void sli_mqtt_client_cleanup()
+{
+  sli_si91x_remove_and_free_all_subscriptions(mqtt_client);
+  memset(mqtt_client, 0, sizeof(sl_mqtt_client_t));
+  mqtt_client = NULL;
 }

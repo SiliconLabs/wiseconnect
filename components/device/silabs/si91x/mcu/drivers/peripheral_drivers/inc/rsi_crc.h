@@ -35,17 +35,17 @@ extern "C" {
 typedef struct {
   uint32_t crc;        //Calculated CRC Value
   uint32_t polynomial; //Polynomial Value for CRC Calculation
-  uint32_t
+  unsigned int
     polyWidth : 5;  //Number of bits/width of the polynomial has to be written here for the computation of final CRC
   uint32_t lfsrVal; //lfsr Initialization value for CRC Calculation
-  uint32_t widthType : 3; //Data Width taken Variable.
-                          //When width_type - 0 :Take the data width from either reg programmed or from cnt
-                          //width_type -1 :Take the data width from Reg.
-                          //width_type-2 : Take the data width from CNT.
-  uint32_t dinWidth : 5;  //Valid number of bits in the input data in din_width_from_reg set mode
-  uint32_t numBytes;      //Input data number of bytes
-  uint32_t aempty : 4;    //Almost empty Threshold value. Max value is 15
-  uint32_t afull : 4;     //Almost Full Threshold value. Max value is 15
+  unsigned int widthType : 3; //Data Width taken Variable.
+                              //When width_type - 0 :Take the data width from either reg programmed or from cnt
+                              //width_type -1 :Take the data width from Reg.
+                              //width_type-2 : Take the data width from CNT.
+  unsigned int dinWidth : 5;  //Valid number of bits in the input data in din_width_from_reg set mode
+  uint32_t numBytes;          //Input data number of bytes
+  unsigned int aempty : 4;    //Almost empty Threshold value. Max value is 15
+  unsigned int afull : 4;     //Almost Full Threshold value. Max value is 15
   uint32_t InputData;
   uint32_t swapLfsr;
   uint32_t swapDin;

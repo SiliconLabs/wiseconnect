@@ -86,19 +86,19 @@ Below are the list of GPIO examples available and it's functionality:
   |  GPIO Examples        |    GPIO Functionality                              |  
   |-----------------------|----------------------------------------------------|  
   | gpio_detailed_example | Demonstrates GPIO toggle and supported APIs        |    
-  |-----------------------|----------------------------------------------------|   
   | gpio_example          |  Demonstrates HP GPIO pin interrupt                |  
-  |-----------------------|----------------------------------------------------|    
   | gpio_group_example    | Demonstrates HP, ULP  GPIO group interrupts        | 
-  |-----------------------|----------------------------------------------------|   
   | gpio_ulp_example      |  Demonstrates GPIO toggle and ULP  pin interrupt   |           
-  |-----------------------|----------------------------------------------------|    
   | gpio_uulp_example     | Demonstrates UULP  pin interrupt                   | 
-  |-----------------------|----------------------------------------------------|
+  |||
 
 ## About Example Code
 
-- ULP GPIO 2(LED0) should be continuously toggled. Connect ULP GPIO8(P15) to BTN1 and press the button. On fall edge event, triggering of pin interrupt occurs. 
+- Clear all GPIO interrupts and enable the clock.
+- Configure the GPIO using the `sl_gpio_set_configuration` API.
+- In the default application, toggling of a GPIO pin is achieved using the `sl_gpio_driver_set_pin` API to set the pin, and the `sl_gpio_driver_clear_pin` API to clear it.
+- To observe the toggling, connect an oscilloscope or analyzer to ULP GPIO 2 (LED0). or can be observed on LED0.
+- To check the ULP GPIO interrupt, connect ULP GPIO 8 (P15) to BTN1 (F13). You can observe console prints `gpio ulp pin interrupt0` upon pressing Button 1, pin interrupt will be triggered on the falling edge event.
 
 ### Initialization of GPIO
 
@@ -110,14 +110,14 @@ Below are the list of GPIO examples available and it's functionality:
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -152,7 +152,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. By default, ULP GPIO 2(LED0) should be continuously toggled. 
+2. By default, ULP GPIO 2 should be continuously toggled. 
 3. Connect logic analyzer to ULP GPIO 2(F10) on WPK board to observe the toggle state.
 4. After successful program execution the prints in serial console looks as shown below.
 
@@ -161,3 +161,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 > **Note:**
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+
+> **Note:**
+Header connection pin references mentioned here are all specific to BRD4338A (B0 2.0v boards). If user runs this application on a different board, it is recommended to refer the board specific schematic for GPIO-Header connection pin mapping.

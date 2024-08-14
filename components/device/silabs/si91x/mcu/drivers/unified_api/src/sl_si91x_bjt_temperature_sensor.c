@@ -40,7 +40,7 @@
 #define VREF_VALUE                    2.61f   // default reference voltage
 #define BOD_TEST_SEL_VALUE            3       // BOD test selection value
 #define LOAD_BJT_TEMP                 25      // load bjt temperature
-#define SAMPLING_RATE                 50000   // sampling rate value for adc
+#define SAMPLING_RATE                 9000    // sampling rate value for adc
 #define CHANNEL_NUMBER                0       // channel number for adc
 #define POS_IP_OPAMP                  20      // Positive input to ADC using OPAMP
 #define POS_IP_BJT                    23      // positive input to ADC using bjt temperature sensor
@@ -68,7 +68,7 @@ static float adc_output_bjt[CHANNEL_SAMPLE_LENGTH] = { 0 };
 static float adc_output_bg[CHANNEL_SAMPLE_LENGTH]  = { 0 };
 
 adc_config_t sl_bjt_config            = { SL_ADC_STATIC_MODE, NUMBER_OF_CHANNELS };
-adc_ch_config_t sl_bjt_channel_config = { .input_type[0]     = CHANNEL_NUMBER,
+adc_ch_config_t sl_bjt_channel_config = { .input_type[0]     = SL_ADC_SINGLE_ENDED,
                                           .sampling_rate[0]  = SAMPLING_RATE,
                                           .num_of_samples[0] = CHANNEL_SAMPLE_LENGTH };
 

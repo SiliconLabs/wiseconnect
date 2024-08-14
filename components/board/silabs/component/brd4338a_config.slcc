@@ -99,7 +99,7 @@
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config
       instance: led0
-    path: brd4338a/sl_si91x_pwm_init_led0_config.h
+    path: common_config/sl_si91x_pwm_init_led0_config.h
   - override:
       component: "%extension-wiseconnect3_sdk%pwm_instance"
       file_id: pwm_config

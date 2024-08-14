@@ -7,10 +7,10 @@ package: platform
 quality: production
 sdk:
   id: simplicity_sdk
-  version: 2024.6.0
+  version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.0
+    version: 3.3.1
 readme:
   - path: readme.md
 source:
@@ -84,6 +84,7 @@ define:
 other_file:
   - path: resources/readme/setupdiagram.png
   - path: resources/readme/output.png
+  - path: resources/readme/powerManagerWirelessOutputConsole.png 
   - path: resources/power_manager_integration_guide/power_manager_integration.pdf
 ui_hints:
   highlight:

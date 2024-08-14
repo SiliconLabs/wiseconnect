@@ -47,12 +47,12 @@
 #define MIN_BIT_WIDTH       4        // Minimum Bit width
 #define MAX_SLAVE_BIT_WIDTH 16       // Maximum Slave Bit width
 #define MAX_BIT_WIDTH       16       // Maximum Bit width
+#define MAX_INSTANCE        3        // Maximum SSI Instance
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static const void *local_ssi_handle        = NULL;
-static sl_ssi_signal_event_t user_callback = NULL;
+static sl_ssi_signal_event_t user_callback[] = { NULL, NULL, NULL };
 extern sl_ssi_driver_t Driver_SSI_MASTER;
 extern sl_ssi_driver_t Driver_SSI_SLAVE;
 extern sl_ssi_driver_t Driver_SSI_ULP_MASTER;
@@ -72,6 +72,7 @@ static void callback_event_handler(uint32_t event);
 static void sl_ssi_set_receive_sample_delay(sl_ssi_handle_t ssi_handle, uint32_t sample_delay);
 static boolean_t validate_ssi_handle(sl_ssi_handle_t ssi_handle);
 static sl_status_t sli_si91x_ssi_configure_power_mode(sl_ssi_handle_t ssi_handle, sl_ssi_power_state_t state);
+static uint8_t convert_handle_to_instance(sl_ssi_handle_t ssi_handle);
 
 /*******************************************************************************
  **********************  Local Function Definition****************************
@@ -176,8 +177,10 @@ sl_status_t sl_si91x_ssi_deinit(sl_ssi_handle_t ssi_handle)
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
-    // Unregister the user callback function.
-    user_callback = NULL;
+    // Getting the instance number from the input handle
+    uint8_t instance = convert_handle_to_instance(ssi_handle);
+    // NULL is passed to the callback function pointer of instance which is deinitialized
+    user_callback[instance] = NULL;
 
     error_status = ((sl_ssi_driver_t *)ssi_handle)->Uninitialize();
     status       = convert_arm_to_sl_error_code(error_status);
@@ -554,16 +557,17 @@ sl_status_t sl_si91x_ssi_register_event_callback(sl_ssi_handle_t ssi_handle, sl_
       status = SL_STATUS_INVALID_PARAMETER;
       break;
     }
+    // Getting the instance number from the input handle
+    uint8_t instance = convert_handle_to_instance(ssi_handle);
     // To validate the function pointer if the parameters is not NULL then, it
     // returns an error code
-    if ((user_callback != NULL) || (local_ssi_handle != NULL)) {
+    if (user_callback[instance] != NULL) {
       status = SL_STATUS_BUSY;
       break;
     }
     // User callback address is passed to the static variable which is called at the time of
     // interrupt
-    user_callback    = callback_event;
-    local_ssi_handle = ssi_handle;
+    user_callback[instance] = callback_event;
     // Returns SL_STATUS_OK if callback is successfully registered
     status = SL_STATUS_OK;
   } while (false);
@@ -580,8 +584,10 @@ void sl_si91x_ssi_unregister_event_callback(void)
   // Pass the NULL value to the static variable which is called at the time of
   // interrupt.
   // It is further validated in register callback API.
-  user_callback    = NULL;
-  local_ssi_handle = NULL;
+  for (int i = 0; i < MAX_INSTANCE; i++) {
+    // Clearing all the three instance callbacks
+    user_callback[i] = NULL;
+  }
 }
 
 /*******************************************************************************
@@ -731,9 +737,26 @@ uint32_t sl_si91x_ssi_get_receiver_sample_delay(sl_ssi_handle_t ssi_handle)
 
 static void callback_event_handler(uint32_t event)
 {
+  uint8_t ssi_instance   = 0;
+  ARM_DRIVER_SPI *handle = NULL;
+  // Extracting the instance number from the event variable
+  ssi_instance = (uint8_t)(event >> SSI_INSTANCE_BIT);
+  if (ssi_instance == SSI_MASTER_INSTANCE) {
+    // assigning local handle to the master mode address
+    handle = &Driver_SSI_MASTER;
+  } else if (ssi_instance == SSI_SLAVE_INSTANCE) {
+    // assigning local handle to the slave mode address
+    handle = &Driver_SSI_SLAVE;
+  } else if (ssi_instance == SSI_ULP_MASTER_INSTANCE) {
+    // assigning local handle to the ulp master mode address
+    handle = &Driver_SSI_ULP_MASTER;
+  }
+  // Clearing the instance number to evaluate the event
+  event &= SSI_INSTANCE_MASK;
   switch (event) {
     case SSI_EVENT_TRANSFER_COMPLETE:
-      ((sl_ssi_driver_t *)local_ssi_handle)->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_INACTIVE);
+      // Disabling the slave select line after the transfer complete
+      handle->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_INACTIVE);
       break;
     case SSI_EVENT_DATA_LOST:
       //      Occurs in slave mode when data is requested/sent by master
@@ -748,7 +771,8 @@ static void callback_event_handler(uint32_t event)
     default:
       break;
   }
-  user_callback(event);
+  // Calling the callback as per the instance
+  user_callback[ssi_instance](event);
 }
 
 /*******************************************************************************
@@ -898,4 +922,31 @@ static boolean_t validate_ssi_handle(sl_ssi_handle_t ssi_handle)
     status = false;
   }
   return status;
+}
+
+/*******************************************************************************
+ * Internal function to convert ssi handle to the instance number.
+ *
+ * @param[in] ssi handle.
+ * @return    instance, 0,1,2 for master, slave and ulp master respectively
+ *
+*******************************************************************************/
+static uint8_t convert_handle_to_instance(sl_ssi_handle_t ssi_handle)
+{
+  uint8_t instance = 0;
+  do {
+    if (ssi_handle == &Driver_SSI_MASTER) {
+      instance = SSI_MASTER_INSTANCE;
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_SLAVE) {
+      instance = SSI_SLAVE_INSTANCE;
+      break;
+    }
+    if (ssi_handle == &Driver_SSI_ULP_MASTER) {
+      instance = SSI_ULP_MASTER_INSTANCE;
+      break;
+    }
+  } while (false);
+  return instance;
 }

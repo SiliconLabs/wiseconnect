@@ -125,7 +125,7 @@ volatile uint8_t data_sent                 = 0;
 volatile uint8_t data_recvd                = 0;
 volatile uint64_t num_bytes                = 0;
 volatile int8_t rxBuff[EXPECTED_DATA_SIZE] = { 0 };
-
+bool is_remote_terminated                  = 0;
 /******************************************************
   *               Function Declarations
   ******************************************************/
@@ -133,13 +133,23 @@ void application_start();
 sl_status_t create_tcp_server(void);
 sl_status_t create_udp_server(void);
 sl_status_t send_and_receive_data(void);
+void remote_terminate_callback(int socket_id, uint16_t port_number, uint32_t bytes_sent);
 
 /******************************************************
   *               Function Definitions
   ******************************************************/
-void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)
+void remote_terminate_callback(int socket_id, uint16_t port_number, uint32_t bytes_sent)
+{
+  is_remote_terminated = 1;
+  printf("Remote client terminated on socket %d, port %d , bytes_sent %ld\r\n", socket_id, port_number, bytes_sent);
+}
+void data_callback(uint32_t sock_no,
+                   uint8_t *buffer,
+                   uint32_t length,
+                   const sl_si91x_socket_metadata_t *firmware_socket_response)
 {
   UNUSED_PARAMETER(sock_no);
+  UNUSED_PARAMETER(firmware_socket_response);
   uint16_t i = 0;
   num_bytes += length;
   num_pkts++;
@@ -221,6 +231,8 @@ sl_status_t create_tcp_server(void)
   struct sockaddr_in server_address = { 0 };
 
   int socket_return_value = 0;
+
+  sl_si91x_set_remote_termination_callback(remote_terminate_callback);
 
   tcp_server_socket = sl_si91x_socket_async(AF_INET, SOCK_STREAM, IPPROTO_TCP, &data_callback);
   if (tcp_server_socket < 0) {
@@ -323,7 +335,7 @@ sl_status_t send_and_receive_data(void)
 
     do {
       osThreadYield();
-    } while (((osKernelGetTickCount() - start_rx) < RECEIVE_DATA_TIMEOUT));
+    } while (((osKernelGetTickCount() - start_rx) < RECEIVE_DATA_TIMEOUT) && !(is_remote_terminated));
 
     start_rtt = 0;
     printf("Number of packets received : 0x%lX\n", num_pkts);

@@ -18,8 +18,6 @@
 #include "sl_si91x_usart.h"
 #include "rsi_debug.h"
 #include "uart_example.h"
-#include "sl_si91x_clock_manager.h"
-
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -28,8 +26,6 @@
 #define NON_UC_DEFAULT_CONFIG \
   0 //  Enable this macro to set the default configurations in non_uc case, this is useful when someone don't want to use UC configuration
 
-#define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
-#define INTF_PLL_CLK ((uint32_t)(180000000)) // 180MHz default Interface PLL Clock as source to all peripherals
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -44,26 +40,12 @@ static boolean_t uart_begin_transmission = true;
  ******************************************************************************/
 void uart_callback_event(uint32_t event);
 static void compare_loop_back_data(void);
-static void default_clock_configuration(void);
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
 sl_usart_handle_t uart_handle;
 uart_mode_enum_t current_mode = SL_UART_SEND_DATA;
 
-/*******************************************************************************
-**************************   GLOBAL FUNCTIONS   *******************************
-******************************************************************************/
-// Function to configure clock on powerup
-static void default_clock_configuration(void)
-{
-  // Core Clock runs at 180MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 180MHz
-  sl_si91x_clock_manager_set_pll_freq(INFT_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
 /*******************************************************************************
  * UART Example Initialization function
  *****************************************************************************/
@@ -84,9 +66,6 @@ void uart_example_init(void)
   uart_config.synch_mode    = DISABLE;
 #endif
   sl_si91x_usart_control_config_t get_config;
-
-  // default clock configuration by application common for whole system
-  default_clock_configuration();
 
   do {
     // Initialize the UART

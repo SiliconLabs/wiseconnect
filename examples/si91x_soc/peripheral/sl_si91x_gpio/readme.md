@@ -24,9 +24,9 @@
 ## Overview
 
 - The GPIO has 3 instances in MCU.
-  - HP Domain is used to control the SoC GPIO's(GPIO_n; n=0 to 57).
-  - ULP Domain is used to control the ULP GPIO's(ULP_GPIO_n; n=0 to 11)
-  - UULP Domain which is used to control the UULP GPIO's(UULP_GPIO_n; n=0 to 4)
+  - **HP (High Power) Instance:** Controls the SoC GPIOs (GPIO_n; n=0 to 57).
+  - **ULP (Ultra Low Power) Instance:** Controls the ULP GPIOs (ULP_GPIO_n; n=0 to 11).
+  - **UULP (Ultra Ultra Low Power) Instance:** Controls the UULP GPIOs (UULP_GPIO_n; n=0 to 4).
 - HP and ULP Domain have same features and functionality except for different base address.
 - Each port in HP Domain have maximum of 16 GPIO pins. There are total 4 ports in HP Domain. Port 0,1,2 have maximum of 16 GPIO pins. Port 3 have 9 GPIO pins to use.
 - ULP GPIO domain has only one port and calling as Port 4 in program which has maximum of 12 pins.
@@ -98,7 +98,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 

@@ -167,3 +167,7 @@
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: RTE_Device_917
     path: brd4339a/RTE_Device_917.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%board_configuration_headers"
+      file_id: pin_config
+    path: brd4339a/pin_config.h

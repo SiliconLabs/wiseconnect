@@ -24,50 +24,43 @@
 #include "errno.h"
 #include <stdbool.h>
 
-#define SET_ERROR_AND_RETURN(error)          \
-  {                                          \
-    do {                                     \
-      if (PRINT_ERROR_LOGS) {                \
-        PRINT_ERROR_STATUS(ERROR_TAG, error) \
-      }                                      \
-      errno = error;                         \
-      return -1;                             \
-    } while (0);                             \
-  }
+#define SET_ERROR_AND_RETURN(error)         \
+  do {                                      \
+    if (PRINT_ERROR_LOGS) {                 \
+      PRINT_ERROR_STATUS(ERROR_TAG, error); \
+    }                                       \
+    errno = error;                          \
+    return -1;                              \
+  } while (0)
 
 #define SET_ERRNO_AND_RETURN_IF_TRUE(condition, errno_value) \
-  {                                                          \
-    do {                                                     \
-      if (condition) {                                       \
-        if (PRINT_ERROR_LOGS) {                              \
-          PRINT_ERROR_STATUS(ERROR_TAG, errno_value)         \
-        }                                                    \
-        errno = errno_value;                                 \
-        return -1;                                           \
+  do {                                                       \
+    if (condition) {                                         \
+      if (PRINT_ERROR_LOGS) {                                \
+        PRINT_ERROR_STATUS(ERROR_TAG, errno_value);          \
       }                                                      \
-    } while (0);                                             \
-  }
+      errno = errno_value;                                   \
+      return -1;                                             \
+    }                                                        \
+  } while (0)
 
 #define SOCKET_VERIFY_STATUS_AND_RETURN(status, expected_status, errno_value) \
-  {                                                                           \
-    do {                                                                      \
-      if (status != expected_status) {                                        \
-        if (PRINT_ERROR_LOGS) {                                               \
-          PRINT_ERROR_STATUS(ERROR_TAG, errno_value)                          \
-        }                                                                     \
-        errno = errno_value;                                                  \
-        return -1;                                                            \
+  do {                                                                        \
+    if (status != expected_status) {                                          \
+      if (PRINT_ERROR_LOGS) {                                                 \
+        PRINT_ERROR_STATUS(ERROR_TAG, errno_value);                           \
       }                                                                       \
-    } while (0);                                                              \
-  }
+      errno = errno_value;                                                    \
+      return -1;                                                              \
+    }                                                                         \
+  } while (0)
+
 #define SLI_SI91X_NULL_SAFE_FD_ZERO(fd_set) \
-  {                                         \
-    do {                                    \
-      if (NULL != fd_set) {                 \
-        FD_ZERO(fd_set);                    \
-      }                                     \
-    } while (0);                            \
-  }
+  do {                                      \
+    if (NULL != fd_set) {                   \
+      FD_ZERO(fd_set);                      \
+    }                                       \
+  } while (0)
 
 #define GET_SAFE_MEMCPY_LENGTH(destination_size, source_size) \
   source_size > destination_size ? destination_size : source_size
@@ -161,23 +154,27 @@ bool is_port_available(uint16_t port_number);
 sl_status_t add_server_name_indication_extension(si91x_server_name_indication_extensions_t *socket_sni_extensions,
                                                  const si91x_socket_type_length_value_t *sni_extension);
 
-sl_status_t create_and_send_socket_request(int socketIdIndex, int type, int *backlog);
+sl_status_t create_and_send_socket_request(int socketIdIndex, int type, const int *backlog);
 
 int sli_si91x_shutdown(int socket, int how);
 
 int sli_si91x_connect(int socket, const struct sockaddr *addr, socklen_t addr_len);
 
-void handle_accept_response(int client_socket_id, sl_si91x_rsp_ltcp_est_t *accept_response);
-int handle_select_response(sl_si91x_socket_select_rsp_t *response,
+int sli_si91x_bind(int socket, const struct sockaddr *addr, socklen_t addr_len);
+
+void handle_accept_response(int client_socket_id, const sl_si91x_rsp_ltcp_est_t *accept_response);
+int handle_select_response(const sl_si91x_socket_select_rsp_t *response,
                            fd_set *readfds,
                            fd_set *writefds,
                            fd_set *exception_fd);
 
 void set_select_callback(select_callback callback);
 
-void sli_si91x_set_accept_callback(accept_callback callback, int32_t client_socket_id);
+void sli_si91x_set_accept_callback(si91x_socket_t *server_socket, accept_callback callback, int32_t client_socket_id);
 
 void sli_si91x_set_remote_socket_termination_callback(remote_socket_termination_callback callback);
+
+sl_status_t sli_si91x_sync_accept_command(si91x_socket_t *server_socket, void *cmd, uint32_t cmd_length);
 
 /**
  * A utility function to send BSD management commands.
@@ -200,6 +197,6 @@ sl_status_t sl_si91x_socket_driver_send_command(rsi_wlan_cmd_request_t command,
                                                 sl_si91x_queue_type_t response_queue,
                                                 sl_wifi_buffer_t **buffer,
                                                 void **response,
-                                                uint32_t *events_to_wait_for,
-                                                sl_si91x_wait_period_t *wait_period,
+                                                const uint32_t *events_to_wait_for,
+                                                const sl_si91x_wait_period_t *wait_period,
                                                 void *sdk_context);

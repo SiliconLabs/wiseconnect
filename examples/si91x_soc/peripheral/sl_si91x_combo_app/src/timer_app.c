@@ -81,10 +81,10 @@ void timer_init(void)
     }
     DEBUGOUT("Successfully registered timer instance timeout callback\n");
 
-    // Starting Timer instance with default parameters
-    timer_config_match_reg(MS_500);
+    // Starting Timer instance with default parameters and setting match value to 5 seconds
+    timer_config_match_reg(MS_5000);
 
-    DEBUGOUT("\nSuccessfully started ulp-timer for %dsec ticking for initiation of i2c leader\n", (TIME_ONE_MS / 1000));
+    DEBUGOUT("\nSuccessfully started ulp-timer for %dsec ticking for initiation of i2c leader\n", (MS_5000 / 1000));
   } while (false);
 }
 

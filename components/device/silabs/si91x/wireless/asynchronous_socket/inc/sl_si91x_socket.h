@@ -205,7 +205,7 @@ int sl_si91x_send_async(int socket,
  * @note The flags parameter is not currently supported.
  */
 int sl_si91x_sendto(int socket,
-                    uint8_t *buffer,
+                    const uint8_t *buffer,
                     size_t buffer_length,
                     int32_t flags,
                     const struct sockaddr *addr,
@@ -235,7 +235,7 @@ int sl_si91x_sendto(int socket,
  * @note The flags parameter is not currently supported.
  */
 int sl_si91x_sendto_async(int socket,
-                          uint8_t *buffer,
+                          const uint8_t *buffer,
                           size_t buffer_length,
                           int32_t flags,
                           const struct sockaddr *to_addr,
@@ -344,7 +344,7 @@ int sl_si91x_select(int nfds,
                     fd_set *readfds,
                     fd_set *writefds,
                     fd_set *exceptfds,
-                    struct timeval *timeout,
+                    const struct timeval *timeout,
                     select_callback callback);
 
 /**

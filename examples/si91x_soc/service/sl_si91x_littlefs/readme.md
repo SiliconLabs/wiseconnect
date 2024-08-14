@@ -10,12 +10,13 @@
   - [Software Requirements](#software-requirements)
   - [Setup Diagram](#setup-diagram)
 - [Getting Started](#getting-started)
-- [Application Build Environment](#application-build-environment)
 - [Test the Application](#test-the-application)
 
 ## Purpose/Scope
 
-- File system application demonstrates about updating a file named boot_count every time main runs
+When flashed with this example the boot count get updated in the "boot_count" file on every boot-up.
+
+**boot_count File:** This file is to store the boot count value and this will be available in the flash memory.
 
 ## Overview
 
@@ -24,12 +25,12 @@
 
 ## About Example Code
 
-- \ref file_system_example.c this example code demonstates how to configure the qspi to access the flash for file system using littlefs library.
-- Initialize the QSPI for littlefs using \ref sl_si91x_littlefs_qspi_init() 
-- To mount the filesystem calls the  lfs_mount()
-- Opens the file and reads current boot count 
-- Updates the boot count
-- Close and unmouns the the filesystem
+- The example code in **file_system_example.c** shows how to set up QSPI to access flash memory for a file system using the LittleFS library.
+- Initialize QSPI for LittleFS using \ref `sl_si91x_littlefs_qspi_init()`.
+- To use the file system, call `lfs_mount()`.
+- Open a file and read the current boot count  `lfs_file_read()`.
+- Update the boot count `lfs_file_write()`.
+- Close the file using `lfs_file_close()` and unmount the file system using `lfs_unmount()`.
 
 ## Prerequisites/Setup Requirements
 
@@ -43,7 +44,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 

@@ -206,7 +206,7 @@ extern "C" {
 
 #define SL_ICM40627_MASK_ACCEL_BW (0x39)
 
-#define SL_ICM40627_ACCEL_BW_8000HZ (0x01) /**< Accel Bandwidth = 8 kHz   */
+#define SL_ICM40627_ACCEL_BW_8000HZ (0x03) /**< Accel Bandwidth = 8 kHz   */
 #define SL_ICM40627_ACCEL_BW_200HZ  (0x07) /**< Accel Bandwidth = 200 Hz  */
 #define SL_ICM40627_ACCEL_BW_50HZ   (0x09) /**< Accel Bandwidth = 50 Hz   */
 #define SL_ICM40627_ACCEL_BW_25HZ   (0x0A) /**< Accel Bandwidth = 25 Hz   */
@@ -297,29 +297,29 @@ sl_status_t sl_si91x_icm40627_software_reset(sl_ssi_handle_t ssi_driver_handle);
  * @brief
  *    Set the bandwidth of the gyroscope.
  *
- * @param[in] gyroBw
- *    The desired bandwidth value. Use the ICM40627_GYRO_BW_xHZ macros, which
+ * @param[in] gyro_ODR
+ *    The desired ODR value. Use the ICM40627_GYRO_BW_xHZ macros, which
  *    are defined in the icm40627.h file. The value of x can be
  *    6, 12, 24, 51, 120, 150, 200, 360 or 12100.
  *
  * @return
  *    Returns zero on OK, non-zero otherwise
  ******************************************************************************/
-sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t gyroBw);
+sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t gyro_ODR);
 
 /***************************************************************************/ /**
  * @brief
  *    Set the bandwidth of the accelerometer.
  *
- * @param[in] accelBw
- *    The desired bandwidth value. Use the ICM40627_ACCEL_BW_yHZ macros, which
+ * @param[in] accel_ODR
+ *    The desired ODR value. Use the ICM40627_ACCEL_BW_yHZ macros, which
  *    are defined in the icm40627.h file. The value of y can be
  *    6, 12, 24, 50, 111, 246, 470 or 1210.
  *
  * @return
  *    Returns zero on OK, non-zero otherwise
  ******************************************************************************/
-sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t accelBw);
+sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t accel_ODR);
 
 /***************************************************************************/ /**
  * @brief

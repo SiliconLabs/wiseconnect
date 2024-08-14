@@ -49,30 +49,6 @@ typedef struct {
 #define SI91X_PING_BUFFER ((sli_si91x_pingpong_buffer_t *)(0x19000))
 #define SI91X_PONG_BUFFER ((sli_si91x_pingpong_buffer_t *)(0x1A000))
 
-// #if defined(__GNUC__)
-// #pragma GCC diagnostic push
-// #pragma GCC diagnostic ignored "-Warray-bounds"
-// #pragma GCC diagnostic ignored "-Wcast-align"
-// #endif // __GNUC__
-
-/**
- *@}
- */
-//static void rsi_mem_wr(uint32_t addr, uint16_t len, uint8_t *dBuf)
-//{
-//  UNUSED_PARAMETER(len);
-//  *(uint32_t *)addr = *(uint32_t *)dBuf;
-//}
-
-//void rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf)
-//{
-//  UNUSED_PARAMETER(len);
-//  *(uint32_t *)dBuf = *(uint32_t *)addr;
-//}
-// #if defined(__GNUC__)
-// #pragma GCC diagnostic pop
-// #endif // __GNUC__
-
 /**
  * @fn          int16_t rsi_bl_select_option(uint8_t cmd)
  * @brief       Send firmware load request to module or update default configurations.
@@ -193,54 +169,12 @@ int16_t sli_si91x_send_boot_instruction(uint8_t type, uint16_t *data)
 
   switch (type) {
     case RSI_REG_READ:
-      *data = SI91X_INTERFACE_OUT_REGISTER;
+      *data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
       break;
 
     case RSI_REG_WRITE:
       SI91X_INTERFACE_IN_REGISTER = *data;
       break;
-
-      //    case RSI_PING_WRITE:
-      //
-      //      for (j = 0; j <= RSI_PING_PONG_CHUNK_SIZE / RSI_HAL_MAX_WR_BUFF_LEN; j++) {
-      //        if (j == RSI_PING_PONG_CHUNK_SIZE / RSI_HAL_MAX_WR_BUFF_LEN) {
-      //          len = (RSI_PING_PONG_CHUNK_SIZE % RSI_HAL_MAX_WR_BUFF_LEN);
-      //          if (len == 0) {
-      //            break;
-      //          }
-      //        } else {
-      //          len = RSI_HAL_MAX_WR_BUFF_LEN;
-      //        }
-      //        rsi_mem_wr(RSI_PING_BUFFER_ADDR + offset, len, (uint8_t *)((uint32_t)data + offset));
-      //        if (retval < 0) {
-      //          return retval;
-      //        }
-      //        offset += len;
-      //      }
-      //      SI91X_INTERFACE_IN_REGISTER = RSI_PING_AVAIL | RSI_HOST_INTERACT_REG_VALID;
-      //      break;
-      //    case RSI_PONG_WRITE:
-      //
-      //      for (j = 0; j <= RSI_PING_PONG_CHUNK_SIZE / RSI_HAL_MAX_WR_BUFF_LEN; j++) {
-      //        if (j == RSI_PING_PONG_CHUNK_SIZE / RSI_HAL_MAX_WR_BUFF_LEN) {
-      //          len = (RSI_PING_PONG_CHUNK_SIZE % RSI_HAL_MAX_WR_BUFF_LEN);
-      //          if (len == 0) {
-      //            break;
-      //          }
-      //        } else {
-      //          len = RSI_HAL_MAX_WR_BUFF_LEN;
-      //        }
-      //        retval = rsi_mem_wr(RSI_PONG_BUFFER_ADDR + offset, len, (uint8_t *)((uint32_t)data + offset));
-      //        if (retval < 0) {
-      //          return retval;
-      //        }
-      //        offset += len;
-      //      }
-      //      // Perform the write operation
-      //      local = (RSI_PONG_AVAIL | RSI_HOST_INTERACT_REG_VALID);
-      //
-      //      SI91X_INTERFACE_IN_REGISTER = local;
-      //      break;
 
     case BURN_NWP_FW:
       cmd = BURN_NWP_FW | RSI_HOST_INTERACT_REG_VALID;
@@ -250,7 +184,7 @@ int16_t sli_si91x_send_boot_instruction(uint8_t type, uint16_t *data)
       sl_si91x_timer_init(&timer_instance, 300);
 
       do {
-        read_data = SI91X_INTERFACE_OUT_REGISTER;
+        read_data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
         if (sl_si91x_timer_expired(&timer_instance)) {
           return RSI_ERROR_FW_LOAD_OR_UPGRADE_TIMEOUT;
         }
@@ -442,7 +376,7 @@ int16_t rsi_boot_insn(uint8_t type, uint16_t *data)
 
   switch (type) {
     case REG_READ:
-      *data = SI91X_INTERFACE_OUT_REGISTER;
+      *data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
       break;
 
     case REG_WRITE:
@@ -465,7 +399,7 @@ int16_t rsi_boot_insn(uint8_t type, uint16_t *data)
       RSI_RESET_LOOP_COUNTER(loop_counter);
       RSI_WHILE_LOOP((uint32_t)loop_counter, RSI_LOOP_COUNT_UPGRADE_IMAGE)
       {
-        read_data = SI91X_INTERFACE_OUT_REGISTER;
+        read_data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
         if (read_data == (RSI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
           break;
         }
@@ -484,7 +418,7 @@ int16_t rsi_boot_insn(uint8_t type, uint16_t *data)
       RSI_RESET_LOOP_COUNTER(loop_counter);
       RSI_WHILE_LOOP((uint32_t)loop_counter, RSI_LOOP_COUNT_UPGRADE_IMAGE)
       {
-        read_data = SI91X_INTERFACE_OUT_REGISTER;
+        read_data = (uint16_t)SI91X_INTERFACE_OUT_REGISTER;
         if (read_data == (RSI_SEND_RPS_FILE | HOST_INTERACT_REG_VALID)) {
           break;
         }

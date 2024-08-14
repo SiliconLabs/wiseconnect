@@ -28,6 +28,7 @@ The module opens a socket on STA VAP and sends the IPv6 UDP data to the Third-Pa
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -37,9 +38,13 @@ The module opens a socket on STA VAP and sends the IPv6 UDP data to the Third-Pa
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
     - EFR32FG25 863-876 MHz +16 dBm Radio Board [FG25-RB4271A](https://www.silabs.com/development-tools/wireless/proprietary/fg25-rb4271a-efr32fg25-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
 
 ### Software Requirements
 
@@ -149,12 +154,12 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 There are two 'ends' involved when data transfer is performed, data is sent between the client end and the server end. In general, it is advisable to start the server before the client since the client will immediately begin to try to connect to the server to send data.
 
-The following sections describe how to run the SiWx91x application together with examples for UDP and TCP Iperf configurations that run on the PC.
+The following sections describe how to run the SiWx91x application together with examples for UDP and TCP iPerf configurations that run on the PC.
 
 ### UDP Tx on IPv6
 
-To use IPv6 UDP Tx, configure the SiWx91x as a UDP client and start a UDP server on the remote PC.
-The Iperf command to start the UDP server on the PC is:
+To use IPv6 UDP Tx, configure the SiWx91x as a UDP client and start a UDP server on the remote PC. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+The iPerf command to start the UDP server on the PC is:
 
 > `C:\> iperf.exe -s -u -V -p <SERVER_PORT> -i 1`
 >
@@ -165,7 +170,7 @@ The Iperf command to start the UDP server on the PC is:
 ### TCP Rx on IPv4
 
 To use IPv4 TCP Rx, configure the SiWx91x as TCP server and start a TCP client on the remote PC.
-The Iperf command to start the TCP client is:
+The iPerf command to start the TCP client is:
 
 > `C:\> iperf.exe -c <Module_IP>-p <module_PORT> -i 1 -t <time interval in sec>`
 >
@@ -173,7 +178,7 @@ The Iperf command to start the TCP client is:
 >
 > `C:\> iperf.exe -c 192.168.10.10 -p 5005 -i 1 -t 30`
 
-The SiWx91x, which is configured as a UDP/TCP server/client, connects to the iperf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the total number of bytes sent/received in serial console.
+The SiWx91x, which is configured as a UDP/TCP server/client, connects to the iPerf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the total number of bytes sent/received in serial console.
 
 ## Application Output
 

@@ -21,7 +21,7 @@
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
@@ -70,8 +70,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   >  
   >  3. Build and test the output.
 
-  - LED0 will toggle when Button0 pressed.
+- LED0 will toggle when Button0 pressed.
 
 > **Note:**
+>
+> - Incase of DEVKIT board (BRD2605A), the blue LED will toggle on button press. No other LED instance will work for this board. To further use the DEVKIT LED, please refer to the RGB LED application.
 >
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

@@ -11,6 +11,8 @@
 - [Application Build Environment](#application-build-environment)
 - [Procedure to run the example](#procedure-to-run-the-example)
 - [Test the Application](#test-the-application)
+- [Steps to create webpage](#Steps-to-create-webpage)
+- [Steps to add additional information on webpage](#Steps-to-add-additional-information-on-webpage)
 
 ## Purpose/Scope
 
@@ -28,7 +30,9 @@ In this example application, the SiWx91x's AP instance acts as HTTP Server and t
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
 
 ### Software Requirements
 
@@ -111,4 +115,19 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
    ![Webpage](resources/readme/webpage.png)
 
-   ![Application prints](resources/readme/output_soc.png)
+   ![Application prints](resources/readme/output1.png)
+   ![Application prints](resources/readme/output2.png)
+
+  ## Steps to create webpage
+  >Steps to update login handler
+  >1. Develop a new webpage similar to login.h.
+  >2. Register the new request handler in  sl_http_server_handler_t structure in app.c.
+  >3. Implement a new handler in app.c and update the data field in the server response structure accordingly.
+
+  > Steps to update connect handler
+  >1. Modify the open() method in the login.h file.
+  >2. Modify the action attribute of the form tag in the login.h file.
+  >3. Register the new request handler in  sl_http_server_handler_t structure in app.c.
+
+  ## Steps to add additional information on webpage
+  > If the user wants to add additional information to the webpage, they need to update the login.h file.

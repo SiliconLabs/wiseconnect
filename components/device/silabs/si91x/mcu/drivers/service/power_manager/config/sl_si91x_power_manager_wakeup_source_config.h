@@ -48,10 +48,6 @@ extern "C" {
 // <i> Default: 1
 #define ENABLE_ALARM 0
 
-// <q ENABLE_MSEC> Enable Milli Second Wakeup Source
-// <i> Default: 0
-#define ENABLE_MSEC 0
-
 // <o ALARM_TIME_MSEC> Alarm Time (in milliseconds)
 // <i> Default: 5000
 #define ALARM_TIME_MSEC 5000
@@ -78,16 +74,12 @@ extern "C" {
 #define ENABLE_NPSS_GPIO_3 0
 // </e>
 
-// <e>WDT Wakeup
-#define SL_ENABLE_WDT_WAKEUP_SOURCE 0
-// </e>
-
 // <e>Deep Sleep Timer Wakeup
 #define SL_ENABLE_DST_WAKEUP_SOURCE 0
 
-// <o DST_WAKEUP_TIME> Sleep Time (in microseconds)
-// <i> Default: 500
-#define DST_WAKEUP_TIME 500
+// <o DST_WAKEUP_TIME> Sleep Time (in microseconds) <10000-4294967295>
+// <i> Default: 10000
+#define DST_WAKEUP_TIME 10000
 
 // </e>
 

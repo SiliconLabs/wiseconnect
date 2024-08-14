@@ -407,17 +407,17 @@ typedef struct retention_boot_status_word_s {
 #define SDIO_WITH_TA_USB_WITH_M4 2
 #define SDIO_WITH_M4_USB_WITH_TA 1
 #define SDIO_USB_WITH_M4         0
-  uint32_t m4_present : 1;
-  uint32_t m4_flash_present : 1;
-  uint32_t m4_flash_pinset : 4;
-  uint32_t m4_flash_address_width_valid : 1;
-  uint32_t m4_flash_address_width : 2;
-  uint32_t select_host_inf_with_m4_valid : 1;
-  uint32_t select_host_inf_with_m4 : 2;
-  uint32_t m4_secure_boot_enable : 1;
-  uint32_t m4_encrypt_firmware : 1;
-  uint32_t host_if_with_ta : 1;
-  uint32_t mcu_wdt_hw_timer : 1;
+  unsigned int m4_present : 1;
+  unsigned int m4_flash_present : 1;
+  unsigned int m4_flash_pinset : 4;
+  unsigned int m4_flash_address_width_valid : 1;
+  unsigned int m4_flash_address_width : 2;
+  unsigned int select_host_inf_with_m4_valid : 1;
+  unsigned int select_host_inf_with_m4 : 2;
+  unsigned int m4_secure_boot_enable : 1;
+  unsigned int m4_encrypt_firmware : 1;
+  unsigned int host_if_with_ta : 1;
+  unsigned int mcu_wdt_hw_timer : 1;
 #ifdef CHIP_9118
 #define NONE_MODE        0
 #define NLINK            1
@@ -437,219 +437,219 @@ typedef struct retention_boot_status_word_s {
 #define NLINK       7
 #define MCU         0xF // not supported
 #endif
-  uint32_t product_mode : 4;
-  uint32_t m4_flash_type : 4;
-  uint32_t m4_dual_flash : 1;
-  uint32_t m4_csum : 1;
-  uint32_t wise_aoc_mode : 1;
-  uint32_t wise_aoc_from_m4_rom : 1;
-  uint32_t m4_image_format : 1;
-  uint32_t clean_ulp_wakeup : 1;
+  unsigned int product_mode : 4;
+  unsigned int m4_flash_type : 4;
+  unsigned int m4_dual_flash : 1;
+  unsigned int m4_csum : 1;
+  unsigned int wise_aoc_mode : 1;
+  unsigned int wise_aoc_from_m4_rom : 1;
+  unsigned int m4_image_format : 1;
+  unsigned int clean_ulp_wakeup : 1;
 #define M4_IMAGE_VALID_IND BIT(30)
-  uint32_t m4_image_valid : 1;
-  uint32_t reserved : 1; /* one bit is reserved for hardware */
+  unsigned int m4_image_valid : 1;
+  unsigned int reserved : 1; /* one bit is reserved for hardware */
 } retention_boot_status_word_t;
 
 /* This structure contains format for efuse_dword0 */
 typedef struct npss_boot_status_word_0_s {
   //! Data from EFUSE
-  uint32_t usb_fsel_valid : 1;
-  uint32_t mems_ref_clk_as_usb_phy_clk : 1;
-  uint32_t modem_pll_as_usb_phy_clk : 1;
-  uint32_t usb_phy_clk_fsel_external : 1;
-  uint32_t usb_fsel : 3;
-  uint32_t bypass_usb_detection : 1;
+  unsigned int usb_fsel_valid : 1;
+  unsigned int mems_ref_clk_as_usb_phy_clk : 1;
+  unsigned int modem_pll_as_usb_phy_clk : 1;
+  unsigned int usb_phy_clk_fsel_external : 1;
+  unsigned int usb_fsel : 3;
+  unsigned int bypass_usb_detection : 1;
   //! Data derived by bootloder
-  uint32_t host_sel_valid : 1;
-  uint32_t host_sel : 3;
-  uint32_t ta_flash_present : 1;
-  uint32_t ta_flash_pinset : 4;
-  uint32_t ta_flash_address_width_valid : 1;
-  uint32_t ta_flash_address_width : 2;
-  uint32_t ta_flash_type : 4;
-  //  uint32_t ta_dual_flash : 1;
-  uint32_t fips_enable : 1;
-  uint32_t usb_fclk_div_factor : 2;
+  unsigned int host_sel_valid : 1;
+  unsigned int host_sel : 3;
+  unsigned int ta_flash_present : 1;
+  unsigned int ta_flash_pinset : 4;
+  unsigned int ta_flash_address_width_valid : 1;
+  unsigned int ta_flash_address_width : 2;
+  unsigned int ta_flash_type : 4;
+  //  unsigned int ta_dual_flash : 1;
+  unsigned int fips_enable : 1;
+  unsigned int usb_fclk_div_factor : 2;
 #define BBFF_DATA_VALID BIT(27)
-  uint32_t bbff_data_valid : 1;
+  unsigned int bbff_data_valid : 1;
   //! Bits configured by FW
 #define NWP_SOFT_RESET BIT(28)
-  uint32_t soft_reset : 1;
+  unsigned int soft_reset : 1;
 #define FACTORY_RESET BIT(29)
-  uint32_t factory_reset : 1;
+  unsigned int factory_reset : 1;
 #define TAMPER_RECOVERY BIT(30)
-  uint32_t tamper_recovery : 1;
-  uint32_t reserved : 1;
+  unsigned int tamper_recovery : 1;
+  unsigned int reserved : 1;
 } npss_boot_status_word0_t;
 
 #ifdef CHIP_9118
 typedef struct efuse_ipmu_s {
-  uint32_t trim_0p5na1 : 1;
-  uint32_t trim_0p5na2 : 1;
-  uint32_t bg_r_vdd_ulp : 4;
-  uint32_t bg_r_ptat_vdd_ulp : 3;
-  uint32_t resbank_trim : 2;
-  uint32_t trim_sel : 7;
-  uint32_t del_2x_sel : 6;
-  uint32_t freq_trim : 5;
-  uint32_t coarse_trim_16k : 2;
-  uint32_t fine_trim_16k : 7;
-  uint32_t coarse_trim_64k : 2;
-  uint32_t fine_trim_64k : 7;
-  uint32_t coarse_trim_32k : 2;
-  uint32_t fine_trim_32k : 7;
-  uint32_t xtal1_trim_32k : 4;
-  uint32_t xtal2_trim_32k : 4;
-  uint32_t trim_ring_osc : 7;
-  uint32_t vbatt_status_1 : 6;
-  uint32_t str_temp_slope : 10;
-  uint32_t f2_nominal : 10;
-  uint32_t str_nominal_temp : 7;
-  uint32_t str_bjt_temp_sense_off : 16;
-  uint32_t str_bjt_temp_sense_slope : 16;
+  unsigned int trim_0p5na1 : 1;
+  unsigned int trim_0p5na2 : 1;
+  unsigned int bg_r_vdd_ulp : 4;
+  unsigned int bg_r_ptat_vdd_ulp : 3;
+  unsigned int resbank_trim : 2;
+  unsigned int trim_sel : 7;
+  unsigned int del_2x_sel : 6;
+  unsigned int freq_trim : 5;
+  unsigned int coarse_trim_16k : 2;
+  unsigned int fine_trim_16k : 7;
+  unsigned int coarse_trim_64k : 2;
+  unsigned int fine_trim_64k : 7;
+  unsigned int coarse_trim_32k : 2;
+  unsigned int fine_trim_32k : 7;
+  unsigned int xtal1_trim_32k : 4;
+  unsigned int xtal2_trim_32k : 4;
+  unsigned int trim_ring_osc : 7;
+  unsigned int vbatt_status_1 : 6;
+  unsigned int str_temp_slope : 10;
+  unsigned int f2_nominal : 10;
+  unsigned int str_nominal_temp : 7;
+  unsigned int str_bjt_temp_sense_off : 16;
+  unsigned int str_bjt_temp_sense_slope : 16;
 #ifndef AT_EFUSE_DATA_1P19
-  uint32_t reserved1 : 20;
+  unsigned int reserved1 : 20;
 #endif
 
 #ifdef AT_EFUSE_DATA_1P19
-  uint32_t trim_sel_20Mhz : 7; // Trim value for 20mzh rc
-  uint32_t ro_32khz_00_trim : 5;
-  uint32_t scdc_dcdc_trim : 3;
-  uint32_t scdc_hpldo_trim : 3;
-  uint32_t reserved1 : 2;
+  unsigned int trim_sel_20Mhz : 7; // Trim value for 20mzh rc
+  unsigned int ro_32khz_00_trim : 5;
+  unsigned int scdc_dcdc_trim : 3;
+  unsigned int scdc_hpldo_trim : 3;
+  unsigned int reserved1 : 2;
 #endif
-  uint32_t ldo_ctrl : 4;
+  unsigned int ldo_ctrl : 4;
 #ifndef AT_EFUSE_DATA_1P19
-  uint32_t reserved2 : 16;
+  unsigned int reserved2 : 16;
 #endif
 #ifdef AT_EFUSE_DATA_1P19
-  uint32_t vbg_tsbjt_efuse : 12;
-  uint32_t retn_ldo_lptrim : 3;
-  uint32_t reserved2 : 1;
+  unsigned int vbg_tsbjt_efuse : 12;
+  unsigned int retn_ldo_lptrim : 3;
+  unsigned int reserved2 : 1;
 #endif
-  uint32_t auxadc_offset_diff : 12;
-  uint32_t auxadc_invgain_diff : 16;
-  uint32_t auxadc_offset_single : 12;
-  uint32_t auxadc_invgain_single : 16;
-  uint32_t set_vref1p3 : 4;
+  unsigned int auxadc_offset_diff : 12;
+  unsigned int auxadc_invgain_diff : 16;
+  unsigned int auxadc_offset_single : 12;
+  unsigned int auxadc_invgain_single : 16;
+  unsigned int set_vref1p3 : 4;
 
 #ifndef AT_EFUSE_DATA_1P19
-  uint32_t set_vref_isense1p3 : 2;
-  uint32_t set_vref_adc : 2;
-  uint32_t vtrim_ldosoc : 2;
-#endif
-
-#ifdef AT_EFUSE_DATA_1P19
-  uint32_t reserved13 : 6;
-#endif
-
-  uint32_t trim_r1_resistorladder : 4;
-#ifndef AT_EFUSE_DATA_1P19
-  uint32_t enable_undershoot_reduction : 1;
-  uint32_t select_vref_comp : 2;
+  unsigned int set_vref_isense1p3 : 2;
+  unsigned int set_vref_adc : 2;
+  unsigned int vtrim_ldosoc : 2;
 #endif
 
 #ifdef AT_EFUSE_DATA_1P19
-  uint32_t retn_ldo_hptrim : 3;
+  unsigned int reserved13 : 6;
 #endif
 
+  unsigned int trim_r1_resistorladder : 4;
 #ifndef AT_EFUSE_DATA_1P19
-  uint32_t pwr_gd_threshold_sel : 1;
-  uint32_t sel_overshoot_control : 1;
-  uint32_t ptat_load_ctrl : 3;
-  uint32_t ctrl_soc : 4;
-  uint32_t pt_gate_ctrl : 3;
-  uint32_t default_mode_ctrl : 1;
-  uint32_t ptat_load_enable : 1;
-  uint32_t ldosoc_outputpulldown_sel : 1;
-  uint32_t ldosoc_outputpulldown : 1;
+  unsigned int enable_undershoot_reduction : 1;
+  unsigned int select_vref_comp : 2;
 #endif
 
 #ifdef AT_EFUSE_DATA_1P19
-  uint32_t reserved12 : 16;
+  unsigned int retn_ldo_hptrim : 3;
 #endif
 
-  uint32_t scale_soc_ldo_vref : 1;
-
 #ifndef AT_EFUSE_DATA_1P19
-  uint32_t ctrl_rf : 4;
-  uint32_t default_mode : 1;
-  uint32_t test_ldopulldown_sel : 1;
-  uint32_t test_ldopulldown : 1;
-  uint32_t drive_n : 2;
-  uint32_t drive_p : 2;
-  uint32_t deadtime_ctrl_n2p : 4;
-  uint32_t deadtime_ctrl_p2n : 4;
-  uint32_t revi_offset_prog : 3;
-  uint32_t tran_lo_ctr : 2;
-  uint32_t tran_hi_ctr : 2;
-  uint32_t tran_und_shoot_ctr : 3;
+  unsigned int pwr_gd_threshold_sel : 1;
+  unsigned int sel_overshoot_control : 1;
+  unsigned int ptat_load_ctrl : 3;
+  unsigned int ctrl_soc : 4;
+  unsigned int pt_gate_ctrl : 3;
+  unsigned int default_mode_ctrl : 1;
+  unsigned int ptat_load_enable : 1;
+  unsigned int ldosoc_outputpulldown_sel : 1;
+  unsigned int ldosoc_outputpulldown : 1;
 #endif
 
 #ifdef AT_EFUSE_DATA_1P19
-  uint32_t reserved11 : 7;
-  uint32_t reserved10 : 12;
-  uint32_t reserved9 : 10;
+  unsigned int reserved12 : 16;
 #endif
 
-  uint32_t dpwm_freq_trim : 4;
+  unsigned int scale_soc_ldo_vref : 1;
 
 #ifndef AT_EFUSE_DATA_1P19
-  uint32_t pfmro_freq_trim : 3;
-  uint32_t test_revi_delay : 1;
-  uint32_t sel_sleep_nmos_ctrl : 1;
-  uint32_t p_1p3 : 13;
-  uint32_t i_steady_state1p3 : 13;
-  uint32_t d_1p3 : 15;
-  uint32_t i_soft_start1p3 : 13;
-  uint32_t dither_en1p3 : 1;
-  uint32_t auto_mode_tran_disable : 1;
+  unsigned int ctrl_rf : 4;
+  unsigned int default_mode : 1;
+  unsigned int test_ldopulldown_sel : 1;
+  unsigned int test_ldopulldown : 1;
+  unsigned int drive_n : 2;
+  unsigned int drive_p : 2;
+  unsigned int deadtime_ctrl_n2p : 4;
+  unsigned int deadtime_ctrl_p2n : 4;
+  unsigned int revi_offset_prog : 3;
+  unsigned int tran_lo_ctr : 2;
+  unsigned int tran_hi_ctr : 2;
+  unsigned int tran_und_shoot_ctr : 3;
 #endif
 
 #ifdef AT_EFUSE_DATA_1P19
-  uint32_t reserved73 : 1;
-  uint32_t reserved74 : 13;
-  uint32_t reserved75 : 13;
-  uint32_t reserved76 : 15;
-  uint32_t reserved77 : 13;
-  uint32_t reserved78 : 1;
-  uint32_t reserved79 : 1;
+  unsigned int reserved11 : 7;
+  unsigned int reserved10 : 12;
+  unsigned int reserved9 : 10;
 #endif
 
-  uint32_t pfm_pon_time_sel : 4;
+  unsigned int dpwm_freq_trim : 4;
 
 #ifndef AT_EFUSE_DATA_1P19
-  uint32_t pfm_non_time_sel : 3;
-  uint32_t pwm_cont_prog : 3;
-  uint32_t pfm_clk_up_del_sel : 3;
-  uint32_t pwm_to_pfm_pulse_count_prog : 2;
-  uint32_t pfm_to_pwm_pulse_count_prog : 2;
-  uint32_t pfm_to_pwm_cur_prog : 3;
-  uint32_t pwm_to_pfm_cur_prog : 3;
-  uint32_t max_duty_cycle_threshold : 3;
-  uint32_t min_duty_cycle_threshold : 3;
-  uint32_t bypass_pfm_to_pwm_counter_1 : 1;
-  uint32_t no_of_pfm_clk : 4;
-  uint32_t adc_op_thresh_sel : 2;
+  unsigned int pfmro_freq_trim : 3;
+  unsigned int test_revi_delay : 1;
+  unsigned int sel_sleep_nmos_ctrl : 1;
+  unsigned int p_1p3 : 13;
+  unsigned int i_steady_state1p3 : 13;
+  unsigned int d_1p3 : 15;
+  unsigned int i_soft_start1p3 : 13;
+  unsigned int dither_en1p3 : 1;
+  unsigned int auto_mode_tran_disable : 1;
 #endif
 
 #ifdef AT_EFUSE_DATA_1P19
-  uint32_t reserved6;
-  uint32_t reserved31 : 3;
-  uint32_t reserved32 : 3;
-  uint32_t reserved33 : 3;
-  uint32_t reserved34 : 2;
-  uint32_t reserved35 : 2;
-  uint32_t reserved36 : 3;
-  uint32_t reserved37 : 3;
-  uint32_t reserved38 : 3;
-  uint32_t reserved39 : 3;
-  uint32_t reserved40 : 1;
-  uint32_t reserved41 : 4;
-  uint32_t reserved42 : 2;
+  unsigned int reserved73 : 1;
+  unsigned int reserved74 : 13;
+  unsigned int reserved75 : 13;
+  unsigned int reserved76 : 15;
+  unsigned int reserved77 : 13;
+  unsigned int reserved78 : 1;
+  unsigned int reserved79 : 1;
 #endif
-  uint32_t reserved3 : 4;
-  uint32_t reserved4[2];
+
+  unsigned int pfm_pon_time_sel : 4;
+
+#ifndef AT_EFUSE_DATA_1P19
+  unsigned int pfm_non_time_sel : 3;
+  unsigned int pwm_cont_prog : 3;
+  unsigned int pfm_clk_up_del_sel : 3;
+  unsigned int pwm_to_pfm_pulse_count_prog : 2;
+  unsigned int pfm_to_pwm_pulse_count_prog : 2;
+  unsigned int pfm_to_pwm_cur_prog : 3;
+  unsigned int pwm_to_pfm_cur_prog : 3;
+  unsigned int max_duty_cycle_threshold : 3;
+  unsigned int min_duty_cycle_threshold : 3;
+  unsigned int bypass_pfm_to_pwm_counter_1 : 1;
+  unsigned int no_of_pfm_clk : 4;
+  unsigned int adc_op_thresh_sel : 2;
+#endif
+
+#ifdef AT_EFUSE_DATA_1P19
+  unsigned int reserved6;
+  unsigned int reserved31 : 3;
+  unsigned int reserved32 : 3;
+  unsigned int reserved33 : 3;
+  unsigned int reserved34 : 2;
+  unsigned int reserved35 : 2;
+  unsigned int reserved36 : 3;
+  unsigned int reserved37 : 3;
+  unsigned int reserved38 : 3;
+  unsigned int reserved39 : 3;
+  unsigned int reserved40 : 1;
+  unsigned int reserved41 : 4;
+  unsigned int reserved42 : 2;
+#endif
+  unsigned int reserved3 : 4;
+  unsigned int reserved4[2];
   uint16_t reserved5;
 
 } __attribute__((__packed__)) efuse_ipmu_t;
@@ -657,59 +657,59 @@ typedef struct efuse_ipmu_s {
 
 #ifdef SLI_SI917
 typedef struct efuse_ipmu_s {
-  uint32_t trim_0p5na1 : 1;
-  uint32_t bg_r_vdd_ulp : 5;
-  uint32_t bg_r_ptat_vdd_ulp : 3;
-  uint32_t reserved20 : 2; //Removed in RS9117
-  uint32_t trim_sel : 7;
-  uint32_t del_2x_sel : 6;
-  uint32_t freq_trim : 5;
-  uint32_t coarse_trim_16k : 2;
-  uint32_t fine_trim_16k : 7;
-  uint32_t coarse_trim_64k : 2;
-  uint32_t fine_trim_64k : 7;
-  uint32_t coarse_trim_32k : 2;
-  uint32_t fine_trim_32k : 7;
-  uint32_t xtal1_trim_32k : 4;
-  uint32_t xtal2_trim_32k : 4;
-  uint32_t trim_ring_osc : 7;
-  uint32_t vbatt_status_1 : 6;
-  uint32_t str_temp_slope : 10;
-  uint32_t f2_nominal : 10;
-  uint32_t str_nominal_temp : 7;
-  uint32_t str_bjt_temp_sense_off : 16;
-  uint32_t str_bjt_temp_sense_slope : 16;
-  uint32_t trim_sel_20Mhz : 7; // Trim value for 20mzh rc
-  uint32_t ro_32khz_00_trim : 5;
-  uint32_t scdc_dcdc_trim : 3;
-  uint32_t scdc_hpldo_trim : 3;
-  uint32_t reserved1 : 2;
-  uint32_t ldo_ctrl : 4;
-  uint32_t vbg_tsbjt_efuse : 12;
-  uint32_t retn_ldo_lptrim : 3;
-  uint32_t reserved2 : 1;
-  uint32_t auxadc_offset_diff : 12;
-  uint32_t auxadc_invgain_diff : 16;
-  uint32_t auxadc_offset_single : 12;
-  uint32_t auxadc_invgain_single : 16;
-  uint32_t set_vref1p3 : 4;
-  uint32_t reserved13 : 6;
-  uint32_t trim_r1_resistorladder : 4;
-  uint32_t retn_ldo_hptrim : 3;
-  uint32_t reserved12 : 16;
-  uint32_t scale_soc_ldo_vref : 1;
-  uint32_t reserved11 : 7;
-  uint32_t reserved10 : 12;
-  uint32_t reserved9 : 10;
-  uint32_t dpwm_freq_trim : 4;
-  uint32_t reserved73 : 32; // 73 and 74 togther as 50
-  uint32_t reserved74 : 18; //
-  uint32_t scdc_clk_freq : 5;
-  uint32_t reserved7 : 6;
-  uint32_t buck_ind_efuse : 4;
-  uint32_t reserved31 : 32; // 31,32 and 33 togther as 80
-  uint32_t reserved32 : 32;
-  uint32_t reserved33 : 16;
+  unsigned int trim_0p5na1 : 1;
+  unsigned int bg_r_vdd_ulp : 5;
+  unsigned int bg_r_ptat_vdd_ulp : 3;
+  unsigned int reserved20 : 2; //Removed in RS9117
+  unsigned int trim_sel : 7;
+  unsigned int del_2x_sel : 6;
+  unsigned int freq_trim : 5;
+  unsigned int coarse_trim_16k : 2;
+  unsigned int fine_trim_16k : 7;
+  unsigned int coarse_trim_64k : 2;
+  unsigned int fine_trim_64k : 7;
+  unsigned int coarse_trim_32k : 2;
+  unsigned int fine_trim_32k : 7;
+  unsigned int xtal1_trim_32k : 4;
+  unsigned int xtal2_trim_32k : 4;
+  unsigned int trim_ring_osc : 7;
+  unsigned int vbatt_status_1 : 6;
+  unsigned int str_temp_slope : 10;
+  unsigned int f2_nominal : 10;
+  unsigned int str_nominal_temp : 7;
+  unsigned int str_bjt_temp_sense_off : 16;
+  unsigned int str_bjt_temp_sense_slope : 16;
+  unsigned int trim_sel_20Mhz : 7; // Trim value for 20mzh rc
+  unsigned int ro_32khz_00_trim : 5;
+  unsigned int scdc_dcdc_trim : 3;
+  unsigned int scdc_hpldo_trim : 3;
+  unsigned int reserved1 : 2;
+  unsigned int ldo_ctrl : 4;
+  unsigned int vbg_tsbjt_efuse : 12;
+  unsigned int retn_ldo_lptrim : 3;
+  unsigned int reserved2 : 1;
+  unsigned int auxadc_offset_diff : 12;
+  unsigned int auxadc_invgain_diff : 16;
+  unsigned int auxadc_offset_single : 12;
+  unsigned int auxadc_invgain_single : 16;
+  unsigned int set_vref1p3 : 4;
+  unsigned int reserved13 : 6;
+  unsigned int trim_r1_resistorladder : 4;
+  unsigned int retn_ldo_hptrim : 3;
+  unsigned int reserved12 : 16;
+  unsigned int scale_soc_ldo_vref : 1;
+  unsigned int reserved11 : 7;
+  unsigned int reserved10 : 12;
+  unsigned int reserved9 : 10;
+  unsigned int dpwm_freq_trim : 4;
+  unsigned int reserved73 : 32; // 73 and 74 togther as 50
+  unsigned int reserved74 : 18; //
+  unsigned int scdc_clk_freq : 5;
+  unsigned int reserved7 : 6;
+  unsigned int buck_ind_efuse : 4;
+  unsigned int reserved31 : 32; // 31,32 and 33 togther as 80
+  unsigned int reserved32 : 32;
+  unsigned int reserved33 : 16;
 } __attribute__((__packed__)) efuse_ipmu_t;
 #endif
 
@@ -767,10 +767,10 @@ void RSI_IPMU_PowerGateClr(uint32_t mask_vlaue);
 rsi_error_t RSI_IPMU_CommonConfig(void);
 void RSI_IPMU_ClockMuxSel(uint8_t bg_pmu_clk);
 uint32_t RSI_IPMU_32MHzClkClib(void);
-rsi_error_t RSI_IPMU_ProgramConfigData(uint32_t *config);
+rsi_error_t RSI_IPMU_ProgramConfigData(const uint32_t *config);
 void RSI_IPMU_InitCalibData(void);
-void RSI_IPMU_UpdateIpmuCalibData_efuse(efuse_ipmu_t *ipmu_calib_data);
-uint32_t RSI_APB_ProgramConfigData(uint32_t *config);
+void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data);
+uint32_t RSI_APB_ProgramConfigData(const uint32_t *config);
 uint32_t RSI_IPMU_RO_TsConfig(void);
 void RSI_Configure_DCDC_LowerVoltage(void);
 void RSI_IPMU_32KHzRCClkClib(void);

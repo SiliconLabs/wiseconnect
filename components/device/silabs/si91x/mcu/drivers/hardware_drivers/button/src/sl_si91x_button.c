@@ -34,7 +34,7 @@
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
-#define BUTTON_M4_INTR            7 // M4 Pin interrupt number
+#define BUTTON_M4_INTR            6 // M4 Pin interrupt number
 #define BUTTON_UULP_INTR          2 // UULP GPIO pin interrupt 2
 #define AVL_INTR_NO               0 // available interrupt number
 #define SL_SI91x_MAX_BUTTON_COUNT SL_SI91x_BUTTON_COUNT
@@ -88,7 +88,7 @@ void sl_si91x_button_init(const sl_button_t *handle)
   if (handle->button_number == 0U) {
 
     /*GPIO clock is enabled*/
-    sl_si91x_gpio_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
+    sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
 
     /*UULP gpio is selected*/
     sl_si91x_gpio_select_uulp_npss_receiver(handle->pin, 1);
@@ -126,7 +126,10 @@ void sl_si91x_button_init(const sl_button_t *handle)
     sl_si91x_gpio_driver_set_pin_direction(handle->port, handle->pin, (sl_si91x_gpio_direction_t)GPIO_INPUT);
 
     /*REN enable */
-    sl_si91x_gpio_driver_enable_pad_receiver(handle->pin);
+    sl_si91x_gpio_driver_enable_pad_receiver((handle->port * MAX_GPIO_PORT_PIN) + handle->pin);
+
+    /* Set pin mode */
+    sl_gpio_set_pin_mode(handle->port, handle->pin, (sl_gpio_mode_t)SL_GPIO_MODE_0, SET);
 
     status = sl_gpio_driver_configure_interrupt(&gpio_port_pin,
                                                 BUTTON_M4_INTR,
@@ -139,7 +142,7 @@ void sl_si91x_button_init(const sl_button_t *handle)
   }
 #elif SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
   /*GPIO clock is enabled*/
-  sl_si91x_gpio_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
+  sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
 
   /*UULP gpio is selected*/
   sl_si91x_gpio_select_uulp_npss_receiver(handle->pin, 1);
@@ -221,11 +224,7 @@ int8_t sl_si91x_button_pin_state(uint8_t pin)
 * DEBOUNCE operation is based upon the theory that when multiple reads in a row
 * return the same value, we have passed any debounce created by the mechanical
 * action of a button.  The define "DEBOUNCE" says how many reads in a row
-* should return the same value.  The value '5', below, is the recommended value
-* since this should require the signal to have stabalized for approximately
-* 100us which should be much longer than any debounce action.
-* Uncomment the following line to enable software debounce operation:
-* #define DEBOUNCE 5
+* should return the same value. 
 *
  ******************************************************************************/
 
@@ -233,7 +232,7 @@ int8_t sl_si91x_button_pin_state(uint8_t pin)
 //which will cause the preprocessor to strip out the debounce code and save
 //flash space.
 #ifndef DEBOUNCE
-#define DEBOUNCE 0
+#define DEBOUNCE 500
 #endif //DEBOUNCE
 
 #if (SL_SI91x_BUTTON_COUNT > 0)

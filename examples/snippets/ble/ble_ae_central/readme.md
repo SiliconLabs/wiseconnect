@@ -21,16 +21,23 @@ This application demonstrates how to configure SiWx91x in Advertising Extended c
 
 - Windows PC
 - SoC Mode:
-  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B](https://www.silabs.com/)
+  - Silicon Labs [BRD4325A, BRD4325B, BRD4325C, BRD4325G, BRD4338A, BRD4339B, BRD4343A](https://www.silabs.com/)
 - PSRAM Mode:  
   - Silicon Labs [BRD4340A, BRD4342A, BRD4325G](https://www.silabs.com/)
 - NCP Mode:
   - Silicon Labs [BRD4180B](https://www.silabs.com/);
   - Host MCU Eval Kit. This example has been tested with:
     - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - STM32F411RE MCU
      - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
      - NCP Radio Board (BRD4346A + BRD8045C)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
+    - UART - EFR32
+
 - Smartphone configured as BLE peripheral which supports extended advertising 
 
 ### Software Requirements
@@ -58,7 +65,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
-### Instructions for Keil IDE and STM32F411RE MCU
+### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
@@ -105,7 +112,10 @@ The application can be configured to suit your requirements and development envi
    >**Note:** `app.c` files are already set with desired configuration in respective example folders user need not change for each example. 
 
 - Change the following parameters as desired in **ble_config.h**
-
+    - `Initiating phys:` 
+    ```c
+        #define INITIATING_PHYS (PHY_1M | PHY_2M | PHY_LE_CODED)
+    ```
     - `LE_SCAN_INTERVAL` refers to primary phy scan interval.
     - `LE_SCAN_WINDOW` refers to primary phy scan window.
     - `SEC_PHY_LE_SCAN_INTERVAL` refers to secondary phy scan interval.
@@ -129,13 +139,41 @@ The application can be configured to suit your requirements and development envi
    ```
     - `BLE_SCAN_DUR` refers to extended scan duration.
     - `BLE_SCAN_PERIOD` refers to extended scan period. 
+    - `BLE_SCAN_ENABLE_FILTER_DUP` refers to enable scan filter duplicates. 
 
-   ```c 
-    #define BLE_SCAN_DUR               0x00
-    #define BLE_SCAN_PERIOD            0x00
+   ```c
+       #define BLE_SCAN_ENABLE_FILTER_DUP 0x00 
+       #define BLE_SCAN_DUR               0x00
+       #define BLE_SCAN_PERIOD            0x00
    ```
-  >**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example. 
+    - `RSI_SEL_INTERNAL_ANTENNA` refers to select internal antenna.
+    - `RSI_SEL_EXTERNAL_ANTENNA` refers to select aftermarket antenna. 
+   ```c
+       #define RSI_SEL_INTERNAL_ANTENNA 0x00
+       #define RSI_SEL_EXTERNAL_ANTENNA 0x01
+   ```   
+>**Note:** `ble_config.h` files are already set with desired configuration in respective example folders user need not change for each example. 
+- The desired scan parameters are provided for AE_SCAN_SET1. you can enable similar parameters for AE_SCAN_SET2
+```c
+	ae_set_scan_params.own_addr_type               			 	= LE_PUBLIC_ADDRESS; // SiWx917 device address type
+	ae_set_scan_params.scanning_filter_policy       			= RSI_BLE_SCAN_FILTER_TYPE; //filter policy to be used.
+	ae_set_scan_params.scanning_phys                			= (PHY_1M | PHY_LE_CODED);
+    ae_set_scan_params.ScanParams[AE_SCAN_SET1].ScanType        = RSI_BLE_SCAN_TYPE;
+	ae_set_scan_params.ScanParams[AE_SCAN_SET1].ScanInterval 	= LE_SCAN_INTERVAL;
+	ae_set_scan_params.ScanParams[AE_SCAN_SET1].ScanWindow   	= LE_SCAN_WINDOW;
+```
 
+- SET2_ENABLE is a configuration parameter that enables or disables  AE_SCAN_SET2 functionality.
+```c
+	#define SET2_ENABLE 1
+```
+- Parameters to Configure scan enable
+```c
+	ae_set_scan_enable.enable                       = RSI_BLE_START_SCAN;
+	ae_set_scan_enable.filter_duplicates            = BLE_SCAN_ENABLE_FILTER_DUP;
+	ae_set_scan_enable.duration                     = BLE_SCAN_DUR;
+	ae_set_scan_enable.period                       = BLE_SCAN_PERIOD;
+```
 ## Test the Application
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)

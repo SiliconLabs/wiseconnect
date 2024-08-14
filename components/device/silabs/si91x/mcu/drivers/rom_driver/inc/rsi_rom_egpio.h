@@ -84,14 +84,14 @@ STATIC INLINE void RSI_EGPIO_SetPin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pi
 }
 
 /**
- * @fn           STATIC INLINE boolean_t RSI_EGPIO_GetPin(EGPIO_Type *pEGPIO ,uint8_t port,uint8_t pin)
+ * @fn           STATIC INLINE boolean_t RSI_EGPIO_GetPin(const EGPIO_Type *pEGPIO ,uint8_t port,uint8_t pin)
  * @brief        This API is used get the GPIO pin status.
  * @param[in]    pEGPIO  : Pointer to the EGPIO register instance
  * @param[in]    port    : GPIO port number
  * @param[in]    pin     : GPIO pin number
  * @return       returns Pin status
  */
-STATIC INLINE boolean_t RSI_EGPIO_GetPin(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
+STATIC INLINE boolean_t RSI_EGPIO_GetPin(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_EGPIO_API->egpio_get_pin(pEGPIO, port, pin);
@@ -101,14 +101,14 @@ STATIC INLINE boolean_t RSI_EGPIO_GetPin(EGPIO_Type *pEGPIO, uint8_t port, uint8
 }
 
 /**
- * @fn           STATIC INLINE boolean_t RSI_EGPIO_GetDir(EGPIO_Type *pEGPIO,uint8_t port ,uint8_t pin)
+ * @fn           STATIC INLINE boolean_t RSI_EGPIO_GetDir(const EGPIO_Type *pEGPIO,uint8_t port ,uint8_t pin)
  * @brief        This API is used to Get the Direction GPIO(Direction of the GPIO pin. '1' for INPUT,and '0'for OUTPUT)
  * @param[in]    pEGPIO  : Pointer to the EGPIO register instance
  * @param[in]    port    : GPIO port number
  * @param[in]    pin     : GPIO pin number
  * @return       returns the GPIO direction value
  */
-STATIC INLINE boolean_t RSI_EGPIO_GetDir(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
+STATIC INLINE boolean_t RSI_EGPIO_GetDir(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_EGPIO_API->egpio_get_dir(pEGPIO, port, pin);
@@ -307,13 +307,13 @@ STATIC INLINE void RSI_EGPIO_SetIntHighLevelDisable(EGPIO_Type *pEGPIO, uint8_t 
 }
 
 /**
- * @fn           uint8_t RSI_EGPIO_GetIntStat(EGPIO_Type *pEGPIO ,uint8_t intCh)
+ * @fn           uint8_t RSI_EGPIO_GetIntStat(const EGPIO_Type *pEGPIO ,uint8_t intCh)
  * @brief        This API is used to get the pin interrupt status register
  * @param[in]    pEGPIO  : Pointer to the EGPIO register instance
  * @param[in]    intCh   : GPIO pin interrupt channel number (0 to 7)
  * @return       returns the interrupt status register
  */
-STATIC INLINE uint8_t RSI_EGPIO_GetIntStat(EGPIO_Type *pEGPIO, uint8_t intCh)
+STATIC INLINE uint8_t RSI_EGPIO_GetIntStat(const EGPIO_Type *pEGPIO, uint8_t intCh)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_EGPIO_API->egpio_get_int_stat(pEGPIO, intCh);
@@ -547,14 +547,14 @@ STATIC INLINE void RSI_EGPIO_TogglePort(EGPIO_Type *pEGPIO, uint8_t port, uint16
 }
 
 /**
- * @fn           STATIC INLINE uint16_t RSI_EGPIO_GetPort(EGPIO_Type *pEGPIO ,uint8_t port)
+ * @fn           STATIC INLINE uint16_t RSI_EGPIO_GetPort(const EGPIO_Type *pEGPIO ,uint8_t port)
  * @brief        This API is used to used to get the EGPIO port value.
  *               Reads the value on GPIO pins irrespective of the pin mode.
  * @param[in]    pEGPIO  : Pointer to the EGPIO register instance
  * @param[in]    port    : Port number to be read
  * @return       port value
  */
-STATIC INLINE uint16_t RSI_EGPIO_GetPort(EGPIO_Type *pEGPIO, uint8_t port)
+STATIC INLINE uint16_t RSI_EGPIO_GetPort(const EGPIO_Type *pEGPIO, uint8_t port)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_EGPIO_API->egpio_get_port(pEGPIO, port);
@@ -745,13 +745,13 @@ STATIC INLINE void RSI_EGPIO_GroupIntOr(EGPIO_Type *pEGPIO, uint8_t grpInt)
 }
 
 /**
- * @fn           STATIC INLINE uint32_t RSI_EGPIO_GroupIntStat(EGPIO_Type *pEGPIO ,uint8_t grpInt)
+ * @fn           STATIC INLINE uint32_t RSI_EGPIO_GroupIntStat(const EGPIO_Type *pEGPIO ,uint8_t grpInt)
  * @brief        This API to used to get the group interrupt status
  * @param[in]    pEGPIO   : Pointer to the EGPIO register instance
  * @param[in]    grpInt   : Group interrupt number
  * @return       returns the group interrupt status register
  */
-STATIC INLINE uint32_t RSI_EGPIO_GroupIntStat(EGPIO_Type *pEGPIO, uint8_t grpInt)
+STATIC INLINE uint32_t RSI_EGPIO_GroupIntStat(const EGPIO_Type *pEGPIO, uint8_t grpInt)
 {
 #if defined(ROMDRIVER_PRESENT)
   return ROMAPI_EGPIO_API->egpio_group_int_stat(pEGPIO, grpInt);

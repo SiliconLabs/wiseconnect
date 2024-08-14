@@ -75,12 +75,12 @@ sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *ma
 void print_sl_ip_address(const sl_ip_address_t *sl_ip_address);
 void print_sl_ipv4_address(const sl_ipv4_address_t *ip_address);
 void print_sl_ipv6_address(const sl_ipv6_address_t *ip_address);
-void print_mac_address(sl_mac_address_t *mac_address);
+void print_mac_address(const sl_mac_address_t *mac_address);
 void convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer);
 void little_to_big_endian(const unsigned int *source, unsigned char *result, unsigned int length);
 int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, unsigned int *ptr_result);
 void reverse_digits(unsigned char *xx, int no_digits);
-void print_firmware_version(sl_wifi_firmware_version_t *firmware_version);
+void print_firmware_version(const sl_wifi_firmware_version_t *firmware_version);
 
 /***************************************************************************/ /**
  * @brief Print 802.11 packet
@@ -89,4 +89,4 @@ void print_firmware_version(sl_wifi_firmware_version_t *firmware_version);
  * @param[in] packet_length - total packet length (MAC header + payload)
  * @param[in] max_payload_length - maximum number of payload bytes to print
  ******************************************************************************/
-void print_80211_packet(uint8_t *packet, uint32_t packet_length, uint16_t max_payload_length);
+void print_80211_packet(const uint8_t *packet, uint32_t packet_length, uint16_t max_payload_length);

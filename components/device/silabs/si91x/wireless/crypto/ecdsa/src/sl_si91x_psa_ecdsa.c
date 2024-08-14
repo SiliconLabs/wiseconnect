@@ -31,14 +31,6 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 
-// -----------------------------------------------------------------------------
-//                                Global Variables
-// -----------------------------------------------------------------------------
-uint8_t r_size = 0;
-uint8_t s_size = 0;
-uint8_t r_bit  = 0;
-uint8_t s_bit  = 0;
-
 /**
  * \brief  Validate that the curve and algorithm combination is supported by hardware
  *
@@ -200,31 +192,49 @@ psa_status_t sli_si91x_crypto_sign_message(const psa_key_attributes_t *attribute
     status = SL_STATUS_INVALID_SIGNATURE;
 
   /* Convert DER format signature to compact format */
-  r_size = sign_buf[3];
-  s_size = sign_buf[5 + r_size];
+  uint8_t r_size = sign_buf[3];
+  uint8_t s_size = sign_buf[5 + r_size];
 
-  uint8_t r_index = 4;
-  uint8_t s_index = 6 + r_size;
+  uint8_t r_index   = 4;
+  uint8_t s_index   = 6 + r_size;
+  uint8_t r_bit     = 0;
+  uint8_t s_bit     = 0;
+  uint8_t r_leading = 0;
+  uint8_t s_leading = 0;
 
   if (key_buffer_size == SL_SI91X_ECDSA_PRIV_KEY_SIZE_224) {
     if (r_size == SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1 + 1)
       r_bit = 1;
     if (s_size == SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1 + 1)
       s_bit = 1;
-    memcpy(signature, &sign_buf[r_index + r_bit], SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1);
-    memcpy(&signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1],
+    if (r_size == SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1 - 1)
+      r_leading = 1;
+    if (s_size == SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1 - 1)
+      s_leading = 1;
+
+    signature[0]                                    = 0x00;
+    signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1] = 0x00;
+    memcpy(&signature[0 + r_leading], &sign_buf[r_index + r_bit], SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1 - r_leading);
+    memcpy(&signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1 + s_leading],
            &sign_buf[s_index + s_bit],
-           SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1);
+           SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1 - s_leading);
 
   } else if (key_buffer_size == SL_SI91X_ECDSA_PRIV_KEY_SIZE_256) {
     if (r_size == SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1 + 1)
       r_bit = 1;
     if (s_size == SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1 + 1)
       s_bit = 1;
-    memcpy(signature, &sign_buf[r_index + r_bit], SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1);
-    memcpy(&signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1],
+    if (r_size == SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1 - 1)
+      r_leading = 1;
+    if (s_size == SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1 - 1)
+      s_leading = 1;
+
+    signature[0]                                    = 0x00;
+    signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1] = 0x00;
+    memcpy(&signature[0 + r_leading], &sign_buf[r_index + r_bit], SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1 - r_leading);
+    memcpy(&signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1 + s_leading],
            &sign_buf[s_index + s_bit],
-           SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1);
+           SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1 - s_leading);
   }
 
   /* gets the si91x error codes and returns its equivalent psa_status codes */
@@ -349,7 +359,54 @@ psa_status_t sli_si91x_crypto_verify_message(const psa_key_attributes_t *attribu
   config.key_config.a0.key_length = key_buffer_size;
 #endif
 
+  uint8_t r_size    = 0;
+  uint8_t s_size    = 0;
+  uint8_t r_bit     = 0;
+  uint8_t s_bit     = 0;
+  uint8_t r_leading = 0;
+  uint8_t s_leading = 0;
+
   /* Convert compact format signature to DER format */
+
+  if (key_buffer_size == SL_SI91X_ECDSA_PUB_KEY_SIZE_224) {
+    r_size = s_size = SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1;
+    if (signature[0] >= 0x80) {
+      r_bit = 1;
+      r_size++;
+    }
+    if (signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1] >= 0x80) {
+      s_bit = 1;
+      s_size++;
+    }
+    if (signature[0] == 0x00) {
+      r_leading++;
+      r_size--;
+    }
+    if (signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1] == 0x00) {
+      s_leading++;
+      s_size--;
+    }
+  }
+
+  else if (key_buffer_size == SL_SI91X_ECDSA_PUB_KEY_SIZE_256) {
+    r_size = s_size = SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1;
+    if (signature[0] >= 0x80) {
+      r_bit = 1;
+      r_size++;
+    }
+    if (signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1] >= 0x80) {
+      s_bit = 1;
+      s_size++;
+    }
+    if (signature[0] == 0x00) {
+      r_leading++;
+      r_size--;
+    }
+    if (signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1] == 0x00) {
+      s_leading++;
+      s_size--;
+    }
+  }
 
   uint8_t sign_size  = r_size + s_size + 4;
   uint8_t total_size = sign_size + 2;
@@ -369,17 +426,13 @@ psa_status_t sli_si91x_crypto_verify_message(const psa_key_attributes_t *attribu
   sign_buf[s_index] = 0;
 
   if (key_buffer_size == SL_SI91X_ECDSA_PUB_KEY_SIZE_224) {
-    memcpy(&sign_buf[r_index + r_bit], &signature[0], SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1);
-    memcpy(&sign_buf[s_index + s_bit],
-           &signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1],
-           SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1);
+    memcpy(&sign_buf[r_index + r_bit], &signature[0 + r_leading], r_size - r_bit);
+    memcpy(&sign_buf[s_index + s_bit], &signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P224R1 + s_leading], s_size - s_bit);
   }
 
   else if (key_buffer_size == SL_SI91X_ECDSA_PUB_KEY_SIZE_256) {
-    memcpy(&sign_buf[r_index + r_bit], &signature[0], SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1);
-    memcpy(&sign_buf[s_index + s_bit],
-           &signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1],
-           SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1);
+    memcpy(&sign_buf[r_index + r_bit], &signature[0 + r_leading], r_size - r_bit);
+    memcpy(&sign_buf[s_index + s_bit], &signature[SL_SI91X_ECDSA_SIGN_HALF_SIZE_P256R1 + s_leading], s_size - s_bit);
   }
 
   uint8_t *output = (uint8_t *)malloc(sizeof(uint8_t));

@@ -50,6 +50,10 @@ void sli_si91x_platform_init(void)
   // Set P2P Intr priority
   NVIC_SetPriority(SysTick_IRQn, SYSTICK_INTR_PRI);
 #endif
+  //On boot-up, verify the M4_wakeup_TA bit in the P2P status register and clearing the bit if it is set.
+  if ((P2P_STATUS_REG & M4_wakeup_TA)) {
+    P2P_STATUS_REG &= ~M4_wakeup_TA;
+  }
 }
 
 void sl_board_enable_vcom(void)

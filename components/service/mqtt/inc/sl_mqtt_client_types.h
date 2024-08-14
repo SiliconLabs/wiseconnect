@@ -21,6 +21,7 @@
 #include "sl_slist.h"
 #include "sl_net_constants.h"
 #include "sl_ip_types.h"
+#include "sl_wifi_device.h"
 
 typedef enum MQTTStatus {
   MQTTSuccess = 0,     /**< Function completed successfully. */
@@ -95,6 +96,22 @@ typedef enum {
   SL_MQTT_CLIENT_KEEP_ALIVE_RESPONSE_TIMEOUT_DISCONNECTION ///< Disconnection due to keep alive timeout.
 } sl_mqtt_client_disconnection_reason_t;
 
+/**
+ * @brief MQTT TLS and certificate options.
+ * 
+ * @note Only one TLS version (SL_MQTT_TLS_TLSV_X_X) can be set at a time.
+ * @note Only one certificate index (SL_MQTT_TLS_CERT_INDEX_X) can be set at a time.
+ */
+typedef enum {
+  SL_MQTT_TLS_ENABLE       = BIT(0), ///< Enable TLS for MQTT
+  SL_MQTT_TLS_TLSV_1_0     = BIT(1), ///< Enable TLS version 1.0 for MQTT
+  SL_MQTT_TLS_TLSV_1_1     = BIT(2), ///< Enable TLS version 1.1 for MQTT
+  SL_MQTT_TLS_TLSV_1_2     = BIT(3), ///< Enable TLS version 1.2 for MQTT
+  SL_MQTT_TLS_TLSV_1_3     = BIT(4), ///< Enable TLS version 1.3 for MQTT
+  SL_MQTT_TLS_CERT_INDEX_1 = BIT(5), ///< Use certificate index 1 for MQTT
+  SL_MQTT_TLS_CERT_INDEX_2 = BIT(6)  ///< Use certificate index 2 for MQTT
+} sl_mqtt_tls_flag_t;
+
 /** @} */
 
 /**
@@ -108,10 +125,10 @@ typedef struct {
   sl_mqtt_qos_t will_qos_level; ///< Quality of subscription.
   uint8_t *will_topic;          ///< Name of will topic.
   uint16_t
-    will_topic_length;   ///< Length of topic. Length should not exceed 62 bytes including NULL termination character.
+    will_topic_length;   ///< Length of topic. Length should not exceed 200 bytes including NULL termination character.
   uint8_t *will_message; ///< Pointer to will message.
   uint32_t
-    will_message_length; ///<  Length of the will message. Length should not exceed 62 bytes including NULL termination character.
+    will_message_length; ///<  Length of the will message. Length should not exceed 60 bytes including NULL termination character.
 } sl_mqtt_client_last_will_message_t;
 
 /// MQTT Client Message structure
@@ -122,27 +139,28 @@ typedef struct {
   bool is_duplicate_message;  ///< Whether this is a duplicate message.
   uint8_t *topic;             ///< Pointer to topic name.
   uint16_t
-    topic_length;   ///< Length of the topic. Length should not exceed 202 bytes including NULL termination character.
+    topic_length;   ///< Length of the topic. Length should not exceed 200 bytes including NULL termination character.
   uint8_t *content; ///< Pointer to content.
   uint32_t content_length; ///< Length of the content.
 } sl_mqtt_client_message_t;
 
 /// MQTT Client broker information structure
 typedef struct {
-  sl_ip_address_t ip;           ///< IP address of broker.
-  uint16_t port;                ///< Port number of broker.
-  bool is_connection_encrypted; ///< Whether to use MQTT or MQTTS.
-  uint16_t connect_timeout;     ///< MQTT Connection timeout.
-  uint16_t keep_alive_interval; ///< Keep alive timeout of MQTT connection.
+  sl_ip_address_t ip; ///< IP address of broker.
+  uint16_t port;      ///< Port number of broker.
+  bool
+    is_connection_encrypted; ///< This will be deprecated in future releases. Users are recommended to use `tls_flags' in @ref sl_mqtt_client_configuration_t.
+  uint16_t connect_timeout;  ///< MQTT Connection timeout in milli seconds.
+  uint16_t keep_alive_interval; ///< Keep alive timeout of MQTT connection in seconds.
   uint16_t keep_alive_retries;  ///< MQTT ping retries.
 } sl_mqtt_broker_t;
 
 /// MQTT Client credentials structure
 typedef struct {
   uint16_t
-    username_length; ///< Length of the username. Length should not exceed 122 bytes including NULL termination character.
+    username_length; ///< Length of the username. Length should not exceed 120 bytes including NULL termination character.
   uint16_t
-    password_length; ///< Length of the password. Length should not exceed 62 bytes including NULL termination character.
+    password_length; ///< Length of the password. Length should not exceed 60 bytes including NULL termination character.
   uint8_t data[];    ///< A flexible array to store both username and password.
 } sl_mqtt_client_credentials_t;
 
@@ -158,7 +176,8 @@ typedef struct {
   sl_net_credential_id_t credential_id; ///< Credential id for username and password of MQTT connect request.
   uint8_t *client_id;                   ///< Pointer to MQTT client id.
   uint8_t
-    client_id_length; ///< Length of client id. Length should not exceed 62 bytes including NULL termination character.
+    client_id_length; ///< Length of client id. Length should not exceed 60 bytes including NULL termination character.
+  sl_mqtt_tls_flag_t tls_flags; ///< TLS flags for various MQTT options: @ref sl_mqtt_tls_flag_t
 } sl_mqtt_client_configuration_t;
 
 /**
@@ -172,7 +191,7 @@ typedef struct {
  * @param event_data	
  *    Event data for the data. This parameter would be non-null only for MQTT_CLIENT_MESSAGED_RECEIVED and MQTT_CLIENT_ERROR.
  * @param context		
- *    Context provided by user at the time of API call. The caller must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
+ *    Context provided by user at the time of API call(sl_mqtt_client_init). The caller(sl_mqtt_client_init) must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
  */
 typedef void (*sl_mqtt_client_event_handler_t)(void *client,
                                                sl_mqtt_client_event_t event,
@@ -188,7 +207,7 @@ typedef void (*sl_mqtt_client_event_handler_t)(void *client,
  * @param message_to_be_published	
  *    Message received of type @ref sl_mqtt_client_message_t
  * @param context	
- *    Context provided by user at the time of Subscribe API call. The caller must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
+ *    Context provided by user at the time of Subscribe API call. The caller(the function or module that invokes the Subscribe API) must ensure that the lifecycle of the context is retained until the callback is invoked. The deallocation of context is also the responsibility of the caller.
  * @note
  * 	  Due to the constraints from the firmware, is_retained, qos_level, packet_identifier, duplicate_message of sl_mqtt_client_message_t are not populated and shall be ignored while processing the message.
  */
@@ -202,7 +221,7 @@ typedef struct {
   sl_mqtt_client_message_received_t topic_message_handler; ///< A function pointer to message handler.
   sl_mqtt_qos_t qos_of_subscription;                       ///< Quality of subscription.
   uint16_t
-    topic_length; ///< Length of the subscribed topic. Length should not exceed 202 bytes including NULL termination character.
+    topic_length; ///< Length of the subscribed topic. Length should not exceed 200 bytes including NULL termination character.
   uint8_t topic[]; ///< A flexible array to store the topic.
 } sl_mqtt_client_topic_subscription_info_t;
 

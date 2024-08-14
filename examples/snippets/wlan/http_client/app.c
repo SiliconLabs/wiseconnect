@@ -470,6 +470,7 @@ sl_status_t http_get_response_callback_handler(const sl_http_client_t *client,
       || (get_response->http_response_code >= 400 && get_response->http_response_code <= 599
           && get_response->http_response_code != 0)) {
     http_rsp_received = HTTP_FAILURE_RESPONSE;
+    callback_status   = SL_STATUS_FAIL;
     return get_response->status;
   }
 

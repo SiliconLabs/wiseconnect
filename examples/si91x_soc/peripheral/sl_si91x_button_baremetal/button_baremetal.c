@@ -16,7 +16,6 @@
  ******************************************************************************/
 
 #include "button_baremetal.h"
-
 #include "sl_si91x_led.h"
 #include "sl_si91x_button.h"
 #include "sl_si91x_button_pin_config.h"
@@ -28,12 +27,16 @@
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
-#ifndef BUTTON_INSTANCE_0
-#define BUTTON_INSTANCE_0 button_btn0
+#ifndef BUTTON_INSTANCE
+#define BUTTON_INSTANCE button_btn0
 #endif
 
-#ifndef LED_INSTANCE_0
-#define LED_INSTANCE_0 led_led0
+#ifndef LED_INSTANCE
+#ifndef SI917_DEVKIT
+#define LED_INSTANCE led_led0
+#else
+#define LED_INSTANCE led_ledb
+#endif
 #endif
 
 #define SOC_PLL_CLK  ((uint32_t)(180000000)) // 180MHz default SoC PLL Clock as source to Processor
@@ -84,9 +87,9 @@ void button_process_action(void)
 
 void sl_si91x_button_isr(uint8_t pin, int8_t state)
 {
-  if (pin == BUTTON_INSTANCE_0.pin) {
+  if (pin == BUTTON_INSTANCE.pin) {
     if (state == BUTTON_PRESSED) {
-      sl_si91x_led_toggle(LED_INSTANCE_0.pin);
+      sl_si91x_led_toggle(LED_INSTANCE.pin);
     }
   }
 }

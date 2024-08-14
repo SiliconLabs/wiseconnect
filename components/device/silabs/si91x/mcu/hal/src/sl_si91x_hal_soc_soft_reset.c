@@ -30,7 +30,7 @@
 #include "rsi_wwdt.h"
 #include "cmsis_os2.h"
 #include "sl_si91x_hal_soc_soft_reset.h"
-#define M4_BBFF_STORAGE1 *(volatile uint32 *)0x24048580
+
 /*
  *
  * @brief  WDT interrupt handler
@@ -64,8 +64,44 @@ void sl_si91x_soc_soft_reset(void)
   NVIC_EnableIRQ(NVIC_WDT);
   /*Start WDT */
   RSI_WWDT_Start(MCU_WDT);
+
   /*Upon Reset key size is 16 by default in case of inline  encryption */
-  M4_BBFF_STORAGE1 = 0;
+  /*Store key length bit (32 Bytes) in BBFF if device security is with 32 Bytes key*/
+  if (M4_QSPI_AES_CONFIG & AES_QSPI_KEY_SIZE) {
+    M4_BBFF_STORAGE1 |= KEY_LENGTH;
+  }
   while (1)
     ;
+}
+/*
+ *
+ * @brief  This API is used to do soc NVIC reset with the debug module disabled.
+ * @param  None
+ * @return None
+ */
+void sl_si91x_soc_nvic_reset(void)
+{
+  /*Upon Reset key size is 16 by default in case of inline  encryption */
+  /*Store key length bit (32 Bytes) in BBFF if device security is with 32 Bytes key*/
+  if (M4_QSPI_AES_CONFIG & AES_QSPI_KEY_SIZE) {
+    M4_BBFF_STORAGE1 |= KEY_LENGTH;
+  }
+  __asm volatile("cpsid i" ::: "memory");
+  /*Data Synchronization Barrier */
+  __DSB();
+  /*Instruction Synchronization Barrier */
+  __ISB();
+  /*Power Down the Debug Module */
+  RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_M4_DEBUG_FPU);
+  /*Set the SYSRESETREQ bit in the AIRCR register to initiate a system reset */
+  SCB->AIRCR = (0x5FA << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk;
+  /*Ensure the instruction is not optimized out */
+  /*Data Synchronization Barrier */
+  __DSB();
+  /*Instruction Synchronization Barrier */
+  __ISB();
+  /*Wait for the reset to occur */
+  while (1) {
+    /* Infinite loop to keep the program running until the reset happens */
+  }
 }

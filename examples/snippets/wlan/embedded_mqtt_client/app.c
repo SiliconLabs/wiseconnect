@@ -41,7 +41,12 @@
  *                    Constants
  ******************************************************/
 
-#define MQTT_BROKER_IP   "192.168.1.27"
+#ifdef SLI_SI91X_ENABLE_IPV6
+#define MQTT_BROKER_IP "2401:4901:1290:10de::1000"
+#else
+#define MQTT_BROKER_IP "192.168.1.27"
+#endif
+
 #define MQTT_BROKER_PORT 8886
 
 #define CLIENT_PORT 1
@@ -65,6 +70,7 @@
 #define IS_LAST_WILL_RETAINED 1
 
 #define ENCRYPT_CONNECTION     0
+#define CERTIFICATE_INDEX      0
 #define KEEP_ALIVE_INTERVAL    2000
 #define MQTT_CONNECT_TIMEOUT   5000
 #define MQTT_KEEPALIVE_RETRIES 0
@@ -94,11 +100,15 @@ static const sl_wifi_device_configuration_t wifi_mqtt_client_configuration = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-  .boot_config = { .oper_mode                  = SL_SI91X_CLIENT_MODE,
-                   .coex_mode                  = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map            = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
-                   .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
-                                              | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+  .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
+                   .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                   .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
+                                              | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
+#ifdef SLI_SI91X_ENABLE_IPV6
+                                              | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
+#endif
+                                              ),
                    .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
@@ -125,7 +135,11 @@ sl_mqtt_client_credentials_t *client_credentails = NULL;
 sl_mqtt_client_configuration_t mqtt_client_configuration = { .is_clean_session = IS_CLEAN_SESSION,
                                                              .client_id        = (uint8_t *)CLIENT_ID,
                                                              .client_id_length = strlen(CLIENT_ID),
-                                                             .client_port      = CLIENT_PORT };
+#if ENCRYPT_CONNECTION
+                                                             .tls_flags = SL_MQTT_TLS_ENABLE | SL_MQTT_TLS_TLSV_1_2
+                                                                          | SL_MQTT_TLS_CERT_INDEX_1,
+#endif
+                                                             .client_port = CLIENT_PORT };
 
 sl_mqtt_broker_t mqtt_broker_configuration = {
   .port                    = MQTT_BROKER_PORT,
@@ -329,8 +343,10 @@ sl_status_t mqtt_example()
 
   if (ENCRYPT_CONNECTION) {
     // Load SSL CA certificate
-    status =
-      sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
+    status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(CERTIFICATE_INDEX),
+                                   SL_NET_SIGNING_CERTIFICATE,
+                                   cacert,
+                                   sizeof(cacert) - 1);
     if (status != SL_STATUS_OK) {
       printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
       return status;
@@ -382,6 +398,19 @@ sl_status_t mqtt_example()
   }
   printf("Init mqtt client Success \r\n");
 
+#ifdef SLI_SI91X_ENABLE_IPV6
+  unsigned char hex_addr[SL_IPV6_ADDRESS_LENGTH] = { 0 };
+  status                                         = sl_inet_pton6(MQTT_BROKER_IP,
+                         MQTT_BROKER_IP + strlen(MQTT_BROKER_IP),
+                         hex_addr,
+                         (unsigned int *)mqtt_broker_configuration.ip.ip.v6.value);
+  if (status != 0x1) {
+    printf("\r\nIPv6 conversion failed.\r\n");
+    mqtt_client_cleanup();
+    return status;
+  }
+  mqtt_broker_configuration.ip.type = SL_IPV6;
+#else
   status = sl_net_inet_addr(MQTT_BROKER_IP, &mqtt_broker_configuration.ip.ip.v4.value);
   if (status != SL_STATUS_OK) {
     printf("Failed to convert IP address \r\n");
@@ -389,6 +418,8 @@ sl_status_t mqtt_example()
     mqtt_client_cleanup();
     return status;
   }
+  mqtt_broker_configuration.ip.type = SL_IPV4;
+#endif
 
   status =
     sl_mqtt_client_connect(&client, &mqtt_broker_configuration, &last_will_message, &mqtt_client_configuration, 0);

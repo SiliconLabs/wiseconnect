@@ -486,19 +486,19 @@ sl_status_t sl_si91x_icm40627_enable_sensor(sl_ssi_handle_t ssi_driver_handle, b
 /***************************************************************************/ /**
  *    Sets the bandwidth of the gyroscope
  ******************************************************************************/
-sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t gyroBw)
+sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t gyro_ODR)
 {
   uint32_t ssi_data_length = 2;
   uint8_t ssi_data[ssi_data_length];
   uint8_t temp;
 
   /* Read the GYRO_CONFIG_1 register */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ACCEL_CONFIG0, ssi_data, ssi_data_length);
+  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, ssi_data, ssi_data_length);
 
   /* Write the new bandwidth value to the gyro config register */
-  temp = gyroBw | ssi_data[ssi_data_length - 1];
+  temp = gyro_ODR | ssi_data[ssi_data_length - 1];
 
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
+  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_CONFIG0, &temp, ssi_data_length - 1);
 
   return SL_STATUS_OK;
 }
@@ -506,19 +506,19 @@ sl_status_t sl_si91x_icm40627_set_gyro_bandwidth(sl_ssi_handle_t ssi_driver_hand
 /***************************************************************************/ /**
  *    Sets the bandwidth of the accelerometer
  ******************************************************************************/
-sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t accelBw)
+sl_status_t sl_si91x_icm40627_set_accel_bandwidth(sl_ssi_handle_t ssi_driver_handle, uint8_t accel_ODR)
 {
   uint32_t ssi_data_length = 2;
   uint8_t ssi_data[ssi_data_length];
   uint8_t temp;
 
   /* Read the GYRO_CONFIG_1 register */
-  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ACCEL_CONFIG0, ssi_data, ssi_data_length);
+  icm40627_read_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, ssi_data, ssi_data_length);
 
   /* Write the new bandwidth value to the accel config register */
-  temp = accelBw | ssi_data[ssi_data_length - 1];
+  temp = accel_ODR | ssi_data[ssi_data_length - 1];
 
-  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_GYRO_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
+  icm40627_write_register(ssi_driver_handle, SL_ICM40627_REG_ACCEL_CONFIG0, &temp, ssi_data_length - 1);
 
   return SL_STATUS_OK;
 }

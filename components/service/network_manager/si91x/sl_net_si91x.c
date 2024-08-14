@@ -45,6 +45,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "sl_wifi_callback_framework.h"
+#include "sl_net_dns.h"
 
 static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interface,
                                                     const sl_ip_address_t *ip_address,
@@ -152,6 +153,10 @@ sl_status_t sl_net_wifi_ap_up(sl_net_interface_t interface, sl_net_profile_id_t 
   status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_AP_VAP_ID);
   VERIFY_STATUS_AND_RETURN(status);
 
+  // Set the AP profile
+  status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, profile_id, &profile);
+  VERIFY_STATUS_AND_RETURN(status);
+
   status = sl_wifi_start_ap(SL_WIFI_AP_2_4GHZ_INTERFACE, &profile.config);
   VERIFY_STATUS_AND_RETURN(status);
 
@@ -251,4 +256,66 @@ sl_status_t sl_net_host_get_by_name(const char *host_name,
   convert_si91x_dns_response(sl_ip_address, dns_response);
   sl_si91x_host_free_buffer(buffer);
   return SL_STATUS_OK;
+}
+
+sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, sl_net_dns_address_t *address)
+{
+  UNUSED_PARAMETER(interface);
+  sl_status_t status                                  = 0;
+  sli_dns_server_add_request_t dns_server_add_request = { 0 };
+
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  //! Check for invalid parameters
+  if ((address->primary_server_address && address->primary_server_address->type != SL_IPV4
+       && address->primary_server_address->type != SL_IPV6)
+      || (address->secondary_server_address && address->secondary_server_address->type != SL_IPV4
+          && address->secondary_server_address->type != SL_IPV6)) {
+    //! Throw error in case of invalid parameters
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  //! Set DNS mode
+  dns_server_add_request.dns_mode[0] =
+    (address->primary_server_address == NULL && address->secondary_server_address == NULL) ? 1 /*dhcp*/ : 0 /*static*/;
+
+  if (address->primary_server_address && address->primary_server_address->type == SL_IPV4) {
+    dns_server_add_request.ip_version[0] = SL_IPV4_VERSION;
+    //! Fill Primary IP address
+    memcpy(dns_server_add_request.sli_ip_address1.primary_dns_ipv4,
+           address->primary_server_address->ip.v4.bytes,
+           SL_IPV4_ADDRESS_LENGTH);
+  } else if (address->primary_server_address && address->primary_server_address->type == SL_IPV6) {
+    dns_server_add_request.ip_version[0] = SL_IPV6_VERSION;
+    //! Fill Primary IP address
+    memcpy(dns_server_add_request.sli_ip_address1.primary_dns_ipv6,
+           address->primary_server_address->ip.v6.bytes,
+           SL_IPV6_ADDRESS_LENGTH);
+  }
+
+  if (address->secondary_server_address && address->secondary_server_address->type == SL_IPV4) {
+    dns_server_add_request.ip_version[0] = SL_IPV4_VERSION;
+    //! Fill Secondary IP address
+    memcpy(dns_server_add_request.sli_ip_address2.secondary_dns_ipv4,
+           address->secondary_server_address->ip.v4.bytes,
+           SL_IPV4_ADDRESS_LENGTH);
+  } else if (address->secondary_server_address && address->secondary_server_address->type == SL_IPV6) {
+    dns_server_add_request.ip_version[0] = SL_IPV6_VERSION;
+    //! Fill Secondary IP address
+    memcpy(dns_server_add_request.sli_ip_address2.secondary_dns_ipv6,
+           address->secondary_server_address->ip.v6.bytes,
+           SL_IPV6_ADDRESS_LENGTH);
+  }
+
+  status = sl_si91x_driver_send_command(RSI_WLAN_REQ_DNS_SERVER_ADD,
+                                        SI91X_NETWORK_CMD_QUEUE,
+                                        &dns_server_add_request,
+                                        sizeof(dns_server_add_request),
+                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                        NULL,
+                                        NULL);
+
+  return status;
 }

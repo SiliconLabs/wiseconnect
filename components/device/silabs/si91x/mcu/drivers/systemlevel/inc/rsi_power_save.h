@@ -274,7 +274,6 @@ extern "C" {
 #define PMU_STS_SOC_LDO_ON   BIT(8)
 
 /*PMU  */
-//#define STANDBY_DC1P3_R  BIT(19)
 #define STANDBY_LDOSOC_R BIT(18)
 #define STANDBY_LDORF_R  BIT(17)
 #define BGPMU_SLEEP_EN_R BIT(16)
@@ -1609,11 +1608,11 @@ STATIC INLINE uint32_t RSI_PS_BodClksPtatDisable(void)
  */
 STATIC INLINE void RSI_PS_PS4SetRegisters(void)
 {
-  // Configure the prefetch and registering when SOC clock is more than 120Mhz
-  ICACHE2_ADDR_TRANSLATE_1_REG = BIT(21); // Icache registering when clk freq more than 120
-  // When set, enables registering in M4-TA AHB2AHB. This will have performance penalty. This has to be set above 100MHz
+  // Configure the prefetch and registering when SOC clock is more than 120 MHz
+  ICACHE2_ADDR_TRANSLATE_1_REG = BIT(21); // Icache registering when clock frequency is more than 120 MHz
+  // When set, enables registering in M4-TA AHB2AHB. This will have performance penalty. This has to be set above 100 MHz
   MISC_CFG_SRAM_REDUNDANCY_CTRL = BIT(4);
-  MISC_CONFIG_MISC_CTRL1 |= BIT(4); // Enable Register ROM as clock frequency is 200 Mhz
+  MISC_CONFIG_MISC_CTRL1 |= BIT(4); // Enable Register ROM as clock frequency is 200 MHz
 }
 
 /**

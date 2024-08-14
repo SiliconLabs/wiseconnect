@@ -40,14 +40,14 @@
  ***************************  DEFINES / MACROS ********************************
  ******************************************************************************/
 
-#define SL_MEMLCD_SPI_CS_PORT 0
-#define SL_MEMLCD_SPI_CS_PIN  10
+#define SL_MEMLCD_SPI_CS_PORT RTE_MEMLCD_CS_PORT
+#define SL_MEMLCD_SPI_CS_PIN  RTE_MEMLCD_CS_PIN
 
-#define SL_MEMLCD_EXTCOMIN_PIN  3
-#define SL_MEMLCD_EXTCOMIN_PORT 0
+#define SL_MEMLCD_EXTCOMIN_PIN  RTE_MEMLCD_EXTCOMIN_PIN
+#define SL_MEMLCD_EXTCOMIN_PORT RTE_MEMLCD_EXTCOMIN_PORT
 
-#define SL_BOARD_ENABLE_DISPLAY_PIN  0
-#define SL_BOARD_ENABLE_DISPLAY_PORT 0
+#define SL_BOARD_ENABLE_DISPLAY_PIN  RTE_MEMLCD_ENABLE_DISPLAY_PIN
+#define SL_BOARD_ENABLE_DISPLAY_PORT RTE_MEMLCD_ENABLE_DISPLAY_PORT
 
 #define CMD_UPDATE    0x01
 #define CMD_ALL_CLEAR 0x04
@@ -312,7 +312,6 @@ sl_status_t sl_memlcd_post_wakeup_init(void)
   if (status != SL_STATUS_OK) {
     return SL_STATUS_FAIL;
   }
-
   return SL_STATUS_OK;
 }
 

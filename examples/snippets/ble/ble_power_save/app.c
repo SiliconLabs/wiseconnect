@@ -55,7 +55,7 @@
 //!    Application powersave configurations
 /*=======================================================================*/
 #if ENABLE_POWER_SAVE
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 void fpuInit(void);
@@ -136,7 +136,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_GATT_INIT
 #endif
                       ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 const osThreadAttr_t thread_attributes = {

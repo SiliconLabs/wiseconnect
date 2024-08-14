@@ -170,7 +170,7 @@ static const sl_wifi_device_configuration_t
                   | SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)
 #endif
                     ),
-               .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP) } };
+               .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) } };
 
 const osThreadAttr_t thread_attributes = {
   .name       = "application_thread",

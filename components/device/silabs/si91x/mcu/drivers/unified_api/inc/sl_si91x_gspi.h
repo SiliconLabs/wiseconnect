@@ -197,10 +197,11 @@ sl_status_t sl_si91x_gspi_deinit(sl_gspi_handle_t gspi_handle);
  * - The configurations are listed below:
  *   - swap_read (enable/disable)
  *   - swap_write (enable/disable)
- *   - bit_width (8_bit/16_bit)
+ *   - bit_width (1-16 bits)
  *   - clock_mode (mode0/mode3)
  *   - slave_select_mode (hw_output/sw)
  *   - bitrate 
+ * @note Swap Read and Swap Write can be used only if the bit_width is configured as 16.
  * @pre Pre-conditions:
  *      - \ref sl_si91x_gspi_configure_clock 
  *      - \ref sl_si91x_gspi_init 

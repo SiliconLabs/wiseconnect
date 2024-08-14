@@ -37,34 +37,34 @@
 - template_contribution:
   # Default Memory configuration
   - name: device_flash_addr
-    value: 136060928 # 0x081C 2000
+    value: 136323072 # 0x0820 2000
     priority: -1
     condition:
       - si917_mem_config_1
   - name: device_flash_size
-    value: 450560 # 0x0006 E000
+    value: 2088960 # 0x001F E000
     priority: -1
     condition:
       - si917_mem_config_1
   # Medium Memory configuration
   - name: device_flash_addr
-    value: 136060928 # 0x081C 2000
+    value: 136323072 # 0x0820 2000
     priority: -1
     condition:
       - si917_mem_config_2
   - name: device_flash_size
-    value: 450560 # 0x0006 E000
+    value: 2088960 # 0x001F E000
     priority: -1
     condition:
       - si917_mem_config_2
   # Advanced Memory configuration
   - name: device_flash_addr
-    value: 136060928 # 0x081C 2000
+    value: 136323072 # 0x0820 2000
     priority: -1
     condition:
       - si917_mem_config_3
   - name: device_flash_size
-    value: 450560 # 0x0006 E000
+    value: 2088960 # 0x001F E000
     priority: -1
     condition:
       - si917_mem_config_3

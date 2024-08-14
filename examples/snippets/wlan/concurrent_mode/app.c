@@ -35,10 +35,23 @@
 #include "sl_wifi.h"
 #include "sl_net_wifi_types.h"
 #include "sl_wifi_callback_framework.h"
+#include "socket.h"
+#include "sl_si91x_socket_support.h"
+#include "sl_si91x_socket_constants.h"
+#include "sl_si91x_socket.h"
+#include "sl_si91x_socket_utility.h"
 
 /******************************************************
  *                      Macros
  ******************************************************/
+// Type of throughput
+#define UDP_TX 0
+#define UDP_RX 1
+#define TCP_TX 2
+#define TCP_RX 3
+
+#define THROUGHPUT_TYPE UDP_TX
+
 #define WIFI_CLIENT_PROFILE_SSID "YOUR_AP_SSID"
 #define WIFI_CLIENT_CREDENTIAL   "YOUR_AP_PASSPHRASE"
 
@@ -60,9 +73,45 @@
 //! E.g: 0x0A0AA8C0 == 192.168.10.10
 #define DEFAULT_WIFI_GATEWAY_ADDRESS 0x0A0AA8C0
 
+#define SOCKET_ASYNC_FEATURE 1
+
+// Memory length for send buffer
+#define TCP_BUFFER_SIZE 1460
+#define UDP_BUFFER_SIZE 1470
+#if ((THROUGHPUT_TYPE == UDP_RX) || (THROUGHPUT_TYPE == UDP_TX))
+#define BUFFER_SIZE UDP_BUFFER_SIZE
+#elif ((THROUGHPUT_TYPE == TCP_RX) || (THROUGHPUT_TYPE == TCP_TX))
+#define BUFFER_SIZE TCP_BUFFER_SIZE
+#endif
+#define SERVER_IP "192.168.0.175"
+
+// Server port number
+#define SERVER_PORT 5000
+
+// Module port number
+#define LISTENING_PORT 5005
+#define BACK_LOG       1
+
+#define AP_VAP 1
+
+#define BYTES_TO_SEND    (1 << 29) // 512MB
+#define BYTES_TO_RECEIVE (1 << 28) //256MB
+#define TEST_TIMEOUT     (30000)   // 10sec
+
+#define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
+#define LISTEN_ON_AP_INTERFACE     0
 /******************************************************
  *               Variable Definitions
  ******************************************************/
+uint8_t ap_vap = AP_VAP;
+uint8_t data_buffer[BUFFER_SIZE];
+sl_ip_address_t ip_address           = { 0 };
+sl_net_wifi_client_profile_t profile = { 0 };
+uint8_t has_data_received            = 0;
+uint32_t bytes_read                  = 0;
+uint32_t start                       = 0;
+uint32_t now                         = 0;
+uint8_t first_data_frame             = 1;
 
 const osThreadAttr_t thread_attributes = {
   .name       = "app",
@@ -138,13 +187,43 @@ sl_net_wifi_psk_credential_entry_t wifi_client_credential = { .type        = SL_
 sl_net_wifi_psk_credential_entry_t wifi_ap_credential = { .type        = SL_NET_WIFI_PSK,
                                                           .data_length = sizeof(WIFI_AP_CREDENTIAL) - 1,
                                                           .data        = WIFI_AP_CREDENTIAL };
+/*****************************************************
+ *                      Socket configuration
+*****************************************************/
+#define TOTAL_SOCKETS                   1  //@ Total number of sockets. TCP TX + TCP RX + UDP TX + UDP RX
+#define TOTAL_TCP_SOCKETS               1  //@ Total TCP sockets. TCP TX + TCP RX
+#define TOTAL_UDP_SOCKETS               0  //@ Total UDP sockets. UDP TX + UDP RX
+#define TCP_TX_ONLY_SOCKETS             0  //@ Total TCP TX only sockets. TCP TX
+#define TCP_RX_ONLY_SOCKETS             1  //@ Total TCP RX only sockets. TCP RX
+#define UDP_TX_ONLY_SOCKETS             0  //@ Total UDP TX only sockets. UDP TX
+#define UDP_RX_ONLY_SOCKETS             0  //@ Total UDP RX only sockets. UDP RX
+#define TCP_RX_HIGH_PERFORMANCE_SOCKETS 1  //@ Total TCP RX High Performance sockets
+#define TCP_RX_WINDOW_SIZE_CAP          44 //@ TCP RX Window size
+#define TCP_RX_WINDOW_DIV_FACTOR        44 //@ TCP RX Window division factor
+
+static sl_si91x_socket_config_t socket_config = {
+  TOTAL_SOCKETS,                   // Total sockets
+  TOTAL_TCP_SOCKETS,               // Total TCP sockets
+  TOTAL_UDP_SOCKETS,               // Total UDP sockets
+  TCP_TX_ONLY_SOCKETS,             // TCP TX only sockets
+  TCP_RX_ONLY_SOCKETS,             // TCP RX only sockets
+  UDP_TX_ONLY_SOCKETS,             // UDP TX only sockets
+  UDP_RX_ONLY_SOCKETS,             // UDP RX only sockets
+  TCP_RX_HIGH_PERFORMANCE_SOCKETS, // TCP RX high performance sockets
+  TCP_RX_WINDOW_SIZE_CAP,          // TCP RX window size
+  TCP_RX_WINDOW_DIV_FACTOR         // TCP RX window division factor
+};
 /******************************************************
  *               Function Declarations
  ******************************************************/
-
+void receive_data_from_tcp_client(void);
+void send_data_to_tcp_server(void);
+void receive_data_from_udp_client(void);
+void send_data_to_udp_server(void);
 static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
 static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
 static void application_start(void *argument);
+static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout);
 
 /******************************************************
  *               Function Definitions
@@ -153,6 +232,43 @@ void app_init(const void *unused)
 {
   UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
+}
+
+static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout)
+{
+  float duration = ((test_timeout) / 1000);             // ms to sec
+  float result   = (total_num_of_bytes * 8) / duration; // bytes to bits
+  result         = (result / 1000000);                  // bps to Mbps
+  printf("\r\nThroughput achieved @ %0.02f Mbps in %0.03f sec successfully\r\n", result, duration);
+}
+
+void data_callback(uint32_t sock_no,
+                   uint8_t *buffer,
+                   uint32_t length,
+                   const sl_si91x_socket_metadata_t *firmware_socket_response)
+{
+  UNUSED_PARAMETER(buffer);
+  UNUSED_PARAMETER(firmware_socket_response);
+
+  if (first_data_frame) {
+    start = osKernelGetTickCount();
+    printf("\r\nClient Socket ID : %ld\r\n", sock_no);
+    switch (THROUGHPUT_TYPE) {
+      case UDP_RX:
+        printf("\r\nUDP_RX Throughput test start\r\n");
+        break;
+      case TCP_RX:
+        printf("\r\nTCP_RX Throughput test start\r\n");
+        break;
+    }
+    first_data_frame = 0;
+  }
+
+  bytes_read += length;
+  now = osKernelGetTickCount();
+  if ((bytes_read > BYTES_TO_RECEIVE) || ((now - start) > TEST_TIMEOUT)) {
+    has_data_received = 1;
+  }
 }
 
 static void application_start(void *argument)
@@ -192,6 +308,17 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi Client interface up\r\n");
 
+  status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &profile);
+  if (status != SL_STATUS_OK) {
+    printf("Failed to get client profile: 0x%lx\r\n", status);
+    return;
+  }
+  printf("\r\nSuccess to get client profile\r\n");
+
+  ip_address.type = SL_IPV4;
+  memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
+  print_sl_ip_address(&ip_address);
+
   status = sl_net_init(SL_NET_WIFI_AP_INTERFACE, &sl_wifi_default_concurrent_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
     printf("\r\nFailed to start Wi-Fi AP interface: 0x%lx\r\n", status);
@@ -217,6 +344,12 @@ static void application_start(void *argument)
   }
   printf("\r\nSuccess to set AP profile \r\n");
 
+  ip_address.type = SL_IPV4;
+  memcpy(&ip_address.ip.v4.bytes, &wifi_ap_profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
+
+  printf("\r\n IP Address of AP:");
+  print_sl_ip_address(&ip_address);
+
   status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
                                  wifi_ap_credential.type,
                                  &wifi_ap_credential.data,
@@ -233,6 +366,26 @@ static void application_start(void *argument)
     return;
   }
   printf("\r\nAP started\r\n");
+
+  for (size_t i = 0; i < sizeof(data_buffer); i++)
+    data_buffer[i] = 'A' + (i % 26);
+
+  switch (THROUGHPUT_TYPE) {
+    case TCP_RX:
+      receive_data_from_tcp_client();
+      break;
+    case TCP_TX:
+      send_data_to_tcp_server();
+      break;
+    case UDP_RX:
+      receive_data_from_udp_client();
+      break;
+    case UDP_TX:
+      send_data_to_udp_server();
+      break;
+    default:
+      printf("Invalid Throughput test");
+  }
 
   while (1) {
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
@@ -268,4 +421,224 @@ static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *da
   printf("\n");
 
   return SL_STATUS_OK;
+}
+
+void send_data_to_tcp_server(void)
+{
+  int client_socket                 = -1;
+  uint32_t total_bytes_sent         = 0;
+  int socket_return_value           = 0;
+  int sent_bytes                    = 1;
+  struct sockaddr_in server_address = { 0 };
+  socklen_t socket_length           = sizeof(struct sockaddr_in);
+  server_address.sin_family         = AF_INET;
+  server_address.sin_port           = SERVER_PORT;
+  sl_net_inet_addr(SERVER_IP, &server_address.sin_addr.s_addr);
+
+  client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (client_socket < 0) {
+    printf("\r\nSocket Create failed with bsd error: %d\r\n", errno);
+    return;
+  }
+  printf("\r\nSocket ID : %d\r\n", client_socket);
+
+  socket_return_value = connect(client_socket, (struct sockaddr *)&server_address, socket_length);
+  if (socket_return_value < 0) {
+    printf("\r\nSocket Connect failed with bsd error: %d\r\n", errno);
+    close(client_socket);
+    return;
+  }
+  printf("\r\nSocket connected to TCP server\r\n");
+
+  printf("\r\nTCP_TX Throughput test start\r\n");
+  start = osKernelGetTickCount();
+  while (total_bytes_sent < BYTES_TO_SEND) {
+    sent_bytes = send(client_socket, data_buffer, TCP_BUFFER_SIZE, 0);
+    now        = osKernelGetTickCount();
+
+    if (sent_bytes < 0) {
+      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      break;
+    }
+    total_bytes_sent = total_bytes_sent + sent_bytes;
+
+    if ((now - start) > TEST_TIMEOUT) {
+      printf("\r\nTime Out: %ld\r\n", (now - start));
+      break;
+    }
+  }
+  printf("\r\nTCP_TX Throughput test finished\r\n");
+  printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
+
+  measure_and_print_throughput(total_bytes_sent, (now - start));
+
+  close(client_socket);
+}
+void receive_data_from_tcp_client(void)
+{
+  int server_socket                 = -1;
+  int client_socket                 = -1;
+  int socket_return_value           = 0;
+  struct sockaddr_in server_address = { 0 };
+  socklen_t socket_length           = sizeof(struct sockaddr_in);
+  uint8_t high_performance_socket   = SL_HIGH_PERFORMANCE_SOCKET;
+
+  sl_status_t status = sl_si91x_config_socket(socket_config);
+  if (status != SL_STATUS_OK) {
+    printf("Socket config failed: %ld\r\n", status);
+  }
+  printf("\r\nSocket config Done\r\n");
+
+#if SOCKET_ASYNC_FEATURE
+  server_socket = sl_si91x_socket_async(AF_INET, SOCK_STREAM, IPPROTO_TCP, &data_callback);
+  if (server_socket < 0) {
+    printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
+    return;
+  }
+  printf("\r\nServer Socket ID : %d\r\n", server_socket);
+
+  socket_return_value = sl_si91x_setsockopt_async(server_socket,
+                                                  SOL_SOCKET,
+                                                  SL_SI91X_SO_HIGH_PERFORMANCE_SOCKET,
+                                                  &high_performance_socket,
+                                                  sizeof(high_performance_socket));
+  if (socket_return_value < 0) {
+    printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
+    close(client_socket);
+    return;
+  }
+
+#if LISTEN_ON_AP_INTERFACE
+  socket_return_value =
+    sl_si91x_setsockopt_async(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+#endif
+  server_address.sin_family = AF_INET;
+  server_address.sin_port   = LISTENING_PORT;
+
+  socket_return_value = sl_si91x_bind(server_socket, (struct sockaddr *)&server_address, socket_length);
+  if (socket_return_value < 0) {
+    printf("\r\nSocket bind failed with bsd error: %d\r\n", errno);
+    close(server_socket);
+    return;
+  }
+
+  socket_return_value = sl_si91x_listen(server_socket, BACK_LOG);
+  if (socket_return_value < 0) {
+    printf("\r\nSocket listen failed with bsd error: %d\r\n", errno);
+    close(server_socket);
+    return;
+  }
+  printf("\r\nListening on Local Port : %d\r\n", LISTENING_PORT);
+
+  client_socket = sl_si91x_accept(server_socket, NULL, 0);
+  if (client_socket < 0) {
+    printf("\r\nSocket accept failed with bsd error: %d\r\n", errno);
+    close(server_socket);
+    return;
+  }
+
+  while (!has_data_received) {
+    osThreadYield();
+  }
+
+  now = osKernelGetTickCount();
+
+  printf("\r\nTCP_RX Throughput test finished\r\n");
+  printf("\r\nTotal bytes received : %ld\r\n", bytes_read);
+
+  close(server_socket);
+  close(client_socket);
+
+  measure_and_print_throughput(bytes_read, (now - start));
+#endif
+}
+
+void send_data_to_udp_server(void)
+{
+  int client_socket                 = -1;
+  uint32_t total_bytes_sent         = 0;
+  struct sockaddr_in server_address = { 0 };
+  socklen_t socket_length           = sizeof(struct sockaddr_in);
+  int sent_bytes                    = 1;
+  server_address.sin_family         = AF_INET;
+  server_address.sin_port           = SERVER_PORT;
+  sl_net_inet_addr(SERVER_IP, &server_address.sin_addr.s_addr);
+
+  client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if (client_socket < 0) {
+    printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
+    return;
+  }
+  printf("\r\nSocket ID : %d\r\n", client_socket);
+
+  printf("\r\nUDP_TX Throughput test start\r\n");
+  start = osKernelGetTickCount();
+  while (total_bytes_sent < BYTES_TO_SEND) {
+    sent_bytes =
+      sendto(client_socket, data_buffer, UDP_BUFFER_SIZE, 0, (struct sockaddr *)&server_address, socket_length);
+    now = osKernelGetTickCount();
+    if ((now - start) > TEST_TIMEOUT) {
+      printf("\r\nTime Out: %ld\r\n", (now - start));
+      break;
+    }
+    if (sent_bytes < 0) {
+      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      break;
+    }
+    total_bytes_sent = total_bytes_sent + sent_bytes;
+
+    printf("\r\nUDP_TX Throughput test finished\r\n");
+    printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
+
+    measure_and_print_throughput(total_bytes_sent, (now - start));
+
+    close(client_socket);
+  }
+}
+void receive_data_from_udp_client(void)
+{
+  int client_socket = -1;
+
+  int socket_return_value           = 0;
+  struct sockaddr_in server_address = { 0 };
+  socklen_t socket_length           = sizeof(struct sockaddr_in);
+
+#if SOCKET_ASYNC_FEATURE
+  client_socket = sl_si91x_socket_async(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &data_callback);
+  if (client_socket < 0) {
+    printf("\r\nSocket creation failed with bsd error: %d\r\n", errno);
+    return;
+  }
+  printf("\r\nSocket ID : %d\r\n", client_socket);
+
+#if LISTEN_ON_AP_INTERFACE
+  socket_return_value =
+    sl_si91x_setsockopt_async(client_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+#endif
+
+  server_address.sin_family = AF_INET;
+  server_address.sin_port   = LISTENING_PORT;
+
+  socket_return_value = sl_si91x_bind(client_socket, (struct sockaddr *)&server_address, socket_length);
+
+  if (socket_return_value < 0) {
+    printf("\r\nSocket bind failed with bsd error: %d\r\n", errno);
+    close(client_socket);
+    return;
+  }
+  printf("\r\nListening on Local Port %d\r\n", LISTENING_PORT);
+
+  while (!has_data_received) {
+    osThreadYield();
+  }
+  now = osKernelGetTickCount();
+  printf("\r\nUDP_RX Async Throughput test finished\r\n");
+  printf("\r\nTotal bytes received : %ld\r\n", bytes_read);
+
+  measure_and_print_throughput(bytes_read, (now - start));
+
+  close(client_socket);
+#endif
 }

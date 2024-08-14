@@ -80,7 +80,8 @@ static void notify_power_state_transition(sl_power_state_t from, sl_power_state_
 /*******************************************************************************
 ***********************  Global function Definitions *************************
  ******************************************************************************/
-
+bool sli_si91x_is_sdk_ok_to_sleep();
+bool sli_si91x_ta_packet_initiated_to_m4(void);
 /*******************************************************************************
  * Initializes the Power Manager Service.
  * If service is not already initialized, then initialize the linked list and
@@ -217,9 +218,6 @@ sl_status_t sl_si91x_power_manager_sleep(void)
 {
   sl_status_t status;
 
-#ifdef SL_SLEEP_TIMER
-  RSI_PS_SetWkpSources(SYSRTC_BASED_WAKEUP);
-#endif
   if (!sli_si91x_power_manager_is_valid_transition(current_state, SL_SI91X_POWER_MANAGER_SLEEP)) {
     // Validates the state transition for sleep, if invalid returns error code.
     return SL_STATUS_INVALID_STATE;
@@ -229,9 +227,11 @@ sl_status_t sl_si91x_power_manager_sleep(void)
     // returns error code.
     return SL_STATUS_NOT_INITIALIZED;
   }
+#if (SL_SI91X_TICKLESS_MODE == 0)
   if (!sl_si91x_power_manager_is_ok_to_sleep()) {
     return SL_STATUS_BUSY;
   }
+#endif
   do {
     // Internal function to change active mode to sleep mode is called.
     // It sets the required configurations and goes into sleep mode.
@@ -515,7 +515,7 @@ static void notify_power_state_transition(sl_power_state_t from, sl_power_state_
  * @return  True, if the system should actually sleep.
  *          False, if not.
  *
- * @note This is the fallback implementation of the callback, it can be
+ * @note This is the fall back implementation of the callback, it can be
  *       overridden by the application or other components.
  ******************************************************************************/
 boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
@@ -524,8 +524,9 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
 #if (configUSE_TICKLESS_IDLE == 1)
   sl_wifi_performance_profile_t pm_ta_performance_profile;
   sl_wifi_get_performance_profile(&pm_ta_performance_profile);
-  if (SL_SI91X_POWER_MANAGER_SLEEP == sl_si91x_get_lowest_ps()) {
-    if (pm_ta_performance_profile.profile != STANDBY_POWER_SAVE) {
+  if (pm_ta_performance_profile.profile != STANDBY_POWER_SAVE) {
+    if ((SL_SI91X_POWER_MANAGER_SLEEP == sl_si91x_get_lowest_ps()) && (sli_si91x_is_sdk_ok_to_sleep())
+        && (sli_si91x_ta_packet_initiated_to_m4())) {
       is_sleep_ready = true;
     } else {
     }
@@ -535,6 +536,7 @@ boolean_t sl_si91x_power_manager_is_ok_to_sleep(void)
 #endif
   return is_sleep_ready;
 }
+
 /***************************************************************************/ /**
 * Returns the Lowest possible power state from the requirement table.
 * It validates all the power state requirements and return the lowest possible state transition.

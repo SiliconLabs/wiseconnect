@@ -53,14 +53,14 @@
 #define RSI_EXT_CUSTOM_FEATURE_BIT_MAP SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
 #endif
 #else
-#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
+#define RSI_EXT_CUSTOM_FEATURE_BIT_MAP SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #endif
 
 //! To set Extended TCPIP feature select bit map
 #define RSI_EXT_TCPIP_FEATURE_BITMAP (EXT_FEAT_HTTP_OTAF_SUPPORT | EXT_TCP_IP_SSL_16K_RECORD)
 //! Extended custom feature is selected internally
 //! SoC         -- SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
-//! NCP         -- SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
+//! NCP         -- SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 /*=======================================================================*/
 //! Feature frame parameters
 /*=======================================================================*/

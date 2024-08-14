@@ -55,6 +55,11 @@
 #include "rsi_rom_table_RS1xxxx.h"
 #endif
 
+#if SL_WIFI_COMPONENT_INCLUDED
+#include "sl_rsi_utility.h"
+#include "rsi_m4.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -97,7 +102,20 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllClkEnable(boolean_t clkEnable)
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(M4CLK_Type *pCLK,uint32_t socPllFreq,uint32_t pllRefClk)
+ * @fn          STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOn()
+ * @brief       This API is used to TurnOn the SOC_PLL
+ * @return      returns zero \ref RSI_OK  on success ,on failure return error code.
+ */
+STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOn()
+{
+#if defined(CLOCK_ROMDRIVER_PRESENT)
+  return ROMAPI_M4SS_CLK_API->clk_soc_pll_turn_on();
+#else
+  return clk_soc_pll_turn_on();
+#endif
+}
+/**
+ * @fn          STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(const M4CLK_Type *pCLK,uint32_t socPllFreq,uint32_t pllRefClk)
  * @brief		    This API is used to set the Soc PLL clock to particular frequency
  * @param[in]	  pCLK : Pointer to the pll register instance
  * @param[in]	  socPllFreq : Frequency value in Mhz for Soc_Pll_Clk .
@@ -105,15 +123,22 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllClkEnable(boolean_t clkEnable)
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  * @note        Only 1Mhz steps applicable to the this API, 0.96Mhz steps are not supported
  */
-STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
+STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(const M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk)
 {
   rsi_error_t ret             = (rsi_error_t)0;
   system_clocks.soc_pll_clock = socPllFreq;
 
-  if (pllRefClk == 32000000UL) {
-    /* Selecting the PLL reference clock */
-    /* 0 - XTAL_CLK, 1 - Reserved, 2 - RC_32MHZ_CLK, 3 - Reserved */
-    PLL_REF_CLK_CONFIG_REG |= (0x02 << 14); // Selecting the 32 MHz RC as SOC-PLL reference clock
+  if (pllRefClk == RC_32MHZ_CLK_FREQ) {
+    PLL_REF_CLK_CONFIG_REG |= SELECT_RC_MHZ_CLOCK; // Selecting the 32 MHz RC as SOC-PLL reference clock
+  }
+
+  if (pllRefClk == XTAL_CLK_FREQ) //avoid if XTAL req is already done
+  {
+#if SL_WIFI_COMPONENT_INCLUDED
+    /*  Notify TA that M4 requires XTAL clock source  */
+    sli_si91x_xtal_turn_on_request_from_m4_to_TA();
+#endif
+    PLL_REF_CLK_CONFIG_REG &= SELECT_XTAL_MHZ_CLOCK; // Selecting the XTAL as PLL reference clock
   }
 
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG9) = 0xD900;
@@ -145,7 +170,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(M4CLK_Type *pCLK, uint32_t socPl
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t RSI_CLK_SocPllSetFreqDiv(M4CLK_Type *pCLK , boolean_t clk_en,uint16_t
+ * @fn          STATIC INLINE rsi_error_t RSI_CLK_SocPllSetFreqDiv(const M4CLK_Type *pCLK , boolean_t clk_en,uint16_t
  *                                 divFactor,uint16_t nFactor,uint16_t mFactor,uint16_t fCwf,
  *                                uint16_t dcofixsel,uint16_t ldoprog)
  * @brief		    This API is used to configure the SOC PLL clock frequency
@@ -162,7 +187,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(M4CLK_Type *pCLK, uint32_t socPl
  *              - For 201-250Mhz ---> ldo_prog =5 and dco_fix_sel=0
  *              - For >=251Mhz ---> ldo_prog =5 and dco_fix_sel=2
  */
-STATIC INLINE rsi_error_t RSI_CLK_SocPllSetFreqDiv(M4CLK_Type *pCLK,
+STATIC INLINE rsi_error_t RSI_CLK_SocPllSetFreqDiv(const M4CLK_Type *pCLK,
                                                    boolean_t clk_en,
                                                    uint16_t divFactor,
                                                    uint16_t nFactor,
@@ -180,12 +205,12 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllSetFreqDiv(M4CLK_Type *pCLK,
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t RSI_CLK_SocPllClkSet(M4CLK_Type *pCLK)
+ * @fn          STATIC INLINE rsi_error_t RSI_CLK_SocPllClkSet(const M4CLK_Type *pCLK)
  * @brief		    This API is used to Enables the SoC-PLL
  * @param[in]	  pCLK : Pointer to the pll register instance
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  */
-STATIC INLINE rsi_error_t RSI_CLK_SocPllClkSet(M4CLK_Type *pCLK)
+STATIC INLINE rsi_error_t RSI_CLK_SocPllClkSet(const M4CLK_Type *pCLK)
 {
 #if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_clk_set(pCLK);
@@ -253,20 +278,6 @@ STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOff()
   return ROMAPI_M4SS_CLK_API->clk_soc_pll_turn_off();
 #else
   return clk_soc_pll_turn_off();
-#endif
-}
-
-/**
- * @fn          STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOn()
- * @brief		    This API is used to TurnOn the SOC_PLL
- * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
- */
-STATIC INLINE rsi_error_t RSI_CLK_SocPllTurnOn()
-{
-#if defined(CLOCK_ROMDRIVER_PRESENT)
-  return ROMAPI_M4SS_CLK_API->clk_soc_pll_turn_on();
-#else
-  return clk_soc_pll_turn_on();
 #endif
 }
 
@@ -348,16 +359,20 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllTurnOn()
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(M4CLK_Type *pCLK,uint32_t i2sPllFreq, uint32_t fXtal)
+ * @fn          STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(const M4CLK_Type *pCLK,uint32_t i2sPllFreq, uint32_t fXtal)
  * @brief		    This API is used to set the I2s_pll clock to particular frequency
  * @param[in]	  pCLK : Pointer to the pll register instance
  * @param[in]	  i2sPllFreq : Frequency value in Mhz for I2S_PLL Clk .
  * @param[in]	  fXtal : Frequency value in Mhz for crystal oscillator frequency.
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  */
-STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
+STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal)
 {
-  system_clocks.i2s_pll_clock        = i2sPllFreq;
+  system_clocks.i2s_pll_clock = i2sPllFreq;
+#if SL_WIFI_COMPONENT_INCLUDED
+  /*  Notify TA that M4 requires XTAL clock source */
+  sli_si91x_xtal_turn_on_request_from_m4_to_TA();
+#endif
   SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG9) = 0xD900;
 #if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_set_i2s_pll_freq(pCLK, i2sPllFreq, fXtal);
@@ -367,7 +382,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(M4CLK_Type *pCLK, uint32_t i2sPl
 }
 
 /**
- * @fn          	STATIC INLINE rsi_error_t RSI_CLK_I2sPllSetFreqDiv(M4CLK_Type *pCLK,uint16_t u16DivFactor1,
+ * @fn          	STATIC INLINE rsi_error_t RSI_CLK_I2sPllSetFreqDiv(const M4CLK_Type *pCLK,uint16_t u16DivFactor1,
  *	                                               uint16_t u16DivFactor2,uint16_t nFactor,uint16_t mFactor,
  *                                                 uint16_t fcwF)
  * @brief		    This API is used to divide I2s_PLL Clock
@@ -379,7 +394,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(M4CLK_Type *pCLK, uint32_t i2sPl
  * @param[in]	  fcwF : Fractional Frequency Control Word.
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  */
-STATIC INLINE rsi_error_t RSI_CLK_I2sPllSetFreqDiv(M4CLK_Type *pCLK,
+STATIC INLINE rsi_error_t RSI_CLK_I2sPllSetFreqDiv(const M4CLK_Type *pCLK,
                                                    uint16_t u16DivFactor1,
                                                    uint16_t u16DivFactor2,
                                                    uint16_t nFactor,
@@ -394,12 +409,12 @@ STATIC INLINE rsi_error_t RSI_CLK_I2sPllSetFreqDiv(M4CLK_Type *pCLK,
 }
 
 /**
- * @fn   	      STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkSet(M4CLK_Type *pCLK)
+ * @fn   	      STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkSet(const M4CLK_Type *pCLK)
  * @brief		    This API is used to set the I2s_pll_clk
  * @param[in]	  pCLK : Pointer to the pll register instance
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  */
-STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkSet(M4CLK_Type *pCLK)
+STATIC INLINE rsi_error_t RSI_CLK_I2sPllClkSet(const M4CLK_Type *pCLK)
 {
 #if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_i2s_pll_clk_set(pCLK);
@@ -470,7 +485,7 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPLLTurnOff()
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(M4CLK_Type *pCLK,uint32_t intfPllFreq,uint32_t pllRefClk)
+ * @fn          STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(const M4CLK_Type *pCLK,uint32_t intfPllFreq,uint32_t pllRefClk)
  * @brief		    This API is used to set the INTFPLL clock to particular frequency
  * @param[in]	  pCLK : Pointer to the pll register instance
  * @param[in]	  intfPllFreq : Frequency value in Mhz for INTFPLL Clk .
@@ -478,11 +493,22 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPLLTurnOff()
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  * @note        Only 1Mhz steps applicable to the this API, 0.96Mhz steps are not supported
  */
-STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
+STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk)
 {
   rsi_error_t error            = (rsi_error_t)0;
   system_clocks.intf_pll_clock = intfPllFreq;
 
+  if (pllRefClk == RC_32MHZ_CLK_FREQ) {
+    PLL_REF_CLK_CONFIG_REG |= SELECT_RC_MHZ_CLOCK; // Selecting the 32 MHz RC as SOC-PLL reference clock
+  }
+#if SL_WIFI_COMPONENT_INCLUDED
+  if (pllRefClk == XTAL_CLK_FREQ) //avoid if XTAL req is already done
+  {
+    /*  Notify TA that M4 requires XTAL clock source */
+    sli_si91x_xtal_turn_on_request_from_m4_to_TA();
+    PLL_REF_CLK_CONFIG_REG &= SELECT_XTAL_MHZ_CLOCK; // Selecting the XTAL as PLL reference clock
+  }
+#endif
   SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG9) = 0xD900;
 #if defined(CLOCK_ROMDRIVER_PRESENT)
   error = ROMAPI_M4SS_CLK_API->clk_set_intf_pll_freq(pCLK, intfPllFreq, pllRefClk);
@@ -510,7 +536,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(M4CLK_Type *pCLK, uint32_t intf
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t  RSI_CLK_IntfPllSetFreqDiv(M4CLK_Type *pCLK , boolean_t clk_en,
+ * @fn          STATIC INLINE rsi_error_t  RSI_CLK_IntfPllSetFreqDiv(const M4CLK_Type *pCLK , boolean_t clk_en,
  *	                                               uint16_t divFactor,uint16_t nFactor,uint16_t mFactor,
  *	                                               uint16_t fcwF,uint16_t dcoFixSel,uint16_t ldoProg)
  * @brief		    This API is used to divide the Intf PLL clock frequency
@@ -527,7 +553,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(M4CLK_Type *pCLK, uint32_t intf
  *              - For 201-250Mhz ---> ldo_prog =5 and dco_fix_sel=0
  *              - For >=251Mhz ---> ldo_prog =5 and dco_fix_sel=2
  */
-STATIC INLINE rsi_error_t RSI_CLK_IntfPllSetFreqDiv(M4CLK_Type *pCLK,
+STATIC INLINE rsi_error_t RSI_CLK_IntfPllSetFreqDiv(const M4CLK_Type *pCLK,
                                                     boolean_t clk_en,
                                                     uint16_t divFactor,
                                                     uint16_t nFactor,
@@ -590,12 +616,12 @@ STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkReset()
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t  RSI_CLK_IntfPllClkSet(M4CLK_Type *pCLK)
+ * @fn          STATIC INLINE rsi_error_t  RSI_CLK_IntfPllClkSet(const M4CLK_Type *pCLK)
  * @brief		    This API is used to Enables the Intf-PLL
  * @param[in]	  pCLK : Pointer to the pll register instance
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  */
-STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkSet(M4CLK_Type *pCLK)
+STATIC INLINE rsi_error_t RSI_CLK_IntfPllClkSet(const M4CLK_Type *pCLK)
 {
 #if defined(CLOCK_ROMDRIVER_PRESENT)
   return ROMAPI_M4SS_CLK_API->clk_intf_pll_clk_set(pCLK);
@@ -1039,14 +1065,20 @@ STATIC INLINE rsi_error_t RSI_ULPSS_DisableRefClks(REF_CLK_ENABLE_T clk_type)
 }
 
 /**
- * @fn          STATIC INLINE rsi_error_t  RSI_CLK_M4ssRefClkConfig(M4CLK_Type *pCLK ,M4SS_REF_CLK_SEL_T clkSource)
+ * @fn          STATIC INLINE rsi_error_t  RSI_CLK_M4ssRefClkConfig(const M4CLK_Type *pCLK ,M4SS_REF_CLK_SEL_T clkSource)
  * @brief		    This API is used to configure the m4ss_ref clocks
  * @param[in]	  pCLK : Pointer to the pll register instance
  * @param[in]   clkSource : Enum values of different M4 ref source clocks \ref M4SS_REF_CLK_SEL_T
  * @return 		  returns zero \ref RSI_OK  on success ,on failure return error code.
  */
-STATIC INLINE rsi_error_t RSI_CLK_M4ssRefClkConfig(M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
+STATIC INLINE rsi_error_t RSI_CLK_M4ssRefClkConfig(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T clkSource)
 {
+#if SL_WIFI_COMPONENT_INCLUDED
+  if (clkSource == RF_REF_CLK) {
+    /*  Notify TA that M4 requires XTAL clock source */
+    sli_si91x_xtal_turn_on_request_from_m4_to_TA();
+  }
+#endif
   return clk_m4ss_ref_clk_config(pCLK, clkSource);
 }
 

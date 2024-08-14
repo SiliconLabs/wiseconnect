@@ -120,7 +120,7 @@ static const sl_wifi_device_configuration_t twt_client_configuration = {
                      | (SL_SI91X_EXT_FEAT_HTTP_OTAF_SUPPORT | SL_SI91X_EXT_TCP_IP_SSL_16K_RECORD),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
-                   .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+                   .config_feature_bit_map  = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 /******************************************************
@@ -227,8 +227,12 @@ void switch_m4_frequency(void)
 }
 #endif
 
-void data_callback(uint32_t sock_no, uint8_t *buffer, uint32_t length)
+void data_callback(uint32_t sock_no,
+                   uint8_t *buffer,
+                   uint32_t length,
+                   const sl_si91x_socket_metadata_t *firmware_socket_response)
 {
+  UNUSED_PARAMETER(firmware_socket_response);
   UNUSED_PARAMETER(sock_no);
   uint32_t i;
 
@@ -360,7 +364,7 @@ void application_start()
   printf("Enabled Broadcast Data Filter\r\n");
 
 #if ENABLE_POWER_SAVE
-  performance_profile.profile = ASSOCIATED_POWER_SAVE;
+  performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
   status                      = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);

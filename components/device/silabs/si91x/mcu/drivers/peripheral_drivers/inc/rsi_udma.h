@@ -316,14 +316,14 @@ STATIC INLINE void RSI_UDMA_UDMADisable(RSI_UDMA_HANDLE_T pHandle)
 
 /*===================================================*/
 /**
- * @fn          uint8_t RSI_UDMA_ErrorStatusGet(RSI_UDMA_T *pUDMA)
+ * @fn          uint8_t RSI_UDMA_ErrorStatusGet(const RSI_UDMA_T *pUDMA)
  * @brief		This API is used to get the error status/sets the signal low of UDMA.
  * @param[in]	pUDMA     : Pointer to the UDMA instance register area
  * @return 		Returns error status as below
  *              - 0 : Error is LOW
  *              - 1 : Error is HIGH
  */
-STATIC INLINE uint8_t RSI_UDMA_ErrorStatusGet(RSI_UDMA_T *pUDMA)
+STATIC INLINE uint8_t RSI_UDMA_ErrorStatusGet(const RSI_UDMA_T *pUDMA)
 {
   return (pUDMA->ERR_CLR_b.ERR_CLR);
 }
@@ -530,13 +530,13 @@ RSI_UDMA_CAPABILITIES_T RSI_UDMA_GetCapabilities(void);
 
 RSI_UDMA_HANDLE_T udma_init(void *mem, const RSI_UDMA_INIT_T *pInit);
 
-uint32_t udma_get_channel_transfer_mode(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+uint32_t udma_get_channel_transfer_mode(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
 rsi_error_t udma_setup_channel_transfer(RSI_UDMA_HANDLE_T pHandle,
-                                        RSI_UDMA_CHA_CFG_T *pCfg,
+                                        const RSI_UDMA_CHA_CFG_T *pCfg,
                                         RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
                                         void *pSrcAddr,
-                                        void *pDstAddr);
+                                        volatile void *pDstAddr);
 
 rsi_error_t udma_set_channel_scatter_gather_transfer(RSI_UDMA_HANDLE_T pHandle,
                                                      uint8_t dmaCh,
@@ -545,19 +545,19 @@ rsi_error_t udma_set_channel_scatter_gather_transfer(RSI_UDMA_HANDLE_T pHandle,
                                                      uint32_t transferType);
 
 uint32_t udma_get_channel_transfer_length(RSI_UDMA_HANDLE_T pHandle,
-                                          RSI_UDMA_CHA_CFG_T *pCfg,
+                                          const RSI_UDMA_CHA_CFG_T *pCfg,
                                           RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData);
 
-rsi_error_t udma_setup_channel(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+rsi_error_t udma_setup_channel(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
-void udma_deInit(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+void udma_deInit(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
 void udma_interrupt_handler(RSI_UDMA_HANDLE_T pHandle);
 
 rsi_error_t udma_interrupt_enable(RSI_UDMA_HANDLE_T pHandle, uint8_t dmaCh);
-rsi_error_t RSI_UDMA_ChannelControlsDisable(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+rsi_error_t RSI_UDMA_ChannelControlsDisable(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 void RSI_UDMA_SetSingleRequest(RSI_UDMA_HANDLE_T pHandle);
-void RSI_UDMA_AckEnable(RSI_UDMA_HANDLE_T pHandle, uint32_t peripheral);
+void RSI_UDMA_AckEnable(const void *pHandle, uint32_t peripheral);
 
 #ifdef __cplusplus
 }

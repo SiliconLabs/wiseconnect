@@ -163,3 +163,7 @@
       component: "%extension-wiseconnect3_sdk%board_configuration_headers"
       file_id: sl_board_control
     path: brd4343a/sl_board_control.h
+  - override:
+      component: "%extension-wiseconnect3_sdk%board_configuration_headers"
+      file_id: pin_config
+    path: brd4343a/pin_config.h

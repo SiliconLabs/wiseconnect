@@ -115,7 +115,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //  Define the following macro to set xExpectedIdleTime to 0
 //  if the application prevents the device Sleep
-#define configPRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING(x) sl_si91x_pre_supress_ticks_and_sleep(&x)
+#define configPRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING(x)
 
 //  Activate SiWx917 MCU specific low power functionality
 #define configPRE_SLEEP_PROCESSING(x)

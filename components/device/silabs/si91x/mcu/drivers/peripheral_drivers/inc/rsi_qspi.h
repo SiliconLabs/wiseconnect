@@ -537,8 +537,6 @@ struct qspi_reg_s {
 #define CHK_DUAL_MODE (spi_config->spi_config_1.data_mode == DUAL_MODE)
 #define CHK_OCTA_MODE (spi_config->spi_config_1.data_mode == OCTA_MODE)
 
-//#define IS_QSPI_IN_OCTA              (((qspi_reg->QSPI_BUS_MODE_REG & 0x6) >> 1) == OCTA_MODE)
-
 // Macro to provide protection byte for SST
 #define SST_PROTECTION ((spi_config->spi_config_2.protection == EN_WR_PROT) ? 0xFF : 0)
 // Macro to provide protection byte for WB

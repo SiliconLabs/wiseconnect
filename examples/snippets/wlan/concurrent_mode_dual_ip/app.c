@@ -26,7 +26,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- ******************************da************************************************/
+ ******************************************************************************/
 
 #include "sl_net.h"
 #include "cmsis_os2.h"
@@ -151,7 +151,7 @@ static sl_si91x_socket_config_t socket_config = {
 //! IP address of Gateway
 #define DEFAULT_WIFI_AP_GATEWAY6_ADDRESS "2001:db8:0:1::121"
 
-static const sl_net_wifi_client_profile_t wifi_client_profile_4 = {
+static const sl_net_wifi_client_profile_t wifi_client_profile = {
     .config = {
         .ssid.value = WIFI_CLIENT_PROFILE_SSID,
         .ssid.length = sizeof(WIFI_CLIENT_PROFILE_SSID)-1,
@@ -167,37 +167,14 @@ static const sl_net_wifi_client_profile_t wifi_client_profile_4 = {
     },
     .ip = {
         .mode = SL_IP_MANAGEMENT_DHCP,
-        .type = SL_IPV4,
+        .type = (SL_IPV4|SL_IPV6),
         .host_name = NULL,
         .ip = {{{0}}},
 
     }
 };
 
-static const sl_net_wifi_client_profile_t wifi_client_profile_6 = {
-    .config = {
-        .ssid.value = WIFI_CLIENT_PROFILE_SSID,
-        .ssid.length = sizeof(WIFI_CLIENT_PROFILE_SSID)-1,
-        .channel.channel = SL_WIFI_AUTO_CHANNEL,
-        .channel.band = SL_WIFI_AUTO_BAND,
-        .channel.bandwidth = SL_WIFI_AUTO_BANDWIDTH,
-        .bssid = {{0}},
-        .bss_type = SL_WIFI_BSS_TYPE_INFRASTRUCTURE,
-        .security = WIFI_CLIENT_SECURITY_TYPE,
-        .encryption = WIFI_CLIENT_ENCRYPTION_TYPE,
-        .client_options = 0,
-        .credential_id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-    },
-    .ip = {
-        .mode = SL_IP_MANAGEMENT_DHCP,
-        .type = SL_IPV6,
-        .host_name = NULL,
-        .ip = {{{0}}},
-
-    }
-};
-
-static sl_net_wifi_ap_profile_t wifi_ap_profile_4 = {
+static sl_net_wifi_ap_profile_t wifi_ap_profile = {
     .config = {
         .ssid.value = WIFI_AP_PROFILE_SSID,
         .ssid.length = sizeof(WIFI_AP_PROFILE_SSID)-1,
@@ -219,35 +196,7 @@ static sl_net_wifi_ap_profile_t wifi_ap_profile_4 = {
     },
     .ip = {
         .mode = SL_IP_MANAGEMENT_STATIC_IP,
-        .type = SL_IPV4,
-        .host_name = NULL,
-        .ip = {{{0}}},
-    }
-};
-
-static sl_net_wifi_ap_profile_t wifi_ap_profile_6 = {
-    .config = {
-        .ssid.value = WIFI_AP_PROFILE_SSID,
-        .ssid.length = sizeof(WIFI_AP_PROFILE_SSID)-1,
-        .channel.channel = SL_WIFI_AUTO_CHANNEL,
-        .channel.band = SL_WIFI_AUTO_BAND,
-        .channel.bandwidth = SL_WIFI_AUTO_BANDWIDTH,
-        .security = SL_WIFI_WPA2,
-        .encryption = SL_WIFI_CCMP_ENCRYPTION,
-        .rate_protocol = SL_WIFI_RATE_PROTOCOL_AUTO,
-        .options = 0,
-        .credential_id = SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
-        .keepalive_type = SL_SI91X_AP_NULL_BASED_KEEP_ALIVE,
-        .beacon_interval = 100,
-        .client_idle_timeout = 0xFF,
-        .dtim_beacon_count = 3,
-        .maximum_clients = 3,
-        .is_11n_enabled = 0,
-        .beacon_stop = 0,
-    },
-    .ip = {
-        .mode = SL_IP_MANAGEMENT_STATIC_IP,
-        .type = SL_IPV6,
+        .type = (SL_IPV4|SL_IPV6),
         .host_name = NULL,
         .ip = {{{0}}},
     }
@@ -311,21 +260,13 @@ static void application_start(void *argument)
         sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
         sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
 
-        //  Keeping the station ipv4 record in profile_id_0
-        status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_client_profile_4);
+        //  Client profile set
+        status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_client_profile);
         if (status != SL_STATUS_OK) {
           printf("\r\nFailed to set client profile: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nWi-Fi set client profile v4 success\r\n");
-
-        //  Keeping the station ipv6 record in profile_id_1
-        status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_client_profile_6);
-        if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set client profile: 0x%lx\r\n", status);
-          return;
-        }
-        printf("\r\nWi-Fi set client profile v6 success\r\n");
+        printf("\r\nWi-Fi set client profile success\r\n");
 
         status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
                                        wifi_client_credential.type,
@@ -335,57 +276,32 @@ static void application_start(void *argument)
           printf("Failed to set credentials: 0x%lx\r\n", status);
           return;
         }
-        printf("\nWi-Fi set credential success\n");
+        printf("\r\nWi-Fi set credential success\r\n");
 
-        //  Station ipv4 config using profile_id_0
+        //  STA Scan, Connect and IPv4 + IPv6 config
         status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0);
         if (status != SL_STATUS_OK) {
           printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nIPv4 address configuration is done\r\n");
+        printf("\r\nWi-Fi client interface successful\r\n");
 
         status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &profile);
         if (status != SL_STATUS_OK) {
-          printf("Failed to get client_v4 profile: 0x%lx\r\n", status);
+          printf("\r\nFailed to get client profile: 0x%lx", status);
           return;
         }
 
-        if (profile.ip.type == SL_IPV4) {
+        if (profile.ip.type & SL_IPV4) {
           ip_address.type = SL_IPV4;
           memcpy(&ip_address.ip.v4.bytes, &profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
           printf("\r\nClient IPv4 : ");
           print_sl_ip_address(&ip_address);
+          printf("\r\n");
         }
 
-        //  Station ipv6 config using profile_id_1
-        status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &profile);
-        if (status != SL_STATUS_OK) {
-          printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
-          return;
-        }
-
-        status = sl_si91x_configure_ip_address(&profile.ip, SL_SI91X_WIFI_CLIENT_VAP_ID);
-        if (status != SL_STATUS_OK) {
-          printf("\r\nIPv6 address configuration is failed : 0x%lx\r\n", status);
-          return;
-        }
-        printf("\r\nIPv6 address configuration is done\r\n");
-
-        status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &profile);
-        if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set client profile: 0x%lx\r\n", status);
-          return;
-        }
-
-        status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_1, &profile);
-        if (status != SL_STATUS_OK) {
-          printf("Failed to get client_v6 profile: 0x%lx\r\n", status);
-          return;
-        }
-        printf("\r\nClient IPv6 : ");
-
-        if (profile.ip.type == SL_IPV6) {
+        if (profile.ip.type & SL_IPV6) {
+          printf("\r\nClient IPv6 : ");
           sl_ip_address_t link_local_address = { 0 };
           link_local_address.ip.v6           = profile.ip.ip.v6.link_local_address;
           link_local_address.type            = SL_IPV6;
@@ -424,9 +340,9 @@ static void application_start(void *argument)
         }
         printf("\r\nWi-Fi AP interface init\r\n");
 
-        sl_net_inet_addr(DEFAULT_WIFI_AP_MODULE_IP4_ADDRESS, (uint32_t *)&wifi_ap_profile_4.ip.ip.v4.ip_address.bytes);
-        sl_net_inet_addr(DEFAULT_WIFI_AP_NS_MODULE_IP4_ADDRESS, (uint32_t *)&wifi_ap_profile_4.ip.ip.v4.netmask.bytes);
-        sl_net_inet_addr(DEFAULT_WIFI_AP_GATEWAY4_ADDRESS, (uint32_t *)&wifi_ap_profile_4.ip.ip.v4.gateway.bytes);
+        sl_net_inet_addr(DEFAULT_WIFI_AP_MODULE_IP4_ADDRESS, (uint32_t *)&wifi_ap_profile.ip.ip.v4.ip_address.bytes);
+        sl_net_inet_addr(DEFAULT_WIFI_AP_NS_MODULE_IP4_ADDRESS, (uint32_t *)&wifi_ap_profile.ip.ip.v4.netmask.bytes);
+        sl_net_inet_addr(DEFAULT_WIFI_AP_GATEWAY4_ADDRESS, (uint32_t *)&wifi_ap_profile.ip.ip.v4.gateway.bytes);
 
         return_value = sl_inet_pton6(DEFAULT_WIFI_AP_MODULE_IP6_ADDRESS,
                                      DEFAULT_WIFI_AP_MODULE_IP6_ADDRESS + strlen(DEFAULT_WIFI_AP_MODULE_IP6_ADDRESS),
@@ -445,8 +361,8 @@ static void application_start(void *argument)
           return;
         }
 
-        memcpy(wifi_ap_profile_6.ip.ip.v6.global_address.value, ip_addr, sizeof(sl_ipv6_address_t));
-        memcpy(wifi_ap_profile_6.ip.ip.v6.gateway.value, gateway, sizeof(sl_ipv6_address_t));
+        memcpy(wifi_ap_profile.ip.ip.v6.global_address.value, ip_addr, sizeof(sl_ipv6_address_t));
+        memcpy(wifi_ap_profile.ip.ip.v6.gateway.value, gateway, sizeof(sl_ipv6_address_t));
 
         if (state == AP_NEXT) {
           status = sl_wifi_get_channel(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &client_channel);
@@ -456,26 +372,18 @@ static void application_start(void *argument)
           }
           printf("\r\nSuccess to get client channel\r\n");
 
-          wifi_ap_profile_4.config.channel.channel = client_channel.channel;
-          wifi_ap_profile_6.config.channel.channel = client_channel.channel;
+          wifi_ap_profile.config.channel.channel = client_channel.channel;
         } else if (state == AP_FIRST) {
-          wifi_ap_profile_4.config.channel.channel = CHANNEL_NO;
-          wifi_ap_profile_6.config.channel.channel = CHANNEL_NO;
+          wifi_ap_profile.config.channel.channel = CHANNEL_NO;
         }
 
-        status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_ap_profile_4);
+        //  AP profile set
+        status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_ap_profile);
         if (status != SL_STATUS_OK) {
           printf("\r\nFailed to set AP profile: 0x%lx\r\n", status);
           return;
         }
-        printf("\r\nSuccess to set AP v4 profile \r\n");
-
-        status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_ap_profile_6);
-        if (status != SL_STATUS_OK) {
-          printf("\r\nFailed to set AP profile: 0x%lx\r\n", status);
-          return;
-        }
-        printf("\r\nSuccess to set AP v6 profile \r\n");
+        printf("\r\nWi-Fi set AP profile success\r\n");
 
         status = sl_net_set_credential(SL_NET_USER_CREDENTIAL_ID,
                                        wifi_ap_credential.type,
@@ -485,56 +393,49 @@ static void application_start(void *argument)
           printf("Failed to set credentials: 0x%lx\r\n", status);
           return;
         }
-        printf("\nWi-Fi set credential success\n");
+        printf("\r\nWi-Fi set credential success\r\n");
 
-        status = sl_si91x_configure_ip_address(&wifi_ap_profile_4.ip, SL_SI91X_WIFI_AP_VAP_ID);
+        //  AP IPv4 + IPv6 config and AP Start
+        status = sl_net_up(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_0);
         if (status != SL_STATUS_OK) {
-          printf("\r\nIPv4 address configuration is failed : 0x%lx\r\n", status);
+          printf("Failed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
           return;
         }
 
-        status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_ap_profile_4);
+        status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_ap_profile);
+        if (status != SL_STATUS_OK) {
+          printf("Failed to get AP profile: 0x%lx\r\n", status);
+          return;
+        }
 
-        if (wifi_ap_profile_4.ip.type == SL_IPV4) {
+        if (wifi_ap_profile.ip.type & SL_IPV4) {
           ip_address.type = SL_IPV4;
           printf("\r\nAP IPv4 : ");
-          memcpy(&ip_address.ip.v4.bytes, &wifi_ap_profile_4.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
+          memcpy(&ip_address.ip.v4.bytes, &wifi_ap_profile.ip.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
           print_sl_ip_address(&ip_address);
+          printf("\r\n");
         }
 
-        status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_PROFILE_ID_1, &wifi_ap_profile_6);
-
-        status = sl_si91x_configure_ip_address(&wifi_ap_profile_6.ip, SL_SI91X_WIFI_AP_VAP_ID);
-        if (status != SL_STATUS_OK) {
-          printf("\r\nIPv6 address configuration is failed : 0x%lx\r\n", status);
-          return;
-        }
-
-        printf("\r\nAP IPv6 : ");
-        if (wifi_ap_profile_6.ip.type == SL_IPV6) {
+        if (wifi_ap_profile.ip.type & SL_IPV6) {
+          printf("\r\nAP IPv6 : ");
           sl_ip_address_t link_local_address = { 0 };
-          link_local_address.ip.v6           = wifi_ap_profile_6.ip.ip.v6.link_local_address;
+          link_local_address.ip.v6           = wifi_ap_profile.ip.ip.v6.link_local_address;
           link_local_address.type            = SL_IPV6;
           printf("\nLink Local Address: ");
           print_sl_ip_address(&link_local_address);
           sl_ip_address_t global_address = { 0 };
-          global_address.ip.v6           = wifi_ap_profile_6.ip.ip.v6.global_address;
+          global_address.ip.v6           = wifi_ap_profile.ip.ip.v6.global_address;
           global_address.type            = SL_IPV6;
           printf("Global Address: ");
           print_sl_ip_address(&global_address);
 
           sl_ip_address_t gateway = { 0 };
-          gateway.ip.v6           = wifi_ap_profile_6.ip.ip.v6.gateway;
+          gateway.ip.v6           = wifi_ap_profile.ip.ip.v6.gateway;
           gateway.type            = SL_IPV6;
           printf("Gateway Address: ");
           print_sl_ip_address(&gateway);
         }
 
-        status = sl_wifi_start_ap(SL_WIFI_AP_2_4GHZ_INTERFACE, &wifi_ap_profile_4.config);
-        if (status != SL_STATUS_OK) {
-          printf("Ap start fail: 0x%lx\r\n", status);
-          return;
-        }
         printf("\r\nAP started\r\n");
 
         if (state == AP_ALONE) {
@@ -550,10 +451,10 @@ static void application_start(void *argument)
         for (size_t i = 0; i < sizeof(data_buffer); i++)
           data_buffer[i] = 'A' + (i % 26);
 
-        printf("\r\nSending UDP Data over IPv6 on STA VAP");
+        printf("\r\nSending UDP Data over IPv6 on STA VAP\r\n");
         send_data_to_udp_server();
 
-        printf("\r\nReceving TCP Data over IPv4 on AP VAP");
+        printf("\r\nReceving TCP Data over IPv4 on AP VAP\r\n");
         receive_data_from_tcp_client();
         state = QUIT;
         break;
@@ -697,8 +598,6 @@ void send_data_to_udp_server(void)
   int sent_bytes                      = 1;
   uint32_t start                      = 0;
   uint32_t now                        = 0;
-  uint32_t fail                       = 0;
-  uint32_t pass                       = 0;
 
   client_socket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
   if (client_socket < 0) {
@@ -725,24 +624,20 @@ void send_data_to_udp_server(void)
     sent_bytes =
       sendto(client_socket, data_buffer, UDP_BUFFER_SIZE, 0, (struct sockaddr *)&server_address6, socket_length);
     now = osKernelGetTickCount();
+    if (sent_bytes < 0) {
+      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      close(client_socket);
+      break;
+    }
+    total_bytes_sent = total_bytes_sent + sent_bytes;
 
     if ((now - start) > TEST_TIMEOUT) {
       printf("\r\nTime Out: %ld\r\n", (now - start));
       break;
     }
-
-    if (sent_bytes < 0) {
-      fail++;
-    } else {
-      pass++;
-    }
-
-    if (sent_bytes > 0)
-      total_bytes_sent = total_bytes_sent + sent_bytes;
   }
   printf("\r\nUDP_TX Throughput test finished\r\n");
   printf("\r\nTotal bytes sent : %ld\r\n", total_bytes_sent);
-  printf("\r\nSend fail count : %ld, Send pass count : %ld\r\n", fail, pass);
 
   close(client_socket);
 }

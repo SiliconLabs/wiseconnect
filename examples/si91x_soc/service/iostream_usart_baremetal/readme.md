@@ -34,13 +34,13 @@ This application is configured with the following configs:
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A]
+- Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+  - The Serial Console setup instructions are provided [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 

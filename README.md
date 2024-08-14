@@ -28,7 +28,7 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
 
   - See the [Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started) section to run your first example.
   - See the [Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples) section to explore all the available examples.
-  - See our [Migration Guide](docs/software-reference/developer-guides/migrating-from-v3-2-0.md) for information on porting your WiSeConnect v3.2.0 application to WiSeConnect v3.3.0
+  - See our [Migration Guide](docs/software-reference/developer-guides/migrating-from-v3-3-0.md) for information on porting your WiSeConnect v3.3.0 application to WiSeConnect v3.3.1
   - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
   - [SiWG917 – TA Flash Memory Map Change Guide](https://www.silabs.com/Wi-Fi_H&L_Apps/Wi-Fi_H&L_Apps_SoC/SiWG917%E2%80%93TA_Flash_Memory_Map_Change_Guide_v1.3.pdf)

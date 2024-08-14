@@ -30,6 +30,7 @@ The coex application has WLAN and BLE tasks and acts as an interface between Sma
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4339B [SiWx917-RB4339B]
   	  - BRD4340A [SiWx917-RB4340A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -38,18 +39,22 @@ The coex application has WLAN and BLE tasks and acts as an interface between Sma
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
-        
+  - Interface and Host MCU Supported
+    - SPI - EFR32 
+       
 - Wireless Access Point
 - Smart phone/tablet with BLE Application (Ex: Light Blue / BLE Connect App)
-- Windows PC with iperf and openssl applications.
+- Windows PC with iPerf and openssl applications.
 
 ### Software Requirements
 
   - Simplicity Studio
-  - Download and install iperf from this link [Iperf Application](https://iperf.fr/iperf-download.php).
+  - Download and install iPerf from this link [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
 
   - Download and install OpenSSL from this link [OpenSSL](http://ufpr.dl.sourceforge.net/project/gnuwin32/openssl/0.9.8h-1/openssl-0.9.8h-1-bin.zip) to download openssl in remote PC.
 

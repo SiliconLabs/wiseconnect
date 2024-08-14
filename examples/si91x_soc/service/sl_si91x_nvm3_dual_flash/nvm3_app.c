@@ -124,7 +124,7 @@ static void nvm3_app_write(uint32_t key, unsigned char *data)
       break;
     }
 
-    len = DATA_SIZE;
+    len = strlen((const char *)data);
 
     // check for NVM3 Maximum object size
     if (len > NVM3_DEFAULT_MAX_OBJECT_SIZE) {

@@ -34,13 +34,14 @@
 /************************************************************************************
  *************************  DEFINES / MACROS  ***************************************
  ************************************************************************************/
-#define MANUAL_LOCK            1    // Manual lock enable
-#define BYPASS_MANUAL_LOCK     1    // Bypass manual lock enable
-#define SOC_PLL_MM_COUNT_LIMIT 0xA4 // Soc pll count limit
-#define DIVISION_FACTOR        0    // Division factor
-#define QSPI_ODD_DIV_ENABLE    0    // Odd division enable for QSPI clock
-#define QSPI_SWALLO_ENABLE     0    // Swallo enable for QSPI clock
-#define QSPI_DIVISION_FACTOR   0    // Division factor for QSPI clock
+#define MANUAL_LOCK            1                       // Manual lock enable
+#define BYPASS_MANUAL_LOCK     1                       // Bypass manual lock enable
+#define SOC_PLL_MM_COUNT_LIMIT 0xA4                    // Soc pll count limit
+#define DIVISION_FACTOR        0                       // Division factor
+#define QSPI_ODD_DIV_ENABLE    0                       // Odd division enable for QSPI clock
+#define QSPI_SWALLO_ENABLE     0                       // Swallo enable for QSPI clock
+#define QSPI_DIVISION_FACTOR   0                       // Division factor for QSPI clock
+#define PLL_PREFETCH_LIMIT     ((uint32_t)(120000000)) // 120 MHz Limit for pll clock
 /************************************************************************************
  *************************  LOCAL VARIABLES  ****************************************
  ************************************************************************************/
@@ -127,6 +128,11 @@ sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pl
   M4CLK_Type *pCLK         = M4CLK;
   rsi_error_t error_status = RSI_OK;
   sl_status_t status;
+
+  // Configure the registers for clock more than 120 MHz in PS4
+  if (pll_ref_clk >= PLL_PREFETCH_LIMIT) {
+    RSI_PS_PS4SetRegisters();
+  }
 
   switch (pll_type) {
     case SOC_PLL:

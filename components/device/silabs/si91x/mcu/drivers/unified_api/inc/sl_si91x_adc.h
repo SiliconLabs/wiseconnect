@@ -48,7 +48,6 @@ extern "C" {
 typedef adc_ch_config_t sl_adc_channel_config_t;     ///< Renamed ADC channel configuration structure
 typedef adc_config_t sl_adc_config_t;                ///< Renamed ADC configuration structure
 typedef adc_inter_config_t sl_adc_internal_config_t; ///< Renamed ADC internal configuration structure
-typedef adc_extr_config_t sl_adc_external_config_t;  ///< Renamed ADC external trigger configuration structure
 
 /***************************************************************************/ /**
 * Typedef for user supplied callback function, which is called when ADC sample completes
@@ -91,40 +90,6 @@ typedef enum {
   SL_ADC_MULTI_CHNL  = DYNAMIC_MODE_EN, ///< Dynamic mode enable
   SL_ADC_CHANNEL_TYPE_LAST,             ///< Last member of enum for validation
 } sl_adc_channel_type_typedef_t;
-
-/// @brief Enumeration for ADC external trigger type
-typedef enum {
-  SL_ULP_TIMER_EXT_TRIGGER = ULP_TIMER_EXT_TRIGGER, ///< ULP timer external trigger type
-  SL_ULP_GPIO_EXT_TRIGGER  = ULP_GPIO_EXT_TRIGGER,  ///< ULP gpio external trigger type
-  SL_M4_CT_EXT_TRIGGER     = M4_CT_EXT_TRIGGER,     ///< M4 CT external trigger type
-  SL_ADC_EXT_TRIGGER_TYPE_LAST,                     ///< Last member of enum for validation
-} sl_adc_ext_trigger_type_t;
-
-/// @brief Enumeration for ADC external trigger number
-typedef enum {
-  SL_ADC_EXT_TRIGGER_1 = DETECTION1, ///< External trigger detection 1
-  SL_ADC_EXT_TRIGGER_2 = DETECTION2, ///< External trigger detection 2
-  SL_ADC_EXT_TRIGGER_3 = DETECTION3, ///< External trigger detection 3
-  SL_ADC_EXT_TRIGGER_4 = DETECTION4, ///< External trigger detection 4
-  SL_ADC_EXT_TRIGGER_LAST,           ///< Last member of enum for validation
-} sl_adc_ext_trigger_num_t;
-
-/// @brief Enumeration for ADC external trigger edge selection
-typedef enum {
-  SL_ADC_EXT_TRIGGER_POS_EDGE     = POSITIVE_EDGE, ///< External trigger positive edge
-  SL_ADC_EXT_TRIGGER_NEG_EDGE     = NEGATIVE_EDGE, ///< External trigger negative edge
-  SL_ADC_EXT_TRIGGER_POS_NEG_EDGE = POS_NEG_EDGE,  ///< External trigger positive and negative edge
-  SL_ADC_EXT_TRIGGER_EDGE_LAST,                    ///< Last member of enum for validation
-} sl_adc_ext_trigger_edge_t;
-
-/// @brief Enumeration for ADC external trigger selection
-typedef enum {
-  SL_ADC_EXT_TRIGGER_SEL_1 = EXT_TRIGGER_SEL1, ///< External trigger selection 1
-  SL_ADC_EXT_TRIGGER_SEL_2 = EXT_TRIGGER_SEL2, ///< External trigger selection 2
-  SL_ADC_EXT_TRIGGER_SEL_3 = EXT_TRIGGER_SEL3, ///< External trigger selection 3
-  SL_ADC_EXT_TRIGGER_SEL_4 = EXT_TRIGGER_SEL4, ///< External trigger selection 4
-  SL_ADC_EXT_TRIGGER_SEL_LAST,                 ///< Last member of enum for validation
-} sl_adc_ext_trigger_sel_t;
 
 /// @brief Enumeration for ADC channel.
 typedef enum {
@@ -269,27 +234,6 @@ sl_status_t sl_si91x_adc_register_event_callback(sl_adc_callback_t callback_even
 void sl_si91x_adc_unregister_event_callback(void);
 
 /***************************************************************************/ /**
- * @brief Configure the ADC external trigger.
- * @details Triggers can be used in PS4 State to collect samples from a predefined channel.
- * ADC can provide a sample for the selected trigger if the trigger matches.
- * There are three external triggers enabled by 
- *  - ULPSS Timer Interrupts 
- *  - ULPSS GPIOs
- *  - M4SS Configuration Timer. 
- * The trigger match can be verified by reading the \ref sl_si91x_adc_get_external_trigger_status.
- * @pre Pre-conditions:
- * - \ref sl_si91x_adc_configure_clock
- * - \ref sl_si91x_adc_init
- * - \ref sl_si91x_adc_set_channel_configuration
- * @param[in] adc_external_trigger  :  ADC external trigger configuration structure variable.
- * @return status 0 if successful, else error code as follow
- *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- ******************************************************************************/
-sl_status_t sl_si91x_adc_configure_external_trigger(sl_adc_external_config_t adc_external_trigger);
-
-/***************************************************************************/ /**
  * @brief Configure the ADC sampling rate for the ADC channels.
  * @details It adjusts the channel offset and frequency for each channel to determine the sample rate. 
  * To meet the Nyquist sampling rate criteria, the channel swallow factor must be not less than '3'. 
@@ -303,42 +247,6 @@ sl_status_t sl_si91x_adc_configure_external_trigger(sl_adc_external_config_t adc
  ******************************************************************************/
 sl_status_t sl_si91x_adc_configure_channel_sampling_rate(sl_adc_internal_config_t adc_internal_config,
                                                          uint8_t channel_num);
-
-/***************************************************************************/ /**
- * @brief  This API will provide the status of an external trigger.
- * @details This will read the status of an external trigger and update in the ext_trigger.
- * @pre Pre-conditions:
- * - \ref sl_si91x_adc_configure_clock
- * - \ref sl_si91x_adc_init
- * - \ref sl_si91x_adc_set_channel_configuration
- * - \ref sl_si91x_adc_configure_external_trigger
- * @param[in]  adc_external_trigger  :  ADC external trigger configuration structure variable.
- * @param[out]  ext_trigger           :  The status of external trigger will be store in this.
- * @return status 0 if successful, else error code as follow
- *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- ******************************************************************************/
-sl_status_t sl_si91x_adc_get_external_trigger_status(sl_adc_external_config_t adc_external_trigger,
-                                                     uint8_t *ext_trigger);
-
-/***************************************************************************/ /**
- * @brief Clear the ADC external trigger.
- * @details After reading the trigger match, use the \ref sl_si91x_adc_clear_external_trigger 
- * API to clear a specific trigger.
- * @pre Pre-conditions:
- * - \ref sl_si91x_adc_configure_clock
- * - \ref sl_si91x_adc_init
- * - \ref sl_si91x_adc_set_channel_configuration
- * - \ref sl_si91x_adc_configure_external_trigger
- * - \ref sl_si91x_adc_register_event_callback
- * - \ref sl_si91x_adc_star
- * @param[in]  adc_external_trigger  :  ADC external trigger configuration structure variable.
- * @return status 0 if successful, else error code as follow
- *         - SL_STATUS_OK (0x0000) - Success 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
- ******************************************************************************/
-sl_status_t sl_si91x_adc_clear_external_trigger(sl_adc_external_config_t adc_external_trigger);
 
 /***************************************************************************/ /**
  * @brief Configure the ADC ping and pong memory location and length.

@@ -32,6 +32,14 @@
 #include "sl_si91x_i2c.h"
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
+/*******************************************************************************
+ ***************************  Defines / Macros  ********************************
+ ******************************************************************************/
+#define SENSITIVITY_LOW  1
+#define SENSITIVITY_HIGH 0
+#define GAIN_NORMAL      1
+#define GAIN_DOUBLE      2
+#define GAIN_QUADRULPLE  4
 /***************************************************************************/ /**
  * Local prototypes
  ******************************************************************************/
@@ -61,17 +69,22 @@ sl_status_t sl_si91x_veml6035_init(sl_i2c_instance_t i2c_instance, uint8_t addr,
   // Do not access sensor too early following power-up
   sl_sleeptimer_delay_millisecond(10);
 
+  // Reset the sensor
   status = sl_si91x_veml6035_reset(i2c_instance, addr);
   if (status != SL_STATUS_OK) {
     return status;
   }
 
   // Configure to lowest sensitivity (highest range)
-  status = sl_si91x_veml6035_configure_sensitivity(i2c_instance, addr, true, 1);
+  status = sl_si91x_veml6035_configure_sensitivity(i2c_instance, addr, SENSITIVITY_LOW, GAIN_NORMAL);
   if (status != SL_STATUS_OK) {
     return status;
   }
 
+  // Configure the integration time
+  sl_si91x_veml6035_configure_integration_time(i2c_instance, addr, SL_VEML6035_ALS_IT_100MS);
+
+  // Enable white channel if required
   if (white_enable) {
     status = veml6035_write_register_field(i2c_instance,
                                            addr,
@@ -83,6 +96,7 @@ sl_status_t sl_si91x_veml6035_init(sl_i2c_instance_t i2c_instance, uint8_t addr,
     }
   }
 
+  // Enable sensor
   status = sl_si91x_veml6035_enable_sensor(i2c_instance, addr, true);
 
   return status;
@@ -499,6 +513,9 @@ static sl_status_t veml6035_read_register(sl_i2c_instance_t i2c_instance, uint8_
   uint8_t i2c_write_data[write_buffer_size];
   uint8_t i2c_read_data[read_buffer_size];
 
+  // Enable repeated start for data transfer
+  sl_i2c_driver_enable_repeated_start(i2c_instance, true);
+
   // Validate invalid parameters
   if ((i2c_instance >= SL_I2C_LAST) || (reg >= SL_VEML6035_IF)) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -514,7 +531,10 @@ static sl_status_t veml6035_read_register(sl_i2c_instance_t i2c_instance, uint8_
   if (status != SL_STATUS_OK) {
     return status;
   }
-  wait_till_i2c_gets_idle(I2C_BASE);
+
+  // Disable repeated start for the cycle
+  sl_i2c_driver_enable_repeated_start(i2c_instance, false);
+
   // Receive response for user register 1/ heater control register command from sensor
   status = sl_i2c_driver_receive_data_blocking(i2c_instance, addr, i2c_read_data, read_buffer_size);
   if (status != SL_STATUS_OK) {

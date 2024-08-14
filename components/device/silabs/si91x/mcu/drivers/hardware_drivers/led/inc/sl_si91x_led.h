@@ -49,7 +49,7 @@ void sl_si91x_led_init(const sl_led_t *handle);
  * Atomically wraps an XOR or a similar operation for a 
  * single GPIO pin connected to an LED to toggle the LED.
  *
- * @param[in] pin  LED pin for the LED to be toggled.
+ * @param[in] pin  GPIO pin connected to the LED to be toggled.
  *
  * @return none
  *
@@ -59,7 +59,7 @@ void sl_si91x_led_toggle(uint8_t pin);
 /***************************************************************************/ /**
  * Sets a GPIO pin connected to an LED to turn the LED on.
  *
- * @param[in] pin  LED pin for the LED to turn on.
+ * @param[in] pin  GPIO pin connected to the LED to be set.
  *
  * @return none
  *
@@ -69,7 +69,7 @@ void sl_si91x_led_set(uint8_t pin);
 /***************************************************************************/ /**
  * Clears a GPIO pin connected to an LED to turn the LED off.
  *
- * @param[in] pin  LED pin for the LED to turn off.
+ * @param[in] pin  GPIO pin connected to the LED to be cleared.
  *
  * @return none
  *

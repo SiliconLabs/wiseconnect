@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-- This application contains an example code to demonstrate the GPIO/LED toggle functionality
+This application contains an example code to demonstrate the use of RGB-LED.
 
 ## Prerequisites/Setup Requirements
 
@@ -44,13 +44,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Configure the following parameters in rgb_led.c file, update/modify following macro if required.
 
   ```C
-    #define RGB_COLOUR 0xFFFFFF//  configured for white colour by default 
+  #define RGB_COLOUR 0xFFFFFF//  configured for white colour by default 
   ```   
   ```C
-    #define TICK_DELAY 1// configured delay for PWM simulation (1 TICK_DELAY = 30.5 us)
+  #define TICK_DELAY 1// configured delay for PWM simulation (1 TICK_DELAY = 30.5 us)
   ``` 
   ```C
-    #define PULSE_PERIOD (TICK_DELAY * 0xFF)//  configured total delay for the PWM cycle (Dependant on TICK_DELAY)
+  #define PULSE_PERIOD (TICK_DELAY * 0xFF)//  configured total delay for the PWM cycle (Dependant on TICK_DELAY)
   ``` 
 
 ## Test the Application

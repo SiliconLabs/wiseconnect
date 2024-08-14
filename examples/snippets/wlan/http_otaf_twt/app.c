@@ -247,7 +247,7 @@ int twt_active_session               = 0;
 int power_save_enabled               = 0;
 volatile bool response               = false;
 volatile sl_status_t callback_status = SL_STATUS_OK;
-sl_si91x_twt_response_t *twt_response;
+sl_si91x_twt_response_t twt_response;
 
 /******************************************************
  *               Function Declarations
@@ -264,25 +264,10 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
                                         uint32_t result_length,
                                         void *arg);
 static sl_status_t clear_and_load_certificates_in_flash(void);
-void soft_reset(void);
-void on_timeout_callback(void);
-void watchdog_timer_init(void);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
-
-void soft_reset(void)
-{
-  watchdog_timer_init();
-}
-
-void on_timeout_callback(void)
-{
-  SL_DEBUG_LOG("\r\nIn handler\r\n");
-  return;
-}
-
 void app_init(const void *unused)
 {
   UNUSED_PARAMETER(unused);
@@ -416,7 +401,7 @@ sl_status_t http_otaf_app()
   printf("\r\nTWT Config Done\r\n");
 
   if (twt_active_session == 1) {
-    status = sl_wifi_reschedule_twt(twt_response->twt_flow_id, SL_WIFI_SUSPEND_INDEFINITELY, 0);
+    status = sl_wifi_reschedule_twt(twt_response.twt_flow_id, SL_WIFI_SUSPEND_INDEFINITELY, 0);
     if (status != SL_STATUS_OK) {
       printf("\r\nSuspending TWT Failed: 0x%lx \r\n", status);
       return status;
@@ -502,7 +487,7 @@ sl_status_t http_otaf_app()
   print_firmware_version(&version);
 #else
   printf("\r\nSoC Soft Reset initiated!\r\n");
-  sl_si91x_soc_soft_reset();
+  sl_si91x_soc_nvic_reset();
 #endif
 
   return status;
@@ -532,7 +517,7 @@ sl_status_t set_twt(void)
   printf("\r\nEnabled Broadcast Data Filter\n");
 
   //! Apply power save profile
-  performance_profile.profile = ASSOCIATED_POWER_SAVE;
+  performance_profile.profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY;
   status                      = sl_wifi_set_performance_profile(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPowersave Configuration Failed, Error Code : 0x%lX\r\n", status);
@@ -557,7 +542,7 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
   }
 
   twt_active_session = 0;
-  twt_response       = result;
+  memcpy(&twt_response, result, sizeof(sl_si91x_twt_response_t));
   switch (event) {
     case SL_WIFI_TWT_RESPONSE_EVENT:
       twt_active_session = 1;

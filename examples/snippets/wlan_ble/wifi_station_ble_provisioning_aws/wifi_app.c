@@ -107,6 +107,7 @@ extern rsi_ble_event_conn_status_t conn_event_to_app;
 
 #define ENABLE_POWER_SAVE      1
 #define I2C_SENSOR_PERI_ENABLE 0
+#define LOW                    0
 /*
  *********************************************************************************************************
  *                                         LOCAL GLOBAL VARIABLES
@@ -118,8 +119,9 @@ static volatile bool scan_complete          = false;
 static volatile sl_status_t callback_status = SL_STATUS_OK;
 uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
-sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
 osSemaphoreId_t data_received_semaphore;
+extern osSemaphoreId_t select_sem;
 
 uint8_t connected = 0, timeout = 0;
 uint8_t disconnected = 0, disassosiated = 0;
@@ -193,11 +195,7 @@ extern osSemaphoreId_t wlan_thread_sem;
 #ifdef SLI_SI91X_MCU_INTERFACE
 void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
 {
-  (void)(pin_intr);
-  //NPSS GPIO-2 interrupt clr
-  (*(volatile uint32_t *)(0x12080000UL + 0x08)) = 0x08; //NPSS GPIO-2 interrupt clr
-
-  while (sl_si91x_gpio_get_uulp_npss_pin(2) == 0)
+  while (sl_si91x_gpio_get_uulp_npss_pin(pin_intr) == LOW)
     ; // waiting for the button release
 #if (SL_SI91X_TICKLESS_MODE == ENABLE)
   osSemaphoreRelease(data_received_semaphore);
@@ -654,7 +652,8 @@ void wifi_app_task(void)
           connected       = 0;
           yield           = 0;
           disconnect_flag = 0; // reset flag to allow disconnecting again
-
+          select_given    = 0;
+          osSemaphoreRelease(select_sem);
           wifi_app_send_to_ble(WIFI_APP_DISCONNECTION_NOTIFY, (uint8_t *)&disassosiated, 1);
           wifi_app_set_event(WIFI_APP_UNCONNECTED_STATE);
         } else {
@@ -809,7 +808,7 @@ void wifi_app_mqtt_task(void)
           LOG_PRINT("\r\n Failed to initiate power save in BLE mode \r\n");
         }
 
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE,
+        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
                                                               .listen_interval = 1000 };
 
         sl_status_t status = sl_wifi_set_performance_profile(&performance_profile);

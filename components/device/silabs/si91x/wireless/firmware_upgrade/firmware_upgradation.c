@@ -29,13 +29,15 @@
  ******************************************************/
 // Macro to check if malloc failed
 #define VERIFY_MALLOC_AND_RETURN(ptr)     \
-  {                                       \
+  do {                                    \
     if (ptr == NULL) {                    \
       return SL_STATUS_ALLOCATION_FAILED; \
     }                                     \
-  }
+  } while (0)
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+#define IP_VERSION_6 BIT(1)
 
 /******************************************************
  *                 Global Variables
@@ -54,9 +56,9 @@ extern bool device_initialized;
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-static sl_status_t sl_si91x_fwup(uint16_t type, uint8_t *content, uint16_t length);
+static sl_status_t sl_si91x_fwup(uint16_t type, const uint8_t *content, uint16_t length);
 
-static sl_status_t sl_si91x_fwup(uint16_t type, uint8_t *content, uint16_t length)
+static sl_status_t sl_si91x_fwup(uint16_t type, const uint8_t *content, uint16_t length)
 {
   sl_status_t status       = SL_STATUS_FAIL;
   sl_si91x_req_fwup_t fwup = { 0 };
@@ -78,7 +80,7 @@ static sl_status_t sl_si91x_fwup(uint16_t type, uint8_t *content, uint16_t lengt
                                         SI91X_WLAN_CMD_QUEUE,
                                         &fwup,
                                         sizeof(sl_si91x_req_fwup_t),
-                                        SL_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                        SL_SI91X_WAIT_FOR_RESPONSE(5000),
                                         NULL,
                                         NULL);
 
@@ -105,7 +107,7 @@ sl_status_t sl_si91x_fwup_abort()
 }
 
 sl_status_t sl_si91x_http_otaf(uint8_t type,
-                               uint8_t flags,
+                               uint16_t flags,
                                uint8_t *ip_address,
                                uint16_t port,
                                uint8_t *resource,
@@ -113,7 +115,7 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
                                uint8_t *extended_header,
                                uint8_t *user_name,
                                uint8_t *password,
-                               uint8_t *post_data,
+                               const uint8_t *post_data,
                                uint32_t post_data_length)
 {
   sl_status_t status                            = SL_STATUS_FAIL;
@@ -121,16 +123,18 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   uint32_t send_size                            = 0;
   uint16_t http_length                          = 0;
   uint16_t length                               = 0;
-  uint8_t https_enable                          = 0;
+  uint16_t https_enable                         = 0;
   uint8_t packet_identifier                     = 0;
   sl_si91x_http_client_request_t *packet_buffer = NULL;
-  uint16_t offset = 0, rem_length = 0, chunk_size = 0;
+  uint16_t offset                               = 0;
+  uint16_t rem_length                           = 0;
+  uint16_t chunk_size                           = 0;
 
   if (!device_initialized) {
     return SL_STATUS_NOT_INITIALIZED;
   }
 
-  if (flags & SL_IPV6) {
+  if (flags & IP_VERSION_6) {
     http_client.ip_version = SL_IPV6_VERSION;
   } else {
     http_client.ip_version = SL_IPV4_VERSION;
@@ -153,10 +157,23 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
     https_enable |= SL_SI91X_TLS_V_1_1;
   }
 
+  if (flags & SL_SI91X_TLS_V_1_2) {
+    https_enable |= SL_SI91X_TLS_V_1_2;
+  }
+
   // Set HTTP version 1.1 feature bit
   if (flags & SL_SI91X_HTTP_V_1_1) {
     https_enable |= SL_SI91X_HTTP_V_1_1;
   }
+
+  if (flags & SL_SI91X_HTTPS_CERTIFICATE_INDEX_1) {
+    https_enable |= SL_SI91X_HTTPS_CERTIFICATE_INDEX_1;
+  }
+
+  if (flags & SL_SI91X_HTTPS_CERTIFICATE_INDEX_2) {
+    https_enable |= SL_SI91X_HTTPS_CERTIFICATE_INDEX_2;
+  }
+
   // Fill https features parameters
   http_client.https_enable = https_enable;
 
@@ -165,12 +182,12 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   memset(http_client.buffer, 0, sizeof(http_client.buffer));
 
   // Fill username
-  length = MIN((sizeof(http_client.buffer) - 1), strlen((char *)user_name));
+  length = (uint16_t)MIN((sizeof(http_client.buffer) - 1), strlen((char *)user_name));
   memcpy(http_client.buffer, user_name, length);
   http_length += length + 1;
 
   // Fill password
-  length = MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)password));
+  length = (uint16_t)MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)password));
   memcpy(((http_client.buffer) + http_length), password, length);
   http_length += length + 1;
 
@@ -180,23 +197,23 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   }
 
   // Copy  Host name
-  length = MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)host_name));
+  length = (uint16_t)MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)host_name));
   memcpy(((http_client.buffer) + http_length), host_name, length);
   http_length += length + 1;
 
   // Copy IP address
-  length = MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)ip_address));
+  length = (uint16_t)MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)ip_address));
   memcpy(((http_client.buffer) + http_length), ip_address, length);
   http_length += length + 1;
 
   // Copy URL resource
-  length = MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)resource));
+  length = (uint16_t)MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)resource));
   memcpy(((http_client.buffer) + http_length), resource, length);
   http_length += length + 1;
 
   // Copy Extended header
   if (extended_header != NULL) {
-    length = MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)extended_header));
+    length = (uint16_t)MIN((sizeof(http_client.buffer) - 1 - http_length), strlen((char *)extended_header));
     memcpy(((http_client.buffer) + http_length), extended_header, length);
     http_length += length;
   }

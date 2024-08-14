@@ -22,17 +22,23 @@
 #include "rsi_ipmu.h"
 #include "rsi_pll.h"
 #include "rsi_ulpss_clk.h"
+/**
+ * Defines
+ */
+#define SYSTEM_CLK_VAL_20MHZ ((uint32_t)(20000000)) // macro for 20MHz
+#define SYSTEM_CLK_VAL_32MHZ ((uint32_t)(32000000)) // macro for 32MHz
 
 /**
- * @fn          void RSI_IPMU_UpdateIpmuCalibData_efuse(efuse_ipmu_t *ipmu_calib_data)
+ * @fn          void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
  * @brief       This function prepares the data from the ipmu calib structure content and writes to each specific register
  * @param[in]   ipmu_calib_data : pointer of calibrate data
  * @return      none
  */
-void RSI_IPMU_UpdateIpmuCalibData_efuse(efuse_ipmu_t *ipmu_calib_data)
+void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
 {
-  uint32_t data = 0, value = 0;
-  uint32_t mask = 0;
+  uint32_t data  = 0;
+  uint32_t value = 0;
+  uint32_t mask  = 0;
   /* over writing the efuse arrays */
 
 #ifdef CHIP_9118
@@ -161,8 +167,7 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(efuse_ipmu_t *ipmu_calib_data)
 
 #ifdef AT_EFUSE_DATA_1P19
   /* m20rc_osc_trim_efuse  */
-  data = (ipmu_calib_data->trim_sel_20Mhz);
-  ;
+  data  = (ipmu_calib_data->trim_sel_20Mhz);
   mask  = MASK_BITS(22, 0);
   value = m20rc_osc_trim_efuse[2];
   value &= ~mask;
@@ -441,9 +446,10 @@ void RSI_Configure_Ipmu_Mode(void)
 }
 void update_efuse_system_configs(int data, uint32_t config_ptr[])
 {
-  uint32_t mask = 0, value = 0;
-  mask  = MASK_BITS(22, 0);
-  value = config_ptr[2];
+  uint32_t mask  = 0;
+  uint32_t value = 0;
+  mask           = MASK_BITS(22, 0);
+  value          = config_ptr[2];
   value &= ~mask;
   value |= (uint32_t)data;
   config_ptr[2] = value;
@@ -455,7 +461,8 @@ void update_efuse_system_configs(int data, uint32_t config_ptr[])
 
 void RSI_Configure_DCDC_LowerVoltage(void)
 {
-  uint32_t pmu_1p2_ctrl_word, bypass_curr_ctrl_data;
+  uint32_t pmu_1p2_ctrl_word;
+  uint32_t bypass_curr_ctrl_data;
 
   bypass_curr_ctrl_data = PMU_SPI_DIRECT_ACCESS(PMU_1P3_CTRL_REG_OFFSET);
   pmu_1p2_ctrl_word     = ((bypass_curr_ctrl_data >> 17) & 0xF) - 2;
@@ -567,7 +574,8 @@ void RSI_IPMU_ClockMuxSel(uint8_t bg_pmu_clk)
 
 uint32_t RSI_IPMU_32MHzClkClib(void)
 {
-  volatile int i, trim_value = 0;
+  volatile int i;
+  volatile int trim_value = 0;
   /*Enables RC 32MHz clock and*/
   ULP_SPI_MEM_MAP(0x104) = (0x3FFFFF & 0x41368000);
   /*Enable XTAL 40MHz clock through NPSS*/
@@ -607,18 +615,25 @@ uint32_t RSI_IPMU_32MHzClkClib(void)
 
 /*==============================================*/
 /**
- * @fn          rsi_error_t RSI_IPMU_ProgramConfigData(uint32_t *config)
+ * @fn          rsi_error_t RSI_IPMU_ProgramConfigData(const uint32_t *config)
  * @brief     This API is used to program the any mcu configuration structure
  * @param[in]   config : pointer configuration
  * @return      RSI_OK on success
  */
 
-rsi_error_t RSI_IPMU_ProgramConfigData(uint32_t *config)
+rsi_error_t RSI_IPMU_ProgramConfigData(const uint32_t *config)
 {
-  volatile uint32_t index = 0, program_len = 0, reg_addr = 0;
-  volatile uint32_t reg_write_data = 0, clear_cnt = 0, cnt = 0;
-  volatile uint32_t reg_read_data = 0, write_mask = 0, write_bit_pos = 0;
-  volatile uint8_t msb = 0, lsb = 0;
+  volatile uint32_t index          = 0;
+  volatile uint32_t program_len    = 0;
+  volatile uint32_t reg_addr       = 0;
+  volatile uint32_t reg_write_data = 0;
+  volatile uint32_t clear_cnt      = 0;
+  volatile uint32_t cnt            = 0;
+  volatile uint32_t reg_read_data  = 0;
+  volatile uint32_t write_mask     = 0;
+  volatile uint32_t write_bit_pos  = 0;
+  volatile uint8_t msb             = 0;
+  volatile uint8_t lsb             = 0;
 
   if (config == NULL) {
     return INVALID_PARAMETERS;
@@ -662,18 +677,25 @@ rsi_error_t RSI_IPMU_ProgramConfigData(uint32_t *config)
 
 /*==============================================*/
 /**
- * @fn          uint32_t RSI_APB_ProgramConfigData(uint32_t *config)
+ * @fn          uint32_t RSI_APB_ProgramConfigData(const uint32_t *config)
  * @brief     This API is used to program the any mcu configuration structure
  * @param[in]   config : pointer configuration 
  * @return      reg_write_data on success.
  */
 
-uint32_t RSI_APB_ProgramConfigData(uint32_t *config)
+uint32_t RSI_APB_ProgramConfigData(const uint32_t *config)
 {
-  volatile uint32_t index = 0, program_len = 0, reg_addr = 0;
-  volatile uint32_t clear_cnt = 0, cnt = 0;
-  volatile uint32_t reg_write_data = 0, reg_read_data = 0, write_mask = 0, write_bit_pos = 0;
-  volatile uint8_t msb = 0, lsb = 0;
+  volatile uint32_t index          = 0;
+  volatile uint32_t program_len    = 0;
+  volatile uint32_t reg_addr       = 0;
+  volatile uint32_t clear_cnt      = 0;
+  volatile uint32_t cnt            = 0;
+  volatile uint32_t reg_write_data = 0;
+  volatile uint32_t reg_read_data  = 0;
+  volatile uint32_t write_mask     = 0;
+  volatile uint32_t write_bit_pos  = 0;
+  volatile uint8_t msb             = 0;
+  volatile uint8_t lsb             = 0;
   (void)reg_addr;
 
   if (config == NULL) {
@@ -819,7 +841,8 @@ void RSI_IPMU_RetnLdoLpmode(void)
 
 void RSI_IPMU_Retn_Voltage_Reduction(void)
 {
-  uint32_t value, mask;
+  uint32_t value;
+  uint32_t mask;
   value = retnLP_volt_trim_efuse[2];
   mask  = MASK_BITS(3, 0);
   value &= mask;
@@ -907,21 +930,28 @@ rsi_error_t RSI_IPMU_M32rc_OscTrimEfuse(void)
 
 /*==============================================*/
 /**
- * @fn          rsi_error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
- * @brief     This API is used to program the trim value for 20Mhz RC oscillator .
- * @return      RSI_IPMU_ProgramConfigData on success.
+ * @fn        rsi_error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
+ * @brief     This API is used to program the trim value for 20MHz RC oscillator
+ * @return    RSI_IPMU_ProgramConfigData on success
  */
 
 rsi_error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
 {
-  system_clocks.rc_32mhz_clock = 20000000;
-  if (system_clocks.m4_ref_clock_source == ULP_32MHZ_RC_CLK) {
-    system_clocks.m4ss_ref_clk = 20000000;
+  rsi_error_t error_status;
+
+  error_status = RSI_IPMU_ProgramConfigData(m20rc_osc_trim_efuse);
+
+  if (error_status == RSI_OK) {
+    system_clocks.rc_32mhz_clock = SYSTEM_CLK_VAL_20MHZ;
+    if (system_clocks.m4_ref_clock_source == ULP_32MHZ_RC_CLK) {
+      system_clocks.m4ss_ref_clk = SYSTEM_CLK_VAL_20MHZ;
+    }
+    if (system_clocks.ulp_ref_clock_source == ULPSS_ULP_32MHZ_RC_CLK) {
+      system_clocks.ulpss_ref_clk = SYSTEM_CLK_VAL_20MHZ;
+    }
   }
-  if (system_clocks.ulp_ref_clock_source == ULPSS_ULP_32MHZ_RC_CLK) {
-    system_clocks.ulpss_ref_clk = 20000000;
-  }
-  return RSI_IPMU_ProgramConfigData(m20rc_osc_trim_efuse);
+
+  return error_status;
 }
 
 /*==============================================*/
@@ -933,7 +963,7 @@ rsi_error_t RSI_IPMU_M20rcOsc_TrimEfuse(void)
 
 rsi_error_t RSI_IPMU_DBLR32M_TrimEfuse(void)
 {
-  system_clocks.doubler_clock = 32000000;
+  system_clocks.doubler_clock = SYSTEM_CLK_VAL_32MHZ;
   return RSI_IPMU_ProgramConfigData(dblr_32m_trim_efuse);
 }
 
@@ -1320,7 +1350,8 @@ rsi_error_t RSI_IPMU_BOD_Cmphyst(void)
 
 void RSI_IPMU_32KHzROClkClib(void)
 {
-  uint32_t ro32k_trim = 0, no_of_tst_clk_khz_ro = 0;
+  uint32_t ro32k_trim           = 0;
+  uint32_t no_of_tst_clk_khz_ro = 0;
 
   /*Do until clock should be 32KHz */
   do {
@@ -1373,7 +1404,8 @@ void RSI_IPMU_32KHzROClkClib(void)
 
 void RSI_IPMU_32KHzRCClkClib(void)
 {
-  uint32_t rc32k_trim = 0, no_of_tst_clk_khz_rc = 0;
+  uint32_t rc32k_trim           = 0;
+  uint32_t no_of_tst_clk_khz_rc = 0;
 
   /*Do until clock should be 32KHz */
   do {
@@ -1427,7 +1459,10 @@ void RSI_IPMU_32KHzRCClkClib(void)
 
 uint32_t RSI_Clks_Trim32MHzRC(uint32_t freq)
 {
-  volatile uint32_t no_oftst_clk_f = 0, no_oftst_clk = 0, i = 0, reg_read = 0, trim_value = 0;
+  volatile uint32_t no_oftst_clk_f = 0;
+  volatile uint32_t no_oftst_clk   = 0;
+  volatile uint32_t reg_read       = 0;
+  volatile uint32_t trim_value     = 0;
 
   system_clocks.rc_32mhz_clock = (freq);
 
@@ -1451,7 +1486,7 @@ uint32_t RSI_Clks_Trim32MHzRC(uint32_t freq)
     reg_read &= (uint32_t)(~(0x7F << TRIM_LSB_32MHZ));
     ULP_SPI_MEM_MAP(ULPCLKS_32MRC_CLK_REG_OFFSET) = (reg_read);
     /* check's from 20 bit to 14 bit  */
-    for (i = TRIM_MSB_32MHZ; i >= TRIM_LSB_32MHZ; i--) {
+    for (volatile uint32_t i = TRIM_MSB_32MHZ; i >= TRIM_LSB_32MHZ; i--) {
       /* Measures MHz RC clock Clock Frequency  */
       no_oftst_clk_f = RSI_Clks_Calibration(ulp_ref_clk, none);
       /*To get in three digit of Measured frequency value in MHz e.g:20MHz as 200 */
@@ -1612,7 +1647,8 @@ uint32_t RSI_Clks_Calibration(INPUT_CLOCK_T inputclk, SLEEP_CLOCK_T sleep_clk_ty
 
 void RSI_IPMU_64KHZ_RCClktrim(void)
 {
-  uint32_t i, status = 0;
+  uint32_t i;
+  uint32_t status = 0;
 
   system_clocks.rc_32khz_clock = (64000);
 

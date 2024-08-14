@@ -137,11 +137,11 @@ STATIC INLINE void RSI_WWDT_SysRstOnProcLockDisable(MCU_WDT_Type *pstcWDT)
 }
 
 /**
- * @fn           void RSI_WWDT_GetProcLockSignal(MCU_WDT_Type *pstcWDT)
+ * @fn           void RSI_WWDT_GetProcLockSignal(const MCU_WDT_Type *pstcWDT)
  * @brief        This API is used to read signal for processor stuck reset enable
  * @return       None
  */
-STATIC INLINE uint8_t RSI_WWDT_GetProcLockRstEnableSignal(MCU_WDT_Type *pstcWDT)
+STATIC INLINE uint8_t RSI_WWDT_GetProcLockRstEnableSignal(const MCU_WDT_Type *pstcWDT)
 {
   if (pstcWDT->MCU_WWD_ARM_STUCK_EN_b.PROCESSOR_STUCK_RESET_EN_) {
     return 1;
@@ -151,12 +151,12 @@ STATIC INLINE uint8_t RSI_WWDT_GetProcLockRstEnableSignal(MCU_WDT_Type *pstcWDT)
 }
 
 /**
- * @fn         uint16_t RSI_WWDT_GetIntrTime(MCU_WDT_Type *pstcWDT)
+ * @fn         uint16_t RSI_WWDT_GetIntrTime(const MCU_WDT_Type *pstcWDT)
  * @brief      This API is used to read the interrupt time of the watch dog timer
  * @param[in]  pstcWDT          : pointer to the WDT register instance
  * @return     uint8_t  : interrupt timer value
  */
-STATIC INLINE uint8_t RSI_WWDT_GetIntrTime(MCU_WDT_Type *pstcWDT)
+STATIC INLINE uint8_t RSI_WWDT_GetIntrTime(const MCU_WDT_Type *pstcWDT)
 {
   uint8_t interrupt_time;
   interrupt_time = pstcWDT->MCU_WWD_INTERRUPT_TIMER_b.WWD_INTERRUPT_TIMER;
@@ -164,12 +164,12 @@ STATIC INLINE uint8_t RSI_WWDT_GetIntrTime(MCU_WDT_Type *pstcWDT)
 }
 
 /**
- * @fn         uint16_t RSI_WWDT_GetSysRstTime(MCU_WDT_Type *pstcWDT)
+ * @fn         uint16_t RSI_WWDT_GetSysRstTime(const MCU_WDT_Type *pstcWDT)
  * @brief      This API is used to read the system reset time of the watch dog timer
  * @param[in]  pstcWDT          : pointer to the WDT register instance
  * @return     uint8_t  : system reset timer value
  */
-STATIC INLINE uint8_t RSI_WWDT_GetSysRstTime(MCU_WDT_Type *pstcWDT)
+STATIC INLINE uint8_t RSI_WWDT_GetSysRstTime(const MCU_WDT_Type *pstcWDT)
 {
   uint8_t system_reset_time;
   system_reset_time = pstcWDT->MCU_WWD_SYSTEM_RESET_TIMER_b.WWD_SYSTEM_RESET_TIMER;
@@ -177,12 +177,12 @@ STATIC INLINE uint8_t RSI_WWDT_GetSysRstTime(MCU_WDT_Type *pstcWDT)
 }
 
 /**
- * @fn         uint8_t RSI_WWDT_GetWindowTime(MCU_WDT_Type *pstcWDT)
+ * @fn         uint8_t RSI_WWDT_GetWindowTime(const MCU_WDT_Type *pstcWDT)
  * @brief      This API is used to read the system reset time of the watch dog timer
  * @param[in]  pstcWDT          : pointer to the WDT register instance
  * @return     uint8_t  : system reset timer value
  */
-STATIC INLINE uint8_t RSI_WWDT_GetWindowTime(MCU_WDT_Type *pstcWDT)
+STATIC INLINE uint8_t RSI_WWDT_GetWindowTime(const MCU_WDT_Type *pstcWDT)
 {
   uint8_t window_time;
   window_time = pstcWDT->MCU_WWD_WINDOW_TIMER_b.WINDOW_TIMER;

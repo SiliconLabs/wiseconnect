@@ -111,7 +111,7 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
 
 sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, uint8_t virtual_ap_id)
 {
-  sl_status_t status = SL_STATUS_FAIL;
+  sl_status_t status = SL_STATUS_INVALID_PARAMETER;
   sl_si91x_req_ipv4_params_t ip_req;
   sl_si91x_req_ipv6_params_t ipv6_request;
   sl_si91x_packet_t *packet;
@@ -127,7 +127,7 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if (SL_IPV4 == address->type) {
+  if (SL_IPV4 & address->type) {
     // Initialize the IPv4 request structure and fill fields accordingly
     memset(&ip_req, 0, sizeof(ip_req));
     ip_req.vap_id = virtual_ap_id;
@@ -179,7 +179,9 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
 
     // Free the buffer and return success status
     sl_si91x_host_free_buffer(buffer);
-  } else if (SL_IPV6 == address->type) {
+  }
+
+  if (SL_IPV6 & address->type) {
     // Initialize the IPv6 request structure
     memset(&ipv6_request, 0, sizeof(ipv6_request));
     uint16_t prefix_length = 64;
@@ -213,8 +215,8 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
     VERIFY_STATUS_AND_RETURN(status);
 
     // Extract the IPv6 configuration response data
-    packet                                    = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-    sl_si91x_rsp_ipv6_params_t *ipv6_response = (sl_si91x_rsp_ipv6_params_t *)packet->data;
+    packet                                          = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+    const sl_si91x_rsp_ipv6_params_t *ipv6_response = (sl_si91x_rsp_ipv6_params_t *)packet->data;
 
     // Copy the IPv6 addresses to the address structure
     memcpy(&address->ip.v6.link_local_address,
@@ -225,9 +227,6 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
 
     // Free the buffer and return success status
     sl_si91x_host_free_buffer(buffer);
-
-  } else {
-    return SL_STATUS_INVALID_PARAMETER;
   }
 
   return status;

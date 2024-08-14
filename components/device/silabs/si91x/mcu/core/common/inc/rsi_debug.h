@@ -28,7 +28,7 @@ extern "C" {
 
 /*Sample print prototype*/
 void Board_Debug_Init(void);
-void Board_UARTPutSTR(uint8_t *ptr);
+void Board_UARTPutSTR(const uint8_t *ptr);
 uint8_t Board_UARTGetChar(void);
 void Board_UARTPutChar(uint8_t ch);
 

@@ -41,10 +41,11 @@
 #endif
 
 sl_status_t convert_rsi_ipv4_address_to_sl_ip_address(sl_ip_address_t *ip_address_buffer,
-                                                      sl_si91x_rsp_ipv4_params_t *ip_params);
+                                                      const sl_si91x_rsp_ipv4_params_t *ip_params);
 sl_status_t convert_si91x_dns_response(sl_ip_address_t *ip_address, sl_si91x_dns_response_t *si91x_dns_response);
-sl_status_t convert_si91x_event_to_sl_net_event(uint16_t *event, sl_net_event_t *sl_net_event);
+sl_status_t convert_si91x_event_to_sl_net_event(const uint16_t *event, sl_net_event_t *sl_net_event);
 #ifdef SLI_SI91X_INTERNAL_HTTP_CLIENT
 void convert_itoa(uint32_t val, uint8_t *str);
-sl_status_t convert_si91x_event_to_sl_http_client_event(uint16_t *event, sl_http_client_event_t *sl_http_client_event);
+sl_status_t convert_si91x_event_to_sl_http_client_event(const uint16_t *event,
+                                                        sl_http_client_event_t *sl_http_client_event);
 #endif

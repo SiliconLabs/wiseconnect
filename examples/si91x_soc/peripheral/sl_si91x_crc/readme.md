@@ -14,16 +14,16 @@
 
 ## Purpose/Scope
 
-- This application contains an example code to demonstrate CRC Generation on DMA transferred data.
+ This application contains an example code to demonstrate CRC (Cyclic Redundancy Check) Generation on DMA transferred data.
 
 ## Prerequisites/Setup Requirements
 
-- To use this application following Hardware, Software and the Project Setup is required.
+ To use this application following Hardware, Software and the Project Setup is required.
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A]
+- Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
   - The Serial Console setup instructions are provided below,
 refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
@@ -31,7 +31,7 @@ refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 
 - Simplicity Studio
 - Embedded Development Environment
-  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+  - For Silicon Labs Si91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at [**release_package/docs/index.html**](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 
 ### Setup Diagram
 
@@ -46,7 +46,7 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 - Upgrade your connectivity firmware
 - Create a Studio project
 
-For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+For details on the project folder structure, see the [WiSeConnect_Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure/) page.
 
 ## Application Build Environment
 
@@ -54,19 +54,18 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - An application has two parameters configurable they are Polynomial value and Data width.
 
-- Configure the following parameter in sl_si91x_crc.h file, update/modify following macro if required also below mentioned are default configurations.
+- Configure the following parameter in sl_si91x_crc.h file(path : components\device\silabs\si91x\mcu\drivers\unified_api\inc\sl_si91x_crc.h), update/modify following macro if required also below mentioned are default configurations.
 
-
- buffer.
   ```C
-   #define SL_CRC_POLYNOMIAL      0x04C11DB7 
-   #define SL_CRC_POLY_WIDTH       31
+   #define SL_CRC_POLYNOMIAL      0x04C11DB7 /* Polynomial encryption value */
+   #define SL_CRC_POLY_WIDTH       31        /* Polynomial data width */
   ```
 > **Note:**
-> while changing the data which CRC has to calculate and compare with Software CRC, need to update the same data in file `sw_crc.c` variable  `input[]`.
+> While changing the data which CRC has to calculate and compare with Software CRC, need to update the data in file `sw_crc.c` variable  `input[]`  and in `crc_example.c` variable `gcrc_tx_Buf[]`.
+
 ## Test the Application
 
-Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project) to:
 
 - Compile and run the application. 
 
@@ -76,6 +75,6 @@ Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect
 
 
 
-> **Note:**
->
-> - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+> **Note:** Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.
+
+

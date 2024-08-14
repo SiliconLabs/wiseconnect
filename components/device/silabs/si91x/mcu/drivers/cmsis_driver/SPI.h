@@ -51,6 +51,11 @@
 #define  SPI_MASTER_MODE											1U
 #define  SPI_SLAVE_MODE												2U
 #define  SPI_ULP_MASTER_MODE									3U
+#define  SSI_INSTANCE_BIT 										30         // SSI Instance validation bits
+#define  SSI_INSTANCE_MASK   									0x3FFFFFFF // Mask value for SSI instance
+#define  SSI_MASTER_INSTANCE 									0          // SSI Master Instance
+#define  SSI_SLAVE_INSTANCE 									1          // SSI Slave Instance
+#define  SSI_ULP_MASTER_INSTANCE 							2          // SSI ULP Master Instance
 
 #define  SPI_ISR_TX_FIFO_EMPTY								BIT(0)
 #define  SPI_ISR_TX_FIFO_OVERFLOW							BIT(1)

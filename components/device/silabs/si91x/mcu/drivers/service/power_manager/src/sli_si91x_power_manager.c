@@ -60,7 +60,7 @@
 #define MAX_M4SS_RAM_SIZE 320 // Maximum m4ss RAM size
 #endif
 #define MAX_ULPSS_RAM_SIZE       8          // Maximum ulpss RAM size
-#define SOC_PLL_REF_FREQUENCY    32000000   // SOC Pll reference frequency
+#define SOC_PLL_REF_FREQUENCY    40000000   // SOC Pll reference frequency
 #define PS4_HP_FREQUENCY         100000000  // PS4 high power clock frequency
 #define PS4_LP_FREQUENCY         32000000   // PS4 low power clock frequency
 #define PS3_HP_FREQUENCY         80000000   // PS3 high power clock frequency
@@ -237,7 +237,13 @@ sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t sta
     // Low power hardware configuration to switch off the components which are not required.
     low_power_hardware_configuration(true);
   }
-
+#if (SL_SI91X_TICKLESS_MODE == 1)
+#ifdef SL_SLEEP_TIMER
+  RSI_PS_SetWkpSources(SYSRTC_BASED_WAKEUP); //Setting SYSRTC as a wakeup source
+#endif
+  MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE |=
+    WIRELESS_BASED_WAKEUP; //Configured wireless based wakeup as wakeup source
+#endif
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
   // Initializing and configuring the wakeup sources as per UC inputs, if available
   sl_si91x_power_manager_wakeup_init();
@@ -456,23 +462,11 @@ sl_status_t sli_si91x_power_manager_configure_clock(sl_power_state_t state, bool
         RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, DIVISION_FACTOR);
         // Configures the required registers for 180 Mhz clock in PS4
         RSI_PS_PS4SetRegisters();
-#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
-        // XTAL is required for configuring the SOC-PLL
-        //wakeup TA
-        P2P_STATUS_REG |= M4_WAKEUP_TA;
-        //wait for TA active
-        while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
-          ;
-#endif
         // Configure the PLL frequency
         // Configure the SOC PLL to 180MHz
         RSI_CLK_SetSocPllFreq(M4CLK, PS4_HP_FREQUENCY, SOC_PLL_REF_FREQUENCY);
         // Switch M4 clock to PLL clock for speed operations
         RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, DIVISION_FACTOR);
-#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
-        // Indicate TA that M4 does not have dependency on TA and TA can go to sleep
-        P2P_STATUS_REG &= ~M4_WAKEUP_TA;
-#endif
       } else {
         // Default keep M4 in reference clock
         RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, DIVISION_FACTOR);
@@ -482,24 +476,11 @@ sl_status_t sli_si91x_power_manager_configure_clock(sl_power_state_t state, bool
       if (mode) {
         // Default keep M4 in reference clock
         RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, DIVISION_FACTOR);
-
-#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
-        // XTAL is required for configuring the SOC-PLL
-        //wakeup TA
-        P2P_STATUS_REG |= M4_WAKEUP_TA;
-        //wait for TA active
-        while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
-          ;
-#endif
         // Configure the PLL frequency
         // Configure the SOC PLL to 80MHz
         RSI_CLK_SetSocPllFreq(M4CLK, PS3_HP_FREQUENCY, SOC_PLL_REF_FREQUENCY);
         // Switch M4 clock to PLL clock for speed operations
         RSI_CLK_M4SocClkConfig(M4CLK, M4_SOCPLLCLK, DIVISION_FACTOR);
-#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
-        // Indicate TA that M4 does not have dependency on TA and TA can go to sleep
-        P2P_STATUS_REG &= ~M4_WAKEUP_TA;
-#endif
       } else {
         // Default keep M4 in reference clock
         RSI_CLK_M4SocClkConfig(M4CLK, M4_ULPREFCLK, DIVISION_FACTOR);
@@ -775,8 +756,55 @@ static sl_status_t trigger_sleep(sli_power_sleep_config_t *config, uint8_t sleep
                               config->wakeup_callback_address,
                               config->vector_offset,
                               config->mode);
+#if SL_WIFI_COMPONENT_INCLUDED
+  if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+
+    if (sl_si91x_is_device_initialized()) {
+      /* Check whether M4 is using XTAL */
+      if (sli_si91x_is_xtal_in_use_by_m4() == true) {
+        if (system_clocks.soc_pll_clock != DEFAULT_SOC_PLL_CLOCK) {
+          /* TurnOff the SOC_PLL */
+          RSI_CLK_SocPllTurnOff();
+        }
+
+        if (system_clocks.intf_pll_clock != DEFAULT_INTF_PLL_CLOCK) {
+          /* TurnOff the INTF_PLL */
+          RSI_CLK_IntfPLLTurnOff();
+        }
+
+        if (system_clocks.i2s_pll_clock != DEFAULT_I2S_PLL_CLOCK) {
+          /* TurnOff the I2S_PLL */
+          RSI_CLK_I2sPllTurnOff();
+        }
+
+        /* If M4 is using XTAL then request TA to turn OFF XTAL as M4 is going to sleep */
+        sli_si91x_raise_xtal_interrupt_to_ta(TURN_OFF_XTAL_REQUEST);
+      }
+    }
+  }
+#endif
   // According to the sleep type, with retention or without retention it enters the sleep mode.
   error_code = RSI_PS_EnterDeepSleep(sleep_type, config->low_freq_clock);
+
+#if SL_WIFI_COMPONENT_INCLUDED
+  if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
+
+    if (system_clocks.soc_pll_clock != DEFAULT_SOC_PLL_CLOCK) {
+      /* TurnON the SOC_PLL */
+      RSI_CLK_SocPllTurnOn();
+    }
+
+    if (system_clocks.intf_pll_clock != DEFAULT_INTF_PLL_CLOCK) {
+      /* TurnON the INTF_PLL */
+      RSI_CLK_IntfPLLTurnOn();
+    }
+
+    if (system_clocks.i2s_pll_clock != DEFAULT_I2S_PLL_CLOCK) {
+      /* TurnON the I2S_PLL */
+      RSI_CLK_I2sPllTurnOn();
+    }
+  }
+#endif
   // If error is encountered, it is converted to sl error code.
   status = convert_rsi_to_sl_error_code(error_code);
   return status;

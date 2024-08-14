@@ -21,7 +21,7 @@
 ## Purpose/Scope
 
 This application demonstrates the procedure to measure WLAN UDP/TCP/TLS throughput by configuring the SiWx91x in client/server role using IPv6 addresses.
-In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IPv6 address, connects to Iperf server/client or python based TLS scripts, running on a remote PC and measures Tx/Rx throughput transmitted/received from remote PC.
+In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IPv6 address, connects to iPerf server/client or python based TLS scripts, running on a remote PC and measures Tx/Rx throughput transmitted/received from remote PC.
 
 ## Prerequisites/Setup Requirements
 
@@ -34,6 +34,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
+  	  - BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -42,14 +43,18 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
+   - Interface and Host MCU Supported
+      - SPI - EFR32 
 
 ### Software Requirements
 
 - [Simplicity Studio IDE](https://www.silabs.com/developers/simplicity-studio)
-- [Iperf Application](https://iperf.fr/iperf-download.php)
+- [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
 - [Python Environment](https://www.python.org/downloads/)
 
 ### Setup Diagram
@@ -133,14 +138,14 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Build the application
 - Flash, run and debug the application
 
-There are two 'ends' involved when measuring throughput, data is sent between the client end and the server end. By default, the Iperf protocol sends data from the client to the server to measure throughput. Depending on the configuration selected, the SiWx91x may be the client or the server. In general, it is advisable to start the server before the client since the client will immediately begin to try to connect to the server to send data.
+There are two 'ends' involved when measuring throughput, data is sent between the client end and the server end. By default, the iPerf protocol sends data from the client to the server to measure throughput. Depending on the configuration selected, the SiWx91x may be the client or the server. In general, it is advisable to start the server before the client since the client will immediately begin to try to connect to the server to send data.
 
-The following sections describe how to run the SiWx91x throughput application together with examples for various Iperf configurations that run on the PC.
+The following sections describe how to run the SiWx91x throughput application together with examples for various iPerf configurations that run on the PC.
 
 ### UDP Tx Throughput
 
-To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC.
-The Iperf command to start the UDP server on the PC is:
+To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+The iPerf command to start the UDP server on the PC is:
 
 > `C:\> iperf.exe -s -u -V -p <SERVER_PORT> -i 1`
 >
@@ -151,7 +156,7 @@ The Iperf command to start the UDP server on the PC is:
 ### UDP Rx Throughput
 
 To measure UDP Rx throughput, configure the SiWx91x as a UDP server and start a UDP client on the remote PC.
-The Iperf command to start the UDP client is:
+The iPerf command to start the UDP client is:
 
 > `C:\> iperf.exe -c <Module_IP> -V -u  -p <Module_Port> -i 1 -b <Bandwidth> -t <time interval in seconds> -l <UDP buffer length>`
 >
@@ -161,8 +166,8 @@ The Iperf command to start the UDP client is:
 
 ### TCP Tx Throughput
 
-To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC.
-The Iperf command to start the TCP server is:
+To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the installed folder's path in the command prompt.
+The iPerf command to start the TCP server is:
   
 > `C:\> iperf.exe -s -V -p <SERVER_PORT> -i 1`
 >
@@ -173,7 +178,7 @@ The Iperf command to start the TCP server is:
 ### TCP Rx Throughput
 
 To measure TCP Rx throughput, configure the SiWx91x as TCP server and start a TCP client on the remote PC.
-The Iperf command to start the TCP client is:
+The iPerf command to start the TCP client is:
 
 > `C:\> iperf.exe -c <Module_IP> -V -p <module_PORT> -i 1 -t <time interval in sec>`
 >
@@ -203,7 +208,7 @@ To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a T
 > **Note:**
 **The SSL_tx_throughput_v6.py script works only with Python version 2.**  
 
-The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the iperf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the throughput numbers in serial console.
+The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the iPerf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the throughput numbers in serial console.
 
 ## Application Output
 

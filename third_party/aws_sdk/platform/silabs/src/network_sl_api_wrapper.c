@@ -33,6 +33,7 @@
 volatile uint8_t pub_state, qos1_publish_handle, select_given;
 osSemaphoreId_t select_sem;
 
+
 /******************************************************
 *                    Macros
 ******************************************************/
@@ -212,24 +213,27 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
 
 IoT_Error_t iot_tls_write(Network *pNetwork, unsigned char *pMsg, size_t len, Timer *timer, size_t *written_len)
 {
-  size_t bytes_written = 0;
-  size_t temp_len      = len;
+  size_t total_bytes_written = 0; // Use size_t for total_bytes_written to match len's type
+  ssize_t bytes_written = 0;
+  size_t temp_len = len;
 
-  if (len <= 0) {
-    return MQTT_TX_BUFFER_TOO_SHORT_ERROR;
+  if (len == 0) {
+    return MQTT_TX_BUFFER_TOO_SHORT_ERROR; // Adjusted to only check for 0, as len cannot be negative
   }
-
+  
   do {
     bytes_written = send(pNetwork->socket_id, pMsg, temp_len, 0);
     if (bytes_written <= 0) {
+      // If send returns 0 or a negative value, treat it as an error
       return NETWORK_SSL_WRITE_ERROR;
     }
     pMsg += bytes_written;
     temp_len -= bytes_written;
+    total_bytes_written += bytes_written; // Accumulate bytes written
   } while ((temp_len > 0) && !has_timer_expired(timer));
-
-  *written_len = bytes_written;
-  return ((bytes_written >= len) ? SUCCESS : NETWORK_SSL_WRITE_TIMEOUT_ERROR);
+  
+  *written_len = total_bytes_written; // Update *written_len with the total bytes written
+  return (total_bytes_written == len) ? SUCCESS : NETWORK_SSL_WRITE_TIMEOUT_ERROR; // Check total_bytes_written against len
 }
 
 IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Timer *timer, size_t *read_len)
@@ -251,12 +255,12 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
     return sli_si91x_get_aws_error(errno);
   }
 
-    if(pub_state == 1){    //This check is for handling PUBACK in QOS1
-    osSemaphoreAcquire(select_sem, osWaitForever);
-    qos1_publish_handle = 1;
-    pub_state = 0;
-    select_given        = 0;
-    }
+  if(pub_state == 1){    //This check is for handling PUBACK in QOS1
+  osSemaphoreAcquire(select_sem, osWaitForever);
+  qos1_publish_handle = 1;
+  pub_state = 0;
+  select_given        = 0;
+  }
   do {
     bytes_read = recv(pNetwork->socket_id, pMsg, temp_len, 0);
     if (bytes_read == 0) {

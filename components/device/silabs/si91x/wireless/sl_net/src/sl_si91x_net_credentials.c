@@ -53,9 +53,9 @@ sl_status_t sl_si91x_set_credential(sl_net_credential_id_t id,
                                     const void *credential,
                                     uint32_t credential_length);
 sl_status_t sl_si91x_get_credential(sl_net_credential_id_t id,
-                                    sl_net_credential_type_t *type,
-                                    void *credential,
-                                    uint32_t *credential_length);
+                                    const sl_net_credential_type_t *type,
+                                    const void *credential,
+                                    const uint32_t *credential_length);
 sl_status_t sl_si91x_delete_credential(sl_net_credential_id_t id, sl_net_credential_type_t type);
 
 static sl_si91x_cert_type_t convert_to_si91x_cert_type(sl_net_credential_id_t id, sl_net_credential_type_t type)
@@ -65,11 +65,8 @@ static sl_si91x_cert_type_t convert_to_si91x_cert_type(sl_net_credential_id_t id
       if ((id == SL_NET_WIFI_EAP_SERVER_CREDENTIAL_ID) || (id == SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID)) {
         return SL_SI91X_EAP_CA_CERTIFICATE;
       }
-      switch (id & SL_NET_CREDENTIAL_GROUP_MASK) {
-        case SL_NET_TLS_SERVER_CREDENTIAL_START:
-          return SL_SI91X_TLS_CA_CERTIFICATE;
-        default:
-          break;
+      if ((id & SL_NET_CREDENTIAL_GROUP_MASK) == SL_NET_TLS_SERVER_CREDENTIAL_START) {
+        return SL_SI91X_TLS_CA_CERTIFICATE;
       }
       break;
 
@@ -89,11 +86,8 @@ static sl_si91x_cert_type_t convert_to_si91x_cert_type(sl_net_credential_id_t id
       break;
 
     case SL_NET_PUBLIC_KEY:
-      switch (id) {
-        case SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID:
-          return SL_SI91X_EAP_PUBLIC_KEY;
-        default:
-          break;
+      if (id == SL_NET_WIFI_EAP_CLIENT_CREDENTIAL_ID) {
+        return SL_SI91X_EAP_PUBLIC_KEY;
       }
       break;
 
@@ -157,9 +151,9 @@ sl_status_t sl_si91x_set_credential(sl_net_credential_id_t id,
 }
 
 sl_status_t sl_si91x_get_credential(sl_net_credential_id_t id,
-                                    sl_net_credential_type_t *type,
-                                    void *credential,
-                                    uint32_t *credential_length)
+                                    const sl_net_credential_type_t *type,
+                                    const void *credential,
+                                    const uint32_t *credential_length)
 {
   UNUSED_PARAMETER(id);
   UNUSED_PARAMETER(type);

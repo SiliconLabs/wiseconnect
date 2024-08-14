@@ -100,11 +100,11 @@ typedef struct RTC_TIME_CONFIG {
 void RSI_RTC_Start(RTC_Type *Cal);
 void RSI_RTC_Init(RTC_Type *Cal);
 void RSI_RTC_Stop(RTC_Type *Cal);
-rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date);
-rsi_error_t RSI_RTC_GetDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *date);
-rsi_error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm);
+rsi_error_t RSI_RTC_SetDateTime(RTC_Type *Cal, const RTC_TIME_CONFIG_T *date);
+rsi_error_t RSI_RTC_GetDateTime(const RTC_Type *Cal, RTC_TIME_CONFIG_T *date);
+rsi_error_t RSI_RTC_SetAlarmDateTime(RTC_Type *Cal, const RTC_TIME_CONFIG_T *alarm);
 void RSI_RTC_AlamEnable(RTC_Type *Cal, boolean_t val);
-rsi_error_t RSI_RTC_GetAlarmDateTime(RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm);
+rsi_error_t RSI_RTC_GetAlarmDateTime(const RTC_Type *Cal, RTC_TIME_CONFIG_T *alarm);
 void RSI_RTC_SetDayOfWeek(RTC_Type *Cal, RTC_DAY_OF_WEEK_T dayInWeek);
 void RSI_RTC_IntrUnMask(uint32_t intr);
 void RSI_RTC_IntrMask(uint32_t intr);

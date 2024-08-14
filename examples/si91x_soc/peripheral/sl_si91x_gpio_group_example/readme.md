@@ -22,9 +22,9 @@
 ## Overview
 
 - The GPIO functionality in the MCU consists of three instances:
-  - HP (High Power) Instance: Controls the SoC GPIOs (GPIO_n; n=0 to 57).
-  - ULP (Ultra Low Power) Instance: Controls the ULP GPIOs (ULP_GPIO_n; n=0 to 11).
-  - UULP (Ultra Ultra Low Power) Instance: Controls the UULP GPIOs (UULP_GPIO_n; n=0 to 4).
+  - **HP (High Power) Instance:** Controls the SoC GPIOs (GPIO_n; n=0 to 57).
+  - **ULP (Ultra Low Power) Instance:** Controls the ULP GPIOs (ULP_GPIO_n; n=0 to 11).
+  - **UULP (Ultra Ultra Low Power) Instance:** Controls the UULP GPIOs (UULP_GPIO_n; n=0 to 4).
 - HP and ULP Instance have same features and functionality except for different base address.
 - Each port in the HP domain supports a maximum of 16 GPIO pins, with a total of four ports (SL_GPIO_PORT_A, SL_GPIO_PORT_B, SL_GPIO_PORT_C, SL_GPIO_PORT_D).
 - The ULP GPIO domain has only one port (SL_GPIO_ULP_PORT) with a maximum of 12 pins.  
@@ -43,10 +43,9 @@
 | HP GPIO Instance               |  SL_GPIO_PORT_B   |   (16-31)         |
 |                                |  SL_GPIO_PORT_C   |   (32-47)         | 
 |                                |  SL_GPIO_PORT_D   |   (48-57)         |
-|--------------------------------|-------------------|-------------------|    
 | ULP GPIO Instance              |  SL_GPIO_ULP_PORT |   (0-11)          |
-|--------------------------------|-------------------|-------------------|    
 | UULP GPIO Instance             | SL_GPIO_UULP_PORT |   (0-4)           |
+|                                |                   |                   |
 
 **NOTE** : There is also option to select (0-57)pins with SL_GPIO_PORT_A. For example, to select HP GPIO pin number 49, one can select Port as SL_GPIO_PORT_A and pin number as 49. This option is given only when SL_GPIO_PORT_A GPIO port is selected. (57-63)pins are reserved.
 
@@ -73,10 +72,11 @@ Please refer to the following APIs which are common for all 3 instances and are 
 - Using \ref sl_gpio_set_configuration(), we can configure mode and direction using port and pin for all 3 instances. By default, the mode is set to mode0 using this API.
 - When it is needed to explicitly configure GPIO to other mode use \ref sl_gpio_driver_set_pin_mode() - applicable to HP, ULP  instance.
 - Configure GPIO to another direction using \ref sl_si91x_gpio_driver_set_pin_direction() - applicable for all 3 instances, \ref sl_si91x_gpio_driver_set_uulp_npss_pin_mux() for UULP  instance. To achieve other modes in GPIO, refer to pin MUX section in HRM.
-- There are also other APIs for increasing driver strength - \ref sl_si91x_gpio_driver_select_pad_driver_strength(), 
-                                            slew rate - \ref sl_gpio_driver_set_slew_rate() - for HP instance, 
-                                            slew rate - \ref sl_si91x_gpio_driver_select_ulp_pad_slew_rate() - for ULP  instance, 
-                                            disable state - \ref sl_si91x_gpio_driver_select_pad_driver_disable_state() for GPIO pin which can be used if necessary.
+- There are also other APIs for increasing
+      driver strength - \ref sl_si91x_gpio_driver_select_pad_driver_strength(), 
+      slew rate - \ref sl_gpio_driver_set_slew_rate() - for HP instance, 
+      slew rate - \ref sl_si91x_gpio_driver_select_ulp_pad_slew_rate() - for ULP  instance, 
+      disable state - \ref sl_si91x_gpio_driver_select_pad_driver_disable_state() for GPIO pin which can be used if necessary.
 - The PAD for corresponding GPIO is taken care of implicitly, if explicitly want to use refer to \ref sl_si91x_gpio_driver_enable_pad_selection().
 - To enable host PAD selection for GPIO pin numbers(25 - 30) refer to \ref sl_si91x_gpio_driver_enable_host_pad_selection().
 **Note:** Do not enable PAD selection number 9, as it is pre-configured for other function .
@@ -86,23 +86,47 @@ Below are the list of GPIO examples available and it's functionality:
   |  GPIO Examples        |    GPIO Functionality                              |  
   |-----------------------|----------------------------------------------------|  
   | gpio_detailed_example | Demonstrates GPIO toggle and supported APIs        |    
-  |-----------------------|----------------------------------------------------|   
   | gpio_example          |  Demonstrates HP GPIO pin interrupt                |  
-  |-----------------------|----------------------------------------------------|    
   | gpio_group_example    | Demonstrates HP, ULP  GPIO group interrupts        | 
-  |-----------------------|----------------------------------------------------|   
   | gpio_ulp_example      |  Demonstrates GPIO toggle and ULP  pin interrupt   |           
-  |-----------------------|----------------------------------------------------|    
   | gpio_uulp_example     | Demonstrates UULP  pin interrupt                   | 
-  |-----------------------|----------------------------------------------------|
-
+  |                       |                                                    |
 ## About Example Code
 
 - The example shows HP, ULP group interrupts using external triggering.
-- For HP interrupt, connect GPIO8(F8) and GPIO9(F9) to low/high. When AND event is selected then interrupt occurs when both pins are high/low at a time.
-  When OR event is selected then interrupt occurs when either one pin is low/high based on level/edge.
-- For ULP interrupt, Connect ULP GPIO8(P15) and ULP GPIO10(P17) to low/high. When AND event is selected then interrupt occurs when both pins are high/low at a time.
-  When OR event is selected then interrupt occurs when either one pin is low/high based on level/edge.
+- Clear all GPIO interrupts and enable the clock using the `sl_gpio_driver_init`  API.
+- Configure the HP and ULP GPIO pins using the `sl_gpio_set_configuration` API.
+- For HP interrupt:
+  - Connect GPIO8 (F8) and GPIO9 (F9) to low or high voltage levels. 
+  - When the `AND event` is selected, the interrupt occurs when both GPIO pins are either high or low voltage levels simultaneously.
+  - When the `OR event` is selected, the interrupt occurs when one pin is either high or low voltage levels, based on the level or edge configuration.
+- For ULP interrupt:
+  - Connect ULP GPIO8 (P15) and ULP GPIO10 (P17) to low or high voltage levels.
+  - When the `AND event` is selected, the interrupt occurs when both GPIO pins are either high or low voltage levels simultaneously.
+  - When the `OR event` is selected, the interrupt occurs when one pin is either high or low voltage levels, based on the level or edge configuration.
+
+**AND Event table:**
+
+>  |  GPIO8 pin state | GPIO9 pin state   |    Trigger status |
+>  |------------------|-------------------|-------------------|
+>  |         0        |        0          |      1            |             
+>  |         0        |        1          |      0            |
+>  |         1        |        0          |      0            |   
+>  |         1        |        1          |      1            |  
+>  |                  |                   |                   | 
+
+**AND Event table:**
+
+>  |  GPIO8 pin state | GPIO9 pin state   |    Trigger status |
+>  |------------------|-------------------|-------------------|
+>  |         0        |        0          |      0            |             
+>  |         0        |        1          |      1            |
+>  |         1        |        0          |      1            |   
+>  |         1        |        1          |      0            |  
+>  |                  |                   |                   | 
+
+> **Note:**
+> As per this example application GPIO8 and GPIO9 are considered for group.
 
 ### Initialization of GPIO
 
@@ -115,14 +139,14 @@ Below are the list of GPIO examples available and it's functionality:
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A]
+- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 

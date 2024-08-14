@@ -85,7 +85,6 @@ static sl_status_t initialize_wireless(void);
 static void wireless_sleep(boolean_t sleep_with_retention);
 static void transition_callback(sl_power_state_t from, sl_power_state_t to);
 static void on_sec_callback(void);
-static void set_ram_retention(void);
 static void ulp_timer_callback(void);
 
 static void set_npss_wakeup_source(uint32_t wakeup_source);
@@ -163,8 +162,6 @@ static void application_start(void *argument)
   }
   DEBUGOUT("Power Manager transition event is subscribed \n");
   change_state = false;
-  // Configuring the RAM retention used for sleep-wakeup.
-  set_ram_retention();
 
   while (true) {
     power_manager_example_process_action();
@@ -197,7 +194,7 @@ static sl_status_t initialize_wireless(void)
                        (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                         | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                      .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
-                     .ext_custom_feature_bit_map = 0,
+                     .ext_custom_feature_bit_map = SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0,
                      .bt_feature_bit_map         = 0,
                      .ext_tcp_ip_feature_bit_map =
                        (SL_SI91X_EXT_TCP_IP_WINDOW_SCALING | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(10)
@@ -668,27 +665,6 @@ void sl_si91x_button_isr(uint8_t pin, int8_t state)
     change_state = true;
   }
 }
-
-/*******************************************************************************
- * Configures the RAM retention with required flags.
- ******************************************************************************/
-static void set_ram_retention(void)
-{
-  sl_status_t status;
-  sl_power_ram_retention_config_t config;
-  config.configure_ram_banks = true;
-  config.m4ss_ram_banks      = SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_8 | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_9
-                          | SL_SI91X_POWER_MANAGER_M4SS_RAM_BANK_10;
-  config.ulpss_ram_banks = SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_2 | SL_SI91X_POWER_MANAGER_ULPSS_RAM_BANK_3;
-
-  // RAM retention modes are configured and passed into this API.
-  status = sl_si91x_power_manager_configure_ram_retention(&config);
-  if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    DEBUGOUT("sl_si91x_power_manager_configure_ram_retention failed, Error Code: 0x%lX", status);
-  }
-}
-
 /*******************************************************************************
  * Configure and initialize the calendar wakeup source.
  * Different wakeup source can be passed here.

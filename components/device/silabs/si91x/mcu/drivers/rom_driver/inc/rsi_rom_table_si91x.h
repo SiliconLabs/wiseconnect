@@ -65,8 +65,8 @@ extern "C" {
 typedef struct {
   void (*egpio_set_dir)(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, boolean_t dir);
   void (*egpio_set_pin)(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t val);
-  boolean_t (*egpio_get_pin)(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
-  boolean_t (*egpio_get_dir)(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
+  boolean_t (*egpio_get_pin)(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
+  boolean_t (*egpio_get_dir)(const EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
   void (*egpio_pin_int_sel)(EGPIO_Type *pEGPIO, uint8_t intCh, uint8_t port, uint8_t pin);
   void (*egpio_set_int_fall_edge_enable)(EGPIO_Type *pEGPIO, uint8_t intCh);
   void (*egpio_set_int_fall_edge_disable)(EGPIO_Type *pEGPIO, uint8_t intCh);
@@ -78,7 +78,7 @@ typedef struct {
   void (*egpio_set_int_low_level_disable)(EGPIO_Type *pEGPIO, uint8_t intCh);
   void (*egpio_set_int_high_level_enable)(EGPIO_Type *pEGPIO, uint8_t intCh);
   void (*egpio_set_int_high_level_disable)(EGPIO_Type *pEGPIO, uint8_t intCh);
-  uint8_t (*egpio_get_int_stat)(EGPIO_Type *pEGPIO, uint8_t intCh);
+  uint8_t (*egpio_get_int_stat)(const EGPIO_Type *pEGPIO, uint8_t intCh);
   void (*egpio_int_clr)(EGPIO_Type *pEGPIO, uint8_t intCh, uint8_t flags);
   void (*egpio_set_pin_mux)(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t mux);
   void (*egpio_ulp_soc_gpio_mode)(ULPCLK_Type *pULPCLK, uint8_t gpio, uint8_t mode);
@@ -90,7 +90,7 @@ typedef struct {
   void (*egpio_word_load)(EGPIO_Type *pEGPIO, uint8_t pin, uint16_t val);
   void (*egpio_clr_port)(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val);
   void (*egpio_toggle_port)(EGPIO_Type *pEGPIO, uint8_t port, uint16_t val);
-  uint16_t (*egpio_get_port)(EGPIO_Type *pEGPIO, uint8_t port);
+  uint16_t (*egpio_get_port)(const EGPIO_Type *pEGPIO, uint8_t port);
   void (*egpio_group_int_one_enable)(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
   void (*egpio_group_int_one_disable)(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
   void (*egpio_group_int_two_enable)(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin);
@@ -102,7 +102,7 @@ typedef struct {
   void (*egpio_group_int_edge)(EGPIO_Type *pEGPIO, uint8_t grpInt);
   void (*egpio_group_int_and)(EGPIO_Type *pEGPIO, uint8_t grpInt);
   void (*egpio_group_int_or)(EGPIO_Type *pEGPIO, uint8_t grpInt);
-  uint32_t (*egpio_group_int_stat)(EGPIO_Type *pEGPIO, uint8_t grpInt);
+  uint32_t (*egpio_group_int_stat)(const EGPIO_Type *pEGPIO, uint8_t grpInt);
   void (*egpio_group_int_wkeup_Enable)(EGPIO_Type *pEGPIO, uint8_t grpInt);
   void (*egpio_group_int_wkeup_disable)(EGPIO_Type *pEGPIO, uint8_t grpInt);
   void (*egpio_group_int_clr)(EGPIO_Type *pEGPIO, uint8_t grpInt, uint8_t flags);
@@ -289,9 +289,9 @@ typedef PRE_PACK struct POST_PACK {
 typedef PRE_PACK struct POST_PACK {
   RSI_UDMA_HANDLE_T (*udma_init)(void *mem, const RSI_UDMA_INIT_T *pInit);
 
-  uint32_t (*udma_get_channel_transfer_mode)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+  uint32_t (*udma_get_channel_transfer_mode)(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
   rsi_error_t (*udma_setup_channel_transfer)(RSI_UDMA_HANDLE_T pHandle,
-                                             RSI_UDMA_CHA_CFG_T *pCfg,
+                                             const RSI_UDMA_CHA_CFG_T *pCfg,
                                              RSI_UDMA_CHA_CONFIG_DATA_T vsUdmaChaConfigData,
                                              void *pSrcAddr,
                                              void *pDstAddr);
@@ -303,12 +303,12 @@ typedef PRE_PACK struct POST_PACK {
                                                           uint32_t transferType);
 
   uint32_t (*udma_get_channel_transfer_length)(RSI_UDMA_HANDLE_T pHandle,
-                                               RSI_UDMA_CHA_CFG_T *pCfg,
+                                               const RSI_UDMA_CHA_CFG_T *pCfg,
                                                RSI_UDMA_CHA_CONFIG_DATA_T vsUDMAChaConfigData);
 
-  rsi_error_t (*udma_setup_channel)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+  rsi_error_t (*udma_setup_channel)(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
-  void (*udma_deInit)(RSI_UDMA_HANDLE_T pHandle, RSI_UDMA_CHA_CFG_T *pCfg);
+  void (*udma_deInit)(RSI_UDMA_HANDLE_T pHandle, const RSI_UDMA_CHA_CFG_T *pCfg);
 
   void (*udma_interrupt_handler)(RSI_UDMA_HANDLE_T pHandle);
 
@@ -321,25 +321,25 @@ typedef PRE_PACK struct POST_PACK {
 //////////////////////////UDMA WRAPPERS //////////////////////////
 typedef PRE_PACK struct POST_PACK {
   RSI_UDMA_HANDLE_T(*uDMAx_Initialize)
-  (UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, RSI_UDMA_HANDLE_T udmaHandle, uint32_t *mem);
-  int32_t (*uDMAx_Uninitialize)(UDMA_RESOURCES *udma);
-  int32_t (*uDMAx_ChannelConfigure)(UDMA_RESOURCES *udma,
+  (const UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, RSI_UDMA_HANDLE_T udmaHandle, uint32_t *mem);
+  int32_t (*uDMAx_Uninitialize)(const UDMA_RESOURCES *udma);
+  int32_t (*uDMAx_ChannelConfigure)(const UDMA_RESOURCES *udma,
                                     uint8_t ch,
                                     uint32_t src_addr,
                                     uint32_t dest_addr,
                                     uint32_t size,
                                     RSI_UDMA_CHA_CONFIG_DATA_T control,
-                                    RSI_UDMA_CHA_CFG_T *config,
+                                    const RSI_UDMA_CHA_CFG_T *config,
                                     UDMA_SignalEvent_t cb_event,
                                     UDMA_Channel_Info *chnl_info,
                                     RSI_UDMA_HANDLE_T udmaHandle);
-  int32_t (*uDMAx_ChannelEnable)(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
-  int32_t (*uDMAx_DMAEnable)(UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
-  int32_t (*uDMAx_ChannelDisable)(uint8_t ch, UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
+  int32_t (*uDMAx_ChannelEnable)(uint8_t ch, const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
+  int32_t (*uDMAx_DMAEnable)(const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
+  int32_t (*uDMAx_ChannelDisable)(uint8_t ch, const UDMA_RESOURCES *udma, RSI_UDMA_HANDLE_T udmaHandle);
   uint32_t (*uDMAx_ChannelGetCount)(uint8_t ch,
                                     RSI_UDMA_CHA_CONFIG_DATA_T control,
                                     RSI_UDMA_CHA_CFG_T config,
-                                    UDMA_RESOURCES *udma,
+                                    const UDMA_RESOURCES *udma,
                                     RSI_UDMA_HANDLE_T udmaHandle);
   void (*uDMAx_IRQHandler)(UDMA_RESOURCES *udma, RSI_UDMA_DESC_T *UDMA_Table, UDMA_Channel_Info *chnl_info);
 
@@ -811,8 +811,8 @@ typedef PRE_PACK struct POST_PACK {
 typedef PRE_PACK struct POST_PACK {
   boolean_t (*clk_check_pll_lock)(PLL_TYPE_T pllType);
   rsi_error_t (*clk_soc_pll_clk_enable)(boolean_t clkEnable);
-  rsi_error_t (*clk_set_soc_pll_freq)(M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
-  rsi_error_t (*clk_soc_pll_set_freq_div)(M4CLK_Type *pCLK,
+  rsi_error_t (*clk_set_soc_pll_freq)(const M4CLK_Type *pCLK, uint32_t socPllFreq, uint32_t pllRefClk);
+  rsi_error_t (*clk_soc_pll_set_freq_div)(const M4CLK_Type *pCLK,
                                           boolean_t clk_en,
                                           uint16_t divFactor,
                                           uint16_t nFactor,
@@ -820,7 +820,7 @@ typedef PRE_PACK struct POST_PACK {
                                           uint16_t fcwF,
                                           uint16_t dcoFixSel,
                                           uint16_t ldoProg);
-  rsi_error_t (*clk_soc_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_soc_pll_clk_set)(const M4CLK_Type *pCLK);
   rsi_error_t (*clk_soc_pll_clk_bypass_enable)(boolean_t clkEnable);
   rsi_error_t (*clk_soc_pll_clk_reset)(void);
   rsi_error_t (*clk_soc_pll_pd_enable)(boolean_t en);
@@ -831,20 +831,20 @@ typedef PRE_PACK struct POST_PACK {
   rsi_error_t (*clk_i2s_pll_pd_enable)(boolean_t en);
   rsi_error_t (*clk_i2s_pll_turn_off)(void);
   rsi_error_t (*clk_i2s_pll_turn_on)(void);
-  rsi_error_t (*clk_set_i2s_pll_freq)(M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
-  rsi_error_t (*clk_i2s_pll_set_freq_div)(M4CLK_Type *pCLK,
+  rsi_error_t (*clk_set_i2s_pll_freq)(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, uint32_t fXtal);
+  rsi_error_t (*clk_i2s_pll_set_freq_div)(const M4CLK_Type *pCLK,
                                           uint16_t u16DivFactor1,
                                           uint16_t u16DivFactor2,
                                           uint16_t nFactor,
                                           uint16_t mFactor,
                                           uint16_t fcwF);
-  rsi_error_t (*clk_i2s_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_i2s_pll_clk_set)(const M4CLK_Type *pCLK);
   rsi_error_t (*clk_i2s_pll_clk_reset)(void);
   rsi_error_t (*clk_intf_pll_clk_enable)(boolean_t clkEnable);
   rsi_error_t (*clk_intf_pll_pd_enable)(boolean_t en);
   rsi_error_t (*clk_intf_pll_turn_off)(void);
-  rsi_error_t (*clk_set_intf_pll_freq)(M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
-  rsi_error_t (*clk_intf_pll_set_freq_div)(M4CLK_Type *pCLK,
+  rsi_error_t (*clk_set_intf_pll_freq)(const M4CLK_Type *pCLK, uint32_t intfPllFreq, uint32_t pllRefClk);
+  rsi_error_t (*clk_intf_pll_set_freq_div)(const M4CLK_Type *pCLK,
                                            boolean_t clk_en,
                                            uint16_t divFactor,
                                            uint16_t nFactor,
@@ -855,7 +855,7 @@ typedef PRE_PACK struct POST_PACK {
   rsi_error_t (*clk_intf_pll_clk_bypass_enable)(boolean_t clkEnable);
   rsi_error_t (*clk_intf_pll_turn_on)(void);
   rsi_error_t (*clk_intf_pll_clk_reset)(void);
-  rsi_error_t (*clk_intf_pll_clk_set)(M4CLK_Type *pCLK);
+  rsi_error_t (*clk_intf_pll_clk_set)(const M4CLK_Type *pCLK);
   rsi_error_t (*clk_peripheral_clk_enable1)(M4CLK_Type *pCLK, uint32_t flags);
   rsi_error_t (*clk_peripheral_clk_disable1)(M4CLK_Type *pCLK, uint32_t flags);
   rsi_error_t (*clk_peripheral_clk_enable2)(M4CLK_Type *pCLK, uint32_t flags);

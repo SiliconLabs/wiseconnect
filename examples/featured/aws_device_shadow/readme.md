@@ -40,15 +40,34 @@ $aws/things/thingName/shadow/name/shadowName/update/delta
 
 - Windows PC
 - Wi-Fi Access point with a connection to the internet
-- SoC Mode:
-  - Silicon Labs [BRD4338A, BRD4342A](https://www.silabs.com/)
-- NCP Mode:
-  - Silicon Labs [BRD4180B](https://www.silabs.com/)
-  - Host MCU Eval Kit. This example has been tested with:
-    - Silicon Labs [WSTK + EFR32MG21](https://www.silabs.com/development-tools/wireless/efr32xg21-bluetooth-starter-kit)
+- **SoC Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - Radio Boards 
+      - BRD4338A [SiWx917-RB4338A]
+      - BRD4342A [SiWx917-RB4342A]
+      - BRD4343A [SiWx917-RB4343A]
+  - Kits
+  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+  	- SiWx917 Pro Kit [Si917-PK6032A]
+  	
+- **NCP Mode**:
+  - Standalone
+    - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
+    - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
+  - Kits
+  	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
 - STM32F411RE MCU
     - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
-    - NCP Radio Board (BRD4346A + BRD8045C)
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045C)
+      - (BRD4357A + BRD8045C)
+- Interface and Host MCU Supported
+    - SPI - EFR32 & STM32
+    - UART - EFR32
 
 ### Software Requirements
 
@@ -70,7 +89,7 @@ $aws/things/thingName/shadow/name/shadowName/update/delta
   - Upgrade your connectivity firmware
   - Create a Studio project
 
-### Instructions for Keil IDE and STM32F411RE MCU
+### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32) to:
 
   - Install the [Keil IDE](https://www.keil.com/).
@@ -78,7 +97,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
+   - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
    - After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    - Connect the setup to the computer.

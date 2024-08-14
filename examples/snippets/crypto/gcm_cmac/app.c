@@ -75,7 +75,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
 #ifdef SLI_SI91X_MCU_INTERFACE
                      SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
-                     SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
+                     SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #endif
 #ifdef SLI_SI917
                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
@@ -120,6 +120,7 @@ uint8_t mac_buffer[SL_SI91X_TAG_SIZE] = { 0 };
 
 #if USE_WRAPPED_KEYS
 sl_si91x_wrap_config_t wrap_config = { 0 };
+uint8_t wrapped_key[SL_SI91X_GCM_KEY_SIZE_256];
 uint8_t wrap_iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 #endif
 
@@ -172,6 +173,7 @@ sl_status_t gcm_encryption(void)
   sl_status_t status;
 
   sl_si91x_gcm_config_t config_gcm;
+  memset(&config_gcm, 0, sizeof(sl_si91x_gcm_config_t));
   config_gcm.encrypt_decrypt = SL_SI91X_GCM_ENCRYPT;
   config_gcm.dma_use         = SL_SI91X_GCM_DMA_ENABLE;
   config_gcm.msg             = plaintext;
@@ -215,7 +217,13 @@ sl_status_t gcm_encryption(void)
   }
   printf("\r\nWrap success\r\n");
   config_gcm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-  memcpy(config_gcm.key_config.b0.key_buffer, wrapped_key, config_gcm.key_config.b0.key_size);
+  //for 128 bits key, wrap key size is 128 bits,
+  //for 192 and 256 bits keys, wrap key size is 256 bits
+  if (config_gcm.key_config.b0.key_size == SL_SI91X_GCM_KEY_SIZE_128) {
+    memcpy(config_gcm.key_config.b0.key_buffer, wrapped_key, SL_SI91X_GCM_KEY_SIZE_128);
+  } else {
+    memcpy(config_gcm.key_config.b0.key_buffer, wrapped_key, SL_SI91X_GCM_KEY_SIZE_256);
+  }
   config_gcm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
   memcpy(config_gcm.key_config.b0.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
 
@@ -242,15 +250,16 @@ sl_status_t gcm_decryption(void)
 {
   sl_status_t status;
 
-  sl_si91x_gcm_config_t config_gcm = { 0 };
-  config_gcm.encrypt_decrypt       = SL_SI91X_GCM_DECRYPT;
-  config_gcm.dma_use               = SL_SI91X_GCM_DMA_ENABLE;
-  config_gcm.msg                   = ciphertext;
-  config_gcm.msg_length            = sizeof(ciphertext);
-  config_gcm.nonce                 = nonce;
-  config_gcm.nonce_length          = sizeof(nonce);
-  config_gcm.ad                    = additional_data;
-  config_gcm.ad_length             = sizeof(additional_data);
+  sl_si91x_gcm_config_t config_gcm;
+  memset(&config_gcm, 0, sizeof(sl_si91x_gcm_config_t));
+  config_gcm.encrypt_decrypt = SL_SI91X_GCM_DECRYPT;
+  config_gcm.dma_use         = SL_SI91X_GCM_DMA_ENABLE;
+  config_gcm.msg             = ciphertext;
+  config_gcm.msg_length      = sizeof(ciphertext);
+  config_gcm.nonce           = nonce;
+  config_gcm.nonce_length    = sizeof(nonce);
+  config_gcm.ad              = additional_data;
+  config_gcm.ad_length       = sizeof(additional_data);
 #ifdef SLI_SI917B0
   config_gcm.gcm_mode    = SL_SI91X_GCM_MODE;
   size_t key_buffer_size = sizeof(key);
@@ -271,7 +280,13 @@ sl_status_t gcm_decryption(void)
   config_gcm.key_config.b0.key_slot = 0;
 #if USE_WRAPPED_KEYS
   config_gcm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-  memcpy(config_gcm.key_config.b0.key_buffer, wrapped_key, config_gcm.key_config.b0.key_size);
+  //for 128 bits key, wrap key size is 128 bits,
+  //for 192 and 256 bits keys, wrap key size is 256 bits
+  if (config_gcm.key_config.b0.key_size == SL_SI91X_GCM_KEY_SIZE_128) {
+    memcpy(config_gcm.key_config.b0.key_buffer, wrapped_key, SL_SI91X_GCM_KEY_SIZE_128);
+  } else {
+    memcpy(config_gcm.key_config.b0.key_buffer, wrapped_key, SL_SI91X_GCM_KEY_SIZE_256);
+  }
   config_gcm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
   memcpy(config_gcm.key_config.b0.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
 #else
@@ -301,16 +316,17 @@ sl_status_t cmac_compute(void)
 {
   sl_status_t status = SL_STATUS_FAIL;
 #ifdef SLI_SI917B0
-  sl_si91x_gcm_config_t config_cmac = { 0 };
-  config_cmac.gcm_mode              = SL_SI91X_CMAC_MODE;
-  config_cmac.dma_use               = SL_SI91X_GCM_DMA_ENABLE;
-  config_cmac.msg                   = cmac_msg;
-  config_cmac.msg_length            = sizeof(cmac_msg);
-  config_cmac.nonce                 = NULL;
-  config_cmac.nonce_length          = 0;
-  config_cmac.ad                    = NULL;
-  config_cmac.ad_length             = 0;
-  size_t key_buffer_size            = sizeof(cmac_key);
+  sl_si91x_gcm_config_t config_cmac;
+  memset(&config_cmac, 0, sizeof(sl_si91x_gcm_config_t));
+  config_cmac.gcm_mode     = SL_SI91X_CMAC_MODE;
+  config_cmac.dma_use      = SL_SI91X_GCM_DMA_ENABLE;
+  config_cmac.msg          = cmac_msg;
+  config_cmac.msg_length   = sizeof(cmac_msg);
+  config_cmac.nonce        = NULL;
+  config_cmac.nonce_length = 0;
+  config_cmac.ad           = NULL;
+  config_cmac.ad_length    = 0;
+  size_t key_buffer_size   = sizeof(cmac_key);
   switch (key_buffer_size) {
     case SL_SI91X_GCM_KEY_SIZE_128:
       config_cmac.key_config.b0.key_size = SL_SI91X_GCM_KEY_SIZE_128;
@@ -340,10 +356,16 @@ sl_status_t cmac_compute(void)
     return status;
   }
   printf("\r\nWrap success\r\n");
-  config_gcm.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-  memcpy(config_gcm.key_config.b0.key_buffer, wrapped_key, config_gcm.key_config.b0.key_size);
-  config_gcm.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-  memcpy(config_gcm.key_config.b0.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
+  config_cmac.key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
+  //for 128 bits key, wrap key size is 128 bits,
+  //for 192 and 256 bits keys, wrap key size is 256 bits
+  if (config_cmac.key_config.b0.key_size == SL_SI91X_GCM_KEY_SIZE_128) {
+    memcpy(config_cmac.key_config.b0.key_buffer, wrapped_key, SL_SI91X_GCM_KEY_SIZE_128);
+  } else {
+    memcpy(config_cmac.key_config.b0.key_buffer, wrapped_key, SL_SI91X_GCM_KEY_SIZE_256);
+  }
+  config_cmac.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+  memcpy(config_cmac.key_config.b0.wrap_iv, wrap_iv, SL_SI91X_IV_SIZE);
 
 #else
   config_cmac.key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;

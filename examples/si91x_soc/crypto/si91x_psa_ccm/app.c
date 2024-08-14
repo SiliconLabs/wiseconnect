@@ -70,7 +70,7 @@ static const sl_wifi_device_configuration_t client_configuration = {
 #ifdef SLI_SI91X_MCU_INTERFACE
                      SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
-                     SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
+                     SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #endif
 #ifdef SLI_SI917
                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0

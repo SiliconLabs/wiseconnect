@@ -15,14 +15,13 @@
 
 ## Purpose/Scope
 
-- Universal Asynchronous Receiver-Transmitter (UART)
-- This application demonstrates how to configure UART, it will send and receive data in loopback mode
+- Universal Asynchronous Receiver-Transmitter (UART).
+- This application demonstrates how to configure UART In asynchronous mode, it will send   data to serial console and receives form the serial console.
 
 ## Overview
 
-- UART is used in communication through wired medium in asynchronous fashion. It enables the device to
-  communicate using serial protocols
-- This application is configured with following configs
+- UART is used in communication through wired medium in asynchronous fashion. It enables the device to communicate using serial protocols.
+- This application is configured with following configurations:
   - Tx and Rx enabled
   - Asynchronous mode
   - 8 Bit data transfer
@@ -33,11 +32,11 @@
 
 ## About Example Code
 
-- \ref uart_example.c this example code demonstates how to configure the UART to send and receive data.
+- \ref uart_example.c this example code demonstrates how to configure the UART to send and receive data.
 - In this example, first UART get initialized if it's not initialized already with clock and dma configurations if dma is
   enalbed using \ref sl_si91x_usart_init
 - After UART initialization, the UART power mode is set using \ref sl_si91x_usart_set_power_mode() and then UART configured with the default configurations from UC along with the UART transmit and receive lines using \ref sl_si91x_usart_set_configuration()
-- Then register's user event callback for send and recevie complete notification are set using
+- Then register user event callback for send and receive complete notification are set using
   \ref sl_si91x_usart_register_event_callback()
 - After setting the user event callback, the data send and receive can happen through \ref sl_si91x_usart_send_data() and \ref sl_si91x_usart_receive_data() respectively
 - Once the receive data event is triggered, both transmit and receive buffer data is compared to confirm if the received data is same.
@@ -54,7 +53,7 @@
 - Simplicity Studio
 - Serial console Setup
   - The Serial Console setup instructions are provided below:
-Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#perform-console-output-and-input-for-brd4338-a).
+Refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Setup Diagram
 
@@ -73,15 +72,19 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Application Build Environment
 
-- Configuration of UART at UC.
+- Configuration of UART at UC(Universal Configuration).
+- Configure UC from the slcp component.
+- Open **sl_si91x_uart.slcp** project file select **software component** tab and search for **UART** in search bar.
+- Using configuration wizard one can configure different parameters. Below configuration screens where user can select as per requirement.
+
   > ![Figure: Selecting UC](resources/uc_screen/uart_uc.png)
 
 ## Pin Configuration
 
-  | UART PINS     | GPIO    | Connector     | UART-TTL cable |
-  | ------------- | ------- | ------------- | -------------- |
-  | UART1_TX_PIN  | GPIO_7  |     P20       | RX pin         |
-  | UART1_RX_PIN  | GPIO_6  |     P19       | TX Pin         | 
+  | UART PINS     | GPIO    | WPK Connector Pin     | UART-TTL cable |
+  | ------------- | ------- | ------------------    | -------------- |
+  | UART1_TX_PIN  | GPIO_7  |        P20            | RX pin         |
+  | UART1_RX_PIN  | GPIO_6  |        P19            | TX Pin         | 
 
 ## Flow Control Configuration
 
@@ -98,10 +101,10 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Test the Application
 
-1. Connect TX pin(GPIO_7) to RX pin of UART to TTL cable and RX pin(GPIO_6) to TX pin of UART-TTL cable.
+1. Connect TX pin(GPIO_7) to RX pin of UART-TTL cable and RX pin(GPIO_6) to TX pin of UART-TTL cable.
 2. When the application runs, UART sends and receives data in full duplex mode.
 3. Observe the UART transferred data on console and then the same 1024 bytes of data sent back.
-4. After running this application below console output can be observed.
+4. After running this application, we could observe the output from the serial terminal as shown below.
 
     > ![Figure: expected result](resources/readme/output_console_uart.png)
 >
@@ -111,7 +114,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ## Configuring SOCPLL clock
 For Baudrates higher than 2 Million configure the SOCPLL clock by following the below steps
->- In uart_example.c (path: /$project/uart_example.c) add below lines of code 
+>- In uart_example.c (path: /$project/uart_example.c) **add below lines of code.** 
 ```c
 #include "rsi_rom_clks.h"
 
@@ -126,7 +129,6 @@ RSI_CLK_SetSocPllFreq(M4CLK, SOC_PLL_CLK, SOC_PLL_REF_CLK); //To configure SOCPL
 ```c
 #define RTE_UART1_CLK_SRC  // for UART1
 ```
-
 
 > **Note:**
 >

@@ -20,8 +20,8 @@
   
 ## Purpose/Scope
 
-This application demonstrates the procedure to measure WLAN UDP/TCP/TLS throughput by configuring the SiWx91x in client/server role.
-In this application, the SiWx91x as a soft Access point and allows stations to connect to it, later it gets connected to iPerf server/client or python based TLS scripts, running on a remote PC and measures Tx/Rx throughput transmitted/received from remote PC.
+This application demonstrates the procedure to measure WLAN UDP/TCP/TLS throughput by configuring the SiWx91x Soft Access Point in Client/Server role.
+The SiWx91x as a Soft Access Point allows stations to connect and later gets connected to a iPerf Server/Client or python based TLS scripts running on a remote PC, then measures throughput for transmitted/received data from remote PC.
 
 ## Prerequisites/Setup Requirements
 
@@ -34,6 +34,7 @@ In this application, the SiWx91x as a soft Access point and allows stations to c
     - Radio Boards 
   	  - BRD4338A [SiWx917-RB4338A]
       - BRD4342A [SiWx917-RB4342A]
+    	- BRD4343A [SiWx917-RB4343A]
   - Kits
   	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
   	- SiWx917 Pro Kit [Si917-PK6032A]
@@ -42,20 +43,26 @@ In this application, the SiWx91x as a soft Access point and allows stations to c
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - EFR32xG24 Wireless 2.4 GHz +10 dBm Radio Board [xG24-RB4186C](https://www.silabs.com/development-tools/wireless/xg24-rb4186c-efr32xg24-wireless-gecko-radio-board?tab=overview)
-    - NCP EFR Expansion Kit with NCP Radio board (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+    - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045A) [SiWx917-EB4346A]
+      - (BRD4357A + BRD8045A) [SiWx917-EB4357A]
   - Kits
   	- EFR32xG24 Pro Kit +10 dBm [xG24-PK6009A](https://www.silabs.com/development-tools/wireless/efr32xg24-pro-kit-10-dbm?tab=overview)
   - STM32F411RE MCU
      - [STM32F411RE](https://www.st.com/en/microcontrollers-microprocessors/stm32f411re.html) MCU
-     - NCP Radio Board (BRD4346A + BRD8045C)
+     - NCP Expansion Kit with NCP Radio boards
+      - (BRD4346A + BRD8045C)
+      - (BRD4357A + BRD8045C)
+  - Interface and Host MCU Supported
+    - SPI - EFR32 & STM32
 
 ### Software Requirements
 
 - Simplicity Studio IDE (to be used with Silicon Labs MCU)
 - Keil IDE (to be used with STM32F411RE MCU)
-- [iPerf Application](https://iperf.fr/iperf-download.php)
+- [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download). iPerf is a tool for active measurements of the maximum achievable bandwidth on IP networks. It supports tuning of various parameters related to timing, buffers and protocols (TCP and UDP with IPv4 and IPv6).
 - [Python Environment](https://www.python.org/downloads/)
-- Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)
+- Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en) (to be used with Keil IDE)/[Serial Debug Assistant](https://apps.microsoft.com/detail/9nblggh43hdm?launch=true&mode=full&hl=en-us&gl=in&ocid=bingwebsearch)
 
 ### Setup Diagram
 
@@ -74,14 +81,14 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
-### Instructions for Keil IDE and STM32F411RE MCU
+### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 
   - Install the [Keil IDE](https://www.keil.com/).
   - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
-   - Mount the NCP Radio board (BRD4346A) onto the radio board socket available on the base board (BRD8045C).
+   - Mount the NCP Radio board (BRD4346A/BRD4357A) onto the radio board socket available on the base board (BRD8045C).
    - After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    - Connect the setup to the computer.
@@ -118,7 +125,7 @@ The application can be configured to suit user requirements and development envi
       #define SOCKET_ASYNC_FEATURE 1                // Type of Socket used. Synchronous = 0, Asynchronous = 1
       ```
 
-  - Throughput Measurement Types
+- Throughput Measurement Types
 
     - The application may be configured to measure throughput using UDP, TCP or TLS packets. Choose the measurement type using the `THROUGHPUT_TYPE` macro.
 
@@ -161,10 +168,12 @@ The application can be configured to suit user requirements and development envi
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs devices (SoC and NCP Modes)
 
-Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
+Refer to the instructions [here](https://docs.silabs.com/simplicity-studio-5-users-guide/5.8.2/ss-5-users-guide-building-and-flashing/building) to:
 
 - Build the application.
 - Flash, run and debug the application.
+
+  > **Note:** AP standalone mode does not support Tx aggregation. Rx aggregation is supported with Block acknowledgment (Block Ack) sessions. This constraint will impact throughput, particularly in scenarios other than UDP Rx.
 
 ### Instructions for Keil IDE and STM32F411RE MCU
 
@@ -174,13 +183,14 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   > **Note:** The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the iPerf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the throughput numbers in serial console.
 
+
   ![Application_Prints](resources/readme/output_soc.png)
 
 #### Run the UDP Server
 
 ##### UDP Tx Throughput
 
-To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC.
+To measure UDP Tx throughput, configure the SiWx91x as a UDP client and start a UDP server on the remote PC. To establish UDP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the downloaded folder's path in the command prompt.
 The iPerf command to start the UDP server on the PC is:
 
   > `C:\> iperf.exe -s -u -p <SERVER_PORT> -i 1`
@@ -206,7 +216,7 @@ The iPerf command to start the UDP client is:
 
 ##### TCP Tx Throughput
 
-To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC.
+To measure TCP Tx throughput, configure the SiWx91x as a TCP client and start a TCP server on the remote PC. To establish TCP Server on remote PC, open [iPerf Application](https://sourceforge.net/projects/iperf2/files/iperf-2.0.8-win.zip/download) and run the below command from the downloaded folder's path in the command prompt.
 The iPerf command to start the TCP server is:
   
   > `C:\> iperf.exe -s -p <SERVER_PORT> -i 1`

@@ -135,7 +135,10 @@ class MyHandler(BaseHTTPRequestHandler):
                 print('--------------   GET SUCCESS  --------------\n')
                 self.send_header('Content-type', mimetype)
                 self.end_headers()
-                self.wfile.write(f.read().encode(encoding='utf_8'))
+                # Read the file content as bytes and write directly to the output stream.
+                # The file is opened in binary mode, so f.read() returns bytes.
+                # No need to encode, as the content is already in bytes.
+                self.wfile.write(f.read())
                 f.close()
             return
 

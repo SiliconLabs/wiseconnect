@@ -196,19 +196,15 @@ static void post_uart_rx_handler(char character)
         escape_sequence = 0;
       }
     } else {
-      switch (character) {
-        case 'A':
-          // Up arrow pressed
-          current_buffer_index--;
+      if (character == 'A') {
+        // Up arrow pressed
+        current_buffer_index--;
+        if (current_buffer_index >= USER_RX_BUFFER_COUNT) {
+          current_buffer_index = USER_RX_BUFFER_COUNT - 1;
+        }
 
-          if (current_buffer_index >= USER_RX_BUFFER_COUNT) {
-            current_buffer_index = USER_RX_BUFFER_COUNT - 1;
-          }
-
-          printf("%s", (const char *)&user_rx_buffer[current_buffer_index][0]);
-          break;
+        printf("%s", (const char *)&user_rx_buffer[current_buffer_index][0]);
       }
-
       escape_sequence = 0;
     }
   }
@@ -310,9 +306,9 @@ static void print_command_database(const console_database_t *database, const cha
       }
     } else {
       printf("  ");
-      console_print_command_args((console_descriptive_command_t *)database->entries[a].value);
+      console_print_command_args((const console_descriptive_command_t *)database->entries[a].value);
       printf("\r\n   ");
-      printf(((console_descriptive_command_t *)database->entries[a].value)->description);
+      printf(((const console_descriptive_command_t *)database->entries[a].value)->description);
     }
     printf("\r\n");
   }

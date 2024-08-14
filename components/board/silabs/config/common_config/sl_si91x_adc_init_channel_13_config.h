@@ -37,7 +37,7 @@ extern "C" {
 /******************************************************************************/
 /**************************** ADC Channel Configuration ***********************/
 
-#define P12_START_LOCATION_PINTOOL 210
+#define P13_START_LOCATION_PINTOOL 210
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Channel Configuration
 
@@ -59,26 +59,30 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>
-// <adc signal=P12> SL_ADC_CH13
-// $[ADC_SL_ADC_CH13]
+// <adc_ch13 signal=P13> SL_ADC_CH13
+// $[ADC_CH13_SL_ADC_CH13]
 #ifndef SL_ADC_CH13_PERIPHERAL
-#define SL_ADC_CH13_PERIPHERAL ADC
+#define SL_ADC_CH13_PERIPHERAL ADC_CH13
 #endif
 
-// ADC P12 on ULP_GPIO_7/GPIO_71
-#ifndef SL_ADC_CH13_P12_PORT
-#define SL_ADC_CH13_P12_PORT 0
+// ADC_CH13 P13 on ULP_GPIO_7/GPIO_71
+#ifndef SL_ADC_CH13_P13_PORT
+#define SL_ADC_CH13_P13_PORT 0
 #endif
-#ifndef SL_ADC_CH13_P12_PIN
-#define SL_ADC_CH13_P12_PIN 7
+#ifndef SL_ADC_CH13_P13_PIN
+#define SL_ADC_CH13_P13_PIN 7
 #endif
-#ifndef SL_ADC_CH13_P12_LOC
-#define SL_ADC_CH13_P12_LOC 225
+#ifndef SL_ADC_CH13_P13_LOC
+#define SL_ADC_CH13_P13_LOC 225
 #endif
-// [ADC_SL_ADC_CH13]$
+// [ADC_CH13_SL_ADC_CH13]$
 // <<< sl:end pin_tool >>>
 
-#define SL_ADC_CHANNEL_13_POS_INPUT_CHNL_SEL (SL_ADC_CH13_P12_LOC - P12_START_LOCATION_PINTOOL)
+#ifdef SL_ADC_CH13_P13_LOC
+#define SL_ADC_CHANNEL_13_POS_INPUT_CHNL_SEL (SL_ADC_CH13_P13_LOC - P13_START_LOCATION_PINTOOL)
+#else
+#define SL_ADC_CHANNEL_13_POS_INPUT_CHNL_SEL 15
+#endif
 #define SL_ADC_CHANNEL_13_NEG_INPUT_CHNL_SEL 6
 
 #ifdef __cplusplus

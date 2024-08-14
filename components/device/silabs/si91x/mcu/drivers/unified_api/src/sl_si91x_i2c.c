@@ -149,6 +149,7 @@ sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_
     // will return an error code, also validating members of i2c-config
     // structure.
     if ((p_user_config == NULL) || (i2c_instance >= SL_I2C_LAST) || (p_user_config->mode > SL_I2C_FOLLOWER_MODE)
+        || (p_user_config->operating_mode < SL_I2C_STANDARD_MODE)
         || (p_user_config->operating_mode >= SL_I2C_OPERATING_MODE_LAST)
         || (p_user_config->transfer_type >= SL_I2C_TRANFER_TYPE_LAST)) {
       i2c_status = SL_I2C_INVALID_PARAMETER;
@@ -170,7 +171,6 @@ sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_
     i2c                                             = (I2C0_Type *)i2c_addr(i2c_instance);
     // Initializing I2c clock
     i2c_clock_init(i2c);
-
     if ((p_user_config->operating_mode == SL_I2C_FAST_PLUS_MODE)
         || (p_user_config->operating_mode == SL_I2C_HIGH_SPEED_MODE)) {
       if (i2c_instance == SL_I2C2) {
@@ -179,7 +179,6 @@ sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_
         RSI_ULPSS_UlpProcClkConfig(ULPCLK, ULP_PROC_SOC_CLK, ULP_PRO_CLOCK_DIV_FACTOR, DELAY_DISABLE);
       }
     }
-
     // Read the current M4 Core clock
     sl_si91x_clock_manager_m4_get_core_clk_src_freq(&config.freq);
     // Registering callback as per transfer type

@@ -36,7 +36,11 @@
 //#include <stddef.h>
 
 #ifndef WIFI_BUFFER_BLOCK_SIZE
+#ifdef SPI_EXTENDED_TX_LEN_2K
+#define WIFI_BUFFER_BLOCK_SIZE 2300
+#else
 #define WIFI_BUFFER_BLOCK_SIZE 1616
+#endif
 #endif
 
 #ifndef WIFI_BUFFER_SIZE

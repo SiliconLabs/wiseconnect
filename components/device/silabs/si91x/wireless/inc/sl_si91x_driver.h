@@ -241,55 +241,37 @@ sl_status_t sl_si91x_wifi_set_certificate_index(uint8_t certificate_type,
                                                 uint8_t certificate_index,
                                                 const uint8_t *buffer,
                                                 uint32_t certificate_length);
-
+/** \addtogroup SI91X_DRIVER_FUNCTIONS 
+ * \ingroup SL_SI91X_API
+ * @{ */
 /***************************************************************************/ /**
  * @brief
- *   Set the host rtc timer. This is a blocking API.
+ *   Sets the Real Time Clock (RTC) of the module.This is a blocking API.
  * @param[in]   timer
- *  @ref sl_si91x_module_rtc_time_t Pointer to fill RTC time.
- *	     second -->  seconds [0-59]
- *	     minute -->  minutes [0-59]
- *	  	 hour   -->  hours since midnight [0-23]
- *	  	 day    -->  day of the month [1-31]
- *	  	 month  -->  months since January [0-11]
- *	  	 year   -->  year since 1990.
- *	 	 Weekday-->  Weekday from Sunday to Saturday [1-7].
- * @note        Hour is 24-hour format only (valid values are 0 to 23).
- *              Valid values for Month are 0 to 11 (January to December).
+ *  Pointer to an @ref sl_si91x_module_rtc_time_t structure that contains the RTC time to be set.
  * @pre Pre-conditions:
- * -
- *   @ref sl_si91x_driver_init() API needs to be called before this API
+ * - The [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) API must be called prior to this API.
+ * - The @ref SL_SI91X_CUSTOM_FEAT_RTC_FROM_HOST bit must be enabled in the @ref SI91X_CUSTOM_FEATURE_BITMAP during the [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) process.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note
+ *   Ensure that the Real-Time Clock (RTC) timer is configured to enable certificate validation.
  ******************************************************************************/
-sl_status_t sl_si91x_set_rtc_timer(sl_si91x_module_rtc_time_t *timer);
+sl_status_t sl_si91x_set_rtc_timer(const sl_si91x_module_rtc_time_t *timer);
 
 /***************************************************************************/ /**
  * @brief
- *   Fetch current time from hardware Real Time Clock. This is a blocking API.
+ *   Retrieves the current time from the module's Real Time Clock (RTC).This is a blocking API.
  * @param[out]  response
- *  @ref sl_si91x_module_rtc_time_t Response of the requested command. 
- -
- * @note	Response parameters: 
- -
- * *   Pointer to fill RTC time.
- *	     second -->  seconds [0-59]
- *	     minute -->  minutes [0-59]
- *	  	 hour   -->  hours since midnight [0-23]
- *	  	 day    -->  day of the month [1-31]
- *	  	 month  -->  months since January [0-11]
- *	  	 year   -->  year since 1990.
- *	 	 Weekday-->  Weekday from Sunday to Saturday [1-7].
- * @note        Hour is 24-hour format only (valid values are 0 to 23).
- *              Valid values for Month are 0 to 11 (January to December).
+ *  Pointer to an @ref sl_si91x_module_rtc_time_t structure where the RTC's current time will be stored.
  * @pre Pre-conditions:
- * -
- *   @ref sl_si91x_set_rtc_timer() API needs to be called before this API.
- *   @ref sl_si91x_driver_init() API needs to be called before this API also.
+ * - The @ref sl_si91x_set_rtc_timer() API must be called to set the RTC time before attempting to retrieve it.
+ * - The @ref SL_SI91X_CUSTOM_FEAT_RTC_FROM_HOST bit must be enabled in the @ref SI91X_CUSTOM_FEATURE_BITMAP during the [sl_wifi_init()](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) process to allow RTC time setting and retrieval from the host.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_get_rtc_timer(sl_si91x_module_rtc_time_t *response);
+/** @} */
 
 /***************************************************************************/ /**
  * @brief
@@ -319,7 +301,7 @@ sl_status_t sl_si91x_write_calibration_data(const si91x_calibration_data_t *data
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
-sl_status_t sl_si91x_transmit_test_start(sl_si91x_request_tx_test_info_t *tx_test_info);
+sl_status_t sl_si91x_transmit_test_start(const sl_si91x_request_tx_test_info_t *tx_test_info);
 /***************************************************************************/ /**
  * @brief
  *   Stop the transmit test. This is a blocking API.
@@ -446,7 +428,38 @@ sl_status_t sl_si91x_dpd_calibration(const sl_si91x_get_dpd_calib_data_t *dpd_ca
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  *******************************************************************************/
-sl_status_t sl_si91x_efuse_read(sl_si91x_efuse_read_t *efuse_read, uint8_t *efuse_read_buf);
+sl_status_t sl_si91x_efuse_read(const sl_si91x_efuse_read_t *efuse_read, uint8_t *efuse_read_buf);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Enable wireless radio.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_si91x_driver_init should be called before this API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_enable_radio(void);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Disable wireless radio.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_si91x_driver_init should be called before this API.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_disable_radio(void);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Set specific Wi-Fi listen interval in low-power mode
+ * @param[in] listen_interval
+ *   Wi-Fi Listen interval.
+ * @return none
+ *******************************************************************************/
+void sl_si91x_set_listen_interval(uint32_t listen_interval);
 
 /** @} */
 
@@ -502,28 +515,6 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
 
 /***************************************************************************/ /**
  * @brief
- *   Enable wireless radio.
- * @pre Pre-conditions:
- * - 
- *   @ref sl_si91x_driver_init should be called before this API.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_si91x_enable_radio(void);
-
-/***************************************************************************/ /**
- * @brief
- *   Disable wireless radio.
- * @pre Pre-conditions:
- * - 
- *   @ref sl_si91x_driver_init should be called before this API.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-sl_status_t sl_si91x_disable_radio(void);
-
-/***************************************************************************/ /**
- * @brief
  *   Set device power configuration.
  * @param[in] mode
  *   @ref sl_si91x_power_mode_t Power mode to be set to the device.
@@ -536,8 +527,6 @@ sl_status_t sl_si91x_disable_radio(void);
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_set_power_mode(sl_si91x_power_mode_t mode, const sl_si91x_power_configuration_t *config);
-
-/** @} */
 
 /** \addtogroup SI91X_FIRMWARE_UPDATE_FROM_HOST_FUNCTIONS Firmware Update From Host
  * \ingroup SI91X_FIRMWARE_UPDATE_FUNCTIONS
@@ -567,9 +556,14 @@ sl_status_t sl_si91x_fwup_load(uint8_t *content, uint16_t length);
 
 /***************************************************************************/ /**
  * @brief      
- *    This API is used to abort the firmware update process on the SI91x device. This is a blocking API.
+ *    This API is used to abort the firmware update process on the SiWx91x device. This is a blocking API.
+ * @pre Pre-conditions:
+ * - 
+ *   @ref sl_si91x_fwup_load should be called before this API.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * @note        Only after successful completion of firmware download using sl_si91x_fwup_load API, the user can call the sl_si91x_fwup_abort API.
+ * @note        Ensure to call this abort API before performing a Soft / Hard reset of the SiWx91x device. if not called before soft/hard reset firmware update process won't be aborted.
  ******************************************************************************/
 sl_status_t sl_si91x_fwup_abort();
 /** @} */
@@ -593,9 +587,9 @@ sl_status_t sl_si91x_fwup_abort();
  */
 sl_status_t sl_si91x_m4_ta_secure_handshake(uint8_t sub_cmd_type,
                                             uint8_t input_len,
-                                            uint8_t *input_data,
+                                            const uint8_t *input_data,
                                             uint8_t output_len,
-                                            uint8_t *output_data);
+                                            const uint8_t *output_data);
 #endif
 
 /***************************************************************************/ /**
@@ -657,7 +651,7 @@ sl_status_t sl_si91x_configure_timeout(sl_si91x_timeout_type_t timeout_type, uin
  * @note
  *   This API should ONLY be called before [sl_wifi_init](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init) and repeated call to this API will overwrite timeout values stored in SDK, will be applied on next call to [sl_wifi_init](../wiseconnect-api-reference-guide-wi-fi/wifi-common-api#sl-wifi-init).
  *******************************************************************************/
-void sl_si91x_set_timeout(sl_si91x_timeout_t *timeout_config);
+void sl_si91x_set_timeout(const sl_si91x_timeout_t *timeout_config);
 
 /** @} */
 
@@ -720,7 +714,7 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
  * @return     sl_status_t. Refer to https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_command_to_write_common_flash(uint32_t write_address,
-                                                   uint8_t *write_data,
+                                                   const uint8_t *write_data,
                                                    uint16_t write_data_length,
                                                    uint8_t flash_sector_erase_enable);
 
@@ -747,15 +741,6 @@ sl_status_t sl_si91x_command_to_read_common_flash(uint32_t read_address, size_t 
  *   sl_si91x_operation_mode_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_si91x_operation_mode_t get_opermode(void);
-
-/***************************************************************************/ /**
- * @brief
- *   Si91X specific set listen interval
- * @param[in] listen_interval
- *   Wi-Fi Listen interval.
- * @return none
- *******************************************************************************/
-void sl_si91x_set_listen_interval(uint32_t listen_interval);
 
 /***************************************************************************/ /**
  * @brief
@@ -798,7 +783,7 @@ sl_status_t sl_si91x_get_ram_log(uint32_t address, uint32_t length);
  * @return    sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  *******************************************************************************/
 sl_status_t sl_si91x_driver_send_transceiver_data(sl_wifi_transceiver_tx_data_control_t *control,
-                                                  uint8_t *payload,
+                                                  const uint8_t *payload,
                                                   uint16_t payload_len,
                                                   uint32_t wait_time);
 
@@ -864,5 +849,92 @@ sl_status_t sl_si91x_bl_upgrade_firmware(uint8_t *firmware_image, uint32_t fw_im
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_set_fast_fw_up(void);
+
+/** @} */
+
+/** \addtogroup SL_SI91X_TYPES
+  * @{ */
+/// Firmware version information
+typedef struct {
+  uint8_t chip_id;          ///< Chip ID
+  uint8_t rom_id;           ///< ROM ID
+  uint8_t major;            ///< Major version number
+  uint8_t minor;            ///< Minor version number
+  uint8_t security_version; ///< Security enabled or disabled
+  uint8_t patch_num;        ///< Patch number
+  uint8_t customer_id;      ///< Customer ID
+  uint16_t build_num;       ///< Build number
+} sl_si91x_firmware_version_t;
+
+/// NWP configuration structure
+typedef struct {
+  /* configuration code. The possible values are:
+  * SL_SI91X_XO_CTUNE_FROM_HOST
+  * SL_SI91X_ENABLE_NWP_WDT_FROM_HOST
+  * SL_SI91X_DISABLE_NWP_WDT_FROM_HOST
+  */
+  uint32_t code;
+  union {
+    uint8_t config_val; ///< config value as per the code selected above.
+    // Below structure is used in case of SL_SI91X_ENABLE_NWP_WDT_FROM_HOST
+    struct {
+      uint8_t wdt_timer_val;    ///< timer values in seconds
+      uint8_t wdt_enable_in_ps; ///< enable WDT in power save
+    };
+  } values;
+} sl_si91x_nwp_configuration_t;
+
+/** @} */
+
+/** \addtogroup SI91X_DRIVER_FUNCTIONS Core
+  * \ingroup SL_SI91X_API
+  * @{ */
+
+/***************************************************************************/ /**
+ * @brief
+ *   Get/retrieve the firmware version currently available on the SiWx91x device. This is a blocking API.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[out] version
+ *   @ref sl_si91x_firmware_version_t object that contains the version string.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_get_firmware_version(sl_si91x_firmware_version_t *version);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Return the firmware image size from firmware image file, this is a non-blocking API.
+ * @param[in] buffer
+ *   Buffer pointing to firmware image file.
+ * @param[out] fw_image_size
+ *   Size of the firmware image passed in the input buffer param. The value returned in this param is valid only if this API returns SL_STATUS_OK(0).
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_get_firmware_size(void *buffer, uint32_t *fw_image_size);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Set configuration to NWP. The configuration value can be set based on the code element of sl_si91x_nwp_configuration_t structure.
+ * @pre Pre-conditions:
+ * -
+ *   @ref sl_wifi_init should be called before this API.
+ * @param[in] nwp_config
+ *   Configuration as identified by @ref sl_si91x_nwp_configuration_t.
+ *   Possible values for config.code are defined below:
+ * - For SL_SI91X_XO_CTUNE_FROM_HOST:
+ *    - nwp_config.values.config_val is used to configure NWP's XO Ctune value.
+ * - For SL_SI91X_ENABLE_NWP_WDT_FROM_HOST:
+ *    - nwp_config.values.wdt_timer_val is used to configure the NWP WDT ISR timer. Currently, the value for this timer is set to 32 seconds.
+ *    - nwp_config.values.wdt_enable_in_ps is used to enable WDT in powersave.
+ * - For SL_SI91X_DISABLE_NWP_WDT_FROM_HOST:
+ *    - Disables NWP WDT ISR timer. nwp_config.values.config_val is not utilized by the NWP.
+ * - All other values are NOT SUPPORTED.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ ******************************************************************************/
+sl_status_t sl_si91x_set_nwp_config_request(sl_si91x_nwp_configuration_t nwp_config);
 
 /** @} */

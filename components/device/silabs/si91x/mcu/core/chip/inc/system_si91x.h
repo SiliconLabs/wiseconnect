@@ -56,8 +56,8 @@ typedef enum SLEEP_TYPE {
 #define HF_MHZ_RO                 3
 #define BG_SLEEP_TIMER_REG_OFFSET 0x125
 /*System default clocks*/
-#define DEFAULT_SOC_PLL_CLOCK    80000000
-#define DEFAULT_INTF_PLL_CLOCK   80000000
+#define DEFAULT_SOC_PLL_CLOCK    0
+#define DEFAULT_INTF_PLL_CLOCK   0
 #define DEFAULT_MODEM_PLL_CLOCK  80000000
 #define DEFAULT_32MHZ_RC_CLOCK   32000000
 #define DEFAULT_20MHZ_RO_CLOCK   20000000
@@ -68,12 +68,16 @@ typedef enum SLEEP_TYPE {
 #define DEFAULT_RF_REF_CLOCK     40000000
 #define DEFAULT_MEMS_REF_CLOCK   40000000
 #define DEFAULT_BYP_RC_CLOCK     32000000
-#define DEFAULT_I2S_PLL_CLOCK    6144000
+#define DEFAULT_I2S_PLL_CLOCK    0
 #define DEFAULT_REF_CLOCK        2
 
 /* Selecting the PLL reference clock */
 /* 0 - XTAL_CLK, 1 - Reserved, 2 - RC_32MHZ_CLK, 3 - Reserved */
 #define PLL_REF_CLK_CONFIG_REG (*(volatile uint32_t *)(0x46180000UL + 0x00008000 + 0x04))
+#define RC_32MHZ_CLK_FREQ      32000000UL
+#define SELECT_RC_MHZ_CLOCK    BIT(15)
+#define SELECT_XTAL_MHZ_CLOCK  ~(BIT(14) | BIT(15))
+#define XTAL_CLK_FREQ          40000000UL
 
 #define M4SS_P2P_INT_BASE_ADDRESS 0x46008000
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
@@ -128,6 +132,10 @@ typedef enum SLEEP_TYPE {
 
 /* Board capabilities */
 #define SLI_CRYPTOACC_PRESENT_SI91X
+
+/*XTAL bypass from MCU macros */
+#define XTAL_IS_IN_SW_CTRL_FROM_M4 0
+#define XTAL_DISABLE_FROM_M4       0
 
 /* system clock source look up table*/
 typedef struct SYSTEM_CLOCK_SOURCE_FREQUENCIES {

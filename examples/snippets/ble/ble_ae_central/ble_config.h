@@ -156,6 +156,7 @@
 /*=======================================================================*/
 
 #define RSI_BLE_SCAN_TYPE        SCAN_TYPE_ACTIVE
+#define PRI_PHY_BLE_SCAN_TYPE    SCAN_TYPE_ACTIVE
 #define SEC_PHY_BLE_SCAN_TYPE    SCAN_TYPE_ACTIVE
 #define RSI_BLE_SCAN_FILTER_TYPE SCAN_FILTER_TYPE_ALL
 
