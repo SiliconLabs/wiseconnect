@@ -39,15 +39,24 @@ extern "C" {
 #include "system_si91x.h"
 #include "rsi_power_save.h"
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @addtogroup POWER-MANAGER
  * @ingroup SI91X_SERVICE_APIS
  * @{
  ******************************************************************************/
-// -----------------------------------------------------------------------------
-// Data Types
+/***************************************************************************/
+/**
+ * @defgroup Data_Types Data Types
+ * @brief This section defines the data types used in the power manager module.
+ * @{
+ ******************************************************************************/
 
-/// @brief Structure to store configuration parameters for sleep
+/** @} */ // end of Data_Types
+
+/**
+ * @brief Structure to store configuration parameters for sleep.
+ */
 typedef struct {
   uint32_t stack_address;           // Stack address
   uint32_t vector_offset;           // Vector offset
@@ -56,7 +65,9 @@ typedef struct {
   uint8_t low_freq_clock;           // Low freq clock \ref sli_power_low_freq_clock_t
 } sli_power_sleep_config_t;
 
-/// @brief Enumeration for the sleep modes
+/**
+ * @brief Enumeration for the sleep modes.
+ */
 typedef enum {
 #if (SLI_SI917B0)
   SLI_SI91X_POWER_MANAGER_WAKEUP_FROM_FLASH_MODE = 0x11, // Wakeup from flash mode
@@ -70,7 +81,9 @@ typedef enum {
   LAST_ENUM_POWER_SLEEP_MODE,                                         // Last Enum for validation
 } sli_power_sleep_mode_t;
 
-/// @brief Enumeration for low frequency clocks
+/**
+ * @brief Enumeration for low frequency clocks.
+ */
 typedef enum {
   SLI_SI91X_POWER_MANAGER_DISABLE_LF_MODE   = DISABLE_LF_MODE,    // Disable low frequency clock
   SLI_SI91X_POWER_MANAGER_LF_32_KHZ_RC      = (uint32_t)1 << (0), // Low Frequency 32 KHz RC Clock
@@ -79,148 +92,152 @@ typedef enum {
   LAST_ENUM_POWER_LOW_FREQ_CLOCK,                                 // Last Enum for validation
 } sli_power_low_freq_clock_t;
 
-// -----------------------------------------------------------------------------
-// Prototypes
-/***************************************************************************/ /**
- * Updates the Power State as per the from and to parameters.
+/***************************************************************************/
+/**
+ * @defgroup Prototypes Prototypes
+ * @brief This section defines the function prototypes used in the power manager module.
+ * @{
+ ******************************************************************************/
+
+/** @} */ // end of Prototypes
+/***************************************************************************/
+/**
+ * @brief To update the Power State as per the from and to parameters.
  * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] from ( \ref sl_power_state_t type enum) Power State from which the transition takes place.
- * @param[in] to ( \ref sl_power_state_t type enum) Power State to which the transition takes place.
+ * @param[in] from Power State from which the transition takes place (of type \ref sl_power_state_t).
+ * @param[in] to   Power State to which the transition takes place (of type \ref sl_power_state_t).
  * 
- * @return status SL_STATUS_OK on success, else error code as follow: 
-*-
- *         - SL_STATUS_OK (0x0000) Success. 
-*- 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) Invalid Parameter is passed. 
-*
+ * @return Status code of the operation.
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_change_power_state(sl_power_state_t from, sl_power_state_t to);
 
-/***************************************************************************/ /**
- * Configures the parameters for sleep and transit to sleep mode.
+/***************************************************************************/
+/**
+ * @brief To configure the parameters for sleep and transitions to sleep mode.
  * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] state ( \ref sl_power_state_t type enum) Current Power state
+ * @param[in] state Current Power state (of type \ref sl_power_state_t).
  * 
- * @return status SL_STATUS_OK on success, else error code. 
-*-
- *         - SL_STATUS_OK (0x0000) Success. 
-*- 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) Invalid Parameter is passed. 
-*
-******************************************************************************/
+ * @return Status code of the operation.
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ ******************************************************************************/
 sl_status_t sli_si91x_power_manager_set_sleep_configuration(sl_power_state_t state);
 
-/***************************************************************************/ /**
- * Updates the peripheral power state, i.e., enables and disables the peripheral
- * as per requirements. 
- * If flag is set, the peripherals which are passed in the \ref sl_power_peripheral_t
- * structures is be powered on.
- * If flag is cleared, the peripherals which are passed in the \ref sl_power_peripheral_t
- * structures is be powered off.
+/***************************************************************************/
+/**
+ * @brief To update the peripheral power state, i.e., enable and disable the peripheral
+ *        as per requirements.
+ * 
+ * @details If the flag is set, the peripherals which are passed in the \ref sl_power_peripheral_t
+ *          structure will be powered on. If the flag is cleared, the peripherals which are passed 
+ *          in the \ref sl_power_peripheral_t structure will be powered off.
  * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] peripheral ( \ref sl_power_peripheral_t type structure)
- * @param[in] add (boolean) true -> add peripheral, false -> remove peripheral.
+ * @param[in] peripheral \ref sl_power_peripheral_t type structure.
+ * @param[in] add Boolean value: true to add peripheral, false to remove peripheral.
  * 
- * @return status SL_STATUS_OK on success, else error code. 
-*-
- *         - SL_STATUS_OK (0x0000) Success. 
-*- 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) Invalid Parameter is passed. 
-*-
- *         - SL_STATUS_NULL_POINTER (0x0022) Null Pointer is passed. 
-*
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - Null pointer is passed.
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sli_power_manager_update_peripheral(sl_power_peripheral_t *peripheral, boolean_t add);
 
-/***************************************************************************/ /**
- * Validates the power state transitions. If invalid, returns false.
+/***************************************************************************/
+/**
+ * @brief To validate the power state transitions. If invalid, returns false.
+ * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] from ( \ref sl_power_state_t type enum) Power State from which the transition takes place.
- * @param[in] to ( \ref sl_power_state_t type enum) Power State to which the transition takes place.
+ * @param[in] from Power State from which the transition takes place (of type \ref sl_power_state_t).
+ * @param[in] to   Power State to which the transition takes place (of type \ref sl_power_state_t).
  * 
- * @return boolean value true or false.
+ * @return Boolean value: true if the transition is valid, false otherwise.
  ******************************************************************************/
 boolean_t sli_si91x_power_manager_is_valid_transition(sl_power_state_t from, sl_power_state_t to);
 
-/***************************************************************************/ /**
- * Configures the wakeup sources.
- * If add is set, the wakeup source which are passed in the source variable is set.
- * If add is clear, the wakeup source which are passed in the source variable is clear.
+/***************************************************************************/
+/**
+ * @brief To configure the wakeup sources.
+ * 
+ * If the flag is set, the wakeup sources passed in the source variable are set.
+ * If the flag is cleared, the wakeup sources passed in the source variable are cleared.
  * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] source (uint32_t) Ored value of wakeup sources.
- * @param[in] flag (boolean) true -> add peripheral, false -> remove peripheral.
+ * @param[in] source Ored value of wakeup sources (uint32_t).
+ * @param[in] flag   Boolean value: true to add the wakeup source, false to remove the wakeup source.
  * 
- * @return status SL_STATUS_OK on success, else error code. 
-*-
- *         - SL_STATUS_OK (0x0000) Success. 
-*- 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) Invalid Parameter is passed. 
-*
+ * @return Status code of the operation.
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
  ******************************************************************************/
 sl_status_t sli_si91x_power_configure_wakeup_resource(uint32_t source, boolean_t add);
 
-/***************************************************************************/ /**
- * Sets the RAM retention as well as configures the RAM banks which needs to be retained.
+/***************************************************************************/
+/**
+ * @brief To set the RAM retention and configures the RAM banks that need to be retained.
  * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] sram_bank ( \ref sl_power_ram_retention_config_t type struct) 
+ * @param[in] sram_bank RAM retention configuration (of type \ref sl_power_ram_retention_config_t).
  * 
- * @return status SL_STATUS_OK on success, else error code. 
-*-
- *         - SL_STATUS_OK (0x0000) Success. 
-*- 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) Invalid Parameter is passed. 
-*
- *         - SL_STATUS_NULL_POINTER (0x0022) Null Pointer is passed. 
+ * @return Status code of the operation.
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - Null pointer is passed.
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_set_ram_retention_configuration(sl_power_ram_retention_config_t *sram_bank);
 
-/***************************************************************************/ /**
- * Configures the clock as per the input, i.e. powersave or performance.
+/***************************************************************************/
+/**
+ * @brief To configure the clock as per the input, i.e., powersave or performance.
  * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] state ( \ref sl_power_state_t type enum) current power state.
- * @param[in] mode (boolean) true -> performance mode, false -> powersave mode.
+ * @param[in] state Current power state (of type \ref sl_power_state_t).
+ * @param[in] mode  Boolean value: true for performance mode, false for powersave mode.
  *  
- * @return status SL_STATUS_OK on success, else error code. 
-*-
- *         - SL_STATUS_OK (0x0000) Success. 
-*- 
- *         - SL_STATUS_INVALID_PARAMETER (0x0021) Invalid Parameter is passed. 
-*
+ * @return Status code of the operation.
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter is passed.
  ******************************************************************************/
 sl_status_t sli_si91x_power_manager_configure_clock(sl_power_state_t state, boolean_t mode);
 
-/***************************************************************************/ /**
- * Sets the initial hardware configuration.
+/***************************************************************************/
+/**
+ * @brief To set the initial hardware configuration.
  * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] none
+ * This function sets the initial hardware configuration.
  * 
- * @return none
+ * @param[in] none No parameters.
+ * 
+ * @return none No return value.
  ******************************************************************************/
 void sli_si91x_power_manager_init_hardware(void);
 
-/***************************************************************************/ /**
- * Initialize debugging feature.
+/***************************************************************************/
+/**
+ * @brief To initialize the debugging feature.
  * 
  * @note FOR INTERNAL USE ONLY.
  * 
- * @param[in] none
+ * This function initializes the debugging feature.
  * 
- * @return none
+ * @param[in] none No parameters.
+ * 
+ * @return none No return value.
  ******************************************************************************/
 void sli_si91x_power_manager_init_debug(void);
 

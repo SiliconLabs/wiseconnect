@@ -100,7 +100,7 @@ typedef enum {
 ///@brief UULP GPIO PAD select enum
 typedef enum {
   GPIO_PAD_M4 = 0, ///< GPIO M4 PAD selection
-  GPIO_PAD_TA = 1, ///< GPIO TA PAD selection
+  GPIO_PAD_TA = 1, ///< GPIO NWP PAD selection
 } sl_si91x_gpio_uulp_pad_t;
 
 ///@brief AND/OR of the GPIO group interrupt

@@ -111,6 +111,9 @@ The application can be configured to suit user requirements and development envi
   status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, ca-certificate, sizeof(ca-certificate) - 1);
   ```
 
+> **Note** :
+ The included self signed certificates will work for local OpenSSL server. Incase of cloud server, using default certificates in the release, cloud connection doesn't work. Please replace the default certificates with valid certificates while connecting to Cloud Server.
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

@@ -61,14 +61,14 @@ void sl_si91x_host_release_from_reset(void);
 /**
  * @brief 
  *  This API used to allocate all threads, mutexes and event handlers
- * @return sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. 
+ * @return sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details. 
  */
 sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config);
 
 /**
   * @brief 
   *  This API used to deallocate all threads, mutexes and event handlers.
-  * @return sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+  * @return sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
   */
 sl_status_t sl_si91x_host_deinit(void);
 
@@ -86,7 +86,7 @@ void sl_si91x_host_enable_high_speed_bus();
  *  [sl_wifi_interface_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-constants#sl-wifi-interface-t) Wi-Fi interface on which the data frame needs to be processed.
  * @param buffer 
  *  pointer to a structure of type [sl_wifi_buffer_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-buffer-t) containing the data frame to be processed.
- * @return sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. 
+ * @return sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details. 
  */
 sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interface, sl_wifi_buffer_t *buffer);
 
@@ -134,12 +134,12 @@ uint32_t sl_si91x_host_get_wake_indicator(void);
 sl_status_t sl_si91x_host_spi_transfer(
   const void *tx_buffer,
   void *rx_buffer,
-  uint16_t buffer_length); /*Function used for data transfer between TA and MCU over SPI*/
+  uint16_t buffer_length); /*Function used for data transfer between NWP and MCU over SPI*/
 
 sl_status_t sl_si91x_host_uart_transfer(
   const void *tx_buffer,
   void *rx_buffer,
-  uint16_t buffer_length); /*Function used for data transfer between TA and MCU over UART/USART*/
+  uint16_t buffer_length); /*Function used for data transfer between NWP and MCU over UART/USART*/
 
 void sl_si91x_host_flush_uart_rx(void); /*Function used to flush all the old data in the uart/usart rx stream*/
 

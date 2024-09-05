@@ -13,7 +13,7 @@
 
 ## Purpose/Scope
 
-- This application demonstrates how to send a token request to TA and receive the response token.
+- This application demonstrates how to send a token request to NWP and receive the response token.
 - This application can be used by the user for checking the authenticity of the device.
 - This application sends a nonce of 32 byte. This nonce is generated using TRNG.
 - This application receives the token which is signed using Attestation private key.

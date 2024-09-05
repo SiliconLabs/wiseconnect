@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 
-/** \addtogroup IEEE802 */
+/** \addtogroup SL_NET_TYPES */
 /** @{ */
 
 /// The IEEE defined 48-bit extended unique identifier (EUI-48)

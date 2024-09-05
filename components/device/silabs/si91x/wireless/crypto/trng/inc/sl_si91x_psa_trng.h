@@ -25,7 +25,7 @@
 /***************************************************************************/ /**
  * @fn          psa_status_t sl_si91x_psa_get_random()
  * @brief
- *   TRNG entropy retrieval
+ *   This API attempts to read the requested amount of conditioned entropy from the TRNG peripheral.
  * @param[in]   len
  *   Amount of bytes to read from the FIFO into the output
  * @param[out]  output
@@ -34,20 +34,15 @@
  *   Amount of bytes actually written into the output buffer
  * @return
  *   returns psa_status_t PSA_SUCCESS  on success, on failure return error code
- * @section description
- *   This API attempts to read the requested amount of conditioned entropy from the TRNG peripheral
 ******************************************************************************/
 psa_status_t sl_si91x_psa_get_random(uint8_t *output, size_t len, size_t *out_len);
 
 /***************************************************************************/ /**
  * @fn          psa_status_t sli_si91x_crypto_trng_init()
  * @brief
- *   This API initializes the TRNG
- * @param[in]   none
+ *   This API Checks entropy and initializes key which needs to be programmed to TRNG hardware engine.
  * @return
  *   returns psa_status_t PSA_SUCCESS  on success, on failure return error code
- * @section description
- *   This API Checks entropy and initializes key which needs to be programmed to TRNG hardware engine
 ******************************************************************************/
 psa_status_t sli_si91x_crypto_trng_init();
 

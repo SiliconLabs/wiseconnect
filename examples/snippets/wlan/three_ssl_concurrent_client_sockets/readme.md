@@ -140,6 +140,9 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 >
 > - By default the WiSeConnect 3 SDK contains the Starfield Root CA Certificate in C-array format. 
 
+> **Note** :
+ The included self signed certificates will work for local OpenSSL server. Incase of cloud server, using default certificates in the release, cloud connection doesn't work. Please replace the default certificates with valid certificates while connecting to Cloud Server.
+
 ## Test the Application
 
 ### Build and Run the Server
@@ -176,7 +179,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Setting up Security Certificates
 
-- The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/).
+- The WiSeConnect 3 SDK provides a conversion script (written in Python 3) to make the conversion straightforward. The script is provided in the SDK `<SDK>/resources/scripts` directory and is called [certificate_to_array.py](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/).
 
 - Copy the downloaded device certificate, private key from AWS and also the certificate_to_array.py to the `<SDK>/resources/certificates`.
 
@@ -206,7 +209,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - The Starfield Root CA certificate used by your Wi-Fi device to verify the AWS server is already included in the WiSeConnect 3 SDK at `<SDK>/resources/certificates`; no additional setup is required.
 
 > **NOTE :**
-> Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/resources/certificates/aws_starfield_ca.pem.h).
+> Amazon uses [Starfield Technologies](https://www.starfieldtech.com/) to secure the AWS website, the WiSeConnect SDK includes the [Starfield CA Certificate](https://github.com/SiliconLabs/wiseconnect/tree/master/resources/certificates/aws_starfield_ca.pem.h).
 >
 > For AWS connectivity, StarField Root CA Class 2 certificate has the highest authority being at the top of the signing hierarchy.
 >

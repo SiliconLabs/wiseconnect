@@ -785,13 +785,13 @@ void egpio_pad_selection_enable(uint8_t padNum)
 {
   if (padNum < 22) {
     /*(tass_m4ss_gpio_sel)PAD selection (0 t0 21) 
-	A value of 1 on this gives control to M4SS(by default it is 0 means ta control) */
+	A value of 1 on this gives control to M4SS(by default it is 0 means NWP control) */
     PADSELECTION |= BIT(padNum);
   }
 #ifdef SLI_SI917
   else {
     /*(tass_m4ss_gpio_sel)PAD selection (22 t0 33) 
-	A value of 1 on this gives control to M4SS(by default it is 0 means ta control) */
+	A value of 1 on this gives control to M4SS(by default it is 0 means NWP control) */
     PADSELECTION_1 |= BIT(padNum - 22);
   }
 #endif
@@ -808,13 +808,13 @@ void egpio_pad_selection_disable(uint8_t padNum)
 {
   if (padNum < 22) {
     /*(tass_m4ss_gpio_sel)PAD selection (0 t0 21) 
-	A value of 0 on this gives control to TASS(by default it is 0 means ta control) */
+	A value of 0 on this gives control to TASS(by default it is 0 means NWP control) */
     PADSELECTION &= ~BIT(padNum);
   }
 #ifdef SLI_SI917
   else {
     /*(tass_m4ss_gpio_sel)PAD selection (22 t0 33) 
-	A value of 0 on this gives control to TASS(by default it is 0 means ta control) */
+	A value of 0 on this gives control to TASS(by default it is 0 means NWP control) */
     PADSELECTION_1 &= ~BIT(padNum - 22);
   }
 #endif
@@ -849,7 +849,7 @@ void egpio_pad_receiver_disable(uint8_t u8GpioNum)
 /*==============================================*/
 /**
  * @fn           void egpio_pad_sdio_connected()
- * @brief        This API is used to use the SDIO pins(25 to 30) in M4 or TA (0 for M4SS and 1 for TASS)
+ * @brief        This API is used to use the SDIO pins(25 to 30) in M4 or NWP (0 for M4SS and 1 for TASS)
  * @return       None
  */
 void egpio_pad_sdio_connected()

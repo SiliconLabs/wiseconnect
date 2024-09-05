@@ -75,7 +75,7 @@ void sl_si91x_analog_comparator_init(void)
   // Configure the AUX clock source
   RSI_ULPSS_AuxClkConfig(ULPCLK, ENABLE_STATIC_CLK, ULP_AUX_32MHZ_RC_CLK);
 
-  // Configure the reference LDO voltage as 2.8v
+  // Configure the reference LDO voltage as 3.3v
   RSI_AUX_RefVoltageConfig(vref_value, CHIP_REF_VOLTAGE);
 }
 

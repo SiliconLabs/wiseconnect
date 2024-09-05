@@ -157,7 +157,7 @@ void sl_si91x_hardware_setup(void)
 }
 
 /**
- * @brief  This API is used to configure wireless GPIO front end controls from TA to M4
+ * @brief  This API is used to configure wireless GPIO front end controls from NWP to M4
  * @return none
  */
 void sli_si91x_configure_wireless_frontend_controls(uint32_t switch_sel)
@@ -281,13 +281,13 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
   // Indicate M4 is Inactive
   P2P_STATUS_REG &= ~M4_is_active;
   P2P_STATUS_REG;
-  // Adding delay to sync m4 with TA
+  // Adding delay to sync m4 with NWP
   for (volatile uint8_t delay = 0; delay < 10; delay++) {
     __ASM("NOP");
   }
 
-  // Checking if already TA have triggered the packet to M4
-  // RX_BUFFER_VALID will be cleared by TA if any packet is triggered
+  // Checking if already NWP have triggered the packet to M4
+  // RX_BUFFER_VALID will be cleared by NWP if any packet is triggered
   if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
       || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
     P2P_STATUS_REG |= M4_is_active;
@@ -321,7 +321,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 
   /* Check whether M4 is using XTAL */
   if (sli_si91x_is_xtal_in_use_by_m4() == true) {
-    /* If M4 is using XTAL then request TA to turn OFF XTAL as M4 is going to sleep */
+    /* If M4 is using XTAL then request NWP to turn OFF XTAL as M4 is going to sleep */
     sli_si91x_raise_xtal_interrupt_to_ta(TURN_OFF_XTAL_REQUEST);
   }
 
@@ -333,7 +333,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 
   /* Check whether M4 is using XTAL */
   if (sli_si91x_is_xtal_in_use_by_m4() == true) {
-    /* If M4 is using XTAL then request TA to turn ON XTAL as M4 is going to sleep */
+    /* If M4 is using XTAL then request NWP to turn ON XTAL as M4 is going to sleep */
     sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
   }
 

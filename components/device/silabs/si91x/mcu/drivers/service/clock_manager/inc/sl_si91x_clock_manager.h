@@ -28,8 +28,8 @@
  *
  ************************************************************************************/
 
-#ifndef SL_CLOCK_MANAGER_H
-#define SL_CLOCK_MANAGER_H
+#ifndef SL_SI91X_CLOCK_MANAGER_H
+#define SL_SI91X_CLOCK_MANAGER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,60 +38,137 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_pll.h"
 
-/************************************************************************************
- * @addtogroup CLOCK-MANAGER Clock Manager
+/***************************************************************************/
+/**
+ * @addtogroup  CLOCK-MANAGER Clock Manager
  * @ingroup SI91X_SERVICE_APIS
- * @{
- ************************************************************************************/
+ * @{ 
+ *
+ ******************************************************************************/
 // -----------------------------------------------------------------------------------
 // GLOBAL DEFINES / MACROS
+#define PLL_REF_CLK_VAL_RC_32MHZ ((uint32_t)(32000000)) ///< PLL reference clock frequency value of RC_32MHZ_CLK
+#define PLL_REF_CLK_VAL_XTAL     ((uint32_t)(40000000)) ///< PLL reference clock frequency value of XTAL_CLK
 // -----------------------------------------------------------------------------------
-#define PLL_REF_CLK_VAL_RC_32MHZ ((uint32_t)(32000000)) // PLL reference clock frequency value of RC_32MHZ_CLK
-#define PLL_REF_CLK_VAL_XTAL     ((uint32_t)(40000000)) // PLL reference clock frequency value of XTAL_CLK
 
 // -----------------------------------------------------------------------------------
 // DATA TYPES
-// -----------------------------------------------------------------------------------
+/***************************************************************************/
+/**
+ * @typedef sl_si91x_m4_soc_clk_src_sel_t
+ * @brief Typedef to select the clock source for the M4 core in the Si91x SOC.
+ *
+ * @details This typedef maps to the M4_SOC_CLK_SRC_SEL_T type, which defines the possible clock source selections for the M4 core. 
+ *          The clock source selection impacts the operating frequency and performance characteristics of the M4 processor within the Si91x SOC.
+ *
+ *          Users can configure the clock source to optimize power consumption or performance based on application requirements.
+ *
+ * @note Ensure that the selected clock source is properly configured and stable before switching to avoid system instability.
+ ******************************************************************************/
 typedef M4_SOC_CLK_SRC_SEL_T sl_si91x_m4_soc_clk_src_sel_t;
 // -----------------------------------------------------------------------------------
-// GLOBAL FUNCTION PROTOTYPES
+
 // -----------------------------------------------------------------------------------
+// GLOBAL FUNCTION PROTOTYPES
+
+/***************************************************************************/
 /**
- * @fn	        sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_source,
-                                                          uint32_t pll_freq)
- * @brief		    This API is used to configure the m4_soc clock
- * @param[in]	  pCLK: Pointer to the pll register instance
- * @param[in]   clk_source: Enum values of different Core source clocks. See #M4_SOC_CLK_SRC_SEL_T and NOTE for more info
- * @param[in]   pll_freq: M4 Core Frequency value (in MHz) to set 
- * @param[in]   div_factor: Division value for M4 Core clock
- * @return 		  returns zero \ref RSI_OK on success, corresponding error code on failure
- * @note        For using UlpRefClk clksource need to configure M4ssRefClk frequency. For that need to call \ref RSI_CLK_M4ssRefClkConfig Api first
- *              -  For using SocPllCLK clksource need to configure SocPll frequency. For that need to call \ref RSI_CLK_SetSocPllFreq Api first
- *							-  For using IntfPllCLK clksource need to configure IntfPll frequency. For that need to call \ref RSI_CLK_SetIntfPllFreq Api first
- *							-  For using Sleep clksource need to configure Sleep Clock. For that need to call \ref RSI_CLK_SlpClkConfig Api first
- */
+ * @brief To configure the M4 core clock source and configure the PLL frequency if selected as source.
+ * 
+ * @param[in] clk_source Enum value representing different core clock sources.
+ * @param[in] pll_freq Desired M4 core frequency in MHz.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - Corresponding error code on failure.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_source, uint32_t pll_freq);
 
+/***************************************************************************/
 /**
- * @fn	        sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pll_freq, uint32_t pll_ref_clk)
- * @brief		    This API is used to set the selected PLL clock to desired frequency
- * @param[in]	  pll_type: PLL type to configure
- * @return 		  returns zero \ref RSI_OK on success, corresponding error code on failure
- */
+ * @brief To set the selected PLL (Phase-Locked Loop) clock to the desired frequency.
+ * 
+ * @param[in] pll_type Enum specifying the type of PLL to configure.
+ * @param[in] pll_freq Desired frequency for the PLL clock (in MHz).
+ * @param[in] pll_ref_clk Reference clock frequency for the PLL configuration.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - Corresponding error code on failure.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+
 sl_status_t sl_si91x_clock_manager_set_pll_freq(PLL_TYPE_T pll_type, uint32_t pll_freq, uint32_t pll_ref_clk);
 
+/***************************************************************************/
 /**
- * @fn	        sl_si91x_m4_soc_clk_src_sel_t sl_si91x_clock_manager_m4_get_core_clk_src_freq(uint32_t *core_clock)
- * @brief		    This API is used to read the currently active m4_soc clock source and frequency
- * @param[in]	  core_clock: Pointer to fill core clock frequency
- * @return 		  returns the currently active core clock source of type sl_si91x_m4_soc_clk_src_sel_t
- */
+ * @brief To read the currently active M4 core clock source and its frequency.
+ * 
+ * @param[out] core_clock Pointer to a variable where the current core clock frequency will be stored (in MHz).
+ * 
+ * @return sl_si91x_m4_soc_clk_src_sel_t The currently active core clock source:
+ *         - 0: M4_ULPREFCLK
+ *         - 2: M4_SOCPLLCLK
+ *         - 3: M4_MODEMPLLCLK1
+ *         - 4: M4_INTFPLLCLK
+ *         - 5: M4_SLEEPCLK
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_si91x_m4_soc_clk_src_sel_t sl_si91x_clock_manager_m4_get_core_clk_src_freq(uint32_t *core_clock);
+// -----------------------------------------------------------------------------------
 
-/// @} end group CLOCK-MANAGER ******************************************************/
+/// @} end addtogroup CLOCK-MANAGER ******************************************************/
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
+/***************************************************************************/
+/***************************************************************************/
+/**
+ * @addtogroup CLOCK-MANAGER Clock Manager
+ * @{
+ *
+ * @details
+ *
+ * @section Clock_Manager_Intro Introduction
+ *
+ * The Clock Manager module is responsible for configuring the clock tree in the Si91x system.
+ * It enhances the clock management features provided by the GSDK's emlib and device_init services,
+ * offering additional functionality for selecting clock sources and setting dividers.
+ * This module ensures optimized performance and power efficiency across various system components
+ * by managing clock configurations according to application requirements.
+ *
+ * @section Clock_Manager_Config Configuration
+ *
+ * The Clock Manager supports a variety of configurations:
+ * - **Clock Source Selection**: Allows specific clock sources to be chosen for different branches.
+ * - **Divider Configuration**: Modifies clock frequencies by setting divider values.
+ *
+ * Configuration is typically performed during device initialization using configuration files and source code.
+ *
+ * @section Clock_Manager_Usage Usage
+ *
+ * The following steps outline typical usage of the Clock Manager:
+ * 1. Initialize the Clock Manager with desired configuration settings.
+ * 2. Set up oscillator sources and configure clock dividers.
+ * 3. Use runtime APIs to manage dynamic clock changes.
+ * 4. Maintain stable clock configurations to ensure system reliability.
+ *
+ * @section Clock_Manager_Benefits Benefits
+ *
+ * - Manages complex clock trees efficiently.
+ * - Enhances system stability and performance.
+ * - Supports a wide range of Si91x devices.
+ * - Optimizes power consumption through efficient clock management.
+ *
+ * @} (end addtogroup CLOCK-MANAGER)
+ */
+/***************************************************************************/
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SL_CLOCK_MANAGER_H */
+#endif /* SL_SI91X_CLOCK_MANAGER_H */

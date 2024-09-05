@@ -34,16 +34,44 @@
  *  @{
  */
 
-/// MAX buffer length for write data.
+/**
+ * @def SL_HTTP_CLIENT_MAX_WRITE_BUFFER_LENGTH
+ * @brief
+ *   Maximum buffer length for write data.
+ * 
+ * @details
+ *   This macro defines the maximum length, in bytes, of the buffer used for writing data in HTTP client operations. It ensures that the buffer allocated for outgoing data is sufficiently large to handle typical HTTP requests.
+ */
 #define SL_HTTP_CLIENT_MAX_WRITE_BUFFER_LENGTH 900
 
-/// HTTPS client Certificate Index constants.
+/**
+ * @def SL_HTTPS_CLIENT_DEFAULT_CERTIFICATE_INDEX
+ * @brief
+ *   Default certificate index for HTTPS client.
+ * 
+ * @details
+ *   This macro defines the default index for the client certificate used in HTTPS connections. It is used to specify which certificate to use from the certificate store when establishing a secure connection.
+ */
 #define SL_HTTPS_CLIENT_DEFAULT_CERTIFICATE_INDEX 0
 
-/// HTTPS CLIENT 1st Certificate Index
+/**
+ * @def SL_HTTPS_CLIENT_CERTIFICATE_INDEX_1
+ * @brief
+ *   Certificate index for an HTTPS client certificate.
+ * 
+ * @details
+ *   This macro defines the index for an HTTPS client certificate used in secure connections. It specifies which certificate to use from the certificate store when establishing a secure connection.
+ */
 #define SL_HTTPS_CLIENT_CERTIFICATE_INDEX_1 1
 
-/// HTTPS CLIENT 2nd Certificate Index
+/**
+ * @def SL_HTTPS_CLIENT_CERTIFICATE_INDEX_2
+ * @brief
+ *   Certificate index for the an HTTPS client certificate.
+ * 
+ * @details
+ *   This macro defines the index for an HTTPS client certificate used in secure connections. It specifies which certificate to use from the certificate store when establishing a secure connection.
+ */
 #define SL_HTTPS_CLIENT_CERTIFICATE_INDEX_2 2
 
 /******************************************************
@@ -51,39 +79,61 @@
  ******************************************************/
 
 /**
- * @brief HTTP client methods.
- * @note 917 does not support SL_HTTP_HEAD and SL_HTTP_DELETE in current release.
+ * @brief
+ *   Enumeration of HTTP client methods.
+ * 
+ * @details
+ *   This enumeration defines the HTTP methods that can be used by the HTTP client to perform various operations on the server.
+ * 
+ * @note
+ *   Current SDK does not support SL_HTTP_HEAD and SL_HTTP_DELETE methods.
  */
 typedef enum {
-  SL_HTTP_GET    = 0, ///< HTTP Request Method type GET
-  SL_HTTP_POST   = 1, ///< HTTP Request Method type POST
-  SL_HTTP_HEAD   = 2, ///< HTTP Request Method type HEAD
-  SL_HTTP_PUT    = 3, ///< HTTP Request Method type PUT
-  SL_HTTP_DELETE = 4  ///< HTTP Request Method type DELETE
+  SL_HTTP_GET    = 0, ///< HTTP GET method, used to retrieve data from the server.
+  SL_HTTP_POST   = 1, ///< HTTP POST method, used to send data to the server.
+  SL_HTTP_HEAD   = 2, ///< HTTP HEAD method, used to retrieve headers from the server.
+  SL_HTTP_PUT    = 3, ///< HTTP PUT method, used to update or create a resource on the server.
+  SL_HTTP_DELETE = 4  ///< HTTP DELETE method, used to delete a resource from the server.
 } sl_http_client_method_type_t;
 
 /**
- * @brief HTTPS client TLS versions
+ * @brief
+ *   Enumeration of HTTPS client TLS versions.
+ * 
+ * @details
+ *   This enumeration defines the versions of the Transport Layer Security (TLS) protocol that can be used by the HTTPS client. Each version provides different levels of security and compatibility.
  */
 typedef enum {
-  SL_TLS_V_1_0 = 0, ///< Use TLS Version 1.0 for HTTP Client
-  SL_TLS_V_1_1 = 1, ///< Use TLS Version 1.1 for HTTP Client
-  SL_TLS_V_1_2 = 2, ///< Use TLS Version 1.2 for HTTP Client
-  SL_TLS_V_1_3 = 3  ///< Use TLS Version 1.3 for HTTP Client
+  SL_TLS_V_1_0 = 0, ///< Use TLS Version 1.0 for HTTPS Client.
+  SL_TLS_V_1_1 = 1, ///< Use TLS Version 1.1 for HTTPS Client.
+  SL_TLS_V_1_2 = 2, ///< Use TLS Version 1.2 for HTTPS Client.
+  SL_TLS_V_1_3 = 3  ///< Use TLS Version 1.3 for HTTPS Client.
 } sl_http_client_tls_version_t;
 
-/// HTTP versions.
+/**
+ * @brief
+ *   Enumeration of HTTP protocol versions.
+ * 
+ * @details
+ *   This enumeration defines the versions of the HTTP protocol that can be used by the HTTP client. Each version corresponds to a specific set of features and behaviors defined by the HTTP standard.
+ */
 typedef enum {
   SL_HTTP_V_1_0 = 0, ///< Use HTTP Protocol version 1.0
   SL_HTTP_V_1_1 = 1  ///< Use HTTP Protocol version 1.1
 } sl_http_client_version_t;
 
-/// HTTP client events.
+/**
+ * @brief
+ *   Enumeration of HTTP client events.
+ * 
+ * @details
+ *   This enumeration defines the various events that can occur during HTTP client operations. Each event corresponds to a specific type of HTTP response received by the client.
+ */
 typedef enum {
-  SL_HTTP_CLIENT_GET_RESPONSE_EVENT = 0, ///< HTTP Client GET response Event
-  SL_HTTP_CLIENT_POST_RESPONSE_EVENT,    ///< HTTP Client POST response Event
-  SL_HTTP_CLIENT_PUT_RESPONSE_EVENT,     ///< HTTP Client PUT response Event
-  SL_HTTP_CLIENT_MAX_EVENT               ///< HTTP Client Maximum number of events
+  SL_HTTP_CLIENT_GET_RESPONSE_EVENT = 0, ///< Event for receiving a response to an HTTP GET request.
+  SL_HTTP_CLIENT_POST_RESPONSE_EVENT,    ///< Event for receiving a response to an HTTP POST request.
+  SL_HTTP_CLIENT_PUT_RESPONSE_EVENT,     ///< Event for receiving a response to an HTTP PUT request.
+  SL_HTTP_CLIENT_MAX_EVENT               ///< Maximum number of HTTP client events.
 } sl_http_client_event_t;
 
 /** @} */
@@ -97,24 +147,35 @@ typedef enum {
  * @{
  */
 
-/// HTTP Client handle
+/**
+ * @brief
+ *   Handle for the HTTP client.
+ * 
+ * @details
+ *   This type defines a handle used to identify and manage an HTTP client instance. It is used in various HTTP client operations to reference a specific client.
+ */
 typedef uint32_t sl_http_client_t;
 
 /**
  * @typedef sl_http_client_event_handler_t
  * @brief
- *    Callback invoked when an HTTP response is received.
+ *   Callback function type for handling HTTP client events.
+ * 
+ * @details
+ *   This callback is invoked when an HTTP response is received. It provides the client handle, the event that occurred, the response data, and a user-defined context pointer.
+ * 
  * @param[out] client
- *    HTTP client handle of type @ref sl_http_client_t
+ *   HTTP client handle of type @ref sl_http_client_t.
  * @param[out] event
- *    HTTP event which has occurred of type @ref sl_http_client_event_t
+ *   HTTP event that has occurred, of type @ref sl_http_client_event_t.
  * @param[out] data
- *    HTTP response data.
+ *   Pointer to the HTTP response data.
  * @param[out] request_context
- *    User defined context pointer.
+ *   User-defined context pointer.
+ * 
  * @return
- *    sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
+ *   Returns an sl_status_t value indicating the result of the callback execution. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ */
 typedef sl_status_t (*sl_http_client_event_handler_t)(const sl_http_client_t *client,
                                                       sl_http_client_event_t event,
                                                       void *data,
@@ -123,71 +184,111 @@ typedef sl_status_t (*sl_http_client_event_handler_t)(const sl_http_client_t *cl
 /******************************************************
  *                    Structures
  ******************************************************/
-/// HTTP client credentials
+/**
+ * @brief
+ *   Structure to hold HTTP client credentials.
+ * 
+ * @details
+ *   This structure is used to store the credentials required for HTTP client authentication. It includes the lengths of the username ,and password as well as, a flexible array to store the actual username, and password data.
+ */
 typedef struct {
-  uint16_t username_length; ///< Length of username. Maximum supported length of username is 139 bytes
-  uint16_t password_length; ///< Length of password. Maximum supported length of password is 139 bytes
-  uint8_t data[];           ///< A flexible array to store both username and password.
+  uint16_t username_length; ///< Length of the username. Maximum supported length is 139 bytes.
+  uint16_t password_length; ///< Length of the password. Maximum supported length is 139 bytes.
+  uint8_t data[];           ///< Flexible array to store both the username, and password.
 } sl_http_client_credentials_t;
 
-/// HTTP client configurations
+/**
+ * @brief
+ *   HTTP client configurations.
+ * 
+ * @details
+ *   This structure holds the configuration settings for the HTTP client, that includes security options, protocol versions, and network interface settings.
+ */
 typedef struct {
-  uint8_t certificate_index;                ///< HTTPS client Certificate index.
-  sl_http_client_tls_version_t tls_version; ///< HTTP client TLS version. @ref sl_http_client_tls_version_t
-  sl_http_client_version_t http_version;    ///< HTTP version. @ref sl_http_client_version_t
-  bool https_enable;                        ///< HTTP security option.
-  bool https_use_sni;                       ///< HTTPs SNI extension
-  sl_ip_address_type_t ip_version;          ///< HTTP client IP version. @ref sl_ip_address_type_t
+  uint8_t certificate_index;                ///< Index of the HTTPS client certificate.
+  sl_http_client_tls_version_t tls_version; ///< TLS version for the HTTP client. See @ref sl_http_client_tls_version_t.
+  sl_http_client_version_t http_version;    ///< HTTP protocol version. See @ref sl_http_client_version_t.
+  bool https_enable;                        ///< Enable or disable HTTPS.
+  bool https_use_sni; ///< Enable or disable the use of Server Name Indication (SNI) extension in HTTPS.
+  sl_ip_address_type_t
+    ip_version; ///< IP version for the HTTP client. See [sl_ip_address_type_t](../wiseconnect-api-reference-guide-common/sl-ip-address-t).
   sl_net_interface_t
-    network_interface; ///< HTTP client network interface.[sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t)
+    network_interface; ///< Network interface for the HTTP client. See [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t).
 } sl_http_client_configuration_t;
 
-/// Structure of HTTP client extended header node.
+/**
+ * @brief
+ *   Structure representing an HTTP client extended header node.
+ * 
+ * @details
+ *   This structure is used to represent a single HTTP header in a linked list of headers. Each node contains a key-value pair for the header, and a pointer to the next header in the list.
+ */
 typedef struct sl_http_client_header_s {
-  struct sl_http_client_header_s *next; ///< Link to the next client header.
-  char *key;                            ///< Header key name.
-  char *value;                          ///< Header value.
+  struct sl_http_client_header_s *next; ///< Pointer to the next header node in the linked list.
+  char *key;                            ///< Key name of the HTTP header.
+  char *value;                          ///< Value of the HTTP header.
 } sl_http_client_header_t;
 
-/// HTTP client request configurations
+/**
+ * @brief
+ *   HTTP client request configurations.
+ * 
+ * @details
+ *   This structure holds the configuration settings for an HTTP client request, that includes the HTTP method, server address, resource URL, headers, and other options.
+ */
+/**
+ * @brief
+ *   Configuration settings for an HTTP client request.
+ * 
+ * @details
+ *   This structure contains all the necessary configuration parameters for making an HTTP client request, which includes the HTTP method, server address, resource URL, headers, and other options.
+ */
 typedef struct {
-  sl_http_client_method_type_t http_method_type; ///< HTTP request method. @ref sl_http_client_method_type_t
-  uint8_t *ip_address;                           ///< HTTP server IP address.
+  sl_http_client_method_type_t http_method_type; ///< HTTP request method. See @ref sl_http_client_method_type_t.
   uint8_t *
-    resource; ///< URL string for requested resource. The maximum supported HTTP URL is 2048 bytes, when the SL_SI91X_FEAT_LONG_HTTP_URL Bit is enabled in the feature_bit_map. If the SL_SI91X_FEAT_LONG_HTTP_URL Bit is disabled then the maximum supported length for HTTP URL is
-  ///< (872-(length of User_name + length of Password) - length of hostname - length of IP address) bytes excluding delimiters.
-  uint16_t port;                                   ///< HTTP server port number.
-  si91x_socket_type_length_value_t *sni_extension; ///< SNI extension address. @ref si91x_socket_type_length_value_t
+    ip_address; ///< IP address should contain the IP address of the HTTP server as a string (values in ASCII), for example, "192.168.1.1" for IPv4 or "2001:0db8:85a3:0000:0000:8a2e:0370:7334" for IPv6.
+  uint8_t *
+    resource; ///< Full URL string for the requested resource, including the scheme (for example, http, https), domain, port, path, query parameters, and fragment. The maximum supported HTTP URL is 2048 bytes when the SL_SI91X_FEAT_LONG_HTTP_URL bit is enabled in the feature_bit_map. If the SL_SI91X_FEAT_LONG_HTTP_URL bit is disabled, then the maximum supported length for the HTTP URL is (872 - (length of username + length of password) - length of hostname - length of IP address) bytes, excludes the delimiters.
+  uint16_t port; ///< Port number of the HTTP server.
+  si91x_socket_type_length_value_t *
+    sni_extension; ///< SNI (Server Name Indication) extension to specify the hostname for servers hosting multiple domains on the same IP address of type [si91x_socket_type_length_value_t](../wiseconnect-api-reference-guide-sockets/si91x-socket-type-length-value-t).
   uint8_t
-    *body; ///< HTTP body to be sent to the server. Setting this to null will process the request in chunked encoding.
+    *body; ///< HTTP body to be sent to the server. Setting this to NULL will process the request in chunked encoding.
   uint32_t
-    body_length; ///< Body length of data to be posted. In case of chunked request, body length should be equal to total content length.
+    body_length; ///< Length of the HTTP body data to be posted. In the case of a chunked request, body length should be equal to the total content length.
   sl_http_client_header_t *
-    extended_header; ///< User-defined extended header. If null, default extended header will be added internally. @ref sl_http_client_header_t
-  uint16_t timeout_ms; ///< HTTP request timeout period. (Si91x chipsets does not support this feature).
+    extended_header; ///< User-defined extended header. If NULL, the default extended header will be added internally. See @ref sl_http_client_header_t.
+  uint16_t timeout_ms; ///< HTTP request timeout period in milliseconds. (Si91x chipsets do not support this feature).
   uint16_t
-    retry_count; ///< HTTP request maximum retry count after timeout. (Si91x chipsets does not support this feature).
+    retry_count; ///< Maximum number of retry attempts after a timeout. (Si91x chipsets do not support this feature).
   uint16_t
-    retry_period_ms; ///< Retry period after max retry count reach. (Si91x chipsets does not support this feature).
+    retry_period_ms; ///< Retry period in milliseconds after the maximum retry count is reached. (Si91x chipsets do not support this feature).
   bool
-    tcp_connection_reuse; ///< Flag to use same TCP socket for connection. (Si91x chipsets does not support this feature).
-  void *context;          ///< User defined context.
-  sl_http_client_event_handler_t event_handler; ///< Callback method. @ref sl_http_client_event_handler_t
+    tcp_connection_reuse; ///< Flag to indicate whether to reuse the same TCP socket for the connection. (Si91x chipsets do not support this feature).
+  void *context;          ///< User-defined context for the request.
+  sl_http_client_event_handler_t
+    event_handler; ///< Callback function for handling HTTP client events. See @ref sl_http_client_event_handler_t.
   uint8_t *
-    host_name; ///< The hostname of the HTTP server, as specified in the request header. If the hostname is NULL, then the ip_address is used instead of the hostname.
+    host_name; ///< Hostname of the HTTP server as specified in the request header. If NULL, the ip_address is used instead of the hostname.
 } sl_http_client_request_t;
 
-/// HTTP client response structure
+/**
+ * @brief
+ *   HTTP client response structure.
+ * 
+ * @details
+ *   This structure holds the response data received from an HTTP server, which includes the status, data buffer, data length, HTTP response code, and response headers.
+ */
 typedef struct {
-  uint32_t status;      ///< Request status.
-  uint8_t *data_buffer; ///< Response data.
-  uint16_t data_length; ///< Length of received data.
-  uint32_t end_of_data; ///< End of data indication.
+  uint32_t status;      ///< Status of the HTTP request.
+  uint8_t *data_buffer; ///< Pointer to the buffer containing the response data.
+  uint16_t data_length; ///< Length of the received data in bytes.
+  uint32_t end_of_data; ///< Indicator for the end of data (0: more data, 1: end of data).
   uint16_t
-    http_response_code; ///< HTTP server response. (Si91x chipsets does not support this feature for SL_HTTP_PUT).
-  uint8_t version;      ///< HTTP version. (Si91x chipsets does not support this feature)
+    http_response_code; ///< HTTP response code from the server. (Si91x chipsets do not support this feature for SL_HTTP_PUT).
+  uint8_t version; ///< HTTP version used in the response. (Si91x chipsets do not support this feature).
   sl_http_client_header_t *
-    response_headers; ///< HTTP response headers. @ref sl_http_client_header_t  (Si91x chipsets does not support this feature).
+    response_headers; ///< Pointer to the HTTP response headers. See @ref sl_http_client_header_t. (Si91x chipsets do not support this feature).
 } sl_http_client_response_t;
 
 /** @} */
@@ -203,139 +304,231 @@ typedef struct {
 
 /***************************************************************************/ /**
  * @brief
- *   Initialize an HTTP client.
+ *   Initializes an HTTP client.
+ * 
+ * @details
+ *   It prepares the client to send HTTP requests. You should call this function before making any HTTP requests to ensure the client is properly configured.
+ * 
+ * @note
+ *   - You can call this function multiple times to initialize multiple HTTP client resources.
+ *   - You can use this function after calling `deinit()` to reinitialize the resource.
+ * 
  * @param[in] configuration
- *   HTTP client configuration of type @ref sl_http_client_configuration_t
+ *   Pointer to an @ref sl_http_client_configuration_t structure containing the configuration settings for the HTTP client. Must not be NULL.
+ * 
  * @param[out] client
- *   @ref sl_http_client_t object which will be initialized with client handle.
+ *   Pointer to an @ref sl_http_client_t object that would be initialized with the client handle. Must not be NULL.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_INVALID_PARAMETER: One or more input parameters are NULL or invalid.
+ *   - SL_STATUS_FAIL: Failed to initialize the HTTP client.
  ******************************************************************************/
 sl_status_t sl_http_client_init(const sl_http_client_configuration_t *configuration, sl_http_client_t *client);
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief
- *   Deinitialize an HTTP client and release resources used by HTTP client.
- * @pre Pre-conditions:
- * - 
- *   @ref sl_http_client_init should be called before this API.
+ *   Deinitializes an HTTP client and releases resources used by the HTTP client.
+ * 
+ * @details
+ *   This function deinitializes the HTTP client, freeing any resources that were allocated during its initialization and usage.
+ *   It also deletes any extended headers that may exist.
+ * 
+ * @pre
+ *   The HTTP client must be initialized using @ref sl_http_client_init before calling this function.
+ * 
  * @param[in] client
- *   HTTP client's handle of type @ref sl_http_client_t
+ *   Pointer to an @ref sl_http_client_t object representing the HTTP client handle. Must not be NULL.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_INVALID_PARAMETER: The provided client handle is NULL or invalid.
+ *   - SL_STATUS_FAIL: Failed to deinitialize the HTTP client.
+ * 
  * @note
- *   User must call this API to release the resources once the HTTP client is no longer needed. 
- *   This function deletes extended headers if any exists during deinitialization.
+ *   The user must call this function to release resources once the HTTP client is no longer needed.
  ******************************************************************************/
 sl_status_t sl_http_client_deinit(const sl_http_client_t *client);
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief
- *   Initialize a callback function for the requested HTTP method.
- * @pre Pre-conditions:
- * - 
- *   @ref sl_http_client_init should be called before this API.
+ *   Initializes a callback function for the specified HTTP request.
+ * 
+ * @details
+ *   This function sets up a callback function to handle events for a specific HTTP request. It must be called after initializing the HTTP client.
+ * 
+ * @pre
+ *   - @ref sl_http_client_init should be called before this function.
+ * 
  * @param[in] request
- *   HTTP client request configuration of type @ref sl_http_client_request_t
+ *   Pointer to an @ref sl_http_client_request_t structure containing the HTTP client request configuration. Must not be NULL.
+ * 
  * @param[in] event_handler
- *   HTTP client callback event handler of type @ref sl_http_client_event_handler_t
+ *   Callback function of type @ref sl_http_client_event_handler_t to handle HTTP client events. Must not be NULL.
+ * 
  * @param[in] request_context
- *   User defined context pointer. 
- *   Memory space for the user defined context must be valid till the response is received.
+ *   User-defined context pointer. The memory space for this context must remain valid until the response is received.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_INVALID_PARAMETER: One or more input parameters are NULL or invalid.
+ *   - SL_STATUS_FAIL: Failed to initialize the HTTP client request.
  ******************************************************************************/
 sl_status_t sl_http_client_request_init(sl_http_client_request_t *request,
                                         sl_http_client_event_handler_t event_handler,
                                         void *request_context);
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief
- *   Add extended header with key and value in client request.
- * @pre Pre-conditions:
- * - 
- *   @ref sl_http_client_init should be called before this API.
+ *   Adds an extended header with a key and value to the client request.
+ * 
+ * @details
+ *   This function adds an extended header to the specified HTTP client request. If the request does not already contain any extended headers, 
+ *   this function allocates memory for them.
+ * 
+ * @pre
+ *   - @ref sl_http_client_init should be called before this function.
+ * 
  * @param[in] request
- *   HTTP client request configuration of type @ref sl_http_client_request_t
+ *   Pointer to an @ref sl_http_client_request_t structure representing the HTTP client request configuration. Must not be NULL.
+ * 
  * @param[in] key
- *   Header key.
+ *   Pointer to a string containing the header key. Must not be NULL.
+ * 
  * @param[in] value
- *   Header value.
+ *   Pointer to a string containing the header value. Must not be NULL.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_INVALID_PARAMETER: One or more input parameters are NULL or invalid.
+ *   - SL_STATUS_FAIL: Failed to add the header to the request.
+ * 
  * @note
- *   If a request does not contain any extended header, this API allocates memory for it.
+ *   If the request does not contain any extended headers, this function allocates memory for them.
  ******************************************************************************/
 sl_status_t sl_http_client_add_header(sl_http_client_request_t *request, const char *key, const char *value);
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief
- *   Delete a specified header field from the extended header based on key of an HTTP client request.
- * @pre Pre-conditions:
- * - 
- *   @ref sl_http_client_add_header should be called before this API.
+ *   Deletes a specified header field from the extended headers of an HTTP client request.
+ * 
+ * @details
+ *   This function removes a header field from the extended headers of the specified HTTP client request based on the provided key.
+ * 
+ * @pre
+ *   - @ref sl_http_client_add_header should be called before this function.
+ * 
  * @param[in] request
- *   HTTP client request configuration of type @ref sl_http_client_request_t
+ *   Pointer to an @ref sl_http_client_request_t structure represents the HTTP client request configuration. Must not be NULL.
+ * 
  * @param[in] key
- *   Header key.
+ *   Pointer to a string contains the header key to be deleted. Must not be NULL.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_INVALID_PARAMETER: One or more input parameters are NULL or invalid.
+ *   - SL_STATUS_FAIL: Failed to delete the header from the request.
  ******************************************************************************/
 sl_status_t sl_http_client_delete_header(sl_http_client_request_t *request, const char *key);
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief
- *   Delete all the headers from the extended header of an HTTP client request.
- * @pre Pre-conditions:
- * - 
- *   @ref sl_http_client_add_header should be called before this API.
+ *   Deletes all headers from the extended headers of an HTTP client request.
+ * 
+ * @details
+ *   This function removes all headers from the extended headers of the specified HTTP client request. It frees up the memory allocated for these headers.
+ * 
+ * @pre
+ *   - @ref sl_http_client_add_header should be called before this function.
+ * 
  * @param[in] request
- *   HTTP client request configuration of type @ref sl_http_client_request_t
+ *   Pointer to an @ref sl_http_client_request_t structure representing the HTTP client request configuration. Must not be NULL.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_INVALID_PARAMETER: The provided request handle is NULL or invalid.
+ *   - SL_STATUS_FAIL: Failed to delete the headers from the request.
+ * 
  * @note
- *   User must call this API to free the memory allocated to headers.
+ *   The user must call this function to free the memory allocated for the headers.
  ******************************************************************************/
 sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request);
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief
- *   Send HTTP request.
- * @pre Pre-conditions:
- * -
- *   @ref sl_http_client_request_init should be called before this API.
+ *   Sends an HTTP request.
+ * 
+ * @details
+ *   This function sends an HTTP request using the specified client and request configuration. It must be called after initializing the request with 
+ *   @ref sl_http_client_request_init.
+ * 
+ * @pre
+ *   - @ref sl_http_client_request_init should be called before this function.
+ * 
  * @param[in] client
- *   HTTP client handle of type @ref sl_http_client_t
+ *   Pointer to an @ref sl_http_client_t object representing the HTTP client handle. Must not be NULL.
+ * 
  * @param[in] request
- *   HTTP client request configuration of type @ref sl_http_client_request_t
+ *   Pointer to an @ref sl_http_client_request_t object representing the HTTP client request configuration. Must not be NULL.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- *   This status only indicates the library status.
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_INVALID_PARAMETER: One or more input parameters are NULL or invalid.
+ *   - SL_STATUS_FAIL: Failed to send the HTTP request.
+ * 
  * @note
- *   1. HTTP HEAD and DELETE methods are not supported in Si91x specific chipsets.
- *   2. body_length header in request by default internally in Si91x specific chipsets.
- *   3. HTTP PUT does not support sending body through this API, it is mandatory to call sl_http_client_write_chunked_data() in Si91x specific chipsets.
- *   4. HTTP response status and response code e.g., 200, 201, 404, etc will be returned in the corresponding event_handler registered during sl_http_client_request_init().
+ *   - HTTP HEAD and DELETE methods are not supported on Si91x specific chipsets.
+ *   - The `body_length` header in the request is set internally by default on Si91x specific chipsets.
+ *   - HTTP PUT does not support sending the body through this API; it is mandatory to call @ref sl_http_client_write_chunked_data on Si91x specific chipsets.
+ *   - HTTP response status and response codes (e.g., 200, 201, 404) would be returned in the corresponding event handler registered during @ref sl_http_client_request_init.
  ******************************************************************************/
 sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl_http_client_request_t *request);
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief
- *   Send an HTTP POST and PUT chunked data.
- * @pre Pre-conditions:
- * -
- *   @ref sl_http_client_send_request should be called before this API.
+ *   Sends HTTP POST and PUT chunked data.
+ * 
+ * @details
+ *   This function sends a chunk of data as part of an HTTP POST or PUT request. It should be used after initiating the request with 
+ *   @ref sl_http_client_send_request. The data can be sent in multiple chunks by calling this function multiple times.
+ * 
+ * @pre
+ *   - @ref sl_http_client_send_request should be called before this function.
+ * 
  * @param[in] client
- *   HTTP client handle of type @ref sl_http_client_t
+ *   Pointer to an @ref sl_http_client_t object representing the HTTP client handle. Must not be NULL.
+ * 
  * @param[in] data
- *   Buffer pointer of data to be written.
+ *   Pointer to the buffer containing the data to be written. Must not be NULL.
+ * 
  * @param[in] data_length
- *    Length of data/chunk to be sent.
+ *   Length of the data chunk to be sent.
+ * 
  * @param[in] flush_now
+ *   Boolean flag indicating whether to flush the data immediately. Note that this feature is not supported on Si91x specific chipsets.
+ * 
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- * @note:
- * flush_now feature is not supported in Si91x specific chipsets.
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_INVALID_PARAMETER: One or more input parameters are NULL or invalid.
+ *   - SL_STATUS_FAIL: Failed to send the data chunk.
+ * 
+ * @note
+ *   The `flush_now` feature is not supported on Si91x specific chipsets.
  ******************************************************************************/
 sl_status_t sl_http_client_write_chunked_data(const sl_http_client_t *client,
                                               const uint8_t *data,

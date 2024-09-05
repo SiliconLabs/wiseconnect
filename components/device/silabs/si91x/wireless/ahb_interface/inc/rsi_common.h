@@ -210,7 +210,7 @@
 #define DEFAULT_TIMEOUT        RSI_TX_EVENT_WAIT_TIME
 #define WAIT_TIMEOOUT          5000
 
-/********TA GPIO defines ******************************/
+/********NWP GPIO defines ******************************/
 //! GPIO address
 #define RSI_GPIO_ADDR 0x40200000
 //! PAD enable
@@ -374,13 +374,13 @@ typedef enum ta_m4_commands_e {
   SL_SI91X_GET_IPMU_PROGRAMMING_VALUES = 2,
   SL_SI91X_READ_TA_REGISTER            = 3,
   SL_SI91X_WRITE_TA_REGISTER           = 4,
-  // This enum varibale added for M4 has to give indication to TA, for Configure the Clock switching between 1.3V to 3.3 .For more details check Jira Ticket RSC-3802.
+  // This enum varibale added for M4 has to give indication to NWP, for Configure the Clock switching between 1.3V to 3.3V.
   SL_SI91X_ENABLE_XTAL = 5,
 #ifdef SLI_SI917
   SL_SI91X_WRITE_TO_COMMON_FLASH = 6,
 #endif
 } sl_si91x_ta_m4_commands_t;
-//  M4 and TA secure handshake request structure.
+//  M4 and NWP secure handshake request structure.
 typedef struct ta_m4_handshake_param {
   // sub_cmd form the  enum ta_m4_commands_e(Main command type is RSI_COMMON_REQ_TA_M4_COMMANDS)
   sl_si91x_ta_m4_commands_t sub_cmd;
@@ -398,7 +398,7 @@ typedef struct rsi_req_ta2m4_s {
   // sub_cmd
   uint8_t sub_cmd;
 
-  // TA flash location
+  // NWP flash location
   uint32_t addr;
 
   // total length of input data

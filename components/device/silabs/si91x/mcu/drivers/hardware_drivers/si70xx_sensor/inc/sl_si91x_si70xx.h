@@ -38,12 +38,14 @@ extern "C" {
 #include "sl_status.h"
 #include "sl_si91x_i2c.h"
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @addtogroup SI70XX Si70XX Sensor
  * @ingroup SI91X_HARDWARE_DRIVER_APIS
  * @{
  *
  ******************************************************************************/
+
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -56,7 +58,14 @@ extern "C" {
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
-///@brief Enum for Si70xx commands
+/***************************************************************************/
+/**
+ * @brief Enum for Si70xx commands.
+ * 
+ * @details This enumeration defines the command codes used to interact with the Si70xx sensor family. 
+ *          These commands are used to measure humidity and temperature, read and write user registers, 
+ *          control the heater, and read the electronic ID and firmware revision.
+ */
 typedef enum sl_si70xx_commands {
   SL_HUMIDITY_HM     = 0xE5, ///< Measure Relative Humidity, Hold Master Mode
   SL_HUMIDITY_NHM    = 0xF5, ///< Measure Relative Humidity, No Hold Master Mode
@@ -76,23 +85,41 @@ typedef enum sl_si70xx_commands {
   SL_FIRMWARE_REV2   = 0xB8  ///< Read Firmware Revision, second part
 } sl_si70xx_commands_t;
 
-///@brief Enum for Temperature, Humidity measurement
+/***************************************************************************/
+/**
+ * @brief Enum for Temperature and Humidity measurement types.
+ * 
+ * @details This enumeration defines the types of measurements that can be performed by the Si70xx sensor.
+ *          It includes options for measuring humidity and temperature, as well as a validation enum.
+ */
 typedef enum sl_si70xx_measurement_type {
   SL_HUMIDITY,        ///< Enumerator for humidity selection
   SL_TEMPERATURE,     ///< Enumerator for temperature selection
   SL_LAST_MEASUREMENT ///< Last enum for validation
 } sl_si70xx_measurement_type_t;
 
-///@brief Enum for electronic ID
+/***************************************************************************/
+/**
+ * @brief To specify the type of electronic ID byte to be sent.
+ * 
+ * @details This enumeration defines the types of electronic ID bytes that can be sent to the Si70xx sensor.
+ *          It includes options for sending the first and second bytes of the electronic ID, as well as a validation enum.
+ */
 typedef enum sl_si70xx_eid_type {
-  SL_EID_FIRST_BYTE,  ///< Enumerator for sending electronic ID first byte
-  SL_EID_SECOND_BYTE, ///< Enumerator for sending electronic ID second byte
+  SL_EID_FIRST_BYTE,  ///< Enumerator for sending the first byte of the electronic ID
+  SL_EID_SECOND_BYTE, ///< Enumerator for sending the second byte of the electronic ID
   SL_LAST_EID         ///< Last enum for validation
 } sl_si70xx_eid_type_t;
 
-///@brief Enum for User, Heater control registers
+/***************************************************************************/
+/**
+ * @brief To specify the RH/T (Relative Humidity & Temperature) User Register and Heater Control Registers.
+ * 
+ * @details This enumeration defines the register types used for configuring the Si70xx sensor. 
+ *          It includes options for the RH/T user register and the heater control register, as well as a validation enum.
+ */
 typedef enum sl_si70xx_registers {
-  SL_RH_T_USER_REG,      ///< Enumerator for write RH/T user register selection
+  SL_RH_T_USER_REG,      ///< Enumerator for RH/T user register selection
   SL_HEATER_CONTROL_REG, ///< Enumerator for heater control register selection
   SL_LAST_CONTROL_REG    ///< Last enum for validation
 } sl_si70xx_registers_t;
@@ -100,225 +127,280 @@ typedef enum sl_si70xx_registers {
 // -----------------------------------------------------------------------------
 // Prototypes
 
-/***************************************************************************/ /**
-* Initialize the Si70xx sensor.
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[in] eid : electronic ID of type \ref sl_si70xx_eid_type_t.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INITIALIZATION (0x0010) - no Si70xx device present 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To initialize the Si70xx sensor.
+ * 
+ * @details This API initializes the Si70xx sensor and must be called before using other functions.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_si70xx_reset()
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C address for Si70xx.
+ * @param[in] eid Electronic ID of type \ref sl_si70xx_eid_type_t.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INITIALIZATION (0x0010) - No Si70xx device present.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_init(sl_i2c_instance_t i2c_instance, uint8_t addr, sl_si70xx_eid_type_t eid);
 
-/***************************************************************************/ /**
-*  Check whether an Si7006/13/20/21 is present on the I2C bus (or) not.
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[in] eid : electronic ID of type \ref sl_si70xx_eid_type_t. If SL_EID_FIRST_BYTE is selected,
-*                    then EID 1st byte is considered. If SL_EID_SECOND_BYTE is selected, then
-*                    EID 2nd byte is considered. For EID 1st byte, EID 2nd byte commands please
-*                    look into datasheet.
-*   Write device ID from SNB_3 if device responds. Pass in NULL to discard.
-*   Should be 0x0D for Si7013, 0x14 for Si7020 or 0x15 for Si7021
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To check whether an Si7006/13/20/21 is present on the I2C bus.
+ * 
+ * @details This API checks whether an Si7006/13/20/21 sensor is present on the I2C bus based on the provided Electronic ID (EID).
+ *          If `SL_EID_FIRST_BYTE` is selected, the first byte of the EID is considered.
+ *          If `SL_EID_SECOND_BYTE` is selected, the second byte of the EID is considered.
+ *          For details on EID commands, see the sensor's datasheet.
+ *          The device ID from SNB_3 is written if the device responds. Pass NULL to discard.
+ *          Expected values: 0x0D for Si7013, 0x14 for Si7020, or 0x15 for Si7021.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[in] eid Electronic ID of type \ref sl_si70xx_eid_type_t.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_is_present(sl_i2c_instance_t i2c_instance, uint8_t addr, sl_si70xx_eid_type_t eid);
 
-/***************************************************************************/ /**
-*  Measure relative humidity and temperature from Si7006/13/20/21 sensor.
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[out] humid_data : The relative humidity in percentage obtained after doing conversion as per formula
-*     						mentioned in datasheet.
-*  @param[out] temp_data : The temperature in milliCelsius.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To measure relative humidity and temperature from Si7006/13/20/21 sensor.
+ * 
+ * @details This API is used to measure relative humidity in percentage and temperature in degrees Celsius from the Si70xx sensor.
+ *          The relative humidity and temperature values are obtained after conversion as per the formula mentioned in the datasheet.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[out] humid_data The relative humidity in percentage.
+ * @param[out] temp_data The temperature in degrees Celsius.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_measure_rh_and_temp(sl_i2c_instance_t i2c_instance,
                                                 uint8_t addr,
                                                 uint32_t *humid_data,
                                                 int32_t *temp_data);
 
-/***************************************************************************/ /**
-*  Read Firmware Revision from Si7006/13/20/21 sensor.
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[out] firmware_revision : Internal firmware revision.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To read the firmware revision from the Si7006/13/20/21 sensor.
+ * 
+ * @details This API reads the firmware revision from the Si70xx sensor. The firmware revision provides information about the internal firmware version of the sensor.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[out] firmware_revision Pointer to store the internal firmware revision.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_get_firmware_revision(sl_i2c_instance_t i2c_instance,
                                                   uint8_t addr,
                                                   uint8_t *firmware_revision);
 
-/***************************************************************************/ /**
-*  Reads temperature value from previous relative humidity measurement from Si7006/13/20/21 sensor.
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[out] humid_data : The relative humidity in percent (multiplied by 1000).
-*  @param[out] temp_data : The temperature in milliCelsius.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To read the temperature value from the previous relative humidity measurement from the Si7006/13/20/21 sensor.
+ * 
+ * @details This API reads the temperature (in degrees Celsius) from the previous relative humidity measurement (in percent) from the Si70xx sensor.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[out] humid_data The relative humidity in percent.
+ * @param[out] temp_data The temperature in degrees Celsius.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_read_temp_from_rh(sl_i2c_instance_t i2c_instance,
                                               uint8_t addr,
                                               uint32_t *humid_data,
                                               int32_t *temp_data);
 
-/***************************************************************************/ /**
-*  Start a no hold measurement of relative humidity (or) temperature from Si7006/13/20/21 sensor.
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[in] type : measurement value of type \ref sl_si70xx_measurement_type_t.
-*  @param[out] data : The data read from the sensor.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To start a no-hold measurement of relative humidity or temperature from the Si7006/13/20/21 sensor.
+ * 
+ * @details This API starts a no-hold measurement (not acknowledging read requests) of relative humidity or temperature from the Si70xx sensor.
+ *          The measurement type is specified by the `type` parameter, which can be either relative humidity or temperature.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[in] type Measurement type of \ref sl_si70xx_measurement_type_t.
+ * @param[out] data The data read from the sensor.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(sl_i2c_instance_t i2c_instance,
                                                              uint8_t addr,
                                                              sl_si70xx_measurement_type_t type,
                                                              uint32_t *data);
 
-/***************************************************************************/ /**
-*  Measure relative humidity from Si7006/13/20/21 sensor.
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[out] humid_data : The relative humidity measurement.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To measure relative humidity from the Si7006/13/20/21 sensor.
+ * 
+ * @details This API is used to measure the relative humidity from the Si70xx sensor. The relative humidity value is returned in the `humid_data` parameter.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[out] humid_data The relative humidity measurement.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_measure_humidity(sl_i2c_instance_t i2c_instance, uint8_t addr, uint32_t *humid_data);
 
-/***************************************************************************/ /**
-*  Measure temperature from Si7006/13/20/21 sensor.
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[out] temp_data : The temperature measurement.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To measure temperature from the Si7006/13/20/21 sensor.
+ * 
+ * @details This API is used to measure the temperature from the Si70xx sensor. The temperature value is returned in the `temp_data` parameter.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[out] temp_data The temperature measurement.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_measure_temperature(sl_i2c_instance_t i2c_instance, uint8_t addr, int32_t *temp_data);
 
-/***************************************************************************/ /**
-*  Initiates a si70xx software reset by the appropriate command.
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To initiate a software reset for the Si70xx sensor.
+ * 
+ * @details This API initiates a software reset for the Si70xx sensor using the appropriate command. 
+ *          It is used to reset the sensor to its default state.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_reset(sl_i2c_instance_t i2c_instance, uint8_t addr);
 
-/***************************************************************************/ /**
-*  Reads the user register 1 and heater control register data
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[in] reg : Register of type \ref sl_si70xx_registers_t.
-*  @param[out] data : The data read from the sensor.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*  - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer 
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To read the RH/T user register and heater control register data from the Si70xx sensor.
+ * 
+ * @details This API reads the RH/T user register and heater control register data from the Si70xx sensor.
+ *          The register to be read is specified by the `reg` parameter, which can be either the RH/T user register or the heater control register.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[in] reg Register of type \ref sl_si70xx_registers_t.
+ * @param[out] data The data read from the sensor.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_read_control_register(sl_i2c_instance_t i2c_instance,
                                                   uint8_t addr,
                                                   sl_si70xx_registers_t reg,
                                                   uint8_t *data);
 
-/***************************************************************************/ /** 
-*  Writes data to user register 1 and heater control register
-*  @pre Pre-conditions:
-*  - \ref sl_si91x_si70xx_reset() 
-*  @param[in] i2c_instance : I2C peripheral to use.
-*  @param[in] addr : I2C address to probe.
-*  @param[in] reg : Register of type \ref sl_si70xx_registers_t.
-*  @param[out] value : The value written into the register.
-*  @return The following values are returned:
-*  - \ref SL_STATUS_OK on success 
-*  - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is invalid argument 
-*
-******************************************************************************/
+/***************************************************************************/
+/** 
+ * @brief To write data to RH/T user register and heater control register.
+ * 
+ * @details This API is used to write data to the RH/T user register and heater control register of the Si70xx sensor.
+ *          The register to be written is specified by the `reg` parameter, which can be either the RH/T user register or the heater control register.
+ * 
+ * @param[in] i2c_instance Select the I2C instance from sl_i2c_instance_t.
+ * @param[in] addr I2C device address for Si70xx.
+ * @param[in] reg Register of type \ref sl_si70xx_registers_t.
+ * @param[in] value The value to be written into the register.
+ * 
+ * @return sl_status_t Status code indicating the result: 
+ *         - SL_STATUS_OK (0x0000) - Success.  
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument. 
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_si70xx_write_control_register(sl_i2c_instance_t i2c_instance,
                                                    uint8_t addr,
                                                    sl_si70xx_registers_t reg,
                                                    uint8_t value);
 
-// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
-/// @addtogroup SI70XX - RHT sensor
-/// @{
-///
-///   @details
-///
-///   @n @section si70xx Introduction.
-///
-///   The Si70xx sensor driver provides a set of functions to interact with the Si70xx sensor series over the I2C bus. It allows
-///   for easy integration of the sensor, providing access to features such as temperature and humidity measurements,
-///   firmware revision retrieval, and device presence detection. All Si70xx functions are called through the generic driver.
-///
-///   @n @section si70xx Usage
-///
-///   Once I2C peripheral is initialised and configured, Si70xx sensor will be ready to be use. The common functions include the following:
-///
-///   @li @ref sl_si91x_si70xx_init
-///   @li @ref sl_si91x_si70xx_is_present
-///   @li @ref sl_si91x_si70xx_measure_rh_and_temp
-///   @li @ref sl_si91x_si70xx_get_firmware_revision
-///   @li @ref sl_si91x_si70xx_reset
-///
-///   @ref sl_si91x_si70xx_init initialises the Si70xx sensor. This function is called before using the other functions.
-///
-///   @ref sl_si91x_si70xx_is_present can be implemented by the application if required. This function will check if an Si70xx sensor
-///   is present on the I2C bus. @ref sl_si91x_si70xx_measure_rh_and_temp will measure relative humidity and temperature from the sensor.
-///   @ref sl_si91x_si70xx_get_firmware_revision will read the firmware revision from the sensor. @ref sl_si91x_si70xx_reset will
-///   initiate a software reset of the sensor.
-///
-///   Kindly refer to the Function Documentation to see the usage of all the APIs in detail.
-///
-/// @} end group SI70XX - RHT sensor ********************************************************/
+/// @} end group SI70XX ********************************************************/
 
-/** @} (end addtogroup SI70XX - RHT sensor) */
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/** @addtogroup SI70XX Si70XX Sensor
+* @{
+*
+* @details
+*
+* @section Si70xx Introduction
+*
+* The Si70xx sensor driver offers a set of functions for interacting with the Si70xx sensor series over the I2C bus. It facilitates
+* the integration of the sensor by providing access to features such as temperature and humidity measurements,
+* firmware revision retrieval, and device presence detection. All Si70xx functions are managed through the generic driver.
+*
+* @section Si70xx_Use Usage
+*
+* Once the I2C peripheral is initialized and configured, the Si70xx sensor will be ready for use. The common functions include the following:
+*
+* 1. *Initialize the Si70xx sensor:* @ref sl_si91x_si70xx_init
+* 2. *Check whether an Si7006/13/20/21 is present on the I2C bus:* @ref sl_si91x_si70xx_is_present
+* 3. *Measure relative humidity and temperature from the Si7006/13/20/21 sensor:* @ref sl_si91x_si70xx_measure_rh_and_temp
+* 4. *Read firmware revision from the Si7006/13/20/21 sensor:* @ref sl_si91x_si70xx_get_firmware_revision
+* 5. *Initiate a Si70xx software reset using the appropriate command:* @ref sl_si91x_si70xx_reset
+*
+* @li The following sequence should be followed when using the Si70xx sensor:
+*   - *Initialize the Si70xx sensor:* Use @ref sl_si91x_si70xx_init before using the other functions.
+*   - *Check Sensor Presence:* Optionally verify if a Si70xx sensor is present on the I2C bus using @ref sl_si91x_si70xx_is_present.
+*   - *Measure Relative Humidity and Temperature:* Use @ref sl_si91x_si70xx_measure_rh_and_temp to obtain measurements from the sensor.
+*   - *Read the firmware revision:* Retrieve the firmware version with @ref sl_si91x_si70xx_get_firmware_revision.
+*   - *Initiate a software reset:* Perform a software reset on the sensor if needed using @ref sl_si91x_si70xx_reset.
+*
+* @li See the Function Documentation for the usage information of all the APIs in detail.
+*
+*
+* @} (end addtogroup SI70XX Si70XX Sensor) */
 
 #ifdef __cplusplus
 }

@@ -368,7 +368,7 @@ void RSI_IPMU_InitCalibData(void)
 
   /* Read the MCU boot status register */
   volatile retention_boot_status_word_t *retention_reg = (retention_boot_status_word_t *)MCURET_BOOTSTATUS;
-  /* Read the TA BBFFs storage register */
+  /* Read the NWP BBFFs storage register */
   volatile npss_boot_status_word0_t *npss_boot_status = (npss_boot_status_word0_t *)MCU_BBFF_STORAGE1_ADDR;
 
   if (retention_reg->product_mode == MCU) {

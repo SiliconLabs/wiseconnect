@@ -124,7 +124,7 @@ void sli_submit_rx_buffer(void)
 {
   mask_ta_interrupt(RX_PKT_TRANSFER_DONE_INTERRUPT);
 
-  //! submit to TA submit packet
+  //! submit to NWP submit packet
   sli_si91x_submit_rx_pkt();
 
   unmask_ta_interrupt(RX_PKT_TRANSFER_DONE_INTERRUPT);
@@ -176,7 +176,7 @@ void rsi_update_rx_dma_desc(void)
 void sli_si91x_config_m4_dma_desc_on_reset(void)
 {
 
-  //! Wait for TA to wakeup and should be in bootloader
+  //! Wait for NWP to wakeup and should be in bootloader
   while (!(P2P_STATUS_REG & TA_is_active))
     ;
   SL_DEBUG_LOG("\r\nTA is in active state\r\n");

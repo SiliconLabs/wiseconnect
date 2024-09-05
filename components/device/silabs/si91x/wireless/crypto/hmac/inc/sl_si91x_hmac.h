@@ -40,6 +40,12 @@
  * @{ 
  */
 
+/**
+ * @brief Enumeration defining HMAC-SHA modes supported by the SI91X device.
+ *
+ * This enumeration defines different HMAC-SHA modes supported by the SI91X device,
+ * including SHA1, SHA256, SHA384, and SHA512 modes.
+ */
 typedef enum {
   SL_SI91X_HMAC_SHA_1 = 1, ///< HMAC SHA 1 mode
   SL_SI91X_HMAC_SHA_256,   ///< HMAC SHA 256 mode
@@ -47,11 +53,17 @@ typedef enum {
   SL_SI91X_HMAC_SHA_512    ///< HMAC SHA 512 mode
 } sl_si91x_hmac_mode_t;
 
+/**
+ * @brief Enumeration defining digest lengths of HMAC-SHA modes supported by the SI91X device.
+ *
+ * This enumeration defines digest lengths of different HMAC-SHA modes supported by the SI91X device,
+ * including SHA1, SHA256, SHA384, and SHA512 modes.
+ */
 typedef enum {
-  SL_SI91X_HMAC_SHA_1_DIGEST_LEN   = 20,
-  SL_SI91X_HMAC_SHA_256_DIGEST_LEN = 32,
-  SL_SI91X_HMAC_SHA_384_DIGEST_LEN = 48,
-  SL_SI91X_HMAC_SHA_512_DIGEST_LEN = 64
+  SL_SI91X_HMAC_SHA_1_DIGEST_LEN   = 20, ///< Digest length for HMAC SHA 1
+  SL_SI91X_HMAC_SHA_256_DIGEST_LEN = 32, ///< Digest length for HMAC SHA 256
+  SL_SI91X_HMAC_SHA_384_DIGEST_LEN = 48, ///< Digest length for HMAC SHA 384
+  SL_SI91X_HMAC_SHA_512_DIGEST_LEN = 64  ///< Digest length for HMAC SHA 512
 } sl_si91x_hmac_digest_len_t;
 
 /** @} */
@@ -64,26 +76,49 @@ typedef enum {
  * @{ 
  */
 
+/**
+ * @brief Structure defining HMAC key configuration for non-B0 chip versions.
+ *
+ * The structure defines the key configuration for non-B0 chip versions, which includes
+ * a pointer to the key, and the length of the key.
+ */
 typedef struct {
   uint8_t *key;        ///< Pointer to the key
   uint32_t key_length; ///< Length of the key
 } sl_si91x_hmac_key_config_A0_t;
 
+/**
+ * @brief Structure defining HMAC key configuration for B0 chip versions.
+ *
+ * The structure defines the key configuration for B0 chip versions, which includes
+ * the key type, key size, key slot, wrap mode, IV, key buffer, and reserved field.
+ */
 typedef struct {
-  sl_si91x_crypto_key_type_t key_type;      ///< Key type
+  sl_si91x_crypto_key_type_t key_type;      ///< Key type - wrapped or plain
   uint32_t key_size;                        ///< Key size
   sl_si91x_crypto_key_slot_t key_slot;      ///< Key slot
-  sl_si91x_crypto_wrap_mode_t wrap_iv_mode; ///< Wrap mode
-  uint8_t wrap_iv[SL_SI91X_IV_SIZE];        ///< Wrap IV
+  sl_si91x_crypto_wrap_mode_t wrap_iv_mode; ///< Wrap mode - ECB or CBC
+  uint8_t wrap_iv[SL_SI91X_IV_SIZE];        ///< IV used for wrapping in SL_SI91X_AES_CBC and SL_SI91X_AES_CTR modes
   uint8_t *key;                             ///< Pointer to the key
   uint32_t reserved;                        ///< Reserved for future use
 } sl_si91x_hmac_key_config_B0_t;
 
+/**
+ * @brief Union holding HMAC key configuration structures for B0, and non-B0 chip versions.
+ *
+ * This union holds the key configuration structures for both B0, and non-B0 chip versions.
+ */
 typedef union {
   sl_si91x_hmac_key_config_A0_t A0; ///< Key configuration for non-B0 chip versions
   sl_si91x_hmac_key_config_B0_t B0; ///< Key configuration for B0 chip versions
 } sl_si91x_hmac_key_config_t;
 
+/**
+ * @brief Structure defining HMAC configuration.
+ *
+ * This structure defines the HMAC configuration required for the operation, which includes 
+ * the type of operation, input message, length of the input message, key configuration structure, and so on.
+ */
 typedef struct {
   sl_si91x_hmac_mode_t hmac_mode;        ///< HMAC Mode
   const uint8_t *msg;                    ///< Pointer to the input message
@@ -93,19 +128,26 @@ typedef struct {
 
 /** @} */
 
+/******************************************************
+ *                Function Declarations
+*******************************************************/
 /**
  * @addtogroup CRYPTO_HMAC_FUNCTIONS
  * @{ 
  */
 
-/***************************************************************************/ /**
- * @brief This API will provide the HMAC output for the given configuration. This is a blocking API.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To compute the HMAC output for the given configuration. It is a blocking API.
  * @param[in] config 
  *   Configuration object of type @ref sl_si91x_hmac_config_t
  * @param[out] output 
  *   Buffer to store the output.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_hmac(sl_si91x_hmac_config_t *config, uint8_t *output);
 

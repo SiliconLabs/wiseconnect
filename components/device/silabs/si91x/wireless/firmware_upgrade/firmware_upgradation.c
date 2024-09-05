@@ -54,7 +54,7 @@ extern bool device_initialized;
  * @param[in] length  
  *   Length of the content
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
 static sl_status_t sl_si91x_fwup(uint16_t type, const uint8_t *content, uint16_t length);
 

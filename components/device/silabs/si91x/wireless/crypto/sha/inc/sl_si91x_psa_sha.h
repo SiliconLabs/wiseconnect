@@ -49,13 +49,13 @@
  * \param[out] hash_length        On success, the size of the output in the
  *                                ciphertext buffer.
  *
- * \retval #PSA_SUCCESS Success.
- * \retval #PSA_ERROR_NOT_SUPPORTED
+ * \retval PSA_SUCCESS Success.
+ * \retval PSA_ERROR_NOT_SUPPORTED
  *         \p alg is not supported.
- * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
- * \retval #PSA_ERROR_BUFFER_TOO_SMALL
+ * \retval PSA_ERROR_INSUFFICIENT_MEMORY
+ * \retval PSA_ERROR_BUFFER_TOO_SMALL
  *         ciphertext_size is too small.
- * \retval #PSA_ERROR_CORRUPTION_DETECTED
+ * \retval PSA_ERROR_CORRUPTION_DETECTED
  */
 psa_status_t sli_si91x_crypto_hash_compute(psa_algorithm_t alg,
                                            const uint8_t *input,

@@ -270,7 +270,7 @@ void RSI_PS_RestoreCpuContext(void)
 /**
  * @fn     void RSI_Set_Cntrls_To_M4(void)
  * @brief  This API is used to set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl, AON domain power supply controls
- *         form TA to M4
+ *         from NWP to M4
  *
  *
  * @return none
@@ -297,14 +297,14 @@ void RSI_Set_Cntrls_To_M4(void)
 /**
  * @fn     void RSI_Set_Cntrls_To_TA(void)
  * @brief  This API is used to set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls
- *         form M4 to TA
+ *         from M4 to NWP
  *
  *
  * @return none
  */
 void RSI_Set_Cntrls_To_TA(void)
 {
-  /* tass_ref_clk_mux_ctr in TA Control */
+  /* tass_ref_clk_mux_ctr in NWP Control */
   NWPAON_MEM_HOST_ACCESS_CTRL_SET_1 = TASS_REF_CLK_MUX_CTRL;
 }
 #endif
@@ -495,7 +495,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
 #if ((defined SLI_SI91X_MCU_COMMON_FLASH_MODE) && (!(defined(RAM_COMPILATION))))
   /* Reset M4_USING_FLASH bit before going to sleep */
   M4SS_P2P_INTR_CLR_REG = M4_USING_FLASH;
-  /*Before M4 is going to deep sleep , set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctr, AON domain power supply controls form M4 to TA */
+  /*Before M4 is going to deep sleep , set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctr, AON domain power supply controls from M4 to NWP */
 #ifdef SLI_SI917B0
   MCUAON_CONTROL_REG4 |= (MCU_TASS_REF_CLK_SEL_MUX_CTRL);
   MCUAON_CONTROL_REG4;
@@ -516,24 +516,24 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   }
 
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-  /* if flash is not initialised ,then raise a request to TA */
+  /* if flash is not initialised ,then raise a request to NWP */
   if (!(in_ps2_state) && !(M4SS_P2P_INTR_SET_REG & M4_USING_FLASH)) {
-    //!check TA wokeup or not
+    //!check NWP wokeup or not
     if (!(P2P_STATUS_REG & TA_IS_ACTIVE)) {
-      //!wakeup TA
+      //!wakeup NWP
       P2P_STATUS_REG |= M4_WAKEUP_TA;
 
-      //!wait for TA active
+      //!wait for NWP active
       while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
         ;
     }
     //!Check for TA_USING flash bit
     if (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH)) {
-      //! Request TA to program flash
-      //! raise an interrupt to TA register
+      //! Request NWP to program flash
+      //! raise an interrupt to NWP register
       M4SS_P2P_INTR_SET_REG = PROGRAM_COMMON_FLASH;
 
-      //!Wait for TA using flash bit
+      //!Wait for NWP using flash bit
       while (!(TASS_P2P_INTR_CLEAR_REG & TA_USING_FLASH))
         ;
     }
@@ -558,7 +558,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   }
 
 #if ((defined SLI_SI91X_MCU_COMMON_FLASH_MODE) && (!(defined(RAM_COMPILATION))))
-  /* Before TA is going to power save mode, set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls form TA to M4 */
+  /* Before NWP is going to power save mode, set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls from NWP to M4 */
   RSI_Set_Cntrls_To_M4();
 #endif
 

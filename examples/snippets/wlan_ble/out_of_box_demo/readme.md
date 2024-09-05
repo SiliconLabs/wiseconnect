@@ -17,9 +17,12 @@ This application demonstrates the WLAN, BLE, MCU peripheral features and NWP (ne
 
 ## Purpose/Scope
 
+The demo works with both the Wireless pro kit (WPK) and the SiWG917 dev kit. If the pro kit is used, the demo displays its status on the TFT-LCD display of the WPK baseboard. 
+The SiWG917 dev kit does not have an onboard display. All device activities for the pro and dev kits can be observed on the serial terminal prints. 
+
 SiWG917 establishes WLAN connectivity via BLE provisioning. SiWG917 then proceeds to ping [www.silabs.com](https://www.silabs.com) for 5 times, after which MQTT connectivity with a remote mosquitto broker [test.mosquitto.org](http://test.mosquitto.org) is established.
 Then Network processor of SiWG917 enters connected sleep state.
-If a message is published onto the topic from a MQTT client application [https://testclient-cloud.mqtt.cool/](https://testclient-cloud.mqtt.cool/) to which the module is subscribed (Si917_MQTT_RECEIVE), the NWP wakes up and displays the received data and goes back to sleep. If BTN0 on the WPK baseboard is pressed, SiWG917 publishes a message onto a MQTT topic named Si917_APP_STATUS. The status of application is updated on the TFT-LCD display on the WPK baseboard, the same can be observed on the serial terminal prints as well.
+If a message is published onto the topic from a MQTT client application [https://testclient-cloud.mqtt.cool/](https://testclient-cloud.mqtt.cool/) to which the module is subscribed (Si917_MQTT_RECEIVE), the NWP wakes up and displays the received data and goes back to sleep. If BTN0 on the WPK baseboard or dev kit board is pressed, SiWG917 publishes a message onto a MQTT topic named Si917_APP_STATUS. The status of application is updated on the TFT-LCD display on the WPK baseboard, the same can be observed on the serial terminal prints as well.
 
 ## Prerequisites/Setup Requirements
 
@@ -34,13 +37,12 @@ If a message is published onto the topic from a MQTT client application [https:/
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
     - Radio Boards
       - BRD4338A [SiWx917-RB4338A]
-      - BRD4339B [SiWx917-RB4339B]
       - BRD4342A [SiWx917-RB4342A]
       - BRD4343A [SiWx917-RB4343A]
   - Kits
     - SiWG917 Dev Kit [BRD2605A]
     - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
-- Android Phone or iPhone with Simplicity Connect App(formerly EFR Connect App), which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
+- Android Phone or iPhone with Simplicity Connect App (formerly EFR Connect App), which is available in Play Store and App Store (or) Windows PC with windows Silicon labs connect application.
 
 ### Software Requirements
 
@@ -69,11 +71,15 @@ No additional application level changes are required to execute the OOB demo exa
 
 ## Test the Application
 
-The status of the application is updated in TFT-LCD display of the WPK baseboard. Additionally, to view the application prints on the console, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+### Application display
+
+If the pro kit used, The status of the application is updated in TFT-LCD display of the WPK baseboard. 
+The SiWG917 dev kit does not have an onboard display. All device activities for the pro and dev kits can be observed on the serial terminal prints.
+To view the application prints on the console, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
 
 ### Run the application
 
-- If the messages being displayed on the LCD display on WPK do not indicate the application binary version (as shown in the following image):
+- The SiWG917 dev kit comes pre-programmed with the SiWG917 demo v2.0. If the pro kit used, please check if the messages being displayed on the LCD display on WPK or the serial terminal prints do not indicate the application binary version (as shown in the following image):
   
     ![OOB initialization screen v1.0](resources/readme/status_lcd1_v1_0.png)
 
@@ -85,7 +91,7 @@ The status of the application is updated in TFT-LCD display of the WPK baseboard
 
     Also, upgrade the connectivity firmware (NWP firmware) to the latest version to avoid compatibility issues with application binary. Download the latest connectivity firmware from [Wiseconnect github repository](https://github.com/SiliconLabs/wiseconnect/tree/master/connectivity_firmware) and refer [Upgrade SiWx91x Connectivity Firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#upgrade-si-wx91x-connectivity-firmware)  to upgrade the connectivity firmware.
 
-    If the messages being displayed on the LCD display on WPK indicate versioning information (Si917 OOB Demo v2.0 - as show in the following image)
+    If the messages being displayed on the LCD display on WPK or the serial terminal prints indicate versioning information (Si917 OOB Demo v2.0 - as show in the following image)
 
     ![OOB initialization screen v2.0](resources/readme/status_lcd1_v2_0.png)
 
@@ -93,7 +99,7 @@ The status of the application is updated in TFT-LCD display of the WPK baseboard
 
 - Once the application is flashed or the SiWG917 board is powered up, the Wireless interface is initialized.
 - After the Wireless initialization, the module starts BLE advertising and advertises itself as "BLE_CONFIGURATOR"
-- The status of the application can be observed on the TFT-LCD display on the WPK baseboard.
+- The status of the application can be observed on the TFT-LCD display on the WPK baseboard or the serial terminal prints.
 - Following is the image of LCD display indicating the application status.
 
   If application binary is older than v2.0:
@@ -103,6 +109,8 @@ The status of the application is updated in TFT-LCD display of the WPK baseboard
   If application binary version is v2.0 (latest):
 
   ![Here is the image of LCD with the status prints](resources/readme/status_lcd1_v2_0.png)
+
+  ![Here is the image of serial prints](resources/readme/status_print_startup.png)
 
 - Open the Simplicity Connect App (formerly EFR Connect App) on your mobile phone.
 
@@ -148,6 +156,8 @@ The status of the application is updated in TFT-LCD display of the WPK baseboard
 
   ![Here is the image of LCD with the status prints](resources/readme/status_lcd3.png)
 
+  ![Here is the image of serial prints](resources/readme/status_print_mqtt_connected.png)
+
 - NWP (network processor of SiWG917) enters connected sleep.  
 
 - Go to the browser and open the [online mqtt client](https://testclient-cloud.mqtt.cool/).
@@ -174,6 +184,8 @@ The status of the application is updated in TFT-LCD display of the WPK baseboard
 
   ![Here is the image of LCD with the status prints](resources/readme/status_lcd4.png)
 
+  ![Here is the image of serial terminal prints](resources/readme/status_print_message_received.png)
+
 - If the application binary version is v2.0, please proceed with the following steps, if not please refer [Measuring the current consumption using Simplicity Studio Energy Profiler](#measuring-the-current-consumption-using-simplicity-studio-energy-profiler) section for using the energy profiler tool to measure the current consumption of the SiWG917.
 
 - Enter "Si917_APP_STATUS" in the Subscriptions sections as shown in the following image and click on Subscribe.
@@ -184,9 +196,11 @@ The status of the application is updated in TFT-LCD display of the WPK baseboard
 
   ![MQTT test client image-6](resources/readme/MQTT_testclient6.png)
 
-- Press BTN0 on the WPK baseboard. When BTN0 is pressed, SiWG917 publishes a MQTT message saying "Button is pressed" onto the topic "Si917_APP_STATUS". The same can be observed in the LCD display of the baseboard and the MQTT client page.
+- Press BTN0 on the WPK baseboard or dev kit. When BTN0 is pressed, SiWG917 publishes a MQTT message saying "Button is pressed" onto the topic "Si917_APP_STATUS". The same can be observed in the LCD display of the baseboard and the MQTT client page.
 
   ![Here is the image of LCD with the published messages](resources/readme/status_lcd5.png)
+
+  ![Here is the image of serial terminal prints](resources/readme/status_print_button_pressed.png)
 
   ![MQTT test client image-7](resources/readme/MQTT_testclient7.png)
 

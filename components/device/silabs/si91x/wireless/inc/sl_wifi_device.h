@@ -37,6 +37,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+//! @cond Doxygen_Suppress
 #ifndef BIT
 #define BIT(a) ((uint32_t)1U << a)
 #endif
@@ -56,61 +57,155 @@
 #define MEMORY_CONFIG SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #endif
 
+//! @endcond
+
 /** \addtogroup SI91X_FEATURE_BITMAP
   * @{ */
 /*=========================================================================*/
 // feature bit map parameters description !//
 /*=========================================================================*/
-/// Security type open
-/// @note Supported in client mode
+/**
+ * @def SL_SI91X_FEAT_SECURITY_OPEN
+ * @brief Security type: Open.
+ * @details
+ * This feature supports open security type in client mode.
+ * 
+ * @note It is recommended to enable this macro when configuring the security type as open mode.
+ */
 #define SL_SI91X_FEAT_SECURITY_OPEN BIT(0)
 
-/// Security type WPA/WPA2
-/// @note Supported in client mode
+/**
+ * @def SL_SI91X_FEAT_SECURITY_PSK
+ * @brief Security type: WPA/WPA2.
+ * @details
+ * This feature supports WPA/WPA2 security type in client mode.
+ * 
+ * @note It is recommended to enable this macro when configuring the security type as WPA, WPA2, or any other security modes.
+ */
 #define SL_SI91X_FEAT_SECURITY_PSK BIT(1)
 
-/// Aggregation support
+/**
+ * @def SL_SI91X_FEAT_AGGREGATION
+ * @brief Aggregation support.
+ * @details
+ * Enables support for packet aggregation.
+ * 
+ * @note Supports AMPDU for both TX and RX.
+ */
 #define SL_SI91X_FEAT_AGGREGATION BIT(2)
 
-/// LP mode GPIO handshake
+/**
+ * @def SL_SI91X_FEAT_LP_GPIO_BASED_HANDSHAKE
+ * @brief Low Power (LP) mode GPIO handshake.
+ * @details
+ * Enables GPIO-based handshake for low power mode.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_LP_GPIO_BASED_HANDSHAKE BIT(3)
 
-/// ULP mode GPIO based handshake
+/**
+ * @def SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+ * @brief Ultra Low Power (ULP) mode GPIO handshake.
+ * @details
+ * Enables GPIO-based handshake for ultra low power mode.
+ * 
+ * @note Not applicable for SoC
+ */
 #define SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE BIT(4)
 
-/// To select ULP GPIO 1 for wake up indication
+/**
+ * @def SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1
+ * @brief ULP GPIO 1 wake-up indication.
+ * @details
+ * Configures ULP GPIO 1 for wake-up indication.
+ */
 #define SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1 BIT(5)
 
-/// To supply 3.3 volt supply
+/**
+ * @def SL_SI91X_FEAT_RF_SUPPLY_VOL_3_3_VOLT
+ * @brief 3.3V RF supply.
+ * @details
+ * Configures the device to use a 3.3V power supply for RF.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_RF_SUPPLY_VOL_3_3_VOLT BIT(6)
 
-/// To Disable WPS in AP mode
+/**
+ * @def SL_SI91X_FEAT_WPS_DISABLE
+ * @brief Disable WPS in AP mode.
+ * @details
+ * Disables Wi-Fi Protected Setup (WPS) functionality in Client and Access Point (AP) mode.
+ */
 #define SL_SI91X_FEAT_WPS_DISABLE BIT(7)
 
-/// To enable EAP-LEAP mode
+/**
+ * @def SL_SI91X_FEAT_EAP_LEAP_IN_COEX
+ * @brief Enable EAP-LEAP mode.
+ * @details
+ * Enables Extensible Authentication Protocol - Lightweight Extensible Authentication Protocol (EAP-LEAP) in coexistence mode.
+ */
 #define SL_SI91X_FEAT_EAP_LEAP_IN_COEX BIT(8)
 
-/// To hide sensitive information (PSK, PMK, EAP credentials)
+/**
+ * @def SL_SI91X_FEAT_HIDE_PSK_CREDENTIALS
+ * @brief Hide sensitive credentials.
+ * @details
+ * Hides sensitive information such as Pre-Shared Key (PSK), Pairwise Master Key (PMK), and EAP credentials.
+ */
 #define SL_SI91X_FEAT_HIDE_PSK_CREDENTIALS BIT(9)
 
-/// To enable high SSL streaming throughput
+/**
+ * @def SL_SI91X_FEAT_SSL_HIGH_STREAMING_BIT
+ * @brief High SSL streaming throughput.
+ * @details
+ * Enables high throughput for Secure Sockets Layer (SSL) streaming.
+ */
 #define SL_SI91X_FEAT_SSL_HIGH_STREAMING_BIT BIT(10)
 
-///To enable support for long sized ICMP packets. Max 1472 Bytes for IPv4 and Max 1452 Bytes for IPv6.
-/// @note bit 11 & bits 16 - 29 are reserved
+/**
+ * @def SL_SI91X_FEAT_LONG_ICMP_PACKET
+ * @brief Support for long-sized ICMP packets.
+ * @details
+ * Enables support for long-sized Internet Control Message Protocol (ICMP) packets. Maximum 1472 bytes for IPv4 and 1452 bytes for IPv6.
+ * 
+ * @note Bit 11 are reserved.
+ */
 #define SL_SI91X_FEAT_LONG_ICMP_PACKET BIT(12)
 
-/// Enable support to store peer information in the MAC layer.
+/**
+ * @def SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT
+ * @brief MAC layer peer information storage.
+ * @details
+ * Enables support to store peer information in the MAC layer in Transceiver mode of operation.
+ */
 #define SL_SI91X_FEAT_TRANSCEIVER_MAC_PEER_DS_SUPPORT BIT(13)
 
-/// To enable support for the Long HTTP GET URL. Maximum URL supported is 2048 bytes.
+/**
+ * @def SL_SI91X_FEAT_LONG_HTTP_URL
+ * @brief Support for long HTTP GET URLs.
+ * @details
+ * Enables support for long HTTP GET URLs. The maximum URL length supported is 2048 bytes.
+ */
 #define SL_SI91X_FEAT_LONG_HTTP_URL BIT(14)
 
-/// To disable 11ax connections, i.e. force connection in 11ac or lower
+/**
+ * @def SL_SI91X_FEAT_DISABLE_11AX_SUPPORT
+ * @brief Disable 11ax connections.
+ * @details
+ * Force DUT connection (in station mode) to use 11n, disabling 11ax connections.
+ */
 #define SL_SI91X_FEAT_DISABLE_11AX_SUPPORT BIT(15)
 
-/// Secure Attestation
-/// @note bit 31 is reserved
+/**
+ * @def SL_SI91X_FEAT_SECURE_ATTESTATION
+ * @brief Secure attestation.
+ * @details
+ * Enables secure attestation functionality.
+ * 
+ * @note Bit 16-29 and Bit 31 is reserved.
+ */
 #define SL_SI91X_FEAT_SECURE_ATTESTATION BIT(30)
 /** @} */
 
@@ -395,8 +490,8 @@
  * @brief Enables TCP/IP extension support.
  *
  * @details
- * This feature allows the device to use extended TCP/IP features, providing
- * additional functionality and capabilities.
+ * This feature allows the device to use extended TCP/IP features,
+ * If this bit is enabled then only, the features present in the ext_tcp ip feature bitmap can be used.
  */
 #define SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID BIT(31)
 /** @} */
@@ -406,95 +501,185 @@
 /*=========================================================================*/
 // Custom feature bit map parameters description !//
 /*=========================================================================*/
-/// @note Bits 0 -1 are reserved
-
-/// Disables gateway config sent to STA from RSI AP
-/// @note If this bit is set to 1, the DHCP server behavior changes when the device is in AP mode. The DHCP server, when it assigns IP addresses to the client nodes, does not send out a Gateway address, and sends only the assigned IP and Subnet values to the client. It is highly recommended to keep this value at '0' as the changed behavior is required in only very specialized use cases and not in normal AP functionality. The default value of this bit is '0'.
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_DISABLE_GATEWAY_IN_RSI_AP
+ * @brief Disables gateway configuration sent to STA from RSI AP.
+ * @details If this bit is set to 1, the DHCP server behavior changes when the device is in Access Point (AP) mode.
+ * The DHCP server will assign IP addresses to client nodes without sending out a Gateway address, providing only the assigned IP and Subnet values.
+ * It is highly recommended to keep this value at '0' for standard AP functionality,
+ * as disabling the gateway address is typically needed only for very specialized use cases. The default value of this bit is '0'
+ * 
+ * @note Bits 0 - 1 are reserved.
+ */
 #define SL_SI91X_CUSTOM_FEAT_DISABLE_GATEWAY_IN_RSI_AP BIT(2)
 
-/// To configure the clock for NWP SOC 160Mhz
-/// If higher performance is needed (like High throughput)
-/// then this configuration is needed
-/// @note Need to set pll_mode to 1 in feature frame command
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ
+ * @brief Configures the clock for NWP SOC to 160 MHz.
+ * @details If higher performance, such as increased throughput, is required this configuration sets the System-on-Chip (SoC) clock to 160 MHz.
+ * 
+ * @note Ensure to set `pll_mode` to 1 in the feature frame command for this configuration to take effect.
+ * @note Bit 3 is reserved.
+ */
 #define SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ BIT(4)
-/// If this bit is set, AP is created in hidden mode
-/// This bit is valid only in case of AP mode
+
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_AP_IN_HIDDEN_MODE
+ * @brief Configures the Access Point (AP) to operate in hidden mode.
+ * @details If this bit is set, the AP is created in a hidden mode where its SSID is not broadcasted, making the AP less visible to clients.
+ * This feature is valid only when the device is in AP mode.
+ */
 #define SL_SI91X_CUSTOM_FEAT_AP_IN_HIDDEN_MODE BIT(5)
 
-/// DNS server IP address in DHCP offer response in AP mode
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_DNS_SERVER_IN_DHCP_OFFER
+ * @brief Includes DNS server IP address in DHCP offer response when in AP mode.
+ * @details When this bit is set, the DHCP server running in AP mode will include the DNS server IP address in the DHCP offer response sent to clients.
+ */
 #define SL_SI91X_CUSTOM_FEAT_DNS_SERVER_IN_DHCP_OFFER BIT(6)
 
-/// @note Bit 7 is reserved
-
-/// Support for scanning in DFS channels() in 5GHZ band
-/// This bit is valid in WiFi client mode
-/// @note It's mandatory to set the region before scanning DFS channel.
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_DFS_CHANNEL_SUPPORT
+ * @brief Enables scanning of DFS channels in the 5 GHz band.
+ * @details This bit enables the support for scanning Dynamic Frequency Selection (DFS) channels in the 5 GHz band.
+ * It is valid only in Wi-Fi client mode. Ensure to set the region configuration before scanning DFS channels.
+ * 
+ * @note Bit 7 is reserved.
+ * @note 5Gz is not supported in SI917.
+ */
 #define SL_SI91X_CUSTOM_FEAT_DFS_CHANNEL_SUPPORT BIT(8)
 
-/// If this bit is set, it enables the LED blinking feature
-/// after module initialization. LED (GPIO_16) is used for
-/// this feature and blinks when a TX packet is sent
-/// or when we get a unicast packet addressed to our MAC.
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_LED_FEATURE
+ * @brief Enables LED blinking feature to indicate network activity.
+ * @details When this bit is set, the LED (GPIO_16) will blink to indicate network activity.
+ * The LED blinks when a TX packet is sent or when a unicast packet addressed to the device’s MAC is received.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_CUSTOM_FEAT_LED_FEATURE BIT(9)
 
-/// If this bit is enabled, module indicates the host
-/// the WLAN connection status asynchronously
-/// This bit is valid in case of Wi-Fi client mode
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS
+ * @brief Enables asynchronous WLAN connection status indication to the host.
+ * @details If this bit is enabled, the module will asynchronously notify the host of WLAN connection status changes.
+ * This feature is valid only in Wi-Fi client mode.
+ */
 #define SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS BIT(10)
 
-/// Wake on wireless indication in UART mode
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_WAKE_ON_WIRELESS
+ * @brief Enables wake-on-wireless functionality in UART mode.
+ * @details This bit enables the wake-on-wireless feature when operating in UART mode, allowing the module to wake up in response to wireless events.
+ * 
+ * @note applicable only for NCP.
+ */
 #define SL_SI91X_CUSTOM_FEAT_WAKE_ON_WIRELESS BIT(11)
 
-/// Enables AP blacklisting in STA mode
-/// @note By default client maintains AP blacklist internally to avoid some access points.
-/// To bypass AP blacklist feature in client mode during roaming or rejoin,
-/// this feature should be enabled.
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_ENABLE_AP_BLACKLIST
+ * @brief Enables AP blacklisting in Station (STA) mode.
+ * @details By default, the client maintains an AP blacklist to avoid specific access points.
+ * Enabling this feature allows the client to bypass the AP blacklist during roaming or rejoin, if needed.
+ */
 #define SL_SI91X_CUSTOM_FEAT_ENABLE_AP_BLACKLIST BIT(12)
 
-/// Number of clients to support in AP/WFD mode
-/// Bit 13 -16 are used to set MAX_NUM_OF_CLIENTS
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_MAX_NUM_OF_CLIENTS
+ * @brief Sets the maximum number of clients supported in AP mode.
+ * @details This bit field sets the maximum number of clients that can be supported in Access Point (AP) mode.
+ * The value for this field should be provided in the range specified by bits 13 - 16.
+ * @param max_num_of_clients Number of clients to be supported (1 to 15).
+ */
 #define SL_SI91X_CUSTOM_FEAT_MAX_NUM_OF_CLIENTS(max_num_of_clients) (max_num_of_clients << 13)
 
-/// select between de-authentication or null data (with power management bit set) based roaming.
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_ROAM_WITH_DEAUTH_OR_NULL_DATA
+ * @brief Selects between de-authentication or null data (with power management bit set) for roaming.
+ * @details If this bit is enabled then roam through DEAUTH, or roam through NULL.
+ */
 #define SL_SI91X_CUSTOM_FEAT_ROAM_WITH_DEAUTH_OR_NULL_DATA BIT(17)
 
-/// @note Bit 18 - 19 are reserved
-
-/// Trigger Auto Configuration
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_TRIGGER_AUTO_CONFIG
+ * @brief Triggers automatic configuration.
+ * @details This bit enables the auto-configuration feature, which allows the module to automatically configure itself based on predefined parameters.
+ * 
+ * @note Bits 18 - 19 are reserved.
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_CUSTOM_FEAT_TRIGGER_AUTO_CONFIG BIT(20)
 
-/// @note Bit 21 is reserved
-
-/// In AP mode, If set only two packets per STA will be buffered when STA is in PS
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_LIMIT_PACKETS_PER_STA
+ * @brief Limits the number of packets buffered per STA in AP mode.
+ * @details In Access Point (AP) mode, if this bit is set, only two packets per Station (STA) will be buffered when the STA is in Power Save (PS) mode.
+ * This helps manage buffer usage and ensures efficient packet handling.
+ * 
+ * @note Bit 21 is reserved.
+ */
 #define SL_SI91X_CUSTOM_FEAT_LIMIT_PACKETS_PER_STA BIT(22)
 
-/// Bit to set HTTP Authentication
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_HTTP_HTTPS_AUTH
+ * @brief Enables HTTP/HTTPS authentication.
+ * @details This bit enables authentication for HTTP and HTTPS connections, adding an extra layer of security for web-based communications.
+ */
 #define SL_SI91X_CUSTOM_FEAT_HTTP_HTTPS_AUTH BIT(23)
 
-/// To configure the clock for NWP SOC 120Mhz.
-/// If higher performance is needed(like High throughput)
-/// then this configuration is needed
-/// @note Need to set pll_mode to 1 in feature frame command
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ
+ * @brief Configures the clock for NWP SOC to 120 MHz.
+ * @details This configuration sets the System-on-Chip (SoC) clock to 120 MHz. This may be required for certain performance needs.
+ * Ensure to set `pll_mode` to 1 in the feature frame command for this configuration to take effect.
+ * 
+ * @note This configuration is necessary for high throughput scenarios.
+ */
 #define SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_120MHZ BIT(24)
 
-/// @note Bit 25 is reserved
-
-/// For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will be rejected immediately
-/// @note By default, this bit value is zero. When BIT[26] = 0: For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will not be rejected. Instead device will maintain this connection request in LTCP pending list. This request will be served when any of the connected client is disconnected. When BIT[26] = 1: For a LTCP socket when maximum clients are connected if a new connection request is received, then this connection request will be rejected immediately. Device will not maintain this connection request in LTCP pending list.
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_REJECT_CONNECT_REQ_IMMEDIATELY
+ * @brief Rejects new LTCP connection requests immediately when maximum clients are connected.
+ * @details When this bit is set, any new connection request for an LTCP socket will be rejected immediately if the maximum number of clients is already connected.
+ * By default, such requests are maintained in a pending list until an existing client disconnects.
+ * 
+ * @note When BIT[26] = 0: New connection requests are held in a pending list. When BIT[26] = 1: New connection requests are immediately rejected.
+ */
 #define SL_SI91X_CUSTOM_FEAT_REJECT_CONNECT_REQ_IMMEDIATELY BIT(26)
 
-/// Enables Dual band roaming and vcsafd feature
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_DUAL_BAND_ROAM_VCSAFD
+ * @brief Enables dual-band roaming and VCSAFD feature.
+ * @details This bit enables support for dual-band roaming and VCSAFD (Virtual Channel Scan and Frequency Avoidance Detection),
+ * which enhances the module’s ability to switch between different frequency bands and avoid interference.
+ * 
+ * @note Dual band is not supported in SI917.
+ */
 #define SL_SI91X_CUSTOM_FEAT_DUAL_BAND_ROAM_VCSAFD BIT(27)
 
-/// Real time clock from host
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_RTC_FROM_HOST
+ * @brief Enables Real-Time Clock (RTC) synchronization from the host.
+ * @details When this bit is set, the module will use the Real-Time Clock (RTC) provided by the host system for timekeeping.
+ * 
+ * @note
+ *   Ensure that the Real-Time Clock (RTC) timer is configured to enable certificate validation.
+ */
 #define SL_SI91X_CUSTOM_FEAT_RTC_FROM_HOST BIT(28)
 
-/// Custom feat BT IAP
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_BT_IAP
+ * @brief Enables Bluetooth In-App Programming (IAP) feature.
+ * @details This bit enables the Bluetooth In-App Programming (IAP) feature, allowing the module to support Bluetooth-related in-app programming functionalities.
+ */
 #define SL_SI91X_CUSTOM_FEAT_BT_IAP BIT(29)
 
-/// @note Bit 30 is reserved
-
-/// Extention valid to use Extended custom feature bitmap
+/**
+ * @def SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID
+ * @brief Validates the use of extended custom feature bitmap.
+ * @details This bit indicates that the extended custom feature bitmap is valid.
+ * If this bit is enabled then only, the features present in the extended custom feature bitmap can be used.
+ */
 #define SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID BIT(31)
 /** @} */
 
@@ -505,107 +690,264 @@
 // Extended custom feature bitmap !//
 /*=========================================================================*/
 
-/// To support 4096 size RSA KEY certificate
+/**
+ * @def SL_SI91X_EXT_FEAT_RSA_KEY_WITH_4096_SUPPORT
+ * @brief Supports 4096 size RSA KEY certificate.
+ * @details Enabling this bit allows the device to support 4096-bit RSA keys. Recommended only if 4096-bit keys are required.
+ * 
+ * @note Bit 0 is reserved.
+ */
 #define SL_SI91X_EXT_FEAT_RSA_KEY_WITH_4096_SUPPORT BIT(1)
 
-/// @note Bit 2 is reserved
-
-/// To support 4096 size KEY SSL certificate
+/**
+ * @def SL_SI91X_EXT_FEAT_SSL_CERT_WITH_4096_KEY_SUPPORT
+ * @brief Supports 4096 size KEY SSL certificate.
+ * @details Enabling this bit allows the device to support SSL certificates with 4096-bit keys. Recommended only if 4096-bit keys are required.
+ * 
+ * @note Bit 2 is reserved.
+ */
 #define SL_SI91X_EXT_FEAT_SSL_CERT_WITH_4096_KEY_SUPPORT BIT(3)
 
-/// Extended custom bitmap for AP Broadcast customization
-/// @note If this bit is enable then connected client who is in power save may miss the packet.
+/**
+ * @def SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM
+ * @brief Extended custom bitmap for AP Broadcast customization.
+ * @details Enabling this bit configures the Access Point to send broadcast packets before the DTIM (Delivery Traffic Indication Message) interval.
+ * 
+ * @note If this bit is enabled, connected clients in power save mode may miss the packet.
+ */
 #define SL_SI91X_EXT_FEAT_AP_BROADCAST_PKT_SND_B4_DTIM BIT(4)
 
-/// Extended custom bitmap to support FCC
+/**
+ * @def SL_SI91X_EXT_FEAT_FCC_LOW_PWR
+ * @brief Extended custom bitmap to support FCC.
+ * @details Enabling this bit allows the device to operate in a mode that complies with FCC (Federal Communications Commission) regulations for low power operation.
+ */
 #define SL_SI91X_EXT_FEAT_FCC_LOW_PWR BIT(5)
 
-/// To enable PUF
+/**
+ * @def SL_SI91X_EXT_FEAT_PUF
+ * @brief To enable PUF (Physical Unclonable Function).
+ * @details Enabling this bit activates the Physical Unclonable Function feature, which provides a unique identifier for each device based on its physical characteristics.
+ * 
+ * @note Bit 6 is reserved.
+ * @note Currently this feature is not supported for SI917.
+ */
 #define SL_SI91X_EXT_FEAT_PUF BIT(7)
 
-/// Nokia Spectral mask extended custom bitmap
+/**
+ * @def SL_SI91X_EXT_FEAT_SPECTRAL_MASK_NOKIA
+ * @brief Nokia Spectral mask extended custom bitmap.
+ * @details Enabling this bit allows the device to support the Nokia Spectral mask for extended custom bitmap configurations.
+ */
 #define SL_SI91X_EXT_FEAT_SPECTRAL_MASK_NOKIA BIT(8)
 
-/// Extended feature bit map to skip default leading character '\' in HTTP header
+/**
+ * @def SL_SI91X_EXT_HTTP_SKIP_DEFAULT_LEADING_CHARACTER
+ * @brief Extended feature bitmap to skip default leading character '\' in HTTP header.
+ * @details Enabling this bit configures the device to omit the default leading character '\' in HTTP headers, allowing for custom header formatting.
+ */
 #define SL_SI91X_EXT_HTTP_SKIP_DEFAULT_LEADING_CHARACTER BIT(9)
 
-/// To enable PUF private key
+/**
+ * @def SL_SI91X_EXT_FEAT_PUF_PRIVATE_KEY
+ * @brief To enable PUF (Physical Unclonable Function) private key.
+ * @details Enabling this bit activates the use of a private key associated with the Physical Unclonable Function feature for enhanced security.
+ * 
+ * @note Currently this feature is not supported for SI917.
+ */
 #define SL_SI91X_EXT_FEAT_PUF_PRIVATE_KEY BIT(10)
 
-/// To enable 802.11R Over The Air Roaming
-/// @note Resource Request Support is not Present
-/// @note If both BIT[11] and BIT[16] are not enabled then it will select as Legacy Roaming.
+/**
+ * @def SL_SI91X_EXT_FEAT_ENABLE_11R_OTA
+ * @brief To enable 802.11R Over The Air Roaming.
+ * @details Enabling this bit activates support for 802.11R (Fast BSS Transition) Over The Air Roaming, which improves the handoff experience between access points.
+ * 
+ * @note Resource Request Support is not present.
+ * @note If both BIT[11] and BIT[16] are not enabled, the device will default to Legacy Roaming.
+ */
 #define SL_SI91X_EXT_FEAT_ENABLE_11R_OTA BIT(11)
 
-/// To enable 802.11J protocol
-/// @note If this bit is enable, set region command is mandatory with setting it to Japan region and band value must be 1 (5GHz).
+/**
+ * @def SL_SI91X_EXT_FEAT_IEEE_80211J
+ * @brief To enable 802.11J protocol.
+ * @details Enabling this bit activates support for the 802.11J protocol, which is used for wireless communication in Japan.
+ * 
+ * @note If this bit is enabled, the set region command is mandatory with the region set to Japan and the band value must be 1.
+ * @note Not supported by SI917.
+ */
 #define SL_SI91X_EXT_FEAT_IEEE_80211J BIT(12)
 
-/// To enable 802.11W protocol
-/// @note This bit must be set for enabling WPA3 Personal Mode and WPA3 Personal Transition mode.
+/**
+ * @def SL_SI91X_EXT_FEAT_IEEE_80211W
+ * @brief To enable 802.11W protocol.
+ * @details Enabling this bit activates support for the 802.11W protocol, which provides management frame protection.
+ * 
+ * @note This bit must be set to enable WPA3 Personal Mode and WPA3 Personal Transition mode.
+ */
 #define SL_SI91X_EXT_FEAT_IEEE_80211W BIT(13)
 
-/// To enable the Multi-version TCP over SSL support
+/**
+ * @def SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT
+ * @brief To enable the Multi-version TCP over SSL support.
+ * @details Enabling this bit allows the device to support multiple versions of SSL/TLS over TCP, providing flexibility in handling different SSL/TLS versions.
+ */
 #define SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT BIT(14)
 
-/// To Enable 16 client support
-/// @note If this bit is enable then 16 stations can connect in AP mode otherwise Maximum of 8 stations can connect.
+/**
+ * @def SL_SI91X_EXT_FEAT_16th_STATION_IN_AP_MODE
+ * @brief To enable 16 client support in Access Point (AP) mode.
+ * @details Enabling this bit allows up to 16 stations to connect to the device when it is operating in AP mode.
+ * 
+ * @note If this bit is enabled, up to 16 stations can connect; otherwise, a maximum of 8 stations can connect.
+ */
 #define SL_SI91X_EXT_FEAT_16th_STATION_IN_AP_MODE BIT(15)
 
-/// To enable 802.11R Over the Distribution System Roaming
-/// @note 1. Resource Request Support is not Present. 2. If both BIT[11] and BIT[16] are not enabled then it will select as Legacy Roaming.
+/**
+ * @def SL_SI91X_EXT_FEAT_ENABLE_11R_ODS
+ * @brief To enable 802.11R Over the Distribution System Roaming.
+ * @details Enabling this bit activates support for 802.11R (Fast BSS Transition) Over the Distribution System Roaming, which enhances roaming performance across different access points in the distribution system.
+ * 
+ * @note 1. Resource Request Support is not present.
+ * @note 2. If both BIT[11] and BIT[16] are not enabled, the device will default to Legacy Roaming.
+ */
 #define SL_SI91X_EXT_FEAT_ENABLE_11R_ODS BIT(16)
 
-/// To disable WoWLAN feature
+/**
+ * @def SL_SI91X_EXT_FEAT_WOWLAN_DISABLE
+ * @brief To disable the WoWLAN (Wake-on-Wireless-LAN) feature.
+ * @details Enabling this bit disables the WoWLAN feature, which is used for waking the device from a low-power state through wireless network activity.
+ * By default WOW LAN Is enabled to maintain backward compatibility. So given option to disable this feature.
+ * 
+ * @note This only valid in NCP mode.
+ */
 #define SL_SI91X_EXT_FEAT_WOWLAN_DISABLE BIT(17)
 
-/// @note Bit 18 is reserved
-
-/// To enable low power mode in Wlan
-/// @note EXT_FEAT_LOW_POWER_MODE is not supported for 1.3 version chipset.
+/**
+ * @def SL_SI91X_EXT_FEAT_LOW_POWER_MODE
+ * @brief To enable low power mode in WLAN.
+ * @details Enabling this bit activates low power mode for WLAN, Active current will also be reduced.
+ * As most of the code which is needed to maintain connection is kept in RAM.
+ * There will be minimal execution of code from Flash which in turn results in low average current.
+ * 
+ * @note Bit 18 is reserved.
+ */
 #define SL_SI91X_EXT_FEAT_LOW_POWER_MODE BIT(19)
 
 #if defined(SLI_SI917B0) || defined(DOXYGEN)
 
 // For SoC
 #if defined(SLI_SI91X_MCU_INTERFACE) || defined(DOXYGEN)
-/// To enable 352K memory for NWP and 320K memory for M4
+/**
+ * @def SL_SI91X_EXT_FEAT_352K_M4SS_320K
+ * @brief To enable 352K memory for NWP and 320K memory for M4.
+ * @details This configuration allocates 352K memory to the Network Processor (NWP) and 320K memory to the M4 core.
+ */
 #define SL_SI91X_EXT_FEAT_352K_M4SS_320K 0
-/// To enable basic NWP and advance MCU RAM level configuration
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV
+ * @brief To enable basic NWP and advanced MCU RAM level configuration.
+ * @details This setting configures the NWP with a basic memory level while providing the MCU with an advanced memory configuration.
+ * 
+ * @note This configuration uses SL_SI91X_EXT_FEAT_352K_M4SS_320K.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV SL_SI91X_EXT_FEAT_352K_M4SS_320K
 
-/// To enable 416K memory for NWP and 256K memory for M4
+/**
+ * @def SL_SI91X_EXT_FEAT_416K_M4SS_256K
+ * @brief To enable 416K memory for NWP and 256K memory for M4.
+ * @details This configuration allocates 416K memory to the Network Processor (NWP) and 256K memory to the M4 core.
+ */
 #define SL_SI91X_EXT_FEAT_416K_M4SS_256K BIT(21)
-/// To enable medium NWP and medium MCU RAM level configuration
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
+ * @brief To enable medium NWP and medium MCU RAM level configuration.
+ * @details This setting configures both the NWP and the MCU with medium memory levels.
+ * 
+ * @note This configuration uses SL_SI91X_EXT_FEAT_416K_M4SS_256K.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM SL_SI91X_EXT_FEAT_416K_M4SS_256K
 
-/// To enable 480K memory for NWP and 192K memory for M4
+/**
+ * @def SL_SI91X_EXT_FEAT_480K_M4SS_192K
+ * @brief To enable 480K memory for NWP and 192K memory for M4.
+ * @details This configuration allocates 480K memory to the Network Processor (NWP) and 192K memory to the M4 core.
+ */
 #define SL_SI91X_EXT_FEAT_480K_M4SS_192K BIT(20)
 
-/// To enable advance NWP and basic MCU RAM level configuration
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
+ * @brief To enable advanced NWP and basic MCU RAM level configuration.
+ * @details This setting configures the NWP with an advanced memory level while providing the MCU with a basic memory configuration.
+ * 
+ * @note This configuration uses SL_SI91X_EXT_FEAT_480K_M4SS_192K.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC SL_SI91X_EXT_FEAT_480K_M4SS_192K
 #endif
 
 // For NCP
 #if (!defined(SLI_SI91X_MCU_INTERFACE)) || defined(DOXYGEN)
-/// To enable 352K memory for NWP
+/**
+ * @def SL_SI91X_EXT_FEAT_352K
+ * @brief To enable 352K memory for NWP.
+ */
 #define SL_SI91X_EXT_FEAT_352K 0
-/// To enable basic NWP RAM level configuration
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_BASIC
+ * @brief To enable basic NWP RAM level configuration.
+ * @details This setting configures the Network Processor (NWP) with 352K of memory.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_BASIC SL_SI91X_EXT_FEAT_352K
 
-/// To enable 672K memory for NWP
+/**
+ * @def SL_SI91X_EXT_FEAT_672K
+ * @brief To enable 672K memory for NWP.
+ */
 #define SL_SI91X_EXT_FEAT_672K (BIT(20) | BIT(21))
-/// To enable full NWP RAM level configuration
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
+ * @brief To enable full NWP RAM level configuration.
+ * @details This setting configures the Network Processor (NWP) with 672K of memory.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_EXT_FEAT_672K
 
-// Soon to be deprecated
-/// To enable 352K memory for NWP (For NCP mode ONLY, to be deprecated soon)
+/**
+ * @def SL_SI91X_EXT_FEAT_352K_M4SS_320K
+ * @brief To enable 352K memory for NWP (For NCP mode ONLY, to be deprecated soon).
+ * @details This setting is soon to be deprecated and should only be used for NCP mode.
+ * 
+ * @note For NCP mode ONLY, to be deprecated soon.
+ */
 #define SL_SI91X_EXT_FEAT_352K_M4SS_320K SL_SI91X_EXT_FEAT_352K
-/// To enable basic NWP RAM level configuration (For NCP mode ONLY, to be deprecated soon)
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV
+ * @brief To enable basic NWP RAM level configuration (For NCP mode ONLY, to be deprecated soon).
+ * @details This setting configures the Network Processor (NWP) with 352K of memory in NCP mode.
+ *  
+ * @note For NCP mode ONLY, to be deprecated soon.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV SL_SI91X_EXT_FEAT_352K
-/// To enable 672K memory for NWP and 0K memory for M4 (For NCP mode ONLY, to be deprecated soon)
+
+/**
+ * @def SL_SI91X_EXT_FEAT_672K_M4SS_0K
+ * @brief To enable 672K memory for NWP and 0K memory for M4 (For NCP mode ONLY, to be deprecated soon).
+ * @details This setting configures the Network Processor (NWP) with 672K of memory and allocates no memory to the M4 core in NCP mode.
+ * 
+ * @note For NCP mode ONLY, to be deprecated soon.
+ */
 #define SL_SI91X_EXT_FEAT_672K_M4SS_0K SL_SI91X_EXT_FEAT_672K
-/// To enable full NWP RAM level configuration (For NCP mode ONLY, to be deprecated soon)
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
+ * @brief To enable full NWP RAM level configuration (For NCP mode ONLY, to be deprecated soon).
+ * @details This setting configures the Network Processor (NWP) with 672K of memory and allocates no memory to the M4 core in NCP mode.
+ * 
+ * @note For NCP mode ONLY, to be deprecated soon.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_672K
 
 #endif
@@ -615,64 +957,101 @@
 #define SL_SI91X_EXT_FEAT_384K_M4SS_320K         0
 #define SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV     SL_SI91X_EXT_FEAT_384K_M4SS_320K
 
-/// To enable 448K memory for TA
+/// To enable 448K memory for NWP
+/// To enable 448K memory for NWP
 #define SL_SI91X_EXT_FEAT_448K_M4SS_256K         BIT(21)
 #define SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM SL_SI91X_EXT_FEAT_448K_M4SS_256K
 
-/// To enable 512K memory for TA
+/// To enable 512K memory for NWP
 #define SL_SI91X_EXT_FEAT_512K_M4SS_192K         BIT(20)
 #define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC     SL_SI91X_EXT_FEAT_512K_M4SS_192K
 
 #ifndef SLI_SI91X_MCU_INTERFACE
-// To enable 704K memory for TA; only supported in NCP
+// To enable 704K memory for NWP; only supported in NCP
 #define SL_SI91X_EXT_FEAT_704K_M4SS_0K       (BIT(20) | BIT(21))
 #define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO  SL_SI91X_EXT_FEAT_704K_M4SS_0K
 #define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
 
 #endif // SLI_SI917
-/** @} */
 
 /// For 9116 chipsets
 #if !(defined SLI_SI917) && !(defined SLI_SI917B0) // defaults
-/// @note Default memory configuration (RAM) is 192KB. User can set these bits to change the memory configuration as below:
-/** 
- * | Mode(KB)| BIT[20] | BIT[21] |
- * |:--------|:--------|:--------|
- * | 192     | 0       | 0       |
- * | 256     | 0       | 1       |
- * | 320     | 1       | 0       |
- * | 384     | 1       | 1       |
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM
+ * @brief RAM level configuration: Medium NWP and Medium MCU memory.
+ * @details This macro sets the RAM level to Medium for both NWP (Network Processor) and MCU (Microcontroller) memory.
  */
-/// To enable 256K memory for TA
-#define SL_SI91X_EXT_FEAT_256K_MODE              BIT(21)
 #define SL_SI91X_RAM_LEVEL_NWP_MEDIUM_MCU_MEDIUM SL_SI91X_EXT_FEAT_256K_MODE
 
-/// To enable 320K memory for TA
-#define SL_SI91X_EXT_FEAT_320K_MODE          BIT(20)
+/**
+ * @def SL_SI91X_EXT_FEAT_320K_MODE
+ * @brief To enable 320K memory for NWP.
+ * @details Enabling this bit sets the memory configuration to 320KB for the NWP.
+ */
+#define SL_SI91X_EXT_FEAT_320K_MODE BIT(20)
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
+ * @brief RAM level configuration: Advanced NWP and Basic MCU memory.
+ * @details This macro sets the RAM level to Advanced for NWP (Network Processor) and Basic for MCU (Microcontroller) memory, equivalent to enabling 320KB memory.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC SL_SI91X_EXT_FEAT_320K_MODE
 
-/// To enable 384K memory for TA
-#define SL_SI91X_EXT_FEAT_384K_MODE          (BIT(20) | BIT(21))
-#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO  SL_SI91X_EXT_FEAT_384K_MODE
+/**
+ * @def SL_SI91X_EXT_FEAT_256K_MODE
+ * @brief To enable 256K memory for NWP.
+ * @details Enabling this bit sets the memory configuration to 256KB for the NWP. The default memory configuration is 192KB. The memory configuration can be changed as follows:
+ * 
+ * | Mode(KB) | BIT[20] | BIT[21] |
+ * |:---------|:--------|:--------|
+ * | 192      | 0       | 0       |
+ * | 256      | 0       | 1       |
+ * | 320      | 1       | 0       |
+ * | 384      | 1       | 1       |
+ * 
+ * @note Default memory configuration (RAM) is 192KB. User can set these bits to change the memory configuration as described.
+ */
+#define SL_SI91X_EXT_FEAT_256K_MODE BIT(21)
+
+/**
+ * @def SL_SI91X_EXT_FEAT_384K_MODE
+ * @brief To enable 384K memory.
+ * @details Enabling this bit sets the memory configuration to 384KB. This configuration is achieved by setting both BIT(20) and BIT(21).
+ */
+#define SL_SI91X_EXT_FEAT_384K_MODE (BIT(20) | BIT(21))
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
+ * @brief RAM level configuration: All NWP and Zero MCU memory.
+ * @details This macro sets the RAM level to 384KB for NWP (Network Processor) memory with zero configuration for MCU (Microcontroller) memory, equivalent to enabling 384KB memory.
+ */
+#define SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO SL_SI91X_EXT_FEAT_384K_MODE
+
+/**
+ * @def SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
+ * @brief RAM level configuration: All available NWP memory.
+ * @details This macro sets the RAM level to the maximum available memory configuration for NWP (Network Processor), which is equivalent to the configuration set by `SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO`.
+ */
 #define SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 
 #endif // defaults
 
-/** \addtogroup SI91X_EXTENDED_CUSTOM_FEATURE_BITMAP
-  * @{ */
-/// To enable crystal clock for TA
-///
-/// Based on sleep clock source selection, User can choose one of the following
 /**
+ * @def SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE
+ * @brief To enable crystal clock for NWP.
+ * @details This macro configures the sleep clock source selection for the NWP. The options are as follows:
+ * 
  * | Selection                                     | BIT[23] | BIT[22] |
  * |:----------------------------------------------|:--------|:--------|
  * | Use RC clock as sleep clock                   | 0       | 0       |
  * | Use 32KHz clock from external XTAL OSCILLATOR | 0       | 1       |
  * | Use 32KHz bypass clock on UULP_GPIO_3         | 1       | 0       |
  * | Use 32KHz bypass clock on UULP_GPIO_4         | 1       | 1       |
-*/
-/// @note For 917 V2 radio boards set SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE to 1, for other variants 2 is recommended
+ * 
+ * @note For 917 radio boards, set `SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE` to 1. For other variants, a value of 2 is recommended.
+ */
 
 #ifdef SL_SI91X_MODULE_BOARD
 #define SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(xtal_clk_enable) (xtal_clk_enable << 23)
@@ -682,43 +1061,80 @@
 
 // Determine the XTAL clock enable value
 #if defined(SLI_SI917) && defined(SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2)
+/// To enable crystal clock for NWP
 #define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(1)
 #else
+/**
+ * @def SL_SI91X_EXT_FEAT_XTAL_CLK
+ * @brief Define to enable 32KHz crystal clock using the external XTAL OSCILLATOR.
+ * @details This macro sets the `SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE` with a value of 2, which configures the sleep clock source to use the 32KHz clock from the external XTAL OSCILLATOR.
+ */
 #define SL_SI91X_EXT_FEAT_XTAL_CLK SL_SI91X_EXT_FEAT_XTAL_CLK_ENABLE(2)
 #endif
 
-/// To intimate FW not to modify MDNS text record
+/**
+ * @def SL_SI91X_EXT_FEAT_HOMEKIT_WAC_ENABLED
+ * @brief To inform firmware not to modify mDNS text records.
+ * @details Enabling this bit indicates that the firmware should not alter mDNS (Multicast DNS) text records.
+ */
 #define SL_SI91X_EXT_FEAT_HOMEKIT_WAC_ENABLED BIT(24)
 
-/// To enable 1.8v support for TA
+/**
+ * @def SL_SI91X_EXT_FEAT_1P8V_SUPPORT
+ * @brief To enable 1.8V support for NWP.
+ * @details Enabling this bit activates support for 1.8V operation.
+ */
 #define SL_SI91X_EXT_FEAT_1P8V_SUPPORT BIT(25)
 
-/// @note Bit 26 is reserved
-
-/// To select UART debug prints pin selection
-/// If BIT(27) is enabled,Debug prints are supported on UART1
-/// If BIT(27) is disabled,Debug prints are supported on UART2
-/// @note By default all the debug prints from device network processor will be coming on UART2 if this bit is not enabled. UART1 pins are mapped to the following pins w.r.t to the device network processor. User needs to ensure that these pins are not used in MCU applications in SoC mode to avoid conflicts of pins usage based on the requirement. This bit is valid only if BIT[28] in ext_custom_feature_bit_map is set to 0. UART1-TX: GPIO_9 UART1-RX: GPIO_8 UART2-TX: GPIO_6 UART2-RX: GPIO_10 There is no functionality on rx pins for debug prints.
+/**
+ * @def SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
+ * @brief To select UART for debug prints pin selection.
+ * @details If BIT(27) is enabled, debug prints are supported on UART1. If BIT(27) is disabled, debug prints are supported on UART2. 
+ * 
+ * @note Bit 26 is reserved.
+ * @note By default, all debug prints from the device network processor will be sent to UART2 if this bit is not enabled. UART1 pins are mapped as follows:
+ * - UART1-TX: GPIO_9
+ * - UART1-RX: GPIO_8
+ * - UART2-TX: GPIO_6
+ * - UART2-RX: GPIO_10
+ * 
+ * Ensure these pins are not used in MCU applications in SoC mode to avoid pin usage conflicts. This bit is valid only if BIT[28] in the ext_custom_feature_bit_map is set to 0. There is no functionality on RX pins for debug prints.
+ */
 #define SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS BIT(27)
-/// If this bit is enabled,NWP disables Debug prints support
+
+/**
+ * @def SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS
+ * @brief To disable debug prints support in NWP (Network Processor).
+ * @details By default the prints will be coming on UART2. If this bit is enabled, disable debug prints.
+ * To enable prints on UART 1 @ref SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS  bit needs to set.
+ */
 #define SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS BIT(28)
 
 #if defined(SLI_SI917B0) || defined(DOXYGEN)
-/// @brief To Configure Frontend with selection BIT[30:29]
-/// @brief For 917B0
-/** 
+/**
+ * @def SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+ * @brief To configure frontend with selection BIT[30:29] for 917B0.
+ * @details This bit configures the frontend switch pins based on the following table:
  * 
- * | Bit[30] | BIT[29] | ANT_SEL_1(VC3)  | ANT_SEL_2(VC2)  | ANT_SEL_3(VC1)  |                        
- * |:--------|:--------|:----------------|:----------------|:----------------|
- * | 0       |   0     | Reserved        | Reserved        | Reserved        |
- * | 0       |   1     | UILP_GPIO 4     | ULP_GPIO 5      | ULP_GPIO 0      |
- * | 1       |   0     | Internal Switch | Internal Switch | Internal Switch |                                
- * | 1       |   1     | Reserved        | Reserved        | Reserved        |
+ * | Bit[30] | BIT[29] | ANT_SEL_1 (VC3)  | ANT_SEL_2 (VC2)  | ANT_SEL_3 (VC1)  |                        
+ * |:--------|:--------|:-----------------|:-----------------|:-----------------|
+ * | 0       | 0       | Reserved         | Reserved         | Reserved         |
+ * | 0       | 1       | ULP_GPIO 4       | ULP_GPIO 5       | ULP_GPIO 0       |
+ * | 1       | 0       | Internal Switch  | Internal Switch  | Internal Switch  |                                
+ * | 1       | 1       | Reserved         | Reserved         | Reserved         |
+ * 
+ * @note SiWx917 has an integrated on-chip transmit/receive (T/R) switch. This internal RF switch configuration uses internal logic present in the IC, and GPIOs are not needed. RF_BLE_TX (8dBm) mode is not supported in this configuration.
+ * @note VC1, VC2, and VC3 are control voltage pins of the RF switch.
  */
-/// @note SiWx917 has an integrated on-chip transmit/receive (T/R) switch. This Internal RF Switch configuration uses internal logic present in the IC, and GPIOs are not needed. RF_BLE_TX (8dbm) mode is not supported in this configuration.
-/// @note VC1, VC2 and VC3 are control voltage pins of RF Switch
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 BIT(29)
-#define SL_SI91X_EXT_FEAT_FRONT_END_INTERNAL_SWITCH            BIT(30)
+
+/**
+ * @def SL_SI91X_EXT_FEAT_FRONT_END_INTERNAL_SWITCH
+ * @brief To enable the internal front-end switch configuration.
+ * @details Enabling this bit selects the internal front-end switch configuration for the frontend. This configuration uses internal logic present in the IC, eliminating the need for external GPIOs.
+ */
+#define SL_SI91X_EXT_FEAT_FRONT_END_INTERNAL_SWITCH BIT(30)
+
 #else
 /** 
  * @brief For 917A0
@@ -735,7 +1151,12 @@
 #define SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_7 (BIT(30) | BIT(29))
 #endif
 
-/// Enable BT Custom Features
+/**
+ * @def SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE
+ * @brief To enable Bluetooth custom features.
+ * @details Enabling this bit activates Bluetooth custom features.
+ * If this bit is enabled then only, the features present in the Bluetooth custom feature can be used.
+ */
 #define SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE BIT(31)
 /** @} */
 
@@ -744,64 +1165,202 @@
 /*=========================================================================*/
 // Extended TCP/IP feature bit map parameters description !//
 /*=========================================================================*/
-/// DHCP USER CLASS
-/// @note bit 0 is reserved
+/**
+ * @def SL_SI91X_EXT_TCP_FEAT_DHCP_OPT77
+ * @brief DHCP USER CLASS.
+ * @details
+ * This feature enables DHCP Option 77, which allows the device to specify user class information in DHCP requests.
+ * 
+ * @note Bit 0 is reserved.
+ */
 #define SL_SI91X_EXT_TCP_FEAT_DHCP_OPT77 BIT(1)
 
-/// @note Bit 2 is reserved
-/// TCP bi-dir ack update
-/// @note Need to enable this bit if user wants to run the bi-directional data transfer.
+/**
+ * @def SL_SI91X_EXT_TCP_IP_BI_DIR_ACK_UPDATE
+ * @brief TCP bi-directional acknowledgment update.
+ * @details
+ * This feature enables bi-directional data transfer by updating TCP acknowledgment handling.
+ * 
+ * @note Need to enable this bit if user wants to run the bi-directional data transfer.
+ * @note Bit 2 is reserved.
+ */
 #define SL_SI91X_EXT_TCP_IP_BI_DIR_ACK_UPDATE BIT(3)
-/// TCP RX window division
+
+/**
+ * @def SL_SI91X_EXT_TCP_IP_WINDOW_DIV
+ * @brief TCP RX window division.
+ * @details
+ * This feature allows the division of the TCP receive window, enabling
+ * more granular control over the window size.
+ */
 #define SL_SI91X_EXT_TCP_IP_WINDOW_DIV BIT(4)
-/// SSL server certificate bypass, validation from the host
+
+/**
+ * @def SL_SI91X_EXT_TCP_IP_CERT_BYPASS
+ * @brief SSL server certificate bypass.
+ * @details
+ * This feature allows the device to bypass SSL server certificate
+ * validation, with validation being performed by the host instead.
+ */
 #define SL_SI91X_EXT_TCP_IP_CERT_BYPASS BIT(5)
-/// SSL 16K record size support
+
+/**
+ * @def SL_SI91X_EXT_TCP_IP_SSL_16K_RECORD
+ * @brief SSL 16K record size support.
+ * @details
+ * This feature enables support for 16K SSL record sizes, improving
+ * performance for SSL connections that use larger record sizes.
+ */
 #define SL_SI91X_EXT_TCP_IP_SSL_16K_RECORD BIT(6)
-/// Enable DNS client bypass
+
+/**
+ * @def SL_SI91X_EXT_TCP_IP_DNS_CLIENT_BYPASS
+ * @brief Enable DNS client bypass.
+ * @details
+ * This feature allows the device to bypass the internal DNS client,
+ * using the host for DNS resolution instead.
+ */
 #define SL_SI91X_EXT_TCP_IP_DNS_CLIENT_BYPASS BIT(7)
-/// Enable TCP window scaling feature
-/// @note If this feature is not enabled, then the maximum possible RX window size is 64 KB. If user wants to use more than 64KB window size, tcp_rx_window_size_cap in socket configuration is used to increase the window size.
+
+/**
+ * @def SL_SI91X_EXT_TCP_IP_WINDOW_SCALING
+ * @brief Enable TCP window scaling feature.
+ * @details
+ * This feature enables TCP window scaling, allowing the device to use
+ * receive window sizes larger than 64 KB.
+ * 
+ * @note If this feature is not enabled, then the maximum possible RX window size is 64 KB.
+ * If user wants to use more than 64KB window size, tcp_rx_window_size_cap in socket configuration is used to increase the window size.
+ */
 #define SL_SI91X_EXT_TCP_IP_WINDOW_SCALING BIT(8)
-/// Enables both TCP/IP bypass mode & embedded modes
-/// @note Enabling this feature allows to use both bypass and non bypass modes simultaneously.
+
+/**
+ * @def SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE
+ * @brief Enable both TCP/IP bypass mode and embedded modes.
+ * @details
+ * This feature allows the device to use both bypass and non-bypass modes
+ * simultaneously, providing flexibility in network communication.
+ * 
+ * @note Enabling this feature allows to use both bypass and non-bypass modes simultaneously.
+ */
 #define SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE BIT(9)
-/// Enables Ethernet to WIFI bridge
+
+/**
+ * @def SL_SI91X_EXT_TCP_IP_ETH_WIFI_BRIDGE
+ * @brief Enable Ethernet to WiFi bridge.
+ * @details
+ * This feature enables the device to act as a bridge between Ethernet and
+ * WiFi networks, facilitating communication between the two.
+ */
 #define SL_SI91X_EXT_TCP_IP_ETH_WIFI_BRIDGE BIT(10)
-/// Enables the Dynamic coex memory
-/// @note To enable or disable the coex and update TCP RX window accordingly.
+
+/**
+ * @def SL_SI91X_EXT_DYNAMIC_COEX_MEMORY
+ * @brief Enable dynamic coexistence memory.
+ * @details
+ * This feature dynamically adjusts the TCP receive window size based on
+ * coexistence requirements, improving network performance in coexistence
+ * scenarios.
+ * 
+ * @note To enable or disable the coexistence and update TCP RX window accordingly.
+ */
 #define SL_SI91X_EXT_DYNAMIC_COEX_MEMORY BIT(11)
-/// Configures the number of selects
-/// @note Bit 12 -15 are used for TOTAL_SELECTS and max value can be 10
+
+/**
+ * @def SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS
+ * @brief Configure the number of selects.
+ * @details
+ * This feature configures the number of select operations the device can
+ * handle, with a maximum value of 10.
+ * 
+ * @note Bits 12 - 15 are used for TOTAL_SELECTS.
+ */
 #define SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(total_selects) (total_selects << 12)
 
-/// To enable socket wait close
-/// @note If it is set socket will not be closed until close() is called from host. It is recommended to enable this bit when using TCP sockets.
-/// @note This is always set internally for Si91x chips
+/**
+ * @def SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE
+ * @brief Enable socket wait close.
+ * @details
+ * This feature ensures that a socket is not closed until close() is called
+ * from the host, which is recommended for use with TCP sockets.
+ * 
+ * @note If it is set socket will not be closed until close() is called from host. It is recommended to enable this bit when using TCP sockets.
+ * @note This is always set internally for Si91x chips.
+ */
 #define SL_SI91X_EXT_TCP_IP_WAIT_FOR_SOCKET_CLOSE BIT(16)
-/// Enable Embedded/internal MQTT
-/// @note If user wants to use AT command for MQTT, enable this bit in the Opermode Command
+
+/**
+ * @def SL_SI91X_EXT_EMB_MQTT_ENABLE
+ * @brief Enable embedded/internal MQTT.
+ * @details
+ * This feature enables support for embedded MQTT (Message Queuing
+ * Telemetry Transport) functionality, allowing the device to use MQTT
+ * without external libraries.
+ * 
+ * @note If user wants to use AT command for MQTT, enable this bit in the Opermode Command.
+ */
 #define SL_SI91X_EXT_EMB_MQTT_ENABLE BIT(17)
-/// Enables the http otaf support
-/// @note To do firmware upgrade with HTTP this bit should be enabled
+
+/**
+ * @def SL_SI91X_EXT_FEAT_HTTP_OTAF_SUPPORT
+ * @brief Enable HTTP OTAF support.
+ * @details
+ * This feature enables support for HTTP-based over-the-air firmware (OTAF)
+ * updates, allowing the device to download and install firmware updates
+ * via HTTP.
+ * 
+ * @note To do firmware upgrade with HTTP this bit should be enabled.
+ */
 #define SL_SI91X_EXT_FEAT_HTTP_OTAF_SUPPORT BIT(18)
-/// Enabled to update TCP window from host
+
+/**
+ * @def SL_SI91X_EXT_TCP_DYNAMIC_WINDOW_UPDATE_FROM_HOST
+ * @brief Enable to update TCP window from host.
+ * @details
+ * This feature allows the TCP window size to be dynamically updated from
+ * the host, providing more control over TCP flow management.
+ */
 #define SL_SI91X_EXT_TCP_DYNAMIC_WINDOW_UPDATE_FROM_HOST BIT(19)
 
-/// Enable to update max receive length for TCP
+/**
+ * @def SL_SI91X_EXT_TCP_MAX_RECV_LENGTH
+ * @brief Enable to update max receive length for TCP.
+ * @details
+ * This feature allows the maximum receive length for TCP connections to be
+ * updated, accommodating different application requirements.
+ */
 #define SL_SI91X_EXT_TCP_MAX_RECV_LENGTH BIT(20)
 
-/// @note Bit 21-28 are reserved
-
-/// Enable three SSL/TLS sockets
-/// @note Set tcp_ip_feature_bit_map[31] and ext_tcp_ip_feature_bit_map[29] to open 3 TLS sockets
+/**
+ * @def SL_SI91X_EXT_TCP_IP_FEAT_SSL_THREE_SOCKETS
+ * @brief Enable three SSL/TLS sockets.
+ * @details
+ * This feature allows the device to support up to three simultaneous
+ * SSL/TLS connections.
+ * 
+ * @note Set tcp_ip_feature_bit_map[31] and ext_tcp_ip_feature_bit_map[29] to open 3 TLS sockets.
+ * @note Bits 21-28 are reserved.
+ */
 #define SL_SI91X_EXT_TCP_IP_FEAT_SSL_THREE_SOCKETS BIT(29)
 
-/// To configure additional memory for SSL/TLS connection typically to a cloud server
-/// @note If user connects to a cloud server using two SSL/TLS connections then it is required to set this bit to avoid 0xD2 error
+/**
+ * @def SL_SI91X_EXT_TCP_IP_FEAT_SSL_MEMORY_CLOUD
+ * @brief Configure additional memory for SSL/TLS connections to cloud servers.
+ * @details
+ * This feature allocates additional memory for SSL/TLS connections,
+ * typically required for connections to cloud servers, to avoid 0xD2 error.
+ * 
+ * @note If user connects to a cloud server using two SSL/TLS connections then it is required to set this bit to avoid 0xD2 error.
+ */
 #define SL_SI91X_EXT_TCP_IP_FEAT_SSL_MEMORY_CLOUD BIT(30)
 
-/// config_feature_bit_map validity
+/**
+ * @def SL_SI91X_CONFIG_FEAT_EXTENTION_VALID
+ * @brief Config feature bit map validity.
+ * @details
+ * This feature validates the configuration feature bit map.
+ * If this bit is enabled then only, the features present in the configuration feature bitmap can be used.
+ */
 #define SL_SI91X_CONFIG_FEAT_EXTENTION_VALID BIT(31)
 /** @} */
 
@@ -810,64 +1369,24 @@
 /*=========================================================================*/
 // BT feature bit map parameters description !//
 /*=========================================================================*/
-/// BT Mode Enable
-/// @note If this Bit sets, then our Controller will sends/receives the packets in 1Mbps mode. Else, Controller will be operable in both BR/EDR mode
-#define SL_SI91X_BT_BDR_MODE_ENABLE BIT(0)
-
-/// BT Mode LP Chain Enable
-#define SL_SI91X_BT_BDR_MODE_LP_CHAIN_ENABLE BIT(1)
-
-/// BT Power Control Disable
-/// @note To make Fixed/Adaptive Power
-#define SL_SI91X_BT_PWR_CTRL_DISABLE BIT(2)
-
-/// @note Bit 3-7 are reserved
-
-/// BT EDR 3Mbps Feature Disable
-/// @note 3Mbps Disable means using 2Mbps DataRate
-#define SL_SI91X_BT_EDR_3MBPS_DISABLE BIT(8)
-
-/// BT EDR 2Mbps Feature Disable
-/// @note 2Mbps Disable means using 3Mbps DataRate
-#define SL_SI91X_BT_EDR_2MBPS_DISABLE BIT(9)
-
-/// BT 5 Slot Packet Feature Disable
-#define SL_SI91X_BT_5_SLOT_PACKETS_DISABLE BIT(10)
-
-/// BT 3 Slot Packet Feature Disable
-#define SL_SI91X_BT_3_SLOT_PACKETS_DISABLE BIT(11)
-
-/// @note Bits 12-13 bit are reserved
-
-/// TA based encoder
-/// @note To Enable/Disable SBC Encoder in Firmware.This feature is not supported in the current release
-#define SL_SI91X_TA_BASED_ENCODER_ENABLE BIT(14)
-/// To enable HFP profile
-/// @note This feature is not supported in the current release
-#define SL_SI91X_HFP_PROFILE_ENABLE BIT(15)
-
-/// @note Bits 16 - 22 are reserved
-
-/// To enable A2DP profile
-#define SL_SI91X_A2DP_PROFILE_ENABLE BIT(23)
-/// To enable A2DP Profile role as source/sink
-#define SL_SI91X_A2DP_SOURCE_ROLE_ENABLE BIT(24)
-/// To enable A2DP Accelerator mode
-/// @note This feature is not supported in the current release
-#define SL_SI91X_A2DP_ACCELERATOR_MODE_ENABLE BIT(25)
-
-/// @note Bit 26 is reserved
-
-/// To enable Buffer Alignment for Test Mode
-/// @note To get 512 bytes from common pool, need to enable this, else 320 bytes will be fixed
-#define SL_SI91X_BT_BLE_CP_BUFF_SIZE BIT(27)
-
-/// @note Bit 28 is reserved
-#define SL_SI91X_BT_ATT_OVER_CLASSIC_ACL BIT(29)
-
-/// To bt rf type
+/**
+ * @def SL_SI91X_BT_RF_TYPE
+ * @brief Macro to specify the BT RF type for the SI91X wireless device.
+ *
+ * This macro is used to specify the BT RF type for the SI91X wireless device.
+ * It is defined as BIT(30).
+ * 0 - RF_TYPE_EXTERNAL
+ * 1 - RF_TYPE_INTERNAL
+ */
 #define SL_SI91X_BT_RF_TYPE BIT(30)
-/// To enable ble protocol
+/**
+ * @def SL_SI91X_ENABLE_BLE_PROTOCOL
+ * @brief Macro to enable the BLE protocol.
+ *
+ * This macro is used to enable the BLE (Bluetooth Low Energy) protocol.
+ * The BLE protocol can be enabled by setting the bit 31 of the corresponding register.
+ *
+ */
 #define SL_SI91X_ENABLE_BLE_PROTOCOL BIT(31)
 /** @} */
 
@@ -876,44 +1395,97 @@
 /*=========================================================================*/
 // BLE feature bit map
 /*=========================================================================*/
-/// BLE number of attributes,
-/// @note Maximum No of BLE attributes = 80, refer NOTE given below for more info
-/// @note Bits 0 -7 are used to set MAX_NBR_ATT_REC
+/**
+ * @def SL_SI91X_BLE_MAX_NBR_ATT_REC
+ * @brief BLE number of attributes.
+ * @details
+ * Sets the maximum number of BLE attributes.
+ 
+ * @note Maximum number of BLE attributes is 124.
+ * @note Bits 0 - 7 are used to set MAX_NBR_ATT_REC.
+ */
 #define SL_SI91X_BLE_MAX_NBR_ATT_REC(max_num_of_att_rec) (max_num_of_att_rec << 0)
-
-/// BLE number of GATT services
-/// @note Maximum no services - 10, refer NOTE given below for more info
-/// @note Bits 8 - 11 are used to set MAX_NBR_ATT_SERV
+/**
+ * @def SL_SI91X_BLE_MAX_NBR_ATT_SERV
+ * @brief BLE number of GATT services.
+ * @details
+ * Sets the maximum number of BLE GATT services.
+ 
+ * @note Maximum number of services is 10.
+ * @note Bits 8 - 11 are used to set MAX_NBR_ATT_SERV.
+ */
 #define SL_SI91X_BLE_MAX_NBR_ATT_SERV(max_num_of_att_serv) (max_num_of_att_serv << 8)
-/// BLE number of peripherals
-/// @note Maximum No of BLE peripherals = 8, refer NOTE given below for more info
-/// @note Bits 12 - 15 are used to set MAX_NBR_PERIPHERALS
+/**
+ * @def SL_SI91X_BLE_MAX_NBR_PERIPHERALS
+ * @brief BLE number of peripherals.
+ * @details
+ * Sets the maximum number of BLE peripherals.
+ 
+ * @note Maximum number of BLE peripherals is 8. 
+ * @note Bits 12 - 15 are used to set MAX_NBR_PERIPHERALS.
+ */
 #define SL_SI91X_BLE_MAX_NBR_PERIPHERALS(max_num_of_peripherals) (max_num_of_peripherals << 12)
-/// BLE Tx power index
-/// @note Give 31 as BLE TX power index (e.g.,: 31<<16) This variable is used to select the BLE TX power index value. The following are the possible values. Default Value for BLE Tx Power Index is 31 Range for the BLE Tx Power Index is 1 to 75 (0, 32 index is invalid) 1 - 31 BLE -0DBM Mode 33 - 63 BLE- 10DBM Mode 64- 75 BLE - HP Mode.
-/// @note Bits 16 - 23 are used to set PWR_INX
+/**
+ * @def SL_SI91X_BLE_PWR_INX
+ * @brief BLE Tx power index.
+ * @details
+ * Sets the BLE Tx power index value.
+ * - Default value for BLE Tx Power Index is 31.
+ * - Range for the BLE Tx Power Index is 1 to 127 (0, 32 index is invalid).
+ *   -  1 - 31: BLE - 0dBm Mode
+ *   - 33 - 63: BLE - 10dBm Mode
+ *   - 64 - 127: BLE - HP Mode
+ 
+ * @note Bits 16 - 23 are used to set PWR_INX.
+ */
 #define SL_SI91X_BLE_PWR_INX(power_index) (power_index << 16)
-
-/// BLE powersave options
-/// Bit 24 for BLE_DUTY_CYCLING
-/// Bit 25 for BLR_DUTY_CYCLING
-/// Bit 26 for BLE_4X_PWR_SAVE_MODE
-/// For BLE_DISABLE_DUTY_CYCLING, BITs 24-26 are set to be zero
-/// @note This feature is not supported in the current release
+/**
+ * @def SL_SI91X_BLE_PWR_SAVE_OPTIONS
+ * @brief BLE power save options.
+ * @details
+ * Configures BLE power save options.
+ * - Bit 24: BLE_DUTY_CYCLING
+ * - Bit 25: BLR_DUTY_CYCLING
+ * - Bit 26: BLE_4X_PWR_SAVE_MODE
+ * - For BLE_DISABLE_DUTY_CYCLING, bits 24-26 are set to zero.
+ 
+ * @note This feature is not supported in the current release.
+ */
 #define SL_SI91X_BLE_PWR_SAVE_OPTIONS(duty_cycle) (duty_cycle << 24)
-
-/// Number of Centrals
-/// @note Maximum number of BLE Centrals = 2. refer to the note below for more info.
-/// @note Bits 27 - 28 are used to set BLE_PWR_INX
+/**
+ * @def SL_SI91X_BLE_MAX_NBR_CENTRALS
+ * @brief Number of Centrals.
+ * @details
+ * Sets the maximum number of BLE Central devices.
+ 
+ * @note Maximum number of BLE Centrals is 2.
+ * @note Bits 27 - 28 are used to set BLE_PWR_INX.
+ */
 #define SL_SI91X_BLE_MAX_NBR_CENTRALS(max_num_of_centrals) (max_num_of_centrals << 27)
-/// GATT SYNC BIT
-/// @note Default Disabled Expectation of GATT Async Bit Enable: Response structure will be filled in the Event and Event will come later. Not in sync with response for query command.
+/**
+ * @def SL_SI91X_BLE_GATT_ASYNC_ENABLE
+ * @brief GATT ASYNC BIT.
+ * @details
+ * Enables asynchronous GATT operations.
+ 
+ * @note Default is disabled. When enabled, the response structure will be filled in the Event, which will come later, not in sync with the response for the query command.
+ */
 #define SL_SI91X_BLE_GATT_ASYNC_ENABLE BIT(29)
-
-/// 0 for 9113 compatible; 1 for enabling 9116 BLE-compatible features.
+/**
+ * @def SL_SI91X_916_BLE_COMPATIBLE_FEAT_ENABLE
+ * @brief BLE feature compatibility.
+ * @details
+ * Enables new feature compatible.
+ *  
+ * @note This bit should be enable to get the set of events from controller for the new features.
+ */
 #define SL_SI91X_916_BLE_COMPATIBLE_FEAT_ENABLE BIT(30)
-
-/// Extention valid to use Extended custom feature bitmap
+/**
+ * @def SL_SI91X_FEAT_BLE_CUSTOM_FEAT_EXTENTION_VALID
+ * @brief Extension validity for custom feature bitmap.
+ * @details
+ * Validates the use of an extended custom feature bitmap for BLE.
+ */
 #define SL_SI91X_FEAT_BLE_CUSTOM_FEAT_EXTENTION_VALID BIT(31)
 /** @} */
 
@@ -922,37 +1494,91 @@
 /*=========================================================================*/
 // Extended BLE custom feature bit map parameters description !//
 /*=========================================================================*/
-/// BLE number of Connection Events
-/// @note Describes the number of buffers need to be allocated for BLE on the opermode. By default each role (central/peripheral) will be allocated with 1 buffer for the notify/write command We increase the buffer capacity for the notify/write cmds to achieve the best throughput. See rsi_ble_set_wo_resp_notify_buf_info() to set more buffers for the notify/write commands
-/// @note Bits 0 - 4 are used to set NUM_CONN_EVENTS
+/**
+ * @def SL_SI91X_BLE_NUM_CONN_EVENTS
+ * @brief BLE number of connection events.
+ * @details
+ * Describes the number of buffers that need to be allocated for BLE on the opermode.
+ * - By default, each role (central/peripheral) will be allocated with 1 buffer for the notify/write command.
+ * - Increasing the buffer capacity for the notify/write commands helps achieve the best throughput.
+ * - See rsi_ble_set_wo_resp_notify_buf_info() to set more buffers for the notify/write commands.
+ 
+ * @note Bits 0 - 4 are used to set NUM_CONN_EVENTS.
+ */
 #define SL_SI91X_BLE_NUM_CONN_EVENTS(num_conn_events) (num_conn_events << 0)
-
-/// BLE number of record size in bytes (n)
-/// @note n*16 : (n=60, Default 1024 bytes(1K))
-/// @note Bits 5 - 12 are used to set NUM_REC_BYTES
+/**
+ * @def SL_SI91X_BLE_NUM_REC_BYTES
+ * @brief BLE number of record size in bytes.
+ * @details
+ * Specifies the number of record bytes in multiples of 16.
+ * - n*16 : (n=60, Default 1024 bytes (1K)).
+ 
+ * @note Bits 5 - 12 are used to set NUM_REC_BYTES.
+ */
 #define SL_SI91X_BLE_NUM_REC_BYTES(num_rec_bytes) (num_rec_bytes << 5)
-
-/// GATT INIT
-/// @note 0 - GATT Init in Firmware i.e both the GAP service and GATT service will be maintained by Firmware 1 - GATT Init in Host i.e GAP service and GATT service should be created by the APP/Host/User and the ATT transactions like read, write, notify and indicate shall be handled by the APP/Host/User. Default Gatt Init in Firmware
+/**
+ * @def SL_SI91X_BLE_GATT_INIT
+ * @brief GATT initialization mode.
+ * @details
+ * Specifies whether the GATT is initialized in firmware or by the host.
+ * - 0: GATT Init in Firmware. Both the GAP service and GATT service will be maintained by the firmware.
+ * - 1: GATT Init in Host. The GAP service and GATT service should be created by the APP/Host/User, and the ATT transactions like read, write, notify, and indicate shall be handled by the APP/Host/User.
+ * - Default: GATT Init in Firmware.
+ */
 #define SL_SI91X_BLE_GATT_INIT BIT(13)
-/// Indication response from APP
-/// @note As per ATT protocol for every indication received from the server should be acknowledged (indication response) by the Client. If this bit is disabled then firmware will send the acknowledgment(indication response) and if the bit is enabled then APP/Host/User needs to send the acknowledgment(indication response).
+/**
+ * @def SL_SI91X_BLE_INDICATE_CONFIRMATION_FROM_HOST
+ * @brief Acknowlegment of the indication from the client.
+ * @details
+ * As per the ATT protocol, every indication received from the server should be acknowledged (indication response) by the client.
+ * - If this bit is disabled, the firmware will send the acknowledgment (indication response).
+ * - If this bit is enabled, the APP/Host/User needs to send the acknowledgment (indication response).
+ */
 #define SL_SI91X_BLE_INDICATE_CONFIRMATION_FROM_HOST BIT(14)
-
-/// MTU Exchange request initiation from APP
-/// @note If this bit is disabled, the firmware will initiate the MTU request to the remote device on the successful connection. And if Peer initiates MTU exchange Request then firmware will send Exchange MTU Response in reply to a received Exchange MTU Request. If this bit enabled then APP/Host/User need to initiate the MTU request by using the rsi_ble_mtu_exchange_event API. And if Peer initiates MTU exchange Request then APP/Host/User shall send Exchange MTU Response in reply to a received Exchange MTU Request using rsi_ble_mtu_exchange_resp API
+/**
+ * @def SL_SI91X_BLE_MTU_EXCHANGE_FROM_HOST
+ * @brief MTU exchange request initiation from APP.
+ * @details
+ * - If this bit is disabled, the firmware will initiate the MTU request to the remote device on a successful connection.
+ *  - If the peer initiates an MTU exchange request, the firmware will send an Exchange MTU Response in reply to the received Exchange MTU Request.
+ * - If this bit is enabled, the APP/Host/User needs to initiate the MTU request using the rsi_ble_mtu_exchange_event API.
+ *  - If the peer initiates an MTU exchange request, the APP/Host/User shall send an Exchange MTU Response using the rsi_ble_mtu_exchange_resp API.
+ */
 #define SL_SI91X_BLE_MTU_EXCHANGE_FROM_HOST BIT(15)
-/// Set SCAN Resp Data from APP
-/// @note Device will maintain some default scan response data and will be used in the scan_response controller frame. By enabling this bit we can make the default data as Null(empty).
+/**
+ * @def SL_SI91X_BLE_SET_SCAN_RESP_DATA_FROM_HOST
+ * @brief Set scan response data from host.
+ * @details
+ * The device will maintain some default scan response data to be used in the scan_response controller frame.
+ * - Enabling this bit will make the default data Null (empty).
+ */
 #define SL_SI91X_BLE_SET_SCAN_RESP_DATA_FROM_HOST BIT(16)
-/// Disable Coded PHY from APP
-/// @note Device will support the LE-coded phy feature (i.e LR - 125kbps and 500kbps) by default. If this bit is enabled, the device will not the support of the LE-coded phy rates.
+/**
+ * @def SL_SI91X_BLE_DISABLE_CODED_PHY_FROM_HOST
+ * @brief Disable coded PHY from APP.
+ * @details
+ * The device supports the LE-coded PHY feature (i.e., LR - 125kbps and 500kbps) by default.
+ * - If this bit is enabled, the device will not support the LE-coded PHY rates.
+ */
 #define SL_SI91X_BLE_DISABLE_CODED_PHY_FROM_HOST BIT(17)
-/// BIT 19 for enabling advertising extensions
-/// @note advertising extensions enable or disable
+/**
+ * @def SL_SI91X_BLE_ENABLE_ADV_EXTN
+ * @brief Enable advertising extensions.
+ * @details
+ * Enables or disables advertising extensions.
+ 
+ * @note Bit 19 is used for enabling advertising extensions.
+ */
 #define SL_SI91X_BLE_ENABLE_ADV_EXTN BIT(19)
-/// (num_adv_sets) max number of AE adv sets
-/// @note Bits [20-23], To select the number of AE adv sets.
+/**
+ * @def SL_SI91X_BLE_AE_MAX_ADV_SETS
+ * @brief Maximum number of AE advertising sets.
+ * @details
+ * Configures the maximum number of AE advertising sets.
+ * - Maximum number of AE advertising sets is 2. 
+ 
+ * @note Bits 20 - 23 are used to set the number of AE advertising sets.
+ */
 #define SL_SI91X_BLE_AE_MAX_ADV_SETS(num_adv_sets) (num_adv_sets << 20)
 
 /// @note Bits 24 -31 are reserved
@@ -963,136 +1589,354 @@
 /*=========================================================================*/
 // Config feature bitmap parameters description !//
 /*=========================================================================*/
-/// To select wakeup indication to host. If it is disabled UULP_GPIO_3 is used as a wakeup indication to host. If it is enabled UULP_GPIO_0 is used as a wakeup indication to host.
+/**
+ * @def SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP
+ * @brief Selects the GPIO for wakeup indication to the host.
+ * @details When this bit is disabled, UULP_GPIO_3 is used as the wakeup indication. When enabled, UULP_GPIO_0 is used instead.
+ * 
+ * @note Bit 1 is reserved and should not be used.
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP BIT(0)
 
-/// @note Bit 1 is reserved
-
-/// DVS Dynamic Voltage Selection
-/// @note These bits are used for dynamic voltage selection
-
-/// Dynamic Voltage selection configuration 1
+/**
+ * @def SL_SI91X_FEAT_DVS_SEL_CONFIG_1
+ * @brief Enables Dynamic Voltage Selection (DVS) Configuration 1.
+ * @details This bit configures the dynamic voltage selection for the system.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_1 BIT(2)
-/// Dynamic Voltage selection configuration 2
+
+/**
+ * @def SL_SI91X_FEAT_DVS_SEL_CONFIG_2
+ * @brief Enables Dynamic Voltage Selection (DVS) Configuration 2.
+ * @details This bit configures the dynamic voltage selection for the system.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_2 BIT(3)
-/// Dynamic Voltage selection configuration 3
+
+/**
+ * @def SL_SI91X_FEAT_DVS_SEL_CONFIG_3
+ * @brief Enables Dynamic Voltage Selection (DVS) Configuration 3.
+ * @details This bit configures the dynamic voltage selection for the system.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_3 BIT(4)
-/// Dynamic Voltage selection configuration 4
+
+/**
+ * @def SL_SI91X_FEAT_DVS_SEL_CONFIG_4
+ * @brief Enables Dynamic Voltage Selection (DVS) Configuration 4.
+ * @details This bit configures the dynamic voltage selection for the system.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_DVS_SEL_CONFIG_4 BIT(5)
 
-/// External PMU Selection
-/// @note These bits are used to select external PMU good time.1 to 15 means 100 usec to 1500 usec (in 100 usec granularity)
-
-/// 100us External PMU Good time
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_100us
+ * @brief Configures External PMU good time to 100 µs.
+ * @details This bit selects an external PMU good time of 100 microseconds.
+ * 
+ * @note These bits are used to select external PMU good time. 1 to 15 means 100 usec to 1500 usec (in 100 usec granularity)
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_100us BIT(6)
-/// 200us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_200us
+ * @brief Configures External PMU good time to 200 µs.
+ * @details This bit selects an external PMU good time of 200 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_200us BIT(7)
-/// 300us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_300us
+ * @brief Configures External PMU good time to 300 µs.
+ * @details This is a combination of 100 µs and 200 µs good times, totaling 300 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_300us (BIT(6) | BIT(7))
-/// 400us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_400us
+ * @brief Configures External PMU good time to 400 µs.
+ * @details This bit selects an external PMU good time of 400 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_400us BIT(8)
-/// 500us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_500us
+ * @brief Configures External PMU good time to 500 µs.
+ * @details This is a combination of 100 µs and 400 µs good times, totaling 500 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_500us (BIT(6) | BIT(8))
-/// 600us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_600us
+ * @brief Configures External PMU good time to 600 µs.
+ * @details This is a combination of 200 µs and 400 µs good times, totaling 600 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_600us (BIT(7) | BIT(8))
-/// 700us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_700us
+ * @brief Configures External PMU good time to 700 µs.
+ * @details This is a combination of 100 µs, 200 µs, and 400 µs good times, totaling 700 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_700us (BIT(6) | BIT(7) | BIT(8))
-/// 800us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_800us
+ * @brief Configures External PMU good time to 800 µs.
+ * @details This bit selects an external PMU good time of 800 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_800us BIT(9)
-/// 900us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_900us
+ * @brief Configures External PMU good time to 900 µs.
+ * @details This is a combination of 100 µs and 800 µs good times, totaling 900 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_900us (BIT(6) | BIT(9))
-/// 1000us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1000us
+ * @brief Configures External PMU good time to 1000 µs.
+ * @details This is a combination of 200 µs and 800 µs good times, totaling 1000 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1000us (BIT(7) | BIT(9))
-/// 1100us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1100us
+ * @brief Configures External PMU good time to 1100 µs.
+ * @details This is a combination of 100 µs, 200 µs, and 800 µs good times, totaling 1100 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1100us (BIT(6) | BIT(7) | BIT(9))
-/// 1200us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1200us
+ * @brief Configures External PMU good time to 1200 µs.
+ * @details This is a combination of 400 µs and 800 µs good times, totaling 1200 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1200us (BIT(8) | BIT(9))
-/// 1300us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1300us
+ * @brief Configures External PMU good time to 1300 µs.
+ * @details This is a combination of 100 µs, 400 µs, and 800 µs good times, totaling 1300 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1300us (BIT(6) | BIT(8) | BIT(9))
-/// 1400us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1400us
+ * @brief Configures External PMU good time to 1400 µs.
+ * @details This is a combination of 200 µs, 400 µs, and 800 µs good times, totaling 1400 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1400us (BIT(7) | BIT(8) | BIT(9))
-/// 1500us External PMU Good time
+
+/**
+ * @def SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1500us
+ * @brief Configures External PMU good time to 1500 µs.
+ * @details This is a combination of 100 µs, 200 µs, 400 µs, and 800 µs good times, totaling 1500 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_EXTERNAL_PMU_GOOD_TIME_1500us (BIT(6) | BIT(7) | BIT(8) | BIT(9))
 
-/// External LDO voltage selection
-/// @note These bits are used for External LDO selection External PMU : 1.In case of External PMU, User has to set EXTERNAL_PMU_GOOD_TIME_CONFIGURATION value to external PMU good time, If this is zero then it indicates using Internal PMU. 2. Incase of External PMU 1.0v or 1.05v, User has to set both the bits config_feature_bit_map[11] & config_feature_bit_map[10].
+/**
+ * @def SL_SI91X_FEAT_EXTERNAL_LDO_SEL
+ * @brief Enables selection of external LDO voltage.
+ * @details When enabled, this bit allows the selection between using an external LDO or an internal PMU.
+ * If both the external LDO selection and the LDO voltage are configured, the system uses the external LDO.
+ * If this bit is cleared, the internal PMU is used.
+ * 
+ * @note These bits are used for External LDO selection External PMU:
+ * 1. Incase of External PMU, User has to set EXTERNAL_PMU_GOOD_TIME_CONFIGURATION value to external PMU good time, If this is zero then it indicates using Internal PMU.
+ * 2. Incase of External PMU 1.0v or 1.05v, User has to set both the bits config_feature_bit_map[11] & config_feature_bit_map[10].
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_EXTERNAL_LDO_SEL BIT(10)
-/// This field valid only if RSI_FEAT_EXTERNAL_LDO_SEL is enabled i.e BIT(10) is set.
-/// If this bit set means 1.0V selected else 1.1V selected
+
+/**
+ * @def SL_SI91X_FEAT_EXTERNAL_LDO_VOL
+ * @brief Selects the external LDO voltage.
+ * @details This field is relevant only if SL_SI91X_FEAT_EXTERNAL_LDO_SEL is enabled (i.e., BIT(10) is set).
+ * If this bit is set, the LDO voltage is configured to 1.0V; if cleared, it is set to 1.1V.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_FEAT_EXTERNAL_LDO_VOL BIT(11)
 
-/// @note Bit 12 -13 are reserved
-/// TLS version
-/// Enterprise security TLS version 1.0
+/**
+ * @def SL_SI91X_FEAT_EAP_TLS_V1P0
+ * @brief Enables TLS version 1.0 for enterprise security.
+ * 
+ * @note Bit 12 -13 are reserved
+ */
 #define SL_SI91X_FEAT_EAP_TLS_V1P0 BIT(14)
 
-/// Enterprise security TLS version 1.2
+/**
+ * @def SL_SI91X_FEAT_EAP_TLS_V1P2
+ * @brief Enables TLS version 1.2 for enterprise security.
+ */
 #define SL_SI91X_FEAT_EAP_TLS_V1P2 BIT(15)
 
-/// @note Bit 16 is reserved
-
-/// Reserved bit
+/**
+ * @def SL_SI91X_FEAT_CONC_STA_AP_DYN_SWITCH_SEL
+ * @brief Configures dynamic switching between STA and AP modes.
+ * @details This bit enables or disables dynamic switching between Station (STA) and Access Point (AP) modes.
+ * When enabled, the system can dynamically switch between STA and AP modes based on operational requirements or network conditions.
+ * This feature is useful for applications requiring flexible mode changes to optimize performance or power consumption.
+ * 
+ * @note Enabling this feature allows the system to switch modes dynamically, which can improve adaptability in varying network scenarios.
+ * Make sure to configure the system appropriately for the desired switching behavior.
+ * @note Bit 16 is reserved
+ */
 #define SL_SI91X_FEAT_CONC_STA_AP_DYN_SWITCH_SEL BIT(17)
-/// Bit to select ULP_GPIO_9 as UART2 port for device network processor debug prints. If this bit is not set, then by default UART2-TX GPIO_6 will be used.
+
+/**
+ * @def SL_SI91X_ULP_GPIO9_FOR_UART2_TX
+ * @brief Selects ULP_GPIO_9 to enable firmware debug prints.
+ * @details If this bit is not set, the default UART2-TX pin GPIO_6 is used.
+ * 
+ * @note SI917 supports prints only on ULP_GPIO_9.
+ */
 #define SL_SI91X_ULP_GPIO9_FOR_UART2_TX BIT(18)
-///< Bit to disable MCS-5,6,7 data rates
+
+/**
+ * @def SL_SI91X_FEAT_DISABLE_MCS_5_6_7_DATARATES
+ * @brief Disables MCS-5, 6, and 7 data rates.
+ * @details This bit is used to disable the higher MCS data rates (5, 6, and 7) for reduced data rate requirements.
+ */
 #define SL_SI91X_FEAT_DISABLE_MCS_5_6_7_DATARATES BIT(19)
-///< Bit to disable Short-GI
+
+/**
+ * @def SL_SI91X_FEAT_DISABLE_SHORT_GI
+ * @brief Disables Short Guard Interval (Short-GI).
+ * @details This bit disables the use of Short-GI, which may affect the timing and performance of the system.
+ */
 #define SL_SI91X_FEAT_DISABLE_SHORT_GI BIT(20)
 
-/// To enable PTA-3WIRE
-/// @note Should be set to enable and use the PTA 3 wire feature followed by available configurations
+/**
+ * @def SL_SI91X_PTA_3WIRE_EN
+ * @brief Enables the PTA-3WIRE feature.
+ * @details Set this bit to enable and use the PTA 3-wire feature, which requires additional configuration settings.
+ */
 #define SL_SI91X_PTA_3WIRE_EN BIT(21)
 
-/// To choose PTA-3WIRE
-/// @note Configurability options for config selection among 1,2 & 3
-/// @note Bit 22 - 23 are used to set NUM_CONN_EVENTS
-/// @note 0 kept reserved for future. 3wire used at DUT as ULP_GPIO_0(Grant pin driven by DUT), ULP_GPIO_1(Request i/p pin for dut) and ULP_GPIO_6(Priority i/p pin for dut)
 /**
+ * @def SL_SI91X_PTA_3WIRE_CONFIG_SEL
+ * @brief Selects the PTA-3WIRE configuration.
+ * @details This macro configures the PTA-3WIRE settings. Bits 22 and 23 are used to set NUM_CONN_EVENTS. 
+ * A reserved setting of 0 should be used for future use. The 3-wire configuration includes ULP_GPIO_0 (Grant pin driven by DUT),
+ * ULP_GPIO_1 (Request input pin for DUT), and ULP_GPIO_6 (Priority input pin for DUT).
+ * 
  * | Mode(KB) | BIT[23] | BIT[22] |
  * |:---------|:--------|:--------|
  * | Reserved | 0       | 0       |
- * | config1  | 0       | 1       |
- * | config2  | 1       | 0       |
- * | config3  | 1       | 1       |
+ * | Config1  | 0       | 1       |
+ * | Config2  | 1       | 0       |
+ * | Config3  | 1       | 1       |
  */
 #define SL_SI91X_PTA_3WIRE_CONFIG_SEL(config_sel) (config_sel << 22)
 
-/// XTAL goodtime configurations
-/// @note These bits are used to select XTAL good time. These changes are available from Release 2.3.0 onward. Release prior to 2.3.0 these config_feature_bitmap[31:17] are reserved. Its only applicable for customers using chip not the device. Contact Support for more details Default value is 1000 us.
-
-/// 1000us XTAL Good Time
+/**
+ * @def SL_SI91X_XTAL_GOODTIME_1000us
+ * @brief Configures XTAL good time to 1000 µs.
+ * @details This bit selects a default XTAL good time of 1000 microseconds. This setting is applicable from Release 2.3.0 onward.
+ * Prior releases have reserved config_feature_bitmap[31:17]. This setting is intended for chip users and not applicable for device users.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_XTAL_GOODTIME_1000us 0
-/// 2000us XTAL Good Time
+
+/**
+ * @def SL_SI91X_XTAL_GOODTIME_2000us
+ * @brief Configures XTAL good time to 2000 µs.
+ * @details This bit selects an XTAL good time of 2000 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_XTAL_GOODTIME_2000us BIT(24)
-/// 3000us XTAL Good Time
+
+/**
+ * @def SL_SI91X_XTAL_GOODTIME_3000us
+ * @brief Configures XTAL good time to 3000 µs.
+ * @details This bit selects an XTAL good time of 3000 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_XTAL_GOODTIME_3000us BIT(25)
-/// 600us XTAL Good Time
+
+/**
+ * @def SL_SI91X_XTAL_GOODTIME_600us
+ * @brief Configures XTAL good time to 600 µs.
+ * @details This is a combination of 2000 µs and 3000 µs XTAL good times, totaling 600 microseconds.
+ * 
+ * @note Not applicable for SI917.
+ */
 #define SL_SI91X_XTAL_GOODTIME_600us (BIT(24) | BIT(25))
 
-/// Bit to enable Enhanced Max PSP
+/**
+ * @def SL_SI91X_ENABLE_ENHANCED_MAX_PSP
+ * @brief Enables Enhanced Max PSP.
+ * @details Set this bit to enable the Enhanced Max PSP feature for improved performance.
+ */
 #define SL_SI91X_ENABLE_ENHANCED_MAX_PSP BIT(26)
-/// Bit to enable BBP Test Pins
+
+/**
+ * @def SL_SI91X_ENABLE_DEBUG_BBP_TEST_PINS
+ * @brief Enables BBP Test Pins.
+ * @details Set this bit to enable the use of BBP test pins for debugging and testing purposes.
+ * 
+ * @note Bits 28 - 31 are reserved for future use.
+ */
 #define SL_SI91X_ENABLE_DEBUG_BBP_TEST_PINS BIT(27)
-/// @note Bits 28 - 31 are reserved
 /** @} */
 
-/** \addtogroup SL_SI91X_TYPES
+/** \addtogroup SL_SI91X_CONSTANTS
   * @{ */
-/// SiWx91x operating mode
+/// Si91x operating mode
 typedef enum {
-  SL_SI91X_CLIENT_MODE            = 0, ///< WiFi personal client mode
-  SL_SI91X_ENTERPRISE_CLIENT_MODE = 2, ///< WiFi enterprise client mode
-  SL_SI91X_ACCESS_POINT_MODE      = 6, ///< WiFi access point mode
-  SL_SI91X_TRANSCEIVER_MODE       = 7, ///< WiFi transceiver mode
-  SL_SI91X_TRANSMIT_TEST_MODE     = 8, ///< WiFi transit test mode
-  SL_SI91X_CONCURRENT_MODE        = 9, ///< WiFi concurrent mode
-  __FORCE_OPERATION_ENUM_16BIT    = 0xFFFF
+  SL_SI91X_CLIENT_MODE            = 0,     ///< Wi-Fi personal client mode
+  SL_SI91X_ENTERPRISE_CLIENT_MODE = 2,     ///< Wi-Fi enterprise client mode
+  SL_SI91X_ACCESS_POINT_MODE      = 6,     ///< Wi-Fi access point mode
+  SL_SI91X_TRANSCEIVER_MODE       = 7,     ///< Wi-Fi transceiver mode
+  SL_SI91X_TRANSMIT_TEST_MODE     = 8,     ///< Wi-Fi transmit test mode
+  SL_SI91X_CONCURRENT_MODE        = 9,     ///< Wi-Fi concurrent mode
+  __FORCE_OPERATION_ENUM_16BIT    = 0xFFFF ///< Force the enumeration to be 16-bit
 } sl_si91x_operation_mode_t;
 
-//STATIC_ASSERT(sizeof(sl_si91x_operation_mode_t) == 2);
-
-/// SiWx91x wireless co-existence mode
+/// Si91x wireless co-existence mode
 /// @note Only BLE, WLAN, and WLAN + BLE modes are supported.
 typedef enum {
   SL_SI91X_WLAN_ONLY_MODE      = 0,  ///< Wireless local area network (WLAN) only mode
@@ -1101,45 +1945,94 @@ typedef enum {
   SL_SI91X_WLAN_BLUETOOTH_MODE = 5,  ///< WLAN and Bluetooth mode (not currently supported)
   SL_SI91X_DUAL_MODE           = 8,  ///< Dual mode (not currently supported)
   SL_SI91X_WLAN_DUAL_MODE      = 9,  ///< WLAN dual mode (not currently supported)
-  SL_SI91X_BLE_MODE            = 12, ///< Bluetooth Low Energy (BLE) only mode, used when power save mode not needed.
+  SL_SI91X_BLE_MODE            = 12, ///< Bluetooth Low Energy (BLE) only mode, used when power save mode is not needed.
   SL_SI91X_WLAN_BLE_MODE       = 13, ///< WLAN and BLE mode
-  __FORCE_COEX_ENUM_16BIT      = 0xFFFF
+  __FORCE_COEX_ENUM_16BIT      = 0xFFFF ///< Force the enumeration to be 16-bit
 } sl_si91x_coex_mode_t;
 
-///SiW91x efuse data index
+/// Si91x efuse data index
 typedef enum {
-  SL_SI91X_EFUSE_MFG_SW_VERSION = 0, ///<Efuse data index for MFG SW Version
-  SL_SI91X_EFUSE_PTE_CRC        = 1, ///<Efuse data index for PTE CRC
+  SL_SI91X_EFUSE_MFG_SW_VERSION = 0, ///< Efuse data index for manufacturing software version
+  SL_SI91X_EFUSE_PTE_CRC        = 1, ///< Efuse data index for PTE CRC
 } sl_si91x_efuse_data_type_t;
 /** @} */
 
 /** \addtogroup SI91X_BURN_TARGET_OPTIONS
   * @{ */
-/// Burn data to EFUSE
+/*=========================================================================*/
+// Burn target options parameters description !//
+// This group defines the target options for burning data into different memory types.
+//=========================================================================*/
+
+/**
+ * @def SL_SI91X_BURN_INTO_EFUSE
+ * @brief Option to burn data into EFUSE.
+ * 
+ * @details This option specifies that the data should be burned into the EFUSE memory.
+ * EFUSE memory is used for storing critical calibration or configuration data that should not be modified after programming. 
+ * Use this option when permanent storage of data is required.
+ */
 #define SL_SI91X_BURN_INTO_EFUSE 0
-/// Burn data to Flash
+
+/**
+ * @def SL_SI91X_BURN_INTO_FLASH
+ * @brief Option to burn data into Flash.
+ * 
+ * @details This option specifies that the data should be burned into Flash memory.
+ * Flash memory provides non-volatile storage that can be reprogrammed.
+ * This is suitable for data that might need to be updated or modified over time.
+ */
 #define SL_SI91X_BURN_INTO_FLASH 1
 /** @} */
 
 /** \addtogroup SI91X_CALIBRATION_FLAGS
   * @{ */
-#define SL_SI91X_BURN_GAIN_OFFSET     BIT(0) ///< Burn Gain offset into the device
-#define SL_SI91X_BURN_FREQ_OFFSET     BIT(1) ///< Burn Frequency offset into the device
-#define SL_SI91X_SW_XO_CTUNE_VALID    BIT(2) ///< Software XO CTUNE is valid
-#define SL_SI91X_BURN_XO_FAST_DISABLE BIT(3) ///< Burn Bit to disable XO Fast into the device
+/**
+ * @def SL_SI91X_BURN_GAIN_OFFSET
+ * @brief Burn gain offset into the device.
+ *
+ * @details
+ * This macro defines the bit for burning the gain offset into the device.
+ */
+#define SL_SI91X_BURN_GAIN_OFFSET BIT(0)
+
+/**
+ * @def SL_SI91X_BURN_FREQ_OFFSET
+ * @brief Burn frequency offset into the device.
+ *
+ * @details
+ * This macro defines the bit for burning the frequency offset into the device.
+ */
+#define SL_SI91X_BURN_FREQ_OFFSET BIT(1)
+
+/**
+ * @def SL_SI91X_SW_XO_CTUNE_VALID
+ * @brief Indicates if the software XO CTUNE is valid.
+ *
+ * @details
+ * This macro defines the bit to indicate that the software XO CTUNE (crystal tuning) value is valid.
+ */
+#define SL_SI91X_SW_XO_CTUNE_VALID BIT(2)
+
+/**
+ * @def SL_SI91X_BURN_XO_FAST_DISABLE
+ * @brief Burn bit to disable XO fast into the device.
+ *
+ * @details
+ * This macro defines the bit for burning a setting to disable the fast XO (crystal oscillator) into the device.
+ * 
+ * @note Not applicable for SI917.
+ */
+#define SL_SI91X_BURN_XO_FAST_DISABLE BIT(3)
 
 /** @} */
 
-/** \addtogroup SI91X_DTIM_ALIGNMENT_TYPES Si91x DTIM Alignment Types
+/** \addtogroup SI91X_DTIM_ALIGNMENT_TYPES
   * @{ */
 /// Module wakes up at beacon which is just before or equal to listen_interval
 #define SL_SI91X_ALIGN_WITH_BEACON 0
 /// Module wakes up at DTIM beacon which is just before or equal to listen_interval
 #define SL_SI91X_ALIGN_WITH_DTIM_BEACON 1
-/** @} */
-
-/// Si91x default event handler. This is to be used if user wants use default callback framework provided by library
-extern void si91x_default_event_handler(uint32_t event, void *data, void *arg);
 /** @} */
 
 /** \addtogroup SL_SI91X_TYPES Types
@@ -1148,16 +2041,17 @@ extern void si91x_default_event_handler(uint32_t event, void *data, void *arg);
 // Device configuration for 911x. This should be in the 911x driver folder
 /// Device configuration for Si91x device
 typedef struct {
-  uint8_t boot_option;                       ///< Boot option. One of the values from @ref SI91X_LOAD_IMAGE_TYPES
-  sl_mac_address_t *mac_address;             ///< mac address of type @ref sl_mac_address_t
-  sl_si91x_band_mode_t band;                 ///< Si91x Wi-Fi band of type @ref sl_si91x_band_mode_t
-  sl_si91x_region_code_t region_code;        ///< Si91x region code of type @ref sl_si91x_region_code_t
-  sl_si91x_boot_configuration_t boot_config; ///< Si91x boot configuration, Refer @ref SL_SI91X_BOOT_CONFIGURATION
-  sl_si91x_dynamic_pool ta_pool; ///< TA buffer allocation command parameters of tyoe @ref sl_si91x_dynamic_pool
-  uint8_t efuse_data_type; ///<Type of efuse data need to be read from flash, Refer @ref sl_si91x_efuse_data_type_t
+  uint8_t boot_option; ///< Boot option. One of the values from @ref SI91X_LOAD_IMAGE_TYPES
+  sl_mac_address_t *
+    mac_address; ///< MAC address of type [sl_mac_address_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-mac-address-t).
+  sl_si91x_band_mode_t band;                 ///< Si91x Wi-Fi band of type @ref sl_si91x_band_mode_t.
+  sl_si91x_region_code_t region_code;        ///< Si91x region code of type @ref sl_si91x_region_code_t.
+  sl_si91x_boot_configuration_t boot_config; ///< Si91x boot configuration. Refer to @ref SL_SI91X_BOOT_CONFIGURATION.
+  sl_si91x_dynamic_pool ta_pool; ///< TA buffer allocation command parameters of type @ref sl_si91x_dynamic_pool.
+  uint8_t efuse_data_type; ///<Type of eFuse data need to be read from flash. Refer to @ref sl_si91x_efuse_data_type_t.
 } sl_wifi_device_configuration_t;
 
-/// SL Wi-Fi device context
+/// Wi-Fi device context
 typedef struct {
   void *device_context; ///< Reserved for future use
 } sl_wifi_device_context_t;
@@ -1173,33 +2067,38 @@ typedef struct {
   uint8_t reserved1[2]; ///< Reserved bits
 } si91x_calibration_data_t;
 
+/** \addtogroup SL_SI91X_CONSTANTS
+ * @{
+ * */
+
+/// Si91x performance profile
+typedef enum {
+  HIGH_PERFORMANCE,                  ///< Power save is disabled and throughput is maximum.
+  ASSOCIATED_POWER_SAVE,             ///< Connected power save mode, is supported in only Client mode.
+  ASSOCIATED_POWER_SAVE_LOW_LATENCY, ///< Connected Power Save mode offers higher throughput than ASSOCIATED_POWER_SAVE and is supported only in Client mode. It is not supported for BLE or BT.
+  STANDBY_POWER_SAVE, ///< Unconnected Power Save mode is supported only in Client mode and does not retain NWP RAM.
+  STANDBY_POWER_SAVE_WITH_RAM_RETENTION ///< Unconnected Power Save mode is supported only in Client mode and retains NWP RAM.
+} sl_si91x_performance_profile_t;
+/** @} */
+
 /** \addtogroup SL_SI91X_TYPES
  * @{
  * */
-/// Performance profile
-typedef enum {
-  HIGH_PERFORMANCE,                  ///< Power save is disabled and throughput is maximum.
-  ASSOCIATED_POWER_SAVE,             ///< Power save mode when module is associated with either AP or station.
-  ASSOCIATED_POWER_SAVE_LOW_LATENCY, ///< Power save mode when module is associated with either AP or station, with higher throughput than ASSOCIATED_POWER_SAVE. This is not supported for BT/BLE.
-  STANDBY_POWER_SAVE, ///< Power save mode when module is not associated with either AP or station, ram is not retained in this mode.
-  STANDBY_POWER_SAVE_WITH_RAM_RETENTION ///< Power save mode when module is not associated with either AP or station, ram is retained in this mode.
-} sl_si91x_performance_profile_t;
-
-/// BT performance profile
+/// Bluetooth performance profile
 typedef struct {
-  sl_si91x_performance_profile_t profile; ///< Performance profile
+  sl_si91x_performance_profile_t profile; ///< Performance profile of type @ref sl_si91x_performance_profile_t.
 } sl_bt_performance_profile_t;
 
 /// Wi-Fi performance profile
 typedef struct {
-  sl_si91x_performance_profile_t profile; ///< Performance profile of type @ref sl_si91x_performance_profile_t
-  uint8_t dtim_aligned_type;              ///< Set DTIM alignment required. @ref SI91X_DTIM_ALIGNMENT_TYPES.
-  uint8_t num_of_dtim_skip;               ///< Default value to be used is 0.
-  uint16_t listen_interval;               ///< Listen interval.
+  sl_si91x_performance_profile_t profile; ///< Performance profile of type @ref sl_si91x_performance_profile_t.
+  uint8_t dtim_aligned_type; ///< Set DTIM alignment required. One of the values from @ref SI91X_DTIM_ALIGNMENT_TYPES.
+  uint8_t num_of_dtim_skip;  ///< Number of DTIM intervals to skip. Default value is 0.
+  uint16_t listen_interval;  ///< Listen interval in beacon intervals.
   uint16_t
-    monitor_interval; ///< Monitor interval will be in millisecs, Default interval 50 milli secs is used if monitor_interval is set to 0. This is only valid when performance profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY
-  sl_wifi_twt_request_t twt_request;     ///< twt request.
-  sl_wifi_twt_selection_t twt_selection; ///< twt selection request
+    monitor_interval; ///< Monitor interval in milliseconds. Default interval 50 milliseconds is used if monitor_interval is set to 0. This is only valid when performance profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY.
+  sl_wifi_twt_request_t twt_request;     ///< Target Wake Time (TWT) request settings.
+  sl_wifi_twt_selection_t twt_selection; ///< Target Wake Time (TWT) selection request settings.
 } sl_wifi_performance_profile_t;
 /** @} */
 

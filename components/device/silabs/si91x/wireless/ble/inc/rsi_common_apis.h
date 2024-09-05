@@ -114,7 +114,6 @@ extern int32_t rsi_driver_version(uint8_t *request);
 
 /**
  * @brief      Wait for BT card ready
- * @param[in]  void
  * @return     void
  * */
 void rsi_bt_common_init(void);

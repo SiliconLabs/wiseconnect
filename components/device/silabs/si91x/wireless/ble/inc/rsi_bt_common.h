@@ -25,53 +25,89 @@
 /******************************************************
  * *                      Macros
  * ******************************************************/
-#define RSI_BT_HCI_CMD_PKT     0x1
-#define RSI_BT_HCI_ACL_PKT     0x2
+/** @addtogroup BT_BLE_TYPES
+  * @{ */
+
+/// Specifies that packet type is Bluetooth HCI command packet.
+#define RSI_BT_HCI_CMD_PKT 0x1
+/// Represents the HCI ACL packet type.
+#define RSI_BT_HCI_ACL_PKT 0x2
+/// Specifies the number of packets that can be sent per HCI command.
 #define RSI_BT_HCI_PER_CMD_PKT 0x3
-
+/// Indicates dual mode operation in Bluetooth.
 #define RSI_BT_DUAL_MODE 0x8
-
-#define BLE_PROTO_ENABLE        BIT(2)
+/// This macro is used to enable the Bluetooth Low Energy (BLE) protocol.
+#define BLE_PROTO_ENABLE BIT(2)
+/// This macro is used to enable the Bluetooth Classic protocol.
 #define BT_CLASSIC_PROTO_ENABLE BIT(3)
-#define PROP_PROTO_ENABLE       (BIT(8))
-
+/// This macro is used to enable the proprietary protocol. It sets the 8th bit of the property.
+#define PROP_PROTO_ENABLE (BIT(8))
+/// Enable both BLE and Classic Bluetooth protocols.
 #define BT_DUAL_MODE_PROTO_ENABLE (BLE_PROTO_ENABLE | BT_CLASSIC_PROTO_ENABLE)
-
+/// Define the bits for Bluetooth Low Energy (BLE) mode.
 #define RSI_BT_BLE_MODE_BITS (BIT(2) | BIT(3))
-
-#define RSI_BT_STATUS_OFFSET   0x0C
+/// Offset of the BT status in the Bluetooth module.
+#define RSI_BT_STATUS_OFFSET 0x0C
+/// Offset value for the response type in the Bluetooth module.
 #define RSI_BT_RSP_TYPE_OFFSET 0x02
-#define RSI_BT_RSP_LEN_OFFSET  0x00
-#define RSI_BT_RSP_LEN_MASK    0x0FFF
-
-#define RSI_PROTO_BT_COMMON    0x01
-#define RSI_PROTO_BT_CLASSIC   0x02
-#define RSI_PROTO_BLE          0x03
+///Offset value for the length field in the Bluetooth response.
+#define RSI_BT_RSP_LEN_OFFSET 0x00
+///Mask used to extract the response length from a Bluetooth response.
+#define RSI_BT_RSP_LEN_MASK 0x0FFF
+///Protocol identifier for Bluetooth Common.
+#define RSI_PROTO_BT_COMMON 0x01
+///Bluetooth protocol type for classic Bluetooth.
+#define RSI_PROTO_BT_CLASSIC 0x02
+///Defines the protocol value for Bluetooth Low Energy (BLE).
+#define RSI_PROTO_BLE 0x03
+///Definition of the Bluetooth Low Energy (BLE) stack protocol.
 #define RSI_PROTO_BT_BLE_STACK 0x05
-
+///The maximum length of the device name.
 #define RSI_DEV_NAME_LEN 50
+///Length of the device address in bytes.
 #define RSI_DEV_ADDR_LEN 6
-#define RSI_DEV_ATT_LEN  240
-
+///Length of the Attribute Protocol (ATT) buffer for the device.
+#define RSI_DEV_ATT_LEN 240
+///Defines the Bluetooth classic device type.
 #define RSI_BT_CLASSIC_DEVICE 0x00
-#define RSI_BT_LE_DEVICE      0x01
-#define RSI_BT_UNKWON_DEVICE  0xFF
-
-#define STACK_BT_MODE   0x01
+///Defines the Bluetooth Low Energy (LE) device type.
+#define RSI_BT_LE_DEVICE 0x01
+///Macro definition for an unknown Bluetooth device. The value of this macro is 0xFF.
+#define RSI_BT_UNKWON_DEVICE 0xFF
+///Defines the stack mode for Bluetooth.
+#define STACK_BT_MODE 0x01
+///Defines the stack mode for Bluetooth Low Energy (BLE).
 #define STACK_BTLE_MODE 0x02
-
 //RF types
+/// Specify the external RF mode.
 #define RSI_EXTERNAL_RF 0x00
+/// Specify the internal RF mode.
 #define RSI_INTERNAL_RF 0x01
-#define RSI_RF_TYPE     RSI_INTERNAL_RF
-
+/**
+ * @brief Defines the RF type for the Bluetooth module.
+ * 
+ * This macro is used to specify the RF type for the Bluetooth module.
+ * The value `RSI_INTERNAL_RF` indicates that the module uses an internal RF.
+ * 
+ * @note This macro should be defined before including this header file.
+ */
+#define RSI_RF_TYPE RSI_INTERNAL_RF
+///Maximum number of attributes supported by the Bluetooth module.
 #define RSI_MAX_ATT 5
-
+/**
+ * @brief Defines the operating mode for WLAN and Bluetooth dual mode.
+ * 
+ * This macro is used to specify the operating mode for WLAN and Bluetooth dual mode.
+ * The value 9 represents the dual mode operation.
+ */
 #define RSI_OPERMODE_WLAN_BT_DUAL_MODE 9
-
-#define RSI_BT_STATE_NONE          0
+/// Bluetooth state indicating none.
+#define RSI_BT_STATE_NONE 0
+///Defines the state value indicating that the Bluetooth operation mode is done.
 #define RSI_BT_STATE_OPERMODE_DONE 1
-#define LOWERNIBBLE                0x0F
+///Mask to extract the lower nibble of a byte.
+#define LOWERNIBBLE 0x0F
+
 /******************************************************
  * *                    Constants
  * ******************************************************/
@@ -80,257 +116,351 @@
  * *                 Type Definitions
  * ******************************************************/
 
-typedef struct rsi_ble_cb_s rsi_ble_cb_t;
-typedef struct rsi_bt_classic_cb_s rsi_bt_classic_cb_t;
-typedef struct rsi_bt_common_specific_cb_s rsi_bt_common_specific_cb_t;
-typedef int32_t (*rsi_bt_get_ber_pkt_t)(uint8_t *pkt, uint16_t pkt_len);
+typedef struct rsi_ble_cb_s rsi_ble_cb_t;               ///< Typedef for the BLE control block structure.
+typedef struct rsi_bt_classic_cb_s rsi_bt_classic_cb_t; ///< Typedef for the Bluetooth Classic control block structure.
+typedef struct rsi_bt_common_specific_cb_s
+  rsi_bt_common_specific_cb_t; ///< Typedef for the Bluetooth common specific control block structure.
+typedef int32_t (*rsi_bt_get_ber_pkt_t)(uint8_t *pkt,
+                                        uint16_t pkt_len); ///<  Typedef for a function pointer to get BER packet.
 
 /******************************************************
  * *                   Enumerations
  * ******************************************************/
 
-typedef enum rsi_bt_common_cmd_request_e {
-  RSI_BT_SET_LOCAL_NAME                            = 0x0001,
-  RSI_BT_GET_LOCAL_NAME                            = 0x0002,
-  RSI_BT_GET_RSSI                                  = 0x0005,
-  RSI_BT_GET_LOCAL_DEV_ADDR                        = 0x0007,
-  RSI_BT_REQ_INIT                                  = 0x008D,
-  RSI_BT_REQ_DEINIT                                = 0x008E,
-  RSI_BT_SET_ANTENNA_SELECT                        = 0x008F,
-  RSI_BT_REQ_PER_CMD                               = 0x009A,
-  RSI_BT_SET_FEATURES_BITMAP                       = 0x00A6,
-  RSI_BT_VENDOR_SPECIFIC                           = 0x00BE,
-  RSI_BT_SET_ANTENNA_TX_POWER_LEVEL                = 0x00A7,
-  RSI_BT_SET_GAIN_TABLE_OFFSET_OR_MAX_POWER_UPDATE = 0x012C,
-  RSI_BT_SET_BD_ADDR_REQ                           = 0x012E,
-  RSI_BT_GET_BT_STACK_VERSION                      = 0x012F,
+/******************************************************
+ * *                   Enumerations
+ * ******************************************************/
 
-  RSI_BLE_ONLY_OPER_MODE = 0x8010,
-  RSI_BLE_REQ_PWRMODE    = 0x8015,
-  RSI_BLE_REQ_SOFTRESET  = 0x801C
+/**
+ * 
+ * @brief Enumeration of Bluetooth common command requests.
+ *
+ * Defines various command requests for Bluetooth operations, including setting
+ * and getting local device information, initializing and deinitializing the
+ * device, and configuring antenna and power settings.
+ */
+typedef enum rsi_bt_common_cmd_request_e {
+  RSI_BT_SET_LOCAL_NAME                            = 0x0001, ///< Set the local device name.
+  RSI_BT_GET_LOCAL_NAME                            = 0x0002, ///< Get the local device name.
+  RSI_BT_GET_RSSI                                  = 0x0005, ///< Get the Received Signal Strength Indicator (RSSI).
+  RSI_BT_GET_LOCAL_DEV_ADDR                        = 0x0007, ///< Get the local device address.
+  RSI_BT_REQ_INIT                                  = 0x008D, ///< Initialize the BT classic protocol.
+  RSI_BT_REQ_DEINIT                                = 0x008E, ///< De-Initialize the BT classic protocol.
+  RSI_BT_SET_ANTENNA_SELECT                        = 0x008F, ///< Select the antenna.
+  RSI_BT_REQ_PER_CMD                               = 0x009A, ///< Request Packet Error Rate (PER) command.
+  RSI_BT_SET_FEATURES_BITMAP                       = 0x00A6, ///< Set the features bitmap.
+  RSI_BT_VENDOR_SPECIFIC                           = 0x00BE, ///< Vendor-specific command.
+  RSI_BT_SET_ANTENNA_TX_POWER_LEVEL                = 0x00A7, ///< Set the antenna transmission power level.
+  RSI_BT_SET_GAIN_TABLE_OFFSET_OR_MAX_POWER_UPDATE = 0x012C, ///< Set gain table offset or update maximum power.
+  RSI_BT_SET_BD_ADDR_REQ                           = 0x012E, ///< Set the Bluetooth device address.
+  RSI_BT_GET_BT_STACK_VERSION                      = 0x012F, ///< Get the Bluetooth stack version.
+
+  RSI_BLE_ONLY_OPER_MODE = 0x8010, ///< Set BLE-only operation mode.
+  RSI_BLE_REQ_PWRMODE    = 0x8015, ///< Request BLE power mode.
+  RSI_BLE_REQ_SOFTRESET  = 0x801C  ///< Request BLE soft reset.
 } rsi_bt_common_cmd_request_t;
 
+/**
+ * 
+ * @brief Enumeration of Bluetooth common events.
+ *
+ * Defines various events for Bluetooth operations, including the event
+ * indicating that the Bluetooth card is ready.
+ */
 typedef enum rsi_bt_common_event_e {
-  RSI_BT_EVENT_CARD_READY = 0x0505,
+  RSI_BT_EVENT_CARD_READY = 0x0505, ///< Event indicating that the Bluetooth card is ready.
 } rsi_bt_common_event_t;
 
+/**
+ * 
+ * @brief Enumeration of Bluetooth common command responses.
+ *
+ * Defines various command responses for Bluetooth operations, including responses
+ * for setting and querying local device information, initializing and deinitializing
+ * the device, and configuring antenna and power settings.
+ */
 typedef enum rsi_bt_common_cmd_resp_e {
-  RSI_BT_RSP_SET_LOCAL_NAME                            = 0x0001,
-  RSI_BT_RSP_QUERY_LOCAL_NAME                          = 0x0002,
-  RSI_BT_RSP_QUERY_RSSI                                = 0x0005,
-  RSI_BT_RSP_QUERY_LOCAL_BD_ADDRESS                    = 0x0007,
-  RSI_BT_RSP_INIT                                      = 0x008D,
-  RSI_BT_RSP_DEINIT                                    = 0x008E,
-  RSI_BT_RSP_ANTENNA_SELECT                            = 0x008F,
-  RSI_BT_RSP_SET_FEATURES_BITMAP                       = 0x00A6,
-  RSI_BT_RSP_ANTENNA_TX_POWER_LEVEL                    = 0x00A7,
-  RSI_BT_RSP_SET_GAIN_TABLE_OFFSET_OR_MAX_POWER_UPDATE = 0x012C,
-  RSI_BT_RSP_SET_BD_ADDR                               = 0x012E,
+  RSI_BT_RSP_SET_LOCAL_NAME         = 0x0001, ///< Response for setting the local device name.
+  RSI_BT_RSP_QUERY_LOCAL_NAME       = 0x0002, ///< Response for querying the local device name.
+  RSI_BT_RSP_QUERY_RSSI             = 0x0005, ///< Response for querying the Received Signal Strength Indicator (RSSI).
+  RSI_BT_RSP_QUERY_LOCAL_BD_ADDRESS = 0x0007, ///< Response for querying the local device address.
+  RSI_BT_RSP_INIT                   = 0x008D, ///< Response for initializing the BT classic protocol.
+  RSI_BT_RSP_DEINIT                 = 0x008E, ///< Response for deinitializing the BT classic protocol.
+  RSI_BT_RSP_ANTENNA_SELECT         = 0x008F, ///< Response for selecting the antenna.
+  RSI_BT_RSP_SET_FEATURES_BITMAP    = 0x00A6, ///< Response for setting the features bitmap.
+  RSI_BT_RSP_ANTENNA_TX_POWER_LEVEL = 0x00A7, ///< Response for setting the antenna transmission power level.
+  RSI_BT_RSP_SET_GAIN_TABLE_OFFSET_OR_MAX_POWER_UPDATE =
+    0x012C,                        ///< Response for setting gain table offset or updating maximum power.
+  RSI_BT_RSP_SET_BD_ADDR = 0x012E, ///< Response for setting the Bluetooth device address.
 
-  RSI_BLE_RSP_ONLY_OPER_MODE = 0x8010,
-  RSI_BLE_RSP_PWRMODE        = 0x8015,
-  RSI_BLE_RSP_SOFTRESET      = 0x801C
+  RSI_BLE_RSP_ONLY_OPER_MODE = 0x8010, ///< Response for setting BLE-only operation mode.
+  RSI_BLE_RSP_PWRMODE        = 0x8015, ///< Response for requesting BLE power mode.
+  RSI_BLE_RSP_SOFTRESET      = 0x801C  ///< Response for requesting BLE soft reset.
 } rsi_bt_common_cmd_resp_t;
 
 /******************************************************
  * *                    Structures
  * ******************************************************/
-// Driver control block
+/// Driver control block
 struct rsi_driver_cb_s;
 
 // Driver BT Common control block
+
+/**
+ * @brief Structure representing the Bluetooth common specific callback.
+ *
+ * This structure is used to define the parameters for Bluetooth common specific callbacks,
+ * including the PER Bit Error Rate (BER) callback.
+ */
 struct rsi_bt_common_specific_cb_s {
-  // PER BER Call Backs
+  /** PER BER Callbacks */
   rsi_bt_get_ber_pkt_t rsi_bt_get_ber_pkt;
 };
-
 // Specific BT, BLE blocks
+/**
+ * @brief Structure representing the Bluetooth global callback.
+ *
+ * This structure is used to define the parameters for Bluetooth global callbacks,
+ * including common specific callbacks, BLE specific callbacks, and BT Classic specific callbacks.
+ */
 typedef struct rsi_bt_global_cb_s {
-  // BT Common specific cb
+  /** BT Common specific callback */
   rsi_bt_common_specific_cb_t *bt_common_specific_cb;
-  // BLE specific cb
+  /** BLE specific callback */
   rsi_ble_cb_t *ble_specific_cb;
-  // BT Classic specific cb
+  /** BT Classic specific callback */
   rsi_bt_classic_cb_t *bt_specific_cb;
 } rsi_bt_global_cb_t;
 
 // Remote LE Device info structure
+
+/**
+ * @brief Structure representing the remote BLE device information.
+ *
+ * This structure is used to define the parameters for storing information about a remote BLE device,
+ * including its address, buffer counts, and synchronization mechanisms.
+ */
 typedef struct rsi_remote_ble_info_s {
-  // BD Address of the remote LE device
+  /** BD Address of the remote LE device */
   uint8_t remote_dev_bd_addr[RSI_DEV_ADDR_LEN];
-
-  // Address type of the remote LE device
+  /** Address type of the remote LE device */
   uint8_t remote_dev_addr_type;
-
-  // Available Buffer Count
+  /** Available Buffer Count */
   uint8_t avail_buf_cnt;
-
-  // Max Buffer Count
+  /** Max Buffer Count */
   uint8_t max_buf_cnt;
-
-  // Max Buffer Length
+  /** Max Buffer Length */
   uint16_t max_buf_len;
-
-  // Flag for dev info used or not
+  /** Flag for dev info used or not */
   uint8_t used;
-
-  // Flag for checking command in use
+  /** Flag for checking command in use */
   uint8_t cmd_in_use;
-
-  // Flag for checking expected remote response for each procedure
+  /** Flag for checking expected remote response for each procedure */
   uint16_t expected_resp;
-
-  // Buffer config mode
+  /** Buffer config mode */
   uint8_t mode;
-
-  // mutex handle for avail_buf_info update
+  /** Mutex handle for avail_buf_info update */
   osMutexId_t ble_buff_mutex;
 } rsi_remote_ble_info_t;
-
+/** @} */
 // Driver BT/BLE/PROP_PROTOCOL control block
+/**
+ * @brief Structure representing the Bluetooth control block.
+ *
+ * This structure is used to define the parameters for the Bluetooth control block,
+ * including status, state, synchronization mechanisms, and remote BLE device information.
+ */
 typedef struct rsi_bt_cb_s {
-  // driver BT control block status
+  /** Driver BT control block status */
   volatile int32_t status;
-
-  // driver BT control block state
+  /** Driver BT control block state */
   uint16_t state;
-
-  // driver BT control block mutex
+  /** Driver BT control block mutex */
   osMutexId_t bt_mutex;
-
-  // driver BT control block expected command response
+  /** Driver BT control block expected command response */
   void *expected_response_buffer;
-
-  // expected command response type
+  /** Expected command response type */
   uint16_t expected_response_type;
-
-  // sync command flag to identify that the command is blocking / sync type
+  /** Sync command flag to identify that the command is blocking / sync type */
   uint8_t sync_rsp;
-
-  // BT device type at disconnect.
+  /** BT device type at disconnect */
   uint8_t dev_type;
-
-  // driver BT control block semaphore
+  /** Driver BT control block semaphore for commands */
   osSemaphoreId_t bt_cmd_sem;
-
-  // driver BT control block semaphore
+  /** Driver BT control block semaphore */
   osSemaphoreId_t bt_sem;
-
-  // buffer pointer given by application to driver
+  /** Buffer pointer given by application to driver */
   uint8_t *app_buffer;
-
-  // buffer length given by application to driver
+  /** Buffer length given by application to driver */
   uint32_t app_buffer_length;
-
+  /** Pointer to global Bluetooth callback structure */
   rsi_bt_global_cb_t *bt_global_cb;
-
-  //uint8, address of the device to which directed advertising has to be done in ll privacy mode
+  /** Address of the device to which directed advertising has to be done in ll privacy mode */
   uint8_t directed_addr[RSI_DEV_ADDR_LEN];
 
-// Structure Holding Remote LE Dev info (BD address & Controller Buffer availability)
-#define MAX_REMOTE_BLE_DEVICES 10 //  2(RSI_BLE_MAX_NBR_CENTRALS) +  8 (RSI_BLE_MAX_NBR_PERIPHERALS)
+/** Maximum number of remote BLE devices */
+#define MAX_REMOTE_BLE_DEVICES 10
+  /** Structure holding remote LE device info (BD address and controller buffer availability) */
   rsi_remote_ble_info_t remote_ble_info[MAX_REMOTE_BLE_DEVICES];
-
-  // Variable indicating buffer full/empty status --> 0 -> Empty, 1 -> Full
+  /** Variable indicating buffer full/empty status --> 0 -> Empty, 1 -> Full */
   uint8_t buf_status;
-
-  // Variable indicating command in use status --> 0 -> Not In Use, 1 -> In Use
+  /** Variable indicating command in use status --> 0 -> Not In Use, 1 -> In Use */
   uint8_t cmd_status;
-
-  // Variable to save Remote info index
+  /** Variable to save remote info index */
   uint8_t remote_ble_index;
-
-  // driver BT control block asynchronous status
+  /** Driver BT control block asynchronous status */
   volatile int32_t async_status;
-
 } rsi_bt_cb_t;
 
 // Set local name command structure
+
+/**
+ * @brief Structure representing the Bluetooth request to set the local device name.
+ *
+ * This structure is used to define the parameters for setting the local Bluetooth device name,
+ * including the name length and the name itself.
+ */
 typedef struct rsi_bt_req_set_local_name_s {
-  // uint8, length of the required name to be set
+  /** Length of the required name to be set */
   uint8_t name_len;
-  // int8[50], required name
+  /** Required name */
   int8_t name[RSI_DEV_NAME_LEN];
 } rsi_bt_req_set_local_name_t;
 
 // Get RSSI command structure
+
+/**
+ * @brief Structure representing the Bluetooth request to get the Received Signal Strength Indicator (RSSI).
+ *
+ * This structure is used to define the parameters for requesting the RSSI of a remote Bluetooth device,
+ * including the device address.
+ */
 typedef struct rsi_bt_get_rssi_s {
-  // uint8, device address of the device whose RSSI has to be known
+  /** Device address (6 bytes) */
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
 } rsi_bt_get_rssi_t;
 
 // Response structures
 
 // Get local name response structures
+
+/**
+ * @brief Structure representing the Bluetooth response to get the local device name.
+ *
+ * This structure is used to define the parameters for the response that includes the local Bluetooth device name,
+ * including the name length, the name itself, and a reserved variable.
+ */
 typedef struct rsi_bt_resp_get_local_name_s {
   /** Name length */
   uint8_t name_len;
   /** Array which consists name of the local device. The maximum size of this array is 50 */
   int8_t name[RSI_DEV_NAME_LEN];
+  /** Reserved variable */
   uint8_t _reserved;
 } rsi_bt_resp_get_local_name_t;
 
 /** @addtogroup BT-BLE Common
   * @{ */
 // Get Stack Version
+/**
+ * @brief Structure representing the Bluetooth response to get the BT stack version.
+ *
+ * This structure is used to define the parameters for the response that includes the Bluetooth stack version.
+ */
 typedef struct rsi_bt_resp_get_bt_stack_version_s {
-  /** stack version variable */
+  /** Bluetooth stack version */
   int8_t stack_version[10];
 } rsi_bt_resp_get_bt_stack_version_t;
 /** @} */
 
 // Set antenna structure
+/**
+ * @brief Structure representing the BLE set antenna request.
+ *
+ * This structure is used to define the parameters for setting the BLE antenna,
+ * including the antenna value which can be internal or external.
+ */
 typedef struct rsi_ble_set_antenna_s {
-  //uint8, antenna value - internal/external
+  /** Antenna value - internal/external */
   uint8_t value;
 } rsi_ble_set_antenna_t;
 
-// Set feature bitmap structure
+/**
+ * @brief Structure representing the Bluetooth set feature bitmap.
+ *
+ * This structure is used to define the parameters for setting the Bluetooth feature bitmap,
+ * which includes feature bits in a bit map format.
+ */
 typedef struct rsi_bt_set_feature_bitmap_s {
-  //uint8[4], features bits (bit map)
+  /** Features bits (bit map) */
   uint32_t bit_map;
 } rsi_bt_set_feature_bitmap_t;
 
+/**
+ * @brief Structure representing the BLE operation mode.
+ *
+ * This structure is used to define the parameters for the BLE operation mode,
+ * including Bluetooth features and the module type.
+ */
 typedef struct rsi_ble_oper_mode_s {
-  //uint8, antenna value - internal/external
+  /** Bluetooth features */
   uint32_t bt_features;
+  /** Module type */
   uint8_t module_type;
 } rsi_ble_oper_mode_t;
 
+/**
+ * @brief Structure representing the BLE power mode.
+ *
+ * This structure is used to define the parameters for setting the BLE power mode,
+ * including the power mode and Ultra-Low-Power (ULP) mode enable settings.
+ */
 typedef struct rsi_ble_power_mode_s {
-  // power mode to set
+  /** Power mode to set */
   uint8_t power_mode;
-
-  // set LP/ULP/ULP-without RAM retention
+  /** Set LP/ULP/ULP-without RAM retention */
   uint8_t ulp_mode_enable;
-
 } rsi_ble_power_mode_t;
 
 // Set antenna tx power level structure
+
+/**
+ * @brief Structure representing the Bluetooth set antenna transmit power level.
+ *
+ * This structure is used to define the parameters for setting the antenna transmit power level,
+ * including the protocol mode and transmit power.
+ */
 typedef struct rsi_bt_set_antenna_tx_power_level_s {
-  //uint8, protocol_mode : 1-BT, 2-LE
+  /** Protocol mode: 1-BT, 2-LE */
   uint8_t protocol_mode;
-  //int8_t, transmit power
+  /** Transmit power */
   int8_t tx_power;
 } rsi_bt_set_antenna_tx_power_level_t;
 
 /** @addtogroup BT-BLE Common
   * @{ */
 // BT PER Stats
+
+/**
+ * @brief Structure representing the Bluetooth Packet Error Rate (PER) statistics.
+ *
+ * This structure is used to define the parameters for collecting Bluetooth PER statistics,
+ * including counts of CRC fails, successful transmissions, and other relevant metrics.
+ */
 typedef struct rsi_bt_per_stats_s {
   /** Packet count of CRC fails (Cyclic Redundancy Check (CRC)) */
   uint16_t crc_fail_cnt;
-  /** Packet count of CRC fails (Cyclic Redundancy Check (CRC)) */
+  /** Packet count of CRC passes */
   uint16_t crc_pass_cnt;
-  /** Packet count of aborted Tx */
+  /** Packet count of aborted transmissions */
   uint16_t tx_abort_cnt;
-  /** Packet count of dropped Rx */
+  /** Packet count of dropped receptions */
   uint16_t rx_drop_cnt;
   /** Packet count of CCA Idle (Clear Channel Assessment (CCA)) */
   uint16_t rx_cca_idle_cnt;
   /** Packet count of Rx start */
   uint16_t rx_start_idle_cnt;
-  /** Packet count of aborted Rx */
+  /** Packet count of aborted receptions */
   uint16_t rx_abrt_cnt;
   /** Packet count of successful transmissions */
   uint16_t tx_dones;
@@ -341,12 +471,22 @@ typedef struct rsi_bt_per_stats_s {
   /** Dummy array of length 5 */
   uint16_t dummy[5];
 } rsi_bt_per_stats_t;
+
 /** @} */
 
+/**
+ * @brief Structure representing the Bluetooth set local Bluetooth Device (BD) address.
+ *
+ * This structure is used to define the parameters for setting the local Bluetooth device address.
+ */
 typedef struct rsi_bt_set_local_bd_addr_s {
+  /** Device address (6 bytes) */
   uint8_t dev_addr[RSI_DEV_ADDR_LEN];
 } rsi_bt_set_local_bd_addr_t;
 
+/**
+ * @brief Structure for updating gain table offset or max power in Bluetooth commands.
+ */
 typedef struct rsi_bt_cmd_update_gain_table_offset_or_maxpower_s {
   /** node id (0 - BLE, 1 - BT) */
   uint8_t node_id;
@@ -369,10 +509,10 @@ uint16_t rsi_bt_global_cb_init(struct rsi_driver_cb_s *driver_cb, uint8_t *buffe
 uint16_t rsi_driver_process_bt_resp_handler(void *rx_pkt);
 uint16_t rsi_bt_get_proto_type(uint16_t rsp_type, rsi_bt_cb_t **bt_cb);
 
-#define HCI_BT_PER_STATS_CMD_ID 0x08
-#define HCI_BLE_TRANSMIT_CMD_ID 0x13
-#define HCI_BLE_RECEIVE_CMD_ID  0x14
-#define HCI_BT_TRANSMIT_CMD_ID  0x15
-#define HCI_BT_RECEIVE_CMD_ID   0x16
+#define HCI_BT_PER_STATS_CMD_ID 0x08 ///< HCI command ID for Bluetooth Packet Error Rate (PER) statistics.
+#define HCI_BLE_TRANSMIT_CMD_ID 0x13 ///< HCI command ID for BLE transmit command.
+#define HCI_BLE_RECEIVE_CMD_ID  0x14 ///< HCI command ID for BLE receive command.
+#define HCI_BT_TRANSMIT_CMD_ID  0x15 ///< HCI command ID for Bluetooth transmit command.
+#define HCI_BT_RECEIVE_CMD_ID   0x16 ///< HCI command ID for Bluetooth receive command.
 
 #endif

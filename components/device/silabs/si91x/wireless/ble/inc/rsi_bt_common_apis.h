@@ -60,7 +60,7 @@ extern "C" {
 #endif
 /*==============================================*/
 /**
- * @fn          int32_t rsi_bt_set_bd_addr(uint8_t *dev_addr)
+ * @fn          int32_t rsi_bt_set_bd_addr(const uint8_t *dev_addr)
  * @brief       Set the device BD address. This is a blocking API.
  * @pre Pre-conditions:
  *          - needs to be called immediately after device initialization.
@@ -75,7 +75,7 @@ int32_t rsi_bt_set_bd_addr(const uint8_t *dev_addr);
 
 /*==============================================*/
 /**
- * @fn         int32_t rsi_bt_set_local_name(uint8_t *local_name)
+ * @fn         int32_t rsi_bt_set_local_name(const uint8_t *local_name)
  * @brief      Set the given name to local device. This is a blocking API.
  * @pre Pre-conditions:
  * -        Device should be initialized before calling this API.
@@ -134,7 +134,7 @@ int32_t rsi_bt_get_local_name(rsi_bt_resp_get_local_name_t *bt_resp_get_local_na
  * @fn         int32_t rsi_bt_get_rssi(uint8_t *dev_addr, int8_t *resp)
  * @brief      Get the RSSI of the remote device. This is a blocking API.
  * @pre Pre-conditions:
- * -        \ref rsi_bt_connect() API need to be called before this API.
+ * -            rsi_bt_connect() API need to be called before this API.
  * @param[in]  dev_addr -  Remote device address.
  * @param[out] resp - Parameter to hold the response of this API, RSSI is filled in this resp parameter.
  * @return The following values are returned:
@@ -177,7 +177,6 @@ int32_t rsi_bt_get_bt_stack_version(rsi_bt_resp_get_bt_stack_version_t *bt_resp_
  * @pre Pre-conditions:
  *         - Device should be initialized before calling this API.  
  *         - If the device is in powersave, get back the device to ACTIVE MODE by using \ref rsi_bt_power_save_profile()
- * @param      None
  * @return The following values are returned:
  *             - 0		-	Success 
  *             - Non-Zero Value	-	Failure
@@ -190,8 +189,7 @@ int32_t rsi_bt_init(void);
  * @fn         int32_t 	rsi_bt_deinit(void)
  * @brief      Deinitialize the BT device. This is a blocking API.
  * @pre Pre-conditions:
- * -        \ref Device should be initialized before this API. 
- * @param      None
+ * -             Device should be initialized before this API. 
  * @return The following values are returned:
  *            - 0		-	Success 
  *            - Non-Zero Value	-	Failure
@@ -251,7 +249,7 @@ int32_t rsi_bt_power_save_profile(uint8_t psp_mode, uint8_t psp_type);
  * @fn          int32_t rsi_bt_per_stats(uint8_t cmd_type, struct rsi_bt_per_stats_s *rsi_bt_per_stats)
  * @brief       Request the local device for BT PER operation.
  * @pre Pre-conditions:
- * -         Call \ref rsi_bt_per_tx() or rsi_bt_per_rx() before calling this API.
+ * -         Call rsi_bt_per_tx() or rsi_bt_per_rx() before calling this API.
  * @param[in]   cmd_type - Parameter to define the command id type for PER operation. 
  *              - BT_PER_STATS_CMD_ID (0x08) - Command id enables PER statistics 
  *              - BT_TRANSMIT_CMD_ID (0x15) - Command id enables PER transmit 
@@ -260,7 +258,7 @@ int32_t rsi_bt_power_save_profile(uint8_t psp_mode, uint8_t psp_type);
  * @return The following values are returned:
  *              - 0			-	Success 
  *              - Non-Zero Value	-	Failure
- * @note       Refer Error Codes section for common error codes \ref error-codes .
+ * @note        Refer Error Codes section for common error codes error-codes.
  */
 int32_t rsi_bt_per_stats(uint8_t cmd_type, struct rsi_bt_per_stats_s *per_stats);
 

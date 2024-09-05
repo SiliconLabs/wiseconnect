@@ -36,9 +36,9 @@
  * @brief
  *   Sets BT performance profile
  * @param[in] profile
- *   BT performance profile as indicated by @ref sl_bt_performance_profile_t
+ *   BT performance profile as indicated by sl_bt_performance_profile_t
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_bt_set_performance_profile(const sl_bt_performance_profile_t *profile);
 
@@ -46,8 +46,10 @@ sl_status_t sl_si91x_bt_set_performance_profile(const sl_bt_performance_profile_
  * @brief
  *   Gets BT performance profile
  * @param[out] profile
- *   BT performance profile as indicated by @ref sl_bt_performance_profile_t
+ *   BT performance profile as indicated by sl_bt_performance_profile_t
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
+sl_status_t sl_si91x_bt_get_performance_profile(sl_bt_performance_profile_t *profile);
+
 sl_status_t sl_si91x_bt_get_performance_profile(sl_bt_performance_profile_t *profile);

@@ -436,7 +436,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
     default_interface = SL_WIFI_CLIENT_INTERFACE;
   }
 
-  // Configure the interface for 5GHz band if selected
+  // Configure the interface for 5GHz band if selected (currently not supported for Si91x)
   if (config->band == SL_SI91X_WIFI_BAND_5GHZ) {
     default_interface |= SL_WIFI_5GHZ_INTERFACE;
   } else {
@@ -517,7 +517,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
     VERIFY_STATUS_AND_RETURN(status);
     is_bootup_firmware_required = false;
   } else {
-    // Initialize TA interrupt and submit RX packets
+    // Initialize NWP interrupt and submit RX packets
     sli_m4_ta_interrupt_init();
     sli_si91x_submit_rx_pkt();
   }
@@ -536,7 +536,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
 
 // Wait for card ready command response
 #ifdef SLI_SI91X_MCU_INTERFACE
-  // TA would not send card ready command response, if we call init after deinit
+  // NWP would not send card ready command response, if we call init after deinit
 
   if (get_card_ready_required()) {
     uint32_t events = si91x_host_wait_for_event(NCP_HOST_COMMON_RESPONSE_EVENT, 5000);
@@ -677,7 +677,7 @@ sl_status_t sl_si91x_driver_init(const sl_wifi_device_configuration_t *config, s
 #endif
 #ifdef SLI_SI91X_MCU_INTERFACE
   if (status == SL_STATUS_OK) {
-    /* send a notification to the TA indicating whether the M4 core is currently utilizing the XTAL as its clock source*/
+    /* send a notification to the NWP indicating whether the M4 core is currently utilizing the XTAL as its clock source*/
     sli_si91x_send_m4_xtal_usage_notification_to_ta();
   }
 #endif

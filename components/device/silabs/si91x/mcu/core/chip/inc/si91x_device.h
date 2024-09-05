@@ -3687,13 +3687,13 @@ typedef struct { /*!< (@ 0x47060000) QEI Structure */
     struct {
       __IOM unsigned int VELOCITY_VALUE_TO_COMPARE_L : 16; /*!< [15..0] For read operation :It
                                                is the velocity count to compare
-                                                       using TA firmware For
+                                                       using NWP firmware For
                                                write operation :It is the
                                                velocity value to compare with
                                                velocity count */
       __IOM unsigned int VELOCITY_VALUE_TO_COMPARE_H : 16; /*!< [31..16] For read operation :It
                                                is the velocity count to compare
-                                                       using TA firmware For
+                                                       using NWP firmware For
                                                write operation :It is the
                                                velocity value to compare with
                                                velocity count */
@@ -5894,7 +5894,7 @@ typedef struct { /*!< (@ 0x12000000) QSPI Structure */
                                                   flash mode (3).  This bit is a
                                                   mask for this interrupt. */
       __IOM unsigned int M4_AUTO_READ_OUT_range_intr_mask : 1;  /*!< [10..10] Rising interrupt
-                                                   when M4 QSPI tries to read TA
+                                                   when M4 QSPI tries to read NWP
                                                    locations in Common flash
                                                    mode (3).  This bit is a mask
                                                    for this interrupt. */
@@ -5932,7 +5932,7 @@ typedef struct { /*!< (@ 0x12000000) QSPI Structure */
                                                     interrupt. */
       __IOM unsigned int M4_AUTO_READ_OUT_RANGE_INTR_UNMASK : 1;  /*!< [10..10] Rising interrupt
                                                      when M4 QSPI tries to read
-                                                     TA locations in Common
+                                                     NWP locations in Common
                                                      flash mode (3).  This bit
                                                      is a unmask for this
                                                        interrupt. */
@@ -5962,7 +5962,7 @@ typedef struct { /*!< (@ 0x12000000) QSPI Structure */
                                            transactions in Common flash mode
                                            (3). */
       __IM unsigned int M4_AUTO_READ_OUT_RANGE_LVL : 1;       /*!< [10..10] Rising interrupt when M4
-                                             QSPI tries to read TA locations
+                                             QSPI tries to read NWP locations
                                                        in Common flash mode (3).
                                            */
       __IM unsigned int RESERVED1 : 21;                       /*!< [31..11] reserved1       */
@@ -5996,7 +5996,7 @@ typedef struct { /*!< (@ 0x12000000) QSPI Structure */
                                                        ack for this interrupt.
                                                */
       __IOM unsigned int M4_AUTO_READ_OUT_RANGE_INTR_ACK : 1; /*!< [10..10] Rising interrupt
-                                                  when M4 QSPI tries to read TA
+                                                  when M4 QSPI tries to read NWP
                                                   locations
                                                        in Common flash mode (3).
                                                   This bit is an ack for this
@@ -10651,7 +10651,7 @@ typedef struct { /*!< (@ 0x46000000) M4CLK Structure */
                                  0000 - ULP Ref Clock (generated inside M4SS
                                  based on m4ss_ref_clk_sel from NPSS) 0001 -
                                  Reserved 0010 - */
-      __IOM unsigned int M4_SOC_CLK_DIV_FAC : 6;  /*!< [9..4] Clock divison factor for TA SoC
+      __IOM unsigned int M4_SOC_CLK_DIV_FAC : 6;  /*!< [9..4] Clock divison factor for NWP SoC
                                      Clock If ta_soc_clk_enable(from NPSS) is
                                      1b0 clock is gated. Else output clock is a
                                      swallowed clock with the following
@@ -10920,7 +10920,7 @@ typedef struct { /*!< (@ 0x46000000) M4CLK Structure */
       __IM unsigned int CT_CLK_SWITCHED : 1;             /*!< [15..15] Indication from SCT Clock Dynamic
                                   mux that the switching happened */
       __IM unsigned int M4_TA_SOC_CLK_SWITCHED_SDIO : 1; /*!< [16..16] Indication
-                                                        from M4-TA Soc SDIO
+                                                        from M4-NWP Soc SDIO
                                                         Clock Dynamic mux that
                                                            the switching
                                                         happened(TBD) */
@@ -10940,14 +10940,14 @@ typedef struct { /*!< (@ 0x46000000) M4CLK Structure */
       __IM unsigned int QSPI_2_CLK_SWITCHED : 1;         /*!< [23..23] Indication from QSPI
                                                 Clock Dynamic mux that the
                                                 switching happened */
-      __IM unsigned int TASS_M4SS_64K_CLK_SWITCHED : 1;  /*!< [24..24] Indication when TA
+      __IM unsigned int TASS_M4SS_64K_CLK_SWITCHED : 1;  /*!< [24..24] Indication when NWP
                                                 accessing 2nd memory chunk of M4,
                                                 clock to Dynamic mux switching
                                                 happened      */
       __IM unsigned int CC_CLOCK_MUX_SWITCHED : 1;       /*!< [25..25] Indication from cc
                                                   clock Dynamic mux that the
                                                   switching happened */
-      __IM unsigned int TASS_M4SS_192K_CLK_SWITCHED : 1; /*!< [26..26] Indication when TA
+      __IM unsigned int TASS_M4SS_192K_CLK_SWITCHED : 1; /*!< [26..26] Indication when NWP
                                              accessing 0th memory chunk of M4,
                                              clock to Dynamic mux switching
                                              happened   */
@@ -10957,7 +10957,7 @@ typedef struct { /*!< (@ 0x46000000) M4CLK Structure */
       __IM unsigned int USART2_CLK_SWITCHED : 1;         /*!< [28..28] Indication from
                                              usart2 sclk or pclk Dynamic mux
                                              that the switching happened */
-      __IM unsigned int TASS_M4SS_64K0_CLK_SWITCHED : 1; /*!< [29..29] Indication when TA
+      __IM unsigned int TASS_M4SS_64K0_CLK_SWITCHED : 1; /*!< [29..29] Indication when NWP
                                            accessing 1st memory chunk of M4,
                                            clock to Dynamic mux switching
                                            happened */
@@ -12411,7 +12411,7 @@ typedef struct { /*!< (@ 0x24048100) MCU_FSM Structure */
       __IOM unsigned int M4ULP_RAM_RETENTION_MODE_EN_b : 1;  /*!< [4..4] RAM retention enable
                                                 for ULP M4 ram during deep sleep
                                               */
-      __IOM unsigned int TA_RAM_RETENTION_MODE_EN : 1;       /*!< [5..5] RAM retention enable for ta
+      __IOM unsigned int TA_RAM_RETENTION_MODE_EN : 1;       /*!< [5..5] RAM retention enable for NWP
                                            ram during deep sleep */
       __IOM unsigned int ULPSS_RAM_RETENTION_MODE_EN : 1;    /*!< [6..6] RAM retention enable for
                                               ulpss ram during deep sleep */
@@ -13062,7 +13062,7 @@ typedef struct { /*!< (@ 0x24048600) MCU_RET Structure */
       __IM unsigned int DISABLE_ANALOG_PERIPH : 1;            /*!< [17..17] When set, disables
                                                   analog peripherals */
       __IM unsigned int DISABLE_JTAG : 1;                     /*!< [18..18] When set, disable JTAG
-                                         interface(both M4 and TA) */
+                                         interface(both M4 and NWP) */
       __IM unsigned int DISABLE_M4SS_KH_ACCESS : 1;           /*!< [19..19] When set, disables
                                                    access to key in the key
                                                    holder from M4SS QSPI */
@@ -13599,7 +13599,7 @@ typedef struct { /*!< (@ 0x24041400) ULPCLK Structure */
   };
 
   union {
-    __IOM unsigned int ULP_TA_PERI_ISO_REG; /*!< (@ 0x00000004) ULP TA isolation register. */
+    __IOM unsigned int ULP_TA_PERI_ISO_REG; /*!< (@ 0x00000004) ULP NWP isolation register. */
 
     struct {
       __IOM unsigned int UDMA_ISO_CNTRL_b : 1;      /*!< [0..0] UDMA module isolation enable,if bit
@@ -13661,7 +13661,7 @@ typedef struct { /*!< (@ 0x24041400) ULPCLK Structure */
   };
 
   union {
-    __IOM unsigned int ULP_TA_PERI_RESET_REG; /*!< (@ 0x00000008) ULP TA peri reset
+    __IOM unsigned int ULP_TA_PERI_RESET_REG; /*!< (@ 0x00000008) ULP NWP peri reset
                                              register. */
 
     struct {
@@ -13726,7 +13726,7 @@ typedef struct { /*!< (@ 0x24041400) ULPCLK Structure */
   __IM unsigned int RESERVED[2];
 
   union {
-    __IOM unsigned int ULP_TA_CLK_GEN_REG; /*!< (@ 0x00000014) ULP TA clock
+    __IOM unsigned int ULP_TA_CLK_GEN_REG; /*!< (@ 0x00000014) ULP NWP clock
                                           generation register. */
 
     struct {
@@ -14464,7 +14464,7 @@ typedef struct { /*!< (@ 0x24043800) AUX_ADC_DAC_COMP Structure */
                                              the DAC FIFO.  */
       __IOM unsigned int DAC_FIFO_THRESHOLD : 3;  /*!< [5..3] These bits control the DAC FIFO
                                      threshold. When used by DMA, this will act
-                                     as almost full threshold. For TA, it acts
+                                     as almost full threshold. For NWP, it acts
                                      as almost empty threshold */
       __IOM unsigned int DAC_ENABLE_F : 1;        /*!< [6..6] This bit is used to enable
                                            AUX DAC controller ,valid  only when
@@ -14624,15 +14624,15 @@ typedef struct { /*!< (@ 0x24043800) AUX_ADC_DAC_COMP Structure */
                                                   compared is to be programmed
                                                   in this register. */
       __IOM unsigned int COMP_LESS_THAN_EN : 1;                    /*!< [8..8] When set, Aux ADC-DAC controller
-                                    raises an interrupt to TA when the Aux ADC
+                                    raises an interrupt to NWP when the Aux ADC
                                     output  falls below the programmed Aux ADC
                                     detection threshold. */
       __IOM unsigned int COMP_GRTR_THAN_EN : 1;                    /*!< [9..9] When set, Aux ADC-DAC controller
-                                    raises an interrupt to TA when the Aux ADC
+                                    raises an interrupt to NWP when the Aux ADC
                                     output is greater than the programmed Aux
                                     ADC detection threshold. */
       __IOM unsigned int COMP_EQ_EN : 1;                           /*!< [10..10] When set, Aux ADC-DAC controller raises
-                             an interrupt to TA when the  Aux ADC output is
+                             an interrupt to NWP when the  Aux ADC output is
                              equal to the programmed Aux ADC detection
                              threshold. */
       __IOM unsigned int ADC_DETECTION_THRESHOLD_4_UPPER_BITS : 4; /*!< [14..11] Upper 4 bits

@@ -19,7 +19,7 @@
  * @addtogroup DISABLE_UC_CONFIG Disable UC Config
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{
- * @brief Peripheral Configurations for the peripherals listed below are automatically obtained from the Universal Configurator (UC). For the Disabling Configurations of the Peripherals through UC, launch the Configuration Wizard, and select the Disable button.
+ * @brief Peripheral configurations for the peripherals listed below are automatically obtained from the Universal Configurator (UC). For the disabling configurations of the peripherals through UC, launch the Configuration Wizard and select the Disable button.
  * Peripherals and corresponding UC Names are listed below.
  * - Calendar: Calendar UC Configuration
  * - Config Timer: Config Timer UC Configuration

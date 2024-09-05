@@ -221,21 +221,33 @@ int8_t sl_si91x_button_pin_state(uint8_t pin)
 
 /***************************************************************************/ /**
 *
-* DEBOUNCE operation is based upon the theory that when multiple reads in a row
+* @brief DEBOUNCE operation is based upon the theory that when multiple reads in a row
 * return the same value, we have passed any debounce created by the mechanical
-* action of a button.  The define "DEBOUNCE" says how many reads in a row
-* should return the same value. 
+* action of a button. The define "DEBOUNCE" specifies how many reads in a row
+* should return the same value.
+*
+* Typically, software debounce is disabled by defaulting to a value of '0',
+* which will cause the preprocessor to strip out the debounce code and save
+* flash space.
+*
+* @note This is how you can configure the debounce functionality.
 *
  ******************************************************************************/
-
-//Typically, software debounce is disabled by defaulting to a value of '0'
-//which will cause the preprocessor to strip out the debounce code and save
-//flash space.
 #ifndef DEBOUNCE
 #define DEBOUNCE 500
 #endif //DEBOUNCE
 
 #if (SL_SI91x_BUTTON_COUNT > 0)
+/**
+ * @brief Internal ISR for button handling with optional debounce.
+ *
+ * This function handles the button interrupt service routine (ISR). It reads
+ * the button state and, if debounce is enabled, ensures that the state is
+ * consistent for a specified number of reads before considering it stable.
+ * If the button state has changed, it notifies the application via a callback.
+ *
+ * @param[in] pin The pin number associated with the button.
+ */
 void sl_si91x_button_internal_isr(uint8_t pin)
 {
   int8_t buttonStateNow;
@@ -248,7 +260,7 @@ void sl_si91x_button_internal_isr(uint8_t pin)
   buttonStateNow = sl_si91x_button_pin_state(pin);
 
 #if (DEBOUNCE > 0)
-  //read button until get "DEBOUNCE" number of consistent readings
+  // Read button until we get "DEBOUNCE" number of consistent readings
   for (debounce = 0; debounce < DEBOUNCE; debounce = (buttonStateNow == buttonStatePrev) ? debounce + 1 : 0) {
     buttonStatePrev = buttonStateNow;
     buttonStateNow  = sl_si91x_button_pin_state(pin);

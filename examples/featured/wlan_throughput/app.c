@@ -103,7 +103,7 @@
 #endif
 
 /*=======================================================================*/
-// TA buffer allocation parameters
+// NWP buffer allocation parameters
 /*=======================================================================*/
 
 #ifndef TX_POOL_RATIO

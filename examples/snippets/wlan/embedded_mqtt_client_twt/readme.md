@@ -468,7 +468,7 @@ The M4 processor is set in sleep mode. The M4 processor can be woken in several 
 - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
   - We can enable the Button press-based wakeup by adding the preprocessor macro "SL_SI91X_MCU_BUTTON_BASED_WAKEUP" for the example.
   - Installation of GPIO component present at Device/Si91x/MCU/Peripheral UC path is required for Button Based Wakeup.
-- Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
+- Wireless-based - When an RX packet is to be received by the NWP, the M4 processor is woken up.
   - We can enable the Wireless-wakeup by adding the preprocessor macro "SL_SI91X_MCU_WIRELESS_BASED_WAKEUP" for the example.
 
 ### Tickless Mode

@@ -50,10 +50,10 @@
  *                               the returned output. Initialized to zero
  *                               by the core.
  *
- * \retval #PSA_SUCCESS
- * \retval #PSA_ERROR_NOT_SUPPORTED
- * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
- * \retval #PSA_ERROR_CORRUPTION_DETECTED
+ * \retval PSA_SUCCESS
+ * \retval PSA_ERROR_NOT_SUPPORTED
+ * \retval PSA_ERROR_INSUFFICIENT_MEMORY
+ * \retval PSA_ERROR_CORRUPTION_DETECTED
  */
 
 psa_status_t sli_si91x_psa_generate_key_ecdh(const psa_key_attributes_t *attributes,
@@ -78,10 +78,10 @@ psa_status_t sli_si91x_psa_generate_key_ecdh(const psa_key_attributes_t *attribu
  *                              the returned output. Initialized to zero
  *                              by the core.
  *
- * \retval #PSA_SUCCESS
- * \retval #PSA_ERROR_NOT_SUPPORTED
- * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
- * \retval #PSA_ERROR_CORRUPTION_DETECTED
+ * \retval PSA_SUCCESS
+ * \retval PSA_ERROR_NOT_SUPPORTED
+ * \retval PSA_ERROR_INSUFFICIENT_MEMORY
+ * \retval PSA_ERROR_CORRUPTION_DETECTED
  */
 
 psa_status_t sli_si91x_psa_export_public_key_ecdh(const psa_key_attributes_t *attributes,
@@ -100,7 +100,7 @@ psa_status_t sli_si91x_psa_export_public_key_ecdh(const psa_key_attributes_t *at
  *
  * \param[in] alg                       The ECDH algorithm to compute
  *                                      (\c PSA_ALG_XXX value such that
- *                                      #PSA_ALG_ECDH(\p alg) is true).
+ *                                      PSA_ALG_ECDH(\p alg) is true).
  * \param[in]  attributes               The attributes of the key to use for the
  *                                      operation.
  * \param[in]  private_key              The buffer containing the private key context.
@@ -113,12 +113,12 @@ psa_status_t sli_si91x_psa_export_public_key_ecdh(const psa_key_attributes_t *at
  *                                      the returned output. Initialized to zero
  *                                      by the core.
  *
- * \retval #PSA_SUCCESS
- * \retval #PSA_ERROR_NOT_SUPPORTED
- * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
- * \retval #PSA_ERROR_CORRUPTION_DETECTED
- * \retval #PSA_ERROR_BUFFER_TOO_SMALL
- *         The size of the \p shared_secret buffer is too small.
+ * \retval PSA_SUCCESS
+ * \retval PSA_ERROR_NOT_SUPPORTED
+ * \retval PSA_ERROR_INSUFFICIENT_MEMORY
+ * \retval PSA_ERROR_CORRUPTION_DETECTED
+ * \retval PSA_ERROR_BUFFER_TOO_SMALL
+ *         The size of the \p shared_secret buffer is small.
  */
 
 psa_status_t sli_si91x_psa_ecdh_key_agreement(psa_algorithm_t alg,

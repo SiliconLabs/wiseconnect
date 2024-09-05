@@ -366,7 +366,7 @@ rsi_error_t RSI_SSPI_RegisterCallBacks(RSI_SSPI_HANDLE_T pSPIHandle,
 /*==============================================*/
 /** 
  * @fn         void RSI_Enable_Hostspi_Intf_to_M4(void)
- * @brief      This API is used to enable HOST SPI to MCSS which is defaultly enabled for TA.
+ * @brief      This API is used to enable HOST SPI to MCSS which is defaultly enabled for NWP.
  * @return     none
  */
 void RSI_Enable_Hostspi_Intf_to_M4(void)

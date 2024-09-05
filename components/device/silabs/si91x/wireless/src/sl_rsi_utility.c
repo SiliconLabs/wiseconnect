@@ -537,9 +537,9 @@ void convert_performance_profile_to_power_save_command(sl_si91x_performance_prof
 
 /*********************************************************************************************
  * @brief
- * 	 An utility function powersave request to TA firmware. Host has to disable powersave before sending powersave mode
+ * 	 An utility function powersave request to NWP firmware. Host has to disable powersave before sending powersave mode
  * @param profile
- *   performance profile which needs to be converted to its equivalent si91x_power_save_request structure and send to TA
+ *   performance profile which needs to be converted to its equivalent si91x_power_save_request structure and send to NWP
  * @return
  * 	 sl_status_t
  *********************************************************************************************/
@@ -576,7 +576,7 @@ sl_status_t sl_si91x_send_power_save_request(sl_si91x_performance_profile_t prof
   return status;
 }
 
-//In Access point mode TA only supports No Encryption, TKIP and CCMP encryptions.
+//In Access point mode NWP only supports No Encryption, TKIP and CCMP encryptions.
 sl_status_t convert_sl_wifi_to_sl_si91x_encryption(sl_wifi_encryption_t encryption_mode, uint8_t *encryption_request)
 {
   switch (encryption_mode) {
@@ -1136,7 +1136,7 @@ void print_80211_packet(const uint8_t *packet, uint32_t packet_length, uint16_t 
                packet[12],
                packet[13],
                packet[14],
-               packet[15]); /* Addr2/TA */
+               packet[15]); /* Addr2/NWP */
   sl_debug_log("%02x:%02x:%02x:%02x:%02x:%02x | ",
                packet[16],
                packet[17],

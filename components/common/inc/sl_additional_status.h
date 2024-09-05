@@ -3,7 +3,7 @@
 * @brief 
 *******************************************************************************
 * # License
-* <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -25,88 +25,102 @@
 
 // Additional generic errors
 #define SL_STATUS_OS_OPERATION_FAILURE            ((sl_status_t)0x0051) ///< OS operation failed.
-#define SL_STATUS_BOOTUP_OPTIONS_NOT_SAVED        ((sl_status_t)0x0052) ///< Bootup options not saved.
-#define SL_STATUS_BOOTUP_OPTIONS_CHECKSUM_FAILURE ((sl_status_t)0x0053) ///< Bootup options checksum failed.
-#define SL_STATUS_BOOTLOADER_VERSION_MISMATCH     ((sl_status_t)0x0054) ///< Bootloader version mismatch.
-#define SL_STATUS_WAITING_FOR_BOARD_READY         ((sl_status_t)0x0055) ///< Waiting for board ready.
-#define SL_STATUS_VALID_FIRMWARE_NOT_PRESENT      ((sl_status_t)0x0056) ///< Invalid firmware.
-#define SL_STATUS_INVALID_OPTION                  ((sl_status_t)0x0057) ///< Invalid option.
-#define SL_STATUS_SPI_BUSY                        ((sl_status_t)0x0058) ///< SPI busy.
-#define SL_STATUS_CARD_READY_TIMEOUT              ((sl_status_t)0x0059) ///< Card ready not received.
-#define SL_STATUS_FW_LOAD_OR_UPGRADE_TIMEOUT      ((sl_status_t)0x005A) ///< Firmware upgrade timed out.
+#define SL_STATUS_BOOTUP_OPTIONS_NOT_SAVED        ((sl_status_t)0x0052) ///< Bootup options were not saved.
+#define SL_STATUS_BOOTUP_OPTIONS_CHECKSUM_FAILURE ((sl_status_t)0x0053) ///< Bootup options checksum validation failed.
+#define SL_STATUS_BOOTLOADER_VERSION_MISMATCH \
+  ((sl_status_t)0x0054) ///< Bootloader version does not match expected version.
+#define SL_STATUS_WAITING_FOR_BOARD_READY    ((sl_status_t)0x0055) ///< Waiting for the board to be ready.
+#define SL_STATUS_VALID_FIRMWARE_NOT_PRESENT ((sl_status_t)0x0056) ///< No valid firmware present.
+#define SL_STATUS_INVALID_OPTION             ((sl_status_t)0x0057) ///< Provided option is invalid.
+#define SL_STATUS_SPI_BUSY                   ((sl_status_t)0x0058) ///< SPI is currently busy.
+#define SL_STATUS_CARD_READY_TIMEOUT         ((sl_status_t)0x0059) ///< Timeout waiting for card to be ready.
+#define SL_STATUS_FW_LOAD_OR_UPGRADE_TIMEOUT ((sl_status_t)0x005A) ///< Firmware load or upgrade operation timed out.
 
 // Additional Wi-Fi errors
-#define SL_STATUS_WIFI_DOES_NOT_EXIST               ((sl_status_t)0x0B21) ///< Does not exist.
-#define SL_STATUS_WIFI_NOT_AUTHENTICATED            ((sl_status_t)0x0B22) ///< Not authenticated.
-#define SL_STATUS_WIFI_NOT_KEYED                    ((sl_status_t)0x0B23) ///< Not keyed.
-#define SL_STATUS_WIFI_IOCTL_FAIL                   ((sl_status_t)0x0B24) ///< IOCTL fail.
-#define SL_STATUS_WIFI_BUFFER_UNAVAILABLE_TEMPORARY ((sl_status_t)0x0B25) ///< Buffer unavailable temporarily.
-#define SL_STATUS_WIFI_BUFFER_UNAVAILABLE_PERMANENT ((sl_status_t)0x0B26) ///< Buffer unavailable permanently.
-#define SL_STATUS_WIFI_WPS_PBC_OVERLAP              ((sl_status_t)0x0B27) ///< WPS PBC overlap.
-#define SL_STATUS_WIFI_CONNECTION_LOST              ((sl_status_t)0x0B28) ///< Connection lost.
-#define SL_STATUS_WIFI_OUT_OF_EVENT_HANDLER_SPACE   ((sl_status_t)0x0B29) ///< Cannot add extra event handler.
-#define SL_STATUS_WIFI_SEMAPHORE_ERROR              ((sl_status_t)0x0B2A) ///< Error manipulating a semaphore.
+#define SL_STATUS_WIFI_DOES_NOT_EXIST    ((sl_status_t)0x0B21) ///< WiFi network does not exist.
+#define SL_STATUS_WIFI_NOT_AUTHENTICATED ((sl_status_t)0x0B22) ///< WiFi network not authenticated.
+#define SL_STATUS_WIFI_NOT_KEYED \
+  ((sl_status_t)0x0B23) ///< Device attempts to connect to a secured WiFi network without providing the correct security key or credentials.
+#define SL_STATUS_WIFI_IOCTL_FAIL                   ((sl_status_t)0x0B24) ///< Input/Output Control operation failed.
+#define SL_STATUS_WIFI_BUFFER_UNAVAILABLE_TEMPORARY ((sl_status_t)0x0B25) ///< WiFi buffer temporarily unavailable.
+#define SL_STATUS_WIFI_BUFFER_UNAVAILABLE_PERMANENT ((sl_status_t)0x0B26) ///< WiFi buffer permanently unavailable.
+#define SL_STATUS_WIFI_WPS_PBC_OVERLAP              ((sl_status_t)0x0B27) ///< WPS PBC overlap detected.
+#define SL_STATUS_WIFI_CONNECTION_LOST              ((sl_status_t)0x0B28) ///< WiFi connection lost.
+#define SL_STATUS_WIFI_OUT_OF_EVENT_HANDLER_SPACE   ((sl_status_t)0x0B29) ///< No space for additional event handlers.
+#define SL_STATUS_WIFI_SEMAPHORE_ERROR              ((sl_status_t)0x0B2A) ///< Semaphore manipulation error.
 #define SL_STATUS_WIFI_FLOW_CONTROLLED              ((sl_status_t)0x0B2B) ///< Packet retrieval cancelled due to flow control.
 #define SL_STATUS_WIFI_NO_CREDITS                   ((sl_status_t)0x0B2C) ///< Packet retrieval cancelled due to lack of bus credits.
 #define SL_STATUS_WIFI_NO_PACKET_TO_SEND \
   ((sl_status_t)0x0B2D) ///< Packet retrieval cancelled due to no pending packets.
-#define SL_STATUS_WIFI_CORE_CLOCK_NOT_ENABLED   ((sl_status_t)0x0B2E) ///< Core disabled due to no clock.
-#define SL_STATUS_WIFI_CORE_IN_RESET            ((sl_status_t)0x0B2F) ///< Core disabled - in reset.
-#define SL_STATUS_WIFI_UNSUPPORTED              ((sl_status_t)0x0B30) ///< Unsupported function.
-#define SL_STATUS_WIFI_BUS_WRITE_REGISTER_ERROR ((sl_status_t)0x0B31) ///< Error writing to WLAN register.
-#define SL_STATUS_WIFI_SDIO_BUS_UP_FAIL         ((sl_status_t)0x0B32) ///< SDIO bus failed to come up.
-#define SL_STATUS_WIFI_JOIN_IN_PROGRESS         ((sl_status_t)0x0B33) ///< Join not finished yet.
-#define SL_STATUS_WIFI_NETWORK_NOT_FOUND        ((sl_status_t)0x0B34) ///< Specified network was not found.
-#define SL_STATUS_WIFI_INVALID_JOIN_STATUS      ((sl_status_t)0x0B35) ///< Join status error.
-#define SL_STATUS_WIFI_UNKNOWN_INTERFACE        ((sl_status_t)0x0B36) ///< Unknown interface specified.
-#define SL_STATUS_WIFI_SDIO_RX_FAIL             ((sl_status_t)0x0B37) ///< Error during SDIO receive.
-#define SL_STATUS_WIFI_HWTAG_MISMATCH           ((sl_status_t)0x0B38) ///< Hardware tag header corrupt.
-#define SL_STATUS_WIFI_RX_BUFFER_ALLOC_FAIL     ((sl_status_t)0x0B39) ///< Failed to allocate a buffer to receive into.
-#define SL_STATUS_WIFI_BUS_READ_REGISTER_ERROR  ((sl_status_t)0x0B3A) ///< Error reading a bus hardware register.
-#define SL_STATUS_WIFI_THREAD_CREATE_FAILED     ((sl_status_t)0x0B3B) ///< Failed to create a new thread.
-#define SL_STATUS_WIFI_QUEUE_ERROR              ((sl_status_t)0x0B3C) ///< Error manipulating a queue.
+#define SL_STATUS_WIFI_CORE_CLOCK_NOT_ENABLED ((sl_status_t)0x0B2E) ///< WiFi core disabled due to no clock.
+#define SL_STATUS_WIFI_CORE_IN_RESET          ((sl_status_t)0x0B2F) ///< WiFi core disabled because it is in reset state.
+#define SL_STATUS_WIFI_UNSUPPORTED            ((sl_status_t)0x0B30) ///< Unsupported WiFi function.
+#define SL_STATUS_WIFI_BUS_WRITE_REGISTER_ERROR \
+  ((sl_status_t)0x0B31)                                          ///< Error occurred while writing to the WLAN register.
+#define SL_STATUS_WIFI_SDIO_BUS_UP_FAIL    ((sl_status_t)0x0B32) ///< SDIO bus failed to initialize.
+#define SL_STATUS_WIFI_JOIN_IN_PROGRESS    ((sl_status_t)0x0B33) ///< WiFi join operation is still in progress.
+#define SL_STATUS_WIFI_NETWORK_NOT_FOUND   ((sl_status_t)0x0B34) ///< Specified WiFi network was not found.
+#define SL_STATUS_WIFI_INVALID_JOIN_STATUS ((sl_status_t)0x0B35) ///< Invalid status encountered during WiFi join.
+#define SL_STATUS_WIFI_UNKNOWN_INTERFACE   ((sl_status_t)0x0B36) ///< Unknown WiFi interface specified.
+#define SL_STATUS_WIFI_SDIO_RX_FAIL        ((sl_status_t)0x0B37) ///< Error occurred during SDIO receive operation.
+#define SL_STATUS_WIFI_HWTAG_MISMATCH      ((sl_status_t)0x0B38) ///< Hardware tag header is corrupt.
+#define SL_STATUS_WIFI_RX_BUFFER_ALLOC_FAIL \
+  ((sl_status_t)0x0B39) ///< Failed to allocate a buffer for WiFi receive operation.
+#define SL_STATUS_WIFI_BUS_READ_REGISTER_ERROR \
+  ((sl_status_t)0x0B3A) ///< Error occurred while reading a bus hardware register.
+#define SL_STATUS_WIFI_THREAD_CREATE_FAILED ((sl_status_t)0x0B3B) ///< Failed to create a new WiFi thread.
+#define SL_STATUS_WIFI_QUEUE_ERROR          ((sl_status_t)0x0B3C) ///< Error occurred while manipulating a WiFi queue.
 #define SL_STATUS_WIFI_BUFFER_POINTER_MOVE_ERROR \
-  ((sl_status_t)0x0B3D)                                            ///< Error moving the current pointer of a buffer.
-#define SL_STATUS_WIFI_BUFFER_SIZE_SET_ERROR ((sl_status_t)0x0B3E) ///< Error setting size of packet buffer.
+  ((sl_status_t)0x0B3D) ///< Error occurred while moving the current pointer of a buffer.
+
+#define SL_STATUS_WIFI_BUFFER_SIZE_SET_ERROR \
+  ((sl_status_t)0x0B3E) ///< Error occurred while setting the size of the packet buffer.
+
 #define SL_STATUS_WIFI_THREAD_STACK_NULL \
-  ((sl_status_t)0x0B3F) ///< Null stack pointer passed when non null was required.
-#define SL_STATUS_WIFI_THREAD_DELETE_FAIL    ((sl_status_t)0x0B40) ///< Error deleting a thread.
-#define SL_STATUS_WIFI_SLEEP_ERROR           ((sl_status_t)0x0B41) ///< Failed to put a thread to sleep.
-#define SL_STATUS_WIFI_BUFFER_ALLOC_FAIL     ((sl_status_t)0x0B42) ///< Failed to allocate a packet buffer.
-#define SL_STATUS_WIFI_INTERFACE_NOT_UP      ((sl_status_t)0x0B44) ///< Requested interface is not active.
-#define SL_STATUS_WIFI_DELAY_TOO_LONG        ((sl_status_t)0x0B45) ///< Requested delay is too long.
-#define SL_STATUS_WIFI_INVALID_DUTY_CYCLE    ((sl_status_t)0x0B46) ///< Duty cycle is outside limit 0 to 0.
-#define SL_STATUS_WIFI_PMK_WRONG_LENGTH      ((sl_status_t)0x0B47) ///< Returned pmk was the wrong length.
-#define SL_STATUS_WIFI_UNKNOWN_SECURITY_TYPE ((sl_status_t)0x0B48) ///< AP security type was unknown.
-#define SL_STATUS_WIFI_WEP_NOT_ALLOWED       ((sl_status_t)0x0B49) ///< AP not allowed to use WEP - use Open instead.
-#define SL_STATUS_WIFI_WPA_KEYLEN_BAD        ((sl_status_t)0x0B4A) ///< WPA / WPA2 key length must be between 8 & 64 bytes.
-#define SL_STATUS_WIFI_FILTER_NOT_FOUND      ((sl_status_t)0x0B4B) ///< Specified filter id not found.
-#define SL_STATUS_WIFI_SPI_ID_READ_FAIL      ((sl_status_t)0x0B4C) ///< Failed to read 0xfeedbead SPI id from chip.
-#define SL_STATUS_WIFI_SPI_SIZE_MISMATCH     ((sl_status_t)0x0B4D) ///< Mismatch in sizes between SPI and SDPCM header.
+  ((sl_status_t)0x0B3F) ///< Null stack pointer passed when a non-null pointer was required.
+#define SL_STATUS_WIFI_THREAD_DELETE_FAIL ((sl_status_t)0x0B40) ///< Error occurred while deleting a WiFi thread.
+#define SL_STATUS_WIFI_SLEEP_ERROR        ((sl_status_t)0x0B41) ///< Failed to put a WiFi thread to sleep.
+#define SL_STATUS_WIFI_BUFFER_ALLOC_FAIL  ((sl_status_t)0x0B42) ///< Failed to allocate a WiFi packet buffer.
+#define SL_STATUS_WIFI_INTERFACE_NOT_UP   ((sl_status_t)0x0B44) ///< The requested WiFi interface is not active.
+#define SL_STATUS_WIFI_DELAY_TOO_LONG     ((sl_status_t)0x0B45) ///< The requested delay for WiFi operation is too long.
+#define SL_STATUS_WIFI_INVALID_DUTY_CYCLE \
+  ((sl_status_t)0x0B46) ///< The specified WiFi duty cycle is outside the valid range.
+#define SL_STATUS_WIFI_PMK_WRONG_LENGTH \
+  ((sl_status_t)0x0B47) ///< The returned Pairwise Master Key (PMK) length is incorrect.
+#define SL_STATUS_WIFI_UNKNOWN_SECURITY_TYPE \
+  ((sl_status_t)0x0B48) ///< The security type of the WiFi Access Point is unknown.
+#define SL_STATUS_WIFI_WEP_NOT_ALLOWED \
+  ((sl_status_t)0x0B49) ///< WEP security is not allowed; use Open security instead.
+#define SL_STATUS_WIFI_WPA_KEYLEN_BAD    ((sl_status_t)0x0B4A) ///< WPA/WPA2 key length must be between 8 and 64 bytes.
+#define SL_STATUS_WIFI_FILTER_NOT_FOUND  ((sl_status_t)0x0B4B) ///< The specified WiFi filter ID was not found.
+#define SL_STATUS_WIFI_SPI_ID_READ_FAIL  ((sl_status_t)0x0B4C) ///< Failed to read the SPI ID (0xfeedbead) from the chip.
+#define SL_STATUS_WIFI_SPI_SIZE_MISMATCH ((sl_status_t)0x0B4D) ///< Size mismatch between SPI and SDPCM header.
 #define SL_STATUS_WIFI_ADDRESS_ALREADY_REGISTERED \
-  ((sl_status_t)0x0B4E) ///< Attempt to register a multicast address twice.
-#define SL_STATUS_WIFI_SDIO_RETRIES_EXCEEDED     ((sl_status_t)0x0B4F) ///< SDIO transfer failed too many times.
-#define SL_STATUS_WIFI_NULL_PTR_ARG              ((sl_status_t)0x0B50) ///< Null Pointer argument passed to function.
-#define SL_STATUS_WIFI_THREAD_FINISH_FAIL        ((sl_status_t)0x0B51) ///< Error deleting a thread.
-#define SL_STATUS_WIFI_WAIT_ABORTED              ((sl_status_t)0x0B52) ///< Semaphore/Mutex wait has been aborted.
-#define SL_STATUS_WIFI_QUEUE_MESSAGE_UNALIGNED   ((sl_status_t)0x0B53) ///< Unaligned message in the queue.
-#define SL_STATUS_WIFI_MUTEX_ERROR               ((sl_status_t)0x0B54) ///< Error while Mutex operation.
-#define SL_STATUS_WIFI_SECURE_LINK_DECRYPT_ERROR ((sl_status_t)0x0B57) ///< Error while decryption over secure link.
+  ((sl_status_t)0x0B4E) ///< Attempted to register a multicast address that is already registered.
+#define SL_STATUS_WIFI_SDIO_RETRIES_EXCEEDED \
+  ((sl_status_t)0x0B4F) ///< SDIO transfer failed after exceeding the maximum number of retries.
+#define SL_STATUS_WIFI_NULL_PTR_ARG            ((sl_status_t)0x0B50) ///< Null pointer argument passed to a function.
+#define SL_STATUS_WIFI_THREAD_FINISH_FAIL      ((sl_status_t)0x0B51) ///< Error occurred while attempting to delete a thread.
+#define SL_STATUS_WIFI_WAIT_ABORTED            ((sl_status_t)0x0B52) ///< Semaphore or mutex wait operation was aborted.
+#define SL_STATUS_WIFI_QUEUE_MESSAGE_UNALIGNED ((sl_status_t)0x0B53) ///< Unaligned message found in the queue.
+#define SL_STATUS_WIFI_MUTEX_ERROR             ((sl_status_t)0x0B54) ///< Error occurred during a mutex operation.
+#define SL_STATUS_WIFI_SECURE_LINK_DECRYPT_ERROR \
+  ((sl_status_t)0x0B57) ///< Error occurred during decryption over a secure link.
 #define SL_STATUS_WIFI_SECURE_LINK_KEY_RENEGOTIATION_ERROR \
-  ((sl_status_t)0x0B59) ///< Error while renegotiation of key over secure link.
-#define SL_STATUS_WIFI_INVALID_OPERMODE          ((sl_status_t)0x0B60) ///< Invalid opermode provided.
-#define SL_STATUS_WIFI_INVALID_ENCRYPTION_METHOD ((sl_status_t)0x0B61) ///< Invalid security encryption method provided.
+  ((sl_status_t)0x0B59) ///< Error occurred during key renegotiation over a secure link.
+#define SL_STATUS_WIFI_INVALID_OPERMODE          ((sl_status_t)0x0B60) ///< Invalid operation mode provided.
+#define SL_STATUS_WIFI_INVALID_ENCRYPTION_METHOD ((sl_status_t)0x0B61) ///< Invalid encryption method provided.
 
 // Si91X Crypto errors
-#define SL_STATUS_TRNG_DUPLICATE_ENTROPY ((sl_status_t)0x0B62) ///< TRNG duplicate elements error.
+#define SL_STATUS_TRNG_DUPLICATE_ENTROPY ((sl_status_t)0x0B62) ///< Error due to duplicate entropy elements in TRNG.
 
 // Si91X Wi-Fi transceiver error codes
-#define SL_STATUS_TRANSCEIVER_INVALID_MAC_ADDRESS  ((sl_status_t)0x0B63) ///< Invalid MAC address provided
-#define SL_STATUS_TRANSCEIVER_INVALID_QOS_PRIORITY ((sl_status_t)0x0B64) ///< Invalid QOS priority provided
-#define SL_STATUS_TRANSCEIVER_INVALID_CHANNEL      ((sl_status_t)0x0B65) ///< Invalid channel provided
-#define SL_STATUS_TRANSCEIVER_INVALID_DATA_RATE    ((sl_status_t)0x0B66) ///< Invalid data rate provided
+#define SL_STATUS_TRANSCEIVER_INVALID_MAC_ADDRESS  ((sl_status_t)0x0B63) ///< Provided MAC address is invalid.
+#define SL_STATUS_TRANSCEIVER_INVALID_QOS_PRIORITY ((sl_status_t)0x0B64) ///< Provided QoS priority is invalid.
+#define SL_STATUS_TRANSCEIVER_INVALID_CHANNEL      ((sl_status_t)0x0B65) ///< Provided channel is invalid.
+#define SL_STATUS_TRANSCEIVER_INVALID_DATA_RATE    ((sl_status_t)0x0B66) ///< Provided data rate is invalid.
 #define SL_STATUS_TRANSCEIVER_INVALID_CONFIG \
-  ((sl_status_t)0x0B67) ///< Invalid transceiver configuration parameters provided
+  ((sl_status_t)0x0B67) ///< Provided transceiver configuration parameters are invalid.
 
 // Si91X Crypto Firmware Errors
 #define SL_STATUS_CRYPTO_INVALID_PARAMETER \
@@ -117,185 +131,190 @@
 // Si91X Wi-Fi Firmware errors
 #define SL_STATUS_SI91X_SCAN_ISSUED_IN_ASSOCIATED_STATE \
   ((sl_status_t)0x10002) ///< Scan command issued while device is already associated with an access point.
-#define SL_STATUS_SI91X_NO_AP_FOUND ((sl_status_t)0x10003) ///< No AP found.
+#define SL_STATUS_SI91X_NO_AP_FOUND ((sl_status_t)0x10003) ///< No access point found.
 #define SL_STATUS_SI91X_INVALID_PSK_IN_WEP_SECURITY \
-  ((sl_status_t)0x10004) ///< Wrong PSK is issued while the device client tries to join an access point with WEP security enabled.
-#define SL_STATUS_SI91X_INVALID_BAND ((sl_status_t)0x10005) ///< Invalid band.
-#define SL_STATUS_SI91X_UNASSOCIATED ((sl_status_t)0x10006) ///< Association not done or in unassociated state.
+  ((sl_status_t)0x10004) ///< Incorrect PSK provided while trying to join an access point with WEP security enabled.
+#define SL_STATUS_SI91X_INVALID_BAND ((sl_status_t)0x10005) ///< Invalid band specified.
+#define SL_STATUS_SI91X_UNASSOCIATED \
+  ((sl_status_t)0x10006) ///< Device is not associated or is in an unassociated state.
 #define SL_STATUS_SI91X_DEAUTHENTICATION_RECEIVED_FROM_AP \
-  ((sl_status_t)0x10008) ///< De-authentication received from AP.
+  ((sl_status_t)0x10008) ///< De-authentication received from access point.
 #define SL_STATUS_SI91X_ASSOCIATION_FAILED \
-  ((sl_status_t)0x10009)                                       ///< Failed to associate to access point during "Join".
-#define SL_STATUS_SI91X_INVALID_CHANNEL ((sl_status_t)0x1000A) ///< Invalid channel.
+  ((sl_status_t)0x10009) ///< Failed to associate with the access point during "Join".
+#define SL_STATUS_SI91X_INVALID_CHANNEL ((sl_status_t)0x1000A) ///< Invalid channel specified.
 #define SL_STATUS_SI91X_JOIN_AUTHENTICATION_FAILED \
-  ((sl_status_t)0x1000E) ///< Authentication failure during "Join". Unable to find AP during join which was found during scan.
-#define SL_STATUS_SI91X_BEACON_MISSED_FROM_AP_DURING_JOIN ((sl_status_t)0x1000F) ///< Missed beacon from AP during join.
+  ((sl_status_t)0x1000E) ///< Authentication failure during "Join". Unable to find access point during join which was found during scan.
+#define SL_STATUS_SI91X_BEACON_MISSED_FROM_AP_DURING_JOIN \
+  ((sl_status_t)0x1000F) ///< Missed beacon from access point during join.
 #define SL_STATUS_SI91X_INVALID_MAC_SUPPLIED \
   ((sl_status_t)0x10013) ///< Non-existent MAC address supplied in "Disassociate" command.
-#define SL_STATUS_SI91X_EAP_CONFIG_NOT_DONE ((sl_status_t)0x10014) ///< EAP configuration is not done.
+#define SL_STATUS_SI91X_EAP_CONFIG_NOT_DONE ((sl_status_t)0x10014) ///< EAP configuration is not completed.
 #define SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE \
-  ((sl_status_t)0x10015) ///< Memory allocation failed or Store configuration check sum failed.
+  ((sl_status_t)0x10015) ///< Memory allocation failed or store configuration checksum failed.
 #define SL_STATUS_SI91X_INSUFFICIENT_INFO \
-  ((sl_status_t)0x10016) ///< Information is wrong or insufficient in join command.
-#define SL_STATUS_SI91X_NOT_AP_INTERFACE ((sl_status_t)0x10017) ///< Not an AP interface.
+  ((sl_status_t)0x10016) ///< Insufficient or incorrect information provided in join command.
+#define SL_STATUS_SI91X_NOT_AP_INTERFACE ((sl_status_t)0x10017) ///< Not an access point interface.
 #define SL_STATUS_SI91X_INVALID_PUSH_BUTTON_SEQUENCE \
-  ((sl_status_t)0x10018) ///< Push button command given before the expiry of previous push button command.
-#define SL_STATUS_SI91X_REJOIN_FAILURE          ((sl_status_t)0x10019) ///< Access point not found. Rejoin failure.
-#define SL_STATUS_SI91X_FREQUENCY_NOT_SUPPORTED ((sl_status_t)0x1001A) ///< Frequency not supported.
-#define SL_STATUS_SI91X_INVALID_OPERMODE        ((sl_status_t)0x1001B) ///< Invalid opermode.
+  ((sl_status_t)0x10018) ///< Push button command issued before the expiry of the previous push button command.
+#define SL_STATUS_SI91X_REJOIN_FAILURE          ((sl_status_t)0x10019) ///< Rejoin failure: Access point not found.
+#define SL_STATUS_SI91X_FREQUENCY_NOT_SUPPORTED ((sl_status_t)0x1001A) ///< Operation failed: Frequency not supported.
+#define SL_STATUS_SI91X_INVALID_OPERMODE        ((sl_status_t)0x1001B) ///< Operation failed: Invalid operation mode.
 #define SL_STATUS_SI91X_EAP_CONFIG_FAILED       ((sl_status_t)0x1001C) ///< EAP configuration failed.
 #define SL_STATUS_SI91X_P2P_CONFIG_FAILED       ((sl_status_t)0x1001D) ///< P2P configuration failed.
 #define SL_STATUS_SI91X_GROUP_OWNER_NEGOTIATION_FAILED \
-  ((sl_status_t)0x1001E) ///< Unable to start Group Owner negotiation.
-#define SL_STATUS_SI91X_JOIN_TIMEOUT                   ((sl_status_t)0x10020) ///< Join timeout.
-#define SL_STATUS_SI91X_COMMAND_GIVEN_IN_INVALID_STATE ((sl_status_t)0x10021) ///< Command given in incorrect state.
+  ((sl_status_t)0x1001E) ///< Failed to start Group Owner negotiation.
+#define SL_STATUS_SI91X_JOIN_TIMEOUT                   ((sl_status_t)0x10020) ///< Join operation timed out.
+#define SL_STATUS_SI91X_COMMAND_GIVEN_IN_INVALID_STATE ((sl_status_t)0x10021) ///< Command issued in an invalid state.
 #define SL_STATUS_SI91X_INVALID_QUERY_GO_PARAMS \
-  ((sl_status_t)0x10022) ///< Query GO parameters issued in incorrect operating mode.
-#define SL_STATUS_SI91X_ACCESS_POINT_FAILED ((sl_status_t)0x10023) ///< Unable to form access point.
-#define SL_STATUS_SI91X_INVALID_SCAN_INFO \
-  ((sl_status_t)0x10024) ///< Wrong scan input parameters supplied to "Scan" command.
+  ((sl_status_t)0x10022) ///< Invalid parameters for Query GO in the current operating mode.
+#define SL_STATUS_SI91X_ACCESS_POINT_FAILED ((sl_status_t)0x10023) ///< Failed to form access point.
+#define SL_STATUS_SI91X_INVALID_SCAN_INFO   ((sl_status_t)0x10024) ///< Invalid scan input parameters.
 #define SL_STATUS_SI91X_COMMAND_ISSUED_IN_REJOIN_STATE \
-  ((sl_status_t)0x10025) ///< Command issued during re-join in progress.
-#define SL_STATUS_SI91X_WRONG_PARAMETERS                  ((sl_status_t)0x10026) ///< Wrong parameters the command request.
-#define SL_STATUS_SI91X_PROVISION_DISCOVERY_FAILED_IN_P2P ((sl_status_t)0x10027) ///< Provision discovery failed in P2P.
+  ((sl_status_t)0x10025)                                        ///< Command issued during re-join operation.
+#define SL_STATUS_SI91X_WRONG_PARAMETERS ((sl_status_t)0x10026) ///< Incorrect parameters provided for the command.
+#define SL_STATUS_SI91X_PROVISION_DISCOVERY_FAILED_IN_P2P \
+  ((sl_status_t)0x10027) ///< Provision discovery failed in P2P mode.
 #define SL_STATUS_SI91X_INVALID_PSK_LENGTH \
   ((sl_status_t)0x10028) ///< PSK length less than 8 bytes or more than 63 bytes.
 #define SL_STATUS_SI91X_FAILED_TO_CLEAR_OR_SET_EAP_CERTIFICATE \
   ((sl_status_t)0x10029) ///< Failed to clear or to set the Enterprise Certificate (Set Certificate).
-#define SL_STATUS_SI91X_P2P_GO_NEGOTIATED_FAILED ((sl_status_t)0x1002A) ///< P2P Go negotiation failed.
+#define SL_STATUS_SI91X_P2P_GO_NEGOTIATED_FAILED ((sl_status_t)0x1002A) ///< P2P Group Owner negotiation failed.
 #define SL_STATUS_SI91X_ASSOCIATION_TIMEOUT_IN_P2P_WPS_MODE \
   ((sl_status_t)0x1002B) ///< Association between nodes failed in P2P WPS mode due to timeout.
 #define SL_STATUS_SI91X_COMMAND_ISSUED_WHILE_INTERNAL_OPERATION \
-  ((sl_status_t)0x1002C) ///< If a command is issued by the Host when the device is internally executing auto-join or auto-create.
-#define SL_STATUS_SI91X_INVALID_WEP_KEY_LEN        ((sl_status_t)0x1002D) ///< WEP key is of wrong length.
-#define SL_STATUS_SI91X_ICMP_REQUEST_TIMEOUT_ERROR ((sl_status_t)0x1002E) ///< ICMP request timeout error.
+  ((sl_status_t)0x1002C) ///< Command issued by the Host while the device is executing an internal operation (e.g., auto-join or auto-create).
+#define SL_STATUS_SI91X_INVALID_WEP_KEY_LEN        ((sl_status_t)0x1002D) ///< Invalid WEP key length.
+#define SL_STATUS_SI91X_ICMP_REQUEST_TIMEOUT_ERROR ((sl_status_t)0x1002E) ///< ICMP request timed out.
 #define SL_STATUS_SI91X_ICMP_DATA_SIZE_EXCEED_MAX_LIMIT \
-  ((sl_status_t)0x1002F) ///< ICMP data size exceeds maximum limit.
+  ((sl_status_t)0x1002F) ///< ICMP data size exceeds the maximum limit.
 #define SL_STATUS_SI91X_SEND_DATA_PACKET_EXCEED_LIMIT \
-  ((sl_status_t)0x10030) ///< Send data packet exceeded the limit or length that is mentioned (or) MQTT publish data and publish data length mismatched (or) MQTT Send data packet exceeded the limit.
+  ((sl_status_t)0x10030) ///< Data packet size exceeded the limit, MQTT published the data and length mismatched, or MQTT send data packet exceeded the limit.
 #define SL_STATUS_SI91X_ARP_CACHE_NOT_FOUND  ((sl_status_t)0x10031) ///< ARP cache entry not found.
-#define SL_STATUS_SI91X_UART_COMMAND_TIMEOUT ((sl_status_t)0x10032) ///< UART command timeout happened.
+#define SL_STATUS_SI91X_UART_COMMAND_TIMEOUT ((sl_status_t)0x10032) ///< UART command timed out.
 #define SL_STATUS_SI91X_FIXED_DATA_RATE_NOT_SUPPORTED_BY_AP \
-  ((sl_status_t)0x10033) ///< Fixed data rate is not supported by connecting AP.
+  ((sl_status_t)0x10033) ///< Fixed data rate not supported by the connected AP.
 #define SL_STATUS_SI91X_USERNAME_PASSWORD_CLIENTID_TOPIC_MAX_LEN \
-  ((sl_status_t)0x10036) ///< Maximum length exceeded of username/password/client_id/topic in MQTT.
-#define SL_STATUS_SI91X_INVALID_WPS_PIN     ((sl_status_t)0x10037) ///< Wrong WPS PIN.
-#define SL_STATUS_SI91X_INVALID_WPS_PIN_LEN ((sl_status_t)0x10038) ///< Wrong WPS PIN length.
-#define SL_STATUS_SI91X_INVALID_PMK_LEN     ((sl_status_t)0x10039) ///< Wrong PMK length.
+  ((sl_status_t)0x10036) ///< Maximum length exceeded for username, password, client ID, or topic in MQTT.
+#define SL_STATUS_SI91X_INVALID_WPS_PIN     ((sl_status_t)0x10037) ///< Invalid WPS PIN.
+#define SL_STATUS_SI91X_INVALID_WPS_PIN_LEN ((sl_status_t)0x10038) ///< Invalid WPS PIN length.
+#define SL_STATUS_SI91X_INVALID_PMK_LEN     ((sl_status_t)0x10039) ///< Invalid PMK length.
 #define SL_STATUS_SI91X_SSID_NOT_PRESENT_FOR_PMK_GENERATION \
   ((sl_status_t)0x1003A) ///< SSID not present for PMK generation.
 #define SL_STATUS_SI91X_SSID_INCORRECT_PMK_GENERATION \
   ((sl_status_t)0x1003B) ///< SSID incorrect for PMK generation(more than 32 bytes).
 #define SL_STATUS_SI91X_BAND_NOT_SUPPORTED ((sl_status_t)0x1003C) ///< Band not supported.
 #define SL_STATUS_SI91X_INVALID_USR_STORE_CONFIGURATION_LEN \
-  ((sl_status_t)0x1003D) ///< User store configuration invalid length.
+  ((sl_status_t)0x1003D) ///< Invalid user store configuration length.
 #define SL_STATUS_SI91X_INVALID_COMMAND_LEN \
-  ((sl_status_t)0x1003E) ///< Error in length of the command (Exceeds number of characters is mentioned in the PRM).
-#define SL_STATUS_SI91X_DATA_PACKET_DROPPED ((sl_status_t)0x1003F) ///< Data packet dropped.
-#define SL_STATUS_SI91X_WEP_KEY_NOT_GIVEN   ((sl_status_t)0x10040) ///< WEP key not given.
-#define SL_STATUS_SI91X_INVALID_STORE_CONFIG_PROFILE \
-  ((sl_status_t)0x10041)                                          ///< Error in length of store config profile.
-#define SL_STATUS_SI91X_MISSING_PSK_OR_PMK ((sl_status_t)0x10042) ///< PSK or PMK not given.
+  ((sl_status_t)0x1003E) ///< Invalid command length (exceeds the number of characters specified in the PRM).
+#define SL_STATUS_SI91X_DATA_PACKET_DROPPED          ((sl_status_t)0x1003F) ///< Data packet dropped.
+#define SL_STATUS_SI91X_WEP_KEY_NOT_GIVEN            ((sl_status_t)0x10040) ///< WEP key not provided.
+#define SL_STATUS_SI91X_INVALID_STORE_CONFIG_PROFILE ((sl_status_t)0x10041) ///< Store config profile length error.
+#define SL_STATUS_SI91X_MISSING_PSK_OR_PMK           ((sl_status_t)0x10042) ///< PSK or PMK not provided.
 #define SL_STATUS_SI91X_INVALID_SECURITY_MODE_IN_JOIN_COMMAND \
-  ((sl_status_t)0x10043) ///< Security mode given in join command is invalid.
+  ((sl_status_t)0x10043) ///< Invalid security mode in join command.
 #define SL_STATUS_SI91X_MAX_BEACON_MISCOUNT \
-  ((sl_status_t)0x10044) ///< Beacon miscount reaches max beacon miscount (De-authentication due to beacon miss).
+  ((sl_status_t)0x10044) ///< Maximum beacon miscount reached: De-authentication due to beacon miss.
 #define SL_STATUS_SI91X_DEAUTH_REQUEST_FROM_SUPPLICANT \
-  ((sl_status_t)0x10045) ///< De-authentication received from supplicant.
+  ((sl_status_t)0x10045) ///< De-authentication request received from supplicant.
 #define SL_STATUS_SI91X_DEAUTH_REQUEST_FROM_FROM_AP \
-  ((sl_status_t)0x10046) ///< De-authentication received from AP after channel switching.
+  ((sl_status_t)0x10046) ///< De-authentication request received from AP after channel switching.
 #define SL_STATUS_SI91X_MISSED_SYNCHRONIZATION ((sl_status_t)0x10047) ///< Synchronization missed.
 #define SL_STATUS_SI91X_AUTHENTICATION_TIMEOUT ((sl_status_t)0x10048) ///< Authentication timeout occurred.
 #define SL_STATUS_SI91X_ASSOCIATION_TIMEOUT    ((sl_status_t)0x10049) ///< Association timeout.
 #define SL_STATUS_SI91X_BG_SCAN_NOT_ALLOWED    ((sl_status_t)0x1004A) ///< BG scan in given channels is not allowed.
 #define SL_STATUS_SI91X_SSID_MISMATCH          ((sl_status_t)0x1004B) ///< Scanned SSID and SSID given in join are not matching.
 #define SL_STATUS_SI91X_CLIENT_MAX_SUPPORTED_EXCEEDED \
-  ((sl_status_t)0x1004C) ///< Given number of clients exceeded max number of stations supported.
+  ((sl_status_t)0x1004C) ///< The number of clients exceeds the maximum number of supported stations.
 #define SL_STATUS_SI91X_HT_CAPABILITIES_NOT_SUPPORTED \
-  ((sl_status_t)0x1004D)                                               ///< Given HT capabilities are not supported.
-#define SL_STATUS_SI91X_UART_FLOW_NOT_SUPPORTED ((sl_status_t)0x1004E) ///< UART Flow control not supported.
+  ((sl_status_t)0x1004D) ///< The specified HT capabilities are not supported.
+#define SL_STATUS_SI91X_UART_FLOW_NOT_SUPPORTED ((sl_status_t)0x1004E) ///< UART flow control is not supported.
 #define SL_STATUS_SI91X_ZB_BT_BLE_PKT_RECEIVED \
-  ((sl_status_t)0x1004F) ///< ZB/BT/BLE packet received and protocol is not enabled.
-#define SL_STATUS_SI91X_MGMT_PKT_DROPPED        ((sl_status_t)0x10050) ///< MGMT pkt dropped.
-#define SL_STATUS_SI91X_INVALID_RF_CURRENT_MODE ((sl_status_t)0x10051) ///< Invalid RF current mode.
+  ((sl_status_t)0x1004F) ///< ZB/BT/BLE packet received, but the protocol is not enabled.
+#define SL_STATUS_SI91X_MGMT_PKT_DROPPED        ((sl_status_t)0x10050) ///< Management packet dropped.
+#define SL_STATUS_SI91X_INVALID_RF_CURRENT_MODE ((sl_status_t)0x10051) ///< The current RF mode is invalid.
 #define SL_STATUS_SI91X_POWER_SAVE_NOT_SUPPORTED \
-  ((sl_status_t)0x10052) ///< Power save support is not present for a given interface.
-#define SL_STATUS_SI91X_CONCURRENT_AP_IN_CONNECTED_STATE ((sl_status_t)0x10053) ///< Concurrent AP in connected state.
+  ((sl_status_t)0x10052) ///< Power save is not supported for the specified interface.
+#define SL_STATUS_SI91X_CONCURRENT_AP_IN_CONNECTED_STATE \
+  ((sl_status_t)0x10053) ///< Concurrent AP is in a connected state.
 #define SL_STATUS_SI91X_CONNECTED_AP_OR_STATION_CHANNEL_MISMATCH \
-  ((sl_status_t)0x10054)                                             ///< Connected AP or Station channel mismatch.
-#define SL_STATUS_SI91X_IAP_COPROCESSOR_ERROR ((sl_status_t)0x10055) ///< IAP co processor error.
-#define SL_STATUS_SI91X_WPS_NOT_SUPPORTED     ((sl_status_t)0x10056) ///< WPS not supported in current operating mode.
+  ((sl_status_t)0x10054) ///< Channel mismatch between connected AP and station.
+#define SL_STATUS_SI91X_IAP_COPROCESSOR_ERROR ((sl_status_t)0x10055) ///< IAP coprocessor error occurred.
+#define SL_STATUS_SI91X_WPS_NOT_SUPPORTED \
+  ((sl_status_t)0x10056) ///< WPS is not supported in the current operating mode.
 #define SL_STATUS_SI91X_CONCURRENT_AP_CHANNEL_MISMATCH \
-  ((sl_status_t)0x10057) ///< Concurrent AP doesn't have same channel as connected station channel.
+  ((sl_status_t)0x10057) ///< Concurrent AP channel does not match the connected station channel.
 #define SL_STATUS_SI91X_PBC_SESSION_OVERLAP       ((sl_status_t)0x10058) ///< PBC session overlap error.
-#define SL_STATUS_SI91X_BT_FEATURE_BITMAP_INVALID ((sl_status_t)0x10059) ///< BT feature bit map invalid.
+#define SL_STATUS_SI91X_BT_FEATURE_BITMAP_INVALID ((sl_status_t)0x10059) ///< The Bluetooth feature bitmap is invalid.
 #define SL_STATUS_SI91X_FOUR_WAY_HANDSHAKE_FAILED \
-  ((sl_status_t)0x1005A) ///< 4/4 confirmation of 4 way handshake failed.
+  ((sl_status_t)0x1005A) ///< The 4/4 confirmation of the four-way handshake failed.
 #define SL_STATUS_SI91X_MAC_ADDRESS_NOT_PRESENT_IN_MAC_JOIN \
-  ((sl_status_t)0x1005B) ///< MAC address not present in MAC based join.
+  ((sl_status_t)0x1005B) ///< MAC address is not present in the MAC-based join.
 #define SL_STATUS_SI91X_CONCURRENT_MODE_DOWN \
-  ((sl_status_t)0x1005C) ///< Concurrent mode, both AP and client should be up, to enable configuration.
+  ((sl_status_t)0x1005C) ///< Concurrent mode requires both AP and client to be up for configuration.
 #define SL_STATUS_SI91X_CERTIFICATE_LOAD_NOT_ALLOWED_IN_FLASH \
-  ((sl_status_t)0x1005D) ///< Certificate load not allowed in flash.
+  ((sl_status_t)0x1005D) ///< Certificate load operation is not allowed in flash memory.
 #define SL_STATUS_SI91X_CERTIFICATE_LOAD_NOT_ALLOWED_IN_RAM \
-  ((sl_status_t)0x1005E) ///< Certificate load not allowed in RAM.
+  ((sl_status_t)0x1005E) ///< Certificate load operation is not allowed in RAM.
 #define SL_STATUS_SI91X_WRONG_CERTIFICATE_LOAD_INDEX \
-  ((sl_status_t)0x1005F)                                              ///< Certificate load failed due to wrong index.
-#define SL_STATUS_SI91X_AP_HT_CAPS_NOT_ENABLED ((sl_status_t)0x10060) ///< AP HT caps not enabled.
+  ((sl_status_t)0x1005F) ///< Certificate load failed due to an incorrect index.
+#define SL_STATUS_SI91X_AP_HT_CAPS_NOT_ENABLED ((sl_status_t)0x10060) ///< Access Point HT capabilities are not enabled.
 #define SL_STATUS_SI91X_ADDRESS_FAMILY_NOT_SUPPORTED \
-  ((sl_status_t)0x10061) ///< Address family not supported by protocol.
+  ((sl_status_t)0x10061) ///< The specified address family is not supported by the protocol.
 #define SL_STATUS_SI91X_INVALID_BEACON_INTERVAL_OR_DTM_PERIOD \
-  ((sl_status_t)0x10062) ///< Invalid beacon interval or DTIM period provided.
+  ((sl_status_t)0x10062) ///< The provided beacon interval or DTIM period is invalid.
 #define SL_STATUS_SI91X_INVALID_CONFIG_RANGE_PROVIDED \
-  ((sl_status_t)0x10063)                                               ///< Invalid range of the configuration provided.
-#define SL_STATUS_SI91X_INVALID_CONFIG_TYPE     ((sl_status_t)0x10064) ///< RTS THRESHOLD Config type is invalid.
-#define SL_STATUS_SI91X_ERROR_WITH_MQTT_COMMAND ((sl_status_t)0x10065) ///< Error with MQTT command.
+  ((sl_status_t)0x10063) ///< The provided configuration range is invalid.
+#define SL_STATUS_SI91X_INVALID_CONFIG_TYPE \
+  ((sl_status_t)0x10064) ///< The provided configuration type (e.g., RTS threshold) is invalid.
+#define SL_STATUS_SI91X_ERROR_WITH_MQTT_COMMAND ((sl_status_t)0x10065) ///< An error occurred with the MQTT command.
 #define SL_STATUS_SI91X_HIGHER_LISTEN_INTERVAL \
-  ((sl_status_t)0x10066) ///< listen interval in power save is greater than that of join.
-#define SL_STATUS_SI91X_WLAN_RADIO_DEREGISTERED ((sl_status_t)0x10067) ///< WLAN radio deregistered.
+  ((sl_status_t)0x10066) ///< The listen interval in power save mode is greater than that specified in the join command.
+#define SL_STATUS_SI91X_WLAN_RADIO_DEREGISTERED ((sl_status_t)0x10067) ///< The WLAN radio has been deregistered.
 #define SL_STATUS_SI91X_SAE_FAILURE_DUE_TO_MULTIPLE_CONFIRM_FRAMES_FROM_AP \
-  ((sl_status_t)0x10069) ///< SAE failure due to multiple confirm frames from AP.
+  ((sl_status_t)0x10069) ///< SAE authentication failed due to multiple confirm frames received from the Access Point.
 #define SL_STATUS_SI91X_EC_GROUP_STATION_UNSUPPORTED_BY_AP \
-  ((sl_status_t)0x1006A) ///< AP does not support the EC-group set by station.
-#define SL_STATUS_SI91X_NO_11AX_SUPPORT_IN_AP ((sl_status_t)0x1006C) ///< 11AX is not supported in AP mode.
+  ((sl_status_t)0x1006A) ///< The Access Point does not support the EC-group set by the station.
+#define SL_STATUS_SI91X_NO_11AX_SUPPORT_IN_AP \
+  ((sl_status_t)0x1006C) ///< 802.11ax (Wi-Fi 6) is not supported in Access Point mode.
 #define SL_STATUS_SI91X_NON_PREF_CHAN_CONFIG_FAILED \
   ((sl_status_t)0x1006D) ///< Non-preferred channel configuration failed.
 #define SL_STATUS_TWT_SUPPORT_NOT_ENABLED_ERR \
-  ((sl_status_t)0x10070) ///< Occurs when HE_PARAMS_SUPPORT and SLI_SI91X_ENABLE_TWT_FEATURE macros are not enabled.
+  ((sl_status_t)0x10070) ///< Error occurs when HE_PARAMS_SUPPORT and SLI_SI91X_ENABLE_TWT_FEATURE macros are not enabled.
 #define SL_STATUS_TWT_SETUP_ERR_SESSION_ACTIVE \
-  ((sl_status_t)0x10071) ///< Occurs when user tries to give TWT config command when there is an already active TWT session.
+  ((sl_status_t)0x10071) ///< Error occurs when a TWT config command is issued while there is already an active TWT session.
 #define SL_STATUS_TWT_TEARDOWN_ERR_FLOWID_NOT_MATCHED \
-  ((sl_status_t)0x10072) ///< Occurs when TWT teardown command is given with a flow ID that does not match existing session flow ID.
+  ((sl_status_t)0x10072) ///< Error occurs when a TWT teardown command is issued with a flow ID that does not match the existing session flow ID.
 #define SL_STATUS_TWT_TEARDOWN_ERR_NOACTIVE_SESS \
-  ((sl_status_t)0x10073) ///< Occurs when teardown command is given while there is no active session.
+  ((sl_status_t)0x10073) ///< Error occurs when a teardown command is issued while there is no active TWT session.
 #define SL_STATUS_TWT_SESSION_NOT_FEASIBLE \
-  ((sl_status_t)0x10074) ///< This error code indicates that TWT session is not feasible. It is thrown only when TWT Auto Selection API is used.
+  ((sl_status_t)0x10074) ///< Indicates that a TWT session is not feasible. This error is thrown only when the TWT Auto Selection API is used.
 #define SL_STATUS_SI91X_RESCHEDULE_TWT_NOT_SUPPORTED \
-  ((sl_status_t)0x10075) ///< AP does not support TWT information frame reception.
+  ((sl_status_t)0x10075) ///< Error occurs when the AP does not support TWT information frame reception.
 #define SL_STATUS_SI91X_RESCHEDULE_TWT_ERR_NOACTIVE_SESS \
-  ((sl_status_t)0x10076) ///< No active TWT agreement corresponding to given flow id.
+  ((sl_status_t)0x10076) ///< Error occurs when there is no active TWT agreement corresponding to the given flow ID.
 #define SL_STATUS_SI91X_TWT_RESCHEDULING_IN_PROGRESS \
-  ((sl_status_t)0x10077) ///< Suspend or resume TWT action is in progress.
+  ((sl_status_t)0x10077) ///< Indicates that a suspend or resume TWT action is currently in progress.
 #define SL_STATUS_SI91X_RESCHEDULE_TWT_PACKET_CREATION_FAILED \
-  ((sl_status_t)0x10078) ///< TWT information frame packet creation failed in firmware.
+  ((sl_status_t)0x10078) ///< Error occurs when TWT information frame packet creation fails in firmware.
 #define SL_STATUS_SI91X_INVALID_STATION_TSF \
-  ((sl_status_t)0x10079) ///< Invalid station TSF error returned when station is not connected or atleast one beacon is not received
+  ((sl_status_t)0x10079) ///< Error occurs when the station TSF is invalid, typically when the station is not connected or has not received at least one beacon.
 #define SL_STATUS_SI91X_MQTT_ERROR_UNACCEPTABLE_PROTOCOL \
-  ((sl_status_t)0x10081) ///< The Server does not support the level of the MQTT protocol requested by the Client.
+  ((sl_status_t)0x10081) ///< Error occurs when the server does not support the level of the MQTT protocol requested by the client.
 #define SL_STATUS_SI91X_MQTT_ERROR_IDENTIFIER_REJECTED \
-  ((sl_status_t)0x10082) ///< The Client identifier is correct UTF-8 but not allowed by the Server.
+  ((sl_status_t)0x10082) ///< Error occurs when the client identifier is correct UTF-8 but is not allowed by the server.
 #define SL_STATUS_SI91X_MQTT_ERROR_SERVER_UNAVAILABLE \
-  ((sl_status_t)0x10083) ///< The Network Connection has been made but the MQTT service is unavailable.
+  ((sl_status_t)0x10083) ///< Error occurs when the network connection has been made but the MQTT service is unavailable.
 #define SL_STATUS_SI91X_MQTT_ERROR_BAD_USERNAME_PASSWORD \
-  ((sl_status_t)0x10084) ///< The data in the user name or password is malformed.
-#define SL_STATUS_SI91X_MQTT_ERROR_NOT_AUTHORIZED ((sl_status_t)0x10085) ///< The Client is not authorized to connect.
+  ((sl_status_t)0x10084) ///< The data in the username or password is malformed.
+#define SL_STATUS_SI91X_MQTT_ERROR_NOT_AUTHORIZED ((sl_status_t)0x10085) ///< The client is not authorized to connect.
 #define SL_STATUS_SI91X_SA_QUERY_TIMEOUT          ((sl_status_t)0x10086) ///< Disconnection due to SA Query Timeout.
 #define SL_STATUS_SI91X_TRANSCEIVER_PEER_DS_FEAT_DISABLED \
-  ((sl_status_t)0x10096) ///< Feature to add peers in MAC layer is disabled
-#define SL_STATUS_SI91X_TRANSCEIVER_PEER_ALREADY_EXISTS ((sl_status_t)0x10097) ///< Peer already exists in MAC layer
+  ((sl_status_t)0x10096) ///< Feature to add peers in MAC layer is disabled.
+#define SL_STATUS_SI91X_TRANSCEIVER_PEER_ALREADY_EXISTS ((sl_status_t)0x10097) ///< Peer already exists in MAC layer.
 #define SL_STATUS_SI91X_TRANSCEIVER_MAX_PEER_LIMIT_REACHED \
-  ((sl_status_t)0x10098)                                                  ///< Max peer limit reached in MAC layer
-#define SL_STATUS_SI91X_TRANSCEIVER_PEER_NOT_FOUND ((sl_status_t)0x10099) ///< Peer not found in MAC layer
+  ((sl_status_t)0x10098)                                                  ///< Max peer limit reached in MAC layer.
+#define SL_STATUS_SI91X_TRANSCEIVER_PEER_NOT_FOUND ((sl_status_t)0x10099) ///< Peer not found in MAC layer.
 #define SL_STATUS_SI91X_DUPLICATE_ENTRY_EXISTS_IN_DNS_SERVER_TABLE \
   ((sl_status_t)0x100AF) ///< Duplicate entry exists in DNS server table.
 #define SL_STATUS_SI91X_NO_MEM_AVAILABLE                  ((sl_status_t)0x100B1) ///< Memory error: No memory available.
@@ -303,10 +322,10 @@
 #define SL_STATUS_SI91X_NO_KEY_FOUND                      ((sl_status_t)0x100B3) ///< Update commands: No such key found.
 #define SL_STATUS_SI91X_NO_FILE_FOUND                     ((sl_status_t)0x100B4) ///< No such file found: Re-check filename.
 #define SL_STATUS_SI91X_NO_WEB_PAGE_EXISTS_WITH_SAME_FILENAME \
-  ((sl_status_t)0x100B5) ///< No corresponding web page exists with same filename.
+  ((sl_status_t)0x100B5) ///< No corresponding web page exists with the same filename.
 #define SL_STATUS_SI91X_SPACE_UNAVAILABLE_FOR_NEW_FILE ((sl_status_t)0x100B6) ///< Space unavailable for new file.
 #define SL_STATUS_SI91X_INVALID_INPUT_DATA \
-  ((sl_status_t)0x100C1) ///< Invalid input data, Re-check filename, lengths, etc.
+  ((sl_status_t)0x100C1) ///< Invalid input data, re-check filename, lengths, etc.
 #define SL_STATUS_SI91X_NO_SPACE_AVAILABLE_FOR_NEW_FILE ((sl_status_t)0x100C2) ///< Space unavailable for new file.
 #define SL_STATUS_SI91X_EXISTING_FILE_OVERWRITE \
   ((sl_status_t)0x100C3) ///< Existing file overwrite: Exceeds size of previous file. Use erase and try again.
@@ -364,20 +383,20 @@
 #define SL_STATUS_SI91X_SOCKET_CLOSED              ((sl_status_t)0x1BB36) ///< Socket is closed or in process of closing.
 #define SL_STATUS_SI91X_PROCESS_IN_PROGRESS        ((sl_status_t)0x1BB37) ///< Process in progress.
 #define SL_STATUS_SI91X_CONNECT_TO_NON_EXISTING_TCP_SERVER_SOCKET \
-  ((sl_status_t)0x1BB38) ///< Trying to connect non-existing TCP server socket.
+  ((sl_status_t)0x1BB38) ///< Trying to connect to a non-existing TCP server socket.
 #define SL_STATUS_SI91X_ERROR_IN_LEN_OF_THE_COMMAND \
-  ((sl_status_t)0x1BB3E) ///< Error in length of the command ('Exceeds number of characters' is mentioned in the PRM).
-#define SL_STATUS_SI91X_WRONG_PACKET_INFO  ((sl_status_t)0x1BB40) ///< Wrong packet info.
+  ((sl_status_t)0x1BB3E) ///< Error in the length of the command (exceeds the number of characters mentioned in the PRM).
+#define SL_STATUS_SI91X_WRONG_PACKET_INFO  ((sl_status_t)0x1BB40) ///< Wrong packet information.
 #define SL_STATUS_SI91X_SOCKET_STILL_BOUND ((sl_status_t)0x1BB42) ///< Socket is still bound.
-#define SL_STATUS_SI91X_NO_FREE_PORT       ((sl_status_t)0x1BB45) ///< No free port.
-#define SL_STATUS_SI91X_INVALID_PORT       ((sl_status_t)0x1BB46) ///< Invalid port.
+#define SL_STATUS_SI91X_NO_FREE_PORT       ((sl_status_t)0x1BB45) ///< No free port available.
+#define SL_STATUS_SI91X_INVALID_PORT       ((sl_status_t)0x1BB46) ///< Invalid port specified.
 #define SL_STATUS_SI91X_CORRUPTED_RPS_HEADER \
   ((sl_status_t)0x1BB49) ///< Corrupted RPS header encountered during firmware update.
 #define SL_STATUS_SI91X_FEATURE_UNSUPPORTED ((sl_status_t)0x1BB4B) ///< Feature not supported.
 #define SL_STATUS_SI91X_SOCKET_IN_UNCONNECTED_STATE \
-  ((sl_status_t)0x1BB50) ///< Socket is not in connected state. Disconnected from server. In case of FTP, user need to give destroy command after receiving this error.
+  ((sl_status_t)0x1BB50) ///< Socket is not in a connected state. Disconnected from the server. In the case of FTP, the user needs to issue a destroy command after receiving this error.
 #define SL_STATUS_SI91X_POP3_SESSION_CREATION_FAILED \
-  ((sl_status_t)0x1BB87) ///< POP3 session creation failed / POP3 session got terminated.
+  ((sl_status_t)0x1BB87) ///< POP3 session creation failed or POP3 session got terminated.
 #define SL_STATUS_SI91X_DHCPV6_HANDSHAKE_FAIL     ((sl_status_t)0x1BB9C) ///< DHCPv6 handshake failure.
 #define SL_STATUS_SI91X_DHCP_INVALID_IP_RESPONSE  ((sl_status_t)0x1BB9D) ///< DHCP invalid IP response.
 #define SL_STATUS_SI91X_SMTP_AUTHENTICATION_ERROR ((sl_status_t)0x1BBA0) ///< SMTP authentication error.
@@ -402,61 +421,62 @@
 #define SL_STATUS_SI91X_SMTP_CLIENT_NOT_INITIALIZED   ((sl_status_t)0x1BBB2) ///< SMTP client not initialized.
 #define SL_STATUS_SI91X_DNS_IPV6_NOT_SUPPORTED        ((sl_status_t)0x1BBB3) ///< DNS IPv6 not supported.
 #define SL_STATUS_SI91X_INVALID_MAIL_INDEX_FOR_POP3_MAIL_RETRIEVE_COMMAND \
-  ((sl_status_t)0x1BBC5) ///< Invalid mail index for POP3 mail retrieve command.
-#define SL_STATUS_SI91X_SSL_TLS_HANDSHAKE_FAILED ((sl_status_t)0x1BBD2) ///< SSL/TLS handshake failed.
+  ((sl_status_t)0x1BBC5) ///< Invalid mail index specified for the POP3 mail retrieve command.
+#define SL_STATUS_SI91X_SSL_TLS_HANDSHAKE_FAILED ((sl_status_t)0x1BBD2) ///< SSL/TLS handshake process failed.
 #define SL_STATUS_SI91X_FTP_CLIENT_DISCONNECTED \
-  ((sl_status_t)0x1BBD3) ///< FTP client is not connected or disconnected with the FTP server.
-#define SL_STATUS_SI91X_FTP_CLIENT_NOT_DISCONNECTED ((sl_status_t)0x1BBD4) ///< FTP client is not disconnected.
-#define SL_STATUS_SI91X_FTP_FILE_NOT_OPENED         ((sl_status_t)0x1BBD5) ///< FTP file is not opened.
+  ((sl_status_t)0x1BBD3) ///< FTP client is either not connected or has been disconnected from the FTP server.
+#define SL_STATUS_SI91X_FTP_CLIENT_NOT_DISCONNECTED \
+  ((sl_status_t)0x1BBD4) ///< FTP client is still connected and has not been disconnected.
+#define SL_STATUS_SI91X_FTP_FILE_NOT_OPENED ((sl_status_t)0x1BBD5) ///< FTP file could not be opened.
 #define SL_STATUS_SI91X_SSL_TLS_HANDSHAKE_TIMEOUT_OR_FTP_FILE_NOT_CLOSED \
-  ((sl_status_t)0x1BBD6) ///< SSL/TLS handshake timeout or FTP file is not closed.
+  ((sl_status_t)0x1BBD6) ///< SSL/TLS handshake timed out or the FTP file was not closed properly.
 #define SL_STATUS_SI91X_FTP_EXPECTED_1XX_RESPONSE_NOT_RECEIVED \
-  ((sl_status_t)0x1BBD9) ///< Expected [1XX response from FTP server but not received].
+  ((sl_status_t)0x1BBD9) ///< Expected 1XX response from the FTP server was not received.
 #define SL_STATUS_SI91X_FTP_EXPECTED_2XX_RESPONSE_NOT_RECEIVED \
-  ((sl_status_t)0x1BBDA) ///< Expected [2XX response from FTP server but not received].
+  ((sl_status_t)0x1BBDA) ///< Expected 2XX response from the FTP server was not received.
 #define SL_STATUS_SI91X_FTP_EXPECTED_22X_RESPONSE_NOT_RECEIVED \
-  ((sl_status_t)0x1BBDB) ///< Expected [22X response from FTP server but not received].
+  ((sl_status_t)0x1BBDB) ///< Expected 22X response from the FTP server was not received.
 #define SL_STATUS_SI91X_FTP_EXPECTED_23X_RESPONSE_NOT_RECEIVED \
-  ((sl_status_t)0x1BBDC) ///< Expected [23X response from FTP server but not received].
+  ((sl_status_t)0x1BBDC) ///< Expected 23X response from the FTP server was not received.
 #define SL_STATUS_SI91X_FTP_EXPECTED_3XX_RESPONSE_NOT_RECEIVED \
-  ((sl_status_t)0x1BBDD) ///< Expected [3XX response from FTP server but not received].
+  ((sl_status_t)0x1BBDD) ///< Expected 3XX response from the FTP server was not received.
 #define SL_STATUS_SI91X_FTP_EXPECTED_33X_RESPONSE_NOT_RECEIVED \
-  ((sl_status_t)0x1BBDE) ///< Expected [33X response from FTP server but not received].
-#define SL_STATUS_SI91X_HTTP_TIMEOUT            ((sl_status_t)0x1BBE1) ///< HTTP timeout.
-#define SL_STATUS_SI91X_HTTP_FAILED             ((sl_status_t)0x1BBE2) ///< HTTP failed.
-#define SL_STATUS_SI91X_HTTP_PUT_CLIENT_TIMEOUT ((sl_status_t)0x1BBE7) ///< HTTP timeout for HTTP PUT client.
-#define SL_STATUS_SI91X_AUTHENTICATION_ERROR    ((sl_status_t)0x1BBEB) ///< Authentication error.
+  ((sl_status_t)0x1BBDE) ///< Expected 33X response from the FTP server was not received.
+#define SL_STATUS_SI91X_HTTP_TIMEOUT            ((sl_status_t)0x1BBE1) ///< HTTP request timed out.
+#define SL_STATUS_SI91X_HTTP_FAILED             ((sl_status_t)0x1BBE2) ///< HTTP request failed.
+#define SL_STATUS_SI91X_HTTP_PUT_CLIENT_TIMEOUT ((sl_status_t)0x1BBE7) ///< HTTP PUT client request timed out.
+#define SL_STATUS_SI91X_AUTHENTICATION_ERROR    ((sl_status_t)0x1BBEB) ///< Authentication process failed.
 #define SL_STATUS_SI91X_INVALID_PACKET_LENGTH \
-  ((sl_status_t)0x1BBED) ///< Invalid packet length. Content length and received data length is mismatching.
+  ((sl_status_t)0x1BBED) ///< Invalid packet length. Content length and received data length mismatch.
 #define SL_STATUS_SI91X_SERVER_RESPONDS_BEFORE_REQUEST_COMPLETE \
   ((sl_status_t)0x1BBEF) ///< Server responds before HTTP client request is complete.
 #define SL_STATUS_SI91X_HTTP_PASSWORD_TOO_LONG ((sl_status_t)0x1BBF0) ///< HTTP/HTTPS password is too long.
-#define SL_STATUS_SI91X_MQTT_PING_TIMEOUT      ((sl_status_t)0x1BBF1) ///< MQTT ping time out error.
+#define SL_STATUS_SI91X_MQTT_PING_TIMEOUT      ((sl_status_t)0x1BBF1) ///< MQTT ping timeout error.
 #define SL_STATUS_SI91X_MQTT_COMMAND_SENT_IN_INCORRECT_STATE \
   ((sl_status_t)0x1BBF2)                                               ///< MQTT command sent in incorrect state.
-#define SL_STATUS_SI91X_MQTT_ACK_TIMEOUT        ((sl_status_t)0x1BBF3) ///< MQTT ACK time out error.
+#define SL_STATUS_SI91X_MQTT_ACK_TIMEOUT        ((sl_status_t)0x1BBF3) ///< MQTT ACK timeout error.
 #define SL_STATUS_SI91X_POP3_INVALID_MAIL_INDEX ((sl_status_t)0x1BBFF) ///< POP3 error for invalid mail index.
 #define SL_STATUS_SI91X_SOCKET_NOT_CONNECTED \
   ((sl_status_t)0x1FFFF) ///< Listening TCP socket in device is not connected to the remote peer, or the LTCP socket is not yet opened in the device.
 #define SL_STATUS_SI91X_SOCKET_LIMIT_EXCEEDED \
-  ((sl_status_t)0x1FFFE) ///< Sockets not available. The error comes if the host tries to open more than 10 sockets.
+  ((sl_status_t)0x1FFFE) ///< Socket limit exceeded. More than 10 sockets opened.
 #define SL_STATUS_SI91X_HTTP_OTAF_INVALID_PACKET ((sl_status_t)0x1FFFD) ///< HTTP OTAF invalid packet.
-#define SL_STATUS_SI91X_TCP_IP_INIT_FAILED       ((sl_status_t)0x1FFFC) ///< TCP_IP initialization failed.
+#define SL_STATUS_SI91X_TCP_IP_INIT_FAILED       ((sl_status_t)0x1FFFC) ///< TCP/IP initialization failed.
 #define SL_STATUS_SI91X_CONCURRENT_IP_CREATION_ERROR \
   ((sl_status_t)0x1FFFB) ///< Cannot create IP in same interface in concurrent mode.
 #define SL_STATUS_SI91X_HTTP_OTAF_INCOMPLETE_PACKET ((sl_status_t)0x1FFF4) ///< HTTP OTAF incomplete packet.
 #define SL_STATUS_SI91X_INVALID_STORE_CONFIGURATION_PROFILE \
-  ((sl_status_t)0x1FFF5) ///< Store configuration profile type mismatch or invalid profile type.
+  ((sl_status_t)0x1FFF5) ///< Invalid or mismatched store configuration profile type.
 #define SL_STATUS_SI91X_MQTT_REMOTE_TERMINATE_ERROR ((sl_status_t)0x1FFF6) ///< MQTT remote terminate error.
 #define SL_STATUS_SI91X_MQTT_KEEP_ALIVE_TERMINATE_ERROR \
-  ((sl_status_t)0x1BBF1) ///< MQTT remote terminate error due to keep alive response timeout.
+  ((sl_status_t)0x1BBF1) ///< MQTT remote terminate error due to keep-alive response timeout.
 #define SL_STATUS_SI91X_BYTE_STUFFING_ERROR_IN_AT_MODE ((sl_status_t)0x1FFF7) ///< Byte stuffing error in AT mode.
 #define SL_STATUS_SI91X_INVALID_COMMAND_OR_OPERATION \
   ((sl_status_t)0x1FFF8) ///< Invalid command (e.g. parameters insufficient or invalid in the command). Invalid operation (e.g. power save command with the same mode given twice, accessing wrong socket, creating more than allowed sockets ).
-#define SL_STATUS_SI91X_HTTP_OTAF_NO_PACKET      ((sl_status_t)0x1FFF9) ///< HTTP OTAF no packet.
+#define SL_STATUS_SI91X_HTTP_OTAF_NO_PACKET      ((sl_status_t)0x1FFF9) ///< HTTP OTAF no packet received.
 #define SL_STATUS_SI91X_TCP_SOCKET_NOT_CONNECTED ((sl_status_t)0x1FFFA) ///< TCP socket is not connected.
 #define SL_STATUS_SI91X_MAX_STATION_COUNT_EXCEEDED \
-  ((sl_status_t)0x1FFC5) ///< Station count exceeded max station supported.
+  ((sl_status_t)0x1FFC5) ///< Station count exceeded the maximum supported stations.
 #define SL_STATUS_SI91X_UNABLE_TO_SEND_TCP_DATA ((sl_status_t)0x1FFC4) ///< Unable to send TCP data.
 #define SL_STATUS_SI91X_SOCKET_BUFFER_TOO_SMALL ((sl_status_t)0x1FFBC) ///< Socket buffer too small.
 #define SL_STATUS_SI91X_INVALID_CONTENT_IN_DNS_RESPONSE \
@@ -470,67 +490,73 @@
 #define SL_STATUS_SI91X_DNS_OPCODE_ERROR_IN_DNS_RESPONSE \
   ((sl_status_t)0x1FFB6) ///< DNS Opcode error in the response to the DNS resolution query.
 #define SL_STATUS_SI91X_DNS_ID_MISMATCH \
-  ((sl_status_t)0x1FFB5) ///< DNS id mismatch between DNS resolution request and response.
+  ((sl_status_t)0x1FFB5) ///< DNS id mismatch between the DNS resolution request and response.
 #define SL_STATUS_SI91X_INVALID_INPUT_IN_DNS_QUERY \
-  ((sl_status_t)0x1FFAB) ///< An invalid input to the DNS resolution query.
+  ((sl_status_t)0x1FFAB) ///< Invalid input provided in the DNS resolution query.
 #define SL_STATUS_SI91X_DNS_RESPONSE_TIMEOUT        ((sl_status_t)0x1FF42) ///< DNS response was timed out.
 #define SL_STATUS_SI91X_ARP_REQUEST_FAILURE         ((sl_status_t)0x1FFA1) ///< ARP request failure.
-#define SL_STATUS_SI91X_UNABLE_TO_UPDATE_TCP_WINDOW ((sl_status_t)0x1FF91) ///< Unable to update TCP window.
+#define SL_STATUS_SI91X_UNABLE_TO_UPDATE_TCP_WINDOW ((sl_status_t)0x1FF91) ///< Failed to update TCP window.
 #define SL_STATUS_SI91X_DHCP_LEASE_EXPIRED          ((sl_status_t)0x1FF9D) ///< DHCP lease time expired.
 #define SL_STATUS_SI91X_DHCP_HANDSHAKE_FAILURE      ((sl_status_t)0x1FF9C) ///< DHCP handshake failure.
-#define SL_STATUS_SI91X_WEBSOCKET_CREATION_FAILED \
-  ((sl_status_t)0x1FF88) ///< This error is issued when WebSocket creation failed.
+#define SL_STATUS_SI91X_WEBSOCKET_CREATION_FAILED   ((sl_status_t)0x1FF88) ///< WebSocket creation failed.
 #define SL_STATUS_SI91X_TRYING_TO_CONNECT_NON_EXISTENT_TCP_SERVER_SOCKET \
-  ((sl_status_t)0x1FF87) ///< This error is issued when device tried to connect to a non-existent TCP server socket on the remote side.
+  ((sl_status_t)0x1FF87) ///< Attempted to connect to a non-existent TCP server socket on the remote side.
 #define SL_STATUS_SI91X_TRYING_TO_CLOSE_NON_EXISTENT_SOCKET \
-  ((sl_status_t)0x1FF86) ///< This error is issued when tried to close non-existent socket. or invalid socket descriptor.
-#define SL_STATUS_SI91X_INVALID_SOCKET_PARAMETERS ((sl_status_t)0x1FF85) ///< Invalid socket parameters.
-#define SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE     ((sl_status_t)0x1FF82) ///< Feature not supported.
-#define SL_STATUS_SI91X_SOCKET_ALREADY_OPEN       ((sl_status_t)0x1FF81) ///< Socket already open.
+  ((sl_status_t)0x1FF86) ///< Attempted to close a non-existent or invalid socket descriptor.
+#define SL_STATUS_SI91X_INVALID_SOCKET_PARAMETERS \
+  ((sl_status_t)0x1FF85)                                             ///< The provided socket parameters are invalid.
+#define SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE ((sl_status_t)0x1FF82) ///< The requested feature is not supported.
+#define SL_STATUS_SI91X_SOCKET_ALREADY_OPEN   ((sl_status_t)0x1FF81) ///< The socket is already open.
 #define SL_STATUS_SI91X_MAX_SOCKETS_EXCEEDED \
-  ((sl_status_t)0x1FF80) ///< Attempt to open more than the maximum allowed number of sockets.
-#define SL_STATUS_SI91X_DATA_LENGTH_EXCEEDS_MSS ((sl_status_t)0x1FF7E) ///< Data length exceeds mss.
+  ((sl_status_t)0x1FF80) ///< Attempted to open more than the maximum allowed number of sockets.
+#define SL_STATUS_SI91X_DATA_LENGTH_EXCEEDS_MSS \
+  ((sl_status_t)0x1FF7E) ///< Data length exceeds the Maximum Segment Size (MSS).
 #define SL_STATUS_SI91X_IP_CONFLICT_ERROR \
-  ((sl_status_t)0x1FF75) ///< DUT unable to configure IP address due to IP conflict.
-#define SL_STATUS_SI91X_FEATURE_NOT_ENABLED       ((sl_status_t)0x1FF74) ///< Feature not enabled.
-#define SL_STATUS_SI91X_DHCP_SERVER_NOT_SET       ((sl_status_t)0x1FF73) ///< DHCP server not set in AP mode.
-#define SL_STATUS_SI91X_AP_SET_REGION_PARAM_ERROR ((sl_status_t)0x1FF71) ///< Error in AP set region command parameters.
-#define SL_STATUS_SI91X_SSL_TLS_NOT_SUPPORTED     ((sl_status_t)0x1FF70) ///< SSL/TLS not supported.
-#define SL_STATUS_SI91X_JSON_NOT_SUPPORTED        ((sl_status_t)0x1FF6F) ///< JSON not supported.
-#define SL_STATUS_SI91X_INVALID_OPERATING_MODE    ((sl_status_t)0x1FF6E) ///< Invalid operating mode.
+  ((sl_status_t)0x1FF75) ///< Device unable to configure IP address due to an IP conflict.
+#define SL_STATUS_SI91X_FEATURE_NOT_ENABLED ((sl_status_t)0x1FF74) ///< The requested feature is not enabled.
+#define SL_STATUS_SI91X_DHCP_SERVER_NOT_SET ((sl_status_t)0x1FF73) ///< DHCP server is not configured in AP mode.
+#define SL_STATUS_SI91X_AP_SET_REGION_PARAM_ERROR \
+  ((sl_status_t)0x1FF71) ///< Invalid parameters provided for the AP set region command.
+#define SL_STATUS_SI91X_SSL_TLS_NOT_SUPPORTED  ((sl_status_t)0x1FF70) ///< SSL/TLS is not supported.
+#define SL_STATUS_SI91X_JSON_NOT_SUPPORTED     ((sl_status_t)0x1FF6F) ///< JSON format is not supported.
+#define SL_STATUS_SI91X_INVALID_OPERATING_MODE ((sl_status_t)0x1FF6E) ///< The specified operating mode is invalid.
 #define SL_STATUS_SI91X_INVALID_SOCKET_CONFIG_PARAMS \
   ((sl_status_t)0x1FF6D)                                                  ///< Invalid socket configuration parameters.
 #define SL_STATUS_SI91X_WEBSOCKET_CREATION_TIMEOUT ((sl_status_t)0x1FF6C) ///< Web socket creation timeout.
 #define SL_STATUS_SI91X_PARAM_MAX_VALUE_EXCEEDED \
-  ((sl_status_t)0x1FF6B) ///< Parameter maximum allowed value is exceeded.
-#define SL_STATUS_SI91X_SOCKET_READ_TIMEOUT         ((sl_status_t)0x1FF6A) ///< Socket read timeout.
-#define SL_STATUS_SI91X_INVALID_COMMAND_SEQUENCE    ((sl_status_t)0x1FF69) ///< Invalid command in sequence.
-#define SL_STATUS_SI91X_DNS_RESPONSE_TIMEOUT_ERROR  ((sl_status_t)0x1FF42) ///< DNS response timed out.
-#define SL_STATUS_SI91X_HTTP_SOCKET_CREATION_FAILED ((sl_status_t)0x1FF41) ///< HTTP socket creation failed.
-#define SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS    ((sl_status_t)0x10005) ///< HTTP GET command is in progress
+  ((sl_status_t)0x1FF6B) ///< Parameter exceeds the maximum allowed value.
+#define SL_STATUS_SI91X_SOCKET_READ_TIMEOUT         ((sl_status_t)0x1FF6A) ///< The socket read operation timed out.
+#define SL_STATUS_SI91X_INVALID_COMMAND_SEQUENCE    ((sl_status_t)0x1FF69) ///< The command sequence is invalid.
+#define SL_STATUS_SI91X_DNS_RESPONSE_TIMEOUT_ERROR  ((sl_status_t)0x1FF42) ///< The DNS response timed out.
+#define SL_STATUS_SI91X_HTTP_SOCKET_CREATION_FAILED ((sl_status_t)0x1FF41) ///< Failed to create an HTTP socket.
+#define SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS \
+  ((sl_status_t)0x10005) ///< An HTTP GET command is currently in progress.
 #define SL_STATUS_SI91X_TCP_CLOSE_BEFORE_RESPONSE_ERROR \
-  ((sl_status_t)0x1FF40) ///< TCP socket close command is issued before getting the response of the previous close command.
-#define SL_STATUS_SI91X_WAIT_ON_HOST_FEATURE_NOT_ENABLED ((sl_status_t)0x1FF36) ///< 'Wait On Host' feature not enabled.
+  ((sl_status_t)0x1FF40) ///< TCP socket close command issued before receiving the response of the previous close command.
+#define SL_STATUS_SI91X_WAIT_ON_HOST_FEATURE_NOT_ENABLED \
+  ((sl_status_t)0x1FF36) ///< 'Wait On Host' feature is not enabled.
 #define SL_STATUS_SI91X_STORE_CONFIG_CHECKSUM_INVALID \
   ((sl_status_t)0x1FF35) ///< Store configuration checksum validation failed.
-#define SL_STATUS_SI91X_TCP_KEEP_ALIVE_TIMEOUT     ((sl_status_t)0x1FF33) ///< TCP keep alive timed out.
+#define SL_STATUS_SI91X_TCP_KEEP_ALIVE_TIMEOUT     ((sl_status_t)0x1FF33) ///< TCP keep-alive timed out.
 #define SL_STATUS_SI91X_TCP_ACK_FAILED_FOR_SYN_ACK ((sl_status_t)0x1FF2D) ///< TCP ACK failed for TCP SYN-ACK.
 #define SL_STATUS_SI91X_MEMORY_LIMIT_EXCEEDED \
-  ((sl_status_t)0x1FF2C) ///< Memory limit exceeded in a given operating mode.
+  ((sl_status_t)0x1FF2C) ///< Memory limit exceeded in the given operating mode.
 #define SL_STATUS_SI91X_MEMORY_LIMIT_EXCEEDED_DURING_AUTO_JOIN \
-  ((sl_status_t)0x1FF2A) ///< Memory limit exceeded in an operating mode during auto join/create.
-#define SL_STATUS_SI91X_MDNS_COMMAND_NOT_SUPPORTED   ((sl_status_t)0x1FF2B) ///< MDNS command type is invalid.
-#define SL_STATUS_SI91X_PUF_OPERATION_BLOCKED        ((sl_status_t)0x1CC2F) ///< PUF operation is blocked.
-#define SL_STATUS_SI91X_PUF_ACTIVATION_CODE_INVALID  ((sl_status_t)0x1CC31) ///< PUF activation code invalid.
-#define SL_STATUS_SI91X_PUF_INPUT_PARAMETERS_INVALID ((sl_status_t)0x1CC32) ///< PUF input parameters invalid.
-#define SL_STATUS_SI91X_PUF_IN_ERROR_STATE           ((sl_status_t)0x1CC33) ///< PUF in error state.
-#define SL_STATUS_SI91X_PUF_OPERATION_NOT_ALLOWED    ((sl_status_t)0x1CC34) ///< PUF operation not allowed.
-#define SL_STATUS_SI91X_PUF_OPERATION_FAILED         ((sl_status_t)0x1CC35) ///< PUF operation failed.
+  ((sl_status_t)0x1FF2A) ///< Memory limit exceeded in the operating mode during auto join/create.
+#define SL_STATUS_SI91X_MDNS_COMMAND_NOT_SUPPORTED   ((sl_status_t)0x1FF2B) ///< The MDNS command type is invalid.
+#define SL_STATUS_SI91X_PUF_OPERATION_BLOCKED        ((sl_status_t)0x1CC2F) ///< The PUF operation is blocked.
+#define SL_STATUS_SI91X_PUF_ACTIVATION_CODE_INVALID  ((sl_status_t)0x1CC31) ///< The PUF activation code is invalid.
+#define SL_STATUS_SI91X_PUF_INPUT_PARAMETERS_INVALID ((sl_status_t)0x1CC32) ///< The PUF input parameters are invalid.
+#define SL_STATUS_SI91X_PUF_IN_ERROR_STATE           ((sl_status_t)0x1CC33) ///< The PUF is in an error state.
+#define SL_STATUS_SI91X_PUF_OPERATION_NOT_ALLOWED    ((sl_status_t)0x1CC34) ///< The PUF operation is not allowed.
+#define SL_STATUS_SI91X_PUF_OPERATION_FAILED         ((sl_status_t)0x1CC35) ///< The PUF operation failed.
 #define SL_STATUS_SI91X_AUTO_JOIN_IN_PROGRESS \
-  ((sl_status_t)0x15A5A) ///< Auto join or user store configuration going on.
-#define SL_STATUS_SI91X_RSNIE_FROM_AP_INVALID     ((sl_status_t)0x1FFE1) ///< Improper RSNIE from AP to station.
-#define SL_STATUS_SI91X_SNTP_MAX_ATTEMPTS_REACHED ((sl_status_t)0x1FF5F) ///< Reached maximum SNTP invalid attempts.
-#define SL_STATUS_SI91X_FREQUENCY_OFFSET_ZER0     ((sl_status_t)0x100FC) ///< Frequency offset sent is zero.
+  ((sl_status_t)0x15A5A) ///< Auto join or user store configuration is in progress.
+#define SL_STATUS_SI91X_RSNIE_FROM_AP_INVALID \
+  ((sl_status_t)0x1FFE1) ///< Received an invalid RSNIE from the AP to the station.
+#define SL_STATUS_SI91X_SNTP_MAX_ATTEMPTS_REACHED \
+  ((sl_status_t)0x1FF5F) ///< Maximum number of invalid SNTP attempts reached.
+#define SL_STATUS_SI91X_FREQUENCY_OFFSET_ZER0 ((sl_status_t)0x100FC) ///< The frequency offset sent is zero.
 #define SL_STATUS_SI91X_FREQUENCY_OFFSET_OUT_OF_LIMITS \
   ((sl_status_t)0x100FB) ///< Frequency offset specified goes beyond upper or lower limits and indicates that frequency offset cannot be changed further.
 

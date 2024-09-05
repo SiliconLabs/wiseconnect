@@ -225,7 +225,7 @@ static sl_status_t get_configured_join_request(sl_wifi_interface_t module_interf
  *  @param[in] HtCaps
  * HtCaps is identified by @ref sl_si91x_request_ap_high_throughput_capability_t
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note 
  *   Client interfaces are not supported.
  ******************************************************************************/
@@ -1541,6 +1541,7 @@ sl_status_t sl_wifi_deinit(void)
   return status;
 }
 
+// 5GHz interface is currently not supported for Si91x
 bool sl_wifi_is_interface_up(sl_wifi_interface_t interface)
 {
   switch (interface) {

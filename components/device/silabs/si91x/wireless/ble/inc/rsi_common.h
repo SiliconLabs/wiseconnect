@@ -272,18 +272,31 @@ typedef enum rsi_device_state_e {
  * ******************************************************/
 
 // driver control block structure
+
+/**
+ * @brief Structure representing the driver control block.
+ *
+ * This structure is used to define the parameters for the driver control block,
+ * including endianness, global Bluetooth callback, common Bluetooth callback,
+ * BLE callback, and device state.
+ */
 typedef struct rsi_driver_cb_s {
+  /** Endianness */
   uint8_t endian;
 
+  /** Global Bluetooth callback */
   rsi_bt_global_cb_t *bt_global_cb;
+  /** Common Bluetooth callback */
   rsi_bt_cb_t *bt_common_cb;
-
+  /** BLE callback */
   rsi_bt_cb_t *ble_cb;
 
 #if defined(SL_SI91X_PRINT_DBG_LOG)
+  /** Mutex for debug prints */
   osMutexId_t debug_prints_mutex;
 #endif
 
+  /** Device state */
   volatile rsi_device_state_t device_state;
 } rsi_driver_cb_t;
 

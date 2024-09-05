@@ -224,9 +224,9 @@ static sl_status_t sli_si91x_copy_ip_address_and_port(const sl_http_client_reque
   SL_WIFI_ARGS_CHECK_NULL_POINTER(request->resource);
 
   // 917 does not support HTTP POST and PUT request with body_length as 0 in Alpha 3 release
-  // Bug in TA, when SL_HTTP_POST is requested with body_length = 0, TA sends SL_HTTP_GET
-  // Bug in TA, when SL_HTTP_PUT is requested with body_length = 0, TA doesn't send end of data to host so currently there is no way to handle put_delete()
-  // Below check should be removed once the above TA bugs are fixed
+  // Bug in NWP, when SL_HTTP_POST is requested with body_length = 0, NWP sends SL_HTTP_GET
+  // Bug in NWP, when SL_HTTP_PUT is requested with body_length = 0, NWP doesn't send end of data to host so currently there is no way to handle put_delete()
+  // Below check should be removed once the above NWP bugs are fixed
   if (request->http_method_type != SL_HTTP_GET && request->body_length == 0) {
     return SL_STATUS_INVALID_PARAMETER;
   }

@@ -14,7 +14,7 @@
 ## Purpose/Scope
 This application demonstrates the process for configuring SiWx91x in connected sleep mode while having a TCP client socket in open state.
 
-The application creates TCP client socket and then connects to a remote server to send 64MB data to TCP Server. After completing data transfer, NWP/TA enters connected sleep and M4 goes to sleep with configurable alarm time. After the alarm times out, M4 wakes up NWP/TA by sending a packet and the data transmission repeats.
+The application creates TCP client socket and then connects to a remote server to send 64MB data to TCP Server. After completing data transfer, NWP enters connected sleep and M4 goes to sleep with configurable alarm time. After the alarm times out, M4 wakes up NWP by sending a packet and the data transmission repeats.
 
 ## Soc Mode:
 

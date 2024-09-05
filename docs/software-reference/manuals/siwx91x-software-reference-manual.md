@@ -7,7 +7,7 @@ This reference manual provides information about the software on the SiWx917™,
 The SiWx91x is the industry's first wireless microcontroller unit (MCU) family with a comprehensive multiprotocol wireless subsystem. It has an integrated ultra-low-power microcontroller, a built-in wireless subsystem, advanced security, high-performance mixed-signal peripherals, and integrated power management.
 
 The SiWx917 system-on-chip (SoC) has two processing cores:
-- ThreadArch™ (TA) wireless connectivity processor, also known as the network processor (**NWP**)
+- Network wireless processor, also known as the **NWP**
 - ARM Cortex M4 application processor, also known as the **MCU**
 
 The SiWx917 operates either with two flash memories, one for the MCU and the other for the NWP, or with a shared flash memory. There is a shared SRAM used by both the processors. The NWP provides support for in-built network and wireless stacks. These are accessed by an application running on the MCU via pre-defined APIs provided as part of the WiSeConnect™ SDK. Both the processors are connected over an AHB interface. Functioning in both the MCU and NWP is achieved via state machines present in the firmware. 

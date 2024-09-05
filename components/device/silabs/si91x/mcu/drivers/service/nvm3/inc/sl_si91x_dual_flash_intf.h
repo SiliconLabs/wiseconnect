@@ -42,14 +42,14 @@ extern "C" {
 
 /* Enable QSPI  clock and hclock */
 #define CLK_ENABLE_SET_2_REG_QSPI (*((volatile uint32_t *)(M4SS_CLK_PWR_CTRL_BASE_ADDR + 0x08)))
-/*Disable the flash based retention sleep */
-/*This macro needs to be enabled when flash based retention sleep is needed*/
+/* Disable the flash based retention sleep */
+/* This macro needs to be enabled when flash based retention sleep is needed*/
 #define FLASH_BASED_RET_SLEEP 1
 /* Stack pointer on retention wake up */
 #define INTERMEDIATE_SP 0x1F800
 /* GPIO port number */
 #define QSPI_PINS_PORT 0
-/* TA core reset address */
+/* NWP core reset address */
 #define TA_RESET_ADDR 0x22000004
 /* Default flash page size */
 #ifndef FLASH_PAGE_SIZE
@@ -96,7 +96,7 @@ extern "C" {
 #define GPIO_46_TO_51 2
 #define GPIO_52_TO_57 3
 #define GPIO_58_TO_63 4
-//! TA OCTA/DUAL combinations
+//! NWP OCTA/DUAL combinations
 #define GPIO_0_AND_58  5
 #define GPIO_6_AND_58  6
 #define GPIO_46_AND_58 7

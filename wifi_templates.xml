@@ -3151,7 +3151,7 @@
     <properties key="readmeFiles" value="examples/featured/firmware_update/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="wifi_firmware_update_ncp" label="Wi-Fi - Firmware Update (NCP)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
+<descriptors name="wifi_firmware_update_ncp" label="Wi-Fi - NWP or Combined (NWP and M4) Firmware Update via TCP (NCP)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/firmware_update/firmware_update_ncp.slcp"/>
@@ -3166,7 +3166,7 @@
     <properties key="readmeFiles" value="examples/featured/firmware_update/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="wifi_firmware_update_psram" label="Wi-Fi - Firmware Update (PSRAM)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
+<descriptors name="wifi_firmware_update_psram" label="Wi-Fi - NWP or Combined (NWP and M4) Firmware Update via TCP (PSRAM)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/firmware_update/firmware_update_psram.slcp"/>
@@ -3181,7 +3181,7 @@
     <properties key="readmeFiles" value="examples/featured/firmware_update/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="wifi_firmware_update_soc" label="Wi-Fi - Firmware Update (SoC)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
+<descriptors name="wifi_firmware_update_soc" label="Wi-Fi - NWP or Combined (NWP and M4) Firmware Update via TCP (SoC)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/firmware_update/firmware_update_soc.slcp"/>
@@ -3196,7 +3196,7 @@
     <properties key="readmeFiles" value="examples/featured/firmware_update/readme.md"/>
 	<properties key="filters" value="Device\ Type|SoC Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="wifi_firmware_update_uart_ncp" label="Wi-Fi - Firmware Update (UART NCP)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
+<descriptors name="wifi_firmware_update_uart_ncp" label="Wi-Fi - NWP or Combined (NWP and M4) Firmware Update via TCP (UART NCP)" description="Wirelessly updates the Si91x firmware from a remote TCP server">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/featured/firmware_update/firmware_update_uart_ncp.slcp"/>
@@ -3406,7 +3406,7 @@
     <properties key="readmeFiles" value="examples/snippets/wlan/lwip_tcp_client/readme.md"/>
 	<properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Wi-Fi Project\ Difficulty|Beginner"/>
   </descriptors>
-<descriptors name="wifi_m4_firmware_update" label="Wi-Fi - M4 Firmware Update" description="Wirelessly updates the M4 firmware from a remote TCP server">
+<descriptors name="wifi_m4_firmware_update" label="Wi-Fi - M4 Firmware Update via TCP" description="Wirelessly updates the M4 firmware from a remote TCP server">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="projectFilePaths" value="examples/snippets/wlan/m4_firmware_update/m4_firmware_update.slcp"/>

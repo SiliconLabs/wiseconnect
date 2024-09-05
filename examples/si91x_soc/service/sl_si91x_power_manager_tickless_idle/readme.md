@@ -25,13 +25,13 @@
 
 ## About Example Code
 
-- Power Manager service is initialized in PS4 state with 32MHz clock (Power Save) using \ref sl_si91x_power_manager_init.
+- Power Manager service is initialized in PS4 state with 32MHz clock (Power Save) using sl_si91x_power_manager_init.
 - At initialization, a thread is created and the application_start() function is called along the thread.
 - All the activities are handled in the application_start() function.
-- Firstly wifi is initialized, M4-TA secure handshake is established to send commands to TA, TA is switched to STANDBY_WITH_RAM_RETENTION mode.
+- Firstly wifi is initialized, M4-NWP secure handshake is established to send commands to NWP, NWP is switched to STANDBY_WITH_RAM_RETENTION mode.
 - According to the revised implementation, the PS4 and PS3 powersave modes will continue to use the same clock frequency (32MHz).
-- All the possible events are `OR`'ed and passed to the \ref `sl_si91x_power_manager_subscribe_ps_transition_event` along with the callback function address.
-- RAM retention is enabled and configured using \ref `sl_si91x_power_manager_configure_ram_retention`.
+- All the possible events are `OR`'ed and passed to the `sl_si91x_power_manager_subscribe_ps_transition_event` along with the callback function address.
+- RAM retention is enabled and configured using `sl_si91x_power_manager_configure_ram_retention`.
 - On OS timer expiry, it updates the requirement and changes the highest attainable operating state and performs sleep-wakeup operations.
 - Wake-up Source is selected as SysRTC and wireless wake-up by default. Application will go to sleep as per the idle time provided by scheduler and it will wake-up with either wireless wake-up or SysRTC.
 
@@ -67,14 +67,12 @@ Refer getting started [here](https://docs.silabs.com/wiseconnect/latest/wiseconn
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
-## Application Build Environment
-
 ## Test the Application
 
 Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#build-an-application) for the following tasks:
 
 1. Compile and run the application.
-2. By default it initializes the wifi and switches TA to standby with RAM retention mode, power manager service is initialized and callback is subscribed.
+2. By default it initializes the wifi and switches NWP to standby with RAM retention mode, power manager service is initialized and callback is subscribed.
 3. After successful program execution, observe the prints in the serial console.
 
      ### Output console

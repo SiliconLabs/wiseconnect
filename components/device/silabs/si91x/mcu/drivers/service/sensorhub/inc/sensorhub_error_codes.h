@@ -43,7 +43,9 @@
 
 /****************************ERRORS MASK******************************/
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 #define SL_SH_SENSORHUB_ERRORS_MASK 0
+/** @endcond */
 
 /****************************TIMER ERRORS******************************/
 
@@ -97,5 +99,7 @@
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 #define SL_DRIVER_OK ARM_DRIVER_OK ///< Operation succeeded
 /** @endcond */
+
+/// @} end group SENSOR-HUB ********************************************************/
 
 #endif

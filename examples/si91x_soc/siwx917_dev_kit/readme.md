@@ -18,7 +18,7 @@ The app starts in Wi-Fi access point (AP) mode. User can use their mobile device
 
 Additionally, the app also runs a local webserver that enables provisioning of the SiWG917 device onto a Wi-Fi network. User can access the webserver via a browser, scan for available networks, select their desired network and enter the network credential. Once provisioned, the app then proceeds to bring down the AP and switches to Wi-Fi Station mode. The app connects to the selected network and brings up the sensor webserver. Users can then use their browser to view the sensor data collected by the dev kit board.
 
-All device activities can be observed on the serial terminal prints.
+All device activities can be observed on the serial terminal prints. You may use a readily available terminal program such as [Tera Term](https://teratermproject.github.io/index-en.html) or [PuTTY](https://www.putty.org/).
 
 ## Prerequisites/Setup Requirements
 
@@ -48,17 +48,27 @@ All device activities can be observed on the serial terminal prints.
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
 - [Connect the SiWx917 board to your computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- On the `Examples Projects & Demos` pane, select `Demos`. Locate the `Wi-Fi SiWx917 Dev Kit (BRD2605A)` tile and click `Run` to program the dev kit board with the demo binary. 
+- [Update the SiWx917 connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
+- [Run the demo](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-soc-mode#run-the-demo). Locate the `Wi-Fi SiWx917 Dev Kit (BRD2605A)` tile and click `Run` to program the dev kit board with the demo binary. 
 
 ![Run the Demo](resources/readme/demo-run.png)
 
-After upgrading the application binary, proceed with the demo by referring to the next steps under [run the application](#run-the-application) section.
+- Alternatively, you can follow the instructions on the [Developing with Radio Boards in SoC Mode page](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#developing-with-wi-se-connect-sdk-v3-x-with-si-wx91x-radio-boards) to:
+  - [Create a project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+  - [Build the application](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#build-an-application)
+  - [Flash the application](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#flash-an-application)
+
+![Create a Project](resources/readme/create-project.png)
+
+- After upgrading the application binary, proceed with the demo by referring to the next steps under [run the application](#run-the-application) section.
 
 ## Run the Application
 
 ### Viewing Sensor Data
 
-**Step 1** : The SiWG917 device starts in AP mode.
+![Viewing Sensor Data Connections](resources/readme/viewing-sensor-data-connections.png)
+
+**Step 1** : The SiWG917 device starts in AP mode. All device activities can be observed on the serial terminal prints.
 
 ![Startup Prints](resources/readme/startup-prints.png)
 
@@ -82,7 +92,9 @@ After upgrading the application binary, proceed with the demo by referring to th
 
 ![LED Control](resources/readme/led-control.png)
 
-### Connecting to a Wi-Fi Network 
+### Connecting to a Wi-Fi Network
+
+![Connecting to a Network Connections](resources/readme/connecting-to-a-network-connections.png)
 
 **Step 1** : Make sure that your mobile device is connected to the SiWG917 dev kit's AP network.
 
@@ -103,8 +115,8 @@ After upgrading the application binary, proceed with the demo by referring to th
 ![Connected Prints](resources/readme/connected-prints.png)
 
 **Step 6** : Connect your mobile device to the same Wi-Fi network that the SiWG917 is connected to. You can access the sensor webpage by entering 
-the device IP address in your browser. The device IP address can be found in the serial terminal prints.
+the device IP address in your browser. The device IP address can be found in the serial terminal prints. If it fails to connect, go back to step 1.
+
+**Step 7** : Click `Refresh` to load and view the latest sensor data
 
 ![Sensor Webpage](resources/readme/sensor-webpage.png)
-
-**Step 7** : If it fails to connect, go back to step 1.

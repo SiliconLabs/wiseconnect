@@ -1,4 +1,4 @@
-/**************************************************************************/ /**
+/******************************************************************************
  * Copyright 2019, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,20 +24,33 @@
 
 /** \addtogroup SL_NET_TYPES
  * @{ */
-/// LwIP network context
+
+/**
+ * @brief LwIP network context structure.
+ * 
+ * @details
+ * This structure holds the LwIP network interface context used for Wi-Fi operations.
+ * It encapsulates the LwIP network interface structure.
+ * 
+ * @note
+ * This context is specific to LwIP and is used internally by SDK.
+ */
 typedef struct {
   struct netif netif; ///< lwIP network interfaces
 } sl_net_wifi_lwip_context_t;
 /** @} */
 
+//! @cond Doxygen_Suppress
+/// LwIP inteface API
 typedef struct {
   sl_status_t (*init)(const sl_wifi_device_configuration_t *configuration,
                       sl_net_wifi_lwip_context_t *workspace,
-                      sl_event_handler_t event_handler);
-  sl_status_t (*deinit)(sl_net_wifi_lwip_context_t *workspace);
-  sl_status_t (*up)(sl_net_profile_id_t profile_id);
-  sl_status_t (*down)(void);
+                      sl_event_handler_t event_handler);        ///< Interface init  handler
+  sl_status_t (*deinit)(sl_net_wifi_lwip_context_t *workspace); ///< Interface de-init  handler
+  sl_status_t (*up)(sl_net_profile_id_t profile_id);            ///< Interface up handler
+  sl_status_t (*down)(void);                                    ///< Interface down handler
 } sl_net_wifi_lwip_interface_api_t;
 
-// extern variables
+/// extern variables
 extern sl_net_wifi_lwip_interface_api_t wifi_client;
+//! @endcond

@@ -380,7 +380,7 @@ typedef enum NPSS_COMPARATOR {
 #define ENABLE_STANDBYDC  1
 #define DISABLE_STANDBYDC 0
 
-/* TA 192K RAM RETENTION MODE ENABLE in PS2 */
+/* NWP 192K RAM RETENTION MODE ENABLE in PS2 */
 #define ENABLE_TA192K_RAM_RET  1
 #define DISABLE_TA192K_RAM_RET 0
 
@@ -1610,7 +1610,7 @@ STATIC INLINE void RSI_PS_PS4SetRegisters(void)
 {
   // Configure the prefetch and registering when SOC clock is more than 120 MHz
   ICACHE2_ADDR_TRANSLATE_1_REG = BIT(21); // Icache registering when clock frequency is more than 120 MHz
-  // When set, enables registering in M4-TA AHB2AHB. This will have performance penalty. This has to be set above 100 MHz
+  // When set, enables registering in M4-NWP AHB2AHB. This will have performance penalty. This has to be set above 100 MHz
   MISC_CFG_SRAM_REDUNDANCY_CTRL = BIT(4);
   MISC_CONFIG_MISC_CTRL1 |= BIT(4); // Enable Register ROM as clock frequency is 200 MHz
 }
@@ -1630,20 +1630,20 @@ STATIC INLINE void RSI_PS_PS2UpdateClockVariable(void)
 
 /**
  *@fn         void RSI_PS_WakeupTAandProgramFlash(void)
- *@brief      This API is used wakeup the TA and program the flash
+ *@brief      This API is used wakeup the NWP and program the flash
  *@return     none
  */
 STATIC INLINE void RSI_PS_WakeupTAandProgramFlash(void)
 {
   if (!(P2P_STATUS_REGISTER & BIT(3))) {
-    //!wakeup TA
+    //!wakeup NWP
     P2P_STATUS_REGISTER |= BIT(0);
-    //!wait for TA active
+    //!wait for NWP active
     while (!(P2P_STATUS_REGISTER & BIT(3)))
       ;
   }
-  //! Request TA to program flash
-  //! raise an interrupt to TA register
+  //! Request NWP to program flash
+  //! raise an interrupt to NWP register
   M4SS_P2P_INTR_SET_REGISTER = BIT(4);
   P2P_STATUS_REGISTER        = BIT(0);
 

@@ -33,22 +33,30 @@
 #include "sl_si91x_crypto.h"
 #include "sl_status.h"
 
-/** @} */
+/******************************************************
+ *                Function Declarations
+ *******************************************************/
 
 /**
  * @addtogroup CRYPTO_ATTESTATION_FUNCTIONS
- * @{ 
+ * @{
  */
 
+/***************************************************************************/
 /**
- * @fn    sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint32_t *nonce)
- * @brief Process the nonce for attestation token
- * @param[in] length
- * @param[in] nonce
+ * @fn sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint32_t *nonce)
+ * @brief To process the nonce for the attestation token.
  * @param[out] token
- * @return return sl_status code 
- *      
- */
+ *   Buffer to store the attestation token.
+ * @param[in] length
+ *   Length of the token buffer.
+ * @param[in] nonce
+ *   Nonce value used for generating the attestation token.
+ * @return
+ *   sl_status_t.
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status) for further details.
+ ******************************************************************************/
 sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint32_t *nonce);
 
 /** @} */

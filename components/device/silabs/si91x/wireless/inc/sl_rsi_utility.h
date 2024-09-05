@@ -45,6 +45,7 @@
 #include "sl_wifi_device.h"
 #include "sl_si91x_types.h"
 
+//! @cond Doxygen_Suppress
 #define NCP_HOST_COMMON_RESPONSE_EVENT   (1 << 3) // Indicates RX response received for COMMON command type
 #define NCP_HOST_WLAN_RESPONSE_EVENT     (1 << 4) // Indicates synchronous RX response received for WLAN command type
 #define NCP_HOST_WLAN_NOTIFICATION_EVENT (1 << 5) // Indicates asynchronous RX response received for WLAN command type
@@ -96,10 +97,11 @@ extern sl_si91x_performance_profile_t current_performance_profile; /*Indicates t
 
 sl_status_t convert_si91x_wifi_client_info(
   sl_wifi_client_info_response_t *client_info_response,
-  sl_si91x_client_info_response *sl_si91x_client_info_response); /*Function converts TA client info to SDK client info*/
+  sl_si91x_client_info_response
+    *sl_si91x_client_info_response); /*Function converts NWP client info to SDK client info*/
 sl_wifi_event_t convert_si91x_event_to_sl_wifi_event(
   rsi_wlan_cmd_response_t command,
-  uint16_t frame_status); /*Function converts TA events to SDK events*/
+  uint16_t frame_status); /*Function converts NWP events to SDK events*/
 
 sl_status_t save_sl_wifi_rate(
   sl_wifi_rate_t transfer_rate); /*Function used to update the variable that stores the wifi rate*/
@@ -152,7 +154,7 @@ sl_si91x_coex_mode_t get_coex_mode(void);            /*Function used to retrieve
 
 sl_status_t convert_sl_wifi_to_sl_si91x_encryption(
   sl_wifi_encryption_t encryption_mode,
-  uint8_t *encryption_request); /*Function converts SDK encryption mode to TA supported mode*/
+  uint8_t *encryption_request); /*Function converts SDK encryption mode to NWP supported mode*/
 
 /*********************************************************************************************
  * @brief
@@ -179,7 +181,7 @@ sl_status_t sl_si91x_send_power_save_request(sl_si91x_performance_profile_t prof
  *   @ref sl_si91x_efuse_data_t object that contains the Manufacturing software version.
  *   efuse_data_type which holds the type of efuse data to be read.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
  *   This API is not supported in the current release.
  ******************************************************************************/
@@ -194,7 +196,7 @@ sl_status_t sl_si91x_get_flash_efuse_data(sl_si91x_efuse_data_t *efuse_data, uin
  * @param[out] efuse_data
  *   @ref sl_si91x_efuse_data_t object that contains the Manufacturing software version.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
 void sl_si91x_get_efuse_data(sl_si91x_efuse_data_t *efuse_data);
 
@@ -207,7 +209,7 @@ void sl_si91x_get_efuse_data(sl_si91x_efuse_data_t *efuse_data);
  * @param[out] efuse_data
  *   @ref sl_si91x_efuse_data_t object that contains the Manufacturing software version.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
 void sl_si91x_set_efuse_data(const sl_si91x_efuse_data_t *efuse_data);
 
@@ -230,38 +232,6 @@ static inline uint8_t convert_dbm_to_si91x_power_level(sl_wifi_max_tx_power_t wi
 
 sl_status_t sl_si91x_platform_init(void);
 sl_status_t sl_si91x_platform_deinit(void);
-
-/**
-* @addtogroup EXTERNAL_HOST_INTERFACE_FUNCTIONS
-* @{ 
-*/
-
-/**
- * @brief  This API used to block MCU for specified time.
- * 
- * @param[in] delay_milliseconds 
- *  time delay in milliseconds
- */
-void sl_si91x_host_delay_ms(uint32_t delay_milliseconds);
-
-/**
- * @brief  It retrieves a timestamp.
- * 
- * @return sl_si91x_host_timestamp_t 
- */
-sl_si91x_host_timestamp_t sl_si91x_host_get_timestamp(void);
-
-/**
- * @brief This API calculates the timestamp difference.
- * 
- * @param[in] starting_timestamp
- *  This parameter is used to calculate the elapsed time.
- *  
- * @return sl_si91x_host_timestamp_t 
- */
-sl_si91x_host_timestamp_t sl_si91x_host_elapsed_time(uint32_t starting_timestamp);
-
-/** @} */
 
 // Event API
 void sl_si91x_host_set_event(uint32_t event_mask);       /*Function used to set specified flags for event*/
@@ -289,7 +259,6 @@ void *sl_si91x_host_get_buffer_data(
   uint16_t *data_length); /*Function used to obtain pointer to a specified location in the buffer*/
 void sl_si91x_host_free_buffer(
   sl_wifi_buffer_t *buffer); /*Function used to deallocate the memory associated with buffer*/
-// ---------------
 
 sl_status_t sl_si91x_host_add_to_queue(
   sl_si91x_queue_type_t queue,
@@ -374,7 +343,7 @@ uint8_t sli_multicast_mac_hash(const uint8_t *mac);
  * @param[in]   uint32 *data, pointer to data which is to be read/write
  * @param[out]  none
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @section description 
  * This API is used to send boot instructions to WiFi module.
  **************************************************/
@@ -388,7 +357,7 @@ sl_status_t sl_si91x_boot_instruction(uint8_t type, uint16_t *data);
  *   After device SPI is configured, this API is used for high-speed mode (>25 MHz).
  *   In addition to this API, the following API sl_si91x_host_enable_high_speed_bus has to be ported by the user to implement the host clock switch.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
 sl_status_t sl_si91x_bus_enable_high_speed(); /*Function used to start DMA channels for transmission and reception*/
 
@@ -407,7 +376,7 @@ void sl_si91x_ulp_wakeup_init(void); /*Function used to initialize SPI interface
  *  It specifies type of credential.
  * @param cred 
  *  Pointer to store the wifi credential information of type [sl_wifi_credential_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-credential-t)
- * @return sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. 
+ * @return sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details. 
  */
 sl_status_t sl_si91x_host_get_credentials(sl_wifi_credential_id_t id, uint8_t type, sl_wifi_credential_t *cred);
 
@@ -416,18 +385,64 @@ bool sli_si91x_get_flash_command_status();
 void sli_si91x_update_flash_command_status(bool flag);
 
 bool sli_si91x_is_sdk_ok_to_sleep();
+//! @endcond
 
 /**
 * @addtogroup EXTERNAL_HOST_INTERFACE_FUNCTIONS
 * @{ 
 */
 
+/***************************************************************************/
 /**
- * @brief Checks if the device is initialized.
- *  
- * This function is used to verify if the device has been properly initialized.
+ * @brief
+ *   Delay execution for a specified number of milliseconds.
  * 
- * @return bool. Returns true if the device is initialized, false otherwise.
+ * @details
+ *   This function introduces a delay for the specified amount of time in milliseconds. It uses the underlying OS 
+ *   delay function (`osDelay`) to yield the CPU, allowing other tasks to execute during the delay period. This 
+ *   ensures that the delay does not block the execution flow.
+ * 
+ * @param[in] delay_milliseconds 
+ *   The time delay in milliseconds.
+ *****************************************************************************/
+void sl_si91x_host_delay_ms(uint32_t delay_milliseconds);
+
+/**
+ * @brief
+ *   Retrieves the current timestamp.
+ * 
+ * @details
+ *   This function retrieves the current timestamp from the host system. The timestamp can be used for various purposes such as logging, time measurements, and synchronization.
+ * 
+ * @return
+ *   The current timestamp of type sl_si91x_host_timestamp_t.
+ */
+sl_si91x_host_timestamp_t sl_si91x_host_get_timestamp(void);
+
+/**
+ * @brief
+ *   Calculates the elapsed time since a given starting timestamp.
+ * 
+ * @details
+ *   This function calculates the difference between the current timestamp and a provided starting timestamp. It is useful for measuring the time elapsed during operations.
+ * 
+ * @param[in] starting_timestamp
+ *   The starting timestamp from which the elapsed time is calculated.
+ * 
+ * @return
+ *   The elapsed time in milliseconds of type sl_si91x_host_timestamp_t.
+ */
+sl_si91x_host_timestamp_t sl_si91x_host_elapsed_time(uint32_t starting_timestamp);
+
+/**
+ * @brief
+ *   Checks if the device is initialized.
+ * 
+ * @details
+ *   This function verifies whether the device has been properly initialized. It is typically used to ensure that the device is ready for operation before performing any further actions.
+ * 
+ * @return
+ *   Returns `true` if the device is initialized, `false` otherwise.
  */
 bool sl_si91x_is_device_initialized(void);
 

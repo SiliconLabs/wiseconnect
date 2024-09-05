@@ -74,29 +74,34 @@ sl_status_t sl_si91x_vap_shutdown(uint8_t vap_id);
  * @addtogroup SOCKET_CONFIGURATION_FUNCTION
  * @{ 
  */
-/// SiWx91x Socket Configuration
+/**
+ * @brief SiWx91x Socket Configuration
+ *
+ * The structure defines the configuration parameters for SiWx91x sockets.
+ * It includes settings for the total number of sockets, TCP and UDP socket
+ * configurations, and performance-related parameters.
+ */
 typedef struct {
-  uint8_t total_sockets; ///< Total number of sockets (Which includes BSD, IoT, Si91x)
+  uint8_t total_sockets; ///< Total number of sockets (that includes BSD, IoT, Si91x)
 
   uint8_t total_tcp_sockets; ///< Total number of TCP sockets
 
   uint8_t total_udp_sockets; ///< Total number of UDP sockets
 
-  uint8_t tcp_tx_only_sockets; ///< Number of TCP sockets that are intended for TX
+  uint8_t tcp_tx_only_sockets; ///< Number of TCP sockets intended for transmission (TX)
 
-  uint8_t tcp_rx_only_sockets; ///< Number of TCP sockets that are intended for RX
+  uint8_t tcp_rx_only_sockets; ///< Number of TCP sockets intended for reception (RX)
 
-  uint8_t udp_tx_only_sockets; ///< Number of UDP sockets that are intended for TX
+  uint8_t udp_tx_only_sockets; ///< Number of UDP sockets intended for transmission (TX)
 
-  uint8_t udp_rx_only_sockets; ///< Number of UDP sockets that are intended for RX
+  uint8_t udp_rx_only_sockets; ///< Number of UDP sockets intended for reception (RX)
 
-  uint8_t tcp_rx_high_performance_sockets; ///< Total TCP RX high-performance sockets
-
-  uint8_t
-    tcp_rx_window_size_cap; ///< TCP RX window size - To scale the window size linearly according to the value (TCP MSS * TCP_RX_WINDOW_SIZE_CAP)
+  uint8_t tcp_rx_high_performance_sockets; ///< Total number of high-performance TCP RX sockets
 
   uint8_t
-    tcp_rx_window_div_factor; ///< TCP RX window division factor - To increase the ACK frequency for asynchronous sockets
+    tcp_rx_window_size_cap; ///< TCP RX window size cap, scales window size linearly (TCP MSS * TCP_RX_WINDOW_SIZE_CAP)
+
+  uint8_t tcp_rx_window_div_factor; ///< TCP RX window division factor, increases ACK frequency for asynchronous sockets
 } sl_si91x_socket_config_t;
 /** @} */
 
@@ -105,16 +110,26 @@ typedef struct {
  * @{ 
  */
 
-/***************************************************************************/ /**
+/**
  * @brief
- *   This function configures SiWx91x specific socket configuration.
+ *   Configures SiWx91x specific socket settings.
+ *
+ * @details
+ *   This function sets up the socket configuration specific to the SiWx91x.
+ *   It must be called before invoking @ref sl_si91x_socket_async.
+ *   The configuration includes setting parameters such as socket type,
+ *   protocol, and other options specific to the SiWx91x series.
+ *
  * @pre Pre-conditions:
- * - 
- *    This API to be called before calling @ref sl_si91x_socket_async.
+ * - Ensure that the necessary initialization for the SiWx91x module has been completed.
+ * - This API is called before calling @ref sl_si91x_socket_async.
+ *
  * @param[in] socket_config 
  *   Socket configuration of type @ref sl_si91x_socket_config_t.
+ *
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details. 
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details. 
+ *
  ******************************************************************************/
 sl_status_t sl_si91x_config_socket(sl_si91x_socket_config_t socket_config);
 
@@ -146,7 +161,7 @@ si91x_socket_t *get_si91x_socket(int socket_id);
 
 /**
  * A internal function to check whether a particular port is available or not.
- * @param port_number port_number which needs to verified for availability.
+ * @param port_number port_number which needs to be verified for availability.
  * @return True if available else false.
  */
 bool is_port_available(uint16_t port_number);
@@ -184,9 +199,9 @@ sl_status_t sli_si91x_sync_accept_command(si91x_socket_t *server_socket, void *c
  * @param  queue 				Queue to which the commands needs to be enqueued.
  * @param  response_queue       Response queue.
  * @param  buffer				Buffer to hold address RX packet.
- * @param  response 			Double Pointer to response pointer, Response pointer can be NULL in case of response bit not being set in wait_period or if the sent command has failed.
+ * @param  response 			Double Pointer to response pointer, response pointer could be NULL in case of response bit not being set in wait_period, or if the sent command has failed.
  * @param  events_to_wait_for 	Pointer to events on which the API should wait on. This will be considered only in case of wait_period being null
- * @param  wait_period 			pointer to sl_si91x_wait_period_t to determine timeout and response bit. If this pointer is null, the function will block until it receives a response.
+ * @param  wait_period 			pointer to sl_si91x_wait_period_t to determine timeout and response bit. If this pointer is null, the function would block until it receives a response.
  * @param  sdk_context          SDK context.
  * @return sl_status 	 SL_STATUS_OK in case of success or appropriate sl_status error value.
  */

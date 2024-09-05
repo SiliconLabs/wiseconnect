@@ -126,7 +126,7 @@ sl_status_t sl_si91x_dac_init(sl_dac_clock_config_t *dac_clock)
       /*Configure the SOC PLL to 220MHz*/
       ICACHE2_ADDR_TRANSLATE_1_REG =
         BIT(21); //icache output will be registered and given to processor. This bit has to be set above 120MHz.
-      /*When set, enables registering in M4-TA AHB2AHB. This will have performance penalty. This has to be set above 100MHz.
+      /*When set, enables registering in M4-NWP AHB2AHB. This will have performance penalty. This has to be set above 100MHz.
         When this bit is set, bypass the AHB bus registering in AHB bridge, which is present in between MCU and NWP
         subsystems. It should be asserted when MCU clock is less than 100MHz.*/
       MISC_CFG_SRAM_REDUNDANCY_CTRL = BIT(4);

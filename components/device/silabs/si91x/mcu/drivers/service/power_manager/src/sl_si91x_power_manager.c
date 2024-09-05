@@ -343,7 +343,7 @@ sl_status_t sl_si91x_power_manager_set_clock_scaling(sl_clock_scaling_t mode)
 }
 
 /*******************************************************************************
- * Returns the current state of SoC which is stored in static variable.
+ * Returns the current power state of SoC which is stored in static variable.
  ******************************************************************************/
 sl_power_state_t sl_si91x_power_manager_get_current_state(void)
 {

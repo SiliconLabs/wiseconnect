@@ -76,7 +76,7 @@
 /*Macro used to define the PTE CRC value of the Firmware 17 Boards*/
 #define FIRMWARE_17_PTE_CRC_VALUE 0
 
-/*Macro used to notify TA about M4 XTAL usage*/
+/*Macro used to notify NWP about M4 XTAL usage*/
 #define TURN_ON_XTAL_REQUEST     BIT(9)
 #define TURN_OFF_XTAL_REQUEST    BIT(10)
 #define M4_IS_USING_XTAL_REQUEST BIT(11)
@@ -89,7 +89,7 @@
 #define BIT(x) (1 << (x))
 #endif
 
-//! This interrupt is raised by M4 to TA when there is a TX packet from M4 to read
+//! This interrupt is raised by M4 to NWP when there is a TX packet from M4 to read
 #define RX_BUFFER_VALID          BIT(1)
 #define TX_PKT_PENDING_INTERRUPT BIT(2)
 #define UPGRADE_M4_IMAGE         BIT(5)
@@ -102,15 +102,15 @@
 #define M4_WAITING_FOR_TA_DEINIT BIT(8)
 
 #define TX_PKT_TRANSFER_DONE_INTERRUPT BIT(2)
-//! This interrupt is received from TA when RX packet is pending from TA
+//! This interrupt is received from NWP when RX packet is pending from NWP
 #define RX_PKT_TRANSFER_DONE_INTERRUPT BIT(1)
-//! This interrupt is received from TA when TX packet transfer from M4 to TA is done
+//! This interrupt is received from NWP when TX packet transfer from M4 to NWP is done
 
 #define M4_IMAGE_UPGRADATION_PENDING_INTERRUPT BIT(4)
-//! This interrupt is raised by TA to M4 when there is a TX packet from M4 to read
+//! This interrupt is raised by NWP to M4 when there is a TX packet from M4 to read
 
 #ifdef SLI_SI917
-//! This interrupt is raised by TA to M4 when there is a flash write request from M4 to TA in common flash mode
+//! This interrupt is raised by NWP to M4 when there is a flash write request from M4 to NWP in common flash mode
 #define TA_WRITING_ON_COMM_FLASH BIT(5)
 #endif
 
@@ -224,7 +224,7 @@ void sli_si91x_config_m4_dma_desc_on_reset(void);
 void rsi_update_tx_dma_desc(uint8_t skip_dma_valid);
 void rsi_update_rx_dma_desc(void);
 sl_status_t si91x_req_wakeup(void);
-void sl_si91x_ta_events_init(void); /*Function used to create and initialize event mechanism for TA related events */
+void sl_si91x_ta_events_init(void); /*Function used to create and initialize event mechanism for NWP related events */
 bool sli_si91x_is_m4_using_xtal(void);
 bool sli_si91x_is_xtal_in_use_by_m4(void);
 void sli_si91x_set_m4_is_using_xtal(void);

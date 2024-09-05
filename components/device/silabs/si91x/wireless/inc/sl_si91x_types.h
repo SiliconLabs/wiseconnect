@@ -45,6 +45,7 @@
 /// Flag to indicate that host would receive the response from firmware in asynchronous manner.
 #define SI91X_PACKET_WITH_ASYNC_RESPONSE (1 << 4)
 
+/// Si91x specific command type
 typedef enum {
   SI91X_COMMON_CMD  = 0, ///< SI91X Common Command
   SI91X_WLAN_CMD    = 1, ///< SI91X Wireless LAN Command
@@ -87,15 +88,14 @@ typedef enum {
   SI91X_QUEUE_MAX ///< SI91X Maximum queue type
 } sl_si91x_queue_type_t;
 
-/** \addtogroup SL_SI91X_TYPES 
+/** \addtogroup SL_SI91X_CONSTANTS 
  * @{
  * */
-/// Si91x command types
-/// Si91x band mode
-/// @note Only 2.4 GHz currently supported.
+/// Si91x band mode.
+/// @note Only 2.4 GHz is currently supported.
 typedef enum {
-  SL_SI91X_WIFI_BAND_2_4GHZ = 0, ///< 2.4 GHz WiFi band
-  SL_SI91X_WIFI_BAND_5GHZ   = 1, ///< 5 GHz WiFi band (not currently supported)
+  SL_SI91X_WIFI_BAND_2_4GHZ = 0, ///< 2.4 GHz Wi-Fi band
+  SL_SI91X_WIFI_BAND_5GHZ   = 1, ///< 5 GHz Wi-Fi band (not currently supported)
   SL_SI91X_WIFI_DUAL_BAND   = 2  ///< Both 2.4 GHz and 5 GHZ WiFi band (not currently supported)
 } sl_si91x_band_mode_t;
 
@@ -115,7 +115,7 @@ typedef enum {
 /// Si91x Timeout types
 typedef enum {
   SL_SI91X_AUTHENTICATION_ASSOCIATION_TIMEOUT =
-    0, ///< Used for setting association and authentication timeout request in millisecs
+    0, ///< Used for setting association and authentication timeout request in milliseconds
   SL_SI91X_CHANNEL_ACTIVE_SCAN_TIMEOUT, ///< Used for setting dwell time per channel in milliseconds during active scan
   SL_SI91X_KEEP_ALIVE_TIMEOUT,          ///< Used for setting WLAN keep alive time in seconds
   SL_SI91X_CHANNEL_PASSIVE_SCAN_TIMEOUT ///< Used for setting dwell time per channel in milliseconds during passive scan
@@ -124,21 +124,25 @@ typedef enum {
 /// Si91x Wi-Fi VAP ID
 typedef enum {
   SL_SI91X_WIFI_CLIENT_VAP_ID, ///< Wi-Fi Client VAP ID
-  SL_SI91X_WIFI_AP_VAP_ID,     ///< Wi-Fi Access point VAP ID
+  SL_SI91X_WIFI_AP_VAP_ID,     ///< Wi-Fi Access Point VAP ID
 } sl_si91x_wifi_vap_id_t;
+/** @} */
 
-// TA RSI_COMMON_REQ_OPERMODE command request structure
+/** \addtogroup SL_SI91X_TYPES 
+ * @{
+ * */
+// NWP RSI_COMMON_REQ_OPERMODE command request structure
 // Note: refer sl_wifi_device.h for complete bit map details
 /// Si91x boot configuration structure
 typedef struct {
-  uint16_t oper_mode;                  ///< operation mode, one of the values from @ref sl_si91x_operation_mode_t
-  uint16_t coex_mode;                  ///< coex mode, one of the values from @ref sl_si91x_coex_mode_t
-  uint32_t feature_bit_map;            ///< Feature bitmap, @ref SI91X_FEATURE_BITMAP
-  uint32_t tcp_ip_feature_bit_map;     ///< TCP/IP feature bitmap, @ref SI91X_TCP_IP_FEATURE_BITMAP
-  uint32_t custom_feature_bit_map;     ///< Custom feature bitmap, @ref SI91X_CUSTOM_FEATURE_BITMAP
-  uint32_t ext_custom_feature_bit_map; ///< Extended custom feature bitmap, @ref SI91X_EXTENDED_CUSTOM_FEATURE_BITMAP
-  uint32_t bt_feature_bit_map;         ///< BT featured bitmap, @ref SI91X_BT_FEATURE_BITMAP
-  uint32_t ext_tcp_ip_feature_bit_map; ///< Extended tcp/ip feature bitmap, @ref SI91X_EXTENDED_TCP_IP_FEATURE_BITMAP
+  uint16_t oper_mode;                  ///< Operation mode, one of the values from @ref sl_si91x_operation_mode_t.
+  uint16_t coex_mode;                  ///< Coexistence mode, one of the values from @ref sl_si91x_coex_mode_t.
+  uint32_t feature_bit_map;            ///< Feature bit map, @ref SI91X_FEATURE_BITMAP
+  uint32_t tcp_ip_feature_bit_map;     ///< TCP/IP feature bit map, @ref SI91X_TCP_IP_FEATURE_BITMAP
+  uint32_t custom_feature_bit_map;     ///< Custom feature bit map, @ref SI91X_CUSTOM_FEATURE_BITMAP
+  uint32_t ext_custom_feature_bit_map; ///< Extended custom feature bit map, @ref SI91X_EXTENDED_CUSTOM_FEATURE_BITMAP
+  uint32_t bt_feature_bit_map;         ///< BT featured bit map, @ref SI91X_BT_FEATURE_BITMAP
+  uint32_t ext_tcp_ip_feature_bit_map; ///< Extended TCP/IP feature bit map, @ref SI91X_EXTENDED_TCP_IP_FEATURE_BITMAP
   uint32_t ble_feature_bit_map;        ///< BLE feature bitmap, @ref SI91X_BLE_FEATURE_BITMAP
   uint32_t ble_ext_feature_bit_map;    ///< BLE extended feature bitmap, @ref SI91X_EXTENDED_BLE_CUSTOM_FEATURE_BITMAP
   uint32_t config_feature_bit_map;     ///< Config feature bitmap, @ref SI91X_CONFIG_FEATURE_BITMAP
@@ -151,53 +155,58 @@ typedef struct {
   uint16_t
     auth_assoc_timeout_value; ///< Authentication and association timeout value. Default value of 300 millisecs is used when SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT is passed.
   uint16_t
-    keep_alive_timeout_value; ///< Keep Alive Timeout value. Default value of 30 secs is used when SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT is passed.
+    keep_alive_timeout_value; ///< Keep Alive Timeout value. Default value of 30 seconds is used when SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT is passed.
   uint16_t
-    passive_scan_timeout_value; ///<Time spent on each channel when performing passive scan (milliseconds). The minimum passive_scan_timeout_value is 5 millisecs and maximum is 1000 millisecs. Default value of 400 millisecs is used when SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME is passed.
+    passive_scan_timeout_value; ///< Time spent on each channel when performing passive scan (milliseconds). The minimum passive_scan_timeout_value is 5 millisecs, and maximum is 1000 milliseconds. Default value of 400 milliseconds is used when SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME is passed.
 } sl_si91x_timeout_t;
 
 /// Si917 specific Wi-Fi module state statistics
 #pragma pack(1)
 typedef struct {
-  uint32_t timestamp;  ///< Timestamp
-  uint8_t state_code;  ///< State code
-  uint8_t reason_code; ///< Reason code
-  uint8_t channel;     ///< Channel number
-  uint8_t rssi;        ///< RSSI VALUE
-  uint8_t bssid[6];    ///< BSSID
+  uint32_t
+    timestamp; ///< Timestamp. This is value of counter at the time of message. This counter is continuously incremented by one per 100ms time.
+  uint8_t
+    state_code; ///< State code. This field indicates state of the module. state code contain two parts (upper and lower nibbles). Upper nibble represent the state of rejoin process and StateCode represented by the lower nibble of state code.
+  uint8_t reason_code; ///< Reason code. This is used to get the reason code from firmware point of view.
+  uint8_t
+    channel; ///< Channel number. If value of channel is 0, it means channel information is not available. In State-I, channel of association or Invalid if it is startup. In State-II, channel of next association if module finds better AP in bgscan result. In State-III, Channel at the time of association.
+  uint8_t
+    rssi; ///< RSSI VALUE. If value of rssi is 100, it means RSSI information is not available. In State-I it is RSSI of AP at the time of trigger. In State-II it is RSSI of next association. In State-III it is RSSI at the time of final association.
+  uint8_t bssid
+    [6]; ///< BSSID of AP. If the value of AP BSSID is 00:00:00:00:00:00,it means MAC information is not available. In State-I it is MAC of AP at the time of scan trigger. In State-II it is MAC of next association. In State-III it is MAC at the time of association.
 } sl_si91x_module_state_stats_response_t;
 #pragma pack()
 
 /// Firmware version information
 typedef struct {
-  uint8_t build_num;        ///< Build number
-  uint8_t security_version; ///< Security enabled or disabled
-  uint8_t minor;            ///< Minor version number
-  uint8_t major;            ///< Major version number
+  uint8_t build_num;        ///< Build number of the firmware
+  uint8_t security_version; ///< Security version indicating if security is enabled or disabled
+  uint8_t minor;            ///< Minor version number of the firmware
+  uint8_t major;            ///< Major version number of the firmware
 } sl_si91x_fw_version_info_t;
 
 /// Firmware version extended information
 typedef struct {
-  uint8_t patch_num;                  ///< Patch number
+  uint8_t patch_num;                  ///< Patch number of the firmware
   uint8_t customer_id : 4;            ///< Customer ID
   uint8_t build_number_extension : 4; ///< Build number extension
-  uint8_t rom_id;                     ///< ROM ID
-  uint8_t chip_id;                    ///< Chip ID
+  uint8_t rom_id;                     ///< ROM ID of the firmware
+  uint8_t chip_id;                    ///< Chip ID of the device
 } sl_si91x_fw_version_ext_info_t;
 
 /// Firmware header information
 typedef struct {
-  uint16_t control_flags;                             ///< Control flags
-  uint16_t sha_type;                                  ///< SHA type
-  uint32_t magic_no;                                  ///< Firmware image magic byte
-  uint32_t image_size;                                ///< Size of firmware image
-  sl_si91x_fw_version_info_t fw_version_info;         ///< Firmware version information
-  uint32_t flash_location;                            ///< Address location in flash to store the image
-  uint32_t crc;                                       ///< CRC of the image
-  uint32_t mic[4];                                    ///< MIC of the image
-  uint32_t reserved;                                  ///< Reserved
-  sl_si91x_fw_version_ext_info_t fw_version_ext_info; ///< Firmware version extended information
-  uint32_t reserved1[4];                              ///< Reserved
+  uint16_t control_flags;                     ///< Control flags for the firmware image.
+  uint16_t sha_type;                          ///< SHA type used for the firmware image.
+  uint32_t magic_no;                          ///< Magic number identifying the firmware image.
+  uint32_t image_size;                        ///< Size of the firmware image in bytes.
+  sl_si91x_fw_version_info_t fw_version_info; ///< Firmware version information.
+  uint32_t flash_location;                    ///< Address location in flash memory where the firmware image is stored.
+  uint32_t crc;                               ///< Cyclic Redundancy Check (CRC) value of the firmware image.
+  uint32_t mic[4];                            ///< Message Integrity Code (MIC) of the firmware image.
+  uint32_t reserved;                          ///< Reserved fields for future use.
+  sl_si91x_fw_version_ext_info_t fw_version_ext_info; ///< Firmware version extended information.
+  uint32_t reserved1[4];                              ///< Reserved fields for future use.
 } sl_si91x_firmware_header_t;
 
 /** @} */
@@ -237,12 +246,13 @@ typedef struct {
   uint32_t command_tickcount; ///< command_tickcount stores the tickcount when the command is given to the bus thread.
 } sli_si91x_queue_packet_t;
 
+/// Si91x specific buffer queue structure
 typedef struct {
-  sl_wifi_buffer_t *head;
-  sl_wifi_buffer_t *tail;
+  sl_wifi_buffer_t *head; ///< Head
+  sl_wifi_buffer_t *tail; ///< Tail
 } sl_si91x_buffer_queue_t;
 
-/// TA buffer allocation command parameters
+/// NWP buffer allocation command parameters
 /// The summation of all three ratios should max 10 and the ratio should be in decimal value.
 typedef struct {
   uint8_t tx_ratio_in_buffer_pool;     ///< tx ratio

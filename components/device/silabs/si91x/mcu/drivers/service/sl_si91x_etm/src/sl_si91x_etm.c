@@ -45,7 +45,7 @@ void sl_si91x_etm_int(void)
   if (PS4_SOC_FREQ >= 120000000) {
     /* Icache registering when clk freq more than 120*/
     ICACHE2_ADDR_TRANSLATE_1_REG = BIT(21);
-    /*When set, enables registering in M4-TA AHB2AHB. This will have performance penalty. This has to be set above 100MHz*/
+    /*When set, enables registering in M4-NWP AHB2AHB. This will have performance penalty. This has to be set above 100MHz*/
     MISC_CFG_SRAM_REDUNDANCY_CTRL = BIT(4);
     /*Enable Register ROM as clock frequency is 200 Mhz*/
     MISC_CONFIG_MISC_CTRL1 |= BIT(4);

@@ -31,7 +31,6 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
   - See our [Migration Guide](docs/software-reference/developer-guides/migrating-from-v3-3-0.md) for information on porting your WiSeConnect v3.3.0 application to WiSeConnect v3.3.1
   - [API Reference Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-summary)
   - [SiWx917 Software Reference Manual](docs/software-reference/manuals/siwx91x-software-reference-manual.md)
-  - [SiWG917 – TA Flash Memory Map Change Guide](https://www.silabs.com/Wi-Fi_H&L_Apps/Wi-Fi_H&L_Apps_SoC/SiWG917%E2%80%93TA_Flash_Memory_Map_Change_Guide_v1.3.pdf)
 
 ### Hardware Reference
 
@@ -47,5 +46,5 @@ The online WiSeConnect 3 SDK documentation is available [here](https://docs.sila
 ### User Guides
 
   - [UG574: Manufacturing Utility Users Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf)
-  - [UG569: SiWG917 Single-Band Wi-Fi and BLE with 8 MB Flash Radio Board User’s Guide](https://www.silabs.com/documents/public/user-guides/ug562-brd4338a-user-guide.pdf)
+  - [UG562: SiWG917 Single-Band Wi-Fi and BLE with 8 MB Flash Radio Board User’s Guide](https://www.silabs.com/documents/public/user-guides/ug562-brd4338a-user-guide.pdf)
   - [UG569: Adapter Board for Co-Processor Radio Boards User's Guide](https://www.silabs.com/documents/public/user-guides/ug569-brd8045-user-guide.pdf) 

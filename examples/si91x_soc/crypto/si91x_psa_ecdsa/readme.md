@@ -16,10 +16,10 @@
 ## Purpose/Scope
 
 - This application contains an example code to demonstrate the PSA ECDSA functionality
-- This application uses hardware accelerators for key generation of SECPR1 curves and TA execution for signature generation / verification
+- This application uses hardware accelerators for key generation of SECPR1 curves and NWP execution for signature generation / verification
 - Key generation : HW accelerators for P192R1 and P256R1 ; SW implementation for P224R1
-- Sign and Verify Plain message : TA execution for P224R1 and P256R1 ; SW implementation for P192R1
-- Sign and Verify with Wrapped message : TA execution for P224R1 and P256R1 ; P192R1 not supported
+- Sign and Verify Plain message : NWP execution for P224R1 and P256R1 ; SW implementation for P192R1
+- Sign and Verify with Wrapped message : NWP execution for P224R1 and P256R1 ; P192R1 not supported
 
 ## Prerequisites/Setup Requirements
 

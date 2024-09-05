@@ -960,7 +960,7 @@ STATIC INLINE void RSI_EGPIO_PadReceiverDisable(uint8_t u8GpioNum)
 
 /**
  * @fn           STATIC INLINE void  RSI_EGPIO_PadSdioConnected(void)
- * @brief        This API is used to use the SDIO pins(25 to 30) in M4 or TA (0 for M4SS and 1 for TASS)
+ * @brief        This API is used to use the SDIO pins(25 to 30) in M4 or NWP (0 for M4SS and 1 for TASS)
  * @return       None
  */
 STATIC INLINE void RSI_EGPIO_PadSdioConnected(void)

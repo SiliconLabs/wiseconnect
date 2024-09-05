@@ -41,31 +41,43 @@
  * @{ 
  */
 
+/**
+ * @brief Structure defining WRAP configuration.
+ * 
+ * The structure defines the WRAP configuration required for the operation, which includes 
+ * key type, key size, key buffer, and so on.
+ */
 typedef struct {
-  uint32_t key_type;                                 ///< Key type
+  uint32_t key_type;                                 ///< Type of the key
   uint32_t reserved;                                 ///< Reserved for future use
-  uint32_t key_size;                                 ///< Key size
+  uint32_t key_size;                                 ///< Size of the key
   sl_si91x_crypto_wrap_mode_t wrap_iv_mode;          ///< Wrap IV mode
-  uint8_t wrap_iv[SL_SI91X_IV_SIZE];                 ///< Buffer to store IV
-  uint8_t key_buffer[SL_SI91X_WRAP_KEY_BUFFER_SIZE]; ///< Key data wrapped/ Plain text
+  uint8_t wrap_iv[SL_SI91X_IV_SIZE];                 ///< Buffer to store the IV
+  uint8_t key_buffer[SL_SI91X_WRAP_KEY_BUFFER_SIZE]; ///< Key data wrapped or plain text
 } sl_si91x_wrap_config_t;
 
 /** @} */
 
+/******************************************************
+ *                Function Declarations
+*******************************************************/
 /**
  * @addtogroup CRYPTO_WRAP_FUNCTIONS
  * @{ 
  */
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief
- *   This API is used to get wrap version of the plain key.
+ *   To get the wrapped version of the plain key.
  * @param[in] config 
  *   Configuration object of type @ref sl_si91x_wrap_config_t
  * @param[out] output 
  *   Buffer to store the output.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_wrap(sl_si91x_wrap_config_t *config, uint8_t *output);
 

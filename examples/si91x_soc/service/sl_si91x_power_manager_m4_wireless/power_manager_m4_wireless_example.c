@@ -144,14 +144,14 @@ static void application_start(void *argument)
   sl_power_manager_ps_transition_event_handle_t handle;
   sl_power_manager_ps_transition_event_info_t info = { .event_mask = PS_EVENT_MASK, .on_event = transition_callback };
   sl_status_t status;
-  // Initialize the wireless interface and put the TA in Standby with RAM retention mode.
+  // Initialize the wireless interface and put the NWP in Standby with RAM retention mode.
   status = initialize_wireless();
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with the error code.
     DEBUGOUT("Wireless API initialization failed, Error Code: 0x%lX \n", status);
     return;
   }
-  DEBUGOUT("Wireless is successfully initialized and TA is in Sleep \n");
+  DEBUGOUT("Wireless is successfully initialized and NWP is in Sleep \n");
 
   // Subscribe the state transition callback events, the ored value of flag and function pointer is passed in this API.
   status = sl_si91x_power_manager_subscribe_ps_transition_event(&handle, &info);
@@ -170,15 +170,15 @@ static void application_start(void *argument)
 
 /*******************************************************************************
  * Initialization of wireless APIs.
- * M4-TA handshake is performed.
- * TA is send to standby with RAM retention mode if SWITCH_TO_PS0 is disabled.
- * TA is send to standby without RAM retention mode if SWITCH_TO_PS0 is enabled.
+ * M4-NWP handshake is performed.
+ * NWP is send to standby with RAM retention mode if SWITCH_TO_PS0 is disabled.
+ * NWP is send to standby without RAM retention mode if SWITCH_TO_PS0 is enabled.
  ******************************************************************************/
 static sl_status_t initialize_wireless(void)
 {
   // For M4-sleep wakeup, and to achieve minimum current in powersave application,
-  // wifi is initialized, handshake is performed between M4 and TA, then
-  // TA powersave profile is updated sleep with/without retention as per
+  // wifi is initialized, handshake is performed between M4 and NWP, then
+  // NWP powersave profile is updated sleep with/without retention as per
   // requirements.
   // Wifi device configuration
   const sl_wifi_device_configuration_t client_init_configuration = {
@@ -214,7 +214,7 @@ static sl_status_t initialize_wireless(void)
   }
 
   uint8_t xtal_enable = 1;
-  // M4-TA handshake is required for TA communication.
+  // M4-NWP handshake is required for NWP communication.
   status = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with error code.
@@ -235,7 +235,7 @@ static sl_status_t initialize_wireless(void)
 static void wireless_sleep(boolean_t sleep_with_retention)
 {
   sl_status_t status;
-  // Wifi Profile (TA Mode) is set to High Performance.
+  // Wifi Profile (NWP Mode) is set to High Performance.
   sl_wifi_performance_profile_t ta_performance_profile = { .profile = HIGH_PERFORMANCE };
 
   status = sl_wifi_set_performance_profile(&ta_performance_profile);
@@ -245,12 +245,12 @@ static void wireless_sleep(boolean_t sleep_with_retention)
     return;
   }
   if (sleep_with_retention) {
-    // Wifi Profile (TA Mode) is set to standby power save with RAM retention.
+    // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
     ta_performance_profile.profile = STANDBY_POWER_SAVE_WITH_RAM_RETENTION;
   } else {
     ta_performance_profile.profile = STANDBY_POWER_SAVE;
   }
-  // Wifi Profile (TA Mode) is set to standby power save with RAM retention.
+  // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
   status = sl_wifi_set_performance_profile(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with error code.

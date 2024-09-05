@@ -22,7 +22,7 @@
 /*==================================================*/
 /**
  * @fn          void sl_mv_m4_app_from_flash_to_ram(int option)
- * @brief       Raise interrupt to TA and poll for task done 
+ * @brief       Raise interrupt to NWP and poll for task done 
  * @param[in]   option
  * @param[out]  none  
  */
@@ -34,21 +34,21 @@ void sl_mv_m4_app_from_flash_to_ram(int option)
   __disable_irq();
 
   if (option == UPGRADE_M4_IMAGE_OTA) {
-    //! Raise interrupt to TA
+    //! Raise interrupt to NWP
     raise_m4_to_ta_interrupt(UPGRADE_M4_IMAGE);
 
     //! Poll for bit to clear
     while ((M4SS_P2P_INTR_CLR_REG & UPGRADE_M4_IMAGE))
       ;
   } else if (option == TA_WRITES_ON_COMM_FLASH) {
-    //! Raise interrupt to TA
+    //! Raise interrupt to NWP
     raise_m4_to_ta_interrupt(M4_WAITING_FOR_TA_TO_WR_ON_FLASH);
 
     //! Poll for bit to clear
     while (M4SS_P2P_INTR_CLR_REG & M4_WAITING_FOR_TA_TO_WR_ON_FLASH)
       ;
   } else if (option == M4_WAIT_FOR_NWP_DEINIT) {
-    //! Raise interrupt to TA
+    //! Raise interrupt to NWP
     raise_m4_to_ta_interrupt(M4_WAITING_FOR_TA_DEINIT);
 
     //! Poll for bit to clear

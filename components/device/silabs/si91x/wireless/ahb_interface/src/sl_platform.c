@@ -36,8 +36,8 @@ sl_status_t si91x_bootup_firmware(const uint8_t select_option);
 void sli_si91x_platform_init(void)
 {
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-  /* Before TA going to power save mode ,set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl,
-  AON domain power supply controls form TA to M4 */
+  /* Before NWP going to power save mode ,set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl,
+  AON domain power supply controls from NWP to M4 */
   RSI_Set_Cntrls_To_M4();
 #endif
 

@@ -486,7 +486,7 @@ void sli_si91x_sensorhub_ps4tops2_state(void)
     Ex: 32Khz clock = 31.25us ==> 31.25*2^17 = 4096000 = 0x3E8000*/
   /* Time Period Programming */
   RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
-  /* tass_ref_clk_mux_ctr in TA Control */
+  /* tass_ref_clk_mux_ctr in NWP Control */
   RSI_Set_Cntrls_To_TA();
   __disable_irq();
   /* Switching from PS4 to PS2 state */
@@ -516,14 +516,14 @@ void sli_si91x_sensorhub_ps2tops4_state(void)
   /* Initialize the QSPI after moving to PS4 state because it was powered down in PS2 mode. */
   RSI_PS_FlashLdoEnable();
   if (!(P2P_STATUS_REG & TA_is_active)) {
-    //!wakeup TA
+    //!wakeup NWP
     P2P_STATUS_REG |= M4_wakeup_TA;
-    //!wait for TA active
+    //!wait for NWP active
     while (!(P2P_STATUS_REG & TA_is_active))
       ;
   }
-  //! Request TA to program flash
-  //! raise an interrupt to TA register
+  //! Request NWP to program flash
+  //! raise an interrupt to NWP register
   M4SS_P2P_INTR_SET_REG = BIT(4);
   P2P_STATUS_REG        = BIT(0);
 
@@ -532,10 +532,10 @@ void sli_si91x_sensorhub_ps2tops4_state(void)
   /*  Initialize the QSPI  */
   RSI_FLASH_Initialize();
   __enable_irq();
-  // Initialize TA interrupt and submit RX packets
+  // Initialize NWP interrupt and submit RX packets
   sli_m4_ta_interrupt_init();
   M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
-  /* AON domain power supply controls form TA to M4 */
+  /* AON domain power supply controls from NWP to M4 */
   RSI_Set_Cntrls_To_M4();
 }
 

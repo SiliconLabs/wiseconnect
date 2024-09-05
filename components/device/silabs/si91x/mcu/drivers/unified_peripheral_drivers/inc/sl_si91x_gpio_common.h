@@ -339,7 +339,7 @@ typedef struct {
       __IOM uint32_t GPIO_REN : 1;        ///< [3..3] Receiver of PAD enable
       __IOM uint32_t GPIO_OEN : 1;        ///< [4..4] Direction of PAD
       __IOM uint32_t GPIO_OUTPUT : 1;     ///< [5..5] Value driven on PAD in OUTPUT mode
-      __IOM uint32_t GPIO_PAD_SELECT : 1; ///< [6..6] PAD selection between M4,TA
+      __IOM uint32_t GPIO_PAD_SELECT : 1; ///< [6..6] PAD selection between M4,NWP
       __IOM uint32_t RESERVED : 1;        ///< [7..7] Reserved
       __IOM uint32_t GPIO_POLARITY : 1;   ///< [8..8] Polarity of UULP GPIO
       __IOM uint32_t RESERVED1 : 23;      ///< [31..9] Reserved1

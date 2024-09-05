@@ -39,9 +39,9 @@ extern uint32_t package_type;
 void RSI_PS_ConfigureTaMemories(void);
 /*WiSeAOC specific VTOR values*/
 #if defined(WISE_AOC_MODE)
-#define VECTOR_OFF_SET_TA_ROM        (0x100000 + 0x70100) /*<! M4 execution from TA ROM                  */
+#define VECTOR_OFF_SET_TA_ROM        (0x100000 + 0x70100) /*<! M4 execution from NWP ROM                  */
 #define VECTOR_OFF_SET_M4_ROM        (0x300000 + 0xB100)  /*<! M4 execution from M4 ROM                  */
-#define VECTOR_OFF_SET_TA_ROM_DIRECT (0x80000 + 0x70100)  /*<! M4 execution from TA ROM in directed mode */
+#define VECTOR_OFF_SET_TA_ROM_DIRECT (0x80000 + 0x70100)  /*<! M4 execution from NWP ROM in directed mode */
 #endif                                                    //WISE_AOC_MODE
 
 typedef enum SLEEP_TYPE {

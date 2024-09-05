@@ -234,7 +234,7 @@ static sl_mqtt_client_error_status_t sli_si91x_get_event_error_status(sl_mqtt_cl
     }
 
     default: {
-      return SL_MQTT_CLIENT_UNKNKOWN_ERROR;
+      return SL_MQTT_CLIENT_UNKNOWN_ERROR;
     }
   }
 }
@@ -248,7 +248,7 @@ static sl_mqtt_client_error_status_t sli_si91x_get_event_error_status(sl_mqtt_cl
  * @param[out] credentials Double pointer to the MQTT client credentials.
  *
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  *
  * @note The function allocates memory for the credentials in case of successfully fetching the data,
  *       and the caller is responsible for freeing the memory.
@@ -300,7 +300,7 @@ static sl_status_t sli_si91x_fetch_mqtt_client_credentials(sl_net_credential_id_
  * @param credentials[out]   Pointer to the MQTT client credentials.
  *
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 static sl_status_t sli_si91x_send_firmware_mqtt_init(const sl_mqtt_client_t *client,
                                                      const sl_mqtt_client_credentials_t *credentials)
@@ -435,7 +435,7 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
   }
 
   si91x_connect_request.command_type = SI91X_MQTT_CLIENT_CONNECT_COMMAND;
-  // TA takes the username and password from init_request and validation bit from the connect request.
+  // NWP takes the username and password from init_request and validation bit from the connect request.
   if (credentials != NULL) {
     si91x_connect_request.is_password_present = 1;
     si91x_connect_request.is_username_present = 1;
@@ -840,9 +840,9 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
       }
 
       is_error_event = true;
-      // This state updates is necessary as we need to send TA disconnect even in case of connection failure.
+      // This state updates is necessary as we need to send NWP disconnect even in case of connection failure.
       sdk_context->client->state = SL_MQTT_CLIENT_CONNECTION_FAILED;
-      // TA requires deinit call if connection fails for any reason.
+      // NWP requires deinit call if connection fails for any reason.
       status = sl_mqtt_client_disconnect(sdk_context->client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
 
       if (status != SL_STATUS_OK) {
@@ -948,7 +948,7 @@ sl_status_t sli_si91x_mqtt_event_handler(sl_status_t status,
         sdk_context->client->state = SL_MQTT_CLIENT_TA_DISCONNECTED;
         disconnection_status = sl_mqtt_client_disconnect(sdk_context->client, SI91X_MQTT_CLIENT_DISCONNECT_TIMEOUT);
 
-        // TA requires deinit call if remote termination is received.
+        // NWP requires deinit call if remote termination is received.
         // If the disconnect call fails, we can't set the state to disconnected.
         if (disconnection_status != SL_STATUS_OK) {
           SL_DEBUG_LOG(

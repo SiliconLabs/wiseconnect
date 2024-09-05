@@ -15,7 +15,7 @@
  * @param[in] status
  *   status of type osStatus_t that needs to be converted to equivalent sl_status_t
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  *****************************************************************************/
 static inline sl_status_t convert_cmsis_os_status(osStatus_t status)
 {

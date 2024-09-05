@@ -292,7 +292,7 @@ void ps_wireless_shutdown(void)
   while ((!(NWP_RTC_TIMER_CLOCK_PERIOD_SOC)) & (SPI_RTC_TIMER_CLK_PERIOD_APPLIED))
     ;
 
-  /* Shutdown TA */
+  /* Shutdown NWP */
   NWP_FSM_SLEEP_WAKEUP_MODES = COUNT_TICK_ENABLE;
   return;
 }

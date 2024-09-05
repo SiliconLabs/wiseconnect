@@ -48,182 +48,238 @@ extern "C" {
 * @brief I2C Peripheral
 *
 * ##Overview
-* I2C standard compliant bus interface with open-drain pins
-* Configurable as Primary or Secondary
+* I2C standard compliant bus interface with open-drain pins.
+* Configurable as Primary or Secondary.
 * Four speed modes: Standard Mode (100 kbps), Fast Mode (400 kbps),
-* Fast Mode Plus (1Mbps) and High-Speed Mode (3.4 Mbps)
-* 7 or 10-bit addressing
-* 7 or 10-bit combined format transfers
-* Support for Clock synchronization and Bus Clear
-* Programmable SDA Hold time
-* Integrated transmit and receive buffers with support for DMA
-* Bulk transmit mode in I2C Slave mode
-* Interrupt based operation (polled mode also available)
+* Fast Mode Plus (1 Mbps), and High-Speed Mode (3.4 Mbps).
+* 7 or 10-bit addressing.
+* 7 or 10-bit combined format transfers.
+* Support for clock synchronization and bus clear.
+* Programmable SDA hold time.
+* Integrated transmit and receive buffers with support for DMA.
+* Bulk transmit mode in I2C slave mode.
+* Interrupt-based operation (polled mode also available).
 *
-* ##Initialization
+* ## Initialization
 * Call init API with the init parameters.
-* Call set follower address API, in follower mode
-* Call Set FIFO threshold API
+* Call set follower address API in follower mode.
+* Call set FIFO threshold API.
 *
 ******************************************************************************/
 
 // -----------------------------------------------------------------------------
 // Macros for i2c parameters
-#define SL_I2C0_DMA_TX_CHANNEL 31      // I2C0 DMA TX channel number
-#define SL_I2C0_DMA_RX_CHANNEL 30      // I2C0 DMA RX channel number
-#define SL_I2C1_DMA_TX_CHANNEL 3       // I2C1 DMA TX channel number
-#define SL_I2C1_DMA_RX_CHANNEL 2       // I2C1 DMA RX channel number
-#define SL_I2C2_DMA_TX_CHANNEL 5       // I2C2 DMA TX channel number
-#define SL_I2C2_DMA_RX_CHANNEL 4       // I2C2 DMA RX channel number
-#define ULP_I2C                SL_I2C2 // defining ULP_I2C instance
+#define ULP_I2C                SL_I2C2 ///< defining ULP_I2C instance
+#define SL_I2C0_DMA_TX_CHANNEL 31      ///< I2C0 DMA TX channel number
+#define SL_I2C0_DMA_RX_CHANNEL 30      ///< I2C0 DMA RX channel number
+#define SL_I2C1_DMA_TX_CHANNEL 3       ///< I2C1 DMA TX channel number
+#define SL_I2C1_DMA_RX_CHANNEL 2       ///< I2C1 DMA RX channel number
+#define SL_I2C2_DMA_TX_CHANNEL 5       ///< ULP_I2C DMA TX channel number
+#define SL_I2C2_DMA_RX_CHANNEL 4       ///< ULP_I2C DMA RX channel number
 
 // -----------------------------------------------------------------------------
 // Data Types
 
-/// @brief Enumeration to represent I2C instances
+/**
+ * @brief Enumeration to represent I2C instances.
+ * 
+ * This enumeration defines the different I2C instances available in the system.
+ */
 typedef enum {
   SL_I2C0,     ///< I2C Instance 0.
   SL_I2C1,     ///< I2C Instance 1.
-  SL_I2C2,     ///< I2C Instance 2.
-  SL_I2C_LAST, ///< Last member of enum for validation
+  SL_I2C2,     ///< I2C Instance 2 (ULP_I2C).
+  SL_I2C_LAST, ///< Last member of enum for validation.
 } sl_i2c_instance_t;
 
-/// @brief Enumeration to represent I2C driver status values
+/**
+ * @brief Enumeration to represent I2C driver status values.
+ * 
+ * This enumeration defines the various status values that can be returned by the I2C driver.
+ */
 typedef enum {
-  SL_I2C_SUCCESS,                  ///< Success.
-  SL_I2C_IDLE,                     ///< I2C Idle.
-  SL_I2C_7BIT_ADD,                 ///< I2C 7 Bit address transfer.
-  SL_I2C_10BIT_ADD,                ///< I2C 10 Bit address transfer.
-  SL_I2C_10BIT_ADD_WITH_REP_START, ///< I2C 10 Bit address transfer with Repeated Start.
-  SL_I2C_ACKNOWLEDGE,              ///< I2C ACK.
-  SL_I2C_NACK,                     ///< I2C NACK.
+  SL_I2C_SUCCESS,                  ///< Operation completed successfully.
+  SL_I2C_IDLE,                     ///< I2C is idle.
+  SL_I2C_7BIT_ADD,                 ///< I2C 7-bit address transfer.
+  SL_I2C_10BIT_ADD,                ///< I2C 10-bit address transfer.
+  SL_I2C_10BIT_ADD_WITH_REP_START, ///< I2C 10-bit address transfer with repeated start.
+  SL_I2C_ACKNOWLEDGE,              ///< I2C acknowledge received.
+  SL_I2C_NACK,                     ///< I2C not acknowledge received.
   SL_I2C_DATA_TRANSFER_COMPLETE,   ///< I2C data transfer complete.
-  SL_I2C_ARIBITRATION_LOST,        ///< I2C Arbitration Lost.
-  SL_I2C_BUS_ERROR,                ///< I2C Bus Error.
-  SL_I2C_BUS_HOLD,                 ///< I2C Bus held by I2C Bus.
+  SL_I2C_ARIBITRATION_LOST,        ///< I2C arbitration lost.
+  SL_I2C_BUS_ERROR,                ///< I2C bus error.
+  SL_I2C_BUS_HOLD,                 ///< I2C bus held by another master.
   SL_I2C_SDA_ERROR,                ///< I2C SDA at loopback path is not equal to SDA output.
   SL_I2C_SCL_ERROR,                ///< I2C SCL at loopback path is not equal to SCL output.
-  SL_I2C_CALLBACK_BUSY,            ///< I2C instance callback already registered
-  SL_I2C_DMA_TRANSFER_ERROR,       ///< I2C DMA transfer error
-  SL_I2C_INVALID_PARAMETER,        ///< Invalid Parameter.
+  SL_I2C_CALLBACK_BUSY,            ///< I2C instance callback already registered.
+  SL_I2C_DMA_TRANSFER_ERROR,       ///< I2C DMA transfer error.
+  SL_I2C_INVALID_PARAMETER,        ///< Invalid parameter.
 } sl_i2c_status_t;
 
-/// @brief Enumeration to represent I2C transfer type
+/**
+ * @brief Enumeration to represent I2C transfer type.
+ * 
+ * This enumeration defines the different transfer types that can be used by the I2C driver.
+ */
 typedef enum {
   SL_I2C_USING_INTERRUPT,   ///< The driver will use interrupts to perform I2C transfer.
   SL_I2C_USING_DMA,         ///< The driver will use DMA to perform I2C transfer.
-  SL_I2C_TRANFER_TYPE_LAST, ///< For Validation
+  SL_I2C_TRANFER_TYPE_LAST, ///< Last member for validation purposes.
 } sl_i2c_transfer_type_t;
 
-/// @brief Enumeration to represent I2C operating mode
+/**
+ * @brief Enumeration to represent I2C operating modes.
+ * 
+ * This enumeration defines the different operating modes available for the I2C driver.
+ */
 typedef enum {
   SL_I2C_STANDARD_MODE = 1,   ///< Standard-mode, bidirectional data transfers up to 100 kbit/s.
   SL_I2C_FAST_MODE,           ///< Fast-mode, bidirectional data transfers up to 400 kbit/s.
-  SL_I2C_HIGH_SPEED_MODE,     ///< High speed-mode, bidirectional data transfers up to 3.4 Mbit/s.
+  SL_I2C_HIGH_SPEED_MODE,     ///< High-speed mode, bidirectional data transfers up to 3.4 Mbit/s.
   SL_I2C_FAST_PLUS_MODE,      ///< Fast-mode Plus, bidirectional data transfers up to 1 Mbit/s.
-  SL_I2C_OPERATING_MODE_LAST, ///< Last member of enum for validation
+  SL_I2C_OPERATING_MODE_LAST, ///< Last member for validation purposes.
 } sl_i2c_operating_mode_t;
 
-typedef void (*sl_i2c_callback_t)(sl_i2c_instance_t i2c_instance, uint32_t status); ///< Callback for I2C Driver
+/**
+ * @brief Callback function type for I2C driver events.
+ * 
+ * This typedef defines the callback function type that is used by the I2C driver to notify
+ * the application of various I2C events.
+ * 
+ * @param[in] i2c_instance The I2C instance that generated the event.
+ * @param[in] status The status code indicating the result of the I2C operation.
+ */
+typedef void (*sl_i2c_callback_t)(sl_i2c_instance_t i2c_instance, uint32_t status);
 
-/// @brief Structure to hold the parameters of I2C instance configurations
+/**
+ * @brief Structure to hold the configuration parameters of an I2C instance.
+ * 
+ * This structure defines the configuration parameters for an I2C instance, including the mode,
+ * operating speed, transfer type, and callback function.
+ */
 typedef struct {
-  sl_i2c_mode_t mode;                     ///< Leader/Follower Mode, 0 for leader mode and 1 for follower mode
-  sl_i2c_operating_mode_t operating_mode; ///< Speed mode \ref sl_i2c_operating_mode_t for possible values
-  sl_i2c_transfer_type_t transfer_type;   ///< Transfer type \ref sl_i2c_transfer_type_t for possible values
-  sl_i2c_callback_t i2c_callback;         ///< I2C callback \ref sl_i2c_callback_t
+  sl_i2c_mode_t mode;                     ///< Leader/Follower mode. 0 for leader mode and 1 for follower mode.
+  sl_i2c_operating_mode_t operating_mode; ///< Speed mode. See \ref sl_i2c_operating_mode_t for possible values.
+  sl_i2c_transfer_type_t transfer_type;   ///< Transfer type. See \ref sl_i2c_transfer_type_t for possible values.
+  sl_i2c_callback_t i2c_callback;         ///< I2C callback function. See \ref sl_i2c_callback_t.
 } sl_i2c_config_t;
 
-/// @brief Structure to hold the parameters of DMA configuration
+/**
+ * @brief Structure to hold the parameters of DMA configuration.
+ * 
+ * This structure defines the configuration parameters for DMA channels used in I2C operations,
+ * including the transmit and receive channel numbers.
+ */
 typedef struct {
-  uint32_t dma_tx_channel; ///< DMA transmit channel number
-  uint32_t dma_rx_channel; ///< DMA receive channel number
+  uint32_t dma_tx_channel; ///< DMA transmit channel number.
+  uint32_t dma_rx_channel; ///< DMA receive channel number.
 } sl_i2c_dma_config_t;
 
-/// @brief Structure to hold the parameters of I2C transfer configuration
+/**
+ * @brief Structure to hold the parameters of I2C transfer configuration.
+ * 
+ * This structure defines the configuration parameters for an I2C transfer, including pointers
+ * to the transmit and receive data buffers and the lengths of the data to be transmitted and received.
+ */
 typedef struct {
-  uint8_t *tx_buffer; ///< Pointer to Tx Data buffer
-  uint32_t tx_len;    ///< Number of bytes to transmit
-  uint8_t *rx_buffer; ///< Pointer to Rx Data buffer
-  uint32_t rx_len;    ///< Number of bytes to receive
+  uint8_t *tx_buffer; ///< Pointer to the transmit data buffer.
+  uint32_t tx_len;    ///< Number of bytes to transmit.
+  uint8_t *rx_buffer; ///< Pointer to the receive data buffer.
+  uint32_t rx_len;    ///< Number of bytes to receive.
 } sl_i2c_transfer_config_t;
 
-///@brief Structure to hold port and pin of I2C
+/**
+ * @brief Structure to hold the port and pin configuration for I2C.
+ * 
+ * This structure defines the configuration parameters for the I2C pins, including the port, pin,
+ * mux, and pad settings for both SDA and SCL lines.
+ */
 typedef struct {
-  uint8_t sda_port; ///< PWM GPIO port
-  uint8_t sda_pin;  ///< PWM GPIO pin
-  uint8_t sda_mux;  ///< PWM GPIO mux
-  uint8_t sda_pad;  ///< PWM GPIO pad
-  uint8_t scl_port; ///< PWM GPIO port
-  uint8_t scl_pin;  ///< PWM GPIO pin
-  uint8_t scl_mux;  ///< PWM GPIO mux
-  uint8_t scl_pad;  ///< PWM GPIO pad
+  uint8_t sda_port; ///< I2C SDA GPIO port.
+  uint8_t sda_pin;  ///< I2C SDA GPIO pin.
+  uint8_t sda_mux;  ///< I2C SDA GPIO mux.
+  uint8_t sda_pad;  ///< I2C SDA GPIO pad.
+  uint8_t scl_port; ///< I2C SCL GPIO port.
+  uint8_t scl_pin;  ///< I2C SCL GPIO pin.
+  uint8_t scl_mux;  ///< I2C SCL GPIO mux.
+  uint8_t scl_pad;  ///< I2C SCL GPIO pad.
 } sl_i2c_pin_init_t;
 
-/// @brief Enumeration to represent I2C power modes
+/**
+ * @brief Enumeration to represent I2C power modes.
+ * 
+ * This enumeration defines the different power modes available for the I2C driver.
+ */
 typedef enum {
-  SL_I2C_ULP_MODE,        ///< The driver leader ULP mode
-  SL_I2C_HP_MODE,         ///< The driver leader HP mode
-  SL_I2C_POWER_MODE_LAST, ///< For Validation
+  SL_I2C_ULP_MODE,        ///< Ultra-Low Power (ULP) mode for the I2C driver.
+  SL_I2C_HP_MODE,         ///< High Power (HP) mode for the I2C driver.
+  SL_I2C_POWER_MODE_LAST, ///< Last member for validation purposes.
 } sl_i2c_power_modes_t;
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/
 /**
- * @brief Initialize the I2C Module and clock. 
- * @details Sets I2C instance mode,operating mode (bus-speed), frequency, and transfer type (using Interrupt or DMA).
- * If the transfer type is DMA, it initializes DMA as well.
- * Registers I2C instance callback and clears pending interrupts.
- * Configures SDL and SCL pins as per the instance.
+ * @brief To initialize the I2C module and configure its parameters.
+ * 
+ * @details This function configures the I2C instance with the specified settings, including I2C leader/follower mode,
+ * operating mode (bus speed), and transfer type (interrupt or DMA).
+ * If DMA is selected as the transfer type, the function will also initialize the DMA module.
+ * Additionally, it registers the callback for the I2C instance, clears any pending interrupts,
+ * and configures the SDL and SCL pins as per the instance requirements.
  *
- * @param[in] i2c_instance I2C Instance to be initialized \ref sl_i2c_instance_t. 
+ * @param[in] i2c_instance The I2C instance to be initialized. See \ref sl_i2c_instance_t.
+ * 
+ * @param[in] p_user_config A pointer to the I2C configuration structure. See \ref sl_i2c_config_t.
  *
- * @param[in] p_user_config A pointer to I2C configuration structure \ref sl_i2c_config_t
- *
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
- *         - \ref SL_I2C_CALLBACK_BUSY (0x0D) - Driver is busy
+ * @return sl_i2c_status_t Status of the initialization:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Initialization was successful.
+ *         - \ref SL_I2C_CALLBACK_BUSY (0x000D) - The driver is currently busy and cannot process the request.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - One or more parameters are invalid.
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_init(sl_i2c_instance_t i2c_instance, const sl_i2c_config_t *p_user_config);
 
 /***************************************************************************/
 /**
- * @brief This API configures the follower address of the I2C module. 
- * @details Should be used only in Follower mode after instance initialization.
- * It updates the slave address register 
- * I2C leader device initiates transfer with the address that matches slave address register of follower device.
+ * @brief To configure the follower address of the I2C module.
+ * 
+ * @details This API is intended to be used only in follower mode after initializing the I2C instance. 
+ * It updates the follower address register so that the I2C leader device can initiate transfers with the 
+ * address that matches the follower device's address register.
+ * 
  * @pre Pre-conditions:
- *      - \ref sl_i2c_driver_init 
- *      - Here I2C mode should be set as follower mode
- *
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- *
- * @param[in] address Follower own address, can be provided in 7-bit length (0-127)
- * or in 10-bit length(0-1023).
- *
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
+ *      - \ref sl_i2c_driver_init must be called prior.
+ *      - I2C mode must be set to follower mode.
+ * 
+ * @param[in] i2c_instance The I2C instance to be configured. See \ref sl_i2c_instance_t.
+ * 
+ * @param[in] address The follower's own address (supports 7-Bit and 10-Bit addressing) between the range of 1-1023.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result of the operation:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_set_follower_address(sl_i2c_instance_t i2c_instance, uint16_t address);
 
 /***************************************************************************/
 /**
- * @brief This API configures the TX and RX FIFO threshold values.
- * @details The valid range is 0-255, with the additional restriction that hardware does
- * not allow this value to be set to a value larger than the depth of the buffer.
- * A value of 0 sets the threshold for 1 entry,
- * and a value of 255 sets the threshold for 256 entries.
- * This should be called after I2C instance initialization.
+ * @brief To configure the TX and RX FIFO threshold levels for the I2C instance.
+ * 
+ * @details This API allows you to set the threshold levels for the transmit (TX) and receive (RX) FIFO buffers.
+ * The valid range is 0-255, where 0 corresponds to a threshold of 1 byte entry, and 255 corresponds to a threshold of 256 byte entries.
+ * Note that the value must not exceed the depth of the hardware buffer. Whenever the buffer reaches the threshold value, the respective interrupt occurs.
+ * 
  * @pre Pre-condition:
- *      - \ref sl_i2c_driver_init 
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- * @param[in] tx_threshold_value Transmit FIFO threshold value: Range between 0 to 255.
- * @param[in] rx_threshold_value Receive FIFO threshold value: Range between 0 to 255.
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
+ *      - \ref sl_i2c_driver_init must be called prior.
+ * 
+ * @param[in] i2c_instance The I2C instance to be configured. See \ref sl_i2c_instance_t.
+ * @param[in] tx_threshold_value The TX FIFO threshold value, which must be between 0 and 255.
+ * @param[in] rx_threshold_value The RX FIFO threshold value, which must be between 0 and 255.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result of the operation:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_configure_fifo_threshold(sl_i2c_instance_t i2c_instance,
                                                        uint8_t tx_threshold_value,
@@ -231,40 +287,48 @@ sl_i2c_status_t sl_i2c_driver_configure_fifo_threshold(sl_i2c_instance_t i2c_ins
 
 /***************************************************************************/
 /**
- * @brief This API will read the current I2C clock frequency. 
- * @details This API gets the current clock frequency of I2C in MHz,
- * by reading the system core clock frequency.
+ * @brief To read the current I2C clock frequency.
+ * 
+ * @details This API retrieves the current system core clock frequency in Hz by reading the system core clock frequency.
+ * 
  * @pre Pre-condition:
- *      - \ref sl_i2c_driver_init 
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- * @param[in] frequency Pointer to a variable to store currently configured frequency.
- * @return status 0 if successful, else error code as follow.
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success. 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid. 
+ *      - \ref sl_i2c_driver_init must be called prior.
+ * 
+ * @param[in] i2c_instance The I2C instance used. See \ref sl_i2c_instance_t.
+ * @param[out] frequency Pointer to a variable where the current system core clock frequency will be stored.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result of the operation:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_get_frequency(sl_i2c_instance_t i2c_instance, uint32_t *frequency);
 
 /***************************************************************************/
 /**
- * @brief This API sends the data in blocking mode.
- * @details This API sends the data in blocking mode using interrupt,
- * sets follower address when used in leader application,
- * sets transmit empty interrupt and enable I2C interrupts.
- * It keeps the call blocked until the last byte is transferred. 
+ * @brief To send data in blocking mode.
+ * 
+ * @details This API sends data in blocking mode, where it sets the follower address 
+ * if used for leader mode. The call remains blocked until the last byte is transferred.
+ * 
  * @pre Pre-conditions:
- *      - \ref sl_i2c_driver_init 
- *      - Here transfer-type should be set as interrupt-type
- *      - \ref sl_i2c_driver_set_follower_address (if sending from slave)
- *      - \ref sl_i2c_driver_configure_fifo_threshold
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t.
- * @param[in] address Follower address, can be provided in 7-bit length (0-127)
- * or in 10-bit length(0-1023). In follower mode this parameter will be ignored.
- * @param[in] tx_buffer A pointer to transmit data buffer.
- * @param[in] tx_len Data length in number of bytes in the range of 1- 80000 bytes.
- * @note Maximum tx_len used can be 80000 (receives in around 10 seconds).
- * @return status 0 if successful, else error code as follow.
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success. 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid.
+ *      - \ref sl_i2c_driver_init must be called prior.
+ *      - Transfer type must be set to 'using interrupt'.
+ *      - \ref sl_i2c_driver_set_follower_address (if sending from follower).
+ *      - \ref sl_i2c_driver_configure_fifo_threshold.
+ * 
+ * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
+ * @param[in] address Follower address (7-bit: 0-127, 10-bit: 0-1023). Ignored in follower mode.
+ * @param[in] tx_buffer Pointer to the transmit data buffer.
+ * @param[in] tx_len Data length in bytes (range: 1-80,000).
+ * 
+ * @note It is recommended to use up to 80,000 bytes maximum transfer length, 
+ * but this limit may vary depending on the available RAM size.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_send_data_blocking(sl_i2c_instance_t i2c_instance,
                                                  uint16_t address,
@@ -273,27 +337,32 @@ sl_i2c_status_t sl_i2c_driver_send_data_blocking(sl_i2c_instance_t i2c_instance,
 
 /***************************************************************************/
 /**
- * @brief This API sends the data in non-blocking mode.
- * @details This API sends the data in non-blocking mode using DMA 
- * also sets the follower address when used in Leader application.
- * Configures DMA rx and tx channels.
- * Registers DMA callback & enables DMA channels.
- * It updates the transfer complete flag \ref SL_I2C_DATA_TRANSFER_COMPLETE after data transfer completion.
+ * @brief To send data in non-blocking mode using DMA.
+ * 
+ * @details This API sends data using DMA in a non-blocking mode. It sets the follower address 
+ * when used in leader mode, configures the DMA TX and RX channels, registers the DMA callback, 
+ * and enables the DMA channels. The transfer complete flag \ref SL_I2C_DATA_TRANSFER_COMPLETE 
+ * is updated after data transfer completion.
+ * 
  * @pre Pre-conditions:
- *      - \ref sl_i2c_driver_init 
- *      - Here transfer-type should be set as DMA-type
- *      - \ref sl_i2c_driver_set_follower_address, if used in salve application
- * @param[in] i2c_instance I2C Instance.
- * @param[in] address Follower address can be provided in 7-bit length (0-127)
- * or in 10-bit length(0-1023).
- * @param[in] tx_buffer A pointer to transmit data buffer
- * @param[in] tx_len Data length in number of bytes in the range of 1- 30000 bytes.
- * @param[in] dma_config A pointer to DMA configuration structure \ref sl_i2c_dma_config_t.
- * @note Maximum tx_len values can be 30000 (receives back in around 4 seconds)
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
- *         - \ref SL_DMA_TRANSFER_ERROR - DMA parameters are invalid 
+ *      - \ref sl_i2c_driver_init must be called prior.
+ *      - Transfer type must be set to 'using DMA'.
+ *      - \ref sl_i2c_driver_set_follower_address (if sending from follower).
+ * 
+ * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
+ * @param[in] address Follower address (7-bit: 0-127, 10-bit: 0-1023).
+ * @param[in] tx_buffer Pointer to the transmit data buffer.
+ * @param[in] tx_len Data length in bytes (range: 1-30,000).
+ * @param[in] p_dma_config Pointer to the DMA configuration structure. See \ref sl_i2c_dma_config_t.
+ * 
+ * @note It is recommended to use up to 30,000 bytes maximum transfer length, 
+ * but this limit may vary depending on the available RAM size.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - SL_DMA_TRANSFER_ERROR - DMA parameters are invalid.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_send_data_non_blocking(sl_i2c_instance_t i2c_instance,
                                                      uint16_t address,
@@ -303,25 +372,29 @@ sl_i2c_status_t sl_i2c_driver_send_data_non_blocking(sl_i2c_instance_t i2c_insta
 
 /***************************************************************************/
 /**
- * @brief This API receives the data in blocking mode.
- * @details This API receives the data in blocking mode using interrupt,
- * also sets the follower address when used in Leader application.
- * Sets receive full interrupt and enables I2C interrupts.
- * It keeps the call blocked until the last byte is transferred. 
+ * @brief To receive data in blocking mode.
+ * 
+ * @details This API receives data in blocking mode, where it sets the follower address 
+ * if used in leader mode. The call remains blocked until the last byte is received.
+ * 
  * @pre Pre-conditions:
- *      - \ref sl_i2c_driver_init 
- *      - Here transfer-type should be set as interrupt-type
- *      - \ref sl_i2c_driver_set_follower_address, if used in follower application
- *      - \ref sl_i2c_driver_configure_fifo_threshold
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- * @param[in] address Follower address, can be provided in 7-bit length (0-127)
- * or in 10-bit length(0-1023). In follower mode this parameter will be ignored.
- * @param[in] rx_buffer A pointer to receive data buffer
- * @param[in] rx_len Data length in number of bytes in the range of 1-80000.
- * @note Maximum rx_len used can be 80000 (receives in around 10 seconds)
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
+ *      - \ref sl_i2c_driver_init must be called prior.
+ *      - Transfer type must be set to 'using interrupt'.
+ *      - \ref sl_i2c_driver_set_follower_address (if receiving from follower).
+ *      - \ref sl_i2c_driver_configure_fifo_threshold.
+ * 
+ * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
+ * @param[in] address Follower address (7-bit: 0-127, 10-bit: 0-1023). Ignored in follower mode.
+ * @param[in] rx_buffer Pointer to the receive data buffer.
+ * @param[in] rx_len Data length in bytes (range: 1-80,000).
+ * 
+ * @note It is recommended to use up to 80,000 bytes maximum transfer length, 
+ * but this limit may vary depending on the available RAM size.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instance,
                                                     uint16_t address,
@@ -330,30 +403,34 @@ sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instan
 
 /***************************************************************************/
 /**
- * @brief This API receives the data in non-blocking mode.
- * @details This API receives the data in non-blocking mode (using DMA),
- * also sets the follower address when used in Leader application.
- * Configures DMA rx and tx channels.
- * Registers DMA callback & enables DMA channels.
- * It updates the transfer complete flag \ref SL_I2C_DATA_TRANSFER_COMPLETE after data transfer completion.
+ * @brief To receive data in non-blocking mode using DMA.
+ * 
+ * @details This API receives data using DMA in non-blocking mode. It sets the follower address 
+ * when used in leader mode, configures DMA RX and TX channels, registers the DMA callback, 
+ * and enables the DMA channels. The transfer complete flag \ref SL_I2C_DATA_TRANSFER_COMPLETE 
+ * is updated after data transfer completion.
+ * 
  * @pre Pre-conditions:
- *      - \ref sl_i2c_driver_init 
- *      - Here transfer-type should be set as DMA-type
- *      - \ref sl_i2c_driver_set_follower_address, if used in salve application
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- * @param[in] address Follower address, can be provided in 7-bit length (0-127)
- * or in 10-bit length(0-1023).
- * @param[in] rx_buffer A pointer to receive data buffer.
- * @param[in] rx_len Data length in number of bytes in the range of 1- 30000 Bytes.
- * @param[in] dma_config A pointer to DMA configuration structure \ref sl_i2c_dma_config_t
+ *      - \ref sl_i2c_driver_init must be called prior.
+ *      - Transfer type must be set to 'using DMA'.
+ *      - \ref sl_i2c_driver_set_follower_address if used in follower application.
+ * 
+ * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
+ * @param[in] address Follower address, which can be in 7-bit (0-127) or 10-bit (0-1023) format.
+ * @param[in] rx_buffer Pointer to the receive data buffer.
+ * @param[in] rx_len Data length in bytes, ranging from 1 to 30,000.
+ * @param[in] p_dma_config Pointer to the DMA configuration structure. See \ref sl_i2c_dma_config_t.
+ * 
  * @note 
- *       -  Maximum rx_len values can be 30000 (receives back in around 4 seconds).
- *       - The default values cannot be any of the reserved address locations: that is, 0x00 to 0x07, 
- *        or 0x78 to 0x7f.
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
- *         - \ref SL_DMA_TRANSFER_ERROR - DMA parameters are invalid 
+ *       - It is recommended to use up to 30,000 bytes maximum transfer length, 
+ *          but this limit may vary depending on the available RAM size.
+ *       - The default values cannot be any of the reserved address locations: 0x00 to 0x07, or 0x78 to 0x7f.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ *         - SL_DMA_TRANSFER_ERROR - DMA parameters are invalid.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_instance,
                                                         uint16_t address,
@@ -363,25 +440,29 @@ sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_in
 
 /***************************************************************************/
 /**
- * @brief This API transmits data and then receives data from an I2C device.
- * @details This API first transmits data and then receives data from an I2C device using interrupts.
- * Also sets follower address when used in Leader application.
- * Sets & enable transmit empty interrupt while transmitting data .
- * Sets & enable receive full interrupt while receiving data.
+ * @brief To transmit and then receive data from an I2C device in blocking mode.
+ * 
+ * @details This API first transmits data and then receives data from an I2C device in blocking mode.
+ * It sets the follower address when used in leader mode.
+ * 
  * @pre Pre-conditions:
- *      - \ref sl_i2c_driver_init 
- *      - Here transfer-type should be set as Interrupt-type
- *      - \ref sl_i2c_driver_set_follower_address, if used in follower application
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- * @param[in] address Follower address, can be provided in 7-bit length (0-127)
- * or in 10-bit length(0-1023).
- * @param[in] p_transfer_config A pointer to transfer configuration structure \ref sl_i2c_transfer_config_t
- * @note Maximum tx_len & rx_len values can be 80000 (sends & receives back in around 20 seconds).
- * - The default values cannot be any of the reserved address locations: that is, 0x00 to 0x07, 
- *        or 0x78 to 0x7f.
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid  
+ *      - \ref sl_i2c_driver_init must be called prior.
+ *      - Transfer type must be set to 'using interrupt'.
+ *      - \ref sl_i2c_driver_set_follower_address if used in follower application.
+ * 
+ * @param[in] i2c_instance The I2C instance to be used. See \ref sl_i2c_instance_t.
+ * @param[in] address Follower address, which can be in 7-bit (0-127) or 10-bit (0-1023) format.
+ * @param[in] p_transfer_config Pointer to the transfer configuration structure. See \ref sl_i2c_transfer_config_t.
+ * 
+ * @note 
+ *       - It is recommended to use up to 80,000 bytes maximum transfer length, 
+ *         but this limit may vary depending on the available RAM size.
+ *       - The default values cannot be any of the reserved address locations: 0x00 to 0x07, or 0x78 to 0x7f.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_transfer_data(sl_i2c_instance_t i2c_instance,
                                             sl_i2c_transfer_config_t const *p_transfer_config,
@@ -389,155 +470,168 @@ sl_i2c_status_t sl_i2c_driver_transfer_data(sl_i2c_instance_t i2c_instance,
 
 /***************************************************************************/
 /**
- * @brief De-initializes the I2C peripheral and clock
- * @details This API will de-initializes the I2C peripheral, disables its clock and unregisters the callback.
- * @pre Pre-condition:
- *      - \ref sl_i2c_driver_init
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
- * @note
- *   When I2C module is used in combination with other periperals, while deinitializing in the application please refer below notes
- *   1. Whenever sl_i2c_driver_deinit() gets called it will disable the clock for the peripheral. To power off the peripheral we have to power down the
- *      power domain(PERI_EFUSE) which contains different peripherals mentioned below.
- *      i.e USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
- *      Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM and EFUSE.
- *      Use below API to power down the particular power doamin, if other periherals's not being used
- *      sl_si91x_peri_efuse_power_down(power_down); 
+ * @brief To de-initialize the I2C peripheral and clock.
  * 
- *   2. Few peripherlas(ULP Peripherls, UULP Peripherlas, GPDMA and SDIO-SPI) have seperate domains those can be powered down indepedently. For additional details refer Power architecture section in Hardware Reference Manual
- *      Here ULP_UART has seperate power domain ULPSS_PWRGATE_ULP_UART, which can be power down indepedently.Refer rsi_power_save.h file for all power gates definations.
+ * @details This API de-initializes the I2C peripheral, disables the peripheral clock, and unregisters the callback.
+ * 
+ * @pre Pre-condition:
+ *      - \ref sl_i2c_driver_init must be called prior.
+ * 
+ * @param[in] i2c_instance The I2C instance to be de-initialized. See \ref sl_i2c_instance_t.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
+ * @note When the I2C module is used in combination with other peripherals, refer to the following notes:
+ *   1. When `sl_i2c_driver_deinit()` is called, it will disable the clock for the peripheral. To power off the peripheral, 
+ *      the power domain (PERI_EFUSE) containing different peripherals (e.g., USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, 
+ *      I2S Master, I2S Slave, Micro-DMA Controller, Config Timer, Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM, and EFUSE) 
+ *      must be powered down. Use the following API to power down the specific power domain if other peripherals are not being used:
+ *      `sl_si91x_peri_efuse_power_down(power_down)`.
+ *   2. Some peripherals (ULP Peripherals, UULP Peripherals, GPDMA, and SDIO-SPI) have separate domains that can be powered down independently. 
+ *      For additional details, see the Power Architecture section in the Hardware Reference Manual. The ULP_UART has a separate power domain 
+ *      (ULPSS_PWRGATE_ULP_UART) that can be powered down independently. See the `rsi_power_save.h` file for all power gate definitions.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_deinit(sl_i2c_instance_t i2c_instance);
 
 /***************************************************************************/
 /**
- * @brief Set the Pin configuration for I2C.
- * @details It configures the SDA and SCL pins.
- * Also enables internal pullups of SDA & SCL lines of follower device.
- *
- * @param[in] pin_init Pointer to pin init structure \ref sl_i2c_pin_init_t
- *
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid 
+ * @brief To configure the I2C pins.
+ * 
+ * @details Configures the SDA and SCL pins and enables internal pull-ups for the SDA and SCL lines of the follower device.
+ * 
+ * @param[in] pin_init Pointer to the pin initialization structure. See \ref sl_i2c_pin_init_t.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init);
 
 /***************************************************************************/
 /**
- * @brief This API re-configures the I2C leader device on power mode changes.
- * @details Re-Config the I2C driver leader instance (I2C2) for ULP/HP mode.
- * It will re-config I2C clock frequency required for I2C operating(speed) mode to run in ULP/HP mode.
+ * @brief To re-configure the I2C leader device on power mode changes.
+ * 
+ * @details Re-configures the I2C leader instance (ULP_I2C) for ULP/HP mode, adjusting the I2C clock frequency 
+ * required for the I2C operating (speed) mode to run in ULP/HP mode.
+ * 
  * @pre Pre-conditions:
- *      - \ref sl_i2c_driver_init
- *      - Instance should be ULP mode when new mode is HP
- *      - Instance should be HP mode when new mode is ULP
- *      - Instance used should be ULP-I2C instance
- * @param[in] power_mode , new power state to switch to \ref sl_i2c_power_modes_t
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid
+ *      - \ref sl_i2c_driver_init must be called prior.
+ *      - The instance should be in ULP mode when switching to HP mode.
+ *      - The instance should be in HP mode when switching to ULP mode.
+ *      - The instance used should be the ULP-I2C instance.
+ * 
+ * @param[in] new_power_mode New power state to switch to. See \ref sl_i2c_power_modes_t.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Success.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_leader_reconfig_on_power_mode_change(sl_i2c_power_modes_t new_power_mode);
 
 /***************************************************************************/
 /**
- * @brief To enable or disable repeated start, to enable or disable combined format transfer
- * @details Details :
- *          - This API should be called by a leader application to enable repeated start, before starting data transfer.
- *          - By enabling this, one can use combined format transfers.
- *          - With this, I2C can perform combined write/read operations to same or different slave without releasing the
- *            line, thus with the guarantee that the operation is not interrupted.
+ * @brief To enable or disable repeated start and combined format transfer.
+ * 
+ * @details This API should be called by a leader application to enable repeated start before starting data transfer.
+ * By enabling this, combined format transfers can be used, allowing the I2C to perform combined write/read operations 
+ * to the same or different followers without releasing the line, ensuring that the operation is not interrupted.
+ * 
  * @pre Pre-condition:
- *      - \ref sl_i2c_driver_init
- *
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- *
- * @param[in] enable_rep_start true to enable & false to disable repeated start
- *
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid
+ *      - \ref sl_i2c_driver_init must be called prior.
+ * 
+ * @param[in] i2c_instance The I2C instance to be configured. See \ref sl_i2c_instance_t.
+ * @param[in] enable_rep_start Boolean value: true to enable, false to disable repeated start.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Operation was successful.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Invalid parameters were provided.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_enable_repeated_start(sl_i2c_instance_t i2c_instance, boolean_t enable_rep_start);
 
-/*******************************************************************************
- * @brief API to wait till I2C gets idle
- * @details Details :
- *          - This API will poll for activity status bit of leader & follower.
- *          - It can be used for synchronization
- *
- * @param[in] i2c_instance I2C Instance \ref sl_i2c_instance_t
- *
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success
- *         - \ref SL_I2C_INVALID_PARAMETER (0x0F) - Parameters are invalid
+/***************************************************************************/
+/**
+ * @brief To wait until the I2C bus is idle.
+ * 
+ * @details This API polls the activity status bit of the leader and follower to determine 
+ * if the I2C bus is idle. It can be used for synchronization purposes.
+ * 
+ * @param[in] i2c_instance The I2C instance to be checked. See \ref sl_i2c_instance_t.
+ * 
+ * @return sl_i2c_status_t Status code indicating the result:
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Success.
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Parameters are invalid.
+ * 
  ******************************************************************************/
 sl_i2c_status_t sl_si91x_i2c_wait_till_i2c_is_idle(sl_i2c_instance_t i2c_instance);
 
-// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
-/// @addtogroup I2C
-/// @{
-///
-///   @details
-///
-///   @n @section I2C_Intro Introduction
-///
-///  I2C, which stands for Inter-Integrated Circuit,
-///  is a serial communication protocol commonly used in micro-controllers
-///  and other integrated circuits for communication between various peripheral devices and sensors.
-///  In micro-controllers, I2C is often used to connect peripherals like sensors, EEPROMs, real-time clocks,
-///  and other integrated circuits. The I2C protocol uses only two wires for communication:
-///  a serial data line (SDA) and a serial clock line (SCL). This makes it very efficient in terms of pin usage,
-///  which is particularly important in micro-controller systems where pin count might be limited.
-///
-///  @li In embedded industries, I2C (Inter-Integrated Circuit) is widely used for various applications due to its simplicity,
-///    flexibility, and low pin count requirements. Here are some common use cases of I2C in embedded systems:
-///
-///  1. Sensor Integration
-///
-///  2. Sensor Hubs and Fusion Algorithms
-///
-///  3. Memory Expansion
-///
-///  4. Real-Time Clock (RTC)
-///
-///  5. Display Interfaces
-///
-///  6. Peripheral Control
-///
-///  7. Communication with Other Micro-controllers and Modules
-///
-///  8. System Configuration and Control
-///
-///   @n @section Configuration
-///
-///   @li I2C can be configured by configuring parameters such as Leader or Follower mode using @ref sl_i2c_mode_t,
-///   the Transfer type using @ref sl_i2c_transfer_type_t and operating speed Mode using @ref sl_i2c_operating_mode_t.
-///   All of these configurations can be made using a structure called @ref sl_i2c_config_t, after which the API
-///   @ref sl_i2c_driver_init() can be called.
-///
-///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
-///
-///   @n @section Usage
-///
-///     The common I2C functions can be used after the I2C Structures are specified, passing an instance of   @ref sl_i2c_config_t.
-///     These functions will initiate and configure the I2C below, which is the flow for implementation.
-///
-///    1. @ref sl_i2c_driver_init
-///    2. @ref sl_i2c_driver_set_follower_address (for follower)
-///    3. @ref sl_i2c_driver_configure_fifo_threshold
-///    4. @ref sl_i2c_driver_receive_data_blocking or
-///    5. @ref sl_i2c_driver_send_data_blocking
-///    6. @ref sl_i2c_driver_deinit
-///
-/// **Note** : The above flow is for I2C non-DMA operations. If the requirement is to use DMA Mode, then use send and receive non-blocking APIs
-/// @ref sl_i2c_driver_receive_data_non_blocking and @ref sl_i2c_driver_send_data_non_blocking.
-///
-/** @} (end addtogroup I2C) */
+/// @} end group I2C ********************************************************/
 
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
+/**
+ * @addtogroup I2C
+ * @{
+ *
+ * @details
+ *
+ * @section I2C_Intro Introduction
+ *
+* Inter-Integrated Circuit (I2C) is a serial communication protocol widely used in microcontrollers and integrated circuits
+* for communication between various peripheral devices and sensors. I2C uses only two wires: a serial data line (SDA) and a serial clock line (SCL),
+* making it efficient in terms of pin usage, especially in systems with limited pin counts.
+ * 
+ * @image html i2c_frame.png "I2C Frame Format"
+ * 
+ * I2C is favored in embedded systems for its simplicity, flexibility, and low pin count requirements. Common use cases include:
+ * - **Sensor Integration**: Connecting various sensors for data collection.
+ * - **Sensor Hubs and Fusion Algorithms**: Combining sensor data for enhanced applications.
+ * - **Memory Expansion**: Adding EEPROMs or other memory devices.
+ * - **Real-Time Clock (RTC)**: Maintaining accurate timekeeping.
+ * - **Display Interfaces**: Driving LCDs and other display modules.
+ * - **Peripheral Control**: Managing additional peripheral devices.
+ * - **Communication with Other Microcontrollers and Modules**: Enabling inter-device communication.
+ * - **System Configuration and Control**: Configuring system settings and parameters.
+ *
+ * @section I2C_Configuration Configuration
+ *
+ * I2C can be configured using several parameters, including:
+ * - **Mode**: Leader or Follower mode (sl_i2c_mode_t)
+ * - **Transfer Type**: Using interrupts or DMA (@ref sl_i2c_transfer_type_t)
+ * - **Operating Speed**: Various speed modes (@ref sl_i2c_operating_mode_t)
+ *
+ * These configurations are encapsulated in the @ref sl_i2c_config_t structure and initialized using the @ref sl_i2c_driver_init() API.
+ *
+ * For more details on configuration parameters, see the respective peripheral example readme document.
+ *
+ * @section I2C_Usage Usage
+ * 
+ * After defining the I2C configuration structures and passing an instance of @ref sl_i2c_config_t, the common I2C functions can be used to initiate and configure the I2C module. The typical flow for implementation is as follows:
+ * 
+ * - Initialize the I2C driver: @ref sl_i2c_driver_init
+ * - Set the follower address (if in follower mode): @ref sl_i2c_driver_set_follower_address
+ * - Configure the FIFO threshold: @ref sl_i2c_driver_configure_fifo_threshold
+ * - Perform data operations:
+ *   - Blocking mode use below APIs:
+ *     - **Receive data:** @ref sl_i2c_driver_receive_data_blocking
+ *     - **Send data:** @ref sl_i2c_driver_send_data_blocking
+ *   - Non-blocking mode (Recommended for larger buffers):
+ *     - **Receive data:** @ref sl_i2c_driver_receive_data_non_blocking
+ *     - **Send data:** @ref sl_i2c_driver_send_data_non_blocking
+ * - Deinitialize the I2C driver: @ref sl_i2c_driver_deinit
+ * 
+ * - **Recommendations:**
+ * 
+ *   - For larger buffer transfers (greater than 16 bytes), prefer non-blocking APIs to avoid stalling the CPU, especially in high-throughput applications.
+ *   - When using non-blocking APIs, ensure that the transfer type is configured as SL_I2C_USING_DMA to leverage DMA for efficient data handling.
+ *   - When using blocking APIs, ensure that the transfer type is configured as SL_I2C_USING_INTERRUPT.
+ *
+ * @} (end addtogroup I2C)
+ */
 #ifdef __cplusplus
 }
 #endif

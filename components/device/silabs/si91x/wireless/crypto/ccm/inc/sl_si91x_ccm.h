@@ -40,15 +40,27 @@
  * @{ 
  */
 
+/**
+ * @brief Enumeration defines the CCM encryption and decryption types.
+ *
+ * This enumeration defines the types of CCM operations supported, which includes
+ * encryption, and decryption.
+ */
 typedef enum {
   SL_SI91X_CCM_ENCRYPT = 0, ///< CCM Encryption
   SL_SI91X_CCM_DECRYPT      ///< CCM Decryption
 } sl_si91x_ccm_type_t;
 
+/**
+ * @brief Enumeration defines the CCM key sizes supported by the SI91X device.
+ *
+ * This enumeration defines the key sizes supported by the CCM encryption
+ * algorithm on the SI91X device, which includes 128-bit, 192-bit, and 256-bit key sizes.
+ */
 typedef enum {
-  SL_SI91X_CCM_KEY_SIZE_128 = 16, ///< key size of 128 bits
-  SL_SI91X_CCM_KEY_SIZE_192 = 24, ///< key size of 192 bits
-  SL_SI91X_CCM_KEY_SIZE_256 = 32  ///< key size of 256 bits
+  SL_SI91X_CCM_KEY_SIZE_128 = 16, ///< Key size of 128 bits
+  SL_SI91X_CCM_KEY_SIZE_192 = 24, ///< Key size of 192 bits
+  SL_SI91X_CCM_KEY_SIZE_256 = 32  ///< Key size of 256 bits
 } sl_si91x_ccm_key_size_t;
 
 /** @} */
@@ -61,11 +73,17 @@ typedef enum {
  * @{ 
  */
 
+/**
+ * @brief Structure defines the CCM key configuration for the non-B0 chip versions.
+ */
 typedef struct {
   uint8_t *key;        ///< Pointer to the key
   uint16_t key_length; ///< Length of the key
 } sl_si91x_ccm_key_config_a0_t;
 
+/**
+ * @brief Structure defines the CCM key configuration for B0 chip versions.
+ */
 typedef struct {
   sl_si91x_crypto_key_type_t key_type;          ///< Key type
   sl_si91x_ccm_key_size_t key_size;             ///< Key size
@@ -76,11 +94,20 @@ typedef struct {
   uint32_t reserved;                            ///< Reserved for future use
 } sl_si91x_ccm_key_config_b0_t;
 
+/**
+ * @brief Union holds the CCM key configuration structures of B0, and non-B0 chip versions.
+ */
 typedef union {
   sl_si91x_ccm_key_config_a0_t a0; ///< Key configuration for non-B0 chip versions
   sl_si91x_ccm_key_config_b0_t b0; ///< Key configuration for B0 chip versions
 } sl_si91x_ccm_key_config_t;
 
+/**
+ * @brief Structure defines the CCM configuration.
+ * 
+ * This structure defines the CCM configuration required for the operation which includes 
+ * type of operation, input message, length of input message, key configuration structure, and so on.
+ */
 typedef struct {
   sl_si91x_ccm_type_t encrypt_decrypt;  ///< Encryption or decryption
   const uint8_t *msg;                   ///< Pointer to the input message
@@ -96,21 +123,27 @@ typedef struct {
 
 /** @} */
 
+/******************************************************
+ *                Function Declarations
+*******************************************************/
 /**
  * @addtogroup CRYPTO_CCM_FUNCTIONS
  * @{ 
  */
 
-/***************************************************************************/ /**
- * @brief
- *   This API is used to encrypt/decrypt the message according to the given configuration. This is a blocking API.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To encrypt or decrypt the message according to the given configuration. This is a blocking API.
  * @param[in] config 
- *   Configuration object of type @ref sl_si91x_ccm_config_t
+ *   Configuration object of type @ref sl_si91x_ccm_config_t.
  * @param[out] output 
  *   Buffer to store the output.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
-******************************************************************************/
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output);
 
 /** @} */

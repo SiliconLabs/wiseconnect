@@ -155,6 +155,9 @@ Open the ``demo_config.h`` file. Configure the following parameters.
 
   > **Note** : This application continuously receives and sends publish messages between the cloud and the IoT Hub.
 
+  > **Note** :
+ The included Cloud connectivity certificates are for reference only, using default certificates in the release, cloud connection doesn't work. Please replace the default certificates with valid certificates while connecting to appropriate Cloud/OpenSSL Server.
+
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

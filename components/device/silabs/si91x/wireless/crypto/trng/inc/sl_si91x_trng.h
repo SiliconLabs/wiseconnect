@@ -25,7 +25,7 @@
 #endif //SLI_TRNG_DEVICE_SI91X
 
 #ifndef SLI_SI91X_TRNG_DUPLICATE_CHECK
-// Enables duplicate check for TRNG
+/// @brief Enables duplicate check for TRNG output.
 #define SLI_SI91X_TRNG_DUPLICATE_CHECK 1
 #endif // SLI_SI91X_TRNG_DUPLICATE_CHECK
 
@@ -37,10 +37,16 @@
  * @{ 
  */
 
+/**
+ * @brief Structure defining TRNG configuration
+ * 
+ * This structure defines TRNG configuration required for the operation which includes
+ * input message, length of input message, key, and so on. 
+ */
 typedef struct {
-  uint32_t *trng_test_data;
-  uint16_t input_length;
-  uint32_t *trng_key;
+  uint32_t *trng_test_data; ///< Test input data for TRNG
+  uint16_t input_length;    ///< Input length
+  uint32_t *trng_key;       ///< TRNG key
 } sl_si91x_trng_config_t;
 
 /** @} */
@@ -54,54 +60,75 @@ typedef struct {
  * @{ 
  */
 
-/***************************************************************************/ /**
- * @brief
- *   This API Initializes the TRNG hardware engine.
- * @param[in] config
+/***************************************************************************/
+/**
+ * @brief 
+ *   To initialize the TRNG hardware engine.
+ * @param[in] config 
  *   Configuration object of type @ref sl_si91x_trng_config_t
- * @param[out] output
+ * @param[out] output 
  *   Buffer to store the output.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t.
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_trng_init(sl_si91x_trng_config_t *config, uint32_t *output);
 
-/***************************************************************************/ /**
- * @brief
- *   This API checks the Entropy of TRNG and verifies TRNG functioning.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To check the entropy of TRNG and verify its functioning.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t.
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_trng_entropy(void);
 
-/***************************************************************************/ /**
- * @brief
- *   This API initializes and programs the key required for TRNG hardware engine.
- * @param[in] trng_key - Pointer to trng_key
- * @param[in] key_length - key_length - key length in Dwords (uint32_t)
+/***************************************************************************/
+/**
+ * @brief 
+ *   To initialize and program the key required for the TRNG hardware engine.
+ * @param[in] trng_key 
+ *   Pointer to the TRNG key.
+ * @param[in] key_length 
+ *   Length of the key in Dwords (uint32_t).
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t.
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length);
 
-/***************************************************************************/ /**
- * @brief This API generates random number of desired length.
- * @param[in]   random_number - Address for Random number
- * @param[in]   length - length of random number in bytes
+/***************************************************************************/
+/**
+ * @brief 
+ *   To generate a random number of the desired length.
+ * @param[in] random_number 
+ *   Address for the random number.
+ * @param[in] length 
+ *   Length of the random number in bytes.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t.
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t length);
 
 #if SLI_SI91X_TRNG_DUPLICATE_CHECK
-/***************************************************************************/ /**
- * @brief This API checks if there are any repeating elements in the Array.
- * @param[in,out]  dword            Pointer to the array of elements.
- * @param[in]      length_in_dwords Length of the array in dwords.
- * @param[in]      index            Index of the element to be duplicated.
- * 
- * @return     None
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To check if there are any repeating elements in the array.
+ * @param[in,out] dword 
+ *   Pointer to the array of elements.
+ * @param[in] length_in_dwords 
+ *   Length of the array in dwords.
+ * @return
+ *   sl_status_t.
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
 sl_status_t sl_si91x_duplicate_element(uint32_t *dword, uint32_t length_in_dwords);
 #endif // SLI_SI91X_TRNG_DUPLICATE_CHECK

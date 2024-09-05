@@ -40,9 +40,13 @@
  * @{ 
  */
 
-#define SL_SI91X_AES_BLOCK_SIZE 16 ///< AES BLOCK SIZE of 16 bytes or 128 bits
 /**
- * @brief Enumeration defining AES modes supported by the SI91X device.
+ * @brief AES BLOCK SIZE of 16 bytes or 128 bits.
+ */
+#define SL_SI91X_AES_BLOCK_SIZE 16
+
+/**
+ * @brief Enumeration defines the AES modes supported by the SI91X device.
  *
  * This enumeration defines different AES modes supported by the SI91X device,
  * such as AES CBC, AES ECB, and AES CTR modes.
@@ -52,26 +56,26 @@ typedef enum {
   SL_SI91X_AES_ECB,     ///< AES ECB mode
   SL_SI91X_AES_CTR      ///< AES CTR mode
 } sl_si91x_aes_mode_t;
+
 /**
- * @brief Enumeration defining AES encryption and decryption types.
+ * @brief Enumeration defines the AES encryption and decryption types.
  *
- * This enumeration defines the types of AES operations supported, including
+ * This enumeration defines the types of AES operations supported, which includes
  * encryption and decryption.
  */
 typedef enum {
-  SL_SI91X_AES_ENCRYPT = 1, ///< AES Encryption
-  SL_SI91X_AES_DECRYPT      ///< AES Decryption
+  SL_SI91X_AES_ENCRYPT = 1, ///< AES encryption
+  SL_SI91X_AES_DECRYPT      ///< AES decryption
 } sl_si91x_aes_type_t;
+
 /**
- * @brief Enumeration defining AES key sizes supported by the SI91X device.
- *
- * This enumeration defines the key sizes supported by the AES encryption
- * algorithm on the SI91X device, including 128-bit, 192-bit, and 256-bit key sizes.
+ * @brief Enumeration defines the key sizes supported by the AES encryption
+ * algorithm on the SI91X device, which includes 128-bit, 192-bit, and 256-bit key sizes.
  */
 typedef enum {
-  SL_SI91X_AES_KEY_SIZE_128 = 16, ///< key size of 128 bits
-  SL_SI91X_AES_KEY_SIZE_192 = 24, ///< key size of 192 bits
-  SL_SI91X_AES_KEY_SIZE_256 = 32  ///< key size of 256 bits
+  SL_SI91X_AES_KEY_SIZE_128 = 16, ///< Key size of 128 bits
+  SL_SI91X_AES_KEY_SIZE_192 = 24, ///< Key size of 192 bits
+  SL_SI91X_AES_KEY_SIZE_256 = 32  ///< Key size of 256 bits
 } sl_si91x_aes_key_size_t;
 
 /** @} */
@@ -84,11 +88,17 @@ typedef enum {
  * @{ 
  */
 
+/**
+ * @brief Structure defines the AES key configuration for the non-B0 chip versions.
+ */
 typedef struct {
   uint8_t *key;        ///< Pointer to the key
   uint16_t key_length; ///< Length of the key
 } sl_si91x_aes_key_config_a0_t;
 
+/**
+ * @brief Structure defines the AES key configuration for B0 chip versions.
+ */
 typedef struct {
   sl_si91x_crypto_key_type_t key_type;          ///< Key type
   sl_si91x_aes_key_size_t key_size;             ///< Key size
@@ -99,11 +109,20 @@ typedef struct {
   uint32_t reserved;                            ///< Reserved for future use
 } sl_si91x_aes_key_config_b0_t;
 
+/**
+ * @brief Union holds the AES key configuration structures of B0 and non-B0 chip versions.
+ */
 typedef union {
   sl_si91x_aes_key_config_a0_t a0; ///< Key configuration for non-B0 chip versions
   sl_si91x_aes_key_config_b0_t b0; ///< Key configuration for B0 chip versions
 } sl_si91x_aes_key_config_t;
 
+/**
+ * @brief Structure defines the AES configuration.
+ * 
+ * This structure defines AES configuration required for the operation which includes 
+ * type of operation, input message, length of input message, key configuration structure, and so on. 
+ */
 typedef struct {
   sl_si91x_aes_mode_t aes_mode;         ///< AES Mode
   sl_si91x_aes_type_t encrypt_decrypt;  ///< Encryption or decryption
@@ -115,23 +134,29 @@ typedef struct {
 
 /** @} */
 
+/******************************************************
+ *                Function Declarations
+ ******************************************************/
+
 /**
  * @addtogroup CRYPTO_AES_FUNCTIONS
- * @{ 
+ * @{
  */
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @brief 
- *   This API is used to encrypt/decrypt the message according to the given configuration. This is a blocking API.
+ *   To encrypt or decrypt the message according to the given configuration. This is a blocking API.
  * @param[in] config 
  *   Configuration object of type @ref sl_si91x_aes_config_t
  * @param[out] output 
  *   Buffer to store the output.
  *
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- *
-******************************************************************************/
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output);
 
 /** @} */

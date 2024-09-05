@@ -42,20 +42,20 @@ static bool m4_using_xtal;
 */
 /**
  * @fn           void sli_si91x_raise_pkt_pending_interrupt_to_ta(void)
- * @brief        Raise the packet pending interrupt to TA
+ * @brief        Raise the packet pending interrupt to NWP
  * @param[in]    void  
  * @return       void
  */
 void sli_si91x_raise_pkt_pending_interrupt_to_ta(void)
 {
-  // Write the packet pending interrupt to TA register
+  // Write the packet pending interrupt to NWP register
   M4SS_P2P_INTR_SET_REG = TX_PKT_PENDING_INTERRUPT;
   osEventFlagsWait(ta_events, TA_PKT_TX_DONE, osFlagsWaitAny, osWaitForever);
 }
 /**
  * @fn          bool sli_si91x_is_m4_using_xtal(void);
- * @brief       This API is used to get the whether XTAL is enabled by M4 without notifying TA
- * @return      true  : XTAL is enabled by M4 without notifying TA
+ * @brief       This API is used to get the whether XTAL is enabled by M4 without notifying NWP
+ * @return      true  : XTAL is enabled by M4 without notifying NWP
  *              false : XTAL is not enabled by M4
  */
 bool sli_si91x_is_m4_using_xtal(void)
@@ -64,7 +64,7 @@ bool sli_si91x_is_m4_using_xtal(void)
 }
 /**
  * @fn          void sli_si91x_set_m4_is_using_xtal(void);
- * @brief       This API is set  XTAL is enabled by M4 without notifying TA
+ * @brief       This API is set  XTAL is enabled by M4 without notifying NWP
  */
 void sli_si91x_set_m4_is_using_xtal(void)
 {
@@ -93,7 +93,7 @@ void sli_si91x_set_xtal_in_use_by_m4(void)
 
 /**
  * @fn          void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void);
- * @brief       This API is used to Notify TA that M4 requires XTAL clock source 
+ * @brief       This API is used to Notify NWP that M4 requires XTAL clock source 
  */
 void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void)
 {
@@ -103,17 +103,17 @@ void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void)
     /* Set M4 XTAL usage flag */
     sli_si91x_set_xtal_in_use_by_m4();
 
-    /* Confirm if the TA has completed its initialization process */
+    /* Confirm if the NWP has completed its initialization process */
     if (sl_si91x_is_device_initialized()) {
-      /* Raise the turn ON xtal interrupt to TA */
+      /* Raise the turn ON xtal interrupt to NWP */
       sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
-      /* If M4 is using XTAL then notify TA to turn ON XTAL during programing common flash*/
+      /* If M4 is using XTAL then notify NWP to turn ON XTAL during programing common flash*/
       sli_si91x_raise_xtal_interrupt_to_ta(M4_IS_USING_XTAL_REQUEST);
     }
-    /*If the 'M4 Enabled XTAL without TA Notification,
-* then after net initialization (TA device initialization), a request to turn on the XTAL will be sent to the TA*/
+    /*If the 'M4 Enabled XTAL without NWP Notification,
+* then after net initialization (NWP device initialization), a request to turn on the XTAL will be sent to the NWP*/
     else {
-      /* set  XTAL is enabled by M4 without notifying TA */
+      /* set  XTAL is enabled by M4 without notifying NWP */
       sli_si91x_set_m4_is_using_xtal();
     }
   }
@@ -121,24 +121,24 @@ void sli_si91x_xtal_turn_on_request_from_m4_to_TA(void)
 
 /**
  * @fn           void sli_si91x_raise_xtal_interrupt_to_ta(uint16_t interrupt_no)
- * @brief        Raise the turn on/off xtal interrupt to TA
+ * @brief        Raise the turn on/off xtal interrupt to NWP
  * @param[in]    xtal_enable - true to enable xtal, false to disable xtal
  * @return       void
  */
 void sli_si91x_raise_xtal_interrupt_to_ta(uint16_t interrupt_no)
 {
-  //! Wake up TA
+  //! Wake up NWP
   P2P_STATUS_REG |= M4_WAKEUP_TA;
 
-  //!wait for TA active
+  //!wait for NWP active
   while (!(P2P_STATUS_REG & TA_IS_ACTIVE))
     ;
 
-  // Write the turn_on_xtal interrupt to TA register
+  // Write the turn_on_xtal interrupt to NWP register
   M4SS_P2P_INTR_SET_REG = interrupt_no;
 
   //! Poll for bit to clear
-  //!Wait for TA using flash bit
+  //!Wait for NWP using flash bit
   while (!(TASS_P2P_INTR_CLEAR_REG & interrupt_no))
     ;
   clear_ta_to_m4_interrupt(interrupt_no);
@@ -148,7 +148,7 @@ void sli_si91x_raise_xtal_interrupt_to_ta(uint16_t interrupt_no)
 
 /**
  * @fn          void sli_si91x_send_m4_xtal_usage_notification_to_ta(void);
- * @brief        This API sends a notification to the TA indicating whether
+ * @brief        This API sends a notification to the NWP indicating whether
  *               the M4 core is currently utilizing the XTAL as its clock source.
  */
 void sli_si91x_send_m4_xtal_usage_notification_to_ta(void)
@@ -159,9 +159,9 @@ void sli_si91x_send_m4_xtal_usage_notification_to_ta(void)
   if (sli_si91x_is_m4_using_xtal() == true)
 #endif
   {
-    /* If M4 is using XTAL then request TA to turn ON XTAL*/
+    /* If M4 is using XTAL then request NWP to turn ON XTAL*/
     sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
-    /* If M4 is using XTAL then notify TA to turn ON XTAL during programing common flash*/
+    /* If M4 is using XTAL then notify NWP to turn ON XTAL during programing common flash*/
     sli_si91x_raise_xtal_interrupt_to_ta(M4_IS_USING_XTAL_REQUEST);
   }
 }
@@ -169,13 +169,13 @@ void sli_si91x_send_m4_xtal_usage_notification_to_ta(void)
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
 /**
  * @fn           void sli_si91x_raise_side_band_interrupt_to_ta(void)
- * @brief        Raise the side band interrupt to TA
+ * @brief        Raise the side band interrupt to NWP
  * @param[in]    void  
  * @return       void
  */
 void sli_si91x_raise_side_band_interrupt_to_ta(void)
 {
-  // Write the packet pending interrupt to TA register
+  // Write the packet pending interrupt to NWP register
   M4SS_P2P_INTR_SET_REG = SIDE_BAND_CRYPTO_INTR;
 }
 #endif
@@ -205,7 +205,7 @@ void mask_ta_interrupt(uint32_t interrupt_no)
 
 /**
  * @fn          void clear_ta_to_m4_interrupt(uint32_t interrupt_no)
- * @brief       Clear interrupt raised by TA.
+ * @brief       Clear interrupt raised by NWP.
  * @param[in]   interrupt_no - Process of a interrupt number 
  * @return      void 
  */
@@ -217,7 +217,7 @@ void clear_ta_to_m4_interrupt(uint32_t interrupt_no)
 
 /**
  * @fn           void sli_m4_interrupt_isr(void)
- * @brief        Raise the packet pending interrupt to TA
+ * @brief        Raise the packet pending interrupt to NWP
  * @param[in]    void
  * @return       void
  */
@@ -242,19 +242,19 @@ sl_status_t sli_m4_interrupt_isr(void)
   }
 #ifdef SLI_SI917
   else if (TASS_P2P_INTR_CLEAR & TA_WRITING_ON_COMM_FLASH) {
-    //! moves m4 app to RAM and polls for TA done
+    //! moves m4 app to RAM and polls for NWP done
     sl_mv_m4_app_from_flash_to_ram(TA_WRITES_ON_COMM_FLASH);
     // Clear the interrupt
     clear_ta_to_m4_interrupt(TA_WRITING_ON_COMM_FLASH);
   } else if (TASS_P2P_INTR_CLEAR & NWP_DEINIT_IN_COMM_FLASH) {
-    //! moves m4 app to RAM and polls for TA done
+    //! moves m4 app to RAM and polls for NWP done
     sl_mv_m4_app_from_flash_to_ram(M4_WAIT_FOR_NWP_DEINIT);
     // Clear the interrupt
     clear_ta_to_m4_interrupt(NWP_DEINIT_IN_COMM_FLASH);
   }
   //! Below changes are requried for M4 Image upgration in dual flash config
   else if (TASS_P2P_INTR_CLEAR & M4_IMAGE_UPGRADATION_PENDING_INTERRUPT) {
-    //! moves m4 app to RAM and polls for TA done
+    //! moves m4 app to RAM and polls for NWP done
     sl_mv_m4_app_from_flash_to_ram(UPGRADE_M4_IMAGE_OTA);
     // Clear the interrupt
     clear_ta_to_m4_interrupt(M4_IMAGE_UPGRADATION_PENDING_INTERRUPT);

@@ -387,7 +387,7 @@ void sl_si91x_m4_sleep_wakeup(void)
 
 #endif
 
-  /* Clear M4_wakeup_TA bit so that TA will go to sleep after M4 wakeup*/
+  /* Clear M4_wakeup_TA bit so that NWP will go to sleep after M4 wakeup*/
   sl_si91x_host_clear_sleep_indicator();
 
 #if (configUSE_TICKLESS_IDLE == 0)
@@ -432,7 +432,7 @@ void sl_si91x_post_sleep_update_ticks(uint32_t *xExpectedIdleTime)
 }
 /**************************************************************************
  * @fn           bool sli_si91x_ta_packet_initiated_to_m4(void)
- * @brief        This function will verify whether there are any pending packets in TA when m4 is inactive
+ * @brief        This function will verify whether there are any pending packets in NWP when m4 is inactive
  * @param[in]    None
  * @param[out]   true: allow to sleep
  *               false: Not allow to the sleep
@@ -447,13 +447,13 @@ bool sli_si91x_ta_packet_initiated_to_m4(void)
   // Wait one more clock cycle to ensure the M4 hardware register is updated
   P2P_STATUS_REG;
 
-  // This delay is introduced to synchronize between the M4 and the TA.
+  // This delay is introduced to synchronize between the M4 and the NWP.
   for (uint8_t delay = 0; delay < 10; delay++) {
     __ASM("NOP");
   }
 
-  // Verify if the TA has already initiated a packet to the M4
-  // The TA will clear RX_BUFFER_VALID if a packet has been triggered
+  // Verify if the NWP has already initiated a packet to the M4
+  // The NWP will clear RX_BUFFER_VALID if a packet has been triggered
   if ((P2P_STATUS_REG & TA_wakeup_M4) || (P2P_STATUS_REG & M4_wakeup_TA)
       || (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID))) {
     P2P_STATUS_REG |= M4_is_active;
@@ -474,7 +474,7 @@ bool sli_si91x_ta_packet_initiated_to_m4(void)
 }
 /**************************************************************************
  * @fn           sli_si91x_m4_ta_wakeup_configurations(void)
- * @brief        It is essential to properly configure the TA and M4 status registers 
+ * @brief        It is essential to properly configure the NWP and M4 status registers 
  *               to ensure the system resumes normal operation.   
  * @param[in]    None
  * @param[out]   None
@@ -484,7 +484,7 @@ void sli_si91x_m4_ta_wakeup_configurations(void)
   // Indicate M4 is active
   P2P_STATUS_REG |= M4_is_active;
 
-  //indicate M4 buffer availability to TA
+  //indicate M4 buffer availability to NWP
   M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
 
 #ifdef SLI_SI917

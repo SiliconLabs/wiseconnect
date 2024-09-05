@@ -29,7 +29,7 @@
  ******************************************************************************/
 /***************************************************************************
  * @brief : This file connects the SiWx917 to AWS MQTT cloud and  publishes the 
- * sensor data collected from the sensorhub task to the cloud. (TA powersave is also supported)
+ * sensor data collected from the sensorhub task to the cloud. (NWP powersave is also supported)
  ******************************************************************************/
 
 #include <string.h>

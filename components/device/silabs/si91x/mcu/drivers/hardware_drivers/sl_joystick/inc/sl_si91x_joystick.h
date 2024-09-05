@@ -39,11 +39,13 @@ extern "C" {
 #include "sl_si91x_adc.h"
 #include "sl_si91x_joystick_config.h"
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @addtogroup JOYSTICK Joystick
  * @ingroup SI91X_HARDWARE_DRIVER_APIS
  * @{
  ******************************************************************************/
+
 /*******************************************************************************
  ******************************   DEFINES   ************************************
  ******************************************************************************/
@@ -54,7 +56,9 @@ extern "C" {
 /*******************************************************************************
  *****************************   DATA TYPES   *********************************
  ******************************************************************************/
-/// @brief Enumeration for finding the position of the Joystick.
+/**
+ * @brief Enumeration for identifying the position of the joystick.
+ */
 typedef enum {
   SL_JOYSTICK_NONE, ///< Not pressed
   SL_JOYSTICK_C,    ///< Center
@@ -64,112 +68,123 @@ typedef enum {
   SL_JOYSTICK_W,    ///< West
 } sl_joystick_position_t;
 
-/// @brief Enumeration for the Joystick state (ENABLE/DISABLE) enum.
+/**
+ * @brief Enumeration for the joystick state (ENABLE/DISABLE).
+ */
 typedef enum {
-  SL_JOYSTICK_DISABLED, ///< Joystick data acquisition is disabled
-  SL_JOYSTICK_ENABLED,  ///< Joystick data acquisition is enabled
+  SL_JOYSTICK_DISABLED, ///< Joystick data acquisition is disabled.
+  SL_JOYSTICK_ENABLED,  ///< Joystick data acquisition is enabled.
 } sl_joystick_state_t;
 
 // -----------------------------------------------------------------------------
 // Prototypes
 
-/***************************************************************************/ /**
-* Initialize the Joystick. ADC will configure here to read the different 
-* voltage based on different Joystick position.
-*
-* @param  None.
-* @return If successful
-* - \ref SL_STATUS_OK (0x0000) - Success 
-*
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To configure and initialize the joystick.
+ * 
+ * @details This API initializes the hoystick by configuring the ADC to read different voltages based on the Joystick's position.
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Operation is successful.
+ *         - SL_STATUS_FAIL (0x0001) - Function failed.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_joystick_init(void);
 
-/***************************************************************************/ /**
-* Getting the direction/position of Joystick.
-*
-* @pre Pre-conditions:
-* - \ref sl_si91x_joystick_init 
-* - \ref sl_si91x_joystick_start 
-* @param[in]  state  : Joystick enable/disable
-*                ( \ref sl_joystick_state_t )
-* @param[out]  pos    : position of joystick.
-*                ( \ref sl_joystick_position_t)
-*
-* @return Error code as follow:
-* - \ref SL_STATUS_OK (0x0000) - Success 
-* - \ref SL_STATUS_NOT_READY (0x0003) - Module is not ready for requested operation.
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To get the direction/position of the joystick.
+ *
+ * @details This API retrieves the current direction or position of the joystick.
+ *
+ * @pre Pre-conditions:
+ * - \ref sl_si91x_joystick_init 
+ * - \ref sl_si91x_joystick_start 
+ *
+ * @param[in]  state  Joystick enable/disable state, see \ref sl_joystick_state_t.
+ * @param[out] pos    Position of the joystick, see \ref sl_joystick_position_t.
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Operation is successful.
+ *         - SL_STATUS_NOT_READY (0x0003) - Module is not ready for the requested operation (Joystick is in disabled state).
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_joystick_get_position(sl_joystick_state_t state, sl_joystick_position_t *pos);
 
-/***************************************************************************/ /**
-* Start/Enable the Joystick.
-*
-* @pre Pre-conditions:
-* - \ref sl_si91x_joystick_init 
-* @param[in]  state    : Joystick enable/disable.
-*                ( \ref sl_joystick_state_t )
-*
-* @return Error code as follow:
-* - \ref SL_STATUS_OK (0x0000) - Success \n
-* - \ref SL_STATUS_ABORT (0x0006) - Operation aborted.
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To start or enable the joystick.
+ *
+ * @details This API starts or enables the joystick by setting its state to enabled.
+ *
+ * @pre Pre-conditions:
+ * - \ref sl_si91x_joystick_init must be called before this function.
+ *
+ * @param[in] state Joystick enable/disable state, see \ref sl_joystick_state_t.
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Operation is successful.
+ *         - SL_STATUS_ABORT (0x0006) - Operation is aborted (Joystick is in disabled state).
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_joystick_start(sl_joystick_state_t state);
 
-/***************************************************************************/ /**
-* Stop/Disable the Joystick.
-*
-* @pre Pre-conditions:
-* - \ref sl_si91x_joystick_init 
-* - \ref sl_si91x_joystick_start 
-* @param[in]  state    : Joystick enable/disable.
-*                ( \ref sl_joystick_state_t )
-*
-* @return Error code as follow:
-* - \ref SL_STATUS_OK (0x0000) - Success 
-* - \ref SL_STATUS_BUSY (0x0004) - Module is busy.
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To stop or disable the joystick.
+ *
+ * @details This API stops or disables the joystick by setting its state to disabled.
+ *
+ * @pre Pre-conditions:
+ * - \ref sl_si91x_joystick_init must be called before this function.
+ * - \ref sl_si91x_joystick_start must be called before this function.
+ *
+ * @param[in] state Joystick enable/disable state, see \ref sl_joystick_state_t.
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Operation is successful.
+ *         - SL_STATUS_BUSY (0x0004) - Module is busy (Joystick is in enabled state).
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_joystick_stop(sl_joystick_state_t state);
 
-// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
-/// @addtogroup JOYSTICK Joystick
-/// @{
-///
-///   @details
-///
-///   @n @section joystick_intro Introduction
-///
-///   The SI91x joystick driver is a platform-level software module responsible for managing the control of joystick.
-///   All joystick functions are called through the generic driver.
-///
-///   @n @section joystick_config Configuration
-///
-///   The @ref sl_joystick_state_t enumeration defines the states of the joystick data acquisition, either disabled or enabled. This allows for controlling when
-///   joystick input is actively monitored. The @ref sl_joystick_position_t This enumeration defines the possible positions
-///   of the joystick, including not pressed, center, north, east, south, and west. These positions correspond to the physical orientation
-///   of the joystick and can be used to determine the direction or action indicated by the joystick's current position.
-///
-///   @li For more information on configuring available parameters refer to the respective peripheral example readme document and
-///   refer here https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/disable-uc-config.
-///
-///
-///   @n @section led_usage Usage
-///
-///   The common functions include the following:
-///
-///   @li @ref sl_si91x_joystick_init
-///   @li @ref sl_si91x_joystick_start
-///   @li @ref sl_si91x_joystick_get_position
-///   @li @ref sl_si91x_joystick_stop
-///
-///   @ref sl_si91x_joystick_init initialises the joystick. Sets the operation mode and initialises the ADC channel.
-///
-///   @ref sl_si91x_joystick_get_position can be implemented by the application if required. This function returns the position
-///   corresponding to the physical orientation of the joystick. @ref sl_si91x_joystick_start and @ref sl_si91x_joystick_stop both can be implemented by the application.
-///   These functions are used to start and stop the data acquisition from the joystick respectively.
-///
 /// @} end group JOYSTICK ********************************************************/
 
-/** @} (end addtogroup JOYSTICK) */
+/******** THE REST OF THE FILE IS DOCUMENTATION ONLY !****************************/
+/** @addtogroup JOYSTICK Joystick
+ *
+ * @{
+ *
+ * @details
+ *
+ * @n @section joystick_intro Introduction
+ *
+ * The SI91x joystick driver is a platform-level software module responsible for managing joystick controls.
+ * It provides an interface for initializing, starting, stopping, and reading the joystick's position.
+ * The joystick module reads different voltage levels based on the joystick's position to determine its orientation.
+ *
+ * The @ref sl_joystick_state_t enumeration defines the states for enabling or disabling joystick data acquisition.
+ * The @ref sl_joystick_position_t enumeration defines the possible positions of the joystick, including not pressed,
+ * center, north, east, south, and west. These positions correspond to the physical orientation of the joystick.
+ *
+ * @li For more information on configuring available parameters, see the respective peripheral example readme document.
+ *
+ * @section joystick_usage Usage
+ * After defining the joystick configuration structures and passing an instance of @ref sl_joystick_state_t and @ref sl_joystick_position_t, the following functions can be used to initiate and configure the joystick module. The typical flow for implementation is as follows:
+ * 1. Initialize the joystick: @ref sl_si91x_joystick_init
+ * 2. Start joystick data acquisition: @ref sl_si91x_joystick_start
+ * 3. Retrieve the joystick position: @ref sl_si91x_joystick_get_position
+ * 4. Stop joystick data acquisition: @ref sl_si91x_joystick_stop
+ *
+ * These functions enable easy integration of joystick controls into applications, providing a consistent interface for reading and managing joystick input.
+ * 
+ * @} (end addtogroup JOYSTICK)
+ */
 
 #ifdef __cplusplus
 }

@@ -113,7 +113,7 @@ static void application_start(void *argument)
 
 #ifdef SLI_SI91X_MCU_INTERFACE
   uint8_t xtal_enable = 1;
-  // Establish a secure handshake between the M4 core and the TA
+  // Establish a secure handshake between the M4 core and the NWP
   status = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
   if (status != SL_STATUS_OK) {
     printf("Failed to bring m4_ta_secure_handshake: 0x%lx\r\n", status);

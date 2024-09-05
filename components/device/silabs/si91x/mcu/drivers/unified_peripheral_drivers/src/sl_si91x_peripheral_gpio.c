@@ -325,12 +325,12 @@ void sl_si91x_gpio_enable_pad_selection(uint8_t gpio_padnum)
   SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PAD(gpio_padnum));
   if (gpio_padnum < PAD_SELECT) {
     /*(tass_m4ss_gpio_sel)PAD selection (0 to 21)
-  A value of 1 on this gives control to M4SS(by default it is 0 means ta control) */
+  A value of 1 on this gives control to M4SS(by default it is 0 means  control) */
     PADSELECTION |= BIT(gpio_padnum);
   }
   if (gpio_padnum >= PAD_SELECT) {
     /*(tass_m4ss_gpio_sel)PAD selection (22 to 33)
-  A value of 1 on this gives control to M4SS(by default it is 0 means ta control) */
+  A value of 1 on this gives control to M4SS(by default it is 0 means NWP control) */
     PADSELECTION_1 |= BIT(gpio_padnum - PAD_SELECT);
   }
 }

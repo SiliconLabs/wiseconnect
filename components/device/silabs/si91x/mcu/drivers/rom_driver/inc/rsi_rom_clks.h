@@ -135,7 +135,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(const M4CLK_Type *pCLK, uint32_t
   if (pllRefClk == XTAL_CLK_FREQ) //avoid if XTAL req is already done
   {
 #if SL_WIFI_COMPONENT_INCLUDED
-    /*  Notify TA that M4 requires XTAL clock source  */
+    /*  Notify NWP that M4 requires XTAL clock source  */
     sli_si91x_xtal_turn_on_request_from_m4_to_TA();
 #endif
     PLL_REF_CLK_CONFIG_REG &= SELECT_XTAL_MHZ_CLOCK; // Selecting the XTAL as PLL reference clock
@@ -370,7 +370,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetI2sPllFreq(const M4CLK_Type *pCLK, uint32_t
 {
   system_clocks.i2s_pll_clock = i2sPllFreq;
 #if SL_WIFI_COMPONENT_INCLUDED
-  /*  Notify TA that M4 requires XTAL clock source */
+  /*  Notify NWP that M4 requires XTAL clock source */
   sli_si91x_xtal_turn_on_request_from_m4_to_TA();
 #endif
   SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG9) = 0xD900;
@@ -504,7 +504,7 @@ STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(const M4CLK_Type *pCLK, uint32_
 #if SL_WIFI_COMPONENT_INCLUDED
   if (pllRefClk == XTAL_CLK_FREQ) //avoid if XTAL req is already done
   {
-    /*  Notify TA that M4 requires XTAL clock source */
+    /*  Notify NWP that M4 requires XTAL clock source */
     sli_si91x_xtal_turn_on_request_from_m4_to_TA();
     PLL_REF_CLK_CONFIG_REG &= SELECT_XTAL_MHZ_CLOCK; // Selecting the XTAL as PLL reference clock
   }
@@ -1075,7 +1075,7 @@ STATIC INLINE rsi_error_t RSI_CLK_M4ssRefClkConfig(const M4CLK_Type *pCLK, M4SS_
 {
 #if SL_WIFI_COMPONENT_INCLUDED
   if (clkSource == RF_REF_CLK) {
-    /*  Notify TA that M4 requires XTAL clock source */
+    /*  Notify NWP that M4 requires XTAL clock source */
     sli_si91x_xtal_turn_on_request_from_m4_to_TA();
   }
 #endif

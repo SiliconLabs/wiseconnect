@@ -17,7 +17,7 @@ sdk:
    version: 2024.6.1
 sdk_extension:
 -  id: wiseconnect3_sdk
-   version: 3.3.1
+   version: 3.3.2
 source:
   - path: app.c
   - path: main.c
@@ -119,20 +119,23 @@ configuration:
 readme:
 -  path: readme.md
 other_file:
-  -  path: resources/readme/browser-ip-address.png
-  -  path: resources/readme/connected-prints.png
-  -  path: resources/readme/demo-run.png
-  -  path: resources/readme/embedded-sensor-demo-setup.png
-  -  path: resources/readme/led-control.png
-  -  path: resources/readme/led-selection.png
-  -  path: resources/readme/provisioning-webpage.png
-  -  path: resources/readme/scan.png
-  -  path: resources/readme/selecting-a-network.png
-  -  path: resources/readme/sensor-webpage.png
-  -  path: resources/readme/startup-prints.png
-  -  path: resources/readme/temperature.png
-  -  path: resources/readme/wifi-sensors-data.png
-  -  path: resources/readme/wifi-sensors-demo.png
+  - path: resources/readme/browser-ip-address.png
+  - path: resources/readme/connected-prints.png
+  - path: resources/readme/connecting-to-a-network-connections.png
+  - path: resources/readme/create-project.png
+  - path: resources/readme/demo-run.png
+  - path: resources/readme/embedded-sensor-demo-setup.png
+  - path: resources/readme/led-control.png
+  - path: resources/readme/led-selection.png
+  - path: resources/readme/provisioning-webpage.png
+  - path: resources/readme/scan.png
+  - path: resources/readme/selecting-a-network.png
+  - path: resources/readme/sensor-webpage.png
+  - path: resources/readme/startup-prints.png
+  - path: resources/readme/temperature.png
+  - path: resources/readme/viewing-sensor-data-connections.png
+  - path: resources/readme/wifi-sensors-data.png
+  - path: resources/readme/wifi-sensors-demo.png
 
 ui_hints:
    highlight:

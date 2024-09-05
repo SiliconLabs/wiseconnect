@@ -62,7 +62,24 @@
 #ifdef SLI_SHA_DEVICE_SI91X
 #include "sl_si91x_psa_sha.h"
 #endif
+
 /******************************************************
  *                Function Declarations
 *******************************************************/
+/**
+ * @addtogroup CRYPTO_FUNCTIONS
+ * @{ 
+ */
+
+/***************************************************************************/
+/**
+ * @brief 
+ *   To convert the SI91X error codes to PSA status codes.
+ * @param[in] si91x_status 
+ *   Status of type sl_status_t
+ * @return
+ *   psa_status_t
+******************************************************************************/
 psa_status_t convert_si91x_error_code_to_psa_status(sl_status_t si91x_status);
+
+/** @} */

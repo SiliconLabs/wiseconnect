@@ -12,7 +12,7 @@ filter:
     value: ["Intermediate"]
 sdk: {id: simplicity_sdk, version: 2024.6.1}
 sdk_extension: 
-- {id: wiseconnect3_sdk, version: 3.3.1}
+- {id: wiseconnect3_sdk, version: 3.3.2}
 source:
   - path: app.c
   - path: main.c
@@ -131,6 +131,11 @@ other_file:
   - path: resources/readme/status_lcd3.png
   - path: resources/readme/status_lcd4.png
   - path: resources/readme/status_lcd5.png
+  - path: resources/readme/status_print_button_pressed.png
+  - path: resources/readme/status_print_message_received.png
+  - path: resources/readme/status_print_mqtt_connected.png
+  - path: resources/readme/status_print_startup.png
+
 ui_hints:
   highlight:
     - path: readme.md

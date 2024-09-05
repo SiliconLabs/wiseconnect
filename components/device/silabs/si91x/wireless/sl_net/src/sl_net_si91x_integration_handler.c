@@ -84,7 +84,7 @@ static void handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_asyn
 
     if (mqtt_client->state == SL_MQTT_CLIENT_DISCONNECTED) {
       // Drop MQTT client event disconnect, if the client is already in disconnected
-      // This can happen if MQTT client is already disconnected state and TA sends a rejoin failure event.
+      // This can happen if MQTT client is already disconnected state and NWP sends a rejoin failure event.
       SL_DEBUG_LOG("Dropping mqtt disconnect event: %hu", raw_rx_packet->command);
       return;
     }

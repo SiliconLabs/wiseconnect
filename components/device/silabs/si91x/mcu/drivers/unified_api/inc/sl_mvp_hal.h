@@ -78,8 +78,6 @@ sl_status_t sli_mvp_hal_init(sli_mvp_enable_callback enable,
  *
  * @details
  *   This function can be called when the MVP hardware is no longer being used.
- * 
- * @param none
  *
  * @return
  *   SL_STATUS_OK on success, other value on failure.
@@ -120,16 +118,12 @@ sl_status_t sli_mvp_hal_load_program(void *src, void *dst, size_t length);
  *   Enable the MVP for program execution. This function must be called before
  *   the MVP command is set and the program is started.
  * 
- * @param none
- * 
  */
 void sli_mvp_hal_cmd_enable(void);
 
 /**
  * @brief
  *   Check if a program is running.
- * 
- * @param none
  *
  * @return
  *   True if a program is running, else false.
@@ -139,8 +133,7 @@ bool sli_mvp_hal_cmd_is_busy(void);
 /**
  * @brief
  *   If there is a program running, wait for it to to complete.
- * 
- * @param none
+ *
  */
 void sli_mvp_hal_cmd_wait_for_completion(void);
 

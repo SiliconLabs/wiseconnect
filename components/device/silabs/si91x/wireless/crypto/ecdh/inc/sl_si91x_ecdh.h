@@ -41,12 +41,23 @@
 
 #define SL_SI91X_ECDH_MAX_VECTOR_SIZE 32 ///< Maximum size of an ECDH vector
 
+/**
+ * @brief Enumeration defining ECDH modes supported by the SI91X device.
+ *
+ * This enumeration defines the modes of operation for the ECDH algorithm on the SI91X device.
+ */
 typedef enum {
   SL_SI91X_ECDH_192 = 1, ///< ECDH 192 mode
   SL_SI91X_ECDH_224 = 2, ///< ECDH 224 mode
   SL_SI91X_ECDH_256 = 4  ///< ECDH 256 mode
 } sl_si91x_ecdh_mode_t;
 
+/**
+ * @brief Enumeration defining ECDH sub-modes.
+ *
+ * This enumeration defines the types of ECDH operations supported, such as
+ * ECDH Multiplication, Addition, Subtraction, Double, and Affinity.
+ */
 typedef enum {
   SL_SI91X_ECDH_MUL      = 1, ///< ECDH multiplication mode
   SL_SI91X_ECDH_ADD      = 2, ///< ECDH addition mode
@@ -55,50 +66,69 @@ typedef enum {
   SL_SI91X_ECDH_AFFINITY = 5  ///< ECDH affinity mode
 } sl_si91x_ecdh_sub_mode_t;
 
+/**
+ * @brief Enumeration defining ECDH vector sizes.
+ *
+ * This enumeration defines the different ECDH vector sizes supported, which includes
+ * 24, 28, and 32 bytes.
+ */
 typedef enum {
   SL_SI91X_ECDH_VECTOR_SIZE_192 = 24, ///< 192 bits or 24 bytes vector size
   SL_SI91X_ECDH_VECTOR_SIZE_224 = 28, ///< 224 bits or 28 bytes vector size
   SL_SI91X_ECDH_VECTOR_SIZE_256 = 32  ///< 256 bits or 32 bytes vector size
 } sl_si91x_ecdh_vector_size_t;
 
+/**
+ * @brief Enumeration defining ECDH curve types.
+ *
+ * This enumeration defines the different ECDH curves supported, which includes
+ * Prime field curves, binary curves, and Edwards curves.
+ */
 typedef enum {
   SL_SI91X_ECDH_CURVE_P = 0, ///< Prime Field Curves
   SL_SI91X_ECDH_CURVE_K = 1, ///< Binary Field Curves
-  SL_SI91X_ECDH_CURVE_B = 2, ///< Edwards Curves
+  SL_SI91X_ECDH_CURVE_B = 2  ///< Edwards Curves
 } sl_si91x_ecdh_curve_type_t;
 
 /** @} */
 
+/******************************************************
+ *                Function Declarations
+*******************************************************/
 /**
  * @addtogroup CRYPTO_ECDH_FUNCTIONS 
  * @{ 
  */
 
-/***************************************************************************/ /**
- * @brief      Compute the ECDH point addition vector. This is a blocking API.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To compute the ECDH point addition vector. This is a blocking API.
  * @param[in]  ecdh_mode 
- *   ECDH mode of type @ref sl_si91x_ecdh_mode_t 
+ *   ECDH mode of type @ref sl_si91x_ecdh_mode_t.
  * @param[in]  sx 
- *   Pointer to x coordinate of the point1 that needs to be added
+ *   Pointer to the x coordinate of the first point to be added.
  * @param[in]  sy 
- *   Pointer to y coordinate of the point1 that needs to be added
+ *   Pointer to the y coordinate of the first point to be added.
  * @param[in]  sz 
- *   Pointer to z coordinate of the point1 that needs to be added
+ *   Pointer to the z coordinate of the first point to be added.
  * @param[in]  tx 
- *   Pointer to x coordinate of the point2 that needs to be added
+ *   Pointer to the x coordinate of the second point to be added.
  * @param[in]  ty 
- *   Pointer to y coordinate of the point2 that needs to be added
+ *   Pointer to the y coordinate of the second point to be added.
  * @param[in]  tz 
- *   Pointer to z coordinate of the point2 that needs to be added
+ *   Pointer to the z coordinate of the second point to be added.
  * @param[out] rx 
- *   Pointer to x coordinate of the result point
+ *   Pointer to the x coordinate of the result point.
  * @param[out] ry 
- *   Pointer to y coordinate of the result point
+ *   Pointer to the y coordinate of the result point.
  * @param[out] rz 
- *   Pointer to z coordinate of the result point
+ *   Pointer to the z coordinate of the result point.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
-******************************************************************************/
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
                                          uint8_t *sx,
                                          uint8_t *sy,
@@ -110,31 +140,35 @@ sl_status_t sl_si91x_ecdh_point_addition(sl_si91x_ecdh_mode_t ecdh_mode,
                                          uint8_t *ry,
                                          uint8_t *rz);
 
-/***************************************************************************/ /**
- * @brief      Compute the ECDH point subtraction vector. This is a blocking API.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To compute the ECDH point subtraction vector. This is a blocking API.
  * @param[in]  ecdh_mode 
- *   ECDH mode of type @ref sl_si91x_ecdh_mode_t 
+ *   ECDH mode of type @ref sl_si91x_ecdh_mode_t.
  * @param[in]  sx 
- *   Pointer to x coordinate of the point1 that needs to be subtracted
+ *   Pointer to the x coordinate of the first point to be subtracted.
  * @param[in]  sy 
- *   Pointer to y coordinate of the point1 that needs to be subtracted
+ *   Pointer to the y coordinate of the first point to be subtracted.
  * @param[in]  sz 
- *   Pointer to z coordinate of the point1 that needs to be subtracted
+ *   Pointer to the z coordinate of the first point to be subtracted.
  * @param[in]  tx 
- *   Pointer to x coordinate of the point2 that needs to be subtracted
+ *   Pointer to the x coordinate of the second point to be subtracted.
  * @param[in]  ty 
- *   Pointer to y coordinate of the point2 that needs to be subtracted
+ *   Pointer to the y coordinate of the second point to be subtracted.
  * @param[in]  tz 
- *   Pointer to z coordinate of the point2 that needs to be subtracted
+ *   Pointer to the z coordinate of the second point to be subtracted.
  * @param[out] rx 
- *   Pointer to x coordinate of the result point
+ *   Pointer to the x coordinate of the result point.
  * @param[out] ry 
- *   Pointer to y coordinate of the result point
+ *   Pointer to the y coordinate of the result point.
  * @param[out] rz 
- *   Pointer to z coordinate of the result point
+ *   Pointer to the z coordinate of the result point.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
-******************************************************************************/
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
                                             uint8_t *sx,
                                             uint8_t *sy,
@@ -146,35 +180,39 @@ sl_status_t sl_si91x_ecdh_point_subtraction(sl_si91x_ecdh_mode_t ecdh_mode,
                                             uint8_t *ry,
                                             uint8_t *rz);
 
-/***************************************************************************/ /**
- * @brief      
- *   Compute the ECDH point multiplication vector. This is a blocking API.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To compute the ECDH point multiplication vector. This is a blocking API.
  * @param[in]  ecdh_mode
- *   ECDH mode of type @ref sl_si91x_ecdh_mode_t 
+ *   ECDH mode of type @ref sl_si91x_ecdh_mode_t.
  * @param[in]  d         
- *   Pointer to scalar value that needs to be multiplied
+ *   Pointer to the scalar value to be multiplied.
  * @param[in]  sx        
- *   Pointer to x coordinate of the point to be multiplied with scalar ‘d’
+ *   Pointer to the x coordinate of the point to be multiplied with scalar 'd'.
  * @param[in]  sy        
- *   Pointer to y coordinate of the point to be multiplied with scalar ‘d’
+ *   Pointer to the y coordinate of the point to be multiplied with scalar 'd'.
  * @param[in]  sz        
- *   Pointer to z coordinate of the point to be multiplied with scalar ‘d’
+ *   Pointer to the z coordinate of the point to be multiplied with scalar 'd'.
  * @param[in]  affinity
- * -   0 : no affinity 
- * -   1 : affinity on input 
- * -   2 : affinity on output 
- * -   3 : affinity on both input and output 
+ *   Affinity mode:
+ *   - 0 : no affinity 
+ *   - 1 : affinity on input 
+ *   - 2 : affinity on output 
+ *   - 3 : affinity on both input and output 
  * @param[out] rx        
- *   Pointer to x coordinate of the result point
+ *   Pointer to the x coordinate of the result point.
  * @param[out] ry        
- *   Pointer to  y coordinate of the result point
+ *   Pointer to the y coordinate of the result point.
  * @param[out] rz        
- *   Pointer to z coordinate of the result point
+ *   Pointer to the z coordinate of the result point.
  * @param[in]  reverse   
  *   Setting this will perform reverse_8 on the inputs and outputs.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
-******************************************************************************/
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
                                                uint8_t *d,
                                                uint8_t *sx,
@@ -186,26 +224,29 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
                                                uint8_t *rz,
                                                uint8_t reverse);
 
-/***************************************************************************/ /**
- * @brief
- *   Compute the ECDH point double vector. This is a blocking API.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To compute the ECDH point double vector. This is a blocking API.
  * @param[in]  ecdh_mode 
- *   ECDH mode of type @ref sl_si91x_ecdh_mode_t 
+ *   ECDH mode of type @ref sl_si91x_ecdh_mode_t.
  * @param[in]  sx 
- *   Pointer to x coordinate of the point1 that needs to be doubled
+ *   Pointer to the x coordinate of the point to be doubled.
  * @param[in]  sy 
- *   Pointer to y coordinate of the point1 that needs to be doubled
+ *   Pointer to the y coordinate of the point to be doubled.
  * @param[in]  sz 
- *   Pointer to z coordinate of the point1 that needs to be doubled
+ *   Pointer to the z coordinate of the point to be doubled.
  * @param[out] rx 
- *   Pointer to x coordinate of the result point
+ *   Pointer to the x coordinate of the result point.
  * @param[out] ry 
- *   Pointer to y coordinate of the result point
+ *   Pointer to the y coordinate of the result point.
  * @param[out] rz 
- *   Pointer to z coordinate of the result point
+ *   Pointer to the z coordinate of the result point.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
-******************************************************************************/
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
                                        uint8_t *sx,
                                        uint8_t *sy,
@@ -214,25 +255,29 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
                                        uint8_t *ry,
                                        uint8_t *rz);
 
-/***************************************************************************/ /**
- * @brief      Compute the ECDH point affinity vector. This is a blocking API.
+/***************************************************************************/
+/**
+ * @brief 
+ *   To compute the ECDH point affinity vector. This is a blocking API.
  * @param[in]  ecdh_mode 
- *   ECDH mode of type @ref sl_si91x_ecdh_mode_t 
+ *   ECDH mode of type @ref sl_si91x_ecdh_mode_t.
  * @param[in]  sx 
- *   Pointer to x coordinate of the point1
+ *   Pointer to the x coordinate of the point.
  * @param[in]  sy 
- *   Pointer to y coordinate of the point1
+ *   Pointer to the y coordinate of the point.
  * @param[in]  sz 
- *   Pointer to z coordinate of the point1
+ *   Pointer to the z coordinate of the point.
  * @param[out] rx 
- *   Pointer to x coordinate of the result point
+ *   Pointer to the x coordinate of the result point.
  * @param[out] ry 
- *   Pointer to y coordinate of the result point
+ *   Pointer to the y coordinate of the result point.
  * @param[out] rz 
- *   Pointer to z coordinate of the result point
+ *   Pointer to the z coordinate of the result point.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
-******************************************************************************/
+ *   sl_status_t.
+ * For more information on status codes, refer to 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
                                        uint8_t *sx,
                                        uint8_t *sy,

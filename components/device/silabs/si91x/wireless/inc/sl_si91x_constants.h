@@ -32,11 +32,11 @@
 
 /** \addtogroup SI91X_LOAD_IMAGE_TYPES
   * @{ */
-// Load Image types
-/// Load NWP firmware
+/// Load NWP firmware.
 #define LOAD_NWP_FW '1'
 
-/// Load default NWP firmware active low
+/// Load default NWP firmware active low.
+/// @note This is ONLY applicable in Network Co-Processor (NCP) mode for Si91x devices.
 #define LOAD_DEFAULT_NWP_FW_ACTIVE_LOW 0x71
 /** @} */
 
@@ -58,7 +58,7 @@
 /// Bitmap to enable TLS version 1.1
 #define SL_SI91X_TLS_V_1_1 BIT(4)
 
-#ifdef SLI_SI917
+#if defined(SLI_SI917) || defined(DOXYGEN)
 /// Bitmap to enable TLS version 1.3
 #define SL_SI91X_TLS_V_1_3 BIT(8)
 #endif
@@ -91,6 +91,7 @@
 #define SL_SI91X_HTTPS_USE_SNI BIT(11)
 /** @} */
 
+//! @cond Doxygen_Suppress
 // Upgrade images
 #define BURN_NWP_FW 'B'
 
@@ -224,19 +225,23 @@ typedef struct {
 
 // Timeout used in get_channel API
 #define SL_SI91X_GET_CHANNEL_TIMEOUT 30200
+//! @endcond
 
-/** \addtogroup SL_SI91X_TYPES 
+/** \addtogroup SL_SI91X_CONSTANTS 
   * @{ */
 /// Si91x specific keepalive types.
 typedef enum {
-  SL_SI91X_AP_KEEP_ALIVE_DISABLE = 0, ///< Disable keepalive
+  SL_SI91X_AP_KEEP_ALIVE_DISABLE = 0, ///< Disable keepalive functionality.
   SL_SI91X_AP_DEAUTH_BASED_KEEP_ALIVE =
-    1, ///< AP performs keep alive functionality based on the RX packets received from its stations. If no packet is received from the station with in time out, AP discards it.
+    1, ///< AP performs keepalive functionality based on the RX packets received from its stations.
+  ///< If no packet is received from the station within the AP keep alive timeout period, the AP disconnects the station.
   SL_SI91X_AP_NULL_BASED_KEEP_ALIVE =
-    3 ///< AP performs keep alive functionality by sending NULL DATA packet to the station. If no ACK is received from the station after specific no of retries, AP discards the station.
+    3 ///< AP performs keepalive functionality by sending a NULL DATA packet to the station.
+      ///< If no ACK is received from the station after a specific number of retries, the AP discards the station.
 } sl_si91x_ap_keepalive_type_t;
 /** @} */
 
+//! @cond Doxygen_Suppress
 typedef enum {
   SL_SI91X_RETURN_IMMEDIATELY              = 0,
   SL_SI91X_WAIT_FOR_RESPONSE_BIT           = (1 << 30),
@@ -720,3 +725,4 @@ typedef enum { SET_REGION_CODE_FROM_BEACONS, SET_REGION_CODE_FROM_USER } si91x_s
 typedef enum { SL_SI91X_SOCKET_REMOTE_TERMINATED_EVENT, SL_SI91X_SOCKET_EVENT_COUNT } sl_si91x_socket_event_t;
 
 typedef enum { SL_SI91X_NO_ENCRYPTION, SL_SI91X_TKIP_ENCRYPTION, SL_SI91X_CCMP_ENCRYPTION } sl_si91x_encryption_t;
+//! @endcond

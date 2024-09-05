@@ -1,4 +1,4 @@
-# M4 Firmware Update
+# Wi-Fi - M4 Firmware Update via TCP
 
 ## Table of Contents
 
@@ -46,7 +46,7 @@ This process allows the device to update its software over the air (OTA) without
 
 ### Setup Diagram
 
-![Figure: Setup Diagram for SoC mode M4 Firmware Update Example](resources/readme/setup_soc_updated.png)
+![Figure: Setup Diagram for SoC mode Wi-Fi - M4 Firmware Update via TCP Example](resources/readme/setup_soc_updated.png)
 
 ## Getting Started
 

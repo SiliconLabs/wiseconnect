@@ -109,7 +109,7 @@ The application can be configured to suit user requirements and development envi
 
   - Select Firmware update type
 
-  - For TA firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE
+  - For NWP firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE
 
     ```c
     //! Type of FW update
@@ -502,7 +502,7 @@ The application can be configured to suit user requirements and development envi
       - In the Project explorer pane, expand as follows wiseconnect3_sdk_xxx > components > device > silabs > si91x > mcu > drivers > peripheral_drivers > src folder and open sl_si91x_m4_ps.c file. Configure **ALARM_PERIODIC_TIME**, in seconds, in sl_si91x_m4_ps.c
    - Button press-based (GPIO) - In this method, the M4 processor wakes up upon pressing a button (BTN0).
       - We can enable the Button press-based wakeup by adding the preprocessor macro "BUTTON_BASED_WAKEUP" for the example.
-   - Wireless-based - When an RX packet is to be received by the TA, the M4 processor is woken up.
+   - Wireless-based - When an RX packet is to be received by the NWP, the M4 processor is woken up.
       - We can enable the Wireless-wakeup by adding the preprocessor macro "WIRELESS_BASED_WAKEUP_TO_USE" for the example.
 
 ## Test the Application

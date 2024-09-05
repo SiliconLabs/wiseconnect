@@ -83,7 +83,7 @@ uint32_t sl_si91x_host_get_wake_indicator(void)
 sl_status_t sl_si91x_host_init(sl_si91x_host_init_configuration *config)
 {
   UNUSED_PARAMETER(config);
-  // Initialize SI91X TA events
+  // Initialize SI91X NWP events
   sl_si91x_ta_events_init();
   return SL_STATUS_OK;
 }

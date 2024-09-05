@@ -41,18 +41,19 @@ extern "C" {
 #include "base_types.h"
 #include "rsi_pll.h"
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @addtogroup ULP-TIMER Ultra Low-Power Timer
  * @ingroup SI91X_PERIPHERAL_APIS
- * @{ 
+ * @{
  * 
  ******************************************************************************/
 
 // Macros
 #define SL_TIMER_MATCH_VALUE_DEFAULT \
   20000000 ///< default 1-second timer match-value for down-counter timer-type with 20Mhz clock
-#define SL_ULP_TIMER_CLK_TYPE_STATIC  1
-#define SL_ULP_TIMER_CLK_TYPE_DYNAMIC 0
+#define SL_ULP_TIMER_CLK_TYPE_STATIC  1 ///< Static clock type for the ULP timer
+#define SL_ULP_TIMER_CLK_TYPE_DYNAMIC 0 ///< Dynamic clock type for the ULP timer
 // -----------------------------------------------------------------------------
 // Data Types
 /***************************************************************************/ /**
@@ -63,479 +64,616 @@ typedef void (*ulp_timer_callback_t)(void);
 typedef CLK_ENABLE_T ulp_timer_clock_t;        ///< Renaming clock type enum
 typedef ulp_timer_dir_t ulp_timer_direction_t; ///< Renaming clock type enum
 
-/// @brief Enumeration to represent ULP-timer instances
+/***************************************************************************/
+/**
+ * @brief Enumeration to represent ULP timer instances.
+ * 
+ * @details This enumeration defines the possible instances of the Ultra Low-Power (ULP) timer.
+ */
 typedef enum {
-  ULP_TIMER_0,    ///< ULP Timer0 Instance
-  ULP_TIMER_1,    ///< ULP Timer1 Instance
-  ULP_TIMER_2,    ///< ULP Timer2 Instance
-  ULP_TIMER_3,    ///< ULP Timer3 Instance
-  ULP_TIMER_LAST, ///< Last member of enum for validation
+  ULP_TIMER_0,    ///< ULP Timer 0 Instance
+  ULP_TIMER_1,    ///< ULP Timer 1 Instance
+  ULP_TIMER_2,    ///< ULP Timer 2 Instance
+  ULP_TIMER_3,    ///< ULP Timer 3 Instance
+  ULP_TIMER_LAST, ///< Last member of the enum for validation
 } ulp_timer_instance_t;
 
-/// @brief Enumeration to represent ULP-timer modes
+/***************************************************************************/
+/**
+ * @brief Enumeration to represent ULP timer modes.
+ * 
+ * @details This enumeration defines the possible modes for the Ultra Low-Power (ULP) timer.
+ */
 typedef enum {
   ULP_TIMER_MODE_ONESHOT,  ///< ULP Timer one-shot mode
   ULP_TIMER_MODE_PERIODIC, ///< ULP Timer periodic mode
-  ULP_TIMER_MODE_LAST,     ///< Last member of enum for validation
+  ULP_TIMER_MODE_LAST,     ///< Last member of the enum for validation
 } ulp_timer_mode_t;
 
-/// @brief Enumeration to represent ULP-timer types
+/***************************************************************************/
+/**
+ * @brief Enumeration to represent ULP timer types.
+ * 
+ * @details This enumeration defines the possible types for the Ultra Low-Power (ULP) timer.
+ */
 typedef enum {
   ULP_TIMER_TYP_DEFAULT, ///< ULP Timer normal down counter type
   ULP_TIMER_TYP_1US,     ///< ULP Timer one microsecond type
   ULP_TIMER_TYP_256US,   ///< ULP Timer 256 microsecond type
-  ULP_TIMER_TYP_LAST,    ///< Last member of enum for validation
+  ULP_TIMER_TYP_LAST,    ///< Last member of the enum for validation
 } ulp_timer_type_t;
 
-/// @brief Enumeration to represent values of clock sources to select as Timer clock
+/***************************************************************************/
+/**
+ * @brief Enumeration to represent values of clock sources to select as Timer clock.
+ * 
+ * @details This enumeration defines the possible clock sources that can be selected as the timer clock for the Ultra Low-Power (ULP) timer.
+ */
 typedef enum {
-  ULP_TIMER_REF_CLK_SRC,        ///< ref clock input source
-  ULP_TIMER_32KHZ_RO_CLK_SRC,   ///< 32 kHz ro clock input source
-  ULP_TIMER_32KHZ_RC_CLK_SRC,   ///< 32 kHz rc clock input source
-  ULP_TIMER_32KHZ_XTAL_CLK_SRC, ///< 32 kHz xtal clock input source
-  ULP_TIMER_32MHZ_RC_CLK_SRC,   ///< 32 MHz rc clock input source
-  ULP_TIMER_20MHZ_RO_CLK_SRC,   ///< 20 MHz  ro clock input source
-  ULP_TIMER_ULP_CLK_SRC_LAST,   ///< Last member of enum for validation
+  ULP_TIMER_REF_CLK_SRC,        ///< Reference clock input source
+  ULP_TIMER_32KHZ_RO_CLK_SRC,   ///< 32 kHz RO clock input source
+  ULP_TIMER_32KHZ_RC_CLK_SRC,   ///< 32 kHz RC clock input source
+  ULP_TIMER_32KHZ_XTAL_CLK_SRC, ///< 32 kHz XTAL clock input source
+  ULP_TIMER_32MHZ_RC_CLK_SRC,   ///< 32 MHz RC clock input source
+  ULP_TIMER_20MHZ_RO_CLK_SRC,   ///< 20 MHz RO clock input source
+  ULP_TIMER_ULP_CLK_SRC_LAST,   ///< Last member of the enum for validation
 } ulp_timer_clk_input_source_t;
 
-/// @brief Structure to hold the parameters of timer clock-source configurations
+/***************************************************************************/
+/**
+ * @brief Structure to hold the parameters of timer clock-source configurations.
+ * 
+ * @details This structure defines the parameters required for configuring the clock source of the Ultra Low-Power (ULP) timer.
+ */
 typedef struct {
-  uint8_t ulp_timer_clk_type; ///< true to enable static and false to enable dynamic clock type
+  uint8_t ulp_timer_clk_type; ///< true to enable static and false to enable dynamic clock type, \ref ulp_timer_clock_t
   boolean_t
-    ulp_timer_sync_to_ulpss_pclk; ///< true to enable and false to disable ULP timer in synchronous mode to ULPSS pclk
-  uint8_t
-    ulp_timer_clk_input_src; ///< timer input clock source, refer #ulp_timer_clk_input_source_t for possible values
-  boolean_t ulp_timer_skip_switch_time; ///< true to wait and false to Skip waiting for switching timer clk
+    ulp_timer_sync_to_ulpss_pclk;  ///< true to enable and false to disable ULP timer in synchronous mode to ULPSS pclk
+  uint8_t ulp_timer_clk_input_src; ///< Timer input clock source, \ref ulp_timer_clk_input_source_t for possible values
+  boolean_t ulp_timer_skip_switch_time; ///< true to wait and false to skip waiting for switching timer clock
 } ulp_timer_clk_src_config_t;
 
-/// @brief Structure to hold the parameters of timer configurations
+/***************************************************************************/
+/**
+ * @brief Structure to hold the parameters of timer configurations.
+ * 
+ * @details This structure defines the parameters required for configuring the Ultra Low-Power (ULP) timer.
+ */
 typedef struct {
-  uint8_t timer_num;          ///< timer number, \ref SL_ULP_TIMER_NUMBER for default values
-  uint8_t timer_mode;         ///< timer mode, \ref SL_ULP_TIMER_MODE for default values
-  uint8_t timer_type;         ///< timer type, \ref SL_ULP_TIMER_TYPE for default values
-  uint32_t timer_match_value; ///< timer match value \ref SL_ULP_TIMER_MATCH_VALUE(delay time) in microseconds
-  uint8_t timer_direction;    ///< timer direction, \ref SL_ULP_TIMER_DIRECTION for default values
+  uint8_t timer_num;          ///< Timer number, for possible values see \ref ulp_timer_instance_t
+  uint8_t timer_mode;         ///< Timer mode, for possible values see \ref ulp_timer_mode_t
+  uint8_t timer_type;         ///< Timer type, for possible values see \ref ulp_timer_type_t
+  uint32_t timer_match_value; ///< Timer match value SL_ULP_TIMER_MATCH_VALUE (delay time) in microseconds
+  uint8_t timer_direction;    ///< Timer direction, for possible values see \ref ulp_timer_direction_t
 } ulp_timer_config_t;
 
-/// @brief Structure to hold the different versions of peripheral API
+/***************************************************************************/
+/**
+ * @brief Structure to hold the different versions of the peripheral API.
+ * 
+ * @details This structure defines the version information for the Ultra Low-Power (ULP) timer peripheral API.
+ */
 typedef struct {
-  uint8_t release; ///< Release version number
-  uint8_t major;   ///< sqa version number
-  uint8_t minor;   ///< dev version number
+  uint8_t release; ///< Release version number.
+  uint8_t major;   ///< Major version number.
+  uint8_t minor;   ///< Minor version number.
 } sl_ulp_timer_version_t;
 
 // -----------------------------------------------------------------------------
 // Prototypes
-/***************************************************************************/ /**
- * @brief This API will initialize the ULP-Timer by enabling its clock source.
- * @details It configures clock frequency, clock-type, enables/disables synchronization to ULPSS pclk 
- * & skips/allows waiting for timer clock switching.
+/***************************************************************************/
+/**
+ * @brief To initialize the ULP-Timer by enabling its clock source.
  * 
- * @param[in] timer_clk_ptr Pointer to timer_clk configuration structure
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Timer clock type or timer clock source values are invalid
- *         - \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer clock-source configuration structure members have invalid configurations.
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer
- *         - \ref SL_STATUS_OK (0x0000) - Success, timer clock-source parameters configured properly
-*******************************************************************************/
+ * @details This API configures the clock frequency, clock type, enables/disables synchronization to ULPSS pclk, 
+ *          and skips/allows waiting for timer clock switching.
+ * 
+ * @param[in] timer_clk_ptr Pointer to the timer clock configuration structure.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, timer clock-source parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Timer clock type or timer clock source values are invalid.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer
+ *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer clock-source configuration structure members have invalid configurations.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_init(ulp_timer_clk_src_config_t *timer_clk_ptr);
 
-/***************************************************************************/ /**
- * @brief This API will configures and enables the ULP-Timer input clock source.
- * @details It configures clock frequency, clock-type, enables/disables synchronization to ULPSS pclk 
- * & skips/allows waiting for timer clock switching.
- * It is called inside \ref sl_si91x_ulp_timer_init API.
+/***************************************************************************/
+/**
+ * @brief To configure and enable the ULP-Timer input clock source.
+ * 
+ * @details This API configures the clock frequency, clock type, enables/disables synchronization to ULPSS pclk, 
+ *          and determines whether to skip/allow waiting for timer clock switching.
+ *          This function is invoked within the \ref sl_si91x_ulp_timer_init API.
  * 
  * @note 
- * @li There are two XTAL Clk sources internal and external
- * In order to enable the external XTAL clk source need to configure the NPSS_GPIO pins
- * through \ref sl_si91x_ulp_timer_configure_xtal_clock API
- * i.e user need to call this API first.
- * @li In order to use SOC source user need to use \ref sl_si91x_ulp_timer_configure_soc_clock API 
- * to configure the ULPSS SOC instead of clock configure API.
+ * @li There are two XTAL clock sources: internal and external.
+ * To enable the external XTAL clock source, you must configure the UULP_GPIO pins
+ * using \ref sl_si91x_ulp_timer_configure_xtal_clock, and it should be called first.
+ * @li To use the SOC clock source, you need to use the \ref sl_si91x_ulp_timer_configure_soc_clock API 
+ * to configure the ULPSS SOC rather than the clock configuration API.
  *
- * @param[in] timer_clk_ptr Pointer to timer_clk configuration structure \ref ulp_timer_clk_src_config_t.
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Timer clock type or timer clock source values are invalid 
- *         - \ref SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer clock-source configuration structure members have invalid configurations. 
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- *         - \ref SL_STATUS_OK (0x0000) - Success, timer clock-source parameters configured properly
-******************************************************************************/
+ * @param[in] timer_clk_ptr Pointer to the timer clock configuration structure \ref ulp_timer_clk_src_config_t.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, timer clock-source parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Timer clock type or timer clock source values are invalid.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer. 
+ *         - SL_STATUS_INVALID_CONFIGURATION (0x0023) - Timer clock-source configuration structure members have invalid configurations.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_configure_clock(ulp_timer_clk_src_config_t *timer_clk_ptr);
 
-/***************************************************************************/ /**
- * @brief This API will configure the ULP-Timer parameters.
- * @details It configures the parameters such as timer number, 
- * mode, type, match-value, and direction.
- * Also configures the integral and fractional values of clock cycles per microseconds or
- * per 256 microseconds as per the selected timer-type.
+/***************************************************************************/
+/**
+ * @brief To configure the ULP-Timer parameters.
+ * 
+ * @details This API configures the parameters such as timer number, mode, type, match value, and direction.
+ * Additionally, it configures the integral and fractional values of clock cycles per microsecond or
+ * per 256 microseconds as per the selected timer type.
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init();
  *
- * @param[in] timer_config_ptr Pointer to the timer_configuration structure \ref ulp_timer_config_t.
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer 
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - Timer configuration structure member 'timer_num' has an invalid value. 
- *         - \ref SL_STATUS_INVALID_MODE (0x0024) - Timer configuration structure member 'timer_mode' has an invalid value. 
- *         - \ref SL_STATUS_INVALID_TYPE (0x0026) - Timer configuration structure member 'timer_type' has an invalid value. 
- *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Timer configuration structure member 'timer_direction' has an invalid value. 
- *         - \ref SL_STATUS_OK (0x0000) - Success, timer parameters are configured properly
-******************************************************************************/
+ * @param[in] timer_config_ptr Pointer to the timer configuration structure \ref ulp_timer_config_t.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, timer parameters are configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Timer configuration structure member 'timer_direction' has an invalid value.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_MODE (0x0024) - Timer configuration structure member 'timer_mode' has an invalid value.
+ *         - SL_STATUS_INVALID_TYPE (0x0026) - Timer configuration structure member 'timer_type' has an invalid value.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - Timer configuration structure member 'timer_num' has an invalid value.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_set_configuration(ulp_timer_config_t *timer_config_ptr);
 
-/***************************************************************************/ /**
- * @brief This API will start the ULP-Timer.
- * @note Timer instance must not be in running state when calling this API.
+/***************************************************************************/
+/**
+ * @brief To start the ULP-Timer.
+ * 
+ * @details This API is used to start the Ultra Low-Power (ULP) timer.
+ * 
+ * @note The timer instance must not be in a running state when calling this API.
  *
  * @pre Pre-conditions:
- *      - \ref sl_si91x_ulp_timer_init 
- *      - \ref sl_si91x_ulp_timer_set_configuration 
- *      - \ref sl_si91x_ulp_timer_register_timeout_callback 
- * @param[in] timer_num enum for ULP-timer Number (0 to 3), \ref ulp_timer_instance_t for possible values
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid. 
- *         - \ref SL_STATUS_OK (0x0000) - Successfully started the timer instance
-******************************************************************************/
+ *      - \ref sl_si91x_ulp_timer_init
+ *      - \ref sl_si91x_ulp_timer_set_configuration
+ *      - \ref sl_si91x_ulp_timer_register_timeout_callback
+ * 
+ * @param[in] timer_num Enum for ULP-timer number (0 to 3), see \ref ulp_timer_instance_t for possible values.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully started the timer instance.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_start(ulp_timer_instance_t timer_num);
 
-/***************************************************************************/ /**
- * @brief This API will stop the 'timer_num' instance of timer.
- * @details Sets the stop bit of timer control register, which is a self clearing bit.
- * This will only stops the timer but not disables it. To disable it use @ref sl_si91x_ulp_timer_deinit.
+/***************************************************************************/
+/**
+ * @brief To stop the ULP-Timer instance.
  * 
+ * @details This API stops the Ultra Low-Power (ULP) timer instance but does not disable it. 
+ *          To disable the timer, use \ref sl_si91x_ulp_timer_deinit.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_set_configuration 
  *      - \ref sl_si91x_ulp_timer_start 
- * @param[in] timer_num enum for ULP-timer Number (0 to 3), \ref ulp_timer_instance_t for possible values
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid. 
- *         - \ref SL_STATUS_OK (0x0000) - Successfully stopped the timer instance
-******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number (0 to 3), see \ref ulp_timer_instance_t for possible values.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully stopped the timer instance.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_stop(ulp_timer_instance_t timer_num);
 
-/***************************************************************************/ /**
- * @brief This API will restart an already running ULP-Timer.
- * @details ULP-Timer restart which means it will first stop the timer instance
- * and then starts it again.
- * This will just restart the currently running counter.
+/***************************************************************************/
+/**
+ * @brief To restart the ULP-Timer.
+ * 
+ * @details This API restarts the Ultra Low-Power (ULP) timer instance. 
+ *          If the timer is running, it stops the timer first and then starts it again. 
+ *          If the timer is stopped, it simply starts the timer.
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_set_configuration 
  *      - \ref sl_si91x_ulp_timer_start 
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid. 
- *         - \ref SL_STATUS_OK (0x0000) - Successfully restarted the timer instance
-******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully restarted the timer instance.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_restart(ulp_timer_instance_t timer_num);
 
-/***************************************************************************/ /**
- * @brief This API will set the ULP-Timer type.
- * @details Timer types include 256 µs, 1 µs, and count-down.
- * - 1 microsecond type : The time unit is 1µs.
- * - 256 microsecond type : The time unit is 256µs.
- * - Count-down timer type : The time unit is one clock cycle period.
- * @note This API should be used when timer is stopped.
- *
+/***************************************************************************/
+/**
+ * @brief To set the ULP-Timer type.
+ * 
+ * @details This API sets the ULP-Timer type, which includes 256 µs, 1 µs, and count-down types.
+ *          - 1 microsecond type: The time unit is 1 µs.
+ *          - 256 microsecond type: The time unit is 256 µs.
+ *          - Count-down timer type: The time unit is one clock cycle period.
+ * 
+ * @note This API should be used when the timer is stopped.
+ * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
- *      - \ref sl_si91x_ulp_timer_stop 
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values
- * @param[in] timer_type enum for ULP-timer Type, \ref ulp_timer_type_t for possible values
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid. 
- *         - \ref SL_STATUS_INVALID_TYPE (0x0026) - 'timer_type' parameter value is invalid. 
- *         - \ref SL_STATUS_OK (0x0000) - Successfully set timer-type
-******************************************************************************/
+ *      - \ref sl_si91x_ulp_timer_stop
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[in] timer_type Enum for ULP-timer type, see \ref ulp_timer_type_t for possible values.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully set the timer type.
+ *         - SL_STATUS_INVALID_TYPE (0x0026) - 'timer_type' parameter value is invalid.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_set_type(ulp_timer_instance_t timer_num, ulp_timer_type_t timer_type);
 
-/***************************************************************************/ /**
- * @brief This API will set the ULP-Timer direction. 
- * @details ULP timer set direction will set the ULP-Timer direction as up-counting or down-counting,
- * by default it works as down-counter.
- * @note This API should be used when timer is stopped.
+/***************************************************************************/
+/**
+ * @brief To set the ULP-Timer direction.
+ * 
+ * @details This API sets the Ultra Low-Power (ULP) timer direction as either up-counting or down-counting.
+ *          By default, it operates as a down-counter.
+ * 
+ * @note The API should be used when the timer is stopped.
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_stop 
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values
- * @param[in] timer_type enum for ULP-timer direction, \ref ulp_timer_direction_t for possible values
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid. 
- *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - 'timer_direction' parameter value is invalid. 
- *         - \ref SL_STATUS_OK (0x0000) - Successfully set timer-direction
-******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[in] timer_direction Enum for ULP-timer direction, see \ref ulp_timer_direction_t for possible values.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully set the timer direction.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'timer_direction' parameter value is invalid.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_set_direction(ulp_timer_instance_t timer_num, ulp_timer_direction_t timer_direction);
 
-/***************************************************************************/ /**
- * @brief This API will set the ULP-Timer Mode as one-shot or periodic.
- * @details In one shot operation, the timer counts till the timeout and then generates a single interrupt 
- * after which it returns to idle state. Where as in periodic operation the timer generates interrupts continously with
- * interval equal to timeout.
- * This API should be used when timer is stopped
+/***************************************************************************/
+/**
+ * @brief To set the ULP-Timer mode as one-shot or periodic.
+ * 
+ * @details In a one-shot operation, the timer counts down to the timeout and then generates a single interrupt 
+ *          after which it returns to the idle state. In contrast, in periodic operation, the timer continuously generates interrupts 
+ *          at intervals equal to the timeout period.
+ * 
+ * @note This API should be used before starting the timer.
+ * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_stop 
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values
- * @param[in] timer_mode enum for ULP-timer mode, \ref ulp_timer_mode_t for possible values
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid. 
- *         - \ref SL_STATUS_INVALID_MODE (0x0024) - 'timer_mode' parameter value is invalid. 
- *         - \ref SL_STATUS_OK (0x0000) - Successfully set timer-mode
-******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[in] timer_mode Enum for ULP-timer mode, see \ref ulp_timer_mode_t for possible values.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully set the timer mode.
+ *         - SL_STATUS_INVALID_MODE (0x0024) - The 'timer_mode' parameter value is invalid.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_set_mode(ulp_timer_instance_t timer_num, ulp_timer_mode_t timer_mode);
 
-/***************************************************************************/ /**
- * @brief This API will sets the ULP-Timer match value.
- * @details When the timer reaches the match value & if the interrupt is enabled it
- * will generate an interrupt to the processor. 
- * - For one microsecond type, match-value = number of microseconds
- * - For 256 microsecond type, match-value = (time in microseconds)/256
- * - For normal up/down counter type, timer =  (number of clock cycles per microseconds * time in microseconds).
+/***************************************************************************/
+/**
+ * @brief To set the ULP-Timer match value.
  * 
- * @note This API should be used when timer is stopped.
+ * @details When the timer reaches the match value and if the interrupt is enabled, it
+ *          will generate an interrupt to the processor.
+ *          - For one microsecond type, match value = number of microseconds.
+ *          - For 256 microsecond type, match value = (time in microseconds) / 256.
+ *          - For normal up/down counter type, timer = (number of clock cycles per microsecond * time in microseconds).
+ * 
+ * @note The API should be used when the timer is stopped.
+ * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_ulp_timer_init
- *  - \ref sl_si91x_ulp_timer_stop
- *  - \ref sl_si91x_ulp_timer_set_type
- *  - \ref sl_si91x_ulp_timer_set_direction
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values.
- * @param[in] timer_match_value for ULP-timer timeout value
- * @return status 0 if successful, else error-code
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Successfully set timer match value.
-*******************************************************************************/
+ *      - \ref sl_si91x_ulp_timer_init
+ *      - \ref sl_si91x_ulp_timer_stop
+ *      - \ref sl_si91x_ulp_timer_set_type
+ *      - \ref sl_si91x_ulp_timer_set_direction
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[in] timer_match_value ULP-timer timeout value.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully set the timer match value.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
 sl_status_t sl_si91x_ulp_timer_set_count(ulp_timer_instance_t timer_num, uint32_t timer_match_value);
 
-/***************************************************************************/ /**
- * @brief This API will read the ULP-Timer current count.
- * @details If counter-down is set then counter register bits indicate time remaining before timeout
- * (read as 32'hFFFF_FFFF initially).
- * If counter-up is set then these bits directly gives out the up-running counter/timer value.
- * Updates the timer current-count value to the count-value variable, passed as
- * reference by user (2nd argument).
+/***************************************************************************/
+/**
+ * @brief To get the ULP-Timer current count.
+ * 
+ * @details If the counter is set to down-counting, the counter register bits indicate the time remaining until the timeout,
+ *          initially read as 32'hFFFF_FFFF. If the counter is set to up-counting, these bits directly show the up-running counter/timer value.
+ *          The timer current-count value is updated to the count-value variable provided by the user as the second argument.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_start
  *      - \ref sl_si91x_ulp_timer_set_count
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values.
- * @param[in] count_value Pointer to variable which will store the current count of the timer
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - 'Pointer to count_value' parameter is a null pointer.
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Successfully read the timer's current count value
-*******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[out] count_value Pointer to the variable which will store the current count of the timer.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully read the timer's current count value.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to the 'count_value' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_get_count(ulp_timer_instance_t timer_num, uint32_t *count_value);
 
-/***************************************************************************/ /**
- * @brief This API will read the ULP-Timer type.
- * @details Updates the timer type value to the timer_type variable, passed as
- * reference by user.
- *  - '0' for down-counter type
- *  - '1' for 1us type
- *  - '2' for 256us type
+/***************************************************************************/
+/**
+ * @brief To get the ULP-Timer type.
+ * 
+ * @details This API updates the timer type value to the timer_type variable, passed as
+ *          reference by the user.
+ *          - '0' for down-counter type
+ *          - '1' for 1us type
+ *          - '2' for 256us type
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_set_type
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values.
- * @param[in] timer_type Pointer to variable which will store the current type of the timer
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - 'Pointer to timer_type' parameter is a null pointer.
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Successfully read the timer's current type
-*******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[out] timer_type Pointer to the variable which will store the current type of the timer.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully read the timer's current type.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to the 'timer_type' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_get_type(ulp_timer_instance_t timer_num, uint32_t *timer_type);
 
-/***************************************************************************/ /**
- * @brief This API will reads the ULP-Timer mode.
+/***************************************************************************/
+/**
+ * @brief To get the ULP-Timer mode.
+ * 
  * @details Updates the timer mode value to the timer_mode variable, passed as
- * reference by user.
- *  - '0' for one-shot mode
- *  - '1' for periodic mode
+ *          reference by the user.
+ *          - '0' for one-shot mode
+ *          - '1' for periodic mode
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_configure_clock
  *      - \ref sl_si91x_ulp_timer_set_mode
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values.
- * @param[in] timer_mode Pointer to variable which will store the current mode of the timer
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - 'Pointer to timer_mode' parameter is a null pointer.
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Successfully read the timer's current mode
-*******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[out] timer_mode Pointer to the variable which will store the current mode of the timer, see \ref ulp_timer_mode_t.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully read the timer's current mode.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to the 'timer_mode' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_get_mode(ulp_timer_instance_t timer_num, uint32_t *timer_mode);
 
-/***************************************************************************/ /**
- * @brief This API will read the ULP-Timer direction (up-counter or down-counter).
+/***************************************************************************/
+/**
+ * @brief To get the ULP-Timer direction (up-counter or down-counter).
+ * 
  * @details Updates the timer direction to the timer_direction variable, passed as
- * reference by user.
- *  - '0' for down-counting
- *  - '1' for up-counting
+ *          reference by the user.
+ *          - '0' for down-counting
+ *          - '1' for up-counting
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_set_direction
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values.
- * @param[in] timer_direction Pointer to variable which will store the current direction of the timer
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - 'Pointer to timer_direction' parameter is a null pointer.
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Successfully read the timer's current direction
-*******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[out] timer_direction Pointer to the variable which will store the current direction of the timer, see \ref ulp_timer_direction_t.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully read the timer's current direction.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to 'timer_direction' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_get_direction(ulp_timer_instance_t timer_num, uint32_t *timer_direction);
 
-/***************************************************************************/ /**
- * @brief This API will registers the callback for the timer timeout interrupt and enables the interrupt,
- * as per instance.
- * @details If any callback is already registered, the user needs to unregister the
- * callback first before registering the callback else it will return call \ref SL_STATUS_BUSY
- * error.
+/***************************************************************************/
+/**
+ * @brief To register the callback for the timer timeout interrupt and enable the interrupt.
+ * 
+ * @details This API registers the callback function for the timer timeout interrupt and enables the interrupt
+ *          for the specified timer instance. If a callback is already registered, the user must first unregister
+ *          the existing callback before registering a new one. Otherwise, it will return a SL_STATUS_BUSY error.
  *
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values.
- *
- * @param[in] on_timeout_callback (function pointer) Callback function pointer
- *             to be called when the timer timeout interrupt occurred.
- *
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - 'pointer to callback_data_input' parameter is a null pointer.
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
- *         - \ref SL_STATUS_ALLOCATION_FAILED (0x0019) - Timer interrupt enabling failed.
- *         - \ref SL_STATUS_BUSY (0x0004) - The callback is already registered,
- *           unregister the previous callback before registering a new one.
- *         - \ref SL_STATUS_OK (0x0000) - Successfully registered the timer timeout callback
-*******************************************************************************/
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * @param[in] on_timeout_callback Function pointer to the callback function to be called when the timer timeout interrupt occurs.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully registered the timer timeout callback.
+ *         - SL_STATUS_BUSY (0x0004) - The callback is already registered, unregister the previous callback before registering a new one.
+ *         - SL_STATUS_ALLOCATION_FAILED (0x0019) - Timer interrupt enabling failed.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The pointer to 'callback_data_input' parameter is a null pointer.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_register_timeout_callback(ulp_timer_instance_t timer_num,
                                                          ulp_timer_callback_t on_timeout_callback);
 
-/***************************************************************************/ /**
- * @brief This API will unregister the callback for the timer interrupt and disabling its interrupts
- * as per timer instance.
+/***************************************************************************/
+/**
+ * @brief To unregister the callback for the timer interrupt and disable its interrupts.
+ * 
+ * @details This API is used to unregister the existing callback interrupt for the specified timer instance.
+ * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_register_timeout_callback
- * @param[in] timer_num enum for ULP-timer Number, \ref ulp_timer_instance_t for possible values.
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_INDEX (0x0027) - 'timer_num' parameter value is invalid.
- *         - \ref SL_STATUS_ALLOCATION_FAILED (0x0019) - Timer interrupt disabling failed.
- *         - \ref SL_STATUS_OK (0x0000) - Successfully unregistered the timer timeout callback
-*******************************************************************************/
+ * 
+ * @param[in] timer_num Enum for ULP-timer number, see \ref ulp_timer_instance_t for possible values.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully unregistered the timer timeout callback.
+ *         - SL_STATUS_ALLOCATION_FAILED (0x0019) - Timer interrupt disabling failed.
+ *         - SL_STATUS_INVALID_INDEX (0x0027) - The 'timer_num' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_unregister_timeout_callback(ulp_timer_instance_t timer_num);
 
-/***************************************************************************/ /**
- * @brief This API will configure the ULPSS SOC clock from M4 SOC clock, to enable the SOC clock source.
- * @details This API is used to select the ULPSS processor clock source as timer input clock 
- * source which is greater than 100MHz(used for high-power mode)
- * To divide the clock, ensure that it should be odd number if div_factor_type is 1 & viceversa
- * Div_factor_type selects the type of divider for m4_soc_clk_2ulpss
- *  - '0' Even Divider is selected
- *  - '1' Odd Divider is selected
- * Use this API in place of timer clock config API, when using SOC clock source
- * with timer in high power mode
- *             
- * @param[in] div_factor value to divide the clock, ensure that it should be an odd number
- *               if div_factor_type is 1 & vice versa
- * @param[in] div_factor_type selects the type of divider for m4_soc_clk_2ulpss
- *              -  '0' Even Divider is selected
- *              -  '1' Odd Divider is selected
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_PARAMETER(0x0021) - 'div_factor' is not according to div_factor_type
-*******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To configure and enable the SOC clock source for the timer.
+ * 
+ * @details This API is used to select the ULPSS processor clock source as the timer input clock 
+ *          source, which is greater than 100MHz (used for high-power mode).
+ *          If `div_factor_type` value is 1, the `div_factor` should be an odd number; otherwise, it will throw an error.
+ *          The `div_factor_type` selects the type of divider for `m4_soc_clk_2ulpss`:
+ *          - '0' Even Divider is selected
+ *          - '1' Odd Divider is selected
+ *          Use this API in place of the timer init API.
+ * 
+ * @param[in] div_factor Value to divide the clock. Ensure that it should be an odd number
+ *                       if `div_factor_type` is 1, and vice versa.
+ * @param[in] div_factor_type Selects the type of divider for `m4_soc_clk_2ulpss`:
+ *                            - '0' Even Divider is selected
+ *                            - '1' Odd Divider is selected
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'div_factor' is not valid according to `div_factor_type`.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_configure_soc_clock(boolean_t div_factor_type, uint16_t div_factor);
 
-/***************************************************************************/ /**
- * @brief This API will configure the XTAL clock, when clock source is external XTAL clock.
- * @details To enable the external XTAL clk source need to call this API before calling 
- * \ref sl_si91x_ulp_timer_configure_clock API.
+/***************************************************************************/
+/**
+ * @brief To configure the XTAL clock when the clock source is an external XTAL clock.
+ * 
+ * @details This API enables the external XTAL clock source. It needs to be called before 
+ *          calling the \ref sl_si91x_ulp_timer_configure_clock API.
  *
- * @param[in] xtal_pin : Pin number of NPSS_GPIO. Possible values are 0 to 4.
- * @return status 0 if successful, else error code as follows:
- *         - \ref SL_STATUS_INVALID_PARAMETER(0x0021) - 'xtal_pin' parameter value is invalid.
-*******************************************************************************/
+ * @param[in] xtal_pin Pin number of UULP_GPIO. Possible values are 0 to 4.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The 'xtal_pin' parameter value is invalid.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_ulp_timer_configure_xtal_clock(uint8_t xtal_pin);
 
-/***************************************************************************/ /**
- * @brief This API will de-Initializes the ULP-Timer clock by disabling the peripheral clock.
- * @details  It also Unregisters callback of all timer instances
+/***************************************************************************/
+/**
+ * @brief To de-initialize the ULP-Timer clock by disabling the peripheral clock.
+ * 
+ * @details This API disables the peripheral clock for the ULP-Timer and unregisters the callback
+ *          for all timer instances.
+ * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_ulp_timer_init
  *      - \ref sl_si91x_ulp_timer_unregister_timeout_callback
- *
- * @param none
- * @return none
- * @note Unregisters the callbacks of all timer instances
-*******************************************************************************/
+ * 
+ * @note Unregisters the callbacks of all timer instances.
+ *******************************************************************************/
 void sl_si91x_ulp_timer_deinit(void);
 
-/***************************************************************************/ /**
- * @brief This API will get the ULP-timer API version.
- * @details This API is used to know the API version of ULP_TIMER.
- *
- * @param none
- * @return \ref sl_ulp_timer_version_t type version
- ******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To get the ULP-Timer API version.
+ * 
+ * @details This API is used to retrieve the version information of the ULP-Timer API.
+ * 
+ * @return sl_ulp_timer_version_t The version of the ULP-Timer API.
+ *******************************************************************************/
 sl_ulp_timer_version_t sl_si91x_ulp_timer_get_version(void);
 
-// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
-/// @addtogroup ULP-TIMER Ultra Low-Power Timer
-/// @{
-///
-///   @details
-///
-///
-///   @n @section ULP-TIMER_Intro Introduction
-///
-///   Ultra-Low-Power (ULP) timers typically used to operate with extremely low power consumption.
-///   These timers are commonly found in battery-powered or energy-efficient devices where minimizing
-///   power usage is crucial to extending battery life.
-///
-///   ULP timers typically provide configurable settings, allowing developers to adjust parameters such
-///   as clock frequency, timer resolution, and interrupt behavior to meet the specific needs of their applications.
-///
-///  @li The ULP-Timer module supports 4 different instances @ref ulp_timer_instance_t.
-///  @li Each of the ULP-timers can be independently programmed to work in periodic or one-shot mode @ref ulp_timer_mode_t.
-///  @li Each of the ULP-timers can be independently configured as a 32-bit counter or as a microsecond timer @ref ulp_timer_type_t.
-///
-///   @n @section ULP-TIMER_Config Configuration
-///   @li By calling the @ref sl_si91x_ulp_timer_init ulp-timer is initialized and its clocks are configured.
-///   @li By using @ref sl_si91x_ulp_timer_set_configuration
-///   ulp-timer parameters including match count, timer type, mode, timer direction can be configured.
-///
-///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
-///
-///   @n @section ULP-TIMER_Use Usage
-///
-///   The common ULP-timer functions can be used after ulp-timer Structures are specified,
-///   passing an instance of   @ref ulp_timer_config_t.
-///   @li These functions will initiate and configure the ULP-timer below, which is the flow for implementation.
-///
-///   1. @ref sl_si91x_ulp_timer_init
-///   2. @ref sl_si91x_ulp_timer_set_configuration
-///   3. @ref sl_si91x_ulp_timer_register_timeout_callback
-///   4. @ref sl_si91x_ulp_timer_start
-///   5. @ref sl_si91x_ulp_timer_stop
-///   6. @ref sl_si91x_ulp_timer_deinit
-///
-///   @li Above functions allow for initializing the ULP-TIMER instance and generates interrupt upon expiration.
-///
-///   @li Other functions are called to change the timer type, direction and to unregister the callback.
-///   1. @ref sl_si91x_ulp_timer_set_type
-///   2. @ref sl_si91x_ulp_timer_set_mode
-///   3. @ref sl_si91x_ulp_timer_set_direction
-///   4. @ref sl_si91x_ulp_timer_set_count
-///
-///   @li Below section shows functions to read timer parameters:
-///
-///   1. @ref sl_si91x_ulp_timer_get_mode
-///   2. @ref sl_si91x_ulp_timer_get_type
-///   3. @ref sl_si91x_ulp_timer_get_direction
-///   4. @ref sl_si91x_ulp_timer_get_count
-///
 /// @} end group ULP-TIMER ********************************************************/
+
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
+/** @addtogroup ULP-TIMER Ultra Low-Power Timer
+* @{
+* @details
+*
+* @section ULP-TIMER_Intro Introduction
+*
+* Ultra-Low-Power (ULP) timers are typically used to operate with extremely low power consumption.
+* These timers are used in battery-powered or energy-efficient devices, where minimizing
+* power usage is essential for extending battery life.
+*
+* ULP timers offer configurable settings, allowing developers to adjust parameters such
+* as clock frequency, timer resolution, and interrupt behavior to suit the specific needs of their applications.
+* @li *Key features include:*
+*  - The ULP-Timer module supports four different instances @ref ulp_timer_instance_t.
+*  - Each ULP-timer can be independently programmed to operate in periodic or one-shot mode @ref ulp_timer_mode_t.
+*  - Each ULP-timer can be independently configured as either a 32-bit counter or a microsecond timer @ref ulp_timer_type_t.
+*
+* @image html ulp_timer_block_diagram.png "ULP timer block diagram"
+*
+* @section ULP-TIMER_Config Configuration
+* The configurable parameters for the ULP-Timer include:
+*  1. The ULP-timer is initialized and its clocks are configured using @ref sl_si91x_ulp_timer_init.
+*  2. Parameters such as match count, timer type, mode, and timer direction can be configured using @ref sl_si91x_ulp_timer_set_configuration.
+*
+* @li For more information on configuring available parameters, see the respective peripheral example readme document.
+* 
+* @section ULP-TIMER_Use Usage
+* The common ULP-timer functions can be used after ULP-timer structures are specified,
+* passing an instance of @ref ulp_timer_config_t.
+* @li These functions will initiate and configure the ULP-timer below, which is the flow for implementation.
+*     1. Initialize the ULP-Timer by enabling its clock source using the @ref sl_si91x_ulp_timer_init function.
+*     2. Configure the ULP-Timer parameters using the @ref sl_si91x_ulp_timer_set_configuration function.
+*     3. Register the callback for the timer timeout interrupt and enable the interrupt using the @ref sl_si91x_ulp_timer_register_timeout_callback function.
+*     4. Start the ULP-Timer using the @ref sl_si91x_ulp_timer_start function.
+*     5. Stop the ULP-Timer using the @ref sl_si91x_ulp_timer_stop function.
+*     6. De-initialize the ULP-Timer clock by disabling the peripheral clock using the @ref sl_si91x_ulp_timer_deinit function.
+*
+* The above functions allow for initializing the ULP-TIMER instance and generating interrupts.
+*
+* @li Additional Timer Configuration functions for managing the ULP timer, you can use the following functions to adjust the timer's type, direction, and callback settings:
+* 1. *Set the ULP-Timer type:* @ref sl_si91x_ulp_timer_set_type
+* 2. *Set the ULP-Timer mode as one-shot or periodic:* @ref sl_si91x_ulp_timer_set_mode
+* 3. *Set the ULP-Timer direction:* @ref sl_si91x_ulp_timer_set_direction
+* 4. *Set the ULP-Timer match value:* @ref sl_si91x_ulp_timer_set_count
+*
+* @li To retrieve information about the current configuration and status of the ULP timer, you can use the following functions:
+* 1. *Read the ULP-Timer mode:*  @ref sl_si91x_ulp_timer_get_mode
+* 2. *Read the ULP-Timer type:*  @ref sl_si91x_ulp_timer_get_type
+* 3. *Read the ULP-Timer direction (up-counter or down-counter):*  @ref sl_si91x_ulp_timer_get_direction
+* 4. *Read the ULP-Timer current count:*  @ref sl_si91x_ulp_timer_get_count
+*
+* @} end group ULP-TIMER ********************************************************/
 
 #ifdef __cplusplus
 }

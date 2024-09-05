@@ -29,7 +29,7 @@ sdk:
   version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.1
+    version: 3.3.2
 define:
   - name: SL_SI91X_PRINT_DBG_LOG
 component:

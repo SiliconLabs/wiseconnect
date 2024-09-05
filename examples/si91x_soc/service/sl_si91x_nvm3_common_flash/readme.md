@@ -25,7 +25,7 @@ For more detailed information about NVM3, refer to [Third Generation NonVolatile
 
 ## About Example Code
 
-- This example performs wireless initialization before using NVM3 APIs using sl_net_init(). This is done to set up TA-M4 communication.
+- This example performs wireless initialization before using NVM3 APIs using sl_net_init(). This is done to set up NWP-M4 communication.
 - After successful wireless init, NVM3 init is done using nvm3_initDefault() API.
 - Two counter objects are initialized using nvm3_writeCounter() API. One is used to track the number of writes and another is used for
   tracking number of deleted objects.

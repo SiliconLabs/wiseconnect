@@ -28,38 +28,61 @@
  * @addtogroup SI91X_SOCKET_FUNCTIONS
  * @{ 
  */
-/// Structure for socket metadata associated with a read event.
+/**
+ * @brief Structure for socket metadata associated with read event.
+ *
+ * @details
+ * The structure holds the metadata information for the socket's read event.
+ * It includes the following details such as: IP version, socket ID, length of data received,
+ * offset within the buffer, destination port, and the IP address of the sender device. 
+ * The IP address can be either IPv4 or IPv6, determined by the
+ * `ip_version` field.
+ */
 typedef struct {
-  uint16_t ip_version; ///< 2 bytes, the IP version of the IP address (4 for IPv4, 6 for IPv6).
+  uint16_t
+    ip_version; ///< Two bytes for the IP version of the IP address, four bytes for the IPv4, and six bytes for the IPv6.
 
-  uint16_t socket_id; ///< 2 bytes, the socket number associated with this read event.
+  uint16_t socket_id; ///< The socket number associated with the read event is two bytes.
 
-  uint32_t length; ///< 4 bytes, length of data received.
+  uint32_t length; ///< Four bytes. Length of received data.
 
-  uint16_t offset; ///< 2 bytes, offset of data from the start of the buffer.
+  uint16_t offset; ///< Two bytes. Offset data from the start of the buffer.
 
-  uint16_t dest_port; ///< 2 bytes, port number of the device sending the data to us.
+  uint16_t dest_port; ///< Two bytes. Port number of the device which sends data to the destination.
 
   union {
-    uint8_t ipv4_address[4]; ///< 4 bytes, IPv4 Address of the device sending the data to us. Used if ip_version is 4.
+    uint8_t ipv4_address[4]; ///< Four bytes. IPv4 address of the device which sends data. Used if ip_version is four.
 
-    uint8_t ipv6_address[16]; ///< 16 bytes, IPv6 Address of the device sending the data to us. Used if ip_version is 6.
+    uint8_t ipv6_address[16]; ///< 16 bytes. IPv6 address of the device which sends data. Used if ip_version is six.
   } dest_ip_addr;             ///< Union for IPv4 or IPv6 address, depending on ip_version.
 } sl_si91x_socket_metadata_t;
 
 /**
  * @typedef receive_data_callback
- * @brief This callback is used to read data asynchronously from a socket. It is registered when the sl_si91x_socket_async API is called.
+ * @brief Callback function reads asynchronous data from the socket.
+ *
+ * @details
+ * The callback function reads asynchronous data from the socket when the sl_si91x_socket_async
+ * API is registered and called. The callback provides the following details:
+ * socket ID, pointer to the buffer which contains receiver data, size of the buffer, 
+ * and metadata of the receiver packet (such as IP address, and port number).
+ * 
+ *
  * @param socket
- * Socket ID.
+ *   Socket ID.
+ *
  * @param buffer
- * Pointer to the buffer that will store the received data.
+ *   Pointer to the buffer which stores the receiver data.
+ *
  * @param length
- * Size of the buffer.
+ *   Buffer size.
+ *
  * @param firmware_socket_response
- * @ref sl_si91x_socket_metadata_t It contains the meta data of the received packet, like IPV4/V6 address and port number.
+ * Pointer to sl_si91x_socket_metadata_t structure contains receiver packet metadata information. 
+ * The metadata information consists of IP address (either, Ipv4 or IPV6), and port number.
+ *
  * @return
- * N/A
+ *   N/A
  */
 typedef void (*receive_data_callback)(uint32_t socket,
                                       uint8_t *buffer,
@@ -68,59 +91,100 @@ typedef void (*receive_data_callback)(uint32_t socket,
 
 /**
  * @typedef accept_callback
- * @brief This callback is used to provide the parameters of a newly accepted connection. It is registered when the sl_si91x_accept_async API is called.
+ * @brief Callback functions for new asynchronous accepted connection.
+ *
+ * @details
+ * The callback provides paramenters for new accepted connection when the sl_si91x_accept_async API is registered and called. 
+ * The callback provides the following details: socket ID of the accepted connection, address of remoter peer, 
+ * and IP version of connection.
+ *
  * @param socket
- * Socket ID of the accepted connection.
+ *   Socket ID of the accepted connection.
+ *
  * @param addr
- * Address of the remote peer.
+ *   Pointer to `struct sockaddr` contains remote peer address.
+ *
  * @param ip_version
- * IP version of the connection.
+ *   IP version of the connection (for example, four bytes for IPv4, and six bytes for IPv6).
+ *
  * @return
- * N/A
+ *   N/A
  */
 typedef void (*accept_callback)(int32_t socket, struct sockaddr *addr, uint8_t ip_version);
 
 /**
  * @typedef data_transfer_complete_handler
- * @brief This callback is used to indicate the status of a data transfer. It is registered when either the sl_si91x_send_async or sl_si91x_sendto_async API is called.
+ * @brief Callback function indicates data transfer status.
+ *
+ * @details
+ * The callback indicates the data transfer completion status when either of the sl_si91x_send_async or sl_si91x_sendto_async API is registered and called.
+ * The callback provides the socket ID, and the number of bytes that are successfully transfer.
+ *
  * @param socket
- * Socket ID.
+ *   Socket ID.
+ *
  * @param length
- * Number of bytes transferred.
+ *   Number of bytes transferred.
+ *
  * @return
- * N/A
+ *   N/A
  */
 typedef void (*data_transfer_complete_handler)(int32_t socket, uint16_t length);
 
 /**
  * @typedef select_callback
- * @brief This callback is used to indicate when an asynchronous response reaches the select request. It is registered when the sl_si91x_select API is called.
+ * @brief Callback function indicates asynchronous select request result.
+ *
+ * @details
+ * The callback indicates asynchronous response reaches the select request when the sl_si91x_select API is registered and called. 
+ * The callback provides the following details: file descriptor sets for read, write, and exception conditions, and status of the selected request.
+ *
  * @param fd_read
- * Read file descriptor set.
+ *   File descriptor pointer sets for read operations.
+ *
  * @param fd_write
- * Write file descriptor set.
+ *   File descriptor pointer sets for write operations.
+ *
  * @param fd_except
- * Exception file descriptor set.
+ *   File descriptor pointer sets for exception condition.
+ *
  * @param status
- * Status of the select request.
+ *   Select request status.
+ *
  * @return
- * N/A
+ *   N/A
  */
 typedef void (*select_callback)(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status);
 
 /**
  * @typedef remote_socket_termination_callback
- * @brief This callback is used to indicate when a remote socket is terminated. It is registered when the sl_si91x_set_remote_termination_callback API is called.
+ * @brief Callback function indicates termination of the remote socket.
+ *
+ * @details
+ * The callback function notifies on the termination of the remote socket when the sl_si91x_set_remote_termination_callback API is registered and called. 
+ * The callback provides the following details: socket ID, remote socket port number, and number of bytes sent before termination of the remote socket.
+ *
  * @param socket
- * Socket ID.
+ *   Socket ID.
+ *
  * @param port
- * Port number of the remote socket.
+ *   Remote socket port number.
+ *
  * @param bytes_sent
- * Number of bytes sent before termination.
+ *   Number of bytes sent before termination.
+ *
  * @return
- * N/A
+ *  The callback does not returns value.
  */
 typedef void (*remote_socket_termination_callback)(int socket, uint16_t port, uint32_t bytes_sent);
+
+/// Si91x specific socket type length value
+typedef struct {
+  uint16_t type;   ///< Socket type
+  uint16_t length; ///< Data length
+  uint8_t value[]; ///< Data
+} si91x_socket_type_length_value_t;
+
 /** @} */
 
 /// Internal  si91x BSD socket status
@@ -145,13 +209,6 @@ typedef struct {
 } si91x_server_name_indication_extensions_t;
 
 #pragma pack()
-
-/// Internal si91x socket type length
-typedef struct {
-  uint16_t type;   ///< Socket type
-  uint16_t length; ///< Data length
-  uint8_t value[]; ///< Data
-} si91x_socket_type_length_value_t;
 
 /// Internal si91x socket handle
 typedef struct {

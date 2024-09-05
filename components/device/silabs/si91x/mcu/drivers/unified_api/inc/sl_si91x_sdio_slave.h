@@ -67,37 +67,71 @@
  *****************************   DATA TYPES   *********************************
  ******************************************************************************/
 
+/**
+ * @brief Enumeration for SDIO slave receive interrupt status.
+ * 
+ * This enumeration defines the possible statuses for SDIO slave receive interrupts,
+ * indicating whether an interrupt from the host has been received or not.
+ */
 typedef enum {
-  HOST_INTR_NOT_RECEIVED = 0,
-  HOST_INTR_RECEIVED     = 1,
+  HOST_INTR_NOT_RECEIVED = 0, ///< Host interrupt not received.
+  HOST_INTR_RECEIVED     = 1, ///< Host interrupt received.
 } sl_sdio_slave_rx_intr_status_t;
 
+/**
+ * @brief Callback function type for SDIO slave interface events.
+ * 
+ * This typedef defines the prototype for a callback function that will be invoked
+ * when SDIO slave interface events occur.
+ * 
+ * @param[in] events The SDIO slave interface events that triggered the callback.
+ *                   This parameter is a bitmask representing one or more events.
+ */
 typedef void (*sl_sdio_slave_callback_t)(uint8_t events);
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
-/***************************************************************************/ /**
- * @brief       Initialize sdio slave peripheral for transfers 
+/***************************************************************************/
+/**
+ * @brief To initialize the SDIO slave peripheral for transfers.
+ * 
+ * @details This API initializes the SDIO slave peripheral and sets up the callback function
+ * for handling host interrupt events. The callback function will be called whenever an
+ * interrupt event occurs from the host.
+ * 
  * @param[in] event_callback
- *   Address of application callback function for host interrupt events 
+ *   Address of the application callback function for host interrupt events.
  ******************************************************************************/
 void sl_si91x_sdio_slave_init(sl_sdio_slave_callback_t event_callback);
 
-/***************************************************************************/ /**
- * @brief       Trigger sequence to send data from sdio slave to host/master device 
- * @param[in] num_of_blocks
- *   Number of blocks to be sent
- * @param[in] data_buf
- *   Reference of the Source buffer
+/***************************************************************************/
+/**
+ * @brief To trigger the sequence to send data from SDIO slave to host/master device.
+ * 
+ * @details This API initiates the transfer of data from the SDIO slave to the host/master device.
+ * The data is sent in blocks, where each block has a predefined length (1-2048 bytes).
+ *
+ * @pre Pre-conditions:
+ *      - @see sl_si91x_sdio_slave_init must be called prior.
+ * 
+ * @param[in] num_of_blocks Number of blocks to be sent.
+ * @param[in] data_buf Reference to the source buffer containing the data to be sent.
  ******************************************************************************/
 void sl_si91x_sdio_slave_send(uint8_t num_of_blocks, uint8_t *data_buf);
 
-/***************************************************************************/ /**
- * @brief       Trigger sequence to receive data on sdio slave from host/master device  
+/***************************************************************************/
+/**
+ * @brief To receive data on SDIO slave from host/master device.
+ * 
+ * @details This API triggers the sequence to receive data from the host/master device
+ * and stores it in the provided destination buffer.
+ * 
+ * @pre Pre-conditions:
+ *      - @see sl_si91x_sdio_slave_init must be called prior.
  * @param[in] data_buf
- *   Reference of the Destination buffer
+ *   Reference to the destination buffer where the received data will be stored.
  ******************************************************************************/
 void sl_si91x_sdio_slave_receive(uint8_t *data_buf);
 

@@ -23,32 +23,52 @@
 
 /** \addtogroup SL_NET_TYPES
  * @{ */
-/// Network Wi-Fi client Profile
+/**
+ * @brief Network Wi-Fi client profile.
+ * 
+ * @details
+ * This structure holds the configuration for a Wi-Fi client profile, including the Wi-Fi client settings and the network IP configuration.
+ */
 typedef struct {
   sl_wifi_client_configuration_t
     config; ///< Wi-Fi client configuration of type [sl_wifi_client_configuration_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-client-configuration-t)
   sl_net_ip_configuration_t ip; ///< Network IP configuration of type @ref sl_net_ip_configuration_t
 } sl_net_wifi_client_profile_t;
 
-/// Network Wi-Fi AP profile
+/**
+ * @brief Network Wi-Fi AP profile.
+ * 
+ * @details
+ * This structure holds the configuration for a Wi-Fi Access Point (AP) profile, including the Wi-Fi AP settings and the network IP configuration. 
+ */
 typedef struct {
   sl_wifi_ap_configuration_t
-    config; ///< Wi-Fi AP configuration of type [sl_wifi_client_configuration_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-client-configuration-t)
+    config; ///< Wi-Fi AP configuration of type [sl_wifi_ap_configuration_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-ap-configuration-t)
   sl_net_ip_configuration_t ip; ///< Network IP configuration of type @ref sl_net_ip_configuration_t
 } sl_net_wifi_ap_profile_t;
 
-/// Network Wi-Fi PSK credential entry
+/**
+ * @brief Network Wi-Fi PSK credential entry.
+ * 
+ * @details
+ * This structure holds the Pre-Shared Key (PSK) credentials for a Wi-Fi network, including the credential type, data length, and the actual credential data.
+ */
 typedef struct {
   sl_net_credential_type_t type; ///< Network credential type of @ref sl_net_credential_type_t
   uint16_t data_length;          ///< Data length
   uint8_t data[196];             ///< Data
 } sl_net_wifi_psk_credential_entry_t;
 
-/// Network Wi-Fi EAP credential entry
+/**
+ * @brief Network Wi-Fi EAP credential entry.
+ * 
+ * @details
+ * This structure holds the Extensible Authentication Protocol (EAP) credentials for a Wi-Fi network, including the credential type, data length, and the actual EAP credential data.
+ */
 typedef struct {
   sl_net_credential_type_t type; ///< Network credential type of @ref sl_net_credential_type_t
   uint16_t data_length;          ///< Data length
   sl_wifi_eap_credential_t
-    data; ///< data of type [sl_wifi_eap_credential_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-eap-credential-t)
+    data; ///< Data of type [sl_wifi_eap_credential_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-eap-credential-t)
 } sl_net_wifi_eap_credential_entry_t;
 /** @} */

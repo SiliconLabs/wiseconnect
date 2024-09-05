@@ -34,6 +34,19 @@ extern bool device_initialized;
 
 /*=======================================================================*/
 
+/**
+ * @brief Sets the performance profile for the Si91x Bluetooth module.
+ *
+ * This function sets the performance profile for the Si91x Bluetooth module based on the provided profile.
+ * The function takes a backup of the current Bluetooth profile and computes the selected coexistence (coex) profile.
+ * If the selected coex profile is the same as the current coex profile, the function returns SL_STATUS_OK.
+ * Otherwise, the function sends a power save request with the selected coex profile.
+ * If the power save request fails, the function restores the previous Bluetooth profile and returns the corresponding status.
+ * If the selected coex profile is STANDBY_POWER_SAVE, the device_initialized flag is set to false and the coex current performance profile is reset.
+ *
+ * @param profile Pointer to the performance profile to be set.
+ * @return SL_STATUS_OK if the performance profile is set successfully, or an appropriate error code if an error occurs.
+ */
 sl_status_t sl_si91x_bt_set_performance_profile(const sl_bt_performance_profile_t *profile)
 {
   sl_status_t status;

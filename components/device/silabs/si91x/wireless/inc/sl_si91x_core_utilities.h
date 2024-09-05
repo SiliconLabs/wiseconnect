@@ -33,7 +33,30 @@
 #include "sl_additional_status.h"
 #include "sli_cmsis_os2_ext_task_register.h"
 
+/// Converted firmware status index
 #define CONVERTED_FIRMWARE_STATUS_INDEX 0
+
+/** \addtogroup SI91X_DRIVER_FUNCTIONS 
+ * \ingroup SL_SI91X_API
+ * @{ */
+/***************************************************************************/ /**
+ * @brief 
+ *   Retrieves the saved thread-specific firmware status value.
+ *  
+ * @details
+ *   This function fetches the firmware status value that is specific to the current thread.
+ * 
+ * @return
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ ******************************************************************************/
+static inline sl_status_t sl_si91x_get_saved_firmware_status(void)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+
+  sli_osTaskRegisterGetValue(NULL, CONVERTED_FIRMWARE_STATUS_INDEX, &status);
+  return status;
+}
+/** @} */
 
 /******************************************************************************
  * A utility function to extract firmware status from RX packet.
@@ -63,7 +86,7 @@ static inline void save_si91x_firmware_status(sl_status_t converted_firmware_sta
  * @param[in] si91x_firmware_status
  *   si91x_firmware_status that needs to be converted to sl_status_t.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  *****************************************************************************/
 static inline sl_status_t convert_and_save_firmware_status(uint16_t si91x_firmware_status)
 {
@@ -73,31 +96,13 @@ static inline sl_status_t convert_and_save_firmware_status(uint16_t si91x_firmwa
   return converted_firmware_status;
 }
 
-/** \addtogroup SI91X_DRIVER_FUNCTIONS 
- * \ingroup SL_SI91X_API
- * @{ */
-/***************************************************************************/ /**
- * @brief 
- *   Get the saved thread specific firmware status value.
- * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- ******************************************************************************/
-static inline sl_status_t sl_si91x_get_saved_firmware_status(void)
-{
-  sl_status_t status = SL_STATUS_FAIL;
-
-  sli_osTaskRegisterGetValue(NULL, CONVERTED_FIRMWARE_STATUS_INDEX, &status);
-  return status;
-}
-/** @} */
-
 /******************************************************************************
  * @brief
  *   A utility function that converts si91x_status_t to sl_status_t
  * @param[in] si91x_status
  *   si91x_status that needs to be converted to sl_status_t.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  *****************************************************************************/
 static inline sl_status_t convert_si91x_status_to_sl_status(si91x_status_t si91x_status)
 {
@@ -139,24 +144,27 @@ static inline sl_status_t convert_si91x_status_to_sl_status(si91x_status_t si91x
   }
 }
 
-/******************************************************************************
- * @brief
- *   Atomically append given buffer to the end of a buffer queue
- * @param[in] queue
- *   Destination buffer queue
- * @param[in] buffer
- *   Buffer
- *****************************************************************************/
+/**
+ * @brief Atomically append a given buffer to the end of a buffer queue.
+ * 
+ * This function appends a buffer to the end of a specified buffer queue in an atomic operation,
+ * ensuring thread safety during the append operation.
+ *
+ * @param[in] queue Pointer to the destination buffer queue where the buffer will be appended.
+ * @param[in] buffer Pointer to the buffer that is to be appended to the queue.
+ */
 void sli_si91x_append_to_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
 
-/******************************************************************************
- * @brief
- *   Atomically remove the head from a buffer queue
- * @param[in] queue
- *   Source buffer queue
- * @param[in] buffer
- *   Destination buffer
-  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- *****************************************************************************/
+/**
+ * @brief Atomically remove the head buffer from a buffer queue.
+ * 
+ * This function removes the buffer at the head of the specified buffer queue in an atomic operation,
+ * ensuring thread safety during the removal. The removed buffer is then passed back through a pointer
+ * to the caller.
+ *
+ * @param[in] queue Pointer to the source buffer queue from which the head buffer will be removed.
+ * @param[out] buffer Pointer to a pointer of sl_wifi_buffer_t where the removed buffer's address will be stored.
+ * @return sl_status_t Returns the status of the operation. A value of 0 (SL_STATUS_OK) indicates success.
+ *                     Other values indicate failure. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ */
 sl_status_t sli_si91x_pop_from_buffer_queue(sl_si91x_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);

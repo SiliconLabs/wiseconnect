@@ -42,7 +42,7 @@
  * @param ip    
  *   Pointer to sl_ipv4_address_t.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
 sl_status_t convert_string_to_sl_ipv4_address(char *line, sl_ipv4_address_t *ip);
 
@@ -62,13 +62,13 @@ char *sl_inet_ntop6(const unsigned char *input, char *dst, uint32_t size);
 
 /***************************************************************************/ /**
  * @brief
- *   Convert a character string into a sl_mac_address_t
+ *   Convert a character string into a [sl_mac_address_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-mac-address-t)
  * @param line
  *   Argument string that is expected to be like 00:11:22:33:44:55
  * @param mac
- *   Pointer to sl_mac_address_t_address_t.
+ *   Pointer to [sl_mac_address_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-mac-address-t).
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
 sl_status_t convert_string_to_mac_address(const char *line, sl_mac_address_t *mac);
 

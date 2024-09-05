@@ -75,7 +75,7 @@ typedef struct {
 typedef struct {
   sl_mdns_protocol_t protocol; ///< Protocol to use for mDNS from @ref sl_mdns_protocol_t.
   sl_ip_version_t
-    type; ///< IP version to use for mDNS from [sl_ip_version_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-version-t).
+    type; ///< IP version to use for mDNS from [sl_ip_version_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-ip-address-t).
   char host_name
     [32]; ///< Host Name to use for the mDNS Instance. The host name Should contain dot(.) at the end (for example, "wiseconnect.local."). The string length should not exceed 32 including NULL terminator.
 } sl_mdns_configuration_t;
@@ -117,7 +117,7 @@ struct sl_mdns_s {
  * @param[in] config		Valid pointer to mDNS configuration structure of type @ref sl_mdns_configuration_t. This value cannot be null.
  * @param[in] event_handler Event handler of type @ref sl_mdns_event_handler_t for receiving asynchronous events.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
  *   This API needs to be called before calling any other mDNS API
  * @note
@@ -130,7 +130,7 @@ sl_status_t sl_mdns_init(sl_mdns_t *mdns, const sl_mdns_configuration_t *config,
  * De-initialize mDNS instance.
  * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 sl_status_t sl_mdns_deinit(sl_mdns_t *mdns);
 
@@ -140,7 +140,7 @@ sl_status_t sl_mdns_deinit(sl_mdns_t *mdns);
  * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t.
  * @param[in] interface     Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t) that needs to be added to mDNS instance.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 sl_status_t sl_mdns_add_interface(sl_mdns_t *mdns, sl_net_interface_t interface);
 
@@ -150,7 +150,7 @@ sl_status_t sl_mdns_add_interface(sl_mdns_t *mdns, sl_net_interface_t interface)
  * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t.
  * @param[in] interface     Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t) that needs to be removed from mDNS instance.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 sl_status_t sl_mdns_remove_interface(sl_mdns_t *mdns, sl_net_interface_t interface);
 
@@ -161,7 +161,7 @@ sl_status_t sl_mdns_remove_interface(sl_mdns_t *mdns, sl_net_interface_t interfa
  * @param[in] interface     Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t) to which service needed to be added to mDNS instance.
  * @param[in] service		Valid pointer to mDNS service configuration structure of type @ref sl_mdns_service_t . This value cannot be null.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interface, sl_mdns_service_t *service);
 
@@ -171,7 +171,7 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
  * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t
  * @param[in] service_query Valid pointer to mDNS service query structure of type @ref sl_mdns_service_query_t . This value cannot be null.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 sl_status_t sl_mdns_unregister_service(sl_mdns_t *mdns, sl_mdns_service_query_t *service_query);
 
@@ -183,7 +183,7 @@ sl_status_t sl_mdns_unregister_service(sl_mdns_t *mdns, sl_mdns_service_query_t 
  * @param[in] message           Valid pointer to a buffer containing service message string . This value cannot be null.
  * @param[in] message_length    Length of the message buffer.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 sl_status_t sl_mdns_update_service_message(sl_mdns_t *mdns,
                                            sl_mdns_service_query_t *service_query,
@@ -196,7 +196,7 @@ sl_status_t sl_mdns_update_service_message(sl_mdns_t *mdns,
  * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t
  * @param[in] service_query Valid pointer to mDNS service query structure of type @ref sl_mdns_service_query_t . This value cannot be null.
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  */
 sl_status_t sl_mdns_discover_service(sl_mdns_t *mdns, sl_mdns_service_query_t *service_query);
 

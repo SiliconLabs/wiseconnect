@@ -18,7 +18,7 @@ sdk:
   version: 2024.6.1
 sdk_extension:
 - id: wiseconnect3_sdk
-  version: 3.3.1
+  version: 3.3.2
 source:
 - path: ble_device_info.c
 - path: ble_main_task.c

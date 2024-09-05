@@ -66,7 +66,7 @@
 //! E.g: 0x0A0AA8C0 == 192.168.10.10
 #define DEFAULT_WIFI_GATEWAY_ADDRESS 0x0A0AA8C0
 /*=======================================================================*/
-// TA buffer allocation parameters
+// NWP buffer allocation parameters
 /*=======================================================================*/
 
 #ifndef TX_POOL_RATIO

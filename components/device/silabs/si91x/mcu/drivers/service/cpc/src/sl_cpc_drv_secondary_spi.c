@@ -717,17 +717,17 @@ void sli_cpc_memory_on_rx_buffer_free(void)
 
 /**
  * @fn       void Device_Reset(void)
- * @brief    resets the Si91x as a whole which includes reseting of TA core and
+ * @brief    resets the Si91x as a whole which includes reseting of NWP core and
  *           M4 core respectively.
  * @param    None
  * @return   None
  */
 void Device_Reset(void)
 {
-  /* TA core */
+  /* NWP core */
   uint32_t status = RSI_SUCCESS;
 
-  //TODO: Handle TA reset
+  //TODO: Handle NWP reset
   if (status != RSI_SUCCESS) {
     LOG_PRINT("\r\nWireless deinit failed, Error Code : 0x%1X\r\n", status);
   } else {
@@ -738,7 +738,7 @@ void Device_Reset(void)
 
 /**
  * @fn       sl_cpc_system_status_t Read_reset_reason(void)
- * @brief    resets the Si91x as a whole which includes reseting of TA core and
+ * @brief    resets the Si91x as a whole which includes reseting of NWP core and
  *           M4 core respectively.
  * @param    None
  * @return   reset reason

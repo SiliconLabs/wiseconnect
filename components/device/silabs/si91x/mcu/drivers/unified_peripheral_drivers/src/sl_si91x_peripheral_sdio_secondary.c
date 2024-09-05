@@ -31,7 +31,7 @@
 #include "rsi_egpio.h"
 
 /*******************************************************************************
- * This API initializes the SDIO secondary, by default SDIO pin access with TA
+ * This API initializes the SDIO secondary, by default SDIO pin access with NWP
  * this API gives the pin access to M4, selects the SDIO mode and mash the sdio
  * primary interrupts
  ******************************************************************************/

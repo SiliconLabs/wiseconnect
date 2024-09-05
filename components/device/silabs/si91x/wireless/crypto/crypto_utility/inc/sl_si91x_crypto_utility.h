@@ -33,31 +33,42 @@
 #include <stdint.h>
 #include <string.h>
 
-/***************************************************************************/ /**
+/******************************************************
+ *                Function Declarations
+*******************************************************/
+/**
+ * @addtogroup CRYPTO_UTILITY_FUNCTIONS 
+ * @{ 
+ */
+
+/***************************************************************************/
+/**
  * @brief 
- *   Function to perform PKCS #7 padding
- * @param[in] data 
- *   Pointer to the data to be padded
- * @param[in] data_length 
- *   Length of the data in bytes
- * @param[in] block_size 
- *   Size of the block in bytes (typically 16 for AES)
- * @param[out] padded_data_length 
- *   Pointer to store the length of the padded data
- * @return 
+ *   To perform PKCS #7 padding on the given data.
+ * @param[in]  data
+ *   Pointer to the data to be padded.
+ * @param[in]  data_length
+ *   Length of the data in bytes.
+ * @param[in]  block_size
+ *   Size of the block in bytes (typically 16 for AES).
+ * @param[out] padded_data_length        
+ *   Pointer to store the length of the padded data.
+ * @return
  *   Returns a pointer to the padded data.
-******************************************************************************/
+ ******************************************************************************/
 uint8_t *pkcs7_padding(uint8_t *data, size_t data_length, size_t block_size, size_t *padded_data_length);
 
-/***************************************************************************/ /**
- * @brief 
- *   Unpads a PKCS #7 padded data array in-place and returns the length of the unpadded data.
- *   This function performs PKCS #7 unpadding on the input data array. It checks the padding bytes at the end of the array, removes them if they are valid, and returns the length of the unpadded data.
- * @param[in] data 
+/***************************************************************************/
+/**
+ * @brief
+ *   To unpad a PKCS #7 padded data array in-place, and return the length of the unpadded data. This function performs PKCS #7 unpadding on the input data array. It checks the padding bytes at the end of the array, removes them if they are valid, and returns the length of the unpadded data.   
+ * @param[in]  data 
  *   Pointer to the data array containing PKCS #7 padded data.
- * @param[in] data_length 
+ * @param[in]  data_length 
  *   Length of the data array.
- * @return 
- *   The length of the unpadded data, or -1 if the padding is invalid or data is empty.
-******************************************************************************/
+ * @return
+ *   The length of the unpadded data, or -1, if the padding is invalid or data is empty.
+ ******************************************************************************/
 int pkcs7_unpad(unsigned char *data, size_t data_length);
+
+/** @} */

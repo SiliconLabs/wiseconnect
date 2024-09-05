@@ -1,4 +1,4 @@
-# Wi-Fi - Firmware Update
+# Wi-Fi - NWP Or Combined (NWP & M4) Firmware Update via TCP
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@
 
 ## Purpose/Scope
 
-This application shows how to update the TA(NWP) firmware of a device via Wi-Fi by downloading the firmware file from a remote TCP server. The server can be run on a local PC. Here's how the update process works:
+This application shows how to update the NWP firmware of a device via Wi-Fi by downloading the firmware file from a remote TCP server. The server can be run on a local PC. Here's how the update process works:
 
  - **Connection** : The device connects to a Wi-Fi network and acts as a TCP client.
  - **Request**    : The device sends a request to the TCP server for the firmware update file.
@@ -143,7 +143,7 @@ The application can be configured to suit user requirements and development envi
 ### Combined Image Configuration
 
 ```c
-#define COMBINED_IMAGE    0        //Set 1 for combined image upgrade and 0 for TA firmware upgrade
+#define COMBINED_IMAGE    0        //Set 1 for combined image upgrade and 0 for NWP firmware upgrade
 ```
 
 ## Test the Application

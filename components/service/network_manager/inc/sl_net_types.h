@@ -39,45 +39,65 @@
 /** \addtogroup SL_NET_TYPES Types
  * @{ */
 
-/// SL Net event handler
 /**
  * @typedef sl_net_event_handler_t
- * @brief Generic callback for network event
+ * @brief Generic callback for network events.
+ * 
+ * @details
+ * This typedef defines a callback function for handling various network events. The callback function receives the event type, status, data, and data length as parameters.
+ * 
  * @param event
- * Network event of type @ref sl_net_event_t
+ * Network event of type @ref sl_net_event_t.
  * | @ref sl_net_event_t                  | DataType                               |
  * |:-------------------------------------|:---------------------------------------|
  * | SL_NET_PING_RESPONSE_EVENT           | @ref sl_si91x_ping_response_t          |
- * | SL_NET_DNS_RESOLVE_EVENT             | @ref sl_ip_address_t                   |
- * | SL_NET_OTA_FW_UPDATE_EVENT           | NULL incase of success else uint16_t chunk number incase of failure |
+ * | SL_NET_DNS_RESOLVE_EVENT             | [sl_ip_address_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-ip-address-t) |
+ * | SL_NET_OTA_FW_UPDATE_EVENT           | NULL in case of success, else uint16_t chunk number in case of failure |
  * | SL_NET_DHCP_NOTIFICATION_EVENT       | NULL                                   |
  * | SL_NET_IP_ADDRESS_CHANGE_EVENT       | @ref sl_net_ip_configuration_t         |
  * | SL_NET_EVENT_COUNT                   | Not Applicable, Internally used by SDK |
+ * 
  * @param status
- * sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details
+ * Status of type sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
+ * 
  * @param data
- * Data received.
+ * Data received, corresponding to the event type.
+ * 
  * @param data_length
- * Data length
+ * Length of the data received.
+ * 
  * @return
- * sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
+ * Status of type sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [Additional Status Codes](../wiseconnect-api-reference-guide-err-codes/sl-additional-status-errors) for details.
  */
 typedef sl_status_t (*sl_net_event_handler_t)(sl_net_event_t event,
                                               sl_status_t status,
                                               void *data,
                                               uint32_t data_length);
 
-/// SL Net abstract profile
+/**
+ * @brief Abstract profile for SL Net.
+ * 
+ * @details
+ * This type represents an abstract profile in the SL Net framework. 
+ * 
+ * @note
+ * This type is used internally by the SL Net framework and should be cast to the appropriate profile type when used.
+ */
 typedef void sl_net_profile_t;
 
-/// Ping Response structure
+/**
+ * @brief Ping Response structure.
+ * 
+ * @details
+ * This structure holds the response data for a ping operation, including the IP version, ping size, and the pinged IP address.
+ */
 typedef struct {
-  uint16_t ip_version; ///< IP version
-  uint16_t ping_size;  ///< ping size
+  uint16_t
+    ip_version; ///< IP version (e.g., IPv4 or IPv6). One of the values from [sl_ip_version_t](../wiseconnect-api-reference-guide-common/ip-addresses#sl-ip-version-t).
+  uint16_t ping_size; ///< Size of the ping packet
   union {
     uint8_t ipv4_address[4];  ///< IPv4 address
     uint8_t ipv6_address[16]; ///< IPv6 address
-  } ping_address;             ///< Pinged IP Address
+  } ping_address;             ///< Pinged IP address
 } sl_si91x_ping_response_t;
-
 /** @} */

@@ -112,7 +112,7 @@
 #define TCP_RX_WINDOW_DIV_FACTOR        44 //@ TCP RX Window division factor
 
 /*=======================================================================*/
-// TA buffer allocation parameters
+// NWP buffer allocation parameters
 /*=======================================================================*/
 
 #ifndef TX_POOL_RATIO

@@ -48,7 +48,7 @@
  * @return    none.
  * @section description
  * This function is used to trigger sleep in the M4 and in the case of the
- * retention submitting the buffer valid to the TA for the rx packets.
+ * retention submitting the buffer valid to the NWP for the rx packets.
  */
 void sl_si91x_m4_sleep_wakeup(void);
 /**

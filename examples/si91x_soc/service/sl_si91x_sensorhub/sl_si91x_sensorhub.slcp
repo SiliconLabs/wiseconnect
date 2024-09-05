@@ -10,7 +10,7 @@ sdk:
   version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.1
+    version: 3.3.2
 source:
   - path: sensorhub_config.c
   - path: sensors/src/hub_hal_intf.c

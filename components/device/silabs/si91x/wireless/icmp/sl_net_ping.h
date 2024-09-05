@@ -38,17 +38,23 @@
 
 /***************************************************************************/ /**
  * @brief
- *   Send an ICMP ping request.
+ *   Send an ICMP ping request to a specific IP address.
+ * @details
+ *   This function sends an ICMP ping request to a specific IP address (IPv4 or IPv6) with a user defined ping packet size.
+ *   It verifies the device’s initialization status and validates the IP address type before sending the request to the specific IP address.
  * @pre Pre-condition:
  *  - [sl_net_init](../wiseconnect-api-reference-guide-nwk-mgmt/net-interface-functions#sl-net-init) should be called before this API.
  * @param[in] ip_address
- *   Destination IP address (IPv4 or IPv6) and SL IP type identified by @ref sl_ip_address_t 
+ *   The destination IP address should be of type [sl_ip_address_type_t](../wiseconnect-api-reference-guide-common/sl-ip-address-t) either IPv4 or IPv6.
  * @param[in] ping_packet_size
- *   Size of a ping packet
+ *   The ping packet size is defined, with a valid range of [0, 300].
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/4.1/common/api/group-status for details.
- * @note ping_packet_size valid range: [0, 300]
- * @note This is an asynchronous API. The response is recieved via [sl_net_event_handler_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-net-event-handler-t) with [SL_NET_PING_RESPONSE_EVENT](wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t) as event
+ *   [sl_status_t](https://docs.silabs.com/gecko-platform/latest/platform-common/status) - Status of the operation.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_NOT_INITIALIZED: Device is not initialized.
+ *   - SL_STATUS_INVALID_PARAMETER: Invalid IP address type.
+ * 
+ * @note This is an asynchronous API. The response is recieved via [sl_net_event_handler_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-types#sl-net-event-handler-t) with [SL_NET_PING_RESPONSE_EVENT](wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-event-t) as event.
  ******************************************************************************/
 sl_status_t sl_si91x_send_ping(sl_ip_address_t ip_address, uint16_t ping_packet_size);
 

@@ -29,7 +29,7 @@ sdk:
   version: 2024.6.1
 sdk_extension:
   - id: wiseconnect3_sdk
-    version: 3.3.1
+    version: 3.3.2
 component:
   - id: sl_system
   - id: freertos

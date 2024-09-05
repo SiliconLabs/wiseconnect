@@ -149,11 +149,11 @@ void application_start(const void *unused)
 
 /**
  * @fn          int32 sl_decode()
- * @brief       This API decodes the token received from TA
+ * @brief       This API decodes the token received from NWP
  * @param[in]   none
  *
  * @section description
- *      This API decodes the token received from TA
+ *      This API decodes the token received from NWP
  */
 void sl_decode()
 {

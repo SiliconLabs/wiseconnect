@@ -1,4 +1,5 @@
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @file sl_si91x_config_timer.h
  * @brief Config-timer API implementation
  *******************************************************************************
@@ -38,7 +39,8 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_ct.h"
 
-/***************************************************************************/ /**
+/***************************************************************************/
+/**
  * @addtogroup CONFIG-TIMER Config Timer
  * @ingroup SI91X_PERIPHERAL_APIS
  * @{ 
@@ -53,7 +55,7 @@ extern "C" {
 // Data Types
 
 typedef OCU_PARAMS_T sl_config_timer_ocu_params_t; ///< Renaming OCU (Output Compare Unit) parameters structure type
-typedef WFG_PARAMS_T sl_config_timer_wfg_config_t; ///< Renaming WFG parameters structure type
+typedef WFG_PARAMS_T sl_config_timer_wfg_config_t; ///< Renaming WFG (Waveform Generator) parameters structure type
 typedef RSI_CT_CALLBACK_T sl_config_timer_pwm_callback_t; ///< Renaming MCPWM callback structure
 
 /***************************************************************************/ /**
@@ -63,677 +65,837 @@ typedef RSI_CT_CALLBACK_T sl_config_timer_pwm_callback_t; ///< Renaming MCPWM ca
  ******************************************************************************/
 typedef void (*sl_config_timer_callback_t)(void *callback_flag);
 
-/// @brief Enumeration to represent timer modes
+/**
+ * @brief Enumeration to represent timer modes.
+ */
 typedef enum {
-  SL_COUNTER_16BIT,     ///< enum for CT 16-bit mode
-  SL_COUNTER_32BIT,     ///< enum for CT 32-bit mode
-  SL_COUNTER_MODE_LAST, ///< Last member of enum for validation
+  SL_COUNTER_16BIT,     ///< 16-bit counter mode.
+  SL_COUNTER_32BIT,     ///< 32-bit counter mode.
+  SL_COUNTER_MODE_LAST, ///< Last member of the enumeration for validation.
 } sl_config_timer_mode_t;
 
-/// @brief Enumeration to represent timer counter numbers
+/**
+ * @brief Enumeration to represent timer counter numbers.
+ */
 typedef enum {
-  SL_COUNTER_0,           ///< enum for CT counter-0
-  SL_COUNTER_1,           ///< enum for CT counter-1
-  SL_COUNTER_NUMBER_LAST, ///< Last member of enum for validation
+  SL_COUNTER_0,           ///< Enum for CT counter-0.
+  SL_COUNTER_1,           ///< Enum for CT counter-1.
+  SL_COUNTER_NUMBER_LAST, ///< Last member of the enumeration for validation.
 } sl_counter_number_t;
 
-/// @brief Enumeration to represent timer counter directions
+/**
+ * @brief Enumeration to represent timer counter 0 directions.
+ */
 typedef enum {
-  SL_COUNTER0_UP,             ///< CT counter-0 up-counting operation
-  SL_COUNTER0_DOWN,           ///< CT counter-0 down-counting operation
-  SL_COUNTER0_UP_DOWN,        ///< CT counter-0 up-down counting operation
-  SL_COUNTER0_DIRECTION_LAST, ///< Last member of enum for validation
+  SL_COUNTER0_UP,             ///< CT counter-0 up-counting operation.
+  SL_COUNTER0_DOWN,           ///< CT counter-0 down-counting operation.
+  SL_COUNTER0_UP_DOWN,        ///< CT counter-0 up-down counting operation.
+  SL_COUNTER0_DIRECTION_LAST, ///< Last member of the enumeration for validation.
 } sl_counter0_direction_t;
 
+/**
+ * @brief Enumeration to represent timer counter 1 directions.
+ */
 typedef enum {
-  SL_COUNTER1_UP,             ///< CT counter-1 up-counting operation
-  SL_COUNTER1_DOWN,           ///< CT counter-1 down-counting operation
-  SL_COUNTER1_UP_DOWN,        ///< CT counter-1 up-down counting operation
-  SL_COUNTER1_DIRECTION_LAST, ///< Last member of enum for validation
+  SL_COUNTER1_UP,             ///< CT counter-1 up-counting operation.
+  SL_COUNTER1_DOWN,           ///< CT counter-1 down-counting operation.
+  SL_COUNTER1_UP_DOWN,        ///< CT counter-1 up-down counting operation.
+  SL_COUNTER1_DIRECTION_LAST, ///< Last member of the enumeration for validation.
 } sl_counter1_direction_t;
 
-/// @brief Enumeration to represent timer-config parameters values
+/**
+ * @brief Enumeration to represent timer configuration parameter values.
+ */
 typedef enum {
-  SL_COUNTER_MODE_32              = COUNTER32_BITMODE,    ///< enum for CT 32-bit mode value
-  SL_COUNTER0_SOFT_RESET_ENABLE   = SOFTRESET_COUNTER_0,  ///< enum for counter-0 soft reset enable value
-  SL_COUNTER0_PERIODIC_ENABLE     = PERIODIC_ENCOUNTER_0, ///< enum for counter-0 periodic mode enable value
-  SL_COUNTER0_TRIGGER_ENABLE      = COUNTER0_TRIG,        ///< enum for counter-0 software trigger enable value
-  SL_COUNTER0_SYNC_TRIGGER_ENABLE = COUNTER0_SYNC_TRIG,   ///< enum for counter-0 sync trigger enable value
-  SL_COUNTER0_BUFFER_ENABLE       = BUF_REG0EN,           ///< enum for counter-0 buffer enable value
-  SL_COUNTER0_UP_DIRECTION        = COUNTER0_UP,          ///< enum for counter-0 up-direction enable value
-  SL_COUNTER0_DOWN_DIRECTION      = COUNTER0_DOWN,        ///< enum for counter-0 down-direction enable value
-  SL_COUNTER0_UP_DOWN_DIRECTION   = COUNTER0_UP_DOWN,     ///< enum for counter-0 up-down direction enable value
-  SL_COUNTER1_SOFT_RESET_ENABLE   = SOFTRESET_COUNTER_1,  ///< enum for counter-1 soft reset enable value
-  SL_COUNTER1_PERIODIC_ENABLE     = PERIODIC_ENCOUNTER_1, ///< enum for counter-1 periodic mode enable value
-  SL_COUNTER1_TRIGGER_ENABLE      = COUNTER1_TRIG,        ///< enum for counter-1 software trigger enable value
-  SL_COUNTER1_SYNC_TRIGGER_ENABLE = COUNTER1_SYNC_TRIG,   ///< enum for counter-1 sync trigger enable value
-  SL_COUNTER1_BUFFER_ENABLE       = BUF_REG1EN,           ///< enum for counter-1 buffer enable value
-  SL_COUNTER1_UP_DIRECTION        = COUNTER1_UP,          ///< enum for counter-1 up-direction enable value
-  SL_COUNTER1_DOWN_DIRECTION      = COUNTER1_DOWN,        ///< enum for counter-1 up-direction enable value
-  SL_COUNTER1_UP_DOWN_DIRECTION   = COUNTER1_UP_DOWN,     ///< enum for counter-1 up-direction enable value
-  SL_COUNTER_PARAM_LAST,                                  ///< Last member of enum for validation
+  SL_COUNTER_MODE_32              = COUNTER32_BITMODE,    ///< 32-bit mode value for the counter.
+  SL_COUNTER0_SOFT_RESET_ENABLE   = SOFTRESET_COUNTER_0,  ///< Soft reset enable value for counter-0.
+  SL_COUNTER0_PERIODIC_ENABLE     = PERIODIC_ENCOUNTER_0, ///< Periodic mode enable value for counter-0.
+  SL_COUNTER0_TRIGGER_ENABLE      = COUNTER0_TRIG,        ///< Software trigger enable value for counter-0.
+  SL_COUNTER0_SYNC_TRIGGER_ENABLE = COUNTER0_SYNC_TRIG,   ///< Sync trigger enable value for counter-0.
+  SL_COUNTER0_BUFFER_ENABLE       = BUF_REG0EN,           ///< Buffer enable value for counter-0.
+  SL_COUNTER0_UP_DIRECTION        = COUNTER0_UP,          ///< Up-direction enable value for counter-0.
+  SL_COUNTER0_DOWN_DIRECTION      = COUNTER0_DOWN,        ///< Down-direction enable value for counter-0.
+  SL_COUNTER0_UP_DOWN_DIRECTION   = COUNTER0_UP_DOWN,     ///< Up-down direction enable value for counter-0.
+  SL_COUNTER1_SOFT_RESET_ENABLE   = SOFTRESET_COUNTER_1,  ///< Soft reset enable value for counter-1.
+  SL_COUNTER1_PERIODIC_ENABLE     = PERIODIC_ENCOUNTER_1, ///< Periodic mode enable value for counter-1.
+  SL_COUNTER1_TRIGGER_ENABLE      = COUNTER1_TRIG,        ///< Software trigger enable value for counter-1.
+  SL_COUNTER1_SYNC_TRIGGER_ENABLE = COUNTER1_SYNC_TRIG,   ///< Sync trigger enable value for counter-1.
+  SL_COUNTER1_BUFFER_ENABLE       = BUF_REG1EN,           ///< Buffer enable value for counter-1.
+  SL_COUNTER1_UP_DIRECTION        = COUNTER1_UP,          ///< Up-direction enable value for counter-1.
+  SL_COUNTER1_DOWN_DIRECTION      = COUNTER1_DOWN,        ///< Down-direction enable value for counter-1.
+  SL_COUNTER1_UP_DOWN_DIRECTION   = COUNTER1_UP_DOWN,     ///< Up-down direction enable value for counter-1.
+  SL_COUNTER_PARAM_LAST,                                  ///< Last member of the enumeration for validation.
 } sl_config_timer_config_values_t;
 
-/// @brief Enumeration to represent timer OCU-config parameters values
+/**
+ * @brief Enumeration to represent timer OCU configuration parameter values.
+ */
 typedef enum {
-  SL_COUNTER0_OCU_OUTPUT_ENABLE = OUTPUT_OCU_0,             ///< enum for counter-0 output enable value
-  SL_COUNTER0_OCU_DMA_ENABLE    = OCU_DMA_0,                ///< enum for counter-0 OCU-DMA mode enable value
-  SL_COUNTER0_OCU_8BIT_ENABLE   = OCU_8_MODE_0,             ///< enum for counter-0 OCU-8bit mode enable value
-  SL_COUNTER0_OCU_SYNC_ENABLE   = OCU_SYNC_WITH_0,          ///< enum for counter-0 OCU-sync mode enable value
-  SL_COUNTER1_OCU_OUTPUT_ENABLE = OUTPUT_OCU_1,             ///< enum for counter-1 output enable value
-  SL_COUNTER1_OCU_DMA_ENABLE    = OCU_DMA_1,                ///< enum for counter-1 OCU-DMA mode enable value
-  SL_COUNTER1_OCU_8BIT_ENABLE   = OCU_8_MODE_1,             ///< enum for counter-1 OCU-8bit mode enable value
-  SL_COUNTER1_OCU_SYNC_ENABLE   = OCU_SYNC_WITH_1,          ///< enum for counter-1 OCU-sync mode enable value
-  SL_OCU_OUTPUT0_TOGGLE_HIGH    = MAKE_OUTPUT_0_HIGH_SEL_0, ///< enum for counter-0 output toggle high
-  SL_OCU_OUTPUT0_TOGGLE_LOW     = MAKE_OUTPUT_0_LOW_SEL_0,  ///< enum for counter-0 output toggle low
-  SL_OCU_OUTPUT1_TOGGLE_HIGH    = MAKE_OUTPUT_1_HIGH_SEL_1, ///< enum for counter-1 output toggle high select value
-  SL_OCU_OUTPUT1_TOGGLE_LOW     = MAKE_OUTPUT_1_LOW_SEL_1,  ///< enum for counter-1 output toggle low select value
-  SL_OCU_PARAM_LAST,                                        ///< Last member of enum for validation
+  SL_COUNTER0_OCU_OUTPUT_ENABLE = OUTPUT_OCU_0,             ///< Counter-0 output enable value.
+  SL_COUNTER0_OCU_DMA_ENABLE    = OCU_DMA_0,                ///< Counter-0 OCU-DMA mode enable value.
+  SL_COUNTER0_OCU_8BIT_ENABLE   = OCU_8_MODE_0,             ///< Counter-0 OCU 8-bit mode enable value.
+  SL_COUNTER0_OCU_SYNC_ENABLE   = OCU_SYNC_WITH_0,          ///< Counter-0 OCU sync mode enable value.
+  SL_COUNTER1_OCU_OUTPUT_ENABLE = OUTPUT_OCU_1,             ///< Counter-1 output enable value.
+  SL_COUNTER1_OCU_DMA_ENABLE    = OCU_DMA_1,                ///< Counter-1 OCU-DMA mode enable value.
+  SL_COUNTER1_OCU_8BIT_ENABLE   = OCU_8_MODE_1,             ///< Counter-1 OCU 8-bit mode enable value.
+  SL_COUNTER1_OCU_SYNC_ENABLE   = OCU_SYNC_WITH_1,          ///< Counter-1 OCU sync mode enable value.
+  SL_OCU_OUTPUT0_TOGGLE_HIGH    = MAKE_OUTPUT_0_HIGH_SEL_0, ///< Counter-0 output toggle high select value.
+  SL_OCU_OUTPUT0_TOGGLE_LOW     = MAKE_OUTPUT_0_LOW_SEL_0,  ///< Counter-0 output toggle low select value.
+  SL_OCU_OUTPUT1_TOGGLE_HIGH    = MAKE_OUTPUT_1_HIGH_SEL_1, ///< Counter-1 output toggle high select value.
+  SL_OCU_OUTPUT1_TOGGLE_LOW     = MAKE_OUTPUT_1_LOW_SEL_1,  ///< Counter-1 output toggle low select value.
+  SL_OCU_PARAM_LAST,                                        ///< Last member of the enumeration for validation.
 } sl_config_timer_ocu_config_values_t;
 
-/// @brief Enumeration to represent various timer input events
+/**
+ * @brief Enumeration to represent various timer input events.
+ */
 typedef enum {
-  SL_NO_EVENT,                                ///< enum for no input event
-  SL_EVENT0_RISING_EDGE,                      ///< enum for input-0 rising edge event
-  SL_EVENT1_RISING_EDGE,                      ///< enum for input-1 rising edge event
-  SL_EVENT2_RISING_EDGE,                      ///< enum for input-2 rising edge event
-  SL_EVENT3_RISING_EDGE,                      ///< enum for input-3 rising edge event
-  SL_EVENT0_FALLING_EDGE,                     ///< enum for input-0 falling edge event
-  SL_EVENT1_FALLING_EDGE,                     ///< enum for input-1 falling edge event
-  SL_EVENT2_FALLING_EDGE,                     ///< enum for input-2 falling edge event
-  SL_EVENT3_FALLING_EDGE,                     ///< enum for input-3 falling edge event
-  SL_EVENT0_RISING_FALLING_EDGE,              ///< enum for input-0 rising-falling edge event
-  SL_EVENT1_RISING_FALLING_EDGE,              ///< enum for input-1 rising-falling edge event
-  SL_EVENT2_RISING_FALLING_EDGE,              ///< enum for input-2 rising-falling edge event
-  SL_EVENT3_RISING_FALLING_EDGE,              ///< enum for input-3 rising-falling edge event
-  SL_EVENT0_LEVEL0,                           ///< enum for input-0 Level-0 event
-  SL_EVENT1_LEVEL0,                           ///< enum for input-0 Level-0 event
-  SL_EVENT2_LEVEL0,                           ///< enum for input-0 Level-0 event
-  SL_EVENT3_LEVEL0,                           ///< enum for input-0 Level-0 event
-  SL_EVENT0_LEVEL1,                           ///< enum for input-0 Level-0 event
-  SL_EVENT1_LEVEL1,                           ///< enum for input-0 Level-0 event
-  SL_EVENT2_LEVEL1,                           ///< enum for input-0 Level-0 event
-  SL_EVENT3_LEVEL1,                           ///< enum for input-0 Level-0 event
-  SL_AND_EVENT,                               ///< enum for and-event
-  SL_OR_EVENT,                                ///< enum for or-event
-  SL_EVENT0_RISING_EDGE_AND_EVENT,            ///< enum for input-0 rising edge and-event
-  SL_EVENT0_RISING_EDGE_OR_EVENT,             ///< enum for input-0 rising edge or-event
-  SL_EVENT1_RISING_EDGE_AND_EVENT,            ///< enum for input-1 rising edge and-event
-  SL_EVENT1_RISING_EDGE_OR_EVENT,             ///< enum for input-1 rising edge or-event
-  SL_EVENT2_RISING_EDGE_AND_EVENT,            ///< enum for input-2 rising edge and-event
-  SL_EVENT2_RISING_EDGE_OR_EVENT,             ///< enum for input-2 rising edge or-event
-  SL_EVENT3_RISING_EDGE_AND_EVENT,            ///< enum for input-3 rising edge and-event
-  SL_EVENT3_RISING_EDGE_OR_EVENT,             ///< enum for input-3 rising edge or-event
-  SL_EVENT0_RISING_EDGE_REGISTERED_AND_EVENT, ///< enum for input-0 rising edge registered and-event
-  SL_EVENT0_RISING_EDGE_REGISTERED_OR_EVENT,  ///< enum for input-0 rising edge registered or-event
-  SL_EVENT1_RISING_EDGE_REGISTERED_AND_EVENT, ///< enum for input-1 rising edge registered and-event
-  SL_EVENT1_RISING_EDGE_REGISTERED_OR_EVENT,  ///< enum for input-1 rising edge registered or-event
-  SL_EVENT2_RISING_EDGE_REGISTERED_AND_EVENT, ///< enum for input-2 rising edge registered and-event
-  SL_EVENT2_RISING_EDGE_REGISTERED_OR_EVENT,  ///< enum for input-2 rising edge registered or-event
-  SL_EVENT3_RISING_EDGE_REGISTERED_AND_EVENT, ///< enum for input-3 rising edge registered and-event
-  SL_EVENT3_RISING_EDGE_REGISTERED_OR_EVENT,  ///< enum for input-3 rising edge registered or-event
-  SL_CT_EVENT_LAST,                           ///< Last member of enum for validation
+  SL_NO_EVENT,                                ///< No input event.
+  SL_EVENT0_RISING_EDGE,                      ///< Input-0 rising edge event.
+  SL_EVENT1_RISING_EDGE,                      ///< Input-1 rising edge event.
+  SL_EVENT2_RISING_EDGE,                      ///< Input-2 rising edge event.
+  SL_EVENT3_RISING_EDGE,                      ///< Input-3 rising edge event.
+  SL_EVENT0_FALLING_EDGE,                     ///< Input-0 falling edge event.
+  SL_EVENT1_FALLING_EDGE,                     ///< Input-1 falling edge event.
+  SL_EVENT2_FALLING_EDGE,                     ///< Input-2 falling edge event.
+  SL_EVENT3_FALLING_EDGE,                     ///< Input-3 falling edge event.
+  SL_EVENT0_RISING_FALLING_EDGE,              ///< Input-0 rising-falling edge event.
+  SL_EVENT1_RISING_FALLING_EDGE,              ///< Input-1 rising-falling edge event.
+  SL_EVENT2_RISING_FALLING_EDGE,              ///< Input-2 rising-falling edge event.
+  SL_EVENT3_RISING_FALLING_EDGE,              ///< Input-3 rising-falling edge event.
+  SL_EVENT0_LEVEL0,                           ///< Input-0 Level-0 event.
+  SL_EVENT1_LEVEL0,                           ///< Input-1 Level-0 event.
+  SL_EVENT2_LEVEL0,                           ///< Input-2 Level-0 event.
+  SL_EVENT3_LEVEL0,                           ///< Input-3 Level-0 event.
+  SL_EVENT0_LEVEL1,                           ///< Input-0 Level-1 event.
+  SL_EVENT1_LEVEL1,                           ///< Input-1 Level-1 event.
+  SL_EVENT2_LEVEL1,                           ///< Input-2 Level-1 event.
+  SL_EVENT3_LEVEL1,                           ///< Input-3 Level-1 event.
+  SL_AND_EVENT,                               ///< AND event.
+  SL_OR_EVENT,                                ///< OR event.
+  SL_EVENT0_RISING_EDGE_AND_EVENT,            ///< Input-0 rising edge AND event.
+  SL_EVENT0_RISING_EDGE_OR_EVENT,             ///< Input-0 rising edge OR event.
+  SL_EVENT1_RISING_EDGE_AND_EVENT,            ///< Input-1 rising edge AND event.
+  SL_EVENT1_RISING_EDGE_OR_EVENT,             ///< Input-1 rising edge OR event.
+  SL_EVENT2_RISING_EDGE_AND_EVENT,            ///< Input-2 rising edge AND event.
+  SL_EVENT2_RISING_EDGE_OR_EVENT,             ///< Input-2 rising edge OR event.
+  SL_EVENT3_RISING_EDGE_AND_EVENT,            ///< Input-3 rising edge AND event.
+  SL_EVENT3_RISING_EDGE_OR_EVENT,             ///< Input-3 rising edge OR event.
+  SL_EVENT0_RISING_EDGE_REGISTERED_AND_EVENT, ///< Input-0 rising edge registered AND event.
+  SL_EVENT0_RISING_EDGE_REGISTERED_OR_EVENT,  ///< Input-0 rising edge registered OR event.
+  SL_EVENT1_RISING_EDGE_REGISTERED_AND_EVENT, ///< Input-1 rising edge registered AND event.
+  SL_EVENT1_RISING_EDGE_REGISTERED_OR_EVENT,  ///< Input-1 rising edge registered OR event.
+  SL_EVENT2_RISING_EDGE_REGISTERED_AND_EVENT, ///< Input-2 rising edge registered AND event.
+  SL_EVENT2_RISING_EDGE_REGISTERED_OR_EVENT,  ///< Input-2 rising edge registered OR event.
+  SL_EVENT3_RISING_EDGE_REGISTERED_AND_EVENT, ///< Input-3 rising edge registered AND event.
+  SL_EVENT3_RISING_EDGE_REGISTERED_OR_EVENT,  ///< Input-3 rising edge registered OR event.
+  SL_CT_EVENT_LAST,                           ///< Last member of the enumeration for validation.
 } sl_config_timer_event_t;
 
-/// @brief Enumeration to represent various timer actions
+/**
+ * @brief Enumeration to represent various timer actions.
+ */
 typedef enum {
-  START,       ///< enum for timer-start action
-  STOP,        ///< enum for timer-stop action
-  CONTINUE,    ///< enum for timer-continue action
-  HALT,        ///< enum for timer-halt action
-  INCREMENT,   ///< enum for timer-increment action
-  CAPTURE,     ///< enum for timer-capture action
-  INTERRUPT,   ///< enum for timer-interrupt action
-  OUTPUT,      ///< enum for timer-output action
-  ACTION_LAST, ///< Last member of enum for validation
+  START,       ///< Enum for timer-start action.
+  STOP,        ///< Enum for timer-stop action.
+  CONTINUE,    ///< Enum for timer-continue action.
+  HALT,        ///< Enum for timer-halt action.
+  INCREMENT,   ///< Enum for timer-increment action.
+  CAPTURE,     ///< Enum for timer-capture action.
+  INTERRUPT,   ///< Enum for timer-interrupt action.
+  OUTPUT,      ///< Enum for timer-output action.
+  ACTION_LAST, ///< Last member of the enumeration for validation.
 } sl_config_timer_action_t;
 
-/// @brief Enumeration to represent various timer interrupt flag values
+/**
+ * @brief Enumeration to represent various timer interrupt flag values.
+ */
 typedef enum {
-  SL_CT_EVENT_INTR_0_FLAG = RSI_CT_EVENT_INTR_0_l,      ///< enum for counter-0 event interrupt enable value
-  SL_CT_FIFO_0_FULL_FLAG  = RSI_CT_EVENT_FIFO_0_FULL_l, ///< enum for counter-0 FIFO full interrupt enable value
+  SL_CT_EVENT_INTR_0_FLAG = RSI_CT_EVENT_INTR_0_l,      ///< Enum for counter-0 event interrupt enable value.
+  SL_CT_FIFO_0_FULL_FLAG  = RSI_CT_EVENT_FIFO_0_FULL_l, ///< Enum for counter-0 FIFO full interrupt enable value.
   SL_CT_COUNTER_0_IS_ZERO_FLAG =
-    RSI_CT_EVENT_COUNTER_0_IS_ZERO_l, ///< enum for counter-0 zero-count-value interrupt enable value
+    RSI_CT_EVENT_COUNTER_0_IS_ZERO_l, ///< Enum for counter-0 zero-count-value interrupt enable value.
   SL_CT_COUNTER_0_IS_PEAK_FLAG =
-    RSI_CT_EVENT_COUNTER_0_IS_PEAK_l,                   ///< enum for counter-0 match-value interrupt enable value
-  SL_CT_EVENT_INTR_1_FLAG = RSI_CT_EVENT_INTR_1_l,      ///< enum for counter-1 event interrupt enable value
-  SL_CT_FIFO_1_FULL_FLAG  = RSI_CT_EVENT_FIFO_1_FULL_l, ///< enum for counter-1 FIFO full interrupt enable value
+    RSI_CT_EVENT_COUNTER_0_IS_PEAK_l,                   ///< Enum for counter-0 match-value interrupt enable value.
+  SL_CT_EVENT_INTR_1_FLAG = RSI_CT_EVENT_INTR_1_l,      ///< Enum for counter-1 event interrupt enable value.
+  SL_CT_FIFO_1_FULL_FLAG  = RSI_CT_EVENT_FIFO_1_FULL_l, ///< Enum for counter-1 FIFO full interrupt enable value.
   SL_CT_COUNTER_1_IS_ZERO_FLAG =
-    RSI_CT_EVENT_COUNTER_1_IS_ZERO_l, ///< enum for counter-1 zero-count-value interrupt enable value
+    RSI_CT_EVENT_COUNTER_1_IS_ZERO_l, ///< Enum for counter-1 zero-count-value interrupt enable value.
   SL_CT_COUNTER_1_IS_PEAK_FLAG =
-    RSI_CT_EVENT_COUNTER_1_IS_PEAK_l, ///< enum for counter-1 match-value interrupt enable value
+    RSI_CT_EVENT_COUNTER_1_IS_PEAK_l, ///< Enum for counter-1 match-value interrupt enable value.
 } sl_config_timer_interrupt_flags_values_t;
 
-/// @brief Structure to hold the parameters of timer configurations
+/**
+ * @brief Structure to hold the parameters of timer configurations.
+ */
 typedef struct {
-  boolean_t is_counter_mode_32bit_enabled;    ///< CT mode, \ref sl_config_timer_mode_t for its values
-  boolean_t is_counter0_soft_reset_enabled;   ///< counter-0 soft reset, true to enable & false to disable it
-  boolean_t is_counter0_periodic_enabled;     ///< counter-0 periodic mode, true to enable & false to disable it
-  boolean_t is_counter0_trigger_enabled;      ///< counter-0 software trigger, true to enable & false to disable it
-  boolean_t is_counter0_sync_trigger_enabled; ///< counter-0 sync trigger, true to enable & false to disable it
-  boolean_t is_counter0_buffer_enabled;       ///< counter-0 buffer, true to enable & false to disable it
-  boolean_t is_counter1_soft_reset_enabled;   ///< counter-1 soft reset, true to enable & false to disable it
-  boolean_t is_counter1_periodic_enabled;     ///< counter-1 periodic mode, true to enable & false to disable it
-  boolean_t is_counter1_trigger_enabled;      ///< counter-1 software trigger, true to enable & false to disable it
-  boolean_t is_counter1_sync_trigger_enabled; ///< counter-1 sync trigger, true to enable & false to disable it
-  boolean_t is_counter1_buffer_enabled;       ///< counter-1 buffer, true to enable & false to disable it
-  uint8_t counter0_direction; ///< counter-0 direction \ref sl_config_timer_counter0_direction_t for possible values
-  uint8_t counter1_direction; ///< counter-1 direction \ref sl_config_timer_counter1_direction_t for possible values
+  boolean_t is_counter_mode_32bit_enabled;    ///< CT mode, see \ref sl_config_timer_mode_t for possible values.
+  boolean_t is_counter0_soft_reset_enabled;   ///< Counter-0 soft reset, true to enable, false to disable.
+  boolean_t is_counter0_periodic_enabled;     ///< Counter-0 periodic mode, true to enable, false to disable.
+  boolean_t is_counter0_trigger_enabled;      ///< Counter-0 software trigger, true to enable, false to disable.
+  boolean_t is_counter0_sync_trigger_enabled; ///< Counter-0 sync trigger, true to enable, false to disable.
+  boolean_t is_counter0_buffer_enabled;       ///< Counter-0 buffer, true to enable, false to disable.
+  boolean_t is_counter1_soft_reset_enabled;   ///< Counter-1 soft reset, true to enable, false to disable.
+  boolean_t is_counter1_periodic_enabled;     ///< Counter-1 periodic mode, true to enable, false to disable.
+  boolean_t is_counter1_trigger_enabled;      ///< Counter-1 software trigger, true to enable, false to disable.
+  boolean_t is_counter1_sync_trigger_enabled; ///< Counter-1 sync trigger, true to enable, false to disable.
+  boolean_t is_counter1_buffer_enabled;       ///< Counter-1 buffer, true to enable, false to disable.
+  uint8_t counter0_direction; ///< Counter-0 direction, sl_config_timer_counter0_direction_t for possible values.
+  uint8_t counter1_direction; ///< Counter-1 direction, sl_config_timer_counter1_direction_t for possible values.
 } sl_config_timer_config_t;
 
-/// @brief Structure to hold the parameters of timer output compare unit (OCU) configurations
+/**
+ * @brief Structure to hold the parameters of timer output compare unit (OCU) configurations.
+ */
 typedef struct {
-  boolean_t is_counter0_ocu_output_enabled;    ///< true to enable OCU output of counter-0, false to disable it
-  boolean_t is_counter0_ocu_dma_enabled;       ///< true to enable OCU DMA support of counter-0, false to disable it
-  boolean_t is_counter0_ocu_8bit_mode_enabled; ///< true to enable OCU 8-bit mode of counter-0, false to disable it
+  boolean_t is_counter0_ocu_output_enabled;    ///< True to enable OCU output of counter-0, false to disable it.
+  boolean_t is_counter0_ocu_dma_enabled;       ///< True to enable OCU DMA support of counter-0, false to disable it.
+  boolean_t is_counter0_ocu_8bit_mode_enabled; ///< True to enable OCU 8-bit mode of counter-0, false to disable it.
   boolean_t
-    is_counter0_ocu_sync_enabled; ///< true to enable counter-0 output sync with other channel, false to disable it
-  boolean_t is_counter1_ocu_output_enabled; ///< true to enable OCU output of counter-1, false to disable it
-  boolean_t is_counter1_ocu_dma_enabled;    ///< true to enable OCU DMA support of counter-1, false to disable it
-  boolean_t is_counter1_ocu_mode_enabled;   ///< true to enable OCU 8-bit mode of counter-1, false to disable it
+    is_counter0_ocu_sync_enabled; ///< True to enable counter-0 output sync with other channels, false to disable it.
+  boolean_t is_counter1_ocu_output_enabled;    ///< True to enable OCU output of counter-1, false to disable it.
+  boolean_t is_counter1_ocu_dma_enabled;       ///< True to enable OCU DMA support of counter-1, false to disable it.
+  boolean_t is_counter1_ocu_mode_enabled;      ///< True to enable OCU 8-bit mode of counter-1, false to disable it.
+  boolean_t is_counter1_ocu_8bit_mode_enabled; ///< True to enable OCU 8-bit mode of counter-1, false to disable it.
   boolean_t
-    is_counter1_ocu_sync_enabled; ///< true to enable counter-1 output sync with other channel, false to disable it
+    is_counter1_ocu_sync_enabled; ///< True to enable counter-1 output sync with other channels, false to disable it.
   boolean_t
-    is_counter0_toggle_output_high_enabled;        ///< true to enable counter-0 output toggle high, false to disable it
-  boolean_t is_counter0_toggle_output_low_enabled; ///< true to enable counter-0 output toggle high, false to disable it
+    is_counter0_toggle_output_high_enabled; ///< True to enable counter-0 output toggle high, false to disable it.
+  boolean_t is_counter0_toggle_output_low_enabled; ///< True to enable counter-0 output toggle low, false to disable it.
   boolean_t
-    is_counter1_toggle_output_high_enabled;        ///< true to enable counter-1 output toggle high, false to disable it
-  boolean_t is_counter1_toggle_output_low_enabled; ///< true to enable counter-1 output toggle high, false to disable it
+    is_counter1_toggle_output_high_enabled; ///< True to enable counter-1 output toggle high, false to disable it.
+  boolean_t is_counter1_toggle_output_low_enabled; ///< True to enable counter-1 output toggle low, false to disable it.
 } sl_config_timer_ocu_config_t;
 
-/// @brief Structure to hold the parameters of timer OCU control parameters like compare values, DMA state
+/**
+ * @brief Structure to hold the parameters of timer OCU control, such as compare values and DMA state.
+ */
 typedef struct {
-  boolean_t is_counter_number_1;            ///< CT counter number \ref sl_counter_number_t
-  boolean_t is_dma_state_enabled;           ///< DMA state for counter, true to enable and false to disable it
-  sl_config_timer_ocu_params_t *params;     ///< pointer to OCU control parameters structure
-  sl_config_timer_pwm_callback_t *callback; ///< pointer to MCPWM callback structure
+  boolean_t is_counter_number_1;            ///< CT counter number, see \ref sl_counter_number_t.
+  boolean_t is_dma_state_enabled;           ///< DMA state for counter, true to enable, false to disable.
+  sl_config_timer_ocu_params_t *params;     ///< Pointer to OCU control parameters structure.
+  sl_config_timer_pwm_callback_t *callback; ///< Pointer to MCPWM callback structure.
 } sl_config_timer_ocu_control_t;
 
-/// @brief Structure to hold the parameters of timer action's AND-event & OR-event configurations
+/**
+ * @brief Structure to hold the parameters of timer action's AND-event and OR-event configurations.
+ */
 typedef struct {
-  uint8_t action;                        ///< CT action \ref sl_config_timer_action_t
-  uint8_t and_event_counter0;            ///< AND-event for counter-0 action\ref sl_config_timer_event_t
-  uint8_t or_event_counter0;             ///< OR-event for counter-0 action\ref sl_config_timer_event_t
-  uint8_t and_event_valid_bits_counter0; ///< valid bits for counter-0 action AND-event, possible values 0 to 16
-  uint8_t or_event_valid_bits_counter0;  ///< valid bits for counter-0 action OR-event, possible values 0 to 16
-  uint8_t and_event_counter1;            ///< AND-event for counter-1 action \ref sl_config_timer_event_t
-  uint8_t or_event_counter1;             ///< OR-event for counter-0 action \ref sl_config_timer_event_t
-  uint8_t and_event_valid_bits_counter1; ///< valid bits for counter-0 action AND-event, possible values 0 to 16
-  uint8_t or_event_valid_bits_counter1;  ///< valid bits for counter-0 action OR-event, possible values 0 to 16
+  uint8_t action;                        ///< CT action, see \ref sl_config_timer_action_t.
+  uint8_t and_event_counter0;            ///< AND-event for counter-0 action, see \ref sl_config_timer_event_t.
+  uint8_t or_event_counter0;             ///< OR-event for counter-0 action, see \ref sl_config_timer_event_t.
+  uint8_t and_event_valid_bits_counter0; ///< Valid bits for counter-0 action AND-event, possible values 0 to 16.
+  uint8_t or_event_valid_bits_counter0;  ///< Valid bits for counter-0 action OR-event, possible values 0 to 16.
+  uint8_t and_event_counter1;            ///< AND-event for counter-1 action, see \ref sl_config_timer_event_t.
+  uint8_t or_event_counter1;             ///< OR-event for counter-1 action, see \ref sl_config_timer_event_t.
+  uint8_t and_event_valid_bits_counter1; ///< Valid bits for counter-1 action AND-event, possible values 0 to 16.
+  uint8_t or_event_valid_bits_counter1;  ///< Valid bits for counter-1 action OR-event, possible values 0 to 16.
 } sl_config_action_event_t;
 
-/// @brief Structure to hold various interrupt flags of config-timer
+/**
+ * @brief Structure to hold various interrupt flags of the config-timer.
+ */
 typedef struct {
   boolean_t
-    is_counter0_event_interrupt_enabled; ///< true to enable counter-0 interrupt on event occurrence, false to disable it
+    is_counter0_event_interrupt_enabled; ///< True to enable counter-0 interrupt on event occurrence, false to disable it.
   boolean_t
-    is_counter0_fifo_full_interrupt_enabled; ///< true to enable counter-0 interrupt on FIFO full, false to disable it
+    is_counter0_fifo_full_interrupt_enabled; ///< True to enable counter-0 interrupt on FIFO full, false to disable it.
   boolean_t
-    is_counter0_hit_zero_interrupt_enabled; ///< true to enable counter-0 interrupt on zero count value, false to disable it
+    is_counter0_hit_zero_interrupt_enabled; ///< True to enable counter-0 interrupt on zero count value, false to disable it.
   boolean_t
-    is_counter0_hit_peak_interrupt_enabled; ///< true to enable counter-0 interrupt on match-value, false to disable it
+    is_counter0_hit_peak_interrupt_enabled; ///< True to enable counter-0 interrupt on match-value, false to disable it.
   boolean_t
-    is_counter1_event_interrupt_enabled; ///< true to enable counter-1 interrupt on event occurrence, false to disable it
+    is_counter1_event_interrupt_enabled; ///< True to enable counter-1 interrupt on event occurrence, false to disable it.
   boolean_t
-    is_counter1_fifo_full_interrupt_enabled; ///< true to enable counter-1 interrupt on FIFO full, false to disable it
+    is_counter1_fifo_full_interrupt_enabled; ///< True to enable counter-1 interrupt on FIFO full, false to disable it.
   boolean_t
-    is_counter1_hit_zero_interrupt_enabled; ///< true to enable counter-1 interrupt on zero count value, false to disable it
+    is_counter1_hit_zero_interrupt_enabled; ///< True to enable counter-1 interrupt on zero count value, false to disable it.
   boolean_t
-    is_counter1_hit_peak_interrupt_enabled; ///< true to enable counter-1 interrupt on match-value, false to disable it
+    is_counter1_hit_peak_interrupt_enabled; ///< True to enable counter-1 interrupt on match-value, false to disable it.
 } sl_config_timer_interrupt_flags_t;
 
-/// @brief Structure to hold the versions of peripheral API
+/**
+ * @brief Structure to hold the versions of the peripheral API.
+ */
 typedef struct {
-  uint8_t release; ///< Release version number
-  uint8_t major;   ///< sqa-version number
-  uint8_t minor;   ///< dev-version number
+  uint8_t release; ///< Release version number.
+  uint8_t major;   ///< Major version number.
+  uint8_t minor;   ///< Minor version number.
 } sl_config_timer_version_t;
 
 // -----------------------------------------------------------------------------
 // Prototypes
 
-/***************************************************************************/ /**
-* @brief This API will initialize config-timer peripheral.
-* @details Configures its output GPIO pins and clock as 16 MHz.
-*
-* @param   none
-* @return   none
-*******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To initialize the config-timer peripheral.
+ * @details Configures its output GPIO pins and clock to 16 MHz.
+ *******************************************************************************/
 void sl_si91x_config_timer_init(void);
 
-/***************************************************************************/ /**
- * @brief This API will set Config-timer mode as 32-bit or 16-bit counters.
- * @details In 32-bit mode Counter_1 and Counter_0 will be merged and used as a single 32 bit counter.
- * In this mode, Counter_0 modes/triggers/enables will be used.
+/***************************************************************************/
+/**
+ * @brief To set the config-timer mode as 32-bit or 16-bit counters.
+ * 
+ * @details In 32-bit mode, Counter_1 and Counter_0 are merged and used as a single 32-bit counter.
+ * In this mode, Counter_0 modes/triggers/enables are used.
+ * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
- * @param[in]  mode \ref sl_config_timer_mode_t for possible values
- * @return status 0 if successful, else error-code as follow
- *         - \ref SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Success, timer-mode is set properly
-*******************************************************************************/
+ * 
+ * @param[in] mode \ref sl_config_timer_mode_t for possible values.
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, timer mode is set properly.
+ *         - SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_mode(sl_config_timer_mode_t mode);
 
-/***************************************************************************/ /**
- * @brief This API will configures Config-timer parameters.
- * @details This API will set the Config-timer parameters such as 32-bit or 16-bit mode, periodic mode, Counter trigger enable, 
- * soft reset enable, buffer enable, sync trigger enable and
+/***************************************************************************/
+/**
+ * @brief To configure Config-timer parameters.
+ * 
+ * @details This API sets the Config-timer parameters such as 32-bit or 16-bit mode, periodic mode, counter trigger enable, 
+ * soft reset enable, buffer enable, sync trigger enable, and
  * sets direction for counter0 and counter1.
- * Counter trigger enable is enabled to start the counter.
- * Sync trigger enables the counter to run/active when sync is found.
- * Buffer enable will copy buffer data to Counter Match register.
- * Soft reset valid only when the counter is in two 16 bit counters mode,
- * this resets the counter on the write.
- * @pre Pre-condition:
+ * Counter trigger enable starts the counter.
+ * Sync trigger enables the counter to run/activate when sync is found.
+ * Buffer enable copies buffer data to the Counter Match register.
+ * Soft reset is valid only when the counter is in two 16-bit counters mode,
+ * and resets the counter on the write.
+ * 
+ * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
- * @param[in]  timer_config_ptr Pointer to CT config structure \ref sl_config_timer_config_t
- * @return status 0 if successful, else error-code as follow
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer.
- *         - \ref SL_STATUS_INVALID_PARAMETER (0x0021) - Counter direction parameter has invalid value.
- *         - \ref SL_STATUS_OK (0x0000) - Success, timer configurations are set properly\n
-*******************************************************************************/
+ * 
+ * @param[in] timer_config_ptr Pointer to CT config structure @ref sl_config_timer_config_t
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, timer configurations are set properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Counter direction parameter has an invalid value.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_configuration(sl_config_timer_config_t *timer_config_ptr);
 
-/***************************************************************************/ /**
-* @brief This API will  reset config-timer parameters and sets default parameter values.
-* @details This sets 16-bit mode, up-counter direction
-* Disables periodic mode, soft reset, buffer, sync and software trigger of counters.
-*
-* @param   none
-* @return   none
-*******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To reset config-timer parameters and set default values.
+ * 
+ * @details This API sets the config-timer to 16-bit mode, up-counter direction,
+ * and disables periodic mode, soft reset, buffer, sync, and software trigger of counters.
+ *******************************************************************************/
 void sl_si91x_config_timer_reset_configuration(void);
 
-/***************************************************************************/ /**
- * @brief This API will set Config-timer OCU (Output Compare Unit) configurations.
- * @details It enables outputs in OCU mode, OCU-DMA mode,
- * channel sync with OCU outputs, 8-bit mode for OCU outputs for both counters.
- * @pre Pre-condition:
+/***************************************************************************/
+/**
+ * @brief To set Config-timer OCU (Output Compare Unit) configurations.
+ * 
+ * @details This API enables outputs in OCU mode, OCU-DMA mode,
+ * channel sync with OCU outputs, and 8-bit mode for OCU outputs for both counters.
+ * 
+ * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
  * - \ref sl_si91x_config_timer_set_configuration();
- * @param[in]  ocu_config_ptr Pointer to CT OCU-config structure \ref sl_config_timer_ocu_config_t
- * @return status 0 if successful, else error-code as follow
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer.
- *         - \ref SL_STATUS_OK (0x0000) - Success, OCU configurations are set properly.\n
+ * 
+ * @param[in] ocu_config_ptr Pointer to CT OCU-config structure \ref sl_config_timer_ocu_config_t
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, OCU configurations are set properly.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_ocu_configuration(sl_config_timer_ocu_config_t *ocu_config_ptr);
 
-/***************************************************************************/ /**
-* @brief This API will reset config-timer OCU (Output Compare Unit) parameters.
-* @details this will set 16-bit mode, sets up-counter direction also disables DMA mode, 
-* channel sync and 8-bit mode for OCU outputs.
-*
-* @param   none
-* @return   none
-*******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To reset config-timer OCU (Output Compare Unit) parameters.
+ * 
+ * @details This API sets the config-timer to 16-bit mode, sets the up-counter direction,
+ * and disables DMA mode, channel sync, and 8-bit mode for OCU outputs.
+ *******************************************************************************/
 void sl_si91x_config_timer_reset_ocu_configuration(void);
 
-/***************************************************************************/ /**
- * @brief This API will set Config-timer OCU mode control params.
- * @details This Config-timer OCU mode control params Sets first and next threshold 
+/***************************************************************************/
+/**
+ * @brief To set Config-timer OCU mode control parameters.
+ * 
+ * @details This API sets Config-timer OCU mode control parameters such as first and next threshold 
  * values for counter outputs. It also enables the DMA support for counters.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
  * - \ref sl_si91x_config_timer_set_ocu_configuration();
  *
- * @param[in]  ocu_config_ptr Pointer to CT OCU-config structure \ref sl_config_timer_ocu_control_t
- * @return status 0 if successful, else error-code as follow
- *    - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer.
- *    - \ref SL_STATUS_OK (0x0000) - Success, OCU mode control params are set properly.
-*
-*******************************************************************************/
+ * @param[in] ocu_params Pointer to CT OCU-config structure \ref sl_config_timer_ocu_control_t
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, OCU mode control parameters are set properly.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_ocu_control(sl_config_timer_ocu_control_t *ocu_params);
 
-/***************************************************************************/ /**
- * @brief This API will set the Config-timer WFG mode configurations.
- * @details This API will configures the Config-timer WFG mode configurations 
- * Such as select toggle high, low and peak for counter-0 & counter-1 outputs.
- * @pre Pre-condition:
+/***************************************************************************/
+/**
+ * @brief To set Config-timer WFG (Waveform Generator) mode configurations.
+ * 
+ * @details This API configures the Config-timer WFG mode settings such as selecting toggle high, low, 
+ * and peak for counter-0 and counter-1 outputs.
+ * 
+ * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
  *
- * @param[in]  wfg_config_ptr Pointer to CT wfg-config structure \ref sl_config_timer_wfg_config_t
- * @return status 0 if successful, else error-code as follow
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer.
- *         \ref SL_STATUS_OK (0x0000) - Success, WFG mode configurations are set properly.
+ * @param[in] wfg_config_ptr Pointer to CT WFG-config structure \ref sl_config_timer_wfg_config_t
  * 
-*******************************************************************************/
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, WFG mode configurations are set properly.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_wfg_configuration(sl_config_timer_wfg_config_t *wfg_config_ptr);
 
-/***************************************************************************/ /**
- * @brief This API will set Config-timer initial count as per timer mode.
- * @details Configurable timer mode are mentioned below:
- *  - For 32-bit mode, counter0_initial_value is passes to CT count register. 
- * For 32-bit mode pass counter1 initial-value as zero.
- *  - For 16-bit mode counters, ORed value of both initial value is passed to the register.
+/***************************************************************************/
+/**
+ * @brief To set the Config-timer initial count based on the timer mode.
+ * 
+ * @details Configurable timer modes are mentioned below:
+ *  - For 32-bit mode, counter0_initial_value is passed to the CT count register. 
+ *    For 32-bit mode, pass counter1_initial_value as zero.
+ *  - For 16-bit mode counters, the ORed value of both initial values is passed to the register.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
  * - \ref sl_si91x_config_timer_set_configuration();
  *
- * @param[in]  mode \ref sl_config_timer_mode_t for possible values
- * @param[in]  counter0_initial_value (uint16_t)
- * @param[in]  counter1_initial_value (uint16_t)
- * @return status 0 if successful, else error-code as follow
- *         \ref SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
- *         \ref SL_STATUS_OK (0x0000) - Success, initial-count is set properly
-*******************************************************************************/
+ * @param[in] mode \ref sl_config_timer_mode_t for possible values
+ * @param[in] counter0_initial_value (uint32_t)
+ * @param[in] counter1_initial_value (uint32_t)
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, initial count is set properly.
+ *         - SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_initial_count(sl_config_timer_mode_t mode,
                                                     uint32_t counter0_initial_value,
                                                     uint32_t counter1_initial_value);
 
-/***************************************************************************/ /**
- * @brief This API will set the Config-timer match-count as per timer mode and counter-number.
- * @details If mode is 32-bit, use counter0
- * If mode is 16-bit as per passed counter number it updates the match value
- * For 16-bit mode it takes 16-bit match-value only, else through error
+/***************************************************************************/
+/**
+ * @brief To set the Config-timer match-count based on the timer mode and counter number.
+ * 
+ * @details If the mode is 32-bit, use counter0.
+ * If the mode is 16-bit, as per the passed counter number, it updates the match value.
+ * For 16-bit mode, it takes a 16-bit match-value only, else throws an error.
+ * 
  * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
- * - \ref l_si91x_config_timer_set_configuration();
- * @param[in]  counter_number \ref sl_counter_number_t for possible values
- * @param[in]  mode \ref sl_config_timer_mode_t for possible values
- * @param[in]  match_value (uint32_t)
- * @return status 0 if successful, else error-code as follow
- *         - \ref SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
- *         - \ref SL_STATUS_INVALID_PARAMETER 0x0021) - 'counter_number' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Success, match-value is set properly.
-*******************************************************************************/
+ * - \ref sl_si91x_config_timer_set_configuration();
+ * 
+ * @param[in] counter_number \ref sl_counter_number_t for possible values
+ * @param[in] mode \ref sl_config_timer_mode_t for possible values
+ * @param[in] match_value (uint32_t)
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, match-value is set properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_match_count(sl_config_timer_mode_t mode,
                                                   sl_counter_number_t counter_number,
                                                   uint32_t match_value);
 
-/***************************************************************************/ /**
-* @brief API to calculate and return the match value of the timer for desired time period
-*
-* @param[in]   time_period_in_us : Time period in microseconds
-* @param[out]  match_value : Gets match value of the timer for desired time period
-* @return   status 0 if successful, else error-code as follow
-*         - \ref SL_STATUS_INVALID_COUNT (0x002B) - Count is invalid.
-*         - \ref SL_STATUS_OK (0x0000) - Success.
-*******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To calculate and return the match value of the timer for the desired time period.
+ * 
+ * @details This API calculates the match value based on the provided time period in microseconds.
+ * 
+ * @param[in] time_period_in_us Time period in microseconds.
+ * @param[out] match_value Gets the match value of the timer for the desired time period.
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_COUNT (0x002B) - Count is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_config_timer_get_match_value(uint32_t time_period_in_us, uint32_t *match_value);
 
-/***************************************************************************/ /**
- * @brief This API will get Config-timer current count.
- * @details This API will get Config-timer current count as per timer mode and counter-number
- * and it updates the count value to count_value variable input parameter.
+/***************************************************************************/
+/**
+ * @brief To get the Config-timer current count.
+ * 
+ * @details This API retrieves the Config-timer current count based on the timer mode and counter number,
+ * and updates the count value to the count_value variable input parameter.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
- * - \ref l_si91x_config_timer_set_configuration();
+ * - \ref sl_si91x_config_timer_set_configuration();
  *
  * @param[in]  counter_number \ref sl_counter_number_t for possible values
  * @param[in]  mode \ref sl_config_timer_mode_t for possible values
- * @param[in]  count_value *(uint32_t), pointer to the variable to store count value
+ * @param[out] count_value Pointer to the variable to store the count value
  *
- * @return status 0 if successful, else error code
- *         \ref SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
-*-
- *         \ref SL_STATUS_INVALID_PARAMETER 0x0021) - 'counter_number' parameter value is invalid.
-*-
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter 'count_value' is null pointer.
-*-
- *         \ref SL_STATUS_OK (0x0000) - Success, count-value is read properly
-*
-*******************************************************************************/
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, count value is read properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter 'count_value' is a null pointer.
+ *         - SL_STATUS_INVALID_MODE (0x0024) - 'mode' parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_get_count(sl_config_timer_mode_t mode,
                                             sl_counter_number_t counter_number,
                                             uint32_t *count_value);
 
-/***************************************************************************/ /**
- * @brief This API will reset Config-timer counter register value.
- * @note Resets the Count values of selected counter.
+/***************************************************************************/
+/**
+ * @brief To reset the Config-timer counter register value.
+ * 
+ * @details This API resets the count values of the selected counter.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
- *-  \ref l_si91x_config_timer_set_configuration();
+ * - \ref sl_si91x_config_timer_set_configuration();
  *
- * @param[in]  counter_number \ref sl_counter_number_t for possible values
- * @return status 0 if successful, else error-code as follow
- *  -       \ref SL_STATUS_INVALID_PARAMETER 0x0021) - 'counter_number' parameter value is invalid.
- *  -       \ref SL_STATUS_OK (0x0000) - Success, counter resets properly\n
- *
-*******************************************************************************/
+ * @param[in] counter_number \ref sl_counter_number_t for possible values
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, counter resets properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_reset_counter(sl_counter_number_t counter_number);
 
-/***************************************************************************/ /**
- * @brief This API will start selected config-timer counter.
+/***************************************************************************/
+/**
+ * @brief To start the selected config-timer counter on a software trigger.
+ * 
  * @note This API triggers the 'counter_number' counter.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
- * - \ref l_si91x_config_timer_set_configuration(),keep software trigger disable here
+ * - \ref sl_si91x_config_timer_set_configuration(), keep software trigger disabled here
  *
- * @param[in]  counter_number \ref sl_counter_number_t for possible values
- * @return status 0 if successful, else error-code as follow
- *         - \ref SL_STATUS_INVALID_PARAMETER 0x0021) - 'counter_number' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Success, timer started properly\n
-*******************************************************************************/
+ * @param[in] counter_number \ref sl_counter_number_t for possible values
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, timer started properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_start_on_software_trigger(sl_counter_number_t counter_number);
 
-/***************************************************************************/ /**
- * @brief This API will select config timer input events.
- * @details This will select config timer input events for triggering selected timer-actions. 
- * Different timer actions are start, stop, continue, halt, increment, capture, 
- * interrupt and output.
+/***************************************************************************/
+/**
+ * @brief To select config timer input events for triggering selected timer actions.
+ * 
+ * @details This API selects config timer input events for triggering selected timer actions. 
+ * Different timer actions include start, stop, continue, halt, increment, capture, 
+ * interrupt, and output.
+ * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_config_timer_init();
- *      - \ref sl_si91x_config_timer_set_configuration(), keep software trigger disable here
- *      - \ref sl_si91x_config_timer_register_callback(), keep event interrupt flag enable for
+ *      - \ref sl_si91x_config_timer_set_configuration(), keep software trigger disabled here
+ *      - \ref sl_si91x_config_timer_register_callback(), keep event interrupt flag enabled for
  *      respective counter
+ * 
  * @param[in]  action \ref sl_config_timer_action_t for possible values
  * @param[in]  select_event_counter0 \ref sl_config_timer_event_t for possible values,
- *             (selects input event for triggering counter-0 action  )
+ *             (selects input event for triggering counter-0 action)
  * @param[in]  select_event_counter1 \ref sl_config_timer_event_t for possible values,
- *             (selects input event for triggering counter-1 action  )
- * @return status 0 if successful, else error-code as follow
- *         - \ref SL_STATUS_INVALID_PARAMETER 0x0021) - Selected input event or action  parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Success, input event is set properly\n
-*******************************************************************************/
+ *             (selects input event for triggering counter-1 action)
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, input event is set properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Selected input event or action parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_select_action_event(sl_config_timer_action_t action,
                                                       sl_config_timer_event_t select_event_counter0,
                                                       sl_config_timer_event_t select_event_counter1);
 
-/***************************************************************************/ /**
- * @brief This API will configure config-timer.
- * @details This configures config timer input-event's AND-event and OR-event for triggering
- * selected timer-action.
- * Different timer actions are start, stop, continue, halt, increment, capture, 
- * interrupt and output.
- * @pre Pre-condition:
+/***************************************************************************/
+/**
+ * @brief To configure the config timer action events.
+ * 
+ * @details This API configures the config timer input-event's AND-event and OR-event for triggering
+ * selected timer actions. Different timer actions include start, stop, continue, halt, increment, capture, 
+ * interrupt, and output.
+ * 
+ * @pre Pre-conditions:
  *      - \ref sl_si91x_config_timer_init();
- *      - \ref sl_si91x_config_timer_set_configuration(), keep software trigger disable here
- *      - \ref sl_si91x_config_timer_register_callback(), keep event interrupt flag enable for
- *          respective counter
+ *      - \ref sl_si91x_config_timer_set_configuration(), keep software trigger disabled here
+ *      - \ref sl_si91x_config_timer_register_callback(), keep event interrupt flag enabled for
+ *        respective counter
  *      - \ref sl_si91x_config_timer_select_action_event(), first selects the input event for
- *         respective action for respective counter
- * @param[in]  event_config_handle Pointer to CT configure action events structure
- *             \ref sl_config_action_event_t
- * @return status 0 if successful, else error-code as follow
- *         \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer.
- *         \ref SL_STATUS_INVALID_PARAMETER 0x0021) - and-event or or-event or
- *                                                    event-valid-bits value is invalid.
- *         \ref SL_STATUS_OK (0x0000) - Success, AND event & OR event set properly\n
-*******************************************************************************/
+ *        respective action for respective counter
+ * 
+ * @param[in] event_config_handle Pointer to CT configure action events structure
+ *            \ref sl_config_action_event_t
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, AND event & OR event set properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - and-event or or-event or event-valid-bits value is invalid.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
 sl_status_t sl_si91x_config_timer_configure_action_event(sl_config_action_event_t *event_config_handle);
 
-/***************************************************************************/ /**
- * @brief This API will register callback of config timer interrupts.
- * @details Enabling respective interrupts as per selected interrupt flag.
+/***************************************************************************/
+/**
+ * @brief To register a callback for config timer interrupts.
+ * 
+ * @details This API registers a callback function for config timer interrupts by enabling 
+ * the respective interrupts as per the selected interrupt flag.
  *
  * @pre Pre-conditions:
  * - \ref sl_si91x_config_timer_init();
- * - \ref sl_si91x_config_timer_set_configuration(), keep software trigger disable here
- * - \ref sl_si91x_config_timer_unregister_timeout_callback(), if already registered for any interrupt
+ * - \ref sl_si91x_config_timer_set_configuration(), keep software trigger disabled here
+ * - sl_si91x_config_timer_unregister_timeout_callback(), if already registered for any interrupt
  *
  * @param[in]  on_config_timer_callback (function pointer) Callback function pointer
- *             to be called when timer interrupt occurred \ref sl_config_timer_callback_t
- * @param[in]  callback_flag (void *) pointer to interrupt flag value variable \ref sl_config_timer_callback_t
- * @param[in]  interrupt_flags pointer to interrupt flags structure \ref sl_config_timer_interrupt_flags_t
- * @return status 0 if successful, else error-code as follow
- * -       SL_STATUS_NULL_POINTER (0x0022) - parameter is a null pointer.
- * -       SL_STATUS_BUSY (0x0004) - The callback is already registered, unregister
- *                                   previous callback before registering new one.
- * -       SL_STATUS_OK (0x0000) - Successfully registered timer timer-out callback.
- *
+ *             to be called when a timer interrupt occurs \ref sl_config_timer_callback_t
+ * @param[in]  callback_flag (void *) Pointer to the interrupt flag value variable \ref sl_config_timer_callback_t
+ * @param[in]  interrupt_flags Pointer to the interrupt flags structure \ref sl_config_timer_interrupt_flags_t
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully registered timer timeout callback.
+ *         - SL_STATUS_BUSY (0x0004) - The callback is already registered, unregister
+ *                                    the previous callback before registering a new one.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - Parameter is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
 sl_status_t sl_si91x_config_timer_register_callback(sl_config_timer_callback_t on_config_timer_callback,
-                                                    void *callback_flag_value,
+                                                    void *callback_flag,
                                                     sl_config_timer_interrupt_flags_t *interrupt_flags);
 
-/***************************************************************************/ /**
-* @brief This API will unregister timer interrupt callback.
-* @details Disables interrupts as per selected interrupt flag.
-*
-* @pre Pre-conditions:
- * - \ref sl_si91x_config_timer_register_callback(), first register particular interrupt flag
-* @param[in]  interrupt_flags pointer to interrupt flags structure \ref sl_config_timer_interrupt_flags_t
-* @return status 0 if successful, else error-code as follow
-*         SL_STATUS_NULL_POINTER (0x0022) - parameter is a null pointer.
-*         SL_STATUS_OK (0x0000) - Successfully unregistered timer interrupt callback.
-*******************************************************************************/
-sl_status_t sl_si91x_config_timer_unregister_callback(sl_config_timer_interrupt_flags_t *interrupt_flags);
-
-/***************************************************************************/ /**
- * @brief This API will Resume halt operation of Config-timer counter.
- * @details Counter will start running from the count where it was halted previously.
+/***************************************************************************/
+/**
+ * @brief To unregister the timer interrupt callback.
+ * 
+ * @details This API disables interrupts as per the selected interrupt flag and unregisters 
+ * the previously registered timer interrupt callback.
  *
  * @pre Pre-conditions:
- * - \ref sl_si91x_config_timer_init();
-*-
- *      \ref sl_si91x_config_timer_set_configuration();
-*
- *
- * @param[in]  counter_number \ref sl_counter_number_t for possible values
- * @return status 0 if successful, else error-code as follow
- *         - \ref SL_STATUS_INVALID_PARAMETER 0x0021) - 'counter_number' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Success, halt operation resumed properly\n
-*
-*******************************************************************************/
-sl_status_t sl_si91x_config_timer_resume_halt_event(sl_counter_number_t counter_number);
+ * - \ref sl_si91x_config_timer_register_callback(), first register a particular interrupt flag.
+ * 
+ * @param[in] interrupt_flags Pointer to the interrupt flags structure \ref sl_config_timer_interrupt_flags_t
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully unregistered timer interrupt callback.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - Parameter is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_config_timer_unregister_callback(sl_config_timer_interrupt_flags_t *interrupt_flags);
 
-/***************************************************************************/ /**
- * @brief This API Gets Config-timer count value when capture occurs.
- * @details Updates the capture count value of timer to capture_value variable input parameter.
+/***************************************************************************/
+/**
+ * @brief To unregister the timer interrupt callback.
+ * 
+ * @details This API disables interrupts as per the selected interrupt flag and unregisters 
+ * the previously registered timer interrupt callback.
+ *
+ * @pre Pre-conditions:
+ * - \ref sl_si91x_config_timer_register_callback(), first register a particular interrupt flag.
+ * 
+ * @param[in] interrupt_flags Pointer to the interrupt flags structure \ref sl_config_timer_interrupt_flags_t
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Successfully unregistered timer interrupt callback.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - Parameter is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_config_timer_unregister_callback(sl_config_timer_interrupt_flags_t *interrupt_flags);
+
+/***************************************************************************/
+/**
+ * @brief To get the Config-timer count value when a capture event occurs.
+ * 
+ * @details This API updates the capture count value of the timer to the capture_value variable input parameter.
  *
  * @pre Pre-conditions:
  *      - \ref sl_si91x_config_timer_init();
- *      - \ref l_si91x_config_timer_set_configuration();
+ *      - \ref sl_si91x_config_timer_set_configuration();
  *      - \ref sl_si91x_config_timer_select_action_event(), first select events for capture action
+ * 
  * @param[in]  counter_number \ref sl_counter_number_t for possible values
- * @param[in]  capture_value (uint16_t*), pointer to the variable to store count
- *             value at capture event.
- * @return status 0 if successful, else error-code as follow
- *         - \ref SL_STATUS_NULL_POINTER (0x0022) - The parameter 'capture_value' is null pointer.
- *         - \ref SL_STATUS_INVALID_PARAMETER 0x0021) - 'counter_number' parameter value is invalid.
- *         - \ref SL_STATUS_OK (0x0000) - Success, capture count-value is read properly\n
-*******************************************************************************/
+ * @param[out] capture_value Pointer to the variable to store the count value at capture event (uint16_t*).
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, capture count value is read properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter 'capture_value' is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_config_timer_read_capture(sl_counter_number_t counter_number, uint16_t *capture_value);
 
-/***************************************************************************/ /**
- * @brief This API will synchronize counter output with other channels, as per sync_counter_value.
+/***************************************************************************/
+/**
+ * @brief To synchronize counter output with other channels.
+ * 
+ * @details This API synchronizes the counter output with other channels as per the sync_counter_value.
  *
  * @pre Pre-conditions:
- *  - \ref sl_si91x_config_timer_init();
- *  - \ref l_si91x_config_timer_set_configuration();
+ *      - \ref sl_si91x_config_timer_init();
+ *      - \ref sl_si91x_config_timer_set_configuration();
  *
- * @param[in]  counter_number \ref sl_counter_number_t for possible values
- * @param[in]  sync_counter (uint8_t)
- * @return status 0 if successful, else error-code as follow
- *         \ref SL_STATUS_INVALID_PARAMETER 0x0021) - 'counter_number' parameter value is invalid.
- *         \ref SL_STATUS_OK (0x0000) - Success, counter output synced properly\n
- *
-*******************************************************************************/
+ * @param[in] counter_number \ref sl_counter_number_t for possible values
+ * @param[in] sync_counter_value The value to synchronize the counter output (uint8_t).
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, counter output synced properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_counter_sync(sl_counter_number_t counter_number, uint8_t sync_counter_value);
 
-/***************************************************************************/ /**
- * @brief This API is used to configure config timer output events for ADC trigger.
+/***************************************************************************/
+/**
+ * @brief To configure config timer output events for ADC trigger.
+ * 
  * @details Configures events for counter0 and counter1 outputs to trigger ADC.
  * 
  * @pre Pre-conditions:
- * - \ref sl_si91x_config_timer_init();
- *      \ref l_si91x_config_timer_set_configuration();
+ *      - \ref sl_si91x_config_timer_init();
+ *      - \ref sl_si91x_config_timer_set_configuration();
  *
- *
- * @param[in]  pin1 Counter0 output event for ADC trigger (0 to 31) \ref sl_config_timer_event_t
- * @param[in]  pin2 Counter1 output event for ADC trigger (0 to 31) \ref sl_config_timer_event_t
- * @return status 0 if successful, else error-code as follow
- *   -     \ref SL_STATUS_INVALID_PARAMETER 0x0021) - 'pin_1' or 'pin_2' parameter value is invalid.\n
- *   -     \ref SL_STATUS_OK (0x0000) - Success, ADC trigger events set properly\n
-*
-*******************************************************************************/
+ * @param[in] pin1 Counter0 output event for ADC trigger (0 to 31) \ref sl_config_timer_event_t
+ * @param[in] pin2 Counter1 output event for ADC trigger (0 to 31) \ref sl_config_timer_event_t
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, ADC trigger events set properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'pin1' or 'pin2' parameter value is invalid.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_output_adc_pin(uint8_t pin1, uint8_t pin2);
 
-//todo: usecase not clear
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+//TODO: usecase not clear
+/***************************************************************************/
+/**
+ * @brief To set waveform generation compare values.
+ * 
+ * @details This API sets the compare values for waveform generation based on the provided 
+ * OCU parameters structure.
+ *
+ * @param[in] counter_number \ref sl_counter_number_t for possible values
+ * @param[in] ocu_params Pointer to the OCU parameters structure (sl_config_timer_ocu_params_t*).
+ * 
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success, compare values set properly.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - 'counter_number' parameter value is invalid.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter 'ocu_params' is a null pointer.
+ * 
+ * For more information on status codes, see 
+ * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_config_timer_set_wfg_compare_values(sl_counter_number_t counter_number,
                                                          sl_config_timer_ocu_params_t *ocu_params);
+/** @endcond */
 
-/***************************************************************************/ /**
-* @brief This API de-initialize config-timer by disabling its clock.
-* @param   none
-* @return   none
-* @note Unregisters the callback and disables all config timer interrupts.
-*******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To de-initialize the config-timer by disabling its clock.
+ * 
+ * @details This API de-initializes the config-timer by disabling its clock. It also unregisters 
+ * the callback and disables all config timer interrupts.
+ *
+ * @note Ensure that no timer operations are pending before calling this API.
+ ******************************************************************************/
 void sl_si91x_config_timer_deinit(void);
 
-/***************************************************************************/ /**
- * @brief This API will get Config timer API version and it returns the same.
- *
- * @param none
- * @return (sl_config_version_t) type structure
+/***************************************************************************/
+/**
+ * @brief To get the config timer API version.
+ * 
+ * @details This API retrieves the version information of the config timer API.
+ * 
+ * @return Version structure ( @ref sl_config_timer_version_t) containing the version details.
  ******************************************************************************/
 sl_config_timer_version_t sl_si91x_config_timer_get_version(void);
 
-/** @} (end addtogroup Config-timer) */
+/** @} end group CONFIG-TIMER */
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
-/// @addtogroup CONFIG-TIMER Config Timer
-/// @{
-///
-///   @details
-///
-///
-///   @n @section CONFIG-TIMER_Intro Introduction
-///
-///   Configurable timers can be used for modulated signal output, event capture on
-///   the GPIOs in input mode, and clock and event counting.
-///   They can be configured to operate in the Pulse Width Modulation (PWM) mode,
-///   which drives a pulse width modulated wave on the outputs in accordance with
-///   the ON and OFF periods that are programmed.
-///
-///    Timers are often built-in peripherals found in micro-controllers and microprocessors.
-///    They function independently of the CPU and other peripherals, allowing them to maintain
-///    track of time and conduct timing-related tasks without requiring CPU intervention.
-///
-///
-///   @n @section CONFIG-TIMER_Config Configuration
-///
-///   Few parameters need to be defined in order to configure the config-timer.
-///   These include the timer mode, counter direction, counter buffer, soft reset trigger,
-///   counter trigger, and counter sync trigger.
-///
-///  @li  To Configures Config-timer parameters such as 32-bit or 16-bit mode @ref sl_config_timer_mode_t,
-///  periodic mode (Enable/Disable), Counter trigger (Enable/Disable),
-///  soft reset (Enable/Disable), buffer enable (Enable/Disable),
-///  sets direction for counter0 @ref sl_counter0_direction_t and counter1 @ref sl_counter1_direction_t after making the
-///  required configuration in  @ref sl_config_timer_config_t need to call the API @ref sl_si91x_config_timer_set_configuration().
-///
-///   @li For more information on configuring available parameters refer to the respective peripheral example readme document.
-///
-///   @n @section CONFIG-TIMER_Use Usage
-///
-///     After specifying the CT Structures, the common configurable Timer (CT) functions can be called by giving an instance of @ref sl_config_timer_config_t.
-///     These routines will start and configure the CT below, which is the pipeline for implementation.
-///
-///   1. @ref sl_si91x_config_timer_init
-///   2. @ref sl_si91x_config_timer_set_configuration
-///   3. @ref sl_si91x_config_timer_set_initial_count (Optional)
-///   4. @ref sl_si91x_config_timer_set_match_count
-///   5. @ref sl_si91x_config_timer_register_callback
-///   6. @ref sl_si91x_config_timer_start_on_software_trigger
-///   7. @ref sl_si91x_config_timer_deinit
-///
-/// @} end group CONFIG-TIMER ********************************************************/
+/** @addtogroup CONFIG-TIMER Config Timer
+ * @{
+ *   @details
+ *   @n @section CONFIG-TIMER_Intro Introduction
+ *   Configurable timers are versatile peripherals that can be used for a variety of tasks, such as:
+ *   - Modulated signal output
+ *   - Event capture on GPIOs in input mode
+ *   - Clock and event counting
+ *   These timers can operate in Pulse Width Modulation (PWM) mode, driving a PWM wave on the outputs based on
+ *   programmed ON and OFF periods.
+ *   Timers are typically built-in peripherals found in microcontrollers and microprocessors.
+ *   They function independently of the CPU and other peripherals, allowing them to keep track of time and perform
+ *   timing-related tasks without requiring CPU intervention.
+ *
+ *   @n @section CONFIG-TIMER_Config Configuration
+ *   To configure the config-timer, several parameters need to be defined:
+ *   - Timer mode (32-bit or 16-bit) @ref sl_config_timer_mode_t
+ *   - Periodic mode (Enable/Disable)
+ *   - Counter trigger (Enable/Disable)
+ *   - Soft reset (Enable/Disable)
+ *   - Buffer enable (Enable/Disable)
+ *   - Counter direction for counter0 @ref sl_counter0_direction_t
+ *   - Counter direction for counter1 @ref sl_counter1_direction_t
+ *   These configurations are set in the @ref sl_config_timer_config_t structure, and the API @ref sl_si91x_config_timer_set_configuration() must be
+ *   called to apply them.
+ *   For more detailed information on configuring the available parameters, see the respective peripheral example README document.
+ *
+ *   @n @section CONFIG-TIMER_Use Usage
+ *   After defining the Config Timer (CT) structures, the following common Config Timer functions can be called, using an instance of @ref sl_config_timer_config_t structure:
+ *   1. @ref sl_si91x_config_timer_init - Initializes the config timer.
+ *   2. @ref sl_si91x_config_timer_set_configuration - Sets the configuration for the config timer.
+ *   3. @ref sl_si91x_config_timer_set_initial_count (Optional) - Sets the initial count value.
+ *   4. @ref sl_si91x_config_timer_set_match_count - Sets the match count value.
+ *   5. @ref sl_si91x_config_timer_register_callback - Registers a callback for timer events.
+ *   6. @ref sl_si91x_config_timer_start_on_software_trigger - Starts the timer with a software trigger.
+ *   7. @ref sl_si91x_config_timer_deinit - De-initializes the config timer.
+ *   These functions will initiate and configure the Config Timer according to the specified parameters, following the implementation pipeline.
+ */
+/** @} end group CONFIG-TIMER */
 
 #ifdef __cplusplus
 }

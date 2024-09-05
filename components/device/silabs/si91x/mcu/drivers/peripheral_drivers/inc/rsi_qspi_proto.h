@@ -33,7 +33,7 @@ extern "C" {
 #define GPIO_46_TO_51 2
 #define GPIO_52_TO_57 3
 #define GPIO_58_TO_63 4
-// TA OCTA/DUAL combinations
+// NWP OCTA/DUAL combinations
 #define GPIO_0_AND_58  5
 #define GPIO_6_AND_58  6
 #define GPIO_46_AND_58 7

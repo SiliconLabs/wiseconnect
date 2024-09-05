@@ -143,6 +143,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 > **Note:**
 > - The reference images which are captured are measured in isolated chamber, might vary in open environment.
-> - To achieve the lowest power numbers in unconnected sleep, in SoC mode,one should configure both TA and M4 to sleep without RAM retention.
+> - To achieve the lowest power numbers in unconnected sleep, in SoC mode,one should configure both NWP and M4 to sleep without RAM retention.
 > - To achieve the datasheet number for the deepsleep with 352k RAM retained one should configure `RAM_LEVEL` to `SL_SI91X_RAM_LEVEL_NWP_BASIC_MCU_ADV` and M4 to sleep without RAM retention.
 > - A flash erase is required to flash any other application after the user runs the powersave application(s). If not, the module will not allow any application to be flashed.

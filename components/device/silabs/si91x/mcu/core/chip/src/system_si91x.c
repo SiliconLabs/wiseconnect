@@ -109,7 +109,7 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   RSI_CLK_M4ssRefClkConfig(M4CLK, ULP_32MHZ_RC_CLK);
   RSI_ULPSS_RefClkConfig(ULPSS_ULP_32MHZ_RC_CLK);
 
-  /* TA clock is selected as RC32MHZ clock from MCU */
+  /* NWP clock is selected as RC32MHZ clock from MCU */
   MCU_FSM->MCU_FSM_REF_CLK_REG_b.TASS_REF_CLK_SEL = ULP_32MHZ_RC_CLK;
   /* Changing NPSS GPIO 0 mode to 0, to disable buck-boost enable mode*/
   MCU_RET->NPSS_GPIO_CNTRL[0].NPSS_GPIO_CTRLS_b.NPSS_GPIO_MODE = 0;
@@ -131,8 +131,8 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
   RSI_ConfigXtal(XTAL_DISABLE_FROM_M4, XTAL_IS_IN_SW_CTRL_FROM_M4);
 
 #if ((defined SLI_SI91X_MCU_COMMON_FLASH_MODE) && (!(defined(RAM_COMPILATION))))
-  /* Before TA is going to power save mode ,set m4ss_ref_clk_mux_ctrl ,
-          tass_ref_clk_mux_ctrl, AON domain power supply controls form TA to M4 */
+  /* Before NWP is going to power save mode ,set m4ss_ref_clk_mux_ctrl ,
+          tass_ref_clk_mux_ctrl, AON domain power supply controls from NWP to M4 */
   RSI_Set_Cntrls_To_M4();
 
 #endif

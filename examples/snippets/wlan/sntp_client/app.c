@@ -124,7 +124,7 @@ static sl_status_t module_status_handler(sl_wifi_event_t event, void *data, uint
   sl_si91x_module_state_stats_response_t *notif = (sl_si91x_module_state_stats_response_t *)data;
 
   SL_DEBUG_LOG("---> Module status handler event with length : %lu\r\n", data_length);
-  SL_DEBUG_LOG("  <> Timestamp : %lu, state_code : %u, reason_code : %u, channel : %u, rssi : %u.\n",
+  SL_DEBUG_LOG("  <> Timestamp : %lu, state_code : 0x%02X, reason_code : 0x%02X, channel : %u, rssi : %u.\n",
                notif->timestamp,
                notif->state_code,
                notif->reason_code,

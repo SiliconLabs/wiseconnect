@@ -777,7 +777,7 @@ static sl_status_t trigger_sleep(sli_power_sleep_config_t *config, uint8_t sleep
           RSI_CLK_I2sPllTurnOff();
         }
 
-        /* If M4 is using XTAL then request TA to turn OFF XTAL as M4 is going to sleep */
+        /* If M4 is using XTAL then request NWP to turn OFF XTAL as M4 is going to sleep */
         sli_si91x_raise_xtal_interrupt_to_ta(TURN_OFF_XTAL_REQUEST);
       }
     }

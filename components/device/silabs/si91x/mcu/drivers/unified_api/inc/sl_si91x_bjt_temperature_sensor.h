@@ -38,11 +38,12 @@ extern "C" {
 #include "sl_si91x_adc.h"
 #include "sl_status.h"
 
-/***************************************************************************/ /**
-* @addtogroup BJTTEMPSENSOR BJT Temperature Sensor
-* @ingroup SI91X_PERIPHERAL_APIS
-* @{
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @addtogroup BJTTEMPSENSOR BJT Temperature Sensor
+ * @ingroup SI91X_PERIPHERAL_APIS
+ * @{
+ ******************************************************************************/
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
@@ -51,177 +52,228 @@ extern "C" {
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
-//@brief BJT temperature sensor type conversion
+/**
+ * @brief Enumeration for BJT temperature sensor types.
+ */
 typedef enum {
-  SL_BJT_DEGREE_CELSIUS, ///< Temperature in degree celsius
-  SL_BJT_FAHRENHEIT,     ///< Temperature in fahrenheit
-  SL_BJT_KELVIN,         ///< Temperature in kelvin
+  SL_BJT_DEGREE_CELSIUS, ///< Temperature in degree Celsius
+  SL_BJT_FAHRENHEIT,     ///< Temperature in Fahrenheit
+  SL_BJT_KELVIN,         ///< Temperature in Kelvin
 } sl_bjt_temperature_sensor_enum_t;
 
-//@brief Enable/Disable BJT temperature sensor
+/**
+ * @brief Enumeration for BJT temperature sensor state.
+ */
 typedef enum {
-  SL_BJT_TEMPERATURE_SENSOR_DISABLE, ///< Temperature sensing disable
-  SL_BJT_TEMPERATURE_SENSOR_ENABLE,  ///< Temperature sensing enable
-  SL_BJT_TEMPERATURE_SENSOR_LAST,    ///< Last member of enum for validation
+  SL_BJT_TEMPERATURE_SENSOR_DISABLE, ///< Temperature sensor state is disabled
+  SL_BJT_TEMPERATURE_SENSOR_ENABLE,  ///< Temperature sensor state is enabled
+  SL_BJT_TEMPERATURE_SENSOR_LAST,    ///< Last member of enum is used to validate the sensor state
 } sl_bjt_temperature_sensor_state_t;
 
 // -----------------------------------------------------------------------------
 // Prototypes
 
-/***************************************************************************/ /**
-* @brief Initialize the BJT temperature sensor 
-* @details Performs ADC initialization and configuration, sets the register callback and starts the ADC.
-*
-* @param[in] sl_bjt_temperature_sensor_channel_config BJT channels configuration structure channel number, sampling rate and sample length.
-* @param[in] sl_bjt_temperature_sensor_config BJT configuration sets the operation mode and number of channels.
-* @return  Status 0 if successful, else error code:
-*          - SL_STATUS_OK (0x0000) - Success
-*          - SL_STATUS_FAIL (0x0001) - Fail
-*          - SL_STATUS_INVALID_PARAMETER(0x0021) - invalid parameter
-*          - SL_STATUS_INVALID_RANGE(0x0028) - invalid range
-*          - SL_STATUS_INVALID_COUNT(0x002B) - invalid count
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To initialize the BJT temperature sensor by configuring ADC channels and settings.
+ * 
+ * @details This API performs ADC initialization and configuration, sets the register callback, and starts the ADC.
+ * 
+ * @pre Pre-conditions:
+ *      - Ensure that the ADC peripheral clock is enabled.
+ *      - Ensure that the necessary GPIOs for the ADC channels are configured.
+ * 
+ * @param[in] sl_bjt_temperature_sensor_channel_config BJT channels configuration structure containing channel number, sampling rate, and sample length.
+ * @param[in] sl_bjt_temperature_sensor_config BJT configuration structure containing the operation mode and number of channels.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_FAIL (0x0001) - Fail.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Invalid parameter.
+ *         - SL_STATUS_INVALID_RANGE (0x0028) - Invalid range.
+ *         - SL_STATUS_INVALID_COUNT (0x002B) - Invalid count.
+ * 
+ * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_bjt_temperature_sensor_init(adc_ch_config_t sl_bjt_temperature_sensor_channel_config,
                                                  adc_config_t sl_bjt_temperature_sensor_config);
 
-/***************************************************************************/ /**
-* @brief Read data from the BJT temperature sensor
-* @pre Pre-condition:
-* - \ref sl_si91x_bjt_temperature_sensor_init
-* @param[out] *temp_data Temperature measurement data to convert
-* @return Status 0 if successful, else error code:
-*         - SL_STATUS_OK (0x0000) - Success
-*         - SL_STATUS_FAIL (0x0001) - Fail
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
-*         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch Range
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To read data from the BJT temperature sensor and convert it to temperature.
+ * 
+ * @details The API is used to read raw data from the BJT temperature sensor and convert it to a temperature value.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_bjt_temperature_sensor_init()
+ * 
+ * @param[out] temp_data Pointer to the variable where the converted temperature data will be stored.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_FAIL (0x0001) - Fail.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch Range.
+ * 
+ * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_bjt_temperature_sensor_read_data(double *temp_data);
 
-/***************************************************************************/ /**
-* @brief  Enable or disable the BJT temperature sensor
-* @pre Pre-conditions:
-* - \ref sl_si91x_bjt_temperature_sensor_init
-* - \ref sl_si91x_bjt_temperature_sensor_set_channel_configuration
-* @param[in] state Value indicating whether to enable or disable the BJT temperature sensor:
-*                  - 1 - Enable
-*                  - 0 - Disable
-* @return Status 0 if successful, else error code:
-*         - SL_STATUS_OK on success
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) , The parameter is an invalid argument
+/***************************************************************************/
+/**
+ * @brief To enable or disable the BJT temperature sensor.
+ * 
+ * @details The API is used to enable or disable the BJT temperature sensor.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_bjt_temperature_sensor_init()
+ *      - \ref sl_si91x_bjt_temperature_sensor_set_channel_configuration()
+ * 
+ * @param[in] state Value indicating whether to enable or disable the BJT temperature sensor:
+ *                  - SL_BJT_TEMPERATURE_SENSOR_ENABLE (1) - Enable
+ *                  - SL_BJT_TEMPERATURE_SENSOR_DISABLE (0) - Disable
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - The parameter is an invalid argument.
+ * 
+ * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_bjt_temperature_sensor_state(sl_bjt_temperature_sensor_state_t state);
 
-/***************************************************************************/ /**
-* @brief  Configure the BJT temperature sensor
-* @pre Pre-condition:
-* - \ref sl_si91x_bjt_temperature_sensor_init
-* @param[in] sl_bjt_temperature_sensor_channel_config BJT channel configuring positive input to BJT value
-* @return Status 0 if successful, else error code:
-*         - SL_STATUS_OK on success
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
-*         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch Range
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To configure the BJT temperature sensor with the specified channel.
+ * 
+ * @details The API is used to configure the BJT temperature sensor with the specified channel.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_bjt_temperature_sensor_init()
+ * 
+ * @param[in] sl_bjt_temperature_sensor_channel_config BJT channel configuration structure containing the positive input to BJT value.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch range.
+ * 
+ * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_bjt_temperature_sensor_set_channel_configuration(
   adc_ch_config_t sl_bjt_temperature_sensor_channel_config);
 
-/*******************************************************************************/ /**
-* @brief  Configure band gap for BJT temperature sensor
-* @pre Pre-condition:
-* - \ref sl_si91x_bjt_temperature_sensor_init
-* @param[in] sl_bjt_temperature_sensor_channel_config Band gap channel configuring positive input to OPAMP value
-* @return Status 0 if successful, else error code:
-*         - SL_STATUS_OK (0x0000) - Success
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
-*         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch Range
-******************************************************************************/
+/*******************************************************************************/
+/**
+ * @brief To configure the band gap for the BJT temperature sensor.
+ * 
+ * @details The API is used to configure the band gap for the BJT temperature sensor.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_bjt_temperature_sensor_init()
+ * 
+ * @param[in] sl_bjt_temperature_sensor_channel_config Band gap channel configuration structure containing the positive input to OPAMP value.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ *         - SL_STATUS_INVALID_RANGE (0x0028) - Mismatch range.
+ * 
+ * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration(
   adc_ch_config_t sl_bjt_temperature_sensor_channel_config);
 
-/******************************************************************************/ /**
-* @brief  Convert the sensor reading to temperature in Celsius/Fahrenheit/Kelvin
-* @pre Pre-conditions:
-* - \ref sl_si91x_bjt_temperature_sensor_init
-* - \ref sl_si91x_bjt_temperature_sensor_read_data
-* @param[out] *temp_data Temperature measurement data to convert
-* @param[in] current_temperature_mode Current temperature mode
-* @return Status 0 if successful, else error code:
-*         - SL_STATUS_OK (0x0000) - Success
-*         - SL_STATUS_FAIL (0x0001) - Fail
-*         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is null pointer
-*         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid
-*****************************************************************************/
+/******************************************************************************/
+/**
+ * @brief To convert the sensor reading to temperature in Celsius, Fahrenheit, or Kelvin.
+ * 
+ * @details This API converts the sensor reading to temperature in Celsius, Fahrenheit, or Kelvin.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_bjt_temperature_sensor_init() must be called before using this API.
+ *      - \ref sl_si91x_bjt_temperature_sensor_read_data() must be called to get the sensor reading.
+ * 
+ * @param[out] temp_data Pointer to the variable where the converted temperature data will be stored.
+ * @param[in] current_temperature_mode Current temperature mode @ref sl_bjt_temperature_sensor_enum_t
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_FAIL (0x0001) - Fail.
+ *         - SL_STATUS_NULL_POINTER (0x0022) - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_PARAMETER (0x0021) - Parameters are invalid.
+ * 
+ * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *****************************************************************************/
 sl_status_t sl_si91x_get_bjt_temperature_sensor_conversion(double *temp_data,
                                                            sl_bjt_temperature_sensor_enum_t current_temperature_mode);
 
-/***************************************************************************/ /**
-* @brief De-initialize the BJT temperature sensor
-* @pre Pre-condition:
-* - \ref sl_si91x_bjt_temperature_sensor_init
-* @param[in]  sl_bjt_temperature_sensor_config De-initializing the BJT configuration
-* @return Status 0 if successful, else error code:
-*         - SL_STATUS_OK (0x0000) - Success
-*         - SL_STATUS_FAIL (0x0001) - Fail
-******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To de-initialize the BJT temperature sensor and release resources.
+ * 
+ * @details The API is used to de-initialize the BJT temperature sensor and release any allocated resources.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_bjt_temperature_sensor_init()
+ * 
+ * @param[in] sl_bjt_temperature_sensor_config Configuration structure used for de-initializing the BJT temperature sensor.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success.
+ *         - SL_STATUS_FAIL (0x0001) - Fail.
+ * 
+ * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_si91x_bjt_temperature_sensor_deinit(adc_config_t sl_bjt_temperature_sensor_config);
 
+/** @} end group BJTTEMPSENSOR */
+
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
-/// @addtogroup BJTTEMPSENSOR BJT Temperature Sensor
-/// @{
-///
-///   @details
-///
-///
-///   @n @section BJTTEMPSENSOR_intro Introduction
-///
-///   @li By taking use of its temperature-dependent characteristics, a Bipolar Junction Transistor (BJT)
-///   can be utilized as a temperature sensor.
-///
-///   @li BJT temperature sensor peripheral will be used to transform a digital output into a temperature in degrees Celsius.
-///
-///   @li BJT Temperature Sensor first reads the Band-gap and then reads the BJT value after the successful calibration
-///   it just computes the temperature value by taking the difference between BJT output and Band-gap output value.
-///
-///   @li By switching the current temperature mode, one can also obtain the temperature value in kelvin and fahrenheit.
-///
-///   @n @section BJTTEMPSENSOR_Config Configuration
-///
-///   @li By altering the macros in the mode below, one can change the temperature from
-///   Celsius to Kelvin and from Celsius to Fahrenheit.
-///
-///   @li @ref sl_bjt_temperature_sensor_enum_t
-///
-///   @li By using the structured macros below, you can enable and disable the Bjt temperature sensor.
-///
-///   @li @ref sl_bjt_temperature_sensor_state_t
-///
-///   @n @section BJTTEMPSENSOR_Use Usage
-///
-///   The Bjt temperature sensor will first call the callback event after initializing
-///   and configuring the channel settings and operating mode. It will enable, configure,
-///   and read the BJT temperature value in the read data along with configuring and reading the band gap value.
-///   Once the values are successfully read, the temperature in Celsius will be computed.
-///
-///		1. @ref sl_si91x_bjt_temperature_sensor_init
-///
-///		2. @ref sl_si91x_bjt_temperature_sensor_read_data
-///
-///		3. @ref sl_si91x_bjt_temperature_sensor_state
-///
-///		4. @ref sl_si91x_bjt_temperature_sensor_set_channel_configuration
-///
-///		5. @ref sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration
-///
-///   @li In addition to the above mentioned apis, users can additionally modify the temperature mode
-///   and deinitialize the callback event by using the conversion and deinit apis.
-///
-///   1. @ref sl_si91x_bjt_temperature_sensor_deinit
-///
-///   2. @ref sl_si91x_get_bjt_temperature_sensor_conversion
-///
-/** @} (end addtogroup BJTtemp) */
+/** @addtogroup BJTTEMPSENSOR BJT Temperature Sensor
+ * @{
+ * 
+ * @details
+ *
+ * @section BJTTEMPSENSOR_intro Introduction
+ *
+ * Bipolar Junction Transistor (BJT) can be utilized as a temperature sensor and its temperature-dependent characteristics.
+ * The BJT temperature sensor peripheral converts a digital output into a temperature in degrees Celsius.
+ * The process involves:
+ *  - *Reading the Band-gap Reference:* The sensor first measures the band-gap voltage.
+ *  - *Reading the BJT Output:* After successful calibration, the BJT output is read.
+ *  - *Computing the Temperature:* The temperature is calculated by taking the difference between the BJT output and the band-gap reference value.
+ *
+ * Additionally, by switching the current temperature mode, you can also obtain the temperature value in Kelvin and Fahrenheit.
+ *
+ * @section BJTTEMPSENSOR_Config Configuration
+ *
+ * The configurable parameters by using structured macros are:
+ * - *Temperature Units:* By altering the macros in the mode, you can change the temperature from
+ *   Celsius to Kelvin and from Celsius to Fahrenheit: @ref sl_bjt_temperature_sensor_enum_t
+ * - *Sensor State:* Structured macros are used to enable and disable the BJT temperature sensor: @ref sl_bjt_temperature_sensor_state_t
+ * 
+ * @section BJTTEMPSENSOR_Use Usage
+ *
+ * The BJT temperature sensor will first call the callback event after initializing
+ * and configuring the channel settings and operating mode. It will enable, configure,
+ * and read the BJT temperature value in the read data along with configuring and reading the band-gap value.
+ * Once the values are successfully read, the temperature in Celsius will be computed.
+ *  1. *Initialize the BJT temperature sensor:* @ref sl_si91x_bjt_temperature_sensor_init
+ *  2. *Read data from the BJT temperature sensor:* @ref sl_si91x_bjt_temperature_sensor_read_data
+ *  3. *Enable or disable the BJT temperature sensor:* @ref sl_si91x_bjt_temperature_sensor_state
+ *  4. *Configure the channel of BJT:* @ref sl_si91x_bjt_temperature_sensor_set_channel_configuration
+ *  5. *Configure band gap channel for BJT temperature sensor:* @ref sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration
+ * 
+ * @li Additionally, APIs to modify the temperature mode and deinitialize the callback event 
+ * using the conversion and deinit APIs:
+ *  1. *De-initialize the BJT temperature sensor:* @ref sl_si91x_bjt_temperature_sensor_deinit
+ *  2. *Convert the sensor reading to temperature in Celsius/Fahrenheit/Kelvin:* @ref sl_si91x_get_bjt_temperature_sensor_conversion
+ *
+ */
+/** @} end group BJTTEMPSENSOR */
 
 #ifdef __cplusplus
 }

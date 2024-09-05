@@ -17,7 +17,7 @@
 
 ## Purpose/Scope
 
-This application shows how to update the TA(NWP) or M4 firmware of a device via Wi-Fi by downloading an update from a remote HTTP/HTTPS server. The server can be run on a local PC(Apache server) or hosted on a cloud service like Amazon AWS or Microsoft Azure. Here's how the update process works:
+This application shows how to update the NWP or M4 firmware of a device via Wi-Fi by downloading an update from a remote HTTP/HTTPS server. The server can be run on a local PC(Apache server) or hosted on a cloud service like Amazon AWS or Microsoft Azure. Here's how the update process works:
 
 > **Note:** By enabling the `HTTPS_SUPPORT` flag in the `app.c` file, the same HTTP OTA (Over-the-Air) application can be used for HTTPS OTA.
 
@@ -111,7 +111,7 @@ The application can be configured to suit user requirements and development envi
 
   - Select Firmware update type
 
-  - For TA firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE and for Combined firmware upgrade, set FW_UPDATE_TYPE to COMBINED_FW_UPDATE
+  - For NWP firmware upgrade, set FW_UPDATE_TYPE to TA_FW_UPDATE and for M4 firmware upgrade, set FW_UPDATE_TYPE to M4_FW_UPDATE and for Combined firmware upgrade, set FW_UPDATE_TYPE to COMBINED_FW_UPDATE
 
     ```c
     //! Type of FW update

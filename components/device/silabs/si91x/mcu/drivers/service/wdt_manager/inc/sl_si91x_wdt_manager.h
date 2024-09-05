@@ -39,25 +39,38 @@ extern "C" {
 #include "rsi_wwdt.h"
 #include "sl_si91x_watchdog_timer.h"
 
-/************************************************************************************
- * @addtogroup WDT-MANAGER Clock Manager
+/***************************************************************************/
+/**
+ * @addtogroup  WDT-MANAGER Watchdog Manager
  * @ingroup SI91X_SERVICE_APIS
- * @{
- ************************************************************************************/
+ * @{ 
+ *
+ ******************************************************************************/
 // -----------------------------------------------------------------------------------
 // GLOBAL DEFINES / MACROS
 // -----------------------------------------------------------------------------------
 
-#define SL_SI91X_WAKEUP_INDICATION       BIT(0)
-#define SL_SI91X_TIMEOUT_WAKEUP          BIT(1)
-#define SL_SI91X_HOST_BASED_WAKEUP_S     BIT(2)
-#define SL_SI91X_MCU_PROCESSOR_WAKE_STAT BIT(4)
-#define SL_SI91X_MCU_WWD_RESET           BIT(5)
-#define SL_SI91X_MCU_WWD_WINDOW_RESET    BIT(6)
-#define SL_SI91X_NWP_WWD_RESET           BIT(8)
-#define SL_SI91X_NWP_WWD_WINDOW_RESET    BIT(9)
-#define SL_SI91X_HOST_RESET_REQUEST      BIT(10)
+#define SL_SI91X_WAKEUP_INDICATION       BIT(0)  ///< Wake-up event
+#define SL_SI91X_TIMEOUT_WAKEUP          BIT(1)  ///< Timeout wake-up
+#define SL_SI91X_HOST_BASED_WAKEUP_S     BIT(2)  ///< Host wake-up
+#define SL_SI91X_MCU_PROCESSOR_WAKE_STAT BIT(4)  ///< MCU wake-up status
+#define SL_SI91X_MCU_WWD_RESET           BIT(5)  ///< MCU watchdog reset
+#define SL_SI91X_MCU_WWD_WINDOW_RESET    BIT(6)  ///< MCU watchdog window reset
+#define SL_SI91X_NWP_WWD_RESET           BIT(8)  ///< Network processor watchdog reset
+#define SL_SI91X_NWP_WWD_WINDOW_RESET    BIT(9)  ///< Network processor watchdog window reset
+#define SL_SI91X_HOST_RESET_REQUEST      BIT(10) ///< Host reset request
 
+/***************************************************************************/
+/**
+ * @def SL_SI91X_WDT_RESET
+ * @brief Watchdog reset status flags.
+ * @details This macro combines multiple watchdog reset status flags, indicating various watchdog reset sources:
+ *          - MCU watchdog window reset
+ *          - MCU watchdog reset
+ *          - Network processor watchdog window reset
+ *          - Network processor watchdog reset
+ *          - Host reset request
+ */
 #define SL_SI91X_WDT_RESET                                                                                         \
   (SL_SI91X_MCU_WWD_WINDOW_RESET | SL_SI91X_MCU_WWD_RESET | SL_SI91X_NWP_WWD_WINDOW_RESET | SL_SI91X_NWP_WWD_RESET \
    | SL_SI91X_HOST_RESET_REQUEST)
@@ -65,139 +78,196 @@ extern "C" {
 // -----------------------------------------------------------------------------------
 // DATA TYPES
 // -----------------------------------------------------------------------------------
-/// @brief Reason for the system being reset.
+/***************************************************************************/
+/**
+ * @brief Reason for the system being reset.
+ * 
+ * @details This enumeration defines the possible reasons for the system being reset.
+ *          It includes power-on reset, watchdog reset, and software-invoked reset.
+ */
 typedef enum {
   SL_SI91X_WATCHDOG_MANAGER_RESET_POR,      ///< A power-on reset was performed.
   SL_SI91X_WATCHDOG_MANAGER_RESET_WATCHDOG, ///< System was reset by the watchdog manager service.
   SL_SI91X_WATCHDOG_MANAGER_RESET_SOFTWARE, ///< A reset was invoked from the system firmware.
-  SL_SI91X_WATCHDOG_MANAGER_RESET_MAX
+  SL_SI91X_WATCHDOG_MANAGER_RESET_MAX       ///< Maximum value for reset reasons.
 } sl_watchdog_manager_reset_reason_t;
 
-/// @brief Enumeration to represent possible time delays values for WDT interrupt time and system reset time with 32 KHZ clock freq.
+/***************************************************************************/
+/**
+ * @brief Enumeration to represent possible time delay values for WDT interrupt time and system reset time with 32 kHz clock frequency.
+ * 
+ * @details This enumeration defines the possible time delays for the Watchdog Timer (WDT) interrupt and system reset times.
+ *          The delays are based on a 32 kHz clock frequency.
+ */
 typedef enum {
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_0,   ///< for time delay of 0.03125 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_1,   ///< for time delay of 0.0625 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_2,   ///< for time delay of 0.125 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_3,   ///< for time delay of 0.25 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_4,   ///< for time delay of 0.5 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_5,   ///< for time delay of 1 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_6,   ///< for time delay of 2 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_7,   ///< for time delay of 4 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_8,   ///< for time delay of 8 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_9,   ///< for time delay of 16 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_10,  ///< for time delay of 32 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_11,  ///< for time delay of 64 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_12,  ///< for time delay of 128 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_13,  ///< for time delay of 256 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_14,  ///< for time delay of 512 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_15,  ///< for time delay of 1.024 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_16,  ///< for time delay of 2.048 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_17,  ///< for time delay of 4.096 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_18,  ///< for time delay of 8.192 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_19,  ///< for time delay of 16.384 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_20,  ///< for time delay of 32.768 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_21,  ///< for time delay of 65.536 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_22,  ///< for time delay of 131.072 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_23,  ///< for time delay of 262.144 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_24,  ///< for time delay of 524.288 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_25,  ///< for time delay of 1048.576 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_26,  ///< for time delay of 2097.152 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_27,  ///< for time delay of 4194.304 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_28,  ///< for time delay of 8388.60 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_29,  ///< for time delay of 16777.216 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_30,  ///< for time delay of 33554.432 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_31,  ///< for time delay of 67108.864 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_MAX, ///< for time delay  value validation
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_0,   ///< Time delay of 0.03125 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_1,   ///< Time delay of 0.0625 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_2,   ///< Time delay of 0.125 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_3,   ///< Time delay of 0.25 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_4,   ///< Time delay of 0.5 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_5,   ///< Time delay of 1 millisecond
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_6,   ///< Time delay of 2 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_7,   ///< Time delay of 4 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_8,   ///< Time delay of 8 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_9,   ///< Time delay of 16 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_10,  ///< Time delay of 32 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_11,  ///< Time delay of 64 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_12,  ///< Time delay of 128 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_13,  ///< Time delay of 256 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_14,  ///< Time delay of 512 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_15,  ///< Time delay of 1.024 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_16,  ///< Time delay of 2.048 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_17,  ///< Time delay of 4.096 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_18,  ///< Time delay of 8.192 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_19,  ///< Time delay of 16.384 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_20,  ///< Time delay of 32.768 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_21,  ///< Time delay of 65.536 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_22,  ///< Time delay of 131.072 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_23,  ///< Time delay of 262.144 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_24,  ///< Time delay of 524.288 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_25,  ///< Time delay of 1048.576 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_26,  ///< Time delay of 2097.152 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_27,  ///< Time delay of 4194.304 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_28,  ///< Time delay of 8388.608 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_29,  ///< Time delay of 16777.216 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_30,  ///< Time delay of 33554.432 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_31,  ///< Time delay of 67108.864 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_MAX, ///< Maximum value for time delay validation
 } sl_watchdog_manager_wdog_timeout_t;
 
 // -----------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
 // -----------------------------------------------------------------------------------
 
-/***************************************************************************/ /**
-   * Configures the watchdog manager service.
-   * Configures the hardware watchdog timer.
-   * - The 91x watchdog peripheral's interrupt interval is set to 2 seconds less than the configured value of @ref SL_WDT_MANAGER_INTERRUPT_TIME.
-   * - The 91x watchdog peripheral's system reset interval is set to the configured value of @ref SL_WDT_SYSTEM_RESET_TIME.
-   *   The hardware watchdog triggers an interrupt when this timeout expires.
-   * - The 91x watchdog peripheral's window interval is set almost equal to the difference between the system reset interval and interrupt interval.
-   *   This is the period during which the software is permitted to feed the watchdog after the interrupt is triggered.
-   *
-   * @pre Pre-conditions:
-   * - none
-   *
-   * @param[in] none
-   *
-   * @return The following values are returned:
-   * - SL_STATUS_OK - Success
-   * - SL_STATUS_XXX - <error condition description>
-   ******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To configure the watchdog manager service.
+ * 
+ * @details Configures the hardware watchdog timer.
+ * - The 91x watchdog peripheral's interrupt interval is set to 2 seconds less than the configured value of `SL_WDT_MANAGER_INTERRUPT_TIME`.
+ *   The hardware watchdog triggers an interrupt when this timeout expires, allowing the software to feed the watchdog within this interval.
+ * 
+ *  - Assigns a system reset value to 4 seconds. If the watchdog timer (WDT) is not reset within this interval, 
+ *    the system will reset after 4 seconds. The reset counter begins counting after the interrupt time expires. 
+ *    The system reset value is updated based on the configured interrupt time, referenced by `SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_PERIOD`.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success
+ *         - SL_STATUS_FAIL (0x0001) - Generic error
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_watchdog_manager_init(void);
 
-/***************************************************************************/ /**
-   * Start the watchdog manager service.
-   * WDT starts counting the counter
-   * The hardware watchdog triggers an interrupt when WDT Timeout Interval is expired.
-   *
-   * @pre Pre-conditions:
-   * - \ref sl_watchdog_manager_init 
-   *
-   * @param[in] none
-   *
-   * @return The following values are returned:
-   * - SL_STATUS_OK - Success
-   * - SL_STATUS_XXX - <error condition description>
-   ******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To start the watchdog manager service.
+ * 
+ * @details This function starts the Watchdog Timer (WDT) and begins counting. 
+ *          The hardware watchdog triggers an interrupt when the WDT timeout interval expires.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_watchdog_manager_init must be called before this function.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK (0x0000) - Success
+ *         - SL_STATUS_FAIL (0x0001) - Generic error
+ * 
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
 sl_status_t sl_watchdog_manager_start(void);
 
-/***************************************************************************/ /**
-   * Retrieve the system reset reason.
-   * Returns the reason for the system being reset. This may be invoked during a start up flow
-   * to determine if the system has recovered from an error condition such as a crash.
-   *
-   * @pre Pre-conditions:
-   * - None
-   *
-   * @param[out] reset_reason This is populated with the reason for the system being reset. This is of type @ref sl_watchdog_manager_reset_reason_t.
-   *
-   * @return The following values are returned:
-   *          - \ref SL_SI91X_WATCHDOG_MANAGER_RESET_WATCHDOG  -  WDT System Reset 
-   *          - \ref SL_SI91X_WATCHDOG_MANAGER_RESET_SOFTWARE  -  Software System Reset
-   *          - \ref SL_SI91X_WATCHDOG_MANAGER_RESET_POR       -  Power-on Reset
-   ******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To retrieve the system reset reason.
+ * 
+ * @details Returns the reason for the system being reset. This may be invoked during a startup flow
+ *          to determine if the system has recovered from an error condition such as a crash.
+ * 
+ * @return sl_watchdog_manager_reset_reason_t Enumeration value indicating the reset reason:
+ *         - \ref SL_SI91X_WATCHDOG_MANAGER_RESET_WATCHDOG - WDT System Reset
+ *         - \ref SL_SI91X_WATCHDOG_MANAGER_RESET_SOFTWARE - Software System Reset
+ *         - \ref SL_SI91X_WATCHDOG_MANAGER_RESET_POR - Power-on Reset
+ ******************************************************************************/
 sl_watchdog_manager_reset_reason_t sl_wdt_manager_get_system_reset_status(void);
 
-/***************************************************************************/ /**
-   * Disables the hardware watchdog in sleep mode
-   * The WDT counter stops running in sleep mode
-   *
-   * @pre Pre-conditions:
-   * - \ref sl_watchdog_manager_init 
-   *
-   * @param[in] none
-   *
-   * @return none
-   ******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To disable the hardware watchdog in sleep mode.
+ * 
+ * @details This function stops the Watchdog Timer (WDT) counter from running when the system enters sleep mode.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_watchdog_manager_init must be called before this function.
+ * 
+ * @note This function does not return a status code.
+ ******************************************************************************/
 void sl_watchdog_disable_wdt_in_sleep(void);
 
-/***************************************************************************/ /**
-   * Enables the hardware watchdog in sleep mode
-   * The WDT counter starts running in sleep mode
-   * It enables the WDT as a wakeup source to the system to serve the ISR and 
-   * kick the watchdog 
-   * @pre Pre-conditions:
-   * - \ref sl_watchdog_manager_init 
-   *
-   * @param[in] none
-   *
-   * @return none
-   ******************************************************************************/
+/***************************************************************************/
+/**
+ * @brief To enable the hardware watchdog in sleep mode.
+ * 
+ * @details This function starts the Watchdog Timer (WDT) counter running in sleep mode.
+ *          It enables the WDT as a wake-up source to the system to serve the ISR and kick the watchdog.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_watchdog_manager_init must be called before this function.
+ ******************************************************************************/
 void sl_watchdog_enable_wdt_in_sleep(void);
 
-/// @} end group WDT-MANAGER ******************************************************/
+/// @} end addtogroup WDT-MANAGER ******************************************************/
 
+// ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
+/***************************************************************************/
+/***************************************************************************/
+/** 
+ * @addtogroup WDT-MANAGER
+ * @{
+ *
+ * @details
+ *
+ * @section WDT_Manager_Intro Introduction
+ *
+ * The Si91x SOC provides a robust mechanism to handle state changes and recovery operations. In standalone mode, it can notify applications running on the M4 core about different state changes, which helps ensure system stability and recovery from faults.
+ *
+ * The different boot states managed by the SOC include:
+ * - **Cold Boot**: A standard boot from a powered-off state.
+ * - **Power Save Boot**: Resuming from a low-power state, typically retention-based.
+ * - **Crash Boot**: A reboot triggered by internal events such as hangs, crashes, watchdog triggers, or planned reboots to prevent known issues.
+ *
+ * This feature helps detect processor hangs and ensures recovery through system resets, enhancing the overall reliability of the SOC.
+ *
+ * @section WDT_Manager_Config Configuration
+ *
+ * Configuration involves setting up mechanisms to handle various boot states and utilizing the internal watchdog and reset features to manage unexpected faults or hangs.
+ * - Ensure that all boot states are properly monitored.
+ * - Use watchdog timers to detect hangs or crashes.
+ * - Implement firmware routines to handle planned reboots and crash scenarios effectively.
+ *
+ * @section WDT_Manager_Usage Usage
+ *
+ * The typical sequence to utilize WDT-MANAGER effectively includes:
+ *
+ * 1. Initialize the watchdog and monitoring mechanisms at startup.
+ * 2. Configure the system to handle different boot states:
+ *    - Cold Boot
+ *    - Power Save Boot
+ *    - Crash Boot
+ * 3. Implement interrupt handling for detecting system hangs or crashes.
+ * 4. Trigger system reset in case of detected faults.
+ * 5. Log state changes and recovery actions for diagnostics.
+ *
+ * @section WDT_Manager_Benefits Benefits
+ *
+ * - Detects and recovers from processor hangs.
+ * - Provides mechanisms to handle planned and unplanned reboots.
+ * - Ensures system reliability and stability by managing state transitions effectively.
+ *
+ * @} (end addtogroup WDT-MANAGER)
+ *******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SL_SI91X_WDT_MANAGER */
+#endif /*SL_SI91X_WDT_MANAGER*/

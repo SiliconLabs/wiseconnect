@@ -108,10 +108,10 @@ typedef enum {
   I2S0_IRQn                        = 64,
   CAN1_IRQn                        = 66, /*!<  67  CAN1                                                             */
   SDMEM_IRQn                       = 68, /*!<  68  SDMEM interrput						     */
-  PLL_CLOCK_IRQn                   = 69, /*!<  69  PLL CLOCK INTERRUOT 					     */
+  PLL_CLOCK_IRQn                   = 69, /*!<  69  PLL CLOCK INTERRUPT 					     */
   CCI_IRQn                         = 71, /*!<  71  CCI                                                              */
   USB_IRQn                         = 73, /*!<  73  USB                                                              */
-  TASS_P2P_IRQn                    = 74  /*!<  TA to M4 Interrupt						     */
+  TASS_P2P_IRQn                    = 74  /*!<  NWP to M4 Interrupt						     */
 } IRQn_Type;
 
 /** @addtogroup Configuration_of_CMSIS
@@ -3230,9 +3230,9 @@ typedef struct { /*!< QEI Structure                                             
 
     struct {
       __I uint32_t VELOCITY_VALUE_TO_COMPARE_L : 16; /*!< If read :Velocity value to compare with velocity count LSW If
-                                                         write :Velocity LSW count to compare using TA firmware                */
+                                                         write :Velocity LSW count to compare using NWP firmware                */
       __O uint32_t VELOCITY_VALUE_TO_COMPARE_H : 16; /*!< If write :Velocity value to compare with velocity count MSW.
-                                                         If read :Velocity MSW count to compare using TA firmware              */
+                                                         If read :Velocity MSW count to compare using NWP firmware              */
     } QEI_VELOCITY_REG_b; /*!< BitSize                                                               */
   };
   __I uint32_t RESERVED3;
@@ -12194,7 +12194,7 @@ typedef struct { /*!< (@ 0x24043800) AUX_ADC_DAC_COMP Structure                 
       __IOM uint32_t
         DAC_FIFO_FLUSH : 1; /*!< [2..2] This bit is used to flush the DAC FIFO.                            */
       __IOM uint32_t DAC_FIFO_THRESHOLD : 3; /*!< [5..3] These bits control the DAC FIFO threshold. When used
-                                                     by DMA, this will act as almost full threshold. For TA,
+                                                     by DMA, this will act as almost full threshold. For NWP,
                                                      it acts as almost empty threshold                                         */
       __IOM uint32_t DAC_ENABLE_F : 1;       /*!< [6..6] This bit is used to enable AUX DAC controller ,valid
                                                      only when DAC enable is happpen                                           */
@@ -12216,7 +12216,7 @@ typedef struct { /*!< (@ 0x24043800) AUX_ADC_DAC_COMP Structure                 
       __IOM uint32_t
         ADC_FIFO_FLUSH : 1; /*!< [2..2] This bit is used to flush the ADC FIFO                             */
       __IOM uint32_t ADC_FIFO_THRESHOLD : 3;       /*!< [5..3] These bits control the ADC FIFO threshold. When used
-                                                     by DMA, this will act as almost empty threshold. For TA,
+                                                     by DMA, this will act as almost empty threshold. For NWP,
                                                      it acts as almost full threshold.                                         */
       __IOM uint32_t ADC_MULTIPLE_CHAN_ACTIVE : 1; /*!< [6..6] This bit is used to control the auxadc sel signal going
                                                      to the Aux ADC.                                                           */
@@ -12316,13 +12316,13 @@ typedef struct { /*!< (@ 0x24043800) AUX_ADC_DAC_COMP Structure                 
         ADC_INPUT_DETECTION_THRESHOLD_2 : 8; /*!< [7..0] The value against which the ADC output has to be compared
                                                      is to be programmed  in this register.                                    */
       __IOM uint32_t COMP_LESS_THAN_EN : 1;  /*!< [8..8] When set, Aux ADC-DAC controller raises an interrupt
-                                                     to TA when the Aux ADC output  falls below the programmed
+                                                     to NWP when the Aux ADC output  falls below the programmed
                                                      Aux ADC detection threshold.                                              */
       __IOM uint32_t COMP_GRTR_THAN_EN : 1;  /*!< [9..9] When set, Aux ADC-DAC controller raises an interrupt
-                                                     to TA when the Aux ADC output is greater than the programmed
+                                                     to NWP when the Aux ADC output is greater than the programmed
                                                      Aux ADC detection threshold.                                              */
       __IOM uint32_t COMP_EQ_EN : 1;         /*!< [10..10] When set, Aux ADC-DAC controller raises an interrupt
-                                                     to TA when the  Aux ADC output is equal to the programmed
+                                                     to NWP when the  Aux ADC output is equal to the programmed
                                                      Aux ADC detection threshold.                                              */
       __IOM uint32_t
         ADC_DETECTION_THRESHOLD_2_UPPER_BITS : 2; /*!< [12..11] Upper 2 bits of ADC detection threshold 2          */

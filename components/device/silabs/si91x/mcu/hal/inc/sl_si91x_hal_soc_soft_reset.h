@@ -31,22 +31,48 @@
 #ifndef __SL_SI91X_HAL_SOC_SOFT_RESET__
 #define __SL_SI91X_HAL_SOC_SOFT_RESET__
 
+/** @cond DOXYGEN_IGNORE */
+
 #define M4_BBFF_STORAGE1   *(volatile uint32 *)0x24048580
 #define M4_QSPI_AES_CONFIG *(volatile uint32 *)0x120000C8
 #define AES_QSPI_KEY_SIZE  BIT(16)
 #define KEY_LENGTH         BIT(11)
-/*
+
+/** @endcond */
+
+/**
+ * @brief
+ *   This API initializes and starts the Watchdog Timer (WDT) to perform a software reset of the Si91X SoC. 
  *
- * @brief  This API is used to config WDT
- * @param  None
- * @return None
+ * @details
+ *   This API triggers a software reset of the Si91X SoC, resetting the system to its initial state.
+ *   The system will reset to its initial state once the WDT expires. 
+ *   This function also ensures that necessary configurations are applied before the system reset occurs, including setting the power for the WDT and configuring the NVIC to handle WDT interrupts.
+ *
+ * @note
+ *   Ensure that all necessary data is saved before calling this function, as it will reset the entire system.
+ *   This function is intended for use in situations where a full system reset is required.
  */
 void sl_si91x_soc_soft_reset(void);
-/*
- *
- * @brief  This API is used to do soc NVIC reset with the debug module disabled.
- * @param  None
- * @return None
- */
+
+/** 
+ * \addtogroup SOFT_RESET_FUNCTIONS Soft Reset
+ * \ingroup COMMON_SECTION_FUNCTIONS
+ * @{ */
+
+/**
+* @brief
+*   Performs a Nested Vectored Interrupt Controller (NVIC) soft reset to the Si91X SoC.
+*
+* @details
+*   The function initiates a system reset request to reset the SoC.
+*   It resets the M4 core and the Network Processor (NWP) of the Si91X SoC, bringing the system back to its initial state.
+*
+* @note
+*   Ensure that all necessary data is saved before calling this function, as it will reset the NVIC and potentially disrupt ongoing processes.
+*/
 void sl_si91x_soc_nvic_reset(void);
+
+/** @} */
+
 #endif

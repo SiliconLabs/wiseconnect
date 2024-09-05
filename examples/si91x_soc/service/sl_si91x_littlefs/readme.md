@@ -26,7 +26,7 @@ When flashed with this example the boot count get updated in the "boot_count" fi
 ## About Example Code
 
 - The example code in **file_system_example.c** shows how to set up QSPI to access flash memory for a file system using the LittleFS library.
-- Initialize QSPI for LittleFS using \ref `sl_si91x_littlefs_qspi_init()`.
+- Initialize QSPI for LittleFS using `sl_si91x_littlefs_qspi_init()`.
 - To use the file system, call `lfs_mount()`.
 - Open a file and read the current boot count  `lfs_file_read()`.
 - Update the boot count `lfs_file_write()`.
